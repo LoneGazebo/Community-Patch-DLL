@@ -2492,7 +2492,8 @@ bool CvPlot::CanSpawnResource(PlayerTypes ePlayer, bool bIgnoreTech, bool bIsLan
 	if (isMountain())
 		return false;
 
-	if (getFeatureType() == FEATURE_OASIS)
+	FeatureTypes eFeature = getFeatureType();
+	if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
 		return false;
 
 	if (bIgnoreTech && getResourceType() != NO_RESOURCE)
@@ -3327,32 +3328,57 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra, int iThenExtra) const
 {
 	int iBuildLeft = getBuildTime(eBuild, ePlayer);
-	if(iBuildLeft == 0)
+	if (iBuildLeft == 0)
 		return 0;
 
 	int iNowBuildRate = iNowExtra;
 	int iThenBuildRate = iThenExtra;
-
+	
+	int iThenWorkRateForUnitOnPlot = 0;
+	
 	const IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
 	{
 		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && pLoopUnit->getBuildType() == eBuild)
+		if(pLoopUnit)
 		{
-			if(pLoopUnit->canMove())
+			if(!pLoopUnit->canMove() && pLoopUnit->getBuildType() == eBuild)
 			{
 				iNowBuildRate += pLoopUnit->workRate(false);
 			}
-			iThenBuildRate += pLoopUnit->workRate(true);
+
+			int iThenWorkRate = pLoopUnit->workRate(true);
+			if (iThenWorkRate > 0)
+			{
+				iThenWorkRateForUnitOnPlot = max(iThenWorkRateForUnitOnPlot, iThenWorkRate);
+			}
 		}
 	}
+	iThenBuildRate += iThenWorkRateForUnitOnPlot;
 
 	if(iThenBuildRate == 0)
 	{
 		//this means it will take forever under current circumstances
 		return INT_MAX;
+	}
+
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+	// if this build requires a feature to be removed, take into account the current process of the feature remove build
+	
+	FeatureTypes eFeature = getFeatureType();
+	if(ePlayer != NO_PLAYER && eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
+	{
+		// Don't bother looking if this is the build that removes this feature
+		if (!pkBuildInfo->isFeatureRemoveOnly(eFeature))
+		{
+			BuildTypes eRemoveBuild = GetRemoveFeatureBuild(eFeature, GET_PLAYER(ePlayer).getTeam());
+			if (eRemoveBuild != NO_BUILD)
+			{
+				iBuildLeft -= getBuildProgress(eRemoveBuild);
+			}
+		}
 	}
 
 	iBuildLeft -= getBuildProgress(eBuild);
@@ -6602,13 +6628,20 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				{
 					ChangeUnitPlotGAExperience(-1 * pImprovementInfo->GetGAUnitPlotExperience());
 				}
-				if (pImprovementInfo->GetMovesChange() != 0)
+				if (!IsImprovementPillaged())
 				{
-					ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
-				}
-				if (pImprovementInfo->IsRestoreMoves())
-				{
-					ChangeRestoreMovesCount(-1);
+					if (pImprovementInfo->GetMovesChange() != 0)
+					{
+						ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
+					}
+					if (pImprovementInfo->IsRestoreMoves())
+					{
+						ChangeRestoreMovesCount(-1);
+					}
+					if (pImprovementInfo->IsFreeMoveAcross())
+					{
+						ChangeFreeMoveAcrossCount(-1);
+					}
 				}
 
 				// Embassy extra vote in WC mod
@@ -6619,6 +6652,31 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						if (GET_PLAYER(eOldOwner).isMinorCiv())
 						{
 							GET_PLAYER(eBuilder).ChangeImprovementLeagueVotes(pImprovementInfo->GetCityStateExtraVote() * -1);
+						}
+					}
+				}
+
+				// Remove domain modifiers from old owning city
+				if (!IsImprovementPillaged())
+				{
+					CvCity* pOldOwningCity = getOwningCity();
+					if (pOldOwningCity)
+					{
+						for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+						{
+							DomainTypes eDomain = (DomainTypes)iI;
+
+							int iDomainProductionModifier = pImprovementInfo->GetDomainProductionModifier(iI);
+							if (iDomainProductionModifier != 0)
+							{
+								pOldOwningCity->changeDomainProductionModifier(eDomain, -iDomainProductionModifier);
+							}
+
+							int iDomainFreeExperience = pImprovementInfo->GetDomainFreeExperience(iI);
+							if (iDomainFreeExperience != 0)
+							{
+								pOldOwningCity->changeDomainFreeExperience(eDomain, -iDomainFreeExperience);
+							}
 						}
 					}
 				}
@@ -6778,13 +6836,20 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				{
 					ChangeUnitPlotGAExperience(pImprovementInfo->GetGAUnitPlotExperience());
 				}
-				if (pImprovementInfo->GetMovesChange() != 0)
+				if (!IsImprovementPillaged())
 				{
-					ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
-				}
-				if (pImprovementInfo->IsRestoreMoves())
-				{
-					ChangeRestoreMovesCount(1);
+					if (pImprovementInfo->GetMovesChange() != 0)
+					{
+						ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
+					}
+					if (pImprovementInfo->IsRestoreMoves())
+					{
+						ChangeRestoreMovesCount(1);
+					}
+					if (pImprovementInfo->IsFreeMoveAcross())
+					{
+						ChangeFreeMoveAcrossCount(1);
+					}
 				}
 
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovementInfo->GetResourceFromImprovement();
@@ -6816,6 +6881,31 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						SetImprovementEmbassy(true);
 					else
 						SetImprovementEmbassy(false);
+				}
+
+				// Add domain modifiers to new owning city
+				if (!IsImprovementPillaged())
+				{
+					CvCity* pNewOwningCity = getOwningCity();
+					if (pNewOwningCity)
+					{
+						for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+						{
+							DomainTypes eDomain = (DomainTypes)iI;
+
+							int iDomainProductionModifier = pImprovementInfo->GetDomainProductionModifier(iI);
+							if (iDomainProductionModifier != 0)
+							{
+								pNewOwningCity->changeDomainProductionModifier(eDomain, iDomainProductionModifier);
+							}
+
+							int iDomainFreeExperience = pImprovementInfo->GetDomainFreeExperience(iI);
+							if (iDomainFreeExperience != 0)
+							{
+								pNewOwningCity->changeDomainFreeExperience(eDomain, iDomainFreeExperience);
+							}
+						}
+					}
 				}
 			}
 
@@ -7721,7 +7811,7 @@ void CvPlot::changeNumResource(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq) const
+int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq, bool bIgnorePostModifiers) const
 {
 	ResourceTypes eResource = getResourceType(bIgnoreTechPrereq ? NO_TEAM : getTeam());
 	if(eResource != NO_RESOURCE)
@@ -7747,25 +7837,59 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, b
 					return 0;
 				}
 				else
+					return GetNumResourcePostModifiers(ePlayer, getImprovementType(), bIgnoreTechPrereq, bIgnorePostModifiers);
+			}
+		}
+	}
+	return 0;
+}
+
+int CvPlot::GetNumResourcePostModifiers(PlayerTypes ePlayer, ImprovementTypes eImprovement, bool bIgnoreTechPrereq, bool bIgnorePostModifiers) const
+{
+	ResourceTypes eResource = getResourceType(bIgnoreTechPrereq ? NO_TEAM : getTeam());
+	if (eResource != NO_RESOURCE)
+	{
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource)
+		{
+			int iRtnValue = m_iResourceNum;
+
+			if (bIgnorePostModifiers)
+				return iRtnValue;
+
+			if (eImprovement != NO_IMPROVEMENT)
+			{
+				CvImprovementEntry* pkImprovementType = GC.getImprovementInfo(eImprovement);
+				if (pkImprovementType)
 				{
-					int iRtnValue = m_iResourceNum;
-					if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+					int iIncrease = pkImprovementType->GetResourceExtractionIncrease(eResource);
+					if (iIncrease != 0)
+						iRtnValue += iIncrease;
+
+					int iMod = pkImprovementType->GetResourceExtractionMod(eResource);
+					if (iMod != 0)
 					{
-						int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetStrategicResourceQuantityModifier(getTerrainType());
-						iRtnValue *= 100 + iQuantityMod;
+						iRtnValue *= 100 + iMod;
 						iRtnValue /= 100;
 					}
-
-					if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
-					{
-						int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
-						iRtnValue *= 100 + iQuantityMod;
-						iRtnValue /= 100;
-					}
-
-					return iRtnValue;
 				}
 			}
+
+			if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			{
+				int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetStrategicResourceQuantityModifier(getTerrainType());
+				iRtnValue *= 100 + iQuantityMod;
+				iRtnValue /= 100;
+			}
+
+			if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
+			{
+				int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
+				iRtnValue *= 100 + iQuantityMod;
+				iRtnValue /= 100;
+			}
+
+			return iRtnValue;
 		}
 	}
 	return 0;
@@ -8139,6 +8263,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if (oldImprovementEntry.IsRestoreMoves())
 				{
 					ChangeRestoreMovesCount(-1);
+				}
+				if (oldImprovementEntry.IsFreeMoveAcross())
+				{
+					ChangeFreeMoveAcrossCount(-1);
 				}
 
 				// Embassy extra vote in WC mod
@@ -8540,7 +8668,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					ChangeRestoreMovesCount(1);
 				}
-				
+				if (newImprovementEntry.IsFreeMoveAcross())
+				{
+					ChangeFreeMoveAcrossCount(1);
+				}
+
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
 				if (eResourceFromImprovement != NO_RESOURCE)
 				{
@@ -8967,6 +9099,10 @@ void CvPlot::SetImprovementPillaged(bool bPillaged, bool bEvents)
 			if (pImprovementInfo->IsRestoreMoves())
 			{
 				ChangeRestoreMovesCount(iChange);
+			}
+			if (pImprovementInfo->IsFreeMoveAcross())
+			{
+				ChangeFreeMoveAcrossCount(iChange);
 			}
 
 			CvImprovementEntry& improvementEntry = *GC.getImprovementInfo(getImprovementType());
@@ -13018,6 +13154,16 @@ void CvPlot::ChangeRestoreMovesCount(int iValue)
 	VALIDATE_OBJECT();
 	m_iRestoreMoves += iValue;
 }
+bool CvPlot::IsFreeMoveAcross() const
+{
+	VALIDATE_OBJECT();
+	return m_iFreeMoveAcross > 0;
+}
+void CvPlot::ChangeFreeMoveAcrossCount(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iFreeMoveAcross += iValue;
+}
 //	--------------------------------------------------------------------------------
 int CvPlot::GetNumCombatUnits()
 {
@@ -13051,7 +13197,14 @@ CvUnit* CvPlot::getUnitByIndex(int iIndex) const
 
 	if(pUnitNode != NULL)
 	{
-		return GetPlayerUnit(*pUnitNode);
+		CvUnit* pUnit = GetPlayerUnit(*pUnitNode);
+		if(pUnit == NULL && GC.getGame().isNetworkMultiPlayer())
+		{
+			CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** getUnitByIndex: stale IDInfo at index %d (owner %d, id %d) on plot (%d,%d). Plot has %d units.",
+				iIndex, (int)pUnitNode->eOwner, pUnitNode->iID, getX(), getY(), getNumUnits());
+			gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+		}
+		return pUnit;
 	}
 	else
 	{
@@ -13095,6 +13248,18 @@ void CvPlot::addUnit(CvUnit* pUnit, bool bUpdate)
 	while(pUnitNode != NULL)
 	{
 		CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		if(pLoopUnit == NULL)
+		{
+			if(GC.getGame().isNetworkMultiPlayer())
+			{
+				CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** addUnit: stale IDInfo (owner %d, id %d) on plot (%d,%d) while adding unit (owner %d, id %d). Removing stale entry. Plot has %d units.",
+					(int)pUnitNode->eOwner, pUnitNode->iID, getX(), getY(), (int)pUnit->getOwner(), pUnit->GetID(), getNumUnits());
+				gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+			}
+			m_units.deleteNode(pUnitNode);
+			pUnitNode = headUnitNode();
+			continue;
+		}
 		if(!isBeforeUnitCycle(pLoopUnit, pUnit))
 		{
 			break;
@@ -13125,19 +13290,41 @@ void CvPlot::addUnit(CvUnit* pUnit, bool bUpdate)
 void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
 {
 	IDInfo* pUnitNode = headUnitNode();
+	bool bFound = false;
 
 	while(pUnitNode != NULL)
 	{
-		if(GetPlayerUnit(*pUnitNode) == pUnit)
+		CvUnit* pNodeUnit = GetPlayerUnit(*pUnitNode);
+		if(pNodeUnit == NULL)
 		{
-			PRECONDITION(GetPlayerUnit(*pUnitNode)->at(getX(), getY()), "The current unit instance is expected to be at getX_INLINE and getY_INLINE");
+			if(GC.getGame().isNetworkMultiPlayer())
+			{
+				CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** removeUnit: stale IDInfo (owner %d, id %d) on plot (%d,%d) while removing unit (owner %d, id %d). Removing stale entry.",
+					(int)pUnitNode->eOwner, pUnitNode->iID, getX(), getY(), (int)pUnit->getOwner(), pUnit->GetID());
+				gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+			}
 			m_units.deleteNode(pUnitNode);
+			pUnitNode = headUnitNode();
+			continue;
+		}
+		if(pNodeUnit == pUnit)
+		{
+			PRECONDITION(pNodeUnit->at(getX(), getY()), "The current unit instance is expected to be at getX_INLINE and getY_INLINE");
+			m_units.deleteNode(pUnitNode);
+			bFound = true;
 			break;
 		}
 		else
 		{
 			pUnitNode = nextUnitNode(pUnitNode);
 		}
+	}
+
+	if(!bFound && GC.getGame().isNetworkMultiPlayer())
+	{
+		CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** removeUnit: unit (owner %d, id %d) not found on plot (%d,%d). Unit coords: (%d,%d). Plot has %d units.",
+			(int)pUnit->getOwner(), pUnit->GetID(), getX(), getY(), pUnit->getX(), pUnit->getY(), getNumUnits());
+		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
 	}
 
 	GC.getMap().plotManager().RemoveUnit(pUnit->GetIDInfo(), m_iX, m_iY, -1);
@@ -13430,6 +13617,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_iUnitPlotGAExperience);
 	visitor(plot.m_iPlotChangeMoves);
 	visitor(plot.m_iRestoreMoves);
+	visitor(plot.m_iFreeMoveAcross);
 
 	visitor(plot.m_eOwner);
 	visitor(plot.m_ePlotType);
@@ -14107,14 +14295,68 @@ const CvSyncArchive<CvPlot>& CvPlot::getSyncArchive() const
 }
 
 //	--------------------------------------------------------------------------------
-std::string CvPlot::debugDump(const FAutoVariableBase&) const
+std::string CvPlot::debugDump(const FAutoVariableBase& var) const
 {
-	std::string result = "Game Turn : ";
-	char gameTurnBuffer[8] = {0};
-	int gameTurn = GC.getGame().getGameTurn();
-	sprintf_s(gameTurnBuffer, "%d\0", gameTurn);
-	result += gameTurnBuffer;
-	return result;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// Plot coordinates
+	result << "Plot: (" << getX() << "," << getY() << ")";
+	
+	// Ownership
+	if (getOwner() != NO_PLAYER)
+	{
+		result << " | Owner: " << GET_PLAYER(getOwner()).getCivilizationShortDescription()
+		       << " (ID:" << getOwner() << ")";
+	}
+	else
+	{
+		result << " | Owner: None";
+	}
+	
+	// Terrain and features
+	if (varName.find("Terrain") != std::string::npos ||
+	    varName.find("Feature") != std::string::npos ||
+	    varName.find("Improvement") != std::string::npos ||
+	    varName.find("Yield") != std::string::npos)
+	{
+		if (getTerrainType() != NO_TERRAIN)
+		{
+			result << " | Terrain: " << GC.getTerrainInfo(getTerrainType())->GetType();
+		}
+		
+		if (getFeatureType() != NO_FEATURE)
+		{
+			result << " | Feature: " << GC.getFeatureInfo(getFeatureType())->GetType();
+		}
+		
+		if (getImprovementType() != NO_IMPROVEMENT)
+		{
+			result << " | Improvement: " << GC.getImprovementInfo(getImprovementType())->GetType();
+		}
+	}
+	
+	// City owning this plot
+	if (varName.find("City") != std::string::npos ||
+	    varName.find("Work") != std::string::npos ||
+	    varName.find("Yield") != std::string::npos)
+	{
+		CvCity* pOwningCity = getOwningCity();
+		if (pOwningCity != NULL)
+		{
+			result << " | Owning City: " << pOwningCity->getName();
+		}
+	}
+	
+	// Visibility
+	if (varName.find("Visible") != std::string::npos ||
+	    varName.find("Reveal") != std::string::npos ||
+	    varName.find("Seen") != std::string::npos)
+	{
+		result << " | Visible to active: " << (isVisible(GC.getGame().getActiveTeam()) ? "YES" : "NO");
+	}
+	
+	return result.str();
 }
 
 //	--------------------------------------------------------------------------------
@@ -15781,6 +16023,8 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 
 	CvDiplomacyAI* pDiplomacyAI = kPlayer.GetDiplomacyAI();
 
+	bool bKeep = bExistingImprovement || getBuildProgress(eBuild) > 0;
+
 	// Evaluate based on surrounding plots
 	int iMaxAdjacentThreat = 0;
 
@@ -15883,7 +16127,20 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 				CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pAdjacentPlot->getOwner());
 				StrengthTypes eStrength = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pAdjacentPlot->getOwner());
 
+				// For existing improvements or currently in progress, assume neighboring land not owned by us is unsafe (even if it's currently owned by our friends)
+				// This should mitigate possibly inconsistent neighbor approach values
+				if (bKeep)
+				{
+					eApproach = min(eApproach, CIV_APPROACH_GUARDED);
+					eStrength = max(eStrength, STRENGTH_STRONG);
+				}
+
 				iMaxAdjacentThreat = max(iMaxAdjacentThreat, GetDefensiveApproachMultiplierTimes100(eApproach) * GetDefensiveStrengthMultiplierTimes100(eStrength) / 100);
+			}
+			else if (bKeep && !pAdjacentPlot->isOwned())
+			{
+				const int iMultiplier = GetDefensiveApproachMultiplierTimes100(CIV_APPROACH_GUARDED) * GetDefensiveStrengthMultiplierTimes100(STRENGTH_STRONG) / 100;
+				iMaxAdjacentThreat = max(iMaxAdjacentThreat, iMultiplier);
 			}
 		}
 	}

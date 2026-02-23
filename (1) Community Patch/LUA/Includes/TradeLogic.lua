@@ -760,8 +760,8 @@ function DoUpdateButtons()
 		Controls.DenounceButton:SetHide(true);
 		if (not g_pUs:IsDenouncedPlayer(g_iThem)) then
 			Controls.DenounceButton:SetHide(false);
-			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN"));
-			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN_TT"));
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_MP_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_MP_DENOUNCE_HUMAN_TT"));
 		end
 
         Controls.MainStack:CalculateSize();
@@ -1319,8 +1319,8 @@ function ResetDisplay()
 		Controls.DenounceButton:SetHide(true);
 		if (not g_pUs:IsDenouncedPlayer(g_iThem)) then
 			Controls.DenounceButton:SetHide(false);
-			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN"));
-			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CBP_DENOUNCE_HUMAN_TT"));
+			Controls.DenounceButton:SetText(Locale.ConvertTextKey("TXT_KEY_MP_DENOUNCE_HUMAN"));
+			Controls.DenounceButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_MP_DENOUNCE_HUMAN_TT"));
 		end
     end
 

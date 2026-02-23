@@ -374,6 +374,15 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 		{
 			pLoopUnit = pPlot->getUnitByIndex(iI);
+			if(pLoopUnit == NULL)
+			{
+				if(GC.getGame().isNetworkMultiPlayer())
+				{
+					CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** UpdateVisibilityFromUnits: NULL unit at index %d on plot (%d,%d). Plot reports %d units.",
+						iI, pPlot->getX(), pPlot->getY(), pPlot->getNumUnits());
+					gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+				}
+			}
 			eLoopUnitTeam = pLoopUnit->getTeam();
 
 			if (eLoopUnitTeam != ePlayerTeam && !pLoopUnit->isInvisible(ePlayerTeam, false))
@@ -2793,8 +2802,11 @@ void CvTacticalAI::SortTargetListAndDropUselessTargets()
 		{
 			for (vector<CvTacticalTarget>::iterator it2 = reducedTargetList.begin(); it2 != reducedTargetList.end(); ++it2)
 			{
-				//trick: land zones have id > 0, water zones id < 0. so negative product means domain mismatch
-				if (it->GetDominanceZone() * it2->GetDominanceZone() < 0)
+				//land zones have id > 0, water zones id < 0. opposite signs means domain mismatch
+				//check signs without multiplication to avoid overflow with large zone IDs
+				int iZone1 = it->GetDominanceZone();
+				int iZone2 = it2->GetDominanceZone();
+				if ((iZone1 > 0 && iZone2 < 0) || (iZone1 < 0 && iZone2 > 0))
 					continue;
 
 				//if close to one of our cities, make sure we're not dropping it
@@ -5905,6 +5917,8 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
 		int iDanger = pUnit->GetDanger(pPlot);
 		int iCityDistance = kPlayer.GetCityDistancePathLength(pPlot);
+		if (iCityDistance == INT_MAX)
+			iCityDistance = 0; // No cities (e.g. barbarians) - distance irrelevant, use 0 to avoid overflow
 
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
@@ -9268,8 +9282,14 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 			const CvTacticalPlot& finalPlot = getTactPlot(move.iFromPlotIndex);
 
 			//only relevant in degenerate cases without enemies
-			iBefore += TacticalAIHelpers::GetPlotDistanceToTarget(initial->iFromPlotIndex, pUnit->getDomainType());
-			iAfter += TacticalAIHelpers::GetPlotDistanceToTarget(move.iFromPlotIndex, pUnit->getDomainType());
+			int iDistBefore = TacticalAIHelpers::GetPlotDistanceToTarget(initial->iFromPlotIndex, pUnit->getDomainType());
+			int iDistAfter = TacticalAIHelpers::GetPlotDistanceToTarget(move.iFromPlotIndex, pUnit->getDomainType());
+			// Only count if both are reachable - can't meaningfully compare if either is INT_MAX
+			if (iDistBefore != INT_MAX && iDistAfter != INT_MAX)
+			{
+				iBefore += iDistBefore;
+				iAfter += iDistAfter;
+			}
 
 			//which domain to use here? for simplicity assume firstline is melee and in-domain, everything else cross-domain
 			CvTacticalPlot::eTactPlotDomain eRelevantDomain = unit->eMoveStrategy == MS_FIRSTLINE ? (finalPlot.getPlot()->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND) : CvTacticalPlot::TD_BOTH;

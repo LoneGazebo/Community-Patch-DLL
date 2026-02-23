@@ -3718,31 +3718,44 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			// There's a spy! Remove it!
 			GET_PLAYER(eLoopPlayer).GetEspionage()->ExtractSpyFromCity(iAssignedSpy);
 
-			// Notify the spy's owner
-			CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
-			if (!pNotify)
-				continue;
-
 			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(iAssignedSpy);
-			Localization::String strSummary(bConquest ? GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_S") : GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_S"));
 
-			// City acquirer gets a different notification
-			if (eLoopPlayer == GetID())
+			// If the spy was a diplomat from vassalage and this is the last city of the vassal, delete the spy
+			if (pSpy->GetVassalDiplomatPlayer() != NO_PLAYER)
 			{
-				Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_YOU") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_YOU");
-				strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-				strNotification << pSpy->GetSpyName();
-				strNotification << pCity->getNameKey();
-				pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);
+				if (GET_PLAYER(eOldOwner).getNumCities() == 1)
+				{
+					// spies are deleted by giving them the TERMINATED state, then they are no longer shown in the espionage menu
+					pSpy->SetSpyState(eLoopPlayer, iAssignedSpy, SPY_STATE_TERMINATED);
+				}
 			}
 			else
 			{
-				Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE");
-				strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
-				strNotification << pSpy->GetSpyName();
-				strNotification << pCity->getNameKey();
-				strNotification << getCivilizationInfo().getShortDescriptionKey();
-				pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);
+				// Notify the spy's owner
+				CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
+				if (!pNotify)
+					continue;
+
+				Localization::String strSummary(bConquest ? GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_S") : GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_S"));
+
+				// City acquirer gets a different notification
+				if (eLoopPlayer == GetID())
+				{
+					Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_YOU") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_YOU");
+					strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
+					strNotification << pSpy->GetSpyName();
+					strNotification << pCity->getNameKey();
+					pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);
+				}
+				else
+				{
+					Localization::String strNotification = bConquest ? Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST") : Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE");
+					strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
+					strNotification << pSpy->GetSpyName();
+					strNotification << pCity->getNameKey();
+					strNotification << getCivilizationInfo().getShortDescriptionKey();
+					pNotify->Add(NOTIFICATION_SPY_EVICTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eOldOwner);
+				}
 			}
 		}
 	}
@@ -13333,8 +13346,20 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 	}
 }
 
-void CvPlayer::SpawnResourceInOwnedLands(ResourceTypes eResource, int iQuantity, bool bSarcophagus, CvCity* pCityToExclude)
+void CvPlayer::SpawnResourceInVicinity(CvCity* pCity, ResourceTypes eResource, int iQuantity, bool bSarcophagus)
 {
+	ASSERT(eResource > NO_RESOURCE && eResource < GC.getNumResourceInfos(), "Calling SpawnResourceInVicinity without a resource");
+	ASSERT(iQuantity > 0, "Calling SpawnResourceInVicinity without a quantity");
+	ASSERT(pCity, "Calling SpawnResourceInVicinity without a target city");
+	if (eResource <= NO_RESOURCE || eResource >= GC.getNumResourceInfos() || iQuantity <= 0 || !pCity)
+		return;
+
+	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+	ASSERT(!pkResourceInfo->isOnlyMinorCivs(), "Calling SpawnResourceInVicinity with a resource exclusive to City-States");
+	ASSERT(pCity->getOwner() == m_eID, "Calling SpawnResourceInVicinity for a different player's city");
+	if (pkResourceInfo->isOnlyMinorCivs() || pCity->getOwner() != m_eID)
+		return;
+
 	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
 	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 	if (eResource == eArtifact || eResource == eHiddenArtifact)
@@ -13344,26 +13369,156 @@ void CvPlayer::SpawnResourceInOwnedLands(ResourceTypes eResource, int iQuantity,
 			return;
 	}
 
+	vector<CvPlot*> vOwnedTiles;
+	vector<CvPlot*> vOwnedTilesYesArchaeology;
+	vector<CvPlot*> vOwnedTilesNoArchaeology;
+	vector<CvPlot*> vNeutralTiles;
+	vector<CvPlot*> vNeutralTilesYesArchaeology;
+	vector<CvPlot*> vNeutralTilesNoArchaeology;
+
 	// Is this a strategic resource? We only need one tile.
-	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	bool bStrategicResource = pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC;
 	int iNumTilesToPlace = bStrategicResource ? 1 : iQuantity;
 	int iNumTilesPlaced = 0;
 
-	CvMap& ImTheMap = GC.getMap();
-	int iNumPlotsInTheWholeWideWorld = ImTheMap.numPlots();
-	vector<CvPlot*> vOwnedTiles;
-	vector<CvPlot*> vOwnedTilesYesArchaeology;
-	vector<CvPlot*> vOwnedTilesNoArchaeology;
-	for (int iI = 0; iI < iNumPlotsInTheWholeWideWorld; iI++)
+	// Priority Bracket 1: Attempt to place the resource on an owned tile near the city
+	GetSpawnResourcePlots(pCity, eResource, /*bLocal*/ true, bSarcophagus, vOwnedTiles, vOwnedTilesYesArchaeology, vOwnedTilesNoArchaeology, vNeutralTiles, vNeutralTilesYesArchaeology, vNeutralTilesNoArchaeology);
+
+	// If this is a dig site and we're prioritizing or deprioritizing plots with archaeological records, let's do that now.
+	if (!vOwnedTilesNoArchaeology.empty() || !vOwnedTilesYesArchaeology.empty())
 	{
-		CvPlot* pLoopPlot = ImTheMap.plotByIndexUnchecked(iI);
-		// Must be owned by us
-		if (pLoopPlot->getOwner() != m_eID)
+		vector<CvPlot*> vPrioritizedArchaeologyTiles = bSarcophagus ? vOwnedTilesNoArchaeology : vOwnedTilesYesArchaeology;
+		CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
+		while (iNumTilesPlaced < iNumTilesToPlace)
+		{
+			PlacePrioritizedDigSite(eResource, bSarcophagus, viEras, vPrioritizedArchaeologyTiles, vOwnedTiles, CvSeeder::fromRaw(0x96a2a8a8).mix(iNumTilesPlaced), CvSeeder::fromRaw(0x7a1d2451).mix(iNumTilesPlaced));
+			iNumTilesPlaced++;
+			if (vPrioritizedArchaeologyTiles.empty())
+				break;
+		}
+	}
+
+	// Are we done?
+	if (iNumTilesPlaced >= iNumTilesToPlace)
+		return;
+
+	// If not a dig site, or we're out of priority tiles, try the full set of available tiles instead.
+	if (!vOwnedTiles.empty())
+	{
+		while (iNumTilesPlaced < iNumTilesToPlace)
+		{
+			PlaceSpawnedResource(eResource, bStrategicResource ? iQuantity : 1, bSarcophagus, vOwnedTiles, CvSeeder::fromRaw(0x0e2a6acc).mix(iNumTilesPlaced), CvSeeder::fromRaw(0x01eae4d4).mix(iNumTilesPlaced));
+			iNumTilesPlaced++;
+			if (vOwnedTiles.empty())
+				break;
+		}
+	}
+
+	// Priority Bracket 2: Attempt to place the resource on any owned tile
+	vOwnedTiles.clear();
+	vOwnedTilesYesArchaeology.clear();
+	vOwnedTilesNoArchaeology.clear();
+	GetSpawnResourcePlots(pCity, eResource, /*bLocal*/ false, bSarcophagus, vOwnedTiles, vOwnedTilesYesArchaeology, vOwnedTilesNoArchaeology, vNeutralTiles, vNeutralTilesYesArchaeology, vNeutralTilesNoArchaeology);
+
+	// If this is a dig site and we're prioritizing or deprioritizing plots with archaeological records, let's do that now.
+	if (!vOwnedTilesNoArchaeology.empty() || !vOwnedTilesYesArchaeology.empty())
+	{
+		vector<CvPlot*> vPrioritizedArchaeologyTiles = bSarcophagus ? vOwnedTilesNoArchaeology : vOwnedTilesYesArchaeology;
+		CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
+
+		while (iNumTilesPlaced < iNumTilesToPlace)
+		{
+			PlacePrioritizedDigSite(eResource, bSarcophagus, viEras, vPrioritizedArchaeologyTiles, vOwnedTiles, CvSeeder::fromRaw(0x51427b3d).mix(iNumTilesPlaced), CvSeeder::fromRaw(0x034f6c94).mix(iNumTilesPlaced));
+			iNumTilesPlaced++;
+			if (vPrioritizedArchaeologyTiles.empty())
+				break;
+		}
+	}
+
+	// Are we done?
+	if (iNumTilesPlaced >= iNumTilesToPlace)
+		return;
+
+	// If not a dig site, or we're out of priority tiles, try the full set of available tiles instead.
+	if (!vOwnedTiles.empty())
+	{
+		while (iNumTilesPlaced < iNumTilesToPlace)
+		{
+			PlaceSpawnedResource(eResource, bStrategicResource ? iQuantity : 1, bSarcophagus, vOwnedTiles, CvSeeder::fromRaw(0xfcf4ab90).mix(iNumTilesPlaced), CvSeeder::fromRaw(0x63e129a3).mix(iNumTilesPlaced));
+			iNumTilesPlaced++;
+			if (vOwnedTiles.empty())
+				break;
+		}
+	}
+
+	// Priority Bracket 3: Attempt to place the resource on a neutral tile within working range of the city
+	// Note: The neutral tiles were populated during the first call to GetSpawnResourcePlots()
+
+	// If this is a dig site and we're prioritizing or deprioritizing plots with archaeological records, let's do that now.
+	if (!vNeutralTilesNoArchaeology.empty() || !vNeutralTilesYesArchaeology.empty())
+	{
+		vector<CvPlot*> vPrioritizedArchaeologyTiles = bSarcophagus ? vNeutralTilesNoArchaeology : vNeutralTilesYesArchaeology;
+		CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
+
+		while (iNumTilesPlaced < iNumTilesToPlace)
+		{
+			PlacePrioritizedDigSite(eResource, bSarcophagus, viEras, vPrioritizedArchaeologyTiles, vNeutralTiles, CvSeeder::fromRaw(0x4d4fb75d).mix(iNumTilesPlaced), CvSeeder::fromRaw(0xe9d27544).mix(iNumTilesPlaced));
+			iNumTilesPlaced++;
+			if (vPrioritizedArchaeologyTiles.empty())
+				break;
+		}
+	}
+
+	// Are we done?
+	if (iNumTilesPlaced >= iNumTilesToPlace)
+		return;
+
+	// If not a dig site, or we're out of priority tiles, try the full set of available tiles instead.
+	if (!vNeutralTiles.empty())
+	{
+		while (iNumTilesPlaced < iNumTilesToPlace)
+		{
+			PlaceSpawnedResource(eResource, bStrategicResource ? iQuantity : 1, bSarcophagus, vNeutralTiles, CvSeeder::fromRaw(0x71b6797f).mix(iNumTilesPlaced), CvSeeder::fromRaw(0x743df03b).mix(iNumTilesPlaced));
+			iNumTilesPlaced++;
+			if (vNeutralTiles.empty())
+				break;
+		}
+	}
+}
+
+void CvPlayer::GetSpawnResourcePlots(CvCity* pCity, ResourceTypes eResource, bool bLocal, bool bSarcophagus, vector<CvPlot*>& vOwnedTiles, vector<CvPlot*>& vOwnedTilesYesArchaeology, vector<CvPlot*>& vOwnedTilesNoArchaeology, vector<CvPlot*>& vNeutralTiles, vector<CvPlot*>& vNeutralTilesYesArchaeology, vector<CvPlot*>& vNeutralTilesNoArchaeology)
+{
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+
+	int iCityX = pCity->getX();
+	int iCityY = pCity->getY();
+	CvMap& ImTheMap = GC.getMap();
+	int iNumWorkablePlots = bLocal ? pCity->GetNumWorkablePlots() : ImTheMap.numPlots();
+
+	for (int iI = 0; iI < iNumWorkablePlots; iI++)
+	{
+		CvPlot* pLoopPlot = NULL;
+		if (bLocal)
+			pLoopPlot = iterateRingPlots(iCityX, iCityY, iI);
+		else
+			pLoopPlot = ImTheMap.plotByIndexUnchecked(iI);
+
+		if (!pLoopPlot)
+			continue;
+
+		bool bOwned = pLoopPlot->isOwned();
+
+		// If checking plots that aren't near the spawning city, they must be owned by us
+		if (!bOwned && !bLocal)
+			continue;
+
+		// Can't be owned by someone else
+		if (bOwned && pLoopPlot->getOwner() != m_eID)
 			continue;
 
 		// We've already checked this tile
-		if (pCityToExclude && pCityToExclude->IsWithinWorkRange(pLoopPlot))
+		if (!bLocal && pCity->IsWithinWorkRange(pLoopPlot))
 			continue;
 
 		// If we're placing a dig site, there's special validations to check
@@ -13394,84 +13549,79 @@ void CvPlayer::SpawnResourceInOwnedLands(ResourceTypes eResource, int iQuantity,
 				continue;
 
 			FeatureTypes eFeature = pLoopPlot->getFeatureType();
-			if (eFeature == FEATURE_OASIS || (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement()))
+			if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
 				continue;
 
 			if (!pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
 				continue;
 		}
+		// Special artifact logic
 		if (eResource == eArtifact || eResource == eHiddenArtifact)
 		{
 			CvArchaeologyData kArchaeology = pLoopPlot->GetArchaeologicalRecord();
 			if (kArchaeology.m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
 			{
-				if (bSarcophagus)
-					vOwnedTilesNoArchaeology.push_back(pLoopPlot); // Avoid existing archaeological records
+				if (bSarcophagus) // Avoid existing archaeological records
+				{
+					if (bOwned)
+						vOwnedTilesNoArchaeology.push_back(pLoopPlot);
+					else
+						vNeutralTilesNoArchaeology.push_back(pLoopPlot);
+				}
 			}
-			else if (!bSarcophagus)
-				vOwnedTilesYesArchaeology.push_back(pLoopPlot); // Prefer existing archaeological records
+			else if (!bSarcophagus) // Prefer existing archaeological records
+			{
+				if (bOwned)
+					vOwnedTilesYesArchaeology.push_back(pLoopPlot);
+				else
+					vNeutralTilesYesArchaeology.push_back(pLoopPlot);
+			}
 		}
 
-		vOwnedTiles.push_back(pLoopPlot);
+		if (bOwned)
+			vOwnedTiles.push_back(pLoopPlot);
+		else
+			vNeutralTiles.push_back(pLoopPlot);
+	}
+}
+
+void CvPlayer::PlacePrioritizedDigSite(ResourceTypes eResource, bool bSarcophagus, CvWeightedVector<EraTypes> viEras, vector<CvPlot*>& vPrioritizedArchaeologyTiles, vector<CvPlot*>& vArchaeologyTiles, const CvSeeder& seedOne, const CvSeeder& seedTwo)
+{
+	uint uiIndex = GC.getGame().urandLimitExclusive(vPrioritizedArchaeologyTiles.size(), seedOne);
+	CvPlot* pLoopPlot = vArchaeologyTiles[uiIndex];
+
+	// Sarcophagus? Init it as one. Otherwise, if we got here there's already an existing archaeological record, so we don't need to do anything.
+	if (bSarcophagus)
+	{
+		EraTypes eEra = viEras.ChooseByWeight(seedTwo);
+		pLoopPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
 	}
 
-	// If this is a dig site and we're prioritizing or deprioritizing plots with archaeological records, let's do that now.
-	if (!vOwnedTilesNoArchaeology.empty() || !vOwnedTilesYesArchaeology.empty())
+	pLoopPlot->setResourceType(eResource, 1);
+	vPrioritizedArchaeologyTiles.erase(vPrioritizedArchaeologyTiles.begin() + uiIndex);
+
+	// Remove it from the main plot list too!
+	vector<CvPlot*>::const_iterator it = std::find(vArchaeologyTiles.begin(), vArchaeologyTiles.end(), pLoopPlot);
+	vArchaeologyTiles.erase(it);
+}
+
+void CvPlayer::PlaceSpawnedResource(ResourceTypes eResource, int iQuantity, bool bSarcophagus, vector<CvPlot*>& vResourceTiles, const CvSeeder& seedOne, const CvSeeder& seedTwo)
+{
+	uint uiIndex = GC.getGame().urandLimitExclusive(vResourceTiles.size(), seedOne);
+	CvPlot* pLoopPlot = vResourceTiles[uiIndex];
+
+	// If this is an artifact, we need to generate data for it
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	if (eResource == eArtifact || eResource == eHiddenArtifact)
 	{
-		vector<CvPlot*> vArchaeologyTiles = bSarcophagus ? vOwnedTilesNoArchaeology : vOwnedTilesYesArchaeology;
 		CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
-
-		while (iNumTilesPlaced < iNumTilesToPlace)
-		{
-			uint uiIndex = GC.getGame().urandLimitExclusive(vArchaeologyTiles.size(), CvSeeder::fromRaw(0x96a2a8a8).mix(iNumTilesPlaced));
-			CvPlot* pLoopPlot = vArchaeologyTiles[uiIndex];
-
-			// Sarcophagus? Init it as one. Otherwise, if we got here there's already an existing archaeological record, so we don't need to do anything.
-			if (bSarcophagus)
-			{
-				EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x7a1d2451).mix(iNumTilesPlaced));
-				pLoopPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
-			}
-
-			pLoopPlot->setResourceType(eResource, 1);
-			vArchaeologyTiles.erase(vArchaeologyTiles.begin() + uiIndex);
-			iNumTilesPlaced++;
-
-			// Remove it from the main plot list too!
-			vector<CvPlot*>::const_iterator it = std::find(vOwnedTiles.begin(), vOwnedTiles.end(), pLoopPlot);
-			vOwnedTiles.erase(it);
-
-			if (vArchaeologyTiles.empty())
-				break;
-		}
+		EraTypes eEra = viEras.ChooseByWeight(seedTwo);
+		pLoopPlot->AddArchaeologicalRecord(bSarcophagus ? CvTypes::getARTIFACT_SARCOPHAGUS() : CvTypes::getARTIFACT_ANCIENT_RUIN(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ bSarcophagus);
 	}
 
-	// Are we done?
-	if (iNumTilesPlaced >= iNumTilesToPlace)
-		return;
-
-	// If not a dig site, or we're out of priority tiles, try the full set of available tiles instead.
-	if (!vOwnedTiles.empty())
-	{
-		while (iNumTilesPlaced < iNumTilesToPlace)
-		{
-			uint uiIndex = GC.getGame().urandLimitExclusive(vOwnedTiles.size(), CvSeeder::fromRaw(0x0e2a6acc).mix(iNumTilesPlaced));
-			CvPlot* pLoopPlot = vOwnedTiles[uiIndex];
-			// If this is an artifact, we need to generate data for it
-			if (eResource == eArtifact || eResource == eHiddenArtifact)
-			{
-				CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
-				EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x01eae4d4).mix(iNumTilesPlaced));
-				pLoopPlot->AddArchaeologicalRecord(bSarcophagus ? CvTypes::getARTIFACT_SARCOPHAGUS() : CvTypes::getARTIFACT_ANCIENT_RUIN(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ bSarcophagus);
-			}
-
-			pLoopPlot->setResourceType(eResource, bStrategicResource ? iQuantity : 1);
-			vOwnedTiles.erase(vOwnedTiles.begin() + uiIndex);
-			iNumTilesPlaced++;
-			if (vOwnedTiles.empty())
-				break;
-		}
-	}
+	pLoopPlot->setResourceType(eResource, iQuantity);
+	vResourceTiles.erase(vResourceTiles.begin() + uiIndex);
 }
 
 bool CvPlayer::canFoundCity(int iX, int iY) const
@@ -13571,133 +13721,7 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 		if (iQuantity <= 0 || GetNumCitiesFounded() > freeResource.m_iNumCities)
 			continue;
 
-		// Is this a strategic resource? We only need one tile.
-		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		bool bStrategicResource = pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC;
-		int iNumTilesToPlace = bStrategicResource ? 1 : iQuantity;
-		int iNumTilesPlaced = 0;
-
-		vector<CvPlot*> vNearbyTiles;
-		vector<CvPlot*> vNearbyTilesNoArchaeology;
-		int iCityX = pCity->getX();
-		int iCityY = pCity->getY();
-		static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-		static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
-		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(iCityX, iCityY, iI);
-			if (!pLoopPlot)
-				continue;
-
-			// Can't be owned by someone else
-			if (pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_eID)
-				continue;
-
-			// If we're placing a dig site, there's special validations to check
-			if (eResource == eArtifact)
-			{
-				if (!pLoopPlot->IsEligibleForNormalDigSite(false))
-					continue;
-			}
-			else if (eResource == eHiddenArtifact)
-			{
-				if (!pLoopPlot->IsEligibleForHiddenDigSite(false))
-					continue;
-			}
-			// Normal resource, check canHaveResource() validations and a few other things
-			else
-			{
-				// Only tiles without an existing resource
-				if (pLoopPlot->getResourceType() != NO_RESOURCE)
-					continue;
-
-				if (!pLoopPlot->canHaveResource(eResource))
-					continue;
-
-				if (pLoopPlot->IsNaturalWonder())
-					continue;
-
-				if (pLoopPlot->isMountain())
-					continue;
-
-				FeatureTypes eFeature = pLoopPlot->getFeatureType();
-				if (eFeature == FEATURE_OASIS || (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement()))
-					continue;
-
-				if (!pLoopPlot->isValidMovePlot(BARBARIAN_PLAYER))
-					continue;
-			}
-			// We want to avoid placing new dig sites on tiles that have existing archaeological records, but will do so if we must.
-			if (eResource == eArtifact || eResource == eHiddenArtifact)
-			{
-				CvArchaeologyData kArchaeology = pLoopPlot->GetArchaeologicalRecord();
-				if (kArchaeology.m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
-					vNearbyTilesNoArchaeology.push_back(pLoopPlot);
-			}
-
-			vNearbyTiles.push_back(pLoopPlot);
-		}
-
-		// If this is a dig site, first try to pick tiles with no archaeological record.
-		if (!vNearbyTilesNoArchaeology.empty())
-		{
-			CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
-
-			while (iNumTilesPlaced < iNumTilesToPlace)
-			{
-				uint uiIndex = GC.getGame().urandLimitExclusive(vNearbyTilesNoArchaeology.size(), CvSeeder::fromRaw(0x225a3c1c).mix(iNumTilesPlaced));
-				CvPlot* pLoopPlot = vNearbyTilesNoArchaeology[uiIndex];
-
-				// This is an artifact, init it as a Sarcophagus
-				EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x2dfe39fb).mix(iNumTilesPlaced));
-				pLoopPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
-
-				pLoopPlot->setResourceType(eResource, 1);
-				vNearbyTilesNoArchaeology.erase(vNearbyTilesNoArchaeology.begin() + uiIndex);
-				iNumTilesPlaced++;
-
-				// Remove it from the main plot list too!
-				vector<CvPlot*>::const_iterator it = std::find(vNearbyTiles.begin(), vNearbyTiles.end(), pLoopPlot);
-				vNearbyTiles.erase(it);
-
-				if (vNearbyTilesNoArchaeology.empty())
-					break;
-			}
-		}
-
-		// Are we done?
-		if (iNumTilesPlaced >= iNumTilesToPlace)
-			continue;
-
-		// Next: for normal resources, or if all available tiles have archaeological records, try the full set of available tiles instead
-		if (!vNearbyTiles.empty())
-		{
-			while (iNumTilesPlaced < iNumTilesToPlace)
-			{
-				uint uiIndex = GC.getGame().urandLimitExclusive(vNearbyTiles.size(), CvSeeder::fromRaw(0x978a99f7).mix(iNumTilesPlaced));
-				CvPlot* pLoopPlot = vNearbyTiles[uiIndex];
-				// If this is an artifact, init it as a Sarcophagus
-				if (eResource == eArtifact || eResource == eHiddenArtifact)
-				{
-					CvWeightedVector<EraTypes> viEras = GC.getGame().GetWeightedArchaeologyErasList();
-					EraTypes eEra = viEras.ChooseByWeight(CvSeeder::fromRaw(0x13572e90).mix(iNumTilesPlaced));
-					pLoopPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_SARCOPHAGUS(), eEra, m_eID, NO_PLAYER, /*bIgnoreNormalRestrictions*/ true);
-				}
-
-				pLoopPlot->setResourceType(eResource, bStrategicResource ? iQuantity : 1);
-				vNearbyTiles.erase(vNearbyTiles.begin() + uiIndex);
-				iNumTilesPlaced++;
-				if (vNearbyTiles.empty())
-					break;
-			}
-		}
-
-		// Are we done?
-		if (iNumTilesPlaced >= iNumTilesToPlace)
-			continue;
-
-		// Still not done? Let's try placing it on another tile we own, even if another city owns it.
-		SpawnResourceInOwnedLands(eResource, bStrategicResource ? iQuantity : iNumTilesToPlace - iNumTilesPlaced, /*bSarcophagus*/ true, pCity);
+		SpawnResourceInVicinity(pCity, eResource, iQuantity, /*bSarcophagus*/ true);
 	}
 
 	if (isMajorCiv() && GetNumCitiesFounded() <= 1 && GetPlayerTraits()->StartsWithPantheon())
@@ -15538,8 +15562,7 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 				if (MOD_BUILDINGS_NW_EXCLUDE_RAZING && pLoopCity->IsRazing())
 					continue;
 
-				if (pLoopCity->GetCityBuildings()->GetNumBuildingClass(ePrereqBuildingClass) == 0)
-					iNonPuppetCities++;
+				iNonPuppetCities++;
 			}
 		}
 
@@ -15977,6 +16000,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 			BuildingTypes eOtherBuilding = pLoopCity->GetBuildingTypeFromClass(eOtherBuildingClass);
 			if (eOtherBuilding == NO_BUILDING)
+				continue;
+
+			// No Bonus for Obsoleted Building
+			if(GET_TEAM(getTeam()).isObsoleteBuilding(eOtherBuilding))
 				continue;
 
 			CvBuildingEntry* pkOtherBuildingInfo = GC.getBuildingInfo(eOtherBuilding);
@@ -19631,10 +19658,16 @@ int CvPlayer::GetSciencePerTurnFromMinor(PlayerTypes eMinor) const
 
 int CvPlayer::GetYieldPerTurnFromMinors(YieldTypes eYield) const
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	return m_aiYieldFromMinors[eYield];
 }
 void CvPlayer::SetYieldPerTurnFromMinors(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (iValue != m_aiYieldFromMinors[eYield])
 	{
 		m_aiYieldFromMinors[eYield] = iValue;
@@ -32607,6 +32640,15 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		if (isMajorCiv())
 			GC.getGame().GetGameDeals().DoCancelAllDealsWithPlayer(GetID());
 
+		CvPlayerEspionage* pEspionage = GetEspionage();
+		if (pEspionage)
+		{
+			for (uint uiSpy = 0; uiSpy < (uint)pEspionage->GetNumSpies(); uiSpy++)
+			{
+				pEspionage->ExtractSpyFromCity(uiSpy);
+			}
+		}
+
 		clearResearchQueue();
 		killUnits();
 		killCities();
@@ -32877,22 +32919,42 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 								}
 							}
 							int iNumResource = pLoopPlot->getNumResource();
-							if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-							{
-								int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
-								iNumResource *= 100 + iQuantityMod;
-								iNumResource /= 100;
-							}
-
-							if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
-							{
-								int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
-								iNumResource *= 100 + iQuantityMod;
-								iNumResource /= 100;
-							}
 
 							if (pLoopPlot->IsResourceImprovedForOwner())
 							{
+								ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+								if (eImprovement != NO_IMPROVEMENT)
+								{
+									CvImprovementEntry* pkImprovementType = GC.getImprovementInfo(eImprovement);
+									if (pkImprovementType)
+									{
+										int iIncrease = pkImprovementType->GetResourceExtractionIncrease(eRes);
+										if (iIncrease != 0)
+											iNumResource += iIncrease;
+
+										int iMod = pkImprovementType->GetResourceExtractionMod(eRes);
+										if (iMod != 0)
+										{
+											iNumResource *= 100 + iMod;
+											iNumResource /= 100;
+										}
+									}
+								}
+
+								if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+								{
+									int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
+									iNumResource *= 100 + iQuantityMod;
+									iNumResource /= 100;
+								}
+
+								if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
+								{
+									int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
+									iNumResource *= 100 + iQuantityMod;
+									iNumResource /= 100;
+								}
+
 								iCntImproved += iNumResource;
 								// ExtraLuxury resources are stored in m_paiNumResourceFromBuildings, but we can't compare it with the counted value because it also contains resources from other sources
 							}
@@ -33113,7 +33175,11 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerDoneTurn, GetID());
 			}
 
-			ASSERT(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
+			if (!kGame.isGameMultiPlayer() || !kGame.isSimultaneousTeamTurns())
+			{
+				// when playing MP with simultaneous turns and a turn time limit, end turn blockers can still be present when the turn ends
+				ASSERT(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
+			}
 			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
 
 			//important: healing and restoration of movement points
@@ -33491,6 +33557,11 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 			{
 				kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 			}
+		}
+		else if (kPossibleVictimPlayer.isMinorCiv())
+		{
+			// Killing a city state gives war victory bonuses to the civ that eliminated them
+			DoWarVictoryBonuses();
 		}
 	}
 }
@@ -33906,7 +33977,7 @@ void CvPlayer::changeYieldFromDeath(YieldTypes eIndex, int iChange)
 
 		invalidateYieldRankCache(eIndex);
 
-		if(getTeam() == GC.getGame().getActiveTeam())
+		if (getTeam() == GC.getGame().getActiveTeam())
 		{
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		}
@@ -33943,7 +34014,7 @@ void CvPlayer::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 int CvPlayer::GetYieldFromVictory(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
-		PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_aiYieldFromVictory[eIndex];
 }
@@ -35917,7 +35988,6 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 			}
 		}
 
-		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
 		if (GC.getGame().isReallyNetworkMultiPlayer() && IsAtWarAnyMajor())
 		{
 			if (GetWarDamageValue(eLoopPlayer) != iValueLostRatio || iWarValueLost > 0)
@@ -35937,6 +36007,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 				pLog->Msg(strOutBuf);
 			}
 		}
+		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
 
 		// Only update war weariness between major civs (and only on the once-per-turn update)
 		if (bDamageOnly || !isMajorCiv() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
@@ -37056,7 +37127,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 						int iReligionBonus = pMinorCivAI->IsSameReligionAsMajor(GetID()) ? /*50*/ GD_INT_GET(MINOR_FRIENDSHIP_RATE_MOD_SHARED_RELIGION) : 0;
 						if (iReduction > 0)
 						{
-							iReduction *= (100 + iReligionBonus + GetPlayerTraits()->GetCityStateFriendshipModifier());
+							iReduction *= (100 + iReligionBonus + GetPlayerTraits()->GetCityStateRecoveryModifier());
 							iReduction /= 100;
 							iCurrentShift -= iReduction;
 						}
@@ -37183,17 +37254,17 @@ void CvPlayer::addResourcesOnPlotToUnimproved(CvPlot* pPlot, bool bOnlyExtraReso
 {
 	if (!bOnlyExtraResources)
 	{
-		changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
+		changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true));
 	}
-	changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
+	changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true));
 
 	CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
-		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		if (!bOnlyExtraResources)
 		{
-			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ true);
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		}
 	}
 }
@@ -37202,17 +37273,17 @@ void CvPlayer::removeResourcesOnPlotFromUnimproved(CvPlot* pPlot, bool bOnlyExtr
 {
 	if (!bOnlyExtraResources)
 	{
-		changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
+		changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true));
 	}
-	changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
+	changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true));
 
 	CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
-		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		if (!bOnlyExtraResources)
 		{
-			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ true);
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		}
 	}
 }
@@ -40576,7 +40647,7 @@ bool CvPlayer::GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRou
 
 	if (GetPlayerTraits()->IsWoodlandMovementBonus())
 	{
-		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pPlot->getTeam() == getTeam()))
+		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pPlot->getTeam() == getTeam()))
 			return true;
 	}
 
@@ -40831,6 +40902,20 @@ CvUnit* CvPlayer::addUnit()
 
 void CvPlayer::deleteUnit(int iID)
 {
+	if(GC.getGame().isNetworkMultiPlayer())
+	{
+		CvUnit* pUnit = m_units.Get(iID);
+		if(pUnit)
+		{
+			CvPlot* pPlot = pUnit->plot();
+			if(pPlot && pPlot->getUnitIndex(pUnit) >= 0)
+			{
+				CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** deleteUnit: unit (owner %d, id %d) is still on plot (%d,%d) when being deleted from player!",
+					GetID(), iID, pPlot->getX(), pPlot->getY());
+				gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+			}
+		}
+	}
 	m_units.Remove(iID);
 }
 
@@ -42184,9 +42269,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeXPopulationConscription(pkPolicyInfo->GetXPopulationConscription() * iChange);
 	ChangeMedianTechPercentage(pkPolicyInfo->GetMedianTechPercentChange() * iChange);
 	ChangeInternalTRTourism(pkPolicyInfo->IsInternalTRTourism() * iChange);
-	ChangeFreeChosenBuildingNewCity(pkPolicyInfo->GetNewCityFreeBuilding(), iChange);
-	ChangeNewFoundCityFreeBuilding(pkPolicyInfo->GetNewFoundCityFreeBuilding(), iChange);
-	ChangeNewFoundCityFreeUnit(pkPolicyInfo->GetNewFoundCityFreeUnit(), iChange);
+	if (pkPolicyInfo->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
+		ChangeFreeChosenBuildingNewCity(pkPolicyInfo->GetNewCityFreeBuilding(), iChange);
+	if (pkPolicyInfo->GetNewFoundCityFreeBuilding() != NO_BUILDINGCLASS)
+		ChangeNewFoundCityFreeBuilding(pkPolicyInfo->GetNewFoundCityFreeBuilding(), iChange);
+	if (pkPolicyInfo->GetNewFoundCityFreeUnit() != NO_UNITCLASS)
+		ChangeNewFoundCityFreeUnit(pkPolicyInfo->GetNewFoundCityFreeUnit(), iChange);
 
 	GetTreasury()->ChangeCityConnectionTradeRouteGoldModifier(pkPolicyInfo->GetCityConnectionTradeRouteGoldModifier() * iChange);
 
@@ -42439,6 +42527,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 			int iBuildingCount = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 			if (iBuildingCount <= 0)
+				continue;
+
+			// No Bonus for Obsoleted Building
+			if(GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
 				continue;
 
 			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
@@ -47314,14 +47406,90 @@ bool CvPlayer::hasUnitsThatNeedAIUpdate() const
 	return false;
 }
 
-std::string CvPlayer::debugDump(const FAutoVariableBase&) const
+std::string CvPlayer::debugDump(const FAutoVariableBase& var) const
 {
-	std::string result = "Game Turn : ";
-	char gameTurnBuffer[8] = {0};
-	int gameTurn = GC.getGame().getGameTurn();
-	sprintf_s(gameTurnBuffer, "%d\0", gameTurn);
-	result += gameTurnBuffer;
-	return result;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// Player identity
+	result << "Player: ";
+	if (isMajorCiv())
+	{
+		result << getCivilizationShortDescription();
+	}
+	else if (isMinorCiv())
+	{
+		result << "CS-" << getName();
+	}
+	else
+	{
+		result << "Unknown";
+	}
+	result << " (ID:" << GetID() << ")";
+	
+	// Science rate / Minor allies context
+	if (varName.find("ScienceRate") != std::string::npos ||
+	    varName.find("MinorAllies") != std::string::npos ||
+	    varName.find("MinorCiv") != std::string::npos)
+	{
+		if (isMajorCiv())
+		{
+			int numAllies = GetNumCSAllies();
+			result << " | CS Allies: " << numAllies;
+			
+			if (numAllies > 0 && numAllies <= 5)
+			{
+				result << " [";
+				bool first = true;
+				for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+				{
+					PlayerTypes eMinor = (PlayerTypes)i;
+					if (GET_PLAYER(eMinor).isAlive() && 
+					    GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetID())
+					{
+						if (!first) result << ", ";
+						result << GET_PLAYER(eMinor).getName();
+						first = false;
+					}
+				}
+				result << "]";
+			}
+		}
+	}
+	
+	// War damage context
+	if (varName.find("WarDamage") != std::string::npos ||
+	    varName.find("War") != std::string::npos ||
+	    varName.find("Peace") != std::string::npos)
+	{
+		result << " | At War: [";
+		bool first = true;
+		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)i;
+			if (GET_PLAYER(ePlayer).isAlive() && IsAtWarWith(ePlayer))
+			{
+				if (!first) result << ", ";
+				result << GET_PLAYER(ePlayer).getName();
+				first = false;
+			}
+		}
+		result << "]";
+	}
+	
+	// City/yield context
+	if (varName.find("City") != std::string::npos ||
+	    varName.find("Yield") != std::string::npos ||
+	    varName.find("Population") != std::string::npos)
+	{
+		result << " | Cities: " << getNumCities();
+		if (getNumCities() > 0)
+		{
+			result << " | Total Pop: " << getTotalPopulation();
+		}
+	}
+	
+	return result.str();
 }
 
 std::string CvPlayer::stackTraceRemark(const FAutoVariableBase& /*var*/) const

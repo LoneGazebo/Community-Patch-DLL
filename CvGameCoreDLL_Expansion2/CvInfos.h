@@ -709,7 +709,7 @@ public:
 	bool isFirstCoastalStart() const;
 
 	const char* getCityNames(int i) const;
-	const char* getSpyNames(int i) const;
+	vector<CvString> getSpyNames() const;
 
 	const char* getSoundtrackKey() const;
 

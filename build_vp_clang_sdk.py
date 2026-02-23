@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 from enum import Enum
 import typing
 import time
@@ -366,7 +367,7 @@ def build_clang_cpp(cl: str, cl_args: str, build_dir: Path, log: typing.IO):
     log.flush()
     if cp.returncode != 0:
         print('failed to build clang.cpp - see build log')
-        quit()
+        sys.exit(1)
     end_time = time.time()
     print(f'clang.cpp build finished after {end_time - start_time} seconds')
 
@@ -380,7 +381,7 @@ def update_commit_id(log: typing.IO):
     log.flush()
     if cp.returncode != 0:
         print('failed to update commit id - see build log')
-        quit()
+        sys.exit(1)
     end_time = time.time()
     print(f'commit id update finished after {end_time - start_time} seconds')
 
@@ -397,7 +398,7 @@ def build_pch(cl: str, cl_args: str, pch_path: Path, build_dir: Path, log: typin
     log.flush()
     if cp.returncode != 0:
         print('failed to build precompiled header - see build log')
-        quit()
+        sys.exit(1)
     end_time = time.time()
     print(f'precompiled header build finished after {end_time - start_time} seconds')
 
@@ -428,7 +429,7 @@ def build_cpps(cl: str, cl_args: str, pch_path: Path, build_dir: Path, log: typi
                 failed += 1
         if failed != 0:
             print(f'{failed} cpp(s) failed to build - see build log')
-            quit()
+            sys.exit(1)
         end_time = time.time()
         print(f'cpps build finished after {end_time - start_time} seconds')
     finally:
@@ -472,7 +473,7 @@ def link_dll(link: str, link_args: list[str], build_dir: Path, out_dir: Path, lo
     if cp.returncode != 0:
         print('linking dll failed - see build log')
         log.write(f'Linking failed with return code {cp.returncode}\n'.encode())
-        quit()
+        sys.exit(1)
     print(f'linking dll finished after {end_time - start_time} seconds')
 
 set_environment(SDK_VERSION)

@@ -614,6 +614,10 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		ASSERT(pkDefender != NULL);
 
 		iExperience = /*2*/ GD_INT_GET(EXPERIENCE_ATTACKING_UNIT_RANGED);
+
+		if (MOD_BALANCE_VP && pkDefender->IsCivilianUnit())
+			iExperience = 0;
+
 		if(pkDefender->isBarbarian())
 			bBarbarian = true;
 		iMaxXP = pkDefender->maxXPValue();
@@ -3843,7 +3847,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 			kAttacker.setCombatUnit(pDefender, true);
 			pDefender->setCombatUnit(&kAttacker, false);
 			CvUnit* pDefenderSupport = kCombatInfo.getUnit(BATTLE_UNIT_INTERCEPTOR);
-			if(pDefenderSupport)
+			if(pDefenderSupport && pDefenderSupport != pDefender)
 				pDefenderSupport->setCombatUnit(&kAttacker, false);
 
 			eResult = ATTACK_QUEUED;
@@ -3960,7 +3964,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 			int iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_AIR_SWEEP);
 			PlayerTypes eUnitOwner = kAttacker.getOwner();
 			PlayerTypes ePlotOwner = targetPlot.getOwner();
-			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, eUnitOwner == ePlotOwner, true, eUnitOwner != ePlotOwner && GET_PLAYER(ePlotOwner).isHuman(ISHUMAN_HANDICAP));
+			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, eUnitOwner == ePlotOwner, true, eUnitOwner != ePlotOwner && ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).isHuman(ISHUMAN_HANDICAP));
 			kAttacker.testPromotionReady();
 
 			// attempted to do a sweep in a plot that had no interceptors

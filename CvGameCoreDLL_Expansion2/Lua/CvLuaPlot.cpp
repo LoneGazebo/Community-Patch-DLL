@@ -212,6 +212,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetNumResource);
 	Method(SetNumResource);
 	Method(ChangeNumResource);
+	Method(GetNumResourcePostModifiers);
 
 	Method(GetImprovementType);
 	Method(SetImprovementType);
@@ -715,7 +716,14 @@ int CvLuaPlot::lGetBuildTime(lua_State* L)
 //int getBuildTurnsLeft(BuildTypes eBuild, int iNowExtra, int iThenExtra);
 int CvLuaPlot::lGetBuildTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::getBuildTurnsLeft);
+	CvPlot* pkPlot = GetInstance(L);
+	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 3);
+	const int iNowExtra = luaL_optint(L, 4, 0);
+	const int iThenExtra = luaL_optint(L, 5, 0);
+
+	lua_pushinteger(L, pkPlot->getBuildTurnsLeft(eBuild, ePlayer, iNowExtra, iThenExtra));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getBuildTurnsTotal(BuildTypes eBuild);
@@ -1556,6 +1564,25 @@ int CvLuaPlot::lSetNumResource(lua_State* L)
 int CvLuaPlot::lChangeNumResource(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::changeNumResource);
+}
+//------------------------------------------------------------------------------
+//int GetNumResourcePostModifiers();
+int CvLuaPlot::lGetNumResourcePostModifiers(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	if (pkPlot != NULL)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+		ImprovementTypes eImprovement = lua_gettop(L) >= 3 ? (ImprovementTypes)lua_tointeger(L, 3) : pkPlot->getImprovementType();
+		int iResult = pkPlot->GetNumResourcePostModifiers(ePlayer, eImprovement);
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
+	else
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
 }
 
 //------------------------------------------------------------------------------

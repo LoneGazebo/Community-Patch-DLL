@@ -1281,11 +1281,13 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
-			if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints()*3)
+			//GetDanger returns MAX_INT for "fatal" plots (city about to fall, etc) - handle without overflow
+			int iScaledDanger = (iPlotDanger >= INT_MAX / 2) ? INT_MAX : iPlotDanger * iScale;
+			if (iScaledDanger >= pUnit->GetCurrHitPoints()*3)
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints())
+			else if (iScaledDanger >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale > pUnit->GetCurrHitPoints()/3)
+			else if (iScaledDanger > pUnit->GetCurrHitPoints()/3)
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 		else //civilian, embarked or exploring
@@ -1505,8 +1507,8 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 
-	if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman(ISHUMAN_AI_UNITS) && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
-		return FALSE;
+		if (!kToNodeCacheData.bIsRevealedToTeam && !pUnit->isHuman(ISHUMAN_AI_UNITS) && !finder->HaveFlag(CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED) && pUnit->AI_getUnitAIType()!=UNITAI_EXPLORE)
+			return FALSE;
 
 	bool bNextNodeHostile = kToNodeCacheData.bIsEnemyCity || (kToNodeCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES));
 	bool bNextNodeVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
@@ -1573,7 +1575,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	//some checks about terrain etc. needs to be revealed, otherwise we leak information in the UI
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
-		// if we can't enter the plot even temporarily, that's it. 
+		// if we can't enter the plot even temporarily, that's it.
 		// if we can enter, there's another check in PathCost once we know whether we need to stay here
 		if (!kToNodeCacheData.bCanEnterTerrainIntermediate)
 			return FALSE;
@@ -2188,7 +2190,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
-			if (MOD_BALANCE_VP || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
+			if (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}
@@ -2884,6 +2886,9 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 		CvUnit* pUnit = GET_PLAYER(config.ePlayer).getUnit(config.iUnitID);
 		if (pUnit) //force an update before starting the actual pathfinding
 			GET_PLAYER(config.ePlayer).GetPlotDanger(*pUnit->plot(), pUnit, UnitIdContainer(), 0);
+
+		// GetPlotDanger may have triggered nested pathfinding that overwrote m_sData, restore it
+		m_sData = config;
 	}
 
 	switch(config.ePath)
@@ -3133,7 +3138,7 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 	}
 
 	ReachablePlots plots;
-	
+
 	//there is no destination! the return value will always be false
 	CvAStar::FindPathWithCurrentConfiguration(iXstart, iYstart, -1, -1);
 
@@ -3508,7 +3513,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 		iRouteDiscountTimes120 = 54; //can't get better than this even if next plot is railroad
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) &&
-		(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
+		(MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
 		!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteDiscountTimes120 = 40;
 	// ignore terrain cost for moving along rivers

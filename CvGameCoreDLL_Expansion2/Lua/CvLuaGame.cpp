@@ -2008,9 +2008,9 @@ int CvLuaGame::lGameplayDiplomacyAILeaderMessage(lua_State* L)
 int CvLuaGame::lGetResourceUsageType(lua_State* L)
 {
 	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 1);
-	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-	if (pkResourceInfo)
+	if (eResource != NO_RESOURCE)
 	{
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
 		lua_pushinteger(L, eUsage);
 	}

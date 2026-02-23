@@ -260,6 +260,7 @@ SET
 	PrereqTech = (SELECT PrereqTech FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	FreeStartEra = (SELECT FreeStartEra FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	CityIndirectFire = (SELECT CityIndirectFire FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
+	RangedStrikeModifier = (SELECT RangedStrikeModifier FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	CitySupplyModifier = (SELECT CitySupplyModifier FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	HealRateChange = (SELECT HealRateChange FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	EmpireSizeModifierReduction = (SELECT EmpireSizeModifierReduction FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),

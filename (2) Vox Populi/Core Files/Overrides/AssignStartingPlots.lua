@@ -535,6 +535,8 @@ function AssignStartingPlots:__Init()
 			self.camel_ID = resourceID;
 		elseif resourceType == "RESOURCE_QUARTZ" then
 			self.quartz_ID = resourceID;
+		elseif resourceType == "RESOURCE_FEATHERS" then
+			self.feathers_ID = resourceID;
 		end
 	end
 
@@ -863,6 +865,9 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[2], {self.tin_ID,		10});
 	end
 	-- MOD.HungryForFood: End
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_region_weights[2], {self.feathers_ID,	35});
+	end
 
 	self.luxury_region_weights[3] = { -- Forest
 		{self.truffles_ID,	40},
@@ -882,6 +887,9 @@ function AssignStartingPlots:__InitLuxuryWeights()
 		table.insert(self.luxury_region_weights[3], {self.lavender_ID,	15});
 	end
 	-- MOD.HungryForFood: End
+	if self:IsAdditionalLuxuriesModActive() then
+		table.insert(self.luxury_region_weights[3], {self.feathers_ID,	35});
+	end
 
 	self.luxury_region_weights[4] = { -- Desert 
 		{self.incense_ID,	35},
@@ -1033,7 +1041,6 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	end
 	-- MOD.HungryForFood: End
 	if self:IsAdditionalLuxuriesModActive() then
-		table.insert(self.luxury_region_weights[8], {self.alpaca_ID,	05});
 		table.insert(self.luxury_region_weights[8], {self.quartz_ID,	30});
 	end
 	
@@ -1077,6 +1084,7 @@ function AssignStartingPlots:__InitLuxuryWeights()
 	if self:IsAdditionalLuxuriesModActive() then
 		table.insert(self.luxury_fallback_weights, {self.camel_ID,	05});
 		table.insert(self.luxury_fallback_weights, {self.alpaca_ID,	05});
+		table.insert(self.luxury_fallback_weights, {self.feathers_ID, 05});
 		table.insert(self.luxury_fallback_weights, {self.quartz_ID,	30});
 	end
 	
@@ -8928,6 +8936,7 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 								end
 								if self:IsAdditionalLuxuriesModActive() then
 									allowed_luxuries[self.quartz_ID] = true; 
+									allowed_luxuries[self.feathers_ID] = true;
 								end
 							elseif terrainType == TerrainTypes.TERRAIN_DESERT then
 								allowed_luxuries[self.gold_ID] = true;
@@ -8987,6 +8996,7 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 								if self:IsAdditionalLuxuriesModActive() then
 									allowed_luxuries[self.quartz_ID] = true; 
 									allowed_luxuries[self.alpaca_ID] = true;
+									allowed_luxuries[self.feathers_ID] = true;
 								end
 							elseif terrainType == TerrainTypes.TERRAIN_GRASS then
 								allowed_luxuries[self.gold_ID] = true;
@@ -9021,6 +9031,7 @@ function AssignStartingPlots:GetListOfAllowableLuxuriesAtCitySite(x, y, radius)
 								if self:IsAdditionalLuxuriesModActive() then
 									allowed_luxuries[self.quartz_ID] = true; 
 									allowed_luxuries[self.alpaca_ID] = true;
+									allowed_luxuries[self.feathers_ID] = true;
 								end
 							end
 						end
@@ -9441,6 +9452,14 @@ function AssignStartingPlots:GetIndicesForLuxuryType(resource_ID)
 			PlotListTypes.FLAT_COVERED,
 			PlotListTypes.HILLS_SNOW,
 			PlotListTypes.FLAT_SNOW,
+		};
+	elseif resource_ID == self.feathers_ID then
+		tList = {
+			PlotListTypes.FLAT_FOREST,
+			PlotListTypes.FLAT_JUNGLE,
+			PlotListTypes.MARSH,
+			PlotListTypes.HILLS_COVERED,
+			PlotListTypes.FLAT_PLAINS_GRASS_NO_FEATURE,
 		};
 	-- MOD.HungryForFood: Start
 	-- Even More Resources for Vox Populi
@@ -10773,6 +10792,7 @@ function AssignStartingPlots:AdjustTiles()
 				   res_ID == self.dye_ID or
 				   res_ID == self.fur_ID or
 				   res_ID == self.deer_ID or
+				   res_ID == self.feathers_ID or
 				   -- MOD.HungryForFood: Start
 				   self:IsEvenMoreResourcesActive() and
 				   (
@@ -10791,7 +10811,7 @@ function AssignStartingPlots:AdjustTiles()
 
 				-- Always want it covered for most tree resources.
 				if featureType == FeatureTypes.FEATURE_MARSH then
-					if res_ID == self.sugar_ID or res_ID == self.truffles_ID then
+					if res_ID == self.sugar_ID or res_ID == self.truffles_ID or res_ID == self.feathers_ID then
 						-- Keep it marsh for these resources.
 					else
 						-- Add some jungle or forest.
@@ -10926,6 +10946,7 @@ function AssignStartingPlots:PrintFinalResourceTotalsToLog()
 		print(self.alpaca_ID, 	"Alpaca..: ", self.amounts_of_resources_placed[self.alpaca_ID + 1]);
 		print(self.camel_ID, 	"Camel...: ", self.amounts_of_resources_placed[self.camel_ID + 1]);
 		print(self.quartz_ID,   "Quartz..: ", self.amounts_of_resources_placed[self.quartz_ID + 1]);
+		print(self.feathers_ID, "Feathers: ", self.amounts_of_resources_placed[self.feathers_ID + 1]);
 	end
 	print("-");
 	-- MOD.HungryForFood: Start

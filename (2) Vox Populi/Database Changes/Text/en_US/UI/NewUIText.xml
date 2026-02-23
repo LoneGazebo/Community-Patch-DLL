@@ -1909,11 +1909,6 @@
 			<Text>The City-State of {1_CivName:textkey} wants you to send an archaeologist to study this tile.</Text>
 		</Row>
 
-		<!-- Religion picker -->
-		<Row Tag="TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION">
-			<Text>[COLOR_POSITIVE_TEXT]Your Advisor recommends this belief.[ENDCOLOR]</Text>
-		</Row>
-
 		<!-- Economic overview -->
 		<Row Tag="TXT_KEY_HAPPINESS_FROM_VASSALS">
 			<Text>Vassals</Text>

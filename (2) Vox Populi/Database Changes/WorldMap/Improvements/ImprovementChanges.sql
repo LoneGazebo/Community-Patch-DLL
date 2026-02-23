@@ -17,7 +17,7 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
 	('IMPROVEMENT_FARM', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1, 2),
-	('IMPROVEMENT_FARM', 'IMPROVEMENT_MANUFACTORY', 'YIELD_FOOD', 1, 2);
+	('IMPROVEMENT_FARM', 'IMPROVEMENT_ACADEMY', 'YIELD_FOOD', 1, 2);
 
 -- +1 Food on fresh water
 INSERT INTO Improvement_FreshWaterYields
@@ -55,8 +55,8 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 VALUES
 	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_LUMBERMILL', 'YIELD_GOLD', 1, 2),
 	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1, 2),
-	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_MANUFACTORY', 'YIELD_GOLD', 1, 2),
-	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_MANUFACTORY', 'YIELD_PRODUCTION', 1, 2);
+	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_ACADEMY', 'YIELD_GOLD', 1, 2),
+	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_ACADEMY', 'YIELD_PRODUCTION', 1, 2);
 
 INSERT INTO Improvement_ValidFeatures
 	(ImprovementType, FeatureType)
@@ -74,6 +74,15 @@ INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_FORT', 'YIELD_CULTURE_LOCAL', 1);
+
+INSERT INTO Improvement_ResourceExtractionIncrease
+	(ImprovementType, ResourceType, Num)
+SELECT
+	'IMPROVEMENT_MANUFACTORY',
+	Type,
+	1
+FROM Resources
+WHERE ResourceUsage IN (1, 2);
 
 UPDATE Improvements
 SET

@@ -430,9 +430,7 @@ function OnUnitSelectionChange(iPlayerID, iUnitID, i, j, k, isSelected)
 
     -- Don't clear highlights if in city/unit range attack mode
     local interfaceMode = UI.GetInterfaceMode();
-    if interfaceMode ~= InterfaceModeTypes.INTERFACEMODE_CITY_RANGE_ATTACK and interfaceMode ~= InterfaceModeTypes.INTERFACEMODE_RANGE_ATTACK then
-        Events.ClearHexHighlights();
-    end
+
     if (isSelected) then
         local pPlayer = Players[iPlayerID];
         local pUnit = pPlayer:GetUnitByID(iUnitID);
@@ -446,8 +444,8 @@ function OnUnitSelectionChange(iPlayerID, iUnitID, i, j, k, isSelected)
         if pUnit:GetSquadNumber() > 0 then
             currentSquadNumber = pUnit:GetSquadNumber();
         end
-
-        
+    elseif interfaceMode ~= InterfaceModeTypes.INTERFACEMODE_CITY_RANGE_ATTACK and interfaceMode ~= InterfaceModeTypes.INTERFACEMODE_RANGE_ATTACK then
+        Events.ClearHexHighlights();
     end
 end
 Events.UnitSelectionChanged.Add( OnUnitSelectionChange );
