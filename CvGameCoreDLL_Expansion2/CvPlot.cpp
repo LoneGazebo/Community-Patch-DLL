@@ -14746,11 +14746,11 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 // result is a simplified version of canMoveInto. since we don't know the particular of the unit, we are more restrictive here
 bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 {
-	if ( getRouteType()!=NO_ROUTE && !IsRoutePillaged() && (!isCity() || getOwner()==ePlayer) ) //if it's a city, it needs to be our city
-		return true;
-
-	if (ePlayer==NO_PLAYER)
-		return !m_bIsImpassable;
+	if (ePlayer == NO_PLAYER)
+	{
+		//routes override terrain impassability
+		return (!m_bIsImpassable && !isIce()) || (getRouteType() != NO_ROUTE && !IsRoutePillaged());
+	}
 	else
 	{
 		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
@@ -14769,6 +14769,9 @@ bool CvPlot::isValidMovePlot(PlayerTypes ePlayer, bool bCheckTerritory) const
 				bCanPassBecauseOfPlayerTrait = true;
 			//and shallow water... (this is necessary because of scenarios and tech situations where units can embark before techs, and vice-versa.
 			if (isShallowWater() && GET_PLAYER(ePlayer).CanEmbark())
+				bCanPassBecauseOfPlayerTrait = true;
+			//routes override terrain impassability, except for foreign cities
+			if (getRouteType() != NO_ROUTE && !IsRoutePillaged() && (!isCity() || getOwner() == ePlayer))
 				bCanPassBecauseOfPlayerTrait = true;
 
 			if (!bCanPassBecauseOfPlayerTrait)
