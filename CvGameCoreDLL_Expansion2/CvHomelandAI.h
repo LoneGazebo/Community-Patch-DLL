@@ -259,7 +259,7 @@ private:
 	// Routines to manage identifying and implementing homeland moves
 	void PlotExplorerMoves();
 	void PlotFirstTurnSettlerMoves();
-	void PlotHealMoves();
+	void PlotHealMoves(bool bConservative);
 	void PlotMovesToSafety();
 
 	void PlotOpportunisticSettlementMoves();

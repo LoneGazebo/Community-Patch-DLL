@@ -874,6 +874,13 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			//todo: consider whether the enemy units would block each other from attacking?
 			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? NULL : pAttacker->plot(), iAttackerDamage, false, iExtraDamage, true);
 
+			//assume units will do AoE damage on move once per turn
+			int iAoEDamage = pAttacker->getAoEDamageOnMove();
+			if (iAoEDamage > 0)
+			{
+				iDamage += iAoEDamage;
+			}
+
 			if (!m_pPlot->IsKnownVisibleToTeam(pAttacker->getTeam()))
 				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
 
