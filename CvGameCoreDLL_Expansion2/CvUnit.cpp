@@ -29425,14 +29425,14 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 
 		//also depends on what we can do with the unit
 		int iSoftHpLimit = GetMaxHitPoints() / 3;
-		return GetCurrHitPoints() < iSoftHpLimit && ActualHealRate(plot(), false) > 0 && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
+		return GetCurrHitPoints() < iSoftHpLimit && ActualHealRate(plot()) > 0 && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
 	else 
 	{
 		if (GetNumEnemyUnitsAdjacent()>0 || IsEnemyCityAdjacent())
 		{
 			//only run away if strictly necessary
-			return isProjectedToDieNextTurn() && (GetDanger() > GetCurrHitPoints());
+			return isProjectedToDieNextTurn() && (GetDanger() > GetCurrHitPoints() + ActualHealRate(plot()));
 		}
 		else
 		{
