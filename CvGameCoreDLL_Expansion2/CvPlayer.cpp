@@ -26340,7 +26340,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						if (pReligion)
 						{
-							int iTempVal = pReligion->m_Beliefs.GetYieldFromFaithPurchase(eYield, GetID(), pLoopCity, true);
+							int iTempVal = pReligion->m_Beliefs.GetYieldFromFaithPurchase(eYield, GetID(), pLoopCity);
 							iTempVal *= iPassYield;
 							iTempVal /= 100;
 							iValue += iTempVal;
