@@ -16506,11 +16506,15 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 
 	if(pInPlot != NULL)
 	{
-		// No TERRAIN bonuses for this Unit?
+		// Should there be TERRAIN bonuses for this Unit?
 		int iTempModifier = pInPlot->defenseModifier(getTeam(), false, false);
-		if (noDefensiveBonus() && iTempModifier>0)
-			//only forts & citadels have an effect
-			iTempModifier -= pInPlot->defenseModifier(getTeam(), true, false);
+		if (iTempModifier > 0)
+		{
+			// boats don't get defense on land and vice versa (always false for hover/air)
+			if (noDefensiveBonus() || (getDomainType() != pInPlot->getDomain()))
+				//only forts & citadels have an effect
+				iTempModifier -= pInPlot->defenseModifier(getTeam(), true, false);		
+		}
 		iModifier += iTempModifier;
 
 		// City Defense
@@ -17242,9 +17246,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// No TERRAIN bonuses for this Unit?
 		int iTempModifier = pMyPlot->defenseModifier(getTeam(), false, false);
 
-		if (noDefensiveBonus() && iTempModifier>0)
-			//only forts & citadels have an effect
-			iTempModifier -= pMyPlot->defenseModifier(getTeam(), true, false);
+		if (iTempModifier > 0)
+		{
+			// boats don't get defense on land and vice versa (always false for hover/air)
+			if (noDefensiveBonus() || (getDomainType() != pMyPlot->getDomain()))
+				//only forts & citadels have an effect
+				iTempModifier -= pMyPlot->defenseModifier(getTeam(), true, false);		
+		}
 
 		iModifier += iTempModifier;
 	}
