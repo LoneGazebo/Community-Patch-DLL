@@ -14901,30 +14901,34 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 
-		// Building Yield Change with Technology
+		// Building Bonuses from Accomplishments
 		if (!pBuildingInfo->GetBonusFromAccomplishments().empty())
 		{
-			map<int, AccomplishmentBonusInfo> mBonusFromAccomplishments = pBuildingInfo->GetBonusFromAccomplishments();
-			map<int, AccomplishmentBonusInfo>::iterator it;
-			for (it = mBonusFromAccomplishments.begin(); it != mBonusFromAccomplishments.end(); ++it)
+			const std::map<int, std::vector<AccomplishmentBonusInfo>>& mBonusFromAccomplishments = pBuildingInfo->GetBonusFromAccomplishments();
+			for (std::map<int, std::vector<AccomplishmentBonusInfo>>::const_iterator it = mBonusFromAccomplishments.begin(); it != mBonusFromAccomplishments.end(); ++it)
 			{
-				int iNumAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+				int iNumAccomplishmentCompleted =
+					GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+			
 				if (iNumAccomplishmentCompleted > 0)
 				{
-					AccomplishmentBonusInfo bonusInfo = it->second;
-					// apply bonuses for completed accomplishments
-					ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness * iNumAccomplishmentCompleted * iChange);
-					if (bonusInfo.eDomainType != NO_DOMAIN)
+					const std::vector<AccomplishmentBonusInfo>& vBonuses = it->second;
+					for (size_t i = 0; i < vBonuses.size(); i++)
 					{
-						changeDomainFreeExperience(bonusInfo.eDomainType, bonusInfo.iDomainXP * iNumAccomplishmentCompleted * iChange);
-					}
-					if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
-					{
-						changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType, bonusInfo.iUnitProductionModifier * iNumAccomplishmentCompleted* iChange);
+						const AccomplishmentBonusInfo& bonusInfo = vBonuses[i];
+			
+						ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness * iNumAccomplishmentCompleted * iChange);
+			
+						if (bonusInfo.eDomainType != NO_DOMAIN)
+							changeDomainFreeExperience(bonusInfo.eDomainType,
+								bonusInfo.iDomainXP * iNumAccomplishmentCompleted * iChange);
+			
+						if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
+							changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType,
+								bonusInfo.iUnitProductionModifier * iNumAccomplishmentCompleted * iChange);
 					}
 				}
-				// for future accomplishments, we store a list of the accomplishments for which bonuses are given.
-				// when one of the accomplishments is completed later, we apply the bonuses by looping through the city buildings directly
+			
 				AddToAccomplishmentsWithBonuses((AccomplishmentTypes)it->first);
 			}
 		}
