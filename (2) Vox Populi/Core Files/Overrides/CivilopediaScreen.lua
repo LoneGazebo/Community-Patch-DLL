@@ -3492,6 +3492,8 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("CanMoveAfterAttacking");
 		--AnalyzePromotion("AlwaysHeal");
 		if thisPromotion.AlwaysHeal then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR]"; end
+		--AnalyzePromotion("FlatHealRate");
+		if thisPromotion.FlatHealRate > 0 then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Heals an additional "..string.format("%d", thisPromotion.FlatHealRate).." HP each turn regardless of action taken[ENDCOLOR]"; end
 		--AnalyzePromotion("HealOutsideFriendly");
 		if thisPromotion.HealOutsideFriendly then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Heals outside friendly territory[ENDCOLOR]"; end
 		AnalyzePromotion("HillsDoubleMove");

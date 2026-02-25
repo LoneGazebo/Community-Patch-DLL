@@ -67,7 +67,7 @@ UPDATE UnitPromotions SET OpenDefense = 15 WHERE RankList = 'FORMATION';
 
 UPDATE UnitPromotions SET FlankAttackModifier = 25, AOEDamageOnKill = 10 WHERE Type = 'PROMOTION_OVERRUN';
 
-UPDATE UnitPromotions SET AlwaysHeal = 1 WHERE RankList = 'MARCH';
+UPDATE UnitPromotions SET FlatHealRate = 10 WHERE RankList = 'MARCH';
 
 UPDATE UnitPromotions SET ExtraAttacks = 1, CanMoveAfterAttacking = 1 WHERE Type = 'PROMOTION_BLITZ';
 
@@ -192,7 +192,7 @@ SET
 	DefenseMod = 25
 WHERE Type IN ('PROMOTION_SURVIVALISM_1', 'PROMOTION_SURVIVALISM_2');
 
-UPDATE UnitPromotions SET AlwaysHeal = 1, FreePillageMoves = 1 WHERE Type = 'PROMOTION_SURVIVALISM_3';
+UPDATE UnitPromotions SET FlatHealRate = 10, FreePillageMoves = 1 WHERE Type = 'PROMOTION_SURVIVALISM_3';
 
 UPDATE UnitPromotions SET VisibilityChange = 1, EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_TRAILBLAZER_1';
 UPDATE UnitPromotions SET MovesChange = 1, ExtraNavalMovement = 1, River = 1 WHERE Type = 'PROMOTION_TRAILBLAZER_2';
