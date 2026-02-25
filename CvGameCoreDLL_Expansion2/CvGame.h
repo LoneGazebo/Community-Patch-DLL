@@ -440,7 +440,7 @@ public:
 	const CvString& getName();
 	void setName(const char* szName);
 
-	bool isDestroyedCityName(CvString& szName) const;
+	bool isDestroyedCityName(const CvString& szName) const;
 	void addDestroyedCityName(const CvString& szName);
 
 	bool isGreatPersonBorn(CvString& szName) const;
