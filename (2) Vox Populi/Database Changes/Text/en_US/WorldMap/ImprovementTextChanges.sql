@@ -63,7 +63,7 @@ WHERE Tag = 'TXT_KEY_BUILD_CITADEL_HELP';
 
 -- Holy Site
 UPDATE Language_en_US
-SET Text = 'Unit will be consumed.[NEWLINE][NEWLINE]Provides an additional 1 [ICON_PEACE] Faith for every adjacent Mountain tile.[NEWLINE][NEWLINE]Great Tile Improvements will connect Strategic Resources on this tile to the trade network.'
+SET Text = 'Unit will be consumed.[NEWLINE][NEWLINE]Provides an additional 1 [ICON_PEACE] Faith for every adjacent Mountain tile.[NEWLINE][NEWLINE]Connects Resources on the tile to the trade network.'
 Where Tag = 'TXT_KEY_BUILD_HOLY_SITE_HELP';
 
 -- Landmark
