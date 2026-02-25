@@ -567,11 +567,17 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	if (!pkBuildingInfo->GetBonusFromAccomplishments().empty())
 	{
-		map<int, AccomplishmentBonusInfo> mBonusesFromAccomplishments = pkBuildingInfo->GetBonusFromAccomplishments();
-		map<int, AccomplishmentBonusInfo>::iterator it;
-		for (it = mBonusesFromAccomplishments.begin(); it != mBonusesFromAccomplishments.end(); it++)
+		for (std::map<int, std::vector<AccomplishmentBonusInfo>>::const_iterator it = pkBuildingInfo->GetBonusFromAccomplishments().begin(); it != pkBuildingInfo->GetBonusFromAccomplishments().end(); ++it)
 		{
-			iBonus += iHappinessValue + kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0 * it->second.iHappiness;
+			int iNum = kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+			if (iNum > 0)
+			{
+				const std::vector<AccomplishmentBonusInfo>& vBonuses = it->second;
+				for (size_t i = 0; i < vBonuses.size(); i++)
+				{
+					iBonus += iHappinessValue + (iNum * vBonuses[i].iHappiness);
+				}
+			}
 		}
 	}
 
@@ -986,13 +992,21 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 			if (!pkBuildingInfo->GetBonusFromAccomplishments().empty())
 			{
-				map<int, AccomplishmentBonusInfo> mBonusesFromAccomplishments = pkBuildingInfo->GetBonusFromAccomplishments();
-				map<int, AccomplishmentBonusInfo>::iterator it;
-				for (it = mBonusesFromAccomplishments.begin(); it != mBonusesFromAccomplishments.end(); it++)
+				for (std::map<int, std::vector<AccomplishmentBonusInfo>>::const_iterator it = pkBuildingInfo->GetBonusFromAccomplishments().begin(); it != pkBuildingInfo->GetBonusFromAccomplishments().end(); ++it)
 				{
-					if (it->second.eDomainType == eTestDomain)
+					int iNum = kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+					if (iNum > 0)
 					{
-						iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0 * it->second.iDomainXP;
+						const std::vector<AccomplishmentBonusInfo>& vBonuses = it->second;
+						for (size_t i = 0; i < vBonuses.size(); i++)
+						{
+							const AccomplishmentBonusInfo& bonusInfo = vBonuses[i];
+							if (bonusInfo.eDomainType == eTestDomain)
+							{
+								iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain)
+									+ (iNum * bonusInfo.iDomainXP);
+							}
+						}
 					}
 				}
 			}
@@ -1047,13 +1061,21 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				}
 				if (!pkBuildingInfo->GetBonusFromAccomplishments().empty())
 				{
-					map<int, AccomplishmentBonusInfo> mBonusesFromAccomplishments = pkBuildingInfo->GetBonusFromAccomplishments();
-					map<int, AccomplishmentBonusInfo>::iterator it;
-					for (it = mBonusesFromAccomplishments.begin(); it != mBonusesFromAccomplishments.end(); it++)
+					for (std::map<int, std::vector<AccomplishmentBonusInfo>>::const_iterator it = pkBuildingInfo->GetBonusFromAccomplishments().begin(); it != pkBuildingInfo->GetBonusFromAccomplishments().end(); ++it)
 					{
-						if (it->second.eUnitCombatType == eUnitCombatClass)
+						int iNum = kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+						if (iNum > 0)
 						{
-							iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass) + kPlayer.GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first) > 0 * it->second.iUnitProductionModifier;
+							const std::vector<AccomplishmentBonusInfo>& vBonuses = it->second;
+							for (size_t i = 0; i < vBonuses.size(); i++)
+							{
+								const AccomplishmentBonusInfo& bonusInfo = vBonuses[i];
+								if (bonusInfo.eUnitCombatType == eUnitCombatClass)
+								{
+									iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass)
+										+ (iNum * bonusInfo.iUnitProductionModifier);
+								}
+							}
 						}
 					}
 				}

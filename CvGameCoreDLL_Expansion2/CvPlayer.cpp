@@ -4800,23 +4800,52 @@ void CvPlayer::getCivilizationCityName(CvString& szBuffer, CivilizationTypes eCi
 	else
 	{
 		const CvCivilizationInfo& kCivInfo = *pkCivilizationInfo;
-		for(int iI = 0; iI < kCivInfo.getNumCityNames(); iI++)
+		const int iNumNames = kCivInfo.getNumCityNames();
+
+		if (iNumNames == 0)
+			return;
+
+		if (GC.getGame().isOption(GAMEOPTION_RANDOMIZE_CITY_NAMES) && GetNumCitiesFounded() != 0)
 		{
-			iLoopName = ((iI + iRandOffset) % kCivInfo.getNumCityNames());
-
-			const CvString strCityName = kCivInfo.getCityNames(iLoopName);
-			CvString strName = GetLocalizedText(strCityName.c_str());
-
-			if(isCityNameValid(strName, true))
+			vector<CvString> availableNames;
+			availableNames.reserve(iNumNames);
+			for (int iI = 0; iI < iNumNames; iI++)
 			{
-				szBuffer = strCityName;
-				break;
+				const CvString strCityName = kCivInfo.getCityNames(iI);
+				CvString strName = GetLocalizedText(strCityName.c_str());
+
+				if (isCityNameValid(strName, true))
+				{
+					availableNames.push_back(strCityName);
+				}
+			}
+
+			if (availableNames.empty())
+				return;
+
+			uint iRand = GC.getGame().urandLimitExclusive(availableNames.size(), CvSeeder(GetID()).mix(GetNumCitiesFounded()));
+			szBuffer = availableNames[iRand];
+		}
+		else
+		{
+			for (int iI = 0; iI < iNumNames; iI++)
+			{
+				iLoopName = ((iI + iRandOffset) % iNumNames);
+
+				const CvString strCityName = kCivInfo.getCityNames(iLoopName);
+				CvString strName = GetLocalizedText(strCityName.c_str());
+
+				if (isCityNameValid(strName, true))
+				{
+					szBuffer = strCityName;
+					break;
+				}
 			}
 		}
 	}
 }
 
-bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed, bool bForce) const
+bool CvPlayer::isCityNameValid(const CvString& szName, bool bTestDestroyed, bool bForce) const
 {
 	if (bForce)
 		return true;
@@ -11658,7 +11687,7 @@ void CvPlayer::disband(CvCity* pCity)
 
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityRazed, GetID(), pPlot->getX(), pPlot->getY());
 
-	GC.getGame().addDestroyedCityName(pCity->getNameKey());
+	GC.getGame().addDestroyedCityName(pCity->getName());
 
 	for (int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
 	{
@@ -32919,22 +32948,42 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 								}
 							}
 							int iNumResource = pLoopPlot->getNumResource();
-							if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-							{
-								int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
-								iNumResource *= 100 + iQuantityMod;
-								iNumResource /= 100;
-							}
-
-							if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
-							{
-								int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
-								iNumResource *= 100 + iQuantityMod;
-								iNumResource /= 100;
-							}
 
 							if (pLoopPlot->IsResourceImprovedForOwner())
 							{
+								ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+								if (eImprovement != NO_IMPROVEMENT)
+								{
+									CvImprovementEntry* pkImprovementType = GC.getImprovementInfo(eImprovement);
+									if (pkImprovementType)
+									{
+										int iIncrease = pkImprovementType->GetResourceExtractionIncrease(eRes);
+										if (iIncrease != 0)
+											iNumResource += iIncrease;
+
+										int iMod = pkImprovementType->GetResourceExtractionMod(eRes);
+										if (iMod != 0)
+										{
+											iNumResource *= 100 + iMod;
+											iNumResource /= 100;
+										}
+									}
+								}
+
+								if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+								{
+									int iQuantityMod = GetPlayerTraits()->GetStrategicResourceQuantityModifier(pLoopPlot->getTerrainType());
+									iNumResource *= 100 + iQuantityMod;
+									iNumResource /= 100;
+								}
+
+								if (GetPlayerTraits()->GetResourceQuantityModifier(eRes) > 0)
+								{
+									int iQuantityMod = GetPlayerTraits()->GetResourceQuantityModifier(eRes);
+									iNumResource *= 100 + iQuantityMod;
+									iNumResource /= 100;
+								}
+
 								iCntImproved += iNumResource;
 								// ExtraLuxury resources are stored in m_paiNumResourceFromBuildings, but we can't compare it with the counted value because it also contains resources from other sources
 							}
@@ -33537,6 +33586,11 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 			{
 				kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 			}
+		}
+		else if (kPossibleVictimPlayer.isMinorCiv())
+		{
+			// Killing a city state gives war victory bonuses to the civ that eliminated them
+			DoWarVictoryBonuses();
 		}
 	}
 }
@@ -35893,7 +35947,6 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 			}
 		}
 
-		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
 		if (GC.getGame().isReallyNetworkMultiPlayer() && IsAtWarAnyMajor())
 		{
 			if (GetWarDamageValue(eLoopPlayer) != iValueLostRatio || iWarValueLost > 0)
@@ -35913,6 +35966,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 				pLog->Msg(strOutBuf);
 			}
 		}
+		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
 
 		// Only update war weariness between major civs (and only on the once-per-turn update)
 		if (bDamageOnly || !isMajorCiv() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
@@ -37032,7 +37086,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 						int iReligionBonus = pMinorCivAI->IsSameReligionAsMajor(GetID()) ? /*50*/ GD_INT_GET(MINOR_FRIENDSHIP_RATE_MOD_SHARED_RELIGION) : 0;
 						if (iReduction > 0)
 						{
-							iReduction *= (100 + iReligionBonus + GetPlayerTraits()->GetCityStateFriendshipModifier());
+							iReduction *= (100 + iReligionBonus + GetPlayerTraits()->GetCityStateRecoveryModifier());
 							iReduction /= 100;
 							iCurrentShift -= iReduction;
 						}
@@ -37159,17 +37213,17 @@ void CvPlayer::addResourcesOnPlotToUnimproved(CvPlot* pPlot, bool bOnlyExtraReso
 {
 	if (!bOnlyExtraResources)
 	{
-		changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
+		changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true));
 	}
-	changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
+	changeNumResourceUnimproved(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true));
 
 	CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
-		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		if (!bOnlyExtraResources)
 		{
-			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ true);
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		}
 	}
 }
@@ -37178,17 +37232,17 @@ void CvPlayer::removeResourcesOnPlotFromUnimproved(CvPlot* pPlot, bool bOnlyExtr
 {
 	if (!bOnlyExtraResources)
 	{
-		changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq));
+		changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true));
 	}
-	changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq));
+	changeNumResourceUnimproved(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true));
 
 	CvCity* pOwningCity = pPlot->getOwningCity();
 	if (pOwningCity)
 	{
-		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq), /*bUnimproved*/ true);
+		pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), true, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		if (!bOnlyExtraResources)
 		{
-			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq), /*bUnimproved*/ true);
+			pOwningCity->ChangeNumResourceLocal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(GetID(), false, bIgnoreTechPrereq, true), /*bUnimproved*/ true);
 		}
 	}
 }
@@ -37655,19 +37709,31 @@ void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment)
 				for (size_t iI = 0; iI < vCityBuildings.size(); iI++)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(vCityBuildings[iI]);
-					if (pkBuildingInfo->GetBonusFromAccomplishments().count(eAccomplishment) > 0)
+					const std::map<int, std::vector<AccomplishmentBonusInfo>>& bonusMap = pkBuildingInfo->GetBonusFromAccomplishments();
+					std::map<int, std::vector<AccomplishmentBonusInfo>>::const_iterator it = bonusMap.find(eAccomplishment);
+					if (it != bonusMap.end())
 					{
-						AccomplishmentBonusInfo bonusInfo = pkBuildingInfo->GetBonusFromAccomplishments()[eAccomplishment];
-						// apply the bonuses
-						pLoopCity->ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness);
-						if (bonusInfo.eDomainType != NO_DOMAIN)
-						{
-							pLoopCity->changeDomainFreeExperience(bonusInfo.eDomainType, bonusInfo.iDomainXP);
-						}
-						if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
-						{
-							pLoopCity->changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType, bonusInfo.iUnitProductionModifier);
-						}
+					    const std::vector<AccomplishmentBonusInfo>& vBonuses = it->second;
+					    for (size_t iBonus = 0; iBonus < vBonuses.size(); iBonus++)
+					    {
+					        const AccomplishmentBonusInfo& bonusInfo = vBonuses[iBonus];
+					        // apply the bonuses
+					        pLoopCity->ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness);
+					        if (bonusInfo.eDomainType != NO_DOMAIN)
+					        {
+					            pLoopCity->changeDomainFreeExperience(
+					                bonusInfo.eDomainType,
+					                bonusInfo.iDomainXP
+					            );
+					        }
+					        if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
+					        {
+					            pLoopCity->changeUnitCombatProductionModifier(
+					                bonusInfo.eUnitCombatType,
+					                bonusInfo.iUnitProductionModifier
+					            );
+					        }
+					    }
 					}
 				}
 			}
@@ -40552,7 +40618,7 @@ bool CvPlayer::GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRou
 
 	if (GetPlayerTraits()->IsWoodlandMovementBonus())
 	{
-		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pPlot->getTeam() == getTeam()))
+		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pPlot->getTeam() == getTeam()))
 			return true;
 	}
 
@@ -40807,6 +40873,20 @@ CvUnit* CvPlayer::addUnit()
 
 void CvPlayer::deleteUnit(int iID)
 {
+	if(GC.getGame().isNetworkMultiPlayer())
+	{
+		CvUnit* pUnit = m_units.Get(iID);
+		if(pUnit)
+		{
+			CvPlot* pPlot = pUnit->plot();
+			if(pPlot && pPlot->getUnitIndex(pUnit) >= 0)
+			{
+				CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** deleteUnit: unit (owner %d, id %d) is still on plot (%d,%d) when being deleted from player!",
+					GetID(), iID, pPlot->getX(), pPlot->getY());
+				gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+			}
+		}
+	}
 	m_units.Remove(iID);
 }
 
@@ -47297,14 +47377,90 @@ bool CvPlayer::hasUnitsThatNeedAIUpdate() const
 	return false;
 }
 
-std::string CvPlayer::debugDump(const FAutoVariableBase&) const
+std::string CvPlayer::debugDump(const FAutoVariableBase& var) const
 {
-	std::string result = "Game Turn : ";
-	char gameTurnBuffer[8] = {0};
-	int gameTurn = GC.getGame().getGameTurn();
-	sprintf_s(gameTurnBuffer, "%d\0", gameTurn);
-	result += gameTurnBuffer;
-	return result;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// Player identity
+	result << "Player: ";
+	if (isMajorCiv())
+	{
+		result << getCivilizationShortDescription();
+	}
+	else if (isMinorCiv())
+	{
+		result << "CS-" << getName();
+	}
+	else
+	{
+		result << "Unknown";
+	}
+	result << " (ID:" << GetID() << ")";
+	
+	// Science rate / Minor allies context
+	if (varName.find("ScienceRate") != std::string::npos ||
+	    varName.find("MinorAllies") != std::string::npos ||
+	    varName.find("MinorCiv") != std::string::npos)
+	{
+		if (isMajorCiv())
+		{
+			int numAllies = GetNumCSAllies();
+			result << " | CS Allies: " << numAllies;
+			
+			if (numAllies > 0 && numAllies <= 5)
+			{
+				result << " [";
+				bool first = true;
+				for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+				{
+					PlayerTypes eMinor = (PlayerTypes)i;
+					if (GET_PLAYER(eMinor).isAlive() && 
+					    GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetID())
+					{
+						if (!first) result << ", ";
+						result << GET_PLAYER(eMinor).getName();
+						first = false;
+					}
+				}
+				result << "]";
+			}
+		}
+	}
+	
+	// War damage context
+	if (varName.find("WarDamage") != std::string::npos ||
+	    varName.find("War") != std::string::npos ||
+	    varName.find("Peace") != std::string::npos)
+	{
+		result << " | At War: [";
+		bool first = true;
+		for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)i;
+			if (GET_PLAYER(ePlayer).isAlive() && IsAtWarWith(ePlayer))
+			{
+				if (!first) result << ", ";
+				result << GET_PLAYER(ePlayer).getName();
+				first = false;
+			}
+		}
+		result << "]";
+	}
+	
+	// City/yield context
+	if (varName.find("City") != std::string::npos ||
+	    varName.find("Yield") != std::string::npos ||
+	    varName.find("Population") != std::string::npos)
+	{
+		result << " | Cities: " << getNumCities();
+		if (getNumCities() > 0)
+		{
+			result << " | Total Pop: " << getTotalPopulation();
+		}
+	}
+	
+	return result.str();
 }
 
 std::string CvPlayer::stackTraceRemark(const FAutoVariableBase& /*var*/) const

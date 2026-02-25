@@ -175,6 +175,7 @@ CvUnit::CvUnit() :
 	, m_iCaptureDefeatedEnemyCount()
 	, m_iRangedSupportFireCount()
 	, m_iAlwaysHealCount()
+	, m_iFlatHealRate()
 	, m_iHealOutsideFriendlyCount()
 	, m_iRiverDoubleMoveCount()
 	, m_iEmbarkFlatCostCount()
@@ -1326,6 +1327,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iInfluenceFromCombatXPTimes100 = 0;
 	m_iRangedSupportFireCount = 0;
 	m_iAlwaysHealCount = 0;
+	m_iFlatHealRate = 0;
 	m_iHealOutsideFriendlyCount = 0;
 	m_iRiverDoubleMoveCount = 0;
 	m_iEmbarkFlatCostCount = 0;
@@ -1490,6 +1492,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNoCaptureCount = 0;
 	m_iNukeImmuneCount = 0;
 	m_iAlwaysHealCount = 0;
+	m_iFlatHealRate = 0;
 	m_iHiddenNationalityCount = 0;
 	m_iAlwaysHostileCount = 0;
 	m_iNoRevealMapCount = 0;
@@ -2634,6 +2637,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, eUnitOwner, GetID(), false, 1);
 	}
 
+	if(GC.getGame().isNetworkMultiPlayer() && pPlot && pPlot->getUnitIndex(this) < 0)
+	{
+		CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** kill: unit (owner %d, id %d) not found on its plot (%d,%d) before setXY(INVALID_PLOT_COORD). Unit coords: (%d,%d), delayed death: %d",
+			(int)eUnitOwner, GetID(), pPlot->getX(), pPlot->getY(), getX(), getY(), (int)isDelayedDeathExported());
+		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+	}
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
 	if(pPlot)
 		pPlot->removeUnit(this, false);
@@ -5578,7 +5587,10 @@ bool CvUnit::jumpToNearestValidPlot()
 		bool bAvailable = (IsCivilianUnit() || !pLoopPlot->isNeutralUnit(getOwner(), false, false)) && !pLoopPlot->isEnemyUnit(getOwner(), false, false);
 		if (bAvailable && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
 		{
-			int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+			int iCityDist = GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+			if (iCityDist == INT_MAX)
+				iCityDist = 0; // No cities (e.g. barbarians) - distance irrelevant, use 0 to avoid overflow
+			int iValue = it->iNormalizedDistanceRaw + iCityDist;
 
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
@@ -7707,9 +7719,6 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 		}
 	}
 
-	if (healRate(pPlot) <= 0)
-		return false;
-
 	// Can't heal in a blockaded city
 	CvCity* pCity = pPlot->getPlotCity();
 	return !(pCity && pCity->IsBlockadedWaterAndLand());
@@ -7736,6 +7745,21 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 	return true;
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::ActualHealRate(const CvPlot* pPlot, bool bCheckMovement) const
+{
+	ASSERT(!bCheckMovement || pPlot == plot(), "bCheckMovement should only be set when checking our current tile");
+	if (canHeal(pPlot, bCheckMovement))
+		return max(healRate(pPlot), 0);
+
+	// canHeal returns false even if GetFlatHealRate() > 0, since we can't do normal
+	// healing. If we have moved we need to check if we could heal if we hadn't
+	// moved. If so we get the flat heal amount from promotions.
+	if (bCheckMovement && hasMoved() && canHeal(pPlot, false))
+		return GetFlatHealRate();
+
+	return 0;
+}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::healRate(const CvPlot* pPlot) const
@@ -7755,6 +7779,8 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	int iExtraFriendlyHeal = getExtraFriendlyHeal();
 	int iExtraNeutralHeal = getExtraNeutralHeal();
 	int iExtraEnemyHeal = getExtraEnemyHeal();
+
+	iExtraHeal += GetFlatHealRate();
 
 	if (MOD_API_AREA_EFFECT_PROMOTIONS)
 	{
@@ -7969,7 +7995,7 @@ int CvUnit::healTurns(const CvPlot* pPlot) const
 		return 0;
 	}
 
-	int iHeal = healRate(pPlot);
+	int iHeal = ActualHealRate(pPlot, false);
 
 	if(iHeal > 0)
 	{
@@ -8005,9 +8031,9 @@ void CvUnit::doHeal()
 			}
 		}
 	}
-	else if (IsHurt() && canHeal(plot())) //normal player units
+	else //normal player units
 	{
-		int iHealRate = healRate(plot());
+		int iHealRate = ActualHealRate(plot());
 		if (iHealRate==0)
 			return;
 
@@ -13685,7 +13711,7 @@ bool CvUnit::isReadyForUpgrade() const
 {
 	VALIDATE_OBJECT();
 
-	return m_iMoves > 0;
+	return m_iMoves > 0 && !isDelayedDeath();
 }
 
 //	--------------------------------------------------------------------------------
@@ -17347,7 +17373,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 			if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
 				return pDefender->GetCurrHitPoints();
 			else
-				return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
+				return /*40 in CP, 50 in VP*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 		}
 
 		if (pDefender->getForcedDamageValue() != 0)
@@ -22074,6 +22100,20 @@ void CvUnit::changeAlwaysHealCount(int iChange)
 	ASSERT(getAlwaysHealCount() >= 0);
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetFlatHealRate() const
+{
+	VALIDATE_OBJECT();
+	return m_iFlatHealRate;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeFlatHealRate(int iChange)
+{
+	VALIDATE_OBJECT();
+	m_iFlatHealRate += iChange;
+	ASSERT(GetFlatHealRate() >= 0);
+}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getHealOutsideFriendlyCount() const
@@ -24266,8 +24306,8 @@ void CvUnit::DoFinishBuildIfSafe()
 	BuildTypes eBuild = getBuildType();
 	if (eBuild != NO_BUILD)
 	{
-		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
-		if (iBuildTimeLeft == 0 && canMove() && GetDanger() == 0)
+		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner());
+		if (iBuildTimeLeft <= 1 && canMove() && GetDanger() == 0)
 		{
 			BuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
 			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)
@@ -27667,6 +27707,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
 	ChangeWorkRateMod((thisPromotion.GetWorkRateMod()) * iChange);
 	ChangeDamageReductionCityAssault((thisPromotion.GetDamageReductionCityAssault()) * iChange);
+	ChangeFlatHealRate(thisPromotion.GetFlatHealRate() * iChange);
 	if (thisPromotion.PromotionDuration() != 0)
 	{
 		if (bNewValue)
@@ -28219,6 +28260,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_TurnPromotionGained);
 	visitor(unit.m_iRangedSupportFireCount);
 	visitor(unit.m_iAlwaysHealCount);
+	visitor(unit.m_iFlatHealRate);
 	visitor(unit.m_iHealOutsideFriendlyCount);
 	visitor(unit.m_iRiverDoubleMoveCount);
 	visitor(unit.m_iEmbarkFlatCostCount);
@@ -29202,7 +29244,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 
 		//also depends on what we can do with the unit
 		int iSoftHpLimit = GetMaxHitPoints() / 3;
-		return GetCurrHitPoints() < iSoftHpLimit && canHeal(plot(),false) && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
+		return GetCurrHitPoints() < iSoftHpLimit && ActualHealRate(plot(), false) > 0 && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
 	else 
 	{
@@ -29215,7 +29257,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 		{
 			//we might lack a resource for healing
 			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
-			int iMaxHealRate = pCapital ? healRate(pCapital->plot()) : healRate(plot());
+			int iMaxHealRate = pCapital ? ActualHealRate(pCapital->plot(), false) : ActualHealRate(plot(), false);
 			bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || IsFightWellDamaged() || isBarbarian();
 
 			//typically want to start healing before health becomes critical
@@ -29633,7 +29675,7 @@ bool CvUnit::SentryAlert(bool bAllowAttacks) const
 
 	//combat units should wake as soon as enemies are around
 	//civilians ignore non-lethal danger like fallout
-	int iDangerLimit = healRate(plot());
+	int iDangerLimit = ActualHealRate(plot());
 
 	//if we're on the move, check the plot we're going to, not the one we're currently at
 	if (GetHeadMissionData() && GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() && IsCachedPathValid())
@@ -32395,12 +32437,8 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-
-
-
 	if(pkPromotionInfo->IsAlwaysHeal() && !isAlwaysHeal())
-	// aF: Air repair.	Scout: Survivalism 3.	mR: March (skirmisher march).
-	// M + mM: March.			
+	// moved to FlatHealRate
 	{
 		iExtra = 10 + getSameTileHeal();
 		iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
@@ -32410,10 +32448,24 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
+	iTemp = pkPromotionInfo->GetFlatHealRate();
+	if (iTemp > 0)
+	// aF: Air repair.	Scout: Survivalism 3.	mR: March (skirmisher march).
+	// M + mM: March.
+	{
+		iExtra = iTemp * 2;
+		if (getDomainType() == DOMAIN_SEA && isHealOutsideFriendly())
+			iExtra += 10;
+		iExtra *= iFlavorOffense + iFlavorMobile + iFlavorDefense;
+		iExtra *= 5;
+		iExtra *= 0.7 + 0.3 * getDamage() / max(1, GetMaxHitPoints());
+		iValue += iExtra;
+	}
+
 	if (pkPromotionInfo->IsHealOutsideFriendly() && getDomainType() == DOMAIN_SEA && !isHealOutsideFriendly())
 	// nM + nR: Supply.	nM: Naval Siege.
 	{
-		iExtra = 10 + getSameTileHeal();
+		iExtra = 10 + getSameTileHeal() + GetFlatHealRate();
 		iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
 		iExtra *= iFlavorOffense + 2 * iFlavorNaval;
 		iExtra *= 0.5;
@@ -33247,11 +33299,45 @@ bool CvUnit::canChangeVisibility() const
 }
 
 //	--------------------------------------------------------------------------------
-std::string CvUnit::debugDump(const FAutoVariableBase& /*var*/) const
+std::string CvUnit::debugDump(const FAutoVariableBase& var) const
 {
-	// TODO: This... just can't be correct.  Surely, there must be something useful
-	// this function is supposed to do.  Unfortunately, I don't know what that is.
-	return EmptyString;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// Unit identity
+	result << "Unit: " << getName();
+	
+	if (getOwner() != NO_PLAYER)
+	{
+		result << " | Owner: " << GET_PLAYER(getOwner()).getCivilizationShortDescription()
+		       << " (ID:" << getOwner() << ")";
+	}
+	
+	// Position
+	result << " | Pos: (" << getX() << "," << getY() << ")";
+	
+	// Health
+	result << " | HP: " << GetCurrHitPoints() << "/" << GetMaxHitPoints();
+	
+	// Automation and activity context
+	if (varName.find("Automat") != std::string::npos ||
+	    varName.find("Mission") != std::string::npos ||
+	    varName.find("Path") != std::string::npos ||
+	    varName.find("Move") != std::string::npos)
+	{
+		if (IsAutomated())
+		{
+			result << " | Automated: YES";
+		}
+		
+		ActivityTypes eActivity = GetActivityType();
+		if (eActivity != NO_ACTIVITY)
+		{
+			result << " | Activity: " << eActivity;
+		}
+	}
+	
+	return result.str();
 }
 
 //	--------------------------------------------------------------------------------

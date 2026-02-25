@@ -12472,8 +12472,8 @@ int CvLuaPlayer::lGetUnimprovedAvailableLuxuryResource(lua_State* L)
 				continue;
 			}
 
-			int iBuildTurnsLeft = pPlot->getBuildTurnsLeft(eBuild, pkPlayer->GetID(), 0, 0);
-			if(iBuildTurnsLeft > 0 && iBuildTurnsLeft < 4000)
+			int iBuildTurnsLeft = pPlot->getBuildTurnsLeft(eBuild, pkPlayer->GetID());
+			if(iBuildTurnsLeft > 1 && iBuildTurnsLeft < 4000)
 			{
 				continue;
 			}
@@ -16945,6 +16945,8 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 			CvCity* pCity = pPlot->getPlotCity();
 			if (pCity)
 			{
+				lua_pushboolean(L, pCity->GetCityEspionage()->GetRevealCityScreen( pkThisPlayer->GetID() ) );
+				lua_setfield(L,t,"RevealCityScreen");
 				lua_pushinteger(L, pkPlayerEspionage->CalcNetworkPointsPerTurn(pSpy->GetSpyState(), pCity, uiSpy));
 			}
 			else

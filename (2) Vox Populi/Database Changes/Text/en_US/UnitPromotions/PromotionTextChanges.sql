@@ -141,7 +141,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_SUPPLY_HELP';
 
 -- March
 UPDATE Language_en_US
-SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.'
+SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal an additional 10 HP[ENDCOLOR] each turn, regardless of action taken.'
 WHERE Tag = 'TXT_KEY_PROMOTION_MARCH_HELP';
 
 -- Blitz
@@ -156,7 +156,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_WOODSMAN_HELP';
 
 -- Logistics
 UPDATE Language_en_US
-SET Text = '+1 [ICON_WAR] Attack.[NEWLINE]-30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.'
+SET Text = '+1 [ICON_WAR] Attack.[NEWLINE]-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.'
 WHERE Tag = 'TXT_KEY_PROMOTION_LOGISTICS_HELP';
 
 -- Range
@@ -203,15 +203,15 @@ WHERE Tag = 'TXT_KEY_PROMOTION_SORTIE_HELP';
 
 -- Dogfighting
 UPDATE Language_en_US
-SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 5 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
+SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_1_HELP';
 
 UPDATE Language_en_US
-SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 10 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
+SET Text = '+33% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 5 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_2_HELP';
 
 UPDATE Language_en_US
-SET Text = '+34% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 15 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
+SET Text = '+34% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. Deal 10 Damage to all [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] on or adjacent to the target tile if this Air Sweep is [COLOR_POSITIVE_TEXT]not Intercepted[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_3_HELP';
 
 -- Siege (Air)
@@ -284,7 +284,7 @@ SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+5 HP w
 WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_2_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.[NEWLINE][ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement.'
+SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal an additional 10 HP[ENDCOLOR] each turn, regardless of action taken.[NEWLINE][ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_3_HELP';
 
 UPDATE Language_en_US
@@ -583,7 +583,7 @@ SET Text = 'Unity'
 WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE';
 
 UPDATE Language_en_US
-SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Owned Land Unit[ENDCOLOR].'
+SET Text = '+15% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Owned Land Unit[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE_HELP';
 
 -- Bonus vs Mounted (50)

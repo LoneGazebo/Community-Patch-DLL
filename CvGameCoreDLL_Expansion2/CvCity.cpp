@@ -418,8 +418,8 @@ CvCity::CvCity() :
 	, m_aiYieldFromUnitLevelUp()
 	, m_aiYieldFromUnitLevelUpGlobal()
 	, m_aiYieldFromCombatExperienceTimes100()
-	, m_aiYieldPerAlly()
-	, m_aiYieldPerFriend()
+	, m_aiYieldPerAllyTimes100()
+	, m_aiYieldPerFriendTimes100()
 	, m_aiYieldFromInternalTREnd()
 	, m_aiYieldFromInternationalTREnd()
 	, m_aiYieldFromInternalTR()
@@ -1346,8 +1346,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromUnitLevelUp.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitLevelUpGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromCombatExperienceTimes100.resize(NUM_YIELD_TYPES);
-	m_aiYieldPerAlly.resize(NUM_YIELD_TYPES);
-	m_aiYieldPerFriend.resize(NUM_YIELD_TYPES);
+	m_aiYieldPerAllyTimes100.resize(NUM_YIELD_TYPES);
+	m_aiYieldPerFriendTimes100.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternationalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTR.resize(NUM_YIELD_TYPES);
@@ -1457,8 +1457,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromUnitLevelUp[iI] = 0;
 		m_aiYieldFromUnitLevelUpGlobal[iI] = 0;
 		m_aiYieldFromCombatExperienceTimes100[iI] = 0;
-		m_aiYieldPerAlly[iI] = 0;
-		m_aiYieldPerFriend[iI] = 0;
+		m_aiYieldPerAllyTimes100[iI] = 0;
+		m_aiYieldPerFriendTimes100[iI] = 0;
 		m_aiYieldFromInternalTREnd[iI] = 0;
 		m_aiYieldFromInternationalTREnd[iI] = 0;
 		m_aiYieldFromInternalTR[iI] = 0;
@@ -14741,8 +14741,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromCombatExperienceTimes100(eYield, pBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) * iChange);
 			}
 
-			ChangeYieldPerAlly(eYield, pBuildingInfo->GetYieldPerAlly(eYield) * iChange);
-			ChangeYieldPerFriend(eYield, pBuildingInfo->GetYieldPerFriend(eYield) * iChange);
+			ChangeYieldPerAllyTimes100(eYield, pBuildingInfo->GetYieldPerAllyTimes100(eYield) * iChange);
+			ChangeYieldPerFriendTimes100(eYield, pBuildingInfo->GetYieldPerFriendTimes100(eYield) * iChange);
 
 			if (GetEventBuildingClassCityYield(eBuildingClass, eYield) != 0)
 			{
@@ -14901,30 +14901,34 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 
-		// Building Yield Change with Technology
+		// Building Bonuses from Accomplishments
 		if (!pBuildingInfo->GetBonusFromAccomplishments().empty())
 		{
-			map<int, AccomplishmentBonusInfo> mBonusFromAccomplishments = pBuildingInfo->GetBonusFromAccomplishments();
-			map<int, AccomplishmentBonusInfo>::iterator it;
-			for (it = mBonusFromAccomplishments.begin(); it != mBonusFromAccomplishments.end(); ++it)
+			const std::map<int, std::vector<AccomplishmentBonusInfo>>& mBonusFromAccomplishments = pBuildingInfo->GetBonusFromAccomplishments();
+			for (std::map<int, std::vector<AccomplishmentBonusInfo>>::const_iterator it = mBonusFromAccomplishments.begin(); it != mBonusFromAccomplishments.end(); ++it)
 			{
-				int iNumAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+				int iNumAccomplishmentCompleted =
+					GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+			
 				if (iNumAccomplishmentCompleted > 0)
 				{
-					AccomplishmentBonusInfo bonusInfo = it->second;
-					// apply bonuses for completed accomplishments
-					ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness * iNumAccomplishmentCompleted * iChange);
-					if (bonusInfo.eDomainType != NO_DOMAIN)
+					const std::vector<AccomplishmentBonusInfo>& vBonuses = it->second;
+					for (size_t i = 0; i < vBonuses.size(); i++)
 					{
-						changeDomainFreeExperience(bonusInfo.eDomainType, bonusInfo.iDomainXP * iNumAccomplishmentCompleted * iChange);
-					}
-					if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
-					{
-						changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType, bonusInfo.iUnitProductionModifier * iNumAccomplishmentCompleted* iChange);
+						const AccomplishmentBonusInfo& bonusInfo = vBonuses[i];
+			
+						ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness * iNumAccomplishmentCompleted * iChange);
+			
+						if (bonusInfo.eDomainType != NO_DOMAIN)
+							changeDomainFreeExperience(bonusInfo.eDomainType,
+								bonusInfo.iDomainXP * iNumAccomplishmentCompleted * iChange);
+			
+						if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
+							changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType,
+								bonusInfo.iUnitProductionModifier * iNumAccomplishmentCompleted * iChange);
 					}
 				}
-				// for future accomplishments, we store a list of the accomplishments for which bonuses are given.
-				// when one of the accomplishments is completed later, we apply the bonuses by looping through the city buildings directly
+			
 				AddToAccomplishmentsWithBonuses((AccomplishmentTypes)it->first);
 			}
 		}
@@ -24665,17 +24669,17 @@ void CvCity::ChangeYieldFromCombatExperienceTimes100(YieldTypes eIndex, int iCha
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-int CvCity::GetYieldPerAlly(YieldTypes eIndex) const
+int CvCity::GetYieldPerAllyTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldPerAlly[eIndex];
+	return m_aiYieldPerAllyTimes100[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeYieldPerAlly(YieldTypes eIndex, int iChange)
+void CvCity::ChangeYieldPerAllyTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
@@ -24683,23 +24687,23 @@ void CvCity::ChangeYieldPerAlly(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldPerAlly[eIndex] = m_aiYieldPerAlly[eIndex] + iChange;
-		ASSERT(GetYieldPerAlly(eIndex) >= 0);
+		m_aiYieldPerAllyTimes100[eIndex] = m_aiYieldPerAllyTimes100[eIndex] + iChange;
+		ASSERT(GetYieldPerAllyTimes100(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-int CvCity::GetYieldPerFriend(YieldTypes eIndex) const
+int CvCity::GetYieldPerFriendTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldPerFriend[eIndex];
+	return m_aiYieldPerFriendTimes100[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
+void CvCity::ChangeYieldPerFriendTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
@@ -24707,8 +24711,8 @@ void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldPerFriend[eIndex] = m_aiYieldPerFriend[eIndex] + iChange;
-		ASSERT(GetYieldPerFriend(eIndex) >= 0);
+		m_aiYieldPerFriendTimes100[eIndex] = m_aiYieldPerFriendTimes100[eIndex] + iChange;
+		ASSERT(GetYieldPerFriendTimes100(eIndex) >= 0);
 	}
 }
 
@@ -25452,7 +25456,7 @@ int CvCity::GetEffectiveYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const
 
 	int iValue = GetBaseYieldRateFromCSAlliance(eIndex) * (100 + iModifier);
 
-	int iBonus = GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies() * 100;
+	int iBonus = GetYieldPerAllyTimes100(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies();
 	return iValue + iBonus;
 }
 //	--------------------------------------------------------------------------------
@@ -25505,7 +25509,7 @@ int CvCity::GetEffectiveYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) con
 
 	int iValue = GetBaseYieldRateFromCSFriendship(eIndex) * (100 + iModifier);
 
-	int iBonus = GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends() * 100;
+	int iBonus = GetYieldPerFriendTimes100(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends();
 	return iValue + iBonus;
 
 }
@@ -31912,8 +31916,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromUnitLevelUp);
 	visitor(city.m_aiYieldFromUnitLevelUpGlobal);
 	visitor(city.m_aiYieldFromCombatExperienceTimes100);
-	visitor(city.m_aiYieldPerAlly);
-	visitor(city.m_aiYieldPerFriend);
+	visitor(city.m_aiYieldPerAllyTimes100);
+	visitor(city.m_aiYieldPerFriendTimes100);
 	visitor(city.m_aiYieldFromInternalTREnd);
 	visitor(city.m_aiYieldFromInternationalTREnd);
 	visitor(city.m_aiYieldFromInternalTR);
@@ -32814,7 +32818,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, bool bIncludeRand, const 
 
 	// If this is a defenseless unit, do a fixed amount of damage
 	if (!pDefender->IsCanDefend())
-		return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
+		return /*40 in CP, 50 in VP*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 
 	if (pDefender->getForcedDamageValue() != 0)
 		return pDefender->getForcedDamageValue();
@@ -33772,14 +33776,56 @@ CvSyncArchive<CvCity>& CvCity::getSyncArchive()
 }
 
 //	--------------------------------------------------------------------------------
-std::string CvCity::debugDump(const FAutoVariableBase& /*var*/) const
+std::string CvCity::debugDump(const FAutoVariableBase& var) const
 {
-	std::string result = "Game Turn : ";
-	char gameTurnBuffer[8] = { 0 };
-	int gameTurn = GC.getGame().getGameTurn();
-	sprintf_s(gameTurnBuffer, "%d\0", gameTurn);
-	result += gameTurnBuffer;
-	return result;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// City identity
+	result << "City: " << getName();
+	
+	if (getOwner() != NO_PLAYER)
+	{
+		result << " | Owner: " << GET_PLAYER(getOwner()).getCivilizationShortDescription()
+		       << " (ID:" << getOwner() << ")";
+	}
+	
+	result << " | Pop: " << getPopulation();
+	
+	// Yield context
+	if (varName.find("Yield") != std::string::npos || 
+	    varName.find("Specialist") != std::string::npos)
+	{
+		int iTotalSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
+		if (iTotalSpecialists > 0)
+		{
+			result << " | Specialists: " << iTotalSpecialists;
+		}
+		
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if (pReligion)
+			{
+				result << " | Religion: " << pReligion->GetName();
+			}
+		}
+	}
+	
+	// Ownership/capture context
+	if (varName.find("Ownership") != std::string::npos || 
+	    varName.find("Capture") != std::string::npos ||
+	    varName.find("Puppet") != std::string::npos ||
+	    varName.find("Raze") != std::string::npos ||
+	    varName.find("Occupy") != std::string::npos)
+	{
+		result << " | Puppet: " << (IsPuppet() ? "YES" : "NO");
+		result << " | Razing: " << (IsRazing() ? "YES" : "NO");
+		result << " | Occupied: " << (IsOccupied() ? "YES" : "NO");
+	}
+	
+	return result.str();
 }
 
 //	--------------------------------------------------------------------------------

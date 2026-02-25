@@ -1165,11 +1165,11 @@ public:
 	int GetYieldFromCombatExperienceTimes100(YieldTypes eIndex) const;
 	void ChangeYieldFromCombatExperienceTimes100(YieldTypes eIndex, int iChange);
 
-	int GetYieldPerAlly(YieldTypes eIndex) const;
-	void ChangeYieldPerAlly(YieldTypes eIndex, int iChange);
+	int GetYieldPerAllyTimes100(YieldTypes eIndex) const;
+	void ChangeYieldPerAllyTimes100(YieldTypes eIndex, int iChange);
 
-	int GetYieldPerFriend(YieldTypes eIndex) const;
-	void ChangeYieldPerFriend(YieldTypes eIndex, int iChange);
+	int GetYieldPerFriendTimes100(YieldTypes eIndex) const;
+	void ChangeYieldPerFriendTimes100(YieldTypes eIndex, int iChange);
 
 	int GetBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
 	void ChangeBuildingYieldFromYield(YieldTypes eIndex, YieldTypes eIndex2, int iValue);
@@ -1994,8 +1994,8 @@ protected:
 	std::vector<int> m_aiYieldFromUnitLevelUp;
 	std::vector<int> m_aiYieldFromUnitLevelUpGlobal;
 	std::vector<int> m_aiYieldFromCombatExperienceTimes100;
-	std::vector<int> m_aiYieldPerAlly;
-	std::vector<int> m_aiYieldPerFriend;
+	std::vector<int> m_aiYieldPerAllyTimes100;
+	std::vector<int> m_aiYieldPerFriendTimes100;
 	std::vector<int> m_aiYieldFromInternalTREnd;
 	std::vector<int> m_aiYieldFromInternationalTREnd;
 	std::vector<int> m_aiYieldFromInternalTR;
@@ -2400,8 +2400,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromFaithPurchase)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitLevelUp)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitLevelUpGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCombatExperienceTimes100)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAlly)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAllyTimes100)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriendTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternationalTREnd)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTR)
