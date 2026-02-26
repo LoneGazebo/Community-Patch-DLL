@@ -18635,7 +18635,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 				"SELECT Eras.ID, YieldType, Yield "
 				"FROM MinorCivilizationTraits_FriendYieldBonuses "
 				"INNER JOIN Eras ON Eras.Type = EraType "
-				"WHERE MinorCivTraitsType = ?"
+				"WHERE MinorCivTraitType = ?"
 			);
 		}
 
@@ -18669,7 +18669,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 				"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
 				"FROM MinorCivilizationTraits_FriendCityYieldBonuses "
 				"INNER JOIN Eras ON Eras.Type = EraType "
-				"WHERE MinorCivTraitsType = ?"
+				"WHERE MinorCivTraitType = ?"
 			);
 		}
 	
@@ -18704,7 +18704,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 				"SELECT Eras.ID, YieldType, Yield "
 				"FROM MinorCivilizationTraits_AllyYieldBonuses "
 				"INNER JOIN Eras ON Eras.Type = EraType "
-				"WHERE MinorCivTraitsType = ?"
+				"WHERE MinorCivTraitType = ?"
 			);
 		}
 
@@ -18738,7 +18738,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 				"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
 				"FROM MinorCivilizationTraits_AllyCityYieldBonuses "
 				"INNER JOIN Eras ON Eras.Type = EraType "
-				"WHERE MinorCivTraitsType = ?"
+				"WHERE MinorCivTraitType = ?"
 			);
 		}
 	
