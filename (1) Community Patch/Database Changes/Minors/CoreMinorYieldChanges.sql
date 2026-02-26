@@ -1,4 +1,4 @@
-// gives the most recent era's value (rather than adding all valid eras)
+-- gives the most recent era's value (rather than adding all valid eras)
 INSERT INTO MinorCivilizationTraits_FriendYieldBonuses
     (MinorCivTraitType, EraType, YieldType, Yield)
 VALUES
