@@ -1901,6 +1901,16 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiTourismBonusTurnsPlayer.clear();
 	m_aiTourismBonusTurnsPlayer.resize(MAX_PLAYERS, 0);
 
+	
+	m_piYieldInCapitalFromAnnexedMinors.clear();
+	m_piYieldInCapitalFromAnnexedMinors.resize(NUM_YIELD_TYPES, 0);
+
+	m_piYieldInOtherCitiesFromAnnexedMinors.clear();
+	m_piYieldInOtherCitiesFromAnnexedMinors.resize(NUM_YIELD_TYPES, 0);
+
+	m_piYieldPerTurnFromAnnexedMinors.clear();
+	m_piYieldPerTurnFromAnnexedMinors.resize(NUM_YIELD_TYPES, 0);
+
 	m_aOptions.clear();
 
 	m_strReligionKey = "";
