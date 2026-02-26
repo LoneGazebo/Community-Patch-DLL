@@ -28972,7 +28972,7 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes)iI;
-					int iBonus = pMinor->GetCityYieldFlatBonus(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
+					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
 					if (iBonus != 0)
 					{
 						ChangeBaseYieldRateFromCSAlliance(eYield, iSign * iBonus / 100);
@@ -28985,7 +28985,7 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes)iI;
-					int iBonus = pMinor->GetCityYieldFlatBonus(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
+					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
 					if (iBonus != 0)
 					{
 						ChangeBaseYieldRateFromCSFriendship(eYield, iSign * iBonus / 100);
@@ -31463,16 +31463,16 @@ bool CvCity::CrosscheckYieldsFromMinors()
 			if (isCapital())
 			{
 				if (pMinorLoop->IsAllies(getOwner()))
-					iMinorBonus += pMinorLoop->GetCityYieldFlatBonus(getOwner(), eYield,  static_cast<EraTypes>(iEra), 2, true);
+					iMinorBonus += pMinorLoop->GetCityYieldFlatBonusTimes100(getOwner(), eYield,  static_cast<EraTypes>(iEra), 2, true);
 				else if (pMinorLoop->IsFriends(getOwner()))
-					iMinorBonus += pMinorLoop->GetCityYieldFlatBonus(getOwner(), eYield, static_cast<EraTypes>(iEra), 1, true);
+					iMinorBonus += pMinorLoop->GetCityYieldFlatBonusTimes100(getOwner(), eYield, static_cast<EraTypes>(iEra), 1, true);
 			}
 			else
 			{
 				if (pMinorLoop->IsAllies(getOwner()))
-					iMinorBonus += pMinorLoop->GetCityYieldFlatBonus(getOwner(), eYield, static_cast<EraTypes>(iEra), 2, false);
+					iMinorBonus += pMinorLoop->GetCityYieldFlatBonusTimes100(getOwner(), eYield, static_cast<EraTypes>(iEra), 2, false);
 				else if (pMinorLoop->IsFriends(getOwner()))
-					iMinorBonus += pMinorLoop->GetCityYieldFlatBonus(getOwner(), eYield, static_cast<EraTypes>(iEra), 1, false);
+					iMinorBonus += pMinorLoop->GetCityYieldFlatBonusTimes100(getOwner(), eYield, static_cast<EraTypes>(iEra), 1, false);
 			}
 		}
 

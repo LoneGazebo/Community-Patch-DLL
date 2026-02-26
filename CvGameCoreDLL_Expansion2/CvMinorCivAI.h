@@ -653,8 +653,8 @@ public:
 
 	int GetYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel) const;
 	int GetCurrentYieldBonus(PlayerTypes ePlayer, YieldTypes eYield);
-	int GetCityYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel, bool bCapitalOnly) const;
-	int GetCurrentCityYieldBonus(PlayerTypes ePlayer, YieldTypes eYield, bool bCapitalOnly);
+	int GetCityYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel, bool bCapitalOnly) const;
+	int GetCurrentCityYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, bool bCapitalOnly);
 
 	// Happiness bonuses
 	int GetHappinessFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra = NO_ERA);

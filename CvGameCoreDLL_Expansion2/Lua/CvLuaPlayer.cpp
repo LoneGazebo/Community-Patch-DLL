@@ -9305,7 +9305,7 @@ int CvLuaPlayer::lGetCurrentCapitalFoodBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCityYieldBonus(ePlayer, YIELD_FOOD, true));
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCityYieldBonusTimes100(ePlayer, YIELD_FOOD, true));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -9313,7 +9313,7 @@ int CvLuaPlayer::lGetCurrentOtherCityFoodBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCityYieldBonus(ePlayer, YIELD_FOOD, false));
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCityYieldBonusTimes100(ePlayer, YIELD_FOOD, false));
 	return 1;
 }
 //------------------------------------------------------------------------------

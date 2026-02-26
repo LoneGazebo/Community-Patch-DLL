@@ -22900,7 +22900,7 @@ void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinor(PlayerTypes eMinor, i
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
-			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonus(GetID(), eYield, eEra, 2, true);
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonusTimes100(GetID(), eYield, eEra, 2, true);
 			iBonus /= 100;
 			iBonus *= iSign;
 	
@@ -22932,7 +22932,7 @@ void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(PlayerTypes eMino
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
-			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonus(GetID(), eYield, eEra, 2, true);
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonusTimes100(GetID(), eYield, eEra, 2, true);
 			iBonus /= 100;
 			iBonus *= iSign;
 	
