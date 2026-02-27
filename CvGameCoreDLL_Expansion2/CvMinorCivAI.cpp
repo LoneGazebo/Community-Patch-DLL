@@ -14326,6 +14326,9 @@ int CvMinorCivAI::GetYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraT
 		
 		if (HasAllyYieldBonuses(eYield) && iInfluenceLevel > 1)
 			iYieldBonus += GetAllyYieldBonusValue(eYield, eEra);
+
+		if (iYieldBonus > 0)
+			break;
 	}
 
 	return iYieldBonus;
@@ -14388,6 +14391,9 @@ int CvMinorCivAI::GetCityYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes 
 		
 		if (HasAllyCityYieldBonuses(eYield) && iInfluenceLevel > 1)
 			iYieldBonus += GetAllyCityYieldBonusValue(eYield, eEra, bCapitalOnly);
+		
+		if (iYieldBonus > 0)
+			break;
 	}
 
 	return iYieldBonus;
