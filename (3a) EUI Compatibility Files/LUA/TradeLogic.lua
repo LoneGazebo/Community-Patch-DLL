@@ -959,6 +959,11 @@ function DoUpdateButtons()
 				elseif (iNumItemsFromUs > 0 and iNumItemsFromThem > 0) then
 					Controls.WhatWillMakeThisWorkButton:SetHide(false);
 				end
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
+				if (g_pThem:GetTotalValueToMeNormal(g_Deal) ~= 0) then
+					Controls.WhatWillMakeThisWorkButton:SetHide(false);
+					Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_PROPOSE" ));
+				end
 			end
 		end
 
