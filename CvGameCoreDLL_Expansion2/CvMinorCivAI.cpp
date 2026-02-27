@@ -18638,9 +18638,10 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		{
 			pResults = kUtility.PrepareResults(
 				strKey,
-				"SELECT Eras.ID, YieldType, Yield "
+				"SELECT Eras.ID, Yields.ID, Yield "
 				"FROM MinorCivilizationTraits_FriendYieldBonuses "
-				"INNER JOIN Eras ON Eras.Type = EraType "
+				"INNER JOIN Eras   ON Eras.Type   = EraType "
+				"INNER JOIN Yields ON Yields.Type = YieldType "
 				"WHERE MinorCivTraitType = ?"
 			);
 		}
@@ -18672,9 +18673,10 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		{
 			pResults = kUtility.PrepareResults(
 				strKey,
-				"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
+				"SELECT Eras.ID, Yields.ID, Yield, CapitalOnly "
 				"FROM MinorCivilizationTraits_FriendCityYieldBonuses "
-				"INNER JOIN Eras ON Eras.Type = EraType "
+				"INNER JOIN Eras   ON Eras.Type   = EraType "
+				"INNER JOIN Yields ON Yields.Type = YieldType "
 				"WHERE MinorCivTraitType = ?"
 			);
 		}
@@ -18707,9 +18709,10 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		{
 			pResults = kUtility.PrepareResults(
 				strKey,
-				"SELECT Eras.ID, YieldType, Yield "
+				"SELECT Eras.ID, Yields.ID, Yield "
 				"FROM MinorCivilizationTraits_AllyYieldBonuses "
-				"INNER JOIN Eras ON Eras.Type = EraType "
+				"INNER JOIN Eras   ON Eras.Type   = EraType "
+				"INNER JOIN Yields ON Yields.Type = YieldType "
 				"WHERE MinorCivTraitType = ?"
 			);
 		}
@@ -18741,9 +18744,10 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		{
 			pResults = kUtility.PrepareResults(
 				strKey,
-				"SELECT Eras.ID, YieldType, Yield, CapitalOnly "
+				"SELECT Eras.ID, Yields.ID, Yield, CapitalOnly "
 				"FROM MinorCivilizationTraits_AllyCityYieldBonuses "
-				"INNER JOIN Eras ON Eras.Type = EraType "
+				"INNER JOIN Eras   ON Eras.Type   = EraType "
+				"INNER JOIN Yields ON Yields.Type = YieldType "
 				"WHERE MinorCivTraitType = ?"
 			);
 		}
