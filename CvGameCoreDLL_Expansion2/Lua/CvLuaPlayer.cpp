@@ -356,6 +356,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFaithPerTurnFromMinorCivs);
 	Method(GetGoldPerTurnFromMinorCivs);
 	Method(GetSciencePerTurnFromMinorCivs);
+	Method(GetFaithPerTurnFromReligion);
 	Method(HasCreatedPantheon);
 	Method(GetBeliefInPantheon);
 	Method(GetBeliefsInPantheon);
