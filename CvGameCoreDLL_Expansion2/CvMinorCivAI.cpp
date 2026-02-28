@@ -18607,6 +18607,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	setArtStyleSuffix(szTextVal);
 
 	szTextVal = kResults.GetText("MinorCivTrait");
+	CvString m_strMinorCivTraitType = szTextVal;
 	m_iMinorCivTrait = GC.getInfoTypeForString(szTextVal, true);
 
 	szTextVal = kResults.GetText("FixedPersonality");
@@ -18646,7 +18647,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			);
 		}
 
-		pResults->Bind(1, m_iMinorCivTrait);
+		pResults->Bind(1, m_strMinorCivTraitType.c_str());
 
 		while (pResults->Step())
 		{
@@ -18681,7 +18682,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			);
 		}
 	
-		pResults->Bind(1, m_iMinorCivTrait);
+		pResults->Bind(1, m_strMinorCivTraitType.c_str());
 	
 		while (pResults->Step())
 		{
@@ -18717,7 +18718,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			);
 		}
 
-		pResults->Bind(1, m_iMinorCivTrait);
+		pResults->Bind(1, m_strMinorCivTraitType.c_str());
 
 		while (pResults->Step())
 		{
@@ -18752,7 +18753,7 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			);
 		}
 	
-		pResults->Bind(1, m_iMinorCivTrait);
+		pResults->Bind(1, m_strMinorCivTraitType.c_str());
 	
 		while (pResults->Step())
 		{
