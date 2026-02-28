@@ -12971,12 +12971,12 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 		{
 			YieldTypes eYield = (YieldTypes)iI;
 			if (bFriendChange)
-				pCapital->ChangeBaseYieldRateFromCSFriendship(eYield, (kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iSign * iEra));
+				pCapital->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, (kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iSign * iEra * 100));
 
 			if (bAllyChange)
 				// stupid definition of the database tables: "YieldFromCSFriends" actually means "Yields from being friends, but not being allies"...
 				// so when we become allies, we need to remove the "YieldFromCSFriends" bonus again...
-				pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, ((kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield)- kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)) * iSign * iEra));
+				pCapital->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, ((kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield)- kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)) * iSign * iEra * 100));
 		}
 	}
 	
@@ -13011,26 +13011,26 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 			{
 				if (iAllyCapitalYieldTimes100 != 0)
 				{
-					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, iAllyCapitalYieldTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed capital %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iAllyCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(eYield));
+					pLoopCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iAllyCapitalYieldTimes100 * iSign);
+					//CUSTOMLOG("changed capital %s in %s by %d/100 for alliance with %s, current value is %d/100", GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iAllyCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAllianceTimes100(eYield));
 				}
 				if (iFriendCapitalYieldTimes100 != 0)
 				{
-					pLoopCity->ChangeBaseYieldRateFromCSFriendship(eYield, iFriendCapitalYieldTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed capital %s in %s by %d/100 for friendship with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iFriendCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+					pLoopCity->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iFriendCapitalYieldTimes100 * iSign);
+					//CUSTOMLOG("changed capital %s in %s by %d/100 for friendship with %s, current value is %d/100", GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iFriendCapitalYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
 				}
 			}
 			else
 			{
 				if (iAllyOtherCitiesYieldTimes100 != 0)
 				{
-					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, iAllyOtherCitiesYieldTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iAllyOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(eYield));
+					pLoopCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iAllyOtherCitiesYieldTimes100 * iSign);
+					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for alliance with %s, current value is %d/100", GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iAllyOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAllianceTimes100(eYield));
 				}
 				if (iFriendOtherCitiesYieldTimes100 != 0)
 				{
-					pLoopCity->ChangeBaseYieldRateFromCSFriendship(eYield, iFriendOtherCitiesYieldTimes100 / 100 * iSign);
-					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for friendship with %s, current value is %d", GC.getYieldInfo(eYield)->getIconString(), pLoopCity->getNameKey(), iFriendOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+					pLoopCity->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iFriendOtherCitiesYieldTimes100 * iSign);
+					//CUSTOMLOG("changed non-capital %s in %s by %d/100 for friendship with %s, current value is %d/100", GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iFriendOtherCitiesYieldTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
 				}
 			}
 
@@ -13982,8 +13982,8 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
 
-		int iOldFlat = GetYieldFlatBonus(ePlayer, eYield, eOldEra, iInfluenceLevel);
-		int iNewFlat = GetYieldFlatBonus(ePlayer, eYield, eNewEra, iInfluenceLevel);
+		int iOldFlat = GetYieldFlatBonusTimes100(ePlayer, eYield, eOldEra, iInfluenceLevel);
+		int iNewFlat = GetYieldFlatBonusTimes100(ePlayer, eYield, eNewEra, iInfluenceLevel);
 
 		int iOldCap  = GetCityYieldFlatBonusTimes100(ePlayer, eYield, eOldEra, iInfluenceLevel, true);
 		int iNewCap  = GetCityYieldFlatBonusTimes100(ePlayer, eYield, eNewEra, iInfluenceLevel, true);
@@ -14012,13 +14012,13 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 					{
 						if (iInfluenceLevel == 1)
 						{
-							pCity->ChangeBaseYieldRateFromCSFriendship(eYield, iCapDelta / 100);
-							//CUSTOMLOG("updated capital %s in %s by %d/100 for friendship with %s, current value is %d",  GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+							pCity->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iCapDelta);
+							//CUSTOMLOG("updated capital %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
 						}
 						else if(iInfluenceLevel == 2)
 						{
-							pCity->ChangeBaseYieldRateFromCSAlliance(eYield, iCapDelta / 100);
-							//CUSTOMLOG("updated capital %s in %s by %d/100 for friendship with %s, current value is %d",  GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+							pCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iCapDelta);
+							//CUSTOMLOG("updated capital %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
 						}
 					}
 				}
@@ -14028,13 +14028,13 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 					{
 						if (iInfluenceLevel == 1)
 						{
-							pCity->ChangeBaseYieldRateFromCSFriendship(eYield, iCityDelta / 100);
-							//CUSTOMLOG("updated %s in %s by %d/100 for friendship with %s, current value is %d",  GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iCityDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+							pCity->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iCityDelta);
+							//CUSTOMLOG("updated %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCityDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
 						}
 						else if(iInfluenceLevel == 2)
 						{
-							pCity->ChangeBaseYieldRateFromCSAlliance(eYield, iCityDelta / 100);
-							//CUSTOMLOG("updated %s in %s by %d/100 for friendship with %s, current value is %d",  GC.getYieldInfo(eYield)->getDescription(), pLoopCity->getNameKey(), iCityDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(eYield));
+							pCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iCityDelta);
+							//CUSTOMLOG("updated %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCityDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
 						}
 					}
 				}
@@ -14305,7 +14305,7 @@ int CvMinorCivAI::GetCurrentHappinessBonus(PlayerTypes ePlayer)
 }
 
 // one function to rule them all, player version
-int CvMinorCivAI::GetYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel) const
+int CvMinorCivAI::GetYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel) const
 {
 	if (iInfluenceLevel == 0)
 		return 0;
@@ -14334,7 +14334,7 @@ int CvMinorCivAI::GetYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraT
 	return iYieldBonus;
 }
 
-int CvMinorCivAI::GetCurrentYieldBonus(PlayerTypes ePlayer, YieldTypes eYield)
+int CvMinorCivAI::GetCurrentYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield)
 {
 	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -14349,7 +14349,7 @@ int CvMinorCivAI::GetCurrentYieldBonus(PlayerTypes ePlayer, YieldTypes eYield)
 	if (iInfluenceLevel == 0)
 		return iInfluenceLevel;
 	
-	int iAmount = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, iInfluenceLevel);
+	int iAmount = GetYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, iInfluenceLevel);
 	
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
@@ -17933,7 +17933,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		int iFriendYieldTimes100 = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, 1) * 100;
+		int iFriendYieldTimes100 = GetYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 1);
 		int iFriendCapitalYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 1, true);
 		int iFriendOtherCitiesYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 1, false);
 		int iAllyYieldTimes100 = 0;
@@ -17941,7 +17941,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		int iAllyOtherCitiesYieldTimes100 = 0;
 		if (bAllies)
 		{
-			iAllyYieldTimes100 = GetYieldFlatBonus(ePlayer, eYield, NO_ERA, 2) * 100;
+			iAllyYieldTimes100 = GetYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 2);
 			iAllyCapitalYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 2, true) - iFriendCapitalYieldTimes100;
 			iAllyOtherCitiesYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 2, false) - iFriendOtherCitiesYieldTimes100;
 		}

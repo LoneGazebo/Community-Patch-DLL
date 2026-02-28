@@ -408,7 +408,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// We're a master of someone, we get gold from taxes
 	iNetGold += GetMyShareOfVassalTaxes();
 
-	iNetGold += m_pPlayer->GetYieldPerTurnFromMinorCivs(YIELD_GOLD) * 100;
+	iNetGold += m_pPlayer->GetYieldPerTurnFromMinorCivsTimes100(YIELD_GOLD);
 
 	if (MOD_BALANCE_CORE_JFD)
 	{

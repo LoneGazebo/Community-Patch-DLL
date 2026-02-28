@@ -651,8 +651,8 @@ public:
 	bool HasAllyCityYieldBonuses(YieldTypes eYield) const;
 	int GetAllyCityYieldBonusValue(YieldTypes eYield, EraTypes eEra, bool bCapitalOnly) const;
 
-	int GetYieldFlatBonus(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel) const;
-	int GetCurrentYieldBonus(PlayerTypes ePlayer, YieldTypes eYield);
+	int GetYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel) const;
+	int GetCurrentYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield);
 	int GetCityYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel, bool bCapitalOnly) const;
 	int GetCurrentCityYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, bool bCapitalOnly);
 

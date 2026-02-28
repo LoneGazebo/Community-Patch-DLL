@@ -438,8 +438,8 @@ CvCity::CvCity() :
 	, m_aiYieldFromSpyDefenseOrID()
 	, m_aiYieldFromSpyRigElection()
 	, m_aiYieldChangesPerCityStrengthTimes100()
-	, m_aiBaseYieldRateFromCSAlliance()
-	, m_aiBaseYieldRateFromCSFriendship()
+	, m_aiBaseYieldRateFromCSAllianceTimes100()
+	, m_aiBaseYieldRateFromCSFriendshipTimes100()
 	, m_aiYieldFromMinors()
 	, m_afResourceQuantityPerXFranchises()
 	, m_aiYieldChangeFromCorporationFranchises()
@@ -1387,8 +1387,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_miInstantYieldsTotal.clear();
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromMinors.resize(NUM_YIELD_TYPES);
-	m_aiBaseYieldRateFromCSFriendship.resize(NUM_YIELD_TYPES);
-	m_aiBaseYieldRateFromCSAlliance.resize(NUM_YIELD_TYPES);
+	m_aiBaseYieldRateFromCSFriendshipTimes100.resize(NUM_YIELD_TYPES);
+	m_aiBaseYieldRateFromCSAllianceTimes100.resize(NUM_YIELD_TYPES);
 	m_aiGreatWorkYieldChange.resize(NUM_YIELD_TYPES);
 	m_aiDamagePermyriad.resize(MAX_CIV_PLAYERS);
 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -1477,8 +1477,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiEventCityYieldModifier[iI] = 0;
 		m_aiBaseYieldRateFromReligion[iI] = 0;
 		m_aiYieldFromMinors[iI] = 0;
-		m_aiBaseYieldRateFromCSFriendship[iI] = 0;
-		m_aiBaseYieldRateFromCSAlliance[iI] = 0;
+		m_aiBaseYieldRateFromCSFriendshipTimes100[iI] = 0;
+		m_aiBaseYieldRateFromCSAllianceTimes100[iI] = 0;
 		m_aiStaticCityYield[iI] = 0;
 		m_aiYieldPerPop[iI] = 0;
 		m_aiYieldRateFromBuildingsEraScalingTimes100[iI] = 0;
@@ -25430,13 +25430,13 @@ void CvCity::ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange)
 	}
 }
 //	--------------------------------------------------------------------------------
-int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
+int CvCity::GetBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	return m_aiBaseYieldRateFromCSAlliance[eIndex];
+	return m_aiBaseYieldRateFromCSAllianceTimes100[eIndex];
 }//	--------------------------------------------------------------------------------
 /// EFFECTIVE yield rate from CS Alliances
 int CvCity::GetEffectiveYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const
@@ -25454,14 +25454,14 @@ int CvCity::GetEffectiveYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const
 	if (MOD_BALANCE_CITY_STATE_SCALE)
 		iModifier += max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 
-	int iValue = GetBaseYieldRateFromCSAlliance(eIndex) * (100 + iModifier);
+	int iValue = GetBaseYieldRateFromCSAllianceTimes100(eIndex) * (100 + iModifier) / 100;
 
 	int iBonus = GetYieldPerAllyTimes100(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies();
 	return iValue + iBonus;
 }
 //	--------------------------------------------------------------------------------
 /// Base yield rate from CS Alliances
-void CvCity::ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange)
+void CvCity::ChangeBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
@@ -25469,26 +25469,26 @@ void CvCity::ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiBaseYieldRateFromCSAlliance[eIndex] += iChange;
-		ASSERT(GetBaseYieldRateFromCSAlliance(eIndex) >= 0);
+		m_aiBaseYieldRateFromCSAllianceTimes100[eIndex] += iChange;
+		ASSERT(GetBaseYieldRateFromCSAllianceTimes100(eIndex) >= 0);
 	}
 }
-void CvCity::SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue)
+void CvCity::SetBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex, int iValue)
 {
-	if (GetBaseYieldRateFromCSAlliance(eIndex) != iValue)
+	if (GetBaseYieldRateFromCSAllianceTimes100(eIndex) != iValue)
 	{
-		m_aiBaseYieldRateFromCSAlliance[eIndex] = iValue;
+		m_aiBaseYieldRateFromCSAllianceTimes100[eIndex] = iValue;
 	}
 }
 //	--------------------------------------------------------------------------------
 /// EFFECTIVE yield rate from CS Friendships (name is misleading)
-int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
+int CvCity::GetBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	return m_aiBaseYieldRateFromCSFriendship[eIndex];
+	return m_aiBaseYieldRateFromCSFriendshipTimes100[eIndex];
 }
 //	--------------------------------------------------------------------------------
 /// EFFECTIVE yield rate from CS Friendships (name is misleading)
@@ -25507,13 +25507,13 @@ int CvCity::GetEffectiveYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) con
 	if (MOD_BALANCE_CITY_STATE_SCALE)
 		iModifier += max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 
-	int iValue = GetBaseYieldRateFromCSFriendship(eIndex) * (100 + iModifier);
+	int iValue = GetBaseYieldRateFromCSFriendshipTimes100(eIndex) * (100 + iModifier) / 100;
 
 	int iBonus = GetYieldPerFriendTimes100(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends();
 	return iValue + iBonus;
 
 }
-void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
+void CvCity::ChangeBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
@@ -25521,15 +25521,15 @@ void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiBaseYieldRateFromCSFriendship[eIndex] += iChange;
-		ASSERT(GetBaseYieldRateFromCSFriendship(eIndex) >= 0);
+		m_aiBaseYieldRateFromCSFriendshipTimes100[eIndex] += iChange;
+		ASSERT(GetBaseYieldRateFromCSFriendshipTimes100(eIndex) >= 0);
 	}
 }
-void CvCity::SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue)
+void CvCity::SetBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex, int iValue)
 {
-	if (GetBaseYieldRateFromCSFriendship(eIndex) != iValue)
+	if (GetBaseYieldRateFromCSFriendshipTimes100(eIndex) != iValue)
 	{
-		m_aiBaseYieldRateFromCSFriendship[eIndex] = iValue;
+		m_aiBaseYieldRateFromCSFriendshipTimes100[eIndex] = iValue;
 	}
 }
 
@@ -28953,8 +28953,8 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
-				ChangeBaseYieldRateFromCSAlliance(eYield, (kPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra * iSign));
-				ChangeBaseYieldRateFromCSFriendship(eYield, (kPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra * iSign));
+				ChangeBaseYieldRateFromCSAllianceTimes100(eYield, (kPlayer.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra * iSign * 100));
+				ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, (kPlayer.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra * iSign * 100));
 			}
 		}
 	}
@@ -28975,7 +28975,7 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
 					if (iBonus != 0)
 					{
-						ChangeBaseYieldRateFromCSAlliance(eYield, iSign * iBonus / 100);
+						ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iSign * iBonus);
 						//CUSTOMLOG("adjusted %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSAlliance(eYield));
 					}
 				}
@@ -28988,7 +28988,7 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
 					if (iBonus != 0)
 					{
-						ChangeBaseYieldRateFromCSFriendship(eYield, iSign * iBonus / 100);
+						ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iSign * iBonus);
 						//CUSTOMLOG("adjusted %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSFriendship(eYield));
 					}
 				}
@@ -31477,9 +31477,9 @@ bool CvCity::CrosscheckYieldsFromMinors()
 		}
 
 		//roman UA adds yields from conquered city states ...
-		iMajorBonus += isCapital() ? kMajor.GetYieldInCapitalPerTurnFromAnnexedMinors(eYield)*100 : kMajor.GetYieldInOtherCitiesPerTurnFromAnnexedMinors(eYield)*100;
+		iMajorBonus += isCapital() ? kMajor.GetYieldInCapitalPerTurnFromAnnexedMinors(eYield) : kMajor.GetYieldInOtherCitiesPerTurnFromAnnexedMinors(eYield) * 100;
 
-		if (m_aiBaseYieldRateFromCSAlliance[eYield]*100 + m_aiBaseYieldRateFromCSFriendship[eYield]*100 != iMajorBonus + iMinorBonus)
+		if (m_aiBaseYieldRateFromCSAllianceTimes100[eYield] + m_aiBaseYieldRateFromCSFriendshipTimes100[eYield] != iMajorBonus + iMinorBonus)
 		{
 			CUSTOMLOG("yield mismatch in %s!", getNameKey());
 			return false;
@@ -31982,8 +31982,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_miWLTKDFromProject);
 	visitor(city.m_miInstantYieldsTotal);
 	visitor(city.m_aiBaseYieldRateFromReligion);
-	visitor(city.m_aiBaseYieldRateFromCSAlliance);
-	visitor(city.m_aiBaseYieldRateFromCSFriendship);
+	visitor(city.m_aiBaseYieldRateFromCSAllianceTimes100);
+	visitor(city.m_aiBaseYieldRateFromCSFriendshipTimes100);
 	visitor(city.m_aiYieldFromMinors);
 	visitor(city.m_afResourceQuantityPerXFranchises);
 	visitor(city.m_aiYieldChangeFromCorporationFranchises);

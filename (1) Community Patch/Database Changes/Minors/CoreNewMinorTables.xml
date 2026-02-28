@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- All these tables are x100 -->
 <GameData>
 	<!-- Determines what player yields a city-state type will give when friendly, in what era -->
 	<Table name="MinorCivilizationTraits_FriendYieldBonuses">
