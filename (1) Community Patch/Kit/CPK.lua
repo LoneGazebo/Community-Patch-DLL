@@ -408,11 +408,13 @@
 	kit.Table = M() -- Table utilities
 	kit.Text = M()  -- Text utilities
 	kit.Type = M()  -- Type utilities
+	kit.DB = M()    -- Database utilities
 	kit.FP = M()    -- Functional Programming
 	kit.UI = M()
 	kit.UI.Control = M()
 	kit.UI.Control.Instance = M()
 	kit.Util = M() -- General Purpose Utilities	
+	kit.Bit = M() -- Bit utilities
 
 	if global then
 		global.CPK = kit
