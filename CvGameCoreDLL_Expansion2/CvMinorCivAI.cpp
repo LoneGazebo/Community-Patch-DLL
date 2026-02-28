@@ -13958,7 +13958,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if (IsAllies(ePlayer))
 			{
 				int iAllyChange = kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * (iNextEra - iCurrentEra);
-				pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, iAllyChange);
+				pCapital->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iAllyChange * 100);
 				if (iAllyChange)
 					bSomethingChanged = true;
 			}
@@ -13966,7 +13966,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if (IsFriends(ePlayer))
 			{
 				int iFriendChange = kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * (iNextEra - iCurrentEra);
-				pCapital->ChangeBaseYieldRateFromCSFriendship(eYield, iFriendChange);
+				pCapital->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iFriendChange * 100);
 				if (iFriendChange)
 					bSomethingChanged = true;
 			}
