@@ -16040,7 +16040,9 @@ int CvCity::getFoodConsumptionSpecialistTimes100() const
 	int iFoodPerSpec = 0;
 	if (MOD_BALANCE_VP)
 	{
-		iFoodPerSpec = max((int)GET_PLAYER(getOwner()).GetCurrentEra(), /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION)) + 1;
+		// specialist Era scaling for VP
+		CvEraInfo* pEraInfo = GC.getEraInfo(GET_PLAYER(getOwner()).GetCurrentEra());
+		iFoodPerSpec = (pEraInfo ? pEraInfo->getSpecialistFoodCost() : 1) + /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION);
 		iFoodPerSpec = min(iFoodPerSpec, 10) * 100;
 	}
 	else
