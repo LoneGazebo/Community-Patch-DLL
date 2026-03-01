@@ -114,7 +114,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iPolicyReductionWonderXFollowerCities(0),
 	m_bAIGoodStartingPantheon(false),
 	m_piMaxYieldPerFollower(NULL),
-	m_piMaxYieldPerFollowerPercent(NULL),
+	m_piFollowerRequiredPerYield(NULL),
 	m_piImprovementVoteChange(NULL),
 	m_iReducePolicyRequirements(0),
 	m_iCSYieldBonus(0),
@@ -241,7 +241,7 @@ CvBeliefEntry::~CvBeliefEntry()
 	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchase);
 	SAFE_DELETE_ARRAY(m_piYieldFromKnownPantheons);
 	SAFE_DELETE_ARRAY(m_piMaxYieldPerFollower);
-	SAFE_DELETE_ARRAY(m_piMaxYieldPerFollowerPercent);
+	SAFE_DELETE_ARRAY(m_piFollowerRequiredPerYield);
 	SAFE_DELETE_ARRAY(m_piImprovementVoteChange);
 
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
@@ -796,11 +796,11 @@ int CvBeliefEntry::GetMaxYieldPerFollower(int i) const
 	return m_piMaxYieldPerFollower ? m_piMaxYieldPerFollower[i] : -1;
 }
 /// Accessor:: Yield from Followers Halved
-int CvBeliefEntry::GetMaxYieldPerFollowerPercent(int i) const
+int CvBeliefEntry::GetFollowerRequiredPerYield(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piMaxYieldPerFollowerPercent ? m_piMaxYieldPerFollowerPercent[i] : -1;
+	return m_piFollowerRequiredPerYield ? m_piFollowerRequiredPerYield[i] : -1;
 }
 
 int CvBeliefEntry::GetIgnorePolicyRequirementsAmount() const
@@ -1398,8 +1398,8 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromHost, "Belief_YieldFromHost", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromFaithPurchase, "Belief_YieldFromFaithPurchase", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromKnownPantheons, "Belief_YieldFromKnownPantheons", "BeliefType", szBeliefType);
-	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollower, "Yields", "Belief_MaxYieldPerFollower", "YieldType", "BeliefType", szBeliefType, "Max");
-	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollowerPercent, "Yields", "Belief_MaxYieldPerFollowerPercent", "YieldType", "BeliefType", szBeliefType, "Max");
+	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollower, "Yields", "Belief_YieldPerXFollowersLocal", "YieldType", "BeliefType", szBeliefType, "YieldCap");
+	kUtility.PopulateArrayByValue(m_piFollowerRequiredPerYield, "Yields", "Belief_YieldPerXFollowersLocal", "YieldType", "BeliefType", szBeliefType, "NumRequired");
 
 	kUtility.PopulateArrayByValue(m_piImprovementVoteChange, "Improvements", "Belief_VotePerXImprovementOwned", "ImprovementType", "BeliefType", szBeliefType, "Amount");
 
@@ -4572,14 +4572,14 @@ int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes
 	return rtnValue;
 }
 /// Get yield from beliefs from # of followers halved
-int CvReligionBeliefs::GetMaxYieldPerFollowerPercent(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetFollowerRequiredPerYield(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldPerFollowerPercent(eYieldType);
+		int iValue = pBeliefs->GetEntry(*it)->GetFollowerRequiredPerYield(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

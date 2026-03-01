@@ -9664,9 +9664,9 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			if (pEntry->GetYieldChangePerXCityStateFollowers(iI) > 0)
 				iSpreadYields += pEntry->GetYieldChangePerXCityStateFollowers(iI) * (m_pPlayer->GetNumCSAllies() + m_pPlayer->GetNumCSFriends() + GC.getGame().GetNumMinorCivsAlive()) / 2;
 
-			if (pEntry->GetMaxYieldPerFollowerPercent(iI) > 0)
+			if (pEntry->GetFollowerRequiredPerYield(iI) > 0)
 			{
-				iSpreadYieldsLocal += pEntry->GetMaxYieldPerFollowerPercent(iI) * 25 / max(1, 100 - pEntry->GetMaxYieldPerFollower((YieldTypes)iI));
+				iSpreadYieldsLocal += 25 * (100 / pEntry->GetFollowerRequiredPerYield(iI)) / max(1, 100 - pEntry->GetMaxYieldPerFollower((YieldTypes)iI)));
 			}
 			else
 			{
@@ -9676,10 +9676,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 					iVal *= 100;
 					iVal /= (100 + max(0, (2 * (iIdealCityPop - m_pPlayer->getCapitalCity()->getPopulation()))));
 
-					if (iVal > pEntry->GetMaxYieldPerFollower(iI))
-					{
-						iVal = pEntry->GetMaxYieldPerFollower(iI);
-					}
 					if (pEntry->IsPantheonBelief())
 						iVal /= 4;
 
