@@ -320,7 +320,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_AQUEDUCT';
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 25
+	Type, 'YIELD_PRODUCTION', 60
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AQUEDUCT';
 

@@ -9,3 +9,6 @@ ALTER TABLE Eras ADD VassalageEnabled boolean DEFAULT 0;
 
 -- New era popup splash image (used to be hardcoded, see NewEraPopup.lua)
 ALTER TABLE Eras ADD EraSplashImage text DEFAULT 'ERA_Medievel.dds';
+
+-- Era Food Scalign for Specialists in VP
+ALTER TABLE Eras ADD SpecialistFoodCost integer DEFAULT 0;

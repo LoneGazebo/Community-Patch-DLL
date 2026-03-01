@@ -2672,6 +2672,7 @@ public:
 	int getTradeRouteProductionBonusTimes100() const;
 	int getLeaguePercent() const;
 	int getWarmongerPercent() const;
+	int getSpecialistFoodCost() const;
 	bool getVassalageEnabled() const;
 
 	const char* GetCityBombardEffectTag() const;
@@ -2730,6 +2731,7 @@ protected:
 	int m_iTradeRouteProductionBonusTimes100;
 	int m_iLeaguePercent;
 	int m_iWarmongerPercent;
+	int m_iSpecialistFoodCost;
 	bool m_bVassalageEnabled;
 
 	CvString m_strCityBombardEffectTag;

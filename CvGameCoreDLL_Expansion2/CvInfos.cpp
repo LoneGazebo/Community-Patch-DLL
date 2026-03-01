@@ -8748,6 +8748,7 @@ CvEraInfo::CvEraInfo() :
 	m_iTradeRouteProductionBonusTimes100(0),
 	m_iLeaguePercent(0),
 	m_iWarmongerPercent(0),
+	m_iSpecialistFoodCost(0),
 	m_bVassalageEnabled(false),
 	m_bNoGoodies(false),
 	m_bNoBarbUnits(false),
@@ -8928,6 +8929,11 @@ int CvEraInfo::getWarmongerPercent() const
 	return m_iWarmongerPercent;
 }
 //------------------------------------------------------------------------------
+int CvEraInfo::getSpecialistFoodCost() const
+{
+	return m_iSpecialistFoodCost;
+}
+//------------------------------------------------------------------------------
 const char* CvEraInfo::getArtPrefix() const
 {
 	return m_strArtPrefix.c_str();
@@ -9030,6 +9036,7 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_iTradeRouteProductionBonusTimes100 = kResults.GetInt("TradeRouteProductionBonusTimes100");
 	m_iLeaguePercent			= kResults.GetInt("LeaguePercent");
 	m_iWarmongerPercent			= kResults.GetInt("WarmongerPercent");
+	m_iSpecialistFoodCost		= kResults.GetInt("SpecialistFoodCost");
 	m_bVassalageEnabled			= kResults.GetBool("VassalageEnabled");
 
 	m_strCityBombardEffectTag	= kResults.GetText("CityBombardEffectTag");
