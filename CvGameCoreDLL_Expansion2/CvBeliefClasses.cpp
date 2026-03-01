@@ -4269,16 +4269,22 @@ int CvReligionBeliefs::GetYieldPerBirth(YieldTypes eYieldType, PlayerTypes ePlay
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetYieldPerHolyCityBirth(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerHolyCityBirth(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly, int iNumFollowerCities) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerHolyCityBirth(eYieldType);
+		const CvBeliefEntry* pEntry = pBeliefs->GetEntry(*it);
+		if (!pEntry)
+			continue;
+
+		int iValue = pEntry->GetYieldPerHolyCityBirth(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
+			int iMaxCities = pEntry->GetCityScalerLimiter();
+			iValue *= min(iMaxCities, iNumFollowerCities);
 			rtnValue += iValue;
 		}
 	}

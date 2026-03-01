@@ -25458,7 +25458,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if (pReligion)
 					{
-						iValue = pReligion->m_Beliefs.GetYieldPerHolyCityBirth(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+						iValue = pReligion->m_Beliefs.GetYieldPerHolyCityBirth(eYield, GetID(), pLoopCity, true, iNumFollowerCities);
 					}
 					break;
 				}
