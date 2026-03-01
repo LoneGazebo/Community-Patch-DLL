@@ -327,7 +327,7 @@ public:
 	int GetFeatureDefensePercent(int i) const;
 	int GetYieldFromAncientRuins(int i) const;
 	int GetYieldFromTRPlunder(int i) const;
-	int GetYieldFromScouting(int i) const;
+	int GetYieldFromScoutingTimes100(int i) const;
 	int GetYieldModifier(int i) const;
 	int GetYieldChange(int i) const;
 	int GetYieldFromKills(int i) const;
@@ -641,7 +641,7 @@ protected:
 	int* m_piFeatureDefensePercent;
 	int* m_piTerrainModifierAttack;
 	int* m_piTerrainModifierDefense;
-	int* m_piYieldFromScouting;
+	int* m_piYieldFromScoutingTimes100;
 	int* m_piYieldModifier;
 	int* m_piYieldChange;
 	int* m_piYieldFromAncientRuins;
