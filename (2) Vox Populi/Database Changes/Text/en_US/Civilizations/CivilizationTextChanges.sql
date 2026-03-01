@@ -362,7 +362,7 @@ WHERE Tag = 'TXT_KEY_CITY_NAME_BRAUNSCHWEIG';
 -- Greece
 --------------------
 UPDATE Language_en_US
-SET Text = '[ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. +5% [ICON_STRENGTH] Combat Strength of owned and Allied Units for each [ICON_CITY_STATE] City-State alliance (up to +25%). Treat neutral [ICON_CITY_STATE] City-State territory as friendly territory.'
+SET Text = '[ICON_INFLUENCE] Influence degrades at 2/3 and recovers at twice the normal rate. +5% [ICON_STRENGTH] Combat Strength of owned and Allied Units for each [ICON_CITY_STATE] City-State alliance (up to +25%). Treat neutral [ICON_CITY_STATE] City-State territory as friendly territory.'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP';
 
 UPDATE Language_en_US
