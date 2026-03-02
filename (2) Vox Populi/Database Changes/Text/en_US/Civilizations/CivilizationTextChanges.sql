@@ -578,7 +578,7 @@ SET Text = 'Kanuni'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Completing a [ICON_INTERNATIONAL_TRADE] Trade Route grants +150 [ICON_FOOD] Food and [ICON_RESEARCH] Science to the origin City if International, or [ICON_GOLD] Gold and [ICON_CULTURE] Culture if Internal. Bonuses scale with Era.'
+SET Text = 'Completing a [ICON_INTERNATIONAL_TRADE] Trade Route grants +150 [ICON_FOOD] Food and [ICON_RESEARCH] Science to the origin City if International, or +75 [ICON_GOLD] Gold and [ICON_CULTURE] Culture to both Cities if Internal. Bonuses scale with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS';
 
 UPDATE Language_en_US
