@@ -340,6 +340,10 @@ protected:
 	static int lGetRelationshipDuration(lua_State* L);
 	static int lGetPeaceDuration(lua_State* L);
 
+	static int lGetRenewDeal(lua_State* L);
+	static int lGetRenewDealGoldPerTurn(lua_State* L);
+	static int lGetRenewDealResourceCount(lua_State* L);
+
 	static int lGetUnitUpgradesTo(lua_State* L);
 
 	static int lGetCombatPrediction(lua_State* L);

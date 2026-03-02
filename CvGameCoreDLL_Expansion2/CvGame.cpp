@@ -8368,8 +8368,6 @@ void CvGame::doTurn()
 		}
 	}
 
-	m_kGameDeals.DoTurnPost();
-
 	RollOverAssetCounter();
 
 	//-------------------------------------------------------------
