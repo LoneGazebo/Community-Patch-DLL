@@ -8242,7 +8242,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 
 						int iEraNeeded = pkTechInfo->GetEra();
 						int iCurrentEra = m_pPlayer->GetCurrentEra();
-						iAvailabilityModifier = max(0, 4 - (iEraNeeded - iCurrentEra));  // lose remaining value per era we have to wait
+						iAvailabilityModifier = max(0, 3 - (iEraNeeded - iCurrentEra));  // lose remaining value if we have to wait
 					}
 				}
 			}
@@ -8517,7 +8517,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 
 							int iEraNeeded = pkTechInfo->GetEra();
 							int iCurrentEra = m_pPlayer->GetCurrentEra();
-							iAvailabilityModifier = max(0, 4 - (iEraNeeded - iCurrentEra));  // lose remaining value per era we have to wait
+							iAvailabilityModifier = max(0, 3 - (iEraNeeded - iCurrentEra));  // lose remaining value if we have to wait
 						}
 						if (!pCity)
 						{
