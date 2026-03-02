@@ -8153,10 +8153,6 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 
 	bool bIsCapital = pCity && pCity->isCapital();
 
-	// todo
-	iHappinessMultiplier = min(15, max(6, iFlavorOffense * 2 + iFlavorHappiness - iFlavorDefense));
-	
-
 	CvPlayerTraits* pPlayerTraits = m_pPlayer->GetPlayerTraits();
 
 	//let's establish some mid-game goals for the AI.
