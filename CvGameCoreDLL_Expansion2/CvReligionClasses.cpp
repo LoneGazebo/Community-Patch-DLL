@@ -8133,7 +8133,6 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 		return 0;
 
 	// the different yield types are valued using ScoreYieldForReligionTimes100
-	// happiness is valued with iHappinessNeedFactor (see below)
 	// great person points are valued with iGPValue (see below)
 
 	// in addition, each yield is multiplied with iAvailabilityModifier, which has a value of 10 if the yield is available instantly and a lower value if it takes time to get the yield or if it's unclear if we'll ever get it
@@ -8147,9 +8146,6 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 	int jJ = 0;
 
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
-	int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-	int iFlavorDefense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
-	int iFlavorHappiness = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
 
 	bool bIsCapital = pCity && pCity->isCapital();
 
@@ -8246,7 +8242,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 
 						int iEraNeeded = pkTechInfo->GetEra();
 						int iCurrentEra = m_pPlayer->GetCurrentEra();
-						iAvailabilityModifier = iCurrentEra >= iEraNeeded ? 4 : 1;
+						iAvailabilityModifier = max(0, 4 - (iEraNeeded - iCurrentEra));  // lose remaining value per era we have to wait
 					}
 				}
 			}
@@ -8514,7 +8510,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 
 							int iEraNeeded = pkTechInfo->GetEra();
 							int iCurrentEra = m_pPlayer->GetCurrentEra();
-							iAvailabilityModifier = iCurrentEra >= iEraNeeded ? 4 : 2;
+							iAvailabilityModifier = max(0, 4 - (iEraNeeded - iCurrentEra));  // lose remaining value per era we have to wait
 						}
 						if (!pCity)
 						{
