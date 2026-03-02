@@ -5216,7 +5216,7 @@ void CvGameDeals::DoTurn()
 {
 	DealList::iterator it;
 
-	if(!m_CurrentDeals.empty())
+	if (!m_CurrentDeals.empty())
 	{
 		PlayerTypes eFromPlayer = NO_PLAYER;
 		PlayerTypes eToPlayer = NO_PLAYER;
@@ -5228,10 +5228,10 @@ void CvGameDeals::DoTurn()
 		int iGameTurn = GC.getGame().getGameTurn();
 
 		// Check to see if any of our TradeItems in any of our Deals expire this turn
-		for(it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
+		for (it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
 		{
 			TradedItemList::iterator itemIter;
-			for(itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
+			for (itemIter = it->m_TradedItems.begin(); itemIter != it->m_TradedItems.end(); ++itemIter)
 			{
 				int iFinalTurn = itemIter->m_iFinalTurn;
 				ASSERT(iFinalTurn >= -1, "DEAL: Trade item has a negative final turn.");
@@ -5239,7 +5239,7 @@ void CvGameDeals::DoTurn()
 				ASSERT(itemIter->m_iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).");
 				ASSERT(itemIter->m_eFromPlayer == it->m_eFromPlayer || itemIter->m_eFromPlayer == it->m_eToPlayer, "DEAL: Processing turn for a deal that has an item for a player that's not actually in this deal!");
 
-				if(iFinalTurn > -1 && iFinalTurn == iGameTurn)
+				if (iFinalTurn > -1 && iFinalTurn == iGameTurn)
 				{
 					bSomethingChanged = true;
 
@@ -5310,23 +5310,18 @@ void CvGameDeals::DoTurn()
 			}
 		}
 
-		if(bSomethingChanged)
+		if (bSomethingChanged)
 		{
 			// Update UI if we were involved in the deal
 			PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-			if(eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
+			if (eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
 			{
 				GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			}
 		}
-		DoUpdateCurrentDealsList();
 	}
-}
+	DoUpdateCurrentDealsList(1);
 
-/// Update deals after a new turn has started
-void CvGameDeals::DoTurnPost()
-{
-	DoUpdateCurrentDealsList();
 	ClearAllRenewDealIDs();
 }
 
@@ -5386,7 +5381,7 @@ CvDeal* CvGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPla
 }
 
 /// If a deal has actually ended, move it from the current list to the historic list
-void CvGameDeals::DoUpdateCurrentDealsList()
+void CvGameDeals::DoUpdateCurrentDealsList(int iTurnOffset)
 {
 	DealList::iterator it;
 
@@ -5407,7 +5402,7 @@ void CvGameDeals::DoUpdateCurrentDealsList()
 		if (it->GetNumItems() <= 0)
 			continue;
 
-		if (it->m_iFinalTurn < GC.getGame().getGameTurn())
+		if (it->m_iFinalTurn < GC.getGame().getGameTurn() + iTurnOffset)
 		{
 			m_HistoricalDeals.push_back(*it);
 		}

@@ -8379,8 +8379,6 @@ void CvGame::doTurn()
 	incrementElapsedGameTurns();
 	gDLL->PublishNewGameTurn(getGameTurn());
 
-	m_kGameDeals.DoTurnPost();
-
 	if(isOption(GAMEOPTION_DYNAMIC_TURNS))
 	{// update turn mode for dynamic turn mode.
 		for(int teamIdx = 0; teamIdx < MAX_TEAMS; ++teamIdx)
