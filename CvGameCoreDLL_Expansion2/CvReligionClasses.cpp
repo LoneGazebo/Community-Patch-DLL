@@ -7897,7 +7897,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 	if (eTerrain != NO_TERRAIN)
 	{
 		int iTerrainYieldChangeTimes100 = pEntry->GetTerrainYieldChange(eTerrain, iI) * 100;
-		iTerrainYieldChangeTimes100 += pEntry->GetYieldPerXTerrainTimes100(eTerrain, iI) / 3; // lower value because it's difficult to get many tiles worked
+		iTerrainYieldChangeTimes100 += pEntry->GetYieldPerXTerrainTimes100(eTerrain, iI);
 		if (iTerrainYieldChangeTimes100 > 0)
 		{
 			iModifier = 100;
