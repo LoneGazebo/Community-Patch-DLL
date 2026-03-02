@@ -1115,9 +1115,6 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 	if ((pPlot->isOwned() || bIgnoreUnowned) && pPlot->getOwner() != m_pPlayer->GetID())
 		return true;
 
-	if (pPlot->getPlotType() == PLOT_MOUNTAIN)
-		return true;
-
 	if (pPlot->IsNaturalWonder())
 		return true;
 
@@ -1126,6 +1123,9 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 		return true;
 
 	if (bIgnoreUnowned && !pPlot->getEffectiveOwningCity()->IsWithinWorkRange(pPlot))
+		return true;
+
+	if ((pPlot->getPlotType() == PLOT_MOUNTAIN) && !m_pPlayer->HasMountainImprovement())
 		return true;
 
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
@@ -1159,6 +1159,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(const CvPlot* 
 			(pkImprovementInfo->IsAdjacentCity() && pPlot->IsAdjacentCity()) ||
 			(pkImprovementInfo->IsCoastal() && pPlot->isCoastalLand()) ||
 			(pkImprovementInfo->IsHillsMakesValid() && pPlot->isHills()))
+			// currently dont need to check mountains because only unique improvements go there
 		{
 			if (pPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID(), true))
 				return eImprovement;
@@ -3928,7 +3929,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				iPenalty = 1000;
 		}
 
-		if (bBenefitsFromRoads && eForceCityConnection == NO_ROUTE)
+		if (bBenefitsFromRoads && eForceCityConnection == NO_ROUTE && pkImprovementInfo->IsNoTwoAdjacent())
 			iSecondaryScore -= iPenalty;
 		else if (!bBenefitsFromRoads && (eForceCityConnection == ROUTE_ROAD || eForceCityConnection == ROUTE_RAILROAD))
 			iSecondaryScore -= iPenalty;
