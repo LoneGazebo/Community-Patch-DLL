@@ -8292,6 +8292,13 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 			iTempValue += 2 * iExpectedGrowth / pEntry->GetYieldPerXFollowers(iI);
 		}
 
+		// caps at half number of followers. assume we are at cap.
+		if (pEntry->GetYieldPerGPT(iI) > 0)
+		{
+			iTempValue += 10 * (iCurrentCityPop / 2) ;
+			iTempValue += 5 * (iExpectedGrowth / 2);
+		}
+
 		// yield per birth
 		if (pEntry->GetYieldPerBirth(iI) > 0)
 		{
@@ -10381,6 +10388,10 @@ int CvReligionAI::ScorePantheonBeliefForPlayer(CvBeliefEntry* pEntry) const
 			{
 				iTemp += iFlavorOffense * pEntry->GetYieldFromKills((YieldTypes)iI) * ScoreYieldForReligionTimes100((YieldTypes)iI) * min(3, iNumNeighbors) / 1000;
 			}
+			if (pEntry->GetYieldPerHeal((YieldTypes)iI))
+			{
+				iTemp += iFlavorOffense * (pEntry->GetYieldPerHeal((YieldTypes)iI) / 5) * ScoreYieldForReligionTimes100((YieldTypes)iI) * min(3, iNumNeighbors) / 1000;
+			}
 		}
 		if (pEntry->GetUnitProductionModifier() > 0)
 		{
@@ -10414,6 +10425,10 @@ int CvReligionAI::ScorePantheonBeliefForPlayer(CvBeliefEntry* pEntry) const
 		if (pEntry->RequiresPeace())
 		{
 			iRtnValue -= 200 * iNumWarmongerNeighbors;
+		}
+		if (pEntry->GetYieldPerHeal((YieldTypes)iI))
+		{
+			iTemp += iFlavorDefense * (pEntry->GetYieldPerHeal((YieldTypes)iI) / 5) * ScoreYieldForReligionTimes100((YieldTypes)iI) * iNumWarmongerNeighbors / 1000;
 		}
 	}
 
