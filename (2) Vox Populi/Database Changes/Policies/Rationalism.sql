@@ -1,42 +1,67 @@
--- Opener
+-- Tree structure
 UPDATE Policies
-SET HappinessToScience = 0
+SET GridX = 2, GridY = 1,
+PortraitIndex = 53
+WHERE Type = 'POLICY_SECULARISM';
+
+UPDATE Policies
+SET GridX = 3, GridY = 2
+WHERE Type = 'POLICY_SOVEREIGNTY';
+
+UPDATE Policies
+SET GridX = 5, GridY = 1,
+PortraitIndex = 49
+WHERE Type = 'POLICY_HUMANISM';
+
+UPDATE Policies
+SET GridX = 1, GridY = 2,
+PortraitIndex = 52
+WHERE Type = 'POLICY_FREE_THOUGHT';
+
+UPDATE Policies
+SET GridX = 4, GridY = 3,
+PortraitIndex = 51
+WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
+
+DELETE FROM Policy_PrereqPolicies WHERE PolicyType = 'POLICY_FREE_THOUGHT';
+
+INSERT INTO Policy_PrereqPolicies
+	(PolicyType, PrereqPolicy)
+VALUES
+	('POLICY_FREE_THOUGHT', 'POLICY_SECULARISM'),
+	('POLICY_SCIENTIFIC_REVOLUTION', 'POLICY_HUMANISM');
+
+-- Opener
+UPDATE Policies 
+SET 
+	GreatScientistRateModifier = 33,
+	CityGrowthMod = 10
 WHERE Type = 'POLICY_RATIONALISM';
 
-INSERT INTO Policy_ResourceYieldChanges
-	(PolicyType, ResourceType, YieldType, Yield)
-SELECT
-	'POLICY_RATIONALISM', Type, 'YIELD_PRODUCTION', 2
-FROM Resources
-WHERE ResourceUsage = 1;
-
-INSERT INTO Policy_ResourceYieldChanges
-	(PolicyType, ResourceType, YieldType, Yield)
-SELECT
-	'POLICY_RATIONALISM', Type, 'YIELD_SCIENCE', 3
-FROM Resources
-WHERE ResourceUsage = 1;
-
-INSERT INTO Policy_YieldModifiers
-	(PolicyType, YieldType, Yield)
+INSERT INTO Policy_SpecialistYieldChanges
+	(PolicyType, SpecialistType, YieldType, Yield)
 VALUES
-	('POLICY_RATIONALISM', 'YIELD_SCIENCE', 5);
+	('POLICY_RATIONALISM', 'SPECIALIST_SCIENTIST', 'YIELD_SCIENCE', 1),	
+	('POLICY_RATIONALISM', 'SPECIALIST_SCIENTIST', 'YIELD_CULTURE', 1);
 
--- Secularism (now Scientific Revolution)
+-- Secularism (now Liberalism)
 DELETE FROM Policy_SpecialistExtraYields
 WHERE PolicyType = 'POLICY_SECULARISM';
 
-INSERT INTO Policy_FeatureYieldChanges
-	(PolicyType, FeatureType, YieldType, Yield)
+INSERT INTO Policy_SpecialistExtraYields
+	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_SECULARISM', 'FEATURE_JUNGLE', 'YIELD_SCIENCE', 2);
+	('POLICY_SECULARISM', 'YIELD_PRODUCTION', 1),
+	('POLICY_SECULARISM', 'YIELD_GOLD', 2);
 
-INSERT INTO Policy_TerrainYieldChanges
-	(PolicyType, TerrainType, YieldType, Yield)
-VALUES
-	('POLICY_SECULARISM', 'TERRAIN_SNOW', 'YIELD_SCIENCE', 2);
+INSERT INTO Policy_GoldenAgeGreatPersonRateModifier
+	(PolicyType, GreatPersonType, Modifier)
+SELECT
+	'POLICY_SECULARISM', Type, 25
+FROM GreatPersons
+WHERE Specialist IS NOT NULL;
 
--- Humanism (now Enlightenment)
+-- Humanism (now Mass Education)
 UPDATE Policies
 SET
 	GreatScientistRateModifier = 0,
@@ -47,20 +72,29 @@ WHERE Type = 'POLICY_HUMANISM';
 INSERT INTO Policy_BuildingClassHappiness
 	(PolicyType, BuildingClassType, Happiness)
 VALUES
-	('POLICY_HUMANISM', 'BUILDINGCLASS_UNIVERSITY', 1);
+	('POLICY_HUMANISM', 'BUILDINGCLASS_PUBLIC_SCHOOL', 1);
 
--- Sovereignty (now Rights of Man)
+INSERT INTO Policy_BuildingClassYieldChanges
+	(PolicyType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('POLICY_HUMANISM', 'BUILDINGCLASS_PUBLIC_SCHOOL', 'YIELD_CULTURE', 2),
+	('POLICY_HUMANISM', 'BUILDINGCLASS_PUBLIC_SCHOOL', 'YIELD_FOOD', 3);
+
+INSERT INTO Policy_BuildingClassProductionModifiers
+	(PolicyType, BuildingClassType, ProductionModifier)
+VALUES
+	('POLICY_HUMANISM', 'BUILDINGCLASS_PUBLIC_SCHOOL', 50);
+
+-- Sovereignty (now Emancipation)
 DELETE FROM Policy_BuildingClassYieldChanges
 WHERE PolicyType = 'POLICY_SOVEREIGNTY';
 
-UPDATE Policies
-SET
-	DistressFlatReduction = 1,
-	PovertyFlatReduction = 1,
-	IlliteracyFlatReduction = 1,
-	BoredomFlatReduction = 1,
-	ReligiousUnrestFlatReduction = 1
-WHERE Type = 'POLICY_SOVEREIGNTY';
+INSERT INTO Policy_BuildingClassHappiness
+	(PolicyType, BuildingClassType, Happiness)
+VALUES
+	('POLICY_SOVEREIGNTY', 'BUILDINGCLASS_THEATRE', 1),
+	('POLICY_SOVEREIGNTY', 'BUILDINGCLASS_HOTEL', 1),
+    ('POLICY_SOVEREIGNTY', 'BUILDINGCLASS_MUSEUM', 1);
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
@@ -68,65 +102,69 @@ VALUES
 	('POLICY_SOVEREIGNTY', 'IMPROVEMENT_TRADING_POST', 'YIELD_PRODUCTION', 2),
 	('POLICY_SOVEREIGNTY', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 2);
 
+INSERT INTO Policy_YieldFromBirthRetroactive
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_SOVEREIGNTY', 'YIELD_CULTURE', 5),
+	('POLICY_SOVEREIGNTY', 'YIELD_GOLDEN_AGE_POINTS', 5);
+
 INSERT INTO Policy_GoldenAgeYieldMod
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_SOVEREIGNTY', 'YIELD_SCIENCE', 10);
+	('POLICY_SOVEREIGNTY', 'YIELD_FOOD', 10);
 
--- Free Thought
+-- Free Thought (now Secularism, unhelpful I know)
 DELETE FROM Policy_ImprovementYieldChanges
 WHERE PolicyType = 'POLICY_FREE_THOUGHT';
 
 DELETE FROM Policy_BuildingClassYieldModifiers
 WHERE PolicyType = 'POLICY_FREE_THOUGHT';
 
+INSERT INTO Policy_GoldenAgeYieldMod
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_FREE_THOUGHT', 'YIELD_SCIENCE', 10);
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_FREE_THOUGHT', 'IMPROVEMENT_ACADEMY', 'YIELD_PRODUCTION', 3),
+	('POLICY_FREE_THOUGHT', 'IMPROVEMENT_ACADEMY', 'YIELD_GOLD', 3);
+
 UPDATE Policies
 SET
 	ReligiousUnrestFlatReduction = 5,
-	GreatScientistRateModifier = 33,
-	GreatScientistBeakerModifier = 25
+	GreatScientistRateModifier = 0,
+	GreatScientistBeakerModifier = 0
 WHERE Type = 'POLICY_FREE_THOUGHT';
 
--- Scientific Revolution (now Empiricism)
+-- Scientific Revolution (now Employment Law)
 UPDATE Policies
 SET
 	OneShot = 0,
-	MedianTechPercentChange = 0,
-	CityGrowthMod = 25
+	MedianTechPercentChange = 0
+	HappinessToCulture = 50,
+	SpecialistFoodChange = -1
 WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
 
 INSERT INTO Policy_YieldFromNonSpecialistCitizens
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_FOOD', 100);
+	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_PRODUCTION', 100);
 
 INSERT INTO Policy_SpecialistExtraYields
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_FOOD', 1);
-
-INSERT INTO Policy_YieldModifierFromGreatWorks
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_SCIENCE', 3);
+	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_PRODUCTION', 1);
 
 -- Finisher
 UPDATE Policies
 SET
 	OneShot = 0,
 	NumFreeTechs = 0,
-	DistressFlatReduction = 1,
-	PovertyFlatReduction = 1,
-	IlliteracyFlatReduction = 1,
-	BoredomFlatReduction = 1,
-	ReligiousUnrestFlatReduction = 1,
+	GreatScientistBeakerModifier = 25,
 	SpySecurityModifier = 12
 WHERE Type = 'POLICY_RATIONALISM_FINISHER';
 
 -- Scaler
-INSERT INTO Policy_YieldModifiers
-	(PolicyType, YieldType, Yield)
-SELECT
-	Type, 'YIELD_SCIENCE', 2
-FROM Policies
-WHERE PolicyBranchType = 'POLICY_BRANCH_RATIONALISM';
+UPDATE Policies SET CityGrowthMod = 5 WHERE PolicyBranchType = 'POLICY_BRANCH_RATIONALISM';

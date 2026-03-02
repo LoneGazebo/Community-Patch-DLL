@@ -177,7 +177,7 @@ SET Text = 'Creating [ICON_GREAT_WORK] Great Works or gaining Cities grants 5 Tu
 WHERE Tag = 'TXT_KEY_TRAIT_ART_OF_WAR';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_CHINESE_CHUKONU} is the Chinese unique unit, replacing the {TXT_KEY_UNIT_CROSSBOWMAN}. It deals splash damage and gains additional [ICON_STRENGTH] Combat Strength when adjacent to cities, giving it a hefty punch on offense and defense. This unit is particularly deadly when garrisoned in a City that is under attack, and when fighting in packs.'
+SET Text = 'The {TXT_KEY_UNIT_CHINESE_CHUKONU} is the Chinese unique unit, replacing the {TXT_KEY_UNIT_CROSSBOWMAN}.'
 WHERE Tag = 'TXT_KEY_UNIT_CHINESE_CHUKONU_STRATEGY';
 
 --------------------
@@ -495,8 +495,13 @@ SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Med
 WHERE Tag = 'TXT_KEY_TRAIT_SCHOLARS_JADE_HALL';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_CIV5_KOREA_HWACHA_HEADING} is the Korean unique unit, replacing the {TXT_KEY_UNIT_TREBUCHET}. It operates similar to ranged units rather than siege - it lacks most bonuses and penalties that siege units have. It can also attack twice per turn, but cannot fortify or benefit from terrain defense, and retains the movement penalty in enemy territory that most siege units have.'
+SET Text = 'The {TXT_KEY_CIV5_KOREA_HWACHA_HEADING} is the Korean unique unit, replacing the {TXT_KEY_UNIT_TREBUCHET}. It operates more like an anti-unit ranged attacker rather than a true siege weapon - it lacks most bonuses and penalties that siege units have and it deals splash damage. Uniquely, it gains additional [ICON_STRENGTH] Combat Strength when adjacent to cities, making it particularly good on defense and when used as a garrison. It is also much tougher on its physical combat stat, and so while it cannot fortify or benefit from terrain defense, and retains the movement penalty in enemy territory that most siege units have, it regains some siege ability if you can walk it right up to your opponents cities!'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_HWACHA_STRATEGY';
+
+-- stick to Revised Romanization system, because game doesn't have all requires Korean characters for other words
+UPDATE Language_en_US 
+SET Text = Replace(Text, 'Hwach''a', 'Hwacha')
+WHERE Tag IN ('TXT_KEY_CIV5_KOREA_HWACHA_HEADING', 'TXT_KEY_CIV5_KOREA_HWACHA_TEXT', 'TXT_KEY_CIV5_KOREA_HWACHA_STRATEGY', 'TXT_KEY_CIV5_KOREA_HWACHA_HELP');
 
 UPDATE Language_en_US
 SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion. However, while it can end its movement in Ocean tiles, the Turtle Ship still travels at half speed through them.'
@@ -760,7 +765,7 @@ WHERE Tag = 'TXT_KEY_UNIT_SIAMESE_WARELEPHANT_STRATEGY';
 -- Songhai
 --------------------
 UPDATE Language_en_US
-SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_AMPHIBIOUS}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WAR_CANOES}[ENDCOLOR] Promotions.'
+SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SEWN_CANOES}[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_TRAIT_AMPHIB_WARLORD';
 
 UPDATE Language_en_US

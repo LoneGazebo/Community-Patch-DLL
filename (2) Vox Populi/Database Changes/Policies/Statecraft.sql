@@ -52,25 +52,19 @@ SET
 	PortraitIndex = 39
 WHERE Type = 'POLICY_PHILANTHROPY';
 
-INSERT INTO Policy_ResourcefromCSAlly
-	(PolicyType, ResourceType, Number)
-SELECT
-	'POLICY_PHILANTHROPY', Type, 34
-FROM Resources
-WHERE ResourceUsage = 1;
-
 -- Merchant Confederacy (now Trade Confederacy)
 UPDATE Policies
 SET
 	CityStateTradeChange = 0,
 	TradeRouteYieldModifier = 25,
+	HappinessPerActiveTradeRoute = 1,
 	ProtectedMinorPerTurnInfluence = 100
 WHERE Type = 'POLICY_MERCHANT_CONFEDERACY';
 
 -- Scholasticism (now Shadow Networks)
 UPDATE Policies
 SET
-	-- MinorScienceAllies = 1,
+	MinorScienceAllies = 0,
 	PortraitIndex = 37
 WHERE Type = 'POLICY_SCHOLASTICISM';
 
@@ -82,8 +76,8 @@ VALUES
 INSERT INTO Policy_BuildingClassYieldChanges
 	(PolicyType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('POLICY_SCHOLASTICISM', 'BUILDINGCLASS_CONSTABLE', 'YIELD_SCIENCE', 3),
-	('POLICY_SCHOLASTICISM', 'BUILDINGCLASS_POLICE_STATION', 'YIELD_SCIENCE', 3);
+	('POLICY_SCHOLASTICISM', 'BUILDINGCLASS_CHANCERY', 'YIELD_SCIENCE', 2),
+	('POLICY_SCHOLASTICISM', 'BUILDINGCLASS_CONSTABLE', 'YIELD_SCIENCE', 2);
 
 INSERT INTO Policy_SpecialistExtraYields
 	(PolicyType, YieldType, Yield)
@@ -103,10 +97,16 @@ UPDATE Policies
 SET
 	MinorResourceBonus = 0,
 	FreeTradeRoute = 1,
-	HappinessPerActiveTradeRoute = 1,
 	TradeRouteTourismModifier = 15,
 	CSResourcesCountForMonopolies = 1
 WHERE Type = 'POLICY_CULTURAL_DIPLOMACY';
+
+INSERT INTO Policy_ResourcefromCSAlly
+	(PolicyType, ResourceType, Number)
+SELECT
+	'POLICY_CULTURAL_DIPLOMACY', Type, 34
+FROM Resources
+WHERE ResourceUsage = 1;
 
 -- Finisher
 UPDATE Policies

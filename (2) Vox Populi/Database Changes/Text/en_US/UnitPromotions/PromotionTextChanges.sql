@@ -458,7 +458,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_NATIONALISM_HELP';
 
 -- Altitude Training
 UPDATE Language_en_US
-SET Text = 'Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
+SET Text = '+10% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALTITUDE_TRAINING_HELP';
 
 -- Morale 
@@ -625,10 +625,14 @@ UPDATE Language_en_US
 SET Text = '+33% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_MOHAWK_HELP';
 
--- War Canoes
+-- Sewn Canoes
+UPDATE Language_en_US SET
+Text = 'Sewn Canoes'
+WHERE Tag = 'TXT_KEY_PROMOTION_SEWN_CANOES';
+
 UPDATE Language_en_US
-SET Text = 'Double [ICON_MOVES] Movement when moving along Rivers.'
-WHERE Tag = 'TXT_KEY_PROMOTION_WAR_CANOES_HELP';
+SET Text = 'Eliminate combat penalties for attacking over a river.[NEWLINE]Double [ICON_MOVES] Movement when moving along Rivers.'
+WHERE Tag = 'TXT_KEY_PROMOTION_SEWN_CANOES_HELP';
 
 UPDATE Language_en_US
 SET Text = 'Expeditionary Warfare'

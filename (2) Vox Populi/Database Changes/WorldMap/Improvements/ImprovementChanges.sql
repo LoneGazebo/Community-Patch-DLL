@@ -48,6 +48,13 @@ VALUES
 	('IMPROVEMENT_TRADING_POST', 'ROUTE_RAILROAD', 'YIELD_GOLD', 2),
 	('IMPROVEMENT_TRADING_POST', 'ROUTE_RAILROAD', 'YIELD_PRODUCTION', 2);
 
+-- Camp
+-- Improves Marsh Truffles trade-off since Marsh gives extra yields
+INSERT INTO Improvement_FeatureYieldChanges
+	(ImprovementType, FeatureType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_CAMP', 'FEATURE_MARSH', 'YIELD_FOOD', -2);
+
 -- Lumber Mill
 -- +1 Prod/Gold per 2 adjacent lumber mills
 INSERT INTO Improvement_YieldPerXAdjacentImprovement
