@@ -82,6 +82,7 @@ void LuaSupport::RegisterScriptData(lua_State* L)
 	"rawset = G.rawset;"
 	"rawget = G.rawget;"
 	"newproxy = G.newproxy;"
+	"if G.jit then JIT = true; bitops = G.require("bit") end;"
 
 	"FireaxisObjects={"
 		"UI = G.UI;"
