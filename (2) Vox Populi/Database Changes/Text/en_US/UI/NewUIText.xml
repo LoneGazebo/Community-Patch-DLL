@@ -1043,9 +1043,6 @@
 		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT">
 			<Text>Only {1_Num} allowed per player.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION">
-			<Text>Deleting units is disabled in this game.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES">
 			<Text>You cannot delete a unit when there are enemies nearby.</Text>
 		</Row>
