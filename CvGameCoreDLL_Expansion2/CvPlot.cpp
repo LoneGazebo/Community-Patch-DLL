@@ -7513,16 +7513,19 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 //	--------------------------------------------------------------------------------
 void CvPlot::setFeatureType(FeatureTypes eNewValue)
 {
-	FeatureTypes eOldFeature;
+	ASSERT(eNewValue >= NO_FEATURE && eNewValue < GC.getNumFeatureInfos(), "Invalid index for new feature");
+
+	FeatureTypes eOldFeature = getFeatureType();
 	bool bUpdateSight = false;
 
-	if (eNewValue < NO_FEATURE) return;
-	if (eNewValue > NO_FEATURE && GC.getFeatureInfo(eNewValue) == NULL) return;
-
-	eOldFeature = getFeatureType();
-
-	if(eOldFeature != eNewValue)
+	if (eOldFeature != eNewValue)
 	{
+		// Force flood plains on river desert if it becomes featureless
+		if (eNewValue == NO_FEATURE && getTerrainType() == TERRAIN_DESERT && isRiver())
+		{
+			eNewValue = FEATURE_FLOOD_PLAINS;
+		}
+
 		bUpdateSight = (eOldFeature == NO_FEATURE) ||
 		        (eNewValue == NO_FEATURE) ||
 		        (GC.getFeatureInfo(eOldFeature)->getSeeThroughChange() != GC.getFeatureInfo(eNewValue)->getSeeThroughChange());
