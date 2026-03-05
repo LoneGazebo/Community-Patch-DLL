@@ -496,7 +496,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 					int iResult = CvUnit::MOVE_RESULT_CANCEL;
 
-					if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && !hUnit->m_kLastPath.empty()) {
+					if (MOD_SQUADS && hUnit->GetSquadNumber() > -1 && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && !hUnit->m_kLastPath.empty()) {
 						// If moving as a squad, continue previous re-routed path instead of original destination again
 						iResult = hUnit->UnitAttackWithMove(hUnit->m_kLastPath.back().m_iX, hUnit->m_kLastPath.back().m_iY, kMissionData.iFlags);
 					}
@@ -508,7 +508,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 					if (iResult == CvUnit::MOVE_RESULT_CANCEL)
 					{
-						if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
+						if (MOD_SQUADS && hUnit->GetSquadNumber() > -1 && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
 						{
 							if (hUnit->m_kLastPath.empty())
 							{
@@ -527,7 +527,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					{
 						//nothing to attack, continue movement
 						int iResult = 0;
-						if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT)) {
+						if (MOD_SQUADS && hUnit->GetSquadNumber() > -1 && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT)) {
 							// If moving as a squad, continue previous re-routed path instead of original destination again
 							iResult = hUnit->UnitPathTo(hUnit->m_kLastPath.back().m_iX, hUnit->m_kLastPath.back().m_iY, kMissionData.iFlags);
 						}
@@ -551,7 +551,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 								hUnit->SetIsGrouped(false);
 							}
 
-							if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
+							if (MOD_SQUADS && hUnit->GetSquadNumber() > -1 && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
 							{
 								// Wait for rest of squad once arrived
 								hUnit->TryEndSquadMovement();
@@ -720,7 +720,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				if(hUnit->m_kLastPath.empty())
 				{
 					bDone = true;
-					if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
+					if (MOD_SQUADS && hUnit->GetSquadNumber() > -1 && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
 					{
 						// Wait for rest of squad once arrived
 						hUnit->TryEndSquadMovement();

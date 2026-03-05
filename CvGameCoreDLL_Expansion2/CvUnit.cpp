@@ -30015,7 +30015,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	}
 
 	// If no path exists but continue to closest plot flag is set try to move to an adjacent plot
-	if (MOD_SQUADS)
+	if (MOD_SQUADS && GetSquadNumber() > -1)
 	{
 		newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
 
@@ -30412,7 +30412,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			PublishQueuedVisualizationMoves();
 			// If the path is non-empty but all plots on it aren't valid moves this turn,
 			// wait and recalculate and try again next turn
-			if (MOD_SQUADS && (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && CanStackUnitAtPlot(plot()))
+			if ((MOD_SQUADS && GetSquadNumber() > -1) && (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && CanStackUnitAtPlot(plot()))
 			{
 				finishMoves();
 				return MOVE_RESULT_NEXT_TURN;
