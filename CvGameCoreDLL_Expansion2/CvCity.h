@@ -533,7 +533,6 @@ public:
 
 	int getGrowthMods(CvString* toolTipSink = NULL, int iAssumedLocalHappinessChange = 0) const;
 	int GetNumFreeSpecialists();
-	int GetUnhappinessFromCitySpecialists();
 
 	int productionLeft() const;
 
