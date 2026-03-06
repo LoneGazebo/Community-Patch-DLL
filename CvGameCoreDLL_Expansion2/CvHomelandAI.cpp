@@ -282,6 +282,10 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		{
 			if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
 				continue;
+
+			//these units only explore near owned cities
+			if (pLoopUnit->getUnitCombatType() != (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pLoopUnit->IsGainsXPFromScouting())
+				continue;
 		}
 
 		int iLoopX = pLoopUnit->getX();
@@ -361,7 +365,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		int iRating = EconomicAIHelpers::ScoreExplorePlot(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked(), bCanPopGoody);
 
 		int iNearbyPenalty = 0;
-
+		bool bSkip = false;
 		// Add a bonus based on how far away all other explorers are from this plot
 		for (std::vector<pair<int, int>>::iterator it = vOtherExplorerCoordinates.begin(); it != vOtherExplorerCoordinates.end(); ++it)
 		{
@@ -369,11 +373,15 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 			if (iDistToOther == 0)
 			{
+				bSkip = true;
 				break;
 			}
 
 			iNearbyPenalty += 100 / iDistToOther;
 		}
+
+		if (bSkip)
+			continue;
 
 		iRating -= iNearbyPenalty;
 
@@ -448,22 +456,51 @@ void CvHomelandAI::FindHomelandTargets()
 			// If the city needs a garrison, it has been handled already by tactical AI
 			if(pCity != NULL && m_pPlayer->GetID() == pCity->getOwner() && !pCity->NeedsGarrison())
 			{
-				int iEstimatedCityStrengthNoGarrison = pCity->getStrengthValue();
-				CvUnit* pGarrisonedUnit = pCity->GetGarrisonedUnit();
-				if (pGarrisonedUnit)
-				{
-					int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) /
-						(pGarrisonedUnit->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
+				int iNearbyUnowned = 0;
 
-					iEstimatedCityStrengthNoGarrison -= (iStrengthFromGarrison * 100);
+				// This city may be exposed
+				for (int iJ = RING2_PLOTS; iJ < RING3_PLOTS; iJ++)
+				{
+					CvPlot* pNearbyPlot = iterateRingPlots(pLoopPlot, iJ);
+					if (pNearbyPlot && pNearbyPlot->getTeam() != eTeam)
+					{
+						if (pNearbyPlot->getOwner() != NO_PLAYER)
+							iNearbyUnowned = 6;
+						else
+							iNearbyUnowned++;
+
+						if (iNearbyUnowned > 5)
+							break;
+					}
 				}
-				if (bBonusFromGarrisons || (bBonusFromCityStrength && iEstimatedCityStrengthNoGarrison < GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100))
+
+				if (iNearbyUnowned > 5)
 				{
 					newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
 					newTarget.SetTargetX(pLoopPlot->getX());
 					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxIntData(pCity->getThreatValue());
+					newTarget.SetAuxIntData(70);
 					m_TargetedCities.push_back(newTarget);
+				}
+				else
+				{
+					int iEstimatedCityStrengthNoGarrison = pCity->getStrengthValue();
+					CvUnit* pGarrisonedUnit = pCity->GetGarrisonedUnit();
+					if (pGarrisonedUnit)
+					{
+						int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) /
+							(pGarrisonedUnit->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
+
+						iEstimatedCityStrengthNoGarrison -= (iStrengthFromGarrison * 100);
+					}
+					if (bBonusFromGarrisons || (bBonusFromCityStrength && iEstimatedCityStrengthNoGarrison < GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100))
+					{
+						newTarget.SetTargetType(AI_HOMELAND_TARGET_CITY);
+						newTarget.SetTargetX(pLoopPlot->getX());
+						newTarget.SetTargetY(pLoopPlot->getY());
+						newTarget.SetAuxIntData(30);
+						m_TargetedCities.push_back(newTarget);
+					}
 				}
 			}
 			// ... antiquity site?
@@ -577,7 +614,7 @@ void CvHomelandAI::AssignHomelandMoves()
 	ExecuteUnitGift();
 
 	//civilian and military
-	PlotHealMoves();
+	PlotHealMoves(true);
 
 	PlotOpportunisticSettlementMoves();
 	PlotExplorerMoves();
@@ -610,6 +647,7 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotUpgradeMoves();
 	PlotOpportunityAttacks();
 	PlotGarrisonMoves();
+	PlotHealMoves(false);
 	PlotSentryMoves();
 	PlotSentryNavalMoves();
 	PlotPatrolMoves();
@@ -773,7 +811,7 @@ void CvHomelandAI::PlotGarrisonMoves()
 
 
 /// Find out which units would like to heal
-void CvHomelandAI::PlotHealMoves()
+void CvHomelandAI::PlotHealMoves(bool bConservative)
 {
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_HEAL);
 
@@ -795,6 +833,9 @@ void CvHomelandAI::PlotHealMoves()
 			int iDamageThreshold = 25;
 			if (pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pUnit->ActualHealRate(pUnit->plot(), false) == 0)
 				iDamageThreshold = pUnit->GetMaxHitPoints() - 50;
+
+			if (!bConservative)
+				iDamageThreshold = 0;
 
 			// We are not particularly damaged
 			if (pUnit->getDamage() <= iDamageThreshold)
@@ -3189,7 +3230,9 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlaye
 			continue;
 
 		int iOtherDirectiveScore = eOtherDirective.GetPotentialScore();
-		if (iOtherDirectiveScore > iDirectiveScore)
+
+		// special case for scrubbing fallout, always do that first
+		if (iOtherDirectiveScore > iDirectiveScore || (pkOtherBuildInfo && pkOtherBuildInfo->isFeatureRemove(FEATURE_FALLOUT) && (!pkBuildInfo || !pkBuildInfo->isFeatureRemove(FEATURE_FALLOUT))))
 		{
 			if (eOtherDirective.m_eBuild != NO_BUILD && !pPlayer->canBuild(pPlot, eOtherDirective.m_eBuild, true))
 				continue;
@@ -4058,29 +4101,52 @@ void CvHomelandAI::ExecuteHeals()
 		if (!pUnit)
 			continue;
 
-		//this is not optimal, ideally we would decide on a target plot and then pillage along the way if possible
-		//but it should be good enough
-		CvPlot* pBestPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit, true);
-		if (!pBestPlot)
-			pBestPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit, false);
-		if (!pBestPlot)
-			pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
-
-		// Check if we can pillage this tile for free
-		if (pUnit->hasFreePillageMove())
+		for (int iI = 0; iI < 3 && pUnit->canMove(); iI++)
 		{
+			//this is not optimal, ideally we would decide on a target plot and then pillage along the way if possible
+			//but it should be good enough
+			pair<CvPlot*, int> pBestPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit, true);
+			if (!pBestPlot.first)
+				pBestPlot = TacticalAIHelpers::FindClosestSafePlotForHealing(pUnit, false);
+			if (!pBestPlot.first)
+				pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+
+			if (pBestPlot.first == pUnit->plot())
+			{
+				break;
+			}
+
+			int iUsedMoves = 0;
+
+			// Check if we can pillage this tile for free
+			if (pUnit->hasFreePillageMove() || pBestPlot.second > GD_INT_GET(MOVE_DENOMINATOR))
+			{
+				if (pUnit->shouldPillage(pUnit->plot(), true))
+				{
+					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+					if (!pUnit->hasFreePillageMove())
+						iUsedMoves++;
+				}
+			}
+
+			// if possible, pillage both improvement and road
+			if (pUnit->hasFreePillageMove() || pBestPlot.second > (1 + iUsedMoves) * GD_INT_GET(MOVE_DENOMINATOR))
+			{
+				if (pUnit->shouldPillage(pUnit->plot(), true))
+				{
+					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+					if (!pUnit->hasFreePillageMove())
+						iUsedMoves++;
+				}
+			}
+
+			if (pBestPlot.first && pBestPlot.first != pUnit->plot())
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot.first->getX(), pBestPlot.first->getY(), CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
 			if (pUnit->shouldPillage(pUnit->plot(), true))
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 			if (pUnit->shouldPillage(pUnit->plot(), true)) // if possible, pillage both improvement and road
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 		}
-
-		if (pBestPlot && pBestPlot!=pUnit->plot())
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-		if (pUnit->shouldPillage(pUnit->plot(), true))
-			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-		if (pUnit->shouldPillage(pUnit->plot(), true)) // if possible, pillage both improvement and road
-			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 		if (pUnit->canMove())
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		UnitProcessed(pUnit->GetID());
@@ -4092,28 +4158,38 @@ typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
 /// Moves units to the hex with the lowest danger
 void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 {
-	CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
-	if (!pBestPlot)
-		return;
-
-	pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-
-	//a bit tricky: we know that we should be able to reach the best plot
-	//but maybe the mission is aborted (new enemy discovered etc)
-	//can happen for AI civilians ...
-
-	for (int iLimit = 0; iLimit<9; iLimit++) //failsafe so we don't get stuck ...
+	CvPlot* pBestPlot = NULL;
+	for (int iI = 0; iI < 3 && pUnit->canMove(); iI++)
 	{
-		pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+		pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true).first;
+		if (!pBestPlot)
+			return;
 
-		//can we move?
-		if (!pBestPlot || pUnit->plot() == pBestPlot || !pUnit->canMove())
-			break;
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
 
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
-	} 
+		//a bit tricky: we know that we should be able to reach the best plot
+		//but maybe the mission is aborted (new enemy discovered etc)
+		//can happen for AI civilians ...
 
-	//important, else we can't end the turn
+		for (int iLimit = 0; iLimit < 9; iLimit++) //failsafe so we don't get stuck ...
+		{
+			pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true).first;
+
+			//can we move?
+			if (!pBestPlot || pUnit->plot() == pBestPlot || !pUnit->canMove())
+				break;
+
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+
+			if (pBestPlot == pUnit->plot())
+			{
+				break;
+			}
+		}
+	}
+
+	if (pUnit->canMove())
+		pUnit->PushMission(CvTypes::getMISSION_SKIP());
 	UnitProcessed(pUnit->GetID());
 
 	if(GC.getLogging() && GC.getAILogging() && pBestPlot)
@@ -5054,7 +5130,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 				int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 				if (!pTargetCity || !ExecuteMoveToTarget(pUnit, pTargetCity->plot(), iFlags, true))
 				{
-					CvPlot*	pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+					CvPlot*	pSafePlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true).first;
 					ExecuteMoveToTarget(pUnit, pSafePlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, true);
 				}
 			}
@@ -5930,7 +6006,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit)
 {
 	// Now loop through the sorted score list and go to the best one we can reach in one turn.
-	CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true);
+	CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit,true).first;
 	if(pBestPlot != NULL)
 	{
 		if(pUnit->atPlot(*pBestPlot))
@@ -6666,6 +6742,14 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 			return false;
 	}
 
+	//AI controlled non-explorers should not explore too far
+	if (pUnit->getDomainType() == DOMAIN_LAND && !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && pUnit->getUnitCombatType() != (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
+	{
+		CvCity* pClosestCity = m_pPlayer->GetClosestCity(pPlot, 6, true);
+		if (!pClosestCity)
+			return false;
+	}
+
 	int iFlags = CvUnit::MOVEFLAG_DESTINATION;
 	if (pPlot->isVisibleEnemyDefender(pUnit))
 		// don't bump into enemies
@@ -6792,7 +6876,7 @@ bool CvHomelandAI::MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot
 		// Embarked and in danger? We need to do something!
 		if (pUnit->isEmbarked())
 		{
-			pTargetPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+			pTargetPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true).first;
 			if (pTargetPlot)
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
 			else
