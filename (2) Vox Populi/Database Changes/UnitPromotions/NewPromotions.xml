@@ -1177,11 +1177,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_CETBANG</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_TAIKAN_KYOHO</Type>
-			<Description>TXT_KEY_PROMOTION_TAIKAN_KYOHO</Description>
-			<Help>TXT_KEY_PROMOTION_TAIKAN_KYOHO_HELP</Help>
+			<Type>PROMOTION_KANTAI_KESSEN</Type>
+			<Description>TXT_KEY_PROMOTION_KANTAI_KESSEN</Description>
+			<Help>TXT_KEY_PROMOTION_KANTAI_KESSEN_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_TAIKAN_KYOHO</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_KANTAI_KESSEN</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_DECK_SPIKES</Type>
@@ -1315,6 +1315,13 @@
 			<Help>TXT_KEY_PROMOTION_AGINCOURT_HELP</Help>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_AGINCOURT</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_TAIKAN_KYOHO</Type>
+			<Description>TXT_KEY_PROMOTION_TAIKAN_KYOHO</Description>
+			<Help>TXT_KEY_PROMOTION_TAIKAN_KYOHO_HELP</Help>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_TAIKAN_KYOHO</PediaEntry>
 		</Row>
 		<!-- Post-combat -->
 		<Row>
