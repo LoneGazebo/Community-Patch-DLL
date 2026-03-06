@@ -820,6 +820,10 @@
     <File md5="3C87FBB8DBA9E964C5A2D31B149A304D" import="1">Assets/Models/Units/Mercenary/RussianSF.gr2</File>
     <File md5="8DC5B69E3BD9DDBC890015518CC76CCE" import="1">Assets/Models/Units/Mercenary/RussianSF_diff.dds</File>
     <File md5="CB36AB12AD6FE9D9B9AFD31103A7FCDA" import="1">Assets/Models/Units/Mercenary/RussianSF_sref.dds</File>
+    <File md5="5D5BC3DAD5F79F9FFF93DE062B1E09FA" import="1">Assets/Models/Units/Mikasa/Mikasa_BB.fxsxml</File>
+    <File md5="EAF0595F38D590A7D086A3920F925359" import="1">Assets/Models/Units/Mikasa/Mikasa_BB.gr2</File>
+    <File md5="0AEFF7BD1946DA9F8DCC87AC793A0818" import="1">Assets/Models/Units/Mikasa/mikasa_bb_diff.dds</File>
+    <File md5="2EA6C3A131D3C9CC8C020B487A2FA00A" import="1">Assets/Models/Units/Mikasa/mikasa_bb_sref.dds</File>
     <File md5="C671FBD118A08E053368C2C1A1D7010C" import="1">Assets/Models/Units/OromoCavalry/oromo_cavalry.fxsxml</File>
     <File md5="D1A2A86E003D4D26356412247C1E79F6" import="1">Assets/Models/Units/OromoCavalry/oromo_cavalry.gr2</File>
     <File md5="92C2C615C43C1A8B131E0244264519E3" import="1">Assets/Models/Units/OromoCavalry/oromo_cavalry_diff.dds</File>
@@ -993,6 +997,7 @@
     <File md5="8135EA962AFBE2516FB069553681B4F9" import="1">Assets/StrategicView/Units/sv_Inti_Maceman.dds</File>
     <File md5="3420D7ABE8FB26661884AC13472FEDED" import="1">Assets/StrategicView/Units/sv_khan.dds</File>
     <File md5="3C6B488E75283AC8ED922337FC08C933" import="1">Assets/StrategicView/Units/sv_kommando.dds</File>
+    <File md5="B99B30AEFDCAF6E152E65FA2E9E91308" import="1">Assets/StrategicView/Units/sv_Mikasa.dds</File>
     <File md5="6F0C6E7E40B1EDF2869FA53AFB9D231E" import="1">Assets/StrategicView/Units/sv_OromoCavalry.dds</File>
     <File md5="25DB9690D2530F7B5D5E09F1A1C4ECA6" import="1">Assets/StrategicView/Units/sv_Redcoat.dds</File>
     <File md5="611ACEC2A474692D7E04F3B99F3B9E7B" import="1">Assets/StrategicView/Units/SV_RocketMissile.dds</File>
