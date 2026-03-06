@@ -1205,11 +1205,18 @@
 			<Text>Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_KANTAI_KESSEN">
+			<Text>Kantai Kessen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_KANTAI_KESSEN_HELP">
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Full Health Units[ENDCOLOR].[NEWLINE]Gain 300% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Naval Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_TAIKAN_KYOHO">
 			<Text>Taikan Kyoho</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TAIKAN_KYOHO_HELP">
-			<Text>Gain 400% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+			<Text>Gain 400% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Naval Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_DECK_SPIKES">
@@ -1328,7 +1335,7 @@
 			<Text>Santa Maria</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SANTA_MARIA_HELP">
-			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Naval Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_INVINCIBLE">

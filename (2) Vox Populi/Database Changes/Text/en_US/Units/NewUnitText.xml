@@ -290,6 +290,19 @@
 			<Text>Diplomatic Missions of this Unit grant 100 base [ICON_INFLUENCE] Influence with the target [ICON_CITY_STATE] City-State, plus 15 extra [ICON_INFLUENCE] Influence per Era passed, and reduce the same amount of [ICON_INFLUENCE] Influence of the target [ICON_CITY_STATE] City-State with all other Civilizations.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_UNIT_YAMATO">
+			<Text>Yamato</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_YAMATO_TEXT">
+			<Text>The Yamato-class battleships were the crown jewel of the Imperial Japanese Navy during World War II. Displacing 73,000 tonnes at full load, they were the heaviest and most powerfully armed battleships ever constructed. Each Yamato carried nine 18.1 inch guns, the largest naval artillery ever fitted to a warship, each capable of firing 3,000 lb. shells over 26 miles. Two battleships of the class, Yamato and Musashi, were completed while a third, Shinano, was converted to an aircraft carrier during construction. All were sunk by American forces during WWII.[NEWLINE][NEWLINE]Due to their size, speed, and power, The Yamato-class visibly embodied Japan's determination and readiness to defend its interests against the western powers, especially the United States. One of the reasons that the warship may have such significance in Japanese culture is that the word "Yamato" was often used as a poetic name for Japan itself. Thus, the construction and destruction of the Yamato battleships became symbolic for the rise and fall of Japanese imperial aspirations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_YAMATO_STRATEGY">
+			<Text>The Yamato has 4 range, [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR] Promotion, higher [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength compared to Battleships. The enemy gains [ICON_GOLDEN_AGE] Golden Age Points and [ICON_CULTURE] Culture bounty when destroying this ship.[NEWLINE][NEWLINE]Exploit its excellent range to strike key, distant targets, while maintaining a safe distance, unless your advantage is clear. Despite its strength, it is vulnerable to concentrated attacks, especially from the air, so support from carriers with fighters is advised.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_YAMATO_HELP">
+			<Text></Text>
+		</Row>
+
 		<!-- Unit Combats -->
 		<Row Tag="TXT_KEY_UNITCOMBAT_SETTLER">
 			<Text>Settler</Text>

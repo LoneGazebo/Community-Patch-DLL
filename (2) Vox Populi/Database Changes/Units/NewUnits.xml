@@ -254,14 +254,24 @@
 		</Row>
 		<!-- Former Unique Units, now CS gifts -->
 		<Row>
-			<Type>UNITCLASS_PRACINHA</Type>
-			<Description>TXT_KEY_UNIT_BRAZILIAN_PRACINHA</Description>
-			<DefaultUnit>UNIT_BRAZILIAN_PRACINHA</DefaultUnit>
+			<Type>UNITCLASS_BATTERING_RAM</Type>
+			<Description>TXT_KEY_UNIT_HUN_BATTERING_RAM</Description>
+			<DefaultUnit>UNIT_HUN_BATTERING_RAM</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_MEHAL_SEFARI</Type>
+			<Description>TXT_KEY_UNIT_MEHAL_SEFARI</Description>
+			<DefaultUnit>UNIT_ETHIOPIAN_MEHAL_SEFARI</DefaultUnit>
 		</Row>
 		<Row>
 			<Type>UNITCLASS_NORWEGIAN_SKI_INFANTRY</Type>
 			<Description>TXT_KEY_UNIT_DANISH_SKI_INFANTRY</Description>
 			<DefaultUnit>UNIT_DANISH_SKI_INFANTRY</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_PRACINHA</Type>
+			<Description>TXT_KEY_UNIT_BRAZILIAN_PRACINHA</Description>
+			<DefaultUnit>UNIT_BRAZILIAN_PRACINHA</DefaultUnit>
 		</Row>
 		<Row>
 			<Type>UNITCLASS_LONGBOWMAN</Type>
@@ -274,19 +284,15 @@
 			<DefaultUnit>UNIT_GREEK_COMPANIONCAVALRY</DefaultUnit>
 		</Row>
 		<Row>
-			<Type>UNITCLASS_BATTERING_RAM</Type>
-			<Description>TXT_KEY_UNIT_HUN_BATTERING_RAM</Description>
-			<DefaultUnit>UNIT_HUN_BATTERING_RAM</DefaultUnit>
-		</Row>
-		<Row>
 			<Type>UNITCLASS_SIPAHI</Type>
 			<Description>TXT_KEY_UNIT_OTTOMAN_SIPAHI</Description>
 			<DefaultUnit>UNIT_OTTOMAN_SIPAHI</DefaultUnit>
 		</Row>
+		<!-- New CS gifts -->
 		<Row>
-			<Type>UNITCLASS_MEHAL_SEFARI</Type>
-			<Description>TXT_KEY_UNIT_MEHAL_SEFARI</Description>
-			<DefaultUnit>UNIT_ETHIOPIAN_MEHAL_SEFARI</DefaultUnit>
+			<Type>UNITCLASS_YAMATO</Type>
+			<Description>TXT_KEY_UNIT_YAMATO</Description>
+			<DefaultUnit>UNIT_YAMATO</DefaultUnit>
 		</Row>
 	</UnitClasses>
 	<Units>
@@ -1252,22 +1258,23 @@
 			<PortraitIndex>33</PortraitIndex>
 		</Row>
 		<Row>
-			<Type>UNIT_YAMATO</Type>
-			<Description>TXT_KEY_UNIT_YAMATO</Description>
-			<Civilopedia>TXT_KEY_UNIT_YAMATO_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_YAMATO_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_YAMATO_HELP</Help>
+			<Type>UNIT_MIKASA</Type>
+			<Description>TXT_KEY_UNIT_MIKASA</Description>
+			<Civilopedia>TXT_KEY_UNIT_MIKASA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_MIKASA_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_MIKASA_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
 			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
-			<Class>UNITCLASS_BATTLESHIP</Class>
+			<Class>UNITCLASS_DREADNOUGHT</Class>
 			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
-			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<PrereqTech>TECH_RADIO</PrereqTech>
+			<ObsoleteTech>TECH_NUCLEAR_FISSION</ObsoleteTech>
 			<MoveRate>BOAT</MoveRate>
-			<UnitArtInfo>ART_DEF_UNIT_YAMATO</UnitArtInfo>
+			<UnitArtInfo>ART_DEF_UNIT_MIKASA</UnitArtInfo>
 			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
-			<UnitFlagIconOffset>18</UnitFlagIconOffset>
+			<UnitFlagIconOffset>41</UnitFlagIconOffset>
 			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
-			<PortraitIndex>18</PortraitIndex>
+			<PortraitIndex>41</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>UNIT_HOLKAN</Type>
@@ -1592,6 +1599,30 @@
 			<UnitFlagIconOffset>19</UnitFlagIconOffset>
 			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>19</PortraitIndex>
+		</Row>
+		<!-- NOTE for new CS-exclusive Units:
+			These are inserted based on vanilla properties of the assumed base unit (except those to be swept, and text + art)
+			UnitChanges.sql will modify both base unit and CS unit at the same time,
+			and CityStateUnitChanges.sql will change the unit class and add the unique properties.
+			DO NOT modify these entries for balance changes.
+		-->
+		<Row>
+			<Type>UNIT_YAMATO</Type>
+			<Description>TXT_KEY_UNIT_YAMATO</Description>
+			<Civilopedia>TXT_KEY_UNIT_YAMATO_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_YAMATO_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_YAMATO_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
+			<Class>UNITCLASS_BATTLESHIP</Class>
+			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_YAMATO</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>18</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>18</PortraitIndex>
 		</Row>
 	</Units>
 	<UnitGameplay2DScripts>
