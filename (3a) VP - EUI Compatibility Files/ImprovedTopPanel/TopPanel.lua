@@ -1083,14 +1083,14 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 
 -- CBP
 			-- Science from Annexed Minors
-			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", g_activePlayer:GetSciencePerTurnFromAnnexedMinors())
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", g_activePlayer:GetYieldPerTurnFromAnnexedMinors(YIELD_SCIENCE))
 			-- Putmalk
 			local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS")
 			-- Science from Religion
 			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_SCIENCE_FROM_RELIGION", g_activePlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE))
 
 			-- Science % lost from unhappiness
-			local iScienceMinors = g_activePlayer:GetSciencePerTurnFromMinorCivs();
+			local iScienceMinors = g_activePlayer:GetSciencePerTurnFromMinorCivsTimes100(YIELD_SCIENCE) / 100;
 			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_SCIENCE_FROM_MINORS", iScienceMinors)
 --END
 			-- Science from Research Agreements
@@ -1250,8 +1250,8 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 -- CBP
 		-- Gold gained from happiness
 	local iInternalRouteGold = g_activePlayer:GetInternalTradeRouteGoldBonus();
-	local iGoldFromMinors = g_activePlayer:GetGoldPerTurnFromMinorCivs();
-	local iGoldFromAnnexedMinors = g_activePlayer:GetGoldPerTurnFromAnnexedMinors();
+	local iGoldFromMinors = g_activePlayer:GetGoldPerTurnFromMinorCivsTimes100(YIELD_GOLD) / 100;
+	local iGoldFromAnnexedMinors = g_activePlayer:GetYieldPerTurnFromAnnexedMinors(YIELD_GOLD);
 
 	local totalIncome, totalWealth
 	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + iGoldFromMinors + iInternalRouteGold + iGoldFromAnnexedMinors -- C4DF
@@ -1910,11 +1910,11 @@ if civ5_mode and gk_mode then
 			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_OUTPOSTS", civBE_mode and g_activePlayer:GetFaithPerTurnFromOutposts() or 0 )
 
 			-- Faith from Minor Civs
-			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_MINORS", g_activePlayer:GetFaithPerTurnFromMinorCivs() )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_MINORS", g_activePlayer:GetYieldPerTurnFromMinorCivsTimes100(YIELD_FAITH) / 100 )
 
 -- CBP
 			-- Faith from Minor Civs
-			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS", g_activePlayer:GetFaithPerTurnFromAnnexedMinors() )
+			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS", g_activePlayer:GetYieldPerTurnFromAnnexedMinors(YIELD_FAITH) )
 -- END
 			-- Faith from Religion
 			tips:insertLocalizedIfNonZeroFormatDecimal( "TXT_KEY_TP_FAITH_FROM_RELIGION", g_activePlayer:GetFaithPerTurnFromReligion() )

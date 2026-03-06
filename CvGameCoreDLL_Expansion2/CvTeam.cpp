@@ -8826,6 +8826,33 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 
+		// Update Yields from Annexed City-States (Rome UA)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			ePlayer = (PlayerTypes)iPlayerLoop;
+			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+			if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+			{
+				EraTypes eCurrentEra = GetCurrentEra();
+				const std::vector<std::pair<PlayerTypes, int>>& m_annexed =	kPlayer.getAnnexedCityStatesUnitSpawnTurns();
+				for (std::vector<std::pair<PlayerTypes, int>>::const_iterator it = m_annexed.begin(); it != m_annexed.end(); ++it)
+				{
+					PlayerTypes eMinor = (*it).first;
+					// remove previous era bonuses
+					kPlayer.ChangeYieldInCapitalPerTurnFromAnnexedMinor(eMinor, -1, eCurrentEra);
+					kPlayer.ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(eMinor, -1, eCurrentEra);
+					kPlayer.ChangeYieldPerTurnFromAnnexedMinor(eMinor, -1, eCurrentEra);
+					kPlayer.ChangeHappinessFromAnnexedMinor(eMinor, -1, eCurrentEra);
+					// add new era bonuses
+					kPlayer.ChangeYieldInCapitalPerTurnFromAnnexedMinor(eMinor, +1, eNewValue);
+					kPlayer.ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(eMinor, +1, eNewValue);
+					kPlayer.ChangeYieldPerTurnFromAnnexedMinor(eMinor, +1, eNewValue);
+					kPlayer.ChangeHappinessFromAnnexedMinor(eMinor, +1, eNewValue);
+				}
+			}
+		}
+
+		// Here the variable get's updated! Everything after this will return current era differently!
 		m_eCurrentEra = eNewValue;
 
 		if(GC.getGame().getActiveTeam() != NO_TEAM)
@@ -8909,22 +8936,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 
-		// Update Yields from Annexed City-States (Rome UA)
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			ePlayer = (PlayerTypes)iPlayerLoop;
-			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-			if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
-			{
-				kPlayer.UpdateFoodInCapitalPerTurnFromAnnexedMinors();
-				kPlayer.UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
-				kPlayer.UpdateGoldPerTurnFromAnnexedMinors();
-				kPlayer.UpdateCulturePerTurnFromAnnexedMinors();
-				kPlayer.UpdateSciencePerTurnFromAnnexedMinors();
-				kPlayer.UpdateFaithPerTurnFromAnnexedMinors();
-				kPlayer.UpdateHappinessFromAnnexedMinors();
-			}
-		}
 		updateYield();
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
