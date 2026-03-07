@@ -1385,6 +1385,8 @@ public:
 
 	int getHappinessModifier(YieldTypes eIndex) const;
 
+	int getYieldModifierMultiplicative(YieldTypes eIndex) const;
+
 	int getExtraSpecialistYield(YieldTypes eIndex) const;
 	int getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpecialist) const;
 	void updateExtraSpecialistYield(YieldTypes eYield);

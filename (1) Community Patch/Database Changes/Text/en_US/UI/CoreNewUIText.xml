@@ -1761,6 +1761,12 @@
 		<Row Tag="TXT_KEY_YIELD_POST_MODIFIER">
 			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"} {2_IconString} after Modifiers[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_SUBTOTAL">
+			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"} {2_IconString} Subtotal[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_PUPPET_MODIFIER_MULTIPLICATIVE">
+			<Text>[ICON_BULLET]{1: number "'+'##;'-'##"}% {2_IconString} Puppet Modifier</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EATEN_FOOD">
 			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
 		</Row>
