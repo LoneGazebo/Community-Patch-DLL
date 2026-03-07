@@ -770,8 +770,7 @@ SET
 	Help = 'TXT_KEY_WONDER_CHICHEN_ITZA_HELP',
 	PrereqTech = 'TECH_ASTRONOMY',
 	Happiness = 0,
-	EmpireSizeModifierReductionGlobal = -10,
-	FreeBuildingThisCity = 'BUILDINGCLASS_TEOCALLI'
+	EmpireSizeModifierReductionGlobal = -10
 WHERE Type = 'BUILDING_CHICHEN_ITZA';
 
 INSERT INTO Building_YieldChanges
