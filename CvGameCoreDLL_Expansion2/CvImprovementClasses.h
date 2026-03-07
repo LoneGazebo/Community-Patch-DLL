@@ -72,6 +72,7 @@ public:
 	int GetLuxuryCopiesSiphonedFromMinor() const;
 	int GetCityStateExtraVote() const;
 	int GetHappinessOnConstruction() const;
+	bool IsExoticResourceFromImprovement() const;
 	int GetResourceFromImprovement() const;
 	int GetResourceQuantityFromImprovement() const;
 	int GetUnitFreePromotion() const;
@@ -248,6 +249,7 @@ protected:
 	int m_iLuxuryCopiesSiphonedFromMinor;
 	int m_iImprovementLeagueVotes;
 	int m_iHappinessOnConstruction;
+	bool m_bExoticResourceFromImprovement;
 	int m_iImprovementResource;
 	int m_iImprovementResourceQuantity;
 	int m_iUnitFreePromotionImprovement;

@@ -1940,6 +1940,7 @@ public:
 
 	int GetAdmiralLuxuryBonus() const;
 	void changeAdmiralLuxuryBonus(int iChange);
+	ResourceTypes GetFreeLuxury() const;
 
 	UnitClassTypes GetUnitClassReplacement(UnitClassTypes eUnitClass) const;
 	void SetUnitClassReplacement(UnitClassTypes eReplacedUnitClass, UnitClassTypes eReplacementUnitClass);
