@@ -138,3 +138,26 @@ INSERT INTO Unit_FreePromotions
 VALUES
 	('UNIT_OTTOMAN_SIPAHI', 'PROMOTION_OVERRUN'),
 	('UNIT_OTTOMAN_SIPAHI', 'PROMOTION_HEAVY_FLANKING');
+
+-------------------------------------
+-- Yamato
+-------------------------------------
+UPDATE Units
+SET
+	Class = 'UNITCLASS_YAMATO',
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_BATTLESHIP') + 5,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_BATTLESHIP') + 10,
+	"Range" = (SELECT "Range" FROM Units WHERE Type = 'UNIT_BATTLESHIP') + 1
+WHERE Type = 'UNIT_YAMATO';
+
+INSERT INTO Unit_Bounties
+	(UnitType, YieldType, Yield)
+VALUES
+	('UNIT_YAMATO', 'YIELD_CULTURE', 400),
+	('UNIT_YAMATO', 'YIELD_GOLDEN_AGE_POINTS', 400);
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_YAMATO', 'PROMOTION_ARMOR_PLATING_1'),
+	('UNIT_YAMATO', 'PROMOTION_TAIKAN_KYOHO');

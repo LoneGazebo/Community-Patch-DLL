@@ -4728,9 +4728,7 @@ int CvLuaPlayer::lGetUnhappinessFromCityPopulation(lua_State* L)
 int CvLuaPlayer::lGetUnhappinessFromCitySpecialists(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvCity* pAnnexedCity = CvLuaCity::GetInstance(L, 2, false);
-	CvCity* pPuppetedCity = CvLuaCity::GetInstance(L, 3, false);
-	const int iResult = pkPlayer->GetUnhappinessFromCitySpecialists(pAnnexedCity, pPuppetedCity);
+	const int iResult = pkPlayer->GetUnhappinessFromCitySpecialists();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

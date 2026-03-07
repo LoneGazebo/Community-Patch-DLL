@@ -63,8 +63,8 @@ local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table fiel
 local UpdateCityView
 --END
 
-local FormatInteger = CPK.Text.FormatInteger;
-local FormatIntegerTimes100 = CPK.Text.FormatIntegerTimes100;
+local Hide = CPK.UI.Control.Hide;
+local Show = CPK.UI.Control.Show;
 
 include( "SupportFunctions" )
 local TruncateString = TruncateString
@@ -2252,16 +2252,21 @@ local function UpdateCityViewNow()
 		local strMaintenanceTT = L( "TXT_KEY_BUILDING_MAINTENANCE_TT", city:GetTotalBaseBuildingMaintenance() )
 		Controls.SpecialBuildingsHeader:SetToolTipString(strMaintenanceTT)
 
-		local freeSpecialists = city:GetRemainingFreeSpecialists();
-		if(freeSpecialists > 0) then
-			Controls.FreeSpecialistLabel:SetText(tostring(freeSpecialists))
-			--Update suffix to use correct plurality.
-			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists )
+		if city:IsPuppet() then
+			Hide(Controls.FreeSpecialistLabel, Controls.FreeSpecialistLabelSuffix)
 		else
-			local defSpecialist = (GameDefines.UNHAPPINESS_PER_SPECIALIST / 100)
-			Controls.FreeSpecialistLabel:SetText(tostring(defSpecialist))
-			--Update suffix to use correct plurality.
-			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT")
+			local freeSpecialists = city:GetRemainingFreeSpecialists();
+			if(freeSpecialists > 0) then
+				Controls.FreeSpecialistLabel:SetText(tostring(freeSpecialists))
+				--Update suffix to use correct plurality.
+				Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists )
+			else
+				local defSpecialist = (GameDefines.UNHAPPINESS_PER_SPECIALIST / 100)
+				Controls.FreeSpecialistLabel:SetText(tostring(defSpecialist))
+				--Update suffix to use correct plurality.
+				Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT")
+			end
+			Show(Controls.FreeSpecialistLabel, Controls.FreeSpecialistLabelSuffix)
 		end
 
 		Controls.BuildingsHeader:SetToolTipString(strMaintenanceTT)

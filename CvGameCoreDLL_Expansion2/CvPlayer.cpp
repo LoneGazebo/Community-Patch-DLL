@@ -22231,95 +22231,16 @@ int CvPlayer::GetUnhappinessFromPuppetCityPopulation() const
 	return iUnhappiness;
 }
 
-int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const
+int CvPlayer::GetUnhappinessFromCitySpecialists() const
 {
-	float iUnhappiness = 0;
-	float iUnhappinessFromThisCity;
-	float iUnhappinessPerPop = /*1*/ (/*1*/ GD_INT_GET(UNHAPPINESS_PER_POPULATION) + GD_FLOAT_GET(UNHAPPINESS_PER_POPULATION_FLOAT)) * 100;
-	int iPopulation = 0;
-
-	bool bCityValid = false;
-
+	int iUnhappiness = 0;
 	int iLoop = 0;
-	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		bCityValid = false;
-
-		// Assume pLoopCity is Annexed, and does NOT count
-		if(pLoopCity == pAssumeCityAnnexed)
-			bCityValid = false;
-		// Assume that pLoopCity is a Puppet and IS counted here
-		else if(pLoopCity == pAssumeCityPuppeted)
-			bCityValid = true;
-		// Assume city doesn't exist, and does NOT count
-		else if(pLoopCity->IsIgnoreCityForHappiness())
-			bCityValid = false;
-		// Occupied Cities don't get counted here (see the next function)
-		else if(!pLoopCity->IsOccupied() || pLoopCity->IsNoOccupiedUnhappiness())
-			bCityValid = true;
-
-		if(bCityValid)
+		// Ignore occupied cities
+		if (!pLoopCity->IsOccupied() || pLoopCity->IsNoOccupiedUnhappiness())
 		{
-			iPopulation = pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
-
-			//Less unhappiness from specialists....
-			if (MOD_BALANCE_VP || MOD_BALANCE_CORE_JFD)
-			{
-				iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
-				int iNoHappinessSpecialists = 0;
-				if (iPopulation > 0)
-				{
-					//...in capital?
-					if (pLoopCity->isCapital())
-					{
-						iNoHappinessSpecialists += GetNoUnhappfromXSpecialistsCapital();
-					}
-					//...elsewhere?
-					iNoHappinessSpecialists += GetNoUnhappfromXSpecialists();
-
-					iNoHappinessSpecialists += pLoopCity->GetNoUnhappfromXSpecialists();
-				}
-				//Can't give more free happiness than specialists.
-				if (iNoHappinessSpecialists > iPopulation)
-				{
-					iNoHappinessSpecialists = iPopulation;
-				}
-				if (iNoHappinessSpecialists > 0)
-				{
-					iPopulation -= iNoHappinessSpecialists;
-				}
-			}
-
-			// No Unhappiness from Specialist Pop? (Policies, etc.)
-			if(isHalfSpecialistUnhappiness())
-			{
-				iPopulation++; // Round up
-				iPopulation /= 2;
-			}
-
-			iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
-
-			if (MOD_BALANCE_VP || MOD_BALANCE_CORE_JFD)
-			{
-				iUnhappiness += iUnhappinessFromThisCity;
-			}
-			if (!MOD_BALANCE_VP)
-			{
-				//Took these away as they were making specialists do weird things.
-				if (pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
-				{
-					iUnhappinessFromThisCity *= (100 + GetCapitalUnhappinessMod());
-					iUnhappinessFromThisCity /= 100;
-				}
-
-				if (pLoopCity->GetLocalUnhappinessMod() != 0)
-				{
-					iUnhappinessFromThisCity *= (100 + pLoopCity->GetLocalUnhappinessMod());
-					iUnhappinessFromThisCity /= 100;
-				}
-
-				iUnhappiness += iUnhappinessFromThisCity;
-			}
+			iUnhappiness += pLoopCity->getUnhappinessFromSpecialists(pLoopCity->GetCityCitizens()->GetTotalSpecialistCount());
 		}
 	}
 
@@ -22336,7 +22257,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 		iUnhappiness /= 100;
 	}
 
-	return (int)iUnhappiness;
+	return iUnhappiness;
 }
 
 int CvPlayer::GetUnhappinessFromPuppetCitySpecialists() const
@@ -22350,7 +22271,7 @@ int CvPlayer::GetUnhappinessFromPuppetCitySpecialists() const
 			iSpecialistUnhappiness += pLoopCity->getUnhappinessFromSpecialists(pLoopCity->GetCityCitizens()->GetTotalSpecialistCount());
 		}
 	}
-	return(iSpecialistUnhappiness);
+	return iSpecialistUnhappiness;
 }
 
 /// Unhappiness from City Population in Occupied Cities
@@ -22524,7 +22445,7 @@ int CvPlayer::GetUnhappinessFromCityJFDSpecial() const
 		iUnhappiness += pLoopCity->getJFDSpecialUnhappinessSources();
 	}
 
-	iUnhappiness += (GetUnhappinessFromCitySpecialists(NULL, NULL) / 100);
+	iUnhappiness += (GetUnhappinessFromCitySpecialists() / 100);
 	return iUnhappiness;
 }
 

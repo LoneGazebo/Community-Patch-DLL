@@ -919,17 +919,17 @@
 			<Text></Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_YAMATO">
-			<Text>Yamato</Text>
+		<Row Tag="TXT_KEY_UNIT_MIKASA">
+			<Text>Mikasa</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_YAMATO_HELP">
+		<Row Tag="TXT_KEY_UNIT_MIKASA_HELP">
 			<Text></Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_YAMATO_TEXT">
-			<Text>The Yamato-class battleships were the crown jewel of the Imperial Japanese Navy during World War II. Displacing 73,000 tonnes at full load, they were the heaviest and most powerfully armed battleships ever constructed. Each Yamato carried nine 18.1 inch guns, the largest naval artillery ever fitted to a warship, each capable of firing 3,000 lb. shells over 26 miles. Two battleships of the class, Yamato and Musashi, were completed while a third, Shinano, was converted to an aircraft carrier during construction. All were sunk by American forces during WWII.[NEWLINE][NEWLINE]Due to their size, speed, and power, The Yamato-class visibly embodied Japan's determination and readiness to defend its interests against the western powers, especially the United States. One of the reasons that the warship may have such significance in Japanese culture is that the word "Yamato" was often used as a poetic name for Japan itself. Thus, the construction and destruction of the Yamato battleships became symbolic for the rise and fall of Japanese imperial aspirations.</Text>
+		<Row Tag="TXT_KEY_UNIT_MIKASA_TEXT">
+			<Text>The Mikasa represents the pinnacle of pre-dreadnought battleship design and serves as a symbol of Japan's rapid industrialization and emergence as a global naval power. Built in the United Kingdom by Vickers for the Imperial Japanese Navy, she was commissioned in 1902 and named after Mount Mikasa in Nara.[NEWLINE][NEWLINE]At the time of her launch, the Mikasa was the most advanced battleship in the world, featuring a formidable primary armament of four 12-inch guns and Krupp cemented armor that provided superior protection. Her design focused on a balance of speed, firepower, and resilience that would soon be tested in one of history's most decisive naval engagements.[NEWLINE][NEWLINE]The ship earned its place in legend during the Russo-Japanese War (1904-1905). As the flagship of Admiral Togo Heihachiro, the Mikasa led the Japanese fleet during the Battle of Tsushima. Despite taking multiple direct hits, she remained operational, coordinating the maneuver that effectively annihilated the Russian Baltic Fleet. This victory was a watershed moment, marking the first time in modern history that an Asian power defeated a European power in a major naval war.[NEWLINE][NEWLINE]Though the dreadnought revolution made pre-dreadnoughts like the Mikasa technically obsolete shortly after the war, her cultural impact remained immense. Today, she is preserved as a museum ship in Yokosuka, standing as the last remaining example of a pre-dreadnought battleship in the world and a monument to Japan's maritime heritage.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_YAMATO_STRATEGY">
-			<Text>The Yamato has 4 range, [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR] Promotion, higher [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength compared to Battleships. The enemy gains [ICON_GOLDEN_AGE] Golden Age Points and [ICON_CULTURE] Culture bounty when destroying this ship.[NEWLINE][NEWLINE]Exploit its excellent range to strike key, distant targets, while maintaining a safe distance, unless your advantage is clear. Despite its strength, it is vulnerable to concentrated attacks, especially from the air, so support from carriers with fighters is advised.</Text>
+		<Row Tag="TXT_KEY_UNIT_MIKASA_STRATEGY">
+			<Text></Text>
 		</Row>
 
 		<!-- Korea -->

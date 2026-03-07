@@ -16307,92 +16307,6 @@ int CvCity::GetNumFreeSpecialists()
 	iFreeSpecialists += GET_PLAYER(getOwner()).GetNoUnhappfromXSpecialists() + GetNoUnhappfromXSpecialists();
 	return iFreeSpecialists;
 }
-//	--------------------------------------------------------------------------------
-int CvCity::GetUnhappinessFromCitySpecialists()
-{
-	float iUnhappiness = 0;
-	float iUnhappinessFromThisCity;
-	float iUnhappinessPerPop = /*1*/ (/*1*/ GD_INT_GET(UNHAPPINESS_PER_POPULATION) + GD_FLOAT_GET(UNHAPPINESS_PER_POPULATION_FLOAT)) * 100;
-	int iPopulation = 0;
-
-	bool bCityValid = false;
-
-	bCityValid = false;
-
-	// Assume city doesn't exist, and does NOT count
-	if (IsIgnoreCityForHappiness())
-		bCityValid = false;
-	// Occupied Cities don't get counted here (see the next function)
-	else if (!IsOccupied() || IsNoOccupiedUnhappiness())
-		bCityValid = true;
-
-	if (bCityValid)
-	{
-		iPopulation = GetCityCitizens()->GetTotalSpecialistCount();
-
-		// No Unhappiness from Specialist Pop? (Policies, etc.)
-		if (GET_PLAYER(getOwner()).isHalfSpecialistUnhappiness())
-		{
-			iPopulation++; // Round up
-			iPopulation /= 2;
-		}
-
-		//Less unhappiness from specialists....
-		if (MOD_BALANCE_VP)
-		{
-			iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
-			int iNoHappinessSpecialists = GetNumFreeSpecialists();
-			//Can't give more free happiness than specialists.
-			if (iNoHappinessSpecialists > iPopulation)
-			{
-				iNoHappinessSpecialists = iPopulation;
-			}
-			if (iNoHappinessSpecialists > 0)
-			{
-				iPopulation -= iNoHappinessSpecialists;
-			}
-		}
-
-		iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
-
-		if (MOD_BALANCE_VP)
-		{
-			iUnhappiness += iUnhappinessFromThisCity;
-		}
-		else
-		{
-			//Took these away as they were making specialists do weird things.
-			if (isCapital() && GET_PLAYER(getOwner()).GetCapitalUnhappinessMod() != 0)
-			{
-				iUnhappinessFromThisCity *= (100 + GET_PLAYER(getOwner()).GetCapitalUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
-			}
-
-			if (GetLocalUnhappinessMod() != 0)
-			{
-				iUnhappinessFromThisCity *= (100 + GetLocalUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
-			}
-
-			iUnhappiness += iUnhappinessFromThisCity;
-		}
-	}
-
-	if (!MOD_BALANCE_VP)
-	{
-		iUnhappiness *= (100 + GET_PLAYER(getOwner()).GetUnhappinessMod());
-		iUnhappiness /= 100;
-
-		iUnhappiness *= 100 + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPopulationUnhappinessModifier();
-		iUnhappiness /= 100;
-
-		// Handicap mod
-		iUnhappiness *= GET_PLAYER(getOwner()).isHuman(ISHUMAN_HANDICAP) ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
-		iUnhappiness /= 100;
-	}
-
-	return (int)iUnhappiness;
-}
 
 //	--------------------------------------------------------------------------------
 int CvCity::productionLeft() const
@@ -20172,11 +20086,15 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 {
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	float iUnhappinessPerPop = 0;
+	int iUnhappinessPerPop = 0;
 	//Less unhappiness from specialists....
 	if (MOD_BALANCE_VP)
 	{
-		iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
+		// Puppets don't get unhappiness from specialists
+		if (IsPuppet())
+			return 0;
+
+		iUnhappinessPerPop = /*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 		int iNoHappinessSpecialists = 0;
 		if (iSpecialists > 0)
 		{
@@ -20188,14 +20106,10 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 			//...elsewhere?	
 			iNoHappinessSpecialists += kPlayer.GetNoUnhappfromXSpecialists() + GetNoUnhappfromXSpecialists();
 		}
-		//Can't give more free happiness than specialists.
-		if (iNoHappinessSpecialists > iSpecialists)
-		{
-			iNoHappinessSpecialists = iSpecialists;
-		}
 		if (iNoHappinessSpecialists > 0)
 		{
-			iSpecialists -= iNoHappinessSpecialists;
+			// Can't give more free happiness than specialists.
+			iSpecialists -= min(iNoHappinessSpecialists, iSpecialists);
 		}
 	}
 
@@ -20206,7 +20120,7 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 		iSpecialists /= 2;
 	}
 
-	return (int)(iSpecialists * iUnhappinessPerPop) / 100;
+	return iSpecialists * iUnhappinessPerPop / 100;
 }
 
 int CvCity::GetUnhappinessAggregated() const

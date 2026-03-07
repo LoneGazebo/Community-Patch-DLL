@@ -59,6 +59,7 @@ WHERE Type IN (
 	'UNIT_ETHIOPIAN_MEHAL_SEFARI',
 	'UNIT_GREEK_COMPANIONCAVALRY',
 	'UNIT_HUN_BATTERING_RAM',
+	'UNIT_YAMATO',
 	'UNIT_OTTOMAN_SIPAHI'
 );
 
@@ -269,11 +270,15 @@ UPDATE Units SET ObsoleteTech = 'TECH_STEEL' WHERE Type = 'UNIT_BARBARIAN_SWORDS
 -- Only need to insert into non-main tables here; others have been done in NewUnits.xml
 -- Unit_Builds is the only relevant table for units
 
+-- Inca: Slinger
+
 -- Zulu: Great General
 INSERT INTO Unit_Builds
 	(UnitType, BuildType)
 VALUES
 	('UNIT_INDUNA', 'BUILD_CITADEL');
+
+-- Yamato: Battleship
 
 -- Existing unique/policy/CS units with new base units:
 -- Set to follow NewUnits.xml, delete from all other tables
@@ -307,15 +312,6 @@ SET
 	CombatClass = (SELECT CombatClass FROM Units WHERE Type = 'UNIT_LIBURNA'),
 	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_LIBURNA')
 WHERE Type = 'UNIT_BYZANTINE_DROMON';
-
--- Inca: Slinger
-UPDATE Units
-SET
-	PrereqTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_INCAN_SLINGER'),
-	ObsoleteTech = (SELECT ObsoleteTech FROM Units WHERE Type = 'UNIT_INCAN_SLINGER'),
-	CombatClass = (SELECT CombatClass FROM Units WHERE Type = 'UNIT_INCAN_SLINGER'),
-	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_INCAN_SLINGER')
-WHERE Type = 'UNIT_WARAKAQ';
 
 -- India: Cuirassier
 UPDATE Units
