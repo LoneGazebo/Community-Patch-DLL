@@ -796,6 +796,65 @@
 			<Text>{TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_CIVILIZED_JEWELERS}</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_POPULI_MEDICINE_HQ">
+			<Text>Populi Medicine Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_POPULI_MEDICINE_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Populi Medicine Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_POPULI_MEDICINE_HQ_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_POPULI_MEDICINE_HQ_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Giving up smoking is the easiest thing in the world! I know because I've done it thousands of times."[NEWLINE][TAB][TAB] - Mark Twain[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_POPULI_MEDICINE">
+			<Text>Populi Medicine Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_POPULI_MEDICINE_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Populi Medicine [ICON_FRANCHISE] Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Populi Medicine cannot be sold or destroyed by the player, and increases the [ICON_PEACE] Faith output of all Populi Medicine [ICON_OFFICE] Offices by +1.[NEWLINE][NEWLINE]You cannot have more [ICON_FRANCHISE] Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_POPULI_MEDICINE_HELP">
+			<Text></Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE">
+			<Text>Populi Medicine Franchise</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in foreign Cities if you were the founder of Populi Medicine. To construct this building in a foreign City, send a Trade Route from an owned City with a Populi Medicine Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE_HELP">
+			<Text>{TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_POPULI_MEDICINE}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_SHOPPING_MALL">
+			<Text>Shopping Mall</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SHOPPING_MALL_STRATEGY">
+			<Text>The Mall interacts with Corporations and the Trade Route subsystem on which they rely. In an appropriate City, it turns Franchises from a cost into a benefit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SHOPPING_MALL_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SHOPPING_MALL_TEXT">
+			<Text>During the 20th century, the advent of the automobile has created an urban and suburban landscape in which people live in one area but can shop, play and work elsewhere - often miles away from their homes. Nowhere is this more true than in the United States of America, whose citizens are noted for an almost fanatical devotion to their cars. This has had important social, environmental and economic affects upon life in America, leading to (among other things) the creation of that most American of institution - the shopping mall.[NEWLINE][NEWLINE]American shopping malls are surrounded by acres and acres of parking lots, and they may contain dozens (if not hundreds) of stores selling everything from clothing to jewelry to electronics to books to computers to videos. In some ways American shopping malls are akin in spirit to the old Arabian markets (although Americans don't particularly enjoy haggling and prices are generally fixed).[NEWLINE][NEWLINE]The earliest automobile-centered shopping center was the "Market Square," opened in Chicago, Illinois, in 1916. Constructed in Minnesota in 1992, the "Mall of America" is the largest mall in the world at time of writing. It contains over 500 shops, 80 restaurants, a theme park, hotel, and movie theatres. It is housed in a building large enough to hold over 30 Boeing 747 airplanes.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_BUILDING_WORLD_TRADE_CENTER">
+			<Text>World Trade Center</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_WORLD_TRADE_CENTER_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"The World Trade Center is a living symbol of man's dedication to world peace... a representation of man's belief in humanity, his need for individual dignity, his beliefs in the cooperation of men, and, through cooperation, his ability to find greatness." [NEWLINE]- Minoru Yamasaki[NEWLINE][TAB]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WORLD_TRADE_CENTER_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WORLD_TRADE_CENTER_TEXT">
+			<Text>The World Trade Center was a complex of buildings in New York City, that are currently being replaced with new structures after the original was destroyed. The original World Trade Center featured landmark twin towers, which opened on April 4, 1973, and were destroyed in the September 11th terrorist attacks of 2001, along with 7 World Trade Center. The original World Trade Center was thought of as a North American cultural icon, and at the time of their completion, the "Twin Towers", the original 1 World Trade Center (the North Tower), at 417 metres (1,368 ft), and 2 World Trade Center (the South Tower), were the tallest buildings in the world.[NEWLINE][NEWLINE]On the morning of September 11, 2001, Al-Qaeda-affiliated hijackers flew two Boeing 767 jets into the complex, one into each tower, in a coordinated act of terrorism. After burning for 56 minutes, the South Tower collapsed, followed a half-hour later by the North Tower. The attacks on the World Trade Center killed 2,753 people. Falling debris from the towers, combined with fires that the debris initiated in several surrounding buildings, led to the partial or complete collapse of all the other buildings in the complex and caused catastrophic damage to ten other large structures in the surrounding area (including the World Financial Center). The process of cleaning up and recovery at the World Trade Center site took eight months.</Text>
+		</Row>
+		
 		<!-- Belief buildings -->
 		<Row Tag="TXT_KEY_BUILDING_STUPA">
 			<Text>Stupa</Text>
