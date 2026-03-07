@@ -160,7 +160,7 @@
 		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
 
-	<!-- PANTHEON: Allows you to define any belief to grant x yield for every use of the faith healer ability, where X is the number below.-->
+	<!-- PANTHEON: Allows you to define any belief to grant capital/holy city yields from units restoring HP. Is times 100 (20 means healing 5 HP gives 1 yield).-->
 	<Table name="Belief_YieldPerHeal">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
