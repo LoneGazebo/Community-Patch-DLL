@@ -1,0 +1,49 @@
+name: Luacheck
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - '**/*.lua'
+      - '.luacheckrc'
+      - '.github/workflows/luacheck.yml'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - '**/*.lua'
+      - '.luacheckrc'
+      - '.github/workflows/luacheck.yml'
+
+jobs:
+  luacheck:
+    runs-on: ubuntu-latest
+    name: Luacheck
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Run Luacheck
+        run: |
+          echo "Running Luacheck v1.2.0 (latest from marketplace action)..."
+          # Use the exact same Docker image as the marketplace action
+          docker run --rm -v "$PWD:/github/workspace" -w /github/workspace \
+            ghcr.io/lunarmodules/luacheck:v1.2.0 \
+            luacheck --config .luacheckrc . --formatter plain > luacheck-report.txt 2>&1 || true
+          
+          # Show some stats about the report
+          echo "Luacheck completed. Report size: $(wc -c < luacheck-report.txt) bytes"
+          echo "Number of lines in report: $(wc -l < luacheck-report.txt)"
+        continue-on-error: true
+        id: luacheck
+
+      - name: Display Luacheck log
+        run: cat luacheck-report.txt
+
+      - name: Upload Luacheck results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: luacheck-report
+          path: luacheck-report.txt
+          retention-days: 90
