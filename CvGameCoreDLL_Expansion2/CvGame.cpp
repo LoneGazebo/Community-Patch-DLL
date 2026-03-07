@@ -129,6 +129,7 @@ CvGame::CvGame() :
 	, m_bIsDesynced(false)
 	, m_eObserverUIOverridePlayer(NO_PLAYER)
 	, m_lastTurnAICivsProcessed(-1)
+	, m_firstActivationOfPlayersAfterLoad(false)
 	, m_processPlayerAutoMoves(false)
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
 	, m_cityDistancePlots()
@@ -1682,23 +1683,15 @@ void CvGame::CheckPlayerTurnDeactivate()
 				if(kPlayer.hasProcessedAutoMoves())
 				{
 					bool bAutoMovesComplete = false;
-					// Allow pending deal notifications to not block turn deactivation in simultaneous turns (multiplayer).
-					// This prevents a freeze when a proposal is sent to a player who has already ended their turn.
-					bool bIsBlockingTypeAllowed = (kPlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE) ||
-						(kPlayer.GetEndTurnBlockingType() == ENDTURN_BLOCKING_PENDING_DEAL && kPlayer.isSimultaneousTurns());
-
-					if (bIsBlockingTypeAllowed)
+					if (!(kPlayer.hasBusyUnitOrCity()))
 					{
-						if (!(kPlayer.hasBusyUnitOrCity()))
-						{
-							bAutoMovesComplete = true;
+						bAutoMovesComplete = true;
 
-							NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
-						}
-						else if (gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
-						{
-							bAutoMovesComplete = true;
-						}
+						NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
+					}
+					else if (gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
+					{
+						bAutoMovesComplete = true;
 					}
 
 					if(bAutoMovesComplete)
@@ -2139,13 +2132,126 @@ void CvGame::updateTestEndTurn()
 	CvPlayer& activePlayer = GET_PLAYER(activePlayerID);
 
 	ICvUserInterface2* pkIface = GC.GetEngineUserInterface();
+	if (activePlayer.isTurnActive())
+	{
+		// check notifications
+		EndTurnBlockingTypes eEndTurnBlockingType = NO_ENDTURN_BLOCKING_TYPE;
+		int iNotificationIndex = -1;
+		activePlayer.GetNotifications()->GetEndTurnBlockedType(eEndTurnBlockingType, iNotificationIndex);
+
+		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
+		{
+			// No notifications are blocking, check units/cities
+			if (activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING))
+			{
+				eEndTurnBlockingType = ENDTURN_BLOCKING_UNIT_PROMOTION;
+			}
+			else if (activePlayer.hasReadyUnit())
+			{
+				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
+				ASSERT(pUnit, "GetFirstReadyUnit is returning null");
+				if (pUnit)
+				{
+					if (!pUnit->canHold(pUnit->plot()))
+					{
+						eEndTurnBlockingType = ENDTURN_BLOCKING_STACKED_UNITS;
+					}
+					else
+					{
+						eEndTurnBlockingType = ENDTURN_BLOCKING_UNITS;
+					}
+				}
+			}
+		}
+
+		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
+		{
+			if (!(activePlayer.hasBusyUnitOrCity()) && !(activePlayer.hasReadyUnit()))
+			{
+				// JAR  - Looks like popups are pretty much disabled at this point, this check will break
+				// multiplayer games. Look at revision #27 to resurrect the old popup check code if/when
+				// they are implemented again.
+				if (!isGameMultiPlayer())
+				{
+					if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
+					{
+						GC.GetEngineUserInterface()->setCanEndTurn(true);
+					}
+				}
+				else
+				{
+					if (activePlayer.hasAutoUnit() && !m_sentAutoMoves)
+					{
+						if (!(gDLL->shiftKey()))
+						{
+							gDLL->sendAutoMoves();
+							m_sentAutoMoves = true;
+						}
+					}
+					else
+					{
+						if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
+						{
+							GC.GetEngineUserInterface()->setCanEndTurn(true);
+						}
+						else
+						{
+							if (GC.GetEngineUserInterface()->getEndTurnCounter() > 0)
+							{
+								GC.GetEngineUserInterface()->changeEndTurnCounter(-1);
+							}
+							else
+							{
+								if (!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
+								{
+									if (MOD_ENABLE_ACHIEVEMENTS)
+										activePlayer.GetPlayerAchievements().EndTurn();
+
+									if (MOD_EVENTS_RED_TURN)
+										// RED <<<<<
+									{
+										ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+										if (pkScriptSystem)
+										{
+											CvLuaArgsHandle args;
+
+											args->Push(getActivePlayer());
+
+											bool bResult = false;
+											LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
+										}
+									}
+									// RED >>>>>
+
+									gDLL->sendTurnComplete();
+
+									if (MOD_ENABLE_ACHIEVEMENTS)
+										CvAchievementUnlocker::EndTurn();
+								}
+
+								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
+								if (isGameMultiPlayer())
+								{
+									GC.GetEngineUserInterface()->setCanEndTurn(true);
+									m_endTurnTimer.Start();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		activePlayer.SetEndTurnBlocking(eEndTurnBlockingType, iNotificationIndex);
+	}
+
 	if(pkIface != NULL)
 	{
 		bool automaticallyEndTurns = (isGameMultiPlayer())? pkIface->IsMPAutoEndTurnEnabled() : pkIface->IsSPAutoEndTurnEnabled();
 		if(automaticallyEndTurns && s_unitMoveTurnSlice != 0)
 			automaticallyEndTurns = s_unitMoveTurnSlice + 10 < getTurnSlice();
 
-		if(automaticallyEndTurns)
+		if(automaticallyEndTurns && activePlayer.GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE)
 		{
 			bool hasSelection = false;
 
@@ -2192,118 +2298,7 @@ void CvGame::updateTestEndTurn()
 		}
 	}
 
-	if(activePlayer.isTurnActive())
-	{
-		// check notifications
-		EndTurnBlockingTypes eEndTurnBlockingType = NO_ENDTURN_BLOCKING_TYPE;
-		int iNotificationIndex = -1;
-		activePlayer.GetNotifications()->GetEndTurnBlockedType(eEndTurnBlockingType, iNotificationIndex);
-
-		if(eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
-		{
-			// No notifications are blocking, check units/cities
-			if(activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING))
-			{
-				eEndTurnBlockingType = ENDTURN_BLOCKING_UNIT_PROMOTION;
-			}
-			else if(activePlayer.hasReadyUnit())
-			{
-				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
-				ASSERT(pUnit, "GetFirstReadyUnit is returning null");
-				if(pUnit)
-				{
-					if(!pUnit->canHold(pUnit->plot()))
-					{
-						eEndTurnBlockingType = ENDTURN_BLOCKING_STACKED_UNITS;
-					}
-					else
-					{
-						eEndTurnBlockingType = ENDTURN_BLOCKING_UNITS;
-					}
-				}
-			}
-		}
-
-		if(eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
-		{
-			if(!(activePlayer.hasBusyUnitOrCity()) && !(activePlayer.hasReadyUnit()))
-			{
-				// JAR  - Looks like popups are pretty much disabled at this point, this check will break
-				// multiplayer games. Look at revision #27 to resurrect the old popup check code if/when
-				// they are implemented again.
-				if(!isGameMultiPlayer())
-				{
-					if((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
-					{
-						GC.GetEngineUserInterface()->setCanEndTurn(true);
-					}
-				}
-				else
-				{
-					if(activePlayer.hasAutoUnit() && !m_sentAutoMoves)
-					{
-						if(!(gDLL->shiftKey()))
-						{
-							gDLL->sendAutoMoves();
-							m_sentAutoMoves = true;
-						}
-					}
-					else
-					{
-						if((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
-						{
-							GC.GetEngineUserInterface()->setCanEndTurn(true);
-						}
-						else
-						{
-							if(GC.GetEngineUserInterface()->getEndTurnCounter() > 0)
-							{
-								GC.GetEngineUserInterface()->changeEndTurnCounter(-1);
-							}
-							else
-							{
-								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
-								{
-									if (MOD_ENABLE_ACHIEVEMENTS)
-										activePlayer.GetPlayerAchievements().EndTurn();
-
-									if (MOD_EVENTS_RED_TURN)
-									// RED <<<<<
-									{
-										ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-										if(pkScriptSystem)
-										{	
-											CvLuaArgsHandle args;
-
-											args->Push(getActivePlayer());
-
-											bool bResult = false;
-											LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
-										}
-									}
-									// RED >>>>>
-
-									gDLL->sendTurnComplete();
-
-									if (MOD_ENABLE_ACHIEVEMENTS)
-										CvAchievementUnlocker::EndTurn();
-								}
-
-								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
-								if(isGameMultiPlayer())
-								{
-									GC.GetEngineUserInterface()->setCanEndTurn(true);
-									m_endTurnTimer.Start();
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		activePlayer.SetEndTurnBlocking(eEndTurnBlockingType, iNotificationIndex);
-	}
+	
 }
 
 //	--------------------------------------------------------------------------------
@@ -6321,76 +6316,6 @@ int CvGame::GetMinimumHumanMilitaryRating() const
 	return GetStartingMilitaryRating() * /*80*/ range(GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE_PERCENT), 0, 100) / 100;
 }
 
-//	-----------------------------------------------------------------------------------------------
-/// Modify military strength perception based on skill rating
-int CvGame::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer) const
-{
-	if (!GET_PLAYER(ePlayer).isMajorCiv())
-		return 100;
-	
-	int iCivRating = GET_PLAYER(ePlayer).GetMilitaryRating();
-	int iAverageRating = ComputeAverageMajorMilitaryRating(ePerceivingPlayer, /*eExcludedPlayer*/ ePlayer);
-
-	// Don't adjust
-	if (iAverageRating == -1)
-		return 100;
-
-	// Calculate the percentage difference from the average
-	int iPercentageDifference = (iCivRating * 100 - iAverageRating * 100) / max(iAverageRating, 1);
-	if (iPercentageDifference < 0)
-		iPercentageDifference *= -1; // need the absolute value
-
-	int iRtnValue = 100;
-
-	// If above average, apply the % difference as a positive modifier to strength, cap above at +100%
-	if (iCivRating > iAverageRating)
-	{
-		iRtnValue = min(100 + iPercentageDifference, max(GD_INT_GET(MILITARY_RATING_MAXIMUM_BONUS), 0) + 100);
-	}
-	// If below average, apply the % difference as a negative modifier to strength, cap below at -50%
-	else if (iCivRating < iAverageRating)
-	{
-		iRtnValue = max(100 - iPercentageDifference, max(GD_INT_GET(MILITARY_RATING_MAXIMUM_PENALTY), -100) + 100);
-	}
-
-	return iRtnValue;
-}
-
-/// What is the average (living) major civ's military rating (only counting players that we know)?
-int CvGame::ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer /* = NO_PLAYER */) const
-{
-	int iTotalRating = 0;
-	int iNumCivs = 0;
-	
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		
-		if (eLoopPlayer == eExcludedPlayer)
-			continue;
-
-		if (ePerceivingPlayer != NO_PLAYER && GET_TEAM(GET_PLAYER(ePerceivingPlayer).getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
-			continue;
-		
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
-		{
-			iTotalRating += GET_PLAYER(eLoopPlayer).GetMilitaryRating();
-			iNumCivs++;
-		}
-	}
-
-	// No other civs - don't adjust
-	if (iNumCivs == 0)
-		return -1;
-
-	// If there's only one other civ that the perceiving player has met, return -1 so the AI will adjust its opponent's strength perception, but not its own
-	// This avoids double counting when there isn't any other civ to factor into the global average
-	if (iNumCivs == 1 && ePerceivingPlayer == eExcludedPlayer && ePerceivingPlayer != NO_PLAYER)
-		return -1;
-	
-	return (iTotalRating / iNumCivs);
-}
-
 ///	-----------------------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /// Global Diplomacy AI Options
@@ -8305,7 +8230,7 @@ void CvGame::setName(const char* szName)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGame::isDestroyedCityName(CvString& szName) const
+bool CvGame::isDestroyedCityName(const CvString& szName) const
 {
 	stringHash hasher;
 	std::vector<size_t>::const_iterator it = std::find(m_aszDestroyedCities.begin(), m_aszDestroyedCities.end(), hasher(szName.c_str()));
@@ -8442,8 +8367,6 @@ void CvGame::doTurn()
 			ReviveActivePlayer();
 		}
 	}
-
-	m_kGameDeals.DoTurnPost();
 
 	RollOverAssetCounter();
 

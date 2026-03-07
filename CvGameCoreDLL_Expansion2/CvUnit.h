@@ -164,7 +164,8 @@ enum AreaEffectType
 {
 	AE_GREAT_GENERAL,
 	AE_SAPPER,
-	AE_SIEGETOWER
+	AE_SIEGETOWER,
+	AE_PASSIVE_HEAL
 };
 
 enum SquadsEndMovementType
@@ -305,7 +306,7 @@ public:
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
-	bool canScrap(bool bTestVisible = false) const;
+	bool canScrap(bool bTestVisible = false, CvString* toolTipSink = NULL) const;
 	void scrap(bool bDelay = true);
 	int GetScrapGold() const;
 
@@ -343,9 +344,9 @@ public:
 	bool canCargoAllMove() const;
 	int getUnitAICargo(UnitAITypes eUnitAI) const;
 
-	bool canHold(const CvPlot* pPlot) const; // skip turn
-	bool canSleep(const CvPlot* pPlot) const;
-	bool canFortify(const CvPlot* pPlot) const;
+	bool canHold(const CvPlot* pPlot, bool bTestVisibility = false) const; // skip turn
+	bool canSleep(const CvPlot* pPlot, bool bTestVisibility = false) const;
+	bool canFortify(const CvPlot* pPlot, bool bTestVisibility = false) const;
 	bool canAirPatrol(const CvPlot* pPlot) const;
 
 	bool IsRangeAttackIgnoreLOS() const;
@@ -408,8 +409,8 @@ public:
 	int GetEmbarkAbilityCount() const;
 	void ChangeEmbarkAbilityCount(int iChange);
 
-	bool canHeal(const CvPlot* pPlot, bool bCheckMovement = true) const;
-	bool canSentry(const CvPlot* pPlot) const;
+	bool canHeal(const CvPlot* pPlot, bool bCheckMovement = true, CvString* toolTipSink = NULL) const;
+	bool canSentry(const CvPlot* pPlot, bool bTestVisibility = false) const;
 
 	int healRate(const CvPlot* pPlot) const;
 	int healTurns(const CvPlot* pPlot) const;
@@ -417,6 +418,8 @@ public:
 	void DoAttrition();
 	int GetDanger(const CvPlot* pAtPlot=NULL) const;
 	int GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const;
+
+	int ActualHealRate(const CvPlot* pPlot, bool bCheckMovement = true) const;
 
 	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
 	const CvPlot* getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities) const;
@@ -429,8 +432,8 @@ public:
 	bool canNuke() const;
 	bool canNukeAt(const CvPlot* pPlot, int iX, int iY) const;
 
-	bool canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const;
-	bool canParadropAt(const CvPlot* pPlot, int iX, int iY) const;
+	bool canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility, CvString* toolTipSink = NULL) const;
+	bool canParadropAt(const CvPlot* pPlot, int iX, int iY, bool bOnlyTestVisibility = false) const;
 	bool paradrop(int iX, int iY, bool& bAnimationShown);
 
 	bool canMakeTradeRoute(const CvPlot* pPlot) const;
@@ -475,7 +478,7 @@ public:
 	bool shouldPillage(const CvPlot* pPlot, bool bConservative = false, bool bIgnoreMovement = false) const;
 	bool pillage();
 
-	bool canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false, bool bForAliveCheck = false) const;
+	bool canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities = false, bool bIgnoreHappiness = false, bool bForAliveCheck = false, CvString* toolTipSink = NULL) const;
 	bool foundCity();
 
 	bool canJoinCity(const CvPlot* pPlot, SpecialistTypes eSpecialist) const;
@@ -526,7 +529,7 @@ public:
 	bool CanBuildSpaceship(const CvPlot* pPlot, bool bVisible) const;
 	bool DoBuildSpaceship();
 
-	bool CanCultureBomb(const CvPlot* pPlot, bool bTestVisible = false) const;
+	bool CanCultureBomb(const CvPlot* pPlot, bool bTestVisible = false, CvString* toolTipSink = NULL) const;
 	bool isCultureBomb() const;
 	bool DoCultureBomb();
 	void PerformCultureBomb(int iRadius);
@@ -543,7 +546,7 @@ public:
 	bool canBlastTourism(const CvPlot* pPlot, bool bTestVisible = false) const;
 	bool blastTourism();
 
-	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false) const;
+	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true, bool bTestEra = false, CvString* toolTipSink = NULL) const;
 	bool build(BuildTypes eBuild);
 
 	int getBuilderStrength() const;
@@ -561,7 +564,7 @@ public:
 
 	bool isReadyForUpgrade() const;
 	bool CanUpgradeRightNow(bool bOnlyTestVisible) const;
-	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const;
+	bool CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible, CvString* toolTipSink = NULL) const;
 	bool CanUpgradeInTerritory(bool bOnlyTestVisible) const;
 	UnitTypes GetUpgradeUnitType() const;
 	int upgradePrice(UnitTypes eUnit) const;
@@ -644,7 +647,6 @@ public:
 
 	bool canBuildRoute() const;
 	BuildTypes getBuildType() const;
-	bool IsWorking() const;
 	int workRate(bool bMax, BuildTypes eBuild = NO_BUILD) const;
 
 	bool isNoBadGoodies() const;
@@ -824,6 +826,8 @@ public:
 	void ChangeNearbyHealNeutralTerritory(int iValue);
 	int getNearbyHealFriendlyTerritory() const;
 	void ChangeNearbyHealFriendlyTerritory(int iValue);
+	int GetPassiveAoEHeal() const;
+	void ChangePassiveAoEHeal(int iValue);
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
@@ -885,7 +889,7 @@ public:
 	int GetExtraXPOnKill() const;
 	void ChangeExtraXPOnKill(int iValue);
 
-	bool IsGainsYieldFromScouting() const;
+	bool IsGainsYieldFromScoutingTimes100() const;
 
 	int GetCaptureDefeatedEnemyChance() const;
 	void ChangeCaptureDefeatedEnemyChance(int iValue);
@@ -1168,6 +1172,9 @@ public:
 	int getAlwaysHealCount() const;
 	bool isAlwaysHeal() const;
 	void changeAlwaysHealCount(int iChange);
+
+	int GetFlatHealRate() const;
+	void ChangeFlatHealRate(int iChange);
 
 	int getHealOutsideFriendlyCount() const;
 	bool isHealOutsideFriendly() const;
@@ -1748,8 +1755,8 @@ public:
 	int getYieldFromBarbarianKills(YieldTypes eIndex) const;
 	void changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange);
 
-	int getYieldFromScouting(YieldTypes eIndex) const;
-	void changeYieldFromScouting(YieldTypes eIndex, int iChange);
+	int getYieldFromScoutingTimes100(YieldTypes eIndex) const;
+	void changeYieldFromScoutingTimes100(YieldTypes eIndex, int iChange);
 	int getYieldFromAncientRuins(YieldTypes eIndex) const;
 	void changeYieldFromAncientRuins(YieldTypes eIndex, int iChange);
 	int getYieldFromTRPlunder(YieldTypes eIndex) const;
@@ -2116,6 +2123,7 @@ protected:
 	std::map<PromotionTypes, int> m_TurnPromotionGained;
 	int m_iRangedSupportFireCount;
 	int m_iAlwaysHealCount;
+	int m_iFlatHealRate;
 	int m_iHealOutsideFriendlyCount;
 	int m_iRiverDoubleMoveCount;
 	int m_iEmbarkFlatCostCount;
@@ -2242,6 +2250,7 @@ protected:
 	int m_iNearbyHealEnemyTerritory;
 	int m_iNearbyHealNeutralTerritory;
 	int m_iNearbyHealFriendlyTerritory;
+	int m_iPassiveAoEHeal;
 	int m_iCanCrossMountainsCount;
 	int m_iCanCrossOceansCount;
 	int m_iCanCrossIceCount;
@@ -2393,7 +2402,7 @@ protected:
 	UnitClassCounter m_extraUnitClassAttackMod;
 	UnitClassCounter m_extraUnitClassDefenseMod;
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
-	std::vector<int> m_yieldFromScouting;
+	std::vector<int> m_yieldFromScoutingTimes100;
 	std::vector<int> m_piYieldFromAncientRuins;
 	std::vector<int> m_piYieldFromTRPlunder;
 	std::vector<int> m_yieldFromKills;
@@ -2549,6 +2558,7 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_Promoti
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<PromotionTypes, int>), m_TurnPromotionGained)
 SYNC_ARCHIVE_VAR(int, m_iRangedSupportFireCount)
 SYNC_ARCHIVE_VAR(int, m_iAlwaysHealCount)
+SYNC_ARCHIVE_VAR(int, m_iFlatHealRate)
 SYNC_ARCHIVE_VAR(int, m_iHealOutsideFriendlyCount)
 SYNC_ARCHIVE_VAR(int, m_iRiverDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkFlatCostCount)
@@ -2675,6 +2685,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumberOfCultureBombs)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealEnemyTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealNeutralTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealFriendlyTerritory)
+SYNC_ARCHIVE_VAR(int, m_iPassiveAoEHeal)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossMountainsCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossOceansCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossIceCount)
@@ -2796,7 +2807,7 @@ SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureDefensePercent)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassAttackMod)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassDefenseMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromScouting)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromScoutingTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldFromAncientRuins)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldFromTRPlunder)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_yieldFromKills)

@@ -612,8 +612,7 @@ void CvTacticalAnalysisMap::Invalidate()
 /// Fill the map with data for this AI player's turn
 void CvTacticalAnalysisMap::RefreshIfOutdated()
 {
-	//do not update from the UI thread, might lead to desyncs!
-	if (IsUpToDate() || !gDLL->IsGameCoreThread())
+	if (IsUpToDate())
 		return;
 
 	//this is where the sausage is made
@@ -987,7 +986,9 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 		if (pZoneCity && pZoneCity->HasAccessToArea(pZone->GetAreaID()))
 		{
 			//should we take into account distance to the border as well? probably dominance is enough
-			iBaseValue += (int)sqrt(pZoneCity->getEconomicValue(m_ePlayer)*100.f/iMostValuableCity);
+			//economic value can be negative for captured cities with high maintenance, clamp to 0
+			float fEconomicRatio = pZoneCity->getEconomicValue(m_ePlayer) * 100.f / iMostValuableCity;
+			iBaseValue += (int)sqrt(max(0.f, fEconomicRatio));
 
 			if (GET_PLAYER(m_ePlayer).GetTacticalAI()->IsInFocusArea(pZoneCity->plot()))
 			{

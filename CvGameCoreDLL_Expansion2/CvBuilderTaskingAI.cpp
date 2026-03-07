@@ -229,8 +229,8 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 	if (!MOD_BALANCE_SANE_UNIT_MOVEMENT_COST)
 	{
 		// VP does not require plot ownership
-		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
-		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
+		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eTeam));
+		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eTeam));
 	}
 
 	//check routes
@@ -268,8 +268,14 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 		else if (pTraits->IsMountainPass() && pToPlot->isMountain())
 			bIgnoreCostsHere = true;
 
-		if (bIgnoreCostsHere) // Incan UA bypasses the check for river crossings, so no need to check those defines
+		if (bIgnoreCostsHere)
+		{
 			iRegularCost = 1;
+
+			// Inca still pays the normal cost for crossing a river
+			if (MOD_BALANCE_ALTERNATE_INCA_TRAIT && bRiverCrossing)
+				iRegularCost += /*10*/ GD_INT_GET(RIVER_EXTRA_MOVEMENT);
+		}
 		else
 		{
 			iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo ? pToFeatureInfo->getMovementCost() : 0));
@@ -1109,16 +1115,17 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 	if ((pPlot->isOwned() || bIgnoreUnowned) && pPlot->getOwner() != m_pPlayer->GetID())
 		return true;
 
-	if (pPlot->getPlotType() == PLOT_MOUNTAIN)
-		return true;
-
 	if (pPlot->IsNaturalWonder())
 		return true;
 
-	if (pPlot->getFeatureType() == FEATURE_OASIS)
+	FeatureTypes eFeature = pPlot->getFeatureType();
+	if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
 		return true;
 
 	if (bIgnoreUnowned && !pPlot->getEffectiveOwningCity()->IsWithinWorkRange(pPlot))
+		return true;
+
+	if ((pPlot->getPlotType() == PLOT_MOUNTAIN) && !m_pPlayer->HasMountainImprovement())
 		return true;
 
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
@@ -1152,6 +1159,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(const CvPlot* 
 			(pkImprovementInfo->IsAdjacentCity() && pPlot->IsAdjacentCity()) ||
 			(pkImprovementInfo->IsCoastal() && pPlot->isCoastalLand()) ||
 			(pkImprovementInfo->IsHillsMakesValid() && pPlot->isHills()))
+			// currently dont need to check mountains because only unique improvements go there
 		{
 			if (pPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID(), true))
 				return eImprovement;
@@ -3784,7 +3792,14 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 		if (bCreatesResource || bConnectsResource)
 		{
 			ResourceTypes eConnectedResource = bCreatesResource ? eResourceFromImprovement : eResource;
-			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
+
+			int iResourceQuantityFromImprovement = pkImprovementInfo->GetResourceQuantityFromImprovement();
+			if (iResourceQuantityFromImprovement <= 0)
+				iResourceQuantityFromImprovement = 1;
+
+			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
+			int iBaseResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->getNumResource();
+
 			int iResourceWeight = GetResourceWeight(eConnectedResource, iResourceAmount);
 
 			// If the old improvement granted the same resource, subtract the resource from this improvement
@@ -3793,8 +3808,14 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			{
 				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
 				if (pkOldImprovementInfo && (pkOldImprovementInfo->IsConnectsResource(eResource) || pkOldImprovementInfo->GetResourceFromImprovement() == eResource))
-					iExtraResource -= iResourceAmount;
-			
+				{
+					ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+					int iOldResourceQuantityFromImprovement = pkOldImprovementInfo->GetResourceQuantityFromImprovement();
+					if (iOldResourceQuantityFromImprovement <= 0)
+						iOldResourceQuantityFromImprovement = 1;
+					int iOldResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? iOldResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eOldImprovement);
+					iExtraResource -= iOldResourceAmount;
+				}
 			}
 
 			int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eConnectedResource) + iExtraResource;
@@ -3835,19 +3856,19 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				}
 				int iTotalNumResource = GC.getMap().getNumResources(eConnectedResource);
 				if (bCreatesResource)
-					iTotalNumResource += iResourceAmount;
+					iTotalNumResource += iResourceQuantityFromImprovement;
 
 				int iCurrentMonopolyPercent = 0;
 				int iFutureMonopolyPercent = 0;
 				if (iTotalNumResource <= 0)
 				{
 					iCurrentMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource > 0 ? 100 : 0;
-					iFutureMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iResourceAmount > 0 ? 100 : 0;
+					iFutureMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount > 0 ? 100 : 0;
 				}
 				else
 				{
 					iCurrentMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource) * 100) / iTotalNumResource;
-					iFutureMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iResourceAmount) * 100) / iTotalNumResource;
+					iFutureMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount) * 100) / iTotalNumResource;
 				}
 
 				int iGlobalThreshold = /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD);
@@ -3908,7 +3929,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				iPenalty = 1000;
 		}
 
-		if (bBenefitsFromRoads && eForceCityConnection == NO_ROUTE)
+		if (bBenefitsFromRoads && eForceCityConnection == NO_ROUTE && pkImprovementInfo->IsNoTwoAdjacent())
 			iSecondaryScore -= iPenalty;
 		else if (!bBenefitsFromRoads && (eForceCityConnection == ROUTE_ROAD || eForceCityConnection == ROUTE_RAILROAD))
 			iSecondaryScore -= iPenalty;

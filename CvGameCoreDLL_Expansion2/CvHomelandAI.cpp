@@ -450,9 +450,10 @@ void CvHomelandAI::FindHomelandTargets()
 			{
 				int iEstimatedCityStrengthNoGarrison = pCity->getStrengthValue();
 				CvUnit* pGarrisonedUnit = pCity->GetGarrisonedUnit();
-				if (pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
+				if (pGarrisonedUnit)
 				{
-					int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
+					int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) /
+						(pGarrisonedUnit->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
 
 					iEstimatedCityStrengthNoGarrison -= (iStrengthFromGarrison * 100);
 				}
@@ -723,25 +724,25 @@ void CvHomelandAI::PlotGarrisonMoves()
 		bool bEnoughStrength = iEstimatedCityStrengthNoGarrison >= GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100;
 		int iMinStrengthNeeded100 = 0;
 
-		if (bBonusFromCityStrength && !pCity->NeedsGarrison() && !bBonusFromGarrisons)
+		if (bBonusFromCityStrength && !pCity->NeedsGarrison())
 		{
 			CvUnit* pGarrisonedUnit = pCity->GetGarrisonedUnit();
-			if (pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
+			if (pGarrisonedUnit)
 			{
-				int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
+				int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / (pGarrisonedUnit->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
 
 				iEstimatedCityStrengthNoGarrison -= (iStrengthFromGarrison * 100);
 			}
 
 			if (iEstimatedCityStrengthNoGarrison < GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100)
 			{
-				iMinStrengthNeeded100 = (GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR) * (GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100 - iEstimatedCityStrengthNoGarrison)) / 100;
+				iMinStrengthNeeded100 = GD_INT_GET(CITY_STRENGTH_THRESHOLD_FOR_BONUSES) * 100 - iEstimatedCityStrengthNoGarrison;
 			}
 		}
 
 		// If the city doesn't need a garrison, we just want a unit here for maintenance/happiness bonuses
 		// If we only want a unit here for city strength bonuses, check that we are getting that bonus
-		if (pCity->HasGarrison() && (bEnoughStrength || pCity->NeedsGarrison() || bBonusFromGarrisons))
+		if (pCity->HasGarrison() && (pCity->NeedsGarrison() || (bBonusFromCityStrength ? bEnoughStrength : bBonusFromGarrisons)))
 		{
 			//nothing to do really
 			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
@@ -792,7 +793,7 @@ void CvHomelandAI::PlotHealMoves()
 			}
 
 			int iDamageThreshold = 25;
-			if (pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pUnit->healRate(pUnit->plot()) == 0)
+			if (pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pUnit->ActualHealRate(pUnit->plot(), false) == 0)
 				iDamageThreshold = pUnit->GetMaxHitPoints() - 50;
 
 			// We are not particularly damaged
@@ -911,7 +912,7 @@ void CvHomelandAI::PlotSentryMoves()
 				continue;
 
 			// Very important sentry points (forts and workers) we don't want to leave unguarded
-			if (pSentry->atPlot(*pTarget) && m_TargetedSentryPoints[iI].GetAuxIntData() < 500 && (pSentry->getDamage() == 0 || !pSentry->canHeal(pSentry->plot())))
+			if (pSentry->atPlot(*pTarget) && m_TargetedSentryPoints[iI].GetAuxIntData() < 500 && (pSentry->getDamage() == 0 || pSentry->ActualHealRate(pSentry->plot()) == 0))
 			{
 				//check our immediate neighbors if we can increase our visibility significantly
 				int iBestCount = 1;
@@ -3676,8 +3677,10 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 				bool bOldCreatedResource = eResourceFromOldImprovement != NO_RESOURCE;
 				bool bOldConnectedResource = eNaturalResource != NO_RESOURCE && pkOldImprovementInfo && pkOldImprovementInfo->IsConnectsResource(eNaturalResource);
+				bool bOldAmplifiedResource = bOldConnectedResource && (pkOldImprovementInfo->GetResourceExtractionIncrease(eNaturalResource) != 0 || pkOldImprovementInfo->GetResourceExtractionMod(eNaturalResource));
 				bool bNewCreatesResource = eResourceFromImprovement != NO_RESOURCE;
 				bool bNewConnectsResource = eNaturalResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eNaturalResource);
+				bool bNewAmplifiesResource = bOldConnectedResource && (pkOldImprovementInfo->GetResourceExtractionIncrease(eNaturalResource) != 0 || pkOldImprovementInfo->GetResourceExtractionMod(eNaturalResource));
 
 				ResourceTypes eRemovedResource = NO_RESOURCE;
 				ResourceTypes eCreatedResource = NO_RESOURCE;
@@ -3685,11 +3688,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				{
 					eRemovedResource = eResourceFromOldImprovement;
 				}
-				if (bOldConnectedResource && !bNewConnectsResource)
+				if (bOldConnectedResource && (!bNewConnectsResource || bOldAmplifiedResource))
 				{
 					eRemovedResource = eNaturalResource;
 				}
-				if (!bOldConnectedResource && bNewConnectsResource)
+				if ((!bOldConnectedResource || bNewAmplifiesResource) && bNewConnectsResource)
 				{
 					eCreatedResource = eNaturalResource;
 				}
@@ -3702,8 +3705,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				{
 					if (!bFinishedBuilding)
 					{
-						int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
-						sState.mExtraResources[eOldResource] += iResourceAmount;
+						int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
+						sState.mExtraResources[eCreatedResource] += iResourceAmount;
 					}
 					bResourceStateChanged = true;
 				}
@@ -3712,7 +3715,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					if (!bFinishedBuilding)
 					{
 						int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
-						sState.mExtraResources[eOldResource] -= iResourceAmount;
+						sState.mExtraResources[eRemovedResource] -= iResourceAmount;
 					}
 					bResourceStateChanged = true;
 				}
@@ -6310,7 +6313,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				continue;
 
 			//Don't poach garrisons
-			if (pLoopUnit->IsGarrisoned() && pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getPlotCity()->NeedsGarrison())
+			if (pLoopUnit->IsGarrisoned() && pLoopUnit->plot()->isCity() && pLoopUnit->plot()->getPlotCity()->NeedsGarrison())
 				continue;
 
 			bool bSuitableUnit = false;
@@ -6322,8 +6325,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
 					continue;
 
-				// Only use land units
-				if (pLoopUnit->getDomainType() != DOMAIN_LAND)
+				if (!pLoopUnit->CanGarrison())
 					continue;
 
 				bSuitableUnit = true;
@@ -6375,8 +6377,8 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns, i
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if(pLoopUnit)
 		{
-			// Make sure domain matches
-			if((pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater()) ||
+			// Make sure domain matches unless it's a city
+			if((pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() && !pTarget->isCity()) ||
 				(pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater()))
 			{
 				it->SetMovesToTarget(MAX_INT);
@@ -6389,8 +6391,14 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns, i
 				continue;
 			}
 
-			if (max(pLoopUnit->GetBaseCombatStrength(), pLoopUnit->GetBaseRangedCombatStrength()) * 100 < iMinStrengthTimes100)
-				continue;
+			if (iMinStrengthTimes100 > 0)
+			{
+				int iStrengthTimes100 = max(pLoopUnit->GetBaseCombatStrength(), pLoopUnit->GetBaseRangedCombatStrength()) * 100;
+				int iCityStrengthFromUnit = iStrengthTimes100 / (pLoopUnit->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR))	;
+
+				if (iCityStrengthFromUnit * 100 < iMinStrengthTimes100)
+					continue;
+			}
 
 			if (pLoopUnit->plot() == pTarget)
 			{

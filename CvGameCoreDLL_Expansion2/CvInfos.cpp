@@ -1641,7 +1641,7 @@ bool CvSpecialUnitInfo::CacheResults(Database::Results& kResults, CvDatabaseUtil
 	m_bCityLoad = kResults.GetBool("CityLoad");
 
 	const char* szSpecialUnitType = GetType();
-	kUtility.PopulateArrayByExistence(m_pbCarrierUnitAITypes, "UnitAIInfos", "SpecialUnit_CarrierUnitAI", "UnitAIType", "SpecialUnitType", szSpecialUnitType);
+	kUtility.PopulateArrayByExistence(m_pbCarrierUnitAITypes, "UnitAIInfos", "SpecialUnit_CarrierUnitAI", "UnitAIType", "SpecialUnitType", szSpecialUnitType, NUM_UNITAI_TYPES);
 	kUtility.PopulateArrayByValue(m_piProductionTraits, "Traits", "SpecialUnit_ProductionTraits", "TraitType", "SpecialUnitType", szSpecialUnitType, "Trait");
 
 	return true;
@@ -2270,9 +2270,9 @@ const char* CvCivilizationInfo::getCityNames(int i) const
 	return i>=0 ? m_vCityNames[i].c_str() : "vilanova";
 }
 //------------------------------------------------------------------------------
-const char* CvCivilizationInfo::getSpyNames(int i) const
+vector<CvString> CvCivilizationInfo::getSpyNames() const
 {
-	return i>=0 ? m_vSpyNames[i].c_str() : "john doe";
+	return m_vSpyNames;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCoastalCiv() const
@@ -2448,7 +2448,6 @@ bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 		}
 
 		pResults->Reset();
-
 	}
 
 	//FreeUnits
@@ -2476,7 +2475,6 @@ bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 		}
 
 		pResults->Reset();
-
 	}
 
 	kUtility.PopulateArrayByExistence(m_pbCivilizationFreeBuildingClass,
@@ -9793,6 +9791,7 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_iCityHappinessGlobal(0),
 	 m_iFreeScaledUnits(0),
 	 m_iSpecialistsGreatPersonPointsPerTurn(0),
+	 m_iMaxAirUnitsChange(0),
 	 m_strDisabledTooltip(""),
 	 m_bVassal(false),
 	 m_bMaster(false),
@@ -9984,6 +9983,11 @@ int CvModEventChoiceInfo::getFreeScaledUnits() const
 int CvModEventChoiceInfo::getSpecialistsGreatPersonPointsPerTurn() const
 {
 	return m_iSpecialistsGreatPersonPointsPerTurn;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getMaxAirUnitsChange() const
+{
+	return m_iMaxAirUnitsChange;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getPlayerHappiness() const
@@ -10368,6 +10372,7 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	m_iRandomBarbs = kResults.GetInt("RandomBarbarianSpawn");
 	m_iFreeScaledUnits = kResults.GetInt("FreeUnitsTechAppropriate");
 	m_iSpecialistsGreatPersonPointsPerTurn = kResults.GetInt("SpecialistsGreatPersonPointsPerTurn");
+	m_iMaxAirUnitsChange = kResults.GetInt("MaxAirUnitsChange");
 
 	m_iPlayerHappiness = kResults.GetInt("PlayerHappiness");
 	m_iCityHappinessGlobal = kResults.GetInt("HappinessPerCity");

@@ -335,8 +335,6 @@ public:
 
 	int GetStartingMilitaryRating() const;
 	int GetMinimumHumanMilitaryRating() const;
-	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer) const;
-	int ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer = NO_PLAYER) const;
 
 	// Global Diplomacy AI Options
 	bool IsVictoryCompetitionEnabled() const;
@@ -442,7 +440,7 @@ public:
 	const CvString& getName();
 	void setName(const char* szName);
 
-	bool isDestroyedCityName(CvString& szName) const;
+	bool isDestroyedCityName(const CvString& szName) const;
 	void addDestroyedCityName(const CvString& szName);
 
 	bool isGreatPersonBorn(CvString& szName) const;

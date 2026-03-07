@@ -349,7 +349,7 @@ function VassalSelected( ePlayer )
 	local iVassalTeam = pVassalPlayer:GetTeam();
 	local pVassalTeam = Teams[iVassalTeam];
 
-	g_SelectedVassal = iVassalTeam;
+	g_SelectedVassal = ePlayer;
 	
 	local civType = pVassalPlayer:GetCivilizationType();
 	local civInfo = GameInfo.Civilizations[civType];
@@ -470,7 +470,7 @@ function VassalSelected( ePlayer )
 		availableStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_TURN_AVAILABLE", iTurnTaxesAvailable);
 	end
 
-	if ( g_pTeam:GetNumTurnsSinceVassalTaxSet( ePlayer ) == -1 ) then	
+	if ( iNumTurnsSinceSet == -1 ) then	
 		taxesSetTurnStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_TURN_NOT_SET_EVER");
 	else
 		taxesSetTurnStr = Locale.ConvertTextKey("TXT_KEY_VO_TAX_TURN_SET", iTurnTaxesSet);
@@ -486,10 +486,11 @@ function VassalSelected( ePlayer )
 	DoVassalStatistics( ePlayer );
 	UpdateVassalTreatment( ePlayer );
 
-	Controls.ApplyChanges:SetDisabled( true );
+	Controls.ApplyChanges:SetDisabled( iNumTurnsSinceSet > -1 );
 	Controls.ApplyChanges:SetVoid1( ePlayer );
 	Controls.ApplyChanges:RegisterCallback( Mouse.eLClick, OnApplyChangesClicked );
-	Controls.ApplyChanges:LocalizeAndSetToolTip( "TXT_KEY_APPLY_CHANGES_TT" );
+	Controls.ApplyChanges:LocalizeAndSetText( iNumTurnsSinceSet == -1 and "TXT_KEY_SET_TAXES" or "TXT_KEY_APPLY_CHANGES" );
+	Controls.ApplyChanges:LocalizeAndSetToolTip( iNumTurnsSinceSet == -1 and "TXT_KEY_SET_TAXES_TT" or "TXT_KEY_APPLY_CHANGES_TT" );
 
 	-- Liberate Vassal button
 	local tooltipStr = Locale.ConvertTextKey("TXT_KEY_VO_LIBERATE_VASSAL_TT", pVassalTeam:GetName());
@@ -718,7 +719,9 @@ end
 Controls.TaxSlider:RegisterSliderCallback( TaxSliderUpdate );
 
 function UpdateApplyChanges()
-	Controls.ApplyChanges:SetDisabled( PercentToTaxValue( Controls.TaxSlider:GetValue() ) == g_pTeam:GetVassalTax(g_SelectedVassal) );
+	Controls.ApplyChanges:SetDisabled( PercentToTaxValue( Controls.TaxSlider:GetValue() ) == g_pTeam:GetVassalTax(g_SelectedVassal) and g_pTeam:GetNumTurnsSinceVassalTaxSet( g_SelectedVassal ) > -1 );
+	Controls.ApplyChanges:LocalizeAndSetText( g_pTeam:GetNumTurnsSinceVassalTaxSet( g_SelectedVassal ) == -1 and "TXT_KEY_SET_TAXES" or "TXT_KEY_APPLY_CHANGES" );
+	Controls.ApplyChanges:LocalizeAndSetToolTip( g_pTeam:GetNumTurnsSinceVassalTaxSet( g_SelectedVassal ) == -1 and "TXT_KEY_SET_TAXES_TT" or "TXT_KEY_APPLY_CHANGES_TT" );
 end
 
 -- convert percentage to tax tvalue

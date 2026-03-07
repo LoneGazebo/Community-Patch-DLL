@@ -47,14 +47,14 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Writer[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATWRITER_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Writer can create a [ICON_GW_WRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Monument, or Heroic Epic). The Great Writer is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_GIVE_POLICIES}[ENDCOLOR][NEWLINE]A Great Writer can write a Political Treatise, which grants the player a large amount of [ICON_CULTURE] Culture, [COLOR_YELLOW]scaling by 3% for every owned Great Work[ENDCOLOR]. The Great Writer is expended when used this way.'
+SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Writer can create a [ICON_GW_WRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like a Theater or Heroic Epic). The Great Writer is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_GIVE_POLICIES}[ENDCOLOR][NEWLINE]A Great Writer can write a Political Treatise, which grants the player a large amount of [ICON_CULTURE] Culture, [COLOR_YELLOW]scaling by 3% for every owned Great Work[ENDCOLOR]. The Great Writer is expended when used this way.'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATWRITER_HEADING3_BODY';
 
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Artist[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATARTIST_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Artist can create a [ICON_GW_ART] Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like the Palace, a Castle, or a Museum). The Great Artist is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_START_GOLDENAGE}[ENDCOLOR][NEWLINE]A Great Artist can be expended to [COLOR_YELLOW]generate Golden Age Points, which may trigger a [ICON_GOLDEN_AGE] Golden Age (extra [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture). The amount of Golden Age Points generated is based on the [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Point output of the past 10 turns, and is increased by 10% for every owned themed Great Work set.[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Artist can create a [ICON_GW_ART] Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like a Monument, a Gallery, or a Museum). The Great Artist is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_START_GOLDENAGE}[ENDCOLOR][NEWLINE]A Great Artist can be expended to [COLOR_YELLOW]generate Golden Age Points, which may trigger a [ICON_GOLDEN_AGE] Golden Age (extra [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture). The amount of Golden Age Points generated is based on the [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Point output of the past 10 turns, and is increased by 10% for every owned themed Great Work set.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATARTIST_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -68,21 +68,21 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Scientist[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATSCIENTIST_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Improvement: Academy[ENDCOLOR][NEWLINE]You can expend a Great Scientist to create an Academy. While worked, the Academy will give your city a big science boost.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_DISCOVER_TECH}[ENDCOLOR][NEWLINE]You can expend your Great Scientist to immediately gain a lump sum of science. [COLOR_YELLOW]Every owned Academy you''ve created and own increases the amount of science gained by 10%.[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Special Improvement: Academy[ENDCOLOR][NEWLINE]You can expend a Great Scientist to create an Academy. [COLOR_YELLOW]The Academy counts as every type of Improvement for adjacency bonuses[ENDCOLOR] and, while worked, will give your city a big Science boost.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_DISCOVER_TECH}[ENDCOLOR][NEWLINE]You can expend your Great Scientist to immediately gain a lump sum of science. [COLOR_YELLOW]Every owned Academy you''ve created and own increases the amount of science gained by 10%.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATSCIENTIST_HEADING3_BODY';
 
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Merchant[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMERCHANT_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Improvement: Town[ENDCOLOR][NEWLINE]You can expend a Great Merchant to create the special Town improvement which, when worked, produces [ICON_GOLD] Gold [COLOR_YELLOW]and [ICON_FOOD] Food.[ENCDOLOR][NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CONDUCT_TRADE_MISSION}[ENDCOLOR][NEWLINE]If the Great Merchant is inside City-State territory that you are not at war with, you can expend it to conduct a Trade Mission.[NEWLINE][NEWLINE]You will receive a large amount of [ICON_GOLD] Gold [COLOR_YELLOW]and an instant "We Love the King Day" in all owned cities. Every Town you''ve created and own increases the gold and length of the "We Love the King Day" by 25%.[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Special Improvement: Town[ENDCOLOR][NEWLINE]You can expend a Great Merchant to create a Town. The Town [COLOR_YELLOW]receives additional yields from being on routes[ENDCOLOR] and, while worked, produces a lot of [ICON_GOLD] Gold [COLOR_YELLOW]and [ICON_FOOD] Food.[ENCDOLOR][NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CONDUCT_TRADE_MISSION}[ENDCOLOR][NEWLINE]If the Great Merchant is inside City-State territory that you are not at war with, you can expend it to conduct a Trade Mission.[NEWLINE][NEWLINE]You will receive a large amount of [ICON_GOLD] Gold [COLOR_YELLOW]and an instant "We Love the King Day" in all owned cities. Every Town you''ve created and own increases the gold and length of the "We Love the King Day" by 25%.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMERCHANT_HEADING3_BODY';
 
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Engineer[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATENGINEER_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Improvement: Manufactory[ENDCOLOR][NEWLINE]You can expend a Great Engineer to create a Manufactory. A Manufactory produces huge amounts of production (hammers) for the city, if it is worked, and counts as every type of improvement for adjacency bonuses.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_HURRY_PRODUCTION}[ENDCOLOR][NEWLINE]You can expend a Great Engineer to hurry production on the city''s current effort. [COLOR_YELLOW]The amount of Production is equal to 5 turns of the best city''s average recent output. Every owned Manufactory you''ve created and own increases it by 10%.[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Special Improvement: Manufactory[ENDCOLOR][NEWLINE]You can expend a Great Engineer to create a Manufactory. [COLOR_YELLOW]When placed on a Strategic or Luxury Resource, the Manufactory connects it and provides an additional copy[ENDCOLOR] and, while worked, it grants huge amounts of Production (hammers).[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_HURRY_PRODUCTION}[ENDCOLOR][NEWLINE]You can expend a Great Engineer to hurry production on the city''s current effort. [COLOR_YELLOW]The amount of Production is equal to 5 turns of the best city''s average recent output. Every owned Manufactory you''ve created and own increases it by 10%.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATENGINEER_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -96,7 +96,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Admiral[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATADMIRAL_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Ability: Combat Bonus[ENDCOLOR][NEWLINE]A Great Admiral provides a 15% combat bonus to all friendly naval units within 2 tiles. This combat bonus applies to all forms of naval combat: melee, ranged, defense, and so forth.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_REPAIR_FLEET}[ENDCOLOR][NEWLINE]You can expend the Great Admiral to heal all of your Naval Units and Embarked Units in this tile and all adjacent tiles. [COLOR_YELLOW]This order also increases your Military Unit Supply Cap by 1.[ENDCOLOR] The Great Admiral is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_FREE_LUXURY}[ENDCOLOR][NEWLINE][COLOR_GREEN]You can send the Great Admiral on a Voyage of Discovery, which will provide you with two copies of a Luxury Resource not available on the current map. This order also increases your Military Unit Supply Cap by 1. The Great Admiral is expended when used this way.[ENDCOLOR]'
+SET Text = '[COLOR_CYAN]Special Ability: Combat Bonus[ENDCOLOR][NEWLINE]A Great Admiral provides a 15% combat bonus and +3 passive [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR] to all friendly naval units within 2 tiles. This combat bonus applies to all forms of naval combat: melee, ranged, defense, and so forth.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_FREE_LUXURY}[ENDCOLOR][NEWLINE][COLOR_GREEN]You can send the Great Admiral on a Voyage of Discovery, which will provide you with two copies of a Luxury Resource not available on the current map. This order also increases your Military Unit Supply Cap by 1. The Great Admiral is expended when used this way.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATADMIRAL_BODY';
 
 UPDATE Language_en_US
@@ -176,7 +176,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Tourism[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CULTURE_TOURISM_HEADING2_TITLE';
 UPDATE Language_en_US
-SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread your cultural influence to other civilizations. It is generated passively by [COLOR_POSITIVE_TEXT]Buildings[ENDCOLOR], [COLOR_POSITIVE_TEXT]Great Works[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Artifacts[COLOR_YELLOW], and actively by [COLOR_POSITIVE_TEXT]Historic Events[COLOR_YELLOW] (for more on "Historic Events", see the section with this label) or completing [COLOR_POSITIVE_TEXT]Trade Routes[ENDCOLOR][COLOR_YELLOW] (if you have constructed buildings that grant such bonuses)[ENDCOLOR]. As you place more and more Great Works and Artifacts into your Museums, Amphitheaters, Opera Houses, etc., your [ICON_TOURISM] Tourism will continue to increase.
+SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread your cultural influence to other civilizations. It is generated passively by [COLOR_POSITIVE_TEXT]Buildings[ENDCOLOR], [COLOR_POSITIVE_TEXT]Great Works[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Artifacts[COLOR_YELLOW], and actively by [COLOR_POSITIVE_TEXT]Historic Events[COLOR_YELLOW] (for more on "Historic Events", see the section with this label) or completing [COLOR_POSITIVE_TEXT]Trade Routes[ENDCOLOR][COLOR_YELLOW] (if you have constructed buildings that grant such bonuses)[ENDCOLOR]. As you place more and more Great Works and Artifacts into your Museums, Theaters, Opera Houses, etc., your [ICON_TOURISM] Tourism will continue to increase.
 
 [NEWLINE][NEWLINE]Your [ICON_TOURISM] Tourism is multiplied with each player in the following ways [COLOR_YELLOW](minimum [COLOR_NEGATIVE_TEXT]-100%[COLOR_YELLOW])[ENDCOLOR]:
 [NEWLINE][ICON_BULLET]Any Trade Route connecting your City with their City [COLOR_YELLOW]([COLOR_POSITIVE_TEXT]+10%[COLOR_YELLOW])[ENDCOLOR].
@@ -193,6 +193,22 @@ SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread y
 WHERE Tag = 'TXT_KEY_CULTURE_TOURISM_HEADING2_BODY';
 
 UPDATE Language_en_US
+SET Text = 'Great Artists can create a Great Work of Art to place in any appropriate building in your empire that has an empty Great Work of Art slot. This includes Monuments, Galleries, Museums, as well as various Wonders.[NEWLINE][NEWLINE]To create a Great Work of Art, select and move your Great Artist to within one hex of any city in your civilization. As long as there is an appropriate building with an empty slot available in any of your cities, you will be able to click the "Create Great Work" icon on the Unit Panel. The Great Work will display on your screen (for example, Leonardo Da Vinci''s Mona Lisa), and the Great Artist is expended.'
+WHERE Tag = 'TXT_KEY_CULTURE_GREAT_WORK_ART_HEADING2_BODY';
+
+UPDATE Language_en_US
+SET Text = 'Artifacts are historical relics that you can place in any open Great Work of Art slot in your Monuments, Galleries, Museums, or certain Wonders. Once placed, they will generate both Culture and Tourism.[NEWLINE][NEWLINE]There are also special Written Artifacts, which can only be discovered within Hidden Antiquity Sites (see Antiquity Sites for more information).'
+WHERE Tag = 'TXT_KEY_CULTURE_ARTIFACTS_HEADING2_BODY';
+
+UPDATE Language_en_US
+SET Text = 'Great Artists, Writers, and Musicians all have the ability to create Great Works. These Great Works are iconic masterpieces from throughout time, like Leonardo Da Vinci''s Mona Lisa, or Charles Dickens'' A Christmas Carol.[NEWLINE][NEWLINE]Once created, you can then place these Great Works in an appropriate building that has an empty Great Work slot (like a Museum for a Great Work of Art, a Theater for a Great Work of Writing, or an Opera House for a Great Work of Music). Once placed, each Great Work produces both Culture and Tourism.'
+WHERE Tag = 'TXT_KEY_CULTURE_GREAT_WORKS_HEADING2_BODY';
+
+UPDATE Language_en_US
+SET Text = 'Great Writers can create a Great Work of Writing to place in any appropriate building in your empire that has an empty Great Work of Writing slot. This includes the Theater, the Heroic Epic, the Royal Library, as well as various Wonders.[NEWLINE][NEWLINE]To create a Great Work of Writing, select and move your Great Writer to within one hex of any city in your civilization. As long as there is an appropriate building with an empty slot available in any of your cities, you will be able to click the "Create Great Work" icon on the Unit Panel. The Great Work of Writing will display on your screen (for example, Charles Dickens'' A Christmas Carol), and the Great Writer is expended.'
+WHERE Tag = 'TXT_KEY_CULTURE_GREAT_WORK_WRITING_HEADING2_BODY';
+
+UPDATE Language_en_US
 SET Text = 'Laborers'
 WHERE Tag = 'TXT_KEY_CITIES_UNEMPLOYEDCITIZENS_HEADING3_TITLE';
 
@@ -207,7 +223,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Cities Firing at Attackers[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_COMBAT_CITYFIRINGATTACKERS_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = 'A city has a Ranged Combat Strength equal to its full Strength at the start of combat, and [COLOR_YELLOW]it has a range of 1. This range increases as the game progresses based on researched technologies (look for the "ranged strike" icon in the tech tree for these technologies).[ENDCOLOR] It may attack any one enemy unit within that range. Note that the city''s Ranged Combat Strength doesn''t decline as the city takes damage; it remains equal to the city''s initial Strength until the city is captured.'
+SET Text = 'A city has a [ICON_RANGE_STRENGTH] City Strike Strength equal to its full [ICON_STRENGTH] Combat Strength minus the garrison contribution to the city''s [ICON_STRENGTH] Combat Strength. Therefore, stationed units don''t change the strength of city''s ranged attacks.[NEWLINE][NEWLINE]It has 1 range, increasing to 2 after building Walls and to 3 after building Arsenal.[COLOR_YELLOW]Note that the city''s Ranged Combat Strength doesn''t decline as the city takes damage; it remains equal to the city''s initial Strength until the city is captured.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_COMBAT_CITYFIRINGATTACKERS_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -228,7 +244,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Experience Points Limitations[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_BARBARIAN_POINTLIMITS_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = 'When they fight barbarian units, your less well-trained units will gain experience points. However, any unit that has already acquired [COLOR_YELLOW]45 XPs[ENDCOLOR] (or has exchanged that many for promotions) no longer gains XPs from fighting barbarians.'
+SET Text = 'When they fight barbarian units, your less well-trained units will gain experience points. However, any unit that has already acquired [COLOR_YELLOW]45 XPs[ENDCOLOR] no longer gains XPs from fighting barbarians [COLOR_YELLOW]and a unit that has acquired 70 XPs no longer gains XPs from fighting city-states[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BARBARIAN_POINTLIMITS_HEADING3_BODY';
 
 UPDATE Language_en_US

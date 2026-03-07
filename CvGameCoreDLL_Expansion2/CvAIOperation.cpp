@@ -2987,12 +2987,21 @@ AIOperationAbortReason CvAIOperationCivilianDiplomatDelegation::VerifyOrAdjustTa
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
-	if (GetTargetPlot()==NULL || !pCivilian->canTrade( GetTargetPlot() ))
+	bool bRetarget = false;
+	if (GetTargetPlot() == NULL || !pCivilian->canTrade(GetTargetPlot()))
+	{
 		RetargetCivilian(pCivilian, pArmy);
+		bRetarget = true;
+	}
 
-	CvCity* pTargetCity = GetTargetPlot()->getOwningCity();
-	if (pTargetCity == NULL || GET_PLAYER(pCivilian->getOwner()).ScoreCityForMessenger(pTargetCity, pCivilian) <= 0)
-		RetargetCivilian(pCivilian, pArmy);
+	if (!bRetarget)
+	{
+		CvCity* pTargetCity = GetTargetPlot()->getOwningCity();
+		if (pTargetCity == NULL || GET_PLAYER(pCivilian->getOwner()).ScoreCityForMessenger(pTargetCity, pCivilian) <= 0)
+		{
+			RetargetCivilian(pCivilian, pArmy);
+		}
+	}
 
 	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;
 }

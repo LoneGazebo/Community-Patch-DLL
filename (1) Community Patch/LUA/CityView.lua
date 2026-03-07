@@ -1321,12 +1321,10 @@ local function UpdateViewFull()
 	end
 
 	-- Raze/unraze button
-	local bCanRazeOrUnraze = false;
 	if not bOccupied or bRazing then
 		Hide(Controls.RazeCityButton);
 	-- Can we actually raze this city?
 	elseif pPlayer:CanRaze(pCity, false) then
-		bCanRazeOrUnraze = true;
 		Show(Controls.RazeCityButton);
 		Enable(Controls.RazeCityButton);
 		Controls.RazeCityButton:LocalizeAndSetToolTip("TXT_KEY_CITYVIEW_RAZE_BUTTON_TT");
@@ -1341,15 +1339,13 @@ local function UpdateViewFull()
 	end
 
 	if bRazing then
-		bCanRazeOrUnraze = true;
 		Show(Controls.UnrazeCityButton);
+		Enable(Controls.UnrazeCityButton);
 	else
 		Hide(Controls.UnrazeCityButton);
 	end
 
-	if bViewingMode and bCanRazeOrUnraze then
-		Enable(Controls.RazeCityButton, Controls.UnrazeCityButton);
-	else
+	if bViewingMode then
 		Disable(Controls.RazeCityButton, Controls.UnrazeCityButton);
 	end
 

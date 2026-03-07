@@ -14,6 +14,7 @@
 #include "CvDiplomacyAI.h"
 #include "CvMinorCivAI.h"
 #include "CvDllInterfaces.h"
+#include "CvDllNetMessageExt.h"
 #include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
 #include "CvEconomicAI.h"
@@ -100,61 +101,13 @@ TeamTypes CvDealAI::GetTeam()
 	return m_pPlayer->getTeam();
 }
 
-/// How much are we willing to back off on what our perceived value of a deal is to make something work?
-int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) const
+
+bool CvDealAI::WithinAcceptableRange(PlayerTypes /*ePlayer*/, int /*iMaxValue*/, int iNetValue) const
 {
-	int iPercent = 0;
-
-	//for human players the opinion score is unreliable
-	//so we use a fixed amount, but make it asymmetric
-	if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
-		iPercent = bInTheBlack ? 13 : 7;
-	else
-	{
-		switch (m_pPlayer->GetDiplomacyAI()->GetCivOpinion(eOtherPlayer))
-		{
-		case CIV_OPINION_ALLY:
-			iPercent = 35;
-			break;
-		case CIV_OPINION_FRIEND:
-			iPercent = 30;
-			break;
-		case CIV_OPINION_FAVORABLE:
-			iPercent = 25;
-			break;
-		case CIV_OPINION_NEUTRAL:
-			iPercent = 20;
-			break;
-		case CIV_OPINION_COMPETITOR:
-		case CIV_OPINION_ENEMY:
-		case CIV_OPINION_UNFORGIVABLE:
-			iPercent = 15;
-			break;
-		default:
-			iPercent = 15;
-			break;
-		}
-	}
-
-	//want better deals if we're having economic problems
-	if (!bInTheBlack && m_pPlayer->GetEconomicAI()->IsUsingStrategy((EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY")))
-		iPercent /= 2;
-
-	return iPercent;
-}
-
-bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue) const
-{
-	int iLeewayPercent = GetDealPercentLeeway(ePlayer,iNetValue>0);
-	// Make trades at low max value easier
-	int iMaxDeviation = iMaxValue * iLeewayPercent + min(100, iMaxValue) * 15;
-	iMaxDeviation /= 100;
+	int iGPTValue = GetOneGPTValue(false);
 
 	// a deal value of less than or equal to half the value of 1 GPT should always be acceptable, to avoid deals that can't be equalized with GPT
-	int iGPTValue = GetOneGPTValue(m_pPlayer->IsAtWarWith(ePlayer));
-
-	//put some sanity checks
-	return abs(iNetValue) <= min(max(iMaxDeviation,iGPTValue/2),500);
+	return 2*abs(iNetValue) < iGPTValue || 2*iNetValue == iGPTValue;
 }
 
 bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
@@ -337,7 +290,6 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 
 	if (GET_PLAYER(eFromPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
-		// If this was a peace deal, apply a recent assist bonus for demanding less than the maximum value.
 		int iCachedPeaceValue = GetCachedValueOfPeaceWithHuman();
 		bool bGenerousPeaceTreaty = false;
 		if (iCachedPeaceValue != 0)
@@ -350,9 +302,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 			{
 				int iDifference = iCachedPeaceValue - iDealValueToMe;
 				int iPercentage = (iDifference * 100) / iCachedPeaceValue;
-				int iRecentAssistBonus = (m_pPlayer->GetDiplomacyAI()->GetMaxRecentAssistValue() + (m_pPlayer->GetDiplomacyAI()->GetMaxRecentFailedAssistValue() * -1) * iPercentage) / 100;
-				m_pPlayer->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iRecentAssistBonus);
-
+				
 				// If half or less of max value, mark it as generous for the text selection below
 				if (iPercentage >= 50)
 				{
@@ -649,26 +599,6 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		return true;
 	}
 
-	//special case for peacetime return of single cities...
-	if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer) && pDeal->ContainsItemType(TRADE_ITEM_CITIES, eOtherPlayer))
-	{
-		int iCount = 0;
-		int iCityLoop = 0;
-		for (CvCity* pLoopCity = GET_PLAYER(pDeal->GetFromPlayer()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pDeal->GetFromPlayer()).nextCity(&iCityLoop))
-		{
-			if (pDeal->IsCityTrade(eOtherPlayer, pLoopCity->getX(), pLoopCity->getY()))
-			{
-				if (pLoopCity->getOriginalOwner() == pDeal->GetToPlayer())
-				{
-					iTotalValueToMe = GetDealValue(pDeal);
-					iCount++;
-				}
-			}
-		}
-
-		//only do this if there is exactly one city
-		return iCount == 1;
-	}
 
 	// We're surrendering
 	if (pDeal->GetSurrenderingPlayer() == GetPlayer()->GetID())
@@ -700,11 +630,11 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		{
 			return true;
 		}
-		//Are they offer much more than we can afford? Let's lowball, but let them know.
-		else if (iTotalValueToMe > 0)
+		else
 		{
 			*bCantMatchOffer = true;
-			return true;
+			//Are they offering more than we can afford? Let's lowball, but let them know.
+			return (iTotalValueToMe > 0);
 		}
 	}
 	//This is to get the AI to actually make an offer the first time through.
@@ -732,7 +662,11 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 		return false;
 	}
 
+	CvDeal kCopyDeal = *pDeal;
+
 	GetPlayer()->GetDiplomacyAI()->SetCantMatchDeal(eOtherPlayer, false);
+	GetPlayer()->GetDiplomacyAI()->SetCurrentDealOfferChanged(false);
+	GetPlayer()->GetDiplomacyAI()->SetCurrentDealOfferGenerous(false);
 
 
 	// Is this a peace deal?
@@ -747,7 +681,10 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 
 		// impossible items in the deal?
 		if (iTotalValue == INT_MAX)
+		{
+			bCantMatchOffer = true;
 			return false;
+		}
 
 		if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		{
@@ -764,6 +701,14 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 			/////////////////////////////
 			// Try to modify only the side of the deal on which something still needs to be added
 			/////////////////////////////
+			
+			// first, remove gold and gpt from both sides so they can be added again
+			if (!pDeal->IsGoldOnlyTrade())
+			{
+				pDeal->RemoveByType(TRADE_ITEM_GOLD);
+				pDeal->RemoveByType(TRADE_ITEM_GOLD_PER_TURN);
+				iTotalValue = GetDealValue(pDeal);
+			}
 
 			if (iTotalValue > 0)
 			{
@@ -775,7 +720,7 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 					// adding gold didn't work? reset the deal to starting terms and try to add items
 					if (!bMakeOffer)
 					{
-						pDeal->RemoveAllPossibleItems();
+						*pDeal = kCopyDeal;
 						iTotalValue = GetDealValue(pDeal);
 						DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue, 0, false, bHumanRequestedEqualization);
 						bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
@@ -798,7 +743,7 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 					// adding gold didn't work? reset the deal to starting terms and try to add items
 					if (!bMakeOffer)
 					{
-						pDeal->RemoveAllPossibleItems();
+						*pDeal = kCopyDeal;
 						iTotalValue = GetDealValue(pDeal);
 						DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, 0, false, bHumanRequestedEqualization);
 						bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
@@ -814,7 +759,7 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 			// neither adding gold nor adding items worked? reset the deal. in the next step, we'll try to add items to both sides
 			if (!bMakeOffer)
 			{
-				pDeal->RemoveAllPossibleItems();
+				*pDeal = kCopyDeal;
 				iTotalValue = GetDealValue(pDeal);
 			}
 
@@ -857,6 +802,8 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 		}
 	}
 
+	GetPlayer()->GetDiplomacyAI()->SetCurrentDealOfferChanged(!(kCopyDeal == *pDeal));
+	GetPlayer()->GetDiplomacyAI()->SetCurrentDealOfferGenerous(bCantMatchOffer);
 	return bMakeOffer;
 }
 
@@ -908,7 +855,7 @@ int CvDealAI::GetDealValue(CvDeal* pDeal)
 
 		if (iItemValue != INT_MAX)
 		{
-			iItemValue = GetTradeItemValue(it->m_eItemType, bFromMe, eOtherPlayer, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, it->m_iDuration, false);
+			iItemValue = GetTradeItemValue(it->m_eItemType, bFromMe, eOtherPlayer, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1, it->m_iDuration, false, true);
 			it->m_iValue = iItemValue;
 		}
 
@@ -996,11 +943,19 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 			if (eItem == TRADE_ITEM_GOLD)
 				iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false);
 			else if (eItem == TRADE_ITEM_GOLD_PER_TURN)
+			{
 				iItemValue = GetGPTForForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer);
+			}
 			else if (eItem == TRADE_ITEM_RESOURCES)
 			{
 				// precalculate, it's expensive
 				int iCurrentNetGoldOfReceivingPlayer = bFromMe ? GET_PLAYER(eOtherPlayer).GetTreasury()->CalculateBaseNetGold() : m_pPlayer->GetTreasury()->CalculateBaseNetGold();
+				CvDeal* pRenewDeal = GC.getGame().GetGameDeals().GetRenewDeal(eMyPlayer, eOtherPlayer);
+				if (pRenewDeal)
+				{
+					iCurrentNetGoldOfReceivingPlayer += pRenewDeal->GetGoldPerTurnTrade(bFromMe ? eOtherPlayer : m_pPlayer->GetID());
+				}
+
 				iItemValue = GetResourceValue(/*ResourceType*/ (ResourceTypes)iData1, /*Quantity*/ iData2, iDuration, bFromMe, eOtherPlayer, iCurrentNetGoldOfReceivingPlayer);
 			}
 			else if (eItem == TRADE_ITEM_CITIES)
@@ -1071,7 +1026,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		}
 		if (eWinner != NO_PLAYER)
 		{
-			iItemValue = GET_PLAYER(eWinner).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, eWinner == eMyPlayer ? eOtherPlayer : eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
+			iItemValue = GET_PLAYER(eWinner).GetDealAI()->GetTradeItemValue(eItem, (eWinner == eMyPlayer) == bFromMe, eWinner == eMyPlayer ? eOtherPlayer : eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
 			// resources which the winner evaluates as 0 must be impossible to trade, otherwise an unlimited amount of them could be added to the deal
 			if (iItemValue == 0 && eItem == TRADE_ITEM_RESOURCES)
 			{
@@ -1267,40 +1222,23 @@ int CvDealAI::GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	// We passed in Value, we want to know how much GPT we get for it
 	if (bNumGPTFromValue)
 	{
-		//add interest. 100 gold now is better than 100 gold in the future
-		int iInterestPercent = /*25*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
-		iGPTorValue *= 100 + max(iInterestPercent, 0);
-		iGPTorValue /= 100;
-
-		// Sometimes we want to round up. Let's say the AI offers a deal to the human. We have to ensure that the human can also offer that deal back and the AI will accept (and vice versa)
-		int iRound = 0;
-		while (iGPTorValue % iNumTurns != 0 && iRound < iNumTurns/2)
-		{
-			iGPTorValue++;
-			iRound++;
-		}
-
-		iValueTimes100 = iGPTorValue;
-		iValueTimes100 /= iNumTurns;
+		int iOneGPTValue = GetOneGPTValue(false);
+		// see WithinAcceptableRange
+		return (iGPTorValue + iOneGPTValue / 2 - 1) / iOneGPTValue;
 	}
 	else
 	{
+		// the AI shouldn't give away all their GPT
 		if ((!GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY)) && bFromMe)
 		{
 			int iNetGold = GetPlayer()->calculateGoldRate();
-			std::vector<CvDeal*> pRenewDeals = GetPlayer()->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
-			if (pRenewDeals.size() > 0)
+
+			CvDeal* pRenewDeal = GC.getGame().GetGameDeals().GetRenewDeal(GetPlayer()->GetID(), eOtherPlayer);
+			if (pRenewDeal)
 			{
-				for (uint i = 0; i < pRenewDeals.size(); i++)
-				{
-					// include the gold of the renew deals if the AI is currently evaluating if it should propose the deal again (deals that are not yet checked for renewal)
-					// if the renewed deal is being offered to the human, don't include it as AI values have already been reset
-					if (!pRenewDeals[i]->IsCheckedForRenewal())
-					{
-						iNetGold += pRenewDeals[i]->GetGoldPerTurnTrade(GetPlayer()->GetID());
-						iNetGold -= pRenewDeals[i]->GetGoldPerTurnTrade(eOtherPlayer);
-					}
-				}
+				// include the gold of the renew deals if the AI is currently evaluating if it should propose the deal again
+				iNetGold += pRenewDeal->GetGoldPerTurnTrade(GetPlayer()->GetID());
+				iNetGold -= pRenewDeal->GetGoldPerTurnTrade(eOtherPlayer);
 			}
 			if (iGPTorValue > (iNetGold - 2))
 				return INT_MAX;
@@ -1313,9 +1251,7 @@ int CvDealAI::GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		iValueTimes100 /= 100 + max(iInterestPercent, 0);
 	}
 
-	int iReturnValue = iValueTimes100;
-
-	return iReturnValue;
+	return iValueTimes100;
 }
 
 int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer)
@@ -1341,6 +1277,10 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	if (!pkResourceInfo)
 		return 0;
 
+	// Don't buy obsolete resources
+	if (!bFromMe && GET_TEAM(GetTeam()).IsResourceObsolete(eResource))
+		return 0;
+
 	//Integer zero check...
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
@@ -1355,21 +1295,11 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	// How much of this luxury resource do we already have?
 	int iNumAvailableToUs = GetPlayer()->getNumResourceTotal(eResource, true);
 
-	std::vector<CvDeal*> pRenewDeals = GetPlayer()->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
-	if (pRenewDeals.size() > 0)
+	CvDeal* pRenewDeal = GC.getGame().GetGameDeals().GetRenewDeal(GetPlayer()->GetID(), eOtherPlayer);
+	if (pRenewDeal)
 	{
-		for (uint i = 0; i < pRenewDeals.size(); i++)
-		{
-			// include the gold of the renew deals if the AI is currently evaluating if it should propose the deal again (deals that are not yet checked for renewal)
-			// if the renewed deal is being offered to the human, don't include it as AI values have already been reset
-			if (!pRenewDeals[i]->IsCheckedForRenewal())
-			{
-				iNumAvailableToUs += pRenewDeals[i]->GetNumResourcesInDeal(GetPlayer()->GetID(), eResource);
-				iNumAvailableToUs -= pRenewDeals[i]->GetNumResourcesInDeal(eOtherPlayer, eResource);
-				iCurrentNetGoldOfReceivingPlayer -= pRenewDeals[i]->GetGoldPerTurnTrade(GetPlayer()->GetID());
-				iCurrentNetGoldOfReceivingPlayer += pRenewDeals[i]->GetGoldPerTurnTrade(eOtherPlayer);
-			}
-		}
+		iNumAvailableToUs += pRenewDeal->GetNumResourcesInDeal(GetPlayer()->GetID(), eResource);
+		iNumAvailableToUs -= pRenewDeal->GetNumResourcesInDeal(eOtherPlayer, eResource);
 	}
 
 	// VP calculation
@@ -1568,7 +1498,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			}
 
 			// Netherlands might also want to buy resources that get them a monopoly
-			if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() && GetPlayer()->WouldGainMonopoly(eResource, 1))
+			if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() && !(pRenewDeal && pRenewDeal->GetNumResourcesInDeal(eOtherPlayer, eResource) > 0) && GetPlayer()->WouldGainMonopoly(eResource, 1))
 			{
 				// What does this monopoly give us?
 				bool bPercentageBonus = false;
@@ -2065,23 +1995,11 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	if (!bFromMe)
 		iNumberAvailableToUs += GetPlayer()->getNumResourceUnimproved(eResource);
 
-	// include resources from renew deals
-	std::vector<CvDeal*> pRenewDeals = m_pPlayer->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
-
-	if (pRenewDeals.size() > 0)
+	CvDeal* pRenewDeal = GC.getGame().GetGameDeals().GetRenewDeal(GetPlayer()->GetID(), eOtherPlayer);
+	if (pRenewDeal)
 	{
-		for (uint i = 0; i < pRenewDeals.size(); i++)
-		{
-			// include the gold of the renew deals if the AI is currently evaluating if it should propose the deal again (deals that are not yet checked for renewal)
-			// if the renewed deal is being offered to the human, don't include it as AI values have already been reset
-			if (!pRenewDeals[i]->IsCheckedForRenewal())
-			{
-				iNumberAvailableToUs += pRenewDeals[i]->GetNumResourcesInDeal(GetPlayer()->GetID(), eResource);
-				iNumberAvailableToUs -= pRenewDeals[i]->GetNumResourcesInDeal(eOtherPlayer, eResource);
-				iCurrentNetGoldOfReceivingPlayer -= pRenewDeals[i]->GetGoldPerTurnTrade(GetPlayer()->GetID());
-				iCurrentNetGoldOfReceivingPlayer += pRenewDeals[i]->GetGoldPerTurnTrade(eOtherPlayer);
-			}
-		}
+		iNumberAvailableToUs += pRenewDeal->GetNumResourcesInDeal(GetPlayer()->GetID(), eResource);
+		iNumberAvailableToUs -= pRenewDeal->GetNumResourcesInDeal(eOtherPlayer, eResource);
 	}
 	
 	//Never trade away everything.
@@ -2117,6 +2035,10 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				return INT_MAX;
 		}
 	}
+
+	// Don't buy obsolete resources
+	if (!bFromMe && GET_TEAM(GetTeam()).IsResourceObsolete(eResource))
+		return 0;
 
 	// Don't buy if we already have enough
 	if (!bFromMe && iNumberAvailableToUs >= 5)
@@ -6436,7 +6358,16 @@ void CvDealAI::DoTradeScreenClosed(bool bAIWasMakingOffer)
 
 	if (bAIWasMakingOffer)
 	{
-		m_pPlayer->GetDiplomacyAI()->CancelRenewDeal(eActivePlayer, REASON_HUMAN_REJECTION, false, NULL, true);
+		// In multiplayer, send a network message to clear the renewal deal ID on all machines
+		// This prevents desyncs when the human rejects a renewal offer and then makes a new deal
+		if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+		{
+			NetMessageExt::Send::DoClearDealRenewalID(eActivePlayer, m_pPlayer->GetID());
+		}
+		else
+		{
+			GC.getGame().GetGameDeals().SetRenewDealID(eActivePlayer, m_pPlayer->GetID(), -1);
+		}
 	}
 }
 
@@ -8199,4 +8130,10 @@ void CvDealAI::DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 			}
 		}
 	}
+}
+
+void CvDealAI::ClearCachedDealItemValues()
+{
+	m_iDealItemValuesTurnSlice = -1;
+	m_dealItemValues.clear();
 }

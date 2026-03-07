@@ -7,6 +7,7 @@ import tempfile
 from pathlib import Path
 import argparse
 from queue import Queue
+import sys
 
 class Config(Enum):
     Release = 0
@@ -67,7 +68,7 @@ SHARED_PREDEFS = [
     'CVGAMECOREDLL_EXPORTS',
     'FINAL_RELEASE',
     '_CRT_SECURE_NO_WARNINGS',
-    '_WINDLL'
+    '_WINDLL',
 ]
 RELEASE_PREDEFS = SHARED_PREDEFS + ['STRONG_ASSUMPTIONS', 'NDEBUG', 'VPRELEASE_ERRORMSG']
 DEBUG_PREDEFS = SHARED_PREDEFS + ['VPDEBUG']
@@ -300,14 +301,15 @@ class TaskMan:
         return results
 
 def build_cl_config_args(config: Config) -> list[str]:
-    args = ['-m32', '-msse3', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Z7']
+    args = ['-m32', '-msse3', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Zi', '/FS']
     if config == Config.Release:
         args.append('/Ox')
         args.append('/Ob2')
+        args.append('/Zo')
         args.append('-flto')
     else:
         args.append('/Od')
-        args.append('-g')
+        args.append('/Oy-')
     for predef in PREDEFS[config]:
         args.append(f'/D{predef}')
     for include_dir in INCLUDE_DIRS:
@@ -342,7 +344,7 @@ def build_clang_cpp(cl: str, cl_args: str, build_dir: Path, log: typing.IO):
     log.flush()
     if cp.returncode != 0:
         print('failed to build clang.cpp - see build log')
-        quit()
+        sys.exit(1)
     end_time = time.time()
     print(f'clang.cpp build finished after {end_time - start_time} seconds')
 
@@ -356,7 +358,7 @@ def update_commit_id(log: typing.IO):
     log.flush()
     if cp.returncode != 0:
         print('failed to update commit id - see build log')
-        quit()
+        sys.exit(1)
     end_time = time.time()
     print(f'commit id update finished after {end_time - start_time} seconds')
 
@@ -373,7 +375,7 @@ def build_pch(cl: str, cl_args: str, pch_path: Path, build_dir: Path, log: typin
     log.flush()
     if cp.returncode != 0:
         print('failed to build precompiled header - see build log')
-        quit()
+        sys.exit(1)
     end_time = time.time()
     print(f'precompiled header build finished after {end_time - start_time} seconds')
 
@@ -404,7 +406,7 @@ def build_cpps(cl: str, cl_args: str, pch_path: Path, build_dir: Path, log: typi
                 failed += 1
         if failed != 0:
             print(f'{failed} cpp(s) failed to build - see build log')
-            quit()
+            sys.exit(1)
         end_time = time.time()
         print(f'cpps build finished after {end_time - start_time} seconds')
     finally:
@@ -440,7 +442,7 @@ def link_dll(link: str, link_args: list[str], build_dir: Path, out_dir: Path, lo
     end_time = time.time()
     if cp.returncode != 0:
         print('linking dll failed - see build log')
-        quit()
+        sys.exit(1)
     print(f'linking dll finished after {end_time - start_time} seconds')
 
 arg_parser = argparse.ArgumentParser(description='Build VP.')

@@ -80,7 +80,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iDefenseModifier(0),
 	m_iNearbyEnemyDamage(0),
 	m_iPillageGold(0),
-	m_iResourceExtractionMod(0),
 	m_iLuxuryCopiesSiphonedFromMinor(0),
 	m_iImprovementLeagueVotes(0),
 	m_iHappinessOnConstruction(0),
@@ -135,6 +134,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iGrantsVision(0),
 	m_iMovesChange(0),
 	m_bRestoreMoves(false),
+	m_bFreeMoveAcross(false),
 	m_bNoTwoAdjacent(false),
 	m_iXSameAdjacentMakesValid(0),
 	m_bAdjacentLuxury(false),
@@ -159,6 +159,8 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_piAdjacentCityYieldChange(NULL),
 	m_piAdjacentMountainYieldChange(NULL),
 	m_piFlavorValue(NULL),
+	m_piResourceExtractionIncrease(NULL),
+	m_piResourceExtractionMod(NULL),
 	m_piDomainProductionModifier(NULL),
 	m_piDomainFreeExperience(NULL),
 	m_pbTerrainMakesValid(NULL),
@@ -196,6 +198,8 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_piAdjacentCityYieldChange);
 	SAFE_DELETE_ARRAY(m_piAdjacentMountainYieldChange);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
+	SAFE_DELETE_ARRAY(m_piResourceExtractionIncrease);
+	SAFE_DELETE_ARRAY(m_piResourceExtractionMod);
 	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperience);
 	SAFE_DELETE_ARRAY(m_pbTerrainMakesValid);
@@ -329,6 +333,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bOwnerOnly = kResults.GetBool("OwnerOnly");
 	m_iMovesChange = kResults.GetInt("MovesChange");
 	m_bRestoreMoves = kResults.GetBool("RestoreMoves");
+	m_bFreeMoveAcross = kResults.GetBool("FreeMoveAcross");
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
 	m_iXSameAdjacentMakesValid = kResults.GetInt("XSameAdjacentMakesValid");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
@@ -337,7 +342,6 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bSpecificCivRequired = kResults.GetBool("SpecificCivRequired");
 	m_bConnectsAllResources = kResults.GetBool("ConnectsAllResources");
 	m_iGreatPersonRateModifier = kResults.GetInt("GreatPersonRateModifier");
-	m_iResourceExtractionMod = kResults.GetInt("ResourceExtractionMod");
 	m_iLuxuryCopiesSiphonedFromMinor = kResults.GetInt("LuxuryCopiesSiphonedFromMinor");
 	m_iImprovementLeagueVotes = kResults.GetInt("ImprovementLeagueVotes");
 
@@ -431,6 +435,26 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 		"ImprovementType",
 		szImprovementType,
 		"Experience"
+	);
+
+	kUtility.PopulateArrayByValue(
+		m_piResourceExtractionIncrease,
+		"Resources",
+		"Improvement_ResourceExtractionIncrease",
+		"ResourceType",
+		"ImprovementType",
+		szImprovementType,
+		"Num"
+	);
+
+	kUtility.PopulateArrayByValue(
+		m_piResourceExtractionMod,
+		"Resources",
+		"Improvement_ResourceExtractionMod",
+		"ResourceType",
+		"ImprovementType",
+		szImprovementType,
+		"Modifier"
 	);
 
 	{
@@ -996,12 +1020,6 @@ int CvImprovementEntry::GetPillageGold() const
 	return m_iPillageGold;
 }
 
-/// Modifier on the amount of resources generated from the tile with this improvement. (100 doubles output)
-int CvImprovementEntry::GetResourceExtractionMod() const
-{
-	return m_iResourceExtractionMod;
-}
-
 /// Do we get any copies of the luxury types that the plot's owner has?
 int CvImprovementEntry::GetLuxuryCopiesSiphonedFromMinor() const
 {
@@ -1047,6 +1065,10 @@ int CvImprovementEntry::GetMovesChange() const
 bool CvImprovementEntry::IsRestoreMoves() const
 {
 	return m_bRestoreMoves;
+}
+bool CvImprovementEntry::IsFreeMoveAcross() const
+{
+	return m_bFreeMoveAcross;
 }
 int CvImprovementEntry::GetGAUnitPlotExperience() const
 {
@@ -1748,6 +1770,22 @@ int CvImprovementEntry::GetFlavorValue(int i) const
 	PRECONDITION(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piFlavorValue[i];
+}
+
+// Get extra resource amount from local resource (flat bonus)
+int CvImprovementEntry::GetResourceExtractionIncrease(int i) const
+{
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piResourceExtractionIncrease[i];
+}
+
+// Get extra resource amount from local resource (percentage modifier)
+int CvImprovementEntry::GetResourceExtractionMod(int i) const
+{
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piResourceExtractionMod[i];
 }
 
 // Production modifier from improvement for given domain

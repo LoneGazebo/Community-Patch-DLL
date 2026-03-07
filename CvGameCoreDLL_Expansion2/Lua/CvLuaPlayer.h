@@ -123,6 +123,9 @@ protected:
 	static int lReceiveGoody(lua_State* L);
 	static int lDoGoody(lua_State* L);
 	static int lCanGetGoody(lua_State* L);
+
+	static int lSpawnResourceInVicinity(lua_State* L);
+
 	static int lCanFound(lua_State* L);
 	static int lFound(lua_State* L);
 
@@ -1010,7 +1013,7 @@ protected:
 	static int lGetIndustryHistory(lua_State* L);
 	static int lGetAgricultureHistory(lua_State* L);
 	static int lGetPowerHistory(lua_State* L);
-	static int lGetReasonPlunderTradeRouteDisabled(lua_State* L);
+	static int lGetReasonActionDisabled(lua_State* L);
 	static int lGetReplayData(lua_State* L);
 	static int lSetReplayDataValue(lua_State* L);
 
@@ -1245,6 +1248,7 @@ protected:
 	static int lGetDealValue(lua_State* L);
 	static int lGetDealMyValue(lua_State* L);
 	static int lGetDealTheyreValue(lua_State* L);
+	static int lIsCurrentDealOfferChanged(lua_State* L);
 
 	static int lMayNotAnnex(lua_State* L);
 

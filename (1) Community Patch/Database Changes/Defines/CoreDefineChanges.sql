@@ -429,12 +429,15 @@ VALUES
 	('PERSONALITY_FLAVOR_MIN_VALUE', 1),
 	('INFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE', 3),
 	('UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED', 0),
+	('CITY_STRENGTH_LAND_UNIT_DIVISOR', 500),	-- Divisor of land garrison strength added to city strength x100
+	('CITY_STRENGTH_NAVAL_UNIT_DIVISOR', 500), 	-- Divisor of naval garrison strength added to city strength x100
 	('MAX_CITY_ATTACK_RANGE', 2), -- For EVENTS_CITY_BOMBARD: base city attack range
 	('UNIT_SPAWN_NUM_CHOICES', 5), -- Number of top choices considered when spawning a random free unit. Also used for militaristic city states' unique unit choice.
 	('BLOCKADED_CITY_ATTACK_MODIFIER', 0), -- Attack bonus against blockaded cities
 	('GWAM_THRESHOLD_DECREASE', 0), -- Flat GPP cost reduction for GWAM
-	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- Cost modifier for building investment
-	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- Cost modifier for unit investment
+	('HURRY_GOLD_BUILDING_COST_PERCENT', 60), -- How much % of production Cost determines cost of investment
+	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- How much of total cost is provided by building investment
+	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- How much of total cost is provided by unit investment
 	('BALANCE_PRODUCTION_DESERT_IMPROVEMENT', 0), -- Production yield change on featureless flat desert with improved resource
 	('BALANCE_CONQUEST_REDUCTION_BOOST', 0), -- Reduce resistance turns when annexing cities. Base is hardcoded per level of influence, this adds to it.
 	('EMBARKED_VISIBILITY_RANGE', 1), -- Base vision when embarked

@@ -176,6 +176,7 @@ CvUnit::CvUnit() :
 	, m_iCaptureDefeatedEnemyCount()
 	, m_iRangedSupportFireCount()
 	, m_iAlwaysHealCount()
+	, m_iFlatHealRate()
 	, m_iHealOutsideFriendlyCount()
 	, m_iRiverDoubleMoveCount()
 	, m_iEmbarkFlatCostCount()
@@ -473,6 +474,7 @@ CvUnit::CvUnit() :
 	, m_iNearbyHealEnemyTerritory()
 	, m_iNearbyHealNeutralTerritory()
 	, m_iNearbyHealFriendlyTerritory()
+	, m_iPassiveAoEHeal()
 	, m_iCanCrossMountainsCount()
 	, m_iCanCrossOceansCount()
 	, m_iCanCrossIceCount()
@@ -495,7 +497,7 @@ CvUnit::CvUnit() :
 	, m_yieldFromKills()
 	, m_yieldFromBarbarianKills()
 	, m_aiNumTimesAttackedThisTurn()
-	, m_yieldFromScouting()
+	, m_yieldFromScoutingTimes100()
 	, m_piYieldFromAncientRuins()
 	, m_piYieldFromTRPlunder()
 	, m_iBuilderStrength()
@@ -1328,6 +1330,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iInfluenceFromCombatXPTimes100 = 0;
 	m_iRangedSupportFireCount = 0;
 	m_iAlwaysHealCount = 0;
+	m_iFlatHealRate = 0;
 	m_iHealOutsideFriendlyCount = 0;
 	m_iRiverDoubleMoveCount = 0;
 	m_iEmbarkFlatCostCount = 0;
@@ -1455,6 +1458,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNearbyHealEnemyTerritory = 0;
 	m_iNearbyHealNeutralTerritory = 0;
 	m_iNearbyHealFriendlyTerritory = 0;
+	m_iPassiveAoEHeal = 0;
 	m_iBuilderStrength = 0;
 	m_iCanCrossMountainsCount = 0;
 	m_iCanCrossOceansCount = 0;
@@ -1492,6 +1496,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNoCaptureCount = 0;
 	m_iNukeImmuneCount = 0;
 	m_iAlwaysHealCount = 0;
+	m_iFlatHealRate = 0;
 	m_iHiddenNationalityCount = 0;
 	m_iAlwaysHostileCount = 0;
 	m_iNoRevealMapCount = 0;
@@ -1670,13 +1675,13 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_yieldFromBarbarianKills.clear();
 		m_aiNumTimesAttackedThisTurn.clear();
 		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
-		m_yieldFromScouting.clear();
+		m_yieldFromScoutingTimes100.clear();
 		m_piYieldFromAncientRuins.clear();
 		m_piYieldFromTRPlunder.clear();
 		
 		m_yieldFromKills.resize(NUM_YIELD_TYPES);
 		m_yieldFromBarbarianKills.resize(NUM_YIELD_TYPES);
-		m_yieldFromScouting.resize(NUM_YIELD_TYPES);
+		m_yieldFromScoutingTimes100.resize(NUM_YIELD_TYPES);
 		m_piYieldFromAncientRuins.resize(NUM_YIELD_TYPES);
 		m_piYieldFromTRPlunder.resize(NUM_YIELD_TYPES);
 
@@ -1684,7 +1689,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		{
 			m_yieldFromKills[i] = 0;
 			m_yieldFromBarbarianKills[i] = 0;
-			m_yieldFromScouting[i] = 0;
+			m_yieldFromScoutingTimes100[i] = 0;
 			m_piYieldFromAncientRuins[i] = 0;
 			m_piYieldFromTRPlunder[i] = 0;
 		}
@@ -1826,7 +1831,7 @@ void CvUnit::uninitInfos()
 	m_iCombatModPerAdjacentUnitCombatDefenseMod.clear();
 	m_yieldFromKills.clear();
 	m_yieldFromBarbarianKills.clear();
-	m_yieldFromScouting.clear();
+	m_yieldFromScoutingTimes100.clear();
 	m_piYieldFromAncientRuins.clear();
 	m_piYieldFromTRPlunder.clear();
 	m_extraUnitCombatModifier.clear();
@@ -2223,7 +2228,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		if (IsCombatUnit())
 		{
 			CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
-			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH);
+			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_DEATH, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, NULL, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 		}
 		// Handle diplomacy and war damage repercussions
 		// This is a bit complicated because we need to account for a lot of possibilities
@@ -2636,6 +2641,12 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, eUnitOwner, GetID(), false, 1);
 	}
 
+	if(GC.getGame().isNetworkMultiPlayer() && pPlot && pPlot->getUnitIndex(this) < 0)
+	{
+		CvString msg; CvString::format(msg, "*** PLOT UNIT DESYNC *** kill: unit (owner %d, id %d) not found on its plot (%d,%d) before setXY(INVALID_PLOT_COORD). Unit coords: (%d,%d), delayed death: %d",
+			(int)eUnitOwner, GetID(), pPlot->getX(), pPlot->getY(), getX(), getY(), (int)isDelayedDeathExported());
+		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
+	}
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
 	if(pPlot)
 		pPlot->removeUnit(this, false);
@@ -5580,7 +5591,10 @@ bool CvUnit::jumpToNearestValidPlot()
 		bool bAvailable = (IsCivilianUnit() || !pLoopPlot->isNeutralUnit(getOwner(), false, false)) && !pLoopPlot->isEnemyUnit(getOwner(), false, false);
 		if (bAvailable && canMoveInto(*pLoopPlot,CvUnit::MOVEFLAG_DESTINATION))
 		{
-			int iValue = it->iNormalizedDistanceRaw + GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+			int iCityDist = GET_PLAYER(getOwner()).GetCityDistanceInPlots(pLoopPlot);
+			if (iCityDist == INT_MAX)
+				iCityDist = 0; // No cities (e.g. barbarians) - distance irrelevant, use 0 to avoid overflow
+			int iValue = it->iNormalizedDistanceRaw + iCityDist;
 
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
@@ -5590,6 +5604,14 @@ bool CvUnit::jumpToNearestValidPlot()
 			//avoid embarkation but not all all cost
 			if (pLoopPlot->needsEmbarkation(this) && !isEmbarked())
 				iValue += 3000;
+
+
+			//for civilians and Great Generals prefer tiles with a military unit
+			if (IsCivilianUnit() || IsCombatSupportUnit())
+			{
+				if (!pLoopPlot->isFriendlyUnit(getOwner(), true, true))
+					iValue += 1000;
+			}
 
 			//we allowed passage through enemy territory but we don't want to end up there
 			if (!GET_PLAYER(getOwner()).IsAtWarWith(pLoopPlot->getOwner()))
@@ -5940,7 +5962,7 @@ void CvUnit::Automate(AutomateTypes eAutomate)
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canScrap(bool bTestVisible) const
+bool CvUnit::canScrap(bool bTestVisible, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
 	if(plot()->isUnitFighting())
@@ -5952,14 +5974,22 @@ bool CvUnit::canScrap(bool bTestVisible) const
 	if(!canMove())
 		return false;
 
-	if(!bTestVisible)
+
+	if (/*0*/ GD_INT_GET(UNIT_DELETE_DISABLED) == 1)
+	{
+		return false;
+	}
+
+	if (!bTestVisible)
 	{
 		//prevent an exploit where players disband units to deny kill yields to their enemies
 		if (MOD_BALANCE_VP && getDomainType() != DOMAIN_AIR && !GET_PLAYER(m_eOwner).GetPossibleAttackers(*plot(), getTeam()).empty() && !plot()->isCity())
-			return false;
-
-		if (/*0*/ GD_INT_GET(UNIT_DELETE_DISABLED) == 1)
 		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES");
 			return false;
 		}
 	}
@@ -6609,14 +6639,17 @@ void CvUnit::unloadAll()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canHold(const CvPlot* pPlot) const // skip turn
+bool CvUnit::canHold(const CvPlot* pPlot, bool bTestVisibility) const // skip turn
 {
 	VALIDATE_OBJECT();
 	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
-		if (!canEndTurnAtPlot(pPlot))
+		if (!bTestVisibility)
 		{
-			return false;
+			if (!canEndTurnAtPlot(pPlot))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -6625,7 +6658,7 @@ bool CvUnit::canHold(const CvPlot* pPlot) const // skip turn
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canSleep(const CvPlot* pPlot) const
+bool CvUnit::canSleep(const CvPlot* pPlot, bool bTestVisibility) const
 {
 	VALIDATE_OBJECT();
 	// Can't sleep if we're a Unit that can normally fortify
@@ -6636,9 +6669,12 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 
 	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
-		if (!canEndTurnAtPlot(pPlot))
+		if (!bTestVisibility)
 		{
-			return false;
+			if (!canEndTurnAtPlot(pPlot))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -6647,11 +6683,14 @@ bool CvUnit::canSleep(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFortify(const CvPlot* pPlot) const
+bool CvUnit::canFortify(const CvPlot* pPlot, bool bTestVisibility) const
 {
-	if (!canEndTurnAtPlot(pPlot))
+	if (!bTestVisibility)
 	{
-		return false;
+		if (!canEndTurnAtPlot(pPlot))
+		{
+			return false;
+		}
 	}
 
 	return IsEverFortifyable() && isNativeDomain(pPlot);
@@ -6891,6 +6930,8 @@ int CvUnit::GetInfluenceFromCombatXPTimes100() const
 //	--------------------------------------------------------------------------------
 void CvUnit::SetPromotionDuration(PromotionTypes eIndex, int iValue)
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	if (iValue > 0)
 		m_map[eIndex] = iValue;
@@ -6901,6 +6942,8 @@ void CvUnit::SetPromotionDuration(PromotionTypes eIndex, int iValue)
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	if (m_map.find(eIndex) != m_map.end())
 	{
@@ -6914,6 +6957,8 @@ void CvUnit::ChangePromotionDuration(PromotionTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::getPromotionDuration(PromotionTypes eIndex) const
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	const std::map<PromotionTypes, int>& m_map = m_PromotionDuration;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
@@ -6925,6 +6970,8 @@ int CvUnit::getPromotionDuration(PromotionTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
 	if (iValue>0)
 		m_map[eIndex] = iValue;
@@ -6934,6 +6981,8 @@ void CvUnit::SetTurnPromotionGained(PromotionTypes eIndex, int iValue)
 //	--------------------------------------------------------------------------------
 int CvUnit::getTurnPromotionGained(PromotionTypes eIndex) const
 {
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	const std::map<PromotionTypes, int>& m_map = m_TurnPromotionGained;
 	std::map<PromotionTypes, int>::const_iterator it = m_map.find(eIndex);
 	if (it != m_map.end())
@@ -7651,81 +7700,156 @@ int CvUnit::GetPower() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
+bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
+	bool bCanHeal = true;
 
-	if (IsCannotHeal(true))
-		return false;
+	if (IsCannotHeal(false))
+	{
+		if (toolTipSink == NULL)
+			return false;
+		if (!toolTipSink->empty())
+			(*toolTipSink) += "[NEWLINE]";
+		GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_CANNOT_HEAL");
+		bCanHeal = false;
+	}
+
+	if (MOD_BALANCE_RESOURCE_SHORTAGE_UNIT_HEALING)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+		if (kPlayer.isMajorCiv() && !kPlayer.HasResourceForNewUnit(getUnitType(), false, false, NO_UNIT, /*bContinue*/ true))
+		{
+			if (toolTipSink == NULL) 
+				return false;
+			if (!toolTipSink->empty()) 
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_RESOURCE_SHORTAGE");
+			bCanHeal = false;
+		}
+	}
 
 	if (isHuman(ISHUMAN_AI_UNITS) && !IsFortified())
 	{
 		if (!canEndTurnAtPlot(pPlot))
 		{
-			return false;
+			if (toolTipSink == NULL) 
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_DISABLED_CANNOT_END_TURN");
+			bCanHeal = false;
 		}
 	}
 
 	// No healing after movement, except for exceptions
 	if (bCheckMovement && hasMoved() && !isAlwaysHeal())
-		return false;
+	{
+		if (toolTipSink == NULL)
+			return false;
+		bCanHeal = false;
+	}
 
 	// No barb healing, except for a special case handled in CvUnit::doHeal()
 	if (isBarbarian())
-		return false;
+	{
+		if (toolTipSink == NULL)
+			return false;
+		bCanHeal = false;
+	}
 
 	if (pPlot == NULL)
 		return false;
 
 	//if this is a hypothetical check, hitpoints don't matter
 	if (pPlot == plot() && !IsHurt())
-		return false;
+	{
+		if (toolTipSink == NULL)
+			return false;
+		bCanHeal = false;
+	}
 
 	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	{
 		// Hovering units can only heal over land
 		if (IsHoveringUnit() && pPlot->isWater())
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_HOVERING_WATER");
+			bCanHeal = false;
+		}
 	}
 
 	if (MOD_CORE_NO_HEALING_ON_MOUNTAINS)
 	{
 		// No healing on mountains outside of cities
 		if (pPlot->isMountain() && !pPlot->isCity())
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_MOUNTAIN");
+			bCanHeal = false;
+		}
 	}
 
 	// Embarked Units can't heal
 	if (pPlot->needsEmbarkation(this) && !isCargo())
-		return false;
+	{
+		if (toolTipSink == NULL)
+			return false;
+		if (!toolTipSink->empty())
+			(*toolTipSink) += "[NEWLINE]";
+		GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_EMBARKED");
+		bCanHeal = false;
+	}
 
 	// Boats can only heal in friendly territory (without promotion)
 	if (getDomainType() == DOMAIN_SEA)
 	{
 		if (!pPlot->IsFriendlyTerritory(getOwner()) && !isHealOutsideFriendly())
 		{
-			return false;
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_NAVAL_TERRITORY");
+			bCanHeal = false;
 		}
 	}
 
-	if (healRate(pPlot) <= 0)
-		return false;
-
 	// Can't heal in a blockaded city
 	CvCity* pCity = pPlot->getPlotCity();
-	return !(pCity && pCity->IsBlockadedWaterAndLand());
+	if (pCity && pCity->IsBlockadedWaterAndLand())
+	{
+		if (toolTipSink == NULL)
+			return false;
+		if (!toolTipSink->empty())
+			(*toolTipSink) += "[NEWLINE]";
+		GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_HEAL_DISABLED_BLOCKADED");
+		bCanHeal = false;
+	}
+
+	return bCanHeal;
 }
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canSentry(const CvPlot* pPlot) const
+bool CvUnit::canSentry(const CvPlot* pPlot, bool bTestVisibility) const
 {
 	VALIDATE_OBJECT();
 	if(isHuman(ISHUMAN_AI_UNITS) && !IsFortified())  // we aren't fortified
 	{
-		if (!canEndTurnAtPlot(pPlot))
+		if (!bTestVisibility)
 		{
-			return false;
+			if (!canEndTurnAtPlot(pPlot))
+			{
+				return false;
+			}
 		}
 	}
 
@@ -7737,6 +7861,21 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 	return true;
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::ActualHealRate(const CvPlot* pPlot, bool bCheckMovement) const
+{
+	ASSERT(!bCheckMovement || pPlot == plot(), "bCheckMovement should only be set when checking our current tile");
+	if (canHeal(pPlot, bCheckMovement))
+		return max(healRate(pPlot), 0);
+
+	// canHeal returns false even if GetFlatHealRate() > 0, since we can't do normal
+	// healing. If we have moved we need to check if we could heal if we hadn't
+	// moved. If so we get the flat heal amount from promotions.
+	if (bCheckMovement && hasMoved() && canHeal(pPlot, false))
+		return GetFlatHealRate();
+
+	return 0;
+}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::healRate(const CvPlot* pPlot) const
@@ -7756,6 +7895,8 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	int iExtraFriendlyHeal = getExtraFriendlyHeal();
 	int iExtraNeutralHeal = getExtraNeutralHeal();
 	int iExtraEnemyHeal = getExtraEnemyHeal();
+
+	iExtraHeal += GetFlatHealRate();
 
 	if (MOD_API_AREA_EFFECT_PROMOTIONS)
 	{
@@ -7970,7 +8111,7 @@ int CvUnit::healTurns(const CvPlot* pPlot) const
 		return 0;
 	}
 
-	int iHeal = healRate(pPlot);
+	int iHeal = ActualHealRate(pPlot, false);
 
 	if(iHeal > 0)
 	{
@@ -8006,9 +8147,13 @@ void CvUnit::doHeal()
 			}
 		}
 	}
-	else if (IsHurt() && canHeal(plot())) //normal player units
+	else //normal player units
 	{
-		int iHealRate = healRate(plot());
+		int iHealRate = ActualHealRate(plot());
+
+		if (!IsCannotHeal(true))
+			iHealRate += GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_PASSIVE_HEAL, getDomainType(), plot());
+
 		if (iHealRate==0)
 			return;
 
@@ -8538,7 +8683,7 @@ bool CvUnit::canNukeAt(const CvPlot* pPlot, int iX, int iY) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
+bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
 	if(getDropRange() <= 0)
@@ -8547,21 +8692,34 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 	}
 
 	// Things we check when we want to know if the unit can actually drop RIGHT NOW
-	if(!bOnlyTestVisibility)
+	if (!bOnlyTestVisibility)
 	{
-		if(hasMoved())
+		bool bCanParadrop = true;
+
+		if (hasMoved())
 		{
-			return false;
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_PARADROP_DISABLED_MOVED");
+			bCanParadrop = false;
 		}
 
-		if(isEmbarked())
+		if (isEmbarked())
 		{
-			return false;
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_PARADROP_DISABLED_EMBARKED");
+			bCanParadrop = false;
 		}
 
-		if(pPlot->IsFriendlyTerritory(getOwner()))
+		if (pPlot->IsFriendlyTerritory(getOwner()))
 		{
 			// We're in friendly territory, call the event to see if we CAN'T start from here anyway
+			// Custom event overrides normal behavior — no tooltip
 			if (MOD_EVENTS_PARADROPS)
 			{
 				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CannotParadropFrom, getOwner(), GetID(), pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_TRUE)
@@ -8570,7 +8728,7 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 			else
 			{
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if (pkScriptSystem) 
+				if (pkScriptSystem)
 				{
 					CvLuaArgsHandle args;
 					args->Push(((int)getOwner()));
@@ -8594,10 +8752,12 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 		else
 		{
 			// We're not in friendly territory, call the event to see if we CAN start from here anyway
+			// Custom event overrides normal behavior — no tooltip
+			bool bEventAllows = false;
 			if (MOD_EVENTS_PARADROPS)
 			{
 				if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanParadropFrom, getOwner(), GetID(), pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_TRUE)
-					return true;
+					bEventAllows = true;
 			}
 			else
 			{
@@ -8616,13 +8776,23 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 					if (LuaSupport::CallTestAny(pkScriptSystem, "CanParadropFrom", args.get(), bResult))
 					{
 						if (bResult)
-							return true;
+							bEventAllows = true;
 					}
 				}
 			}
 
-			return false;
+			if (bEventAllows)
+				return true;
+
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_PARADROP_DISABLED_TERRITORY");
+			bCanParadrop = false;
 		}
+
+		return bCanParadrop;
 	}
 
 	return true;
@@ -8630,10 +8800,10 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY) const
+bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY, bool bOnlyTestVisibility) const
 {
 	VALIDATE_OBJECT();
-	if(!canParadrop(pPlot, false))
+	if(!canParadrop(pPlot, bOnlyTestVisibility))
 	{
 		return false;
 	}
@@ -10545,14 +10715,14 @@ bool CvUnit::pillage()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, bool bForAliveCheck) const
+bool CvUnit::canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, bool bForAliveCheck, CvString* toolTipSink) const
 {
 	if (pPlot)
 	{
 		if (!canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 			return false;
 
-		if (!GET_PLAYER(getOwner()).canFoundCityExt(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness))
+		if (!GET_PLAYER(getOwner()).canFoundCityExt(pPlot->getX(), pPlot->getY(), bIgnoreDistanceToExistingCities, bIgnoreHappiness, toolTipSink))
 			return false;
 	}
 
@@ -12235,54 +12405,77 @@ bool CvUnit::DoBuildSpaceship()
 
 /// Great General Functions (old Great Artist function)
 //	--------------------------------------------------------------------------------
-bool CvUnit::CanCultureBomb(const CvPlot* pPlot, bool bTestVisible) const
+bool CvUnit::CanCultureBomb(const CvPlot* pPlot, bool bTestVisible, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
 
-	if(m_pUnitInfo->GetCultureBombRadius() <= 0)
+	if (m_pUnitInfo->GetCultureBombRadius() <= 0)
 		return false;
 
-	if(isDelayedDeath())
+	if (isDelayedDeath())
 		return false;
 
 	// Things we test for if we're going to perform this action RIGHT NOW
-	if(!bTestVisible)
+	if (!bTestVisible)
 	{
-		// Too soon?
-		if(GET_PLAYER(getOwner()).getCultureBombTimer() > 0)
-			return false;
+		bool bCanBomb = true;
 
-		if(pPlot != NULL)
+		// Too soon?
+		if (GET_PLAYER(getOwner()).getCultureBombTimer() > 0)
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_COOLDOWN", "", "", GET_PLAYER(getOwner()).getCultureBombTimer());
+			bCanBomb = false;
+		}
+
+		if (pPlot != NULL)
 		{
 			// Can't be inside someone else's territory unless we have that ability
-			if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner() && !GET_PLAYER(getOwner()).IsCultureBombForeignTerritory())
-				return false;
+			if (pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != getOwner() && !GET_PLAYER(getOwner()).IsCultureBombForeignTerritory())
+			{
+				if (toolTipSink == NULL)
+					return false;
+				if (!toolTipSink->empty())
+					(*toolTipSink) += "[NEWLINE]";
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_FOREIGN_TERRITORY");
+				bCanBomb = false;
+			}
 
 			// We have to be in or next to friendly territory
 			bool bFoundAdjacent = false;
 
 			CvPlot* pLoopPlot = NULL;
-			for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
 				pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 
-				if(pLoopPlot != NULL)
+				if (pLoopPlot != NULL)
 				{
-					if(pLoopPlot->getOwner() == getOwner())
+					if (pLoopPlot->getOwner() == getOwner())
 					{
 						bFoundAdjacent = true;
 						break;
 					}
 				}
 			}
-
-			if(!bFoundAdjacent)
-				return false;
+			if (!bFoundAdjacent)
+			{
+				if (toolTipSink == NULL)
+					return false;
+				if (!toolTipSink->empty())
+					(*toolTipSink) += "[NEWLINE]";
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_NOT_ADJACENT");
+				bCanBomb = false;
+			}
 		}
+		return bCanBomb;
 	}
-
 	return true;
 }
+
 bool CvUnit::isCultureBomb() const
 {
 	VALIDATE_OBJECT();
@@ -13013,7 +13206,7 @@ bool CvUnit::blastTourism()
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold, bool bTestEra) const
+bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold, bool bTestEra, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eBuild < GC.getNumBuildInfos() && eBuild >= 0, "Index out of bounds");
@@ -13035,7 +13228,8 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	if (!pPlot)
 		return true;
 
-	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, bTestEra, bTestVisible, bTestGold, true, this)))
+	bool bCanBuild = GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, bTestEra, bTestVisible, bTestGold, true, this, toolTipSink);
+	if (!bCanBuild && toolTipSink == NULL)
 		return false;
 
 	bool bValidBuildPlot = isNativeDomain(pPlot);
@@ -13067,9 +13261,19 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 			if(pLoopUnit && pLoopUnit != this)
 			{
-				if(pLoopUnit->IsWork() && pLoopUnit->IsWorking())
+				if(pLoopUnit->IsWork() && pLoopUnit->getBuildType() != NO_BUILD)
 				{
-					return false;
+					// QoL: it's acceptable to build an improvement with no build time while another unit is constructing a road
+					if (pPlot->getBuildTime(eBuild, getOwner()) > 0 || (pkBuildInfo->getRoute() != NO_ROUTE && GC.getBuildInfo(pLoopUnit->getBuildType())->getRoute() != NO_ROUTE) || (pkBuildInfo->getImprovement() != NO_IMPROVEMENT && GC.getBuildInfo(pLoopUnit->getBuildType())->getImprovement() != NO_IMPROVEMENT))
+					{
+						if (toolTipSink && !toolTipSink->empty())
+							(*toolTipSink) += "[NEWLINE]";
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING");
+						if (toolTipSink == NULL)
+							return false;
+						bCanBuild = false;
+						break;
+					}
 				}
 			}
 		}
@@ -13077,13 +13281,13 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 	if (MOD_EVENTS_PLOT)
 	{
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuild, getOwner(), GetID(), getX(), getY(), eBuild) == GAMEEVENTRETURN_FALSE)
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBuild, getOwner(), GetID(), pPlot->getX(), pPlot->getY(), eBuild) == GAMEEVENTRETURN_FALSE)
 		{
 			return false;
 		}
 	}
 
-	return true;
+	return bCanBuild;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13398,11 +13602,6 @@ bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 		return false;
 	}
 
-	if (IsPromotionBlocked(ePromotion))
-	{
-		return false;
-	}
-
 	CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
 	if(pkPromotionInfo == NULL)
 	{
@@ -13691,7 +13890,7 @@ bool CvUnit::isReadyForUpgrade() const
 {
 	VALIDATE_OBJECT();
 
-	return m_iMoves > 0;
+	return m_iMoves > 0 && !isDelayedDeath();
 }
 
 //	--------------------------------------------------------------------------------
@@ -13706,7 +13905,7 @@ bool CvUnit::CanUpgradeRightNow(bool bOnlyTestVisible) const
 	return CanUpgradeTo(GetUpgradeUnitType(), bOnlyTestVisible);
 }
 
-bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) const
+bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible, CvString* toolTipSink) const
 {
 	// Does the Unit actually upgrade into anything?
 	if (eUpgradeUnitType == NO_UNIT)
@@ -13737,54 +13936,134 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 	// Show the upgrade, but don't actually allow it
 	if (!bOnlyTestVisible)
 	{
+		bool bCanUpgrade = true;
+
 		if (!canEndTurnAtPlot(pPlot))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_MISSION_DISABLED_CANNOT_END_TURN");
+			bCanUpgrade = false;
+		}
 
 		if (!CanUpgradeInTerritory(bOnlyTestVisible))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_TERRITORY");
+			bCanUpgrade = false;
+		}
 
 		if (isEmbarked() || pPlot->needsEmbarkation(this))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_EMBARKED");
+			bCanUpgrade = false;
+		}
 
 		// Check max instances of unit class
 		// Don't count units already in production; upgrading is prioritized
 		UnitClassTypes eUpgradeUnitClassType = static_cast<UnitClassTypes>(pkUpgradeUnitInfo->GetUnitClassType());
+		CvUnitClassInfo* pkUpgradeUnitClassInfo = GC.getUnitClassInfo(eUpgradeUnitClassType);
 
 		// Maxed out unit class for Game
 		if (GC.getGame().isUnitClassMaxedOut(eUpgradeUnitClassType))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_GLOBAL_UNITCLASS_LIMIT", "", "", pkUpgradeUnitClassInfo ? pkUpgradeUnitClassInfo->getMaxGlobalInstances() : 0);
+			bCanUpgrade = false;
+		}
 
 		// Maxed out unit class for Team
 		if (kTeam.isUnitClassMaxedOut(eUpgradeUnitClassType))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_TEAM_UNITCLASS_LIMIT", "", "", pkUpgradeUnitClassInfo ? pkUpgradeUnitClassInfo->getMaxTeamInstances() : 0);
+			bCanUpgrade = false;
+		}
 
 		// Maxed out unit class for Player
 		if (kOwner.isUnitClassMaxedOut(eUpgradeUnitClassType))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT", "", "", pkUpgradeUnitClassInfo ? pkUpgradeUnitClassInfo->getMaxPlayerInstances() : 0);
+			bCanUpgrade = false;
+		}
 
 		// Can't upgrade into something that our current transporter can't carry (e.g. base game Stealth Bomber)
 		SpecialUnitTypes eSpecialUnit = static_cast<SpecialUnitTypes>(pkUpgradeUnitInfo->GetSpecialUnitType());
 		if (isCargo() && !getTransportUnit()->CanHaveCargo(eSpecialUnit, pkUpgradeUnitInfo->GetDomainType()))
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_CARGO_INCOMPATIBLE");
+			bCanUpgrade = false;
+		}
 
 		// Can't have cargo on board, in case it upgrades into something that can't carry cargo
 		if (hasCargo())
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_HAS_CARGO");
+			bCanUpgrade = false;
+		}
 
 		// Player must have enough Gold
 		if (kOwner.GetTreasury()->GetGold() < upgradePrice(eUpgradeUnitType) && !kOwner.isMinorCiv())
-			return false;
+		{
+			if (toolTipSink == NULL)
+				return false;
+			if (!toolTipSink->empty())
+				(*toolTipSink) += "[NEWLINE]";
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_GOLD");
+			bCanUpgrade = false;
+		}
 
 		// Resource Requirements
-		if (kOwner.isMajorCiv() && !kOwner.HasResourceForNewUnit(eUpgradeUnitType, false, false, getUnitType()))
-			return false;
+		if (kOwner.isMajorCiv() && !kOwner.HasResourceForNewUnit(eUpgradeUnitType, false, false, getUnitType(), false, toolTipSink))
+		{
+			if (toolTipSink == NULL)
+				return false;
+			bCanUpgrade = false;
+		}
 
 		if (getDomainType() == DOMAIN_AIR)
 		{
 			// Yes! upgrade if in territory and on a carrier. Community Patch knows how to Retrofit bitch on a Carrier!
 			if (!pPlot->isCity() && !isCargo())
-				return false;
+			{
+				if (toolTipSink == NULL)
+					return false;
+				if (!toolTipSink->empty())
+					(*toolTipSink) += "[NEWLINE]";
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_UPGRADE_HELP_DISABLED_CITY");
+				bCanUpgrade = false;
+			}
 		}
+
+		if (!bCanUpgrade)
+			return false;
 	}
 
 	if (MOD_EVENTS_UNIT_UPGRADES)
@@ -13953,7 +14232,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		iProductionBase = kPlayer.getProductionNeeded(eUnit, true) / 2;
 	}
 
-	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit, true) - iProductionBase)) * /*2 in CP, 1 in VP*/ GD_INT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
+	iPrice += (int)(std::max(0, (kPlayer.getProductionNeeded(eUnit, true) - iProductionBase)) * /*2.0f in CP, 1.25f in VP*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
 
 	// Upgrades for later units are more expensive
 	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
@@ -15485,14 +15764,6 @@ BuildTypes CvUnit::getBuildType() const
 	return NO_BUILD;
 }
 
-//	----------------------------------------------------------------------------
-bool CvUnit::IsWorking() const
-{
-	VALIDATE_OBJECT();
-	const MissionData* pkMissionNode = HeadMissionData();
-	return pkMissionNode && (pkMissionNode->eMissionType == CvTypes::getMISSION_ROUTE_TO() || pkMissionNode->eMissionType == CvTypes::getMISSION_BUILD());
-}
-
 //	--------------------------------------------------------------------------------
 int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 {
@@ -16512,11 +16783,15 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 
 	if(pInPlot != NULL)
 	{
-		// No TERRAIN bonuses for this Unit?
+		// Should there be TERRAIN bonuses for this Unit?
 		int iTempModifier = pInPlot->defenseModifier(getTeam(), false, false);
-		if (noDefensiveBonus() && iTempModifier>0)
-			//only forts & citadels have an effect
-			iTempModifier -= pInPlot->defenseModifier(getTeam(), true, false);
+		if (iTempModifier > 0)
+		{
+			// boats don't get defense on land and vice versa (always false for hover/air)
+			if (noDefensiveBonus() || (getDomainType() != pInPlot->getDomain()))
+				//only forts & citadels have an effect
+				iTempModifier -= pInPlot->defenseModifier(getTeam(), true, false);		
+		}
 		iModifier += iTempModifier;
 
 		// City Defense
@@ -17248,9 +17523,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// No TERRAIN bonuses for this Unit?
 		int iTempModifier = pMyPlot->defenseModifier(getTeam(), false, false);
 
-		if (noDefensiveBonus() && iTempModifier>0)
-			//only forts & citadels have an effect
-			iTempModifier -= pMyPlot->defenseModifier(getTeam(), true, false);
+		if (iTempModifier > 0)
+		{
+			// boats don't get defense on land and vice versa (always false for hover/air)
+			if (noDefensiveBonus() || (getDomainType() != pMyPlot->getDomain()))
+				//only forts & citadels have an effect
+				iTempModifier -= pMyPlot->defenseModifier(getTeam(), true, false);		
+		}
 
 		iModifier += iTempModifier;
 	}
@@ -17353,7 +17632,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 			if (AI_getUnitAIType() == UNITAI_MISSILE_AIR)
 				return pDefender->GetCurrHitPoints();
 			else
-				return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
+				return /*40 in CP, 50 in VP*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 		}
 
 		if (pDefender->getForcedDamageValue() != 0)
@@ -17711,7 +17990,7 @@ int CvUnit::maxXPValue() const
 		iMaxValue = std::min(iMaxValue, /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE));
 	}
 
-	if (iMaxValue > 0)
+	if (iMaxValue > 0 && iMaxValue != MAX_INT)
 	{
 		iMaxValue *= GC.getGame().getGameSpeedInfo().getExperiencePercent();
 		iMaxValue /= 100;
@@ -18217,6 +18496,16 @@ void CvUnit::ChangeNearbyHealFriendlyTerritory(int iValue)
 	VALIDATE_OBJECT();
 	m_iNearbyHealFriendlyTerritory += iValue;
 }
+int CvUnit::GetPassiveAoEHeal() const
+{
+	return m_iPassiveAoEHeal;
+}
+void CvUnit::ChangePassiveAoEHeal(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iPassiveAoEHeal += iValue;
+	ASSERT(GetPassiveAoEHeal() >= 0);
+}
 void CvUnit::ChangeIsGiveInvisibility(int iValue)
 {
 	VALIDATE_OBJECT();
@@ -18469,12 +18758,12 @@ void CvUnit::SetSpottedRuin(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::IsGainsYieldFromScouting() const
+bool CvUnit::IsGainsYieldFromScoutingTimes100() const
 {
 	VALIDATE_OBJECT();
 	for (int iI = 0; iI < YIELD_GREAT_ADMIRAL_POINTS; iI++)
 	{
-		if (getYieldFromScouting((YieldTypes)iI) > 0)
+		if (getYieldFromScoutingTimes100((YieldTypes)iI) > 0)
 		{
 			return true;
 		}
@@ -18954,12 +19243,7 @@ void CvUnit::changeNoAttackInOceanCount(int iValue)
 bool CvUnit::noDefensiveBonus() const
 {
 	VALIDATE_OBJECT();
-	// Boats get no bonus for fortifying
-	if(getDomainType() == DOMAIN_SEA)
-	{
-		return true;
-	}
-
+	
 	return getNoDefensiveBonusCount() > 0;
 }
 
@@ -20368,7 +20652,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		{
 			changeExperienceTimes100(GetNumTilesRevealedThisTurn() * 100 / /*10*/ GD_INT_GET(BALANCE_SCOUT_XP_DENOMINATOR));
 		}
-		if (IsGainsYieldFromScouting())
+		if (IsGainsYieldFromScoutingTimes100())
 		{
 			bool bSea = (getDomainType() == DOMAIN_SEA);
 			CvCity* pCity = GC.getMap().findCity(getX(), getY(), getOwner(), getTeam());
@@ -22080,6 +22364,20 @@ void CvUnit::changeAlwaysHealCount(int iChange)
 	ASSERT(getAlwaysHealCount() >= 0);
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::GetFlatHealRate() const
+{
+	VALIDATE_OBJECT();
+	return m_iFlatHealRate;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeFlatHealRate(int iChange)
+{
+	VALIDATE_OBJECT();
+	m_iFlatHealRate += iChange;
+	ASSERT(GetFlatHealRate() >= 0);
+}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getHealOutsideFriendlyCount() const
@@ -22388,7 +22686,6 @@ void CvUnit::changeExtraNavalMoves(int iChange)
 {
 	VALIDATE_OBJECT();
 	m_iExtraNavalMoves += iChange;
-	ASSERT(getExtraNavalMoves() >= 0);
 }
 
 
@@ -22612,7 +22909,6 @@ void CvUnit::changeExtraFriendlyHeal(int iChange)
 {
 	VALIDATE_OBJECT();
 	m_iExtraFriendlyHeal = (m_iExtraFriendlyHeal + iChange);
-	ASSERT(getExtraFriendlyHeal() >= 0);
 }
 
 
@@ -22629,7 +22925,6 @@ void CvUnit::changeSameTileHeal(int iChange)
 {
 	VALIDATE_OBJECT();
 	m_iSameTileHeal = (m_iSameTileHeal + iChange);
-	ASSERT(getSameTileHeal() >= 0);
 }
 
 
@@ -24274,8 +24569,8 @@ void CvUnit::DoFinishBuildIfSafe()
 	BuildTypes eBuild = getBuildType();
 	if (eBuild != NO_BUILD)
 	{
-		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
-		if (iBuildTimeLeft == 0 && canMove() && GetDanger() == 0)
+		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner());
+		if (iBuildTimeLeft <= 1 && canMove() && GetDanger() == 0)
 		{
 			BuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
 			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)
@@ -24299,7 +24594,7 @@ void CvUnit::DoFinishBuildIfSafe()
 
 bool CvUnit::IsCombatSupportUnit() const
 {
-	return IsGreatGeneral() || IsGreatAdmiral() || IsCityAttackSupport() || IsSapper();
+	return getUnitInfo().GetUnitAIType(UNITAI_GENERAL) || GetGreatGeneralCount() > 0 || getUnitInfo().GetUnitAIType(UNITAI_ADMIRAL) || GetGreatAdmiralCount() > 0 || IsCityAttackSupport() || IsSapper();
 }
 
 //	--------------------------------------------------------------------------------
@@ -25053,6 +25348,9 @@ bool CvUnit::isPromotionReady() const
 void CvUnit::setPromotionReady(bool bNewValue)
 {
 	VALIDATE_OBJECT();
+	if (bNewValue && !canAcquirePromotionAny())
+		return;
+
 	if(isPromotionReady() != bNewValue)
 	{
 		m_bPromotionReady = bNewValue;
@@ -25093,7 +25391,7 @@ void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT();
 	
-	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && !isOutOfAttacks(true) && canAcquirePromotionAny());
+	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && !isOutOfAttacks(true));
 }
 
 
@@ -25812,15 +26110,18 @@ void CvUnit::SetGAPBlastStrength(int iValue)
 //	--------------------------------------------------------------------------------
 void CvUnit::SetPromotionEverObtained(PromotionTypes eIndex, bool bValue)
 {
-	ASSERT(eIndex >= 0);
-	PRECONDITION(eIndex < GC.getNumPromotionInfos());
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
 
-	m_abPromotionEverObtained[eIndex] =  bValue;
+	m_abPromotionEverObtained[eIndex] = bValue;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsPromotionEverObtained(PromotionTypes eIndex) const
 {
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < GC.getNumPromotionInfos(), "eIndex expected to be < GC.getNumPromotionInfos()");
+
 	return m_abPromotionEverObtained[eIndex];
 }
 
@@ -26735,17 +27036,17 @@ void CvUnit::changeCombatModPerAdjacentUnitCombatDefenseMod(UnitCombatTypes eInd
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getYieldFromScouting(YieldTypes eIndex) const
+int CvUnit::getYieldFromScoutingTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_yieldFromScouting[eIndex];
+	return m_yieldFromScoutingTimes100[eIndex];
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
+void CvUnit::changeYieldFromScoutingTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -26753,7 +27054,7 @@ void CvUnit::changeYieldFromScouting(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_yieldFromScouting[eIndex] =  m_yieldFromScouting[eIndex] + iChange;
+		m_yieldFromScoutingTimes100[eIndex] =  m_yieldFromScoutingTimes100[eIndex] + iChange;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -26980,6 +27281,12 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 	{
 		return false;
 	}
+
+	if (IsPromotionBlocked(ePromotion))
+	{
+		return false;
+	}
+
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	static PromotionTypes ePromotionRoughTerrain = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ROUGH_TERRAIN_ENDS_TURN");
 	if(ePromotion == ePromotionRoughTerrain && kPlayer.GetPlayerTraits()->IsConquestOfTheWorld())
@@ -27593,6 +27900,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeNearbyHealEnemyTerritory(thisPromotion.GetNearbyHealEnemyTerritory() * iChange);
 	ChangeNearbyHealNeutralTerritory(thisPromotion.GetNearbyHealNeutralTerritory() * iChange);
 	ChangeNearbyHealFriendlyTerritory(thisPromotion.GetNearbyHealFriendlyTerritory() * iChange);
+	ChangePassiveAoEHeal(thisPromotion.GetPassiveAoEHeal() * iChange);
 	SetIsGiveOnlyOnStartingTurn(thisPromotion.IsGiveOnlyOnStartingTurn() ? iChange > 0 : false);
 	ChangeIsConvertUnit((thisPromotion.IsConvertUnit()) ? iChange : 0);
 	ChangeIsConvertEnemyUnitToBarbarian((thisPromotion.IsConvertEnemyUnitToBarbarian()) ? iChange : 0);
@@ -27664,6 +27972,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeDamageAoEFortified((thisPromotion.GetDamageAoEFortified()) * iChange);
 	ChangeWorkRateMod((thisPromotion.GetWorkRateMod()) * iChange);
 	ChangeDamageReductionCityAssault((thisPromotion.GetDamageReductionCityAssault()) * iChange);
+	ChangeFlatHealRate(thisPromotion.GetFlatHealRate() * iChange);
 	if (thisPromotion.PromotionDuration() != 0)
 	{
 		if (bNewValue)
@@ -27677,7 +27986,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 		}
 		else
 		{
-			ChangePromotionDuration(NO_PROMOTION, 0);
+			ChangePromotionDuration(eIndex, 0);
 		}
 	}
 	if (thisPromotion.NegatesPromotion() != NO_PROMOTION)
@@ -27843,7 +28152,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 		SetFortificationYieldChange(eYield, (thisPromotion.GetFortificationYield(iI) * iChange));
 		changeYieldFromKills(eYield, (thisPromotion.GetYieldFromKills(iI) * iChange));
 		changeYieldFromBarbarianKills(eYield, (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
-		changeYieldFromScouting(eYield, (thisPromotion.GetYieldFromScouting(iI) * iChange));
+		changeYieldFromScoutingTimes100(eYield, (thisPromotion.GetYieldFromScoutingTimes100(iI) * iChange));
 		changeYieldFromAncientRuins(eYield, (thisPromotion.GetYieldFromAncientRuins(iI) * iChange));
 		changeYieldFromTRPlunder(eYield, (thisPromotion.GetYieldFromTRPlunder(iI) * iChange));
 		{
@@ -28217,6 +28526,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_TurnPromotionGained);
 	visitor(unit.m_iRangedSupportFireCount);
 	visitor(unit.m_iAlwaysHealCount);
+	visitor(unit.m_iFlatHealRate);
 	visitor(unit.m_iHealOutsideFriendlyCount);
 	visitor(unit.m_iRiverDoubleMoveCount);
 	visitor(unit.m_iEmbarkFlatCostCount);
@@ -28343,6 +28653,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iNearbyHealEnemyTerritory);
 	visitor(unit.m_iNearbyHealNeutralTerritory);
 	visitor(unit.m_iNearbyHealFriendlyTerritory);
+	visitor(unit.m_iPassiveAoEHeal);
 	visitor(unit.m_iCanCrossMountainsCount);
 	visitor(unit.m_iCanCrossOceansCount);
 	visitor(unit.m_iCanCrossIceCount);
@@ -28465,7 +28776,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_extraUnitClassAttackMod);
 	visitor(unit.m_extraUnitClassDefenseMod);
 	visitor(unit.m_aiNumTimesAttackedThisTurn);
-	visitor(unit.m_yieldFromScouting);
+	visitor(unit.m_yieldFromScoutingTimes100);
 	visitor(unit.m_piYieldFromAncientRuins);
 	visitor(unit.m_piYieldFromTRPlunder);
 	visitor(unit.m_yieldFromKills);
@@ -29200,7 +29511,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 
 		//also depends on what we can do with the unit
 		int iSoftHpLimit = GetMaxHitPoints() / 3;
-		return GetCurrHitPoints() < iSoftHpLimit && canHeal(plot(),false) && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
+		return GetCurrHitPoints() < iSoftHpLimit && ActualHealRate(plot(), false) > 0 && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
 	else 
 	{
@@ -29213,7 +29524,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 		{
 			//we might lack a resource for healing
 			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
-			int iMaxHealRate = pCapital ? healRate(pCapital->plot()) : healRate(plot());
+			int iMaxHealRate = pCapital ? ActualHealRate(pCapital->plot(), false) : ActualHealRate(plot(), false);
 			bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || IsFightWellDamaged() || isBarbarian();
 
 			//typically want to start healing before health becomes critical
@@ -29631,7 +29942,7 @@ bool CvUnit::SentryAlert(bool bAllowAttacks) const
 
 	//combat units should wake as soon as enemies are around
 	//civilians ignore non-lethal danger like fallout
-	int iDangerLimit = healRate(plot());
+	int iDangerLimit = ActualHealRate(plot());
 
 	//if we're on the move, check the plot we're going to, not the one we're currently at
 	if (GetHeadMissionData() && GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() && IsCachedPathValid())
@@ -29725,7 +30036,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	}
 
 	// If no path exists but continue to closest plot flag is set try to move to an adjacent plot
-	if (MOD_SQUADS)
+	if (MOD_SQUADS && GetSquadNumber() > -1)
 	{
 		newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
 
@@ -30122,7 +30433,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			PublishQueuedVisualizationMoves();
 			// If the path is non-empty but all plots on it aren't valid moves this turn,
 			// wait and recalculate and try again next turn
-			if (MOD_SQUADS && (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && CanStackUnitAtPlot(plot()))
+			if ((MOD_SQUADS && GetSquadNumber() > -1) && (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && CanStackUnitAtPlot(plot()))
 			{
 				finishMoves();
 				return MOVE_RESULT_NEXT_TURN;
@@ -30224,10 +30535,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 // Returns true if we want to continue next turn or false if we are done
 bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 {
-	//do we have movement points left?
-	if (!canMove())
-		return true; //continue next turn
-
 	//first check if we can continue building on the current plot
 	BuildTypes eBestRouteBuildInPlot = NO_BUILD;
 	const RouteTypes eBestRouteInPlot = GetBestBuildRouteForRoadTo(plot(), &eBestRouteBuildInPlot);
@@ -30236,6 +30543,10 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 	bool bGetSameBenefitFromTrait = kPlayer.GetSameRouteBenefitFromTrait(plot(), eBestRouteInPlot);
 	if(!bGetSameBenefitFromTrait && eBestRouteBuildInPlot != NO_BUILD && UnitBuild(eBestRouteBuildInPlot))
 		return true;
+
+	//do we have movement points left?
+	if (!canMove())
+		return true; //continue next turn
 
 	//are we at the target plot? then there's nothing else to do
 	if (at(iX, iY))
@@ -32393,12 +32704,8 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-
-
-
 	if(pkPromotionInfo->IsAlwaysHeal() && !isAlwaysHeal())
-	// aF: Air repair.	Scout: Survivalism 3.	mR: March (skirmisher march).
-	// M + mM: March.			
+	// moved to FlatHealRate
 	{
 		iExtra = 10 + getSameTileHeal();
 		iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
@@ -32408,10 +32715,24 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
+	iTemp = pkPromotionInfo->GetFlatHealRate();
+	if (iTemp > 0)
+	// aF: Air repair.	Scout: Survivalism 3.	mR: March (skirmisher march).
+	// M + mM: March.
+	{
+		iExtra = iTemp * 2;
+		if (getDomainType() == DOMAIN_SEA && isHealOutsideFriendly())
+			iExtra += 10;
+		iExtra *= iFlavorOffense + iFlavorMobile + iFlavorDefense;
+		iExtra *= 5;
+		iExtra *= 0.7 + 0.3 * getDamage() / max(1, GetMaxHitPoints());
+		iValue += iExtra;
+	}
+
 	if (pkPromotionInfo->IsHealOutsideFriendly() && getDomainType() == DOMAIN_SEA && !isHealOutsideFriendly())
 	// nM + nR: Supply.	nM: Naval Siege.
 	{
-		iExtra = 10 + getSameTileHeal();
+		iExtra = 10 + getSameTileHeal() + GetFlatHealRate();
 		iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
 		iExtra *= iFlavorOffense + 2 * iFlavorNaval;
 		iExtra *= 0.5;
@@ -33245,11 +33566,45 @@ bool CvUnit::canChangeVisibility() const
 }
 
 //	--------------------------------------------------------------------------------
-std::string CvUnit::debugDump(const FAutoVariableBase& /*var*/) const
+std::string CvUnit::debugDump(const FAutoVariableBase& var) const
 {
-	// TODO: This... just can't be correct.  Surely, there must be something useful
-	// this function is supposed to do.  Unfortunately, I don't know what that is.
-	return EmptyString;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// Unit identity
+	result << "Unit: " << getName();
+	
+	if (getOwner() != NO_PLAYER)
+	{
+		result << " | Owner: " << GET_PLAYER(getOwner()).getCivilizationShortDescription()
+		       << " (ID:" << getOwner() << ")";
+	}
+	
+	// Position
+	result << " | Pos: (" << getX() << "," << getY() << ")";
+	
+	// Health
+	result << " | HP: " << GetCurrHitPoints() << "/" << GetMaxHitPoints();
+	
+	// Automation and activity context
+	if (varName.find("Automat") != std::string::npos ||
+	    varName.find("Mission") != std::string::npos ||
+	    varName.find("Path") != std::string::npos ||
+	    varName.find("Move") != std::string::npos)
+	{
+		if (IsAutomated())
+		{
+			result << " | Automated: YES";
+		}
+		
+		ActivityTypes eActivity = GetActivityType();
+		if (eActivity != NO_ACTIVITY)
+		{
+			result << " | Activity: " << eActivity;
+		}
+	}
+	
+	return result.str();
 }
 
 //	--------------------------------------------------------------------------------
