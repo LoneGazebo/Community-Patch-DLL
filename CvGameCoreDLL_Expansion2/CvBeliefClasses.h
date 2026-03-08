@@ -83,6 +83,7 @@ public:
 	bool RequiresResource() const;
 	bool RequiresNoImprovement() const;
 	bool RequiresNoFeature() const;
+	bool RequiresOwnTerritory() const;
 
 	int GetHappinessFromForeignSpies() const;
 	int GetPressureChangeTradeRoute() const;
@@ -246,6 +247,7 @@ protected:
 	bool m_bRequiresResource;
 	bool m_bRequiresNoImprovement;
 	bool m_bRequiresNoFeature;
+	bool m_bRequiresOwnTerritory;
 
 	EraTypes m_eObsoleteEra;
 	ResourceTypes m_eResourceRevealed;
@@ -523,9 +525,9 @@ public:
 	int GetYieldPerGPT(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerLux(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerBorderGrowth(YieldTypes eYieldType, bool bEraScaling = false, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, bool bOwnedTerritory = false) const;
 	int GetYieldPerBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetYieldPerHolyCityBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldPerHolyCityBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, int iNumFollowerCities = 1) const;
 	int GetYieldPerScience(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromGPUse(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldBonusGoldenAge(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

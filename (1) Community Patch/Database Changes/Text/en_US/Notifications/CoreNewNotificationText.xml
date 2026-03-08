@@ -862,6 +862,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE_SHORT">
 			<Text>Getting Experience in Combat</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_HEALING_SHORT">
+			<Text>Restoring Hit Points</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_CITY_DAMAGE_SHORT">
 			<Text>Inflicting Damage on a City</Text>
 		</Row>

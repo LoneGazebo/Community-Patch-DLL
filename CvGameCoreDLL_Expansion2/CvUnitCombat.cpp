@@ -614,6 +614,10 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		ASSERT(pkDefender != NULL);
 
 		iExperience = /*2*/ GD_INT_GET(EXPERIENCE_ATTACKING_UNIT_RANGED);
+
+		if (MOD_BALANCE_VP && pkDefender->IsCivilianUnit())
+			iExperience = 0;
+
 		if(pkDefender->isBarbarian())
 			bBarbarian = true;
 		iMaxXP = pkDefender->maxXPValue();
@@ -1428,6 +1432,11 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		if(pkDefender->isBarbarian())
 			bBarbarian = true;
 		iMaxXP = pkDefender->maxXPValue();
+
+		//Chance to spread promotion?
+		kAttacker.DoPlagueTransfer(*pkDefender, true);
+		if (pkDefender->GetAirStrikeDefenseDamage(&kAttacker) > 0)
+			pkDefender->DoPlagueTransfer(kAttacker, false);
 
 		// Calculate attacker damage
 		bool bIncludeRand = !GC.getGame().isGameMultiPlayer();

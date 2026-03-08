@@ -418,8 +418,8 @@ CvCity::CvCity() :
 	, m_aiYieldFromUnitLevelUp()
 	, m_aiYieldFromUnitLevelUpGlobal()
 	, m_aiYieldFromCombatExperienceTimes100()
-	, m_aiYieldPerAlly()
-	, m_aiYieldPerFriend()
+	, m_aiYieldPerAllyTimes100()
+	, m_aiYieldPerFriendTimes100()
 	, m_aiYieldFromInternalTREnd()
 	, m_aiYieldFromInternationalTREnd()
 	, m_aiYieldFromInternalTR()
@@ -1346,8 +1346,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldFromUnitLevelUp.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitLevelUpGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromCombatExperienceTimes100.resize(NUM_YIELD_TYPES);
-	m_aiYieldPerAlly.resize(NUM_YIELD_TYPES);
-	m_aiYieldPerFriend.resize(NUM_YIELD_TYPES);
+	m_aiYieldPerAllyTimes100.resize(NUM_YIELD_TYPES);
+	m_aiYieldPerFriendTimes100.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternationalTREnd.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromInternalTR.resize(NUM_YIELD_TYPES);
@@ -1457,8 +1457,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromUnitLevelUp[iI] = 0;
 		m_aiYieldFromUnitLevelUpGlobal[iI] = 0;
 		m_aiYieldFromCombatExperienceTimes100[iI] = 0;
-		m_aiYieldPerAlly[iI] = 0;
-		m_aiYieldPerFriend[iI] = 0;
+		m_aiYieldPerAllyTimes100[iI] = 0;
+		m_aiYieldPerFriendTimes100[iI] = 0;
 		m_aiYieldFromInternalTREnd[iI] = 0;
 		m_aiYieldFromInternationalTREnd[iI] = 0;
 		m_aiYieldFromInternalTR[iI] = 0;
@@ -7587,6 +7587,13 @@ void CvCity::ApplyPlayerEventChoice(const EventChoiceTypes eEventChoice)
 		{
 			SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iJ);
 			ChangeEventSpecialistYield(eSpecialist, eYield, pkEventChoiceInfo->getGlobalSpecialistYieldChange(iJ, iI));
+		}
+
+		// Air slot changes
+		if (pkEventChoiceInfo->getMaxAirUnitsChange() != 0)
+		{
+			int iChange = pkEventChoiceInfo->getMaxAirUnitsChange();
+			ChangeMaxAirUnits(iChange);
 		}
 
 		UpdateSpecialReligionYields(eYield);
@@ -14741,8 +14748,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromCombatExperienceTimes100(eYield, pBuildingInfo->GetYieldFromCombatExperienceTimes100(eYield) * iChange);
 			}
 
-			ChangeYieldPerAlly(eYield, pBuildingInfo->GetYieldPerAlly(eYield) * iChange);
-			ChangeYieldPerFriend(eYield, pBuildingInfo->GetYieldPerFriend(eYield) * iChange);
+			ChangeYieldPerAllyTimes100(eYield, pBuildingInfo->GetYieldPerAllyTimes100(eYield) * iChange);
+			ChangeYieldPerFriendTimes100(eYield, pBuildingInfo->GetYieldPerFriendTimes100(eYield) * iChange);
 
 			if (GetEventBuildingClassCityYield(eBuildingClass, eYield) != 0)
 			{
@@ -14901,30 +14908,34 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 
-		// Building Yield Change with Technology
+		// Building Bonuses from Accomplishments
 		if (!pBuildingInfo->GetBonusFromAccomplishments().empty())
 		{
-			map<int, AccomplishmentBonusInfo> mBonusFromAccomplishments = pBuildingInfo->GetBonusFromAccomplishments();
-			map<int, AccomplishmentBonusInfo>::iterator it;
-			for (it = mBonusFromAccomplishments.begin(); it != mBonusFromAccomplishments.end(); ++it)
+			const std::map<int, std::vector<AccomplishmentBonusInfo>>& mBonusFromAccomplishments = pBuildingInfo->GetBonusFromAccomplishments();
+			for (std::map<int, std::vector<AccomplishmentBonusInfo>>::const_iterator it = mBonusFromAccomplishments.begin(); it != mBonusFromAccomplishments.end(); ++it)
 			{
-				int iNumAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+				int iNumAccomplishmentCompleted =
+					GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+			
 				if (iNumAccomplishmentCompleted > 0)
 				{
-					AccomplishmentBonusInfo bonusInfo = it->second;
-					// apply bonuses for completed accomplishments
-					ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness * iNumAccomplishmentCompleted * iChange);
-					if (bonusInfo.eDomainType != NO_DOMAIN)
+					const std::vector<AccomplishmentBonusInfo>& vBonuses = it->second;
+					for (size_t i = 0; i < vBonuses.size(); i++)
 					{
-						changeDomainFreeExperience(bonusInfo.eDomainType, bonusInfo.iDomainXP * iNumAccomplishmentCompleted * iChange);
-					}
-					if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
-					{
-						changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType, bonusInfo.iUnitProductionModifier * iNumAccomplishmentCompleted* iChange);
+						const AccomplishmentBonusInfo& bonusInfo = vBonuses[i];
+			
+						ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness * iNumAccomplishmentCompleted * iChange);
+			
+						if (bonusInfo.eDomainType != NO_DOMAIN)
+							changeDomainFreeExperience(bonusInfo.eDomainType,
+								bonusInfo.iDomainXP * iNumAccomplishmentCompleted * iChange);
+			
+						if (bonusInfo.eUnitCombatType != NO_UNITCOMBAT)
+							changeUnitCombatProductionModifier(bonusInfo.eUnitCombatType,
+								bonusInfo.iUnitProductionModifier * iNumAccomplishmentCompleted * iChange);
 					}
 				}
-				// for future accomplishments, we store a list of the accomplishments for which bonuses are given.
-				// when one of the accomplishments is completed later, we apply the bonuses by looping through the city buildings directly
+			
 				AddToAccomplishmentsWithBonuses((AccomplishmentTypes)it->first);
 			}
 		}
@@ -16296,92 +16307,6 @@ int CvCity::GetNumFreeSpecialists()
 	iFreeSpecialists += GET_PLAYER(getOwner()).GetNoUnhappfromXSpecialists() + GetNoUnhappfromXSpecialists();
 	return iFreeSpecialists;
 }
-//	--------------------------------------------------------------------------------
-int CvCity::GetUnhappinessFromCitySpecialists()
-{
-	float iUnhappiness = 0;
-	float iUnhappinessFromThisCity;
-	float iUnhappinessPerPop = /*1*/ (/*1*/ GD_INT_GET(UNHAPPINESS_PER_POPULATION) + GD_FLOAT_GET(UNHAPPINESS_PER_POPULATION_FLOAT)) * 100;
-	int iPopulation = 0;
-
-	bool bCityValid = false;
-
-	bCityValid = false;
-
-	// Assume city doesn't exist, and does NOT count
-	if (IsIgnoreCityForHappiness())
-		bCityValid = false;
-	// Occupied Cities don't get counted here (see the next function)
-	else if (!IsOccupied() || IsNoOccupiedUnhappiness())
-		bCityValid = true;
-
-	if (bCityValid)
-	{
-		iPopulation = GetCityCitizens()->GetTotalSpecialistCount();
-
-		// No Unhappiness from Specialist Pop? (Policies, etc.)
-		if (GET_PLAYER(getOwner()).isHalfSpecialistUnhappiness())
-		{
-			iPopulation++; // Round up
-			iPopulation /= 2;
-		}
-
-		//Less unhappiness from specialists....
-		if (MOD_BALANCE_VP)
-		{
-			iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
-			int iNoHappinessSpecialists = GetNumFreeSpecialists();
-			//Can't give more free happiness than specialists.
-			if (iNoHappinessSpecialists > iPopulation)
-			{
-				iNoHappinessSpecialists = iPopulation;
-			}
-			if (iNoHappinessSpecialists > 0)
-			{
-				iPopulation -= iNoHappinessSpecialists;
-			}
-		}
-
-		iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
-
-		if (MOD_BALANCE_VP)
-		{
-			iUnhappiness += iUnhappinessFromThisCity;
-		}
-		else
-		{
-			//Took these away as they were making specialists do weird things.
-			if (isCapital() && GET_PLAYER(getOwner()).GetCapitalUnhappinessMod() != 0)
-			{
-				iUnhappinessFromThisCity *= (100 + GET_PLAYER(getOwner()).GetCapitalUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
-			}
-
-			if (GetLocalUnhappinessMod() != 0)
-			{
-				iUnhappinessFromThisCity *= (100 + GetLocalUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
-			}
-
-			iUnhappiness += iUnhappinessFromThisCity;
-		}
-	}
-
-	if (!MOD_BALANCE_VP)
-	{
-		iUnhappiness *= (100 + GET_PLAYER(getOwner()).GetUnhappinessMod());
-		iUnhappiness /= 100;
-
-		iUnhappiness *= 100 + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPopulationUnhappinessModifier();
-		iUnhappiness /= 100;
-
-		// Handicap mod
-		iUnhappiness *= GET_PLAYER(getOwner()).isHuman(ISHUMAN_HANDICAP) ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
-		iUnhappiness /= 100;
-	}
-
-	return (int)iUnhappiness;
-}
 
 //	--------------------------------------------------------------------------------
 int CvCity::productionLeft() const
@@ -16833,6 +16758,16 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 				// Two triggers: one era scaling and one not
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, false, NO_PLAYER, NULL, false, this);
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, true, NO_PLAYER, NULL, false, this);
+				// One that only fires for Capital/Holy City
+				ReligionTypes eOwnerReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
+				ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+				if (eMajority != NO_RELIGION)
+				{
+					if ((eOwnerReligion != NO_RELIGION && GetCityReligions()->IsHolyCityForReligion(eOwnerReligion)) || (eMajority == RELIGION_PANTHEON && isCapital()))
+					{
+						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY, false, NO_GREATPERSON, NO_BUILDING, iPopChange, false, NO_PLAYER, NULL, false, this);
+					}
+				}
 				
 				// GPPOnCitizenBirth: instant GPP for the great person with the most points
 				if (GetGPPOnCitizenBirth() > 0)
@@ -16859,12 +16794,6 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 					{
 						GET_PLAYER(getOwner()).doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_BIRTH, false, this, NO_BUILDING, iPopChange, eBestGreatPerson);
 					}
-				}
-
-				ReligionTypes eOwnerReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
-				if (eOwnerReligion != NO_RELIGION && GetCityReligions()->IsHolyCityForReligion(eOwnerReligion))
-				{
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY, false, NO_GREATPERSON, NO_BUILDING, iPopChange, false, NO_PLAYER, NULL, false, this);
 				}
 			}
 
@@ -20161,11 +20090,15 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 {
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	float iUnhappinessPerPop = 0;
+	int iUnhappinessPerPop = 0;
 	//Less unhappiness from specialists....
 	if (MOD_BALANCE_VP)
 	{
-		iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
+		// Puppets don't get unhappiness from specialists
+		if (IsPuppet())
+			return 0;
+
+		iUnhappinessPerPop = /*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 		int iNoHappinessSpecialists = 0;
 		if (iSpecialists > 0)
 		{
@@ -20177,14 +20110,10 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 			//...elsewhere?	
 			iNoHappinessSpecialists += kPlayer.GetNoUnhappfromXSpecialists() + GetNoUnhappfromXSpecialists();
 		}
-		//Can't give more free happiness than specialists.
-		if (iNoHappinessSpecialists > iSpecialists)
-		{
-			iNoHappinessSpecialists = iSpecialists;
-		}
 		if (iNoHappinessSpecialists > 0)
 		{
-			iSpecialists -= iNoHappinessSpecialists;
+			// Can't give more free happiness than specialists.
+			iSpecialists -= min(iNoHappinessSpecialists, iSpecialists);
 		}
 	}
 
@@ -20195,7 +20124,7 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 		iSpecialists /= 2;
 	}
 
-	return (int)(iSpecialists * iUnhappinessPerPop) / 100;
+	return iSpecialists * iUnhappinessPerPop / 100;
 }
 
 int CvCity::GetUnhappinessAggregated() const
@@ -24665,17 +24594,17 @@ void CvCity::ChangeYieldFromCombatExperienceTimes100(YieldTypes eIndex, int iCha
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-int CvCity::GetYieldPerAlly(YieldTypes eIndex) const
+int CvCity::GetYieldPerAllyTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldPerAlly[eIndex];
+	return m_aiYieldPerAllyTimes100[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeYieldPerAlly(YieldTypes eIndex, int iChange)
+void CvCity::ChangeYieldPerAllyTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
@@ -24683,23 +24612,23 @@ void CvCity::ChangeYieldPerAlly(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldPerAlly[eIndex] = m_aiYieldPerAlly[eIndex] + iChange;
-		ASSERT(GetYieldPerAlly(eIndex) >= 0);
+		m_aiYieldPerAllyTimes100[eIndex] = m_aiYieldPerAllyTimes100[eIndex] + iChange;
+		ASSERT(GetYieldPerAllyTimes100(eIndex) >= 0);
 	}
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-int CvCity::GetYieldPerFriend(YieldTypes eIndex) const
+int CvCity::GetYieldPerFriendTimes100(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	return m_aiYieldPerFriend[eIndex];
+	return m_aiYieldPerFriendTimes100[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
-void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
+void CvCity::ChangeYieldPerFriendTimes100(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
@@ -24707,8 +24636,8 @@ void CvCity::ChangeYieldPerFriend(YieldTypes eIndex, int iChange)
 
 	if (iChange != 0)
 	{
-		m_aiYieldPerFriend[eIndex] = m_aiYieldPerFriend[eIndex] + iChange;
-		ASSERT(GetYieldPerFriend(eIndex) >= 0);
+		m_aiYieldPerFriendTimes100[eIndex] = m_aiYieldPerFriendTimes100[eIndex] + iChange;
+		ASSERT(GetYieldPerFriendTimes100(eIndex) >= 0);
 	}
 }
 
@@ -25452,7 +25381,7 @@ int CvCity::GetEffectiveYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const
 
 	int iValue = GetBaseYieldRateFromCSAlliance(eIndex) * (100 + iModifier);
 
-	int iBonus = GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies() * 100;
+	int iBonus = GetYieldPerAllyTimes100(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies();
 	return iValue + iBonus;
 }
 //	--------------------------------------------------------------------------------
@@ -25505,7 +25434,7 @@ int CvCity::GetEffectiveYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) con
 
 	int iValue = GetBaseYieldRateFromCSFriendship(eIndex) * (100 + iModifier);
 
-	int iBonus = GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends() * 100;
+	int iBonus = GetYieldPerFriendTimes100(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends();
 	return iValue + iBonus;
 
 }
@@ -26688,16 +26617,22 @@ int CvCity::getDomainFreeExperienceFromGreatWorks(DomainTypes eIndex) const
 
 	int iXP = 0;
 
-	CvBuildingXMLEntries* pkBuildings = GetCityBuildings()->GetPossibleBuildings();
-	for (int iBuilding = 0; iBuilding < pkBuildings->GetNumBuildings(); iBuilding++)
+	const vector<BuildingTypes>& allBuildingsHere = GetCityBuildings()->GetAllBuildingsHere();
+	for (size_t iBuilding = 0; iBuilding < allBuildingsHere.size(); iBuilding++)
 	{
-		CvBuildingEntry* pInfo = pkBuildings->GetEntry(iBuilding);
-		if (pInfo)
+		const BuildingTypes eBuilding = allBuildingsHere[iBuilding];
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo)
 		{
-			if (pInfo->GetDomainFreeExperiencePerGreatWork(eIndex) != 0)
+			if (pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eIndex) != 0)
 			{
-				int iGreatWorks = GetCityBuildings()->GetNumGreatWorksInBuilding(pInfo->GetBuildingClassType());
-				iXP += (iGreatWorks * pInfo->GetDomainFreeExperiencePerGreatWork(eIndex));
+				int iGreatWorks = GetCityBuildings()->GetNumGreatWorksInBuilding(pkBuildingInfo->GetBuildingClassType());
+				iXP += (iGreatWorks * pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eIndex));
+			}
+			if (pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkCity(eIndex) != 0)
+			{
+				int iGreatWorksCity = GetCityBuildings()->GetNumGreatWorks();
+				iXP += (iGreatWorksCity * pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkCity(eIndex));
 			}
 		}
 	}
@@ -27407,9 +27342,10 @@ void CvCity::updateStrengthValue()
 
 	// Garrisoned Unit
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
-	if (pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
+	if (pGarrisonedUnit)
 	{
-		int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
+		int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) /
+			(pGarrisonedUnit->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
 
 		iStrengthValue += (iStrengthFromGarrison * 100);
 	}
@@ -27481,10 +27417,11 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 		{
 			// Remove the garrisoned unit's strength
 			CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
-			if (pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
+			if (pGarrisonedUnit)
 			{
 				int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength());
-				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
+				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) /
+					(pGarrisonedUnit->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
 				iValue -= (iStrengthFromGarrison * 100);
 			}
 		}
@@ -30096,6 +30033,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeCultureMedianModifier(pProject->GetCultureMedianModifier());
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
+		changeCitySupplyFlat(pProject->GetCitySupplyFlat());
 		GET_PLAYER(getOwner()).ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
 		
 		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
@@ -30123,7 +30061,17 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		iWLTKDTurns /= 100;
 		ChangeWeLoveTheKingDayCounter(max(1, iWLTKDTurns));
 	}
-
+	EventTypes eEventToStart = pProject->GetEventToStart();
+	if (eEventToStart != NO_EVENT)
+	{
+		GET_PLAYER(getOwner()).DoStartEvent(eEventToStart, false);
+	}
+	CityEventTypes eCityEventToStart = pProject->GetCityEventToStart();
+	if (eCityEventToStart != NO_EVENT_CITY)
+	{
+		DoStartEvent(eCityEventToStart, false);
+	}
+	
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityProjectComplete, getOwner(), GetID(), eProjectType);
 
 	return true;
@@ -31912,8 +31860,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromUnitLevelUp);
 	visitor(city.m_aiYieldFromUnitLevelUpGlobal);
 	visitor(city.m_aiYieldFromCombatExperienceTimes100);
-	visitor(city.m_aiYieldPerAlly);
-	visitor(city.m_aiYieldPerFriend);
+	visitor(city.m_aiYieldPerAllyTimes100);
+	visitor(city.m_aiYieldPerFriendTimes100);
 	visitor(city.m_aiYieldFromInternalTREnd);
 	visitor(city.m_aiYieldFromInternationalTREnd);
 	visitor(city.m_aiYieldFromInternalTR);
@@ -32814,7 +32762,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, bool bIncludeRand, const 
 
 	// If this is a defenseless unit, do a fixed amount of damage
 	if (!pDefender->IsCanDefend())
-		return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
+		return /*40 in CP, 50 in VP*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 
 	if (pDefender->getForcedDamageValue() != 0)
 		return pDefender->getForcedDamageValue();
@@ -33772,14 +33720,56 @@ CvSyncArchive<CvCity>& CvCity::getSyncArchive()
 }
 
 //	--------------------------------------------------------------------------------
-std::string CvCity::debugDump(const FAutoVariableBase& /*var*/) const
+std::string CvCity::debugDump(const FAutoVariableBase& var) const
 {
-	std::string result = "Game Turn : ";
-	char gameTurnBuffer[8] = { 0 };
-	int gameTurn = GC.getGame().getGameTurn();
-	sprintf_s(gameTurnBuffer, "%d\0", gameTurn);
-	result += gameTurnBuffer;
-	return result;
+	std::ostringstream result;
+	std::string varName = var.name();
+	
+	// City identity
+	result << "City: " << getName();
+	
+	if (getOwner() != NO_PLAYER)
+	{
+		result << " | Owner: " << GET_PLAYER(getOwner()).getCivilizationShortDescription()
+		       << " (ID:" << getOwner() << ")";
+	}
+	
+	result << " | Pop: " << getPopulation();
+	
+	// Yield context
+	if (varName.find("Yield") != std::string::npos || 
+	    varName.find("Specialist") != std::string::npos)
+	{
+		int iTotalSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
+		if (iTotalSpecialists > 0)
+		{
+			result << " | Specialists: " << iTotalSpecialists;
+		}
+		
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if (pReligion)
+			{
+				result << " | Religion: " << pReligion->GetName();
+			}
+		}
+	}
+	
+	// Ownership/capture context
+	if (varName.find("Ownership") != std::string::npos || 
+	    varName.find("Capture") != std::string::npos ||
+	    varName.find("Puppet") != std::string::npos ||
+	    varName.find("Raze") != std::string::npos ||
+	    varName.find("Occupy") != std::string::npos)
+	{
+		result << " | Puppet: " << (IsPuppet() ? "YES" : "NO");
+		result << " | Razing: " << (IsRazing() ? "YES" : "NO");
+		result << " | Occupied: " << (IsOccupied() ? "YES" : "NO");
+	}
+	
+	return result.str();
 }
 
 //	--------------------------------------------------------------------------------

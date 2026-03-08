@@ -34,6 +34,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iPopulationUnhappinessModifier(0),
 	m_iCityStateBonusModifier(0),
 	m_iCityStateFriendshipModifier(0),
+	m_iCityStateRecoveryModifier(0),
 	m_iCityStateCombatModifier(0),
 	m_iLandBarbarianConversionPercent(0),
 	m_iLandBarbarianConversionExtraUnits(0),
@@ -97,6 +98,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iWLTKDGPImprovementModifier(0),
 	m_iGrowthBoon(0),
 	m_bMountainPass(false),
+	m_bWorkersMountainPass(false),
 	m_bUniqueBeliefsOnly(false),
 	m_iAllianceCSDefense(0),
 	m_iAllianceCSStrength(0),
@@ -468,10 +470,16 @@ int CvTraitEntry::GetCityStateBonusModifier() const
 	return m_iCityStateBonusModifier;
 }
 
-/// Accessor:: percent boost in value of city state bonuses
+/// Accessor:: modifier to City-State Influence decay rate
 int CvTraitEntry::GetCityStateFriendshipModifier() const
 {
 	return m_iCityStateFriendshipModifier;
+}
+
+/// Accessor:: modifier to City-State Influence recovery rate
+int CvTraitEntry::GetCityStateRecoveryModifier() const
+{
+	return m_iCityStateRecoveryModifier;
 }
 
 /// Accessor:: percent boost in value of city state bonuses
@@ -774,6 +782,10 @@ bool CvTraitEntry::IsKeepConqueredBuildings() const
 bool CvTraitEntry::IsMountainPass() const
 {
 	return m_bMountainPass;
+}
+bool CvTraitEntry::IsWorkersMountainPass() const
+{
+	return m_bWorkersMountainPass;
 }
 int CvTraitEntry::GetWLTKDGPImprovementModifier() const
 {
@@ -2333,6 +2345,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iPopulationUnhappinessModifier    	= kResults.GetInt("PopulationUnhappinessModifier");
 	m_iCityStateBonusModifier               = kResults.GetInt("CityStateBonusModifier");
 	m_iCityStateFriendshipModifier          = kResults.GetInt("CityStateFriendshipModifier");
+	m_iCityStateRecoveryModifier          	= kResults.GetInt("CityStateRecoveryModifier");
 	m_iCityStateCombatModifier				= kResults.GetInt("CityStateCombatModifier");
 	m_iLandBarbarianConversionPercent       = kResults.GetInt("LandBarbarianConversionPercent");
 	m_iLandBarbarianConversionExtraUnits    = kResults.GetInt("LandBarbarianConversionExtraUnits");
@@ -4345,6 +4358,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iPopulationUnhappinessModifier += trait->GetPopulationUnhappinessModifier();
 			m_iCityStateBonusModifier += trait->GetCityStateBonusModifier();
 			m_iCityStateFriendshipModifier += trait->GetCityStateFriendshipModifier();
+			m_iCityStateRecoveryModifier += trait->GetCityStateRecoveryModifier();
 			m_iCityStateCombatModifier += trait->GetCityStateCombatModifier();
 			m_iLandBarbarianConversionPercent += trait->GetLandBarbarianConversionPercent();
 			m_iLandBarbarianConversionExtraUnits += trait->GetLandBarbarianConversionExtraUnits();
@@ -5111,6 +5125,25 @@ void CvPlayerTraits::InitPlayerTraits()
 				{
 					m_aibUnitCombatProductionCostModifier.insert(std::make_pair(jJ, trait->GetUnitCombatProductionCostModifier(jJ)));
 				}
+				// cache if any added promos will allow WorkersMountainPass
+				if (jJ == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_WORKER", true))
+				{
+					for (int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
+	           		{
+		                PromotionTypes ePromotion = (PromotionTypes)iPromotion;
+		
+		                // Check if this trait grants this promotion to workers
+		                if (trait->IsFreePromotionUnitCombat(ePromotion, jJ))
+		                {
+		                    const CvPromotionEntry* pPromotion = GC.getPromotionInfo(ePromotion);
+		                    if (pPromotion && pPromotion->CanCrossMountains())
+		                    {
+		                        m_bWorkersMountainPass = true;
+		                        break; // found one, no need to continue
+		                    }
+		                }
+	           		}
+				}
 			}
 			int iNumUnitClasses = GC.getNumUnitClassInfos();
 			for(int jJ= 0; jJ < iNumUnitClasses; jJ++)
@@ -5237,6 +5270,7 @@ void CvPlayerTraits::Reset()
 	m_iPopulationUnhappinessModifier = 0;
 	m_iCityStateBonusModifier = 0;
 	m_iCityStateFriendshipModifier = 0;
+	m_iCityStateRecoveryModifier = 0;
 	m_iCityStateCombatModifier = 0;
 	m_iLandBarbarianConversionPercent = 0;
 	m_iLandBarbarianConversionExtraUnits = 0;
@@ -5302,6 +5336,7 @@ void CvPlayerTraits::Reset()
 	m_bTradeRouteOnly = false;
 	m_bKeepConqueredBuildings = false;
 	m_bMountainPass = false;
+	m_bWorkersMountainPass= false;
 	m_bUniqueBeliefsOnly = false;
 	m_bNoNaturalReligionSpread = false;
 	m_bNoOpenTrade = false;
@@ -7407,6 +7442,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iPopulationUnhappinessModifier);
 	visitor(playerTraits.m_iCityStateBonusModifier);
 	visitor(playerTraits.m_iCityStateFriendshipModifier);
+	visitor(playerTraits.m_iCityStateRecoveryModifier);
 	visitor(playerTraits.m_iCityStateCombatModifier);
 	visitor(playerTraits.m_iLandBarbarianConversionPercent);
 	visitor(playerTraits.m_iLandBarbarianConversionExtraUnits);
@@ -7457,6 +7493,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bTradeRouteOnly);
 	visitor(playerTraits.m_bKeepConqueredBuildings);
 	visitor(playerTraits.m_bMountainPass);
+	visitor(playerTraits.m_bWorkersMountainPass);
 	visitor(playerTraits.m_bUniqueBeliefsOnly);
 	visitor(playerTraits.m_bNoNaturalReligionSpread);
 	visitor(playerTraits.m_bNoOpenTrade);

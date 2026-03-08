@@ -106,6 +106,20 @@ BEGIN
 		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_GOLD', 3;
 END;
 
+DROP TRIGGER IF EXISTS Units_GlobalSeparateGreatAdmiral;
+
+CREATE TRIGGER Units_GlobalSeparateGreatAdmiral
+AFTER INSERT ON Units
+WHEN (NEW.Class = 'UNITCLASS_GREAT_ADMIRAL')
+BEGIN
+    -- your modified logic here
+    UPDATE Units
+    SET
+        CanRepairFleet = 0,
+        CanChangePort = 1
+    WHERE Type = NEW.Type;
+END;
+
 ---------------------------------------------------------------------------------
 -- Promotions that provide blanket immunity to all Plagues
 ---------------------------------------------------------------------------------

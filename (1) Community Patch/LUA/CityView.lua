@@ -950,7 +950,7 @@ local function BuildBuildingBox(pCity)
 	end
 
 	-- Urbanization-free specialists
-	if MOD_BALANCE_VP and next(tSpecialistBuildings) and tRightSideSections.SpecialistBuildingHeader.HeadingOpen then
+	if MOD_BALANCE_VP and next(tSpecialistBuildings) and tRightSideSections.SpecialistBuildingHeader.HeadingOpen and not pCity:IsPuppet() then
 		local iNumFreeSpecialists = pCity:GetRemainingFreeSpecialists();
 		if iNumFreeSpecialists > 0 then
 			Controls.FreeSpecialistLabel:SetText(iNumFreeSpecialists);

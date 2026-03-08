@@ -109,7 +109,7 @@ public:
 	CvString getNewCityName() const;
 	CvString GetBorrowedCityName(CivilizationTypes eCivToBorrowFrom) const;
 	void getCivilizationCityName(CvString& szBuffer, CivilizationTypes eCivilization) const;
-	bool isCityNameValid(CvString& szName, bool bTestDestroyed = true, bool bForce = false) const;
+	bool isCityNameValid(const CvString& szName, bool bTestDestroyed = true, bool bForce = false) const;
 
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance() const;
@@ -315,7 +315,7 @@ public:
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
 	void SpawnResourceInVicinity(CvCity* pCity, ResourceTypes eResource, int iQuantity, bool bSarcophagus);
 
-	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness) const;
+	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, CvString* toolTipSink = NULL) const;
 	bool canFoundCity(int iX, int iY) const;
 
 	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
@@ -351,7 +351,9 @@ public:
 
 	int GetWorldWonderYieldChange(int iYield);
 
-	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra = false, bool bTestVisible = false, bool bTestGold = true, bool bTestPlotOwner = true, const CvUnit* pUnit = NULL) const;
+	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra = false, bool bTestVisible = false, bool bTestGold = true, bool bTestPlotOwner = true, const CvUnit* pUnit = NULL, CvString* toolTipSink = NULL) const;
+	
+	bool HasMountainImprovement() const;
 	bool IsBuildBlockedByFeature(BuildTypes eBuild, FeatureTypes eFeature, bool bTestEra = false) const;
 	int getBuildCost(const CvPlot* pPlot, BuildTypes eBuild) const;
 	int getImprovementUpgradeRate() const;
@@ -691,7 +693,7 @@ public:
 	int GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
-	int GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const;
+	int GetUnhappinessFromCitySpecialists() const;
 	int GetUnhappinessFromPuppetCitySpecialists() const;
 	int GetUnhappinessFromPuppetCityPopulation() const;
 	int GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
@@ -2639,6 +2641,7 @@ public:
 
 	bool CanEmbark() const;
 	bool CanCrossOcean() const;
+	bool WorkersMountainPass() const;
 	bool CanCrossMountain() const;
 	bool CanCrossIce() const;
 

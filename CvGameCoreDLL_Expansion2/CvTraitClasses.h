@@ -121,6 +121,7 @@ public:
 	int GetPopulationUnhappinessModifier() const;
 	int GetCityStateBonusModifier() const;
 	int GetCityStateFriendshipModifier() const;
+	int GetCityStateRecoveryModifier() const;
 	int GetCityStateCombatModifier() const;
 	int GetLandBarbarianConversionPercent() const;
 	int GetLandBarbarianConversionExtraUnits() const;
@@ -173,6 +174,7 @@ public:
 	bool IsTradeRouteOnly() const;
 	bool IsKeepConqueredBuildings() const;
 	bool IsMountainPass() const;
+	bool IsWorkersMountainPass() const;
 	bool IsUniqueBeliefsOnly() const;
 	bool IsNoNaturalReligionSpread() const;
 	bool IsNoOpenTrade() const;
@@ -453,6 +455,7 @@ protected:
 	int m_iPopulationUnhappinessModifier;
 	int m_iCityStateBonusModifier;
 	int m_iCityStateFriendshipModifier;
+	int m_iCityStateRecoveryModifier;
 	int m_iCityStateCombatModifier;
 	int m_iLandBarbarianConversionPercent;
 	int m_iLandBarbarianConversionExtraUnits;
@@ -514,6 +517,7 @@ protected:
 	bool m_bTradeRouteOnly;
 	bool m_bKeepConqueredBuildings;
 	bool m_bMountainPass;
+	bool m_bWorkersMountainPass;
 	bool m_bUniqueBeliefsOnly;
 	int m_iGrowthBoon;
 	int m_iWLTKDGPImprovementModifier;
@@ -913,6 +917,10 @@ public:
 	{
 		return m_iCityStateFriendshipModifier;
 	};
+	int GetCityStateRecoveryModifier() const
+	{
+		return m_iCityStateRecoveryModifier;
+	};
 	int GetCityStateCombatModifier() const
 	{
 		return m_iCityStateCombatModifier;
@@ -1119,6 +1127,10 @@ public:
 	{
 		return m_bMountainPass;
 	};
+	bool IsWorkersMountainPass() const
+	{
+		return m_bWorkersMountainPass;
+	}
 	bool IsUniqueBeliefsOnly() const
 	{
 		return m_bUniqueBeliefsOnly;
@@ -2041,6 +2053,7 @@ private:
 	int m_iPopulationUnhappinessModifier;
 	int m_iCityStateBonusModifier;
 	int m_iCityStateFriendshipModifier;
+	int m_iCityStateRecoveryModifier;
 	int m_iCityStateCombatModifier;
 	int m_iLandBarbarianConversionPercent;
 	int m_iLandBarbarianConversionExtraUnits;
@@ -2092,6 +2105,7 @@ private:
 	bool m_bTradeRouteOnly;
 	bool m_bKeepConqueredBuildings;
 	bool m_bMountainPass;
+	bool m_bWorkersMountainPass;
 	bool m_bUniqueBeliefsOnly;
 	bool m_bNoNaturalReligionSpread;
 	bool m_bNoOpenTrade;
