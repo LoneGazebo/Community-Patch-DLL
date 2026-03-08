@@ -1358,7 +1358,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					}
 				}
 
-				iItemValue -= (iYieldBonusFromExport * OneGPTScaled) / 3;
+				iItemValue -= (iYieldBonusFromExport * OneGPTScaled);
 				if (iItemValue <= OneGPT)
 					return OneGPT;
 			}
@@ -1386,7 +1386,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 						else
 							iYieldBonuses += pReligion->m_Beliefs.GetYieldPerLux(eYield, GetPlayer()->GetID(), GetPlayer()->getCapitalCity());
 					}
-					iItemValue += (iYieldBonuses * OneGPT) / 3;
+					iItemValue += (iYieldBonuses * OneGPT);
 				}
 			}
 
@@ -1467,7 +1467,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 			iYieldBonuses *= iWLTKDLength;
 			iYieldBonuses /= iNumTurns;
-			iItemValue += (iYieldBonuses * OneGPT) / 3;
+			iItemValue += (iYieldBonuses * OneGPT);
 
 			// Netherlands buys resources for more if they aren't already importing it
 			if (GetPlayer()->getResourceImportFromMajor(eResource) <= 0 &&
@@ -1494,7 +1494,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					}
 				}
 
-				iItemValue += (iYieldBonusFromImport * OneGPTScaled) / 3;
+				iItemValue += (iYieldBonusFromImport * OneGPTScaled);
 			}
 
 			// Netherlands might also want to buy resources that get them a monopoly
@@ -1574,8 +1574,6 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			}
 		}
 
-		// Cap price at 10 GPT, scaling with era
-		iItemValue = min(iItemValue, OneGPTScaled * 10);
 		return iItemValue;
 	}
 
@@ -8132,8 +8130,3 @@ void CvDealAI::DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 	}
 }
 
-void CvDealAI::ClearCachedDealItemValues()
-{
-	m_iDealItemValuesTurnSlice = -1;
-	m_dealItemValues.clear();
-}
