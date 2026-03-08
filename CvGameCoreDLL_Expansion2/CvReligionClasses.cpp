@@ -7897,7 +7897,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 	if (eTerrain != NO_TERRAIN)
 	{
 		int iTerrainYieldChangeTimes100 = pEntry->GetTerrainYieldChange(eTerrain, iI) * 100;
-		iTerrainYieldChangeTimes100 += pEntry->GetYieldPerXTerrainTimes100(eTerrain, iI) / 3; // lower value because it's difficult to get many tiles worked
+		iTerrainYieldChangeTimes100 += pEntry->GetYieldPerXTerrainTimes100(eTerrain, iI);
 		if (iTerrainYieldChangeTimes100 > 0)
 		{
 			iModifier = 100;
@@ -8133,7 +8133,6 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 		return 0;
 
 	// the different yield types are valued using ScoreYieldForReligionTimes100
-	// happiness is valued with iHappinessNeedFactor (see below)
 	// great person points are valued with iGPValue (see below)
 
 	// in addition, each yield is multiplied with iAvailabilityModifier, which has a value of 10 if the yield is available instantly and a lower value if it takes time to get the yield or if it's unclear if we'll ever get it
@@ -8147,15 +8146,8 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 	int jJ = 0;
 
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
-	int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-	int iFlavorDefense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
-	int iFlavorHappiness = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
 
 	bool bIsCapital = pCity && pCity->isCapital();
-
-	// todo
-	iHappinessMultiplier = min(15, max(6, iFlavorOffense * 2 + iFlavorHappiness - iFlavorDefense));
-	
 
 	CvPlayerTraits* pPlayerTraits = m_pPlayer->GetPlayerTraits();
 
@@ -8250,7 +8242,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 
 						int iEraNeeded = pkTechInfo->GetEra();
 						int iCurrentEra = m_pPlayer->GetCurrentEra();
-						iAvailabilityModifier = iCurrentEra >= iEraNeeded ? 4 : 1;
+						iAvailabilityModifier = max(0, 3 - (iEraNeeded - iCurrentEra));  // lose remaining value if we have to wait
 					}
 				}
 			}
@@ -8298,6 +8290,13 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 			iTempValue += 5 * iCurrentCityPop / pEntry->GetYieldPerXFollowers(iI);
 			// additional population we expect to get in the near future
 			iTempValue += 2 * iExpectedGrowth / pEntry->GetYieldPerXFollowers(iI);
+		}
+
+		// caps at half number of followers. assume we are at cap.
+		if (pEntry->GetYieldPerGPT(iI) > 0)
+		{
+			iTempValue += 10 * (iCurrentCityPop / 2) ;
+			iTempValue += 5 * (iExpectedGrowth / 2);
 		}
 
 		// yield per birth
@@ -8518,7 +8517,7 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 
 							int iEraNeeded = pkTechInfo->GetEra();
 							int iCurrentEra = m_pPlayer->GetCurrentEra();
-							iAvailabilityModifier = iCurrentEra >= iEraNeeded ? 4 : 2;
+							iAvailabilityModifier = max(0, 3 - (iEraNeeded - iCurrentEra));  // lose remaining value if we have to wait
 						}
 						if (!pCity)
 						{
@@ -10389,6 +10388,10 @@ int CvReligionAI::ScorePantheonBeliefForPlayer(CvBeliefEntry* pEntry) const
 			{
 				iTemp += iFlavorOffense * pEntry->GetYieldFromKills((YieldTypes)iI) * ScoreYieldForReligionTimes100((YieldTypes)iI) * min(3, iNumNeighbors) / 1000;
 			}
+			if (pEntry->GetYieldPerHeal((YieldTypes)iI))
+			{
+				iTemp += iFlavorOffense * (pEntry->GetYieldPerHeal((YieldTypes)iI) / 5) * ScoreYieldForReligionTimes100((YieldTypes)iI) * min(3, iNumNeighbors) / 1000;
+			}
 		}
 		if (pEntry->GetUnitProductionModifier() > 0)
 		{
@@ -10422,6 +10425,10 @@ int CvReligionAI::ScorePantheonBeliefForPlayer(CvBeliefEntry* pEntry) const
 		if (pEntry->RequiresPeace())
 		{
 			iRtnValue -= 200 * iNumWarmongerNeighbors;
+		}
+		if (pEntry->GetYieldPerHeal((YieldTypes)iI))
+		{
+			iTemp += iFlavorDefense * (pEntry->GetYieldPerHeal((YieldTypes)iI) / 5) * ScoreYieldForReligionTimes100((YieldTypes)iI) * iNumWarmongerNeighbors / 1000;
 		}
 	}
 

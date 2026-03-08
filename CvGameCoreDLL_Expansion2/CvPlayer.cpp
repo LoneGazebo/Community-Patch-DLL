@@ -25574,7 +25574,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if (pReligion)
 					{
-						iValue = pReligion->m_Beliefs.GetYieldPerHolyCityBirth(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+						iValue = pReligion->m_Beliefs.GetYieldPerHolyCityBirth(eYield, GetID(), pLoopCity, true, iNumFollowerCities);
 					}
 					break;
 				}
@@ -26478,7 +26478,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						if (pReligion)
 						{
-							int iTempVal = pReligion->m_Beliefs.GetYieldFromFaithPurchase(eYield, GetID(), pLoopCity, true);
+							int iTempVal = pReligion->m_Beliefs.GetYieldFromFaithPurchase(eYield, GetID(), pLoopCity);
 							iTempVal *= iPassYield;
 							iTempVal /= 100;
 							iValue += iTempVal;
@@ -26627,6 +26627,29 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						iValue = iPassYield * (pLoopCity->GetYieldFromCombatExperienceTimes100(eYield) + pUnit->GetYieldFromCombatExperienceTimes100(eYield));
 						iValue /= 10000;
 					}
+					break;
+				}
+				case INSTANT_YIELD_TYPE_HEALING:
+				{
+					if(pUnit == NULL)
+						continue;
+					
+					int iYieldPer100HP = 0;
+					
+					// does this player's religion give yields for healing on this tile?
+					if (pReligion)
+					{
+    					PlayerTypes ePlotOwner = pUnit->plot()->getOwner();
+						bool bOwnedTerritory = (ePlotOwner != NO_PLAYER && ePlotOwner == pUnit->getOwner());
+						iYieldPer100HP += pReligion->m_Beliefs.GetYieldPerHeal(eYield, GetID(), pLoopCity, true, bOwnedTerritory);
+
+						if (iYieldPer100HP > 0)
+						{
+							iValue = iPassYield * iYieldPer100HP;  //iPassYield is the HP healed
+							iValue /= 100;
+						}
+					}
+					
 					break;
 				}
 				case INSTANT_YIELD_TYPE_CITY_DAMAGE:
@@ -26860,6 +26883,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					switch (iType)
 					{
 						case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+						case INSTANT_YIELD_TYPE_HEALING:
 						case INSTANT_YIELD_TYPE_CITY_DAMAGE:
 						{
 							// Show on the unit
@@ -27704,6 +27728,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			// These yields intentionally have no notification.
 			case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+			case INSTANT_YIELD_TYPE_HEALING:
 			case INSTANT_YIELD_TYPE_CITY_DAMAGE:
 			{
 				return;
@@ -42016,6 +42041,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
 			{
 				instantYieldName = "Unit Combat";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_HEALING:
+			{
+				instantYieldName = "Healing";
 				break;
 			}
 	case INSTANT_YIELD_TYPE_CITY_DAMAGE:
