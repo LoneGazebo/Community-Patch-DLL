@@ -32,7 +32,7 @@ public:
 	virtual ~CvCitySiteEvaluator(void);
 
 	virtual void ComputeFlavorMultipliers(const CvPlayer* pPlayer);
-	virtual bool CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const;
+	virtual bool CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities, CvString* toolTipSink = NULL) const;
 	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly=false, CvString* pDebug=NULL);
 	virtual int PlotFertilityValue(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIncludeCoast=false);
 	virtual vector<int> GetAllCitySiteValues(const CvPlayer* pPlayer);

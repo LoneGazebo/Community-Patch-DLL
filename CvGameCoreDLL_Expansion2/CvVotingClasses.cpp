@@ -1554,19 +1554,11 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eTargetPlayer, true);
 		GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromForeignCities(false, true, true);
 
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		if (GET_PLAYER(ePlayer).getTeam() != GET_PLAYER(eTargetPlayer).getTeam() && GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-			if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eTargetPlayer).getTeam())
-				continue;
-
-			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
 			{
-				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()))
-					continue;
-
-				GC.getGame().GetGameDeals().DoCancelDealsBetweenPlayers(eLoopPlayer, eTargetPlayer, false);
+				GC.getGame().GetGameDeals().DoCancelDealsBetweenPlayers(ePlayer, eTargetPlayer, false);
 			}
 		}
 

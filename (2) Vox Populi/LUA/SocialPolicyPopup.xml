@@ -365,9 +365,9 @@
 						<Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5,290"/>
 						<!-- COMMERCE BOX  -->
 						<Box Size="190,290 " Anchor="C,T" Color="0,0,0,0">
-							<Image Anchor="C,T" Offset="0,0" TextureOffset="0,0" Size="190,290" Color="255,255,255,255" Texture="SocialPoliciesCommerce.dds" ToolTip="TXT_KEY_POLICY_BRANCH_COMMERCE_HELP"/>
+							<Image Anchor="C,T" Offset="0,0" TextureOffset="0,0" Size="190,290" Color="255,255,255,255" Texture="SocialPoliciesIndustry.dds" ToolTip="TXT_KEY_POLICY_BRANCH_COMMERCE_HELP"/>
 							<!-- Policy Branch Image -->
-							<Image Anchor="C,T" Offset="0,0" TextureOffset="0,0" Size="190,90" Texture="SocialPoliciesCommerce.dds" ID="BranchBack7" ToolTip="TXT_KEY_POLICY_BRANCH_COMMERCE_HELP"/>
+							<Image Anchor="C,T" Offset="0,0" TextureOffset="0,0" Size="190,90" Texture="SocialPoliciesIndustry.dds" ID="BranchBack7" ToolTip="TXT_KEY_POLICY_BRANCH_COMMERCE_HELP"/>
 							<Image ID="ImageMask6" Anchor="C,T" Offset="0,0" Size="190,290" Color="255,255,255,200" Texture="Assets/UI/Art/Icons/SocialPoliciesBranchBlackMask.dds"/>
 							<Box ID="DisabledMask6" Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,200"/>
 							<Image Anchor="C,T" Offset="0,0" Size="190,290" Texture="Assets/UI/Art/Icons/SocialPoliciesTrim.dds">
@@ -381,7 +381,7 @@
 							<!-- Disabled Boxes -->
 							<Box ID="LockedBox6" Size="190,260" Offset="0,30" Anchor="C,T" Color="0,0,0,0">
 								<HideOnMouseOver>
-									<Image Anchor="C,T" Offset="0,0" TextureOffset="0,30" Size="190,260" Color="255,255,255,255" Texture="SocialPoliciesCommerce.dds"/>
+									<Image Anchor="C,T" Offset="0,0" TextureOffset="0,30" Size="190,260" Color="255,255,255,255" Texture="SocialPoliciesIndustry.dds"/>
 								</HideOnMouseOver>
 							</Box>
 							<!-- adopt button -->
@@ -390,7 +390,7 @@
 							</GridButton>
 							<Box ID="DisabledBox6" Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,0">
 								<HideOnMouseOver>
-									<Image Anchor="C,T" Offset="0,0" Size="190,290" Color="255,255,255,255" Texture="SocialPoliciesCommerce.dds"/>
+									<Image Anchor="C,T" Offset="0,0" Size="190,290" Color="255,255,255,255" Texture="SocialPoliciesIndustry.dds"/>
 									<Box Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,200"/>
 								</HideOnMouseOver>
 							</Box>

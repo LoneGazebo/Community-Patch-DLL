@@ -941,7 +941,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetAgricultureHistory);
 	Method(GetPowerHistory);
 
-	Method(GetReasonPlunderTradeRouteDisabled);
+	Method(GetReasonActionDisabled);
 	Method(GetReplayData);
 	Method(SetReplayDataValue);
 
@@ -1160,6 +1160,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetDealValue);
 	Method(GetDealMyValue);
 	Method(GetDealTheyreValue);
+	Method(IsCurrentDealOfferChanged);
 	Method(MayNotAnnex);
 
 	Method(GetEspionageCityStatus);
@@ -10831,73 +10832,37 @@ int CvLuaPlayer::lGetPowerHistory(lua_State* /*L*/)
 {
 	return 0;
 }
-int CvLuaPlayer::lGetReasonPlunderTradeRouteDisabled(lua_State* L)
+int CvLuaPlayer::lGetReasonActionDisabled(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int iUnitID = luaL_checkint(L, 2);
+	const char* szActionType = luaL_checkstring(L, 3);
 	CvUnit* pUnit = pkPlayer->getUnit(iUnitID);
-	ASSERT(pUnit);
+
+	CvString toolTip;
+
 	if (pUnit)
 	{
 		CvPlot* pPlot = pUnit->plot();
-		// this should only be called if we can't plunder any trade route and if a tooltip should be shown explaining why
-		ASSERT(!pUnit->canPlunderTradeRoute(pUnit->plot(), false) && pUnit->canPlunderTradeRoute(pPlot, true));
 
-		// First check: Is there a trade route here that we can't plunder because we're not at war with the civ?
-		bool bReasonFound = false;
-
-		std::vector<int> aiTradeUnitsAtPlot;
-		aiTradeUnitsAtPlot = pkPlayer->GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, false);
-
-		for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
+		if (strcmp(szActionType, "MISSION_FOUND") == 0)
 		{
-			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
-			if (eTradeUnitOwner == NO_PLAYER)
-			{
-				// invalid TradeUnit
-				continue;
-			}
-
-			CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
-			if (eCorporation != NO_CORPORATION)
-			{
-				CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
-				if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
-				{
-					// skip this reason for now, will be checked later
-					continue;
-				}
-			}
-
-			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
-			if (pkPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
-			{
-				PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
-				if (eTradeUnitDest == pkPlayer->GetID())
-				{
-					// can't plunder trade routes targeting ourselves as Morocco
-					bReasonFound = true;
-					break;
-				}
-			}
-			else
-			{
-				if (!GET_TEAM(pkPlayer->getTeam()).isAtWar(eTeam))
-				{
-					// must be at war with the player
-					bReasonFound = true;
-					break;
-				}
-			}
+			pUnit->canFoundCity(pPlot, false, false, false, &toolTip);
 		}
-
-		if (bReasonFound)
+		else if (strcmp(szActionType, "MISSION_CULTURE_BOMB") == 0)
 		{
-			lua_pushstring(L, pkPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar() ? "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_WITHOUT_WAR_HELP" : "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_HELP");
+			pUnit->CanCultureBomb(pPlot, false, &toolTip);
 		}
-		else
+		else if (strcmp(szActionType, "MISSION_PLUNDER_TRADE_ROUTE") == 0)
 		{
-			// second check: is there a trade routes here that we can't plunder because of the other civ's corporation
+			// this should only be called if we can't plunder any trade route and if a tooltip should be shown explaining why
+			ASSERT(!pUnit->canPlunderTradeRoute(pPlot, false) && pUnit->canPlunderTradeRoute(pPlot, true));
+
+			// First check: Is there a trade route here that we can't plunder because we're not at war with the civ?
+			bool bReasonFound = false;
+
+			std::vector<int> aiTradeUnitsAtPlot = pkPlayer->GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, false);
+
 			for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
 			{
 				PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
@@ -10913,21 +10878,84 @@ int CvLuaPlayer::lGetReasonPlunderTradeRouteDisabled(lua_State* L)
 					CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
 					if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
 					{
+						// skip this reason for now, will be checked later
+						continue;
+					}
+				}
+
+				TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+				if (pkPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
+				{
+					PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+					if (eTradeUnitDest == pkPlayer->GetID())
+					{
+						// can't plunder trade routes targeting ourselves as Morocco
+						bReasonFound = true;
+						break;
+					}
+				}
+				else
+				{
+					if (!GET_TEAM(pkPlayer->getTeam()).isAtWar(eTeam))
+					{
+						// must be at war with the player
 						bReasonFound = true;
 						break;
 					}
 				}
 			}
-			// no other possible reasons (see canPlunderTradeRoute)
-			ASSERT(bReasonFound, "Didn't find a reason why the trade unit on this plot can't be plundered. Inconsistency between canPlunderTradeRoute and GetReasonPlunderTradeRouteDisabled");
-			lua_pushstring(L, "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_CORPORATION_HELP");
+
+			if (bReasonFound)
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(&toolTip, pkPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar()
+					? "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_WITHOUT_WAR_HELP"
+					: "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_HELP");
+			}
+			else
+			{
+				// second check: is there a trade route here that we can't plunder because of the other civ's corporation
+				for (uint uiTradeRoute = 0; uiTradeRoute < aiTradeUnitsAtPlot.size(); uiTradeRoute++)
+				{
+					PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+					if (eTradeUnitOwner == NO_PLAYER)
+					{
+						// invalid TradeUnit
+						continue;
+					}
+
+					CorporationTypes eCorporation = GET_PLAYER(eTradeUnitOwner).GetCorporations()->GetFoundedCorporation();
+					if (eCorporation != NO_CORPORATION)
+					{
+						CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
+						if (pkCorporation && pkCorporation->IsTradeRoutesInvulnerable())
+						{
+							bReasonFound = true;
+							break;
+						}
+					}
+				}
+				GC.getGame().BuildCannotPerformActionHelpText(&toolTip, "TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_CORPORATION_HELP");
+			}
+		}
+		else if (strcmp(szActionType, "MISSION_HEAL") == 0)
+		{
+			pUnit->canHeal(pPlot, false, &toolTip);
+		}
+		else if (strcmp(szActionType, "COMMAND_UPGRADE") == 0)
+		{
+			pUnit->CanUpgradeTo(pUnit->GetUpgradeUnitType(), false, &toolTip);
+		}
+		else if (strcmp(szActionType, "INTERFACEMODE_PARADROP") == 0)
+		{
+			pUnit->canParadrop(pPlot, false, &toolTip);
+		}
+		else if (strcmp(szActionType, "COMMAND_DELETE") == 0)
+		{
+			pUnit->canScrap(false, &toolTip);
 		}
 	}
-	else
-	{
-		lua_pushstring(L, "");
-	}
 
+	lua_pushstring(L, toolTip.c_str());
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -12472,8 +12500,8 @@ int CvLuaPlayer::lGetUnimprovedAvailableLuxuryResource(lua_State* L)
 				continue;
 			}
 
-			int iBuildTurnsLeft = pPlot->getBuildTurnsLeft(eBuild, pkPlayer->GetID(), 0, 0);
-			if(iBuildTurnsLeft > 0 && iBuildTurnsLeft < 4000)
+			int iBuildTurnsLeft = pPlot->getBuildTurnsLeft(eBuild, pkPlayer->GetID());
+			if(iBuildTurnsLeft > 1 && iBuildTurnsLeft < 4000)
 			{
 				continue;
 			}
@@ -16522,6 +16550,14 @@ int CvLuaPlayer::lGetDealTheyreValue(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lIsCurrentDealOfferChanged(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	lua_pushinteger(L, pkThisPlayer->GetDiplomacyAI()->GetCurrentDealOfferChanged());
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lMayNotAnnex(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
@@ -16945,6 +16981,8 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 			CvCity* pCity = pPlot->getPlotCity();
 			if (pCity)
 			{
+				lua_pushboolean(L, pCity->GetCityEspionage()->GetRevealCityScreen( pkThisPlayer->GetID() ) );
+				lua_setfield(L,t,"RevealCityScreen");
 				lua_pushinteger(L, pkPlayerEspionage->CalcNetworkPointsPerTurn(pSpy->GetSpyState(), pCity, uiSpy));
 			}
 			else

@@ -170,6 +170,8 @@ public:
 	void DoAddRevokeVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 	void DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
+	void ClearCachedDealItemValues();
+
 protected:
 	void UpdateResearchRateCache(PlayerTypes eOther);
 

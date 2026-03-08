@@ -10282,7 +10282,13 @@ int CvTeam::GetNumVassals()
 		// eTeamLoop vassal of us?
 		if(GET_TEAM(eTeamLoop).IsVassal(GetID()))
 		{
-			iVassals++;
+			for (CivsList::const_iterator it = GET_TEAM(eTeamLoop).getPlayers().begin(); it != GET_TEAM(eTeamLoop).getPlayers().end(); ++it)
+			{
+				if (GET_PLAYER(*it).isAlive())
+				{
+					iVassals++;
+				}
+			}
 		}
 	}
 

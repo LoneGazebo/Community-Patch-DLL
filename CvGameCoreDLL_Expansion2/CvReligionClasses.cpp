@@ -4384,7 +4384,7 @@ ReligionTypes CvCityReligions::GetSimulatedReligiousMajority()
 ReligionTypes CvCityReligions::GetReligionByAccumulatedPressure(size_t iIndex) const
 {
 	//RecomputeFollowers orders religions by pressure!
-	if (iIndex < m_ReligionStatus.size())
+	if (iIndex < m_ReligionStatus.size() && m_ReligionStatus[iIndex].m_iPressure > 0)
 		return m_ReligionStatus[iIndex].m_eReligion;
 
 	return NO_RELIGION;

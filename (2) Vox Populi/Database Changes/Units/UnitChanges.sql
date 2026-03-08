@@ -739,7 +739,8 @@ WHERE Class = 'UNITCLASS_GREAT_DIPLOMAT';
 UPDATE Units
 SET
 	NumFreeLux = 2,
-	WorkRate = 1  -- Tersane
+	WorkRate = 1,  -- Tersane
+	CanRepairFleet = 0
 WHERE Class = 'UNITCLASS_GREAT_ADMIRAL';
 
 -- Great Prophet

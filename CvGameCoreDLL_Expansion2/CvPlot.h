@@ -173,10 +173,10 @@ public:
 
 	bool CanSpawnResource(PlayerTypes ePlayer, bool bIgnoreTech = true, bool bIsLand=true) const;
 
-	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true, bool bTestXAdjacent = false) const;
+	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true, bool bTestXAdjacent = false, CvString* toolTipSink = NULL) const;
 	int getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const;
 	int getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const;
-	int getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra, int iThenExtra) const;
+	int getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra = 0, int iThenExtra = 0) const;
 	int getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity** ppCity) const;
 
 	CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bIgnoreVisibility = false, bool bTestCanMove = false, bool bNoncombatAllowed = false) const;
@@ -489,7 +489,8 @@ public:
 	int getNumResource() const;
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);
-	int getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq = false) const;
+	int getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, bool bIgnoreTechPrereq = false, bool bIgnorePostModifiers = false) const;
+	int GetNumResourcePostModifiers(PlayerTypes ePlayer, ImprovementTypes eImprovement, bool bIgnoreTechPrereq = false, bool bIgnorePostModifiers = false) const;
 	void removeMinorResources();
 
 	void setIsCity(bool bValue, int iCityID, int iWorkRange);
@@ -713,6 +714,8 @@ public:
 	void ChangePlotMovesChange(int iValue);
 	bool IsRestoreMoves() const;
 	void ChangeRestoreMovesCount(int iValue);
+	bool IsFreeMoveAcross() const;
+	void ChangeFreeMoveAcrossCount(int iValue);
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
 	int getUnitIndex(CvUnit* pUnit) const;
@@ -977,6 +980,7 @@ protected:
 	char m_iUnitPlotGAExperience;
 	char m_iPlotChangeMoves;
 	char m_iRestoreMoves;
+	char m_iFreeMoveAcross;
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
 	char /*PlayerTypes*/ m_ePlayerBuiltImprovement;

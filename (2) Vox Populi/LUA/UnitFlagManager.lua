@@ -1084,6 +1084,13 @@ function OnUnitMoveQueueChanged( playerID, unitID, bRemainingMoves )
     			end
 
     		    flag:UpdateFlagOffset();
+
+    		    -- Update fog visibility based on the unit's new plot
+    		    local fogState = pPlot:IsVisible( Game.GetActiveTeam() ) and WhiteFog or GreyFog;
+    		    flag:SetFogState( fogState );
+    		    if flag.m_CityFlag ~= nil then
+    		        flag.m_CityFlag.Anchor:SetHide( fogState ~= WhiteFog );
+    		    end
     		end
 		end
 	end
