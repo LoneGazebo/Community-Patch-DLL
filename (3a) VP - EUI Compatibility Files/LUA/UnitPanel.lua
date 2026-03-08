@@ -6,6 +6,7 @@
 
 include( "EUI_tooltips" )
 include("InfoTooltipInclude")
+include("CPK.lua");
 Events.SequenceGameInitComplete.Add(function()
 print("Loading EUI unit panel",ContextPtr,os.clock(),[[ 
  _   _       _ _   ____                  _ 
@@ -137,6 +138,11 @@ local g_cityFocusTooltips = {
 [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH or -1] = L"TXT_KEY_CITYVIEW_FOCUS_FAITH_TEXT",
 } g_cityFocusTooltips[-1] = nil
 
+
+local CustomModOptionEnabled = CPK.Misc.CustomModOptionEnabled;
+
+-- Mod options
+local MOD_UNITS_CIVILIANS_GAIN_XP = CustomModOptionEnabled("UNITS_CIVILIANS_GAIN_XP");
 -------------------------------------------------
 -- Tooltip Utilities
 -------------------------------------------------
@@ -573,7 +579,7 @@ local function UnitToolTip( unit, ... )
 		tips:insertIf( damage > 0 and L( "TXT_KEY_UPANEL_SET_HITPOINTS_TT", g_MaxDamage-damage, g_MaxDamage ) )
 
 		-- XP
-		tips:insertIf( (unit:IsCombatUnit() or unit:GetDomainType() == DomainTypes.DOMAIN_AIR) and L("TXT_KEY_UNIT_EXPERIENCE_INFO", unit:GetLevel(), unit:GetExperience(), unit:ExperienceNeeded() ) )
+		tips:insertIf( (unit:IsCombatUnit() or unit:GetDomainType() == DomainTypes.DOMAIN_AIR or MOD_UNITS_CIVILIANS_GAIN_XP) and L("TXT_KEY_UNIT_EXPERIENCE_INFO", unit:GetLevel(), unit:GetExperience(), unit:ExperienceNeeded() ) )
 		--L( "TXT_KEY_EXPERIENCE_POPUP", unit:GetExperience().."/"..unit:ExperienceNeeded() ) )
 
 		-- Abilities:	--TXT_KEY_PEDIA_FREEPROMOTIONS_LABEL

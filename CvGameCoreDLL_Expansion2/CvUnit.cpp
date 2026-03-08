@@ -25319,7 +25319,7 @@ void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT();
 	
-	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && !isOutOfAttacks(true));
+	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && ((!IsCivilianUnit() && !isOutOfAttacks(true)) || (IsCivilianUnit() && MOD_UNITS_CIVILIANS_GAIN_XP)));
 }
 
 

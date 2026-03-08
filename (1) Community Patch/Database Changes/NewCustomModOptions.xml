@@ -758,6 +758,9 @@
 		<!-- For debugging only -->
 		<Row Class="2" Name="UNIT_KILL_STATS" Value="0"/>
 
+		<!-- Permits civilian units to gain XP and acquire promotions -->
+		<Row Class="2" Name="UNITS_CIVILIANS_GAIN_XP" Value="0"/>
+
 		<!-- Enables the table Unit_ResourceQuantityTotals -->
 		<Row Class="2" Name="UNITS_RESOURCE_QUANTITY_TOTALS" Value="0"/>
 
