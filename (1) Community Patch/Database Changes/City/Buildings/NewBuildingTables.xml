@@ -32,7 +32,13 @@
 		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
 		<Column name="HappinessChange" type="integer" notnull="true"/>
 	</Table>
-	<!-- Allows you to define expeirence gained by units produced in city based on total # of writing works in city -->
+	<!-- Units produced in city gain additional experience for every great work in the city -->
+	<Table name="Building_DomainFreeExperiencePerGreatWorkCity">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
+		<Column name="Experience" type="integer" notnull="true"/>
+	</Table>
+	<!-- Units produced in city gain additional experience for every great work of writing in your empire, capped at 45 (hardcoded) -->
 	<Table name="Building_DomainFreeExperiencePerGreatWorkGlobal">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
 		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
