@@ -1554,19 +1554,11 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 		GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eTargetPlayer, true);
 		GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromForeignCities(false, true, true);
 
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		if (GET_PLAYER(ePlayer).getTeam() != GET_PLAYER(eTargetPlayer).getTeam() && GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-			if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eTargetPlayer).getTeam())
-				continue;
-
-			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()))
 			{
-				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()))
-					continue;
-
-				GC.getGame().GetGameDeals().DoCancelDealsBetweenPlayers(eLoopPlayer, eTargetPlayer, false);
+				GC.getGame().GetGameDeals().DoCancelDealsBetweenPlayers(ePlayer, eTargetPlayer, false);
 			}
 		}
 
@@ -5642,11 +5634,11 @@ bool CvLeague::IsOpenDoorActive(PlayerTypes eTargetMinor)
 }
 void CvLeague::DoEnactResolutionPublic(CvEnactProposal* pProposal)
 {
-	DoEnactResolution(pProposal);
+	DoEnactResolution(pProposal, true);
 }
 void CvLeague::DoRepealResolutionPublic(CvRepealProposal* pProposal)
 {
-	DoRepealResolution(pProposal);
+	DoRepealResolution(pProposal, true);
 }
 CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix)
 {
@@ -8449,9 +8441,9 @@ void CvLeague::AssignNewHost()
 	SetHostMember(eNewHost);
 }
 
-void CvLeague::DoEnactResolution(CvEnactProposal* pProposal)
+void CvLeague::DoEnactResolution(CvEnactProposal* pProposal, bool bFromLua)
 {
-	ASSERT(pProposal->IsPassed(GetVotesSpentThisSession()), "Doing a proposal that has not been passed.");
+	ASSERT(bFromLua || pProposal->IsPassed(GetVotesSpentThisSession()), "Doing a proposal that has not been passed.");
 
 	CvActiveResolution resolution(pProposal);
 	for (uint i = 0; i < m_vMembers.size(); i++)
@@ -8482,9 +8474,9 @@ void CvLeague::DoEnactResolution(CvEnactProposal* pProposal)
 	m_iNumResolutionsEverEnacted++;
 }
 
-void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
+void CvLeague::DoRepealResolution(CvRepealProposal* pProposal, bool bFromLua)
 {
-	ASSERT(pProposal->IsPassed(GetVotesSpentThisSession()), "Doing a proposal that has not been passed.");
+	ASSERT(bFromLua || pProposal->IsPassed(GetVotesSpentThisSession()), "Doing a proposal that has not been passed.");
 
 	int iFound = 0;
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); )

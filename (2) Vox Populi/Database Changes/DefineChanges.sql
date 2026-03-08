@@ -54,8 +54,11 @@ UPDATE Defines SET Value = 500 WHERE Name = 'CITY_STRENGTH_DEFAULT';
 -- Extra city strength if settled on hills x100
 UPDATE Defines SET Value = 200 WHERE Name = 'CITY_STRENGTH_HILL_CHANGE';
 
--- Divisor of garrison strength added to city strength x100
-UPDATE Defines SET Value = 200 WHERE Name = 'CITY_STRENGTH_UNIT_DIVISOR';
+-- Divisor of land garrison strength added to city strength x100
+UPDATE Defines SET Value = 200 WHERE Name = 'CITY_STRENGTH_LAND_UNIT_DIVISOR';
+
+-- Divisor of naval garrison strength added to city strength x100
+UPDATE Defines SET Value = 400 WHERE Name = 'CITY_STRENGTH_NAVAL_UNIT_DIVISOR';
 
 -- Extra city strength from tech progress
 -- Only used if BALANCE_CITY_STRENGTH_SWITCH is turned off
@@ -73,6 +76,9 @@ UPDATE Defines SET Value = 15 WHERE Name = 'FRIENDLY_HEAL_RATE';
 UPDATE Defines SET Value = 20 WHERE Name = 'CITY_HEAL_RATE';
 
 UPDATE Defines SET Value = 10 WHERE Name = 'HILLS_EXTRA_DEFENSE';
+
+-- Bombard civilian damage
+UPDATE Defines SET Value = 50 WHERE Name = 'NONCOMBAT_UNIT_RANGED_DAMAGE';
 
 -- Base number of air slots per city
 UPDATE Defines SET Value = 2 WHERE Name = 'BASE_CITY_AIR_STACKING';
@@ -161,9 +167,8 @@ UPDATE Defines SET Value = 100 WHERE Name = 'UNIT_SUPPLY_BASE_TECH_REDUCTION_PER
 -- City supply /= (1 + Tech progress * UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER / 100)
 UPDATE Defines SET Value = 100 WHERE Name = 'UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER';
 
--- Supply from population
--- % provided by puppet city population
-UPDATE Defines SET Value = 50 WHERE Name = 'UNIT_SUPPLY_POPULATION_PUPPET_PERCENT';
+-- Yields and supply from puppet cities
+UPDATE Defines SET Value = 30 WHERE Name = 'PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE';
 
 -- Population supply /= (1 + Tech progress * UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER / 100)
 UPDATE Defines SET Value = 100 WHERE Name = 'UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER';
@@ -185,7 +190,7 @@ UPDATE Defines SET Value = 0 WHERE Name = 'STRATEGIC_RESOURCE_EXHAUSTED_PENALTY'
 -- Modified by personality!
 UPDATE Defines SET Value = 27 WHERE Name = 'MAX_PLOTS_PER_EXPLORER';
 
-UPDATE Defines SET Value = 1 WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
+UPDATE Defines SET Value = 1.25 WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
 
 -- Maximum discount you can get for stacking unit upgrade discounts, so the number doesn't go negative
 UPDATE Defines SET Value = -99 WHERE Name = 'UNIT_UPGRADE_COST_DISCOUNT_MAX';
@@ -425,12 +430,12 @@ UPDATE Defines SET Value = 100 WHERE Name = 'TECH_COST_EXTRA_TEAM_MEMBER_MODIFIE
 -------------------------------------------------------------------------------------------------------------------
 -- Puppet stuff
 -------------------------------------------------------------------------------------------------------------------
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_FAITH_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_CULTURE_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_SCIENCE_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_TOURISM_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_GOLD_MODIFIER';
-UPDATE Defines SET Value = -80 WHERE Name = 'PUPPET_GOLDEN_AGE_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_FAITH_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_CULTURE_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_SCIENCE_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_TOURISM_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_GOLD_MODIFIER';
+UPDATE Defines SET Value = 0 WHERE Name = 'PUPPET_GOLDEN_AGE_MODIFIER';
 
 -------------------------------------------------------------------------------------------------------------------
 -- Barbarians

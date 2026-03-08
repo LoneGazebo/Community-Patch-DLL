@@ -237,6 +237,10 @@
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MIKASA</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_DREADNOUGHT</Type>
 			<DamageStates>3</DamageStates>
 		</Row>
@@ -722,6 +726,14 @@
 			<Scale>0.059</Scale>
 			<Domain>Sea</Domain>
 			<Model>cruiser.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_MIKASA</Type>
+			<Scale>0.085</Scale>
+			<Domain>Sea</Domain>
+			<Model>Mikasa_BB.fxsxml</Model>
 			<MaterialTypeTag>METAL</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -1388,6 +1400,13 @@
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_CRUISER</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MIKASA</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLeftRightAttack>1</HasLeftRightAttack>
@@ -2105,6 +2124,26 @@
 			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MIKASA</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION1TON</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MIKASA</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_DREADNOUGHT</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
@@ -2543,6 +2582,11 @@
 			<StrategicViewType>ART_DEF_UNIT_CRUISER</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>svcruiser.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_MIKASA</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>sv_Mikasa.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_DREADNOUGHT</StrategicViewType>

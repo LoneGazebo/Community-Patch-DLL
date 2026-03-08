@@ -71,6 +71,7 @@ for i = 0, InstantYieldType.NUM_INSTANT_YIELD_TYPES - 1 do
 		g_InstantYieldClassification[i] = "Spies"
 	elseif
 		i == InstantYieldType.INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE or
+		i == InstantYieldType.INSTANT_YIELD_TYPE_HEALING or
 		i == InstantYieldType.INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON or
 		i == InstantYieldType.INSTANT_YIELD_TYPE_CONVERSION_EXPO or
 		i == InstantYieldType.INSTANT_YIELD_TYPE_PROMOTION_OBTAINED
@@ -185,6 +186,8 @@ function GetInstantYieldName(i)
 		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_PILLAGE_UNIT_SHORT");
 	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE then
 		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE_SHORT");
+	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_HEALING then
+		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_HEALING_SHORT");
 	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_IDENTIFY then
 		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_SPY_IDENTIFY_SHORT");
 	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID then

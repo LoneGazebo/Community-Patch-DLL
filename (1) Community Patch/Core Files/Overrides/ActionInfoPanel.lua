@@ -486,7 +486,7 @@ do -- Actions
 					end
 
 					waiting = waiting + 1
-					tooltip = tooltip .. txtNewline .. player:GetName() .. "(" .. L(playerCivKey) .. ")"
+					tooltip = tooltip .. txtNewline .. player:GetName() .. " (" .. L(playerCivKey) .. ")"
 				end
 			end
 		end

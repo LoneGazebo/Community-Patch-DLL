@@ -69,7 +69,7 @@ local function initializePopulateCivilizationUniques()
 	g_uniqueImprovementsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Improvements
 					WHERE CivilizationType = ?]]);
 
-    	-- adds 5/6UC unique improvements by checking Trait_BuildsUnitClasses and OrderPriority settings
+  -- adds 5/6UC unique improvements by checking Trait_BuildsUnitClasses and OrderPriority settings
 	g_culturalImprovementsQuery = DB.CreateQuery([[SELECT DISTINCT i.ID, i.Description, i.PortraitIndex, i.IconAtlas FROM Improvements i, Civilization_Leaders cl, Leader_Traits lt, Trait_BuildsUnitClasses tbuc, Builds b 
 		WHERE cl.CivilizationType = ? AND lt.LeaderType = cl.LeaderheadType AND lt.TraitType = tbuc.TraitType AND tbuc.BuildType = b.Type AND i.Type = b.ImprovementType AND b.OrderPriority=90]]);
 		

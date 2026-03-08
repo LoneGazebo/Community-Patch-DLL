@@ -364,6 +364,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piUnitCombatProductionModifiersGlobal(NULL),
 	m_piDomainFreeExperience(NULL),
 	m_piDomainFreeExperiencePerGreatWork(NULL),
+	m_piDomainFreeExperiencePerGreatWorkCity(NULL),
 	m_piDomainFreeExperiencePerGreatWorkGlobal(NULL),
 	m_piDomainFreeExperienceGlobal(),
 	m_piDomainProductionModifier(NULL),
@@ -388,8 +389,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_pbBuildingClassNeededNowhere(NULL),
 	m_piNumSpecFreeUnits(NULL),
 	m_ppiResourcePlotsToPlace(),
-	m_piYieldPerFriend(NULL),
-	m_piYieldPerAlly(NULL),
+	m_piYieldPerFriendTimes100(NULL),
+	m_piYieldPerAllyTimes100(NULL),
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldChangeWorldWonderGlobal(NULL),
 	m_piLuxuryYieldChanges(NULL),
@@ -518,6 +519,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiersGlobal);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperience);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWork);
+	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWorkCity);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWorkGlobal);
 	m_piDomainFreeExperienceGlobal.clear();
 	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
@@ -542,8 +544,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piNumSpecFreeUnits);
 	m_ppiResourcePlotsToPlace.clear();
 	SAFE_DELETE_ARRAY(m_paiResourceHappinessChange);
-	SAFE_DELETE_ARRAY(m_piYieldPerFriend);
-	SAFE_DELETE_ARRAY(m_piYieldPerAlly);
+	SAFE_DELETE_ARRAY(m_piYieldPerFriendTimes100);
+	SAFE_DELETE_ARRAY(m_piYieldPerAllyTimes100);
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonderGlobal);
 	SAFE_DELETE_ARRAY(m_piLuxuryYieldChanges);
@@ -1064,6 +1066,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiersGlobal, "UnitCombatInfos", "Building_UnitCombatProductionModifiersGlobal", "UnitCombatType", "BuildingType", szBuildingType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperience, "Domains", "Building_DomainFreeExperiences", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWork, "Domains", "Building_DomainFreeExperiencePerGreatWork", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
+	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWorkCity, "Domains", "Building_DomainFreeExperiencePerGreatWorkCity", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWorkGlobal, "Domains", "Building_DomainFreeExperiencePerGreatWorkGlobal", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainProductionModifier, "Domains", "Building_DomainProductionModifiers", "DomainType", "BuildingType", szBuildingType, "Modifier", 0, NUM_DOMAIN_TYPES);
 
@@ -1094,8 +1097,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldChangeFromPassingTR, "Building_YieldChangesFromPassingTR", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldPerFranchise, "Building_YieldPerFranchise", "BuildingType", szBuildingType);
 
-	kUtility.SetYields(m_piYieldPerFriend, "Building_YieldPerFriend", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldPerAlly, "Building_YieldPerAlly", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldPerFriendTimes100, "Building_YieldPerFriendTimes100", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldPerAllyTimes100, "Building_YieldPerAllyTimes100", "BuildingType", szBuildingType);
 
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Building_YieldChangeWorldWonder", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangeWorldWonderGlobal, "Building_YieldChangeWorldWonderGlobal", "BuildingType", szBuildingType);
@@ -1314,13 +1317,13 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			bonusInfo.eUnitCombatType = (UnitCombatTypes)pResults->GetInt(4);
 			bonusInfo.iUnitProductionModifier = pResults->GetInt(5);
 
-			m_miBonusFromAccomplishments[iAccomplishment] = bonusInfo;
+			m_miBonusFromAccomplishments[iAccomplishment].push_back(bonusInfo);
 		}
 
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, AccomplishmentBonusInfo>(m_miBonusFromAccomplishments).swap(m_miBonusFromAccomplishments);
+		std::map<int, std::vector<AccomplishmentBonusInfo>>(m_miBonusFromAccomplishments).swap(m_miBonusFromAccomplishments);
 	}
 	// Building_ExtraPlayerInstancesFromAccomplishments 
 	// Table structure (BuildingType, AccomplishmentType, ExtraInstances)
@@ -3797,7 +3800,7 @@ int CvBuildingEntry::GetYieldFromInternationalTREnd(int i) const
 	return m_piYieldFromInternationalTREnd[i];
 }
 
-/// Instant yield granted when an international trade route ends
+/// Instant yield granted when an internal trade route ends
 int CvBuildingEntry::GetYieldFromInternalTREnd(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -4254,7 +4257,14 @@ int CvBuildingEntry::GetDomainFreeExperiencePerGreatWork(int i) const
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piDomainFreeExperiencePerGreatWork ? m_piDomainFreeExperiencePerGreatWork[i] : -1;
 }
-/// Free experience gained for units in this domain for each Great Work in this building
+/// Free experience gained for units in this domain for each Great Work in this city
+int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkCity(int i) const
+{
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piDomainFreeExperiencePerGreatWorkCity ? m_piDomainFreeExperiencePerGreatWorkCity[i] : -1;
+}
+/// Free experience gained for units in this domain for each Great Work of Writing in the empire (capped at 45)
 int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkGlobal(int i) const
 {
 	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
@@ -4516,18 +4526,18 @@ bool CvBuildingEntry::IsResourcePlotsToPlace() const
 {
 	return !m_ppiResourcePlotsToPlace.empty();
 }
-int CvBuildingEntry::GetYieldPerFriend(int i) const
+int CvBuildingEntry::GetYieldPerFriendTimes100(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piYieldPerFriend ? m_piYieldPerFriend[i] : -1;
+	return m_piYieldPerFriendTimes100 ? m_piYieldPerFriendTimes100[i] : -1;
 }
 
-int CvBuildingEntry::GetYieldPerAlly(int i) const
+int CvBuildingEntry::GetYieldPerAllyTimes100(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piYieldPerAlly ? m_piYieldPerAlly[i] : -1;
+	return m_piYieldPerAllyTimes100 ? m_piYieldPerAllyTimes100[i] : -1;
 }
 
 int CvBuildingEntry::GetYieldChangeWorldWonder(int i) const
@@ -4661,9 +4671,9 @@ std::map<int, std::map<int, int>> CvBuildingEntry::GetTechEnhancedYields() const
 	return m_miTechEnhancedYields;
 }
 
-std::map<int, AccomplishmentBonusInfo> CvBuildingEntry::GetBonusFromAccomplishments() const
+const std::map<int, std::vector<AccomplishmentBonusInfo>>& CvBuildingEntry::GetBonusFromAccomplishments() const
 {
-	return m_miBonusFromAccomplishments;
+    return m_miBonusFromAccomplishments;
 }
 
 std::map<int, std::map<int, int>> CvBuildingEntry::GetYieldChangesFromAccomplishments() const
@@ -5816,6 +5826,28 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 	{
 		m_pCity->SetBuildingInvestment(buildingClassType, false);
 		m_pCity->GetCityCitizens()->DoRemoveAllSpecialistsFromBuilding(eIndex, CvCity::YIELD_UPDATE_GLOBAL);
+		if (GetNumFreeBuilding(eIndex) == 0)
+		{
+			// remove great work from swap slot if necessary
+			for (int iJ = 0; iJ < buildingEntry->GetGreatWorkCount(); iJ++)
+			{
+				int iGreatWork = GetBuildingGreatWork(buildingClassType, iJ);
+				if (iGreatWork != NO_GREAT_WORK)
+				{
+					if (kPlayer.GetCulture()->GetSwappableWritingIndex() == iGreatWork)
+						kPlayer.GetCulture()->SetSwappableWritingIndex(-1);
+
+					if (kPlayer.GetCulture()->GetSwappableArtifactIndex() == iGreatWork)
+						kPlayer.GetCulture()->SetSwappableArtifactIndex(-1);
+
+					if (kPlayer.GetCulture()->GetSwappableArtIndex() == iGreatWork)
+						kPlayer.GetCulture()->SetSwappableArtIndex(-1);
+
+					if (kPlayer.GetCulture()->GetSwappableMusicIndex() == iGreatWork)
+						kPlayer.GetCulture()->SetSwappableMusicIndex(-1);
+				}
+			}
+		}
 	}
 
 	m_paiNumRealBuilding[eIndex] = iNewValue;

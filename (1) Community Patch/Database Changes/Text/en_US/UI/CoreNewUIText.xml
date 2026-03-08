@@ -352,6 +352,15 @@
 		<Row Tag="TXT_KEY_PRODUCTION_GLOBAL_SUFFIX">
 			<Text>in all Cities</Text>
 		</Row>
+		<Row Tag="TXT_KEY_LIST_COMBINE_TWO">
+			<Text>{1_String1} and {2_String2}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIST_COMBINE_NONFINAL">
+			<Text>{1_String1}, {2_String2}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIST_COMBINE_FINAL">
+			<Text>{1_String1}, and {2_String2}</Text>
+		</Row>
 		<!-- Unit -->
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_COMBAT_CLASS">
 			<Text>({1:textkey} Unit)</Text>
@@ -657,17 +666,14 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIAL_SESSION_REQUIREMENT">
 			<Text>Is required to trigger the Special Session for [COLOR_PLAYER_MIDDLE_PURPLE_TEXT]{1_Resolution:textkey}[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_LOCAL_EFFECTS">
-			<Text>Local Effects:</Text>
-		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GLOBAL_EFFECTS">
-			<Text>Empire-Wide Effects:</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Empire-Wide Effects:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TEAM_EFFECTS">
-			<Text>Team-Wide Effects:</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Team-Wide Effects:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_EFFECTS">
-			<Text>Corporation Benefits:</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Corporation Benefits:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HISTORIC_EVENTS">
 			<Text>Triggers or Enhances the following Historic Events:</Text>
@@ -700,7 +706,7 @@
 			<Text>Potential boosts to this Building:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_CHANGE">
-			<Text>{3_YieldIcon} {4_Yield:textkey}: {2_Sign}{1_Num}</Text>
+			<Text>[ICON_BULLET]{3_YieldIcon} {4_Yield:textkey}: {2_Sign}{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_CHANGE">
 			<Text>Projected yields when built: {1_YieldChanges}</Text>
@@ -715,7 +721,7 @@
 			<Text>Projected [ICON_HAPPINESS_1] Happiness when built: {2_Sign}{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIR_DEFENSE">
-			<Text>[ICON_AIRSTRIKE_DEFENSE] City Air Strike Defense: +{1_Num}</Text>
+			<Text>[ICON_BULLET][ICON_AIRSTRIKE_DEFENSE] City Air Strike Defense: +{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GREAT_WORK_YIELD_TYPE">
 			<Text>[ICON_GREAT_WORK] Great Works in this Building provide {1_YieldIcon} {2_Yield:textkey} instead of [ICON_CULTURE] Culture</Text>
@@ -777,14 +783,17 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_COMBAT">
 			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Combat:textkey}[ENDCOLOR] Units</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS">
+			<Text>{2_Sign}{1_Num} XP for {3_Domains}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR] per [ICON_GREAT_WORK] Great Work in City</Text>
+			<Text>{2_Sign}{1_Num} XP for {3_Domains} per [ICON_GREAT_WORK] Great Work in Building</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WRITING_GLOBAL">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR] in all Cities per [ICON_GW_WRITING] Great Work of Writing in Empire, capped at 45 XP</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK_CITY">
+			<Text>{2_Sign}{1_Num} XP for {3_Domains} per [ICON_GREAT_WORK] Great Work in City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WRITING_GLOBAL">
+			<Text>{2_Sign}{1_Num} XP for {3_Domains} in all Cities per [ICON_GW_WRITING] Great Work of Writing in Empire, capped at 45 XP</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FOOD_KEPT">
 			<Text>{2_Sign}{1_Num}% [ICON_FOOD] Food is carried over when City grows</Text>
@@ -823,7 +832,7 @@
 			<Text>Shares Empire-wide Effects with Team</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TECH_SHARE">
-			<Text>Team gains Technologies that {1_Num} other {1: plural 1?Team; other?Teams;} have researched</Text>
+			<Text>Your Team gains Technologies that {1_Num} other {1: plural 1?Team; other?Teams;} have researched</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_WATER_CONNECTION">
 			<Text>Allows [ICON_CONNECTED] City Connection over Water</Text>
@@ -1111,7 +1120,7 @@
 			<Text>On Completion: {1_Num} Free [ICON_GREAT_PEOPLE] Great {1: plural 1?Person; other?People;} of your choice {1: plural 1?appears; other?appear;} in [ICON_CAPITAL] Capital</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_SPY_POINTS">
-			<Text>On Completion: Gain {1_Num} [ICON_SPY] Spy {1: plural 1?Point; other?Points;}</Text>
+			<Text>On Completion: Gain {1_Num} [ICON_SPY_POINT] Spy {1: plural 1?Point; other?Points;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_SPIES">
 			<Text>On Completion: Gain {1_Num} [ICON_SPY] {1: plural 1?Spy; other?Spies;}</Text>
@@ -1489,7 +1498,7 @@
 			<Text>[COLOR_WARNING_TEXT]Note: all ongoing Effects of this Building will be removed when the above Technology is researched![ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BUILDING_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_YIELD_FOOD]{1_BuildingClass:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Buildings}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BUILDING_HAPPINESS">
 			<Text>{2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness to [COLOR_YIELD_FOOD]{3_Building:textkey}[ENDCOLOR]</Text>
@@ -1498,19 +1507,19 @@
 			<Text>{1_YieldBoosts} to [ICON_WONDER] World Wonders</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PLOT_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Plot:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Plots}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TERRAIN_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Terrain:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Terrains}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FEATURE_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Feature:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Features}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_RESOURCE_BOOST">
-			<Text>{2_YieldBoosts} to {3_ResourceIcon} {1_Resource:textkey}</Text>
+			<Text>{2_YieldBoosts} to {1_Resources}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_IMPROVEMENT_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_POSITIVE_TEXT]{1_Improvement:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Improvements}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_LUXURY_BOOST">
 			<Text>{1_YieldBoosts} to Luxury Resource Tiles</Text>
@@ -1528,7 +1537,7 @@
 			<Text>{1_YieldBoosts} to Resource Tiles in [COLOR_POSITIVE_TEXT]Water[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIALIST_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_POSITIVE_TEXT]{1_Specialist * 2}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Items}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GREAT_WORK_BOOST">
 			<Text>{1_YieldBoosts} to [ICON_GREAT_WORK] Great Works</Text>
@@ -1558,13 +1567,13 @@
 			<Text>[ICON_BULLET][COLOR_YIELD_FOOD]{3_Building:textkey}[ENDCOLOR] in any City: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING">
-			<Text>[ICON_BULLET][COLOR_YIELD_FOOD]{1_Building:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]{1_Items}: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_GLOBAL">
-			<Text>[ICON_BULLET][COLOR_YIELD_FOOD]{1_Building:textkey}[ENDCOLOR] in any City: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]{1_Items} in any City: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE">
-			<Text>[ICON_BULLET]Each {3_ResourceIcon} {1_Resource:textkey} connected to City: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each {1_Items} connected to City: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_LOCAL_RESOURCE">
 			<Text>[ICON_BULLET]Each {3_ResourceIcon} {4_Resource:textkey} connected to City: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
@@ -1576,16 +1585,16 @@
 			<Text>[ICON_BULLET]Each Snow Tile owned by City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_TERRAIN">
-			<Text>[ICON_BULLET]Each worked [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Terrain:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each worked {1_Items}: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_FEATURE">
-			<Text>[ICON_BULLET]Each worked [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Feature:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each worked {1_Items}: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT">
-			<Text>[ICON_BULLET]Each [COLOR_POSITIVE_TEXT]{1_Improvement:textkey}[ENDCOLOR] owned by City: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each {1_Items} owned by City: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT_GLOBAL">
-			<Text>[ICON_BULLET]Each [COLOR_POSITIVE_TEXT]{1_Improvement:textkey}[ENDCOLOR] in Empire: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each {1_Items} in Empire: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_TECH">
 			<Text>[ICON_BULLET][COLOR_CYAN]{1_Tech:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
@@ -1760,6 +1769,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_POST_MODIFIER">
 			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"} {2_IconString} after Modifiers[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_SUBTOTAL">
+			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"} {2_IconString} Subtotal[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_PUPPET_MODIFIER_MULTIPLICATIVE">
+			<Text>[ICON_BULLET]{1: number "'+'##;'-'##"}% {2_IconString} Puppet Modifier</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EATEN_FOOD">
 			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
@@ -2178,6 +2193,71 @@
 		</Row>
 		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_RESOURCES_NET_NEGATIVE">
 			<Text>You need positive {1_ResourcesString} count to upgrade this Unit.</Text>
+		</Row>
+
+		<!-- Heal action disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_CANNOT_HEAL">
+			<Text>This unit cannot heal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_RESOURCE_SHORTAGE">
+			<Text>This unit cannot heal due to a resource shortage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_HOVERING_WATER">
+			<Text>Hovering units can only heal over land.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_MOUNTAIN">
+			<Text>Units cannot heal on Mountains.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_EMBARKED">
+			<Text>Units cannot heal while embarked.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_NAVAL_TERRITORY">
+			<Text>This unit can only heal in friendly territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_NO_HEAL_RATE">
+			<Text>This unit has no heal rate in its current location.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_BLOCKADED">
+			<Text>Units cannot heal in a fully blockaded city.</Text>
+		</Row>
+		<!-- Build action disabled tooltips -->
+		<Row Tag="TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING">
+			<Text>Another unit is already building something here.</Text>
+		</Row>
+		<!-- Upgrade action disabled tooltips -->
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_EMBARKED">
+			<Text>Embarked units cannot upgrade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_HAS_CARGO">
+			<Text>A unit carrying other units cannot upgrade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_CARGO_INCOMPATIBLE">
+			<Text>The transport cannot carry the upgraded unit type.</Text>
+		</Row>
+		<!-- Paradrop action disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_PARADROP_DISABLED_MOVED">
+			<Text>A unit cannot paradrop after moving.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_PARADROP_DISABLED_EMBARKED">
+			<Text>An embarked unit cannot paradrop.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_PARADROP_DISABLED_TERRITORY">
+			<Text>A unit can only paradrop from friendly territory.</Text>
+		</Row>
+		<!-- Culture Bomb disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_FOREIGN_TERRITORY">
+			<Text>This unit cannot perform this action in another player's territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_NOT_ADJACENT">
+			<Text>This unit must be in or adjacent to your territory to perform this action.</Text>
+		</Row>
+		<!-- Found City action disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_BUILD_CITY_DISABLED_TOO_CLOSE">
+			<Text>Cannot found a City within {1_Num} tiles of an existing City.</Text>
+		</Row>
+		<!-- Other disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_DISABLED_CANNOT_END_TURN">
+			<Text>This unit cannot end its turn here.</Text>
 		</Row>
 
 		<!-- Combat simulator -->

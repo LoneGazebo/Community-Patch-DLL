@@ -129,6 +129,7 @@ CvGame::CvGame() :
 	, m_bIsDesynced(false)
 	, m_eObserverUIOverridePlayer(NO_PLAYER)
 	, m_lastTurnAICivsProcessed(-1)
+	, m_firstActivationOfPlayersAfterLoad(false)
 	, m_processPlayerAutoMoves(false)
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
 	, m_cityDistancePlots()
@@ -8229,7 +8230,7 @@ void CvGame::setName(const char* szName)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGame::isDestroyedCityName(CvString& szName) const
+bool CvGame::isDestroyedCityName(const CvString& szName) const
 {
 	stringHash hasher;
 	std::vector<size_t>::const_iterator it = std::find(m_aszDestroyedCities.begin(), m_aszDestroyedCities.end(), hasher(szName.c_str()));
@@ -8366,8 +8367,6 @@ void CvGame::doTurn()
 			ReviveActivePlayer();
 		}
 	}
-
-	m_kGameDeals.DoTurnPost();
 
 	RollOverAssetCounter();
 

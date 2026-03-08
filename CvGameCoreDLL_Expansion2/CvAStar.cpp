@@ -1281,11 +1281,13 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
-			if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints()*3)
+			//GetDanger returns MAX_INT for "fatal" plots (city about to fall, etc) - handle without overflow
+			int iScaledDanger = (iPlotDanger >= INT_MAX / 2) ? INT_MAX : iPlotDanger * iScale;
+			if (iScaledDanger >= pUnit->GetCurrHitPoints()*3)
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints())
+			else if (iScaledDanger >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale > pUnit->GetCurrHitPoints()/3)
+			else if (iScaledDanger > pUnit->GetCurrHitPoints()/3)
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 		else //civilian, embarked or exploring
@@ -2188,7 +2190,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
-			if (MOD_BALANCE_VP || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
+			if (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}
@@ -2563,7 +2565,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	if(pNewPlot->isWater())
 		return FALSE;
 
-	if(!pNewPlot->isValidMovePlot(ePlayer) && (!pNewPlot->isMountain() || !kPlayer.IsWorkersIgnoreImpassable()))
+	if(!pNewPlot->isValidMovePlot(ePlayer) && !(pNewPlot->isMountain() && kPlayer.WorkersMountainPass()))
 		return FALSE;
 
 	if (!bIsManual && pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
@@ -3511,7 +3513,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 		iRouteDiscountTimes120 = 54; //can't get better than this even if next plot is railroad
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) &&
-		(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
+		(MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
 		!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteDiscountTimes120 = 40;
 	// ignore terrain cost for moving along rivers

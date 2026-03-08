@@ -1013,7 +1013,7 @@ protected:
 	static int lGetIndustryHistory(lua_State* L);
 	static int lGetAgricultureHistory(lua_State* L);
 	static int lGetPowerHistory(lua_State* L);
-	static int lGetReasonPlunderTradeRouteDisabled(lua_State* L);
+	static int lGetReasonActionDisabled(lua_State* L);
 	static int lGetReplayData(lua_State* L);
 	static int lSetReplayDataValue(lua_State* L);
 
@@ -1248,6 +1248,7 @@ protected:
 	static int lGetDealValue(lua_State* L);
 	static int lGetDealMyValue(lua_State* L);
 	static int lGetDealTheyreValue(lua_State* L);
+	static int lIsCurrentDealOfferChanged(lua_State* L);
 
 	static int lMayNotAnnex(lua_State* L);
 
