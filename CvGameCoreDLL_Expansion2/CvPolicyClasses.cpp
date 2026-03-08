@@ -374,7 +374,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bCSResourcesForMonopolies(false),
 	m_iNeedsModifierFromAirUnits(0),
 	m_iFlatDefenseFromAirUnits(0),
-	m_iPuppetYieldPenaltyMod(0),
+	m_iPuppetYieldAndSupplyModifierChange(0),
 	m_iConquestPerEraBuildingProductionMod(0),
 	m_iAdmiralLuxuryBonus(0),
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
@@ -755,7 +755,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bCSResourcesForMonopolies = kResults.GetBool("CSResourcesCountForMonopolies");
 	m_iNeedsModifierFromAirUnits = kResults.GetInt("NeedsModifierFromAirUnits");
 	m_iFlatDefenseFromAirUnits = kResults.GetInt("FlatDefenseFromAirUnits");
-	m_iPuppetYieldPenaltyMod = kResults.GetInt("PuppetYieldPenaltyMod");
+	m_iPuppetYieldAndSupplyModifierChange = kResults.GetInt("PuppetYieldAndSupplyModifierChange");
 	m_iConquestPerEraBuildingProductionMod = kResults.GetInt("ConquestPerEraBuildingProductionMod");
 	m_iAdmiralLuxuryBonus = kResults.GetInt("AdmiralLuxuryBonus");
 	m_iInvestmentModifier = kResults.GetInt("InvestmentModifier");
@@ -3556,9 +3556,9 @@ int CvPolicyEntry::GetFlatDefenseFromAirUnits() const
 {
 	return m_iFlatDefenseFromAirUnits;
 }
-int CvPolicyEntry::GetPuppetYieldPenaltyMod() const
+int CvPolicyEntry::GetPuppetYieldAndSupplyModifierChange() const
 {
-	return m_iPuppetYieldPenaltyMod;
+	return m_iPuppetYieldAndSupplyModifierChange;
 }
 int CvPolicyEntry::GetConquestPerEraBuildingProductionMod() const
 {
