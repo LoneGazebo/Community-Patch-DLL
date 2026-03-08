@@ -8130,3 +8130,8 @@ void CvDealAI::DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 	}
 }
 
+void CvDealAI::ClearCachedDealItemValues()
+{
+	m_iDealItemValuesTurnSlice = -1;
+	m_dealItemValues.clear();
+}
