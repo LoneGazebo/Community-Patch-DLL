@@ -204,7 +204,7 @@ VALUES
 INSERT INTO Building_YieldFromVictoryGlobal
 	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BUILDING_TEOCALLI', 'YIELD_FAITH', 5, 0);
+	('BUILDING_TEOCALLI', 'YIELD_FAITH', 2, 0);
 
 INSERT INTO Building_YieldFromVictory
 	(BuildingType, YieldType, Yield, IsEraScaling)
