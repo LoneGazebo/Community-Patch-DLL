@@ -105,16 +105,28 @@ WHERE Tag = 'TXT_KEY_PRODUCTION_RESOURCES_REQUIRED';
 
 -- Building
 UPDATE Language_en_US
-SET Text = '[ICON_HAPPINESS_1] Happiness: {2_Sign}{1_Num}'
+SET Text = '[ICON_BULLET][ICON_HAPPINESS_1] Happiness: {2_Sign}{1_Num}'
 WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_HAPPINESS';
 
 UPDATE Language_en_US
-SET Text = '[ICON_STRENGTH] City Strength: {2_Sign}{1_Num}'
+SET Text = '[ICON_BULLET][ICON_STRENGTH] City Strength: {2_Sign}{1_Num}'
 WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_DEFENSE';
 
 UPDATE Language_en_US
-SET Text = '[ICON_STRENGTH] Hit Points: {2_Sign}{1_Num}'
+SET Text = '[ICON_BULLET][ICON_STRENGTH] Hit Points: {2_Sign}{1_Num}'
 WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_HITPOINTS';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET][ICON_GREAT_WORK] Great Work of Art or Artifact slots: {1_NumSlots}'
+WHERE Tag = 'TXT_KEY_GREAT_WORK_SLOT_ART_ARTIFACT_SLOTS_TOOLTIP';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET][ICON_GREAT_WORK] Great Work of Music slots: {1_NumSlots}'
+WHERE Tag = 'TXT_KEY_GREAT_WORK_SLOT_MUSIC_SLOTS_TOOLTIP';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET][ICON_GREAT_WORK] Great Work of Writing slots: {1_NumSlots}'
+WHERE Tag = 'TXT_KEY_GREAT_WORK_SLOT_LITERATURE_SLOTS_TOOLTIP';
 
 -- Yield
 UPDATE Language_en_US
