@@ -15,6 +15,7 @@
 #include "CvEconomicAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
+#include "CvTypes.h"
 // include after all other headers
 #include "LintFree.h"
 
@@ -986,9 +987,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			int iTempBonus = 0;
 			int iTempMod = 0;
 
-			if (pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
+			if (pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0)
 			{
-				iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperience(eTestDomain) + (pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain) * m_pCity->GetCityCulture()->GetNumGreatWorks()));
+				iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain);
+			}
+			if (pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain) > 0)
+			{
+				// assume the slots of this building will be filled
+				iTempBonus += (pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain) * pkBuildingInfo->GetGreatWorkCount());
 			}
 			if (!pkBuildingInfo->GetBonusFromAccomplishments().empty())
 			{
@@ -1014,13 +1020,33 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				iTempBonus += m_pCity->getDomainProductionModifier(eTestDomain) + pkBuildingInfo->GetDomainProductionModifier(eTestDomain);
 			}
+			if(pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkCity(eTestDomain) > 0)
+			{
+				iTempBonus += (pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkCity(eTestDomain) * m_pCity->GetCityBuildings()->GetNumGreatWorks());
+			}
 			if(pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain) > 0)
 			{
-				iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) +  pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain));
+				// this only applies to great works of writing and is capped at 45
+				int iLoop = 0;
+				int iGreatWorks = 0;
+				for (const CvCity* pLoopCity = GET_PLAYER(m_pCity->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_pCity->getOwner()).nextCity(&iLoop))
+				{
+					iGreatWorks += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
+				}
+				if (pkBuildingInfo->GetFreeGreatWork() != NO_GREAT_WORK)
+				{
+					GreatWorkSlotType eGreatWorkSlot = CultureHelpers::GetGreatWorkSlot(pkBuildingInfo->GetFreeGreatWork());
+					if (eGreatWorkSlot == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
+					{
+						iGreatWorks++;
+					}
+				}
+				int iXP = min(45, (iGreatWorks * pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkGlobal(eTestDomain)));
+				iTempBonus += iXP;
 			}
 			if (pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain) > 0)
 			{
-				iTempBonus += m_pCity->getDomainFreeExperience(eTestDomain) + kPlayer.GetDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain);
+				iTempBonus += pkBuildingInfo->GetDomainFreeExperienceGlobal(eTestDomain) * GET_PLAYER(m_pCity->getOwner()).getNumCities();
 			}
 			if(kPlayer.GetPlayerTraits()->GetDomainFreeExperienceModifier(eTestDomain) != 0)
 			{

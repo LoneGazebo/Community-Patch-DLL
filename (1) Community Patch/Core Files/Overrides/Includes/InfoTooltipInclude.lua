@@ -2006,6 +2006,10 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	for row in GameInfo.Building_DomainFreeExperiencePerGreatWork{BuildingType = kBuildingInfo.Type} do
 		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK", row.Experience, GameInfo.Domains[row.DomainType].Description);
 	end
+	for row in GameInfo.Building_DomainFreeExperiencePerGreatWorkCity{BuildingType = kBuildingInfo.Type} do
+		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK_CITY",
+			row.Experience, GameInfo.Domains[row.DomainType].Description);
+	end
 	for row in GameInfo.Building_DomainFreeExperiencePerGreatWorkGlobal{BuildingType = kBuildingInfo.Type} do
 		AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WRITING_GLOBAL",
 			row.Experience, GameInfo.Domains[row.DomainType].Description);

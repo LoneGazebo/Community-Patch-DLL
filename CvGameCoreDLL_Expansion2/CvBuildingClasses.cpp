@@ -364,6 +364,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piUnitCombatProductionModifiersGlobal(NULL),
 	m_piDomainFreeExperience(NULL),
 	m_piDomainFreeExperiencePerGreatWork(NULL),
+	m_piDomainFreeExperiencePerGreatWorkCity(NULL),
 	m_piDomainFreeExperiencePerGreatWorkGlobal(NULL),
 	m_piDomainFreeExperienceGlobal(),
 	m_piDomainProductionModifier(NULL),
@@ -518,6 +519,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiersGlobal);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperience);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWork);
+	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWorkCity);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWorkGlobal);
 	m_piDomainFreeExperienceGlobal.clear();
 	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
@@ -1064,6 +1066,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiersGlobal, "UnitCombatInfos", "Building_UnitCombatProductionModifiersGlobal", "UnitCombatType", "BuildingType", szBuildingType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperience, "Domains", "Building_DomainFreeExperiences", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWork, "Domains", "Building_DomainFreeExperiencePerGreatWork", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
+	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWorkCity, "Domains", "Building_DomainFreeExperiencePerGreatWorkCity", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWorkGlobal, "Domains", "Building_DomainFreeExperiencePerGreatWorkGlobal", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainProductionModifier, "Domains", "Building_DomainProductionModifiers", "DomainType", "BuildingType", szBuildingType, "Modifier", 0, NUM_DOMAIN_TYPES);
 
@@ -4254,7 +4257,14 @@ int CvBuildingEntry::GetDomainFreeExperiencePerGreatWork(int i) const
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piDomainFreeExperiencePerGreatWork ? m_piDomainFreeExperiencePerGreatWork[i] : -1;
 }
-/// Free experience gained for units in this domain for each Great Work in this building
+/// Free experience gained for units in this domain for each Great Work in this city
+int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkCity(int i) const
+{
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piDomainFreeExperiencePerGreatWorkCity ? m_piDomainFreeExperiencePerGreatWorkCity[i] : -1;
+}
+/// Free experience gained for units in this domain for each Great Work of Writing in the empire (capped at 45)
 int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkGlobal(int i) const
 {
 	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");

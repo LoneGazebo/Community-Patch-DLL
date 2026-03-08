@@ -26699,16 +26699,22 @@ int CvCity::getDomainFreeExperienceFromGreatWorks(DomainTypes eIndex) const
 
 	int iXP = 0;
 
-	CvBuildingXMLEntries* pkBuildings = GetCityBuildings()->GetPossibleBuildings();
-	for (int iBuilding = 0; iBuilding < pkBuildings->GetNumBuildings(); iBuilding++)
+	const vector<BuildingTypes>& allBuildingsHere = GetCityBuildings()->GetAllBuildingsHere();
+	for (size_t iBuilding = 0; iBuilding < allBuildingsHere.size(); iBuilding++)
 	{
-		CvBuildingEntry* pInfo = pkBuildings->GetEntry(iBuilding);
-		if (pInfo)
+		const BuildingTypes eBuilding = allBuildingsHere[iBuilding];
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo)
 		{
-			if (pInfo->GetDomainFreeExperiencePerGreatWork(eIndex) != 0)
+			if (pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eIndex) != 0)
 			{
-				int iGreatWorks = GetCityBuildings()->GetNumGreatWorksInBuilding(pInfo->GetBuildingClassType());
-				iXP += (iGreatWorks * pInfo->GetDomainFreeExperiencePerGreatWork(eIndex));
+				int iGreatWorks = GetCityBuildings()->GetNumGreatWorksInBuilding(pkBuildingInfo->GetBuildingClassType());
+				iXP += (iGreatWorks * pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eIndex));
+			}
+			if (pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkCity(eIndex) != 0)
+			{
+				int iGreatWorksCity = GetCityBuildings()->GetNumGreatWorks();
+				iXP += (iGreatWorksCity * pkBuildingInfo->GetDomainFreeExperiencePerGreatWorkCity(eIndex));
 			}
 		}
 	}
