@@ -4273,7 +4273,7 @@ int CvPlayerCulture::GetTourism() const
 
 		// Minor civs
 		iRtnValue += m_pPlayer->GetYieldPerTurnFromMinorCivsTimes100(YIELD_TOURISM);
-		iRtnValue += m_pPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_TOURISM) * 100;
+		iRtnValue += m_pPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_TOURISM);
 
 		// Tourism from Espionage Events
 		iRtnValue += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_TOURISM, true) * 100;
