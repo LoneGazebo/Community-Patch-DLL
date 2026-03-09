@@ -491,7 +491,7 @@ function RefreshSettings()
 		entry.InstantYieldCheckbox:RegisterCheckHandler( function() ToggleInstantYieldSetting(entry.InstantYieldCheckbox, pPlayer, v.Index) end );
 	end
 	for i,v in ipairs(g_InstantYieldMiscSorted) do
-		entry = {};
+		local entry = {};
 		ContextPtr:BuildInstanceForControl( "InstantYieldsInstance", entry, Controls.InstantYieldMiscStack );
 		entry.InstantYieldName:SetText(v.Name);
 		entry.InstantYieldCheckbox:SetCheck(not pPlayer:IsInstantYieldNotificationDisabled(v.Index));
