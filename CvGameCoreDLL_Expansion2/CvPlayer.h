@@ -780,13 +780,13 @@ public:
 	void removeAnnexedCityState(PlayerTypes eMinor);
 	void updateTimerAnnexedMilitaryCityStates();
 	// City-level Extra Yields from Annexed Minors
-	int GetYieldInCapitalPerTurnFromAnnexedMinors(YieldTypes eYield) const;
-	void ChangeYieldInCapitalPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
-	int GetYieldInOtherCitiesPerTurnFromAnnexedMinors(YieldTypes eYield) const;
-	void ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
+	int GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const;
+	void ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
+	int GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const;
+	void ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
 	// Player-level Extra Yields from Annexed Minors
-	int GetYieldPerTurnFromAnnexedMinors(YieldTypes eYield) const;
-	void ChangeYieldPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
+	int GetYieldPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const;
+	void ChangeYieldPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
 	int GetHappinessFromAnnexedMinors() const;
 	void ChangeHappinessFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra = NO_ERA);
 
@@ -3020,10 +3020,10 @@ protected:
 	int m_iNumAnnexedCityStates;
 	std::vector< std::pair<PlayerTypes, int> > m_AnnexedCityStatesUnitSpawnTurns;
 	//for bookkeeping only, yields are added to cities
-	std::vector<int> m_piYieldInCapitalFromAnnexedMinors;
-	std::vector<int>  m_piYieldInOtherCitiesFromAnnexedMinors;
+	std::vector<int> m_piYieldInCapitalFromAnnexedMinorsTimes100;
+	std::vector<int>  m_piYieldInOtherCitiesFromAnnexedMinorsTimes100;
 	//real bonuses on player level
-	std::vector<int> m_piYieldPerTurnFromAnnexedMinors;
+	std::vector<int> m_piYieldPerTurnFromAnnexedMinorsTimes100;
 	int	m_iHappinessFromAnnexedMinors;
 
 	int m_iHappinessPerMajorWar;
@@ -3835,9 +3835,9 @@ SYNC_ARCHIVE_VAR(int, m_iSpyPointsTotal)
 SYNC_ARCHIVE_VAR(int, m_iSpyStartingRank)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(int, m_iNumAnnexedCityStates)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldInCapitalFromAnnexedMinors)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldInOtherCitiesFromAnnexedMinors)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldPerTurnFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldInCapitalFromAnnexedMinorsTimes100)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldInOtherCitiesFromAnnexedMinorsTimes100)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_piYieldPerTurnFromAnnexedMinorsTimes100)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerMajorWar)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryProductionModPerMajorWar)
