@@ -503,9 +503,9 @@ CvPlayer::CvPlayer() :
 	, m_iCSYieldBonusModifier()
 	, m_iConversionModifier()
 	, m_iNumAnnexedCityStates()
-	, m_piYieldInCapitalFromAnnexedMinors()
-	, m_piYieldInOtherCitiesFromAnnexedMinors()
-	, m_piYieldPerTurnFromAnnexedMinors()
+	, m_piYieldInCapitalFromAnnexedMinorsTimes100()
+	, m_piYieldInOtherCitiesFromAnnexedMinorsTimes100()
+	, m_piYieldPerTurnFromAnnexedMinorsTimes100()
 	, m_iHappinessFromAnnexedMinors()
 	, m_iImprovementLeagueVotes()
 	, m_iFaithToVotes()
@@ -1257,9 +1257,9 @@ void CvPlayer::uninit()
 	m_iSpyStartingRank = 0;
 	m_iConversionModifier = 0;
 	m_iNumAnnexedCityStates = 0;
-	m_piYieldInCapitalFromAnnexedMinors.clear();
-	m_piYieldInOtherCitiesFromAnnexedMinors.clear();
-	m_piYieldPerTurnFromAnnexedMinors.clear();
+	m_piYieldInCapitalFromAnnexedMinorsTimes100.clear();
+	m_piYieldInOtherCitiesFromAnnexedMinorsTimes100.clear();
+	m_piYieldPerTurnFromAnnexedMinorsTimes100.clear();
 	m_iHappinessFromAnnexedMinors = 0;
 	m_iHappinessPerMajorWar = 0;
 	m_iMilitaryProductionModPerMajorWar = 0;
@@ -1900,16 +1900,15 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiTourismBonusTurnsPlayer.clear();
 	m_aiTourismBonusTurnsPlayer.resize(MAX_PLAYERS, 0);
-
 	
-	m_piYieldInCapitalFromAnnexedMinors.clear();
-	m_piYieldInCapitalFromAnnexedMinors.resize(NUM_YIELD_TYPES, 0);
+	m_piYieldInCapitalFromAnnexedMinorsTimes100.clear();
+	m_piYieldInCapitalFromAnnexedMinorsTimes100.resize(NUM_YIELD_TYPES, 0);
 
-	m_piYieldInOtherCitiesFromAnnexedMinors.clear();
-	m_piYieldInOtherCitiesFromAnnexedMinors.resize(NUM_YIELD_TYPES, 0);
+	m_piYieldInOtherCitiesFromAnnexedMinorsTimes100.clear();
+	m_piYieldInOtherCitiesFromAnnexedMinorsTimes100.resize(NUM_YIELD_TYPES, 0);
 
-	m_piYieldPerTurnFromAnnexedMinors.clear();
-	m_piYieldPerTurnFromAnnexedMinors.resize(NUM_YIELD_TYPES, 0);
+	m_piYieldPerTurnFromAnnexedMinorsTimes100.clear();
+	m_piYieldPerTurnFromAnnexedMinorsTimes100.resize(NUM_YIELD_TYPES, 0);
 
 	m_aOptions.clear();
 
@@ -17528,7 +17527,7 @@ int CvPlayer::GetTotalJONSCulturePerTurnTimes100(CvString* toolTipSink) const
 	iCulturePerTurn += iTmp;
 	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_MINORS", iTmp, "");
 
-	iTmp = GetYieldPerTurnFromAnnexedMinors(YIELD_CULTURE) * 100;
+	iTmp = GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_CULTURE);
 	iCulturePerTurn += iTmp;
 	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS", iTmp, "");
 
@@ -19588,7 +19587,7 @@ int CvPlayer::GetTotalFaithPerTurnTimes100() const
 	iFaithPerTurn += GetYieldPerTurnFromMinorCivsTimes100(YIELD_FAITH);
 
 	// Faith per turn from Annexed City-States
-	iFaithPerTurn += GetYieldPerTurnFromAnnexedMinors(YIELD_FAITH) * 100;
+	iFaithPerTurn += GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_FAITH);
 
 	// Faith from Espionage Events
 	iFaithPerTurn += GetYieldPerTurnFromEspionageEvents(YIELD_FAITH, true) * 100;
@@ -22880,14 +22879,14 @@ void CvPlayer::ChangeNumAnnexedCityStates(int iChange)
 }
 
 /// Get the yields in the capital from annexed City-States (Rome UA)
-int CvPlayer::GetYieldInCapitalPerTurnFromAnnexedMinors(YieldTypes eYield) const
+int CvPlayer::GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const
 {
 	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_piYieldInCapitalFromAnnexedMinors[eYield];
+	return m_piYieldInCapitalFromAnnexedMinorsTimes100[eYield];
 }
 /// Update the yields in the capital from annexed City-States (Rome UA)
-void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra)
+void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, int iSign, EraTypes eEra)
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields() && getCapitalCity())
 	{
@@ -22901,22 +22900,21 @@ void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinor(PlayerTypes eMinor, i
 			YieldTypes eYield = (YieldTypes)iI;
 			
 			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonusTimes100(GetID(), eYield, eEra, 2, true);
-			iBonus /= 100;
 			iBonus *= iSign;
 	
 			//update if necessary
 			//bonus yields are tracked on city level
 			getCapitalCity()->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iBonus);
-			m_piYieldInCapitalFromAnnexedMinors[eYield] += iBonus / 100;
+			m_piYieldInCapitalFromAnnexedMinorsTimes100[eYield] += iBonus;
 		}
 	}
 }
 /// Get the yields in other cities from annexed City-States (Rome UA)
-int CvPlayer::GetYieldInOtherCitiesPerTurnFromAnnexedMinors(YieldTypes eYield) const
+int CvPlayer::GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const
 {
 	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_piYieldInOtherCitiesFromAnnexedMinors[eYield];
+	return m_piYieldInOtherCitiesFromAnnexedMinorsTimes100[eYield];
 }
 /// Update the yields in other cities from annexed City-States (Rome UA)
 void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra)
@@ -22933,7 +22931,6 @@ void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(PlayerTypes eMino
 			YieldTypes eYield = (YieldTypes)iI;
 			
 			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonusTimes100(GetID(), eYield, eEra, 2, true);
-			iBonus /= 100;
 			iBonus *= iSign;
 	
 			//update if necessary
@@ -22942,16 +22939,16 @@ void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(PlayerTypes eMino
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				if (pLoopCity->GetID()!=getCapitalCityID())
 					pLoopCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iBonus);
-			m_piYieldInOtherCitiesFromAnnexedMinors[eYield] += iBonus / 100;
+			m_piYieldInOtherCitiesFromAnnexedMinorsTimes100[eYield] += iBonus;
 		}
 	}
 }
 /// Get the yields per turn from annexed City-States (Rome UA)
-int CvPlayer::GetYieldPerTurnFromAnnexedMinors(YieldTypes eYield) const
+int CvPlayer::GetYieldPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const
 {
 	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_piYieldPerTurnFromAnnexedMinors[eYield];
+	return m_piYieldPerTurnFromAnnexedMinorsTimes100[eYield];
 }
 /// Update the yields per turn from annexed City-States (Rome UA)
 void CvPlayer::ChangeYieldPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra)
@@ -22969,7 +22966,7 @@ void CvPlayer::ChangeYieldPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign,
 		
 			int iBonus = kMinor->GetYieldFlatBonusTimes100(GetID(), eYield, eEra, 2);
 		
-			m_piYieldPerTurnFromAnnexedMinors[eYield] += iBonus * iSign / 100;
+			m_piYieldPerTurnFromAnnexedMinorsTimes100[eYield] += iBonus * iSign;
 		}
 	}
 }
@@ -24099,7 +24096,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 	}
 	// and minor civs
 	iGreatGeneralPointsTimes100 += GetYieldPerTurnFromMinorCivsTimes100(YIELD_GREAT_GENERAL_POINTS);
-	iGreatGeneralPointsTimes100 += GetYieldPerTurnFromAnnexedMinors(YIELD_GREAT_GENERAL_POINTS) * 100;
+	iGreatGeneralPointsTimes100 += GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_GREAT_GENERAL_POINTS);
 
 	changeCombatExperienceTimes100(iGreatGeneralPointsTimes100);
 }
@@ -24185,7 +24182,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 	}
 	// and minor civs
 	iGreatAdmiralPointsTimes100 += GetYieldPerTurnFromMinorCivsTimes100(YIELD_GREAT_ADMIRAL_POINTS);
-	iGreatAdmiralPointsTimes100 += GetYieldPerTurnFromAnnexedMinors(YIELD_GREAT_ADMIRAL_POINTS) * 100;
+	iGreatAdmiralPointsTimes100 += GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_GREAT_ADMIRAL_POINTS);
 
 	changeNavalCombatExperienceTimes100(iGreatAdmiralPointsTimes100);
 }
@@ -24255,7 +24252,7 @@ int CvPlayer::GetGoldenAgePointsFromEmpireTimes100()
 
 	// Minor civs
 	iGAPoints += GetYieldPerTurnFromMinorCivsTimes100(YIELD_GOLDEN_AGE_POINTS);
-	iGAPoints += GetYieldPerTurnFromAnnexedMinors(YIELD_GOLDEN_AGE_POINTS) * 100;
+	iGAPoints += GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_GOLDEN_AGE_POINTS);
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
@@ -35224,7 +35221,7 @@ int CvPlayer::GetScienceTimes100() const
 	}
 
 	iValue += GetYieldPerTurnFromMinorCivsTimes100(YIELD_SCIENCE);
-	iValue += GetYieldPerTurnFromAnnexedMinors(YIELD_SCIENCE) * 100;
+	iValue += GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_SCIENCE);
 
 	// Science from Espionage Events
 	iValue += GetYieldPerTurnFromEspionageEvents(YIELD_SCIENCE, true) * 100;
@@ -43297,9 +43294,9 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iSpyPointsTotal);
 	visitor(player.m_iSpyStartingRank);
 	visitor(player.m_iConversionModifier);
-	visitor(player.m_piYieldInCapitalFromAnnexedMinors);
-	visitor(player.m_piYieldInOtherCitiesFromAnnexedMinors);
-	visitor(player.m_piYieldPerTurnFromAnnexedMinors);
+	visitor(player.m_piYieldInCapitalFromAnnexedMinorsTimes100);
+	visitor(player.m_piYieldInOtherCitiesFromAnnexedMinorsTimes100);
+	visitor(player.m_piYieldPerTurnFromAnnexedMinorsTimes100);
 	visitor(player.m_iHappinessFromAnnexedMinors);
 	visitor(player.m_iHappinessPerMajorWar);
 	visitor(player.m_iMilitaryProductionModPerMajorWar);
