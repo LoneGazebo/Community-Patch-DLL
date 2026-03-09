@@ -12951,7 +12951,7 @@ int CvLuaPlayer::lGetGoldPerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_GOLD));
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_GOLD) / 100);
 		return 1;
 	}
 	//BUG: This can't be right...
@@ -12964,7 +12964,7 @@ int CvLuaPlayer::lGetCulturePerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_CULTURE));
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_CULTURE) / 100);
 		return 1;
 	}
 	//BUG: This can't be right...
@@ -12977,7 +12977,7 @@ int CvLuaPlayer::lGetFaithPerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_FAITH));
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_FAITH) / 100);
 		return 1;
 	}
 	//BUG: This can't be right...
@@ -12990,7 +12990,7 @@ int CvLuaPlayer::lGetSciencePerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinors(YIELD_SCIENCE));
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_SCIENCE) / 100);
 		return 1;
 	}
 	//BUG: This can't be right...
