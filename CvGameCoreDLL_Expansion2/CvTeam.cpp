@@ -8839,14 +8839,14 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				{
 					PlayerTypes eMinor = (*it).first;
 					// remove previous era bonuses
-					kPlayer.ChangeYieldInCapitalPerTurnFromAnnexedMinor(eMinor, -1, eCurrentEra);
-					kPlayer.ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(eMinor, -1, eCurrentEra);
-					kPlayer.ChangeYieldPerTurnFromAnnexedMinor(eMinor, -1, eCurrentEra);
+					kPlayer.ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(eMinor, -1, eCurrentEra);
+					kPlayer.ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(eMinor, -1, eCurrentEra);
+					kPlayer.ChangeYieldPerTurnFromAnnexedMinorTimes100(eMinor, -1, eCurrentEra);
 					kPlayer.ChangeHappinessFromAnnexedMinor(eMinor, -1, eCurrentEra);
 					// add new era bonuses
-					kPlayer.ChangeYieldInCapitalPerTurnFromAnnexedMinor(eMinor, +1, eNewValue);
-					kPlayer.ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(eMinor, +1, eNewValue);
-					kPlayer.ChangeYieldPerTurnFromAnnexedMinor(eMinor, +1, eNewValue);
+					kPlayer.ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(eMinor, +1, eNewValue);
+					kPlayer.ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(eMinor, +1, eNewValue);
+					kPlayer.ChangeYieldPerTurnFromAnnexedMinorTimes100(eMinor, +1, eNewValue);
 					kPlayer.ChangeHappinessFromAnnexedMinor(eMinor, +1, eNewValue);
 				}
 			}
