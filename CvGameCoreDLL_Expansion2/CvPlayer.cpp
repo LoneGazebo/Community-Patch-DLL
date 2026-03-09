@@ -22815,9 +22815,9 @@ void CvPlayer::addAnnexedCityState(PlayerTypes eMinor)
 		iTurns = GET_PLAYER(eMinor).GetMinorCivAI()->GetSpawnBaseTurns(GetID(), true);
 	m_AnnexedCityStatesUnitSpawnTurns.push_back(std::make_pair(eMinor, iTurns));
 
-	ChangeYieldInCapitalPerTurnFromAnnexedMinor(eMinor, +1);
-	ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(eMinor, +1);
-	ChangeYieldPerTurnFromAnnexedMinor(eMinor, +1);
+	ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(eMinor, +1);
+	ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(eMinor, +1);
+	ChangeYieldPerTurnFromAnnexedMinorTimes100(eMinor, +1);
 	ChangeHappinessFromAnnexedMinor(eMinor, +1);
 }
 
@@ -22829,9 +22829,9 @@ void CvPlayer::removeAnnexedCityState(PlayerTypes eMinor)
 		{
 			m_AnnexedCityStatesUnitSpawnTurns.erase(it);
 			
-			ChangeYieldInCapitalPerTurnFromAnnexedMinor(eMinor, -1);
-			ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(eMinor, -1);
-			ChangeYieldPerTurnFromAnnexedMinor(eMinor, -1);
+			ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(eMinor, -1);
+			ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(eMinor, -1);
+			ChangeYieldPerTurnFromAnnexedMinorTimes100(eMinor, -1);
 			ChangeHappinessFromAnnexedMinor(eMinor, -1);
 			
 			return;
@@ -22917,7 +22917,7 @@ int CvPlayer::GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(YieldTypes e
 	return m_piYieldInOtherCitiesFromAnnexedMinorsTimes100[eYield];
 }
 /// Update the yields in other cities from annexed City-States (Rome UA)
-void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra)
+void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, int iSign, EraTypes eEra)
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 	{
@@ -22951,7 +22951,7 @@ int CvPlayer::GetYieldPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const
 	return m_piYieldPerTurnFromAnnexedMinorsTimes100[eYield];
 }
 /// Update the yields per turn from annexed City-States (Rome UA)
-void CvPlayer::ChangeYieldPerTurnFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra)
+void CvPlayer::ChangeYieldPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, int iSign, EraTypes eEra)
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 	{
