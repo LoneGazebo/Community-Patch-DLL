@@ -31477,7 +31477,7 @@ bool CvCity::CrosscheckYieldsFromMinors()
 		}
 
 		//roman UA adds yields from conquered city states ...
-		iMajorBonus += isCapital() ? kMajor.GetYieldInCapitalPerTurnFromAnnexedMinors(eYield) : kMajor.GetYieldInOtherCitiesPerTurnFromAnnexedMinors(eYield) * 100;
+		iMajorBonus += isCapital() ? kMajor.GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(eYield) : kMajor.GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(eYield);
 
 		if (m_aiBaseYieldRateFromCSAllianceTimes100[eYield] + m_aiBaseYieldRateFromCSFriendshipTimes100[eYield] != iMajorBonus + iMinorBonus)
 		{
