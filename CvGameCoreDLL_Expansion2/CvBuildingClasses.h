@@ -427,6 +427,9 @@ public:
 	int GetYieldFromVictory(int i) const;
 	int* GetYieldFromVictoryArray() const;
 
+	int GetYieldFromVictoryEraScaling(int i) const;
+	int* GetYieldFromVictoryEraScalingArray() const;
+
 	int GetYieldFromVictoryGlobal(int i) const;
 	int* GetYieldFromVictoryGlobalArray() const;
 
@@ -1003,6 +1006,7 @@ private:
 	int m_iNeedBuildingThisCity;
 	int* m_piYieldFromDeath;
 	int* m_piYieldFromVictory;
+	int* m_piYieldFromVictoryEraScaling;
 	int* m_piYieldFromVictoryGlobal;
 	int* m_piYieldFromVictoryGlobalEraScaling;
 	int* m_piYieldFromVictoryGlobalInGoldenAge;

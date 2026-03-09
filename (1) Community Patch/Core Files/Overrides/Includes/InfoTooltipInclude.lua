@@ -2880,6 +2880,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local tSpyKillOrIdentifyYields = {};
 		local tRigElectionYields = {};
 		local tUnitKillYields = {};
+		local tUnitKillYieldsEraScaling = {};
 		local tUnitKillYieldsGlobal = {};
 		local tUnitKillYieldsGlobalEraScaling = {};
 		local tUnitKillYieldsGlobalGoldenAge = {};
@@ -2903,7 +2904,6 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			ExtractSimpleYieldTable(tUnitGiftYields, "Building_YieldFromUnitGiftGlobal", kYieldInfo);
 			ExtractSimpleYieldTable(tUnitPromoteYields, "Building_YieldFromUnitLevelUp", kYieldInfo);
 			ExtractSimpleYieldTable(tUnitPromoteYieldsGlobal, "Building_YieldFromUnitLevelUpGlobal", kYieldInfo);
-			ExtractSimpleYieldTable(tUnitKillYields, "Building_YieldFromVictory", kYieldInfo);
 			ExtractSimpleYieldTable(tUnitKillYieldsGlobalPlayer, "Building_YieldFromVictoryGlobalPlayer", kYieldInfo);
 			ExtractSimpleYieldTable(tSpyKillYields, "Building_YieldFromSpyDefense", kYieldInfo);
 			if MOD_BALANCE_VP then
@@ -2920,6 +2920,12 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 				tGrowthYieldsEraScaling[eYield] = row.Yield;
 			end
 
+			for row in GameInfo.Building_YieldFromVictory{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type, IsEraScaling = 0} do
+				tUnitKillYields[eYield] = row.Yield;
+			end
+			for row in GameInfo.Building_YieldFromVictory{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type, IsEraScaling = 1} do
+				tUnitKillYieldsEraScaling[eYield] = row.Yield;
+			end
 			for row in GameInfo.Building_YieldFromVictoryGlobal{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type, IsEraScaling = 0, GoldenAgeOnly = 0} do
 				tUnitKillYieldsGlobal[eYield] = row.Yield;
 			end
@@ -3000,6 +3006,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_FROM_COMBAT_EXPERIENCE", tCombatExperienceYields);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_PROMOTION", tUnitPromoteYields);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_PROMOTION_GLOBAL", tUnitPromoteYieldsGlobal);
+		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL", tUnitKillYields);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL_GLOBAL", tUnitKillYieldsGlobal);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL_GLOBAL_GOLDEN_AGE", tUnitKillYieldsGlobalGoldenAge);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_GIFT", tUnitGiftYields);
@@ -3012,7 +3019,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_LONG_COUNT", tLongCountYields);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_TECH", tTechYields);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_POLICY", tPolicyYields);
-		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL", tUnitKillYields);
+		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL", tUnitKillYieldsEraScaling);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL_GLOBAL", tUnitKillYieldsGlobalEraScaling);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL_GLOBAL_GOLDEN_AGE", tUnitKillYieldsGlobalGoldenAgeEraScaling);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_PILLAGE", tPillageYields);

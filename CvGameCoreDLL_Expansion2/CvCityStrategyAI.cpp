@@ -3906,7 +3906,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromVictory(eYield) > 0)
 	{
-		iInstant += pkBuildingInfo->GetYieldFromVictory(eYield);
+		iInstant += pkBuildingInfo->GetYieldFromVictory(eYield) / 5;
+	}
+	if (pkBuildingInfo->GetYieldFromVictoryEraScaling(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromVictoryEraScaling(eYield);
 	}
 	if (pkBuildingInfo->GetYieldFromVictoryGlobal(eYield) > 0)
 	{

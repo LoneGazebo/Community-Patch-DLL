@@ -2140,6 +2140,7 @@
 			<Strategy>TXT_KEY_BUILDING_ORDER_STRATEGY</Strategy>
 			<TrainedFreePromotion>PROMOTION_MORALE</TrainedFreePromotion>
 			<RangedStrikeModifier>10</RangedStrikeModifier>
+			<CitySupplyFlat>1</CitySupplyFlat>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<DistressFlatReduction>1</DistressFlatReduction>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
@@ -2154,7 +2155,6 @@
 			<Civilopedia>TXT_KEY_BUILDING_TEOCALLI_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_TEOCALLI_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_TEOCALLI_STRATEGY</Strategy>
-			<CitySupplyFlat>1</CitySupplyFlat>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<DistressFlatReduction>1</DistressFlatReduction>
 			<IconAtlas>EXPANSION_BW_ATLAS_1</IconAtlas>

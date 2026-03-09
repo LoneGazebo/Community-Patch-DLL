@@ -82,9 +82,9 @@ VALUES
 	('BUILDING_GYMNASION', 'YIELD_CULTURE_LOCAL', 5, 1);
 
 INSERT INTO Building_YieldFromVictory
-	(BuildingType, YieldType, Yield)
+	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BUILDING_GYMNASION', 'YIELD_CULTURE', 25);
+	('BUILDING_GYMNASION', 'YIELD_CULTURE', 25, 1);
 
 ----------------------------------------------------------
 -- Unique Building: Parthenon (Scrivener's Office)

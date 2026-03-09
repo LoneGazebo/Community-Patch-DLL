@@ -26127,12 +26127,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						// Apply any bounty that may exist for killing the unit
 						iValue += pkKilledUnitInfo->GetYieldOnBountyToKiller(eYield);
 					}
-					int iTempYield = pLoopCity->GetYieldFromVictory(eYield);
-					if (bEraScale)
-					{
-						iTempYield *= iEra;
-					}
-					iValue += iTempYield;
+					
+					// yield from victory era scaling is handled in different arrays, ignores the era scaling flag
+					iValue += pLoopCity->GetYieldFromVictory(eYield) + pLoopCity->GetYieldFromVictoryEraScaling(eYield) * iEra;
+					
 					break;
 				}
 				case INSTANT_YIELD_TYPE_VICTORY_GLOBAL:

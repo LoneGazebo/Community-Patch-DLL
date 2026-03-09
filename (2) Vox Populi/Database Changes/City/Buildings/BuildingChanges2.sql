@@ -202,16 +202,21 @@ VALUES
 	('BUILDING_TEOCALLI', 'YIELD_FAITH', 2);
 
 INSERT INTO Building_YieldFromVictoryGlobal
-	(BuildingType, YieldType, Yield)
+	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BUILDING_TEOCALLI', 'YIELD_FAITH', 5);
+	('BUILDING_TEOCALLI', 'YIELD_FAITH', 2, 0);
+
+INSERT INTO Building_YieldFromVictory
+	(BuildingType, YieldType, Yield, IsEraScaling)
+VALUES
+	('BUILDING_TEOCALLI', 'YIELD_FAITH', 8, 0);
 
 INSERT INTO Building_DomainFreeExperiences
 	(BuildingType, DomainType, Experience)
 VALUES
-	('BUILDING_TEOCALLI', 'DOMAIN_LAND', 15),
-	('BUILDING_TEOCALLI', 'DOMAIN_SEA', 15),
-	('BUILDING_TEOCALLI', 'DOMAIN_AIR', 15);
+	('BUILDING_TEOCALLI', 'DOMAIN_LAND', 10),
+	('BUILDING_TEOCALLI', 'DOMAIN_SEA', 10),
+	('BUILDING_TEOCALLI', 'DOMAIN_AIR', 10);
 
 -- Gurdwara
 INSERT INTO Building_YieldChanges
@@ -765,8 +770,7 @@ SET
 	Help = 'TXT_KEY_WONDER_CHICHEN_ITZA_HELP',
 	PrereqTech = 'TECH_ASTRONOMY',
 	Happiness = 0,
-	EmpireSizeModifierReductionGlobal = -10,
-	FreeBuildingThisCity = 'BUILDINGCLASS_TEOCALLI'
+	EmpireSizeModifierReductionGlobal = -10
 WHERE Type = 'BUILDING_CHICHEN_ITZA';
 
 INSERT INTO Building_YieldChanges

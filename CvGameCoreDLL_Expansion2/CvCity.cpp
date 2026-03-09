@@ -387,6 +387,7 @@ CvCity::CvCity() :
 	, m_iCityAirStrikeDefense()
 	, m_iFreeBuildingTradeTargetCity()
 	, m_aiYieldFromVictory()
+	, m_aiYieldFromVictoryEraScaling()
 	, m_aiYieldFromVictoryGlobal()
 	, m_aiYieldFromVictoryGlobalEraScaling()
 	, m_aiYieldFromVictoryGlobalInGoldenAge()
@@ -1317,6 +1318,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiNumProjects.resize(GC.getNumProjectInfos());
 	m_aiSpecialistRateModifierFromBuildings.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromVictoryEraScaling.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromVictoryGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromVictoryGlobalEraScaling.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromVictoryGlobalInGoldenAge.resize(NUM_YIELD_TYPES);
@@ -1429,6 +1431,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiGreatWorkYieldChange[iI] = 0;
 		m_aiSpecialReligionYieldsTimes100[iI] = 0;
 		m_aiYieldFromVictory[iI] = 0;
+		m_aiYieldFromVictoryEraScaling[iI] = 0;
 		m_aiYieldFromVictoryGlobal[iI] = 0;
 		m_aiYieldFromVictoryGlobalEraScaling[iI] = 0;
 		m_aiYieldFromVictoryGlobalInGoldenAge[iI] = 0;
@@ -14524,6 +14527,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetYieldFromVictoryEraScaling(eYield) > 0))
+			{
+				ChangeYieldFromVictoryEraScaling(eYield, pBuildingInfo->GetYieldFromVictoryEraScaling(eYield) * iChange);
+			}
+			
 			if ((pBuildingInfo->GetYieldFromVictoryGlobal(eYield) > 0))
 			{
 				ChangeYieldFromVictoryGlobal(eYield, pBuildingInfo->GetYieldFromVictoryGlobal(eYield) * iChange);
@@ -23894,7 +23902,7 @@ void CvCity::ChangeYieldFromPassingTR(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from killing an enemy unit
+/// Extra yield from local unit killing an enemy unit
 int CvCity::GetYieldFromVictory(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -23904,7 +23912,7 @@ int CvCity::GetYieldFromVictory(YieldTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from killing an enemy unit
+/// Extra yield from local unit killing an enemy unit
 void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
@@ -23919,7 +23927,32 @@ void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from building
+/// Extra yield from local unit killing an enemy unit, scaling with era
+int CvCity::GetYieldFromVictoryEraScaling(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromVictoryEraScaling[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from local unit killing an enemy unit, scaling with era
+void CvCity::ChangeYieldFromVictoryEraScaling(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromVictoryEraScaling[eIndex] = m_aiYieldFromVictoryEraScaling[eIndex] + iChange;
+		ASSERT(GetYieldFromVictoryEraScaling(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from killing an enemy unit
 int CvCity::GetYieldFromVictoryGlobal(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -23942,7 +23975,7 @@ void CvCity::ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from building, scaling with era
+/// Extra yield from killing an enemy unit, scaling with era
 int CvCity::GetYieldFromVictoryGlobalEraScaling(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -23965,7 +23998,7 @@ void CvCity::ChangeYieldFromVictoryGlobalEraScaling(YieldTypes eIndex, int iChan
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from building
+/// Extra yield from killing an enemy unit only during a golden age
 int CvCity::GetYieldFromVictoryGlobalInGoldenAge(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -23988,7 +24021,7 @@ void CvCity::ChangeYieldFromVictoryGlobalInGoldenAge(YieldTypes eIndex, int iCha
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra yield from building, scaling with era
+/// Extra yield from killing an enemy unit only in a golden age, scaling with era
 int CvCity::GetYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -24010,8 +24043,8 @@ void CvCity::ChangeYieldFromVictoryGlobalInGoldenAgeEraScaling(YieldTypes eIndex
 	}
 }
 
-
-
+//	--------------------------------------------------------------------------------
+/// Extra yield from local unit pillaging
 int CvCity::GetYieldFromPillage(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -24020,8 +24053,6 @@ int CvCity::GetYieldFromPillage(YieldTypes eIndex) const
 	return m_aiYieldFromPillage[eIndex];
 }
 
-//	--------------------------------------------------------------------------------
-/// Extra yield from building
 void CvCity::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
@@ -24035,6 +24066,8 @@ void CvCity::ChangeYieldFromPillage(YieldTypes eIndex, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+// Extra yield from pillaging
 int CvCity::GetYieldFromPillageGlobal(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT();
@@ -24043,8 +24076,6 @@ int CvCity::GetYieldFromPillageGlobal(YieldTypes eIndex) const
 	return m_aiYieldFromPillageGlobal[eIndex];
 }
 
-//	--------------------------------------------------------------------------------
-/// Extra yield from building
 void CvCity::ChangeYieldFromPillageGlobal(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT();
@@ -31848,6 +31879,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiNumTimesAttackedThisTurn);
 	visitor(city.m_aiSpecialReligionYieldsTimes100);
 	visitor(city.m_aiYieldFromVictory);
+	visitor(city.m_aiYieldFromVictoryEraScaling);
 	visitor(city.m_aiYieldFromVictoryGlobal);
 	visitor(city.m_aiYieldFromVictoryGlobalEraScaling);
 	visitor(city.m_aiYieldFromVictoryGlobalInGoldenAge);
