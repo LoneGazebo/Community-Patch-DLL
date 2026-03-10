@@ -40,7 +40,7 @@ SET MilitarySupport = 1, MilitaryProduction = 1
 WHERE CombatClass IN (
 	SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1
 ) OR Class IN (
-	'UNITCLASS_SIEGE_TOWER',
+	'UNITCLASS_SIEGE_TOWER'
 );
 
 -- Air units, missiles, and Fusta don't cost supply
