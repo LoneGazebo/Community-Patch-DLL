@@ -276,11 +276,6 @@
 			<DamageStates>1</DamageStates>
 			<Formation>Vehicle</Formation>
 		</Row>
-		<Row>
-			<Type>ART_DEF_UNIT_ASAMU</Type>
-			<DamageStates>1</DamageStates>
-			<Formation>LooseCivilian</Formation>
-		</Row>
 		<!-- Diplo units -->
 		<Row>
 			<Type>ART_DEF_UNIT_EMISSARY</Type>
@@ -803,13 +798,6 @@
 			<Type>ART_DEF_UNIT_MEMBER_COLONIST4</Type>
 			<Scale>0.05</Scale>
 			<Model>Caravan_Late_F2.fxsxml</Model>
-			<MaterialTypeTag>CLOTH</MaterialTypeTag>
-			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
-		</Row>
-		<Row>
-			<Type>ART_DEF_UNIT_MEMBER_ASAMU</Type>
-			<Scale>0.14</Scale>
-			<Model>CarthageScout.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -1458,11 +1446,6 @@
 			<PitchRateMax>3.0</PitchRateMax>
 			<HasCollisionAttack>1</HasCollisionAttack>
 			<AttackAltitude>50.0</AttackAltitude>
-		</Row>
-		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_ASAMU</UnitMemberType>
-			<EnableActions>Idle Death BombardDefend Run</EnableActions>
-			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_TADODAHO</UnitMemberType>
@@ -2625,11 +2608,6 @@
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_COLONIST</StrategicViewType>
-			<TileType>Unit</TileType>
-			<Asset>SV_Settler.dds</Asset>
-		</Row>
-		<Row>
-			<StrategicViewType>ART_DEF_UNIT_ASAMU</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>SV_Settler.dds</Asset>
 		</Row>

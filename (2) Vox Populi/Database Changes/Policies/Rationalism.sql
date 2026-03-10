@@ -136,7 +136,7 @@ WHERE Type = 'POLICY_FREE_THOUGHT';
 UPDATE Policies
 SET
 	OneShot = 0,
-	MedianTechPercentChange = 0
+	MedianTechPercentChange = 0,
 	HappinessToCulture = 50,
 	SpecialistFoodChange = -1
 WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';

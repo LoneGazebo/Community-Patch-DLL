@@ -15,10 +15,6 @@ VALUES
 	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_GOLD', 100),
 	('TRAIT_PHOENICIAN_HERITAGE', 'YIELD_SCIENCE', 25);
 
-UPDATE Civilization_FreeUnits
-SET UnitClassType = 'UNITCLASS_ASAMU'
-WHERE CivilizationType = 'CIVILIZATION_CARTHAGE' AND UnitClassType = 'UNITCLASS_SETTLER';
-
 ----------------------------------------------------------
 -- Unique Unit: Quinquereme (Trireme)
 ----------------------------------------------------------

@@ -1083,15 +1083,6 @@ VALUES
 	('PROMOTION_GREEK_FIRE', 'PROMOTION_ON_FIRE', 'DOMAIN_LAND', 1),
 	('PROMOTION_GREEK_FIRE', 'PROMOTION_ON_FIRE', 'DOMAIN_SEA', 1);
 
--- Asamu: Elisha's Guile
-UPDATE UnitPromotions
-SET
-	AllowsEmbarkation = 1,
-	VisibilityChange = 1,
-	EmbarkExtraVisibility = 1,
-	ExtraWithdrawal = 100
-WHERE Type = 'PROMOTION_ELISHAS_GUILE';
-
 -- Atlas Elephant: At the Gates!
 UPDATE UnitPromotions SET MaxHitPointsChange = 20, CanCrossMountains = 1 WHERE Type = 'PROMOTION_AT_THE_GATES';
 

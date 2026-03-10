@@ -1079,13 +1079,6 @@
 			<Text>Inflict the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ON_FIRE}[ENDCOLOR] status on Enemy Units when attacking, increasing their Damage received from Combat by 20% for 1 turn.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE">
-			<Text>Elisha's Guile</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE_HELP">
-			<Text>Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR].[NEWLINE]+1 [ICON_VISION] Sight and Embarked Sight.[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_AT_THE_GATES">
 			<Text>At the Gates!</Text>
 		</Row>
@@ -1343,6 +1336,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SANTA_MARIA_HELP">
 			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Naval Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SEWN_CANOES">
+			<Text>Sewn Canoes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SEWN_CANOES_HELP">
+			<Text>Eliminate combat penalties for attacking over a river.[NEWLINE]Double [ICON_MOVES] Movement when moving along Rivers.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_INVINCIBLE">
