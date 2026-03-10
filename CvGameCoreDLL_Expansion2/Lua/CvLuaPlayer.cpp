@@ -279,7 +279,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeJONSCulturePerTurnForFree);
 
 	Method(GetCulturePerTurnFromMinorCivs);
-	Method(GetCulturePerTurnFromMinor);
 
 	Method(GetCulturePerTurnFromReligion);
 	Method(GetCulturePerTurnFromBonusTurns);
@@ -739,10 +738,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetFriendshipNeededForNextLevel);
 	Method(GetMinorCivFavoriteMajor);
 	Method(GetMinorCivScienceFriendshipBonus);
-	Method(GetMinorCivCultureFriendshipBonus); // DEPRECATED
-	Method(GetMinorCivCurrentCultureFlatBonus);
-	Method(GetMinorCivCurrentCulturePerBuildingBonus);
-	Method(GetCurrentCultureBonus); // DEPRECATED
 	Method(GetMinorCivCurrentCultureBonus);
 	Method(GetMinorCivHappinessFriendshipBonus); // DEPRECATED
 	Method(GetMinorCivCurrentHappinessFlatBonus);
@@ -3479,13 +3474,9 @@ int CvLuaPlayer::lChangeJONSCulturePerTurnForFree(lua_State* L)
 //int GetCulturePerTurnFromMinorCivs();
 int CvLuaPlayer::lGetCulturePerTurnFromMinorCivs(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetCulturePerTurnFromMinorCivs);
-}
-//------------------------------------------------------------------------------
-//int GetCulturePerTurnFromMinor(int iMinor);
-int CvLuaPlayer::lGetCulturePerTurnFromMinor(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::GetCulturePerTurnFromMinor);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetYieldPerTurnFromMinorCivsTimes100(YIELD_CULTURE) / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetCulturePerTurnFromReligion();
@@ -4178,19 +4169,25 @@ int CvLuaPlayer::lGetFaithPerTurnFromCities(lua_State* L)
 //int GetFaithPerTurnFromMinorCivs();
 int CvLuaPlayer::lGetFaithPerTurnFromMinorCivs(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetFaithPerTurnFromMinorCivs);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetYieldPerTurnFromMinorCivsTimes100(YIELD_FAITH) / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetGoldPerTurnFromMinorCivs();
 int CvLuaPlayer::lGetGoldPerTurnFromMinorCivs(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetGoldPerTurnFromMinorCivs);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetYieldPerTurnFromMinorCivsTimes100(YIELD_GOLD) / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetSciencePerTurnFromMinorCivs();
 int CvLuaPlayer::lGetSciencePerTurnFromMinorCivs(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetSciencePerTurnFromMinorCivs);
+	CvPlayer* pPlayer = GetInstance(L);
+	lua_pushinteger(L, pPlayer->GetYieldPerTurnFromMinorCivsTimes100(YIELD_SCIENCE) / 100);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromReligion();
@@ -9218,46 +9215,11 @@ int CvLuaPlayer::lGetMinorCivScienceFriendshipBonus(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-// antonjs: Deprecated, kept here for backwards compatibility
-int CvLuaPlayer::lGetMinorCivCultureFriendshipBonus(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-
-	int iValue = 0;
-	iValue += pkPlayer->GetMinorCivAI()->GetCultureFlatFriendshipBonus(ePlayer);
-	iValue += pkPlayer->GetMinorCivAI()->GetCulturePerBuildingFriendshipBonus(ePlayer);
-	lua_pushinteger(L, iValue);
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lGetMinorCivCurrentCultureFlatBonus(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCultureFlatBonus(ePlayer));
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lGetMinorCivCurrentCulturePerBuildingBonus(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCulturePerBuildingBonus(ePlayer));
-	return 1;
-}
-//------------------------------------------------------------------------------
-// antonjs: Deprecated, kept here for backwards compatibility
-int CvLuaPlayer::lGetCurrentCultureBonus(lua_State* L)
-{
-	return lGetMinorCivCurrentCultureBonus(L);
-}
-//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetMinorCivCurrentCultureBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCultureBonus(ePlayer));
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentYieldBonusTimes100(ePlayer, YIELD_CULTURE) / 100);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -9302,7 +9264,7 @@ int CvLuaPlayer::lGetMinorCivCurrentFaithBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentFaithBonus(ePlayer));
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentYieldBonusTimes100(ePlayer, YIELD_FAITH) / 100);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -9327,7 +9289,7 @@ int CvLuaPlayer::lGetMinorCivCurrentGoldBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentGoldBonus(ePlayer));
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentYieldBonusTimes100(ePlayer, YIELD_GOLD) / 100);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -9335,7 +9297,7 @@ int CvLuaPlayer::lGetMinorCivCurrentScienceBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentScienceBonus(ePlayer));
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentYieldBonusTimes100(ePlayer, YIELD_SCIENCE) / 100);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -9343,7 +9305,7 @@ int CvLuaPlayer::lGetCurrentCapitalFoodBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCapitalFoodBonus(ePlayer));
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCityYieldBonusTimes100(ePlayer, YIELD_FOOD, true));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -9351,7 +9313,7 @@ int CvLuaPlayer::lGetCurrentOtherCityFoodBonus(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentOtherCityFoodBonus(ePlayer));
+	lua_pushinteger(L, pkPlayer->GetMinorCivAI()->GetCurrentCityYieldBonusTimes100(ePlayer, YIELD_FOOD, false));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -13015,7 +12977,7 @@ int CvLuaPlayer::lGetGoldPerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetGoldPerTurnFromAnnexedMinors());
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_GOLD) / 100);
 		return 1;
 	}
 	//BUG: This can't be right...
@@ -13028,7 +12990,7 @@ int CvLuaPlayer::lGetCulturePerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetCulturePerTurnFromAnnexedMinors());
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_CULTURE) / 100);
 		return 1;
 	}
 	//BUG: This can't be right...
@@ -13041,7 +13003,7 @@ int CvLuaPlayer::lGetFaithPerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetFaithPerTurnFromAnnexedMinors());
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_FAITH) / 100);
 		return 1;
 	}
 	//BUG: This can't be right...
@@ -13054,7 +13016,7 @@ int CvLuaPlayer::lGetSciencePerTurnFromAnnexedMinors(lua_State* L)
 	CvPlayer* pkPlayer = GetInstance(L);
 	if (pkPlayer)
 	{
-		lua_pushinteger(L, pkPlayer->GetSciencePerTurnFromAnnexedMinors());
+		lua_pushinteger(L, pkPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_SCIENCE) / 100);
 		return 1;
 	}
 	//BUG: This can't be right...

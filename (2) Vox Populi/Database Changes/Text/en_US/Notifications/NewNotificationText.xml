@@ -814,5 +814,31 @@
 		<Row Tag="TXT_KEY_BALANCE_ANNEXED_CS_SUMMARY">
 			<Text>You intimidated {1_CS}!</Text>
 		</Row>
+
+		<!-- Generic CS yield notifications -->
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_GENERIC">
+			<Text>This City-State is now your Friend. </Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_GENERIC">
+			<Text>This City-State is now your Ally. </Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_GENERIC">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_GENERIC">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_HAPPINESS">
+			<Text>{1_NumHappiness} [ICON_HAPPINESS_1] Happiness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_PLAYER_YIELDS">
+			<Text>[NEWLINE]Generate {1_YieldList} per turn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_CITY_YIELDS">
+			<Text>[NEWLINE]Cities contribute {1_YieldList}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_CITY_YIELDS_CAPITAL">
+			<Text>[NEWLINE]The [ICON_CAPITAL] Capital further contributes {1_YieldList}.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
