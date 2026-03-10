@@ -121,26 +121,23 @@ local function AppendEraScaling(strTooltip)
 end
 
 --- Concatenate a list of strings with localized ", " and " and " before the last item
---- e.g. {"a"} -> "a", {"a", "b"} -> "a and b", {"a", "b", "c"} -> "a, b and c"
+--- e.g. {"a"} -> "a", {"a", "b"} -> "a and b", {"a", "b", "c"} -> "a, b, and c"
 --- @param tItems string[]
 --- @return string
-local strListSeparator = L("TXT_KEY_LIST_SEPARATOR") .. " ";
-local strListAnd = " " .. L("TXT_KEY_LIST_AND") .. " ";
 local function ConcatWithCommaAnd(tItems)
 	local n = #tItems;
-	if n == 1 then
+	if n == 0 then
+		return "";
+	elseif n == 1 then
 		return tItems[1];
 	elseif n == 2 then
 		return L("TXT_KEY_LIST_COMBINE_TWO", tItems[1], tItems[2]);
 	else
-		local strTemp = ""
-		strTemp = L("TXT_KEY_LIST_COMBINE_FINAL", tItems[n-1], tItems[n]);
-		if n > 2 then
-			for j = n-2, 1, -1 do
-				strTemp = L("TXT_KEY_LIST_COMBINE_NONFINAL", tItems[j], strTemp);
-			end
+		local strTemp = L("TXT_KEY_LIST_COMBINE_FINAL", tItems[n-1], tItems[n]);
+		for j = n - 2, 1, -1 do
+			strTemp = L("TXT_KEY_LIST_COMBINE_NONFINAL", tItems[j], strTemp);
 		end
-		return strTemp
+		return strTemp;
 	end
 end
 
@@ -2143,7 +2140,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		for iXP, tDomains in pairs(tXPDomains) do
 			AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK_CITY", iXP, ConcatWithCommaAnd(tDomains));
 		end
-  do
+	end
+	do
 		local tXPDomains = {};
 		for row in GameInfo.Building_DomainFreeExperiencePerGreatWorkGlobal{BuildingType = kBuildingInfo.Type} do
 			if row.Experience ~= 0 then
