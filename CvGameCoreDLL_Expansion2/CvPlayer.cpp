@@ -33772,6 +33772,17 @@ EraTypes CvPlayer::GetCurrentEra() const
 	return GET_TEAM(getTeam()).GetCurrentEra();
 }
 
+EraTypes CvPlayer::GetFaithPurchaseGreatPeopleEra() const
+{
+	EraTypes eGPEra = GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra();
+	EraTypes eSpecialEra = GetPlayerTraits()->GetGPFaithPurchaseEra();
+	if (eSpecialEra != NO_ERA && eSpecialEra < eGPEra)
+	{
+		return eSpecialEra;
+	}
+	return eGPEra;
+}
+
 void CvPlayer::setTeam(TeamTypes eTeam)
 {
 	PRECONDITION(eTeam != NO_TEAM);

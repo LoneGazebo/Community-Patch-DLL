@@ -173,7 +173,7 @@ public:
 	bool IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity, bool& bConnectedWithTrade, int& iRelativeDistancePercent);
 	bool IsValidTarget(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity);
 	// Functions invoked each player turn
-	EraTypes GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer);
+	EraTypes GetFaithPurchaseGreatPeopleEra() const;
 	void DoPlayerTurn(CvPlayer& kPlayer);
 	FOUNDING_RESULT CanCreatePantheon(PlayerTypes ePlayer, bool bCheckFaithTotal);
 	FOUNDING_RESULT CanFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity);

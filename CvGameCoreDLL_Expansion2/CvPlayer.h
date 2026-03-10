@@ -1647,6 +1647,7 @@ public:
 	void setPersonalityType(LeaderHeadTypes eNewValue);
 
 	EraTypes GetCurrentEra() const;
+	EraTypes GetFaithPurchaseGreatPeopleEra() const;
 
 	inline PlayerTypes GetID() const
 	{

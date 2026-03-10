@@ -11878,16 +11878,12 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 {
 	VALIDATE_OBJECT();
+	if (eUnit == NO_UNIT)
+		return 0;
+
 	int iCost = 0;
-	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
-
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-	if (pkUnitInfo == NULL)
-	{
-		//Should never happen
-		return iCost;
-	}
-
 	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetOwnedReligion();
 	ReligionTypes eFollowingReligion = kPlayer.GetReligions()->GetStateReligion();
 	ReligionTypes eCityReligion = GetCityReligions()->GetReligiousMajority();
@@ -11897,150 +11893,122 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	if (pkUnitInfo->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 	{
 		// We must be into the industrial era
-		if (kPlayer.GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(&kPlayer))
+		if (kPlayer.GetCurrentEra() < kPlayer.GetFaithPurchaseGreatPeopleEra())
+			return 0;
+
+		// Must be proper great person for our civ
+		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pkUnitInfo->GetUnitClassType());
+		if (eUnitClass == NO_UNITCLASS)
+			return 0;
+
+		if (kPlayer.GetSpecificUnitType(eUnitClass) != eUnit)
+			return 0;
+
+		if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET", true /*bHideAssert*/)) //here
 		{
-			// Must be proper great person for our civ
-			const UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
-			if (eUnitClass != NO_UNITCLASS)
+			// Can't be bought if didn't start religion
+			if (eFoundedReligion == NO_RELIGION)
+				return 0;
+
+			iCost = kPlayer.GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, false /*bAdjustForSpeedDifficulty*/, MOD_GLOBAL_TRULY_FREE_GP);
+		}
+		else
+		{
+			int iNum = 0;
+			if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER", true /*bHideAssert*/))
 			{
-				const UnitTypes eThisPlayersUnitType = kPlayer.GetSpecificUnitType(eUnitClass);
+				iNum = kPlayer.getWritersFromFaith();
+			}
+			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST", true /*bHideAssert*/))
+			{
+				iNum = kPlayer.getArtistsFromFaith();
+			}
+			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN", true /*bHideAssert*/))
+			{
+				iNum = kPlayer.getMusiciansFromFaith();
+			}
+			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true /*bHideAssert*/))
+			{
+				iNum = kPlayer.getScientistsFromFaith();
+			}
+			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true /*bHideAssert*/))
+			{
+				iNum = kPlayer.getMerchantsFromFaith();
+			}
+			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER", true /*bHideAssert*/))
+			{
+				iNum = kPlayer.getEngineersFromFaith();
+			}
+			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL", true /*bHideAssert*/))
+			{
+				iNum = kPlayer.getGeneralsFromFaith();
+			}
+			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL", true /*bHideAssert*/))
+			{
+				iNum = kPlayer.getAdmiralsFromFaith();
+			}
+			else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT", true /*bHideAssert*/))
+			{
+				iNum = kPlayer.getDiplomatsFromFaith();
+			}
 
-				if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET", true /*bHideAssert*/)) //here
+			if (pkUnitInfo->IsGPExtra() == 1)
+			{
+				iNum = kPlayer.getGPExtra1FromFaith();
+			}
+			else if (pkUnitInfo->IsGPExtra() == 2)
+			{
+				iNum = kPlayer.getGPExtra2FromFaith();
+			}
+			else if (pkUnitInfo->IsGPExtra() == 3)
+			{
+				iNum = kPlayer.getGPExtra3FromFaith();
+			}
+			else if (pkUnitInfo->IsGPExtra() == 4)
+			{
+				iNum = kPlayer.getGPExtra4FromFaith();
+			}
+			else if (pkUnitInfo->IsGPExtra() == 5)
+			{
+				iNum = kPlayer.getGPExtra5FromFaith();
+			}
+
+			// Does our religion unlock faith purchasing great people?
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, getOwner());
+			if (!pReligion)
+				pReligion = GC.getGame().GetGameReligions()->GetReligion(eFollowingReligion, getOwner());
+
+			bool bAllUnlockedByBelief = false;
+			int iCostMod = 0;
+			if (pReligion)
+			{
+				if (kPlayer.GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra() &&
+					pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople(getOwner(), this, false, &iCostMod))
 				{
-					// Can't be bought if didn't start religion
-					if (eFoundedReligion == NO_RELIGION)
-					{
-						iCost = -1;
-					}
-					else
-					{
-						iCost = kPlayer.GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, false /*bAdjustForSpeedDifficulty*/, MOD_GLOBAL_TRULY_FREE_GP);
-					}
+					bAllUnlockedByBelief = true;
 				}
-				else if (eThisPlayersUnitType == eUnit)
+			}
+
+			// Does any of our policies unlock faith purchasing this unit?
+			bool bUnlockedByPolicy = false;
+			for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+			{
+				const PolicyTypes eLoopPolicy = static_cast<PolicyTypes>(iPolicyLoop);
+				if (kPlayer.HasPolicy(eLoopPolicy) && GC.getPolicyInfo(eLoopPolicy)->IsFaithPurchaseUnitClass(eUnitClass, kPlayer.GetCurrentEra()))
 				{
-					PolicyBranchTypes eBranch = NO_POLICY_BRANCH_TYPE;
-					int iNum = 0;
-
-					// Check social policy tree
-					if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER", true /*bHideAssert*/))
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
-						iNum = kPlayer.getWritersFromFaith();
-					}
-					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST", true /*bHideAssert*/))
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
-						iNum = kPlayer.getArtistsFromFaith();
-					}
-					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN", true /*bHideAssert*/))
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
-						iNum = kPlayer.getMusiciansFromFaith();
-					}
-					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true /*bHideAssert*/))
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_RATIONALISM", true /*bHideAssert*/);
-						iNum = kPlayer.getScientistsFromFaith();
-					}
-					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true /*bHideAssert*/))
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_COMMERCE", true /*bHideAssert*/);
-						iNum = kPlayer.getMerchantsFromFaith();
-					}
-					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER", true /*bHideAssert*/))
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true /*bHideAssert*/);
-						iNum = kPlayer.getEngineersFromFaith();
-					}
-					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL", true /*bHideAssert*/))
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true /*bHideAssert*/);
-						iNum = kPlayer.getGeneralsFromFaith();
-					}
-					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL", true /*bHideAssert*/))
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true /*bHideAssert*/);
-						iNum = kPlayer.getAdmiralsFromFaith();
-					}
-					else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT", true /*bHideAssert*/))
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
-						iNum = kPlayer.getDiplomatsFromFaith();
-					}
-					if (pkUnitInfo->IsGPExtra() == 1)
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
-						iNum = kPlayer.getGPExtra1FromFaith();
-					}
-					else if (pkUnitInfo->IsGPExtra() == 2)
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
-						iNum = kPlayer.getGPExtra2FromFaith();
-					}
-
-					else if (pkUnitInfo->IsGPExtra() == 3)
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
-						iNum = kPlayer.getGPExtra3FromFaith();
-					}
-
-					else if (pkUnitInfo->IsGPExtra() == 4)
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
-						iNum = kPlayer.getGPExtra4FromFaith();
-					}
-
-					else if (pkUnitInfo->IsGPExtra() == 5)
-					{
-						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
-						iNum = kPlayer.getGPExtra5FromFaith();
-					}
-
-					bool bAllUnlockedByBelief = false;
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, getOwner());
-
-					if (pReligion == NULL)
-						pReligion = GC.getGame().GetGameReligions()->GetReligion(eFollowingReligion, getOwner());
-
-					if (pReligion)
-					{
-						if (pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople(getOwner(), this) && kPlayer.GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(NULL))
-						{
-							bAllUnlockedByBelief = true;
-						}
-					}
-
-					bool bIsUnlocked = bAllUnlockedByBelief;
-
-					if (!bIsUnlocked)
-					{
-						EraTypes eCurrentEra = kPlayer.GetCurrentEra();
-
-						for (int iPolicyLoop = 0; iPolicyLoop < kPlayer.GetPlayerPolicies()->GetPolicies()->GetNumPolicies(); iPolicyLoop++)
-						{
-							const PolicyTypes eLoopPolicy = static_cast<PolicyTypes>(iPolicyLoop);
-							CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo(eLoopPolicy);
-							if (pkLoopPolicyInfo)
-							{
-								// We have this policy
-								if (kPlayer.HasPolicy(eLoopPolicy))
-								{
-									if (pkLoopPolicyInfo->IsFaithPurchaseUnitClass(eUnitClass, eCurrentEra))
-									{
-										bIsUnlocked = true;
-										break;
-									}
-								}
-							}
-						}
-					}
-
-					if (bIsUnlocked)
-					{
-						iCost = GC.getGame().GetGameReligions()->GetFaithGreatPersonNumber(iNum + 1);
-					}
+					bUnlockedByPolicy = true;
+					break;
 				}
+			}
+
+			if (!bUnlockedByPolicy && !bAllUnlockedByBelief)
+				return 0;
+
+			iCost = GC.getGame().GetGameReligions()->GetFaithGreatPersonNumber(iNum + 1);
+			if (!bUnlockedByPolicy)
+			{
+				iCost *= 100 + iCostMod;
+				iCost /= 100;
 			}
 		}
 	}
