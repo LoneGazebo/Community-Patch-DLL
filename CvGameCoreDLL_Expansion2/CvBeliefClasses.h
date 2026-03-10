@@ -121,6 +121,7 @@ public:
 	int GetCityScalerLimiter() const;
 	int GetFollowerScalerLimiter() const;
 	int GetPolicyReductionWonderXFollowerCities() const;
+	int GetGreatPeopleFaithCostMod() const;
 	bool IsAIGoodStartingPantheon() const;
 	int GetMaxYieldPerFollower(int i) const;
 	int GetMaxYieldPerFollowerPercent(int i) const;
@@ -346,6 +347,7 @@ protected:
 	int m_iCityScalerLimiter;
 	int m_iFollowerScalerLimiter;
 	int m_iPolicyReductionWonderXFollowerCities;
+	int m_iGreatPeopleFaithCostMod;
 	bool m_bAIGoodStartingPantheon;
 	CivilizationTypes m_eRequiredCivilization;
 
@@ -509,7 +511,7 @@ public:
 	bool IsSpecificFaithBuyingEnabled(UnitTypes eUnit, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	BeliefTypes GetSpecificFaithBuyingEnabledBelief(UnitTypes eUnit) const;
 	bool IsConvertsBarbarians(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	bool IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	bool IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, int* piCostMod = NULL) const;
 
 	bool RequiresImprovement(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	bool RequiresResource(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;

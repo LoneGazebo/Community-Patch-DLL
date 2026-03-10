@@ -558,15 +558,9 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	return (iRelativeDistancePercent<100);
 }
 
-EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer)
+EraTypes CvGameReligions::GetFaithPurchaseGreatPeopleEra() const
 {
-	EraTypes eGPEra = /*INDUSTRIAL*/ (EraTypes)GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA);
-	EraTypes eSpecialEra = pPlayer ? pPlayer->GetPlayerTraits()->GetGPFaithPurchaseEra() : NO_ERA;
-	if (eSpecialEra != NO_ERA && eSpecialEra < eGPEra)
-	{
-		return eSpecialEra;
-	}
-	return eGPEra;
+	return /*ERA_INDUSTRIAL*/ static_cast<EraTypes>(GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA));
 }
 
 /// Religious activities at the start of a player's turn
@@ -683,7 +677,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 	case FAITH_PURCHASE_SAVE_PROPHET:
 	{
 		if ((eReligion <= RELIGION_PANTHEON && GetNumReligionsStillToFound() <= 0 && !kPlayer.GetPlayerTraits()->IsAlwaysReligion()) ||
-			kPlayer.GetCurrentEra() >= GetFaithPurchaseGreatPeopleEra(&kPlayer))
+			kPlayer.GetCurrentEra() >= kPlayer.GetFaithPurchaseGreatPeopleEra())
 		{
 			UnitTypes eProphetType = kPlayer.GetSpecificUnitType("UNITCLASS_PROPHET", true);
 			szItemName = GetLocalizedText("TXT_KEY_RO_AUTO_FAITH_PROPHET_PARAM", GC.getUnitInfo(eProphetType)->GetDescription());
@@ -3038,7 +3032,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		pReligion = GetReligion(ePlayerReligion, kPlayer.GetID());
 
 		// Don't check this in Classical for Byzantium, if a religion is owned
-		if (kPlayer.GetCurrentEra() >= GetFaithPurchaseGreatPeopleEra(&kPlayer))
+		if (kPlayer.GetCurrentEra() >= kPlayer.GetFaithPurchaseGreatPeopleEra())
 			return false;
 	}
 
@@ -6983,7 +6977,7 @@ bool CvReligionAI::DoFaithPurchases()
 
 	// SECOND PRIORITY
 	// If in Industrial, see if we want to save for buying a great person
-	if (m_pPlayer->GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra(NULL) && GetDesiredFaithGreatPerson() != NO_UNIT)
+	if (m_pPlayer->GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra() && GetDesiredFaithGreatPerson() != NO_UNIT)
 	{
 		UnitTypes eGPType = GetDesiredFaithGreatPerson();
 

@@ -500,5 +500,5 @@ WHERE Tag = 'TXT_KEY_BELIEF_SACRED_SITES';
 
 -- To the Glory of God
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase any type of [ICON_GREAT_PEOPLE] Great Person (in Industrial Era). When you expend a [ICON_GREAT_PEOPLE] Great Person, gain 3 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture per City following your Religion (max 20 Cities).'
+SET Text = 'May use [ICON_PEACE] Faith to purchase any type of [ICON_GREAT_PEOPLE] Great Person (in Industrial Era), but at 150% the normal cost unless unlocked by the respective Policy. When you expend a [ICON_GREAT_PEOPLE] Great Person, gain 3 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture per City following your Religion (max 20 Cities).'
 WHERE Tag = 'TXT_KEY_BELIEF_TO_GLORY_OF_GOD';

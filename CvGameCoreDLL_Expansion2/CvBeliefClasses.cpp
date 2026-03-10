@@ -113,6 +113,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iCityScalerLimiter(0),
 	m_iFollowerScalerLimiter(0),
 	m_iPolicyReductionWonderXFollowerCities(0),
+	m_iGreatPeopleFaithCostMod(0),
 	m_bAIGoodStartingPantheon(false),
 	m_piMaxYieldPerFollower(NULL),
 	m_piMaxYieldPerFollowerPercent(NULL),
@@ -866,6 +867,12 @@ int CvBeliefEntry::GetPolicyReductionWonderXFollowerCities() const
 {
 	return m_iPolicyReductionWonderXFollowerCities;
 }
+
+int CvBeliefEntry::GetGreatPeopleFaithCostMod() const
+{
+	return m_iGreatPeopleFaithCostMod;
+}
+
 bool CvBeliefEntry::IsAIGoodStartingPantheon() const
 {
 	return m_bAIGoodStartingPantheon;
@@ -1359,6 +1366,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCityScalerLimiter = kResults.GetInt("CityScalerLimiter");
 	m_iFollowerScalerLimiter = kResults.GetInt("FollowerScalerLimiter");
 	m_iPolicyReductionWonderXFollowerCities = kResults.GetInt("PolicyReductionWonderXFollowerCities");
+	m_iGreatPeopleFaithCostMod = kResults.GetInt("GreatPeopleFaithCostMod");
 
 	m_bAIGoodStartingPantheon = kResults.GetBool("AI_GoodStartingPantheon");
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
@@ -3970,19 +3978,26 @@ bool CvReligionBeliefs::IsConvertsBarbarians(PlayerTypes ePlayer, const CvCity* 
 }
 
 /// Is there a belief that allows faith buying of all great people
-bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+/// Also pass the min cost modifier found in the beliefs
+bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly, int* piCostMod) const
 {
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-
-	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	bool bAllowed = false;
+	int iMinCostMod = INT_MAX;
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if (pBeliefs->GetEntry(*it)->FaithPurchaseAllGreatPeople() && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		BeliefTypes eBelief = static_cast<BeliefTypes>(*it);
+		CvBeliefEntry* pkBeliefInfo = GC.getBeliefInfo(eBelief);
+		if (pkBeliefInfo->FaithPurchaseAllGreatPeople() && IsBeliefValid(eBelief, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
-			return true;
+			bAllowed = true;
+			iMinCostMod = min(iMinCostMod, pkBeliefInfo->GetGreatPeopleFaithCostMod());
 		}
 	}
 
-	return false;
+	if (piCostMod && bAllowed)
+		*piCostMod = iMinCostMod;
+
+	return bAllowed;
 }
 
 /// Is there a belief that requires improvements?
