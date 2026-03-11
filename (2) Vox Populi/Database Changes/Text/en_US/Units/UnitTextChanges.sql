@@ -325,11 +325,6 @@ UPDATE Language_en_US
 SET Text = 'The Norwegian Ski Infantry moves through Snow, Tundra, and Hills at double speed. It also has +25% [ICON_STRENGTH] Combat Strength in Snow, Tundra or Hill terrain if neither Forest nor Jungle are present.'
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_STRATEGY';
 
--- Longbowman
-UPDATE Language_en_US
-SET Text = ' The Longbowman has a greater range than the Crossbowman, allowing it to attack enemies three hexes away, often destroying them before they can strike back. Like other ranged units, Longbowmen are vulnerable to melee attack, but have increased [ICON_STRENGTH] against Mounted and Armored Units.'
-WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_LONGBOWMAN_STRATEGY';
-
 -- Mehal Sefari
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_MEHAL_SEFARI} possesses significant combat bonuses when fighting in friendly land, especially when near your [ICON_CAPITAL] Capital.'

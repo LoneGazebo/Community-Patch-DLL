@@ -273,6 +273,11 @@
 			<DefaultUnit>UNIT_HUN_BATTERING_RAM</DefaultUnit>
 		</Row>
 		<Row>
+			<Type>UNITCLASS_REDCOAT</Type>
+			<Description>TXT_KEY_UNIT_REDCOAT</Description>
+			<DefaultUnit>UNIT_REDCOAT</DefaultUnit>
+		</Row>
+		<Row>
 			<Type>UNITCLASS_MEHAL_SEFARI</Type>
 			<Description>TXT_KEY_UNIT_MEHAL_SEFARI</Description>
 			<DefaultUnit>UNIT_ETHIOPIAN_MEHAL_SEFARI</DefaultUnit>
@@ -286,11 +291,6 @@
 			<Type>UNITCLASS_PRACINHA</Type>
 			<Description>TXT_KEY_UNIT_BRAZILIAN_PRACINHA</Description>
 			<DefaultUnit>UNIT_BRAZILIAN_PRACINHA</DefaultUnit>
-		</Row>
-		<Row>
-			<Type>UNITCLASS_LONGBOWMAN</Type>
-			<Description>TXT_KEY_UNIT_ENGLISH_LONGBOWMAN</Description>
-			<DefaultUnit>UNIT_ENGLISH_LONGBOWMAN</DefaultUnit>
 		</Row>
 		<Row>
 			<Type>UNITCLASS_COMPANION_CAVALRY</Type>
@@ -1008,24 +1008,6 @@
 			<PortraitIndex>9</PortraitIndex>
 		</Row>
 		<Row>
-			<Type>UNIT_REDCOAT</Type>
-			<Description>TXT_KEY_UNIT_REDCOAT</Description>
-			<Civilopedia>TXT_KEY_UNIT_REDCOAT_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_REDCOAT_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_REDCOAT_HELP</Help>
-			<Domain>DOMAIN_LAND</Domain>
-			<CombatClass>UNITCOMBAT_GUN</CombatClass>
-			<Class>UNITCLASS_RIFLEMAN</Class>
-			<DefaultUnitAI>UNITAI_DEFENSE</DefaultUnitAI>
-			<PrereqTech>TECH_RIFLING</PrereqTech>
-			<ObsoleteTech>TECH_REPLACEABLE_PARTS</ObsoleteTech>
-			<UnitArtInfo>ART_DEF_UNIT_REDCOAT</UnitArtInfo>
-			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
-			<UnitFlagIconOffset>10</UnitFlagIconOffset>
-			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
-			<PortraitIndex>10</PortraitIndex>
-		</Row>
-		<Row>
 			<Type>UNIT_CHEWA</Type>
 			<Description>TXT_KEY_UNIT_CHEWA</Description>
 			<Civilopedia>TXT_KEY_UNIT_CHEWA_TEXT</Civilopedia>
@@ -1602,6 +1584,25 @@
 			DO NOT modify these entries for balance changes.
 		-->
 		<Row>
+			<Type>UNIT_REDCOAT</Type>
+			<Description>TXT_KEY_UNIT_REDCOAT</Description>
+			<Civilopedia>TXT_KEY_UNIT_REDCOAT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_REDCOAT_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_REDCOAT_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_GUN</CombatClass>
+			<Class>UNITCLASS_RIFLEMAN</Class>
+			<DefaultUnitAI>UNITAI_DEFENSE</DefaultUnitAI>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<ObsoleteTech>TECH_REPLACEABLE_PARTS</ObsoleteTech>
+			<MinorCivGift>true</MinorCivGift>
+			<UnitArtInfo>ART_DEF_UNIT_REDCOAT</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>10</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>10</PortraitIndex>
+		</Row>
+		<Row>
 			<Type>UNIT_YAMATO</Type>
 			<Description>TXT_KEY_UNIT_YAMATO</Description>
 			<Civilopedia>TXT_KEY_UNIT_YAMATO_TEXT</Civilopedia>
@@ -1612,6 +1613,7 @@
 			<Class>UNITCLASS_BATTLESHIP</Class>
 			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
 			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<MinorCivGift>true</MinorCivGift>
 			<MoveRate>BOAT</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_YAMATO</UnitArtInfo>
 			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>

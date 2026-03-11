@@ -536,19 +536,6 @@
 			<Text></Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_REDCOAT">
-			<Text>Redcoat</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_REDCOAT_HELP">
-			<Text></Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_REDCOAT_TEXT">
-			<Text>Despite not being a rare occurence throughout European military history (with Danish, and even French units wearing bright red uniforms at some points), the red uniforms of the infantry of the British Army and Royal Navy have become nationaly and internationaly recognized as unmistakable symbols of the British military power. Originally meant to lower fabrication costs, the diffusion of red uniforms followed a slow process that can be traced back all the way to the War of the Roses in the 15th century. During the reforms that led to the creation of the New Model Army, the red, now considered a staple of English identity, became more prevalent, and stayed that way in the following centuries: its notoriaty came from being worn by British infantry during the whole period of British imperialist policies, from America to Oceania, Africa to Europe and Asia. The only major changes to the color of the uniforms were decided after the lethality of fire became much more prevalent and the red uniform, from a mean of distinction, became a liability. Nonetheless, it kept an important role in British military ceremonial, with royal guards still wearing it during their service.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_REDCOAT_STRATEGY">
-			<Text></Text>
-		</Row>
-
 		<!-- Ethiopia -->
 		<Row Tag="TXT_KEY_BUILDING_STELE_HELP">
 			<Text></Text>
