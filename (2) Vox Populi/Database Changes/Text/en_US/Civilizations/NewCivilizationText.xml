@@ -1072,7 +1072,7 @@
 			<Text>A Riad is a traditional North African house built in a peristyle format, surrounding an interior garden or courtyard. These homes were often plain on the exterior, but lavishly decorated inside, projecting humility and austerity while preserving a family's comfort and privacy.[NEWLINE][NEWLINE]While architectural style has changed over the years, the riad's basic form is still used in modern design. Riads enjoyed something of a renaissance during French occupation of North Africa. As befitting Europe's fascination with preserving historic heritage sites, restoration efforts on old Riads were undertaken throughout Morocco's major cities, often converting old Riads into hotels or restaurants.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIAD_STRATEGY">
-			<Text></Text>
+			<Text>The Riad provides [ICON_GOLD] Gold and [ICON_CULTURE] Culture yields scaling by Era and by the number of buildings in the City which rewards highly developed Cities with plenty of buildings. It also generates [ICON_TOURISM] Tourism based on [ICON_GOLD] Gold purchases in the City which synergizes with Morocco's trade focus as they often can generate lots of [ICON_GOLD] Gold. This provides Morocco with a bit of pathway to pursuing a Cultural Victory as the rest of their kit is fairly well rounded.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_CORSAIR">
@@ -1085,7 +1085,7 @@
 			<Text>The Barbary Corsairs were Muslim pirates and privateers operating off the coast of North Africa who became infamous throughout Europe. Ranging throughout the Mediterranean and as far as Iceland, the Corsairs slaughtered livestock and captured Christians for sale in the slave markets of the Islamic world. The frequency and ferocity of these raids, or "Razzia" was such that long stretches of Italian and Spanish coast were abandoned for fear of abduction. It is estimated that some 1.25 million people were enslaved by Barbary corsairs between 1530 and 1780 A.D.[NEWLINE][NEWLINE]The scope of Corsair activity began to diminish in the latter part of the 17th century, as the more powerful European navies started to pose a real threat to the Barbary States. However, Christian shipping and coastlines continued to suffer until the early 19th century. Following the Napoleonic Wars and the Congress of Vienna in 1814, European powers agreed upon the need to suppress the Barbary Corsairs for good. The razzias finally ceased after the Second Barbary War between the Barbary pirates and the United States, the impetus for the creation of the US Navy.[NEWLINE][NEWLINE]"It is written in our Koran, that all nations which do not acknowledge the Prophet are sinners, whom it is the right and duty of the faithful to plunder and enslave; and that every mu'min (believer) who is slain in this warfare is sure to go to paradise."[NEWLINE][TAB]- Sidi Haji Abdrahaman, to Thomas Jefferson in reply to his demand for the protection of American merchant ships</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_CORSAIR_STRATEGY">
-			<Text></Text>
+			<Text>The Corsair has the Razzia promotion so it gains [ICON_FOOD] Food and [ICON_PRODUCTION] Production on kills, pillaging Improvements, and plundering [ICON_INTERNATIONAL_TRADE] Trade Routes. This synergizes well with their unique ability to plunder [ICON_INTERNATIONAL_TRADE] Trade Routes without declaring war. Morocco should look for opportunities to be aggressive against other civs that have weaker navies especially those with plenty of sea Improvements that they could pillage.</Text>
 		</Row>
 
 		<!-- Netherlands -->
