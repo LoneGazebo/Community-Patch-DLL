@@ -55,11 +55,9 @@ SET MinorCivGift = 1
 WHERE Type IN (
 	'UNIT_BRAZILIAN_PRACINHA',
 	'UNIT_DANISH_SKI_INFANTRY',
-	'UNIT_ENGLISH_LONGBOWMAN',
 	'UNIT_ETHIOPIAN_MEHAL_SEFARI',
 	'UNIT_GREEK_COMPANIONCAVALRY',
 	'UNIT_HUN_BATTERING_RAM',
-	'UNIT_YAMATO',
 	'UNIT_OTTOMAN_SIPAHI'
 );
 
@@ -104,6 +102,8 @@ WHERE Type = 'UNIT_DANISH_BERSERKER';
 -- Egypt: Chariot Archer
 
 -- England: Frigate
+
+-- England: Crossbowman
 
 -- France: Tercio
 UPDATE Units SET CombatClass = 'UNITCOMBAT_MELEE' WHERE Type = 'UNIT_FRENCH_MUSKETEER';
@@ -236,8 +236,6 @@ WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
 -- Pracinha: Infantry
 
 -- Norwegian Ski Infantry: Fusilier
-
--- Longbowman: Crossbowman
 
 -- Mehal Sefari: Fusilier
 

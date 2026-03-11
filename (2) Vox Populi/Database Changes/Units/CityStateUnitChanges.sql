@@ -50,6 +50,19 @@ VALUES
 	('UNIT_HUN_BATTERING_RAM', 'UNITAI_CITY_BOMBARD');
 
 -------------------------------------
+-- Redcoat
+-------------------------------------
+UPDATE Units
+SET Class = 'UNITCLASS_REDCOAT'
+WHERE Type = 'UNIT_REDCOAT';
+
+INSERT INTO Unit_FreePromotions
+	(UnitType, PromotionType)
+VALUES
+	('UNIT_REDCOAT', 'PROMOTION_SUN_NEVER_SETS'),
+	('UNIT_REDCOAT', 'PROMOTION_RULE_BRITANNIA');
+
+-------------------------------------
 -- Mehal Sefari
 -------------------------------------
 UPDATE Units
@@ -91,21 +104,6 @@ INSERT INTO Unit_FreePromotions
 VALUES
 	('UNIT_BRAZILIAN_PRACINHA', 'PROMOTION_SURVIVALISM_1'),
 	('UNIT_BRAZILIAN_PRACINHA', 'PROMOTION_PRIDE_OF_THE_NATION');
-
--------------------------------------
--- Longbowman
--------------------------------------
-UPDATE Units
-SET
-	Class = 'UNITCLASS_LONGBOWMAN',
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CROSSBOWMAN') + 1
-WHERE Type = 'UNIT_ENGLISH_LONGBOWMAN';
-
-INSERT INTO Unit_FreePromotions
-	(UnitType, PromotionType)
-VALUES
-	('UNIT_ENGLISH_LONGBOWMAN', 'PROMOTION_AGINCOURT'),
-	('UNIT_ENGLISH_LONGBOWMAN', 'PROMOTION_ASSIZE_OF_ARMS');
 
 -------------------------------------
 -- Companion Cavalry
