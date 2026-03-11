@@ -108,9 +108,6 @@ Things borrowed from other mods:
 		- KevinJK - idea and picture of Lamassu Gate UB.
 
 	Austria:
-		- JFD - idea of Landwehr UU,
-		- janboruta - picture and flag of Landwehr,
-		- bernie14 - 3D model of Landwehr.
 
 	Aztec:
 		- mikeburnfire - idea, picture and 3D model of Eagle UU,
@@ -124,7 +121,7 @@ Things borrowed from other mods:
 		- Salamandre - icon of Legacy promotion.
 
 	Brazil:
-		- mikeburnfire - idea and picture of Sambadrome UB.
+		- hokath - Embrapa icon
 
 	Byzanthine Empire:
 		- LastSword - idea, picture and flag of Penteconter UU,
@@ -155,7 +152,6 @@ Things borrowed from other mods:
 	Egypt:
 		- Sukritact - Mamluk icon
 		- Leugi - Mamluk unit flag, and unit skin
-		- mikeburnfire - idea and 3D model of Flax UR (UI).
 
 	England:
 		- Gazebo - idea of Steam Mill UB,
@@ -169,15 +165,10 @@ Things borrowed from other mods:
 		- JFD - idea of SPAD S.VIII UU,
 		- janboruta - picture of SPAD S.VIII,
 		- danrell - 3D Model of SPAD S.VIII,
-		- Hypereon - idea and picture of Grande Ecole UB.
 
-	Germany 
-		- JFD - idea of Slaganz UU,
-		- janboruta - picture and flag of Slaganz,
-		- JTitan - 3D model of Slaganz.
+	Germany: 
 
 	Greece:
-		- Alan H - picture of Agora UB.
 
 	Huns:
 		- JFD - idea of Tarkhan UU (Alan Cavalry)
@@ -187,7 +178,7 @@ Things borrowed from other mods:
 		  
 	Inca:
 		- Leugi - idea, picture and flag of Chasqui UU and Coca UR,
-		- JTitan - 3D model of Chasqui,
+        - Leugi - Inti Maceman icon and model (Chaska Chuqui)
 		
 	India:
 		- Danmacsch - picture and 3D model of Dhanuraashi UU (Agaw Archer),
@@ -200,7 +191,8 @@ Things borrowed from other mods:
 		- Civitar - 3D model of Kampung.
 
 	Iroquois:
-		- mikeburnfire - idea and picture of the Prowler UU (Rusher),
+		- mikeburnfire - idea of the Prowler UU (Rusher),
+        - Krahinin & Hokath Prowler icon
 		- Patum333 - 3D model of Prowler.
 
 	Japan:
@@ -220,14 +212,15 @@ Things borrowed from other mods:
 		- KevinJK - idea and picture of Riad UB.
 
 	Maya:
-		- mikeburnfire - idea and picture of Holkan UU (Obsidian Warrior), idea and picture of Pitz (Ballcourt),
+		- mikeburnfire - idea of Holkan UU (Obsidian Warrior), idea and picture of Pitz (Ballcourt),
+		- Holkan UU icon by Putmalk
 		- danrell - 3D model of Holkan,
 		- Salamandre - icon of Renewal Cycle promotion.
 	
 	Mongolia:
 		- TarcisioCM - idea, picture of Tug Banner Warrior UU (Ilduchi),
 		- danrell - 3D model for Tug Banner Warrior,
-		- lincoln-lyf - picture of Yassa Court UB (from Superpowers mod).
+		- lincoln-lyf - picture of Yassa Court (from Superpowers mod).
 
 	Netherlands:
 		- JFD and LastSword - idea of Goedendag UU,
@@ -241,15 +234,13 @@ Things borrowed from other mods:
 	Ottomans:
 		- JFD - idea of Great Turkish Bombard UU,
 		- janboruta - picture of Great Turkish Bombard,
-		- Leugi - 3D model of Great Turkish Bombard,
-		- Sukritact - picture of Tersane UB (Minaa').
+		- Leugi - 3D model of Great Turkish Bombard
 
 	Persia:
 		- Light in the East - idea of Qizilbash UU,
 		- janboruta - picture and flag of Qizilbash,
 		- Wolfdog - 3D model of Qizilbash,
 		- Salamandre - icon of Safavi Agitator promotion.
-		- LastSword - idea and picture of Pairidaeza UB (Charbagh Garden).
 
 	Poland:
 		- LastSword - idea, picture and 3d model of Pancerny UU, part of civilopedia entry,
@@ -284,6 +275,7 @@ Things borrowed from other mods:
 
 	Siam:
 		- snafusmith - 3D model of Seir Morb UU (155 mm gun).
+        - Putmalk - Seir Morb icon
 		- Salamandre - icon of Croaching Tiger promotion.
 
 	Songhai:
@@ -302,8 +294,7 @@ Things borrowed from other mods:
 		  
 	Venice:
 		- JFD - idea of Fusta UU (Lanternas),
-		- janboruta - picture, flag and 3d model of Fusta,
-		- KevinJK - idea and picture of Laguna UB (Breakwater).
+		- janboruta - picture, flag and 3d model of Fusta
 
 	Zulu:
 		- mikeburnfire - idea, picture, and flag of InDuna.
