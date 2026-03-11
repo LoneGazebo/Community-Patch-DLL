@@ -16037,18 +16037,21 @@ int CvCity::getFoodConsumptionNonSpecialistTimes100() const
 int CvCity::getFoodConsumptionSpecialistTimes100() const
 {
 	VALIDATE_OBJECT();
-	int iFoodPerSpec = 0;
-	if (MOD_BALANCE_VP)
+
+	// specialist Era scaling
+	// If the current era has no SpecialistExtraFoodCost set (default value of -1), fall back to the latest previous era that does
+	int iSpecialistExtraFoodCost = 0;
+	EraTypes eCurrentEra = GET_PLAYER(getOwner()).GetCurrentEra();
+	for (int iEra = (int)eCurrentEra; iEra >= 0; iEra--)
 	{
-		// specialist Era scaling for VP
-		CvEraInfo* pEraInfo = GC.getEraInfo(GET_PLAYER(getOwner()).GetCurrentEra());
-		iFoodPerSpec = (pEraInfo ? pEraInfo->getSpecialistFoodCost() : 1) + /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION);
-		iFoodPerSpec = min(iFoodPerSpec, 10) * 100;
+		CvEraInfo* pEraInfo = GC.getEraInfo((EraTypes)iEra);
+		if (pEraInfo && pEraInfo->getSpecialistExtraFoodCost() >= 0)
+		{
+			iSpecialistExtraFoodCost = pEraInfo->getSpecialistExtraFoodCost();
+			break;
+		}
 	}
-	else
-	{
-		iFoodPerSpec = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) * 100;
-	}
+	int iFoodPerSpec = (/*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) + iSpecialistExtraFoodCost) * 100;
 
 	iFoodPerSpec += GET_PLAYER(getOwner()).GetSpecialistFoodChange() * 100;
 
