@@ -1903,6 +1903,11 @@
 			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound>
 		</Row>
 		<Row>
+			<UnitType>UNIT_MIKASA</UnitType>
+			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
+		</Row>
+		<Row>
 			<UnitType>UNIT_YAMATO</UnitType>
 			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
