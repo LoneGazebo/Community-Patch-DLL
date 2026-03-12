@@ -352,6 +352,9 @@ public:
 	bool IsRangeAttackIgnoreLOS() const;
 	int GetRangeAttackIgnoreLOSCount() const;
 	void ChangeRangeAttackIgnoreLOSCount(int iChange);
+    
+	int GetSeeThrough() const;
+    void ChangeSeeThrough(int iChange);
 
 	bool canSetUpForRangedAttack(const CvPlot* pPlot) const; //no longer used
 	bool isSetUpForRangedAttack() const; //no longer used
@@ -2110,6 +2113,7 @@ protected:
 	int m_iRivalTerritoryCount;
 	int m_iIsSlowInEnemyLandCount;
 	int m_iRangeAttackIgnoreLOSCount;
+    int m_iSeeThrough;
 	int m_iCityAttackOnlyCount;
 	int m_iCaptureDefeatedEnemyCount;
 	int m_iOriginCity;
@@ -2545,6 +2549,7 @@ SYNC_ARCHIVE_VAR(int, m_iEnemyRouteCount)
 SYNC_ARCHIVE_VAR(int, m_iRivalTerritoryCount)
 SYNC_ARCHIVE_VAR(int, m_iIsSlowInEnemyLandCount)
 SYNC_ARCHIVE_VAR(int, m_iRangeAttackIgnoreLOSCount)
+SYNC_ARCHIVE_VAR(int, m_iSeeThrough)
 SYNC_ARCHIVE_VAR(int, m_iCityAttackOnlyCount)
 SYNC_ARCHIVE_VAR(int, m_iCaptureDefeatedEnemyCount)
 SYNC_ARCHIVE_VAR(int, m_iOriginCity)

@@ -86,6 +86,7 @@ protected:
 	static int lEmbark(lua_State* L);
 
 	static int lIsRangeAttackIgnoreLOS(lua_State* L);
+	static int lGetSeeThrough(lua_State* L);
 
 	static int lCanAirlift(lua_State* L);
 	static int lCanAirliftAt(lua_State* L);
