@@ -15,6 +15,7 @@ local MOVE_DENOMINATOR = GameDefines.MOVE_DENOMINATOR;
 local function BuildNode(node, bShowRemainingMoves)
 	local instance = instanceManager:GetInstance();
 
+	local bIsStopNode = false
 	-- See CvDllGameContext::TEMPCalculatePathFinderUpdates
 	if MOD_UI_DISPLAY_PRECISE_MOVEMENT_POINTS then
 		local iScale = MOVE_DENOMINATOR * 10;
@@ -37,14 +38,19 @@ local function BuildNode(node, bShowRemainingMoves)
 			instance.RemainingMoves:SetText("");
 		end
 	else
-		local iTurns = math.floor(node.turn / 100);
-		local iRemainder = node.turn - iTurns * 100;
+		bIsStopNode = node.turn < 0;
+		local iTurns = math.floor(math.abs(node.turn) / 100);
+		local iRemainder = math.abs(node.turn) - iTurns * 100;
 		local iMaxMoves = math.floor(iRemainder / 10);
 		local iMoves = iRemainder - iMaxMoves * 10;
 
 		if iMoves == 0 then
 			instance.TurnLabel:SetText(iTurns);
-			instance.RemainingMoves:SetText("");
+			if (bIsStopNode) then
+				instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_ENDING_MOVE_EARLY");
+			else
+				instance.RemainingMoves:SetText("");
+			end
 		else
 			instance.TurnLabel:SetText("<" .. (iTurns + 1));
 			instance.RemainingMoves:SetText("[ICON_MOVES]" .. iMoves .. "/" .. iMaxMoves);

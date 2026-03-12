@@ -1223,6 +1223,8 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 				update.iTurnNumber += 10 * (min(pkUnit->baseMoves(pPlot->needsEmbarkation(pkUnit)), 9));
 				if (path.vPlots[i].moves>0)
 					update.iTurnNumber += min(((int)path.vPlots[i].moves-1)/GD_INT_GET(MOVE_DENOMINATOR)+1, 9); //movement points left
+				if (path.vPlots[i].stopnode)
+					update.iTurnNumber *= -1;
 			}
 
 			pUpdateData.push_back(update);

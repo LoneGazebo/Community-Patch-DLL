@@ -1250,6 +1250,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(CONTROL_TOGGLE_OBSERVER_MODE);
 	RegisterEnum(CONTROL_TOGGLE_AI_TAKEOVER);
 	RegisterEnum(CONTROL_SWITCH_TO_NEXT_PLAYER);
+	RegisterEnum(CONTROL_HUMAN_AI_PATH);
 	EnumEnd(L);
 
 	// TradeConnectionTypes
