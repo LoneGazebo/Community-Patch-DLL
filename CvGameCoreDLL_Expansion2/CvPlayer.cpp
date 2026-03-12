@@ -26125,7 +26125,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					if (eYield == YIELD_FAITH && pReligion)
 					{
-						// does this city quality for yields in IsBeliefValid?
+						// does this city qualify for yields in IsBeliefValid?
 						int iKillYield = pReligion->m_Beliefs.GetFaithFromDyingUnits(GetID(), pLoopCity, true);
 
 						if (iKillYield > 0)
