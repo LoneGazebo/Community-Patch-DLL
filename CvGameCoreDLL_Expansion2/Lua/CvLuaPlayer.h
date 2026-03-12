@@ -66,6 +66,7 @@ protected:
 	static int lGetStrategicResourceMod(lua_State* L);
 	static int lGetResourceModFromReligion(lua_State* L);
 	static int lIsShowImports(lua_State* L);
+	static int lIsImportsCountTowardsMonopolies(lua_State* L);
 	static int lIsResourceCityTradeable(lua_State* L);
 	static int lIsResourceImproveable(lua_State* L);
 	static int lIsResourceRevealed(lua_State* L);
@@ -832,10 +833,6 @@ protected:
 	static int lGetFriendshipFromGoldGift(lua_State* L);
 	static int lGetMinorCivFavoriteMajor(lua_State* L);
 	static int lGetMinorCivScienceFriendshipBonus(lua_State* L);
-	static int lGetMinorCivCultureFriendshipBonus(lua_State* L); // DEPRECATED
-	static int lGetMinorCivCurrentCultureFlatBonus(lua_State* L);
-	static int lGetMinorCivCurrentCulturePerBuildingBonus(lua_State* L);
-	static int lGetCurrentCultureBonus(lua_State* L); // DEPRECATED, use lGetMinorCivCurrentCultureBonus instead
 	static int lGetMinorCivCurrentCultureBonus(lua_State* L);
 	static int lGetMinorCivHappinessFriendshipBonus(lua_State* L); // DEPRECATED
 	static int lGetMinorCivCurrentHappinessFlatBonus(lua_State* L);
@@ -1013,7 +1010,7 @@ protected:
 	static int lGetIndustryHistory(lua_State* L);
 	static int lGetAgricultureHistory(lua_State* L);
 	static int lGetPowerHistory(lua_State* L);
-	static int lGetReasonPlunderTradeRouteDisabled(lua_State* L);
+	static int lGetReasonActionDisabled(lua_State* L);
 	static int lGetReplayData(lua_State* L);
 	static int lSetReplayDataValue(lua_State* L);
 
@@ -1248,6 +1245,7 @@ protected:
 	static int lGetDealValue(lua_State* L);
 	static int lGetDealMyValue(lua_State* L);
 	static int lGetDealTheyreValue(lua_State* L);
+	static int lIsCurrentDealOfferChanged(lua_State* L);
 
 	static int lMayNotAnnex(lua_State* L);
 

@@ -173,13 +173,32 @@ function PopulateUniqueBonuses( controlTable, civ, _, extendedTooltip, noTooltip
 		end
 
 		-- 5/6 UC improvements using Trait_BuildsUnitClasses and OrderPriority
-		for row in DB.Query([[SELECT DISTINCT i.ID, i.Description, i.PortraitIndex, i.IconAtlas from Improvements i, Civilization_Leaders cl, Leader_Traits lt, Trait_BuildsUnitClasses tbuc, Builds b 
-			where cl.CivilizationType = ? and lt.LeaderType = cl.LeaderheadType and lt.TraitType = tbuc.TraitType and tbuc.BuildType = b.Type and i.Type = b.ImprovementType and b.OrderPriority=90]], civ.Type) do
+		for row in DB.Query([[
+			Type IN (
+			  SELECT b.ImprovementType
+			  FROM Civilization_Leaders cl
+			  JOIN Leader_Traits lt
+			    ON lt.LeaderType = cl.LeaderheadType
+			  JOIN Trait_BuildsUnitClasses tbu
+			    ON tbu.TraitType = lt.TraitType
+			  JOIN Builds b
+			    ON b.Type = tbu.BuildType
+			  WHERE cl.CivilizationType = ']] .. thisCiv.Type .. [['
+			    AND b.OrderPriority = 90
+			)
+			]], civ.Type) do
 			AdjustArtOnUniqueImprovementButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
  			button, buttonFrame = coroutine.yield(row.Description);
 		end
 
 		for row in DB.Query([[SELECT ID, Description, PortraitIndex, IconAtlas from Projects where CivilizationType = ?]], civ.Type) do
+			AdjustArtOnUniqueProjectButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
+ 			button, buttonFrame = coroutine.yield(row.Description);
+		end
+
+		-- 5/6 UC projects use PolicyType
+		for row in DB.Query([[SELECT DISTINCT p.ID, p.Description, p.PortraitIndex, p.IconAtlas 
+			FROM Projects p JOIN Civilizations c ON p.PolicyType = c.PolicyForUserInterface WHERE c.Type = ?]], civ.Type) do
 			AdjustArtOnUniqueProjectButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
  			button, buttonFrame = coroutine.yield(row.Description);
 		end
@@ -234,7 +253,11 @@ function PopulateUniqueBonuses_CreateCached()
 		where cl.CivilizationType = ? and lt.LeaderType = cl.LeaderheadType and lt.TraitType = tbuc.TraitType and tbuc.BuildType = b.Type and i.Type = b.ImprovementType and b.OrderPriority=90]]);
 	
 	local uniqueProjectsQuery = DB.CreateQuery([[SELECT ID, Description, PortraitIndex, IconAtlas from Projects where CivilizationType = ?]]);
-	
+
+	-- 5/6 UC
+	local culturalProjectsQuery = DB.CreateQuery([[SELECT DISTINCT p.ID, p.Description, p.PortraitIndex, p.IconAtlas 
+			FROM Projects p JOIN Civilizations c ON p.PolicyType = c.PolicyForUserInterface WHERE c.Type = ?]]);
+
 
 	return function(controlTable, civType, extendedTooltip, noTooltip)
 		local maxSmallButtons = GameDefines.NUM_UNIQUE_COMPONENTS;
@@ -282,8 +305,16 @@ function PopulateUniqueBonuses_CreateCached()
 								return row.Description;
 							end);
 						end
-					end
 
+						if(#buttonFuncs < maxSmallButtons) then	
+							for row in culturalProjectsQuery(civType) do
+								table.insert(buttonFuncs, function(button, buttonFrame)
+									AdjustArtOnUniqueProjectButton( button, buttonFrame, row, textureSize, extendedTooltip, noTooltip);
+									return row.Description;
+								end);
+							end
+						end
+					end
 				end
 			end
 		end

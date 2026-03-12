@@ -9,7 +9,6 @@ UPDATE Units SET Cost = 0 WHERE CombatClass = 'UNITCOMBAT_SETTLER';
 -- Civilians
 UPDATE Units SET Cost = 80 WHERE Class = 'UNITCLASS_WORKER';
 UPDATE Units SET Cost = 40 WHERE Class = 'UNITCLASS_WORKBOAT';
-UPDATE Units SET Cost = 300 WHERE Class = 'UNITCLASS_ASAMU';
 UPDATE Units SET Cost = 100, FaithCost = 200 WHERE Class = 'UNITCLASS_SIEGE_TOWER';
 UPDATE Units SET Cost = 450, FaithCost = 450 WHERE Class = 'UNITCLASS_ARCHAEOLOGIST';
 
@@ -192,4 +191,4 @@ UPDATE Units SET Cost = 500, FaithCost = 550 WHERE Type = 'UNIT_TREASURE_SHIP'; 
 UPDATE Units SET FaithCost = 450 WHERE Type = 'UNIT_QIZILBASH'; -- cheaper faith cost
 UPDATE Units SET Cost = 1300, FaithCost = 900 WHERE Type = 'UNIT_HASHEMITE_RAIDER'; -- earlier but same cost
 UPDATE Units SET Cost = 1300, FaithCost = 900 WHERE Type = 'UNIT_KRUPP_GUN'; -- earlier but same cost
-UPDATE Units SET Cost = 2000, FaithCost = 1350 WHERE Type = 'UNIT_YAMATO'; -- more expensive
+UPDATE Units SET FaithCost = 900 WHERE Type = 'UNIT_MIKASA'; -- earlier but same cost

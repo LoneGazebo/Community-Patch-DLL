@@ -91,7 +91,7 @@
 			<Text>Pioneer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PIONEER_STRATEGY">
-			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
+			<Text>Use this unit to construct new Cities. It cannot defend itself, so accompany it with a combat unit. When founded, Cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PIONEER_TEXT">
 			<Text>Pioneers are any of the people in history who migrated to join in settling and developing new areas. The term especially refers to those who were going to settle any territory which had previously not been settled or developed by European or American society, although the territory may have been inhabited by or utilized by native peoples. The pioneer concept and ethos greatly predate the migration to parts of the United States now called Western, as many places now considered as East were also settled by pioneers from the coast. For example, Daniel Boone, a key figure in American history, settled in Kentucky, when that "Dark and Bloody Ground" was still undeveloped. One important development in the Western settlement was the Homestead Act, which provided formal legislation which regulated the settlement process.</Text>
@@ -104,7 +104,7 @@
 			<Text>Colonist</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COLONIST_STRATEGY">
-			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Colonists start with 5 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Amphitheater[NEWLINE][ICON_BULLET] Aqueduct[NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Harbor[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Lighthouse[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Temple[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Windmill[NEWLINE][ICON_BULLET] Workshop[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Colonists!</Text>
+			<Text>Use this unit to construct new Cities; unlike previous Settler Units, Cities founded by a Colonist are considered Puppets and do not increase empire-size penalities, such as Tech and Policy costs. They can be annexed at no cost, and do not require Courthouses.[NEWLINE][NEWLINE]The Colonist cannot defend itself, so accompany it with a combat unit. When founded, Cities built by Colonists start with 5 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Amphitheater[NEWLINE][ICON_BULLET] Aqueduct[NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Harbor[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Lighthouse[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Temple[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Windmill[NEWLINE][ICON_BULLET] Workshop[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Colonists!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COLONIST_TEXT">
 			<Text>Studying throughout history, one can witness how colonists, a type of setter, very often occupied land previously home to long-established peoples, designated as indigenous (also called "natives", "Aborigines" or, in the Americas, "Indians"). In some cases (such as Australia), as colonialist mentalities and laws change, the legal ownership of some lands is contested by indigenous people, who either claim or seek restoration of traditional usage, land rights, native title and related forms of legal ownership or partial control. The word "settler" was not originally usually used in relation to unfree labour immigrants, such as slaves (e.g. in the United States), indentured labourers (such as in Colonial America), or convicts (such as in British America, c. 1615-1775; Australia 1788-1868). More recently descendants of these immigrants may argue that they have as much right to use the word "settler" as the descendants of free immigrants. In the figurative usage, a "person who goes first or does something first" also applies to the American English use of "pioneer" to refer to a settler - a person who has migrated to a less occupied area and established permanent residence there, often to colonize the area; as first recorded in English in 1605. In United States history it refers to those people who helped to settle new lands. In this usage, pioneers are usually among the first to an area, whereas settlers can arrive after first settlement and join others in the process of human settlement.[citation needed] This correlates with the work of military pioneers who were tasked with construction of camps before the main body of troops would arrive at the designated camp site.</Text>
@@ -174,7 +174,7 @@
 			<Text>Dreadnought</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_STRATEGY">
-			<Text>Dreadnoughts are capable of firing from a distance, but requires Iron to be built.</Text>
+			<Text>Dreadnoughts gain [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] Promotion over Cruisers they replace. Combined with high [ICON_RANGE_STRENGTH] Ranged Combat Strength, it allows for more aggressive coastal bombardment. Dreadnoughts are most useful when focusing on land targets and melee ships while your melee ships engage ranged naval units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_TEXT">
 			<Text>The Dreadnought was the predominant type of battleship in the early 20th century. Its design had two revolutionary features: an "all-big-gun" armament scheme, with more heavy-caliber guns than previous ships, and steam turbine propulsion. The first of its kind, the Royal Navy's "Dreadnought" mounted ten 12-inch (305 mm) guns. The US Navy was the first to adopt oil-firing, deciding to do so in 1910 and ordering oil-fired boilers for the Nevada class, in 1911. Other major navies retained mixed coal-and-oil firing until the end of World War I.[NEWLINE][NEWLINE]Within five years of the commissioning of "Dreadnought", a new generation of more powerful "super-dreadnoughts" was being built. The first super-dreadnoughts are generally considered to be the British "Orion" class. What made them "super" was the introduction of the heavier 13.5-inch (343 mm) guns and the placement of all the main armament on the centerline. In 1917, the Japanese "Nagato" class was ordered, the first dreadnoughts to mount 16-inch (406 mm) guns, making them arguably the most powerful warships in the world.</Text>
@@ -290,7 +290,39 @@
 			<Text>Diplomatic Missions of this Unit grant 100 base [ICON_INFLUENCE] Influence with the target [ICON_CITY_STATE] City-State, plus 15 extra [ICON_INFLUENCE] Influence per Era passed, and reduce the same amount of [ICON_INFLUENCE] Influence of the target [ICON_CITY_STATE] City-State with all other Civilizations.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_UNIT_REDCOAT">
+			<Text>Redcoat</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_REDCOAT_TEXT">
+			<Text>Despite not being a rare occurence throughout European military history (with Danish, and even French units wearing bright red uniforms at some points), the red uniforms of the infantry of the British Army and Royal Navy have become nationaly and internationaly recognized as unmistakable symbols of the British military power. Originally meant to lower fabrication costs, the diffusion of red uniforms followed a slow process that can be traced back all the way to the War of the Roses in the 15th century. During the reforms that led to the creation of the New Model Army, the red, now considered a staple of English identity, became more prevalent, and stayed that way in the following centuries: its notoriaty came from being worn by British infantry during the whole period of British imperialist policies, from America to Oceania, Africa to Europe and Asia. The only major changes to the color of the uniforms were decided after the lethality of fire became much more prevalent and the red uniform, from a mean of distinction, became a liability. Nonetheless, it kept an important role in British military ceremonial, with royal guards still wearing it during their service.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_REDCOAT_STRATEGY">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_REDCOAT_HELP">
+			<Text></Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_YAMATO">
+			<Text>Yamato</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_YAMATO_TEXT">
+			<Text>The Yamato-class battleships were the crown jewel of the Imperial Japanese Navy during World War II. Displacing 73,000 tonnes at full load, they were the heaviest and most powerfully armed battleships ever constructed. Each Yamato carried nine 18.1 inch guns, the largest naval artillery ever fitted to a warship, each capable of firing 3,000 lb. shells over 26 miles. Two battleships of the class, Yamato and Musashi, were completed while a third, Shinano, was converted to an aircraft carrier during construction. All were sunk by American forces during WWII.[NEWLINE][NEWLINE]Due to their size, speed, and power, The Yamato-class visibly embodied Japan's determination and readiness to defend its interests against the western powers, especially the United States. One of the reasons that the warship may have such significance in Japanese culture is that the word "Yamato" was often used as a poetic name for Japan itself. Thus, the construction and destruction of the Yamato battleships became symbolic for the rise and fall of Japanese imperial aspirations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_YAMATO_STRATEGY">
+			<Text>The Yamato has 4 range, [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR] Promotion, higher [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength compared to Battleships. The enemy gains [ICON_GOLDEN_AGE] Golden Age Points and [ICON_CULTURE] Culture bounty when destroying this ship.[NEWLINE][NEWLINE]Exploit its excellent range to strike key, distant targets, while maintaining a safe distance, unless your advantage is clear. Despite its strength, it is vulnerable to concentrated attacks, especially from the air, so support from carriers with fighters is advised.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_YAMATO_HELP">
+			<Text></Text>
+		</Row>
+
 		<!-- Unit Combats -->
+		<Row Tag="TXT_KEY_UNITCOMBAT_MISSILE">
+			<Text>Missile</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_UNITCOMBAT_NUKE">
+			<Text>Nuclear Weapon</Text>
+		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_SETTLER">
 			<Text>Settler</Text>
 		</Row>
@@ -314,6 +346,15 @@
 		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_DIPLOMACY">
 			<Text>Diplomacy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNITCOMBAT_ARCHAEOLOGIST">
+			<Text>Archaeologist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNITCOMBAT_SPECIAL_PEOPLE">
+			<Text>Great Person</Text>
+		</Row>	
+		<Row Tag="TXT_KEY_UNITCOMBAT_SPACESHIP">
+			<Text>Spaceship Part</Text>
 		</Row>
 
 		<!-- Great Diplomat names -->

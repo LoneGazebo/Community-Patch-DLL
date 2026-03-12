@@ -458,7 +458,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		// If the city is of ok-ish value and we're not too unhappy, let's puppet
 		if (!IsEmpireVeryUnhappy())
 		{
-			bool bPuppetBonuses = GetPlayerTraits()->IsNoAnnexing() || GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0;
+			bool bPuppetBonuses = GetPlayerTraits()->GetPuppetYieldAndSupplyModifierChange() > 0 || GetPuppetYieldAndSupplyModifierChange() > 0;
 
 			if (iCityValue >= /*40*/ GD_INT_GET(AI_CITY_SOME_VALUE_THRESHOLD) && (bPuppetBonuses || !bUnhappy))
 			{

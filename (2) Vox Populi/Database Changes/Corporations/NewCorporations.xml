@@ -58,6 +58,7 @@
 			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_GIORGIO_ARMEIER</OfficeBonusHelp>
 			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_GIORGIO_ARMEIER</TradeRouteBonusHelp>
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_GIORGIO_ARMEIER_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
+			<TradeRouteTargetBonus>5</TradeRouteTargetBonus>
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
@@ -72,7 +73,6 @@
 			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_FIRAXITE_MATERIALS</OfficeBonusHelp>
 			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_FIRAXITE_MATERIALS</TradeRouteBonusHelp>
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_FIRAXITE_MATERIALS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
-			<TradeRoutesInvulnerable>true</TradeRoutesInvulnerable>
 			<PortraitIndex>28</PortraitIndex>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
@@ -104,6 +104,21 @@
 			<OfficeBenefitHelper>TXT_KEY_CORPORATION_CIVILIZED_JEWELERS_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
 			<TradeRouteSpeedModifier>200</TradeRouteSpeedModifier>
 			<PortraitIndex>24</PortraitIndex>
+			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
+		</Row>
+		<Row>
+			<Type>CORPORATION_POPULI_MEDICINE</Type>
+			<Description>TXT_KEY_CORPORATION_POPULI_MEDICINE</Description>
+			<Help>TXT_KEY_CORPORATION_POPULI_MEDICINE_HELP</Help>
+			<HeadquartersBuildingClass>BUILDINGCLASS_POPULI_MEDICINE_HQ</HeadquartersBuildingClass>
+			<OfficeBuildingClass>BUILDINGCLASS_POPULI_MEDICINE</OfficeBuildingClass>
+			<FranchiseBuildingClass>BUILDINGCLASS_POPULI_MEDICINE_FRANCHISE</FranchiseBuildingClass>
+			<OfficeBonusHelp>TXT_KEY_CORPORATION_OFFICE_BONUS_POPULI_MEDICINE</OfficeBonusHelp>
+			<TradeRouteBonusHelp>TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_POPULI_MEDICINE</TradeRouteBonusHelp>
+			<ResourceBonusHelp>TXT_KEY_CORPORATION_RESOURCE_BONUS_POPULI_MEDICINE</ResourceBonusHelp>
+			<OfficeBenefitHelper>TXT_KEY_CORPORATION_POPULI_MEDICINE_OFFICE_BENEFIT_HELP</OfficeBenefitHelper>
+			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
+			<PortraitIndex>32</PortraitIndex>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 		</Row>
 	</Corporations>

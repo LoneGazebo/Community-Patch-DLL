@@ -1167,16 +1167,10 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	bool bAbortInDanger = (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER) != 0;
 	bool bOnlySafeEmbark = (iFlags & CvUnit::MOVEFLAG_SAFE_EMBARK_ONLY) != 0;
 
-	//human knows best, don't try to be smart, just try to keep combat units attack-ready
-	if (!pUnitDataCache->isAIControl())
-		return kToNodeCacheData.bIsNonNativeDomain && pUnit->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
-	
-	//logic for AI
 	int iCost = 0;
-	if(pUnit->IsCanDefend())
-	{
-		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
-	}
+
+	// try to keep combat units attack-ready
+	iCost += kToNodeCacheData.bIsNonNativeDomain && pUnit->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
 
 	// Damage caused by features (mods)
 	if (/*0*/ GD_INT_GET(PATH_DAMAGE_WEIGHT) != 0)
@@ -1188,6 +1182,38 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 		if(pToPlot->getExtraMovePathCost() > 0)
 			iCost += (PATH_BASE_COST * pToPlot->getExtraMovePathCost());
+	}
+	
+	if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+	{
+		// Avoid being in a territory that we are not welcome in
+		PlayerTypes ePlotOwner = pToPlot->getOwner();
+		TeamTypes ePlotTeam = pToPlot->getTeam();
+		if (ePlotTeam != NO_TEAM && ePlotTeam!=eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam) && !GET_PLAYER(ePlotOwner).isMinorCiv())
+		{
+			iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
+		}
+	}
+
+	if (!pUnitDataCache->isAIControl())
+		return iCost;
+	
+	// additional logic for AI
+	if (!pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+	{
+		if (pToPlot->isOwned() && pToPlot->getTeam() != eUnitTeam)
+		{
+			iCost += PATH_END_TURN_FOREIGN_TERRITORY;
+		}
+		else if (!pToPlot->isOwned())
+		{
+			iCost += PATH_END_TURN_FOREIGN_TERRITORY / 2;
+		}
+	}
+
+	if(pUnit->IsCanDefend())
+	{
+		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
 	}
 
 	// Explorers aren't banned from entering minor civ territory, but they should avoid it when possible
@@ -1209,24 +1235,6 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 				}
 			}
 		}
-	}
-	if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
-	{
-		// Avoid being in a territory that we are not welcome in
-		PlayerTypes ePlotOwner = pToPlot->getOwner();
-		TeamTypes ePlotTeam = pToPlot->getTeam();
-		if (ePlotTeam != NO_TEAM && ePlotTeam!=eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam) && !GET_PLAYER(ePlotOwner).isMinorCiv())
-		{
-			iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
-		}
-	}
-	else if(pToPlot->isOwned() && pToPlot->getTeam() != eUnitTeam)
-	{
-		iCost += PATH_END_TURN_FOREIGN_TERRITORY;
-	}
-	else if (!pToPlot->isOwned())
-	{
-		iCost += PATH_END_TURN_FOREIGN_TERRITORY/2;
 	}
 
 	// If we are a land unit and we are ending the turn on water, make the cost a little higher 
@@ -1281,11 +1289,13 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
-			if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints()*3)
+			//GetDanger returns MAX_INT for "fatal" plots (city about to fall, etc) - handle without overflow
+			int iScaledDanger = (iPlotDanger >= INT_MAX / 2) ? INT_MAX : iPlotDanger * iScale;
+			if (iScaledDanger >= pUnit->GetCurrHitPoints()*3)
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints())
+			else if (iScaledDanger >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale > pUnit->GetCurrHitPoints()/3)
+			else if (iScaledDanger > pUnit->GetCurrHitPoints()/3)
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 		else //civilian, embarked or exploring
@@ -1431,7 +1441,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		else
 		{
 			//apply this part even if it's the explicit target
-			if (pUnitDataCache->isAIControl() && pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+			if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
 			{
 				// Avoid being in a territory that we are not welcome in
 				PlayerTypes ePlotOwner = pToPlot->getOwner();
@@ -2188,7 +2198,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
-			if (MOD_BALANCE_VP || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
+			if (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}
@@ -2563,7 +2573,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	if(pNewPlot->isWater())
 		return FALSE;
 
-	if(!pNewPlot->isValidMovePlot(ePlayer) && (!pNewPlot->isMountain() || !kPlayer.IsWorkersIgnoreImpassable()))
+	if(!pNewPlot->isValidMovePlot(ePlayer) && !(pNewPlot->isMountain() && kPlayer.WorkersMountainPass()))
 		return FALSE;
 
 	if (!bIsManual && pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
@@ -2818,10 +2828,10 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 
 	bool bBlockAhead = 
 		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING_SELF) && //obvious
-		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
-		current->m_iTurns < 1 &&			//only in the first turn, otherwise the block will likely have moved
-		next->m_iMoves == 0 &&				//only if we would need to end the turn on the next plot
-		!next->m_kCostCacheData.bIsVisibleNeutralCombatUnit && //don't let ourselves be blocked by other players' units
+		(pUnitDataCache->isAIControl()  || GC.getGame().isHumanAIPath()) &&
+		current->m_iTurns < 1 &&														//only in the first turn, otherwise the block will likely have moved
+		next->m_iMoves == 0 &&															//only if we would need to end the turn on the next plot
+		current->m_iMoves != pUnitDataCache->baseMoves(pUnitDataCache->isEmbarked()) * GD_INT_GET(MOVE_DENOMINATOR) && //only if we have already moved, to avoid being blocked indefinitely
 		next->m_kCostCacheData.bUnitStackingLimitReached; //finally
 
 	bool bTempPlotAhead =
@@ -2863,6 +2873,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		pStopNode->m_iTotalCost = pStopNode->m_iKnownCost*giKnownCostWeight + pStopNode->m_iHeuristicCost*giHeuristicCostWeight;
 		pStopNode->m_pParent = current->m_pParent;
 		pStopNode->m_kCostCacheData = current->m_kCostCacheData;
+		pStopNode->m_bIsStopNode = true;
 		
 		AddToOpen(pStopNode);
 		return true;
@@ -3511,7 +3522,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 		iRouteDiscountTimes120 = 54; //can't get better than this even if next plot is railroad
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) &&
-		(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
+		(MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
 		!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteDiscountTimes120 = 40;
 	// ignore terrain cost for moving along rivers

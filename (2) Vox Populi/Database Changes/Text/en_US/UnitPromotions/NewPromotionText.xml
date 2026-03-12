@@ -3,7 +3,7 @@
 	<Language_en_US>
 		<!-- Air Repair -->
 		<Row Tag="TXT_KEY_PROMOTION_AIR_REPAIR_HELP">
-			<Text>Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.</Text>
+			<Text>Unit will [COLOR_POSITIVE_TEXT]Heal an additional 10 HP[ENDCOLOR] each turn, regardless of action taken.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AIR_LOGISTICS">
@@ -344,13 +344,20 @@
 			<Text>+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS">
-			<Text>Shrapnel Rounds</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1">
+			<Text>Shrapnel Rounds I</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_HELP">
-			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1_HELP">
+			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2">
+			<Text>Shrapnel Rounds II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2_HELP">
+			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_PROMOTION_VANGUARD">
 			<Text>Vanguard</Text>
 		</Row>
@@ -447,13 +454,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PERISCOPE_DEPTH_HELP">
 			<Text>+40% [ICON_STRENGTH] Combat Strength when defending against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR">
-			<Text>Steppe Nomads</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR_HELP">
-			<Text>+1 [ICON_WAR] Attack.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
@@ -929,7 +929,7 @@
 			<Text>Hakkaa Päälle!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP">
-			<Text>+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE">
@@ -982,7 +982,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_VOLLEY">
-			<Text>Siege Volley</Text>
+			<Text>Singijeon</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_VOLLEY_HELP">
 			<Text>+25% [ICON_STRENGTH] Combat Strength in or adjacent to a [COLOR_POSITIVE_TEXT]City[ENDCOLOR].[NEWLINE]Deal [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]adjacent to[ENDCOLOR] the target Unit (within [ICON_RANGE_STRENGTH] Range) when attacking.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].</Text>
@@ -1079,13 +1079,6 @@
 			<Text>Inflict the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ON_FIRE}[ENDCOLOR] status on Enemy Units when attacking, increasing their Damage received from Combat by 20% for 1 turn.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE">
-			<Text>Elisha's Guile</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_ELISHAS_GUILE_HELP">
-			<Text>Can embark onto [COLOR_POSITIVE_TEXT]Water Tiles[ENDCOLOR].[NEWLINE]+1 [ICON_VISION] Sight and Embarked Sight.[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_AT_THE_GATES">
 			<Text>At the Gates!</Text>
 		</Row>
@@ -1153,7 +1146,7 @@
 			<Text>Zemene Mesafint</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ZEMENE_MESAFINT_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Units from [ICON_HAPPINESS_3] Unhappy Empires[ENDCOLOR].</Text>
+			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MINENWERFER">
@@ -1212,11 +1205,18 @@
 			<Text>Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_KANTAI_KESSEN">
+			<Text>Kantai Kessen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_KANTAI_KESSEN_HELP">
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Full Health Units[ENDCOLOR].[NEWLINE]Gain 300% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Naval Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_TAIKAN_KYOHO">
 			<Text>Taikan Kyoho</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TAIKAN_KYOHO_HELP">
-			<Text>Gain 400% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+			<Text>Gain 400% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Naval Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_DECK_SPIKES">
@@ -1324,11 +1324,25 @@
 			<Text>+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_CIBOLA">
+			<Text>Cíbola</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_CIBOLA_HELP">
+			<Text>+125% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_SANTA_MARIA">
 			<Text>Santa Maria</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SANTA_MARIA_HELP">
-			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Naval Units as [ICON_GREAT_ADMIRAL] Great Admiral Points.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SEWN_CANOES">
+			<Text>Sewn Canoes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SEWN_CANOES_HELP">
+			<Text>Eliminate combat penalties for attacking over a river.[NEWLINE]Double [ICON_MOVES] Movement when moving along Rivers.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_INVINCIBLE">

@@ -6436,6 +6436,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						bool bUnlocksResource = false;
 						bool bResourceUnlocked = false;
 						TechTypes eTech = (TechTypes)pResourceInfo->getImproveTech();
+						if (eTech == NO_TECH)
+						{
+							eTech = (TechTypes)pResourceInfo->getTechReveal();
+						}
 						for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 						{
 							const PlayerTypes ePlayer = (PlayerTypes)*iI;
@@ -6932,7 +6936,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 			bFirstResource = false;
 
-			if (MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
+			if (GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			{
 				SetTradeTech(eIndex, true);
 			}
@@ -7759,14 +7763,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 	}
 	if(pTech->IsResearchAgreementTradingAllowed())
 	{
-		if (MOD_BALANCE_VP)
-		{
-			if (GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
-			{
-				ChangeResearchAgreementTradingAllowedCount(iChange);
-			}
-		}
-		else
+		if (!GC.getGame().isOption(GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS))
 		{
 			ChangeResearchAgreementTradingAllowedCount(iChange);
 		}
@@ -8735,7 +8732,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				}
 			}
 
-			if (pEraInfo->getVassalageEnabled() && !GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+			if (pEraInfo->getVassalageEnabled() && MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 			{
 				changeVassalageTradingAllowedCount(1);
 
@@ -8822,6 +8819,33 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 
+		// Update Yields from Annexed City-States (Rome UA)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			ePlayer = (PlayerTypes)iPlayerLoop;
+			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+			if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+			{
+				EraTypes eCurrentEra = GetCurrentEra();
+				const std::vector<std::pair<PlayerTypes, int>>& m_annexed =	kPlayer.getAnnexedCityStatesUnitSpawnTurns();
+				for (std::vector<std::pair<PlayerTypes, int>>::const_iterator it = m_annexed.begin(); it != m_annexed.end(); ++it)
+				{
+					PlayerTypes eMinor = (*it).first;
+					// remove previous era bonuses
+					kPlayer.ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(eMinor, -1, eCurrentEra);
+					kPlayer.ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(eMinor, -1, eCurrentEra);
+					kPlayer.ChangeYieldPerTurnFromAnnexedMinorTimes100(eMinor, -1, eCurrentEra);
+					kPlayer.ChangeHappinessFromAnnexedMinor(eMinor, -1, eCurrentEra);
+					// add new era bonuses
+					kPlayer.ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(eMinor, +1, eNewValue);
+					kPlayer.ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(eMinor, +1, eNewValue);
+					kPlayer.ChangeYieldPerTurnFromAnnexedMinorTimes100(eMinor, +1, eNewValue);
+					kPlayer.ChangeHappinessFromAnnexedMinor(eMinor, +1, eNewValue);
+				}
+			}
+		}
+
+		// Here the variable get's updated! Everything after this will return current era differently!
 		m_eCurrentEra = eNewValue;
 
 		if(GC.getGame().getActiveTeam() != NO_TEAM)
@@ -8905,22 +8929,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 
-		// Update Yields from Annexed City-States (Rome UA)
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			ePlayer = (PlayerTypes)iPlayerLoop;
-			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-			if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
-			{
-				kPlayer.UpdateFoodInCapitalPerTurnFromAnnexedMinors();
-				kPlayer.UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
-				kPlayer.UpdateGoldPerTurnFromAnnexedMinors();
-				kPlayer.UpdateCulturePerTurnFromAnnexedMinors();
-				kPlayer.UpdateSciencePerTurnFromAnnexedMinors();
-				kPlayer.UpdateFaithPerTurnFromAnnexedMinors();
-				kPlayer.UpdateHappinessFromAnnexedMinors();
-			}
-		}
 		updateYield();
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
@@ -9727,7 +9735,7 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 	}
 
 	// Vassalage is disabled...
-	if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+	if(!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 	{
 		return false;
 	}
@@ -9812,7 +9820,7 @@ bool CvTeam::CanLiberateVassal(TeamTypes eTeam) const
 		return false;
 
 	// Vassalage is disabled...
-	if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+	if(!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 		return false;
 
 	// Must be a vassal of ours
@@ -10183,7 +10191,7 @@ void CvTeam::ChangeNumTurnsSinceVassalEnded(TeamTypes eTeam, int iChange)
 // Can we tax ePlayer right now?
 bool CvTeam::CanSetVassalTax(PlayerTypes ePlayer) const
 {
-	if (GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+	if (!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
 		return false;
 
 	if (!isAlive() || !GET_PLAYER(ePlayer).isAlive() || !GET_PLAYER(ePlayer).isMajorCiv())
@@ -10278,7 +10286,13 @@ int CvTeam::GetNumVassals()
 		// eTeamLoop vassal of us?
 		if(GET_TEAM(eTeamLoop).IsVassal(GetID()))
 		{
-			iVassals++;
+			for (CivsList::const_iterator it = GET_TEAM(eTeamLoop).getPlayers().begin(); it != GET_TEAM(eTeamLoop).getPlayers().end(); ++it)
+			{
+				if (GET_PLAYER(*it).isAlive())
+				{
+					iVassals++;
+				}
+			}
 		}
 	}
 

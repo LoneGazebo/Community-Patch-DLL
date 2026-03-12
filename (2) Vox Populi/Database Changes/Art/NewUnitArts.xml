@@ -237,6 +237,10 @@
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MIKASA</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_DREADNOUGHT</Type>
 			<DamageStates>3</DamageStates>
 		</Row>
@@ -271,11 +275,6 @@
 			<Type>ART_DEF_UNIT_COLONIST</Type>
 			<DamageStates>1</DamageStates>
 			<Formation>Vehicle</Formation>
-		</Row>
-		<Row>
-			<Type>ART_DEF_UNIT_ASAMU</Type>
-			<DamageStates>1</DamageStates>
-			<Formation>LooseCivilian</Formation>
 		</Row>
 		<!-- Diplo units -->
 		<Row>
@@ -726,6 +725,14 @@
 			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_MIKASA</Type>
+			<Scale>0.085</Scale>
+			<Domain>Sea</Domain>
+			<Model>Mikasa_BB.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_DREADNOUGHT</Type>
 			<Scale>0.085</Scale>
 			<Domain>Sea</Domain>
@@ -791,13 +798,6 @@
 			<Type>ART_DEF_UNIT_MEMBER_COLONIST4</Type>
 			<Scale>0.05</Scale>
 			<Model>Caravan_Late_F2.fxsxml</Model>
-			<MaterialTypeTag>CLOTH</MaterialTypeTag>
-			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
-		</Row>
-		<Row>
-			<Type>ART_DEF_UNIT_MEMBER_ASAMU</Type>
-			<Scale>0.14</Scale>
-			<Model>CarthageScout.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -1394,6 +1394,13 @@
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MIKASA</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_DREADNOUGHT</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
@@ -1439,11 +1446,6 @@
 			<PitchRateMax>3.0</PitchRateMax>
 			<HasCollisionAttack>1</HasCollisionAttack>
 			<AttackAltitude>50.0</AttackAltitude>
-		</Row>
-		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_ASAMU</UnitMemberType>
-			<EnableActions>Idle Death BombardDefend Run</EnableActions>
-			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_TADODAHO</UnitMemberType>
@@ -2105,6 +2107,26 @@
 			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MIKASA</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION1TON</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MIKASA</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_DREADNOUGHT</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
@@ -2545,6 +2567,11 @@
 			<Asset>svcruiser.dds</Asset>
 		</Row>
 		<Row>
+			<StrategicViewType>ART_DEF_UNIT_MIKASA</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>sv_Mikasa.dds</Asset>
+		</Row>
+		<Row>
 			<StrategicViewType>ART_DEF_UNIT_DREADNOUGHT</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>SV_Dreadnought.dds</Asset>
@@ -2581,11 +2608,6 @@
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_COLONIST</StrategicViewType>
-			<TileType>Unit</TileType>
-			<Asset>SV_Settler.dds</Asset>
-		</Row>
-		<Row>
-			<StrategicViewType>ART_DEF_UNIT_ASAMU</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>SV_Settler.dds</Asset>
 		</Row>

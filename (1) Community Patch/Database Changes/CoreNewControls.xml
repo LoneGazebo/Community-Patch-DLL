@@ -25,5 +25,11 @@
 			<CtrlDown>true</CtrlDown>
 			<ShiftDown>true</ShiftDown>
 		</Row>
+		<Row>
+			<Type>CONTROL_HUMAN_AI_PATH</Type>
+			<Hotkey>KB_H</Hotkey>
+			<CtrlDown>true</CtrlDown>
+			<ShiftDown>true</ShiftDown>
+		</Row>
 	</Controls>
 </GameData>

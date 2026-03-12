@@ -22,11 +22,17 @@ ALTER TABLE Beliefs ADD RequiresNoImprovementFeature boolean DEFAULT 0;
 
 -- NOTE: THESE TWO (RequiresNoImprovement and RequiresNoImprovementFeature) interact, and can be used to refine belief yields.
 
+-- Yield Per Heal can be restricted to owned tiles only
+ALTER TABLE Beliefs ADD RequiresOwnTerritory boolean DEFAULT 0;
+
 -- Belief - reduces policy cost of Wonders by 1 for every x cities following religion
 ALTER TABLE Beliefs ADD PolicyReductionWonderXFollowerCities integer DEFAULT 0;
 
 -- To help the AI choose a starting pantheon for civs with the trait "StartsWithPantheon": If there are pantheons with AI_GoodStartingPantheon = true, the AI will make a random choice between them
 ALTER TABLE Beliefs ADD AI_GoodStartingPantheon boolean DEFAULT 0;
+
+-- Paired with FaithPurchaseAllGreatPeople. Great People costs are increased by this percentage if not already unlocked by the respective policy.
+ALTER TABLE Beliefs ADD GreatPeopleFaithCostMod integer DEFAULT 0;
 
 -- Belief - increases pressure from trade routes
 ALTER TABLE Beliefs ADD PressureChangeTradeRoute integer DEFAULT 0;

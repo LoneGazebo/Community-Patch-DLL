@@ -10,14 +10,6 @@ SET
 	PolicyType = 'POLICY_PIETY'
 WHERE Type = 'BUILDING_MONASTERY';
 
-UPDATE Buildings
-SET
-	PolicyType = 'POLICY_SECULARISM',
-	Mountain = 0,
-	SpecialistType = 'SPECIALIST_SCIENTIST',
-	SpecialistCount = 2
-WHERE Type = 'BUILDING_OBSERVATORY';
-
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
@@ -29,7 +21,6 @@ VALUES
 	('BUILDING_MONASTERY', 'YIELD_FOOD', 3),
 	('BUILDING_MONASTERY', 'YIELD_SCIENCE', 3),
 	('BUILDING_MONASTERY', 'YIELD_FAITH', 2),
-	('BUILDING_OBSERVATORY', 'YIELD_SCIENCE', 6),
 	('BUILDING_PALACE_CULTURE_SCIENCE', 'YIELD_CULTURE', 4),
 	('BUILDING_INTERNATIONAL_FINANCE_CENTER', 'YIELD_CULTURE', 4),
 	('BUILDING_HALL_OF_HONOR', 'YIELD_CULTURE', 4),
@@ -38,6 +29,7 @@ VALUES
 INSERT INTO Building_YieldModifiers
 	(BuildingType, YieldType, Yield)
 VALUES
+	('BUILDING_COURT_CHAPEL', 'YIELD_CULTURE_LOCAL', 100),
 	('BUILDING_THRONE_ROOM', 'YIELD_FOOD', 10),
 	('BUILDING_THRONE_ROOM', 'YIELD_PRODUCTION', 10),
 	('BUILDING_THRONE_ROOM', 'YIELD_GOLD', 10),
@@ -48,20 +40,18 @@ VALUES
 	('BUILDING_INTERNATIONAL_FINANCE_CENTER', 'YIELD_GOLD', 5),
 	('BUILDING_HALL_OF_HONOR', 'YIELD_PRODUCTION', 5);
 
-INSERT INTO Building_YieldPerXTerrainTimes100
-	(BuildingType, TerrainType, YieldType, Yield)
-VALUES
-	('BUILDING_OBSERVATORY', 'TERRAIN_MOUNTAIN', 'YIELD_SCIENCE', 100);
-
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 VALUES
 	('BUILDING_STATE_TREASURY', 'BUILDINGCLASS_GARDEN', 'YIELD_CULTURE', 2),
 	('BUILDING_STATE_TREASURY', 'BUILDINGCLASS_BATH', 'YIELD_CULTURE', 2),
 	('BUILDING_STATE_TREASURY', 'BUILDINGCLASS_MONUMENT', 'YIELD_CULTURE', 2),
-	('BUILDING_ROYAL_ASTROLOGER', 'BUILDINGCLASS_COUNCIL', 'YIELD_SCIENCE', 1),
 	('BUILDING_ROYAL_ASTROLOGER', 'BUILDINGCLASS_SMOKEHOUSE', 'YIELD_SCIENCE', 1),
-	('BUILDING_ROYAL_ASTROLOGER', 'BUILDINGCLASS_HERBALIST', 'YIELD_SCIENCE', 1);
+	('BUILDING_ROYAL_ASTROLOGER', 'BUILDINGCLASS_HERBALIST', 'YIELD_SCIENCE', 1),
+	('BUILDING_COURT_CHAPEL', 'BUILDINGCLASS_SHRINE', 'YIELD_CULTURE_LOCAL', 5),
+	('BUILDING_COURT_CHAPEL', 'BUILDINGCLASS_TEMPLE', 'YIELD_CULTURE_LOCAL', 5),
+	('BUILDING_ROYAL_GUARDHOUSE', 'BUILDINGCLASS_COUNCIL', 'YIELD_PRODUCTION', 1),
+	('BUILDING_ROYAL_GUARDHOUSE', 'BUILDINGCLASS_FORGE', 'YIELD_PRODUCTION', 1);
 
 ----------------------------------------------------------------------------
 -- Religious Buildings
@@ -202,16 +192,21 @@ VALUES
 	('BUILDING_TEOCALLI', 'YIELD_FAITH', 2);
 
 INSERT INTO Building_YieldFromVictoryGlobal
-	(BuildingType, YieldType, Yield)
+	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BUILDING_TEOCALLI', 'YIELD_FAITH', 5);
+	('BUILDING_TEOCALLI', 'YIELD_FAITH', 2, 0);
+
+INSERT INTO Building_YieldFromVictory
+	(BuildingType, YieldType, Yield, IsEraScaling)
+VALUES
+	('BUILDING_TEOCALLI', 'YIELD_FAITH', 8, 0);
 
 INSERT INTO Building_DomainFreeExperiences
 	(BuildingType, DomainType, Experience)
 VALUES
-	('BUILDING_TEOCALLI', 'DOMAIN_LAND', 15),
-	('BUILDING_TEOCALLI', 'DOMAIN_SEA', 15),
-	('BUILDING_TEOCALLI', 'DOMAIN_AIR', 15);
+	('BUILDING_TEOCALLI', 'DOMAIN_LAND', 10),
+	('BUILDING_TEOCALLI', 'DOMAIN_SEA', 10),
+	('BUILDING_TEOCALLI', 'DOMAIN_AIR', 10);
 
 -- Gurdwara
 INSERT INTO Building_YieldChanges
@@ -497,7 +492,6 @@ VALUES
 UPDATE Buildings
 SET
 	InstantMilitaryIncrease = 0,
-	WorkerSpeedModifier = 25,
 	CitySupplyFlat = 5
 WHERE Type = 'BUILDING_TERRACOTTA_ARMY';
 
@@ -548,25 +542,30 @@ VALUES
 	('BUILDING_ORACLE', 'YIELD_SCIENCE', 400),
 	('BUILDING_ORACLE', 'YIELD_CULTURE', 400);
 
--- Angkor Wat
+-- Hagia Sophia
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_CURRENCY',
-	GlobalPlotCultureCostModifier = 0,
+	SpecialistType = 'SPECIALIST_ENGINEER',
+	GreatPeopleRateChange = 1,
+	FreeBuildingThisCity = 'BUILDINGCLASS_CHURCH',
 	BorderGrowthRateIncreaseGlobal = 40,
-	FreeBuildingThisCity = 'BUILDINGCLASS_MANDIR'
-WHERE Type = 'BUILDING_ANGKOR_WAT';
+	GlobalPlotBuyCostModifier = -25
+WHERE Type = 'BUILDING_HAGIA_SOPHIA';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_ANGKOR_WAT', 'YIELD_CULTURE', 1),
-	('BUILDING_ANGKOR_WAT', 'YIELD_FAITH', 1);
+	('BUILDING_HAGIA_SOPHIA', 'YIELD_CULTURE', 1),
+	('BUILDING_HAGIA_SOPHIA', 'YIELD_FAITH', 1);
+
+DELETE FROM Building_FreeUnits WHERE BuildingType = 'BUILDING_HAGIA_SOPHIA';
 
 -- Great Wall
 UPDATE Buildings
 SET
 	ObsoleteTech = 'TECH_GUNPOWDER',
+	WorkerSpeedModifier = 25,
 	CitySupplyFlat = 3
 WHERE Type = 'BUILDING_GREAT_WALL';
 
@@ -609,18 +608,28 @@ INSERT INTO Building_YieldFromGPExpend
 VALUES
 	('BUILDING_MOSQUE_OF_DJENNE', 'YIELD_SCIENCE', 50);
 
--- Hagia Sophia
+-- Angkor Wat
 UPDATE Buildings
 SET
-	FreeBuildingThisCity = 'BUILDINGCLASS_CHURCH',
+	PrereqTech = 'TECH_THEOLOGY',
+	SpecialistType = NULL,
+	GreatPeopleRateChange = 0,
+	GlobalPlotCultureCostModifier = 0,
+	GlobalPlotBuyCostModifier = 0,
+	FreeBuildingThisCity = 'BUILDINGCLASS_MANDIR',
 	ExtraMissionaryStrengthGlobal = 25
-WHERE Type = 'BUILDING_HAGIA_SOPHIA';
+WHERE Type = 'BUILDING_ANGKOR_WAT';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_HAGIA_SOPHIA', 'YIELD_CULTURE', 2),
-	('BUILDING_HAGIA_SOPHIA', 'YIELD_FAITH', 1);
+	('BUILDING_ANGKOR_WAT', 'YIELD_CULTURE', 2),
+	('BUILDING_ANGKOR_WAT', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_FreeUnits
+	(BuildingType, UnitType, NumUnits)
+VALUES
+	('BUILDING_ANGKOR_WAT', 'UNIT_PROPHET', 1);
 
 -- Borobudur
 UPDATE Buildings
@@ -751,8 +760,7 @@ SET
 	Help = 'TXT_KEY_WONDER_CHICHEN_ITZA_HELP',
 	PrereqTech = 'TECH_ASTRONOMY',
 	Happiness = 0,
-	EmpireSizeModifierReductionGlobal = -10,
-	FreeBuildingThisCity = 'BUILDINGCLASS_TEOCALLI'
+	EmpireSizeModifierReductionGlobal = -10
 WHERE Type = 'BUILDING_CHICHEN_ITZA';
 
 INSERT INTO Building_YieldChanges
@@ -1206,6 +1214,26 @@ VALUES
 	('BUILDING_CERN', 'YIELD_SCIENCE', 10),
 	('BUILDING_CERN', 'YIELD_CULTURE', 1);
 
+-- World Trade Center
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_WORLD_TRADE_CENTER', 'YIELD_GOLD', 5),
+	('BUILDING_WORLD_TRADE_CENTER', 'YIELD_CULTURE', 1),
+	('BUILDING_WORLD_TRADE_CENTER', 'YIELD_TOURISM', 4);
+
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	'BUILDING_WORLD_TRADE_CENTER', FranchiseBuildingClass, 'YIELD_GOLD', 5
+FROM Corporations;
+
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	'BUILDING_WORLD_TRADE_CENTER', FranchiseBuildingClass, 'YIELD_TOURISM', 4
+FROM Corporations;
+
 ----------------------------------------------------------------------------
 -- Corporation Buildings
 ----------------------------------------------------------------------------
@@ -1218,54 +1246,123 @@ SELECT
 FROM Buildings
 WHERE IsCorporation = 1 AND WonderSplashImage IS NOT NULL;
 
+INSERT INTO Building_ResourceYieldChanges
+	(BuildingType, ResourceType, YieldType, Yield)
+SELECT
+	b.Type, a.ResourceType, a.YieldType, a.Yield
+FROM Corporation_ResourceYieldChanges a
+INNER JOIN Corporations c ON a.CorporationType = c.Type
+INNER JOIN BuildingClasses bc ON c.OfficeBuildingClass = bc.Type
+INNER JOIN Buildings b ON bc.DefaultBuilding = b.Type;
+
 -- Trader Sid's
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_TRADER_SIDS', 'YIELD_GOLD', 4);
+	('BUILDING_TRADER_SIDS', 'YIELD_GOLD', 2);
 
 -- Centaurus Extractors
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_PRODUCTION', 3);
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Building_SeaPlotYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_PRODUCTION', 1);
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_PRODUCTION', 1),
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_SeaResourceYieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_SCIENCE', 1),	
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_CULTURE', 1);
 
 -- Hexxon Refinery
+INSERT INTO Building_YieldPerFranchise
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HEXXON_REFINERY', 'YIELD_CULTURE_LOCAL', 3);
+
+INSERT INTO Building_YieldFromUnitProduction
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HEXXON_REFINERY', 'YIELD_SCIENCE', 25);
+
 INSERT INTO Building_ResourceQuantityPerXFranchises
 	(BuildingType, ResourceType, NumFranchises)
 VALUES
-	('BUILDING_HEXXON_REFINERY', 'RESOURCE_COAL', 3),
-	('BUILDING_HEXXON_REFINERY', 'RESOURCE_OIL', 3);
+	('BUILDING_HEXXON_REFINERY_HQ', 'RESOURCE_COAL', 1),
+	('BUILDING_HEXXON_REFINERY_HQ', 'RESOURCE_OIL', 1);
 
 -- Giorgio Armeier
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_GIORGIO_ARMEIER', 'YIELD_CULTURE', 2);
+	('BUILDING_GIORGIO_ARMEIER', 'YIELD_CULTURE', 1);
 
 -- Firaxite Materials
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_FIRAXITE_MATERIALS', 'YIELD_SCIENCE', 2);
+	('BUILDING_FIRAXITE_MATERIALS', 'YIELD_SCIENCE', 1);
+
+INSERT INTO Building_TechEnhancedYieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_FIRAXITE_MATERIALS', 'YIELD_SCIENCE', 8);
+
+INSERT INTO Building_YieldFromConstruction
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_FIRAXITE_MATERIALS', 'YIELD_SCIENCE', 10);
+
+INSERT INTO Building_ResourceQuantityPerXFranchises
+	(BuildingType, ResourceType, NumFranchises)
+VALUES
+	('BUILDING_FIRAXITE_MATERIALS_HQ', 'RESOURCE_IRON', 1),
+	('BUILDING_FIRAXITE_MATERIALS_HQ', 'RESOURCE_ALUMINUM', 2);
 
 -- TwoKay Foods
 INSERT INTO Building_YieldPerFranchise
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_TWOKAY_FOODS', 'YIELD_FOOD', 3);
+	('BUILDING_TWOKAY_FOODS', 'YIELD_FOOD', 2);
 
-INSERT INTO Building_YieldModifiers
-	(BuildingType, YieldType, Yield)
+INSERT INTO Building_ResourceQuantityPerXFranchises
+	(BuildingType, ResourceType, NumFranchises)
 VALUES
-	('BUILDING_TWOKAY_FOODS', 'YIELD_FOOD', 10);
+	('BUILDING_TWOKAY_FOODS_HQ', 'RESOURCE_HORSE', 1);
 
 -- Civilized Jewelers
+INSERT INTO Building_YieldPerFranchise
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_GOLDEN_AGE_POINTS', 2);
+
+INSERT INTO Building_YieldPerFriendTimes100
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_GOLD', 100);
+
+INSERT INTO Building_YieldPerAllyTimes100
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_GOLD', 200),
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_TOURISM', 100);
+
+INSERT INTO Building_GoldenAgeYieldMod
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_GOLD', 10),
+	('BUILDING_CIVILIZED_JEWELERS', 'YIELD_TOURISM', 10);
+
+-- Populi Medicine
+INSERT INTO Building_YieldPerFranchise
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_POPULI_MEDICINE', 'YIELD_FAITH', 1);
 
 ----------------------------------------------------------------------------
 -- World Congress Wonders

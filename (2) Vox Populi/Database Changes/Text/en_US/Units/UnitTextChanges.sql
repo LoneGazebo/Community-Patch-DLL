@@ -1,11 +1,11 @@
 -- Great Writer
 UPDATE Language_en_US
-SET Text = 'A Great Writer can create a [ICON_GW_WRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Epic, Heroic Epic, or Royal Library). A Great Writer can also write a Political Treatise, which grants the player an amount of Culture that scales with the number of owned [ICON_GREAT_WORK] Great Works. Great Writers are expended when used either of these ways.'
+SET Text = 'A Great Writer can create a [ICON_GW_WRITING] Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like a Theater, Heroic Epic, or Royal Library). A Great Writer can also write a Political Treatise, which grants the player an amount of Culture that scales with the number of owned [ICON_GREAT_WORK] Great Works. Great Writers are expended when used either of these ways.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_WRITER_STRATEGY';
 
 -- Great Artist
 UPDATE Language_en_US
-SET Text = 'A Great Artist can create a [ICON_GW_ART] Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like the Palace, a Museum, or a Cathedral). A Great Artist can also generate a large sum of Golden Age Points, scaling with [ICON_GOLDEN_AGE] Golden Age Point output, [ICON_TOURISM] Tourism output, and the number of [COLOR_POSITIVE_TEXT]themed[ENDCOLOR] sets of [ICON_GREAT_WORK] Great Works. Great Artists are expended when used either of these ways.'
+SET Text = 'A Great Artist can create a [ICON_GW_ART] Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like a Monument, a Gallery, or a Museum). A Great Artist can also generate a large sum of Golden Age Points, scaling with [ICON_GOLDEN_AGE] Golden Age Point output, [ICON_TOURISM] Tourism output, and the number of [COLOR_POSITIVE_TEXT]themed[ENDCOLOR] sets of [ICON_GREAT_WORK] Great Works. Great Artists are expended when used either of these ways.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_ARTIST_STRATEGY';
 
 -- Great Musician
@@ -15,7 +15,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREAT_MUSICIAN_STRATEGY';
 
 -- Great Scientist
 UPDATE Language_en_US
-SET Text = 'The Great Scientist can construct the special Academy improvement which, when worked, produces lots of [ICON_RESEARCH] Science. Further, a Great Scientist can give you a considerable boost towards your next tech, increased by [COLOR_POSITIVE_TEXT]10%[ENDCOLOR] per Academy created and owned. The Great Scientist is expended when used in any of these ways.'
+SET Text = 'The Great Scientist can construct the special Academy improvement which can be used to provide adjacency bonuses and, when worked, produces lots of [ICON_RESEARCH] Science. Further, a Great Scientist can give you a considerable boost towards your next tech, increased by [COLOR_POSITIVE_TEXT]10%[ENDCOLOR] per Academy created and owned. The Great Scientist is expended when used in any of these ways.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_SCIENTIST_STRATEGY';
 
 -- Great Merchant
@@ -25,7 +25,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREAT_MERCHANT_STRATEGY';
 
 -- Great Engineer
 UPDATE Language_en_US
-SET Text = 'Great Engineers can construct the special Manufactory improvement. It counts as every type of improvement for adjacency bonuses, and when worked, it provides a lot of [ICON_PRODUCTION] Production for a city. The Great Engineer can also hurry the production of a unit, building or Wonder in a city, increased by 10% per Manufactory created and owned. The Great Engineer is expended when used in either of these ways.'
+SET Text = 'Great Engineers can construct the special Manufactory improvement. It provides an additional copy of an Strategic or Luxury Resource connected by it and, when worked, it provides a lot of [ICON_PRODUCTION] Production for a city. The Great Engineer can also hurry the production of a unit, building or Wonder in a city, increased by 10% per Manufactory created and owned. The Great Engineer is expended when used in either of these ways.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_ENGINEER_STRATEGY';
 
 -- Great General
@@ -35,7 +35,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREAT_GENERAL_STRATEGY';
 
 -- Great Admiral
 UPDATE Language_en_US
-SET Text = 'The Great Admiral can immediately cross oceans for free, making it a useful (if vulnerable) exploration vessel. Furthermore, while in owned territory, the Great Admiral can be sent on a [COLOR_POSITIVE_TEXT]Voyage of Discovery[ENDCOLOR] that expends the Unit and gives you two copies of a Luxury Resource not available on the current map.[NEWLINE][NEWLINE]The Great Admiral has the ability to instantly [COLOR_POSITIVE_TEXT]Repair[ENDCOLOR] every Naval and Embarked Unit in the same hex, as well as in adjacent hexes. The Great Admiral is consumed when performing this action. The Great Admiral also provides +15% [ICON_STRENGTH] Combat Strength to all player-owned Naval Units within 2 tiles. The Great Admiral is NOT consumed when he provides this bonus. When the Great Admiral is expended for a [COLOR_POSITIVE_TEXT]Voyage of Discovery[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Repair[ENDCOLOR], it increases your Military Unit Supply Cap by 1.'
+SET Text = 'The Great Admiral can immediately cross oceans for free, making it a useful (if vulnerable) exploration vessel. Furthermore, while in owned territory, the Great Admiral can be sent on a [COLOR_POSITIVE_TEXT]Voyage of Discovery[ENDCOLOR] that expends the Unit and gives you two copies of a Luxury Resource not available on the current map, as well as increasing your Military Unit Supply Cap by 1.[NEWLINE][NEWLINE]The Great Admiral provides +15% [ICON_STRENGTH] Combat Strength and +3 [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR] to all player-owned Naval Units within 2 tiles. The Great Admiral is NOT consumed when he provides this bonus.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_ADMIRAL_STRATEGY';
 
 -- Inquisitor
@@ -229,12 +229,12 @@ WHERE Tag = 'TXT_KEY_UNIT_CARRIER_STRATEGY';
 
 -- Battleship
 UPDATE Language_en_US
-SET Text = 'The Battleship is a powerful warship with a mighty Combat Strength. Its indirect fire ability allows it to bombard targets it cannot see (as long as other friendly units can see them). The Battleship is vulnerable to air and submarine attacks.'
+SET Text = 'Battleships have 3 range and 5 [ICON_MOVES] Movement, both higher than Dreadnoughts they replace. This, combined with [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] Promotion, allows for higher concentration of fire on units and cities, faster response time and better safety from coastal counterattacks. They are effective versus all targets, but vulnerable to air, submarine and melee attacks, so spotting and then countering or eliminating these units early is important for keeping a battleship fleet safe.'
 WHERE Tag = 'TXT_KEY_UNIT_BATTLESHIP_STRATEGY';
 
 -- Missile Cruiser
 UPDATE Language_en_US
-SET Text = 'The Missile Cruiser is a modern warship. It''s fast and tough and carries a mean punch. Most importantly, the Missile Cruiser can carry Guided Missiles and Nuclear Missiles, allowing you to carry these deadly weapons right up to the enemy''s shore. Missile Cruisers combined with carriers, submarines, and destroyers make a fiendishly powerful armada.'
+SET Text = 'Missile Cruisers, in addition to higher[ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength over Battleships, can carry 3 Guided Missiles or Nuclear Missiles, allowing for their deployment deep into the enemy territory after arriving near their coast. 3 range allows for concentrated fire on Cities and Units, as well as greater safety from coastal ranged attacks. +1 [ICON_MOVES] Movement enables even faster attacks.[NEWLINE][NEWLINE]They are still vulnerable to air, submarine, and melee attacks, but not as much as Battleships, due to the [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_UNIT_MISSILE_CRUISER_STRATEGY';
 
 -- Destroyer
@@ -324,11 +324,6 @@ WHERE Tag = 'TXT_KEY_UNIT_BRAZILIAN_PRACINHA_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'The Norwegian Ski Infantry moves through Snow, Tundra, and Hills at double speed. It also has +25% [ICON_STRENGTH] Combat Strength in Snow, Tundra or Hill terrain if neither Forest nor Jungle are present.'
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_STRATEGY';
-
--- Longbowman
-UPDATE Language_en_US
-SET Text = ' The Longbowman has a greater range than the Crossbowman, allowing it to attack enemies three hexes away, often destroying them before they can strike back. Like other ranged units, Longbowmen are vulnerable to melee attack, but have increased [ICON_STRENGTH] against Mounted and Armored Units.'
-WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_LONGBOWMAN_STRATEGY';
 
 -- Mehal Sefari
 UPDATE Language_en_US

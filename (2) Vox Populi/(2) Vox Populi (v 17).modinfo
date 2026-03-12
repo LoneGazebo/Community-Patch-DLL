@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(5.1.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.1.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -38,6 +38,7 @@
   </Blocks>
   <Files>
     <File md5="4D19A2F465CED315693D8621108F1C1E" import="0">CommunityOptions.sql</File>
+    <File md5="EBC507153D12C389B3838E94502A16EF" import="1">Assets/WTC_Quote.mp3</File>
     <File md5="244BEA46F857A5E48D4F4BE276DBC250" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_045.dds</File>
     <File md5="618770D078FBC6BD5026805F7B0C0805" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_064.dds</File>
     <File md5="081333E1F7DC1A4A0F789F47875B92E1" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_080.dds</File>
@@ -137,6 +138,7 @@
     <File md5="2CD21E4B3FB567CE3A70B7569CC21AA5" import="1">Assets/Graphics/Buttons/civilopediatopbuttonscorporations.dds</File>
     <File md5="ABD507B87DF2A2511FD9027A725A5CEF" import="1">Assets/Graphics/Buttons/GreatWorks_Artifact_Empty.dds</File>
     <File md5="0C759F1CED95795CCFBE40C6BD9A963C" import="1">Assets/Graphics/Shared/no_gloss.dds</File>
+    <File md5="ACF7602F94C7F34456E70B6008861B3D" import="1">Assets/Images/SocialPoliciesIndustry.dds</File>
     <File md5="B179CE79BBA1CAB9913D3F5859375DE7" import="1">Assets/Images/RandomVictory/ConquestVictory.dds</File>
     <File md5="BA0C8260B5111FDD8BC1D18E4A0B27B1" import="1">Assets/Images/RandomVictory/CultureVictory.dds</File>
     <File md5="407E9022FA87BA8E2DD012CBA9408F09" import="1">Assets/Images/RandomVictory/DiploVictory.dds</File>
@@ -160,6 +162,7 @@
     <File md5="3F8BAC99D9F98BC026AF05A7CFF2015C" import="1">Assets/Images/WonderSplash/WonderForum.dds</File>
     <File md5="71B201948D8F1191B5A3FFA3E85E4642" import="1">Assets/Images/WonderSplash/WonderNalandaSplash.dds</File>
     <File md5="3CCC66415EC7D1C4700094F1FA90B50B" import="1">Assets/Images/WonderSplash/WonderSummerPalace.dds</File>
+    <File md5="32EA80F1FB5A59301FB5A37EB2AC6473" import="1">Assets/Images/WonderSplash/WTC_Splash.dds</File>
     <File md5="BA0D234DE017F5CEB6DEF37CE7DFE384" import="1">Assets/Models/AnimationGraphs/edited_aim_ms_attack_city_to_run.dge</File>
     <File md5="75D8FBC3A2C4D56B1089F20A2E9D9DA1" import="1">Assets/Models/AnimationGraphs/edited_aim_ms_attack_to_run_graph.dge</File>
     <File md5="82C3CE94F7827159DEA80CCF8AAF5D9E" import="1">Assets/Models/AnimationGraphs/edited_aim_ms_bombard_defend_loop_graph.dge</File>
@@ -819,6 +822,10 @@
     <File md5="3C87FBB8DBA9E964C5A2D31B149A304D" import="1">Assets/Models/Units/Mercenary/RussianSF.gr2</File>
     <File md5="8DC5B69E3BD9DDBC890015518CC76CCE" import="1">Assets/Models/Units/Mercenary/RussianSF_diff.dds</File>
     <File md5="CB36AB12AD6FE9D9B9AFD31103A7FCDA" import="1">Assets/Models/Units/Mercenary/RussianSF_sref.dds</File>
+    <File md5="5D5BC3DAD5F79F9FFF93DE062B1E09FA" import="1">Assets/Models/Units/Mikasa/Mikasa_BB.fxsxml</File>
+    <File md5="EAF0595F38D590A7D086A3920F925359" import="1">Assets/Models/Units/Mikasa/Mikasa_BB.gr2</File>
+    <File md5="0AEFF7BD1946DA9F8DCC87AC793A0818" import="1">Assets/Models/Units/Mikasa/mikasa_bb_diff.dds</File>
+    <File md5="2EA6C3A131D3C9CC8C020B487A2FA00A" import="1">Assets/Models/Units/Mikasa/mikasa_bb_sref.dds</File>
     <File md5="C671FBD118A08E053368C2C1A1D7010C" import="1">Assets/Models/Units/OromoCavalry/oromo_cavalry.fxsxml</File>
     <File md5="D1A2A86E003D4D26356412247C1E79F6" import="1">Assets/Models/Units/OromoCavalry/oromo_cavalry.gr2</File>
     <File md5="92C2C615C43C1A8B131E0244264519E3" import="1">Assets/Models/Units/OromoCavalry/oromo_cavalry_diff.dds</File>
@@ -992,6 +999,7 @@
     <File md5="8135EA962AFBE2516FB069553681B4F9" import="1">Assets/StrategicView/Units/sv_Inti_Maceman.dds</File>
     <File md5="3420D7ABE8FB26661884AC13472FEDED" import="1">Assets/StrategicView/Units/sv_khan.dds</File>
     <File md5="3C6B488E75283AC8ED922337FC08C933" import="1">Assets/StrategicView/Units/sv_kommando.dds</File>
+    <File md5="B99B30AEFDCAF6E152E65FA2E9E91308" import="1">Assets/StrategicView/Units/sv_Mikasa.dds</File>
     <File md5="6F0C6E7E40B1EDF2869FA53AFB9D231E" import="1">Assets/StrategicView/Units/sv_OromoCavalry.dds</File>
     <File md5="25DB9690D2530F7B5D5E09F1A1C4ECA6" import="1">Assets/StrategicView/Units/sv_Redcoat.dds</File>
     <File md5="611ACEC2A474692D7E04F3B99F3B9E7B" import="1">Assets/StrategicView/Units/SV_RocketMissile.dds</File>
@@ -1257,6 +1265,7 @@
     <File md5="615B1156EEEF0AFD6E0DD1F484802265" import="0">Database Changes/Text/en_US/WorldCongress/ResolutionTextChanges.sql</File>
     <File md5="2798405A9BB9C4318FCBC7EBA6627380" import="0">Database Changes/Text/en_US/WorldCongress/SpecialSessionTextChanges.sql</File>
     <File md5="B95A50B772D0D7EDCC2B814EC875A027" import="0">Database Changes/Text/en_US/WorldMap/FeatureTextChanges.sql</File>
+    <File md5="21C1597C5CD9D3D5DB806696A260D016" import="0">Database Changes/Text/en_US/WorldMap/TerrainTextChanges.sql</File>
     <File md5="3A355503A7BEA0BC2A7750B927E8BD1D" import="0">Database Changes/Text/en_US/WorldMap/ImprovementTextChanges.sql</File>
     <File md5="EC302DB02D9DB1AFBAC6D7C64981DB34" import="0">Database Changes/Text/en_US/WorldMap/NewFeatureText.xml</File>
     <File md5="7BC7EE5881368D7A64D7F08EF0B908FE" import="0">Database Changes/Text/en_US/WorldMap/NewGoodyHutText.xml</File>
@@ -1424,13 +1433,13 @@
       <UpdateDatabase>Database Changes/WorldMap/AncientRuinChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Tech/EraChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Tech/TechChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes/Corporations/CorporationChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Buildings/BuildingChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Buildings/BuildingChanges2.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Policies/PolicyTreeChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Processes/ProcessChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Projects/ProjectChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/City/Specialists/SpecialistChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Database Changes/Corporations/CorporationChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/UnitPromotions/PromotionChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/UnitPromotions/PromotionIconChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Units/UnitChanges.sql</UpdateDatabase>
@@ -1594,6 +1603,7 @@
       <UpdateDatabase>Database Changes/Text/en_US/WorldCongress/ResolutionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldCongress/SpecialSessionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/FeatureTextChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes/Text/en_US/WorldMap/TerrainTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/ImprovementTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/ResourceTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/RouteTextChanges.sql</UpdateDatabase>

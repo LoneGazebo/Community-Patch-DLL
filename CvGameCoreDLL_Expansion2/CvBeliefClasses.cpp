@@ -75,6 +75,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_bRequiresResource(false),
 	m_bRequiresNoImprovement(false),
 	m_bRequiresNoFeature(false),
+	m_bRequiresOwnTerritory(false),
 
 	m_iHappinessFromForeignSpies(0),
 	m_iGetPressureChangeTradeRoute(0),
@@ -112,6 +113,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iCityScalerLimiter(0),
 	m_iFollowerScalerLimiter(0),
 	m_iPolicyReductionWonderXFollowerCities(0),
+	m_iGreatPeopleFaithCostMod(0),
 	m_bAIGoodStartingPantheon(false),
 	m_piMaxYieldPerFollower(NULL),
 	m_piMaxYieldPerFollowerPercent(NULL),
@@ -585,6 +587,11 @@ bool CvBeliefEntry::RequiresNoFeature() const
 {
 	return m_bRequiresNoFeature;
 }
+/// Accessor: does yield per heal only work in your own territory?
+bool CvBeliefEntry::RequiresOwnTerritory() const
+{
+	return m_bRequiresOwnTerritory;
+}
 
 int CvBeliefEntry::GetHappinessFromForeignSpies() const
 {
@@ -860,6 +867,12 @@ int CvBeliefEntry::GetPolicyReductionWonderXFollowerCities() const
 {
 	return m_iPolicyReductionWonderXFollowerCities;
 }
+
+int CvBeliefEntry::GetGreatPeopleFaithCostMod() const
+{
+	return m_iGreatPeopleFaithCostMod;
+}
+
 bool CvBeliefEntry::IsAIGoodStartingPantheon() const
 {
 	return m_bAIGoodStartingPantheon;
@@ -1341,6 +1354,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bRequiresResource				  = kResults.GetBool("RequiresResource");
 	m_bRequiresNoImprovement		  = kResults.GetBool("RequiresNoImprovement");
 	m_bRequiresNoFeature			  = kResults.GetBool("RequiresNoImprovementFeature");
+	m_bRequiresOwnTerritory			  = kResults.GetBool("RequiresOwnTerritory");
 
 	m_iHappinessFromForeignSpies = kResults.GetInt("HappinessFromForeignSpies");
 	m_iGetPressureChangeTradeRoute = kResults.GetInt("PressureChangeTradeRoute");
@@ -1352,6 +1366,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCityScalerLimiter = kResults.GetInt("CityScalerLimiter");
 	m_iFollowerScalerLimiter = kResults.GetInt("FollowerScalerLimiter");
 	m_iPolicyReductionWonderXFollowerCities = kResults.GetInt("PolicyReductionWonderXFollowerCities");
+	m_iGreatPeopleFaithCostMod = kResults.GetInt("GreatPeopleFaithCostMod");
 
 	m_bAIGoodStartingPantheon = kResults.GetBool("AI_GoodStartingPantheon");
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
@@ -2180,7 +2195,7 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 	return true;
 }
 
-int CvReligionBeliefs::GetFaithFromDyingUnits(PlayerTypes ePlayer, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetFaithFromDyingUnits(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
@@ -2189,7 +2204,7 @@ int CvReligionBeliefs::GetFaithFromDyingUnits(PlayerTypes ePlayer, bool bHolyCit
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetFaithFromDyingUnits();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, NULL, bHolyCityOnly))
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
 		}
@@ -3963,19 +3978,26 @@ bool CvReligionBeliefs::IsConvertsBarbarians(PlayerTypes ePlayer, const CvCity* 
 }
 
 /// Is there a belief that allows faith buying of all great people
-bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+/// Also pass the min cost modifier found in the beliefs
+bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly, int* piCostMod) const
 {
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-
-	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	bool bAllowed = false;
+	int iMinCostMod = INT_MAX;
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		if (pBeliefs->GetEntry(*it)->FaithPurchaseAllGreatPeople() && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		BeliefTypes eBelief = static_cast<BeliefTypes>(*it);
+		CvBeliefEntry* pkBeliefInfo = GC.getBeliefInfo(eBelief);
+		if (pkBeliefInfo->FaithPurchaseAllGreatPeople() && IsBeliefValid(eBelief, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
-			return true;
+			bAllowed = true;
+			iMinCostMod = min(iMinCostMod, pkBeliefInfo->GetGreatPeopleFaithCostMod());
 		}
 	}
 
-	return false;
+	if (piCostMod && bAllowed)
+		*piCostMod = iMinCostMod;
+
+	return bAllowed;
 }
 
 /// Is there a belief that requires improvements?
@@ -4211,17 +4233,19 @@ int CvReligionBeliefs::GetYieldPerBorderGrowth(YieldTypes eYieldType, bool bEraS
 	return rtnValue;
 }
 /// Get yield modifier from beliefs for border growth
-int CvReligionBeliefs::GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerHeal(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly, bool bOwnedTerritory) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerHeal(eYieldType);
+		const CvBeliefEntry* pEntry = pBeliefs->GetEntry(*it);
+		int iValue = pEntry->GetYieldPerHeal(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
-			rtnValue += iValue;
+			if (!pEntry->RequiresOwnTerritory() || bOwnedTerritory)
+				rtnValue += iValue;
 		}
 	}
 
@@ -4260,16 +4284,22 @@ int CvReligionBeliefs::GetYieldPerBirth(YieldTypes eYieldType, PlayerTypes ePlay
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetYieldPerHolyCityBirth(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetYieldPerHolyCityBirth(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly, int iNumFollowerCities) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerHolyCityBirth(eYieldType);
+		const CvBeliefEntry* pEntry = pBeliefs->GetEntry(*it);
+		if (!pEntry)
+			continue;
+
+		int iValue = pEntry->GetYieldPerHolyCityBirth(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
+			int iMaxCities = pEntry->GetCityScalerLimiter();
+			iValue *= min(iMaxCities, iNumFollowerCities);
 			rtnValue += iValue;
 		}
 	}

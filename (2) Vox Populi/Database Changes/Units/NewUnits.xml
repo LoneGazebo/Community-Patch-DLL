@@ -10,8 +10,17 @@
 			<Description>UNITAI_MESSENGER</Description>
 		</Row>
 	</UnitAIInfos>
-	<!-- Assign UnitCombat to civilian units, so they can have production bonuses and free promotions via buildings, traits and policies -->
+	<!-- Assign UnitCombat to civilian (and missile) units, so they can have production bonuses and free promotions via buildings, traits and policies -->
 	<UnitCombatInfos>
+		<!-- goes first because the military indices are grouped in the table for comprehension -->
+		<Row>
+			<Type>UNITCOMBAT_MISSILE</Type>
+			<Description>TXT_KEY_UNITCOMBAT_MISSILE</Description>
+		</Row>
+		<Row>
+			<Type>UNITCOMBAT_NUKE</Type>
+			<Description>TXT_KEY_UNITCOMBAT_NUKE</Description>
+		</Row>
 		<Row>
 			<Type>UNITCOMBAT_SETTLER</Type>
 			<Description>TXT_KEY_UNITCOMBAT_SETTLER</Description>
@@ -43,6 +52,18 @@
 		<Row>
 			<Type>UNITCOMBAT_DIPLOMACY</Type>
 			<Description>TXT_KEY_UNITCOMBAT_DIPLOMACY</Description>
+		</Row>
+		<Row>
+			<Type>UNITCOMBAT_ARCHAEOLOGIST</Type>
+			<Description>TXT_KEY_UNITCOMBAT_ARCHAEOLOGIST</Description>
+		</Row>
+		<Row>
+			<Type>UNITCOMBAT_SPECIAL_PEOPLE</Type>
+			<Description>TXT_KEY_UNITCOMBAT_SPECIAL_PEOPLE</Description>
+		</Row>
+		<Row>
+			<Type>UNITCOMBAT_SPACESHIP</Type>
+			<Description>TXT_KEY_UNITCOMBAT_SPACESHIP</Description>
 		</Row>
 	</UnitCombatInfos>
 	<UnitClasses>
@@ -232,13 +253,6 @@
 			<Description>TXT_KEY_UNIT_IRON_CHARIOT</Description>
 			<DefaultUnit>NONE</DefaultUnit>
 		</Row>
-		<!-- Asamu -->
-		<Row>
-			<Type>UNITCLASS_ASAMU</Type>
-			<Description>TXT_KEY_UNIT_ASAMU</Description>
-			<DefaultUnit>NONE</DefaultUnit>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
 		<!-- Great Bombard -->
 		<Row>
 			<Type>UNITCLASS_GREAT_BOMBARD</Type>
@@ -254,9 +268,19 @@
 		</Row>
 		<!-- Former Unique Units, now CS gifts -->
 		<Row>
-			<Type>UNITCLASS_PRACINHA</Type>
-			<Description>TXT_KEY_UNIT_BRAZILIAN_PRACINHA</Description>
-			<DefaultUnit>UNIT_BRAZILIAN_PRACINHA</DefaultUnit>
+			<Type>UNITCLASS_BATTERING_RAM</Type>
+			<Description>TXT_KEY_UNIT_HUN_BATTERING_RAM</Description>
+			<DefaultUnit>UNIT_HUN_BATTERING_RAM</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_REDCOAT</Type>
+			<Description>TXT_KEY_UNIT_REDCOAT</Description>
+			<DefaultUnit>UNIT_REDCOAT</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_MEHAL_SEFARI</Type>
+			<Description>TXT_KEY_UNIT_MEHAL_SEFARI</Description>
+			<DefaultUnit>UNIT_ETHIOPIAN_MEHAL_SEFARI</DefaultUnit>
 		</Row>
 		<Row>
 			<Type>UNITCLASS_NORWEGIAN_SKI_INFANTRY</Type>
@@ -264,9 +288,9 @@
 			<DefaultUnit>UNIT_DANISH_SKI_INFANTRY</DefaultUnit>
 		</Row>
 		<Row>
-			<Type>UNITCLASS_LONGBOWMAN</Type>
-			<Description>TXT_KEY_UNIT_ENGLISH_LONGBOWMAN</Description>
-			<DefaultUnit>UNIT_ENGLISH_LONGBOWMAN</DefaultUnit>
+			<Type>UNITCLASS_PRACINHA</Type>
+			<Description>TXT_KEY_UNIT_BRAZILIAN_PRACINHA</Description>
+			<DefaultUnit>UNIT_BRAZILIAN_PRACINHA</DefaultUnit>
 		</Row>
 		<Row>
 			<Type>UNITCLASS_COMPANION_CAVALRY</Type>
@@ -274,19 +298,15 @@
 			<DefaultUnit>UNIT_GREEK_COMPANIONCAVALRY</DefaultUnit>
 		</Row>
 		<Row>
-			<Type>UNITCLASS_BATTERING_RAM</Type>
-			<Description>TXT_KEY_UNIT_HUN_BATTERING_RAM</Description>
-			<DefaultUnit>UNIT_HUN_BATTERING_RAM</DefaultUnit>
-		</Row>
-		<Row>
 			<Type>UNITCLASS_SIPAHI</Type>
 			<Description>TXT_KEY_UNIT_OTTOMAN_SIPAHI</Description>
 			<DefaultUnit>UNIT_OTTOMAN_SIPAHI</DefaultUnit>
 		</Row>
+		<!-- New CS gifts -->
 		<Row>
-			<Type>UNITCLASS_MEHAL_SEFARI</Type>
-			<Description>TXT_KEY_UNIT_MEHAL_SEFARI</Description>
-			<DefaultUnit>UNIT_ETHIOPIAN_MEHAL_SEFARI</DefaultUnit>
+			<Type>UNITCLASS_YAMATO</Type>
+			<Description>TXT_KEY_UNIT_YAMATO</Description>
+			<DefaultUnit>UNIT_YAMATO</DefaultUnit>
 		</Row>
 	</UnitClasses>
 	<Units>
@@ -741,25 +761,6 @@
 			<PortraitIndex>1</PortraitIndex>
 		</Row>
 		<Row>
-			<Type>UNIT_ASAMU</Type>
-			<Description>TXT_KEY_UNIT_ASAMU</Description>
-			<Civilopedia>TXT_KEY_UNIT_ASAMU_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ASAMU_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_ASAMU_HELP</Help>
-			<Domain>DOMAIN_LAND</Domain>
-			<CombatClass>UNITCOMBAT_SETTLER</CombatClass>
-			<Class>UNITCLASS_ASAMU</Class>
-			<DefaultUnitAI>UNITAI_SETTLE</DefaultUnitAI>
-			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_HIGH_EARLY_GAME_ONLY</CivilianAttackPriority>
-			<PrereqTech>TECH_POTTERY</PrereqTech>
-			<ObsoleteTech>TECH_RAILROAD</ObsoleteTech>
-			<UnitArtInfo>ART_DEF_UNIT_ASAMU</UnitArtInfo>
-			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
-			<UnitFlagIconOffset>6</UnitFlagIconOffset>
-			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
-			<PortraitIndex>6</PortraitIndex>
-		</Row>
-		<Row>
 			<Type>UNIT_GREAT_BOMBARD</Type>
 			<Description>TXT_KEY_UNIT_GREAT_BOMBARD</Description>
 			<Civilopedia>TXT_KEY_UNIT_GREAT_BOMBARD_TEXT</Civilopedia>
@@ -1007,24 +1008,6 @@
 			<PortraitIndex>9</PortraitIndex>
 		</Row>
 		<Row>
-			<Type>UNIT_REDCOAT</Type>
-			<Description>TXT_KEY_UNIT_REDCOAT</Description>
-			<Civilopedia>TXT_KEY_UNIT_REDCOAT_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_REDCOAT_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_REDCOAT_HELP</Help>
-			<Domain>DOMAIN_LAND</Domain>
-			<CombatClass>UNITCOMBAT_GUN</CombatClass>
-			<Class>UNITCLASS_RIFLEMAN</Class>
-			<DefaultUnitAI>UNITAI_DEFENSE</DefaultUnitAI>
-			<PrereqTech>TECH_RIFLING</PrereqTech>
-			<ObsoleteTech>TECH_REPLACEABLE_PARTS</ObsoleteTech>
-			<UnitArtInfo>ART_DEF_UNIT_REDCOAT</UnitArtInfo>
-			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
-			<UnitFlagIconOffset>10</UnitFlagIconOffset>
-			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
-			<PortraitIndex>10</PortraitIndex>
-		</Row>
-		<Row>
 			<Type>UNIT_CHEWA</Type>
 			<Description>TXT_KEY_UNIT_CHEWA</Description>
 			<Civilopedia>TXT_KEY_UNIT_CHEWA_TEXT</Civilopedia>
@@ -1252,22 +1235,23 @@
 			<PortraitIndex>33</PortraitIndex>
 		</Row>
 		<Row>
-			<Type>UNIT_YAMATO</Type>
-			<Description>TXT_KEY_UNIT_YAMATO</Description>
-			<Civilopedia>TXT_KEY_UNIT_YAMATO_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_YAMATO_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_YAMATO_HELP</Help>
+			<Type>UNIT_MIKASA</Type>
+			<Description>TXT_KEY_UNIT_MIKASA</Description>
+			<Civilopedia>TXT_KEY_UNIT_MIKASA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_MIKASA_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_MIKASA_HELP</Help>
 			<Domain>DOMAIN_SEA</Domain>
 			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
-			<Class>UNITCLASS_BATTLESHIP</Class>
+			<Class>UNITCLASS_DREADNOUGHT</Class>
 			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
-			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<PrereqTech>TECH_RADIO</PrereqTech>
+			<ObsoleteTech>TECH_NUCLEAR_FISSION</ObsoleteTech>
 			<MoveRate>BOAT</MoveRate>
-			<UnitArtInfo>ART_DEF_UNIT_YAMATO</UnitArtInfo>
+			<UnitArtInfo>ART_DEF_UNIT_MIKASA</UnitArtInfo>
 			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
-			<UnitFlagIconOffset>18</UnitFlagIconOffset>
+			<UnitFlagIconOffset>41</UnitFlagIconOffset>
 			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
-			<PortraitIndex>18</PortraitIndex>
+			<PortraitIndex>41</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>UNIT_HOLKAN</Type>
@@ -1593,6 +1577,50 @@
 			<IconAtlas>UNIT_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>19</PortraitIndex>
 		</Row>
+		<!-- NOTE for new CS-exclusive Units:
+			These are inserted based on vanilla properties of the assumed base unit (except those to be swept, and text + art)
+			UnitChanges.sql will modify both base unit and CS unit at the same time,
+			and CityStateUnitChanges.sql will change the unit class and add the unique properties.
+			DO NOT modify these entries for balance changes.
+		-->
+		<Row>
+			<Type>UNIT_REDCOAT</Type>
+			<Description>TXT_KEY_UNIT_REDCOAT</Description>
+			<Civilopedia>TXT_KEY_UNIT_REDCOAT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_REDCOAT_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_REDCOAT_HELP</Help>
+			<Domain>DOMAIN_LAND</Domain>
+			<CombatClass>UNITCOMBAT_GUN</CombatClass>
+			<Class>UNITCLASS_RIFLEMAN</Class>
+			<DefaultUnitAI>UNITAI_DEFENSE</DefaultUnitAI>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<ObsoleteTech>TECH_REPLACEABLE_PARTS</ObsoleteTech>
+			<MinorCivGift>true</MinorCivGift>
+			<UnitArtInfo>ART_DEF_UNIT_REDCOAT</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>10</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>10</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>UNIT_YAMATO</Type>
+			<Description>TXT_KEY_UNIT_YAMATO</Description>
+			<Civilopedia>TXT_KEY_UNIT_YAMATO_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_YAMATO_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_YAMATO_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
+			<Class>UNITCLASS_BATTLESHIP</Class>
+			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<MinorCivGift>true</MinorCivGift>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_YAMATO</UnitArtInfo>
+			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
+			<UnitFlagIconOffset>18</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>18</PortraitIndex>
+		</Row>
 	</Units>
 	<UnitGameplay2DScripts>
 		<Row>
@@ -1714,11 +1742,6 @@
 			<UnitType>UNIT_IRON_CHARIOT</UnitType>
 			<SelectionSound>AS2D_SELECT_CHARIOT_ARCHER</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_CHARIOT_ARCHER</FirstSelectionSound>
-		</Row>
-		<Row>
-			<UnitType>UNIT_ASAMU</UnitType>
-			<SelectionSound>AS2D_SELECT_SETTLER</SelectionSound>
-			<FirstSelectionSound>AS2D_BIRTH_SETTLER</FirstSelectionSound>
 		</Row>
 		<Row>
 			<UnitType>UNIT_GREAT_BOMBARD</UnitType>
@@ -1849,6 +1872,11 @@
 			<UnitType>UNIT_TADODAHO</UnitType>
 			<SelectionSound>AS2D_BUILD_UNIT</SelectionSound>
 			<FirstSelectionSound>AS2D_BUILD_UNIT</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_MIKASA</UnitType>
+			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
 		</Row>
 		<Row>
 			<UnitType>UNIT_YAMATO</UnitType>

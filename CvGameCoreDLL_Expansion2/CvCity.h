@@ -533,7 +533,6 @@ public:
 
 	int getGrowthMods(CvString* toolTipSink = NULL, int iAssumedLocalHappinessChange = 0) const;
 	int GetNumFreeSpecialists();
-	int GetUnhappinessFromCitySpecialists();
 
 	int productionLeft() const;
 
@@ -1065,6 +1064,9 @@ public:
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromVictoryEraScaling(YieldTypes eIndex) const;
+	void ChangeYieldFromVictoryEraScaling(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromVictoryGlobal(YieldTypes eIndex) const;
 	void ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange);
 
@@ -1165,11 +1167,11 @@ public:
 	int GetYieldFromCombatExperienceTimes100(YieldTypes eIndex) const;
 	void ChangeYieldFromCombatExperienceTimes100(YieldTypes eIndex, int iChange);
 
-	int GetYieldPerAlly(YieldTypes eIndex) const;
-	void ChangeYieldPerAlly(YieldTypes eIndex, int iChange);
+	int GetYieldPerAllyTimes100(YieldTypes eIndex) const;
+	void ChangeYieldPerAllyTimes100(YieldTypes eIndex, int iChange);
 
-	int GetYieldPerFriend(YieldTypes eIndex) const;
-	void ChangeYieldPerFriend(YieldTypes eIndex, int iChange);
+	int GetYieldPerFriendTimes100(YieldTypes eIndex) const;
+	void ChangeYieldPerFriendTimes100(YieldTypes eIndex, int iChange);
 
 	int GetBuildingYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2) const;
 	void ChangeBuildingYieldFromYield(YieldTypes eIndex, YieldTypes eIndex2, int iValue);
@@ -1245,16 +1247,14 @@ public:
 	int GetBaseYieldRateFromReligionTimes100(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange);
 
-	int GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const;
-	void ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange);
-	void SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue);
-
+	int GetBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const;
+	void ChangeBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex, int iChange);
+	void SetBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex, int iValue);
 	int GetEffectiveYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const;
 
-	int GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const;
-	void ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange);
-	void SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue);
-
+	int GetBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) const;
+	void ChangeBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex, int iChange);
+	void SetBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex, int iValue);
 	int GetEffectiveYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) const;
 
 	void SetYieldFromMinors(YieldTypes eYield, int iValue);
@@ -1388,6 +1388,8 @@ public:
 	void changeResourceYieldRateModifier(YieldTypes eIndex, int iChange);
 
 	int getHappinessModifier(YieldTypes eIndex) const;
+
+	int getYieldModifierMultiplicative(YieldTypes eIndex) const;
 
 	int getExtraSpecialistYield(YieldTypes eIndex) const;
 	int getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpecialist) const;
@@ -1970,6 +1972,7 @@ protected:
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
 	std::vector<int> m_aiSpecialReligionYieldsTimes100;
 	std::vector<int> m_aiYieldFromVictory;
+	std::vector<int> m_aiYieldFromVictoryEraScaling;
 	std::vector<int> m_aiYieldFromVictoryGlobal;
 	std::vector<int> m_aiYieldFromVictoryGlobalEraScaling;
 	std::vector<int> m_aiYieldFromVictoryGlobalInGoldenAge;
@@ -1998,8 +2001,8 @@ protected:
 	std::vector<int> m_aiYieldFromUnitLevelUp;
 	std::vector<int> m_aiYieldFromUnitLevelUpGlobal;
 	std::vector<int> m_aiYieldFromCombatExperienceTimes100;
-	std::vector<int> m_aiYieldPerAlly;
-	std::vector<int> m_aiYieldPerFriend;
+	std::vector<int> m_aiYieldPerAllyTimes100;
+	std::vector<int> m_aiYieldPerFriendTimes100;
 	std::vector<int> m_aiYieldFromInternalTREnd;
 	std::vector<int> m_aiYieldFromInternationalTREnd;
 	std::vector<int> m_aiYieldFromInternalTR;
@@ -2059,8 +2062,8 @@ protected:
 	map<UnitClassTypes, int> m_miUnitClassTrainingAllowed;
 	map<ProjectTypes, int> m_miWLTKDFromProject;
 	std::vector<int> m_aiBaseYieldRateFromReligion;
-	std::vector<int> m_aiBaseYieldRateFromCSAlliance;
-	std::vector<int> m_aiBaseYieldRateFromCSFriendship;
+	std::vector<int> m_aiBaseYieldRateFromCSAllianceTimes100;
+	std::vector<int> m_aiBaseYieldRateFromCSFriendshipTimes100;
 	std::vector<int> m_aiYieldFromMinors;
 	std::vector<fraction> m_afResourceQuantityPerXFranchises;
 	std::vector<int> m_aiYieldChangeFromCorporationFranchises;
@@ -2377,6 +2380,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumProjects)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialReligionYieldsTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryEraScaling)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalEraScaling)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalInGoldenAge)
@@ -2405,8 +2409,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromFaithPurchase)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitLevelUp)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitLevelUpGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCombatExperienceTimes100)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAlly)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAllyTimes100)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriendTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternationalTREnd)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTR)
@@ -2466,8 +2470,8 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(map<UnitClassTypes, int>), m_miUnitClassT
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(map<ProjectTypes, int>), m_miWLTKDFromProject)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromReligion)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAlliance)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendship)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAllianceTimes100)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendshipTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<fraction>, m_afResourceQuantityPerXFranchises)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFromCorporationFranchises)

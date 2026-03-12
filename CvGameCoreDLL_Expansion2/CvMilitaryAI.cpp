@@ -1353,7 +1353,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 			continue;
 
 		//rough terrain makes us slow
-		bool bWoodlandException = bForestJungleBonus && (pLoopPlot->getFeatureType() == FEATURE_FOREST || pLoopPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam());
+		bool bWoodlandException = bForestJungleBonus && (pLoopPlot->getFeatureType() == FEATURE_FOREST || pLoopPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam());
 		if (bWoodlandException || (bMountainBonus && pLoopPlot->isMountain()) || (bHillBonus && pLoopPlot->isHills()) || (bRiverBonus && pLoopPlot->isRiver()) || !pLoopPlot->isRoughGround())
 			bIsGood = true;
 
@@ -1361,6 +1361,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 		bIsGood |= pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam() && pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged();
 
 		//we want to have plots for our siege units
+		//hard coded?
 		bIsGood |= iTargetDistance == 2 && pLoopPlot->canSeePlot(pTargetPlot,NO_TEAM,2,NO_DIRECTION);
 
 		if (bIsGood)
@@ -3335,6 +3336,7 @@ WarTypes CvMilitaryAI::GetWarType(PlayerTypes ePlayer)
 		return (iLand >= iSea) ? WARTYPE_LAND : WARTYPE_SEA;
 	}
 
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "GetWarType only valid for major civs");
 	return (WarTypes)m_aiWarFocus[ePlayer];
 }
 
@@ -4298,6 +4300,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvAttackTarget& readFrom)
 	saveTo << readFrom.m_iStagingPlotIndex;
 	saveTo << readFrom.m_iTargetPlotIndex;
 	saveTo << readFrom.m_iPathLength;
+	saveTo << readFrom.m_iApproachScore;
+	saveTo << readFrom.m_bPreferred;
 	return saveTo;
 }
 
@@ -4308,6 +4312,8 @@ FDataStream& operator>>(FDataStream& loadFrom, CvAttackTarget& writeTo)
 	loadFrom >> writeTo.m_iStagingPlotIndex;
 	loadFrom >> writeTo.m_iTargetPlotIndex;
 	loadFrom >> writeTo.m_iPathLength;
+	loadFrom >> writeTo.m_iApproachScore;
+	loadFrom >> writeTo.m_bPreferred;
 	return loadFrom;
 }
 

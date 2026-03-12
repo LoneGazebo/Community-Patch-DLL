@@ -229,8 +229,8 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 	if (!MOD_BALANCE_SANE_UNIT_MOVEMENT_COST)
 	{
 		// VP does not require plot ownership
-		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
-		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
+		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eTeam));
+		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eTeam));
 	}
 
 	//check routes
@@ -268,8 +268,14 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 		else if (pTraits->IsMountainPass() && pToPlot->isMountain())
 			bIgnoreCostsHere = true;
 
-		if (bIgnoreCostsHere) // Incan UA bypasses the check for river crossings, so no need to check those defines
+		if (bIgnoreCostsHere)
+		{
 			iRegularCost = 1;
+
+			// Inca still pays the normal cost for crossing a river
+			if (MOD_BALANCE_ALTERNATE_INCA_TRAIT && bRiverCrossing)
+				iRegularCost += /*10*/ GD_INT_GET(RIVER_EXTRA_MOVEMENT);
+		}
 		else
 		{
 			iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo ? pToFeatureInfo->getMovementCost() : 0));
@@ -329,59 +335,60 @@ static int GetYieldBaseModifierTimes100(YieldTypes eYield)
 }
 
 // Only include puppet calculations for now, most other things are too dynamic
-static int GetYieldCityModifierTimes100(const CvCity* pCity, const CvPlayer* pPlayer, YieldTypes eYield)
+static int GetYieldCityModifierTimes100(const CvCity* pCity, YieldTypes eYield)
 {
-	int iTempMod = 0;
-	int iModifier = iTempMod;
+	// apply additive yield modifiers
+	int iModifier = 100;
 	
+	int iTempMod = 0;
 	if (pCity->IsPuppet())
 	{
 		switch (eYield)
 		{
 		case YIELD_SCIENCE:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
+			iTempMod = /*-25 in CP, 0 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_GOLD:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_PRODUCTION:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_TOURISM:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_GOLDEN_AGE_POINTS:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_CULTURE: // taken from getJONSCulturePerTurn
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
-			if (pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() != 0 && iTempMod > 0)
+			iTempMod = /*-25 in CP, 0 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
+			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
 			break;
 
 		case YIELD_FAITH:
-			iTempMod = pPlayer->GetPuppetYieldPenaltyMod() + pPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + GD_INT_GET(PUPPET_FAITH_MODIFIER);
+			iTempMod = /*0*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
 			if (iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
@@ -402,7 +409,11 @@ static int GetYieldCityModifierTimes100(const CvCity* pCity, const CvPlayer* pPl
 		}
 	}
 
-	return std::max(0, (iModifier + 100));
+	// apply multiplicative yield modifiers
+	iModifier *= pCity->getYieldModifierMultiplicative(eYield);
+	iModifier /= 100;
+
+	return iModifier;
 }
 
 void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild)
@@ -1109,9 +1120,6 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 	if ((pPlot->isOwned() || bIgnoreUnowned) && pPlot->getOwner() != m_pPlayer->GetID())
 		return true;
 
-	if (pPlot->getPlotType() == PLOT_MOUNTAIN)
-		return true;
-
 	if (pPlot->IsNaturalWonder())
 		return true;
 
@@ -1120,6 +1128,9 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 		return true;
 
 	if (bIgnoreUnowned && !pPlot->getEffectiveOwningCity()->IsWithinWorkRange(pPlot))
+		return true;
+
+	if ((pPlot->getPlotType() == PLOT_MOUNTAIN) && !m_pPlayer->HasMountainImprovement())
 		return true;
 
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
@@ -1153,6 +1164,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(const CvPlot* 
 			(pkImprovementInfo->IsAdjacentCity() && pPlot->IsAdjacentCity()) ||
 			(pkImprovementInfo->IsCoastal() && pPlot->isCoastalLand()) ||
 			(pkImprovementInfo->IsHillsMakesValid() && pPlot->isHills()))
+			// currently dont need to check mountains because only unique improvements go there
 		{
 			if (pPlot->canHaveImprovement(eImprovement, m_pPlayer->GetID(), true))
 				return eImprovement;
@@ -3368,7 +3380,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 						break;
 
 					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
-					iYieldModifier *= pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, m_pPlayer, eYield) : 100;
+					iYieldModifier *= pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, eYield) : 100;
 
 					if (pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eOtherImprovement) != 0)
 						iImprovementScore += ((pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eOtherImprovement) * iYieldModifier) / 100).Truncate();
@@ -3680,7 +3692,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 				if (iNewAdjacentWorkedYield != 0 || iNewAdjacentUnworkedYield != 0)
 				{
-					int iAdjacentCityYieldModifier = pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, m_pPlayer, eYield) : 100;
+					int iAdjacentCityYieldModifier = pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, eYield) : 100;
 					iSecondaryScore += (iNewAdjacentWorkedYield * iYieldModifier * iAdjacentCityYieldModifier) / 100;
 					iPotentialScore += (iNewAdjacentUnworkedYield * iYieldModifier * iAdjacentCityYieldModifier) / 100;
 				}
@@ -3689,7 +3701,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 		if (iNewYieldTimes100 != 0 || iFutureYieldTimes100 != 0)
 		{
-			int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+			int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, eYield) : 100;
 			iYieldScore += (iNewYieldTimes100 * iYieldModifier * iCityYieldModifier) / 10000;
 			iPotentialScore += (iFutureYieldTimes100 * iYieldModifier * iCityYieldModifier) / 10000;
 		}
@@ -3769,7 +3781,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 
 			if (iPotentialNewYieldTimes100 != 0)
 			{
-				int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+				int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, eYield) : 100;
 				// Assume 2/3 of potential will happen (divide by 15000 instead of 10000)
 				iPotentialScore += (iPotentialNewYieldTimes100 * iYieldModifier * iCityYieldModifier) / 15000;
 			}
@@ -3785,7 +3797,14 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 		if (bCreatesResource || bConnectsResource)
 		{
 			ResourceTypes eConnectedResource = bCreatesResource ? eResourceFromImprovement : eResource;
-			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
+
+			int iResourceQuantityFromImprovement = pkImprovementInfo->GetResourceQuantityFromImprovement();
+			if (iResourceQuantityFromImprovement <= 0)
+				iResourceQuantityFromImprovement = 1;
+
+			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
+			int iBaseResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->getNumResource();
+
 			int iResourceWeight = GetResourceWeight(eConnectedResource, iResourceAmount);
 
 			// If the old improvement granted the same resource, subtract the resource from this improvement
@@ -3794,8 +3813,14 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 			{
 				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
 				if (pkOldImprovementInfo && (pkOldImprovementInfo->IsConnectsResource(eResource) || pkOldImprovementInfo->GetResourceFromImprovement() == eResource))
-					iExtraResource -= iResourceAmount;
-			
+				{
+					ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+					int iOldResourceQuantityFromImprovement = pkOldImprovementInfo->GetResourceQuantityFromImprovement();
+					if (iOldResourceQuantityFromImprovement <= 0)
+						iOldResourceQuantityFromImprovement = 1;
+					int iOldResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? iOldResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eOldImprovement);
+					iExtraResource -= iOldResourceAmount;
+				}
 			}
 
 			int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eConnectedResource) + iExtraResource;
@@ -3836,19 +3861,19 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				}
 				int iTotalNumResource = GC.getMap().getNumResources(eConnectedResource);
 				if (bCreatesResource)
-					iTotalNumResource += iResourceAmount;
+					iTotalNumResource += iResourceQuantityFromImprovement;
 
 				int iCurrentMonopolyPercent = 0;
 				int iFutureMonopolyPercent = 0;
 				if (iTotalNumResource <= 0)
 				{
 					iCurrentMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource > 0 ? 100 : 0;
-					iFutureMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iResourceAmount > 0 ? 100 : 0;
+					iFutureMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount > 0 ? 100 : 0;
 				}
 				else
 				{
 					iCurrentMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource) * 100) / iTotalNumResource;
-					iFutureMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iResourceAmount) * 100) / iTotalNumResource;
+					iFutureMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount) * 100) / iTotalNumResource;
 				}
 
 				int iGlobalThreshold = /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD);
@@ -3909,7 +3934,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				iPenalty = 1000;
 		}
 
-		if (bBenefitsFromRoads && eForceCityConnection == NO_ROUTE)
+		if (bBenefitsFromRoads && eForceCityConnection == NO_ROUTE && pkImprovementInfo->IsNoTwoAdjacent())
 			iSecondaryScore -= iPenalty;
 		else if (!bBenefitsFromRoads && (eForceCityConnection == ROUTE_ROAD || eForceCityConnection == ROUTE_RAILROAD))
 			iSecondaryScore -= iPenalty;
@@ -4180,7 +4205,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 				if (iYieldChange != 0)
 				{
 					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
-					int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, m_pPlayer, eYield) : 100;
+					int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, eYield) : 100;
 					iYieldScore += (iYieldChange * iTileWorkableChance * iYieldModifier * iCityYieldModifier) / 10000;
 				}
 			}

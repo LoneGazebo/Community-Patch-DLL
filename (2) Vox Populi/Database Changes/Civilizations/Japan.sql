@@ -50,43 +50,37 @@ VALUES
 	('UNIT_JAPANESE_SAMURAI', 'PROMOTION_GAIN_EXPERIENCE');
 
 ----------------------------------------------------------
--- Unique Unit: Yamato (Battleship)
+-- Unique Unit: Mikasa (Dreadnought)
 ----------------------------------------------------------
 INSERT INTO Civilization_UnitClassOverrides
 	(CivilizationType, UnitClassType, UnitType)
 VALUES
-	('CIVILIZATION_JAPAN', 'UNITCLASS_BATTLESHIP', 'UNIT_YAMATO');
+	('CIVILIZATION_JAPAN', 'UNITCLASS_DREADNOUGHT', 'UNIT_MIKASA');
 
 UPDATE Units
 SET
+	PrereqTech = 'TECH_ELECTRICITY',
 	ObsoleteTech = (
 		SELECT ObsoleteTech FROM Units WHERE Type = (
 			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
-				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_BATTLESHIP'
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_DREADNOUGHT'
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_BATTLESHIP') + 5,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_BATTLESHIP') + 10,
-	"Range" = (SELECT "Range" FROM Units WHERE Type = 'UNIT_BATTLESHIP') + 1
-WHERE Type = 'UNIT_YAMATO';
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_DREADNOUGHT') + 5,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_DREADNOUGHT') + 5
+WHERE Type = 'UNIT_MIKASA';
 
 INSERT INTO Unit_YieldOnCompletion
 	(UnitType, YieldType, Yield)
 VALUES
-	('UNIT_YAMATO', 'YIELD_GOLDEN_AGE_POINTS', 600);
-
-INSERT INTO Unit_Bounties
-	(UnitType, YieldType, Yield)
-VALUES
-	('UNIT_YAMATO', 'YIELD_CULTURE', 400),
-	('UNIT_YAMATO', 'YIELD_GOLDEN_AGE_POINTS', 400);
+	('UNIT_MIKASA', 'YIELD_GOLDEN_AGE_POINTS', 500);
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_YAMATO', 'PROMOTION_ARMOR_PLATING_1'),
-	('UNIT_YAMATO', 'PROMOTION_TAIKAN_KYOHO');
+	('UNIT_MIKASA', 'PROMOTION_HOMELAND_GUARDIAN'),
+	('UNIT_MIKASA', 'PROMOTION_KANTAI_KESSEN');
 
 ----------------------------------------------------------
 -- Unique Building: Dojo (Armory)

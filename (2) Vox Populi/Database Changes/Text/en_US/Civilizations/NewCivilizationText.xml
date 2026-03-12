@@ -343,17 +343,17 @@
 			<Text></Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_ASAMU">
-			<Text>Asamu</Text>
+		<Row Tag="TXT_KEY_BUILDING_TOPHET">
+			<Text>Tophet</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_ASAMU_HELP">
+		<Row Tag="TXT_KEY_BUILDING_TOPHET_HELP">
 			<Text></Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_ASAMU_TEXT">
-			<Text>In contrast to most Phoenician colonies, Carthage grew larger and more quickly thanks to its combination of favorable climate, arable land, and lucrative trade routes. Within just one century of its founding, its population rose to 30,000. Though the specific date and circumstances are unknown, Carthage became independent in the middle of the 6th century BC. It had grown into a fully independent thalassocracy, embarking its own colonization efforts across the western Mediterranean. Carthage became an expansionist power, driven by its desire to access new sources of wealth and trade. By 300 BC, through its vast patchwork of colonies, vassals, and satellite states, held together by its naval dominance of the western and central Mediterranean Sea, Carthage controlled the largest territory in the region, including the coast of northwestern Africa, southern and eastern Iberia, and the islands of Sicily, Sardinia, Corsica, Malta, and the Balearic Islands.</Text>
+		<Row Tag="TXT_KEY_BUILDING_TOPHET_TEXT">
+			<Text>"Tophet" is a Hebrew term for a place of worship and human sacrifice to the Canaanite gods, and has become a colorful synonym for hell within Judeo-Christian theology. Usually located outside cities, Tophets were holy places where sacrifices could be presented to gods of the Phoenician pantheon.[NEWLINE][NEWLINE]Regular sacrifices were made to ensure the prosperity of Carthage and the ashes of burnt offerings were sealed within the Tophet. Child sacrifice, once prevalent throughout the Near-East, was a persistent hallmark of Carthaginian religious life long after contemporary cultures had shunned the practice. Modern archaeological evidence suggests children were sacrificed in times of great stress such as wars, plagues, and natural disasters as an act of divine supplication.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_ASAMU_STRATEGY">
-			<Text>The Asamu allows for more aggressive settling, but requires very high [ICON_GOLD] Gold generation, as it cannot be produced but only be purchased for a lot of [ICON_GOLD] Gold. Because purchasing one doesn't decrease Population like producing a Settler does, a major bottleneck on the speed of settling early game is replaced by [ICON_GOLD] Gold generation. Therefore, consider gathering as much [ICON_GOLD] Gold as possible early game from your Unique Ability, destroying Barbarian Encampments, exploring Ancient Ruins, and working [ICON_GOLD] Gold tiles to then settle at a high pace. Because Asamu can retreat from melee attack once per turn, it can travel though barbarain terriory without escort, unless two Units can attack it. Additionally, since Asamu can embark without having the Fishing Technology, you can claim valuable islands before your rivals. You can couple that with producing Settlers at the same time. This way, you can secure many great City locations with many Luxury Resources, synergizing with your Unique Ability.</Text>
+		<Row Tag="TXT_KEY_BUILDING_TOPHET_STRATEGY">
+			<Text>The Tophet is the unique Shrine replacement for Carthage. In addition to the normal bonuses of a Shrine, the Tophet provides Culture whenever Gold is spent in the City. Therefore, you want to avoid spending your early Gold in a City before it has a Tophet constructed. In effect, the value of Gold and Faith are increased by a percentage, increasing their value from all sources. Helpfully, the Tophet also provides a steady trickle of Gold, allowing more purchases throughout the game.</Text>
 		</Row>
 
 		<!-- Celts -->
@@ -533,19 +533,6 @@
 			<Text>Stationary steam engines are fixed steam engines used for pumping or driving mills and factories, and for power generation. They are distinct from locomotive engines used on railways, traction engines for heavy steam haulage on roads, steam cars (and other motor vehicles), agricultural engines used for ploughing or threshing, marine engines, and the steam turbines used as the mechanism of power generation for most nuclear power plants. They were introduced during the 18th century and widely made for the whole of the 19th century and most of the first half of the 20th century, only declining as electricity supply and the internal combustion engine became more widespread.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
-			<Text></Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_UNIT_REDCOAT">
-			<Text>Redcoat</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_REDCOAT_HELP">
-			<Text></Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_REDCOAT_TEXT">
-			<Text>Despite not being a rare occurence throughout European military history (with Danish, and even French units wearing bright red uniforms at some points), the red uniforms of the infantry of the British Army and Royal Navy have become nationaly and internationaly recognized as unmistakable symbols of the British military power. Originally meant to lower fabrication costs, the diffusion of red uniforms followed a slow process that can be traced back all the way to the War of the Roses in the 15th century. During the reforms that led to the creation of the New Model Army, the red, now considered a staple of English identity, became more prevalent, and stayed that way in the following centuries: its notoriaty came from being worn by British infantry during the whole period of British imperialist policies, from America to Oceania, Africa to Europe and Asia. The only major changes to the color of the uniforms were decided after the lethality of fire became much more prevalent and the red uniform, from a mean of distinction, became a liability. Nonetheless, it kept an important role in British military ceremonial, with royal guards still wearing it during their service.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_UNIT_REDCOAT_STRATEGY">
 			<Text></Text>
 		</Row>
 
@@ -919,16 +906,16 @@
 			<Text></Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_UNIT_YAMATO">
-			<Text>Yamato</Text>
+		<Row Tag="TXT_KEY_UNIT_MIKASA">
+			<Text>Mikasa</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_YAMATO_HELP">
+		<Row Tag="TXT_KEY_UNIT_MIKASA_HELP">
 			<Text></Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_YAMATO_TEXT">
-			<Text>The Yamato-class battleships were the crown jewel of the Imperial Japanese Navy during World War II. Displacing 73,000 tonnes at full load, they were the heaviest and most powerfully armed battleships ever constructed. Each Yamato carried nine 18.1 inch guns, the largest naval artillery ever fitted to a warship, each capable of firing 3,000 lb. shells over 26 miles. Two battleships of the class, Yamato and Musashi, were completed while a third, Shinano, was converted to an aircraft carrier during construction. All were sunk by American forces during WWII.[NEWLINE][NEWLINE]Due to their size, speed, and power, The Yamato-class visibly embodied Japan's determination and readiness to defend its interests against the western powers, especially the United States. One of the reasons that the warship may have such significance in Japanese culture is that the word "Yamato" was often used as a poetic name for Japan itself. Thus, the construction and destruction of the Yamato battleships became symbolic for the rise and fall of Japanese imperial aspirations.</Text>
+		<Row Tag="TXT_KEY_UNIT_MIKASA_TEXT">
+			<Text>The Mikasa represents the pinnacle of pre-dreadnought battleship design and serves as a symbol of Japan's rapid industrialization and emergence as a global naval power. Built in the United Kingdom by Vickers for the Imperial Japanese Navy, she was commissioned in 1902 and named after Mount Mikasa in Nara.[NEWLINE][NEWLINE]At the time of her launch, the Mikasa was the most advanced battleship in the world, featuring a formidable primary armament of four 12-inch guns and Krupp cemented armor that provided superior protection. Her design focused on a balance of speed, firepower, and resilience that would soon be tested in one of history's most decisive naval engagements.[NEWLINE][NEWLINE]The ship earned its place in legend during the Russo-Japanese War (1904-1905). As the flagship of Admiral Togo Heihachiro, the Mikasa led the Japanese fleet during the Battle of Tsushima. Despite taking multiple direct hits, she remained operational, coordinating the maneuver that effectively annihilated the Russian Baltic Fleet. This victory was a watershed moment, marking the first time in modern history that an Asian power defeated a European power in a major naval war.[NEWLINE][NEWLINE]Though the dreadnought revolution made pre-dreadnoughts like the Mikasa technically obsolete shortly after the war, her cultural impact remained immense. Today, she is preserved as a museum ship in Yokosuka, standing as the last remaining example of a pre-dreadnought battleship in the world and a monument to Japan's maritime heritage.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_YAMATO_STRATEGY">
+		<Row Tag="TXT_KEY_UNIT_MIKASA_STRATEGY">
 			<Text></Text>
 		</Row>
 
@@ -1023,16 +1010,16 @@
 			<Gender>neuter:an</Gender>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_ORDO_TEXT">
-			<Text>{TXT_KEY_IMPROVEMENT_ORDO_HELP}[NEWLINE][NEWLINE]Simply translated, "ordo" means "palace tent." However, an ordo was something much more than just a simple tent - it was the center of the tribe for the nomadic Mongolians.[NEWLINE][NEWLINE]An ordo served as the headquarters and main encampment for the Khan and his warriors. Though built for travel, it had style, from simple decorations to carefully sewn patterns. The ordo moved with the Khan and his warriors as they went on campaign, ensuring they always felt at home no matter where they traveled.[NEWLINE][NEWLINE]You can construct an Ordo anywhere within your territory, or directly adjacent to your territory. Upon constructing the Ordo, your Military Unit Supply Cap will increase by 1, and your Cultural borders will also expand to surround the Ordo on all sides by one hex. If the new Cultural border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. Unlike the Citadel, any enemy unit which ends its turn next to an Ordo takes no damage.</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_ORDO_HELP}[NEWLINE][NEWLINE]Simply translated, "ordo" means "palace tent." However, an ordo was something much more than just a simple tent - it was the center of the tribe for the nomadic Mongolians.[NEWLINE][NEWLINE]An ordo served as the headquarters and main encampment for the Khan and his warriors. Though built for travel, it had style, from simple decorations to carefully sewn patterns. The ordo moved with the Khan and his warriors as they went on campaign, ensuring they always felt at home no matter where they traveled.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_ORDO_HELP">
-			<Text>Unique Mongolian Great Person Tile Improvement, replacing the {TXT_KEY_IMPROVEMENT_CITADEL}. Can only be constructed by a {TXT_KEY_UNIT_MONGOL_KHAN}.[NEWLINE][NEWLINE]Building an Ordo claims adjacent tiles.[NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Units moving onto an Ordo have all their [ICON_MOVES] Movement restored. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
+			<Text>Unique Mongolian Great Person Tile Improvement, replacing the {TXT_KEY_IMPROVEMENT_CITADEL}. Can only be constructed by a {TXT_KEY_UNIT_MONGOL_KHAN}.[NEWLINE][NEWLINE]Building an Ordo claims adjacent tiles.[NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Units moving onto an owned Ordo spend no [ICON_MOVES] Movement points. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ORDO">
 			<Text>Construct an [LINK=IMPROVEMENT_ORDO]Ordo[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ORDO_HELP">
-			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Ordos. Removes any feature on the tile.[NEWLINE][NEWLINE]Constructing the Ordo will expand your Cultural borders to surround the Ordo, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this unit. If the new Cultural border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.[NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Restores [ICON_MOVES] Movement for any Unit moving onto this tile. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
+			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Ordos. Removes any feature on the tile.[NEWLINE][NEWLINE]Constructing the Ordo will expand your Cultural borders to surround the Ordo, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this unit. If the new Cultural border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.[NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Owned Units spend no [ICON_MOVES] Movement moving onto this tile. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_BLACK_TUG">
@@ -1052,7 +1039,7 @@
 			<Text>Adopt the Yassa</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROJECT_YASSA_HELP">
-			<Text>{TXT_KEY_PRODUCTION_BUILDING_GLOBAL_EFFECTS}[NEWLINE][ICON_BULLET]+20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{TXT_KEY_UNITCOMBAT_ARCHER} Units[ENDCOLOR] in all Cities[NEWLINE][ICON_BULLET]+20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{TXT_KEY_UNITCOMBAT_SIEGE} Units[ENDCOLOR] in all Cities[NEWLINE][ICON_BULLET]+20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{TXT_KEY_UNITCOMBAT_MOUNTED} Units[ENDCOLOR] in all Cities[NEWLINE][ICON_BULLET]+20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{TXT_KEY_UNITCOMBAT_ARMOR} Units[ENDCOLOR] in all Cities[NEWLINE][ICON_BULLET]-40% [ICON_HAPPINESS_3] Empire Size Modifier from number of Cities in all Cities[NEWLINE][ICON_BULLET]When conquering a City: +10 [ICON_GOLD] +10 [ICON_RESEARCH] +10 [ICON_CULTURE] in all Cities, scaling with Era[NEWLINE]----------------[NEWLINE]Prerequisite Technology: [COLOR_CYAN]{TXT_KEY_TECH_PHILOSOPHY_TITLE}[ENDCOLOR][NEWLINE]Max 1 per Player</Text>
+			<Text>[ICON_BULLET]+20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{TXT_KEY_UNITCOMBAT_ARCHER} Units[ENDCOLOR] in all Cities[NEWLINE][ICON_BULLET]+20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{TXT_KEY_UNITCOMBAT_SIEGE} Units[ENDCOLOR] in all Cities[NEWLINE][ICON_BULLET]+20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{TXT_KEY_UNITCOMBAT_MOUNTED} Units[ENDCOLOR] in all Cities[NEWLINE][ICON_BULLET]+20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{TXT_KEY_UNITCOMBAT_ARMOR} Units[ENDCOLOR] in all Cities[NEWLINE][ICON_BULLET]-40% [ICON_HAPPINESS_3] Empire Size Modifier from number of Cities in all Cities[NEWLINE][ICON_BULLET]When conquering a City: +10 [ICON_GOLD] +10 [ICON_RESEARCH] +10 [ICON_CULTURE] in all Cities, scaling with Era[NEWLINE]----------------[NEWLINE]Prerequisite Technology: [COLOR_CYAN]{TXT_KEY_TECH_PHILOSOPHY_TITLE}[ENDCOLOR][NEWLINE]Max 1 per Player</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROJECT_YASSA_TEXT">
 			<Text>Yassa was a secret written code of law created by Genghis Khan. The word Yassa translates into "order" or "decree". It was the de facto law of the Mongol Empire even though the "law" was never actually made public. The Yassa seems to have originated from decrees issued in wartime, and was later codified and expanded to include cultural and life-style conventions. By keeping the Yassa secret, the decrees could be modified and used selectively. It is believed that the Yassa was supervised by Genghis Khan himself with the help of the high judge of the Mongol Empire: His stepbrother, Shihihutag. Genghis Khan appointed his second son Chagatai (a.k.a. Chagatai Khan) to oversee the execution of the laws.</Text>
@@ -1072,7 +1059,7 @@
 			<Text>A Riad is a traditional North African house built in a peristyle format, surrounding an interior garden or courtyard. These homes were often plain on the exterior, but lavishly decorated inside, projecting humility and austerity while preserving a family's comfort and privacy.[NEWLINE][NEWLINE]While architectural style has changed over the years, the riad's basic form is still used in modern design. Riads enjoyed something of a renaissance during French occupation of North Africa. As befitting Europe's fascination with preserving historic heritage sites, restoration efforts on old Riads were undertaken throughout Morocco's major cities, often converting old Riads into hotels or restaurants.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIAD_STRATEGY">
-			<Text></Text>
+			<Text>The Riad provides [ICON_GOLD] Gold and [ICON_CULTURE] Culture yields scaling by Era and by the number of buildings in the City which rewards highly developed Cities with plenty of buildings. It also generates [ICON_TOURISM] Tourism based on [ICON_GOLD] Gold purchases in the City which synergizes with Morocco's trade focus as they often can generate lots of [ICON_GOLD] Gold. This provides Morocco with a bit of pathway to pursuing a Cultural Victory as the rest of their kit is fairly well rounded.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_CORSAIR">
@@ -1085,7 +1072,7 @@
 			<Text>The Barbary Corsairs were Muslim pirates and privateers operating off the coast of North Africa who became infamous throughout Europe. Ranging throughout the Mediterranean and as far as Iceland, the Corsairs slaughtered livestock and captured Christians for sale in the slave markets of the Islamic world. The frequency and ferocity of these raids, or "Razzia" was such that long stretches of Italian and Spanish coast were abandoned for fear of abduction. It is estimated that some 1.25 million people were enslaved by Barbary corsairs between 1530 and 1780 A.D.[NEWLINE][NEWLINE]The scope of Corsair activity began to diminish in the latter part of the 17th century, as the more powerful European navies started to pose a real threat to the Barbary States. However, Christian shipping and coastlines continued to suffer until the early 19th century. Following the Napoleonic Wars and the Congress of Vienna in 1814, European powers agreed upon the need to suppress the Barbary Corsairs for good. The razzias finally ceased after the Second Barbary War between the Barbary pirates and the United States, the impetus for the creation of the US Navy.[NEWLINE][NEWLINE]"It is written in our Koran, that all nations which do not acknowledge the Prophet are sinners, whom it is the right and duty of the faithful to plunder and enslave; and that every mu'min (believer) who is slain in this warfare is sure to go to paradise."[NEWLINE][TAB]- Sidi Haji Abdrahaman, to Thomas Jefferson in reply to his demand for the protection of American merchant ships</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_CORSAIR_STRATEGY">
-			<Text></Text>
+			<Text>The Corsair has the Razzia promotion so it gains [ICON_FOOD] Food and [ICON_PRODUCTION] Production on kills, pillaging Improvements, and plundering [ICON_INTERNATIONAL_TRADE] Trade Routes. This synergizes well with their unique ability to plunder [ICON_INTERNATIONAL_TRADE] Trade Routes without declaring war. Morocco should look for opportunities to be aggressive against other civs that have weaker navies especially those with plenty of sea Improvements that they could pillage.</Text>
 		</Row>
 
 		<!-- Netherlands -->
@@ -1152,7 +1139,7 @@
 			<Text>Bigger is better, and biggest is best. The super-sized bombards of the late medieval were first used in Western European warfare at the beginning of the 15th century, but it was the Ottomans that would realize the bombard's full potential at the Siege of Constantinople in 1453. Unable to find patronage with the Byzantine emperor, a Hungarian gunfounder named Orban sold his services to Mehmed II of the Ottoman Empire, and began crafting bronze cannons capable of lobbing 1.6 tons of shaped stone more than a mile.[NEWLINE][NEWLINE]Transporting such massive weapons took as many as 60 oxen, and required construction of entire road networks before the cannons could be brought to bear against the impregnable Theodosian Walls. Within a day of the opening bombardment, massive stones smashed the outer defenses to rubble and the city which had stood as a fortress of Christendom for a millennium fell. The sack of Constantinople raged for three days following, and triggered a mass exodus of Greeks into Europe proper. The influx of Byzantine refugees brought a rediscovery of the philosophical and intellectual achievements of Greek culture into Western Europe, planting the seeds of the Renaissance.[NEWLINE][NEWLINE]Stone bombards were supplanted by iron-ball cannons by the end of the 16th century, and few bombards are left intact. None of the bombard's descendants, however, can claim to have single-handedly ended an era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GREAT_BOMBARD_STRATEGY">
-			<Text></Text>
+			<Text>Compared to the Cannon, the Great Bombard has very high [ICON_RANGE_STRENGTH] Ranged Combat Strength, a larger bonus against Cities, and a larger penalty against Units. This makes it a glass cannon which is incredible at doing damage to Cities but vulnerable to melee attackers with its fairly low [ICON_STRENGTH] Combat Strength. It synergizes well with Janisarries as they unlock at the same time and can be used to destroy enemy armies while the Great Bombard makes quick work of sieging Cities.[NEWLINE][NEWLINE]You can only have 2 Great Bombards at one time, so they need to be carefully guarded as they cannot Heal. It may be worth using damaged Great Bombards in dangerous, even suicidal, attacks and then quickly replacing them, making use of your Siege Foundry bonus, rather than keeping around weakened units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GREAT_BOMBARD_1">
 			<Text>Basilica</Text>
@@ -1193,10 +1180,10 @@
 			<Text>Charbagh</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_CHARBAGH_TEXT">
-			<Text>A Charbagh is a walled garden divided into four square sections that is distinctive to Indo-Persian culture. These gardens trace their roots to the pairidaeza of the Achaemenid empire, and perhaps back even further to Assyrian garden designs. Charbagh construction was an invaluable a tool of state, demonstrating a king's ability to bring life to an otherwise desolate area; the angular, ordered construction served as a contrast the chaos of nature. Persian and later Persianized cultures employed garden building as a subtle way to demonstrate the King of King's command over his realm and the natural world within it through the creation of public spaces.[NEWLINE][NEWLINE]The Persian gardens have captured the imaginations of Mediterranean and western thinkers. The pairidaeza is the root of the Greek "paradise", informing modern notions of an earthly Eden in art and poetry.[NEWLINE][NEWLINE]The Charbagh can be built by [ICON_WORKER] Workers on Land with access to Fresh Water, and not next to another Charbagh.[NEWLINE][NEWLINE]Each Charbagh yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. During a [ICON_GOLDEN_AGE] Golden Age, the Charbagh's yields are increased by +1 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture, in addition to the usual +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+5% [ICON_GREAT_PEOPLE] Great People Points in City for each worked Charbagh.</Text>
+			<Text>A Charbagh is a walled garden divided into four square sections that is distinctive to Indo-Persian culture. These gardens trace their roots to the pairidaeza of the Achaemenid empire, and perhaps back even further to Assyrian garden designs. Charbagh construction was an invaluable a tool of state, demonstrating a king's ability to bring life to an otherwise desolate area; the angular, ordered construction served as a contrast the chaos of nature. Persian and later Persianized cultures employed garden building as a subtle way to demonstrate the King of King's command over his realm and the natural world within it through the creation of public spaces.[NEWLINE][NEWLINE]The Persian gardens have captured the imaginations of Mediterranean and western thinkers. The pairidaeza is the root of the Greek "paradise", informing modern notions of an earthly Eden in art and poetry.[NEWLINE][NEWLINE]The Charbagh can be built by [ICON_WORKER] Workers on Land with access to Fresh Water, and not next to another Charbagh.[NEWLINE][NEWLINE]Each Charbagh yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. During a [ICON_GOLDEN_AGE] Golden Age, the Charbagh's yields are increased by +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture, in addition to the usual +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+5% [ICON_GREAT_PEOPLE] Great People Points in City for each worked Charbagh.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_CHARBAGH_HELP">
-			<Text>The Charbagh can be built by [ICON_WORKER] Workers on Land with access to Fresh Water, and not next to another Charbagh.[NEWLINE][NEWLINE]Each Charbagh yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. During a [ICON_GOLDEN_AGE] Golden Age, the Charbagh's yields are increased by +1 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture, in addition to the usual +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+5% [ICON_GREAT_PEOPLE] Great People Points in City for each worked Charbagh.</Text>
+			<Text>The Charbagh can be built by [ICON_WORKER] Workers on Land with access to Fresh Water, and not next to another Charbagh.[NEWLINE][NEWLINE]Each Charbagh yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. During a [ICON_GOLDEN_AGE] Golden Age, the Charbagh's yields are increased by +1 [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture, in addition to the usual +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+5% [ICON_GREAT_PEOPLE] Great People Points in City for each worked Charbagh.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_CHARBAGH">
 			<Text>Build a [LINK=IMPROVEMENT_PERSIA_CHARBAGH]Charbagh[\LINK]</Text>
@@ -1218,7 +1205,7 @@
 			<Text>Qizilbash (Tr: "red-heads") was originally a pejorative for the followers of the Safawiyyah Sufi order. Named for their distinctive crimson headwear, the Qizilbash organized into a Shi'ite society reminiscent of a European knightly order. Though primarily of Turkman origin, the Qizilbash proved instrumental in the establishment of the Iranian Safavid Dynasty.[NEWLINE][NEWLINE]In a campaign to avenge the death of his father, Ismail I led 7000 Qizilbash warriors to victory over an Aq Qoyunlu force of 30 000, and established the Safavid State. Within eleven short years, Ismail brought all of Iran under his control, becoming the first ethnically Iranian monarch to unify Iran in over 850 years. Though they had made him a powerful king, Ismail feared the influence of the Qizilbash over the Iranian people. Ismail and his successors would spend the next 80 years diminishing the threat posed by the foreign Qizilbash, replacing them with slave soldiers from the Caucasus. Nevertheless, the Qizilbash maintained a place of honor within the Safavid Empire, both on the battlefield and at court.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_QIZILBASH_STRATEGY">
-			<Text></Text>
+			<Text>The Qizilbash provides yields on pillage including [ICON_GOLDEN_AGE] Golden Age Points and can always be [ICON_PEACE] Faith purchased. This combines well with Persia's existing bonuses for aggressive expansion and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]Ensuring you have a strong [ICON_PEACE] Faith income once you unlock the Qizilbash can help to quickly purchase a number of them and replace them when any of them get killed. Once you have a good number of Qizilbash, you'll want to look for opportunities to fight aggressive wars where you can pillage as many tiles as possible. A good way to approach this is to target any weaker neighbors.</Text>
 		</Row>
 
 		<!-- Poland -->
@@ -1232,7 +1219,7 @@
 			<Text>A Barbican is a fortified outpost or archery tower, forming part of a city's outer defense. The towers were often situated with a clear line of fire towards the city's gates, and connected to the city walls via a walled road called the 'neck'. The most famous barbican was built in Kraków in 1499 during the reign of Jan Olbracht. Its construction took inspiration from two other Barbicans in Torun (1429) and Chelm (1449), and was built in response to the danger posed by encroaching Ottoman and Wallachian forces.[NEWLINE][NEWLINE]Barbicans became obsolete in the 15th century due to improvements in siege tactics and artillery. The Warsaw barbican, erected in 1540, was an anachronism long before it was completed. The tower was used only once by the Swedish in 1656, while trying to prevent Poland from retaking the city. The Swedish had captured the city without a fight two years prior.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BARBICAN_STRATEGY">
-			<Text></Text>
+			<Text>The Barbican provides a free Castle, +1 Military Supply, and City defense bonuses. It costs 50% more [ICON_PRODUCTION] Production so essentially absorbs half the Castle [ICON_PRODUCTION] Production cost.[NEWLINE][NEWLINE]With the extra Military Supply and free Castle, it provides quite an increase in Military Supply that pushes Poland towards more of a military focus. This allows them to build lots of their Unique Units and look for opportunities to expand at the expense of their neighbors.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_PANCERNY">
@@ -1245,7 +1232,7 @@
 			<Text>Towarzysz Pancerny (Mailed Companion) was a rank of Polish cavalryman from the 10th to 18th century, named for their chainmail armor. Pancerni were organized into companies, with each company consisting of 60 to 200 horsemen. Exceptionally well-armored, they used chainmail or platemail armor, vambraces, helmets, and buckler shields. The most common armaments were sabres, reflex bows and, with the arrival of gunpowder, flintlock pistols and carbines.[NEWLINE][NEWLINE]After the rise of heavy cavalry the Pancerni often worked in concert with the newer and more heavily armed husaria, augmenting a cavalry charge and chasing down routing enemy soldiers. By the second half of the 17th century, they represented approximately 70% of all soldiers in the Polish military, fighting against Cossacks, Tatars, and the Swedish. The Husaria and Pancerni were eventually combined to form the 'Kawaleria Narodowa', the Polish-Lithuanian National Cavalry.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PANCERNY_STRATEGY">
-			<Text></Text>
+			<Text>The Pancerny has bonus defense and bonus attack against Wounded Units and Units in Open Terrain. Before Tercios arrive, it can be used more aggressively than other Skirmisher Units and can often be left along the frontlines.[NEWLINE][NEWLINE]The attack bonuses increase its potential damage and help finish off Wounded Units. It's still best paired with Mounted Units like Knights to take advantage of its flanking bonus from Skirmisher Doctrine.</Text>
 		</Row>
 
 		<!-- Polynesia -->
@@ -1286,7 +1273,7 @@
 			<Text>The Caçadores were the elite light infantry of the Portuguese army in the 18th and 19th centuries. The divisions were famed for their marksmanship and their brown coats, one of the first attempts at military camouflage. After Portugal's sound defeat and occupation by Napoleon, the English intervened on behalf of their ally to rally and reorganize a joint war to retake the country. The British general, William Beresford, formed the Caçadores to fill a skirmishing role analogous to the German jaegers or American ranger divisions. Under this combined military, the Caçadores helped in reclaiming Portuguese independence and distinguished themselves as the "fighting cocks" of the Portuguese army until the units were eventually dissolved in the military reforms of 1911.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_CACADOR_STRATEGY">
-			<Text></Text>
+			<Text>Caçadores gain +1 [ICON_MOVES] Movement and become stronger as they lose HP. Their mobility makes them excellent for advancing through rough terrain, since they can move onto Hills and still fire in the same turn. Before Landships arrive, they can be effective on the front line as they are more durable and hit harder while wounded as well as being able to quickly reposition when heavily damaged.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_UNIVERSITY_OF_COIMBRA">
@@ -1299,7 +1286,7 @@
 			<Text>Opened in 1290, the University of Coimbra is one of the oldest centers of higher learning in the world. The university was founded by King Dinis as the Lisbon Estudo Geral, originally with faculties of Arts, Law, Canon Law and Medicine. As the first and only university in Portugal for 350 years, the University of Coimbra became a focus of educational, political, and social influence in Portugal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_UNIVERSITY_OF_COIMBRA_STRATEGY">
-			<Text></Text>
+			<Text>The University of Coimbra provides the Age of Discovery promotion to all units generating [ICON_GOLD] Gold and Experience as they reveal tiles. It unlocks just before Naus which are often the best unit to use to then explore the world.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production bonus for [ICON_TRADE] Trade Units allows any City to very quickly replace any lost [ICON_TRADE] Trade Units to keep their unique ability yields flowing.[NEWLINE][NEWLINE]It also provides a free University in the City and gives all Universities bonus [ICON_GOLD] Gold which you should often prioritize building.</Text>
 		</Row>
 
 		<!-- Rome -->
@@ -1346,7 +1333,7 @@
 			<Text>The Pogost as an institution of Russian rural life existed for nearly a millenium, and in that time it underwent multiple transformations. In many medieval Russian states, Pogosts began as inns and lodging for the nobility and priesthood, but may have doubled as community centers and trading hubs. By the end of the 10th century, however, Pogosts had evolved into administrative and legislative hubs throughout the Slavic states. By 1775 the last Pogost-led administrative district was abolished, and the buildings were repurposed as parishes of the Eastern Orthodox Church.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_POGOST_STRATEGY">
-			<Text></Text>
+			<Text>The Pogost provides extra yields on Villages/Towns and it receives additional yields every Technology level for the next 2 eras.[NEWLINE][NEWLINE]This often makes building Villages worthwhile even outside of [ICON_CONNECTED] City Connections. Therefore, you should consider prioritizing any bonuses to Villages, since you'll then have lots of them.[NEWLINE][NEWLINE]Additionally, it's often worth prioritizing the Technologies that provide bonus yields to Pogosts, especially Industrialization as it provides the largest bonus.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_LICORNE">
@@ -1359,7 +1346,7 @@
 			<Text>Licorne is the French name given to the Russian 'unicorn' cannons, named for the distinctively shaped handles on the gun barrels. Devised in 1757, Licornes were a flexible design, easy to fire and transport and made in many differing weights and power. Lighter designs are best remembered from their use as mobile horse artillery, a Russian innovation that would change the European theory of combined arms for the next century.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_LICORNE_STRATEGY">
-			<Text></Text>
+			<Text>The Licorne has an attack bonus against Melee/Gunpowder units and the ability to move after attacking. This essentially allows it to function as both a Siege and Ranged unit. Being able to move after attacking provides a lot of flexibility when advancing so it can look to position to fire every turn. It also helps when retreating so it can fire before moving back to safety.</Text>
 		</Row>
 
 		<!-- Shoshone -->
@@ -1393,7 +1380,7 @@
 			<Text>Buffalo Pounds were large constructions built by many Plains Tribes for the entrapment and killing of Buffalo. Large herds of buffalo were corralled and funneled into the pound, a sturdy circular ring of hides and wood, where tribesmen could throw spears and other missile weapons from the safety of the walls.[NEWLINE][NEWLINE]Buffalo were a staple food source on the North American Plains, but hunting such large animals was difficult without horses or sturdy weapons. With the arrival of Europeans and the introduction of the horse and musket, Native American tribes could travel great distances and attack bison herds with impunity. The good times would not last, however, as Europeans encroached upon this way of life. Increasingly, the Great Plains were converted into farms and pastures for American homesteaders. The American buffalo was driven to the brink of extinction by a combination of habitat loss, industrial-scale hunting, and culls engineered to starve the indigenous population.[NEWLINE][NEWLINE]Today, American buffalo have recovered, but their range has been greatly limited to a few national parks. Commercial farming and sport hunting continues, but the buffalo are unlikely to ever return to their historical numbers.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BUFFALO_POUND_STRATEGY">
-			<Text></Text>
+			<Text>Buffalo Pounds provide bonus yields for each tile owned by the City which synergizes well with Shoshone's unique ability. Prioritizing anything that provides border growth so Cities can expand more frequently can help to maximize the yields that it provides.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_YELLOW_BROW">
@@ -1406,7 +1393,7 @@
 			<Text>Yellow Brows (Sh. Ohamupe) were one of two military societies within the Shoshone, playing an integral role in hunting, scouting, and policing within their bands. Yellow Brow braves shaved their heads into a cockscomb 'mohawk', and painted their exposed heads yellow, hence their common English name.[NEWLINE][NEWLINE]The Yellow Brows were composed of only the bravest and most daring of the young men, tasked with keeping order on hunting expeditions, scouting, and soldiering. The Society never had more than a few hundred members at a time; members elected their replacement upon graduation. A young Yellow Brow was expected to act and speak in a contrarian way as a sign of membership.  For instance, when asked if he would like to join the Yellow Brows, it was expected that the young man would say 'No' as a sign of willingness to join, or 'Yes' if he wished to decline.[NEWLINE][NEWLINE]In battle, Yellow Brows were led by a war chief who carried a long cane tipped with a stone or metal dagger.  The cane was used to grab and unhorse opponents, or as a No-Retreat signal. If the enemy was gaining the upper hand, the chief would drive his staff into the ground and the braves would defend him to the last. Yellow Brows were banned from leaving their chief's side until another member of the tribe came and released the braves from their charge. Deserting the chief was met with abject mockery, and often resulted in banishment from the tribe.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_YELLOW_BROW_STRATEGY">
-			<Text></Text>
+			<Text>Yellow Brows are defensive-oriented units which receive bonus Combat Strength when fortified and become stronger as they take damage. This allows them to be more durable and often stay fortified on the front lines longer because their Combat Strength increases as they become damaged unlike regular units.[NEWLINE][NEWLINE]If you use ranged and mounted units to deal most of the damage then Yellow Brows can stay fortified so they can absorb more enemy attacks and heal.</Text>
 		</Row>
 
 		<!-- Siam -->
@@ -1447,7 +1434,7 @@
 			<Text>Gumeys were riverside entrepots used to conduct goods and soldiers back and forth along the Niger river before they were loaded onto camels for the arduous journey across the open desert. Even before gaining their independence from the Mali Empire, the Songhai had become fantastically wealthy off the trade of gold, salt, and slaves from the Trans-Saharan trade routes. The Songhai's seat of power lay at the edge of the vast Saharan desert, acting as a waystation between the Taghazan salt mines to the north, the gold mines in the southwest, and distant markets in Egypt and the Middle East.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GUMEY_STRATEGY">
-			<Text></Text>
+			<Text>Gumeys provide bonus yields when a [ICON_INTERNATIONAL_TRADE] Trade Route passes through the City that it's built in similar to how Villages/Towns receive bonus yields from passing [ICON_INTERNATIONAL_TRADE] Trade Routes. They also give bonus [ICON_INTERNATIONAL_TRADE] Land Trade Route range and additional [ICON_GOLD] Gold on [ICON_INTERNATIONAL_TRADE] International Trade Routes.[NEWLINE][NEWLINE]To take advantage of this, you want to try to setup long [ICON_INTERNATIONAL_TRADE] Trade Routes that pass through as many of your Cities as possible so they can each receive the bonus yields.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_SOFA">
@@ -1460,7 +1447,7 @@
 			<Text>Sofa is a Mandinka term for slave soldiers who served in the army of the various Empires of West Africa. Originally, the Sofas were horse grooms of the soldier-nobility, the Farari, but their role slowly changed to become skirmishers and soldiers in their own right. Sofas were recruited from "jonow" (slaves) captured in battle or bought from afar. The institution of slavery in the Mali and Songhai Empires heavily rewarded loyalty, and jonow could rise to civil or military positions of prominence. Jonow became part of their master's clan, and were often freed after a certain amount of years.[NEWLINE][NEWLINE]Sofas were equipped with two quivers, and their bow was small by European standards, so sofas employed deadly poisons and fired in arcs to give their arrows strength.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SOFA_STRATEGY">
-			<Text></Text>
+			<Text>Sofas unlock around the same time as Mandekalu Cavalry and together they provide a very strong military power spike for Songhai to go on the offensive. While Mandekalu Cavalry are the workhorse units, Sofas provide additional healing through having the Medic I promotion and have bonus Combat Strength against Mounted Units which minimizes one of their only counters.</Text>
 		</Row>
 
 		<!-- Spain -->
@@ -1638,7 +1625,7 @@
 			<Text>Fusta, or galliots, were small galleys with no more than 35 sailors. Exceptionally light and fast, the Venetians originally used them to maintain a standing navy against pirates, but the ship quickly became a favorite of the pirates themselves. The shallow draft, maneuverability and speed of the Fusta made them a legend throughout the Mediterranean.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_FUSTA_STRATEGY">
-			<Text></Text>
+			<Text>Fusta are to Venice as the Galleass is to other Civilizations, and Venetian Liburna upgrade to the Fusta rather than the Great Galleass. The Fusta is not really a direct replacement, having a slightly weaker ranged strength is compensated by a lower cost and additional movement point. However its truly unique feature is costing no military supply, meaning you can pump out an enormous fleet of Fusta to swarm your opponents, protect your larger and slower ships, and extend your naval presence to every corner of the world's oceans.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_GREAT_GALLEASS_01">
 			<Text>la nave Armera</Text>
@@ -1743,7 +1730,7 @@
 			<Text>An InDuna can widely be translated to any leader of men, in commerce, in politics, and in war. An InDuna guided each regiment, or 'ibutho', of young Zulu men and he in turn answered to senior izinDuna who controlled the corps. One or more of these elder chiefs might accompany a big force on an important mission, but there was no single "field marshal" in command of all Zulu forces. Regimental izinDuna, like the non-commissioned officers of today's army, were important for morale and discipline. This was demonstrated during the battle of Isandlwana, where the army led by Ntshingwayo kaMahole outmaneuvered and destroyed a British column. Ntshingwayo kaMahole and his fellow izinDuna snuck a Zulu force of 20,000 men behind the British, hiding them in a valley only 7 miles from the British camp. When discovered sitting in complete silence by scouts, the izinDuna spurred their men into action and closed the remaining distance with lightning speed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INDUNA_STRATEGY">
-			<Text>The InDuna's primary unique bonuses over a Great General are that when expended it provides experience to the unit it's stacked with and creates an Isibaya which places a [ICON_RES_COW] Cattle Resource adjacent to it and adjacent Pastures receive +1 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]The Isibaya should still primarily be used for military purposes like a Citadel but where possible trying to build it within the working radius of a city and adjacent to Pastures should be considered so you get the economic bonuses.[NEWLINE][NEWLINE]You should always make sure to have a military unit stacked with the InDuna when constructing an Isibaya and its usually best to try to give the bonus experience to higher level units especially ranged or siege units. This is due to these unit types being easier to keep alive longer compared to melee units and that they tend to gain experience slower so the bonus experience is more impactful.</Text>
+			<Text>The InDuna's primary unique bonuses over a Great General are that when expended it provides experience to the unit it's stacked with and creates an Isibaya which places a [ICON_RES_COW] Cattle Resource adjacent to it and adjacent Pastures receive [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]The Isibaya should still primarily be used for military purposes like a Citadel but where possible trying to build it within the working radius of a city and adjacent to Pastures should be considered so you get the economic bonuses.[NEWLINE][NEWLINE]You should always make sure to have a military unit stacked with the InDuna when constructing an Isibaya and its usually best to try to give the bonus experience to higher level units especially ranged or siege units. This is due to these unit types being easier to keep alive longer compared to melee units and that they tend to gain experience slower so the bonus experience is more impactful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INDUNA_01">
 			<Text>Mzilikazi</Text>
@@ -1804,13 +1791,13 @@
 			<Text>{TXT_KEY_IMPROVEMENT_ISIBAYA_HELP}[NEWLINE][NEWLINE]An Isibaya is a Zulu homestead and defensive structure. The Isibaya is laid out in a circular pattern with a cattle enclosure at the centre, ringed by huts, palisades, and mud walls. The layout and function are reminiscent of a European corral, hence the Afrikaans term for Amabaya, "Kraal".[NEWLINE][NEWLINE]Cattle were central to the life and economy of the Zulu Kingdom. Cattle were a sign of status, wealth, and power, and were instrumental for feeding and arming the amabutho regiments of the Zulu army.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_ISIBAYA_HELP">
-			<Text>Unique Zulu Great Person Tile Improvement, replacing the Citadel. Can only be constructed by a {TXT_KEY_UNIT_INDUNA}.[NEWLINE][NEWLINE]Provides [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Adjacent Pastures receive +1 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Building an Isibaya claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to it.[NEWLINE][NEWLINE]Units standing on an Isibaya receive +100% [ICON_STRENGTH] Tile Defense. Deals 30 damage to adjacent Enemy Units.</Text>
+			<Text>Unique Zulu Great Person Tile Improvement, replacing the Citadel. Can only be constructed by a {TXT_KEY_UNIT_INDUNA}.[NEWLINE][NEWLINE]Provides [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Adjacent Pastures receive [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Building an Isibaya claims adjacent tiles and places a [ICON_RES_COW] Cattle Resource adjacent to it.[NEWLINE][NEWLINE]Units standing on an Isibaya receive +100% [ICON_STRENGTH] Tile Defense. Deals 30 damage to adjacent Enemy Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ISIBAYA">
 			<Text>Construct an [LINK=IMPROVEMENT_ISIBAYA]Isibaya[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ISIBAYA_HELP">
-			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Isibaya. Removes any feature on the tile.[NEWLINE][NEWLINE]Constructing the Isibaya will expand your Cultural borders to surround the Isibaya, increase your [ICON_WAR] Military Unit Supply Cap by 1, place a [ICON_RES_COW] Cattle Resource on an adjacent tile, and will consume this unit. If the new Cultural border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.[NEWLINE][NEWLINE]+100% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Deals 30 damage to adjacent Enemy Units. Provides +1 [ICON_CULTURE] Culture to adjacent Pastures. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
+			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Isibaya. Removes any feature on the tile.[NEWLINE][NEWLINE]Constructing the Isibaya will expand your Cultural borders to surround the Isibaya, increase your [ICON_WAR] Military Unit Supply Cap by 1, place a [ICON_RES_COW] Cattle Resource on an adjacent tile, and will consume this unit. If the new Cultural border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result.[NEWLINE][NEWLINE]+100% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this tile. Deals 30 damage to adjacent Enemy Units. Provides [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture to adjacent Pastures. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

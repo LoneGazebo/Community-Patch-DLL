@@ -22,6 +22,9 @@ CvProjectEntry::CvProjectEntry(void):
 	m_eFreeBuilding(NO_BUILDINGCLASS),
 	m_eFreePolicy(NO_POLICY),
 	m_eCivType(NO_CIVILIZATION),
+	m_ePolicyType(NO_POLICY),
+	m_eEventToStart(NO_EVENT),
+	m_eCityEventToStart(NO_EVENT_CITY),
 	m_piFlavorValue(NULL)
 {
 }
@@ -77,7 +80,8 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
 	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
-
+	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
+	
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
 	{
@@ -88,7 +92,22 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	{
 		m_eFreePolicy = (PolicyTypes)GC.getInfoTypeForString(szFreePolicy, true);
 	}
-
+	const char* szPolicyType = kResults.GetText("PolicyType");
+	if(szPolicyType)
+	{
+		m_ePolicyType = (PolicyTypes)GC.getInfoTypeForString(szPolicyType, true);
+	}
+	const char* szEventToStart = kResults.GetText("EventToStart");
+	if(szEventToStart)
+	{
+		m_eEventToStart = (EventTypes)GC.getInfoTypeForString(szEventToStart, true);
+	}
+	const char* szCityEventToStart = kResults.GetText("CityEventToStart");
+	if(szCityEventToStart)
+	{
+		m_eCityEventToStart = (CityEventTypes)GC.getInfoTypeForString(szCityEventToStart, true);
+	}
+	
 	m_strMovieArtDef = kResults.GetText("MovieDefineTag");
 
 	const char* szVictoryPrereq = kResults.GetText("VictoryPrereq");
@@ -280,6 +299,10 @@ bool CvProjectEntry::IdeologyRequired() const
 {
 	return m_bIdeologyRequired;
 }
+PolicyTypes CvProjectEntry::PolicyType() const
+{
+	return m_ePolicyType;
+}
 
 bool CvProjectEntry::IsRepeatable() const
 {
@@ -346,6 +369,18 @@ int CvProjectEntry::GetReligiousUnrestModifier() const
 int CvProjectEntry::GetSpySecurityModifier() const
 {
 	return m_iSpySecurityModifier;
+}
+int CvProjectEntry::GetCitySupplyFlat() const
+{
+	return m_iCitySupplyFlat;
+}
+EventTypes CvProjectEntry::GetEventToStart() const
+{
+	return m_eEventToStart;
+}
+CityEventTypes CvProjectEntry::GetCityEventToStart() const
+{
+	return m_eCityEventToStart;
 }
 
 /// Retrieve movie file name

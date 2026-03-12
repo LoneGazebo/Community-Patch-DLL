@@ -86,6 +86,7 @@ protected:
 	static int lEmbark(lua_State* L);
 
 	static int lIsRangeAttackIgnoreLOS(lua_State* L);
+	static int lGetSeeThrough(lua_State* L);
 
 	static int lCanAirlift(lua_State* L);
 	static int lCanAirliftAt(lua_State* L);
@@ -222,6 +223,7 @@ protected:
 	static int lIsFound(lua_State* L);
 	LUAAPIEXTN(IsFoundAbroad, bool);
 	static int lIsWork(lua_State* L);
+	static int lGetBuildDisabledReasonString(lua_State* L);
 	static int lIsGoldenAge(lua_State* L);
 	static int lCanCoexistWithEnemyUnit(lua_State* L);
 

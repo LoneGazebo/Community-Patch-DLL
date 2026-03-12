@@ -2503,7 +2503,7 @@ void CvEconomicAI::DoReconState()
 					continue;
 
 				int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
-				if (pLoopUnit->IsGainsXPFromScouting() || pLoopUnit->IsGainsYieldFromScouting() || pLoopUnit->getNumExoticGoods() > 0)
+				if (pLoopUnit->IsGainsXPFromScouting() || pLoopUnit->IsGainsYieldFromScoutingTimes100() || pLoopUnit->getNumExoticGoods() > 0)
 					eligibleExplorers.push_back(make_pair(iDistance + 1000, pLoopUnit->GetID()));
 				else
 					eligibleExplorers.push_back(make_pair(iDistance, pLoopUnit->GetID()));

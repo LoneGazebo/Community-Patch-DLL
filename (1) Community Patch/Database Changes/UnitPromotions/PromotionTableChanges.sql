@@ -349,3 +349,12 @@ ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostIn boolean DEFAULT 0;
 -- Likewise, the cost of crossing a river isn't ignored by this
 ALTER TABLE UnitPromotions_Terrains ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
 ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
+
+-- Alter the vision level of this unit for canEverRangeStrikeAt->canSeePlot, letting it shoot over some obstacles it couldnt before
+ALTER TABLE UnitPromotions ADD SeeThrough integer DEFAULT 0;
+
+-- Additonal healing for a flat amount each turn regardless of action taken
+ALTER TABLE UnitPromotions ADD FlatHealRate integer DEFAULT 0;
+
+-- Heals friendly units of the same domain within aura range for +X at the end of every turn. Default aura range is 2, and is increased/decreased by AuraRangeChange.
+ALTER TABLE UnitPromotions ADD PassiveAoEHeal integer DEFAULT 0;

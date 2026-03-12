@@ -427,6 +427,9 @@ public:
 	int GetYieldFromVictory(int i) const;
 	int* GetYieldFromVictoryArray() const;
 
+	int GetYieldFromVictoryEraScaling(int i) const;
+	int* GetYieldFromVictoryEraScalingArray() const;
+
 	int GetYieldFromVictoryGlobal(int i) const;
 	int* GetYieldFromVictoryGlobalArray() const;
 
@@ -595,6 +598,7 @@ public:
 	int GetUnitCombatProductionModifierGlobal(int i) const;
 	int GetDomainFreeExperience(int i) const;
 	int GetDomainFreeExperiencePerGreatWork(int i) const;
+	int GetDomainFreeExperiencePerGreatWorkCity(int i) const;
 	int GetDomainFreeExperiencePerGreatWorkGlobal(int i) const;
 	int GetDomainFreeExperienceGlobal(int i) const;
 	int GetDomainProductionModifier(int i) const;
@@ -632,8 +636,8 @@ public:
 	int GetNumFreeSpecialUnits(int i) const;
 	std::map<int, int> GetResourcePlotsToPlace(int i) const;
 	bool IsResourcePlotsToPlace() const;
-	int GetYieldPerFriend(int i) const;
-	int GetYieldPerAlly(int i) const;
+	int GetYieldPerFriendTimes100(int i) const;
+	int GetYieldPerAllyTimes100(int i) const;
 	int GetYieldChangeWorldWonder(int i) const;
 	int GetYieldChangeWorldWonderGlobal(int i) const;
 	int GetYieldFromFaithPurchasableBuildings(int i) const;
@@ -657,7 +661,7 @@ public:
 	int* GetFeatureYieldChangeArray(int i) const;
 	int GetResourceYieldChangeGlobal(int iResource, int iYieldType) const;
 	std::map<int, std::map<int, int>> GetTechEnhancedYields() const;
-	std::map<int, AccomplishmentBonusInfo> GetBonusFromAccomplishments() const;
+	const std::map<int, std::vector<AccomplishmentBonusInfo>>& GetBonusFromAccomplishments() const;
 	std::map<int, std::map<int, int>> GetYieldChangesFromAccomplishments() const;
 	std::map<pair<GreatPersonTypes, EraTypes>, int> GetGreatPersonPointFromConstruction() const;
 	int GetImprovementYieldChange(int i, int j) const;
@@ -1004,6 +1008,7 @@ private:
 	int m_iNeedBuildingThisCity;
 	int* m_piYieldFromDeath;
 	int* m_piYieldFromVictory;
+	int* m_piYieldFromVictoryEraScaling;
 	int* m_piYieldFromVictoryGlobal;
 	int* m_piYieldFromVictoryGlobalEraScaling;
 	int* m_piYieldFromVictoryGlobalInGoldenAge;
@@ -1071,6 +1076,7 @@ private:
 	int* m_piUnitCombatProductionModifiersGlobal;
 	int* m_piDomainFreeExperience;
 	int* m_piDomainFreeExperiencePerGreatWork;
+	int* m_piDomainFreeExperiencePerGreatWorkCity;
 	int* m_piDomainFreeExperiencePerGreatWorkGlobal;
 	std::map<int, int> m_piDomainFreeExperienceGlobal;
 	int* m_piDomainProductionModifier;
@@ -1097,8 +1103,8 @@ private:
 	bool* m_pbBuildingClassNeededNowhere;
 	int* m_piNumSpecFreeUnits;
 	std::map<int, std::map<int, int>> m_ppiResourcePlotsToPlace;
-	int* m_piYieldPerFriend;
-	int* m_piYieldPerAlly;
+	int* m_piYieldPerFriendTimes100;
+	int* m_piYieldPerAllyTimes100;
 	int* m_piYieldChangeWorldWonder;
 	int* m_piYieldChangeWorldWonderGlobal;
 	int* m_piYieldFromFaithPurchasableBuildings;
@@ -1111,7 +1117,7 @@ private:
 	int** m_ppaiFeatureYieldChange;
 	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
 	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
-	std::map<int, AccomplishmentBonusInfo> m_miBonusFromAccomplishments;
+	std::map<int, std::vector<AccomplishmentBonusInfo>> m_miBonusFromAccomplishments;
 	std::map<int, std::map<int, int>> m_miYieldChangesFromAccomplishments;
 	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	CvDoubleYieldInfo* m_paYieldFromYield;

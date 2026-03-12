@@ -12,8 +12,8 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Instant yields to the nearest owned city when the unit reveals unexplored tiles, scaling with tiles revealed (weighted) -->
-	<Table name="UnitPromotions_YieldFromScouting">
+	<!-- Instant yields to the nearest owned city when the unit reveals unexplored tiles, scaling with tiles revealed (weighted). 1 yield per standard tile is 100 -->
+	<Table name="UnitPromotions_YieldFromScoutingTimes100">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>

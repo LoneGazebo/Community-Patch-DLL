@@ -52,7 +52,7 @@ VALUES
 	('POLICY_MANDATE_OF_HEAVEN', 'BUILDINGCLASS_CASTLE', 100),
 	('POLICY_MANDATE_OF_HEAVEN', 'BUILDINGCLASS_ARMORY', 100);
 
--- Theocracy (now Divine Right)
+-- Theocracy (now Fiefdoms)
 DELETE FROM Policy_ImprovementYieldChanges
 WHERE PolicyType = 'POLICY_THEOCRACY';
 
@@ -63,7 +63,8 @@ UPDATE Policies
 SET
 	InternalTradeRouteYieldModifier = 33,
 	InternalTRTourism = 1,
-	BoredomFlatReduction = 1
+	BoredomFlatReduction = 1,
+	PortraitIndex = 47
 WHERE Type = 'POLICY_THEOCRACY';
 
 -- Religious Tolerance (now Serfdom)
@@ -101,13 +102,13 @@ VALUES
 	('POLICY_ORGANIZED_RELIGION', 'BUILDINGCLASS_SHRINE', 'YIELD_CULTURE', 2),
 	('POLICY_ORGANIZED_RELIGION', 'BUILDINGCLASS_TEMPLE', 'YIELD_CULTURE', 2);
 
--- Reformation (now Fiefdoms)
+-- Reformation (now Divine Right)
 UPDATE Policies
 SET
 	AddReformationBelief = 0,
 	DoubleBorderGrowthWLTKD = 1,
-	HappyPerMilitaryUnit = 10,
-	PortraitIndex = 47
+	ExtraHappiness = 5,
+	PortraitIndex = 45
 WHERE Type = 'POLICY_REFORMATION';
 
 INSERT INTO Policy_WLTKDYieldMod
