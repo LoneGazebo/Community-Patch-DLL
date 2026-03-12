@@ -26125,14 +26125,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					if (eYield == YIELD_FAITH && pReligion)
 					{
-						const ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
-						const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
-						CvCity* pHolyCity = pMyReligion->GetHolyCity();
-						if (pHolyCity == NULL)
-							pHolyCity = getCapitalCity();
-						if(pLoopCity == pHolyCity)
+						// does this city qualify for yields in IsBeliefValid?
+						int iKillYield = pReligion->m_Beliefs.GetFaithFromDyingUnits(GetID(), pLoopCity, true);
+
+						if (iKillYield > 0)
 						{
-							int iKillYield = pReligion->m_Beliefs.GetFaithFromDyingUnits(GetID(), true);
 							CvUnitEntry* pkKilledUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 							if (pkKilledUnitInfo)
 							{
@@ -26140,6 +26137,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 								if (iCombatStrength > 0)
 								{
 									iKillYield = (iKillYield * iCombatStrength) / 100;
+									// this can round down to zero
 									if (iKillYield > 0)
 									{
 										iValue += iKillYield;
