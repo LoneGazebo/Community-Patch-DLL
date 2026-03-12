@@ -26125,9 +26125,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					if (eYield == YIELD_FAITH && pReligion)
 					{
-						const ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
-						const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
-						CvCity* pHolyCity = pMyReligion->GetHolyCity();
+						CvCity* pHolyCity = pReligion->GetHolyCity();
 						if (pHolyCity == NULL)
 							pHolyCity = getCapitalCity();
 						if(pLoopCity == pHolyCity)
