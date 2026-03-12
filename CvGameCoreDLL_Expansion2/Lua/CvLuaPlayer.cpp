@@ -4990,7 +4990,6 @@ int CvLuaPlayer::lGetTraitPopUnhappinessMod(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
 	PRECONDITION(eYield > NO_YIELD && eYield < NUM_YIELD_TYPES, "Unexpected yield in lGetPuppetYieldPenalty");
 

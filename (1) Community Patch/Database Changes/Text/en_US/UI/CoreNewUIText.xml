@@ -14,6 +14,15 @@
 		<Row Tag="TXT_KEY_MISC_COMPLETES_PROJECT_FIRST">
 			<Text>{1_PlyrName} is the first to complete {@2_PrjctName}!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_DISABLED">
+			<Text>Debug: Pathfinding stop nodes for humans disabled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_ENABLED">
+			<Text>Debug: Pathfinding stop nodes for humans enabled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PATHFINDING_ENDING_MOVE_EARLY">
+			<Text>[COLOR_NEGATIVE_TEXT]Ending Move Early[ENDCOLOR]</Text>
+		</Row>
 
 		<!-- Tech tree -->
 		<Row Tag="TXT_KEY_TECH_HELP_UNITS_UNLOCKED">

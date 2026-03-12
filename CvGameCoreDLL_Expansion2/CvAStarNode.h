@@ -128,6 +128,7 @@ public:
 	unsigned short m_iStartMovesForTurn;		// needed for move cost normalization on domain change
 
 	bool m_bIsOpen;								// Is this node on the open or closed list?
+	bool m_bIsStopNode;
 	CvAStarNode* m_pParent;						// Parent in current path
 
 	CvAStarNode** m_apNeighbors; 				// For faster neighbor lookup (potential children) - always 6 - not affected by clear()
@@ -189,20 +190,22 @@ struct SPathFinderUserData
 struct SPathNode
 {
 	short x,y,turns,moves;
+	bool stopnode;
 
 	//constructor
-	SPathNode() : x(-1),y(-1),turns(0),moves(0) {}
+	SPathNode() : x(-1),y(-1),turns(0),moves(0),stopnode(false) {}
 	SPathNode(CvAStarNode* p)
 	{
 		x = p ? p->m_iX : -1;
 		y = p ? p->m_iY : -1;
 		turns = p ? p->m_iTurns : 0;
 		moves = p ? p->m_iMoves : 0;
+		stopnode = p ? p->m_bIsStopNode : 0;
 	}
 
 	bool operator==(const SPathNode& other) const
 	{
-		return x==other.x && y==other.y && turns==other.turns && moves==other.moves;
+		return x==other.x && y==other.y && turns==other.turns && moves==other.moves && stopnode==other.stopnode;
 	}
 };
 
