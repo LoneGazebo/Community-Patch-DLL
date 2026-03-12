@@ -9278,7 +9278,8 @@ bool CvUnit::plunderTradeRoute()
 		if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
 		{
 			PlayerTypes eTradeUnitDest = GC.getGame().GetGameTrade()->GetDestFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
-			if (eTradeUnitDest != m_eOwner)
+			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[uiTradeRoute]);
+			if (eTradeUnitDest != m_eOwner && (GET_PLAYER(m_eOwner).isHuman(ISHUMAN_AI_DIPLOMACY) || !GET_PLAYER(m_eOwner).GetDiplomacyAI()->IsBadTheftTarget(eTradeUnitOwner, THEFT_TYPE_TRADE_ROUTE, pPlot)))
 			{
 				bValidTarget = true;
 			}

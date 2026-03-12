@@ -336,15 +336,12 @@ public:
 	int GetNumPotentialConnections(CvCity* pFromCity, DomainTypes eDomain, bool bNeedOnlyOne);
 
 	std::vector<int> GetTradeUnitsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound, bool bExcludingMe, bool bOnlyWar);
-	std::vector<int> GetTradePlotsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound, bool bExcludingMe, bool bOnlyWar);
 
 	std::vector<int> GetOpposingTradeUnitsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound); // returns the ID of trade connections with units at that plot
 	bool ContainsOpposingPlayerTradeUnit(const CvPlot* pPlot);
 
 	std::vector<int> GetEnemyTradeUnitsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound); // returns the ID of trade connections with units at that plot
 	bool ContainsEnemyTradeUnit(const CvPlot* pPlot);
-	std::vector<int> GetEnemyTradePlotsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound); // returns the ID of trade connections that go through that plot
-	bool ContainsEnemyTradePlot(const CvPlot* pPlot);
 
 	bool PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit);
 	void UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity* pOriginCity, int iMaxRange);

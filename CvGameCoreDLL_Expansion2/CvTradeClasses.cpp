@@ -4676,82 +4676,8 @@ std::vector<int> CvPlayerTrade::GetTradeUnitsAtPlot(const CvPlot* pPlot, bool bF
 			}
 		}
 	}
-	
-	return aiTradeConnectionIDs;	
-}
 
-
-//	--------------------------------------------------------------------------------
-std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound, bool bExcludingMe, bool bOnlyWar)
-{
-	std::vector<int> aiTradeConnectionIDs;
-
-	if (pPlot == NULL)
-	{
-		return aiTradeConnectionIDs;
-	}
-
-	int iX = pPlot->getX();
-	int iY = pPlot->getY();
-
-	TeamTypes eMyTeam = m_pPlayer->getTeam();
-
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
-	{
-		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
-		if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
-		{
-			continue;
-		}
-
-		TeamTypes eOtherTeam = GET_PLAYER(pConnection->m_eOriginOwner).getTeam();
-
-		bool bIgnore = false;
-		if (bExcludingMe && eOtherTeam == eMyTeam)
-		{
-			bIgnore = true;
-		}
-
-		if (bOnlyWar && !GET_TEAM(eMyTeam).isAtWar(eOtherTeam))
-		{
-			if (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
-			{
-				if (pConnection->m_eDestOwner == m_pPlayer->GetID())
-					bIgnore = true;
-				else if (!m_pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
-					bIgnore = true;
-			}
-			else
-			{
-				bIgnore = true;
-			}
-		}
-
-		if (bIgnore)
-		{
-			continue;
-		}
-
-		for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-		{
-			if (pConnection->m_aPlotList[ui].m_iX == iX && pConnection->m_aPlotList[ui].m_iY == iY)
-			{
-				aiTradeConnectionIDs.push_back(pConnection->m_iID);
-				if (bFailAtFirstFound)
-				{
-					break;
-				}
-			}
-		}
-
-		if (bFailAtFirstFound && aiTradeConnectionIDs.size() > 0)
-		{
-			break;
-		}
-	}
-
-	return aiTradeConnectionIDs;	
+	return aiTradeConnectionIDs;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4779,20 +4705,6 @@ bool CvPlayerTrade::ContainsEnemyTradeUnit(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetEnemyTradeUnitsAtPlot(pPlot, true);
-	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
-}
-
-//	--------------------------------------------------------------------------------
-std::vector<int> CvPlayerTrade::GetEnemyTradePlotsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound)
-{
-	return GetTradePlotsAtPlot(pPlot, bFailAtFirstFound, true, true);
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlayerTrade::ContainsEnemyTradePlot(const CvPlot* pPlot)
-{
-	std::vector<int> aiTradeConnectionIDs;
-	aiTradeConnectionIDs = GetEnemyTradePlotsAtPlot(pPlot, true);
 	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
 }
 

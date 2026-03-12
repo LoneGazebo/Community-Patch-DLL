@@ -2872,6 +2872,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	int iBestPlotScore = 0;
 
 	//step 4: check our immediate neighborhood (ie the tiles we can reach within one turn)
+	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	ReachablePlots eligiblePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), iMoveFlags);
 	for (ReachablePlots::iterator tile = eligiblePlots.begin(); tile != eligiblePlots.end(); ++tile)
 	{
@@ -2933,7 +2934,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			}
 
 			// if there's a trade route we can plunder
-			if (pUnit->canPlunderTradeRoute(pEvalPlot) && !pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false) && tile->iMovesLeft > 0 &&
+			if (pPlayerTrade->ContainsEnemyTradeUnit(pEvalPlot) && pUnit->canPlunderTradeRoute(pEvalPlot) && !pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false) && tile->iMovesLeft > 0 &&
 				pUnit->GetDanger(pEvalPlot) < pUnit->GetCurrHitPoints())
 			{
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pEvalPlot->getX(), pEvalPlot->getY());
