@@ -5822,7 +5822,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 
 		if (!bTestVisibility)
 		{
-			if (GET_PLAYER(m_eOwner).GetEconomicAI()->GetExplorationPlots(getDomainType()).empty())
+			if (GET_PLAYER(m_eOwner).GetEconomicAI()->GetExplorationPlots(this).empty())
 			{
 				return false;
 			}
@@ -29617,15 +29617,10 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 		//anything the AI did previously is now forgotten
 		SetTurnProcessed(false);
 
-		AutomateTypes eOldAutomateType = GetAutomateType();
 		m_eAutomateType = eNewValue;
 
 		ClearMissionQueue();
 		SetActivityType(ACTIVITY_AWAKE);
-		if(eOldAutomateType == AUTOMATE_EXPLORE)
-		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->UpdateExplorePlotsFromScratch(); // these need to be rebuilt
-		}
 
 		// if canceling automation, cancel on cargo as well
 		if(eNewValue == NO_AUTOMATE)
@@ -29647,10 +29642,6 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 					}
 				}
 			}
-		}
-		else if(m_eAutomateType == AUTOMATE_EXPLORE)
-		{
-			GET_PLAYER(getOwner()).GetEconomicAI()->UpdateExplorePlotsFromScratch(); // these need to be rebuilt
 		}
 	}
 }

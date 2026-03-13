@@ -166,6 +166,7 @@ public:
 	bool shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const;
 	void updateSight(bool bIncrement);
 	void updateSeeFromSight(bool bIncrement, bool bRecalculate);
+	bool CanMaybeSeePlot(const CvPlot* pPlot, TeamTypes eTeam) const;
 
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false, bool bIgnoreCiv = false) const;
 	bool canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, bool bCheckAdjacency = false, bool bTestXAdjacent = false) const;

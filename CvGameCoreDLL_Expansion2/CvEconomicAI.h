@@ -59,6 +59,35 @@ public:
 	int m_iPriority;
 };
 
+struct CvExplorationPlotSet
+{
+	struct ExploreEntry
+	{
+		int value[3];
+
+		ExploreEntry()
+		{
+			value[0] = 0;
+			value[1] = 0;
+			value[2] = 0;
+		}
+	};
+
+	void ChangeValue(int iPlotIndex, int iRange, int iChange);
+	int GetValue(int iPlotIndex, int iRange) const;
+
+	void clear() { m_aValues.clear(); }
+	size_t size() const { return m_aValues.size(); }
+	void append(const CvExplorationPlotSet& rhs) { m_aValues.insert(rhs.m_aValues.begin(), rhs.m_aValues.end()); }
+	bool empty() const { return m_aValues.empty(); }
+
+	template<typename T, typename Visitor>
+	static void Serialize(T& explorationPlot, Visitor& visitor);
+
+private:
+	std::tr1::unordered_map<int, ExploreEntry> m_aValues;
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvEconomicAIStrategyXMLEntry
 //!  \brief		A single entry in the AI strategy XML file
@@ -185,7 +214,8 @@ public:
 
 	int GetSoftSupplyCap() const;
 
-	const std::vector<SPlotWithScore>& GetExplorationPlots(DomainTypes domain);
+	const CvExplorationPlotSet& GetExplorationPlots(ExplorationDomainTypes ePlotType);
+	const CvExplorationPlotSet GetExplorationPlots(const CvUnit* pUnit);
 
 	void StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority);
 	bool IsSavingForThisPurchase(PurchaseType ePurchase);
@@ -237,8 +267,11 @@ public:
 	{
 		return m_iVisibleAntiquitySitesNeutral;
 	};
-	void UpdateExplorePlotsFromScratch();
-	void UpdateExplorePlotsLocally(CvPlot* pPlot);
+	void AddPlotToExplorePlots(const CvPlot* pPlot);
+	void UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, const CvPlot* pIgnorePlot=NULL);
+	void InitiateExplorePlot(const CvPlot* pPlot);
+	void UpdateExplorePlotLoS(const CvPlot* pPlot, int iRange, const vector<CvPlot*>& oldVisiblePlots, const vector<CvPlot*>& newVisiblePlots);
+	int GetExploreValue(const CvPlot* pPlot, int iRange);
 
 	void LogEconomyMessage(const CvString& strMsg);
 
@@ -289,8 +322,9 @@ private:
 	int m_iVisibleHiddenAntiquitySitesOwn;
 	int m_iVisibleAntiquitySitesNeutral;
 
-	std::vector<SPlotWithScore> m_vPlotsToExploreLand;
-	std::vector<SPlotWithScore> m_vPlotsToExploreSea;
+	CvExplorationPlotSet m_vPlotsToExploreLand;
+	CvExplorationPlotSet m_vPlotsToExploreCoast;
+	CvExplorationPlotSet m_vPlotsToExploreOcean;
 
 	vector<CvPurchaseRequest> m_RequestedSavings;
 };
@@ -301,12 +335,17 @@ FDataStream& operator<<(FDataStream&, const CvEconomicAI&);
 FDataStream& operator<<(FDataStream&, const CvPurchaseRequest&);
 FDataStream& operator>>(FDataStream&, CvPurchaseRequest&);
 
+FDataStream& operator<<(FDataStream&, const CvExplorationPlotSet&);
+FDataStream& operator>>(FDataStream&, CvExplorationPlotSet&);
+
 namespace EconomicAIHelpers
 {
 
 bool IsPotentialLandExplorer(CvUnitEntry& kUnitInfo);
 bool IsPotentialNavalExplorer(UnitAITypes eType);
-int ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked, bool bCanPopGoody);
+bool ShouldExplorerAvoid(const CvPlot* pPlot, const CvPlayer* pPlayer);
+bool IsHighValueExploreTarget(const CvPlot* pPlot, const CvPlayer* pPlayer, const CvUnit* pUnit);
+int GetExtraExploreValue(const CvPlot* pPlot, int iRange, TeamTypes eTeam);
 int GetWeightThresholdModifier(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 
 // Functions that check triggers to see if a strategy should be adopted/continued

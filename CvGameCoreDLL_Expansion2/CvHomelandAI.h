@@ -239,7 +239,7 @@ public:
 	bool NeedsUpdate();
 
 	// Public exploration routines
-	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck, int iMaxTurns) const;
+	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) const;
 	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot);
 	bool FindTestArchaeologistPlotPrimer(CvUnit* pUnit);
 

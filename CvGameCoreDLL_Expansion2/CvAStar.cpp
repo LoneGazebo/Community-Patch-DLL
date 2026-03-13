@@ -20,6 +20,7 @@
 #include "ICvDLLUserInterface.h"
 #include "CvMinorCivAI.h"
 #include "CvDiplomacyAI.h"
+#include "CvEconomicAI.h"
 #include "CvDllInterfaces.h"
 #include "cvStopWatch.h"
 #include "CvUnitMovement.h"
@@ -1454,20 +1455,21 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		}
 	}
 
-	if(finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
 	{
-		if(!pToPlot->isHills()) //maybe better check seeFromLevel?
-		{
-			iCost += PATH_EXPLORE_NON_HILL_WEIGHT;
-		}
+		// normalize exploration heuristics by fraction of turn spent
+		int iExploreScale = std::max(1, iMovementCost);
 
-		int iUnseenPlots = pToPlot->getNumAdjacentNonrevealed(eUnitTeam);
-		if(!pToPlot->isRevealed(eUnitTeam))
+		// discourage plots that immediately end the turn
+		if (iMovesLeft <= 0 && parent->m_iStartMovesForTurn > 1)
 		{
-			iUnseenPlots += 1;
+			iCost += (PATH_EXPLORE_NON_HILL_WEIGHT * iExploreScale) / parent->m_iStartMovesForTurn;
 		}
-
-		iCost += (7 - iUnseenPlots) * PATH_EXPLORE_NON_REVEAL_WEIGHT;
+		else
+		{
+			int iExploreValue = GET_PLAYER(pUnit->getOwner()).GetEconomicAI()->GetExploreValue(pToPlot, pUnit->visibilityRange());
+			iCost += ((PATH_EXPLORE_NON_HILL_WEIGHT - iExploreValue) * iExploreScale) / parent->m_iStartMovesForTurn;
+		}
 	}
 
 	if(pUnit->IsCanAttack() && bIsPathDest)

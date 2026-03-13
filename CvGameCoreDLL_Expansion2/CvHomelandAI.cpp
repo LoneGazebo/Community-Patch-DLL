@@ -231,32 +231,18 @@ bool CvHomelandAI::NeedsUpdate()
 	return m_bNeedsUpdate;
 }
 
-CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidates, int iMaxTurns) const
+CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) const
 {
 	if (!pUnit)
 		return NULL;
 
-	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
-
-	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots( pUnit ? pUnit->getDomainType() : DOMAIN_LAND );
-
-	// In the renaissance we should start exploring the ocean
-	if (pUnit && pUnit->getDomainType() == DOMAIN_LAND)
-	{
-		bool bIsOceanFarer = m_pPlayer->CanCrossOcean() || GET_TEAM(m_pPlayer->getTeam()).CanBuildOceanCrossingUnit();
-
-		if (bIsOceanFarer)
-		{
-			const std::vector<SPlotWithScore>& vNavalPlots = pEconomicAI->GetExplorationPlots(DOMAIN_SEA);
-			vExplorePlots.insert(vExplorePlots.end(), vNavalPlots.begin(), vNavalPlots.end());
-		}
-	}
-
-	if (vExplorePlots.empty())
+	// These units should never try to go this far
+	if (pUnit->getDomainType() == DOMAIN_LAND && !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && pUnit->getUnitCombatType() != (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting() && iMaxTurns > 5)
 		return NULL;
 
-	int iBestPlotScore = INT_MIN;
-	CvPlot* pBestPlot = NULL;
+	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
+
+	CvExplorationPlotSet vExplorePlots = pEconomicAI->GetExplorationPlots(pUnit);
 
 	//sort by distance to capital or to unit
 	int iRefX = pUnit ? pUnit->getX() : m_pPlayer->getCapitalCity()->getX();
@@ -299,42 +285,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		vOtherExplorerCoordinates.push_back(make_pair(iLoopX, iLoopY));
 	}
 
-	std::vector<std::pair<int, SPlotWithScore>> vPlotByDistance;
-	for(uint ui = 0; ui < vExplorePlots.size(); ui++)
-	{
-		if(vExplorePlots[ui].pPlot == pUnit->plot())
-			continue;
-
-		//make sure our unit can actually go there
-		if (!IsValidExplorerEndTurnPlot(pUnit, vExplorePlots[ui].pPlot))
-			continue;
-
-		int iX = vExplorePlots[ui].pPlot->getX();
-		int iY = vExplorePlots[ui].pPlot->getY();
-		int iDistToPlot = plotDistance(iX, iY, iRefX, iRefY);
-
-		if (pUnit->canSellExoticGoods(vExplorePlots[ui].pPlot))
-		{
-			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(vExplorePlots[ui].pPlot);
-			if (fRewardFactor >= 0.75f)
-			{
-				vExplorePlots[ui].score += 500;
-			}
-			else if (fRewardFactor >= 0.5f)
-			{
-				vExplorePlots[ui].score += 250;
-			}
-		}
-
-		vPlotByDistance.push_back(std::make_pair((iDistToPlot * iDistToPlot * 10000) / vExplorePlots[ui].score, vExplorePlots[ui]));
-	}
-
-	if (vPlotByDistance.empty())
-		return NULL;
-
-	//sorts ascending by the first element of the iterator ... which is our distance. nice.
-	std::stable_sort(vPlotByDistance.begin(), vPlotByDistance.end());
-
 	//see where our scout can go within the allowed turns
 	ReachablePlots reachablePlots;
 	if (pUnit)
@@ -346,30 +296,44 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	if (reachablePlots.empty())
 		return NULL;
 
-	bool bCanPopGoody = !MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS || pUnit->GetGainsXPFromScouting() || pUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
+	int iVisibilityRange = pUnit->visibilityRange();
 
-	int iValidCandidates = 0;
-	for (size_t idx = 0; idx < vPlotByDistance.size(); idx++)
+	std::vector<SPlotWithScore> vHighPrioPlots;
+	std::vector<SPlotWithScore> vReachablePlotByScore;
+	for(ReachablePlots::iterator reachablePlot = reachablePlots.begin(); reachablePlot != reachablePlots.end(); ++reachablePlot)
 	{
-		//after looking at the N closest candidates
-		//if we found something, bail
-		if (pBestPlot && iValidCandidates>nMinCandidates)
-			break;
+		CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(reachablePlot->iPlotIndex);
 
-		CvPlot* pEvalPlot = vPlotByDistance[idx].second.pPlot;
-
-		ReachablePlots::iterator it = reachablePlots.find(pEvalPlot->GetPlotIndex());
-		if (it == reachablePlots.end())
+		if (pEvalPlot == pUnit->plot())
+		{
+			// Check if we should stay and heal
+			if (!pUnit->hasMoved() && iMaxTurns == 1 && !pUnit->isHuman(ISHUMAN_AI_UNITS))
+			{
+				int iDamage = pUnit->getDamage();
+				int iHealRate = pUnit->ActualHealRate(pEvalPlot, false);
+				if (iDamage >= iHealRate)
+				{
+					iHealRate -= pUnit->GetDanger(pEvalPlot);
+					if (iHealRate > 0)
+					{
+						int iScore = (iDamage + iHealRate) * 10;
+						vReachablePlotByScore.push_back(SPlotWithScore(pEvalPlot, -iScore));
+					}
+				}
+			}
 			continue;
+		}
 
-		int iRating = EconomicAIHelpers::ScoreExplorePlot(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked(), bCanPopGoody);
+		//make sure our unit can actually go there
+		if (!IsValidExplorerEndTurnPlot(pUnit, pEvalPlot))
+			continue;
 
 		int iNearbyPenalty = 0;
 		bool bSkip = false;
 		// Add a bonus based on how far away all other explorers are from this plot
-		for (std::vector<pair<int, int>>::iterator it = vOtherExplorerCoordinates.begin(); it != vOtherExplorerCoordinates.end(); ++it)
+		for (std::vector<pair<int, int>>::iterator explorerCoordinate = vOtherExplorerCoordinates.begin(); explorerCoordinate != vOtherExplorerCoordinates.end(); ++explorerCoordinate)
 		{
-			int iDistToOther = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), it->first, it->second);
+			int iDistToOther = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), explorerCoordinate->first, explorerCoordinate->second);
 
 			if (iDistToOther == 0)
 			{
@@ -377,42 +341,93 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 				break;
 			}
 
-			iNearbyPenalty += 100 / iDistToOther;
+			iNearbyPenalty += 1000 / iDistToOther;
 		}
 
 		if (bSkip)
 			continue;
 
-		iRating -= iNearbyPenalty;
+		if (EconomicAIHelpers::IsHighValueExploreTarget(pEvalPlot, m_pPlayer, pUnit) && !EconomicAIHelpers::ShouldExplorerAvoid(pEvalPlot, m_pPlayer))
+		{
+			vHighPrioPlots.push_back(SPlotWithScore(pEvalPlot, reachablePlot->iPathLength * 10 * GD_INT_GET(MOVE_DENOMINATOR) - reachablePlot->iMovesLeft + iNearbyPenalty));
+			continue;
+		}
+		else if (!vHighPrioPlots.empty())
+			continue;
+
+		int iPlotVisibilityRange = iVisibilityRange;
+
+		// Adjust sight range for embarking/disembarking
+		if (pUnit->getDomainType() == DOMAIN_LAND)
+		{
+			if (pUnit->isEmbarked() && !pEvalPlot->isWater())
+			{
+				iPlotVisibilityRange -= max(1, /*1*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + pUnit->GetEmbarkExtraVisibility());
+				iPlotVisibilityRange += max(1, pUnit->getUnitInfo().GetBaseSightRange() + pUnit->getExtraVisibilityRange());
+			}
+			else if (!pUnit->isEmbarked() && pEvalPlot->isWater())
+			{
+				iPlotVisibilityRange += max(1, /*1*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + pUnit->GetEmbarkExtraVisibility());
+				iPlotVisibilityRange -= max(1, pUnit->getUnitInfo().GetBaseSightRange() + pUnit->getExtraVisibilityRange());
+			}
+		}
+
+		int iPlotScore = vExplorePlots.GetValue(reachablePlot->iPlotIndex, iPlotVisibilityRange); // TODO should be visibility range including embarkation status change
 
 		if (pUnit->canSellExoticGoods(pEvalPlot))
 		{
 			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
 			if (fRewardFactor >= 0.75f)
 			{
-				iRating += 500;
+				iPlotScore += 500;
 			}
 			else if (fRewardFactor >= 0.5f)
 			{
-				iRating += 250;
+				iPlotScore += 250;
 			}
 		}
 
-		//discourage embarking
-		if (pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
-			iRating /= 2;
+		int iMinThreshold = 0;
 
-		int iPlotScore = (1000 * iRating) / (it->iPathLength + 1);
+		// Ignore low value targets that have no direct undiscovered neighbors
+		// Early naval units can hop between coastal regions, so check extremities anyway
+		if (pUnit->getDomainType() != DOMAIN_SEA || pUnit->CanStayInOcean())
+			if (!pEvalPlot->isAdjacentNonrevealed(m_pPlayer->getTeam()))
+				iMinThreshold = iPlotVisibilityRange < 3 ? 40 : 100;
 
-		iValidCandidates++;
-		if (iPlotScore > iBestPlotScore)
-		{
-			pBestPlot = pEvalPlot;
-			iBestPlotScore = iPlotScore;
-		}
+		if (iPlotScore <= iMinThreshold)
+			continue;
+
+		iPlotScore += EconomicAIHelpers::GetExtraExploreValue(pEvalPlot, iPlotVisibilityRange, m_pPlayer->getTeam());
+
+		int iPathLengthPenalty = reachablePlot->iPathLength * GD_INT_GET(MOVE_DENOMINATOR) * pUnit->maxMoves() * 2;
+		int iMovesLeftBonus = reachablePlot->iMovesLeft * 2;
+
+		int iTotalScore = iPlotScore - iNearbyPenalty + iMovesLeftBonus - iPathLengthPenalty;
+
+		//careful with plots that are too dangerous
+		int iAcceptableDanger = pUnit->GetCurrHitPoints() / 2;
+		int iDanger = pUnit->GetDanger(pEvalPlot);
+		if (iDanger > iAcceptableDanger)
+			continue;
+		if (iDanger > iAcceptableDanger / 2)
+			iTotalScore /= 2;
+
+		vReachablePlotByScore.push_back(SPlotWithScore(pEvalPlot, -iTotalScore));
 	}
 
-	return pBestPlot;
+	if (vReachablePlotByScore.empty() && vHighPrioPlots.empty())
+		return NULL;
+
+	if (!vHighPrioPlots.empty())
+	{
+		std::stable_sort(vHighPrioPlots.begin(), vHighPrioPlots.end());
+		return vHighPrioPlots[0].pPlot;
+	}
+
+	std::stable_sort(vReachablePlotByScore.begin(), vReachablePlotByScore.end());
+
+	return vReachablePlotByScore[0].pPlot;
 }
 
 // PRIVATE METHODS
@@ -829,6 +844,10 @@ void CvHomelandAI::PlotHealMoves(bool bConservative)
 				if (bTakingDamage && pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints() / 2)
 					continue;
 			}
+
+			// Handled in exploration
+			if (bConservative && pUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+				continue;
 
 			int iDamageThreshold = 25;
 			if (pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pUnit->ActualHealRate(pUnit->plot(), false) == 0)
@@ -2783,38 +2802,37 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 
 	//moveflags should be the same everywhere so we can reuse paths
 	int iMoveFlags = CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-	bool bCanPopGoody = !MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS || pUnit->GetGainsXPFromScouting() || pUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
 	CvPlot* pOldPlot = pUnit->plot();
 
 	//step 1: check if there's a really good plot relatively nearby (we don't want to ignore ancient ruins that are two turns away)
-	CvPlot* pGoodPlot = GetBestExploreTarget(pUnit, 5, 3);
-	if (pGoodPlot)
+	CvPlot* pBestPlotDist3 = GetBestExploreTarget(pUnit, 3);
+	if (pBestPlotDist3)
 	{
-		int iScoreBase = EconomicAIHelpers::ScoreExplorePlot(pGoodPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked(), bCanPopGoody);
-		if (pUnit->canSellExoticGoods(pGoodPlot))
+		bool bHighValue = EconomicAIHelpers::IsHighValueExploreTarget(pBestPlotDist3, m_pPlayer, pUnit);
+		if (pUnit->canSellExoticGoods(pBestPlotDist3))
 		{
-			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pGoodPlot);
+			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pBestPlotDist3);
 			if (fRewardFactor >= 0.5f)
 			{
-				iScoreBase += 1000;
+				bHighValue = true;
 			}
 		}
-		if (iScoreBase >= 1000)
+		if (bHighValue)
 		{
 			//this  must be the same moveflags as above so we can reuse the path next turn
-			if (pUnit->GeneratePath(pGoodPlot, iMoveFlags))
+			if (pUnit->GeneratePath(pBestPlotDist3, iMoveFlags))
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					CvString strTemp = pUnit->getUnitInfo().GetDescription();
 					strLogString.Format("%s Explored to high value target, To X: %d, Y: %d, From X: %d, Y: %d",
-						strTemp.GetCString(), pGoodPlot->getX(), pGoodPlot->getY(), pUnit->getX(), pUnit->getY());
+						strTemp.GetCString(), pBestPlotDist3->getX(), pBestPlotDist3->getY(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 
 				//again same flags
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pGoodPlot->getX(), pGoodPlot->getY(), iMoveFlags, false, false, MISSIONAI_EXPLORE, pGoodPlot);
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlotDist3->getX(), pBestPlotDist3->getY(), iMoveFlags, false, false, MISSIONAI_EXPLORE, pBestPlotDist3);
 
 				//done?
 				return pUnit->plot() == pOldPlot || !pUnit->canMove();
@@ -2846,14 +2864,14 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		}
 	}
 
+	CvExplorationPlotSet vExplorePlots = m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit);
+
 	//step 3: if we have a leftover path to a far-away (expensive) target an it's still good, then reuse it!
 	if (pUnit->GetMissionAIType() == MISSIONAI_EXPLORE && pUnit->GetMissionAIPlot() && !pUnit->hasMoved() && plotDistance(*pUnit->plot(), *pUnit->GetMissionAIPlot()) > 10)
 	{
 		CvPlot* pDestPlot = pUnit->GetMissionAIPlot();
-		const std::vector<SPlotWithScore>& vExplorePlots = m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit->getDomainType());
 
-		SPlotWithScore dummy(pDestPlot, 0);
-		if (std::find(vExplorePlots.begin(), vExplorePlots.end(), dummy) != vExplorePlots.end())
+		if (vExplorePlots.GetValue(pDestPlot->GetPlotIndex(), pUnit->visibilityRange()) > 0)
 		{
 			pUnit->GeneratePath(pDestPlot, iMoveFlags);
 			//verify that we don't move into danger ...
@@ -2868,30 +2886,17 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		}
 	}
 
-	CvPlot* pBestPlot = NULL;
-	int iBestPlotScore = 0;
-
-	//step 4: check our immediate neighborhood (ie the tiles we can reach within one turn)
-	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
-	ReachablePlots eligiblePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), iMoveFlags);
-	for (ReachablePlots::iterator tile = eligiblePlots.begin(); tile != eligiblePlots.end(); ++tile)
+	//step 4: AI check for local harassment
+	if (!pUnit->IsAutomated())
 	{
-		CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
-		ASSERT(pEvalPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
-
-		//we can pass through a minor's territory but we don't want to stay there (unless we're friends)
-		//this check shouldn't be necessary because of IsValidExplorerEndTurnPlot() but sometimes it is
-		if (pEvalPlot->isOwned() && GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()) && !pUnit->canSellExoticGoods(pEvalPlot))
-			continue;
-
-		//don't embark to reach a close-range target
-		if (!pUnit->isEmbarked() && pEvalPlot->needsEmbarkation(pUnit))
-			continue;
-
-		//try some harassment
-		if (!pUnit->IsAutomated())
+		CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
+		ReachablePlots eligiblePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pUnit->plot(), iMoveFlags);
+		for (ReachablePlots::iterator tile = eligiblePlots.begin(); tile != eligiblePlots.end(); ++tile)
 		{
-			//see if we can make an easy kill (AI only - automated units cannot attack!)
+			CvPlot* pEvalPlot = GC.getMap().plotByIndexUnchecked(tile->iPlotIndex);
+
+			//try some harassment
+				//see if we can make an easy kill (AI only - automated units cannot attack!)
 			std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pEvalPlot, m_pPlayer->getTeam());
 			if (vAttackers.size() == 1 && TacticalAIHelpers::KillLoneEnemyIfPossible(pUnit, vAttackers[0]))
 			{
@@ -2943,151 +2948,76 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				return pUnit->plot() == pOldPlot || !pUnit->canMove();
 			}
 		}
-
-		//do this after the enemy unit check
-		if (!IsValidExplorerEndTurnPlot(pUnit, pEvalPlot))
-			continue;
-
-		//get contributions from yet-to-be revealed plots (and goodies)
-		int iScoreBase = EconomicAIHelpers::ScoreExplorePlot(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked(), bCanPopGoody);
-		if(iScoreBase > 0)
-		{
-			int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pUnit);
-			int iScoreExtra = 0;
-
-			//hill plots are good for defense and view - do not add this in ScoreExplorePlot2
-			if(pEvalPlot->isHills())
-				iScoreExtra += 25;
-
-			//resources on water are always near land
-			if(pUnit->getDomainType() == DOMAIN_SEA && pEvalPlot->isWater() && (pEvalPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE || pEvalPlot->getFeatureType() != NO_FEATURE))
-				iScoreExtra += 25;
-
-			if(pUnit->canSellExoticGoods(pEvalPlot))
-			{
-				float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
-				if (fRewardFactor >= 0.75f)
-				{
-					iScoreExtra += 150;
-				}
-				else if (fRewardFactor >= 0.5f)
-				{
-					iScoreExtra += 75;
-				}
-			}
-
-			// Add a penalty based on how many other explorers are at or are moving towards the vicinity of this plot
-			int iNearbyPenalty = 0;
-			int iLoop;
-			for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iLoop))
-			{
-				if (pLoopUnit == pUnit)
-					continue;
-
-				if (pLoopUnit->isHuman(ISHUMAN_AI_UNITS))
-				{
-					if (!pLoopUnit->IsAutomated())
-						continue;
-
-					if (pLoopUnit->GetAutomateType() != AUTOMATE_EXPLORE)
-						continue;
-				}
-				else
-				{
-					if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
-						continue;
-				}
-
-				int iLoopX = pLoopUnit->getX();
-				int iLoopY = pLoopUnit->getY();
-				const MissionData* pMissionData = pLoopUnit->GetHeadMissionData();
-				if (pMissionData && pMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO())
-				{
-					iLoopX = pMissionData->iData1;
-					iLoopY = pMissionData->iData2;
-				}
-
-				int iDist = plotDistance(iLoopX, iLoopY, pEvalPlot->getX(), pEvalPlot->getY());
-				if (iDist == 0)
-				{
-					break;
-				}
-
-				iNearbyPenalty += 100 / iDist;
-			}
-
-			int iRandom = GC.getGame().randRangeExclusive(0, 23, pEvalPlot->GetPseudoRandomSeed());
-			int iTotalScore = iScoreBase + iScoreExtra + iScoreBonus - iNearbyPenalty + iRandom;
-
-			//careful with plots that are too dangerous
-			int iAcceptableDanger = pUnit->GetCurrHitPoints()/2;
-			int iDanger = pUnit->GetDanger(pEvalPlot);
-			if(iDanger > iAcceptableDanger)
-				continue;
-			if(iDanger > iAcceptableDanger/2)
-				iTotalScore /= 2;
-
-			if(iTotalScore > iBestPlotScore)
-			{
-				//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
-				if (pUnit->TurnsToReachTarget(pEvalPlot,false,false,1)>1)
-					continue;
-
-				pBestPlot = pEvalPlot;
-				iBestPlotScore = iTotalScore;
-			}
-		}
 	}
 
-	if (pBestPlot && pBestPlot != pUnit->plot())
-	{
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			CvString strTemp = pUnit->getUnitInfo().GetDescription();
-			strLogString.Format("%s Explored to nearby target, To X: %d, Y: %d, From X: %d, Y: %d",
-				strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
-			LogHomelandMessage(strLogString);
-		}
-
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), iMoveFlags, false, false, MISSIONAI_EXPLORE, pBestPlot);
-		//continue if can still move
-		return pUnit->plot() == pOldPlot || !pUnit->canMove();
-	}
+	CvPlot* pBestPlot = NULL;
 
 	//step 5: if we didn't find a worthwhile plot among our adjacent plots, check the global targets and pick a new one
 	if (pUnit->movesLeft() > 0)
 	{
-		//check at least 5 candidates
-		pBestPlot = GetBestExploreTarget(pUnit, 5, 5);
+		int iDist = 1;
+		pBestPlot = GetBestExploreTarget(pUnit, iDist);
 
-		//if nothing found, retry with larger distance - but this is slow
 		if (!pBestPlot)
-			pBestPlot = GetBestExploreTarget(pUnit, 5, 12);
-
-		//if still nothing found, retry with even larger distance - but this is sloooooow
-		if (!pBestPlot)
-			pBestPlot = GetBestExploreTarget(pUnit, 5, 23);
-
-		if (pBestPlot && pBestPlot != pUnit->plot())
 		{
-			//this  must be the same moveflags as above so we can reuse the path next turn
-			if (pUnit->GeneratePath(pBestPlot, iMoveFlags))
+			iDist = 3;
+			pBestPlot = pBestPlotDist3;
+		}
+
+		if (!pBestPlot)
+		{
+			iDist = 5;
+			pBestPlot = GetBestExploreTarget(pUnit, iDist);
+		}
+
+		if (!pBestPlot)
+		{
+			iDist = 12;
+			pBestPlot = GetBestExploreTarget(pUnit, iDist);
+		}
+
+		if (!pBestPlot)
+		{
+			iDist = 23;
+			pBestPlot = GetBestExploreTarget(pUnit, iDist);
+		}
+
+		if (pBestPlot)
+		{
+			if (pBestPlot != pUnit->plot())
+			{
+				//this  must be the same moveflags as above so we can reuse the path next turn
+				if (pUnit->GeneratePath(pBestPlot, iMoveFlags))
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						CvString strTemp = pUnit->getUnitInfo().GetDescription();
+						strLogString.Format("%s Explored to target at within %d turn(s) away, To X: %d, Y: %d, From X: %d, Y: %d",
+							strTemp.GetCString(), iDist, pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					//again same flags
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), iMoveFlags, false, false, MISSIONAI_EXPLORE, pBestPlot);
+
+					//done?
+					return pUnit->plot() == pOldPlot || !pUnit->canMove();
+				}
+			}
+			else if (pUnit->getDamage() > 0 && pUnit->ActualHealRate(pBestPlot) > 0)
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					CvString strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("%s Explored to distant target, To X: %d, Y: %d, From X: %d, Y: %d",
-						strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("%s healing at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 					LogHomelandMessage(strLogString);
 				}
 
-				//again same flags
-				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), iMoveFlags, false, false, MISSIONAI_EXPLORE, pBestPlot);
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
-				//done?
-				return pUnit->plot() == pOldPlot || !pUnit->canMove();
+				return true;
 			}
 		}
 	}

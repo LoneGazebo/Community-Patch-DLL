@@ -15,6 +15,7 @@ class CvTargeting
 {
 public:
 	static bool CanSeeDisplacementPlot(int startX, int startY, int dx, int dy, int fromLevel);
+	static bool CanMaybeSeeDisplacementPlot(int startX, int startY, int dx, int dy, int fromLevel, TeamTypes eTeam);
 };
 
 #endif

@@ -314,7 +314,8 @@ void CvEconomicAI::Reset()
 	}
 
 	m_vPlotsToExploreLand.clear();
-	m_vPlotsToExploreSea.clear();
+	m_vPlotsToExploreCoast.clear();
+	m_vPlotsToExploreOcean.clear();
 
 	for(uint ui = 0; ui < NUM_PURCHASE_TYPES; ui++)
 	{
@@ -348,7 +349,8 @@ void CvEconomicAI::Serialize(EconomicAI& economicAI, Visitor& visitor)
 	visitor(MakeConstSpan(economicAI.m_paiTurnStrategyAdopted, iNumStrategies));
 
 	visitor(economicAI.m_vPlotsToExploreLand);
-	visitor(economicAI.m_vPlotsToExploreSea);
+	visitor(economicAI.m_vPlotsToExploreCoast);
+	visitor(economicAI.m_vPlotsToExploreOcean);
 
 	visitor(economicAI.m_eReconState);
 	visitor(economicAI.m_eNavalReconState);
@@ -858,9 +860,40 @@ void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeade
 	strLog += str;
 }
 
-const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes domain)
+const CvExplorationPlotSet& CvEconomicAI::GetExplorationPlots(ExplorationDomainTypes ePlotType)
 {
-	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
+	switch (ePlotType)
+	{
+		case EXPLORATION_LAND:
+			return m_vPlotsToExploreLand;
+		case EXPLORATION_COAST:
+			return m_vPlotsToExploreCoast;
+		case EXPLORATION_OCEAN:
+			return m_vPlotsToExploreOcean;
+		default:
+			ASSERT(false);
+			return m_vPlotsToExploreLand;
+	}
+}
+
+const CvExplorationPlotSet CvEconomicAI::GetExplorationPlots(const CvUnit* pUnit)
+{
+	CvExplorationPlotSet ret;
+
+	DomainTypes eDomain = pUnit->getDomainType();
+
+	if (eDomain == DOMAIN_LAND)
+		ret.append(m_vPlotsToExploreLand);
+
+	if (eDomain != DOMAIN_LAND || pUnit->IsHasEmbarkAbility())
+		ret.append(m_vPlotsToExploreCoast);
+
+	if (pUnit->CanStayInOcean())
+	{
+		ret.append(m_vPlotsToExploreOcean);
+	}
+
+	return ret;
 }
 
 void CvEconomicAI::SetExplorersNeeded(int iValue)
@@ -1020,86 +1053,102 @@ bool EconomicAIHelpers::IsPotentialNavalExplorer(UnitAITypes eType)
 		(MOD_AI_UNIT_PRODUCTION && eType == UNITAI_SUBMARINE);
 }
 
-//compute score for yet-to-be revealed plots
-int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked, bool bCanPopGoody)
+bool EconomicAIHelpers::IsHighValueExploreTarget(const CvPlot* pPlot, const CvPlayer* pPlayer, const CvUnit* pUnit)
 {
-	int iResultValue = 0;
-	int iSmallScore = 5;
-	int iMediumScore = 30;
-	int iLargeScore = 80;
-	int iJackpot = 1000;
+	bool bCanPopGoody = !MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS || pUnit->GetGainsXPFromScouting() || pUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
 
-	//adjacent plots should be unrevealed, but the target itself needs to be revealed
-	if(!pPlot->isRevealed(pPlayer->getTeam()))
-		return 0;
+	if (bCanPopGoody && pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
+		return true;
+	else if (pPlot->getRevealedImprovementType(pPlayer->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && pPlot->isVisible(pPlayer->getTeam()) && pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)
+		return true;
 
-	//No value if we can't go there
-	if(!pPlot->isValidMovePlot(pPlayer->GetID()))
-		return 0;
+	return false;
+}
 
-	//add goodies - they go away - do not add any permanent scores here - leads to loops
-	if(bCanPopGoody && pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
-		iResultValue += iJackpot;
-	if(pPlot->HasBarbarianCamp() && pPlot->isVisible(pPlayer->getTeam()) && pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)
-		iResultValue += iJackpot;
-	if (pPlot->isHills() || pPlot->isMountain()) //inca can enter mountains ...
-		if (pPlot->isAdjacentNonrevealed(pPlayer->getTeam()))
-			iResultValue += iLargeScore;
-
+bool EconomicAIHelpers::ShouldExplorerAvoid(const CvPlot* pPlot, const CvPlayer* pPlayer)
+{
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
 	{
 		const CvPlot* pLoopPlot = aPlotsToCheck[iCount];
 
-		if(pLoopPlot != NULL)
+		if (pLoopPlot != NULL)
 		{
 			//if there's an adjacent barbarian camp, assume danger
 			if (pLoopPlot->getRevealedImprovementType(pPlayer->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && !pPlot->isVisible(pPlayer->getTeam()))
-				iResultValue -= iJackpot;
-
-			//no value if revealed already
-			if(pLoopPlot->isRevealed(pPlayer->getTeam()))
-				continue;
-			//Not interested in very small areas we can see completely from the surrounding plots (like arctic lakes)
-			if(pLoopPlot->isWater() && pLoopPlot->area()->getNumTiles()<5)
-				continue;
-
-			// "cheating" to look to see what the next tile is.
-			// a human should be able to do this by looking at the transition from the tile to the next
-			FeatureTypes eFeature = pLoopPlot->getFeatureType();
-			if (eDomainType==DOMAIN_LAND && !bEmbarked)
-			{
-				if (pLoopPlot->isIce())
-					//there is nothing interesting here
-					continue;
-				else if (pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(pPlayer->GetID()))
-					//we're not very interested in these plots
-					iResultValue += iSmallScore;
-				else if(eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->getSeeThroughChange() > 0 && !pLoopPlot->isHills())
-					//flatland forest/jungle is meh
-					iResultValue += iMediumScore;
-				else
-					//the real deal - gives us a good view
-					iResultValue += iLargeScore;
-			}
-			else
-			{
-				if (pLoopPlot->isIce())
-					//there is nothing interesting here
-					continue;
-				else if (!pLoopPlot->isWater())
-					//after all we're here to find new land!
-					iResultValue += iLargeScore;
-				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3 || pLoopPlot->isShallowWater())
-					//punching into the unknown. or land nearby
-					iResultValue += iMediumScore;
-				else
-					iResultValue += iSmallScore;
-			}
+				return true;
 		}
 	}
 
-	return iResultValue;
+	return false;
+}
+
+int GetPlotExploreMultiplier(const CvPlot* pPlot)
+{
+	if (!pPlot->isWater())
+		return /*50*/ GD_INT_GET(LAND_EXPLORE_TILE_VALUE);
+
+	if (pPlot->getFeatureType() == FEATURE_ICE)
+		return 0;
+
+	if (pPlot->isShallowWater())
+		return /*20*/ GD_INT_GET(COAST_EXPLORE_TILE_VALUE);
+
+	return /*10*/ GD_INT_GET(OCEAN_EXPLORE_TILE_VALUE);
+}
+
+int EconomicAIHelpers::GetExtraExploreValue(const CvPlot* pPlot, int iRange, TeamTypes eTeam)
+{
+	if (iRange < 2)
+		return 0;
+	else if (iRange > 3)
+		iRange = 3;
+
+	int iRet = 0;
+
+	for (int iI = RING1_PLOTS; iI < RING_PLOTS[iRange]; iI++)
+	{
+		CvPlot* pNearbyPlot = iterateRingPlots(pPlot, iI);
+
+		if (!pNearbyPlot)
+			continue;
+
+		if (pNearbyPlot->isRevealed(eTeam))
+			continue;
+
+		if (pNearbyPlot->isAdjacentRevealed(eTeam))
+			continue;
+
+		if (pPlot->CanMaybeSeePlot(pNearbyPlot, eTeam))
+		{
+			// Calculate this plot's value based on what we know about plots near it
+			int iAverageNeighborValue = 0;
+			int iDivisor = 0;
+			for (int iJ = 0; iJ < RING0_PLOTS; iJ++)
+			{
+				CvPlot* pAdjacentPlot = iterateRingPlots(pNearbyPlot, iJ);
+
+				if (!pAdjacentPlot)
+					continue;
+
+				if (plotDistance(*pAdjacentPlot, *pNearbyPlot) == 1)
+					continue;
+
+				if (pAdjacentPlot->isAdjacentRevealed(eTeam))
+				{
+					iAverageNeighborValue += GetPlotExploreMultiplier(pAdjacentPlot);
+					iDivisor++;
+				}
+			}
+
+			if (iDivisor != 0)
+				iRet += iAverageNeighborValue / iDivisor;
+			else
+				iRet += /*25*/ GD_INT_GET(UNKNOWN_EXPLORE_TILE_VALUE);
+		}
+	}
+
+	return iRet;
 }
 
 /// Request that the AI set aside this much money
@@ -2269,7 +2318,6 @@ void CvEconomicAI::DoReconState()
 	CvUnit* pLoopUnit = NULL;
 
 	//important. do this exactly once per turn.
-	UpdateExplorePlotsFromScratch();
 	m_eReconState = RECON_STATE_NEUTRAL;
 	m_eNavalReconState = RECON_STATE_NEUTRAL;
 
@@ -2277,10 +2325,10 @@ void CvEconomicAI::DoReconState()
 	if (m_pPlayer->getNumCities() <= 0)
 		return;
 
-	bool isCannotRecon = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON"));
-	bool isCannotReconSea = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA"));
+	bool bIsCannotRecon = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON"));
+	bool bIsCannotReconSea = EconomicAIHelpers::CannotMinorCiv(m_pPlayer, (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA"));
 
-	if (isCannotRecon && isCannotReconSea)
+	if (bIsCannotRecon && bIsCannotReconSea)
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
 		m_eNavalReconState = RECON_STATE_ENOUGH;
@@ -2306,15 +2354,20 @@ void CvEconomicAI::DoReconState()
 	// How many Units do we have exploring or being trained to do this job?
 	int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true);
 
-	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
+	int iNumPlotsToExplore = (int)GetExplorationPlots(EXPLORATION_LAND).size();
+
+	bool bCanEmbark = m_pPlayer->CanEmbark();
+
+	if (bCanEmbark)
+		iNumPlotsToExplore += (int)GetExplorationPlots(EXPLORATION_COAST).size() / 4;
 
 	bool bIsOceanFarer = m_pPlayer->CanCrossOcean() || GET_TEAM(m_pPlayer->getTeam()).CanBuildOceanCrossingUnit();
 
 	if (bIsOceanFarer)
-		iNumPlotsToExplore += (int)GetExplorationPlots(DOMAIN_SEA).size();
+		iNumPlotsToExplore += (int)GetExplorationPlots(EXPLORATION_OCEAN).size() / 4;
 
 	// estimate one explorer per x open plots, depending on personality (these are only the border plots between known and unknown)
-	int iPlotsPerExplorer = /*20 in CP, 27 in VP*/ GD_INT_GET(MAX_PLOTS_PER_EXPLORER) - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
+	int iPlotsPerExplorer = /*40 in CP, 54 in VP*/ GD_INT_GET(MAX_PLOTS_PER_EXPLORER) - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 50 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 
 	if (bWar)
@@ -2332,7 +2385,7 @@ void CvEconomicAI::DoReconState()
 		m_eReconState = RECON_STATE_NEEDED;
 
 		int iNumAvailableNonNative = 0;
-		int bHasAvailableNativeExplorer = false;
+		bool bHasAvailableNativeExplorer = false;
 		int iNumCurrentlyExploringNonNative = 0;
 
 		// Increase number of explorers
@@ -2457,7 +2510,10 @@ void CvEconomicAI::DoReconState()
 	else
 	{
 		iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true);
-		iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_SEA).size();
+		iNumPlotsToExplore = (int)GetExplorationPlots(EXPLORATION_COAST).size();
+
+		if (bIsOceanFarer)
+			iNumPlotsToExplore += (int)GetExplorationPlots(EXPLORATION_OCEAN).size();
 
 		// estimate one explorer per x open plots (these are only the border plots between known and unknown)
 		iPlotsPerExplorer = /*20 in CP, 27 in VP*/ GD_INT_GET(MAX_PLOTS_PER_EXPLORER) - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL_RECON"));
@@ -2553,11 +2609,11 @@ void CvEconomicAI::DoReconState()
 		}
 	}
 
-	if (isCannotRecon)
+	if (bIsCannotRecon)
 	{
 		m_eReconState = RECON_STATE_ENOUGH;
 	}
-	if (isCannotReconSea)
+	if (bIsCannotReconSea)
 	{
 		m_eNavalReconState = RECON_STATE_ENOUGH;
 	}
@@ -3160,106 +3216,168 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 	}
 }
 
-void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWater, bool bAllowDeepWater, std::vector<SPlotWithScore>& landTargets, std::vector<SPlotWithScore>& seaTargets)
-{
-	if (pPlot == NULL)
-		return;
-
-	//allow AI to see the next tile, a human can guess as well
-	if (!pPlot->isAdjacentRevealed(pPlayer->getTeam()))
-		return;
-
-	if (pPlot->isWater())
-	{
-		if (pPlot->isShallowWater() || bAllowDeepWater)
-		{
-			int iScore = EconomicAIHelpers::ScoreExplorePlot(pPlot, pPlayer, DOMAIN_SEA, false, false);
-			if (iScore <= 0)
-				return;
-
-			// add an entry for this plot
-			seaTargets.push_back(SPlotWithScore(pPlot, iScore));
-
-			// close coast is also interesting for embarked scouting (performance: use the cheap distance check)
-			if (pPlot->isShallowWater() && bAllowShallowWater && pPlayer->GetCityDistanceInPlots(pPlot)<12)
-				landTargets.push_back(SPlotWithScore(pPlot, iScore));
-		}
-	}
-	else
-	{
-		int iScore = EconomicAIHelpers::ScoreExplorePlot(pPlot, pPlayer, DOMAIN_LAND, false, true);
-		if (iScore <= 0)
-			return;
-
-		if (!MOD_BALANCE_VP && !bAllowShallowWater)
-		{
-			CvCity* pCapital = pPlayer->getCapitalCity();
-			if (pCapital && !pCapital->HasAccessToArea(pPlot->getArea()))
-				return;
-		}
-
-		// add an entry for this plot
-		landTargets.push_back(SPlotWithScore(pPlot, iScore));
-	}
-}
-
-/// Go through the plots for the exploration automation to evaluate
-void CvEconomicAI::UpdateExplorePlotsFromScratch()
-{
-	m_vPlotsToExploreLand.clear();
-	m_vPlotsToExploreSea.clear();
-
-	bool bNeedToLookAtDeepWaterAlso = m_pPlayer->CanCrossOcean() || GET_TEAM(m_pPlayer->getTeam()).CanBuildOceanCrossingUnit();
-	bool bCanEmbark = m_pPlayer->CanEmbark() || m_pPlayer->HasAnyUnitCanEmbark();
-
-	for(int i = 0; i < GC.getMap().numPlots(); i++)
-	{
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
-		TestExplorationPlot(pPlot, m_pPlayer, bCanEmbark, bNeedToLookAtDeepWaterAlso, m_vPlotsToExploreLand, m_vPlotsToExploreSea);
-	}
-
-	//keep all of them - GetBestExplorePlot will only look at the n best candidates anyway
-	std::stable_sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
-	std::stable_sort(m_vPlotsToExploreSea.begin(),m_vPlotsToExploreSea.end());
-
-	LogEconomyMessage(CvString::format("Updating exploration plots, found %d land and %d sea targets",m_vPlotsToExploreLand.size(),m_vPlotsToExploreSea.size()));
-}
-
-void CvEconomicAI::UpdateExplorePlotsLocally(CvPlot* pPlot)
+void CvEconomicAI::AddPlotToExplorePlots(const CvPlot* pPlot)
 {
 	if (!pPlot)
 		return;
 
-	int iRange = 3; //must be <=5
+	InitiateExplorePlot(pPlot);
 
-	struct PrPlotDistanceSmallerThan
+	if (pPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
+		UpdateNearbyExplorePlots(pPlot, -1);
+
+	for (int iI = RING0_PLOTS; iI < RING1_PLOTS; iI++)
 	{
-		int dist;
-		CvPlot* ref;
-		PrPlotDistanceSmallerThan(CvPlot* p, int d) : dist(d), ref(p) {}
-		bool operator()(const SPlotWithScore& test) const {
-			if (ref && test.pPlot)
-				return plotDistance(*test.pPlot, *ref) < dist;
-			return true;
+		CvPlot* pAdjacentPlot = iterateRingPlots(pPlot, iI);
+		if (!pAdjacentPlot)
+			continue;
+
+		if (pAdjacentPlot->isRevealed(m_pPlayer->getTeam()))
+			continue;
+
+		bool bAdjacentRevealed = false;
+
+		for (int iJ = RING0_PLOTS; iJ < RING1_PLOTS; iJ++)
+		{
+			CvPlot* pAdjacentAdjacentPlot = iterateRingPlots(pAdjacentPlot, iJ);
+			if (!pAdjacentAdjacentPlot)
+				continue;
+
+			if (pAdjacentAdjacentPlot == pPlot)
+				continue;
+
+			if (pAdjacentAdjacentPlot->isRevealed(m_pPlayer->getTeam()))
+			{
+				bAdjacentRevealed = true;
+				break;
+			}
 		}
-	};
 
-	//first remove the plots in the neighborhood of our ref plot
-	m_vPlotsToExploreSea.erase(std::remove_if(m_vPlotsToExploreSea.begin(), m_vPlotsToExploreSea.end(), PrPlotDistanceSmallerThan(pPlot, iRange)), m_vPlotsToExploreSea.end());
-	m_vPlotsToExploreLand.erase(std::remove_if(m_vPlotsToExploreLand.begin(), m_vPlotsToExploreLand.end(), PrPlotDistanceSmallerThan(pPlot, iRange)), m_vPlotsToExploreLand.end());
+		if (!bAdjacentRevealed)
+			UpdateNearbyExplorePlots(pAdjacentPlot, 1, pPlot);
+	}
+}
 
-	//then add them again with their new valuation
-	bool bNeedToLookAtDeepWaterAlso = m_pPlayer->CanCrossOcean();
-	bool bCanEmbark = m_pPlayer->CanEmbark(); 
-	for (int i = 0; i < RING_PLOTS[iRange]; i++)
+void CvEconomicAI::UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, const CvPlot* pIgnorePlot)
+{
+	CvPlot* pNearbyPlot;
+	iChange *= GetPlotExploreMultiplier(pPlot);
+
+	for (int iRange = 1; iRange <= 3; iRange++)
 	{
-		CvPlot* pTestPlot = iterateRingPlots(pPlot, i);
-		TestExplorationPlot(pTestPlot, m_pPlayer, bCanEmbark, bNeedToLookAtDeepWaterAlso, m_vPlotsToExploreLand, m_vPlotsToExploreSea);
+		const std::vector<CvPlot*> pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, false, true);
+		for (std::vector<CvPlot*>::const_iterator it = pPlotsToCheck.begin(); it != pPlotsToCheck.end(); ++it)
+		{
+			pNearbyPlot = *it;
+
+			if (!pNearbyPlot || pNearbyPlot == pIgnorePlot)
+				continue;
+
+			if (!pNearbyPlot->isRevealed(m_pPlayer->getTeam()))
+				continue;
+
+			if (!pNearbyPlot->isWater())
+				m_vPlotsToExploreLand.ChangeValue(pNearbyPlot->GetPlotIndex(), iRange, iChange);
+			else if (pNearbyPlot->isShallowWater())
+				m_vPlotsToExploreCoast.ChangeValue(pNearbyPlot->GetPlotIndex(), iRange, iChange);
+			else
+				m_vPlotsToExploreOcean.ChangeValue(pNearbyPlot->GetPlotIndex(), iRange, iChange);
+		}
+	}
+}
+
+void CvEconomicAI::InitiateExplorePlot(const CvPlot* pPlot)
+{
+	CvPlot* pNearbyPlot;
+	std::vector<CvPlot*> pPlotsToCheck;
+
+	int iPlotIndex = pPlot->GetPlotIndex();
+
+	for (int iRange = 1; iRange <= 3; iRange++)
+	{
+		pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, true, true);
+		for (std::vector<CvPlot*>::const_iterator it = pPlotsToCheck.begin(); it != pPlotsToCheck.end(); ++it)
+		{
+			pNearbyPlot = *it;
+
+			if (!pNearbyPlot)
+				continue;
+
+			if (pNearbyPlot->isRevealed(m_pPlayer->getTeam()))
+				continue;
+
+			if (iRange > 1 && !pNearbyPlot->isAdjacentRevealed(m_pPlayer->getTeam()))
+				continue;
+
+			if (!pPlot->isWater())
+				m_vPlotsToExploreLand.ChangeValue(iPlotIndex, iRange, GetPlotExploreMultiplier(pNearbyPlot));
+			else if (pPlot->isShallowWater())
+				m_vPlotsToExploreCoast.ChangeValue(iPlotIndex, iRange, GetPlotExploreMultiplier(pNearbyPlot));
+			else
+				m_vPlotsToExploreOcean.ChangeValue(iPlotIndex, iRange, GetPlotExploreMultiplier(pNearbyPlot));
+		}
+	}
+}
+
+void CvEconomicAI::UpdateExplorePlotLoS(const CvPlot* pPlot, int iRange, const vector<CvPlot*>& oldVisiblePlots, const vector<CvPlot*>& newVisiblePlots)
+{
+	if (!pPlot->isRevealed(m_pPlayer->getTeam()))
+		return;
+
+	int iPlotIndex = pPlot->GetPlotIndex();
+
+	for (size_t i = 0; i < oldVisiblePlots.size(); i++)
+	{
+		CvPlot* pOldVisiblePlot = oldVisiblePlots[i];
+		if (!pOldVisiblePlot || pOldVisiblePlot->isRevealed(m_pPlayer->getTeam()))
+			continue;
+
+		if (std::find(newVisiblePlots.begin(), newVisiblePlots.end(), pOldVisiblePlot) != newVisiblePlots.end())
+			continue;
+
+		if (!pPlot->isWater())
+			m_vPlotsToExploreLand.ChangeValue(iPlotIndex, iRange, -GetPlotExploreMultiplier(pOldVisiblePlot));
+		else if (pPlot->isShallowWater())
+			m_vPlotsToExploreCoast.ChangeValue(iPlotIndex, iRange, -GetPlotExploreMultiplier(pOldVisiblePlot));
+		else
+			m_vPlotsToExploreOcean.ChangeValue(iPlotIndex, iRange, -GetPlotExploreMultiplier(pOldVisiblePlot));
 	}
 
-	//sort again
-	std::stable_sort(m_vPlotsToExploreLand.begin(), m_vPlotsToExploreLand.end());
-	std::stable_sort(m_vPlotsToExploreSea.begin(), m_vPlotsToExploreSea.end());
+	for (size_t i = 0; i < newVisiblePlots.size(); i++)
+	{
+		CvPlot* pNewVisiblePlot = newVisiblePlots[i];
+		if (!pNewVisiblePlot || pNewVisiblePlot->isRevealed(m_pPlayer->getTeam()))
+			continue;
+
+		if (std::find(oldVisiblePlots.begin(), oldVisiblePlots.end(), pNewVisiblePlot) != oldVisiblePlots.end())
+			continue;
+
+		if (!pPlot->isWater())
+			m_vPlotsToExploreLand.ChangeValue(iPlotIndex, iRange, GetPlotExploreMultiplier(pNewVisiblePlot));
+		else if (pPlot->isShallowWater())
+			m_vPlotsToExploreCoast.ChangeValue(iPlotIndex, iRange, GetPlotExploreMultiplier(pNewVisiblePlot));
+		else
+			m_vPlotsToExploreOcean.ChangeValue(iPlotIndex, iRange, GetPlotExploreMultiplier(pNewVisiblePlot));
+	}
+}
+
+int CvEconomicAI::GetExploreValue(const CvPlot* pPlot, int iRange)
+{
+	int iRet = 0;
+	if (!pPlot->isWater())
+		iRet = m_vPlotsToExploreLand.GetValue(pPlot->GetPlotIndex(), iRange);
+	
+	else if (pPlot->isShallowWater())
+		iRet = m_vPlotsToExploreCoast.GetValue(pPlot->GetPlotIndex(), iRange);
+	else
+		iRet = m_vPlotsToExploreOcean.GetValue(pPlot->GetPlotIndex(), iRange);
+
+	if (iRet > 0)
+	{
+		iRet += EconomicAIHelpers::GetExtraExploreValue(pPlot, iRange, m_pPlayer->getTeam());
+	}
+
+	return iRet;
 }
 
 CvUnit* CvEconomicAI::FindWorkerToScrap()
@@ -3427,6 +3545,74 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPurchaseRequest& writeTo)
 {
 	CvStreamLoadVisitor serialVisitor(loadFrom);
 	CvPurchaseRequest::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+
+void CvExplorationPlotSet::ChangeValue(int iPlotIndex, int iRange, int iChange)
+{
+	ASSERT(iRange >= 1 && iRange <= 3, "Exploration plot update not valid for range <1 or >3");
+
+	ExploreEntry& entry = m_aValues[iPlotIndex];
+
+	entry.value[iRange - 1] += iChange;
+
+	if (entry.value[0] == 0 && entry.value[1] == 0 && entry.value[2] == 0)
+		m_aValues.erase(iPlotIndex);
+}
+
+int CvExplorationPlotSet::GetValue(int iPlotIndex, int iRange) const
+{
+	std::tr1::unordered_map<int, ExploreEntry>::const_iterator it = m_aValues.find(iPlotIndex);
+
+	if (it == m_aValues.end())
+		return 0;
+
+	int iRet = 0;
+
+	if (iRange >= 1)
+		iRet += it->second.value[0];
+	if (iRange >= 2)
+		iRet += it->second.value[1];
+	if (iRange >= 3)
+		iRet += it->second.value[2];
+
+	return iRet;
+}
+
+template<typename T, typename Visitor>
+void CvExplorationPlotSet::Serialize(T& explorationPlot, Visitor& visitor)
+{
+	visitor(explorationPlot.m_aValues);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const CvExplorationPlotSet& readFrom)
+{
+	CvStreamSaveVisitor serialVisitor(saveTo);
+	CvExplorationPlotSet::Serialize(readFrom, serialVisitor);
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, CvExplorationPlotSet& writeTo)
+{
+	CvStreamLoadVisitor serialVisitor(loadFrom);
+	CvExplorationPlotSet::Serialize(writeTo, serialVisitor);
+	return loadFrom;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const CvExplorationPlotSet::ExploreEntry& entry)
+{
+	saveTo << entry.value[0];
+	saveTo << entry.value[1];
+	saveTo << entry.value[2];
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, CvExplorationPlotSet::ExploreEntry& entry)
+{
+	loadFrom >> entry.value[0];
+	loadFrom >> entry.value[1];
+	loadFrom >> entry.value[2];
 	return loadFrom;
 }
 
