@@ -3557,7 +3557,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				{
 					UnitProcessed(pBuilder->GetID());
 					processedWorkers.insert(pBuilder->GetID());
-					m_workedPlots.insert(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY)->GetPlotIndex());
 					ignoredDirectives.insert(eDirective);
 
 					// Add a sentry point here
@@ -3597,7 +3596,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 				processedWorkers.insert(pBuilder->GetID());
 				ignoredDirectives.insert(eDirective);
-				m_workedPlots.insert(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY)->GetPlotIndex());
 			}
 
 			if (GC.getLogging() && GC.getAILogging())
@@ -3750,6 +3748,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					if (!bFinishedBuilding)
 					{
 						int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
+						if (bOldConnectedResource)
+							iResourceAmount -= pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eOldImprovement);
 						sState.mExtraResources[eCreatedResource] += iResourceAmount;
 					}
 					bResourceStateChanged = true;
@@ -3758,7 +3758,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				{
 					if (!bFinishedBuilding)
 					{
-						int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
+						int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eOldImprovement);
+						if (bNewConnectsResource)
+							iResourceAmount -= pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
 						sState.mExtraResources[eRemovedResource] -= iResourceAmount;
 					}
 					bResourceStateChanged = true;
@@ -3866,8 +3868,10 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				// Pruning
 				if (eDirective.m_sX == eOtherDirective.m_sX && eDirective.m_sY == eOtherDirective.m_sY)
 				{
+					bool bCanBuildSimultaneously = (eDirective.m_bIsGreatPerson && eOtherDirective.m_eDirectiveType == BuilderDirective::BUILD_ROUTE)
+						|| (eOtherDirective.m_bIsGreatPerson && eDirective.m_eDirectiveType == BuilderDirective::BUILD_ROUTE);
 					// Prune directives that are in the same plot
-					if (bCanBuild || eDirective == eOtherDirective)
+					if ((bCanBuild && !bCanBuildSimultaneously) || eDirective == eOtherDirective)
 					{
 						continue;
 					}
@@ -3878,10 +3882,10 @@ void CvHomelandAI::ExecuteWorkerMoves()
 							continue;
 
 						// Don't build GP improvements where we want to build better things
-						if (pkOtherImprovementInfo && pkOtherImprovementInfo->IsCreatedByGreatPerson())
+						if (!bCanBuildSimultaneously && pkOtherImprovementInfo && pkOtherImprovementInfo->IsCreatedByGreatPerson())
 							continue;
 
-						if (eOtherImprovement != NO_IMPROVEMENT && eOtherImprovement != eOtherOldImprovement)
+						if (!bCanBuildSimultaneously && eOtherImprovement != NO_IMPROVEMENT && eOtherImprovement != eOtherOldImprovement)
 						{
 							pair<int,int> pScore = pBuilderTaskingAI->ScorePlotBuild(pDirectivePlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 

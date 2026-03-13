@@ -1989,7 +1989,6 @@ static void UpdateGreatPersonDirectives(vector<OptionWithScore<BuilderDirective>
 			continue;
 
 		int iBestScoreInPlot = 0;
-		int iBestPotentialScoreInPlot = 0;
 
 		for (vector<OptionWithScore<BuilderDirective>>::const_iterator it2 = aDirectives.begin(); it2 != aDirectives.end(); ++it2)
 		{
@@ -2013,13 +2012,11 @@ static void UpdateGreatPersonDirectives(vector<OptionWithScore<BuilderDirective>
 				}
 			}
 
-			int iPotentialScore = it2->option.GetPotentialScore();
-			int iOtherScore = it2->option.m_iScore;
+			int iScore = it2->option.GetPotentialScore();
 
-			if (iPotentialScore > iBestPotentialScoreInPlot)
+			if (iScore > iBestScoreInPlot)
 			{
-				iBestScoreInPlot = iOtherScore;
-				iBestPotentialScoreInPlot = iPotentialScore;
+				iBestScoreInPlot = iScore;
 			}
 		}
 
@@ -4212,7 +4209,7 @@ pair<int,int> CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes
 		}
 	}
 
-	if (bIsWithinWorkRange && pOwningCity)
+	if (bIsBuild && bIsWithinWorkRange && pOwningCity)
 	{
 		int iSimplifiedYieldValue = GetPlotYieldValueSimplified(pPlot, eBuild);
 		int iWorstWorkedValue = INT_MAX;
