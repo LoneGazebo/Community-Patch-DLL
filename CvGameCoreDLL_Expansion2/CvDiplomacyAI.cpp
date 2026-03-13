@@ -11412,9 +11412,9 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 int CvDiplomacyAI::ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iStrength)
 {
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
-		return 0;
+		return 100;
 
-	int iModifier = 0;
+	int iModifier = 100;
 	TeamTypes eOurTeam = GetTeam();
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvPlayerTraits* pTraits = GET_PLAYER(ePlayer).GetPlayerTraits();
