@@ -193,7 +193,11 @@ VALUES
 -- Homeland AI
 	('AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT', 5),
 -- Economic AI
-	('MAX_PLOTS_PER_EXPLORER', 20), -- Recon unit calculations
+	('MAX_PLOTS_PER_EXPLORER', 40), -- Recon unit calculations
+	('UNKNOWN_EXPLORE_TILE_VALUE', 25),
+	('LAND_EXPLORE_TILE_VALUE', 50),
+	('COAST_EXPLORE_TILE_VALUE', 20),
+	('OCEAN_EXPLORE_TILE_VALUE', 10),
 	('NEED_DIPLOMAT_THRESHOLD_MODIFIER', 125), -- Higher Threshold = Lower diplomacy desire.
 	('NEED_DIPLOMAT_DESIRE_MODIFIER', 2), -- Higher Desire = Higher diplomacy desire.
 	('NEED_DIPLOMAT_DISTASTE_MODIFIER', 6), -- Lower distaste = More sensitive to other player's diplomatic actions and/or city-state abuse.

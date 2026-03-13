@@ -196,7 +196,7 @@ UPDATE Defines SET Value = 0 WHERE Name = 'STRATEGIC_RESOURCE_EXHAUSTED_PENALTY'
 
 -- Number of unexplored plots required per recon unit, used by AI
 -- Modified by personality!
-UPDATE Defines SET Value = 27 WHERE Name = 'MAX_PLOTS_PER_EXPLORER';
+UPDATE Defines SET Value = 54 WHERE Name = 'MAX_PLOTS_PER_EXPLORER';
 
 UPDATE Defines SET Value = 1.25 WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
 

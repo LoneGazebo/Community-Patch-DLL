@@ -2225,6 +2225,43 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 	return false;
 }
 
+bool CvPlot::CanMaybeSeePlot(const CvPlot* pPlot, TeamTypes eTeam) const
+{
+	if (pPlot == NULL)
+	{
+		return false;
+	}
+
+	if (pPlot == this)
+	{
+		return true;
+	}
+
+	int startX = getX();
+	int startY = getY();
+	int destX = pPlot->getX();
+	int destY = pPlot->getY();
+
+	//find displacement
+	int dy = destY - startY;
+
+	int iX1 = xToHexspaceX(destX, destY);
+	int iX2 = xToHexspaceX(startX, startY);
+
+	int dx = iX1 - iX2;
+
+	dx = dxWrap(dx); //world wrap
+	dy = dyWrap(dy);
+
+	//check if anything blocking the plot
+	if (CvTargeting::CanMaybeSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam), eTeam))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlot::shouldProcessDisplacementPlot(int dx, int dy, int, DirectionTypes eFacingDirection) const
 {
@@ -2347,8 +2384,7 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 			{
 				pLoopPlot->updateSight(bIncrement);
 
-				//hack: don't do this during map generation
-				if (bRecalculate && GC.getGame().getElapsedGameTurns()>0)
+				if (bRecalculate)
 					GC.getMap().LineOfSightChanged(pLoopPlot);
 			}
 		}
@@ -4774,12 +4810,6 @@ bool CvPlot::isRevealedGoody(TeamTypes eTeam) const
 void CvPlot::removeGoody()
 {
 	setImprovementType(NO_IMPROVEMENT);
-	// Make sure the players redo their goody hut searches
-	for(int i = 0; i < MAX_MAJOR_CIVS; i++)
-	{
-		if(GET_PLAYER((PlayerTypes)i).isAlive())
-			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->UpdateExplorePlotsLocally(this);
-	}
 }
 
 bool CvPlot::isCity() const
@@ -11506,16 +11536,6 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 
 		if (setRevealed(eTeam, true, pUnit)) // Change to revealed, returns true if the visibility was changed
 		{
-			// We are seeing this plot for the first time
-			if (bInformExplorationTracking)
-			{
-				vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
-				for (size_t i = 0; i < vPlayers.size(); i++)
-				{
-					GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
-				}
-			}
-
 			if (pUnit)
 			{
 				pUnit->SetRevealedPlot(true);
@@ -11992,10 +12012,21 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 		if (area())
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
 
-		// Update tactical AI, let it know that the tile was revealed
-		PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
-		if (eCurrentPlayer != NO_PLAYER)
-			GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
+		if (isRevealed(eTeam))
+		{
+			// Update tactical AI, let it know that the tile was revealed
+			PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
+			if (eCurrentPlayer != NO_PLAYER)
+				GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
+
+			vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
+			for (size_t i = 0; i < vPlayers.size(); i++)
+			{
+				CvPlayer& pkPlayer = GET_PLAYER(vPlayers[i]);
+				if (pkPlayer.isEverAlive() && pkPlayer.isMajorCiv())
+					pkPlayer.GetEconomicAI()->AddPlotToExplorePlots(this);
+			}
+		}
 
 		// Natural Wonder
 		if(eTeam != BARBARIAN_TEAM && bNewValue && !GET_TEAM(eTeam).isObserver())

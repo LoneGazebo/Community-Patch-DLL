@@ -3843,3 +3843,10 @@ enum CLOSED_ENUM IsHumanReason
 	ISHUMAN_UI,                     // UI related isHuman calls.
 	OTHER_ISHUMAN_REASON            // Any other isHuman call reason (multiplayer syncing or other isHuman calls we do not want to tamper with).
 };
+
+enum CLOSED_ENUM ExplorationDomainTypes
+{
+	EXPLORATION_LAND,
+	EXPLORATION_COAST,
+	EXPLORATION_OCEAN
+};
