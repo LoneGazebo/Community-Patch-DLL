@@ -13948,7 +13948,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 	//bonuses based on major traits
 	CvPlayer& kMajor = GET_PLAYER(ePlayer);
 	CvCity* pCapital = kMajor.getCapitalCity();
-	int iCurrentEra = max(1, (int)kMajor.GetCurrentEra());
+	int iCurrentEra = (int)kMajor.GetCurrentEra();
 	int iNextEra = max(1, (int)eNewEra);
 	if (pCapital)
 	{
