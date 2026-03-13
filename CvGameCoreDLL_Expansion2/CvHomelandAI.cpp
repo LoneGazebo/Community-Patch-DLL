@@ -3210,6 +3210,10 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlaye
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
 
 	int iDirectiveScore = eDirective.GetPotentialScore();
+
+	if (eDirective.m_bIsGreatPerson)
+		iDirectiveScore -= eDirective.m_iScorePenalty;
+
 	for (vector<BuilderDirective>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuilderDirective eOtherDirective = *it;
@@ -3231,6 +3235,9 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlaye
 			continue;
 
 		int iOtherDirectiveScore = eOtherDirective.GetPotentialScore();
+
+		if (eOtherDirective.m_bIsGreatPerson)
+			iOtherDirectiveScore -= eOtherDirective.m_iScorePenalty;
 
 		// special case for scrubbing fallout, always do that first
 		if (iOtherDirectiveScore > iDirectiveScore || (pkOtherBuildInfo && pkOtherBuildInfo->isFeatureRemove(FEATURE_FALLOUT) && (!pkBuildInfo || !pkBuildInfo->isFeatureRemove(FEATURE_FALLOUT))))
