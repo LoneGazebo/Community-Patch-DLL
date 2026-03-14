@@ -3168,15 +3168,12 @@ bool CvHomelandAI::ExecuteOpportunisticSettlementMoves(CvUnit* pUnit)
 // Higher weight means better directive
 static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
 {
-	int iScore = eDirective.GetScore();
-
-	if (eDirective.m_iPotentialBonusScore != 0)
-		iScore += eDirective.m_iPotentialBonusScore / 3;
+	int iScore = eDirective.m_plotBuildScore.GetPriorityScore();
 
 	// Need to give GP improvements a bit of a buff so they get first priority.
 	// They get a penalty to make sure they aren't built where we could build better improvements.
 	if (eDirective.m_bIsGreatPerson)
-		return 100 * iScore - iMoveTurns;
+		return 100 * (iScore - 100 * iMoveTurns);
 
 	iScore /= 10;
 
@@ -3201,15 +3198,14 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 		return -(iScore * iScore) * (1 + iBuildTime);
 }
 
-static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlayer, vector<BuilderDirective> aDirectives)
+static bool IsBestDirectiveForPlot(BuilderDirective eDirective, vector<BuilderDirective> aDirectives)
 {
-	CvPlot* pPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 	if (eDirective.m_eBuild == NO_BUILD)
 		return false;
 
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
 
-	int iDirectiveScore = eDirective.GetPotentialScore();
+	int iDirectiveScore = eDirective.m_plotBuildScore.GetMaxScore();
 	for (vector<BuilderDirective>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuilderDirective eOtherDirective = *it;
@@ -3219,8 +3215,10 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlaye
 		if (eOtherDirective.m_bIsGreatPerson)
 			continue;
 
-		CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
-		if (pOtherPlot != pPlot)
+		if (!eOtherDirective.m_bCanBuild)
+			continue;
+
+		if (eDirective.m_sX != eOtherDirective.m_sX || eDirective.m_sY != eOtherDirective.m_sY)
 			continue;
 
 		CvBuildInfo* pkOtherBuildInfo = eOtherDirective.m_eBuild != NO_BUILD ? GC.getBuildInfo(eOtherDirective.m_eBuild) : NULL;
@@ -3230,16 +3228,14 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, CvPlayer* pPlaye
 		if ((eRoute != NO_ROUTE && eOtherRoute == NO_ROUTE) || (eRoute == NO_ROUTE && eOtherRoute != NO_ROUTE))
 			continue;
 
-		int iOtherDirectiveScore = eOtherDirective.GetPotentialScore();
+		int iOtherDirectiveScore = eOtherDirective.m_plotBuildScore.GetMaxScore();
 
 		// special case for scrubbing fallout, always do that first
-		if (iOtherDirectiveScore > iDirectiveScore || (pkOtherBuildInfo && pkOtherBuildInfo->isFeatureRemove(FEATURE_FALLOUT) && (!pkBuildInfo || !pkBuildInfo->isFeatureRemove(FEATURE_FALLOUT))))
-		{
-			if (eOtherDirective.m_eBuild != NO_BUILD && !pPlayer->canBuild(pPlot, eOtherDirective.m_eBuild, true))
-				continue;
-
+		if (pkOtherBuildInfo && pkOtherBuildInfo->isFeatureRemove(FEATURE_FALLOUT) && (!pkBuildInfo || !pkBuildInfo->isFeatureRemove(FEATURE_FALLOUT)))
 			return false;
-		}
+
+		if (iOtherDirectiveScore > iDirectiveScore)
+			return false;
 	}
 	return true;
 }
@@ -3285,7 +3281,7 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 	{
 		BuilderDirective eDirective = *it;
 		if (ignoredDirectives.find(eDirective) != ignoredDirectives.end())
-			continue;
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
 
 		const CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 		if (m_workedPlots.find(pDirectivePlot->GetPlotIndex()) != m_workedPlots.end())
@@ -3304,7 +3300,7 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 			continue;
 		}
 
-		if (!IsBestDirectiveForPlot(eDirective, m_pPlayer, aDirectives))
+		if (!IsBestDirectiveForPlot(eDirective, aDirectives))
 		{
 			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
 			continue;
@@ -3538,6 +3534,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	{
 		CvUnit* pBuilder = aDistanceWeightedDirectives.front().option.first;
 		BuilderDirective eDirective = aDistanceWeightedDirectives.front().option.second;
+		PlotBuildScore plotBuildScore = eDirective.m_plotBuildScore;
 
 		// Need to save the state of the plot in case we finish the improvement this turn
 		CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
@@ -3547,7 +3544,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 		// We may have planned an improvement that we can't build yet, but should still update other plots as if we've built it
 		// E.g. if we're planning to build an improvement with a no-two-adjacent requirement, we still want to build other improvements next to it.
-		bool bCanBuild = pBuilder->canBuild(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY), eDirective.m_eBuild);
+		bool bCanBuild = eDirective.m_bCanBuild;
 		if (bCanBuild)
 		{
 			bool bIsAutomated = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || pBuilder->IsAutomated();
@@ -3562,7 +3559,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					// Add a sentry point here
 					if (pDirectivePlot->getOwner() != m_pPlayer->GetID() || pDirectivePlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), true, true, true, true))
 					{
-						int iWeight = eDirective.GetPotentialScore();
+						int iWeight = plotBuildScore.GetPriorityScore();
 						CvHomelandTarget newTarget;
 						if (pDirectivePlot->isWater())
 						{
@@ -3603,8 +3600,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				CvString strLogString;
 				CvBuildInfo* pkBuild = GC.getBuildInfo(eDirective.m_eBuild);
 				CvString strTemp = pkBuild->GetDescription();
-				strLogString.Format("Planning to %s at (%d, %d), value=%d, potential bonus=%d, penalty=%d, weighted value=%d", strTemp.GetCString(), eDirective.m_sX, eDirective.m_sY,
-					eDirective.m_iScore, eDirective.m_iPotentialBonusScore, eDirective.m_iScorePenalty, aDistanceWeightedDirectives.front().score);
+				strLogString.Format("Planning to %s at (%d, %d), value=%d, potential bonus=%d, unused yield=%d, penalty=%d, weighted value=%d", strTemp.GetCString(), eDirective.m_sX, eDirective.m_sY,
+					plotBuildScore.m_iScore, plotBuildScore.m_iPotentialScore, plotBuildScore.m_iUnusedYieldScore, plotBuildScore.m_iScorePenalty, aDistanceWeightedDirectives.front().score);
 				LogHomelandMessage(strLogString);
 			}
 		}
@@ -3616,8 +3613,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				CvString strLogString;
 				CvBuildInfo* pkBuild = GC.getBuildInfo(eDirective.m_eBuild);
 				CvString strTemp = pkBuild->GetDescription();
-				strLogString.Format("Planning to %s at (%d, %d), but can't build it yet, value=%d, potential bonus=%d, penalty=%d, weighted value=%d", strTemp.GetCString(), eDirective.m_sX, eDirective.m_sY,
-					eDirective.m_iScore, eDirective.m_iPotentialBonusScore, eDirective.m_iScorePenalty, aDistanceWeightedDirectives.front().score);
+				strLogString.Format("Planning to %s at (%d, %d), but can't build it yet, value=%d, potential bonus=%d, unused yield=%d, penalty=%d, weighted value=%d", strTemp.GetCString(), eDirective.m_sX, eDirective.m_sY,
+					plotBuildScore.m_iScore, plotBuildScore.m_iPotentialScore, plotBuildScore.m_iUnusedYieldScore, plotBuildScore.m_iScorePenalty, aDistanceWeightedDirectives.front().score);
 				LogHomelandMessage(strLogString);
 			}
 		}
@@ -3674,7 +3671,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				}
 			}
 
-			vector<BuilderDirective> aNewBuilderDirectives;
+			std::vector<OptionWithScore<BuilderDirective>> aNewBuilderDirectives;
 
 			const CvCity* pOwningCity = pDirectivePlot->getEffectiveOwningCity();
 			if (!pOwningCity && eImprovement != NO_IMPROVEMENT)
@@ -3887,16 +3884,15 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 						if (!bCanBuildSimultaneously && eOtherImprovement != NO_IMPROVEMENT && eOtherImprovement != eOtherOldImprovement)
 						{
-							pair<int,int> pScore = pBuilderTaskingAI->ScorePlotBuild(pDirectivePlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pDirectivePlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							int iScore = pScore.first;
-							int iPotentialScore = pScore.second;
+							int iOtherBaseScore = otherPlotBuildScore.m_iScore;
+							int iOtherPotentialScore = otherPlotBuildScore.m_iPotentialScore;
 
 							// If we are planning to build something else here in the future, downscale the priority of this by 1/3
-							eOtherDirective.m_iScore = iScore;
-							eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
-							eOtherDirective.m_iScorePenalty = iScore / 3;
-							if (eOtherDirective.m_iScorePenalty >= eOtherDirective.m_iScore + eOtherDirective.m_iPotentialBonusScore)
+							eOtherDirective.m_plotBuildScore.m_iScore = iOtherBaseScore * 2 / 3;
+							eOtherDirective.m_plotBuildScore.m_iPotentialScore = iOtherPotentialScore + iOtherBaseScore / 3;
+							if (eOtherDirective.m_plotBuildScore.GetMaxScore() <= 0)
 								continue;
 							bDirectiveUpdated = true;
 						}
@@ -3917,15 +3913,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					// Connecting a resource may reduce or increase the value of connecting more instances of the same resource
 					if (pOtherPlot->getResourceType(m_pPlayer->getTeam()) == eOldResource || (pkOtherImprovementInfo && pkOtherImprovementInfo->GetResourceFromImprovement() == eOldResource))
 					{
-						pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+						PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-						int iScore = pScore.first;
-						int iPotentialScore = pScore.second;
-
-						if (iScore != eOtherDirective.m_iScore)
+						if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 						{
-							eOtherDirective.m_iScore = iScore;
-							eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
+							eOtherDirective.m_plotBuildScore = otherPlotBuildScore;
 						}
 
 						bDirectiveUpdated = true;
@@ -3943,15 +3935,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 						if (eOtherFeature != pOtherPlot->getFeatureType() || eOtherImprovement != NO_IMPROVEMENT)
 						{
-							pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							int iScore = pScore.first;
-							int iPotentialScore = pScore.second;
-
-							if (iScore != eOtherDirective.m_iScore)
+							if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 							{
-								eOtherDirective.m_iScore = iScore;
-								eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
+								eOtherDirective.m_plotBuildScore = otherPlotBuildScore;
 							}
 
 							bDirectiveUpdated = true;
@@ -3970,15 +3958,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 						if (iOtherDefenseModifier != 0 || iOtherImprovementDamage != 0)
 						{
-							pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							int iScore = pScore.first;
-							int iPotentialScore = pScore.second;
-
-							if (iScore != eOtherDirective.m_iScore)
+							if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 							{
-								eOtherDirective.m_iScore = iScore;
-								eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
+								eOtherDirective.m_plotBuildScore = otherPlotBuildScore;
 							}
 
 							bDirectiveUpdated = true;
@@ -3996,15 +3980,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 						if (eBonusImprovement == eOtherImprovement)
 						{
-							pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							int iScore = pScore.first;
-							int iPotentialScore = pScore.second;
-
-							if (iScore != eOtherDirective.m_iScore)
+							if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 							{
-								eOtherDirective.m_iScore = iScore;
-								eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
+								eOtherDirective.m_plotBuildScore = otherPlotBuildScore;
 							}
 
 							bDirectiveUpdated = true;
@@ -4018,15 +3998,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					// TODO check if we will actually change the yield value before we call ScorePlotBuild
 					if (plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
 					{
-						pair<int, int> pScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+						PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-						int iScore = pScore.first;
-						int iPotentialScore = pScore.second;
-
-						if (iScore != eOtherDirective.m_iScore)
+						if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 						{
-							eOtherDirective.m_iScore = iScore;
-							eOtherDirective.m_iPotentialBonusScore = iPotentialScore;
+							eOtherDirective.m_plotBuildScore = otherPlotBuildScore;
 						}
 
 						bDirectiveUpdated = true;
@@ -4041,15 +4017,23 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						RouteTypes eOtherRoute = pkOtherBuildInfo ? (RouteTypes)pkOtherBuildInfo->getRoute() : NO_ROUTE;
 						if (eOtherRoute != NO_ROUTE)
 						{
-							eOtherDirective.m_iScore = pBuilderTaskingAI->GetBestRouteTypeAndValue(pOtherPlot).second;
+							eOtherDirective.m_plotBuildScore.m_iScore += eOtherDirective.m_plotBuildScore.m_iPotentialScore;
+							eOtherDirective.m_plotBuildScore.m_iPotentialScore = 0;
 						}
 					}
 				}
 
-				aNewBuilderDirectives.push_back(eOtherDirective);
+				aNewBuilderDirectives.push_back(OptionWithScore<BuilderDirective>(eOtherDirective, eOtherDirective.m_plotBuildScore.GetPriorityScore()));
 			}
 
-			aDistanceWeightedDirectives = GetWeightedDirectives(aNewBuilderDirectives, ignoredDirectives, allWorkers, processedWorkers, allWorkersReachablePlots, bConsiderRegions);
+			pBuilderTaskingAI->UpdateGreatPersonDirectives(aNewBuilderDirectives);
+			stable_sort(aNewBuilderDirectives.begin(), aNewBuilderDirectives.end());
+
+			std::vector<BuilderDirective> aNewDirectives;
+			for (vector<OptionWithScore<BuilderDirective>>::const_iterator it = aNewBuilderDirectives.begin(); it != aNewBuilderDirectives.end(); ++it)
+				aNewDirectives.push_back(it->option);
+
+			aDistanceWeightedDirectives = GetWeightedDirectives(aNewDirectives, ignoredDirectives, allWorkers, processedWorkers, allWorkersReachablePlots, bConsiderRegions);
 		}
 	}
 
