@@ -1382,6 +1382,12 @@
       </Content>
       <Content>
         <Type>MapScript</Type>
+        <Name>Continental Drift</Name>
+        <Description>A varied world based on plate tectonics</Description>
+        <FileName>Mapscripts/Continental_Drift.lua</FileName>
+      </Content>
+      <Content>
+        <Type>MapScript</Type>
         <Name>Amazon Plus</Name>
         <Description>Amazon Plus mapscript compatible with VP</Description>
         <FileName>Mapscripts/Amazon_XP.lua</FileName>
@@ -6890,6 +6896,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Mapscripts\Communitu_79a.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\Continental_Drift.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

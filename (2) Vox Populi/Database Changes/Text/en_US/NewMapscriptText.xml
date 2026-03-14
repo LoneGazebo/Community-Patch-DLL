@@ -57,6 +57,180 @@
 			<Text>West vs East for VP</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_CONTINENTAL_DRIFT">
+			<Text>Continental Drift</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONTINENTAL_DRIFT_HELP">
+			<Text>A varied world based on plate tectonics.</Text>
+		</Row>
+
+		<!-- Map Options for Continental Drift -->
+		<Row Tag="TXT_KEY_MAP_OPTION_MAP_RATIO">
+			<Text>Map Ratio</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_MODIFIER">
+			<Text>Size Modifier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_MODIFIER_HELP">
+			<Text>Alters the map size. This also affects the total amount of land.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_OCEAN_RIFTS">
+			<Text>Ocean Rifts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_OCEAN_RIFTS_HELP">
+			<Text>If this option is enabled, the map will be divided into two parts separated by meridional ocean rifts.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_ARCTIC_OCEAN_WIDTH">
+			<Text>Polar Ocean Size</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_ARCTIC_OCEAN_WIDTH_HELP">
+			<Text>Adjusts the size of the polar oceans at the northernmost and southernmost edge of the map.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_ISLANDS_HELP">
+			<Text>Affects how many small islands are generated.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_PLATE_MOTION">
+			<Text>Plate Motion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_PLATE_MOTION_HELP">
+			<Text>Affects the speed at which plates move. Faster speed will result in higher and more frequent mountain ranges and in deeper ocean rifts.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_CONTINENTS">
+			<Text>Land Cohesion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_CONTINENTS_HELP">
+			<Text>Affects how much land plates cluster. A high level of land cohesion will result in a map with few, large continents. A low level of land cohesion will lead to a map with a higher amount of smaller landmasses.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_LAND">
+			<Text>Land Amount</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_LAND_HELP">
+			<Text>Changes the total amount of land on the map.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_PLATES">
+			<Text>Number of Plates</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_PLATES_HELP">
+			<Text>Affects the number of tectonic plates that will be used in map generation. More plates will result in more intricate structures.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_COASTAL_START">
+			<Text>Force Coastal Start</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_COASTAL_START_HELP">
+			<Text>Force every civilization to start on coast, if possible.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_START_PLACEMENT">
+			<Text>Start Placement</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_START_PLACEMENT_HELP">
+			<Text>Choose the regional division method that affects the start placement for major civilizations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MAP_OPTION_SQUARED">
+			<Text>Squared</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SQUARISH">
+			<Text>Squarish</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_RECTANGULAR">
+			<Text>Rectangular (Standard)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_WIDE_RECTANGULAR">
+			<Text>Wide Rectangular</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_RECTILINEAR">
+			<Text>Rectilinear</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_80">
+			<Text>Compressed - 80%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_85">
+			<Text>Squeezed - 85%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_90">
+			<Text>Reduced - 90%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_95">
+			<Text>Smaller - 95%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_100">
+			<Text>Normal - 100%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_105">
+			<Text>Plus - 105%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_110">
+			<Text>Extra - 110%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_115">
+			<Text>Super - 115%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SIZE_120">
+			<Text>Gigantic - 120%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_TIGHT">
+			<Text>Tight</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_NARROW">
+			<Text>Narrow</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_WIDE">
+			<Text>Wide</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_NONE">
+			<Text>None</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_FEW">
+			<Text>Few</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_LESS">
+			<Text>Less</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_MORE">
+			<Text>More</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_MUCH_MORE">
+			<Text>Much More</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SHALLOW">
+			<Text>Shallow</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_EXTREME">
+			<Text>Extreme</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_SLOW">
+			<Text>Slow</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_AVERAGE">
+			<Text>Average</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_FAST">
+			<Text>Fast</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_RAMMING_SPEED">
+			<Text>Ramming Speed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_FRAGMENTED">
+			<Text>Fragmented</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_BALANCED">
+			<Text>Balanced</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_CLUSTERED">
+			<Text>Clustered</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_CONTIGUOUS">
+			<Text>Contiguous</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_ANY_CONTINENTS">
+			<Text>Any Continents</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_OPTION_LARGEST_LANDMASS">
+			<Text>Largest Landmass</Text>
+		</Row>
+
+		<!-- End Map Options for Continental Drift --> 
+
 		<Row Tag="TXT_KEY_MAP_PLAYERS_START_IN">
 			<Text>Players Start In</Text>
 		</Row>
