@@ -164,7 +164,7 @@ DELETE FROM Policy_CapitalYieldChanges
 WHERE PolicyType = 'POLICY_THIRD_ALTERNATIVE';
 
 UPDATE Policies
-SET 
+SET
 	UnitGoldMaintenanceMod = -25,
 	StrategicResourceMod = 50
 WHERE Type = 'POLICY_THIRD_ALTERNATIVE';

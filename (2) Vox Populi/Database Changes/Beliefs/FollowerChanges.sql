@@ -134,8 +134,8 @@ INSERT INTO Belief_ResourceYieldChanges
 	(BeliefType, ResourceType, YieldType, Yield)
 SELECT
 	'BELIEF_FEED_WORLD', Type, 'YIELD_GOLD', 1
-FROM Resources   -- bonus resources
-WHERE ResourceUsage = 0 AND Type NOT IN ('RESOURCE_ARTIFACTS', 'RESOURCE_HIDDEN_ARTIFACTS');
+FROM Resources
+WHERE ResourceClassType = 'RESOURCECLASS_BONUS';
 
 -- Liturgical Drama (now Gurukulam)
 UPDATE Beliefs SET MinFollowers = 0 WHERE Type = 'BELIEF_LITURGICAL_DRAMA';

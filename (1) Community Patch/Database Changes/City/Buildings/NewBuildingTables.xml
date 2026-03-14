@@ -638,4 +638,23 @@
 		<Column name="AccomplishmentType" type="text" reference="Accomplishments(Type)" notnull="true"/>
 		<Column name="ExtraInstances" type="integer" notnull="true"/>
 	</Table>
+
+	<!-- Table fix -->
+	<!-- This replaces Building_ThemingBonuses and will be renamed into it in BuildingTableFixes.sql -->
+	<Table name="Building_ThemingBonuses_new">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Bonus" type="integer" default="0"/>
+		<Column name="SameEra" type="boolean" default="false"/>
+		<Column name="UniqueEras" type="boolean" default="false"/>
+		<Column name="ConsecutiveEras" type="boolean" default="false"/> <!-- New column -->
+		<Column name="MustBeArt" type="boolean" default="false"/>
+		<Column name="MustBeArtifact" type="boolean" default="false"/>
+		<Column name="MustBeEqualArtArtifact" type="boolean" default="false"/>
+		<Column name="RequiresOwner" type="boolean" default="false"/>
+		<Column name="RequiresAnyButOwner" type="boolean" default="false"/>
+		<Column name="RequiresSamePlayer" type="boolean" default="false"/>
+		<Column name="RequiresUniquePlayers" type="boolean" default="false"/>
+		<Column name="AIPriority" type="integer" default="0"/>
+	</Table>
 </GameData>

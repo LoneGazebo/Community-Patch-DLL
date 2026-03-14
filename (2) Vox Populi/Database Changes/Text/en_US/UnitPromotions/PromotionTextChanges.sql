@@ -453,7 +453,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_NAVAL_TRADITION_HELP';
 
 -- Patriotic War
 UPDATE Language_en_US
-SET Text = '+20% [ICON_STRENGTH] Combat Strength in or adjacent to a [COLOR_POSITIVE_TEXT]City[ENDCOLOR].'
+SET Text = '+20% [ICON_STRENGTH] Combat Strength in or adjacent to [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_NATIONALISM_HELP';
 
 -- Altitude Training

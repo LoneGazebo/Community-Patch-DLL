@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- Table fix -->
+	<!-- This replaces Notifications and will be renamed into it in CoreNotificationChanges.sql -->
+	<Table name="Notifications_new">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="NotificationType" type="text" unique="true"/>
+		<Column name="Welcomeness" type="integer" default="0"/>
+		<Column name="Urgent" type="boolean" default="false"/>
+	</Table>
+</GameData>

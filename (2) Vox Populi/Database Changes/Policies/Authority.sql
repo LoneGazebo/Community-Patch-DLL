@@ -109,14 +109,24 @@ SET
 	PortraitIndex = 22
 WHERE Type = 'POLICY_MILITARY_CASTE';
 
+CREATE TEMP TABLE Helper (
+	YieldType TEXT,
+	Yield INTEGER
+);
+
+INSERT INTO Helper
+VALUES
+	('YIELD_PRODUCTION', 1),
+	('YIELD_CULTURE_LOCAL', 2);
+
 INSERT INTO Policy_ResourceYieldChanges
 	(PolicyType, ResourceType, YieldType, Yield)
 SELECT
-	'POLICY_MILITARY_CASTE', Type, 'YIELD_PRODUCTION', 1
-FROM Resources WHERE ResourceUsage = 1 UNION ALL
-SELECT
-	'POLICY_MILITARY_CASTE', Type, 'YIELD_CULTURE_LOCAL', 2
-FROM Resources WHERE ResourceUsage = 1;
+	'POLICY_MILITARY_CASTE', a.Type, b.YieldType, b.Yield
+FROM Resources a, Helper b
+WHERE a.ResourceUsage = 1;
+
+DROP TABLE Helper;
 
 INSERT INTO Policy_FreePromotions
 	(PolicyType, PromotionType)

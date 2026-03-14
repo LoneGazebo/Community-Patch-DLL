@@ -121,11 +121,11 @@ SET Text = '[ICON_BULLET][ICON_GREAT_WORK] Great Work of Art or Artifact slots: 
 WHERE Tag = 'TXT_KEY_GREAT_WORK_SLOT_ART_ARTIFACT_SLOTS_TOOLTIP';
 
 UPDATE Language_en_US
-SET Text = '[ICON_BULLET][ICON_GREAT_WORK] Great Work of Music slots: {1_NumSlots}'
+SET Text = '[ICON_BULLET][ICON_GW_MUSIC] Great Work of Music slots: {1_NumSlots}'
 WHERE Tag = 'TXT_KEY_GREAT_WORK_SLOT_MUSIC_SLOTS_TOOLTIP';
 
 UPDATE Language_en_US
-SET Text = '[ICON_BULLET][ICON_GREAT_WORK] Great Work of Writing slots: {1_NumSlots}'
+SET Text = '[ICON_BULLET][ICON_GW_WRITING] Great Work of Writing slots: {1_NumSlots}'
 WHERE Tag = 'TXT_KEY_GREAT_WORK_SLOT_LITERATURE_SLOTS_TOOLTIP';
 
 -- Yield

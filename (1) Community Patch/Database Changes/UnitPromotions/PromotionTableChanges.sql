@@ -289,14 +289,18 @@ ALTER TABLE UnitPromotions ADD RequiresLeadership boolean DEFAULT 0;
 -- This promotion is only effective if the unit starts its turn at or above this percentage of health
 ALTER TABLE UnitPromotions ADD MinEffectiveHealth integer DEFAULT 0;
 
--- PROMOTIONS_CROSS_ICE (integrated)
 ALTER TABLE UnitPromotions ADD CanCrossIce boolean DEFAULT 0;
-
--- PROMOTIONS_CROSS_MOUNTAINS (integrated)
 ALTER TABLE UnitPromotions ADD CanCrossMountains boolean DEFAULT 0;
-
--- PROMOTIONS_CROSS_OCEANS (integrated)
 ALTER TABLE UnitPromotions ADD CanCrossOceans boolean DEFAULT 0;
+
+-- Alter the vision level of this unit for canEverRangeStrikeAt->canSeePlot, letting it shoot over some obstacles it couldnt before
+ALTER TABLE UnitPromotions ADD SeeThrough integer DEFAULT 0;
+
+-- Additonal healing for a flat amount each turn regardless of action taken
+ALTER TABLE UnitPromotions ADD FlatHealRate integer DEFAULT 0;
+
+-- Heals friendly units of the same domain within aura range for +X at the end of every turn. Default aura range is 2, and is increased/decreased by AuraRangeChange.
+ALTER TABLE UnitPromotions ADD PassiveAoEHeal integer DEFAULT 0;
 
 -- PROMOTIONS_DEEP_WATER_EMBARKATION
 ALTER TABLE UnitPromotions ADD EmbarkedDeepWater boolean DEFAULT 0;
@@ -349,12 +353,3 @@ ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostIn boolean DEFAULT 0;
 -- Likewise, the cost of crossing a river isn't ignored by this
 ALTER TABLE UnitPromotions_Terrains ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
 ALTER TABLE UnitPromotions_Features ADD IgnoreTerrainCostFrom boolean DEFAULT 0;
-
--- Alter the vision level of this unit for canEverRangeStrikeAt->canSeePlot, letting it shoot over some obstacles it couldnt before
-ALTER TABLE UnitPromotions ADD SeeThrough integer DEFAULT 0;
-
--- Additonal healing for a flat amount each turn regardless of action taken
-ALTER TABLE UnitPromotions ADD FlatHealRate integer DEFAULT 0;
-
--- Heals friendly units of the same domain within aura range for +X at the end of every turn. Default aura range is 2, and is increased/decreased by AuraRangeChange.
-ALTER TABLE UnitPromotions ADD PassiveAoEHeal integer DEFAULT 0;
