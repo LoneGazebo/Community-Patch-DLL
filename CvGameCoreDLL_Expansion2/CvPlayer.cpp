@@ -19786,26 +19786,18 @@ int CvPlayer::GetTotalFaithPerTurnTimes100() const
 	return max(0, iFaithPerTurn);
 }
 
-/// two functions to rule them all
+/// one functions to rule them all
 int CvPlayer::GetYieldPerTurnFromMinorCivsTimes100(YieldTypes eYield) const
 {
 	int iYieldPerTurn = 0;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		iYieldPerTurn += GetYieldPerTurnFromMinorTimes100((PlayerTypes)iMinorLoop, eYield);
+		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+		if (GET_PLAYER(eMinor).isAlive())
+		{
+			iYieldPerTurn += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentYieldBonusTimes100(GetID(), eYield);
+		}
 	}
-	return iYieldPerTurn;
-}
-
-int CvPlayer::GetYieldPerTurnFromMinorTimes100(PlayerTypes eMinor, YieldTypes eYield) const
-{
-	int iYieldPerTurn = 0;
-
-	if(GET_PLAYER(eMinor).isAlive())
-	{
-		iYieldPerTurn += GET_PLAYER(eMinor).GetMinorCivAI()->GetCurrentYieldBonusTimes100(GetID(), eYield);
-	}
-
 	return iYieldPerTurn;
 }
 
@@ -23002,7 +22994,7 @@ void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(PlayerTypes e
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
-			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonusTimes100(GetID(), eYield, eEra, 2, true);
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldAllyFlatBonusTimes100(GetID(), eYield, eEra, true);
 			iBonus *= iSign;
 	
 			//update if necessary
@@ -23033,7 +23025,7 @@ void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(PlayerTyp
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
-			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFlatBonusTimes100(GetID(), eYield, eEra, 2, true);
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldAllyFlatBonusTimes100(GetID(), eYield, eEra, false);
 			iBonus *= iSign;
 	
 			//update if necessary
@@ -23067,7 +23059,7 @@ void CvPlayer::ChangeYieldPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, in
 		{
 			YieldTypes eYield = (YieldTypes)iI;
 		
-			int iBonus = kMinor->GetYieldFlatBonusTimes100(GetID(), eYield, eEra, 2);
+			int iBonus = kMinor->GetYieldAllyFlatBonusTimes100(GetID(), eYield, eEra);
 		
 			m_piYieldPerTurnFromAnnexedMinorsTimes100[eYield] += iBonus * iSign;
 		}
@@ -30754,12 +30746,10 @@ void CvPlayer::SetNumCSAllies(int iChange)
 	m_iCSAllies = iChange;
 }
 
-// misleading name: this actually means "number of CS friends that are not allies"
 int CvPlayer::GetNumCSFriends() const
 {
 	return m_iCSFriends;
 }
-// misleading name: this actually means "number of CS friends that are not allies"
 void CvPlayer::SetNumCSFriends(int iChange)
 {
 	m_iCSFriends = iChange;
@@ -30780,7 +30770,7 @@ void CvPlayer::RefreshCSAlliesFriends()
 			{
 				iAllies++;
 			}
-			else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GetID()))
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(GetID()))
 			{
 				iFriends++;
 			}
@@ -33067,17 +33057,16 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 						for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
 							PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
-							CvMinorCivAI* pMinorAI = GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive() ? GET_PLAYER(eMinor).GetMinorCivAI() : 0;
+							CvMinorCivAI* pMinorAI = (GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive()) ? GET_PLAYER(eMinor).GetMinorCivAI() : NULL;
 							if (pMinorAI)
 							{
-								int iInfluenceLevel = pMinorAI->IsAllies(GetID()) + pMinorAI->IsFriends(GetID());
-								if (iInfluenceLevel == 2)
+								if (pMinorAI->IsAllies(GetID()))
 								{
-									iExpectedAlliance += pMinorAI->GetCityYieldFlatBonusTimes100(GetID(), eYield, NO_ERA, iInfluenceLevel, pCity->isCapital()) - pMinorAI->GetCityYieldFlatBonusTimes100(GetID(), eYield, NO_ERA, 1, pCity->isCapital());
+									iExpectedAlliance += pMinorAI->GetCityYieldAllyFlatBonusTimes100(GetID(), eYield, NO_ERA, pCity->isCapital());
 								}
-								if (iInfluenceLevel >= 1)
+								if (pMinorAI->IsFriends(GetID()))
 								{
-									iExpectedFriendship += pMinorAI->GetCityYieldFlatBonusTimes100(GetID(), eYield, NO_ERA, 1, pCity->isCapital());
+									iExpectedFriendship += pMinorAI->GetCityYieldFriendFlatBonusTimes100(GetID(), eYield, NO_ERA, pCity->isCapital());
 								}
 							}
 						}
