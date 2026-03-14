@@ -76,6 +76,12 @@ WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 ----------------------------------------------------------------------------
 
 -- Monument
+UPDATE Buildings
+SET
+	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
+	GreatWorkCount = 1
+WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
