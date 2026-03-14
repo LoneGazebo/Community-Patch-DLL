@@ -28925,7 +28925,7 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes)iI;
-					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
+					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital()) - pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, 1, isCapital());
 					if (iBonus != 0)
 					{
 						ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iSign * iBonus);
@@ -28933,12 +28933,12 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 					}
 				}
 			}
-			if (iInfluenceLevel == 1)
+			if (iInfluenceLevel >= 1)
 			{
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes)iI;
-					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital());
+					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, 1, isCapital());
 					if (iBonus != 0)
 					{
 						ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iSign * iBonus);

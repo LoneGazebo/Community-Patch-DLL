@@ -32987,8 +32987,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 					}
 				}
 				const char* szResName = GC.getResourceInfo((ResourceTypes)iJ)->GetText();
-				ASSERT(m_paiNumResourceFromTiles[iJ] == iCntImproved, "Mismatch m_paiNumResourceFromTiles for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceFromTiles[iJ], iCntImproved);
-				ASSERT(m_paiNumResourceUnimproved[iJ] == iCntUnimproved, "Mismatch m_paiNumResourceUnimproved for Resource %s. Stored: %d, counted: %d.", szResName, m_paiNumResourceUnimproved[iJ], iCntUnimproved);
+				ASSERT(m_paiNumResourceFromTiles[iJ] == iCntImproved, "Mismatch m_paiNumResourceFromTiles for Player %d (%s), Resource %s. Stored: %d, counted: %d.", GetID(), getCivilizationShortDescription(), szResName, m_paiNumResourceFromTiles[iJ], iCntImproved);
+				ASSERT(m_paiNumResourceUnimproved[iJ] == iCntUnimproved, "Mismatch m_paiNumResourceUnimproved for Player %d (%s), Resource %s. Stored: %d, counted: %d.", GetID(), getCivilizationShortDescription(), szResName, m_paiNumResourceUnimproved[iJ], iCntUnimproved);
 			}
 
 
@@ -33034,6 +33034,54 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 			}
 
 			ASSERT(GetTreasury()->GetGoldPerTurnFromDiplomacy() == iGoldPerTurnFromDiplomacy, "Mismatch GetGoldPerTurnFromDiplomacy for Player %d (%s). Stored: %d, counted: %d.", GetID(), getCivilizationShortDescription(), GetTreasury()->GetGoldPerTurnFromDiplomacy(), iGoldPerTurnFromDiplomacy);
+
+
+			// check if CS alliance/friendship yields are stored correctly for each city
+			{
+				int iEra = max(1, (int)GetCurrentEra());
+				int iNumAllies = GetNumCSAllies();
+				int iNumFriends = GetNumCSFriends();
+
+				int iCityLoop = 0;
+				for (CvCity* pCity = firstCity(&iCityLoop); pCity != NULL; pCity = nextCity(&iCityLoop))
+				{
+					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+					{
+						YieldTypes eYield = (YieldTypes)iI;
+						int iExpectedAlliance = 0;
+						int iExpectedFriendship = 0;
+
+						// Trait-based yields from CS allies/friends (capital only)
+						if (pCity->isCapital())
+						{
+							iExpectedAlliance += GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra * 100;
+							iExpectedFriendship += GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra * 100;
+						}
+
+						// Flat bonuses from individual minor civs
+						for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+						{
+							PlayerTypes eMinor = (PlayerTypes)iPlayerLoop;
+							CvMinorCivAI* pMinorAI = GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive() ? GET_PLAYER(eMinor).GetMinorCivAI() : 0;
+							if (pMinorAI)
+							{
+								int iInfluenceLevel = pMinorAI->IsAllies(GetID()) + pMinorAI->IsFriends(GetID());
+								if (iInfluenceLevel == 2)
+								{
+									iExpectedAlliance += pMinorAI->GetCityYieldFlatBonusTimes100(GetID(), eYield, NO_ERA, iInfluenceLevel, pCity->isCapital()) - pMinorAI->GetCityYieldFlatBonusTimes100(GetID(), eYield, NO_ERA, 1, pCity->isCapital());
+								}
+								if (iInfluenceLevel >= 1)
+								{
+									iExpectedFriendship += pMinorAI->GetCityYieldFlatBonusTimes100(GetID(), eYield, NO_ERA, 1, pCity->isCapital());
+								}
+							}
+						}
+
+						ASSERT(pCity->GetBaseYieldRateFromCSAllianceTimes100(eYield) == iExpectedAlliance, "Mismatch GetBaseYieldRateFromCSAllianceTimes100 for Player %d (%s), City %s, Yield %d. Stored: %d, counted: %d.", GetID(), getCivilizationShortDescription(), pCity->getName().GetCString(), iI, pCity->GetBaseYieldRateFromCSAllianceTimes100(eYield), iExpectedAlliance);
+						ASSERT(pCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield) == iExpectedFriendship, "Mismatch GetBaseYieldRateFromCSFriendshipTimes100 for Player %d (%s), City %s, Yield %d. Stored: %d, counted: %d.", GetID(), getCivilizationShortDescription(), pCity->getName().GetCString(), iI, pCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield), iExpectedFriendship);
+					}
+				}
+			}
 		}
 	}
 
