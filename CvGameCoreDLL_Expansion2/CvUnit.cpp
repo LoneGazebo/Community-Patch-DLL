@@ -409,6 +409,7 @@ CvUnit::CvUnit() :
 	, m_iNumTilesRevealedThisTurn()
 	, m_bSpottedEnemy()
 	, m_bSpottedRuin()
+	, m_bRevealedPlot()
 	, m_iGainsXPFromScouting()
 	, m_iXPFromPillaging()
 	, m_iExtraXPOnKill()
@@ -1468,6 +1469,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNumTilesRevealedThisTurn = 0;
 	m_bSpottedEnemy = false;
 	m_bSpottedRuin = false;
+	m_bRevealedPlot = false;
 	m_iGainsXPFromScouting = 0;
 	m_iGainsXPFromSpotting = 0;
 	m_iXPFromPillaging = 0;
@@ -18570,6 +18572,18 @@ void CvUnit::SetSpottedRuin(bool bValue)
 	m_bSpottedRuin = bValue;
 }
 
+bool CvUnit::HasRevealedPlot() const
+{
+	VALIDATE_OBJECT();
+	return m_bRevealedPlot;
+}
+
+void CvUnit::SetRevealedPlot(bool bValue)
+{
+	VALIDATE_OBJECT();
+	m_bRevealedPlot = bValue;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsGainsYieldFromScoutingTimes100() const
 {
@@ -28484,6 +28498,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iNumTilesRevealedThisTurn);
 	visitor(unit.m_bSpottedEnemy);
 	visitor(unit.m_bSpottedRuin);
+	visitor(unit.m_bRevealedPlot);
 	visitor(unit.m_iGainsXPFromScouting);
 	visitor(unit.m_iXPFromPillaging);
 	visitor(unit.m_iExtraXPOnKill);
@@ -30285,6 +30300,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 	//hack ...
 	SetSpottedEnemy(false);
 	SetSpottedRuin(false);
+	SetRevealedPlot(false);
 
 	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bDone);
@@ -30313,6 +30329,16 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			}
 			return MOVE_RESULT_CANCEL;
 		}
+	}
+
+	if (HasRevealedPlot() && (iFlags & CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
+	{
+		ClearPathCache();
+		if (MOD_SQUADS)
+		{
+			UnlinkUnits();
+		}
+		return MOVE_RESULT_CANCEL;
 	}
 
 	int iETA = 0;

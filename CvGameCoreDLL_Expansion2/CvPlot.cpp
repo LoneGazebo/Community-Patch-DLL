@@ -11516,9 +11516,13 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				}
 			}
 
-			// Did we spot an ancient ruin?
-			if (pUnit && isGoody())
-				pUnit->SetSpottedRuin(true);
+			if (pUnit)
+			{
+				pUnit->SetRevealedPlot(true);
+				// Did we spot an ancient ruin?
+				if (isGoody())
+					pUnit->SetSpottedRuin(true);
+			}
 		}
 		else
 		{
