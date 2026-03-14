@@ -120,3 +120,10 @@ INSERT INTO Building_UnitCombatProductionModifiersGlobal
 VALUES
 	('BUILDING_UNIVERSITY_OF_COIMBRA', 'UNITCOMBAT_CARAVAN', 200),
 	('BUILDING_UNIVERSITY_OF_COIMBRA', 'UNITCOMBAT_CARGO', 200);
+
+INSERT INTO Building_ThemingBonuses
+	(BuildingType, Description, Bonus, SameEra, UniqueEras, MustBeArt, MustBeArtifact, MustBeEqualArtArtifact, RequiresOwner, RequiresAnyButOwner, RequiresSamePlayer, RequiresUniquePlayers, AIPriority, ConsecutiveEras)
+SELECT
+	'BUILDING_UNIVERSITY_OF_COIMBRA', Description, Bonus, SameEra, UniqueEras, MustBeArt, MustBeArtifact, MustBeEqualArtArtifact, RequiresOwner, RequiresAnyButOwner, RequiresSamePlayer, RequiresUniquePlayers, AIPriority, ConsecutiveEras
+FROM Building_ThemingBonuses
+WHERE BuildingType = 'BUILDING_OXFORD_UNIVERSITY';
