@@ -875,6 +875,9 @@ public:
 	bool HasSpottedRuin() const;
 	void SetSpottedRuin(bool bValue);
 
+	bool HasRevealedPlot() const;
+	void SetRevealedPlot(bool bValue);
+
 	bool IsGainsXPFromScouting() const;
 	int GetGainsXPFromScouting() const;
 	void ChangeGainsXPFromScouting(int iValue);
@@ -2260,6 +2263,7 @@ protected:
 	int m_iNumTilesRevealedThisTurn;
 	bool m_bSpottedEnemy;
 	bool m_bSpottedRuin;
+	bool m_bRevealedPlot;
 	int m_iGainsXPFromScouting;
 	int m_iXPFromPillaging;
 	int m_iExtraXPOnKill;
