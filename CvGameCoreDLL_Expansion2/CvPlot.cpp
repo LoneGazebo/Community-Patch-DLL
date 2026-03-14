@@ -12287,6 +12287,8 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 		}
 	}
 
+	ImprovementTypes eOldRevealedImprovement = getRevealedImprovementType(eTeam);
+
 	if(!bTerrainOnly)
 	{
 		bool bVisibilityChanged = false;
@@ -12355,6 +12357,13 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	{
 		if (kTeam.isMajorCiv())
 			changeNumMajorCivsRevealed(1);
+	}
+
+	if (eOldRevealedImprovement != NO_IMPROVEMENT && eOldRevealedImprovement != getRevealedImprovementType(eTeam))
+	{
+		// If an ancient ruin disappeared, we also want to stop movement
+		if (GC.getImprovementInfo(eOldRevealedImprovement)->IsGoody())
+			pUnit->SetSpottedRuin(true);
 	}
 
 	PlayerTypes eObserverUIPlayer = GC.getGame().getObserverUIOverridePlayer();
