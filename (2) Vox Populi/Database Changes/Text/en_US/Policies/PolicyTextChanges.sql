@@ -496,7 +496,7 @@ SET Text = '[COLOR_POSITIVE_TEXT]Mercantilism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 
 WHERE Tag = 'TXT_KEY_POLICY_MERCANTILISM_HELP';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from every Mine, Farm, and Lumber Mill.[NEWLINE][ICON_BULLET]+2 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture from every Village.[NEWLINE][ICON_BULLET]+3 [ICON_FOOD] Food and [ICON_CULTURE] Culture from every Town.'
+SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from every Farm, Mine, and Lumber Mill.[NEWLINE][ICON_BULLET]+2 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture from every Village.[NEWLINE][ICON_BULLET]+3 [ICON_FOOD] Food and [ICON_CULTURE] Culture from every Town.'
 WHERE Tag = 'TXT_KEY_POLICY_ENTREPRENEURSHIP_HELP';
 
 UPDATE Language_en_US
@@ -805,7 +805,7 @@ SET Text = 'In Marxist socio-political theory, the Dictatorship of the Proletari
 WHERE Tag = 'TXT_KEY_POLICY_PARTY_LEADERSHIP_TEXT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Patriotic War[ENDCOLOR]: Land Units gain +20% [ICON_STRENGTH] Strength when in or adjacent to a City. When you conquer a City for the first time, all Combat Units within 3 Tiles of the City are fully healed. Can build [COLOR_YELLOW]T-34s[ENDCOLOR].'
+SET Text = '[COLOR_POSITIVE_TEXT]Patriotic War[ENDCOLOR]: Land Units gain +20% [ICON_STRENGTH] Strength when in or adjacent to Cities. When you conquer a City for the first time, all Combat Units within 3 Tiles of the City are fully healed. Can build [COLOR_YELLOW]T-34s[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR_HELP';
 
 UPDATE Language_en_US

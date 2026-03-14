@@ -46,7 +46,7 @@ local function BuildNode(node, bShowRemainingMoves)
 
 		if iMoves == 0 then
 			instance.TurnLabel:SetText(iTurns);
-			if (bIsStopNode) then
+			if bIsStopNode then
 				instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_ENDING_MOVE_EARLY");
 			else
 				instance.RemainingMoves:SetText("");

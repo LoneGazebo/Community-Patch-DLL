@@ -67,15 +67,21 @@ WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 -- Bonus and AIPriority to be swept in ThemingSweeps.sql
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description)
-SELECT a.Type, 'TXT_KEY_THEMING_BONUS_PALACE'
-FROM Buildings a
-WHERE a.BuildingClass = 'BUILDINGCLASS_PALACE';
+SELECT Type, 'TXT_KEY_THEMING_BONUS_PALACE'
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 
 ----------------------------------------------------------------------------
 -- Guild support/theming line (which starts at Monument for some reason)
 ----------------------------------------------------------------------------
 
 -- Monument
+UPDATE Buildings
+SET
+	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
+	GreatWorkCount = 1
+WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
@@ -112,8 +118,8 @@ WHERE BuildingClass = 'BUILDINGCLASS_AMPHITHEATER';
 INSERT INTO Helper
 	(Description, RequiresOwner, RequiresAnyButOwner)
 VALUES
-	('TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL', 1, NULL),
-	('TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL', NULL, 1);
+	('TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL', 1, 0),
+	('TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL', 0, 1);
 
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, RequiresOwner, RequiresAnyButOwner)
@@ -217,9 +223,9 @@ DELETE FROM Helper;
 INSERT INTO Helper
 	(Description, SameEra, ConsecutiveEras, UniqueEras)
 VALUES
-	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL', 1, NULL, NULL),
-	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_CLASSICS', NULL, 1, NULL),
-	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_ALL', NULL, NULL, 1);
+	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL', 1, 0, 0),
+	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_CLASSICS', 0, 1, 0),
+	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_ALL', 0, 0, 1);
 
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, SameEra, ConsecutiveEras, UniqueEras)

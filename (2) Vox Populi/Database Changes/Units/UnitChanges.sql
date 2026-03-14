@@ -13,14 +13,14 @@ CREATE TEMP TABLE Helper (
 -- Unit Combat Categories
 ----------------------------------------------------------------------------
 
-UPDATE UnitCombatInfos 
-SET 
+UPDATE UnitCombatInfos
+SET
 	IsMilitary = 1,
 	IsAerial = 1
 WHERE Type = 'UNITCOMBAT_MISSILE';
 
-UPDATE UnitCombatInfos 
-SET 
+UPDATE UnitCombatInfos
+SET
 	IsMilitary = 1,
 	IsAerial = 1
 WHERE Type = 'UNITCOMBAT_NUKE';
@@ -553,17 +553,14 @@ WHERE Class = 'UNITCLASS_STEALTH_BOMBER';
 ----------------------------------------------------------------------------
 
 -- Rocket Missile
-UPDATE Units
-SET
-	CombatClass = 'UNITCOMBAT_MISSILE'	
-WHERE Class = 'UNITCLASS_ROCKET_MISSILE';
+UPDATE Units SET CombatClass = 'UNITCOMBAT_MISSILE' WHERE Class = 'UNITCLASS_ROCKET_MISSILE';
 
 -- Guided Missile
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_MISSILE',
 	PrereqTech = 'TECH_ADVANCED_BALLISTICS',
-	NoMaintenance = 0,
-	CombatClass = 'UNITCOMBAT_MISSILE'	
+	NoMaintenance = 0
 WHERE Class = 'UNITCLASS_GUIDED_MISSILE';
 
 ----------------------------------------------------------------------------
@@ -574,10 +571,10 @@ WHERE Class = 'UNITCLASS_GUIDED_MISSILE';
 UPDATE Units SET CombatClass = 'UNITCOMBAT_NUKE' WHERE Class = 'UNITCLASS_ATOMIC_BOMB';
 
 -- Nuclear Missile
-UPDATE Units 
-SET 
-	PrereqTech = 'TECH_LASERS',
-	CombatClass = 'UNITCOMBAT_NUKE'
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_NUKE',
+	PrereqTech = 'TECH_LASERS'
 WHERE Class = 'UNITCLASS_NUCLEAR_MISSILE';
 
 ----------------------------------------------------------------------------
@@ -685,17 +682,17 @@ UPDATE Units SET CombatClass = 'UNITCOMBAT_SPACESHIP' WHERE Class = 'UNITCLASS_S
 UPDATE Units SET CombatClass = 'UNITCOMBAT_SPACESHIP' WHERE Class = 'UNITCLASS_SS_ENGINE';
 
 -- SS Cockpit
-UPDATE Units 
-SET 
+UPDATE Units
+SET
 	CombatClass = 'UNITCOMBAT_SPACESHIP',
-	PrereqTech = 'TECH_GLOBALIZATION' 
+	PrereqTech = 'TECH_GLOBALIZATION'
 WHERE Class = 'UNITCLASS_SS_COCKPIT';
 
 -- SS Booster
-UPDATE Units 
-SET 
+UPDATE Units
+SET
 	CombatClass = 'UNITCOMBAT_SPACESHIP',
-	PrereqTech = 'TECH_NUCLEAR_FUSION' 
+	PrereqTech = 'TECH_NUCLEAR_FUSION'
 WHERE Class = 'UNITCLASS_SS_BOOSTER';
 
 ----------------------------------------------------------------------------
@@ -705,34 +702,34 @@ WHERE Class = 'UNITCLASS_SS_BOOSTER';
 -- Great Writer
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	BaseCultureTurnsToCount = 5,
-	ScaleFromNumGWs = 3,
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
+	ScaleFromNumGWs = 3
 WHERE Class = 'UNITCLASS_WRITER';
 
 -- Great Artist
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	GoldenAgeTurns = 0,
 	BaseTurnsForGAPToCount = 10,
-	ScaleFromNumThemes = 20,
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
+	ScaleFromNumThemes = 20
 WHERE Class = 'UNITCLASS_ARTIST';
 
 -- Great Musician
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	OneShotTourism = 0,
 	OneShotTourismPercentOthers = 0,
-	TourismBonusTurns = 10,
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
+	TourismBonusTurns = 10
 WHERE Class = 'UNITCLASS_MUSICIAN';
 
 -- Great Scientist
-UPDATE Units 
-SET 
-	BaseBeakersTurnsToCount = 3,
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
+	BaseBeakersTurnsToCount = 3
 WHERE Class = 'UNITCLASS_SCIENTIST';
 
 INSERT INTO Unit_ScalingFromOwnedImprovements
@@ -745,11 +742,11 @@ WHERE Class = 'UNITCLASS_SCIENTIST';
 -- Great Merchant
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	BaseGold = 0,
 	NumGoldPerEra = 0,
 	BaseGoldTurnsToCount = 2,
-	BaseWLTKDTurns = 5,
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
+	BaseWLTKDTurns = 5
 WHERE Class = 'UNITCLASS_MERCHANT';
 
 INSERT INTO Unit_ScalingFromOwnedImprovements
@@ -762,10 +759,10 @@ WHERE Class = 'UNITCLASS_MERCHANT';
 -- Great Engineer
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	BaseHurry = 0,
 	HurryMultiplier = 0,
-	BaseProductionTurnsToCount = 5,
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
+	BaseProductionTurnsToCount = 5
 WHERE Class = 'UNITCLASS_ENGINEER';
 
 INSERT INTO Unit_ScalingFromOwnedImprovements
@@ -776,10 +773,7 @@ FROM Units
 WHERE Class = 'UNITCLASS_ENGINEER';
 
 -- Great Diplomat
-UPDATE Units
-SET
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
-WHERE Class = 'UNITCLASS_GREAT_DIPLOMAT';
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE' WHERE Class = 'UNITCLASS_GREAT_DIPLOMAT';
 
 INSERT INTO Unit_ResourceQuantityExpended
 	(UnitType, ResourceType, Amount)
@@ -789,25 +783,22 @@ FROM Units
 WHERE Class = 'UNITCLASS_GREAT_DIPLOMAT';
 
 -- Great General
-UPDATE Units
-SET
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
-WHERE Class = 'UNITCLASS_GREAT_GENERAL';
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE' WHERE Class = 'UNITCLASS_GREAT_GENERAL';
 
 -- Great Admiral
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	NumFreeLux = 2,
-	WorkRate = 1,  -- Tersane
-	CanRepairFleet = 0,
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
+	WorkRate = 1, -- Tersane
+	CanRepairFleet = 0
 WHERE Class = 'UNITCLASS_GREAT_ADMIRAL';
 
 -- Great Prophet
-UPDATE Units 
-SET 
-	Capture = NULL, 
-	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE'
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
+	Capture = NULL
 WHERE Class = 'UNITCLASS_PROPHET';
 
 ----------------------------------------------------------------------------
@@ -819,12 +810,12 @@ UPDATE Units
 SET
 	CombatClass = 'UNITCOMBAT_WORKER',
 	WorkRate = 90, -- slowed down a bit, was 100
-	PuppetPurchaseOverride = 1	
+	PuppetPurchaseOverride = 1
 WHERE Class = 'UNITCLASS_WORKER';
 
 -- Work Boat
-UPDATE Units 
-SET 
+UPDATE Units
+SET
 	CombatClass = 'UNITCOMBAT_WORKBOAT',
 	PuppetPurchaseOverride = 1
 WHERE Class = 'UNITCLASS_WORKBOAT';
@@ -836,11 +827,9 @@ UPDATE Units SET CombatClass = 'UNITCOMBAT_MISSIONARY' WHERE Class = 'UNITCLASS_
 UPDATE Units SET CombatClass = 'UNITCOMBAT_INQUISITOR' WHERE Class = 'UNITCLASS_INQUISITOR';
 
 -- Archaeologist
-UPDATE UnitClasses 
-SET MaxPlayerInstances = 3 WHERE Type = 'UNITCLASS_ARCHAEOLOGIST';
+UPDATE UnitClasses SET MaxPlayerInstances = 3 WHERE Type = 'UNITCLASS_ARCHAEOLOGIST';
 
-UPDATE Units
-SET CombatClass = 'UNITCOMBAT_ARCHAEOLOGIST' WHERE Type = 'UNITCLASS_ARCHAEOLOGIST';
+UPDATE Units SET CombatClass = 'UNITCOMBAT_ARCHAEOLOGIST' WHERE Class = 'UNITCLASS_ARCHAEOLOGIST';
 
 UPDATE Unit_BuildingClassRequireds
 SET BuildingClassType = 'BUILDINGCLASS_MUSEUM'

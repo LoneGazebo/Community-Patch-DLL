@@ -8,7 +8,6 @@ SET
 
 -- Update non-standard TR numbers
 UPDATE Corporations SET NumFreeTradeRoutes = 2 WHERE Type IN ('CORPORATION_CIVILIZED_JEWELERS', 'CORPORATION_POPULI_MEDICINE');
-
 UPDATE Corporations SET NumFreeTradeRoutes = 3 WHERE Type = 'CORPORATION_TRADER_SIDS';
 
 -- Required monopolies for corporations
@@ -80,14 +79,11 @@ INSERT INTO Corporation_SpecialistYieldChanges
 	(CorporationType, SpecialistType, YieldType, Yield)
 VALUES
 	('CORPORATION_TRADER_SIDS', 'SPECIALIST_MERCHANT', 'YIELD_FOOD', 3),
-	-- centaurus all specialists below
 	('CORPORATION_HEXXON_REFINERY', 'SPECIALIST_ENGINEER', 'YIELD_SCIENCE', 2),
 	('CORPORATION_GIORGIO_ARMEIER', 'SPECIALIST_ARTIST', 'YIELD_CULTURE', 2),
 	('CORPORATION_GIORGIO_ARMEIER', 'SPECIALIST_ARTIST', 'YIELD_GOLD', 2),
 	('CORPORATION_GIORGIO_ARMEIER', 'SPECIALIST_ARTIST', 'YIELD_TOURISM', 2),
 	('CORPORATION_FIRAXITE_MATERIALS', 'SPECIALIST_SCIENTIST', 'YIELD_PRODUCTION', 2),
-	-- no twokay bonus
-	-- jewellers all specialists below
 	('CORPORATION_POPULI_MEDICINE', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_GOLD', 3);
 
 INSERT INTO Corporation_SpecialistYieldChanges
@@ -101,13 +97,13 @@ INSERT INTO Corporation_SpecialistYieldChanges
 SELECT
 	'CORPORATION_CIVILIZED_JEWELERS', Type, 'YIELD_GOLD', 1
 FROM Specialists WHERE GreatPeopleUnitClass IS NOT NULL;
-	
+
 -- Corporation gives a flat number of free resources
 INSERT INTO Corporation_NumFreeResource
 	(CorporationType, ResourceType, NumResource)
 VALUES
-	('CORPORATION_HEXXON_REFINERY', 'RESOURCE_OIL', 5),
-	('CORPORATION_HEXXON_REFINERY', 'RESOURCE_COAL', 5);
+	('CORPORATION_HEXXON_REFINERY', 'RESOURCE_COAL', 5),
+	('CORPORATION_HEXXON_REFINERY', 'RESOURCE_OIL', 5);
 
 -- Office boosts yields of international trade routes targeting cities with franchise
 INSERT INTO Corporation_TradeRouteMod
@@ -127,8 +123,7 @@ VALUES
 	('CORPORATION_CIVILIZED_JEWELERS', 'YIELD_GOLD', 3),
 	('CORPORATION_POPULI_MEDICINE', 'YIELD_FAITH', 3);
 
--- Franchise boosts resources
--- and so do Offices (this must load before BuildingChanges2.sql)
+-- Franchise boosts resources (yield type and amount based on building boosts)
 INSERT INTO Corporation_ResourceYieldChanges
 	(CorporationType, ResourceType, YieldType, Yield)
 SELECT DISTINCT

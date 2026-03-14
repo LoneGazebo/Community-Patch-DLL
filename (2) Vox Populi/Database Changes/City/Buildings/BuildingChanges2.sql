@@ -1246,6 +1246,8 @@ SELECT
 FROM Buildings
 WHERE IsCorporation = 1 AND WonderSplashImage IS NOT NULL;
 
+-- Add resource boosts on offices based on franchise resource boosts
+-- This file must load after CorporationChanges.sql
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)
 SELECT
@@ -1276,7 +1278,7 @@ VALUES
 INSERT INTO Building_SeaResourceYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_SCIENCE', 1),	
+	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_SCIENCE', 1),
 	('BUILDING_CENTAURUS_EXTRACTORS', 'YIELD_CULTURE', 1);
 
 -- Hexxon Refinery
