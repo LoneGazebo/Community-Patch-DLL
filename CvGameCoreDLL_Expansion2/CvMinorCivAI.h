@@ -651,9 +651,11 @@ public:
 	bool HasAllyCityYieldBonuses(YieldTypes eYield) const;
 	int GetAllyCityYieldBonusValue(YieldTypes eYield, EraTypes eEra, bool bCapitalOnly) const;
 
-	int GetYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel) const;
+	int GetYieldFriendFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra) const;
+	int GetYieldAllyFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra) const;
 	int GetCurrentYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield);
-	int GetCityYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel, bool bCapitalOnly) const;
+	int GetCityYieldFriendFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, bool bCapitalOnly) const;
+	int GetCityYieldAllyFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, bool bCapitalOnly) const;
 	int GetCurrentCityYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, bool bCapitalOnly);
 
 	// Happiness bonuses

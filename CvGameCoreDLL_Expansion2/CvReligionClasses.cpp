@@ -9622,7 +9622,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 		if (pEntry->GetFriendlyCityStateSpreadModifier() != 0)
 		{
-			int iSpreadTempCS = (pEntry->GetFriendlyCityStateSpreadModifier() * (m_pPlayer->GetNumCSAllies() + m_pPlayer->GetNumCSFriends() + GC.getGame().GetNumMinorCivsAlive())) / 2;
+			int iSpreadTempCS = (pEntry->GetFriendlyCityStateSpreadModifier() * (m_pPlayer->GetNumCSFriends() + GC.getGame().GetNumMinorCivsAlive())) / 2;
 			iSpreadTemp += iSpreadTempCS;
 		}
 
@@ -9655,7 +9655,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			iSpreadYields += pEntry->GetYieldChangePerXForeignFollowers(iI) * 2;
 
 			if (pEntry->GetYieldChangePerXCityStateFollowers(iI) > 0)
-				iSpreadYields += pEntry->GetYieldChangePerXCityStateFollowers(iI) * (m_pPlayer->GetNumCSAllies() + m_pPlayer->GetNumCSFriends() + GC.getGame().GetNumMinorCivsAlive()) / 2;
+				iSpreadYields += pEntry->GetYieldChangePerXCityStateFollowers(iI) * (m_pPlayer->GetNumCSFriends() + GC.getGame().GetNumMinorCivsAlive()) / 2;
 
 			if (pEntry->GetMaxYieldPerFollowerPercent(iI) > 0)
 			{
@@ -9989,7 +9989,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			{
 				if (pEntry->GetYieldFromHost(iI) != 0)
 				{
-					iDiploTemp += (pEntry->GetYieldFromHost(iI) * m_pPlayer->GetNumCSFriends());
+					iDiploTemp += (pEntry->GetYieldFromHost(iI) * m_pPlayer->GetNumCSAllies());
 				}
 			}
 		}
@@ -10002,13 +10002,13 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			}
 			else
 			{
-				iDiploTemp += ((pEntry->GetYieldFromProposal(iI) / 2)  * m_pPlayer->GetNumCSFriends());
+				iDiploTemp += ((pEntry->GetYieldFromProposal(iI) / 2)  * m_pPlayer->GetNumCSAllies());
 			}
 		}
 	}
 	if (pEntry->GetCSYieldBonus() > 0)
 	{
-		iDiploTemp += (pEntry->GetCSYieldBonus() * m_pPlayer->GetNumCSFriends()) / 2;
+		iDiploTemp += (pEntry->GetCSYieldBonus() * m_pPlayer->GetNumCSAllies()) / 2;
 	}
 
 	int iNumImprovementInfos = GC.getNumImprovementInfos();
@@ -10038,7 +10038,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		}
 		else
 		{
-			iDiploTemp += (pEntry->GetExtraVotes() * m_pPlayer->GetNumCSFriends() * 2);
+			iDiploTemp += (pEntry->GetExtraVotes() * m_pPlayer->GetNumCSAllies() * 2);
 		}
 	}
 

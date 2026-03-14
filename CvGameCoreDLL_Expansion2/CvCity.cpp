@@ -2481,9 +2481,6 @@ void CvCity::doTurn()
 
 	if (GET_PLAYER(getOwner()).isMajorCiv())
 	{
-		//normally we only do delta update. this is for debugging
-		CrosscheckYieldsFromMinors();
-
 		if (MOD_BALANCE_RESOURCE_SHORTAGE_BUILDING_REFUND)
 		{
 			int iTotalPenalty = 0;
@@ -28919,30 +28916,29 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 		CvMinorCivAI* pMinor = GET_PLAYER(ePlayer).isMinorCiv() && GET_PLAYER(ePlayer).isAlive() ? GET_PLAYER(ePlayer).GetMinorCivAI() : 0;
 		if (pMinor)
 		{
-			int iInfluenceLevel = pMinor->IsAllies(eCityOwner) + pMinor->IsFriends(eCityOwner);
-			if (iInfluenceLevel == 2)
+			if (pMinor->IsFriends(eCityOwner))
 			{
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes)iI;
-					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, iInfluenceLevel, isCapital()) - pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, 1, isCapital());
+					int iBonus = pMinor->GetCityYieldFriendFlatBonusTimes100(eCityOwner, eYield, NO_ERA, isCapital());
+					if (iBonus != 0)
+					{
+						ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iSign * iBonus);
+						//CUSTOMLOG("adjusted %s in %s by %d/100 for friendship with %s, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSFriendship(eYield));
+					}
+				}
+			}
+			if (pMinor->IsAllies(eCityOwner))
+			{
+				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				{
+					YieldTypes eYield = (YieldTypes)iI;
+					int iBonus = pMinor->GetCityYieldAllyFlatBonusTimes100(eCityOwner, eYield, NO_ERA, isCapital());
 					if (iBonus != 0)
 					{
 						ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iSign * iBonus);
 						//CUSTOMLOG("adjusted %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSAlliance(eYield));
-					}
-				}
-			}
-			if (iInfluenceLevel >= 1)
-			{
-				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					YieldTypes eYield = (YieldTypes)iI;
-					int iBonus = pMinor->GetCityYieldFlatBonusTimes100(eCityOwner, eYield, NO_ERA, 1, isCapital());
-					if (iBonus != 0)
-					{
-						ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iSign * iBonus);
-						//CUSTOMLOG("adjusted %s in %s by %d/100 for alliance with %s, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSFriendship(eYield));
 					}
 				}
 			}
@@ -31392,65 +31388,6 @@ bool CvCity::doCheckProduction()
 	}
 
 	return CleanUpQueue();
-}
-
-bool CvCity::CrosscheckYieldsFromMinors()
-{
-#ifdef VPDEBUG
-	CvPlayer& kMajor = GET_PLAYER(getOwner());
-	int iEra = max(1, (int)kMajor.GetCurrentEra());
-
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		YieldTypes eYield = (YieldTypes)iI;
-		int iMajorBonus = 0;
-		int iMinorBonus = 0;
-
-		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
-		{
-			PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
-			CvMinorCivAI* pMinorLoop = GET_PLAYER(eMinorLoop).GetMinorCivAI();
-			if (!pMinorLoop->GetPlayer()->isAlive())
-				continue;
-
-			//bonuses based on major traits
-			if (isCapital())
-			{
-				if (pMinorLoop->IsAllies(getOwner()))
-					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield)*iEra*100;
-
-				if (pMinorLoop->IsFriends(getOwner()))
-					iMajorBonus += kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)*iEra*100;
-			}
-
-			//bonuses based on minor traits
-			if (isCapital())
-			{
-				if (pMinorLoop->IsAllies(getOwner()))
-					iMinorBonus += pMinorLoop->GetCityYieldFlatBonusTimes100(getOwner(), eYield,  static_cast<EraTypes>(iEra), 2, true);
-				else if (pMinorLoop->IsFriends(getOwner()))
-					iMinorBonus += pMinorLoop->GetCityYieldFlatBonusTimes100(getOwner(), eYield, static_cast<EraTypes>(iEra), 1, true);
-			}
-			else
-			{
-				if (pMinorLoop->IsAllies(getOwner()))
-					iMinorBonus += pMinorLoop->GetCityYieldFlatBonusTimes100(getOwner(), eYield, static_cast<EraTypes>(iEra), 2, false);
-				else if (pMinorLoop->IsFriends(getOwner()))
-					iMinorBonus += pMinorLoop->GetCityYieldFlatBonusTimes100(getOwner(), eYield, static_cast<EraTypes>(iEra), 1, false);
-			}
-		}
-
-		//roman UA adds yields from conquered city states ...
-		iMajorBonus += isCapital() ? kMajor.GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(eYield) : kMajor.GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(eYield);
-
-		if (m_aiBaseYieldRateFromCSAllianceTimes100[eYield] + m_aiBaseYieldRateFromCSFriendshipTimes100[eYield] != iMajorBonus + iMinorBonus)
-		{
-			CUSTOMLOG("yield mismatch in %s!", getNameKey());
-			return false;
-		}
-	}
-#endif
-	return true;
 }
 
 //	--------------------------------------------------------------------------------

@@ -533,7 +533,6 @@ public:
 	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
 
 	int GetYieldPerTurnFromMinorCivsTimes100(YieldTypes eYield) const;
-	int GetYieldPerTurnFromMinorTimes100(PlayerTypes eMinor, YieldTypes eYield) const;
 
 	// JFD
 	int GetYieldPerTurnFromMinors(YieldTypes eYield) const;

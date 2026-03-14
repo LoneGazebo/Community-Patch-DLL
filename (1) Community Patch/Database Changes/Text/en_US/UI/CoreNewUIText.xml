@@ -1687,10 +1687,10 @@
 			<Text>[ICON_BULLET]Each [ICON_FRANCHISE] Established Franchise: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_FRIENDS">
-			<Text>[ICON_BULLET]Each [ICON_CITY_STATE] City-State Friend: {1_YieldBoosts} (NOTE: Allies are not Friends)</Text>
+			<Text>[ICON_BULLET]Each friendly [ICON_CITY_STATE] City-State: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_ALLIES">
-			<Text>[ICON_BULLET]Each [ICON_CITY_STATE] City-State Ally: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each allied [ICON_CITY_STATE] City-State: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_STRATEGIC_RESOURCES">
 			<Text>[ICON_BULLET]Each unit of Strategic Resources connected to allied [ICON_CITY_STATE] City-States: {1_YieldBoosts}</Text>

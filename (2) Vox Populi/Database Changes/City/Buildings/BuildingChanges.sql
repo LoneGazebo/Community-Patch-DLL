@@ -1262,7 +1262,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 100
+	Type, 'YIELD_PRODUCTION', 50
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 
@@ -1281,20 +1281,12 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 
-INSERT INTO Helper
-	(YieldType)
-VALUES
-	('YIELD_SCIENCE'),
-	('YIELD_CULTURE');
-
 INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 100
-FROM Buildings a, Helper b
-WHERE a.BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
-
-DELETE FROM Helper;
+	Type, 'YIELD_SCIENCE', 100
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 
 ----------------------------------------------------------------------------
 -- Guilds
@@ -1998,20 +1990,12 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 
-INSERT INTO Helper
-	(YieldType)
-VALUES
-	('YIELD_FOOD'),
-	('YIELD_FAITH');
-
 INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 100
-FROM Buildings a, Helper b
-WHERE a.BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
-
-DELETE FROM Helper;
+	Type, 'YIELD_FAITH', 100
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 
 -- Heroic Epic
 UPDATE Buildings

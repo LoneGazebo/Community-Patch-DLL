@@ -12974,9 +12974,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 				pCapital->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, (kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iSign * iEra * 100));
 
 			if (bAllyChange)
-				// stupid definition of the database tables: "YieldFromCSFriends" actually means "Yields from being friends, but not being allies"...
-				// so when we become allies, we need to remove the "YieldFromCSFriends" bonus again...
-				pCapital->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, ((kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield)- kMajor.GetPlayerTraits()->GetYieldFromCSFriend(eYield)) * iSign * iEra * 100));
+				pCapital->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, (kMajor.GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iSign * iEra * 100));
 		}
 	}
 	
@@ -12989,21 +12987,21 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 		// friend -> ally
 		// neutral ->-> ally
 		// our function calculates the first and last, the middle is the difference
-		int iFriendCapitalYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 1, true);
-		int iFriendOtherCitiesYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 1, false);
+		int iFriendCapitalYieldTimes100 = 0;
+		int iFriendOtherCitiesYieldTimes100 = 0;
+		if (bFriendChange)
+		{
+			iFriendCapitalYieldTimes100 = GetCityYieldFriendFlatBonusTimes100(ePlayer, eYield, NO_ERA, true);
+			iFriendOtherCitiesYieldTimes100 = GetCityYieldFriendFlatBonusTimes100(ePlayer, eYield, NO_ERA, false);
+		}
 		int iAllyCapitalYieldTimes100 = 0;
 		int iAllyOtherCitiesYieldTimes100 = 0;
 		if (bAllyChange)
 		{
-			iAllyCapitalYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 2, true) - iFriendCapitalYieldTimes100;
-			iAllyOtherCitiesYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 2, false) - iFriendOtherCitiesYieldTimes100;
+			iAllyCapitalYieldTimes100 = GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, NO_ERA, true);
+			iAllyOtherCitiesYieldTimes100 = GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, NO_ERA, false);
 		}
-		// if we are doing friend->ally, zero the friendchange now we've used it
-		if (!bFriendChange)
-		{
-			iFriendCapitalYieldTimes100 = 0;
-			iFriendOtherCitiesYieldTimes100 = 0;
-		}
+
 		int iLoop;
 		for (CvCity* pLoopCity = kMajor.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kMajor.nextCity(&iLoop))
 		{
@@ -13976,67 +13974,68 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 
 	kMajor.GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), "era change yield update");
 
-	int iInfluenceLevel = IsFriends(ePlayer) + IsAllies(ePlayer);
 	EraTypes eOldEra = (EraTypes)iCurrentEra;
 	
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; ++iYield)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
 
-		int iOldFlat = GetYieldFlatBonusTimes100(ePlayer, eYield, eOldEra, iInfluenceLevel);
-		int iNewFlat = GetYieldFlatBonusTimes100(ePlayer, eYield, eNewEra, iInfluenceLevel);
+		int iOldFlat = IsFriends(ePlayer) ? GetYieldFriendFlatBonusTimes100(ePlayer, eYield, eOldEra) : 0;
+		iOldFlat += IsAllies(ePlayer) ? GetYieldAllyFlatBonusTimes100(ePlayer, eYield, eOldEra) : 0;
+		int iNewFlat = IsFriends(ePlayer) ? GetYieldFriendFlatBonusTimes100(ePlayer, eYield, eNewEra) : 0;
+		iNewFlat += IsAllies(ePlayer) ? GetYieldAllyFlatBonusTimes100(ePlayer, eYield, eNewEra) : 0;
 
-		int iOldCap  = GetCityYieldFlatBonusTimes100(ePlayer, eYield, eOldEra, iInfluenceLevel, true);
-		int iNewCap  = GetCityYieldFlatBonusTimes100(ePlayer, eYield, eNewEra, iInfluenceLevel, true);
+		int iCapitalDeltaFriends = IsFriends(ePlayer) ? (GetCityYieldFriendFlatBonusTimes100(ePlayer, eYield, eNewEra, true) -
+			GetCityYieldFriendFlatBonusTimes100(ePlayer, eYield, eOldEra, true)) : 0;
 
-		int iOldCity = GetCityYieldFlatBonusTimes100(ePlayer, eYield, eOldEra, iInfluenceLevel, false);
-		int iNewCity = GetCityYieldFlatBonusTimes100(ePlayer, eYield, eNewEra, iInfluenceLevel, false);
+		int iCapitalDeltaAllies = IsAllies(ePlayer) ? (GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, eNewEra, true) -
+			GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, eOldEra, true)) : 0;
+
+		int iCityDeltaFriends = IsFriends(ePlayer) ? (GetCityYieldFriendFlatBonusTimes100(ePlayer, eYield, eNewEra, false) -
+			GetCityYieldFriendFlatBonusTimes100(ePlayer, eYield, eOldEra, false)) : 0;
+
+		int iCityDeltaAllies = IsAllies(ePlayer) ? (GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, eNewEra, false) -
+			GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, eOldEra, false)) : 0;
 
 		int iFlatDelta = iNewFlat - iOldFlat;
-		int iCapDelta  = iNewCap  - iOldCap;
-		int iCityDelta = iNewCity - iOldCity;
 
-		if (iFlatDelta == 0 && iCapDelta == 0 && iCityDelta == 0)
+		if (iFlatDelta == 0 && iCapitalDeltaFriends == 0 && iCapitalDeltaAllies == 0 && iCityDeltaFriends == 0 && iCityDeltaAllies == 0)
 			continue;
 
 		bSomethingChanged = true;
 
 		// now we update per-city values
-		if (iCapDelta != 0 || iCityDelta != 0)
+		if (iCapitalDeltaFriends != 0 || iCapitalDeltaAllies != 0 || iCityDeltaFriends != 0 || iCityDeltaAllies != 0)
 		{
 			int iLoop;
 			for (CvCity* pCity = kMajor.firstCity(&iLoop); pCity != NULL; pCity = kMajor.nextCity(&iLoop))
 			{
 				if (pCity->isCapital())
 				{
-					if (iCapDelta != 0)
+					if (iCapitalDeltaFriends != 0)
 					{
-						if (iInfluenceLevel == 1)
-						{
-							pCity->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iCapDelta);
-							//CUSTOMLOG("updated capital %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
-						}
-						else if(iInfluenceLevel == 2)
-						{
-							pCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iCapDelta);
-							//CUSTOMLOG("updated capital %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
-						}
+						pCity->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iCapitalDeltaFriends);
+						//CUSTOMLOG("updated capital %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCapDeltaFriends, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
+					
+					}
+					if (iCapitalDeltaAllies != 0)
+					{
+						pCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iCapitalDeltaAllies);
+						//CUSTOMLOG("updated capital %s in %s by %d/100 for alliance with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCapDeltaAllies, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAllianceTimes100(eYield));
 					}
 				}
 				else
 				{
-					if (iCityDelta != 0)
+					if (iCityDeltaFriends != 0)
 					{
-						if (iInfluenceLevel == 1)
-						{
-							pCity->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iCityDelta);
-							//CUSTOMLOG("updated %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCityDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
-						}
-						else if(iInfluenceLevel == 2)
-						{
-							pCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iCityDelta);
-							//CUSTOMLOG("updated %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCityDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
-						}
+						pCity->ChangeBaseYieldRateFromCSFriendshipTimes100(eYield, iCityDeltaFriends);
+						//CUSTOMLOG("updated non-capital city %s in %s by %d/100 for friendship with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCapDeltaFriends, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendshipTimes100(eYield));
+					
+					}
+					if (iCityDeltaAllies != 0)
+					{
+						pCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iCityDeltaAllies);
+						//CUSTOMLOG("updated non-capital city %s in %s by %d/100 for alliance with %s, current value is %d/100",  GC.getYieldInfo(eYield)->GetDescription(), pLoopCity->getNameKey(), iCapDeltaAllies, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAllianceTimes100(eYield));
 					}
 				}
 
@@ -14306,11 +14305,8 @@ int CvMinorCivAI::GetCurrentHappinessBonus(PlayerTypes ePlayer)
 }
 
 // one function to rule them all, player version
-int CvMinorCivAI::GetYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel) const
-{
-	if (iInfluenceLevel == 0)
-		return 0;
-	
+int CvMinorCivAI::GetYieldFriendFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra) const
+{	
 	int iYieldBonus = 0;
 
 	EraTypes eCurrentEra = eAssumeEra;
@@ -14324,8 +14320,28 @@ int CvMinorCivAI::GetYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYie
 
 		if (HasFriendYieldBonuses(eYield))
 			iYieldBonus += GetFriendYieldBonusValue(eYield, eEra);
-		
-		if (HasAllyYieldBonuses(eYield) && iInfluenceLevel > 1)
+
+		if (iYieldBonus > 0)
+			break;
+	}
+
+	return iYieldBonus;
+}
+
+int CvMinorCivAI::GetYieldAllyFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra) const
+{	
+	int iYieldBonus = 0;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if(eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	// Iterate from current era down to Ancient
+	for (int iEra = (int)eCurrentEra; iEra >= 0; --iEra)
+	{
+		EraTypes eEra = (EraTypes)iEra;
+
+		if (HasAllyYieldBonuses(eYield))
 			iYieldBonus += GetAllyYieldBonusValue(eYield, eEra);
 
 		if (iYieldBonus > 0)
@@ -14345,12 +14361,15 @@ int CvMinorCivAI::GetCurrentYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes e
 	if(ePlayer >= MAX_MAJOR_CIVS)
 		return 0;
 
-	int iInfluenceLevel = IsAllies(ePlayer) + IsFriends(ePlayer);
-	
-	if (iInfluenceLevel == 0)
-		return iInfluenceLevel;
-	
-	int iAmount = GetYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, iInfluenceLevel);
+	int iAmount = 0;
+	if (IsFriends(ePlayer))
+		iAmount += GetYieldFriendFlatBonusTimes100(ePlayer, eYield, NO_ERA);
+	if (IsAllies(ePlayer))
+		iAmount += GetYieldAllyFlatBonusTimes100(ePlayer, eYield, NO_ERA);
+
+
+	if (iAmount == 0)
+		return iAmount;
 	
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
@@ -14371,11 +14390,8 @@ int CvMinorCivAI::GetCurrentYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes e
 }
 
 // one function to rule them all, city version
-int CvMinorCivAI::GetCityYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, int iInfluenceLevel, bool bCapitalOnly) const
-{
-	if (iInfluenceLevel == 0)
-		return 0;
-	
+int CvMinorCivAI::GetCityYieldFriendFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, bool bCapitalOnly) const
+{	
 	int iYieldBonus = 0;
 
 	EraTypes eCurrentEra = eAssumeEra;
@@ -14389,8 +14405,29 @@ int CvMinorCivAI::GetCityYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes 
 
 		if (HasFriendCityYieldBonuses(eYield))
 			iYieldBonus += GetFriendCityYieldBonusValue(eYield, eEra, bCapitalOnly);
-		
-		if (HasAllyCityYieldBonuses(eYield) && iInfluenceLevel > 1)
+				
+		if (iYieldBonus > 0)
+			break;
+	}
+
+	return iYieldBonus;
+}
+
+// one function to rule them all, city version
+int CvMinorCivAI::GetCityYieldAllyFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, EraTypes eAssumeEra, bool bCapitalOnly) const
+{	
+	int iYieldBonus = 0;
+
+	EraTypes eCurrentEra = eAssumeEra;
+	if(eCurrentEra == NO_ERA)
+		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
+
+	// Iterate from current era down to Ancient
+	for (int iEra = (int)eCurrentEra; iEra >= 0; --iEra)
+	{
+		EraTypes eEra = (EraTypes)iEra;
+
+		if (HasAllyCityYieldBonuses(eYield))
 			iYieldBonus += GetAllyCityYieldBonusValue(eYield, eEra, bCapitalOnly);
 		
 		if (iYieldBonus > 0)
@@ -14403,12 +14440,16 @@ int CvMinorCivAI::GetCityYieldFlatBonusTimes100(PlayerTypes ePlayer, YieldTypes 
 /// How much are we getting RIGHT NOW (usually 0)
 int CvMinorCivAI::GetCurrentCityYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes eYield, bool bCapitalOnly)
 {
-	int iInfluenceLevel = IsAllies(ePlayer) + IsFriends(ePlayer);
+	int iAmount = 0;
 	
-	if (iInfluenceLevel == 0)
+	if (IsFriends(ePlayer))
+		iAmount += GetCityYieldFriendFlatBonusTimes100(ePlayer, eYield, NO_ERA, bCapitalOnly);
+
+	if (IsAllies(ePlayer))
+		iAmount += GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, NO_ERA, bCapitalOnly);
+	
+	if (iAmount == 0)
 		return 0;
-	
-	int iAmount = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, iInfluenceLevel, bCapitalOnly);
 
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
@@ -17940,24 +17981,23 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		int iFriendYieldTimes100 = GetYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 1);
-		int iFriendCapitalYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 1, true);
-		int iFriendOtherCitiesYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 1, false);
+		int iFriendYieldTimes100 = 0;
+		int iFriendCapitalYieldTimes100 = 0;
+		int iFriendOtherCitiesYieldTimes100 = 0;
+		if (bFriends)
+		{
+			iFriendYieldTimes100 = GetYieldFriendFlatBonusTimes100(ePlayer, eYield, NO_ERA);
+			iFriendCapitalYieldTimes100 = GetCityYieldFriendFlatBonusTimes100(ePlayer, eYield, NO_ERA, true);
+			iFriendOtherCitiesYieldTimes100 = GetCityYieldFriendFlatBonusTimes100(ePlayer, eYield, NO_ERA, false);
+		}
 		int iAllyYieldTimes100 = 0;
 		int iAllyCapitalYieldTimes100 = 0;
 		int iAllyOtherCitiesYieldTimes100 = 0;
 		if (bAllies)
 		{
-			iAllyYieldTimes100 = GetYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 2);
-			iAllyCapitalYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 2, true) - iFriendCapitalYieldTimes100;
-			iAllyOtherCitiesYieldTimes100 = GetCityYieldFlatBonusTimes100(ePlayer, eYield, NO_ERA, 2, false) - iFriendOtherCitiesYieldTimes100;
-		}
-		// if we are doing friend->ally, zero the friendchange now we've used it
-		if (!bFriends)
-		{
-			iFriendYieldTimes100 = 0;
-			iFriendCapitalYieldTimes100 = 0;
-			iFriendOtherCitiesYieldTimes100 = 0;
+			iAllyYieldTimes100 = GetYieldAllyFlatBonusTimes100(ePlayer, eYield, NO_ERA);
+			iAllyCapitalYieldTimes100 = GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, NO_ERA, true);
+			iAllyOtherCitiesYieldTimes100 = GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, NO_ERA, false);
 		}
 
 		int iTotal = 0;  // don't include zero yields
