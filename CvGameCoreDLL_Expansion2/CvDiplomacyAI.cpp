@@ -11412,7 +11412,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 int CvDiplomacyAI::ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iStrength)
 {
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
-		return 100;
+		return iStrength;
 
 	int iModifier = 100;
 	TeamTypes eOurTeam = GetTeam();
@@ -11688,7 +11688,7 @@ void CvDiplomacyAI::AdjustThirdPartyStrength(PlayerTypes eThirdParty, PlayerType
 		}
 	}
 
-	// ATTACK: How close is this ally to the player?
+	// ATTACK: How close is this ally to their friend's enemy?
 	if (GET_PLAYER(eThirdParty).isMinorCiv())
 	{
 		iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*100*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_NEIGHBORS));
@@ -11712,7 +11712,7 @@ void CvDiplomacyAI::AdjustThirdPartyStrength(PlayerTypes eThirdParty, PlayerType
 		}
 	}
 
-	// DEFENSE: How close is this ally to the player's enemy?
+	// DEFENSE: How close is this ally to their friend?
 	if (GET_PLAYER(eThirdParty).isMinorCiv())
 	{
 		iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*100*/ GD_INT_GET(TARGET_MINOR_BACKUP_NEIGHBORS));
