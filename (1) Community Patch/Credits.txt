@@ -1,9 +1,9 @@
 This file has the credits for mod components integrated into Community Patch/Vox Populi.
 These are originally mixed in with code, but moved here when the original files were reorganized.
 
------------------------------------------------------------------
-
+--------------------------------------------------------------------------
 MoreGPs - Extra Great Peoples for VP - Version b3 rev 6
+--------------------------------------------------------------------------
 
 CivFanatics thread : https://forums.civfanatics.com/threads/more-gps-module.665154/
 Author and assistance team: Asterix Rage, Hinin, psparky, pineappledan, Bearded Lady, adan_eslavo, Catan
@@ -27,76 +27,14 @@ ERA_MODERN         Between 1911 and 1944   Modern
 ERA_POSTMODERN     Between 1945 and 1989   Atomic
 ERA_FUTURE         After 1989              Information
 
------------------------------------------------------------------
-
+--------------------------------------------------------------------------
 Promotion Icons for VP
-Version 4
-
-. 250+ new icons replace triangles and duplicates. New additional symbols and a few colors make promotion icons coherent and readable.
-. This mod try to be an improvement for managing and keeping track the units. Nicely.
-. Enhanced 16x16 format for compatibility with Promotion Flags EUI for VP
-. + 64 Extra Promotion Icons you can use in your own modmods: Extra Promo Icons.png ( IconAtlas = 'extraPromo_Atlas' )
-
 * Note by VP dev: The extra promotion icons are now in promoVP_06_*.dds (IconAtlas = 'PROMOTION_ATLAS_VP_06'). Some are already being used in VP.
-
 Promotion Icons for VP on Civfanatics.com : https://forums.civfanatics.com/threads/7a-promotion-icons-for-vp.642400/
-
-------------------------------------------------------------------
-Stability
-
-Promotion Icons for VP doesn't add any code mechanics or memory charge when gaming.
-Promotions icons included in Vanilla and VP only are affected.
-
-------------------------------------------------------------------
-Versions
-
-(v 6)
-- Import Icons from MUC: English Longbowman and Korean Turtle Ship
-- Add new Icons for Hakkapeliitta, Swordsman line
-- Reorganized Promotion Icons so that Swordsman Line and Naval promotions are each grouped together
-
-(v 5)
-- Add new Promotion Icon for Superior Flank Attack.
-- Reorganized Promotion Icons so that Superior Flank Attack is next to Enhanced Flank Attack
-
-(v 4)
-- Add new Promotion Icons for Iklwa, Commando, Attack bonus (25)
-- Change Promotion Icons for Strafing Runs, Buffalo, Conscription, Pincer, Bonus When Attacking (25), Raider and Trailblazer III
-- Standardization of Withdraw before Melee symbols.
-- Polishing on a few Icons.
-
-(v 3)
-- Add Promotion Icons for City Assault, Jinete, Siege Volleys, Titan, Concussive Hits and Dazed.
-- Final touches on a few Icons.
-- + 16 temporary Promotion Icons available to the development team.
-
-(v 2)
-- Add Promotion Icons for Field Works, Entrenchments, DFPs, Noble, Boarded III and Rough Terrain Extra Move Promotions
-- Make the necessary changes on Boarded xxx Promotions distribution
-- Assign the right Icons to Limited Visibility (Naval) and Can Move After Attacking (Naval)
-- Changes, standardization and polishing on a few Icons: Charge I and II, Damaged Enemy Bonus (33), Atlatl Strike, Bonus in Snow/Toundra/Hills (Celt),
-   Everlasting Youth, Heal 25/50 if Kill a Unit, Heal on Kill, Gift of Pharaoh, Air Sweep, Can Carry 1/2/3/4 Cargot, Conscript
-- extraPromo_.dds entirely reworked. "Enhanced Triangles" dropped. Instead, a full range of exclusive Icons. Most of them are still generic when others are dedicated to specific used
-
-(v 1)
-- Update of VP Promo Icons 1.9 ( VPPI 1.9 ) - "Promotion Icons for VP" replaces "VP Promo Icon"
-- Integrated into the Vox Populi installer as a default mod (Thx Gazebo)
-- New icons and global rework
-- Promotion icons for VPEE and Wonders Expanded are not available anymore (VP promotions only)
-- Evaluation: extraPromo_.dds
-
-------------------------------------------------------------------
-Extra Promotion Icons
-
-Open Extra Promo Icons.png (in this folder) to see the 64 Icons you can use for your own project and modmods.
 More infos and tutorial : https://forums.civfanatics.com/threads/7a-promotion-icons-for-vp.642400/#post-15376539
-
-------------------------------------------------------------------
-Credits
-
 Author : Asterix Rage
 Maintained by : Rek, gwennog
-
+--------------------------------------------------------------------------
 Many of the icons are made from "flat silhouette" pics. Royalty-free for non commercial use.
 
 flaticon.com :
@@ -129,6 +67,241 @@ B-2 spirit : clipground.com/image-post/4619-b-2-spirit-clipart-1.jpg.html
 And many others on kisspng.com where the authors are not known - Licence Free
 
 --------------------------------------------------------------------------
+Art Assets (4UC Integration)
+--------------------------------------------------------------
+Special thanks to:
+Hinin - ideas and early development of 3rd and 4th Unique Component mod. Mod support, spreadsheets and summarizing, Playtesting, bug reports,
+pineappledan - ideas, research, sql programming, art and game texts. Mod support, spreadsheets and summarizing. Too many forum posts than is healthy, project collaborator,
+Blue Ghost - main page development, coding, bug fixes, merging, game texts, ideas and help with coding other people's parts, project collaborator,
+Infixo - DLL coding, ideas and bug reports, lua code, Github help, coding suggestions, VP cooperation and implementations, project collaborator,
+FoxOfWar - Playtesting, quality assurance and ideas,
+Jarula - Ideas and playtesting ,
+De_Genius - 2 civs coded, art and ideas,
+FieryCharizard7 - 1 civ coded, ideas,
+Enginseer - 1 civ coded, some other borrowed parts of code, ideas and help with coding,
+doublex55 - ideas and bug reports,
+BazaarJack - early civ design, ideas and bug reports,
+phantomaxl1207 - early mod design, ideas and bug reports,
+LukaSlovenia29 - ideas and bug reports,
+Hokath - art, ideas, SQL coding and bug reports,
+ThirstQuencher - ideas and bug reports,
+IcyAngel - ideas and bug reports,
+Ziad - ideas and bug reports,
+Chandler - ideas and bug reports,
+CrazyG - ideas and bug reports,
+InkAxis - DLL coding
+Gazebo - patience during answering on many questions, author of VP,
+Adan_eslavo - All other coding, assembly putting things together, main post development, ideas, bug fixes, art, advice, testing, texts, promotion overhauls and many more
+Jarcast - Final hotfix updates and compatibility
+  
+Things borrowed from other mods:
+	America:
+		- mikeburnfire - idea and picture of Homestead UB (American Ranch).
+
+	Arabia:
+		- Zantonius Hamm - idea of Hashemite Raider UU (Maara Weyn),
+		- OrderOfOlav - picture of Hashemite Raider,
+		- Civitar - 3D model of Hashemite Raider.
+		- TarcisioCM - Idea and icon for Bimaristan
+
+	Assyria:
+		- KevinJK - idea and picture of Lamassu Gate UB.
+
+	Austria:
+
+	Aztec:
+		- mikeburnfire - idea, picture and 3D model of Eagle UU,
+		- Colonialist Legacies - flag of Eagle (Ogichida).
+
+	Babylon:
+		- JFD - idea of Kibitum UU (Kibitium),
+		- janboruta - picture and flag of Kibitum,
+		- danrell - 3D model of Kibitum,
+		- Sukritact - idea and picture of Etemenaki UW,
+		- Salamandre - icon of Legacy promotion.
+
+	Brazil:
+		- hokath - Embrapa icon
+
+	Byzanthine Empire:
+		- LastSword - idea, picture and flag of Penteconter UU,
+		- Barathor - 3D model of Penteconter,
+		- JFD - idea of Hippodrome UB,
+		- janboruta - picture of Hippodrome.
+	
+	Carthage:
+		- JFD - idea and code of Shophet UU,
+		- janboruta - picture and flag of Shophet and Bireme
+		- danrell - 3D model of Shophet.
+		- Leugi - Bireme unit model
+	
+	Celts:
+		- mikeburnfire - idea, picture of Scythed Chariot UU (Carpentom),
+		- TarcismoCM - idea of Oppidum UI, civilopedia entry,
+		- Leugi - icons and 3D model of Oppidum,
+		- Salamandre - icon of Scythe promotion.
+
+	China:
+		- mikeburnfire - idea, picture and flag of Xiafan Guanjun UU (War Junk),
+		- wolfdog - 3D model of Xiafan Guanjun.
+		- DarthStarKiller - unit icon
+		
+	Denmark:
+		- janboruta - picture and flag of Langskib UU (Longboat).
+
+	Egypt:
+		- Sukritact - Mamluk icon
+		- Leugi - Mamluk unit flag, and unit skin
+
+	England:
+		- Gazebo - idea of Steam Mill UB,
+		- Wodhann - picture of Steam Mill.
+
+	Ethiopia:
+		- Danmacsch - idea of Shotelai UU, idea of Monolitic Church UI, picture of Shotelai,
+		- DJSHEnninger - icons and 3D model of Monolithic Church.
+
+	France:
+		- JFD - idea of SPAD S.VIII UU,
+		- janboruta - picture of SPAD S.VIII,
+		- danrell - 3D Model of SPAD S.VIII,
+
+	Germany: 
+
+	Greece:
+
+	Huns:
+		- JFD - idea of Tarkhan UU (Alan Cavalry)
+		- janboruta - picture and flag of Tarkhan,
+		- danrell - 3D model of Tarkhan,
+		- Wodhann - Picture of Alti Cur UB (Yurt).
+		  
+	Inca:
+		- Leugi - idea, picture and flag of Chasqui UU and Coca UR,
+        - Leugi - Inti Maceman icon and model (Chaska Chuqui)
+		
+	India:
+		- Danmacsch - picture and 3D model of Dhanuraashi UU (Agaw Archer),
+
+	Indonesia:
+		- mikeburnfire - idea and icon of Djong,
+		- wolfdog - 3D model of Djong
+		- TPangolin - idea of Kampung UI,
+		- Knightmare - icons of Kampung,
+		- Civitar - 3D model of Kampung.
+
+	Iroquois:
+		- mikeburnfire - idea of the Prowler UU (Rusher),
+        - Krahinin & Hokath Prowler icon
+		- Patum333 - 3D model of Prowler.
+
+	Japan:
+		- JFD - idea of Yamato UU,
+		- janboruta - picture and flag of Yamato,
+		- danrell - 3D model of Yamato,
+		- Teddyk - picture of Kabuki Theater UB.
+		  
+	Korea:
+		- Chrisy15 - idea of Chaebol UB,
+		- DarthStarKiller/DarthKyofu - picture of Chaebol.
+		  
+	Marocco:
+	   - TarcisioCM - idea of Corsair UU (Ammiratus),
+		- janboruta - picture and flag of Corsair,
+		- danrell - 3D model of Corsair,
+		- KevinJK - idea and picture of Riad UB.
+
+	Maya:
+		- mikeburnfire - idea of Holkan UU (Obsidian Warrior), idea and picture of Pitz (Ballcourt),
+		- Holkan UU icon by Putmalk
+		- danrell - 3D model of Holkan,
+		- Salamandre - icon of Renewal Cycle promotion.
+	
+	Mongolia:
+		- TarcisioCM - idea, picture of Tug Banner Warrior UU (Ilduchi),
+		- danrell - 3D model for Tug Banner Warrior,
+		- lincoln-lyf - picture of Yassa Court (from Superpowers mod).
+
+	Netherlands:
+		- JFD and LastSword - idea of Goedendag UU,
+		- janboruta - picture of Goedendag,
+		- danrell - 3D model of Goedendag,
+		- LastSword - flaf of Goedendag,
+		- mikeburnfire - idea of Waag UU,
+		- wodhann - picture of Waag,
+		- Enginseer - base code for Polder back on Marsh rework.
+		
+	Ottomans:
+		- JFD - idea of Great Turkish Bombard UU,
+		- janboruta - picture of Great Turkish Bombard,
+		- Leugi - 3D model of Great Turkish Bombard
+
+	Persia:
+		- Light in the East - idea of Qizilbash UU,
+		- janboruta - picture and flag of Qizilbash,
+		- Wolfdog - 3D model of Qizilbash,
+		- Salamandre - icon of Safavi Agitator promotion.
+
+	Poland:
+		- LastSword - idea, picture and 3d model of Pancerny UU, part of civilopedia entry,
+		- mikeburnfire - idea and picture of Barbican UB, part of civilopedia entry,
+		- Salamandre - icon of Bogurodzica promotion.
+  
+	Polynesia:
+		- Pouakai - idea of Koa UU,
+		- janboruta - picture of Koa,
+		- Hangman - 3D Model of Koa,
+		- Senshidenshi - idea of Fale Tel'e UB,
+		- TPangolin - idea and picture of Fale Tel'e,
+		- Salamandre - icon of Kapu Ku'ialua promotion.
+  
+	Portugal:
+	   	- janboruta - Icon and unit flag for Cacador 
+
+	Rome:
+		- Hypereon, Uighur_Ceasar - idea of Latifundium UI,
+		- DJSHenniger - 3D model of Latifundium,
+		- Hypereon, Darth-StarKiller - picture of Latifundium.
+	
+	Russia:
+		- JFD - idea of Licorne UU, idea of Pogost UB, civilopedia entries,
+		- janboruta - picture of Licorne, pictures of Pogost Stage 1 (Pogost), Stage 2 (Guberniya's Office) and Stage 3 (Sobor),
+		- Wolfdog - 3D model of Licorne.
+
+	Shoshone:
+		- Sukritact - Picture Yellow Brow UU (Black Mouth),
+		- Unit model by Patum333
+		- TPangolin - idea and picture of Buffalo Pound UB.
+
+	Siam:
+		- snafusmith - 3D model of Seir Morb UU (155 mm gun).
+        - Putmalk - Seir Morb icon
+		- Salamandre - icon of Croaching Tiger promotion.
+
+	Songhai:
+		- Tomatekh - idea, picture and flag of Sofa UU,
+		- JTitan - 3D model of Sofa,
+		- DJS Henninger, RyanJames - idea and picture of Qadi (Naaba Court)
+		
+	Spain:
+		- lincoln-lyf - idea and picture of Armada UU,
+		- TPangolin - idea of Hacienda UI,
+		- Leugi - icons and 3D model of Hacienda.
+
+	Sweden:
+		- JFD - idea of Bastu UB (Banya),
+		- janboruta - picture of Bastu.
+		  
+	Venice:
+		- JFD - idea of Fusta UU (Lanternas),
+		- janboruta - picture, flag and 3d model of Fusta
+
+	Zulu:
+		- mikeburnfire - idea, picture, and flag of InDuna.
+		- Leugi - Kraal model and icon 
+
+--------------------------------------------------------------------------
 Art Assets (General) 
+--------------------------------------------------------------------------
 SocialPoliciesIndustry.dds : from JFD's Rise to Power, image by Leugi
 Mikasa model converted from Civ 4 by Wolfshanze, icon by Janboruta 
