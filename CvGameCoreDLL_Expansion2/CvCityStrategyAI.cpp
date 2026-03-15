@@ -3484,22 +3484,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
-		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
-		int iValue = (pCity->getPopulation() * pkBuildingInfo->GetYieldChangePerPop(eYield) * 100) / (100 * (iEra + 1));
-
-		if (iValue <= pkBuildingInfo->GetYieldChangePerPop(eYield))
-			iValue = pkBuildingInfo->GetYieldChangePerPop(eYield);
-
+		int iValue = pCity->getPopulation() * pkBuildingInfo->GetYieldChangePerPop(eYield) / 100;
 		iFlatYield += iValue;
 	}
 	if (pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) > 0)
 	{
-		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
-		int iValue = (GET_PLAYER(pCity->getOwner()).getTotalPopulation() * pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * 100) / (100 * (iEra + 1));
-
-		if (iValue <= pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield))
-			iValue = pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield);
-
+		int iValue = GET_PLAYER(pCity->getOwner()).getTotalPopulation() * pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) / 100;
 		iFlatYield += iValue;
 	}
 
@@ -4070,10 +4060,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iInstant += pkBuildingInfo->GetYieldFromUnitProduction(eYield);
 		}
 	}
+	//TODO: Improve the valuation of these 3 birth yield bonuses by better estimating growth
 	if (pkBuildingInfo->GetYieldFromBirth(eYield) > 0)
 	{
 		//we want these as early as possible!
-		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+		iInstant += max(1, (50 - pCity->getPopulation()));
 
 		iInstant += pkBuildingInfo->GetYieldFromBirth(eYield) + (pCity->getYieldRateTimes100(YIELD_FOOD) / 100) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
@@ -4086,7 +4077,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldFromBirthEraScaling(eYield) > 0)
 	{
 		//we want these as early as possible!
-		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+		iInstant += max(1, (50 - pCity->getPopulation()));
 
 		iInstant += (iEra * pkBuildingInfo->GetYieldFromBirthEraScaling(eYield)) + (pCity->getYieldRateTimes100(YIELD_FOOD) / 100) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
@@ -4099,7 +4090,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetGPPOnCitizenBirth() > 0)
 	{
 		//we want these as early as possible!
-		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+		iInstant += max(1, (50 - pCity->getPopulation()));
 
 		iInstant += (iEra * pkBuildingInfo->GetGPPOnCitizenBirth()) + (pCity->getYieldRateTimes100(YIELD_FOOD) / 100) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
@@ -4218,30 +4209,22 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (iFlatYield > 0)
 	{
 		//let's see our % bump here.
-		iDelta = (iFlatYield * 100) / max(1, iYieldRate);
+		//TODO: While % increase should be a consideration especially for certain yields, it shouldn't be the end all be all
+		iDelta = (iFlatYield * 100) / iYieldRate;
 
-		if (iYieldRate <= 0)
-		{
-			//Yield value here greater than our yield output in this city? We need this badly!
-			iDelta *= 5;
-		}
-
-		//Instant Yields don't scale with era, but they do help for base infrastructure. Scale by city population.
-		iDelta *= (100 + pCity->getPopulation() - iEra);
-		iDelta /= 100;
-
-		//And here's what the value represents.
 		iYieldValue += iDelta;
 	}
 
 	if (iInstant > 0)
 	{
 		//Instant Yields almost always scale with era, so compensate.
+		//TODO: this should be handled by each individual instant yield instead
 		iInstant *= max(1, iEra);
 
 		//Let's see how much this is compared to our actual rate.
 		//We divide, since we are getting this sporadically, not all the time.
-		iDelta = max((iInstant/2), (iInstant / max(1, iYieldRate)));
+		//TODO: This doesn't really make sense and should be handled similar to flat yields
+		iDelta = max((iInstant / 2), (iInstant / iYieldRate));
 
 		iYieldValue += iDelta;
 
@@ -4254,7 +4237,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//Let's see how much this is compared to our actual rate.
 		//We multiply, as we want to see what the 'new' value will be with this modifier intact.
 		//We don't need to do this again as this shows us the actual bonus earned here.
-		int iActualIncrease = ((iModifier * max(1, iYieldRate)) / 100);
+		int iActualIncrease = ((iModifier * iYieldRate) / 100);
 
 		iYieldValue += iActualIncrease;
 	}
