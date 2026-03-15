@@ -14,15 +14,6 @@
 		<Row Tag="TXT_KEY_MISC_COMPLETES_PROJECT_FIRST">
 			<Text>{1_PlyrName} is the first to complete {@2_PrjctName}!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_DISABLED">
-			<Text>Debug: Pathfinding stop nodes for humans disabled</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_ENABLED">
-			<Text>Debug: Pathfinding stop nodes for humans enabled</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PATHFINDING_ENDING_MOVE_EARLY">
-			<Text>[COLOR_NEGATIVE_TEXT]Ending Move Early[ENDCOLOR]</Text>
-		</Row>
 
 		<!-- Tech tree -->
 		<Row Tag="TXT_KEY_TECH_HELP_UNITS_UNLOCKED">
@@ -254,6 +245,10 @@
 		<!-- Faith -->
 		<Row Tag="TXT_KEY_TP_FAITH_PER_TURN">
 			<Text>+{1_Num} [ICON_PEACE] Faith Per Turn.</Text>
+		</Row>
+		<!-- Happiness -->
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_BUILDINGS">
+			<Text>{1_Num} from Buildings.</Text>
 		</Row>
 		<!-- Instant yields -->
 		<Row Tag="TXT_KEY_INSTANT_YIELD_THIS_TURN">
@@ -728,6 +723,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROJECTED_HAPPINESS">
 			<Text>Projected [ICON_HAPPINESS_1] Happiness when built: {2_Sign}{1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS">
+			<Text>[ICON_BULLET][ICON_HAPPINESS_3] Unhappiness: {2_Sign}{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIR_DEFENSE">
 			<Text>[ICON_BULLET][ICON_AIRSTRIKE_DEFENSE] City Air Strike Defense: +{1_Num}</Text>
@@ -1915,8 +1913,8 @@
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Technologies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_MOD_ERA">
-            <Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Era</Text>
-        </Row>
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Era</Text>
+		</Row>
 		<Row Tag="TXT_KEY_YIELD_MOD_UNHAPPINESS">
 			<Text>[NEWLINE][ICON_BULLET]{1_Num}% from [ICON_HAPPINESS_3] Unhappiness</Text>
 		</Row>
@@ -2411,6 +2409,14 @@
 			<Text>Schedule a forced resync</Text>
 		</Row>
 
+		<!-- Economic overview -->
+		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
+			<Text>Buildings ({1_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS_TT">
+			<Text>Some Buildings in Cities produce [ICON_HAPPINESS_4] Unhappiness.</Text>
+		</Row>
+
 		<!-- Cultural overview -->
 		<!-- Tourism/Happiness screen -->
 		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_CIVS_WITH_OTHER_IDEOLOGY">
@@ -2482,7 +2488,7 @@
 		</Row>
 
 		<!-- Religion overview -->
-		
+
 		<!-- Religion overview -->
 		<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">
 			<Text>Cities</Text>
@@ -3168,6 +3174,9 @@
 		<Row Tag="TXT_KEY_DECLARE_WAR_DPS_CP">
 			<Text>DEFENSIVE PACTS</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US">
+			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
+		</Row>
 
 		<!-- Trade screen -->
 		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_NO_LIMIT_TT">
@@ -3423,11 +3432,6 @@
 			<Text>Choosing this option will alert {2_CivName:textkey} and their allies to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
 		</Row>
 
-		<!-- Declare war popup -->
-		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US">
-			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
-		</Row>
-
 		<!-- City-State screen/tooltip -->
 		<Row Tag="TXT_KEY_NEUTRAL_CSTATE">
 			<Text>Neutral</Text>
@@ -3509,6 +3513,11 @@
 			<Text>{1_Civ} wants you to explore around this tile.</Text>
 		</Row>
 
+		<!-- Path node -->
+		<Row Tag="TXT_KEY_PATHFINDING_ENDING_MOVE_EARLY">
+			<Text>[COLOR_NEGATIVE_TEXT]Ending Move Early[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- Banner message -->
 		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY">
 			<Text>Work has now begun on {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {@1_ProdName}} in {@2_CityName}.</Text>
@@ -3552,6 +3561,12 @@
 		<Row Tag="TXT_KEY_MISC_ENEMY_AIR_UNIT_INTERCEPTED_CITY">
 			<Text>Thanks to your intercepting {@1_UnitName}, we damaged the {@2_owner_adjective} {@3_EnUName} ({4_Num} damage) attacking your City of {@5_CityName}.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_DISABLED">
+			<Text>Debug: Pathfinding stop nodes for humans disabled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_ENABLED">
+			<Text>Debug: Pathfinding stop nodes for humans enabled</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PARADROP_AA_DAMAGED">
 			<Text>Your {1_Unit} was intercepted by an enemy {2_EnUName} ({3_Num} damage)!</Text>
 		</Row>
@@ -3585,29 +3600,12 @@
 			<Text>A diplomatic message from another Civilization awaits your consideration.</Text>
 		</Row>
 
-		<!-- New columns -->
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS">
-			<Text>[ICON_HAPPINESS_3] Unhappiness: {2_Sign}{1_Num}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
-			<Text>Buildings ({1_Num})</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS_TT">
-			<Text>Some Buildings in Cities produce [ICON_HAPPINESS_4] Unhappiness.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TP_UNHAPPINESS_BUILDINGS">
-			<Text>{1_Num} from Buildings.</Text>
-		</Row>
-		
-		<!-- Notification Settings -->
+		<!-- Notification log -->
 		<Row Tag="TXT_KEY_NOTIFICATION_LOG_TAB">
 			<Text>Notification Log</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TITLE">
 			<Text>Instant Yield Notification Settings</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TAB">
-			<Text>Settings</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_CITY_BUTTON">
 			<Text>Cities</Text>

@@ -1365,7 +1365,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	///////
 	///Era Difference
 	/////////
-
 	int iEra = 0; //default
 	TechTypes eTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
 	if (eTech != NO_TECH)
@@ -1382,14 +1381,16 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	iBonus += (200 * iEraValue);
 
 	//Unlocks another building?
+	//TODO: Consider if I've researched any of the buildings and the value of the buildings (UBs, etc)
 	int iPrereqChain = kPlayer.GetChainLength(eBuilding);
 	if (iPrereqChain > 0)
-		iBonus += iPrereqChain * 100 * iEraValue;
+		iBonus += 100 * iEraValue;
 
 	//UB?
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
 		// scale off with pop so UB will not be the first building to build in a fresh city
+		//TODO: Scaling by pop is not a good solution here and this should be changed
 		if (pkBuildingInfo->IsNoOccupiedUnhappiness())
 			iBonus += max(15, m_pCity->getPopulation()) * 25;
 		else

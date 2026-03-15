@@ -1,9 +1,7 @@
 ----------------------------------------------------------
 -- Unique Ability: Dutch East India Company
 ----------------------------------------------------------
-UPDATE Traits
-SET	LuxuryHappinessRetention = 0
-WHERE Type = 'TRAIT_LUXURY_RETENTION';
+UPDATE Traits SET LuxuryHappinessRetention = 0 WHERE Type = 'TRAIT_LUXURY_RETENTION';
 
 INSERT INTO Trait_YieldFromImport
 	(TraitType, YieldType, Yield)

@@ -1,6 +1,6 @@
 -- Tree structure
 UPDATE Policies
-SET GridX = 1, GridY = 2, PolicyCostModifier = 0
+SET GridX = 1, GridY = 2
 WHERE Type = 'POLICY_REPUBLIC';
 
 UPDATE Policies
@@ -87,7 +87,9 @@ DELETE FROM Policy_CityYieldChanges
 WHERE PolicyType = 'POLICY_REPUBLIC';
 
 UPDATE Policies
-SET BuildingProductionModifier = 15
+SET
+	BuildingProductionModifier = 15,
+	PolicyCostModifier = 0
 WHERE Type = 'POLICY_REPUBLIC';
 
 INSERT INTO Policy_YieldFromConstruction

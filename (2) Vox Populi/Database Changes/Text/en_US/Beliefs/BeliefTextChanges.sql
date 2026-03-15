@@ -285,7 +285,7 @@ SET Text = 'Diligence'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_COMMUNITY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production for every 2 followers in the City. +2 [ICON_PRODUCTION] Production per active [ICON_INTERNATIONAL_TRADE] Trade Route to or from the City.'
+SET Text = '+1 [ICON_PRODUCTION] Production for every 2 followers in the City. +2 [ICON_PRODUCTION] Production for every active [ICON_INTERNATIONAL_TRADE] Trade Route to or from the City.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_COMMUNITY';
 
 UPDATE Language_en_US
@@ -319,7 +319,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_CENTER';
 
 -- Pagodas
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Pagodas'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Pagodas.'
 WHERE Tag = 'TXT_KEY_BELIEF_PAGODAS';
 
 UPDATE Language_en_US

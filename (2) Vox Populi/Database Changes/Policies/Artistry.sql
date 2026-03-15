@@ -79,7 +79,7 @@ VALUES
 
 INSERT INTO Policy_YieldGPExpend
 	(PolicyType, YieldType, Yield)
-VALUES	
+VALUES
 	('POLICY_ARTISTIC_GENIUS', 'YIELD_GOLD', 50);
 
 -- Cultural Exchange

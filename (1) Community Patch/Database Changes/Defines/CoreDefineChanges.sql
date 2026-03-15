@@ -1013,7 +1013,7 @@ VALUES
 	('BALANCE_GOLD_INFLUENCE_LEVEL_INFLUENTIAL', 800),
 	('BALANCE_GOLD_INFLUENCE_LEVEL_DOMINANT', 1000),
 
--- These 5 values change the amount of growth% earned from trade routes with influenced civs. Higher influence = more growth% (trade-off for higher influence). 
+-- These 5 values change the amount of growth% earned from trade routes with influenced civs. Higher influence = more growth% (trade-off for higher influence).
 	('BALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC', 5),
 	('BALANCE_GROWTH_INFLUENCE_LEVEL_FAMILIAR', 10),
 	('BALANCE_GROWTH_INFLUENCE_LEVEL_POPULAR', 15),

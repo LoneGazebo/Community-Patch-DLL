@@ -5752,11 +5752,12 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 			iScoreThreshold += 1000;
 		}
 		//maybe capture a civilian?
-		else if (pTestPlot->isEnemyUnit(pUnit->getOwner(), false, true) &&
-			pUnit->GetDanger(pTestPlot) == 0 &&
-			pUnit->GetDanger() == 0)
+		else if (pTestPlot->isEnemyUnit(pUnit->getOwner(), false, true))
 		{
-			meleeTargets.push_back(SPlotWithScore(pTestPlot, 10 - plotDistance(*pTestPlot, *pUnit->plot())));
+			bool bIsSafe = pUnit->GetDanger(pTestPlot) == 0 && pUnit->GetDanger() == 0;
+			bool bCanReturn = pUnit->TurnsToReachTarget(pTestPlot, CvUnit::MOVEFLAG_ATTACK, 1) == 0;
+			if (bIsSafe || bCanReturn)
+				meleeTargets.push_back(SPlotWithScore(pTestPlot, 10 - plotDistance(*pTestPlot, *pUnit->plot())));
 		}
 	}
 
