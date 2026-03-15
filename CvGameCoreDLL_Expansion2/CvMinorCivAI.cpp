@@ -12776,7 +12776,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 	PlayerTypes eNewAlly = GetPlayer()->isAlive() ? eOldAlly : NO_PLAYER;
 
 	// Resolve Allies status with sphere of influence or open door
-	if (IsNoAlly() || (GetPermanentAlly() != NO_PLAYER && GetPermanentAlly() != ePlayer))
+	if (IsNoAlly() || GetPermanentAlly() != NO_PLAYER)
 	{
 		eNewAlly = IsNoAlly() ? NO_PLAYER : GetPermanentAlly();
 	}
