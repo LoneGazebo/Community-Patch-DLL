@@ -14112,6 +14112,9 @@ int CvMinorCivAI::GetCurrentScienceFriendshipBonusTimes100(PlayerTypes ePlayer)
 /// Flat happiness bonus from friendship with a minor
 int CvMinorCivAI::GetHappinessFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
 {
+	if(GetTrait() != MINOR_CIV_TRAIT_MERCANTILE)
+		return 0;
+
 	EraTypes eCurrentEra = eAssumeEra;
 	if (eCurrentEra == NO_ERA)
 		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
@@ -14134,6 +14137,9 @@ int CvMinorCivAI::GetHappinessFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes 
 /// Flat happiness bonus from being allies with a minor
 int CvMinorCivAI::GetHappinessFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
 {
+	if(GetTrait() != MINOR_CIV_TRAIT_MERCANTILE)
+		return 0;
+		
 	EraTypes eCurrentEra = eAssumeEra;
 	if (eCurrentEra == NO_ERA)
 		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
