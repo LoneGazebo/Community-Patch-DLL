@@ -7532,7 +7532,7 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 	static const int iPlotScoreForEnemyDistanceLandAttack[5][5] = {
 		{ -1,-1,-1,-1,-1 }, //none (should not occur)
 		{ 12, 12, 6, 1, -1 }, //firstline (note that it's ok to evaluate the score in an enemy plot for a firstline unit -> meleekill) 
-		{ -1, 6, 12, 2, -1 }, //secondline
+		{ -1, 8, 12, 2, -1 }, //secondline
 		{  1, 1, 8, 12, -1 }, //thirdline (ranged and damaged melee units)
 		{ -1, 1, 8,  8, -1 }, //support (can also happen for damaged melee units)
 	};
@@ -7587,7 +7587,7 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 			if (pCivilian)
 			{
 				//workers are not so important ...
-				iPlotScore += (pCivilian->AI_getUnitAIType() == UNITAI_WORKER) ? 5 : 20;
+				result.iBonusScore += (pCivilian->AI_getUnitAIType() == UNITAI_WORKER) ? 50 : 200;
 				result.eAssignmentType = A_CAPTURE; //important so that the next assignment can be a move again
 			}
 		}
@@ -7598,7 +7598,7 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 	{
 		if (!testPlot.isEnemyCombatUnit())
 		{
-			iPlotScore += 100;
+			result.iBonusScore += 1000;
 		}
 	}
 
@@ -7671,7 +7671,7 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 	if (pTestPlot->getOwner() == pUnit->getOwner() && testPlot.getPlotIndex() != unit.iPlotIndex && pTestPlot->IsRestoreMoves())
 	{
 		if (evalMode == EM_INTERMEDIATE)
-			iPlotScore += (unit.iMaxMoves - unit.iMovesLeft) * 10;
+			result.iBonusScore += (unit.iMaxMoves - unit.iMovesLeft) * 100;
 		result.iRemainingMoves = pUnit->baseMoves(false);
 	}
 
@@ -8707,26 +8707,6 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 				moveToPlot.eAssignmentType = bHeal ? A_HEAL : A_FINISH_TEMP;
 
-				if (pUnit->IsCanAttackRanged() && !pUnit->canMoveAfterAttacking())
-				{
-					//how much damage could we do with our next moves?
-					//check this only during simulation; don't use it for initial/final score as it decreases with enemies killed!
-					int iDummy = -1; //will be ignored since we don't do the attack this turn
-					int iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, pUnit->getNumAttacks(), *this, iDummy);
-					//note that "passive damage" ie covering our own units is implicit in the plot score for firstline units
-					moveToPlot.iPlotScore += iDamageScore * 10;
-					if (iDamageScore == 0 && !bHeal)
-					{
-						int iUnitRange = pUnit->GetRange();
-						int iClosestEnemyRange = testPlot.getEnemyDistance(eRelevantDomain);
-						if (iClosestEnemyRange <= iUnitRange)
-						{
-							// We are in the right position formation-wise, but we can't attack anything, this is bad
-							moveToPlot.iPlotScore /= 10;
-						}
-					}
-				}
-
 				// Try to move towards the target
 				if (!bHeal)
 				{
@@ -8763,7 +8743,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			if (bCanMoveAfterAttack || bCanRepairAfterMove || canProbablyEndTurnAfterAssignment(moveToPlot, testPlot))
 			{
-				if (pUnit->IsCanAttackRanged() && unit.iAttacksLeft > 0 && moveToPlot.iRemainingMoves > 0)
+				if (pUnit->IsCanAttackRanged())
 				{
 					//how much damage could we do with our next moves?
 					//check this only during simulation; don't use it for initial/final score as it decreases with enemies killed!
@@ -8774,16 +8754,6 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 					//score functions are biased so that only scores > 0 are interesting moves
 					//still allow mildly negative moves here, maybe we want to do combo moves later!
 					moveToPlot.iPlotScore += iDamageScore * 10;
-					if (iDamageScore == 0 && pUnit->getDamage() <= 50)
-					{
-						int iUnitRange = pUnit->GetRange();
-						int iClosestEnemyRange = testPlot.getEnemyDistance(eRelevantDomain);
-						if (iClosestEnemyRange <= iUnitRange)
-						{
-							// We are in the right position formation-wise, but we can't attack anything, this is bad
-							moveToPlot.iPlotScore /= 10;
-						}
-					}
 				}
 				//undo the hypothetical kill
 				moveToPlot.iKillOrNearKillId = -1;
