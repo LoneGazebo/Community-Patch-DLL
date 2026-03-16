@@ -8403,8 +8403,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			if(isOwned())
 			{
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
+				ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(eOldImprovement)->GetResourceFromImprovement();
+
 				// Remove Resource Quantity from total
-				if(getResourceType(getTeam()) != NO_RESOURCE)
+				// but not if the resource is given by the improvement, in that case the resource counter update will be handled later in setResourceType
+				if(getResourceType(getTeam()) != NO_RESOURCE && getResourceType() != eResourceFromImprovement)
 				{
 					if (bOldImprovementConnectedResource)
 					{
@@ -8426,7 +8429,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 
-				ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(eOldImprovement)->GetResourceFromImprovement();
 				if (eResourceFromImprovement != NO_RESOURCE)
 				{
 					if (getResourceType() != NO_RESOURCE && getResourceType() == eResourceFromImprovement)
