@@ -2069,7 +2069,7 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 		}
 		if (bHolyCityOnly)
 		{
-			if (pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			if (pCity != NULL && pCity->GetCityReligions()->IsReligionInCity() && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
 				return false;
 			}
@@ -2079,7 +2079,7 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 	{
 		if (bHolyCityOnly)
 		{
-			if (pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			if (pCity != NULL && pCity->GetCityReligions()->IsReligionInCity() && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 			{
 				return false;
 			}
