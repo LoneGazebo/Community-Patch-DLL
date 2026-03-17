@@ -12396,7 +12396,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 			changeNumMajorCivsRevealed(1);
 	}
 
-	if (eOldRevealedImprovement != NO_IMPROVEMENT && eOldRevealedImprovement != getRevealedImprovementType(eTeam))
+	if (pUnit && eOldRevealedImprovement != NO_IMPROVEMENT && eOldRevealedImprovement != getRevealedImprovementType(eTeam))
 	{
 		// If an ancient ruin disappeared, we also want to stop movement
 		if (GC.getImprovementInfo(eOldRevealedImprovement)->IsGoody())
