@@ -16593,7 +16593,7 @@ int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 		return 1;
 	}
 
-	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(pkDeal->GetOtherPlayer(pkThisPlayer->GetID()), pkDeal->GetMaxValue(), iResult))
+	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(iResult))
 		iResult = 0;
  
 	lua_pushinteger(L, iResult);
@@ -16617,7 +16617,7 @@ int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
 		return 1;
 	}
 
-	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(pkDeal->GetOtherPlayer(pkThisPlayer->GetID()), pkDeal->GetMaxValue(), iResult))
+	if (pkThisPlayer->GetDealAI()->WithinAcceptableRange(iResult))
 		iResult = 0;
 
 	lua_pushinteger(L, iResult);
