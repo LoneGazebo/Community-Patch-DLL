@@ -135,6 +135,15 @@ bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
 			return true;
 	}
 
+	// It also counts if at least one trade item has negative value
+	// WithinAcceptableRange() will make sure the deal isn't exploitative
+	TradedItemList::iterator it;
+	for (it = pDeal->m_TradedItems.begin(); it != pDeal->m_TradedItems.end(); ++it)
+	{
+		if (it->m_iValue < 0)
+			return true;
+	}
+
 	return (pDeal->GetFromPlayerValue() > 0 && pDeal->GetToPlayerValue() > 0);
 }
 
@@ -988,8 +997,6 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 				iItemValue = GetVassalageValue(bFromMe, eOtherPlayer);
 			else if (eItem == TRADE_ITEM_VASSALAGE_REVOKE)
 				iItemValue = GetRevokeVassalageValue(bFromMe, eOtherPlayer, GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()));
-
-			ASSERT(iItemValue >= 0, "DEAL_AI: Trade Item value is negative.");
 		}
 	}
 	else
@@ -1027,8 +1034,8 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		if (eWinner != NO_PLAYER)
 		{
 			iItemValue = GET_PLAYER(eWinner).GetDealAI()->GetTradeItemValue(eItem, (eWinner == eMyPlayer) == bFromMe, eWinner == eMyPlayer ? eOtherPlayer : eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
-			// resources which the winner evaluates as 0 must be impossible to trade, otherwise an unlimited amount of them could be added to the deal
-			if (iItemValue == 0 && eItem == TRADE_ITEM_RESOURCES)
+			// resources which the winner evaluates as non-positive must be impossible to trade, otherwise an unlimited amount of them could be added to the deal
+			if (iItemValue <= 0 && eItem == TRADE_ITEM_RESOURCES)
 			{
 				iItemValue = INT_MAX;
 			}
@@ -1114,7 +1121,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 					// modify acceptable buying price based on opinion
 					iBuyModifier = iApproachModifier;
 					iMaxAcceptableBuyPrice = iBuyPrice * iBuyModifier / 100;
-					iSellPrice = GET_PLAYER(eOtherPlayer).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, GetPlayer()->GetID(), iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
+					iSellPrice = GET_PLAYER(eOtherPlayer).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
 					if (iSellPrice == INT_MAX)
 					{
 						// The other player doesn't want to sell this item (perceived sell value if human). 
@@ -1358,9 +1365,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					}
 				}
 
-				iItemValue -= (iYieldBonusFromExport * OneGPTScaled);
-				if (iItemValue <= OneGPT)
-					return OneGPT;
+				int iEraScaler = max(1, static_cast<int>(GET_TEAM(GetTeam()).GetCurrentEra()));
+				iItemValue -= (iYieldBonusFromExport * OneGPT * iEraScaler);
 			}
 		}
 		// We are buying!
@@ -3912,12 +3918,11 @@ void CvDealAI::DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 				iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, /*bFromMe*/ true, eThem, eResource, iResourceQuantity, -1, /*bFlag1*/false, iDealDuration, true);
 
 				// If adding this to the deal doesn't take it under the min limit, do it
-				if (iItemValue == INT_MAX)
+				// Don't add 0 or negative values either; it won't help equalize the deal
+				if (iItemValue != INT_MAX && iItemValue > 0)
 				{
-					continue;
+					viTradeValues.push_back(eResource, iItemValue);
 				}
-
-				viTradeValues.push_back(eResource, iItemValue);
 			}
 		}
 
