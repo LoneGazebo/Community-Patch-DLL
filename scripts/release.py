@@ -83,7 +83,10 @@ def parse_version(version_str: str) -> Tuple[int, int, int]:
     """Parse version string X.Y.Z into tuple (X, Y, Z)."""
     match = re.match(r'^(\d+)\.(\d+)\.(\d+)$', version_str)
     if not match:
-        raise ValueError(f"Invalid version format: {version_str}. Expected X.Y.Z")
+        match = re.match(r'^(\d+)\.(\d+)$', version_str)
+        if not match:
+            raise ValueError(f"Invalid version format: {version_str}. Expected X.Y.Z or X.Y")
+        return int(match.group(1)), int(match.group(2)), 0  
     return int(match.group(1)), int(match.group(2)), int(match.group(3))
 
 
@@ -527,6 +530,11 @@ def generate_modinfo_for_mod(mod_folder: str, civ5proj_name: str) -> Tuple[Optio
         return None, None
 
     print(f"  Processing: {mod_folder}")
+
+    # Remove any existing .modinfo files
+    for old_modinfo in mod_dir.glob("*.modinfo"):
+        old_modinfo.unlink()
+        print(f"    Removed old modinfo file: {old_modinfo.name}")
 
     # Parse civ5proj
     data = parse_civ5proj(civ5proj_path)
