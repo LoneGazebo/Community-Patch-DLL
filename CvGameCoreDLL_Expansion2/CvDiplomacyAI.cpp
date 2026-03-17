@@ -56611,15 +56611,35 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 	{
 		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_GENEROUS_OFFER;
 
-		if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 60 &&
-				GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_GENEROUS_OFFER_RANDFAILED) >= 15 &&
-				// Don't send a generous offer request if we recently sent a Request to this player
-				GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_REQUEST) >= 25)
+		// Check if we have a bonus on exporting luxuries
+		bool bWantExport = false;
+		for (int iYieldLoop = 0; iYieldLoop < GC.getNUM_YIELD_TYPES(); iYieldLoop++)
+		{
+			YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
+			if (GetPlayer()->GetPlayerTraits()->GetYieldFromExport(eYield) > 0)
+			{
+				bWantExport = true;
+				break;
+			}
+		}
+
+		bool bOffCooldown = GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 60 &&
+			GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_GENEROUS_OFFER_RANDFAILED) >= 15 &&
+			// Don't send a generous offer request if we recently sent a Request to this player
+			GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_REQUEST) >= 25;
+
+		// Shorter cooldown if we want to export
+		if ((bWantExport && GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 10) || bOffCooldown)
 		{
 			bool bRandPassed = false;
-			bool bMakeGenerousOffer = IsMakeGenerousOffer(ePlayer, pDeal, bRandPassed);
+			bool bMakeGenerousOffer = false;
+			if (bWantExport && IsMakeLuxuryOffer(ePlayer, pDeal))
+				bMakeGenerousOffer = true;
 
-			if(bMakeGenerousOffer && pDeal->GetNumItems() > 0)
+			if (!bMakeGenerousOffer && bOffCooldown)
+				bMakeGenerousOffer = IsMakeGenerousOffer(ePlayer, pDeal, bRandPassed);
+
+			if (bMakeGenerousOffer && pDeal->GetNumItems() > 0)
 			{
 				eStatement = eTempStatement;
 				SetOfferingGift(ePlayer, true);
@@ -56708,8 +56728,27 @@ bool CvDiplomacyAI::WantsMapsFromPlayer(PlayerTypes ePlayer)
 	return iMapValue > 750;
 }
 
+/// Do we want to make a luxury offer to ePlayer? Only called if we have a bonus on exporting luxury
+bool CvDiplomacyAI::IsMakeLuxuryOffer(PlayerTypes ePlayer, CvDeal* pDeal) const
+{
+	if (GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY && IsDoFAccepted(ePlayer))
+	{
+		int iBrokenTurns = (40 * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+		int iIgnoredTurns = (15 * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+
+		// If they've broken promises or ignored our requests lately, don't help them even if we benefit
+		if (BrokeAnyPromise(ePlayer, iBrokenTurns) || IgnoredAnyPromise(ePlayer, iIgnoredTurns))
+			return false;
+
+		if (IsLuxuryGenerousOffer(ePlayer, pDeal))
+			return true;
+	}
+
+	return false;
+}
+
 /// Do we want to make a generous offer to ePlayer?
-bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed)
+bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed) const
 {
 	if (GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY && IsDoFAccepted(ePlayer))
 	{
@@ -56764,7 +56803,7 @@ bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool
 }
 
 /// Do we want to make a gift of gold to ePlayer?
-bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
+bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const
 {
 	int iOurGold = GetPlayer()->GetTreasury()->GetGold();
 	int iOurGPT = GetPlayer()->calculateGoldRate();
@@ -56833,63 +56872,67 @@ bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 }
 
 /// Do we want to gift a luxury to ePlayer?
-bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
+bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const
 {
 	ResourceTypes eLuxuryToOffer = NO_RESOURCE;
 
 	int iResourceLoop = 0;
+	bool bMustGift = false;
 
 	// See if there's any Luxuries WE can trade
-	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	for (iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
-		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if(pkResource)
-		{
-			// Only look at Luxuries
-			if(pkResource->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-				continue;
+		// Only look at Luxuries
+		if (GC.getResourceInfo(eResource)->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+			continue;
 
-			// Any extras?
-			if(GetPlayer()->getNumResourceAvailable(eResource, /*bIncludeImport*/ false) < 2)
-				continue;
+		// Can we actually give them this item
+		if (!pDeal->IsPossibleToTradeItem(GetID(), ePlayer, TRADE_ITEM_RESOURCES, eResource, 1))
+			continue;
 
-			// Can they actually give us this item
-			if(!pDeal->IsPossibleToTradeItem(GetID(), ePlayer, TRADE_ITEM_RESOURCES, eResource, 1))
-				continue;
+		// This resource has negative value? Prefer gifting it!
+		if (GetPlayer()->GetDealAI()->GetTradeItemValue(TRADE_ITEM_RESOURCES, true, ePlayer, iResourceLoop, 1, -1, false, GC.getGame().GetDealDuration(), true) < 0)
+			bMustGift = true;
 
-			eLuxuryToOffer = eResource;
-			break;
-		}
+		// Do we have any extras?
+		if (!bMustGift && GetPlayer()->getNumResourceAvailable(eResource, /*bIncludeImport*/ false) < 2)
+			continue;
+
+		eLuxuryToOffer = eResource;
+		break;
 	}
 
 	// Didn't find something we could give them?
-	if(eLuxuryToOffer == NO_RESOURCE)
+	if (eLuxuryToOffer == NO_RESOURCE)
 		return false;
 
-	// See if the other player has a Resource to trade (because if there are then we shouldn't be offering hand outs)
-	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	if (!bMustGift)
 	{
-		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-
-		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if(pkResourceInfo)
+		// See if the other player has a Resource to trade (because if there are then we shouldn't be offering hand outs)
+		for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			// Only look at Luxuries
-			if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-				continue;
+			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
-			// Any extras?
-			if(GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, /*bIncludeImport*/ false) < 2)
-				continue;
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if(pkResourceInfo)
+			{
+				// Only look at Luxuries
+				if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+					continue;
 
-			// Can they actually give us this item
-			if(!pDeal->IsPossibleToTradeItem(ePlayer, GetID(), TRADE_ITEM_RESOURCES, eResource, 1))
-				continue;
+				// Any extras?
+				if(GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, /*bIncludeImport*/ false) < 2)
+					continue;
 
-			// Found something we can trade to them, so abort
-			return false;
+				// Can they actually give us this item
+				if(!pDeal->IsPossibleToTradeItem(ePlayer, GetID(), TRADE_ITEM_RESOURCES, eResource, 1))
+					continue;
+
+				// Found something we can trade to them, so abort
+				return false;
+			}
 		}
 	}
 
@@ -56900,7 +56943,7 @@ bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 }
 
 /// Do we want to gift a technology to ePlayer?
-bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
+bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const
 {
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return false;

@@ -1526,10 +1526,11 @@ public:
 	bool WantsMapsFromPlayer(PlayerTypes ePlayer);
 
 	// Offers
-	bool IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed);
-	bool IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
-	bool IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
-	bool IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
+	bool IsMakeLuxuryOffer(PlayerTypes ePlayer, CvDeal* pDeal) const;
+	bool IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed) const;
+	bool IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const;
+	bool IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const;
+	bool IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const;
 
 	// Sharing Approach
 	bool IsShareApproachAcceptable(PlayerTypes ePlayer);
