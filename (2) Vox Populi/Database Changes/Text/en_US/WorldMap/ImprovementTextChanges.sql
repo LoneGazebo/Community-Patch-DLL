@@ -45,12 +45,22 @@ SET Text = 'Town'
 WHERE Tag = 'TXT_KEY_IMPROVEMENT_CUSTOMS_HOUSE';
 
 UPDATE Language_en_US
-SET Text = 'A town is a human settlement larger than a village but smaller than a city. The size definition for what constitutes a "town" varies considerably in different parts of the world. The word town shares an origin with the German word Zaun, the Dutch word tuin, and the Old Norse tun. The German word Zaun comes closest to the original meaning of the word: a fence of any material.[NEWLINE][NEWLINE]Towns receive +2 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production if built on a Road that connects two owned Cities, and +4 [ICON_GOLD] and [ICON_PRODUCTION] Production if a Railroad. Receive additional [ICON_GOLD] Gold and [ICON_PRODUCTION] Production (+2 for Roads, +4 for Railroads) if a Trade Route, either internal or international, passes over this Town.'
+SET Text = '{TXT_KEY_CIV5_IMPROVEMENTS_CUSTOMS_HOUSE_HELP}[NEWLINE][NEWLINE]A town is a human settlement larger than a village but smaller than a city. The size definition for what constitutes a "town" varies considerably in different parts of the world. The word town shares an origin with the German word Zaun, the Dutch word tuin, and the Old Norse tun. The German word Zaun comes closest to the original meaning of the word: a fence of any material.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CUSTOMS_HOUSE_TEXT';
 
 UPDATE Language_en_US
 SET Text = 'Construct a [LINK=IMPROVEMENT_CUSTOMS_HOUSE]Town[\LINK]'
 WHERE Tag = 'TXT_KEY_BUILD_CUSTOMS_HOUSE';
+
+-- Academy
+UPDATE Language_en_US
+SET Text = '{TXT_KEY_CIV5_IMPROVEMENTS_ACADEMY_HELP}[NEWLINE][NEWLINE]An academy is an institution where children can get an advanced lower (that is, pre-college) education. Academies come in all flavors - military, religious, government, and the like. Some are private, open only to the children of wealth or power or influence, while others are open to all children who meet their strict requirements. England''s Eton College is one of the most famous academies in the world, taking in boys between the ages of 13 and 18 since 1440.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_ACADEMY_TEXT';
+
+-- Manufactory
+UPDATE Language_en_US
+SET Text = '{TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_HELP}[NEWLINE][NEWLINE]A Manufactory is a plant consisting of one or more buildings in which things are built. The buildings might be foundries, factories, assembly lines, and so forth, usually all working on related items - the foundry creates the steel that the factory rolls into sheets which the workers on the assembly line make into cans, and so forth. A well-run Manufactory can be incredibly productive.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORTY_TEXT';
 
 -- Citadel
 UPDATE Language_en_US
@@ -65,6 +75,10 @@ WHERE Tag = 'TXT_KEY_BUILD_CITADEL_HELP';
 UPDATE Language_en_US
 SET Text = 'Unit will be consumed.[NEWLINE][NEWLINE]Provides an additional 1 [ICON_PEACE] Faith for every adjacent Mountain tile.[NEWLINE][NEWLINE]Connects Resources on the tile to the trade network.'
 WHERE Tag = 'TXT_KEY_BUILD_HOLY_SITE_HELP';
+
+UPDATE Language_en_US
+SET Text = '{TXT_KEY_CIV5_IMPROVEMENTS_HOLY_SITE_HELP}[NEWLINE][NEWLINE]A place of religious significance, holy sites are locations held sacred as a testament to the gods, prophets, and traditions of a given religion. Often the destination for religious pilgrims, these sites are often visited by the faithful in the hopes of strengthening their connection to God, while also paying their respects.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_HOLY_SITE_TEXT';
 
 -- Landmark
 UPDATE Language_en_US
