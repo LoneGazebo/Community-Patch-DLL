@@ -25,7 +25,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_HELP">
-			<Text>Provides +1 additional copy of any Luxury or Strategic Resource it connects.</Text>
+			<Text>Provides +1 [COLOR_POSITIVE_TEXT]Additional Copy[ENDCOLOR] of any Luxury or Strategic Resource it connects. For [ICON_MONOPOLY] Monopoly calculations, additional copies count towards ownership (numerator) while not counting towards the total number available in the world (denominator).</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_MANUFACTORY">
