@@ -111,21 +111,30 @@ SET NoTwoAdjacent = 1
 WHERE Type = 'IMPROVEMENT_CITADEL';
 
 -- Other GPTIs
+
 UPDATE Improvement_Yields
 SET Yield = 6
 WHERE ImprovementType = 'IMPROVEMENT_ACADEMY' AND YieldType = 'YIELD_SCIENCE';
+
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_ACADEMY_HELP' WHERE Type = 'IMPROVEMENT_ACADEMY';
 
 UPDATE Improvement_Yields
 SET Yield = 6
 WHERE ImprovementType = 'IMPROVEMENT_CUSTOMS_HOUSE' AND YieldType = 'YIELD_GOLD';
 
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_CUSTOMS_HOUSE_HELP' WHERE Type = 'IMPROVEMENT_CUSTOMS_HOUSE';
+
 UPDATE Improvement_Yields
 SET Yield = 6
 WHERE ImprovementType = 'IMPROVEMENT_MANUFACTORY' AND YieldType = 'YIELD_PRODUCTION';
 
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_HELP' WHERE Type = 'IMPROVEMENT_MANUFACTORY';
+
 UPDATE Improvement_Yields
 SET Yield = 4
 WHERE ImprovementType = 'IMPROVEMENT_HOLY_SITE' AND YieldType = 'YIELD_FAITH';
+
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_HOLY_SITE_HELP' WHERE Type = 'IMPROVEMENT_HOLY_SITE';
 
 INSERT INTO Improvement_YieldPerXAdjacentTerrain
 	(ImprovementType, TerrainType, YieldType, Yield, NumRequired)
