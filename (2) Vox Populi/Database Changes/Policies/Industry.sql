@@ -67,7 +67,7 @@ FROM BuildingClasses b, Yields y
 WHERE b.Type IN ('BUILDINGCLASS_WORKSHOP', 'BUILDINGCLASS_WINDMILL', 'BUILDINGCLASS_COALING_STATION', 'BUILDINGCLASS_FACTORY')
 AND y.Type IN ('YIELD_PRODUCTION', 'YIELD_CULTURE');
 
--- Wagon Trains (now Trade Subsidies)
+-- Wagon Trains (now Subsidies)
 UPDATE Policies SET LandTradeRouteGoldChange = 0 WHERE Type = 'POLICY_CARAVANS';
 
 INSERT INTO Policy_BuildingClassHappiness
