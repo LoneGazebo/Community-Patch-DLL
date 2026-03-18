@@ -60,7 +60,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_ACADEMY_TEXT';
 -- Manufactory
 UPDATE Language_en_US
 SET Text = '{TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_HELP}[NEWLINE][NEWLINE]A Manufactory is a plant consisting of one or more buildings in which things are built. The buildings might be foundries, factories, assembly lines, and so forth, usually all working on related items - the foundry creates the steel that the factory rolls into sheets which the workers on the assembly line make into cans, and so forth. A well-run Manufactory can be incredibly productive.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORTY_TEXT';
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_TEXT';
 
 -- Citadel
 UPDATE Language_en_US
