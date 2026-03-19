@@ -13074,20 +13074,41 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 			pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 			pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
-			if(pLoopUnit && pLoopUnit != this)
+			if (pLoopUnit && pLoopUnit != this)
 			{
-				if(pLoopUnit->IsWork() && pLoopUnit->getBuildType() != NO_BUILD)
+				if (pLoopUnit->IsWork())
 				{
 					// QoL: it's acceptable to build an improvement with no build time while another unit is constructing a road
-					if (pPlot->getBuildTime(eBuild, getOwner()) > 0 || (pkBuildInfo->getRoute() != NO_ROUTE && GC.getBuildInfo(pLoopUnit->getBuildType())->getRoute() != NO_ROUTE) || (pkBuildInfo->getImprovement() != NO_IMPROVEMENT && GC.getBuildInfo(pLoopUnit->getBuildType())->getImprovement() != NO_IMPROVEMENT))
+					// we can't use getBuildType to determine what the other unit is building because the call to GetBestBuildRouteForRoadTo() would lead to an infinite loop if both workers on the plot have a route mission
+					const MissionData* pkLoopUnitMissionNode = pLoopUnit->HeadMissionData();
+					if (pkLoopUnitMissionNode)
 					{
-						if (toolTipSink && !toolTipSink->empty())
-							(*toolTipSink) += "[NEWLINE]";
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING");
-						if (toolTipSink == NULL)
-							return false;
-						bCanBuild = false;
-						break;
+						bool bLoopUnitBuildingRoute = false;
+						bool bLoopUnitBuildingImprovement = false;
+						if (pkLoopUnitMissionNode->eMissionType == CvTypes::getMISSION_ROUTE_TO())
+						{
+							bLoopUnitBuildingRoute = true;
+						}
+						else if (pkLoopUnitMissionNode->eMissionType == CvTypes::getMISSION_BUILD())
+						{
+							CvBuildInfo* pkLoopBuildInfo = GC.getBuildInfo((BuildTypes)pkLoopUnitMissionNode->iData1);
+							if (pkLoopBuildInfo)
+							{
+								bLoopUnitBuildingRoute = pkLoopBuildInfo->getRoute() != NO_ROUTE;
+								bLoopUnitBuildingImprovement = !bLoopUnitBuildingRoute; // also includes removing features etc.
+							}
+						}
+
+						if (pPlot->getBuildTime(eBuild, getOwner()) > 0 || (pkBuildInfo->getRoute() != NO_ROUTE && bLoopUnitBuildingRoute) || (pkBuildInfo->getImprovement() != NO_IMPROVEMENT && bLoopUnitBuildingImprovement))
+						{
+							if (toolTipSink && !toolTipSink->empty())
+								(*toolTipSink) += "[NEWLINE]";
+							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING");
+							if (toolTipSink == NULL)
+								return false;
+							bCanBuild = false;
+							break;
+						}
 					}
 				}
 			}
