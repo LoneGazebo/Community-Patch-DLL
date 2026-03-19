@@ -120,6 +120,18 @@ BEGIN
     WHERE Type = NEW.Type;
 END;
 
+--------------------------------------------------------------------------------
+-- New Resources provide extra copies when a Manufactory is placed on them
+--------------------------------------------------------------------------------
+CREATE TRIGGER VP_ManufactoryNewResourceCompatibility
+AFTER INSERT ON Resources
+BEGIN
+    INSERT INTO Improvement_ResourceExtractionIncrease
+        (ImprovementType, ResourceType, Num)
+    SELECT
+        'IMPROVEMENT_MANUFACTORY', NEW.Type, 1;
+END;
+
 ---------------------------------------------------------------------------------
 -- Promotions that provide blanket immunity to all Plagues
 ---------------------------------------------------------------------------------
