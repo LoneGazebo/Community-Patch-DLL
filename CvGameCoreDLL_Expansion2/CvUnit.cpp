@@ -30288,17 +30288,46 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 		}
 	}
 
-	//hack ...
-	SetSpottedEnemy(false);
-	SetSpottedRuin(false);
-	SetRevealedPlot(false);
+	// If we are mid move and can't stop, don't reset the flags. We want to still stop when available.
+	if (CountStackingUnitsAtPlot(plot()) < plot()->getUnitLimit())
+	{
+		SetSpottedEnemy(false);
+		SetSpottedRuin(false);
+		SetRevealedPlot(false);
+	}
 
 	//todo: consider movement flags here. especially turn destination, not only path destination
 	bool bMoved = UnitMove(pPathPlot, IsCombatUnit(), NULL, bDone);
 
-	if (HasSpottedEnemy())
+	if (CountStackingUnitsAtPlot(pPathPlot) < pPathPlot->getUnitLimit())
 	{
-		if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
+		if (HasSpottedEnemy())
+		{
+			if (iFlags & CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED)
+			{
+				ClearPathCache();
+				if (MOD_SQUADS)
+				{
+					UnlinkUnits();
+				}
+				return MOVE_RESULT_CANCEL;
+			}
+		}
+
+		if (HasSpottedRuin() && !IsCivilianUnit())
+		{
+			if (!MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS || getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true) || IsGainsXPFromScouting())
+			{
+				ClearPathCache();
+				if (MOD_SQUADS)
+				{
+					UnlinkUnits();
+				}
+				return MOVE_RESULT_CANCEL;
+			}
+		}
+
+		if (HasRevealedPlot() && (iFlags & CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
 		{
 			ClearPathCache();
 			if (MOD_SQUADS)
@@ -30307,29 +30336,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			}
 			return MOVE_RESULT_CANCEL;
 		}
-	}
-
-	if (HasSpottedRuin() && !IsCivilianUnit())
-	{
-		if (!MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS || getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true) || IsGainsXPFromScouting())
-		{
-			ClearPathCache();
-			if (MOD_SQUADS)
-			{
-				UnlinkUnits();
-			}
-			return MOVE_RESULT_CANCEL;
-		}
-	}
-
-	if (HasRevealedPlot() && (iFlags & CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
-	{
-		ClearPathCache();
-		if (MOD_SQUADS)
-		{
-			UnlinkUnits();
-		}
-		return MOVE_RESULT_CANCEL;
 	}
 
 	int iETA = 0;
