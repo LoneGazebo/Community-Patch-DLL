@@ -8753,7 +8753,10 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 					//score functions are biased so that only scores > 0 are interesting moves
 					//still allow mildly negative moves here, maybe we want to do combo moves later!
-					moveToPlot.iPlotScore += iDamageScore * 10;
+					if (moveToPlot.iRemainingMoves > 0)
+						moveToPlot.iPlotScore += iDamageScore * 10;
+					else
+						moveToPlot.iPlotScore += iDamageScore * 5;
 				}
 				//undo the hypothetical kill
 				moveToPlot.iKillOrNearKillId = -1;

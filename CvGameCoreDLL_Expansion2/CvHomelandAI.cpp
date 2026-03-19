@@ -231,6 +231,29 @@ bool CvHomelandAI::NeedsUpdate()
 	return m_bNeedsUpdate;
 }
 
+bool IsUnfriendlyTerritory(TeamTypes eTeam, const CvPlot* pPlot, const CvUnit* pUnit)
+{
+	TeamTypes ePlotTeam = pPlot->getTeam();
+	if (ePlotTeam != NO_TEAM && ePlotTeam != eTeam)
+	{
+		CvTeam& kMyTeam = GET_TEAM(eTeam);
+		CvTeam& kTheirTeam = GET_TEAM(ePlotTeam);
+		if (kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
+		{
+			if (kMyTeam.isHasMet(ePlotTeam) && !pUnit->IsAngerFreeUnit())
+			{
+				// If we are friends etc we may go there
+				CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
+				if (!pMinorAI->IsPlayerHasOpenBorders(pUnit->getOwner()))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) const
 {
 	if (!pUnit)
@@ -306,19 +329,19 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) c
 
 		if (pEvalPlot == pUnit->plot())
 		{
+			if (IsUnfriendlyTerritory(m_pPlayer->getTeam(), pEvalPlot, pUnit))
+				continue;
+
 			// Check if we should stay and heal
-			if (!pUnit->hasMoved() && iMaxTurns == 1 && !pUnit->isHuman(ISHUMAN_AI_UNITS))
+			if (!pUnit->hasMoved() && iMaxTurns <= 3 && !pUnit->isHuman(ISHUMAN_AI_UNITS))
 			{
 				int iDamage = pUnit->getDamage();
-				int iHealRate = pUnit->ActualHealRate(pEvalPlot, false);
-				if (iDamage >= iHealRate)
+				int iHealRate = min(pUnit->ActualHealRate(pEvalPlot, false), iDamage);
+				iHealRate -= pUnit->GetDanger(pEvalPlot);
+				if (iHealRate >= 7 || (iHealRate > 0 && iDamage > 30))
 				{
-					iHealRate -= pUnit->GetDanger(pEvalPlot);
-					if (iHealRate > 0)
-					{
-						int iScore = (iDamage + iHealRate) * 10;
-						vReachablePlotByScore.push_back(SPlotWithScore(pEvalPlot, -iScore));
-					}
+					int iScore = iHealRate * 20;
+					vReachablePlotByScore.push_back(SPlotWithScore(pEvalPlot, -iScore));
 				}
 			}
 			continue;
@@ -400,18 +423,34 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) c
 
 		iPlotScore += EconomicAIHelpers::GetExtraExploreValue(pEvalPlot, iPlotVisibilityRange, m_pPlayer->getTeam());
 
-		int iPathLengthPenalty = reachablePlot->iPathLength * GD_INT_GET(MOVE_DENOMINATOR) * pUnit->maxMoves() * 2;
+		int iPathLengthPenalty = reachablePlot->iPathLength * pUnit->maxMoves() * 2;
 		int iMovesLeftBonus = reachablePlot->iMovesLeft * 2;
 
 		int iTotalScore = iPlotScore - iNearbyPenalty + iMovesLeftBonus - iPathLengthPenalty;
 
 		//careful with plots that are too dangerous
-		int iAcceptableDanger = pUnit->GetCurrHitPoints() / 2;
-		int iDanger = pUnit->GetDanger(pEvalPlot);
-		if (iDanger > iAcceptableDanger)
-			continue;
-		if (iDanger > iAcceptableDanger / 2)
-			iTotalScore /= 2;
+		if (reachablePlot->iMovesLeft <= GD_INT_GET(MOVE_DENOMINATOR))
+		{
+			int iAcceptableDanger = pUnit->GetCurrHitPoints() / 2;
+			int iDanger = pUnit->GetDanger(pEvalPlot);
+			if (iDanger > iAcceptableDanger)
+				continue;
+
+			if (iDanger > 0)
+				iTotalScore -= iDanger * 10;
+		}
+
+		// Avoid angering city states
+		if (reachablePlot->iMovesLeft < 2 * GD_INT_GET(MOVE_DENOMINATOR))
+		{
+			if (IsUnfriendlyTerritory(m_pPlayer->getTeam(), pEvalPlot, pUnit))
+			{
+				if (reachablePlot->iMovesLeft == 0)
+					continue;
+				else
+					iTotalScore /= 2;
+			}
+		}
 
 		vReachablePlotByScore.push_back(SPlotWithScore(pEvalPlot, -iTotalScore));
 	}
@@ -2952,17 +2991,11 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 
 	CvPlot* pBestPlot = NULL;
 
-	//step 5: if we didn't find a worthwhile plot among our adjacent plots, check the global targets and pick a new one
+	//step 5: look for good targets, starting nearby and extending outwards
 	if (pUnit->movesLeft() > 0)
 	{
-		int iDist = 1;
-		pBestPlot = GetBestExploreTarget(pUnit, iDist);
-
-		if (!pBestPlot)
-		{
-			iDist = 3;
-			pBestPlot = pBestPlotDist3;
-		}
+		int iDist = 3;
+		pBestPlot = pBestPlotDist3;
 
 		if (!pBestPlot)
 		{
