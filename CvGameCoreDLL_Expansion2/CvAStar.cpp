@@ -31,8 +31,7 @@
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
 #define PATH_DEFENSE_WEIGHT										(20)	//per percent defense bonus on turn end plot
 #define PATH_STEP_WEIGHT										(10)	//relatively small
-#define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
-#define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
+#define	PATH_EXPLORE_NON_EXPLORATION_WEIGHT						(PATH_BASE_COST*45)	//max penalty for missing exploration tiles
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(40)	//accept two plots detour to save on maintenance
 #define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST*10)		//per turn end plot outside of our territory
 #define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
@@ -1457,18 +1456,15 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 	if (finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
 	{
-		// normalize exploration heuristics by fraction of turn spent
-		int iExploreScale = std::max(1, iMovementCost);
-
 		// discourage plots that immediately end the turn
 		if (iMovesLeft <= 0 && parent->m_iStartMovesForTurn > 1)
 		{
-			iCost += (PATH_EXPLORE_NON_HILL_WEIGHT * iExploreScale) / parent->m_iStartMovesForTurn;
+			iCost += (PATH_EXPLORE_NON_EXPLORATION_WEIGHT * iMovementCost) / (parent->m_iStartMovesForTurn * GD_INT_GET(MOVE_DENOMINATOR));
 		}
 		else
 		{
-			int iExploreValue = GET_PLAYER(pUnit->getOwner()).GetEconomicAI()->GetExploreValue(pToPlot, pUnit->visibilityRange());
-			iCost += ((PATH_EXPLORE_NON_HILL_WEIGHT - iExploreValue) * iExploreScale) / parent->m_iStartMovesForTurn;
+			int iExploreValue = min(GET_PLAYER(pUnit->getOwner()).GetEconomicAI()->GetExploreValue(pToPlot, pUnit->visibilityRange()) * 10, PATH_EXPLORE_NON_EXPLORATION_WEIGHT);
+			iCost += ((PATH_EXPLORE_NON_EXPLORATION_WEIGHT - iExploreValue) * iMovementCost) / (parent->m_iStartMovesForTurn * GD_INT_GET(MOVE_DENOMINATOR));
 		}
 	}
 
