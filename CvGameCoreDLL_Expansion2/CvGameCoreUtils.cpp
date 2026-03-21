@@ -28,6 +28,22 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+// Returns a shortened version of a source file path for display in assertion dialogs.
+// Removes everything before "Community-Patch-DLL/"
+static const char* ShortenFilePath(const char* szFile)
+{
+	if (!szFile) return szFile;
+	const char* anchor_uppercase = strstr(szFile, "Community-Patch-DLL");
+	if (anchor_uppercase)
+		return anchor_uppercase;
+
+	const char* anchor_lowercase = strstr(szFile, "community-patch-dll");
+	if (anchor_lowercase)
+		return anchor_lowercase;
+
+	return szFile;
+}
+
 // CvAssertDlg and CvPreconditionDlg implementation
 #ifdef CVASSERT_ENABLE
 #ifdef WIN32
@@ -166,7 +182,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			"File: %s, "
 			"Line: %u",
 			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? ", " : "",
-			expr, szFile, uiLine
+			expr, ShortenFilePath(szFile), uiLine
 		);
 		GC.getDLLIFace()->sendChat(CvString(szBuffer), CHATTARGET_ALL, NO_PLAYER);
 		return false;
@@ -189,7 +205,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			"Cancel - Exit the game. \n"
 			"OK - Continue playing. This warning will not be shown again in the current session.",
 			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-			expr, szFile, uiLine
+			expr, ShortenFilePath(szFile), uiLine
 		);
 
 		// Show dialog
@@ -240,7 +256,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		"Yes - Break into debugger\n"
 		"No - Continue execution\n"
 		"Cancel - Ignore this assert",
-		expr, szFile, uiLine,
+		expr, ShortenFilePath(szFile), uiLine,
 		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
 		info.count,
 		timeSinceFirst / 1000.0f,
@@ -290,7 +306,7 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 		"File: %s\n"
 		"Line: %u\n"
 		"%s%s%s\n",
-		expr, szFile, uiLine,
+		expr, ShortenFilePath(szFile), uiLine,
 		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : ""
 	);
 
