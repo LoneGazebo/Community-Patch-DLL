@@ -36597,7 +36597,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	}
 
 	// What are the details for the new unit?
-	UnitTypes eNewUnitType = bReturn ? pUnit->getUnitType() : pUnit->getCaptureUnitType(GetID());
+	UnitTypes eNewUnitType = pUnit->getUnitType();
 	int iX = pUnit->getX();
 	int iY = pUnit->getY();
 
