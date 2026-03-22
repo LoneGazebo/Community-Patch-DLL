@@ -139,10 +139,13 @@ def parse_civ5proj(civ5proj_path: Path) -> dict:
         contents = mod_content.findall('Content')
         contents.extend(mod_content.findall('ms:Content', NS))
         for content in contents:
-            entry_type = get_text(content.find('ms:Type', NS))
-            entry_name = get_text(content.find('ms:Name', NS))
-            entry_desc = get_text(content.find('ms:Description', NS))
-            entry_file = get_text(content.find('ms:FileName', NS))
+            def _find(tag):
+                elem = content.find(f'ms:{tag}', NS)
+                return elem if elem is not None else content.find(tag)
+            entry_type = get_text(_find('Type'))
+            entry_name = get_text(_find('Name'))
+            entry_desc = get_text(_find('Description'))
+            entry_file = get_text(_find('FileName'))
             if entry_type and entry_file:
                 data['entry_points'].append({
                     'type': entry_type,

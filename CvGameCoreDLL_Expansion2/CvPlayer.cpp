@@ -3788,22 +3788,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		GET_PLAYER(eOldOwner).GetMinorCivAI()->DoUpdateAlliesResourceBonus(GET_PLAYER(eOldOwner).GetMinorCivAI()->GetAlly(), GET_PLAYER(eOldOwner).GetMinorCivAI()->GetAlly());
 	}
 
-	if (GET_PLAYER(eOriginalOwner).isMinorCiv() && pCity->IsOriginalCapitalForPlayer(eOriginalOwner))
-	{
-		if (isMajorCiv())
-		{
-			ChangeNumAnnexedCityStates(+1);
-			if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
-				addAnnexedCityState(eOriginalOwner);
-		}
-		if (GET_PLAYER(eOldOwner).isMajorCiv())
-		{
-			GET_PLAYER(eOldOwner).ChangeNumAnnexedCityStates(-1);
-			if (GET_PLAYER(eOldOwner).GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
-				GET_PLAYER(eOldOwner).removeAnnexedCityState(eOriginalOwner);
-		}
-	}
-
 	// Cancel trade routes to/from this city
 	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pCityPlot);
 
@@ -3943,6 +3927,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 				vcBuildingYieldChange.push_back(kChange);
 		}
 	}
+
+	// needed for Rome's UA
+	bool bOriginalMinorCapital = GET_PLAYER(eOriginalOwner).isMinorCiv() && pCity->IsOriginalCapitalForPlayer(eOriginalOwner);
 
 	// Prepare the city to be destroyed
 	pCity->PreKill();
@@ -4283,6 +4270,23 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	// Update Player Proximity
 	GET_PLAYER(eOldOwner).DoUpdateProximityToPlayers();
 	DoUpdateProximityToPlayers();
+
+	// Rome UA
+	if (bOriginalMinorCapital)
+	{
+		if (isMajorCiv())
+		{
+			ChangeNumAnnexedCityStates(+1);
+			if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+				addAnnexedCityState(eOriginalOwner);
+		}
+		if (GET_PLAYER(eOldOwner).isMajorCiv())
+		{
+			GET_PLAYER(eOldOwner).ChangeNumAnnexedCityStates(-1);
+			if (GET_PLAYER(eOldOwner).GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+				GET_PLAYER(eOldOwner).removeAnnexedCityState(eOriginalOwner);
+		}
+	}
 
 	// Update events
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -26547,7 +26551,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				//Exclusions
 				if(eYield != YIELD_POPULATION)
 				{
-					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_FAITH_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN && iType != INSTANT_YIELD_TYPE_BULLY)
+					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_FAITH_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN && iType != INSTANT_YIELD_TYPE_BULLY && iType != INSTANT_YIELD_TYPE_FAITH_REFUND && iType != INSTANT_YIELD_TYPE_REFUND)
 					{
 						if (ePlayer == NO_PLAYER && eYield == YIELD_TOURISM)
 						{
@@ -33052,6 +33056,11 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 							iExpectedAlliance += GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra * 100;
 							iExpectedFriendship += GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra * 100;
 						}
+						// Rome UA
+						if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+						{
+							iExpectedAlliance += pCity->isCapital() ? GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(eYield) : GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(eYield);
+						}
 
 						// Flat bonuses from individual minor civs
 						for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -36597,7 +36606,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	}
 
 	// What are the details for the new unit?
-	UnitTypes eNewUnitType = bReturn ? pUnit->getUnitType() : pUnit->getCaptureUnitType(GetID());
+	UnitTypes eNewUnitType = pUnit->getUnitType();
 	int iX = pUnit->getX();
 	int iY = pUnit->getY();
 

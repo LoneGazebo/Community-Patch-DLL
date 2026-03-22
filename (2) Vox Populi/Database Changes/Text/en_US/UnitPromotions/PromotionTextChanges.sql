@@ -579,7 +579,7 @@ SET Text = 'Withdraw from Melee Attack if there is an open tile behind this Unit
 WHERE Tag = 'TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unity'
+SET Text = 'Phalanx'
 WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE';
 
 UPDATE Language_en_US

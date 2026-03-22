@@ -614,28 +614,20 @@ SET Text = 'In Sparta boys between the age 6 and 7 left their homes and were sen
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Employment Law'
+SET Text = 'Liberalism'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Employment Law[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production in Cities for every 2 non-Specialist [ICON_CITIZEN] Citizen.[NEWLINE][ICON_BULLET]Specialists consume 1 [ICON_FOOD] Food less than normal (minimum 1 [ICON_FOOD] Food).[NEWLINE][ICON_BULLET]50% of [ICON_HAPPINESS_1] Happiness in each City is converted into [ICON_CULTURE] Culture.'
+SET Text = '[COLOR_POSITIVE_TEXT]Liberalism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from Specialists.[NEWLINE][ICON_BULLET]+25% [ICON_GREAT_PEOPLE] Great Person Rate during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Code of Hammurabi (c. 1755-1750 BC) stipulated a 2 shekel prevailing wage for each 60 gur (300 bushel) vessel constructed in an employment contract between a shipbuilder and a ship-owner. Since then, protections to trade have been a central part of jurisprudence. Sadly, one of the appalling consequences of the industrial revolution was a reversal of this norm and an almost unregulated economic framework that led to much misery and death. In Britain, a great milestone in labour law was reached with the Factories Act 1833, which limited the employment of children under eighteen years of age, prohibited all night work, and, crucially, provided for inspectors to enforce the law.'
+SET Text = 'Philosopher John Locke is often credited with founding liberalism as a distinct tradition based on the social contract, arguing that each man has a natural right to life, liberty and property, and governments must not violate these rights. From the Glorious Revolution of 1688, through the American Revolution and French Revolutions of late 1700s, to the Tanzimat reform of the Ottoman empire beginning in 1839, liberal philosophy was used to justify the armed overthrow of royal sovereignty and the rise of consitutionalism.'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFICREVOLUTION_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Liberalism'
-WHERE Tag = 'TXT_KEY_POLICY_SECULARISM';
-
-UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Liberalism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from Specialists.[NEWLINE][ICON_BULLET]+25% [ICON_GREAT_PEOPLE] Great Person Rate during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Secularism[ENDCOLOR][NEWLINE][ICON_BULLET]-5 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest in all Cities.[NEWLINE][ICON_BULLET]+10% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+3 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Academies.'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Philosopher John Locke is often credited with founding liberalism as a distinct tradition based on the social contract, arguing that each man has a natural right to life, liberty and property, and governments must not violate these rights. From the Glorious Revolution of 1688, through the American Revolution and French Revolutions of late 1700s, to the Tanzimat reform of the Ottoman empire beginning in 1839, liberal philosophy was used to justify the armed overthrow of royal sovereignty and the rise of consitutionalism.'
-WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_TEXT';
 
 UPDATE Language_en_US
 SET Text = 'Emancipation'
@@ -650,12 +642,16 @@ SET Text = 'Although by the 1850s slavery in the British Empire had been banned 
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Secularism'
+SET Text = 'Employment Law'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_THOUGHT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Secularism[ENDCOLOR][NEWLINE][ICON_BULLET]-5 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest in all Cities.[NEWLINE][ICON_BULLET]+10% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+3 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Academies.'
+SET Text = '[COLOR_POSITIVE_TEXT]Employment Law[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production in Cities for every 2 non-Specialist [ICON_CITIZEN] Citizen.[NEWLINE][ICON_BULLET]Specialists consume 1 [ICON_FOOD] Food less than normal (minimum 1 [ICON_FOOD] Food).[NEWLINE][ICON_BULLET]50% of [ICON_HAPPINESS_1] Happiness in each City is converted into [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_THOUGHT_HELP';
+
+UPDATE Language_en_US
+SET Text = 'The Code of Hammurabi (c. 1755-1750 BC) stipulated a 2 shekel prevailing wage for each 60 gur (300 bushel) vessel constructed in an employment contract between a shipbuilder and a ship-owner. Since then, protections to trade have been a central part of jurisprudence. Sadly, one of the appalling consequences of the industrial revolution was a reversal of this norm and an almost unregulated economic framework that led to much misery and death. In Britain, a great milestone in labour law was reached with the Factories Act 1833, which limited the employment of children under eighteen years of age, prohibited all night work, and, crucially, provided for inspectors to enforce the law.'
+WHERE Tag = 'TXT_KEY_POLICY_FREETHOUGHT_TEXT';
 
 --------------------
 -- Freedom

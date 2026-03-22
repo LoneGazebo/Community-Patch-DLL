@@ -842,7 +842,7 @@ UPDATE UnitPromotions SET NukeImmune = 1 WHERE Type = 'PROMOTION_SHIELDED_SILO';
 -- Camel Archer, Comanche Rider, Nau: Withdraw Before Melee
 UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE';
 
--- Hoplite: Unity
+-- Hoplite: Phalanx
 INSERT INTO UnitPromotions_CombatModPerAdjacentUnitCombat
 	(PromotionType, UnitCombatType, Modifier)
 SELECT
@@ -1030,7 +1030,7 @@ INSERT INTO UnitPromotions_Plagues
 VALUES
 	('PROMOTION_CONCUSSIVE_HIT', 'PROMOTION_DAZED', 'DOMAIN_LAND', 1);
 
--- Chu-Ko-Nu: Siege Volley
+-- Hwacha: Singijeon
 UPDATE UnitPromotions SET NearbyCityCombatMod = 25, NearbyRange = 1, SplashDamage = 5 WHERE Type = 'PROMOTION_SIEGE_VOLLEY';
 
 -- Quinquereme: Heavy Assault

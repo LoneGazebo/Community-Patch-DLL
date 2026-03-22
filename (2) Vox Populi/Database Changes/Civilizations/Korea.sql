@@ -29,7 +29,7 @@ SELECT
 FROM GreatPersons;
 
 ----------------------------------------------------------
--- Unique Unit: Hwach'a (Trebuchet)
+-- Unique Unit: Hwacha (Trebuchet)
 ----------------------------------------------------------
 UPDATE Units
 SET

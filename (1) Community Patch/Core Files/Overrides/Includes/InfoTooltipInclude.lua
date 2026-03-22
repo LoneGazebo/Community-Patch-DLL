@@ -2500,7 +2500,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipSimpleYieldModifierTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_GOLDEN_AGE", tGoldenAgeModifiers);
 		AddTooltipSimpleYieldModifierTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_WLTKD", tWLTKDModifiers);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FAITH_PURCHASABLE_BUILDING_YIELDS", tFaithPurchasableBuildings);
-		AddTooltipSimpleYieldBoostTable(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FAITH_PURCHASABLE_BUILDING_YIELDS", tFaithPurchasableBuildingsGlobal);
+		AddTooltipSimpleYieldBoostTableGlobal(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FAITH_PURCHASABLE_BUILDING_YIELDS", tFaithPurchasableBuildingsGlobal);
 
 		-- Process boosts (both conversion rate and need modifier)
 		for row in GameInfo.Building_YieldFromProcessModifier{BuildingType = kBuildingInfo.Type} do
