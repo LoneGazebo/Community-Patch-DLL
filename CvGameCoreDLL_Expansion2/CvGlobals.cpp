@@ -2467,6 +2467,31 @@ static PFN_MiniDumpWriteDump g_pfnMiniDumpWriteDump = NULL;
 static PFN_SymInitialize g_pfnSymInitialize = NULL;
 static DWORD g_dwDbgHelpVersion = 0;
 
+// Store the last minidump path for display in crash dialogs
+static char g_szLastMiniDumpPath[MAX_PATH] = {0};
+
+// Get the last minidump path (for use in assert/precondition dialogs)
+const char* GetLastMiniDumpPath()
+{
+	return g_szLastMiniDumpPath[0] != '\0' ? g_szLastMiniDumpPath : NULL;
+}
+
+// MessageBox constants (not included in minimal Windows headers)
+#ifndef MB_OK
+#define MB_OK           0x00000000L
+#endif
+#ifndef MB_ICONERROR
+#define MB_ICONERROR    0x00000010L
+#endif
+#ifndef MB_SYSTEMMODAL
+#define MB_SYSTEMMODAL  0x00001000L
+#endif
+
+// MessageBox function declaration
+extern "C" {
+	__declspec(dllimport) int __stdcall MessageBoxA(void* hWnd, const char* lpText, const char* lpCaption, unsigned int uType);
+}
+
 // Load the best available dbghelp.dll
 static bool LoadBestDbgHelp()
 {
@@ -2607,8 +2632,8 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	}
 
 	// Generate dump filename with version, commit hash and build type
-	TCHAR szDumpPath[MAX_PATH];
-	_stprintf_s(szDumpPath, MAX_PATH, _T("CvMiniDump_%s_%hs_%s.dmp"),
+	TCHAR szDumpFilename[MAX_PATH];
+	_stprintf_s(szDumpFilename, MAX_PATH, _T("CvMiniDump_%s_%hs_%s.dmp"),
 		szTimestamp,
 		shortVersion,
 #ifdef VPDEBUG
@@ -2618,12 +2643,16 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 #endif
 	);
 
-	HANDLE hFile = CreateFile(szDumpPath, GENERIC_READ | GENERIC_WRITE,
+	HANDLE hFile = CreateFile(szDumpFilename, GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if ((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {
+		g_szLastMiniDumpPath[0] = '\0';
 		return;
 	}
+
+	// Get full path for display in crash dialog (use ANSI version for char buffer)
+	GetFullPathNameA(szDumpFilename, MAX_PATH, g_szLastMiniDumpPath, NULL);
 
 	MINIDUMP_EXCEPTION_INFORMATION mdei;
 	mdei.ThreadId = GetCurrentThreadId();
@@ -2660,8 +2689,6 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		MiniDumpWithUnloadedModules |          // 0x00000020 Track unloaded DLLs
 		MiniDumpWithProcessThreadData |        // 0x00000100 Process thread data
 		MiniDumpWithHandleData |               // 0x00000004 Handle usage
-		MiniDumpWithPrivateReadWriteMemory |   // 0x00000200 Private read/write memory
-		MiniDumpWithIndirectlyReferencedMemory | // 0x00000040 Memory referenced by locals/pointers
 		MiniDumpIgnoreInaccessibleMemory       // 0x00020000 Skip inaccessible memory
 		);
 #endif
@@ -2730,9 +2757,62 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	}
 }
 
+// Get exception code description
+static const char* GetExceptionDescription(DWORD exceptionCode)
+{
+	switch (exceptionCode)
+	{
+	case EXCEPTION_ACCESS_VIOLATION:         return "Access Violation";
+	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    return "Array Bounds Exceeded";
+	case EXCEPTION_DATATYPE_MISALIGNMENT:    return "Datatype Misalignment";
+	case EXCEPTION_FLT_DIVIDE_BY_ZERO:       return "Float Divide by Zero";
+	case EXCEPTION_FLT_OVERFLOW:             return "Float Overflow";
+	case EXCEPTION_FLT_UNDERFLOW:            return "Float Underflow";
+	case EXCEPTION_ILLEGAL_INSTRUCTION:      return "Illegal Instruction";
+	case EXCEPTION_INT_DIVIDE_BY_ZERO:       return "Integer Divide by Zero";
+	case EXCEPTION_INT_OVERFLOW:             return "Integer Overflow";
+	case EXCEPTION_PRIV_INSTRUCTION:         return "Privileged Instruction";
+	case EXCEPTION_STACK_OVERFLOW:           return "Stack Overflow";
+	default:                                 return "Unknown Exception";
+	}
+}
+
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
 	CreateMiniDump(ExceptionInfo);
+
+	// Show crash dialog to user
+	char szMessage[2048];
+	DWORD exceptionCode = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionCode : 0;
+	void* exceptionAddress = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionAddress : NULL;
+
+	if (g_szLastMiniDumpPath[0] != '\0')
+	{
+		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
+			"The game has crashed.\n\n"
+			"Exception: %s (0x%08X)\n"
+			"Address: 0x%p\n\n"
+			"A minidump has been saved to:\n%s\n\n"
+			"Please include this file when reporting the crash.",
+			GetExceptionDescription(exceptionCode),
+			exceptionCode,
+			exceptionAddress,
+			g_szLastMiniDumpPath);
+	}
+	else
+	{
+		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
+			"The game has crashed.\n\n"
+			"Exception: %s (0x%08X)\n"
+			"Address: 0x%p\n\n"
+			"Failed to create minidump file.",
+			GetExceptionDescription(exceptionCode),
+			exceptionCode,
+			exceptionAddress);
+	}
+
+	MessageBoxA(NULL, szMessage, "Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 #endif
