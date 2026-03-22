@@ -2652,8 +2652,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
 	}
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
-	if(pPlot)
-		pPlot->removeUnit(this, false);
 
 	if (pPlot)
 	{
