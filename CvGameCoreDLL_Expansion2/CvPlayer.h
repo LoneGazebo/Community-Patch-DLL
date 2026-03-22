@@ -1864,6 +1864,9 @@ public:
 	int GetPressureMod() const;
 	void changePressureMod(int iChange);
 
+	int GetFranchisePressure() const;
+	void changeFranchisePressure(int iChange);
+
 	int GetCityStateCombatModifier() const;
 	void changeCityStateCombatModifier(int iChange);
 
@@ -3153,6 +3156,7 @@ protected:
 	int m_iFreeTradeRoute;
 	int m_iReligionDistance;
 	int m_iPressureMod;
+	int m_iFranchisePressure;
 	int m_iTradeReligionModifier;
 	int m_iCityStateCombatModifier;
 	int m_iInfluenceForLiberation;
@@ -3963,6 +3967,7 @@ SYNC_ARCHIVE_VAR(int, m_iTradeRouteFromTechs)
 SYNC_ARCHIVE_VAR(int, m_iFreeTradeRoute)
 SYNC_ARCHIVE_VAR(int, m_iReligionDistance)
 SYNC_ARCHIVE_VAR(int, m_iPressureMod)
+SYNC_ARCHIVE_VAR(int, m_iFranchisePressure)
 SYNC_ARCHIVE_VAR(int, m_iTradeReligionModifier)
 SYNC_ARCHIVE_VAR(int, m_iCityStateCombatModifier)
 SYNC_ARCHIVE_VAR(int, m_iMaxAirUnits)
