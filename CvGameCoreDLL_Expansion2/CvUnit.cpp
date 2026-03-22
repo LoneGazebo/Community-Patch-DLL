@@ -613,7 +613,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		{
 			iNameOffset = GC.getGame().randRangeExclusive(0, iNumNames, CvSeeder(plot()->GetPseudoRandomSeed()));
 		}
-		CvString strName = NULL;
+		CvString strName;
 		//Look for units from previous and current eras.
 		for(iI = 0; iI < iNumNames; iI++)
 		{
