@@ -3934,7 +3934,7 @@ int CvPlayerReligions::GetFranchisePressure() const
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
 		if (pReligion)
 		{
-			iRtnValue += m_pPlayer->getFranchisePressure();
+			iRtnValue += m_pPlayer->GetFranchisePressure();
 		}
 	}
 	return iRtnValue;
