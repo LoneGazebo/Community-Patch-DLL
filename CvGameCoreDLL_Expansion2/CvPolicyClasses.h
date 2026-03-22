@@ -315,6 +315,7 @@ public:
 	int GetFreeSpy() const;
 	int GetReligionDistance() const;
 	int GetPressureMod() const;
+	int GetFranchisePressure() const;
 	int GetYieldFromBorderGrowth(int i) const;
 	int GetYieldGPExpend(int i) const;
 	int GetGarrisonsOccupiedUnhappinessMod() const;
@@ -752,6 +753,7 @@ private:
 	int m_iFreeSpy;
 	int m_iReligionDistance;
 	int m_iPressureMod;
+	int m_iFranchisePressure;
 	int* m_piYieldFromUnitProduction;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldGPExpend;
