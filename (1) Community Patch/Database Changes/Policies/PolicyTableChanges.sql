@@ -348,3 +348,6 @@ ALTER TABLE PolicyBranchTypes ADD NumPolicyRequirement integer DEFAULT -1;
 
 -- A font icon for an ideology
 ALTER TABLE PolicyBranchTypes ADD FontIcon text;
+
+-- Franchises of the player's corporation exert Pressure of the player's state religion, equal to this many cities of base pressure
+ALTER TABLE Policies ADD FranchisePressure integer DEFAULT 0;
