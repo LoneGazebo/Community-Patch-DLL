@@ -307,6 +307,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iFreeSpy(0),
 	m_iReligionDistance(0),
 	m_iPressureMod(0),
+	m_iFranchisePressure(0),
 	m_piYieldFromUnitProduction(NULL),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldGPExpend(NULL),
@@ -750,6 +751,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iFreeSpy = kResults.GetInt("FreeSpy");
 	m_iReligionDistance = kResults.GetInt("ReligionDistance");
 	m_iPressureMod = kResults.GetInt("PressureMod");
+	m_iFranchisePressure = kResults.GetInt("FranchisePressure");
 	m_iMissionInfluenceModifier = kResults.GetInt("MissionInfluenceModifier");
 	m_iHappinessPerActiveTradeRoute = kResults.GetInt("HappinessPerActiveTradeRoute");
 	m_bCSResourcesForMonopolies = kResults.GetBool("CSResourcesCountForMonopolies");
@@ -3067,6 +3069,10 @@ int CvPolicyEntry::GetReligionDistance() const
 int CvPolicyEntry::GetPressureMod() const
 {
 	return m_iPressureMod;
+}
+int CvPolicyEntry::GetFranchisePressure() const
+{
+	return m_iFranchisePressure;
 }
 // Does this policy grant % of prod cost as yield on unit train?
 int CvPolicyEntry::GetYieldFromUnitProduction(int i) const
