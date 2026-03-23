@@ -10915,7 +10915,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	if (isHills())
 	    iTerrainBonus += pTraits->GetTerrainYieldChange(TERRAIN_HILL, eYield);
 	
-	if (isMountains())
+	if (isMountain())
 	    iTerrainBonus += pTraits->GetTerrainYieldChange(TERRAIN_MOUNTAIN, eYield);
 	
 	int iImprovementBonus = 0;
