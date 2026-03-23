@@ -6178,28 +6178,21 @@ int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldT
 	{
 		return 0;
 	}
+
+	int iScaler = 1;
+	
 	if(IsOddEraScaler())
 	{
-		int iYield = m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
-		if(iYield > 0)
+		int iCurrentEra = (int)m_pPlayer->GetCurrentEra();
+		// starts at Medieval (or whatever is Era #3)
+		if (iCurrentEra >= 2)
 		{
-			if(m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true))
-			{
-				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
-			}
-			if(m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
-			{
-				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
-			}
-			if(m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_POSTMODERN", true))
-			{
-				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
-			}
-			return iYield;
+			int iEraOffset = iCurrentEra - 2;
+			iScaler += 1 + (iEraOffset / 2);
 		}
 	}
 
-	return m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
+	return iScaler * m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
 }
 
 int CvPlayerTraits::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const
