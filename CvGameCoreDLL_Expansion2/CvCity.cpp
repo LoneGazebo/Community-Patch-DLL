@@ -17536,22 +17536,19 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 			if (iYieldChangePerImprovementBuilt == 0)
 				continue;
 
-			iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+			int iScaler = 1;
+
 			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
 			{
-				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
+				int iCurrentEra = (int)GET_PLAYER(m_eOwner).GetCurrentEra();
+				// starts at Medieval (or whatever is Era #3)
+				if (iCurrentEra >= 2)
 				{
-					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				}
-				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
-				{
-					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				}
-				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
-				{
-					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+					int iEraOffset = iCurrentEra - 2;
+					iScaler += 1 + (iEraOffset / 2);
 				}
 			}
+			iYield += iScaler * iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
 		}
 	}
 
