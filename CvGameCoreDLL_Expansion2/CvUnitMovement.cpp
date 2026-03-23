@@ -254,11 +254,17 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				iTerrainFeatureCostAdderFromPromotions = CvUnitMovement::GetMovementCostChangeFromPromotions(pUnit, pToPlot);
 
 			//cost reduction simply means ignore terrain/feature cost
-			if (iTerrainFeatureCostAdderFromPromotions < 0)
+			if ((pUnit->isRiverDoubleMove() && pFromPlot->IsAlongSameRiver(pToPlot)) || iTerrainFeatureCostAdderFromPromotions < 0)
 			{
 				bIgnoreCostsHere = true;
 				iTerrainFeatureCostAdderFromPromotions = 0;
 			}
+		}
+		else
+		{
+			if (iTerrainFeatureCostAdderFromPromotions == INT_MAX)
+				//we have to do it on the fly
+				iTerrainFeatureCostAdderFromPromotions = CvUnitMovement::GetMovementCostAdderFromPromotions(pUnit, pToPlot);
 		}
 
 		// Check the define to see if ignoring specific terrain/feature costs includes rivers
@@ -325,14 +331,18 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				//we have to do it on the fly
 				iTerrainFeatureCostMultiplierFromPromotions = CvUnitMovement::GetMovementCostMultiplierFromPromotions(pUnit, pToPlot);
 
+			if (iTerrainFeatureCostMultiplierFromPromotions == iMoveDenominator)
+			{
+				if (pUnit->isRiverDoubleMove() && pFromPlot->IsAlongSameRiver(pToPlot))
+				{
+					iTerrainFeatureCostMultiplierFromPromotions /= 2;
+				}
+			}
 			//multiplicative change
 			iRegularCost *= iTerrainFeatureCostMultiplierFromPromotions;
 			iRegularCost /= iMoveDenominator;
-		}
 
-		if (iTerrainFeatureCostAdderFromPromotions == INT_MAX)
-			//we have to do it on the fly
-			iTerrainFeatureCostAdderFromPromotions = CvUnitMovement::GetMovementCostAdderFromPromotions(pUnit, pToPlot);
+		}
 
 		//additive change
 		iRegularCost += iTerrainFeatureCostAdderFromPromotions;
@@ -621,10 +631,6 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	{
 		iModifier /= 2;
 	}
-	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
-	{
-		iModifier /= 2;
-	}
 	else if (bIsHills && pUnit->isTerrainHalfMove(TERRAIN_HILL))
 	{
 		iModifier *= 2;
@@ -691,10 +697,6 @@ int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, con
 		bIsSlower = true;
 	}
 	else if (bIsHills && pUnit->isTerrainDoubleMove(TERRAIN_HILL))
-	{
-		bIsFaster = true;
-	}
-	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
 	{
 		bIsFaster = true;
 	}
