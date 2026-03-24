@@ -34,13 +34,18 @@ ALTER TABLE Traits ADD NonSpecialistFoodChange integer DEFAULT 0;
 -- TRAIT: Annexed City States continue to give yields. --
 ALTER TABLE Traits ADD AnnexedCityStatesGiveYields boolean DEFAULT 0;
 
--- Abnormal scaler. (Default x2/x3/x4 in medieval/industrial/atomic eras) Works for:
+-- TRAIT: Needed to switch on any kind of Era Scaling 
+-- Defaults to standard VP Era Scaling. Use two options below for non-standard scaling
+ALTER TABLE Traits ADD IsEraScaling boolean DEFAULT 0;
+-- Use Abnormal scaler. (Default x2/x3/x4 in medieval/industrial/atomic eras) Works for:
 ---- Trait_SpecialistYieldChanges
 ---- FreeSocialPoliciesPerEra in Traits
 ---- Trait_YieldChangesPerImprovementBuilt
 ---- Trait_TerrainYieldChanges
 ---- Trait_ImprovementYieldChanges
 ALTER TABLE Traits ADD IsOddEraScaler boolean DEFAULT 0;
+-- Use Abnormal scaler. (increase yield modifier by 100/X percent per Era passed. If IsOddEraScaler is active, the results add)
+ALTER TABLE Traits ADD FractionalEraScaler integer DEFAULT 0;
 
 -- Trait affects capital only. Works for:
 ---- Trait_YieldChangesPerImprovementBuilt (yield only shows up in capital)
