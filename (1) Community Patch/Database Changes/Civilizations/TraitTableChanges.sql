@@ -34,10 +34,12 @@ ALTER TABLE Traits ADD NonSpecialistFoodChange integer DEFAULT 0;
 -- TRAIT: Annexed City States continue to give yields. --
 ALTER TABLE Traits ADD AnnexedCityStatesGiveYields boolean DEFAULT 0;
 
--- Abnormal scaler. Works for:
----- Trait_SpecialistYieldChanges (specialist yield change x2/x3/x4 in medieval/industrial/atomic eras)
+-- Abnormal scaler. (Default x2/x3/x4 in medieval/industrial/atomic eras) Works for:
+---- Trait_SpecialistYieldChanges
 ---- FreeSocialPoliciesPerEra in Traits
----- Trait_YieldChangesPerImprovementBuilt (x2/x3/x4 of the bonus in Medieval/Industrial/Atomic)
+---- Trait_YieldChangesPerImprovementBuilt
+---- Trait_TerrainYieldChanges
+---- Trait_ImprovementYieldChanges
 ALTER TABLE Traits ADD IsOddEraScaler boolean DEFAULT 0;
 
 -- Trait affects capital only. Works for:
@@ -209,7 +211,8 @@ ALTER TABLE Traits ADD ExtraConqueredCityTerritoryClaimRange integer DEFAULT 0;
 -- New Traits - Extra Terrain When Conquering a City
 ALTER TABLE Traits ADD KeepConqueredBuildings boolean DEFAULT 0;
 
--- New Traits - Extra Terrain Yields IF you have a trade route or city connection crossing tile - this scales with era (making this false causes terrain yields not to be scaled)
+-- New Traits - Extra Terrain Yields IF you have a trade route or city connection crossing tile
+-- Also Extra Improvement Yields IF you have a trade route, or city connection crossing tile, or a trade route adjacent to tile
 ALTER TABLE Traits ADD TradeRouteOnly boolean DEFAULT 0;
 
 -- New Traits - Mountain Movement and City Connections
