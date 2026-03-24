@@ -4744,11 +4744,11 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 			if(trait->IsEraScaling())
 			{
-				m_bIsEraScaling= true;
+				m_bIsEraScaling = true;
 			}
 			if(trait->IsOddEraScaler())
 			{
-				m_bIsOddEraScaler= true;
+				m_bIsOddEraScaler = true;
 			}
 			m_iFractionalEraScaler += trait->GetFractionalEraScaler();
 			m_iWonderProductionModGA += trait->GetWonderProductionModGA();
@@ -5759,17 +5759,17 @@ int CvPlayerTraits::CurrentEraScalingModifier() const
 {
 	int iModifier = 100;
 	
-	if (!m_pTraits->IsEraScaling())
+	if (!IsEraScaling())
 		return iModifier;
 
 	int iCurrentEra = (int)m_pPlayer->GetCurrentEra();
 	
-	if (m_pTraits->IsOddEraScaler() && iCurrentEra > 1)
+	if (IsOddEraScaler() && iCurrentEra > 1)
 	{
 		iModifier += 100 * (iCurrentEra / 2);
 	}
 
-	int iFractional = m_pTraits->GetFractionalEraScaler();
+	int iFractional = GetFractionalEraScaler();
 	if (iFractional > 0)
 	{
 		iModifier += (100 * iCurrentEra) / iFractional;
@@ -5780,7 +5780,7 @@ int CvPlayerTraits::CurrentEraScalingModifier() const
 	{
 		if (iCurrentEra > 1)
 		{
-			iModifier += 100 * (iCurrentEra - 1)
+			iModifier += 100 * (iCurrentEra - 1);
 		}
 	}
 
