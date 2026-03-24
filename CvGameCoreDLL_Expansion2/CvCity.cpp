@@ -17536,19 +17536,9 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 			if (iYieldChangePerImprovementBuilt == 0)
 				continue;
 
-			int iScaler = 1;
+			int iModifier = GET_PLAYER(m_eOwner).GetPlayerTraits()->CurrentEraScalingModifier();
 
-			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
-			{
-				int iCurrentEra = (int)GET_PLAYER(m_eOwner).GetCurrentEra();
-				// starts at Medieval (or whatever is Era #3)
-				if (iCurrentEra >= 2)
-				{
-					int iEraOffset = iCurrentEra - 2;
-					iScaler += 1 + (iEraOffset / 2);
-				}
-			}
-			iYield += iScaler * iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
+			iYield += (iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement) * iModifier) / 100;
 		}
 	}
 

@@ -1400,9 +1400,17 @@ bool CvTraitEntry::IsNoReligiousStrife() const
 {
 	return m_bIsNoReligiousStrife;
 }
+bool CvTraitEntry::IsEraScaling() const
+{
+	return m_bIsEraScaling;
+}
 bool CvTraitEntry::IsOddEraScaler() const
 {
 	return m_bIsOddEraScaler;
+}
+int CvTraitEntry::GetFractionalEraScaler() const
+{
+	return m_iFractionalEraScaler;
 }
 int CvTraitEntry::GetWonderProductionModGA() const
 {
@@ -1864,7 +1872,7 @@ int CvTraitEntry::GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eInde
 	return m_ppiTradeRouteYieldChange ? m_ppiTradeRouteYieldChange[eIndex1][eIndex2] : 0;
 }
 
-/// Accessor:: Extra yield from an improvement
+/// Accessor:: Extra yield from specialists
 int CvTraitEntry::GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const
 {
 	PRECONDITION(eIndex1 < GC.getNumSpecialistInfos(), "Index out of bounds");
@@ -2615,7 +2623,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
 	m_bIsNoReligiousStrife = kResults.GetBool("IsNoReligiousStrife");
+	m_bIsEraScaling = kResults.GetBool("IsEraScaling");
 	m_bIsOddEraScaler = kResults.GetBool("IsOddEraScaler");
+	m_iFractionalEraScaler = kResults.GetInt("FractionalEraScaler");
 	m_iWonderProductionModGA = kResults.GetInt("WonderProductionModGA");
 	m_iCultureBonusModifierConquest = kResults.GetInt("CultureBonusModifierConquest");
 	m_iProductionBonusModifierConquest = kResults.GetInt("ProductionBonusModifierConquest");
@@ -4724,18 +4734,23 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iCultureMedianModifier += trait->GetCultureMedianModifier();
 			m_iReligiousUnrestModifier += trait->GetReligiousUnrestModifier();
 
-			if( trait->IsNoConnectionUnhappiness())
+			if(trait->IsNoConnectionUnhappiness())
 			{
 				m_bNoConnectionUnhappiness = true;
 			}
-			if( trait->IsNoReligiousStrife())
+			if(trait->IsNoReligiousStrife())
 			{
 				m_bIsNoReligiousStrife = true;
 			}
-			if( trait->IsOddEraScaler())
+			if(trait->IsEraScaling())
+			{
+				m_bIsEraScaling= true;
+			}
+			if(trait->IsOddEraScaler())
 			{
 				m_bIsOddEraScaler= true;
 			}
+			m_iFractionalEraScaler += trait->GetFractionalEraScaler();
 			m_iWonderProductionModGA += trait->GetWonderProductionModGA();
 			m_iCultureBonusModifierConquest += trait->GetCultureBonusModifierConquest();
 			m_iProductionBonusModifierConquest += trait->GetProductionBonusModifierConquest();
@@ -5441,7 +5456,9 @@ void CvPlayerTraits::Reset()
 	m_iReligiousUnrestModifier = 0;
 	m_bNoConnectionUnhappiness = false;
 	m_bIsNoReligiousStrife = false;
+	m_bIsEraScaling = false;
 	m_bIsOddEraScaler = false;
+	m_iFractionalEraScaler = 0;
 	m_iWonderProductionModGA = 0;
 	m_iCultureBonusModifierConquest = 0;
 	m_iProductionBonusModifierConquest = 0;
@@ -5735,6 +5752,39 @@ bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 	{
 		return false;
 	}
+}
+
+/// What kind of Era scaling does this player have on their traits?
+int CvPlayerTraits::CurrentEraScalingModifier() const
+{
+	int iModifier = 100;
+	
+	if (!m_pTraits->IsEraScaling())
+		return iModifier;
+
+	int iCurrentEra = (int)m_pPlayer->GetCurrentEra();
+	
+	if (m_pTraits->IsOddEraScaler() && iCurrentEra > 1)
+	{
+		iModifier += 100 * (iCurrentEra / 2);
+	}
+
+	int iFractional = m_pTraits->GetFractionalEraScaler();
+	if (iFractional > 0)
+	{
+		iModifier += (100 * iCurrentEra) / iFractional;
+	}
+
+	// no abnormal scaling? default to standard era scaling
+	if (iModifier == 100)
+	{
+		if (iCurrentEra > 1)
+		{
+			iModifier += 100 * (iCurrentEra - 1)
+		}
+	}
+
+	return iModifier;
 }
 
 /// Will settling a city in this new area unlock a unique luxury?
@@ -6179,20 +6229,9 @@ int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldT
 		return 0;
 	}
 
-	int iScaler = 1;
-	
-	if(IsOddEraScaler())
-	{
-		int iCurrentEra = (int)m_pPlayer->GetCurrentEra();
-		// starts at Medieval (or whatever is Era #3)
-		if (iCurrentEra >= 2)
-		{
-			int iEraOffset = iCurrentEra - 2;
-			iScaler += 1 + (iEraOffset / 2);
-		}
-	}
+	int iModifier = CurrentEraScalingModifier();
 
-	return iScaler * m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
+	return (iModifier * m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield]) / 100;
 }
 
 int CvPlayerTraits::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const
@@ -7607,7 +7646,9 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iReligiousUnrestModifier);
 	visitor(playerTraits.m_bNoConnectionUnhappiness);
 	visitor(playerTraits.m_bIsNoReligiousStrife);
+	visitor(playerTraits.m_bIsEraScaling);
 	visitor(playerTraits.m_bIsOddEraScaler);
+	visitor(playerTraits.m_iFractionalEraScaler);
 	visitor(playerTraits.m_iWonderProductionModGA);
 	visitor(playerTraits.m_iCultureBonusModifierConquest);
 	visitor(playerTraits.m_iProductionBonusModifierConquest);

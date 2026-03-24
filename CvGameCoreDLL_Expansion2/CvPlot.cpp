@@ -10925,18 +10925,8 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	}
 	
 	// generalized Era scaler
-	int iScaler = 1;
-	
-	if (pTraits->IsOddEraScaler())
-	{
-	    int iCurrentEra = (int)kPlayer.GetCurrentEra();
-	    if (iCurrentEra >= 2)
-	    {
-	        int iEraOffset = iCurrentEra - 2;
-	        iScaler += 1 + (iEraOffset / 2);
-	    }
-	}
-	
+	int iModifier = pTraits->CurrentEraScalingModifier();
+		
 	// logic
 	if (pTraits->IsTradeRouteOnly() && getOwner() == ePlayer)
 	{
@@ -10945,18 +10935,18 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	
 	    if (iTerrainBonus > 0 && bTerrainApplies)
 	    {
-	        iYield += iScaler * iTerrainBonus;
+	        iYield += (iModifier * iTerrainBonus) / 100;
 	    }
 	
 	    if (iImprovementBonus > 0 && bImprovementApplies)
 	    {
-	        iYield += iScaler * iImprovementBonus;
+	        iYield += (iModifier * iImprovementBonus) / 100;
 	    }
 	}
 	else
 	{
-	    iYield += iScaler * iTerrainBonus;
-		iYield += iScaler * iImprovementBonus;
+	    iYield += (iModifier * iTerrainBonus) / 100;
+		iYield += (iModifier * iImprovementBonus) / 100;
 	}
 
 	iYield += kPlayer.getTerrainYieldChange(eTerrain, eYield);
