@@ -78,6 +78,7 @@ template<typename CityConnections, typename Visitor>
 void CvCityConnections::Serialize(CityConnections& cityConnections, Visitor& visitor)
 {
 	visitor(cityConnections.m_plotsWithConnectionToCapital);
+	visitor(cityConnections.m_plotsWithIndustrialConnectionToCapital);
 	visitor(cityConnections.m_connectionState);
 	visitor(cityConnections.m_plotIdsToConnect);
 }
@@ -188,17 +189,40 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 		}
 	}
 
-	//quests
-	for (int i=MAX_MAJOR_CIVS; i<MAX_CIV_PLAYERS; i++)
+	if (m_pPlayer->isMajorCiv())
 	{
-		PlayerTypes ePlayer = (PlayerTypes)i;
-		if(ShouldConnectToOtherPlayer(ePlayer))
+		// Foreign cities (non-teammates)
+		if (m_pPlayer->GetPlayerTraits()->HasPositiveYieldChangesPerLandConnectedCity())
 		{
-			CvCity* pOtherCapital = GET_PLAYER(ePlayer).getCapitalCity();
-			if(pOtherCapital)
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
-				int iPlotIndex = pOtherCapital->plot()->GetPlotIndex();
-				m_plotIdsToConnect.push_back(iPlotIndex);
+				CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayerLoop));
+				if (kPlayer.getTeam() == m_pPlayer->getTeam())
+					continue;
+
+				int iLoop = 0;
+				for (CvCity* pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
+				{
+					m_plotIdsToConnect.push_back(pCity->plot()->GetPlotIndex());
+				}
+			}
+		}
+		else
+		{
+			// Quests (CS capitals only)
+			for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+			{
+				PlayerTypes eMinor = static_cast<PlayerTypes>(i);
+				CvPlayer& kMinor = GET_PLAYER(eMinor);
+				if ((m_pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) || m_pPlayer->GetDiplomacyAI()->IsWantToRouteConnectToMinor(eMinor)) &&
+					m_pPlayer->GetMinorCivAI()->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_ROUTE))
+				{
+					CvCity* pMinorCapital = kMinor.getCapitalCity();
+					if (pMinorCapital)
+					{
+						m_plotIdsToConnect.push_back(pMinorCapital->plot()->GetPlotIndex());
+					}
+				}
 			}
 		}
 	}
@@ -224,7 +248,23 @@ CvCityConnections::CityConnectionTypes CvCityConnections::GetConnectionState(con
 	return it2->second;
 }
 
-bool CvCityConnections::AreCitiesDirectlyConnected(const CvCity * pCityA, const CvCity * pCityB, CityConnectionTypes eConnectionType)
+bool CvCityConnections::IsPlotCityConnection(const CvPlot* pPlot, bool bIndustrial) const
+{
+	if (bIndustrial)
+		return binary_search(m_plotsWithIndustrialConnectionToCapital.begin(), m_plotsWithIndustrialConnectionToCapital.end(), pPlot->GetPlotIndex());
+
+	return binary_search(m_plotsWithConnectionToCapital.begin(), m_plotsWithConnectionToCapital.end(), pPlot->GetPlotIndex());
+}
+
+int CvCityConnections::GetNumCityConnectionPlot(bool bIndustrial) const
+{
+	if (bIndustrial)
+		return m_plotsWithIndustrialConnectionToCapital.size();
+
+	return m_plotsWithConnectionToCapital.size();
+}
+
+bool CvCityConnections::AreCitiesDirectlyConnected(const CvCity *pCityA, const CvCity *pCityB, CityConnectionTypes eConnectionType)
 {
 	if (m_bDirty)
 		Update();
@@ -627,8 +667,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 	}
 
 	//now set the plot flags for bonus yields
-	CheckPlotRouteStateChanges(previousPlotsWithConnection,m_plotsWithConnectionToCapital,false/*bIndustrial*/);
-	CheckPlotRouteStateChanges(previousPlotsWithIndustrialConnection,m_plotsWithIndustrialConnectionToCapital,true/*bIndustrial*/);
+	CheckPlotRouteStateChanges(previousPlotsWithConnection, m_plotsWithConnectionToCapital);
+	CheckPlotRouteStateChanges(previousPlotsWithIndustrialConnection, m_plotsWithIndustrialConnectionToCapital);
 }
 
 void CvCityConnections::SetDirty(void)
@@ -644,105 +684,43 @@ std::vector<int> CvCityConnections::GetPlotsToConnect()
 	return m_plotIdsToConnect;
 }
 
-bool CvCityConnections::ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer)
+// Set dirty flag and update yields for plots with changed route state
+void CvCityConnections::CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState)
 {
-	bool result = false;
+	// Make sure the new state is sorted and unique
+	sort(newState.begin(), newState.end());
+	newState.erase(unique(newState.begin(), newState.end()), newState.end());
 
-	// shouldn't be able to connect to yourself
-	if(m_pPlayer->GetID() == eOtherPlayer)
+	// Find the differences between last state and new state
+	PlotIndexStore addedPlots;
+	addedPlots.reserve(newState.size());
+	set_difference(newState.begin(), newState.end(), lastState.begin(), lastState.end(), back_inserter(addedPlots));
+
+	PlotIndexStore removedPlots;
+	removedPlots.reserve(lastState.size());
+	set_difference(lastState.begin(), lastState.end(), newState.begin(), newState.end(), back_inserter(removedPlots));
+
+	// Set dirty flag and update yields
+	for (PlotIndexStore::iterator it = removedPlots.begin(); it != removedPlots.end(); ++it)
 	{
-		return false;
-	}
-
-	if(!GET_PLAYER(eOtherPlayer).isAlive())
-	{
-		return false;
-	}
-
-	if(GET_PLAYER(eOtherPlayer).isBarbarian())
-	{
-		return false;
-	}
-
-	CvPlayer* pOtherPlayer = &(GET_PLAYER(eOtherPlayer));
-
-	// only majors and minors should connect to each other at this point.
-	bool bMajorMinor = m_pPlayer->isMinorCiv() != pOtherPlayer->isMinorCiv();
-	if(!bMajorMinor)
-	{
-		return false;
-	}
-
-	if(m_pPlayer->isMinorCiv())
-	{
-		CvPlayer* pMajorCiv = pOtherPlayer;
-
-		// If the major is a human, don't decide a connection to a minor is desirable on their behalf
-		if(pMajorCiv->isHuman(ISHUMAN_AI_ECONOMY))
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
+		if (eActiveTeam != NO_TEAM && pPlot->isVisible(eActiveTeam))
 		{
-			return false;
+			pPlot->setLayoutDirty(true);
 		}
-
-		if(!m_pPlayer->GetMinorCivAI()->IsActiveQuestForPlayer(pMajorCiv->GetID(), MINOR_CIV_QUEST_ROUTE))
-		{
-			return false;
-		}
-
-		result = true;
-	}
-	else // player is a major
-	{
-		CvPlayer* pMinorPlayer = pOtherPlayer;
-		if(!pMinorPlayer->isAlive())
-		{
-			return false;
-		}
-
-		if (!m_pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && !m_pPlayer->GetDiplomacyAI()->IsWantToRouteConnectToMinor(pMinorPlayer->GetID()))
-		{
-			return false;
-		}
-
-		if(!pMinorPlayer->GetMinorCivAI()->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_ROUTE))
-		{
-			return false;
-		}
-
-		result = true;
+		pPlot->updateYield();
 	}
 
-	return result;
-}
-
-void CvCityConnections::CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState, bool bIndustrial)
-{
-	//make sure the input is sorted and unique
-	std::stable_sort(lastState.begin(),lastState.end());
-	lastState.erase( std::unique(lastState.begin(),lastState.end()), lastState.end() );
-	std::stable_sort(newState.begin(),newState.end());
-	newState.erase( std::unique(newState.begin(),newState.end()), newState.end() );
-
-	PlotIndexStore addedPlots( newState.size() );
-	PlotIndexStore removedPlots( lastState.size() );
-
-	PlotIndexStore::iterator lastAdded = std::set_difference(newState.begin(),newState.end(),lastState.begin(),lastState.end(),addedPlots.begin());
-	PlotIndexStore::iterator lastRemoved = std::set_difference(lastState.begin(),lastState.end(),newState.begin(),newState.end(),removedPlots.begin());
-
-	addedPlots.resize( lastAdded - addedPlots.begin() );
-	removedPlots.resize( lastRemoved - removedPlots.begin() );
-
-	for (PlotIndexStore::iterator it = removedPlots.begin(); it!=removedPlots.end(); ++it)
+	for (PlotIndexStore::iterator it = addedPlots.begin(); it != addedPlots.end(); ++it)
 	{
-		// indicate removed route
-		CvPlot* pPlot = GC.getMap().plotByIndex( *it );
-		pPlot->SetCityConnection(m_pPlayer->GetID(), false, bIndustrial);
-	}
-
-	for (PlotIndexStore::iterator it = addedPlots.begin(); it!=addedPlots.end(); ++it)
-	{
-		// broadcast new connected trade route
-		CvPlot* pPlot = GC.getMap().plotByIndex( *it );
-		pPlot->SetCityConnection(m_pPlayer->GetID(), true, bIndustrial);
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
+		if (eActiveTeam != NO_TEAM && pPlot->isVisible(eActiveTeam))
+		{
+			pPlot->setLayoutDirty(true);
+		}
+		pPlot->updateYield();
 	}
 }
 

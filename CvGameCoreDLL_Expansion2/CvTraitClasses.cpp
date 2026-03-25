@@ -15,6 +15,7 @@
 #include "CvGrandStrategyAI.h"
 
 #include "LintFree.h"
+#include "CvTraitClasses.h"
 
 //======================================================================================================
 //					CvTraitEntry
@@ -3767,6 +3768,35 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		std::map<int, AlternateResourceTechs>(m_piiAlternateResourceTechs).swap(m_piiAlternateResourceTechs);
 	}
 
+	// Populate m_mviYieldChangePerLandConnectedCityTimes100
+	{
+		string sqlKey = "Trait_YieldChangesPerLandConnectedCityTimes100";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (!pResults)
+		{
+			const char* szSQL = "select Yields.ID, Yield, Radius from Trait_YieldChangesPerLandConnectedCityTimes100 inner join Yields on Type = YieldType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iYieldId = pResults->GetInt(0);
+			const int iYield = pResults->GetInt(1);
+			int iRadius = pResults->GetInt(2);
+			if (iRadius <= 0)
+			{
+				iRadius = INT_MAX;
+			}
+			if (m_mviYieldChangePerLandConnectedCityTimes100[iRadius].empty())
+				m_mviYieldChangePerLandConnectedCityTimes100[iRadius].resize(GC.getNUM_YIELD_TYPES());
+			m_mviYieldChangePerLandConnectedCityTimes100[iRadius][iYieldId] += iYield;
+		}
+
+		pResults->Reset();
+	}
+
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_WRITER")] += m_iGoldenAgeGreatWriterRateModifier;
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_ARTIST")] += m_iGoldenAgeGreatArtistRateModifier;
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_MUSICIAN")] += m_iGoldenAgeGreatMusicianRateModifier;
@@ -4274,6 +4304,12 @@ void CvPlayerTraits::SetIsExpansionist()
 				return;
 			}
 		}
+	}
+
+	if (HasPositiveYieldChangesPerLandConnectedCity())
+	{
+		m_bIsExpansionist = true;
+		return;
 	}
 }
 
@@ -5198,9 +5234,26 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 			}
 
+			// Yields from land-connected cities
+			const map<int, vector<int>>& mviYieldChangePerLandConnectedCity = trait->GetYieldChangesPerLandConnectedCityTimes100();
+			for (map<int, vector<int>>::const_iterator it = mviYieldChangePerLandConnectedCity.begin(); it != mviYieldChangePerLandConnectedCity.end(); ++it)
+			{
+				const vector<int>& vSource = it->second;
+				vector<int>& vDest = m_mviYieldChangePerLandConnectedCityTimes100[it->first];
+				if (vDest.size() < vSource.size())
+				{
+					vDest.resize(vSource.size());
+				}
+
+				for (size_t i = 0; i < vSource.size(); i++)
+				{
+					vDest[i] += vSource[i];
+				}
+			}
+
 			// Free promotions
-			set<int> siFreePromotions = trait->GetFreePromotions();
-			for (set<int>::iterator it = siFreePromotions.begin(); it != siFreePromotions.end(); ++it)
+			const set<int>& siFreePromotions = trait->GetFreePromotions();
+			for (set<int>::const_iterator it = siFreePromotions.begin(); it != siFreePromotions.end(); ++it)
 			{
 				PromotionTypes ePromotion = static_cast<PromotionTypes>(*it);
 				m_seFreePromotions.insert(ePromotion);
@@ -5737,6 +5790,9 @@ void CvPlayerTraits::Reset()
 		FreeResourceXCities temp;
 		m_aFreeResourceXCities.push_back(temp);
 	}
+
+	m_mviYieldChangePerLandConnectedCityTimes100.clear();
+	m_seFreePromotions.clear();
 }
 
 /// Does this player possess a specific trait?
@@ -7356,6 +7412,31 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 	return ((int)m_aMayaBonusChoices.size() >= iNumGreatPeopleTypes);
 }
 
+bool CvPlayerTraits::HasPositiveYieldChangesPerLandConnectedCity() const
+{
+	for (map<int, vector<int>>::const_iterator it = m_mviYieldChangePerLandConnectedCityTimes100.begin(); it != m_mviYieldChangePerLandConnectedCityTimes100.end(); ++it)
+	{
+		for (vector<int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+		{
+			if (*it2 > 0)
+				return true;
+		}
+	}
+	return false;
+}
+
+int CvPlayerTraits::GetYieldChangePerLandConnectedCityTimes100(int iRadius, YieldTypes eYield) const
+{
+	ASSERT(iRadius > 0, "Invalid radius");
+	ASSERT(eYield > NO_YIELD, "eYield is invalid");
+	ASSERT(eYield <= GC.getNUM_YIELD_TYPES(), "eYield is invalid");
+	map<int, vector<int>>::const_iterator it = m_mviYieldChangePerLandConnectedCityTimes100.find(iRadius);
+	if (it == m_mviYieldChangePerLandConnectedCityTimes100.end())
+		return 0;
+
+	return it->second[eYield];
+}
+
 // SERIALIZATION METHODS
 
 // FreeResourceXCities
@@ -7774,6 +7855,8 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_ppiCityYieldFromUnimprovedFeature);
 	visitor(playerTraits.m_ppaaiUnimprovedFeatureYieldChange);
 	visitor(playerTraits.m_aUniqueLuxuryAreas);
+	visitor(playerTraits.m_mviYieldChangePerLandConnectedCityTimes100);
+	visitor(playerTraits.m_seFreePromotions);
 }
 
 /// Serialization read

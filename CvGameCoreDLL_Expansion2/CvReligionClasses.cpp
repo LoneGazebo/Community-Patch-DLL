@@ -10029,16 +10029,16 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	///////////////////
 
 	int iBuildingTemp = 0;
-	BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
-
 	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
 		if (pReligion != NULL)
 		{
 			CvCity* pHolyCity = pReligion->GetHolyCity();
-
-			eFaithBuildingClass = FaithBuildingAvailable(eReligion, pHolyCity);
+			CvCity* pHolyCityOrCapital = pHolyCity ? pHolyCity : m_pPlayer->getCapitalCity();
+			SPlotStats plotStats = pHolyCityOrCapital->getPlotStats();
+			vector<int> allExistingBuildings = m_pPlayer->GetTotalBuildingCount();
+			BuildingClassTypes eFaithBuildingClass = FaithBuildingAvailable(eReligion, pHolyCity);
 			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				if (pEntry->IsBuildingClassEnabled(iI))
@@ -10051,23 +10051,14 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 						////Sanity and AI Optimization Check
 						int iSanity = pEntry->IsFollowerBelief() ? 6 : 1;
 
-						if (FaithBuildingAvailable(eReligion, pHolyCity == NULL ? m_pPlayer->getCapitalCity() : pHolyCity) == NO_BUILDINGCLASS)
+						if (FaithBuildingAvailable(eReligion, pHolyCityOrCapital) == NO_BUILDINGCLASS)
 						{
 							iSanity = pEntry->IsFollowerBelief() ? 25 : 2;
 						}
 
-						if (pHolyCity != NULL)
-						{
-							int iValue = pHolyCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, false, true, true);
-							if (iValue > 0)
-								iBuildingTemp += iValue;
-						}
-						else
-						{
-							int iValue = m_pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, true, true, true);
-							if (iValue > 0)
-								iBuildingTemp += iValue;
-						}
+						int iValue = pHolyCityOrCapital->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, plotStats, allExistingBuildings, pHolyCity == NULL, true, true);
+						if (iValue > 0)
+							iBuildingTemp += iValue;
 
 						//Do we already have a faith building? Let's not double down.									
 						//If the byzantines, let's get two national wonders!

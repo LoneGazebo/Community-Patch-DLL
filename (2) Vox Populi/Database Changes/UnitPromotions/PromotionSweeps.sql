@@ -249,6 +249,14 @@ SELECT
 FROM UnitCombatInfos
 WHERE IsNaval = 1;
 
+-- Fornix
+INSERT INTO UnitPromotions_UnitCombats
+	(PromotionType, UnitCombatType)
+SELECT
+	'PROMOTION_TRIUMPH', Type
+FROM UnitCombatInfos
+WHERE IsMilitary = 1 AND IsNaval = 0 AND IsAerial = 0;
+
 -- Grand Canal
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)
@@ -540,6 +548,7 @@ OR Type IN (
 	'PROMOTION_SCHUTZENKONIG', -- Schützenstand
 	'PROMOTION_VENETIAN_CRAFTSMANSHIP', -- Arsenale di Venezia
 	'PROMOTION_AGE_OF_DISCOVERY', -- University of Coimbra
+	'PROMOTION_TRIUMPH', -- Fornix
 	'PROMOTION_TREASURE_FLEET', -- Grand Canal
 	'PROMOTION_EVERLASTING_YOUTH', -- Fountain of Youth
 	'PROMOTION_ALTITUDE_TRAINING', -- Mt. Kilimanjaro

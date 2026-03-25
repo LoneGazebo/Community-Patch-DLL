@@ -426,7 +426,7 @@ public:
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
-	set<int> GetFreePromotions() const
+	const set<int>& GetFreePromotions() const
 	{
 		return m_siFreePromotions;
 	}
@@ -440,6 +440,11 @@ public:
 	bool IsEnabledByPolicy(PlayerTypes ePlayer);
 
 	bool NoTrain(UnitClassTypes eUnitClassType);
+
+	const map<int, vector<int>>& GetYieldChangesPerLandConnectedCityTimes100() const
+	{
+		return m_mviYieldChangePerLandConnectedCityTimes100;
+	}
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -767,6 +772,7 @@ protected:
 	std::map<int, AlternateResourceTechs> m_piiAlternateResourceTechs;
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
+	map<int, vector<int>> m_mviYieldChangePerLandConnectedCityTimes100;
 
 	set<int> m_siFreePromotions;
 
@@ -2031,11 +2037,12 @@ public:
 	bool IsFreeMayaGreatPersonChoice() const;
 	bool IsProphetValid() const;
 
-	// Serialization
-	template<typename PlayerTraits, typename Visitor>
-	static void Serialize(PlayerTraits& playerTraits, Visitor& visitor);
-	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream) const;
+	const map<int, vector<int>>& GetYieldChangesPerLandConnectedCityTimes100() const
+	{
+		return m_mviYieldChangePerLandConnectedCityTimes100;
+	}
+	bool HasPositiveYieldChangesPerLandConnectedCity() const;
+	int GetYieldChangePerLandConnectedCityTimes100(int iRadius, YieldTypes eYield) const;
 
 	const std::vector<TraitTypes> GetPotentiallyActiveTraits() { return m_vPotentiallyActiveLeaderTraits; }
 
@@ -2043,6 +2050,12 @@ public:
 	{
 		return m_seFreePromotions;
 	}
+
+	// Serialization
+	template<typename PlayerTraits, typename Visitor>
+	static void Serialize(PlayerTraits& playerTraits, Visitor& visitor);
+	void Read(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 private:
 	bool ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot);
@@ -2386,6 +2399,7 @@ private:
 
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 
+	map<int, vector<int>> m_mviYieldChangePerLandConnectedCityTimes100;
 	set<PromotionTypes> m_seFreePromotions;
 };
 

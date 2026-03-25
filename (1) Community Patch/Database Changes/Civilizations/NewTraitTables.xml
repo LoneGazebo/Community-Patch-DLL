@@ -79,6 +79,7 @@
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Yield change on specified resources when empire enters a golden age. Increased yields cap at YieldCap if not NULL. -->
+	<!-- Or at least that was the intention. A NULL YieldCap is actually treated as 0 currently. -->
 	<Table name="Trait_ResourceYieldChangesFromGoldenAge">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
@@ -207,6 +208,14 @@
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yields in capital per city within the specified radius of and connected by land to any owned city, scaling with era, times 100 -->
+	<!-- No radius specified or <= 0: no distance limit -->
+	<Table name="Trait_YieldChangesPerLandConnectedCityTimes100">
+		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="Radius" type="integer"/>
 	</Table>
 	<!-- Yields in every city (or capital) per specified improvement in empire. Affected by Traits.IsCapitalOnly and Traits.IsOddEraScaler -->
 	<Table name="Trait_YieldChangesPerImprovementBuilt">

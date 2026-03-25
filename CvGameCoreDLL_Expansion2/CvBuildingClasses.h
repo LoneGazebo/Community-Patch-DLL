@@ -645,6 +645,10 @@ public:
 	int GetYieldFromFaithPurchasableBuildingsGlobal(int i) const;
 
 	int GetLuxuryYieldChanges(int i) const;
+	int* GetCityConnectionPlotYieldChangeArray() const;
+	int GetCityConnectionPlotYieldChange(int i) const;
+	int* GetCityConnectionPlotYieldChangeGlobalArray() const;
+	int GetCityConnectionPlotYieldChangeGlobal(int i) const;
 
 	int GetNumFreeUnits(int i) const;
 	int GetInstantYield(int i) const;
@@ -1114,6 +1118,8 @@ private:
 	int* m_piYieldFromFaithPurchasableBuildings;
 	int* m_piYieldFromFaithPurchasableBuildingsGlobal;
 	int* m_piLuxuryYieldChanges;
+	int* m_piCityConnectionPlotYieldChanges;
+	int* m_piCityConnectionPlotYieldChangesGlobal;
 	
 	int* m_piNumFreeUnits;
 

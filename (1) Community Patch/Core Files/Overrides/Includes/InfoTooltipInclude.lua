@@ -2481,6 +2481,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local tLakeBoostsGlobal = {};
 		local tSeaBoosts = {};
 		local tWaterResourceBoosts = {};
+		local tCityConnectionTileBoosts = {};
+		local tCityConnectionTileBoostsGlobal = {};
 		local tGreatWorkBoosts = {};
 		local tGreatWorkBoostsGlobal = {};
 		local tGoldenAgeModifiers = {};
@@ -2510,6 +2512,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			ExtractSimpleYieldTable(tLakeBoostsGlobal, "Building_LakePlotYieldChangesGlobal", kYieldInfo);
 			ExtractSimpleYieldTable(tSeaBoosts, "Building_SeaPlotYieldChanges", kYieldInfo);
 			ExtractSimpleYieldTable(tWaterResourceBoosts, "Building_SeaResourceYieldChanges", kYieldInfo);
+			ExtractSimpleYieldTable(tCityConnectionTileBoosts, "Building_CityConnectionPlotYieldChanges", kYieldInfo);
+			ExtractSimpleYieldTable(tCityConnectionTileBoostsGlobal, "Building_CityConnectionPlotYieldChangesGlobal", kYieldInfo);
 			ExtractSimpleYieldTable(tGreatWorkBoosts, "Building_GreatWorkYieldChangesLocal", kYieldInfo);
 			ExtractSimpleYieldTable(tGreatWorkBoostsGlobal, "Building_GreatWorkYieldChanges", kYieldInfo);
 			ExtractSimpleYieldTable(tGoldenAgeModifiers, "Building_GoldenAgeYieldMod", kYieldInfo);
@@ -2554,6 +2558,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipSimpleYieldBoostTableGlobal(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_LAKE_BOOST", tLakeBoostsGlobal);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SEA_BOOST", tSeaBoosts);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_WATER_RESOURCE_BOOST", tWaterResourceBoosts);
+		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_CONNECTION_TILE_BOOST", tCityConnectionTileBoosts);
+		AddTooltipSimpleYieldBoostTableGlobal(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_CONNECTION_TILE_BOOST", tCityConnectionTileBoostsGlobal);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GREAT_WORK_BOOST", tGreatWorkBoosts);
 		AddTooltipSimpleYieldBoostTableGlobal(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GREAT_WORK_BOOST", tGreatWorkBoostsGlobal);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_ITR_BOOST", tInternalTRBoosts);

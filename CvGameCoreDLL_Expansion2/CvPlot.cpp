@@ -5558,29 +5558,6 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial)
-{
-	if (ePlayer == NO_PLAYER)
-		return;
-
-	if( GET_PLAYER(ePlayer).UpdateCityConnection(this,bActive,bIndustrial) )
-	{
-		for(int iI = 0; iI < MAX_TEAMS; ++iI)
-		{
-			if ( GET_TEAM((TeamTypes)iI).isObserver() || ((GET_TEAM((TeamTypes)iI).isAlive()) && GC.getGame().getActiveTeam() == (TeamTypes)iI) )
-			{
-				if(isVisible((TeamTypes)iI))
-				{
-					setLayoutDirty(true);
-				}
-			}
-		}
-		updateYield();
-	}
-}
-
-
-//	--------------------------------------------------------------------------------
 bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 {
 	if (ePlayer == NO_PLAYER)
@@ -5590,7 +5567,7 @@ bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 	if (ePlayer == NO_PLAYER)
 		return false;
 
-	return GET_PLAYER(ePlayer).IsCityConnectionPlot(this, bIndustrial);
+	return GET_PLAYER(ePlayer).GetCityConnections()->IsPlotCityConnection(this, bIndustrial);
 }
 
 //	--------------------------------------------------------------------------------
@@ -11041,6 +11018,12 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			{
 				iYield += pOwningCity->GetTerrainExtraYield(eTerrain, eYield);
 			}
+		}
+
+		if (IsCityConnection())
+		{
+			iYield += kPlayer.GetCityConnectionPlotYield(eYield);
+			iYield += pOwningCity->GetCityConnectionPlotYield(eYield);
 		}
 
 		if (eImprovement != NO_IMPROVEMENT)

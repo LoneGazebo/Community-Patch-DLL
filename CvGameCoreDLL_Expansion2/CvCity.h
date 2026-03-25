@@ -67,6 +67,7 @@ struct SPlotStats
 	vector<int> vFeatureCount;
 	vector<int> vResourceCount;
 	vector<int> vImprovementCount;
+	int iCityConnectionCount;
 };
 
 class CvCity
@@ -988,6 +989,9 @@ public:
 
 	int getSeaResourceYield(YieldTypes eIndex) const;
 	void changeSeaResourceYield(YieldTypes eIndex, int iChange);
+
+	int GetCityConnectionPlotYield(YieldTypes eIndex) const;
+	void ChangeCityConnectionPlotYield(YieldTypes eIndex, int iChange);
 
 	void UpdateSpecialReligionYields(YieldTypes eYield);
 	int GetSpecialReligionYieldsTimes100(YieldTypes eIndex) const;
@@ -1952,6 +1956,7 @@ protected:
 	std::vector<int> m_aiRiverPlotYield;
 	std::vector<int> m_aiLakePlotYield;
 	std::vector<int> m_aiSeaResourceYield;
+	std::vector<int> m_viCityConnectionPlotYield;
 	std::vector<int> m_aiBaseYieldRateFromTerrain;
 	std::vector<int> m_aiBaseYieldRateFromBuildings;
 	std::vector<int> m_aiBaseYieldRateFromSpecialists;
@@ -2361,6 +2366,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSeaPlotYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiRiverPlotYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLakePlotYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSeaResourceYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_viCityConnectionPlotYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromTerrain)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromSpecialists)

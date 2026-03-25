@@ -1263,6 +1263,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiRiverPlotYield.resize(NUM_YIELD_TYPES);
 	m_aiSeaResourceYield.resize(NUM_YIELD_TYPES);
 	m_aiLakePlotYield.resize(NUM_YIELD_TYPES);
+	m_viCityConnectionPlotYield.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromTerrain.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromBuildings.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromSpecialists.resize(NUM_YIELD_TYPES);
@@ -1429,6 +1430,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiRiverPlotYield[iI] = 0;
 		m_aiLakePlotYield[iI] = 0;
 		m_aiSeaResourceYield[iI] = 0;
+		m_viCityConnectionPlotYield[iI] = 0;
 		m_aiBaseYieldRateFromTerrain[iI] = 0;
 		m_aiBaseYieldRateFromBuildings[iI] = 0;
 		m_aiBaseYieldRateFromSpecialists[iI] = 0;
@@ -9898,7 +9900,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTypes eBuilding)
 {
 	VALIDATE_OBJECT();
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo == NULL)
 	{
 		return;
@@ -9946,6 +9948,7 @@ void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTyp
 	bool bSeaResourcesBoosted = false;
 	bool bLakePlotsBoosted = false;
 	bool bRiverPlotsBoosted = false;
+	bool bCityConnectionPlotsBoosted = false;
 
 	int* yieldsArr = pkBuildingInfo->GetSeaPlotYieldChangeArray();
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
@@ -9992,6 +9995,24 @@ void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTyp
 			break;
 		}
 	}
+	yieldsArr = pkBuildingInfo->GetCityConnectionPlotYieldChangeArray();
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if (yieldsArr[iYieldLoop] > 0)
+		{
+			bCityConnectionPlotsBoosted = true;
+			break;
+		}
+	}
+	yieldsArr = pkBuildingInfo->GetCityConnectionPlotYieldChangeGlobalArray();
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if (yieldsArr[iYieldLoop] > 0)
+		{
+			bCityConnectionPlotsBoosted = true;
+			break;
+		}
+	}
 
 	// Loop through improvements, find improvements that would be increased by this building
 	std::set<int> iImprovementTypesBoosted;
@@ -10033,36 +10054,15 @@ void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTyp
 		if (!pLoopPlot || (pLoopPlot->isOwned() && (pLoopPlot->getOwner() != getOwner())))
 			continue;
 
-		
-		if (iResourceTypesBoosted.count(pLoopPlot->getResourceType(getTeam())))
-		{
-			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
-		}
-		else if (iTerrainTypesBoosted.count(pLoopPlot->getTerrainType()))
-		{
-			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
-		}
-		else if (bSeaPlotsBoosted && pLoopPlot->isWater() && !pLoopPlot->isLake())
-		{
-			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
-		}
-		else if (bSeaResourcesBoosted && pLoopPlot->isWater() && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
-		{
-			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
-		}
-		else if (bLakePlotsBoosted && pLoopPlot->isLake())
-		{
-			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
-		}
-		else if (bRiverPlotsBoosted && pLoopPlot->IsFeatureRiver())
-		{
-			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
-		}
-		else if (iImprovementTypesBoosted.count(pLoopPlot->getImprovementType()))
-		{
-			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
-		}
-		else if (iFeatureTypesBoosted.count(pLoopPlot->getFeatureType()))
+		if (iResourceTypesBoosted.count(pLoopPlot->getResourceType(getTeam())) ||
+			iTerrainTypesBoosted.count(pLoopPlot->getTerrainType()) ||
+			bSeaPlotsBoosted && pLoopPlot->isWater() && !pLoopPlot->isLake() ||
+			bSeaResourcesBoosted && pLoopPlot->isWater() && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE ||
+			bLakePlotsBoosted && pLoopPlot->isLake() ||
+			bRiverPlotsBoosted && pLoopPlot->IsFeatureRiver() ||
+			iImprovementTypesBoosted.count(pLoopPlot->getImprovementType()) ||
+			iFeatureTypesBoosted.count(pLoopPlot->getFeatureType()) ||
+			bCityConnectionPlotsBoosted && pLoopPlot->IsCityConnection())
 		{
 			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
 		}
@@ -13368,7 +13368,8 @@ SPlotStats::SPlotStats():
 	vTerrainCount( GC.getNumTerrainInfos(), 0 ),
 	vFeatureCount( GC.getNumFeatureInfos(), 0 ),
 	vResourceCount( GC.getNumResourceInfos(), 0 ),
-	vImprovementCount( GC.getNumImprovementInfos(), 0 )
+	vImprovementCount( GC.getNumImprovementInfos(), 0 ),
+	iCityConnectionCount(0)
 {
 }
 
@@ -13391,6 +13392,9 @@ SPlotStats CvCity::getPlotStats() const
 
 		if (pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
 			result.vResourceCount[pLoopPlot->getResourceType(getTeam())]++;
+
+		if (pLoopPlot->IsCityConnection())
+			result.iCityConnectionCount++;
 	}
 
 	return result;
@@ -14765,6 +14769,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			changeRiverPlotYield(eYield, (pBuildingInfo->GetRiverPlotYieldChange(eYield) * iChange));
 			changeLakePlotYield(eYield, (pBuildingInfo->GetLakePlotYieldChange(eYield) * iChange));
 			changeSeaResourceYield(eYield, (pBuildingInfo->GetSeaResourceYieldChange(eYield) * iChange));
+			ChangeCityConnectionPlotYield(eYield, pBuildingInfo->GetCityConnectionPlotYieldChange(eYield) * iChange);
 
 			ChangeBaseYieldRateFromBuildings(eYield, ((pBuildingInfo->GetYieldChange(eYield) + m_pCityBuildings->GetBuildingYieldChange(eBuildingClass, eYield)) * iChange));
 			ChangeYieldRateFromBuildingsEraScalingTimes100(eYield, pBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * iChange);
@@ -22364,6 +22369,26 @@ void CvCity::changeSeaResourceYield(YieldTypes eIndex, int iChange)
 	}
 }
 
+int CvCity::GetCityConnectionPlotYield(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_viCityConnectionPlotYield[eIndex];
+}
+
+void CvCity::ChangeCityConnectionPlotYield(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_viCityConnectionPlotYield[eIndex] += iChange;
+		updateYield();
+	}
+}
+
 //	--------------------------------------------------------------------------------
 /// Yield per turn from Religion
 void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
@@ -23404,19 +23429,23 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 
 	iTempYield = GetYieldPerTurnFromTraits(eYield) * 100;
 	iTempYield += GetYieldFromUnimprovedFeatures(eYield) * 100; // Celts UA
+	iTempYield += GetBaseYieldRatePermanentWLTKDTimes100(eYield); // VP China UA
 	if (eYield == YIELD_CULTURE)
 	{
 		iTempYield += kOwner.GetPlayerTraits()->GetCityCultureBonus() * 100;
 	}
-	if (eYield == YIELD_TOURISM && kOwner.isGoldenAge() && isCapital())
+	if (isCapital())
 	{
-		int iPercent = kOwner.GetPlayerTraits()->GetTourismGABonus();
-		if (iPercent != 0)
+		iTempYield += kOwner.GetYieldFromLandCityConnectionsTimes100(eYield);
+		if (eYield == YIELD_TOURISM && kOwner.isGoldenAge())
 		{
-			iTempYield += getYieldRateTimes100(YIELD_CULTURE) * iPercent / 100;
+			int iPercent = kOwner.GetPlayerTraits()->GetTourismGABonus();
+			if (iPercent != 0)
+			{
+				iTempYield += getYieldRateTimes100(YIELD_CULTURE) * iPercent / 100;
+			}
 		}
 	}
-	iTempYield += GetBaseYieldRatePermanentWLTKDTimes100(eYield); // VP China UA
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TRAIT_BONUS", iTempYield, szIconString);
@@ -23444,7 +23473,6 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	iYield += iTempYield;
 	if (tooltipSink)
 		GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_WORLD_CONGRESS", iTempYield, szIconString);
-
 
 	if (eYield == YIELD_TOURISM)
 	{
@@ -32022,6 +32050,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiRiverPlotYield);
 	visitor(city.m_aiLakePlotYield);
 	visitor(city.m_aiSeaResourceYield);
+	visitor(city.m_viCityConnectionPlotYield);
 	visitor(city.m_aiBaseYieldRateFromTerrain);
 	visitor(city.m_aiBaseYieldRateFromBuildings);
 	visitor(city.m_aiBaseYieldRateFromSpecialists);
