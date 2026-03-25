@@ -10928,20 +10928,25 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	int iModifier = pTraits->CurrentEraScalingModifier();
 		
 	// logic
-	if (pTraits->IsTradeRouteOnly() && getOwner() == ePlayer)
+	if (pTraits->IsTradeRouteOnly())
 	{
-	    bool bTerrainApplies = (bIsCityConnection || IsTradeUnitRoute());
-	    bool bImprovementApplies = (bIsCityConnection || IsTradeUnitRoute() || IsAdjacentToTradeRoute());
-	
-	    if (iTerrainBonus > 0 && bTerrainApplies)
-	    {
-	        iYield += (iModifier * iTerrainBonus) / 100;
-	    }
-	
-	    if (iImprovementBonus > 0 && bImprovementApplies)
-	    {
-	        iYield += (iModifier * iImprovementBonus) / 100;
-	    }
+		if (getOwner() == ePlayer)
+		{
+		    bool bTerrainApplies = (bIsCityConnection || IsTradeUnitRoute());
+		    bool bImprovementApplies = (bIsCityConnection || IsTradeUnitRoute() || IsAdjacentToTradeRoute());
+		
+		    if (iTerrainBonus > 0 && bTerrainApplies)
+		    {
+		        iYield += (iModifier * iTerrainBonus) / 100;
+		    }
+		
+		    if (iImprovementBonus > 0 && bImprovementApplies)
+		    {
+		        iYield += (iModifier * iImprovementBonus) / 100;
+		    }
+		}
+		// else, don't change the tile's yields 
+		// otherwise will show outside of borders everywhere and then be removed when claimed
 	}
 	else
 	{
