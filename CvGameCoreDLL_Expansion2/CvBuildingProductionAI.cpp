@@ -1127,7 +1127,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//////////////////////
 	///BASE BONUSES
 	/////////////////////
-	int iBaseValue = CityStrategyAIHelpers::GetBuildingBasicValue(m_pCity, eBuilding);
+	int iBaseValue = CityStrategyAIHelpers::GetBuildingBasicValue(m_pCity, eBuilding, plotStats, allExistingBuildings);
 
 	iBonus += iBaseValue;
 

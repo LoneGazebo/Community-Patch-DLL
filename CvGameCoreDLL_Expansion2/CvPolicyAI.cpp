@@ -5136,56 +5136,50 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 		iWeight += WeighPolicy(pPlayer, (PolicyTypes)pkPolicyBranchInfo->GetFreePolicy());
 		iWeight += WeighPolicy(pPlayer, (PolicyTypes)pkPolicyBranchInfo->GetFreeFinishingPolicy());
 
-		BuildingClassTypes eBuildingClass;
-		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		if (pPlayer->getCapitalCity())
 		{
-			eBuildingClass = (BuildingClassTypes)iI;
-
-			if (pPlayer->getCapitalCity() != NULL)
+			SPlotStats plotStats = pPlayer->getCapitalCity()->getPlotStats();
+			vector<int> allExistingBuildings = pPlayer->GetTotalBuildingCount();
+			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
+				BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
 				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-				if (pkBuildingClassInfo)
+				const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
+				if (NO_BUILDING != eBuilding)
 				{
-					const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
-					if (NO_BUILDING != eBuilding)
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo->GetPolicyBranchType() != NO_POLICY_BRANCH_TYPE && pkBuildingInfo->GetPolicyBranchType() == eBranch)
 					{
-						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-						if (pkBuildingInfo)
+						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 50, plotStats, allExistingBuildings, true, true);
+						if (iValue > 0)
 						{
-							if (pkBuildingInfo->GetPolicyBranchType() != NO_POLICY_BRANCH_TYPE && pkBuildingInfo->GetPolicyBranchType() == eBranch)
+							if (pkBuildingInfo->GetFaithCost() != 0)
 							{
-								int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 50, true, true, true);
-								if (iValue > 0)
-								{
-									if (pkBuildingInfo->GetFaithCost() != 0)
-									{
-										if (pPlayer->GetPlayerTraits()->IsReligious())
-											iValue *= 2;
-										else
-											iValue /= 2;
+								if (pPlayer->GetPlayerTraits()->IsReligious())
+									iValue *= 2;
+								else
+									iValue /= 2;
 
-										iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
+								iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
 
-										if (iValue <= 0)
-											iValue = 0;
+								if (iValue <= 0)
+									iValue = 0;
 
-										iWeight += min(250, iValue);
-									}
-									else
-									{
-										if (pkBuildingInfo->IsCapitalOnly() && !pPlayer->GetPlayerTraits()->IsSmaller())
-											iValue /= 2;
-										else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
-											iValue /= 2;
+								iWeight += min(250, iValue);
+							}
+							else
+							{
+								if (pkBuildingInfo->IsCapitalOnly() && !pPlayer->GetPlayerTraits()->IsSmaller())
+									iValue /= 2;
+								else if (pkBuildingClassInfo->getMaxGlobalInstances() == 1)
+									iValue /= 2;
 
-										iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
+								iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
 
-										if (iValue <= 0)
-											iValue = 0;
+								if (iValue <= 0)
+									iValue = 0;
 
-										iWeight += min(250, iValue);
-									}
-								}
+								iWeight += min(250, iValue);
 							}
 						}
 					}

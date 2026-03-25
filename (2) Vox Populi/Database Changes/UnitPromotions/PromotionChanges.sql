@@ -655,6 +655,12 @@ UPDATE UnitPromotions SET CombatPercent = 10, MovesChange = 1 WHERE Type = 'PROM
 
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_MORALE';
 
+UPDATE UnitPromotions SET CombatPercent = 15 WHERE Type = 'PROMOTION_TRIUMPH';
+INSERT INTO UnitPromotions_YieldFromKills
+	(PromotionType, YieldType, Yield)
+VALUES
+	('PROMOTION_TRIUMPH', 'YIELD_GREAT_GENERAL_POINTS', 50);
+
 UPDATE UnitPromotions SET AttackMod = 10 WHERE Type = 'PROMOTION_IKLWA';
 
 UPDATE UnitPromotions SET DiplomaticMissionAccomplishment = 1 WHERE Type = 'PROMOTION_PROXENOS';

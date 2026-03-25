@@ -1558,6 +1558,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_WATER_RESOURCE_BOOST">
 			<Text>{1_YieldBoosts} to Resource Tiles in [COLOR_POSITIVE_TEXT]Water[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CITY_CONNECTION_TILE_BOOST">
+			<Text>{1_YieldBoosts} to [COLOR_POSITIVE_TEXT]City Connection[ENDCOLOR] Tiles</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIALIST_BOOST">
 			<Text>{2_YieldBoosts} to {1_Items}</Text>
 		</Row>

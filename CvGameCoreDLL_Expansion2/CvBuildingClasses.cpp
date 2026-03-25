@@ -399,6 +399,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromFaithPurchasableBuildings(NULL),
 	m_piYieldFromFaithPurchasableBuildingsGlobal(NULL),
 	m_piLuxuryYieldChanges(NULL),
+	m_piCityConnectionPlotYieldChanges(NULL),
+	m_piCityConnectionPlotYieldChangesGlobal(NULL),
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
 	m_bArtInfoCulturalVariation(false),
@@ -557,6 +559,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchasableBuildings);
 	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchasableBuildingsGlobal);
 	SAFE_DELETE_ARRAY(m_piLuxuryYieldChanges);
+	SAFE_DELETE_ARRAY(m_piCityConnectionPlotYieldChanges);
+	SAFE_DELETE_ARRAY(m_piCityConnectionPlotYieldChangesGlobal);
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
@@ -1115,6 +1119,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromFaithPurchasableBuildings, "Building_ReligionYieldFromFaithPurchasableBuildings", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromFaithPurchasableBuildingsGlobal, "Building_ReligionYieldFromFaithPurchasableBuildingsGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piLuxuryYieldChanges, "Building_LuxuryYieldChanges", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piCityConnectionPlotYieldChanges, "Building_CityConnectionPlotYieldChanges", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piCityConnectionPlotYieldChangesGlobal, "Building_CityConnectionPlotYieldChangesGlobal", "BuildingType", szBuildingType);
 	
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 
@@ -4594,6 +4600,26 @@ int CvBuildingEntry::GetLuxuryYieldChanges(int i) const
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piLuxuryYieldChanges ? m_piLuxuryYieldChanges[i] : 0;
+}
+int* CvBuildingEntry::GetCityConnectionPlotYieldChangeArray() const
+{
+	return m_piCityConnectionPlotYieldChanges;
+}
+int CvBuildingEntry::GetCityConnectionPlotYieldChange(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piCityConnectionPlotYieldChanges ? m_piCityConnectionPlotYieldChanges[i] : 0;
+}
+int* CvBuildingEntry::GetCityConnectionPlotYieldChangeGlobalArray() const
+{
+	return m_piCityConnectionPlotYieldChangesGlobal;
+}
+int CvBuildingEntry::GetCityConnectionPlotYieldChangeGlobal(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piCityConnectionPlotYieldChangesGlobal ? m_piCityConnectionPlotYieldChangesGlobal[i] : 0;
 }
 /// Free units which appear near the capital
 int CvBuildingEntry::GetNumFreeUnits(int i) const

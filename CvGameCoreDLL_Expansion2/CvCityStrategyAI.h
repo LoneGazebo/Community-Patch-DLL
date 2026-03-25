@@ -320,7 +320,7 @@ int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding,
 	YieldTypes eYield, int& iFlatYield);
 int GetBuildingGrandStrategyValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
 int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);
-int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding);
+int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding, const SPlotStats& plotStats, const vector<int>& allExistingBuildings);
 int GetBuildingTraitValue(CvCity *pCity, YieldTypes eYield, BuildingTypes eBuilding, int iValue);
 int GetBuildingReligionValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
 }

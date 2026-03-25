@@ -432,6 +432,9 @@ public:
 	int getLakePlotYield(YieldTypes eYield) const;
 	void changeLakePlotYield(YieldTypes eYield, int iChange);
 
+	int GetCityConnectionPlotYield(YieldTypes eYield) const;
+	void ChangeCityConnectionPlotYield(YieldTypes eYield, int iChange);
+
 	CvPlot* getStartingPlot() const;
 	void setStartingPlot(CvPlot* pNewValue);
 
@@ -458,8 +461,8 @@ public:
 	//name is misleading, should be HappinessFromCityConnections
 	int GetHappinessFromTradeRoutes() const;
 	void DoUpdateCityConnectionHappiness();
-	bool UpdateCityConnection(const CvPlot* pPlot, bool bActive, bool bIndustrial);
-	bool IsCityConnectionPlot(const CvPlot* pPlot, bool bIndustrial) const;
+	int GetYieldFromLandCityConnectionsTimes100(YieldTypes eYield) const;
+	void DoUpdateYieldsFromLandCityConnections();
 
 	// Culture
 	int GetTotalJONSCulturePerTurnTimes100(CvString* toolTipSink = NULL) const;
@@ -3487,6 +3490,7 @@ protected:
 	std::vector<int> m_aiGreatWorkYieldChange;
 	std::vector<int> m_aiLakePlotYield;
 	std::vector<int> m_aiTourismBonusTurnsPlayer;
+	std::vector<int> m_viCityConnectionPlotYield;
 
 	typedef std::pair<uint, int> PlayerOptionEntry;
 	typedef std::vector< PlayerOptionEntry > PlayerOptionsVector;
@@ -3666,6 +3670,7 @@ protected:
 
 	// City Connections
 	CvCityConnections* m_pCityConnections;
+	vector<int> m_viYieldFromLandCityConnectionsTimes100;
 
 	// Espionage
 	CvPlayerEspionage* m_pEspionage;
@@ -3737,9 +3742,6 @@ protected:
 	int m_iMilitarySeaMight;
 	int m_iMilitaryAirMight;
 	int m_iMilitaryLandMight;
-
-	std::vector<int> m_vCityConnectionPlots; //serialized
-	std::vector<int> m_vIndustrialCityConnectionPlots; //serialized
 
 	friend FDataStream& operator>>(FDataStream&, CvPlayer::ConqueredByBoolField&);
 	friend FDataStream& operator<<(FDataStream&, const CvPlayer::ConqueredByBoolField&);
@@ -4268,6 +4270,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSiphonLuxuryCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLakePlotYield)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiTourismBonusTurnsPlayer)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_viCityConnectionPlotYield)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector< std::pair<uint, int> >), m_aOptions)
 SYNC_ARCHIVE_VAR(CvString, m_strReligionKey)
 SYNC_ARCHIVE_VAR(CvString, m_strScriptData)
@@ -4329,6 +4332,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumMilitaryLandUnits)
 SYNC_ARCHIVE_VAR(int, m_iMilitarySeaMight)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryAirMight)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryLandMight)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_viYieldFromLandCityConnectionsTimes100)
 SYNC_ARCHIVE_VAR(std::vector<ResourceTypes>, m_vResourcesNotForSale)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abInstantYieldNotificationsDisabled)
 SYNC_ARCHIVE_VAR(bool, m_refuseOpenBordersTrade)

@@ -1612,8 +1612,6 @@ void CvPlayer::uninit()
 	m_iMilitaryAirMight = 0;
 	m_iMilitaryLandMight = 0;
 
-	m_vCityConnectionPlots.clear();
-	m_vIndustrialCityConnectionPlots.clear();
 	m_eID = NO_PLAYER;
 }
 
@@ -1849,6 +1847,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiExtraYieldThreshold.clear();
 	m_aiExtraYieldThreshold.resize(NUM_YIELD_TYPES, 0);
 
+	m_viCityConnectionPlotYield.clear();
+	m_viCityConnectionPlotYield.resize(NUM_YIELD_TYPES, 0);
+
 	m_aiSpecialistExtraYield.clear();
 	m_aiSpecialistExtraYield.resize(NUM_YIELD_TYPES, 0);
 
@@ -1890,6 +1891,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_piYieldPerTurnFromAnnexedMinorsTimes100.clear();
 	m_piYieldPerTurnFromAnnexedMinorsTimes100.resize(NUM_YIELD_TYPES, 0);
+
+	m_viYieldFromLandCityConnectionsTimes100.clear();
+	m_viYieldFromLandCityConnectionsTimes100.resize(NUM_YIELD_TYPES, 0);
 
 	m_aOptions.clear();
 
@@ -2242,8 +2246,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		AI_reset();
 	}
 
-	m_vCityConnectionPlots.clear();
-	m_vIndustrialCityConnectionPlots.clear();
 	m_iNumUnitsSuppliedCached = -1;
 	m_iNumUnitsSuppliedCachedWarWeariness = -1;
 	m_bUnlockedGrowthAnywhereThisTurn = false;
@@ -16063,32 +16065,11 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		for(int iK = 0; iK < GC.getNumImprovementInfos(); iK++)
 		{
 			ImprovementTypes eImprovement = (ImprovementTypes)iK;
-			if(eImprovement != NO_IMPROVEMENT)
-			{
-				int iYieldChange = pBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield);
-				if(iYieldChange != 0)
-				{
-					ChangeImprovementExtraYield(eImprovement, eYield, (iYieldChange * iChange));
-				}
-			}
+			ChangeImprovementExtraYield(eImprovement, eYield, pBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield) * iChange);
 		}
-	}
 
-	// Global Yield Changes to Plots
-	bool bYieldChanged = false;
-	for (iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
-	{
-		YieldTypes eYield = (YieldTypes)iJ;
-		int iYieldChange = pBuildingInfo->GetLakePlotYieldChangeGlobal(eYield);
-		if (iYieldChange != 0)
-		{
-			bYieldChanged = true;
-			changeLakePlotYield(eYield, iYieldChange * iChange);
-		}
-	}
-	if (bYieldChanged)
-	{
-		updateYield();
+		changeLakePlotYield(eYield, pBuildingInfo->GetLakePlotYieldChangeGlobal(eYield) * iChange);
+		ChangeCityConnectionPlotYield(eYield, pBuildingInfo->GetCityConnectionPlotYieldChangeGlobal(eYield) * iChange);
 	}
 
 	// Loop through Cities
@@ -17575,6 +17556,26 @@ void CvPlayer::changeLakePlotYield(YieldTypes eYield, int iChange)
 	{
 		m_aiLakePlotYield[eYield] = m_aiLakePlotYield[eYield] + iChange;
 		ASSERT(getLakePlotYield(eYield) >= 0);
+		updateYield();
+	}
+}
+
+int CvPlayer::GetCityConnectionPlotYield(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	return m_viCityConnectionPlotYield[eYield];
+}
+
+void CvPlayer::ChangeCityConnectionPlotYield(YieldTypes eYield, int iChange)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+	if (iChange != 0)
+	{
+		m_viCityConnectionPlotYield[eYield] += iChange;
 		updateYield();
 	}
 }
@@ -22571,37 +22572,54 @@ void CvPlayer::DoUpdateCityConnectionHappiness()
 	m_iCityConnectionHappiness = iHappinessPerTradeRoute * iNumCities / 100;	// Bring it out of hundreds
 }
 
-bool CvPlayer::UpdateCityConnection(const CvPlot * pPlot, bool bActive, bool bIndustrial)
+int CvPlayer::GetYieldFromLandCityConnectionsTimes100(YieldTypes eYield) const
 {
-	if (bActive)
-	{
-		if (IsCityConnectionPlot(pPlot, bIndustrial))
-			return false; //no update
-
-		//insert and sort
-		PlotIndexContainer& vPlotIndexContainer = bIndustrial ? m_vIndustrialCityConnectionPlots : m_vCityConnectionPlots;
-		vPlotIndexContainer.push_back(pPlot->GetPlotIndex());
-		std::stable_sort(vPlotIndexContainer.begin(), vPlotIndexContainer.end());
-		return true;
-	}
-	else
-	{
-		if (!IsCityConnectionPlot(pPlot, bIndustrial))
-			return false; //no update
-
-		//just delete, no need to re-sort
-		PlotIndexContainer& vPlotIndexContainer = bIndustrial ? m_vIndustrialCityConnectionPlots : m_vCityConnectionPlots;
-		vPlotIndexContainer.erase(std::remove(vPlotIndexContainer.begin(), vPlotIndexContainer.end(), pPlot->GetPlotIndex()), vPlotIndexContainer.end());
-		return true;
-	}
+	PRECONDITION(eYield >= 0, "eYield is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield is expected to be within maximum bounds (invalid Index)");
+	return m_viYieldFromLandCityConnectionsTimes100[eYield];
 }
 
-bool CvPlayer::IsCityConnectionPlot(const CvPlot* pPlot, bool bIndustrial) const
+void CvPlayer::DoUpdateYieldsFromLandCityConnections()
 {
-	if (bIndustrial)
-		return std::binary_search(m_vIndustrialCityConnectionPlots.begin(), m_vIndustrialCityConnectionPlots.end(), pPlot->GetPlotIndex());
-	else
-		return std::binary_search(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end(), pPlot->GetPlotIndex());
+	// Reset the vector
+	m_viYieldFromLandCityConnectionsTimes100.assign(NUM_YIELD_TYPES, 0);
+
+	int iEra = max(1, static_cast<int>(GetCurrentEra()));
+	const map<int, vector<int>>& mviYieldChangePerLandConnectedCity = GetPlayerTraits()->GetYieldChangesPerLandConnectedCityTimes100();
+	for (map<int, vector<int>>::const_iterator it = mviYieldChangePerLandConnectedCity.begin(); it != mviYieldChangePerLandConnectedCity.end(); ++it)
+	{
+		int iConnectedCity = 0;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+		{
+			CvPlayer& kOtherPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayerLoop));
+			int iLoop = 0;
+			for (CvCity* pOtherCity = kOtherPlayer.firstCity(&iLoop); pOtherCity != NULL; pOtherCity = kOtherPlayer.nextCity(&iLoop))
+			{
+				int iLoop2 = 0;
+				for (CvCity* pOwnCity = firstCity(&iLoop2); pOwnCity != NULL; pOwnCity = nextCity(&iLoop2))
+				{
+					// Don't count same city connection
+					if (pOwnCity == pOtherCity)
+						continue;
+
+					// Check distance
+					if (plotDistance(*(pOwnCity->plot()), *(pOtherCity->plot())) > it->first)
+						continue;
+
+					if (GetCityConnections()->AreCitiesDirectlyConnected(pOwnCity, pOtherCity, CvCityConnections::CONNECTION_ANY_LAND))
+					{
+						iConnectedCity++;
+						break;
+					}
+				}
+			}
+		}
+
+		for (size_t i = 0; i < it->second.size(); i++)
+		{
+			m_viYieldFromLandCityConnectionsTimes100[i] += it->second[i] * iConnectedCity * iEra;
+		}
+	}
 }
 
 /// How muchHappiness are we getting from Trade Routes?
@@ -33398,6 +33416,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				//we cannot rely on a lazy update when accessing them because we would need to do it for all players, creating overhead
 				GetCityConnections()->Update();
 				GetTreasury()->DoUpdateCityConnectionGold();
+				DoUpdateYieldsFromLandCityConnections();
 
 				//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
 				if (isHuman(ISHUMAN_AI_UNITS) || /* if MP, invalidate for AI too */ kGame.isNetworkMultiPlayer()) {
@@ -44370,6 +44389,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiGreatWorkYieldChange);
 	visitor(player.m_aiLakePlotYield);
 	visitor(player.m_aiTourismBonusTurnsPlayer);
+	visitor(player.m_viCityConnectionPlotYield);
 	visitor(player.m_aOptions);
 	visitor(player.m_strReligionKey);
 	visitor(player.m_strScriptData);
@@ -44434,6 +44454,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iMilitarySeaMight);
 	visitor(player.m_iMilitaryAirMight);
 	visitor(player.m_iMilitaryLandMight);
+	visitor(player.m_viYieldFromLandCityConnectionsTimes100);
 
 	visitor(*player.m_pPlayerPolicies);
 	visitor(*player.m_pEconomicAI);
@@ -44641,9 +44662,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 
 	visitor(player.m_pabHasGlobalMonopoly);
 	visitor(player.m_pabHasStrategicMonopoly);
-
-	visitor(player.m_vCityConnectionPlots);
-	visitor(player.m_vIndustrialCityConnectionPlots);
 
 	visitor(player.m_vResourcesNotForSale);
 	visitor(player.m_refuseOpenBordersTrade);

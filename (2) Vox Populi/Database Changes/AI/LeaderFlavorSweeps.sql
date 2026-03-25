@@ -16,7 +16,6 @@ VALUES
 	('LEADER_ASHURBANIPAL'),
 	('LEADER_ASKIA'),
 	('LEADER_ATTILA'),
-	('LEADER_AUGUSTUS'),
 	('LEADER_DARIUS'),
 	('LEADER_GENGHIS_KHAN'),
 	('LEADER_GUSTAVUS_ADOLPHUS'),
@@ -235,6 +234,7 @@ CREATE TEMP TABLE ExpansionistFlavors (
 INSERT INTO ExpansionistLeaders
 VALUES
 	('LEADER_ALEXANDER'),
+	('LEADER_AUGUSTUS'),
 	('LEADER_BOUDICCA'),
 	('LEADER_CATHERINE'),
 	('LEADER_DIDO'),
@@ -312,8 +312,8 @@ UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE' AN
 
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_ASKIA'; -- 8, only pursuit: domination
 
-UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_AUGUSTUS'; -- 8, only pursuit: domination
-UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE' AND LeaderType = 'LEADER_AUGUSTUS'; -- 4, UB boosts GP
+UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_AUGUSTUS'; -- 6, UA and UNW are cultural
+UPDATE Leader_Flavors SET Flavor = 12 WHERE FlavorType = 'FLAVOR_INFRASTRUCTURE' AND LeaderType = 'LEADER_AUGUSTUS'; -- 9, UA and UNW really want city connections
 
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_BISMARCK'; -- 8, DOM
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_GROWTH' AND LeaderType = 'LEADER_BISMARCK'; -- 9, should be focusing Gold/Production

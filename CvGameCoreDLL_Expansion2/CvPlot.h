@@ -312,8 +312,6 @@ public:
 
 	bool isRoute() const;
 	bool isValidRoute(const CvUnit* pUnit) const;
-
-	void SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial);
 	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER, bool bIndustrial = false) const;
 
 	void ChangeNumTradeUnitRoute(int iChange);
