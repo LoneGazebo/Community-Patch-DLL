@@ -92,7 +92,8 @@ public:
 	}
 	void IncreaseWeight (unsigned int iIndex, int iWeight)
 	{
-		SetWeight(iIndex, GetWeight(iIndex) + iWeight);
+		int iNewWeight = GetWeight(iIndex) + iWeight;
+		SetWeight(iIndex, max(iNewWeight, 0));
 	}
 
 	/// Return total of all weights stored in vector
