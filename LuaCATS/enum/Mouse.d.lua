@@ -1,13 +1,13 @@
 --- @meta
 
---- Unlike most other enums, this one doesn't come from the game core DLL<br>
---- We'll have to trust modiki on the values of these
+--- Unlike most other enums, this one doesn't come from the game core DLL
 --- @enum MouseType
 Mouse = {
 	eLClick = 0,
-	eRClick = 1,
-	eMClick = 2,
-	eWheel = 3,
-	eMouseEnter = 4,
-	eMouseExit = 5,
+	eLDblClick = 1,
+	eRClick = 2,
+	eMClick = 3,
+	eWheel = 4,
+	eMouseEnter = 5,
+	eMouseExit = 6,
 }

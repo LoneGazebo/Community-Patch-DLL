@@ -709,7 +709,7 @@ public:
 	bool isFirstCoastalStart() const;
 
 	const char* getCityNames(int i) const;
-	const char* getSpyNames(int i) const;
+	vector<CvString> getSpyNames() const;
 
 	const char* getSoundtrackKey() const;
 
@@ -2672,6 +2672,7 @@ public:
 	int getTradeRouteProductionBonusTimes100() const;
 	int getLeaguePercent() const;
 	int getWarmongerPercent() const;
+	int getSpecialistExtraFoodCost() const;
 	bool getVassalageEnabled() const;
 
 	const char* GetCityBombardEffectTag() const;
@@ -2730,6 +2731,7 @@ protected:
 	int m_iTradeRouteProductionBonusTimes100;
 	int m_iLeaguePercent;
 	int m_iWarmongerPercent;
+	int m_iSpecialistExtraFoodCost;
 	bool m_bVassalageEnabled;
 
 	CvString m_strCityBombardEffectTag;
@@ -3115,6 +3117,7 @@ public:
 	int getNumFreeUnits(int i) const;
 	int getFreeScaledUnits() const;
 	int getSpecialistsGreatPersonPointsPerTurn() const;
+	int getMaxAirUnitsChange() const;
 	int getEventConvertReligion(int i) const;
 	int getEventConvertReligionPercent(int i) const;
 	int getCityYield(int i) const;
@@ -3202,6 +3205,7 @@ protected:
 	int* m_piCityYield;
 	int m_iFreeScaledUnits;
 	int m_iSpecialistsGreatPersonPointsPerTurn;
+	int m_iMaxAirUnitsChange;
 	CvString m_strEventChoiceSoundEffect;
 	int m_iNumFreePolicies;
 	int m_iNumFreeTechs;

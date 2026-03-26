@@ -23,6 +23,10 @@
 #include "CvLuaGame.h"
 #include "CvLuaPlayer.h"
 #include "CvLuaTeam.h"
+#include "CvLuaCity.h"
+#include "CvLuaPlot.h"
+#include "CvLuaUnit.h"
+#include "CvLuaTeamTech.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
@@ -44,13 +48,61 @@ bool luaL_optbool(lua_State* L, int idx, bool bdefault)
 //------------------------------------------------------------------------------
 void LuaSupport::RegisterScriptData(lua_State* L)
 {
+	//Register some plain datatables
 	CvLuaEnums::Register(L);
-	CvLuaFractal::Register(L);
 	CvLuaGameInfo::Register(L);
+
+	//Register static interfaces
+	CvLuaFractal::Register(L);
 	CvLuaMap::Register(L);
 	CvLuaGame::Register(L);
+
+	//Register Players and Teams - those instances already exist
 	CvLuaPlayer::Register(L);
 	CvLuaTeam::Register(L);
+
+	//Register additional lua types, for which instances will only be created on demand
+	CvLuaCity::PushTypeTable(L);
+	CvLuaPlot::PushTypeTable(L);
+	CvLuaUnit::PushTypeTable(L);
+	CvLuaTeamTech::PushTypeTable(L);
+
+	//-----------------------------------------
+	// Restore access to some core lua functionality hidden away by Fireaxis, but still keep the sandbox intact
+	// Use lua_dostring(), because it's more comfortable to code and easier to see what's happening
+
+	lua_pushvalue(L, LUA_REGISTRYINDEX);
+	lua_setglobal(L, "R");
+
+	const char* luacommand = "" 
+
+	"local G = R._LOADED._G;"
+	"R = nil;"
+
+	"rawset = G.rawset;"
+	"rawget = G.rawget;"
+	"newproxy = G.newproxy;"
+	"if G.jit then LUAJIT = true; bitops = G.require('bit') end;"
+
+	"FireaxisObjects={"
+		"UI = G.UI;"
+		"Threads = G.Threads;"
+		"GameInfo = G.GameInfo;"
+		"GameDefines = G.GameDefines;"
+	"};"
+
+	"local g = G.getfenv;"
+	"GameCore = g(0);"
+	"_ENV = G.setmetatable( {}, {"
+		"__index = function(T,k) return g(0)[k] end;"
+		"__newindex = function(T,k,v) g(0)[k] = v end;"
+		"__call = function() return g(0) end;"
+	"});";
+	
+	luaL_dostring(L,luacommand);
+
+	//------------------------------------------
+
 }
 
 //------------------------------------------------------------------------------

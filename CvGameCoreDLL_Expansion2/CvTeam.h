@@ -375,12 +375,13 @@ public:
 
 	int getVictoryPoints() const;
 	void changeVictoryPoints(int iChange);
+	
+	int GetBuildingDefenseModifier() const;
+	void ChangeBuildingDefenseModifier(int iChange);
 
 	void DoTestSmallAwards();
 	bool IsSmallAwardAchieved(SmallAwardTypes eAward) const;
 	void SetSmallAwardAchieved(SmallAwardTypes eAward, bool bValue);
-
-	void verifySpyUnitsValidPlot();
 
 	void setForceRevealedResource(ResourceTypes eResource, bool bRevealed);
 	bool isForceRevealedResource(ResourceTypes eResource) const;
@@ -519,6 +520,7 @@ protected:
 	int m_iNumLandmarksBuilt;
 	int m_iBestPossibleRoute;
 	int m_iNumMinorCivsAttacked;
+	int m_iBuildingDefenseModifier;
 
 	bool m_bMapCentering;
 	bool m_bHasTechForWorldCongress;
@@ -633,10 +635,10 @@ protected:
 	void cancelDefensivePacts();
 	void announceTechToPlayers(TechTypes eIndex, bool bPartial = false);
 
-	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar);
+	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar, vector<pair<PlayerTypes, TeamTypes>>* pvMinorCivsDeferredPeaceUpdate = NULL);
 
 	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, TeamTypes eDefensivePactTeam = NO_TEAM, bool bMinorAllyPact = false);
-	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
+	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false, bool bIgnoreVassalsAndAllies = false, vector<pair<PlayerTypes, TeamTypes>>* pvMinorCivsDeferredPeaceUpdate = NULL);
 };
 
 // helper for accessing static functions

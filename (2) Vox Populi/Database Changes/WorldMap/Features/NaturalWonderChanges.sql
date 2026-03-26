@@ -52,6 +52,13 @@ WHERE Type IN (
 	'FEATURE_ULURU'
 );
 
+-- Mountains are now taller
+UPDATE Features
+SET SeeThrough = 3
+WHERE Type IN (
+	SELECT NaturalWonderType FROM Natural_Wonder_Placement WHERE ChangeCoreTileToMountain = 1
+);
+
 -- Non-mountains are no longer impassable
 UPDATE Features
 SET Impassable = 0, Movement = 2, Defense = 10

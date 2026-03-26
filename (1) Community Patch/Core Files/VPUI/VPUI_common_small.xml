@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Custom tooltips for VPUI -->
+<Context Font="TwCenMT16" FontStyle="Base" ColorSet="Beige_Black">
+	<ToolTipType Name="CityViewTooltip">
+		<Grid ID="CityViewTooltipGrid" Size="430,90" Offset="8,0" Padding="8,8" Style="GridBlack8" NoClip="1">
+			<Label ID="CityViewTooltipText" Offset="12,12" String="Placeholder" LeadingOffset="-2" WrapWidth="400" Font="TwCenMT16"/>
+		</Grid>
+	</ToolTipType>
+
+	<ToolTipType Name="TechTreeTooltip">
+		<Grid ID="TechTreeTooltipGrid" Size="440,90" Offset="8,0" Padding="8,8" Style="GridBlack8" NoClip="1">
+			<Label ID="TechTreeTooltipText" Offset="12,12" String="Placeholder" LeadingOffset="-2" WrapWidth="410" Font="TwCenMT16"/>
+		</Grid>
+	</ToolTipType>
+</Context>

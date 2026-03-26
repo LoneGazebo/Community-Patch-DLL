@@ -742,6 +742,8 @@ public:
 
 	unsigned char getEnemyDistance(eTactPlotDomain eDomain = TD_BOTH) const;
 	void setEnemyDistance(eTactPlotDomain eDomain, int iDistance);
+	unsigned char getRangedAttackEnemyDistance(eTactPlotDomain eDomain = TD_BOTH) const;
+	void setRangedAttackEnemyDistance(eTactPlotDomain eDomain, int iDistance);
 	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
 	bool isEnemyCombatUnit() const { return pEnemyCombatUnit!=NULL; }
@@ -764,6 +766,7 @@ protected:
 
 	unsigned char aiEnemyDistance[3]; //distance to attack targets, not civilians. recomputed every time an enemy is killed or discovered
 	unsigned char aiEnemyCombatUnitsAdjacent[3]; //recomputed every time an enemy is killed or discovered
+	unsigned char aiRangedAttackEnemyDistance[3];
 
 	unsigned char aiFriendlyCombatUnitsAdjacent[3]; //for flanking. set initially and updated every time a unit moves
 	unsigned char aiFriendlyCombatUnitsAdjacentEndTurn[3]; //ranged units need cover. updated every time a unit finishes
@@ -887,6 +890,7 @@ protected:
 	CvPlot* pTargetPlot;
 	bool bTargetDistanceRelevant;
 	bool bReturnToStartPositions;
+	unsigned char nSaveMovement;
 
 	//should be unique
 	size_t iGeneration;
@@ -964,7 +968,7 @@ public:
 
 	CvTacticalPosition();
 
-	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget, bool bTargetDistanceRelevant, bool bReturnToStartPositions);
+	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget, bool bTargetDistanceRelevant, bool bReturnToStartPositions, int iSaveMovement);
 	void initFromParent(const CvTacticalPosition& parent);
 	void wipe();
 
@@ -1074,11 +1078,11 @@ namespace TacticalAIHelpers
 	void UpdatePlotDistanceToTarget(PlayerTypes ePlayer, CvPlot* pTargetPlot);
 	int GetPlotDistanceToTarget(int iPlotIndex, DomainTypes eRelevantDomain);
 
-	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
+	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false, int iSaveMovement = 0);
 	bool PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
 	bool IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget);
-	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderPush = false);
-	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit, bool bConservative = true);
+	pair<CvPlot*, int> FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderPush = false);
+	pair<CvPlot*, int> FindClosestSafePlotForHealing(CvUnit* pUnit, bool bConservative = true);
 	bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, DomainTypes eDomain);
 	bool IsCloseToContestedBorder(CvPlayer* pPlayer, CvPlot* pPlot);
 
@@ -1098,7 +1102,7 @@ namespace TacticalAIHelpers
 	int SentryScore(const CvPlot* pPlot, PlayerTypes ePlayer);
 
 	bool FindAndExecuteBestUnitAssignments(PlayerTypes ePlayer, vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl);
-	vector<STacticalAssignment> FindBestUnitAssignments(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage, set<int>& unuseableUnits, bool bTargetDistanceRelevant, bool bReturnToStartPositions = false);
+	vector<STacticalAssignment> FindBestUnitAssignments(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage, set<int>& unuseableUnits, bool bTargetDistanceRelevant, bool bReturnToStartPositions = false, int iSaveMovement = 0);
 	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
 }
 

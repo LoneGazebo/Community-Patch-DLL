@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Font="TwCenMT14" FontStyle="Base" Color="Beige" Color1="Black" >
+
+  <Instance Offset="0,0" Name="NotificationButton" Size="890,60"  >
+    <Button Size="890,60"  Offset="0,0"  StateOffsetIncrement="0" ID="Button">
+
+      <Button Anchor="L,C" Offset="0,0" Size="64.64"  Texture="assets\UI\Art\WorldView\ActionItemsButton.dds" Hidden="1" ID="GenericButton" />
+      <Label Anchor="R,T" Offset="5,7" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Turn" ID="NotificationTurnText" />
+      <Stack ID="TextStack" Anchor="L,T" Padding="10">
+        <Label Anchor="L,T" Offset="16,5" LeadingOffset="-8" WrapWidth="760" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="NotificationText" String="Text" />
+
+
+        <Image Anchor="C,B" Offset="0,0" TextureOffset="0.0" Texture="bar900x2.dds" Size="900.1" />
+      </Stack>
+      <ShowOnMouseOver>
+        <AlphaAnim ID="TextAnim" Anchor="C,C" Offset="10,0" Size="890,64" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+          <Grid  ID="TextHL" Size="890,64" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL" />
+        </AlphaAnim>
+      </ShowOnMouseOver>
+    </Button>
+  </Instance>
+
+  <Instance Name="InstantYieldsInstance">
+    <Box ID="Base" Anchor="L,C" Offset="0,0" Size="860,28" Color="255,255,255,0">
+      <Stack Size="860,28" StackGrowth="Right">
+        <Box Size="780,25" Color="0,0,0,0">
+          <Label ID="InstantYieldName" Anchor="L,C" Offset="30,0" TruncateWidth="700" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+        </Box>
+        <CheckBox Anchor="L,T" Offset="0,0" TextOffset="0,0" IsChecked="0" ID="InstantYieldCheckbox"/>
+      </Stack>
+      <Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="850,3"/>
+    </Box>
+  </Instance>
+
+  <Box Style="BGBlock_ClearTopBar" />
+  <Grid Size="960,658" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140" ConsumeMouse="0">
+
+    <!-- Upper Treatment -->
+    <Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14"  Texture="assets\UI\Art\Icons\Top512IconTrim.dds" >
+      <Image ID="CivIconBG" Size="64.64" Anchor="C,C" Offset="-1,-1" TextureOffset="77,0" Texture="CivIconBGSizes.dds" />
+      <Image ID="CivIconShadow" Size="48.48" Anchor="C,C" Offset="0,0" Texture="CivSymbolAtlas48.dds" Color="Black.128"/>
+      <Image ID="CivIcon" Size="48,48" Offset="-1,-1"  Anchor="C,C" Texture="CivSymbolsColor512.dds" />
+    </Image>
+
+    <!-- Side treatments -->
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+
+    <!-- Panel Header Text -->
+    <Label Style="MenuTitleCaption" String="TXT_KEY_POP_NOTIFICATION_LOG" />
+
+    <!-- Tab Panel -->
+    <Box Anchor="C,T" Size="955,32" Offset="0,44" Color="0.0.0.128">
+      <Stack Anchor="C,T" Size="955,32" Offset="0,0" Padding="0" StackGrowth="Right">
+        <Button Anchor="L,T" Size="477,24" Offset="0,0" String="TXT_KEY_POP_NOTIFICATION_LOG" ID="TabButtonLog">
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="477,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+              <Grid Size="477,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="477,26" Style="Grid9FrameTurns" Hidden="0" ID="LogSelectHighlight"/>
+        </Button>
+        <Button Anchor="L,T" Size="477,24" Offset="0,0" String="TXT_KEY_NOTIFICATION_SETTINGS_TITLE" ID="TabButtonSettings">
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="477,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+              <Grid Size="477,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="477,26" Style="Grid9FrameTurns" Hidden="1" ID="SettingsSelectHighlight"/>
+        </Button>
+      </Stack>
+      <Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="955,5"/>
+    </Box>
+
+    <!-- Notification Log Panel -->
+    <Box Size="928,500" Offset="16,81" Color="0,0,0,0" ID="NotificationLogPanel" Hidden="0">
+      <ScrollPanel Anchor="L,T" Offset="0,0" Size="900,500" ID="NotificationScrollPanel" Vertical="1" >
+        <Stack Anchor="L,T" Size="600,32" Offset="10,0" StackGrowth="B" Padding="0" ID="NotificationButtonStack" />
+        <ScrollBar Offset="0.-3" Style="VertSlider" Anchor="R,C" AnchorSide="O,I" Length="500" />
+      </ScrollPanel>
+    </Box>
+
+    <!-- Notification Settings Panel -->
+    <Box Size="928,500" Offset="16,81" Color="0,0,0,0" ID="NotificationSettingsPanel" Hidden="1">
+      <Stack Anchor="L,T" Offset="20,0" Padding="10" StackGrowth="Bottom" ID="NotificationSettingsContent">
+        <Box Size="880,20" Color="0,0,0,0">
+          <Stack Size="880,20" StackGrowth="Right">
+            <Box Size="780,18" Color="0,0,0,0">
+              <Label Font="TwCenMT18" FontStyle="Shadow" String="Instant Yield Type" />
+            </Box>
+            <Box Size="100,18" Color="0,0,0,0">
+              <Label Font="TwCenMT18" FontStyle="Shadow" String="Notification" />
+            </Box>
+          </Stack>
+        </Box>
+        <ScrollPanel Vertical="1" Size="860,410" Offset="0,0" AutoScrollBar="1" ID="AllInstantYieldsScrollPanel">
+          <!-- Scroll Controls -->
+          <ScrollBar Style="VertSlider" Length="374" Anchor="R,C" AnchorSide="O,I"/>
+          <UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+          <DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+          <Stack StackGrowth="Bottom" ID="AllInstantYieldsStack" Padding="0">
+            <Button ID="InstantYieldCityButton" Size="860,27" TextAnchor="L,C" String="">
+              <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+              <ShowOnMouseOver>
+                <AlphaAnim Anchor="L,C" Size="860,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                  <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                </AlphaAnim>
+              </ShowOnMouseOver>
+            </Button>
+            <Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="InstantYieldCityStack"/>
+            <Button ID="InstantYieldMilitaryButton" Size="860,27" TextAnchor="L,C" String="">
+              <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+              <ShowOnMouseOver>
+                <AlphaAnim Anchor="L,C" Size="860,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                  <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                </AlphaAnim>
+              </ShowOnMouseOver>
+            </Button>
+            <Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="InstantYieldMilitaryStack"/>
+            <Button ID="InstantYieldCivilianButton" Size="860,27" TextAnchor="L,C" String="">
+              <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+              <ShowOnMouseOver>
+                <AlphaAnim Anchor="L,C" Size="860,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                  <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                </AlphaAnim>
+              </ShowOnMouseOver>
+            </Button>
+            <Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="InstantYieldCivilianStack"/>
+            <Button ID="InstantYieldSpiesButton" Size="860,27" TextAnchor="L,C" String="">
+              <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+              <ShowOnMouseOver>
+                <AlphaAnim Anchor="L,C" Size="860,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                  <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                </AlphaAnim>
+              </ShowOnMouseOver>
+            </Button>
+            <Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="InstantYieldSpiesStack"/>
+            <Button ID="InstantYieldMiscButton" Size="860,27" TextAnchor="L,C" String="">
+              <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns"/>
+              <ShowOnMouseOver>
+                <AlphaAnim Anchor="L,C" Size="860,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                  <Grid Size="860,27" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+                </AlphaAnim>
+              </ShowOnMouseOver>
+            </Button>
+            <Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="InstantYieldMiscStack"/>
+          </Stack>
+        </ScrollPanel>
+      </Stack>
+    </Box>
+
+    <!-- Bottom Panel -->
+    <Box Anchor="C,B" AnchorSide="I.I" Offset="0,54"   Size="910,56" Color="255,255,255,0" >
+      <!-- Back Button  -->
+      <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="14,0" StateOffsetIncrement="0,0" ID="CloseButton"  >
+        <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+      </GridButton>
+      <GridButton Anchor="R,B" Style="SmallButton" Size="150,32" Offset="184,0" StateOffsetIncrement="0,0" ID="TurnOffAllButton" Hidden="1">
+        <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_NOTIFICATION_SETTINGS_TURN_OFF_ALL_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+      </GridButton>
+      <GridButton Anchor="R,B" Style="SmallButton" Size="150,32" Offset="14,0" StateOffsetIncrement="0,0" ID="TurnOnAllButton" Hidden="1">
+        <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_NOTIFICATION_SETTINGS_TURN_ON_ALL_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+      </GridButton>
+    </Box>
+
+    <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="926.5" />
+  </Grid>
+
+
+</Context>

@@ -377,7 +377,7 @@
 			<ImprovementType>ART_DEF_IMPROVEMENT_CHATEAU_NEW</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>UnderConstruction</State>
-			<Scale>0.2</Scale>
+			<Scale>0.13</Scale>
 			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<Model>schloss_hb.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
@@ -386,7 +386,7 @@
 			<ImprovementType>ART_DEF_IMPROVEMENT_CHATEAU_NEW</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>Constructed</State>
-			<Scale>0.2</Scale>
+			<Scale>0.13</Scale>
 			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<Model>schloss.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
@@ -395,7 +395,7 @@
 			<ImprovementType>ART_DEF_IMPROVEMENT_CHATEAU_NEW</ImprovementType>
 			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
 			<State>Pillaged</State>
-			<Scale>0.2</Scale>
+			<Scale>0.13</Scale>
 			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<Model>schloss_pl.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>

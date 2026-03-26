@@ -1,10 +1,8 @@
 --- @meta
 
 --- Unlike most other enums, this one doesn't come from the game core DLL<br>
---- We'll have to trust modiki on the values of these<br>
 --- This seems to determine which context goes on top. Higher number will be on top of lower number.<br>
 --- Some priorities are unused.<br>
---- `eUtmost` is the highest priority used to force a context to the front of the screen. Use sparingly.
 --- @enum PopupPriority
 PopupPriority = {
 	MainMenu = 0,
@@ -67,10 +65,15 @@ PopupPriority = {
 	LoadMenu = 57,
 	SaveMapMenu = 58,
 	HallOfFame = 59,
-	Civilopedia = 60,
-	LeaderHead = 61,
-	LeaderDiscuss = 62,
-	LeaderTrade = 63,
-	PlayerChange = 64,
-	eUtmost = 65,
+	Leaderboard = 60,
+	Civilopedia = 61,
+	InGameUtmost = 62,
+	LeaderHead = 63,
+	LeaderDiscuss = 64,
+	LeaderTrade = 65,
+	LeaderHeadPopup = 66,
+	PlayerChange = 67,
+	eUtmost = 68,
+	Current = 9999,
+	Default = 10000,
 }

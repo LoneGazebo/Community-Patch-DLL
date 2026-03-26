@@ -1252,3 +1252,23 @@ function OnMultiplayerGameLastPlayer()
 	Text = "TXT_KEY_MP_LAST_PLAYER" } );
 end
 Events.MultiplayerGameLastPlayer.Add( OnMultiplayerGameLastPlayer );
+
+-------------------------------------------------
+-- Observer Exit Button
+-------------------------------------------------
+function OnObserverExitButtonClicked()
+	if Game.GetObserverUIOverridePlayer() ~= -1 then
+		Game.DoControl(GameInfoTypes.CONTROL_TOGGLE_AI_TAKEOVER);
+	else
+		Game.DoControl(GameInfoTypes.CONTROL_TOGGLE_OBSERVER_MODE);
+	end
+end
+
+function UpdateObserverExitButton()
+	local bIsObserver = Players[Game.GetActivePlayer()]:IsObserver();
+	Controls.ObserverExitButton:SetHide(not bIsObserver);
+end
+
+Controls.ObserverExitButton:RegisterCallback(Mouse.eLClick, OnObserverExitButtonClicked);
+Events.GameplaySetActivePlayer.Add(UpdateObserverExitButton);
+UpdateObserverExitButton();

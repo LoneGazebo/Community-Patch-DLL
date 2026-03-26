@@ -27,7 +27,7 @@
 CvDangerPlots::CvDangerPlots(void)
 	: m_ePlayer(NO_PLAYER)
 	, m_bDirty(false)
-	, m_iTurnBuilt(0)
+	, m_iTurnBuilt(-1)
 	, m_DangerPlots()
 {
 }
@@ -51,7 +51,7 @@ void CvDangerPlots::Uninit()
 {
 	m_ePlayer = NO_PLAYER;
 	m_bDirty = false;
-	m_iTurnBuilt = 0;
+	m_iTurnBuilt = -1;
 	m_DangerPlots.clear();
 	m_knownUnits.clear();
 	m_vanishedUnits.clear();
@@ -120,10 +120,6 @@ void CvDangerPlots::UpdateDanger()
 	bool bReload = (m_iTurnBuilt == -1);
 	bool bTurnChange = !bReload && (m_iTurnBuilt != GC.getGame().getGameTurn());
 	bool bWarChange = !bReload && !bTurnChange;
-
-	//do not update from the UI thread, might lead to desyncs!
-	if (!bReload && !gDLL->IsGameCoreThread())
-		return;
 
 	//note: we do not do a dirty check here, that is done in GetDanger()
 
@@ -877,6 +873,13 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			//if the attacker is not out of range, assume they need to move for the attack, so we don't know their plot
 			//todo: consider whether the enemy units would block each other from attacking?
 			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? NULL : pAttacker->plot(), iAttackerDamage, false, iExtraDamage, true);
+
+			//assume units will do AoE damage on move once per turn
+			int iAoEDamage = pAttacker->getAoEDamageOnMove();
+			if (iAoEDamage > 0)
+			{
+				iDamage += iAoEDamage;
+			}
 
 			if (!m_pPlot->IsKnownVisibleToTeam(pAttacker->getTeam()))
 				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us

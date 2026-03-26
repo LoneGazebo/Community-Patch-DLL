@@ -1,8 +1,3 @@
--- Palace
-UPDATE Language_en_US
-SET Text = 'Automatically built in [ICON_CAPITAL] Capitals.'
-WHERE Tag = 'TXT_KEY_BUILDING_PALACE_HELP';
-
 -- Water Mill
 UPDATE Language_en_US
 SET Text = 'The Water Mill can only be constructed in a City located next to a river. The Water Mill increases the City''s [ICON_PRODUCTION] Production more efficiently (per Citizen in the City) than the Well.'
@@ -23,14 +18,22 @@ UPDATE Language_en_US
 SET Text = 'The Garden increases the speed at which [ICON_GREAT_PEOPLE] Great People are generated in the City by 25%, and buffs the food output of Oases. Gardens require an Aqueduct in the City in order to be built.'
 WHERE Tag = 'TXT_KEY_BUILDING_GARDEN_STRATEGY';
 
--- Amphitheater
+-- Theater
 UPDATE Language_en_US
-SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city. Also boosts the City''s Great Writer rate and the value of Writers'' Guilds. Grants bonuses to all nearby [ICON_RES_DYE] Dye, [ICON_RES_SILK] Silk, [ICON_RES_LAPIS] Lapis Lazuli, and [ICON_RES_BRAZILWOOD] Brazilwood resources, speeding the growth of the territory of the city and the acquisition of Social Policies. Contains 2 slots for [ICON_GW_WRITING] Great Works of Writing.'
+SET Text = 'Theater'
+WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER';
+
+UPDATE Language_en_US
+SET Text = 'A Theater is an urban venue designed for dramatic performances, musical recitals, and civic gatherings. The ancient Greeks and Romans popularized these structures, featuring a semi-circular orchestra and a towering scenae frons, where elaborate plays, tragedies, and oratorical contests were staged for public audiences.'
+WHERE Tag = 'TXT_KEY_CIV5_BUILDINGS_AMPHITHEATER_TEXT';
+
+UPDATE Language_en_US
+SET Text = 'The Theater increases the [ICON_CULTURE] Culture of a city. Also boosts the City''s Great Writer rate. Grants bonuses to all nearby [ICON_RES_DYE] Dye, [ICON_RES_SILK] Silk, [ICON_RES_LAPIS] Lapis Lazuli, and [ICON_RES_BRAZILWOOD] Brazilwood resources, speeding the growth of the territory of the city and the acquisition of Social Policies. Contains 2 slots for [ICON_GW_WRITING] Great Works of Writing.'
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_STRATEGY';
 
 -- Opera House
 UPDATE Language_en_US
-SET Text = 'The Opera House is a Renaissance-era building which increases the [ICON_CULTURE] Culture of a City. Also boosts the City''s Great Musician rate and the value of Musicians'' Guilds. Contains 1 slot for a Great Work of Music. Requires an Amphitheater in the City before it can be constructed.'
+SET Text = 'The Opera House is a Renaissance-era building which increases the [ICON_CULTURE] Culture of a City. Also boosts the City''s Great Musician rate. Contains 1 slot for a Great Work of Music. Requires a Theater in the City before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OPERA_HOUSE_STRATEGY';
 
 -- Museum
@@ -107,7 +110,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_LABORATORY_STRATEGY';
 
 -- Observatory
 UPDATE Language_en_US
-SET Text = 'The Observatory increases [ICON_RESEARCH] Science output, especially for Cities near lots of Mountains. Requires [COLOR_MAGENTA]{TXT_KEY_POLICY_SECULARISM}[ENDCOLOR] Policy to unlock.'
+SET Text = 'The Observatory increases [ICON_RESEARCH] Science output, especially for Cities near lots of Mountains.'
 WHERE Tag = 'TXT_KEY_BUILDING_OBSERVATORY_STRATEGY';
 
 -- Windmill
@@ -350,7 +353,60 @@ UPDATE Language_en_US
 SET Text = '{TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_CIVILIZED_JEWELERS}'
 WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP';
 
+UPDATE Language_en_US
+SET Text = '{TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_POPULI_MEDICINE}'
+WHERE Tag = 'TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE_HELP';
+
 -- Theming bonuses
+UPDATE Language_en_US
+SET Text = 'Automatically built in [ICON_CAPITAL] Capitals.[NEWLINE]Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for [COLOR_CYAN]any[ENDCOLOR] three [ICON_GW_WRITING] Great Works of Writing.'
+WHERE Tag = 'TXT_KEY_BUILDING_PALACE_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Domestic[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.[NEWLINE][ICON_BULLET] +4 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.'
+WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +14 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_GW_MUSIC] Great Works of Music.'
+WHERE Tag = 'TXT_KEY_BUILDING_BROADCAST_TOWER_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +25 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_MUSIC] Great Works of Music from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_WONDER_BROADWAY_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +10 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_GW_WRITING] Great Works of Writing from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_WONDER_GLOBE_THEATER_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +10 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_WRITING] Great Works of Writing from [COLOR_POSITIVE_TEXT]different Civilizations[ENDCOLOR] and [COLOR_CYAN]different Eras[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_WONDER_GREAT_LIBRARY_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +15 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_ART] Great Works of Art from [COLOR_POSITIVE_TEXT]different Civilizations[ENDCOLOR] and [COLOR_CYAN]different Eras[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +15 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_GW_ART] Great Works of Art and two [ICON_ARTIFACT] Artifacts from [COLOR_POSITIVE_TEXT]different Civilizations[ENDCOLOR] and [COLOR_CYAN]different Eras[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_WONDER_LOUVRE_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +10 [ICON_CULTURE] and [ICON_TOURISM] for two [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] from [COLOR_CYAN]different Eras[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +10 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_GW_ART] Great Works of Art from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_WONDER_SISTINE_CHAPEL_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +25 [ICON_CULTURE] and [ICON_TOURISM] for two [ICON_GW_MUSIC] Great Works of Music from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and [COLOR_CYAN]different Eras[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_WONDER_SYDNEY_OPERA_HOUSE_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:[NEWLINE][ICON_BULLET] +15 [ICON_CULTURE] and [ICON_TOURISM] for three [ICON_GW_ART] Great Works of Art from the [COLOR_POSITIVE_TEXT]same Civilization[ENDCOLOR] and the [COLOR_CYAN]same Era[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_WONDER_UFFIZI_HELP';
+
+-- Theming bonus flavor text
 UPDATE Language_en_US
 SET Text = '{2_CivAdjective} Museum of the {1_EraAdjective} Era'
 WHERE Tag = 'TXT_KEY_THEMING_BONUS_MUSEUM_5';

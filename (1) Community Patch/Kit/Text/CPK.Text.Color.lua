@@ -37,7 +37,10 @@ local TextColor = {
 	Tech = C('COLOR_TECH_TEXT'),
 	Food = C('COLOR_YIELD_FOOD'),
 	Gold = C('COLOR_YIELD_GOLD'),
-	Prod = C('COLOR_YIELD_PRODUCTION')
+	Prod = C('COLOR_YIELD_PRODUCTION'),
+
+	TableStripe1 = Color.FromRgba{r = 12, g = 22, b = 30, a = 120},
+	TableStripe2 = Color.FromRgba{r = 19, g = 32, b = 46, a = 120},
 }
 
 local T = TextColor

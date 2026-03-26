@@ -85,6 +85,22 @@ void CvReplayMessage::addPlot(int iPlotX, int iPlotY)
 	m_Plots.push_back(PlotPosition(sPlotX, sPlotY));
 }
 //------------------------------------------------------------------------------
+void CvReplayMessage::erasePlot(int iPlotX, int iPlotY)
+{
+	short sPlotX = (short)iPlotX;
+	short sPlotY = (short)iPlotY;
+
+	for(PlotPositionList::iterator it = m_Plots.begin(); it != m_Plots.end(); ++it)
+	{
+		const PlotPosition& position = (*it);
+		if (position.first == sPlotX && position.second == sPlotY)
+		{
+			m_Plots.erase(it);
+			return;
+		}
+	}
+}
+//------------------------------------------------------------------------------
 bool CvReplayMessage::getPlot(unsigned int idx, int& iPlotX, int& iPlotY) const
 {
 	if(idx < m_Plots.size())

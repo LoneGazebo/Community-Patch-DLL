@@ -6,7 +6,7 @@
 --- `GameInfo.Units("Cost > 0")` returns an iterator that loops through all rows satisfying the condition(s) specified in the string parameter<br>
 --- `GameInfo.Units[1]` returns the row with `ID` = `1`, or `nil`<br>
 --- `GameInfo.Units["UNIT_WARRIOR"]` returns the row with `Type` = `UNIT_WARRIOR`, or `nil`<br>
---- Avoid using this in commonly called functions or nested loops, especially for tables with more columns.
+--- Avoid using the iterators in commonly called functions or nested loops.
 --- @class GameInfo
 --- @field Accomplishments GameInfoPrimaryTable
 --- @field Automates GameInfoPrimaryTable
@@ -83,10 +83,9 @@ GameInfo = {}
 
 --- @class GameInfoTable: userdata
 --- @overload fun(arg1: table|string|nil): fun(): Row
-GameInfoTable = {}
 
 --- @class GameInfoPrimaryTable: userdata
 --- @field [string] Info
 --- @field [integer] Info
+--- @operator len: integer # Returns the number of rows in this table, even if there are ID gaps. Is a database call, don't overuse.
 --- @overload fun(arg1: table|string|nil): fun(): Info
-GameInfoPrimaryTable = {}

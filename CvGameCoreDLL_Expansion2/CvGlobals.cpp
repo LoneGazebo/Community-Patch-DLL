@@ -163,7 +163,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(CITY_EVENT_PROBABILITY_EACH_TURN, 100),
 	GD_INT_INIT(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD, 50),
 	GD_INT_INIT(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD, 25),
-	GD_INT_INIT(MAX_PLOTS_PER_EXPLORER, 20),
+	GD_INT_INIT(MAX_PLOTS_PER_EXPLORER, 40),
 	GD_INT_INIT(AI_STRATEGY_ISLAND_START_COAST_REVEAL_PERCENT, 80),
 	GD_INT_INIT(AI_PLOT_VALUE_STRATEGIC_RESOURCE, 80),
 	GD_INT_INIT(AI_PLOT_VALUE_LUXURY_RESOURCE, 40),
@@ -1624,7 +1624,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER, 0),
 	GD_INT_INIT(UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER, 0),
 	GD_INT_INIT(UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION, 34),
-	GD_INT_INIT(UNIT_SUPPLY_POPULATION_PUPPET_PERCENT, 100),
+	GD_INT_INIT(PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE, 100),
 	GD_INT_INIT(MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED, 0),
 	GD_INT_INIT(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC, 0),
 	GD_INT_INIT(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MARITIME, 0),
@@ -1651,7 +1651,6 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(UNIT_PRODUCTION_DECAY_TIME, 10),
 	GD_INT_INIT(UNIT_PRODUCTION_DECAY_PERCENT, 98),
 	GD_INT_INIT(BASE_UNIT_UPGRADE_COST, 10),
-	GD_INT_INIT(UNIT_UPGRADE_COST_PER_PRODUCTION, 2),
 	GD_INT_INIT(UNIT_UPGRADE_COST_VISIBLE_DIVISOR, 5),
 	GD_INT_INIT(UNIT_UPGRADE_COST_DISCOUNT_MAX, -75),
 	GD_INT_INIT(RESEARCH_AGREEMENT_BOOST_DIVISOR, 3),
@@ -1833,6 +1832,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(MAJORS_CAN_MOVE_STARTING_SETTLER, 1),
 	GD_INT_INIT(CS_CAN_MOVE_STARTING_SETTLER, 0),
 	GD_INT_INIT(COMPLETE_KILLS_TURN_TIMER, -1),
+	GD_INT_INIT(NUM_UNIQUE_COMPONENTS, 2),
 	GD_INT_INIT(MAX_NUM_TENETS_LEVEL_1, 7),
 	GD_INT_INIT(MAX_NUM_TENETS_LEVEL_2, 4),
 	GD_INT_INIT(MAX_NUM_TENETS_LEVEL_3, 3),
@@ -1919,7 +1919,8 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(CITY_STRENGTH_DEFAULT, 800),
 	GD_INT_INIT(CITY_STRENGTH_POPULATION_CHANGE, 40),
 	GD_INT_INIT(CITY_STRENGTH_TECH_MULTIPLIER, 1),
-	GD_INT_INIT(CITY_STRENGTH_UNIT_DIVISOR, 500),
+	GD_INT_INIT(CITY_STRENGTH_LAND_UNIT_DIVISOR, 500),
+	GD_INT_INIT(CITY_STRENGTH_NAVAL_UNIT_DIVISOR, 500),
 	GD_INT_INIT(CITY_STRENGTH_HILL_CHANGE, 500),
 	GD_INT_INIT(CITY_STRENGTH_THRESHOLD_FOR_BONUSES, 10),
 	GD_INT_INIT(CITY_ATTACKING_DAMAGE_MOD, 0),
@@ -2105,6 +2106,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(BALANCE_MINOR_PROTECTION_MINIMUM_DURATION, 10),
 	GD_INT_INIT(BALANCE_SCOUT_XP_BASE, 1),
 	GD_INT_INIT(BALANCE_SCOUT_XP_RANDOM_VALUE, 12),
+	GD_INT_INIT(BALANCE_SCOUT_XP_DENOMINATOR, 10),
 	GD_INT_INIT(BALANCE_WORLD_WONDER_SAME_ERA_COST_MODIFIER, 0),
 	GD_INT_INIT(BALANCE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER, 0),
 	GD_INT_INIT(BALANCE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER, 0),
@@ -2240,6 +2242,11 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(VICTORY_DOMINATION_CONTROL_PERCENT, 100),
 	GD_INT_INIT(INQUISITION_EFFECTIVENESS, 100),
 	GD_INT_INIT(INQUISITOR_CONVERSION_REDUCTION_FACTOR, 50),
+	GD_INT_INIT(HURRY_GOLD_BUILDING_COST_PERCENT, 60),
+	GD_INT_INIT(UNKNOWN_EXPLORE_TILE_VALUE, 25),
+	GD_INT_INIT(LAND_EXPLORE_TILE_VALUE, 50),
+	GD_INT_INIT(COAST_EXPLORE_TILE_VALUE, 20),
+	GD_INT_INIT(OCEAN_EXPLORE_TILE_VALUE, 10),
 
 	// -- floats -- //
 	GD_FLOAT_INIT(AI_STRATEGY_NEED_IMPROVEMENT_CITY_RATIO, 0.34f),
@@ -2256,6 +2263,7 @@ CvGlobals::CvGlobals() :
 	GD_FLOAT_INIT(GLOBAL_SETTLER_PRODUCTION_PENALTY_PER_UNHAPPY, 2.5f),
 	GD_FLOAT_INIT(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA, 0.0f),
 	GD_FLOAT_INIT(UNIT_UPGRADE_COST_EXPONENT, 1.0f),
+	GD_FLOAT_INIT(UNIT_UPGRADE_COST_PER_PRODUCTION, 2.0f),
 	GD_FLOAT_INIT(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP, 0.5f),
 	GD_FLOAT_INIT(UNHAPPINESS_PER_STARVING_POP, 1.0f),
 	GD_FLOAT_INIT(UNHAPPINESS_PER_PILLAGED_TILE, 0.5f),
@@ -2428,12 +2436,139 @@ PlayerTypes GetCurrentPlayer()
 /* See http://forums.civfanatics.com/showthread.php?t=498919                                    */
 /************************************************************************************************/
 
-#pragma comment(lib, "dbghelp.lib")
+// Function pointer types for manual dbghelp loading
+typedef BOOL (WINAPI *PFN_MiniDumpWriteDump)(
+	HANDLE hProcess,
+	DWORD ProcessId,
+	HANDLE hFile,
+	MINIDUMP_TYPE DumpType,
+	PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
+	PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
+	PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+
+typedef BOOL (WINAPI *PFN_SymInitialize)(
+	HANDLE hProcess,
+	PCSTR UserSearchPath,
+	BOOL fInvadeProcess);
+
+typedef DWORD (WINAPI *PFN_ImagehlpApiVersion)(void);
+
+// Define newer minidump flags if not present in older SDK headers
+#ifndef MiniDumpIgnoreInaccessibleMemory
+#define MiniDumpIgnoreInaccessibleMemory ((MINIDUMP_TYPE)0x00020000)
+#endif
+#ifndef MiniDumpWithTokenInformation
+#define MiniDumpWithTokenInformation ((MINIDUMP_TYPE)0x00040000)
+#endif
+
+// Global handles and function pointers
+static HMODULE g_hDbgHelp = NULL;
+static PFN_MiniDumpWriteDump g_pfnMiniDumpWriteDump = NULL;
+static PFN_SymInitialize g_pfnSymInitialize = NULL;
+static DWORD g_dwDbgHelpVersion = 0;
+
+// Store the last minidump path for display in crash dialogs
+static char g_szLastMiniDumpPath[MAX_PATH] = {0};
+
+// Get the last minidump path (for use in assert/precondition dialogs)
+const char* GetLastMiniDumpPath()
+{
+	return g_szLastMiniDumpPath[0] != '\0' ? g_szLastMiniDumpPath : NULL;
+}
+
+// MessageBox constants (not included in minimal Windows headers)
+#ifndef MB_OK
+#define MB_OK           0x00000000L
+#endif
+#ifndef MB_ICONERROR
+#define MB_ICONERROR    0x00000010L
+#endif
+#ifndef MB_SYSTEMMODAL
+#define MB_SYSTEMMODAL  0x00001000L
+#endif
+
+// MessageBox function declaration
+extern "C" {
+	__declspec(dllimport) int __stdcall MessageBoxA(void* hWnd, const char* lpText, const char* lpCaption, unsigned int uType);
+}
+
+// Load the best available dbghelp.dll
+static bool LoadBestDbgHelp()
+{
+	if (g_hDbgHelp)
+		return true; // Already loaded
+
+	// Try System32 first (better version on Win10/11)
+	TCHAR szSystem32Path[MAX_PATH];
+	if (GetSystemDirectory(szSystem32Path, MAX_PATH) > 0)
+	{
+		_tcscat_s(szSystem32Path, MAX_PATH, _T("\\dbghelp.dll"));
+		g_hDbgHelp = LoadLibrary(szSystem32Path);
+		if (g_hDbgHelp)
+		{
+			OutputDebugString(_T("Loaded dbghelp.dll from System32\n"));
+		}
+	}
+
+	// Fallback to default search (will find game directory version)
+	if (!g_hDbgHelp)
+	{
+		g_hDbgHelp = LoadLibrary(_T("dbghelp.dll"));
+		if (g_hDbgHelp)
+		{
+			OutputDebugString(_T("Loaded dbghelp.dll from default location\n"));
+		}
+	}
+
+	if (!g_hDbgHelp)
+	{
+		OutputDebugString(_T("Failed to load dbghelp.dll\n"));
+		return false;
+	}
+
+	// Get function pointers
+	g_pfnMiniDumpWriteDump = (PFN_MiniDumpWriteDump)GetProcAddress(g_hDbgHelp, "MiniDumpWriteDump");
+	g_pfnSymInitialize = (PFN_SymInitialize)GetProcAddress(g_hDbgHelp, "SymInitialize");
+
+	if (!g_pfnMiniDumpWriteDump)
+	{
+		OutputDebugString(_T("Failed to get MiniDumpWriteDump function\n"));
+		FreeLibrary(g_hDbgHelp);
+		g_hDbgHelp = NULL;
+		return false;
+	}
+
+	// Get version information
+	PFN_ImagehlpApiVersion pfnVersion = (PFN_ImagehlpApiVersion)GetProcAddress(g_hDbgHelp, "ImagehlpApiVersion");
+	if (pfnVersion)
+	{
+		g_dwDbgHelpVersion = pfnVersion();
+		TCHAR szVersion[128];
+		_stprintf_s(szVersion, sizeof(szVersion) / sizeof(TCHAR),
+			_T("dbghelp.dll version: %d.%d.%d.%d\n"),
+			HIWORD(g_dwDbgHelpVersion), LOWORD(g_dwDbgHelpVersion),
+			0, 0);
+		OutputDebugString(szVersion);
+	}
+
+	return true;
+}
+
 void CreateMiniDump(EXCEPTION_POINTERS* pep)
 {
+	// Load the best available dbghelp.dll
+	if (!LoadBestDbgHelp())
+	{
+		OutputDebugString(_T("Cannot create minidump: dbghelp.dll not available\n"));
+		return;
+	}
+
 	// Initialize debug symbols
 	HANDLE hProcess = GetCurrentProcess();
-	SymInitialize(hProcess, NULL, TRUE);
+	if (g_pfnSymInitialize)
+	{
+		g_pfnSymInitialize(hProcess, NULL, TRUE);
+	}
 
 	// Get timestamp
 	SYSTEMTIME st;
@@ -2444,26 +2579,52 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		st.wYear, st.wMonth, st.wDay,
 		st.wHour, st.wMinute, st.wSecond);
 
-	// Extract just version number and commit hash from CURRENT_GAMECORE_VERSION
+	// Extract version identifier from CURRENT_GAMECORE_VERSION for filename
+	// Input formats (after update_commit_id.bat with --long flag):
+	//   "Release-5.1.2-0-gb44ce57d Clean"      (exactly on tag, 0 commits after)
+	//   "Release-5.1.3-7-g2d10a8aee Clean"     (7 commits after tag)
+	//   "Release-5.1.2-0-gb44ce57d Dirty"      (on tag with local changes)
+	//   "No-Tag abc123 Clean"                  (no tags in repo)
 	char shortVersion[64];
 	const char* fullVersion = CURRENT_GAMECORE_VERSION;
 	const char* versionStart = strchr(fullVersion, '-');
+	
 	if (versionStart) {
-		versionStart++; // Skip the '-'
-		const char* spaceAfterVersion = strchr(versionStart, ' ');
-		if (spaceAfterVersion) {
-			// Copy just the version number (e.g. "4.16")
-			size_t versionLen = spaceAfterVersion - versionStart;
-			strncpy_s(shortVersion, sizeof(shortVersion), versionStart, versionLen);
-			shortVersion[versionLen] = '\0';
-
-			// Add the commit hash if present
-			const char* commitHash = spaceAfterVersion + 1;
-			const char* nextSpace = strchr(commitHash, ' ');
-			if (nextSpace) {
+		versionStart++; // Skip the first '-'
+		
+		// Find the space that separates version/tag info from status
+		const char* spaceBeforeStatus = strrchr(versionStart, ' ');
+		
+		if (spaceBeforeStatus) {
+			// Copy everything between first '-' and last space
+			// This includes: "5.1", "5.1 abc123", or "5.1-3-gabc123"
+			size_t len = spaceBeforeStatus - versionStart;
+			
+			// Check if there's another space (commit hash is separate)
+			const char* middleSpace = strchr(versionStart, ' ');
+			if (middleSpace && middleSpace < spaceBeforeStatus) {
+				// Format: "Release-5.1 abc123 Status"
+				// Extract version and hash with underscore separator
+				size_t versionLen = middleSpace - versionStart;
+				strncpy_s(shortVersion, sizeof(shortVersion), versionStart, versionLen);
+				shortVersion[versionLen] = '\0';
+				
 				strcat_s(shortVersion, sizeof(shortVersion), "_");
-				strncat_s(shortVersion, sizeof(shortVersion), commitHash, nextSpace - commitHash);
+				
+				const char* hashStart = middleSpace + 1;
+				size_t hashLen = spaceBeforeStatus - hashStart;
+				strncat_s(shortVersion, sizeof(shortVersion), hashStart, hashLen);
 			}
+			else {
+				// Format: "Release-5.1-3-gabc123 Status" or "Release-5.1 Status"
+				// Copy the entire tag/describe output (already clean format for filename)
+				strncpy_s(shortVersion, sizeof(shortVersion), versionStart, len);
+				shortVersion[len] = '\0';
+			}
+		}
+		else {
+			// No status field - use everything after first dash
+			strcpy_s(shortVersion, sizeof(shortVersion), versionStart);
 		}
 	}
 	else {
@@ -2471,8 +2632,8 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	}
 
 	// Generate dump filename with version, commit hash and build type
-	TCHAR szDumpPath[MAX_PATH];
-	_stprintf_s(szDumpPath, MAX_PATH, _T("CvMiniDump_%s_%hs_%s.dmp"),
+	TCHAR szDumpFilename[MAX_PATH];
+	_stprintf_s(szDumpFilename, MAX_PATH, _T("CvMiniDump_%s_%hs_%s.dmp"),
 		szTimestamp,
 		shortVersion,
 #ifdef VPDEBUG
@@ -2482,12 +2643,16 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 #endif
 	);
 
-	HANDLE hFile = CreateFile(szDumpPath, GENERIC_READ | GENERIC_WRITE,
+	HANDLE hFile = CreateFile(szDumpFilename, GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if ((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {
+		g_szLastMiniDumpPath[0] = '\0';
 		return;
 	}
+
+	// Get full path for display in crash dialog (use ANSI version for char buffer)
+	GetFullPathNameA(szDumpFilename, MAX_PATH, g_szLastMiniDumpPath, NULL);
 
 	MINIDUMP_EXCEPTION_INFORMATION mdei;
 	mdei.ThreadId = GetCurrentThreadId();
@@ -2498,49 +2663,77 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	MINIDUMP_TYPE mdt;
 #ifdef VPDEBUG
 	OutputDebugString(_T("Creating Debug minidump\n"));
+	// Debug build: Maximum detail for debugging
+	// All flags are SDK 7.0A compatible
 	mdt = (MINIDUMP_TYPE)(
-		MiniDumpWithFullMemory |             // Complete memory snapshot
-		MiniDumpWithFullMemoryInfo |         // Memory state information
-		MiniDumpWithHandleData |             // Handle usage
-		MiniDumpWithUnloadedModules |        // Track unloaded DLLs
-		MiniDumpWithThreadInfo |             // Extended thread information
-		MiniDumpWithProcessThreadData |      // Process thread data
-		MiniDumpWithCodeSegs |               // Code segments
-		MiniDumpWithDataSegs |               // Data segments
-		MiniDumpWithPrivateReadWriteMemory | // Private memory
-		MiniDumpWithFullAuxiliaryState |     // Auxiliary state (handles, GDI objects)
-		MINIDUMP_TYPE(0x00000040) |          // MiniDumpWithTokenInformation
-		MINIDUMP_TYPE(0x00000400) |          // MiniDumpWithPrivateWriteCopyMemory
-		MINIDUMP_TYPE(0x00020000) |          // MiniDumpIgnoreInaccessibleMemory
-		MiniDumpWithIndirectlyReferencedMemory | // Memory referenced by locals
-		MINIDUMP_TYPE(0x00000800)            // MiniDumpWithModuleHeaders
+		MiniDumpWithFullMemory |               // 0x00000002 Complete memory snapshot
+		MiniDumpWithFullMemoryInfo |           // 0x00000800 Memory state information
+		MiniDumpWithHandleData |               // 0x00000004 Handle usage
+		MiniDumpWithUnloadedModules |          // 0x00000020 Track unloaded DLLs
+		MiniDumpWithThreadInfo |               // 0x00001000 Extended thread information
+		MiniDumpWithProcessThreadData |        // 0x00000100 Process thread data
+		MiniDumpWithPrivateReadWriteMemory |   // 0x00000200 Private memory
+		MiniDumpWithIndirectlyReferencedMemory | // 0x00000040 Memory referenced by locals
+		MiniDumpWithFullAuxiliaryState |       // 0x00008000 Auxiliary state (handles, GDI objects)
+		MiniDumpWithTokenInformation |         // 0x00040000 Security token info
+		MiniDumpIgnoreInaccessibleMemory       // 0x00020000 Skip inaccessible memory
+		// Note: MiniDumpWithCodeSegs and MiniDumpWithDataSegs are redundant with FullMemory
 		);
 #else
 	OutputDebugString(_T("Creating Release minidump\n"));
+	// Release build: Maximum diagnostic info without full memory dump
+	// Optimized for crash analysis while keeping dump size reasonable
 	mdt = (MINIDUMP_TYPE)(
-		MiniDumpNormal |                    // Basic info
-		MiniDumpWithThreadInfo |            // Thread information
-		MINIDUMP_TYPE(0x00020000)           // MiniDumpIgnoreInaccessibleMemory
+		MiniDumpNormal |                       // 0x00000000 Basic info (stacks, modules, threads)
+		MiniDumpWithThreadInfo |               // 0x00001000 Extended thread information
+		MiniDumpWithUnloadedModules |          // 0x00000020 Track unloaded DLLs
+		MiniDumpWithProcessThreadData |        // 0x00000100 Process thread data
+		MiniDumpWithHandleData |               // 0x00000004 Handle usage
+		MiniDumpIgnoreInaccessibleMemory       // 0x00020000 Skip inaccessible memory
 		);
 #endif
 
-	// Add version info
+	// Add diagnostic info to user stream
 	MINIDUMP_USER_STREAM_INFORMATION additional_streams;
 	MINIDUMP_USER_STREAM user_streams[1];
-	char version_info[256];
+	char version_info[1024];
 
+	// Get OS version information
+	OSVERSIONINFOEX osvi;
+	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((LPOSVERSIONINFO)&osvi);
+
+	// Build diagnostic string
 	sprintf_s(version_info, sizeof(version_info),
-		"Version: %s", CURRENT_GAMECORE_VERSION);
+		"Version: %s\n"
+		"DLL: %s (v%u%s)\n"
+		"Build: %s %s\n"
+		"Configuration: "
+#ifdef VPDEBUG
+		"Debug\n"
+#else
+		"Release\n"
+#endif
+		"Architecture: Win32 (x86)\n"
+		"OS: Windows %d.%d (Build %d) SP%d.%d\n"
+		"dbghelp.dll: %d.%d",
+		CURRENT_GAMECORE_VERSION,
+		MOD_DLL_NAME, MOD_DLL_VERSION_NUMBER, MOD_DLL_VERSION_STATUS,
+		__DATE__, __TIME__,
+		osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber,
+		osvi.wServicePackMajor, osvi.wServicePackMinor,
+		HIWORD(g_dwDbgHelpVersion), LOWORD(g_dwDbgHelpVersion));
 
-	user_streams[0].Type = 0x00000003;  // MinidumpCommentStreamA
+	user_streams[0].Type = 10;  // CommentStreamA
 	user_streams[0].Buffer = version_info;
 	user_streams[0].BufferSize = static_cast<ULONG>(strlen(version_info) + 1);
 
 	additional_streams.UserStreamCount = 1;
 	additional_streams.UserStreamArray = user_streams;
 
-	// Write the dump
-	MiniDumpWriteDump(
+	// Write the dump using function pointer
+	BOOL bSuccess = g_pfnMiniDumpWriteDump(
 		GetCurrentProcess(),
 		GetCurrentProcessId(),
 		hFile,
@@ -2550,11 +2743,76 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		NULL);
 
 	CloseHandle(hFile);
+
+	if (bSuccess)
+	{
+		OutputDebugString(_T("Minidump created successfully\n"));
+	}
+	else
+	{
+		TCHAR szError[128];
+		_stprintf_s(szError, sizeof(szError) / sizeof(TCHAR),
+			_T("MiniDumpWriteDump failed with error: %d\n"), GetLastError());
+		OutputDebugString(szError);
+	}
+}
+
+// Get exception code description
+static const char* GetExceptionDescription(DWORD exceptionCode)
+{
+	switch (exceptionCode)
+	{
+	case EXCEPTION_ACCESS_VIOLATION:         return "Access Violation";
+	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    return "Array Bounds Exceeded";
+	case EXCEPTION_DATATYPE_MISALIGNMENT:    return "Datatype Misalignment";
+	case EXCEPTION_FLT_DIVIDE_BY_ZERO:       return "Float Divide by Zero";
+	case EXCEPTION_FLT_OVERFLOW:             return "Float Overflow";
+	case EXCEPTION_FLT_UNDERFLOW:            return "Float Underflow";
+	case EXCEPTION_ILLEGAL_INSTRUCTION:      return "Illegal Instruction";
+	case EXCEPTION_INT_DIVIDE_BY_ZERO:       return "Integer Divide by Zero";
+	case EXCEPTION_INT_OVERFLOW:             return "Integer Overflow";
+	case EXCEPTION_PRIV_INSTRUCTION:         return "Privileged Instruction";
+	case EXCEPTION_STACK_OVERFLOW:           return "Stack Overflow";
+	default:                                 return "Unknown Exception";
+	}
 }
 
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
 	CreateMiniDump(ExceptionInfo);
+
+	// Show crash dialog to user
+	char szMessage[2048];
+	DWORD exceptionCode = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionCode : 0;
+	void* exceptionAddress = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionAddress : NULL;
+
+	if (g_szLastMiniDumpPath[0] != '\0')
+	{
+		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
+			"The game has crashed.\n\n"
+			"Exception: %s (0x%08X)\n"
+			"Address: 0x%p\n\n"
+			"A minidump has been saved to:\n%s\n\n"
+			"Please include this file when reporting the crash.",
+			GetExceptionDescription(exceptionCode),
+			exceptionCode,
+			exceptionAddress,
+			g_szLastMiniDumpPath);
+	}
+	else
+	{
+		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
+			"The game has crashed.\n\n"
+			"Exception: %s (0x%08X)\n"
+			"Address: 0x%p\n\n"
+			"Failed to create minidump file.",
+			GetExceptionDescription(exceptionCode),
+			exceptionCode,
+			exceptionAddress);
+	}
+
+	MessageBoxA(NULL, szMessage, "Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 #endif
@@ -3322,8 +3580,6 @@ std::vector<CvCivilizationInfo*>& CvGlobals::getCivilizationInfo()
 
 CvCivilizationInfo* CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizationNum)
 {
-	PRECONDITION(eCivilizationNum > -1);
-	PRECONDITION(eCivilizationNum < GC.getNumCivilizationInfos());
 	if(eCivilizationNum > -1 && eCivilizationNum < (int)m_paCivilizationInfo.size())
 		return m_paCivilizationInfo[eCivilizationNum];
 	else
@@ -3332,7 +3588,6 @@ CvCivilizationInfo* CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizati
 
 CivilizationTypes CvGlobals::getCivilizationInfoIndex(const char* pszType)
 {
-	ASSERT(pszType != NULL);
 	if(pszType != NULL)
 	{
 		int iIndex = 0;
@@ -4005,6 +4260,27 @@ void CvGlobals::GameDataPostCache()
 		}
 	}
 
+	// Cache Great Person lookups
+	for (int iI = 0; iI < getNumGreatPersonInfos(); ++iI)
+	{
+		GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(iI);
+		CvGreatPersonInfo* pGreatPersonInfo = getGreatPersonInfo(eGreatPerson);
+		if (pGreatPersonInfo == NULL)
+			continue;
+
+		SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(pGreatPersonInfo->GetSpecialistType());
+		if (eSpecialist != NO_SPECIALIST)
+		{
+			m_specialistToGreatPersonCache[eSpecialist] = eGreatPerson;
+		}
+
+		UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pGreatPersonInfo->GetUnitClassType());
+		if (eUnitClass != NO_UNITCLASS)
+		{
+			m_unitClassToGreatPersonCache[eUnitClass] = eGreatPerson;
+		}
+	}
+
 	calcGameDataHash();
 }
 
@@ -4292,8 +4568,8 @@ std::vector<CvSpecialistInfo*>& CvGlobals::getSpecialistInfo()
 
 CvSpecialistInfo* CvGlobals::getSpecialistInfo(SpecialistTypes eSpecialistNum)
 {
-	PRECONDITION(eSpecialistNum > -1);
-	PRECONDITION(eSpecialistNum < GC.getNumSpecialistInfos());
+	ASSERT(eSpecialistNum > -1);
+	ASSERT(eSpecialistNum < GC.getNumSpecialistInfos());
 	if(eSpecialistNum > -1 && eSpecialistNum < (int)m_paSpecialistInfo.size())
 		return m_paSpecialistInfo[eSpecialistNum];
 	else
@@ -6528,7 +6804,7 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER);
 	GD_INT_CACHE(UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER);
 	GD_INT_CACHE(UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION);
-	GD_INT_CACHE(UNIT_SUPPLY_POPULATION_PUPPET_PERCENT);
+	GD_INT_CACHE(PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE);
 	GD_INT_CACHE(MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED);
 	GD_INT_CACHE(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC);
 	GD_INT_CACHE(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MARITIME);
@@ -6555,7 +6831,6 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(UNIT_PRODUCTION_DECAY_TIME);
 	GD_INT_CACHE(UNIT_PRODUCTION_DECAY_PERCENT);
 	GD_INT_CACHE(BASE_UNIT_UPGRADE_COST);
-	GD_INT_CACHE(UNIT_UPGRADE_COST_PER_PRODUCTION);
 	GD_INT_CACHE(UNIT_UPGRADE_COST_VISIBLE_DIVISOR);
 	GD_INT_CACHE(UNIT_UPGRADE_COST_DISCOUNT_MAX);
 	GD_INT_CACHE(RESEARCH_AGREEMENT_BOOST_DIVISOR);
@@ -6737,6 +7012,7 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(MAJORS_CAN_MOVE_STARTING_SETTLER);
 	GD_INT_CACHE(CS_CAN_MOVE_STARTING_SETTLER);
 	GD_INT_CACHE(COMPLETE_KILLS_TURN_TIMER);
+	GD_INT_CACHE(NUM_UNIQUE_COMPONENTS);
 	GD_INT_CACHE(MAX_NUM_TENETS_LEVEL_1);
 	GD_INT_CACHE(MAX_NUM_TENETS_LEVEL_2);
 	GD_INT_CACHE(MAX_NUM_TENETS_LEVEL_3);
@@ -6823,7 +7099,8 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(CITY_STRENGTH_DEFAULT);
 	GD_INT_CACHE(CITY_STRENGTH_POPULATION_CHANGE);
 	GD_INT_CACHE(CITY_STRENGTH_TECH_MULTIPLIER);
-	GD_INT_CACHE(CITY_STRENGTH_UNIT_DIVISOR);
+	GD_INT_CACHE(CITY_STRENGTH_LAND_UNIT_DIVISOR);
+	GD_INT_CACHE(CITY_STRENGTH_NAVAL_UNIT_DIVISOR);
 	GD_INT_CACHE(CITY_STRENGTH_HILL_CHANGE);
 	GD_INT_CACHE(CITY_STRENGTH_THRESHOLD_FOR_BONUSES);
 	GD_INT_CACHE(CITY_ATTACKING_DAMAGE_MOD);
@@ -7009,6 +7286,7 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(BALANCE_MINOR_PROTECTION_MINIMUM_DURATION);
 	GD_INT_CACHE(BALANCE_SCOUT_XP_BASE);
 	GD_INT_CACHE(BALANCE_SCOUT_XP_RANDOM_VALUE);
+	GD_INT_CACHE(BALANCE_SCOUT_XP_DENOMINATOR);
 	GD_INT_CACHE(BALANCE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
 	GD_INT_CACHE(BALANCE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
 	GD_INT_CACHE(BALANCE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
@@ -7144,6 +7422,11 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(VICTORY_DOMINATION_CONTROL_PERCENT);
 	GD_INT_CACHE(INQUISITION_EFFECTIVENESS);
 	GD_INT_CACHE(INQUISITOR_CONVERSION_REDUCTION_FACTOR);
+	GD_INT_CACHE(HURRY_GOLD_BUILDING_COST_PERCENT);
+	GD_INT_CACHE(UNKNOWN_EXPLORE_TILE_VALUE);
+	GD_INT_CACHE(LAND_EXPLORE_TILE_VALUE);
+	GD_INT_CACHE(COAST_EXPLORE_TILE_VALUE);
+	GD_INT_CACHE(OCEAN_EXPLORE_TILE_VALUE);
 
 	// -- floats -- //
 	GD_FLOAT_CACHE(AI_STRATEGY_NEED_IMPROVEMENT_CITY_RATIO);
@@ -7160,6 +7443,7 @@ void CvGlobals::cacheGlobals()
 	GD_FLOAT_CACHE(GLOBAL_SETTLER_PRODUCTION_PENALTY_PER_UNHAPPY);
 	GD_FLOAT_CACHE(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA);
 	GD_FLOAT_CACHE(UNIT_UPGRADE_COST_EXPONENT);
+	GD_FLOAT_CACHE(UNIT_UPGRADE_COST_PER_PRODUCTION);
 	GD_FLOAT_CACHE(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP);
 	GD_FLOAT_CACHE(UNHAPPINESS_PER_STARVING_POP);
 	GD_FLOAT_CACHE(UNHAPPINESS_PER_PILLAGED_TILE);

@@ -94,7 +94,6 @@ SET
 	BuildableOnResources = 1,
 	ConnectsAllResources = 1,
 	NoTwoAdjacent = 1,
-	CreatedByGreatPerson = 1,
 	CultureBombRadius = 1,
 	MakesPassable = 1,
 	DefenseModifier = 100,
@@ -125,7 +124,7 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 VALUES
 	('IMPROVEMENT_PASTURE', 'IMPROVEMENT_ISIBAYA', 'YIELD_FOOD', 1, 1),
 	('IMPROVEMENT_PASTURE', 'IMPROVEMENT_ISIBAYA', 'YIELD_PRODUCTION', 1, 1),
-	('IMPROVEMENT_PASTURE', 'IMPROVEMENT_ISIBAYA', 'YIELD_CULTURE', 1, 1);
+	('IMPROVEMENT_PASTURE', 'IMPROVEMENT_ISIBAYA', 'YIELD_CULTURE', 2, 1);
 
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
@@ -151,7 +150,7 @@ VALUES
 	('BUILDING_IKANDA', 'YIELD_CULTURE', 1);
 
 ----------------------------------------------------------
--- Unique Building: Iziko (Amphitheater)
+-- Unique Building: Iziko (Theater)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)

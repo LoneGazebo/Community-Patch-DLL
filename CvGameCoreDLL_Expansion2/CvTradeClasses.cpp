@@ -2381,7 +2381,11 @@ void CvPlayerTrade::MoveUnits (void)
 							pDestCity = pDestPlot->getPlotCity();
 						}
 
+						// do instant yields for trade route completion
 						m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_END, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, false, bInternational, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pDestCity);
+						if (!bInternational)  // internal TR: fire yields for the other city too
+							m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_END, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pDestCity, false, bInternational, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pOriginCity);
+						
 						if (pDestCity != NULL && pOriginCity != NULL)
 						{
 							CvPlayer& kOriginPlayer = GET_PLAYER(pOriginCity->getOwner());
@@ -4618,10 +4622,17 @@ std::vector<int> CvPlayerTrade::GetTradeUnitsAtPlot(const CvPlot* pPlot, bool bF
 	int iY = pPlot->getY();
 
 	TeamTypes eMyTeam = m_pPlayer->getTeam();
-
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
+
+	CvPlotManager& kPlotManager = GC.getMap().plotManager();
+	const CvIDInfoFixedVector& kUnits = kPlotManager.GetUnits(iX, iY, TRADE_UNIT_MAP_LAYER);
+	for (CvIDInfoFixedVector::const_iterator itrUnit = kUnits.begin(); itrUnit != kUnits.end(); ++itrUnit)
 	{
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*itrUnit);
+		int uiConnection = pTrade->GetIndexFromUnitID(pLoopUnit->GetID(), pLoopUnit->getOwner());
+		if (uiConnection == -1)
+			continue;
+
 		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
 		if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 		{
@@ -4666,81 +4677,7 @@ std::vector<int> CvPlayerTrade::GetTradeUnitsAtPlot(const CvPlot* pPlot, bool bF
 		}
 	}
 
-	return aiTradeConnectionIDs;	
-}
-
-
-//	--------------------------------------------------------------------------------
-std::vector<int> CvPlayerTrade::GetTradePlotsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound, bool bExcludingMe, bool bOnlyWar)
-{
-	std::vector<int> aiTradeConnectionIDs;
-
-	if (pPlot == NULL)
-	{
-		return aiTradeConnectionIDs;
-	}
-
-	int iX = pPlot->getX();
-	int iY = pPlot->getY();
-
-	TeamTypes eMyTeam = m_pPlayer->getTeam();
-
-	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (uint uiConnection = 0; uiConnection < pTrade->GetNumTradeConnections(); uiConnection++)
-	{
-		const TradeConnection* pConnection = &(pTrade->GetTradeConnection(uiConnection));
-		if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
-		{
-			continue;
-		}
-
-		TeamTypes eOtherTeam = GET_PLAYER(pConnection->m_eOriginOwner).getTeam();
-
-		bool bIgnore = false;
-		if (bExcludingMe && eOtherTeam == eMyTeam)
-		{
-			bIgnore = true;
-		}
-
-		if (bOnlyWar && !GET_TEAM(eMyTeam).isAtWar(eOtherTeam))
-		{
-			if (m_pPlayer->GetPlayerTraits()->IsCanPlunderWithoutWar())
-			{
-				if (pConnection->m_eDestOwner == m_pPlayer->GetID())
-					bIgnore = true;
-				else if (!m_pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pConnection->m_eOriginOwner, THEFT_TYPE_TRADE_ROUTE, pPlot))
-					bIgnore = true;
-			}
-			else
-			{
-				bIgnore = true;
-			}
-		}
-
-		if (bIgnore)
-		{
-			continue;
-		}
-
-		for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-		{
-			if (pConnection->m_aPlotList[ui].m_iX == iX && pConnection->m_aPlotList[ui].m_iY == iY)
-			{
-				aiTradeConnectionIDs.push_back(pConnection->m_iID);
-				if (bFailAtFirstFound)
-				{
-					break;
-				}
-			}
-		}
-
-		if (bFailAtFirstFound && aiTradeConnectionIDs.size() > 0)
-		{
-			break;
-		}
-	}
-
-	return aiTradeConnectionIDs;	
+	return aiTradeConnectionIDs;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4768,20 +4705,6 @@ bool CvPlayerTrade::ContainsEnemyTradeUnit(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetEnemyTradeUnitsAtPlot(pPlot, true);
-	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
-}
-
-//	--------------------------------------------------------------------------------
-std::vector<int> CvPlayerTrade::GetEnemyTradePlotsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound)
-{
-	return GetTradePlotsAtPlot(pPlot, bFailAtFirstFound, true, true);
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlayerTrade::ContainsEnemyTradePlot(const CvPlot* pPlot)
-{
-	std::vector<int> aiTradeConnectionIDs;
-	aiTradeConnectionIDs = GetEnemyTradePlotsAtPlot(pPlot, true);
 	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
 }
 
@@ -5260,51 +5183,8 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible() const
 	if (m_pPlayer->getCivilizationType() == NO_CIVILIZATION)
 		return 0;
 
-	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
-	CvTeamTechs* pMyTeamTechs = GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).GetTeamTechs();
-	CvTechEntry* pTechInfo = NULL; 
-
-	CvTechXMLEntries* pMyPlayerTechEntries = pMyPlayerTechs->GetTechs();
-	ASSERT(pMyPlayerTechEntries);
-	if (pMyPlayerTechEntries == NULL)
-		return 0;
-
-	for(int iTechLoop = 0; iTechLoop < pMyPlayerTechEntries->GetNumTechs(); iTechLoop++)
-	{
-		TechTypes eTech = (TechTypes)iTechLoop;
-		if (!pMyTeamTechs->HasTech(eTech))
-		{
-			continue;
-		}
-
-		pTechInfo = pMyPlayerTechEntries->GetEntry(eTech);
-		ASSERT(pTechInfo, "null tech entry");
-		if (pTechInfo)
-		{
-			iNumRoutes += pTechInfo->GetNumInternationalTradeRoutesChange();
-		}
-	}
-
-	int iLoop = 0;
-	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-	{
-		const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
-		for (size_t i = 0; i < vBuildings.size(); i++)
-		{
-			CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(vBuildings[i]);
-			if (pBuildingEntry)
-			{
-				if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
-				{
-					int iNumRouteBonus = pBuildingEntry->GetNumTradeRouteBonus();
-					if (iNumRouteBonus != 0)
-					{
-						iNumRoutes += iNumRouteBonus * pLoopCity->GetCityBuildings()->GetNumBuilding(vBuildings[i]);
-					}
-				}
-			}
-		}
-	}
+	iNumRoutes += m_pPlayer->GetTradeRouteFromBuildings();
+	iNumRoutes += m_pPlayer->GetTradeRouteFromTechs();
 
 	CorporationTypes eCorporation = m_pPlayer->GetCorporations()->GetFoundedCorporation();
 	if (eCorporation != NO_CORPORATION)

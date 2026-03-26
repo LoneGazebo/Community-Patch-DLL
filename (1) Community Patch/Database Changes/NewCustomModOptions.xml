@@ -106,6 +106,12 @@
 		<!-- Enables era-specific messages for civ influence; disabling this may be useful for mods like Unique Cultural Influence that add special notifications -->
 		<Row Class="4" Name="COREUI_DIPLOMACY_ERA_INFLUENCE" Value="1"/>
 
+		<!-- Randomizes the order of each civilization's spy names -->
+		<Row Class="4" Name="COREUI_SHUFFLE_SPY_NAMES" Value="1"/>
+
+		<!-- Free spies-as-diplomats in vassals' capitals use the vassal's spy name list, not the master's -->
+		<Row Class="4" Name="COREUI_COLLABORATOR_SPY_NAMES" Value="1"/>
+
 
 		<!-- ********************************************************** -->
 		<!-- 					CORE AI CHANGES							-->
@@ -224,7 +230,7 @@
 		<!-- The tech cost reduction from other teams having researched a tech requires an embassy or spy and not just having met them -->
 		<Row Class="4" Name="DIPLOMACY_TECH_BONUSES" Value="0"/>
 
-		<!-- If City-States are allied to a major, other players cannot enter their territory unless they would be able to enter the major's territory -->
+		<!-- If City-States are allied to a major, other players cannot enter their territory unless they would be able to enter the major's territory. Diplomatic units are excluded from this -->
 		<Row Class="6" Name="GLOBAL_CS_OVERSEAS_TERRITORY" Value="0"/>
 
 		<!-- Permits units to upgrade in allied militaristic City-States, but increases the # of turns until the next free unit spawns by UPGRADE_EXTRA_TURNS_UNIT_SPAWN, scaling with game speed -->
@@ -330,8 +336,14 @@
 		<!-- Sorting order: civs, victory, then most to least impactful	-->
 		<!-- ********************************************************** -->
 
+		<!-- The Inca no longer ignore terrain cost if they're crossing a River -->
+		<Row Class="6" Name="BALANCE_ALTERNATE_INCA_TRAIT" Value="0"/>
+
 		<!-- Indonesia's unique luxuries spawn around the city instead of under the city tile, and also appear when conquering a city -->
 		<Row Class="6" Name="BALANCE_ALTERNATE_INDONESIA_TRAIT" Value="0"/>
+
+		<!-- The Iroquois treat all Forests/Jungles as if they were Roads, not just those in friendly territory -->
+		<Row Class="6" Name="BALANCE_ALTERNATE_IROQUOIS_TRAIT" Value="0"/>
 
 		<!-- The Maya cannot obtain a Great Prophet from their trait unless they have a religion (owned or majority), or the 9th or later Baktuns have been reached -->
 		<Row Class="6" Name="BALANCE_ALTERNATE_MAYA_TRAIT" Value="0"/>
@@ -468,7 +480,7 @@
 
 		<!-- ********************************************************** -->
 		<!-- 				OTHER BALANCE OPTIONS						-->
-		<!-- 			Sorting order: alphabetical						-->
+		<!--		Sorting order: civs, victory, then alphabetical		-->
 		<!-- ********************************************************** -->
 
 		<!-- Alters Assyria's conquest trait so that the player always chooses a free tech upon city conquest -->
@@ -497,6 +509,9 @@
 		<!-- Era scaling for Great Engineer & Great Merchant yields -->
 		<Row Class="5" Name="BALANCE_GREAT_PEOPLE_ERA_SCALING" Value="0"/>
 
+		<!-- Halve starting XP for combat units purchased with Faith -->
+		<Row Class="6" Name="BALANCE_HALF_XP_FAITH_PURCHASES" Value="0"/>
+
 		<!-- City-States' unit supply is equal to their handicap amount, which can be modified by globals based on trait, personality, and number of cities. No other unit supply bonuses/penalties apply. -->
 		<Row Class="5" Name="BALANCE_MINOR_UNIT_SUPPLY_HANDICAP" Value="0"/>
 
@@ -508,6 +523,9 @@
 
 		<!-- Disables Golden Age Point acquisition during Golden Ages -->
 		<Row Class="5" Name="BALANCE_NO_GAP_DURING_GA" Value="0"/>
+
+		<!-- GP and similar improvements remove the yields from resources (but still connect them) -->
+		<Row Class="4" Name="BALANCE_NO_RESOURCE_YIELDS_FROM_GP_IMPROVEMENT" Value="0"/>
 
 		<!-- Disables passive religious pressure unless there's a Trade Route or City Connection -->
 		<Row Class="6" Name="BALANCE_PASSIVE_SPREAD_BY_CONNECTION" Value="0"/>
@@ -539,9 +557,6 @@
 
 		<!-- XP is granted only on a unit's first attack -->
 		<Row Class="6" Name="BALANCE_XP_ON_FIRST_ATTACK" Value="0"/>
-
-		<!-- GP and similar improvements remove the yields from resources (but still connect them) -->
-		<Row Class="4" Name="BALANCE_NO_RESOURCE_YIELDS_FROM_GP_IMPROVEMENT" Value="0"/>
 
 		<!-- CURRENTLY NON-FUNCTIONAL -->
 		<!-- Allows Land Units to become Cargo of Melee Ships -->
@@ -742,6 +757,9 @@
 
 		<!-- For debugging only -->
 		<Row Class="2" Name="UNIT_KILL_STATS" Value="0"/>
+
+		<!-- Permits civilian units to gain XP and acquire promotions -->
+		<Row Class="2" Name="UNITS_CIVILIANS_GAIN_XP" Value="0"/>
 
 		<!-- Enables the table Unit_ResourceQuantityTotals -->
 		<Row Class="2" Name="UNITS_RESOURCE_QUANTITY_TOTALS" Value="0"/>
@@ -1153,9 +1171,6 @@
 
 		<!-- Enables Not For Sale modmod support -->
 		<Row Class="5" Name="NOT_FOR_SALE" Value="0"/>
-
-		<!-- Enables Notification Settings modmod support -->
-		<Row Class="4" Name="NOTIFICATION_SETTINGS" Value="0"/>
 
 		<!-- Enables Route Planner modmod support -->
 		<Row Class="5" Name="ROUTE_PLANNER" Value="0"/>

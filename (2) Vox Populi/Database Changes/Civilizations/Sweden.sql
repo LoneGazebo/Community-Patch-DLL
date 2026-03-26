@@ -59,7 +59,7 @@ SET
 		)
 	),
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 1,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 2
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 3
 WHERE Type = 'UNIT_SWEDISH_HAKKAPELIITTA';
 
 INSERT INTO Unit_FreePromotions

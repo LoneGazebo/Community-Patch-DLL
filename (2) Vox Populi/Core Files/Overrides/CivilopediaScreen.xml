@@ -306,6 +306,20 @@
 		</Button>
 	</Instance>
 	<!--=======================================================================================================================-->
+	<!--    Instance of a leads to promotion button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="LeadsToPromotionInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_PROMOTION_NAME" ID="LeadsToPromotionButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="LeadsToPromotionImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
 	<!--    Instance of a specialist button  -->
 	<!--=======================================================================================================================-->
 	<Instance Name="SpecialistInstance">
@@ -415,6 +429,20 @@
 				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
 			</ShowOnMouseOver>
 			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="UniqueImprovementImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
+	<!--    Instance of a unique project button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="UniqueProjectInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNIQUEPROJ_NAME" ID="UniqueProjectButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="UniqueProjectImage"/>
 		</Button>
 	</Instance>
 	<!--=======================================================================================================================-->
@@ -782,7 +810,7 @@
 					<!-- Cost -->
 					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="CostFrame">
 						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
-							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_COST_LABEL"/>
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_BASE_COST_LABEL"/>
 							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="60 Science" ID="CostLabel"/>
 						</Grid>
 					</Grid>
@@ -1063,6 +1091,12 @@
 							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_UNIQUEIMPRV_LABEL"/>
 						</Grid>
 					</Grid>
+					<!-- Unique Projects -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UniqueProjectsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="UniqueProjectsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_UNIQUEPROJ_LABEL"/>
+						</Grid>
+					</Grid>
 					<!-- Civilization Start -->
 					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="StartAlongRegionFrame">
 						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="StartAlongRegionInnerFrame">
@@ -1095,6 +1129,12 @@
 					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="RequiredPromotionsFrame">
 						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="RequiredPromotionsInnerFrame">
 							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_REQ_PROMOTIONS_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Leads to Promotions -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="LeadsToPromotionsFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="LeadsToPromotionsInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_LEADS_TO_PROMOTIONS_LABEL"/>
 						</Grid>
 					</Grid>
 					<!-- Resources Required -->

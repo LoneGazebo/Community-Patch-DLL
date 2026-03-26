@@ -29,6 +29,12 @@ function ToGridFromHex(x, y) end
 --- @return Vector3
 function HexToWorld(vector2) end
 
+--- TODO docs
+--- @param x integer
+--- @param y integer
+--- @return integer, integer, integer
+function GridToWorld(x, y) end
+
 --- Require `include("SupportFunctions")` to work<br>
 --- Truncate a given string if necessary so that the resultant string (with ellipsis and the given suffix) fits just within the target size.<br>
 --- The resultant string is set as the given control's text.
@@ -37,3 +43,8 @@ function HexToWorld(vector2) end
 --- @param strOriginal string? The string to be truncated. The control's current text will be used if this is nil.
 --- @param strSuffix string? The optional string to be appended to the truncated text. This counts towards the target size.
 function TruncateString(control, iTargetSize, strOriginal, strSuffix) end
+
+--- Alias for `debug.traceback`
+--- that's available in every state except `Main State`
+--- even if EnableLuaDebugLibrary = 0 in config.ini
+traceback = debug.traceback

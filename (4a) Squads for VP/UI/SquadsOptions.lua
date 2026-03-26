@@ -8,7 +8,7 @@ info('This is SquadsOptions.lua')
 local SquadsOptions = Modding.OpenUserData( "Squads Options", 1 );
 
 -- Defaults
-local HighlightSquadUnits = true;
+local HighlightSquadUnits = false;
 local ShowSquadNumberUnderFlag = true;
 local EscortNonCombatUnits = true;
 local SquadsEndMovementType = 0;

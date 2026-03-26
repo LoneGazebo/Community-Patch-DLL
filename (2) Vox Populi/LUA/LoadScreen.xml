@@ -62,6 +62,22 @@
                             </Image>
                         </Box>
                     </Stack>
+					<Stack Anchor="C,C" Offset="0,0" StackGrowth="Right" Padding="0" ID="SubStack3" >
+                        <Box Anchor="C.C" Offset="0,0" Size="225,48" Color="White.0">
+                            <Image Anchor="L,C" Offset="0,0" Texture="IconFrame64.dds" Size="64.64" Hidden="0" ID="BF5">
+                                <Image Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B5"/>
+                                <Label Anchor="R,T" AnchorSide="O.I" Offset="0,22" ID="BonusUnit3" WrapWidth="150" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow">
+                                </Label>
+                            </Image>
+                        </Box>
+                        <Box Anchor="C.C" Offset="0,0" Size="225,48" Color="White.0">
+                            <Image Anchor="L,C" Offset="0,0" Texture="IconFrame64.dds" Size="64.64" ID="BF6">
+                                <Image Anchor="C,C" Size="64,64" Texture="WonderAtlas512.dds" ID="B6"/>
+                                <Label Anchor="R,T" AnchorSide="O.I" Offset="0,22" ID="BonusBuilding3" WrapWidth="150" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow">
+                                </Label>
+                            </Image>
+                        </Box>
+                    </Stack>
                 </Stack>
             </Grid>
         </SlideAnim>

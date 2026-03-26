@@ -291,7 +291,6 @@ function OnDisplay()
 	
 	-- Vox Populi - Contender info
 	Controls.ContenderInfo:SetText( GetContenderInfo(iActivePlayer, iPlayer) )
-	Controls.ContenderInfo:SetToolTipString( GetContenderInfoTT(iActivePlayer, iPlayer) )
 	
 	-- Protected by anyone?
 	local sProtectingPlayers = getProtectingPlayers(iPlayer);

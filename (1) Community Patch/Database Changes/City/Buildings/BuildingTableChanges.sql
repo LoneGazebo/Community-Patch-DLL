@@ -325,8 +325,6 @@ ALTER TABLE Buildings ADD ConversionModifier integer DEFAULT 0;
 -- In VP, this acts as an additional source of Happiness, capped by Population in the city.
 ALTER TABLE Buildings ADD Unhappiness integer DEFAULT 0;
 
-ALTER TABLE Building_ThemingBonuses ADD ConsecutiveEras integer DEFAULT 0;
-
 -- The tech required to boost the building
 -- If NULL, will fall back to using Buildings.EnhancedYieldTech
 -- Does nothing if both columns are NULL

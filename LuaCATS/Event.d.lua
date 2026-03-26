@@ -42,3 +42,11 @@ Events.OpenInfoCorner = {}
 --- @class AIProcessingStartedForPlayer: Event
 --- @field Add fun(EventHandler: fun(ePlayer: PlayerId))
 Events.AIProcessingStartedForPlayer = {}
+
+--- @class GameplaySetActivePlayer: Event
+--- @field Add fun(EventHandler: fun(eActivePlayer: PlayerId, ePrevActivePlayer: PlayerId))
+Events.GameplaySetActivePlayer = {}
+
+--- @class AudioPlay2DSound: Event
+--- @overload fun(str2DSound: string)
+Events.AudioPlay2DSound = {}

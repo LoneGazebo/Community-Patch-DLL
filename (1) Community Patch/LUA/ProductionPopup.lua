@@ -15,25 +15,22 @@ local g_WonderInstanceManager = InstanceManager:new("ProductionButtonInstance", 
 local g_ProcessInstanceManager = InstanceManager:new("ProductionButtonInstance", "ProductionButton", Controls.OtherButtonStack);
 
 local tooltipInstance = {};
-TTManager:GetTypeControlTable("CustomTooltip", tooltipInstance);
+TTManager:GetTypeControlTable("CityViewTooltip", tooltipInstance);
 
 local g_popupInfo = {};
 
 local g_bHidden = true;
 
-local MOD_BALANCE_VP = Game.IsCustomModOption("BALANCE_VP");
-
-local g_isFaithPurchaseBuildingsInPuppetsMod = Game.IsCustomModOption("GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS")
-
 local L = Locale.Lookup;
 local VP = MapModData.VP;
-local GetInfoFromId = VP.GetInfoFromId;
-local GetInfoFromType = VP.GetInfoFromType;
 local GameInfoCache = VP.GameInfoCache;
 local IconHookupOrDefault = VP.IconHookupOrDefault;
 local Hide = CPK.UI.Control.Hide;
 local Show = CPK.UI.Control.Show;
 local Refresh = CPK.UI.Control.Refresh;
+local CustomModOptionEnabled = CPK.Misc.CustomModOptionEnabled;
+
+local MOD_BALANCE_VP = CustomModOptionEnabled("BALANCE_VP");
 
 local INFINITE_TURNS_STRING = L("TXT_KEY_PRODUCTION_HELP_INFINITE_TURNS");
 local OFF_STRING = L("TXT_KEY_CITYVIEW_OFF");
@@ -99,7 +96,7 @@ local tOrderTypeDetails = {
 			elseif eYield == YieldTypes.YIELD_FAITH then
 				return pCity:GetFaithPurchaseBuildingTooltip(eType);
 			end
-			print(string.format("ERROR: Invalid yield type %s is being used for purchasing buildings", GetInfoFromId("Yields", eYield).Description));
+			print(string.format("ERROR: Invalid yield type %s is being used for purchasing buildings", GameInfo.Yields[eYield].Description));
 			return "";
 		end,
 		PurchaseFunc = function (eType, pCity, eYield)
@@ -120,7 +117,7 @@ local tOrderTypeDetails = {
 			Stack = "WonderButtonStack",
 		},
 		HelpTextFunc = function (eType, pCity)
-			return GetHelpTextForProject(eType, false, pCity);
+			return GetHelpTextForProject(eType, pCity);
 		end,
 		TurnsLeftFunc = function (eType, pCity, iQueueIndex)
 			return pCity:GetProjectProductionTurnsLeft(eType, iQueueIndex - 1);
@@ -145,7 +142,7 @@ local tOrderTypeDetails = {
 				-- Doesn't have a function for this
 				return "";
 			end
-			print(string.format("ERROR: Invalid yield type %s is being used for purchasing projects", GetInfoFromId("Yields", eYield).Description));
+			print(string.format("ERROR: Invalid yield type %s is being used for purchasing projects", GameInfo.Yields[eYield].Description));
 			return "";
 		end,
 		PurchaseFunc = function (eType, pCity, eYield)
@@ -220,7 +217,7 @@ local tOrderTypeDetails = {
 			elseif eYield == YieldTypes.YIELD_FAITH then
 				return pCity:GetFaithPurchaseUnitTooltip(eType);
 			end
-			print(string.format("ERROR: Invalid yield type %s is being used for purchasing units", GetInfoFromId("Yields", eYield).Description));
+			print(string.format("ERROR: Invalid yield type %s is being used for purchasing units", GameInfo.Yields[eYield].Description));
 			return "";
 		end,
 		PurchaseFunc = function (eType, pCity, eYield)
@@ -265,8 +262,8 @@ Controls.Backdrop:SetSizeY(iScreenSizeY - 300);
 --- @param tooltip TooltipInstance
 --- @param strTooltip string
 local function SetTooltip(tooltip, strTooltip)
-	tooltip.TooltipText:SetText(strTooltip);
-	tooltip.TooltipGrid:DoAutoSize();
+	tooltip.CityViewTooltipText:SetText(strTooltip);
+	tooltip.CityViewTooltipGrid:DoAutoSize();
 end
 
 ----------------------------------------------------------------
@@ -324,14 +321,11 @@ local function AddProductionButton(eItem, eOrder, ePurchaseYield, strTurnsOrCost
 			return;
 		end
 
-		local player = Players[Game.GetActivePlayer()];
-		if (UI.IsCityScreenViewingMode() and (g_bProductionMode or (not player:MayNotAnnex() and not g_isFaithPurchaseBuildingsInPuppetsMod))) then
-			return;
-		end
-
 		local eCity = pCurrentCity:GetID();
 		if g_bProductionMode then
-			Game.CityPushOrder(pCurrentCity, eOrder, eItem, false, not g_bQueueMode, true);
+			if tOrder.CanProduceFunc(eItem, pCurrentCity, false) then
+				Game.CityPushOrder(pCurrentCity, eOrder, eItem, false, not g_bQueueMode, true);
+			end
 		else
 			assert(eOrder ~= OrderTypes.ORDER_MAINTAIN, "Attempting to purchase a process");
 			if tOrder.CanPurchaseFunc(eItem, pCurrentCity, ePurchaseYield, false) then
@@ -354,10 +348,10 @@ local function AddProductionButton(eItem, eOrder, ePurchaseYield, strTurnsOrCost
 	end
 
 	-- Create button
-	local kInfo = GetInfoFromId(tOrder.TableName, eItem);
+	local kInfo = GameInfo[tOrder.TableName][eItem];
 	local instanceManager = tOrder.InstanceManager;
 	if eOrder == OrderTypes.ORDER_CONSTRUCT then
-		local kBuildingClassInfo = GetInfoFromType("BuildingClasses", kInfo.BuildingClass);
+		local kBuildingClassInfo = GameInfo.BuildingClasses[kInfo.BuildingClass];
 		if kBuildingClassInfo.MaxGlobalInstances > -1 or kBuildingClassInfo.MaxPlayerInstances == 1 or kBuildingClassInfo.MaxTeamInstances > -1 then
 			instanceManager = g_WonderInstanceManager;
 		end
@@ -411,7 +405,7 @@ local function AddProductionButton(eItem, eOrder, ePurchaseYield, strTurnsOrCost
 	if g_bProductionMode then
 		instance.NumTurns:SetText(strTurnsOrCost);
 	else
-		instance.NumTurns:SetText(string.format("%d %s", strTurnsOrCost, GetInfoFromId("Yields", ePurchaseYield).IconString));
+		instance.NumTurns:SetText(string.format("%d %s", strTurnsOrCost, GameInfo.Yields[ePurchaseYield].IconString));
 	end
 
 	-- Advisors
@@ -516,7 +510,7 @@ local function UpdateWindow(pCity)
 
 			local eOrder, eItem = pCity:GetOrderFromQueue(i - 1);
 			local tOrder = tOrderTypeDetails[eOrder];
-			local kInfo = GetInfoFromId(tOrder.TableName, eItem);
+			local kInfo = GameInfo[tOrder.TableName][eItem];
 
 			nameLabel:LocalizeAndSetText(kInfo.Description);
 
@@ -553,7 +547,7 @@ local function UpdateWindow(pCity)
 		local tFinishedOrder = tOrderTypeDetails[g_eOrder];
 		if tFinishedOrder and g_eFinishedItem ~= -1 then
 			-- We just finished something, so show THAT in the bottom left (but no icon)
-			strItemName = L(GetInfoFromId(tFinishedOrder.TableName, g_eFinishedItem).Description);
+			strItemName = L(GameInfo[tFinishedOrder.TableName][g_eFinishedItem].Description);
 			Controls.ProductionItemName:LocalizeAndSetText("TXT_KEY_CITYVIEW_FINISHED", strItemName);
 			Controls.ProductionPortraitButton:RegisterCallback(Mouse.eRClick, GetProdHelp);
 			Hide(Controls.ProductionPortrait, Controls.ProductionOutput, Controls.ProductionTurnsLabel);
@@ -583,7 +577,7 @@ local function UpdateWindow(pCity)
 
 			local tOrder = tOrderTypeDetails[eOrder];
 			if tOrder then
-				local kInfo = GetInfoFromId(tOrder.TableName, eItem);
+				local kInfo = GameInfo[tOrder.TableName][eItem];
 
 				-- Production item name
 				strItemName = pCity:GetProductionNameKey();
@@ -661,7 +655,7 @@ local function UpdateWindow(pCity)
 	Controls.CityName:SetText(pCity:GetName());
 	Controls.CityButton:SetVoids(pCity:GetX(), pCity:GetY());
 
-	local kCivInfo = GetInfoFromId("Civilizations", pActivePlayer:GetCivilizationType());
+	local kCivInfo = GameInfo.Civilizations[pActivePlayer:GetCivilizationType()];
 	IconHookupOrDefault(kCivInfo.PortraitIndex, 32, kCivInfo.IconAtlas, Controls.CivIcon);
 
 	local iPopulation = pCity:GetPopulation();
@@ -741,7 +735,14 @@ local function UpdateWindow(pCity)
 	--- @return table
 	local function AssembleItem(eOrder, eItem, kInfo, eYield)
 		local tOrder = tOrderTypeDetails[eOrder];
-		local strPrereqTechKey = kInfo.PrereqTech or kInfo.TechPrereq;
+		local strPrereqTechKey = ""
+		if (eOrder == 0 or eOrder == 1) then
+			-- Buildings, Units
+			strPrereqTechKey = kInfo.PrereqTech;
+		else
+			-- Projects, Processes
+			strPrereqTechKey = kInfo.TechPrereq;
+		end
 		local item = {
 			ID = eItem,
 			Name = L(kInfo.Description),
@@ -749,7 +750,7 @@ local function UpdateWindow(pCity)
 			YieldType = eYield,
 		};
 
-		item.PrereqTechX = strPrereqTechKey and GetInfoFromType("Technologies", strPrereqTechKey).GridX or -1;
+		item.PrereqTechX = strPrereqTechKey and GameInfo.Technologies[strPrereqTechKey].GridX or -1;
 
 		if eYield == YieldTypes.NO_YIELD and bGeneratingProduction and eOrder ~= OrderTypes.ORDER_MAINTAIN then
 			item.TurnsOrCost = L("TXT_KEY_STR_TURNS", tOrder.TurnsLeftFunc(eItem, pCity, 1));
@@ -765,7 +766,7 @@ local function UpdateWindow(pCity)
 			item.IsSea = (kInfo.Domain == "DOMAIN_SEA");
 			item.IsLand = (kInfo.Domain == "DOMAIN_LAND");
 		elseif eOrder == OrderTypes.ORDER_CONSTRUCT then
-			local kBuildingClassInfo = GetInfoFromType("BuildingClasses", kInfo.BuildingClass);
+			local kBuildingClassInfo = GameInfo.BuildingClasses[kInfo.BuildingClass];
 			item.IsNationalWonder = (kBuildingClassInfo.MaxPlayerInstances == 1);
 			item.IsTeamWonder = (kBuildingClassInfo.MaxTeamInstances > -1);
 			item.IsWorldWonder = (kBuildingClassInfo.MaxGlobalInstances > -1);
@@ -779,7 +780,7 @@ local function UpdateWindow(pCity)
 			-- Wonders belong with projects
 			local tItemList = tItemLists[eOrder];
 			if eOrder == OrderTypes.ORDER_CONSTRUCT then
-				local kBuildingClassInfo = GetInfoFromType("BuildingClasses", kInfo.BuildingClass);
+				local kBuildingClassInfo = GameInfo.BuildingClasses[kInfo.BuildingClass];
 				if kBuildingClassInfo.MaxGlobalInstances > -1 or kBuildingClassInfo.MaxPlayerInstances == 1 or kBuildingClassInfo.MaxTeamInstances > -1 then
 					tItemList = tItemLists[OrderTypes.ORDER_CREATE];
 				end
@@ -819,7 +820,7 @@ local function UpdateWindow(pCity)
 				if item1.IsAir ~= item2.IsAir then
 					return item1.IsAir or not item2.IsAir;
 				end
-			elseif eOrder == OrderTypes.ORDER_CREATE then
+			elseif eOrder == OrderTypes.ORDER_CONSTRUCT then
 				-- Sort order: national wonders, team wonders, world wonders, projects
 				if item1.IsNationalWonder ~= item2.IsNationalWonder then
 					return item1.IsNationalWonder or not item2.IsNationalWonder;

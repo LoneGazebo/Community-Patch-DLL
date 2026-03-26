@@ -16,6 +16,10 @@ namespace NetMessageExt
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner);
 		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor);
 		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue);
+		void SetDisableAutomaticFaithPurchase(PlayerTypes ePlayer, bool bValue);
+		void DoApplyVassalTax(TeamTypes eMaster, PlayerTypes eVassal, int iPercent);
+		void DoLiberateVassal(TeamTypes eMaster, TeamTypes eVassal);
+		void DoClearDealRenewalID(PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 		//void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 
@@ -26,6 +30,10 @@ namespace NetMessageExt
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner);
 		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor);
 		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue);
+		void SetDisableAutomaticFaithPurchase(PlayerTypes ePlayer, bool bValue);
+		void DoApplyVassalTax(TeamTypes eMaster, PlayerTypes eVassal, int iPercent);
+		void DoLiberateVassal(TeamTypes eMaster, TeamTypes eVassal);
+		void DoClearDealRenewalID(PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 		//void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 }

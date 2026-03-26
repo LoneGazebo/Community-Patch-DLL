@@ -1431,15 +1431,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_PRODUCTION] += PolicyInfo->GetConquestPerEraBuildingProductionMod() * 2 * max(1, pPlayer->GetNumPuppetCities());
 		}
 	}
-	if (PolicyInfo->GetPuppetYieldPenaltyMod() != 0)
+	if (PolicyInfo->GetPuppetYieldAndSupplyModifierChange() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsWarmonger())
 		{
-			yield[YIELD_PRODUCTION] += PolicyInfo->GetPuppetYieldPenaltyMod() * 5 * pPlayer->GetNumPuppetCities();
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetPuppetYieldAndSupplyModifierChange() * 5 * pPlayer->GetNumPuppetCities();
 		}
 		else
 		{
-			yield[YIELD_PRODUCTION] += PolicyInfo->GetPuppetYieldPenaltyMod() * 2 * pPlayer->GetNumPuppetCities();
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetPuppetYieldAndSupplyModifierChange() * 2 * pPlayer->GetNumPuppetCities();
 		}
 	}
 	if (PolicyInfo->GetFlatDefenseFromAirUnits() != 0)
@@ -4450,6 +4450,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			else
 			{
 				yield[eYield] += PolicyInfo->GetYieldFromTech(eYield) * 10;
+			}
+		}
+		if (PolicyInfo->GetYieldFromUnitProduction(eYield) != 0)
+		{
+			if (pPlayerTraits->IsWarmonger())
+			{
+				yield[eYield] += PolicyInfo->GetYieldFromUnitProduction(eYield) * 2;
+			}
+			else
+			{
+				yield[eYield] += PolicyInfo->GetYieldFromUnitProduction(eYield);
 			}
 		}
 		if (PolicyInfo->GetYieldFromBorderGrowth(eYield) != 0)

@@ -245,6 +245,8 @@ public:
 
 	inline int plotNum(int iX, int iY) const
 	{
+		if (iX == INVALID_PLOT_COORD || iY == INVALID_PLOT_COORD)
+			return -1;
 		return ((iY * getGridWidth()) + iX);
 	}
 
@@ -450,6 +452,8 @@ protected:
 
 	bool m_bWrapX;
 	bool m_bWrapY;
+
+	bool m_bMapGenerated;
 
 	CvEnumMap<ResourceTypes, int> m_paiNumResource;
 	CvEnumMap<ResourceTypes, int> m_paiNumResourceOnLand;

@@ -81,6 +81,7 @@ public:
 	vector<PlayerTypes> GetWarAllies(PlayerTypes eOtherPlayer, bool bDefensive, bool bIncludeWars, bool bReverseMode, bool bNewWarsOnly) const;
 	bool IsNuclearGandhi(bool bPotentially = false) const;
 	bool IsAIMustAcceptHumanDiscussRequests() const;
+	int ApplyPercentageModifier(int iValue, int iModifier, bool bDecrease = false) const;
 
 	// ************************************
 	// Personality Flavors
@@ -311,6 +312,12 @@ public:
 	// Trade
 	bool IsCantMatchDeal(PlayerTypes ePlayer);
 	void SetCantMatchDeal(PlayerTypes ePlayer, bool bValue);
+
+	int GetCurrentDealOfferGenerous() const;
+	void SetCurrentDealOfferGenerous(bool bValue);
+	int GetCurrentDealOfferChanged() const;
+	void SetCurrentDealOfferChanged(bool bValue);
+
 
 	// Demands
 	int GetNumDemandsMade(PlayerTypes ePlayer) const;
@@ -1070,12 +1077,17 @@ public:
 	// ------------------------------------
 
 	void DoUpdateWarStates();
-	int GetWarScore(PlayerTypes ePlayer);
+	int GetWarScore(PlayerTypes ePlayer) const;
 	int GetHighestWarscore();
 	PlayerTypes GetHighestWarscorePlayer();
 
 	void DoUpdatePlayerStrengthEstimates();
-	int ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
+	int ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iStrength);
+	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iStrength);
+	StrengthTypes EconomicStrengthFromRatio(int iRatio) const;
+	StrengthTypes MilitaryStrengthFromRatio(int iRatio) const;
+	TargetValueTypes TargetValueFromRatio(int iRatio) const;
+	void AdjustThirdPartyStrength(PlayerTypes eThirdParty, PlayerTypes eThirdPartyEnemy, PlayerTypes eThirdPartyAlly, StrengthTypes eMilitaryStrength, int& iThirdPartyAttackValue, int& iThirdPartyDefenseValue);
 
 	void DoUpdateWarProgressScores();
 
@@ -1514,10 +1526,11 @@ public:
 	bool WantsMapsFromPlayer(PlayerTypes ePlayer);
 
 	// Offers
-	bool IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed);
-	bool IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
-	bool IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
-	bool IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
+	bool IsMakeLuxuryOffer(PlayerTypes ePlayer, CvDeal* pDeal) const;
+	bool IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed) const;
+	bool IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const;
+	bool IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const;
+	bool IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const;
 
 	// Sharing Approach
 	bool IsShareApproachAcceptable(PlayerTypes ePlayer);
@@ -1748,9 +1761,6 @@ public:
 	void LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bSaving);
 	void LogMinorStatusChange(PlayerTypes eMinor, const char* msg);
 
-	std::vector<CvDeal*> GetDealsToRenew(PlayerTypes eOtherPlayer = NO_PLAYER, bool bOnlyCheckedDeals = false);
-	void CancelRenewDeal(PlayerTypes eOtherPlayer = NO_PLAYER, RenewalReason eReason = NO_REASON, bool bJustLogging = false, CvDeal* pPassDeal = NULL, bool bOnlyCheckedDeals = false, bool bSendNetworkMessage = true);
-
 	// Methods for injecting tests
 	void TestUIDiploStatement(PlayerTypes eToPlayer, DiploStatementTypes eStatement, int iArg1);
 
@@ -1918,6 +1928,8 @@ private:
 	char m_aeDoFType[MAX_MAJOR_CIVS];
 	int m_aiDenouncedPlayerTurn[MAX_MAJOR_CIVS];
 	bool m_abCantMatchDeal[MAX_MAJOR_CIVS];
+	bool m_bCurrentDealOfferGenerous; // not serialized
+	bool m_bCurrentDealOfferChanged; // not serialized
 	unsigned char m_aiNumDemandsMade[MAX_MAJOR_CIVS];
 	int m_aiDemandMadeTurn[MAX_MAJOR_CIVS];
 	char m_aiDemandTooSoonNumTurns[MAX_MAJOR_CIVS];

@@ -17,6 +17,11 @@
 
 void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine, const char* msg);
 
+// Get the last minidump path (returns NULL if no dump has been created)
+#if defined(MOD_DEBUG_MINIDUMP)
+const char* GetLastMiniDumpPath();
+#endif
+
 inline int sqrti(int input)
 {
 	return int(sqrt((float)abs(input)));
@@ -225,6 +230,8 @@ int getTechScore(TechTypes eTech);
 int getWonderScore(BuildingClassTypes eWonderClass);
 
 ImprovementTypes finalImprovementUpgrade(ImprovementTypes eImprovement, int iCount = 0);
+
+BuildTypes GetRemoveFeatureBuild(FeatureTypes eFeature, TeamTypes eTeam);
 
 bool isTechRequiredForUnit(TechTypes eTech, UnitTypes eUnit);
 bool isTechRequiredForBuilding(TechTypes eTech, BuildingTypes eBuilding);

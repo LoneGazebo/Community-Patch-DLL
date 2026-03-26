@@ -458,7 +458,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		// If the city is of ok-ish value and we're not too unhappy, let's puppet
 		if (!IsEmpireVeryUnhappy())
 		{
-			bool bPuppetBonuses = GetPlayerTraits()->IsNoAnnexing() || GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PUPPET_BONUS) > 0;
+			bool bPuppetBonuses = GetPlayerTraits()->GetPuppetYieldAndSupplyModifierChange() > 0 || GetPuppetYieldAndSupplyModifierChange() > 0;
 
 			if (iCityValue >= /*40*/ GD_INT_GET(AI_CITY_SOME_VALUE_THRESHOLD) && (bPuppetBonuses || !bUnhappy))
 			{
@@ -2138,6 +2138,9 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 		if (pLoopCity->isUnderSiege())
 			continue;
 
+		if (pLoopCity->IsResistance() || pLoopCity->IsRazing() || pLoopCity->isInDangerOfFalling())
+			continue;
+
 		// city too far away?
 		if (!(pLoopCity->CanAirlift() && pCapital->CanAirlift()) && plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY()) > 40)
 			continue;
@@ -2320,7 +2323,7 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 /// if going for spaceship victory, the results from GetBestCitiesForSpaceshipParts are used to overwrite normal AI city production selection
 void CvPlayerAI::AI_doSpaceshipProduction()
 {
-	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isMinorCiv() || !GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isMinorCiv())
 		return;
 
 	if (GetNumSpaceshipPartsBuildableNow(true) == 0)
@@ -2759,17 +2762,14 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
 		{
-			if (pLoopCity != NULL)
+			ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
+			if (eResourceDemanded != NO_RESOURCE)
 			{
-				ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
-				if (eResourceDemanded != NO_RESOURCE)
+				//Will we get a WLTKD from this? We want it a bit more, please.
+				if (kMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
 				{
-					//Will we get a WLTKD from this? We want it a bit more, please.
-					if (kMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
-					{
-						iScore *= 3;
-						iScore /= 2;
-					}
+					iScore *= 3;
+					iScore /= 2;
 				}
 			}
 		}
@@ -3010,8 +3010,7 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 		for (int iJ = 0; iJ < GC.getMap().numPlots(); iJ++)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iJ);
-			if (!pPlot)
-				continue;
+			ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
 
 			// Don't consider plots we already targeted
 			bool bTooClose = false;

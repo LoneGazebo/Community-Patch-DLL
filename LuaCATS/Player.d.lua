@@ -11,6 +11,14 @@ Players = {}
 --- @return PlayerId
 function Player:GetID() end
 
+--- Get team ID
+--- @return TeamId
+function Player:GetTeam() end
+
+--- Get player name. Can be nickname in MP if player is human.
+--- @return string
+function Player:GetName() end
+
 --- Get the modifier to trade bonuses on buildings from Player's trait(s)
 --- @return integer
 function Player:GetTradeBuildingModifier() end
@@ -59,3 +67,11 @@ function Player:GetGreatPersonRateModifier(eGreatPerson) end
 --- @param eGreatPerson GreatPersonType Caller is responsible for validating this
 --- @return integer # The modifier to great person points for this specific great person during golden ages from traits *in all cities* (thus not affecting Generals and Admirals)
 function Player:GetGoldenAgeGreatPersonRateModifierFromTrait(eGreatPerson) end
+
+--- Check whether player owns the holy city of their primary religion
+--- @return boolean
+function Player:OwnsReligion() end
+
+--- Get player's primary religion if they own the holy city, or NO_RELIGION otherwise
+--- @return ReligionType
+function Player:GetOwnedReligion() end

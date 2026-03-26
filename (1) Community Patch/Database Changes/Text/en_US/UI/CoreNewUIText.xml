@@ -152,6 +152,11 @@
 			<Text>[COLOR_POSITIVE_TEXT]If you meet Theme requirements on this Building, gain:[ENDCOLOR] +{1_Num} {2_YieldIcon} {3_YieldName}</Text>
 		</Row>
 
+		<!-- Religion picker -->
+		<Row Tag="TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION">
+			<Text>[COLOR_POSITIVE_TEXT]Your Advisor recommends this belief.[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- Conquest picker -->
 		<Row Tag="TXT_KEY_POPUP_DESTROY_CAPTURED_CITY">
 			<Text>Destroy the City!</Text>
@@ -241,6 +246,10 @@
 		<Row Tag="TXT_KEY_TP_FAITH_PER_TURN">
 			<Text>+{1_Num} [ICON_PEACE] Faith Per Turn.</Text>
 		</Row>
+		<!-- Happiness -->
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_BUILDINGS">
+			<Text>{1_Num} from Buildings.</Text>
+		</Row>
 		<!-- Instant yields -->
 		<Row Tag="TXT_KEY_INSTANT_YIELD_THIS_TURN">
 			<Text>[NEWLINE]        [ICON_BULLET] This Turn: +{1_Num}</Text>
@@ -269,6 +278,14 @@
 		</Row>
 		<Row Tag="TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT">
 			<Text>{1_Num} [ICON_GOLDEN_AGE] Golden Age Points</Text>
+		</Row>
+
+		<!-- Civilopedia -->
+		<Row Tag="TXT_KEY_PEDIA_BASE_COST_LABEL">
+			<Text>Base Cost:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_UNIQUEPROJ_LABEL">
+			<Text>Unique Projects:</Text>
 		</Row>
 
 		<!-- Info tooltip -->
@@ -310,13 +327,13 @@
 			<Text>Required Policy: [COLOR_MAGENTA]{1_Policy:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH">
-			<Text>Require Any [COLOR_MAGENTA]{1_PolicyBranch:textkey}[ENDCOLOR] Policy</Text>
+			<Text>Requires Any [COLOR_MAGENTA]{1_PolicyBranch:textkey}[ENDCOLOR] Policy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_OPENER">
-			<Text>Require Opening [COLOR_MAGENTA]{1_PolicyBranch:textkey}[ENDCOLOR]</Text>
+			<Text>Requires Opening [COLOR_MAGENTA]{1_PolicyBranch:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_COMPLETION">
-			<Text>Require Completion of [COLOR_MAGENTA]{1_PolicyBranch:textkey}[ENDCOLOR]</Text>
+			<Text>Requires Completion of [COLOR_MAGENTA]{1_PolicyBranch:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_PREREQ_TECH">
 			<Text>Prerequisite Technologies: [COLOR_CYAN]{1_Techs}[ENDCOLOR]</Text>
@@ -339,6 +356,15 @@
 		<Row Tag="TXT_KEY_PRODUCTION_GLOBAL_SUFFIX">
 			<Text>in all Cities</Text>
 		</Row>
+		<Row Tag="TXT_KEY_LIST_COMBINE_TWO">
+			<Text>{1_String1} and {2_String2}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIST_COMBINE_NONFINAL">
+			<Text>{1_String1}, {2_String2}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LIST_COMBINE_FINAL">
+			<Text>{1_String1}, and {2_String2}</Text>
+		</Row>
 		<!-- Unit -->
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_COMBAT_CLASS">
 			<Text>({1:textkey} Unit)</Text>
@@ -350,7 +376,10 @@
 			<Text>[COLOR_CYAN](Part of Spaceship)[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_EXTRA_MAINTENANCE">
-			<Text>{1: number "'[COLOR_POSITIVE_TEXT]Reduced Maintenance:[ENDCOLOR] '##;'[COLOR_NEGATIVE_TEXT]Extra Maintenance:[ENDCOLOR] '##"} [ICON_GOLD] Gold</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Extra Maintenance:[ENDCOLOR] {1_Num} [ICON_GOLD] Gold</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_REDUCED_MAINTENANCE">
+			<Text>[COLOR_POSITIVE_TEXT]Reduced Maintenance:[ENDCOLOR] {1_Num} [ICON_GOLD] Gold</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_NO_MAINTENANCE">
 			<Text>[COLOR_POSITIVE_TEXT]No Maintenance Cost[ENDCOLOR]</Text>
@@ -359,13 +388,16 @@
 			<Text>[COLOR_POSITIVE_TEXT]Does not consume [ICON_WAR] Unit Supply[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_UNHAPPINESS">
-			<Text>[ICON_HAPPINESS_3] {1: number "'[COLOR_NEGATIVE_TEXT]Unhappiness:[ENDCOLOR] '##;'[COLOR_POSITIVE_TEXT]Unhappiness Reduction:[ENDCOLOR] '##"}</Text>
+			<Text>[ICON_HAPPINESS_3] [COLOR_NEGATIVE_TEXT]Unhappiness: {1_Num}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_UNHAPPINESS_REDUCTION">
+			<Text>[ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]Unhappiness Reduction: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_STAGNATION">
 			<Text>[COLOR_NEGATIVE_TEXT]Stagnation during production[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_REDUCE_POPULATION">
-			<Text>[COLOR_NEGATIVE_TEXT]Reduce [ICON_CITIZEN] Population by 1[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Reduces [ICON_CITIZEN] Population by 1[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_MAX_HP">
 			<Text>Max Hit Points: {1_Num}</Text>
@@ -395,10 +427,10 @@
 			<Text>Free Promotion in Friendly Territory: {1_Promotion:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_MOVE_AFTER_PURCHASE">
-			<Text>Gain full XP and can Move after Purchase</Text>
+			<Text>Gains full XP and can Move after Purchase</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FREE_UPGRADE">
-			<Text>Automatically Upgrade for Free</Text>
+			<Text>Automatically Upgrades for Free</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_MOVE_AFTER_UPGRADE">
 			<Text>Can Move after Upgrade (into this Unit)</Text>
@@ -407,13 +439,13 @@
 			<Text>Can Enter Rival Territory</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FOUND_CITY">
-			<Text>Found City</Text>
+			<Text>Can Found City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_ABROAD">
-			<Text>Found City on Different Landmass</Text>
+			<Text>Can Found City on Different Landmass</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_PUPPET">
-			<Text>Found Colony (Puppet City)</Text>
+			<Text>Can Found Colony (Puppet City)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FOUND_CITY_ADVANCED">
 			<Text>with Extra Territory and Population</Text>
@@ -425,10 +457,10 @@
 			<Text>Free Buildings on Found (subject to location requirements): {1_Buildings}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_CULTURE_BOMB">
-			<Text>{TXT_KEY_MISSION_CULTURE_BOMB} (Radius {1_Radius}, {2_Num} {2: plural 1?Time; other?Times;})</Text>
+			<Text>Can {TXT_KEY_MISSION_CULTURE_BOMB} (Radius {1_Radius}, {2_Num} {2: plural 1?Time; other?Times;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_SELL_EXOTIC_GOODS">
-			<Text>{TXT_KEY_MISSION_SELL_EXOTIC_GOODS} ({1_Num} {1: plural 1?Time; other?Times;})</Text>
+			<Text>Can {TXT_KEY_MISSION_SELL_EXOTIC_GOODS} ({1_Num} {1: plural 1?Time; other?Times;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_CITY_ATTACK_ONLY">
 			<Text>[COLOR_NEGATIVE_TEXT]City Attack Only[ENDCOLOR]</Text>
@@ -443,16 +475,16 @@
 			<Text>[COLOR_NEGATIVE_TEXT]Bounty on this Unit:[ENDCOLOR] {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_PROHIBIT_SPREAD">
-			<Text>Prevent Active Foreign Religion Spread</Text>
+			<Text>Prevents Active Foreign Religion Spread</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_PROHIBIT_SPREAD_PARTIAL">
-			<Text>Reduce Active Foreign Religion Spread by {1_Effectiveness}%</Text>
+			<Text>Reduces Active Foreign Religion Spread by {1_Effectiveness}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_IGNORE_BUILDING_DEFENSE">
-			<Text>Ignore [ICON_STRENGTH] City Strength from Buildings when Attacking</Text>
+			<Text>Ignores [ICON_STRENGTH] City Strength from Buildings when Attacking</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE">
-			<Text>Gain [ICON_CULTURE] Culture on Disband or Upgrade</Text>
+			<Text>Gains [ICON_CULTURE] Culture on Disband or Upgrade</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_GOODY_MODIFIER">
 			<Text>{2_Sign}{1_Num}% Ancient Ruin Rewards</Text>
@@ -470,7 +502,7 @@
 			<Text>When Born: +{1_NumTurn} {1: plural 1?Turn; other?Turns;} of [ICON_HAPPINESS_1] "We Love the King Day" in all Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_BIRTH_GA">
-			<Text>When Born: Start a [ICON_GOLDEN_AGE] Golden Age ({1_NumTurn} {1: plural 1?Turn; other?Turns;})</Text>
+			<Text>When Born: Starts a [ICON_GOLDEN_AGE] Golden Age ({1_NumTurn} {1: plural 1?Turn; other?Turns;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_BIRTH_CULTURE">
 			<Text>When Born: {1_Num} [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital</Text>
@@ -485,7 +517,7 @@
 			<Text>When Expended: +{1_Num} [ICON_WAR] Military Supply</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_EXPEND_COPY_TILE_YIELD">
-			<Text>When Expended: Add Tile Yield to [ICON_CAPITAL] Capital</Text>
+			<Text>When Expended: Adds Tile Yield to [ICON_CAPITAL] Capital</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_EXPEND_XP">
 			<Text>When Expended: +{1_Num} XP to Units on Tile</Text>
@@ -548,13 +580,13 @@
 			<Text>Required Buildings for Investment: [COLOR_YIELD_FOOD]{1_Buildings}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_PROJECT">
-			<Text>Require completion of: [COLOR_CITY_BLUE]{1_Project:textkey}[ENDCOLOR]</Text>
+			<Text>Requires completion of: [COLOR_CITY_BLUE]{1_Project:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_BELIEF">
 			<Text>Required Belief for [ICON_PEACE] Faith Purchase: [COLOR_WHITE]{1_Belief:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_REQUIRE_ENHANCED_RELIGION">
-			<Text>Require Enhanced Religion</Text>
+			<Text>Requires Enhanced Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIQUE_UNIT">
 			<Text>{1_CivAdj} Unique [COLOR_YELLOW]{2_Unit:textkey}[ENDCOLOR]</Text>
@@ -638,20 +670,17 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIAL_SESSION_REQUIREMENT">
 			<Text>Is required to trigger the Special Session for [COLOR_PLAYER_MIDDLE_PURPLE_TEXT]{1_Resolution:textkey}[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_LOCAL_EFFECTS">
-			<Text>Local Effects:</Text>
-		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GLOBAL_EFFECTS">
-			<Text>Empire-Wide Effects:</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Empire-Wide Effects:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TEAM_EFFECTS">
-			<Text>Team-Wide Effects:</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Team-Wide Effects:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_EFFECTS">
-			<Text>Corporation Benefits:</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Corporation Benefits:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HISTORIC_EVENTS">
-			<Text>Trigger or Enhance the following Historic Events:</Text>
+			<Text>Triggers or Enhances the following Historic Events:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HISTORIC_EVENT_ERA_CHANGE">
 			<Text>Enter a new Era (Relative Strength: [COLOR_POSITIVE_TEXT]{1_Strength}[ENDCOLOR])</Text>
@@ -681,7 +710,7 @@
 			<Text>Potential boosts to this Building:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_CHANGE">
-			<Text>{3_YieldIcon} {4_Yield:textkey}: {2_Sign}{1_Num}</Text>
+			<Text>[ICON_BULLET]{3_YieldIcon} {4_Yield:textkey}: {2_Sign}{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROJECTED_YIELD_CHANGE">
 			<Text>Projected yields when built: {1_YieldChanges}</Text>
@@ -695,8 +724,11 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PROJECTED_HAPPINESS">
 			<Text>Projected [ICON_HAPPINESS_1] Happiness when built: {2_Sign}{1_Num}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS">
+			<Text>[ICON_BULLET][ICON_HAPPINESS_3] Unhappiness: {2_Sign}{1_Num}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIR_DEFENSE">
-			<Text>[ICON_AIRSTRIKE_DEFENSE] City Air Strike Defense: +{1_Num}</Text>
+			<Text>[ICON_BULLET][ICON_AIRSTRIKE_DEFENSE] City Air Strike Defense: +{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GREAT_WORK_YIELD_TYPE">
 			<Text>[ICON_GREAT_WORK] Great Works in this Building provide {1_YieldIcon} {2_Yield:textkey} instead of [ICON_CULTURE] Culture</Text>
@@ -710,8 +742,8 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength from Buildings</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER_GLOBAL">
-			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength in all Cities</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER_TEAM">
+			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength from Buildings in all Cities of your Team</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DAMAGE_REDUCTION">
 			<Text>[ICON_STRENGTH] Damage Reduction: {2_Sign}{1_Num}</Text>
@@ -758,14 +790,17 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_COMBAT">
 			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Combat:textkey}[ENDCOLOR] Units</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS">
+			<Text>{2_Sign}{1_Num} XP for {3_Domains}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR] per [ICON_GREAT_WORK] Great Work in City</Text>
+			<Text>{2_Sign}{1_Num} XP for {3_Domains} per [ICON_GREAT_WORK] Great Work in Building</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WRITING_GLOBAL">
-			<Text>{2_Sign}{1_Num} XP for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR] in all Cities per [ICON_GW_WRITING] Great Work of Writing in Empire</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAIN_FROM_GREAT_WORK_CITY">
+			<Text>{2_Sign}{1_Num} XP for {3_Domains} per [ICON_GREAT_WORK] Great Work in City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_DOMAINS_FROM_GREAT_WRITING_GLOBAL">
+			<Text>{2_Sign}{1_Num} XP for {3_Domains} in all Cities per [ICON_GW_WRITING] Great Work of Writing in Empire, capped at 45 XP</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FOOD_KEPT">
 			<Text>{2_Sign}{1_Num}% [ICON_FOOD] Food is carried over when City grows</Text>
@@ -801,37 +836,37 @@
 			<Text>Always Retained on Conquest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TEAM_SHARE">
-			<Text>Share Empire-wide Effects with Team</Text>
+			<Text>Shares Empire-wide Effects with Team</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TECH_SHARE">
-			<Text>Team gains Technologies that {1_Num} other {1: plural 1?Team; other?Teams;} have researched</Text>
+			<Text>Your Team gains Technologies that {1_Num} other {1: plural 1?Team; other?Teams;} have researched</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_WATER_CONNECTION">
-			<Text>Allow [ICON_CONNECTED] City Connection over Water</Text>
+			<Text>Allows [ICON_CONNECTED] City Connection over Water</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_WATER_INDUSTRIAL_CONNECTION">
-			<Text>Allow [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection over Water</Text>
+			<Text>Allows [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection over Water</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIR_CONNECTION">
-			<Text>Allow [ICON_CONNECTED] City Connection over Air</Text>
+			<Text>Allows [ICON_CONNECTED] City Connection over Air</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIRLIFT">
-			<Text>Allow [ICON_AIRPORT] Airlift</Text>
+			<Text>Allows [ICON_AIRPORT] Airlift</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ITR_FOOD">
-			<Text>Allow [ICON_FOOD] Food [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from City</Text>
+			<Text>Allows [ICON_FOOD] Food [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ITR_FOOD_GLOBAL">
-			<Text>Allow [ICON_FOOD] Food [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from all Cities</Text>
+			<Text>Allows [ICON_FOOD] Food [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from all Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ITR_PRODUCTION">
-			<Text>Allow [ICON_PRODUCTION] Production [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from City</Text>
+			<Text>Allows [ICON_PRODUCTION] Production [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ITR_PRODUCTION_GLOBAL">
-			<Text>Allow [ICON_PRODUCTION] Production [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from all Cities</Text>
+			<Text>Allows [ICON_PRODUCTION] Production [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from all Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ADD_FRESH_WATER">
-			<Text>Add [COLOR_POSITIVE_TEXT]Fresh Water[ENDCOLOR] to City and adjacent Tiles</Text>
+			<Text>Adds [COLOR_POSITIVE_TEXT]Fresh Water[ENDCOLOR] to City and adjacent Tiles</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_PROMOTION">
 			<Text>Free [COLOR_POSITIVE_TEXT]{1_Promotion:textkey}[ENDCOLOR] Promotion for all future eligible Units trained in this City</Text>
@@ -843,7 +878,7 @@
 			<Text>Free [COLOR_POSITIVE_TEXT]{1_Promotion:textkey}[ENDCOLOR] Promotion for all existing and future eligible Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ALLOW_UNITS">
-			<Text>Allow production of [COLOR_YELLOW]{1_Units}[ENDCOLOR]</Text>
+			<Text>Allows production of [COLOR_YELLOW]{1_Units}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIR_SLOTS">
 			<Text>{2_Sign}{1_Num} Air Unit {1: plural 1?Slot; other?Slots;}</Text>
@@ -1089,16 +1124,16 @@
 			<Text>On Completion: Gain {1_Num} Free {1: plural 1?Policy; other?Policies;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_GP">
-			<Text>On Completion: Spawn {1_Num} Free [ICON_GREAT_PEOPLE] Great {1: plural 1?Person; other?People;} of your choice in [ICON_CAPITAL] Capital</Text>
+			<Text>On Completion: {1_Num} Free [ICON_GREAT_PEOPLE] Great {1: plural 1?Person; other?People;} of your choice {1: plural 1?appears; other?appear;} in [ICON_CAPITAL] Capital</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_SPY_POINTS">
-			<Text>On Completion: Gain {1_Num} [ICON_SPY] Spy {1: plural 1?Point; other?Points;}</Text>
+			<Text>On Completion: Gain {1_Num} [ICON_SPY_POINT] Spy {1: plural 1?Point; other?Points;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_SPIES">
 			<Text>On Completion: Gain {1_Num} [ICON_SPY] {1: plural 1?Spy; other?Spies;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_UNIT">
-			<Text>On Completion: Spawn {1_Num} [COLOR_YELLOW]{2_Unit:textkey}[ENDCOLOR] in or near City</Text>
+			<Text>On Completion: {1_Num} [COLOR_YELLOW]{2_Unit:textkey}[ENDCOLOR] {1: plural 1?appears; other?appear;} in or near City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_BUILDING">
 			<Text>On Completion: Gain Free [COLOR_YIELD_FOOD]{1_Building:textkey}[ENDCOLOR]</Text>
@@ -1145,6 +1180,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY">
 			<Text>On Completion: Add {1_Num} random {1: plural 1?copy; other?copies;} of the following Resources in City working range, or on City tile if impossible: {2_Resources}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_LUXURY_GENERIC">
+			<Text>On Completion: Add {1_Num} random {1: plural 1?copy; other?copies;} of your unique Resources (if any) in City working range, or on City tile if impossible</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPAWN_NEARBY_RESOURCE">
 			<Text>On Completion: Add {1_Num} {1: plural 1?copy; other?copies;} of {2_ResourceIcon} {3_Resource:textkey} to random eligible Tiles in City working range</Text>
 		</Row>
@@ -1161,13 +1199,13 @@
 			<Text>On Completion: Claim all Tiles with {1_Resources} within working range, triggering instant yields from Tile Purchase (if applicable)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GP_BIRTH_WRITER">
-			<Text>When a [ICON_GREAT_PEOPLE] Great Person is born in this City: gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of the amount of [ICON_CULTURE] Culture from its [COLOR_MAGENTA]{TXT_KEY_MISSION_GIVE_POLICIES}[ENDCOLOR] Mission (if applicable)</Text>
+			<Text>When a [ICON_GREAT_PEOPLE] Great Person is born in this City: Gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of the amount of [ICON_CULTURE] Culture from its [COLOR_MAGENTA]{TXT_KEY_MISSION_GIVE_POLICIES}[ENDCOLOR] Mission (if applicable)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GP_BIRTH_ARTIST">
-			<Text>When a [ICON_GREAT_PEOPLE] Great Person is born in this City: gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of the amount of [ICON_GOLDEN_AGE] Golden Age Points from its [COLOR_POSITIVE_TEXT]{TXT_KEY_MISSION_START_GOLDENAGE}[ENDCOLOR] Mission (if applicable)</Text>
+			<Text>When a [ICON_GREAT_PEOPLE] Great Person is born in this City: Gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of the amount of [ICON_GOLDEN_AGE] Golden Age Points from its [COLOR_POSITIVE_TEXT]{TXT_KEY_MISSION_START_GOLDENAGE}[ENDCOLOR] Mission (if applicable)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GP_BIRTH_SCALING">
-			<Text>When a {2_GreatPersonIcon} {3_GreatPerson:textkey} is born in this City: gain {6_YieldIcon} {7_Yield:textkey} equal to {1_Num}% of your {4_YieldIcon} {5_Yield:textkey} output</Text>
+			<Text>When a {2_GreatPersonIcon} {3_GreatPerson:textkey} is born in this City: Gain {6_YieldIcon} {7_Yield:textkey} equal to {1_Num}% of your {4_YieldIcon} {5_Yield:textkey} output</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GP_EXPEND">
 			<Text>When expending a [ICON_GREAT_PEOPLE] Great Person: {1_InstantYield} in [ICON_CAPITAL] Capital</Text>
@@ -1176,7 +1214,7 @@
 			<Text>When expending a [ICON_GREAT_PEOPLE] Great Person: {2_Sign}{1_Num} [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_VASSAL_UNIT_PER_ERA">
-			<Text>When entering a new Era: receive {1_Num} {1: plural 1?Unit; other?Units;} from each Vassal near City</Text>
+			<Text>When entering a new Era: Receive {1_Num} {1: plural 1?Unit; other?Units;} from each Vassal near City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_TECH">
 			<Text>When researching a Technology: {1_InstantYield}</Text>
@@ -1200,25 +1238,25 @@
 			<Text>When a [ICON_CITIZEN] Citizen is born in this City: {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GROWTH_SCALING">
-			<Text>When a [ICON_CITIZEN] Citizen is born in this City: gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of City output</Text>
+			<Text>When a [ICON_CITIZEN] Citizen is born in this City: Gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of City output</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_BORDER_GROWTH">
 			<Text>When this City naturally expands: {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GOLD_PURCHASE">
-			<Text>When purchasing/investing with [ICON_GOLD] Gold in this City: gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of [ICON_GOLD] Gold cost</Text>
+			<Text>When purchasing/investing with [ICON_GOLD] Gold in this City: Gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of [ICON_GOLD] Gold cost</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GOLD_PURCHASE_GLOBAL">
-			<Text>When purchasing/investing with [ICON_GOLD] Gold in any City: gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of [ICON_GOLD] Gold cost</Text>
+			<Text>When purchasing/investing with [ICON_GOLD] Gold in any City: Gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of [ICON_GOLD] Gold cost</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_FAITH_PURCHASE">
-			<Text>When purchasing a Unit or Building with [ICON_PEACE] Faith in this City: gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of [ICON_PEACE] Faith cost</Text>
+			<Text>When purchasing a Unit or Building with [ICON_PEACE] Faith in this City: Gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of [ICON_PEACE] Faith cost</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_CONSTRUCTION">
 			<Text>When completing a Building in this City: {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GPP_ON_CONSTRUCTION">
-			<Text>When completing a Building unlocked in {2_Era:textkey} or later in this City: gain {3_GreatPersonIcon} {4_GreatPerson:textkey} Points equal to {1_Num}% of Building cost</Text>
+			<Text>When completing a Building unlocked in {2_Era:textkey} or later in this City: Gain {3_GreatPersonIcon} {4_GreatPerson:textkey} Points equal to {1_Num}% of Building cost</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GP_PROGRESS_ON_CONSTRUCTION">
 			<Text>When completing a Building unlocked in {2_Era:textkey} or later in this City: +{1_Num}% Points towards the next {3_GreatPersonIcon} {4_GreatPerson:textkey}</Text>
@@ -1233,7 +1271,7 @@
 			<Text>When completing an [ICON_INTERNATIONAL_TRADE] International Trade Route from this City: {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_COMPLETION">
-			<Text>When completing production of a Military Unit in this City: gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of [ICON_PRODUCTION] Production cost</Text>
+			<Text>When completing production of a Military Unit in this City: Gain {2_YieldIcon} {3_Yield:textkey} equal to {1_Num}% of [ICON_PRODUCTION] Production cost</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_GIFT">
 			<Text>When a Unit is gifted to a [ICON_CITY_STATE] City-State: {1_InstantYield}</Text>
@@ -1245,7 +1283,7 @@
 			<Text>When a Unit created by this City is promoted: {1_InstantYield}, scaling with (new Unit Level - 2) squared, minimum 1</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_PROMOTION_GLOBAL">
-			<Text>When an owned Unit is promoted: {1_InstantYield}, scaling with Unit's original Level and Era</Text>
+			<Text>When an owned Unit is promoted: {1_InstantYield}, scaling with Unit's original Level</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL">
 			<Text>When a Unit created by this City defeats a Military Unit: {1_InstantYield}</Text>
@@ -1275,16 +1313,16 @@
 			<Text>+100% Luxury Resources from Improved Tiles owned by this City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_REMOVE_OCCUPIED_UNHAPPINESS">
-			<Text>Remove [ICON_HAPPINESS_3] Unhappiness from [ICON_OCCUPIED] Occupation</Text>
+			<Text>Removes [ICON_HAPPINESS_3] Unhappiness from [ICON_OCCUPIED] Occupation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ALLOW_PUPPET_PURCHASE">
-			<Text>Allow Investment and Purchase in [ICON_PUPPET] Puppet City</Text>
+			<Text>Allows Investment and Purchase in [ICON_PUPPET] Puppet City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NO_STARVATION_FROM_NON_SPECIALISTS">
 			<Text>Total non-Specialist [ICON_FOOD] Food consumption cannot exceed [ICON_FOOD] Food production</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SECONDARY_PANTHEON">
-			<Text>Benefit from the Pantheon bonus of the second-most popular [ICON_RELIGION] Religion if City has a [ICON_RELIGION] Majority Religion</Text>
+			<Text>City benefits from the Pantheon bonus of the second-most popular [ICON_RELIGION] Religion if it has a [ICON_RELIGION] Majority Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND">
 			<Text>Non-friendly Land Units [COLOR_NEGATIVE_TEXT]expend all [ICON_MOVES] Movement[ENDCOLOR] when entering this City's Land territory from unowned or foreign territory</Text>
@@ -1302,13 +1340,13 @@
 			<Text>Enemy Naval or Embarked Units take [COLOR_NEGATIVE_TEXT]{1_Num} Damage[ENDCOLOR] when ending their Turn on Ocean Tiles belonging to this City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GAINLESS_PILLAGE">
-			<Text>Unit gains no HP or [ICON_GOLD] Gold when pillaging Improvements owned by this City</Text>
+			<Text>Units gain no HP or [ICON_GOLD] Gold when pillaging Improvements owned by this City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GAINLESS_PILLAGE_GLOBAL">
-			<Text>Unit gains no HP or [ICON_GOLD] Gold when pillaging Improvements in your Empire</Text>
+			<Text>Units gain no HP or [ICON_GOLD] Gold when pillaging Improvements in your Empire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_REMOVE_DP_LIMIT">
-			<Text>Remove limit on number of active Defensive Pacts</Text>
+			<Text>Removes limit on number of active Defensive Pacts</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PLUNDER_MODIFIER">
 			<Text>{2_Sign}{1_Num}% Plunder [ICON_GOLD] Gold when City is captured</Text>
@@ -1380,7 +1418,7 @@
 			<Text>All of the following Resources must be connected to this City: {1_Resources}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GLOBAL_MONOPOLY_OR">
-			<Text>Require one of the following [ICON_MONOPOLY] Global Monopolies: {1_Resources}</Text>
+			<Text>Requires one of the following [ICON_MONOPOLY] Global Monopolies: {1_Resources}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GLOBAL_MONOPOLY_AND">
 			<Text>Required [ICON_MONOPOLY] Global Monopolies: {1_Resources}</Text>
@@ -1452,7 +1490,7 @@
 			<Text>Must be built in Holy City of [ICON_RELIGION] Primary Religion with one of the following Beliefs: [COLOR_WHITE]{1_Beliefs}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_MAJORITY_RELIGION_BELIEF_NEEDED">
-			<Text>Require one of following Beliefs in [ICON_RELIGION] Majority Religion: [COLOR_WHITE]{1_Beliefs}[ENDCOLOR]</Text>
+			<Text>Requires one of following Beliefs in [ICON_RELIGION] Majority Religion: [COLOR_WHITE]{1_Beliefs}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PURCHASE_BUILDING_MAJORITY_RELIGION_BELIEF_NEEDED">
 			<Text>Faith Purchase requires one of following Beliefs in [ICON_RELIGION] Majority Religion: [COLOR_WHITE]{1_Beliefs}[ENDCOLOR]</Text>
@@ -1467,7 +1505,7 @@
 			<Text>[COLOR_WARNING_TEXT]Note: all ongoing Effects of this Building will be removed when the above Technology is researched![ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BUILDING_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_YIELD_FOOD]{1_BuildingClass:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Buildings}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BUILDING_HAPPINESS">
 			<Text>{2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness to [COLOR_YIELD_FOOD]{3_Building:textkey}[ENDCOLOR]</Text>
@@ -1476,19 +1514,19 @@
 			<Text>{1_YieldBoosts} to [ICON_WONDER] World Wonders</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PLOT_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Plot:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Plots}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TERRAIN_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Terrain:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Terrains}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FEATURE_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Feature:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Features}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_RESOURCE_BOOST">
-			<Text>{2_YieldBoosts} to {3_ResourceIcon} {1_Resource:textkey}</Text>
+			<Text>{2_YieldBoosts} to {1_Resources}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_IMPROVEMENT_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_POSITIVE_TEXT]{1_Improvement:textkey}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Improvements}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_LUXURY_BOOST">
 			<Text>{1_YieldBoosts} to Luxury Resource Tiles</Text>
@@ -1506,13 +1544,16 @@
 			<Text>{1_YieldBoosts} to Resource Tiles in [COLOR_POSITIVE_TEXT]Water[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIALIST_BOOST">
-			<Text>{2_YieldBoosts} to [COLOR_POSITIVE_TEXT]{1_Specialist * 2}[ENDCOLOR]</Text>
+			<Text>{2_YieldBoosts} to {1_Items}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_GREAT_WORK_BOOST">
 			<Text>{1_YieldBoosts} to [ICON_GREAT_WORK] Great Works</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ITR_BOOST">
 			<Text>{1_YieldBoosts} to [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from this City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FAITH_PURCHASABLE_BUILDING_YIELDS">
+			<Text>{1_YieldBoosts} to City for each owned Building that would currently be purchasable with [ICON_PEACE] Faith</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_GOLDEN_AGE">
 			<Text>{1_YieldModifiers} during [ICON_GOLDEN_AGE] Golden Age</Text>
@@ -1530,130 +1571,130 @@
 			<Text>{1_YieldModifiers} per [ICON_INTERNATIONAL_TRADE] Trade Route targeting Cities with [ICON_FRANCHISE] Established Franchise of this Corporation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BUILDING">
-			<Text>[ICON_BULLET] [COLOR_YIELD_FOOD]{3_Building:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
+			<Text>[ICON_BULLET][COLOR_YIELD_FOOD]{3_Building:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BUILDING_GLOBAL">
-			<Text>[ICON_BULLET] [COLOR_YIELD_FOOD]{3_Building:textkey}[ENDCOLOR] in any City: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
+			<Text>[ICON_BULLET][COLOR_YIELD_FOOD]{3_Building:textkey}[ENDCOLOR] in any City: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING">
-			<Text>[ICON_BULLET] [COLOR_YIELD_FOOD]{1_Building:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]{1_Items}: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_GLOBAL">
-			<Text>[ICON_BULLET] [COLOR_YIELD_FOOD]{1_Building:textkey}[ENDCOLOR] in any City: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]{1_Items} in any City: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_LOCAL_RESOURCE">
-			<Text>[ICON_BULLET] Each {3_ResourceIcon} {1_Resource:textkey} connected to City: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each {1_Items} connected to City: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_LOCAL_RESOURCE">
-			<Text>[ICON_BULLET] Each {3_ResourceIcon} {4_Resource:textkey} connected to City: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
+			<Text>[ICON_BULLET]Each {3_ResourceIcon} {4_Resource:textkey} connected to City: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MOUNTAINS">
-			<Text>[ICON_BULLET] Each Mountain within 3 Tiles of City: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each Mountain within 3 Tiles of City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_SNOW">
-			<Text>[ICON_BULLET] Each Snow Tile owned by City: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each Snow Tile owned by City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_TERRAIN">
-			<Text>[ICON_BULLET] Each worked [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Terrain:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each worked {1_Items}: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_FEATURE">
-			<Text>[ICON_BULLET] Each worked [COLOR_PLAYER_DARK_GREEN_TEXT]{1_Feature:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each worked {1_Items}: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT">
-			<Text>[ICON_BULLET] Each [COLOR_POSITIVE_TEXT]{1_Improvement:textkey}[ENDCOLOR] owned by City: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each {1_Items} owned by City: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT_GLOBAL">
-			<Text>[ICON_BULLET] Each [COLOR_POSITIVE_TEXT]{1_Improvement:textkey}[ENDCOLOR] in Empire: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each {1_Items} in Empire: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_TECH">
-			<Text>[ICON_BULLET] [COLOR_CYAN]{1_Tech:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET][COLOR_CYAN]{1_Tech:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY">
-			<Text>[ICON_BULLET] [COLOR_MAGENTA]{1_Policy:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET][COLOR_MAGENTA]{1_Policy:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY_STATE_RELIGION">
-			<Text>[ICON_BULLET] [COLOR_MAGENTA]{1_Policy:textkey}[ENDCOLOR]: {2_YieldBoosts} when City follows your [ICON_RELIGION] Primary Religion</Text>
+			<Text>[ICON_BULLET][COLOR_MAGENTA]{1_Policy:textkey}[ENDCOLOR]: {2_YieldBoosts} when City follows your [ICON_RELIGION] Primary Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_POLICY">
-			<Text>[ICON_BULLET] [COLOR_MAGENTA]{3_Policy:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
+			<Text>[ICON_BULLET][COLOR_MAGENTA]{3_Policy:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CITY_SECURITY_FROM_POLICY">
-			<Text>[ICON_BULLET] [COLOR_MAGENTA]{3_Policy:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_CITY_SECURITY] City Security</Text>
+			<Text>[ICON_BULLET][COLOR_MAGENTA]{3_Policy:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_CITY_SECURITY] City Security</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BELIEF">
-			<Text>[ICON_BULLET] [COLOR_WHITE]{1_Belief:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET][COLOR_WHITE]{1_Belief:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_BELIEF">
-			<Text>[ICON_BULLET] [COLOR_WHITE]{3_Belief:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
+			<Text>[ICON_BULLET][COLOR_WHITE]{3_Belief:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CORPORATION">
-			<Text>[ICON_BULLET] [COLOR_YIELD_GOLD]{1_Corporation:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET][COLOR_YIELD_GOLD]{1_Corporation:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_TRAIT">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Civ:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Civ:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_ACCOMPLISHMENT">
-			<Text>[ICON_BULLET] [COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
+			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_XP_FOR_DOMAIN_FROM_ACCOMPLISHMENT">
-			<Text>[ICON_BULLET] [COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num} XP for [COLOR_YELLOW]{4_Domain:textkey}[ENDCOLOR]</Text>
+			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num} XP for [COLOR_YELLOW]{4_Domain:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_COMBAT_PRODUCTION_MODIFIER_FROM_ACCOMPLISHMENT">
-			<Text>[ICON_BULLET] [COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{4_UnitCombat:textkey}[ENDCOLOR] Units</Text>
+			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{4_UnitCombat:textkey}[ENDCOLOR] Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PLAYER_INSTANCE_FROM_ACCOMPLISHMENT">
-			<Text>[ICON_BULLET] [COLOR_WATER_TEXT]{2_Accomplishment:textkey}[ENDCOLOR]: May build {1_Num} more of this Building</Text>
+			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{2_Accomplishment:textkey}[ENDCOLOR]: May build {1_Num} more of this Building</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_EXTRA_PLAYER_INSTANCE_SUFFIX">
 			<Text>({1_Num} more from Accomplishments)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA">
-			<Text>[ICON_BULLET] Every new Era: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Every new Era after Classical Era: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STRENGTH">
-			<Text>[ICON_BULLET] Each point of [ICON_STRENGTH] City Strength: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each point of [ICON_STRENGTH] City Strength: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ACCOMPLISHMENT">
-			<Text>[ICON_BULLET] [COLOR_WATER_TEXT]{1_Accomplishment:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{1_Accomplishment:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PASSING_TR">
-			<Text>[ICON_BULLET] Each Trade Route passing through this City: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Any Trade Route passing through this City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_GOLDEN_AGE_START">
-			<Text>[ICON_BULLET] Adding [ICON_GOLDEN_AGE] Golden Age Turns: {1_YieldBoosts} (capped at {2_YieldBoostCaps})</Text>
+			<Text>[ICON_BULLET]Adding [ICON_GOLDEN_AGE] Golden Age Turns: {1_YieldBoosts} (capped at {2_YieldBoostCaps})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_THEMES">
-			<Text>[ICON_BULLET] Each themed [ICON_GREAT_WORK] Great Work set in City: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each themed [ICON_GREAT_WORK] Great Work set in City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MONOPOLIES">
-			<Text>[ICON_BULLET] Each [ICON_MONOPOLY] Global Monopoly: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each [ICON_MONOPOLY] Global Monopoly: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION">
-			<Text>[ICON_BULLET] Each [ICON_CITIZEN] Population in City: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each [ICON_CITIZEN] Population in City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POPULATION_GLOBAL">
-			<Text>[ICON_BULLET] Each [ICON_CITIZEN] Population in Empire: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each [ICON_CITIZEN] Population in Empire: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_RELIGION_COUNT">
-			<Text>[ICON_BULLET] Each [ICON_RELIGION] Religion with at least one Follower in City: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each [ICON_RELIGION] Religion with at least one Follower in City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_COUNT">
-			<Text>[ICON_BULLET] Each completed Building in City: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each completed Building in City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PLOT_COUNT">
-			<Text>[ICON_BULLET] Each Tile owned by City: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each Tile owned by City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_FRANCHISES">
-			<Text>[ICON_BULLET] Each [ICON_FRANCHISE] Established Franchise: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each [ICON_FRANCHISE] Established Franchise: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_FRIENDS">
-			<Text>[ICON_BULLET] Each [ICON_CITY_STATE] City-State Friend: {1_YieldBoosts} (NOTE: Allies are not Friends)</Text>
+			<Text>[ICON_BULLET]Each friendly [ICON_CITY_STATE] City-State: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_ALLIES">
-			<Text>[ICON_BULLET] Each [ICON_CITY_STATE] City-State Ally: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each allied [ICON_CITY_STATE] City-State: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_STRATEGIC_RESOURCES">
-			<Text>[ICON_BULLET] Each unit of Strategic Resources connected to allied [ICON_CITY_STATE] City-States: {1_YieldBoosts}</Text>
+			<Text>[ICON_BULLET]Each unit of Strategic Resources connected to allied [ICON_CITY_STATE] City-States: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INVESTMENT">
 			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Building reduces its [ICON_PRODUCTION] Production cost by {1_Num}%, or {2_Num}% if a Wonder.[ENDCOLOR]</Text>
@@ -1664,6 +1705,10 @@
 		<!-- Process -->
 		<Row Tag="TXT_KEY_TT_PROCESS_LEAGUE_PROJECT_HELP">
 			<Text>Contribute this City's [ICON_PRODUCTION] Production towards the {1_ProjName:textkey} project. Cost goes up based on the number of players in the game, and the current Era.</Text>
+		</Row>
+		<!-- Project -->
+		<Row Tag="TXT_KEY_PRODUCTION_EXCLUSIVE_PROJECT">
+			<Text>{1_CivAdj:textkey} Exclusive Project</Text>
 		</Row>
 		<!-- Yield -->
 		<Row Tag="TXT_KEY_YIELD_FROM_GREAT_WORKS">
@@ -1692,6 +1737,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_PROCESS">
 			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_SWAP] Process</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_TERRAIN_WONDERS">
+			<Text>[ICON_BULLET]{1_Num} [ICON_TOURISM] from {2_Num}% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_FROM_TRADE_ROUTES">
 			<Text>[ICON_BULLET]{1_Num} {2_IconString} from [ICON_INTERNATIONAL_TRADE] Trade Routes</Text>
@@ -1731,6 +1779,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_POST_MODIFIER">
 			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"} {2_IconString} after Modifiers[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_SUBTOTAL">
+			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"} {2_IconString} Subtotal[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_PUPPET_MODIFIER_MULTIPLICATIVE">
+			<Text>[ICON_BULLET]{1: number "'+'##;'-'##"}% {2_IconString} Puppet Modifier</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EATEN_FOOD">
 			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
@@ -1858,6 +1912,9 @@
 		<Row Tag="TXT_KEY_YIELD_MOD_TECHNOLOGIES">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Technologies</Text>
 		</Row>
+		<Row Tag="TXT_KEY_YIELD_MOD_ERA">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Era</Text>
+		</Row>
 		<Row Tag="TXT_KEY_YIELD_MOD_UNHAPPINESS">
 			<Text>[NEWLINE][ICON_BULLET]{1_Num}% from [ICON_HAPPINESS_3] Unhappiness</Text>
 		</Row>
@@ -1919,7 +1976,7 @@
 		<Row Tag="TXT_KEY_GPP_MOD_IMPROVEMENT">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Worked Improvements</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GP_MOD_LEAGUE">
+		<Row Tag="TXT_KEY_GPP_MOD_LEAGUE">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Active Resolutions</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GPP_MOD_MONOPOLY">
@@ -1936,7 +1993,7 @@
 		<Row Tag="TXT_KEY_TOURISM_HELP_INFO">
 			<Text>[ICON_TOURISM] Tourism is generated by Great Works, Wonders, and other cultural achievements to exert cultural influence over other civilizations. When your accumulated [ICON_TOURISM] Tourism exceeds another civilization's accumulated [ICON_CULTURE] Culture output, you become Influential over them, bringing you closer to a Cultural Victory.</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BORDER_GROWTH_HELP_INFO">
 			<Text>[ICON_CULTURE_LOCAL] Border Growth Points are generated from your City's culture output, and by certain buildings and beliefs. When the accumulated Border Growth Points exceed the required threshold, your City acquires a new tile.</Text>
 		</Row>
@@ -2148,6 +2205,71 @@
 			<Text>You need positive {1_ResourcesString} count to upgrade this Unit.</Text>
 		</Row>
 
+		<!-- Heal action disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_CANNOT_HEAL">
+			<Text>This unit cannot heal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_RESOURCE_SHORTAGE">
+			<Text>This unit cannot heal due to a resource shortage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_HOVERING_WATER">
+			<Text>Hovering units can only heal over land.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_MOUNTAIN">
+			<Text>Units cannot heal on Mountains.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_EMBARKED">
+			<Text>Units cannot heal while embarked.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_NAVAL_TERRITORY">
+			<Text>This unit can only heal in friendly territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_NO_HEAL_RATE">
+			<Text>This unit has no heal rate in its current location.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_HEAL_DISABLED_BLOCKADED">
+			<Text>Units cannot heal in a fully blockaded city.</Text>
+		</Row>
+		<!-- Build action disabled tooltips -->
+		<Row Tag="TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING">
+			<Text>Another unit is already building something here.</Text>
+		</Row>
+		<!-- Upgrade action disabled tooltips -->
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_EMBARKED">
+			<Text>Embarked units cannot upgrade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_HAS_CARGO">
+			<Text>A unit carrying other units cannot upgrade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_CARGO_INCOMPATIBLE">
+			<Text>The transport cannot carry the upgraded unit type.</Text>
+		</Row>
+		<!-- Paradrop action disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_PARADROP_DISABLED_MOVED">
+			<Text>A unit cannot paradrop after moving.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_PARADROP_DISABLED_EMBARKED">
+			<Text>An embarked unit cannot paradrop.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_PARADROP_DISABLED_TERRITORY">
+			<Text>A unit can only paradrop from friendly territory.</Text>
+		</Row>
+		<!-- Culture Bomb disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_FOREIGN_TERRITORY">
+			<Text>This unit cannot perform this action in another player's territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_NOT_ADJACENT">
+			<Text>This unit must be in or adjacent to your territory to perform this action.</Text>
+		</Row>
+		<!-- Found City action disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_BUILD_CITY_DISABLED_TOO_CLOSE">
+			<Text>Cannot found a City within {1_Num} tiles of an existing City.</Text>
+		</Row>
+		<!-- Other disabled tooltips -->
+		<Row Tag="TXT_KEY_MISSION_DISABLED_CANNOT_END_TURN">
+			<Text>This unit cannot end its turn here.</Text>
+		</Row>
+
 		<!-- Combat simulator -->
 		<Row Tag="TXT_KEY_UNITCOMBAT_DAMAGE_MODIFIER">
 			<Text>Unit Health</Text>
@@ -2287,6 +2409,14 @@
 			<Text>Schedule a forced resync</Text>
 		</Row>
 
+		<!-- Economic overview -->
+		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
+			<Text>Buildings ({1_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS_TT">
+			<Text>Some Buildings in Cities produce [ICON_HAPPINESS_4] Unhappiness.</Text>
+		</Row>
+
 		<!-- Cultural overview -->
 		<!-- Tourism/Happiness screen -->
 		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_CIVS_WITH_OTHER_IDEOLOGY">
@@ -2358,8 +2488,40 @@
 		</Row>
 
 		<!-- Religion overview -->
+
+		<!-- Religion overview -->
+		<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">
+			<Text>Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_TOTAL_FOLLOWERS">
+			<Text>Followers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_YEAR_FOUNDED">
+			<Text>Founded</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_OWNED_CITIES">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of all Cities follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your Cities have {4_Name} as the [ICON_RELIGION] Majority Religion. They account for [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of the Majority Religion of your Cities. These cities also accounts for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s majority presence.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_OWNED_FOLLOWERS">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of the World's Population follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your [ICON_CITIZEN] Population follows {4_Name}. They make up [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of your [ICON_CITIZEN] Population. They also make up for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s followers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_TAB_MAP">
+			<Text>Map</Text>
+		</Row>
 		<Row Tag="TXT_KEY_RO_AUTO_FAITH_PROPHET_PARAM">
 			<Text>Save for {1_UNITCLASS_PROPHET}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_DISABLE_AUTO_PURCHASE">
+			<Text>Notify Only</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_DISABLE_AUTO_PURCHASE_TT">
+			<Text>When checked, religious units and buildings will not be purchased automatically. Instead, you will receive a notification when enough Faith has been collected.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_FAITH_PURCHASE_AVAILABLE">
+			<Text>You have collected enough Faith to buy {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_Name}}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_FAITH_PURCHASE_AVAILABLE">
+			<Text>Faith Purchase available</Text>
 		</Row>
 
 		<!-- Espionage overview -->
@@ -3012,6 +3174,9 @@
 		<Row Tag="TXT_KEY_DECLARE_WAR_DPS_CP">
 			<Text>DEFENSIVE PACTS</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US">
+			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
+		</Row>
 
 		<!-- Trade screen -->
 		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_NO_LIMIT_TT">
@@ -3070,6 +3235,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT">
 			<Text>Cannot trade one-time items (such as Gold) for items given over time (such as Resources).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_GOLD_ONLY_TRADE_TT">
+			<Text>Cannot trade Gold for Gold per Turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT">
 			<Text>A human teammate prevents this action.</Text>
@@ -3216,10 +3384,10 @@
 			<Text>A Pledge of Protection prevents this action.</Text>
 		</Row>
 		<!-- Multiplayer only -->
-		<Row Tag="TXT_KEY_DENOUNCE_HUMAN">
+		<Row Tag="TXT_KEY_MP_DENOUNCE_HUMAN">
 			<Text>Denounce</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DENOUNCE_HUMAN_TT">
+		<Row Tag="TXT_KEY_MP_DENOUNCE_HUMAN_TT">
 			<Text>Clicking this button will [COLOR_NEGATIVE_TEXT]DENOUNCE[ENDCOLOR] the other player.</Text>
 		</Row>
 
@@ -3264,11 +3432,6 @@
 			<Text>Choosing this option will alert {2_CivName:textkey} and their allies to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
 		</Row>
 
-		<!-- Declare war popup -->
-		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US">
-			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
-		</Row>
-
 		<!-- City-State screen/tooltip -->
 		<Row Tag="TXT_KEY_NEUTRAL_CSTATE">
 			<Text>Neutral</Text>
@@ -3311,6 +3474,11 @@
 			<Text>They want you to conquer the city of {1_City}.</Text>
 		</Row>
 
+		<!-- Debug score -->
+		<Row Tag="TXT_KEY_DEBUG_SCORE">
+			<Text>Score: [COLOR_CYAN]{1_Score}[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- Plot popup -->
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE">
 			<Text>Viking</Text>
@@ -3343,6 +3511,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_EXPLORE_AREA_QUEST_LONG">
 			<Text>{1_Civ} wants you to explore around this tile.</Text>
+		</Row>
+
+		<!-- Path node -->
+		<Row Tag="TXT_KEY_PATHFINDING_ENDING_MOVE_EARLY">
+			<Text>[COLOR_NEGATIVE_TEXT]Ending Move Early[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Banner message -->
@@ -3388,6 +3561,12 @@
 		<Row Tag="TXT_KEY_MISC_ENEMY_AIR_UNIT_INTERCEPTED_CITY">
 			<Text>Thanks to your intercepting {@1_UnitName}, we damaged the {@2_owner_adjective} {@3_EnUName} ({4_Num} damage) attacking your City of {@5_CityName}.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_DISABLED">
+			<Text>Debug: Pathfinding stop nodes for humans disabled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_ENABLED">
+			<Text>Debug: Pathfinding stop nodes for humans enabled</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PARADROP_AA_DAMAGED">
 			<Text>Your {1_Unit} was intercepted by an enemy {2_EnUName} ({3_Num} damage)!</Text>
 		</Row>
@@ -3420,19 +3599,34 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST_TT">
 			<Text>A diplomatic message from another Civilization awaits your consideration.</Text>
 		</Row>
-		
-		<!-- New columns -->
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNHAPPINESS">
-			<Text>[ICON_HAPPINESS_3] Unhappiness: {2_Sign}{1_Num}</Text>
+
+		<!-- Notification log -->
+		<Row Tag="TXT_KEY_NOTIFICATION_LOG_TAB">
+			<Text>Notification Log</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
-			<Text>Buildings ({1_Num})</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TITLE">
+			<Text>Instant Yield Notification Settings</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS_TT">
-			<Text>Some Buildings in Cities produce [ICON_HAPPINESS_4] Unhappiness.</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_CITY_BUTTON">
+			<Text>Cities</Text>
 		</Row>
-		<Row Tag="TXT_KEY_TP_UNHAPPINESS_BUILDINGS">
-			<Text>{1_Num} from Buildings.</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_MILITARY_BUTTON">
+			<Text>Military Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_CIVILIAN_BUTTON">
+			<Text>Non-Combat Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_SPIES_BUTTON">
+			<Text>Spies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_MISC_BUTTON">
+			<Text>Other</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TURN_OFF_ALL_BUTTON">
+			<Text>Turn off all</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TURN_ON_ALL_BUTTON">
+			<Text>Turn on all</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

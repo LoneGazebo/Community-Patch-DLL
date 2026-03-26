@@ -177,6 +177,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(IsDebugMode);
 	Method(SetDebugMode);
+	Method(SetHumanAIPath);
 	Method(ToggleDebugMode);
 	Method(UpdateFOW);
 
@@ -260,6 +261,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(SaveReplay);
 
 	Method(AddPlayer);
+	Method(ChangeMinorPlayer);
 
 	Method(SetPlotExtraYield);
 	Method(ChangePlotExtraCost);
@@ -353,6 +355,10 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetDealDuration);
 	Method(GetRelationshipDuration);
 	Method(GetPeaceDuration);
+
+	Method(GetRenewDeal);
+	Method(GetRenewDealGoldPerTurn);
+	Method(GetRenewDealResourceCount);
 
 	Method(GetUnitUpgradesTo);
 
@@ -1273,6 +1279,12 @@ int CvLuaGame::lSetDebugMode(lua_State* L)
 	return BasicLuaMethod(L, &CvGame::setDebugMode);
 }
 //------------------------------------------------------------------------------
+//bool setDebugMode();
+int CvLuaGame::lSetHumanAIPath(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::setHumanAIPath);
+}
+//------------------------------------------------------------------------------
 //void toggleDebugMode();
 int CvLuaGame::lToggleDebugMode(lua_State* L)
 {
@@ -1839,6 +1851,12 @@ int CvLuaGame::lAddPlayer(lua_State* L)
 	return BasicLuaMethod(L, &CvGame::addPlayer);
 }
 //------------------------------------------------------------------------------
+//void changeMinorPlayer(PlayerTypes eNewPlayer, MinorCivTypes m);
+int CvLuaGame::lChangeMinorPlayer(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::changeMinorPlayer);
+}
+//------------------------------------------------------------------------------
 //void setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iExtraYield);
 int CvLuaGame::lSetPlotExtraYield(lua_State* L)
 {
@@ -2001,9 +2019,9 @@ int CvLuaGame::lGameplayDiplomacyAILeaderMessage(lua_State* L)
 int CvLuaGame::lGetResourceUsageType(lua_State* L)
 {
 	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 1);
-	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-	if (pkResourceInfo)
+	if (eResource != NO_RESOURCE)
 	{
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
 		lua_pushinteger(L, eUsage);
 	}
@@ -2622,6 +2640,38 @@ int CvLuaGame::lGetRelationshipDuration(lua_State* L)
 int CvLuaGame::lGetPeaceDuration(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::GetPeaceDuration);
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetRenewDeal(lua_State* L)
+{
+	const PlayerTypes ePlayer1 = (PlayerTypes)lua_tointeger(L, 1);
+	const PlayerTypes ePlayer2 = (PlayerTypes)lua_tointeger(L, 2);
+	const int iDealID = GC.getGame().GetGameDeals().GetRenewDealID(ePlayer1, ePlayer2);
+	lua_pushinteger(L, iDealID);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetRenewDealGoldPerTurn(lua_State* L)
+{
+	const PlayerTypes ePlayer1 = (PlayerTypes)lua_tointeger(L, 1);
+	const PlayerTypes ePlayer2 = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFrom = (PlayerTypes)lua_tointeger(L, 3);
+	CvDeal* pRenewDeal = GC.getGame().GetGameDeals().GetRenewDeal(ePlayer1, ePlayer2);
+	int iGPT = pRenewDeal ? pRenewDeal->GetGoldPerTurnTrade(eFrom) : 0;
+	lua_pushinteger(L, iGPT);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetRenewDealResourceCount(lua_State* L)
+{
+	const PlayerTypes ePlayer1 = (PlayerTypes)lua_tointeger(L, 1);
+	const PlayerTypes ePlayer2 = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eFrom = (PlayerTypes)lua_tointeger(L, 3);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 4);
+	CvDeal* pRenewDeal = GC.getGame().GetGameDeals().GetRenewDeal(ePlayer1, ePlayer2);
+	int iCount = pRenewDeal ? pRenewDeal->GetNumResourcesInDeal(eFrom, eResource) : 0;
+	lua_pushinteger(L, iCount);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

@@ -77,11 +77,9 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	CvCitySpecializationAI* pSpecializationAI = kOwner.GetCitySpecializationAI();
 	
-	// if going for science victory, spaceship planning is done on player level and not here. don't change production if this city is producing a spaceship part
-	if (!kOwner.isMinorCiv() && kOwner.GetDiplomacyAI()->IsGoingForSpaceshipVictory() && isProductionSpaceshipPart())
-	{
+	// spaceship planning is done on player level and not here. don't change production if this city is producing a spaceship part
+	if (isProductionSpaceshipPart())
 		return;
-	}
 
 	bool bBuildWonder = false;
 

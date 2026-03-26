@@ -373,12 +373,12 @@ local WriteAbilities = (function()
 		{ 'AllowsDefensiveEmbarking', 'TXT_KEY_ABLTY_DEFENSIVE_EMBARK_STRING' },
 		{ 'EmbarkedAllWaterPassage',  'TXT_KEY_ABLTY_OCEAN_EMBARK_STRING' },
 
-		PrepareNumericAbility('Happiness', 'TXT_KEY_ABLTY_HAPPINESS_BUMP'),
+		PrepareNumericAbility('Happiness', 'TXT_KEY_TECH_HELP_HAPPINESS_GLOBAL'),
 
 		{ 'BombardRange',                   'TXT_KEY_ABLTY_CITY_RANGE_INCREASE' },
 		{ 'BombardIndirect',                'TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE' },
-		{ 'CityLessEmbarkCost',             'TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING' },
-		{ 'CityNoEmbarkCost',               'TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING' },
+		{ 'CityLessEmbarkCost',             'TXT_KEY_TECH_HELP_REDUCED_EMBARK_COST' },
+		{ 'CityNoEmbarkCost',               'TXT_KEY_TECH_HELP_NO_EMBARK_COST' },
 		{ 'AllowEmbassyTradingAllowed',     'TXT_KEY_ABLTY_ALLOW_EMBASSY_STRING' },
 		{ 'OpenBordersTradingAllowed',      'TXT_KEY_ABLTY_OPEN_BORDER_STRING' },
 		{ 'DefensivePactTradingAllowed',    'TXT_KEY_ABLTY_D_PACT_STRING' },

@@ -67,7 +67,6 @@ WHERE Type IN (
 	'UNITCLASS_SS_ENGINE',
 	'UNITCLASS_SS_BOOSTER',
 	'UNITCLASS_SIEGE_TOWER',
-	'UNITCLASS_ASAMU',
 
 	-- Combat units that cannot be spawned by Barbarians
 	-- Chariot Archer
@@ -110,14 +109,6 @@ WHERE Type IN (
 	'UNITCLASS_CARRIER',
 	'UNITCLASS_SUPERCARRIER'
 );
-
--- All Wonders
-INSERT INTO Civilization_BuildingClassOverrides
-	(CivilizationType, BuildingClassType)
-SELECT
-	'CIVILIZATION_BARBARIAN', Type
-FROM BuildingClasses
-WHERE (MaxPlayerInstances <> -1 OR MaxGlobalInstances <> -1);
 
 -- Art stuff
 UPDATE Civilizations

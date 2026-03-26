@@ -4,4 +4,5 @@ INSERT INTO Remapper (name)
 	WHERE name != 'GreatWorkClasses'
 	AND name != 'MultiplayerOptions'
 	AND name != 'ReplayDataSets'
-	AND name != 'HistoricRankings';
+	AND name != 'HistoricRankings'
+	AND name != 'FakeFeatures';

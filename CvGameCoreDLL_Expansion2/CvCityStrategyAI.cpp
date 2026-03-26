@@ -3108,7 +3108,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 				if (eMajority != NO_RELIGION)
 				{
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-					if (pReligion)
+					if (pReligion && GetGreatPersonFromSpecialist(eSpecialist) != NO_GREATPERSON)
 					{
 						iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), pCity->getOwner(), pCity, true) * 100;
 					}
@@ -3144,35 +3144,39 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 
 							iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 
-							ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
-							BeliefTypes eSecondaryPantheon = NO_BELIEF;
-							if(eMajority != NO_RELIGION)
+							ReligionTypes eOwnerReligion = pCity->GetPlayer()->GetReligions()->GetOwnedReligion();
+							if (eOwnerReligion != NO_RELIGION && pCity->GetCityReligions()->IsHolyCityForReligion(eOwnerReligion))
 							{
-								const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-								if(pReligion)
+								ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+								BeliefTypes eSecondaryPantheon = NO_BELIEF;
+								if(eMajority != NO_RELIGION)
 								{
-									iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pCity->getOwner(), pCity);
-									eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-									if (eSecondaryPantheon != NO_BELIEF)
+									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+									if(pReligion)
 									{
-										iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+										iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pCity->getOwner(), pCity);
+										eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+										if (eSecondaryPantheon != NO_BELIEF)
+										{
+											iMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+										}
 									}
 								}
-							}
 
-							// Mod for civs keeping their pantheon belief forever
-							if (MOD_BALANCE_PERMANENT_PANTHEONS)
-							{
-								if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pCity->getOwner()))
+								// Mod for civs keeping their pantheon belief forever
+								if (MOD_BALANCE_PERMANENT_PANTHEONS)
 								{
-									const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pCity->getOwner());
-									BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pCity->getOwner());
-									if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+									if (GC.getGame().GetGameReligions()->HasCreatedPantheon(pCity->getOwner()))
 									{
-										const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-										if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, pCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
+										const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, pCity->getOwner());
+										BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(pCity->getOwner());
+										if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
 										{
-											iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+											const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+											if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, pCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
+											{
+												iMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+											}
 										}
 									}
 								}
@@ -3429,7 +3433,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) > 0)
 	{
-		iFlatYield += pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * iEra / 100;
+		iFlatYield += pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * max(1, iEra) / 100;
 	}
 	if (pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield) > 0)
 	{
@@ -3480,22 +3484,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 	if (pkBuildingInfo->GetYieldChangePerPop(eYield) > 0)
 	{
-		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
-		int iValue = (pCity->getPopulation() * pkBuildingInfo->GetYieldChangePerPop(eYield) * 100) / (100 * (iEra + 1));
-
-		if (iValue <= pkBuildingInfo->GetYieldChangePerPop(eYield))
-			iValue = pkBuildingInfo->GetYieldChangePerPop(eYield);
-
+		int iValue = pCity->getPopulation() * pkBuildingInfo->GetYieldChangePerPop(eYield) / 100;
 		iFlatYield += iValue;
 	}
 	if (pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) > 0)
 	{
-		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
-		int iValue = (GET_PLAYER(pCity->getOwner()).getTotalPopulation() * pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * 100) / (100 * (iEra + 1));
-
-		if (iValue <= pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield))
-			iValue = pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield);
-
+		int iValue = GET_PLAYER(pCity->getOwner()).getTotalPopulation() * pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) / 100;
 		iFlatYield += iValue;
 	}
 
@@ -3701,7 +3695,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iFlatYield += (iCount * pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield)) * kPlayer.getNumCities();
 	}
 
-	if (pkBuildingInfo->GetTradeRouteRecipientBonus() > 0 || (pkBuildingInfo->GetTradeRouteTargetBonus() > 0 && eYield == YIELD_GOLD))
+	if ((pkBuildingInfo->GetTradeRouteRecipientBonus() > 0 || pkBuildingInfo->GetTradeRouteTargetBonus() > 0) && eYield == YIELD_GOLD)
 	{
 		iFlatYield += ((kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) / 100) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
 	}
@@ -3784,13 +3778,13 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 		}
 	}
-	if (pkBuildingInfo->GetYieldPerAlly(eYield) > 0)
+	if (pkBuildingInfo->GetYieldPerAllyTimes100(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerAlly(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSAllies()));
+		iFlatYield += (pkBuildingInfo->GetYieldPerAllyTimes100(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSAllies()) / 100);
 	}
-	if (pkBuildingInfo->GetYieldPerFriend(eYield) > 0)
+	if (pkBuildingInfo->GetYieldPerFriendTimes100(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSFriends()));
+		iFlatYield += (pkBuildingInfo->GetYieldPerFriendTimes100(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSFriends()) / 100);
 	}
 	if (pkBuildingInfo->GetYieldFromInternal(eYield) > 0)
 	{
@@ -3902,7 +3896,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromVictory(eYield) > 0)
 	{
-		iInstant += pkBuildingInfo->GetYieldFromVictory(eYield);
+		iInstant += pkBuildingInfo->GetYieldFromVictory(eYield) / 5;
+	}
+	if (pkBuildingInfo->GetYieldFromVictoryEraScaling(eYield) > 0)
+	{
+		iInstant += pkBuildingInfo->GetYieldFromVictoryEraScaling(eYield);
 	}
 	if (pkBuildingInfo->GetYieldFromVictoryGlobal(eYield) > 0)
 	{
@@ -4062,10 +4060,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iInstant += pkBuildingInfo->GetYieldFromUnitProduction(eYield);
 		}
 	}
+	//TODO: Improve the valuation of these 3 birth yield bonuses by better estimating growth
 	if (pkBuildingInfo->GetYieldFromBirth(eYield) > 0)
 	{
 		//we want these as early as possible!
-		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+		iInstant += max(1, (50 - pCity->getPopulation()));
 
 		iInstant += pkBuildingInfo->GetYieldFromBirth(eYield) + (pCity->getYieldRateTimes100(YIELD_FOOD) / 100) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
@@ -4078,7 +4077,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldFromBirthEraScaling(eYield) > 0)
 	{
 		//we want these as early as possible!
-		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+		iInstant += max(1, (50 - pCity->getPopulation()));
 
 		iInstant += (iEra * pkBuildingInfo->GetYieldFromBirthEraScaling(eYield)) + (pCity->getYieldRateTimes100(YIELD_FOOD) / 100) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
@@ -4091,7 +4090,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetGPPOnCitizenBirth() > 0)
 	{
 		//we want these as early as possible!
-		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+		iInstant += max(1, (50 - pCity->getPopulation()));
 
 		iInstant += (iEra * pkBuildingInfo->GetGPPOnCitizenBirth()) + (pCity->getYieldRateTimes100(YIELD_FOOD) / 100) + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
@@ -4177,6 +4176,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iModifier += (pkBuildingInfo->GetYieldFromProcessModifier(eYield) * 2);
 	}
 
+	if (pkBuildingInfo->GetYieldModifierEraScaling(eYield) > 0)
+	{
+		iModifier += pkBuildingInfo->GetYieldModifierEraScaling(eYield) * max(1, iEra);
+	}
+
 	if (pkBuildingInfo->GetYieldModifier(eYield) > 0)
 	{
 		iModifier += pkBuildingInfo->GetYieldModifier(eYield);
@@ -4205,30 +4209,22 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (iFlatYield > 0)
 	{
 		//let's see our % bump here.
-		iDelta = (iFlatYield * 100) / max(1, iYieldRate);
+		//TODO: While % increase should be a consideration especially for certain yields, it shouldn't be the end all be all
+		iDelta = (iFlatYield * 100) / iYieldRate;
 
-		if (iYieldRate <= 0)
-		{
-			//Yield value here greater than our yield output in this city? We need this badly!
-			iDelta *= 5;
-		}
-
-		//Instant Yields don't scale with era, but they do help for base infrastructure. Scale by city population.
-		iDelta *= (100 + pCity->getPopulation() - iEra);
-		iDelta /= 100;
-
-		//And here's what the value represents.
 		iYieldValue += iDelta;
 	}
 
 	if (iInstant > 0)
 	{
 		//Instant Yields almost always scale with era, so compensate.
+		//TODO: this should be handled by each individual instant yield instead
 		iInstant *= max(1, iEra);
 
 		//Let's see how much this is compared to our actual rate.
 		//We divide, since we are getting this sporadically, not all the time.
-		iDelta = max((iInstant/2), (iInstant / max(1, iYieldRate)));
+		//TODO: This doesn't really make sense and should be handled similar to flat yields
+		iDelta = max((iInstant / 2), (iInstant / iYieldRate));
 
 		iYieldValue += iDelta;
 
@@ -4241,7 +4237,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//Let's see how much this is compared to our actual rate.
 		//We multiply, as we want to see what the 'new' value will be with this modifier intact.
 		//We don't need to do this again as this shows us the actual bonus earned here.
-		int iActualIncrease = ((iModifier * max(1, iYieldRate)) / 100);
+		int iActualIncrease = ((iModifier * iYieldRate) / 100);
 
 		iYieldValue += iActualIncrease;
 	}
@@ -4929,16 +4925,20 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
 			if (pReligion)
 			{
-				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
+				ReligionTypes eOwnedReligion = kPlayer.GetReligions()->GetOwnedReligion();
+				if (eOwnedReligion != NO_RELIGION && pCity->GetCityReligions()->IsHolyCityForReligion(eOwnedReligion))
 				{
-					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-					if(eGP == NO_GREATPERSON)
-						continue;
-
-					if (pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity) > 0)
+					for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 					{
-						iValue += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity);
-						iValue += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
+						GreatPersonTypes eGP = (GreatPersonTypes)iJ;
+						if(eGP == NO_GREATPERSON)
+							continue;
+
+						if (pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity) > 0)
+						{
+							iValue += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity);
+							iValue += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
+						}
 					}
 				}
 				for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
@@ -5315,21 +5315,21 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
     {
 		iValue += kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
     }
-	if (pkBuildingInfo->GetExtraMissionarySpreads() > 0)
+	if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionarySpreads() > 0)
 	{
 		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetStateReligion());
 
 		iValue += (iNumNearbyCities / 25);
 	}
 
-	if (pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
+	if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
 	{
 		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetStateReligion());
 
 		iValue += (iNumNearbyCities / 10);
 	}
 
-	if (pkBuildingInfo->GetExtraMissionaryStrength() > 0)
+	if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionaryStrength() > 0)
 	{
 		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetStateReligion());
 

@@ -76,8 +76,8 @@ ALTER TABLE Policies ADD NeedsModifierFromAirUnits integer DEFAULT 0;
 -- air units increase defense by +x flat per unit
 ALTER TABLE Policies ADD FlatDefenseFromAirUnits integer DEFAULT 0;
 
--- puppet penalties reduced by positive amount
-ALTER TABLE Policies ADD PuppetYieldPenaltyMod integer DEFAULT 0;
+-- Change to Puppet yield and supply modifier
+ALTER TABLE Policies ADD PuppetYieldAndSupplyModifierChange integer DEFAULT 0;
 
 -- Puppet/Occupied cities gain x+x*era difference for buildings.
 ALTER TABLE Policies ADD ConquestPerEraBuildingProductionMod integer DEFAULT 0;
@@ -251,7 +251,7 @@ ALTER TABLE Policies ADD RazingSpeedBonus integer DEFAULT 0;
 -- Allows you to set whether or not partisans spawn from razing cities (via policy)
 ALTER TABLE Policies ADD NoPartisans boolean DEFAULT 0;
 
--- Allows you to set whether or not units gain full XP when purchased with Gold (BALANCE_HALF_XP_GOLD_PURCHASES)
+-- Allows you to set whether or not units gain full XP when purchased with Gold or Faith (BALANCE_HALF_XP_GOLD_PURCHASES)
 ALTER TABLE Policies ADD NoXPLossUnitPurchase boolean DEFAULT 0;
 
 -- Allows you to set a % of warscore that is added to a tourism bonus against a civ

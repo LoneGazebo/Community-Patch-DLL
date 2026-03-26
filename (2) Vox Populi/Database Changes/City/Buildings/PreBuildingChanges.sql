@@ -260,6 +260,7 @@ SET
 	PrereqTech = (SELECT PrereqTech FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	FreeStartEra = (SELECT FreeStartEra FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	CityIndirectFire = (SELECT CityIndirectFire FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
+	RangedStrikeModifier = (SELECT RangedStrikeModifier FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	CitySupplyModifier = (SELECT CitySupplyModifier FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	HealRateChange = (SELECT HealRateChange FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
 	EmpireSizeModifierReduction = (SELECT EmpireSizeModifierReduction FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT'),
@@ -270,5 +271,17 @@ WHERE Type = 'BUILDING_KREPOST';
 
 DELETE FROM Building_DomainFreeExperiences WHERE BuildingType = 'BUILDING_KREPOST';
 
+-- Existing unique buildings with no base buildings
+-- Set everything back to default values (as if the buildings do nothing)
+-- These should never need to be changed in the future
+
 -- Siam: Wat
+UPDATE Buildings
+SET
+	PrereqTech = NULL,
+	UnlockedByBelief = 0,
+	SpecialistType = NULL,
+	SpecialistCount = 0
+WHERE Type = 'BUILDING_WAT';
+
 DELETE FROM Building_FeatureYieldChanges WHERE BuildingType = 'BUILDING_WAT';

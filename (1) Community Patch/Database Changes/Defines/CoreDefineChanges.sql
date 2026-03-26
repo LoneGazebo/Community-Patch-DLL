@@ -14,6 +14,8 @@ VALUES
 	('IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS', 0),
 -- If > -1, a player with no cities but who is still alive (Complete Kills) will be granted a free Settler after this many turns
 	('COMPLETE_KILLS_TURN_TIMER', -1),
+-- Number of unique components displayed in the civ selection and loading screens
+	('NUM_UNIQUE_COMPONENTS', 2),
 -- Maximum number of Ideology Tenets of each Level that a Player can have (should correspond to the limitations put on human players by the Ideology Selection UI)
 	('MAX_NUM_TENETS_LEVEL_1', 7),
 	('MAX_NUM_TENETS_LEVEL_2', 4),
@@ -94,6 +96,7 @@ VALUES
 	('BALANCE_CORP_OFFICE_TR_CONVERSION', 1.0),
 -- Recon
 	('BALANCE_SCOUT_XP_RANDOM_VALUE', 12),
+	('BALANCE_SCOUT_XP_DENOMINATOR', 10),
 	('BALANCE_SCOUT_XP_BASE', 1),
 -- "Too early for agreement" turn buffers
 	('JUST_MET_TURN_BUFFER', 10), -- Hard floor for below two
@@ -142,7 +145,6 @@ VALUES
 	('UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER', 0),
 	('UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER', 0),
 	('UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION', 34),
-	('UNIT_SUPPLY_POPULATION_PUPPET_PERCENT', 100),
 	('MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED', 0),
 	('MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC', 0),
 	('MINOR_CIV_UNIT_SUPPLY_MODIFIER_MARITIME', 0),
@@ -191,7 +193,11 @@ VALUES
 -- Homeland AI
 	('AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT', 5),
 -- Economic AI
-	('MAX_PLOTS_PER_EXPLORER', 20), -- Recon unit calculations
+	('MAX_PLOTS_PER_EXPLORER', 40), -- Recon unit calculations
+	('UNKNOWN_EXPLORE_TILE_VALUE', 25),
+	('LAND_EXPLORE_TILE_VALUE', 50),
+	('COAST_EXPLORE_TILE_VALUE', 20),
+	('OCEAN_EXPLORE_TILE_VALUE', 10),
 	('NEED_DIPLOMAT_THRESHOLD_MODIFIER', 125), -- Higher Threshold = Lower diplomacy desire.
 	('NEED_DIPLOMAT_DESIRE_MODIFIER', 2), -- Higher Desire = Higher diplomacy desire.
 	('NEED_DIPLOMAT_DISTASTE_MODIFIER', 6), -- Lower distaste = More sensitive to other player's diplomatic actions and/or city-state abuse.
@@ -415,6 +421,7 @@ VALUES
 	('PUPPET_PRODUCTION_MODIFIER', 0),
 	('PUPPET_GOLDEN_AGE_MODIFIER', 0),
 	('PUPPET_TOURISM_MODIFIER', 0),
+	('PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE', 100),
 -- If set to a positive value, observer mode will stop automatically after this many turns
 	('MAX_TURNS_OBSERVER_MODE', 0),
 -- Misc.
@@ -426,12 +433,15 @@ VALUES
 	('PERSONALITY_FLAVOR_MIN_VALUE', 1),
 	('INFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE', 3),
 	('UNIT_AUTO_EXTRA_AUTOMATIONS_DISABLED', 0),
+	('CITY_STRENGTH_LAND_UNIT_DIVISOR', 500),	-- Divisor of land garrison strength added to city strength x100
+	('CITY_STRENGTH_NAVAL_UNIT_DIVISOR', 500), 	-- Divisor of naval garrison strength added to city strength x100
 	('MAX_CITY_ATTACK_RANGE', 2), -- For EVENTS_CITY_BOMBARD: base city attack range
 	('UNIT_SPAWN_NUM_CHOICES', 5), -- Number of top choices considered when spawning a random free unit. Also used for militaristic city states' unique unit choice.
 	('BLOCKADED_CITY_ATTACK_MODIFIER', 0), -- Attack bonus against blockaded cities
 	('GWAM_THRESHOLD_DECREASE', 0), -- Flat GPP cost reduction for GWAM
-	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- Cost modifier for building investment
-	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- Cost modifier for unit investment
+	('HURRY_GOLD_BUILDING_COST_PERCENT', 60), -- How much % of production Cost determines cost of investment
+	('BALANCE_BUILDING_INVESTMENT_BASELINE', -50), -- How much of total cost is provided by building investment
+	('BALANCE_UNIT_INVESTMENT_BASELINE', -50), -- How much of total cost is provided by unit investment
 	('BALANCE_PRODUCTION_DESERT_IMPROVEMENT', 0), -- Production yield change on featureless flat desert with improved resource
 	('BALANCE_CONQUEST_REDUCTION_BOOST', 0), -- Reduce resistance turns when annexing cities. Base is hardcoded per level of influence, this adds to it.
 	('EMBARKED_VISIBILITY_RANGE', 1), -- Base vision when embarked
@@ -1007,7 +1017,7 @@ VALUES
 	('BALANCE_GOLD_INFLUENCE_LEVEL_INFLUENTIAL', 800),
 	('BALANCE_GOLD_INFLUENCE_LEVEL_DOMINANT', 1000),
 
--- These 5 values change the amount of growth% earned from trade routes with influenced civs. Higher influence = more growth% (trade-off for higher influence). 
+-- These 5 values change the amount of growth% earned from trade routes with influenced civs. Higher influence = more growth% (trade-off for higher influence).
 	('BALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC', 5),
 	('BALANCE_GROWTH_INFLUENCE_LEVEL_FAMILIAR', 10),
 	('BALANCE_GROWTH_INFLUENCE_LEVEL_POPULAR', 15),

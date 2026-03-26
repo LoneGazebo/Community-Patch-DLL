@@ -298,12 +298,6 @@
 		<Row Tag="TXT_KEY_POP_CSTATE_LABEL_CONTENDER">
 			<Text>Contender:</Text>
 		</Row>
-		<Row Tag="TXT_KEY_POP_CSTATE_LABEL_CONTENDER_TT_HEADER">
-			<Text>These Civilizations have invested Resting [ICON_INFLUENCE] Influence in [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POP_CSTATE_LABEL_CONTENDER_TT_HEADER2">
-			<Text>No one has invested Resting [ICON_INFLUENCE] Influence in [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR].</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CSTATE_GOLD_BONUS">
 			<Text>You are receiving [COLOR_POSITIVE_TEXT]{1_Num} [ICON_GOLD] Gold[ENDCOLOR] per turn from them.</Text>
 		</Row>
@@ -314,13 +308,13 @@
 			<Text>[COLOR_POSITIVE_TEXT][ICON_CITY_STATE] Establish an Embassy Available![ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_TT">
-			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.</Text>
+			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT">
-			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
-			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} {2_TurnsAllied: plural 1?turn; other?turns;} so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a [ICON_RES_MARRIAGE] Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each [ICON_RES_MARRIAGE] Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} {2_TurnsAllied: plural 1?turn; other?turns;} so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX">
 			<Text>Forcefully Annex City-State</Text>
@@ -1049,9 +1043,6 @@
 		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT">
 			<Text>Only {1_Num} allowed per player.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION">
-			<Text>Deleting units is disabled in this game.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES">
 			<Text>You cannot delete a unit when there are enemies nearby.</Text>
 		</Row>
@@ -1447,6 +1438,12 @@
 		<Row Tag="TXT_KEY_PEDIA_ADJIMPROVYIELD_LABEL">
 			<Text>Adjacent Bonus:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_ADJACENT_YIELDS_EXPLANATION">
+			<Text>Note: Fractional adjacency bonuses are summed up and then rounded down to the nearest integer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_LEADS_TO_PROMOTIONS_LABEL">
+			<Text>Leads to Promotions:</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PEDIA_IMPROVEMENT_RESOURCE_CBP_LABEL">
 			<Text>Improvement Yield:</Text>
 		</Row>
@@ -1511,34 +1508,34 @@
 			<Text>-{1_Num} Damage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_LABEL">
-			<Text>Corporation</Text>
+			<Text>Corporation:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORP_HEADQUARTERS_LABEL">
-			<Text>Headquarters</Text>
+			<Text>Headquarters:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORP_OFFICE_LABEL">
-			<Text>Office</Text>
+			<Text>Office:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORP_FRANCHISE_LABEL">
-			<Text>Franchise</Text>
+			<Text>Franchise:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_FREE_TR_LABEL">
-			<Text>Free Trade Routes</Text>
+			<Text>Free Trade Routes:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_RESOURCE_BONUS_LABEL">
-			<Text>Franchise Resource Bonus</Text>
+			<Text>Resource Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_OFFICE_BONUS_LABEL">
-			<Text>Office Bonus</Text>
+			<Text>Office Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATION_TRADE_ROUTE_BONUS_LABEL">
-			<Text>Trade Route Bonus</Text>
+			<Text>Trade Route Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_MONOPOLY_RESRC_LABEL">
-			<Text>Monopoly Required (Any)</Text>
+			<Text>Monopoly Required (Any):</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_MONOPOLY_RESOURCE_NAME">
-			<Text>Monopoly Resource</Text>
+			<Text>Monopoly Resource:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_CORPORATIONS_FREE_RESOURCE">
 			<Text>Provides {1_Num} {2_IconString} {3_ResourceName} </Text>
@@ -1786,13 +1783,13 @@
 			<Text>Reveals all land explored by this civilization.[NEWLINE][NEWLINE]Note: Will not receive contact with unmet civilizations and city-states.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH">
-			<Text>Both players don't yet have the Technology required to trade this item (Military Science).</Text>
+			<Text>Both players don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER">
-			<Text>They don't yet have the Technology required to trade this item (Military Science).</Text>
+			<Text>They don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER">
-			<Text>You don't yet have the Technology required to trade this item (Military Science).</Text>
+			<Text>You don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED">
 			<Text>They have already explored all of the lands revealed in your World Map.</Text>
@@ -1907,31 +1904,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_ARCHAEOLOGY_QUEST_LONG">
 			<Text>The City-State of {1_CivName:textkey} wants you to send an archaeologist to study this tile.</Text>
-		</Row>
-
-		<!-- Religion picker -->
-		<Row Tag="TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION">
-			<Text>[COLOR_POSITIVE_TEXT]Your Advisor recommends this belief.[ENDCOLOR]</Text>
-		</Row>
-
-		<!-- Religion overview -->
-		<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">
-			<Text>Cities</Text>
-		</Row>
-		<Row Tag="TXT_KEY_RO_WR_TOTAL_FOLLOWERS">
-			<Text>Followers</Text>
-		</Row>
-		<Row Tag="TXT_KEY_RO_WR_YEAR_FOUNDED">
-			<Text>Founded</Text>
-		</Row>
-		<Row Tag="TXT_KEY_RO_WR_OWNED_CITIES">
-			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of all Cities follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your Cities have {4_Name} as the [ICON_RELIGION] Majority Religion. They account for [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of the Majority Religion of your Cities. These cities also accounts for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s majority presence.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_RO_WR_OWNED_FOLLOWERS">
-			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of the World's Population follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your [ICON_CITIZEN] Population follows {4_Name}. They make up [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of your [ICON_CITIZEN] Population. They also make up for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s followers.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_RO_TAB_MAP">
-			<Text>Map</Text>
 		</Row>
 
 		<!-- Economic overview -->
@@ -2460,6 +2432,12 @@
 		<Row Tag="TXT_KEY_APPLY_CHANGES">
 			<Text>Apply Changes</Text>
 		</Row>
+		<Row Tag="TXT_KEY_SET_TAXES">
+			<Text>Set Taxes</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SET_TAXES_TT">
+			<Text>Set the Vassal's tax rate. The changes will take effect on the next turn.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_APPLY_CHANGES_TT">
 			<Text>Apply changes to the Vassal's tax rate. The changes will take effect on the next turn.</Text>
 		</Row>
@@ -2746,6 +2724,9 @@
 		<Row Tag="TXT_KEY_NEED_RESOURCE_LOCAL">
 			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Desc} Resource near City</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NEED_RESOURCE_AMOUNT">
+			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Num} {2_Desc}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NEED_IMPROVEMENT">
 			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Desc} Improvement</Text>
 		</Row>
@@ -2856,6 +2837,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_NEED_SPECIFIC_STATE_RELIGION">
 			<Text>[NEWLINE] [ICON_BULLET] Requires ownership of {1_Desc} Religion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ALREADY_BUILT">
+			<Text>[NEWLINE] [ICON_BULLET] Building already constructed in the city</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MAXED_OUT">
+			<Text>[NEWLINE] [ICON_BULLET] Cannot construct any more instances of this Building</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_HOLY_CITY_SPECIFIC">
 			<Text>[NEWLINE] [ICON_BULLET] Requires ownership of Holy City for {1_Desc}</Text>
@@ -3129,6 +3116,14 @@
 		</Row>
 		<Row Tag="TXT_KEY_ANTIQUITY_LEGEND_HIDDEN_SITE">
 			<Text>Hidden Antiquity Site</Text>
+		</Row>
+		
+		<!-- Action tooltips -->
+		<Row Tag="TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_WITHOUT_WAR_HELP">
+			<Text>Can't plunder trade routes going to your own city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_CORPORATION_HELP">
+			<Text>Can't plunder trade routes protected by the trade route owner's corporation.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

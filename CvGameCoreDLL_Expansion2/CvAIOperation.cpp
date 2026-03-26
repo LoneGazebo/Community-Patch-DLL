@@ -2643,6 +2643,9 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 	CvPlot* pTargetPlot = GetTargetPlot();
 	CvArmyAI* pArmy = GetArmy(0);
 
+	if (m_eCurrentState == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+		return false;
+
 	//don't care about the intermediate niceties ... just nuke away!
 	if(pTargetPlot && pArmy)
 	{
@@ -2984,12 +2987,21 @@ AIOperationAbortReason CvAIOperationCivilianDiplomatDelegation::VerifyOrAdjustTa
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
-	if (GetTargetPlot()==NULL || !pCivilian->canTrade( GetTargetPlot() ))
+	bool bRetarget = false;
+	if (GetTargetPlot() == NULL || !pCivilian->canTrade(GetTargetPlot()))
+	{
 		RetargetCivilian(pCivilian, pArmy);
+		bRetarget = true;
+	}
 
-	CvCity* pTargetCity = GetTargetPlot()->getOwningCity();
-	if (pTargetCity == NULL || GET_PLAYER(pCivilian->getOwner()).ScoreCityForMessenger(pTargetCity, pCivilian) <= 0)
-		RetargetCivilian(pCivilian, pArmy);
+	if (!bRetarget)
+	{
+		CvCity* pTargetCity = GetTargetPlot()->getOwningCity();
+		if (pTargetCity == NULL || GET_PLAYER(pCivilian->getOwner()).ScoreCityForMessenger(pTargetCity, pCivilian) <= 0)
+		{
+			RetargetCivilian(pCivilian, pArmy);
+		}
+	}
 
 	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;
 }

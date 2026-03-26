@@ -176,7 +176,11 @@ VALUES
 	('BELIEF_SACRED_SITES', 'BUILDINGCLASS_HERMITAGE', 'YIELD_TOURISM', 10);
 
 -- To the Glory of God
-UPDATE Beliefs SET CityScalerLimiter = 20 WHERE Type = 'BELIEF_TO_GLORY_OF_GOD';
+UPDATE Beliefs
+SET
+	GreatPeopleFaithCostMod = 50,
+	CityScalerLimiter = 20
+WHERE Type = 'BELIEF_TO_GLORY_OF_GOD';
 
 CREATE TEMP TABLE Helper4 (
 	YieldType TEXT

@@ -258,14 +258,6 @@ function UpdateGPT()
     else
         Controls.DiploIncomeValue:SetText( FormatDecimal(0) );
     end
-    
-    -- Religion
-    local religionGPT = pPlayer:GetGoldPerTurnFromReligion();
-    if( religionGPT > 0 ) then
-        Controls.ReligionIncomeValue:SetText( FormatDecimal( religionGPT) );
-    else
-        Controls.ReligionIncomeValue:SetText( FormatDecimal(0) );
-    end
 
     Controls.TradeIncomeValue:SetText( FormatDecimalTimes100( pPlayer:GetCityConnectionGoldTimes100()) );
     

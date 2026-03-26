@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context>
+	<!-- Instance of a tech button (this is a subset of the master in TechTree.xml) -->
+	<Instance Name="TechButtonInstance">
+		<Container Anchor="L,T" Size="270,70" ID="TechButtonContainer">
+			<Button Anchor="L,T" Offset="0,0" Size="270,60" Color="0,0,0,0" StateOffsetIncrement="0,0" ID="TechButton" ToolTipType="TechTreeTooltip">
+				<!-- The currently being researched style -->
+				<Grid Anchor="L,T" Size="270,60" Color="255,255,255,200" Offset="0,0" StateOffsetIncrement="0,0" Style="Grid9DarkBlue8Button" ID="CurrentlyResearching" Hidden="1">
+					<Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame"/>
+					<AlphaAnim Anchor="C,C" Offset="0,0" Size="375,60" TextureOffset="0,0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".25" AlphaEnd=".75">
+						<Grid Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8"/>
+					</AlphaAnim>
+					<ScrollAnim Offset="0,0" Size="270,60" Speed="0.25" Texture="assets\UI\Art\Notification\Bubbles256.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask375x90.dds"/>
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0,0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25">
+							<Grid Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8"/>
+						</AlphaAnim>
+						<AlphaAnim Anchor="R,C" AnchorSide="O,O" Offset="-2,0" Size="16,32" TextureOffset="16,0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25"/>
+						<AlphaAnim Anchor="L,C" AnchorSide="O,O" Offset="-2,0" Size="16,32" TextureOffset="0,0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25"/>
+						<Image Anchor="R,C" Offset="-2,0" TextureOffset="8,0" AnchorSide="O,O" Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16"/>
+						<Image Anchor="L,C" Offset="-2,0" TextureOffset="0,0" AnchorSide="O,O" Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16"/>
+					</ShowOnMouseOver>
+					<Label Anchor="L,T" Offset="64,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CurrentlyResearchingTechName"/>
+					<Label Anchor="R,T" Offset="8,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CurrentlyResearchingTurns"/>
+					<Image Anchor="L,C" Offset="0,0" Size="64,64" Texture="Assets/UI/Art/Icons/IconFrame64.dds"/>
+				</Grid>
+
+				<!-- The available to be researched style -->
+				<Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="Grid9Green8" ID="Available" Hidden="1">
+					<Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame"/>
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0,0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25">
+							<Grid Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8"/>
+						</AlphaAnim>
+						<AlphaAnim Anchor="R,C" AnchorSide="O,O" Offset="-2,0" Size="16,32" TextureOffset="16,0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25"/>
+						<AlphaAnim Anchor="L,C" AnchorSide="O,O" Offset="-2,0" Size="16,32" TextureOffset="0,0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25"/>
+						<Image Anchor="R,C" Offset="-2,0" TextureOffset="8,0" AnchorSide="O,O" Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16"/>
+						<Image Anchor="L,C" Offset="-2,0" TextureOffset="0,0" AnchorSide="O,O" Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16"/>
+					</ShowOnMouseOver>
+					<Label Anchor="L,T" Offset="64,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="AvailableTechName"/>
+					<Label Anchor="R,T" Offset="8,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="AvailableTurns"/>
+					<Image Anchor="L,C" Offset="0,0" Size="64,64" Texture="IconFrame64.dds"/>
+				</Grid>
+
+				<!-- The free style -->
+				<Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="Grid9Production8" ID="FreeTech" Hidden="1">
+					<Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame"/>
+					<AlphaAnim Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0,0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0">
+						<Grid Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Production8"/>
+					</AlphaAnim>
+					<ScrollAnim Offset="0,0" Size="270,60" Speed="0.25" Texture="Bubbles256Orange.dds" MaskTexture="BubblesMask375x90.dds"/>
+					<ShowOnMouseOver>
+						<ScrollAnim Offset="0,0" Size="270,60" Speed="0.25" Texture="Bubbles256Orange.dds" MaskTexture="BubblesMask375x90.dds"/>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0,0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0">
+							<Grid Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Yellow8"/>
+						</AlphaAnim>
+						<AlphaAnim Anchor="R,C" AnchorSide="O,O" Offset="-2,0" Size="16,32" TextureOffset="16,0" Texture="buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25"/>
+						<AlphaAnim Anchor="L,C" AnchorSide="O,O" Offset="-2,0" Size="16,32" TextureOffset="0,0" Texture="buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25"/>
+						<Image Anchor="R,C" Offset="-2,0" TextureOffset="8,0" AnchorSide="O,O" Texture="buttonsides.dds" Size="8,16"/>
+						<Image Anchor="L,C" Offset="-2,0" TextureOffset="0,0" AnchorSide="O,O" Texture="buttonsides.dds" Size="8,16"/>
+					</ShowOnMouseOver>
+					<Label Anchor="L,T" Offset="64,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="FreeTechName"/>
+					<Label Anchor="R,T" Offset="8,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="FreeTurns"/>
+					<Image Anchor="L,C" Offset="0,0" Size="64,64" Texture="IconFrame64.dds"/>
+				</Grid>
+
+				<!-- The box full of stuff we can gain from this tech -->
+				<Grid Anchor="L,C" Offset="64,8" Size="200,38" Padding="0,0" Style="GridBlackIndent8">
+					<Stack Anchor="L,C" Offset="0,1" Padding="-7" StackGrowth="Right">
+						<Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B1" ToolTipType="TechTreeTooltip"/>
+						<Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B2" ToolTipType="TechTreeTooltip"/>
+						<Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B3" ToolTipType="TechTreeTooltip"/>
+						<Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B4" ToolTipType="TechTreeTooltip"/>
+						<Button NoStateChange="1" Anchor="L,C" Size="45,45" ID="B5" ToolTipType="TechTreeTooltip"/>
+					</Stack>
+				</Grid>
+
+				<!-- The tech image -->
+				<Image Anchor="L,C" Offset="0,0" Texture="TechnologyAtlas512.dds" Size="64,64" ID="TechPortrait"/>
+
+				<!-- FREE LABEL -->
+				<Grid Anchor="L,B" Offset="0,0" Size="64,27" Padding="0,0" Style="Grid9Frame27" Hidden="1" ID="TechQueue">
+					<Label Anchor="C,C" AnchorSide="I,O" Offset="0,0" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_LOCKED" ID="TechQueueLabel"/>
+				</Grid>
+
+				<!-- The progress meter -->
+				<Image Anchor="C,C" Offset="0,0" Color="White,0" Texture="TechTreeMeterBack.dds" Size="0,0" ID="ProgressMeter" Hidden="1">
+					<Meter Anchor="C,C" Size="0,0" Texture="TechTreeMeter.dds" HasShadow="0" Color="255,255,255,0" ShadowColor="255,255,255,0" ID="ProgressMeterInternal"/>
+				</Image>
+			</Button>
+			<Stack Anchor="R,B" StackGrowth="L" Offset="0,0" Padding="0" ID="AdvisorStack">
+				<Image ID="ScienceRecommendation" ToolTip="TXT_KEY_TECH_CHOOSER_ADVISOR_RECOMMENDATION_SCIENCE" Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Advisors\AdvisorSymbolScience.dds" Hidden="1">
+					<ScrollAnim Offset="0,0" Size="32,32" Speed=".2" Pause=".5" Texture="assets\UI\Art\Advisors\AdvisorShine.dds" MaskTexture="assets\UI\Art\Advisors\AdvisorMaskScience.dds"/>
+					<AlphaAnim Anchor="C,C" Offset="4,4" Size="32,32" Texture="assets\UI\Art\Advisors\AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd="1"/>
+					<AlphaAnim Anchor="C,C" Offset="0,-4" Size="32,32" Texture="assets\UI\Art\Advisors\AdvisorSpecShine.dds" Pause="3" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd="1"/>
+				</Image>
+				<Image ID="ForeignRecommendation" ToolTip="TXT_KEY_TECH_CHOOSER_ADVISOR_RECOMMENDATION_FOREIGN" Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Advisors\AdvisorSymbolForeign.dds" Hidden="1">
+					<ScrollAnim Offset="0,0" Size="32,32" Speed=".2" Pause=".5" Texture="assets\UI\Art\Advisors\AdvisorShine.dds" MaskTexture="assets\UI\Art\Advisors\AdvisorMaskForeign.dds"/>
+					<AlphaAnim Anchor="C,C" Offset="6,5" Size="32,32" Texture="assets\UI\Art\Advisors\AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
+					<AlphaAnim Anchor="C,C" Offset="-2,-5" Size="32,32" Texture="assets\UI\Art\Advisors\AdvisorSpecShine.dds" Pause="3" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
+				</Image>
+				<Image ID="EconomicRecommendation" ToolTip="TXT_KEY_TECH_CHOOSER_ADVISOR_RECOMMENDATION_ECONOMIC" Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Advisors\AdvisorSymbolEconomic.dds" Hidden="1">
+					<ScrollAnim Offset="0,0" Size="32,32" Speed=".2" Pause=".5" Texture="assets\UI\Art\Advisors\AdvisorShine.dds" MaskTexture="assets\UI\Art\Advisors\AdvisorMaskEconomic.dds"/>
+					<AlphaAnim Anchor="C,C" Offset="4,4" Size="32,32" Texture="assets\UI\Art\Advisors\AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd="1"/>
+					<AlphaAnim Anchor="C,C" Offset="0,-4" Size="32,32" Texture="assets\UI\Art\Advisors\AdvisorSpecShine.dds" Pause="3" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd="1"/>
+				</Image>
+				<Image ID="MilitaryRecommendation" ToolTip="TXT_KEY_TECH_CHOOSER_ADVISOR_RECOMMENDATION_MILITARY" Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Advisors\AdvisorSymbolMilitary.dds" Hidden="1">
+					<ScrollAnim Offset="0,0" Size="32,32" Speed=".2" Pause=".5" Texture="assets\UI\Art\Advisors\AdvisorShine.dds" MaskTexture="assets\UI\Art\Advisors\AdvisorMaskMilitary.dds"/>
+					<AlphaAnim Anchor="C,C" Offset="4,4" Size="32,32" Texture="assets\UI\Art\Advisors\AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
+					<AlphaAnim Anchor="C,C" Offset="-3,-6" Size="32,32" Texture="assets\UI\Art\Advisors\AdvisorSpecShine.dds" Pause="3" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
+				</Image>
+			</Stack>
+		</Container>
+	</Instance>
+
+	<Box Anchor="L,T" Size="340,Full" Color="0,0,0,0" ID="TechBackground" ConsumeMouse="1">
+		<Grid Size="528,300" Anchor="L,T" Offset="-24,-12" Style="Grid9DetailFive140"/>
+		<Image Anchor="R,T" Offset="-99,250" TextureOffset="0.0" Texture="TopLeftCorner.dds" Size="100,100"/>
+		<Image Anchor="R,B" Offset="-127,0" TextureOffset="0,0" Texture="BottomLeft128x224.dds" Size="128,224"/>
+		<Box Size="336,450" Anchor="L,T" Color="Black,240" Offset="0,250" ID="ScrollPanelBlackFrame"/>
+		<Image Anchor="R,C" Offset="0,250" Texture="SideRight.dds" ID="ScrollPanelFrame" Size="13,Full"/>
+		<Label Anchor="L,T" Offset="220,160" WrapWidth="250" String="TXT_KEY_TECH_POPUP_HEADER" Font="TwCenMT18" LeadingOffset="-8" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+
+		<!-- Tech Tree Button -->
+		<GridButton Anchor="L,T" Offset="8,260" Size="310,36" Color="255,255,255,200" StateOffsetIncrement="0,0" ID="OpenTTButton">
+			<GridData Style="Grid9DarkBlue8Button"/>
+			<Grid Anchor="C,C" Offset="0,0" Size="314,40" Padding="0,0" Style="Grid9Frame"/>
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="C,C" Offset="0,0" Size="310,36" TextureOffset="0,0" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".25" AlphaEnd=".99">
+					<Grid Size="310,36" Anchor="C,C" Offset="0,0" Style="Grid9Science8"/>
+					<ScrollAnim Offset="12,0" Size="310,36" Speed="0.25" Texture="assets\UI\Art\Notification\Bubbles256.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask336x48.dds"/>
+				</AlphaAnim>
+				<AlphaAnim Anchor="R,C" AnchorSide="O,O" Offset="-2,0" Size="16,32" TextureOffset="16,0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O,O" Offset="-2,0" Size="16,32" TextureOffset="0,0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25"/>
+				<Image Anchor="R,C" Offset="-2,0" TextureOffset="8,0" AnchorSide="O,O" Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-2,0" TextureOffset="0,0" AnchorSide="O,O" Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OPEN_TECH_TREE" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+		</GridButton>
+
+		<!-- Scroll panel of tech buttons -->
+		<ScrollPanel Anchor="L,T" Offset="10,298" Size="290,0" Vertical="1" AutoScrollBar="1" ID="ScrollPanel">
+			<!-- Scroll Controls -->
+			<UpButton Offset="-15,0" Style="ScrollBarUp" Anchor="L,T" AnchorSide="O,I"/>
+			<ScrollBar Offset="-15,0" Style="VertSlider" Anchor="L,C" AnchorSide="O,I"/>
+			<DownButton Offset="-15,0" Style="ScrollBarDown" Anchor="L,B" AnchorSide="O,I"/>
+
+			<Stack Anchor="L,T" Offset="28,12" Size="300,128" StackGrowth="Bottom" Padding="6" ID="ButtonStack"/>
+		</ScrollPanel>
+	</Box>
+</Context>

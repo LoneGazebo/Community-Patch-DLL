@@ -187,19 +187,19 @@ function GetCityStateStatusText(iMajor, iMinor)
 		strStatusText = Locale.ConvertTextKey("TXT_KEY_FRIENDS");
 		strStatusText = "[COLOR_POSITIVE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
 		
-	elseif (pMinor:IsMinorPermanentWar(iActiveTeam)) then		-- Permanent War
+	elseif (pMinor:IsMinorPermanentWar(iMajorTeam)) then		-- Permanent War
 		strStatusText = Locale.ConvertTextKey("TXT_KEY_PERMANENT_WAR");
 		strStatusText = "[COLOR_NEGATIVE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
 		
-	elseif (pMinor:IsAllyAtWar(iActiveTeam)) then		-- Peace blocked by being at war with ally
+	elseif (pMinor:IsAllyAtWar(iMajorTeam)) then		-- Peace blocked by being at war with ally
 		strStatusText = Locale.ConvertTextKey("TXT_KEY_PEACE_BLOCKED");
 		strStatusText = "[COLOR_NEGATIVE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
 
-	elseif (pMinor:GetPeaceBlockedTurns(iActiveTeam) > 0) then		-- Peace blocked due to attacking too recently
-		strStatusText = Locale.ConvertTextKey("TXT_KEY_PEACE_BLOCKED_TURNS", pMinor:GetPeaceBlockedTurns(iActiveTeam));
+	elseif (pMinor:GetPeaceBlockedTurns(iMajorTeam) > 0) then		-- Peace blocked due to attacking too recently
+		strStatusText = Locale.ConvertTextKey("TXT_KEY_PEACE_BLOCKED_TURNS", pMinor:GetPeaceBlockedTurns(iMajorTeam));
 		strStatusText = "[COLOR_NEGATIVE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
 
-	elseif (pMinor:IsPeaceBlocked(iActiveTeam)) then		-- Can't make peace for some other reason
+	elseif (pMinor:IsPeaceBlocked(iMajorTeam)) then		-- Can't make peace for some other reason
 		strStatusText = Locale.ConvertTextKey("TXT_KEY_PEACE_BLOCKED");
 		strStatusText = "[COLOR_NEGATIVE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
 		
@@ -267,25 +267,25 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 		
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. strTempTT;
 		
-	elseif (pMinor:IsMinorPermanentWar(iActiveTeam)) then		-- Permanent War
+	elseif (pMinor:IsMinorPermanentWar(iMajorTeam)) then		-- Permanent War
 		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_ANGRY"),
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PERMANENT_WAR_CSTATE_TT", strShortDescKey);
 
-	elseif (pMinor:IsAllyAtWar(iActiveTeam)) then		
+	elseif (pMinor:IsAllyAtWar(iMajorTeam)) then		
 		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_ANGRY"),
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PEACE_BLOCKED_CSTATE_TT", strShortDescKey);
 
-	elseif (pMinor:GetPeaceBlockedTurns(iActiveTeam) > 0) then
+	elseif (pMinor:GetPeaceBlockedTurns(iMajorTeam) > 0) then
 		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_ANGRY"),
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    
-		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PEACE_BLOCKED_CSTATE_TURNS_TT", pMinor:GetPeaceBlockedTurns(iActiveTeam));
+		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PEACE_BLOCKED_CSTATE_TURNS_TT", pMinor:GetPeaceBlockedTurns(iMajorTeam));
 
-	elseif (pMinor:IsPeaceBlocked(iActiveTeam)) then		
+	elseif (pMinor:IsPeaceBlocked(iMajorTeam)) then		
 		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_ANGRY"),
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    

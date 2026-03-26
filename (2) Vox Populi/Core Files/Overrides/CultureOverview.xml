@@ -1607,7 +1607,7 @@
 					</Box>
 
 					<Box Color="0,0,0,0" Size="284,34">
-						<PullDown  Anchor="L,T" ScrollThreshold="110" Size="282,34" Offset="1,0" AutoSizePopup="0" ID="YourWritingPullDown">
+						<PullDown  Anchor="L,T" ScrollThreshold="250" Size="282,34" Offset="1,0" AutoSizePopup="0" ID="YourWritingPullDown">
 							<ButtonData>
 								<GridButton Style="SquareButton" Anchor="L,C" >
 									<Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
@@ -1662,7 +1662,7 @@
 					</Box>
 
 					<Box Color="0,0,0,0" Size="284,34">
-						<PullDown  Anchor="L,T" ScrollThreshold="110" Size="282,34" Offset="1,0" AutoSizePopup="0" ID="YourArtPullDown">
+						<PullDown  Anchor="L,T" ScrollThreshold="250" Size="282,34" Offset="1,0" AutoSizePopup="0" ID="YourArtPullDown">
 							<ButtonData>
 								<GridButton Style="SquareButton" Anchor="L,C" >
 									<Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">
@@ -1717,7 +1717,7 @@
 					</Box>
 
 					<Box Color="0,0,0,0" Size="284,34">
-						<PullDown  Anchor="L,T" ScrollThreshold="110" Size="282,34" Offset="1,0" AutoSizePopup="0" ID="YourArtifactPullDown">
+						<PullDown  Anchor="L,T" ScrollThreshold="250" Size="282,34" Offset="1,0" AutoSizePopup="0" ID="YourArtifactPullDown">
 							<ButtonData>
 								<GridButton Style="SquareButton" Anchor="L,C" >
 									<Stack Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0">

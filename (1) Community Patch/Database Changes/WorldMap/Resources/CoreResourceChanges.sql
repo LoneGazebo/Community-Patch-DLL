@@ -48,7 +48,7 @@ VALUES
 
 -- Artifacts can spawn anywhere (via buildings and traits)
 UPDATE Resources
-SET Hills = 1, Flatlands = 1, MinAreaSize = -1
+SET Hills = 1, Flatlands = 1, NoRiverSide = 0, MinAreaSize = -1
 WHERE Type IN ('RESOURCE_ARTIFACTS', 'RESOURCE_HIDDEN_ARTIFACTS');
 
 --------------------------------------------------------------------------

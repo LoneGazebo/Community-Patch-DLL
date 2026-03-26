@@ -40,6 +40,11 @@ SET Text = 'Unique Assyrian replacement for the {TXT_KEY_BUILDING_NATIONAL_COLLE
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_STRATEGY';
 
 UPDATE Language_en_US
+SET Text = 'Possible Theming Bonuses:
+  [NEWLINE][ICON_BULLET] +6 [ICON_CULTURE] and [ICON_TOURISM] for three [COLOR_POSITIVE_TEXT]Foreign[ENDCOLOR] [ICON_GW_WRITING] Great Works of Writing.'
+WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP';
+
+UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER} is the Assyrian unique unit.[NEWLINE][NEWLINE]If adjacent to a City, the {TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER} confers a huge combat bonus to all owned units also attacking the City. If it is two tiles away from the City, all owned units attacking the City receive half of this bonus. It can see further, and nearby units heal at a faster rate. It cannot attack or defend itself, so protect it at all costs! Complement a {TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER} with melee or ranged units, and make sure it reaches its target before getting killed, and cities will fall much more quickly.[NEWLINE][NEWLINE]Does not obsolete. You cannot have more than 2 active Siege Towers at one time.'
 WHERE Tag = 'TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER_STRATEGY';
 
@@ -51,7 +56,7 @@ SET Text = 'Habsburg Diplomacy'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+50% rewards from [COLOR_POSITIVE_TEXT]Quests[ENDCOLOR]. May arrange [ICON_RES_MARRIAGE] Marriages to [ICON_CITY_STATE] City-States with [ICON_GOLD] Gold after Allying for 5 Turns. Gain 200 Resting [ICON_INFLUENCE] Influence with [ICON_RES_MARRIAGE] Married City-States while at peace.'
+SET Text = '+50% rewards from [COLOR_POSITIVE_TEXT]Quests[ENDCOLOR]. May arrange [ICON_RES_MARRIAGE] Marriages to [ICON_CITY_STATE] City-States with [ICON_GOLD] Gold after Allying for 10 Turns. Gain 200 Resting [ICON_INFLUENCE] Influence with [ICON_RES_MARRIAGE] Married City-States while at peace.'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE';
 
 UPDATE Language_en_US
@@ -126,7 +131,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY';
 -- Carthage
 --------------------
 UPDATE Language_en_US
-SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your all-time highest tradeable quantity of a Luxury increases, and +5 XP to [ICON_GOLD] Gold purchased Units, both scaling with Era. +100% Resource Diversity on [ICON_INTERNATIONAL_TRADE] Trade Routes. Starts with an Asamu instead of a Settler.'
+SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your all-time highest tradeable quantity of a Luxury increases, and +5 XP to [ICON_GOLD] Gold purchased Units, both scaling with Era. +100% Resource Diversity on [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 UPDATE Language_en_US
@@ -172,7 +177,7 @@ SET Text = 'Creating [ICON_GREAT_WORK] Great Works or gaining Cities grants 5 Tu
 WHERE Tag = 'TXT_KEY_TRAIT_ART_OF_WAR';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_CHINESE_CHUKONU} is the Chinese unique unit, replacing the {TXT_KEY_UNIT_CROSSBOWMAN}. It deals splash damage and gains additional [ICON_STRENGTH] Combat Strength when adjacent to cities, giving it a hefty punch on offense and defense. This unit is particularly deadly when garrisoned in a City that is under attack, and when fighting in packs.'
+SET Text = 'The {TXT_KEY_UNIT_CHINESE_CHUKONU} is the Chinese unique unit, replacing the {TXT_KEY_UNIT_CROSSBOWMAN}.'
 WHERE Tag = 'TXT_KEY_UNIT_CHINESE_CHUKONU_STRATEGY';
 
 --------------------
@@ -198,7 +203,7 @@ SET Text = 'Great Ancestor'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders, doubling in [ICON_GOLDEN_AGE] Golden Ages. Reveal a nearby [ICON_RES_ARTIFACTS] Antiquity Site when founding a City or (before anyone researches [COLOR_CYAN]Archaeology[ENDCOLOR]) completing a [ICON_WONDER] World Wonder. [ICON_RES_ARTIFACTS] Antiquity Sites gain +1 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith with each [ICON_GOLDEN_AGE] Golden Age (max +5).'
+SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders, doubling in [ICON_GOLDEN_AGE] Golden Ages. Reveal a nearby [ICON_RES_ARTIFACTS] Antiquity Site when founding a City or (before anyone reaches [COLOR_CYAN]Archaeology[ENDCOLOR]) completing a [ICON_WONDER] World Wonder. [ICON_RES_ARTIFACTS] Antiquity Sites gain +1 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith with each [ICON_GOLDEN_AGE] Golden Age (max +5).'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER';
 
 UPDATE Language_en_US
@@ -219,6 +224,10 @@ WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT';
 UPDATE Language_en_US
 SET Text = 'The {TXT_KEY_UNIT_ENGLISH_SHIPOFTHELINE} is the English unique unit, replacing the {TXT_KEY_UNIT_FRIGATE}. It can deal splash damage to clear out masses of enemy ships and land units on coastal tiles. It can also see further, allowing it to spot enemies in a significantly larger section of ocean.'
 WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_SHIPOFTHELINE_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'The Longbowman has a greater range than the Crossbowman, allowing it to attack enemies three hexes away, often destroying them before they can strike back. Like other ranged units, Longbowmen are vulnerable to melee attack, but have increased [ICON_STRENGTH] against Mounted and Armored Units.'
+WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_LONGBOWMAN_STRATEGY';
 
 --------------------
 -- Ethiopia
@@ -274,7 +283,7 @@ SET Text = 'Blood and Iron'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Gain +1 [ICON_INFLUENCE] Influence per turn with [ICON_CITY_STATE] City-States for each gifted Unit (lost when killed). -15% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold costs for Military Units.'
+SET Text = 'Gain +1 [ICON_INFLUENCE] Influence per turn with [ICON_CITY_STATE] City-States for each gifted Unit (lost when killed). -15% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold costs for Military Units, Workers, and Work Boats.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS';
 
 UPDATE Language_en_US
@@ -357,18 +366,18 @@ WHERE Tag = 'TXT_KEY_CITY_NAME_BRAUNSCHWEIG';
 -- Greece
 --------------------
 UPDATE Language_en_US
-SET Text = '[ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. +5% [ICON_STRENGTH] Combat Strength of owned and Allied Units for each [ICON_CITY_STATE] City-State alliance (up to +25%). Treat neutral [ICON_CITY_STATE] City-State territory as friendly territory.'
+SET Text = '[ICON_INFLUENCE] Influence degrades at 2/3 and recovers at twice the normal rate. +5% [ICON_STRENGTH] Combat Strength of owned and Allied Units for each [ICON_CITY_STATE] City-State alliance (up to +25%). Treat neutral [ICON_CITY_STATE] City-State territory as friendly territory.'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_GREEK_HOPLITE} is the Greek unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It is stronger when adjacent to more owned land units, and generates[ICON_GREAT_GENERAL] Great Generals faster through combat.'
+SET Text = 'The {TXT_KEY_UNIT_GREEK_HOPLITE} is the Greek unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It is stronger when adjacent to more owned land units, and these other units don''t need to be next to the enemy in order to boost the {TXT_KEY_UNIT_GREEK_HOPLITE}''s strength.'
 WHERE Tag = 'TXT_KEY_UNIT_GREEK_HOPLITE_STRATEGY';
 
 --------------------
 -- Huns
 --------------------
 UPDATE Language_en_US
-SET Text = 'Inflict +100% and receive -50% [ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]. +10% [ICON_STRENGTH] Combat Strength for each subsequent attack on the same target in a turn. Gain 1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for every 2 damage dealt to Cities, scaling with Era.'
+SET Text = 'Inflict +100% and receive -50% [ICON_HAPPINESS_3] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]. +10% [ICON_STRENGTH] Combat Strength for each subsequent attack on the same target in a turn. Gain 1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture for every 3 damage dealt to Cities, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES';
 
 UPDATE Language_en_US
@@ -379,7 +388,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 -- Inca
 --------------------
 UPDATE Language_en_US
-SET Text = 'Units can cross Mountains and ignore terrain costs when entering any Hill or Mountain. Cities, Roads, and Railroads may be built on Mountains. Mountains produce +1 [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science when worked, scaling with Era.'
+SET Text = 'Units can cross Mountains and ignore terrain costs when entering any Hill or Mountain, except when crossing a River. Cities, Roads, and Railroads may be built on Mountains. Mountains produce +1 [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science when worked, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD';
 
 UPDATE Language_en_US
@@ -387,7 +396,7 @@ SET Text = 'Pata-Pata'
 WHERE Tag = 'TXT_KEY_IMPROVEMENT_TERRACE_FARM';
 
 UPDATE Language_en_US
-SET Text = 'Can only be built on Hill. +1 [ICON_FOOD] Food for each adjacent Mountain or {TXT_KEY_IMPROVEMENT_TERRACE_FARM}. All adjacent Farms gain +1 [ICON_FOOD] Food.'
+SET Text = 'Can only be built on Hill. +1 [ICON_FOOD] Food for every two adjacent tiles with a Mountain, a Farm, a Pata-Pata or an Academy. Farms get +1 [ICON_FOOD] Food per 2 adjacent Farms or Pata-Pata.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP';
 
 UPDATE Language_en_US
@@ -420,6 +429,18 @@ WHERE Tag = 'TXT_KEY_UNIT_INDIAN_WARELEPHANT_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'A terrifying sight on the battlefield, often as dangerous to its own side as it was to the enemy, the Naga-Malla (the Hindu term for Fighting Elephant) could be considered the first weapon of mass destruction. Indians used elephants in war until the advent of gunpowder rendered them obsolete. In pre-gunpowder battle the war elephant served two primary purposes. First, their scent absolutely terrified horses, rendering enemy cavalry useless. Second, they could break through even the strongest line of infantry, crushing a wall of spears that no horse could ever surmount. Elephants were incredibly difficult to kill and history records them surviving sixty or more arrows. The primary problem with elephants was their tendency to go berserk with pain or rage, at which point they became impossible for their rider to control. Elephant riders often carried a spike and mallet that they could use to kill the animals if they attacked their own forces.'
 WHERE Tag = 'TXT_KEY_CIV5_ANTIQUITY_INDIANWARELEPHANT_TEXT';
+
+UPDATE Language_en_US
+SET Text = 'Qila'
+WHERE Tag = 'TXT_KEY_BUILDING_MUGHAL_FORT_DESC';
+
+UPDATE Language_en_US
+SET Text = 'The Qila is the unique Indian replacement for the Castle. In addition to the normal bonuses of the Castle, the Qila generates Culture and Great Artist Points. 10% of City Defense is converted into Culture every turn and the city gains more defense for wonders built in the city. Your most magnificent cities also become more difficult to capture.'
+WHERE Tag = 'TXT_KEY_BUILDING_MUGHAL_FORT_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'The Mughals were an Islamic empire that invaded India in the 15th century, and ruled most of the sub-continent until the mid 19th. During their rule, they constructed elaborate forts called Qila across the countryside which served as administrative centers and living quarters for the occupiers. These forts were beautiful structures, fitting palaces for the rulers of a vast empire. Several - including the magnificent "Lahore Fort" and Red Fort of Agra - survive today and remain as some of the largest tourist attractions to India, monuments to the Mughals'' power and style.'
+WHERE Tag = 'TXT_KEY_BUILDING_MUGHAL_FORT_PEDIA';
 
 --------------------
 -- Indonesia
@@ -478,8 +499,16 @@ SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Med
 WHERE Tag = 'TXT_KEY_TRAIT_SCHOLARS_JADE_HALL';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_CIV5_KOREA_HWACHA_HEADING} is the Korean unique unit, replacing the {TXT_KEY_UNIT_TREBUCHET}. It operates similar to ranged units rather than siege - it lacks most bonuses and penalties that siege units have. It can also attack twice per turn, but cannot fortify or benefit from terrain defense, and retains the movement penalty in enemy territory that most siege units have.'
+SET Text = 'Hwacha'
+WHERE Tag = 'TXT_KEY_CIV5_KOREA_HWACHA_HEADING';
+
+UPDATE Language_en_US
+SET Text = 'The Hwacha is the Korean unique unit, replacing the Trebuchet. It operates more like an anti-unit ranged attacker rather than a true siege weapon - it lacks most bonuses and penalties that siege units have and it deals splash damage. Uniquely, it gains additional [ICON_STRENGTH] Combat Strength when adjacent to cities, making it particularly good on defense and when used as a garrison. It is also much tougher on its physical combat stat, and so while it cannot fortify or benefit from terrain defense, and retains the movement penalty in enemy territory that most siege units have, it regains some siege ability if you can walk it right up to your opponents cities!'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_HWACHA_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'The Hwacha, legendary Korean anti-infantry weapon, was a unique innovation in the development of early gunpowder-based weaponry. Created during the 15th century under the supervision of King Sejong the Great, the Hwacha consisted of a large two-wheeled cart carrying a type of "honeycomb" housing, not unlike a modern missile battery, capable of storing hundreds of gunpowder-propelled arrows. The light-weight of these early rockets, known as "Singijeon," provided the Hwacha with a notable advantage, allowing excellent maneuverability compared to a traditional cannon. The Hwacha would prove to be a formidable weapon for the defense of the Korean Peninsula during the Japanese invasions of the 16th century.'
+WHERE Tag = 'TXT_KEY_CIV5_KOREA_HWACHA_TEXT';
 
 UPDATE Language_en_US
 SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion. However, while it can end its movement in Ocean tiles, the Turtle Ship still travels at half speed through them.'
@@ -493,14 +522,14 @@ SET Text = 'After researching [COLOR_CYAN]Mathematics[ENDCOLOR], receive a bonus
 WHERE Tag = 'TXT_KEY_TRAIT_LONG_COUNT';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_MAYAN_ATLATLIST} is the Mayan unique unit, replacing the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}. It is the only ranged unit that can shoot over obstacles in the early eras. It is also cheaper and is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_MATHEMATICS_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}.[NEWLINE][NEWLINE]The {TXT_KEY_UNIT_MAYAN_ATLATLIST} allows you to set up a stronger defense line in rough terrain against slower units.'
+SET Text = 'The {TXT_KEY_UNIT_MAYAN_ATLATLIST} is the Mayan unique unit, replacing the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}. It is the only ranged unit that can shoot over obstacles in the early eras. It is also cheaper than the {TXT_KEY_UNIT_COMPOSITE_BOWMAN}.'
 WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 
 --------------------
 -- Mongols
 --------------------
 UPDATE Language_en_US
-SET Text = 'Skirmisher Units have an extra Attack. Gain All Yields equal to 20% of the [ICON_GOLD] Gold from bullying [ICON_CITY_STATE] City-States.'
+SET Text = 'Skirmisher Units start with the [COLOR_POSITIVE_TEXT]Logistics[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Great Generals I[ENDCOLOR] Promotions. When you [ICON_PIRATE] Bully a City-State, gain an instant boost of [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital equal to 25% of the [ICON_GOLD] Gold received.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
@@ -538,7 +567,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 -- Netherlands
 --------------------
 UPDATE Language_en_US
-SET Text = '+4 [ICON_GOLD] Gold for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Luxuries from Civilizations which count toward [ICON_MONOPOLY] Monopolies. +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture from Luxury Resources.'
+SET Text = '+3 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION';
 
 UPDATE Language_en_US
@@ -561,7 +590,7 @@ SET Text = 'Kanuni'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Completing a [ICON_INTERNATIONAL_TRADE] Trade Route grants +150 [ICON_FOOD] Food and [ICON_RESEARCH] Science to the origin City if International, or [ICON_GOLD] Gold and [ICON_CULTURE] Culture if Internal. Bonuses scale with Era.'
+SET Text = 'Completing a [ICON_INTERNATIONAL_TRADE] Trade Route grants +150 [ICON_FOOD] Food and [ICON_RESEARCH] Science to the origin City if International, or +75 [ICON_GOLD] Gold and [ICON_CULTURE] Culture to both Cities if Internal. Bonuses scale with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS';
 
 UPDATE Language_en_US
@@ -602,7 +631,7 @@ WHERE Tag = 'TXT_KEY_UNIT_POLISH_WINGED_HUSSAR_STRATEGY';
 -- Polynesia
 --------------------
 UPDATE Language_en_US
-SET Text = '+2 [ICON_VISION] Sight when Embarked, can always Embark and move over Oceans. +2 [ICON_PRODUCTION] Production from Fishing Boats and Atolls. Melee and Gunpowder Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
+SET Text = '+2 [ICON_VISION] Sight when Embarked, can always Embark and move over Oceans. Melee and Gunpowder Units can construct Fishing Boats. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
 WHERE Tag = 'TXT_KEY_TRAIT_WAYFINDING';
 
 UPDATE Language_en_US
@@ -706,7 +735,7 @@ SET Text = '+10 [ICON_GOLD] Gold and +4 [ICON_PEACE] Faith from gaining tiles, s
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is the Spanish unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. It is much stronger and has large bonuses to flanking and attacking cities. Combined with its great mobility, the {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is a formidable unit, able to augment or replace your existing Medieval military.[NEWLINE][NEWLINE]It also has the ability to found new cities, but only on a foreign continent that does not contain your [ICON_CAPITAL] Capital. A city founded by {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} starts with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COLOSSEUM}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_ARMORY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_BARRACKS}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COUNCIL}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_FORGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GRANARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_HERBALIST}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIBRARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIGHTHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MARKET}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MONUMENT_DESC}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SHRINE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SMOKEHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WATERMILL} (if applicable)[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WELL} (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!'
+SET Text = 'The {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is the Spanish unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. It is much stronger and has large bonuses to flanking and attacking cities. Combined with its great mobility, the {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is a formidable unit, able to augment or replace your existing Medieval military.[NEWLINE][NEWLINE]It also has the ability to found new cities. A city founded by {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} starts with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COLOSSEUM}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_ARMORY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_BARRACKS}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COUNCIL}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_FORGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GRANARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_HERBALIST}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIBRARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIGHTHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MARKET}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MONUMENT_DESC}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SHRINE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SMOKEHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WATERMILL} (if applicable)[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WELL} (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
 
 --------------------
@@ -743,7 +772,7 @@ WHERE Tag = 'TXT_KEY_UNIT_SIAMESE_WARELEPHANT_STRATEGY';
 -- Songhai
 --------------------
 UPDATE Language_en_US
-SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_AMPHIBIOUS}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_WAR_CANOES}[ENDCOLOR] Promotions.'
+SET Text = 'Triple [ICON_GOLD] Gold from destroying Encampments and plundering Cities. Land Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SEWN_CANOES}[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_TRAIT_AMPHIB_WARLORD';
 
 UPDATE Language_en_US
@@ -770,7 +799,7 @@ SET Text = 'Lion of the North'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Melee Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN}[ENDCOLOR] Promotion, and Siege Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MOBILITY}[ENDCOLOR] Promotion. All Military Land Units heal 10 HP and earn 2 XP when a [ICON_GREAT_PEOPLE] Great Person is born. +15% [ICON_STRENGTH] Combat Strength from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR].'
+SET Text = 'Melee Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN}[ENDCOLOR] Promotion, and Siege Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MOBILITY}[ENDCOLOR] Promotion. All Military Units heal 10 HP and earn 2 XP when a [ICON_GREAT_PEOPLE] Great Person is born. +15% [ICON_STRENGTH] Combat Strength from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 UPDATE Language_en_US
@@ -785,7 +814,7 @@ WHERE Tag = 'TXT_KEY_UNIT_SWEDISH_HAKKAPELIITTA_STRATEGY';
 -- Venice
 --------------------
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Cannot create Settlers or annex Cities.[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route cap doubled, target restrictions removed. [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_UNIT_VENETIAN_MERCHANT} at [COLOR_CYAN]{TXT_KEY_TECH_HORSEBACK_RIDING_TITLE}[ENDCOLOR]. [ICON_PUPPET] Puppets have -30% Yield penalties, can use [ICON_GOLD] Gold and gain [ICON_HAPPINESS_1] Happiness like normal Cities.'
+SET Text = '[COLOR_NEGATIVE_TEXT]Cannot create Settlers or annex Cities.[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route cap doubled, target restrictions removed. [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] {TXT_KEY_UNIT_VENETIAN_MERCHANT} at [COLOR_CYAN]{TXT_KEY_TECH_HORSEBACK_RIDING_TITLE}[ENDCOLOR]. [ICON_PUPPET] Puppet provide 50% yields and supply (other civs: 30%) and can make [ICON_GOLD] Gold purchases and gain [ICON_HAPPINESS_1] Happiness like normal Cities.'
 WHERE Tag = 'TXT_KEY_TRAIT_SUPER_CITY_STATE';
 
 UPDATE Language_en_US
@@ -800,7 +829,7 @@ WHERE Tag = 'TXT_KEY_UNIT_VENETIAN_GALLEASS_STRATEGY';
 -- Zulu
 --------------------
 UPDATE Language_en_US
-SET Text = '-50% [ICON_GOLD] Gold maintenance for Melee and Gunpowder Units. All Units require 25% less Experience for Promotions. Your military ignores Alliance and Protection penalties and is 50% more effective at intimidating [ICON_CITY_STATE] City-States.'
+SET Text = '-50% [ICON_GOLD] Gold maintenance for Melee and Gunpowder Units. All Units require 25% less Experience for Promotions. Your military ignores Alliance and Protection penalties and is 50% more effective at [ICON_PIRATE] intimidating City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_BUFFALO_HORNS';
 
 UPDATE Language_en_US

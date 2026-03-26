@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context>
+
+
+    <LuaContext FileName="Assets/UI/InGame/TechPopup" ID="TechPopup" Hidden="1" />
+
+
+
+
+
+
+    <!--=======================================================================================================================-->
+    <!--   Currently Researching Grid9FrameBlack Grid9DetailFive140-->
+    <!--=======================================================================================================================-->
+    <Grid Anchor="L,T" Offset="36,4"  Size="0,0" Color="255,255,255,255"   StateOffsetIncrement="0,0" Style="Grid9FrameBlack" ID="ActiveStyle" Hidden="0">
+        <Stack Anchor="L,T" Offset="114,62"   Size="32,32" StackGrowth="Right" Padding="-8" >
+            <Button NoStateChange="1" Anchor="C,C" Size="64,64"  ID="B1"/>
+            <Button NoStateChange="1" Anchor="C,C" Size="64,64"  ID="B2"/>
+            <Button NoStateChange="1" Anchor="C,C" Size="64,64"  ID="B3"/>
+            <Button NoStateChange="1" Anchor="C,C" Size="64,64"  ID="B4"/>
+            <Button NoStateChange="1" Anchor="C,C" Size="64,64"  ID="B5"/>
+        </Stack>
+    </Grid>
+
+
+
+
+    <Image Anchor="L,T" Texture="assets\UI\Art\WorldView\TopLeft001.dds"  Offset="0,30"  Size="512,128" Hidden="0"/>
+
+
+    <Image Anchor="L,T" Texture="assets\UI\Art\WorldView\TopLeft022.dds"  Offset="0,30"  Size="512,128" Hidden="0"/>
+
+
+    <!--=======================================================================================================================-->
+    <!--    Change Close Button  -->
+    <!--=======================================================================================================================-->
+
+    <GridButton Style="BaseButton" Anchor="L,T" Size="360,36" Color="255,255,255,255"  Offset="110,36" StateOffsetIncrement="0,0" ID="TechButton">
+
+        <ShowOnMouseOver>
+            <AlphaAnim  Anchor="C,C" Offset="0,0" Size="360,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".25" AlphaEnd=".99" Hidden="0">
+                <Grid  Size="356,32" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                <ScrollAnim  Offset="12,0"  Size="360.36" Speed="0.25" Texture="assets\UI\Art\Notification\Bubbles256.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask336x48.dds" />
+            </AlphaAnim>
+            <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+            <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+            <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+            <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+        </ShowOnMouseOver>
+
+        <Label Anchor="L,C" Offset="40,0" Font="TwCenMT20" ID="TechText"  ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+
+        <Label Anchor="L,C"  Offset="0,-1" Font="TwCenMT20" ID="FinishedTechText" Color0="111.51.0.222" Color1="255.222.22.255" Color2="229.118.22.255" FontStyle="SoftShadow" Hidden="1"/>
+
+
+
+
+    </GridButton>
+
+
+    <!--=======================================================================================================================-->
+    <!--    Image Frame and Meters (Regular and Gold) -->
+    <!--=======================================================================================================================-->
+
+
+
+    <Button Anchor="L,T" NoStateChange="1" Offset="26,32"  Texture="assets\UI\Art\WorldView\TechTreeMeterBack.dds" Size="128.128" ID="BigTechButton" >
+
+        <!--The tech image-->
+        <Image Anchor="C,C" Offset="0,0" Texture="TechnologyAtlas1024.dds" Size="128,128" ID="TechIcon"/>
+        <Meter Anchor="C,C" Size="128.128" Texture="TechTreeMeter.dds" HasShadow="1" Color="255,255,255,255" ShadowColor="255,255,255,100" ID="ResearchMeter"/>
+        <Image Anchor="L,C" Texture="TechTreeMeterFrame.dds" Size="128.128"/>
+    </Button>
+
+
+
+
+
+
+
+</Context>

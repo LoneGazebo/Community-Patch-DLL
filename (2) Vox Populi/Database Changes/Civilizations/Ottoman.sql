@@ -11,8 +11,8 @@ WHERE TraitType = 'TRAIT_CONVERTS_SEA_BARBARIANS';
 INSERT INTO Trait_TradeRouteEndYield
 	(TraitType, YieldType, YieldDomestic, YieldInternational)
 VALUES
-	('TRAIT_CONVERTS_SEA_BARBARIANS', 'YIELD_GOLD', 150, 0),
-	('TRAIT_CONVERTS_SEA_BARBARIANS', 'YIELD_CULTURE', 150, 0),
+	('TRAIT_CONVERTS_SEA_BARBARIANS', 'YIELD_GOLD', 75, 0),
+	('TRAIT_CONVERTS_SEA_BARBARIANS', 'YIELD_CULTURE', 75, 0),
 	('TRAIT_CONVERTS_SEA_BARBARIANS', 'YIELD_FOOD', 0, 150),
 	('TRAIT_CONVERTS_SEA_BARBARIANS', 'YIELD_SCIENCE', 0, 150);
 
@@ -104,7 +104,6 @@ SET
 	BuildableOnResources = 1,
 	ConnectsAllResources = 1,
 	NoTwoAdjacent = 1,
-	CreatedByGreatPerson = 1,
 	CultureBombRadius = 1,
 	DefenseModifier = 50,
 	NoFollowUp = 1,

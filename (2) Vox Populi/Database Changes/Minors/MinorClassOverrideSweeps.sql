@@ -40,16 +40,6 @@ WHERE Type IN (
 	'UNITCLASS_SS_BOOSTER'
 );
 
--- Block CS from building these
--- National Wonders/World Wonders
-INSERT INTO Civilization_BuildingClassOverrides
-	(CivilizationType, BuildingClassType)
-SELECT
-	'CIVILIZATION_MINOR', Type
-FROM BuildingClasses
-WHERE (MaxPlayerInstances <> -1 OR MaxGlobalInstances <> -1)
-AND Type <> 'BUILDINGCLASS_PALACE';
-
 -- Diplo buildings
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType)

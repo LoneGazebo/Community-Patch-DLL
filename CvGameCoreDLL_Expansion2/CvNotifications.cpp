@@ -984,7 +984,6 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_UNKNOWN:
 	case NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_UNKNOWN:
 	case NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_KNOWN:
-		PRECONDITION(notification.m_iGameDataIndex >= 0, "notification.m_iGameDataIndex is out of bounds");
 		if(notification.m_iGameDataIndex >= 0)
 		{
 			PlayerTypes ePlayerToContact = (PlayerTypes)notification.m_iGameDataIndex;

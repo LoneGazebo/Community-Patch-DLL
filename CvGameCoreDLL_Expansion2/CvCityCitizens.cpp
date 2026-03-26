@@ -809,7 +809,7 @@ YieldAndGPPList CvCityCitizens::GetSpecialistYields(SpecialistTypes eSpecialist)
 		}
 		//Culture is treated differently, sadly.
 		if (eYield == YIELD_CULTURE)
-			iYield100 = m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
+			iYield100 += m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
 
 		//religion bonus
 		ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
@@ -1758,8 +1758,6 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 /// Pick the worst Plot to stop working
 bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool bRemoveForcedStatus, SpecialistTypes eDontChangeSpecialist)
 {
-	int iCurrentCityPopulation = GetCity()->getPopulation(true);
-
 	// Are all of our guys already not working Plots?
 	if (GetNumUnassignedCitizens() == GetCity()->getPopulation(true))
 	{
@@ -1775,18 +1773,11 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 			ChangeNumDefaultSpecialists(-1, updateMode);
 			return true;
 		}
-		if (GetNumDefaultSpecialists() > iCurrentCityPopulation)
+		if (GetNumForcedDefaultSpecialists() > 0 && bRemoveForcedStatus)
 		{
-			if (bRemoveForcedStatus)
-			{
-				ChangeNumForcedDefaultSpecialists(-1);
-				ChangeNumDefaultSpecialists(-1, updateMode);
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			ChangeNumForcedDefaultSpecialists(-1);
+			ChangeNumDefaultSpecialists(-1, updateMode);
+			return true;
 		}
 	}
 
