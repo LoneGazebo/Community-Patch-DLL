@@ -357,7 +357,7 @@ void CvCityStrategyAI::FlavorUpdate()
 	// Broadcast to our sub AI objects
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
-		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor);
+		int iFlavorValue = GetLatestFlavorValue((FlavorTypes)iFlavor, true);
 		//for debugging
 		//const char* pcFlavorName = GC.getFlavorTypes((FlavorTypes)iFlavor).c_str();
 

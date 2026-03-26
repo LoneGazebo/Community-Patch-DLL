@@ -79,6 +79,10 @@ void CvProcessProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	if (iWeight==0)
 		return;
 
+	// Apply sqrti per-accumulator before XML multiplication to preserve XML flavor differentiation.
+	// sqrti uses abs() internally so we must preserve sign explicitly.
+	int iModifiedWeight = (iWeight > 0 ? 1 : -1) * sqrti(10 * abs(iWeight));
+
 	int iProcess = 0;
 	CvProcessInfo* entry(NULL);
 
@@ -88,8 +92,7 @@ void CvProcessProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 		entry = GC.getProcessInfo((ProcessTypes)iProcess);
 		if (entry)
 		{
-			// Set its weight by looking at project's weight for this flavor and using iWeight multiplier passed in
-			m_ProcessAIWeights.IncreaseWeight(iProcess, entry->GetFlavorValue(eFlavor) * iWeight);
+			m_ProcessAIWeights.IncreaseWeight(iProcess, entry->GetFlavorValue(eFlavor) * iModifiedWeight);
 		}
 	}
 }
@@ -104,12 +107,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
 	if(!pProcess)
 		return SR_IMPOSSIBLE;
-
-	if(iTempWeight < 1)
-		return SR_IMPOSSIBLE;
-
-	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
-	iTempWeight = sqrti(10 * iTempWeight);
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 

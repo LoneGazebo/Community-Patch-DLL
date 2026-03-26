@@ -84,14 +84,17 @@ void CvUnitProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	if (iWeight==0)
 		return;
 
+	// Apply sqrti per-accumulator before XML multiplication to preserve XML flavor differentiation.
+	// sqrti uses abs() internally so we must preserve sign explicitly.
+	int iModifiedWeight = (iWeight > 0 ? 1 : -1) * sqrti(10 * abs(iWeight));
+
 	// Loop through all units
 	for(int iUnit = 0; iUnit < m_pUnits->GetNumUnits(); iUnit++)
 	{
 		CvUnitEntry* entry = m_pUnits->GetEntry(iUnit);
 		if(entry)
 		{
-			// Set its weight by looking at unit's weight for this flavor and using iWeight multiplier passed in
-			m_UnitAIWeights.IncreaseWeight(iUnit, entry->GetFlavorValue(eFlavor) * iWeight);
+			m_UnitAIWeights.IncreaseWeight(iUnit, entry->GetFlavorValue(eFlavor) * iModifiedWeight);
 		}
 	}
 }
@@ -173,12 +176,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 {
 	//value to be added
 	int iBonus = 0;
-
-	if(iFlavorWeight < 1)
-		return SR_IMPOSSIBLE;
-
-	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
-	iFlavorWeight = sqrti(10 * iFlavorWeight);
 
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 	if (!pkUnitEntry)

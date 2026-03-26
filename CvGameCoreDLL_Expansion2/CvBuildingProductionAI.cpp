@@ -87,6 +87,10 @@ void CvBuildingProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	if (iWeight==0)
 		return;
 
+	// Apply sqrti per-accumulator before XML multiplication to preserve XML flavor differentiation.
+	// sqrti uses abs() internally so we must preserve sign explicitly.
+	int iModifiedWeight = (iWeight > 0 ? 1 : -1) * sqrti(10 * abs(iWeight));
+
 	CvBuildingXMLEntries* pkBuildings = m_pCityBuildings->GetPossibleBuildings();
 
 	// Loop through all buildings
@@ -95,8 +99,7 @@ void CvBuildingProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 		CvBuildingEntry* entry = pkBuildings->GetEntry(iBuilding);
 		if(entry)
 		{
-			// Set its weight by looking at building's weight for this flavor and using iWeight multiplier passed in
-			m_BuildingAIWeights.IncreaseWeight(iBuilding, entry->GetFlavorValue(eFlavor) * iWeight);
+			m_BuildingAIWeights.IncreaseWeight(iBuilding, entry->GetFlavorValue(eFlavor) * iModifiedWeight);
 		}
 	}
 }
@@ -154,7 +157,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
 	bool bNoBestWonderCityCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
-	if(m_pCity == NULL || eBuilding == NO_BUILDING || iValue < 1)
+	if(m_pCity == NULL || eBuilding == NO_BUILDING)
 		return SR_IMPOSSIBLE;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
@@ -162,9 +165,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//do not build any buildings at all when about to be captured
 	if (m_pCity->isInDangerOfFalling())
 		return SR_STRATEGY;
-
-	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
-	iValue = sqrti(10 * iValue);
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if(pkBuildingInfo == NULL)

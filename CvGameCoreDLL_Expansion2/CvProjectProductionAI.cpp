@@ -74,6 +74,10 @@ void CvProjectProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	if (iWeight==0)
 		return;
 
+	// Apply sqrti per-accumulator before XML multiplication to preserve XML flavor differentiation.
+	// sqrti uses abs() internally so we must preserve sign explicitly.
+	int iModifiedWeight = (iWeight > 0 ? 1 : -1) * sqrti(10 * abs(iWeight));
+
 	int iProject = 0;
 	CvProjectEntry* entry(NULL);
 
@@ -83,8 +87,7 @@ void CvProjectProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 		entry = GC.GetGameProjects()->GetEntry(iProject);
 		if(entry)
 		{
-			// Set its weight by looking at project's weight for this flavor and using iWeight multiplier passed in
-			m_ProjectAIWeights.IncreaseWeight(iProject, entry->GetFlavorValue(eFlavor) * iWeight);
+			m_ProjectAIWeights.IncreaseWeight(iProject, entry->GetFlavorValue(eFlavor) * iModifiedWeight);
 		}
 	}
 }
@@ -153,14 +156,8 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	if(iTempWeight < 1)
-		return SR_IMPOSSIBLE;
-
 	if (m_pCity->isUnderSiege())
 		return SR_STRATEGY;
-
-	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
-	iTempWeight = sqrti(10 * iTempWeight);
 
 	if (pkProjectInfo->IsRepeatable())
 	{
