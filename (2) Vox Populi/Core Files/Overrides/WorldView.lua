@@ -706,19 +706,6 @@ function canChangeTradeHomeCity(unit, targetPlot)
 		and targetPlot:IsCity() and targetPlot:IsFriendlyCity(unit)
 end
 
-function canChangeHomePort(unit, targetPlot)
-	return unit:GetUnitClassType() == GameInfoTypes["UNITCLASS_GREAT_ADMIRAL"]                     -- must be great admiral
-		and unit:GetPlot():IsCity()                                                                -- must be in a city
-		and targetPlot:IsCity() and targetPlot:IsFriendlyCity(unit) and targetPlot:IsCoastalLand() -- must be targeting a friendly coastal city
-		and (not canUnitMoveToPlotSameTurn(unit, targetPlot));                                     -- sailing is faster, don't use up whole turn to get there
-end
-
-function isAirliftFastestTravelToPlot(unit, targetPlot)
-	return unit:CanAirliftAt(targetPlot, unit:GetPlot():GetX(), unit:GetPlot():GetY())
-		and (not canUnitMoveToPlotSameTurn(unit, targetPlot))
-		and unit:CanMoveOrAttackInto(targetPlot)
-end
-
 function highlightAlternativeMove(targetPlot)
 	Events.DisplayMovementIndicator(false);
 	Events.ShowMovementRange();
@@ -731,9 +718,7 @@ end
 -- Returns true if unit can move to targetPlot without pathfinder
 function showAlternativeMoveHighlights(unit, targetPlot)
 	Events.ClearHexHighlightStyle("GroupBorder");
-	if canChangeHomePort(unit, targetPlot)
-		or canChangeTradeHomeCity(unit, targetPlot)
-		or isAirliftFastestTravelToPlot(unit, targetPlot) then
+	if canChangeTradeHomeCity(unit, targetPlot) then
 
 		highlightAlternativeMove(targetPlot)
 		return true;
@@ -1012,9 +997,7 @@ function MovementRButtonUp()
 				end -- VP end
 
 			else--if plot == UI.GetGotoPlot() then
-				if canChangeHomePort(pHeadSelectedUnit, plot) then
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_CHANGE_ADMIRAL_PORT, plotX, plotY, 0, false, bShift);
-				elseif canChangeTradeHomeCity(pHeadSelectedUnit, plot) then
+				if canChangeTradeHomeCity(pHeadSelectedUnit, plot) then
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_CHANGE_TRADE_UNIT_HOME_CITY, plotX, plotY, 0, false, bShift);
 					
 					-- Close trade popups if they are open when this trade unit moved via this shortcut
@@ -1028,8 +1011,6 @@ function MovementRButtonUp()
 						UIManager:DequeuePopup(chooseTradeUnitHome);
 					end
 
-				elseif isAirliftFastestTravelToPlot(pHeadSelectedUnit, plot) then
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_AIRLIFT, plotX, plotY, 0, false, bShift);
 				else
 					Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
         end

@@ -1332,12 +1332,7 @@
         <Description>CBP_IncaFunctions</Description>
         <FileName>Core Files/New Lua/CBP_IncaFunctions.lua</FileName>
       </Content>
-      <Content>
-        <Type>InGameUIAddin</Type>
-        <Name>Destination</Name>
-        <Description>Destination</Description>
-        <FileName>Core Files/New Lua/Destination.lua</FileName>
-      </Content>
+
       <Content>
         <Type>InGameUIAddin</Type>
         <Name>GlobalArchaeologistDigSites</Name>
@@ -5591,10 +5586,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\New Lua\Destination.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
+
     <Content Include="Core Files\New Lua\GlobalArchaeologistDigSites.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>

@@ -988,6 +988,12 @@
     <ModContent>
       <Content>
         <Type>InGameUIAddin</Type>
+        <Name>Destination</Name>
+        <Description>Destination</Description>
+        <FileName>Core Files/New Lua/Destination.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
         <Name>GlobalCityBombardRange</Name>
         <Description>GlobalCityBombardRange</Description>
         <FileName>Core Files/New Lua/GlobalCityBombardRange.lua</FileName>
@@ -2637,6 +2643,10 @@
     <Content Include="Assets\Yields\YieldAtlas_128_Tourism.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\New Lua\Destination.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\New Lua\GlobalCityBombardRange.lua">
       <SubType>Lua</SubType>

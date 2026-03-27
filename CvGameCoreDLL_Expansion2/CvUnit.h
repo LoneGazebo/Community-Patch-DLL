@@ -421,11 +421,11 @@ public:
 
 	int ActualHealRate(const CvPlot* pPlot, bool bCheckMovement = true) const;
 
-	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot) const;
+	const CvPlot* getAirliftFromPlot(const CvPlot* pPlot, bool bIgnoreMoves = false) const;
 	const CvPlot* getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities) const;
 
-	bool canAirlift(const CvPlot* pPlot) const;
-	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY) const;
+	bool canAirlift(const CvPlot* pPlot, bool bIgnoreMoves = false) const;
+	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves = false) const;
 	bool airlift(int iX, int iY);
 
 	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const;

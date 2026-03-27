@@ -1,0 +1,75 @@
+print("This is the 'UI - Destination' mod script.")
+
+include("FLuaVector")
+
+local pathBorderStyle = "MovementRangeBorder"
+
+local bClearPathColour = false
+local bClearPathStyle = false
+
+local NavyBlue = Vector4(0.0, 0.0, 0.502, 1.0)
+local White = Vector4(1.0, 1.0, 1.0, 1.0)
+
+function OnUnitSelectionCleared()
+  if bClearPathStyle then
+    Events.ClearHexHighlightStyle(pathBorderStyle)
+    bClearPathStyle = false
+  end
+
+  if bClearPathColour then
+    Events.ClearHexHighlights()
+    bClearPathColour = false
+  end
+end
+Events.UnitSelectionCleared.Add(OnUnitSelectionCleared)
+
+--- @param tPath PathNode[]
+Events.UIPathFinderUpdate.Add(function(tPath)
+  if bClearPathColour then
+    Events.ClearHexHighlights()
+    bClearPathColour = false
+  end
+
+  local lastTurn = nil
+  local colourIdx = 1
+
+  local prevNode
+  for i, node in ipairs(tPath) do
+    if i > 1 then
+      if Map.PlotDistance(prevNode.x, prevNode.y, node.x, node.y) > 1 then
+        local pHeadUnit = UI.GetHeadSelectedUnit();
+        local color = pHeadUnit and pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_SEA and NavyBlue or White
+        Events.SerialEventHexHighlight(ToHexFromGrid({x = prevNode.x, y = prevNode.y}), true, color)
+        Events.SerialEventHexHighlight(ToHexFromGrid({x = node.x, y = node.y}), true, color)
+      end
+    end
+    prevNode = node
+  end
+    bClearPathColour = true
+end)
+
+-------------------------------------------------
+Events.UnitSelectionChanged.Add(function(iPlayerID, iUnitID, i, j, k, isSelected)
+  if isSelected then
+    local pUnit = Players[iPlayerID]:GetUnitByID(iUnitID)
+    if not pUnit.GetActivePath then
+      local pMissionPlot = pUnit:LastMissionPlot()
+      if pUnit:GetX() ~= pMissionPlot:GetX() or pUnit:GetY() ~= pMissionPlot:GetY() then
+        local hex = ToHexFromGrid(Vector2(pMissionPlot:GetX(), pMissionPlot:GetY()));
+        Events.SerialEventHexHighlight(hex, true, nil, pathBorderStyle)
+        bClearPathStyle = true
+        Events.GameplayFX(hex.x, hex.y, -1);
+      end
+    end
+  end
+end)
+
+-------------------------------------------------
+Events.DisplayMovementIndicator.Add(function(bShow)
+  if not bShow then
+    if bClearPathColour then
+      Events.ClearHexHighlights()
+      bClearPathColour = false
+    end
+  end
+end)

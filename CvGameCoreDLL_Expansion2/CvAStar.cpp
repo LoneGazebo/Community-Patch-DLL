@@ -120,6 +120,9 @@ CvAStar::CvAStar()
       m_iBasicPlotCost(1),
       m_iMovesCached(0),
       m_iTurnsCached(0),
+	  m_bAirliftCitiesChecked(false),
+	  m_bAirliftImprovementsChecked(false),
+	  m_bChangePortCitiesChecked(false),
       m_strName("AStar") // for debugging
 {
 }
@@ -250,6 +253,10 @@ void CvAStar::Reset()
 	m_iProcessedNodes = 0;
 	m_iTestedNodes = 0;
 	m_iRounds = 0;
+
+	m_bAirliftCitiesChecked = false;
+	m_bAirliftImprovementsChecked = false;
+	m_bChangePortCitiesChecked = false;
 
 	//will be set multiple times but who cares
 	g_bPathFinderLogging = false;
@@ -570,6 +577,16 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	{
 		vector<pair<int, int>> extraChildren;
 		GetExtraChildren(node,extraChildren);
+		if (extraChildren.size() > 0)
+		{
+			// update the cache flags if we have found extra children
+			if (node->m_kCostCacheData.bCanAirliftFromPlotCity)
+				SetAirliftCitiesChecked(true);
+			else if (node->m_kCostCacheData.bCanAirliftFromPlotImprovement)
+				SetAirliftImprovementsChecked(true);
+			else if (node->m_kCostCacheData.bCanChangePortFromPlot)
+				SetChangePortCitiesChecked(true);
+		}
 		for(size_t i = 0; i < extraChildren.size(); i++)
 		{
 			int x = extraChildren[i].first;
@@ -933,6 +950,11 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		}
 	}
 
+	const CvPlot* pAirliftFromPlot = pUnit->getAirliftFromPlot(pPlot, true);
+	kToNodeCacheData.bCanAirliftFromPlotCity = pAirliftFromPlot && pAirliftFromPlot->isCity();
+	kToNodeCacheData.bCanAirliftFromPlotImprovement = pAirliftFromPlot && !pAirliftFromPlot->isCity();
+	kToNodeCacheData.bCanChangePortFromPlot = pUnit->canChangeAdmiralPort(pPlot);
+
 	kToNodeCacheData.bIsVisibleEnemyUnit = false;
 	kToNodeCacheData.bIsVisibleEnemyCombatUnit = false;
 	kToNodeCacheData.bIsVisibleNeutralCombatUnit = false;
@@ -1148,12 +1170,13 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - determine heuristic cost
-int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
+int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY, int iBaseMoves)
 {
 	//for the heuristic to be admissible, it needs to never overestimate the cost of reaching the target
 	//a regular step by a unit costs PATH_BASE_COST*MOVE_DENOMINATOR/MOVES_PER_TURN
-	//for a fast unit on a road, moves per turn can be high ... let's assume 15
-	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*4;
+	//for a unit on a road, moves per turn can be high ... let's assume 10 per movement point
+
+	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*6/iBaseMoves;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1408,7 +1431,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	int iCost = (PATH_BASE_COST * iMovementCost) / parent->m_iStartMovesForTurn;
 	
 	//when in doubt prefer the shorter path
-	iCost += PATH_STEP_WEIGHT;
+	iCost += PATH_STEP_WEIGHT * plotDistance(iFromPlotX, iFromPlotY, iToPlotX, iToPlotY);
 
 	//when in doubt avoid domain changes because too many of them look stupid
 	if (bFromPlotIsWater != bToPlotIsWater)
@@ -1656,8 +1679,8 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 	if (node->m_iHeuristicCost == 0 && udHeuristic && isValid(m_iXdest, m_iYdest))
 	{
 		int iHeuristicCost = parent ?
-			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest):
-			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest);
+			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest, pCacheData->baseMoves(false)):
+			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest, pCacheData->baseMoves(false));
 		node->m_iHeuristicCost = iHeuristicCost;
 	}
 	node->m_iTotalCost = node->m_iKnownCost*giKnownCostWeight + node->m_iHeuristicCost*giHeuristicCostWeight;
@@ -1783,7 +1806,7 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 
 //	--------------------------------------------------------------------------------
 /// Default heuristic cost
-int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
+int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY, int /*iBaseMoves*/)
 {
 	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST;
 }
@@ -1921,8 +1944,8 @@ void CvStepFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int i
 	if (node->m_iHeuristicCost == 0 && udHeuristic && isValid(m_iXdest, m_iYdest))
 	{
 		int iHeuristicCost = parent ?
-			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest):
-			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest);
+			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest, 1):
+			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest, 1);
 		node->m_iHeuristicCost = iHeuristicCost;
 	}
 	node->m_iTotalCost = node->m_iKnownCost*giKnownCostWeight + node->m_iHeuristicCost*giHeuristicCostWeight;
@@ -2169,6 +2192,92 @@ int CityConnectionLandGetExtraChildren(const CvAStarNode* node, const CvAStar* f
 		return 0;
 
 	AddCityConnectionRiverConnections(pPlot, finder, out);
+
+	return (int)out.size();
+}
+
+//	--------------------------------------------------------------------------------
+int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int, int>>& out)
+{
+	out.clear();
+
+	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
+	if (!pPlot)
+		return 0;
+
+	PlayerTypes ePlayer = finder->GetData().ePlayer;
+
+	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(finder->GetData().iUnitID);
+	if (!pUnit)
+		return 0;
+
+	// land units can move from city to city using airports
+	if (node->m_kCostCacheData.bCanAirliftFromPlotCity || node->m_kCostCacheData.bCanAirliftFromPlotImprovement)
+	{
+		// only with full moves
+		if (node->m_iMoves != pUnit->baseMoves(false) * GD_INT_GET(MOVE_DENOMINATOR) && node->m_iMoves != 0)
+			return 0;
+
+		if (node->m_kCostCacheData.bCanAirliftFromPlotCity)
+		{
+			// airlift target plots only need to be checked once during pathfinding. they don't depend on the starting plot so considering them early is always better
+			if (finder->IsAirliftCitiesChecked())
+				return 0;
+			
+			// valid targets are all airport cities owned by us or our minor civ allies
+			vector<PlayerTypes> vFriendlyPlayers;
+			vFriendlyPlayers.push_back(ePlayer);
+			for (uint iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+
+				if (!GET_PLAYER(eMinor).isAlive())
+					continue;
+
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == ePlayer)
+					vFriendlyPlayers.push_back(eMinor);
+			}
+
+			for (vector<PlayerTypes>::iterator it = vFriendlyPlayers.begin(); it != vFriendlyPlayers.end(); ++it)
+			{
+				int iCityLoop;
+				CvCity* pLoopCity = NULL;
+				for (pLoopCity = GET_PLAYER(*it).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iCityLoop))
+				{
+					if (!pLoopCity->CanAirlift())
+						continue;
+
+					CvPlot* pCityPlot = pLoopCity->plot();
+					for (int i = 0; i < RING1_PLOTS; i++)
+					{
+						CvPlot* pLoopPlot = iterateRingPlots(pCityPlot, i);
+						if (!pLoopPlot)
+							continue;
+
+						if (pUnit->canAirliftAt(pPlot, pLoopPlot->getX(), pLoopPlot->getY(), true))
+							out.push_back(make_pair(pLoopPlot->getX(), pLoopPlot->getY()));
+					}
+				}
+			}
+		}
+
+		// todo: improvements that allow airlift
+
+	}
+	else if (node->m_kCostCacheData.bCanChangePortFromPlot)
+	{
+		// great admiral target plots only need to be checked once during pathfinding. they don't depend on the starting plot so considering them early is always better
+		if (finder->IsChangePortCitiesChecked())
+			return 0;
+
+		int iCityLoop;
+		CvCity* pLoopCity = NULL;
+		for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		{
+			if (pUnit->canChangeAdmiralPortAt(pPlot, pLoopCity->getX(), pLoopCity->getY()))
+				out.push_back(make_pair(pLoopCity->getX(), pLoopCity->getY()));
+		}
+	}
 
 	return (int)out.size();
 }
@@ -2691,7 +2800,7 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 
 	//this is our default path type
 	m_sData.ePath = PT_UNIT_MOVEMENT;
-	SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
+	SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, UnitPathGetExtraChildren, UnitPathInitialize, UnitPathUninitialize);
 
 	//for debugging
 	m_strName = "TwoLayerAStar";
@@ -2846,7 +2955,9 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		bAttrition = (!bAttritionCurrent && bAttritionNext);
 	}
 
-	if (bBlockAhead || bTempPlotAhead || bAttrition)
+	bool bAirlift = current->m_kCostCacheData.bCanAirliftFromPlotCity || current->m_kCostCacheData.bCanAirliftFromPlotImprovement;
+
+	if (bBlockAhead || bTempPlotAhead || bAttrition || bAirlift)
 	{
 		CvPlot* pToPlot = GC.getMap().plot(current->m_iX, current->m_iY);
 		int iEndTurnCost = PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns, GetData().iFlags);
@@ -2856,16 +2967,17 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		CvAStarNode* pStopNode = GetPartialMoveNode(current->m_iX, current->m_iY);
 		UpdateNodeCacheData( pStopNode,pUnitDataCache->pUnit,this );
 
-		//assume a stop here - do not add the cost for the wasted movement points!
+		//assume a stop here
+		//cost is the same plus a little bit to encourage going the full distance when in doubt
+		pStopNode->m_iKnownCost = current->m_iKnownCost + PATH_STEP_WEIGHT;
+		pStopNode->m_iKnownCost += iEndTurnCost;
+		pStopNode->m_iKnownCost += current->m_iMoves * PATH_BASE_COST / current->m_iStartMovesForTurn;
+
 		pStopNode->m_iMoves = 0;
 		pStopNode->m_iTurns = current->m_iTurns;
 		pStopNode->m_iHeuristicCost = current->m_iHeuristicCost;
 		pStopNode->m_iStartMovesForTurn = current->m_iStartMovesForTurn;
 
-		//cost is the same plus a little bit to encourage going the full distance when in doubt
-		pStopNode->m_iKnownCost = current->m_iKnownCost + PATH_STEP_WEIGHT;
-		pStopNode->m_iKnownCost += iEndTurnCost;
-		pStopNode->m_iKnownCost += GD_INT_GET(MOVE_DENOMINATOR) * PATH_BASE_COST; //some fixed cost for the forfeited movement points
 
 		//we sort the nodes by total cost!
 		pStopNode->m_iTotalCost = pStopNode->m_iKnownCost*giKnownCostWeight + pStopNode->m_iHeuristicCost*giHeuristicCostWeight;
@@ -2901,7 +3013,7 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 	switch(config.ePath)
 	{
 	case PT_UNIT_MOVEMENT:
-		SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, UnitPathGetExtraChildren, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST*GD_INT_GET(MOVE_DENOMINATOR);
 		break;
 	default:

@@ -721,7 +721,6 @@ void CvTacticalAI::ProcessDominanceZones()
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
 			PlotEmergencyPurchases(pZone);
-			PlotDefensiveAirlifts(pZone);
 
 			int iTargets = ExtractTargetsForZone(pZone);
 			if (iTargets==0)
@@ -1758,62 +1757,6 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 					else //AI Unit Production : Counter is AA only now
 						m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
 			}
-		}
-	}
-}
-
-/// Spend money to buy defenses
-void CvTacticalAI::PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone)
-{
-	if(!pZone || pZone->IsWater() || m_pPlayer->isMinorCiv())
-		return;
-
-	//nothing to do
-	if (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-		return;
-
-	ClearCurrentMoveUnits(AI_TACTICAL_AIRLIFT);
-
-	CvCity* pCity = pZone->GetZoneCity();
-	if (pCity && pCity->getOwner() == m_pPlayer->GetID() && pCity->CanAirlift())
-	{
-		// Loop through all recruited units
-		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
-		{
-			CvUnit* pUnit = m_pPlayer->getUnit(*it);
-			if (pUnit && pUnit->canUseForTacticalAI())
-			{
-				// If there a hex adjacent to city they can airlift to?
-				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-				{
-					CvPlot *pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
-					if (pLoopPlot != NULL && pUnit->canAirliftAt(pUnit->plot(), pLoopPlot->getX(), pLoopPlot->getY()))
-					{
-						CvTacticalUnit unit(pUnit->GetID());
-						//evil hack ...
-						unit.SetAttackStrength( pLoopPlot->GetPlotIndex() );
-						m_CurrentMoveUnits.push_back( unit );
-					}
-				}
-			}
-		}
-	}
-
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if (pUnit)
-		{
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Airlifting %s to city of %s, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pCity->getNameNoSpace().GetCString(), pUnit->getX(), pUnit->getY());
-				LogTacticalMessage(strLogString);
-			}
-
-			CvPlot* pTarget = GC.getMap().plotByIndexUnchecked( m_CurrentMoveUnits[iI].GetAttackStrength() );
-			pUnit->airlift(pTarget->getX(), pTarget->getY());
-			UnitProcessed(pUnit->GetID());
 		}
 	}
 }

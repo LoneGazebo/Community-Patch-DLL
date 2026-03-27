@@ -478,6 +478,7 @@ public:
 	//some caching to avoid iterating all building types
 	const std::vector <BuildingTypes>& getBuildingInteractions(BuildingTypes eRefBuilding) const;
 	const std::vector <BuildingTypes>& getBuildingsWithYieldsFromAccomplishments() const;
+	const std::vector <BuildingTypes>& getBuildingsWithAirlift() const;
 
 	int getNumUnitClassInfos();
 	std::vector<CvUnitClassInfo*>& getUnitClassInfo();
@@ -3133,6 +3134,7 @@ protected:
 	CvBuildingXMLEntries* m_pBuildings;
 	std::map<BuildingTypes, std::vector<BuildingTypes>> m_buildingInteractionLookup;
 	std::vector<BuildingTypes> m_vBuildingsWithYieldsFromAccomplishments;
+	std::vector<BuildingTypes> m_vBuildingsWithAirlift;
 	CvUnitXMLEntries* m_pUnits;
 	CvProjectXMLEntries* m_pProjects;
 	CvPromotionXMLEntries* m_pPromotions;

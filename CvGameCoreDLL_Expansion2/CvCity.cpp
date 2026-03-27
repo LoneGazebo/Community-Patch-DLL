@@ -19056,19 +19056,11 @@ void CvCity::changeFreeExperience(int iChange)
 //	--------------------------------------------------------------------------------
 bool CvCity::CanAirlift() const
 {
-	for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+	const std::vector<BuildingTypes>& vAirliftBuildings = GC.getBuildingsWithAirlift();
+	for (std::vector<BuildingTypes>::const_iterator it = vAirliftBuildings.begin(); it != vAirliftBuildings.end(); ++it)
 	{
-		BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
-		BuildingTypes eBuilding = GetBuildingTypeFromClass(eBuildingClass);
-		if (eBuilding == NO_BUILDING)
-			continue;
-
-		if (HasBuilding(eBuilding))
-		{
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo && pkBuildingInfo->IsAirlift())
-				return true;
-		}
+		if (HasBuilding(*it))
+			return true;
 	}
 
 	if (MOD_EVENTS_CITY_AIRLIFT)
@@ -28667,7 +28659,6 @@ void CvCity::DoAcquirePlot(int iPlotX, int iPlotY)
 		return;
 	}
 
-	GET_PLAYER(getOwner()).AddAPlot(pPlot);
 	pPlot->setOwner(getOwner(), GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
 	GC.getMap().updateDeferredFog();
 

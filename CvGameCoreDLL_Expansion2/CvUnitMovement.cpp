@@ -17,6 +17,10 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
 	DomainTypes domain = pUnit->getDomainType();
 
+	// wormholes always consume all moves
+	if (plotDistance(*pFromPlot, *pToPlot) > 1)
+		return INT_MAX;
+
 	//some easy checks first
 	if (kPlayer.isHuman(ISHUMAN_AI_UNITS) && !pToPlot->isRevealed(pUnit->getTeam()))
 	{
@@ -393,9 +397,12 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 
 	//now, if there was a domain change, our base moves might change
 	//make sure that the movement cost is always so high that we never end up with more than the base moves for the new domain
-	int iLeftOverMoves = iMovesRemaining - iCost;
-	if (iLeftOverMoves > iMaxMoves)
-		iCost += (iLeftOverMoves - iMaxMoves);
+	if (iCost != INT_MAX)
+	{
+		int iLeftOverMoves = iMovesRemaining - iCost;
+		if (iLeftOverMoves > iMaxMoves)
+			iCost += (iLeftOverMoves - iMaxMoves);
+	}
 
 	return std::min(iCost, iMovesRemaining);
 }

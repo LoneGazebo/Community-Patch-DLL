@@ -3517,6 +3517,12 @@
 		<Row Tag="TXT_KEY_PATHFINDING_ENDING_MOVE_EARLY">
 			<Text>[COLOR_NEGATIVE_TEXT]Ending Move Early[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PATHFINDING_AIRLIFT">
+			<Text>[ICON_AIRPORT] Airlift</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PATHFINDING_CHANGE_PORT">
+			<Text>[ICON_GREAT_ADMIRAL] Port Change</Text>
+		</Row>
 
 		<!-- Banner message -->
 		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY">
