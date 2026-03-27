@@ -2019,27 +2019,6 @@ if civ5_mode and gk_mode then
 	Controls.InstantYieldsIcon:SetToolTipCallback( requestTextToolTip )
 	Controls.InstantYieldsIcon:SetHide( false )
 end
--------------------------------------------------
--- Spy Points Tooltip
--------------------------------------------------
---[[if civ5_mode and gk_mode then
-	g_toolTipHandler.SpyPointsString = function()-- control )
-		local tips = table()
-		
-		local iPlayerID = g_activePlayerID;
-		local pPlayer = Players[iPlayerID];
-		local strSpiesStr;
-		if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or Game.GetSpyThreshold() == 0) then
-			strSpiesStr = "";
-		else
-		
-			strSpiesStr = Locale.ConvertTextKey("TXT_KEY_SPY_POINTS_TT", pPlayer:GetSpyPoints(false), Game.GetSpyThreshold(), pPlayer:GetSpyPoints(true));
-		end
-
-		tips:insert( strSpiesStr );
-		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
-	end
-end]]
 
 -- my modification for Luxury Resources
 if civ5_mode and gk_mode then
@@ -2447,7 +2426,7 @@ local function ResourcesToolTip( control )
 						end
 						canBuildSomeday = canBuildSomeday and not (
 							-- no espionage buildings for a non-espionage game
-							( Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) and building.IsEspionage )
+							( Game.IsOption("GAMEOPTION_NO_ESPIONAGE") and building.IsEspionage )
 							-- Has obsolete tech?
 							or ( building.ObsoleteTech and g_activeTeamTechs:HasTech( GameInfoTypes[building.ObsoleteTech] ) )
 						)
@@ -2720,7 +2699,7 @@ local function ResourcesToolTip( control )
 					end
 					canBuildSomeday = canBuildSomeday and not (
 						-- no espionage buildings for a non-espionage game
-						( Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) and building.IsEspionage )
+						( Game.IsOption("GAMEOPTION_NO_ESPIONAGE") and building.IsEspionage )
 						-- Has obsolete tech?
 						or ( civ5_mode and building.ObsoleteTech and g_activeTeamTechs:HasTech( GameInfoTypes[building.ObsoleteTech] ) )
 					)
@@ -2955,7 +2934,7 @@ local function UpdateOptions()
 	g_isPoliciesEnabled = not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)
 	g_isHappinessEnabled = civ5_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
 	g_isReligionEnabled = civ5_mode and gk_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)
-	g_isHealthEnabled = not (civ5_mode or Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HEALTH) )
+	g_isHealthEnabled = not (civ5_mode or Game.IsOption("GAMEOPTION_NO_HEALTH") )
 	UpdateTopPanel()
 end
 

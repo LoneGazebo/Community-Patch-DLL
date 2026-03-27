@@ -1470,29 +1470,6 @@ function InstantYieldHandler( control )
     tipControlTable.TopPanelMouseover:DoAutoSize();
 end
 
--- Spy Points Tooptip (hidden for now)
---[[function SpyPointsTipHandler( control )
-
-	local iPlayerID = g_activePlayerObserver;
-	local pPlayer = Players[iPlayerID];
-	local strSpiesStr;
-	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or Game.GetSpyThreshold() == 0) then
-		strSpiesStr = "";
-	else
-		strSpiesStr = Locale.ConvertTextKey("TXT_KEY_SPY_POINTS_TT", pPlayer:GetSpyPoints(false), Game.GetSpyThreshold(), pPlayer:GetSpyPoints(true));
-	end
-
-	if(strSpiesStr ~= "") then
-		tipControlTable.TopPanelMouseover:SetHide(false);
-		tipControlTable.TooltipLabel:SetText( strSpiesStr );
-	else
-		tipControlTable.TopPanelMouseover:SetHide(true);
-	end
-    
-    -- Autosize tooltip
-    tipControlTable.TopPanelMouseover:DoAutoSize();
-end]]
-
 -- Resources Tooltip
 function ResourcesTipHandler( control )
 
