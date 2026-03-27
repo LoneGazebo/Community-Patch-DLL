@@ -20207,7 +20207,14 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	if(pOldPlot != NULL)
 	{
-		pOldPlot->removeUnit(this, bUpdate);
+		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+			pOldPlot->removeUnit(this, bUpdate);
+		else
+		{
+			GC.getMap().plotManager().RemoveUnit(GetIDInfo(), m_iX, m_iY, m_iMapLayer);
+			if (bUpdate)
+				pOldPlot->updateCenterUnit();
+		}
 		// if leaving a city, reveal the unit
 		if (pOldPlot->isCity())
 		{
