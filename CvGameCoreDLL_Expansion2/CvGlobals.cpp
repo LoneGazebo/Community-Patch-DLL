@@ -2843,13 +2843,14 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 	else
 	{
 		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
-			"The game has crashed due to insufficient memory. Common strategies to reduce the game's memory consumption include:\n\n"
+			"The game has crashed, likely due to insufficient memory. Common strategies to reduce the game's memory consumption include:\n\n"
 			"- Disable yield icons\n"
-			"- Reduce graphics settings\n"
+			"- Reduce Leader Screen Quality to Minimum\n"
 			"- Avoid zooming out too far\n"
 			"- Switch to Strategic View\n"
 			"- Disable memory-heavy mods such as InfoAddict\n"
-			"- If playing with EUI: Use the Non-EUI Version of Vox Populi (Reinstall necessary, save games are compatible)\n\n"
+			"- Enable Single-Unit Graphics using the mod 'Unit Scaling and Formation for VP'\n"
+			"- If playing with EUI: Use the Non-EUI Version of Vox Populi (Reinstallation necessary, save games are compatible)\n\n"
 			"==================\n"
 			"Crash details:\n"
 			"Exception: %s (0x%08X)\n"
