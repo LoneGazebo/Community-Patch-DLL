@@ -30,7 +30,7 @@
 
 // Returns a shortened version of a source file path for display in assertion dialogs.
 // Removes everything before "Community-Patch-DLL/"
-static const char* ShortenFilePath(const char* szFile)
+const char* ShortenFilePath(const char* szFile)
 {
 	if (!szFile) return szFile;
 	const char* anchor_uppercase = strstr(szFile, "Community-Patch-DLL");
@@ -207,7 +207,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			"Cancel - Exit the game. \n"
 			"OK - Continue playing. This warning will not be shown again in the current session.",
 			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-			expr, szFile, uiLine,
+			expr, ShortenFilePath(szFile), uiLine,
 			dumpPath ? "\nMinidump: " : "", dumpPath ? dumpPath : ""
 		);
 #else
@@ -242,6 +242,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			return false;
 
 		default:
+			SetPreconditionFired();
 			BUILTIN_TRAP();
 		}
 	}
@@ -280,7 +281,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		"Yes - Break into debugger\n"
 		"No - Continue execution\n"
 		"Cancel - Ignore this assert",
-		expr, szFile, uiLine,
+		expr, ShortenFilePath(szFile), uiLine,
 		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
 		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : "",
 		info.count,
@@ -362,7 +363,7 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 		"Line: %u\n"
 		"%s%s%s"
 		"%s%s\n",
-		expr, szFile, uiLine,
+		expr, ShortenFilePath(szFile), uiLine,
 		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
 		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : ""
 	);
@@ -382,13 +383,15 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 	);
 #endif
 
+	SetPreconditionFired();
+
 	// Show dialog
 	MessageBoxA(NULL, szBuffer, "Error",
 		MB_OK | MB_ICONERROR | MB_SYSTEMMODAL | MB_SETFOREGROUND);
 
 #else // VPRELEASE_ERRORMSG
 	bool bIgnoreAlways = false;
-	CvAssertDlg(expr, szFile, uiLine, bIgnoreAlways, msg);
+	CvAssertDlg(expr, ShortenFilePath(szFile), uiLine, bIgnoreAlways, msg);
 #endif
 #endif // WIN32
 #endif // CVASSERT_ENABLE

@@ -1106,12 +1106,14 @@ enum BattleTypeTypes
 #define BATTLE_JOINED(pCombatant, iRole, bIsCity) if (MOD_EVENTS_BATTLES && (pCombatant)) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleJoined, (pCombatant)->getOwner(), (pCombatant)->GetID(), iRole, bIsCity); }
 #define BATTLE_FINISHED()                         if (MOD_EVENTS_BATTLES) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleFinished); }
 
+const char* ShortenFilePath(const char* szFile);
+
 // Custom mod logger
 #if defined(CUSTOMLOGDEBUG)
 #if defined(CUSTOMLOGFILEINFO) && defined(CUSTOMLOGFUNCINFO)
 #define CUSTOMLOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", ShortenFilePath(__FILE__), __LINE__, __FUNCTION__, sMsg.c_str());	\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
@@ -1119,7 +1121,7 @@ enum BattleTypeTypes
 #if defined(CUSTOMLOGFILEINFO) && !defined(CUSTOMLOGFUNCINFO)
 #define CUSTOMLOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());					\
+	CvString sLine; CvString::format(sLine, "%s[%i] - %s", ShortenFilePath(__FILE__), __LINE__, sMsg.c_str());					\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
@@ -1145,7 +1147,7 @@ enum BattleTypeTypes
 
 #define LIVELOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", ShortenFilePath(__FILE__), __LINE__, __FUNCTION__, sMsg.c_str());	\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
 

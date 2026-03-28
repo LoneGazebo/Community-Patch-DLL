@@ -2426,8 +2426,8 @@ PlayerTypes GetCurrentPlayer()
 	return NO_PLAYER;
 }
 
-#if defined(MOD_DEBUG_MINIDUMP)
 #ifdef WIN32
+#if defined(MOD_DEBUG_MINIDUMP)
 /************************************************************************************************/
 /* MINIDUMP_MOD                           04/10/11                                terkhen       */
 /* See http://www.debuginfo.com/articles/effminidumps.html                                      */
@@ -2475,6 +2475,15 @@ const char* GetLastMiniDumpPath()
 {
 	return g_szLastMiniDumpPath[0] != '\0' ? g_szLastMiniDumpPath : NULL;
 }
+#endif // defined(MOD_DEBUG_MINIDUMP)
+
+// Signal that PRECONDITION/UNREACHABLE already showed an error dialog, so CustomFilter doesn't show another one
+static bool g_bPreconditionFired = false;
+
+void SetPreconditionFired()
+{
+	g_bPreconditionFired = true;
+}
 
 // MessageBox constants (not included in minimal Windows headers)
 #ifndef MB_OK
@@ -2492,6 +2501,7 @@ extern "C" {
 	__declspec(dllimport) int __stdcall MessageBoxA(void* hWnd, const char* lpText, const char* lpCaption, unsigned int uType);
 }
 
+#if defined(MOD_DEBUG_MINIDUMP)
 // Load the best available dbghelp.dll
 static bool LoadBestDbgHelp()
 {
@@ -2756,6 +2766,7 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		OutputDebugString(szError);
 	}
 }
+#endif // defined(MOD_DEBUG_MINIDUMP)
 
 // Get exception code description
 static const char* GetExceptionDescription(DWORD exceptionCode)
@@ -2779,58 +2790,95 @@ static const char* GetExceptionDescription(DWORD exceptionCode)
 
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
+#if defined(MOD_DEBUG_MINIDUMP)
 	CreateMiniDump(ExceptionInfo);
+#endif
 
 	// Show crash dialog to user
 	char szMessage[2048];
 	DWORD exceptionCode = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionCode : 0;
 	void* exceptionAddress = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionAddress : NULL;
 
+	// Determine which module the crash address belongs to
+	char szCrashModule[MAX_PATH] = "unknown module";
+	if (exceptionAddress != NULL)
+	{
+		HMODULE hCrashModule = NULL;
+		if (GetModuleHandleExA(
+				GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+				(LPCSTR)exceptionAddress, &hCrashModule))
+		{
+			char szFullPath[MAX_PATH] = {};
+			if (GetModuleFileNameA(hCrashModule, szFullPath, sizeof(szFullPath)))
+			{
+				const char* pFile = strrchr(szFullPath, '\\');
+				_snprintf_s(szCrashModule, sizeof(szCrashModule), _TRUNCATE, "%s", pFile ? pFile + 1 : szFullPath);
+			}
+		}
+	}
+
+	char szDumpLine[MAX_PATH + 16] = "";
+#if defined(MOD_DEBUG_MINIDUMP)
 	if (g_szLastMiniDumpPath[0] != '\0')
+		_snprintf_s(szDumpLine, sizeof(szDumpLine), _TRUNCATE, "Minidump: %s\n", g_szLastMiniDumpPath);
+#endif
+
+	bool bFromDLL = (_stricmp(szCrashModule, "CvGameCore_Expansion2.dll") == 0);
+	if (bFromDLL)
 	{
 		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
-			"The game has crashed.\n\n"
+			"The game has crashed due to a code error. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
+			"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n\n"
+			"==================\n"
+			"Crash details:\n"
 			"Exception: %s (0x%08X)\n"
-			"Address: 0x%p\n\n"
-			"A minidump has been saved to:\n%s\n\n"
-			"Please include this file when reporting the crash.",
+			"Address: 0x%p (%s)\n"
+			"%s",
 			GetExceptionDescription(exceptionCode),
 			exceptionCode,
 			exceptionAddress,
-			g_szLastMiniDumpPath);
+			szCrashModule,
+			szDumpLine);
 	}
 	else
 	{
 		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
-			"The game has crashed.\n\n"
+			"The game has crashed due to insufficient memory. Common strategies to reduce the game's memory consumption include:\n\n"
+			"- Disable yield icons\n"
+			"- Reduce graphics settings\n"
+			"- Avoid zooming out too far\n"
+			"- Switch to Strategic View\n"
+			"- Disable memory-heavy mods such as EUI or InfoAddict\n\n"
+			"==================\n"
+			"Crash details:\n"
 			"Exception: %s (0x%08X)\n"
-			"Address: 0x%p\n\n"
-			"Failed to create minidump file.",
+			"Address: 0x%p (%s)\n",
 			GetExceptionDescription(exceptionCode),
 			exceptionCode,
-			exceptionAddress);
+			exceptionAddress,
+			szCrashModule);
 	}
 
-	MessageBoxA(NULL, szMessage, "Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+	if (!g_bPreconditionFired)
+		MessageBoxA(NULL, szMessage, "Game Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
-#endif
 
 //
 // allocate
 //
 void CvGlobals::init()
 {
-#if defined(MOD_DEBUG_MINIDUMP)
 	SetUnhandledExceptionFilter(CustomFilter);
+#if defined(MOD_DEBUG_MINIDUMP)
 #ifdef VPDEBUG
 	OutputDebugString(_T("Debug MiniDump handler installed\n"));
 #else
 	OutputDebugString(_T("Release MiniDump handler installed\n"));
 #endif
-#endif // WIN32
 #endif // defined(MOD_DEBUG_MINIDUMP)
+#endif // WIN32
 
 	//
 	// These vars are used to initialize the globals.
