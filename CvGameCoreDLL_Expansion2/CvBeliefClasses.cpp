@@ -4584,42 +4584,32 @@ int CvReligionBeliefs::GetYieldFromKnownPantheons(YieldTypes eYieldType, PlayerT
 	return rtnValue;
 }
 
-/// Get yield from beliefs from # of followers
-int CvReligionBeliefs::GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+/// Get yield from beliefs from # of followers given a number of followers
+int CvReligionBeliefs::GetLocalFollowerYield(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly, int iFollowers) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetMaxYieldPerFollower(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		int iDivisor = pBeliefs->GetEntry(*it)->GetFollowerRequiredPerYield(eYieldType);
+		if (iDivisor > 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
+			int iValue = iFollowers / iDivisor;
+			
+			int iCap = pBeliefs->GetEntry(*it)->GetMaxYieldPerFollower(eYieldType);
+			if (iCap > 0)
+				iValue = min(iCap, iValue);
+			
 			rtnValue += iValue;
 		}
 	}
 
 	return rtnValue;
-}
-/// Get yield from beliefs from # of followers halved
-int CvReligionBeliefs::GetFollowerRequiredPerYield(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
-{
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-	int rtnValue = 0;
 
-	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
-	{
-		int iValue = pBeliefs->GetEntry(*it)->GetFollowerRequiredPerYield(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
-		{
-			rtnValue += iValue;
-		}
-	}
-
-	return rtnValue;
 }
 
-/// Get yield from beliefs from # of followers halved
+/// discounted policy requirements on wonders
 int CvReligionBeliefs::GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -4636,7 +4626,7 @@ int CvReligionBeliefs::GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTy
 	return false;
 }
 
-/// Get yield from beliefs from # of followers halved
+/// extra yields from CS friend/ally
 int CvReligionBeliefs::GetCSYieldBonus(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();

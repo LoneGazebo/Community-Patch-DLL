@@ -315,6 +315,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="NumRequired" type="integer" notnull="true"/>
 		<Column name="YieldCap" type="integer" notnull="true" default="-1"/>
+	</Table>
 		
 	<!-- Same as vanilla but percent (as above)-->
 	<Table name="Belief_MaxYieldModifierPerFollowerPercent">
