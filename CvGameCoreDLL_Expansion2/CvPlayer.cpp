@@ -2904,7 +2904,6 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
 {
 	CvCity* pNewCity = addCity();
-
 	ASSERT(pNewCity != NULL, "City is not assigned a valid value");
 	if(pNewCity != NULL)
 	{
