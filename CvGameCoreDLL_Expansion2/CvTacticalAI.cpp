@@ -7702,6 +7702,8 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 			}
 		}
 
+		CvTacticalPlot::eTactPlotDomain eTactDomain = pUnit->getDomainType() == DOMAIN_SEA ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND;
+
 		bool bHaveRealCover = false;
 		if (!bHaveSimCover)
 		{
@@ -7720,18 +7722,11 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 		}
 		else
 		{
-			if (testPlot.isNicePlotForCitadel() && pUnit->IsGreatGeneral() && iAssumedMovesLeft > 0)
-			{
-				result.eAssignmentType = A_USE_POWER;
-				result.iRemainingMoves = 0;
-				iScore += 100;
-			}
-			//we want one of our own combat units covering us (either sim or non sim). cities are also considered safe
-			else if (!pTestPlot->isFriendlyCity(*pUnit) && !bHaveSimCover && !bHaveRealCover) 
+			if (!pTestPlot->isFriendlyCity(*pUnit) && !bHaveSimCover && !bHaveRealCover) 
 				return result;
 
 			//surrounding cover is also good
-			int iFriends = (evalMode==EM_FINAL) ? testPlot.getNumAdjacentFriendliesEndTurn(CvTacticalPlot::TD_BOTH) : testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1);
+			int iFriends = (evalMode==EM_FINAL) ? testPlot.getNumAdjacentFriendliesEndTurn(eTactDomain) : testPlot.getNumAdjacentFriendlies(eTactDomain, -1);
 			iScore += iFriends;
 
 			//when in doubt prefer the high ground - looks cooler
@@ -7743,19 +7738,40 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 				iScore -= 3;
 		}
 
-		//points for supported units (count only the first ring for performance ...)
-		int iFriends = testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1);
-		if (testPlot.hasFriendlyCombatUnit())
-			iFriends++;
+		if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+		{
+			//points for supported units (count only the first ring for performance ...)
+			int iFriends = testPlot.getNumAdjacentFriendlies(eTactDomain, -1);
+			if (testPlot.hasFriendlyCombatUnit())
+				iFriends++;
 
-		//supported units count double plus one extra if we have covered
-		iScore += iFriends*2;
-		if (testPlot.hasFriendlyCombatUnit())
-			iScore++;
+			//supported units count double plus one extra if we have covered
+			iScore += iFriends * 2;
+			if (testPlot.hasFriendlyCombatUnit())
+				iScore++;
 
-		//avoid overlap. this works only because we ignore our own aura when calling this function!
-		if (testPlot.hasSupportBonus(unit.iPlotIndex) && testPlot.getPlotIndex()!=unit.iPlotIndex)
-			iScore /= 2;
+			//avoid overlap. this works only because we ignore our own aura when calling this function!
+			if (testPlot.hasSupportBonus(unit.iPlotIndex) && testPlot.getPlotIndex() != unit.iPlotIndex)
+				iScore /= 2;
+		}
+		else if (pUnit->IsSapper())
+		{
+			//points for being next to an enemy city
+			TeamTypes eTeam = pUnit->getTeam();
+			TeamTypes eAdjacentTeam;
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(pTestPlot->getX(), pTestPlot->getY(), ((DirectionTypes)iI));
+				if (pAdjacentPlot && pAdjacentPlot->isCity())
+				{
+					eAdjacentTeam = pAdjacentPlot->getTeam();
+					if (eAdjacentTeam != NO_TEAM && GET_TEAM(eAdjacentTeam).isAtWar(eTeam))
+					{
+						iScore += 30;
+					}
+				}
+			}
+		}
 	}
 	//plain embarked units
 	else if (unit.eMoveStrategy == MS_EMBARKED)
