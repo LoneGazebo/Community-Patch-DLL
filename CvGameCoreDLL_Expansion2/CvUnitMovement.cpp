@@ -17,6 +17,10 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
 	DomainTypes domain = pUnit->getDomainType();
 
+	// wormholes always consume all moves
+	if (plotDistance(*pFromPlot, *pToPlot) > 1)
+		return INT_MAX;
+
 	//some easy checks first
 	if (kPlayer.isHuman(ISHUMAN_AI_UNITS) && !pToPlot->isRevealed(pUnit->getTeam()))
 	{
@@ -26,6 +30,11 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	else if (domain == DOMAIN_AIR)
 	{
 		return iMoveDenominator;
+	}
+
+	if (pToPlot->IsFreeMoveAcross() && pToPlot->getOwner() == pUnit->getOwner())
+	{
+		return 0;
 	}
 
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
@@ -59,8 +68,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	if (!MOD_BALANCE_SANE_UNIT_MOVEMENT_COST)
 	{
 		// VP does not require plot ownership
-		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eUnitTeam));
-		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eUnitTeam));
+		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eUnitTeam));
+		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == eUnitTeam));
 	}
 
 	//check routes
@@ -225,12 +234,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		bool bIsMountain = pToPlot->isMountain();
 
 		//in some cases, we ignore terrain and feature costs if the destination tile contains a specific terrain/feature
-		if ((bIsHills || bIsMountain) && pTraits->IsFasterInHills())
-		{
-			bIgnoreCostsHere = true;
-			bNoRiverCrossingPenalty = true; // as specified by Incan UA
-		}
-		else if (bIsHills && pUnit->isIgnoreTerrainCostIn(TERRAIN_HILL))
+		if (bIsHills && pUnit->isIgnoreTerrainCostIn(TERRAIN_HILL))
 		{
 			bIgnoreCostsHere = true;
 		}
@@ -254,16 +258,30 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				iTerrainFeatureCostAdderFromPromotions = CvUnitMovement::GetMovementCostChangeFromPromotions(pUnit, pToPlot);
 
 			//cost reduction simply means ignore terrain/feature cost
-			if (iTerrainFeatureCostAdderFromPromotions < 0)
+			if ((pUnit->isRiverDoubleMove() && pFromPlot->IsAlongSameRiver(pToPlot)) || iTerrainFeatureCostAdderFromPromotions < 0)
 			{
 				bIgnoreCostsHere = true;
 				iTerrainFeatureCostAdderFromPromotions = 0;
 			}
 		}
+		else
+		{
+			if (iTerrainFeatureCostAdderFromPromotions == INT_MAX)
+				//we have to do it on the fly
+				iTerrainFeatureCostAdderFromPromotions = CvUnitMovement::GetMovementCostAdderFromPromotions(pUnit, pToPlot);
+		}
 
 		// Check the define to see if ignoring specific terrain/feature costs includes rivers
 		if (bIgnoreCostsHere && !bNoRiverCrossingPenalty && /*FALSE*/ GD_INT_GET(IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS) > 0)
 			bNoRiverCrossingPenalty = true;
+
+		// Incan UA
+		if ((bIsHills && pTraits->IsFasterInHills()) || (bIsMountain && pTraits->IsMountainPass()))
+		{
+			bIgnoreCostsHere = true;
+			if (!MOD_BALANCE_ALTERNATE_INCA_TRAIT)
+				bNoRiverCrossingPenalty = true;
+		}
 
 		if (bIgnoreCostsHere && bNoRiverCrossingPenalty)
 			iRegularCost = 1;
@@ -317,14 +335,18 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				//we have to do it on the fly
 				iTerrainFeatureCostMultiplierFromPromotions = CvUnitMovement::GetMovementCostMultiplierFromPromotions(pUnit, pToPlot);
 
+			if (iTerrainFeatureCostMultiplierFromPromotions == iMoveDenominator)
+			{
+				if (pUnit->isRiverDoubleMove() && pFromPlot->IsAlongSameRiver(pToPlot))
+				{
+					iTerrainFeatureCostMultiplierFromPromotions /= 2;
+				}
+			}
 			//multiplicative change
 			iRegularCost *= iTerrainFeatureCostMultiplierFromPromotions;
 			iRegularCost /= iMoveDenominator;
-		}
 
-		if (iTerrainFeatureCostAdderFromPromotions == INT_MAX)
-			//we have to do it on the fly
-			iTerrainFeatureCostAdderFromPromotions = CvUnitMovement::GetMovementCostAdderFromPromotions(pUnit, pToPlot);
+		}
 
 		//additive change
 		iRegularCost += iTerrainFeatureCostAdderFromPromotions;
@@ -375,9 +397,12 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 
 	//now, if there was a domain change, our base moves might change
 	//make sure that the movement cost is always so high that we never end up with more than the base moves for the new domain
-	int iLeftOverMoves = iMovesRemaining - iCost;
-	if (iLeftOverMoves > iMaxMoves)
-		iCost += (iLeftOverMoves - iMaxMoves);
+	if (iCost != INT_MAX)
+	{
+		int iLeftOverMoves = iMovesRemaining - iCost;
+		if (iLeftOverMoves > iMaxMoves)
+			iCost += (iLeftOverMoves - iMaxMoves);
+	}
 
 	return std::min(iCost, iMovesRemaining);
 }
@@ -613,10 +638,6 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	{
 		iModifier /= 2;
 	}
-	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
-	{
-		iModifier /= 2;
-	}
 	else if (bIsHills && pUnit->isTerrainHalfMove(TERRAIN_HILL))
 	{
 		iModifier *= 2;
@@ -683,10 +704,6 @@ int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, con
 		bIsSlower = true;
 	}
 	else if (bIsHills && pUnit->isTerrainDoubleMove(TERRAIN_HILL))
-	{
-		bIsFaster = true;
-	}
-	else if (pUnit->isRiverDoubleMove() && pUnit->plot()->IsAlongSameRiver(pPlot))
 	{
 		bIsFaster = true;
 	}

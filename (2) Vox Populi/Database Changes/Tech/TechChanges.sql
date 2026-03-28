@@ -88,7 +88,7 @@ WHERE Type IN (
 UPDATE Technologies SET CorporationsEnabled = 1 WHERE Type = 'TECH_CORPORATIONS';
 
 -- Enable World Map trading
-UPDATE Technologies SET MapTrading = 1 WHERE Type = 'TECH_MILITARY_SCIENCE';
+UPDATE Technologies SET MapTrading = 1 WHERE Type = 'TECH_NAVIGATION';
 
 -- Enable Tech trading
 UPDATE Technologies SET TechTrading = 1 WHERE Type = 'TECH_SCIENTIFIC_THEORY';

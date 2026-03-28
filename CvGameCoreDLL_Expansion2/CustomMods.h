@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v148 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 148)
+#define MOD_DLL_NAME "Community Patch v149 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 149)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -115,6 +115,12 @@
 
 // Enables era-specific messages for civ influence; disabling this may be useful for mods like Unique Cultural Influence that add special notifications
 #define MOD_COREUI_DIPLOMACY_ERA_INFLUENCE							gCustomMods.isCOREUI_DIPLOMACY_ERA_INFLUENCE()
+
+// Randomizes the order of each civilization's spy names
+#define MOD_COREUI_SHUFFLE_SPY_NAMES								gCustomMods.isCOREUI_SHUFFLE_SPY_NAMES()
+
+// Free spies-as-diplomats in vassals' capitals use the vassal's spy name list, not the master's
+#define MOD_COREUI_COLLABORATOR_SPY_NAMES							gCustomMods.isCOREUI_COLLABORATOR_SPY_NAMES()
 
 
 /////////////////////////////////////////
@@ -274,8 +280,14 @@
 // Sorting order: civs, victory, then most to least impactful
 /////////////////////////////////////////
 
+// The Inca no longer ignore terrain cost if they're crossing a River
+#define MOD_BALANCE_ALTERNATE_INCA_TRAIT							gCustomMods.isBALANCE_ALTERNATE_INCA_TRAIT()
+
 // Indonesia's unique luxuries spawn around the city instead of under the city tile, and also appear when conquering a city
 #define MOD_BALANCE_ALTERNATE_INDONESIA_TRAIT						gCustomMods.isBALANCE_ALTERNATE_INDONESIA_TRAIT()
+
+// The Iroquois treat all Forests/Jungles as if they were Roads, not just those in friendly territory
+#define MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT						gCustomMods.isBALANCE_ALTERNATE_IROQUOIS_TRAIT()
 
 // The Maya cannot obtain a Great Prophet from their trait unless they have a religion (owned or majority), or the 9th or later Baktuns have been reached
 #define MOD_BALANCE_ALTERNATE_MAYA_TRAIT							gCustomMods.isBALANCE_ALTERNATE_MAYA_TRAIT()
@@ -398,7 +410,7 @@
 
 /////////////////////////////////////////
 // OTHER BALANCE OPTIONS
-// Sorting order: alphabetical
+// Sorting order: civs, victory, then alphabetical
 /////////////////////////////////////////
 
 // Alters Assyria's conquest trait so that the player always chooses a free tech upon city conquest
@@ -426,6 +438,9 @@
 
 // Era scaling for Great Engineer & Great Merchant yields
 #define MOD_BALANCE_GREAT_PEOPLE_ERA_SCALING						gCustomMods.isBALANCE_GREAT_PEOPLE_ERA_SCALING()
+
+// Halve starting XP for combat units purchased with Faith
+#define MOD_BALANCE_HALF_XP_FAITH_PURCHASES							gCustomMods.isBALANCE_HALF_XP_FAITH_PURCHASES()
 
 // City-States' unit supply is equal to their handicap amount, which can be modified by globals based on trait, personality, and number of cities. No other unit supply bonuses/penalties apply.
 #define MOD_BALANCE_MINOR_UNIT_SUPPLY_HANDICAP						gCustomMods.isBALANCE_MINOR_UNIT_SUPPLY_HANDICAP()
@@ -476,9 +491,6 @@
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 // FIXME: Disabled for now; this needs to be examined to see if it still works properly
 #define MOD_CARGO_SHIPS												(false)
-
-// Halve starting XP for combat units purchased with Faith
-#define MOD_BALANCE_HALF_XP_FAITH_PURCHASES							gCustomMods.isBALANCE_HALF_XP_FAITH_PURCHASES()
 
 
 /////////////////////////////////////////
@@ -650,6 +662,9 @@
 
 // For debugging only
 #define MOD_UNIT_KILL_STATS											gCustomMods.isUNIT_KILL_STATS()
+
+// Permits civilian units to gain XP and acquire promotions
+#define MOD_UNITS_CIVILIANS_GAIN_XP									gCustomMods.isUNITS_CIVILIANS_GAIN_XP()
 
 // Enables the table Unit_ResourceQuantityTotals
 #define MOD_UNITS_RESOURCE_QUANTITY_TOTALS							gCustomMods.isUNITS_RESOURCE_QUANTITY_TOTALS()
@@ -1091,12 +1106,14 @@ enum BattleTypeTypes
 #define BATTLE_JOINED(pCombatant, iRole, bIsCity) if (MOD_EVENTS_BATTLES && (pCombatant)) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleJoined, (pCombatant)->getOwner(), (pCombatant)->GetID(), iRole, bIsCity); }
 #define BATTLE_FINISHED()                         if (MOD_EVENTS_BATTLES) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleFinished); }
 
+const char* ShortenFilePath(const char* szFile);
+
 // Custom mod logger
 #if defined(CUSTOMLOGDEBUG)
 #if defined(CUSTOMLOGFILEINFO) && defined(CUSTOMLOGFUNCINFO)
 #define CUSTOMLOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", ShortenFilePath(__FILE__), __LINE__, __FUNCTION__, sMsg.c_str());	\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
@@ -1104,7 +1121,7 @@ enum BattleTypeTypes
 #if defined(CUSTOMLOGFILEINFO) && !defined(CUSTOMLOGFUNCINFO)
 #define CUSTOMLOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());					\
+	CvString sLine; CvString::format(sLine, "%s[%i] - %s", ShortenFilePath(__FILE__), __LINE__, sMsg.c_str());					\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
@@ -1130,7 +1147,7 @@ enum BattleTypeTypes
 
 #define LIVELOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", ShortenFilePath(__FILE__), __LINE__, __FUNCTION__, sMsg.c_str());	\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
 
@@ -1510,6 +1527,8 @@ public:
 	// Core User Interface Changes
 	MOD_OPT_DECL(COREUI_REDUCE_NOTIFICATIONS);
 	MOD_OPT_DECL(COREUI_DIPLOMACY_ERA_INFLUENCE);
+	MOD_OPT_DECL(COREUI_SHUFFLE_SPY_NAMES);
+	MOD_OPT_DECL(COREUI_COLLABORATOR_SPY_NAMES);
 
 	// Core AI Changes
 	MOD_OPT_DECL(DEALAI_HUMAN_PERMANENT_FOR_AI_TEMPORARY);
@@ -1561,7 +1580,9 @@ public:
 	MOD_OPT_DECL(GLOBAL_QUICK_ROUTES); // disabled
 
 	// Vox Populi Balance Changes
+	MOD_OPT_DECL(BALANCE_ALTERNATE_INCA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_INDONESIA_TRAIT);
+	MOD_OPT_DECL(BALANCE_ALTERNATE_IROQUOIS_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_MAYA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_SIAM_TRAIT);
 	MOD_OPT_DECL(BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV);
@@ -1611,6 +1632,7 @@ public:
 	MOD_OPT_DECL(BALANCE_ERA_RESTRICTED_GENERALS);
 	MOD_OPT_DECL(BALANCE_ERA_RESTRICTION);
 	MOD_OPT_DECL(BALANCE_GREAT_PEOPLE_ERA_SCALING);
+	MOD_OPT_DECL(BALANCE_HALF_XP_FAITH_PURCHASES);
 	MOD_OPT_DECL(BALANCE_MINOR_UNIT_SUPPLY_HANDICAP);
 	MOD_OPT_DECL(BALANCE_NO_AUTO_SPAWN_PROPHET);
 	MOD_OPT_DECL(BALANCE_NO_CITY_RANGED_ATTACK);
@@ -1627,7 +1649,6 @@ public:
 	MOD_OPT_DECL(BALANCE_UNIT_INVESTMENTS);
 	MOD_OPT_DECL(BALANCE_XP_ON_FIRST_ATTACK);
 	MOD_OPT_DECL(CARGO_SHIPS); // disabled
-	MOD_OPT_DECL(BALANCE_HALF_XP_FAITH_PURCHASES);
 
 	// Other User Interface Options
 	MOD_OPT_DECL(UI_DISPLAY_PRECISE_MOVEMENT_POINTS);
@@ -1698,6 +1719,7 @@ public:
 	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON);
 	MOD_OPT_DECL(TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY);
 	MOD_OPT_DECL(UNIT_KILL_STATS);
+	MOD_OPT_DECL(UNITS_CIVILIANS_GAIN_XP);
 	MOD_OPT_DECL(UNITS_RESOURCE_QUANTITY_TOTALS);
 	MOD_OPT_DECL(WH_MILITARY_LOG);
 	MOD_OPT_DECL(YIELD_MODIFIER_FROM_UNITS);

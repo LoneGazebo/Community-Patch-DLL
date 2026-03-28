@@ -55,40 +55,62 @@ WHERE GreatPeopleUnitClass IS NOT NULL;
 UPDATE Beliefs SET MinFollowers = 0 WHERE Type = 'BELIEF_ASCETISM';
 
 INSERT INTO Belief_YieldPerXFollowersLocal
-	(BeliefType, YieldType, NumRequired, YieldCap)
+	(BeliefType, YieldType, NumRequired)
 VALUES
-	('BELIEF_ASCETISM', 'YIELD_FOOD', 1, 15);
+	('BELIEF_ASCETISM', 'YIELD_FOOD', 2);
+
+INSERT INTO Belief_YieldChangeAnySpecialist
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_ASCETISM', 'YIELD_FOOD', 4);
 
 -- Religious Community (now Diligence)
 INSERT INTO Belief_YieldPerXFollowersLocal
-	(BeliefType, YieldType, NumRequired, YieldCap)
+	(BeliefType, YieldType, NumRequired)
 VALUES
-	('BELIEF_RELIGIOUS_COMMUNITY', 'YIELD_PRODUCTION', 2, 15);
+	('BELIEF_RELIGIOUS_COMMUNITY', 'YIELD_PRODUCTION', 2);
+
+INSERT INTO Belief_YieldPerActiveTR
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_RELIGIOUS_COMMUNITY', 'YIELD_PRODUCTION', 2);
 
 -- Divine Inspiration (now Creativity)
 INSERT INTO Belief_YieldPerXFollowersLocal
-	(BeliefType, YieldType, NumRequired, YieldCap)
+	(BeliefType, YieldType, NumRequired)
 VALUES
-	('BELIEF_DIVINE_INSPIRATION', 'YIELD_CULTURE', 3, 6);
-
-INSERT INTO Belief_YieldChangeAnySpecialist
-(BeliefType, YieldType, Yield)
+	('BELIEF_DIVINE_INSPIRATION', 'YIELD_CULTURE', 3);
+  
+INSERT INTO Belief_GreatWorkYieldChanges
+	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_DIVINE_INSPIRATION', 'YIELD_FAITH', 2);
+	('BELIEF_DIVINE_INSPIRATION', 'YIELD_CULTURE', 1);
 
 -- Choral Music (now Scholarship)
 UPDATE Beliefs SET MinFollowers = 0 WHERE Type = 'BELIEF_CHORAL_MUSIC';
 
 INSERT INTO Belief_YieldPerXFollowersLocal
-	(BeliefType, YieldType, NumRequired, YieldCap)
+	(BeliefType, YieldType, NumRequired)
 VALUES
-	('BELIEF_CHORAL_MUSIC', 'YIELD_SCIENCE', 2, 15);
+	('BELIEF_CHORAL_MUSIC', 'YIELD_SCIENCE', 3);
+
+INSERT INTO Belief_BuildingClassYieldChanges
+	(BeliefType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BELIEF_CHORAL_MUSIC', 'BUILDINGCLASS_UNIVERSITY', 'YIELD_SCIENCE', 2);
 
 -- Feed the World (now Thrift)
 INSERT INTO Belief_YieldPerXFollowersLocal
-	(BeliefType, YieldType, NumRequired, YieldCap)
+	(BeliefType, YieldType, NumRequired)
 VALUES
-	('BELIEF_FEED_WORLD', 'YIELD_GOLD', 1, 10);
+	('BELIEF_FEED_WORLD', 'YIELD_GOLD', 2);
+  
+INSERT INTO Belief_ResourceYieldChanges
+	(BeliefType, ResourceType, YieldType, Yield)
+SELECT
+	'BELIEF_FEED_WORLD', Type, 'YIELD_GOLD', 1
+FROM Resources
+WHERE ResourceClassType = 'RESOURCECLASS_BONUS';
 
 -- Liturgical Drama (now Gurukulam)
 UPDATE Beliefs SET MinFollowers = 0 WHERE Type = 'BELIEF_LITURGICAL_DRAMA';
@@ -107,6 +129,7 @@ VALUES
 INSERT INTO Belief_YieldChangeAnySpecialist
 	(BeliefType, YieldType, Yield)
 VALUES
+	('BELIEF_COMMUNALISM', 'YIELD_FOOD', 2),
 	('BELIEF_COMMUNALISM', 'YIELD_PRODUCTION', 2);
 
 INSERT INTO Belief_TradeRouteYieldChange

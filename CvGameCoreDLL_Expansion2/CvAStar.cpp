@@ -20,6 +20,7 @@
 #include "ICvDLLUserInterface.h"
 #include "CvMinorCivAI.h"
 #include "CvDiplomacyAI.h"
+#include "CvEconomicAI.h"
 #include "CvDllInterfaces.h"
 #include "cvStopWatch.h"
 #include "CvUnitMovement.h"
@@ -30,8 +31,7 @@
 #define PATH_ATTACK_WEIGHT										(200)	//per percent penalty on attack
 #define PATH_DEFENSE_WEIGHT										(20)	//per percent defense bonus on turn end plot
 #define PATH_STEP_WEIGHT										(10)	//relatively small
-#define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
-#define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
+#define	PATH_EXPLORE_NON_EXPLORATION_WEIGHT						(PATH_BASE_COST*45)	//max penalty for missing exploration tiles
 #define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(40)	//accept two plots detour to save on maintenance
 #define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST*10)		//per turn end plot outside of our territory
 #define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
@@ -120,6 +120,9 @@ CvAStar::CvAStar()
       m_iBasicPlotCost(1),
       m_iMovesCached(0),
       m_iTurnsCached(0),
+	  m_bAirliftCitiesChecked(false),
+	  m_bAirliftImprovementsChecked(false),
+	  m_bChangePortCitiesChecked(false),
       m_strName("AStar") // for debugging
 {
 }
@@ -250,6 +253,10 @@ void CvAStar::Reset()
 	m_iProcessedNodes = 0;
 	m_iTestedNodes = 0;
 	m_iRounds = 0;
+
+	m_bAirliftCitiesChecked = false;
+	m_bAirliftImprovementsChecked = false;
+	m_bChangePortCitiesChecked = false;
 
 	//will be set multiple times but who cares
 	g_bPathFinderLogging = false;
@@ -570,6 +577,16 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	{
 		vector<pair<int, int>> extraChildren;
 		GetExtraChildren(node,extraChildren);
+		if (extraChildren.size() > 0)
+		{
+			// update the cache flags if we have found extra children
+			if (node->m_kCostCacheData.bCanAirliftFromPlotCity)
+				SetAirliftCitiesChecked(true);
+			else if (node->m_kCostCacheData.bCanAirliftFromPlotImprovement)
+				SetAirliftImprovementsChecked(true);
+			else if (node->m_kCostCacheData.bCanChangePortFromPlot)
+				SetChangePortCitiesChecked(true);
+		}
 		for(size_t i = 0; i < extraChildren.size(); i++)
 		{
 			int x = extraChildren[i].first;
@@ -933,6 +950,11 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 		}
 	}
 
+	const CvPlot* pAirliftFromPlot = pUnit->getAirliftFromPlot(pPlot, true);
+	kToNodeCacheData.bCanAirliftFromPlotCity = pAirliftFromPlot && pAirliftFromPlot->isCity();
+	kToNodeCacheData.bCanAirliftFromPlotImprovement = pAirliftFromPlot && !pAirliftFromPlot->isCity();
+	kToNodeCacheData.bCanChangePortFromPlot = pUnit->canChangeAdmiralPort(pPlot);
+
 	kToNodeCacheData.bIsVisibleEnemyUnit = false;
 	kToNodeCacheData.bIsVisibleEnemyCombatUnit = false;
 	kToNodeCacheData.bIsVisibleNeutralCombatUnit = false;
@@ -1148,12 +1170,13 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 
 //	--------------------------------------------------------------------------------
 /// Standard path finder - determine heuristic cost
-int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
+int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY, int iBaseMoves)
 {
 	//for the heuristic to be admissible, it needs to never overestimate the cost of reaching the target
 	//a regular step by a unit costs PATH_BASE_COST*MOVE_DENOMINATOR/MOVES_PER_TURN
-	//for a fast unit on a road, moves per turn can be high ... let's assume 15
-	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*4;
+	//for a unit on a road, moves per turn can be high ... let's assume 10 per movement point
+
+	return plotDistance(iNextX, iNextY, iDestX, iDestY)*PATH_BASE_COST*6/iBaseMoves;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1167,16 +1190,10 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 	bool bAbortInDanger = (iFlags & CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER) != 0;
 	bool bOnlySafeEmbark = (iFlags & CvUnit::MOVEFLAG_SAFE_EMBARK_ONLY) != 0;
 
-	//human knows best, don't try to be smart, just try to keep combat units attack-ready
-	if (!pUnitDataCache->isAIControl())
-		return kToNodeCacheData.bIsNonNativeDomain && pUnit->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
-	
-	//logic for AI
 	int iCost = 0;
-	if(pUnit->IsCanDefend())
-	{
-		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
-	}
+
+	// try to keep combat units attack-ready
+	iCost += kToNodeCacheData.bIsNonNativeDomain && pUnit->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
 
 	// Damage caused by features (mods)
 	if (/*0*/ GD_INT_GET(PATH_DAMAGE_WEIGHT) != 0)
@@ -1188,6 +1205,38 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 		if(pToPlot->getExtraMovePathCost() > 0)
 			iCost += (PATH_BASE_COST * pToPlot->getExtraMovePathCost());
+	}
+	
+	if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+	{
+		// Avoid being in a territory that we are not welcome in
+		PlayerTypes ePlotOwner = pToPlot->getOwner();
+		TeamTypes ePlotTeam = pToPlot->getTeam();
+		if (ePlotTeam != NO_TEAM && ePlotTeam!=eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam) && !GET_PLAYER(ePlotOwner).isMinorCiv())
+		{
+			iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
+		}
+	}
+
+	if (!pUnitDataCache->isAIControl())
+		return iCost;
+	
+	// additional logic for AI
+	if (!pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+	{
+		if (pToPlot->isOwned() && pToPlot->getTeam() != eUnitTeam)
+		{
+			iCost += PATH_END_TURN_FOREIGN_TERRITORY;
+		}
+		else if (!pToPlot->isOwned())
+		{
+			iCost += PATH_END_TURN_FOREIGN_TERRITORY / 2;
+		}
+	}
+
+	if(pUnit->IsCanDefend())
+	{
+		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
 	}
 
 	// Explorers aren't banned from entering minor civ territory, but they should avoid it when possible
@@ -1209,24 +1258,6 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 				}
 			}
 		}
-	}
-	if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
-	{
-		// Avoid being in a territory that we are not welcome in
-		PlayerTypes ePlotOwner = pToPlot->getOwner();
-		TeamTypes ePlotTeam = pToPlot->getTeam();
-		if (ePlotTeam != NO_TEAM && ePlotTeam!=eUnitTeam && !GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eUnitTeam) && !GET_PLAYER(ePlotOwner).isMinorCiv())
-		{
-			iCost += PATH_END_TURN_MISSIONARY_OTHER_TERRITORY;
-		}
-	}
-	else if(pToPlot->isOwned() && pToPlot->getTeam() != eUnitTeam)
-	{
-		iCost += PATH_END_TURN_FOREIGN_TERRITORY;
-	}
-	else if (!pToPlot->isOwned())
-	{
-		iCost += PATH_END_TURN_FOREIGN_TERRITORY/2;
 	}
 
 	// If we are a land unit and we are ending the turn on water, make the cost a little higher 
@@ -1281,11 +1312,13 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
-			if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints()*3)
+			//GetDanger returns MAX_INT for "fatal" plots (city about to fall, etc) - handle without overflow
+			int iScaledDanger = (iPlotDanger >= INT_MAX / 2) ? INT_MAX : iPlotDanger * iScale;
+			if (iScaledDanger >= pUnit->GetCurrHitPoints()*3)
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints())
+			else if (iScaledDanger >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger*iScale > pUnit->GetCurrHitPoints()/3)
+			else if (iScaledDanger > pUnit->GetCurrHitPoints()/3)
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 		else //civilian, embarked or exploring
@@ -1398,7 +1431,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	int iCost = (PATH_BASE_COST * iMovementCost) / parent->m_iStartMovesForTurn;
 	
 	//when in doubt prefer the shorter path
-	iCost += PATH_STEP_WEIGHT;
+	iCost += PATH_STEP_WEIGHT * plotDistance(iFromPlotX, iFromPlotY, iToPlotX, iToPlotY);
 
 	//when in doubt avoid domain changes because too many of them look stupid
 	if (bFromPlotIsWater != bToPlotIsWater)
@@ -1431,7 +1464,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		else
 		{
 			//apply this part even if it's the explicit target
-			if (pUnitDataCache->isAIControl() && pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+			if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
 			{
 				// Avoid being in a territory that we are not welcome in
 				PlayerTypes ePlotOwner = pToPlot->getOwner();
@@ -1444,20 +1477,18 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		}
 	}
 
-	if(finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_MAXIMIZE_EXPLORE))
 	{
-		if(!pToPlot->isHills()) //maybe better check seeFromLevel?
+		// discourage plots that immediately end the turn
+		if (iMovesLeft <= 0 && parent->m_iStartMovesForTurn > 1)
 		{
-			iCost += PATH_EXPLORE_NON_HILL_WEIGHT;
+			iCost += (PATH_EXPLORE_NON_EXPLORATION_WEIGHT * iMovementCost) / (parent->m_iStartMovesForTurn * GD_INT_GET(MOVE_DENOMINATOR));
 		}
-
-		int iUnseenPlots = pToPlot->getNumAdjacentNonrevealed(eUnitTeam);
-		if(!pToPlot->isRevealed(eUnitTeam))
+		else
 		{
-			iUnseenPlots += 1;
+			int iExploreValue = min(GET_PLAYER(pUnit->getOwner()).GetEconomicAI()->GetExploreValue(pToPlot, pUnit->visibilityRange()) * 10, PATH_EXPLORE_NON_EXPLORATION_WEIGHT);
+			iCost += ((PATH_EXPLORE_NON_EXPLORATION_WEIGHT - iExploreValue) * iMovementCost) / (parent->m_iStartMovesForTurn * GD_INT_GET(MOVE_DENOMINATOR));
 		}
-
-		iCost += (7 - iUnseenPlots) * PATH_EXPLORE_NON_REVEAL_WEIGHT;
 	}
 
 	if(pUnit->IsCanAttack() && bIsPathDest)
@@ -1648,8 +1679,8 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 	if (node->m_iHeuristicCost == 0 && udHeuristic && isValid(m_iXdest, m_iYdest))
 	{
 		int iHeuristicCost = parent ?
-			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest):
-			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest);
+			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest, pCacheData->baseMoves(false)):
+			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest, pCacheData->baseMoves(false));
 		node->m_iHeuristicCost = iHeuristicCost;
 	}
 	node->m_iTotalCost = node->m_iKnownCost*giKnownCostWeight + node->m_iHeuristicCost*giHeuristicCostWeight;
@@ -1775,7 +1806,7 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 
 //	--------------------------------------------------------------------------------
 /// Default heuristic cost
-int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY)
+int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY, int /*iBaseMoves*/)
 {
 	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST;
 }
@@ -1913,8 +1944,8 @@ void CvStepFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int i
 	if (node->m_iHeuristicCost == 0 && udHeuristic && isValid(m_iXdest, m_iYdest))
 	{
 		int iHeuristicCost = parent ?
-			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest):
-			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest);
+			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest, 1):
+			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest, 1);
 		node->m_iHeuristicCost = iHeuristicCost;
 	}
 	node->m_iTotalCost = node->m_iKnownCost*giKnownCostWeight + node->m_iHeuristicCost*giHeuristicCostWeight;
@@ -2165,6 +2196,92 @@ int CityConnectionLandGetExtraChildren(const CvAStarNode* node, const CvAStar* f
 	return (int)out.size();
 }
 
+//	--------------------------------------------------------------------------------
+int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int, int>>& out)
+{
+	out.clear();
+
+	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
+	if (!pPlot)
+		return 0;
+
+	PlayerTypes ePlayer = finder->GetData().ePlayer;
+
+	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(finder->GetData().iUnitID);
+	if (!pUnit)
+		return 0;
+
+	// land units can move from city to city using airports
+	if (node->m_kCostCacheData.bCanAirliftFromPlotCity || node->m_kCostCacheData.bCanAirliftFromPlotImprovement)
+	{
+		// only with full moves
+		if (node->m_iMoves != pUnit->baseMoves(false) * GD_INT_GET(MOVE_DENOMINATOR) && node->m_iMoves != 0)
+			return 0;
+
+		if (node->m_kCostCacheData.bCanAirliftFromPlotCity)
+		{
+			// airlift target plots only need to be checked once during pathfinding. they don't depend on the starting plot so considering them early is always better
+			if (finder->IsAirliftCitiesChecked())
+				return 0;
+			
+			// valid targets are all airport cities owned by us or our minor civ allies
+			vector<PlayerTypes> vFriendlyPlayers;
+			vFriendlyPlayers.push_back(ePlayer);
+			for (uint iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+
+				if (!GET_PLAYER(eMinor).isAlive())
+					continue;
+
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == ePlayer)
+					vFriendlyPlayers.push_back(eMinor);
+			}
+
+			for (vector<PlayerTypes>::iterator it = vFriendlyPlayers.begin(); it != vFriendlyPlayers.end(); ++it)
+			{
+				int iCityLoop;
+				CvCity* pLoopCity = NULL;
+				for (pLoopCity = GET_PLAYER(*it).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iCityLoop))
+				{
+					if (!pLoopCity->CanAirlift())
+						continue;
+
+					CvPlot* pCityPlot = pLoopCity->plot();
+					for (int i = 0; i < RING1_PLOTS; i++)
+					{
+						CvPlot* pLoopPlot = iterateRingPlots(pCityPlot, i);
+						if (!pLoopPlot)
+							continue;
+
+						if (pUnit->canAirliftAt(pPlot, pLoopPlot->getX(), pLoopPlot->getY(), true))
+							out.push_back(make_pair(pLoopPlot->getX(), pLoopPlot->getY()));
+					}
+				}
+			}
+		}
+
+		// todo: improvements that allow airlift
+
+	}
+	else if (node->m_kCostCacheData.bCanChangePortFromPlot)
+	{
+		// great admiral target plots only need to be checked once during pathfinding. they don't depend on the starting plot so considering them early is always better
+		if (finder->IsChangePortCitiesChecked())
+			return 0;
+
+		int iCityLoop;
+		CvCity* pLoopCity = NULL;
+		for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		{
+			if (pUnit->canChangeAdmiralPortAt(pPlot, pLoopCity->getX(), pLoopCity->getY()))
+				out.push_back(make_pair(pLoopCity->getX(), pLoopCity->getY()));
+		}
+	}
+
+	return (int)out.size();
+}
+
 //	---------------------------------------------------------------------------
 /// Route path finder - check validity of a coordinate
 int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
@@ -2188,7 +2305,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
-			if (MOD_BALANCE_VP || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
+			if (MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}
@@ -2563,7 +2680,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	if(pNewPlot->isWater())
 		return FALSE;
 
-	if(!pNewPlot->isValidMovePlot(ePlayer) && (!pNewPlot->isMountain() || !kPlayer.IsWorkersIgnoreImpassable()))
+	if(!pNewPlot->isValidMovePlot(ePlayer) && !(pNewPlot->isMountain() && kPlayer.WorkersMountainPass()))
 		return FALSE;
 
 	if (!bIsManual && pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
@@ -2683,7 +2800,7 @@ CvTwoLayerPathFinder::CvTwoLayerPathFinder()
 
 	//this is our default path type
 	m_sData.ePath = PT_UNIT_MOVEMENT;
-	SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
+	SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, UnitPathGetExtraChildren, UnitPathInitialize, UnitPathUninitialize);
 
 	//for debugging
 	m_strName = "TwoLayerAStar";
@@ -2818,10 +2935,10 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 
 	bool bBlockAhead = 
 		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING_SELF) && //obvious
-		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
-		current->m_iTurns < 1 &&			//only in the first turn, otherwise the block will likely have moved
-		next->m_iMoves == 0 &&				//only if we would need to end the turn on the next plot
-		!next->m_kCostCacheData.bIsVisibleNeutralCombatUnit && //don't let ourselves be blocked by other players' units
+		(pUnitDataCache->isAIControl()  || GC.getGame().isHumanAIPath()) &&
+		current->m_iTurns < 1 &&														//only in the first turn, otherwise the block will likely have moved
+		next->m_iMoves == 0 &&															//only if we would need to end the turn on the next plot
+		current->m_iMoves != pUnitDataCache->baseMoves(pUnitDataCache->isEmbarked()) * GD_INT_GET(MOVE_DENOMINATOR) && //only if we have already moved, to avoid being blocked indefinitely
 		next->m_kCostCacheData.bUnitStackingLimitReached; //finally
 
 	bool bTempPlotAhead =
@@ -2838,7 +2955,9 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		bAttrition = (!bAttritionCurrent && bAttritionNext);
 	}
 
-	if (bBlockAhead || bTempPlotAhead || bAttrition)
+	bool bAirlift = current->m_kCostCacheData.bCanAirliftFromPlotCity || current->m_kCostCacheData.bCanAirliftFromPlotImprovement;
+
+	if (bBlockAhead || bTempPlotAhead || bAttrition || bAirlift)
 	{
 		CvPlot* pToPlot = GC.getMap().plot(current->m_iX, current->m_iY);
 		int iEndTurnCost = PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns, GetData().iFlags);
@@ -2848,21 +2967,23 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		CvAStarNode* pStopNode = GetPartialMoveNode(current->m_iX, current->m_iY);
 		UpdateNodeCacheData( pStopNode,pUnitDataCache->pUnit,this );
 
-		//assume a stop here - do not add the cost for the wasted movement points!
+		//assume a stop here
+		//cost is the same plus a little bit to encourage going the full distance when in doubt
+		pStopNode->m_iKnownCost = current->m_iKnownCost + PATH_STEP_WEIGHT;
+		pStopNode->m_iKnownCost += iEndTurnCost;
+		pStopNode->m_iKnownCost += current->m_iMoves * PATH_BASE_COST / current->m_iStartMovesForTurn;
+
 		pStopNode->m_iMoves = 0;
 		pStopNode->m_iTurns = current->m_iTurns;
 		pStopNode->m_iHeuristicCost = current->m_iHeuristicCost;
 		pStopNode->m_iStartMovesForTurn = current->m_iStartMovesForTurn;
 
-		//cost is the same plus a little bit to encourage going the full distance when in doubt
-		pStopNode->m_iKnownCost = current->m_iKnownCost + PATH_STEP_WEIGHT;
-		pStopNode->m_iKnownCost += iEndTurnCost;
-		pStopNode->m_iKnownCost += GD_INT_GET(MOVE_DENOMINATOR) * PATH_BASE_COST; //some fixed cost for the forfeited movement points
 
 		//we sort the nodes by total cost!
 		pStopNode->m_iTotalCost = pStopNode->m_iKnownCost*giKnownCostWeight + pStopNode->m_iHeuristicCost*giHeuristicCostWeight;
 		pStopNode->m_pParent = current->m_pParent;
 		pStopNode->m_kCostCacheData = current->m_kCostCacheData;
+		pStopNode->m_bIsStopNode = true;
 		
 		AddToOpen(pStopNode);
 		return true;
@@ -2892,7 +3013,7 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 	switch(config.ePath)
 	{
 	case PT_UNIT_MOVEMENT:
-		SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, NULL, UnitPathInitialize, UnitPathUninitialize);
+		SetFunctionPointers(PathDestValid, PathHeuristic, PathCost, PathValid, UnitPathGetExtraChildren, UnitPathInitialize, UnitPathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST*GD_INT_GET(MOVE_DENOMINATOR);
 		break;
 	default:
@@ -3511,7 +3632,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 		iRouteDiscountTimes120 = 54; //can't get better than this even if next plot is railroad
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) &&
-		(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
+		(MOD_BALANCE_ALTERNATE_IROQUOIS_TRAIT || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) &&
 		!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteDiscountTimes120 = 40;
 	// ignore terrain cost for moving along rivers

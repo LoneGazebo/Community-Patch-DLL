@@ -115,6 +115,8 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_eTestStatement = NO_DIPLO_STATEMENT_TYPE;
   	m_eTestToPlayer = NO_PLAYER;
   	m_iTestStatementArg1 = 0;
+	m_bCurrentDealOfferGenerous = false;
+	m_bCurrentDealOfferChanged = false;
 
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -4352,6 +4354,26 @@ void CvDiplomacyAI::SetCantMatchDeal(PlayerTypes ePlayer, bool bValue)
 	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
 	ASSERT(NotMe(ePlayer), "AI is making a deal with itself?");
 	m_abCantMatchDeal[ePlayer] = bValue;
+}
+
+int CvDiplomacyAI::GetCurrentDealOfferGenerous() const
+{
+	return m_bCurrentDealOfferGenerous;
+}
+
+void CvDiplomacyAI::SetCurrentDealOfferGenerous(bool bValue)
+{
+	m_bCurrentDealOfferGenerous = bValue;
+}
+
+int CvDiplomacyAI::GetCurrentDealOfferChanged() const
+{
+	return m_bCurrentDealOfferChanged;
+}
+
+void CvDiplomacyAI::SetCurrentDealOfferChanged(bool bValue)
+{
+	m_bCurrentDealOfferChanged = bValue;
 }
 
 /// Returns the number of trade demands ePlayer has made of us
@@ -10113,7 +10135,7 @@ void CvDiplomacyAI::DoUpdateTechBlockLevels()
 				iTechDifference--;
 			}
 			// Reduce if we're friends and they can trade tech to us
-			if (!GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) && IsDoFAccepted(ePlayer) && IsHasEmbassy(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isTechTrading())
+			if (GC.getGame().isOption(GAMEOPTION_ENABLE_TECH_TRADING) && IsDoFAccepted(ePlayer) && IsHasEmbassy(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isTechTrading())
 			{
 				iTechDifference--;
 			}
@@ -11390,9 +11412,9 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 int CvDiplomacyAI::ComputeDynamicStrengthModifier(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, int iStrength)
 {
 	if (!GET_PLAYER(ePlayer).isMajorCiv())
-		return 0;
+		return iStrength;
 
-	int iModifier = 0;
+	int iModifier = 100;
 	TeamTypes eOurTeam = GetTeam();
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvPlayerTraits* pTraits = GET_PLAYER(ePlayer).GetPlayerTraits();
@@ -11666,7 +11688,7 @@ void CvDiplomacyAI::AdjustThirdPartyStrength(PlayerTypes eThirdParty, PlayerType
 		}
 	}
 
-	// ATTACK: How close is this ally to the player?
+	// ATTACK: How close is this ally to their friend's enemy?
 	if (GET_PLAYER(eThirdParty).isMinorCiv())
 	{
 		iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, /*100*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_NEIGHBORS));
@@ -11690,7 +11712,7 @@ void CvDiplomacyAI::AdjustThirdPartyStrength(PlayerTypes eThirdParty, PlayerType
 		}
 	}
 
-	// DEFENSE: How close is this ally to the player's enemy?
+	// DEFENSE: How close is this ally to their friend?
 	if (GET_PLAYER(eThirdParty).isMinorCiv())
 	{
 		iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, /*100*/ GD_INT_GET(TARGET_MINOR_BACKUP_NEIGHBORS));
@@ -11725,11 +11747,9 @@ void CvDiplomacyAI::AdjustThirdPartyStrength(PlayerTypes eThirdParty, PlayerType
 		if (iThirdPartyWarCount > 0)
 		{
 			int iScale = max(/*20*/ max(GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(MILITARY_STRENGTH_BACKUP_ALREADY_WAR_EACH_PLAYER));
-			iThirdPartyAttackValue *= iScale;
-			iThirdPartyAttackValue /= 100;
+			iThirdPartyAttackValue = ApplyPercentageModifier(iThirdPartyAttackValue, iScale);
 			iScale = max(/*20*/ max(GD_INT_GET(TARGET_ALREADY_WAR_MINIMUM), 0), 100 - iThirdPartyWarCount * /*30*/ GD_INT_GET(TARGET_ALREADY_WAR_EACH_PLAYER));
-			iThirdPartyDefenseValue *= iScale;
-			iThirdPartyDefenseValue /= 100;
+			iThirdPartyDefenseValue = ApplyPercentageModifier(iThirdPartyDefenseValue, iScale);
 		}
 	}
 }
@@ -13465,8 +13485,8 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer)
 	// City-State - easy calculation
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
-		iGPT += (GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(ePlayer) / 100);
-		iGPT += GET_PLAYER(ePlayer).GetMinorCivAI()->GetCurrentGoldBonus(eMyPlayer);
+		iGPT += (GetPlayer()->GetTrade()->GetTradeGPTLostFromWarTimes100(ePlayer));
+		iGPT += GET_PLAYER(ePlayer).GetMinorCivAI()->GetCurrentYieldBonusTimes100(eMyPlayer, YIELD_GOLD);
 		return iGPT;
 	}
 
@@ -13491,7 +13511,7 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer)
 		}
 		else
 		{
-			iGPT += (GET_PLAYER(*it).GetMinorCivAI()->GetCurrentGoldBonus(eMyPlayer) * 100);
+			iGPT += (GET_PLAYER(*it).GetMinorCivAI()->GetCurrentYieldBonusTimes100(eMyPlayer, YIELD_GOLD));
 		}
 	}
 
@@ -23248,6 +23268,10 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 		iDPValue += GetNumCitiesLiberatedBy(eChoice) * 25;
 	}
 
+	// a value of exactly zero would cause problems for AI dealmaking
+	if (iDPValue == 0)
+		iDPValue = -5;
+
 	return iDPValue;
 }
 
@@ -24633,7 +24657,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_CULTURE, ePlayer) + 
 							GetPlayer()->GetTrade()->GetAllTradeValueFromPlayerTimes100(YIELD_SCIENCE, ePlayer);
 	iCurrentTradeValue /= 300;
-	iCurrentTradeValue += GET_PLAYER(ePlayer).GetMinorCivAI()->GetCurrentGoldBonus(eMyPlayer);
+	iCurrentTradeValue += GET_PLAYER(ePlayer).GetMinorCivAI()->GetCurrentYieldBonusTimes100(eMyPlayer, YIELD_GOLD) / 100;
 
 	if (iCurrentTradeValue > 0)
 	{
@@ -26772,7 +26796,7 @@ void CvDiplomacyAI::LogPeaceWillingnessReason(PlayerTypes ePlayer, const CvStrin
 /// Determine tax rates for all vassals, if we can
 void CvDiplomacyAI::DetermineVassalTaxRates()
 {
-	if (!MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->GetNumVassals() <= 0)
+	if (!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->GetNumVassals() <= 0)
 		return;
 
 	vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();
@@ -29491,6 +29515,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	ASSERT(eStatement >= 0, "DIPLOMACY_AI: Invalid DiploStatementType.");
 	PRECONDITION(eStatement < NUM_DIPLO_STATEMENT_TYPES, "DIPLOMACY_AI: Invalid DiploStatementType.");
 
+	ASSERT(!pDeal || (pDeal->m_eFromPlayer == m_eID && pDeal->m_eToPlayer == ePlayer) || (pDeal->m_eFromPlayer == ePlayer && pDeal->m_eToPlayer == m_eID), "Sending deal statement with incorrect players in the deal.");
+
 	const char* szText = NULL;
 	bool bHuman = GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY);
 
@@ -30636,30 +30662,19 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				eMessageType = DIPLO_MESSAGE_RENEW_DEAL;
 			}
 			// We want more from this deal
-			else if(iDealValueToMe < 0)
+			else
 			{
 				eMessageType = DIPLO_MESSAGE_WANT_MORE_RENEW_DEAL;
 			}
 
-			if(eMessageType != NUM_DIPLO_MESSAGE_TYPES)
-			{
-				CvDeal kDeal = *pDeal;
-				CvGameDeals::PrepareRenewDeal(&kDeal);
-				pDeal->m_bCheckedForRenewal = true;
-				szText = GetDiploStringForMessage(eMessageType);
-				CvDiplomacyRequests::SendDealRequest(GetID(), ePlayer, &kDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST, /* bRenew */ true);
-			}
-			else
-			{
-				CvDeal kDeal = *pDeal;
-				CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE, false, &kDeal);
-			}
+			CvDeal kDeal = *pDeal;
+			szText = GetDiploStringForMessage(eMessageType);
+			CvDiplomacyRequests::SendDealRequest(GetID(), ePlayer, &kDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST, /* bRenew */ true);
 		}
 		// Offer to an AI player
 		else
 		{
 			CvDeal kDeal = *pDeal;
-			CvGameDeals::PrepareRenewDeal(&kDeal);
 
 			if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 			{
@@ -30670,8 +30685,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				// Don't need to call DoOffer because we have already checked that the deal is acceptable for both sides
 				GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
 				bool bFinalized = GC.getGame().GetGameDeals().FinalizeDeal(kDeal.GetFromPlayer(), kDeal.GetToPlayer(), true);
-				if (!bFinalized)
-					UNREACHABLE(); // should never happen for a renew deal
+				ASSERT(bFinalized, "Renewal Deal can't be finalized, even though it was checked that the deal is acceptable for both sides.")
 			}
 		}
 	}
@@ -31707,6 +31721,10 @@ void CvDiplomacyAI::DoContactMajorCivs()
 /// Individual contact opportunity
 void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 {
+	// reset these
+	SetCurrentDealOfferChanged(false);
+	SetCurrentDealOfferGenerous(false);
+
 	if (!IsValidUIDiplomacyTarget(ePlayer))
 		return;		// Can't contact this player at the moment.
 
@@ -34317,100 +34335,83 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 {
 	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
-
-	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
-
-	std::vector<CvDeal*> renewDeals = kGameDeals.GetRenewableDealsWithPlayer(ePlayer, GetID(), 10);
-
-	//no valid deals?
-	if (renewDeals.size() <= 0)
-		return NULL;
-
+	
 	if (eStatement != NO_DIPLO_STATEMENT_TYPE)
 	{
-		CancelRenewDeal(ePlayer, REASON_NO_DEAL);
 		return NULL;
 	}
 
 	if (IsAvoidDeals())
 	{
-		CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE);
 		return NULL;
 	}
 
 	if (MOD_DIPLOAI_SHUT_UP_TRADE_RENEWALS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 	{
-		CancelRenewDeal(ePlayer, REASON_HUMAN_REJECTION);
 		return NULL;
 	}
 
+	// Find all potentially renewable deals: deals which will expire after this turn and don't have any non-renewable items 
 	CvDeal* pBestDeal = NULL;
 	int iBestDealValue = -INT_MAX;
-	std::vector<CvDeal*> badDeals;
-	for (uint iDeal = 0; iDeal < renewDeals.size(); iDeal++)
+
+	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
+	DealList::iterator it;
+	for (it = kGameDeals.m_CurrentDeals.begin(); it != kGameDeals.m_CurrentDeals.end(); ++it)
 	{
-		CvDeal* pCurrentDeal = renewDeals[iDeal];
-
-		// if this deal is a gift or peace deal, move on.
-		if (pCurrentDeal->m_bIsGift || pCurrentDeal->IsPeaceTreatyTrade(ePlayer) || pCurrentDeal->IsPeaceTreatyTrade(GetID()))
+		if (it->m_iFinalTurn == GC.getGame().getGameTurn())
 		{
-			//shouldn't happen but it might.
-			badDeals.push_back(pCurrentDeal);
-			continue;
-		}
 
-		//Set as considered for renewal.
-		pCurrentDeal->m_iFinalTurn = -1;
-			
-		int iValue = m_pPlayer->GetDealAI()->GetDealValue(pCurrentDeal);
-		if (iValue != INT_MAX)
-		{
-			bool bAbleToEqualize = false;
-			if (!GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
+			if ((it->m_eToPlayer == ePlayer && it->m_eFromPlayer == GetID()) ||
+				(it->m_eFromPlayer == ePlayer && it->m_eToPlayer == GetID()))
 			{
-				bool bUselessReferenceVariable = false;
-				bool bCantMatchOffer = false;
-				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDeal(pCurrentDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);
-			}
-			else
-				bAbleToEqualize = true;
+				// if there are non-renewable items in the deal, move on
+				if (!it->IsPotentiallyRenewable())
+					continue;
 
-			if (!bAbleToEqualize)
-			{
-				badDeals.push_back(pCurrentDeal);
-				continue;
-			}
-			else
-			{
-				eStatement = DIPLO_STATEMENT_RENEW_DEAL;
-				if (pCurrentDeal->m_iToPlayerValue > iBestDealValue)
+				// if this deal is a gift or peace deal, move on.
+				if (it->m_bIsGift || it->IsPeaceTreatyTrade(it->GetFromPlayer()) || it->IsPeaceTreatyTrade(it->GetToPlayer()))
 				{
-					iBestDealValue = pCurrentDeal->m_iToPlayerValue;
-					pBestDeal = pCurrentDeal;
+					continue;
+				}
+
+				CvDeal* pCurrentDeal = &(*it);
+
+				// Make a copy of the deal because we don't want the items of the original deal to change when trying to equalize
+				CvDeal dealCopy = *pCurrentDeal;
+				// set pCurrentDeal as the deal that's being considered for renewal: deal valuations will be calculated as if pCurrentDeal had expired
+				GC.getGame().GetGameDeals().SetRenewDealID(GetID(), ePlayer, pCurrentDeal->m_iID); 
+				m_pPlayer->GetDealAI()->ClearCachedDealItemValues();
+				GET_PLAYER(ePlayer).GetDealAI()->ClearCachedDealItemValues();
+
+				int iValue = m_pPlayer->GetDealAI()->GetDealValue(&dealCopy);
+				if (iValue != INT_MAX)
+				{
+					bool bAbleToEqualize = false;
+					if (!GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
+					{
+						bool bUselessReferenceVariable = false;
+						bool bCantMatchOffer = false;
+						bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDeal(&dealCopy, ePlayer, bUselessReferenceVariable, bCantMatchOffer);
+					}
+					else
+						bAbleToEqualize = true;
+
+					if (bAbleToEqualize)
+					{
+						eStatement = DIPLO_STATEMENT_RENEW_DEAL;
+						if (dealCopy.m_iToPlayerValue > iBestDealValue)
+						{
+							iBestDealValue = dealCopy.m_iToPlayerValue;
+							pBestDeal = pCurrentDeal;
+						}
+					}
 				}
 			}
 		}
-		else
-		{
-			badDeals.push_back(pCurrentDeal);
-			continue;
-		}
 	}
-	for (uint iDeal = 0; iDeal < badDeals.size(); iDeal++)
-	{
-		CancelRenewDeal(ePlayer, REASON_CANNOT_COMPROMISE, false, badDeals[iDeal]);
-	}
-	// the UI can handle only one renewal offer at a time. out of the remaining deals, we make an offer for the best one and cancel all others
-	for (uint iDeal = 0; iDeal < renewDeals.size(); iDeal++)
-	{
-		if (std::find(badDeals.begin(), badDeals.end(), renewDeals[iDeal]) == badDeals.end())
-		{
-			if (renewDeals[iDeal]->m_bConsideringForRenewal && renewDeals[iDeal] != pBestDeal)
-			{
-				CancelRenewDeal(ePlayer, REASON_BETTER_RENEWAL_CHOICE, false, renewDeals[iDeal]);
-			}
-		}
-	}
+
+	GC.getGame().GetGameDeals().SetRenewDealID(GetID(), ePlayer, pBestDeal ? pBestDeal->m_iID : -1);
 	return pBestDeal;
 }
 
@@ -36271,6 +36272,15 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 
 	EraTypes eCurrentEra = GC.getGame().getCurrentEra();
 	int iMessage = 0;
+
+	if (eDiploMessage == DIPLO_MESSAGE_TRADE_DEAL_UNCHANGED)
+	{
+		// circumvent a UI bug
+		if (GetCurrentDealOfferGenerous())
+			eDiploMessage = DIPLO_MESSAGE_TRADE_CANT_MATCH_OFFER;
+		else if (GetCurrentDealOfferChanged())
+			eDiploMessage = DIPLO_MESSAGE_TRADE_AI_MAKES_OFFER;
+	}
 
 	const char* strText = NULL;
 	switch(eDiploMessage)
@@ -49805,137 +49815,6 @@ void CvDiplomacyAI::LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bS
 	}
 }
 
-/// Deal to renew
-std::vector<CvDeal*> CvDiplomacyAI::GetDealsToRenew(PlayerTypes eOtherPlayer, bool bOnlyCheckedDeals)
-{
-	std::vector<CvDeal*> renewDeals;
-
-	if (GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY))
-		return renewDeals;
-
-	CvGameDeals& kGameDeals = GC.getGame().GetGameDeals();
-
-	return kGameDeals.GetRenewableDealsWithPlayer(eOtherPlayer, GetID(), 50, bOnlyCheckedDeals);
-}
-
-/// Deal to renew
-void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eReason, bool bJustLogging, CvDeal* pPassDeal, bool bOnlyCheckedDeals, bool bSendNetworkMessage)
-{
-	if (GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY))
-		return;
-
-	std::vector<CvDeal*> pRenewalDeals;
-	if (pPassDeal != NULL)
-	{
-		pRenewalDeals.push_back(pPassDeal);
-	}
-	else
-	{
-		pRenewalDeals = GetDealsToRenew(eOtherPlayer, bOnlyCheckedDeals);
-	}
-
-	if (pRenewalDeals.size() <= 0)
-		return;
-
-	for (uint i = 0; i < pRenewalDeals.size(); i++)
-	{
-		CvDeal* pRenewalDeal = pRenewalDeals[i];
-		if (!bJustLogging)
-		{
-			// network message for multiplayer. we have to use sendNetDealAccepted because we don't have a specific function to send the information that a deal has not been renewed. see CvDllDealAI::DoAcceptedDeal
-			if (bSendNetworkMessage && GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
-			{
-				CvInterfacePtr<ICvDeal1> pDllDeal = GC.WrapDealPointer(pRenewalDeal);
-				gDLL->sendNetDealAccepted(GetPlayer()->GetID(), eOtherPlayer, pDllDeal.get(), INT_MAX, INT_MAX, INT_MAX);
-				// processing of the deal will be done via the network message
-				continue;
-			}
-
-			TradedItemList::iterator itemIter;
-			for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
-			{
-				//OutputDebugString("Cleared item from expired renewal deal \n");
-				//If we checked for renewal, we don't need to remove items, as we already did it.
-				GC.getGame().GetGameDeals().DoEndTradedItem(&*itemIter, pRenewalDeal->GetOtherPlayer(itemIter->m_eFromPlayer), false, pRenewalDeal->m_bCheckedForRenewal);
-			}
-
-		}
-		pRenewalDeal->m_bConsideringForRenewal = false;
-		//log it for me bby
-		if (GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf;
-			CvString strBaseString;
-			CvString playerName;
-			CvString otherPlayerName;
-			CvString strDesc;
-			CvString strLogName;
-
-			// Find the name of this civ and city
-			playerName = GetPlayer()->getCivilizationShortDescription();
-
-			// Open the log file
-			if (GC.getPlayerAndCityAILogSplit())
-			{
-				strLogName = "DiplomacyAI_TradeAgreements_Log_" + playerName + ".csv";
-			}
-			else
-			{
-				strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
-			}
-
-			FILogFile* pLog = NULL;
-			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
-
-			// Get the leading info for this line
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			strBaseString += playerName + ", ";
-
-			otherPlayerName = GET_PLAYER(eOtherPlayer).getCivilizationShortDescription();
-			strOutBuf = strBaseString + ", * TRADE RENEWAL CANCELED*, " + otherPlayerName;
-
-			TradedItemList::iterator itemIter;
-			for (itemIter = pRenewalDeal->m_TradedItems.begin(); itemIter != pRenewalDeal->m_TradedItems.end(); ++itemIter)
-			{
-				CvString strItems;
-				strItems.Format(",ItemType: %d, ", (int)itemIter->m_eItemType);
-				strOutBuf += strItems;
-			}
-
-			CvString strReason;
-			switch (eReason)
-			{
-			case NO_REASON:
-				strReason.Format(",REASON: No Reason Given");
-				strOutBuf += strReason;
-				break;
-			case REASON_NO_GPT:
-				strReason.Format(",REASON: Invalid Items");
-				strOutBuf += strReason;
-				break;
-			case REASON_NO_DEAL:
-				strReason.Format(",REASON: No Deal Found");
-				strOutBuf += strReason;
-				break;
-			case REASON_CANNOT_COMPROMISE:
-				strReason.Format(",REASON: Cannot Re-negotiate with AI");
-				strOutBuf += strReason;
-				break;
-			case REASON_HUMAN_REJECTION:
-				strReason.Format(",REASON: Human Rejection");
-				strOutBuf += strReason;
-				break;
-			case REASON_BETTER_RENEWAL_CHOICE:
-				strReason.Format(",REASON: Better Renewal Choice");
-				strOutBuf += strReason;
-				break;
-			}
-			pLog->Msg(strOutBuf);
-		}
-		//pRenewalDeal->ClearItems();
-	}
-}
-
 // ************************************
 // LOGGING (PRIVATE FUNCTIONS)
 // ************************************
@@ -56732,15 +56611,35 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 	{
 		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_GENEROUS_OFFER;
 
-		if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 60 &&
-				GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_GENEROUS_OFFER_RANDFAILED) >= 15 &&
-				// Don't send a generous offer request if we recently sent a Request to this player
-				GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_REQUEST) >= 25)
+		// Check if we have a bonus on exporting luxuries
+		bool bWantExport = false;
+		for (int iYieldLoop = 0; iYieldLoop < GC.getNUM_YIELD_TYPES(); iYieldLoop++)
+		{
+			YieldTypes eYield = static_cast<YieldTypes>(iYieldLoop);
+			if (GetPlayer()->GetPlayerTraits()->GetYieldFromExport(eYield) > 0)
+			{
+				bWantExport = true;
+				break;
+			}
+		}
+
+		bool bOffCooldown = GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 60 &&
+			GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_GENEROUS_OFFER_RANDFAILED) >= 15 &&
+			// Don't send a generous offer request if we recently sent a Request to this player
+			GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_REQUEST) >= 25;
+
+		// Shorter cooldown if we want to export
+		if ((bWantExport && GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 10) || bOffCooldown)
 		{
 			bool bRandPassed = false;
-			bool bMakeGenerousOffer = IsMakeGenerousOffer(ePlayer, pDeal, bRandPassed);
+			bool bMakeGenerousOffer = false;
+			if (bWantExport && IsMakeLuxuryOffer(ePlayer, pDeal))
+				bMakeGenerousOffer = true;
 
-			if(bMakeGenerousOffer && pDeal->GetNumItems() > 0)
+			if (!bMakeGenerousOffer && bOffCooldown)
+				bMakeGenerousOffer = IsMakeGenerousOffer(ePlayer, pDeal, bRandPassed);
+
+			if (bMakeGenerousOffer && pDeal->GetNumItems() > 0)
 			{
 				eStatement = eTempStatement;
 				SetOfferingGift(ePlayer, true);
@@ -56829,8 +56728,27 @@ bool CvDiplomacyAI::WantsMapsFromPlayer(PlayerTypes ePlayer)
 	return iMapValue > 750;
 }
 
+/// Do we want to make a luxury offer to ePlayer? Only called if we have a bonus on exporting luxury
+bool CvDiplomacyAI::IsMakeLuxuryOffer(PlayerTypes ePlayer, CvDeal* pDeal) const
+{
+	if (GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY && IsDoFAccepted(ePlayer))
+	{
+		int iBrokenTurns = (40 * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+		int iIgnoredTurns = (15 * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+
+		// If they've broken promises or ignored our requests lately, don't help them even if we benefit
+		if (BrokeAnyPromise(ePlayer, iBrokenTurns) || IgnoredAnyPromise(ePlayer, iIgnoredTurns))
+			return false;
+
+		if (IsLuxuryGenerousOffer(ePlayer, pDeal))
+			return true;
+	}
+
+	return false;
+}
+
 /// Do we want to make a generous offer to ePlayer?
-bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed)
+bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed) const
 {
 	if (GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY && IsDoFAccepted(ePlayer))
 	{
@@ -56885,7 +56803,7 @@ bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool
 }
 
 /// Do we want to make a gift of gold to ePlayer?
-bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
+bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const
 {
 	int iOurGold = GetPlayer()->GetTreasury()->GetGold();
 	int iOurGPT = GetPlayer()->calculateGoldRate();
@@ -56954,63 +56872,67 @@ bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 }
 
 /// Do we want to gift a luxury to ePlayer?
-bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
+bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const
 {
 	ResourceTypes eLuxuryToOffer = NO_RESOURCE;
 
 	int iResourceLoop = 0;
+	bool bMustGift = false;
 
 	// See if there's any Luxuries WE can trade
-	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	for (iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
-		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if(pkResource)
-		{
-			// Only look at Luxuries
-			if(pkResource->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-				continue;
+		// Only look at Luxuries
+		if (GC.getResourceInfo(eResource)->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+			continue;
 
-			// Any extras?
-			if(GetPlayer()->getNumResourceAvailable(eResource, /*bIncludeImport*/ false) < 2)
-				continue;
+		// Can we actually give them this item
+		if (!pDeal->IsPossibleToTradeItem(GetID(), ePlayer, TRADE_ITEM_RESOURCES, eResource, 1))
+			continue;
 
-			// Can they actually give us this item
-			if(!pDeal->IsPossibleToTradeItem(GetID(), ePlayer, TRADE_ITEM_RESOURCES, eResource, 1))
-				continue;
+		// This resource has negative value? Prefer gifting it!
+		if (GetPlayer()->GetDealAI()->GetTradeItemValue(TRADE_ITEM_RESOURCES, true, ePlayer, iResourceLoop, 1, -1, false, GC.getGame().GetDealDuration(), true) < 0)
+			bMustGift = true;
 
-			eLuxuryToOffer = eResource;
-			break;
-		}
+		// Do we have any extras?
+		if (!bMustGift && GetPlayer()->getNumResourceAvailable(eResource, /*bIncludeImport*/ false) < 2)
+			continue;
+
+		eLuxuryToOffer = eResource;
+		break;
 	}
 
 	// Didn't find something we could give them?
-	if(eLuxuryToOffer == NO_RESOURCE)
+	if (eLuxuryToOffer == NO_RESOURCE)
 		return false;
 
-	// See if the other player has a Resource to trade (because if there are then we shouldn't be offering hand outs)
-	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	if (!bMustGift)
 	{
-		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-
-		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if(pkResourceInfo)
+		// See if the other player has a Resource to trade (because if there are then we shouldn't be offering hand outs)
+		for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			// Only look at Luxuries
-			if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-				continue;
+			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
-			// Any extras?
-			if(GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, /*bIncludeImport*/ false) < 2)
-				continue;
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if(pkResourceInfo)
+			{
+				// Only look at Luxuries
+				if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+					continue;
 
-			// Can they actually give us this item
-			if(!pDeal->IsPossibleToTradeItem(ePlayer, GetID(), TRADE_ITEM_RESOURCES, eResource, 1))
-				continue;
+				// Any extras?
+				if(GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, /*bIncludeImport*/ false) < 2)
+					continue;
 
-			// Found something we can trade to them, so abort
-			return false;
+				// Can they actually give us this item
+				if(!pDeal->IsPossibleToTradeItem(ePlayer, GetID(), TRADE_ITEM_RESOURCES, eResource, 1))
+					continue;
+
+				// Found something we can trade to them, so abort
+				return false;
+			}
 		}
 	}
 
@@ -57021,7 +56943,7 @@ bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 }
 
 /// Do we want to gift a technology to ePlayer?
-bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
+bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal) const
 {
 	if (GetPlayer()->IsAITeammateOfHuman())
 		return false;

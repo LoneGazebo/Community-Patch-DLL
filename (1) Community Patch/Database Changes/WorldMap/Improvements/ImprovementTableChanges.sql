@@ -28,6 +28,9 @@ ALTER TABLE Improvements ADD GreatPersonRateModifier integer DEFAULT 0;
 
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD ImprovementResource text REFERENCES Resources (Type);
+-- (Voyage of Discovery) Uses GetFreeLuxury and boosted by AdmiralLuxuryBonus (overwrites previous)
+ALTER TABLE Improvements ADD ExoticResourceFromImprovement boolean DEFAULT 0;
+-- Controls how many copies are added by the two above methods
 ALTER TABLE Improvements ADD ImprovementResourceQuantity integer DEFAULT 0;
 
 -- Improvement creates happiness for builder when finished.
@@ -98,3 +101,6 @@ ALTER TABLE Improvements ADD AllowsAirliftTo integer DEFAULT 0;
 
 -- Improvement requires a resource in the tile to be buildable
 ALTER TABLE Improvements ADD RequiresResource boolean DEFAULT 0;
+
+-- Improvement lets all units enter the tile without using any movement points
+ALTER TABLE Improvements ADD FreeMoveAcross boolean DEFAULT 0;

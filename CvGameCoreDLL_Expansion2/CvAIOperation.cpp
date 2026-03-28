@@ -2423,7 +2423,20 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 			return AI_ABORT_NO_TARGET;
 
 		pNewTarget = MilitaryAIHelpers::GetCoastalWaterNearPlot(pHomeCity->plot(), true);
+
+		// target can be null for cities on lakes. todo: include pCurrentPosition in GetCoastalWaterNearPlot and use step finder, then it's no longer necessary to exclude lakes
+		if (pNewTarget == NULL)
+		{
+			pHomeCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCurrentPosition, GD_INT_GET(/*10*/ MIN_WATER_SIZE_FOR_OCEAN));
+			if (!pHomeCity)
+				return AI_ABORT_NO_TARGET;
+
+			pNewTarget = MilitaryAIHelpers::GetCoastalWaterNearPlot(pHomeCity->plot(), true);
+		}
 	}
+
+	if (pNewTarget == NULL)
+		return AI_ABORT_NO_TARGET;
 
 	//no-op if new target is same as old
 	SetTargetPlot(pNewTarget);

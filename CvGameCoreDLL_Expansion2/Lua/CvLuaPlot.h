@@ -222,6 +222,7 @@ protected:
 	static int lGetNumResource(lua_State* L);
 	static int lSetNumResource(lua_State* L);
 	static int lChangeNumResource(lua_State* L);
+	static int lGetNumResourcePostModifiers(lua_State* L);
 
 	static int lGetImprovementType(lua_State* L);
 	static int lSetImprovementType(lua_State* L);

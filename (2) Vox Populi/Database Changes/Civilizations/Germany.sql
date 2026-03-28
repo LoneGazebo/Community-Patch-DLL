@@ -13,7 +13,7 @@ INSERT INTO Trait_UnitCombatProductionCostModifiers
 SELECT
 	'TRAIT_CONVERTS_LAND_BARBARIANS', Type, -15
 FROM UnitCombatInfos
-WHERE IsMilitary = 1;
+WHERE IsMilitary = 1 OR Type = 'UNITCOMBAT_WORKER' OR Type = 'UNITCOMBAT_WORKBOAT';
 
 ----------------------------------------------------------
 -- Unique Unit: Landsknecht (Tercio)
@@ -136,7 +136,7 @@ VALUES
 INSERT INTO Building_YieldFromUnitGiftGlobal
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_BREWHOUSE', 'YIELD_CULTURE', 10);
+	('BUILDING_BREWHOUSE', 'YIELD_CULTURE', 15);
 
 INSERT INTO Building_YieldFromPolicyUnlock
 	(BuildingType, YieldType, Yield)

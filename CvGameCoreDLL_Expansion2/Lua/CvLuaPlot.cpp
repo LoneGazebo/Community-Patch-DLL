@@ -212,6 +212,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetNumResource);
 	Method(SetNumResource);
 	Method(ChangeNumResource);
+	Method(GetNumResourcePostModifiers);
 
 	Method(GetImprovementType);
 	Method(SetImprovementType);
@@ -700,10 +701,17 @@ int CvLuaPlot::lCanHaveImprovement(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible);
+//bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible, bool bTestPlotOwner, bool bTestXAdjacent);
 int CvLuaPlot::lCanBuild(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::canBuild);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes)luaL_optint(L, 3, -1);
+	const bool bTestVisible = luaL_optbool(L, 4, false);
+	const bool bTestPlotOwner = luaL_optbool(L, 5, true);
+	const bool bTestXAdjacent = luaL_optbool(L, 6, false);
+	lua_pushboolean(L, pkPlot->canBuild(eBuild, ePlayer, bTestVisible, bTestPlotOwner, bTestXAdjacent));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getBuildTime(BuildTypes eBuild);
@@ -715,7 +723,14 @@ int CvLuaPlot::lGetBuildTime(lua_State* L)
 //int getBuildTurnsLeft(BuildTypes eBuild, int iNowExtra, int iThenExtra);
 int CvLuaPlot::lGetBuildTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::getBuildTurnsLeft);
+	CvPlot* pkPlot = GetInstance(L);
+	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 3);
+	const int iNowExtra = luaL_optint(L, 4, 0);
+	const int iThenExtra = luaL_optint(L, 5, 0);
+
+	lua_pushinteger(L, pkPlot->getBuildTurnsLeft(eBuild, ePlayer, iNowExtra, iThenExtra));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getBuildTurnsTotal(BuildTypes eBuild);
@@ -1557,6 +1572,25 @@ int CvLuaPlot::lChangeNumResource(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::changeNumResource);
 }
+//------------------------------------------------------------------------------
+//int GetNumResourcePostModifiers();
+int CvLuaPlot::lGetNumResourcePostModifiers(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	if (pkPlot != NULL)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+		ImprovementTypes eImprovement = lua_gettop(L) >= 3 ? (ImprovementTypes)lua_tointeger(L, 3) : pkPlot->getImprovementType();
+		int iResult = pkPlot->GetNumResourcePostModifiers(ePlayer, eImprovement);
+		lua_pushinteger(L, iResult);
+		return 1;
+	}
+	else
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
+}
 
 //------------------------------------------------------------------------------
 //ImprovementTypes getImprovementType();
@@ -2108,7 +2142,7 @@ int CvLuaPlot::lIsImprovementEmbassy(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//bool CvPlot::canSeePlot(CvPlot *pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection)
+//bool CvPlot::canSeePlot(CvPlot *pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection, int iSeeThrough = 0)
 int CvLuaPlot::lCanSeePlot(lua_State* L)
 {
 	CvPlot* pkThisPlot = GetInstance(L);
@@ -2116,12 +2150,13 @@ int CvLuaPlot::lCanSeePlot(lua_State* L)
 	TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 3);
 	int iRange = lua_tointeger(L, 4);
 	DirectionTypes eFacingDirection = (DirectionTypes) lua_tointeger(L, 5);
-
+ 	int iSeeThrough = luaL_optinteger(L, 6, 0);
+	
 	bool bCanSee = false;
 	if(pkThisPlot)
 	{
 		//need to add one to the range to maintain backward compatibility
-		bCanSee = pkThisPlot->canSeePlot(pkThatPlot, eTeam, iRange + 1, eFacingDirection);
+		bCanSee = pkThisPlot->canSeePlot(pkThatPlot, eTeam, iRange + 1, eFacingDirection, iSeeThrough);
 	}
 
 	lua_pushboolean(L, bCanSee);

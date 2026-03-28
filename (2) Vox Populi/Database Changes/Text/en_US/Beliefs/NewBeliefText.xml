@@ -83,7 +83,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BELIEF_COMMUNALISM">
-			<Text>[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, scaling with Era. +2 [ICON_PRODUCTION] Production if City has a Specialist.</Text>
+			<Text>[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, scaling with Era. +2 [ICON_FOOD] Food and [ICON_PRODUCTION] Production if the City has a Specialist.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_COMMUNALISM_SHORT">
 			<Text>Cooperation</Text>
@@ -106,10 +106,10 @@
 			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_RESEARCH] Science[NEWLINE][NEWLINE]+15% [ICON_CULTURE] Culture during [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLD] Gold[NEWLINE][NEWLINE]Gain [ICON_PEACE] Faith equal to 10% of [ICON_PRODUCTION] Production cost when completing production of a Military Unit.[NEWLINE][NEWLINE]+10% [ICON_RANGE_STRENGTH] City Strike Strength.[NEWLINE][NEWLINE]All existing and future eligible Units trained in this City gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MORALE}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLD] Gold[NEWLINE]+1 [ICON_WAR] Military Supply[NEWLINE][NEWLINE]Gain [ICON_PEACE] Faith equal to 10% of [ICON_PRODUCTION] Production cost when completing production of a Military Unit.[NEWLINE][NEWLINE]+10% [ICON_RANGE_STRENGTH] City Strike Strength.[NEWLINE][NEWLINE]All existing and future eligible Units trained in this City gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MORALE}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PAGODA_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]+1 to all Yields for each [ICON_RELIGION] Religion with at least one Follower in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom and -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]+1 to [COLOR_POSITIVE_TEXT]All Yields[ENDCOLOR] for each [ICON_RELIGION] Religion with at least one Follower in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom and -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_TOOLTIP">
 			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLDEN_AGE] Golden Age Points[NEWLINE]+5 [ICON_TOURISM] Tourism[NEWLINE]+1 [ICON_HAPPINESS_1] Happiness[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
@@ -118,7 +118,7 @@
 			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_PRODUCTION] Production[NEWLINE][NEWLINE]+10% [ICON_RESEARCH] Science during [ICON_HAPPINESS_1] "We Love the King Day".[NEWLINE][NEWLINE]-15% Religious Pressure towards this City from Cities following other Religions or active spreads of other Religions.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_TOOLTIP">
-			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+1 [ICON_WAR] Military Supply[NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith when an owned Unit defeats a Military Unit.[NEWLINE][NEWLINE]+15 XP for Military Units trained in the City.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]+2 [ICON_PEACE] Faith when an owned Unit defeats a Military Unit, and an additional +8 [ICON_PEACE] Faith if the Unit was created by this City.[NEWLINE][NEWLINE]+10 XP for Military Units trained in the City.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

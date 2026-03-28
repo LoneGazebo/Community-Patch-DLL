@@ -82,7 +82,7 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_EXPLORER') + 6,
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_EXPLORER') + 5,
 	DefaultUnitAI = 'UNITAI_FAST_ATTACK',
 	Found = 1,
 	FoundMid = 1,
@@ -93,7 +93,7 @@ INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
 	('UNIT_SPANISH_CONQUISTADOR', 'PROMOTION_OVERRUN'),
-	('UNIT_SPANISH_CONQUISTADOR', 'PROMOTION_VANGUARD');
+	('UNIT_SPANISH_CONQUISTADOR', 'PROMOTION_CIBOLA');
 
 INSERT INTO Unit_BuildOnFound
 	(UnitType, BuildingClassType)
@@ -101,12 +101,6 @@ SELECT
 	'UNIT_SPANISH_CONQUISTADOR', BuildingClassType
 FROM Unit_BuildOnFound
 WHERE UnitType = 'UNIT_PIONEER';
-
-INSERT INTO Unit_BuildOnFound
-	(UnitType, BuildingClassType)
-VALUES
-	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_LIGHTHOUSE'),
-	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_ARMORY');
 
 INSERT INTO Unit_AITypes
 	(UnitType, UnitAIType)

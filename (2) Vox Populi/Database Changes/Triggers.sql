@@ -106,6 +106,32 @@ BEGIN
 		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_GOLD', 3;
 END;
 
+DROP TRIGGER IF EXISTS Units_GlobalSeparateGreatAdmiral;
+
+CREATE TRIGGER Units_GlobalSeparateGreatAdmiral
+AFTER INSERT ON Units
+WHEN (NEW.Class = 'UNITCLASS_GREAT_ADMIRAL')
+BEGIN
+    -- your modified logic here
+    UPDATE Units
+    SET
+        CanRepairFleet = 0,
+        CanChangePort = 1
+    WHERE Type = NEW.Type;
+END;
+
+--------------------------------------------------------------------------------
+-- New Resources provide extra copies when a Manufactory is placed on them
+--------------------------------------------------------------------------------
+CREATE TRIGGER VP_ManufactoryNewResourceCompatibility
+AFTER INSERT ON Resources
+BEGIN
+    INSERT INTO Improvement_ResourceExtractionIncrease
+        (ImprovementType, ResourceType, Num)
+    SELECT
+        'IMPROVEMENT_MANUFACTORY', NEW.Type, 1;
+END;
+
 ---------------------------------------------------------------------------------
 -- Promotions that provide blanket immunity to all Plagues
 ---------------------------------------------------------------------------------

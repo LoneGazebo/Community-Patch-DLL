@@ -17,7 +17,7 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
 	('IMPROVEMENT_FARM', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1, 2),
-	('IMPROVEMENT_FARM', 'IMPROVEMENT_MANUFACTORY', 'YIELD_FOOD', 1, 2);
+	('IMPROVEMENT_FARM', 'IMPROVEMENT_ACADEMY', 'YIELD_FOOD', 1, 2);
 
 -- +1 Food on fresh water
 INSERT INTO Improvement_FreshWaterYields
@@ -48,6 +48,13 @@ VALUES
 	('IMPROVEMENT_TRADING_POST', 'ROUTE_RAILROAD', 'YIELD_GOLD', 2),
 	('IMPROVEMENT_TRADING_POST', 'ROUTE_RAILROAD', 'YIELD_PRODUCTION', 2);
 
+-- Camp
+-- Improves Marsh Truffles trade-off since Marsh gives extra yields
+INSERT INTO Improvement_FeatureYieldChanges
+	(ImprovementType, FeatureType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_CAMP', 'FEATURE_MARSH', 'YIELD_FOOD', -2);
+
 -- Lumber Mill
 -- +1 Prod/Gold per 2 adjacent lumber mills
 INSERT INTO Improvement_YieldPerXAdjacentImprovement
@@ -55,8 +62,8 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 VALUES
 	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_LUMBERMILL', 'YIELD_GOLD', 1, 2),
 	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_LUMBERMILL', 'YIELD_PRODUCTION', 1, 2),
-	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_MANUFACTORY', 'YIELD_GOLD', 1, 2),
-	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_MANUFACTORY', 'YIELD_PRODUCTION', 1, 2);
+	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_ACADEMY', 'YIELD_GOLD', 1, 2),
+	('IMPROVEMENT_LUMBERMILL', 'IMPROVEMENT_ACADEMY', 'YIELD_PRODUCTION', 1, 2);
 
 INSERT INTO Improvement_ValidFeatures
 	(ImprovementType, FeatureType)
@@ -74,6 +81,15 @@ INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_FORT', 'YIELD_CULTURE_LOCAL', 1);
+
+INSERT INTO Improvement_ResourceExtractionIncrease
+	(ImprovementType, ResourceType, Num)
+SELECT
+	'IMPROVEMENT_MANUFACTORY',
+	Type,
+	1
+FROM Resources
+WHERE ResourceUsage IN (1, 2);
 
 UPDATE Improvements
 SET
@@ -95,21 +111,35 @@ SET NoTwoAdjacent = 1
 WHERE Type = 'IMPROVEMENT_CITADEL';
 
 -- Other GPTIs
+
 UPDATE Improvement_Yields
 SET Yield = 6
 WHERE ImprovementType = 'IMPROVEMENT_ACADEMY' AND YieldType = 'YIELD_SCIENCE';
+
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_ACADEMY_HELP' WHERE Type = 'IMPROVEMENT_ACADEMY';
 
 UPDATE Improvement_Yields
 SET Yield = 6
 WHERE ImprovementType = 'IMPROVEMENT_CUSTOMS_HOUSE' AND YieldType = 'YIELD_GOLD';
 
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_CUSTOMS_HOUSE_HELP' WHERE Type = 'IMPROVEMENT_CUSTOMS_HOUSE';
+
 UPDATE Improvement_Yields
 SET Yield = 6
 WHERE ImprovementType = 'IMPROVEMENT_MANUFACTORY' AND YieldType = 'YIELD_PRODUCTION';
 
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_HELP' WHERE Type = 'IMPROVEMENT_MANUFACTORY';
+
 UPDATE Improvement_Yields
 SET Yield = 4
 WHERE ImprovementType = 'IMPROVEMENT_HOLY_SITE' AND YieldType = 'YIELD_FAITH';
+
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_HOLY_SITE_HELP' WHERE Type = 'IMPROVEMENT_HOLY_SITE';
+
+INSERT INTO Improvement_YieldPerXAdjacentTerrain
+	(ImprovementType, TerrainType, YieldType, Yield, NumRequired)
+VALUES
+	('IMPROVEMENT_HOLY_SITE', 'TERRAIN_MOUNTAIN', 'YIELD_FAITH', 1, 1);
 
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
@@ -177,7 +207,8 @@ INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_FARM', 'TECH_CIVIL_SERVICE', 'YIELD_FOOD', 1),
-	('IMPROVEMENT_FARM', 'TECH_FERTILIZER', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_FARM', 'TECH_FERTILIZER', 'YIELD_FOOD', 2),
+	('IMPROVEMENT_FARM', 'TECH_MATHEMATICS', 'YIELD_FOOD', 1),
 	('IMPROVEMENT_FARM', 'TECH_ROBOTICS', 'YIELD_FOOD', 3),
 	('IMPROVEMENT_CAMP', 'TECH_GUILDS', 'YIELD_GOLD', 1),
 	('IMPROVEMENT_CAMP', 'TECH_GUNPOWDER', 'YIELD_GOLD', 1),

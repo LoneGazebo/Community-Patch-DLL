@@ -105,7 +105,7 @@ VALUES
 
 	-------------------------------------------------------------------
 
-	('TECH_DRAMA', 'FLAVOR_CULTURE', 25), -- Buildings: Amphitheater, Writers' Guild, NationalMonument, Wonders: Parthenon, Process: Culture
+	('TECH_DRAMA', 'FLAVOR_CULTURE', 25), -- Buildings: Theater, Writers' Guild, NationalMonument, Wonders: Parthenon, Process: Culture
 	('TECH_DRAMA', 'FLAVOR_GREAT_PEOPLE', 10),
 	('TECH_DRAMA', 'FLAVOR_WONDER', 10),
 
@@ -114,7 +114,7 @@ VALUES
 	('TECH_PHILOSOPHY', 'FLAVOR_RELIGION', 10),
 	('TECH_PHILOSOPHY', 'FLAVOR_WONDER', 10),
 
-	('TECH_CURRENCY', 'FLAVOR_GOLD', 15), -- Units: Composite Bowman, Buildings: Caravansary, Wonders: AngkorWat, Process: Wealth, Improvement: Village, Ability: +1 TR, Yields: Merchant +1 Gold
+	('TECH_CURRENCY', 'FLAVOR_GOLD', 15), -- Units: Composite Bowman, Buildings: Caravansary, Wonders: HagiaSophia, Process: Wealth, Improvement: Village, Ability: +1 TR, Yields: Merchant +1 Gold
 	('TECH_CURRENCY', 'FLAVOR_TILE_IMPROVEMENT', 15),
 	('TECH_CURRENCY', 'FLAVOR_WONDER', 10),
 	('TECH_CURRENCY', 'FLAVOR_I_LAND_TRADE_ROUTE', 10),
@@ -136,7 +136,7 @@ VALUES
 	('TECH_EDUCATION', 'FLAVOR_WONDER', 5),
 	('TECH_EDUCATION', 'FLAVOR_DIPLOMACY', 10),
 
-	('TECH_THEOLOGY', 'FLAVOR_RELIGION', 15), -- Buildings: Garden, GrandTemple, Wonders: HagiaSophia, Borobodur
+	('TECH_THEOLOGY', 'FLAVOR_RELIGION', 15), -- Buildings: Garden, GrandTemple, Wonders: AngkorWat, Borobodur
 	('TECH_THEOLOGY', 'FLAVOR_GREAT_PEOPLE', 10),
 	('TECH_THEOLOGY', 'FLAVOR_WONDER', 20),
 
@@ -227,9 +227,9 @@ VALUES
 	('TECH_ACOUSTICS', 'FLAVOR_CULTURE', 25), -- Buildings: OperaHouse, Musicians' Guild, Wonders: Sistine, SummerPalace, Yields: HolySite +4Faith
 	('TECH_ACOUSTICS', 'FLAVOR_WONDER', 20),
 
-	('TECH_NAVIGATION', 'FLAVOR_NAVAL', 30), -- Units: Frigate, Corvette, Buildings: Bastion Fort, Ability: City embark costs 1 move, Yields: Servant +1G, Boats +1F
+	('TECH_NAVIGATION', 'FLAVOR_NAVAL', 30), -- Units: Frigate, Corvette, Buildings: Bastion Fort, Ability: City embark costs 1 move, Yields: Servants +2G, Boats +1F
 	('TECH_NAVIGATION', 'FLAVOR_CITY_DEFENSE', 20),
-	('TECH_NAVIGATION', 'FLAVOR_GOLD', 5),
+	('TECH_NAVIGATION', 'FLAVOR_GOLD', 10),
 	('TECH_NAVIGATION', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 5),
 
 	('TECH_METALLURGY', 'FLAVOR_OFFENSE', 20), -- Units: Lancer, Musketman, Cuirassier, Wonders: RedFort, Yields: Lumber +1P +1G
@@ -307,11 +307,11 @@ VALUES
 	('TECH_CORPORATIONS', 'FLAVOR_SCIENCE', 30),
 	('TECH_CORPORATIONS', 'FLAVOR_CULTURE', 30),
 
-	('TECH_REPLACEABLE_PARTS', 'FLAVOR_OFFENSE', 10), -- Units: Rifleman, Buildings: WireService, Wonders: Kremlin, Yield: Servants +1S
+	('TECH_REPLACEABLE_PARTS', 'FLAVOR_OFFENSE', 10), -- Units: Rifleman, Buildings: WireService, Wonders: Kremlin, Yield: Servants +2S
 	('TECH_REPLACEABLE_PARTS', 'FLAVOR_DEFENSE', 10),
 	('TECH_REPLACEABLE_PARTS', 'FLAVOR_WONDER', 5),
 	('TECH_REPLACEABLE_PARTS', 'FLAVOR_DIPLOMACY', 10),
-	('TECH_REPLACEABLE_PARTS', 'FLAVOR_SCIENCE', 10),
+	('TECH_REPLACEABLE_PARTS', 'FLAVOR_SCIENCE', 15),
 	('TECH_REPLACEABLE_PARTS', 'FLAVOR_CULTURE', 5),
 
 	('TECH_COMBUSTION', 'FLAVOR_OFFENSE', 20), -- Units: Landship, Buildings: Arsenal, MineField, Reveals: Oil, Improvement: OilWell, Ability: FasteronRails, ExtendedLandTR, Yield: Mine +1P, Lumber +1P 1G
@@ -424,7 +424,7 @@ VALUES
 	('TECH_ROBOTICS', 'FLAVOR_TILE_IMPROVEMENT', 10),
 	('TECH_ROBOTICS', 'FLAVOR_WONDER', 10),
 
-	('TECH_INTERNET', 'FLAVOR_CULTURE', 50), -- Wonders: Firewall, Ability: TourismBoost, Yields: Writers +2C, Merchants +3G, Servants +1C
+	('TECH_INTERNET', 'FLAVOR_CULTURE', 55), -- Wonders: Firewall, Ability: TourismBoost, Yields: Writers +2C, Merchants +3G, Servants +2C
 	('TECH_INTERNET', 'FLAVOR_GOLD', 15),
 
 	('TECH_LASERS', 'FLAVOR_OFFENSE', 10), -- Units: Missile Cruiser, Nuke, JetFighter, XCOM, Yields: Eng. +3P

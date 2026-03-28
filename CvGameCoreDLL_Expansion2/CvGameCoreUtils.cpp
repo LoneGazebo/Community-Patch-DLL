@@ -28,6 +28,22 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+// Returns a shortened version of a source file path for display in assertion dialogs.
+// Removes everything before "Community-Patch-DLL/"
+const char* ShortenFilePath(const char* szFile)
+{
+	if (!szFile) return szFile;
+	const char* anchor_uppercase = strstr(szFile, "Community-Patch-DLL");
+	if (anchor_uppercase)
+		return anchor_uppercase;
+
+	const char* anchor_lowercase = strstr(szFile, "community-patch-dll");
+	if (anchor_lowercase)
+		return anchor_lowercase;
+
+	return szFile;
+}
+
 // CvAssertDlg and CvPreconditionDlg implementation
 #ifdef CVASSERT_ENABLE
 #ifdef WIN32
@@ -166,7 +182,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			"File: %s, "
 			"Line: %u",
 			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? ", " : "",
-			expr, szFile, uiLine
+			expr, ShortenFilePath(szFile), uiLine
 		);
 		GC.getDLLIFace()->sendChat(CvString(szBuffer), CHATTARGET_ALL, NO_PLAYER);
 		return false;
@@ -174,6 +190,27 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 	else
 	{
 		char szBuffer[4096];
+#if defined(MOD_DEBUG_MINIDUMP)
+		const TCHAR* dumpPath = GetLastMiniDumpPath();
+		_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
+			"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
+			"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
+			"You may continue playing, but unexpected behavior might occur. It is recommended to wait until a hotfix has been released that resolves the issue.\n\n"
+			"==================\n"
+			"Detailed information:\n"
+			"%s%s%s"
+			"Expression: %s\n"
+			"File: %s\n"
+			"Line: %u\n"
+			"%s%s\n"
+			"==================\n"
+			"Cancel - Exit the game. \n"
+			"OK - Continue playing. This warning will not be shown again in the current session.",
+			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
+			expr, ShortenFilePath(szFile), uiLine,
+			dumpPath ? "\nMinidump: " : "", dumpPath ? dumpPath : ""
+		);
+#else
 		_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
 			"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
 			"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
@@ -184,13 +221,13 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			"Expression: %s\n"
 			"File: %s\n"
 			"Line: %u\n\n"
-
 			"==================\n"
 			"Cancel - Exit the game. \n"
 			"OK - Continue playing. This warning will not be shown again in the current session.",
 			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-			expr, szFile, uiLine
+			expr, ShortenFilePath(szFile), uiLine
 		);
+#endif
 
 		// Show dialog
 		int nResult = MessageBoxA(NULL, szBuffer, "Assertion Failed",
@@ -205,6 +242,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			return false;
 
 		default:
+			SetPreconditionFired();
 			BUILTIN_TRAP();
 		}
 	}
@@ -221,6 +259,37 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 
 	// Format the message
 	char szBuffer[4096];
+#if defined(MOD_DEBUG_MINIDUMP)
+	const TCHAR* dumpPath = GetLastMiniDumpPath();
+	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
+		"Assert Failed!\n"
+		"==================\n"
+		"Expression: %s\n"
+		"File: %s\n"
+		"Line: %u\n"
+		"%s%s%s"
+		"%s%s\n"
+		"\nStatistics:\n"
+		"==================\n"
+		"This assert has fired %u time(s)\n"
+		"First occurrence: %.2f seconds ago\n"
+		"Last occurrence: %.2f seconds ago\n"
+		"Total asserts this session: %u\n"
+		"Session duration: %.2f seconds\n"
+		"\nOptions:\n"
+		"==================\n"
+		"Yes - Break into debugger\n"
+		"No - Continue execution\n"
+		"Cancel - Ignore this assert",
+		expr, ShortenFilePath(szFile), uiLine,
+		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
+		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : "",
+		info.count,
+		timeSinceFirst / 1000.0f,
+		timeSinceLast / 1000.0f,
+		g_AssertTracker.totalAsserts,
+		sessionTime / 1000.0f);
+#else
 	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
 		"Assert Failed!\n"
 		"==================\n"
@@ -240,13 +309,14 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		"Yes - Break into debugger\n"
 		"No - Continue execution\n"
 		"Cancel - Ignore this assert",
-		expr, szFile, uiLine,
+		expr, ShortenFilePath(szFile), uiLine,
 		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
 		info.count,
 		timeSinceFirst / 1000.0f,
 		timeSinceLast / 1000.0f,
 		g_AssertTracker.totalAsserts,
 		sessionTime / 1000.0f);
+#endif
 
 	// Show dialog
 	int nResult = MessageBoxA(NULL, szBuffer, "Assertion Failed",
@@ -280,6 +350,24 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 #if defined(VPRELEASE_ERRORMSG)
 	bool bMsg = msg && msg[0] != '\0';
 	char szBuffer[4096];
+#if defined(MOD_DEBUG_MINIDUMP)
+	const TCHAR* dumpPath = GetLastMiniDumpPath();
+	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
+		"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
+		"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
+		"To prevent undefined or gamebreaking behavior, the game will now crash.\n\n"
+		"==================\n"
+		"Detailed information:\n"
+		"Expression: %s\n"
+		"File: %s\n"
+		"Line: %u\n"
+		"%s%s%s"
+		"%s%s\n",
+		expr, ShortenFilePath(szFile), uiLine,
+		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
+		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : ""
+	);
+#else
 	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
 		"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
 		"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
@@ -290,9 +378,12 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 		"File: %s\n"
 		"Line: %u\n"
 		"%s%s%s\n",
-		expr, szFile, uiLine,
+		expr, ShortenFilePath(szFile), uiLine,
 		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : ""
 	);
+#endif
+
+	SetPreconditionFired();
 
 	// Show dialog
 	MessageBoxA(NULL, szBuffer, "Error",
@@ -300,7 +391,7 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 
 #else // VPRELEASE_ERRORMSG
 	bool bIgnoreAlways = false;
-	CvAssertDlg(expr, szFile, uiLine, bIgnoreAlways, msg);
+	CvAssertDlg(expr, ShortenFilePath(szFile), uiLine, bIgnoreAlways, msg);
 #endif
 #endif // WIN32
 #endif // CVASSERT_ENABLE
@@ -958,6 +1049,39 @@ ImprovementTypes finalImprovementUpgrade(ImprovementTypes eImprovement, int iCou
 	{
 		return eImprovement;
 	}
+}
+
+BuildTypes GetRemoveFeatureBuild(FeatureTypes eFeature, TeamTypes eTeam)
+{
+	BuildTypes eRemoveBuild = NO_BUILD;
+	CvTeamTechs* pTechs = GET_TEAM(eTeam).GetTeamTechs();
+
+	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+	{
+		CvBuildInfo* pLoopBuildInfo = GC.getBuildInfo((BuildTypes)iI);
+		if (pLoopBuildInfo && pLoopBuildInfo->isFeatureRemoveOnly(eFeature))
+		{
+			TechTypes eObsoleteTech = (TechTypes)pLoopBuildInfo->getFeatureObsoleteTech(eFeature);
+			if (eObsoleteTech != NO_TECH && pTechs->HasTech(eObsoleteTech))
+				continue;
+
+			TechTypes ePrereqTech = (TechTypes)pLoopBuildInfo->getFeatureTech(eFeature);
+			if (ePrereqTech == NO_TECH)
+			{
+				if (eRemoveBuild == NO_BUILD)
+					eRemoveBuild = (BuildTypes)iI;
+			}
+			else if (pTechs->HasTech(ePrereqTech))
+			{
+				if (eRemoveBuild == NO_BUILD)
+					eRemoveBuild = (BuildTypes)iI;
+				else if (GC.getTechInfo(ePrereqTech)->GetGridX() > GC.getTechInfo((TechTypes)GC.getBuildInfo(eRemoveBuild)->getFeatureTech(eFeature))->GetGridX())
+					eRemoveBuild = (BuildTypes)iI;
+			}
+		}
+	}
+
+	return eRemoveBuild;
 }
 
 bool isTechRequiredForUnit(TechTypes eTech, UnitTypes eUnit)

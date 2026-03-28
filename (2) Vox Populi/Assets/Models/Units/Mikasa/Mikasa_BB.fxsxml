@@ -1,0 +1,61 @@
+<Asset>
+	<Mesh file="Mikasa_BB.gr2"/>
+	<Animation file="Battleship_Aim_Left.gr2" ec="1700"/>
+	<Animation file="Battleship_Aim_Right.gr2" ec="1705"/>
+	<Animation file="Battleship_Aim_Center.gr2" ec="1710"/>
+	<Animation file="Battleship_IdleA.gr2" ec="1000, 2000"/>
+	<Animation file="Battleship_FidgetA.gr2" ec="1040, 2040"/>
+	<Animation file="Battleship_IdleA_Trans_IdleB.gr2" ec="1020, 2020"/>
+	<Animation file="Battleship_Fortify.gr2" ec="1500"/>
+	<Animation file="Battleship_Fortify_Idle.gr2" ec="1520"/>
+	<Animation file="Battleship_Fortify_Idle_Fidget.gr2" ec="1540"/>
+	<Animation file="Battleship_Fortify_Idle_Trans_Combat_Ready_Idle.gr2" ec="1560"/>
+	<Animation file="Battleship_Fortify_Idle_Trans_IdleA.gr2" ec="1580"/>
+	<Animation file="Battleship_Combat_Ready.gr2" ec="1600"/>
+	<Animation file="Battleship_Combat_Ready_Idle.gr2" ec="1620"/>
+	<Animation file="Battleship_Combat_Ready_Idle_Trans_IdleA.gr2" ec="1640"/>
+	<Animation file="Battleship_Run.gr2" ec="1400, 1120"/>
+	<Animation file="Battleship_Stop_Run.gr2" ec="1440"/>
+	<Animation file="Battleship_AttackA.gr2" ec="1100, 1140, 1160, 1180"/>
+	<Animation file="Battleship_AttackB.gr2" ec="2100, 2160, 2180"/>
+	<Animation file="Battleship_AntiAir_Attack.gr2" ec="1130"/>
+	<Animation file="Battleship_Victory.gr2" ec="1800"/>
+	<Animation file="Battleship_Bombard_Defense.gr2" ec="1280"/>
+	<Animation file="Battleship_Bombard_Defense_Idle.gr2" ec="1285"/>
+	<Animation file="Battleship_Bombard_Defense_Idle_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="Battleship_DeathA.gr2" ec="1200"/>
+	<Animation file="Battleship_DeathA_Idle.gr2" ec="1220"/>
+	<Animation file="Battleship_DeathB.gr2" ec="2200"/>
+	<Animation file="Battleship_DeathB_Idle.gr2" ec="2220"/>
+	<Texture file="Mikasa_BB_DIFF.dds"/>
+	<Texture file="Mikasa_BB_SREF.dds"/>
+	<TimedTrigger file="FX_Triggers_Battleship.ftsxml"/>
+	<AnimGraph file="AIM_FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="AIM_IDLE_GRAPH.dge"/>
+	<AnimGraph file="AIM_FORTIFY_FIDGET_GRAPH.dge"/>
+	<AnimGraph file="AIM_ENTER_FORTIFY.dge"/>
+	<AnimGraph file="AIM_ATTACK_CITY_TO_RUN.dge"/>
+	<AnimGraph file="AIM_ATTACK_TO_RUN_GRAPH.dge"/>
+	<AnimGraph file="AIM_LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="AIM_DEATH_FINAL_GRAPH.dge"/>
+	<AnimGraph file="AIM_BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="AIM_RUNNING_LOOP.dge"/>
+	<AnimGraph file="AIM_ENTER_BOMBARD_DEFEND_GRAPH.dge"/>
+	<AnimGraph file="AIM_DEATH_GRAPH.dge"/>
+	<AnimGraph file="AIM_LEAVE_COMBAT_READY.dge"/>
+	<AnimGraph file="AIM_ENTER_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="AIM_FORTIFY_LEAVE_GRAPH.dge"/>
+	<AnimGraph file="AIM_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="AIM_TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="AIM_STOP_RUNNING.dge"/>
+	<AnimGraph file="AIM_START_RUNNING.dge"/>
+	<AnimGraph file="AIM_FIDGETS_GRAPH.dge"/>
+	<StateMachine file="MODERN_SHIP_AIM_STATE_01.fsmxml"/>
+	<AnimGraph file="AIM_MODERN_SHIP_ATTACKS.dge"/>
+	<BoneUsage>
+		<Bone name="World_Center"/>
+		<Bone name="Cannon_04"/>
+		<Bone name="Cannon_01"/>
+	</BoneUsage>
+</Asset>
+

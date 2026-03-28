@@ -106,6 +106,12 @@
 		<!-- Enables era-specific messages for civ influence; disabling this may be useful for mods like Unique Cultural Influence that add special notifications -->
 		<Row Class="4" Name="COREUI_DIPLOMACY_ERA_INFLUENCE" Value="1"/>
 
+		<!-- Randomizes the order of each civilization's spy names -->
+		<Row Class="4" Name="COREUI_SHUFFLE_SPY_NAMES" Value="1"/>
+
+		<!-- Free spies-as-diplomats in vassals' capitals use the vassal's spy name list, not the master's -->
+		<Row Class="4" Name="COREUI_COLLABORATOR_SPY_NAMES" Value="1"/>
+
 
 		<!-- ********************************************************** -->
 		<!-- 					CORE AI CHANGES							-->
@@ -330,8 +336,14 @@
 		<!-- Sorting order: civs, victory, then most to least impactful	-->
 		<!-- ********************************************************** -->
 
+		<!-- The Inca no longer ignore terrain cost if they're crossing a River -->
+		<Row Class="6" Name="BALANCE_ALTERNATE_INCA_TRAIT" Value="0"/>
+
 		<!-- Indonesia's unique luxuries spawn around the city instead of under the city tile, and also appear when conquering a city -->
 		<Row Class="6" Name="BALANCE_ALTERNATE_INDONESIA_TRAIT" Value="0"/>
+
+		<!-- The Iroquois treat all Forests/Jungles as if they were Roads, not just those in friendly territory -->
+		<Row Class="6" Name="BALANCE_ALTERNATE_IROQUOIS_TRAIT" Value="0"/>
 
 		<!-- The Maya cannot obtain a Great Prophet from their trait unless they have a religion (owned or majority), or the 9th or later Baktuns have been reached -->
 		<Row Class="6" Name="BALANCE_ALTERNATE_MAYA_TRAIT" Value="0"/>
@@ -414,9 +426,6 @@
 		<!-- Halve starting XP for combat units purchased with Gold -->
 		<Row Class="6" Name="BALANCE_HALF_XP_GOLD_PURCHASES" Value="0"/>
 
-		<!-- Halve starting XP for combat units purchased with Faith -->
-		<Row Class="6" Name="BALANCE_HALF_XP_FAITH_PURCHASES" Value="0"/>
-
 		<!-- Purchased COMBAT units do not have full health when the city is damaged -->
 		<Row Class="6" Name="BALANCE_PURCHASED_UNIT_DAMAGE" Value="0"/>
 
@@ -471,7 +480,7 @@
 
 		<!-- ********************************************************** -->
 		<!-- 				OTHER BALANCE OPTIONS						-->
-		<!-- 			Sorting order: alphabetical						-->
+		<!--		Sorting order: civs, victory, then alphabetical		-->
 		<!-- ********************************************************** -->
 
 		<!-- Alters Assyria's conquest trait so that the player always chooses a free tech upon city conquest -->
@@ -499,6 +508,9 @@
 
 		<!-- Era scaling for Great Engineer & Great Merchant yields -->
 		<Row Class="5" Name="BALANCE_GREAT_PEOPLE_ERA_SCALING" Value="0"/>
+
+		<!-- Halve starting XP for combat units purchased with Faith -->
+		<Row Class="6" Name="BALANCE_HALF_XP_FAITH_PURCHASES" Value="0"/>
 
 		<!-- City-States' unit supply is equal to their handicap amount, which can be modified by globals based on trait, personality, and number of cities. No other unit supply bonuses/penalties apply. -->
 		<Row Class="5" Name="BALANCE_MINOR_UNIT_SUPPLY_HANDICAP" Value="0"/>
@@ -745,6 +757,9 @@
 
 		<!-- For debugging only -->
 		<Row Class="2" Name="UNIT_KILL_STATS" Value="0"/>
+
+		<!-- Permits civilian units to gain XP and acquire promotions -->
+		<Row Class="2" Name="UNITS_CIVILIANS_GAIN_XP" Value="0"/>
 
 		<!-- Enables the table Unit_ResourceQuantityTotals -->
 		<Row Class="2" Name="UNITS_RESOURCE_QUANTITY_TOTALS" Value="0"/>

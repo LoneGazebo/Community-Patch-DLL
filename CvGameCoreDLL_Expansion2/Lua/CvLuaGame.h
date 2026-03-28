@@ -159,6 +159,7 @@ protected:
 
 	static int lIsDebugMode(lua_State* L);
 	static int lSetDebugMode(lua_State* L);
+	static int lSetHumanAIPath(lua_State* L);
 	static int lToggleDebugMode(lua_State* L);
 	static int lUpdateFOW(lua_State* L);
 
@@ -339,6 +340,10 @@ protected:
 	static int lGetDealDuration(lua_State* L);
 	static int lGetRelationshipDuration(lua_State* L);
 	static int lGetPeaceDuration(lua_State* L);
+
+	static int lGetRenewDeal(lua_State* L);
+	static int lGetRenewDealGoldPerTurn(lua_State* L);
+	static int lGetRenewDealResourceCount(lua_State* L);
 
 	static int lGetUnitUpgradesTo(lua_State* L);
 
