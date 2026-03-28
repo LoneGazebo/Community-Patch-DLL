@@ -428,6 +428,13 @@ public:
 	bool canAirliftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves = false) const;
 	bool airlift(int iX, int iY);
 
+	const CvPlot* getSealiftFromPlot(const CvPlot* pPlot, bool bIgnoreMoves = false) const;
+	const CvPlot* getSealiftToPlot(const CvPlot* pPlot, bool bIncludeCities) const;
+
+	bool canSealift(const CvPlot* pPlot, bool bIgnoreMoves = false) const;
+	bool canSealiftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves = false) const;
+	bool sealift(int iX, int iY);
+
 	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const;
 	bool canNuke() const;
 	bool canNukeAt(const CvPlot* pPlot, int iX, int iY) const;

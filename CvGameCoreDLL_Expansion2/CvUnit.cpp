@@ -8302,6 +8302,8 @@ int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnor
 }
 
 //	--------------------------------------------------------------------------------
+// airlift methods
+// ---------------------------------------------------------------------------------
 bool CvUnit::canAirlift(const CvPlot* pPlot, bool bIgnoreMoves) const
 {
 	return (getAirliftFromPlot(pPlot, bIgnoreMoves) != NULL);
@@ -8425,8 +8427,6 @@ const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot, bool bIgnoreMoves)
 	return pFromPlot;
 }
 
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves) const
 {
 	VALIDATE_OBJECT();
@@ -8469,8 +8469,6 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves
 	return true;
 }
 
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::airlift(int iX, int iY)
 {
 	VALIDATE_OBJECT();
@@ -8513,6 +8511,220 @@ bool CvUnit::airlift(int iX, int iY)
 		}
 	}
 
+
+	if(pTargetPlot != NULL)
+	{
+		finishMoves();
+		setXY(pTargetPlot->getX(), pTargetPlot->getY());
+		return true;
+	}
+
+	return false;
+}
+
+// now the equivalent sealift methods
+bool CvUnit::canSealift(const CvPlot* pPlot, bool bIgnoreMoves) const
+{
+	return (getSealiftFromPlot(pPlot, bIgnoreMoves) != NULL);
+}
+
+const CvPlot* CvUnit::getSealiftToPlot(const CvPlot* pPlot, bool bIncludeCities) const
+{
+	if (MOD_EVENTS_SEALIFT)
+	{
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanSealiftTo, getOwner(), GetID(), pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_TRUE)
+		{
+			return pPlot;
+		}
+	}
+
+	// NYI
+	/*
+	// Is there a friendly improvement that AllowsSealiftTo
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		CvImprovementEntry *pkEntry = GC.getImprovementInfo(eImprovement);
+		if (pkEntry && pkEntry->IsAllowsSealiftTo() && !pPlot->IsImprovementPillaged() && pPlot->IsFriendlyTerritory(getOwner()) && !pPlot->isVisibleEnemyUnit(getOwner()))
+		{
+			return pPlot;
+		}
+	}
+	*/
+
+	if (!bIncludeCities)
+		return NULL;
+
+	CvCity* pEndCity = pPlot->getPlotCity();
+	if (pEndCity == NULL)
+	{
+		pEndCity = pPlot->GetAdjacentCity();
+		if (pEndCity == NULL)
+		{
+			return NULL;
+		}
+	}
+
+	if (!pEndCity->CanSealift())
+	{
+		return NULL;
+	}
+	if (pEndCity->getOwner() == getOwner() || (GET_PLAYER(pEndCity->getOwner()).isMinorCiv() && GET_PLAYER(pEndCity->getOwner()).GetMinorCivAI()->GetAlly() == getOwner()))
+	{
+		return pPlot;
+	}
+	return NULL;
+}
+
+const CvPlot* CvUnit::getSealiftFromPlot(const CvPlot* pPlot, bool bIgnoreMoves) const
+{
+	VALIDATE_OBJECT();
+
+	// Early out if we're a trade unit
+	if (isTrade())
+	{
+		return NULL;
+	}
+
+	if (MOD_EVENTS_SEALIFT)
+	{
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanSealiftFrom, getOwner(), GetID(), pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_TRUE)
+		{
+			return pPlot;
+		}
+	}
+
+	if(getDomainType() != DOMAIN_LAND)
+	{
+		return NULL;
+	}
+
+	if(hasMoved() && !bIgnoreMoves)
+	{
+		return NULL;
+	}
+
+	// NYI
+	/*
+	// Are we stood on a friendly improvement that AllowsSealiftFrom
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		CvImprovementEntry *pkEntry = GC.getImprovementInfo(eImprovement);
+		if (pkEntry && pkEntry->IsAllowsSealiftFrom() && !pPlot->IsImprovementPillaged() && pPlot->IsFriendlyTerritory(getOwner()) && !pPlot->isVisibleEnemyUnit(getOwner()))
+		{
+			return pPlot;
+		}
+	}
+	*/
+
+	const CvPlot* pFromPlot = pPlot;
+
+	if (pPlot->isWater())
+	{
+		return NULL;
+	}
+
+	CvCity* pCity = pPlot->getPlotCity();
+	if(pCity == NULL)
+	{
+		pCity = pPlot->GetAdjacentCity();
+		if (pCity == NULL)
+		{
+			return NULL;
+		}
+		else
+		{
+			pFromPlot = pCity->plot();
+		}
+	}
+
+	if(pCity->getTeam() != getTeam())
+	{
+		return NULL;
+	}
+
+	if (!pCity->CanSealift())
+	{
+		return NULL;
+	}
+
+	return pFromPlot;
+}
+
+bool CvUnit::canSealiftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves) const
+{
+	VALIDATE_OBJECT();
+	const CvPlot* pFromPlot = getSealiftFromPlot(pPlot, bIgnoreMoves);
+	
+	if(pFromPlot == NULL)
+		return false;
+
+	CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
+	if (pPlot == pTargetPlot)
+		return false;
+
+	int iMoveFlags = CvUnit::MOVEFLAG_DESTINATION;
+	if(!pTargetPlot || !canMoveInto(*pTargetPlot, iMoveFlags) || pTargetPlot->isWater())
+	{
+		return false;
+	}
+
+	const CvPlot* pToPlot = getSealiftToPlot(pTargetPlot, pFromPlot->isCity());
+	if(pToPlot == NULL)
+		return false;
+
+	if (pToPlot == pFromPlot)
+		return false;
+
+	// We have valid endpoints, but are the cities connected by water?
+	CvCity* pCurrentCity = pFromPlot->getPlotCity();  // the origin city should be on this plot
+	if (pCurrentCity == NULL)
+	{
+		pCurrentCity = pFromPlot->GetAdjacentCity();  
+	}
+	CvCity* pTargetCity = pToPlot->getPlotCity();  // the target city might not be this plot specifically
+	if (pTargetCity == NULL)
+	{
+		// to get here, getSealiftToPlot cannot have failed. so this must populate correctly
+		pTargetCity = pToPlot->GetAdjacentCity();  
+	}
+	CvPlayer& kPlayer = GET_PLAYER(pCurrentCity->getOwner());
+	bool bWaterConnection = kPlayer.GetCityConnections()->AreCitiesDirectlyConnected(pCurrentCity, pTargetCity, CvCityConnections::CONNECTION_ANY_WATER);
+	if (!bWaterConnection)
+	{
+		return false;
+	}
+
+	// No enemy units adjacent
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(iX, iY, ((DirectionTypes)iI));
+		if(pAdjacentPlot != NULL)
+		{
+			CvUnit* pDefender = pAdjacentPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true);
+			if (pDefender)
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool CvUnit::sealift(int iX, int iY)
+{
+	VALIDATE_OBJECT();
+	CvPlot* pTargetPlot = NULL;
+
+	if(!canSealiftAt(plot(), iX, iY))
+	{
+		return false;
+	}
+
+	pTargetPlot = GC.getMap().plot(iX, iY);
+	ASSERT(pTargetPlot != NULL);
 
 	if(pTargetPlot != NULL)
 	{

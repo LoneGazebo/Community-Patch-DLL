@@ -2838,6 +2838,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_ITR_PRODUCTION", kBuildingInfo.AllowsProductionTradeRoutes);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_EXTRA_LUXURIES", kBuildingInfo.ExtraLuxuries);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_AIRLIFT", kBuildingInfo.Airlift);
+	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SEALIFT", kBuildingInfo.Sealift);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_REMOVE_OCCUPIED_UNHAPPINESS", kBuildingInfo.NoOccupiedUnhappiness);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_ADD_FRESH_WATER", kBuildingInfo.AddsFreshWater);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GAINLESS_PILLAGE", kBuildingInfo.CityGainlessPillage);

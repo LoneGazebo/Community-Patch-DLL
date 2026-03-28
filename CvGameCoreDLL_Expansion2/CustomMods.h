@@ -690,10 +690,13 @@
 //   GameEvents.AiOverrideChooseNextTech.Add(function(iPlayer, bFreeTech) return iChoosenTech end)
 #define MOD_EVENTS_AI_OVERRIDE_TECH									gCustomMods.isEVENTS_AI_OVERRIDE_TECH()
 
-// Events sent to ascertain if a unit can airlift from/to a specific plot
+// Events sent to ascertain if a unit can airlift or sealift from/to a specific plot
 //   GameEvents.CanAirliftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
 //   GameEvents.CanAirliftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
 #define MOD_EVENTS_AIRLIFT											gCustomMods.isEVENTS_AIRLIFT()
+//   GameEvents.CanSealiftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
+//   GameEvents.CanSealiftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
+#define MOD_EVENTS_SEALIFT											gCustomMods.isEVENTS_SEALIFT()
 
 // Events sent to ascertain if an area can have civ specific resources and to place those resources
 //   GameEvents.AreaCanHaveAnyResource.Add(function(iPlayer, iArea) return true end)
@@ -734,9 +737,11 @@
 //   GameEvents.CitySoldBuilding.Add(function(iPlayer, iCity, iBuilding) end)
 #define MOD_EVENTS_CITY												gCustomMods.isEVENTS_CITY()
 	
-// Event sent to ascertain if a city can perform airlifts
+// Event sent to ascertain if a city can perform airlifts and sealifts
 //   GameEvents.CityCanAirlift.Add(function(iPlayer, iCity) return false end)
 #define MOD_EVENTS_CITY_AIRLIFT										gCustomMods.isEVENTS_CITY_AIRLIFT()
+//   GameEvents.CityCanSealift.Add(function(iPlayer, iCity) return false end)
+#define MOD_EVENTS_CITY_SEALIFT										gCustomMods.isEVENTS_CITY_SEALIFT()
 
 // Events sent to ascertain the bombard range for a city, and if indirect fire is allowed
 //   GameEvents.GetBombardRange.Add(function(iPlayer, iCity) return (-1 * GameDefines.CITY_ATTACK_RANGE) end)
@@ -1212,6 +1217,8 @@ const char* ShortenFilePath(const char* szFile);
 #define GAMEEVENT_BattleStarted					"BattleStarted",				"iii"
 #define GAMEEVENT_CanAirliftFrom				"CanAirliftFrom",				"iiii"
 #define GAMEEVENT_CanAirliftTo					"CanAirliftTo",					"iiii"
+#define GAMEEVENT_CanSealiftFrom				"CanSealiftFrom",				"iiii"
+#define GAMEEVENT_CanSealiftTo					"CanSealiftTo",					"iiii"
 #define GAMEEVENT_CanDoCommand					"CanDoCommand",					"iiiiiiib"
 #define GAMEEVENT_CanHaveAnyUpgrade				"CanHaveAnyUpgrade",			"ii"
 #define GAMEEVENT_CanHavePromotion				"CanHavePromotion",				"iii"
@@ -1227,6 +1234,7 @@ const char* ShortenFilePath(const char* szFile);
 #define GAMEEVENT_CityBoughtPlot				"CityBoughtPlot",				"iiiibb"
 #define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
 #define GAMEEVENT_CityCanAirlift				"CityCanAirlift",				"ii"
+#define GAMEEVENT_CityCanSealift				"CityCanSealift",				"ii"
 #define GAMEEVENT_CityConnected					"CityConnected",				"iiiiib"
 #define GAMEEVENT_CityPuppeted					"CityPuppeted",					"ii"
 #define GAMEEVENT_CityConnections				"CityConnections",				"ib"
@@ -1728,6 +1736,7 @@ public:
 	MOD_OPT_DECL(EVENTS_ACQUIRE_BELIEFS);
 	MOD_OPT_DECL(EVENTS_AI_OVERRIDE_TECH);
 	MOD_OPT_DECL(EVENTS_AIRLIFT);
+	MOD_OPT_DECL(EVENTS_SEALIFT);
 	MOD_OPT_DECL(EVENTS_AREA_RESOURCES);
 	MOD_OPT_DECL(EVENTS_BARBARIANS);
 	MOD_OPT_DECL(EVENTS_BATTLES);
@@ -1736,6 +1745,7 @@ public:
 	MOD_OPT_DECL(EVENTS_CIRCUMNAVIGATION);
 	MOD_OPT_DECL(EVENTS_CITY);
 	MOD_OPT_DECL(EVENTS_CITY_AIRLIFT);
+	MOD_OPT_DECL(EVENTS_CITY_SEALIFT);
 	MOD_OPT_DECL(EVENTS_CITY_BOMBARD);
 	MOD_OPT_DECL(EVENTS_CITY_BORDERS);
 	MOD_OPT_DECL(EVENTS_CITY_CAPITAL);

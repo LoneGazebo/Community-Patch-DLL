@@ -12,7 +12,7 @@ local MOVE_DENOMINATOR = GameDefines.MOVE_DENOMINATOR;
 -------------------------------------------------
 --- @param node PathNode
 --- @param bShowRemainingMoves boolean
-local function BuildNode(node, bShowRemainingMoves, bAirlift, bChangePort)
+local function BuildNode(node, bShowRemainingMoves, bAirlift, bSealift, bChangePort)
 	local instance = instanceManager:GetInstance();
 
 	local bIsStopNode = false
@@ -46,6 +46,8 @@ local function BuildNode(node, bShowRemainingMoves, bAirlift, bChangePort)
 
 		if bAirlift then
 			instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_AIRLIFT");
+		elseif bSealift then
+			instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_SEALIFT");
 		elseif bChangePort then
 			instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_CHANGE_PORT");
 		elseif iMoves == 0 then
@@ -87,6 +89,7 @@ Events.UIPathFinderUpdate.Add(function (tPath)
 	local pSelectedUnit = UI.GetHeadSelectedUnit()
 
 	local tAirlift = {};
+	local tSealift = {};
 	local tChangePort = {};
 	if pSelectedUnit then
 		local bIsLand = pSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_LAND;
@@ -98,6 +101,8 @@ Events.UIPathFinderUpdate.Add(function (tPath)
 				if bIsLand then
 					tAirlift[i]     = true;
 					tAirlift[i + 1] = true;
+					tSealift[i]     = true;
+					tSealift[i + 1] = true;
 				elseif bIsSea then
 					tChangePort[i]     = true;
 					tChangePort[i + 1] = true;
@@ -108,7 +113,7 @@ Events.UIPathFinderUpdate.Add(function (tPath)
 
 	for i = #tPath, 1, -1 do
 		local node = tPath[i]
-		BuildNode(node, i == #tPath, tAirlift[i] or false, tChangePort[i] or false);
+		BuildNode(node, i == #tPath, tAirlift[i] or tSealift[i] or false, tChangePort[i] or false);
 	end
 
 end);

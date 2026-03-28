@@ -90,6 +90,8 @@ protected:
 
 	static int lCanAirlift(lua_State* L);
 	static int lCanAirliftAt(lua_State* L);
+	static int lCanSealift(lua_State* L);
+	static int lCanSealiftAt(lua_State* L);
 
 	static int lIsNukeVictim(lua_State* L);
 	static int lCanNuke(lua_State* L);

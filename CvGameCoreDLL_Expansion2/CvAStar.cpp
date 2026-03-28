@@ -122,6 +122,7 @@ CvAStar::CvAStar()
       m_iTurnsCached(0),
 	  m_bAirliftCitiesChecked(false),
 	  m_bAirliftImprovementsChecked(false),
+	  m_bSealiftCitiesChecked(false),
 	  m_bChangePortCitiesChecked(false),
       m_strName("AStar") // for debugging
 {
@@ -256,6 +257,7 @@ void CvAStar::Reset()
 
 	m_bAirliftCitiesChecked = false;
 	m_bAirliftImprovementsChecked = false;
+	m_bSealiftCitiesChecked = false;
 	m_bChangePortCitiesChecked = false;
 
 	//will be set multiple times but who cares
@@ -584,6 +586,8 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 				SetAirliftCitiesChecked(true);
 			else if (node->m_kCostCacheData.bCanAirliftFromPlotImprovement)
 				SetAirliftImprovementsChecked(true);
+			if (node->m_kCostCacheData.bCanSealiftFromPlotCity)
+				SetSealiftCitiesChecked(true);
 			else if (node->m_kCostCacheData.bCanChangePortFromPlot)
 				SetChangePortCitiesChecked(true);
 		}
@@ -953,6 +957,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	const CvPlot* pAirliftFromPlot = pUnit->getAirliftFromPlot(pPlot, true);
 	kToNodeCacheData.bCanAirliftFromPlotCity = pAirliftFromPlot && pAirliftFromPlot->isCity();
 	kToNodeCacheData.bCanAirliftFromPlotImprovement = pAirliftFromPlot && !pAirliftFromPlot->isCity();
+	const CvPlot* pSealiftFromPlot = pUnit->getSealiftFromPlot(pPlot, true);
+	kToNodeCacheData.bCanSealiftFromPlotCity = pSealiftFromPlot && pSealiftFromPlot->isCity();
 	kToNodeCacheData.bCanChangePortFromPlot = pUnit->canChangeAdmiralPort(pPlot);
 
 	kToNodeCacheData.bIsVisibleEnemyUnit = false;
@@ -2263,6 +2269,55 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 
 		// todo: improvements that allow airlift
 
+	}	
+	else if (node->m_kCostCacheData.bCanSealiftFromPlotCity)
+	{
+		// only with full moves
+		if (node->m_iMoves != pUnit->baseMoves(false) * GD_INT_GET(MOVE_DENOMINATOR) && node->m_iMoves != 0)
+			return 0;
+
+		if (node->m_kCostCacheData.bCanSealiftFromPlotCity)
+		{
+			// sealift target plots only need to be checked once during pathfinding. they don't depend on the starting plot so considering them early is always better
+			if (finder->IsSealiftCitiesChecked())
+				return 0;
+			
+			// valid targets are all sealift cities owned by us or our minor civ allies
+			vector<PlayerTypes> vFriendlyPlayers;
+			vFriendlyPlayers.push_back(ePlayer);
+			for (uint iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+
+				if (!GET_PLAYER(eMinor).isAlive())
+					continue;
+
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == ePlayer)
+					vFriendlyPlayers.push_back(eMinor);
+			}
+
+			for (vector<PlayerTypes>::iterator it = vFriendlyPlayers.begin(); it != vFriendlyPlayers.end(); ++it)
+			{
+				int iCityLoop;
+				CvCity* pLoopCity = NULL;
+				for (pLoopCity = GET_PLAYER(*it).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iCityLoop))
+				{
+					if (!pLoopCity->CanSealift())
+						continue;
+
+					CvPlot* pCityPlot = pLoopCity->plot();
+					for (int i = 0; i < RING1_PLOTS; i++)
+					{
+						CvPlot* pLoopPlot = iterateRingPlots(pCityPlot, i);
+						if (!pLoopPlot)
+							continue;
+
+						if (pUnit->canSealiftAt(pPlot, pLoopPlot->getX(), pLoopPlot->getY(), true))
+							out.push_back(make_pair(pLoopPlot->getX(), pLoopPlot->getY()));
+					}
+				}
+			}
+		}
 	}
 	else if (node->m_kCostCacheData.bCanChangePortFromPlot)
 	{
@@ -2956,8 +3011,9 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	}
 
 	bool bAirlift = current->m_kCostCacheData.bCanAirliftFromPlotCity || current->m_kCostCacheData.bCanAirliftFromPlotImprovement;
+	bool bSealift = current->m_kCostCacheData.bCanSealiftFromPlotCity;
 
-	if (bBlockAhead || bTempPlotAhead || bAttrition || bAirlift)
+	if (bBlockAhead || bTempPlotAhead || bAttrition || bAirlift || bSealift)
 	{
 		CvPlot* pToPlot = GC.getMap().plot(current->m_iX, current->m_iY);
 		int iEndTurnCost = PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns, GetData().iFlags);

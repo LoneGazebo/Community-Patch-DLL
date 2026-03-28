@@ -347,6 +347,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(INTERFACEMODE_MOVE_TO_ALL);
 	RegisterEnum(INTERFACEMODE_ROUTE_TO);
 	RegisterEnum(INTERFACEMODE_AIRLIFT);
+	RegisterEnum(INTERFACEMODE_SEALIFT);
 	RegisterEnum(INTERFACEMODE_NUKE);
 	RegisterEnum(INTERFACEMODE_PARADROP);
 	RegisterEnum(INTERFACEMODE_ATTACK);

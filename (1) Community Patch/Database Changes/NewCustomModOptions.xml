@@ -790,6 +790,10 @@
 		<!--   GameEvents.CanAirliftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
 		<!--   GameEvents.CanAirliftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
 		<Row Class="3" Name="EVENTS_AIRLIFT" Value="0"/>
+		<!-- Events sent to ascertain if a unit can sealift from/to a specific plot -->
+		<!--   GameEvents.CanSealiftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
+		<!--   GameEvents.CanSealiftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end) -->
+		<Row Class="3" Name="EVENTS_SEALIFT" Value="0"/>
 
 		<!-- Events sent to ascertain if an area can have civ specific resources and to place those resources -->
 		<!--   GameEvents.AreaCanHaveAnyResource.Add(function(iPlayer, iArea) return true end) -->

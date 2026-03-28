@@ -741,6 +741,7 @@ public:
 	void changeFreeExperience(int iChange);
 
 	bool CanAirlift() const;
+	bool CanSealift() const;
 
 	int GetMaxAirUnits() const;
 	void ChangeMaxAirUnits(int iChange);
