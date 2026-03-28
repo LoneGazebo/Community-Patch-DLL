@@ -15688,7 +15688,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		if (iLiberationMod > 0)
 		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * iLiberationMod * 2;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachScores[CIV_APPROACH_FRIENDLY] > 0 ?
+				(vApproachBias[CIV_APPROACH_FRIENDLY] * iLiberationMod * 2) :
+				(-vApproachBias[CIV_APPROACH_FRIENDLY] * iLiberationMod * 2));
 			vApproachScores[CIV_APPROACH_WAR] = 0;
 			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 			vApproachScores[CIV_APPROACH_DECEPTIVE] = 0;
@@ -15702,34 +15704,60 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Each of these set all non-FRIENDLY approaches to -1x their bias value (-2x for both)
 			if (bLiberatedCapital && bLiberatedHolyCity)
 			{
-				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 15;
-				vApproachScores[CIV_APPROACH_WAR] = -vApproachBias[CIV_APPROACH_WAR] * 2;
-				vApproachScores[CIV_APPROACH_HOSTILE] = -vApproachBias[CIV_APPROACH_HOSTILE] * 2;
-				vApproachScores[CIV_APPROACH_DECEPTIVE] = -vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
-				vApproachScores[CIV_APPROACH_GUARDED] = -vApproachBias[CIV_APPROACH_GUARDED] * 2;
-				vApproachScores[CIV_APPROACH_AFRAID] = -vApproachBias[CIV_APPROACH_AFRAID] * 2;
-				vApproachScores[CIV_APPROACH_NEUTRAL] = -vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
+				vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachScores[CIV_APPROACH_FRIENDLY] > 0 ?
+					(vApproachBias[CIV_APPROACH_FRIENDLY] *15) : // +
+					(-vApproachBias[CIV_APPROACH_FRIENDLY] *15));
+				vApproachScores[CIV_APPROACH_HOSTILE] += (vApproachScores[CIV_APPROACH_HOSTILE] > 0 ?
+					(-vApproachBias[CIV_APPROACH_HOSTILE] *2) : // -
+					(vApproachBias[CIV_APPROACH_HOSTILE] *2));
+				vApproachScores[CIV_APPROACH_DECEPTIVE] += (vApproachScores[CIV_APPROACH_DECEPTIVE] > 0 ?
+					(-vApproachBias[CIV_APPROACH_DECEPTIVE] *2) :
+					(vApproachBias[CIV_APPROACH_DECEPTIVE] *2));
+				vApproachScores[CIV_APPROACH_GUARDED] += (vApproachScores[CIV_APPROACH_GUARDED] > 0 ?
+					(-vApproachBias[CIV_APPROACH_GUARDED] *2) :
+					(vApproachBias[CIV_APPROACH_GUARDED] *2));
+				vApproachScores[CIV_APPROACH_AFRAID] += (vApproachScores[CIV_APPROACH_AFRAID] > 0 ?
+					(-vApproachBias[CIV_APPROACH_AFRAID] *2) :
+					(vApproachBias[CIV_APPROACH_AFRAID] *2));
+				vApproachScores[CIV_APPROACH_NEUTRAL] += (vApproachScores[CIV_APPROACH_NEUTRAL] > 0 ?
+					(-vApproachBias[CIV_APPROACH_NEUTRAL] *2) :
+					(vApproachBias[CIV_APPROACH_NEUTRAL] *2));
 			}
 			else
 			{
-				vApproachScores[CIV_APPROACH_FRIENDLY] += bLiberatedCapital ? vApproachBias[CIV_APPROACH_FRIENDLY] * 10 : vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
-				vApproachScores[CIV_APPROACH_WAR] = -vApproachBias[CIV_APPROACH_WAR];
-				vApproachScores[CIV_APPROACH_HOSTILE] = -vApproachBias[CIV_APPROACH_HOSTILE];
-				vApproachScores[CIV_APPROACH_DECEPTIVE] = -vApproachBias[CIV_APPROACH_DECEPTIVE];
-				vApproachScores[CIV_APPROACH_GUARDED] = -vApproachBias[CIV_APPROACH_GUARDED];
-				vApproachScores[CIV_APPROACH_AFRAID] = -vApproachBias[CIV_APPROACH_AFRAID];
-				vApproachScores[CIV_APPROACH_NEUTRAL] = -vApproachBias[CIV_APPROACH_NEUTRAL];
+				vApproachScores[CIV_APPROACH_FRIENDLY] += bLiberatedCapital ?
+					vApproachBias[CIV_APPROACH_FRIENDLY] * 10 :
+					vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+				vApproachScores[CIV_APPROACH_HOSTILE] += (vApproachScores[CIV_APPROACH_HOSTILE] > 0 ?
+					(-vApproachBias[CIV_APPROACH_HOSTILE]) :
+					(vApproachBias[CIV_APPROACH_HOSTILE] ));
+				vApproachScores[CIV_APPROACH_DECEPTIVE] += (vApproachScores[CIV_APPROACH_DECEPTIVE] > 0 ?
+					(-vApproachBias[CIV_APPROACH_DECEPTIVE]) :
+					(vApproachBias[CIV_APPROACH_DECEPTIVE] ));
+				vApproachScores[CIV_APPROACH_GUARDED] += (vApproachScores[CIV_APPROACH_GUARDED] > 0 ?
+					(-vApproachBias[CIV_APPROACH_GUARDED]) :
+					(vApproachBias[CIV_APPROACH_GUARDED] ));
+				vApproachScores[CIV_APPROACH_AFRAID] += (vApproachScores[CIV_APPROACH_AFRAID] > 0 ?
+					(-vApproachBias[CIV_APPROACH_AFRAID]) :
+					(vApproachBias[CIV_APPROACH_AFRAID] ));
+				vApproachScores[CIV_APPROACH_NEUTRAL] += (vApproachScores[CIV_APPROACH_NEUTRAL] > 0 ?
+					(-vApproachBias[CIV_APPROACH_NEUTRAL]) :
+					(vApproachBias[CIV_APPROACH_NEUTRAL] ));
 			}
 		}
 		// Returned the capital?
 		if (!bLiberatedCapital && IsPlayerReturnedCapital(ePlayer))
 		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachScores[CIV_APPROACH_FRIENDLY] > 0 ?
+				(vApproachBias[CIV_APPROACH_FRIENDLY] *5) :
+				(-vApproachBias[CIV_APPROACH_FRIENDLY] *5));	
 		}
 		// Returned the Holy City?
 		if (!bLiberatedHolyCity && IsPlayerReturnedHolyCity(ePlayer))
 		{
-			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 3;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachScores[CIV_APPROACH_FRIENDLY] > 0 ?
+				(vApproachBias[CIV_APPROACH_FRIENDLY] *3) :
+				(-vApproachBias[CIV_APPROACH_FRIENDLY] *3));
 		}
 	}
 
@@ -15742,26 +15770,59 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (bResurrectedUs || bResurrectedThem)
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] += bResurrectedUs && bResurrectedThem ? vApproachBias[CIV_APPROACH_FRIENDLY] * max(20, 10 + GetLoyalty() * 2) : vApproachBias[CIV_APPROACH_FRIENDLY] * max(10, GetLoyalty() + 5);
+		if (bResurrectedUs && bResurrectedThem) {
+			vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachScores[CIV_APPROACH_FRIENDLY] > 0 ?
+				(vApproachBias[CIV_APPROACH_FRIENDLY] * max(20, 10 + GetLoyalty() * 2)) :
+				(-vApproachBias[CIV_APPROACH_FRIENDLY] * max(20, 10 + GetLoyalty() * 2)));	
+		}
+		else {
+			vApproachScores[CIV_APPROACH_FRIENDLY] += (vApproachScores[CIV_APPROACH_FRIENDLY] > 0 ?
+				(vApproachBias[CIV_APPROACH_FRIENDLY] * max(10, GetLoyalty() + 5)) :
+				(-vApproachBias[CIV_APPROACH_FRIENDLY] * max(10, GetLoyalty() + 5)));	
+		}
 
 		// Subtract instead of setting if there's a liberation bonus above
 		if (bLiberatedCapital || bLiberatedHolyCity)
 		{
-			vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 2;
-			vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * 2;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
-			vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * 2;
-			vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * 2;
-			vApproachScores[CIV_APPROACH_NEUTRAL] -= vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
+			vApproachScores[CIV_APPROACH_WAR] += (vApproachScores[CIV_APPROACH_WAR] > 0 ?
+				(-vApproachBias[CIV_APPROACH_WAR] *2) :
+				(vApproachBias[CIV_APPROACH_WAR] *2));
+			vApproachScores[CIV_APPROACH_HOSTILE] += (vApproachScores[CIV_APPROACH_HOSTILE] > 0 ?
+				(-vApproachBias[CIV_APPROACH_HOSTILE] *2) :
+				(vApproachBias[CIV_APPROACH_HOSTILE] *2));
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += (vApproachScores[CIV_APPROACH_DECEPTIVE] > 0 ?
+				(-vApproachBias[CIV_APPROACH_DECEPTIVE] *2) :
+				(vApproachBias[CIV_APPROACH_DECEPTIVE] *2));
+			vApproachScores[CIV_APPROACH_GUARDED] += (vApproachScores[CIV_APPROACH_GUARDED] > 0 ?
+				(-vApproachBias[CIV_APPROACH_GUARDED] *2) :
+				(vApproachBias[CIV_APPROACH_GUARDED] *2));
+			vApproachScores[CIV_APPROACH_AFRAID] += (vApproachScores[CIV_APPROACH_AFRAID] > 0 ?
+				(-vApproachBias[CIV_APPROACH_AFRAID] *2) :
+				(vApproachBias[CIV_APPROACH_AFRAID] *2));
+			vApproachScores[CIV_APPROACH_NEUTRAL] += (vApproachScores[CIV_APPROACH_NEUTRAL] > 0 ?
+				(-vApproachBias[CIV_APPROACH_NEUTRAL] *2) :
+				(vApproachBias[CIV_APPROACH_NEUTRAL] *2));
 		}
 		else
 		{
-			vApproachScores[CIV_APPROACH_WAR] = -vApproachBias[CIV_APPROACH_WAR] * 2;
-			vApproachScores[CIV_APPROACH_HOSTILE] = -vApproachBias[CIV_APPROACH_HOSTILE] * 2;
-			vApproachScores[CIV_APPROACH_DECEPTIVE] = -vApproachBias[CIV_APPROACH_DECEPTIVE] * 2;
-			vApproachScores[CIV_APPROACH_GUARDED] = -vApproachBias[CIV_APPROACH_GUARDED] * 2;
-			vApproachScores[CIV_APPROACH_AFRAID] = -vApproachBias[CIV_APPROACH_AFRAID] * 2;
-			vApproachScores[CIV_APPROACH_NEUTRAL] = -vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
+			vApproachScores[CIV_APPROACH_WAR] += (vApproachScores[CIV_APPROACH_WAR] > 0 ?
+				(-vApproachBias[CIV_APPROACH_WAR] *3)/2 : 
+				(vApproachBias[CIV_APPROACH_WAR] *3)/2);
+			vApproachScores[CIV_APPROACH_HOSTILE] += (vApproachScores[CIV_APPROACH_HOSTILE] > 0 ?
+				(-vApproachBias[CIV_APPROACH_HOSTILE] *3)/2 : 
+				(vApproachBias[CIV_APPROACH_HOSTILE] *3)/2);
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += (vApproachScores[CIV_APPROACH_DECEPTIVE] > 0 ?
+				(-vApproachBias[CIV_APPROACH_DECEPTIVE] *3)/2 :
+				(vApproachBias[CIV_APPROACH_DECEPTIVE] *3)/2);
+			vApproachScores[CIV_APPROACH_GUARDED] += (vApproachScores[CIV_APPROACH_GUARDED] > 0 ?
+				(-vApproachBias[CIV_APPROACH_GUARDED] *3)/2 :
+				(vApproachBias[CIV_APPROACH_GUARDED] *3)/2);
+			vApproachScores[CIV_APPROACH_AFRAID] += (vApproachScores[CIV_APPROACH_AFRAID] > 0 ?
+				(-vApproachBias[CIV_APPROACH_AFRAID] *3)/2 :
+				(vApproachBias[CIV_APPROACH_AFRAID] *3)/2);
+			vApproachScores[CIV_APPROACH_NEUTRAL] += (vApproachScores[CIV_APPROACH_NEUTRAL] > 0 ?
+				(-vApproachBias[CIV_APPROACH_NEUTRAL] *3)/2 :
+				(vApproachBias[CIV_APPROACH_NEUTRAL] *3)/2);
 		}
 	}
 
