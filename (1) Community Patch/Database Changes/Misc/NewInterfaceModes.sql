@@ -1,0 +1,26 @@
+INSERT INTO InterfaceModes
+  (Type,
+  Description,
+  Help,
+  CursorType,
+  Mission,
+  HotKey,
+  OrderPriority,
+  ShiftDown,
+  Visible,
+  HighlightPlot,
+  IconIndex,
+  IconAtlas)
+VALUES
+  ('INTERFACEMODE_SEALIFT',
+  'TXT_KEY_INTERFACEMODE_SEALIFT',
+  'TXT_KEY_INTERFACEMODE_SEALIFT_HELP',
+  'CURSOR_GO_TO',
+  'MISSION_SEALIFT',
+  'KB_T',
+  197,
+  1,
+  1,
+  1,
+  16,
+  'UNIT_ACTION_ATLAS');
