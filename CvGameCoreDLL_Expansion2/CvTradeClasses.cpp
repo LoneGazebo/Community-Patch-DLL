@@ -6870,8 +6870,12 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_GOLD_INTERNAL)
 		return ret;
 
+	// Check for trade route invulnerability (corporate franchise)
+	CvCorporationEntry* pkCorporationInfo = m_pPlayer->GetCorporations()->GetCorporationEntry();
+	bool bInvulnerability = pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable();
+
 	// if this was recently plundered, 0 the score
-	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
+	if (!bInvulnerability && m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
 		return ret;
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
@@ -7044,7 +7048,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 
 	// Danger estimation based on path length - full path iteration would exhaust memory
 	int iDangerSum = 1; // can't be zero because we divide by it!
-	if (pPathInfo && pPathInfo->iPathLength > 0)
+	if (!bInvulnerability && pPathInfo && pPathInfo->iPathLength > 0)
 	{
 		// Gold internal routes may pass through some foreign territory
 		// Estimate ~30% in potentially dangerous areas
@@ -7060,7 +7064,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 		}
 	}
 
-	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
+	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More internal gold trade late game
 	iScore = (iScore * iEra) / iDangerSum;
 
 	//finally
