@@ -29,8 +29,8 @@
 			<Build>false</Build>
 			<Sound>false</Sound>
 			<EntityEventType>ENTITY_EVENT_GREAT_EVENT</EntityEventType>
-			<IconIndex>16</IconIndex>
-			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
+			<IconIndex>7</IconIndex>
+			<IconAtlas>POLICY_ATLAS_EXP2</IconAtlas>
 		</Row>
 	</Missions>
 </GameData>
