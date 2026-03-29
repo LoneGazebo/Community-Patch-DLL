@@ -520,6 +520,7 @@
     <File md5="AAA176E4128E36358D0123F0D6C7CD3A" import="0">Database Changes/CoreWorldChanges.sql</File>
     <File md5="F18A37227B71DC4483AA2519DDC888E8" import="0">Database Changes/GameSpeedTableChanges.sql</File>
     <File md5="48C20B3BC16D3C6749CA45B17EE66CF3" import="0">Database Changes/Misc/MissionsChanges.sql</File>
+    <File md5="9CF0760FB010FF8FD34BC5FE69A0AF7E" import="0">Database Changes/Misc/NewInterfaceModes.sql</File>
     <File md5="57A0FAC0A6E97ECBD37E985765BF611A" import="0">Database Changes/NewCustomModOptions.xml</File>
     <File md5="8153D8E5171C94B5F8EF5CC44BFE8D63" import="0">Database Changes/NewEnums.xml</File>
     <File md5="476D91532E8B5E9B97198D943F101FFD" import="0">Database Changes/NewEnumTables.xml</File>
@@ -621,6 +622,7 @@
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
     <File md5="963BCBD798B71ADD3D8835633328F883" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
     <File md5="120871D9F4FED768C000B533D1AC16D2" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
+    <File md5="79848EA948C513D8468ACE4DEE928437" import="0">Database Changes/Text/en_US/UI/NewInterfaceModeText.xml</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
     <File md5="C0C038A53F42B3910523E39C54AEA5BA" import="0">Database Changes/Text/en_US/Units/CoreMissionTextChanges.sql</File>
@@ -825,6 +827,8 @@
       <UpdateDatabase>Database Changes\Difficulty\DifficultyTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Minors\MinorQuestTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Minors\MinorTableChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Misc\MissionsChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Misc\NewInterfaceModes.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Notifications\CoreNewNotifications.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Policies\PolicyTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Religions\BeliefTableChanges.sql</UpdateDatabase>
@@ -924,7 +928,6 @@
       <UpdateDatabase>Database Changes\Text\en_US\Concepts\CoreNewConceptText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Espionage\CoreNewEspionageText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Notifications\CoreNewNotificationText.xml</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Text\en_US\UI\CoreNewUIText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\UnitPromotions\CoreNewPromotionText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Units\CoreNewUnitText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\WorldMap\CoreNewGoodyHutText.xml</UpdateDatabase>
@@ -940,7 +943,9 @@
       <UpdateDatabase>Database Changes\Text\en_US\Notifications\CoreNotificationTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Policies\CorePolicyTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Religions\CoreReligionTextChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Text\en_US\UI\CoreNewUIText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\UI\CoreUITextChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Text\en_US\UI\NewInterfaceModeText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\UnitPromotions\CorePromotionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Units\CoreMissionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Units\CoreSpecialUnitTextChanges.sql</UpdateDatabase>
