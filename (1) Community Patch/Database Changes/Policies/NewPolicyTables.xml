@@ -399,4 +399,11 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	
+	<!-- POLICY: City tiles gain additional yields per monopoly owned. It does not scale with era. -->	
+	<Table name="Policy_CityYieldPerMonopoly">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 </GameData>
