@@ -8302,9 +8302,9 @@ int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnor
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canAirlift(const CvPlot* pPlot) const
+bool CvUnit::canAirlift(const CvPlot* pPlot, bool bIgnoreMoves) const
 {
-	return (getAirliftFromPlot(pPlot) != NULL);
+	return (getAirliftFromPlot(pPlot, bIgnoreMoves) != NULL);
 }
 
 const CvPlot* CvUnit::getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities) const
@@ -8352,7 +8352,7 @@ const CvPlot* CvUnit::getAirliftToPlot(const CvPlot* pPlot, bool bIncludeCities)
 	return NULL;
 }
 
-const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot) const
+const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot, bool bIgnoreMoves) const
 {
 	VALIDATE_OBJECT();
 
@@ -8375,7 +8375,7 @@ const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot) const
 		return NULL;
 	}
 
-	if(hasMoved())
+	if(hasMoved() && !bIgnoreMoves)
 	{
 		return NULL;
 	}
@@ -8427,15 +8427,18 @@ const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY) const
+bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves) const
 {
 	VALIDATE_OBJECT();
-	const CvPlot* pFromPlot = getAirliftFromPlot(pPlot);
+	const CvPlot* pFromPlot = getAirliftFromPlot(pPlot, bIgnoreMoves);
 	
 	if(pFromPlot == NULL)
 		return false;
 
 	CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
+	if (pPlot == pTargetPlot)
+		return false;
+
 	int iMoveFlags = CvUnit::MOVEFLAG_DESTINATION;
 	if(!pTargetPlot || !canMoveInto(*pTargetPlot, iMoveFlags) || pTargetPlot->isWater())
 	{
@@ -20205,7 +20208,14 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 	if(pOldPlot != NULL)
 	{
-		pOldPlot->removeUnit(this, bUpdate);
+		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
+			pOldPlot->removeUnit(this, bUpdate);
+		else
+		{
+			GC.getMap().plotManager().RemoveUnit(GetIDInfo(), m_iX, m_iY, m_iMapLayer);
+			if (bUpdate)
+				pOldPlot->updateCenterUnit();
+		}
 		// if leaving a city, reveal the unit
 		if (pOldPlot->isCity())
 		{

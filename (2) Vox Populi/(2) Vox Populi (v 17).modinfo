@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(5.2.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.2.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -1008,7 +1008,6 @@
     <File md5="EBC507153D12C389B3838E94502A16EF" import="1">Assets/WTC_Quote.mp3</File>
     <File md5="63B3FC73D1D8FFBF6CAEC7AA481AD2DA" import="1">Core Files/Core Changes/farm_types.xml</File>
     <File md5="5E37DC7960391AFF4F89851AC22A1192" import="0">Core Files/New Lua/CBP_IncaFunctions.lua</File>
-    <File md5="C79D2B0F5CFE63C70E97D0B5EC9515C5" import="0">Core Files/New Lua/Destination.lua</File>
     <File md5="CE52E119CFD1431AA48DD2E97F31B083" import="0">Core Files/New Lua/GlobalArchaeologistDigSites.lua</File>
     <File md5="216309B0B9233E74B23607770CF5A3C1" import="0">Core Files/New UI/CorporationsOverview.lua</File>
     <File md5="3CF35ECEFB559061135F455F2FEE933D" import="0">Core Files/New UI/CorporationsOverview.xml</File>
@@ -1017,7 +1016,7 @@
     <File md5="DFCE5C53AF9183F80447B755EE496B37" import="1">Core Files/New UI/OverlayAntiquities_MiniMapOverlayHook.lua</File>
     <File md5="96C27AF77D72860B6BCB0D22257A3F82" import="0">Core Files/New UI/RandomVCPopup.lua</File>
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="0">Core Files/New UI/RandomVCPopup.xml</File>
-    <File md5="A226FDB1FE6F38BF20426130073E12FE" import="0">Core Files/New UI/VassalageOverview.lua</File>
+    <File md5="5931374F09F2627F11BECB1EB69351DE" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
     <File md5="CF305A78607C562EE5417CE15ED81C2A" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
     <File md5="FFE3EACD6A5F007D90AF95EC7E7E7DF0" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.lua</File>
@@ -1052,12 +1051,12 @@
     <File md5="252CF7B30C29EDDB13DE924B209CA71F" import="1">Core Files/Overrides/GPList.xml</File>
     <File md5="6D5F67979B18C4C6B38CA4B305C30F4E" import="1">Core Files/Overrides/LeagueOverview.lua</File>
     <File md5="D1B2B6362725A779E49BAD0C8366DE6A" import="1">Core Files/Overrides/LeagueOverview.xml</File>
-    <File md5="34417B5186889A9FDF70AE6CB9462FC6" import="1">Core Files/Overrides/MilitaryOverview.lua</File>
-    <File md5="7968D27D6CC4E4D75755B09655777F87" import="1">Core Files/Overrides/MilitaryOverview.xml</File>
+    <File md5="E1D019500FD04EBB79E3CC5D7355354F" import="1">Core Files/Overrides/MilitaryOverview.lua</File>
+    <File md5="7511B482099F9BDF658DB37E389BFD79" import="1">Core Files/Overrides/MilitaryOverview.xml</File>
     <File md5="A9FEDE41B8D28348DDD9FD51E905C096" import="1">Core Files/Overrides/NaturalWonderPopup.lua</File>
     <File md5="37A831378B37D512F4A0234BEEE438E7" import="1">Core Files/Overrides/NaturalWondersCustomMethods.lua</File>
     <File md5="0BA1D72BEF651B61159D467B9DF261EE" import="1">Core Files/Overrides/PlotMouseoverInclude.lua</File>
-    <File md5="DF9EA7B2F332767731916C7411A13679" import="1">Core Files/Overrides/PuppetCityPopup.lua</File>
+    <File md5="B927123EF07E5049331A8BA956E3F072" import="1">Core Files/Overrides/PuppetCityPopup.lua</File>
     <File md5="5D08BC8926176FD7F7081872EBB56472" import="1">Core Files/Overrides/ResourceTooltipGenerator.lua</File>
     <File md5="352496DB8FAFE591D7DF1A9A50221180" import="1">Core Files/Overrides/SelectCivilization.xml</File>
     <File md5="843D7699FF75E54BD4DDB3C5FA02851F" import="1">Core Files/Overrides/SelectCivilization.lua</File>
@@ -1065,11 +1064,11 @@
     <File md5="721C4142F9A38E92D58532486E244098" import="1">Core Files/Overrides/TradeRouteOverview.lua</File>
     <File md5="AB738F4C7D7411D8A21F9D9EC84F7570" import="1">Core Files/Overrides/TradeRouteOverview.xml</File>
     <File md5="F90593F334CFDB26DB2F3F458AF91D11" import="1">Core Files/Overrides/UniqueBonuses.lua</File>
-    <File md5="B7428C0319654F4103D0632E47FBDA44" import="1">Core Files/Overrides/VictoryProgress.lua</File>
+    <File md5="FCFC1D78C16242F2FACFDE27FF45976A" import="1">Core Files/Overrides/VictoryProgress.lua</File>
     <File md5="1789009F209A70B6EBE6CB940152CCF4" import="1">Core Files/Overrides/VictoryProgress.xml</File>
     <File md5="BC174D7E8CBD73F3B962BC1409BD0A67" import="1">Core Files/Overrides/WhosWinningPopup.lua</File>
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">Core Files/Overrides/WonderPopup.xml</File>
-    <File md5="F95E1FBA36D997CA4720276C0FE6F9D8" import="1">Core Files/Overrides/WorldView.lua</File>
+    <File md5="431A4414E65991EB5D6DA51F6821BF6E" import="1">Core Files/Overrides/WorldView.lua</File>
     <File md5="B8154509610E5E728F810CF89C5439F6" import="0">Database Changes/CustomModOptionChanges.sql</File>
     <File md5="CF609325CA9B8C3B6534641EA99F5D01" import="0">Database Changes/DefineChanges.sql</File>
     <File md5="2072A29CFA5EF05BF91A1C66999F7A14" import="0">Database Changes/GameOptionChanges.sql</File>
@@ -1112,11 +1111,11 @@
     <File md5="4B3F2E301FB97666618334725D7350E2" import="0">Database Changes/Beliefs/ReformationChanges.sql</File>
     <File md5="392D98709B24AD128672096EFA028553" import="0">Database Changes/Beliefs/TooltipSweeps.sql</File>
     <File md5="044A57B02AC7076B0E8C07B084B2C66D" import="0">Database Changes/City/NewGreatWorks.xml</File>
-    <File md5="81395700C49CFA42C58046819941869B" import="0">Database Changes/City/Buildings/BuildingChanges.sql</File>
+    <File md5="24AE6D1695F9FB5D456C84B184A374C2" import="0">Database Changes/City/Buildings/BuildingChanges.sql</File>
     <File md5="8FF9A6AB81768A62DA324BC08463F020" import="0">Database Changes/City/Buildings/BuildingChanges2.sql</File>
     <File md5="AF22C6AE8CE8E5053197B3C48B9C5473" import="0">Database Changes/City/Buildings/BuildingCostSweeps.sql</File>
-    <File md5="6904660E1403EFCD89FC19BB8777343C" import="0">Database Changes/City/Buildings/BuildingSweeps.sql</File>
-    <File md5="DFC5912F8EE3813F5780D2CAB99962D3" import="0">Database Changes/City/Buildings/NewBuildings.xml</File>
+    <File md5="1FDC12A8047C87DD3B8D827F2FDCEE54" import="0">Database Changes/City/Buildings/BuildingSweeps.sql</File>
+    <File md5="198F4489FDF9A3960CA3A75080E4CB51" import="0">Database Changes/City/Buildings/NewBuildings.xml</File>
     <File md5="B7F92B5E33C94BC0D868D5766ADFBC7B" import="0">Database Changes/City/Buildings/PreBuildingChanges.sql</File>
     <File md5="C6E5CF97A0C9DF176CA9BE3F895E351A" import="0">Database Changes/City/Processes/NewProcesses.xml</File>
     <File md5="D1ADDA25FC17F87EE8171FEC6C6A7A56" import="0">Database Changes/City/Processes/ProcessChanges.sql</File>
@@ -1315,7 +1314,7 @@
     <File md5="A23646BECF67B6CEC1F027F426EEAC32" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
     <File md5="AEAD2BC36064820D024E647F7E8C98F1" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="46D884B6FEBBECFD3D7A96EF5F3541FD" import="1">LUA/DiploList.lua</File>
+    <File md5="DB4760E989199CEA1C62FE3EDACCBB31" import="1">LUA/DiploList.lua</File>
     <File md5="67F4F6A874C0519432E97C82B8E999A0" import="1">LUA/HappinessInfo.lua</File>
     <File md5="EB1DABE644906CD1AA3312C36CE166AE" import="1">LUA/HappinessInfo.xml</File>
     <File md5="5405DE4A7B50B83FE1C6D87E82F44ABC" import="1">LUA/LeaderHeadRoot.lua</File>
@@ -1326,7 +1325,7 @@
     <File md5="F19F8CBF1D8F8A6825ECDE6773DF63E3" import="1">LUA/NotificationPanel.xml</File>
     <File md5="7EB5C786177B0495265EE05252DF70CE" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="832EDED992BD95DCFA1A062AD4FBD8A5" import="1">LUA/SocialPolicyPopup.xml</File>
-    <File md5="FB41FC3ED25AD5B786FFA8D3D49E8F15" import="1">LUA/TopPanel.lua</File>
+    <File md5="5998E803217B871EC85BF0E5769D449E" import="1">LUA/TopPanel.lua</File>
     <File md5="8F5C4A097A6F53AF68A73609B5EBD0FB" import="1">LUA/TopPanel.xml</File>
     <File md5="3DA0ECD74812B794EDF21FE68A96AFD1" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
@@ -1605,10 +1604,6 @@
     <EntryPoint type="InGameUIAddin" file="Core Files/New Lua/CBP_IncaFunctions.lua">
       <Name>CBP_IncaFunctions</Name>
       <Description>CBP_IncaFunctions</Description>
-    </EntryPoint>
-    <EntryPoint type="InGameUIAddin" file="Core Files/New Lua/Destination.lua">
-      <Name>Destination</Name>
-      <Description>Destination</Description>
     </EntryPoint>
     <EntryPoint type="InGameUIAddin" file="Core Files/New Lua/GlobalArchaeologistDigSites.lua">
       <Name>GlobalArchaeologistDigSites</Name>

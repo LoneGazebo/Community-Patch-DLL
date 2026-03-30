@@ -64,7 +64,7 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 
 -- Any three Great Works of Literature can be themed
--- Bonus and AIPriority to be swept in ThemingSweeps.sql
+-- Bonus and AIPriority to be swept in BuildingSweeps.sql
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description)
 SELECT Type, 'TXT_KEY_THEMING_BONUS_PALACE'
@@ -114,7 +114,7 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AMPHITHEATER';
 
--- Bonus and AIPriority to be swept in ThemingSweeps.sql
+-- Bonus and AIPriority to be swept in BuildingSweeps.sql
 INSERT INTO Helper
 	(Description, RequiresOwner, RequiresAnyButOwner)
 VALUES
@@ -219,7 +219,7 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_BROADCAST_TOWER';
 DELETE FROM Helper;
 
 -- Any two Great Work of Music can be themed
--- Bonus and AIPriority to be swept in ThemingSweeps.sql
+-- Bonus and AIPriority to be swept in BuildingSweeps.sql
 INSERT INTO Helper
 	(Description, SameEra, ConsecutiveEras, UniqueEras)
 VALUES

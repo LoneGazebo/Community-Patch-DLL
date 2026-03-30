@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="149">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.2.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.2.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -417,6 +417,7 @@
     <File md5="004BEA672244A2AD3705B61431A4E3DB" import="1">Assets/Yields/yieldatlas_128_general.dds</File>
     <File md5="8DBF300FFEC8BB9D400845CA40DD933D" import="1">Assets/Yields/YieldAtlas_128_GoldenAge.dds</File>
     <File md5="ABD5FA5416A63C4E062E3F9113215550" import="1">Assets/Yields/YieldAtlas_128_Tourism.dds</File>
+    <File md5="6D9DF89F9253108DFF28B4B05F9C95A2" import="0">Core Files/New Lua/Destination.lua</File>
     <File md5="9E9413423E76DAA8D884CC45D0516E72" import="0">Core Files/New Lua/GlobalCityBombardRange.lua</File>
     <File md5="29FC5A961FBDB9E4E38744DBAE80DB3F" import="0">Core Files/New UI/CityEventPopup.lua</File>
     <File md5="DB148EB48CB0FC537C7B3ED852F8ED14" import="0">Core Files/New UI/CityEventPopup.xml</File>
@@ -473,7 +474,7 @@
     <File md5="89D5FFC4F9D1D3C5DE9E468DACFDAD30" import="1">Core Files/Overrides/NotificationLogPopup.lua</File>
     <File md5="D7511D37979C68F1EFECF42FF58C24BC" import="1">Core Files/Overrides/NotificationLogPopup.xml</File>
     <File md5="91DEEC22E933A63497BBDA0E5066D8D3" import="1">Core Files/Overrides/NewEraPopup.lua</File>
-    <File md5="CEDD6E0177572AC4E792B33F048D67DE" import="1">Core Files/Overrides/PathHelpManager.lua</File>
+    <File md5="0E63E4DFCDBED86F0CFD643735B91D01" import="1">Core Files/Overrides/PathHelpManager.lua</File>
     <File md5="E752DD1920A620500531519E48FBC2B7" import="1">Core Files/Overrides/PathHelpManager.xml</File>
     <File md5="E0EB123F5D919F8359CE9F1041343BE9" import="1">Core Files/Overrides/PuppetCityPopup.lua</File>
     <File md5="65B4BE280ED45CE0925FC81F321731A7" import="1">Core Files/Overrides/ReligionOverview.lua</File>
@@ -506,7 +507,7 @@
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
     <File md5="B754666DDB6140255D210281D3501E88" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="42902235AA3AD7A89FE9BD82D7760942" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="EF63B6A2C319D5A7C6A73C81302788A5" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="E5C280A2AC65C19D051F27EE7AAE11B4" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
@@ -618,7 +619,7 @@
     <File md5="93390AF59DEF5A0380A5313CE5CF181E" import="0">Database Changes/Text/en_US/Notifications/CoreNotificationTextChanges.sql</File>
     <File md5="CBDA3E182DB9F43339500E8357BE1E41" import="0">Database Changes/Text/en_US/Policies/CorePolicyTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
-    <File md5="AAF97A1096E955C704196FA4CAAE9D39" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
+    <File md5="963BCBD798B71ADD3D8835633328F883" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
     <File md5="120871D9F4FED768C000B533D1AC16D2" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
@@ -954,6 +955,10 @@
     </OnModActivated>
   </Actions>
   <EntryPoints>
+    <EntryPoint type="InGameUIAddin" file="Core Files/New Lua/Destination.lua">
+      <Name>Destination</Name>
+      <Description>Destination</Description>
+    </EntryPoint>
     <EntryPoint type="InGameUIAddin" file="Core Files/New Lua/GlobalCityBombardRange.lua">
       <Name>GlobalCityBombardRange</Name>
       <Description>GlobalCityBombardRange</Description>

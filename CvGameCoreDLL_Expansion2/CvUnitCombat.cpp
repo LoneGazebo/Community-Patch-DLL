@@ -1633,7 +1633,6 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 		{
 			// Target was a Unit
 			CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
-			ASSERT(pkDefender != NULL);
 
 			if(pkDefender)
 			{

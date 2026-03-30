@@ -408,7 +408,6 @@ private:
 	void PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone);
 
 	void PlotEmergencyPurchases(CvTacticalDominanceZone* pZone);
-	void PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone);
 
 	void PlotNavalEscortMoves();
 	void ReviewUnassignedUnits();

@@ -2110,7 +2110,7 @@
 			<Description>TXT_KEY_BUILDING_ROYAL_GUARDHOUSE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ROYAL_GUARDHOUSE_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_ROYAL_GUARDHOUSE_HELP</Help>
-			<CitySupplyModifier>20</CitySupplyModifier>
+			<CitySupplyModifierGlobal>10</CitySupplyModifierGlobal>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>

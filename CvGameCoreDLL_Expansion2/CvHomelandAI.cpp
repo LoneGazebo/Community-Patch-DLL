@@ -5492,39 +5492,8 @@ void CvHomelandAI::ExecuteSSPartMoves()
 		if(!pUnit)
 			continue;
 
-		// do an airlift if it's possible and we'd need more than one turn to reach the capital normally
-		if (pUnit->plot() != pCapitalCity->plot())
-		{
-			bool bCanAirlift = pUnit->canAirliftAt(pUnit->plot(), pCapitalCity->plot()->getX(), pCapitalCity->plot()->getY());
-			bool bShouldUseAirlift = bCanAirlift;
 
-			if (pUnit->GeneratePath(pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED))
-			{
-				CvPlot* pWayPoint = pUnit->GetPathEndFirstTurnPlot();
-				if (pWayPoint == pCapitalCity->plot())
-				{
-					// can reach the capital normally in one turn or less
-					bShouldUseAirlift = false;
-				}
-			}
-
-			if (bShouldUseAirlift)
-			{
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp;
-					strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("Airlifting %s into capital", strTemp.GetCString());
-					LogHomelandMessage(strLogString);
-				}
-				pUnit->airlift(pCapitalCity->plot()->getX(), pCapitalCity->plot()->getY());
-			}
-			else
-			{
-				ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
-			}
-		}
+		ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
 
 		if(pUnit->plot() == pCapitalCity->plot() && pUnit->canMove())
 		{

@@ -84,6 +84,9 @@ struct CvPathNodeCacheData
 	bool bCanEnterTerritoryPermanent:1;
 	bool bIsNonEnemyCity:1;
 	bool bIsEnemyCity:1;
+	bool bCanAirliftFromPlotCity:1;
+	bool bCanAirliftFromPlotImprovement:1;
+	bool bCanChangePortFromPlot:1;
 	bool bIsVisibleEnemyUnit:1;
 	bool bIsVisibleEnemyCombatUnit:1;
 	bool bIsVisibleNeutralCombatUnit:1;
