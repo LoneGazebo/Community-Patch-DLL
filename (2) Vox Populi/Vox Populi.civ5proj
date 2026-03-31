@@ -356,6 +356,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Corporations/CorporationChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Database Changes/City/Buildings/BuildingChanges2.sql</FileName>
       </Action>
       <Action>
@@ -377,11 +382,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes/City/Specialists/SpecialistChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Database Changes/Corporations/CorporationChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
