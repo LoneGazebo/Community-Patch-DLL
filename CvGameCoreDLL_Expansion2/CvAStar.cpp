@@ -586,8 +586,6 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 				SetAirliftCitiesChecked(true);
 			else if (node->m_kCostCacheData.bCanAirliftFromPlotImprovement)
 				SetAirliftImprovementsChecked(true);
-			if (node->m_kCostCacheData.bCanSealiftFromPlotCity)
-				SetSealiftCitiesChecked(true);
 			else if (node->m_kCostCacheData.bCanChangePortFromPlot)
 				SetChangePortCitiesChecked(true);
 		}
@@ -2278,10 +2276,6 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 
 		if (node->m_kCostCacheData.bCanSealiftFromPlotCity)
 		{
-			// sealift target plots only need to be checked once during pathfinding. they don't depend on the starting plot so considering them early is always better
-			if (finder->IsSealiftCitiesChecked())
-				return 0;
-			
 			// valid targets are all sealift cities owned by us or our minor civ allies
 			vector<PlayerTypes> vFriendlyPlayers;
 			vFriendlyPlayers.push_back(ePlayer);
