@@ -37,6 +37,8 @@ namespace LuaSupport
 
 //!	Called to register all game script data into Lua.
 void RegisterScriptData(lua_State* L);
+//! Setup hooks into the script system
+void InitLuaFramework();
 //! Dump the Lua callstack to the output stream
 void DumpCallStack(lua_State* L, FILogFile* pLog);
 
