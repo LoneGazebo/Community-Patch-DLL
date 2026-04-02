@@ -8501,7 +8501,6 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
 	CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(unit.iUnitID);
-	CvTacticalPlot::eTactPlotDomain eRelevantDomain = pUnit->IsCanAttackRanged() ? CvTacticalPlot::TD_BOTH : pUnit->getDomainType() == DOMAIN_SEA ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND;
 	if (!pUnit || !assumedUnitPlot.isValid())
 		return;
 
@@ -8585,20 +8584,6 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 						//discourage attacks on cities with non-siege units if the real target is something else
 						if (enemyPlot.isEnemyCity() && getTarget() != enemyPlot.getPlot() && pUnit->GetRange() > 1 && pUnit->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
 							rangedAttack.iBonusScore /= 2;
-
-						// Check if we'll be able to make another attack after this one
-						if (unit.iAttacksLeft > 1 && rangedAttack.iRemainingMoves > 0)
-						{
-							//how much damage could we do with our next moves?
-							//check this only during simulation; don't use it for initial/final score as it decreases with enemies killed!
-							int iDummy = -1; //we may not be doing the attack after the move
-							int iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, pUnit->IsFreeAttackMoves() ? unit.iAttacksLeft - 1 : min(unit.iAttacksLeft - 1, rangedAttack.iRemainingMoves), *this, iDummy);
-							//note that "passive damage" ie covering our own units is implicit in the plot score for firstline units
-
-							//score functions are biased so that only scores > 0 are interesting moves
-							//still allow mildly negative moves here, maybe we want to do combo moves later!
-							rangedAttack.iPlotScore += iDamageScore * 10;
-						}
 
 						//fixme: maybe danger changed because we killed or near-killed a unit so update the baseline score?
 						//but let's assume the difference is small
@@ -8686,21 +8671,6 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			if (bCanMoveAfterAttack || bCanRepairAfterMove || canProbablyEndTurnAfterAssignment(moveToPlot, testPlot))
 			{
-				if (pUnit->IsCanAttackRanged())
-				{
-					//how much damage could we do with our next moves?
-					//check this only during simulation; don't use it for initial/final score as it decreases with enemies killed!
-					int iDummy = -1; //we may not be doing the attack after the move
-					int iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, pUnit->IsFreeAttackMoves() ? unit.iAttacksLeft : min(unit.iAttacksLeft, moveToPlot.iRemainingMoves), *this, iDummy);
-					//note that "passive damage" ie covering our own units is implicit in the plot score for firstline units
-
-					//score functions are biased so that only scores > 0 are interesting moves
-					//still allow mildly negative moves here, maybe we want to do combo moves later!
-					if (moveToPlot.iRemainingMoves > 0)
-						moveToPlot.iPlotScore += iDamageScore * 10;
-					else
-						moveToPlot.iPlotScore += iDamageScore * 5;
-				}
 				//undo the hypothetical kill
 				moveToPlot.iKillOrNearKillId = -1;
 
