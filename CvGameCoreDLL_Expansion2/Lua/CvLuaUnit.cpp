@@ -1199,7 +1199,7 @@ int CvLuaUnit::lGetMeleeCombatDamage(lua_State* L)
 	int iResult = 0;
 	int iAttackerDamage = 0;
 
-	iResult = pkUnit->getMeleeCombatDamage(iStrength, iOpponentStrength, iAttackerDamage, bIncludeRand, pkOtherUnit, iExtraDefenderDamage);
+	iResult = pkUnit->getMeleeCombatDamage(iStrength, iOpponentStrength, iAttackerDamage, bIncludeRand, pkOtherUnit, 0, iExtraDefenderDamage);
 
 	lua_pushinteger(L, iResult);
 	lua_pushinteger(L, iAttackerDamage);
@@ -3402,7 +3402,7 @@ int CvLuaUnit::lGetRangeCombatDamage(lua_State* L)
 		iGarrisonMaxHP = pkCity->GetGarrisonedUnit()->GetMaxHitPoints();
 
 	int iGarrisonDamage = 0;
-	int iResult = pkUnit->GetRangeCombatDamage(pkDefender, pkCity, iGarrisonMaxHP, iGarrisonDamage, bIncludeRand, 0, NULL, NULL, false, false);
+	int iResult = pkUnit->GetRangeCombatDamage(pkDefender, pkCity, iGarrisonMaxHP, iGarrisonDamage, bIncludeRand);
 
 	lua_pushinteger(L, iResult);
 	return 1;

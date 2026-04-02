@@ -3588,7 +3588,7 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bIgnoreVisibility, bool bTestCanMove, bool bNoncombatAllowed) const
+CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bIgnoreVisibility, bool bTestCanMove, bool bNoncombatAllowed, const CvUnit* pIgnoreUnit) const
 {
 	const IDInfo* pUnitNode = headUnitNode();
 	CvUnit* pLoopUnit = NULL;
@@ -3609,6 +3609,9 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
+
+		if (pLoopUnit && pLoopUnit == pIgnoreUnit)
+			continue;
 
 		if(pLoopUnit && (bNoncombatAllowed || pLoopUnit->IsCanDefend()) && pLoopUnit != pAttacker)	// Does the unit exist, and can it fight, or do we care if it can't fight?
 		{
@@ -11911,14 +11914,8 @@ int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
 	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
-	PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
-	if (eCurrentPlayer != NO_PLAYER)
-	{
-		if (GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
-		{
-			return getVisibilityCount(eTeam);
-		}
-	}
+	if (GC.getGame().GetCurrentVisibilityTeam() == eTeam)
+		return getVisibilityCount(eTeam);
 
 	return m_aiKnownVisibilityCount[eTeam];
 }
@@ -11934,18 +11931,12 @@ bool CvPlot::IsKnownVisibleToTeam(TeamTypes eTeam) const
 /// Is this plot visible to an enemy to ePlayer according to current player knowledge
 bool CvPlot::IsKnownVisibleToEnemy(PlayerTypes ePlayer) const
 {
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(ePlayer).GetPlayersAtWarWith();
+	const std::vector<TeamTypes>& vEnemies = GET_PLAYER(ePlayer).GetTeamsAtWarWith();
 
-	for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
+	for (std::vector<TeamTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
 	{
-		CvPlayer& kEnemy = GET_PLAYER(*it);
-		if (kEnemy.isAlive() && kEnemy.IsAtWarWith(ePlayer))
-		{
-			if (IsKnownVisibleToTeam(kEnemy.getTeam()))
-			{
-				return true;
-			}
-		}
+		if (IsKnownVisibleToTeam(*it))
+			return true;
 	}
 
 	return false;

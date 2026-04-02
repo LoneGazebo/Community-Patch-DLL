@@ -27480,7 +27480,7 @@ void CvCity::updateStrengthValue()
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const CvUnit* pDefender) const //result is times 100
+int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const CvUnit* pDefender, bool bOverrideGarrison, const CvUnit* pGarrisonOverride) const //result is times 100
 {
 	VALIDATE_OBJECT();
 
@@ -27491,7 +27491,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 		int iValue = m_iStrengthValueRanged;
 		int iModifier = /*-40 in CP, 0 in VP*/ GD_INT_GET(CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER);
 
-		if (MOD_BALANCE_CITY_STRENGTH_SWITCH)
+		if (bOverrideGarrison || MOD_BALANCE_CITY_STRENGTH_SWITCH)
 		{
 			// Remove the garrisoned unit's strength
 			CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
@@ -27502,8 +27502,17 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 					(pGarrisonedUnit->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
 				iValue -= (iStrengthFromGarrison * 100);
 			}
+
+			if (pGarrisonOverride && !MOD_BALANCE_CITY_STRENGTH_SWITCH)
+			{
+				int iStrengthFromGarrisonRaw = max(pGarrisonOverride->GetBaseCombatStrength(), pGarrisonOverride->GetBaseRangedCombatStrength());
+				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) /
+					(pGarrisonOverride->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
+				iValue += (iStrengthFromGarrison * 100);
+			}
 		}
-		else
+
+		if (!MOD_BALANCE_CITY_STRENGTH_SWITCH)
 		{
 			// Always ignore building defense here
 			iValue -= m_pCityBuildings->GetBuildingDefense();
@@ -27604,11 +27613,38 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 
 		return iValue;
 	}
-
-	if (bIgnoreBuildings)
-		return m_iStrengthValue - m_pCityBuildings->GetBuildingDefense();
 	else
-		return m_iStrengthValue;
+	{
+		int iValue = m_iStrengthValue;
+
+		if (bIgnoreBuildings)
+			iValue -= m_pCityBuildings->GetBuildingDefense();
+
+		if (bOverrideGarrison)
+		{
+			CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
+			if (pGarrisonedUnit != pGarrisonOverride)
+			{
+				if (pGarrisonedUnit)
+				{
+					int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength());
+					int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) /
+						(pGarrisonedUnit->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
+					iValue -= (iStrengthFromGarrison * 100);
+				}
+
+				if (pGarrisonOverride)
+				{
+					int iStrengthFromGarrisonRaw = max(pGarrisonOverride->GetBaseCombatStrength(), pGarrisonOverride->GetBaseRangedCombatStrength());
+					int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) /
+						(pGarrisonOverride->getDomainType() == DOMAIN_LAND ? /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : /*500 in CP, 400 in VP*/ GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
+					iValue += (iStrengthFromGarrison * 100);
+				}
+			}
+		}
+
+		return iValue;
+	}
 }
 
 //	--------------------------------------------------------------------------------

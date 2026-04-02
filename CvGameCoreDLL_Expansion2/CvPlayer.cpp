@@ -434,6 +434,7 @@ CvPlayer::CvPlayer() :
 	, m_viCoreCitiesForSpaceshipProduction()
 	, m_playersWeAreAtWarWith()
 	, m_playersAtWarWithInFuture()
+	, m_teamsWeAreAtWarWith()
 	, m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 	, m_iEndTurnBlockingNotificationIndex(0)
 	, m_activeWaitingForEndTurnMessage(false)
@@ -1595,6 +1596,7 @@ void CvPlayer::uninit()
 	m_iNumFreeGreatPeople = 0;
 	m_playersWeAreAtWarWith.clear();
 	m_playersAtWarWithInFuture.clear();
+	m_teamsWeAreAtWarWith.clear();
 	m_iNumMayaBoosts = 0;
 	m_iNumFaithGreatPeople = 0;
 	m_iNumArchaeologyChoices = 0;
@@ -45303,20 +45305,20 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 	m_iUnitPurchaseCostModifier += iChange;
 }
 
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const SUnitIDValueContainer& unitDamageDealt, int iExtraDamage, AirActionType iAirAction)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->GetDanger(pPlot, pUnit, unitsToIgnore, iExtraDamage, iAirAction);
+	return m_pDangerPlots->GetDanger(pPlot, pUnit, unitDamageDealt, iExtraDamage, iAirAction);
 }
 
-int CvPlayer::GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
+int CvPlayer::GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison, const SUnitIDValueContainer& unitDamageDealt)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->GetDanger(pCity, pPretendGarrison);
+	return m_pDangerPlots->GetDanger(pCity, pPretendGarrison, unitDamageDealt);
 }
 
 int CvPlayer::GetPlotDanger(const CvPlot& pPlot, bool bFixedDamageOnly)
@@ -45763,11 +45765,19 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 {
 	//cache the wars we have going - ignore barbarians
 	m_playersWeAreAtWarWith.clear();
+	m_teamsWeAreAtWarWith.clear();
+
+	const CvTeam& kTeam = GET_TEAM(getTeam());
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			m_playersWeAreAtWarWith.push_back( eLoopPlayer );
+		const CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
+		if (kLoopPlayer.isAlive() && kTeam.isAtWar(eLoopTeam))
+		{
+			m_playersWeAreAtWarWith.push_back(eLoopPlayer);
+			m_teamsWeAreAtWarWith.push_back(eLoopTeam);
+		}
 	}
 
 	//see if we're not at war yet but war is coming
@@ -45775,7 +45785,8 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian() && !IsAtWarWith(eLoopPlayer) )
+		const CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if(kLoopPlayer.isAlive() && !kLoopPlayer.isBarbarian() && !IsAtWarWith(eLoopPlayer) )
 		{
 			bool bWarMayBeComing = false;
 

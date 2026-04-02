@@ -450,6 +450,30 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iBonus += 500;
 		}
 
+		if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CITY_SPECIAL)
+		{
+			// Roughly one per 6 units seems sensible
+			int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_SPECIAL, true);
+			if (eCurrentlyProducing != NO_UNIT && !bForPurchase)
+			{
+				CvUnitEntry* pkCurrentlyProducing = GC.getUnitInfo(eCurrentlyProducing);
+				if (pkCurrentlyProducing)
+				{
+					if (pkCurrentlyProducing->GetDefaultUnitAIType() == UNITAI_CITY_SPECIAL)
+						iNum--;
+				}
+			}
+			int iNumArmies = iNumLandUnits / 6;
+			if (iNum < iNumArmies)
+			{
+				iBonus += 2000 * max(3 - iNum, 1);
+
+				// If we are planning a city attack, pretty much force this
+				if (bForOperation)
+					iBonus += 10000;
+			}
+		}
+
 		//Sanity check for buildable support units.
 		if (!bFree && pkUnitEntry->IsCityAttackSupport() && !bForOperation)
 		{

@@ -658,7 +658,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 		int iGarrisonDamage = 0;
 		iDamage = kAttacker.GetRangeCombatDamage(/*pDefender*/ NULL, pCity, iGarrisonMaxHP, iGarrisonDamage,
-			/*bIncludeRand*/ bIncludeRand, 0, NULL, NULL, false, false);
+			/*bIncludeRand*/ bIncludeRand, 0, 0, NULL, NULL, false, false);
 
 		if(pGarrison && iGarrisonDamage > 0)
 		{
@@ -1482,7 +1482,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			iGarrisonMaxHP = pGarrison->GetMaxHitPoints();
 
 		int iGarrisonDamage = 0;
-		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(/*pUnit*/ NULL, pCity, iGarrisonMaxHP, iGarrisonDamage, /*bIncludeRand*/ true, 0, NULL, NULL, false);
+		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(/*pUnit*/ NULL, pCity, iGarrisonMaxHP, iGarrisonDamage, /*bIncludeRand*/ true);
 
 		if(pGarrison && iGarrisonDamage > 0)
 		{

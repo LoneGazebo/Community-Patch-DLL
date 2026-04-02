@@ -180,7 +180,7 @@ public:
 	int getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra = 0, int iThenExtra = 0) const;
 	int getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity** ppCity) const;
 
-	CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bIgnoreVisibility = false, bool bTestCanMove = false, bool bNoncombatAllowed = false) const;
+	CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bIgnoreVisibility = false, bool bTestCanMove = false, bool bNoncombatAllowed = false, const CvUnit* pIgnoreUnit = NULL) const;
 	CvUnit* getBestGarrison(PlayerTypes eOwner) const;
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;

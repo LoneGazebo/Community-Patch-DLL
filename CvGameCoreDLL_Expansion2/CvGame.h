@@ -775,6 +775,7 @@ public:
 
 	void SetCurrentVisibilityPlayer(PlayerTypes ePlayer);
 	PlayerTypes GetCurrentVisibilityPlayer() const;
+	TeamTypes GetCurrentVisibilityTeam() const;
 
 	//------------------------------------------------------------
 	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}
@@ -858,6 +859,7 @@ protected:
 	PlayerTypes m_eWaitDiploPlayer;
 	TechTypes m_eTechAstronomy;
 	PlayerTypes m_eCurrentVisibilityPlayer;
+	TeamTypes m_eCurrentVisibilityTeam;
 
 	bool m_bFOW;
 

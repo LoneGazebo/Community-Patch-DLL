@@ -2458,8 +2458,8 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction = AIR_ACTION_ATTACK);
-	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const SUnitIDValueContainer& unitDamageDealt = SUnitIDValueContainer(), int iExtraDamage = 0, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL, const SUnitIDValueContainer& unitDamageDealt = SUnitIDValueContainer());
 	int GetPlotDanger(const CvPlot& Plot, bool bFixedDamageOnly);
 	bool IsVanishedUnit(const IDInfo& id) const;
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck);
@@ -2499,6 +2499,7 @@ public:
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
+	const std::vector<TeamTypes>& GetTeamsAtWarWith() const { return m_teamsWeAreAtWarWith; }
 	void UpdateCityStrength();
 	void UpdateCurrentAndFutureWars();
 
@@ -3713,6 +3714,7 @@ protected:
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
+	std::vector<TeamTypes> m_teamsWeAreAtWarWith;
 
 	mutable int m_iNumUnitsSuppliedCached; //not serialized
 	mutable int m_iNumUnitsSuppliedCachedWarWeariness; //not serialized

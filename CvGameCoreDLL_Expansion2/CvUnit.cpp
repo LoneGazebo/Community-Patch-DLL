@@ -220,6 +220,7 @@ CvUnit::CvUnit() :
 	, m_iNearbyEnemyCombatRange()
 	, m_iSapperCount()
 	, m_iCanHeavyCharge()
+	, m_iRequiresLeadershipCount()
 	, m_iNumExoticGoods()
 	, m_iAdjacentModifier()
 	, m_iNoAdjacentUnitModifier()
@@ -1511,6 +1512,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGoldenAgeValueFromKills = 0;
 	m_iSapperCount = 0;
 	m_iCanHeavyCharge = 0;
+	m_iRequiresLeadershipCount = 0;
 	m_iNumExoticGoods = 0;
 	m_iTacticalAIPlotX = INVALID_PLOT_COORD;
 	m_iTacticalAIPlotY = INVALID_PLOT_COORD;
@@ -5277,7 +5279,7 @@ bool CvUnit::IsAngerFreeUnit() const
 }
 
 //	---------------------------------------------------------------------------
-int CvUnit::getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand) const
+int CvUnit::getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iSelfDamageInflicted, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand, int iExtraSelfDamage, int iExtraCityDamage, const CvUnit* pGarrisonOverride) const
 {
 	if (getForcedDamageValue() != 0)
 		iSelfDamageInflicted = getForcedDamageValue();
@@ -5300,7 +5302,7 @@ int CvUnit::getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iS
 		int iExtraSelfDamage = getChangeDamageValue();
 
 		iSelfDamageInflicted = max(0, (CvUnitCombat::DoDamageMath(
-			pCity->getStrengthValue(),
+			pCity->getStrengthValue(false, false, NULL, iGarrisonMaxHP == 0 || pGarrisonOverride, pGarrisonOverride),
 			iStrength,
 			/*2400*/ GD_INT_GET(ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
 			/*1200*/ GD_INT_GET(ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
@@ -5322,7 +5324,7 @@ int CvUnit::getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iS
 	int iCityDamageModifier = /*0*/ GD_INT_GET(ATTACKING_CITY_MELEE_DAMAGE_MOD) - 100;
 	int iCityDamage = CvUnitCombat::DoDamageMath(
 		iStrength,
-		pCity->getStrengthValue(),
+		pCity->getStrengthValue(false, false, NULL, iGarrisonMaxHP == 0 || pGarrisonOverride, pGarrisonOverride),
 		/*2400*/ GD_INT_GET(ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
 		/*1200*/ GD_INT_GET(ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
 		bIncludeRand,
@@ -5342,9 +5344,8 @@ int CvUnit::getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iS
 	}
 
 	// Will both the attacker die, and the city fall? If so, the unit wins
-	if (iCityDamage + pCity->getDamage() >= pCity->GetMaxHitPoints() && iSelfDamageInflicted >= GetCurrHitPoints())
+	if (iCityDamage + pCity->getDamage() + iExtraCityDamage >= pCity->GetMaxHitPoints() && iSelfDamageInflicted + iExtraSelfDamage >= GetCurrHitPoints())
 	{
-		iCityDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
 		iSelfDamageInflicted = GetCurrHitPoints() - 1;
 	}
 
@@ -5354,7 +5355,7 @@ int CvUnit::getMeleeCombatDamageCity(int iStrength, const CvCity* pCity, int& iS
 
 
 //	---------------------------------------------------------------------------
-int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSelfDamageInflicted, bool bIncludeRand, const CvUnit* pkOtherUnit, int iExtraDefenderDamage) const
+int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSelfDamageInflicted, bool bIncludeRand, const CvUnit* pkOtherUnit, int iExtraSelfDamage, int iExtraDefenderDamage) const
 {
 	if (pkOtherUnit && pkOtherUnit->isEmbarked() && getDomainType() != DOMAIN_AIR)
 		iSelfDamageInflicted = 0;
@@ -5416,20 +5417,18 @@ int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSel
 	if (pkOtherUnit)
 	{
 		// Will both units be killed by this? :o If so, take drastic corrective measures
-		if (iSelfDamageInflicted >= GetCurrHitPoints() && iDamage + iExtraDefenderDamage >= pkOtherUnit->GetCurrHitPoints())
+		if (iSelfDamageInflicted + iExtraSelfDamage >= GetCurrHitPoints() && iDamage + iExtraDefenderDamage >= pkOtherUnit->GetCurrHitPoints())
 		{
 			// He who hath the least amount of damage survives with 1 HP left
-			if (iDamage + iExtraDefenderDamage + pkOtherUnit->getDamage() > iSelfDamageInflicted + getDamage())
+			if (iDamage + iExtraDefenderDamage + pkOtherUnit->getDamage() > iSelfDamageInflicted + getDamage() + iExtraSelfDamage)
 			{
 				// defender dies
-				iDamage = pkOtherUnit->GetCurrHitPoints();
-				iSelfDamageInflicted = GetCurrHitPoints() - 1;
+				iSelfDamageInflicted = GetCurrHitPoints() - iExtraSelfDamage - 1;
 			}
 			else
 			{
 				// attacker dies
-				iSelfDamageInflicted = GetCurrHitPoints() ;
-				iDamage = pkOtherUnit->GetCurrHitPoints() - 1;
+				iDamage = pkOtherUnit->GetCurrHitPoints() - iExtraDefenderDamage - 1;
 			}
 		}
 		// will only the defender be killed? reduce damage taken by the attacker
@@ -5440,7 +5439,7 @@ int CvUnit::getMeleeCombatDamage(int iStrength, int iOpponentStrength, int& iSel
 		// will only the attacker be killed? reduce damage taken by the defender
 		else if (iSelfDamageInflicted >= GetCurrHitPoints())
 		{
-			iDamage = (iDamage * GetCurrHitPoints()) / iSelfDamageInflicted;
+			iDamage = (iDamage * (GetCurrHitPoints() - iExtraSelfDamage)) / iSelfDamageInflicted;
 		}
 	}
 	return iDamage;
@@ -6355,6 +6354,11 @@ void CvUnit::flipDamageReceivedPerTurn()
 bool CvUnit::isProjectedToDieNextTurn() const
 {
 	return m_iDamageTakenLastTurn>GetCurrHitPoints();
+}
+
+int CvUnit::GetDamageTakenLastTurn() const
+{
+	return m_iDamageTakenLastTurn;
 }
 
 //	--------------------------------------------------------------------------------
@@ -8290,15 +8294,15 @@ int CvUnit::GetDanger(const CvPlot* pAtPlot) const
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,UnitIdContainer(),0);
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this);
 }
 
-int CvUnit::GetDanger(const CvPlot* pAtPlot, const UnitIdContainer& unitsToIgnore, int iExtraDamage) const
+int CvUnit::GetDanger(const CvPlot* pAtPlot, const SUnitIDValueContainer& unitDamageDealt, int iExtraDamage) const
 {
 	if (!pAtPlot)
 		pAtPlot = plot();
 
-	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitsToIgnore,iExtraDamage);
+	return GET_PLAYER( getOwner() ).GetPlotDanger(*pAtPlot,this,unitDamageDealt,iExtraDamage);
 }
 
 //	--------------------------------------------------------------------------------
@@ -16359,7 +16363,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 //	--------------------------------------------------------------------------------
 /// What is the max strength of this Unit when attacking?
 int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
-								bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, int iAssumeExtraDamage) const
+								bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, int iAssumeExtraDamage, int iAssumeExtraOtherDamage) const
 {
 	VALIDATE_OBJECT();
 	if(GetBaseCombatStrength() == 0)
@@ -16527,13 +16531,13 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackFortifiedModifier();
 
 		// Bonus VS wounded
-		if (pDefender->getDamage() > 0)
+		if (pDefender->getDamage() + iAssumeExtraOtherDamage > 0)
 			iModifier += attackWoundedModifier();
 		else
 			iModifier += attackFullyHealedModifier();
 
 		//More than half?
-		if (pDefender->getDamage() < (pDefender->GetMaxHitPoints()/2))
+		if (pDefender->getDamage() + iAssumeExtraOtherDamage < (pDefender->GetMaxHitPoints()/2))
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
@@ -16796,7 +16800,7 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking,
-	const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, int iAssumeExtraDamage) const
+	const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, int iAssumeExtraDamage, int iAssumeExtraOtherDamage) const
 {
 	VALIDATE_OBJECT();
 
@@ -17207,13 +17211,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				iModifier += attackFortifiedModifier();
 
 			// Bonus VS wounded
-			if (pOtherUnit->getDamage() > 0)
+			if (pOtherUnit->getDamage() + iAssumeExtraOtherDamage > 0)
 				iModifier += attackWoundedModifier();
 			else
 				iModifier += attackFullyHealedModifier();
 
 			// More/less than half HP
-			if (pOtherUnit->getDamage() < (pOtherUnit->GetMaxHitPoints() + 1) / 2)
+			if (pOtherUnit->getDamage() + iAssumeExtraOtherDamage < (pOtherUnit->GetMaxHitPoints() + 1) / 2)
 				iModifier += attackAbove50HealthModifier();
 			else
 				iModifier += attackBelow50HealthModifier();
@@ -17408,15 +17412,15 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand, int iAssumeExtraDefenderDamage,
+int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand, int iAssumeExtraSelfDamage, int iAssumeExtraDefenderDamage,
 						const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bQuickAndDirty) const
 {
-	return GetRangeCombatDamage(pDefender,pCity, iGarrisonMaxHP, iGarrisonDamage, bIncludeRand,iAssumeExtraDefenderDamage,pTargetPlot,pFromPlot,false,bQuickAndDirty);
+	return GetRangeCombatDamage(pDefender,pCity, iGarrisonMaxHP,iGarrisonDamage,bIncludeRand,iAssumeExtraSelfDamage,iAssumeExtraDefenderDamage,pTargetPlot,pFromPlot,false,bQuickAndDirty);
 }
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand, int iAssumeExtraDefenderDamage,
+int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand, int iAssumeExtraSelfDamage, int iAssumeExtraDefenderDamage,
 	const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
 {
 	VALIDATE_OBJECT();
@@ -17485,7 +17489,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 				iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 			else
 			{
-				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, pTargetPlot, pFromPlot, false, bQuickAndDirty, iAssumeExtraDefenderDamage);
+				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, pTargetPlot, pFromPlot, false, bQuickAndDirty, iAssumeExtraSelfDamage, iAssumeExtraDefenderDamage);
 			}
 		}
 		else
@@ -24739,6 +24743,18 @@ void CvUnit::ChangeIsStrongerDamaged(int iChange)
 	m_iStrongerDamaged += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsRequiresLeadership() const
+{
+	return (m_iRequiresLeadershipCount > 0);
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeRequiresLeadershipCount(int iChange)
+{
+	m_iRequiresLeadershipCount += iChange;
+}
+
 //Units with this promotion trigger ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST when finishing a diplomatic mission
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsDiplomaticMissionAccomplishment() const
@@ -27965,6 +27981,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeVsUnhappyMod(thisPromotion.GetVsUnhappyMod() * iChange);
 
 	ChangeSapperCount((thisPromotion.IsSapper() ? iChange : 0));
+	ChangeRequiresLeadershipCount(thisPromotion.IsRequiresLeadership() ? iChange : 0);
 
 	changeFriendlyLandsModifier(thisPromotion.GetFriendlyLandsModifier() * iChange);
 	changeFriendlyLandsAttackModifier(thisPromotion.GetFriendlyLandsAttackModifier() * iChange);

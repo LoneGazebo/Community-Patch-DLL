@@ -3004,7 +3004,7 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 	{
 		CvUnit* pUnit = GET_PLAYER(config.ePlayer).getUnit(config.iUnitID);
 		if (pUnit) //force an update before starting the actual pathfinding
-			GET_PLAYER(config.ePlayer).GetPlotDanger(*pUnit->plot(), pUnit, UnitIdContainer(), 0);
+			GET_PLAYER(config.ePlayer).GetPlotDanger(*pUnit->plot(), pUnit);
 
 		// GetPlotDanger may have triggered nested pathfinding that overwrote m_sData, restore it
 		m_sData = config;
@@ -4218,28 +4218,24 @@ void ReachablePlots::createIndex()
 	std::stable_sort(lookup.begin(), lookup.end(), ReachablePlots_PairCompareFirst());
 }
 
-struct ReachablePlots_EqualRangeComparison
-{
-    bool operator() ( const pair<int,size_t> a, int b ) const { return a.first < b; }
-    bool operator() ( int a, const pair<int,size_t> b ) const { return a < b.first; }
-};
-
 ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
 {
-	typedef pair<vector<pair<int, size_t>>::iterator, vector<pair<int, size_t>>::iterator>  IteratorPair;
-	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, ReachablePlots_EqualRangeComparison());
-	if (it2.first != lookup.end() && it2.first != it2.second)
-		return storage.begin() + it2.first->second;
+	vector<pair<int, size_t>>::iterator it =
+		std::lower_bound(lookup.begin(), lookup.end(), iPlotIndex, ReachablePlots_EqualRangeComparison());
+
+	if (it != lookup.end() && it->first == iPlotIndex)
+		return storage.begin() + it->second;
 
 	return storage.end();
 }
 
 ReachablePlots::const_iterator ReachablePlots::find(int iPlotIndex) const
 {
-	typedef pair<vector<pair<int, size_t>>::const_iterator, vector<pair<int, size_t>>::const_iterator>  IteratorPair;
-	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, ReachablePlots_EqualRangeComparison());
-	if (it2.first != lookup.end() && it2.first != it2.second)
-		return storage.begin() + it2.first->second;
+	vector<pair<int, size_t>>::const_iterator it =
+		std::lower_bound(lookup.begin(), lookup.end(), iPlotIndex, ReachablePlots_EqualRangeComparison());
+
+	if (it != lookup.end() && it->first == iPlotIndex)
+		return storage.begin() + it->second;
 
 	return storage.end();
 }
