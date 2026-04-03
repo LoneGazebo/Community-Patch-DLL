@@ -2660,6 +2660,20 @@ int* CvPolicyEntry::GetCoastalCityYieldChangeArray() const
 	return m_piCoastalCityYieldChange;
 }
 
+/// Change to yield per monopoly owned
+int CvPolicyEntry::GetMonopolyCityYieldChange(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piMonopolyCityYieldChange ? m_piMonopolyCityYieldChange[i] : -1;
+}
+
+/// Array of yield changes per monopoly owned
+int* CvPolicyEntry::GetMonopolyCityYieldChangeArray() const
+{
+	return m_piMonopolyCityYieldChange;
+}
+
 /// Change to yield in Capital by type
 int CvPolicyEntry::GetCapitalYieldChange(int i) const
 {
