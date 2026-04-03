@@ -6157,8 +6157,6 @@ pair<CvPlot*, int> TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUni
 		if (pPlot == pUnit->plot() && !pUnit->hasMoved() && !pUnit->isAlwaysHeal())
 			iHealRate *= 2;
 
-		int iFriends = pPlot->GetNumFriendlyUnitsAdjacent(pUnit->getTeam(), NO_DOMAIN, true, pUnit);
-
 		//sometimes we want to ignore pillage health, it's a one-time effect and may lead into dead ends
 		if (bPillage && !bConservative)
 		{
@@ -6169,11 +6167,8 @@ pair<CvPlot*, int> TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUni
 		}
 
 		//make up a score function
-		//this is difficult, danger does not consider cover from our own units
-		//on the other hand, our covering units might run away ... just assume an even spread
-		int iRemainingDanger = iDanger / (iFriends + 1);
 		//don't try to go to heal in a plot where we will slowly die
-		int iScore = iHealRate - iRemainingDanger;
+		int iScore = iHealRate - iDanger;
 		//is this safe enough?
 		if (iScore > 0)
 		{
@@ -7369,14 +7364,9 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 			int iLowHealthThreshold = (iMagicNumber * iDanger) / max(1, iRemainingHP);
 
 			//if there is nothing we would cover or that covers us or we are low on health, don't do it
-			if (iRemainingHP*(iNumAdjFriendlies+1) < iLowHealthThreshold)
+			if (iRemainingHP < iLowHealthThreshold)
 				return INT_MAX;
 		}
-
-		//if we have friends around assume they will absorb some damage
-		//of course the enemy will tend to focus fire, but then raw danger does not consider ZoC
-		//todo: do not share damage for frontline units?
-		iDanger /= iNumAdjFriendlies+1;
 
 		//make it relative to current hitpoints
 		int iScaledDanger = (iDanger * /*100*/ GD_INT_GET(COMBAT_AI_OFFENSE_DANGERWEIGHT)) / max(1, pUnit->GetCurrHitPoints());
@@ -7574,9 +7564,6 @@ STacticalAssignment ScorePlotForCombatUnitMove(const SUnitStats& unit, const CvT
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
-
-		//self damage is not included in danger calculation ...
-		iDangerScore -= unit.iSelfDamage;
 	}
 	else
 	{
@@ -7783,9 +7770,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 			if (testPlot.isEdgePlot())
 				iDanger += 50;
 
-			//we want friends around us
-			int iFriends = (evalMode==EM_FINAL) ? testPlot.getNumAdjacentFriendliesEndTurn(CvTacticalPlot::TD_BOTH) : testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1);
-			iScore -= iDanger / (iFriends + 1);
+			iScore -= iDanger;
 		}
 	}
 
