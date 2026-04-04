@@ -18,9 +18,12 @@ end
 --- ```
 --- @param control Control
 --- @param ... Control
+--- @return Control ...
 local function ControlHide(control, ...)
 	ControlHideOne(control)
 	ArgsEach(ControlHideOne, ...)
+
+	return control, ...
 end
 
 CPK.UI.Control.Hide = ControlHide

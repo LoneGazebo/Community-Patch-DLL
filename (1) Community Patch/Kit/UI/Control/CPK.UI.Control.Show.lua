@@ -21,6 +21,8 @@ end
 local function ControlShow(control, ...)
 	ControlShowOne(control)
 	ArgsEach(ControlShowOne, ...)
+
+	return control, ...
 end
 
 CPK.UI.Control.Show = ControlShow
