@@ -17504,43 +17504,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// [PART 6: STRATEGIC DIPLOMACY]  //
 	//--------------------------------//
 
-	bool bIgnorePolicyDifferences = IsIgnorePolicyDifferences(ePlayer);
 	bool bIgnoreReligionDifferences = IsIgnoreReligionDifferences(ePlayer);
 	bool bIgnoreIdeologyDifferences = IsIgnoreIdeologyDifferences(ePlayer);
-
-	////////////////////////////////////
-	// SOCIAL POLICIES
-	////////////////////////////////////	
-
-	// Similar government types get along better 
-	int iPolicyScore = GetNumSamePolicies(ePlayer);
-	if (iPolicyScore > 0 && !bUntrustworthy)
-	{
-		vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * iPolicyScore;
-		vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * iPolicyScore;
-		vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * iPolicyScore;
-	}
-	// Different government types get along worse
-	else if (iPolicyScore < 0)
-	{
-		if (bEarlyGameCompetitor)
-		{
-			iPolicyScore *= 2;
-		}
-
-		if (!bIgnorePolicyDifferences)
-		{
-			if (eMilitaryStrength < STRENGTH_AVERAGE)
-			{
-				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iPolicyScore;
-				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iPolicyScore;
-			}
-			else
-			{
-				vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * iPolicyScore;
-			}
-		}
-	}
 
 	////////////////////////////////////
 	// RELIGION
@@ -47172,34 +47137,43 @@ int CvDiplomacyAI::GetPolicyScore(PlayerTypes ePlayer)
 	if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
 		return 0;
 
+	// This modifier is disabled, but the code is kept if anyone wants to use it
+	int iDivergentPoliciesBase = /*0*/ GD_INT_GET(OPINION_WEIGHT_DIVERGENT_POLICIES);
+	int iDivergentPoliciesScaler = /*0*/ GD_INT_GET(OPINION_WEIGHT_PER_DIVERGENT_POLICY);
+	int iSimilarPoliciesBase = /*0*/ GD_INT_GET(OPINION_WEIGHT_SIMILAR_POLICIES);
+	int iSimilarPoliciesScaler = /*0*/ GD_INT_GET(OPINION_WEIGHT_PER_SIMILAR_POLICY);
+	if (iDivergentPoliciesBase == 0 && iDivergentPoliciesScaler == 0 && iSimilarPoliciesBase == 0 && iSimilarPoliciesScaler == 0)
+		return 0;
+
+	if ((iDivergentPoliciesBase > 0 && iDivergentPoliciesScaler < 0) || (iDivergentPoliciesBase < 0 && iDivergentPoliciesScaler > 0) ||
+		(iSimilarPoliciesBase > 0 && iSimilarPoliciesScaler < 0) || (iSimilarPoliciesBase < 0 && iSimilarPoliciesScaler > 0))
+	{
+		ASSERT(false, "Sign mismatch between scaler and minimum value");
+		return 0;
+	}
+
 	int iOpinionWeight = 0;
 	int iNumPolicies = GetNumSamePolicies(ePlayer);
-	
+
 	if (iNumPolicies < 0)
 	{
-		iOpinionWeight = max(/*10*/ GD_INT_GET(OPINION_WEIGHT_DIVERGENT_POLICIES), iNumPolicies * /*5*/ GD_INT_GET(OPINION_WEIGHT_PER_DIVERGENT_POLICY));
+		if (iDivergentPoliciesBase > 0)
+			iOpinionWeight = max(iDivergentPoliciesBase, iNumPolicies * iDivergentPoliciesScaler);
+		else if (iDivergentPoliciesBase < 0)
+			iOpinionWeight = min(iDivergentPoliciesBase, iNumPolicies * iDivergentPoliciesScaler);
 	}
 	else if (iNumPolicies > 0)
 	{
-		iOpinionWeight = min(/*-10*/ GD_INT_GET(OPINION_WEIGHT_SIMILAR_POLICIES), iNumPolicies * /*-5*/ GD_INT_GET(OPINION_WEIGHT_PER_SIMILAR_POLICY));
-	}
-	
-	if (GetNeediness() >= /*8*/ GD_INT_GET(POLICY_SCORE_NEEDY_THRESHOLD))
-	{
-		if (iOpinionWeight > 0)
-		{
-			iOpinionWeight += /*5*/ GD_INT_GET(POLICY_SCORE_NEEDY_BONUS);
-		}
-		else if (iOpinionWeight < 0)
-		{
-			iOpinionWeight += /*-5*/ -GD_INT_GET(POLICY_SCORE_NEEDY_BONUS);
-		}
+		if (iSimilarPoliciesBase > 0)
+			iOpinionWeight = max(iSimilarPoliciesBase, iNumPolicies * iSimilarPoliciesScaler);
+		else if (iSimilarPoliciesBase < 0)
+			iOpinionWeight = min(iSimilarPoliciesBase, iNumPolicies * iSimilarPoliciesScaler);
 	}
 
 	if (iOpinionWeight > 0 && IsIgnorePolicyDifferences(ePlayer))
 		return 0;
 
-	return iOpinionWeight;
+	return AdjustConditionalModifier(iOpinionWeight, GetNeediness());
 }
 
 int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
