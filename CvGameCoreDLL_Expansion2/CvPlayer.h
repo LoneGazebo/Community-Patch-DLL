@@ -1312,6 +1312,9 @@ public:
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
 
+	bool IsBorderSettle() const;
+	void SetBorderSettle(int iValue);
+
 	bool IsOnlyTradeSameIdeology() const;
 	void ChangeOnlyTradeSameIdeology(int iChange);
 	
@@ -3237,6 +3240,7 @@ protected:
 	int m_iMinorScienceAlliesCount;
 	int m_iMinorResourceBonusCount;
 	int m_iAbleToAnnexCityStatesCount;
+	int m_iBorderSettle;
 	int m_iOnlyTradeSameIdeology;
 	int m_iSupplyFreeUnits; //military units which don't count against the supply limit
 	std::vector<CvString> m_aistrInstantYield; // not serialized
@@ -4040,6 +4044,7 @@ SYNC_ARCHIVE_VAR(int, m_iMinorFriendshipDecayMod)
 SYNC_ARCHIVE_VAR(int, m_iMinorScienceAlliesCount)
 SYNC_ARCHIVE_VAR(int, m_iMinorResourceBonusCount)
 SYNC_ARCHIVE_VAR(int, m_iAbleToAnnexCityStatesCount)
+SYNC_ARCHIVE_VAR(int, m_iBorderSettle)
 SYNC_ARCHIVE_VAR(int, m_iOnlyTradeSameIdeology)
 SYNC_ARCHIVE_VAR(int, m_iSupplyFreeUnits)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abActiveContract)
