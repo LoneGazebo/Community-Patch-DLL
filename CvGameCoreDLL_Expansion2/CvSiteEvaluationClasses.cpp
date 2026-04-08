@@ -104,7 +104,7 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 			return false;
 		}
 
-		if(pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam()))
+		if(pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam()) && !pPlayer->IsBorderSettle())
 		{
 			return false;
 		}
