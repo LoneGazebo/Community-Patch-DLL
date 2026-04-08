@@ -21784,7 +21784,14 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 		}
 		if (eNearestMinor != NO_PLAYER)
 		{
-			GET_PLAYER(eNearestMinor).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100(getOwner(), iUnitExperienceTimes100 * GetInfluenceFromCombatXPTimes100() / 100);
+			int iInfluenceGained = iUnitExperienceTimes100 * GetInfluenceFromCombatXPTimes100() / 100;
+			GET_PLAYER(eNearestMinor).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100(getOwner(), iInfluenceGained);
+			if(getOwner() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", iInfluenceGained);
+				SHOW_PLOT_POPUP(plot(), getOwner(), text);
+			}
 		}
 	}
 
