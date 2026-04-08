@@ -277,6 +277,7 @@ CvPlayer::CvPlayer() :
 	, m_iMinorScienceAlliesCount()
 	, m_iMinorResourceBonusCount()
 	, m_iAbleToAnnexCityStatesCount()
+	, m_iBorderSettle()
 	, m_iOnlyTradeSameIdeology()
 	, m_iFreeSpecialist()
 	, m_iCultureBombTimer()
@@ -1425,6 +1426,7 @@ void CvPlayer::uninit()
 	m_iMinorScienceAlliesCount = 0;
 	m_iMinorResourceBonusCount = 0;
 	m_iAbleToAnnexCityStatesCount = 0;
+	m_iBorderSettle = 0;
 	m_iOnlyTradeSameIdeology = 0;
 	m_iSupplyFreeUnits = 0;
 	m_strJFDCurrencyName = "";
@@ -29838,7 +29840,21 @@ bool CvPlayer::IsAbleToAnnexCityStates() const
 
 	return false;
 }
-	//JFD
+
+bool CvPlayer::IsBorderSettle() const
+{
+	if (m_iBorderSettle > 0)
+		return true;
+
+	return false;
+}
+
+void CvPlayer::SetBorderSettle(int iValue)
+{
+	m_iBorderSettle += iValue;
+}
+
+// JFD
 void CvPlayer::SetPiety(int iValue)
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PietyChanged, GetID(), GetPiety(), iValue);
@@ -42411,6 +42427,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeFreeFoodBox(pkPolicyInfo->GetFreeFoodBox() * iChange);
 	ChangeStrategicResourceMod(pkPolicyInfo->GetStrategicResourceMod() * iChange);
 	ChangeAbleToAnnexCityStatesCount(pkPolicyInfo->IsAbleToAnnexCityStates() * iChange);
+	SetBorderSettle(pkPolicyInfo->IsBorderSettle() * iChange);
 	ChangeOnlyTradeSameIdeology(pkPolicyInfo->IsOnlyTradeSameIdeology() * iChange);
 	ChangeDistressFlatReductionGlobal(pkPolicyInfo->GetDistressFlatReduction() * iChange);
 	ChangePovertyFlatReductionGlobal(pkPolicyInfo->GetPovertyFlatReduction() * iChange);
@@ -43893,6 +43910,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iMinorScienceAlliesCount);
 	visitor(player.m_iMinorResourceBonusCount);
 	visitor(player.m_iAbleToAnnexCityStatesCount);
+	visitor(player.m_iBorderSettle);
 	visitor(player.m_iOnlyTradeSameIdeology);
 	visitor(player.m_iSupplyFreeUnits);
 	visitor(player.m_abActiveContract);
