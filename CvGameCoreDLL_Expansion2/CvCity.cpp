@@ -553,7 +553,7 @@ CvCity::~CvCity()
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
+void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnit* pkSettler)
 {
 	VALIDATE_OBJECT();
 	//CvPlot* pAdjacentPlot;
@@ -604,8 +604,15 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	//only after the owner is set!
 	pPlot->setIsCity(true, m_iID, getWorkPlotDistance());
 
-	//clear the first ring
+	//clear the first ring(s)
 	int iRange = min(1, /*1*/ GD_INT_GET(CITY_STARTING_RINGS));
+
+	// if this is also a culture bomb (passed check in SiteEvaluator->CanFoundCity), first use the culture bomb code
+	if (pkSettler && pPlot->IsAdjacentOwnedByTeamOtherThan(kOwner.getTeam()))
+	{
+		pkSettler->PerformCultureBomb(iRange);
+	}
+	
 	for (int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for (int iDY = -iRange; iDY <= iRange; iDY++)
@@ -993,24 +1000,25 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// Stuff for Pioneers and Colonists
-	if (bInitialFounding && pkSettlerUnitEntry)
+	if (bInitialFounding && pkSettler)
 	{
-		if (pkSettlerUnitEntry->GetNumColonyFound() > 0)
+		CvUnitEntry& pkSettlerUnitEntry = pkSettler->getUnitInfo();
+		if (pkSettlerUnitEntry.GetNumColonyFound() > 0)
 		{
 			InitBoost(/*3*/ GD_INT_GET(PIONEER_EXTRA_PLOTS), /*3*/ GD_INT_GET(PIONEER_POPULATION_CHANGE), 1);
 			DoCreatePuppet();
 		}
-		if (pkSettlerUnitEntry->IsFoundMid())
+		if (pkSettlerUnitEntry.IsFoundMid())
 		{
 			InitBoost(/*3*/ GD_INT_GET(PIONEER_EXTRA_PLOTS), /*3*/ GD_INT_GET(PIONEER_POPULATION_CHANGE), /*25*/ GD_INT_GET(PIONEER_FOOD_PERCENT));
 		}
-		if (pkSettlerUnitEntry->IsFoundLate())
+		if (pkSettlerUnitEntry.IsFoundLate())
 		{
 			InitBoost(/*5*/ GD_INT_GET(COLONIST_EXTRA_PLOTS), /*5*/ GD_INT_GET(COLONIST_POPULATION_CHANGE), /*50*/ GD_INT_GET(COLONIST_FOOD_PERCENT));
 		}
 
 		const CvCivilizationInfo& kCivInfo = getCivilizationInfo();
-		for (set<int>::const_iterator it = pkSettlerUnitEntry->GetBuildOnFound().begin(); it != pkSettlerUnitEntry->GetBuildOnFound().end(); ++it)
+		for (set<int>::const_iterator it = pkSettlerUnitEntry.GetBuildOnFound().begin(); it != pkSettlerUnitEntry.GetBuildOnFound().end(); ++it)
 		{
 			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(*it);
 			const BuildingTypes eFreeBuilding = static_cast<BuildingTypes>(kCivInfo.getCivilizationBuildings(eBuildingClass));
