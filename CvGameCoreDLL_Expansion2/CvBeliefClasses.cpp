@@ -1434,7 +1434,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piYieldPerOtherReligionFollower, "Yields", "Belief_YieldPerOtherReligionFollower", "YieldType", "BeliefType", szBeliefType, "Yield");
 	kUtility.PopulateArrayByValue(m_paiLakePlotYieldChange, "Yields", "Belief_LakePlotYield", "YieldType", "BeliefType", szBeliefType, "Yield");	
 	kUtility.PopulateArrayByExistence(m_pbFaithPurchaseUnitSpecificEnabled, "Units", "Belief_SpecificFaithUnitPurchase", "UnitType", "BeliefType", szBeliefType);
-	kUtility.PopulateArrayByExistence(m_pbFaithPurchaseUnitEraEnabled, "Eras", "Belief_EraFaithLandUnitPurchase", "EraType", "BeliefType", szBeliefType);
+	kUtility.PopulateArrayByExistence(m_pbFaithPurchaseUnitEraEnabled, "Eras", "Belief_EraFaithUnitPurchase", "EraType", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassEnabled, "BuildingClasses", "Belief_BuildingClassFaithPurchase", "BuildingClassType", "BeliefType", szBeliefType);
 
 	//YieldPerBorderGrowth
