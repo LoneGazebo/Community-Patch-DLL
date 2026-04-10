@@ -4186,7 +4186,7 @@ function GetHelpTextForSpecialist(eSpecialist, pCity)
 		end
 	end
 	local iGPP = kSpecialistInfo.GreatPeopleRateChange + pCity:GetEventGPPFromSpecialists();
-	if iGPP > 0 then
+	if iGPP > 0 and kGreatPersonInfo then
 		strTooltip = string.format("%s +%d%s", strTooltip, iGPP, kGreatPersonInfo.IconString);
 	end
 	local strEmptyTooltip = string.format("%s[NEWLINE](%s)", EMPTY_SLOT_STRING, strTooltip);
