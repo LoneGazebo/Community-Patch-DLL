@@ -316,6 +316,9 @@
 // Adds military strength, connection, and Influence requirements for pledging to protect a City-State, and enables the PtP revocation system
 #define MOD_BALANCE_MINOR_PROTECTION_REQUIREMENTS					gCustomMods.isBALANCE_MINOR_PROTECTION_REQUIREMENTS()
 
+// XP is granted only on a unit's first attack each turn
+#define MOD_BALANCE_XP_ON_FIRST_ATTACK								gCustomMods.isBALANCE_XP_ON_FIRST_ATTACK()
+
 // Increases city HP for each Citizen, removes garrisoned unit strength from city ranged strikes, removes Technologies' and (for major civs only) Citizens' effect on city strength
 #define MOD_BALANCE_CITY_STRENGTH_SWITCH							gCustomMods.isBALANCE_CITY_STRENGTH_SWITCH()
 
@@ -484,9 +487,6 @@
 
 // Units are invested at 50% (see define) of their production cost, instead of being built outright
 #define MOD_BALANCE_UNIT_INVESTMENTS								gCustomMods.isBALANCE_UNIT_INVESTMENTS()
-
-// XP is granted only on a unit's first attack
-#define MOD_BALANCE_XP_ON_FIRST_ATTACK								gCustomMods.isBALANCE_XP_ON_FIRST_ATTACK()
 
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 // FIXME: Disabled for now; this needs to be examined to see if it still works properly
@@ -1040,7 +1040,7 @@
 // Roads are built automatically when a trade route ends
 #define MOD_CIV6_ROADS												gCustomMods.isCIV6_ROADS()
 
-// Adds a "worker cost" to improvements and deletes the worker when he expands all his "strength"
+// Adds a "worker cost" to improvements and deletes the worker when he expends all his "strength"
 #define MOD_CIV6_WORKER												gCustomMods.isCIV6_WORKER()
 
 // Enables Iska Heritage modmod support
@@ -1592,6 +1592,7 @@ public:
 	MOD_OPT_DECL(BALANCE_STRATEGIC_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_HEAVY_TRIBUTE);
 	MOD_OPT_DECL(BALANCE_MINOR_PROTECTION_REQUIREMENTS);
+	MOD_OPT_DECL(BALANCE_XP_ON_FIRST_ATTACK);
 	MOD_OPT_DECL(BALANCE_CITY_STRENGTH_SWITCH);
 	MOD_OPT_DECL(BALANCE_RIVER_CITY_CONNECTIONS);
 	MOD_OPT_DECL(BALANCE_SPY_POINTS);
@@ -1647,7 +1648,6 @@ public:
 	MOD_OPT_DECL(BALANCE_SETTLERS_RESET_GROWTH);
 	MOD_OPT_DECL(BALANCE_UNCAPPED_UNHAPPINESS);
 	MOD_OPT_DECL(BALANCE_UNIT_INVESTMENTS);
-	MOD_OPT_DECL(BALANCE_XP_ON_FIRST_ATTACK);
 	MOD_OPT_DECL(CARGO_SHIPS); // disabled
 
 	// Other User Interface Options

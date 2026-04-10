@@ -829,9 +829,6 @@ CvPlayer::~CvPlayer()
 
 void CvPlayer::init(PlayerTypes eID)
 {
-	LeaderHeadTypes eBestPersonality;
-	int iValue = 0;
-	int iBestValue = 0;
 	int iI = 0;
 	int iJ = 0;
 
@@ -884,37 +881,6 @@ void CvPlayer::init(PlayerTypes eID)
 	if ((s == SS_TAKEN) || (s == SS_COMPUTER))
 	{
 		setAlive(true);
-
-		if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
-		{
-			if (!isBarbarian() && !isMinorCiv())
-			{
-				iBestValue = 0;
-				eBestPersonality = NO_LEADER;
-
-				for (iI = 0; iI < GC.getNumLeaderHeadInfos(); iI++)
-				{
-					if (iI == GD_INT_GET(BARBARIAN_LEADER) || iI == GD_INT_GET(MINOR_CIVILIZATION))
-						continue;
-
-					if ((LeaderHeadTypes)iI == getLeaderType())
-						continue;
-
-					iValue = (1 + GC.getGame().getJonRandNum(10000, "Choosing Personality"));
-
-					if (iValue > iBestValue)
-					{
-						iBestValue = iValue;
-						eBestPersonality = ((LeaderHeadTypes)iI);
-					}
-				}
-
-				if (eBestPersonality != NO_LEADER)
-				{
-					setPersonalityType(eBestPersonality);
-				}
-			}
-		}
 
 		ASSERT(m_pTraits);
 		m_pTraits->InitPlayerTraits();

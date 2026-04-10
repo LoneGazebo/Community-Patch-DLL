@@ -79,7 +79,7 @@ VALUES
 -- Default value is 5. Valid values are between 0 and 100. Higher values make the AI more erratic.
 -- The APPROACH_RANDOM_PERSONALITIES_PERCENT value is used instead if the Random Personalities game option is active.
 	('APPROACH_RANDOM_PERCENT', 5),
-	('APPROACH_RANDOM_PERSONALITIES_PERCENT', 10),
+	('APPROACH_RANDOM_PERSONALITIES_PERCENT', 5),
 
 -- C4DF Approach Values
 -- Approach multipliers for having 2+ vassals

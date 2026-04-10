@@ -8,18 +8,18 @@
 
 #include "CvGameCoreDLLPCH.h"
 #include "ICvDLLUserInterface.h"
+#include "CvGameCoreUtils.h"
 #include "CvDiplomacyAIEnums.h"
 #include "CvDiplomacyAI.h"
-#include "CvGrandStrategyAI.h"
+#include "CvDiplomacyRequests.h"
+#include "CvCitySpecializationAI.h"
+#include "CvDealAI.h"
+#include "CvDealClasses.h"
 #include "CvEconomicAI.h"
+#include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
 #include "CvMinorCivAI.h"
-#include "CvCitySpecializationAI.h"
-#include "CvDealClasses.h"
-#include "CvDealAI.h"
-#include "CvGameCoreUtils.h"
 #include "CvNotifications.h"
-#include "CvDiplomacyRequests.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -30,9 +30,12 @@
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvDiplomacyAI
-//!  \brief		Drives the diplomatic interaction of a player
+//!  \brief		Drives the diplomatic interaction of a major civilization
 //
-//!  Author:	Jon Shafer
+//!  Author:				Jon Shafer
+//!  Main Modder:			Recursive
+//!  Major Contributors:	Gazebo, Putmalk, whoward
+//!  Special Thanks:		BitsE9, axatin, ASCII Guy
 //
 //!  Key Attributes:
 //!  - Object created by CvPlayer
@@ -62,7 +65,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	// Store the Player and Team IDs too because they're called about a million times
 	m_pPlayer = pPlayer;
 	m_eID = pPlayer->GetID();
-	SetTeam(pPlayer->getTeam());
+	m_eTeam = pPlayer->getTeam();
 
 	// Personality Values
 	m_iVictoryCompetitiveness = 5;
@@ -1146,51 +1149,50 @@ void CvDiplomacyAI::SlotStateChange()
 
 
 /// Is this a valid player to be looking at for diplomacy purposes? (e.g. are they alive, do we know them, etc.)
-bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false = */ ) const
+bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bIncludeTeammates /* = false */, bool bIncludeNoCities /* = false */) const
 {
 	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS)
 		return false;
 
+	CvPlayer* pOtherPlayer = &GET_PLAYER(eOtherPlayer);
+
 	// Alive?
-	if (!GET_PLAYER(eOtherPlayer).isAlive())
+	if (!pOtherPlayer->isAlive())
 		return false;
 
-	// REALLY Alive? (For some reason a player can be "alive" but have no Cities, Units, etc... grrrr)
-	if (GET_PLAYER(eOtherPlayer).getNumCities() <= 0)
+	// REALLY alive?
+	if (pOtherPlayer->getNumCities() <= 0 && (!bIncludeNoCities || pOtherPlayer->getNumUnits() <= 0))
 		return false;
 
 	// A player we've met?
-	if (!GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam()))
-		return false;
+	TeamTypes eOtherTeam = pOtherPlayer->getTeam();
+	if (eOtherTeam == GetTeam())
+		return bIncludeTeammates;
 
-	// On our team?
-	if (!bMyTeamIsValid && GET_PLAYER(eOtherPlayer).getTeam() == GetTeam())
-		return false;
-
-	return true;
+	return GET_TEAM(GetTeam()).isHasMet(eOtherTeam);
 }
 
 /// Returns the number of valid major civs
-int CvDiplomacyAI::GetNumValidMajorCivs() const
+int CvDiplomacyAI::GetNumValidMajorCivs(bool bIncludeTeammates /* = false */, bool bIncludeNoCities /* = false */) const
 {
 	int iCount = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayerLoop);
-		iCount += IsPlayerValid(ePlayer) ? 1 : 0;
+		iCount += IsPlayerValid(ePlayer, bIncludeTeammates, bIncludeNoCities) ? 1 : 0;
 	}
 
 	return iCount;
 }
 
-/// Returns a vector containing pointers to all valid major civs
-vector<PlayerTypes> CvDiplomacyAI::GetAllValidMajorCivs() const
+/// Returns a vector containing a list of all valid major civ indices
+vector<PlayerTypes> CvDiplomacyAI::GetAllValidMajorCivs(bool bIncludeTeammates /* = false */, bool bIncludeNoCities /* = false */) const
 {
 	vector<PlayerTypes> result;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = static_cast<PlayerTypes>(iPlayerLoop);
-		if (IsPlayerValid(ePlayer))
+		if (IsPlayerValid(ePlayer, bIncludeTeammates, bIncludeNoCities))
 			result.push_back(ePlayer);
 	}
 
@@ -1208,11 +1210,11 @@ bool CvDiplomacyAI::IsAtWar(PlayerTypes eOtherPlayer) const
 /// Determine if we're always at war with a player
 bool CvDiplomacyAI::IsAlwaysAtWar(PlayerTypes eOtherPlayer) const
 {
-	if (GetTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-		return false;
-
 	if (eOtherPlayer == BARBARIAN_PLAYER)
 		return true;
+
+	if (GetTeam() == GET_PLAYER(eOtherPlayer).getTeam())
+		return false;
 
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 		return true;
@@ -1230,12 +1232,12 @@ bool CvDiplomacyAI::IsTeammate(PlayerTypes eOtherPlayer) const
 }
 
 /// Determine if a player is on a team we've met
-bool CvDiplomacyAI::IsHasMet(PlayerTypes eOtherPlayer, bool bMyTeamIsValid /* = false */) const
+bool CvDiplomacyAI::IsHasMet(PlayerTypes eOtherPlayer, bool bIncludeTeammates /* = false */) const
 {
 	if (eOtherPlayer == NO_PLAYER || eOtherPlayer == BARBARIAN_PLAYER)
 		return false;
 
-	return GetTeam() == GET_PLAYER(eOtherPlayer).getTeam() ? bMyTeamIsValid : GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam());
+	return GetTeam() == GET_PLAYER(eOtherPlayer).getTeam() ? bIncludeTeammates : GET_TEAM(GetTeam()).isHasMet(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
 /// Determine if a player's team has a Defensive Pact with our team
@@ -1251,13 +1253,13 @@ bool CvDiplomacyAI::IsHasResearchAgreement(PlayerTypes eOtherPlayer) const
 }
 
 /// Determine if we have an embassy with a player's team
-bool CvDiplomacyAI::IsHasEmbassy(PlayerTypes eOtherPlayer) const
+bool CvDiplomacyAI::HasEmbassyAt(PlayerTypes eOtherPlayer) const
 {
 	return GET_TEAM(GetTeam()).HasEmbassyAtTeam(GET_PLAYER(eOtherPlayer).getTeam());
 }
 
 /// Determine if we have Open Borders with a player's team (we can enter their territory)
-bool CvDiplomacyAI::IsHasOpenBorders(PlayerTypes eOtherPlayer) const
+bool CvDiplomacyAI::HasOpenBordersFrom(PlayerTypes eOtherPlayer) const
 {
 	return GET_PLAYER(eOtherPlayer).isMinorCiv() ? GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsPlayerHasOpenBorders(GetID()) : GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsAllowsOpenBordersToTeam(GetTeam());
 }
@@ -1280,10 +1282,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const
 	if (IsVassal(eOtherPlayer) && GET_TEAM(GetTeam()).IsVoluntaryVassal(GET_PLAYER(eOtherPlayer).getTeam())) 
 		return true;
 
-	if (IsMaster(eOtherPlayer) && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVoluntaryVassal(GetTeam())) 
-		return true;
-
-	return false;
+	return IsMaster(eOtherPlayer) && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVoluntaryVassal(GetTeam());
 }
 
 /// Which allies do we have if we declare war on eOtherPlayer / in our ongoing war against eOtherPlayer?
@@ -1851,24 +1850,15 @@ bool CvDiplomacyAI::IsNuclearGandhi(bool bPotentially) const
 	if (!MOD_DIPLOAI_ENABLE_NUCLEAR_GANDHI || GetPlayer()->isHuman(ISHUMAN_AI_DIPLOMACY) || GC.getGame().isNoNukes())
 		return false;
 
-	bool bGandhiPersonality = false;
 	if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
 	{
 		int iRandomnessSetting = gCustomMods.getOption("DIPLOAI_NUCLEAR_GANDHI_RANDOM_PERSONALITIES_SETTING", 1);
 		if (iRandomnessSetting == 1) // Don't proceed if Random Personalities is enabled
 			return false;
-
-		if (iRandomnessSetting == 3) // Check if Gandhi was selected as the Random Personality instead of checking Leaders.Type
-		{
-			if (GetPlayer()->getPersonalityType() == (LeaderHeadTypes)GD_INT_GET(GANDHI_LEADER))
-				bGandhiPersonality = true;
-			else
-				return false;
-		}
 	}
 
 	// Must be Gandhi
-	if (!bGandhiPersonality && GetPlayer()->getLeaderType() != (LeaderHeadTypes)GD_INT_GET(GANDHI_LEADER))
+	if (GetPlayer()->getLeaderType() != (LeaderHeadTypes)GD_INT_GET(GANDHI_LEADER))
 		return false;
 
 	if (bPotentially)
@@ -1925,9 +1915,18 @@ int CvDiplomacyAI::ApplyPercentageModifier(int iValue, int iModifier, bool bDecr
 /// Returns a personality weight with a small random element
 int CvDiplomacyAI::RandomizePersonalityFlavor(int iOriginalValue, const CvSeeder& seed)
 {
-	int iPlusMinus = range(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0, (INT_MAX - 1) / 2);
+	// Four flavors can be set to -12 to guarantee that the AI will pursue a specific victory condition, if it is enabled.
+	// These should be treated as a 10 for all other purposes, and they override Random Personalities.
+	if (iOriginalValue == -12)
+		return 10;
 
-	// Diplo AI Option: Disable this randomization!
+	// If playing with Random Personalities, use a purely random value
+	if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+		return GC.getGame().randRangeInclusive(1, 10, seed);
+
+	// Standard randomization: adjust by +/- 2 then clamp between 1 and 10
+	int iPlusMinus = /*2*/ range(GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), -10, 10);
+
 	if (iPlusMinus == 0 || MOD_DIPLOAI_NO_FLAVOR_RANDOMIZATION)
 		return range(iOriginalValue, 1, 10);
 
@@ -1951,12 +1950,10 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 			CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
 			if (pkLeaderHeadInfo)
 			{
-				// Four flavors can be set to -12 to guarantee that the AI will pursue a specific victory condition, if it is enabled.
-				// These should be treated as a 10 for all other purposes.
-				m_iBoldness = pkLeaderHeadInfo->GetBoldness() == -12 ? 10 : RandomizePersonalityFlavor(pkLeaderHeadInfo->GetBoldness(), CvSeeder::fromRaw(0x0ba129a6).mix(ID));
-				m_iMinorCivCompetitiveness = pkLeaderHeadInfo->GetMinorCivCompetitiveness() == -12 ? 10 : RandomizePersonalityFlavor(pkLeaderHeadInfo->GetMinorCivCompetitiveness(), CvSeeder::fromRaw(0x4f28f23d).mix(ID));
-				m_iWonderCompetitiveness = pkLeaderHeadInfo->GetWonderCompetitiveness() == -12 ? 10 : RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWonderCompetitiveness(), CvSeeder::fromRaw(0x69d26397).mix(ID));
-				m_iWarmongerHate = pkLeaderHeadInfo->GetWarmongerHate() == -12 ? 10 : RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWarmongerHate(), CvSeeder::fromRaw(0x8e1f1b1f).mix(ID));
+				m_iBoldness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetBoldness(), CvSeeder::fromRaw(0x0ba129a6).mix(ID));
+				m_iMinorCivCompetitiveness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetMinorCivCompetitiveness(), CvSeeder::fromRaw(0x4f28f23d).mix(ID));
+				m_iWonderCompetitiveness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWonderCompetitiveness(), CvSeeder::fromRaw(0x69d26397).mix(ID));
+				m_iWarmongerHate = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetWarmongerHate(), CvSeeder::fromRaw(0x8e1f1b1f).mix(ID));
 
 				m_iVictoryCompetitiveness = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetVictoryCompetitiveness(), CvSeeder::fromRaw(0x5bea8e77).mix(ID));
 				m_iDiploBalance = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetDiploBalance(), CvSeeder::fromRaw(0x2f543039).mix(ID));
@@ -1983,7 +1980,7 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 				m_iMinorCivNeutralBias = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetNeutralBias(true), CvSeeder::fromRaw(0x4087c177).mix(ID));
 				m_iMinorCivFriendlyBias = RandomizePersonalityFlavor(pkLeaderHeadInfo->GetFriendlyBias(true), CvSeeder::fromRaw(0x4565d312).mix(ID));
 
-				// Minimal loyalty? We're willing to backstab.
+				// Minimal loyalty? We're more willing to backstab.
 				if (GetLoyalty() <= 2)
 					SetBackstabber(true);
 			}
@@ -2338,109 +2335,84 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
 					return;
 				}
-				if (MOD_BALANCE_VP) // VP makes Culture Victory easier than Science Victory
+				if (bCanUnlockTechs)
 				{
-					if (bCanUnlockPolicies)
-					{
-						SetPrimaryVictoryPursuit(VICTORY_PURSUIT_CULTURE);
-						return;
-					}
-					if (bCanUnlockTechs)
-					{
-						SetPrimaryVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
-						return;
-					}
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+					return;
 				}
-				else
+				if (bCanUnlockPolicies)
 				{
-					if (bCanUnlockTechs)
-					{
-						SetPrimaryVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
-						return;
-					}
-					if (bCanUnlockPolicies)
-					{
-						SetPrimaryVictoryPursuit(VICTORY_PURSUIT_CULTURE);
-						return;
-					}
+					SetPrimaryVictoryPursuit(VICTORY_PURSUIT_CULTURE);
+					return;
 				}
 			}
 		}
 	}
 
-	// AI player - we score victory pursuits based on flavors...
+	// AI player - we score victory pursuits based on flavors
 	CvFlavorManager* pFlavorMgr = GetPlayer()->GetFlavorManager();
-	vector<int> VictoryScores(NUM_VICTORY_PURSUITS, 100);
-
-	// ...and some randomness
-	const PlayerTypes ID = GetID(); // Used to randomize values between different AIs
-	const uint uRandom = GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 20 : 10; // Max. random weight added to each victory condition
+	vector<int> VictoryScores(NUM_VICTORY_PURSUITS, 10000);
 
 	// Base likelihood depends on the difference between this civ's major approach biases
-	VictoryScores[VICTORY_PURSUIT_DOMINATION] += max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE)) - max(GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY), GetMajorCivApproachBias(CIV_APPROACH_AFRAID));
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += max(GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE));
-	VictoryScores[VICTORY_PURSUIT_CULTURE] += max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_HOSTILE), GetMajorCivApproachBias(CIV_APPROACH_GUARDED));
-	VictoryScores[VICTORY_PURSUIT_SCIENCE] += max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_GUARDED)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE));
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += 2 * (max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE)) - max(GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY), GetMajorCivApproachBias(CIV_APPROACH_AFRAID)));
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += 2 * (max(GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE)));
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += 2 * (max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_HOSTILE), GetMajorCivApproachBias(CIV_APPROACH_GUARDED)));
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += 2 * (max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_GUARDED)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE)));
 
 	// Weight for conquest
-	VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetBoldness();
-	VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetMeanness();
-	VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) / 2;
-	VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION")) / 2;
-	VictoryScores[VICTORY_PURSUIT_DOMINATION] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x905ce137).mix(ID)));
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetBoldness() * 2;
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetMeanness() * 2;
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 
 	// Weight for diplomacy
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetMinorCivCompetitiveness();
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetWorkWithWillingness();
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetDiploBalance() / 2;
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) / 2;
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0xea5ade8b).mix(ID)));
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetMinorCivCompetitiveness() * 2;
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetWorkWithWillingness() * 2;
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetDiploBalance();
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 
 	// Weight for culture
-	VictoryScores[VICTORY_PURSUIT_CULTURE] += GetDoFWillingness();
-	VictoryScores[VICTORY_PURSUIT_CULTURE] += GetWonderCompetitiveness();
-	VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER")) / 2;
-	VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
-	VictoryScores[VICTORY_PURSUIT_CULTURE] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0xbccbe5fc).mix(ID)));
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += GetDoFWillingness() * 2;
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += GetWonderCompetitiveness() * 2;
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
 
 	// Weight for science
-	VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetLoyalty();
-	VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetWarmongerHate();
-	VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
-	VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
-	VictoryScores[VICTORY_PURSUIT_SCIENCE] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x26353d52).mix(ID)));
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetLoyalty() * 2;
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetWarmongerHate() * 2;
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 
 	// Add leader bias for default primary pursuit
 	if (ePrimaryVictory != NO_VICTORY_PURSUIT)
-		VictoryScores[ePrimaryVictory] += eSecondaryVictory == NO_VICTORY_PURSUIT ? 8 : 5;
+		VictoryScores[ePrimaryVictory] += eSecondaryVictory == NO_VICTORY_PURSUIT ? /*16*/ GD_INT_GET(VICTORY_PURSUIT_PRIMARY_ONLY_HINT_WEIGHT) : /*10*/ GD_INT_GET(VICTORY_PURSUIT_PRIMARY_HINT_WEIGHT);
 
 	// Default secondary pursuit adds a smaller amount of bias, if it exists
 	// Note: If default primary pursuit is NO_VICTORY_PURSUIT, there will also be no default secondary pursuit
 	if (eSecondaryVictory != NO_VICTORY_PURSUIT)
-		VictoryScores[eSecondaryVictory] += 3;
+		VictoryScores[eSecondaryVictory] += /*6*/ GD_INT_GET(VICTORY_PURSUIT_SECONDARY_HINT_WEIGHT);
 
 	// Not many City-States? City-States aren't 100% essential but without them a Diplomatic Victory becomes much harder.
 	int iNumMinorsEver = GC.getGame().GetNumMinorCivsEver();
 	int iNumMajorsEver = GC.getGame().GetNumMajorCivsEver();
 	if (iNumMinorsEver < iNumMajorsEver)
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] -= iNumMinorsEver <= iNumMajorsEver / 2 ? 10 : 5;
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += iNumMinorsEver <= iNumMajorsEver / 2 ? /*-20*/ GD_INT_GET(VICTORY_PURSUIT_FEW_CITY_STATES_PENALTY) : /*-10*/ GD_INT_GET(VICTORY_PURSUIT_FEW_CITY_STATES_PENALTY) / 2;
 
 	// Reduce weight significantly if the associated victory condition is disabled.
 	// But not entirely, because this is a civ's ROUTE to victory, not necessarily the victory condition they will achieve.
-	// Increased reduction for Random Personalities to account for the increased random factor (don't want the option to make the AI stupid!)
 	bool bDominationVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DOMINATION", true));
 	bool bDiploVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true));
 	bool bCultureVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true));
 	bool bScienceVictoryEnabled = GC.getGame().isVictoryValid((VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true));
 
 	if (!bDominationVictoryEnabled)
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] += /*-20*/ GD_INT_GET(VICTORY_PURSUIT_DISABLED_VICTORY_PENALTY);
 	if (!bDiploVictoryEnabled)
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += /*-20*/ GD_INT_GET(VICTORY_PURSUIT_DISABLED_VICTORY_PENALTY);
 	if (!bCultureVictoryEnabled)
-		VictoryScores[VICTORY_PURSUIT_CULTURE] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
+		VictoryScores[VICTORY_PURSUIT_CULTURE] += /*-20*/ GD_INT_GET(VICTORY_PURSUIT_DISABLED_VICTORY_PENALTY);
 	if (!bScienceVictoryEnabled)
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] += /*-20*/ GD_INT_GET(VICTORY_PURSUIT_DISABLED_VICTORY_PENALTY);
 
 	// Zero out all invalid scores
 	if (!bCanConquer)
@@ -2458,6 +2430,34 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	{
 		VictoryPursuitTypes eVictoryPursuit = (VictoryPursuitTypes) iVictoryLoop;
 		SortedVictoryScores.push_back(eVictoryPursuit, VictoryScores[eVictoryPursuit]);
+	}
+
+	// Find the top two contenders and the score differential between them
+	SortedVictoryScores.StableSortItems();
+	int iDifferential = SortedVictoryScores.GetWeight(0) - SortedVictoryScores.GetWeight(1);
+
+	// Randomness parameters
+	const PlayerTypes ID = GetID(); // Used to randomize values between different AIs
+	int iMaxRandomness = /*18*/ GD_INT_GET(VICTORY_PURSUIT_MAX_RANDOMNESS);
+	int iRandomness = max(iMaxRandomness - (iDifferential * 100 / /*200*/ max(GD_INT_GET(VICTORY_PURSUIT_DIFFERENTIAL_DIVISOR), 1)), 0);
+
+	for (int i = 0; i < SortedVictoryScores.size(); i++)
+	{
+		int iScore = SortedVictoryScores.GetWeight(i);
+
+		// Don't resurrect invalid pursuits
+		if (iScore == 0)
+			continue;
+
+		// Add some triangular random noise
+		iScore += GC.getGame().randRangeInclusive(0, iRandomness, CvSeeder::fromRaw(0xf8b11a03).mix(ID).mix(i));
+		iScore -= GC.getGame().randRangeInclusive(0, iRandomness, CvSeeder::fromRaw(0x9ce36696).mix(ID).mix(i));
+
+		// Protect against modder stupidity
+		if (iScore < 0)
+			iScore = 0;
+
+		SortedVictoryScores.SetWeight(i, iScore);
 	}
 
 	SortedVictoryScores.StableSortItems();
@@ -2571,36 +2571,33 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	}
 
 	// Check that our candidate is valid
-	if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	bool bValid = false;
+	switch (eCandidate)
 	{
-		bool bValid = false;
-		switch (eCandidate)
-		{
-		case NO_VICTORY_PURSUIT:
-			break;
-		case VICTORY_PURSUIT_DOMINATION:
-			bValid = bCanConquer && bDominationVictoryEnabled;
-			break;
-		case VICTORY_PURSUIT_DIPLOMACY:
-			bValid = bCanUseLeague && bDiploVictoryEnabled;
-			break;
-		case VICTORY_PURSUIT_CULTURE:
-			bValid = bCanUnlockPolicies && bCultureVictoryEnabled;
-			break;
-		case VICTORY_PURSUIT_SCIENCE:
-			bValid = bCanUnlockTechs && bScienceVictoryEnabled;
-			break;
-		}
+	case NO_VICTORY_PURSUIT:
+		break;
+	case VICTORY_PURSUIT_DOMINATION:
+		bValid = bCanConquer && bDominationVictoryEnabled;
+		break;
+	case VICTORY_PURSUIT_DIPLOMACY:
+		bValid = bCanUseLeague && bDiploVictoryEnabled;
+		break;
+	case VICTORY_PURSUIT_CULTURE:
+		bValid = bCanUnlockPolicies && bCultureVictoryEnabled;
+		break;
+	case VICTORY_PURSUIT_SCIENCE:
+		bValid = bCanUnlockTechs && bScienceVictoryEnabled;
+		break;
+	}
 
-		if (bValid)
-		{
-			SetSecondaryVictoryPursuit(eCandidate);
-			return;
-		}
+	if (bValid)
+	{
+		SetSecondaryVictoryPursuit(eCandidate);
+		return;
 	}
 
 	// Case 4: No default primary or secondary pursuit in the database (generalist civ, or the modder didn't specify it for a custom civ).
-	// We might also end up here if, in Cases 1 or 3, the pursuit hint is invalid or Random Personalities is enabled.
+	// We might also end up here if, in Cases 1 or 3, the pursuit hint is invalid.
 	// In any of these cases, we use the second highest scoring pursuit.
 	SetSecondaryVictoryPursuit(eChosenPrimary == eHighestScore ? eRunnerUp : eHighestScore);
 }
@@ -10135,7 +10132,7 @@ void CvDiplomacyAI::DoUpdateTechBlockLevels()
 				iTechDifference--;
 			}
 			// Reduce if we're friends and they can trade tech to us
-			if (GC.getGame().isOption(GAMEOPTION_ENABLE_TECH_TRADING) && IsDoFAccepted(ePlayer) && IsHasEmbassy(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isTechTrading())
+			if (GC.getGame().isOption(GAMEOPTION_ENABLE_TECH_TRADING) && IsDoFAccepted(ePlayer) && HasEmbassyAt(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->HasEmbassyAt(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isTechTrading())
 			{
 				iTechDifference--;
 			}
@@ -15831,7 +15828,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// We tried to sanction them RECENTLY - stick with it, unless they are liberating us or they're a vassal
 	if ((pTheirDiplo->HasTriedToSanctionUs(eMyPlayer) || bSanctioningThemNow) && !IsLiberator(ePlayer, false, true) && !bRecentLiberation)
 	{
-		bool bWaitingForDiminishedPower = bEmbargoingThemNow && !bTheyAreCloseToWorldConquest && !IsEndgameAggressiveTo(ePlayer) && !IsBackstabber() &&  iNumOurCitiesTheyOwn == 0;
+		bool bWaitingForDiminishedPower = bEmbargoingThemNow && !bTheyAreCloseToWorldConquest && !IsEndgameAggressiveTo(ePlayer) && !IsBackstabber() && iNumOurCitiesTheyOwn == 0;
 		vApproachScores[CIV_APPROACH_WAR] += bWaitingForDiminishedPower ? 0 : vApproachBias[CIV_APPROACH_WAR] * 4;
 		vApproachScores[CIV_APPROACH_HOSTILE] += bWaitingForDiminishedPower ? vApproachBias[CIV_APPROACH_HOSTILE] * 4 : vApproachBias[CIV_APPROACH_HOSTILE] * 2;
 		vApproachScores[CIV_APPROACH_GUARDED] += bWaitingForDiminishedPower ? vApproachBias[CIV_APPROACH_GUARDED] * 4 : vApproachBias[CIV_APPROACH_GUARDED] * 2;
@@ -18928,7 +18925,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				}
 
 				// They're giving us Open Borders, and no contested borders? Add some friendliness weight.
-				if (IsHasOpenBorders(ePlayer) && GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_NONE)
+				if (HasOpenBordersFrom(ePlayer) && GetLandDisputeLevel(ePlayer) == DISPUTE_LEVEL_NONE)
 				{
 					if (eOpinion >= CIV_OPINION_FAVORABLE)
 					{
@@ -19111,7 +19108,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				else
 				{
 					// Weight for Open Borders
-					if ((MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && pTheirDiplo->IsHasOpenBorders(eMyPlayer)) || (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && IsHasOpenBorders(ePlayer)))
+					if ((MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && pTheirDiplo->HasOpenBordersFrom(eMyPlayer)) || (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && HasOpenBordersFrom(ePlayer)))
 					{
 						vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 
@@ -20110,7 +20107,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// XML BONUS/PENALTY FROM DIFFICULTY LEVEL
 	////////////////////////////////////
 
-	// Additional weight to approaches (flat +/-; configurable in DiploApproachWeights.sql)
+	// Additional weight to approaches (flat +/-)
 	if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_HANDICAP))
 	{
 		vApproachScores[CIV_APPROACH_NEUTRAL] += GET_PLAYER(ePlayer).getHandicapInfo().getHumanNeutralApproachChangeFlat();
@@ -20521,7 +20518,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (!bStrategic)
 	{
-		int iRandomFactor = range(GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? /*10*/ GD_INT_GET(APPROACH_RANDOM_PERSONALITIES_PERCENT) : /*5*/ GD_INT_GET(APPROACH_RANDOM_PERCENT), 0, 100);
+		int iRandomFactor = range(GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? /*5*/ GD_INT_GET(APPROACH_RANDOM_PERSONALITIES_PERCENT) : /*5*/ GD_INT_GET(APPROACH_RANDOM_PERCENT), 0, 100);
 		if (iRandomFactor != 0)
 		{
 			int MyID = (int)eMyPlayer;
@@ -28980,7 +28977,7 @@ bool CvDiplomacyAI::ShouldHideDisputeMods(PlayerTypes ePlayer) const
 }
 
 /// Should we hide certain negative opinion modifiers towards ePlayer? (stuff like competition, warmongering etc)
-/// NOTE: If both hiding dispute mods and hiding negative mods, dispute mods will show up as if the DisputeLevel was NONE. Otherwise, dispute mods are simply hidden.
+/// NOTE: If both hiding dispute mods and hiding negative mods, *and* DIPLOAI_HONEST_OPINION_MODIFIERS=0, dispute mods will show up as if the DisputeLevel was NONE. Otherwise, dispute mods are simply hidden.
 bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
 {
 	// Game options forbid hiding.
@@ -44453,10 +44450,6 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 	if (BrokeNoConvertPromise(ePlayer) || IgnoredNoConvertPromise(ePlayer))
 		return false;
 	
-	// Never acceptable if they're an Enemy or Unforgivable
-	if (GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY)
-		return false;
-	
 	// Backstabber? Never acceptable.
 	if (IsUntrustworthy(ePlayer))
 		return false;
@@ -44476,20 +44469,8 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 		if (GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG || GetVictoryBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG || (GetPlayer()->GetCurrentEra() < 3 && IsEarlyGameCompetitor(ePlayer)) || (GetPlayer()->GetCurrentEra() >= 3 && GetBiggestCompetitor() == ePlayer) || GetPrimeLeagueCompetitor() == ePlayer || IsEndgameAggressiveTo(ePlayer))
 			return false;
 	}
-	
-	int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 
-	if (iFlavorReligion > 4 && GetPlayer()->GetPlayerTraits()->IsReligious())
-	{
-		return false;
-	}
-
-	if (iFlavorReligion < 7)
-	{
-		return true;
-	}
-
-	return false;
+	return true;
 }
 
 /// Will this AI agree to stop digging up ePlayer's artifacts?
@@ -46335,15 +46316,15 @@ int CvDiplomacyAI::GetEmbassyScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	if (IsHasEmbassy(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(GetID()))
+	if (HasEmbassyAt(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->HasEmbassyAt(GetID()))
 	{
 		iOpinionWeight = /*-3*/ GD_INT_GET(OPINION_WEIGHT_EMBASSY_MUTUAL);
 	}
-	else if (IsHasEmbassy(ePlayer))
+	else if (HasEmbassyAt(ePlayer))
 	{
 		iOpinionWeight = /*-2*/ GD_INT_GET(OPINION_WEIGHT_EMBASSY);
 	}
-	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(GetID()))
+	else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->HasEmbassyAt(GetID()))
 	{
 		iOpinionWeight = /*-1*/ GD_INT_GET(OPINION_WEIGHT_EMBASSY_THEM);
 	}
@@ -47776,8 +47757,8 @@ int CvDiplomacyAI::GetOpenBordersScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
 
-	bool bTheyAllow = IsHasOpenBorders(ePlayer);
-	bool bWeAllow = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(GetID());
+	bool bTheyAllow = HasOpenBordersFrom(ePlayer);
+	bool bWeAllow = GET_PLAYER(ePlayer).GetDiplomacyAI()->HasOpenBordersFrom(GetID());
 	bool bVassalPenalty = false;
 	if (IsVassal(ePlayer) && !WasResurrectedBy(ePlayer))
 	{
@@ -48497,7 +48478,7 @@ int CvDiplomacyAI::GetVassalOpenBordersScore(PlayerTypes ePlayer) const
 
 	int iOpinionWeight = 0;
 
-	if (IsHasOpenBorders(ePlayer))
+	if (HasOpenBordersFrom(ePlayer))
 	{
 		iOpinionWeight = /*-5*/ GD_INT_GET(OPINION_WEIGHT_VASSAL_OPEN_BORDERS);
 	}

@@ -139,12 +139,11 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 					CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
 					if (pkLeaderHeadInfo)
 					{
-						int iDefaultFlavorValue = /*5*/ GD_INT_GET(DEFAULT_FLAVOR_VALUE);
 						int iNumFlavorTypes = GC.getNumFlavorTypes();
 
 						for (int iI = 0; iI < iNumFlavorTypes; iI++)
 						{
-							// Majors use Leader XML Flavors
+							// Majors and Barbarians use Leader XML Flavors
 							if (!pPlayer->isMinorCiv())
 							{
 								m_piPersonalityFlavor[iI] = pkLeaderHeadInfo->getFlavorValue(iI);
@@ -154,12 +153,6 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 							{
 								m_piPersonalityFlavor[iI] = GC.getMinorCivInfo(pPlayer->GetMinorCivAI()->GetMinorCivType())->getFlavorValue(iI);
 							}
-
-							// If no Flavor value is set in the XML use the Default
-							if (m_piPersonalityFlavor[iI] == -1)
-							{
-								m_piPersonalityFlavor[iI] = iDefaultFlavorValue;
-							}
 						}
 					}
 				}
@@ -167,7 +160,6 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 				// Tweak from default values
 				RandomizeWeights();
 			}
-
 			// Human player, just set all flavors to average (5)
 			else
 			{
@@ -341,7 +333,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 	int iTotalLandTiles = GC.getMap().getLandPlots();
 	int iNumPlayers = GC.getGame().GetNumMajorCivsAlive();
 
-	if(iNumPlayers > 0)
+	if (iNumPlayers > 0)
 	{
 		int iNumFlavorTypes = GC.getNumFlavorTypes();
 		// Find tiles per player
@@ -355,33 +347,24 @@ void CvFlavorManager::AdjustWeightsForMap()
 		float fAdjust = log10(fTilesPerPlayer) - /*2.1f*/ GD_FLOAT_GET(FLAVOR_STANDARD_LOG10_TILES_PER_PLAYER);
 		int iAdjust = (int)(fAdjust * /*8*/ GD_INT_GET(FLAVOR_EXPANDGROW_COEFFICIENT));
 
-		int iFlavorMaxValue = /*20*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE);
-		int iFlavorMinValue = /*0*/ GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE);
+		int iMax = range(/*10*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 100);
+		int iMin = range(/*0*/ GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
 
 		int iExpansionIndex = GC.getInfoTypeForString("FLAVOR_EXPANSION");
 		int iGrowthIndex = GC.getInfoTypeForString("FLAVOR_GROWTH");
 
+		
+		PRECONDITION(iExpansionIndex >= 0 && iExpansionIndex < iNumFlavorTypes && iGrowthIndex >= 0 && iGrowthIndex < iNumFlavorTypes);
+
 		// Boost expansion
-		ASSERT(iExpansionIndex >= 0 && iExpansionIndex < iNumFlavorTypes);
-		if (iExpansionIndex >= 0 && iExpansionIndex < iNumFlavorTypes)
-		{
-			m_piPersonalityFlavor[iExpansionIndex] += iAdjust;
-			if(m_piPersonalityFlavor[iExpansionIndex] > iFlavorMaxValue)
-			{
-				m_piPersonalityFlavor[iExpansionIndex] = iFlavorMaxValue;
-			}
-		}
+		m_piPersonalityFlavor[iExpansionIndex] += iAdjust;
+		if (m_piPersonalityFlavor[iExpansionIndex] > iMax)
+			m_piPersonalityFlavor[iExpansionIndex] = iMax;
 
 		// Reduce growth
-		ASSERT(iGrowthIndex >= 0 && iGrowthIndex < iNumFlavorTypes);
-		if (iGrowthIndex >= 0 && iGrowthIndex < iNumFlavorTypes)
-		{
-			m_piPersonalityFlavor[iGrowthIndex] -= iAdjust;
-			if(m_piPersonalityFlavor[iGrowthIndex] < iFlavorMinValue)
-			{
-				m_piPersonalityFlavor[iGrowthIndex] = iFlavorMinValue;
-			}
-		}
+		m_piPersonalityFlavor[iGrowthIndex] -= iAdjust;
+		if (m_piPersonalityFlavor[iGrowthIndex] < iMin)
+			m_piPersonalityFlavor[iGrowthIndex] = iMin;
 
 		// Save these off as our core personality and broadcast updates
 		ResetToBasePersonality();
@@ -391,9 +374,8 @@ void CvFlavorManager::AdjustWeightsForMap()
 /// Retrieve the value of one Personality flavor, typically in the range [0,10]
 int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 {
-	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
-
-	return range(m_piPersonalityFlavor[eType],0,30);
+	PRECONDITION(eType >= 0 && eType < GC.getNumFlavorTypes());
+	return m_piPersonalityFlavor[eType];
 }
 
 /// Retrieve the value of all Personality flavors
@@ -402,20 +384,27 @@ CvEnumMap<FlavorTypes, int>& CvFlavorManager::GetAllPersonalityFlavors()
 	return m_piPersonalityFlavor;
 }
 
-
 /// Retrieve the value of one Personality flavor, modified for the diplomacy AI
 int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 {
-	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
+    int iMax = range(GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 100);
+    int iRawValue = GetPersonalityIndividualFlavor(eType);
 
-	int iValue = m_piPersonalityFlavor[eType];
+	// If the flavor was zeroed out, always return the minimum value
+	if (iRawValue == 0)
+		return 1;
 
-	// If the flavor is zeroed out or deleted, we have to account for that - use the default value
-	if (iValue <= 0)
-		return 5;
+	// If Max is 10, the flavor scale corresponds with the diplomacy AI's 1-10, so no issue here
+    if (iMax == 10)
+        return iRawValue;
 
-	// Must be within upper and lower bounds
-	return range(iValue, 1, 10);
+    // If a modder has set max to 1, it's either 10 (for non-zero values) or 1 (for zero values)
+    if (iMax == 1)
+        return 10;
+
+    // If Max isn't 10, map [1..iMax] -> [1..10] with rounding to nearest
+    int iScaled = ((iRawValue - 1) * 9 + (iMax - 1) / 2) / (iMax - 1) + 1;
+    return range(iScaled, 1, 10);
 }
 
 // PRIVATE METHODS
@@ -423,26 +412,16 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 /// Make a random adjustment to each flavor value for this leader so they don't play exactly the same
 void CvFlavorManager::RandomizeWeights()
 {
-	int iMax = range(/*20*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 20);
+	int iMax = range(/*10*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 100);
 	int iMin = range(/*0*/ GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
 	int iPlusMinus = max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
-
-	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
-	CvSeeder seed;
 
 	for (int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 	{
 		// Don't modify it if it's zero-ed out in the XML
 		if (m_piPersonalityFlavor[iI] != 0)
-			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax, CvSeeder::fromRaw(0xe655df8f).mix(m_pPlayer->GetID()).mix(iI));
+			m_piPersonalityFlavor[iI] = range(GC.getGame().randRangeInclusive(m_piPersonalityFlavor[iI] - iPlusMinus, m_piPersonalityFlavor[iI] + iPlusMinus, CvSeeder::fromRaw(0xe655df8f).mix(m_pPlayer->GetID()).mix(iI)), iMin, iMax);
 	}
-}
-
-/// Add a random plus/minus to an integer (but keep it in range)
-int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, const CvSeeder& seed)
-{
-	// Randomize!
-	return range(GC.getGame().randRangeInclusive(iOriginalValue - iPlusMinus, iOriginalValue + iPlusMinus, seed), iMin, iMax);
 }
 
 /// Sends base personality flavor settings to all recipients

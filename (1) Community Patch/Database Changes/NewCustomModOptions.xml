@@ -131,7 +131,6 @@
 		<!-- Random Personalities settings: -->
 		<!-- 1 (default) = disable Nuclear Gandhi if Random Personalities is enabled. -->
 		<!-- 2 = LeaderType LEADER_GANDHI enables Nuclear Gandhi if Random Personalities is enabled. Gandhi remains nuke happy even if his personality is otherwise random. -->
-		<!-- 3 = PersonalityType LEADER_GANDHI enables Nuclear Gandhi if Random Personalities is enabled. Gandhi's nuke happiness is swapped around as if it were any other leader flavor. -->
 		<Row Class="5" Name="DIPLOAI_ENABLE_NUCLEAR_GANDHI" Value="1"/>
 		<Row Class="0" Name="DIPLOAI_NUCLEAR_GANDHI_RANDOM_PERSONALITIES_SETTING" Value="1"/>
 
@@ -378,6 +377,9 @@
 		<!-- NOTE: Requires additional UI changes -->
 		<Row Class="6" Name="BALANCE_MINOR_PROTECTION_REQUIREMENTS" Value="0"/>
 
+		<!-- XP is granted only on a unit's first attack each turn -->
+		<Row Class="6" Name="BALANCE_XP_ON_FIRST_ATTACK" Value="0"/>
+
 		<!-- Increases city HP for each Citizen, removes garrisoned unit strength from city ranged strikes, removes Technologies' and (for major civs only) Citizens' effect on city strength -->
 		<!-- Defines: CITY_STRENGTH_POPULATION_CHANGE -->
 		<Row Class="6" Name="BALANCE_CITY_STRENGTH_SWITCH" Value="0"/>
@@ -415,7 +417,7 @@
 		<!-- Promotions from buildings are now retroactively applied to all units originating from that city -->
 		<Row Class="6" Name="BALANCE_RETROACTIVE_PROMOTIONS" Value="0"/>
 
-		<!-- Puppet cities don't use up Global Happiness (in VP), don't generate Unhappiness from most sources (except Specialists), and don't generate any Local Happiness (except Venice) -->
+		<!-- Puppet cities don't use up Global Happiness (in VP), don't generate Unhappiness from most sources, and don't generate any Local Happiness (except Venice) -->
 		<!-- They generate flat Unhappiness per X citizens, no longer generate GPP points, don't count for the Technology cost penalty, and generate full Unit Supply for Venice -->
 		<!-- Defines: UNHAPPINESS_PER_X_PUPPET_CITIZENS -->
 		<Row Class="6" Name="BALANCE_PUPPET_CHANGES" Value="0"/>
@@ -555,9 +557,6 @@
 		<!-- Units are invested at 50% (see define) of their production cost, instead of being built outright -->
 		<Row Class="6" Name="BALANCE_UNIT_INVESTMENTS" Value="0"/>
 
-		<!-- XP is granted only on a unit's first attack -->
-		<Row Class="6" Name="BALANCE_XP_ON_FIRST_ATTACK" Value="0"/>
-
 		<!-- CURRENTLY NON-FUNCTIONAL -->
 		<!-- Allows Land Units to become Cargo of Melee Ships -->
 		<!-- NOTE: Other database changes are required! If anyone is interested, find CargoShipMod.sql in repository history (removed in VP 5.0) and try to make it work -->
@@ -644,6 +643,7 @@
 		<Row Class="0" Name="DIPLOAI_LIMIT_VICTORY_PURSUIT_SETTING" Value="1"/>
 
 		<!-- Diplomacy flavors for AI players will always be set to their database value, clamped between 1 and 10 -->
+		<!-- This option is overridden by the "AI Random Personalities" game option -->
 		<Row Class="5" Name="DIPLOAI_NO_FLAVOR_RANDOMIZATION" Value="0"/>
 
 		<!-- Prevents the AI from declaring war -->
@@ -1161,7 +1161,7 @@
 		<!-- Roads are built automatically when a trade route ends -->
 		<Row Class="6" Name="CIV6_ROADS" Value="0"/>
 
-		<!-- Adds a "worker cost" to improvements and deletes the worker when he expands all his "strength" -->
+		<!-- Adds a "worker cost" to improvements and deletes the worker when he expends all his "strength" -->
 		<Row Class="6" Name="CIV6_WORKER" Value="0"/>
 
 		<!-- Enables Iska Heritage modmod support -->
