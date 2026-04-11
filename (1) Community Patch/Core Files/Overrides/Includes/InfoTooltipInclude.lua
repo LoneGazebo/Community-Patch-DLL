@@ -1463,8 +1463,9 @@ end
 --- @param pCity City?
 --- @param bGeneralInfo boolean? If true, don't compute any info that's player/city-specific. The `pCity` parameter is ignored. Defaults to true if the `Game` object doesn't exist.
 --- @param bShowProjectedYields boolean? If true, show projected yields when this building is built in `pCity`.
+--- @param bOnlyYieldsAndEffects boolean? If true, show only yields and effects of the buildings, not costs and requirements
 --- @return string
-function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCity, bGeneralInfo, bShowProjectedYields)
+function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCity, bGeneralInfo, bShowProjectedYields, bOnlyYieldsAndEffects)
 	local kBuildingInfo = GameInfo.Buildings[eBuilding];
 
 	--- @type Player?
@@ -1812,7 +1813,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	if next(tHeaderLines) then
+	if not bOnlyYieldsAndEffects and next(tHeaderLines) then
 		table.insert(tLines, table.concat(tHeaderLines, "[NEWLINE]"));
 	end
 
@@ -1898,7 +1899,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			GameInfo.Resolutions[kSpecialSessionInfo.TriggerResolution].Description);
 	end
 
-	if next(tStatLines) then
+	if not bOnlyYieldsAndEffects and next(tStatLines) then
 		table.insert(tLines, table.concat(tStatLines, "[NEWLINE]"));
 	end
 
@@ -3156,7 +3157,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local strInvestKey = MOD_BALANCE_BUILDING_INVESTMENTS and "TXT_KEY_PRODUCTION_PUPPET_INVESTABLE" or "TXT_KEY_PRODUCTION_PUPPET_PURCHASABLE";
 	AddTooltipIfTrue(tReqLines, strInvestKey, kBuildingInfo.PuppetPurchaseOverride);
 
-	if not pCity then
+	if not pCity and not bOnlyYieldsAndEffects then
 		-- Simple (boolean) requirements
 		AddTooltipIfTrue(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_CAPITAL", kBuildingInfo.CapitalOnly);
 		AddTooltipIfTrue(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_HOLY_CITY", kBuildingInfo.HolyCity);
@@ -3525,7 +3526,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		table.insert(tReqLines, string.format("%s %s", L("TXT_KEY_PRODUCTION_MAX_PLAYER_INSTANCE", iMaxPlayerInstance), strExtraInstance));
 	end
 
-	if next(tReqLines) then
+	if not bOnlyYieldsAndEffects and next(tReqLines) then
 		table.insert(tLines, table.concat(tReqLines, "[NEWLINE]"));
 	end
 
@@ -3965,7 +3966,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	if next(tExtraInstanceLines) then
+	if not bOnlyYieldsAndEffects and next(tExtraInstanceLines) then
 		table.insert(tBoostLines, table.concat(tExtraInstanceLines, "[NEWLINE]"));
 	end
 
@@ -4018,7 +4019,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	if pCity then
+	if not bOnlyYieldsAndEffects and pCity then
 		-- Investment rules (for unbuilt buildings only)
 		if MOD_BALANCE_BUILDING_INVESTMENTS and pCity:GetNumRealBuilding(eBuilding) <= 0 and pCity:GetNumFreeBuilding(eBuilding) <= 0 then
 			local iAmount = BALANCE_BUILDING_INVESTMENT_BASELINE * -1;
@@ -4186,7 +4187,7 @@ function GetHelpTextForSpecialist(eSpecialist, pCity)
 		end
 	end
 	local iGPP = kSpecialistInfo.GreatPeopleRateChange + pCity:GetEventGPPFromSpecialists();
-	if iGPP > 0 and kGreatPersonInfo then
+	if iGPP > 0 then
 		strTooltip = string.format("%s +%d%s", strTooltip, iGPP, kGreatPersonInfo.IconString);
 	end
 	local strEmptyTooltip = string.format("%s[NEWLINE](%s)", EMPTY_SLOT_STRING, strTooltip);
