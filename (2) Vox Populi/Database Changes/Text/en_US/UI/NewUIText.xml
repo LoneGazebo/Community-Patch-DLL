@@ -1450,6 +1450,21 @@
 		<Row Tag="TXT_KEY_PEDIA_YIELDPERERA_LABEL">
 			<Text>Yield Per Era:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_FEATURE_IMPROV_YIELD_LABEL">
+			<Text>Feature Yield Bonus:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_ADJACENT_CITY_IMPROV_YIELD_LABEL">
+			<Text>Adjacent City Yield:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TECH_IMPROV_YIELD_LABEL">
+			<Text>Tech Yield Bonus:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TECH_FRESH_WATER_IMPROV_YIELD_LABEL">
+			<Text>Tech Yield Bonus (With Fresh Water):</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TECH_NO_FRESH_WATER_IMPROV_YIELD_LABEL">
+			<Text>Tech Yield Bonus (Without Fresh Water):</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTIONS_PEDIA_MELEE">
 			<Text>Melee Promotions</Text>
 		</Row>
