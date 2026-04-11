@@ -5485,6 +5485,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		if (GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex) > 0)
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_RECENT_SPY_MISSION");
+			localizedDurationText << GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex);
 			DisabledTT += localizedDurationText.toUTF8();
 		}
 

@@ -2971,7 +2971,7 @@
 			<Text>[NEWLINE] [ICON_BULLET] Requires City Event Choice that is not currently active</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_RECENT_SPY_MISSION">
-			<Text>[NEWLINE] [ICON_BULLET] Spy has recently conducted a mission</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Spy has recently conducted a mission (blocked for {1_Num} more {1_Num: plural 1?turn; other?turns;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT">
 			<Text>[NEWLINE] [ICON_BULLET] Invalid Active City Event</Text>
