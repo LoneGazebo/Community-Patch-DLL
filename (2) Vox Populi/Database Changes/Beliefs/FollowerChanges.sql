@@ -137,14 +137,6 @@ SELECT
 FROM Resources
 WHERE ResourceClassType = 'RESOURCECLASS_BONUS';
 
-CREATE TRIGGER IF NOT EXISTS BeliefFWNewBonusResources AFTER INSERT ON Resources
-WHEN NEW.ResourceClassType = 'RESOURCECLASS_BONUS'
-BEGIN
-	INSERT INTO Belief_ResourceYieldChanges
-					(BeliefType,			ResourceType, YieldType, Yield)
-	SELECT DISTINCT	 'BELIEF_FEED_WORLD',	NEW.Type,	'YIELD_GOLD', 1;
-END;
-
 -- Liturgical Drama (now Gurukulam)
 UPDATE Beliefs SET MinFollowers = 0 WHERE Type = 'BELIEF_LITURGICAL_DRAMA';
 
