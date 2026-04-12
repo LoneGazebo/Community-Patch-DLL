@@ -1568,6 +1568,20 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
+	--- Given a database table with BuildingType, YieldType and Yield where Yields are stored in Times100 format, extract all entries of the given building/yield pair.
+	--- Duplicate rows are overwritten.
+	--- @param tYieldTable table<integer, integer> The yield table, could be empty or partially filled
+	--- @param strDatabaseTable string The name of the database table to be extracted
+	--- @param kYieldInfo table The yield entry
+	--- @param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
+	local function ExtractSimpleYieldTableTimes100(tYieldTable, strDatabaseTable, kYieldInfo, strYieldColumnName)
+		local eYield = kYieldInfo.ID;
+		strYieldColumnName = strYieldColumnName or "Yield";
+		for row in GameInfo[strDatabaseTable]{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
+			tYieldTable[eYield] = row[strYieldColumnName] / 100;
+		end
+	end
+
 	--- Given a database table with BuildingType, <X>Type, YieldType, Yield and NumRequired, extract all entries of the given building/yield pair.
 	--- Duplicate rows are overwritten.
 	--- @param tYieldFractionTable table<integer, table<integer, table<string, integer>?>?> The yield table, could be empty or partially filled. Each entry is a table with Numerator and Denominator keys.
@@ -3622,7 +3636,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 
 			if not (pActivePlayer and pActivePlayer:HasReachedEra(iNumEras - 1)) then
-				ExtractSimpleYieldTable(tEraBoosts, "Building_YieldChangesEraScalingTimes100", kYieldInfo);
+				ExtractSimpleYieldTableTimes100(tEraBoosts, "Building_YieldChangesEraScalingTimes100", kYieldInfo);
 				ExtractSimpleYieldTable(tEraModifierBoosts, "Building_YieldModifiersEraScaling", kYieldInfo);
 			end
 

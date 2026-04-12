@@ -89,7 +89,7 @@
 			<Text>{2_Sign}{1_Num} Range for [ICON_CARGO_SHIP] Sea Trade Routes</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_TOURISM_MODIFIER">
-			<Text>{2_Sign}{1_Num} [ICON_TOURISM] Tourism in all Cities</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_TOURISM] Tourism in all Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_BUILDING_BOOST">
 			<Text>{1_Building:textkey}: {2_YieldBoosts}</Text>
