@@ -27542,7 +27542,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				else
 				{
-					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_WLTKD_START");
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
 					//We do this at the player level once per turn.
 					addInstantYieldText(iType, localizedText.toUTF8());
