@@ -4,11 +4,19 @@ include("FLuaVector")
 
 local pathBorderStyle = "MovementRangeBorder"
 
-local bClearPathColour = false
 local bClearPathStyle = false
+
+local tHighlightedPathHexes = {}
 
 local NavyBlue = Vector4(0.0, 0.0, 0.502, 1.0)
 local White = Vector4(1.0, 1.0, 1.0, 1.0)
+
+local function ClearPathColourHighlights()
+  for _, hex in ipairs(tHighlightedPathHexes) do
+    Events.SerialEventHexHighlight(hex, false)
+  end
+  tHighlightedPathHexes = {}
+end
 
 function OnUnitSelectionCleared()
   if bClearPathStyle then
@@ -16,22 +24,13 @@ function OnUnitSelectionCleared()
     bClearPathStyle = false
   end
 
-  if bClearPathColour then
-    Events.ClearHexHighlights()
-    bClearPathColour = false
-  end
+  ClearPathColourHighlights()
 end
 Events.UnitSelectionCleared.Add(OnUnitSelectionCleared)
 
 --- @param tPath PathNode[]
 Events.UIPathFinderUpdate.Add(function(tPath)
-  if bClearPathColour then
-    Events.ClearHexHighlights()
-    bClearPathColour = false
-  end
-
-  local lastTurn = nil
-  local colourIdx = 1
+  ClearPathColourHighlights()
 
   local prevNode
   for i, node in ipairs(tPath) do
@@ -39,13 +38,16 @@ Events.UIPathFinderUpdate.Add(function(tPath)
       if Map.PlotDistance(prevNode.x, prevNode.y, node.x, node.y) > 1 then
         local pHeadUnit = UI.GetHeadSelectedUnit();
         local color = pHeadUnit and pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_SEA and NavyBlue or White
-        Events.SerialEventHexHighlight(ToHexFromGrid({x = prevNode.x, y = prevNode.y}), true, color)
-        Events.SerialEventHexHighlight(ToHexFromGrid({x = node.x, y = node.y}), true, color)
+        local hexPrev = ToHexFromGrid({x = prevNode.x, y = prevNode.y})
+        local hexNode = ToHexFromGrid({x = node.x, y = node.y})
+        Events.SerialEventHexHighlight(hexPrev, true, color)
+        Events.SerialEventHexHighlight(hexNode, true, color)
+        tHighlightedPathHexes[#tHighlightedPathHexes + 1] = hexPrev
+        tHighlightedPathHexes[#tHighlightedPathHexes + 1] = hexNode
       end
     end
     prevNode = node
   end
-    bClearPathColour = true
 end)
 
 -------------------------------------------------
@@ -67,9 +69,6 @@ end)
 -------------------------------------------------
 Events.DisplayMovementIndicator.Add(function(bShow)
   if not bShow then
-    if bClearPathColour then
-      Events.ClearHexHighlights()
-      bClearPathColour = false
-    end
+    ClearPathColourHighlights()
   end
 end)
