@@ -109,7 +109,7 @@ WHERE SpaceshipProject IS NOT NULL;
 -- This blocks the unit from being always faith purchasable as long as it has a faith cost
 -----------------------------------------------------------------
 
--- All non-naval military units except mercenary units
+-- All military units except mercenary units
 UPDATE Units
 SET RequiresFaithPurchaseEnabled = 1
 WHERE CombatClass IN (SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1)
