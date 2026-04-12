@@ -30538,6 +30538,9 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 			// Table only works on Land Units. Naval Units can only pass this check with a Trait column.
 			if (pkUnitInfo->IsRequiresFaithPurchaseEnabled())
 			{
+				if (!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+					return false;
+				
 				// air units are not allowed
 				if (pkUnitInfo->GetDomainType() == DOMAIN_AIR)
 					return false;
@@ -30553,9 +30556,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				else
 				{
 					if (!pReligion)
-						return false;
-	
-					if (!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 						return false;
 					
 					TechTypes ePrereqTech = static_cast<TechTypes>(pkUnitInfo->GetPrereqAndTech());
