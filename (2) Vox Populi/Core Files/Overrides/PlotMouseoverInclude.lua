@@ -71,6 +71,7 @@ GetYieldString = (function()
 	local YIELD_GOLD = YieldTypes.YIELD_GOLD
 	local YIELD_SCIENCE = YieldTypes.YIELD_SCIENCE
 	local YIELD_CULTURE = YieldTypes.YIELD_CULTURE
+	local YIELD_FAITH = YieldTypes.YIELD_FAITH
 
 	local NO_FEATURE = FeatureTypes.NO_FEATURE
 
@@ -100,6 +101,7 @@ GetYieldString = (function()
 		append_yield(plot, text, '[ICON_GOLD]', YIELD_GOLD)
 		append_yield(plot, text, '[ICON_RESEARCH]', YIELD_SCIENCE)
 		append_yield(plot, text, '[ICON_CULTURE]', YIELD_CULTURE)
+		append_yield(plot, text, '[ICON_PEACE]', YIELD_FAITH)
 
 		if featureId ~= NO_FEATURE then
 			local playerId = Game.GetActivePlayer()
