@@ -1,11 +1,11 @@
 local IsTable = CPK.Type.IsTable
-local IsCallable = CPK.Type.IsCallable
+local IsFunction = CPK.Type.IsFunction
 
 local ArgsEach = CPK.Args.Each
 
 --- @param control Control
 local function ControlShowOne(control)
-	if IsTable(control) and IsCallable(control.SetHide) then
+	if IsTable(control) and IsFunction(control.SetHide) then
 		control:SetHide(false)
 	end
 end
@@ -19,10 +19,7 @@ end
 --- @param control Control
 --- @param ... Control
 local function ControlShow(control, ...)
-	ControlShowOne(control)
-	ArgsEach(ControlShowOne, ...)
-
-	return control, ...
+	return ArgsEach(ControlShowOne, control, ...)
 end
 
 CPK.UI.Control.Show = ControlShow

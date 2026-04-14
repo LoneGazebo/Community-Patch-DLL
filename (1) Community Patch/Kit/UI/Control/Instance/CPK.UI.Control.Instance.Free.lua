@@ -2,7 +2,6 @@ local lua_next = next
 
 local IsTable = CPK.Type.IsTable
 local IsString = CPK.Type.IsString
-local IsBoolean = CPK.Type.IsBoolean
 local AssertIsTable = CPK.Assert.IsTable
 
 local InstanceError = CPK.UI.Control.Instance.Error
@@ -20,28 +19,26 @@ local InstanceError = CPK.UI.Control.Instance.Error
 local function FreeControlInstance(inst)
 	AssertIsTable(inst)
 
-	local root = inst[2]
-	local parent = inst[4]
-	local released = inst[6]
-
-	if released then
+	if inst[2] then
 		InstanceError(inst, 'Instance already released!')
 	end
 
-	if not IsBoolean(released)
-			or not IsTable(root)
-			or not IsTable(parent)
-	then
+	local root = inst[3]
+	local parent = inst[4]
+
+	if not IsTable(root) or not IsTable(parent) then
 		InstanceError(inst, 'Failed to free instance, required data is missing!')
 	end
+
+	--[[@cast root Control]]
+	--[[@cast parent Control]]
 
 	root:SetHide(true)
 	parent:ReleaseChild(root)
 
-	inst[2] = nil
+	inst[2] = true
+	inst[3] = nil
 	inst[4] = nil
-	inst[5] = nil
-	inst[6] = true
 
 	for key, _ in lua_next, inst do
 		if IsString(key) then

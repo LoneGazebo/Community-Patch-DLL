@@ -1,7 +1,7 @@
 local lua_select = select
 
 local IsTable = CPK.Type.IsTable
-local IsCallable = CPK.Type.IsCallable
+local IsFunction = CPK.Type.IsFunction
 
 local AssertIsTable = CPK.Assert.IsTable
 
@@ -9,7 +9,7 @@ local AssertIsTable = CPK.Assert.IsTable
 --- @param h number # Height
 --- @param control Control
 local function ControlResizeOne(w, h, control)
-	if IsTable(control) and IsCallable(control.SetSize) then
+	if IsTable(control) and IsFunction(control.SetSize) then
 		if w then control:SetSizeX(w) end
 		if h then control:SetSizeY(h) end
 	end
@@ -31,15 +31,8 @@ local function ControlResize(dims, control, ...)
 		-- Inlined ArgsEach to avoid creating a closure
 		local len = lua_select('#', ...)
 
-		if len <= 8 then
-			for i = 1, len do
-				ControlResizeOne(w, h, lua_select(i, ...))
-			end
-		else
-			local tmp = { ... }
-			for i = 1, len do
-				ControlResizeOne(w, h, tmp[i])
-			end
+		for i = 1, len do
+			ControlResizeOne(w, h, lua_select(i, ...))
 		end
 	end
 

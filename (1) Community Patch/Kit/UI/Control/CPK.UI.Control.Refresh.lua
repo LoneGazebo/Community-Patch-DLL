@@ -64,10 +64,7 @@ end
 --- @param ... Control # Additional controls to refresh
 --- @return Control ...
 local function ControlRefresh(control, ...)
-	ControlRefreshOne(control)
-	ArgsEach(ControlRefreshOne, ...)
-
-	return control, ...
+	return ArgsEach(ControlRefreshOne, control, ...)
 end
 
 CPK.UI.Control.Refresh = ControlRefresh

@@ -1,3 +1,4 @@
+local lua_type = type
 local lua_next = next
 local lua_tostring = tostring
 local lua_loadstring = loadstring
@@ -12,20 +13,23 @@ local InstanceError = CPK.UI.Control.Instance.Error
 
 --- @class ControlInstance
 --- @field [1] string # Instance name
---- @field [2] Control # Root control
---- @field [3] string # State
---- @field [4] Control # Parent control
---- @field [5] Control # Context control
---- @field [6] boolean # Release state
+--- @field [2] boolean # Is released
+--- @field [3] Control | nil # Root control
+--- @field [4] Control | nil # Parent control
 --- @field [string] Control | nil
 
-local meta = {
+local ControlInstanceMeta = {
 	__index = function(self, id)
-		if self[6] then
-			InstanceError(self, 'Failed to access "' .. lua_tostring(id) .. '". Use-after-release!')
+		-- Prevent stack overflow
+		if lua_type(id) == 'number' then
+			return nil
 		end
 
-		InstanceError(self, 'Failed to access "' .. lua_tostring(id) .. '". Such id is not found!')
+		if self[2] then
+			InstanceError(self, 'Failed to access `' .. lua_tostring(id) .. '`. Use-after-release!')
+		end
+
+		InstanceError(self, 'Failed to access `' .. lua_tostring(id) .. '`. Id not found!')
 	end,
 	__newindex = function(self)
 		InstanceError(self, 'Instance modification is prohibited!')
@@ -52,7 +56,6 @@ local meta = {
 --- @return ControlInstance # Table of child controls indexed by XML ID
 --- @return Control # Root control for the created instance (Always ControlBase)
 local function MakeControlInstance(name, parent)
-	local state = lua_loadstring('return StateName')()
 	local context = lua_loadstring('return ContextPtr')()
 
 	parent = parent or context
@@ -61,25 +64,25 @@ local function MakeControlInstance(name, parent)
 	AssertIsTable(parent)
 	AssertIsString(name)
 
-	local inst = { name, nil, state, parent, context, nil } --[[@as ControlInstance]]
+	local inst = { name, nil, nil, parent } --[[@as ControlInstance]]
 	local proxy = {} --[[@as table<string, Control>]]
 
 	lua_setmetatable(proxy, {
 		__newindex = function(_, key, val)
 			if inst[key] then
-				InstanceError(inst, 'Duplicate control id: "' .. key .. '"!')
+				InstanceError(inst, 'Duplicate control id: `' .. key .. '`!')
 			end
 
 			inst[key] = val
 		end
 	})
 
-	local root = ContextPtr:BuildInstanceForControl(name, proxy, parent)
-	inst[2] = root
+	local root = context:BuildInstanceForControl(name, proxy, parent)
+	inst[3] = root
 
 	if lua_tostring(root):match(': 00000000$') then
 		parent:ReleaseChild(root)
-		inst[6] = true
+		inst[2] = true
 		InstanceError(inst, 'Instance not found or lacks root element in xml file!')
 	end
 
@@ -94,13 +97,13 @@ local function MakeControlInstance(name, parent)
 
 	if not hasId then
 		parent:ReleaseChild(root)
-		inst[6] = true
+		inst[2] = true
 		InstanceError(inst, 'Instance defines no id attributes within!')
 	end
 
-	inst[6] = false
+	inst[2] = false
 
-	lua_setmetatable(inst, meta)
+	lua_setmetatable(inst, ControlInstanceMeta)
 
 	return inst, root
 end
