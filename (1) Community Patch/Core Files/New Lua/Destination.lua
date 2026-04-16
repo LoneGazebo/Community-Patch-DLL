@@ -11,6 +11,8 @@ local tHighlightedPathHexes = {}
 local NavyBlue = Vector4(0.0, 0.0, 0.502, 1.0)
 local White = Vector4(1.0, 1.0, 1.0, 1.0)
 
+local pathColours = {Vector4(0.0, 1.0, 0.0, 1.0), Vector4(0.0, 1.0, 1.0, 1.0)}  -- Green, Cyan
+
 local function ClearPathColourHighlights()
   for _, hex in ipairs(tHighlightedPathHexes) do
     Events.SerialEventHexHighlight(hex, false)
@@ -54,13 +56,25 @@ end)
 Events.UnitSelectionChanged.Add(function(iPlayerID, iUnitID, i, j, k, isSelected)
   if isSelected then
     local pUnit = Players[iPlayerID]:GetUnitByID(iUnitID)
-    if not pUnit.GetActivePath then
-      local pMissionPlot = pUnit:LastMissionPlot()
-      if pUnit:GetX() ~= pMissionPlot:GetX() or pUnit:GetY() ~= pMissionPlot:GetY() then
-        local hex = ToHexFromGrid(Vector2(pMissionPlot:GetX(), pMissionPlot:GetY()));
+    local pMissionPlot = pUnit:LastMissionPlot()
+    if pUnit:GetX() ~= pMissionPlot:GetX() or pUnit:GetY() ~= pMissionPlot:GetY() then
+      if pUnit:GetActivePath() then
+        local path = pUnit:GetWaypointPath()
+        for i = 2, #path do
+          local node = path[i]
+          local nodeTurn = node.Turn
+          if node.RemainingMovement == 0 then
+            nodeTurn = nodeTurn - 1
+          end
+          local hex = ToHexFromGrid({x = node.X, y = node.Y})
+          Events.SerialEventHexHighlight(hex, true, pathColours[math.fmod(nodeTurn, 2) + 1])
+          tHighlightedPathHexes[#tHighlightedPathHexes + 1] = hex
+        end
+      else
+        local hex = ToHexFromGrid(Vector2(pMissionPlot:GetX(), pMissionPlot:GetY()))
         Events.SerialEventHexHighlight(hex, true, nil, pathBorderStyle)
         bClearPathStyle = true
-        Events.GameplayFX(hex.x, hex.y, -1);
+        Events.GameplayFX(hex.x, hex.y, -1)
       end
     end
   end
