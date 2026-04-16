@@ -22219,37 +22219,42 @@ int CvPlayer::GetUnhappinessFromPuppetCitySpecialists() const
 /// Unhappiness from City Population in Occupied Cities
 int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const
 {
-	int iUnhappiness = 0;
+	int iUnhappinessOccupation = 0;
+	int iUnhappinessResistance = 0;
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		bool bCityValid = false;
 
-		// Assume pLoopCity is Annexed, and counts
-		if (pLoopCity == pAssumeCityAnnexed)
-			bCityValid = true;
-		// Assume that pLoopCity is a Puppet and does NOT count
-		else if (pLoopCity == pAssumeCityPuppeted)
-			bCityValid = false;
-		// Assume city doesn't exist, and does NOT count
-		else if (pLoopCity->IsIgnoreCityForHappiness())
-			bCityValid = false;
-		// Occupied Cities
-		else if (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
-			bCityValid = true;
 		// Resistance / Razing Cities
-		else if (MOD_BALANCE_VP && (pLoopCity->IsResistance() || pLoopCity->IsRazing()))
-			bCityValid = true;
+		if (MOD_BALANCE_VP && (pLoopCity->IsResistance() || pLoopCity->IsRazing()))
+			iUnhappinessResistance += pLoopCity->getPopulation();
+		else
+		{
+			bool bCityValid = false;
+			// Assume pLoopCity is Annexed, and counts
+			if (pLoopCity == pAssumeCityAnnexed)
+				bCityValid = true;
+			// Assume that pLoopCity is a Puppet and does NOT count
+			else if (pLoopCity == pAssumeCityPuppeted)
+				bCityValid = false;
+			// Assume city doesn't exist, and does NOT count
+			else if (pLoopCity->IsIgnoreCityForHappiness())
+				bCityValid = false;
+			// Occupied Cities
+			else if (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
+				bCityValid = true;
 
-		if (bCityValid)
-			iUnhappiness += pLoopCity->GetUnhappinessFromOccupation();
+			if (bCityValid)
+				iUnhappinessOccupation += pLoopCity->GetUnhappinessFromOccupation();
+
+		}
 	}
 
 	// Handicap mod
-	iUnhappiness *= isHuman(ISHUMAN_HANDICAP) ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
-	iUnhappiness /= 100;
+	iUnhappinessOccupation *= isHuman(ISHUMAN_HANDICAP) ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+	iUnhappinessOccupation /= 100;
 
-	return iUnhappiness;
+	return iUnhappinessOccupation + iUnhappinessResistance;
 }
 
 /// Unhappiness from Units Percent (50 = 50% of normal)
