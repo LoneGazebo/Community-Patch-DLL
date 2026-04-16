@@ -1154,7 +1154,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	// Update City Strength
 	CvPlot* pUnitPlot = plot();
-	if(pUnitPlot && pUnitPlot->isCity())
+	if(pUnitPlot && pUnitPlot->isCity() && pUnitPlot->getOwner() == getOwner())
 	{
 		pUnitPlot->getPlotCity()->SetGarrison( pUnitPlot->getBestGarrison( getOwner() ) );
 	}
