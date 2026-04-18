@@ -113,7 +113,7 @@ Events.UIPathFinderUpdate.Add(function (tPath)
 
 	for i = #tPath, 1, -1 do
 		local node = tPath[i]
-		BuildNode(node, i == #tPath, tAirlift[i] or tSealift[i] or false, tChangePort[i] or false);
+		BuildNode(node, i == #tPath, tAirlift[i] or false, tSealift[i] or false, tChangePort[i] or false);
 	end
 
 end);
