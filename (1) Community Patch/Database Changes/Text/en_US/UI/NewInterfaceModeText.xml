@@ -2,10 +2,10 @@
 <GameData>
 	<Language_en_US>
 		<!-- Sealift -->
-		<Row Tag="TXT_KEY_INTERFACEMODE_AIRLIFT">
+		<Row Tag="TXT_KEY_INTERFACEMODE_SEALIFT">
 			<Text>Transportation</Text>
     	</Row>
-		<Row Tag="TXT_KEY_INTERFACEMODE_AIRLIFT_HELP">
+		<Row Tag="TXT_KEY_INTERFACEMODE_SEALIFT_HELP">
 			<Text>Transport this Unit over a direct Water [ICON_CONNECTED] Connection.</Text>
 		</Row>
 	</Language_en_US>
