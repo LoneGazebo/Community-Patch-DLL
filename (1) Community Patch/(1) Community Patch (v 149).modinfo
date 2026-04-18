@@ -918,7 +918,6 @@
       <UpdateDatabase>Database Changes\Policies\PolicySweeps.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\UnitPromotions\CorePromotionSweeps.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Units\CoreUnitSweeps.sql</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Misc\MissionsChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\WorldMap\Improvements\CoreBuildSweeps.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\WorldMap\Improvements\CoreImprovementSweeps.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewAutomateText.xml</UpdateDatabase>
