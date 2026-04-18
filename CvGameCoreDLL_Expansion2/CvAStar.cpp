@@ -2268,7 +2268,7 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 		// todo: improvements that allow airlift
 
 	}	
-	else if (node->m_kCostCacheData.bCanSealiftFromPlotCity)
+	if (node->m_kCostCacheData.bCanSealiftFromPlotCity)
 	{
 		// only with full moves
 		if (node->m_iMoves != pUnit->baseMoves(false) * GD_INT_GET(MOVE_DENOMINATOR) && node->m_iMoves != 0)
@@ -2313,7 +2313,7 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 			}
 		}
 	}
-	else if (node->m_kCostCacheData.bCanChangePortFromPlot)
+	if (node->m_kCostCacheData.bCanChangePortFromPlot)
 	{
 		// great admiral target plots only need to be checked once during pathfinding. they don't depend on the starting plot so considering them early is always better
 		if (finder->IsChangePortCitiesChecked())

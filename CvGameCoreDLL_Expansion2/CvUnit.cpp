@@ -30476,12 +30476,13 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 
 	bool bIsCombatUnit = (this == pCombatUnit);
 	bool bExecuteMove = false;
+	int iDistance = plotDistance(getX(), getY(), pPlot->getX(), pPlot->getY());
 
 	if(pPlot && (bCanMoveIntoPlot || (bIsCombatUnit && !(bIsNoCapture && bEnemyCity))))
 	{
 		// execute move
 		LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("UnitMove() : player ") << GET_PLAYER(getOwner()).getName(); << std::string(" ") << getName() << std::string(" id=") << GetID() << std::string(" moving to ") << pPlot->getX() << std::string(", ") << pPlot->getY());
-		move(*pPlot, true, bIsCombatUnit && IsFreeAttackMoves());
+		move(*pPlot, iDistance == 1, bIsCombatUnit && IsFreeAttackMoves());
 	}
 	else
 	{
@@ -30499,7 +30500,7 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 		bExecuteMove = false;
 	}
 
-	if(bExecuteMove)
+	if(bExecuteMove && iDistance == 1)
 	{
 		PublishQueuedVisualizationMoves();
 	}
@@ -30850,6 +30851,13 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 
 	case INTERFACEMODE_AIRLIFT:
 		if(canAirlift(plot()))
+		{
+			return true;
+		}
+		break;
+
+	case INTERFACEMODE_SEALIFT:
+		if(canSealift(plot()))
 		{
 			return true;
 		}
