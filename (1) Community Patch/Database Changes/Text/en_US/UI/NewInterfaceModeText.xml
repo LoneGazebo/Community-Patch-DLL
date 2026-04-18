@@ -4,9 +4,9 @@
 		<!-- Sealift -->
 		<Row Tag="TXT_KEY_INTERFACEMODE_AIRLIFT">
 			<Text>Transportation</Text>
-    </Row>
+    	</Row>
 		<Row Tag="TXT_KEY_INTERFACEMODE_AIRLIFT_HELP">
 			<Text>Transport this Unit over a direct Water [ICON_CONNECTED] Connection.</Text>
-    </Row>
+		</Row>
 	</Language_en_US>
 </GameData>
