@@ -6,7 +6,7 @@
 			<Text>Transportation</Text>
     	</Row>
 		<Row Tag="TXT_KEY_INTERFACEMODE_SEALIFT_HELP">
-			<Text>Transport this Unit over a direct Water [ICON_CONNECTED] Connection.</Text>
+			<Text>This order will allow the unit to redeploy to a land tile in or adjacent to a friendly city [ICON_CONNECTED] Connected directly over Water. The target tile cannot be occupied or adjacent to an enemy unit.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
