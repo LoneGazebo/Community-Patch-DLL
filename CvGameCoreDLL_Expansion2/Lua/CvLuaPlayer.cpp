@@ -13858,8 +13858,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Embassy?
-		bool bUsEmbassy = pDiplo->IsHasEmbassy(ePlayer);
-		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(pkPlayer->GetID());
+		bool bUsEmbassy = pDiplo->HasEmbassyAt(ePlayer);
+		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->HasEmbassyAt(pkPlayer->GetID());
 		if (bUsEmbassy && bThemEmbassy)
 		{
 			Opinion kOpinion;
@@ -13891,8 +13891,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Open Borders?
-		bool bThemOpen = pDiplo->IsHasOpenBorders(ePlayer);
-		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID());
+		bool bThemOpen = pDiplo->HasOpenBordersFrom(ePlayer);
+		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->HasOpenBordersFrom(pkPlayer->GetID());
 		if (bThemOpen && bUsOpen)
 		{
 			Opinion kOpinion;
@@ -14385,12 +14385,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetNumSamePolicies(ePlayer);
+		iValue = pDiplo->GetPolicyScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = (iValue > 0) ? pDiplo->GetPolicyScore(ePlayer) : 0;
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = pDiplo->GetNumSamePolicies(ePlayer) > 0 ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14912,12 +14912,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		// CAN BE BOTH POSITIVE AND NEGATIVE
 		////////////////////////////////////
 
-		iValue = pDiplo->GetNumSamePolicies(ePlayer);
+		iValue = pDiplo->GetPolicyScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = (bHideNegatives && iValue < 0) ? 0 : pDiplo->GetPolicyScore(ePlayer);
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
+			kOpinion.m_iValue = (bHideNegatives && iValue > 0) ? 0 : iValue;
+			kOpinion.m_str = pDiplo->GetNumSamePolicies(ePlayer) > 0 ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -15127,8 +15127,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		////////////////////////////////////
 
 		// Embassy?
-		bool bUsEmbassy = pDiplo->IsHasEmbassy(ePlayer);
-		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(pkPlayer->GetID());
+		bool bUsEmbassy = pDiplo->HasEmbassyAt(ePlayer);
+		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->HasEmbassyAt(pkPlayer->GetID());
 		if (bUsEmbassy && bThemEmbassy)
 		{
 			Opinion kOpinion;
@@ -15151,8 +15151,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Open Borders?
-		bool bThemOpen = pDiplo->IsHasOpenBorders(ePlayer);
-		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID());
+		bool bThemOpen = pDiplo->HasOpenBordersFrom(ePlayer);
+		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->HasOpenBordersFrom(pkPlayer->GetID());
 		if (bThemOpen && bUsOpen)
 		{
 			Opinion kOpinion;

@@ -328,14 +328,6 @@ VALUES
 --	// RELIGION/IDEOLOGY
 --	//////////////////////////////////////
 
--- We have similar / divergent Social Policies. (note: AI sometimes chooses to ignore policy differences)
-	('OPINION_WEIGHT_SIMILAR_POLICIES', -10), -- min. opinion bonus if similar
-	('OPINION_WEIGHT_DIVERGENT_POLICIES', 10), -- min. opinion penalty if divergent
-	('OPINION_WEIGHT_PER_SIMILAR_POLICY', -5), -- bonus per same policy branch unlocked
-	('OPINION_WEIGHT_PER_DIVERGENT_POLICY', 5), -- penalty per divergent policy branch unlocked
-	('POLICY_SCORE_NEEDY_THRESHOLD', 8), -- Neediness flavor value needed to add Needy Bonus
-	('POLICY_SCORE_NEEDY_BONUS', 5), -- extra bonus/penalty if Needy
-
 -- [RELIGION]
 -- NOTE 1: Values below are multiplied by the current game era's Diplo Emphasis for Religion. AI may increase or decrease their own multiplier (globally) based on their UA and flavors.
 -- NOTE 2: You don't get a bonus/penalty for being the founder of a religion if you have 0 cities following that religion.
@@ -737,4 +729,15 @@ VALUES
 	('SANCTIONED_US_TURNS_UNTIL_FORGIVEN', 50), -- scales with Meanness if the attempt succeeded, WorkAgainstWillingness otherwise
 	('UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN', 50), -- scales with Loyalty if the attempt succeeded, WorkWithWillingness otherwise
 	('OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN', 100), -- How many turns the "gave independence when asked" bonus remains for
-	('OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN', 100); -- How many turns the "refused to give independence" when asked penalty remains for
+	('OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN', 100), -- How many turns the "refused to give independence" when asked penalty remains for
+
+--	//////////////////////////////////////
+--	// UNUSED / REMOVED
+--	//////////////////////////////////////
+
+-- We have similar / divergent Social Policies. (note: AI sometimes chooses to ignore policy friction)
+-- NOTE: This modifier scales based on the AI's Neediness flavor.
+	('OPINION_WEIGHT_SIMILAR_POLICIES', 0), -- min opinion bonus or max opinion penalty if similar
+	('OPINION_WEIGHT_DIVERGENT_POLICIES', 0), -- min opinion bonus or max opinion penalty if divergent
+	('OPINION_WEIGHT_PER_SIMILAR_POLICY', 0), -- bonus/penalty per same policy branch unlocked
+	('OPINION_WEIGHT_PER_DIVERGENT_POLICY', 0); -- bonus/penalty per divergent policy branch unlocked

@@ -1,592 +1,509 @@
+include('CPK.lua')
 
--------------------------------------------------
--- Memoize a few localization string lookups 
--- since we use these so often.
--------------------------------------------------
-local LocaleLookup = Locale.Lookup;
-function Memoize_TableDescriptionByType(tableName)
-	local memoizeData = {};
-	local dbTable = GameInfo[tableName];
-	
-	return function(type)
-		local text = memoizeData[type];
-		if(text == nil) then
-			text =  LocaleLookup(dbTable[type].Description);
-			memoizeData[type] = text;
+local lua_next = next
+local lua_math_floor = math.floor
+local lua_string_format = string.format
+
+local civ_db_query = DB.Query
+local civ_db_create_query = DB.CreateQuery
+local Memoize1 = CPK.Cache.Memoize1
+local TableHashify = CPK.Table.Hashify
+local StringBuilder = CPK.Util.StringBuilder
+
+local ColorPositive = CPK.Text.Color.Positive
+local ColorNegative = CPK.Text.Color.Negative
+local ColorWhite = CPK.Text.Color.White
+
+local L = Locale.Lookup
+local ML = Memoize1(L)
+
+--------------------------------------------------------------------------------
+
+--- @param table_name string
+local MakeDescGetter = function(table_name)
+	local query = civ_db_create_query(
+		lua_string_format(
+			'SELECT Description FROM %s WHERE ID = :id LIMIT 1',
+			table_name
+		)
+	)
+
+	--- -1 indicates row not found or localization returned nil
+	--- @type table<integer, -1 | string>
+	local cache = {}
+
+	--- @param id integer
+	--- @return string
+	return function(id)
+		local str = cache[id]
+
+		if str == nil then
+			local row = query(id)()
+
+			str = (row and row.Description and L(row.Description)) or -1
+			cache[id] = str
 		end
-		
-		return text;
+
+		return str ~= -1 and str --[[@as string]] or ''
 	end
 end
 
-local memoize_LocaleLookupData = {};
-function Memoize_LocaleLookup(key)
-	local text = memoize_LocaleLookupData[key];
-	if(text == nil) then
-		text = LocaleLookup(key);
-		memoize_LocaleLookupData[key] = text;
+local GetRouteText = MakeDescGetter('Routes')
+local GetFeatureText = MakeDescGetter('Features')
+local GetTerrainText = MakeDescGetter('Terrains')
+local GetImprovementText = MakeDescGetter('Improvements')
+
+--------------------------------------------------------------------------------
+
+GetYieldString = (function()
+	--- @param sb StringBuilder
+	--- @param yieldId integer
+	local append_yield = function(plot, sb, icon, yieldId)
+		local num = plot:CalculateYield(yieldId, true)
+
+		if num > 0 then
+			sb:Append(icon .. ' ' .. num)
+		end
 	end
-	
-	return text;
+
+	local YIELD_FOOD = YieldTypes.YIELD_FOOD
+	local YIELD_PROD = YieldTypes.YIELD_PRODUCTION
+	local YIELD_GOLD = YieldTypes.YIELD_GOLD
+	local YIELD_SCIENCE = YieldTypes.YIELD_SCIENCE
+	local YIELD_CULTURE = YieldTypes.YIELD_CULTURE
+	local YIELD_FAITH = YieldTypes.YIELD_FAITH
+
+	local NO_FEATURE = FeatureTypes.NO_FEATURE
+
+	local gp_rate_modifier_map = {}
+	local in_border_happiness_map = {}
+
+	for row in civ_db_query('SELECT ID, InBorderHappiness FROM Features') do
+		in_border_happiness_map[row.ID] = row.InBorderHappiness or 0
+	end
+
+	for row in civ_db_query('SELECT ID, GreatPersonRateModifier From Improvements') do
+		gp_rate_modifier_map[row.ID] = row.GreatPersonRateModifier or 0
+	end
+
+	--- @param plot Plot
+	--- @return string
+	return function(plot)
+		local text = StringBuilder.New()
+		local featureId = plot:GetFeatureType()
+		local improvementId = plot:GetRevealedImprovementType(
+			Game.GetActiveTeam(),
+			Game.IsDebugMode()
+		)
+
+		append_yield(plot, text, '[ICON_FOOD]', YIELD_FOOD)
+		append_yield(plot, text, '[ICON_PRODUCTION]', YIELD_PROD)
+		append_yield(plot, text, '[ICON_GOLD]', YIELD_GOLD)
+		append_yield(plot, text, '[ICON_RESEARCH]', YIELD_SCIENCE)
+		append_yield(plot, text, '[ICON_CULTURE]', YIELD_CULTURE)
+		append_yield(plot, text, '[ICON_PEACE]', YIELD_FAITH)
+
+		if featureId ~= NO_FEATURE then
+			local playerId = Game.GetActivePlayer()
+			local modifier = Players[playerId]:GetNaturalWonderYieldModifier()
+			local happiness = in_border_happiness_map[featureId]
+
+			if happiness and modifier > 0 then
+				happiness = lua_math_floor(
+					(happiness * (100 * modifier)) / 100
+				)
+
+				if happiness > 0 then
+					text:Append('[ICON_HAPPINESS_1] ' .. happiness)
+				end
+			end
+		end
+
+		if improvementId >= 0 and not plot:IsImprovementPillaged() then
+			local modifier = gp_rate_modifier_map[improvementId]
+			if modifier ~= 0 then
+				text:Append('[ICON_GREAT_PEOPLE] ' .. modifier .. '%')
+			end
+		end
+
+		return text:Concat(' ')
+	end
+end)()
+
+GetNatureString = (function()
+	local is_special = TableHashify({
+		GameInfoTypes.FEATURE_JUNGLE,
+		GameInfoTypes.FEATURE_MARSH,
+		GameInfoTypes.FEATURE_OASIS,
+		GameInfoTypes.FEATURE_ICE,
+	})
+
+	local is_wonder = {}
+
+	for row in civ_db_query('SELECT ID FROM Features WHERE NaturalWonder = 1') do
+		is_wonder[row.ID] = true
+	end
+
+	local TEXT_LAKE = L('TXT_KEY_PLOTROLL_LAKE')
+	local TEXT_HILL = L('TXT_KEY_PLOTROLL_HILL')
+	local TEXT_RIVER = L('TXT_KEY_PLOTROLL_RIVER')
+	local TEXT_MOUNTAIN = L('TXT_KEY_PLOTROLL_MOUNTAIN')
+
+	return function(plot)
+		local text = StringBuilder.New()
+		local featureId = plot:GetFeatureType()
+
+		local hasFeature = featureId > -1
+		local isMountain = not hasFeature and plot:IsMountain()
+		local shouldShowTerrain = not isMountain and not (
+			(hasFeature and (is_special[featureId] or is_wonder[featureId]))
+		)
+
+		if hasFeature then
+			text:Append(GetFeatureText(featureId))
+		elseif isMountain then
+			text:Append(TEXT_MOUNTAIN)
+		end
+
+		if shouldShowTerrain then
+			if plot:IsLake() then
+				text:Append(TEXT_LAKE)
+			else
+				text:Append(GetTerrainText(plot:GetTerrainType()))
+			end
+		end
+
+		if plot:IsHills() then text:Append(TEXT_HILL) end
+		if plot:IsRiver() then text:Append(TEXT_RIVER) end
+
+		return text:Concat(', ')
+	end
+end)()
+
+--- @param plot Plot
+--- @param isLongForm boolean | nil
+GetResourceString = function(plot, isLongForm)
+	local resourceId = plot:GetResourceType(Game.GetActiveTeam())
+
+	if resourceId < 0 then
+		return ''
+	end
+
+	local text = StringBuilder.New()
+	local player = Players[Game.GetActivePlayer()]
+	local resource = GameInfo.Resources[resourceId]
+	local resourceNum = plot:GetNumResource()
+	local resourceStr = ML(resource.Description)
+
+	if resourceNum > 1 then
+		text:Append(resourceNum)
+	end
+
+	text:Append(resource.IconString):Append(resourceStr)
+
+	if not player:IsResourceImproveable(resourceId) then
+		local imprTechType = GameInfoTypes[resource.TechImproveable]
+		local imprTechDesc = GameInfo.Technologies[imprTechType].Description
+
+		if isLongForm then
+			text:Append(L('TXT_KEY_PLOTROLL_REQUIRES_TECH_TO_USE', imprTechDesc))
+		else
+			text:Append(L('TXT_KEY_PLOTROLL_REQUIRES_TECH', imprTechDesc))
+		end
+	end
+
+	return text:Concat(' ')
 end
 
-local GetFeatureText = Memoize_TableDescriptionByType("Features");
-local GetTerrainText = Memoize_TableDescriptionByType("Terrains");
-local GetImprovementText = Memoize_TableDescriptionByType("Improvements");
-local GetRouteText = Memoize_TableDescriptionByType("Routes");
+local GetRouteString = function(plot)
+	local routeId = plot:GetRevealedRouteType(
+		Game.GetActiveTeam(),
+		Game.IsDebugMode()
+	)
 
+	if routeId > -1 then
+		if plot:IsRoutePillaged() then
+			return GetRouteText(routeId) .. ' ' .. ML('TXT_KEY_PLOTROLL_PILLAGED')
+		else
+			return GetRouteText(routeId)
+		end
+	end
 
+	return ''
+end
 
+GetImprovementString = (function()
+	local TEXT_PILLAGED = L('TXT_KEY_PLOTROLL_PILLAGED')
+	local TEXT_EMBASSY_UNMET = L('TXT_KEY_PLOTROLL_EMBASSY_UNMET')
 
+	--- @param plot Plot
+	return function(plot)
+		local activeTeamId = Game.GetActiveTeam()
+		local activeTeam = Teams[activeTeamId]
+		local text = ''
 
--------------------------------------------------
--------------------------------------------------
-function GetCivStateQuestString(plot, bShortVersion)
-	local resultStr = "";
-	local iActivePlayer = Game.GetActivePlayer();
-	local iActiveTeam = Game.GetActiveTeam();
-	local pTeam = Teams[iActiveTeam];
-	
-	for iPlayerLoop = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1, 1 do	
-		pOtherPlayer = Players[iPlayerLoop];
-		iOtherTeam = pOtherPlayer:GetTeam();
-			
-		if( pOtherPlayer:IsMinorCiv() and iActiveTeam ~= iOtherTeam and pOtherPlayer:IsAlive() and pTeam:IsHasMet( iOtherTeam ) ) then
-			
-			-- Does the player have a quest to kill a barb camp here?
-			if (pOtherPlayer:IsMinorCivDisplayedQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP)) then
-				local iQuestData1 = pOtherPlayer:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP);
-				local iQuestData2 = pOtherPlayer:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP);
-				if (iQuestData1 == plot:GetX() and iQuestData2 == plot:GetY()) then
-					if (bShortVersion) then
-						resultStr =  "[COLOR_POSITIVE_TEXT]" .. Memoize_LocaleLookup("TXT_KEY_CITY_STATE_BARB_QUEST_SHORT") .. "[ENDCOLOR]";
-					else
-						if (resultStr ~= "") then
-							resultStr = resultStr .. "[NEWLINE]";
+		local improvementId = plot:GetRevealedImprovementType(activeTeamId, Game.IsDebugMode())
+
+		if improvementId > -1 then
+			if plot:IsImprovementPillaged() then
+				text = GetImprovementText(improvementId) .. ' ' .. TEXT_PILLAGED
+			else
+				text = GetImprovementText(improvementId)
+			end
+
+			if plot:IsImprovementEmbassy() then
+				local otherPlayerId = plot:GetPlayerThatBuiltImprovement()
+				local otherPlayer = otherPlayerId and Players[otherPlayerId]
+				local otherTeamId = otherPlayer and otherPlayer:GetTeam()
+
+				if otherPlayer and activeTeam:IsHasMet(otherTeamId) then
+					text = text .. ' ' .. L(
+						'TXT_KEY_PLOTROLL_EMBASSY',
+						otherPlayer:GetCivilizationShortDescriptionKey()
+					)
+				else
+					text = text .. ' ' .. TEXT_EMBASSY_UNMET
+				end
+			end
+		end
+
+		local routeText = GetRouteString(plot)
+
+		if routeText ~= '' then
+			if text ~= '' then
+				return text .. ', ' .. routeText
+			else
+				return routeText
+			end
+		end
+
+		return text
+	end
+end)()
+
+GetCivStateQuestString = (function()
+	local mcqt = MinorCivQuestTypes
+	local fallback = ColorPositive(L('TXT_KEY_CITY_STATE_BARB_QUEST_SHORT'))
+
+	local quests = {
+		[mcqt.MINOR_CIV_QUEST_KILL_CAMP] = 'TXT_KEY_CITY_STATE_BARB_QUEST_LONG',
+		[mcqt.MINOR_CIV_QUEST_ARCHAEOLOGY] = 'TXT_KEY_CITY_STATE_ARCHAEOLOGY_QUEST_LONG',
+		[mcqt.MINOR_CIV_QUEST_ACQUIRE_CITY] = 'TXT_KEY_CITY_STATE_ACQUIRE_CITY_QUEST_LONG',
+		[mcqt.MINOR_CIV_QUEST_EXPLORE_AREA] = 'TXT_KEY_CITY_STATE_EXPLORE_AREA_QUEST_LONG'
+	}
+
+	--- @param plot Plot
+	--- @param isShortForm boolean | nil
+	return function(plot, isShortForm)
+		local text = StringBuilder.New()
+
+		local activeTeamId = Game.GetActiveTeam()
+		local activePlayerId = Game.GetActivePlayer()
+		local activeTeam = Teams[activeTeamId]
+
+		local px, py = plot:GetX(), plot:GetY()
+		local from_idx = GameDefines.MAX_MAJOR_CIVS
+		local upto_idx = GameDefines.MAX_CIV_PLAYERS - 1
+
+		for otherPlayerId = from_idx, upto_idx do
+			local otherPlayer = Players[otherPlayerId]
+			local otherTeamId = otherPlayer:GetTeam()
+
+			local cond = activeTeamId ~= otherTeamId
+					and otherPlayer:IsMinorCiv()
+					and otherPlayer:IsAlive()
+					and activeTeam:IsHasMet(otherTeamId)
+
+			if cond then
+				for questId, questDesc in lua_next, quests do
+					if otherPlayer:IsMinorCivDisplayedQuestForPlayer(activePlayerId, questId) then
+						local x = otherPlayer:GetQuestData1(activePlayerId, questId)
+						local y = otherPlayer:GetQuestData2(activePlayerId, questId)
+
+						if x == px and y == py then
+							if isShortForm then
+								return fallback
+							else
+								text:Append(
+									ColorPositive(
+										L(questDesc, otherPlayer:GetCivilizationShortDescriptionKey())
+									)
+								)
+							end
 						end
-						
-						resultStr = resultStr .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_BARB_QUEST_LONG",  pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]";
 					end
 				end
 			end
-			if (pOtherPlayer:IsMinorCivDisplayedQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY)) then
-				local iQuestData1 = pOtherPlayer:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
-				local iQuestData2 = pOtherPlayer:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY);
-				if (iQuestData1 == plot:GetX() and iQuestData2 == plot:GetY()) then
-					if (bShortVersion) then
-						resultStr =  "[COLOR_POSITIVE_TEXT]" .. Memoize_LocaleLookup("TXT_KEY_CITY_STATE_BARB_QUEST_SHORT") .. "[ENDCOLOR]";
-					else
-						if (resultStr ~= "") then
-							resultStr = resultStr .. "[NEWLINE]";
-						end
-						
-						resultStr = resultStr .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_ARCHAEOLOGY_QUEST_LONG",  pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]";
-					end
-				end
-			end
-			--CBP
-			if (pOtherPlayer:IsMinorCivDisplayedQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY)) then
-				local iQuestData1 = pOtherPlayer:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY);
-				local iQuestData2 = pOtherPlayer:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY);
-				if (iQuestData1 == plot:GetX() and iQuestData2 == plot:GetY()) then
-					if (bShortVersion) then
-						resultStr =  "[COLOR_POSITIVE_TEXT]" .. Memoize_LocaleLookup("TXT_KEY_CITY_STATE_BARB_QUEST_SHORT") .. "[ENDCOLOR]";
-					else
-						if (resultStr ~= "") then
-							resultStr = resultStr .. "[NEWLINE]";
-						end
-						
-						resultStr = resultStr .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_ACQUIRE_CITY_QUEST_LONG",  pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]";
-					end
-				end
-			end
-			if (pOtherPlayer:IsMinorCivDisplayedQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA)) then
-				local iQuestData1 = pOtherPlayer:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA);
-				local iQuestData2 = pOtherPlayer:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA);
-				if (iQuestData1 == plot:GetX() and iQuestData2 == plot:GetY()) then
-					if (bShortVersion) then
-						resultStr =  "[COLOR_POSITIVE_TEXT]" .. Memoize_LocaleLookup("TXT_KEY_CITY_STATE_BARB_QUEST_SHORT") .. "[ENDCOLOR]";
-					else
-						if (resultStr ~= "") then
-							resultStr = resultStr .. "[NEWLINE]";
-						end
-						
-						resultStr = resultStr .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_CITY_STATE_EXPLORE_AREA_QUEST_LONG",  pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]";
-					end
-				end
-			end
-			--END
 		end
-	end		
-	
-	return resultStr;
+
+		return text:Concat('[NEWLINE]')
+	end
+end)()
+
+--- @param plot Plot
+--- @return string
+GetInternationalTradeRouteString = function(plot)
+	local activePlayerId = Game.GetActivePlayer()
+	local activePlayer = Players[activePlayerId]
+	local routes = activePlayer:GetInternationalTradeRoutePlotToolTip(plot)
+
+	if not routes or not routes[1] then
+		return ''
+	end
+
+	local text = StringBuilder.New()
+
+	text:Append(ML('TXT_KEY_TRADE_ROUTE_TT_PLOT_HEADING'))
+
+	for i = 1, #routes do
+		text:Append(routes[i].String)
+	end
+
+	return text:Concat('[NEWLINE]')
 end
 
--------------------------------------------------
--------------------------------------------------
-function GetNatureString(plot)
-	
-	local natureStr = "";
-	
-	local bFirst = true;
-	
-	local iFeature = plot:GetFeatureType();
-	
-	-- Some Features are handled in a special manner, since they always have the same terrain type under it
-	if (IsFeatureSpecial(iFeature)) then
-		if (bFirst) then
-			bFirst = false;
+--- @param plot Plot
+--- @return string
+GetOwnerString = function(plot)
+	if plot:IsCity() then
+		local city = plot:GetPlotCity()
+
+		if not city then return '' end
+
+		local ownerId = city:GetOwner()
+		local owner = Players[ownerId]
+
+		if not owner then return '' end
+
+		if owner:IsMinorCiv() then
+			return L(
+				'TXT_KEY_CITY_STATE_OF',
+				owner:GetCivilizationShortDescriptionKey()
+			)
 		else
-			natureStr = natureStr .. ", ";
+			return L(
+				'TXT_KEY_CITY_OF',
+				owner:GetCivilizationAdjectiveKey(),
+				city:GetName()
+			)
 		end
-		
-		local convertedKey = GetFeatureText(plot:GetFeatureType());
-		natureStr = natureStr .. convertedKey;
-		
-	-- Not a jungle
-	else
-		
-		local bMountain = false;
-		
-		-- Feature
-		if (iFeature > -1) then
-			if (bFirst) then
-				bFirst = false;
-			else
-				natureStr = natureStr .. ", ";
-			end
-			
-			-- Block terrian type below
-			if (GameInfo.Features[plot:GetFeatureType()].NaturalWonder) then
-				bMountain = true;
-			end
-			
-			local convertedKey = GetFeatureText(plot:GetFeatureType());
-			natureStr = natureStr .. convertedKey;
-			
-		-- No Feature
-		else
-			
-			-- Mountain
-			if (plot:IsMountain()) then
-				if (bFirst) then
-					bFirst = false;
-				else
-					natureStr = natureStr .. ", ";
-				end
-				
-				bMountain = true;
-				
-				natureStr = natureStr .. Memoize_LocaleLookup( "TXT_KEY_PLOTROLL_MOUNTAIN" );
-			end
-			
-		end
-			
-		-- Terrain
-		if (not bMountain) then
-			if (bFirst) then
-				bFirst = false;
-			else
-				natureStr = natureStr .. ", ";
-			end
-			
-			local convertedKey;
-			
-			-- Lake?
-			if (plot:IsLake()) then
-				convertedKey = Memoize_LocaleLookup( "TXT_KEY_PLOTROLL_LAKE" );
-			else
-				convertedKey = GetTerrainText(plot:GetTerrainType());
-			end
-			
-			natureStr = natureStr .. convertedKey;
-		end
-	end	-- End Feature hack
-	
-	-- Hills
-	if (plot:IsHills()) then
-		if (bFirst) then
-			bFirst = false;
-		else
-			natureStr = natureStr .. ", ";
-		end
-		
-		natureStr = natureStr .. Memoize_LocaleLookup( "TXT_KEY_PLOTROLL_HILL" );
 	end
 
-	-- River
-	if (plot:IsRiver()) then
-		if (bFirst) then
-			bFirst = false;
-		else
-			natureStr = natureStr .. ", ";
-		end
-		
-		natureStr = natureStr .. Memoize_LocaleLookup( "TXT_KEY_PLOTROLL_RIVER" );
+	local activeTeamId = Game.GetActiveTeam()
+	local activeTeam = Teams[activeTeamId]
+	local ownerId = plot:GetRevealedOwner(activeTeamId, Game.IsDebugMode())
+
+	if ownerId < 0 then return '' end
+
+	local owner = Players[ownerId]
+	local ownerNick = owner:GetNickName()
+	local ownerTeamId = owner:GetTeam()
+
+	local ownerTitle = (ownerNick and ownerNick ~= '')
+			and L('TXT_KEY_PLOTROLL_OWNED_PLAYER', ownerNick)
+			or L('TXT_KEY_PLOTROLL_OWNED_CIV', owner:GetCivilizationShortDescriptionKey())
+
+	if ownerTeamId == activeTeamId then
+		return ColorWhite(ownerTitle)
 	end
-	
--- CBP
-	
-	return natureStr;
-	
+
+	if activeTeam:IsAtWar(ownerTeamId) then
+		return ColorNegative(ownerTitle)
+	end
+
+	return ColorPositive(ownerTitle)
 end
 
+--- @param plot Plot
+--- @return string
+GetUnitsString = function(plot)
+	local count = plot:GetNumUnits()
 
--------------------------------------------------
--------------------------------------------------
-function IsFeatureSpecial(iFeature)
-	
-	if (iFeature == GameInfoTypes["FEATURE_JUNGLE"]) then
-		return true;
-	elseif (iFeature == GameInfoTypes["FEATURE_MARSH"]) then
-		return true;
-	elseif (iFeature == GameInfoTypes["FEATURE_OASIS"]) then
-		return true;
-	elseif (iFeature == GameInfoTypes["FEATURE_ICE"]) then
-		return true;
-	end
-	
-	return false;
-	
-end
+	if count == 0 then return '' end
 
+	local activeTeamId = Game.GetActiveTeam()
+	local activeTeam = Teams[activeTeamId]
+	local debug = Game.IsDebugMode()
+	local text = StringBuilder.New()
 
--------------------------------------------------
--------------------------------------------------
-function GetResourceString(plot, bLongForm)
+	for i = 0, count - 1 do
+		local unit = plot:GetUnit(i) --[[@as Unit]]
 
-	local improvementStr = "";
-	
-	local iActiveTeam = Game.GetActiveTeam();
-	local pTeam = Teams[iActiveTeam];
-	
-	local iActivePlayer = Game.GetActivePlayer();
-	local pPlayer = Players[iActivePlayer];
+		if unit
+				and not unit:IsInvisible(activeTeamId, debug)
+				and not (
+					unit:IsCargo()
+					and unit:GetTransportUnit():IsInvisible(activeTeamId, debug)
+				)
+		then
+			local unitStr = ''
+			local unitTeamId = unit:GetTeam()
 
-	local iLeader = -1;
-	local eTrait = "";
+			local unitOwner = Players[unit:GetOwner()]
+			local unitOwnerAdj = unitOwner:GetCivilizationAdjectiveKey()
+			local unitOwnerNick = unitOwner:GetNickName()
 
-	if pPlayer ~= nil then
-		iLeader = pPlayer:GetLeaderType();
-		for pLeaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. iLeader ) do
-			eTrait = pLeaderTraits.TraitType;
-			break;
-		end
-	end
-	
-	if (plot:GetResourceType(iActiveTeam) >= 0) then
-		local resourceType = plot:GetResourceType(iActiveTeam);
-		local pResource = GameInfo.Resources[resourceType];
-		
-		if (plot:GetNumResource() > 1) then
-			improvementStr = improvementStr .. plot:GetNumResource() .. " ";
-		end
-		
-		local convertedKey = Memoize_LocaleLookup(pResource.Description);		
-		improvementStr = improvementStr .. pResource.IconString .. " " .. convertedKey;
+			local unitDamage = unit:GetDamage()
+			local unitNameKey = unit:GetNameKey()
+			local unitStrength = unit:GetBaseCombatStrength()
 
-		-- Resource Hookup info
-		if not pPlayer:IsResourceImproveable(resourceType) then
-			local iTechImproveable = GameInfoTypes[pResource.TechImproveable];
-			local techName = GameInfo.Technologies[iTechImproveable].Description;
-			if (bLongForm) then
-				improvementStr = improvementStr .. " " .. Locale.ConvertTextKey( "TXT_KEY_PLOTROLL_REQUIRES_TECH_TO_USE", techName );
+			if unitOwnerNick and unitOwnerNick ~= '' then
+				unitStr = L(
+					'TXT_KEY_MULTIPLAYER_UNIT_TT',
+					unitOwnerNick,
+					unitOwnerAdj,
+					unitNameKey
+				)
+			elseif unit:HasName() then
+				unitStr = lua_string_format(
+					'%s (%s)',
+					ML(unit:GetNameNoDesc()),
+					L(
+						'TXT_KEY_PLOTROLL_UNIT_DESCRIPTION_CIV',
+						unitOwnerAdj,
+						unitNameKey
+					)
+				)
 			else
-				improvementStr = improvementStr .. " " .. Locale.ConvertTextKey( "TXT_KEY_PLOTROLL_REQUIRES_TECH", techName );
+				unitStr = L(
+					'TXT_KEY_PLOTROLL_UNIT_DESCRIPTION_CIV',
+					unitOwnerAdj,
+					unitNameKey
+				)
 			end
-		end
-	end
-	
-	return improvementStr;
-	
-end
 
-
--------------------------------------------------
--------------------------------------------------
-function GetImprovementString(plot)
-
-	local improvementStr = "";
-	
-	local iActiveTeam = Game.GetActiveTeam();
-	local pTeam = Teams[iActiveTeam];
-		--CSD Addition - pPlayer
-	local pPlayer = Players[plot:GetPlayerThatBuiltImprovement()];
-
-	local iImprovementType = plot:GetRevealedImprovementType(iActiveTeam, bIsDebug);
-	if (iImprovementType >= 0) then
-		if (improvementStr ~= "") then
-			improvementStr = improvementStr .. ", ";
-		end
-		local convertedKey = GetImprovementText(iImprovementType);	
-		improvementStr = improvementStr .. convertedKey;
-		if plot:IsImprovementPillaged() then
-			improvementStr = improvementStr .." " .. Memoize_LocaleLookup("TXT_KEY_PLOTROLL_PILLAGED")
-		end
-		--CSD Addition - Embassy
-		if plot:IsImprovementEmbassy() then
-			if pPlayer and pTeam:IsHasMet(pPlayer:GetTeam()) then
-				improvementStr = improvementStr .. " " .. Locale.ConvertTextKey("TXT_KEY_PLOTROLL_EMBASSY", pPlayer:GetCivilizationShortDescriptionKey());
+			if unitTeamId == activeTeamId then
+				unitStr = ColorWhite(unitStr)
+			elseif activeTeam:IsAtWar(unitTeamId) then
+				unitStr = ColorNegative(unitStr)
 			else
-				improvementStr = improvementStr .. " " .. Memoize_LocaleLookup("TXT_KEY_PLOTROLL_EMBASSY_UNMET");
+				unitStr = ColorPositive(unitStr)
 			end
+
+			if OptionsManager:IsDebugMode() then
+				unitStr = unitStr .. " (" .. unit:GetOwner() .. " - " .. unit:GetID() .. ")"
+			end
+
+			if unitStrength > 0 then
+				unitStr = unitStr .. ", [ICON_STRENGTH]" .. unitStrength
+			end
+
+			if unitDamage > 0 then
+				local max = unit:GetMaxHitPoints()
+				unitStr = unitStr .. ", " .. L(
+					'TXT_KEY_PLOTROLL_UNIT_HP',
+					max - unitDamage
+				) .. '/' .. max
+			end
+
+			if unit:IsEmbarked() then
+				unitStr = unitStr .. ', ' .. ML('TXT_KEY_PLOTROLL_EMBARKED')
+			end
+
+
+			text:Append(unitStr)
 		end
 	end
 
-	local iRouteType = plot:GetRevealedRouteType(iActiveTeam, bIsDebug);
-	if (iRouteType > -1) then
-		if (improvementStr ~= "") then
-			improvementStr = improvementStr .. ", ";
-		end
-		local convertedKey = GetRouteText(iRouteType);		
-		improvementStr = improvementStr .. convertedKey;
-		--improvementStr = improvementStr .. "Road";
-		
-		if (plot:IsRoutePillaged()) then
-			improvementStr = improvementStr .. " " .. Memoize_LocaleLookup("TXT_KEY_PLOTROLL_PILLAGED")
-		end
-	end
-	
-	return improvementStr;
-
-end
-
-
--------------------------------------------------
--------------------------------------------------
-function GetUnitsString(plot)
-
-	local strUnitText = "";
-
-	local iActiveTeam = Game.GetActiveTeam();
-	local pTeam = Teams[iActiveTeam];
-	local bIsDebug = Game.IsDebugMode();
-	local bFirstEntry = true;
-	
-	-- Loop through all units
-	local numUnits = plot:GetNumUnits();
-	for i = 0, numUnits - 1 do
-		
-		local unit = plot:GetUnit(i);
-		if (unit ~= nil and not unit:IsInvisible(iActiveTeam, bIsDebug) and not (unit:IsCargo() and unit:GetTransportUnit():IsInvisible(iActiveTeam, bIsDebug))) then
-
-			if (bFirstEntry) then
-				bFirstEntry = false;
-			else
-				strUnitText = strUnitText .. "[NEWLINE]";
-			end
-
-			local strength = 0;
-			strength = unit:GetBaseCombatStrength();
-		
-			local pPlayer = Players[unit:GetOwner()];
-			
-			-- Player using nickname
-			if (pPlayer:GetNickName() ~= nil and pPlayer:GetNickName() ~= "") then
-				strUnitText = strUnitText .. Locale.ConvertTextKey("TXT_KEY_MULTIPLAYER_UNIT_TT", pPlayer:GetNickName(), pPlayer:GetCivilizationAdjectiveKey(), unit:GetNameKey());
-			-- Use civ short description
-			else
-				if(unit:HasName()) then
-					local desc = Locale.ConvertTextKey("TXT_KEY_PLOTROLL_UNIT_DESCRIPTION_CIV", pPlayer:GetCivilizationAdjectiveKey(), unit:GetNameKey());
-					strUnitText = strUnitText .. string.format("%s (%s)", Locale.Lookup(unit:GetNameNoDesc()), desc); 
-				else
-					strUnitText = strUnitText .. Locale.ConvertTextKey("TXT_KEY_PLOTROLL_UNIT_DESCRIPTION_CIV", pPlayer:GetCivilizationAdjectiveKey(), unit:GetNameKey());
-				end
-			end
-			
-			local unitTeam = unit:GetTeam();
-			if iActiveTeam == unitTeam then
-				strUnitText = "[COLOR_WHITE]" .. strUnitText .. "[ENDCOLOR]";
-			elseif pTeam:IsAtWar(unitTeam) then
-				strUnitText = "[COLOR_NEGATIVE_TEXT]" .. strUnitText .. "[ENDCOLOR]";
-			else
-				strUnitText = "[COLOR_POSITIVE_TEXT]" .. strUnitText .. "[ENDCOLOR]";
-			end
-			
-			-- Debug stuff
-			if (OptionsManager:IsDebugMode()) then
-				strUnitText = strUnitText .. " ("..tostring(unit:GetOwner()).." - " .. tostring(unit:GetID()) .. ")";
-			end
-			
-			-- Combat strength
-			if (strength > 0) then
-				strUnitText = strUnitText .. ", [ICON_STRENGTH]" .. unit:GetBaseCombatStrength();
-			end
-			
-			-- Hit Points
-			if (unit:GetDamage() > 0) then
-				strUnitText = strUnitText .. ", " .. Locale.ConvertTextKey("TXT_KEY_PLOTROLL_UNIT_HP", unit:GetMaxHitPoints() - unit:GetDamage());
-			end
-			
-			-- Embarked?
-			if (unit:IsEmbarked()) then
-				strUnitText = strUnitText .. ", " .. Memoize_LocaleLookup( "TXT_KEY_PLOTROLL_EMBARKED" );
-			end
-			
-			-- Building something?
-			--if (unit:GetBuildType() ~= -1) then
-				--strUnitText = strUnitText .. ", " .. Locale.ConvertTextKey(GameInfo.Builds[unit:GetBuildType()].Description);
-			--end
-		end			
-	end	
-	
-	return strUnitText;
-	
-end
-
-
--------------------------------------------------
--------------------------------------------------
-function GetOwnerString(plot)
-
-	local strOwner = "";
-	
-	local iActiveTeam = Game.GetActiveTeam();
-	local pTeam = Teams[iActiveTeam];
-	local bIsDebug = Game.IsDebugMode();
-	
-	-- City here?
-	if (plot:IsCity()) then
-		
-		local pCity = plot:GetPlotCity();
-		if (pCity ~= nil) then
-			local iCityOwner = pCity:GetOwner();
-			local pCityOwner = Players[iCityOwner];
-			if (pCityOwner ~= nil) then
-				if (pCityOwner:IsMinorCiv()) then
-					local strCivName = pCityOwner:GetCivilizationShortDescriptionKey();
-					strOwner = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_OF", strCivName);
-				else
-					local strAdjectiveKey = pCityOwner:GetCivilizationAdjectiveKey();
-					local strCityName = pCity:GetName()
-					strOwner = Locale.ConvertTextKey("TXT_KEY_CITY_OF", strAdjectiveKey, strCityName);
-				end	
-			end
-		end
-		
-	-- No city, see if this plot is just owned
-	else
-		
-		-- Plot owner
-		local iOwner = plot:GetRevealedOwner(iActiveTeam, bIsDebug);
-		
-		if (iOwner >= 0) then
-			local pPlayer = Players[iOwner];
-			
-			-- Player using nickname
-			if (pPlayer:GetNickName() ~= nil and pPlayer:GetNickName() ~= "") then
-				strOwner = Locale.ConvertTextKey("TXT_KEY_PLOTROLL_OWNED_PLAYER", pPlayer:GetNickName());
-			-- Use civ short description
-			else
-				strOwner = Locale.ConvertTextKey("TXT_KEY_PLOTROLL_OWNED_CIV", pPlayer:GetCivilizationShortDescriptionKey());
-			end
-				local iActiveTeam = Game.GetActiveTeam();
-				local plotTeam = pPlayer:GetTeam();
-				if iActiveTeam == plotTeam then
-					strOwner = "[COLOR_WHITE]" .. strOwner .. "[ENDCOLOR]";
-				elseif pTeam:IsAtWar(plotTeam) then
-					strOwner = "[COLOR_NEGATIVE_TEXT]" .. strOwner .. "[ENDCOLOR]";
-				else
-					strOwner = "[COLOR_POSITIVE_TEXT]" .. strOwner .. "[ENDCOLOR]";
-				end
-		end
-	end
-
-
-	
-	return strOwner;
-
-end
-
-
--------------------------------------------------
--------------------------------------------------
-function GetYieldString(plot)
-
-	local strYield = "";
-	
-	-- food
-	local iNumFood = plot:CalculateYield(0, true);
-	if (iNumFood > 0) then
-		strYield = strYield .. "[ICON_FOOD] " .. iNumFood .. " ";
-	end
-	
-	-- production
-	local iNumProduction = plot:CalculateYield(1, true);
-	if (iNumProduction > 0) then
-		strYield = strYield .. "[ICON_PRODUCTION] " .. iNumProduction .. " ";
-	end
-	
-	-- gold
-	local iNumGold = plot:CalculateYield(2, true);
-	if (iNumGold > 0) then
-		strYield = strYield .. "[ICON_GOLD] " .. iNumGold .. " ";
-	end
-	
-	-- science
-	local iNumScience = plot:CalculateYield(3, true);
-	if (iNumScience > 0) then
-		strYield = strYield .. "[ICON_RESEARCH] " .. iNumScience .. " ";
-	end
-	
-	-- culture	
-	local iNumCulture = plot:CalculateYield(4, true);
-	if (iNumCulture > 0) then
-		strYield = strYield .. "[ICON_CULTURE] " .. iNumCulture .. " ";
-	end
-	
-	-- Faith
-	local iNumFaith = plot:CalculateYield(5, true);
-	if (iNumFaith > 0) then
-		strYield = strYield .. "[ICON_PEACE] " .. iNumFaith .. " ";
-	end
-	
-	-- Happiness (should probably be calculated in CvPlayer)
-	local featureType = plot:GetFeatureType();
-	if(featureType ~= FeatureTypes.NO_FEATURE) then
-		local featureInfo = GameInfo.Features[featureType];
-		if(featureInfo ~= nil) then
-			local plotHappiness = featureInfo.InBorderHappiness;
-			local naturalWonderYieldModifier = Players[Game.GetActivePlayer()]:GetNaturalWonderYieldModifier();
-			if(naturalWonderYieldModifier > 0) then
-				plotHappiness = plotHappiness * (100 + naturalWonderYieldModifier);
-				plotHappiness = math.floor(plotHappiness / 100);	
-			end
-			
-			if(plotHappiness > 0) then
-				strYield = strYield .. "[ICON_HAPPINESS_1] " .. plotHappiness .. " ";
-			end
-		end
-	end
-	
-	-- GPP Rate
-	local iImprovementType = plot:GetRevealedImprovementType(Game.GetActiveTeam(), bIsDebug);
-	if (iImprovementType >= 0 and not plot:IsImprovementPillaged()) then
-		improvementInfo = GameInfo.Improvements[ iImprovementType ];
-		if (improvementInfo.GreatPersonRateModifier or 0) ~= 0 then
-			strYield = strYield .. "[ICON_GREAT_PEOPLE] " .. improvementInfo.GreatPersonRateModifier .. "% ";
-		end
-	end
-	
-	return strYield;
-end
-
--------------------------------------------------
--------------------------------------------------
-function GetInternationalTradeRouteString(plot)
-	local strTradeRouteStr = "";
-	local iActivePlayer = Game.GetActivePlayer();
-	local astrTradeRouteStrings = Players[iActivePlayer]:GetInternationalTradeRoutePlotToolTip(plot);
-		
-	for i,v in ipairs(astrTradeRouteStrings) do	
-		if (strTradeRouteStr == "") then
-			strTradeRouteStr = strTradeRouteStr .. Memoize_LocaleLookup("TXT_KEY_TRADE_ROUTE_TT_PLOT_HEADING");
-		else
-			strTradeRouteStr = strTradeRouteStr .. "[NEWLINE]";
-		end
-	
-		strTradeRouteStr = strTradeRouteStr .. v.String;
-	end
-	
-	return strTradeRouteStr;
+	return text:Concat('[NEWLINE]')
 end

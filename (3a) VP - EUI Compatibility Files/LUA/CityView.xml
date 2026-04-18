@@ -10,7 +10,7 @@
 
 	<!-- Left Side Panel -->
 	<!-- City Information -->
-	<Grid ID="CityInfoBG" Size="300,346" ConsumeMouse="1" Anchor="L,T" Offset="-36,160" Style="Grid9DetailSix140" >
+	<Grid ID="CityInfoBG" Size="300,386" ConsumeMouse="1" Anchor="L,T" Offset="-36,160" Style="Grid9DetailSix140" >
 		<Grid Size="339,230" ConsumeMouse="1" Anchor="L,T" Offset="0,-170" Style="Grid9DetailFive140" >
 			<Label Anchor="C,T" Offset="0,18" String="TXT_KEY_CITYVIEW_CITYINFO_TEXT"/>
 			<Stack Anchor="L,T" Offset="37,8" StackGrowth="Bottom" >

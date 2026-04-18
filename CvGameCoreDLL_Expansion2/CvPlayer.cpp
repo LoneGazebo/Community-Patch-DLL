@@ -434,6 +434,7 @@ CvPlayer::CvPlayer() :
 	, m_viCoreCitiesForSpaceshipProduction()
 	, m_playersWeAreAtWarWith()
 	, m_playersAtWarWithInFuture()
+	, m_teamsWeAreAtWarWith()
 	, m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 	, m_iEndTurnBlockingNotificationIndex(0)
 	, m_activeWaitingForEndTurnMessage(false)
@@ -829,9 +830,6 @@ CvPlayer::~CvPlayer()
 
 void CvPlayer::init(PlayerTypes eID)
 {
-	LeaderHeadTypes eBestPersonality;
-	int iValue = 0;
-	int iBestValue = 0;
 	int iI = 0;
 	int iJ = 0;
 
@@ -884,37 +882,6 @@ void CvPlayer::init(PlayerTypes eID)
 	if ((s == SS_TAKEN) || (s == SS_COMPUTER))
 	{
 		setAlive(true);
-
-		if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
-		{
-			if (!isBarbarian() && !isMinorCiv())
-			{
-				iBestValue = 0;
-				eBestPersonality = NO_LEADER;
-
-				for (iI = 0; iI < GC.getNumLeaderHeadInfos(); iI++)
-				{
-					if (iI == GD_INT_GET(BARBARIAN_LEADER) || iI == GD_INT_GET(MINOR_CIVILIZATION))
-						continue;
-
-					if ((LeaderHeadTypes)iI == getLeaderType())
-						continue;
-
-					iValue = (1 + GC.getGame().getJonRandNum(10000, "Choosing Personality"));
-
-					if (iValue > iBestValue)
-					{
-						iBestValue = iValue;
-						eBestPersonality = ((LeaderHeadTypes)iI);
-					}
-				}
-
-				if (eBestPersonality != NO_LEADER)
-				{
-					setPersonalityType(eBestPersonality);
-				}
-			}
-		}
 
 		ASSERT(m_pTraits);
 		m_pTraits->InitPlayerTraits();
@@ -1595,6 +1562,7 @@ void CvPlayer::uninit()
 	m_iNumFreeGreatPeople = 0;
 	m_playersWeAreAtWarWith.clear();
 	m_playersAtWarWithInFuture.clear();
+	m_teamsWeAreAtWarWith.clear();
 	m_iNumMayaBoosts = 0;
 	m_iNumFaithGreatPeople = 0;
 	m_iNumArchaeologyChoices = 0;
@@ -22219,37 +22187,42 @@ int CvPlayer::GetUnhappinessFromPuppetCitySpecialists() const
 /// Unhappiness from City Population in Occupied Cities
 int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const
 {
-	int iUnhappiness = 0;
+	int iUnhappinessOccupation = 0;
+	int iUnhappinessResistance = 0;
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		bool bCityValid = false;
 
-		// Assume pLoopCity is Annexed, and counts
-		if (pLoopCity == pAssumeCityAnnexed)
-			bCityValid = true;
-		// Assume that pLoopCity is a Puppet and does NOT count
-		else if (pLoopCity == pAssumeCityPuppeted)
-			bCityValid = false;
-		// Assume city doesn't exist, and does NOT count
-		else if (pLoopCity->IsIgnoreCityForHappiness())
-			bCityValid = false;
-		// Occupied Cities
-		else if (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
-			bCityValid = true;
 		// Resistance / Razing Cities
-		else if (MOD_BALANCE_VP && (pLoopCity->IsResistance() || pLoopCity->IsRazing()))
-			bCityValid = true;
+		if (MOD_BALANCE_VP && (pLoopCity->IsResistance() || pLoopCity->IsRazing()))
+			iUnhappinessResistance += pLoopCity->getPopulation();
+		else
+		{
+			bool bCityValid = false;
+			// Assume pLoopCity is Annexed, and counts
+			if (pLoopCity == pAssumeCityAnnexed)
+				bCityValid = true;
+			// Assume that pLoopCity is a Puppet and does NOT count
+			else if (pLoopCity == pAssumeCityPuppeted)
+				bCityValid = false;
+			// Assume city doesn't exist, and does NOT count
+			else if (pLoopCity->IsIgnoreCityForHappiness())
+				bCityValid = false;
+			// Occupied Cities
+			else if (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
+				bCityValid = true;
 
-		if (bCityValid)
-			iUnhappiness += pLoopCity->GetUnhappinessFromOccupation();
+			if (bCityValid)
+				iUnhappinessOccupation += pLoopCity->GetUnhappinessFromOccupation();
+
+		}
 	}
 
 	// Handicap mod
-	iUnhappiness *= isHuman(ISHUMAN_HANDICAP) ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
-	iUnhappiness /= 100;
+	iUnhappinessOccupation *= isHuman(ISHUMAN_HANDICAP) ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+	iUnhappinessOccupation /= 100;
 
-	return iUnhappiness;
+	return iUnhappinessOccupation + iUnhappinessResistance;
 }
 
 /// Unhappiness from Units Percent (50 = 50% of normal)
@@ -26175,10 +26148,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pCity != NULL)
 						{
-							if (pCity->getOwner() != GetID())
-							{
-								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * max(1, iPassYield+1);
-							}
+							iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * max(1, iPassYield+1);
 						}
 					}
 					if (eYield == YIELD_JFD_LOYALTY && eYield == ePassYield)
@@ -26189,7 +26159,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(ePlayer != NO_PLAYER && ePlayer != GetID())
 					{
-						if(GET_PLAYER(ePlayer).isMinorCiv() && eYield == YIELD_TOURISM)
+						if (!GET_PLAYER(ePlayer).isMajorCiv() && eYield == YIELD_TOURISM)
 						{
 							continue;
 						}
@@ -27576,7 +27546,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				else
 				{
-					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TYPE_WLTKD_START");
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
 					//We do this at the player level once per turn.
 					addInstantYieldText(iType, localizedText.toUTF8());
@@ -30833,7 +30803,7 @@ int CvPlayer::GetTechNeedModifier() const
 	}
 	else if (iTechDifference < 0)
 	{
-		iTechDifference *= /*0*/ GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN);
+		iTechDifference *= /*0*/ -GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN);
 		iTechDifference /= 100;
 	}
 
@@ -45303,20 +45273,20 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 	m_iUnitPurchaseCostModifier += iChange;
 }
 
-int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
+int CvPlayer::GetPlotDanger(const CvPlot& pPlot, const CvUnit* pUnit, const SUnitIDValueContainer& unitDamageDealt, int iExtraDamage, AirActionType iAirAction)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->GetDanger(pPlot, pUnit, unitsToIgnore, iExtraDamage, iAirAction);
+	return m_pDangerPlots->GetDanger(pPlot, pUnit, unitDamageDealt, iExtraDamage, iAirAction);
 }
 
-int CvPlayer::GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
+int CvPlayer::GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison, const SUnitIDValueContainer& unitDamageDealt)
 {
 	if (m_pDangerPlots->IsDirty())
 		m_pDangerPlots->UpdateDanger();
 
-	return m_pDangerPlots->GetDanger(pCity, pPretendGarrison);
+	return m_pDangerPlots->GetDanger(pCity, pPretendGarrison, unitDamageDealt);
 }
 
 int CvPlayer::GetPlotDanger(const CvPlot& pPlot, bool bFixedDamageOnly)
@@ -45763,11 +45733,19 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 {
 	//cache the wars we have going - ignore barbarians
 	m_playersWeAreAtWarWith.clear();
+	m_teamsWeAreAtWarWith.clear();
+
+	const CvTeam& kTeam = GET_TEAM(getTeam());
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			m_playersWeAreAtWarWith.push_back( eLoopPlayer );
+		const CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
+		if (kLoopPlayer.isAlive() && kTeam.isAtWar(eLoopTeam))
+		{
+			m_playersWeAreAtWarWith.push_back(eLoopPlayer);
+			m_teamsWeAreAtWarWith.push_back(eLoopTeam);
+		}
 	}
 
 	//see if we're not at war yet but war is coming
@@ -45775,7 +45753,8 @@ void CvPlayer::UpdateCurrentAndFutureWars()
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isBarbarian() && !IsAtWarWith(eLoopPlayer) )
+		const CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if(kLoopPlayer.isAlive() && !kLoopPlayer.isBarbarian() && !IsAtWarWith(eLoopPlayer) )
 		{
 			bool bWarMayBeComing = false;
 

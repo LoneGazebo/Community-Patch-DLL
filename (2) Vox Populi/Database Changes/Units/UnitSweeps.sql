@@ -105,14 +105,14 @@ SET HurryCostModifier = 25
 WHERE SpaceshipProject IS NOT NULL;
 
 -----------------------------------------------------------------
--- RequiresFaithPurchaseEnabled: only applicable to land/air units
+-- RequiresFaithPurchaseEnabled
 -- This blocks the unit from being always faith purchasable as long as it has a faith cost
 -----------------------------------------------------------------
 
--- All non-naval military units except mercenary units
+-- All military units except mercenary units
 UPDATE Units
 SET RequiresFaithPurchaseEnabled = 1
-WHERE CombatClass IN (SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1 AND IsNaval = 0)
+WHERE CombatClass IN (SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1)
 AND PurchaseOnly = 0;
 
 -- Siege Tower and Archaeologist also require beliefs to be faith purchased

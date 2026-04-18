@@ -721,7 +721,7 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_LUXURY_RESOURCE_GAIN">
 			<Text>Acquiring a Luxury Resource:[NEWLINE]{1_YieldString}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_IINSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN_SHORT">
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN_SHORT">
 			<Text>Gaining a Luxury Resource</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START">

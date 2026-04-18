@@ -135,6 +135,7 @@ CvGame::CvGame() :
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
 	, m_cityDistancePlots()
 	, m_eCurrentVisibilityPlayer(NO_PLAYER)
+	, m_eCurrentVisibilityTeam(NO_TEAM)
 {
 	m_pSettlerSiteEvaluator = NULL;
 	m_pStartSiteEvaluator = NULL;
@@ -1187,6 +1188,7 @@ void CvGame::uninit()
 	m_bHumanAIPath = false;
 	m_eObserverUIOverridePlayer = NO_PLAYER;
 	m_eCurrentVisibilityPlayer = NO_PLAYER;
+	m_eCurrentVisibilityTeam = NO_TEAM;
 
 	m_eHandicap = NO_HANDICAP;
 	m_ePausePlayer = NO_PLAYER;
@@ -8827,7 +8829,7 @@ void CvGame::updateMoves()
 					for(iI = 0; iI < MAX_PLAYERS; iI++)
 					{
 						CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
-						if(player.isHuman() && !player.isObserver() && !player.isAutoMoves())
+						if(player.isHuman(ISHUMAN_AI_UNITS) && !player.isObserver() && !player.isAutoMoves())
 							readyForAutoMoves = false;
 					}
 					m_processPlayerAutoMoves = readyForAutoMoves;
@@ -8930,7 +8932,7 @@ void CvGame::updateMoves()
 					}
 				}
 
-				if(player.isAutoMoves() && (!player.isHuman() || m_processPlayerAutoMoves))
+				if(player.isAutoMoves() && (!player.isHuman(ISHUMAN_AI_UNITS) || m_processPlayerAutoMoves))
 				{
 					bool bRepeatAutomoves = false;
 					int iRepeatPassCount = 2;	// Prevent getting stuck in a loop
@@ -13364,7 +13366,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false, false, iRangedSupportDamageInflicted);
 
 	int iDefenderDamageInflicted = 0; // passed by reference
-	int iAttackingDamageInflicted = pAttackingUnit->getMeleeCombatDamage(iAttackingStrength, iDefenderStrength, iDefenderDamageInflicted, false, pDefendingUnit, iRangedSupportDamageInflicted);
+	int iAttackingDamageInflicted = pAttackingUnit->getMeleeCombatDamage(iAttackingStrength, iDefenderStrength, iDefenderDamageInflicted, false, pDefendingUnit, 0, iRangedSupportDamageInflicted);
 	//iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 
 	int iAttackerMaxHitPoints = pAttackingUnit->GetMaxHitPoints();
@@ -14158,11 +14160,17 @@ bool CvGame::isFirstActivationOfPlayersAfterLoad() const
 void CvGame::SetCurrentVisibilityPlayer(PlayerTypes ePlayer)
 {
 	m_eCurrentVisibilityPlayer = ePlayer;
+	m_eCurrentVisibilityTeam = GET_PLAYER(ePlayer).getTeam();
 }
 
 PlayerTypes CvGame::GetCurrentVisibilityPlayer() const
 {
 	return m_eCurrentVisibilityPlayer;
+}
+
+TeamTypes CvGame::GetCurrentVisibilityTeam() const
+{
+	return m_eCurrentVisibilityTeam;
 }
 
 //	--------------------------------------------------------------------------------

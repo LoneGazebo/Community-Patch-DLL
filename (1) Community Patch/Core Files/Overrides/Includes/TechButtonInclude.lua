@@ -463,7 +463,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 
 	for row in GameInfo.Build_TechTimeChanges{TechType = kTechInfo.Type} do
 		local kBuildInfo = GameInfo.Builds[row.BuildType];
-		if kBuildInfo.Time and kBuildInfo.Time > 0 then
+		if kBuildInfo.Time and kBuildInfo.Time > 0 and kBuildInfo.ShowInTechTree then
 			local strTooltip = L("TXT_KEY_TECH_HELP_BUILD_COST_REDUCTION", row.TimeChange * 100 / kBuildInfo.Time, kBuildInfo.Description);
 			if row.BuildType == "BUILD_REMOVE_JUNGLE" or row.BuildType == "BUILD_REMOVE_FOREST" then
 				GenerateNextButtonCustom(strTooltip, "UNIT_ACTION_GOLD_ATLAS", 31);
@@ -689,7 +689,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		if CanPlayerEverBuildImprovementCached(eImprovement) then
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST", kImprovementInfo.Description, strYieldBoosts);
-			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type}();
+			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type, ShowInTechTree = 1}();
 			if kBuildInfo then
 				GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo, strTooltip, strButtonText);
 				if iButtonIndex > iButtonCount then return iButtonCount end
@@ -702,7 +702,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		if CanPlayerEverBuildImprovementCached(eImprovement) then
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST_FRESH_WATER", kImprovementInfo.Description, strYieldBoosts);
-			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type}();
+			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type, ShowInTechTree = 1}();
 			if kBuildInfo then
 				GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo, strTooltip, strButtonText);
 				if iButtonIndex > iButtonCount then return iButtonCount end
@@ -715,7 +715,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		if CanPlayerEverBuildImprovementCached(eImprovement) then
 			local strButtonText, strYieldBoosts = GetYieldBoostsString(tYieldBoosts);
 			local strTooltip = L("TXT_KEY_TECH_HELP_IMPROVEMENT_BOOST_NO_FRESH_WATER", kImprovementInfo.Description, strYieldBoosts);
-			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type}();
+			local kBuildInfo = GameInfo.Builds{ImprovementType = kImprovementInfo.Type, ShowInTechTree = 1}();
 			if kBuildInfo then
 				GenerateNextButtonFromInfo(SetupBuildButton, kBuildInfo, strTooltip, strButtonText);
 				if iButtonIndex > iButtonCount then return iButtonCount end

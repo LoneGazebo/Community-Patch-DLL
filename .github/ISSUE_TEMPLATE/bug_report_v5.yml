@@ -14,6 +14,7 @@ body:
       label: 1. Mod version
       description: "Please select which version you are using. Current Version: 5.2"
       options:
+        - 5.2.3
         - 5.2.2
         - 5.2.1
         - 5.2

@@ -2559,7 +2559,7 @@
 			<Help>TXT_KEY_BUILDING_TWOKAY_FOODS_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_TWOKAY_FOODS_STRATEGY</Strategy>
 			<IsCorporation>true</IsCorporation>
-			<EmpireSizeModifierReduction>-2</EmpireSizeModifierReduction>
+			<EmpireSizeModifierReductionGlobal>-2</EmpireSizeModifierReductionGlobal>
 			<DistressFlatReduction>1</DistressFlatReduction>
 			<PovertyFlatReduction>1</PovertyFlatReduction>
 			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>

@@ -1,0 +1,3 @@
+UPDATE Language_en_US
+SET Text = 'AI Random Personalities'
+WHERE Tag = 'TXT_KEY_GAME_OPTION_RANDOM_PERSONALITIES';
