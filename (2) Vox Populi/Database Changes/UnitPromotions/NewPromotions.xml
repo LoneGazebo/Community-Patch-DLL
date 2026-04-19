@@ -170,7 +170,7 @@
 			<Help>TXT_KEY_PROMOTION_OVERRUN_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_OVERRUN</PediaEntry>
 		</Row>
 		<Row>
@@ -179,7 +179,7 @@
 			<Help>TXT_KEY_PROMOTION_STALWART_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_DRILL_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_STALWART</PediaEntry>
 		</Row>
 		<Row>
@@ -639,14 +639,14 @@
 			<Type>PROMOTION_IKLWA</Type>
 			<Description>TXT_KEY_PROMOTION_IKLWA</Description>
 			<Help>TXT_KEY_PROMOTION_IKLWA_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_IKLWA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_BUSHIDO</Type>
 			<Description>TXT_KEY_PROMOTION_BUSHIDO</Description>
 			<Help>TXT_KEY_PROMOTION_BUSHIDO_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO</PediaEntry>
 			<HasPostCombatPromotions>true</HasPostCombatPromotions>
 		</Row>
@@ -683,7 +683,7 @@
 			<Type>PROMOTION_BRUTE_FORCE</Type>
 			<Description>TXT_KEY_PROMOTION_BRUTE_FORCE</Description>
 			<Help>TXT_KEY_PROMOTION_BRUTE_FORCE_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BRUTE_FORCE</PediaEntry>
 		</Row>
 		<Row>
@@ -746,14 +746,14 @@
 			<Type>PROMOTION_BEAM_AXLE</Type>
 			<Description>TXT_KEY_PROMOTION_BEAM_AXLE</Description>
 			<Help>TXT_KEY_PROMOTION_BEAM_AXLE_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_SKIRMISHER</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BEAM_AXLE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SKIRMISHER_DOCTRINE</Type>
 			<Description>TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE</Description>
 			<Help>TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_SKIRMISHER</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE</PediaEntry>
 		</Row>
 		<Row>
@@ -901,7 +901,7 @@
 			<Type>PROMOTION_RAIDER</Type>
 			<Description>TXT_KEY_PROMOTION_RAIDER</Description>
 			<Help>TXT_KEY_PROMOTION_RAIDER_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RAIDER</PediaEntry>
 		</Row>
 		<Row>
@@ -922,7 +922,7 @@
 			<Type>PROMOTION_HAKKAA_PAALLE</Type>
 			<Description>TXT_KEY_PROMOTION_HAKKAA_PAALLE</Description>
 			<Help>TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HAKKAA_PAALLE</PediaEntry>
 		</Row>
 		<Row>
@@ -936,7 +936,7 @@
 			<Type>PROMOTION_FASIMBA</Type>
 			<Description>TXT_KEY_PROMOTION_FASIMBA</Description>
 			<Help>TXT_KEY_PROMOTION_FASIMBA_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FASIMBA</PediaEntry>
 		</Row>
 		<Row>
@@ -950,7 +950,7 @@
 			<Type>PROMOTION_GRENADIER</Type>
 			<Description>TXT_KEY_PROMOTION_GRENADIER</Description>
 			<Help>TXT_KEY_PROMOTION_GRENADIER_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_GRENADIER</PediaEntry>
 		</Row>
 		<Row>
@@ -964,7 +964,7 @@
 			<Type>PROMOTION_DOPPELSOLDNER</Type>
 			<Description>TXT_KEY_PROMOTION_DOPPELSOLDNER</Description>
 			<Help>TXT_KEY_PROMOTION_DOPPELSOLDNER_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_DOPPELSOLDNER</PediaEntry>
 		</Row>
 		<Row>
@@ -1013,42 +1013,42 @@
 			<Type>PROMOTION_GARLAND_MINE</Type>
 			<Description>TXT_KEY_PROMOTION_GARLAND_MINE</Description>
 			<Help>TXT_KEY_PROMOTION_GARLAND_MINE_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_GARLAND_MINE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_DESERT_RAIDER</Type>
 			<Description>TXT_KEY_PROMOTION_DESERT_RAIDER</Description>
 			<Help>TXT_KEY_PROMOTION_DESERT_RAIDER_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_DESERT_RAIDER</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SHOCK_CAVALRY</Type>
 			<Description>TXT_KEY_PROMOTION_SHOCK_CAVALRY</Description>
 			<Help>TXT_KEY_PROMOTION_SHOCK_CAVALRY_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SHOCK_CAVALRY</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_FRONTIERSMAN</Type>
 			<Description>TXT_KEY_PROMOTION_FRONTIERSMAN</Description>
 			<Help>TXT_KEY_PROMOTION_FRONTIERSMAN_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FRONTIERSMAN</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_BRUTE_STRENGTH</Type>
 			<Description>TXT_KEY_PROMOTION_BRUTE_STRENGTH</Description>
 			<Help>TXT_KEY_PROMOTION_BRUTE_STRENGTH_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BRUTE_STRENGTH</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_LEGACY</Type>
 			<Description>TXT_KEY_PROMOTION_LEGACY</Description>
 			<Help>TXT_KEY_PROMOTION_LEGACY_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LEGACY</PediaEntry>
 		</Row>
 		<Row>
@@ -1069,21 +1069,21 @@
 			<Type>PROMOTION_AT_THE_GATES</Type>
 			<Description>TXT_KEY_PROMOTION_AT_THE_GATES</Description>
 			<Help>TXT_KEY_PROMOTION_AT_THE_GATES_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_AT_THE_GATES</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_REND</Type>
 			<Description>TXT_KEY_PROMOTION_REND</Description>
 			<Help>TXT_KEY_PROMOTION_REND_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_REND</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_CARNYX</Type>
 			<Description>TXT_KEY_PROMOTION_CARNYX</Description>
 			<Help>TXT_KEY_PROMOTION_CARNYX_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_CARNYX</PediaEntry>
 		</Row>
 		<Row>
@@ -1097,35 +1097,35 @@
 			<Type>PROMOTION_VUR_HA</Type>
 			<Description>TXT_KEY_PROMOTION_VUR_HA</Description>
 			<Help>TXT_KEY_PROMOTION_VUR_HA_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_VUR_HA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_RULE_BRITANNIA</Type>
 			<Description>TXT_KEY_PROMOTION_RULE_BRITANNIA</Description>
 			<Help>TXT_KEY_PROMOTION_RULE_BRITANNIA_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RULE_BRITANNIA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_MAIM</Type>
 			<Description>TXT_KEY_PROMOTION_MAIM</Description>
 			<Help>TXT_KEY_PROMOTION_MAIM_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MAIM</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_HOOKED_WEAPON</Type>
 			<Description>TXT_KEY_PROMOTION_HOOKED_WEAPON</Description>
 			<Help>TXT_KEY_PROMOTION_HOOKED_WEAPON_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HOOKED_WEAPON</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_ZEMENE_MESAFINT</Type>
 			<Description>TXT_KEY_PROMOTION_ZEMENE_MESAFINT</Description>
 			<Help>TXT_KEY_PROMOTION_ZEMENE_MESAFINT_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ZEMENE_MESAFINT</PediaEntry>
 		</Row>
 		<Row>
@@ -1146,21 +1146,21 @@
 			<Type>PROMOTION_PHILHELLENISM</Type>
 			<Description>TXT_KEY_PROMOTION_PHILHELLENISM</Description>
 			<Help>TXT_KEY_PROMOTION_PHILHELLENISM_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_PHILHELLENISM</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_BELLUM_ALET</Type>
 			<Description>TXT_KEY_PROMOTION_BELLUM_ALET</Description>
 			<Help>TXT_KEY_PROMOTION_BELLUM_ALET_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BELLUM_ALET</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SENTINEL_OF_THE_SUN</Type>
 			<Description>TXT_KEY_PROMOTION_SENTINEL_OF_THE_SUN</Description>
 			<Help>TXT_KEY_PROMOTION_SENTINEL_OF_THE_SUN_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SENTINEL_OF_THE_SUN</PediaEntry>
 		</Row>
 		<Row>
@@ -1209,7 +1209,7 @@
 			<Type>PROMOTION_MINGGHAN</Type>
 			<Description>TXT_KEY_PROMOTION_MINGGHAN</Description>
 			<Help>TXT_KEY_PROMOTION_MINGGHAN_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MINGGHAN</PediaEntry>
 		</Row>
 		<Row>
@@ -1230,7 +1230,7 @@
 			<Type>PROMOTION_GOEDENDAG</Type>
 			<Description>TXT_KEY_PROMOTION_GOEDENDAG</Description>
 			<Help>TXT_KEY_PROMOTION_GOEDENDAG_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_GOEDENDAG</PediaEntry>
 		</Row>
 		<Row>
@@ -1244,7 +1244,7 @@
 			<Type>PROMOTION_SAFAVI_AGITATOR</Type>
 			<Description>TXT_KEY_PROMOTION_SAFAVI_AGITATOR</Description>
 			<Help>TXT_KEY_PROMOTION_SAFAVI_AGITATOR_HELP</Help>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SAFAVI_AGITATOR</PediaEntry>
 		</Row>
 		<Row>
@@ -1265,7 +1265,7 @@
 			<Type>PROMOTION_PRAEFECTUS_CASTRORUM</Type>
 			<Description>TXT_KEY_PROMOTION_PRAEFECTUS_CASTRORUM</Description>
 			<Help>TXT_KEY_PROMOTION_PRAEFECTUS_CASTRORUM_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_PRAEFECTUS_CASTRORUM</PediaEntry>
 		</Row>
 		<Row>
@@ -1279,7 +1279,7 @@
 			<Type>PROMOTION_BIG_HORSE_DANCE</Type>
 			<Description>TXT_KEY_PROMOTION_BIG_HORSE_DANCE</Description>
 			<Help>TXT_KEY_PROMOTION_BIG_HORSE_DANCE_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BIG_HORSE_DANCE</PediaEntry>
 		</Row>
 		<Row>
@@ -1336,56 +1336,56 @@
 			<Type>PROMOTION_RIGHTEOUSNESS</Type>
 			<Description>TXT_KEY_PROMOTION_RIGHTEOUSNESS</Description>
 			<Help>TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RIGHTEOUSNESS</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_COURAGE</Type>
 			<Description>TXT_KEY_PROMOTION_COURAGE</Description>
 			<Help>TXT_KEY_PROMOTION_COURAGE_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COURAGE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_BENEVOLENCE</Type>
 			<Description>TXT_KEY_PROMOTION_BENEVOLENCE</Description>
 			<Help>TXT_KEY_PROMOTION_BENEVOLENCE_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BENEVOLENCE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_RESPECT</Type>
 			<Description>TXT_KEY_PROMOTION_RESPECT</Description>
 			<Help>TXT_KEY_PROMOTION_RESPECT_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RESPECT</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SINCERITY</Type>
 			<Description>TXT_KEY_PROMOTION_SINCERITY</Description>
 			<Help>TXT_KEY_PROMOTION_SINCERITY_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SINCERITY</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_HONOR</Type>
 			<Description>TXT_KEY_PROMOTION_HONOR</Description>
 			<Help>TXT_KEY_PROMOTION_HONOR_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HONOR</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_LOYALTY</Type>
 			<Description>TXT_KEY_PROMOTION_LOYALTY</Description>
 			<Help>TXT_KEY_PROMOTION_LOYALTY_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LOYALTY</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SELF_CONTROL</Type>
 			<Description>TXT_KEY_PROMOTION_SELF_CONTROL</Description>
 			<Help>TXT_KEY_PROMOTION_SELF_CONTROL_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_BUILDING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SELF_CONTROL</PediaEntry>
 		</Row>
 		<!-- Plague -->
