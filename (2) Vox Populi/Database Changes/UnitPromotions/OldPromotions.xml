@@ -68,7 +68,7 @@
 			<Type>PROMOTION_BARRAGE_1</Type>
 			<Description>TXT_KEY_PROMOTION_BARRAGE_1</Description>
 			<Help>TXT_KEY_PROMOTION_BARRAGE_1_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_1</PediaEntry>
 		</Replace>
 		<Replace>
@@ -76,7 +76,7 @@
 			<Description>TXT_KEY_PROMOTION_BARRAGE_2</Description>
 			<Help>TXT_KEY_PROMOTION_BARRAGE_2_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_1</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_2</PediaEntry>
 		</Replace>
 		<Replace>
@@ -84,14 +84,14 @@
 			<Description>TXT_KEY_PROMOTION_BARRAGE_3</Description>
 			<Help>TXT_KEY_PROMOTION_BARRAGE_3_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_3</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ACCURACY_1</Type>
 			<Description>TXT_KEY_PROMOTION_ACCURACY_1</Description>
 			<Help>TXT_KEY_PROMOTION_ACCURACY_1_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_1</PediaEntry>
 		</Replace>
 		<Replace>
@@ -99,7 +99,7 @@
 			<Description>TXT_KEY_PROMOTION_ACCURACY_2</Description>
 			<Help>TXT_KEY_PROMOTION_ACCURACY_2_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_1</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_2</PediaEntry>
 		</Replace>
 		<Replace>
@@ -107,7 +107,7 @@
 			<Description>TXT_KEY_PROMOTION_ACCURACY_3</Description>
 			<Help>TXT_KEY_PROMOTION_ACCURACY_3_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_2</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_3</PediaEntry>
 		</Replace>
 		<Replace>
@@ -306,7 +306,7 @@
 			<PromotionPrereqOr3>PROMOTION_FIELD_3</PromotionPrereqOr3>
 			<PromotionPrereqOr2>PROMOTION_INDOMITABLE</PromotionPrereqOr2>
 			<PromotionPrereqOr4>PROMOTION_BROADSIDE</PromotionPrereqOr4>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_LOGISTICS</PediaEntry>
 		</Replace>
 		<Replace>
@@ -544,7 +544,7 @@
 			<Description>TXT_KEY_PROMOTION_HELI_AMBUSH_1</Description>
 			<Help>TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_HOVERING_UNIT</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SKIRMISHER</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HELI_AMBUSH_1</PediaEntry>
 		</Replace>
 		<Replace>
@@ -552,7 +552,7 @@
 			<Description>TXT_KEY_PROMOTION_HELI_AMBUSH_2</Description>
 			<Help>TXT_KEY_PROMOTION_HELI_AMBUSH_2_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_HELI_AMBUSH_1</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SKIRMISHER</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HELI_AMBUSH_2</PediaEntry>
 		</Replace>
 		<Replace>
@@ -871,7 +871,7 @@
 			<Type>PROMOTION_ONLY_DEFENSIVE</Type>
 			<Description>TXT_KEY_PROMOTION_ONLY_DEFENSIVE</Description>
 			<Help>TXT_KEY_PROMOTION_ONLY_DEFENSIVE</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_ONLY_DEFENSIVE</PediaEntry>
 		</Replace>
 		<Replace>
@@ -934,7 +934,7 @@
 			<Type>PROMOTION_INDIRECT_FIRE</Type>
 			<Description>TXT_KEY_PROMOTION_INDIRECT_FIRE</Description>
 			<Help>TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_INDIRECT_FIRE</PediaEntry>
 		</Replace>
 		<Replace>

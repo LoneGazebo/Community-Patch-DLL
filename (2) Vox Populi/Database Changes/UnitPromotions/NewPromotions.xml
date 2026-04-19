@@ -86,7 +86,7 @@
 			<Help>TXT_KEY_PROMOTION_SPLASH_1_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_FIELD_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_TARGETING_3</PromotionPrereqOr2>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SPLASH_1</PediaEntry>
 		</Row>
 		<Row>
@@ -94,7 +94,7 @@
 			<Description>TXT_KEY_PROMOTION_SPLASH_2</Description>
 			<Help>TXT_KEY_PROMOTION_SPLASH_2_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_SPLASH_1</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SPLASH_2</PediaEntry>
 		</Row>
 		<Row>
@@ -188,7 +188,7 @@
 			<Help>TXT_KEY_PROMOTION_FIRING_DOCTRINE_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_FIELD_3</PromotionPrereqOr2>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FIRING_DOCTRINE</PediaEntry>
 		</Row>
 		<Row>
@@ -198,7 +198,7 @@
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SIEGE_3</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_WOLFPACK_3</PromotionPrereqOr3>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_INFILTRATORS</PediaEntry>
 		</Row>
 		<Row>
@@ -264,7 +264,7 @@
 			<Description>TXT_KEY_PROMOTION_PARTHIAN_TACTICS</Description>
 			<Help>TXT_KEY_PROMOTION_PARTHIAN_TACTICS_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SKIRMISHER</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_PARTHIAN_TACTICS</PediaEntry>
 		</Row>
 		<Row>
@@ -272,7 +272,7 @@
 			<Description>TXT_KEY_PROMOTION_COUP_DE_GRACE</Description>
 			<Help>TXT_KEY_PROMOTION_COUP_DE_GRACE_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SKIRMISHER</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_COUP_DE_GRACE</PediaEntry>
 		</Row>
 		<Row>
@@ -280,7 +280,7 @@
 			<Description>TXT_KEY_PROMOTION_MARCH</Description>
 			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SKIRMISHER</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MARCH</PediaEntry>
 		</Row>
 		<Row>
@@ -288,7 +288,7 @@
 			<Description>TXT_KEY_PROMOTION_SENTRY</Description>
 			<Help>TXT_KEY_PROMOTION_SENTRY_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SKIRMISHER</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SENTRY</PediaEntry>
 		</Row>
 		<Row>
@@ -389,7 +389,7 @@
 			<Help>TXT_KEY_PROMOTION_ENVELOPMENT_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_ACCURACY_2</PromotionPrereqOr2>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SKIRMISHER</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ENVELOPMENT</PediaEntry>
 		</Row>
 		<Row>
@@ -718,7 +718,7 @@
 			<Type>PROMOTION_NAVAL_TARGET_PENALTY</Type>
 			<Description>TXT_KEY_PROMOTION_NAVAL_TARGET_PENALTY</Description>
 			<Help>TXT_KEY_PROMOTION_NAVAL_TARGET_PENALTY_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_TARGET_PENALTY</PediaEntry>
 		</Row>
 		<Row>
@@ -915,7 +915,7 @@
 			<Type>PROMOTION_ASSIZE_OF_ARMS</Type>
 			<Description>TXT_KEY_PROMOTION_ASSIZE_OF_ARMS</Description>
 			<Help>TXT_KEY_PROMOTION_ASSIZE_OF_ARMS_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ASSIZE_OF_ARMS</PediaEntry>
 		</Row>
 		<Row>
@@ -943,7 +943,7 @@
 			<Type>PROMOTION_WITHERING_FIRE</Type>
 			<Description>TXT_KEY_PROMOTION_WITHERING_FIRE</Description>
 			<Help>TXT_KEY_PROMOTION_WITHERING_FIRE_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_WITHERING_FIRE</PediaEntry>
 		</Row>
 		<Row>
@@ -971,7 +971,7 @@
 			<Type>PROMOTION_CONCUSSIVE_HIT</Type>
 			<Description>TXT_KEY_PROMOTION_CONCUSSIVE_HIT</Description>
 			<Help>TXT_KEY_PROMOTION_CONCUSSIVE_HIT_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_CONCUSSIVE_HIT</PediaEntry>
 		</Row>
 		<Row>
@@ -1167,14 +1167,14 @@
 			<Type>PROMOTION_EPIC</Type>
 			<Description>TXT_KEY_PROMOTION_EPIC</Description>
 			<Help>TXT_KEY_PROMOTION_EPIC_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EPIC</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_DHANURVIDYA</Type>
 			<Description>TXT_KEY_PROMOTION_DHANURVIDYA</Description>
 			<Help>TXT_KEY_PROMOTION_DHANURVIDYA_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_DHANURVIDYA</PediaEntry>
 		</Row>
 		<Row>
@@ -1251,7 +1251,7 @@
 			<Type>PROMOTION_FIGHTING_COCK</Type>
 			<Description>TXT_KEY_PROMOTION_FIGHTING_COCK</Description>
 			<Help>TXT_KEY_PROMOTION_FIGHTING_COCK_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FIGHTING_COCK</PediaEntry>
 		</Row>
 		<Row>
@@ -1293,7 +1293,7 @@
 			<Type>PROMOTION_FATHER_OF_THE_HORSE</Type>
 			<Description>TXT_KEY_PROMOTION_FATHER_OF_THE_HORSE</Description>
 			<Help>TXT_KEY_PROMOTION_FATHER_OF_THE_HORSE_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FATHER_OF_THE_HORSE</PediaEntry>
 		</Row>
 		<Row>
@@ -1321,7 +1321,7 @@
 			<Type>PROMOTION_AGINCOURT</Type>
 			<Description>TXT_KEY_PROMOTION_AGINCOURT</Description>
 			<Help>TXT_KEY_PROMOTION_AGINCOURT_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaType>PEDIA_UNIQUE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_AGINCOURT</PediaEntry>
 		</Row>
 		<Row>
