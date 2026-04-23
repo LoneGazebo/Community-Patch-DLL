@@ -182,6 +182,8 @@ protected:
 
 	static int lGetNumBuilding(lua_State* L);
 	static int lIsHasBuilding(lua_State* L);
+	static int lCanAirlift(lua_State* L);
+	static int lCanSealift(lua_State* L);
 	LUAAPIEXTN(GetNumBuildingClass, int, iBuildingClassType);
 	LUAAPIEXTN(IsHasBuildingClass, bool, iBuildingClassType);
 	static int lGetLocalBuildingClassYield(lua_State* L);
