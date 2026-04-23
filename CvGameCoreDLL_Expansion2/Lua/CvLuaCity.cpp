@@ -186,6 +186,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetNumBuilding);
 	Method(IsHasBuilding);
+	Method(CanAirlift);
+	Method(CanSealift);
 	Method(GetNumBuildingClass);
 	Method(IsHasBuildingClass);
 	Method(GetLocalBuildingClassYield);
@@ -2604,6 +2606,36 @@ int CvLuaCity::lIsHasBuilding(lua_State* L)
 	{
 		const bool bResult = pkCity->GetCityBuildings()->GetNumBuilding(eBuildingType);
 		lua_pushboolean(L, bResult);
+	}
+	else
+	{
+		lua_pushboolean(L, false);
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool CanAirlift();
+int CvLuaCity::lCanAirlift(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	if(pkCity->CanAirlift())
+	{
+		lua_pushboolean(L, true);
+	}
+	else
+	{
+		lua_pushboolean(L, false);
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool CanSealift();
+int CvLuaCity::lCanSealift(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	if(pkCity->CanSealift())
+	{
+		lua_pushboolean(L, true);
 	}
 	else
 	{
