@@ -854,7 +854,7 @@
 			<Text>Allows [ICON_AIRPORT] Airlift</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SEALIFT">
-			<Text>Allows [ICON_CARGO_SHIP] Transportation</Text>
+			<Text>Allows [COLOR_POSITIVE_TEXT]Transportation[ENDCOLOR] via [ICON_CONNECTED] City Connections over Water</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ITR_FOOD">
 			<Text>Allows [ICON_FOOD] Food [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from City</Text>
