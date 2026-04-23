@@ -412,12 +412,19 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			controls.CityHasFranchise:SetHide(true);
 		end
 
-		-- CityHasAirport Status
-		if (city:IsHasBuilding(GameInfoTypes["BUILDING_AIRPORT"])) then
-			controls.CityHasAirport:SetHide(false);
-			controls.CityHasAirport:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_HAS_AIRPORT"));
+		-- CityCanAirlift Status
+		if (city:CanAirlift() then
+			controls.CityCanAirlift:SetHide(false);
+			controls.CityCanAirlift:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_HAS_AIRLIFT"));
 		else
-			controls.CityHasAirport:SetHide(true);
+			controls.CityCanAirlift:SetHide(true);
+		end
+		-- CityCanSealift Status
+		if (city:CanSealift() then
+			controls.CityCanSealift:SetHide(false);
+			controls.CityCanSealift:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_HAS_SEALIFT"));
+		else
+			controls.CityCanSealift:SetHide(true);
 		end
 
 		-- CityHasObstacle Status
