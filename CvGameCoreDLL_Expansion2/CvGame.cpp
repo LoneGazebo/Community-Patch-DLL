@@ -693,6 +693,18 @@ void CvGame::InitPlayers()
 					CvPreGame::setLeaderHead(eLoopPlayer, eAssignedLeader);
 				}
 			}
+			else if (CvPreGame::leaderHead(eLoopPlayer) == NO_LEADER)
+			{
+				CvCivilizationInfo* pCivInfo = GC.getCivilizationInfo(ePlayerCiv);
+				for (int iLeader = 0; iLeader < GC.getNumLeaderHeadInfos(); iLeader++)
+				{
+					if (pCivInfo->isLeaders(iLeader))
+					{
+						CvPreGame::setLeaderHead(eLoopPlayer, static_cast<LeaderHeadTypes>(iLeader));
+						break;
+					}
+				}
+			}
 		}
 
 		ePlayerColor = CvPreGame::playerColor(eLoopPlayer);
