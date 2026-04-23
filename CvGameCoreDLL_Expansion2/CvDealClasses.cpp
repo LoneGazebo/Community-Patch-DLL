@@ -861,7 +861,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						return false;
 
 					PlayerTypes eAlly = GET_PLAYER(vMembers[i]).GetMinorCivAI()->GetAlly();
-					if (GET_PLAYER(eAlly).getTeam() != eToTeam)
+					if (eAlly == NO_PLAYER || GET_PLAYER(eAlly).getTeam() != eToTeam)
 						return false;
 				}
 			}
