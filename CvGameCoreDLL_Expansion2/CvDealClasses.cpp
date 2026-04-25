@@ -5516,6 +5516,7 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 
 					DoEndTradedItem(&*itemIter, eToPlayer, true);
 				}
+				SetRenewDealID(it->m_eFromPlayer, it->m_eToPlayer, -1);
 				m_HistoricalDeals.push_back(*it);
 			}
 			else
