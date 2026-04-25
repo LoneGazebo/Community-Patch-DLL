@@ -3436,6 +3436,9 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		CheckPromotionPrereqOr("PromotionPrereqOr4");
 		CheckPromotionPrereqOr("PromotionPrereqOr5");
 		CheckPromotionPrereqOr("PromotionPrereqOr6");
+		CheckPromotionPrereqOr("PromotionPrereqOr7");
+		CheckPromotionPrereqOr("PromotionPrereqOr8");
+		CheckPromotionPrereqOr("PromotionPrereqOr9");
 
 		UpdateButtonFrame( buttonAdded, Controls.RequiredPromotionsInnerFrame, Controls.RequiredPromotionsFrame );
 
@@ -3447,7 +3450,10 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 					loopPromotion["PromotionPrereqOr3"] == thisPromotion.Type or
 					loopPromotion["PromotionPrereqOr4"] == thisPromotion.Type or
 					loopPromotion["PromotionPrereqOr5"] == thisPromotion.Type or
-					loopPromotion["PromotionPrereqOr6"] == thisPromotion.Type) then
+					loopPromotion["PromotionPrereqOr6"] == thisPromotion.Type or
+					loopPromotion["PromotionPrereqOr7"] == thisPromotion.Type or
+					loopPromotion["PromotionPrereqOr8"] == thisPromotion.Type or
+					loopPromotion["PromotionPrereqOr9"] == thisPromotion.Type) then
 				print("Leads To Promotion:" .. loopPromotion.Type)
 				local thisLeadsToPromotionInstance = g_LeadsToPromotionsManager:GetInstance();
 				if thisLeadsToPromotionInstance then
