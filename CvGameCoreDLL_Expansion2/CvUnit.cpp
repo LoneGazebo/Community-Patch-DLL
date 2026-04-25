@@ -13134,21 +13134,21 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
 						if (bLoopUnitBuildingRoute || bLoopUnitBuildingImprovement)
 						{
-						if (pPlot->getBuildTime(eBuild, getOwner()) > 0 || (pkBuildInfo->getRoute() != NO_ROUTE && bLoopUnitBuildingRoute) || (pkBuildInfo->getImprovement() != NO_IMPROVEMENT && bLoopUnitBuildingImprovement))
-						{
-							if (toolTipSink && !toolTipSink->empty())
-								(*toolTipSink) += "[NEWLINE]";
-							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING");
-							if (toolTipSink == NULL)
-								return false;
-							bCanBuild = false;
-							break;
+							if (pPlot->getBuildTime(eBuild, getOwner()) > 0 || (pkBuildInfo->getRoute() != NO_ROUTE && bLoopUnitBuildingRoute) || (pkBuildInfo->getImprovement() != NO_IMPROVEMENT && bLoopUnitBuildingImprovement))
+							{
+								if (toolTipSink && !toolTipSink->empty())
+									(*toolTipSink) += "[NEWLINE]";
+								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING");
+								if (toolTipSink == NULL)
+									return false;
+								bCanBuild = false;
+								break;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
 	}
 
 	if (MOD_EVENTS_PLOT)
@@ -16508,7 +16508,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		// KNOWN ORIGIN PLOT
 		////////////////////////
 
-		if(pFromPlot != NULL)
+		if(pFromPlot != NULL &&  pFromPlot->isRevealed(getTeam()))
 		{
 			// Attacking across a river
 			if(!isRiverCrossingNoPenalty())
@@ -16520,7 +16520,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			// Amphibious attack
 			if(!isAmphibious())
 			{
-				if(!isNativeDomain(pFromPlot))
+				if(!isNativeDomain(pFromPlot) && pFromPlot->isWater())
 					iModifier += /*-50*/ GD_INT_GET(AMPHIB_ATTACK_MODIFIER);
 			}
 
