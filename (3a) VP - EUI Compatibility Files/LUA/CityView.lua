@@ -1500,44 +1500,61 @@ end)
 	-- Update Selection List
 	-------------------------------------------
 
-	local unitSelectList = table()
-	local gpUnitSelectList = table()
-	local religiousUnitSelectList = table()
-	local landUnitSelectList = table()
-	local seaUnitSelectList = table()
-	local airUnitSelectList = table()
-	local militaryUnitSelectList = table()
-	local buildingSelectList = table()
-	local projectSelectList = table()
-	local nationalWonderSelectList = table()
-	local wonderSelectList = table()
-	local processSelectList = table()
+	local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
+	local isCityCaptureViewingMode = UI.IsPopupTypeOpen(ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED)
+	local isSelectionList = isActivePlayerCity and not isCityCaptureViewingMode
 
-	if g_isAdvisor then
-		Game.SetAdvisorRecommenderCity( city )
-	end
-	-- Buildings & Wonders
-	local orderID = OrderTypes.ORDER_CONSTRUCT
-	local code = orderID / 64
-	for item in GameInfo.Buildings() do
-		local buildingClass = GameInfo.BuildingClasses[item.BuildingClass]
-		local isWonder = buildingClass and (buildingClass.MaxGlobalInstances > 0 or buildingClass.MaxPlayerInstances == 1 or buildingClass.MaxTeamInstances > 0)
-		local isWorldWonder = buildingClass and (buildingClass.MaxGlobalInstances > 0 or buildingClass.MaxTeamInstances > 0)
-		local isNationalWonder = buildingClass and buildingClass.MaxPlayerInstances == 1
-		if not queueItems[ code + item.ID ] then
-			if g_isSeparateCityProductionEUI then
-				if g_isSeparateProjectWonders then
-					Controls.WondersText:SetText(L("TXT_KEY_POP_WORLD_WONDERS"))
-					AddSelectionItem( city, item,
-							(isNationalWonder and nationalWonderSelectList) or
-							(isWorldWonder and wonderSelectList) or
-							buildingSelectList,
-							orderID,
-							city.CanConstruct,
-							-1, item.ID, -1,
-							city.GetBuildingProductionTurnsLeft,
-							city.GetBuildingPurchaseCost,
-							city.GetBuildingFaithPurchaseCost )
+	Controls.SelectionScrollPanel:SetHide( not isSelectionList )
+	if isSelectionList then
+		local unitSelectList = table()
+		local gpUnitSelectList = table()
+		local religiousUnitSelectList = table()
+		local landUnitSelectList = table()
+		local seaUnitSelectList = table()
+		local airUnitSelectList = table()
+		local militaryUnitSelectList = table()
+		local buildingSelectList = table()
+		local projectSelectList = table()
+		local nationalWonderSelectList = table()
+		local wonderSelectList = table()
+		local processSelectList = table()
+
+		if g_isAdvisor then
+			Game.SetAdvisorRecommenderCity( city )
+		end
+		-- Buildings & Wonders
+		local orderID = OrderTypes.ORDER_CONSTRUCT
+		local code = orderID / 64
+		for item in GameInfo.Buildings() do
+			local buildingClass = GameInfo.BuildingClasses[item.BuildingClass]
+			local isWonder = buildingClass and (buildingClass.MaxGlobalInstances > 0 or buildingClass.MaxPlayerInstances == 1 or buildingClass.MaxTeamInstances > 0)
+			local isWorldWonder = buildingClass and (buildingClass.MaxGlobalInstances > 0 or buildingClass.MaxTeamInstances > 0)
+			local isNationalWonder = buildingClass and buildingClass.MaxPlayerInstances == 1
+			if not queueItems[ code + item.ID ] then
+				if g_isSeparateCityProductionEUI then
+					if g_isSeparateProjectWonders then
+						Controls.WondersText:SetText(L("TXT_KEY_POP_WORLD_WONDERS"))
+						AddSelectionItem( city, item,
+								(isNationalWonder and nationalWonderSelectList) or
+								(isWorldWonder and wonderSelectList) or
+								buildingSelectList,
+								orderID,
+								city.CanConstruct,
+								-1, item.ID, -1,
+								city.GetBuildingProductionTurnsLeft,
+								city.GetBuildingPurchaseCost,
+								city.GetBuildingFaithPurchaseCost )
+					else
+						AddSelectionItem( city, item,
+								(isWonder and wonderSelectList) or
+								buildingSelectList,
+								orderID,
+								city.CanConstruct,
+								-1, item.ID, -1,
+								city.GetBuildingProductionTurnsLeft,
+								city.GetBuildingPurchaseCost,
+								city.GetBuildingFaithPurchaseCost )
+					end
 				else
 					AddSelectionItem( city, item,
 							(isWonder and wonderSelectList) or
@@ -1549,84 +1566,83 @@ end)
 							city.GetBuildingPurchaseCost,
 							city.GetBuildingFaithPurchaseCost )
 				end
-			else
-				AddSelectionItem( city, item,
-						(isWonder and wonderSelectList) or
-						buildingSelectList,
-						orderID,
-						city.CanConstruct,
-						-1, item.ID, -1,
-						city.GetBuildingProductionTurnsLeft,
-						city.GetBuildingPurchaseCost,
-						city.GetBuildingFaithPurchaseCost )
 			end
 		end
-	end
-	if not g_isDebugMode then
-		-- Units
-		orderID = OrderTypes.ORDER_TRAIN
-		for item in GameInfo.Units() do
-			local isGPUnit = item.Special == "SPECIALUNIT_PEOPLE"
-			local isReligiousUnit = item.ReligiousStrength > 0
-			local isLandMilitary = item.Domain == "DOMAIN_LAND" and item.Combat > 0
-			local isSeaMilitary = item.Domain == "DOMAIN_SEA" and item.Combat > 0
-			local isAirMilitary = item.Domain == "DOMAIN_AIR" and item.RangedCombat > 0
-			local isMilitary = item.Combat > 0 or item.RangedCombat > 0
-			-- N.Core: This is unelegant solution, I'm sorry
-			if g_isSeparateCityProductionEUI then
-				if g_isSeparateGPReligious and g_isSeparateMilitaryDomain then
+		if not g_isDebugMode then
+			-- Units
+			orderID = OrderTypes.ORDER_TRAIN
+			for item in GameInfo.Units() do
+				local isGPUnit = item.Special == "SPECIALUNIT_PEOPLE"
+				local isReligiousUnit = item.ReligiousStrength > 0
+				local isLandMilitary = item.Domain == "DOMAIN_LAND" and item.Combat > 0
+				local isSeaMilitary = item.Domain == "DOMAIN_SEA" and item.Combat > 0
+				local isAirMilitary = item.Domain == "DOMAIN_AIR" and item.RangedCombat > 0
+				local isMilitary = item.Combat > 0 or item.RangedCombat > 0
+				-- N.Core: This is unelegant solution, I'm sorry
+				if g_isSeparateCityProductionEUI then
+					if g_isSeparateGPReligious and g_isSeparateMilitaryDomain then
+						AddSelectionItem( city, item,
+									(isGPUnit and gpUnitSelectList) or
+									(isReligiousUnit and religiousUnitSelectList) or
+									(isLandMilitary and landUnitSelectList) or
+									(isSeaMilitary and seaUnitSelectList) or
+									(isAirMilitary and airUnitSelectList) or
+									(isMilitary and militaryUnitSelectList) or
+									unitSelectList,
+									orderID,
+									city.CanTrain,
+									item.ID, -1, -1,
+									city.GetUnitProductionTurnsLeft,
+									city.GetUnitPurchaseCost,
+									city.GetUnitFaithPurchaseCost )
+					elseif not g_isSeparateGPReligious and g_isSeparateMilitaryDomain then
+						AddSelectionItem( city, item,
+									(isLandMilitary and landUnitSelectList) or
+									(isSeaMilitary and seaUnitSelectList) or
+									(isAirMilitary and airUnitSelectList) or
+									(isMilitary and militaryUnitSelectList) or
+									unitSelectList,
+									orderID,
+									city.CanTrain,
+									item.ID, -1, -1,
+									city.GetUnitProductionTurnsLeft,
+									city.GetUnitPurchaseCost,
+									city.GetUnitFaithPurchaseCost )
+					elseif g_isSeparateGPReligious and not g_isSeparateMilitaryDomain then
+						AddSelectionItem( city, item,
+									(isGPUnit and gpUnitSelectList) or
+									(isReligiousUnit and religiousUnitSelectList) or
+									(isMilitary and militaryUnitSelectList) or
+									unitSelectList,
+									orderID,
+									city.CanTrain,
+									item.ID, -1, -1,
+									city.GetUnitProductionTurnsLeft,
+									city.GetUnitPurchaseCost,
+									city.GetUnitFaithPurchaseCost )
+					elseif not g_isSeparateGPReligious and not g_isSeparateMilitaryDomain then
+						AddSelectionItem( city, item,
+									(isMilitary and militaryUnitSelectList) or
+									unitSelectList,
+									orderID,
+									city.CanTrain,
+									item.ID, -1, -1,
+									city.GetUnitProductionTurnsLeft,
+									city.GetUnitPurchaseCost,
+									city.GetUnitFaithPurchaseCost )
+					else	-- N.Core: same as above, only serve as a redundancy check
+						AddSelectionItem( city, item,
+									(isMilitary and militaryUnitSelectList) or
+									unitSelectList,
+									orderID,
+									city.CanTrain,
+									item.ID, -1, -1,
+									city.GetUnitProductionTurnsLeft,
+									city.GetUnitPurchaseCost,
+									city.GetUnitFaithPurchaseCost )
+					end
+				else
 					AddSelectionItem( city, item,
-								(isGPUnit and gpUnitSelectList) or
-								(isReligiousUnit and religiousUnitSelectList) or
-								(isLandMilitary and landUnitSelectList) or
-								(isSeaMilitary and seaUnitSelectList) or
-								(isAirMilitary and airUnitSelectList) or
-								(isMilitary and militaryUnitSelectList) or
-								unitSelectList,
-								orderID,
-								city.CanTrain,
-								item.ID, -1, -1,
-								city.GetUnitProductionTurnsLeft,
-								city.GetUnitPurchaseCost,
-								city.GetUnitFaithPurchaseCost )
-				elseif not g_isSeparateGPReligious and g_isSeparateMilitaryDomain then
-					AddSelectionItem( city, item,
-								(isLandMilitary and landUnitSelectList) or
-								(isSeaMilitary and seaUnitSelectList) or
-								(isAirMilitary and airUnitSelectList) or
-								(isMilitary and militaryUnitSelectList) or
-								unitSelectList,
-								orderID,
-								city.CanTrain,
-								item.ID, -1, -1,
-								city.GetUnitProductionTurnsLeft,
-								city.GetUnitPurchaseCost,
-								city.GetUnitFaithPurchaseCost )
-				elseif g_isSeparateGPReligious and not g_isSeparateMilitaryDomain then
-					AddSelectionItem( city, item,
-								(isGPUnit and gpUnitSelectList) or
-								(isReligiousUnit and religiousUnitSelectList) or
-								(isMilitary and militaryUnitSelectList) or
-								unitSelectList,
-								orderID,
-								city.CanTrain,
-								item.ID, -1, -1,
-								city.GetUnitProductionTurnsLeft,
-								city.GetUnitPurchaseCost,
-								city.GetUnitFaithPurchaseCost )
-				elseif not g_isSeparateGPReligious and not g_isSeparateMilitaryDomain then
-					AddSelectionItem( city, item,
-								(isMilitary and militaryUnitSelectList) or
-								unitSelectList,
-								orderID,
-								city.CanTrain,
-								item.ID, -1, -1,
-								city.GetUnitProductionTurnsLeft,
-								city.GetUnitPurchaseCost,
-								city.GetUnitFaithPurchaseCost )
-				else	-- N.Core: same as above, only serve as a redundancy check
-					AddSelectionItem( city, item,
-								(isMilitary and militaryUnitSelectList) or
 								unitSelectList,
 								orderID,
 								city.CanTrain,
@@ -1635,32 +1651,32 @@ end)
 								city.GetUnitPurchaseCost,
 								city.GetUnitFaithPurchaseCost )
 				end
-			else
-				AddSelectionItem( city, item,
-							unitSelectList,
-							orderID,
-							city.CanTrain,
-							item.ID, -1, -1,
-							city.GetUnitProductionTurnsLeft,
-							city.GetUnitPurchaseCost,
-							city.GetUnitFaithPurchaseCost )
 			end
-		end
-		-- Projects
-		orderID = OrderTypes.ORDER_CREATE
-		code = orderID / 64
-		for item in GameInfo.Projects() do
-			if not queueItems[ code + item.ID ] then
-				if g_isSeparateCityProductionEUI then
-					if g_isSeparateProjectWonders then
-						AddSelectionItem( city, item,
-								projectSelectList,
-								orderID,
-								city.CanCreate,
-								-1, -1, item.ID,
-								city.GetProjectProductionTurnsLeft,
-								city.GetProjectPurchaseCost,
-								city.GetProjectFaithPurchaseCost )	-- nil
+			-- Projects
+			orderID = OrderTypes.ORDER_CREATE
+			code = orderID / 64
+			for item in GameInfo.Projects() do
+				if not queueItems[ code + item.ID ] then
+					if g_isSeparateCityProductionEUI then
+						if g_isSeparateProjectWonders then
+							AddSelectionItem( city, item,
+									projectSelectList,
+									orderID,
+									city.CanCreate,
+									-1, -1, item.ID,
+									city.GetProjectProductionTurnsLeft,
+									city.GetProjectPurchaseCost,
+									city.GetProjectFaithPurchaseCost )	-- nil
+						else
+							AddSelectionItem( city, item,
+									wonderSelectList,
+									orderID,
+									city.CanCreate,
+									-1, -1, item.ID,
+									city.GetProjectProductionTurnsLeft,
+									city.GetProjectPurchaseCost,
+									city.GetProjectFaithPurchaseCost )	-- nil
+						end
 					else
 						AddSelectionItem( city, item,
 								wonderSelectList,
@@ -1671,62 +1687,52 @@ end)
 								city.GetProjectPurchaseCost,
 								city.GetProjectFaithPurchaseCost )	-- nil
 					end
-				else
-					AddSelectionItem( city, item,
-							wonderSelectList,
-							orderID,
-							city.CanCreate,
-							-1, -1, item.ID,
-							city.GetProjectProductionTurnsLeft,
-							city.GetProjectPurchaseCost,
-							city.GetProjectFaithPurchaseCost )	-- nil
 				end
 			end
-		end
-		-- Processes
-		orderID = OrderTypes.ORDER_MAINTAIN
-		code = orderID / 64
-		for item in GameInfo.Processes() do
-			local leagueProjects = GameInfo.LeagueProjects{Process = item.Type}()
-			local isLeagueProject = leagueProjects and leagueProjects.Process == item.Type
-			if not queueItems[ code + item.ID ] then
-				if g_isSeparateCityProductionEUI then
-					if g_isSeparateProjectWonders then
-						AddSelectionItem( city, item,
-								(isLeagueProject and projectSelectList) or
-								processSelectList,
-								orderID,
-								city.CanMaintain )
+			-- Processes
+			orderID = OrderTypes.ORDER_MAINTAIN
+			code = orderID / 64
+			for item in GameInfo.Processes() do
+				local leagueProjects = GameInfo.LeagueProjects{Process = item.Type}()
+				local isLeagueProject = leagueProjects and leagueProjects.Process == item.Type
+				if not queueItems[ code + item.ID ] then
+					if g_isSeparateCityProductionEUI then
+						if g_isSeparateProjectWonders then
+							AddSelectionItem( city, item,
+									(isLeagueProject and projectSelectList) or
+									processSelectList,
+									orderID,
+									city.CanMaintain )
+						else
+							AddSelectionItem( city, item,
+									processSelectList,
+									orderID,
+									city.CanMaintain )
+						end
 					else
 						AddSelectionItem( city, item,
 								processSelectList,
 								orderID,
 								city.CanMaintain )
 					end
-				else
-					AddSelectionItem( city, item,
-							processSelectList,
-							orderID,
-							city.CanMaintain )
 				end
 			end
 		end
+
+		SetupSelectionList( unitSelectList, g_UnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
+		SetupSelectionList( gpUnitSelectList, g_GPUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
+		SetupSelectionList( religiousUnitSelectList, g_ReligiousUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
+		SetupSelectionList( militaryUnitSelectList, g_MilitaryUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
+		SetupSelectionList( landUnitSelectList, g_LandUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
+		SetupSelectionList( seaUnitSelectList, g_SeaUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
+		SetupSelectionList( airUnitSelectList, g_AirUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
+		SetupSelectionList( buildingSelectList, g_BuildingSelectIM )
+		SetupSelectionList( projectSelectList, g_ProjectSelectIM )
+		SetupSelectionList( nationalWonderSelectList, g_NationalWonderSelectIM )
+		SetupSelectionList( wonderSelectList, g_WonderSelectIM )
+		SetupSelectionList( processSelectList, g_ProcessSelectIM )
+
 	end
-
-	SetupSelectionList( unitSelectList, g_UnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
-	SetupSelectionList( gpUnitSelectList, g_GPUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
-	SetupSelectionList( religiousUnitSelectList, g_ReligiousUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
-	SetupSelectionList( militaryUnitSelectList, g_MilitaryUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
-	SetupSelectionList( landUnitSelectList, g_LandUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
-	SetupSelectionList( seaUnitSelectList, g_SeaUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
-	SetupSelectionList( airUnitSelectList, g_AirUnitSelectIM, cityOwnerID, UI_GetUnitPortraitIcon )
-	SetupSelectionList( buildingSelectList, g_BuildingSelectIM )
-	SetupSelectionList( projectSelectList, g_ProjectSelectIM )
-	SetupSelectionList( nationalWonderSelectList, g_NationalWonderSelectIM )
-	SetupSelectionList( wonderSelectList, g_WonderSelectIM )
-	SetupSelectionList( processSelectList, g_ProcessSelectIM )
-
-
 	return ResizeProdQueue()
 end
 
