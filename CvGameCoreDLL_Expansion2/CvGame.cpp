@@ -127,7 +127,7 @@ CvGame::CvGame() :
 #endif
 	, m_bArchaeologyTriggered(false)
 	, m_bIsDesynced(false)
-	, m_bHumanAIPath(false)
+	, m_bHumanAIPath(true)
 	, m_eObserverUIOverridePlayer(NO_PLAYER)
 	, m_lastTurnAICivsProcessed(-1)
 	, m_firstActivationOfPlayersAfterLoad(false)
@@ -1197,7 +1197,7 @@ void CvGame::uninit()
 	m_bCombatWarned = false;
 	m_bArchaeologyTriggered = false;
 	m_bIsDesynced = false;
-	m_bHumanAIPath = false;
+	m_bHumanAIPath = true;
 	m_eObserverUIOverridePlayer = NO_PLAYER;
 	m_eCurrentVisibilityPlayer = NO_PLAYER;
 	m_eCurrentVisibilityTeam = NO_TEAM;
