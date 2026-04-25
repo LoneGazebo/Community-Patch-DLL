@@ -4095,10 +4095,13 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		if (pCityEspionage && pCityEspionage->HasCounterSpy())
 		{
 			CityEventChoiceTypes eCounterSpyFocus = pCityEspionage->GetCounterSpyFocus();
-			CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eCounterSpyFocus);
-			if (pkEventChoiceInfo && pkEventChoiceInfo->isCounterspyBlockSapCity())
+			if (eCounterSpyFocus != NO_EVENT_CHOICE_CITY)
 			{
-				return false;
+				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eCounterSpyFocus);
+				if (pkEventChoiceInfo->isCounterspyBlockSapCity())
+				{
+					return false;
+				}
 			}
 		}
 	}
@@ -5754,11 +5757,14 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		if (pCityEspionage && pCityEspionage->HasCounterSpy())
 		{
 			CityEventChoiceTypes eCounterSpyFocus = pCityEspionage->GetCounterSpyFocus();
-			CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eCounterSpyFocus);
-			if (pkEventChoiceInfo && pkEventChoiceInfo->isCounterspyBlockSapCity())
+			if (eCounterSpyFocus != NO_EVENT_CHOICE_CITY)
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_ESPIONAGE_BLOCKED_BY_COUNTERSPY");
-				DisabledTT += localizedDurationText.toUTF8();
+				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eCounterSpyFocus);
+				if (pkEventChoiceInfo->isCounterspyBlockSapCity())
+				{
+					localizedDurationText = Localization::Lookup("TXT_KEY_ESPIONAGE_BLOCKED_BY_COUNTERSPY");
+					DisabledTT += localizedDurationText.toUTF8();
+				}
 			}
 		}
 	}
