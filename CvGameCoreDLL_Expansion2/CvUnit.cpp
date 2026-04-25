@@ -13132,6 +13132,8 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 							}
 						}
 
+						if (bLoopUnitBuildingRoute || bLoopUnitBuildingImprovement)
+						{
 						if (pPlot->getBuildTime(eBuild, getOwner()) > 0 || (pkBuildInfo->getRoute() != NO_ROUTE && bLoopUnitBuildingRoute) || (pkBuildInfo->getImprovement() != NO_IMPROVEMENT && bLoopUnitBuildingImprovement))
 						{
 							if (toolTipSink && !toolTipSink->empty())
@@ -13146,6 +13148,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 				}
 			}
 		}
+	}
 	}
 
 	if (MOD_EVENTS_PLOT)
