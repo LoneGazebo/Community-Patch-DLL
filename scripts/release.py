@@ -589,7 +589,9 @@ def build_mods():
     print("\n[STEP 9] Building mods (generating modinfo files)...")
     print("Building mods (copying and generating modinfo files)...")
 
-    # Create Build directory if it doesn't exist
+    # Delete folders in the Build directory; create the directory if it doesn't exist
+    if BUILD_DIR.exists():
+        shutil.rmtree(BUILD_DIR)
     BUILD_DIR.mkdir(parents=True, exist_ok=True)
 
     generated_modinfo_files = []
