@@ -14,7 +14,7 @@
 			<Type>INTERFACEMODE_SEALIFT</Type>
 			<Description>TXT_KEY_INTERFACEMODE_SEALIFT</Description>
 			<Help>TXT_KEY_INTERFACEMODE_SEALIFT_HELP</Help>
-			<CursorType>CURSOR_GO_TO</CursorType>
+			<CursorType>CURSOR_ROUTE_TO</CursorType>
 			<Mission>MISSION_SEALIFT</Mission>
 			<HotKey>KB_T</HotKey>
 			<OrderPriority>198</OrderPriority>
