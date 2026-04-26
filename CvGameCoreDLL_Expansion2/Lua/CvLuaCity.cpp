@@ -2613,36 +2613,7 @@ int CvLuaCity::lIsHasBuilding(lua_State* L)
 	}
 	return 1;
 }
-//------------------------------------------------------------------------------
-//bool CanAirlift();
-int CvLuaCity::lCanAirlift(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	if(pkCity->CanAirlift())
-	{
-		lua_pushboolean(L, true);
-	}
-	else
-	{
-		lua_pushboolean(L, false);
-	}
-	return 1;
-}
-//------------------------------------------------------------------------------
-//bool CanSealift();
-int CvLuaCity::lCanSealift(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	if(pkCity->CanSealift())
-	{
-		lua_pushboolean(L, true);
-	}
-	else
-	{
-		lua_pushboolean(L, false);
-	}
-	return 1;
-}
+
 //------------------------------------------------------------------------------
 //int getNumBuildingClass(BuildingClassTypes eBuildingClassType);
 int CvLuaCity::lGetNumBuildingClass(lua_State* L)
@@ -6431,6 +6402,8 @@ LUAAPIIMPL(City, CountResource)
 LUAAPIIMPL(City, CountWorkedResource)
 LUAAPIIMPL(City, CountTerrain)
 LUAAPIIMPL(City, CountWorkedTerrain)
+LUAAPIIMPL(City, CanAirlift)
+LUAAPIIMPL(City, CanSeaLift)
 
 int CvLuaCity::lGetAdditionalFood(lua_State* L)
 {
