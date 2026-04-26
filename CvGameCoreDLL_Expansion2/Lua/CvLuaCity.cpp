@@ -6403,7 +6403,7 @@ LUAAPIIMPL(City, CountWorkedResource)
 LUAAPIIMPL(City, CountTerrain)
 LUAAPIIMPL(City, CountWorkedTerrain)
 LUAAPIIMPL(City, CanAirlift)
-LUAAPIIMPL(City, CanSeaLift)
+LUAAPIIMPL(City, CanSealift)
 
 int CvLuaCity::lGetAdditionalFood(lua_State* L)
 {
