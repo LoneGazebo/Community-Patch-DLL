@@ -10,9 +10,14 @@ print("Loading MilitaryOverview.lua from 'VP-UI - Show XP in Military Overview'"
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
+include("CPK.lua");
 
-local m_MilitaryIM = InstanceManager:new( "UnitInstance", "Root", Controls.MilitaryStack );
-local m_CivilianIM = InstanceManager:new( "UnitInstance", "Root", Controls.CivilianStack );
+local CustomModOptionEnabled = CPK.Misc.CustomModOptionEnabled;
+local MOD_UNITS_CIVILIANS_GAIN_XP = CustomModOptionEnabled("UNITS_CIVILIANS_GAIN_XP");
+
+local m_MilitaryIM    = InstanceManager:new( "UnitInstance", "Root", Controls.MilitaryStack );
+local m_CivilianIM    = InstanceManager:new( "UnitInstance", "Root", Controls.CivilianStack );
+local m_GreatPersonIM = InstanceManager:new( "UnitInstance", "Root", Controls.GreatPersonStack );
 
 local m_SortTable;
 local eName     = 0;
@@ -191,19 +196,26 @@ function BuildUnitList(iSelectedUnit)
     local iPlayer = Game.GetActivePlayer();
     local pPlayer = Players[ iPlayer ];
     
-    local bFoundMilitary = false;
-    local bFoundCivilian = false;
-    
-    
+    local bFoundMilitary    = false;
+    local bFoundCivilian    = false;
+    local bFoundGreatPerson = false;
+
     m_MilitaryIM:ResetInstances();
     m_CivilianIM:ResetInstances();
-    
+    m_GreatPersonIM:ResetInstances();
+
     for unit in pPlayer:Units()
     do
         local instance;
         local iUnit = unit:GetID();
-        
-        if( unit:GetUnitCombatType() ~= -1 or unit:CanNuke()) then
+
+        local bIsGreatPerson = unit:IsGreatPerson();
+        local bIsMilitary    = not bIsGreatPerson and (unit:IsCombatUnit() or unit:GetDomainType() == DomainTypes.DOMAIN_AIR);
+
+        if bIsGreatPerson then
+            instance = m_GreatPersonIM:GetInstance();
+            bFoundGreatPerson = true;
+        elseif bIsMilitary then
             instance = m_MilitaryIM:GetInstance();
             bFoundMilitary = true;
         else
@@ -235,7 +247,7 @@ function BuildUnitList(iSelectedUnit)
 				instance.UnitName:SetText( unitname.." "..GameInfo.Religions[unit:GetReligion()].IconString);
 			end
 		-- great persons
-		elseif unit:IsGreatPerson() then 
+		elseif unit:IsGreatPerson() then
 			local sUnitType = GameInfo.Units[unit:GetUnitType()].Type;
 			instance.UnitName:SetText( unitname.." "..(m_tGreatPeopleIcons[sUnitType] or "(?)") );
 		end
@@ -345,15 +357,12 @@ function BuildUnitList(iSelectedUnit)
 		-- Infixo: ShowXPinMO/start
 		local unitxp = unit:GetExperience();
 		local unitlevel = unit:GetLevel();
-		if bFoundMilitary then
+		if bIsMilitary or MOD_UNITS_CIVILIANS_GAIN_XP then
 			sortEntry.unitxplev = unitxp;
 			instance.UnitXP:SetText( unitxp .. "/" .. unitlevel );
-		elseif bFoundCivilian then
-			sortEntry.unitxplev = 0;
-			instance.UnitXP:SetText("-");
 		else
 			sortEntry.unitxplev = 0;
-			instance.UnitXP:SetText("error");
+			instance.UnitXP:SetText("-");
 		end
 		-- Infixo: ShowXPinMO/end
 
@@ -390,14 +399,12 @@ function BuildUnitList(iSelectedUnit)
         sortEntry.unit = unit;
     end
 
-    if( bFoundMilitary and bFoundCivilian ) then
-        Controls.CivilianSeperator:SetHide( false );
-    else
-        Controls.CivilianSeperator:SetHide( true );
-    end
-    
+    Controls.CivilianSeperator:SetHide( not (bFoundMilitary and bFoundCivilian) );
+    Controls.GreatPersonSeperator:SetHide( not (bFoundGreatPerson and (bFoundMilitary or bFoundCivilian)) );
+
     Controls.MilitaryStack:CalculateSize();
     Controls.CivilianStack:CalculateSize();
+    Controls.GreatPersonStack:CalculateSize();
     
     Controls.MainStack:CalculateSize();
     Controls.ScrollPanel:CalculateInternalSize();

@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v148 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 148)
+#define MOD_DLL_NAME "Community Patch v149 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 149)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -316,6 +316,9 @@
 // Adds military strength, connection, and Influence requirements for pledging to protect a City-State, and enables the PtP revocation system
 #define MOD_BALANCE_MINOR_PROTECTION_REQUIREMENTS					gCustomMods.isBALANCE_MINOR_PROTECTION_REQUIREMENTS()
 
+// XP is granted only on a unit's first attack each turn
+#define MOD_BALANCE_XP_ON_FIRST_ATTACK								gCustomMods.isBALANCE_XP_ON_FIRST_ATTACK()
+
 // Increases city HP for each Citizen, removes garrisoned unit strength from city ranged strikes, removes Technologies' and (for major civs only) Citizens' effect on city strength
 #define MOD_BALANCE_CITY_STRENGTH_SWITCH							gCustomMods.isBALANCE_CITY_STRENGTH_SWITCH()
 
@@ -439,6 +442,9 @@
 // Era scaling for Great Engineer & Great Merchant yields
 #define MOD_BALANCE_GREAT_PEOPLE_ERA_SCALING						gCustomMods.isBALANCE_GREAT_PEOPLE_ERA_SCALING()
 
+// Halve starting XP for combat units purchased with Faith
+#define MOD_BALANCE_HALF_XP_FAITH_PURCHASES							gCustomMods.isBALANCE_HALF_XP_FAITH_PURCHASES()
+
 // City-States' unit supply is equal to their handicap amount, which can be modified by globals based on trait, personality, and number of cities. No other unit supply bonuses/penalties apply.
 #define MOD_BALANCE_MINOR_UNIT_SUPPLY_HANDICAP						gCustomMods.isBALANCE_MINOR_UNIT_SUPPLY_HANDICAP()
 
@@ -482,15 +488,9 @@
 // Units are invested at 50% (see define) of their production cost, instead of being built outright
 #define MOD_BALANCE_UNIT_INVESTMENTS								gCustomMods.isBALANCE_UNIT_INVESTMENTS()
 
-// XP is granted only on a unit's first attack
-#define MOD_BALANCE_XP_ON_FIRST_ATTACK								gCustomMods.isBALANCE_XP_ON_FIRST_ATTACK()
-
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 // FIXME: Disabled for now; this needs to be examined to see if it still works properly
 #define MOD_CARGO_SHIPS												(false)
-
-// Halve starting XP for combat units purchased with Faith
-#define MOD_BALANCE_HALF_XP_FAITH_PURCHASES							gCustomMods.isBALANCE_HALF_XP_FAITH_PURCHASES()
 
 
 /////////////////////////////////////////
@@ -662,6 +662,9 @@
 
 // For debugging only
 #define MOD_UNIT_KILL_STATS											gCustomMods.isUNIT_KILL_STATS()
+
+// Permits civilian units to gain XP and acquire promotions
+#define MOD_UNITS_CIVILIANS_GAIN_XP									gCustomMods.isUNITS_CIVILIANS_GAIN_XP()
 
 // Enables the table Unit_ResourceQuantityTotals
 #define MOD_UNITS_RESOURCE_QUANTITY_TOTALS							gCustomMods.isUNITS_RESOURCE_QUANTITY_TOTALS()
@@ -1037,7 +1040,7 @@
 // Roads are built automatically when a trade route ends
 #define MOD_CIV6_ROADS												gCustomMods.isCIV6_ROADS()
 
-// Adds a "worker cost" to improvements and deletes the worker when he expands all his "strength"
+// Adds a "worker cost" to improvements and deletes the worker when he expends all his "strength"
 #define MOD_CIV6_WORKER												gCustomMods.isCIV6_WORKER()
 
 // Enables Iska Heritage modmod support
@@ -1103,12 +1106,14 @@ enum BattleTypeTypes
 #define BATTLE_JOINED(pCombatant, iRole, bIsCity) if (MOD_EVENTS_BATTLES && (pCombatant)) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleJoined, (pCombatant)->getOwner(), (pCombatant)->GetID(), iRole, bIsCity); }
 #define BATTLE_FINISHED()                         if (MOD_EVENTS_BATTLES) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleFinished); }
 
+const char* ShortenFilePath(const char* szFile);
+
 // Custom mod logger
 #if defined(CUSTOMLOGDEBUG)
 #if defined(CUSTOMLOGFILEINFO) && defined(CUSTOMLOGFUNCINFO)
 #define CUSTOMLOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", ShortenFilePath(__FILE__), __LINE__, __FUNCTION__, sMsg.c_str());	\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
@@ -1116,7 +1121,7 @@ enum BattleTypeTypes
 #if defined(CUSTOMLOGFILEINFO) && !defined(CUSTOMLOGFUNCINFO)
 #define CUSTOMLOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());					\
+	CvString sLine; CvString::format(sLine, "%s[%i] - %s", ShortenFilePath(__FILE__), __LINE__, sMsg.c_str());					\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
@@ -1142,7 +1147,7 @@ enum BattleTypeTypes
 
 #define LIVELOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", ShortenFilePath(__FILE__), __LINE__, __FUNCTION__, sMsg.c_str());	\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
 
@@ -1587,6 +1592,7 @@ public:
 	MOD_OPT_DECL(BALANCE_STRATEGIC_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_HEAVY_TRIBUTE);
 	MOD_OPT_DECL(BALANCE_MINOR_PROTECTION_REQUIREMENTS);
+	MOD_OPT_DECL(BALANCE_XP_ON_FIRST_ATTACK);
 	MOD_OPT_DECL(BALANCE_CITY_STRENGTH_SWITCH);
 	MOD_OPT_DECL(BALANCE_RIVER_CITY_CONNECTIONS);
 	MOD_OPT_DECL(BALANCE_SPY_POINTS);
@@ -1627,6 +1633,7 @@ public:
 	MOD_OPT_DECL(BALANCE_ERA_RESTRICTED_GENERALS);
 	MOD_OPT_DECL(BALANCE_ERA_RESTRICTION);
 	MOD_OPT_DECL(BALANCE_GREAT_PEOPLE_ERA_SCALING);
+	MOD_OPT_DECL(BALANCE_HALF_XP_FAITH_PURCHASES);
 	MOD_OPT_DECL(BALANCE_MINOR_UNIT_SUPPLY_HANDICAP);
 	MOD_OPT_DECL(BALANCE_NO_AUTO_SPAWN_PROPHET);
 	MOD_OPT_DECL(BALANCE_NO_CITY_RANGED_ATTACK);
@@ -1641,9 +1648,7 @@ public:
 	MOD_OPT_DECL(BALANCE_SETTLERS_RESET_GROWTH);
 	MOD_OPT_DECL(BALANCE_UNCAPPED_UNHAPPINESS);
 	MOD_OPT_DECL(BALANCE_UNIT_INVESTMENTS);
-	MOD_OPT_DECL(BALANCE_XP_ON_FIRST_ATTACK);
 	MOD_OPT_DECL(CARGO_SHIPS); // disabled
-	MOD_OPT_DECL(BALANCE_HALF_XP_FAITH_PURCHASES);
 
 	// Other User Interface Options
 	MOD_OPT_DECL(UI_DISPLAY_PRECISE_MOVEMENT_POINTS);
@@ -1714,6 +1719,7 @@ public:
 	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON);
 	MOD_OPT_DECL(TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY);
 	MOD_OPT_DECL(UNIT_KILL_STATS);
+	MOD_OPT_DECL(UNITS_CIVILIANS_GAIN_XP);
 	MOD_OPT_DECL(UNITS_RESOURCE_QUANTITY_TOTALS);
 	MOD_OPT_DECL(WH_MILITARY_LOG);
 	MOD_OPT_DECL(YIELD_MODIFIER_FROM_UNITS);

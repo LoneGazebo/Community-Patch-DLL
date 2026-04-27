@@ -21,9 +21,9 @@ VALUES
 	('FEATURE_JUNGLE', 'TERRAIN_PLAINS');
 
 -- Atoll map effects
-UPDATE Features 
-SET 
-	Defense = 25, 
+UPDATE Features
+SET
+	Defense = 25,
 	Movement = 4,
 	SeeThrough = 1
 WHERE Type = 'FEATURE_ATOLL';

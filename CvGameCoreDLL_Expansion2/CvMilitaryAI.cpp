@@ -1349,7 +1349,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 				continue;
 
 		//enemy citadels are dangerous, pretend we cannot use those plots
-		if (TacticalAIHelpers::IsOtherPlayerCitadel(pLoopPlot, ePlayer, false))
+		if (TacticalAIHelpers::GetOtherPlayerImprovementDamage(pLoopPlot, ePlayer, false) >= 25)
 			continue;
 
 		//rough terrain makes us slow
@@ -1361,6 +1361,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 		bIsGood |= pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam() && pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged();
 
 		//we want to have plots for our siege units
+		//hard coded?
 		bIsGood |= iTargetDistance == 2 && pLoopPlot->canSeePlot(pTargetPlot,NO_TEAM,2,NO_DIRECTION);
 
 		if (bIsGood)

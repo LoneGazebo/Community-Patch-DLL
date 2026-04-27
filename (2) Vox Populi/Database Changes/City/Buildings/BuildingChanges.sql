@@ -64,18 +64,24 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 
 -- Any three Great Works of Literature can be themed
--- Bonus and AIPriority to be swept in ThemingSweeps.sql
+-- Bonus and AIPriority to be swept in BuildingSweeps.sql
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description)
-SELECT a.Type, 'TXT_KEY_THEMING_BONUS_PALACE'
-FROM Buildings a
-WHERE a.BuildingClass = 'BUILDINGCLASS_PALACE';
+SELECT Type, 'TXT_KEY_THEMING_BONUS_PALACE'
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 
 ----------------------------------------------------------------------------
 -- Guild support/theming line (which starts at Monument for some reason)
 ----------------------------------------------------------------------------
 
 -- Monument
+UPDATE Buildings
+SET
+	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
+	GreatWorkCount = 1
+WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
@@ -108,12 +114,12 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AMPHITHEATER';
 
--- Bonus and AIPriority to be swept in ThemingSweeps.sql
+-- Bonus and AIPriority to be swept in BuildingSweeps.sql
 INSERT INTO Helper
 	(Description, RequiresOwner, RequiresAnyButOwner)
 VALUES
-	('TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL', 1, NULL),
-	('TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL', NULL, 1);
+	('TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL', 1, 0),
+	('TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL', 0, 1);
 
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, RequiresOwner, RequiresAnyButOwner)
@@ -213,13 +219,13 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_BROADCAST_TOWER';
 DELETE FROM Helper;
 
 -- Any two Great Work of Music can be themed
--- Bonus and AIPriority to be swept in ThemingSweeps.sql
+-- Bonus and AIPriority to be swept in BuildingSweeps.sql
 INSERT INTO Helper
 	(Description, SameEra, ConsecutiveEras, UniqueEras)
 VALUES
-	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL', 1, NULL, NULL),
-	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_CLASSICS', NULL, 1, NULL),
-	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_ALL', NULL, NULL, 1);
+	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL', 1, 0, 0),
+	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_CLASSICS', 0, 1, 0),
+	('TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_ALL', 0, 0, 1);
 
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, SameEra, ConsecutiveEras, UniqueEras)
@@ -320,7 +326,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_AQUEDUCT';
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 25
+	Type, 'YIELD_PRODUCTION', 60
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AQUEDUCT';
 
@@ -1252,10 +1258,17 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 
+INSERT INTO Building_YieldPerFriendTimes100
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_PRODUCTION', 50
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
+
 INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 200
+	Type, 'YIELD_PRODUCTION', 50
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 
@@ -1274,20 +1287,12 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 
-INSERT INTO Helper
-	(YieldType)
-VALUES
-	('YIELD_SCIENCE'),
-	('YIELD_CULTURE');
-
 INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 100
-FROM Buildings a, Helper b
-WHERE a.BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
-
-DELETE FROM Helper;
+	Type, 'YIELD_SCIENCE', 100
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
 
 ----------------------------------------------------------------------------
 -- Guilds
@@ -1709,6 +1714,21 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_STABLE';
 
 DELETE FROM Helper;
 
+-- Observatory
+UPDATE Buildings SET Mountain = 0 WHERE Type = 'BUILDING_OBSERVATORY';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_SCIENCE', 4
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_OBSERVATORY';
+
+INSERT INTO Building_YieldPerXTerrainTimes100
+	(BuildingType, TerrainType, YieldType, Yield)
+VALUES
+	('BUILDING_OBSERVATORY', 'TERRAIN_MOUNTAIN', 'YIELD_SCIENCE', 100);
+
 -- Windmill
 UPDATE Buildings
 SET
@@ -1820,6 +1840,44 @@ FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 
 DELETE FROM Helper;
+
+-- Shopping Mall
+
+INSERT INTO Helper
+	(YieldType, Yield)
+VALUES
+	('YIELD_GOLD', 2),
+	('YIELD_TOURISM', 3);
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, b.Yield
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
+
+DELETE FROM Helper;
+
+INSERT INTO Building_YieldFromPurchase
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_TOURISM', 5
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	b.Type, c.FranchiseBuildingClass, 'YIELD_GOLD', 4
+FROM Buildings b, Corporations c
+WHERE b.BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	b.Type, c.FranchiseBuildingClass, 'YIELD_CULTURE', 2
+FROM Buildings b, Corporations c
+WHERE b.BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
 
 -- Refinery
 INSERT INTO Building_YieldChanges
@@ -1938,20 +1996,12 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 
-INSERT INTO Helper
-	(YieldType)
-VALUES
-	('YIELD_FOOD'),
-	('YIELD_FAITH');
-
 INSERT INTO Building_YieldPerAllyTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 100
-FROM Buildings a, Helper b
-WHERE a.BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
-
-DELETE FROM Helper;
+	Type, 'YIELD_FAITH', 100
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 
 -- Heroic Epic
 UPDATE Buildings

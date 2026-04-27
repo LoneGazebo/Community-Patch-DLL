@@ -127,12 +127,19 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(TECH_PRIORITY_UNIQUE_ITEM, 25),
 	GD_INT_INIT(TECH_PRIORITY_MAYA_CALENDAR_BONUS, 50),
 	GD_INT_INIT(DEFAULT_FLAVOR_VALUE, 5),
-	GD_INT_INIT(PERSONALITY_FLAVOR_MAX_VALUE, 20),
+	GD_INT_INIT(PERSONALITY_FLAVOR_MAX_VALUE, 10),
 	GD_INT_INIT(PERSONALITY_FLAVOR_MIN_VALUE, 1),
 	GD_INT_INIT(FLAVOR_MIN_VALUE, -1000),
 	GD_INT_INIT(FLAVOR_MAX_VALUE, 1000),
 	GD_INT_INIT(FLAVOR_RANDOMIZATION_RANGE, 2),
 	GD_INT_INIT(FLAVOR_EXPANDGROW_COEFFICIENT, 8),
+	GD_INT_INIT(VICTORY_PURSUIT_PRIMARY_ONLY_HINT_WEIGHT, 16),
+	GD_INT_INIT(VICTORY_PURSUIT_PRIMARY_HINT_WEIGHT, 10),
+	GD_INT_INIT(VICTORY_PURSUIT_SECONDARY_HINT_WEIGHT, 6),
+	GD_INT_INIT(VICTORY_PURSUIT_DISABLED_VICTORY_PENALTY, -20),
+	GD_INT_INIT(VICTORY_PURSUIT_FEW_CITY_STATES_PENALTY, -20),
+	GD_INT_INIT(VICTORY_PURSUIT_MAX_RANDOMNESS, 18),
+	GD_INT_INIT(VICTORY_PURSUIT_DIFFERENTIAL_DIVISOR, 200),
 	GD_INT_INIT(AI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE, 10),
 	GD_INT_INIT(AI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT, 50),
 	GD_INT_INIT(AI_GRAND_STRATEGY_GUESS_NO_CLUE_WEIGHT, 40),
@@ -163,7 +170,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(CITY_EVENT_PROBABILITY_EACH_TURN, 100),
 	GD_INT_INIT(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD, 50),
 	GD_INT_INIT(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD, 25),
-	GD_INT_INIT(MAX_PLOTS_PER_EXPLORER, 20),
+	GD_INT_INIT(MAX_PLOTS_PER_EXPLORER, 40),
 	GD_INT_INIT(AI_STRATEGY_ISLAND_START_COAST_REVEAL_PERCENT, 80),
 	GD_INT_INIT(AI_PLOT_VALUE_STRATEGIC_RESOURCE, 80),
 	GD_INT_INIT(AI_PLOT_VALUE_LUXURY_RESOURCE, 40),
@@ -1018,8 +1025,6 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(OPINION_WEIGHT_PER_DIVERGENT_POLICY, 5),
 	GD_INT_INIT(OPINION_WEIGHT_SIMILAR_POLICIES, -10),
 	GD_INT_INIT(OPINION_WEIGHT_DIVERGENT_POLICIES, 10),
-	GD_INT_INIT(POLICY_SCORE_NEEDY_THRESHOLD, 8),
-	GD_INT_INIT(POLICY_SCORE_NEEDY_BONUS, 5),
 	GD_INT_INIT(OPINION_WEIGHT_PTP_SAME_MINOR_EACH, -3),
 	GD_INT_INIT(OPINION_WEIGHT_PTP_SAME_MINOR_MIN, -12),
 	GD_INT_INIT(OPINION_WEIGHT_PTP_SAME_MINOR_DIPLOMAT_MULTIPLIER, 200),
@@ -1160,7 +1165,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(APPROACH_BIAS_FOR_CURRENT, 2),
 	GD_INT_INIT(APPROACH_WAR_CURRENTLY_WAR, 4),
 	GD_INT_INIT(APPROACH_RANDOM_PERCENT, 5),
-	GD_INT_INIT(APPROACH_RANDOM_PERSONALITIES_PERCENT, 10),
+	GD_INT_INIT(APPROACH_RANDOM_PERSONALITIES_PERCENT, 5),
 	GD_INT_INIT(MINOR_APPROACH_IGNORE_DEFAULT, 2),
 	GD_INT_INIT(APPROACH_WAR_VASSAL_PEACEFULLY_REVOKED, -4),
 	GD_INT_INIT(APPROACH_DECEPTIVE_VASSAL_PEACEFULLY_REVOKED, 2),
@@ -1624,7 +1629,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER, 0),
 	GD_INT_INIT(UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER, 0),
 	GD_INT_INIT(UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION, 34),
-	GD_INT_INIT(UNIT_SUPPLY_POPULATION_PUPPET_PERCENT, 100),
+	GD_INT_INIT(PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE, 100),
 	GD_INT_INIT(MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED, 0),
 	GD_INT_INIT(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC, 0),
 	GD_INT_INIT(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MARITIME, 0),
@@ -1651,7 +1656,6 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(UNIT_PRODUCTION_DECAY_TIME, 10),
 	GD_INT_INIT(UNIT_PRODUCTION_DECAY_PERCENT, 98),
 	GD_INT_INIT(BASE_UNIT_UPGRADE_COST, 10),
-	GD_INT_INIT(UNIT_UPGRADE_COST_PER_PRODUCTION, 2),
 	GD_INT_INIT(UNIT_UPGRADE_COST_VISIBLE_DIVISOR, 5),
 	GD_INT_INIT(UNIT_UPGRADE_COST_DISCOUNT_MAX, -75),
 	GD_INT_INIT(RESEARCH_AGREEMENT_BOOST_DIVISOR, 3),
@@ -2244,6 +2248,10 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(INQUISITION_EFFECTIVENESS, 100),
 	GD_INT_INIT(INQUISITOR_CONVERSION_REDUCTION_FACTOR, 50),
 	GD_INT_INIT(HURRY_GOLD_BUILDING_COST_PERCENT, 60),
+	GD_INT_INIT(UNKNOWN_EXPLORE_TILE_VALUE, 25),
+	GD_INT_INIT(LAND_EXPLORE_TILE_VALUE, 50),
+	GD_INT_INIT(COAST_EXPLORE_TILE_VALUE, 20),
+	GD_INT_INIT(OCEAN_EXPLORE_TILE_VALUE, 10),
 
 	// -- floats -- //
 	GD_FLOAT_INIT(AI_STRATEGY_NEED_IMPROVEMENT_CITY_RATIO, 0.34f),
@@ -2260,6 +2268,7 @@ CvGlobals::CvGlobals() :
 	GD_FLOAT_INIT(GLOBAL_SETTLER_PRODUCTION_PENALTY_PER_UNHAPPY, 2.5f),
 	GD_FLOAT_INIT(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA, 0.0f),
 	GD_FLOAT_INIT(UNIT_UPGRADE_COST_EXPONENT, 1.0f),
+	GD_FLOAT_INIT(UNIT_UPGRADE_COST_PER_PRODUCTION, 2.0f),
 	GD_FLOAT_INIT(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP, 0.5f),
 	GD_FLOAT_INIT(UNHAPPINESS_PER_STARVING_POP, 1.0f),
 	GD_FLOAT_INIT(UNHAPPINESS_PER_PILLAGED_TILE, 0.5f),
@@ -2422,8 +2431,8 @@ PlayerTypes GetCurrentPlayer()
 	return NO_PLAYER;
 }
 
-#if defined(MOD_DEBUG_MINIDUMP)
 #ifdef WIN32
+#if defined(MOD_DEBUG_MINIDUMP)
 /************************************************************************************************/
 /* MINIDUMP_MOD                           04/10/11                                terkhen       */
 /* See http://www.debuginfo.com/articles/effminidumps.html                                      */
@@ -2463,6 +2472,41 @@ static PFN_MiniDumpWriteDump g_pfnMiniDumpWriteDump = NULL;
 static PFN_SymInitialize g_pfnSymInitialize = NULL;
 static DWORD g_dwDbgHelpVersion = 0;
 
+// Store the last minidump path for display in crash dialogs
+static char g_szLastMiniDumpPath[MAX_PATH] = {0};
+
+// Get the last minidump path (for use in assert/precondition dialogs)
+const char* GetLastMiniDumpPath()
+{
+	return g_szLastMiniDumpPath[0] != '\0' ? g_szLastMiniDumpPath : NULL;
+}
+#endif // defined(MOD_DEBUG_MINIDUMP)
+
+// Signal that PRECONDITION/UNREACHABLE already showed an error dialog, so CustomFilter doesn't show another one
+static bool g_bPreconditionFired = false;
+
+void SetPreconditionFired()
+{
+	g_bPreconditionFired = true;
+}
+
+// MessageBox constants (not included in minimal Windows headers)
+#ifndef MB_OK
+#define MB_OK           0x00000000L
+#endif
+#ifndef MB_ICONERROR
+#define MB_ICONERROR    0x00000010L
+#endif
+#ifndef MB_SYSTEMMODAL
+#define MB_SYSTEMMODAL  0x00001000L
+#endif
+
+// MessageBox function declaration
+extern "C" {
+	__declspec(dllimport) int __stdcall MessageBoxA(void* hWnd, const char* lpText, const char* lpCaption, unsigned int uType);
+}
+
+#if defined(MOD_DEBUG_MINIDUMP)
 // Load the best available dbghelp.dll
 static bool LoadBestDbgHelp()
 {
@@ -2603,8 +2647,8 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	}
 
 	// Generate dump filename with version, commit hash and build type
-	TCHAR szDumpPath[MAX_PATH];
-	_stprintf_s(szDumpPath, MAX_PATH, _T("CvMiniDump_%s_%hs_%s.dmp"),
+	TCHAR szDumpFilename[MAX_PATH];
+	_stprintf_s(szDumpFilename, MAX_PATH, _T("CvMiniDump_%s_%hs_%s.dmp"),
 		szTimestamp,
 		shortVersion,
 #ifdef VPDEBUG
@@ -2614,12 +2658,16 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 #endif
 	);
 
-	HANDLE hFile = CreateFile(szDumpPath, GENERIC_READ | GENERIC_WRITE,
+	HANDLE hFile = CreateFile(szDumpFilename, GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if ((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {
+		g_szLastMiniDumpPath[0] = '\0';
 		return;
 	}
+
+	// Get full path for display in crash dialog (use ANSI version for char buffer)
+	GetFullPathNameA(szDumpFilename, MAX_PATH, g_szLastMiniDumpPath, NULL);
 
 	MINIDUMP_EXCEPTION_INFORMATION mdei;
 	mdei.ThreadId = GetCurrentThreadId();
@@ -2656,8 +2704,6 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		MiniDumpWithUnloadedModules |          // 0x00000020 Track unloaded DLLs
 		MiniDumpWithProcessThreadData |        // 0x00000100 Process thread data
 		MiniDumpWithHandleData |               // 0x00000004 Handle usage
-		MiniDumpWithPrivateReadWriteMemory |   // 0x00000200 Private read/write memory
-		MiniDumpWithIndirectlyReferencedMemory | // 0x00000040 Memory referenced by locals/pointers
 		MiniDumpIgnoreInaccessibleMemory       // 0x00020000 Skip inaccessible memory
 		);
 #endif
@@ -2725,28 +2771,121 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		OutputDebugString(szError);
 	}
 }
+#endif // defined(MOD_DEBUG_MINIDUMP)
+
+// Get exception code description
+static const char* GetExceptionDescription(DWORD exceptionCode)
+{
+	switch (exceptionCode)
+	{
+	case EXCEPTION_ACCESS_VIOLATION:         return "Access Violation";
+	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:    return "Array Bounds Exceeded";
+	case EXCEPTION_DATATYPE_MISALIGNMENT:    return "Datatype Misalignment";
+	case EXCEPTION_FLT_DIVIDE_BY_ZERO:       return "Float Divide by Zero";
+	case EXCEPTION_FLT_OVERFLOW:             return "Float Overflow";
+	case EXCEPTION_FLT_UNDERFLOW:            return "Float Underflow";
+	case EXCEPTION_ILLEGAL_INSTRUCTION:      return "Illegal Instruction";
+	case EXCEPTION_INT_DIVIDE_BY_ZERO:       return "Integer Divide by Zero";
+	case EXCEPTION_INT_OVERFLOW:             return "Integer Overflow";
+	case EXCEPTION_PRIV_INSTRUCTION:         return "Privileged Instruction";
+	case EXCEPTION_STACK_OVERFLOW:           return "Stack Overflow";
+	default:                                 return "Unknown Exception";
+	}
+}
 
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
+#if defined(MOD_DEBUG_MINIDUMP)
 	CreateMiniDump(ExceptionInfo);
+#endif
+
+	// Show crash dialog to user
+	char szMessage[2048];
+	DWORD exceptionCode = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionCode : 0;
+	void* exceptionAddress = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionAddress : NULL;
+
+	// Determine which module the crash address belongs to
+	char szCrashModule[MAX_PATH] = "unknown module";
+	if (exceptionAddress != NULL)
+	{
+		HMODULE hCrashModule = NULL;
+		if (GetModuleHandleExA(
+				GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+				(LPCSTR)exceptionAddress, &hCrashModule))
+		{
+			char szFullPath[MAX_PATH] = {};
+			if (GetModuleFileNameA(hCrashModule, szFullPath, sizeof(szFullPath)))
+			{
+				const char* pFile = strrchr(szFullPath, '\\');
+				_snprintf_s(szCrashModule, sizeof(szCrashModule), _TRUNCATE, "%s", pFile ? pFile + 1 : szFullPath);
+			}
+		}
+	}
+
+	char szDumpLine[MAX_PATH + 16] = "";
+#if defined(MOD_DEBUG_MINIDUMP)
+	if (g_szLastMiniDumpPath[0] != '\0')
+		_snprintf_s(szDumpLine, sizeof(szDumpLine), _TRUNCATE, "Minidump: %s\n", g_szLastMiniDumpPath);
+#endif
+
+	bool bFromDLL = (_stricmp(szCrashModule, "CvGameCore_Expansion2.dll") == 0);
+	if (bFromDLL)
+	{
+		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
+			"The game has crashed due to a code error. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
+			"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n\n"
+			"==================\n"
+			"Crash details:\n"
+			"Exception: %s (0x%08X)\n"
+			"Address: 0x%p (%s)\n"
+			"%s",
+			GetExceptionDescription(exceptionCode),
+			exceptionCode,
+			exceptionAddress,
+			szCrashModule,
+			szDumpLine);
+	}
+	else
+	{
+		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
+			"The game has crashed, likely due to insufficient memory. Common strategies to reduce the game's memory consumption include:\n\n"
+			"- Disable yield icons\n"
+			"- Reduce Leader Screen Quality to Minimum\n"
+			"- Avoid zooming out too far\n"
+			"- Switch to Strategic View\n"
+			"- Disable memory-heavy mods such as InfoAddict\n"
+			"- Enable Single-Unit Graphics using the mod 'Unit Scaling and Formation for VP'\n"
+			"- If playing with EUI: Use the Non-EUI Version of Vox Populi (Reinstallation necessary, save games are compatible)\n\n"
+			"==================\n"
+			"Crash details:\n"
+			"Exception: %s (0x%08X)\n"
+			"Address: 0x%p (%s)\n",
+			GetExceptionDescription(exceptionCode),
+			exceptionCode,
+			exceptionAddress,
+			szCrashModule);
+	}
+
+	if (!g_bPreconditionFired)
+		MessageBoxA(NULL, szMessage, "Game Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+
 	return EXCEPTION_EXECUTE_HANDLER;
 }
-#endif
 
 //
 // allocate
 //
 void CvGlobals::init()
 {
-#if defined(MOD_DEBUG_MINIDUMP)
 	SetUnhandledExceptionFilter(CustomFilter);
+#if defined(MOD_DEBUG_MINIDUMP)
 #ifdef VPDEBUG
 	OutputDebugString(_T("Debug MiniDump handler installed\n"));
 #else
 	OutputDebugString(_T("Release MiniDump handler installed\n"));
 #endif
-#endif // WIN32
 #endif // defined(MOD_DEBUG_MINIDUMP)
+#endif // WIN32
 
 	//
 	// These vars are used to initialize the globals.
@@ -4174,6 +4313,11 @@ void CvGlobals::GameDataPostCache()
 		{
 			m_vBuildingsWithYieldsFromAccomplishments.push_back(eOuter);
 		}
+
+		if (pOuter->IsAirlift())
+		{
+			m_vBuildingsWithAirlift.push_back(eOuter);
+		}
 	}
 
 	// Cache Great Person lookups
@@ -4340,6 +4484,11 @@ const vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eR
 const vector<BuildingTypes>& CvGlobals::getBuildingsWithYieldsFromAccomplishments() const
 {
 	return m_vBuildingsWithYieldsFromAccomplishments;
+}
+
+const vector<BuildingTypes>& CvGlobals::getBuildingsWithAirlift() const
+{
+	return m_vBuildingsWithAirlift;
 }
 
 int CvGlobals::getNumUnitClassInfos()
@@ -5229,6 +5378,13 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(FLAVOR_MAX_VALUE);
 	GD_INT_CACHE(FLAVOR_RANDOMIZATION_RANGE);
 	GD_INT_CACHE(FLAVOR_EXPANDGROW_COEFFICIENT);
+	GD_INT_CACHE(VICTORY_PURSUIT_PRIMARY_ONLY_HINT_WEIGHT);
+	GD_INT_CACHE(VICTORY_PURSUIT_PRIMARY_HINT_WEIGHT);
+	GD_INT_CACHE(VICTORY_PURSUIT_SECONDARY_HINT_WEIGHT);
+	GD_INT_CACHE(VICTORY_PURSUIT_DISABLED_VICTORY_PENALTY);
+	GD_INT_CACHE(VICTORY_PURSUIT_FEW_CITY_STATES_PENALTY);
+	GD_INT_CACHE(VICTORY_PURSUIT_MAX_RANDOMNESS);
+	GD_INT_CACHE(VICTORY_PURSUIT_DIFFERENTIAL_DIVISOR);
 	GD_INT_CACHE(AI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE);
 	GD_INT_CACHE(AI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT);
 	GD_INT_CACHE(AI_GRAND_STRATEGY_GUESS_NO_CLUE_WEIGHT);
@@ -6114,8 +6270,6 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(OPINION_WEIGHT_PER_DIVERGENT_POLICY);
 	GD_INT_CACHE(OPINION_WEIGHT_SIMILAR_POLICIES);
 	GD_INT_CACHE(OPINION_WEIGHT_DIVERGENT_POLICIES);
-	GD_INT_CACHE(POLICY_SCORE_NEEDY_THRESHOLD);
-	GD_INT_CACHE(POLICY_SCORE_NEEDY_BONUS);
 	GD_INT_CACHE(OPINION_WEIGHT_PTP_SAME_MINOR_EACH);
 	GD_INT_CACHE(OPINION_WEIGHT_PTP_SAME_MINOR_MIN);
 	GD_INT_CACHE(OPINION_WEIGHT_PTP_SAME_MINOR_DIPLOMAT_MULTIPLIER);
@@ -6720,7 +6874,7 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER);
 	GD_INT_CACHE(UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER);
 	GD_INT_CACHE(UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION);
-	GD_INT_CACHE(UNIT_SUPPLY_POPULATION_PUPPET_PERCENT);
+	GD_INT_CACHE(PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE);
 	GD_INT_CACHE(MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED);
 	GD_INT_CACHE(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC);
 	GD_INT_CACHE(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MARITIME);
@@ -6747,7 +6901,6 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(UNIT_PRODUCTION_DECAY_TIME);
 	GD_INT_CACHE(UNIT_PRODUCTION_DECAY_PERCENT);
 	GD_INT_CACHE(BASE_UNIT_UPGRADE_COST);
-	GD_INT_CACHE(UNIT_UPGRADE_COST_PER_PRODUCTION);
 	GD_INT_CACHE(UNIT_UPGRADE_COST_VISIBLE_DIVISOR);
 	GD_INT_CACHE(UNIT_UPGRADE_COST_DISCOUNT_MAX);
 	GD_INT_CACHE(RESEARCH_AGREEMENT_BOOST_DIVISOR);
@@ -7340,6 +7493,10 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(INQUISITION_EFFECTIVENESS);
 	GD_INT_CACHE(INQUISITOR_CONVERSION_REDUCTION_FACTOR);
 	GD_INT_CACHE(HURRY_GOLD_BUILDING_COST_PERCENT);
+	GD_INT_CACHE(UNKNOWN_EXPLORE_TILE_VALUE);
+	GD_INT_CACHE(LAND_EXPLORE_TILE_VALUE);
+	GD_INT_CACHE(COAST_EXPLORE_TILE_VALUE);
+	GD_INT_CACHE(OCEAN_EXPLORE_TILE_VALUE);
 
 	// -- floats -- //
 	GD_FLOAT_CACHE(AI_STRATEGY_NEED_IMPROVEMENT_CITY_RATIO);
@@ -7356,6 +7513,7 @@ void CvGlobals::cacheGlobals()
 	GD_FLOAT_CACHE(GLOBAL_SETTLER_PRODUCTION_PENALTY_PER_UNHAPPY);
 	GD_FLOAT_CACHE(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA);
 	GD_FLOAT_CACHE(UNIT_UPGRADE_COST_EXPONENT);
+	GD_FLOAT_CACHE(UNIT_UPGRADE_COST_PER_PRODUCTION);
 	GD_FLOAT_CACHE(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP);
 	GD_FLOAT_CACHE(UNHAPPINESS_PER_STARVING_POP);
 	GD_FLOAT_CACHE(UNHAPPINESS_PER_PILLAGED_TILE);

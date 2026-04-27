@@ -436,7 +436,7 @@
 		<Column name="MovesChange" type="integer" notnull="true"/>
 	</Table>
 
-	<!-- Free promotion on specified unit classes, skipping validations -->
+	<!-- Free promotion on specified unit classes, skipping validations. The Production AI will treat these units like UUs. -->
 	<Table name="Trait_FreePromotionUnitClass">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)" notnull="true"/>

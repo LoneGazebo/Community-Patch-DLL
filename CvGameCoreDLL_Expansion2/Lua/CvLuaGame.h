@@ -159,6 +159,7 @@ protected:
 
 	static int lIsDebugMode(lua_State* L);
 	static int lSetDebugMode(lua_State* L);
+	static int lSetHumanAIPath(lua_State* L);
 	static int lToggleDebugMode(lua_State* L);
 	static int lUpdateFOW(lua_State* L);
 

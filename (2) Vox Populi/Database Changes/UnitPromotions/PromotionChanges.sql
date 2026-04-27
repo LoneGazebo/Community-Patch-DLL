@@ -330,7 +330,7 @@ UPDATE UnitPromotions SET HealOutsideFriendly = 1, FriendlyHealChange = 5, Neutr
 --                 │                   │ │                    ┌───────────────────────────┘            │
 --                 │                   │ │                    │                                        │
 -- Bombardment I ──┴─► Bombardment II ─┴─┴─► Bombardment III ─┴─► Broadside ───────────────────────────┘
---                                                                Shrapnel Rounds
+--                                                                Shrapnel Rounds I ──► Shrapnel Rounds II
 ----------------------------------------------------------------------------------------------------------------------------
 UPDATE UnitPromotions
 SET AttackBelowEqual50HealthMod = 10
@@ -368,7 +368,8 @@ UPDATE UnitPromotions SET CityAttack = 40 WHERE Type = 'PROMOTION_BROADSIDE';
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_SHRAPNEL_ROUNDS', 'DOMAIN_LAND', 50);
+	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 35),
+	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 35);
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Submarine promotion tree drawn using ASCIIFlow
@@ -561,7 +562,7 @@ UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExt
 
 UPDATE UnitPromotions SET CaptureDefeatedEnemy = 1, CapturedUnitsConscripted = 1 WHERE Type = 'PROMOTION_COERCION';
 
-UPDATE UnitPromotions SET RiverDoubleMove = 1 WHERE Type = 'PROMOTION_WAR_CANOES';
+UPDATE UnitPromotions SET RiverDoubleMove = 1, River = 1 WHERE Type = 'PROMOTION_SEWN_CANOES';
 
 UPDATE UnitPromotions SET AttackMod = 20 WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
 
@@ -610,6 +611,8 @@ VALUES
 UPDATE UnitPromotions SET MovesChange = 2 WHERE Type = 'PROMOTION_SACRED_STEPS';
 
 UPDATE UnitPromotions SET FriendlyHealChange = 5, NeutralHealChange = 5, EnemyHealChange = 5 WHERE Type = 'PROMOTION_EVERLASTING_YOUTH';
+
+UPDATE UnitPromotions_Terrains SET DoubleMove = 0 WHERE PromotionType = 'PROMOTION_ALTITUDE_TRAINING';
 
 --------------------------------------------
 -- Building free promotions
@@ -839,7 +842,7 @@ UPDATE UnitPromotions SET NukeImmune = 1 WHERE Type = 'PROMOTION_SHIELDED_SILO';
 -- Camel Archer, Comanche Rider, Nau: Withdraw Before Melee
 UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE';
 
--- Hoplite: Unity
+-- Hoplite: Phalanx
 INSERT INTO UnitPromotions_CombatModPerAdjacentUnitCombat
 	(PromotionType, UnitCombatType, Modifier)
 SELECT
@@ -943,7 +946,7 @@ UPDATE UnitPromotions SET GoldenAgeValueFromKills = 1000 WHERE Type = 'PROMOTION
 -- Minuteman, Berber Cavalry: Ignores Terrain Cost
 UPDATE UnitPromotions SET IgnoreTerrainCost = 1 WHERE Type = 'PROMOTION_IGNORE_TERRAIN_COST';
 
--- Mehal Sefari, Berber Cavalry: Homeland Guardian
+-- Mehal Sefari, Berber Cavalry, Mikasa: Homeland Guardian
 UPDATE UnitPromotions SET FriendlyLandsModifier = 25 WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN';
 
 -- Mehal Sefari: Near Capital Bonus
@@ -1027,7 +1030,7 @@ INSERT INTO UnitPromotions_Plagues
 VALUES
 	('PROMOTION_CONCUSSIVE_HIT', 'PROMOTION_DAZED', 'DOMAIN_LAND', 1);
 
--- Chu-Ko-Nu: Siege Volley
+-- Hwacha: Singijeon
 UPDATE UnitPromotions SET NearbyCityCombatMod = 25, NearbyRange = 1, SplashDamage = 5 WHERE Type = 'PROMOTION_SIEGE_VOLLEY';
 
 -- Quinquereme: Heavy Assault
@@ -1075,15 +1078,6 @@ INSERT INTO UnitPromotions_Plagues
 VALUES
 	('PROMOTION_GREEK_FIRE', 'PROMOTION_ON_FIRE', 'DOMAIN_LAND', 1),
 	('PROMOTION_GREEK_FIRE', 'PROMOTION_ON_FIRE', 'DOMAIN_SEA', 1);
-
--- Asamu: Elisha's Guile
-UPDATE UnitPromotions
-SET
-	AllowsEmbarkation = 1,
-	VisibilityChange = 1,
-	EmbarkExtraVisibility = 1,
-	ExtraWithdrawal = 100
-WHERE Type = 'PROMOTION_ELISHAS_GUILE';
 
 -- Atlas Elephant: At the Gates!
 UPDATE UnitPromotions SET MaxHitPointsChange = 20, CanCrossMountains = 1 WHERE Type = 'PROMOTION_AT_THE_GATES';
@@ -1165,6 +1159,13 @@ VALUES
 
 -- Djong: Cetbang
 UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_CETBANG';
+
+-- Mikasa: Kantai Kessen
+UPDATE UnitPromotions SET AttackFullyHealedMod = 25 WHERE Type = 'PROMOTION_KANTAI_KESSEN';
+INSERT INTO UnitPromotions_YieldFromKills
+	(PromotionType, YieldType, Yield)
+VALUES
+	('PROMOTION_KANTAI_KESSEN', 'YIELD_GREAT_ADMIRAL_POINTS', 300);
 
 -- Yamato: Taikan Kyoho
 INSERT INTO UnitPromotions_YieldFromKills

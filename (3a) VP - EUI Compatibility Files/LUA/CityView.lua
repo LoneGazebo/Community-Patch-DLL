@@ -63,8 +63,8 @@ local GameInfo = EUI.GameInfoCache -- warning! use iterator ONLY with table fiel
 local UpdateCityView
 --END
 
-local FormatInteger = CPK.Text.FormatInteger;
-local FormatIntegerTimes100 = CPK.Text.FormatIntegerTimes100;
+local Hide = CPK.UI.Control.Hide;
+local Show = CPK.UI.Control.Show;
 
 include( "SupportFunctions" )
 local TruncateString = TruncateString
@@ -316,12 +316,6 @@ local function StringFormatNeatFloat(x)
 	if math.floor(math.abs(x) * 10) == math.abs(x * 10) then return string.format("%.1f", x); end
 	return string.format("%.2f", x);
 end
-
--------------------------------------------------
--- See if the mod for faith purchase buildings in
--- puppets is activated, then cache the result.
--------------------------------------------------
-local g_isFaithPurchaseBuildingsInPuppetsMod = Game.IsCustomModOption("GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS")
 
 -------------------------------------------------
 -- Clear out the UI so that when a player changes
@@ -1008,10 +1002,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 	local city = UI_GetHeadSelectedCity()
 	if city then
 		local cityOwnerID = city:GetOwner()
-		if cityOwnerID == g_activePlayerID
-			and ( not city:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() ) or g_isFaithPurchaseBuildingsInPuppetsMod)
-							----------- Venice exception -----------
-		then
+		if cityOwnerID == g_activePlayerID then
 			local cityID = city:GetID()
 			local isPurchase
 			if orderID == OrderTypes.ORDER_TRAIN then
@@ -1030,9 +1021,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 				-- Invest in all buildings of this type in any cities queue
 				if UI.ShiftKeyDown() then
 					for cityX in g_activePlayer:Cities() do
-						if cityX ~= city
-								and ( not cityX:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() ) or g_isFaithPurchaseBuildingsInPuppetsMod)
-								and isItemInQueue(cityX, itemID) then
+						if cityX ~= city and isItemInQueue(cityX, itemID) then
 							if cityIsCanPurchase( cityX, true, true, -1, itemID, -1, yieldID ) then
 								Game.CityPurchaseBuilding( cityX, itemID, yieldID )
 								Network.SendUpdateCityCitizens( cityX:GetID() )
@@ -1511,7 +1500,10 @@ end)
 	-- Update Selection List
 	-------------------------------------------
 
-	local isSelectionList = not g_isViewingMode or isVeniceException or g_isDebugMode or g_isFaithPurchaseBuildingsInPuppetsMod
+	local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
+	local isCityCaptureViewingMode = UI.IsPopupTypeOpen(ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED)
+	local isSelectionList = isActivePlayerCity and not isCityCaptureViewingMode
+
 	Controls.SelectionScrollPanel:SetHide( not isSelectionList )
 	if isSelectionList then
 		local unitSelectList = table()
@@ -2252,16 +2244,21 @@ local function UpdateCityViewNow()
 		local strMaintenanceTT = L( "TXT_KEY_BUILDING_MAINTENANCE_TT", city:GetTotalBaseBuildingMaintenance() )
 		Controls.SpecialBuildingsHeader:SetToolTipString(strMaintenanceTT)
 
-		local freeSpecialists = city:GetRemainingFreeSpecialists();
-		if(freeSpecialists > 0) then
-			Controls.FreeSpecialistLabel:SetText(tostring(freeSpecialists))
-			--Update suffix to use correct plurality.
-			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists )
+		if city:IsPuppet() then
+			Hide(Controls.FreeSpecialistLabel, Controls.FreeSpecialistLabelSuffix)
 		else
-			local defSpecialist = (GameDefines.UNHAPPINESS_PER_SPECIALIST / 100)
-			Controls.FreeSpecialistLabel:SetText(tostring(defSpecialist))
-			--Update suffix to use correct plurality.
-			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT")
+			local freeSpecialists = city:GetRemainingFreeSpecialists();
+			if(freeSpecialists > 0) then
+				Controls.FreeSpecialistLabel:SetText(tostring(freeSpecialists))
+				--Update suffix to use correct plurality.
+				Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists )
+			else
+				local defSpecialist = (GameDefines.UNHAPPINESS_PER_SPECIALIST / 100)
+				Controls.FreeSpecialistLabel:SetText(tostring(defSpecialist))
+				--Update suffix to use correct plurality.
+				Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT")
+			end
+			Show(Controls.FreeSpecialistLabel, Controls.FreeSpecialistLabelSuffix)
 		end
 
 		Controls.BuildingsHeader:SetToolTipString(strMaintenanceTT)

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context>
+    <LuaContext FileName="Assets/UI/InGame/WorldView/PathHelpManager" ID="PathHelpManager"/>
+
+    <LuaContext FileName="Assets/UI/InGame/NewTurn" ID="NewTurn"/>
+    <LuaContext FileName="Assets/UI/InGame/TurnProcessing" ID="TurnProcessing"/>
+
+   
+    
+    <LuaContext FileName="Assets/UI/InGame/WorldView/PlotHelpText" ID="PlotHelpText" />
+    <LuaContext FileName="Assets/UI/InGame/WorldView/MPTurnPanel" ID="MPTurnPanel" />  
+    <LuaContext FileName="Assets/UI/InGame/WorldView/MiniMapPanel" ID="MiniMapPanel" />
+    <LuaContext FileName="Assets/UI/InGame/WorldView/ActionInfoPanel" ID="ActionInfoPanel" />
+    <LuaContext FileName="Assets/UI/InGame/WorldView/EnemyUnitPanel" ID="EnemyUnitPanel" Hidden="1" />
+    <LuaContext FileName="Assets/UI/InGame/WorldView/UnitPanel" ID="UnitPanel" Hidden="1" />
+  <LuaContext FileName="Assets/UI/InGame/WorldView/MPList" ID="MPList" Hidden="1" />
+
+    <LuaContext FileName="Assets/UI/InGame/UnitMemberOverlay" ID="UnitMemberOverlay"/>
+    
+    <LuaContext FileName="Assets/UI/InGame/InfoCorner" ID="InfoCorner"/>
+    <LuaContext FileName="Assets/UI/InGame/WorldView/DiploCorner" ID="DiploCorner" />
+
+
+    <!--LuaContext FileName="Assets/UI/InGame/EconomicPanel" ID="EconomicPanel" />
+    <LuaContext FileName="Assets/UI/InGame/ForeignPanel"  ID="ForeignPanel"  /-->
+
+    <LuaContext FileName="Assets/UI/InGame/TaskList" ID="TaskList" Hidden="1"/>
+
+    <LuaContext FileName="Assets/UI/InGame/WorldView/Advisors" ID="Advisors" Hidden="1"/>
+
+    <LuaContext FileName="Assets/UI/InGame/Tutorial" ID="Tutorial" Hidden="1"/>
+
+    <GridButton ID="ObserverExitButton" Anchor="L,B" Style="SmallButton" Size="210,32" Offset="10,70" Hidden="1">
+        <Label Anchor="C,C" Offset="0,0" String="Exit Observer Mode" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+    </GridButton>
+
+</Context>

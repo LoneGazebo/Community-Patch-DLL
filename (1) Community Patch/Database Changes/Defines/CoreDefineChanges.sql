@@ -37,6 +37,17 @@ VALUES
 -- Number of rings a new city starts with
 	('CITY_STARTING_RINGS', 1),
 	('MAXIMUM_WORK_PLOT_DISTANCE', 3),
+-- AI non-diplomacy flavor caps (diplomacy flavors are hardcoded between 1-10)
+	('PERSONALITY_FLAVOR_MAX_VALUE', 10),
+	('PERSONALITY_FLAVOR_MIN_VALUE', 1), -- note: if a non-diplomacy flavor is zeroed out, it will stay at zero; the MIN_VALUE is to prevent the FLAVOR_RANDOMIZATION_RANGE randomization from taking it below 1
+-- AI default victory pursuit selection
+	('VICTORY_PURSUIT_PRIMARY_ONLY_HINT_WEIGHT', 16),
+	('VICTORY_PURSUIT_PRIMARY_HINT_WEIGHT', 10),
+	('VICTORY_PURSUIT_SECONDARY_HINT_WEIGHT', 6),
+	('VICTORY_PURSUIT_DISABLED_VICTORY_PENALTY', -20),
+	('VICTORY_PURSUIT_FEW_CITY_STATES_PENALTY', -20),
+	('VICTORY_PURSUIT_MAX_RANDOMNESS', 18),
+	('VICTORY_PURSUIT_DIFFERENTIAL_DIVISOR', 200),
 -- Minimum war score for third party peace requests
 	('THIRD_PARTY_PEACE_MIN_WAR_SCORE', 75),
 -- Minimum war duration for AI players
@@ -145,7 +156,6 @@ VALUES
 	('UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER', 0),
 	('UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER', 0),
 	('UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION', 34),
-	('UNIT_SUPPLY_POPULATION_PUPPET_PERCENT', 100),
 	('MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED', 0),
 	('MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC', 0),
 	('MINOR_CIV_UNIT_SUPPLY_MODIFIER_MARITIME', 0),
@@ -194,7 +204,11 @@ VALUES
 -- Homeland AI
 	('AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT', 5),
 -- Economic AI
-	('MAX_PLOTS_PER_EXPLORER', 20), -- Recon unit calculations
+	('MAX_PLOTS_PER_EXPLORER', 40), -- Recon unit calculations
+	('UNKNOWN_EXPLORE_TILE_VALUE', 25),
+	('LAND_EXPLORE_TILE_VALUE', 50),
+	('COAST_EXPLORE_TILE_VALUE', 20),
+	('OCEAN_EXPLORE_TILE_VALUE', 10),
 	('NEED_DIPLOMAT_THRESHOLD_MODIFIER', 125), -- Higher Threshold = Lower diplomacy desire.
 	('NEED_DIPLOMAT_DESIRE_MODIFIER', 2), -- Higher Desire = Higher diplomacy desire.
 	('NEED_DIPLOMAT_DISTASTE_MODIFIER', 6), -- Lower distaste = More sensitive to other player's diplomatic actions and/or city-state abuse.
@@ -418,6 +432,7 @@ VALUES
 	('PUPPET_PRODUCTION_MODIFIER', 0),
 	('PUPPET_GOLDEN_AGE_MODIFIER', 0),
 	('PUPPET_TOURISM_MODIFIER', 0),
+	('PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE', 100),
 -- If set to a positive value, observer mode will stop automatically after this many turns
 	('MAX_TURNS_OBSERVER_MODE', 0),
 -- Misc.
@@ -1013,7 +1028,7 @@ VALUES
 	('BALANCE_GOLD_INFLUENCE_LEVEL_INFLUENTIAL', 800),
 	('BALANCE_GOLD_INFLUENCE_LEVEL_DOMINANT', 1000),
 
--- These 5 values change the amount of growth% earned from trade routes with influenced civs. Higher influence = more growth% (trade-off for higher influence). 
+-- These 5 values change the amount of growth% earned from trade routes with influenced civs. Higher influence = more growth% (trade-off for higher influence).
 	('BALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC', 5),
 	('BALANCE_GROWTH_INFLUENCE_LEVEL_FAMILIAR', 10),
 	('BALANCE_GROWTH_INFLUENCE_LEVEL_POPULAR', 15),

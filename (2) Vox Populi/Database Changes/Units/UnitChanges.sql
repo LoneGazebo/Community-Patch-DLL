@@ -10,6 +10,22 @@ CREATE TEMP TABLE Helper (
 );
 
 ----------------------------------------------------------------------------
+-- Unit Combat Categories
+----------------------------------------------------------------------------
+
+UPDATE UnitCombatInfos
+SET
+	IsMilitary = 1,
+	IsAerial = 1
+WHERE Type = 'UNITCOMBAT_MISSILE';
+
+UPDATE UnitCombatInfos
+SET
+	IsMilitary = 1,
+	IsAerial = 1
+WHERE Type = 'UNITCOMBAT_NUKE';
+
+----------------------------------------------------------------------------
 -- Melee/Gun
 ----------------------------------------------------------------------------
 
@@ -537,10 +553,12 @@ WHERE Class = 'UNITCLASS_STEALTH_BOMBER';
 ----------------------------------------------------------------------------
 
 -- Rocket Missile
+UPDATE Units SET CombatClass = 'UNITCOMBAT_MISSILE' WHERE Class = 'UNITCLASS_ROCKET_MISSILE';
 
 -- Guided Missile
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_MISSILE',
 	PrereqTech = 'TECH_ADVANCED_BALLISTICS',
 	NoMaintenance = 0
 WHERE Class = 'UNITCLASS_GUIDED_MISSILE';
@@ -550,9 +568,14 @@ WHERE Class = 'UNITCLASS_GUIDED_MISSILE';
 ----------------------------------------------------------------------------
 
 -- Atomic Bomb
+UPDATE Units SET CombatClass = 'UNITCOMBAT_NUKE' WHERE Class = 'UNITCLASS_ATOMIC_BOMB';
 
 -- Nuclear Missile
-UPDATE Units SET PrereqTech = 'TECH_LASERS' WHERE Class = 'UNITCLASS_NUCLEAR_MISSILE';
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_NUKE',
+	PrereqTech = 'TECH_LASERS'
+WHERE Class = 'UNITCLASS_NUCLEAR_MISSILE';
 
 ----------------------------------------------------------------------------
 -- Settler
@@ -613,6 +636,11 @@ WHERE a.Class = 'UNITCLASS_COLONIST';
 
 DELETE FROM Helper;
 
+UPDATE Units
+SET
+	FoundColony = 9999  -- this is the max number of puppets you can found. i.e. unlimited
+WHERE Class = 'UNITCLASS_COLONIST';
+
 ----------------------------------------------------------------------------
 -- Diplo units
 ----------------------------------------------------------------------------
@@ -648,14 +676,24 @@ WHERE Class = 'UNITCLASS_CARGO_SHIP';
 ----------------------------------------------------------------------------
 
 -- SS Stasis Chamber
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SPACESHIP' WHERE Class = 'UNITCLASS_SS_STASIS_CHAMBER';
 
 -- SS Engine
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SPACESHIP' WHERE Class = 'UNITCLASS_SS_ENGINE';
 
 -- SS Cockpit
-UPDATE Units SET PrereqTech = 'TECH_GLOBALIZATION' WHERE Class = 'UNITCLASS_SS_COCKPIT';
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_SPACESHIP',
+	PrereqTech = 'TECH_GLOBALIZATION'
+WHERE Class = 'UNITCLASS_SS_COCKPIT';
 
 -- SS Booster
-UPDATE Units SET PrereqTech = 'TECH_NUCLEAR_FUSION' WHERE Class = 'UNITCLASS_SS_BOOSTER';
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_SPACESHIP',
+	PrereqTech = 'TECH_NUCLEAR_FUSION'
+WHERE Class = 'UNITCLASS_SS_BOOSTER';
 
 ----------------------------------------------------------------------------
 -- Great People
@@ -664,6 +702,7 @@ UPDATE Units SET PrereqTech = 'TECH_NUCLEAR_FUSION' WHERE Class = 'UNITCLASS_SS_
 -- Great Writer
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	BaseCultureTurnsToCount = 5,
 	ScaleFromNumGWs = 3
 WHERE Class = 'UNITCLASS_WRITER';
@@ -671,6 +710,7 @@ WHERE Class = 'UNITCLASS_WRITER';
 -- Great Artist
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	GoldenAgeTurns = 0,
 	BaseTurnsForGAPToCount = 10,
 	ScaleFromNumThemes = 20
@@ -679,13 +719,18 @@ WHERE Class = 'UNITCLASS_ARTIST';
 -- Great Musician
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	OneShotTourism = 0,
 	OneShotTourismPercentOthers = 0,
 	TourismBonusTurns = 10
 WHERE Class = 'UNITCLASS_MUSICIAN';
 
 -- Great Scientist
-UPDATE Units SET BaseBeakersTurnsToCount = 3 WHERE Class = 'UNITCLASS_SCIENTIST';
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
+	BaseBeakersTurnsToCount = 3
+WHERE Class = 'UNITCLASS_SCIENTIST';
 
 INSERT INTO Unit_ScalingFromOwnedImprovements
 	(UnitType, ImprovementType, Amount)
@@ -697,6 +742,7 @@ WHERE Class = 'UNITCLASS_SCIENTIST';
 -- Great Merchant
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	BaseGold = 0,
 	NumGoldPerEra = 0,
 	BaseGoldTurnsToCount = 2,
@@ -713,6 +759,7 @@ WHERE Class = 'UNITCLASS_MERCHANT';
 -- Great Engineer
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	BaseHurry = 0,
 	HurryMultiplier = 0,
 	BaseProductionTurnsToCount = 5
@@ -726,6 +773,8 @@ FROM Units
 WHERE Class = 'UNITCLASS_ENGINEER';
 
 -- Great Diplomat
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE' WHERE Class = 'UNITCLASS_GREAT_DIPLOMAT';
+
 INSERT INTO Unit_ResourceQuantityExpended
 	(UnitType, ResourceType, Amount)
 SELECT
@@ -734,17 +783,23 @@ FROM Units
 WHERE Class = 'UNITCLASS_GREAT_DIPLOMAT';
 
 -- Great General
+UPDATE Units SET CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE' WHERE Class = 'UNITCLASS_GREAT_GENERAL';
 
 -- Great Admiral
 UPDATE Units
 SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	NumFreeLux = 2,
-	WorkRate = 1,  -- Tersane
+	WorkRate = 1, -- Tersane
 	CanRepairFleet = 0
 WHERE Class = 'UNITCLASS_GREAT_ADMIRAL';
 
 -- Great Prophet
-UPDATE Units SET Capture = NULL WHERE Class = 'UNITCLASS_PROPHET';
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
+	Capture = NULL
+WHERE Class = 'UNITCLASS_PROPHET';
 
 ----------------------------------------------------------------------------
 -- Other units
@@ -754,11 +809,16 @@ UPDATE Units SET Capture = NULL WHERE Class = 'UNITCLASS_PROPHET';
 UPDATE Units
 SET
 	CombatClass = 'UNITCOMBAT_WORKER',
-	WorkRate = 90 -- slowed down a bit, was 100
+	WorkRate = 90, -- slowed down a bit, was 100
+	PuppetPurchaseOverride = 1
 WHERE Class = 'UNITCLASS_WORKER';
 
 -- Work Boat
-UPDATE Units SET CombatClass = 'UNITCOMBAT_WORKBOAT' WHERE Class = 'UNITCLASS_WORKBOAT';
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_WORKBOAT',
+	PuppetPurchaseOverride = 1
+WHERE Class = 'UNITCLASS_WORKBOAT';
 
 -- Missionary
 UPDATE Units SET CombatClass = 'UNITCOMBAT_MISSIONARY' WHERE Class = 'UNITCLASS_MISSIONARY';
@@ -768,6 +828,8 @@ UPDATE Units SET CombatClass = 'UNITCOMBAT_INQUISITOR' WHERE Class = 'UNITCLASS_
 
 -- Archaeologist
 UPDATE UnitClasses SET MaxPlayerInstances = 3 WHERE Type = 'UNITCLASS_ARCHAEOLOGIST';
+
+UPDATE Units SET CombatClass = 'UNITCOMBAT_ARCHAEOLOGIST' WHERE Class = 'UNITCLASS_ARCHAEOLOGIST';
 
 UPDATE Unit_BuildingClassRequireds
 SET BuildingClassType = 'BUILDINGCLASS_MUSEUM'

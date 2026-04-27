@@ -3,6 +3,12 @@
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
+include("CPK.lua");
+
+local CustomModOptionEnabled = CPK.Misc.CustomModOptionEnabled;
+
+-- Mod options
+local MOD_UNITS_CIVILIANS_GAIN_XP = CustomModOptionEnabled("UNITS_CIVILIANS_GAIN_XP");
 
 local g_PrimaryIM    = InstanceManager:new( "UnitAction",  "UnitActionButton", Controls.PrimaryStack );
 local g_SecondaryIM  = InstanceManager:new( "UnitAction",  "UnitActionButton", Controls.SecondaryStack );
@@ -452,8 +458,8 @@ function UpdateUnitPortrait( unit )
     
     -- Tool tip
     local strToolTip = Locale.ConvertTextKey("TXT_KEY_CURRENTLY_SELECTED_UNIT");
-    
-    if unit:IsCombatUnit() or unit:GetDomainType() == DomainTypes.DOMAIN_AIR then
+ 
+	if unit:IsCombatUnit() or unit:GetDomainType() == DomainTypes.DOMAIN_AIR or MOD_UNITS_CIVILIANS_GAIN_XP then
 		local iExperience = unit:GetExperience();
 	    
 		local iLevel = unit:GetLevel();

@@ -453,12 +453,12 @@ WHERE Tag = 'TXT_KEY_PROMOTION_NAVAL_TRADITION_HELP';
 
 -- Patriotic War
 UPDATE Language_en_US
-SET Text = '+20% [ICON_STRENGTH] Combat Strength in or adjacent to a [COLOR_POSITIVE_TEXT]City[ENDCOLOR].'
+SET Text = '+20% [ICON_STRENGTH] Combat Strength in or adjacent to [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_NATIONALISM_HELP';
 
 -- Altitude Training
 UPDATE Language_en_US
-SET Text = 'Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
+SET Text = '+10% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALTITUDE_TRAINING_HELP';
 
 -- Morale 
@@ -579,7 +579,7 @@ SET Text = 'Withdraw from Melee Attack if there is an open tile behind this Unit
 WHERE Tag = 'TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unity'
+SET Text = 'Phalanx'
 WHERE Tag = 'TXT_KEY_PROMOTION_DISCIPLINE';
 
 UPDATE Language_en_US
@@ -624,11 +624,6 @@ WHERE Tag = 'TXT_KEY_PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY';
 UPDATE Language_en_US
 SET Text = '+33% [ICON_STRENGTH] Combat Strength when defending in or attacking a Unit in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_MOHAWK_HELP';
-
--- War Canoes
-UPDATE Language_en_US
-SET Text = 'Double [ICON_MOVES] Movement when moving along Rivers.'
-WHERE Tag = 'TXT_KEY_PROMOTION_WAR_CANOES_HELP';
 
 UPDATE Language_en_US
 SET Text = 'Expeditionary Warfare'

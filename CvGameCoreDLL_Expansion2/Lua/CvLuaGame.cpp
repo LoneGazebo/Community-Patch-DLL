@@ -177,6 +177,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(IsDebugMode);
 	Method(SetDebugMode);
+	Method(SetHumanAIPath);
 	Method(ToggleDebugMode);
 	Method(UpdateFOW);
 
@@ -1276,6 +1277,12 @@ int CvLuaGame::lIsDebugMode(lua_State* L)
 int CvLuaGame::lSetDebugMode(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::setDebugMode);
+}
+//------------------------------------------------------------------------------
+//bool setDebugMode();
+int CvLuaGame::lSetHumanAIPath(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::setHumanAIPath);
 }
 //------------------------------------------------------------------------------
 //void toggleDebugMode();

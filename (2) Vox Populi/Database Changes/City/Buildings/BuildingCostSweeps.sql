@@ -150,7 +150,7 @@ WHERE BuildingClass IN (
 );
 
 UPDATE Buildings
-SET Cost = -1, GoldMaintenance = 1
+SET Cost = -1, GoldMaintenance = 6
 WHERE BuildingClass IN (
 	SELECT FranchiseBuildingClass FROM Corporations
 );
@@ -191,8 +191,7 @@ UPDATE Buildings
 SET GoldMaintenance = 3
 WHERE Type IN (
 	'BUILDING_COURTHOUSE',
-	'BUILDING_GARDEN',
-	'BUILDING_CHANCERY'
+	'BUILDING_GARDEN'
 );
 
 -- Barbican

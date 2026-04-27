@@ -5,9 +5,9 @@
 	<Image Anchor="R,C" Offset="0,0" Texture="assets\UI\Art\WorldView\1920_RightSide.DDS" Size="100,1200"/>
 	<Image Anchor="R,T" Offset="293,30" Texture="assets\UI\Art\WorldView\TopCornerRight.DDS" Size="180,88" Hidden="0"/>
 	<Image Anchor="L,T" TextureOffset="74,0" Offset="296,30" Texture="assets\UI\Art\WorldView\TopCornerLeft.DDS" Size="180,88" Hidden="0" ID="TopLeft"/>
-	<Grid Size="300,375" Anchor="L,T" Offset="-36,160" Style="Grid9DetailSix140" Hidden="0" ID="InfoBG"/>
+	<Grid Size="300,346" Anchor="L,T" Offset="-36,160" Style="Grid9DetailSix140" Hidden="0" ID="InfoBG"/>
 	<!-- City Information -->
-	<Grid Size="339,257" Anchor="L,T" Offset="-36,-10" Style="Grid9DetailFive140" Hidden="0" ID="CityInfo" ConsumeMouseOver="1">
+	<Grid Size="339,230" Anchor="L,T" Offset="-36,-10" Style="Grid9DetailFive140" Hidden="0" ID="CityInfo" ConsumeMouseOver="1">
 		<Stack Anchor="L,T" Offset="37,8" Size="0,0" StackGrowth="Bottom" Padding="0">
 			<!-- Population Info -->
 			<Box Offset="0,32" Anchor="L,T" Size="210,110" Color="255,255,255,0" ID="PopulationBox">

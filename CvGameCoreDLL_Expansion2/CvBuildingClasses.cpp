@@ -296,6 +296,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piGrowthExtraYield(NULL),
 	m_piYieldFromDeath(NULL),
 	m_piYieldFromVictory(NULL),
+	m_piYieldFromVictoryEraScaling(NULL),
 	m_piYieldFromVictoryGlobal(NULL),
 	m_piYieldFromVictoryGlobalEraScaling(NULL),
 	m_piYieldFromVictoryGlobalInGoldenAge(NULL),
@@ -364,6 +365,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piUnitCombatProductionModifiersGlobal(NULL),
 	m_piDomainFreeExperience(NULL),
 	m_piDomainFreeExperiencePerGreatWork(NULL),
+	m_piDomainFreeExperiencePerGreatWorkCity(NULL),
 	m_piDomainFreeExperiencePerGreatWorkGlobal(NULL),
 	m_piDomainFreeExperienceGlobal(),
 	m_piDomainProductionModifier(NULL),
@@ -392,6 +394,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldPerAllyTimes100(NULL),
 	m_piYieldChangeWorldWonder(NULL),
 	m_piYieldChangeWorldWonderGlobal(NULL),
+	m_piYieldFromFaithPurchasableBuildings(NULL),
+	m_piYieldFromFaithPurchasableBuildingsGlobal(NULL),
 	m_piLuxuryYieldChanges(NULL),
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
@@ -449,6 +453,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piGrowthExtraYield);
 	SAFE_DELETE_ARRAY(m_piYieldFromDeath);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
+	SAFE_DELETE_ARRAY(m_piYieldFromVictoryEraScaling);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalEraScaling);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalInGoldenAge);
@@ -518,6 +523,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiersGlobal);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperience);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWork);
+	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWorkCity);
 	SAFE_DELETE_ARRAY(m_piDomainFreeExperiencePerGreatWorkGlobal);
 	m_piDomainFreeExperienceGlobal.clear();
 	SAFE_DELETE_ARRAY(m_piDomainProductionModifier);
@@ -546,6 +552,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldPerAllyTimes100);
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
 	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonderGlobal);
+	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchasableBuildings);
+	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchasableBuildingsGlobal);
 	SAFE_DELETE_ARRAY(m_piLuxuryYieldChanges);
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -941,7 +949,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piSeaResourceYieldChange, "Building_SeaResourceYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0')");
+	kUtility.SetYields(m_piYieldFromVictoryEraScaling, "Building_YieldFromVictory", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1')");
 	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0') and (GoldenAgeOnly='false' or GoldenAgeOnly='0')");
 	kUtility.SetYields(m_piYieldFromVictoryGlobalEraScaling, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1') and (GoldenAgeOnly='false' or GoldenAgeOnly='0')");
 	kUtility.SetYields(m_piYieldFromVictoryGlobalInGoldenAge, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0') and (GoldenAgeOnly='true' or GoldenAgeOnly='1')");
@@ -1064,6 +1073,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiersGlobal, "UnitCombatInfos", "Building_UnitCombatProductionModifiersGlobal", "UnitCombatType", "BuildingType", szBuildingType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperience, "Domains", "Building_DomainFreeExperiences", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWork, "Domains", "Building_DomainFreeExperiencePerGreatWork", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
+	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWorkCity, "Domains", "Building_DomainFreeExperiencePerGreatWorkCity", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainFreeExperiencePerGreatWorkGlobal, "Domains", "Building_DomainFreeExperiencePerGreatWorkGlobal", "DomainType", "BuildingType", szBuildingType, "Experience", 0, NUM_DOMAIN_TYPES);
 	kUtility.PopulateArrayByValue(m_piDomainProductionModifier, "Domains", "Building_DomainProductionModifiers", "DomainType", "BuildingType", szBuildingType, "Modifier", 0, NUM_DOMAIN_TYPES);
 
@@ -1099,6 +1109,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Building_YieldChangeWorldWonder", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangeWorldWonderGlobal, "Building_YieldChangeWorldWonderGlobal", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromFaithPurchasableBuildings, "Building_ReligionYieldFromFaithPurchasableBuildings", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromFaithPurchasableBuildingsGlobal, "Building_ReligionYieldFromFaithPurchasableBuildingsGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piLuxuryYieldChanges, "Building_LuxuryYieldChanges", "BuildingType", szBuildingType);
 	
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
@@ -3406,7 +3418,7 @@ int* CvBuildingEntry::GetYieldFromDeathArray() const
 	return m_piYieldFromDeath;
 }
 
-/// Change to yield if victorious in battle.
+/// Change to yield if local unit victorious in battle.
 int CvBuildingEntry::GetYieldFromVictory(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -3417,6 +3429,19 @@ int CvBuildingEntry::GetYieldFromVictory(int i) const
 int* CvBuildingEntry::GetYieldFromVictoryArray() const
 {
 	return m_piYieldFromVictory;
+}
+
+/// Change to yield if local unit victorious in battle, scaling with era
+int CvBuildingEntry::GetYieldFromVictoryEraScaling(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldFromVictoryEraScaling ? m_piYieldFromVictoryEraScaling[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromVictoryEraScalingArray() const
+{
+	return m_piYieldFromVictoryEraScaling;
 }
 
 /// Change to yield if victorious in battle.
@@ -4254,7 +4279,14 @@ int CvBuildingEntry::GetDomainFreeExperiencePerGreatWork(int i) const
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piDomainFreeExperiencePerGreatWork ? m_piDomainFreeExperiencePerGreatWork[i] : -1;
 }
-/// Free experience gained for units in this domain for each Great Work in this building
+/// Free experience gained for units in this domain for each Great Work in this city
+int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkCity(int i) const
+{
+	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piDomainFreeExperiencePerGreatWorkCity ? m_piDomainFreeExperiencePerGreatWorkCity[i] : -1;
+}
+/// Free experience gained for units in this domain for each Great Work of Writing in the empire (capped at 45)
 int CvBuildingEntry::GetDomainFreeExperiencePerGreatWorkGlobal(int i) const
 {
 	PRECONDITION(i < NUM_DOMAIN_TYPES, "Index out of bounds");
@@ -4541,6 +4573,18 @@ int CvBuildingEntry::GetYieldChangeWorldWonderGlobal(int i) const
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldChangeWorldWonderGlobal ? m_piYieldChangeWorldWonderGlobal[i] : 0;
+}
+int CvBuildingEntry::GetYieldFromFaithPurchasableBuildings(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldFromFaithPurchasableBuildings ? m_piYieldFromFaithPurchasableBuildings[i] : 0;
+}
+int CvBuildingEntry::GetYieldFromFaithPurchasableBuildingsGlobal(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldFromFaithPurchasableBuildingsGlobal ? m_piYieldFromFaithPurchasableBuildingsGlobal[i] : 0;
 }
 int CvBuildingEntry::GetLuxuryYieldChanges(int i) const
 {

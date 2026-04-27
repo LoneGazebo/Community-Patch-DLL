@@ -453,6 +453,8 @@ protected:
 	bool m_bWrapX;
 	bool m_bWrapY;
 
+	bool m_bMapGenerated;
+
 	CvEnumMap<ResourceTypes, int> m_paiNumResource;
 	CvEnumMap<ResourceTypes, int> m_paiNumResourceOnLand;
 

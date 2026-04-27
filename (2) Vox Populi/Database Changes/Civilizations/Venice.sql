@@ -21,7 +21,7 @@ VALUES
 UPDATE Traits
 SET
 	FreeUnitPrereqTech = 'TECH_HORSEBACK_RIDING', -- Trade
-	ReducePuppetPenalties = 30
+	PuppetYieldAndSupplyModifierChange = 20
 WHERE Type = 'TRAIT_SUPER_CITY_STATE';
 
 INSERT INTO Trait_NoTrain
@@ -128,6 +128,12 @@ INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)
 VALUES
 	('UNIT_FUSTA', 'UNITCLASS_FRIGATE');
+
+-- Liburna don't upgrade to Galleass class (Great Galleass), instead to Fusta
+INSERT INTO Trait_UnitClassUpgrade
+	(TraitType, UnitClassType, UnitType)
+VALUES
+	('TRAIT_SUPER_CITY_STATE', 'UNITCLASS_FUSTA', 'UNIT_LIBURNA');
 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)

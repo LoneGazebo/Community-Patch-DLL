@@ -17,9 +17,9 @@ end
 --- ```
 --- @param control Control
 --- @param ... Control
+--- @return Control ...
 local function ControlEnable(control, ...)
-	ControlEnableOne(control)
-	ArgsEach(ControlEnableOne, ...)
+	return ArgsEach(ControlEnableOne, control, ...)
 end
 
 CPK.UI.Control.Enable = ControlEnable

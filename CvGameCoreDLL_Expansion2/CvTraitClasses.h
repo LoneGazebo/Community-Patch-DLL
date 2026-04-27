@@ -218,7 +218,7 @@ public:
 	bool IsPermanentYieldsDecreaseEveryEra() const;
 	bool IsImportsCountTowardsMonopolies() const;
 	bool IsCanPurchaseNavalUnitsFaith() const;
-	int GetPuppetPenaltyReduction() const;
+	int GetPuppetYieldAndSupplyModifierChange() const;
 	int GetSharedReligionTourismModifier() const;
 	int GetExtraMissionaryStrength() const;
 	bool IsCanGoldInternalTradeRoutes() const;
@@ -552,7 +552,7 @@ protected:
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
 	bool m_bCanPurchaseNavalUnitsFaith;
-	int m_iPuppetPenaltyReduction;
+	int m_iPuppetYieldAndSupplyModifierChange;
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
 	bool m_bCanGoldInternalTradeRoutes;
@@ -1299,9 +1299,9 @@ public:
 	{
 		return m_bCanPurchaseNavalUnitsFaith;
 	};
-	int GetPuppetPenaltyReduction() const
+	int GetPuppetYieldAndSupplyModifierChange() const
 	{
-		return m_iPuppetPenaltyReduction;
+		return m_iPuppetYieldAndSupplyModifierChange;
 	};
 	bool IsWarsawPact() const
 	{
@@ -2149,7 +2149,7 @@ private:
 	bool m_bPermanentYieldsDecreaseEveryEra;
 	bool m_bImportsCountTowardsMonopolies;
 	bool m_bCanPurchaseNavalUnitsFaith;
-	int m_iPuppetPenaltyReduction;
+	int m_iPuppetYieldAndSupplyModifierChange;
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
 	bool m_bCanGoldInternalTradeRoutes;

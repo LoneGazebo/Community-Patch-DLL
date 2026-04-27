@@ -533,7 +533,6 @@ public:
 
 	int getGrowthMods(CvString* toolTipSink = NULL, int iAssumedLocalHappinessChange = 0) const;
 	int GetNumFreeSpecialists();
-	int GetUnhappinessFromCitySpecialists();
 
 	int productionLeft() const;
 
@@ -1065,6 +1064,9 @@ public:
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromVictoryEraScaling(YieldTypes eIndex) const;
+	void ChangeYieldFromVictoryEraScaling(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromVictoryGlobal(YieldTypes eIndex) const;
 	void ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange);
 
@@ -1245,16 +1247,14 @@ public:
 	int GetBaseYieldRateFromReligionTimes100(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange);
 
-	int GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const;
-	void ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange);
-	void SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue);
-
+	int GetBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const;
+	void ChangeBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex, int iChange);
+	void SetBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex, int iValue);
 	int GetEffectiveYieldRateFromCSAllianceTimes100(YieldTypes eIndex) const;
 
-	int GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const;
-	void ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange);
-	void SetBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iValue);
-
+	int GetBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) const;
+	void ChangeBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex, int iChange);
+	void SetBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex, int iValue);
 	int GetEffectiveYieldRateFromCSFriendshipTimes100(YieldTypes eIndex) const;
 
 	void SetYieldFromMinors(YieldTypes eYield, int iValue);
@@ -1374,6 +1374,10 @@ public:
 	int getReligionBuildingYieldRateModifier(BuildingClassTypes eBuilding, YieldTypes eYield)	const;
 	void changeReligionBuildingYieldRateModifier(BuildingClassTypes eBuilding, YieldTypes eYield, int iChange);
 
+	int getYieldChangeFaithPurchasableBuildings(YieldTypes eYield)	const;
+	void changeYieldChangeFaithPurchasableBuildings(YieldTypes eYield, int iChange);
+	void applyYieldFaithPurchasableBuildings(YieldTypes eYield);
+
 	int getLocalBuildingClassYield(BuildingClassTypes eBuilding, YieldTypes eYield)	const;
 	void changeLocalBuildingClassYield(BuildingClassTypes eBuilding, YieldTypes eYield, int iChange);
 
@@ -1384,6 +1388,8 @@ public:
 	void changeResourceYieldRateModifier(YieldTypes eIndex, int iChange);
 
 	int getHappinessModifier(YieldTypes eIndex) const;
+
+	int getYieldModifierMultiplicative(YieldTypes eIndex) const;
 
 	int getExtraSpecialistYield(YieldTypes eIndex) const;
 	int getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpecialist) const;
@@ -1470,7 +1476,7 @@ public:
 	int getAdjacentUnitsDefenseMod() const;
 
 	void updateStrengthValue();
-	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildings = false, const CvUnit* pDefender = NULL) const;
+	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildings = false, const CvUnit* pDefender = NULL, bool bOverrideGarrison = false, const CvUnit* pGarrisonOverride = NULL) const;
 	int GetPower() const;
 
 	int getDamage() const;
@@ -1966,6 +1972,7 @@ protected:
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
 	std::vector<int> m_aiSpecialReligionYieldsTimes100;
 	std::vector<int> m_aiYieldFromVictory;
+	std::vector<int> m_aiYieldFromVictoryEraScaling;
 	std::vector<int> m_aiYieldFromVictoryGlobal;
 	std::vector<int> m_aiYieldFromVictoryGlobalEraScaling;
 	std::vector<int> m_aiYieldFromVictoryGlobalInGoldenAge;
@@ -2055,8 +2062,8 @@ protected:
 	map<UnitClassTypes, int> m_miUnitClassTrainingAllowed;
 	map<ProjectTypes, int> m_miWLTKDFromProject;
 	std::vector<int> m_aiBaseYieldRateFromReligion;
-	std::vector<int> m_aiBaseYieldRateFromCSAlliance;
-	std::vector<int> m_aiBaseYieldRateFromCSFriendship;
+	std::vector<int> m_aiBaseYieldRateFromCSAllianceTimes100;
+	std::vector<int> m_aiBaseYieldRateFromCSFriendshipTimes100;
 	std::vector<int> m_aiYieldFromMinors;
 	std::vector<fraction> m_afResourceQuantityPerXFranchises;
 	std::vector<int> m_aiYieldChangeFromCorporationFranchises;
@@ -2142,6 +2149,7 @@ protected:
 
 	vector<SCityExtraYields> m_yieldChanges; //[NUM_YIELD_TYPES]
 
+	std::vector<int> m_aiYieldChangeFaithPurchasableBuildings;
 	std::map<std::pair<int, int>, short> m_ppiGreatPersonProgressFromConstruction;
 	std::vector<int> m_aiEventCooldown;
 	std::vector<bool> m_abEventActive;
@@ -2224,7 +2232,6 @@ protected:
 	void doMeltdown();
 	void doUnitCompletionYields(CvUnit* pUnit, UnitCreationReason eReason);
 	bool doCheckProduction();
-	bool CrosscheckYieldsFromMinors();
 
 	//we can pretend a garrison in this city, but only for limited time
 	void OverrideGarrison(const CvUnit* pUnit) const;
@@ -2372,6 +2379,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumProjects)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialReligionYieldsTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryEraScaling)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalEraScaling)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalInGoldenAge)
@@ -2461,8 +2469,8 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(map<UnitClassTypes, int>), m_miUnitClassT
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(map<ProjectTypes, int>), m_miWLTKDFromProject)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromReligion)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAlliance)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendship)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAllianceTimes100)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendshipTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<fraction>, m_afResourceQuantityPerXFranchises)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFromCorporationFranchises)
@@ -2532,6 +2540,7 @@ SYNC_ARCHIVE_VAR(bool, m_bRouteToCapitalConnectedThisTurn)
 SYNC_ARCHIVE_VAR(CvString, m_strName)
 SYNC_ARCHIVE_VAR(bool, m_bOwedCultureBuilding)
 SYNC_ARCHIVE_VAR(bool, m_bOwedFoodBuilding)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFaithPurchasableBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventCooldown)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventActive)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventChoiceActive)

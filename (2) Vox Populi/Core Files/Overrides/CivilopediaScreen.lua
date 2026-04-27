@@ -88,9 +88,9 @@ local homePageOfCategoryID = 9999;
 	local g_bTechTrading = true;
 	local g_bNoVassalage= false;
 	if(Game ~= nil)then
-		g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
-		g_bTechTrading = Game.IsOption("GAMEOPTION_TECH_TRADING");
-		g_bNoVassalage= Game.IsOption("GAMEOPTION_NO_VASSALAGE");
+		g_bResearchAgreementTrading = not Game.IsOption("GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS");
+		g_bTechTrading = not Game.IsOption("GAMEOPTION_ENABLE_TECH_TRADING");
+		g_bNoVassalage= not Game.IsOption("GAMEOPTION_ENABLE_VASSALAGE");
 	end
 -- END
 
@@ -3436,6 +3436,9 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		CheckPromotionPrereqOr("PromotionPrereqOr4");
 		CheckPromotionPrereqOr("PromotionPrereqOr5");
 		CheckPromotionPrereqOr("PromotionPrereqOr6");
+		CheckPromotionPrereqOr("PromotionPrereqOr7");
+		CheckPromotionPrereqOr("PromotionPrereqOr8");
+		CheckPromotionPrereqOr("PromotionPrereqOr9");
 
 		UpdateButtonFrame( buttonAdded, Controls.RequiredPromotionsInnerFrame, Controls.RequiredPromotionsFrame );
 
@@ -3447,7 +3450,10 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 					loopPromotion["PromotionPrereqOr3"] == thisPromotion.Type or
 					loopPromotion["PromotionPrereqOr4"] == thisPromotion.Type or
 					loopPromotion["PromotionPrereqOr5"] == thisPromotion.Type or
-					loopPromotion["PromotionPrereqOr6"] == thisPromotion.Type) then
+					loopPromotion["PromotionPrereqOr6"] == thisPromotion.Type or
+					loopPromotion["PromotionPrereqOr7"] == thisPromotion.Type or
+					loopPromotion["PromotionPrereqOr8"] == thisPromotion.Type or
+					loopPromotion["PromotionPrereqOr9"] == thisPromotion.Type) then
 				print("Leads To Promotion:" .. loopPromotion.Type)
 				local thisLeadsToPromotionInstance = g_LeadsToPromotionsManager:GetInstance();
 				if thisLeadsToPromotionInstance then
@@ -4384,6 +4390,62 @@ function SelectBuildingOrWonderArticle( buildingID )
 		UpdateButtonFrame( buttonAdded, Controls.MonopolyResourcesInnerFrame, Controls.MonopolyResourcesFrame );
 
 		--END
+
+		-- Tech yield boosts (from Building_TechEnhancedYieldChanges and TechEnhancedTourism)
+		local tTechYields = {};
+		for row in GameInfo.Building_TechEnhancedYieldChanges{BuildingType = thisBuilding.Type} do
+			local strTechType = row.TechType or thisBuilding.EnhancedYieldTech;
+			if strTechType then
+				local kTechInfo = GameInfo.Technologies[strTechType];
+				local kYieldInfo = GameInfo.Yields[row.YieldType];
+				if kTechInfo and kYieldInfo then
+					if not tTechYields[kTechInfo.ID] then
+						tTechYields[kTechInfo.ID] = { tech = kTechInfo, yields = {} };
+					end
+					local eYield = kYieldInfo.ID;
+					tTechYields[kTechInfo.ID].yields[eYield] = (tTechYields[kTechInfo.ID].yields[eYield] or 0) + row.Yield;
+				end
+			end
+		end
+		if thisBuilding.EnhancedYieldTech and thisBuilding.TechEnhancedTourism and thisBuilding.TechEnhancedTourism > 0 then
+			local kTechInfo = GameInfo.Technologies[thisBuilding.EnhancedYieldTech];
+			local kTourismInfo = GameInfo.Yields["YIELD_TOURISM"];
+			if kTechInfo and kTourismInfo then
+				if not tTechYields[kTechInfo.ID] then
+					tTechYields[kTechInfo.ID] = { tech = kTechInfo, yields = {} };
+				end
+				local eYield = kTourismInfo.ID;
+				tTechYields[kTechInfo.ID].yields[eYield] = (tTechYields[kTechInfo.ID].yields[eYield] or 0) + thisBuilding.TechEnhancedTourism;
+			end
+		end
+		local sortedEntries = {};
+		for _, entry in pairs(tTechYields) do
+			table.insert(sortedEntries, entry);
+		end
+		table.sort(sortedEntries, function(a, b) return a.tech.Cost < b.tech.Cost; end);
+		local lines = {};
+		for _, entry in ipairs(sortedEntries) do
+			local yieldStr = "";
+			for eYield, iYield in pairs(entry.yields) do
+				local kYieldInfo = GameInfo.Yields[eYield];
+				if kYieldInfo then
+					if iYield > 0 then
+						yieldStr = yieldStr .. "+" .. tostring(iYield) .. kYieldInfo.IconString .. " ";
+					elseif iYield < 0 then
+						yieldStr = yieldStr .. tostring(iYield) .. kYieldInfo.IconString .. " ";
+					end
+				end
+			end
+			if yieldStr ~= "" then
+				table.insert(lines, Locale.ConvertTextKey(entry.tech.Description) .. ": " .. yieldStr);
+			end
+		end
+		local strTechBuildingYield = table.concat(lines, "[NEWLINE]");
+		if strTechBuildingYield == "" then
+			Controls.TechBuildingYieldFrame:SetHide(true);
+		else
+			UpdateNarrowTextBlock(strTechBuildingYield, Controls.TechBuildingYieldLabel, Controls.TechBuildingYieldInnerFrame, Controls.TechBuildingYieldFrame);
+		end
 
 		-- update the required resources
 		Controls.RequiredResourcesLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_PEDIA_REQ_RESRC_LABEL" ) );
@@ -5511,7 +5573,20 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 				UpdateButtonFrame( buttonAdded, Controls.UniqueImprovementsInnerFrame, Controls.UniqueImprovementsFrame );
 
 				-- get unique improvements that don't use CivilizationRequired. Flag is to set OrderPriority = 90. Can combine with above block perhaps?
-                local CD_condition = "Type IN (SELECT ImprovementType FROM Builds WHERE OrderPriority = 90 AND Type IN (SELECT BuildType FROM Trait_BuildsUnitClasses WHERE TraitType IN (SELECT TraitType FROM Leader_Traits WHERE LeaderType IN (SELECT LeaderheadType FROM Civilization_Leaders WHERE CivilizationType = '" .. thisCiv.Type .. "'))))";
+                local CD_condition = [[
+										Type IN (
+										  SELECT b.ImprovementType
+										  FROM Civilization_Leaders cl
+										  JOIN Leader_Traits lt
+										    ON lt.LeaderType = cl.LeaderheadType
+										  JOIN Trait_BuildsUnitClasses tbu
+										    ON tbu.TraitType = lt.TraitType
+										  JOIN Builds b
+										    ON b.Type = tbu.BuildType
+										  WHERE cl.CivilizationType = ']] .. thisCiv.Type .. [['
+										    AND b.OrderPriority = 90
+										)
+									]];
 				for thisImprovement in GameInfo.Improvements( CD_condition ) do
 					local thisImprovementInstance = g_UniqueImprovementsManager:GetInstance();
 					if thisImprovementInstance then
@@ -5537,6 +5612,29 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 				g_UniqueProjectsManager:ResetInstances();
 				buttonAdded = 0;
 				for thisProject in GameInfo.Projects( condition ) do
+					local thisProjectInstance = g_UniqueProjectsManager:GetInstance();
+					if thisProjectInstance then
+
+						if not IconHookup( thisProject.PortraitIndex, buttonSize, thisProject.IconAtlas, thisProjectInstance.UniqueProjectImage ) then
+							thisProjectInstance.UniqueProjectImage:SetTexture( defaultErrorTextureSheet );
+							thisProjectInstance.UniqueProjectImage:SetTextureOffset( nullOffset );
+						end
+
+						--move this button
+						thisProjectInstance.UniqueProjectButton:SetOffsetVal( (buttonAdded % numberOfButtonsPerRow) * buttonSize + buttonPadding, math.floor(buttonAdded / numberOfButtonsPerRow) * buttonSize + buttonPadding );
+
+						thisProjectInstance.UniqueProjectButton:SetToolTipString( Locale.ConvertTextKey( thisProject.Description ) );
+						thisProjectInstance.UniqueProjectButton:SetVoids( thisProject.ID + 1000, addToList );
+						thisProjectInstance.UniqueProjectButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryWonders].SelectArticle );
+
+						buttonAdded = buttonAdded + 1;
+					end
+				end
+				UpdateButtonFrame( buttonAdded, Controls.UniqueProjectsInnerFrame, Controls.UniqueProjectsFrame );
+
+				-- get unique projects that don't use CivilizationRequired
+				local CD_condition_project = "Type IN (SELECT p.Type FROM Projects p JOIN Civilizations c ON p.PolicyType = c.PolicyForUserInterface WHERE c.Type = '" .. thisCiv.Type .. "')";
+				for thisProject in GameInfo.Projects( CD_condition_project ) do
 					local thisProjectInstance = g_UniqueProjectsManager:GetInstance();
 					if thisProjectInstance then
 
@@ -6124,6 +6222,43 @@ CivilopediaCategory[CategoryTerrain].SelectArticle = function( rawTerrainID, sho
 					UpdateTextBlock( Locale.ConvertTextKey( thisTerrain.Civilopedia ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
 				end
 
+				-- Tech yield boosts (from Terrain_TechYieldChanges)
+				local function BuildTechYieldString(strTableName)
+					local tTechYields = {};
+					for row in GameInfo[strTableName](condition) do
+						local kTechInfo = GameInfo.Technologies[row.TechType];
+						local kYieldInfo = GameInfo.Yields[row.YieldType];
+						if kTechInfo and kYieldInfo then
+							if not tTechYields[kTechInfo.ID] then
+								tTechYields[kTechInfo.ID] = { tech = kTechInfo, yieldStr = "" };
+							end
+							local entry = tTechYields[kTechInfo.ID];
+							if row.Yield > 0 then
+								entry.yieldStr = entry.yieldStr .. "+" .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+							else
+								entry.yieldStr = entry.yieldStr .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+							end
+						end
+					end
+					local sortedEntries = {};
+					for _, entry in pairs(tTechYields) do
+						table.insert(sortedEntries, entry);
+					end
+					table.sort(sortedEntries, function(a, b) return a.tech.Cost < b.tech.Cost; end);
+					local lines = {};
+					for _, entry in ipairs(sortedEntries) do
+						table.insert(lines, Locale.ConvertTextKey(entry.tech.Description) .. ": " .. entry.yieldStr);
+					end
+					return table.concat(lines, "[NEWLINE]");
+				end
+
+				local strTechYield = BuildTechYieldString("Terrain_TechYieldChanges");
+				if strTechYield == "" then
+					Controls.TechTerrainYieldFrame:SetHide(true);
+				else
+					UpdateNarrowTextBlock(strTechYield, Controls.TechTerrainYieldLabel, Controls.TechTerrainYieldInnerFrame, Controls.TechTerrainYieldFrame);
+				end
+
 				-- update the related images
 				Controls.RelatedImagesFrame:SetHide( true );
 			end
@@ -6305,6 +6440,43 @@ CivilopediaCategory[CategoryTerrain].SelectArticle = function( rawTerrainID, sho
 					if (thisFeature.Civilopedia) then
 						UpdateTextBlock( Locale.ConvertTextKey( thisFeature.Civilopedia ), Controls.GameInfoLabel, Controls.GameInfoInnerFrame, Controls.GameInfoFrame );
 					end
+				end
+
+				-- Tech yield boosts (from Feature_TechYieldChanges)
+				local function BuildTechYieldString(strTableName)
+					local tTechYields = {};
+					for row in GameInfo[strTableName](condition) do
+						local kTechInfo = GameInfo.Technologies[row.TechType];
+						local kYieldInfo = GameInfo.Yields[row.YieldType];
+						if kTechInfo and kYieldInfo then
+							if not tTechYields[kTechInfo.ID] then
+								tTechYields[kTechInfo.ID] = { tech = kTechInfo, yieldStr = "" };
+							end
+							local entry = tTechYields[kTechInfo.ID];
+							if row.Yield > 0 then
+								entry.yieldStr = entry.yieldStr .. "+" .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+							else
+								entry.yieldStr = entry.yieldStr .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+							end
+						end
+					end
+					local sortedEntries = {};
+					for _, entry in pairs(tTechYields) do
+						table.insert(sortedEntries, entry);
+					end
+					table.sort(sortedEntries, function(a, b) return a.tech.Cost < b.tech.Cost; end);
+					local lines = {};
+					for _, entry in ipairs(sortedEntries) do
+						table.insert(lines, Locale.ConvertTextKey(entry.tech.Description) .. ": " .. entry.yieldStr);
+					end
+					return table.concat(lines, "[NEWLINE]");
+				end
+
+				local strTechYield = BuildTechYieldString("Feature_TechYieldChanges");
+				if strTechYield == "" then
+					Controls.TechFeatureYieldFrame:SetHide(true);
+				else
+					UpdateNarrowTextBlock(strTechYield, Controls.TechFeatureYieldLabel, Controls.TechFeatureYieldInnerFrame, Controls.TechFeatureYieldFrame);
 				end
 
 				-- update the related images
@@ -6665,6 +6837,50 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 				Controls.YieldFrame:SetHide( false );
 			end
 
+			-- Feature yield bonus (from Improvement_FeatureYieldChanges)
+			local tFeatureYields = {};
+			for row in GameInfo.Improvement_FeatureYieldChanges( condition ) do
+				local kFeature = GameInfo.Features[row.FeatureType];
+				local kYield = GameInfo.Yields[row.YieldType];
+				if kFeature and kYield then
+					if not tFeatureYields[kFeature.ID] then
+						tFeatureYields[kFeature.ID] = { feature = kFeature, yieldStr = "" };
+					end
+					local entry = tFeatureYields[kFeature.ID];
+					if row.Yield > 0 then
+						entry.yieldStr = entry.yieldStr .. "+" .. tostring(row.Yield) .. kYield.IconString .. " ";
+					else
+						entry.yieldStr = entry.yieldStr .. tostring(row.Yield) .. kYield.IconString .. " ";
+					end
+				end
+			end
+			local lines = {};
+			for _, entry in pairs(tFeatureYields) do
+				table.insert(lines, Locale.ConvertTextKey(entry.feature.Description) .. ": " .. entry.yieldStr);
+			end
+			if #lines == 0 then
+				Controls.FeatureImprovYieldFrame:SetHide( true );
+			else
+				UpdateNarrowTextBlock( table.concat(lines, "[NEWLINE]"), Controls.FeatureImprovYieldLabel, Controls.FeatureImprovYieldInnerFrame, Controls.FeatureImprovYieldFrame );
+			end
+
+			-- Adjacent city yield (from Improvement_AdjacentCityYields)
+			numYields = 0;
+			yieldString = "";
+			for row in GameInfo.Improvement_AdjacentCityYields( condition ) do
+				numYields = numYields + 1;
+				if row.Yield > 0 then
+					yieldString = yieldString.."+";
+				end
+				yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+			end
+			if numYields == 0 then
+				Controls.AdjacentCityImprovYieldFrame:SetHide( true );
+			else
+				Controls.AdjacentCityImprovYieldLabel:SetText( Locale.ConvertTextKey( yieldString ) );
+				Controls.AdjacentCityImprovYieldFrame:SetHide( false );
+			end
+
 			-- add in mountain adjacency yield
 			numYields = 0;
 			yieldString = "";
@@ -6823,6 +7039,57 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			else
 				Controls.ImprovYieldPerEraLabel:SetText( Locale.ConvertTextKey( yieldString ) );
 				Controls.ImprovYieldPerEraFrame:SetHide( false );
+			end
+
+			-- Tech yield boosts (from Improvement_TechYieldChanges)
+			local function BuildTechYieldString(strTableName)
+				local tTechYields = {};
+				for row in GameInfo[strTableName](condition) do
+					local kTechInfo = GameInfo.Technologies[row.TechType];
+					local kYieldInfo = GameInfo.Yields[row.YieldType];
+					if kTechInfo and kYieldInfo then
+						if not tTechYields[kTechInfo.ID] then
+							tTechYields[kTechInfo.ID] = { tech = kTechInfo, yieldStr = "" };
+						end
+						local entry = tTechYields[kTechInfo.ID];
+						if row.Yield > 0 then
+							entry.yieldStr = entry.yieldStr .. "+" .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+						else
+							entry.yieldStr = entry.yieldStr .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+						end
+					end
+				end
+				local sortedEntries = {};
+				for _, entry in pairs(tTechYields) do
+					table.insert(sortedEntries, entry);
+				end
+				table.sort(sortedEntries, function(a, b) return a.tech.Cost < b.tech.Cost; end);
+				local lines = {};
+				for _, entry in ipairs(sortedEntries) do
+					table.insert(lines, Locale.ConvertTextKey(entry.tech.Description) .. ": " .. entry.yieldStr);
+				end
+				return table.concat(lines, "[NEWLINE]");
+			end
+
+			local strTechYield = BuildTechYieldString("Improvement_TechYieldChanges");
+			if strTechYield == "" then
+				Controls.TechImprovYieldFrame:SetHide(true);
+			else
+				UpdateNarrowTextBlock(strTechYield, Controls.TechImprovYieldLabel, Controls.TechImprovYieldInnerFrame, Controls.TechImprovYieldFrame);
+			end
+
+			local strTechFreshWaterYield = BuildTechYieldString("Improvement_TechFreshWaterYieldChanges");
+			if strTechFreshWaterYield == "" then
+				Controls.TechFreshWaterImprovYieldFrame:SetHide(true);
+			else
+				UpdateNarrowTextBlock(strTechFreshWaterYield, Controls.TechFreshWaterImprovYieldLabel, Controls.TechFreshWaterImprovYieldInnerFrame, Controls.TechFreshWaterImprovYieldFrame);
+			end
+
+			local strTechNoFreshWaterYield = BuildTechYieldString("Improvement_TechNoFreshWaterYieldChanges");
+			if strTechNoFreshWaterYield == "" then
+				Controls.TechNoFreshWaterImprovYieldFrame:SetHide(true);
+			else
+				UpdateNarrowTextBlock(strTechNoFreshWaterYield, Controls.TechNoFreshWaterImprovYieldLabel, Controls.TechNoFreshWaterImprovYieldInnerFrame, Controls.TechNoFreshWaterImprovYieldFrame);
 			end
 			--END
 			
@@ -9434,9 +9701,17 @@ function ClearArticle()
 	Controls.CorporationOfficeBonusFrame:SetHide( true );
 	Controls.CorporationTRBonusFrame:SetHide( true );
 	Controls.TradeRouteYieldFrame:SetHide( true );
+	Controls.FeatureImprovYieldFrame:SetHide( true );
+	Controls.AdjacentCityImprovYieldFrame:SetHide( true );
 	Controls.AdjacentTerrainYieldFrame:SetHide( true );
 	Controls.AdjacentImprovYieldFrame:SetHide( true );
 	Controls.ImprovYieldPerEraFrame:SetHide( true );
+	Controls.TechImprovYieldFrame:SetHide( true );
+	Controls.TechFreshWaterImprovYieldFrame:SetHide( true );
+	Controls.TechNoFreshWaterImprovYieldFrame:SetHide( true );
+	Controls.TechTerrainYieldFrame:SetHide( true );
+	Controls.TechFeatureYieldFrame:SetHide( true );
+	Controls.TechBuildingYieldFrame:SetHide( true );
 	Controls.ImprovementYieldFrame:SetHide( true );
 	--END
 	Controls.MovementCostFrame:SetHide( true );

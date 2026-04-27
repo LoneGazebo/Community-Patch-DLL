@@ -80,7 +80,8 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 
 	if(!pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
 	{
-		return false;
+		if (!pPlot->isMountain() || !pPlayer->WorkersMountainPass())
+			return false;
 	}
 
 	if (pPlot->IsNaturalWonder())

@@ -58,7 +58,7 @@ SET
 			)
 		)
 	),
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_TRIPLANE') + 5 
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_TRIPLANE') + 5
 WHERE Type = 'UNIT_SPAD';
 
 INSERT INTO Unit_FreePromotions

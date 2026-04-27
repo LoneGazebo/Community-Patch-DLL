@@ -8,6 +8,9 @@ UPDATE Eras SET WarmongerPercent = 100 WHERE Type = 'ERA_MODERN';
 UPDATE Eras SET WarmongerPercent = 110 WHERE Type = 'ERA_POSTMODERN';
 UPDATE Eras SET WarmongerPercent = 120 WHERE Type = 'ERA_FUTURE';
 
+-- set this to 0 for all eras. Extra Food Cost for Specialists is not used in Community Patch, but the default value of -1 is used to trigger fallback to the latest non-zero value, which isn't needed here
+UPDATE Eras SET SpecialistExtraFoodCost = 0;
+
 -- Update the base eras with the correct values
 -- Yes, Medieval and Renaissance are correct values, blame the typo to Firaxis
 UPDATE Eras SET EraSplashImage = 'ERA_Classical.dds' WHERE Type = 'ERA_CLASSICAL';

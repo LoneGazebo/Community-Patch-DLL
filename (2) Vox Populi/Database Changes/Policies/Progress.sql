@@ -1,6 +1,6 @@
 -- Tree structure
 UPDATE Policies
-SET GridX = 1, GridY = 2, PolicyCostModifier = 0
+SET GridX = 1, GridY = 2
 WHERE Type = 'POLICY_REPUBLIC';
 
 UPDATE Policies
@@ -22,15 +22,15 @@ SET
 	OneShot = 1
 WHERE Type = 'POLICY_LIBERTY';
 
-INSERT INTO Policy_YieldFromBirthCapital
+INSERT INTO Policy_YieldFromBirth
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_LIBERTY', 'YIELD_SCIENCE', 20);
+	('POLICY_LIBERTY', 'YIELD_SCIENCE', 10);
 
-INSERT INTO Policy_YieldFromBirthCapitalRetroactive
+INSERT INTO Policy_InstantYield
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_LIBERTY', 'YIELD_SCIENCE', 15);
+	('POLICY_LIBERTY', 'YIELD_SCIENCE', 75);
 
 INSERT INTO Policy_YieldFromTech
 	(PolicyType, YieldType, Yield)
@@ -87,7 +87,9 @@ DELETE FROM Policy_CityYieldChanges
 WHERE PolicyType = 'POLICY_REPUBLIC';
 
 UPDATE Policies
-SET BuildingProductionModifier = 15
+SET
+	BuildingProductionModifier = 15,
+	PolicyCostModifier = 0
 WHERE Type = 'POLICY_REPUBLIC';
 
 INSERT INTO Policy_YieldFromConstruction

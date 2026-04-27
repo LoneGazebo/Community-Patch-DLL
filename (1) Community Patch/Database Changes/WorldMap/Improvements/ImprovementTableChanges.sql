@@ -28,6 +28,9 @@ ALTER TABLE Improvements ADD GreatPersonRateModifier integer DEFAULT 0;
 
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD ImprovementResource text REFERENCES Resources (Type);
+-- (Voyage of Discovery) Uses GetFreeLuxury and boosted by AdmiralLuxuryBonus (overwrites previous)
+ALTER TABLE Improvements ADD ExoticResourceFromImprovement boolean DEFAULT 0;
+-- Controls how many copies are added by the two above methods
 ALTER TABLE Improvements ADD ImprovementResourceQuantity integer DEFAULT 0;
 
 -- Improvement creates happiness for builder when finished.

@@ -22,7 +22,7 @@
 
 class CvAStar;
 typedef int(*CvAPointFunc)(int, int, const SPathFinderUserData&, const CvAStar*);
-typedef int(*CvAHeuristic)(int, int, int, int, int, int);
+typedef int(*CvAHeuristic)(int, int, int, int, int, int, int);
 typedef int(*CvAStarFunc)(CvAStarNode*, CvAStarNode*, CvAStarNodeAddOp, const SPathFinderUserData&, CvAStar*);
 typedef int(*CvAStarConst1Func)(const CvAStarNode*, const CvAStarNode*, const SPathFinderUserData&, CvAStar*);
 typedef int(*CvAStarConst2Func)(const CvAStarNode*, const CvAStarNode*, const SPathFinderUserData&, const CvAStar*);
@@ -140,6 +140,33 @@ public:
 		return m_iCurrentGenerationID;
 	}
 
+	inline bool IsAirliftCitiesChecked() const
+	{
+		return m_bAirliftCitiesChecked;
+	}
+	inline void SetAirliftCitiesChecked(bool bNewValue)
+	{
+		m_bAirliftCitiesChecked = bNewValue;
+	}
+
+	inline bool IsAirliftImprovementsChecked() const
+	{
+		return m_bAirliftImprovementsChecked;
+	}
+	inline void SetAirliftImprovementsChecked(bool bNewValue)
+	{
+		m_bAirliftImprovementsChecked = bNewValue;
+	}
+
+	inline bool IsChangePortCitiesChecked() const
+	{
+		return m_bChangePortCitiesChecked;
+	}
+	inline void SetChangePortCitiesChecked(bool bNewValue)
+	{
+		m_bChangePortCitiesChecked = bNewValue;
+	}
+
 	int GetExtraChildren(const CvAStarNode* node, vector<pair<int,int>>& out) const;
 
 	void AddToOpen(CvAStarNode* addnode);
@@ -240,6 +267,10 @@ protected:
 	int m_iMovesCached;			// don't calculate this twice per node
 	int m_iTurnsCached;
 
+	bool m_bAirliftCitiesChecked; // performance: we need to evaluate airlift targets only the first time we're on a plot that allows airlift from
+	bool m_bAirliftImprovementsChecked; // we need two cached values for airlift: improvements can always be targeted, but cities only when airlifting from a city, not when airlifting from an improvement
+	bool m_bChangePortCitiesChecked; // performance: we need to evaluate great admiral targets only the first time we're on a plot that allows changing ports
+
 	//for debugging
 	CvString m_strName;
 };
@@ -311,11 +342,11 @@ private:
 //this is for unit pathfinding (twolayer pathfinder)
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
-int PathHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY);
+int PathHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY, int iBaseMoves);
 int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar* finder);
 
 //this is for general pathfinding (step finder)
-int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY);
+int StepHeuristic(int iCurrentX, int iCurrentY, int iNextX, int iNextY, int iDestX, int iDestY, int iBaseMoves);
 int StepDestValid(int iToX, int iToY, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 int StepValidAnyArea(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
@@ -325,6 +356,7 @@ int StepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out);
 int CityConnectionLandGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int, int>>& out);
+int UnitPathGetExtraChildren(const CvAStarNode* node, CvAStar* finder, vector<pair<int, int>>& out);
 int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 
 int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);

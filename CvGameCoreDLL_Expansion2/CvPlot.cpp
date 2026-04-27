@@ -1556,7 +1556,7 @@ int CvPlot::seeThroughLevel(bool bIncludeShubbery) const
 
 	if (isMountain() && getFeatureType() == NO_FEATURE) //natural wonders are features on mountain sometimes
 	{
-		iLevel += /*2*/ GD_INT_GET(MOUNTAIN_SEE_THROUGH_CHANGE);
+		iLevel += /*2 in CP, 3 in VP*/ GD_INT_GET(MOUNTAIN_SEE_THROUGH_CHANGE);
 	}
 	else if (isHills())
 	{
@@ -2175,7 +2175,7 @@ void CvPlot::changeEspionageSight(TeamTypes eTeam, CvCity* pCity, int iRange, bo
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const
+bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection, int iSeeThrough) const
 {
 	if(pPlot == NULL)
 	{
@@ -2215,11 +2215,48 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 			}
 
 			//check if anything blocking the plot
-			if (CvTargeting::CanSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam)))
+			if (CvTargeting::CanSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam) + iSeeThrough))
 			{
 				return true;
 			}
 		}
+	}
+
+	return false;
+}
+
+bool CvPlot::CanMaybeSeePlot(const CvPlot* pPlot, TeamTypes eTeam) const
+{
+	if (pPlot == NULL)
+	{
+		return false;
+	}
+
+	if (pPlot == this)
+	{
+		return true;
+	}
+
+	int startX = getX();
+	int startY = getY();
+	int destX = pPlot->getX();
+	int destY = pPlot->getY();
+
+	//find displacement
+	int dy = destY - startY;
+
+	int iX1 = xToHexspaceX(destX, destY);
+	int iX2 = xToHexspaceX(startX, startY);
+
+	int dx = iX1 - iX2;
+
+	dx = dxWrap(dx); //world wrap
+	dy = dyWrap(dy);
+
+	//check if anything blocking the plot
+	if (CvTargeting::CanMaybeSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam), eTeam))
+	{
+		return true;
 	}
 
 	return false;
@@ -2347,8 +2384,7 @@ void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 			{
 				pLoopPlot->updateSight(bIncrement);
 
-				//hack: don't do this during map generation
-				if (bRecalculate && GC.getGame().getElapsedGameTurns()>0)
+				if (bRecalculate)
 					GC.getMap().LineOfSightChanged(pLoopPlot);
 			}
 		}
@@ -3552,7 +3588,7 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bIgnoreVisibility, bool bTestCanMove, bool bNoncombatAllowed) const
+CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bIgnoreVisibility, bool bTestCanMove, bool bNoncombatAllowed, const CvUnit* pIgnoreUnit) const
 {
 	const IDInfo* pUnitNode = headUnitNode();
 	CvUnit* pLoopUnit = NULL;
@@ -3573,6 +3609,9 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
+
+		if (pLoopUnit && pLoopUnit == pIgnoreUnit)
+			continue;
 
 		if(pLoopUnit && (bNoncombatAllowed || pLoopUnit->IsCanDefend()) && pLoopUnit != pAttacker)	// Does the unit exist, and can it fight, or do we care if it can't fight?
 		{
@@ -3859,9 +3898,6 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMove
 {
 	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GD_INT_GET(MOVE_DENOMINATOR);
 
-	if (plotDistance(*this,*pFromPlot)>1)
-		return iMaxMoves;
-
 	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
 
@@ -3869,9 +3905,6 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMove
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
 	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GD_INT_GET(MOVE_DENOMINATOR);
-
-	if (plotDistance(*this,*pFromPlot)>1)
-		return iMaxMoves;
 
 	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
@@ -4774,12 +4807,6 @@ bool CvPlot::isRevealedGoody(TeamTypes eTeam) const
 void CvPlot::removeGoody()
 {
 	setImprovementType(NO_IMPROVEMENT);
-	// Make sure the players redo their goody hut searches
-	for(int i = 0; i < MAX_MAJOR_CIVS; i++)
-	{
-		if(GET_PLAYER((PlayerTypes)i).isAlive())
-			GET_PLAYER((PlayerTypes)i).GetEconomicAI()->UpdateExplorePlotsLocally(this);
-	}
 }
 
 bool CvPlot::isCity() const
@@ -6811,6 +6838,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 		if (isOwned())
 		{
 			CvPlayerAI& newPlayer = GET_PLAYER(eNewValue);
+			newPlayer.AddAPlot(this);
 
 			changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
 
@@ -7513,16 +7541,19 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 //	--------------------------------------------------------------------------------
 void CvPlot::setFeatureType(FeatureTypes eNewValue)
 {
-	FeatureTypes eOldFeature;
+	ASSERT(eNewValue >= NO_FEATURE && eNewValue < GC.getNumFeatureInfos(), "Invalid index for new feature");
+
+	FeatureTypes eOldFeature = getFeatureType();
 	bool bUpdateSight = false;
 
-	if (eNewValue < NO_FEATURE) return;
-	if (eNewValue > NO_FEATURE && GC.getFeatureInfo(eNewValue) == NULL) return;
-
-	eOldFeature = getFeatureType();
-
-	if(eOldFeature != eNewValue)
+	if (eOldFeature != eNewValue)
 	{
+		// Force flood plains on river desert if it becomes featureless
+		if (eNewValue == NO_FEATURE && getTerrainType() == TERRAIN_DESERT && isRiver())
+		{
+			eNewValue = FEATURE_FLOOD_PLAINS;
+		}
+
 		bUpdateSight = (eOldFeature == NO_FEATURE) ||
 		        (eNewValue == NO_FEATURE) ||
 		        (GC.getFeatureInfo(eOldFeature)->getSeeThroughChange() != GC.getFeatureInfo(eNewValue)->getSeeThroughChange());
@@ -8346,6 +8377,17 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 
+			// if the improvement has yield changes by era, it needs the historical record set. 
+			// in the rare case there is also an invisible artifact record on the tile, its age is altered (player has no way to know this)
+			for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+			{
+				if (newImprovementEntry.GetYieldChangePerEra(iK) != 0)
+				{
+					m_kArchaeologyData.m_eEra = GET_PLAYER(eBuilder).GetCurrentEra();
+					break;
+				}
+			}
+			
 			// remove existing resource if this improvement places a new one (needs to be done before setting the improvement to make sure resource counts are updated correctly)
 			ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
 			if (eResourceFromImprovement != NO_RESOURCE && getResourceType() != NO_RESOURCE)
@@ -8353,7 +8395,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				setResourceType(NO_RESOURCE, 0);
 			}
 
-			// update plot ownership (needs ot be done before setting the improvement)
+			// update plot ownership (needs to be done before setting the improvement)
 			if (eBuilder != NO_PLAYER)
 			{
 				if (!isOwned() && newImprovementEntry.IsNewOwner())
@@ -8379,6 +8421,58 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 					setOwner(eBuilder, iBestCityID);
 					owningPlayerID = eBuilder;
+				}
+			}
+		}
+
+		// If we're removing an Improvement that hooked up a resource then we need to take away the bonus
+		if(eOldImprovement != NO_IMPROVEMENT && !isCity())
+		{
+			if(isOwned())
+			{
+				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
+				ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(eOldImprovement)->GetResourceFromImprovement();
+
+				// Remove Resource Quantity from total
+				// but not if the resource is given by the improvement, in that case the resource counter update will be handled later in setResourceType
+				if(getResourceType(getTeam()) != NO_RESOURCE && getResourceType() != eResourceFromImprovement)
+				{
+					if (bOldImprovementConnectedResource)
+					{
+						owningPlayer.removeResourcesOnPlotFromTotal(this);
+						owningPlayer.addResourcesOnPlotToUnimproved(this);
+					}
+				}
+
+				ResourceTypes eResource = getResourceType(getTeam());
+
+				if(eResource != NO_RESOURCE)
+				{
+					if(GC.getImprovementInfo(eOldImprovement)->IsConnectsResource(eResource))
+					{
+						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+						{
+							owningPlayer.CalculateNetHappiness();
+						}
+					}
+				}
+
+				if (eResourceFromImprovement != NO_RESOURCE)
+				{
+					if (getResourceType() != NO_RESOURCE && getResourceType() == eResourceFromImprovement)
+					{
+						setResourceType(NO_RESOURCE, 0);
+					}
+				}
+
+				if (GC.getImprovementInfo(eOldImprovement)->IsExoticResourceFromImprovement())
+				{
+					// if for some reason this doesnt place resources, then dont remove resources. unlikely to fire, but we do allow it to be zero = inactive
+					int iQuantity = GC.getImprovementInfo(eOldImprovement)->GetResourceQuantityFromImprovement() + GET_PLAYER(eBuilder).GetAdmiralLuxuryBonus();
+					if (getResourceType() != NO_RESOURCE && iQuantity > 0)
+					{
+						setResourceType(NO_RESOURCE, 0);
+					}
 				}
 			}
 		}
@@ -8726,6 +8820,21 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					bResourcesOnPlotChanged = true;
 				}
 
+				bool bIsExoticResource = newImprovementEntry.IsExoticResourceFromImprovement();
+				if (bIsExoticResource && eBuilder != NO_PLAYER)
+				{
+					int iQuantity = newImprovementEntry.GetResourceQuantityFromImprovement() + GET_PLAYER(eBuilder).GetAdmiralLuxuryBonus();
+					if (iQuantity > 0)  // allow it to be zero and only positive with the policy buff. unused but maybe useful
+					{
+						ResourceTypes eExoticResource = GET_PLAYER(eBuilder).GetFreeLuxury();
+						if (eExoticResource != NO_RESOURCE)
+						{
+							setResourceType(eExoticResource, iQuantity, true);
+							bResourcesOnPlotChanged = true;
+						}
+					}
+				}
+				
 				// if the resources on the plot have changed, resource quantities have already been updated in setResourceType. otherwise, we do it now
 				if (!bResourcesOnPlotChanged)
 				{
@@ -8836,46 +8945,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if (pkOldImprovementInfo && pkOldImprovementInfo->IsImprovementResourceMakesValid(eSpawnedResource))
 						pSpawnedPlot->setImprovementType(NO_IMPROVEMENT);
 					SetSpawnedResourcePlot(NULL);
-				}
-			}
-		}
-
-		// If we're removing an Improvement that hooked up a resource then we need to take away the bonus
-		if(eOldImprovement != NO_IMPROVEMENT && !isCity())
-		{
-			if(isOwned())
-			{
-				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
-				// Remove Resource Quantity from total
-				if(getResourceType(getTeam()) != NO_RESOURCE)
-				{
-					if (bOldImprovementConnectedResource)
-					{
-						owningPlayer.removeResourcesOnPlotFromTotal(this);
-						owningPlayer.addResourcesOnPlotToUnimproved(this);
-					}
-				}
-
-				ResourceTypes eResource = getResourceType(getTeam());
-
-				if(eResource != NO_RESOURCE)
-				{
-					if(GC.getImprovementInfo(eOldImprovement)->IsConnectsResource(eResource))
-					{
-						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-						{
-							owningPlayer.CalculateNetHappiness();
-						}
-					}
-				}
-				
-				ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(eOldImprovement)->GetResourceFromImprovement();
-				if (eResourceFromImprovement != NO_RESOURCE)
-				{
-					if (getResourceType() != NO_RESOURCE && getResourceType() == eResourceFromImprovement)
-					{
-						setResourceType(NO_RESOURCE, 0);
-					}
 				}
 			}
 		}
@@ -11467,19 +11536,13 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 
 		if (setRevealed(eTeam, true, pUnit)) // Change to revealed, returns true if the visibility was changed
 		{
-			// We are seeing this plot for the first time
-			if (bInformExplorationTracking)
+			if (pUnit)
 			{
-				vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
-				for (size_t i = 0; i < vPlayers.size(); i++)
-				{
-					GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
-				}
+				pUnit->SetRevealedPlot(true);
+				// Did we spot an ancient ruin?
+				if (isGoody())
+					pUnit->SetSpottedRuin(true);
 			}
-
-			// Did we spot an ancient ruin?
-			if (pUnit && isGoody())
-				pUnit->SetSpottedRuin(true);
 		}
 		else
 		{
@@ -11851,14 +11914,8 @@ int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
 	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
-	PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
-	if (eCurrentPlayer != NO_PLAYER)
-	{
-		if (GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
-		{
-			return getVisibilityCount(eTeam);
-		}
-	}
+	if (GC.getGame().GetCurrentVisibilityTeam() == eTeam)
+		return getVisibilityCount(eTeam);
 
 	return m_aiKnownVisibilityCount[eTeam];
 }
@@ -11874,18 +11931,12 @@ bool CvPlot::IsKnownVisibleToTeam(TeamTypes eTeam) const
 /// Is this plot visible to an enemy to ePlayer according to current player knowledge
 bool CvPlot::IsKnownVisibleToEnemy(PlayerTypes ePlayer) const
 {
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(ePlayer).GetPlayersAtWarWith();
+	const std::vector<TeamTypes>& vEnemies = GET_PLAYER(ePlayer).GetTeamsAtWarWith();
 
-	for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
+	for (std::vector<TeamTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
 	{
-		CvPlayer& kEnemy = GET_PLAYER(*it);
-		if (kEnemy.isAlive() && kEnemy.IsAtWarWith(ePlayer))
-		{
-			if (IsKnownVisibleToTeam(kEnemy.getTeam()))
-			{
-				return true;
-			}
-		}
+		if (IsKnownVisibleToTeam(*it))
+			return true;
 	}
 
 	return false;
@@ -11949,10 +12000,21 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 		if (area())
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
 
-		// Update tactical AI, let it know that the tile was revealed
-		PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
-		if (eCurrentPlayer != NO_PLAYER)
-			GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
+		if (isRevealed(eTeam))
+		{
+			// Update tactical AI, let it know that the tile was revealed
+			PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
+			if (eCurrentPlayer != NO_PLAYER)
+				GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
+
+			vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
+			for (size_t i = 0; i < vPlayers.size(); i++)
+			{
+				CvPlayer& pkPlayer = GET_PLAYER(vPlayers[i]);
+				if (pkPlayer.isEverAlive() && pkPlayer.isMajorCiv())
+					pkPlayer.GetEconomicAI()->AddPlotToExplorePlots(this);
+			}
+		}
 
 		// Natural Wonder
 		if(eTeam != BARBARIAN_TEAM && bNewValue && !GET_TEAM(eTeam).isObserver())
@@ -12248,6 +12310,8 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 		}
 	}
 
+	ImprovementTypes eOldRevealedImprovement = getRevealedImprovementType(eTeam);
+
 	if(!bTerrainOnly)
 	{
 		bool bVisibilityChanged = false;
@@ -12316,6 +12380,13 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	{
 		if (kTeam.isMajorCiv())
 			changeNumMajorCivsRevealed(1);
+	}
+
+	if (pUnit && eOldRevealedImprovement != NO_IMPROVEMENT && eOldRevealedImprovement != getRevealedImprovementType(eTeam))
+	{
+		// If an ancient ruin disappeared, we also want to stop movement
+		if (GC.getImprovementInfo(eOldRevealedImprovement)->IsGoody())
+			pUnit->SetSpottedRuin(true);
 	}
 
 	PlayerTypes eObserverUIPlayer = GC.getGame().getObserverUIOverridePlayer();
@@ -14502,7 +14573,12 @@ void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes e
 	if (ePlayer1 == NO_PLAYER)
 		return;
 
-	AddArchaeologicalRecord(eType, GET_PLAYER(ePlayer1).GetCurrentEra(), ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
+	// if an improvement has set an era already, dont change it
+	EraTypes eNewEra = m_kArchaeologyData.m_eEra;
+	if (eNewEra == NO_ERA)
+		eNewEra = GET_PLAYER(ePlayer1).GetCurrentEra();
+
+	AddArchaeologicalRecord(eType, eNewEra, ePlayer1, ePlayer2, bIgnoreNormalRestrictions);
 }
 
 //	---------------------------------------------------------------------------

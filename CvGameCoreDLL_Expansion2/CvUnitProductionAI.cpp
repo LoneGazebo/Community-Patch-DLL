@@ -450,6 +450,30 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iBonus += 500;
 		}
 
+		if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CITY_SPECIAL)
+		{
+			// Roughly one per 6 units seems sensible
+			int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_SPECIAL, true);
+			if (eCurrentlyProducing != NO_UNIT && !bForPurchase)
+			{
+				CvUnitEntry* pkCurrentlyProducing = GC.getUnitInfo(eCurrentlyProducing);
+				if (pkCurrentlyProducing)
+				{
+					if (pkCurrentlyProducing->GetDefaultUnitAIType() == UNITAI_CITY_SPECIAL)
+						iNum--;
+				}
+			}
+			int iNumArmies = iNumLandUnits / 6;
+			if (iNum < iNumArmies)
+			{
+				iBonus += 2000 * max(3 - iNum, 1);
+
+				// If we are planning a city attack, pretty much force this
+				if (bForOperation)
+					iBonus += 10000;
+			}
+		}
+
 		//Sanity check for buildable support units.
 		if (!bFree && pkUnitEntry->IsCityAttackSupport() && !bForOperation)
 		{
@@ -1347,9 +1371,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 
 		//Promotion Bonus
-		//disabled for performance, bonus is very small, doesn't matter in the end
-
-		/*
+		//consider performance, if bonus is very small it doesn't matter in the end
 		int iPromotionBonus = 0;
 		for(int iI = 0; iI < GC.getNumPromotionInfos() && bCombat; iI++)
 		{
@@ -1357,6 +1379,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
 			if(pkPromotionInfo)
 			{
+				// Promotions that are not lost usually mean unique units
+				// but this also hits many negative or unit-line free promos.
+				// So needs rewrite, but can probably just ignore!
+				/*
 				if (pkUnitEntry->GetFreePromotions(iI))
 				{
 					if (!pkPromotionInfo->IsLostWithUpgrade())
@@ -1364,35 +1390,32 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						iPromotionBonus += 5;
 					}
 				}
-				if(kPlayer.IsFreePromotion(ePromotion))
-				{
-					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
-					{
-						iPromotionBonus += 5;
-					}
-				}
+				*/
+				// pseudo unique units, e.g. Mongolia
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(iI, pkUnitEntry->GetUnitClassType()))
 				{
-					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
-					{
-						iPromotionBonus += 5;
-					}
+					iPromotionBonus += 100;
 				}
+				// mostly accounted-for in flavors. etc. So small bonus?
 				if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(iI, pkUnitEntry->GetUnitCombatType()))
 				{
-					if(::IsPromotionValidForUnitCombatType(ePromotion, eUnit))
-					{
-						iPromotionBonus += 5;
-					}
+					iPromotionBonus += 10;
 				}
+				// not currently used, but probably same as above
+				if(kPlayer.IsFreePromotion(ePromotion))
+				{
+					iPromotionBonus += 10;
+				}
+				// in case someone adds many promos with traits, do not let this loop blow up
+				// also, if we find a "pseudo unique unit" we can stop looping
+				if (iPromotionBonus >= 100)
+					break;
 			}
 		}
-		
 		if (iPromotionBonus != 0)
 		{
 			iBonus += iPromotionBonus;
 		}
-		*/
 	
 		//Uniques? They're generally good enough to spam.
 		if(kPlayer.getCivilizationInfo().isCivilizationUnitOverridden(pkUnitEntry->GetUnitClassType()))

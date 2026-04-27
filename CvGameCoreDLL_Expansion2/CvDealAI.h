@@ -36,13 +36,13 @@ public:
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
-	CvPlayer* GetPlayer();
+	CvPlayer* GetPlayer() const;
 
-	TeamTypes GetTeam();
+	TeamTypes GetTeam() const;
 
-	bool WithinAcceptableRange(PlayerTypes /*ePlayer*/, int /*iMaxValue*/, int iNetValue) const;
-	bool BothSidesIncluded(CvDeal* pDeal);
-	bool TooMuchAdded(PlayerTypes ePlayer, int iMaxValue, int iNetValue, int iItemValue, bool bFromUs);
+	bool WithinAcceptableRange(int iNetValue) const;
+	bool BothSidesIncluded(CvDeal* pDeal) const;
+	bool TooMuchAdded(int iNetValue, int iItemValue, bool bFromUs) const;
 
 	// Offer deal to this AI player and see what his response is
 
@@ -50,34 +50,34 @@ public:
 	void DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering);
 
 	DemandResponseTypes DoHumanDemand(CvDeal* pDeal);
-	DemandResponseTypes GetDemandResponse(CvDeal* pDeal);
-	void DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal);
+	DemandResponseTypes GetDemandResponse(CvDeal* pDeal) const;
+	void DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal) const;
 
-	bool IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValueToMe, bool* bCantMatchOffer, bool bFirstPass = false);
+	bool IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValueToMe, bool* bCantMatchOffer, bool bFirstPass = false) const;
 
 	// The following functions are used to valuate items and construct a deal this AI thinks is fair
 
 	bool DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDealGoodToBeginWith, bool& bCantMatchOffer, bool bHumanRequestedEqualization = false);
 
 	int GetOneGPTValue(bool bPeaceDeal) const;
-	int GetDealValue(CvDeal* pDeal);
-	int GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes eOtherPlayer, int iData1, int iData2, int iData3, bool bFlag1, int iDuration, bool bIsAIOffer, bool bEqualize = true);
+	int GetDealValue(CvDeal* pDeal) const;
+	int GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes eOtherPlayer, int iData1, int iData2, int iData3, bool bFlag1, int iDuration, bool bIsAIOffer, bool bEqualize = true) const;
 
-	int GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue);
-	int GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
-	int GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
-	vector<int> GetStrategicResourceItemList(ResourceTypes eResource, int iNumTurns, bool bFromMe, int iNumAvailable, bool bPeaceDeal);
-	int GetStrategicResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
-	int GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetPeaceTreatyValue(PlayerTypes eOtherPlayer);
-	int GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false);
-	int GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false);
-	int GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal);
-	int GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner);
+	int GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue) const;
+	int GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer) const;
+	int GetResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer) const;
+	int GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer) const;
+	vector<int> GetStrategicResourceItemList(ResourceTypes eResource, int iNumTurns, bool bFromMe, int iNumAvailable, bool bPeaceDeal) const;
+	int GetStrategicResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer) const;
+	int GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer) const;
+	int GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer) const;
+	int GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer) const;
+	int GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer) const;
+	int GetPeaceTreatyValue() const;
+	int GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false) const;
+	int GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam) const;
+	int GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal) const;
+	int GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) const;
 
 	void DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 	void DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
@@ -122,7 +122,7 @@ public:
 	bool IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqualizingDeals);
 	void DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* pDeal, PeaceTreatyTypes eTreaty, bool bMeSurrendering);
 	int GetCachedValueOfPeaceWithHuman() const;
-	void SetCachedValueOfPeaceWithHuman(int iValue);
+	void SetCachedValueOfPeaceWithHuman(int iValue) const;
 
 	void DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal);
 
@@ -150,13 +150,13 @@ public:
 	void DoTradeScreenOpened();
 	void DoTradeScreenClosed(bool bAIWasMakingOffer);
 
-	DemandResponseTypes GetRequestForHelpResponse(CvDeal* pDeal);
+	DemandResponseTypes GetRequestForHelpResponse(CvDeal* pDeal) const;
 
 	// How much is item worth to AI?
-	int GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer);
-	int GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWar = false);
+	int GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer) const;
+	int GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer) const;
+	int GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer) const;
+	int GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWar = false) const;
 
 	// Will adding item to deal even it out?
 	void DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
@@ -170,17 +170,17 @@ public:
 	void DoAddRevokeVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 	void DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void ClearCachedDealItemValues();
+	void ClearCachedDealItemValues() const;
 
 protected:
-	void UpdateResearchRateCache(PlayerTypes eOther);
+	void UpdateResearchRateCache(PlayerTypes eOther) const;
 
 	CvPlayer* m_pPlayer;
 
-	int m_iCachedValueOfPeaceWithHuman;		// NOT SERIALIZED
+	mutable int m_iCachedValueOfPeaceWithHuman; // NOT SERIALIZED
 
 	//player to (turn,value)
-	std::vector<std::pair<int,int>> m_vResearchRates;
+	mutable std::vector<std::pair<int,int>> m_vResearchRates;
 
 	//some magic to enable memorization of calls to GetTradeItemValue
 	struct SDealItemValueParams
@@ -230,8 +230,8 @@ protected:
 	};
 
 	//finally the cache itself
-	tr1::unordered_map<SDealItemValueParams, int, SDealItemValueParamsHash> m_dealItemValues;
-	int m_iDealItemValuesTurnSlice;
+	mutable tr1::unordered_map<SDealItemValueParams, int, SDealItemValueParamsHash> m_dealItemValues;
+	mutable int m_iDealItemValuesTurnSlice;
 };
 
 FDataStream& operator>>(FDataStream&, CvDealAI&);

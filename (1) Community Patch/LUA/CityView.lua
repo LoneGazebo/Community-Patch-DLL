@@ -950,7 +950,7 @@ local function BuildBuildingBox(pCity)
 	end
 
 	-- Urbanization-free specialists
-	if MOD_BALANCE_VP and next(tSpecialistBuildings) and tRightSideSections.SpecialistBuildingHeader.HeadingOpen then
+	if MOD_BALANCE_VP and next(tSpecialistBuildings) and tRightSideSections.SpecialistBuildingHeader.HeadingOpen and not pCity:IsPuppet() then
 		local iNumFreeSpecialists = pCity:GetRemainingFreeSpecialists();
 		if iNumFreeSpecialists > 0 then
 			Controls.FreeSpecialistLabel:SetText(iNumFreeSpecialists);
@@ -1422,6 +1422,10 @@ local function UpdateViewFull()
 		Controls.HappinessPerTurnLabel:LocalizeAndSetText("TXT_KEY_NET_HAPPINESS_TEXT", pCity:GetLocalHappiness());
 		Controls.UnhappinessBox:SetToolTipString(GetCityUnhappinessTooltip(pCity));
 		Controls.UnhappinessPerTurnLabel:LocalizeAndSetText("TXT_KEY_NET_UNHAPPINESS_TEXT", pCity:GetUnhappinessAggregated());
+		-- when using large-scale interface we need to resize the background box to accomodate the new entries
+		if Controls.InfoBG then
+			Controls.InfoBG:SetSizeY(420);
+		end
 	else
 		Hide(Controls.HappinessBox, Controls.UnhappinessBox);
 		Refresh(Controls.TopLeftStack);
