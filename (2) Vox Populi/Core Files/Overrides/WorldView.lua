@@ -989,11 +989,11 @@ function MovementRButtonUp()
 						build = buildCustomsHouse
 					elseif pUnitClass == GameInfoTypes["UNITCLASS_GREAT_DIPLOMAT"] then
 						build = buildEmbassy
-					else
-						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
 					end
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);
+					if (build) then
+						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);
+					end
 				end -- VP end
 
 			else--if plot == UI.GetGotoPlot() then
