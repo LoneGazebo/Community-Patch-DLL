@@ -15140,13 +15140,20 @@ void CvUnit::DoSquadPlotAssignmentsByDomain(std::vector<CvUnit*> eligibleUnits, 
 	// ring when there are still insufficient plots for the current selection
 	std::vector<CvPlot*> eligiblePlots;
 	int currRingEndIdx = 0;
-	for (int targetPlotIdx = 0; targetPlotIdx < RING_PLOTS[currRingEndIdx]; targetPlotIdx++)
+	for (int targetPlotIdx = 0; 
+		currRingEndIdx < 5 /* Ring array size */ && targetPlotIdx < RING_PLOTS[currRingEndIdx]; 
+		targetPlotIdx++)
 	{
 		CvPlot* pLoopPlot = iterateRingPlots(pDestPlot, targetPlotIdx);
 		if (!pLoopPlot)
 			continue;
 
 		bool isCandidateSameTypeAsDest = isDestWater == pLoopPlot->isWater();
+		// Special case for when the destination is a port city and the unit domain is DOMAIN_SEA
+		if (eligibleUnits.size() > 0 && eligibleUnits.front()->getDomainType() == DOMAIN_SEA && pDestPlot->isCity() && pLoopPlot->isWater())
+		{
+			isCandidateSameTypeAsDest = true;
+		}
 
 		if (isCandidateSameTypeAsDest && eligibleUnits.size() > 0 && eligibleUnits.front()->canMoveInto(*pLoopPlot))
 		{
@@ -30002,7 +30009,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 			// plot, while also minimizing distance from it's current position
 			std::vector<ScoredPlot> eligiblePlots;
 			int currRingEndIdx = 1;
-			for (int i = 0; i < RING_PLOTS[currRingEndIdx]; i++)
+			for (int i = 0; currRingEndIdx < 5 /* Ring array size */ && i < RING_PLOTS[currRingEndIdx]; i++)
 			{
 				CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot, i);
 				if (!pLoopPlot)
