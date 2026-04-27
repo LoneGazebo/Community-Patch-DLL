@@ -318,12 +318,6 @@ local function StringFormatNeatFloat(x)
 end
 
 -------------------------------------------------
--- See if the mod for faith purchase buildings in
--- puppets is activated, then cache the result.
--------------------------------------------------
-local g_isFaithPurchaseBuildingsInPuppetsMod = Game.IsCustomModOption("GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS")
-
--------------------------------------------------
 -- Clear out the UI so that when a player changes
 -- the next update doesn't show the previous player's
 -- values for a frame
@@ -1008,10 +1002,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 	local city = UI_GetHeadSelectedCity()
 	if city then
 		local cityOwnerID = city:GetOwner()
-		if cityOwnerID == g_activePlayerID
-			and ( not city:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() ) or g_isFaithPurchaseBuildingsInPuppetsMod)
-							----------- Venice exception -----------
-		then
+		if cityOwnerID == g_activePlayerID then
 			local cityID = city:GetID()
 			local isPurchase
 			if orderID == OrderTypes.ORDER_TRAIN then
@@ -1030,9 +1021,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 				-- Invest in all buildings of this type in any cities queue
 				if UI.ShiftKeyDown() then
 					for cityX in g_activePlayer:Cities() do
-						if cityX ~= city
-								and ( not cityX:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() ) or g_isFaithPurchaseBuildingsInPuppetsMod)
-								and isItemInQueue(cityX, itemID) then
+						if cityX ~= city and isItemInQueue(cityX, itemID) then
 							if cityIsCanPurchase( cityX, true, true, -1, itemID, -1, yieldID ) then
 								Game.CityPurchaseBuilding( cityX, itemID, yieldID )
 								Network.SendUpdateCityCitizens( cityX:GetID() )
@@ -1511,7 +1500,10 @@ end)
 	-- Update Selection List
 	-------------------------------------------
 
-	local isSelectionList = not g_isViewingMode or isVeniceException or g_isDebugMode or g_isFaithPurchaseBuildingsInPuppetsMod
+	local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
+	local isCityCaptureViewingMode = UI.IsPopupTypeOpen(ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED)
+	local isSelectionList = isActivePlayerCity and not isCityCaptureViewingMode
+
 	Controls.SelectionScrollPanel:SetHide( not isSelectionList )
 	if isSelectionList then
 		local unitSelectList = table()
