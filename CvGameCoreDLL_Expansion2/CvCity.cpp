@@ -14905,6 +14905,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						const AccomplishmentBonusInfo& bonusInfo = vBonuses[i];
 			
 						ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness * iNumAccomplishmentCompleted * iChange);
+
+						// spies dont have negative iChange yet. has to be done at player level
 			
 						if (bonusInfo.eDomainType != NO_DOMAIN)
 							changeDomainFreeExperience(bonusInfo.eDomainType,
@@ -22546,6 +22548,26 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 
 	// Yield Rate Modifier
 	int iTempMod = getYieldRateModifier(eIndex);
+	for (std::vector<BuildingTypes>::const_iterator it = GC.getBuildingsWithModifiersFromAccomplishments().begin(); it != GC.getBuildingsWithModifiersFromAccomplishments().end(); ++it)
+	{
+		if (HasBuilding(*it))
+		{
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(*it);
+			std::map<int, std::map<int, int>> m_BuildingModifiersFromAccomplishments = pkBuildingInfo->GetYieldModifiersFromAccomplishments();
+			for (std::map<int, std::map<int, int>>::const_iterator it2 = m_BuildingModifiersFromAccomplishments.begin(); it2 != m_BuildingModifiersFromAccomplishments.end(); ++it2)
+			{
+				int iNumTimesAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)(*it2).first);
+				if (iNumTimesAccomplishmentCompleted > 0)
+				{
+					std::map<int, int>::const_iterator it3 = (it2->second).find(eYield);
+					if (it3 != (it2->second).end())
+					{
+						iTempMod += GetCityBuildings()->GetNumBuilding(*it) * iNumTimesAccomplishmentCompleted * (*it3).second;
+					}
+				}
+			}
+		}
+	}
 	int iModifier = iTempMod;
 	if (toolTipSink)
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_BUILDINGS", iTempMod);
