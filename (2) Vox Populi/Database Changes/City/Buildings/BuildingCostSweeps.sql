@@ -186,13 +186,10 @@ UPDATE Buildings
 SET Cost = 65
 WHERE BuildingClass = 'BUILDINGCLASS_HERBALIST';
 
--- Non-unique Courthouse, Garden and Chancery
+-- Courthouse
 UPDATE Buildings
 SET GoldMaintenance = 3
-WHERE Type IN (
-	'BUILDING_COURTHOUSE',
-	'BUILDING_GARDEN'
-);
+WHERE Type = 'BUILDING_COURTHOUSE';
 
 -- Barbican
 UPDATE Buildings
