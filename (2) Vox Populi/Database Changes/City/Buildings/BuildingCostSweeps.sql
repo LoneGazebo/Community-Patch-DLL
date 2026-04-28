@@ -88,6 +88,28 @@ WHERE BuildingClass IN (
 	WHERE MaxPlayerInstances = 1
 ) AND PolicyBranchType IS NOT NULL;
 
+-- Corporations
+UPDATE Buildings
+SET Cost = 1300, GoldMaintenance = 4
+WHERE BuildingClass IN (
+	SELECT HeadquartersBuildingClass FROM Corporations
+);
+
+-- No Prereq tech for Offices. Set to T1 Modern
+UPDATE Buildings
+SET 
+	Cost = (SELECT CostTemp FROM BuildingCost WHERE GridXTemp = 11),
+	GoldMaintenance = (SELECT GoldMaintenanceTemp FROM BuildingCost WHERE GridXTemp = 11)
+WHERE BuildingClass IN (
+	SELECT OfficeBuildingClass FROM Corporations
+);
+
+UPDATE Buildings
+SET Cost = -1, GoldMaintenance = 6
+WHERE BuildingClass IN (
+	SELECT FranchiseBuildingClass FROM Corporations
+);
+
 DROP TABLE BuildingCost;
 
 -- World Wonders
@@ -135,25 +157,6 @@ DROP TABLE WorldWonderCost;
 UPDATE Buildings
 SET Cost = -1, GoldMaintenance = 0
 WHERE UnlockedByLeague = 1;
-
--- Corporations
-UPDATE Buildings
-SET Cost = 1300, GoldMaintenance = 4
-WHERE BuildingClass IN (
-	SELECT HeadquartersBuildingClass FROM Corporations
-);
-
-UPDATE Buildings
-SET Cost = 900, GoldMaintenance = 6
-WHERE BuildingClass IN (
-	SELECT OfficeBuildingClass FROM Corporations
-);
-
-UPDATE Buildings
-SET Cost = -1, GoldMaintenance = 6
-WHERE BuildingClass IN (
-	SELECT FranchiseBuildingClass FROM Corporations
-);
 
 -- Outliers
 
