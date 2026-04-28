@@ -4313,6 +4313,10 @@ void CvGlobals::GameDataPostCache()
 		{
 			m_vBuildingsWithYieldsFromAccomplishments.push_back(eOuter);
 		}
+		if (!pOuter->GetYieldModifiersFromAccomplishments().empty())
+		{
+			m_vBuildingsWithModifiersFromAccomplishments.push_back(eOuter);
+		}
 
 		if (pOuter->IsAirlift())
 		{
@@ -4484,6 +4488,10 @@ const vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eR
 const vector<BuildingTypes>& CvGlobals::getBuildingsWithYieldsFromAccomplishments() const
 {
 	return m_vBuildingsWithYieldsFromAccomplishments;
+}
+const vector<BuildingTypes>& CvGlobals::getBuildingsWithModifiersFromAccomplishments() const
+{
+	return m_vBuildingsWithModifiersFromAccomplishments;
 }
 
 const vector<BuildingTypes>& CvGlobals::getBuildingsWithAirlift() const
