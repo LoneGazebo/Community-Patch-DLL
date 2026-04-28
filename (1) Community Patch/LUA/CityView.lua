@@ -739,11 +739,19 @@ local function BuildProductionBox(pCity, ePlayer)
 		Hide(Controls.b1remove);
 	end
 
-	if ePlayer == eActivePlayer then
-		Enable(Controls.PurchaseButton);
+	if ePlayer == eActivePlayer  then
+		Show(Controls.ProductionButton, Controls.PurchaseButton);
+		if pCity:IsIgnoreCityForHappiness() then
+			Disable(Controls.ProductionButton, Controls.PurchaseButton);
+		elseif pCity:IsPuppet() then
+			Disable(Controls.ProductionButton);
+			Enable(Controls.PurchaseButton);
+		else
+			Enable(Controls.ProductionButton, Controls.PurchaseButton);
+		end
 	else
 		Hide(Controls.AutomateProduction);
-		Disable(Controls.ProductionButton, Controls.PurchaseButton);
+		Hide(Controls.ProductionButton, Controls.PurchaseButton);
 	end
 end
 
@@ -1309,7 +1317,7 @@ local function UpdateViewFull()
 	-- Buy tile button
 	Controls.BuyPlotButton:LocalizeAndSetToolTip("TXT_KEY_CITYVIEW_BUY_TILE_TT");
 	Controls.BuyPlotText:LocalizeAndSetText("TXT_KEY_CITYVIEW_BUY_TILE");
-	if GameDefines.BUY_PLOTS_DISABLED ~= 0 then
+	if GameDefines.BUY_PLOTS_DISABLED ~= 0 or pCity:IsIgnoreCityForHappiness() then
 		Disable(Controls.BuyPlotButton);
 	-- Allow cities owned by the active player to always buy plots
 	-- This is to enable tile purchase on Venetian puppets which are always on viewing mode

@@ -1381,6 +1381,8 @@ end)
 	g_ProdQueueIM.ResetInstances()
 	local queueItems = {}
 
+	local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
+	local isCityCaptureViewingMode = city:IsIgnoreCityForHappiness()
 	for queuedItemNumber = 0, math_max( queueLength-1, 0 ) do
 
 		local orderID, itemID, _, isRepeat, isReallyRepeat
@@ -1453,11 +1455,8 @@ end)
 
 		-- Vox Populi gold button
 		if itemInfo then
-			if (bnw_mode and g_activePlayer:MayNotAnnex()) then --Venice puppets needs to buy building on production queue
-				instance.PQGoldButton:SetHide( not goldCostPQ or (isActivePlayerCity or isCityCaptureViewingMode)) 
-			else
-				instance.PQGoldButton:SetHide( not goldCostPQ or g_isViewingMode)
-			end
+			instance.PQGoldButton:SetHide( not goldCostPQ or not isActivePlayerCity or isCityCaptureViewingMode)
+			
 			if goldCostPQ then
 				instance.PQGoldButton:SetDisabled( not canBuyWithGoldPQ )
 				instance.PQGoldButton:SetAlpha( canBuyWithGoldPQ and 1 or 0.5 )
@@ -1500,8 +1499,6 @@ end)
 	-- Update Selection List
 	-------------------------------------------
 
-	local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
-	local isCityCaptureViewingMode = UI.IsPopupTypeOpen(ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED)
 	local isSelectionList = isActivePlayerCity and not isCityCaptureViewingMode
 
 	Controls.SelectionScrollPanel:SetHide( not isSelectionList )
@@ -1989,7 +1986,7 @@ local function UpdateCityViewNow()
 		local cityOwnerID = city:GetOwner()
 		local cityOwner = Players[cityOwnerID]
 		local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
-		local isCityCaptureViewingMode = UI.IsPopupTypeOpen(ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED)
+		local isCityCaptureViewingMode = city:IsIgnoreCityForHappiness()
 		g_isDebugMode = Game.IsDebugMode()
 		g_isViewingMode = city:IsPuppet() or not isActivePlayerCity or isCityCaptureViewingMode
 
