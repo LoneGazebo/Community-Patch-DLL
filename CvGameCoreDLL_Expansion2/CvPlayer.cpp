@@ -37829,6 +37829,9 @@ void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment)
 					        const AccomplishmentBonusInfo& bonusInfo = vBonuses[iBonus];
 					        // apply the bonuses
 					        pLoopCity->ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness);
+
+							CreateSpies(bonusInfo.ExtraSpies);
+							
 					        if (bonusInfo.eDomainType != NO_DOMAIN)
 					        {
 					            pLoopCity->changeDomainFreeExperience(
