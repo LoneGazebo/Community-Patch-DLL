@@ -46176,11 +46176,34 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore, b
 	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
 	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
+
+	if (!pUnit)
+		return vSettlePlots.back().pPlot;
+
+	// Try the top candidates individually first; successful paths terminate quickly.
+	// After enough consecutive failures (enemy territory likely blocking), switch to a
+	// single calculation of all plots in reach.
+	const int iMaxDirectAttempts = 3;
+	int iFailedAttempts = 0;
+	ReachablePlots reachablePlots;
 	for (vector<SPlotWithScore>::reverse_iterator it = vSettlePlots.rbegin(); it != vSettlePlots.rend(); ++it)
 	{
-		if (pUnit && !pUnit->GeneratePath(it->pPlot, iFlags, 23))
-			continue;
+		if (iFailedAttempts < iMaxDirectAttempts)
+		{
+			if (!pUnit->GeneratePath(it->pPlot, iFlags, 23))
+			{
+				iFailedAttempts++;
+				continue;
+			}
+		}
+		else
+		{
+			if (reachablePlots.empty())
+				reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), SPathFinderUserData(pUnit, iFlags, 23));
 
+			if (reachablePlots.find(it->pPlot->GetPlotIndex()) == reachablePlots.end())
+				continue;
+		}
 		return it->pPlot;
 	}
 	return NULL;
