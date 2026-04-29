@@ -496,6 +496,8 @@ public:
 	inline bool operator<=(const fraction &rhs) const { return operator<(rhs) || operator==(rhs); };
 	inline bool operator>=(const fraction &rhs) const { return !operator<(rhs); };
 	inline bool operator>(const fraction &rhs) const { return !operator<(rhs) && !operator==(rhs); };
+	inline int getDen() const { return den; };
+	inline int getNum() const { return num; };
 	
 	friend fraction abs(const fraction &lhs);
 	friend bool operator==(const int lhs, const fraction &rhs);
