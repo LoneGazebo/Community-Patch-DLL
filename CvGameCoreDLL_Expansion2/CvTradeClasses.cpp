@@ -3426,9 +3426,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 
 					// Cultural influence bump
-					int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteGoldBonus(kTradeConnection.m_eDestOwner);
+					int iInfluenceBoost = MOD_BALANCE_VP ? GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteGoldBonus(kTradeConnection.m_eDestOwner) : 0;
 					//Minor Civ Bump
-					int iMinorCivGold = GetMinorCivGoldBonus(kTradeConnection, eYield, true);
+					int iMinorCivGold = MOD_BALANCE_VP ? GetMinorCivGoldBonus(kTradeConnection, eYield, true) : 0;
 
 					int iModifier = 100;
 					int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
