@@ -656,10 +656,10 @@ public:
 	int GetExtraHappinessPerCity() const;
 	void ChangeExtraHappinessPerCity(int iChange);
 	fraction GetExtraHappinessPolicies() const;
-	void ChangeExtraHappinessPolicies(fraction iChange);
+	void ChangeExtraHappinessPolicies(fraction fChange);
 
 	fraction GetExtraHappinessPoliciesFromPolicies() const;
-	void ChangeExtraHappinessPoliciesFromPolicies(fraction iChange);
+	void ChangeExtraHappinessPoliciesFromPolicies(fraction fChange);
 
 	int GetHappinessPerXGreatWorks() const;
 	void ChangeHappinessPerXGreatWorks(int iChange);
