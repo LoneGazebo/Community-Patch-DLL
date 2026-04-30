@@ -1615,6 +1615,8 @@
     <Folder Include="Assets\Models\Units\Galley" />
     <Folder Include="Assets\Models\Units\Goedendag" />
     <Folder Include="Assets\Models\Units\GreatBombard" />
+    <Folder Include="Assets\Models\Units\GreatDiplomat\Renaissance" />
+    <Folder Include="Assets\Models\Units\GreatDiplomat\Modern" />
     <Folder Include="Assets\Models\Units\Grenzer" />
     <Folder Include="Assets\Models\Units\HashemiteRaider" />
     <Folder Include="Assets\Models\Units\HeavySkirmisher" />
@@ -4297,11 +4299,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\Envoy\EnvoyVP.fxsxml">
+    <Content Include="Assets\Models\Units\Envoy\envoy.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\Envoy\EnvoyVP.gr2">
+    <Content Include="Assets\Models\Units\Envoy\envoy.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -4310,14 +4312,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Models\Units\Envoy\envoy_sref.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\Models\Units\Envoy\hat_envoy_diff.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\Models\Units\Envoy\hat_envoy_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -4494,6 +4488,42 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Models\Units\GreatBombard\Bombard_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\GDiplo_ren.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\GDiplo_ren.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\GDiplo_ren_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\GDiplo_ren_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\hat_GDiplo_ren_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\hat_GDiplo_ren_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Modern\great_dignitary.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Modern\great_dignitary.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Modern\great_dignitary.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
