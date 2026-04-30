@@ -1590,6 +1590,7 @@
     <Folder Include="Assets\Models\Resources\Tea" />
     <Folder Include="Assets\Models\Resources\Tobacco" />
     <Folder Include="Assets\Models\Units\Amazonas" />
+    <Folder Include="Assets\Models\Units\Ambassador" />
     <Folder Include="Assets\Models\Units\Armada" />
     <Folder Include="Assets\Models\Units\AttackSubmarine" />
     <Folder Include="Assets\Models\Units\Bandeirante" />
@@ -3900,6 +3901,22 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Models\Units\Amazonas\IroncladBB_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Ambassador\ambassador.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Ambassador\ambassador.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Ambassador\ambassador_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Ambassador\ambassador_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
