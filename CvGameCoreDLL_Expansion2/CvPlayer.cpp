@@ -21300,9 +21300,32 @@ fraction CvPlayer::GetExtraHappinessPolicies() const
 }
 
 /// Changes amount of extra Happiness per Policy
-void CvPlayer::ChangeExtraHappinessPolicies(fraction iChange)
+void CvPlayer::ChangeExtraHappinessPolicies(fraction fChange)
 {
-	m_fHappinessPolicies += iChange;
+	CvString strOutBuf;
+	CvString strBaseString;
+	CvString strTemp;
+	FILogFile* pLog = LOGFILEMGR.GetLog("net_message_debug.log", FILogFile::kDontTimeStamp);
+	if (GC.getLogging() && pLog)
+	{
+		CvString strPlayerName = getCivilizationShortDescription();
+		strPlayerName.Replace(' ', '_'); //no spaces
+		// Get the leading info for this line
+		strBaseString.Format("%03d, %s, %d, ", GC.getGame().getGameTurn(), strPlayerName.c_str(), GetID());
+		strTemp.Format("ChangeExtraHappinessPolicies. Old value: %d/%d. Changed by: %d/%d. ",
+			m_fHappinessPolicies.getNum(), m_fHappinessPolicies.getDen(),
+			fChange.getNum(), fChange.getDen());
+		strOutBuf = strBaseString + strTemp;
+	}
+	m_fHappinessPolicies += fChange;
+
+	if (GC.getLogging() && pLog)
+	{
+		strTemp.Format("New value: %d/%d.",
+			m_fHappinessPolicies.getNum(), m_fHappinessPolicies.getDen());
+		strOutBuf = strOutBuf + strTemp;
+		pLog->Msg(strOutBuf);
+	}
 	ASSERT(m_fHappinessPolicies >= 0, "Count of extra happiness per buildings is corrupted");
 }
 
@@ -21313,9 +21336,9 @@ fraction CvPlayer::GetExtraHappinessPoliciesFromPolicies() const
 }
 
 /// Changes amount of extra Happiness per City
-void CvPlayer::ChangeExtraHappinessPoliciesFromPolicies(fraction iChange)
+void CvPlayer::ChangeExtraHappinessPoliciesFromPolicies(fraction fChange)
 {
-	m_fExtraHappinessPoliciesFromPolicies += iChange;
+	m_fExtraHappinessPoliciesFromPolicies += fChange;
 	ASSERT(m_fExtraHappinessPoliciesFromPolicies >= 0, "Count of extra happiness per policies is corrupted");
 }
 
@@ -36070,7 +36093,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 				FILogFile* pLog = LOGFILEMGR.GetLog("net_message_debug.log", FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
-				strBaseString.Format("%03d, %s, %d, ", GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), GetID());
+				strBaseString.Format("%03d, %s, %d, ", GC.getGame().getGameTurn(), strPlayerName.c_str(), GetID());
 				strTemp.Format("New War Damage for Player %d: %d. iWarValueLost: %d. iCurrentValue: %d", (int)eLoopPlayer, iValueLostRatio, iWarValueLost, iCurrentValue);
 				strOutBuf = strBaseString + strTemp;
 				pLog->Msg(strOutBuf);

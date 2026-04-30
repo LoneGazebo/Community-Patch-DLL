@@ -394,6 +394,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(IsOccupied);
 	Method(SetOccupied);
+	Method(IsIgnoreCityForHappiness);
 
 	Method(IsPuppet);
 	Method(SetPuppet);
@@ -4391,6 +4392,12 @@ int CvLuaCity::lChangeRazingTurns(lua_State* L)
 int CvLuaCity::lIsOccupied(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::IsOccupied);
+}
+//------------------------------------------------------------------------------
+//bool IsIgnoreCityForHappiness();
+int CvLuaCity::lIsIgnoreCityForHappiness(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::IsIgnoreCityForHappiness);
 }
 //------------------------------------------------------------------------------
 //void SetOccupied(bool bValue);
