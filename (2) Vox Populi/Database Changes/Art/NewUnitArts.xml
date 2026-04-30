@@ -812,7 +812,7 @@
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_ENVOY</Type>
 			<Scale>0.13</Scale>
-			<Model>EnvoyVP.fxsxml</Model>
+			<Model>envoy.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -824,23 +824,34 @@
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_AMBASSADOR</Type>
+			<Scale>0.15</Scale>
+			<Model>ambassador.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
+		<!-- Great People -->
+		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_GREAT_DIPLOMAT_1</Type>
 			<Scale>0.15</Scale>
 			<Model>Assets/Units/Settler/Settler_Euro/EuroMale45.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
-		<!--	Assets/Units/Settler/Settler_AMER/SettlerAmerican_F1.fxsxml -->
-		<!-- great_diplomat_ren.fxsxml -->
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_GREAT_DIPLOMAT_2</Type>
 			<Scale>0.15</Scale>
-			<Model>Assets/Units/Settler/Settler_AMER/SettlerAmerican_M2.fxsxml</Model>
+			<Model>GDiplo_ren.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
-
-		<!-- Great People -->
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_GREAT_DIPLOMAT_3</Type>
+			<Scale>0.14</Scale>
+			<Model>great_dignitary.fxsxml</Model>
+			<MaterialTypeTag>CLOTH</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
+		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_TADODAHO</Type>
 			<Scale>0.14</Scale>
@@ -1504,12 +1515,22 @@
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_AMBASSADOR</UnitMemberType>
+			<EnableActions>Idle Death BombardDefend Run</EnableActions>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_GREAT_DIPLOMAT_1</UnitMemberType>
 			<EnableActions>Idle Death BombardDefend Run</EnableActions>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_GREAT_DIPLOMAT_2</UnitMemberType>
+			<EnableActions>Idle Death BombardDefend Run</EnableActions>
+			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_GREAT_DIPLOMAT_3</UnitMemberType>
 			<EnableActions>Idle Death BombardDefend Run</EnableActions>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
