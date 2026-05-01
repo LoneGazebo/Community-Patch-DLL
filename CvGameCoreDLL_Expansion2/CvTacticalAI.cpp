@@ -386,6 +386,7 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 					gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
 				}
 			}
+			PRECONDITION(pLoopUnit, "UpdateVisibilityFromUnits: Unit not found on plot, desync between plot unit list and actual unit positions");
 			eLoopUnitTeam = pLoopUnit->getTeam();
 
 			if (eLoopUnitTeam != ePlayerTeam && !pLoopUnit->isInvisible(ePlayerTeam, false))
@@ -917,10 +918,10 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 				int iMaxSiegeTurns = 13; //do we even need a limit here or is this handled through the tactical posture?
 
 				int iCityHealRate = 0;
-				if (!pPlot->getPlotCity()->IsBlockadedWaterAndLand())
+				if (!pCity->IsBlockadedWaterAndLand())
 				{
 					iCityHealRate = GD_INT_GET(CITY_HIT_POINTS_HEALED_PER_TURN);
-					CvUnit* pGarrison = pPlot->getPlotCity()->GetGarrisonedUnit();
+					CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 					if (pGarrison)
 					{
 						iCityHealRate += pGarrison->ActualHealRate(pPlot, false);
@@ -1539,7 +1540,8 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 						iEnemyCount++;
 					else
 					{
-						CvUnit* pEnemy = pNeighbor->getBestDefender(NO_PLAYER, GetCurrentPlayer(), NULL, true);
+						CvUnit* pEnemy = pNeighbor->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true);
+						PRECONDITION(pEnemy, "isEnemyUnit is true, but getBestDefender didn't return a unit");
 						ReachablePlots reachablePlots = pEnemy->GetAllPlotsInReachThisTurn(true, true, true, pEnemy->maxMoves());
 
 						if (reachablePlots.find(pPlot->GetPlotIndex()) != reachablePlots.end())
@@ -5694,6 +5696,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 		if (pTestPlot->isEnemyUnit(pUnit->getOwner(), true, true) && !pUnit->isOutOfAttacks())
 		{
 			CvUnit* pEnemy = pTestPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true);
+			PRECONDITION(pEnemy, "isEnemyUnit is true, but getBestDefender didn't return a unit");
 			int iDamageReceived = 0;
 			int iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pOrigin, iDamageReceived);
 
