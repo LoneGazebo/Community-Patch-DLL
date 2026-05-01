@@ -1359,6 +1359,7 @@ public:
 	void ChangeUnitDamage(int iUnitID, int iChange);
 	void ChangeCityDamage(int iCityID, int iChange);
 	void HealFriendlyUnit(int iUnitID, int iChange);
+	bool IsTargetToDistanceRelevant() const { return bTargetDistanceRelevant; }
 
 	bool HasSupport(DomainTypes eDomain) const { return eDomain == DOMAIN_SEA ? bHasAdmiral : bHasGeneral; }
 	bool HasCitySupport() const { return bHasSiegetower; }
@@ -1429,7 +1430,7 @@ public:
 
 	bool HasCombatBonus(int iPlotIndex, DomainTypes eDomain) const;
 	int GetCityAttackBonus(int iPlotIndex) const;
-	bool IsSafe(int iPlotIndex) const;
+	int GetUnitDanger(const SUnitStats& unit, const CvPlot* pPlot, const CvUnit*& pDefender, int& iDefenderDamage) const;
 	const CvPlot* GetCenterOfMass() const { return pCenterOfMass; }
 	int GetLastFromAttackPlotIndex() const { return iLastFromAttackPlotIndex; }
 	int GetLastToAttackPlotIndex() const { return iLastToAttackPlotIndex; }
