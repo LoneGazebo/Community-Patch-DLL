@@ -6315,7 +6315,7 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, c
 		
 	int iDamage = 0;
 	const CvUnit* pGarrison = bOverrideGarrison ? pGarrisonOverride : pCity->GetGarrisonedUnit();
-	int iGarrisonMaxHP = (pGarrison != NULL && pGarrison->GetMaxHitPoints() > pGarrison->getDamage() + iExtraGarrisonDamage) ? pCity->GetGarrisonedUnit()->GetMaxHitPoints() : 0;
+	int iGarrisonMaxHP = (pGarrison != NULL && pGarrison->GetMaxHitPoints() > pGarrison->getDamage() + iExtraGarrisonDamage) ? pGarrison->GetMaxHitPoints() : 0;
 	if (pAttacker->IsCanAttackRanged())
 	{
 		if (pAttacker->getDomainType() == DOMAIN_AIR)
@@ -10043,6 +10043,7 @@ void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eA
 	nFirstInterestingAssignment = 0;
 	iBonusScore = 0;
 	iDamageDelta = 0;
+	iTotalScore = 0;
 	iScoreOverParent = 0; 
 	parentPosition = NULL;
 	iGeneration = 0;
@@ -10079,6 +10080,7 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	nFirstInterestingAssignment = parent.nFirstInterestingAssignment;
 	iBonusScore = parent.iBonusScore;
 	iDamageDelta = parent.iDamageDelta;
+	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
 	movePlotUpdateFlagA = parent.movePlotUpdateFlagA;

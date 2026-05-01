@@ -1184,7 +1184,12 @@ public:
 			//within a generation always sort by (last round) score
 			//continue where it seems most promising right now, ignore "historical" scores
 			if (lhs->getGeneration() == rhs->getGeneration())
-				return lhs->getScoreLastRound() < rhs->getScoreLastRound();
+			{
+				if (lhs->getScoreLastRound() != rhs->getScoreLastRound())
+					return lhs->getScoreLastRound() < rhs->getScoreLastRound();
+				//tie-breaker: use ID to ensure deterministic ordering
+				return lhs->getID() > rhs->getID();
+			}
 
 			if (bDepthFirst)
 				//we want to pick the highest generation first
@@ -1198,14 +1203,16 @@ public:
 	struct PrPositionSortArrayTotalScore
 	{
 		// descending sort by total score, tie-breaker: fewer assignments first
+		// second tie-breaker: lower ID first
 		bool operator()(const CvBasePosition* lhs, const CvBasePosition* rhs) const
 		{
 			int iLhsScore = lhs->iTotalScore;
 			int iRhsScore = rhs->iTotalScore;
-			if (iLhsScore == iRhsScore)
+			if (iLhsScore != iRhsScore)
+				return iLhsScore > iRhsScore;
+			if (lhs->GetNumAssignments() != rhs->GetNumAssignments())
 				return lhs->GetNumAssignments() < rhs->GetNumAssignments();
-
-			return iLhsScore > iRhsScore;
+			return lhs->getID() < rhs->getID();
 		}
 	};
 
