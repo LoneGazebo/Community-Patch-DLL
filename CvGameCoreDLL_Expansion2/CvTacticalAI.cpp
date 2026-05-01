@@ -10862,74 +10862,93 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 
 	int iPlotScore = 0;
 	int iBonusScore = 0;
+	int iDangerScore = 0;
 
-	int iLastAttackFromPlotIndex = assumedPosition.GetTacticalPosition()->getAssignments().back().iFromPlotIndex;
-	int iLastAttackToPlotIndex = assumedPosition.GetTacticalPosition()->getAssignments().back().iToPlotIndex;
+	const STacticalAssignment& lastTacticalAssignment = assumedPosition.GetTacticalPosition()->getAssignments().back();
 
-	bool bAttackMove = !bLastPosition || IsAttackMove(assumedPosition.GetTacticalPosition()->getAssignments().back().eAssignmentType);
+	int iLastAttackFromPlotIndex = lastTacticalAssignment.iFromPlotIndex;
+	int iLastAttackToPlotIndex = lastTacticalAssignment.iToPlotIndex;
+
+	bool bAttackMove = !bLastPosition || IsAttackMove(lastTacticalAssignment.eAssignmentType);
 
 	CvPlayer& kPlayer = GET_PLAYER(assumedPosition.getPlayer());
 
 	CvUnit* pUnit = kPlayer.getUnit(unit.iUnitID);
 	int iEffectRange = pUnit->GetAuraRangeChange() + /*2*/ GD_INT_GET(GREAT_GENERAL_RANGE);
+	CvUnit* pAttackingUnit = kPlayer.getUnit(lastTacticalAssignment.iUnitID);
+	DomainTypes eAttackerDomain = pAttackingUnit->getDomainType();
+
+	const CvUnit* pDefender = NULL;
+	int iDefenderDamage = 0;
+	int iDanger = bLastPosition ? assumedPosition.GetUnitDanger(unit, pPlot, pDefender, iDefenderDamage) : 0;
+	bool bIsSafe = true;
+
+	if (pDefender)
+	{
+		int iProjectedDamage = iDanger + pDefender->getDamage() + iDefenderDamage;
+		bIsSafe = (iProjectedDamage * 3 <= pDefender->GetMaxHitPoints() * 2);
+	}
+	else
+	{
+		bIsSafe = (iDanger == 0);
+	}
+
+	if ((iAssumedMovesLeft == 0 || bLastPosition) && !bIsSafe)
+		return result;
+
+	DomainTypes eDomain = pUnit->getDomainType();
+	bool bInNativeDomain = (eDomain == DOMAIN_LAND && pPlot->getDomain() == DOMAIN_LAND) || eDomain == DOMAIN_SEA;
 
 	if (evalMode == EM_INTERMEDIATE)
 	{
 		if (unit.iPlotIndex == pPlot->GetPlotIndex())
 		{
 			if (bLastPosition)
-			{
-				if (assumedPosition.IsSafe(unit.iPlotIndex))
-					result->eAssignmentType = A_FINISH_TEMP;
-				else
-					return result;
-			}
+				result->eAssignmentType = A_FINISH_TEMP;
 			else
 				result->eAssignmentType = A_WAIT;
 		}
-		else 
+		else
 		{
 			if (unit.eLastAssignment == A_MOVE)
 				return result;
+		}
 
-			if (!assumedPosition.IsSafe(pPlot->GetPlotIndex()) && iAssumedMovesLeft == 0)
-				return result;
-
-			if (bAttackMove)
+		if (bAttackMove)
+		{
+			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
 			{
-				if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+				bool bCorrectDomain = bInNativeDomain &&
+					((eDomain != DOMAIN_SEA && eAttackerDomain != DOMAIN_SEA)
+					|| (eDomain == DOMAIN_SEA && eAttackerDomain == DOMAIN_SEA));
+				// if the attack is already receiving a bonus, do nothing (including if it's us giving the bonus)
+				bool bWillGiveBonus = bCorrectDomain && !assumedPosition.HasCombatBonus(iLastAttackFromPlotIndex, eDomain) && iEffectRange >= plotDistance(pPlot->GetPlotIndex(), iLastAttackFromPlotIndex);
+
+				if (bWillGiveBonus)
+					iBonusScore += (kPlayer.GetGreatGeneralCombatBonus() + kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
+				else if (!bLastPosition)
+					return result;
+			}
+			else if (pUnit->IsSapper())
+			{
+				int iBonusDelta = 0;
+				if (bInNativeDomain && GC.getMap().plotByIndexUnchecked(iLastAttackToPlotIndex)->isCity())
 				{
-					DomainTypes eDomain = pUnit->getDomainType();
+					int iOldCityAttackBonus = assumedPosition.GetCityAttackBonus(iLastAttackToPlotIndex);
 
-					// if the attack is already receiving a bonus, do nothing (including if it's us giving the bonus)
-					bool bWillGiveBonus = !assumedPosition.HasCombatBonus(iLastAttackFromPlotIndex, eDomain) && iEffectRange >= plotDistance(pPlot->GetPlotIndex(), iLastAttackFromPlotIndex);
+					int iPlotDistance = plotDistance(pPlot->GetPlotIndex(), iLastAttackToPlotIndex);
 
-					if (bWillGiveBonus)
-						iBonusScore += (kPlayer.GetGreatGeneralCombatBonus() + kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
-					else if (!bLastPosition)
-						return result;
+					int iNewCityAttackBonus = 0;
+					if (iPlotDistance <= iEffectRange)
+						iNewCityAttackBonus = iEffectRange == iPlotDistance ? 1 : 2;
+
+					iBonusDelta = iNewCityAttackBonus - iOldCityAttackBonus;
 				}
-				else if (pUnit->IsSapper())
-				{
-					int iBonusDelta = 0;
-					if (GC.getMap().plotByIndexUnchecked(iLastAttackToPlotIndex)->isCity())
-					{
-						int iOldCityAttackBonus = assumedPosition.GetCityAttackBonus(iLastAttackToPlotIndex);
 
-						int iPlotDistance = plotDistance(pPlot->GetPlotIndex(), iLastAttackToPlotIndex);
-
-						int iNewCityAttackBonus = 0;
-						if (iPlotDistance <= iEffectRange)
-							iNewCityAttackBonus = iEffectRange == iPlotDistance ? 1 : 2;
-
-						iBonusDelta = iNewCityAttackBonus - iOldCityAttackBonus;
-					}
-
-					if (iBonusDelta > 0)
-						iBonusScore += (/*50 in CP, 40 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER) * iBonusDelta) / 2;
-					else if (!bLastPosition)
-						return result;
-				}
+				if (iBonusDelta > 0)
+					iBonusScore += (/*50 in CP, 40 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER) * iBonusDelta) / 2;
+				else if (!bLastPosition)
+					return result;
 			}
 		}
 
@@ -10940,68 +10959,90 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 			const CvPlot* pLoopPlot;
 			const CvUnit* pLoopUnit;
 
-			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+			if (bInNativeDomain)
 			{
-				for (vector<SUnitStats>::const_iterator it = finalCombatPositionUnits.begin(); it != finalCombatPositionUnits.end(); ++it)
+				if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
 				{
-					pLoopUnit = kPlayer.getUnit(it->iUnitID);
-
-					if (pUnit->IsGreatGeneral() && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked()))
-						continue;
-
-					if (pUnit->IsGreatAdmiral() && pLoopUnit->getDomainType() != DOMAIN_SEA)
-						continue;
-
-					pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-					int iPlotDistance = plotDistance(*pPlot, *pLoopPlot);
-
-					if (iPlotDistance <= iEffectRange)
+					for (vector<SUnitStats>::const_iterator it = finalCombatPositionUnits.begin(); it != finalCombatPositionUnits.end(); ++it)
 					{
-						iPlotScore += kPlayer.GetGreatGeneralCombatBonus() + kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange();
-						if (pLoopUnit->IsRequiresLeadership())
-							iPlotScore += 50;
+						pLoopUnit = kPlayer.getUnit(it->iUnitID);
+
+						if (pUnit->IsGreatGeneral() && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked()))
+							continue;
+
+						if (pUnit->IsGreatAdmiral() && pLoopUnit->getDomainType() != DOMAIN_SEA)
+							continue;
+
+						pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+						int iPlotDistance = plotDistance(*pPlot, *pLoopPlot);
+
+						if (iPlotDistance <= iEffectRange)
+						{
+							iPlotScore += kPlayer.GetGreatGeneralCombatBonus() + kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange();
+							if (pLoopUnit->IsRequiresLeadership())
+								iPlotScore += 50;
+						}
+					}
+				}
+
+				int iSameTileHeal = pUnit->getSameTileHeal();
+				int iAdjacentTileHeal = pUnit->getAdjacentTileHeal();
+
+				if (iSameTileHeal > 0 || iAdjacentTileHeal > 0)
+				{
+					for (vector<SUnitStats>::const_iterator it = finalCombatPositionUnits.begin(); it != finalCombatPositionUnits.end(); ++it)
+					{
+						pLoopUnit = kPlayer.getUnit(it->iUnitID);
+						pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+
+						int iPlotDistance = plotDistance(*pPlot, *pLoopPlot);
+						int iBonusHeal = iPlotDistance == 0 ? iSameTileHeal : (iPlotDistance == 1 ? iAdjacentTileHeal : 0);
+
+						if (iBonusHeal == 0)
+							continue;
+
+						int iDamage = pLoopUnit->getDamage() + it->iSelfDamage;
+						bool bHealing = it->iMovesLeft == pLoopUnit->maxMoves() || pLoopUnit->isAlwaysHeal();
+
+						if (!bHealing || iDamage <= 5)
+							continue;
+
+						TeamTypes ePlotTeam = pLoopPlot->getTeam();
+						if (ePlotTeam == kPlayer.getTeam())
+							iBonusHeal += pUnit->getExtraFriendlyHeal();
+						else if (kPlayer.IsAtWarWith(pLoopPlot->getOwner()))
+							iBonusHeal += pUnit->getExtraEnemyHeal();
+						else
+							iBonusHeal += pUnit->getExtraNeutralHeal();
+
+						// TODO real healing numbers?
+						iPlotScore += min(iBonusHeal, iDamage - 5) * 4;
 					}
 				}
 			}
 
-			int iSameTileHeal = pUnit->getSameTileHeal();
-			int iAdjacentTileHeal = pUnit->getAdjacentTileHeal();
+			const CvTacticalPlot* finalTactPlot = assumedPosition.GetFinalTacticalPosition()->getTactPlot(pPlot->GetPlotIndex());
 
-			if (iSameTileHeal > 0 || iAdjacentTileHeal > 0)
+			if (!pPlot->isCity())
 			{
-				for (vector<SUnitStats>::const_iterator it = finalCombatPositionUnits.begin(); it != finalCombatPositionUnits.end(); ++it)
+				if (!finalTactPlot || !finalTactPlot->isCombatEndTurn())
 				{
-					pLoopUnit = kPlayer.getUnit(it->iUnitID);
-					pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+					iDangerScore -= min(iDanger, pUnit->GetMaxHitPoints());
 
-					int iPlotDistance = plotDistance(*pPlot, *pLoopPlot);
-					int iBonusHeal = iPlotDistance == 0 ? iSameTileHeal : (iPlotDistance == 1 ? iAdjacentTileHeal : 0);
-
-					if (iBonusHeal == 0)
-						continue;
-
-					int iDamage = pLoopUnit->getDamage() + it->iSelfDamage;
-					bool bHealing = it->iMovesLeft == pLoopUnit->maxMoves() || pLoopUnit->isAlwaysHeal();
-
-					if (!bHealing || iDamage <= 5)
-						continue;
-					
-					TeamTypes ePlotTeam = pLoopPlot->getTeam();
-					if (ePlotTeam == kPlayer.getTeam())
-						iBonusHeal += pUnit->getExtraFriendlyHeal();
-					else if (kPlayer.IsAtWarWith(pLoopPlot->getOwner()))
-						iBonusHeal += pUnit->getExtraEnemyHeal();
+					if (iDanger == 0)
+						iDangerScore -= pUnit->GetMaxHitPoints() / 3;
+				}
+				else
+				{
+					if (pDefender)
+					{
+						int iDefenderDamageTotal = iDanger + iDefenderDamage + pDefender->getDamage();
+						iDangerScore -= iDefenderDamageTotal * pUnit->GetMaxHitPoints() / (pDefender->GetMaxHitPoints() * 3);
+					}
 					else
-						iBonusHeal += pUnit->getExtraNeutralHeal();
-
-					// TODO real healing numbers?
-					iPlotScore += min(iBonusHeal, iDamage - 5) * 4;
+						iDangerScore -= pUnit->GetMaxHitPoints() / 3;
 				}
 			}
-
-			const CvTacticalPlot* finalTactPlot = assumedPosition.GetFinalTacticalPosition()->getTactPlot(pPlot->GetPlotIndex());
-			if (finalTactPlot && finalTactPlot->isCombatEndTurn())
-				iPlotScore += 100;
 
 			if (finalTactPlot)
 			{
@@ -11011,13 +11052,13 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 					return result; //don't ever go there, wouldn't work anyway
 					break;
 				case 1:
-					iPlotScore += pPlot->isCity() ? 8 : -3; //dangerous to end the turn, avoid
+					iPlotScore += pPlot->isCity() ? 1 : 0; //dangerous to end the turn, avoid
 					break;
 				case 2:
-					iPlotScore += 18; //good for defense support, good for attack support, but risky
+					iPlotScore += 1; //good for defense support, good for attack support, but risky
 					break;
 				case 3:
-					iPlotScore += 12; //good for defense support, not so good for attack support
+					iPlotScore += 1; //good for defense support, not so good for attack support
 					break;
 				default:
 					break; //usual case for gathering moves, otherwise not really interesting
@@ -11027,20 +11068,22 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 	}
 	else if (evalMode == EM_FINAL)
 	{
-		result->SetScore(0, 0, 0);
+		if (bIsSafe)
+			result->SetScore(0, 0, 0);
+
 		return result;
 	}
 
-	// Get plot score into similar range as combat moves
-	if (pPlot->getDomain() == pUnit->getDomainType() || pPlot->isCity())
-		iPlotScore += 12;
+	//small bias for staying close to our cities, to have a way to retreat if necessary
+	int iCityDistanceScore = 10 - GET_PLAYER(assumedPosition.getPlayer()).GetCityDistanceInPlots(pPlot);
+	int iExtra = max(iCityDistanceScore, 0);
 
 	// Stay close to the center of the army
-	iPlotScore -= 4 * plotDistance(*assumedPosition.GetCenterOfMass(), *pPlot);
+	iExtra -= plotDistance(*assumedPosition.GetCenterOfMass(), *pPlot);
 
-	iPlotScore += result->iRemainingMoves / GD_INT_GET(MOVE_DENOMINATOR);
+	iExtra += result->iRemainingMoves / GD_INT_GET(MOVE_DENOMINATOR);
 
-	result->SetScore(iPlotScore, iBonusScore, 0);
+	result->SetScore(iPlotScore * 10 + iDangerScore + iExtra, iBonusScore, 0);
 
 	return result;
 }
@@ -11128,22 +11171,49 @@ int CvSupportPosition::GetCityAttackBonus(int iPlotIndex) const
 	return iMaxBuff;
 }
 
-bool CvSupportPosition::IsSafe(int iPlotIndex) const
+int CvSupportPosition::GetUnitDanger(const SUnitStats& unit, const CvPlot* pPlot, const CvUnit*& pDefender, int& iDefenderDamage) const
 {
-	if (!finalTacticalPosition->haveEnemies())
-		return true;
+	if (!pPlot)
+		return INT_MAX;
 
-	const CvTacticalPlot* plot = finalTacticalPosition->getTactPlot(iPlotIndex);
-	if (!plot)
-		return false;
+	if (pPlot->isCity())
+	{
+		return pPlot->getPlotCity()->isInDangerOfFalling() ? INT_MAX : 0;
+	}
 
-	if (plot->isCombatEndTurn())
-		return true;
+	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(unit.iUnitID);
+	if (!pUnit)
+		return INT_MAX;
 
-	if (plot->getPlot()->isCity() && plot->getPlot()->getOwner() == ePlayer)
-		return true;
+	const CvTacticalPlot* pTactPlot = finalTacticalPosition->getTactPlot(pPlot->GetPlotIndex());
 
-	return false;
+	if (pTactPlot && pTactPlot->isCombatEndTurn())
+	{
+		const vector<STacticalUnit>& unitsAtPlot = pTactPlot->getUnitsAtPlot();
+		if (!unitsAtPlot.empty())
+		{
+			for (vector<STacticalUnit>::const_iterator it = unitsAtPlot.begin(); it != unitsAtPlot.end(); ++it)
+			{
+				int iCoveringUnitId = it->iUnitID;
+
+				const SUnitStats* pCoveringUnitStats = finalTacticalPosition->GetUnitStats(iCoveringUnitId);
+				if (!pCoveringUnitStats || !IsCombatUnit(*pCoveringUnitStats))
+					continue;
+
+				pDefender = GET_PLAYER(ePlayer).getUnit(iCoveringUnitId);
+				iDefenderDamage = pCoveringUnitStats->iSelfDamage;
+			}
+		}
+	}
+	if (!pDefender)
+	{
+		pDefender = pPlot->getBestDefender(ePlayer);
+	}
+
+	if (pDefender)
+		return GetUnitDangerForPlot(pDefender, pPlot, iDefenderDamage, *finalTacticalPosition);
+	else
+		return GetUnitDangerForPlot(pUnit, pPlot, 0, *finalTacticalPosition);
 }
 
 void CvSupportPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount, bool bLastPosition) const
@@ -11155,6 +11225,8 @@ void CvSupportPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, i
 	if (!pUnit || !pAssumedUnitPlot)
 		return;
 
+	int iOldPlotDistanceToTarget = GetFinalTacticalPosition()->IsTargetToDistanceRelevant() ? TacticalAIHelpers::GetPlotDistanceToTarget(unit.iPlotIndex, pUnit->getDomainType()) : 0;
+
 	//check moves and melee attacks first
 	const ReachablePlots& reachablePlots = getReachablePlotsForUnit(unit);
 	for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
@@ -11164,10 +11236,23 @@ void CvSupportPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, i
 		if (!pTestPlot)
 			continue;
 
+		int iMoveTowardsTargetScore = 0;
+
+		if (GetFinalTacticalPosition()->getNumEnemies() == 0 && GetFinalTacticalPosition()->IsTargetToDistanceRelevant())
+		{
+			// Try to move towards the target
+			int iNewPlotDistanceToTarget = TacticalAIHelpers::GetPlotDistanceToTarget(it->iPlotIndex, pUnit->getDomainType());
+			if (iNewPlotDistanceToTarget > iOldPlotDistanceToTarget)
+				continue;
+
+			iMoveTowardsTargetScore = iOldPlotDistanceToTarget - iNewPlotDistanceToTarget;
+		}
+
 		STacticalAssignment* moveToPlot = ScorePlotForSupportMove(unit, pTestPlot, it->iMovesLeft, *this, EM_INTERMEDIATE, bLastPosition);
 
 		if (moveToPlot->IsAcceptable())
 		{
+			moveToPlot->AddScore(iMoveTowardsTargetScore, 0, 0);
 			gPossibleMoves.push_back(OptionWithScore<STacticalAssignment*>(moveToPlot, moveToPlot->Score()));
 			gAssignmentStorage.consumeOne();
 		}
@@ -11743,22 +11828,28 @@ bool CvSupportPosition::AddAvailableUnit(const CvUnit* pUnit)
 		return false;
 
 	if (pUnit->IsGreatGeneral())
+	{
 		if (bHasGeneral)
 			return false;
 		else
 			bHasGeneral = true;
+	}
 
 	if (pUnit->IsGreatAdmiral())
+	{
 		if (bHasAdmiral)
 			return false;
 		else
 			bHasAdmiral = true;
+	}
 
 	if (pUnit->IsSapper())
+	{
 		if (bHasSiegetower)
 			return false;
 		else
 			bHasSiegetower = true;
+	}
 
 	availableUnits.write().push_back(SUnitStats(pUnit, 0, MS_SUPPORT));
 
