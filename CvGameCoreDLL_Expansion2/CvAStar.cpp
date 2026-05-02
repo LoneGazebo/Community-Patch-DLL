@@ -4185,7 +4185,7 @@ CvPlot * SPath::get(int i) const
 
 	//allow negative indices
 	while (i < 0)
-		i += vPlots.size();
+		i += (int)vPlots.size();
 
 	return GC.getMap().plotUnchecked(vPlots[i].x,vPlots[i].y);
 }
