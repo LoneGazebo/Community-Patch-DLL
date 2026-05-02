@@ -156,7 +156,14 @@ def check_git_status():
 # =============================================================================
 
 def create_debug_folder(debug_folder: Path) -> Tuple[Path, Path]:
-    """Create Debug folder with Standard and 43 Civ subfolders."""
+    """Create Debug folder with Standard and 43 Civ subfolders.
+
+    Each variant gets Release/ and Debug/ subfolders so the layout is:
+        Debug/Standard/Release/{dll,pdb}
+        Debug/Standard/Debug/{dll,pdb}
+        Debug/43 Civ/Release/{dll,pdb}
+        Debug/43 Civ/Debug/{dll,pdb}
+    """
     print(f"Creating debug folder structure at: {debug_folder}")
     standard_folder = debug_folder / "Standard"
     civ43_folder = debug_folder / "43 Civ"
@@ -455,6 +462,8 @@ def copy_dll_and_pdb(config: str, destination: Path):
 
     dll_path = output_dir / "CvGameCore_Expansion2.dll"
     pdb_path = output_dir / "CvGameCore_Expansion2.pdb"
+
+    destination.mkdir(parents=True, exist_ok=True)
 
     if dll_path.exists():
         shutil.copy2(dll_path, destination / "CvGameCore_Expansion2.dll")
@@ -847,11 +856,12 @@ def main():
         if not build_dll('release'):
             raise RuntimeError("Release build failed")
         copy_release_dll_to_mod(is_43_civ=False)
+        copy_dll_and_pdb('release', standard_folder / "Release")
 
         print("\n  Building Debug configuration...")
         if not build_dll('debug'):
             raise RuntimeError("Debug build failed")
-        copy_dll_and_pdb('debug', standard_folder)
+        copy_dll_and_pdb('debug', standard_folder / "Debug")
 
         print("\n  Cleaning up build folders...")
         cleanup_build_folders()
@@ -866,11 +876,12 @@ def main():
         if not build_dll('release'):
             raise RuntimeError("43 Civ Release build failed")
         copy_release_dll_to_mod(is_43_civ=True)
+        copy_dll_and_pdb('release', civ43_folder / "Release")
 
         print("\n  Building Debug configuration (43 Civ)...")
         if not build_dll('debug'):
             raise RuntimeError("43 Civ Debug build failed")
-        copy_dll_and_pdb('debug', civ43_folder)
+        copy_dll_and_pdb('debug', civ43_folder / "Debug")
 
         disable_43_civ_build()
 
