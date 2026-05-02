@@ -113,7 +113,11 @@ CvPlot::CvPlot()
 	: m_syncArchive()
 	, m_szScriptData(NULL)
 {
-	if (GC.getGame().isNetworkMultiPlayer())
+	// Null check required: CvPlot can be constructed during DLL static initialization
+	// (e.g. CvSupportPosition::dummyPlot via gSupportPosStorage) before the game
+	// object exists. getGamePointer() is NULL until CvGlobals::init() runs.
+	CvGame* pGame = GC.getGamePointer();
+	if (pGame && pGame->isNetworkMultiPlayer())
 	{
 		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvPlot>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
 	}
