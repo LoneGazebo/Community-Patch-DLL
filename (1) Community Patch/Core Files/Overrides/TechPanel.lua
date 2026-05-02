@@ -106,9 +106,9 @@ local function OnTechPanelUpdated()
 		else
 			Hide(Controls.TechIcon);
 		end
-
+		
 		-- Update the small buttons
-		local iNumSmallButtons = AddSmallButtonsToTechButton(Controls, kTechInfo, NUM_SMALL_BUTTONS, 64);
+		local iNumSmallButtons = AddSmallButtonsToTechButton(Controls, kTechInfo, NUM_SMALL_BUTTONS, 64, nil, nil, true);
 		AddCallbackToSmallButtons(Controls, NUM_SMALL_BUTTONS, -1, -1, Mouse.eLClick, OnTechnologyButtonClicked);
 		if iNumSmallButtons > 0 then
 			if OptionsManager.GetSmallUIAssets() then
