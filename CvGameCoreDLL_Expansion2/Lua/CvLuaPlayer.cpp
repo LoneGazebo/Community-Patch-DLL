@@ -9909,7 +9909,7 @@ int CvLuaPlayer::lEndTurnsForReadyUnits(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const bool bEndLinkedTurns = lua_toboolean(L, 2);
 	
-	pkPlayer->EndTurnsForReadyUnits(bEndLinkedTurns);
+	pkPlayer->EndTurnsForReadyUnits(true, bEndLinkedTurns);
 	return 1;
 }
 

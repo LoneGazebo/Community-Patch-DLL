@@ -10940,15 +10940,22 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 	return NULL;
 }
 
-void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
+void CvPlayer::EndTurnsForReadyUnits(bool bSendNetworkMessage, bool bLinkedUnitsOnly)
 {
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if (!bLinkedUnitsOnly && pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
-			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
-			pLoopUnit->SetTurnProcessed(true);
+			if (bSendNetworkMessage)
+			{
+				gDLL->sendPushMission(pLoopUnit->GetID(), CvTypes::getMISSION_SKIP(), 0, 0, 0, false);
+			}
+			else
+			{
+				pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
+				pLoopUnit->SetTurnProcessed(true);
+			}
 
 			if (GC.getLogging() && GC.getAILogging())
 			{
@@ -10960,15 +10967,30 @@ void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
 		}
 		if (MOD_LINKED_MOVEMENT && bLinkedUnitsOnly && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
 		{
-			if (pLoopUnit->canFortify(pLoopUnit->plot())) {
-				pLoopUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+			if (bSendNetworkMessage)
+			{
+				if (pLoopUnit->canFortify(pLoopUnit->plot())) {
+					gDLL->sendPushMission(pLoopUnit->GetID(), CvTypes::getMISSION_FORTIFY(), 0, 0, 0, false);
+				}
+				else
+				{
+					gDLL->sendPushMission(pLoopUnit->GetID(), CvTypes::getMISSION_SLEEP(), 0, 0, 0, false);
+				}
 			}
-			else {
-				pLoopUnit->PushMission(CvTypes::getMISSION_SLEEP());
+			else
+			{
+				if (pLoopUnit->canFortify(pLoopUnit->plot())) {
+					pLoopUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				}
+				else
+				{
+					pLoopUnit->PushMission(CvTypes::getMISSION_SLEEP());
+				}
 			}
 		}
 	}
 }
+
 bool CvPlayer::hasAutoUnit() const
 {
 	int iLoop = 0;
