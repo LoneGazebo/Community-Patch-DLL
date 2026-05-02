@@ -846,15 +846,13 @@ void CvTeam::doTurn()
 
 	testCircumnavigated();
 
-#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		if(!isAtWar(GET_PLAYER((PlayerTypes) iMinorLoop).getTeam()))
 			continue;
 
-		ASSERT(GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->GetAlly() != getLeaderID(), "Major civ is now at war with a minor it is allied with! This is dumb and bad.");
+		ASSERT(GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->GetAlly() != getLeaderID() || GET_PLAYER((PlayerTypes)iMinorLoop).GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER, "Major civ is now at war with a minor it is allied with! This is dumb and bad.");
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -2184,6 +2182,9 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 		for (int iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			TeamTypes eLoopTeam = static_cast<TeamTypes>(iI);
+			if (eLoopTeam == eTeam || eLoopTeam == GetID())
+				continue;
+
 			CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
 			if (kLoopTeam.isAlive())
 			{
