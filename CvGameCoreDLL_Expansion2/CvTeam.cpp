@@ -1220,7 +1220,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	}
 
 	//is also catches the barbarians ...
-	if (isAtWar(eTeam) || GET_TEAM(eTeam).isAtWar(GetID()))
+	if (isAtWar(eTeam) && GET_TEAM(eTeam).isAtWar(GetID()))
 		return;
 
 	SetWonLatestWar(eTeam, false);
