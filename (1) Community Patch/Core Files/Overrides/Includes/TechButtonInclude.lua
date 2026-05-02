@@ -81,8 +81,9 @@ end
 --- @param iTextureSize integer Size of the small button icons
 --- @param ePlayerOverride PlayerId? View in this player's perspective instead of the active player's
 --- @param bSkipTooltips boolean? Whether unit, building, improvement, project, process tooltips (potentially time-consuming) should be skipped
+--- @param bStringTooltips boolean? If true, precompute tooltips and set them via SetToolTipString
 --- @return integer # The number of small buttons on the tech **+ 1**
-function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iTextureSize, ePlayerOverride, bSkipTooltips)
+function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iTextureSize, ePlayerOverride, bSkipTooltips, bStringTooltips)
 	-- Gather info we need
 	local ePlayer = ePlayerOverride or Game.GetActivePlayer();
 	local pPlayer = Players[ePlayer];
@@ -195,9 +196,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	--- @param strCustomTooltip string?
 	--- @param strButtonText string?
 	local function SetupUnitButton(button, kUnitInfo, strCustomTooltip, strButtonText)
+		local strTooltip = bStringTooltips and (strCustomTooltip or (not bSkipTooltips and GetHelpTextForUnit(kUnitInfo.ID, true) or ""));
+		if strTooltip then button:SetToolTipString(strTooltip) end
 		button:SetToolTipCallback(function ()
-			local strTooltip = strCustomTooltip or (not bSkipTooltips and GetHelpTextForUnit(kUnitInfo.ID, true) or "");
-			SetTooltip(tooltipInstance, strTooltip);
+			SetTooltip(tooltipInstance, strTooltip or strCustomTooltip or (not bSkipTooltips and GetHelpTextForUnit(kUnitInfo.ID, true) or ""));
 		end);
 		tPediaSearchStrings[tostring(button)] = kUnitInfo.Description;
 		local iIconIndex, strAtlas = UI.GetUnitPortraitIcon(kUnitInfo.ID, ePlayer);
@@ -209,10 +211,12 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	--- @param strCustomTooltip string?
 	--- @param strButtonText string?
 	local function SetupCorporationButton(button, kCorporationInfo, strCustomTooltip, strButtonText)
+		local strTooltip = bStringTooltips and (strCustomTooltip or
+			string.format("[COLOR_YIELD_GOLD]%s[ENDCOLOR][NEWLINE]----------------[NEWLINE]%s", L(kCorporationInfo.Description), L(kCorporationInfo.Help)));
+		if strTooltip then button:SetToolTipString(strTooltip) end
 		button:SetToolTipCallback(function ()
-			local strTooltip = strCustomTooltip or
-				string.format("[COLOR_YIELD_GOLD]%s[ENDCOLOR][NEWLINE]----------------[NEWLINE]%s", L(kCorporationInfo.Description), L(kCorporationInfo.Help));
-			SetTooltip(tooltipInstance, strTooltip);
+			SetTooltip(tooltipInstance, strTooltip or strCustomTooltip or
+				string.format("[COLOR_YIELD_GOLD]%s[ENDCOLOR][NEWLINE]----------------[NEWLINE]%s", L(kCorporationInfo.Description), L(kCorporationInfo.Help)));
 		end);
 		tPediaSearchStrings[tostring(button)] = kCorporationInfo.Description;
 		SetCommonButtonProperties(button, true, kCorporationInfo.PortraitIndex, kCorporationInfo.IconAtlas, strButtonText);
@@ -227,9 +231,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	--- @param strCustomTooltip string?
 	--- @param strButtonText string?
 	local function SetupBuildingButton(button, kBuildingInfo, strCustomTooltip, strButtonText)
+		local strTooltip = bStringTooltips and (strCustomTooltip or GetHelpTextForBuilding(kBuildingInfo.ID, false, nil, false));
+		if strTooltip then button:SetToolTipString(strTooltip) end
 		button:SetToolTipCallback(function ()
-			local strTooltip = strCustomTooltip or GetHelpTextForBuilding(kBuildingInfo.ID, false, nil, false);
-			SetTooltip(tooltipInstance, strTooltip);
+			SetTooltip(tooltipInstance, strTooltip or strCustomTooltip or GetHelpTextForBuilding(kBuildingInfo.ID, false, nil, false));
 		end);
 		tPediaSearchStrings[tostring(button)] = kBuildingInfo.Description;
 		SetCommonButtonProperties(button, true, kBuildingInfo.PortraitIndex, kBuildingInfo.IconAtlas, strButtonText);
@@ -244,9 +249,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	--- @param strCustomTooltip string?
 	--- @param strButtonText string?
 	local function SetupProjectButton(button, kProjectInfo, strCustomTooltip, strButtonText)
+		local strTooltip = bStringTooltips and (strCustomTooltip or GetHelpTextForProject(kProjectInfo.ID));
+		if strTooltip then button:SetToolTipString(strTooltip) end
 		button:SetToolTipCallback(function ()
-			local strTooltip = strCustomTooltip or GetHelpTextForProject(kProjectInfo.ID);
-			SetTooltip(tooltipInstance, strTooltip);
+			SetTooltip(tooltipInstance, strTooltip or strCustomTooltip or GetHelpTextForProject(kProjectInfo.ID));
 		end);
 		tPediaSearchStrings[tostring(button)] = kProjectInfo.Description;
 		SetCommonButtonProperties(button, true, kProjectInfo.PortraitIndex, kProjectInfo.IconAtlas, strButtonText);
@@ -258,6 +264,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	--- @param strButtonText string?
 	local function SetupResourceButton(button, kResourceInfo, strCustomTooltip, strButtonText)
 		local strTooltip = strCustomTooltip or L("TXT_KEY_REVEALS_RESOURCE_ON_MAP", kResourceInfo.Description);
+		if bStringTooltips then button:SetToolTipString(strTooltip) end
 		button:SetToolTipCallback(function ()
 			SetTooltip(tooltipInstance, strTooltip);
 		end);
@@ -270,9 +277,10 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 	--- @param strCustomTooltip string?
 	--- @param strButtonText string?
 	local function SetupProcessButton(button, kProcessInfo, strCustomTooltip, strButtonText)
+		local strTooltip = bStringTooltips and (strCustomTooltip or GetHelpTextForProcess(kProcessInfo.ID));
+		if strTooltip then button:SetToolTipString(strTooltip) end
 		button:SetToolTipCallback(function ()
-			local strTooltip = strCustomTooltip or GetHelpTextForProcess(kProcessInfo.ID);
-			SetTooltip(tooltipInstance, strTooltip);
+			SetTooltip(tooltipInstance, strTooltip or strCustomTooltip or GetHelpTextForProcess(kProcessInfo.ID));
 		end);
 		tPediaSearchStrings[tostring(button)] = kProcessInfo.Description;
 		SetCommonButtonProperties(button, true, kProcessInfo.PortraitIndex, kProcessInfo.IconAtlas, strButtonText);
@@ -289,14 +297,18 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			tPediaSearchStrings[tostring(button)] = GameInfo.Routes[kBuildInfo.RouteType].Description;
 		elseif kBuildInfo.ImprovementType then
 			local kImprovementInfo = GameInfo.Improvements[kBuildInfo.ImprovementType];
-			strTooltip = strCustomTooltip or GetHelpTextForImprovement(kImprovementInfo.ID, false, false);
 			tPediaSearchStrings[tostring(button)] = kImprovementInfo.Description;
+			if bStringTooltips then
+				strTooltip = strCustomTooltip or GetHelpTextForImprovement(kImprovementInfo.ID, false, false);
+			end
 		else -- we are a choppy thing
 			strTooltip = strCustomTooltip or L(kBuildInfo.Description);
 			tPediaSearchStrings[tostring(button)] = GameInfo.Concepts["CONCEPT_WORKERS_CLEARINGLAND"].Description;
 		end
+		if bStringTooltips then button:SetToolTipString(strTooltip) end
 		button:SetToolTipCallback(function ()
-			SetTooltip(tooltipInstance, strTooltip);
+			SetTooltip(tooltipInstance, strTooltip or strCustomTooltip or
+				(kBuildInfo.ImprovementType and GetHelpTextForImprovement(GameInfo.Improvements[kBuildInfo.ImprovementType].ID, false, false)) or "");
 		end);
 		SetCommonButtonProperties(button, true, kBuildInfo.IconIndex, kBuildInfo.IconAtlas, strButtonText);
 	end
@@ -316,6 +328,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 			iIconIndex = kInfo.PortraitIndex;
 		end
 		tPediaSearchStrings[tostring(button)] = kInfo.Description;
+		if bStringTooltips then button:SetToolTipString(strCustomTooltip) end
 		button:SetToolTipCallback(function ()
 			SetTooltip(tooltipInstance, strCustomTooltip);
 		end);
@@ -355,6 +368,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		strAtlas = strAtlas or "GENERIC_FUNC_ATLAS";
 		iIconIndex = iIconIndex or 0;
 		if button then
+			if bStringTooltips then button:SetToolTipString(strTooltip) end
 			button:SetToolTipCallback(function ()
 				SetTooltip(tooltipInstance, strTooltip);
 			end);
