@@ -3107,33 +3107,45 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximat
 					continue;
 
 				CvUnit* pDefender = pUnit->rangeStrikeTarget(*pTestPlot, true);
-				if (!pDefender)
+				if (!pDefender && !pCity)
 					continue;
 
 				int iValue = 0;
-				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_ENEMY_COMBAT_UNIT)
-					iValue += 11;
-
 				int iUnusedReferenceVariable = 0;
 				if (pUnit->AI_getUnitAIType() == UNITAI_MISSILE_AIR)
 				{
-					//ignore the city when attacking!
-					iValue = pUnit->GetAirCombatDamage(pDefender, NULL, 0, iUnusedReferenceVariable, false);
-					//bonus for a kill
-					if (pDefender->GetCurrHitPoints() <= iValue)
-						iValue += 21;
-					//bonus for hitting units in cities, can only do that with missiles
-					if (pDefender->plot()->isCity())
-						iValue += 17;
+					if (pDefender)
+					{
+						//ignore the city when attacking!
+						iValue += pUnit->GetAirCombatDamage(pDefender, NULL, 0, iUnusedReferenceVariable, false);
+						//bonus for a kill
+						if (pDefender->GetCurrHitPoints() <= iValue)
+							iValue += 21;
+						//bonus for hitting units in cities, can only do that with missiles
+						if (pDefender->plot()->isCity())
+							iValue += 6;
+					}
+					else
+					{
+						// air missiles don't do damage to ungarrisoned cities
+						continue;
+					}
 				}
 				else
 				{
+					int iDamage = pUnit->GetAirCombatDamage(pDefender, pCity, 0, iUnusedReferenceVariable, false);
+					// if the original target is a unit and we're considering attacking a city, evaluate only the damage done to the garrison
+					if (pApproximateTargetPlot && !pApproximateTargetPlot->isCity() && pCity)
+					{
+						// Garrison absorbs part of the damage
+						iDamage = (pDefender && MOD_CORE_GARRISON_DAMAGE_ABSORPTION) ? (iDamage * 2 * pDefender->GetMaxHitPoints()) / (pCity->GetMaxHitPoints() + 2 * pDefender->GetMaxHitPoints()) : 0;
+					}
+
 					//use distance as tiebreaker
-					iValue = pUnit->GetAirCombatDamage(pDefender, pCity, 0, iUnusedReferenceVariable, false) - iDistance * 3;
+					iValue += iDamage - iDistance * 3;
 
 					if (pCity != NULL)
 					{
-						iValue /= 2; //prefer attacking units ...
 						iValue -= pCity->GetAirStrikeDefenseDamage(pUnit, false);
 					}
 					else
@@ -3158,7 +3170,7 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximat
 void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 {
 	//maybe there are no interceptors and we just had the fighter for air recon ...
-	if (!pTargetPlot && pTargetPlot->GetInterceptorCount(m_pPlayer->GetID(), NULL, false, true) == 0)
+	if (!pTargetPlot || pTargetPlot->GetInterceptorCount(m_pPlayer->GetID(), NULL, false, true) == 0)
 		return;
 
 	// Start by sending possible air sweeps
