@@ -130,7 +130,7 @@ private:
 	short m_iMovesToTarget;
 	short m_iExpectedTargetDamage;
 	short m_iExpectedSelfDamage;
-	short m_iAttackPriority;
+	int m_iAttackPriority;
 	CvUnit* m_pInterceptor;
 };
 
