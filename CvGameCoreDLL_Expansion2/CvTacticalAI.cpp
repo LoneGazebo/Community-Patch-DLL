@@ -9397,13 +9397,12 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gCheckedPositions++;
 
 		const STacticalAssignment& aRef = gMovesToAdd[i].getA();
-		const STacticalAssignment& bRef = gMovesToAdd[i].getB();
 
 		AddAssignmentResult a = pNewChild->addAssignment(aRef);
 
 		AddAssignmentResult b = RESULT_NOOP;
 		if (gMovesToAdd[i].hasB())
-			b = pNewChild->addAssignment(bRef);
+			b = pNewChild->addAssignment(gMovesToAdd[i].getB());
 
 		//cannot add a RESTART in the middle of a combo move for consistency, so add afterwards
 		if (a == RESULT_ADDED_W_VIS_CHANGE || b == RESULT_ADDED_W_VIS_CHANGE)

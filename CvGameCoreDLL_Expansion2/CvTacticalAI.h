@@ -698,7 +698,7 @@ struct SComboMove
 	bool operator<(const SComboMove& rhs) const {
 		return getA().Score() + (hasB() ? getB().Score() : 0) > rhs.getA().Score() + (rhs.hasB() ? rhs.getB().Score() : 0);
 	}
-	bool operator==(const SComboMove& rhs) const { return getA() == rhs.getA() && getB() == rhs.getB(); }
+	bool operator==(const SComboMove& rhs) const { return getA() == rhs.getA() && hasB() == rhs.hasB() && (!hasB() || getB() == rhs.getB()); }
 	bool addMove(const STacticalAssignment& move);
 
 	// When comparing combination moves, we should evaluate double moves as the average value of the two moves
