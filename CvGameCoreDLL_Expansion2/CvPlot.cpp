@@ -6533,6 +6533,12 @@ bool CvPlot::IsResourceImprovedForOwner(bool bIgnoreTechPrereq, bool bFoundingCi
 	if (!GET_TEAM(getTeam()).IsResourceImproveable(eResource) && !bIgnoreTechPrereq)
 		return false;
 
+	// artifacts are never improved
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	if (eResource == eArtifact || eResource == eHiddenArtifact)
+		return false;
+
 	// cities always connect resources
 	if (isCity() || bFoundingCity)
 		return true;
