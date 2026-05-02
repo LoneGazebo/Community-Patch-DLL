@@ -3297,7 +3297,7 @@ void CvGame::handleAction(int iAction)
 					if(pPlot != NULL)
 					{
 						ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-						ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+						ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 						if (pPlot->getResourceType() == eArtifactResourceType || pPlot->getResourceType() == eHiddenArtifactResourceType)
 						{
 							bShowConfirmPopup = true;
