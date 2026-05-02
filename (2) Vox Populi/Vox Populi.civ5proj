@@ -4248,19 +4248,19 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\Diplomat\Elder_Statesman.fxsxml">
+    <Content Include="Assets\Models\Units\Diplomat\DiplomatVP.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\Diplomat\Elder_Statesman.gr2">
+    <Content Include="Assets\Models\Units\Diplomat\DiplomatVP.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\Diplomat\Elder_statesman_diff.dds">
+    <Content Include="Assets\Models\Units\Diplomat\DiplomatVP_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\Diplomat\Elder_statesman_sref.dds">
+    <Content Include="Assets\Models\Units\Diplomat\DiplomatVP_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -4316,11 +4316,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\Envoy\envoy.fxsxml">
+    <Content Include="Assets\Models\Units\Envoy\EnvoyVP.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\Envoy\envoy.gr2">
+    <Content Include="Assets\Models\Units\Envoy\EnvoyVP.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -4329,6 +4329,14 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Models\Units\Envoy\envoy_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Envoy\hat_envoy_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Envoy\hat_envoy_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -4508,27 +4516,19 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\GDiplo_ren.fxsxml">
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\Elder_Statesman.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\GDiplo_ren.gr2">
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\Elder_Statesman.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\GDiplo_ren_sref.dds">
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\Elder_statesman_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\GDiplo_ren_diff.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\hat_GDiplo_ren_sref.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\hat_GDiplo_ren_diff.dds">
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\Elder_statesman_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

@@ -811,15 +811,15 @@
 		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_ENVOY</Type>
-			<Scale>0.13</Scale>
-			<Model>envoy.fxsxml</Model>
+			<Scale>0.15</Scale>
+			<Model>EnvoyVP.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_DIPLOMAT</Type>
-			<Scale>0.145</Scale>
-			<Model>Elder_Statesman.fxsxml</Model>
+			<Scale>0.14</Scale>
+			<Model>DiplomatVP.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -833,7 +833,7 @@
 		<!-- Great People -->
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_GREAT_DIPLOMAT_1</Type>
-			<Scale>0.15</Scale>
+			<Scale>0.14</Scale>
 			<Model>Assets/Units/Settler/Settler_Euro/EuroMale45.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
@@ -841,7 +841,7 @@
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_GREAT_DIPLOMAT_2</Type>
 			<Scale>0.15</Scale>
-			<Model>GDiplo_ren.fxsxml</Model>
+			<Model>Elder_Statesman.fxsxml</Model>
 			<MaterialTypeTag>CLOTH</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>FLESH</MaterialTypeSoundOverrideTag>
 		</Row>

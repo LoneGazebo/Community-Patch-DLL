@@ -1,5 +1,5 @@
 <Asset>
-	<Mesh file="GDiplo_ren.gr2"/>
+	<Mesh file="EnvoyVP.gr2"/>
 	<Animation file="Venice_Merchant_of_Venice_IdleA.gr2" ec="1000"/>
 	<Animation file="Venice_Merchant_of_Venice_FidgetA.gr2" ec="1040"/>
 	<Animation file="Venice_Merchant_of_Venice_IdleA_Trans_IdleB.gr2" ec="1020"/>
