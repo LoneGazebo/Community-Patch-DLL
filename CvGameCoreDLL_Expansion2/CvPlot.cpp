@@ -13418,7 +13418,7 @@ void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
 		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
 	}
 
-	GC.getMap().plotManager().RemoveUnit(pUnit->GetIDInfo(), m_iX, m_iY, -1);
+	GC.getMap().plotManager().RemoveUnit(pUnit->GetIDInfo(), m_iX, m_iY, static_cast<uint>(-1));
 
 	if(bUpdate)
 	{
