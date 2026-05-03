@@ -4227,7 +4227,7 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 		}
 	}
 	// If the modder wants the healing to be negative (ie additional damage), then let it be
-	else if(pkWinner->getHPHealedIfDefeatEnemy() < 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians()) || !(pkWinner->isExtraAttackHealthOnKill())))
+	else if(pkWinner->getHPHealedIfDefeatEnemy() < 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())))
 	{
 		if(pkWinner->getHPHealedIfDefeatEnemy() <= (pkWinner->getDamage() - pkWinner->GetMaxHitPoints()))
 		{
