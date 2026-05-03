@@ -7777,6 +7777,8 @@ void CvCity::updateEconomicValue()
 			continue;
 
 		ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
+		if (eResource == NO_RESOURCE)
+			continue;
 
 		//for plots owned by this city or reasonably likely to be claimed
 		bool bGood = false;
