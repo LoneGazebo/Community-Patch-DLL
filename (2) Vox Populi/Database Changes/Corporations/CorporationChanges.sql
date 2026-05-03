@@ -150,3 +150,8 @@ FROM Corporation_ResourceMonopolyOrs a
 INNER JOIN Corporation_BuildingClassYieldChanges b
 ON a.CorporationType = b.CorporationType
 WHERE b.YieldType IN ('YIELD_CULTURE_LOCAL');
+
+-- Hexxon is an outlier to the general pattern
+DELETE FROM Corporation_ResourceYieldChanges 
+WHERE CorporationType = 'CORPORATION_HEXXON_REFINERY'
+  AND YieldType <> 'YIELD_CULTURE_LOCAL';
