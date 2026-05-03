@@ -3032,12 +3032,10 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 		}
 		return iBase;
 	}
-	break;
 	case SPY_STATE_SURVEILLANCE:
 	{
 		return 1;
 	}
-	break;
 	case SPY_STATE_GATHERING_INTEL:
 	{
 		if(pCity)
@@ -3097,12 +3095,10 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 	{
 		return 0;
 	}
-	break;
 	case SPY_STATE_MAKING_INTRODUCTIONS:
 	{
 		return 1;
 	}
-	break;
 	case SPY_STATE_SCHMOOZE:
 	{
 		if (MOD_BALANCE_VP)
@@ -3180,7 +3176,6 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 		}
 		return iTime;
 	}
-	break;
 	case SPY_STATE_GATHERING_INTEL:
 	{
 		if(pCity)
@@ -3241,12 +3236,10 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 	{
 		return GC.getGame().GetTurnsUntilMinorCivElection();
 	}
-	break;
 	case SPY_STATE_MAKING_INTRODUCTIONS:
 	{
 		return (iSpyTurnsToMakeIntroductions * GC.getGame().getGameSpeedInfo().getLeaguePercent()) / 100;
 	}
-	break;
 	}
 
 	ASSERT(false, "CalcRequired cannot handle that iSpyState");
