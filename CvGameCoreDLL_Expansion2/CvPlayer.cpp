@@ -23481,7 +23481,7 @@ void CvPlayer::ProcessLeagueResolutions()
 			}
 		}
 	}
-	else if(!IsLeagueArt())
+	else
 	{
 		int iLoop = 0;
 		for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))

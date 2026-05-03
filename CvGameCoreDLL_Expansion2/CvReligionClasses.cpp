@@ -394,7 +394,7 @@ bool CvGameReligions::IsValidTarget(ReligionTypes eReligion, CvCity* pFromCity, 
 			}
 		}
 	}
-	else if (pFromCity->getOwner() == pToCity->getOwner())
+	else
 	{
 		if (GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
 		{

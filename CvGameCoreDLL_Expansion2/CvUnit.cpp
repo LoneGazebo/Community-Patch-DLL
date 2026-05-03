@@ -34041,7 +34041,7 @@ void CvUnit::RemoveCargoPromotions(CvUnit& cargounit)
 			allembark = true;
 		}
 	}
-	else if(!isCargo())
+	else
 	{
 		PromotionTypes ePromotionArmyOnShip = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_ON_SHIP", true);
 		PromotionTypes ePromotionRangePenalty = (PromotionTypes) GC.getInfoTypeForString("PROMOTION_ARMY_RANGE_PENALTY", true);

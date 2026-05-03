@@ -9828,7 +9828,7 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 	{
 		iRebelBoilPoint += iRebelBoilPoint * 125 / 100;
 	}
-	else if (eProximity < PLAYER_PROXIMITY_CLOSE)
+	else
 	{
 		iRebelBoilPoint += iRebelBoilPoint * 100 / 125;
 	}

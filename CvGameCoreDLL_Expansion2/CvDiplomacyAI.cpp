@@ -47351,7 +47351,7 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 				iOpinionWeight /= 100;
 			}
 		}
-		else if (eMyBranch != eTheirBranch)
+		else
 		{
 			iOpinionWeight += iEraMod * /*10*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_LATE_POLICIES);
 
