@@ -4362,7 +4362,7 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 		return false;
 	}
 
-	if(IsCanDefend() && !(pDefender->IsCanDefend()))
+	if(!(pDefender->IsCanDefend()))
 	{
 		return true;
 	}
@@ -10372,7 +10372,7 @@ bool CvUnit::pillage()
 					iTileValue /= 100;
 
 					// Did the plot owner's master fail to protect their territory?
-					if (!isBarbarian() && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && GET_PLAYER(pPlot->getOwner()).IsVassalOfSomeone())
+					if (GET_PLAYER(pPlot->getOwner()).isMajorCiv() && GET_PLAYER(pPlot->getOwner()).IsVassalOfSomeone())
 					{
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
@@ -11558,8 +11558,6 @@ int CvUnit::GetScaleAmount(int iAmountToScale) const
 	{
 		iExtra = 0;
 		ImprovementTypes eImprovement = (ImprovementTypes)i;
-		if (eImprovement == NO_IMPROVEMENT)
-			continue;
 
 		int iScaleAmount = getUnitInfo().GetScalingFromOwnedImprovements(eImprovement);
 		if (iScaleAmount <= 0)
@@ -12533,9 +12531,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				YieldTypes eYield = (YieldTypes)iI;
 
 				int iPassYield = 0;
-
-				if (eYield == NO_YIELD)
-					continue;
 
 				TerrainTypes eTerrain = pLoopPlot->getTerrainType();
 
@@ -17587,15 +17582,12 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 	else if (pDefender)
 	{
 		//extra damage with special promotion
-		if (GetMoraleBreakChance() != 0 && pDefender && pDefender->GetNumFallBackPlotsAvailable(*this) == 0)
+		if (GetMoraleBreakChance() != 0 && pDefender->GetNumFallBackPlotsAvailable(*this) == 0)
 			iDamage = (iDamage * 150) / 100;
 
-		if (pDefender)
-		{
-			iDamage *= 100 + pDefender->GetDamageTakenMod();
-			iDamage /= 100;
-			iDamage = max(0, iDamage + pDefender->getChangeDamageValue());
-		}
+		iDamage *= 100 + pDefender->GetDamageTakenMod();
+		iDamage /= 100;
+		iDamage = max(0, iDamage + pDefender->getChangeDamageValue());
 	}
 
 	return iDamage;
@@ -20902,20 +20894,17 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 						CvCity* pLoopCity = NULL;
 						int iLoop = 0;
-						if (pNewPlot)
+						for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 						{
-							for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+							CvPlot* pCityPlot = pLoopCity->plot();
+							if (pCityPlot)
 							{
-								CvPlot* pCityPlot = pLoopCity->plot();
-								if (pCityPlot)
-								{
-									iDistance = plotDistance(pNewPlot->getX(), pNewPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
+								iDistance = plotDistance(pNewPlot->getX(), pNewPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
 
-									if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
-									{
-										iBestCityID = pLoopCity->GetID();
-										iBestCityDistance = iDistance;
-									}
+								if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+								{
+									iBestCityID = pLoopCity->GetID();
+									iBestCityDistance = iDistance;
 								}
 							}
 						}
@@ -28392,11 +28381,11 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(const CvPlot & swapPlot) const
 								continue;
 
 							// Make sure units belong to the same player
-							if (pLoopUnit && pLoopUnit->getOwner() == getOwner())
+							if (pLoopUnit->getOwner() == getOwner())
 							{
 								if (pLoopUnit->IsCombatUnit() && pLoopUnit->ReadyToSwap())
 								{
-									if (pLoopUnit->canEnterTerrain(*plot(), CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canEnterTerritory(plot()->getTeam(),true) && pLoopUnit->ReadyToSwap())
+									if (pLoopUnit->canEnterTerrain(*plot(), CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canEnterTerritory(plot()->getTeam(),true))
 									{
 										// Can the unit I am swapping with get to me this turn?
 										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF, 1);
