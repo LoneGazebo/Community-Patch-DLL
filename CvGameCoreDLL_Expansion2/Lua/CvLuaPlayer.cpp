@@ -3909,7 +3909,7 @@ int CvLuaPlayer::lGetInfluenceSpyRankTooltip(lua_State* L)
 	CvString szRank = lua_tostring(L, 3);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 4);
 
-	CvString szResult = "";
+	CvString szResult;
 	szResult = pkPlayer->GetCulture()->GetInfluenceSpyRankTooltip(szSpyName, szRank, eOtherPlayer);
 	lua_pushstring(L, szResult);
 	return 1;

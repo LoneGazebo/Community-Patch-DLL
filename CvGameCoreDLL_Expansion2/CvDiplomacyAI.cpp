@@ -43712,7 +43712,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayer(GetID());
 	DoReevaluatePlayer(ePlayer);
 
-	Localization::String someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
+	Localization::String someoneDenounceInfo;
 	int iMessage = GetDenounceMessage(ePlayer);
 	if (iMessage > 0 && iMessage <= 7)
 	{

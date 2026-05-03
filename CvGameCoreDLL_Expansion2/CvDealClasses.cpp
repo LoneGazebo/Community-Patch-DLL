@@ -6661,7 +6661,7 @@ CvDeal* CvGameDeals::GetDeal(uint index)
 //------------------------------------------------------------------------------
 void CvGameDeals::DestroyDeal(uint index)
 {
-	std::vector<std::pair<uint, CvDeal*> >::iterator it = m_Deals.end();
+	std::vector<std::pair<uint, CvDeal*> >::iterator it;
 	for(it = m_Deals.begin();
 	        it != m_Deals.end(); ++it)
 	{
