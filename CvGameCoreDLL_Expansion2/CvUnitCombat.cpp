@@ -694,7 +694,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == kAttacker.getOwner());
 
-	bool bGeneralsXP = !kAttacker.isBarbarian();
+	bool bGeneralsXP;
 	if (!plot.isCity())
 	{
 		bGeneralsXP = !pkDefender->isBarbarian();
@@ -1542,7 +1542,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
 
-	bool bGeneralsXP = !kAttacker.isBarbarian();
+	bool bGeneralsXP;
 	if (!plot.isCity())
 	{
 		bGeneralsXP = !pkDefender->isBarbarian();
