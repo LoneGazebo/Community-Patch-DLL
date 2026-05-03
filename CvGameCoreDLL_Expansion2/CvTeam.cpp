@@ -6546,7 +6546,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 
 			ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);
-			CvResourceInfo* pHiddenArtifactResource = pHiddenArtifactResource = GC.getResourceInfo(eHiddenArtifactResource);
+			CvResourceInfo* pHiddenArtifactResource = GC.getResourceInfo(eHiddenArtifactResource);
 			if(eHiddenArtifactResource != NO_RESOURCE && pHiddenArtifactResource)
 			{
 				TechTypes eDefaultTech = (TechTypes)pHiddenArtifactResource->getTechReveal();

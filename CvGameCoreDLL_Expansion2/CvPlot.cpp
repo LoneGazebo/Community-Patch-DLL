@@ -3280,12 +3280,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	{
 		if(GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
 		{
-			if(getFeatureType() == FEATURE_FALLOUT && GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT))
-			{
-				bValid = true;
-			}
-			else
-			if(bTestPlotOwner)
+			if((getFeatureType() != FEATURE_FALLOUT || !GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT)) &&
+				bTestPlotOwner)
 			{
 				if(isOwned() && (eTeam != getTeam()) && !atWar(eTeam, getTeam()))
 				{

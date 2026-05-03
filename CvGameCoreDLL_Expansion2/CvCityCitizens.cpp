@@ -420,7 +420,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 
 			iBonus += iEffect;
 		}
-		iBonus = m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
+		iBonus += m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
@@ -3766,9 +3766,9 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 
 		// the smallest possible decrease in yield rate that would increase unhappiness from the respective need by 1
 		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
-		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
-		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
-		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
+		iGoldRateChangeForIncreasedPoverty = -INT_MAX;
+		iScienceRateChangeForIncreasedIlliteracy = -INT_MAX;
+		iCultureRateChangeForIncreasedBoredom = -INT_MAX;
 		int iLimit = MOD_BALANCE_UNCAPPED_UNHAPPINESS ? INT_MAX : pCity->getPopulation();
 		if (iDistress < iLimit)
 		{

@@ -2529,7 +2529,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 				if (pkChopBuild && pkChopBuild->getImprovement() == NO_IMPROVEMENT && pkChopBuild->isFeatureRemoveOnly(eFeature) && m_pPlayer->canBuild(pPlot, eLoopBuild))
 				{
 					eChopBuild = eLoopBuild;
-					pkChopBuild = pkChopBuild;
 					break;
 				}
 			}
@@ -3485,9 +3484,6 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 			{
 				BuildTypes eOtherBuild = (BuildTypes)iBuild;
 
-				if (eOtherBuild == NO_BUILD)
-					continue;
-
 				CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherBuild);
 				if (!pkOtherBuildInfo)
 					continue;
@@ -3829,7 +3825,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 
 				if (iNewAdjacentWorkedYield != 0 || iNewAdjacentUnworkedYield != 0)
 				{
-					int iAdjacentCityYieldModifier = pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, eYield) : 100;
+					int iAdjacentCityYieldModifier = GetYieldCityModifierTimes100(pAdjacentOwningCity, eYield);
 					iSecondaryScore += (iNewAdjacentWorkedYield * iYieldModifier * iAdjacentCityYieldModifier) / 100;
 					iPotentialScore += (iNewAdjacentUnworkedYield * iYieldModifier * iAdjacentCityYieldModifier) / 100;
 				}
@@ -3951,7 +3947,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
 				if (pkOldImprovementInfo && (pkOldImprovementInfo->IsConnectsResource(eResource) || pkOldImprovementInfo->GetResourceFromImprovement() == eResource))
 				{
-					ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+					ResourceTypes eResourceFromOldImprovement = (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement();
 					int iOldResourceQuantityFromImprovement = pkOldImprovementInfo->GetResourceQuantityFromImprovement();
 					if (iOldResourceQuantityFromImprovement <= 0)
 						iOldResourceQuantityFromImprovement = 1;

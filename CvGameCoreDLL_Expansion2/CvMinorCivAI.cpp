@@ -1099,7 +1099,7 @@ void CvMinorCivQuest::EnableInfluence(PlayerTypes ePlayer)
 CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) const
 {
 	CvString szTooltip = "";
-	CvString szTooltipHeader = "";
+	CvString szTooltipHeader;
 	if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isMajorCiv())
 		return szTooltip;
 
@@ -9828,7 +9828,7 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 	{
 		iRebelBoilPoint += iRebelBoilPoint * 125 / 100;
 	}
-	else if (eProximity < PLAYER_PROXIMITY_CLOSE)
+	else
 	{
 		iRebelBoilPoint += iRebelBoilPoint * 100 / 125;
 	}
