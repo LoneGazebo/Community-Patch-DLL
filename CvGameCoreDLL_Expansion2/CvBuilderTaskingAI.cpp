@@ -2529,7 +2529,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 				if (pkChopBuild && pkChopBuild->getImprovement() == NO_IMPROVEMENT && pkChopBuild->isFeatureRemoveOnly(eFeature) && m_pPlayer->canBuild(pPlot, eLoopBuild))
 				{
 					eChopBuild = eLoopBuild;
-					pkChopBuild = pkChopBuild;
 					break;
 				}
 			}
