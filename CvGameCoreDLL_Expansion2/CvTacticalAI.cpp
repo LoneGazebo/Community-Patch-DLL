@@ -8134,8 +8134,15 @@ static STacticalAssignment* ScorePlotForCombatUnitMove(const SUnitStats& unit, c
 		iDangerScore = ScoreCombatUnitTurnEnd(pUnit, unit.eLastAssignment, testPlot, iDanger,
 			eRelevantDomain, unit.iSelfDamage + iSelfDamage, assumedPosition, evalMode, false, false);
 
-		if (iDangerScore == INT_MAX && (evalMode == EM_INITIAL || gSafePlotCount[unit.iUnitID] > 0))
-			return result; //don't do it
+		if (iDangerScore == INT_MAX)
+		{
+			if (evalMode == EM_INITIAL || gSafePlotCount[unit.iUnitID] > 0)
+				return result; //don't do it
+
+			//unit has no safe plots and must end turn somewhere (EM_FINAL)
+			//clamp the sentinel to worst-possible arithmetic-safe value
+			iDangerScore = SHRT_MIN;
+		}
 
 		// unit giving extra strength to an adjacent city?
 		if (pUnit->GetAdjacentCityDefenseMod() > 0 && pTestPlot->IsAdjacentCity(pUnit->getTeam()))
@@ -9397,13 +9404,12 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gCheckedPositions++;
 
 		const STacticalAssignment& aRef = gMovesToAdd[i].getA();
-		const STacticalAssignment& bRef = gMovesToAdd[i].getB();
 
 		AddAssignmentResult a = pNewChild->addAssignment(aRef);
 
 		AddAssignmentResult b = RESULT_NOOP;
 		if (gMovesToAdd[i].hasB())
-			b = pNewChild->addAssignment(bRef);
+			b = pNewChild->addAssignment(gMovesToAdd[i].getB());
 
 		//cannot add a RESTART in the middle of a combo move for consistency, so add afterwards
 		if (a == RESULT_ADDED_W_VIS_CHANGE || b == RESULT_ADDED_W_VIS_CHANGE)

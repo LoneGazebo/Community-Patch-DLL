@@ -876,22 +876,22 @@ protected:
 		bool GetBit(const uint uiEntry) const
 		{
 			const uint uiOffset = uiEntry/eSize;
-			return (m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset))) != 0;
+			return (m_bits[uiOffset] & 1u<<(uiEntry-(eSize*uiOffset))) != 0;
 		}
 		void SetBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_bits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] |= 1u<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_bits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
+			m_bits[uiOffset] &= ~(1u<<(uiEntry-(eSize*uiOffset)));
 		}
 		void ToggleBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_bits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] ^= 1u<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearAll()
 		{

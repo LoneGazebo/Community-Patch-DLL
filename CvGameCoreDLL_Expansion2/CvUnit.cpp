@@ -31340,10 +31340,10 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 void CvUnit::ClearPathCache()
 {
 	m_kLastPath.clear();
-	m_uiLastPathCacheOrigin = -1;
-	m_uiLastPathCacheDestination = -1;
-	m_uiLastPathFlags = 0xFFFFFFFF;
-	m_uiLastPathTurnSlice = -1;
+	m_uiLastPathCacheOrigin      = 0xFFFFFFFFu;
+	m_uiLastPathCacheDestination = 0xFFFFFFFFu;
+	m_uiLastPathFlags            = 0xFFFFFFFFu;
+	m_uiLastPathTurnSlice        = 0xFFFFFFFFu;
 }
 
 //	--------------------------------------------------------------------------------
