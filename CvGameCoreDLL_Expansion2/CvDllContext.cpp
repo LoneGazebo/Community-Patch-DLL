@@ -1041,7 +1041,7 @@ ICvRandom1* CvDllGameContext::GetRandomNumberGenerator(unsigned int index)
 //------------------------------------------------------------------------------
 void CvDllGameContext::DestroyRandomNumberGenerator(unsigned int index)
 {
-	std::vector<std::pair<uint, CvRandom*> >::iterator it = m_RandomNumberGenerators.end();
+	std::vector<std::pair<uint, CvRandom*> >::iterator it;
 	for(it = m_RandomNumberGenerators.begin();
 	        it != m_RandomNumberGenerators.end(); ++it)
 	{
@@ -1082,7 +1082,7 @@ ICvNetInitInfo1* CvDllGameContext::GetNetInitInfo(unsigned int index)
 //------------------------------------------------------------------------------
 void CvDllGameContext::DestroyNetInitInfo(unsigned int index)
 {
-	std::vector<std::pair<uint, CvDllNetInitInfo*> >::iterator it = m_NetInitInfos.end();
+	std::vector<std::pair<uint, CvDllNetInitInfo*> >::iterator it;
 	for(it = m_NetInitInfos.begin();
 	        it != m_NetInitInfos.end(); ++it)
 	{
@@ -1123,7 +1123,7 @@ ICvNetLoadGameInfo1* CvDllGameContext::GetNetLoadGameInfo(unsigned int index)
 //------------------------------------------------------------------------------
 void CvDllGameContext::DestroyNetLoadGameInfo(unsigned int index)
 {
-	std::vector<std::pair<uint, CvDllNetLoadGameInfo*> >::iterator it = m_NetLoadGameInfos.end();
+	std::vector<std::pair<uint, CvDllNetLoadGameInfo*> >::iterator it;
 	for(it = m_NetLoadGameInfos.begin();
 	        it != m_NetLoadGameInfos.end(); ++it)
 	{

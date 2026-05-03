@@ -1162,7 +1162,7 @@ int CvLuaTeam::lIsWarBlockedByPeaceTreaty(lua_State* L)
 	{
 		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
 
-		if (eLoopTeam != NO_TEAM && eLoopTeam != pkTeam->GetID() && eLoopTeam != eOtherTeam)
+		if (eLoopTeam != pkTeam->GetID() && eLoopTeam != eOtherTeam)
 		{
 			if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eOtherTeam) || GET_TEAM(eOtherTeam).IsVassal(eLoopTeam))
 			{

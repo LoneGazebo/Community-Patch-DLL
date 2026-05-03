@@ -210,7 +210,7 @@ void CvAIOperation::SetMusterPlot(CvPlot* pMuster)
 	if (pMuster==NULL)
 	{
 		m_iMusterX = INVALID_PLOT_COORD;
-		m_iMusterX = INVALID_PLOT_COORD;
+		m_iMusterY = INVALID_PLOT_COORD;
 	}
 	else
 	{

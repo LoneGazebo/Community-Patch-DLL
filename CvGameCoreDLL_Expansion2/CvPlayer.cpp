@@ -4613,7 +4613,6 @@ CvString CvPlayer::getNewCityName() const
 		strName = pNode->m_data;
 		if(isCityNameValid(strName, true))
 		{
-			strName = pNode->m_data;
 			break;
 		}
 	}
@@ -22007,7 +22006,6 @@ int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		bCityValid = false;
 
 		// Assume pLoopCity is Annexed, and does NOT count
 		if (pLoopCity == pAssumeCityAnnexed)
@@ -23504,7 +23502,7 @@ void CvPlayer::ProcessLeagueResolutions()
 			}
 		}
 	}
-	else if(!IsLeagueArt())
+	else
 	{
 		int iLoop = 0;
 		for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
@@ -49523,7 +49521,7 @@ UnitTypes CvPlayer::GetCompetitiveSpawnUnitType(const bool bIncludeRanged, const
 				continue;
 
 			// Cross check in case mods forget to change unit classes after repurposing default units
-			if (!pUnitInfo || pUnitInfo->GetUnitClassType() != eUnitClass)
+			if (pUnitInfo->GetUnitClassType() != eUnitClass)
 				continue;
 
 			eUnit = eReplaceUnit;
