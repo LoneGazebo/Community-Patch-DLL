@@ -5325,7 +5325,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
+							if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
 							{
 								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion))
 								{
@@ -7282,7 +7282,7 @@ void CvLeague::StartSession()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = PlayerTypes(iPlayerLoop);
-		if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
+		if (GET_PLAYER(ePlayer).isAlive())
 		{
 			int iDelegates = CalculateStartingVotesForMember(ePlayer);
 			if (iDelegates > 0)
@@ -8843,7 +8843,7 @@ void CvLeague::CheckProjectsProgress()
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
 					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-					if (eLoopPlayer == NO_PLAYER || !GET_PLAYER(eLoopPlayer).isAlive())
+					if (!GET_PLAYER(eLoopPlayer).isAlive())
 						continue;
 
 					CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
@@ -11699,7 +11699,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)i;
-		if (ePlayer == NO_PLAYER || !pLeague->IsMember(ePlayer))
+		if (!pLeague->IsMember(ePlayer))
 			continue;
 
 		if (GetPlayer()->GetID() == ePlayer)

@@ -11995,7 +11995,7 @@ int CvLuaPlayer::lIsHasDefensivePact(lua_State* L)
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
-		if(ePlayerLoop != eOtherPlayer && ePlayerLoop != NO_PLAYER && ePlayerLoop != pkPlayer->GetID())
+		if(ePlayerLoop != eOtherPlayer && ePlayerLoop != pkPlayer->GetID())
 		{
 			if(GET_TEAM(pkPlayer->getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayerLoop).getTeam()))
 			{
@@ -18374,18 +18374,15 @@ int CvLuaPlayer::lIsEventChoiceActive(lua_State* L)
 						for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 						{
 							EventTypes eEvent = (EventTypes)iLoop;
-							if(eEvent != NO_EVENT)
+							if(pkEventChoiceInfo->isParentEvent(eEvent))
 							{
-								if(pkEventChoiceInfo->isParentEvent(eEvent))
+								CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+								if(pkEventInfo != NULL)
 								{
-									CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-									if(pkEventInfo != NULL)
+									if(pkEventInfo->getNumChoices() == 1)
 									{
-										if(pkEventInfo->getNumChoices() == 1)
-										{
-											bResult = true;
-											break;
-										}
+										bResult = true;
+										break;
 									}
 								}
 							}
@@ -18509,8 +18506,6 @@ int CvLuaPlayer::lGetActivePlayerEventChoices(lua_State* L)
 	for (int iI = 0; iI < GC.getNumEventChoiceInfos(); iI++)
 	{
 		EventChoiceTypes eEventChoice = (EventChoiceTypes)iI;
-		if (eEventChoice == NO_EVENT_CHOICE)
-			continue;
 
 		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -18522,20 +18517,17 @@ int CvLuaPlayer::lGetActivePlayerEventChoices(lua_State* L)
 				for (int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 				{
 					EventTypes eEvent = (EventTypes)iLoop;
-					if (eEvent != NO_EVENT)
+					if (pkEventChoiceInfo->isParentEvent(eEvent))
 					{
-						if (pkEventChoiceInfo->isParentEvent(eEvent))
+						eParentEvent = eEvent;
+						CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+						if (pkEventInfo != NULL)
 						{
-							eParentEvent = eEvent;
-							CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-							if (pkEventInfo != NULL)
+							if (pkEventInfo->getNumChoices() == 1)
 							{
-								if (pkEventInfo->getNumChoices() == 1)
-								{
-									bNotChoice = true;
-								}
-								break;
+								bNotChoice = true;
 							}
+							break;
 						}
 					}
 				}
@@ -18575,8 +18567,6 @@ int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
 	for (int iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
 	{
 		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iI;
-		if (eEventChoice == NO_EVENT_CHOICE_CITY)
-			continue;
 
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -18593,20 +18583,17 @@ int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
 					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 					{
 						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT_CITY)
+						if (pkEventChoiceInfo->isParentEvent(eEvent))
 						{
-							if (pkEventChoiceInfo->isParentEvent(eEvent))
+							eParentEvent = eEvent;
+							CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
+							if (pkCityEventInfo != NULL)
 							{
-								eParentEvent = eEvent;
-								CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
-								if (pkCityEventInfo != NULL)
+								if (pkCityEventInfo->getNumChoices() == 1)
 								{
-									if (pkCityEventInfo->getNumChoices() == 1)
-									{
-										bNotChoice = true;
-									}
-									break;
+									bNotChoice = true;
 								}
+								break;
 							}
 						}
 					}
@@ -18653,8 +18640,6 @@ int CvLuaPlayer::lGetRecentPlayerEventChoices(lua_State* L)
 	for (int iI = 0; iI < GC.getNumEventChoiceInfos(); iI++)
 	{
 		EventChoiceTypes eEventChoice = (EventChoiceTypes)iI;
-		if (eEventChoice == NO_EVENT_CHOICE)
-			continue;
 
 		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -18666,23 +18651,20 @@ int CvLuaPlayer::lGetRecentPlayerEventChoices(lua_State* L)
 				for (int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 				{
 					EventTypes eEvent = (EventTypes)iLoop;
-					if (eEvent != NO_EVENT)
+					if (pkEventChoiceInfo->isParentEvent(eEvent))
 					{
-						if (pkEventChoiceInfo->isParentEvent(eEvent))
-						{							
-							CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-							if (pkEventInfo != NULL)
+						CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+						if (pkEventInfo != NULL)
+						{
+							if (pkEventInfo->getNumChoices() == 1)
 							{
-								if (pkEventInfo->getNumChoices() == 1)
-								{
-									bInstant = true;
-								}
-								if (pkEventInfo->getNumChoices() > 1)
-								{
-									eParentEvent = eEvent;
-								}
-								break;
+								bInstant = true;
 							}
+							if (pkEventInfo->getNumChoices() > 1)
+							{
+								eParentEvent = eEvent;
+							}
+							break;
 						}
 					}
 				}
@@ -18721,8 +18703,6 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 	for (int iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
 	{
 		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iI;
-		if (eEventChoice == NO_EVENT_CHOICE_CITY)
-			continue;
 
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -18739,23 +18719,20 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 					{
 						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT_CITY)
+						if (pkEventChoiceInfo->isParentEvent(eEvent))
 						{
-							if (pkEventChoiceInfo->isParentEvent(eEvent))
+							CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
+							if (pkCityEventInfo != NULL)
 							{
-								CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
-								if (pkCityEventInfo != NULL)
+								if (pkCityEventInfo->getNumChoices() == 1)
 								{
-									if (pkCityEventInfo->getNumChoices() == 1)
-									{
-										bInstant = true;
-									}
-									else if (pkCityEventInfo->getNumChoices() > 1)
-									{
-										eParentEvent = eEvent;
-									}
-									break;
+									bInstant = true;
 								}
+								else if (pkCityEventInfo->getNumChoices() > 1)
+								{
+									eParentEvent = eEvent;
+								}
+								break;
 							}
 						}
 					}

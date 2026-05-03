@@ -1055,9 +1055,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
-
 		UpdateSpecialReligionYields(eYield);
 		UpdateCityYields(eYield);
 
@@ -2675,9 +2672,6 @@ void CvCity::doTurn()
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes)iI;
-			if (eYield == NO_YIELD)
-				continue;
-
 			UpdateSpecialReligionYields(eYield);
 			UpdateCityYields(eYield);
 		}
@@ -2725,9 +2719,6 @@ void CvCity::UpdateAllNonPlotYields(bool bIncludePlayerHappiness)
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
-
 		//Simplification - errata yields not worth considering.
 		if ((YieldTypes)iI > YIELD_CULTURE_LOCAL && !MOD_BALANCE_CORE_JFD)
 			break;
@@ -3226,39 +3217,36 @@ void CvCity::DoEvents(bool bEspionageOnly)
 	for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 	{
 		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
-		if (eEventChoice != NO_EVENT_CHOICE_CITY)
+		if (GetEventChoiceDuration(eEventChoice) > 0)
 		{
-			if (GetEventChoiceDuration(eEventChoice) > 0)
+			ChangeEventChoiceDuration(eEventChoice, -1);
+			CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
+			if (pkEventInfo != NULL)
 			{
-				ChangeEventChoiceDuration(eEventChoice, -1);
-				CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
-				if (pkEventInfo != NULL)
-				{
-					//we expire these in a special way.
-					if (pkEventInfo->isCounterspyMission())
-						continue;
+				//we expire these in a special way.
+				if (pkEventInfo->isCounterspyMission())
+					continue;
 
-					if (GC.getLogging())
-					{
-
-						CvString playerName;
-						FILogFile* pLog = NULL;
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventCityLogging.csv";
-						playerName = getName();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("Event choice: %s. Cooldown Active. Changing Value by -1. Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
-				}
-				if (GetEventChoiceDuration(eEventChoice) == 0)
+				if (GC.getLogging())
 				{
-					DoCancelEventChoice(eEventChoice);
+
+					CvString playerName;
+					FILogFile* pLog = NULL;
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventCityLogging.csv";
+					playerName = getName();
+					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("Event choice: %s. Cooldown Active. Changing Value by -1. Cooldown Remaining: %d", pkEventInfo->GetDescription(), GetEventChoiceDuration(eEventChoice));
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
 				}
+			}
+			if (GetEventChoiceDuration(eEventChoice) == 0)
+			{
+				DoCancelEventChoice(eEventChoice);
 			}
 		}
 	}
@@ -3296,9 +3284,6 @@ void CvCity::DoEvents(bool bEspionageOnly)
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
 		CityEventTypes eEvent = (CityEventTypes)iLoop;
-		if (eEvent == NO_EVENT_CITY)
-			continue;
-
 		CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 		if (pkEventInfo == NULL)
 			continue;
@@ -3522,24 +3507,21 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent, bool bSendMsg)
 			for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				eEventChoice = (CityEventChoiceTypes)iLoop;
-				if (eEventChoice != NO_EVENT_CHOICE_CITY)
+				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+				if (pkEventChoiceInfo != NULL)
 				{
-					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
-					if (pkEventChoiceInfo != NULL)
+					if (IsCityEventChoiceValid(eEventChoice, eChosenEvent))
 					{
-						if (IsCityEventChoiceValid(eEventChoice, eChosenEvent))
+						iNumEvent++;
+						if (pkEventInfo->getNumChoices() == 1)
 						{
-							iNumEvent++;
-							if (pkEventInfo->getNumChoices() == 1)
+							DoEventChoice(eEventChoice, eChosenEvent, bSendMsg);
+							if (isHuman(ISHUMAN_AI_EVENT_CHOICE))
 							{
-								DoEventChoice(eEventChoice, eChosenEvent, bSendMsg);
-								if (isHuman(ISHUMAN_AI_EVENT_CHOICE))
-								{
-									CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_7, eEventChoice, GetID(), getOwner());
-									GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
-								}
-								return;
+								CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_7, eEventChoice, GetID(), getOwner());
+								GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 							}
+							return;
 						}
 					}
 				}
@@ -3630,9 +3612,6 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				ePlayer = (PlayerTypes)iPlayerLoop;
-				if (ePlayer == NO_PLAYER)
-					continue;
-
 				CvPlayer& kPlayer2 = GET_PLAYER(ePlayer);
 
 				if (!pLinkerInfo->CheckOtherPlayers() && ePlayer != getOwner())
@@ -3907,9 +3886,6 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			return false;
-
 		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
 		iNeededYield *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 		iNeededYield /= 100;
@@ -4125,9 +4101,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				ePlayer = (PlayerTypes)iPlayerLoop;
-				if (ePlayer == NO_PLAYER)
-					continue;
-
 				CvPlayer& kPlayer2 = GET_PLAYER(ePlayer);
 
 				if (!pLinkerInfo->CheckOtherPlayers() && ePlayer != getOwner())
@@ -5584,9 +5557,6 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				ePlayer = (PlayerTypes)iPlayerLoop;
-				if (ePlayer == NO_PLAYER)
-					continue;
-
 				CvPlayer& kPlayer2 = GET_PLAYER(ePlayer);
 
 				if (!pLinkerInfo->CheckOtherPlayers() && ePlayer != getOwner())
