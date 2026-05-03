@@ -1333,14 +1333,14 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		std::map<int, std::map<int, int>>(m_miYieldModifiersFromAccomplishments).swap(m_miYieldModifiersFromAccomplishments);
 	}
 	// Building_BonusFromAccomplishments
-	// Table structure (BuildingType, AccomplishmentType, Happiness, DomainType, DomainXP, UnitCombatType, UnitProductionModifier)
+	// Table structure (BuildingType, AccomplishmentType, Happiness, ExtraSpies, DomainType, DomainXP, UnitCombatType, UnitProductionModifier)
 	// The building gives additional bonuses once the corresponding accomplishment has been achieved
 	{
 		std::string strKey("Building_BonusFromAccomplishments");
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Accomplishments.ID, Happiness, coalesce(Domains.ID, -1), DomainXP, coalesce(UnitCombatInfos.ID, -1), UnitProductionModifier from Building_BonusFromAccomplishments inner join Accomplishments on Accomplishments.Type = AccomplishmentType left join Domains on Domains.Type = DomainType left join UnitCombatInfos on UnitCombatInfos.Type = UnitCombatType where BuildingType = ?");
+			pResults = kUtility.PrepareResults(strKey, "select Accomplishments.ID, Happiness, ExtraSpies, coalesce(Domains.ID, -1), DomainXP, coalesce(UnitCombatInfos.ID, -1), UnitProductionModifier from Building_BonusFromAccomplishments inner join Accomplishments on Accomplishments.Type = AccomplishmentType left join Domains on Domains.Type = DomainType left join UnitCombatInfos on UnitCombatInfos.Type = UnitCombatType where BuildingType = ?");
 		}
 
 		pResults->Bind(1, szBuildingType);
