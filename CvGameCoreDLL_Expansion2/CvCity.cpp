@@ -4194,8 +4194,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 				continue;
 
 			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
-			if (eImprovement == NO_IMPROVEMENT)
-				continue;
 			
 			//connected?
 			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
@@ -4376,65 +4374,45 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->hasNearbyFeature() != -1)
 	{
 		FeatureTypes eFeature = (FeatureTypes)pkEventInfo->hasNearbyFeature();
-		if (eFeature != NO_FEATURE)
-		{
-			if (!IsHasFeatureLocal(eFeature))
-				return false;
-		}
+		if (!IsHasFeatureLocal(eFeature))
+			return false;
 	}
 	if (pkEventInfo->hasNearbyTerrain() != -1)
 	{
 		TerrainTypes eTerrain = (TerrainTypes)pkEventInfo->hasNearbyTerrain();
-		if (eTerrain != NO_TERRAIN)
-		{
-			if (!HasTerrain(eTerrain))
-				return false;
-		}
+		if (!HasTerrain(eTerrain))
+			return false;
 	}
 
 	if (pkEventInfo->getBuildingRequired() != -1)
 	{
 		BuildingClassTypes eBuilding = (BuildingClassTypes)pkEventInfo->getBuildingRequired();
-		if (eBuilding != NO_BUILDINGCLASS)
-		{
-			if (GetCityBuildings()->GetNumBuildingClass(eBuilding) <= 0)
-				return false;
-		}
+		if (GetCityBuildings()->GetNumBuildingClass(eBuilding) <= 0)
+			return false;
 	}
 	if (pkEventInfo->getBuildingLimiter() != -1)
 	{
 		BuildingClassTypes eBuilding = (BuildingClassTypes)pkEventInfo->getBuildingLimiter();
-		if (eBuilding != NO_BUILDINGCLASS)
-		{
-			if (GetCityBuildings()->GetNumBuildingClass(eBuilding) > 0)
-				return false;
-		}
+		if (GetCityBuildings()->GetNumBuildingClass(eBuilding) > 0)
+			return false;
 	}
 	if (pkEventInfo->getRequiredImprovement() != -1)
 	{
 		ImprovementTypes eImprovement = (ImprovementTypes)pkEventInfo->getRequiredImprovement();
-		if (eImprovement != NO_IMPROVEMENT)
-		{
-			if (!HasImprovement(eImprovement))
-				return false;
-		}
+		if (!HasImprovement(eImprovement))
+			return false;
 	}
 	if (pkEventInfo->getLocalResourceRequired() != -1)
 	{
 		ResourceTypes eResource = (ResourceTypes)pkEventInfo->getLocalResourceRequired();
-		if (eResource != NO_RESOURCE)
-		{
-			if (!HasResource(eResource))
-				return false;
-		}
+		if (!HasResource(eResource))
+			return false;
 	}
 	//Check our minimum yields - this looks at stored values, not yields per turn.
 	bool bHas = true;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
 
 		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
 		if (pkEventInfo->getPreCheckEventYield(eYield) != 0)
@@ -4570,13 +4548,10 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 		for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 		{
 			CityEventTypes eParentEvent = (CityEventTypes)iLoop;
-			if (eParentEvent != NO_EVENT_CITY)
+			if (pkEventInfo->isParentEvent(eParentEvent))
 			{
-				if (pkEventInfo->isParentEvent(eParentEvent))
-				{
-					eEvent = eParentEvent;
-					break;
-				}
+				eEvent = eParentEvent;
+				break;
 			}
 		}
 	}
@@ -4611,8 +4586,6 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
 
 		int iSiphonYield = pkEventInfo->getYieldSiphon(eYield);
 		if (iSiphonYield <= 0)
@@ -4798,10 +4771,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 			if (pkEventChoiceInfo->getEventPromotion() != -1)
 			{
 				PromotionTypes ePromotion = (PromotionTypes)pkEventChoiceInfo->getEventPromotion();
-				if (ePromotion != -1)
-				{
-					changeFreePromotionCount(ePromotion, -1);
-				}
+				changeFreePromotionCount(ePromotion, -1);
 			}
 
 			if (pkEventChoiceInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
@@ -4812,21 +4782,16 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 			for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
 			{
 				ResourceTypes eResource = (ResourceTypes)iI;
-				if (eResource != NO_RESOURCE)
+				int iBonus = pkEventChoiceInfo->getEventResourceChange(eResource);
+				iBonus *= -1;
+				if (iBonus != 0)
 				{
-					int iBonus = pkEventChoiceInfo->getEventResourceChange(eResource);
-					iBonus *= -1;
-					if (iBonus != 0)
-					{
-						GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus * -1, false, true, true);
-					}
+					GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, iBonus * -1, false, true, true);
 				}
 			}
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
-				if (eYield == NO_YIELD)
-					continue;
 
 				int iYieldChange = pkEventChoiceInfo->getCityYield(eYield);
 				if (iYieldChange != 0)
@@ -4859,7 +4824,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 				for (int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
 				{
 					ImprovementTypes eImprovement = (ImprovementTypes)iJ;
-					if (eImprovement != NO_IMPROVEMENT && pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) != 0)
+					if (pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) != 0)
 					{
 						ChangeEventImprovementYield(eImprovement, eYield, pkEventChoiceInfo->getImprovementYield(eImprovement, eYield) * -1);
 						bChanged = true;
@@ -4868,7 +4833,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 				for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 				{
 					FeatureTypes eFeature = (FeatureTypes)iJ;
-					if (eFeature != NO_FEATURE && pkEventChoiceInfo->getFeatureYield(eFeature, eYield) != 0)
+					if (pkEventChoiceInfo->getFeatureYield(eFeature, eYield) != 0)
 					{
 						ChangeEventFeatureYield(eFeature, eYield, pkEventChoiceInfo->getFeatureYield(eFeature, eYield) * -1);
 						bChanged = true;
@@ -4877,7 +4842,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 				for (int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
 				{
 					TerrainTypes eTerrain = (TerrainTypes)iJ;
-					if (eTerrain != NO_TERRAIN && pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) != 0)
+					if (pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) != 0)
 					{
 						ChangeEventTerrainYield(eTerrain, eYield, pkEventChoiceInfo->getTerrainYield(eTerrain, eYield) * -1);
 						bChanged = true;
@@ -4886,7 +4851,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 				for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 				{
 					ResourceTypes eResource = (ResourceTypes)iJ;
-					if (eResource != NO_RESOURCE && pkEventChoiceInfo->getResourceYield(eResource, eYield) != 0)
+					if (pkEventChoiceInfo->getResourceYield(eResource, eYield) != 0)
 					{
 						ChangeEventResourceYield(eResource, eYield, pkEventChoiceInfo->getResourceYield(eResource, eYield) * -1);
 						bChanged = true;
@@ -5001,8 +4966,6 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 				for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					YieldTypes eYield = (YieldTypes)iI;
-					if (eYield == NO_YIELD)
-						continue;
 
 					UpdateSpecialReligionYields(eYield);
 					UpdateCityYields(eYield);
@@ -5484,8 +5447,6 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
-				if (eYield == NO_YIELD)
-					continue;
 
 				int iSiphonYield = pkEventInfo->getYieldSiphon(eYield);
 				if (iSiphonYield <= 0)
@@ -6013,8 +5974,6 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 				continue;
 
 			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
-			if (eImprovement == NO_IMPROVEMENT)
-				continue;
 
 			//connected?
 			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
@@ -6274,8 +6233,6 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
 
 		int iNeededYield = pkEventInfo->getYieldMinimum(eYield);
 		if (pkEventInfo->getPreCheckEventYield(eYield) != 0)
@@ -6406,12 +6363,9 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 				{
 					CityEventTypes eEvent = (CityEventTypes)iLoop;
-					if (eEvent != NO_EVENT_CITY)
+					if (pkEventChoiceInfo->isParentEvent(eEvent))
 					{
-						if (pkEventChoiceInfo->isParentEvent(eEvent))
-						{
-							SetEventActive(eEvent, false);
-						}
+						SetEventActive(eEvent, false);
 					}
 				}
 			}
@@ -6523,8 +6477,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
-				if (eYield == NO_YIELD)
-					continue;
 
 				int iPassYield = pkEventChoiceInfo->getPreCheckEventYield(eYield);
 				iPassYield *= -1;
@@ -6548,27 +6500,24 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 						{
 							CityEventTypes eEvent = (CityEventTypes)iLoop;
-							if (eEvent != NO_EVENT_CITY)
+							if (pkEventChoiceInfo->isParentEvent(eEvent))
 							{
-								if (pkEventChoiceInfo->isParentEvent(eEvent))
+								CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+								if (pkEventInfo != NULL)
 								{
-									CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-									if (pkEventInfo != NULL)
-									{
-										Localization::String strMessage;
-										Localization::String strSummary;
-										strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY");
-										strMessage << pkEventChoiceInfo->GetDescription();
-										strMessage << GetScaledHelpText(eEventChoice, false, -1, NO_PLAYER);
-										strMessage << pkEventInfo->GetDescription();
-										strMessage << getNameKey();
-										strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T");
-										strSummary << pkEventInfo->GetDescription();
-										strSummary << getNameKey();
+									Localization::String strMessage;
+									Localization::String strSummary;
+									strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY");
+									strMessage << pkEventChoiceInfo->GetDescription();
+									strMessage << GetScaledHelpText(eEventChoice, false, -1, NO_PLAYER);
+									strMessage << pkEventInfo->GetDescription();
+									strMessage << getNameKey();
+									strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T");
+									strSummary << pkEventInfo->GetDescription();
+									strSummary << getNameKey();
 
-										pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID(), getOwner());
-										break;
-									}
+									pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID(), getOwner());
+									break;
 								}
 							}
 						}
@@ -6699,8 +6648,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 			{
 				BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
-				if (eBuildingClass == NO_BUILDINGCLASS)
-					continue;
 
 				if (GetCityBuildings()->GetNumBuildingClass(eBuildingClass) <= 0)
 					continue;
@@ -6749,8 +6696,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
-				if (eYield == NO_YIELD)
-					continue;
 
 				int iYieldChange = pkEventChoiceInfo->getCityYield(eYield);
 				if (iYieldChange != 0)
@@ -7022,8 +6967,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						continue;
 
 					ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
-					if (eImprovement == NO_IMPROVEMENT)
-						continue;
 
 					//connected?
 					CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
@@ -7217,8 +7160,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
 			{
 				ReligionTypes eReligion = (ReligionTypes)iI;
-				if (eReligion == NO_RELIGION)
-					continue;
 
 				int iPercent = (ReligionTypes)pkEventChoiceInfo->getEventConvertReligionPercent(iI);
 				if (iPercent > 0)
@@ -7286,7 +7227,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
 							PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-							if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isMajorCiv())
+							if (GET_PLAYER(ePlayer).isMajorCiv())
 							{
 								//Not global? Skip all but me.
 								if (!bGlobal && ePlayer != getOwner())
@@ -7321,8 +7262,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
-				if (eYield == NO_YIELD)
-					continue;
 
 				UpdateSpecialReligionYields(eYield);
 				UpdateCityYields(eYield);
@@ -7832,8 +7771,6 @@ void CvCity::updateEconomicValue()
 			continue;
 
 		ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
-		if (eResource == NO_RESOURCE)
-			continue;
 
 		//for plots owned by this city or reasonably likely to be claimed
 		bool bGood = false;
@@ -7857,7 +7794,7 @@ void CvCity::updateEconomicValue()
 		PlayerTypes ePossibleOwner = (PlayerTypes)iPlayerLoop;
 		m_aiEconomicValue[iPlayerLoop] = 0; //everybody gets a new value
 
-		if (ePossibleOwner != NO_PLAYER && GET_PLAYER(ePossibleOwner).isAlive())
+		if (GET_PLAYER(ePossibleOwner).isAlive())
 		{
 			int iResourceValue = 0;
 			if (validResources.size() > 0)
@@ -7866,8 +7803,6 @@ void CvCity::updateEconomicValue()
 				{
 					//todo: add something for currently unworked plots (future potential)
 					ResourceTypes eResource = (ResourceTypes)validResources.GetElement(iResourceLoop);
-					if (eResource == NO_RESOURCE)
-						continue;
 
 					if (GET_TEAM(GET_PLAYER(ePossibleOwner).getTeam()).IsResourceObsolete(eResource))
 						continue;
@@ -8006,8 +7941,6 @@ std::vector<CvPlot*> CvCity::GetPlotsClaimedByBuilding(BuildingTypes eBuilding) 
 			continue;
 
 		ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
-		if (eResource == NO_RESOURCE)
-			continue;
 
 		if (pLoopPlot->IsStealBlockedByImprovement())
 			continue;
@@ -15003,8 +14936,6 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		DomainTypes eDomain = (DomainTypes)iI;
-		if (eDomain == NO_DOMAIN)
-			continue;
 
 		int iModifierPerSpecialist = GET_PLAYER(getOwner()).GetPlayerTraits()->GetDomainProductionModifiersPerSpecialist(eDomain);
 
@@ -15243,8 +15174,6 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes)iI;
-		if (eYield == NO_YIELD)
-			continue;
 
 		UpdateSpecialReligionYields(eYield);
 		UpdateCityYields(eYield);
@@ -15885,7 +15814,7 @@ void CvCity::CheckForOperationUnits()
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != getOwner())
+		if (GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != getOwner())
 		{
 			if (kPlayer.GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
 			{
@@ -16716,8 +16645,6 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 					for (int iGreatPersonTypes = 0; iGreatPersonTypes < GC.getNumGreatPersonInfos(); iGreatPersonTypes++)
 					{
 						GreatPersonTypes eGreatPerson = (GreatPersonTypes)iGreatPersonTypes;
-						if (eGreatPerson == NO_GREATPERSON)
-							continue;
 
 						SpecialistTypes eSpecialist = (SpecialistTypes)GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType();
 						if (eSpecialist == NO_SPECIALIST)
@@ -17032,8 +16959,6 @@ int CvCity::GetImprovementGreatPersonRateModifier() const
 			continue;
 
 		ImprovementTypes eImprovement = pPlot->getImprovementType();
-		if (eImprovement == NO_IMPROVEMENT)
-			continue;
 
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 		int iGPPRateFromImprovement = pkImprovementInfo->GetGreatPersonRateModifier();
@@ -27344,7 +27269,7 @@ void CvCity::updateStrengthValue()
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				if (eLoopPlayer != NO_PLAYER && GET_PLAYER(getOwner()).GetMinorCivAI()->IsProtectedByMajor(eLoopPlayer))
+				if (GET_PLAYER(getOwner()).GetMinorCivAI()->IsProtectedByMajor(eLoopPlayer))
 				{
 					iProtections++;
 				}
