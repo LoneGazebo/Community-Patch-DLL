@@ -5826,7 +5826,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
-	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
+	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
 	}
@@ -5855,7 +5855,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
-	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
+	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
 	}
@@ -5883,7 +5883,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteCulture(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
-	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
+	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
 	}

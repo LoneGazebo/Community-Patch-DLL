@@ -3830,56 +3830,38 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if (pkEventInfo->getBuildingRequired() != -1)
 	{
 		BuildingClassTypes eBuilding = (BuildingClassTypes)pkEventInfo->getBuildingRequired();
-		if (eBuilding != NO_BUILDINGCLASS)
-		{
-			if (GetCityBuildings()->GetNumBuildingClass(eBuilding) <= 0)
-				return false;
-		}
+		if (GetCityBuildings()->GetNumBuildingClass(eBuilding) <= 0)
+			return false;
 	}
 	if (pkEventInfo->getBuildingLimiter() != -1)
 	{
 		BuildingClassTypes eBuilding = (BuildingClassTypes)pkEventInfo->getBuildingLimiter();
-		if (eBuilding != NO_BUILDINGCLASS)
-		{
-			if (GetCityBuildings()->GetNumBuildingClass(eBuilding) > 0)
-				return false;
-		}
+		if (GetCityBuildings()->GetNumBuildingClass(eBuilding) > 0)
+			return false;
 	}
 	if (pkEventInfo->getRequiredImprovement() != -1)
 	{
 		ImprovementTypes eImprovement = (ImprovementTypes)pkEventInfo->getRequiredImprovement();
-		if (eImprovement != NO_IMPROVEMENT)
-		{
-			if (!HasImprovement(eImprovement))
-				return false;
-		}
+		if (!HasImprovement(eImprovement))
+			return false;
 	}
 	if (pkEventInfo->getLocalResourceRequired() != -1)
 	{
 		ResourceTypes eResource = (ResourceTypes)pkEventInfo->getLocalResourceRequired();
-		if (eResource != NO_RESOURCE)
-		{
-			if (!HasResource(eResource))
-				return false;
-		}
+		if (!HasResource(eResource))
+			return false;
 	}
 	if (pkEventInfo->hasNearbyFeature() != -1)
 	{
 		FeatureTypes eFeature = (FeatureTypes)pkEventInfo->hasNearbyFeature();
-		if (eFeature != NO_FEATURE)
-		{
-			if (!IsHasFeatureLocal(eFeature))
-				return false;
-		}
+		if (!IsHasFeatureLocal(eFeature))
+			return false;
 	}
 	if (pkEventInfo->hasNearbyTerrain() != -1)
 	{
 		TerrainTypes eTerrain = (TerrainTypes)pkEventInfo->hasNearbyTerrain();
-		if (eTerrain != NO_TERRAIN)
-		{
-			if (!HasTerrain(eTerrain))
-				return false;
-		}
+		if (!HasTerrain(eTerrain))
+			return false;
 	}
 	//Check our minimum yields - this looks at stored values, not yields per turn.
 	bool bHas = true;

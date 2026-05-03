@@ -307,23 +307,20 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
 				CvPlayer* pMinor = &GET_PLAYER(eMinor);
-				if (pMinor)
+				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS))
 				{
-					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS))
+					if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS) == eBuilding)
 					{
-						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS) == eBuilding)
-						{
-							iBonus += 10;
-						}
-						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) == eBuilding)
-						{
-							iBonus += 10;
-						}
-						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_WONDER) == eBuilding)
-						{
-							iBonus += 10;
-						}
+						iBonus += 10;
+					}
+					if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) == eBuilding)
+					{
+						iBonus += 10;
+					}
+					if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_CONSTRUCT_WONDER) == eBuilding)
+					{
+						iBonus += 10;
 					}
 				}
 			}
