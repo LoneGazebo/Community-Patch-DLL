@@ -646,7 +646,7 @@ SET Text = 'Employment Law'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_THOUGHT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Employment Law[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production in Cities for every 2 non-Specialist [ICON_CITIZEN] Citizen.[NEWLINE][ICON_BULLET]Specialists consume 1 [ICON_FOOD] Food less than normal (minimum 1 [ICON_FOOD] Food).[NEWLINE][ICON_BULLET]50% of [ICON_HAPPINESS_1] Happiness in each City is converted into [ICON_CULTURE] Culture.'
+SET Text = '[COLOR_POSITIVE_TEXT]Employment Law[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production in Cities for every 2 non-Specialist [ICON_CITIZEN] Citizens.[NEWLINE][ICON_BULLET]Specialists consume 1 [ICON_FOOD] Food less than normal (minimum 1 [ICON_FOOD] Food).[NEWLINE][ICON_BULLET]50% of [ICON_HAPPINESS_1] Happiness in each City is converted into [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_THOUGHT_HELP';
 
 UPDATE Language_en_US
