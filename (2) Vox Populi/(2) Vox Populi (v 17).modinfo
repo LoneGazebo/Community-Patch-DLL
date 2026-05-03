@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(5.2.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.2.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -948,6 +948,7 @@
     <File md5="18ED233C5810E4E753DF778D0F8F07EB" import="1">Assets/StrategicView/Units/CSDSVIconGD.dds</File>
     <File md5="A305A2005C3E0EF075586D4FD2A921A6" import="1">Assets/StrategicView/Units/DhanurgrahaFlag_128.dds</File>
     <File md5="0A6D390970A14195C333B07BA54040B2" import="1">Assets/StrategicView/Units/DjongFlagSV.dds</File>
+    <File md5="F0955408F9C6D3175199D3CBB7976788" import="1">Assets/StrategicView/Units/FustaFlag_128.dds</File>
     <File md5="362491F84BDBCBA69C4928A3A6BE8980" import="1">Assets/StrategicView/Units/GoedendagFlag_128.dds</File>
     <File md5="ABBAC0B93D83FBF38BAAA7EF48F207EA" import="1">Assets/StrategicView/Units/GreatTurkishBombardFlag_128.dds</File>
     <File md5="052DACF1E1EB16135F3496FA0657D091" import="1">Assets/StrategicView/Units/HashemiteRaiderFlag_128.dds</File>
@@ -1010,7 +1011,7 @@
     <File md5="5E37DC7960391AFF4F89851AC22A1192" import="0">Core Files/New Lua/CBP_IncaFunctions.lua</File>
     <File md5="CE52E119CFD1431AA48DD2E97F31B083" import="0">Core Files/New Lua/GlobalArchaeologistDigSites.lua</File>
     <File md5="216309B0B9233E74B23607770CF5A3C1" import="0">Core Files/New UI/CorporationsOverview.lua</File>
-    <File md5="3CF35ECEFB559061135F455F2FEE933D" import="0">Core Files/New UI/CorporationsOverview.xml</File>
+    <File md5="548D293873BE47A59BB278BA45710B6F" import="0">Core Files/New UI/CorporationsOverview.xml</File>
     <File md5="986930B9C8C4D967DBFAF8948EAB647D" import="1">Core Files/New UI/OverlayAntiquities.lua</File>
     <File md5="FB545F363364D00F576AD9DC98EF3D86" import="1">Core Files/New UI/OverlayAntiquities.xml</File>
     <File md5="DFCE5C53AF9183F80447B755EE496B37" import="1">Core Files/New UI/OverlayAntiquities_MiniMapOverlayHook.lua</File>
@@ -1168,7 +1169,7 @@
     <File md5="0E56EBA875488255602A3191628FE3C2" import="0">Database Changes/Civilizations/Zulu.sql</File>
     <File md5="65780B01B61C5E70BE1D9BE5D1F9F532" import="0">Database Changes/Concepts/ConceptChanges.sql</File>
     <File md5="9053CF957542871FF4A1718612485AFF" import="0">Database Changes/Concepts/NewConcepts.xml</File>
-    <File md5="F19F8025ABB21849F8C24700FE4E93EB" import="0">Database Changes/Corporations/CorporationChanges.sql</File>
+    <File md5="8148D6AABF2A01700889EC2D20798898" import="0">Database Changes/Corporations/CorporationChanges.sql</File>
     <File md5="D63E17DF51350DB2FDB8C885032D503C" import="0">Database Changes/Corporations/NewCorporations.xml</File>
     <File md5="A4B6094430336CE40512773D1AC2D6B5" import="0">Database Changes/Difficulty/DifficultyChanges.sql</File>
     <File md5="4844BFF6B466EFBE7405BA970B992A2E" import="0">Database Changes/Difficulty/DifficultyChanges.xml</File>
@@ -1226,7 +1227,7 @@
     <File md5="3031EA5E5050CAFCB07871D6D31D2A29" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
     <File md5="9A52712E53F145715E1A44E87F7E50ED" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
     <File md5="BD071E54D6A2A8DDD8C1786DB4D9A657" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
-    <File md5="407EC61C92AFD1A499ADF67A3DA38371" import="0">Database Changes/Text/en_US/Corporations/NewCorporationText.xml</File>
+    <File md5="A447E449F9947139DD4C82B754350A7F" import="0">Database Changes/Text/en_US/Corporations/NewCorporationText.xml</File>
     <File md5="D0A442F7DEB463CDCCA45E6503687C87" import="0">Database Changes/Text/en_US/Difficulty/DifficultyTextChanges.sql</File>
     <File md5="B00B2B2260EA19DC62665B151C9252F9" import="0">Database Changes/Text/en_US/Espionage/NewEspionageText.xml</File>
     <File md5="2AD550A5C037109D28540DA53B248699" import="0">Database Changes/Text/en_US/Events/NewEventText.xml</File>
