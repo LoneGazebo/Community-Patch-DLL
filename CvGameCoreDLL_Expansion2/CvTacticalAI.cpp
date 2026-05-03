@@ -3111,8 +3111,6 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximat
 					continue;
 
 				int iValue = 0;
-				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_ENEMY_COMBAT_UNIT)
-					iValue += 11;
 
 				int iUnusedReferenceVariable = 0;
 				if (pUnit->AI_getUnitAIType() == UNITAI_MISSILE_AIR)
@@ -3142,6 +3140,10 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximat
 					if (pTestPlot->GetBestInterceptor(pUnit->getOwner(),NULL,false,true) != NULL)
 						iValue /= 2;
 				}
+
+				// prefer targeting combat units over cities
+				if (m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_ENEMY_COMBAT_UNIT)
+					iValue += 11;
 
 				if (iValue > iBestValue)
 				{

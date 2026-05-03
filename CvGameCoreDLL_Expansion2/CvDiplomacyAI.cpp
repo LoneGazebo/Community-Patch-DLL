@@ -42949,7 +42949,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	bool bCultural = iFlavorCulture > 6;
 	bCultural |= IsCultural() || IsSecondaryCultural();
 	bCultural |= IsCompetingForVictory() && IsGoingForCultureVictory();
-	bCultural = GetPlayer()->GetPlayerTraits()->IsTourism();
+	bCultural |= GetPlayer()->GetPlayerTraits()->IsTourism();
 
 	ePromiseState = GetNoDiggingPromiseState(ePlayer);
 	if (ePromiseState == PROMISE_STATE_BROKEN)

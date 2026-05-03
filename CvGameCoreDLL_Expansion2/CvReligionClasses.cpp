@@ -8077,6 +8077,7 @@ int CvReligionAI::ScoreYieldForReligionTimes100(YieldTypes eYield) const
 	{
 	case YIELD_FOOD:
 		iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) * 50;
+		break;
 	case YIELD_PRODUCTION:
 		iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION")) * 50;
 		break;
