@@ -5130,7 +5130,8 @@ void CvPlayer::UpdateBestMilitaryCities()
 				{
 					if (GetBestMilitaryCity(eUnitCombatClass, NO_DOMAIN) == pLoopCity)
 					{
-						iDomainValue *= 2;
+						if (iDomainValue <= MAX_INT / 2)
+							iDomainValue *= 2;
 					}
 				}
 			}
