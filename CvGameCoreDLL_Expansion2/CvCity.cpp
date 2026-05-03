@@ -22559,7 +22559,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 				int iNumTimesAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)(*it2).first);
 				if (iNumTimesAccomplishmentCompleted > 0)
 				{
-					std::map<int, int>::const_iterator it3 = (it2->second).find(eYield);
+					std::map<int, int>::const_iterator it3 = (it2->second).find(eIndex);
 					if (it3 != (it2->second).end())
 					{
 						iTempMod += GetCityBuildings()->GetNumBuilding(*it) * iNumTimesAccomplishmentCompleted * (*it3).second;
