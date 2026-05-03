@@ -30119,7 +30119,7 @@ bool CvUnit::CheckDOWNeededForMove(int iX, int iY, bool bPopup)
 		return false;
 
 	// Test if this attack requires war to be declared first
-	if (pDestPlot && isHuman(ISHUMAN_AI_UNITS) && getOwner() == GC.getGame().getActivePlayer() && pDestPlot->isVisible(getTeam()))
+	if (pDestPlot && isHuman(ISHUMAN_AI_UNITS) && pDestPlot->isVisible(getTeam()))
 	{
 		TeamTypes eRivalTeam = GetDeclareWarMove(*pDestPlot);
 
