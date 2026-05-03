@@ -22764,7 +22764,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 			{
 				ePrimeLeagueAlly = ePlayer;
 				iPrimeVotes = iVotes;
-				ePrimeAlignment = eAlignment;
 			}
 			// In the event of yet another tie, sort by opinion score
 			else if (iVotes == iPrimeVotes)
@@ -22772,8 +22771,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 				if (GetCachedOpinionWeight(ePlayer) < GetCachedOpinionWeight(ePrimeLeagueAlly))
 				{
 					ePrimeLeagueAlly = ePlayer;
-					iPrimeVotes = iVotes;
-					ePrimeAlignment = eAlignment;
 				}
 			}
 		}
@@ -25820,7 +25817,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					if (GET_PLAYER(vEnemyTeamMembers[i]).isAlive())
 						RefusePeaceTreaty(vEnemyTeamMembers[i], strLogMessage);
 				}
-				continue;
 			}
 		}
 
@@ -54559,7 +54555,6 @@ void CvDiplomacyAI::DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploState
 						// Modify player view to all AI teammates
 						if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
 						{
-							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetVassalTaxRaised(eLoopPlayer, false);
 						}
 					}
@@ -54607,7 +54602,6 @@ void CvDiplomacyAI::DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStat
 						// Modify player view to all AI teammates
 						if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
 						{
-							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetVassalTaxLowered(eLoopPlayer, false);
 						}
 					}

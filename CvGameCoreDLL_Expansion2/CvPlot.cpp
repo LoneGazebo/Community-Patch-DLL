@@ -3282,7 +3282,6 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 		{
 			if(getFeatureType() == FEATURE_FALLOUT && GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT))
 			{
-				bValid = true;
 			}
 			else
 			if(bTestPlotOwner)

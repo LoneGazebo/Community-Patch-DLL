@@ -4613,7 +4613,6 @@ CvString CvPlayer::getNewCityName() const
 		strName = pNode->m_data;
 		if(isCityNameValid(strName, true))
 		{
-			strName = pNode->m_data;
 			break;
 		}
 	}

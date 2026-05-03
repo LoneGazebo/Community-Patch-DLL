@@ -1536,7 +1536,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		}
 		else
 		{
-			iMessageRating = 20;
 			// cppcheck-suppress knownConditionTrueFalse
 			if(eEnemyPlayer != NO_PLAYER)
 			{
