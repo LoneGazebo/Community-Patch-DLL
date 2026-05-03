@@ -15749,7 +15749,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 					for (size_t i = 0; i < vBonuses.size(); i++)
 					{
 						const AccomplishmentBonusInfo& bonusInfo = vBonuses[i];
-						CreateSpies(bonusInfo.ExtraSpies * iNumAccomplishmentCompleted)  
+						CreateSpies(bonusInfo.ExtraSpies * iNumAccomplishmentCompleted);
 					}
 				}
 			}
