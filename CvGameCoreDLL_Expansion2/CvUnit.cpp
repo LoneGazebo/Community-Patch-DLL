@@ -29140,7 +29140,6 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 						continue;
 				}
 
-				if(!pLoopUnit) continue;
 
 				TeamTypes loopTeam = pLoopUnit->getTeam();
 
