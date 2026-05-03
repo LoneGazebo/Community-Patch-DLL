@@ -2640,7 +2640,9 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 		}
 	}
 
-	// Send out notifications to the world
+	// Send out notifications to the world (attacker identity required; skipped for meltdowns where pkAttacker is null)
+	if (pkAttacker != NULL)
+	{
 	for (std::vector<PlayerTypes>::iterator iter = vAffectedPlayers.begin(); iter != vAffectedPlayers.end(); ++iter)
 	{
 		if (*iter == pkAttacker->getOwner())
@@ -2718,6 +2720,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 			}
 		}
 	}
+	} // pkAttacker != NULL
 
 	return uiOpposingDamageCount;
 }
