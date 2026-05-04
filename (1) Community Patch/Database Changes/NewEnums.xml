@@ -191,10 +191,18 @@
 		<Row>
 			<Type>ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST</Type>
 			<Description>TXT_KEY_ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST</Description>
-		</Row>>
+		</Row>
 		<Row>
 			<Type>ACCOMPLISHMENT_WARS_WON</Type>
 			<Description>TXT_KEY_ACCOMPLISHMENT_WARS_WON</Description>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_CITY_CONVERTED</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_CITY_CONVERTED</Description>
+		</Row>
+		<Row>
+			<Type>ACCOMPLISHMENT_HISTORIC_EVENT</Type>
+			<Description>TXT_KEY_ACCOMPLISHMENT_HISTORIC_EVENT</Description>
 		</Row>
 	</Accomplishments>
 </GameData>

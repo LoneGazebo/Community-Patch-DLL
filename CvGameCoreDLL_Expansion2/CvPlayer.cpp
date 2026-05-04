@@ -30405,6 +30405,9 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		return;
 	}
 	m_iNumHistoricEvent += iChange;
+	// accomplishments always increase. no support for iChange>1 at the moment
+	if (iChange == 1)
+		CompleteAccomplishment(ACCOMPLISHMENT_HISTORIC_EVENT);	
 
 	CvCity* pCapital = getCapitalCity();
 	int iEventGP = GetPlayerTraits()->GetEventGP();
