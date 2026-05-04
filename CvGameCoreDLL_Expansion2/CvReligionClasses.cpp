@@ -5389,30 +5389,35 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		//bonuses might change ...
 		GET_PLAYER(pNewReligion->m_eFounder).UpdateReligion();
 
-		// Pay adoption bonuses (if any)
+		// Process first-time conversion effects
 		if(!m_pCity->HasPaidAdoptionBonus(eMajority))
 		{
-			int iGoldBonus = 0;
-			if(eResponsibleParty != NO_PLAYER)
-			{
-				iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts(eResponsibleParty, pHolyCity);
-				iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-				iGoldBonus /= 100;
-			}
-			else
-			{
-				iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
-				iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-				iGoldBonus /= 100;
-			}
+			m_pCity->SetPaidAdoptionBonus(eMajority, true);
 
-			if (eReligionController != NO_PLAYER && GET_PLAYER(eReligionController).GetReligions()->GetStateReligion(false) == eMajority)
+			// accomplishment doesn't require you to also own the religion, unlike the instant bonuses below
+			if (eResponsibleParty != NO_PLAYER && GET_PLAYER(eResponsibleParty).GetReligions()->GetStateReligion(false) == eMajority)
 			{
-				bool paid = false;
+				GET_PLAYER(eResponsibleParty).CompleteAccomplishment(ACCOMPLISHMENT_CITY_CONVERTED);
+			}
+			
+			if (eReligionController != NO_PLAYER && GET_PLAYER(eReligionController).GetReligions()->GetStateReligion(false) == eMajority)
+			{				
+				int iGoldBonus = 0;
+				if (eResponsibleParty != NO_PLAYER)
+				{
+					iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts(eResponsibleParty, pHolyCity);
+					iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+					iGoldBonus /= 100;
+				}
+				else
+				{
+					iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
+					iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+					iGoldBonus /= 100;
+				}
 				if (iGoldBonus > 0)
 				{
 					GET_PLAYER(eReligionController).GetTreasury()->ChangeGold(iGoldBonus);
-					paid = true;
 
 					if (eReligionController == GC.getGame().getActivePlayer())
 					{
@@ -5433,14 +5438,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 
 					int iValue = pNewReligion->m_Beliefs.GetYieldFromConversion(eYield, eReligionController, pHolyCity);
 					iValue += pNewReligion->m_Beliefs.GetYieldFromConversionExpo(eYield, eReligionController, pHolyCity);
-					if(iValue > 0)
-					{
-						paid = true;
-						break;
-					}
 				}
-				if (paid)
-					m_pCity->SetPaidAdoptionBonus(eMajority, true);
 			}
 		}
 
