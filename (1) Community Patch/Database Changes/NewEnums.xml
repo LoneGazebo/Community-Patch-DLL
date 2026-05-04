@@ -47,6 +47,9 @@
 		<Row>
 			<Type>HISTORIC_EVENT_TRADE_CS</Type>
 		</Row>
+		<Row>
+			<Type>HISTORIC_EVENT_RELIGION_SPREAD</Type>
+		</Row>
 		<!-- Difficulty bonuses -->
 		<Row>
 			<Type>DIFFICULTY_BONUS_CITY_FOUND_CAPITAL</Type>

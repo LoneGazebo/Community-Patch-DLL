@@ -511,6 +511,9 @@
 		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS">
 			<Text>[ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade with a [ICON_CITY_STATE] City-State</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_RELIGION_SPREAD">
+			<Text>[ICON_RELIGION] New City Converts</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_ERA_CHANGE_TT">
 			<Text>Each [ICON_RESEARCH] Era you advance to will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!</Text>
 		</Row>
@@ -537,6 +540,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS_TT">
 			<Text>Each [ICON_INTERNATIONAL_TRADE] Trade Route completed either by land or sea with a [ICON_CITY_STATE] City-State will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]! Unlike trading with a foreign Major City, this amount will be the same sent to all Civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_RELIGION_SPREAD_TT">
+			<Text>Every conversion of a City to your owned [ICON_RELIGION] Religion for the first time will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!</Text>
 		</Row>
 
 		<!-- Top panel -->
