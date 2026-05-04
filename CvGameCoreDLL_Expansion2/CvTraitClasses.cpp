@@ -113,6 +113,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iMultipleAttackBonus(0),
 	m_iCityConquestGWAM(0),
 	m_iEventTourismBoost(0),
+	m_iReligionSpreadTourism(0),
 	m_iEventGP(0),
 	m_iWLTKDCulture(0),
 	m_iWLTKDGATimer(0),
@@ -852,6 +853,10 @@ int CvTraitEntry::GetCityConquestGWAM() const
 int CvTraitEntry::GetEventTourismBoost() const
 {
 	return m_iEventTourismBoost;
+}
+int CvTraitEntry::GetReligionSpreadTourism() const
+{
+	return m_iReligionSpreadTourism;
 }
 int CvTraitEntry::GetEventGP() const
 {
@@ -2415,6 +2420,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iMultipleAttackBonus					= kResults.GetInt("MultipleAttackBonus");
 	m_iCityConquestGWAM						= kResults.GetInt("CityConquestGWAM");
 	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
+	m_iReligionSpreadTourism				= kResults.GetInt("ReligionSpreadTourism");
 	m_iEventGP								= kResults.GetInt("EventGP");
 	m_iWLTKDCulture							= kResults.GetInt("WLTKDCultureBoost");
 	m_iWLTKDGATimer							= kResults.GetInt("WLTKDFromGATurns");
@@ -4264,6 +4270,7 @@ void CvPlayerTraits::SetIsExpansionist()
 void CvPlayerTraits::SetIsReligious()
 {
 	if (GetYieldFromHistoricEvent(YIELD_FAITH) > 0 ||
+		GetReligionSpreadTourism() > 0 ||
 		GetYieldFromLevelUp(YIELD_FAITH) > 0 ||
 		GetYieldFromConquest(YIELD_FAITH) > 0 ||
 		GetYieldFromCityDamageTimes100(YIELD_FAITH) > 0 ||
@@ -4526,6 +4533,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iMultipleAttackBonus += trait->GetMultipleAttackBonus();
 			m_iCityConquestGWAM += trait->GetCityConquestGWAM();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
+			m_iReligionSpreadTourism += trait->GetReligionSpreadTourism();
 			m_iGrowthBoon += trait->GetGrowthBoon();		
 			m_iWLTKDGPImprovementModifier += trait->GetWLTKDGPImprovementModifier();
 			m_iAllianceCSDefense += trait->GetAllianceCSDefense();
@@ -5348,6 +5356,7 @@ void CvPlayerTraits::Reset()
 	m_iMultipleAttackBonus = 0;
 	m_iCityConquestGWAM = 0;
 	m_iEventTourismBoost = 0;
+	m_iReligionSpreadTourism = 0;
 	m_iWonderProductionModifierToBuilding = 0;
 	m_iPolicyGEorGM = 0;
 	m_iGAGarrisonCityRangeStrikeModifier = 0;
@@ -7510,6 +7519,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iMultipleAttackBonus);
 	visitor(playerTraits.m_iCityConquestGWAM);
 	visitor(playerTraits.m_iEventTourismBoost);
+	visitor(playerTraits.m_iReligionSpreadTourism);
 	visitor(playerTraits.m_iEventGP);
 	visitor(playerTraits.m_iWLTKDCulture);
 	visitor(playerTraits.m_iWLTKDGATimer);
