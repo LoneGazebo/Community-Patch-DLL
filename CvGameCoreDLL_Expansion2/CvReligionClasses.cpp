@@ -5407,6 +5407,11 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 			
 				if (kController.GetReligions()->GetStateReligion(false) == eMajority)
 				{
+					// does the religion controller gain yields for their religion spreading?
+					
+					kController.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
+					kController.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION_EXPO, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
+					// vanilla column for gold on religion spreading
 					int iGoldBonus = 0;
 					if (eResponsibleParty != NO_PLAYER)
 					{
@@ -5431,20 +5436,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 							SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text);
 						}
 					}
-	
-					kController.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
-					kController.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION_EXPO, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
 					
-					for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-					{
-						YieldTypes eYield = (YieldTypes)iI;
-						if(eYield == NO_YIELD)
-							continue;
-	
-						int iValue = pNewReligion->m_Beliefs.GetYieldFromConversion(eYield, eReligionController, pHolyCity);
-						iValue += pNewReligion->m_Beliefs.GetYieldFromConversionExpo(eYield, eReligionController, pHolyCity);
-					}
-
 					// does the religion controller gain historic events from religion spread?
 					
 					int iTourism = kController.GetHistoricEventTourism(HISTORIC_EVENT_RELIGION_SPREAD);
