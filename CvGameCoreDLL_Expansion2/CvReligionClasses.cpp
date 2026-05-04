@@ -4045,8 +4045,6 @@ void CvCityReligions::Copy(CvCityReligions* pOldCity)
 {
 	m_ReligionStatus.clear();
 
-	//SetPaidAdoptionBonus(pOldCity->HasPaidAdoptionBonus());
-
 	ReligionInCityList::iterator religionIt;
 	for(religionIt = pOldCity->m_ReligionStatus.begin(); religionIt != pOldCity->m_ReligionStatus.end(); ++religionIt)
 	{
