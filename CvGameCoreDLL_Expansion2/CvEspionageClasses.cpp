@@ -3708,7 +3708,7 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank,
 	PlayerTypes eAllyPlayer = pMinorCivAI->GetAlly();
 	int iAllySpyRank = 0;
 	bool bNoAllySpy = true;
-	if (!bIgnoreEnemySpies && pCityEspionage->m_aiSpyAssignment[eAllyPlayer] != -1)
+	if (!bIgnoreEnemySpies && eAllyPlayer != NO_PLAYER && pCityEspionage->m_aiSpyAssignment[eAllyPlayer] != -1)
 	{
 		bNoAllySpy = false;
 		int iAllySpyIndex = pCityEspionage->m_aiSpyAssignment[eAllyPlayer];
@@ -3761,6 +3761,12 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank,
 		break;
 	case 2:
 		fAllySpyValue = fSpyLevelDeltaTwo;
+		break;
+	case 3:
+		fAllySpyValue = fSpyLevelDeltaThree;
+		break;
+	default: // rank 4 and above
+		fAllySpyValue = fSpyLevelDeltaFour;
 		break;
 	}
 
