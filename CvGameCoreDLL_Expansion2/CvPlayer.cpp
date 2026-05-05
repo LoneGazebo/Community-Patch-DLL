@@ -14492,13 +14492,16 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 						{
 							pHolyCity = getCapitalCity();
 						}
-						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID(), pHolyCity);
-						if (iReligionPolicyReduction > 0)
+						if (pHolyCity)
 						{
-							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eOwnedReligion);
-							if (iNumFollowerCities > 0)
+							int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(GetID(), pHolyCity);
+							if (iReligionPolicyReduction > 0)
 							{
-								iNumPoliciesNeeded -= (iNumFollowerCities / iReligionPolicyReduction);
+								int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eOwnedReligion);
+								if (iNumFollowerCities > 0)
+								{
+									iNumPoliciesNeeded -= (iNumFollowerCities / iReligionPolicyReduction);
+								}
 							}
 						}
 
@@ -14518,7 +14521,8 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 									{
 										pHolyCity = getCapitalCity();
 									}
-									iNumPoliciesNeeded -= pReligion->m_Beliefs.GetIgnorePolicyRequirementsAmount(eEra, GetID(), pHolyCity);
+									if (pHolyCity)
+										iNumPoliciesNeeded -= pReligion->m_Beliefs.GetIgnorePolicyRequirementsAmount(eEra, GetID(), pHolyCity);
 								}
 							}
 						}
@@ -21091,7 +21095,10 @@ void CvPlayer::DoCityRevolt()
 								strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_FREE_CITY", getCivilizationAdjective(), strCityName, kRecipient.getCivilizationShortDescription());
 							}
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_REVOLT_SUMMARY");
-							pNotifications->Add(NOTIFICATION_CITY_REVOLT, strMessage.toUTF8(), strSummary.toUTF8(), GET_PLAYER(eRecipient).getCapitalCity()->getX(), GET_PLAYER(eRecipient).getCapitalCity()->getY(), -1);
+							CvCity* pRecipientCapital = GET_PLAYER(eRecipient).getCapitalCity();
+							int iNotifX = pRecipientCapital ? pRecipientCapital->getX() : -1;
+							int iNotifY = pRecipientCapital ? pRecipientCapital->getY() : -1;
+							pNotifications->Add(NOTIFICATION_CITY_REVOLT, strMessage.toUTF8(), strSummary.toUTF8(), iNotifX, iNotifY, -1);
 						}
 					}
 
@@ -21259,13 +21266,17 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 			if (pLoopCity->IsPuppet())
 				iUnhappiness *= 2;
 
-			int iCapitalDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), getCapitalCity()->getX(), getCapitalCity()->getY());
+			CvCity* pOwnCapital = getCapitalCity();
+			if (pOwnCapital)
+			{
+				int iCapitalDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pOwnCapital->getX(), pOwnCapital->getY());
 
-			int iDistanceFactor = 100 - iCapitalDistance;
-			if (iDistanceFactor <= 0)
-				iDistanceFactor = 1;
+				int iDistanceFactor = 100 - iCapitalDistance;
+				if (iDistanceFactor <= 0)
+					iDistanceFactor = 1;
 
-			iUnhappiness += iDistanceFactor / 10;
+				iUnhappiness += iDistanceFactor / 10;
+			}
 
 			int iModifier = 0;
 			if (GAMEEVENTINVOKE_VALUE(iModifier, GAMEEVENT_CityFlipChance, pLoopCity->GetID(), GetID()) == GAMEEVENTRETURN_VALUE) {
@@ -21333,7 +21344,10 @@ PlayerTypes CvPlayer::GetMostUnhappyCityRecipient(CvCity* pMostUnhappyCity)
 							iValue *= iCulturalDominanceOverUs+1;
 						}
 						// Find how far their capital is from this city
-						int iCapitalDistance = plotDistance(pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY());
+						CvCity* pOtherCapital = kPlayer.getCapitalCity();
+						if (!pOtherCapital)
+							continue;
+						int iCapitalDistance = plotDistance(pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), pOtherCapital->getX(), pOtherCapital->getY());
 
 						iValue -= iCapitalDistance * 2;
 
@@ -21574,17 +21588,20 @@ int CvPlayer::GetHappinessFromReligion()
 			{
 				pHolyCity = getCapitalCity();
 			}
-			int iHappiness = pReligion->m_Beliefs.GetHappinessPerPantheon(GetID(), pHolyCity, true);
-			if (iHappiness > 0)
+			if (pHolyCity)
 			{
-				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
-				if (iPantheon > 0)
+				int iHappiness = pReligion->m_Beliefs.GetHappinessPerPantheon(GetID(), pHolyCity, true);
+				if (iHappiness > 0)
 				{
-					if (iPantheon > 8)
+					iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
+					if (iPantheon > 0)
 					{
-						iPantheon = 8;
+						if (iPantheon > 8)
+						{
+							iPantheon = 8;
+						}
+						iHappinessFromReligion += (iPantheon * iHappiness);
 					}
-					iHappinessFromReligion += (iPantheon * iHappiness);
 				}
 			}
 
@@ -26116,6 +26133,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 										pHolyCity = getCapitalCity();
 									}
 
+									if (!pHolyCity)
+										continue;
 									iKillYield += pMyReligion->m_Beliefs.GetYieldFromKills(eYield, GetID(), pHolyCity, true);
 
 									if (pUnit->getOwner() == BARBARIAN_PLAYER)
@@ -44935,9 +44954,10 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY, bo
 
 	CvCity* pOriginCity = pGreatPeopleUnit->getOriginCity();
 	if (pOriginCity)
-		pGreatPeopleUnit->DoGreatPersonSpawnBonus(pGreatPeopleUnit->getOriginCity());
-
-	pOriginCity->addProductionExperience(pGreatPeopleUnit);
+	{
+		pGreatPeopleUnit->DoGreatPersonSpawnBonus(pOriginCity);
+		pOriginCity->addProductionExperience(pGreatPeopleUnit);
+	}
 
 	incrementGreatGeneralsCreated(bIsFree);
 	changeGreatGeneralsThresholdModifier(/*50*/ GD_INT_GET(GREAT_GENERALS_THRESHOLD_INCREASE) * ((getGreatGeneralsCreated(bIsFree) / 10) + 1));
@@ -44987,9 +45007,10 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY, bo
 
 	CvCity* pOriginCity = pGreatPeopleUnit->getOriginCity();
 	if (pOriginCity)
-		pGreatPeopleUnit->DoGreatPersonSpawnBonus(pGreatPeopleUnit->getOriginCity());
-
-	pOriginCity->addProductionExperience(pGreatPeopleUnit);
+	{
+		pGreatPeopleUnit->DoGreatPersonSpawnBonus(pOriginCity);
+		pOriginCity->addProductionExperience(pGreatPeopleUnit);
+	}
 
 	incrementGreatAdmiralsCreated(bIsFree);
 	changeGreatAdmiralsThresholdModifier(/*50*/ GD_INT_GET(GREAT_GENERALS_THRESHOLD_INCREASE) * ((getGreatAdmiralsCreated(bIsFree) / 10) + 1));
