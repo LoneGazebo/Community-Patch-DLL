@@ -18561,7 +18561,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			strTemp.Format("HISTORIC EVENT: TRADE ROUTE (CITY-STATE) - Received Handicap Bonus");
 			break;
 		case HISTORIC_EVENT_RELIGION_SPREAD:
-			strTemp.Format("HISTORIC EVENT: RELIGION SPREADH - Received Handicap Bonus");
+			strTemp.Format("HISTORIC EVENT: RELIGION SPREAD - Received Handicap Bonus");
 			break;
 		case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
 			strTemp.Format("CAPITAL FOUNDING - Received Handicap Bonus");
