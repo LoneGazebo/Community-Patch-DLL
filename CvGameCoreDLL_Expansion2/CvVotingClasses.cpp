@@ -207,6 +207,7 @@ bool LeagueHelpers::IsResolutionForTriggerActive(ResolutionTypes eType)
 	if(eType != NO_RESOLUTION)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (!pLeague) return NO_RESOLUTION;
 		const ActiveResolutionList& vActiveResolutions = pLeague->GetActiveResolutions();
 		for (ActiveResolutionList::const_iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); ++it)
 		{
@@ -869,6 +870,9 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 	if (iVotes <= 0)
 		return 0;
 
+	if (iTotalVotes <= 0)
+		return 0;
+
 	// What percentage of their total votes did they dedicate to this outcome? Relevant for voting history score.
 	if (!bChangeHost)
 	{
@@ -913,6 +917,9 @@ int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, in
 	}
 
 	if (iVotes <= 0)
+		return 0;
+
+	if (iTotalVotes <= 0)
 		return 0;
 
 	// What percentage of their total votes did they dedicate to this outcome? Relevant for voting history score.
