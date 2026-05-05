@@ -917,18 +917,7 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 				//actual siege will typically be longer because not all units actually attack the city each turn
 				int iMaxSiegeTurns = 13; //do we even need a limit here or is this handled through the tactical posture?
 
-				int iCityHealRate = 0;
-				if (!pCity->IsBlockadedWaterAndLand())
-				{
-					iCityHealRate = GD_INT_GET(CITY_HIT_POINTS_HEALED_PER_TURN);
-					CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-					if (pGarrison)
-					{
-						iCityHealRate += pGarrison->ActualHealRate(pPlot, false);
-						iRequiredDamage += pGarrison->GetMaxHitPoints() - pGarrison->getDamage();
-						// TODO, a city can now have two garrisoned units..
-					}
-				}
+				int iCityHealRate = !pCity->IsBlockadedWaterAndLand() ? GD_INT_GET(CITY_HIT_POINTS_HEALED_PER_TURN) : 0;
 
 				//assume the city heals each turn ...
 				if ((iExpectedDamagePerTurn - iCityHealRate) * iMaxSiegeTurns < iRequiredDamage)
@@ -4923,6 +4912,10 @@ int CvTacticalAI::ComputeTotalExpectedDamage(const CvTacticalTarget& kTarget)
 	int iMeleeCount = 0;
 	int iTotalGarrisonDamage = 0;
 
+	CvUnit* pCurrentGarrison = kTarget.GetTargetType() == AI_TACTICAL_TARGET_ENEMY_CITY ? pTargetPlot->getPlotCity()->GetGarrisonedUnit() : NULL;
+	int iCurrentGarrisonHealth = pCurrentGarrison ? pCurrentGarrison->GetCurrHitPoints() : 0;
+	PlayerTypes eOwner = pTargetPlot->getOwner();
+
 	// Loop through all units who can reach the target
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
@@ -4965,13 +4958,28 @@ int CvTacticalAI::ComputeTotalExpectedDamage(const CvTacticalTarget& kTarget)
 			{
 				int iSelfDamage = 0;
 				int iGarrisonDamage = 0;
+				bool bNeedsRecalculation = pCurrentGarrison != pCity->GetGarrisonedUnit();
 				//attacker plot will likely change but this is just an estimation anyway
-				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pCity, pAttacker, pAttacker->plot(), iSelfDamage, iGarrisonDamage, true, iTotalGarrisonDamage, true);
-				iDamage += iGarrisonDamage;
+				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pCity, pAttacker, pAttacker->plot(), iSelfDamage, iGarrisonDamage, true, 0, rtnValue, iTotalGarrisonDamage, false, true, pCurrentGarrison);
 				iTotalGarrisonDamage += iGarrisonDamage;
-				if (iDamage > iSelfDamage || (iDamage *2 > iSelfDamage && pAttacker->GetCurrHitPoints()-iSelfDamage > pAttacker->GetMaxHitPoints()/2)) //exclude suicidal melee attacks
+
+				if (pCurrentGarrison)
 				{
-					m_CurrentMoveUnits[iI].SetExpectedTargetDamage(iDamage);
+					iCurrentGarrisonHealth -= iGarrisonDamage;
+					if (iCurrentGarrisonHealth <= 0)
+					{
+						pCurrentGarrison = pTargetPlot->getBestDefender(eOwner, m_pPlayer->GetID(), NULL, true, true, false, false, pCurrentGarrison);
+						iCurrentGarrisonHealth = pCurrentGarrison ? pCurrentGarrison->GetCurrHitPoints() : 0;
+						iTotalGarrisonDamage = 0;
+					}
+				}
+				if (iDamage + iGarrisonDamage > iSelfDamage || ((iDamage + iGarrisonDamage) * 2 > iSelfDamage && pAttacker->GetCurrHitPoints() - iSelfDamage > pAttacker->GetMaxHitPoints() / 2)) //exclude suicidal melee attacks
+				{
+					// If we did the previous calculation with the wrong garrisoned unit, we need to recompute the value assuming a garrison is present to ensure fair sorting
+					// TODO we should probably sort m_CurrentMoveUnits so the ranged units and strongest units are processed first, weak units can then be used to finish off the city or attack when the garrison is dead
+					int iNormalizedDamage = bNeedsRecalculation ? TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pCity, pAttacker, pAttacker->plot(), iSelfDamage, iGarrisonDamage, true) : iDamage;
+
+					m_CurrentMoveUnits[iI].SetExpectedTargetDamage(iNormalizedDamage);
 					m_CurrentMoveUnits[iI].SetExpectedSelfDamage(iSelfDamage);
 					rtnValue += iDamage;
 				}
@@ -5650,8 +5658,7 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 	{
 		//+2 to make sure it's positive if city has zero hitpoints left
 		iDamageDealt = GetSimulatedDamageFromAttackOnCity(pTargetCity, pUnit, pUnit->plot(), iDamageReceived, iGarrisonDamage, false, iSelfDamage) + 2;
-		iDamageDealt += iGarrisonDamage;
-		return (iDamageDealt > iDamageReceived || iDamageDealt == pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage());
+		return (iDamageDealt + iGarrisonDamage > iDamageReceived || iDamageDealt == pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage());
 	}
 	else if (pTargetUnit)
 	{
