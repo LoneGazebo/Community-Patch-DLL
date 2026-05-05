@@ -1390,7 +1390,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 	//this is quite tricky with passable ice plots which can be either water or land
 	bool bToPlotIsWater = kToNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
-	bool bFromPlotIsWater = kFromNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
+	bool bFromPlotIsWater = kFromNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pFromPlot->isWater());
 
 	if (iStartMoves==0)
 	{
