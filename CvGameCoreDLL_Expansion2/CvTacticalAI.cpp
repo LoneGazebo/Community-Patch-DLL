@@ -385,6 +385,7 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 						iI, pPlot->getX(), pPlot->getY(), pPlot->getNumUnits());
 					gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
 				}
+				continue;
 			}
 			PRECONDITION(pLoopUnit, "UpdateVisibilityFromUnits: Unit not found on plot, desync between plot unit list and actual unit positions");
 			eLoopUnitTeam = pLoopUnit->getTeam();
@@ -5283,7 +5284,7 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 		if (pCarrier && pCarrier->isProjectedToDieNextTurn())
 			return true;
 
-		if (pUnit->shouldHeal(true) && pCarrier->GetDanger(pUnitPlot)>0)
+		if (pUnit->shouldHeal(true) && pCarrier && pCarrier->GetDanger(pUnitPlot)>0)
 			return true;
 	}
 
