@@ -4600,9 +4600,9 @@ void CvGame::UpdateGameEra()
 			iCount++;
 		}
 	}
-	if (iCount >= 0)
+	if (iCount > 0)
 	{
-		int iRoundedEra = int(fEra / (max(1, iCount)) + 0.5f);
+		int iRoundedEra = int(fEra / iCount + 0.5f);
 		m_eGameEra = (EraTypes)iRoundedEra;
 	}
 	else
