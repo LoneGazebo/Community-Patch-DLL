@@ -175,6 +175,11 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	//Clear out database cache and tune for runtime use.
 	DB.ClearCountCache();
 
+	// Refresh query planner statistics for indexes added by the mod.
+	// The engine runs ANALYZE before mods are loaded, so post-mod
+	// indexes (60+ from AddTableIndexes.sql) lack statistics.
+	DB.Analyze();
+
 	//Log Database Memory statistics
 	LogMsg(DB.CalculateMemoryStats());
 
@@ -224,17 +229,15 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		const char* szTableName = kPostDefines.GetText("Table");
 		char szSQL[512];
 
-		sprintf_s(szSQL, "select ROWID from %s where Type = '%s' LIMIT 1", szTableName, szKeyName);
+		// Table name must be concatenated (SQLite doesn't support parameterized identifiers)
+		sprintf_s(szSQL, "select ROWID from %s where Type = ? LIMIT 1", szTableName);
 
 		Database::Results kLookup;
-
-		//Compile the command.
 		if(db->Execute(kLookup, szSQL))
 		{
-			//Run the command.
+			kLookup.Bind(1, szKeyName);
 			if(kLookup.Step())
 			{
-				//Perform insertion
 				kInsert.Bind(1, szName);
 				kInsert.Bind(2, kLookup.GetInt(0));
 				kInsert.Step();
@@ -486,19 +489,27 @@ void CvDllDatabaseUtility::DatabaseRemapper()
 								}
 								vTableIDs.push_back(kQuery.GetInt(0));
 							}
+							// Prepare UPDATE once per table, bind+execute for each row
+							char szUpdate[512];
+							sprintf_s(szUpdate, "UPDATE %s SET ID = ? WHERE ID = ?", szTableName);
+							Database::Results kUpdate;
 							bool bFirst = true;
-							for (uint ui = 0; ui < vTableIDs.size(); ui++)
+							if (DB.Execute(kUpdate, szUpdate))
 							{
-								if (vTableIDs[ui] != static_cast<int>(ui))
+								for (uint ui = 0; ui < vTableIDs.size(); ui++)
 								{
-									if (bFirst)
+									if (vTableIDs[ui] != static_cast<int>(ui))
 									{
-										LogMsg("Table %s: Remapping %u incorrect IDs, starting with %d -> %u. ", szTableName, vTableIDs.size() - ui, vTableIDs[ui], ui);
-										bFirst = false;
+										if (bFirst)
+										{
+											LogMsg("Table %s: Remapping %u incorrect IDs, starting with %d -> %u. ", szTableName, vTableIDs.size() - ui, vTableIDs[ui], ui);
+											bFirst = false;
+										}
+										kUpdate.Bind(1, (int)ui);
+										kUpdate.Bind(2, vTableIDs[ui]);
+										kUpdate.Execute();
+										kUpdate.Reset();
 									}
-									char szUpdate[512];
-									sprintf_s(szUpdate, "UPDATE %s SET ID = %d WHERE ID = %d;", szTableName, (int)ui, vTableIDs[ui]);
-									DB.Execute(szUpdate);
 								}
 							}
 						}
