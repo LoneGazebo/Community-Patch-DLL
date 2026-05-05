@@ -8272,11 +8272,13 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			//must be false now
 			SetImprovementPassable(false);
 			//displace units which cannot stay here any longer (question: what if we replace one passable improvement with another? that let's ignore that case)
-			for (int i = 0; i < getNumUnits(); i++)
+			// iterate backwards: jumpToNearestValidPlotWithinRange removes the unit from this plot, shrinking the list;
+			// backwards iteration ensures we never skip a unit or read past the end.
+			for (int i = getNumUnits() - 1; i >= 0; i--)
 			{
 				CvUnit* pPotentiallyDisplaced = getUnitByIndex(i);
 				//do not push around zombie units
-				if (!pPotentiallyDisplaced->isDelayedDeath())
+				if (pPotentiallyDisplaced && !pPotentiallyDisplaced->isDelayedDeath())
 					pPotentiallyDisplaced->jumpToNearestValidPlotWithinRange(1);
 			}
 
