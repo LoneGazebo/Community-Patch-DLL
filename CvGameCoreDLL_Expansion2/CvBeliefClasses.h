@@ -489,7 +489,7 @@ public:
 	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, int iNumFollowerCities = 1) const;
 	int GetGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
