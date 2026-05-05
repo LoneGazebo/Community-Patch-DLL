@@ -467,7 +467,7 @@ local function UpdateTopPanelNow()
 	local traitType = "";
 	if g_activePlayer ~= nil then
 		leaderID = g_activePlayer:GetLeaderType();
-		for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
+		for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = ?", leaderID ) do
 			traitType = leaderTraits.TraitType;
 			break;
 		end

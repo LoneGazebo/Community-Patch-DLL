@@ -4530,11 +4530,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		kUtility.InitializeArray(m_piGoodies, m_iNumGoodies, 0);
 
 		Database::Results kArrayResults;
-		char szSQL[512];
-		sprintf_s(szSQL, "select GoodyHuts.ID from HandicapInfo_Goodies inner join GoodyHuts on GoodyType = GoodyHuts.Type where HandicapType = '%s';", szHandicapType);
-
-		if (DB.Execute(kArrayResults, szSQL))
+		if (DB.Execute(kArrayResults, "select GoodyHuts.ID from HandicapInfo_Goodies inner join GoodyHuts on GoodyType = GoodyHuts.Type where HandicapType = ?"))
 		{
+			kArrayResults.Bind(1, szHandicapType);
 			int i = 0;
 			while (kArrayResults.Step())
 			{
@@ -4930,21 +4928,22 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		const char* szGameSpeedInfoType = GetType();
 
 		//Calculate number of turn increments
-		char szCountSQL[256];
-		sprintf_s(szCountSQL, "select count(*) from GameSpeed_Turns where GameSpeedType = '%s'", szGameSpeedInfoType);
-		Database::SingleResult kCount;
-		if(DB.Execute(kCount, szCountSQL))
+		Database::Results kCount;
+		if(DB.Execute(kCount, "select count(*) from GameSpeed_Turns where GameSpeedType = ?"))
 		{
-			m_iNumTurnIncrements = kCount.GetInt(0);
+			kCount.Bind(1, szGameSpeedInfoType);
+			if(kCount.Step())
+			{
+				m_iNumTurnIncrements = kCount.GetInt(0);
+			}
 		}
 
 		//Update turn increments
 		allocateGameTurnInfos(getNumTurnIncrements());
-		char szSQL[256];
-		sprintf_s(szSQL, "select * from GameSpeed_Turns where GameSpeedType = '%s'", szGameSpeedInfoType);
 		Database::Results kArrayResults;
-		if(DB.Execute(kArrayResults, szSQL))
+		if(DB.Execute(kArrayResults, "select * from GameSpeed_Turns where GameSpeedType = ?"))
 		{
+			kArrayResults.Bind(1, szGameSpeedInfoType);
 			int i = 0;
 			while(kArrayResults.Step())
 			{
@@ -5372,13 +5371,10 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		kUtility.InitializeArray(m_paiFeatureObsoleteTech, "Features");
 		kUtility.InitializeArray(m_pabFeatureRemoveOnly, "Features");
 
-		char szQuery[512];
-		const char* szFeatureQuery = "select * from BuildFeatures where BuildType = '%s'";
-		sprintf_s(szQuery, 512, szFeatureQuery, GetType());
-
 		Database::Results kArrayResults;
-		if(DB.Execute(kArrayResults, szQuery))
+		if(DB.Execute(kArrayResults, "select * from BuildFeatures where BuildType = ?"))
 		{
+			kArrayResults.Bind(1, GetType());
 			while(kArrayResults.Step())
 			{
 				const char* szFeatureType			= kArrayResults.GetText("FeatureType");
@@ -6572,11 +6568,9 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		m_piResourceQuantityTypes[0] = 1;
 
 		Database::Results kArrayResults;
-		char szQuery[512];
-		sprintf_s(szQuery, "select Quantity from Resource_QuantityTypes where ResourceType = '%s';", szResourceType);
-
-		if(DB.Execute(kArrayResults, szQuery))
+		if(DB.Execute(kArrayResults, "select Quantity from Resource_QuantityTypes where ResourceType = ?"))
 		{
+			kArrayResults.Bind(1, szResourceType);
 			int i = 0;
 			while(kArrayResults.Step())
 			{
