@@ -34,7 +34,7 @@
 		<Column name="Modifier" type="integer" notnull="true"/>
 	</Table>
 	<Table name="Belief_GreatPersonBornYield">
-		<!-- Refer to Trait_GreatPersonBornYield -->
+		<!-- Does not scale with Era. Scales with CityScalerLimiter -->
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
