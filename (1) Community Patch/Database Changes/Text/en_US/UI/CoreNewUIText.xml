@@ -700,9 +700,6 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HISTORIC_EVENT_TRADE_SEA">
 			<Text>Complete a [ICON_CARGO_SHIP] Sea Trade Route from this City targeting another Civilization (Relative Strength: [COLOR_POSITIVE_TEXT]{1_Strength}[ENDCOLOR])</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HISTORIC_EVENT_RELIGION_SPREAD">
-			<Text>Convert a City to your owned [ICON_RELIGION] Religion for the first time (Relative Strength: [COLOR_POSITIVE_TEXT]{1_Strength}[ENDCOLOR])</Text>
-		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ERA_SCALING_SUFFIX">
 			<Text>scaling with Era</Text>
 		</Row>
