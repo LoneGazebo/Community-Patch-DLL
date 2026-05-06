@@ -685,7 +685,7 @@ VALUES
 
 UPDATE UnitPromotions SET DefenseMod = 10, NearbyEnemyCombatMod = -15, NearbyEnemyCombatRange = 2 WHERE RankList = 'COVERING_FIRE';
 UPDATE UnitPromotions SET AttackFortifiedMod = -50, CityAttack = -50 WHERE Type = 'PROMOTION_COVERING_FIRE_1';
-UPDATE UnitPromotions SET AttackFortifiedMod = -25, CityAttack = -25 WHERE Type = 'PROMOTION_COVERING_FIRE_2';
+UPDATE UnitPromotions SET AttackFortifiedMod = -25, CityAttack = -25, RangedDefenseMod = 15 WHERE Type = 'PROMOTION_COVERING_FIRE_2';
 INSERT INTO UnitPromotions_UnitCombatMods
 	(PromotionType, UnitCombatType, Modifier)
 VALUES
