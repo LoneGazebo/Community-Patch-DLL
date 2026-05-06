@@ -475,6 +475,13 @@
 			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO</PediaEntry>
 			<HasPostCombatPromotions>true</HasPostCombatPromotions>
 		</Row>
+		<Row>
+			<Type>PROMOTION_CHASQUI_TRAINING</Type>
+			<Description>TXT_KEY_PROMOTION_CHASQUI_TRAINING</Description>
+			<Help>TXT_KEY_PROMOTION_CHASQUI_TRAINING_HELP</Help>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_CHASQUI_TRAINING</PediaEntry>
+		</Row>
 		<!-- Policy -->
 		<Row>
 			<Type>PROMOTION_FASTER_WORKER</Type>

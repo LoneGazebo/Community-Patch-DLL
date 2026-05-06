@@ -566,8 +566,11 @@ UPDATE UnitPromotions SET RiverDoubleMove = 1, River = 1 WHERE Type = 'PROMOTION
 
 UPDATE UnitPromotions SET AttackMod = 20 WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
 
+UPDATE UnitPromotions SET CanCrossMountains = 1 WHERE Type = 'PROMOTION_CHASQUI_TRAINING';
+
 -- Eight Virtues of Bushido
 UPDATE UnitPromotions SET HasPostCombatPromotions = 1 WHERE Type = 'PROMOTION_BUSHIDO';
+
 INSERT INTO UnitPromotions_PostCombatRandomPromotion
 	(PromotionType, NewPromotion)
 VALUES
