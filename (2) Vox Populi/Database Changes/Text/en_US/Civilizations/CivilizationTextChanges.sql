@@ -388,7 +388,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 -- Inca
 --------------------
 UPDATE Language_en_US
-SET Text = 'Units can cross Mountains and ignore terrain costs when entering any Hill or Mountain, except when crossing a River. Cities, Roads, and Railroads may be built on Mountains. Mountains produce +1 [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science when worked, scaling with Era.'
+SET Text = 'Civilian and Recon Units can cross Mountains. Units ignore terrain costs [COLOR_POSITIVE_TEXT]in Hills[ENDCOLOR]. Owned Hills or Mountains with [ICON_CONNECTED] City Connections or [ICON_INTERNATIONAL_TRADE] Trade Routes yield +1 [ICON_GOLD] Gold, increasing by +1 in the [COLOR_CYAN]Industrial Era[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD';
 
 UPDATE Language_en_US
@@ -396,7 +396,7 @@ SET Text = 'Pata-Pata'
 WHERE Tag = 'TXT_KEY_IMPROVEMENT_TERRACE_FARM';
 
 UPDATE Language_en_US
-SET Text = 'Can only be built on Hill. +1 [ICON_FOOD] Food for every two adjacent tiles with a Mountain, a Farm, a Pata-Pata or an Academy. Farms get +1 [ICON_FOOD] Food per 2 adjacent Farms or Pata-Pata.'
+SET Text = 'Can only be built on Mountains. +1 [ICON_FOOD] Food to all adjacent non-Mountain land tiles.[NEWLINE][NEWLINE]Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Incan territory. When completed, claims the tile beneath it if built in [COLOR_POSITIVE_TEXT]Neutral Territory[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP';
 
 UPDATE Language_en_US

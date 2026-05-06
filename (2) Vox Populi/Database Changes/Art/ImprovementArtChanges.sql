@@ -37,3 +37,8 @@ WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CHATEAU';
 UPDATE ArtDefine_Landmarks
 SET Scale = 0.80
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_KASBAH';
+
+-- Enlarge Pata-Pata for Mountains
+UPDATE ArtDefine_Landmarks
+SET Scale = 1.1
+WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TERRACE_FARM';
