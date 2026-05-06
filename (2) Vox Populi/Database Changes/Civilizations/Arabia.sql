@@ -40,7 +40,7 @@ DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_ARABIAN_CAM
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_ARABIAN_CAMELARCHER', 'PROMOTION_WITHDRAW_BEFORE_MELEE'),
+	('UNIT_ARABIAN_CAMELARCHER', 'PROMOTION_DESERT_RAIDER'),
 	('UNIT_ARABIAN_CAMELARCHER', 'PROMOTION_SPLASH_1');
 
 ----------------------------------------------------------
@@ -69,7 +69,7 @@ INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
 	('UNIT_HASHEMITE_RAIDER', 'PROMOTION_GARLAND_MINE'),
-	('UNIT_HASHEMITE_RAIDER', 'PROMOTION_DESERT_RAIDER');
+	('UNIT_HASHEMITE_RAIDER', 'PROMOTION_WITHDRAW_BEFORE_MELEE');
 
 ----------------------------------------------------------
 -- Unique Building: Bazaar (Market)
