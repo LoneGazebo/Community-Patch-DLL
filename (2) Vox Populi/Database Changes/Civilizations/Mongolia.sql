@@ -155,8 +155,8 @@ VALUES
 INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, YieldType, Yield)
 VALUES
---	('BUILDING_GER', 'YIELD_FOOD', 5),
-	('BUILDING_GER', 'YIELD_PRODUCTION', 5);
+--	('BUILDING_GER', 'YIELD_FOOD', 10),
+	('BUILDING_GER', 'YIELD_PRODUCTION', 10);
 
 ----------------------------------------------------------
 -- Unique Project: Adopt the Yassa

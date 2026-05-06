@@ -1003,7 +1003,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GER_STRATEGY">
-			<Text>Unique Mongolian replacement for the {TXT_KEY_BUILDING_SMOKEHOUSE}. In addition to the {TXT_KEY_BUILDING_SMOKEHOUSE}'s bonuses, {TXT_KEY_BUILDING_GER} generates [ICON_PEACE] Faith; boosts pastures; provides [ICON_PRODUCTION] Production when borders expand; and makes borders expand faster.</Text>
+			<Text>Unique Mongolian replacement for the {TXT_KEY_BUILDING_SMOKEHOUSE}. In addition to the {TXT_KEY_BUILDING_SMOKEHOUSE}'s bonuses, the {TXT_KEY_BUILDING_GER} provides [ICON_PRODUCTION] Production when borders expand, and makes borders expand faster. It also boosts Pastures in addition to Camps, broadening the set of Cities that will benefit from the building. Finally, it provides a small amount of [ICON_PEACE] Faith, giving you the option to forego or delay more standard sources like Shrines.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_ORDO">
 			<Text>Ordo</Text>
