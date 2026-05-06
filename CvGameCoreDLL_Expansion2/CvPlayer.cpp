@@ -32260,8 +32260,14 @@ void CvPlayer::changeCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFrom
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eStateReligion, GetID());
 		if (pReligion)
 		{
+			CvCity* pOriginCity = NULL;
+			if (pFromUnit)
+			{
+				pOriginCity = pFromUnit->getOriginCity();
+			}
+			
 			const GreatPersonTypes eGeneral = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_GENERAL"));
-			int iModifier = pReligion->m_Beliefs.GetGreatPersonRateModifier(eGeneral, GET_ID());
+			int iModifier = pReligion->m_Beliefs.GetGreatPersonRateModifier(eGeneral, GET_ID(), pOriginCity);
 			if (iModifier != 0)
 			{
 				iChangeTimes100 *= (100 + iModifier);
@@ -32409,8 +32415,13 @@ void CvPlayer::changeNavalCombatExperienceTimes100(int iChangeTimes100, CvUnit* 
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eStateReligion, GetID());
 		if (pReligion)
 		{
+			CvCity* pOriginCity = NULL;
+			if (pFromUnit)
+			{
+				pOriginCity = pFromUnit->getOriginCity();
+			}
 			const GreatPersonTypes eAdmiral = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ADMIRAL"));
-			int iModifier = pReligion->m_Beliefs.GetGreatPersonRateModifier(eAdmiral, GET_ID());
+			int iModifier = pReligion->m_Beliefs.GetGreatPersonRateModifier(eAdmiral, GET_ID(), pOriginCity);
 			if (iModifier != 0)
 			{
 				iChangeTimes100 *= (100 + iModifier);
