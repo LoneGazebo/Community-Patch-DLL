@@ -1584,10 +1584,10 @@ SET
 	Happiness = 0
 WHERE BuildingClass = 'BUILDINGCLASS_STONE_WORKS';
 
-INSERT INTO Building_YieldChanges
+INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 1
+	Type, 'YIELD_PRODUCTION', 10
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_STONE_WORKS';
 
@@ -1622,7 +1622,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_SMOKEHOUSE';
 INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_FOOD', 5
+	Type, 'YIELD_FOOD', 10
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_SMOKEHOUSE';
 
