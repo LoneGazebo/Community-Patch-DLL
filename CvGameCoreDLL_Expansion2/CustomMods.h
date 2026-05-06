@@ -164,6 +164,8 @@
 // When a Great Prophet spawns with a 100% spawn chance, any overflow Faith is kept, not discarded
 #define MOD_RELIGION_KEEP_PROPHET_OVERFLOW							gCustomMods.isRELIGION_KEEP_PROPHET_OVERFLOW()
 
+// Randomises religion choice if preferred religion is unavailable
+#define MOD_RELIGION_RANDOMISE										gCustomMods.isRELIGION_RANDOMISE()
 
 /////////////////////////////////////////
 // ENABLED PICK'N'MIX MODS
@@ -253,8 +255,6 @@
 // Removes religion preference
 // Kept the typo for backwards compatibility (sigh)
 #define MOD_RELIGION_NO_PREFERENCES									(gCustomMods.isRELIGION_NO_PREFERENCES() || gCustomMods.isRELIGION_NO_PREFERRENCES())
-// Randomises religion choice if preferred religion is unavailable
-#define MOD_RELIGION_RANDOMISE										gCustomMods.isRELIGION_RANDOMISE()
 
 // Send purchase notifications at every boundary and not just the first
 #define MOD_RELIGION_RECURRING_PURCHASE_NOTIFY						gCustomMods.isRELIGION_RECURRING_PURCHASE_NOTIFY()

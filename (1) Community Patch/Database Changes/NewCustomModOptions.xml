@@ -159,7 +159,9 @@
 
 		<!-- When a Great Prophet spawns with a 100% spawn chance, any overflow Faith is kept, not discarded -->
 		<Row Class="4" Name="RELIGION_KEEP_PROPHET_OVERFLOW" Value="1"/>
-
+		
+		<!-- Randomises religion choice if preferred religion is unavailable -->
+		<Row Class="4" Name="RELIGION_RANDOMISE" Value="1"/>
 
 		<!-- ********************************************************** -->
 		<!-- 				ENABLED PICK'N'MIX MODS						-->
@@ -300,8 +302,6 @@
 		<!-- Removes religion preference -->
 		<Row Class="4" Name="RELIGION_NO_PREFERENCES" Value="0"/> <!-- Out of sheer spite about needing to keep the typo for backwards compatibility, a corrected version! Either works! -->
 		<Row Class="4" Name="RELIGION_NO_PREFERRENCES" Value="0"/>
-		<!-- Randomises religion choice if preferred religion is unavailable -->
-		<Row Class="4" Name="RELIGION_RANDOMISE" Value="0"/>
 
 		<!-- Send purchase notifications at every boundary and not just the first -->
 		<!-- See also: "Religion - Recurring Purchase Notifications" -->
