@@ -753,7 +753,7 @@
 			<Text>The Inca warriors were renowned slingers. Their projectile of choice was a rounded stone. While a sling does not have the range or stopping power of a bow and arrow, slings are remarkably small and light weapons, and infantry warriors could easily carry them without becoming encumbered. And as is written in the Old Testament, a trained slinger can kill even the largest opponent with but a single stone...</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_WARAKAQ_STRATEGY">
-			<Text>The {TXT_KEY_UNIT_WARAKAQ} is the Incan unique unit, replacing the {TXT_KEY_UNIT_INCAN_SLINGER}. It has superior range and can daze enemy units which lowers their [ICON_STRENGTH] Combat Strength for a long time.[NEWLINE][NEWLINE]Use it to harass your foes and take down Barbarian camps quickly.</Text>
+			<Text>The {TXT_KEY_UNIT_WARAKAQ} is the Incan unique unit, replacing the {TXT_KEY_UNIT_ARCHER}. It is slight tougher, and can daze enemy units which lowers their [ICON_STRENGTH] Combat Strength for a long time.[NEWLINE][NEWLINE]Since it can ignore Zone of Control, you can use it to harass your foes and take down Barbarian camps quickly and safely.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_WARAKAQ_HELP">
 			<Text></Text>
@@ -788,7 +788,7 @@
 			<Text>The standing army of the Inca was formed primarily by nobles, but the Sapa Inca could raise an army of able-bodied men from the general populace at will. Military discipline was strictly enforced when the troops were on the march and the army, although variously specialized, was extremely well trained. Drawing on the resources of a vast empire, the Inca recruited warriors from numerous subordinate tribes with their own military traditions. The Chimu, inheritors of the ancient Moche culture were once bitter enemies of the Inca but, once subdued, provided the Inca with some of their most formidable and loyal troops. The Chimu were known for their use of maces and clubs in warfare. Some warriors strode fearlessly into battle, carrying massive maces that required both hands to swing and decimated anything in their path. These elite shock troops posed a deadly threat to any opponent, whether in the field or in a fortification under siege.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_INTI_MACEMAN_STRATEGY">
-			<Text></Text>
+			<Text>With slightly more Combat Strength than the {TXT_KEY_UNIT_LONGSWORDSMAN} it replaces, the {TXT_KEY_UNIT_INTI_MACEMAN}'s power comes from its two Promotions. The first bonus it has grants it a large amount of additional HP, making it one of the toughest Units of its time, and on top of that a large Strength boost in Hills and Mountains. Correct placement can make these Units extremely hard to dislodge. The second bonus is the same as the {TXT_KEY_UNIT_WARAKAQ}, reducing enemy Strength and ignoring Zone of Control. Again, with the Incan Unique Ability, these are very hard Units for the enemy to lock down. Paired together, {TXT_KEY_UNIT_INTI_MACEMAN} are a inexorable threat in the Medieval Era and beyond.</Text>
 		</Row>
 
 		<!-- India -->
