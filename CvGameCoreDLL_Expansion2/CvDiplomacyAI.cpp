@@ -3165,7 +3165,7 @@ int CvDiplomacyAI::GetDiplomaticVictoryProgress() const
 			CvLeagueSpecialSessionEntry* pSessionInfo = GC.getLeagueSpecialSessionInfo(e);
 			if (pSessionInfo->IsUnitedNations() && pSessionInfo->GetResolutionTrigger() != NO_RESOLUTION)
 			{
-				if (LeagueHelpers::IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger()))
+				if (pLeague->IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger()))
 				{
 					iExtra += 1;
 				}

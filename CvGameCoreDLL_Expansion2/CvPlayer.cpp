@@ -21345,8 +21345,6 @@ PlayerTypes CvPlayer::GetMostUnhappyCityRecipient(CvCity* pMostUnhappyCity)
 						}
 						// Find how far their capital is from this city
 						CvCity* pOtherCapital = kPlayer.getCapitalCity();
-						if (!pOtherCapital)
-							continue;
 						int iCapitalDistance = plotDistance(pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), pOtherCapital->getX(), pOtherCapital->getY());
 
 						iValue -= iCapitalDistance * 2;

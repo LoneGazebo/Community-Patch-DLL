@@ -202,23 +202,18 @@ bool LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(BuildingTypes eBuilding)
 	}
 	return false;
 }
-bool LeagueHelpers::IsResolutionForTriggerActive(ResolutionTypes eType)
+bool CvLeague::IsResolutionForTriggerActive(ResolutionTypes eType) const
 {
-	if(eType != NO_RESOLUTION)
-	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (!pLeague) return NO_RESOLUTION;
-		const ActiveResolutionList& vActiveResolutions = pLeague->GetActiveResolutions();
-		for (ActiveResolutionList::const_iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); ++it)
-		{
-			if (it->GetType() == eType)
-			{
-				return true;
-			}
-		}
+	if (eType == NO_RESOLUTION)
 		return false;
+
+	const ActiveResolutionList& vActiveResolutions = GetActiveResolutions();
+	for (ActiveResolutionList::const_iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); ++it)
+	{
+		if (it->GetType() == eType)
+			return true;
 	}
-	return true;
+	return false;
 }
 
 
@@ -3271,7 +3266,7 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 			CvLeagueSpecialSessionEntry* pSessionInfo = GC.getLeagueSpecialSessionInfo(e);
 			if(pSessionInfo->IsUnitedNations() && pSessionInfo->GetResolutionTrigger() != NO_RESOLUTION)
 			{
-				if(!LeagueHelpers::IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger()))
+				if (!IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger()))
 				{
 					if (sTooltipSink != NULL)
 					{
