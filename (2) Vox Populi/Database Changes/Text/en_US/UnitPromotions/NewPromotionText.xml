@@ -745,7 +745,7 @@
 			<Text>Covering Fire II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COVERING_FIRE_2_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]-15% [ICON_STRENGTH] Combat Strength on Enemy Units [COLOR_POSITIVE_TEXT]within 2 tiles of this Unit[ENDCOLOR].</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when defending against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]-15% [ICON_STRENGTH] Combat Strength on Enemy Units [COLOR_POSITIVE_TEXT]within 2 tiles of this Unit[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_TITANIC">
