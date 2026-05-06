@@ -8382,17 +8382,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					ClearArchaeologicalRecord();
 				}
 			}
-
-			// if the improvement has yield changes by era, it needs the historical record set. 
-			// in the rare case there is also an invisible artifact record on the tile, its age is altered (player has no way to know this)
-			for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
-			{
-				if (newImprovementEntry.GetYieldChangePerEra(iK) != 0)
-				{
-					m_kArchaeologyData.m_eEra = GET_PLAYER(eBuilder).GetCurrentEra();
-					break;
-				}
-			}
 			
 			// remove existing resource if this improvement places a new one (needs to be done before setting the improvement to make sure resource counts are updated correctly)
 			ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
@@ -8569,12 +8558,29 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 
-			if (newImprovementEntry.GetHappinessOnConstruction() != 0 && eBuilder != NO_PLAYER)
+			if (eBuilder != NO_PLAYER)
 			{
-				GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
-				if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
+				// this column is used to check for landmarks. if it is used for anything else this code will have to change
+				if (newImprovementEntry.GetHappinessOnConstruction() != 0)
 				{
-					GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+					GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+					if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
+					{
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+					}
+				}
+				// if the improvement isn't a landmark but has yield changes by era, it needs the historical record set. 
+				else
+				{
+					for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+					{
+						if (newImprovementEntry.GetYieldChangePerEra(iK) != 0)
+						{
+							// in the rare case there is also an (invisible) artifact record on the tile, its age is altered
+							m_kArchaeologyData.m_eEra = GET_PLAYER(eBuilder).GetCurrentEra();
+							break;
+						}
+					}
 				}
 			}
 
