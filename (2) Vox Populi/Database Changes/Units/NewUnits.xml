@@ -1130,7 +1130,7 @@
 			<Help>TXT_KEY_UNIT_WARAKAQ_HELP</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
-			<Class>UNITCLASS_SLINGER</Class>
+			<Class>UNITCLASS_ARCHER</Class>
 			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
 			<PrereqTech>TECH_ARCHERY</PrereqTech>
 			<ObsoleteTech>TECH_CONSTRUCTION</ObsoleteTech>
