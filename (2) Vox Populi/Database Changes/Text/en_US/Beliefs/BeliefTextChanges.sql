@@ -62,7 +62,7 @@ SET Text = 'God of the Stars and Sky'
 WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_CULTURE] Culture from Tundra and Snow tiles with Resources.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_CULTURE] Culture from Tundra and Snow tiles with improved Resources. +1 [ICON_PEACE] Faith and +1 [ICON_FOOD] Food from Cities on or adjacent to Snow or Tundra.'
 WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA';
 
 UPDATE Language_en_US

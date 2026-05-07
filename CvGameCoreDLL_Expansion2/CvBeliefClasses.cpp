@@ -154,6 +154,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piGreatPersonPoints(NULL),
 	m_piCapitalYieldChange(NULL),
 	m_piCoastalCityYieldChange(NULL),
+	m_ppiNearbyTerrainYieldChange(NULL),
 	m_piGreatWorkYieldChange(NULL),
 	m_piYieldFromKills(NULL),
 	m_piYieldFromRemoveHeresy(NULL),
@@ -255,6 +256,7 @@ CvBeliefEntry::~CvBeliefEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiNearbyTerrainYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiTradeRouteYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonExpendedYield);
@@ -1117,6 +1119,11 @@ int CvBeliefEntry::GetCoastalCityYieldChange(int i) const
 	return m_piCoastalCityYieldChange ? m_piCoastalCityYieldChange[i] : 0;
 }
 
+int CvBeliefEntry::GetNearbyTerrainYieldChange(int i, int j) const
+{
+	return m_ppiNearbyTerrainYieldChange ? m_ppiNearbyTerrainYieldChange[i][j] : 0;
+}
+
 int CvBeliefEntry::GetGreatWorkYieldChange(int i) const
 {
 	return m_piGreatWorkYieldChange ? m_piGreatWorkYieldChange[i] : 0;
@@ -1781,6 +1788,30 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piGreatPersonPoints, "GreatPersons", "Belief_GreatPersonPoints", "GreatPersonType", "BeliefType", szBeliefType, "Value");
 	kUtility.SetYields(m_piCapitalYieldChange, "Belief_CapitalYieldChanges", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piCoastalCityYieldChange, "Belief_CoastalCityYieldChanges", "BeliefType", szBeliefType);
+
+	//NearbyTerrainYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppiNearbyTerrainYieldChange, "Terrains", "Yields");
+
+		std::string strKey("Belief_NearbyTerrainYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Belief_NearbyTerrainYieldChanges inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while (pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiNearbyTerrainYieldChange[TerrainID][YieldID] = yield;
+		}
+	}
+
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Belief_GreatWorkYieldChanges", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromKills, "Belief_YieldFromKills", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromRemoveHeresy, "Belief_YieldFromRemoveHeresy", "BeliefType", szBeliefType);
@@ -3558,6 +3589,56 @@ int CvReligionBeliefs::GetCoastalCityYieldChange(int iPopulation, YieldTypes eYi
 		{
 			rtnValue += iValue;
 		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetNearbyTerrainYieldChange(int iPopulation, TerrainTypes eTerrain, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = 0;
+		if (iPopulation >= pBeliefs->GetEntry(*it)->GetMinPopulation())
+		{
+			iValue = pBeliefs->GetEntry(*it)->GetNearbyTerrainYieldChange((int)eTerrain, (int)eYield);
+		}
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+// For each active belief, take the max yield across all matching terrains, then sum across beliefs.
+// This ensures a city adjacent to both tundra and snow gets each belief's bonus once, not stacked,
+// but two separate beliefs with different terrains both apply.
+int CvReligionBeliefs::GetNearbyTerrainYieldChangeForCity(int iPopulation, const std::vector<bool>& abTerrainMatch, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		if (iPopulation < pBeliefs->GetEntry(*it)->GetMinPopulation())
+			continue;
+		if (!IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+			continue;
+
+		int iMaxForThisBelief = 0;
+		for (int iTerrain = 0; iTerrain < (int)abTerrainMatch.size(); iTerrain++)
+		{
+			if (abTerrainMatch[iTerrain])
+			{
+				iMaxForThisBelief = max(iMaxForThisBelief, pBeliefs->GetEntry(*it)->GetNearbyTerrainYieldChange(iTerrain, (int)eYield));
+			}
+		}
+		rtnValue += iMaxForThisBelief;
 	}
 
 	return rtnValue;
