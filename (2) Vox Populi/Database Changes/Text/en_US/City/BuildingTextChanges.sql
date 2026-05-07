@@ -5,7 +5,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_WATERMILL_STRATEGY';
 
 -- Aqueduct
 UPDATE Language_en_US
-SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15%. Build Aqueducts in cities that you want to grow large over time. The City needs to have a Granary in order to construct the Aqueduct.'
+SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a City needs to for [ICON_CITIZEN] Citizen Birth by 15%, and provides [ICON_PRODUCTION] Production when that happens. Build Aqueducts in cities that can grow large over time. When built early while citizens are born the fastest, the production bonus will be most impactful. The City needs to have a Granary in order to construct the Aqueduct.'
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_STRATEGY';
 
 -- Medical Lab
