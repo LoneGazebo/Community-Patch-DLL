@@ -15085,6 +15085,17 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 				{
 					iReligionYieldChange += pReligion->m_Beliefs.GetCoastalCityYieldChange(getPopulation(), (YieldTypes)iYield, getOwner(), this);
 				}
+				{
+					std::vector<bool> abTerrainMatch(GC.getNumTerrainInfos(), false);
+					for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+					{
+						if (plot()->getTerrainType() == (TerrainTypes)iTerrain || IsAdjacentToTerrain((TerrainTypes)iTerrain))
+						{
+							abTerrainMatch[iTerrain] = true;
+						}
+					}
+					iReligionYieldChange += pReligion->m_Beliefs.GetNearbyTerrainYieldChangeForCity(getPopulation(), abTerrainMatch, (YieldTypes)iYield, getOwner(), this);
+				}
 
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF && getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
@@ -15107,6 +15118,17 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 					if (isCoastal()) 
 					{
 						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCoastalCityYieldChange((YieldTypes)iYield);
+					}
+					{
+						int iNearbyTerrainYield = 0;
+						for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+						{
+							if (plot()->getTerrainType() == (TerrainTypes)iTerrain || IsAdjacentToTerrain((TerrainTypes)iTerrain))
+							{
+								iNearbyTerrainYield = max(iNearbyTerrainYield, GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetNearbyTerrainYieldChange(iTerrain, iYield));
+							}
+						}
+						iReligionYieldChange += iNearbyTerrainYield;
 					}
 				}
 
@@ -15188,6 +15210,17 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 						if (isCoastal()) 
 						{
 							iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCoastalCityYieldChange((YieldTypes)iYield);
+						}
+						{
+							int iNearbyTerrainYield = 0;
+							for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+							{
+								if (plot()->getTerrainType() == (TerrainTypes)iTerrain || IsAdjacentToTerrain((TerrainTypes)iTerrain))
+								{
+									iNearbyTerrainYield = max(iNearbyTerrainYield, GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetNearbyTerrainYieldChange(iTerrain, iYield));
+								}
+							}
+							iReligionYieldChange += iNearbyTerrainYield;
 						}
 
 						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldChangeTradeRoute((YieldTypes)iYield);

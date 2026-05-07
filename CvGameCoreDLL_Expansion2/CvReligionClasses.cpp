@@ -7888,6 +7888,47 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 	int iModifier = 0; 
 	// iModifier is between 0 and 100. 100 for yields that are instantly available, lower value if it takes time to get them (build improvements, remove features etc.)
 
+	// When RequiresImprovement=1 and no improvement is present, compute a tech-based confidence modifier
+	int iRequiresImprovementModifier = 75; // fallback when bConsiderFutureTech=false (preserves old behavior)
+	if (pEntry->RequiresImprovement() && eImprovement == NO_IMPROVEMENT && bConsiderFutureTech)
+	{
+		iRequiresImprovementModifier = 0; // will be raised if any improvement can be built here
+		for (int jJ = 0; jJ < GC.getNumImprovementInfos(); jJ++)
+		{
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo((ImprovementTypes)jJ);
+			if (!pkImprovementInfo || pkImprovementInfo->IsCreatedByGreatPerson())
+				continue;
+			if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsConnectsResource(eResource)))
+				continue;
+			if (!pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->GetID()))
+				continue;
+			if (pkImprovementInfo->IsSpecificCivRequired() && pkImprovementInfo->GetRequiredCivilization() != m_pPlayer->getCivilizationType())
+				continue;
+			BuildTypes eThisBuild = NO_BUILD;
+			for (int iK = 0; iK < GC.getNumBuildInfos(); ++iK)
+			{
+				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iK);
+				if (pkBuildInfo && (ImprovementTypes)pkBuildInfo->getImprovement() == (ImprovementTypes)jJ)
+				{
+					eThisBuild = (BuildTypes)iK;
+					break;
+				}
+			}
+			if (eThisBuild != NO_BUILD)
+			{
+				int iLoopModifier;
+				TechTypes eBuildTech = (TechTypes)GC.getBuildInfo(eThisBuild)->getTechPrereq();
+				if (eBuildTech == NO_TECH || m_pPlayer->HasTech(eBuildTech))
+					iLoopModifier = 90;
+				else if (m_pPlayer->GetPlayerTechs()->GetCurrentResearch() == eBuildTech)
+					iLoopModifier = 80;
+				else
+					iLoopModifier = 50;
+				iRequiresImprovementModifier = max(iRequiresImprovementModifier, iLoopModifier);
+			}
+		}
+	}
+
 	if (eTerrain != NO_TERRAIN)
 	{
 		int iTerrainYieldChangeTimes100 = pEntry->GetTerrainYieldChange(eTerrain, iI) * 100;
@@ -7897,7 +7938,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 			iModifier = 100;
 			if (pEntry->RequiresImprovement() && eImprovement == NO_IMPROVEMENT)
 			{
-				iModifier = 75;
+				iModifier = iRequiresImprovementModifier;
 			}
 			else if (pEntry->RequiresNoImprovement() && eImprovement != NO_IMPROVEMENT)
 			{
@@ -7920,7 +7961,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 			iModifier = 100;
 			if (pEntry->RequiresImprovement() && eImprovement == NO_IMPROVEMENT)
 			{
-				iModifier = 75;
+				iModifier = iRequiresImprovementModifier;
 			}
 			else if (pEntry->RequiresNoImprovement() && eImprovement != NO_IMPROVEMENT)
 			{
@@ -8366,6 +8407,27 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 				iAvailabilityModifier = 4; // todo
 			}
 			iTempValue += iAvailabilityModifier * pEntry->GetCoastalCityYieldChange(iI);
+		}
+
+		// Nearby terrain city yield change (max across terrain types - city qualifies once for any matching terrain)
+		{
+			int iMaxNearbyTerrainScore = 0;
+			for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+			{
+				if (pEntry->GetNearbyTerrainYieldChange(iTerrain, iI) > 0)
+				{
+					if (pCity)
+					{
+						iAvailabilityModifier = (pCity->plot()->getTerrainType() == (TerrainTypes)iTerrain || pCity->IsAdjacentToTerrain((TerrainTypes)iTerrain)) ? 10 : 0;
+					}
+					else
+					{
+						iAvailabilityModifier = 3;
+					}
+					iMaxNearbyTerrainScore = max(iMaxNearbyTerrainScore, iAvailabilityModifier * pEntry->GetNearbyTerrainYieldChange(iTerrain, iI));
+				}
+			}
+			iTempValue += iMaxNearbyTerrainScore;
 		}
 
 		// Trade route yield change
@@ -9000,6 +9062,27 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 				iTempValue *= 2;
 			}
 			iRtnValue += iTempValue;
+		}
+
+		// Nearby terrain city yield change (max across terrain types - city qualifies once for any matching terrain)
+		{
+			int iMaxNearbyTerrainYield = 0;
+			for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+			{
+				if (pCity->plot()->getTerrainType() == (TerrainTypes)iTerrain || pCity->IsAdjacentToTerrain((TerrainTypes)iTerrain))
+				{
+					iMaxNearbyTerrainYield = max(iMaxNearbyTerrainYield, pEntry->GetNearbyTerrainYieldChange(iTerrain, iI));
+				}
+			}
+			if (iMaxNearbyTerrainYield > 0)
+			{
+				iTempValue = iMaxNearbyTerrainYield * iEraBonus;
+				if (iMinPop > 0 && pCity->getPopulation() >= iMinPop)
+				{
+					iTempValue *= 2;
+				}
+				iRtnValue += iTempValue;
+			}
 		}
 
 		// Trade route yield change

@@ -171,6 +171,7 @@ public:
 	int GetGoldenAgeGreatPersonRateModifier(int i) const;
 	int GetCapitalYieldChange(int i) const;
 	int GetCoastalCityYieldChange(int i) const;
+	int GetNearbyTerrainYieldChange(int i, int j) const;
 	int GetGreatWorkYieldChange(int i) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromRemoveHeresy(YieldTypes eYield) const;
@@ -290,6 +291,7 @@ protected:
 	int* m_piGreatPersonPoints;
 	int* m_piCapitalYieldChange;
 	int* m_piCoastalCityYieldChange;
+	int** m_ppiNearbyTerrainYieldChange;
 	int* m_piGreatWorkYieldChange;
 	int* m_piYieldFromKills;
 	int* m_piYieldFromRemoveHeresy;
@@ -498,6 +500,8 @@ public:
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetNearbyTerrainYieldChange(int iPopulation, TerrainTypes eTerrain, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetNearbyTerrainYieldChangeForCity(int iPopulation, const std::vector<bool>& abTerrainMatch, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromKills(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

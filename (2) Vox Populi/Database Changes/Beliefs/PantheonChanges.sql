@@ -125,7 +125,7 @@ VALUES
 
 -- Dance of the Aurora (now God of the Stars and Sky)
 UPDATE Beliefs
-SET RequiresResource = 1
+SET RequiresResource = 1, RequiresImprovement = 1
 WHERE Type = 'BELIEF_DANCE_AURORA';
 
 INSERT INTO Belief_TerrainYieldChanges
@@ -136,6 +136,14 @@ VALUES
 	('BELIEF_DANCE_AURORA', 'TERRAIN_TUNDRA', 'YIELD_FAITH', 1),
 	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_FOOD', 1),
 	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_CULTURE', 1),
+	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_FAITH', 1);
+
+INSERT INTO Belief_NearbyTerrainYieldChanges
+	(BeliefType, TerrainType, YieldType, Yield)
+VALUES
+	('BELIEF_DANCE_AURORA', 'TERRAIN_TUNDRA', 'YIELD_FOOD', 1),
+	('BELIEF_DANCE_AURORA', 'TERRAIN_TUNDRA', 'YIELD_FAITH', 1),
+	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_FOOD', 1),
 	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_FAITH', 1);
 
 -- Sun God (now God of the Sun)
