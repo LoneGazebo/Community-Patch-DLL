@@ -80,7 +80,7 @@ VALUES
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_FORT', 'YIELD_CULTURE_LOCAL', 1);
+	('IMPROVEMENT_FORT', 'YIELD_CULTURE_LOCAL', 2);
 
 INSERT INTO Improvement_ResourceExtractionIncrease
 	(ImprovementType, ResourceType, Num)
