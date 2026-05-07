@@ -8560,9 +8560,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 			if (eBuilder != NO_PLAYER)
 			{
-				// this column is used to check for landmarks. if it is used for anything else this code will have to change
 				if (newImprovementEntry.GetHappinessOnConstruction() != 0)
 				{
+					// this actually tracks improvement happiness, not num landmarks built
 					GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
 					if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
 					{
@@ -8570,7 +8570,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 				// if the improvement isn't a landmark but has yield changes by era, it needs the historical record set. 
-				else
+				static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+				if (eNewValue != eLandmark)
 				{
 					for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
 					{
