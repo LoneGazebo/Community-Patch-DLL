@@ -90,7 +90,7 @@ ALTER TABLE Traits ADD GoldToGAP integer DEFAULT 0;
 ALTER TABLE Traits ADD EventTourismBoost integer DEFAULT 0;
 
 -- Adds a trait that adds historic events when your owned religion spreads to a city for the first time
--- Counts x turns of output, where x is the integer below
+-- Instant yield equal to (average (culture+tourism) of last 10 turns * x / 15), where x is the integer below
 ALTER TABLE Traits ADD ReligionSpreadTourism integer DEFAULT 0;
 
 -- Adds x# of GP Points to Capital (scaling with era) when you complete a Historic Event.
