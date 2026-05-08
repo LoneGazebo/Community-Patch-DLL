@@ -410,7 +410,7 @@ SET Text = 'Sacred Calendar'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+33% [ICON_GREAT_PEOPLE] Great Person Rate in Holy City during [ICON_GOLDEN_AGE] Golden Ages. +3 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_GOLD] Gold in [ICON_RELIGION] Holy City for every Foreign City following this Religion. Missionaries of this Religion are 25% stronger.'
+SET Text = '+33% [ICON_GREAT_PEOPLE] Great Person Rate in Holy City during [ICON_GOLDEN_AGE] Golden Ages. +3 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_GOLD] Gold in [ICON_RELIGION] Holy City for every Foreign City following this Religion. [ICON_MISSIONARY] Missionaries of this Religion are 25% stronger.'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL';
 
 UPDATE Language_en_US
