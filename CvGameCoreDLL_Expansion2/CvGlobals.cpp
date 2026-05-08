@@ -2458,8 +2458,6 @@ typedef BOOL (WINAPI *PFN_SymInitialize)(
 	PCSTR UserSearchPath,
 	BOOL fInvadeProcess);
 
-typedef DWORD (WINAPI *PFN_ImagehlpApiVersion)(void);
-
 // Define newer minidump flags if not present in older SDK headers
 #ifndef MiniDumpIgnoreInaccessibleMemory
 #define MiniDumpIgnoreInaccessibleMemory ((MINIDUMP_TYPE)0x00020000)
@@ -2472,7 +2470,7 @@ typedef DWORD (WINAPI *PFN_ImagehlpApiVersion)(void);
 static HMODULE g_hDbgHelp = NULL;
 static PFN_MiniDumpWriteDump g_pfnMiniDumpWriteDump = NULL;
 static PFN_SymInitialize g_pfnSymInitialize = NULL;
-static DWORD g_dwDbgHelpVersion = 0;
+static char g_szDbgHelpPath[MAX_PATH] = {0};
 
 // Store the last minidump path for display in crash dialogs
 static char g_szLastMiniDumpPath[MAX_PATH] = {0};
@@ -2555,17 +2553,12 @@ static bool LoadBestDbgHelp()
 		return false;
 	}
 
-	// Get version information
-	PFN_ImagehlpApiVersion pfnVersion = (PFN_ImagehlpApiVersion)GetProcAddress(g_hDbgHelp, "ImagehlpApiVersion");
-	if (pfnVersion)
+	GetModuleFileNameA(g_hDbgHelp, g_szDbgHelpPath, MAX_PATH);
 	{
-		g_dwDbgHelpVersion = pfnVersion();
-		TCHAR szVersion[128];
-		_stprintf_s(szVersion, sizeof(szVersion) / sizeof(TCHAR),
-			_T("dbghelp.dll version: %d.%d.%d.%d\n"),
-			HIWORD(g_dwDbgHelpVersion), LOWORD(g_dwDbgHelpVersion),
-			0, 0);
-		OutputDebugString(szVersion);
+		TCHAR szMsg[MAX_PATH + 32];
+		_stprintf_s(szMsg, sizeof(szMsg) / sizeof(TCHAR),
+			_T("dbghelp.dll: %hs\n"), g_szDbgHelpPath);
+		OutputDebugString(szMsg);
 	}
 
 	return true;
@@ -2734,13 +2727,13 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 #endif
 		"Architecture: Win32 (x86)\n"
 		"OS: Windows %d.%d (Build %d) SP%d.%d\n"
-		"dbghelp.dll: %d.%d",
+		"dbghelp.dll: %s",
 		CURRENT_GAMECORE_VERSION,
 		MOD_DLL_NAME, MOD_DLL_VERSION_NUMBER, MOD_DLL_VERSION_STATUS,
 		__DATE__, __TIME__,
 		osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber,
 		osvi.wServicePackMajor, osvi.wServicePackMinor,
-		HIWORD(g_dwDbgHelpVersion), LOWORD(g_dwDbgHelpVersion));
+		g_szDbgHelpPath[0] ? g_szDbgHelpPath : "(not loaded)");
 
 	user_streams[0].Type = 10;  // CommentStreamA
 	user_streams[0].Buffer = version_info;
