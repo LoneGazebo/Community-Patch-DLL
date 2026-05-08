@@ -68,6 +68,13 @@
 			<Text>Cailleach, the Queen of Winter</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BELIEF_CITY_OF_GOD">
+			<Text>When a [ICON_CITIZEN] Citizen is born in your Holy City, gain 15 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PEACE] Faith for each City following your [ICON_RELIGION] Religion (max 25 Cities).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Heavenly Grotto National Wonder[ENDCOLOR] (+2 [ICON_PEACE] Faith, +2 [ICON_GOLD] Gold, +2 [ICON_HAPPINESS_1] Happiness; +5 [ICON_FOOD] Food from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_CITY_OF_GOD_SHORT">
+			<Text>City of God</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BELIEF_GURDWARA">
 			<Text>Use [ICON_PEACE] Faith to purchase Gurdwaras.</Text>
 		</Row>
@@ -101,7 +108,7 @@
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_WORK_ETHIC_SHORT">
 			<Text>Work Ethic</Text>
-			
+
 		<!-- Tooltips -->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_TOOLTIP">
 			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_GOLD] Gold[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold to Farms, Pastures, and Quarries worked by the City.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold when the City naturally expands, scaling with Era.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>

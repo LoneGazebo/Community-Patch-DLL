@@ -79,6 +79,13 @@
 			<Pantheon>true</Pantheon>
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
+		<!-- New founder beliefs -->
+		<Row>
+			<Type>BELIEF_CITY_OF_GOD</Type>
+			<Description>TXT_KEY_BELIEF_CITY_OF_GOD</Description>
+			<ShortDescription>TXT_KEY_BELIEF_CITY_OF_GOD_SHORT</ShortDescription>
+			<Founder>true</Founder>
+		</Row>
 		<!-- New follower beliefs -->
 		<Row>
 			<Type>BELIEF_GURDWARA</Type>

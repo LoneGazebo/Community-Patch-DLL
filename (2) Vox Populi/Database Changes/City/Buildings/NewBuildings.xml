@@ -482,6 +482,13 @@
 			<Description>TXT_KEY_BUILDING_GRAND_OSSUARY</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
+		<!-- Heavenly Grotto -->
+		<Row>
+			<Type>BUILDINGCLASS_HEAVENLY_GROTTO</Type>
+			<DefaultBuilding>BUILDING_HEAVENLY_GROTTO</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_HEAVENLY_GROTTO</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
 		<!-- Corporations -->
 		<Row>
 			<Type>BUILDINGCLASS_TRADER_SIDS_HQ</Type>
@@ -2379,6 +2386,19 @@
 			<IsReformation>true</IsReformation>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>45</PortraitIndex>
+		</Row>
+		<!-- Heavenly Grotto -->
+		<Row>
+			<Type>BUILDING_HEAVENLY_GROTTO</Type>
+			<BuildingClass>BUILDINGCLASS_HEAVENLY_GROTTO</BuildingClass>
+			<Description>TXT_KEY_BUILDING_HEAVENLY_GROTTO</Description>
+			<Civilopedia>TXT_KEY_BUILDING_HEAVENLY_GROTTO_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_HEAVENLY_GROTTO_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_HEAVENLY_GROTTO_STRATEGY</Strategy>
+			<IsReformation>true</IsReformation>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>52</PortraitIndex>
+			<Happiness>2</Happiness>
 		</Row>
 		<!-- Corporations Headquarters -->
 		<Row>

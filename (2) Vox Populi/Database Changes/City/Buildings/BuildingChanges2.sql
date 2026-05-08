@@ -251,6 +251,7 @@ VALUES
 	('BUILDING_SACRED_GARDEN', 'IMPROVEMENT_HOLY_SITE', 'YIELD_FOOD', 5),
 	('BUILDING_HOLY_COUNCIL', 'IMPROVEMENT_HOLY_SITE', 'YIELD_SCIENCE', 5),
 	('BUILDING_APOSTOLIC_PALACE', 'IMPROVEMENT_HOLY_SITE', 'YIELD_TOURISM', 5),
+	('BUILDING_HEAVENLY_GROTTO', 'IMPROVEMENT_HOLY_SITE', 'YIELD_FOOD', 5),
 	('BUILDING_GRAND_OSSUARY', 'IMPROVEMENT_HOLY_SITE', 'YIELD_GOLD', 5);
 
 -- Mausoleum
@@ -325,6 +326,13 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_GRAND_OSSUARY', 'YIELD_FAITH', 10);
+
+-- Heavenly Grotto
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_GOLD', 2),
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 2);
 
 ----------------------------------------------------------------------------
 -- World Wonders
