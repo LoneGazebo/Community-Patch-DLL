@@ -98,9 +98,31 @@ VALUES
 -- Charitable Missions (now Global Commandments)
 UPDATE Beliefs
 SET
-	CityStateInfluenceModifier = 0,
-	SpreadStrengthModifier = 15
+	CityStateInfluenceModifier = 0
 WHERE Type = 'BELIEF_CHARITABLE_MISSIONS';
+
+INSERT INTo Belief_UnitCombatProductionModifiers
+		(BeliefType, UnitCombatType, Modifier)
+VALUES
+		('BELIEF_CHARITABLE_MISSIONS', 'UNITCOMBAT_DIPLOMACY', 20);
+
+INSERT INTO Belief_BuildingClassYieldChanges
+	(BeliefType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	'BELIEF_CHARITABLE_MISSIONS', bc.Type, y.Type, 1
+FROM 
+	BuildingClasses bc, Yields y
+WHERE 
+	bc.Type IN ('BUILDINGCLASS_CHANCERY', 'BUILDINGCLASS_PRINTING_HOUSE', 'BUILDINGCLASS_WIRE_SERVICE')
+AND
+	y.Type IN ('YIELD_GOLD', 'YIELD_SCIENCE', 'YIELD_CULTURE');
+
+INSERT INTO Belief_BuildingClassFaithPurchase
+	(BeliefType, BuildingClassType)
+VALUES
+	('BELIEF_CHARITABLE_MISSIONS', 'BUILDINGCLASS_CHANCERY'),
+	('BELIEF_CHARITABLE_MISSIONS', 'BUILDINGCLASS_PRINTING_HOUSE'),
+	('BELIEF_CHARITABLE_MISSIONS', 'BUILDINGCLASS_WIRE_SERVICE');
 
 INSERT INTO Belief_YieldFromProposal
 	(BeliefType, YieldType, Yield)
