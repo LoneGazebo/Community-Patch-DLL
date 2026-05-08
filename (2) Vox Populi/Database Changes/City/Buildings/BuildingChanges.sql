@@ -1171,7 +1171,8 @@ DELETE FROM Helper;
 -- Stadium
 UPDATE BuildingClasses SET Description = 'TXT_KEY_BUILDING_STADIUM_DESC' WHERE Type = 'BUILDINGCLASS_STADIUM';
 
-UPDATE Buildings SET
+UPDATE Buildings
+SET
 	PrereqTech = 'TECH_ATOMIC_THEORY',
 	Happiness = 0,
 	MinorFriendshipChange = 20,
@@ -1684,8 +1685,7 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_STABLE';
 
-UPDATE Building_UnitCombatProductionModifiers
-SET Modifier = 20
+DELETE FROM Building_UnitCombatProductionModifiers
 WHERE BuildingType IN (
 	SELECT Type FROM Buildings
 	WHERE BuildingClass = 'BUILDINGCLASS_STABLE'

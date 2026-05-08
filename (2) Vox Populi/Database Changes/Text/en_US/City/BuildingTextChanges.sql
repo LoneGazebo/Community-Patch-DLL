@@ -56,6 +56,11 @@ UPDATE Language_en_US
 SET Text = 'Stone Works can only be constructed in a City near an improved [ICON_RES_STONE] Stone, [ICON_RES_MARBLE] Marble, [ICON_RES_SALT] Salt, [ICON_RES_JADE] Jade, [ICON_RES_AMBER] Amber, [ICON_RES_LAPIS] Lapis Lazuli, or [ICON_RES_URANIUM] Uranium resource. Stone Works provides Production to your City whenever it claims new tiles, and allows [ICON_PRODUCTION] Production to be moved from this City along Trade Routes internal to your Civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_STONE_WORKS_STRATEGY';
 
+-- Stable
+UPDATE Language_en_US
+SET Text = 'Stable can only be constructed in a City near an improved [ICON_RES_HORSE] Horse, [ICON_RES_SHEEP] Sheep, or [ICON_RES_COW] Cattle resource. It boosts the yields of the above resources and provides [ICON_WAR] Military Supply.'
+WHERE Tag = 'TXT_KEY_BUILDING_STABLE_STRATEGY';
+
 -- Lighthouse
 UPDATE Language_en_US
 SET Text = 'The Lighthouse can only be constructed in a City next to a Coast Tile. It increases the [ICON_FOOD] Food and [ICON_GOLD] Gold output of water tiles. Also allows for City Connections over Water (see Concepts for more details).'
