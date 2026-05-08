@@ -83,6 +83,11 @@
 			<LandmarkType>Improvement</LandmarkType>
 			<FriendlyName>Aplekton</FriendlyName>
 		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_TORII</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Torii</FriendlyName>
+		</Row>
 	</ArtDefine_LandmarkTypes>
 	<ArtDefine_Landmarks>
 		<Row>
@@ -523,6 +528,24 @@
 			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<Model>Aplekton_pl.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
+		</Row>		
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_TORII</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>1.0</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Assets/Buildings/Improvements/Monolith/Monolith_ASIA.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_TORII</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>1.0</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Assets/Buildings/Improvements/Monolith/Monolith_PL_ASIA.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
 		</Row>
 	</ArtDefine_Landmarks>
 	<ArtDefine_StrategicView>
@@ -606,6 +629,11 @@
 			<StrategicViewType>ART_DEF_IMPROVEMENT_APLEKTON</StrategicViewType>
 			<TileType>Improvement</TileType>
 			<Asset>SV_Aplekton.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_TORII</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Torii.dds</Asset>
 		</Row>
 	</ArtDefine_StrategicView>
 </GameData>
