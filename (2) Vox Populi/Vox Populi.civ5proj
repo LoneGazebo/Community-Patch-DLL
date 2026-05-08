@@ -5186,6 +5186,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Assets\StrategicView\Improvements\SV_Torii.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Assets\StrategicView\Improvements\SV_Aplekton.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
