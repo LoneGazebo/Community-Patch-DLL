@@ -608,6 +608,13 @@
 			<Text>+5 HP when [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_ANIMISM">
+			<Text>Animist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ANIMISM_HELP">
+			<Text>Ignore Terrain Costs.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_ROYAL_SIGNET">
 			<Text>Royal Signet</Text>
 		</Row>

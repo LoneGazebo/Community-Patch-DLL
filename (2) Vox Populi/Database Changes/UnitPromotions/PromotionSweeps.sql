@@ -407,6 +407,12 @@ VALUES
 	('PROMOTION_SACRED_STEPS', 'UNITCOMBAT_INQUISITOR'),
 	('PROMOTION_SACRED_STEPS', 'UNITCOMBAT_SETTLER');
 
+-- Promotions from Religion
+INSERT INTO UnitPromotions_UnitCombats
+	(PromotionType, UnitCombatType)
+VALUES
+	('PROMOTION_ANIMISM', 'UNITCOMBAT_MISSIONARY');
+
 -- Promotions from events
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)
