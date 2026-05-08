@@ -1080,6 +1080,19 @@
 			<Text>An ossuary is a chest, box, building, well, or site made to serve as the final resting place of human skeletal remains. They are frequently used where burial space is scarce. A body is first buried in a temporary grave, then after some years the skeletal remains are removed and placed in an ossuary. The greatly reduced space taken up by an ossuary means that it is possible to store the remains of many more people in a single tomb than if the original coffins were left as is. In Persia, the Zoroastrians used a deep well for this function from the earliest times (circa 3,000 years ago) and called it astudan (literally, "the place for the bones"). There are many rituals and regulations in the Zoroastrian faith concerning the astudans. Among the pre-7th-century Sogdians in the region of central Asia, the name for an ossuary was tanbar.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_GROTTO">
+			<Text>Heavenly Grotto</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_GROTTO_STRATEGY">
+			<Text>Build the Heavenly Grotto to gain [ICON_HAPPINESS_1] Happiness and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_GROTTO_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_GROTTO_TEXT">
+			<Text>A grotto is a type of cavern, often closely associated with water. Grottos are a prominent feature of many religious and garden settings as places of contemplation. One of the most impressive collection of grottos is the Longmen Grottos in Luoyang, China, which houses tens of thousands of Buddhas, stelae, and inscriptions.</Text>
+		</Row>
+		
 		<!-- Policy buildings -->
 		<Row Tag="TXT_KEY_BUILDING_MONASTERY">
 			<Text>Monastery</Text>
