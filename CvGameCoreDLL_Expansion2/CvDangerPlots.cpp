@@ -372,21 +372,21 @@ int CvDangerPlots::GetDanger(const CvPlot& Plot, bool bFixedDamageOnly)
 }
 
 /// Return the maximum amount of damage a city could take at this plot
-int CvDangerPlots::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
+int CvDangerPlots::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison, const SUnitIDValueContainer& unitDamageDealt)
 {
 	if(m_DangerPlots.empty() || !pCity)
 		return 0;
 
-	return m_DangerPlots[pCity->plot()->GetPlotIndex()].GetDanger(pCity, pPretendGarrison);
+	return m_DangerPlots[pCity->plot()->GetPlotIndex()].GetDanger(pCity, pPretendGarrison, unitDamageDealt);
 }
 
 /// Return the maximum amount of damage a unit could take at this plot
-int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
+int CvDangerPlots::GetDanger(const CvPlot& Plot, const CvUnit* pUnit, const SUnitIDValueContainer& extraUnitDamage, int iExtraDamage, AirActionType iAirAction)
 {
 	if(m_DangerPlots.empty() || !pUnit)
 		return 0;
 
-	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, unitsToIgnore, iExtraDamage, iAirAction);
+	return m_DangerPlots[Plot.GetPlotIndex()].GetDanger(pUnit, extraUnitDamage, iExtraDamage, iAirAction);
 }
 
 std::vector<CvUnit*> CvDangerPlots::GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const
@@ -639,11 +639,11 @@ int CvDangerPlotContents::GetDanger(bool bFixedDamageOnly)
 		{
 			if (pUnit->getDomainType() == DOMAIN_AIR)
 			{
-				iPlotDamage += pUnit->GetAirCombatDamage(NULL, NULL, 0, iUnusedReferenceVariable, false, 0, m_pPlot, NULL, true);
+				iPlotDamage += pUnit->GetAirCombatDamage(NULL, NULL, 0, iUnusedReferenceVariable, false, 0, 0, m_pPlot, NULL, true);
 			}
 			else
 			{
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, 0, iUnusedReferenceVariable, false, 0, m_pPlot, NULL, true, true);
+				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, 0, iUnusedReferenceVariable, false, 0, 0, m_pPlot, NULL, true, true);
 			}
 		}
 		else
@@ -655,13 +655,13 @@ int CvDangerPlotContents::GetDanger(bool bFixedDamageOnly)
 			int iSelfDamage = 0;
 			iPlotDamage += pUnit->getMeleeCombatDamage(
 				pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL, true, true),
-				pUnit->GetBaseCombatStrength()*100, 
+				pUnit->GetBaseCombatStrength()*100,
 				iSelfDamage,
 				false, NULL);
 
 			if (pUnit->isRangedSupportFire())
 			{
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, 0, iUnusedReferenceVariable, false, 0, m_pPlot, pAttackerPlot, true, true);
+				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, NULL, 0, iUnusedReferenceVariable, false, 0, 0, m_pPlot, pAttackerPlot, true, true);
 			}
 		}
 	}
@@ -752,7 +752,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 }
 
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
-int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
+int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const SUnitIDValueContainer& extraUnitDamage, int iExtraDamage, AirActionType iAirAction)
 {
 	if (!m_pPlot || !pUnit)
 		return 0;
@@ -828,7 +828,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	// Capturing a city with a garrisoned unit destroys the garrisoned unit
 	if (pFriendlyCity)
 	{
-		int iCityDanger = GetDanger(pFriendlyCity, pUnit);
+		int iCityDanger = GetDanger(pFriendlyCity, pUnit, extraUnitDamage);
 		if (iCityDanger + pFriendlyCity->getDamage() < pFriendlyCity->GetMaxHitPoints() + 50) //add a margin for error
 		{
 			if (pUnit->CanGarrison())
@@ -858,7 +858,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			continue;
 
 		//there should be only very few of these, if any
-		if (std::find(unitsToIgnore.begin(),unitsToIgnore.end(),it->second) != unitsToIgnore.end())
+		int iExtraAttackerDamage = extraUnitDamage.GetValue(it->second);
+		if (iExtraAttackerDamage >= pAttacker->GetCurrHitPoints())
 			continue;
 
 		//todo: if the attacker is an air unit and we have interceptors around, reduce the expected damage
@@ -870,9 +871,13 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			int iEnemyRange = pAttacker->IsCanAttackRanged() ? pAttacker->GetRange() : 1;
 			bool bOutOfRange = plotDistance(*m_pPlot, *pAttacker->plot()) > iEnemyRange;
 
+			//assume enemy units will not abandon cities
+			if (bOutOfRange && pAttacker->plot()->isCity() && !pAttacker->canMoveAfterAttacking())
+				continue;
+
 			//if the attacker is not out of range, assume they need to move for the attack, so we don't know their plot
 			//todo: consider whether the enemy units would block each other from attacking?
-			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? NULL : pAttacker->plot(), iAttackerDamage, false, iExtraDamage, true);
+			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? NULL : pAttacker->plot(), iAttackerDamage, false, iExtraAttackerDamage, iExtraDamage, true);
 
 			//assume units will do AoE damage on move once per turn
 			int iAoEDamage = pAttacker->getAoEDamageOnMove();
@@ -894,8 +899,14 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	// Damage from cities
 	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
 	{
+
 		CvCity* pCity = GET_PLAYER(it->first).getCity(it->second);
 		if (!pCity || pCity->getTeam() == pUnit->getTeam())
+			continue;
+
+		//there should be only very few of these, if any
+		int iExtraAttackerDamage = extraUnitDamage.GetValue(-it->second);
+		if (iExtraAttackerDamage >= pCity->GetMaxHitPoints() - pCity->getDamage())
 			continue;
 
 		int iCityDamage = pCity->rangeCombatDamage(pUnit, false, m_pPlot, true);
@@ -919,15 +930,13 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 }
 
 // Get the maximum damage city could receive this turn if it were in this plot
-int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
+int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison, const SUnitIDValueContainer& extraUnitDamage, int iExtraSelfDamage)
 {
 	if (!m_pPlot || !pCity)
 		return 0;
 
 	int iPlotDamage = 0;
 	CvPlot* pCityPlot = pCity->plot();
-	const int iCityX = pCityPlot->getX();
-	const int iCityY = pCityPlot->getY();
 
 	CvCityGarrisonOverride guard(pCity,pPretendGarrison);
 
@@ -944,6 +953,11 @@ int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendG
 			continue;
 		}
 
+		//there should be only very few of these, if any
+		int iExtraAttackerDamage = extraUnitDamage.GetValue(it->second);
+		if (iExtraAttackerDamage >= pUnit->GetCurrHitPoints())
+			continue;
+
 		CvPlot* pAttackerPlot = NULL;
 		if (pUnit->IsCanAttackRanged())
 		{
@@ -956,25 +970,31 @@ int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendG
 					// Always assume interception is successful
 					iInterceptDamage = pInterceptor->GetInterceptionDamage(pUnit, false, m_pPlot);
 				}
-				iPlotDamage += pUnit->GetAirCombatDamage(NULL, pCity, (iGarrisonHPLeft <= 0 ? 0 : iGarrisonMaxHP), iGarrisonDamage, false, iInterceptDamage, m_pPlot);
+				int iDamage = pUnit->GetAirCombatDamage(NULL, pCity, (iGarrisonHPLeft <= 0 ? 0 : iGarrisonMaxHP), iGarrisonDamage, false, iInterceptDamage + iExtraAttackerDamage, iExtraSelfDamage, m_pPlot);
+				iPlotDamage += iDamage;
+				iExtraSelfDamage += iDamage;
 				iGarrisonHPLeft -= iGarrisonDamage;
 			}
 			else
 			{
-				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, (iGarrisonHPLeft <= 0 ? 0 : iGarrisonMaxHP), iGarrisonDamage, false, 0, m_pPlot);
+				int iDamage = pUnit->GetRangeCombatDamage(NULL, pCity, (iGarrisonHPLeft <= 0 ? 0 : iGarrisonMaxHP), iGarrisonDamage, false, iExtraAttackerDamage, iExtraSelfDamage, m_pPlot);
+				iPlotDamage += iDamage;
+				iExtraSelfDamage += iDamage;
 				iGarrisonHPLeft -= iGarrisonDamage;
 			}
 		}
 		else
 		{
-			if (plotDistance(iCityX, iCityY, pUnit->getX(), pUnit->getY()) == 1)
+			if (pCityPlot->isAdjacent(pUnit->plot()))
 			{
 				pAttackerPlot = pUnit->plot();
 			}
 			int iSelfDamageAttacker = 0;
 			// check if the garrison is dead
-			iPlotDamage += pUnit->getMeleeCombatDamageCity(pUnit->GetMaxAttackStrength(pAttackerPlot, pCityPlot, NULL, !pUnit->isNoCapture(), !pUnit->isNoCapture()),
-				pCity, iSelfDamageAttacker, (iGarrisonHPLeft <= 0 ? 0 : iGarrisonMaxHP), iGarrisonDamage, false);
+			int iDamage = pUnit->getMeleeCombatDamageCity(pUnit->GetMaxAttackStrength(pAttackerPlot, pCityPlot, NULL, !pUnit->isNoCapture(), !pUnit->isNoCapture()),
+				pCity, iSelfDamageAttacker, (iGarrisonHPLeft <= 0 ? 0 : iGarrisonMaxHP), iGarrisonDamage, false, iExtraAttackerDamage, iExtraSelfDamage);
+			iPlotDamage += iDamage;
+			iExtraSelfDamage += iDamage;
 			iGarrisonHPLeft -= iGarrisonDamage;
 		}
 	}

@@ -3909,7 +3909,7 @@ int CvLuaPlayer::lGetInfluenceSpyRankTooltip(lua_State* L)
 	CvString szRank = lua_tostring(L, 3);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 4);
 
-	CvString szResult = "";
+	CvString szResult;
 	szResult = pkPlayer->GetCulture()->GetInfluenceSpyRankTooltip(szSpyName, szRank, eOtherPlayer);
 	lua_pushstring(L, szResult);
 	return 1;
@@ -5826,7 +5826,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
-	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
+	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
 	}
@@ -5855,7 +5855,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
-	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
+	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
 	}
@@ -5883,7 +5883,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteCulture(lua_State* L)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
-	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES && pOriginCity->getTeam() == pDestCity->getTeam())
+	else if (MOD_TRADE_INTERNAL_GOLD_ROUTES)
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
 	}
@@ -9909,7 +9909,7 @@ int CvLuaPlayer::lEndTurnsForReadyUnits(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const bool bEndLinkedTurns = lua_toboolean(L, 2);
 	
-	pkPlayer->EndTurnsForReadyUnits(bEndLinkedTurns);
+	pkPlayer->EndTurnsForReadyUnits(true, bEndLinkedTurns);
 	return 1;
 }
 
@@ -11995,7 +11995,7 @@ int CvLuaPlayer::lIsHasDefensivePact(lua_State* L)
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
-		if(ePlayerLoop != eOtherPlayer && ePlayerLoop != NO_PLAYER && ePlayerLoop != pkPlayer->GetID())
+		if(ePlayerLoop != eOtherPlayer && ePlayerLoop != pkPlayer->GetID())
 		{
 			if(GET_TEAM(pkPlayer->getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayerLoop).getTeam()))
 			{
@@ -13858,8 +13858,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Embassy?
-		bool bUsEmbassy = pDiplo->IsHasEmbassy(ePlayer);
-		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(pkPlayer->GetID());
+		bool bUsEmbassy = pDiplo->HasEmbassyAt(ePlayer);
+		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->HasEmbassyAt(pkPlayer->GetID());
 		if (bUsEmbassy && bThemEmbassy)
 		{
 			Opinion kOpinion;
@@ -13891,8 +13891,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Open Borders?
-		bool bThemOpen = pDiplo->IsHasOpenBorders(ePlayer);
-		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID());
+		bool bThemOpen = pDiplo->HasOpenBordersFrom(ePlayer);
+		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->HasOpenBordersFrom(pkPlayer->GetID());
 		if (bThemOpen && bUsOpen)
 		{
 			Opinion kOpinion;
@@ -14385,12 +14385,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetNumSamePolicies(ePlayer);
+		iValue = pDiplo->GetPolicyScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = (iValue > 0) ? pDiplo->GetPolicyScore(ePlayer) : 0;
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = pDiplo->GetNumSamePolicies(ePlayer) > 0 ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -14912,12 +14912,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		// CAN BE BOTH POSITIVE AND NEGATIVE
 		////////////////////////////////////
 
-		iValue = pDiplo->GetNumSamePolicies(ePlayer);
+		iValue = pDiplo->GetPolicyScore(ePlayer);
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = (bHideNegatives && iValue < 0) ? 0 : pDiplo->GetPolicyScore(ePlayer);
-			kOpinion.m_str = (iValue > 0) ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
+			kOpinion.m_iValue = (bHideNegatives && iValue > 0) ? 0 : iValue;
+			kOpinion.m_str = pDiplo->GetNumSamePolicies(ePlayer) > 0 ? Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES") : Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
 			aOpinions.push_back(kOpinion);
 		}
 
@@ -15127,8 +15127,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		////////////////////////////////////
 
 		// Embassy?
-		bool bUsEmbassy = pDiplo->IsHasEmbassy(ePlayer);
-		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(pkPlayer->GetID());
+		bool bUsEmbassy = pDiplo->HasEmbassyAt(ePlayer);
+		bool bThemEmbassy = GET_PLAYER(ePlayer).GetDiplomacyAI()->HasEmbassyAt(pkPlayer->GetID());
 		if (bUsEmbassy && bThemEmbassy)
 		{
 			Opinion kOpinion;
@@ -15151,8 +15151,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Open Borders?
-		bool bThemOpen = pDiplo->IsHasOpenBorders(ePlayer);
-		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasOpenBorders(pkPlayer->GetID());
+		bool bThemOpen = pDiplo->HasOpenBordersFrom(ePlayer);
+		bool bUsOpen = GET_PLAYER(ePlayer).GetDiplomacyAI()->HasOpenBordersFrom(pkPlayer->GetID());
 		if (bThemOpen && bUsOpen)
 		{
 			Opinion kOpinion;
@@ -18374,18 +18374,15 @@ int CvLuaPlayer::lIsEventChoiceActive(lua_State* L)
 						for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 						{
 							EventTypes eEvent = (EventTypes)iLoop;
-							if(eEvent != NO_EVENT)
+							if(pkEventChoiceInfo->isParentEvent(eEvent))
 							{
-								if(pkEventChoiceInfo->isParentEvent(eEvent))
+								CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+								if(pkEventInfo != NULL)
 								{
-									CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-									if(pkEventInfo != NULL)
+									if(pkEventInfo->getNumChoices() == 1)
 									{
-										if(pkEventInfo->getNumChoices() == 1)
-										{
-											bResult = true;
-											break;
-										}
+										bResult = true;
+										break;
 									}
 								}
 							}
@@ -18509,8 +18506,6 @@ int CvLuaPlayer::lGetActivePlayerEventChoices(lua_State* L)
 	for (int iI = 0; iI < GC.getNumEventChoiceInfos(); iI++)
 	{
 		EventChoiceTypes eEventChoice = (EventChoiceTypes)iI;
-		if (eEventChoice == NO_EVENT_CHOICE)
-			continue;
 
 		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -18522,20 +18517,17 @@ int CvLuaPlayer::lGetActivePlayerEventChoices(lua_State* L)
 				for (int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 				{
 					EventTypes eEvent = (EventTypes)iLoop;
-					if (eEvent != NO_EVENT)
+					if (pkEventChoiceInfo->isParentEvent(eEvent))
 					{
-						if (pkEventChoiceInfo->isParentEvent(eEvent))
+						eParentEvent = eEvent;
+						CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+						if (pkEventInfo != NULL)
 						{
-							eParentEvent = eEvent;
-							CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-							if (pkEventInfo != NULL)
+							if (pkEventInfo->getNumChoices() == 1)
 							{
-								if (pkEventInfo->getNumChoices() == 1)
-								{
-									bNotChoice = true;
-								}
-								break;
+								bNotChoice = true;
 							}
+							break;
 						}
 					}
 				}
@@ -18575,8 +18567,6 @@ int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
 	for (int iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
 	{
 		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iI;
-		if (eEventChoice == NO_EVENT_CHOICE_CITY)
-			continue;
 
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -18593,20 +18583,17 @@ int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
 					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 					{
 						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT_CITY)
+						if (pkEventChoiceInfo->isParentEvent(eEvent))
 						{
-							if (pkEventChoiceInfo->isParentEvent(eEvent))
+							eParentEvent = eEvent;
+							CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
+							if (pkCityEventInfo != NULL)
 							{
-								eParentEvent = eEvent;
-								CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
-								if (pkCityEventInfo != NULL)
+								if (pkCityEventInfo->getNumChoices() == 1)
 								{
-									if (pkCityEventInfo->getNumChoices() == 1)
-									{
-										bNotChoice = true;
-									}
-									break;
+									bNotChoice = true;
 								}
+								break;
 							}
 						}
 					}
@@ -18653,8 +18640,6 @@ int CvLuaPlayer::lGetRecentPlayerEventChoices(lua_State* L)
 	for (int iI = 0; iI < GC.getNumEventChoiceInfos(); iI++)
 	{
 		EventChoiceTypes eEventChoice = (EventChoiceTypes)iI;
-		if (eEventChoice == NO_EVENT_CHOICE)
-			continue;
 
 		CvModEventChoiceInfo* pkEventChoiceInfo = GC.getEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -18666,23 +18651,20 @@ int CvLuaPlayer::lGetRecentPlayerEventChoices(lua_State* L)
 				for (int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 				{
 					EventTypes eEvent = (EventTypes)iLoop;
-					if (eEvent != NO_EVENT)
+					if (pkEventChoiceInfo->isParentEvent(eEvent))
 					{
-						if (pkEventChoiceInfo->isParentEvent(eEvent))
-						{							
-							CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-							if (pkEventInfo != NULL)
+						CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+						if (pkEventInfo != NULL)
+						{
+							if (pkEventInfo->getNumChoices() == 1)
 							{
-								if (pkEventInfo->getNumChoices() == 1)
-								{
-									bInstant = true;
-								}
-								if (pkEventInfo->getNumChoices() > 1)
-								{
-									eParentEvent = eEvent;
-								}
-								break;
+								bInstant = true;
 							}
+							if (pkEventInfo->getNumChoices() > 1)
+							{
+								eParentEvent = eEvent;
+							}
+							break;
 						}
 					}
 				}
@@ -18721,8 +18703,6 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 	for (int iI = 0; iI < GC.getNumCityEventChoiceInfos(); iI++)
 	{
 		CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iI;
-		if (eEventChoice == NO_EVENT_CHOICE_CITY)
-			continue;
 
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -18739,23 +18719,20 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 					{
 						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT_CITY)
+						if (pkEventChoiceInfo->isParentEvent(eEvent))
 						{
-							if (pkEventChoiceInfo->isParentEvent(eEvent))
+							CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
+							if (pkCityEventInfo != NULL)
 							{
-								CvModCityEventInfo* pkCityEventInfo = GC.getCityEventInfo(eEvent);
-								if (pkCityEventInfo != NULL)
+								if (pkCityEventInfo->getNumChoices() == 1)
 								{
-									if (pkCityEventInfo->getNumChoices() == 1)
-									{
-										bInstant = true;
-									}
-									else if (pkCityEventInfo->getNumChoices() > 1)
-									{
-										eParentEvent = eEvent;
-									}
-									break;
+									bInstant = true;
 								}
+								else if (pkCityEventInfo->getNumChoices() > 1)
+								{
+									eParentEvent = eEvent;
+								}
+								break;
 							}
 						}
 					}

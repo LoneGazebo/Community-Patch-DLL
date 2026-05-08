@@ -374,7 +374,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 		{
 			CvNotificationEntry* pkEntry = pkNotifications->GetEntry(i);		
 			if (pkEntry)
-				pRegisterEnum(L, pkEntry->GetType(), FStringHash(pkEntry->GetType()));
+				pRegisterEnum(L, pkEntry->GetType(), (int)FStringHash(pkEntry->GetType()));
 		}
 	}
 	EnumEnd(L);

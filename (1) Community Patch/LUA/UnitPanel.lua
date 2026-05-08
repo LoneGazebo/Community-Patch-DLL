@@ -209,7 +209,7 @@ function UpdateUnitActions( unit )
         local action = GameInfoActions[iAction];
         
 		-- test CanHandleAction w/ visible flag (ie COULD train if ... )
-        if(action.Visible and Game.CanHandleAction( iAction, 0, 1 ) ) then
+        if(action.Visible and Game.CanHandleAction( iAction, nil, 1 ) ) then
            	if( action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION ) then
                 hasPromotion = true;                
 			end
@@ -234,7 +234,7 @@ function UpdateUnitActions( unit )
         end
         
 		-- test CanHandleAction w/ visible flag (ie COULD train if ... )
-        if( bShowActionButton and action.Visible and Game.CanHandleAction( iAction, 0, 1 ) ) 
+        if( bShowActionButton and action.Visible and Game.CanHandleAction( iAction, nil, 1 ) ) 
         then
             local instance;
             local extraXOffset = 0;

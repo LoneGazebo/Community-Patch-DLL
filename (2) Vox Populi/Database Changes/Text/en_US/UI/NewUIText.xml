@@ -1450,6 +1450,21 @@
 		<Row Tag="TXT_KEY_PEDIA_YIELDPERERA_LABEL">
 			<Text>Yield Per Era:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_FEATURE_IMPROV_YIELD_LABEL">
+			<Text>Feature Yield Bonus:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_ADJACENT_CITY_IMPROV_YIELD_LABEL">
+			<Text>Adjacent City Yield:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TECH_IMPROV_YIELD_LABEL">
+			<Text>Tech Yield Bonus:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TECH_FRESH_WATER_IMPROV_YIELD_LABEL">
+			<Text>Tech Yield Bonus (With Fresh Water):</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TECH_NO_FRESH_WATER_IMPROV_YIELD_LABEL">
+			<Text>Tech Yield Bonus (Without Fresh Water):</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTIONS_PEDIA_MELEE">
 			<Text>Melee Promotions</Text>
 		</Row>
@@ -2971,7 +2986,7 @@
 			<Text>[NEWLINE] [ICON_BULLET] Requires City Event Choice that is not currently active</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_RECENT_SPY_MISSION">
-			<Text>[NEWLINE] [ICON_BULLET] Spy has recently conducted a mission</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Spy has recently conducted a mission (blocked for {1_Num} more {1_Num: plural 1?turn; other?turns;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT">
 			<Text>[NEWLINE] [ICON_BULLET] Invalid Active City Event</Text>

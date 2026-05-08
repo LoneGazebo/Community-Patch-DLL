@@ -13,10 +13,11 @@ local math_ceil = math.ceil
 local IconLookup = EUI.IconLookup
 local IconHookup = EUI.IconHookup
 include( "EUI_tooltips" )
-local GetHelpTextForUnit = EUI.GetHelpTextForUnit
-local GetHelpTextForBuilding = EUI.GetHelpTextForBuilding
-local GetHelpTextForImprovement = EUI.GetHelpTextForImprovement
-local GetHelpTextForProject = EUI.GetHelpTextForProject
+include( "InfoTooltipInclude" )
+local GetHelpTextForUnit = GetHelpTextForUnit
+local GetHelpTextForBuilding = GetHelpTextForBuilding
+local GetHelpTextForImprovement = GetHelpTextForImprovement
+local GetHelpTextForProject = GetHelpTextForProject
 --[[
 Assumptions:
 CivilopediaControl is set before include statement with string of popup control

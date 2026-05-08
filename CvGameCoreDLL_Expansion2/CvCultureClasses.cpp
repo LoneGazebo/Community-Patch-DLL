@@ -141,7 +141,7 @@ GreatWorkClass CvGameCulture::GetGreatWorkClass(int iIndex) const
 CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) const
 {
 	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
-	CvString szTooltip = "";
+	CvString szTooltip;
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	PRECONDITION(pWork->m_eClassType != NO_GREAT_WORK_CLASS, "Invalid Great Work Class");
@@ -328,7 +328,7 @@ CvString CvGameCulture::GetGreatWorkName(int iIndex) const
 CvString CvGameCulture::GetGreatWorkArtist(int iIndex) const
 {
 	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
-	CvString szArtist = "";
+	CvString szArtist;
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	szArtist = pWork->m_szGreatPersonName;
@@ -363,7 +363,7 @@ CvString CvGameCulture::GetGreatWorkEra(int iIndex) const
 CvString CvGameCulture::GetGreatWorkEraAbbreviation(int iIndex) const
 {
 	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
-	CvString szEra = "";
+	CvString szEra;
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	szEra = GC.getEraInfo(pWork->m_eEra)->getAbbreviation();
@@ -374,7 +374,7 @@ CvString CvGameCulture::GetGreatWorkEraAbbreviation(int iIndex) const
 CvString CvGameCulture::GetGreatWorkEraShort(int iIndex) const
 {
 	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
-	CvString szEra = "";
+	CvString szEra;
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	szEra = GC.getEraInfo(pWork->m_eEra)->getShortDesc();
@@ -5909,7 +5909,7 @@ CvString CvCityCulture::GetTourismTooltip()
 /// What is the tooltip describing the tourism output?
 CvString CvCityCulture::GetFilledSlotsTooltip()
 {
-	CvString szRtnValue = "";
+	CvString szRtnValue;
 	const int iGWWriting = m_pCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
 	const int iGWArt = m_pCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT());
 	const int iGWMusic = m_pCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
@@ -5921,7 +5921,7 @@ CvString CvCityCulture::GetFilledSlotsTooltip()
 /// What is the tooltip describing the tourism output?
 CvString CvCityCulture::GetTotalSlotsTooltip()
 {
-	CvString szRtnValue = "";
+	CvString szRtnValue;
 	CvString szTemp1;
 	CvString szTemp2;
 	CvString szTemp3;

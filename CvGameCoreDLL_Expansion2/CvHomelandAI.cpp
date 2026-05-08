@@ -2529,7 +2529,10 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				}
 			}
 
-			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
+			int iFlags = CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
+			if (pUnit->IsCombatUnit())
+				iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+
 			if (pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if (pUnit->getMoves() > 0)

@@ -89,7 +89,7 @@
 			<Text>{2_Sign}{1_Num} Range for [ICON_CARGO_SHIP] Sea Trade Routes</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_TOURISM_MODIFIER">
-			<Text>{2_Sign}{1_Num} [ICON_TOURISM] Tourism in all Cities</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_TOURISM] Tourism in all Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_BUILDING_BOOST">
 			<Text>{1_Building:textkey}: {2_YieldBoosts}</Text>
@@ -1067,10 +1067,10 @@
 			<Text>{2_Sign}{1_Num} [ICON_GOLD] Gold to [ICON_CARGO_SHIP] Sea International Trade Routes originated from this City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ETR_DESTINATION_OUR_GOLD">
-			<Text>{2_Sign}{1_Num} [ICON_GOLD] Gold to [ICON_INTERNATIONAL_TRADE] International Trade Routes targeting this City</Text>
+			<Text>{2_Sign}{1_Num} base [ICON_GOLD] Gold for the Destination City in [ICON_INTERNATIONAL_TRADE] International Trade Routes targeting this City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ETR_DESTINATION_THEIR_GOLD">
-			<Text>{2_Sign}{1_Num} [ICON_GOLD] Gold to Origin City of [ICON_INTERNATIONAL_TRADE] International Trade Routes targeting this City</Text>
+			<Text>{2_Sign}{1_Num} base [ICON_GOLD] Gold for the Origin City in [ICON_INTERNATIONAL_TRADE] International Trade Routes targeting this City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_RESOURCE_DIVERSITY_MODIFIER">
 			<Text>{2_Sign}{1_Num}% Resource Diversity for [ICON_INTERNATIONAL_TRADE] Trade Routes</Text>

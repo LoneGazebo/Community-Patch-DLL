@@ -1,552 +1,495 @@
--------------------------------------------------
--- Notification Log Popup
--------------------------------------------------
-include( "IconSupport" );
-include( "InstanceManager" );
-include( "SupportFunctions" );
+include('CPK.lua')
+include('IconSupport')
 
-local g_NotificationInstanceManager = InstanceManager:new( "NotificationButton", "Button", Controls.NotificationButtonStack );
-local m_PopupInfo = nil;
+local lua_next = next
+local lua_table_sort = table.sort
+local lua_table_insert = table.insert
 
--- Notification Settings Variables
-local g_InstantYieldsManager = InstanceManager:new("InstantYieldsInstance", "Base", Controls.AllInstantYieldsStack);
+local C = Controls
+local L = Locale.Lookup
 
-local g_InstantYieldClassification = {}
-for i = 0, InstantYieldType.NUM_INSTANT_YIELD_TYPES - 1 do
-	if  i == InstantYieldType.INSTANT_YIELD_TYPE_BIRTH or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_CONSTRUCTION or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_BORDERS or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_U_PROD or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_PURCHASE or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_TILE_PURCHASE or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_FOUND or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_FAITH_PURCHASE or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_REFUND or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_FAITH_REFUND or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_WLTKD_START
-	then
-		g_InstantYieldClassification[i] = "City"
-	elseif
-		i == InstantYieldType.INSTANT_YIELD_TYPE_DEATH or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_F_CONQUEST or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_VICTORY or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_SCOUTING or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_ANCIENT_RUIN or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_UNIT_GIFT or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_LEVEL_UP or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_PILLAGE or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_VICTORY_GLOBAL or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_PILLAGE_GLOBAL or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_PILLAGE_UNIT or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_BULLY or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_CITY_DAMAGE or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE
-	then
-		g_InstantYieldClassification[i] = "Military"
-	elseif
-		i == InstantYieldType.INSTANT_YIELD_TYPE_GP_USE or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_GP_BORN or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_F_SPREAD or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_CONVERSION or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_SPREAD or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_CULTURE_BOMB or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_REMOVE_HERESY or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_TR_END or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_TR_MOVEMENT or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD
-	then
-		g_InstantYieldClassification[i] = "Civilian"
-	elseif
-		i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_ATTACK or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_DEFENSE or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_IDENTIFY or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_RIG_ELECTION
-	then
-		g_InstantYieldClassification[i] = "Spies"
-	elseif
-		i == InstantYieldType.INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_HEALING or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_CONVERSION_EXPO or
-		i == InstantYieldType.INSTANT_YIELD_TYPE_PROMOTION_OBTAINED
-	then
-		g_InstantYieldClassification[i] = "Unused"
-	else
-		g_InstantYieldClassification[i] = "Misc"
+local Show = CPK.UI.Control.Show
+local Hide = CPK.UI.Control.Hide
+local Refresh = CPK.UI.Control.Refresh
+local MakeInstance = CPK.UI.Control.Instance.Make
+local FreeInstance = CPK.UI.Control.Instance.Free
+
+local IYT = InstantYieldType
+
+local VIEW_LOGS = 1
+local VIEW_OPTS = 2
+
+local IYK_CITY = 1
+local IYK_MILITARY = 2
+local IYK_CIVILIAN = 3
+local IYK_ESPIONAGE = 4
+local IYK_MISC = 5
+local IYK_SKIP = 6
+
+--------------------------------------------------------------------------------
+
+local GetInstantYieldText = (function()
+	local iyt_name_map = {}
+
+	for key, val in lua_next, IYT do
+		iyt_name_map[val] = L('TXT_KEY_' .. key .. '_SHORT')
+	end
+
+	return function(iyt)
+		return iyt_name_map[iyt] or L('TXT_KEY_INSTANT_YIELD_UNKNOWN', iyt)
+	end
+end)()
+
+local GetInstantYieldKind = (function()
+	local iyt_skip = {
+		IYT.INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE,
+		IYT.INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON,
+		IYT.INSTANT_YIELD_TYPE_CONVERSION_EXPO,
+		IYT.INSTANT_YIELD_TYPE_PROMOTION_OBTAINED,
+	}
+
+	local iyt_city = {
+		IYT.INSTANT_YIELD_TYPE_BIRTH,
+		IYT.INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE,
+		IYT.INSTANT_YIELD_TYPE_CONSTRUCTION,
+		IYT.INSTANT_YIELD_TYPE_BORDERS,
+		IYT.INSTANT_YIELD_TYPE_U_PROD,
+		IYT.INSTANT_YIELD_TYPE_PURCHASE,
+		IYT.INSTANT_YIELD_TYPE_TILE_PURCHASE,
+		IYT.INSTANT_YIELD_TYPE_FOUND,
+		IYT.INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER,
+		IYT.INSTANT_YIELD_TYPE_FAITH_PURCHASE,
+		IYT.INSTANT_YIELD_TYPE_REFUND,
+		IYT.INSTANT_YIELD_TYPE_FAITH_REFUND,
+		IYT.INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY,
+		IYT.INSTANT_YIELD_TYPE_WLTKD_START,
+	}
+
+	local iyt_military = {
+		IYT.INSTANT_YIELD_TYPE_DEATH,
+		IYT.INSTANT_YIELD_TYPE_F_CONQUEST,
+		IYT.INSTANT_YIELD_TYPE_VICTORY,
+		IYT.INSTANT_YIELD_TYPE_SCOUTING,
+		IYT.INSTANT_YIELD_TYPE_ANCIENT_RUIN,
+		IYT.INSTANT_YIELD_TYPE_UNIT_GIFT,
+		IYT.INSTANT_YIELD_TYPE_LEVEL_UP,
+		IYT.INSTANT_YIELD_TYPE_PILLAGE,
+		IYT.INSTANT_YIELD_TYPE_VICTORY_GLOBAL,
+		IYT.INSTANT_YIELD_TYPE_PILLAGE_GLOBAL,
+		IYT.INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED,
+		IYT.INSTANT_YIELD_TYPE_PILLAGE_UNIT,
+		IYT.INSTANT_YIELD_TYPE_BULLY,
+		IYT.INSTANT_YIELD_TYPE_CITY_DAMAGE,
+		IYT.INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE,
+	}
+
+	local iyt_civilian = {
+		IYT.INSTANT_YIELD_TYPE_GP_USE,
+		IYT.INSTANT_YIELD_TYPE_GP_BORN,
+		IYT.INSTANT_YIELD_TYPE_F_SPREAD,
+		IYT.INSTANT_YIELD_TYPE_CONVERSION,
+		IYT.INSTANT_YIELD_TYPE_SPREAD,
+		IYT.INSTANT_YIELD_TYPE_CULTURE_BOMB,
+		IYT.INSTANT_YIELD_TYPE_REMOVE_HERESY,
+		IYT.INSTANT_YIELD_TYPE_TR_END,
+		IYT.INSTANT_YIELD_TYPE_TR_MOVEMENT,
+		IYT.INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN,
+		IYT.INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD,
+	}
+
+	local iyt_espionage = {
+		IYT.INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE,
+		IYT.INSTANT_YIELD_TYPE_HEALING,
+		IYT.INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON,
+		IYT.INSTANT_YIELD_TYPE_CONVERSION_EXPO,
+		IYT.INSTANT_YIELD_TYPE_PROMOTION_OBTAINED,
+	}
+
+	local iyt_kind_map = {}
+
+	for _, iyt in lua_next, iyt_skip do
+		iyt_kind_map[iyt] = IYK_SKIP
+	end
+
+	for _, iyt in lua_next, iyt_city do
+		iyt_kind_map[iyt] = IYK_CITY
+	end
+
+	for _, iyt in lua_next, iyt_military do
+		iyt_kind_map[iyt] = IYK_MILITARY
+	end
+
+	for _, iyt in lua_next, iyt_civilian do
+		iyt_kind_map[iyt] = IYK_CIVILIAN
+	end
+
+	for _, iyt in lua_next, iyt_espionage do
+		iyt_kind_map[iyt] = IYK_ESPIONAGE
+	end
+
+	return function(iyt)
+		return iyt_kind_map[iyt] or IYK_MISC
+	end
+end)()
+
+--------------------------------------------------------------------------------
+
+--- @type PlayerId | nil
+local m_player_id = nil
+
+--- @type integer | nil
+local m_turn = nil
+
+--- Current View
+--- @type integer | nil
+local m_view = nil
+
+--- Opt instances
+--- @type table<integer, table<string, Control>>
+local m_opts = {}
+
+--- Log instances
+--- @type table<integer, table<string, Control>>
+local m_logs = {}
+
+--- Popup Info
+--- @type table | nil
+local m_info = nil
+
+--------------------------------------------------------------------------------
+
+local function FreeLogs()
+	for _, log_inst in lua_next, m_logs do
+		FreeInstance(log_inst)
+	end
+	m_logs = {}
+end
+
+--------------------------------------------------------------------------------
+
+--- @param utmost boolean?
+local function ShowPopup(utmost)
+	UIManager:QueuePopup(
+		ContextPtr,
+		utmost and PopupPriority.InGameUtmost or PopupPriority.NotificationLog
+	)
+end
+
+local function HidePopup()
+	UIManager:DequeuePopup(ContextPtr)
+end
+
+--- @param log_n_id integer # Notification index
+local function GoToEvent(log_n_id)
+	HidePopup()
+	UI.ActivateNotification(log_n_id)
+end
+
+--------------------------------------------------------------------------------
+
+local function ShowLogsView()
+	if m_view == VIEW_LOGS then return end
+
+	Hide(
+		C.OptsView,
+		C.OptsViewDecor,
+		C.EnableCurrOptsButton,
+		C.DisableCurrOptsButton
+	)
+	Show(C.LogsView, C.LogsViewDecor)
+
+	m_view = VIEW_LOGS
+end
+
+local function ShowOptsView()
+	if m_view == VIEW_OPTS then return end
+
+	Hide(C.LogsView, C.LogsViewDecor)
+	Show(
+		C.OptsView,
+		C.OptsViewDecor,
+		C.EnableCurrOptsButton,
+		C.DisableCurrOptsButton
+	)
+
+	m_view = VIEW_OPTS
+end
+
+--------------------------------------------------------------------------------
+
+--- @param opt_type integer
+--- @param opt_enabled boolean
+local function TickOpt(opt_type, opt_enabled)
+	m_opts[opt_type].OptCheckbox:SetCheck(opt_enabled)
+	Players[m_player_id]:SetInstantYieldNotificationDisabled(
+		opt_type,
+		not opt_enabled
+	)
+end
+
+--- @param opt_enabled boolean
+local function TickOpts(opt_enabled)
+	for opt_type, opt_inst in lua_next, m_opts do
+		if not opt_inst.OptButton:IsHidden() then
+			TickOpt(opt_type, opt_enabled)
+		end
 	end
 end
 
-function GetInstantYieldName(i)
-	local str;
-	if i == InstantYieldType.INSTANT_YIELD_TYPE_BIRTH then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BIRTH_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_DEATH then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_DEATH_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_PROPOSAL then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_PROPOSAL_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_ERA_UNLOCK then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_ERA_UNLOCK_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_POLICY_UNLOCK then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_POLICY_UNLOCK_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_INSTANT then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_INSTANT_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_TECH then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_TECH_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_CONSTRUCTION then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_CONSTRUCTION_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_BORDERS then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BORDERS_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_GP_USE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_GP_USE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_GP_BORN then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_GP_BORN_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_F_SPREAD then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_F_SPREAD_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_F_CONQUEST then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_F_CONQUEST_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_VICTORY then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_VICTORY_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_U_PROD then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_U_PROD_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_PURCHASE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_PURCHASE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_TILE_PURCHASE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_TILE_PURCHASE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_FOUND then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_FOUND_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_TR_END then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_TR_END_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_CONVERSION then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_CONVERSION_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_SPREAD then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_SPREAD_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_BULLY then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BULLY_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_TR_MOVEMENT then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_TR_MOVEMENT_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_SCOUTING then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_SCOUTING_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_LEVEL_UP then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_LEVEL_UP_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_PILLAGE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_PILLAGE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_ATTACK then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_SPY_ATTACK_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_DEFENSE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_SPY_DEFENSE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_DELEGATES then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_DELEGATES_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_CULTURE_BOMB then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_CULTURE_BOMB_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_REMOVE_HERESY then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_REMOVE_HERESY_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_FAITH_PURCHASE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_FAITH_PURCHASE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_VICTORY_GLOBAL then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_VICTORY_GLOBAL_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_PILLAGE_GLOBAL then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_PILLAGE_GLOBAL_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_CONVERSION_EXPO then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_CONVERSION_EXPO_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_PROMOTION_OBTAINED then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_PROMOTION_OBTAINED_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_LUA then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_LUA_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_REFUND then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_REFUND_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_FAITH_REFUND then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_FAITH_REFUND_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_TECH_RETROACTIVE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_TECH_RETROACTIVE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_PILLAGE_UNIT then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_PILLAGE_UNIT_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_HEALING then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_HEALING_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_IDENTIFY then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_SPY_IDENTIFY_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_SPY_RIG_ELECTION then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_SPY_RIG_ELECTION_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_INSTANT then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_INSTANT_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_CITY_DAMAGE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_CITY_DAMAGE_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN then
-		str = Locale.Lookup("TXT_KEY_IINSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_GOLDEN_AGE_START then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_GOLDEN_AGE_START_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_UNIT_GIFT then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_UNIT_GIFT_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_BAKTUN_END then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_BAKTUN_END_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_WLTKD_START then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_WLTKD_START_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_ANCIENT_RUIN then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_ANCIENT_RUIN_SHORT");
-	elseif i == InstantYieldType.INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE then
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE_SHORT");
-	else
-		-- failsafe
-		str = Locale.Lookup("TXT_KEY_INSTANT_YIELD_UNKNOWN", i)
-	end
-	return str;
-end
-
--- sort instant yields by localized name
-local g_InstantYieldCitySorted = {}
-local g_InstantYieldMilitarySorted = {}
-local g_InstantYieldCivilianSorted = {}
-local g_InstantYieldSpiesSorted = {}
-local g_InstantYieldMiscSorted = {}
-
-for i = 0, InstantYieldType.NUM_INSTANT_YIELD_TYPES - 1 do
-	if g_InstantYieldClassification[i] ~= "Unused" then
-		local entry = {}
-		entry["Index"] = i
-		entry["Name"] = GetInstantYieldName(i)
-		if g_InstantYieldClassification[i] == "City" then
-			table.insert(g_InstantYieldCitySorted, entry);
-		elseif g_InstantYieldClassification[i] == "Military" then
-			table.insert(g_InstantYieldMilitarySorted, entry);
-		elseif g_InstantYieldClassification[i] == "Civilian" then
-			table.insert(g_InstantYieldCivilianSorted, entry);
-		elseif g_InstantYieldClassification[i] == "Spies" then
-			table.insert(g_InstantYieldSpiesSorted, entry);
+--- Shows options of specified kind. Hides other options.
+--- @param opt_kind integer
+local function FilterOpts(opt_kind)
+	for _, opt_inst in lua_next, m_opts do
+		if opt_kind == 0 then
+			opt_inst.OptButton:SetHide(false)
 		else
-			table.insert(g_InstantYieldMiscSorted, entry);
+			opt_inst.OptButton:SetHide(opt_kind ~= opt_inst.OptButton:GetVoid2())
 		end
 	end
-end
-table.sort(g_InstantYieldCitySorted, function(a, b) return a.Name < b.Name end)
-table.sort(g_InstantYieldMilitarySorted, function(a, b) return a.Name < b.Name end)
-table.sort(g_InstantYieldCivilianSorted, function(a, b) return a.Name < b.Name end)
-table.sort(g_InstantYieldSpiesSorted, function(a, b) return a.Name < b.Name end)
-table.sort(g_InstantYieldMiscSorted, function(a, b) return a.Name < b.Name end)
 
--- init button text
-Controls.InstantYieldCityButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_CITY_BUTTON" ) );
-Controls.InstantYieldMilitaryButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_MILITARY_BUTTON" ) );
-Controls.InstantYieldCivilianButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_CIVILIAN_BUTTON" ) );
-Controls.InstantYieldSpiesButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_SPIES_BUTTON" ) );
-Controls.InstantYieldMiscButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_MISC_BUTTON" ) );
-
--------------------------------------------------
--- Tab Switching Functions
--------------------------------------------------
-function ShowLogTab()
-	Controls.NotificationLogPanel:SetHide(false);
-	Controls.NotificationSettingsPanel:SetHide(true);
-	Controls.LogSelectHighlight:SetHide(false);
-	Controls.SettingsSelectHighlight:SetHide(true);
-	Controls.TurnOffAllButton:SetHide(true);
-	Controls.TurnOnAllButton:SetHide(true);
+	Refresh(C.OptsStack, C.OptsScroll)
 end
 
-function ShowSettingsTab()
-	Controls.NotificationLogPanel:SetHide(true);
-	Controls.NotificationSettingsPanel:SetHide(false);
-	Controls.LogSelectHighlight:SetHide(true);
-	Controls.SettingsSelectHighlight:SetHide(false);
-	Controls.TurnOffAllButton:SetHide(false);
-	Controls.TurnOnAllButton:SetHide(false);
-	RefreshSettings();
+--------------------------------------------------------------------------------
+
+local function FillTreatment()
+	CivIconHookup(
+		m_player_id,
+		64,
+		C.CivIcon,
+		C.CivIconBg,
+		C.CivIconShadow,
+		false,
+		true
+	)
 end
 
-Controls.TabButtonLog:RegisterCallback(Mouse.eLClick, ShowLogTab);
-Controls.TabButtonSettings:RegisterCallback(Mouse.eLClick, ShowSettingsTab);
+local function FillOptsView()
+	local player = Players[m_player_id]
 
--------------------------------------------------
--- On Popup
--------------------------------------------------
-function OnPopup( popupInfo )
+	for opt_type, opt_inst in lua_next, m_opts do
+		opt_inst.OptCheckbox:SetCheck(
+			not player:IsInstantYieldNotificationDisabled(opt_type)
+		)
+	end
+end
 
-	if( popupInfo.Type ~= ButtonPopupTypes.BUTTONPOPUP_NOTIFICATION_LOG ) then
-		return;
+local function FillLogsView()
+	local player = Players[m_player_id]
+	local count = player:GetNumNotifications() - 1
+	local n_logs = {}
+
+	for i = 0, count do
+		local log_n_id = player:GetNotificationIndex(i)
+		local log_dism = player:GetNotificationDismissed(i)
+		local log_inst = m_logs[log_n_id]
+
+		if log_inst then
+			log_inst.LogButton:SetDisabled(log_dism)
+			n_logs[log_n_id] = log_inst
+			m_logs[log_n_id] = nil
+		else
+			local log_text = player:GetNotificationStr(i)
+			local log_turn = player:GetNotificationTurn(i)
+
+			log_inst = MakeInstance('LogInstance', C.LogsStack)
+
+			log_inst.LogTurnLabel:SetText(L('TXT_KEY_TP_TURN_COUNTER', log_turn))
+			log_inst.LogTextLabel:SetText(log_text)
+
+			Refresh(log_inst.LogTextStack)
+
+			local height = log_inst.LogTextStack:GetSizeY()
+
+			log_inst.LogTextHoverElem:SetSizeY(height)
+			log_inst.LogTextHoverAnim:SetSizeY(height)
+
+			log_inst.LogButton:SetVoid1(log_n_id)
+			log_inst.LogButton:SetSizeY(height)
+			log_inst.LogButton:SetDisabled(log_dism)
+			log_inst.LogButton:RegisterCallback(Mouse.eLClick, GoToEvent)
+
+			n_logs[log_n_id] = log_inst
+		end
 	end
 
-	-- Set Civ Icon
-	CivIconHookup( Game.GetActivePlayer(), 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true );
+	FreeLogs()
+	m_logs = n_logs
 
-	m_PopupInfo = popupInfo;
+	Refresh(C.LogsStack, C.LogsScroll)
+end
 
-	-- Show Log tab by default
-	ShowLogTab();
+--------------------------------------------------------------------------------
 
-	g_NotificationInstanceManager:ResetInstances();
+local function InitOptsView()
+	local IYK_TEXT_MAP = {
+		[IYK_CITY] = L('TXT_KEY_NOTIFICATION_SETTINGS_CITY_BUTTON'),
+		[IYK_CIVILIAN] = L('TXT_KEY_NOTIFICATION_SETTINGS_CIVILIAN_BUTTON'),
+		[IYK_MILITARY] = L('TXT_KEY_NOTIFICATION_SETTINGS_MILITARY_BUTTON'),
+		[IYK_ESPIONAGE] = L('TXT_KEY_NOTIFICATION_SETTINGS_SPIES_BUTTON'),
+		[IYK_MISC] = L('TXT_KEY_NOTIFICATION_SETTINGS_MISC_BUTTON')
+	}
 
-	local player = Players[Game.GetActivePlayer()];
-	local numNotifications = player:GetNumNotifications();
-	for i = 0, numNotifications - 1
-	do
-		local str = player:GetNotificationStr((numNotifications - 1) - i);
-		local index = player:GetNotificationIndex((numNotifications - 1) - i);
-		local turn = player:GetNotificationTurn((numNotifications - 1) - i);
-		local dismissed = player:GetNotificationDismissed((numNotifications - 1) - i);
-		AddNotificationButton(index, str, turn, dismissed);
+	local opt_kind_callback = function(isChecked, opt_kind, _void2, _control)
+		if isChecked then
+			FilterOpts(opt_kind)
+		end
 	end
 
-	Controls.NotificationButtonStack:CalculateSize();
-	Controls.NotificationButtonStack:ReprocessAnchoring();
-	Controls.NotificationScrollPanel:CalculateInternalSize();
+	for opt_kind = 0, 5 do
+		local opt_kind_inst = MakeInstance('OptKindInstance', C.OptKindsStack)
+		local opt_kind_text = IYK_TEXT_MAP[opt_kind]
 
-	if( m_PopupInfo.Data1 == 1 ) then
-    	if( ContextPtr:IsHidden() == false ) then
-    	    OnClose();
-        else
-        	UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
-    	end
+		opt_kind_inst.OptKindButton:SetVoid1(opt_kind)
+		opt_kind_inst.OptKindButton:SetCheck(not opt_kind_text)
+		opt_kind_inst.OptKindButton:GetTextButton():SetText(opt_kind_text or 'All')
+		opt_kind_inst.OptKindButton:RegisterCheckHandler(opt_kind_callback)
+	end
+
+	local array = {}
+	local count = IYT.NUM_INSTANT_YIELD_TYPES - 1
+
+	for opt_type = 0, count do
+		local opt_kind = GetInstantYieldKind(opt_type)
+
+		if opt_kind ~= IYK_SKIP then
+			lua_table_insert(array, {
+				Kind = opt_kind,
+				Type = opt_type,
+				KindText = IYK_TEXT_MAP[opt_kind],
+				TypeText = GetInstantYieldText(opt_type)
+			})
+		end
+	end
+
+	lua_table_sort(array, function(a, b)
+		if a.Kind == b.Kind then
+			return a.TypeText < b.TypeText
+		end
+		return a.Kind < b.Kind
+	end)
+
+	local opt_check_callback = function(checked, opt_type, _, _)
+		TickOpt(opt_type, checked)
+	end
+
+	local opt_click_callback = function(opt_type, _, _)
+		local opt_inst = m_opts[opt_type]
+		TickOpt(opt_type, not opt_inst.OptCheckbox:IsChecked())
+	end
+
+	for i = 1, #array do
+		local opt_data = array[i]
+		local opt_inst = MakeInstance('OptInstance', C.OptsStack)
+
+		opt_inst.OptTextLabel:SetText(opt_data.TypeText)
+		opt_inst.OptKindLabel:SetText(opt_data.KindText)
+
+		opt_inst.OptCheckbox:SetVoid1(opt_data.Type)
+		opt_inst.OptCheckbox:SetVoid2(opt_data.Kind)
+
+		opt_inst.OptButton:SetVoid1(opt_data.Type)
+		opt_inst.OptButton:SetVoid2(opt_data.Kind)
+
+		opt_inst.OptButton:RegisterCallback(Mouse.eLClick, opt_click_callback)
+
+		opt_inst.OptCheckbox:RegisterCheckHandler(opt_check_callback)
+
+		m_opts[opt_data.Type] = opt_inst
+	end
+
+	Refresh(C.OptKindsStack, C.OptsStack, C.OptsScroll)
+end
+
+local function Init()
+	m_player_id = Game.GetActivePlayer()
+
+	FillTreatment()
+
+	InitOptsView()
+
+	FillOptsView()
+	FillLogsView()
+
+	ShowLogsView()
+
+	C.CloseButton:RegisterCallback(Mouse.eLClick, HidePopup)
+
+	C.ShowLogsView:RegisterCallback(Mouse.eLClick, ShowLogsView)
+	C.ShowOptsView:RegisterCallback(Mouse.eLClick, ShowOptsView)
+
+	C.EnableCurrOptsButton:RegisterCallback(Mouse.eLClick, function()
+		TickOpts(true)
+	end)
+
+	C.DisableCurrOptsButton:RegisterCallback(Mouse.eLClick, function()
+		TickOpts(false)
+	end)
+end
+
+--------------------------------------------------------------------------------
+
+ContextPtr:SetInputHandler(function(uiMsg, wParam)
+	if uiMsg ~= KeyEvents.KeyDown then return end
+
+	if wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN then
+		HidePopup()
+		return true
+	end
+end)
+
+ContextPtr:SetShowHideHandler(function(isHide, isInit)
+	if isInit then
+		Init()
+		return
+	end
+
+	local turn = Game.GetGameTurn()
+	local player_id = Game.GetActivePlayer()
+
+	if player_id ~= m_player_id then
+		m_player_id = player_id
+
+		FreeLogs()
+		FillOptsView()
+		FillLogsView()
+		FillTreatment()
+	elseif m_turn ~= turn then
+		m_turn = turn
+		FillLogsView()
+	end
+
+	if isHide then
+		UI.decTurnTimerSemaphore()
+		Events.SerialEventGameMessagePopupProcessed.CallImmediate(
+			ButtonPopupTypes.BUTTONPOPUP_NOTIFICATION_LOG,
+			0
+		)
 	else
-    	UIManager:QueuePopup( ContextPtr, PopupPriority.NotificationLog );
+		UI.incTurnTimerSemaphore()
+		Events.SerialEventGameMessagePopupShown(m_info)
 	end
-end
-Events.SerialEventGameMessagePopup.Add( OnPopup );
+end)
 
+--------------------------------------------------------------------------------
 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-function AddNotificationButton( id, description, turn, dismissed )
+Events.GameplaySetActivePlayer.Add(HidePopup)
 
-	local controlTable = g_NotificationInstanceManager:GetInstance();
-	controlTable.NotificationText:SetText(description);
-	controlTable.NotificationTurnText:SetText(Locale.ConvertTextKey("TXT_KEY_TP_TURN_COUNTER", turn));
-    controlTable.Button:SetVoid1( id ); -- indicates type
-    controlTable.Button:SetVoid2( void );
-    controlTable.Button:SetDisabled( dismissed );
+Events.SerialEventGameMessagePopup.Add(function(info)
+	if info.Type ~= ButtonPopupTypes.BUTTONPOPUP_NOTIFICATION_LOG then return end
 
-    controlTable.TextStack:CalculateSize();
-    controlTable.TextStack:ReprocessAnchoring();
+	m_info = info
 
-    local sizeY = controlTable.TextStack:GetSizeY()
-    controlTable.Button:SetSizeY(sizeY);
-    controlTable.TextAnim:SetSizeY(sizeY);
-    controlTable.TextHL:SetSizeY(sizeY);
-
-    controlTable.Button:RegisterCallback( Mouse.eLClick, NotificationSelected );
-end
-
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-function NotificationSelected (id)
-    OnClose();
-	UI.ActivateNotification(id);
-end
-
--------------------------------------------------------------------------------
--- Notification Settings Functions
--------------------------------------------------------------------------------
-function OnTurnOffAll()
-	local iPlayer = Game.GetActivePlayer();
-    local pPlayer = Players[ iPlayer ];
-	for i = 0, InstantYieldType.NUM_INSTANT_YIELD_TYPES - 1 do
-		if g_InstantYieldClassification[i] ~= "Unused" then
-			pPlayer:SetInstantYieldNotificationDisabled(i, true);
-		end
+	if info.Data1 ~= 1 then
+		ShowPopup(false)
+		return
 	end
-	RefreshSettings()
-end
 
-function OnTurnOnAll()
-	local iPlayer = Game.GetActivePlayer();
-    local pPlayer = Players[ iPlayer ];
-	for i = 0, InstantYieldType.NUM_INSTANT_YIELD_TYPES - 1 do
-		if g_InstantYieldClassification[i] ~= "Unused" then
-			pPlayer:SetInstantYieldNotificationDisabled(i, false);
-		end
-	end
-	RefreshSettings()
-end
-
-Controls.TurnOffAllButton:RegisterCallback(Mouse.eLClick, OnTurnOffAll);
-Controls.TurnOnAllButton:RegisterCallback(Mouse.eLClick, OnTurnOnAll);
-
-function ToggleInstantYieldSetting(checkbox, pPlayer, Type)
-	local NotificationDisabled;
-    if checkbox:IsChecked() then
-        NotificationDisabled = false;
+	if ContextPtr:IsHidden() then
+		ShowPopup(true)
 	else
-		NotificationDisabled = true;
+		HidePopup()
 	end
-	pPlayer:SetInstantYieldNotificationDisabled(Type, NotificationDisabled);
-end
+end)
 
-function ToggleStack( stacknumber )
-    if( stacknumber == 0 ) then
-        if( Controls.InstantYieldCityStack:IsHidden() ) then
-            Controls.InstantYieldCityStack:SetHide( false );
-            Controls.InstantYieldCityButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_CITY_BUTTON" ) );
-        else
-            Controls.InstantYieldCityStack:SetHide( true );
-            Controls.InstantYieldCityButton:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_CITY_BUTTON" ) );
-        end
-    elseif( stacknumber == 1 ) then
-        if( Controls.InstantYieldMilitaryStack:IsHidden() ) then
-            Controls.InstantYieldMilitaryStack:SetHide( false );
-            Controls.InstantYieldMilitaryButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_MILITARY_BUTTON" ) );
-        else
-            Controls.InstantYieldMilitaryStack:SetHide( true );
-            Controls.InstantYieldMilitaryButton:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_MILITARY_BUTTON" ) );
-        end
-    elseif( stacknumber == 2 ) then
-        if( Controls.InstantYieldCivilianStack:IsHidden() ) then
-            Controls.InstantYieldCivilianStack:SetHide( false );
-            Controls.InstantYieldCivilianButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_CIVILIAN_BUTTON" ) );
-        else
-            Controls.InstantYieldCivilianStack:SetHide( true );
-            Controls.InstantYieldCivilianButton:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_CIVILIAN_BUTTON" ) );
-        end
-    elseif( stacknumber == 3 ) then
-        if( Controls.InstantYieldSpiesStack:IsHidden() ) then
-            Controls.InstantYieldSpiesStack:SetHide( false );
-            Controls.InstantYieldSpiesButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_SPIES_BUTTON" ) );
-        else
-            Controls.InstantYieldSpiesStack:SetHide( true );
-            Controls.InstantYieldSpiesButton:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_SPIES_BUTTON" ) );
-        end
-    elseif( stacknumber == 4 ) then
-        if( Controls.InstantYieldMiscStack:IsHidden() ) then
-            Controls.InstantYieldMiscStack:SetHide( false );
-            Controls.InstantYieldMiscButton:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_MISC_BUTTON" ) );
-        else
-            Controls.InstantYieldMiscStack:SetHide( true );
-            Controls.InstantYieldMiscButton:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_NOTIFICATION_SETTINGS_MISC_BUTTON" ) );
-        end
-    end
-end
-
-Controls.InstantYieldCityButton:SetVoid1( 0 );
-Controls.InstantYieldCityButton:RegisterCallback( Mouse.eLClick, ToggleStack );
-Controls.InstantYieldMilitaryButton:SetVoid1( 1 );
-Controls.InstantYieldMilitaryButton:RegisterCallback( Mouse.eLClick, ToggleStack );
-Controls.InstantYieldCivilianButton:SetVoid1( 2 );
-Controls.InstantYieldCivilianButton:RegisterCallback( Mouse.eLClick, ToggleStack );
-Controls.InstantYieldSpiesButton:SetVoid1( 3 );
-Controls.InstantYieldSpiesButton:RegisterCallback( Mouse.eLClick, ToggleStack );
-Controls.InstantYieldMiscButton:SetVoid1( 4 );
-Controls.InstantYieldMiscButton:RegisterCallback( Mouse.eLClick, ToggleStack );
-
-function RefreshSettings()
-	local iPlayer = Game.GetActivePlayer();
-    local pPlayer = Players[ iPlayer ];
-
-	Controls.InstantYieldCityStack:DestroyAllChildren();
-    Controls.InstantYieldMilitaryStack:DestroyAllChildren();
-    Controls.InstantYieldCivilianStack:DestroyAllChildren();
-    Controls.InstantYieldSpiesStack:DestroyAllChildren();
-    Controls.InstantYieldMiscStack:DestroyAllChildren();
-
-	for i,v in ipairs(g_InstantYieldCitySorted) do
-		local entry = {};
-		ContextPtr:BuildInstanceForControl( "InstantYieldsInstance", entry, Controls.InstantYieldCityStack );
-		entry.InstantYieldName:SetText(v.Name);
-		entry.InstantYieldCheckbox:SetCheck(not pPlayer:IsInstantYieldNotificationDisabled(v.Index));
-		entry.InstantYieldCheckbox:RegisterCheckHandler( function() ToggleInstantYieldSetting(entry.InstantYieldCheckbox, pPlayer, v.Index) end );
-	end
-	for i,v in ipairs(g_InstantYieldMilitarySorted) do
-		local entry = {};
-		ContextPtr:BuildInstanceForControl( "InstantYieldsInstance", entry, Controls.InstantYieldMilitaryStack );
-		entry.InstantYieldName:SetText(v.Name);
-		entry.InstantYieldCheckbox:SetCheck(not pPlayer:IsInstantYieldNotificationDisabled(v.Index));
-		entry.InstantYieldCheckbox:RegisterCheckHandler( function() ToggleInstantYieldSetting(entry.InstantYieldCheckbox, pPlayer, v.Index) end );
-	end
-	for i,v in ipairs(g_InstantYieldCivilianSorted) do
-		local entry = {};
-		ContextPtr:BuildInstanceForControl( "InstantYieldsInstance", entry, Controls.InstantYieldCivilianStack);
-		entry.InstantYieldName:SetText(v.Name);
-		entry.InstantYieldCheckbox:SetCheck(not pPlayer:IsInstantYieldNotificationDisabled(v.Index));
-		entry.InstantYieldCheckbox:RegisterCheckHandler( function() ToggleInstantYieldSetting(entry.InstantYieldCheckbox, pPlayer, v.Index) end );
-	end
-	for i,v in ipairs(g_InstantYieldSpiesSorted) do
-		local entry = {};
-		ContextPtr:BuildInstanceForControl( "InstantYieldsInstance", entry, Controls.InstantYieldSpiesStack );
-		entry.InstantYieldName:SetText(v.Name);
-		entry.InstantYieldCheckbox:SetCheck(not pPlayer:IsInstantYieldNotificationDisabled(v.Index));
-		entry.InstantYieldCheckbox:RegisterCheckHandler( function() ToggleInstantYieldSetting(entry.InstantYieldCheckbox, pPlayer, v.Index) end );
-	end
-	for i,v in ipairs(g_InstantYieldMiscSorted) do
-		local entry = {};
-		ContextPtr:BuildInstanceForControl( "InstantYieldsInstance", entry, Controls.InstantYieldMiscStack );
-		entry.InstantYieldName:SetText(v.Name);
-		entry.InstantYieldCheckbox:SetCheck(not pPlayer:IsInstantYieldNotificationDisabled(v.Index));
-		entry.InstantYieldCheckbox:RegisterCheckHandler( function() ToggleInstantYieldSetting(entry.InstantYieldCheckbox, pPlayer, v.Index) end );
-	end
-
-	Controls.InstantYieldCityStack:CalculateSize();
-    Controls.InstantYieldMilitaryStack:CalculateSize();
-    Controls.InstantYieldCivilianStack:CalculateSize();
-    Controls.InstantYieldSpiesStack:CalculateSize();
-    Controls.InstantYieldMiscStack:CalculateSize();
-
-	Controls.AllInstantYieldsStack:CalculateSize();
-	Controls.AllInstantYieldsStack:ReprocessAnchoring();
-	Controls.AllInstantYieldsScrollPanel:CalculateInternalSize();
-end
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-function OnClose ()
-    UIManager:DequeuePopup( ContextPtr );
-end
-Controls.CloseButton:RegisterCallback( Mouse.eLClick, OnClose );
-
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-function InputHandler( uiMsg, wParam, lParam )
-    if uiMsg == KeyEvents.KeyDown then
-        if wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN then
-            OnClose();
-            return true;
-        end
-    end
-end
-ContextPtr:SetInputHandler( InputHandler );
-
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-function ShowHideHandler( bIsHide, bInitState )
-
-    if( not bInitState ) then
-        if( not bIsHide ) then
-        	UI.incTurnTimerSemaphore();
-        	Events.SerialEventGameMessagePopupShown(m_PopupInfo);
-        else
-            UI.decTurnTimerSemaphore();
-            Events.SerialEventGameMessagePopupProcessed.CallImmediate(ButtonPopupTypes.BUTTONPOPUP_NOTIFICATION_LOG, 0);
-        end
-    end
-end
-ContextPtr:SetShowHideHandler( ShowHideHandler );
-
-----------------------------------------------------------------
--- 'Active' (local human) player has changed
-----------------------------------------------------------------
-Events.GameplaySetActivePlayer.Add(OnClose);
+--------------------------------------------------------------------------------

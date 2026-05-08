@@ -52,8 +52,8 @@ struct CvDangerPlotContents
 		m_apCaptureUnits.clear(); if (m_apCaptureUnits.capacity() > 5) { DangerUnitVector().swap(m_apCaptureUnits); }
 	};
 
-	int GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction);
-	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
+	int GetDanger(const CvUnit* pUnit, const SUnitIDValueContainer& extraUnitDamage, int iExtraDamage, AirActionType iAirAction);
+	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison, const SUnitIDValueContainer& extraUnitDamage, int iExtraSelfDamage = 0);
 	std::vector<CvUnit*> GetPossibleAttackers(TeamTypes eTeamForVisibilityCheck) const;
 
 	// should not normally be used if a city or unit is known, primarily for compatibility
@@ -88,8 +88,8 @@ public:
 	void Uninit();
 
 	void UpdateDanger();
-	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage=0, AirActionType iAirAction=AIR_ACTION_ATTACK);
-	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
+	int GetDanger(const CvPlot& pPlot, const CvUnit* pUnit, const SUnitIDValueContainer& unitDamageDealt, int iExtraDamage = 0, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL, const SUnitIDValueContainer& unitDamageDealt = SUnitIDValueContainer());
 	int GetDanger(const CvPlot& pPlot, bool bFixedDamageOnly);
 
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck) const;

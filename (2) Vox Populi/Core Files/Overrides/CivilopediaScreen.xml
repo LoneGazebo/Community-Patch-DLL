@@ -990,6 +990,20 @@
 							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TradeRouteYieldLabel"/>
 						</Grid>
 					</Grid>
+					<!-- Feature Improvement Yield -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="FeatureImprovYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="FeatureImprovYieldInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_FEATURE_IMPROV_YIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="FeatureImprovYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Adjacent City Yield -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AdjacentCityImprovYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_ADJACENT_CITY_IMPROV_YIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="AdjacentCityImprovYieldLabel"/>
+						</Grid>
+					</Grid>
 					<!-- Terrain Adjacency Yield -->
 					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AdjacentTerrainYieldFrame">
 						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">
@@ -1010,6 +1024,48 @@
 						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
 							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_YIELDPERERA_LABEL"/>
 							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="ImprovYieldPerEraLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Tech Yield Boosts -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TechImprovYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TechImprovYieldInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TECH_IMPROV_YIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TechImprovYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Tech Fresh Water Yield Boosts -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TechFreshWaterImprovYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TechFreshWaterImprovYieldInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TECH_FRESH_WATER_IMPROV_YIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TechFreshWaterImprovYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Tech No Fresh Water Yield Boosts -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TechNoFreshWaterImprovYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TechNoFreshWaterImprovYieldInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TECH_NO_FRESH_WATER_IMPROV_YIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TechNoFreshWaterImprovYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Tech Terrain Yield Boosts -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TechTerrainYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TechTerrainYieldInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TECH_IMPROV_YIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TechTerrainYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Tech Feature Yield Boosts -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TechFeatureYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TechFeatureYieldInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TECH_IMPROV_YIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TechFeatureYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Tech Building Yield Boosts -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,76" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="TechBuildingYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TechBuildingYieldInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_TECH_IMPROV_YIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="TechBuildingYieldLabel"/>
 						</Grid>
 					</Grid>
 					<!-- Resource Improvement Yield-->

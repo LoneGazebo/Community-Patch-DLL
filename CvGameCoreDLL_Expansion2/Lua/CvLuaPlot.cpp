@@ -2119,10 +2119,13 @@ int CvLuaPlot::lGetActiveFogOfWarMode(lua_State* L)
 	{
 	case FOGOFWARMODE_OFF:
 		fow = 2;
+		break;
 	case FOGOFWARMODE_UNEXPLORED:
 		fow = 0;
+		break;
 	case FOGOFWARMODE_NOVIS:
 		fow = 1;
+		break;
 	}
 
 	lua_pushinteger(L, fow);
