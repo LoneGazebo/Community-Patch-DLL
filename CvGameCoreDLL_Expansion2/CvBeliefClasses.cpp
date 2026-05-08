@@ -832,8 +832,8 @@ int CvBeliefEntry::GetImprovementVoteChange(ImprovementTypes eIndex1) const
 /// Accessor:: Extra production% to unit combat class
 int CvBeliefEntry::GetUnitCombatProductionModifiers(int i) const
 {
-	PRECONDITION(eIndex1 < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
-	PRECONDITION(eIndex1 > -1, "Index out of bounds");
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piUnitCombatProductionModifiers ? m_piUnitCombatProductionModifiers[i] : -1;
 }
 
