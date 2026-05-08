@@ -12851,7 +12851,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			UnitCombatTypes eUnitCombatType = (UnitCombatTypes)(pkUnitInfo->GetUnitCombatType());
 			if (eUnitCombatType != NO_UNITCOMBAT)
 			{
-				iTempMod = pReligion->m_Beliefs.GetUnitCombatProductionModifiers(eUnitCombatType);
+				iTempMod = pReligion->m_Beliefs.GetUnitCombatProductionModifiers(eUnitCombatType, getOwner(), this);
 				iMultiplier += iTempMod;
 				if (toolTipSink && iTempMod)
 				{
