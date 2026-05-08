@@ -6252,7 +6252,10 @@ pair<CvPlot*, int> TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUni
 		if (iScore > 0)
 		{
 			//tiebreaker
-			iScore -= plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY()) * 2 - GET_PLAYER(pUnit->getOwner()).GetCityDistancePathLength(pPlot);
+			int iCityDist = GET_PLAYER(pUnit->getOwner()).GetCityDistancePathLength(pPlot);
+			if (iCityDist == INT_MAX)
+				iCityDist = 0; // No cities (e.g. city-state lost capital) - distance irrelevant, use 0 to avoid overflow
+			iScore -= plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY()) * 2 - iCityDist;
 			vCandidates.push_back(OptionWithScore<pair<CvPlot*, int>>(make_pair(pPlot, it->iMovesLeft), iScore));
 		}
 	}
