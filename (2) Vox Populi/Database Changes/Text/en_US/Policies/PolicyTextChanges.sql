@@ -545,7 +545,7 @@ SET Text = 'Exploitation'
 WHERE Tag = 'TXT_KEY_POLICY_MERCHANT_NAVY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Exploitation[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_FOOD] Food and +1 [ICON_PRODUCTION] Production from Farms, Camps, and Plantations.[NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science from Coasts, Lakes, and Oceans.'
+SET Text = '[COLOR_POSITIVE_TEXT]Exploitation[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold from Luxury Resources.[NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science from Coasts, Lakes, and Oceans.'
 WHERE Tag = 'TXT_KEY_POLICY_MERCHANT_NAVY_HELP';
 
 UPDATE Language_en_US
