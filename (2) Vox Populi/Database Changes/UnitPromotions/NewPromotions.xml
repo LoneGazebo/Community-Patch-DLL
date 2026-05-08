@@ -593,6 +593,14 @@
 			<PediaType>PEDIA_HEAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EVERLASTING_YOUTH</PediaEntry>
 		</Row>
+		<!-- Belief -->
+		<Row>
+			<Type>PROMOTION_ANIMISM</Type>
+			<Description>TXT_KEY_PROMOTION_ANIMISM</Description>
+			<Help>TXT_KEY_PROMOTION_ANIMISM_HELP</Help>
+			<PediaType>PEDIA_CIVILIAN</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ANIMISM</PediaEntry>
+		</Row>
 		<!-- Building -->
 		<Row>
 			<Type>PROMOTION_ROYAL_SIGNET</Type>

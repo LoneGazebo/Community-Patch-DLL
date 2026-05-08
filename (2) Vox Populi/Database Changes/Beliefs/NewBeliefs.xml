@@ -98,6 +98,13 @@
 			<ShortDescription>TXT_KEY_BELIEF_COMMUNALISM_SHORT</ShortDescription>
 			<Follower>true</Follower>
 		</Row>
+		<!-- New enhancer beliefs -->
+		<Row>
+			<Type>BELIEF_ANIMISM</Type>
+			<Description>TXT_KEY_BELIEF_ANIMISM</Description>
+			<ShortDescription>TXT_KEY_BELIEF_ANIMISM_SHORT</ShortDescription>
+			<Enhancer>true</Enhancer>
+		</Row>
 		<!-- New reformation beliefs -->
 		<Row>
 			<Type>BELIEF_WORK_ETHIC</Type>

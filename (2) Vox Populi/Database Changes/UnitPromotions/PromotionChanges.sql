@@ -632,6 +632,11 @@ UPDATE UnitPromotions SET FriendlyHealChange = 5, NeutralHealChange = 5, EnemyHe
 UPDATE UnitPromotions_Terrains SET DoubleMove = 0 WHERE PromotionType = 'PROMOTION_ALTITUDE_TRAINING';
 
 --------------------------------------------
+-- Religion free promotions
+--------------------------------------------
+UPDATE UnitPromotions SET IgnoreTerrainCost = 1 WHERE Type = 'PROMOTION_ANIMISM';
+
+--------------------------------------------
 -- Building free promotions
 --------------------------------------------
 UPDATE UnitPromotions SET FriendlyLandsModifier = 15 WHERE Type = 'PROMOTION_HIMEJI_CASTLE';

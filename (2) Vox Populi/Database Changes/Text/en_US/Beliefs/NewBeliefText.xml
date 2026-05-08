@@ -88,6 +88,13 @@
 		<Row Tag="TXT_KEY_BELIEF_COMMUNALISM_SHORT">
 			<Text>Cooperation</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_BELIEF_ANIMISM">
+			<Text>+1 [ICON_FOOD] Food and [ICON_CULTURE] Culture from Natural Wonders, Lakes, and [COLOR_NEGATIVE_TEXT]unimproved[ENDCOLOR] Features. [ICON_MISSIONARY] Missionaries ignore terrain costs.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_ANIMISM_SHORT">
+			<Text>Animism</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_BELIEF_WORK_ETHIC">
 			<Text>May build Workshops, Windmills, and Factories with [ICON_PEACE] Faith. These buildings produce +2 [ICON_PRODUCTION] Production each. +25% [ICON_WORKER] Tile Improvement Rate for [COLOR_YELLOW]Civilian Units[ENDCOLOR].</Text>
