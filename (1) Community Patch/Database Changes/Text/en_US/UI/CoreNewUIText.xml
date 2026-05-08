@@ -2058,6 +2058,9 @@
 		<Row Tag="TXT_KEY_PRODMOD_PLEDGES_UNIT_DOMAIN">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Domain from Pledges: {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_RELIGION_UNIT_COMBAT">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Combat Class from Religion: {1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_RELIGION_UNIT">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Military Units from Religion: {1_Num}%</Text>
 		</Row>
