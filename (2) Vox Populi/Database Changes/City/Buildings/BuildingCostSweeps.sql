@@ -238,6 +238,11 @@ UPDATE Buildings SET FaithCost = 400, UnlockedByBelief = 1 WHERE BuildingClass =
 UPDATE Buildings SET FaithCost = 600, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_PUBLIC_SCHOOL';
 UPDATE Buildings SET FaithCost = 800, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_LABORATORY';
 
+-- Diplomacy line (Global Commandments)
+UPDATE Buildings SET FaithCost = 400, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
+UPDATE Buildings SET FaithCost = 500, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_HOUSE';
+UPDATE Buildings SET FaithCost = 800, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
+
 -- Religious buildings
 UPDATE Buildings SET Cost = -1, FaithCost = 200
 WHERE BuildingClass IN (
