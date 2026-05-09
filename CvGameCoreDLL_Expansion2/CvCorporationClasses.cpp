@@ -1797,6 +1797,9 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 	
 	// Set the player's founded corporation
 	kPlayer.GetCorporations()->SetFoundedCorporation(eCorporation);
+
+	// Add corporation to game active corporations
+	m_ActiveCorporations.push_back(kCorporation);
 	
 	// Free office in headquarters
 	CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
@@ -1812,9 +1815,6 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 	}
 
 	kPlayer.processCorporations(eCorporation, 1);
-
-	// Add corporation to game active corporations
-	m_ActiveCorporations.push_back(kCorporation);
 
 	// Push notification to all players
 	PlayerTypes eLoopPlayer = NO_PLAYER;
