@@ -98,5 +98,12 @@
 			<ShortDescription>TXT_KEY_BELIEF_COMMUNALISM_SHORT</ShortDescription>
 			<Follower>true</Follower>
 		</Row>
+		<!-- New reformation beliefs -->
+		<Row>
+			<Type>BELIEF_WORK_ETHIC</Type>
+			<Description>TXT_KEY_BELIEF_WORK_ETHIC</Description>
+			<ShortDescription>TXT_KEY_BELIEF_WORK_ETHIC_SHORT</ShortDescription>
+			<Reformation>true</Reformation>
+		</Row>
 	</Beliefs>
 </GameData>
