@@ -96,10 +96,7 @@ VALUES
 	('BELIEF_UNDERGROUND_SECT', 'BUILDINGCLASS_BROADCAST_TOWER');
 
 -- Charitable Missions (now Global Commandments)
-UPDATE Beliefs
-SET
-	CityStateInfluenceModifier = 0
-WHERE Type = 'BELIEF_CHARITABLE_MISSIONS';
+UPDATE Beliefs SET CityStateInfluenceModifier = 0 WHERE Type = 'BELIEF_CHARITABLE_MISSIONS';
 
 INSERT INTo Belief_UnitCombatProductionModifiers
 		(BeliefType, UnitCombatType, Modifier)
@@ -108,7 +105,7 @@ VALUES
 
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
-VALUES
+SELECT
 	'BELIEF_CHARITABLE_MISSIONS', bc.Type, y.Type, 1
 FROM 
 	BuildingClasses bc, Yields y
