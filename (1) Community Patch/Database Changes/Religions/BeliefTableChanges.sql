@@ -72,3 +72,6 @@ ALTER TABLE Beliefs ADD HappinessFromForeignSpies integer DEFAULT 0;
 
 -- Decrease inquisitor cost. What it says on the tin ya git.
 ALTER TABLE Beliefs ADD InquisitorCostModifier integer DEFAULT 0;
+
+-- Increases civilian work rate by x%
+ALTER TABLE Beliefs ADD CivilianWorkRate integer DEFAULT 0;
