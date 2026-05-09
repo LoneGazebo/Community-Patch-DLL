@@ -15681,8 +15681,7 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 	CvCity* pOriginCity = getOriginCity();
 	if (pOriginCity)
 	{
-		ReligionTypes eCityReligion = pOriginCity->GetCityReligions()->GetReligiousMajority();
-		const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eCityReligion, pOriginCity->getOwner());
+		const CvReligion* pCityReligion = pOriginCity->GetCityReligions()->GetMajorityReligion();
 		if(pCityReligion)
 		{
 			Modifiers += pCityReligion->m_Beliefs.GetCivilianWorkRate(getOwner(), pCity);
