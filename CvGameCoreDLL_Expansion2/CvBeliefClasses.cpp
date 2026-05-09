@@ -117,6 +117,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_bAIGoodStartingPantheon(false),
 	m_piMaxYieldPerFollower(NULL),
 	m_piMaxYieldPerFollowerPercent(NULL),
+	m_iCivilianWorkRate(0),
 	m_piImprovementVoteChange(NULL),
 	m_iReducePolicyRequirements(0),
 	m_iCSYieldBonus(0),
@@ -819,6 +820,11 @@ int CvBeliefEntry::GetCSYieldBonus() const
 	return m_iCSYieldBonus;
 }
 
+int CvBeliefEntry::GetCivilianWorkRate() const
+{
+	return m_iCivilianWorkRate;
+}
+
 /// Accessor:: Extra yield from an improvement
 int CvBeliefEntry::GetImprovementVoteChange(ImprovementTypes eIndex1) const
 {
@@ -1340,6 +1346,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iInquisitorPressureRetention    = kResults.GetInt("InquisitorPressureRetention");
 	m_iFaithBuildingTourism           = kResults.GetInt("FaithBuildingTourism");
 	m_iFullyConvertedHappiness		  = kResults.GetInt("FullyConvertedHappiness");
+	m_iCivilianWorkRate			      = kResults.GetInt("CivilianWorkRate");
 
 	m_bPantheon						  = kResults.GetBool("Pantheon");
 	m_bFounder						  = kResults.GetBool("Founder");
@@ -4163,7 +4170,7 @@ int CvReligionBeliefs::GetPressureChangeTradeRoute(PlayerTypes ePlayer, const Cv
 
 	return rtnValue;
 }
-/// Get bonus pressure from trade routes
+/// Get bonus happiness from foreign spies
 int CvReligionBeliefs::GetHappinessFromForeignSpies(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -4645,6 +4652,24 @@ int CvReligionBeliefs::GetCSYieldBonus(PlayerTypes ePlayer, const CvCity* pCity,
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetCSYieldBonus();
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+/// Get bonus work rate for civilians
+int CvReligionBeliefs::GetCivilianWorkRate(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetCivilianWorkRate();
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
