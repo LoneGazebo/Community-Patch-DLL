@@ -480,6 +480,41 @@
 			<IconsPerColumn>8</IconsPerColumn>
 		</Row>
 		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>45</IconSize>
+			<Filename>VPBuildingAtlas3_045.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>VPBuildingAtlas3_064.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>80</IconSize>
+			<Filename>VPBuildingAtlas3_080.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>128</IconSize>
+			<Filename>VPBuildingAtlas3_128.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>256</IconSize>
+			<Filename>VPBuildingAtlas3_256.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
 			<Atlas>UNIT_ATLAS_VP_1</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>VPUnitAtlas1_045.dds</Filename>
