@@ -15678,7 +15678,7 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 
 	Modifiers += kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
 
-	if (isCivilianUnit())
+	if (IsCivilianUnit())
 	{
 		CvCity* pOriginCity = getOriginCity();
 		if (pOriginCity)
