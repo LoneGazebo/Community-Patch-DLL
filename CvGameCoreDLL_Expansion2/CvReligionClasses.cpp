@@ -8681,17 +8681,17 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			if (eUnitCombatClass == GC.getInfoTypeForString("UNITCOMBAT_DIPLOMACY"))
 			{
 				if (m_pPlayer->GetPlayerTraits()->IsDiplomat())
-					iRtnValue += pEntry->GetUnitProductionModifier();
+					iRtnValue += pEntry->UnitCombatProductionModifiers(eUnitCombatClass);
 				else
-					iRtnValue += pEntry->GetUnitProductionModifier() / 2;
+					iRtnValue += pEntry->UnitCombatProductionModifiers(eUnitCombatClass) / 2;
 			}
 			// assume military
 			else
 			{
 				if (m_pPlayer->GetPlayerTraits()->IsWarmonger() || m_pPlayer->GetPlayerTraits()->IsExpansionist())
-					iRtnValue += pEntry->GetUnitProductionModifier();
+					iRtnValue += pEntry->UnitCombatProductionModifiers(eUnitCombatClass);
 				else
-					iRtnValue += pEntry->GetUnitProductionModifier() / 2;
+					iRtnValue += pEntry->UnitCombatProductionModifiers(eUnitCombatClass) / 2;
 			}
 		}
 	}
