@@ -127,6 +127,7 @@ public:
 	int GetMaxYieldPerFollowerPercent(int i) const;
 	int GetIgnorePolicyRequirementsAmount() const;
 	int GetCSYieldBonus() const;
+	int GetCivilianWorkRate() const;
 	int GetImprovementVoteChange(ImprovementTypes eIndex1) const;
 	CivilizationTypes GetRequiredCivilization() const;
 
@@ -348,6 +349,7 @@ protected:
 	int m_iFollowerScalerLimiter;
 	int m_iPolicyReductionWonderXFollowerCities;
 	int m_iGreatPeopleFaithCostMod;
+	int m_iCivilianWorkRate;
 	bool m_bAIGoodStartingPantheon;
 	CivilizationTypes m_eRequiredCivilization;
 
@@ -551,6 +553,7 @@ public:
 	CivilizationTypes GetUniqueCiv(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCSYieldBonus(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCivilianWorkRate(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	fraction GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 
 	const BeliefList& GetBeliefList() const { return m_ReligionBeliefs; }
