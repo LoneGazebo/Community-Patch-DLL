@@ -5024,7 +5024,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 	if(isMinorCiv() || isBarbarian())
 		return;
 
-	//First let's test domain, then we'll test combat class.
+	//First let's test combat class, then we'll test domain.
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
 
@@ -5041,6 +5041,17 @@ void CvPlayer::UpdateBestMilitaryCities()
 			{
 				//Production is king, and also our base value.
 				int iCombatClassValue = (pLoopCity->getRawProductionPerTurnTimes100() / 500);
+				if(pLoopCity->getUnitCombatProductionModifier(eUnitCombatClass) > 0)
+				{
+					iCombatClassValue += max(1, pLoopCity->getUnitCombatProductionModifier(eUnitCombatClass));
+				}
+				// Production bonuses from the City's Religion
+				const CvReligion* pReligion = pLoopCity->GetCityReligions()->GetMajorityReligion();
+				if (pReligion)
+				{
+						iCombatClassValue += max(1, pReligion->m_Beliefs.GetUnitProductionModifier());	// if this could be guarded somehow the method would work on non-military combat classes too	
+						iCombatClassValue += max(1, pReligion->m_Beliefs.GetUnitCombatProductionModifiers(eUnitCombatClass, GetID(), pLoopCity));
+				}
 
 				//Also get our XP boosts local to this city.
 				iCombatClassValue += pLoopCity->getFreeExperience();
@@ -5049,10 +5060,6 @@ void CvPlayer::UpdateBestMilitaryCities()
 				if(pLoopCity->getUnitCombatFreeExperience(eUnitCombatClass) > 0)
 				{
 					iCombatClassValue += max(1, pLoopCity->getUnitCombatFreeExperience(eUnitCombatClass));
-				}
-				if(pLoopCity->getUnitCombatProductionModifier(eUnitCombatClass) > 0)
-				{
-					iCombatClassValue += max(1, pLoopCity->getUnitCombatProductionModifier(eUnitCombatClass));
 				}
 
 				//Promotion Bonus
