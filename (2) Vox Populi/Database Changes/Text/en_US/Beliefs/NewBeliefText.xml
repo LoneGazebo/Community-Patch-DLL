@@ -89,6 +89,12 @@
 			<Text>Cooperation</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BELIEF_WORK_ETHIC">
+			<Text>May build Workshops, Windmills, and Factories with [ICON_PEACE] Faith. These buildings produce +2 [ICON_PRODUCTION] Production each. +25% [ICON_WORKER] Tile Improvement Rate for [COLOR_YELLOW]Civilian Units[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_WORK_ETHIC_SHORT">
+			<Text>Work Ethic</Text>
+			
 		<!-- Tooltips -->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_TOOLTIP">
 			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_GOLD] Gold[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold to Farms, Pastures, and Quarries worked by the City.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold when the City naturally expands, scaling with Era.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
