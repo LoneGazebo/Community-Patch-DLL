@@ -8676,22 +8676,22 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 	for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 	{
 		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
-		if (pEntry->UnitCombatProductionModifiers(eUnitCombatClass) > 0)
+		if (pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass) > 0)
 		{
 			if (eUnitCombatClass == GC.getInfoTypeForString("UNITCOMBAT_DIPLOMACY"))
 			{
 				if (m_pPlayer->GetPlayerTraits()->IsDiplomat())
-					iRtnValue += pEntry->UnitCombatProductionModifiers(eUnitCombatClass);
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass);
 				else
-					iRtnValue += pEntry->UnitCombatProductionModifiers(eUnitCombatClass) / 2;
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass) / 2;
 			}
 			// assume military
 			else
 			{
 				if (m_pPlayer->GetPlayerTraits()->IsWarmonger() || m_pPlayer->GetPlayerTraits()->IsExpansionist())
-					iRtnValue += pEntry->UnitCombatProductionModifiers(eUnitCombatClass);
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass);
 				else
-					iRtnValue += pEntry->UnitCombatProductionModifiers(eUnitCombatClass) / 2;
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass) / 2;
 			}
 		}
 	}
