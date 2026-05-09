@@ -15678,6 +15678,17 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 
 	Modifiers += kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
 
+	CvCity* pOriginCity = getOriginCity();
+	if (pOriginCity)
+	{
+		ReligionTypes eCityReligion = pOriginCity->GetCityReligions()->GetReligiousMajority();
+		const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eCityReligion, pOriginCity->getOwner());
+		if(pCityReligion)
+		{
+			Modifiers += pCityReligion->m_Beliefs.GetCivilianWorkRate(getOwner(), pCity);
+		}
+	}
+
 	if (kPlayer.isMajorCiv())
 	{
 		Modifiers += kPlayer.getHandicapInfo().getWorkRateModifier();
