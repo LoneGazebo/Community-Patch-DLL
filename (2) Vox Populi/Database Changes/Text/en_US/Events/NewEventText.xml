@@ -1353,6 +1353,15 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS">
 			<Text>[ICON_HAPPINESS_4] Distribute Seditious Leaflets</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE">
+			<Text>[ICON_PUPPET] Infiltrate the Governor's Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Siphon[ENDCOLOR] 10% of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture produced by this City for {5_Duration}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_EFFECT">
+			<Text>There is a mole in the Governor's Office: 10% of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture are siphoned for {5_Duration}.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_HELP">
 			<Text>Increase the City's [ICON_HAPPINESS_3] Needs Modifier by 25% for {5_Duration}.</Text>
 		</Row>
