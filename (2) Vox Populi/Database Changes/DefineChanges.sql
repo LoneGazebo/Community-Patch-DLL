@@ -566,6 +566,8 @@ UPDATE Defines SET Value = 0 WHERE Name = 'INDUSTRIAL_ROUTE_PRODUCTION_MOD';
 -------------------------------------------------------------------------------------------------------------------
 -- Espionage
 -------------------------------------------------------------------------------------------------------------------
+UPDATE Defines SET VALUE = 100 WHERE NAME = 'BALANCE_SPY_POINT_THRESHOLD_MIN';
+UPDATE Defines SET VALUE = 100 WHERE NAME = 'BALANCE_SPY_POINT_THRESHOLD_MAX';
 UPDATE Defines SET Value = 10 WHERE Name = 'BALANCE_SPY_RESPAWN_TIMER';
 UPDATE Defines SET Value = 30 WHERE Name = 'ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION';
 UPDATE Defines SET Value = 1000 WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PERCENT';
