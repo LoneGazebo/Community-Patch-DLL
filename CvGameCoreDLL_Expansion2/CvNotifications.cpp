@@ -514,27 +514,39 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				break;
 
 			case NOTIFICATION_POLICY:
-				eBlockingType = ENDTURN_BLOCKING_POLICY;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				if (GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_POLICY_CHOICE))
+				{
+					eBlockingType = ENDTURN_BLOCKING_POLICY;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_FREE_POLICY:
-				eBlockingType = ENDTURN_BLOCKING_FREE_POLICY;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				if (GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_POLICY_CHOICE))
+				{
+					eBlockingType = ENDTURN_BLOCKING_FREE_POLICY;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_TECH:
-				eBlockingType = ENDTURN_BLOCKING_RESEARCH;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				if (GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_TECH_CHOICE))
+				{
+					eBlockingType = ENDTURN_BLOCKING_RESEARCH;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_FREE_TECH:
-				eBlockingType = ENDTURN_BLOCKING_FREE_TECH;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				if (GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_TECH_CHOICE))
+				{
+					eBlockingType = ENDTURN_BLOCKING_FREE_TECH;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_FREE_GREAT_PERSON:
@@ -544,21 +556,30 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				break;
 
 			case NOTIFICATION_FOUND_PANTHEON:
-				eBlockingType = ENDTURN_BLOCKING_FOUND_PANTHEON;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				if (GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_RELIGION_CHOICE))
+				{
+					eBlockingType = ENDTURN_BLOCKING_FOUND_PANTHEON;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_FOUND_RELIGION:
-				eBlockingType = ENDTURN_BLOCKING_FOUND_RELIGION;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				if (GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_RELIGION_CHOICE))
+				{
+					eBlockingType = ENDTURN_BLOCKING_FOUND_RELIGION;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_ENHANCE_RELIGION:
-				eBlockingType = ENDTURN_BLOCKING_ENHANCE_RELIGION;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				if (GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_RELIGION_CHOICE))
+				{
+					eBlockingType = ENDTURN_BLOCKING_ENHANCE_RELIGION;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_SPY_STOLE_TECH:
@@ -580,9 +601,12 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				break;
 
 			case NOTIFICATION_ADD_REFORMATION_BELIEF:
-				eBlockingType = ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				if (GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_RELIGION_CHOICE))
+				{
+					eBlockingType = ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_LEAGUE_CALL_FOR_PROPOSALS:
@@ -604,9 +628,12 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				break;
 
 			case NOTIFICATION_CHOOSE_IDEOLOGY:
-				eBlockingType = ENDTURN_BLOCKING_CHOOSE_IDEOLOGY;
-				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
-				return true;
+				if (GET_PLAYER(m_ePlayer).isHuman(ISHUMAN_AI_POLICY_CHOICE))
+				{
+					eBlockingType = ENDTURN_BLOCKING_CHOOSE_IDEOLOGY;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
 				break;
 
 			case NOTIFICATION_PLAYER_DEAL_RECEIVED:
