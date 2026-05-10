@@ -1012,12 +1012,14 @@
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>800</NetworkPointsNeeded>
-			<SpyIDChance>20</SpyIDChance>
-			<SpyKillChance>10</SpyKillChance>
+			<SpyIDChance>25</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
 			<ReligiousPressureModifier>-100</ReligiousPressureModifier>
+			<RequiredBuildingClass>BUILDINGCLASS_TEMPLE</RequiredBuildingClass>
 			<Expires>true</Expires>
+			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
 		</Row>
-		<!-- Steal From Treasury -->
+		<!-- Burgle the National Treasury -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY</Description>
@@ -1027,12 +1029,13 @@
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>800</NetworkPointsNeeded>
-			<SpyIDChance>30</SpyIDChance>
-			<SpyKillChance>20</SpyKillChance>
+			<SpyIDChance>25</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
 			<CapitalOnly>true</CapitalOnly>
-			<StealFromTreasuryPercent>20</StealFromTreasuryPercent>
+			<StealFromTreasuryPercent>35</StealFromTreasuryPercent>
+			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 		</Row>
-		<!-- Sabotage Production -->
+		<!-- Assassinate the Governor -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Description>
@@ -1042,9 +1045,11 @@
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
-			<SpyIDChance>20</SpyIDChance>
-			<SpyKillChance>10</SpyKillChance>
-			<BlockBuildingTurns>5</BlockBuildingTurns>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>5</SpyKillChance>
+			<BlockBuildingTurns>10</BlockBuildingTurns>
+			<SapCityTurns>2</SapCityTurns>
+			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Kidnap Specialists in the City -->
 		<Row>
@@ -1056,12 +1061,13 @@
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
-			<SpyIDChance>30</SpyIDChance>
-			<SpyKillChance>10</SpyKillChance>
+			<SpyIDChance>25</SpyIDChance>
+			<SpyKillChance>50</SpyKillChance>
 			<SpecialistsGreatPersonPointsPerTurn>-1</SpecialistsGreatPersonPointsPerTurn>
 			<Expires>true</Expires>
 			<RequiresNotPuppet>true</RequiresNotPuppet>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</TriggerPlayerEventChoice>
+			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Radicalize the rural citizenry -->
 		<Row>
@@ -1074,10 +1080,10 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
 			<SpyIDChance>50</SpyIDChance>
-			<SpyKillChance>70</SpyKillChance>
+			<SpyKillChance>5</SpyKillChance>
 			<PillageResourceTilesChance>100</PillageResourceTilesChance>
 			<PillageRoadsChance>50</PillageRoadsChance>
-			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Arm the local populace -->
 		<Row>
@@ -1089,16 +1095,16 @@
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
-			<SpyIDChance>30</SpyIDChance>
-			<SpyKillChance>30</SpyKillChance>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
 			<IsEnemyUnhappy>true</IsEnemyUnhappy>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
 			<RandomBarbarianSpawnPerEra>1</RandomBarbarianSpawnPerEra>
 			<NoTourismTurns>10</NoTourismTurns>
-			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
 		</Row>
-		<!-- Target local City Defenses -->
+		<!-- Sabotage City Defenses -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES</Description>
@@ -1108,13 +1114,13 @@
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
-			<SpyIDChance>80</SpyIDChance>
-			<SpyKillChance>70</SpyKillChance>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>75</SpyKillChance>
 			<SapCityTurns>5</SapCityTurns>
 			<PillageFortificationsChance>100</PillageFortificationsChance>
 			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
 		</Row>
-		<!-- Steal a Great Work in the City -->
+		<!-- Purloin a Great Work in the City -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_GW</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW</Description>
@@ -1124,9 +1130,10 @@
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
-			<SpyIDChance>100</SpyIDChance>
-			<SpyKillChance>40</SpyKillChance>
+			<SpyIDChance>95</SpyIDChance>
+			<SpyKillChance>75</SpyKillChance>
 			<StealNumGW>1</StealNumGW>
+			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Steal a Technology -->
 		<Row>
@@ -1139,8 +1146,8 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>2000</NetworkPointsNeeded>
 			<NetworkPointsScaling>true</NetworkPointsScaling>
-			<SpyIDChance>50</SpyIDChance>
-			<SpyKillChance>20</SpyKillChance>
+			<SpyIDChance>5</SpyIDChance>
+			<SpyKillChance>95</SpyKillChance>
 			<CapitalOnly>true</CapitalOnly>
 			<StealNumTechs>1</StealNumTechs>
 		</Row>
