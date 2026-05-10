@@ -935,21 +935,21 @@ VALUES
 	('ESPIONAGE_CONSECUTIVE_RIGGING_INFLUENCE_MODIFIER', 40),
 
 -- Calculation of Network Points (VP Espionage System)
-	('ESPIONAGE_NP_BASE', 30), -- Base Network Points generated per Turn
+	('ESPIONAGE_NP_BASE', 50), -- Base Network Points generated per Turn
 	('ESPIONAGE_NP_PER_SPY_RANK', 0), -- Additional Network Points per Spy Level
-	('ESPIONAGE_NP_CULTURAL_INFLUENCE', 10), -- Additional Network Points for Cultural Influence
-	('ESPIONAGE_NP_PER_TECHNOLOGY_BEHIND', 2), -- Additional Network Points per Technology the Spy Owner does not have
+	('ESPIONAGE_NP_CULTURAL_INFLUENCE', 15), -- Additional Network Points for Cultural Influence
+	('ESPIONAGE_NP_PER_TECHNOLOGY_BEHIND', 0), -- Additional Network Points per Technology the Spy Owner does not have
 	('ESPIONAGE_NP_MAX_NUM_TECH', 10), -- Max Number of Techs taken into account (see previous line)
 
 -- Security (VP Espionage System)
-	('ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT', 160), -- divided by 100: Percentage Reduction of Network Points per Security Point
-	('ESPIONAGE_MAX_NUM_SECURITY_POINTS', 50), -- Max Number of Security Points
-	('ESPIONAGE_SECURITY_BASE', 10), -- Base Security
-	('ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES', 1000), -- Security if not all players have a Spy
-	('ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS', 2), -- Security for each previous Spy Mission completed in the City
+	('ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT', 100), -- divided by 100: Percentage Reduction of Network Points per Security Point
+	('ESPIONAGE_MAX_NUM_SECURITY_POINTS', 100), -- Max Number of Security Points
+	('ESPIONAGE_SECURITY_BASE', 20), -- Base Security
+	('ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES', 0), -- Security if not all players have a Spy
+	('ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS', 0), -- Security for each previous Spy Mission completed in the City
 	('ESPIONAGE_SECURITY_PER_POPULATION', -2), -- Security per Population in City
 	('ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER', 360), -- Adds +1 Security every time X reaches this value, where X = (total SpySecurityModifierPerXPop in city) * (city population)
-	('ESPIONAGE_SECURITY_PER_TRADE_ROUTE', -1), -- Security per Trade Route to/from City
+	('ESPIONAGE_SECURITY_PER_TRADE_ROUTE', -5), -- Security per Trade Route to/from City
 	('ESPIONAGE_SECURITY_PER_EXCESS_UNHAPPINESS', -4), -- Security per Excess Unhappiness in City
 
 -- Spy XP (VP Espionage System)

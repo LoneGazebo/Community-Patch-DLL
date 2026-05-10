@@ -1002,34 +1002,6 @@
 		
 		<!-- Espionage -->
 		
-		<!-- Steal a Great Work in the City -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_GW</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_EFFECT</SpyMissionEffect>
-			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
-			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
-			<SpyIDChance>100</SpyIDChance>
-			<SpyKillChance>40</SpyKillChance>
-			<StealNumGW>1</StealNumGW>
-		</Row>
-		<!-- Sabotage Production -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT</SpyMissionEffect>
-			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
-			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
-			<SpyIDChance>20</SpyIDChance>
-			<SpyKillChance>10</SpyKillChance>
-			<BlockBuildingTurns>5</BlockBuildingTurns>
-		</Row>
 		<!-- Pilfer Religious Relics -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_FAITH</Type>
@@ -1039,28 +1011,11 @@
 			<IsEspionageMission>true</IsEspionageMission>
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>750</NetworkPointsNeeded>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
 			<SpyIDChance>20</SpyIDChance>
 			<SpyKillChance>10</SpyKillChance>
 			<ReligiousPressureModifier>-100</ReligiousPressureModifier>
 			<Expires>true</Expires>
-		</Row>
-		<!-- Kidnap Specialists in the City -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_EFFECT</SpyMissionEffect>
-			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
-			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
-			<SpyIDChance>30</SpyIDChance>
-			<SpyKillChance>10</SpyKillChance>
-			<SpecialistsGreatPersonPointsPerTurn>-1</SpecialistsGreatPersonPointsPerTurn>
-			<Expires>true</Expires>
-			<RequiresNotPuppet>true</RequiresNotPuppet>
-			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</TriggerPlayerEventChoice>
 		</Row>
 		<!-- Steal From Treasury -->
 		<Row>
@@ -1071,27 +1026,42 @@
 			<IsEspionageMission>true</IsEspionageMission>
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
 			<SpyIDChance>30</SpyIDChance>
 			<SpyKillChance>20</SpyKillChance>
 			<CapitalOnly>true</CapitalOnly>
 			<StealFromTreasuryPercent>20</StealFromTreasuryPercent>
 		</Row>
-		<!-- Steal a Technology -->
+		<!-- Sabotage Production -->
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_EFFECT</SpyMissionEffect>
+			<Type>ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>0</EventDuration>
+			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
-			<NetworkPointsScaling>true</NetworkPointsScaling>
-			<SpyIDChance>50</SpyIDChance>
-			<SpyKillChance>20</SpyKillChance>
-			<CapitalOnly>true</CapitalOnly>
-			<StealNumTechs>1</StealNumTechs>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
+			<SpyIDChance>20</SpyIDChance>
+			<SpyKillChance>10</SpyKillChance>
+			<BlockBuildingTurns>5</BlockBuildingTurns>
+		</Row>
+		<!-- Kidnap Specialists in the City -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
+			<SpyIDChance>30</SpyIDChance>
+			<SpyKillChance>10</SpyKillChance>
+			<SpecialistsGreatPersonPointsPerTurn>-1</SpecialistsGreatPersonPointsPerTurn>
+			<Expires>true</Expires>
+			<RequiresNotPuppet>true</RequiresNotPuppet>
+			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</TriggerPlayerEventChoice>
 		</Row>
 		<!-- Radicalize the rural citizenry -->
 		<Row>
@@ -1102,7 +1072,7 @@
 			<IsEspionageMission>true</IsEspionageMission>
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
 			<SpyIDChance>50</SpyIDChance>
 			<SpyKillChance>70</SpyKillChance>
 			<PillageResourceTilesChance>100</PillageResourceTilesChance>
@@ -1143,6 +1113,36 @@
 			<SapCityTurns>5</SapCityTurns>
 			<PillageFortificationsChance>100</PillageFortificationsChance>
 			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+		</Row>
+		<!-- Steal a Great Work in the City -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_GW</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
+			<SpyIDChance>100</SpyIDChance>
+			<SpyKillChance>40</SpyKillChance>
+			<StealNumGW>1</StealNumGW>
+		</Row>
+		<!-- Steal a Technology -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>0</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>2000</NetworkPointsNeeded>
+			<NetworkPointsScaling>true</NetworkPointsScaling>
+			<SpyIDChance>50</SpyIDChance>
+			<SpyKillChance>20</SpyKillChance>
+			<CapitalOnly>true</CapitalOnly>
+			<StealNumTechs>1</StealNumTechs>
 		</Row>
 		
 		<!--- Counterspy Missions -->
