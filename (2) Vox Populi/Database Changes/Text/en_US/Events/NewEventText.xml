@@ -1341,6 +1341,24 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_STEAL_TREASURY_AMOUNT">
 			<Text>[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Amount to steal:[ENDCOLOR] {1_Num} [ICON_GOLD] Gold</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK">
+			<Text>[ICON_PIRATE] Hijack a Trade Convoy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP">
+			<Text>2 [ICON_TEAM_2] Rebel Units appear in the area and the City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_EFFECT">
+			<Text>2 [ICON_TEAM_2] Rebel Units have appeared in the area. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS">
+			<Text>[ICON_HAPPINESS_4] Distribute Seditious Leaflets</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_HELP">
+			<Text>Increase the City's [ICON_HAPPINESS_3] Needs Modifier by 25% for {5_Duration}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_EFFECT">
+			<Text>Rebellious literature is inspiring protests, increasing all [ICON_HAPPINESS_3] Needs Modifiers by 25% for {5_Duration}.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION">
 			<Text>[ICON_STAR] Assassinate the City Governor</Text>
 		</Row>
@@ -1349,15 +1367,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT">
 			<Text>The City enters [ICON_RESISTANCE] Resistance and is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes for 2 turns. The City is unable to construct or invest in Buildings, Wonders and Projects for a total {8_Num} turns.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK">
-			<Text>[ICON_PIRATE] Hijack a Trade Convoy</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP">
-			<Text>2 [ICON_TEAM_2] Rebel Units appear in the area and the City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_EFFECT">
-			<Text>2 [ICON_TEAM_2] Rebel Units have appeared in the area. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
 			<Text>[ICON_GREAT_PEOPLE] Kidnap Specialists</Text>

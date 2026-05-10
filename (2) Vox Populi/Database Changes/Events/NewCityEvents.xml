@@ -1052,22 +1052,6 @@
 			<StealFromTreasuryPercent>35</StealFromTreasuryPercent>
 			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 		</Row>
-		<!-- Assassinate the Governor -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT</SpyMissionEffect>
-			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
-			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
-			<SpyIDChance>75</SpyIDChance>
-			<SpyKillChance>5</SpyKillChance>
-			<BlockBuildingTurns>10</BlockBuildingTurns>
-			<SapCityTurns>2</SapCityTurns>
-			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
-		</Row>
 		<!-- Hijack a Trade Convoy -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_HIJACK</Type>
@@ -1086,6 +1070,43 @@
 			<NoTourismTurns>10</NoTourismTurns>
 			<HasTradeConnection>1</HasTradeConnection>
 			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
+		</Row>
+		<!-- Desitribute Seidious Leaflets -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_LEAFLETS</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>5</SpyKillChance>
+			<BasicNeedsMedianModifier>25</BasicNeedsMedianModifier>
+			<GoldMedianModifier>25</GoldMedianModifier>
+			<ScienceMedianModifier>25</ScienceMedianModifier>
+			<CultureMedianModifier>25</CultureMedianModifier>
+			<ReligiousUnrestModifier>25</ReligiousUnrestModifier>
+			<Expires>true</Expires>
+			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
+			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+		</Row>
+		<!-- Assassinate the Governor -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>5</SpyKillChance>
+			<BlockBuildingTurns>10</BlockBuildingTurns>
+			<SapCityTurns>2</SapCityTurns>
+			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Kidnap Specialists in the City -->
 		<Row>
