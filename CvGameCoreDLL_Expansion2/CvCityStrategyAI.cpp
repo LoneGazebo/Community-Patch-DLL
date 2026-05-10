@@ -3019,7 +3019,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
 	float fRatio = 0.0;
 	int iTurnsOfEspionage = GC.getGame().getGameTurn() - pEspionageAI->m_iTurnEspionageStarted;
-	if (pEspionageAI->m_iTurnEspionageStarted != 0)
+	if (pEspionageAI->m_iTurnEspionageStarted != 0 && iTurnsOfEspionage > 0)
 	{		
 		fRatio = pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] / (float)(iTurnsOfEspionage);
 	}
