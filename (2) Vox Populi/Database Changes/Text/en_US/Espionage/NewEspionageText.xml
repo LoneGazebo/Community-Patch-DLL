@@ -5,35 +5,35 @@
 			<Text>Surveillance I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_PASSIVE_1_HELP">
-			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on the center tile of the city[NEWLINE][ICON_BULLET]Each Turn, 3% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
+			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on the center tile of the city[NEWLINE][ICON_BULLET]Each Turn, 5% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_SPY_PASSIVE_2">
 			<Text>Surveillance II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_PASSIVE_2_HELP">
-			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on city tiles next to the center tile[NEWLINE][ICON_BULLET]Each Turn, 5% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
+			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on city tiles next to the center tile[NEWLINE][ICON_BULLET]Each Turn, 7% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_SPY_PASSIVE_3">
 			<Text>Surveillance III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_PASSIVE_3_HELP">
-			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on city tiles up to 2 tiles away from the center[NEWLINE][ICON_BULLET]Each Turn, 7% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
+			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on city tiles up to 2 tiles away from the center[NEWLINE][ICON_BULLET]Each Turn, 12% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_SPY_PASSIVE_4">
 			<Text>Surveillance IV</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_PASSIVE_4_HELP">
-			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on city tiles up to 3 tiles away from the center[NEWLINE][ICON_BULLET]Each Turn, 10% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
+			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on city tiles up to 3 tiles away from the center[NEWLINE][ICON_BULLET]Each Turn, 15% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_SPY_PASSIVE_5">
 			<Text>Surveillance V</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_PASSIVE_5_HELP">
-			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on all city tiles[NEWLINE][ICON_BULLET]Each Turn, 10% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
+			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on all city tiles[NEWLINE][ICON_BULLET]Each Turn, 15% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_1">
