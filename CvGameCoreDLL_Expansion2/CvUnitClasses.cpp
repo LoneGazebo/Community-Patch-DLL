@@ -57,6 +57,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bWarOnly(false),
 	m_bCopyYieldsFromExpendTile(false),
 	m_iTileXPOnExpend(0),
+	m_iExtraSpies(0),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
 	m_bCultureBoost(false),
@@ -379,6 +380,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bWarOnly = kResults.GetBool("WarOnly");
 	m_bCopyYieldsFromExpendTile = kResults.GetBool("CopyYieldsFromExpendTile");
 	m_iTileXPOnExpend = kResults.GetInt("TileXPOnExpend");
+	m_iExtraSpies = kResults.GetInt("ExtraSpies");
 	m_bWLTKD = kResults.GetBool("WLTKDFromBirth");
 	m_bGoldenAge = kResults.GetBool("GoldenAgeFromBirth");
 	m_bCultureBoost = kResults.GetBool("CultureBoost");
@@ -1347,6 +1349,10 @@ bool CvUnitEntry::IsCopyYieldsFromExpendTile() const
 int CvUnitEntry::GetTileXPOnExpend() const
 {
     return m_iTileXPOnExpend;
+}
+int CvUnitEntry::GetExtraSpies() const
+{
+    return m_iExtraSpies;
 }
 bool CvUnitEntry::IsWLTKDFromBirth() const
 {

@@ -2350,27 +2350,43 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_IRONWORKS';
 
--- Printing Press
+-- Ministerial District
+INSERT INTO Helper
+	(YieldType, Yield)
+VALUES
+	('YIELD_GOLD', 3),
+	('YIELD_SCIENCE', 2),
+	('YIELD_CULTURE', 1);
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_CULTURE', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_PRESS';
+	b.Type, h.YieldType, h.Yield
+FROM Buildings b, Helper h
+WHERE b.BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
+
+DELETE FROM Helper;
 
 INSERT INTO Building_ResourceQuantity
 	(BuildingType, ResourceType, Quantity)
 SELECT
 	Type, 'RESOURCE_PAPER', 1
 FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_PRESS';
+WHERE BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
 
 INSERT INTO Building_UnitCombatProductionModifiers
 	(BuildingType, UnitCombatType, Modifier)
 SELECT
 	Type, 'UNITCOMBAT_DIPLOMACY', 20
 FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_PRESS';
+WHERE BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
+
+INSERT INTO Building_YieldFromSpyRigElection
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_GOLD', 40
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
 
 -- Royal Collection
 UPDATE Buildings
@@ -2392,6 +2408,67 @@ SELECT
 	Type, 'YIELD_CULTURE', 25
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_HERMITAGE';
+
+-- General Post Office
+INSERT INTO Helper
+	(YieldType, Yield)
+VALUES
+	('YIELD_PRODUCTION', 3),
+	('YIELD_GOLD', 3),
+	('YIELD_CULTURE', 1);
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	b.Type, h.YieldType, h.Yield
+FROM Buildings b, Helper h
+WHERE b.BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+DELETE FROM Helper;
+
+INSERT INTO Building_ResourceQuantity
+	(BuildingType, ResourceType, Quantity)
+SELECT
+	Type, 'RESOURCE_PAPER', 1
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+INSERT INTO Building_UnitCombatProductionModifiers
+	(BuildingType, UnitCombatType, Modifier)
+SELECT
+	Type, 'UNITCOMBAT_DIPLOMACY', 20
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_PRODUCTION'),
+	('YIELD_GOLD'),
+	('YIELD_TOURISM');
+
+INSERT INTO Building_SpecialistYieldChangesLocal
+	(BuildingType, SpecialistType, YieldType, Yield)
+SELECT
+	b.Type, 'SPECIALIST_CIVIL_SERVANT', y.YieldType, 1
+FROM Buildings b, Helper y
+WHERE b.BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+DELETE FROM Helper;
+
+INSERT INTO Building_YieldPerFriendTimes100
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_FOOD', 200
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+INSERT INTO Building_YieldPerAllyTimes100
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_TOURISM', 100
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
 
 -- Foreign Bureau
 INSERT INTO Building_YieldChanges
@@ -2544,7 +2621,7 @@ VALUES
 	('BUILDINGCLASS_NATIONAL_TREASURY', 'BUILDINGCLASS_MINT'),
 	('BUILDINGCLASS_GRAND_TEMPLE', 'BUILDINGCLASS_TEMPLE'),
 	('BUILDINGCLASS_OXFORD_UNIVERSITY', 'BUILDINGCLASS_UNIVERSITY'),
-	('BUILDINGCLASS_PRINTING_PRESS', 'BUILDINGCLASS_CHANCERY'),
+	('BUILDINGCLASS_MINISTERIAL_DISTRICT', 'BUILDINGCLASS_CHANCERY'),
 	('BUILDINGCLASS_HERMITAGE', 'BUILDINGCLASS_GALLERY'),
 	('BUILDINGCLASS_FOREIGN_BUREAU', 'BUILDINGCLASS_WIRE_SERVICE'),
 	('BUILDINGCLASS_INTELLIGENCE_AGENCY', 'BUILDINGCLASS_POLICE_STATION'),

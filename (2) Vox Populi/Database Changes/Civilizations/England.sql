@@ -65,12 +65,12 @@ VALUES
 	('UNIT_ENGLISH_LONGBOWMAN', 'PROMOTION_ASSIZE_OF_ARMS');
 
 ----------------------------------------------------------
--- Unique Building: White Tower (Ironworks)
+-- Unique Building: White Tower (Ministerial District)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
 VALUES
-	('CIVILIZATION_ENGLAND', 'BUILDINGCLASS_IRONWORKS', 'BUILDING_WHITE_TOWER');
+	('CIVILIZATION_ENGLAND', 'BUILDINGCLASS_MINISTERIAL_DISTRICT', 'BUILDING_WHITE_TOWER');
 
 UPDATE Buildings
 SET
@@ -78,20 +78,30 @@ SET
 	ExtraSpies = 200,
 	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
 	GreatWorkCount = 1,
-	FreeGreatWork = 'GREAT_WORK_THE_CROWN_JEWELS'
+	FreeGreatWork = 'GREAT_WORK_THE_CROWN_JEWELS',
+	PrereqTech = 'TECH_CIVIL_SERVICE'
 WHERE Type = 'BUILDING_WHITE_TOWER';
 
-INSERT INTO Building_YieldChanges
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 2),
-	('BUILDING_WHITE_TOWER', 'YIELD_SCIENCE', 2),
-	('BUILDING_WHITE_TOWER', 'YIELD_CULTURE', 2);
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINITERIAL_DISTRICT' AND YieldType = 'YIELD_GOLD') + 2
+WHERE BuildingType = 'BUILDING_WHITE_TOWER' AND YieldType = 'YIELD_GOLD';
 
-INSERT INTO Building_YieldFromConstruction
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINITERIAL_DISTRICT' AND YieldType = 'YIELD_SCIENCE') + 2
+WHERE BuildingType = 'BUILDING_WHITE_TOWER' AND YieldType = 'YIELD_SCIENCE';
+
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINITERIAL_DISTRICT' AND YieldType = 'YIELD_CULTURE') + 1
+WHERE BuildingType = 'BUILDING_WHITE_TOWER' AND YieldType = 'YIELD_CULTURE';
+
+UPDATE Building_YieldFromSpyRigElection SET Yield = 25 WHERE BuildingType = 'BUILDING_WHITE_TOWER';
+
+INSERT INTO Building_YieldFromSpyRigElection
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 25);
+	--('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 25),
+	('BUILDING_WHITE_TOWER', 'YIELD_SCIENCE', 25),
+	('BUILDING_WHITE_TOWER', 'YIELD_GREAT_ADMIRAL_POINTS', 25);
 
 INSERT INTO Building_YieldFromSpyDefenseOrID
 	(BuildingType, YieldType, Yield)

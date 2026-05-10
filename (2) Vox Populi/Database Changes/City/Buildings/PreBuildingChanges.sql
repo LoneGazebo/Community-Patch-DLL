@@ -236,6 +236,7 @@ SET
 	GreatWorkSlotType = (SELECT GreatWorkSlotType FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
 	GreatWorkCount = (SELECT GreatWorkCount FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
 	FreeGreatWork = (SELECT FreeGreatWork FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
+	ExtraSpies = (SELECT ExtraSpies FROM Buildings WHERE Type = 'BUILDING_SCRIVENERS_OFFICE'),
 	WonderSplashImage = NULL,
 	WonderSplashAudio = NULL
 WHERE Type = 'BUILDING_PARTHENON';

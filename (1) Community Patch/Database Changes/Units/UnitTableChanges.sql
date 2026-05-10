@@ -147,6 +147,12 @@ ALTER TABLE Units ADD CanChangePort boolean DEFAULT 0;
 ALTER TABLE Units ADD NumberStackingUnits integer DEFAULT 0;
 ALTER TABLE Units ADD StackCombat integer DEFAULT 0;
 
+-- This Great Person will give the player Spy Points when it is expended. See also the building column of the same name
+ALTER TABLE Units ADD ExtraSpies integer DEFAULT 0;
+
+--------------------------------------------------------
+-- Other Tables
+--------------------------------------------------------
 -- Amount of units of this class that the player can have per owned city. No limit if -1. Overrides the MaxPlayerInstances column.
 ALTER TABLE UnitClasses ADD UnitInstancePerCity integer DEFAULT -1;
 

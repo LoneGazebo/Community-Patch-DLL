@@ -189,14 +189,15 @@ VALUES
 
 	-----------------------------------------------------
 
-	('TECH_BANKING', 'FLAVOR_GOLD', 15), -- Units: Pioneer, Buildings: Bank, Constabulary, Yields: Town +3G
+	('TECH_BANKING', 'FLAVOR_GOLD', 15), -- Units: Pioneer, Buildings: Ministerial District, Bank, Constabulary, Yields: Town +3G
 	('TECH_BANKING', 'FLAVOR_SCIENCE', 5),
 	('TECH_BANKING', 'FLAVOR_EXPANSION', 15),
 	('TECH_BANKING', 'FLAVOR_ESPIONAGE', 10),
+	('TECH_BANKING', 'FLAVOR_DIPLOMACY', 10),
 
-	('TECH_PRINTING_PRESS', 'FLAVOR_CULTURE', 5), -- Buildings: Printing Press, Wonders: GlobeTheatre, Ability: WC, Yeild: Writers +1C
+	('TECH_PRINTING_PRESS', 'FLAVOR_CULTURE', 5), -- Wonders: GlobeTheatre, Ability: WC, Yield: Writers +1C
 	('TECH_PRINTING_PRESS', 'FLAVOR_WONDER', 10),
-	('TECH_PRINTING_PRESS', 'FLAVOR_DIPLOMACY', 25),
+	('TECH_PRINTING_PRESS', 'FLAVOR_DIPLOMACY', 15),
 
 	('TECH_ASTRONOMY', 'FLAVOR_WONDER', 10),-- Buildings: Observatory, Wonders: ChichenItza, Ability: Faster embark&cross oceans, Yields: Scientist +1S
 	('TECH_ASTRONOMY', 'FLAVOR_NAVAL_RECON', 20),

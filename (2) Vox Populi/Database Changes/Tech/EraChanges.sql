@@ -13,3 +13,6 @@ UPDATE Eras SET SpecialistExtraFoodCost = 5 WHERE Type = 'ERA_INDUSTRIAL';
 UPDATE Eras SET SpecialistExtraFoodCost = 6 WHERE Type = 'ERA_MODERN';
 UPDATE Eras SET SpecialistExtraFoodCost = 7 WHERE Type = 'ERA_POSTMODERN';
 UPDATE Eras SET SpecialistExtraFoodCost = 8 WHERE Type = 'ERA_FUTURE';
+
+-- Spies are not gained from Era advancements anymore
+UPDATE Eras SET SpiesGrantedForPlayer = 0, SpiesGrantedForEveryone = 0;
