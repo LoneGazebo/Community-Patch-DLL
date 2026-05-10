@@ -162,13 +162,19 @@ WHERE Type IN (
 -- Renaissance T1
 UPDATE Buildings SET NationalPopRequired = 25
 WHERE Type IN (
-	'BUILDING_PRINTING_PRESS'
+	'BUILDING_MINISTERIAL_DISTRICT'
 );
 
 -- Renaissance T2
 UPDATE Buildings SET NationalPopRequired = 30
 WHERE Type IN (
 	'BUILDING_HERMITAGE'
+);
+
+-- Industrial T2
+UPDATE Buildings SET NationalPopRequired = 35
+WHERE Type IN (
+	'BUILDING_GENERAL_POST_OFFICE'
 );
 
 -- Modern T2 + Ideology NW

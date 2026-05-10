@@ -327,19 +327,32 @@
 			<Text>The position of royal scrivener, and the office therein, is one of the oldest and most important positions within a civil service. Though the modern state has hundreds of civil servants that write, edit and issue government documentation, in the ancient world these tasks were usually given to one individual, the scrivener. Scrivener's wielded immense power, as they had control over the wording, translations and interpretations of the laws of the land. Because of this great power, a good, loyal scrivener was an invaluable resource.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS">
-			<Text>Printing Press</Text>
+		<Row Tag="TXT_KEY_BUILDING_MINISTERIAL_DISTRICT">
+			<Text>Ministerial District</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY">
-			<Text>This National Wonder cannot be built unless the city has a Chancery. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.</Text>
+		<Row Tag="TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_STRATEGY">
+			<Text>This National Wonder cannot be built unless the city has a Chancery. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units. It also grants enough points for a Spy.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_HELP">
+		<Row Tag="TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_HELP">
 			<Text></Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_TEXT">
-			<Text>From a single print shop in Mainz, Germany, printing had spread to no less than around 270 cities in Central, Western and Eastern Europe by the end of the 15th century. As early as 1480, it is assumed that "the printed book was in universal use in Europe". By 1500, the printing presses in operation throughout Western Europe had already produced more than twenty million copies. European printing presses of around 1600 were capable of producing 3,600 impressions per workday. By comparison, movable type printing in the Far East, which did not know presses and was solely done by manually rubbing the back of the paper to the page, did not exceed an output of forty pages per day. The rapidity of typographical text production, as well as the sharp fall in unit costs, led to the issuing of the first newspapers which opened up an entirely new field for conveying up-to-date information to the public.</Text>
+		<Row Tag="TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_TEXT">
+			<Text>A ministry, cabinet, secretariat, or - in modern American parlance - administration is a collective body of governing officials. As society transitioned away from feudal monarchies and became more developed, populous, and interconnected, governance became a more and more demanding activity which necessitated the setting up of extensive offices and personnel tasked with transforming political will into reality. The role of the royal court evolved into separate institutions: assemblies to make law, law courts to dispense justice, and a state treasury to collect taxes and pay significant bills (often, wars).[NEWLINE][NEWLINE]A case of this branching, expansion of the state can be seen in Europe with the creation of the office of a Lord Chancellor. This traces its origins to the Carolingian monarchy, in which a chancellor acted as the keeper of the royal seal. Sources suggest that the first English king to appoint a chancellor was Edward the Confessor, who is said to have adopted the practice of sealing documents instead of personally signing them. The staff of the growing office became separate from the king's household under Henry III. The chancellor headed the Court of Chancery, and was responsible for overseeing the international affairs of the monarchy and for delivering justice on behalf of the king. By 1345 the lord chancellor, who was usually a bishop, began to have writs and bills addressed directly to him, rather than as a representative of the king.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_GENERAL_POST_OFFICE">
+			<Text>General Post Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GENERAL_POST_OFFICE_STRATEGY">
+			<Text>The General Post Office is a late Industrial Era National Wonder that grants a Spy. It also slightly increases the yields of City Connections everywhere, increases Gold and (with Railroads) Production derived from your Population. The General Post Office's other bonuses are to Diplomacy. Once you have the General Post Office, making Friends with City-States will reward you with Tourism, which can later boost your Spies and other yields. Further, the yields from Civil Servants in the City are increased, so it is also wise to construct it where you have you highest concentration of bureaucracy. It is doubly desirable to construct it in a Specialist-heavy location because that City will receive extra Food for each City-State Ally.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GENERAL_POST_OFFICE_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GENERAL_POST_OFFICE_TEXT">
+			<Text>The term "post-office" has been in use since the 1650s, shortly after the legalisation of private mail services in England in 1635. In early modern England, mounted couriers were placed, or "posted", every few hours along post roads at posting houses between major cities, or "post towns". These stables or inns permitted important correspondence to travel without delay. Historically, there is evidence of corps of royal couriers disseminating the decrees of Egyptian pharaohs as early as 2400 BCE, and it is possible that the service greatly precedes that date. In Herodotus's Histories, he refers to a courier service of the ancient Persian Empire with praise, writing, "neither by snow nor rain nor heat nor darkness from accomplishing their appointed course with all speed."[NEWLINE][NEWLINE]Administering the flow of parcels and messages is not just important to the economy of a country, it also allows an otherwise impossible level of surveillance of the population and control over the lines of communcation. For example in the First World War, postal interception was used to find the disclosure of military secrets and test the morale of soldiers. Those writing postcards in the field knew they were being censored, and deliberately held back controversial content and personal matters.</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BUILDING_FOREIGN_BUREAU">
 			<Text>Foreign Bureau</Text>
 		</Row>
