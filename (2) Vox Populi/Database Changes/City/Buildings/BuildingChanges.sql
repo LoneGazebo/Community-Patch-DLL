@@ -1293,8 +1293,8 @@ WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
 UPDATE Buildings
 SET
 	EspionageModifier = 0,
-	SpySecurityModifier = 20,
-	SpySecurityModifierPerXPop = 180, -- ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = 360, so 180/360 gives 1 per 2 population in city
+	SpySecurityModifier = 15,
+	SpySecurityModifierPerXPop = 90, -- ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = 360, so 90/360 gives 1 per 4 population in city
 	DistressFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 
@@ -1338,7 +1338,7 @@ DELETE FROM Helper;
 -- Police Station
 UPDATE Buildings
 SET
-	PrereqTech = 'TECH_ELECTRONICS',
+	PrereqTech = 'TECH_COMBINED_ARMS',
 	EspionageModifier = 0,
 	SpySecurityModifier = 10,
 	SpySecurityModifierPerXPop = 180, -- ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = 360, so 180/360 gives 1 per 2 population in city

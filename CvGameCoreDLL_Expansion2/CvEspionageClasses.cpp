@@ -3264,7 +3264,7 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 	PlayerTypes eCityOwner = pCity->getOwner();
 
 	// Base Influence
-	iTemp = /*30*/ GD_INT_GET(ESPIONAGE_NP_BASE);
+	iTemp = /*50*/ GD_INT_GET(ESPIONAGE_NP_BASE);
 	iNP += iTemp;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_BASE_TT", iTemp);
 
@@ -3279,13 +3279,13 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 
 	// Cultural Influence
 	int iInfluenceLevel = (int) m_pPlayer->GetCulture()->GetInfluenceLevel(eCityOwner);
-	iTemp = max(0, (iInfluenceLevel - 1) * /*10*/ GD_INT_GET(ESPIONAGE_NP_CULTURAL_INFLUENCE)); // 10 per influence level above exotic
+	iTemp = max(0, (iInfluenceLevel - 1) * /*15*/ GD_INT_GET(ESPIONAGE_NP_CULTURAL_INFLUENCE)); // 15 per influence level above exotic
 	iNP += iTemp;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_CULTURAL_INFLUENCE_TT", iTemp);
 
 	// Tech Difference
 	int iTechDifference = GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown();
-	iTemp = max(0, min(iTechDifference, /*10*/ GD_INT_GET(ESPIONAGE_NP_MAX_NUM_TECH))) * /*2*/ GD_INT_GET(ESPIONAGE_NP_PER_TECHNOLOGY_BEHIND);
+	iTemp = max(0, min(iTechDifference, /*10*/ GD_INT_GET(ESPIONAGE_NP_MAX_NUM_TECH))) * /*0*/ GD_INT_GET(ESPIONAGE_NP_PER_TECHNOLOGY_BEHIND);
 	iNP += iTemp;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_TECH_DIFFERENCE_TT", iTemp);
 
@@ -3344,7 +3344,7 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_BEFORE_SECURITY_TT", iNP);
 
-			int iSecurityPercentReduction = iSecurity * /*160*/ GD_INT_GET(ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT) / 100;
+			int iSecurityPercentReduction = iSecurity * /*100*/ GD_INT_GET(ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT) / 100;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_SECURITY_MOD_TT", -iSecurityPercentReduction);
 			iNP *= (100 - iSecurityPercentReduction);
 			iNP /= 100;
@@ -7965,7 +7965,7 @@ void CvEspionageAI::PerformSpyMissions()
 	CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
 
 	// if the spy has collected a lot of NP already, we're less willing to reassign them
-	int iHighNPThreshold = /*20*/ GD_INT_GET(ESPIONAGE_NP_BASE) * 40;
+	int iHighNPThreshold = /*50*/ GD_INT_GET(ESPIONAGE_NP_BASE) * 20;
 	iHighNPThreshold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iHighNPThreshold /= 100;
 
