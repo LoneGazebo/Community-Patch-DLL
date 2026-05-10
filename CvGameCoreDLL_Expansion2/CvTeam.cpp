@@ -3794,7 +3794,6 @@ int CvTeam::getTechShareCount(int iIndex) const
 {
 	PRECONDITION(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(iIndex < MAX_TEAMS, "iIndex is expected to be within maximum bounds (invalid Index)");
-	if(iIndex < 0 || iIndex >= MAX_TEAMS) return 0; // as set in reset()
 	return m_aiTechShareCount[iIndex];
 }
 
@@ -3811,7 +3810,6 @@ void CvTeam::changeTechShareCount(int iIndex, int iChange)
 {
 	PRECONDITION(iIndex >= 0, "iIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(iIndex < MAX_TEAMS, "iIndex is expected to be within maximum bounds (invalid Index)");
-	if(iIndex < 0 || iIndex >= MAX_TEAMS) return;
 	if(iChange != 0)
 	{
 		m_aiTechShareCount[iIndex] = (m_aiTechShareCount[iIndex] + iChange);
@@ -4875,6 +4873,7 @@ bool CvTeam::IsAllowsOpenBordersToTeam(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::SetAllowsOpenBordersToTeam(TeamTypes eIndex, bool bNewValue)
 {
+	ASSERT(eIndex >= 0 && eIndex < MAX_TEAMS, "Invalid eIndex index");
 	if (eIndex < 0 || eIndex >= MAX_TEAMS) return;
 
 	if (IsAllowsOpenBordersToTeam(eIndex) != bNewValue)

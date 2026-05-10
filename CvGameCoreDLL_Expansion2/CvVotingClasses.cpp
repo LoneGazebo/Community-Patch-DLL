@@ -835,6 +835,7 @@ int CvVoterDecision::GetVotesCastByPlayer(PlayerTypes ePlayer)
 
 int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost, int& iPercentOfPlayerVotes)
 {
+	ASSERT(eVoter >= 0 && eVoter < MAX_MAJOR_CIVS, "Invalid eVoter index");
 	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) return 0;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (!pLeague) return 0;
@@ -878,6 +879,7 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 
 int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, int iChoice, int& iPercentOfPlayerVotes)
 {
+	ASSERT(eVoter >= 0 && eVoter < MAX_MAJOR_CIVS, "Invalid eVoter index");
 	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) return 0;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (!pLeague) return 0;
@@ -4015,7 +4017,6 @@ int CvLeague::GetCoreVotesForMember(PlayerTypes ePlayer)
 		}
 
 		PRECONDITION(eGoverningSpecialSession != NO_LEAGUE_SPECIAL_SESSION);
-		if (eGoverningSpecialSession == NO_LEAGUE_SPECIAL_SESSION) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
 		CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo(eGoverningSpecialSession);
 		ASSERT(pInfo != NULL);
 		if (pInfo == NULL) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
@@ -5090,9 +5091,7 @@ float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProje
 bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 {
 	PRECONDITION(eTrader >= 0 && eTrader < MAX_CIV_PLAYERS, "Invalid index for eTrader.");
-	if (eTrader < 0 || eTrader >= MAX_CIV_PLAYERS) return false;
 	PRECONDITION(eRecipient >= 0 && eRecipient < MAX_CIV_PLAYERS, "Invalid index for eRecipient.");
-	if (eRecipient < 0 || eRecipient >= MAX_CIV_PLAYERS) return false;
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
 	{
 		// Trade route involving a minor civ
@@ -5546,7 +5545,6 @@ bool CvLeague::IsIdeologyEmbargoed()
 bool CvLeague::IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 {
 	PRECONDITION(eTrader >= 0 && eTrader < MAX_CIV_PLAYERS, "Invalid index for eTrader.");
-	if (eTrader < 0 || eTrader >= MAX_CIV_PLAYERS) return false;
 
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
 	{ 
@@ -10500,7 +10498,6 @@ bool CvLeagueAI::CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink)
 {
 	PRECONDITION(eToPlayer >= 0, "eToPlayer is expected to be non-negative (invalid Index).");
 	PRECONDITION(eToPlayer < MAX_MAJOR_CIVS, "eToPlayer is expected to be within maximum bounds (invalid Index).");
-	if (eToPlayer < 0 || eToPlayer >= MAX_MAJOR_CIVS) return false;
 
 	bool bCanCommit = true;
 	
@@ -13857,7 +13854,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	if (!bEnact) return 0;
 	PlayerTypes eChoicePlayer = (PlayerTypes) iChoice;
 	PRECONDITION(eChoicePlayer != NO_PLAYER);
-	if (!(eChoicePlayer != NO_PLAYER)) return 0;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	ASSERT(pLeague != NULL);
 	if (!(pLeague != NULL)) return 0;

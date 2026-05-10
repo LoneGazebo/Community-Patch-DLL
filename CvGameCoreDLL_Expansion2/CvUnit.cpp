@@ -11737,10 +11737,8 @@ bool CvUnit::greatperson()
 	CvPlot* pPlot = plot();
 	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
 	PRECONDITION(pPlayer, "Owner of unit not expected to be NULL.");
-	if (!pPlayer) return false;
 	CvTeam* pTeam = &GET_TEAM(pPlayer->getTeam());
 	PRECONDITION(pTeam, "Owner team of unit not expected to be NULL.");
-	if (!pTeam) return false;
 
 	if(pPlot->isActiveVisible() && (!MOD_UI_QUICK_ANIMATIONS || !CvPreGame::quickMovement()))
 	{
@@ -11821,10 +11819,8 @@ bool CvUnit::discover()
 
 	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
 	PRECONDITION(pPlayer, "Owner of unit not expected to be NULL.");
-	if (!pPlayer) return false;
 	CvTeam* pTeam = &GET_TEAM(pPlayer->getTeam());
 	PRECONDITION(pTeam, "Owner team of unit not expected to be NULL.");
-	if (!pTeam) return false;
 
 	// Beakers boost based on previous turns
 	int iBeakersBonus = GetScienceBlastStrength();

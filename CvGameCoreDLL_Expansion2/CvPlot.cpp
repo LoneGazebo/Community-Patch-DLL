@@ -12984,7 +12984,6 @@ void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 
 	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	if (eTeam < 0 || eTeam >= MAX_TEAMS) return;
 
 	if (iChange != 0)
 	{
@@ -13045,8 +13044,6 @@ int CvPlot::getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisib
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	PRECONDITION(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
 	PRECONDITION(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
-	if (eTeam < 0 || eTeam >= MAX_TEAMS) return 0;
-	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return 0;
 
 	for (size_t i = 0; i < m_vInvisibleVisibilityCount.size(); i++)
 		if (m_vInvisibleVisibilityCount[i].first == eTeam)
@@ -13073,8 +13070,6 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	PRECONDITION(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
 	PRECONDITION(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
-	if (eTeam < 0 || eTeam >= MAX_TEAMS) return;
-	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return;
 
 	if (iChange != 0)
 	{

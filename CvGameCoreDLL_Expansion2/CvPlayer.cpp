@@ -36075,6 +36075,7 @@ int CvPlayer::GetNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
 
 void CvPlayer::SetLastCityCaptureTurn(PlayerTypes ePlayer, int iTurn)
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_PLAYERS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
 	m_aiLastCityCaptureTurn[ePlayer] = iTurn;
 }
@@ -36159,6 +36160,7 @@ void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingCh
 int CvPlayer::GetWarValueLost(PlayerTypes ePlayer) const
 {
 	if (isBarbarian()) return 0;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
 	return m_aiWarValueLost[ePlayer];
 }
@@ -36166,6 +36168,7 @@ int CvPlayer::GetWarValueLost(PlayerTypes ePlayer) const
 void CvPlayer::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 {
 	if (isBarbarian()) return;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 	m_aiWarValueLost[ePlayer] = max(iValue, 0);
 }
@@ -36219,6 +36222,7 @@ int CvPlayer::GetWarDamageValue(PlayerTypes ePlayer) const
 void CvPlayer::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 {
 	if (isBarbarian()) return;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 	m_aiWarDamageValue[ePlayer] = max(iValue, 0);
 }

@@ -1507,7 +1507,6 @@ bool CvPlayerTechs::CanResearchForFree(TechTypes eTech) const
 {
 	PRECONDITION(eTech >= 0, "eTech is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTech < GC.getNumTechInfos(), "eTech is expected to be within maximum bounds (invalid Index)");
-	if(eTech < 0 || eTech >= GC.getNumTechInfos()) return false;
 
 	// We can pick any tech that we are able to research
 	return CanResearch(eTech);

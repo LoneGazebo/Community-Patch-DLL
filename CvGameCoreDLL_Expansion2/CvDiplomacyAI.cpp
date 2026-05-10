@@ -1156,6 +1156,7 @@ void CvDiplomacyAI::SlotStateChange()
 /// Is this a valid player to be looking at for diplomacy purposes? (e.g. are they alive, do we know them, etc.)
 bool CvDiplomacyAI::IsPlayerValid(PlayerTypes eOtherPlayer, bool bIncludeTeammates /* = false */, bool bIncludeNoCities /* = false */) const
 {
+	ASSERT(eOtherPlayer >= 0 && eOtherPlayer < MAX_CIV_PLAYERS, "Invalid eOtherPlayer index");
 	if (eOtherPlayer < 0 || eOtherPlayer >= MAX_CIV_PLAYERS)
 		return false;
 
@@ -13604,6 +13605,7 @@ int CvDiplomacyAI::CalculateGoldPerTurnLostFromWar(PlayerTypes ePlayer)
 /// Is it diplomatically sane to declare war on this player?
 bool CvDiplomacyAI::DoUpdateOnePlayerSaneDiplomaticTarget(PlayerTypes ePlayer, bool bImpulse)
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return false;
 
 	// Already at war?
@@ -32918,6 +32920,7 @@ bool CvDiplomacyAI::ShouldHideNegativeMods(PlayerTypes ePlayer) const
 /// ePlayer made peace with someone, so figure out what that means
 void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 {
+	ASSERT(eOtherTeam >= 0 && eOtherTeam < MAX_CIV_TEAMS, "Invalid eOtherTeam index");
 	if (eOtherTeam < 0 || eOtherTeam >= MAX_CIV_TEAMS) return;
 
 	vector<PlayerTypes> vPlayersToReevaluate;
@@ -33153,6 +33156,7 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 /// ePlayer bullied eOtherPlayer (minor civ), so figure out what that means
 void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (eOtherPlayer < MAX_MAJOR_CIVS || eOtherPlayer >= MAX_CIV_PLAYERS) return;
 
@@ -33183,6 +33187,7 @@ void CvDiplomacyAI::DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOth
 /// Return the value of the warmonger amount adjusted by how much this player hates warmongers
 int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	int iReturnValue = GetOtherPlayerWarmongerAmount(ePlayer);
@@ -43234,6 +43239,7 @@ void CvDiplomacyAI::CancelAllCoopWars()
 /// Human made a demand against this AI, handle everything that means
 void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eResponse)
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	// Don't apply further penalties if it's too soon since the last demand
@@ -50596,6 +50602,7 @@ void CvDiplomacyAI::LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bS
 /// How much do we estimate this other leader gets angry when another player is competing for Victory?
 int CvDiplomacyAI::EstimateVictoryCompetitiveness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50617,6 +50624,7 @@ int CvDiplomacyAI::EstimateVictoryCompetitiveness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader gets angry when they're beaten to a World Wonder?
 int CvDiplomacyAI::EstimateWonderCompetitiveness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50643,6 +50651,7 @@ int CvDiplomacyAI::EstimateWonderCompetitiveness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader gets angry when another player is befriending "their" minor civs?
 int CvDiplomacyAI::EstimateMinorCivCompetitiveness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50669,6 +50678,7 @@ int CvDiplomacyAI::EstimateMinorCivCompetitiveness(PlayerTypes ePlayer) const
 /// What is this other leader's estimated likelihood to take risks / go for World Conquest?
 int CvDiplomacyAI::EstimateBoldness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50695,6 +50705,7 @@ int CvDiplomacyAI::EstimateBoldness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader wants to maintain a balance of power in the world?
 int CvDiplomacyAI::EstimateDiploBalance(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50716,6 +50727,7 @@ int CvDiplomacyAI::EstimateDiploBalance(PlayerTypes ePlayer) const
 /// How much does this other leader gets angry when someone's being a warmonger?
 int CvDiplomacyAI::EstimateWarmongerHate(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50795,6 +50807,7 @@ int CvDiplomacyAI::EstimateWarmongerHate(PlayerTypes ePlayer) const
 /// What is this other leader's estimated likelihood to befriend other players?
 int CvDiplomacyAI::EstimateDoFWillingness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50816,6 +50829,7 @@ int CvDiplomacyAI::EstimateDoFWillingness(PlayerTypes ePlayer) const
 /// What is this other leader's estimated likelihood to badmouth other players?
 int CvDiplomacyAI::EstimateDenounceWillingness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50837,6 +50851,7 @@ int CvDiplomacyAI::EstimateDenounceWillingness(PlayerTypes ePlayer) const
 /// What is this other leader's estimated likelihood to form strategic alliances WITH others?
 int CvDiplomacyAI::EstimateWorkWithWillingness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50858,6 +50873,7 @@ int CvDiplomacyAI::EstimateWorkWithWillingness(PlayerTypes ePlayer) const
 /// What is this other leader's estimated likelihood to form strategic alliances AGAINST others?
 int CvDiplomacyAI::EstimateWorkAgainstWillingness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50879,6 +50895,7 @@ int CvDiplomacyAI::EstimateWorkAgainstWillingness(PlayerTypes ePlayer) const
 /// What is this other leader's estimated likelihood to refrain from backstabbing their friends?
 int CvDiplomacyAI::EstimateLoyalty(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50900,6 +50917,7 @@ int CvDiplomacyAI::EstimateLoyalty(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader is willing to forgive transgressions against them?
 int CvDiplomacyAI::EstimateForgiveness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50921,6 +50939,7 @@ int CvDiplomacyAI::EstimateForgiveness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader wants the support of its friends in rough times?
 int CvDiplomacyAI::EstimateNeediness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50942,6 +50961,7 @@ int CvDiplomacyAI::EstimateNeediness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader likes to talk smack / bully others?
 int CvDiplomacyAI::EstimateMeanness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50963,6 +50983,7 @@ int CvDiplomacyAI::EstimateMeanness(PlayerTypes ePlayer) const
 /// How much do we estimate this other leader likes to pop up and talk?
 int CvDiplomacyAI::EstimateChattiness(PlayerTypes ePlayer) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// We always know our team's flavors
@@ -50984,7 +51005,9 @@ int CvDiplomacyAI::EstimateChattiness(PlayerTypes ePlayer) const
 /// What is our estimate of another leader's bias for a particular Major Civ Approach?
 int CvDiplomacyAI::EstimateMajorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	ASSERT(eApproach >= 0 && eApproach < NUM_CIV_APPROACHES, "Invalid eApproach index");
 	if (eApproach < 0 || eApproach >= NUM_CIV_APPROACHES) return 0;
 
 	// We always know our team's flavors
@@ -51036,6 +51059,7 @@ int CvDiplomacyAI::EstimateMajorCivApproachBias(PlayerTypes ePlayer, CivApproach
 /// What is our estimate of another leader's bias for a particular Minor Civ Approach?
 int CvDiplomacyAI::EstimateMinorCivApproachBias(PlayerTypes ePlayer, CivApproachTypes eApproach) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	// Only some of the approaches are possible for City-States
@@ -51082,6 +51106,7 @@ int CvDiplomacyAI::EstimateMinorCivApproachBias(PlayerTypes ePlayer, CivApproach
 /// What is our estimate of another leader's value for a personality flavor?
 int CvDiplomacyAI::EstimateFlavorValue(PlayerTypes ePlayer, FlavorTypes eFlavor) const
 {
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 	if (eFlavor < 0 || eFlavor >= GC.getNumFlavorTypes()) return 0;
 
@@ -57986,6 +58011,7 @@ void CvDiplomacyAI::DoWeEndedVassalageWithSomeone(TeamTypes eTeam)
 /// We are liberated by a master
 void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam, bool bSkipPopup)
 {
+	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
 	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
 
 	// Get players from Master's team
