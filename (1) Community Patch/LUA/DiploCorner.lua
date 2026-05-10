@@ -577,7 +577,7 @@ Events.GameplaySetActivePlayer.Add(OnDiploCornerActivePlayerChanged);
 function CheckEspionageStarted()
 	function TestEspionageStarted()
 		local player = Players[Game.GetActivePlayer()];
-		return player:GetNumSpies() > 0;
+		return player:GetSpyPoints(true) > 0;
 	end
 
 	local bEspionageStarted = TestEspionageStarted();
