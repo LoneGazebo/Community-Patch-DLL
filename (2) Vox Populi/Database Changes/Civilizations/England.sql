@@ -75,7 +75,7 @@ VALUES
 UPDATE Buildings
 SET
 	Defense = 300,
-	ExtraSpies = 1,
+	ExtraSpies = 200,
 	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
 	GreatWorkCount = 1,
 	FreeGreatWork = 'GREAT_WORK_THE_CROWN_JEWELS'

@@ -1491,6 +1491,7 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>50</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>54</PortraitIndex>
 		</Row>
@@ -1507,6 +1508,26 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
+			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
+			<IconAtlas>NEW_BLDG_ATLAS_DLC</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+		</Row>
+		<!-- General Post Office -->
+		<Row>
+			<Type>BUILDING_GENERAL_POST_OFFICE</Type>
+			<BuildingClass>BUILDINGCLASS_GENERAL_POST_OFFICE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_GENERAL_POST_OFFICE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_GENERAL_POST_OFFICE_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_GENERAL_POST_OFFICE_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_GENERAL_POST_OFFICE_STRATEGY</Strategy>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<FreePromotion>PROMOTION_DIPLOMATIC_IMMUNITY</FreePromotion>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>10</ExtraSpies>
+			<CityConnectionTradeRouteModifier>20</CityConnectionTradeRouteModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>24</PortraitIndex>
 		</Row>
@@ -1523,6 +1544,7 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>44</PortraitIndex>
 		</Row>
@@ -1613,6 +1635,8 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
+			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>
@@ -1669,8 +1693,12 @@
 			<Civilopedia>TXT_KEY_BUILDING_WHITE_TOWER_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_WHITE_TOWER_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_WHITE_TOWER_STRATEGY</Strategy>
-			<PrereqTech>TECH_MACHINERY</PrereqTech>
-			<ArtDefineTag>ART_DEF_BUILDING_IRONWORKS</ArtDefineTag>
+			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>200</ExtraSpies>
+			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>19</PortraitIndex>
 		</Row>
@@ -1733,6 +1761,7 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>45</PortraitIndex>
 		</Row>
@@ -1894,7 +1923,7 @@
 			<Quote>TXT_KEY_WONDER_PORT_ROYAL_QUOTE</Quote>
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<Water>true</Water>
-			<ExtraSpies>10</ExtraSpies>
+			<ExtraSpies>100</ExtraSpies>
 			<FreeBuildingThisCity>BUILDINGCLASS_HARBOR</FreeBuildingThisCity>
 			<FreePromotion>PROMOTION_PIRACY</FreePromotion>
 			<WonderSplashImage>PortRoyal_Splash.dds</WonderSplashImage>
@@ -1948,7 +1977,7 @@
 			<PolicyType>POLICY_RATIONALISM_FINISHER</PolicyType>
 			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
 			<GlobalSpySecurityModifier>20</GlobalSpySecurityModifier>
-			<ExtraSpies>2</ExtraSpies>
+			<ExtraSpies>20</ExtraSpies>
 			<Espionage>true</Espionage>
 			<WonderSplashImage>bletchleysplash.dds</WonderSplashImage>
 			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
