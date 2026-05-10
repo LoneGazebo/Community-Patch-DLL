@@ -128,6 +128,12 @@
 			<DefaultBuilding>BUILDING_CHANCERY</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_CHANCERY</Description>
 		</Row>
+		<!-- Printing House -->
+		<Row>
+			<Type>BUILDINGCLASS_PRINTING_HOUSE</Type>
+			<DefaultBuilding>BUILDING_PRINTING_HOUSE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_PRINTING_HOUSE</Description>
+		</Row>
 		<!-- Wire Service -->
 		<Row>
 			<Type>BUILDINGCLASS_WIRE_SERVICE</Type>
@@ -748,6 +754,23 @@
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>9</PortraitIndex>
 		</Row>
+		<!-- Printing House -->
+		<Row>
+			<Type>BUILDING_PRINTING_HOUSE</Type>
+			<BuildingClass>BUILDINGCLASS_PRINTING_HOUSE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_PRINTING_HOUSE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PRINTING_HOUSE_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_PRINTING_HOUSE_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_PRINTING_HOUSE_STRATEGY</Strategy>
+			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+			<FreeStartEra>ERA_FUTURE</FreeStartEra>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<TrainedFreePromotion>PROMOTION_LITERACY</TrainedFreePromotion>			
+			<SpySecurityModifier>15</SpySecurityModifier>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>24</PortraitIndex>
+		</Row>
 		<!-- Grocer -->
 		<Row>
 			<Type>BUILDING_GROCER</Type>
@@ -833,7 +856,7 @@
 			<Strategy>TXT_KEY_BUILDING_WIRE_SERVICE_STRATEGY</Strategy>
 			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
-			<SpecialistCount>2</SpecialistCount>
+			<SpecialistCount>1</SpecialistCount>
 			<TrainedFreePromotion>PROMOTION_WIRE_SERVICE</TrainedFreePromotion>
 			<IconAtlas>TECH_ATLAS_1</IconAtlas>
 			<PortraitIndex>51</PortraitIndex>
@@ -1511,7 +1534,6 @@
 			<Help>TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_STRATEGY</Strategy>
 			<PrereqTech>TECH_BANKING</PrereqTech>
-			<FreePromotion>PROMOTION_LITERACY</FreePromotion>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
@@ -1637,7 +1659,6 @@
 			<Help>TXT_KEY_BUILDING_BALLHAUSPLATZ_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_BALLHAUSPLATZ_STRATEGY</Strategy>
 			<PrereqTech>TECH_BANKING</PrereqTech>
-			<FreePromotion>PROMOTION_LITERACY</FreePromotion>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
