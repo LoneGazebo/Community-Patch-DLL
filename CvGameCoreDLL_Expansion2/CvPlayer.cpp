@@ -22976,12 +22976,27 @@ void CvPlayer::CreateSpies(int iNumSpies, bool bScaling)
 		int iSpyPointUnit = bScaling ? /*100*/ GD_INT_GET(ESPIONAGE_SPY_POINT_UNIT) : iThreshold;
 
 		// Note that iNumSpies can be NEGATIVE (e.g. removing a policy that gives spy points). In that case, the player enters a spy debt.
-		m_iSpyPointsTotal += iNumSpies * iSpyPointUnit;
-		m_iSpyPoints += iNumSpies * iSpyPointUnit;
-		while (m_iSpyPoints >= iThreshold)
+		int iSpyPointsGained = iNumSpies * iSpyPointUnit;
+		m_iSpyPointsTotal += iSpyPointsGained;
+		m_iSpyPoints += iSpyPointsGained;
+		// did we get enough points to gain a new spy or spies?
+		if (m_iSpyPoints >= iThreshold)
 		{
-			pEspionage->CreateSpy();
-			m_iSpyPoints -= iThreshold;
+			while (m_iSpyPoints >= iThreshold)
+			{
+				pEspionage->CreateSpy();
+				m_iSpyPoints -= iThreshold;
+			}
+		}
+		else if (GetID() == GC.getGame().getActivePlayer() && iSpyPointsGained > 0)
+		{
+			CvNotifications* pNotification = GetNotifications();
+			if (pNotification)
+			{
+				CvString strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_POINTS_RECEIVED", iSpyPointsGained, m_iSpyPoints, iThreshold, m_iSpyPointsTotal);
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_SPY_POINTS_RECEIVED");
+				pNotification->Add(NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER, strMessage, strSummary, -1, -1, -1);  // UI displays espionage button once this notification is detected
+			}
 		}
 	}
 }

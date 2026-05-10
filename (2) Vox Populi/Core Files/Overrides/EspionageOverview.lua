@@ -715,6 +715,10 @@ function RefreshAgents()
 						
 						local count = PopulateSelectionList(Controls.MissionSelectionStack, Game.GetActivePlayer(), city, v);
 							
+						Controls.MissionSelectionStack:CalculateSize();
+						Controls.MissionSelectionStack:ReprocessAnchoring();
+						Controls.MissionSelectionScrollPanel:CalculateInternalSize();
+
 						if(countpassive > 0 or count > 0) then					
 							Controls.ConfirmMissionSelectionButton:SetDisabled(true);
 							Controls.ConfirmMissionSelectionButton:RegisterCallback(Mouse.eLClick, function()

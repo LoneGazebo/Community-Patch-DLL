@@ -72,7 +72,7 @@ VALUES
 
 UPDATE Units
 SET
-	RestingPointChange = (SELECT RestingPointChange FROM Units WHERE Type = 'UNIT_GREAT_DIPLOMAT') + 15,
+	RestingPointChange = 45,
 	CopyYieldsFromExpendTile = 1
 WHERE Type = 'UNIT_TADODAHO';
 

@@ -311,6 +311,11 @@ WHERE Tag = 'TXT_KEY_CO_INFLUENCE_BONUSES_DOMINANT';
 ------------------------------------------------
 -- Espionage overview
 ------------------------------------------------
+-- can have spies before renaissance now
+UPDATE Language_en_US
+SET Text = 'Espionage starts when you accumulate enough [ICON_SPY_POINT] Spy Points to receive your first [ICON_SPY] Spy'
+WHERE Tag = 'TXT_KEY_ESPIONAGE_NOT_STARTED_YET';
+
 UPDATE Language_en_US
 SET Text = 'Name'
 WHERE Tag = 'TXT_KEY_EO_NAME_RANK';
