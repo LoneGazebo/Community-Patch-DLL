@@ -1002,6 +1002,23 @@
 		
 		<!-- Espionage -->
 		
+		<!-- Poison the Water Supply -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_POISON_WATER</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>10</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>50</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
+			<Expires>true</Expires>
+			<SapCityTurns>5</SapCityTurns>
+			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<CannotHaveBuildingClass>BUILDINGCLASS_MEDICAL_LAB</CannotHaveBuildingClass>
+		</Row>
 		<!-- Pilfer Religious Relics -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_FAITH</Type>

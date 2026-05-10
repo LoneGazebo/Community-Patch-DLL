@@ -13,6 +13,10 @@ UPDATE Language_en_US
 SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15%, immediately increases the City''s size, and generates instant [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen born in the City (applying retroactively). The City needs to have a Hospital in order to construct the Medical Lab.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_STRATEGY';
 
+UPDATE Language_en_US
+SET Text = 'Blocks the {TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_POISON} [ICON_SPY] Spy Mission in this City.'
+WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP';
+
 -- Garden
 UPDATE Language_en_US
 SET Text = 'The Garden increases the speed at which [ICON_GREAT_PEOPLE] Great People are generated in the City by 25%, and buffs the food output of Oases. Gardens require an Aqueduct in the City in order to be built.'
