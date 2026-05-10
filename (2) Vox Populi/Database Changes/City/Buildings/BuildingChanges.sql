@@ -2422,7 +2422,8 @@ SET
 	GlobalEspionageModifier = 0,
 	SpyRankChange = 0,
 	InstantSpyRankChange = 0,
-	SpySecurityModifier = 10
+	SpySecurityModifier = 10,
+	ExtraSpies = 100
 WHERE BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
 
 INSERT INTO Helper

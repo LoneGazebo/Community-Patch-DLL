@@ -64,7 +64,7 @@ WHERE Type = 'POLICY_VOLUNTEER_ARMY';
 UPDATE Policies
 SET
 	RiggingElectionModifier = 0,
-	FreeSpy = 1,
+	FreeSpy = 100,
 	RigElectionInfluenceModifier = 50,
 	EspionageNetworkPoints = 10
 WHERE Type = 'POLICY_COVERT_ACTION';
