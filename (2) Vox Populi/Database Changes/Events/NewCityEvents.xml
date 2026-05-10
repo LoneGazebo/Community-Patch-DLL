@@ -1068,6 +1068,25 @@
 			<SapCityTurns>2</SapCityTurns>
 			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
 		</Row>
+		<!-- Hijack a Trade Convoy -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_HIJACK</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>25</SpyIDChance>
+			<SpyKillChance>5</SpyKillChance>
+			<Expires>true</Expires>
+			<SapCityTurns>5</SapCityTurns>
+			<RandomBarbarianSpawn>2</RandomBarbarianSpawn>
+			<NoTourismTurns>10</NoTourismTurns>
+			<HasTradeConnection>1</HasTradeConnection>
+			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
+		</Row>
 		<!-- Kidnap Specialists in the City -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Type>
