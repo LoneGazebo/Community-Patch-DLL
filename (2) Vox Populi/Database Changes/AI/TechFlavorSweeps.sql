@@ -195,9 +195,10 @@ VALUES
 	('TECH_BANKING', 'FLAVOR_ESPIONAGE', 10),
 	('TECH_BANKING', 'FLAVOR_DIPLOMACY', 10),
 
-	('TECH_PRINTING_PRESS', 'FLAVOR_CULTURE', 5), -- Wonders: GlobeTheatre, Ability: WC, Yield: Writers +1C
+	('TECH_PRINTING_PRESS', 'FLAVOR_CULTURE', 5), -- Buildings: Printing House, Wonders: GlobeTheatre, Ability: WC, Yield: Writers +1C
 	('TECH_PRINTING_PRESS', 'FLAVOR_WONDER', 10),
-	('TECH_PRINTING_PRESS', 'FLAVOR_DIPLOMACY', 15),
+	('TECH_PRINTING_PRESS', 'FLAVOR_SCIENCE', 5),
+	('TECH_PRINTING_PRESS', 'FLAVOR_DIPLOMACY', 25),
 
 	('TECH_ASTRONOMY', 'FLAVOR_WONDER', 10),-- Buildings: Observatory, Wonders: ChichenItza, Ability: Faster embark&cross oceans, Yields: Scientist +1S
 	('TECH_ASTRONOMY', 'FLAVOR_NAVAL_RECON', 20),

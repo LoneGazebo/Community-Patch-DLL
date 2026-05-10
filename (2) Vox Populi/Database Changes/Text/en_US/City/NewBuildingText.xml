@@ -286,7 +286,7 @@
 			<Text></Text>
 		</Row>
 
-		<!-- CSD Civil Servant Buildings -->
+		<!-- Civil Servant Buildings -->
 		<Row Tag="TXT_KEY_BUILDING_CHANCERY">
 			<Text>Chancery</Text>
 		</Row>
@@ -298,6 +298,19 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHANCERY_TEXT">
 			<Text>During the early medieval period, chanceries emerged in Europe as a branch of many royal households. Tasked with issuing court documents, managing royal decrees, administering justice, and assessing a monarch's revenue, chanceries dabbled in every element of statecraft, including diplomacy. As kingdoms and states grew in size and scope throughout the early modern period, the power of chanceries continually expanded until, in the 17th and 18th centuries, most western countries legally separated chanceries into multiple, more specific bureaus. Thus, the chancery is the ancestor of the modern civil service.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_HOUSE">
+			<Text>Printing House</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_HOUSE_STRATEGY">
+			<Text>Printing Houses only provide yields if you have many City-State Friends and Allies, otherwise they are a drain on your Gold and a diversion of Production. But, if you intend to work Civil Servant slots they are a key Building, and give increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_HOUSE_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_HOUSE_TEXT">
+			<Text>From a single print shop in Mainz, Germany, printing had spread to no less than around 270 cities in Central, Western and Eastern Europe by the end of the 15th century. As early as 1480, it is assumed that "the printed book was in universal use in Europe". By 1500, the printing presses in operation throughout Western Europe had already produced more than twenty million copies. European printing presses of around 1600 were capable of producing 3,600 impressions per workday. By comparison, movable type printing in the Far East, which did not know presses and was solely done by manually rubbing the back of the paper to the page, did not exceed an output of forty pages per day. The rapidity of typographical text production, as well as the sharp fall in unit costs, led to the issuing of the first newspapers which opened up an entirely new field for conveying up-to-date information to the public.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE">
