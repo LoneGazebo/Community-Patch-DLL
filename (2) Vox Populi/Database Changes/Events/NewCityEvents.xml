@@ -1071,6 +1071,20 @@
 			<HasTradeConnection>1</HasTradeConnection>
 			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
 		</Row>
+		<!-- Infiltrate governors office -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>5</SpyIDChance>
+			<SpyKillChance>5</SpyKillChance>
+			<CannotHaveBuildingClass>BUILDINGCLASS_PALACE</CannotHaveBuildingClass>
+		</Row>
 		<!-- Desitribute Seidious Leaflets -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_LEAFLETS</Type>
