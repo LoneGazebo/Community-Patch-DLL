@@ -290,6 +290,13 @@
 			<Description>TXT_KEY_BUILDING_PORT_ROYAL</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
+		<!-- Chateau d'If-->
+		<Row>
+			<Type>BUILDINGCLASS_CHATEAU_DIF</Type>
+			<DefaultBuilding>BUILDING_CHATEAU_DIF</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CHATEAU_DIF</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
 		<!-- Soho Foundry -->
 		<Row>
 			<Type>BUILDINGCLASS_SOHO_FOUNDRY</Type>
@@ -1944,6 +1951,7 @@
 			<Help>TXT_KEY_BUILDING_ALAMUT_FORTRESS_HELP</Help>
 			<Quote>TXT_KEY_WONDER_ALAMUT_FORTRESS_QUOTE</Quote>
 			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
 			<Defense>300</Defense>
 			<ExtraSpies>100</ExtraSpies>
 			<NearbyMountainRequired>1</NearbyMountainRequired>
@@ -1987,6 +1995,26 @@
 			<WonderSplashImage>PortRoyal_Splash.dds</WonderSplashImage>
 			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
 			<PortraitIndex>14</PortraitIndex>
+		</Row>
+		<!-- Chateau d'If -->
+		<Row>
+			<Type>BUILDING_CHATEAU_DIF</Type>
+			<BuildingClass>BUILDINGCLASS_CHATEAU_DIF</BuildingClass>
+			<Description>TXT_KEY_BUILDING_CHATEAU_DIF</Description>
+			<Civilopedia>TXT_KEY_BUILDING_CHATEAU_DIF_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_CHATEAU_DIF_HELP</Help>
+			<Quote>TXT_KEY_WONDER_CHATEAU_DIF_QUOTE</Quote>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<MaxStartEra>ERA_MODERN</MaxStartEra>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
+			<Water>true</Water>
+			<MinAreaSize>10</MinAreaSize>
+			<ExtraSpies>100</ExtraSpies>
+			<FreeBuildingThisCity>BUILDINGCLASS_PENITENTIARY</FreeBuildingThisCity>
+			<WonderSplashImage>ChateaudIf_Splash.dds</WonderSplashImage>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>15</PortraitIndex>
 		</Row>
 		<!-- Soho Foundry -->
 		<Row>

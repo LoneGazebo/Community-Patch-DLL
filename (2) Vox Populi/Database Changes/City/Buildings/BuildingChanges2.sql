@@ -1006,6 +1006,24 @@ UPDATE Building_BuildingClassYieldChanges
 SET YieldChange = 1 -- Gold, Culture
 WHERE BuildingType = 'BUILDING_NEUSCHWANSTEIN';
 
+-- Chateau d'If
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CHATEAU_DIF', 'YIELD_PRODUCTION', 2),
+	('BUILDING_CHATEAU_DIF', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_YieldFromSpyIdentify
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CHATEAU_DIF', 'YIELD_CULTURE', 50),
+	('BUILDING_CHATEAU_DIF', 'YIELD_TOURISM', 50);
+
+INSERT INTO Building_GreatPersonProgressFromConstruction
+	(BuildingType, EraType, GreatPersonType, Value)
+VALUES
+	('BUILDING_CHATEAU_DIF', 'ERA_INDUSTRIAL', 'GREATPERSON_DIPLOMAT', 10);
+
 -- Soho Foundry
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
