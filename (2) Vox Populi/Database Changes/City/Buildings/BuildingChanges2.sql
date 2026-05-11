@@ -1144,6 +1144,18 @@ SELECT
 FROM Specialists
 WHERE GreatPeopleUnitClass IS NOT NULL;
 
+-- Alcatraz
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ALCATRAZ', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_YieldFromSpyDefense
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ALCATRAZ', 'YIELD_GOLD', 100),
+	('BUILDING_ALCATRAZ', 'YIELD_CULTURE', 100);
+
 -- Kremlin
 UPDATE Buildings
 SET

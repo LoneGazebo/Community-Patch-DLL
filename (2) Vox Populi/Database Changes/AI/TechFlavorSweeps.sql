@@ -343,7 +343,7 @@ VALUES
 	('TECH_FLIGHT', 'FLAVOR_OFFENSE', 10),
 	('TECH_FLIGHT', 'FLAVOR_WONDER', 5),
 
-	('TECH_BALLISTICS', 'FLAVOR_MOBILE', 10), -- Units: Artillery, AAGun, LightTank, MachineGun, Buildings: HallofHonor, Ability: EngineeringCorps
+	('TECH_BALLISTICS', 'FLAVOR_MOBILE', 10), -- Units: Artillery, AAGun, LightTank, MachineGun, Wonders: Alcatraz, Buildings: HallofHonor, Ability: EngineeringCorps
 	('TECH_BALLISTICS', 'FLAVOR_RANGED', 30),
 	('TECH_BALLISTICS', 'FLAVOR_ANTIAIR', 10),
 	('TECH_BALLISTICS', 'FLAVOR_OFFENSE', 10),
