@@ -344,14 +344,6 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_GRAND_OSSUARY', 'YIELD_FAITH', 10);
 
-<<<<<<< HEAD
--- Heavenly Grotto
-INSERT INTO Building_YieldChanges
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_HEAVENLY_GROTTO', 'YIELD_GOLD', 2),
-	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 2);
-=======
 INSERT INTO Building_YieldFromSpyDefense
 	(BuildingType, YieldType, Yield)
 VALUES
@@ -359,6 +351,11 @@ VALUES
 	('BUILDING_GRAND_OSSUARY', 'YIELD_FAITH', 100);
 
 -- Heavenly Grotto
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_GOLD', 2),
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 2);
 
 INSERT INTO Building_YieldFromSpyIdentify
 	(BuildingType, YieldType, Yield)
@@ -366,7 +363,6 @@ VALUES
 	('BUILDING_HEAVENLY_GROTTO', 'YIELD_SCIENCE', 50),
 	('BUILDING_HEAVENLY_GROTTO', 'YIELD_CULTURE', 50),
 	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 50);
->>>>>>> 4e961f0b5 ((10-059) Subterfuge Integration XIV: Founder Beliefs)
 
 ----------------------------------------------------------------------------
 -- World Wonders
@@ -573,7 +569,8 @@ UPDATE Buildings
 SET
 	FreePolicies = 0,
 	FreeBuildingThisCity = 'BUILDINGCLASS_TEMPLE',
-	IlliteracyFlatReduction = 1
+	IlliteracyFlatReduction = 1,
+	SpySecurityModifier = 15
 WHERE Type = 'BUILDING_ORACLE';
 
 INSERT INTO Building_YieldChanges
@@ -616,7 +613,8 @@ UPDATE Buildings
 SET
 	ObsoleteTech = 'TECH_GUNPOWDER',
 	WorkerSpeedModifier = 25,
-	CitySupplyFlat = 3
+	CitySupplyFlat = 3,
+	ExtraSpies = 50
 WHERE Type = 'BUILDING_GREAT_WALL';
 
 INSERT INTO Building_YieldChanges
@@ -740,7 +738,8 @@ SET
 	SingleLeagueVotes = 0,
 	PrereqTech = 'TECH_CIVIL_SERVICE',
 	PolicyType = 'POLICY_LIBERTY_FINISHER',
-	PovertyFlatReduction = 1
+	PovertyFlatReduction = 1,
+	SpySecurityModifier = 10
 WHERE Type = 'BUILDING_FORBIDDEN_PALACE';
 
 INSERT INTO Building_YieldChanges
@@ -823,7 +822,9 @@ UPDATE Buildings
 SET
 	FreeBuildingThisCity = 'BUILDINGCLASS_BASTION_FORT',
 	GlobalDefenseMod = 10,
-	CitySupplyFlat = 5
+	CitySupplyFlat = 5,
+	ExtraSpies = 50,
+	GlobalSpySecurityModifier = 5
 WHERE Type = 'BUILDING_HIMEJI_CASTLE';
 
 INSERT INTO Building_YieldChanges
@@ -913,6 +914,11 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_SISTINE_CHAPEL', 'YIELD_CULTURE', 1);
 
+INSERT INTO Building_YieldFromSpyRigElection
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_SISTINE_CHAPEL', 'YIELD_FAITH', 25);
+
 -- Summer Palace
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -934,6 +940,11 @@ INSERT INTO Building_BuildingClassYieldChanges
 VALUES
 	('BUILDING_SUMMER_PALACE', 'BUILDINGCLASS_CHANCERY', 'YIELD_GOLD', 3),
 	('BUILDING_SUMMER_PALACE', 'BUILDINGCLASS_CHANCERY', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_YieldFromSpyRigElection
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_SUMMER_PALACE', 'YIELD_PRODUCTION', 25);
 
 -- Port Royal
 INSERT INTO Building_YieldChanges
@@ -1035,6 +1046,11 @@ INSERT INTO Building_FreeUnits
 VALUES
 	('BUILDING_BIG_BEN', 'UNIT_MERCHANT', 1);
 
+INSERT INTO Building_YieldFromSpyDefense
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_BIG_BEN', 'YIELD_GOLD', 150);
+
 -- Eiffel Tower
 UPDATE Buildings
 SET
@@ -1101,7 +1117,9 @@ WHERE GreatPeopleUnitClass IS NOT NULL;
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_REPLACEABLE_PARTS',
-	DistressFlatReduction = 1
+	DistressFlatReduction = 1,
+	ExtraSpies = 50,
+	GlobalSpySecurityModifier = 10
 WHERE Type = 'BUILDING_KREMLIN';
 
 INSERT INTO Building_YieldChanges
@@ -1188,6 +1206,11 @@ INSERT INTO Building_DomainFreeExperiences
 VALUES
 	('BUILDING_PENTAGON', 'DOMAIN_AIR', 20);
 
+INSERT INTO Building_YieldFromSpyIdentify
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_PENTAGON', 'YIELD_SCIENCE', 80);
+
 -- The Motherland Calls
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -1205,6 +1228,11 @@ INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)
 VALUES
 	('BUILDING_BLETCHLEY_PARK', 'SPECIALIST_SCIENTIST', 'YIELD_SCIENCE', 1);
+
+INSERT INTO Building_YieldFromSpyDefense
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_BLETCHLEY_PARK', 'YIELD_SCIENCE', 150);
 
 -- CN Tower
 UPDATE Buildings

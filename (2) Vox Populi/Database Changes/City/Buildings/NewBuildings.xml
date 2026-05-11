@@ -2010,7 +2010,7 @@
 			<PolicyType>POLICY_RATIONALISM_FINISHER</PolicyType>
 			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
 			<GlobalSpySecurityModifier>20</GlobalSpySecurityModifier>
-			<ExtraSpies>20</ExtraSpies>
+			<ExtraSpies>200</ExtraSpies>
 			<Espionage>true</Espionage>
 			<WonderSplashImage>bletchleysplash.dds</WonderSplashImage>
 			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
