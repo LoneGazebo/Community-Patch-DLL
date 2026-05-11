@@ -490,6 +490,19 @@
 			<Text>[NEWLINE][TAB][TAB]"Seek the truth, hear the truth, learn the truth, love the truth, speak the truth, hold the truth, and defend the truth unto death."[NEWLINE][TAB][TAB] - Jan Hus[NEWLINE][TAB]</Text>
 		</Row>
 		
+		<Row Tag="TXT_KEY_BUILDING_ALAMUT_FORTRESS">
+			<Text>Alamut Fortress</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ALAMUT_FORTRESS_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ALAMUT_FORTRESS_TEXT">
+			<Text>The 'eagle's nest' is a mountain fortress at an altitude of 2163 meters at the central Alborz, in the Iranian stanza of Qazvin, about 100 kilometers from Tehran. In 1090 AD, the Alamut Castle, a mountain fortress in present-day Iran, came into the possession of Hassan-i Sabbah, a champion of the Nizari Ismaili cause. Until 1256, Alamut functioned as the headquarters of the Nizari Ismaili state and was thought impregnable to any military attack and was fabled for its heavenly gardens, library, and laboratories where philosophers, scientists, and theologians could debate in intellectual freedom.[NEWLINE][NEWLINE]In 1256, Rukn al-Din Khurshah surrendered the fortress to the invading Mongols, who dismantled it and destroyed its famous library holdings. Though commonly assumed that the Mongol conquest obliterated the Nizari Ismailis presence at Alamut, the fortress was recaptured in 1275 by Nizari forces, demonstrating that while the destruction and damage to the Ismailis in that region was extensive, it was not the complete annihilation attempted by the Mongols.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_ALAMUT_FORTRESS_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Nothing is true. Everything is permitted."[NEWLINE][TAB][TAB] - Hassan-i Sabbah[NEWLINE][TAB]</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BUILDING_PORT_ROYAL">
 			<Text>Port Royal</Text>
 		</Row>
