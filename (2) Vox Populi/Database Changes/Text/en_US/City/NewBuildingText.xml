@@ -529,6 +529,19 @@
 			<Text>[NEWLINE][TAB][TAB]"I sell here, Sir, what all the world desires to have: Power."[NEWLINE][TAB][TAB] - Matthew Boulton[NEWLINE][TAB]</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_CHATEAU_DIF">
+			<Text>Chateau d'If</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHATEAU_DIF_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHATEAU_DIF_TEXT">
+			<Text>A fortress located on the Ile d'If, the smallest island in the Frioul archipelago, situated about 1.5 kilometres offshore from Marseille in southeastern France. Built in the 16th century, it later served as a prison until the end of the 19th century. The isolated location and dangerous offshore currents soon made it one of the most feared and notorious jails in France. The embalmed body of general Jean Baptiste Kléber was repatriated to France after his assassination in Cairo in 1800. First Consul Napoleon Bonaparte, fearing that his tomb would become a symbol to Republicanism, ordered that the body stay at the château. It remained there for 18 years, until King Louis XVIII granted Kléber a proper burial in his native Strasbourg. The fortress was demilitarized and opened to the public in 1890. It is famous for being one of the settings of Alexandre Dumas's adventure novel The Count of Monte Cristo.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CHATEAU_DIF_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Only he who has experienced extreme misfortune is capable of feeling extreme happiness. One must have wanted to die to know how good it is to live."[NEWLINE][TAB][TAB] - Alexandre Dumas, The Count of Monte Cristo[NEWLINE][TAB]</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING">
 			<Text>Empire State Building</Text>
 		</Row>
