@@ -759,6 +759,19 @@ VALUES
 	('BUILDING_KARLSTEJN', 'YIELD_CULTURE', 3),
 	('BUILDING_KARLSTEJN', 'YIELD_FAITH', 4);
 
+-- Alamut Fortress
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ALAMUT_FORTRESS', 'YIELD_SCIENCE', 3),
+	('BUILDING_ALAMUT_FORTRESS', 'YIELD_CULTURE', 3),
+	('BUILDING_ALAMUT_FORTRESS', 'YIELD_FAITH', 3);
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ALAMUT_FORTRESS', 'YIELD_FAITH', 100);
+
 -- Notre Dame
 UPDATE Buildings
 SET

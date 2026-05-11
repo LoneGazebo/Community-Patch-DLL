@@ -269,6 +269,13 @@
 			<Description>TXT_KEY_BUILDING_KARLSTEJN</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
+		<!-- Alamut Fortress -->
+		<Row>
+			<Type>BUILDINGCLASS_ALAMUT_FORTRESS</Type>
+			<DefaultBuilding>BUILDING_ALAMUT_FORTRESS</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_ALAMUT_FORTRESS</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
 		<!-- Summer Palace -->
 		<Row>
 			<Type>BUILDINGCLASS_SUMMER_PALACE</Type>
@@ -1927,6 +1934,24 @@
 			<WonderSplashImage>Karlstejn_WonderSplash.dds</WonderSplashImage>
 			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
 			<PortraitIndex>5</PortraitIndex>
+		</Row>
+		<!-- Alamut Fortress -->
+		<Row>
+			<Type>BUILDING_ALAMUT_FORTRESS</Type>
+			<BuildingClass>BUILDINGCLASS_ALAMUT_FORTRESS</BuildingClass>
+			<Description>TXT_KEY_BUILDING_ALAMUT_FORTRESS</Description>
+			<Civilopedia>TXT_KEY_BUILDING_ALAMUT_FORTRESS_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_ALAMUT_FORTRESS_HELP</Help>
+			<Quote>TXT_KEY_WONDER_ALAMUT_FORTRESS_QUOTE</Quote>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<Defense>300</Defense>
+			<ExtraSpies>100</ExtraSpies>
+			<NearbyMountainRequired>1</NearbyMountainRequired>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<WonderSplashImage>Alamut_Splash.dds</WonderSplashImage>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>13</PortraitIndex>
 		</Row>
 		<!-- Summer Palace -->
 		<Row>
