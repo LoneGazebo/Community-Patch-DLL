@@ -318,6 +318,13 @@
 			<Description>TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
+		<!-- Alcatraz -->
+		<Row>
+			<Type>BUILDINGCLASS_ALCATRAZ</Type>
+			<DefaultBuilding>BUILDING_ALCATRAZ</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_ALCATRAZ</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
 		<!-- Bletchley Park -->
 		<Row>
 			<Type>BUILDINGCLASS_BLETCHLEY_PARK</Type>
@@ -2083,6 +2090,28 @@
 			<WonderSplashImage>empiresplash.dds</WonderSplashImage>
 			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
+		</Row>
+		<!-- Alcatraz -->
+		<Row>
+			<Type>BUILDING_ALCATRAZ</Type>
+			<BuildingClass>BUILDINGCLASS_ALCATRAZ</BuildingClass>
+			<Description>TXT_KEY_BUILDING_ALCATRAZ</Description>
+			<Civilopedia>TXT_KEY_BUILDING_ALCATRAZ_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_ALCATRAZ_HELP</Help>
+			<Quote>TXT_KEY_WONDER_ALCATRAZ_QUOTE</Quote>
+			<PrereqTech>TECH_BALLISTICS</PrereqTech>
+			<MaxStartEra>ERA_POSTMODERN</MaxStartEra>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<Defense>500</Defense>
+			<ExtraSpies>100</ExtraSpies>
+			<Water>1</Water>
+			<MinAreaSize>10</MinAreaSize>
+			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
+			<FreeBuildingThisCity>BUILDINGCLASS_ARSENAL</FreeBuildingThisCity>
+			<WonderSplashImage>Alcatraz_Splash.dds</WonderSplashImage>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>16</PortraitIndex>
 		</Row>
 		<!-- CERN -->
 		<Row>

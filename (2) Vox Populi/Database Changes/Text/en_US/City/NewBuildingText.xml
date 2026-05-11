@@ -555,6 +555,19 @@
 			<Text>[NEWLINE][TAB][TAB]"The importance of money flows from it being a link between the present and the future."[NEWLINE][TAB][TAB] - John Maynard Keynes[NEWLINE][TAB]</Text>
 		</Row>
 		
+		<Row Tag="TXT_KEY_BUILDING_ALCATRAZ">
+			<Text>Alcatraz</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ALCATRAZ_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ALCATRAZ_TEXT">
+			<Text>Alcatraz Island is a small island about 1.25 miles offshore from San Francisco in San Francisco Bay, California, near the Golden Gate Strait. The island was developed in the mid-19th century with facilities for a lighthouse, a military fortification, and a military prison. In 1934, the island was converted into a federal prison, Alcatraz Federal Penitentiary. The strong tidal currents around the island and ice-cold water temperatures made escape nearly impossible, giving the prison one of the most notorious reputations of its kind in American history.[NEWLINE][NEWLINE]The earliest recorded private owner of the island of Alcatraz is Julian Workman, to whom it was given by Mexican Governor Pio Pico in June 1846, with the understanding he would build a lighthouse on it, but within two years the Treaty of Guadalupe Hidalgo ceeded California to the United States, and the U.S. Army began preparing the island for coastal batteries to protect San Francisco Bay. When the American Civil War broke out in 1861, the island mounted 85 cannons and served as the San Francisco Arsenal for storage of firearms to keep them from Confederate sympathizers. During the war, Fort Alcatraz was used to imprison Confederates and privateers, but its guns were never fired at an enemy.[NEWLINE][NEWLINE]In 1867, the first brick jailhouse was built and, in 1898, the prison population rose from 26 to over 450 due to the Spanish–American War. In 1909 construction began on the huge concrete main cell block, which was completed in 1912. It was not until 1934 that the island was designated as a federal. During the 29 years it was in use, the prison held some of the most notorious criminals in American history, including gangsters such as Al Capone, Robert Franklin Stroud (the "Birdman of Alcatraz"), George "Machine Gun" Kelly and Bumpy Johnson, and political terrorists such as Rafael Cancel Miranda, a member of the Puerto Rican Nationalist Party who attacked the United States Capitol building in 1954.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_ALCATRAZ_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"You can get much further with a kind word and a gun than you can with a kind word alone."[NEWLINE][TAB][TAB] - Al Capone[NEWLINE][TAB]</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BUILDING_MOTHERLAND_CALLS">
 			<Text>The Motherland Calls</Text>
 		</Row>
