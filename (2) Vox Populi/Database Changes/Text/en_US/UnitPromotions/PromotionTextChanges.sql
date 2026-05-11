@@ -705,7 +705,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_LIGHTNING_WARFARE_HELP';
 
 -- Exotic Cargo
 UPDATE Language_en_US
-SET Text = 'Can {TXT_KEY_MISSION_SELL_EXOTIC_GOODS} when adjacent to foreign territory to gain [ICON_GOLD] Gold and XP based on the distance from your [ICON_CAPITAL] Capital up to two times.[NEWLINE]If sold to a City-State as the Portuguese, a Feitoria is [COLOR_POSITIVE_TEXT]automatically created[ENDCOLOR] in its territory.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]'
+SET Text = 'Can {TXT_KEY_MISSION_SELL_EXOTIC_GOODS} when adjacent to foreign territory to gain [ICON_GOLD] Gold and XP based on the distance from your [ICON_CAPITAL] Capital up to two times.[NEWLINE]If sold to a City-State as the Portuguese, a Feitoria is [COLOR_POSITIVE_TEXT]automatically created[ENDCOLOR] in its territory.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SELL_EXOTIC_GOODS_HELP';
 
 -- City Plunder
