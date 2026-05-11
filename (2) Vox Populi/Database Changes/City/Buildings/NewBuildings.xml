@@ -475,6 +475,12 @@
 			<DefaultBuilding>BUILDING_GURDWARA</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_GURDWARA</Description>
 		</Row>
+		<!-- Daoguan -->
+		<Row>
+			<Type>BUILDINGCLASS_DAOGUAN</Type>
+			<DefaultBuilding>BUILDING_DAOGUAN</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_DAOGUAN</Description>
+		</Row>
 		<!-- Reformation Wonders -->
 		<!-- Mausoleum -->
 		<Row>
@@ -2418,6 +2424,23 @@
 			<DistressFlatReduction>1</DistressFlatReduction>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>57</PortraitIndex>
+			<UnlockedByBelief>true</UnlockedByBelief>
+		</Row>
+		<!-- Daoguan -->
+		<Row>
+			<Type>BUILDING_DAOGUAN</Type>
+			<BuildingClass>BUILDINGCLASS_DAOGUAN</BuildingClass>
+			<Description>TXT_KEY_BUILDING_DAOGUAN</Description>
+			<Civilopedia>TXT_KEY_BUILDING_DAOGUAN_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_DAOGUAN_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_DAOGUAN_STRATEGY</Strategy>
+			<ReligiousPressureModifier>15</ReligiousPressureModifier>
+			<ConversionModifier>-10</ConversionModifier>
+			<ExtraSpies>10</ExtraSpies>
+			<SpySecurityModifier>10</SpySecurityModifier>
+			<NoUnhappfromXSpecialists>1</NoUnhappfromXSpecialists>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>62</PortraitIndex>
 			<UnlockedByBelief>true</UnlockedByBelief>
 		</Row>
 		<!-- Reformation Wonders -->
