@@ -89,6 +89,13 @@
 			<Text>Teocallis</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BELIEF_DAOGUAN">
+			<Text>Use [ICON_PEACE] Faith to purchase Daoguans.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_DAOGUAN_SHORT">
+			<Text>Daoguans</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BELIEF_COMMUNALISM">
 			<Text>[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, scaling with Era. +2 [ICON_FOOD] Food and [ICON_PRODUCTION] Production if the City has a Specialist.</Text>
 		</Row>
@@ -140,6 +147,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_TOOLTIP">
 			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+1 [ICON_WAR] Military Supply[NEWLINE][NEWLINE]+2 [ICON_PEACE] Faith when an owned Unit defeats a Military Unit, and an additional +8 [ICON_PEACE] Faith if the Unit was created by this City.[NEWLINE][NEWLINE]+25% Religious Pressure towards other Cities if this Religion is the Majority Religion of the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DAOGUAN_TOOLTIP">
+			<Text>+4 [ICON_PEACE] Faith[NEWLINE]+10 [ICON_CITY_SECURITY] City Security[NEWLINE][NEWLINE]+10 [ICON_SPY_POINT] Spy Points on construction.[NEWLINE][NEWLINE]Boost Pressure of [ICON_RELIGION] Religious Majority emanating from this City by +25%[NEWLINE]Increases the City's resistance to [ICON_RELIGION] Religious conversion by 10%.[NEWLINE][NEWLINE]1 Specialist in this City no longer produces [ICON_HAPPINESS_3] Unhappiness from Urbanization.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

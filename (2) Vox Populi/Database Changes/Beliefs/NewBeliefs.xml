@@ -100,6 +100,12 @@
 			<Follower>true</Follower>
 		</Row>
 		<Row>
+			<Type>BELIEF_DAOGUAN</Type>
+			<Description>TXT_KEY_BELIEF_DAOGUAN</Description>
+			<ShortDescription>TXT_KEY_BELIEF_DAOGUAN_SHORT</ShortDescription>
+			<Follower>true</Follower>
+		</Row>
+		<Row>
 			<Type>BELIEF_COMMUNALISM</Type>
 			<Description>TXT_KEY_BELIEF_COMMUNALISM</Description>
 			<ShortDescription>TXT_KEY_BELIEF_COMMUNALISM_SHORT</ShortDescription>

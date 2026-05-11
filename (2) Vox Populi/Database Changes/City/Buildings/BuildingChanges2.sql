@@ -209,6 +209,10 @@ VALUES
 	('BUILDING_TEOCALLI', 'YIELD_FAITH', 8, 0);
 
 -- Gurdwara
+UPDATE Buildings
+SET AlwaysHeal = 5
+WHERE BuildingClass = 'BUILDINGCLASS_GURDWARA';
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
@@ -220,9 +224,11 @@ INSERT INTO Building_YieldModifiers
 VALUES
 	('BUILDING_GURDWARA', 'YIELD_FOOD', 10);
 
-UPDATE Buildings
-SET AlwaysHeal = 5
-WHERE BuildingClass = 'BUILDINGCLASS_GURDWARA';
+-- Daoguan
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_DAOGUAN', 'YIELD_FAITH', 4);
 
 ----------------------------------------------------------------------------
 -- Reformation Buildings

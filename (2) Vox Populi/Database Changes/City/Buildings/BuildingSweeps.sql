@@ -79,7 +79,8 @@ WHERE BuildingClass IN (
 	'BUILDINGCLASS_SYNAGOGUE',
 	'BUILDINGCLASS_ORDER',
 	'BUILDINGCLASS_TEOCALLI',
-	'BUILDINGCLASS_GURDWARA'
+	'BUILDINGCLASS_GURDWARA',
+	'BUILDINGCLASS_DAOGUAN'
 );
 
 -----------------------------------------------------------------

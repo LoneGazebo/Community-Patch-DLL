@@ -1038,6 +1038,19 @@
 			<Text>A Gurdwara -- which means "door to the guru" -- is the place of worship for Sikhs. All gurdwaras contain the holy Sikh scripture, the Guru Granth Sahib, placed on an elevated platform. From this platform, a Raagis recites, sings, and explains the scripture for the congregation. The other universal feature of all gurdwaras is a community kitchen called a Langar. Sikhs place great importance on serving free vegetarian meals, allowing all community members, regardless of ethnicity, caste, status or religion, to both eat and volunteer free of charge.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_DAOGUAN">
+			<Text>Daoguan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DAOGUAN_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Daoguans belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Daoguan offers bonuses towards Espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DAOGUAN_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DAOGUAN_TEXT">
+			<Text>A Daoguan is a place of worship in Taoism. Taoism is a religion that originated in China, with the belief in immortality, which urges people to become immortal through moral and health cultivation. Heavily influenced by Buddhism, Taoists practice as form of monasticism. Temples received patronage from wealthy individuals, which in the Ming dynasty were often powerful eunuchs of the imperial palace. Seeking retirement or refuge from court life, social stigma and lack of family ties left few options open. Even though ordination was barred to them, retirement in a monastery offered community, security, and a way to secure religious merit for the afterlife.</Text>
+		</Row>
+		
 		<!-- Cathedral -->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
 			<Text></Text>
