@@ -185,7 +185,7 @@ SET Text = 'Arena'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM';
 
 UPDATE Language_en_US
-SET Text = 'The Arena provides additional Culture, and generates Tourism from City''s population. Reduces Boredom in a City, and improves the output of nearby [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives. Build these to combat Unhappiness from Boredom, to increase your Culture, and to improve the production of your military buildings.'
+SET Text = 'The Arena provides additional Culture, reduces Boredom in a City, and improves the output of nearby [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives. Build these to combat Unhappiness from Boredom, to increase your Culture, and to improve the production of your military buildings.'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_STRATEGY';
 
 UPDATE Language_en_US
