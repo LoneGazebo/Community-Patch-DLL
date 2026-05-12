@@ -413,7 +413,7 @@ CvString CvHotKeyInfo::CreateKeyStringFromKBCode(const char* pszHotKey)
 		{"KB_APOSTROPHE","'", false},
 		{"KB_GRAVE","`", false},		// accent grave
 		{"KB_LSHIFT", "TXT_KEY_KEYBOARD_LEFT_SHIFT_KEY", true},
-		{"KB_BACKSLASH","\\"},
+		{"KB_BACKSLASH","\\", false},
 		{"KB_COMMA",",", false},
 		{"KB_PERIOD",".", false},
 		{"KB_SLASH","/", false},

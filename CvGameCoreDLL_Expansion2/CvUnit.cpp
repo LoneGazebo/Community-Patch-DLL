@@ -29126,8 +29126,8 @@ bool CvUnit::canRangeStrike() const
 		return false;
 
 	//this concerns not only embarked units but also ships in harbor!
-    if(!isNativeDomain(plot()))
-        return false;
+	if(!isNativeDomain(plot()))
+		return false;
 
 	if (!canEndTurnAtPlot(plot()))
 		return false;
