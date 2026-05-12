@@ -26157,6 +26157,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if (eYield == ePassYield)
 						iValue += iPassYield;
+
+					break;
 				}
 				case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:
 				{

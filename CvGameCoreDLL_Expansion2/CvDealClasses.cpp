@@ -484,6 +484,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			// Already have a DoF?
 			if (pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
 				return false;
+
+			break;
 		}
 
 	case TRADE_ITEM_GOLD:

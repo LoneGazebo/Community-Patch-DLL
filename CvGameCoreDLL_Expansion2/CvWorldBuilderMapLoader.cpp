@@ -1486,6 +1486,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 				{
 					lua_pushstring(L, "");
 				}
+				break;
 			}
 			default:
 				UNREACHABLE(); // This would typically indicate corruption so termination seems reasonable.
@@ -1550,6 +1551,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 				{
 					lua_pushstring(L, "");
 				}
+				break;
 			}
 			default:
 				UNREACHABLE(); // This would typically indicate corruption so termination seems reasonable.
@@ -1621,6 +1623,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 									lua_rawset(L, -3);
 								}
 							}
+							break;
 						}
 						default:
 							UNREACHABLE(); // This would typically indicate corruption so termination seems reasonable.
