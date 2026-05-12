@@ -26,7 +26,7 @@ namespace LeagueHelpers
 	EraTypes GetNextGameEraForTrigger();
 	EraTypes GetNextGameEraForTrigger(EraTypes eThisEra);
 	bool IsBuildingForTriggerBuiltAnywhere(BuildingTypes eBuilding);
-	ResolutionTypes IsResolutionForTriggerActive(ResolutionTypes eType);
+	bool IsResolutionForTriggerActive(ResolutionTypes eType);
 
 	typedef vector<PlayerTypes> PlayerList;
 
