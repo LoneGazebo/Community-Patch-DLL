@@ -681,6 +681,7 @@ bool HaveSettlerInBuildables(const CvWeightedVector<CvCityBuildable>& choices)
 				UnitTypes eUnitType = (UnitTypes)choices.GetElement(i).m_iIndex;
 				if (GC.getUnitInfo(eUnitType)->IsFound())
 					return true;
+				break;
 			}
 			case NOT_A_CITY_BUILDABLE:
 			case CITY_BUILDABLE_BUILDING:

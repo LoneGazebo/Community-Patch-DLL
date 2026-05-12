@@ -58105,6 +58105,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += 4;
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 2;
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_REFUSE] += -8;
+		break;
 	case CIV_OPINION_ALLY:
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += 6;	// Allies want to leave their allies alone more
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 3;

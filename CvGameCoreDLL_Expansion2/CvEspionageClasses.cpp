@@ -4229,6 +4229,7 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 		{
 			return -1;
 		}
+		break;
 	}
 	case SPY_STATE_RIG_ELECTION:
 		if(GC.getGame().GetTurnsBetweenMinorCivElections() != 0)

@@ -30965,6 +30965,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		{
 			return true;
 		}
+		break;
 
 	default:
 		break;
