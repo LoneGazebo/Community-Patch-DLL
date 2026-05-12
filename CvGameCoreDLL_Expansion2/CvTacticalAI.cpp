@@ -11922,6 +11922,8 @@ bool CvTacticalPosition::canProbablyEndTurnAfterAssignment(const SUnitStats& uni
 
 		int iDanger = GetUnitDangerForPlot(pUnit, assumedUnitPlot->getPlot(), unit.iSelfDamage, *this);
 
+		iDanger /= max(1, (int)getAggressionLevel());
+
 		return ScoreCombatUnitTurnEnd(pUnit, eAssignmentType, assumedUnitPlot, iDanger, CvTacticalPlot::TD_BOTH,
 			unit.iSelfDamage, *this, EM_FINAL, availableUnits.read().size() > 1, true) != INT_MAX;
 	}
