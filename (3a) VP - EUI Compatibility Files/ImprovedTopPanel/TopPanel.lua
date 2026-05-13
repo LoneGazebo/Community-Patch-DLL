@@ -1467,7 +1467,8 @@ if civ5_mode then
 			local ResourceHappiness = g_activePlayer:GetBonusHappinessFromLuxuriesFlat();
 			local AvgResourceHappiness  = g_activePlayer:GetBonusHappinessFromLuxuriesFlatForUI();
 			local LocalCityHappiness = g_activePlayer:GetEmpireHappinessFromCities();
-			local NaturalWonderAndLandmarkHappiness = g_activePlayer:GetHappinessFromNaturalWonders();
+			local NaturalWonderHappiness = g_activePlayer:GetHappinessFromNaturalWonders();
+			local ImprovementHappiness = g_activePlayer:GetHappinessFromImprovements();
 			local ReligionHappiness = g_activePlayer:GetHappinessFromReligion();
 			local LeagueHappiness = g_activePlayer:GetHappinessFromLeagues();
 			local EventHappiness = g_activePlayer:GetEventHappiness();
@@ -1481,7 +1482,8 @@ if civ5_mode then
 
 			tips:insert( "[ENDCOLOR][COLOR:150:255:150:255]" )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", ResourceHappiness, AvgResourceHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", NaturalWonderAndLandmarkHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", NaturalWonderHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_IMPROVEMENTS", ImprovementHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_VP", ReligionHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", LeagueHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_EVENT", EventHappiness )

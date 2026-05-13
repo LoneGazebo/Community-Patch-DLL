@@ -410,6 +410,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetExtraHappinessPerLuxury);
 	Method(GetHappinessFromReligion);
 	Method(GetHappinessFromNaturalWonders);
+	Method(GetHappinessFromImprovements);
 	Method(GetHappinessFromLeagues);
 	Method(GetHappinessFromMilitaryUnits);
 
@@ -4630,6 +4631,13 @@ int CvLuaPlayer::lGetHappinessFromReligion(lua_State* L)
 int CvLuaPlayer::lGetHappinessFromNaturalWonders(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromNaturalWonders);
+}
+
+//------------------------------------------------------------------------------
+//int GetHappinessFromImprovements() const;
+int CvLuaPlayer::lGetHappinessFromImprovements(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromImprovements);
 }
 
 //------------------------------------------------------------------------------
