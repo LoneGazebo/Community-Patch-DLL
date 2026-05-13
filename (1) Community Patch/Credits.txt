@@ -304,7 +304,8 @@ Things borrowed from other mods:
 Art Assets (General) 
 --------------------------------------------------------------------------
 SocialPoliciesIndustry.dds : from JFD's Rise to Power, image by Leugi
-Mikasa model converted from Civ 4 by Wolfshanze, icon by Janboruta 
+Mikasa model converted from Civ 4 by Wolfshanze, icon by Janboruta
+Torii improvement icons by JFD
 Ambassador icon by RawSasquatch, recolored by Hokath
 Diplomat icon by Jarcast and Hokath
 Ancient Great Diplomat icon by Hinin and Jarcast

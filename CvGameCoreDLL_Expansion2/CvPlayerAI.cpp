@@ -31,6 +31,7 @@
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
 #include "CvBarbarians.h"
+#include "CvTypes.h"
 #include "CvEnumMap.h"
 
 #include "CvDistanceMap.h"
@@ -1426,108 +1427,181 @@ bool PreparingForWar(CvPlayerAI* pPlayer)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 {
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+	// We're losing a war, don't make great works or improvements for the enemy to capture
+	if (IsAtWarAnyMajor() && GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+		return GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 
-	// Create Great Work if there is a slot
+	// Check possible builds
+	bool bHasBuild = false;
+	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+	{
+		BuildTypes eBuild = static_cast<BuildTypes>(iI);
+		if (!canBuild(NULL, eBuild, true))
+			continue;
+
+		if (pGreatWriter->canBuild(NULL, eBuild))
+			bHasBuild = true;
+	}
+
+	// No space for great work?
 	GreatWorkType eGreatWork = pGreatWriter->GetGreatWork();
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatWriter->plot(), eGreatWork))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-	// Defend against ideology pressure if not going for culture win
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetPublicOpinionUnhappiness() > 10)
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
-	}
+	if (!bHasBuild && !GetEconomicAI()->GetBestGreatWorkCity(pGreatWriter->plot(), eGreatWork))
+		return GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 
-	// If not going for culture win and a Level 2 or 3 Tenet is available, try to snag it
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetPlayerPolicies()->CanGetAdvancedTenet())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
-	}
+	// Assume game ends at 80% of the standard time limit
+	int iEstimatedEndTurn = GC.getGame().getEstimateEndTurn() * 80 / 100;
+	int iCurrentTurn = GC.getGame().getGameTurn();
+	int iEstimatedTurnsLeft = iEstimatedEndTurn - iCurrentTurn;
 
-	else if ((GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= (/*2*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) / 2))
+	// Always bulb if we're so close to end game
+	if (iCurrentTurn >= iEstimatedEndTurn)
+		return GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
+
+	bool bCulturalFocus = GetDiplomacyAI()->IsGoingForCultureVictory();
+	if (MOD_BALANCE_CULTURE_VICTORY_CHANGES && bCulturalFocus && GetCulture()->GetNumCivsInfluentialOn() >= GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin())
 	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
+		// Cultural victory: check required tenets for the required project (hardcoded in CvGame::testVictory())
+		ProjectTypes eUtopia = static_cast<ProjectTypes>(GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true));
+		if (eUtopia != NO_PROJECT)
+		{
+			CvProjectEntry* pkUtopiaInfo = GC.getProjectInfo(eUtopia);
+			PolicyBranchTypes eIdeology = GetPlayerPolicies()->GetLateGamePolicyTree();
+
+			// We have enough influential culture but not enough tier 3 tenets, so bulb to get those tenets faster
+			if (eIdeology != NO_POLICY_BRANCH_TYPE && GetPlayerPolicies()->GetNumTenetsOfLevel(eIdeology, 3) < pkUtopiaInfo->GetNumRequiredTier3Tenets())
+				return GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
+		}
 	}
-	return eDirective;
+	// End of special cases, now we compare the value of great work vs bulbing for culture
+
+	// Assume an even interval of writer generation throughout the game
+	int iNumGeneratedWriters = getGreatWritersCreated(false);
+	int iNumFutureWriters = iNumGeneratedWriters * iEstimatedTurnsLeft / iCurrentTurn;
+
+	// Assume a great work's yields linearly drop throughout the game in terms of turns of culture output
+	const int iBaseGreatWorkValueTimes10000 = 1600; // turns of culture at the start of the game, times 10000
+	int iCurrentGreatWorkValueTimes10000 = iBaseGreatWorkValueTimes10000 * iEstimatedTurnsLeft / iEstimatedEndTurn;
+
+	// Tourism is more valuable if we're going for cultural victory
+	if (bCulturalFocus)
+		iCurrentGreatWorkValueTimes10000 *= 3;
+
+	CvUnitEntry& kUnitInfo = pGreatWriter->getUnitInfo();
+	int iGreatWorkScaling = kUnitInfo.GetScaleFromNumGWs();
+	int iBulbCultureTurns = kUnitInfo.GetBaseCultureTurnsToCount();
+
+	// Total lifetime value of a great work created now, in terms of culture turns, times 10000
+	int iLifetimeGreatWorkValueTimes10000 = iCurrentGreatWorkValueTimes10000 * iEstimatedTurnsLeft / 2;
+
+	// How much stronger a future writer is if a great work is created now, in terms of culture turns, times 100
+	int iInvestmentTurnsPerFutureWriterTimes100 = iBulbCultureTurns * iGreatWorkScaling;
+
+	// How many extra culture turns will we get from all future writers if we make a great work now, times 10000
+	int iInvestmentValueTimes10000 = iInvestmentTurnsPerFutureWriterTimes100 * iNumFutureWriters * 100;
+
+	int iTotalGreatWorkValueTimes10000 = iLifetimeGreatWorkValueTimes10000 + iInvestmentValueTimes10000;
+
+	// The value of a bulb right now, in terms of culture turns, times 10000
+	int iTotalBulbValueTimes10000 = iBulbCultureTurns * (100 + GetCulture()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) * iGreatWorkScaling) * 100;
+
+	if (iTotalBulbValueTimes10000 > iTotalGreatWorkValueTimes10000)
+		return GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
+
+	if (bHasBuild)
+		return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+
+	return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 {
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+	// We're losing a war, don't make great works or improvements for the enemy to capture
+	if (IsAtWarAnyMajor() && GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+		return GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 
-	// Create Great Work if there is a slot
+	// Check possible builds
+	bool bHasBuild = false;
+	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+	{
+		BuildTypes eBuild = static_cast<BuildTypes>(iI);
+		if (!canBuild(NULL, eBuild, true))
+			continue;
+
+		if (pGreatArtist->canBuild(NULL, eBuild))
+			bHasBuild = true;
+	}
+
+	// No space for great work?
 	GreatWorkType eGreatWork = pGreatArtist->GetGreatWork();
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatArtist->plot(), eGreatWork))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
-	// If finishing up spaceship parts, Golden Age will help build those quickly
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetDiplomacyAI()->IsGoingForSpaceshipVictory() && EconomicAIHelpers::IsTestStrategy_GS_SpaceshipHomestretch(this))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeTourismModifier() > 0 && GetCulture()->GetNumCivsInfluentialOn() > 0)
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
-	// If Persia and I'm at war, get a Golden Age going
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeMoveChange() > 0 && GetMilitaryAI()->GetNumberCivsAtWarWith() > 0 && !isGoldenAge())
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
-	if ((GC.getGame().getGameTurn() - pGreatArtist->getGameTurnCreated()) >= (/*2*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) / 2))
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
-	}
+	if (!bHasBuild && !GetEconomicAI()->GetBestGreatWorkCity(pGreatArtist->plot(), eGreatWork))
+		return GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 
-	return eDirective;
+	if (bHasBuild)
+		return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+
+	return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusician)
 {
 	// If headed on a concert tour, keep going
 	if (pGreatMusician->getArmyID() != -1)
-	{
 		return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+
+	// We're losing a war, don't make great works or improvements for the enemy to capture
+	if (IsAtWarAnyMajor() && GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+		return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+
+	// Check possible builds
+	bool bHasBuild = false;
+	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+	{
+		BuildTypes eBuild = static_cast<BuildTypes>(iI);
+		if (!canBuild(NULL, eBuild, true))
+			continue;
+
+		if (pGreatMusician->canBuild(NULL, eBuild))
+			bHasBuild = true;
 	}
 
-	CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician);
+	// No space for great work?
+	GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
+	if (!bHasBuild && !GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
+		return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 
 	// If closing in on a Culture win, go for the Concert Tour
-	if (GetDiplomacyAI()->IsGoingForCultureVictory() || (GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2)))
+	if (GetDiplomacyAI()->IsGoingForCultureVictory() || GetCulture()->GetNumCivsInfluentialOn() > GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2)
 	{
-		if(pTarget)
+		CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician);
+		if (pTarget)
 		{
-			if (pTarget->getOwner() != NO_PLAYER && GET_PLAYER(pTarget->getOwner()).isMajorCiv())
-			{
-				if (GetCulture()->GetInfluenceLevel(pTarget->getOwner()) <= INFLUENCE_LEVEL_POPULAR)
-				{
-					if (GetCulture()->GetTurnsToInfluential(pTarget->getOwner()) <= 100 || getGreatMusiciansCreated(true) > GC.getGame().getCurrentEra())
-						return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+			PlayerTypes eTargetPlayer = pTarget->getOwner();
+			ASSERT(eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).isMajorCiv());
 
-				}
+			// Assume a concert tour won't give both tourism modifier and instant tourism
+			if (pGreatMusician->GetTourismBlastLength() > 0)
+			{
+				int iTurnsToInfluential = GetCulture()->GetTurnsToInfluential(eTargetPlayer);
+
+				// Don't overdo it, assuming it costs half the time to reach influential with the tourism bonus
+				if (getTourismBonusTurnsPlayer(eTargetPlayer) + pGreatMusician->GetTourismBlastLength() < iTurnsToInfluential / 2)
+					return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
+			}
+
+			if (pGreatMusician->GetTourismBlastStrength() > 0)
+			{
+				// Rough estimate: if it can shave off 10 turns of victory timer, it's worth going for it
+				const int iTargetTurns = 10 * GC.getGame().getGameSpeedInfo().getCulturePercent() / 100;
+				if (pGreatMusician->GetTourismBlastStrength() * 100 >= iTargetTurns * GetCulture()->GetOtherPlayerCulturePerTurnIncludingInstantTimes100(eTargetPlayer))
+					return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 			}
 		}
 	}
 
-	// Create Great Work if there is a slot
-	GreatWorkType eGreatWork = pGreatMusician->GetGreatWork();
-	if (GetEconomicAI()->GetBestGreatWorkCity(pGreatMusician->plot(), eGreatWork))
-	{
-		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
+	if (bHasBuild)
+		return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 
-	if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (/*2*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) / 2))
-	{
-		if(pTarget)
-		{
-			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
-		}
-	}
-
-	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+	return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEngineer)

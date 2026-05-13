@@ -4332,6 +4332,10 @@ void CvHomelandAI::ExecuteWriterMoves()
 			}	
 			break;
 
+		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
+			m_greatPeopleForImprovements.push_back(pUnit->GetID());
+			break;
+
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
 			if (MoveCivilianToSafety(pUnit))
 				UnitProcessed(pUnit->GetID());
@@ -4451,6 +4455,10 @@ void CvHomelandAI::ExecuteArtistMoves()
 			}	
 			break;
 
+		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
+			m_greatPeopleForImprovements.push_back(pUnit->GetID());
+			break;
+
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
 			if (MoveCivilianToSafety(pUnit))
 				UnitProcessed(pUnit->GetID());
@@ -4568,6 +4576,10 @@ void CvHomelandAI::ExecuteMusicianMoves()
 					}
 				}
 			}	
+			break;
+
+		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
+			m_greatPeopleForImprovements.push_back(pUnit->GetID());
 			break;
 
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:

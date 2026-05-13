@@ -1233,7 +1233,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 		if kUnitInfo.BaseGold > 0 or kUnitInfo.BaseGoldTurnsToCount > 0 or kUnitInfo.NumGoldPerEra > 0 or kUnitInfo.BaseWLTKDTurns > 0 then
 			AddTooltip(tAbilityLines, "TXT_KEY_MISSION_CONDUCT_TRADE_MISSION");
 		end
-		if kUnitInfo.BaseCultureTurnsToCount > 0 or kUnitInfo.NumFreeTechs > 0 then
+		if kUnitInfo.BaseBeakersTurnsToCount > 0 or kUnitInfo.NumFreeTechs > 0 then
 			AddTooltip(tAbilityLines, "TXT_KEY_MISSION_DISCOVER_TECH");
 		end
 		if kUnitInfo.BaseCultureTurnsToCount > 0 or kUnitInfo.FreePolicies > 0 then

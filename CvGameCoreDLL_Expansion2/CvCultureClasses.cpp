@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "LintFree.h"
+#include "CvCultureClasses.h"
 
 //=====================================
 // CvGreatWork
@@ -1005,7 +1006,7 @@ CvCity* CvPlayerCulture::GetClosestAvailableGreatWorkSlot(int iX, int iY, GreatW
 	return pBestCity;
 }
 
-/// How many Great Works are in the entire empure?
+/// How many Great Works are in the entire empire?
 int CvPlayerCulture::GetNumGreatWorks() const
 {
 	CvCity* pLoopCity = NULL;
@@ -1015,6 +1016,19 @@ int CvPlayerCulture::GetNumGreatWorks() const
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		iRtnValue += pLoopCity->GetCityCulture()->GetNumGreatWorks();
+	}
+
+	return iRtnValue;
+}
+
+/// How many Great Works of eSlotType are in the entire empire?
+int CvPlayerCulture::GetNumGreatWorks(GreatWorkSlotType eSlotType) const
+{
+	int iLoop = 0;
+	int iRtnValue = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		iRtnValue += pLoopCity->GetCityBuildings()->GetNumGreatWorks(eSlotType);
 	}
 
 	return iRtnValue;
