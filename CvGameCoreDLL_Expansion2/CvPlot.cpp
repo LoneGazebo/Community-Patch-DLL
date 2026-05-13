@@ -8562,13 +8562,15 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				if (newImprovementEntry.GetHappinessOnConstruction() != 0)
 				{
-					// this actually tracks improvement happiness, not num landmarks built
-					GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
-					if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
+					TeamTypes eBuilderTeam = GET_PLAYER(eBuilder).getTeam();
+					TeamTypes ePlotTeam = getTeam();
+					GET_TEAM(eBuilderTeam).ChangeHappinessFromImprovements(newImprovementEntry.GetHappinessOnConstruction());
+					if (ePlotTeam != NO_TEAM && ePlotTeam != eBuilderTeam && GET_PLAYER(getOwner()).isMajorCiv())
 					{
-						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+						GET_TEAM(ePlotTeam).ChangeHappinessFromImprovements(newImprovementEntry.GetHappinessOnConstruction());
 					}
 				}
+
 				// if the improvement isn't a landmark but has yield changes by era, it needs the historical record set. 
 				static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 				if (eNewValue != eLandmark)

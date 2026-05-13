@@ -128,10 +128,6 @@ SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness Total: {1_Num}'
 WHERE Tag = 'TXT_KEY_TP_HAPPINESS_SOURCES';
 
 UPDATE Language_en_US
-SET Text = '{1_Num} from Natural Wonders and Landmarks.'
-WHERE Tag = 'TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS';
-
-UPDATE Language_en_US
 SET Text = 'Empire-Wide [ICON_HAPPINESS_3] Unhappiness Total: {1_Num} (capped by City Population)'
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_TOTAL';
 

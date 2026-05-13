@@ -391,6 +391,7 @@ protected:
 	static int lGetExtraHappinessPerLuxury(lua_State* L);
 	static int lGetHappinessFromReligion(lua_State* L);
 	static int lGetHappinessFromNaturalWonders(lua_State* L);
+	static int lGetHappinessFromImprovements(lua_State* L);
 	static int lGetHappinessFromLeagues(lua_State* L);
 	static int lGetHappinessFromMilitaryUnits(lua_State* L);
 

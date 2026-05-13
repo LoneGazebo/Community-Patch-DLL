@@ -19918,6 +19918,9 @@ void CvPlayer::DoUpdateTotalHappiness()
 	// Increase from Natural Wonders
 	m_iHappiness += GetHappinessFromNaturalWonders();
 
+	// Increase from constructed Improvements
+	m_iHappiness += GetHappinessFromImprovements();
+
 	// Friendship with Minors can provide Happiness
 	m_iHappiness += GetHappinessFromMinorCivs();
 
@@ -21566,7 +21569,12 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 		iHappiness += iPlotHappiness;
 	}
 
-	return iHappiness + GET_TEAM(getTeam()).GetNumLandmarksBuilt();
+	return iHappiness;
+}
+
+int CvPlayer::GetHappinessFromImprovements() const
+{
+	return GET_TEAM(getTeam()).GetHappinessFromImprovements();
 }
 
 void CvPlayer::SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue)

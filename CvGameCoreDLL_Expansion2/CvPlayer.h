@@ -669,6 +669,7 @@ public:
 	int GetHappinessFromResourceVariety() const;
 	int GetHappinessFromReligion();
 	int GetHappinessFromNaturalWonders() const;
+	int GetHappinessFromImprovements() const;
 	void SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue);
 
 	void ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue);
