@@ -353,14 +353,14 @@
 			<Text>Shrapnel Rounds I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1_HELP">
-			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2">
 			<Text>Shrapnel Rounds II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2_HELP">
-			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_VANGUARD">
