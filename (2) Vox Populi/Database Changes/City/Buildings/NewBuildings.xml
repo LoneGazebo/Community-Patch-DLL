@@ -1146,21 +1146,6 @@
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>27</PortraitIndex>
 		</Row>
-		<!-- Kabuki Theater -->
-		<Row>
-			<Type>BUILDING_KABUKI_THEATER</Type>
-			<BuildingClass>BUILDINGCLASS_OPERA_HOUSE</BuildingClass>
-			<Description>TXT_KEY_BUILDING_KABUKI_THEATER</Description>
-			<Civilopedia>TXT_KEY_BUILDING_KABUKI_THEATER_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_KABUKI_THEATER_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_KABUKI_THEATER_STRATEGY</Strategy>
-			<PrereqTech>TECH_ACOUSTICS</PrereqTech>
-			<ArtDefineTag>OPERA_HOUSE</ArtDefineTag>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
-			<GreatWorkCount>1</GreatWorkCount>
-			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
-			<PortraitIndex>28</PortraitIndex>
-		</Row>
 		<!-- Seowon -->
 		<Row>
 			<Type>BUILDING_SEOWON</Type>

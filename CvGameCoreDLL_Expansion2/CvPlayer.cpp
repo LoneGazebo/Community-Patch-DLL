@@ -48714,13 +48714,7 @@ int CvPlayer::GetTreatiseCulture(UnitTypes eUnit) const
 		// Scale with the number of great works of literature
 		if (pkUnitInfo->GetScaleFromNumGWs() != 0)
 		{
-			int iNumGW = 0;
-			int iLoop = 0;
-			for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-			{
-				iNumGW += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
-			}
-			int iMod = iNumGW * pkUnitInfo->GetScaleFromNumGWs();
+			int iMod = GetCulture()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE()) * pkUnitInfo->GetScaleFromNumGWs();
 			iCulture *= 100 + iMod;
 			iCulture /= 100;
 		}
@@ -48787,11 +48781,7 @@ int CvPlayer::GetBlastTourism(UnitTypes eUnit) const
 	if (MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES)
 	{
 		// Turn number is increased by the number of great works of music
-		int iLoop = 0;
-		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			iTurn += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-		}
+		iTurn += GetCulture()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
 
 		// Amount is based on recent tourism per turn values
 		iTourism = getYieldPerTurnHistory(YIELD_TOURISM, iTurn);
@@ -48824,11 +48814,7 @@ int CvPlayer::GetBlastTourismTurns(UnitTypes eUnit) const
 		return 0;
 
 	// Scale with the number of great works of music
-	int iLoop = 0;
-	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-	{
-		iTurnTimes100 += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC()) * 100;
-	}
+	iTurnTimes100 += GetCulture()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC()) * 100;
 
 	// Scale with specific improvements
 	iTurnTimes100 += GetScaleAmount(pkUnitInfo, 100);

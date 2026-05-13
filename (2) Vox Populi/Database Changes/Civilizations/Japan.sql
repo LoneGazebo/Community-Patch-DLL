@@ -119,40 +119,84 @@ VALUES
 	('BUILDING_TATARA', 'YIELD_SCIENCE', 140);
 
 ----------------------------------------------------------
--- Unique Building: Kabuki Theater (Opera House)
+-- Unique Improvement: Torii
 ----------------------------------------------------------
-INSERT INTO Civilization_BuildingClassOverrides
-	(CivilizationType, BuildingClassType, BuildingType)
+INSERT INTO Unit_Builds
+	(UnitType, BuildType)
 VALUES
-	('CIVILIZATION_JAPAN', 'BUILDINGCLASS_OPERA_HOUSE', 'BUILDING_KABUKI_THEATER');
+	('UNIT_WRITER', 'BUILD_TORII'),
+	('UNIT_ARTIST', 'BUILD_TORII'),
+	('UNIT_MUSICIAN', 'BUILD_TORII');
 
-UPDATE Building_YieldChanges
-SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_OPERA_HOUSE' AND YieldType = 'YIELD_CULTURE') + 2
-WHERE BuildingType = 'BUILDING_KABUKI_THEATER' AND YieldType = 'YIELD_CULTURE';
-
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
+INSERT INTO BuildFeatures
+	(BuildType, FeatureType, Remove)
 VALUES
-	('BUILDING_KABUKI_THEATER', 'BUILDINGCLASS_WRITERS_GUILD', 'YIELD_GOLD', 1),
-	('BUILDING_KABUKI_THEATER', 'BUILDINGCLASS_ARTISTS_GUILD', 'YIELD_GOLD', 1),
-	('BUILDING_KABUKI_THEATER', 'BUILDINGCLASS_MUSICIANS_GUILD', 'YIELD_GOLD', 1);
+	('BUILD_TORII', 'FEATURE_FOREST', 1),
+	('BUILD_TORII', 'FEATURE_JUNGLE', 1),
+	('BUILD_TORII', 'FEATURE_MARSH', 1);
 
-INSERT INTO Building_YieldFromInternalTREnd
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_KABUKI_THEATER', 'YIELD_CULTURE', 50);
+UPDATE Improvements
+SET
+	BuildableOnResources = 1,
+	ConnectsAllResources = 1,
+	HappinessOnConstruction = 1
+WHERE Type = 'IMPROVEMENT_TORII';
 
-INSERT INTO Building_YieldFromGPBirthScaledWithWriterBulb
-	(BuildingType, YieldType, Yield)
+INSERT INTO Improvement_ValidTerrains
+	(ImprovementType, TerrainType)
 VALUES
-	('BUILDING_KABUKI_THEATER', 'YIELD_GOLD', 5);
+	('IMPROVEMENT_TORII', 'TERRAIN_GRASS'),
+	('IMPROVEMENT_TORII', 'TERRAIN_PLAINS'),
+	('IMPROVEMENT_TORII', 'TERRAIN_DESERT'),
+	('IMPROVEMENT_TORII', 'TERRAIN_TUNDRA'),
+	('IMPROVEMENT_TORII', 'TERRAIN_SNOW');
 
-INSERT INTO Building_YieldFromGPBirthScaledWithArtistBulb
-	(BuildingType, YieldType, Yield)
+INSERT INTO Improvement_Yields
+	(ImprovementType, YieldType, Yield)
 VALUES
-	('BUILDING_KABUKI_THEATER', 'YIELD_SCIENCE', 2);
+	('IMPROVEMENT_TORII', 'YIELD_CULTURE', 5),
+	('IMPROVEMENT_TORII', 'YIELD_FAITH', 4),
+	('IMPROVEMENT_TORII', 'YIELD_TOURISM', 3);
 
-INSERT INTO Building_YieldFromGPBirthScaledWithPerTurnYield
-	(BuildingType, GreatPersonType, YieldIn, YieldOut, Value)
+INSERT INTO Improvement_TechYieldChanges
+	(ImprovementType, TechType, YieldType, Yield)
 VALUES
-	('BUILDING_KABUKI_THEATER', 'GREATPERSON_MUSICIAN', 'YIELD_TOURISM', 'YIELD_FAITH', 100);
+	('IMPROVEMENT_TORII', 'TECH_DRAMA', 'YIELD_CULTURE', 4),
+	('IMPROVEMENT_TORII', 'TECH_DRAMA', 'YIELD_TOURISM', 3),
+	('IMPROVEMENT_TORII', 'TECH_GUILDS', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_TORII', 'TECH_GUILDS', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_TORII', 'TECH_GUILDS', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_TORII', 'TECH_GUILDS', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_TORII', 'TECH_GUILDS', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_TORII', 'TECH_ACOUSTICS', 'YIELD_FAITH', 4),
+	('IMPROVEMENT_TORII', 'TECH_ACOUSTICS', 'YIELD_TOURISM', 2),
+	('IMPROVEMENT_TORII', 'TECH_ARCHAEOLOGY', 'YIELD_CULTURE', 7),
+	('IMPROVEMENT_TORII', 'TECH_ARCHAEOLOGY', 'YIELD_TOURISM', 3),
+	('IMPROVEMENT_TORII', 'TECH_RADIO', 'YIELD_GOLD', 5),
+	('IMPROVEMENT_TORII', 'TECH_RADIO', 'YIELD_CULTURE', 4),
+	('IMPROVEMENT_TORII', 'TECH_RADIO', 'YIELD_TOURISM', 12);
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_TORII', 'YIELD_CULTURE', 6);
+
+CREATE TEMP TABLE Helper (
+	UnitClassType TEXT,
+	Amount INTEGER
+);
+
+INSERT INTO Helper
+VALUES
+	('UNITCLASS_WRITER', 3), -- +3% culture per torii
+	('UNITCLASS_ARTIST', 10), -- +10% golden age points per torii
+	('UNITCLASS_MUSICIAN', 34); -- +0.34 (1/3) turns per torii
+
+INSERT INTO Unit_ScalingFromOwnedImprovements
+	(UnitType, ImprovementType, Amount)
+SELECT
+	a.Type, 'IMPROVEMENT_TORII', b.Amount
+FROM Units a, Helper b
+WHERE a.Class = b.UnitClassType;
+
+DROP TABLE Helper;
