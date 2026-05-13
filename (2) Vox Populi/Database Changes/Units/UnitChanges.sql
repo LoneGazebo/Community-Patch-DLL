@@ -704,7 +704,7 @@ UPDATE Units
 SET
 	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	BaseCultureTurnsToCount = 5,
-	ScaleFromNumGWs = 3
+	ScaleFromNumGWs = 8
 WHERE Class = 'UNITCLASS_WRITER';
 
 -- Great Artist

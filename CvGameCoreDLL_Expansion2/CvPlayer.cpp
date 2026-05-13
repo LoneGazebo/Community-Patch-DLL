@@ -48706,11 +48706,24 @@ int CvPlayer::GetTreatiseCulture(UnitTypes eUnit) const
 	int iCulture = getYieldPerTurnHistory(YIELD_CULTURE, pkUnitInfo->GetBaseCultureTurnsToCount());
 
 	// Amount may be modified by number of owned great works
-	if (MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES && pkUnitInfo->GetScaleFromNumGWs() > 0)
+	if (MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES)
 	{
-		int iMod = GetCulture()->GetNumGreatWorks() * pkUnitInfo->GetScaleFromNumGWs();
-		iCulture *= 100 + iMod;
-		iCulture /= 100;
+		// Scale with specific improvements
+		iCulture = GetScaleAmount(pkUnitInfo, iCulture);
+
+		// Scale with the number of great works of literature
+		if (pkUnitInfo->GetScaleFromNumGWs() != 0)
+		{
+			int iNumGW = 0;
+			int iLoop = 0;
+			for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				iNumGW += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
+			}
+			int iMod = iNumGW * pkUnitInfo->GetScaleFromNumGWs();
+			iCulture *= 100 + iMod;
+			iCulture /= 100;
+		}
 	}
 
 	// Scale with game speed
@@ -48732,17 +48745,23 @@ int CvPlayer::GetBlastGAP(UnitTypes eUnit) const
 
 	int iGAP = getYieldPerTurnHistory(YIELD_TOURISM, iTurn) + getYieldPerTurnHistory(YIELD_GOLDEN_AGE_POINTS, iTurn);
 
-	// Amount may be modified by number of completed themes
-	if (MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES && pkUnitInfo->GetScaleFromNumThemes() > 0)
+	if (MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES)
 	{
-		int iTotalThemes = 0;
-		int iCityLoop = 0;
-		for (const CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+		// Scale with specific improvements
+		iGAP = GetScaleAmount(pkUnitInfo, iGAP);
+
+		// Scale with number of completed themes
+		if (pkUnitInfo->GetScaleFromNumThemes() != 0)
 		{
-			iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+			int iTotalThemes = 0;
+			int iCityLoop = 0;
+			for (const CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+			{
+				iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+			}
+			iGAP *= 100 + iTotalThemes * pkUnitInfo->GetScaleFromNumThemes();
+			iGAP /= 100;
 		}
-		iGAP *= 100 + iTotalThemes * pkUnitInfo->GetScaleFromNumThemes();
-		iGAP /= 100;
 	}
 
 	// Give a minimal amount in the early game equal to half of the requirement for the first golden age
@@ -48776,6 +48795,9 @@ int CvPlayer::GetBlastTourism(UnitTypes eUnit) const
 
 		// Amount is based on recent tourism per turn values
 		iTourism = getYieldPerTurnHistory(YIELD_TOURISM, iTurn);
+
+		// Scale with specific improvements
+		iTourism = GetScaleAmount(pkUnitInfo, iTourism);
 	}
 	else
 	{
@@ -48797,22 +48819,25 @@ int CvPlayer::GetBlastTourismTurns(UnitTypes eUnit) const
 	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
 	const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 
-	int iTurn = pkUnitInfo->GetTourismBonusTurns();
-	if (iTurn == 0)
+	int iTurnTimes100 = pkUnitInfo->GetTourismBonusTurns() * 100;
+	if (iTurnTimes100 == 0)
 		return 0;
 
-	// Increased by the number of great works of music
+	// Scale with the number of great works of music
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iTurn += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+		iTurnTimes100 += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC()) * 100;
 	}
 
-	// Scale with game speed
-	iTurn *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
-	iTurn /= 100;
+	// Scale with specific improvements
+	iTurnTimes100 += GetScaleAmount(pkUnitInfo, 100);
 
-	return iTurn;
+	// Scale with game speed
+	iTurnTimes100 *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+	iTurnTimes100 /= 100;
+
+	return iTurnTimes100 / 100;
 }
 
 // Generate tooltip displayed for whether or not our vassal can declare independence from us
