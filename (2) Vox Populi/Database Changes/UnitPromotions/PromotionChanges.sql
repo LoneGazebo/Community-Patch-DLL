@@ -314,7 +314,7 @@ UPDATE UnitPromotions SET HealOutsideFriendly = 1, FriendlyHealChange = 5, Neutr
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Naval Ranged promotion tree drawn using ASCIIFlow
---                                                                Splash I
+--                                                                Splash I ──► Splash II
 -- Targeting I ──┬───► Targeting II ───┬───► Targeting III ───┬─► Indomitable ─────────────────────────┐
 --               │                     │                      │                                        │
 --               │                     │                      └───────────────────────────┐            │
@@ -368,8 +368,8 @@ UPDATE UnitPromotions SET CityAttack = 40 WHERE Type = 'PROMOTION_BROADSIDE';
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 35),
-	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 35);
+	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 50),
+	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 50);
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Submarine promotion tree drawn using ASCIIFlow
