@@ -1232,6 +1232,7 @@
 			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_MISSION</MissionTooltip>
 			<IsCounterSpyMission>true</IsCounterSpyMission>
 			<CounterspyNPRateReduction>20</CounterspyNPRateReduction>
+			<EventDuration>999</EventDuration>
 		</Row>
 		<!-- Inspect the local garrison and fine-tune our city defenses -->
 		<Row>
@@ -1241,7 +1242,36 @@
 			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION</MissionTooltip>
 			<IsCounterSpyMission>true</IsCounterSpyMission>
 			<CityDefenseModifierBase>30</CityDefenseModifierBase>
-			<CounterspyBlockSapCity>true</CounterspyBlockSapCity>
+			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<EventDuration>999</EventDuration>
+		</Row>
+		<!-- Hunt down heretics -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_HELP</Help>
+			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_MISSION</MissionTooltip>
+			<IsCounterSpyMission>true</IsCounterSpyMission>
+			<CityHasPlayerMajorityReligion>1</CityHasPlayerMajorityReligion>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+			<GrowthMod>-15</GrowthMod>
+			<EventDuration>999</EventDuration>
+		</Row>
+		<!-- Set up checkpoints -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_HELP</Help>
+			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_MISSION</MissionTooltip>
+			<IsCounterSpyMission>true</IsCounterSpyMission>
+			<BasicNeedsMedianModifier>-25</BasicNeedsMedianModifier>
+			<GoldMedianModifier>-25</GoldMedianModifier>
+			<ScienceMedianModifier>-25</ScienceMedianModifier>
+			<CultureMedianModifier>-25</CultureMedianModifier>
+			<ReligiousUnrestModifier>-25</ReligiousUnrestModifier>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<EventDuration>999</EventDuration>
 		</Row>
 	</CityEventChoices>
 	<CityEventChoice_Notification>
