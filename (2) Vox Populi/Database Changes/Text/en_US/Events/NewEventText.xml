@@ -1455,25 +1455,49 @@
 			<Text>[ICON_CITY_SECURITY] Establish a Counter-Espionage Network.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_HELP">
-			<Text>Foreign [ICON_SPY] Spies generate -20 Network Points per turn.[NEWLINE][NEWLINE]Gain 50 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
+			<Text>Foreign [ICON_SPY] Spies generate [COLOR_POSITIVE_TEXT]-20[ENDCOLOR] Network Points per turn. [ICON_CIVIL_SERVANT] Civil Servants produce [COLOR_NEGATIVE_TEXT]-1[ENDCOLOR] of each of their base yields.[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Kidnap Specialists", "Radicalize the Rural Citizenry", or "Burgle the National Treasury" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_EFFECT">
-			<Text>Foreign [ICON_SPY] Spies generate [ICON_NEGATIVE_TEXT]-20 Network Points[ENDCOLOR] per turn.</Text>
+			<Text>Foreign [ICON_SPY] Spies generate [ICON_POSITIVE_TEXT]-20 Network Points[ENDCOLOR] per turn. [ICON_CIVIL_SERVANT] Civil Servants produce [COLOR_NEGATIVE_TEXT]-1[ENDCOLOR] of each of their base yields. Foreign Spies are unable to perform the "Kidnap Specialists", "Radicalize the Rural Citizenry", or "Burgle the National Treasury" Missions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_MISSION">
 			<Text>Establish Network</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE">
-			<Text>[ICON_STRENGTH] Strengthen City Defenses.</Text>
+			<Text>[ICON_STRENGTH] Inspect City Defenses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP">
-			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.[NEWLINE][NEWLINE]Gain 50 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. +2 [ICON_PRODUCTION] Production and [ICON_CULTURE_LOCAL] Border Growth Points from [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR].[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Sabotage City Defenses", "Poison the Water Supply", and "Assassinate the City Governor" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_EFFECTS">
-			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. +2 [ICON_PRODUCTION] Production and [ICON_CULTURE_LOCAL] Border Growth Points from [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR]. Foreign Spies are unable to perform the "Sabotage City Defenses", "Poison the Water Supply", or "Assassinate the City Governor" Missions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION">
 			<Text>Strenghen Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION">
+			<Text>[ICON_RELIGION] Hunt Down Heretics.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_HELP">
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority from this City by +25%, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_FOOD] Growth by 15%.[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Pilfer Religious Relics", "Purloin a Great Work", or "Distribute Seditious Leaflets" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_CULTURE] Culture and [ICON_PEACE] Faith when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_CULTURE] Culture and [ICON_PEACE] Faith when you kill a foreign spy, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_EFFECTS">
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority from this City by +25%, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_FOOD] Growth by 15%. Foreign Spies are unable to perform the "Pilfer Religious Relics", "Purloin a Great Work", or "Distribute Seditious Leaflets" Missions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_MISSION">
+			<Text>Hunt Down Heretics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM">
+			<Text>[ICON_OCCUPIED] Deploy Checkpoints.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_HELP">
+			<Text>-25% [ICON_HAPPINESS_3] Needs Modifier in the City, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_TOURISM] Tourism by 15%.[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Hijack Trade Convoy" or "Arm the Local Populace" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism when you kill a foreign spy, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_EFFECTS">
+			<Text>-25% [ICON_HAPPINESS_3] Needs Modifier in the City, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_TOURISM] Tourism by 15%. Foreign Spies are unable to perform the "Hijack Trade Convoy" or "Arm the Local Populace" Missions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_MISSION">
+			<Text>Deploy Checkpoints</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
