@@ -109,7 +109,7 @@ VALUES
 	('TECH_DRAMA', 'FLAVOR_GREAT_PEOPLE', 10),
 	('TECH_DRAMA', 'FLAVOR_WONDER', 10),
 
-	('TECH_PHILOSOPHY', 'FLAVOR_NAVAL', 15), -- Units: Trireme, Buildings: Courthouse, Temple, SchoolofPhilosophy, Wonders: Oracle
+	('TECH_PHILOSOPHY', 'FLAVOR_NAVAL', 15), -- Units: Trireme, Buildings: Courthouse, Temple, SchoolofPhilosophy, Wonders: Oracle, Ability: OpenBorders
 	('TECH_PHILOSOPHY', 'FLAVOR_SCIENCE', 10),
 	('TECH_PHILOSOPHY', 'FLAVOR_RELIGION', 10),
 	('TECH_PHILOSOPHY', 'FLAVOR_WONDER', 10),
@@ -160,7 +160,7 @@ VALUES
 
 	------------------------------------------------------
 
-	('TECH_CIVIL_SERVICE', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Units: Envoy, Buildings: Workshop, Wonders: ForbiddenPalace, Ability: OpenBorders, Yields: Laborer +1G, Farm +1F, Pasture +2F 
+	('TECH_CIVIL_SERVICE', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Units: Envoy, Buildings: Workshop, Wonders: ForbiddenPalace, Yields: Laborer +1G, Farm +1F, Pasture +2F 
 	('TECH_CIVIL_SERVICE', 'FLAVOR_GROWTH', 10),
 	('TECH_CIVIL_SERVICE', 'FLAVOR_PRODUCTION', 10),
 	('TECH_CIVIL_SERVICE', 'FLAVOR_WONDER', 5),
