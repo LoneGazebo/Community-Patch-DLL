@@ -36,7 +36,7 @@ SET Text = 'God of Craftsmen'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Quarries. +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science from the Palace. +2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Stone Works.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science from Quarries. +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science from the Palace. +2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Stone Works.'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES';
 
 UPDATE Language_en_US
@@ -70,7 +70,7 @@ SET Text = 'God of the Sun'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Granaries. +1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science from Farms on improved Resources.'
+SET Text = '+2 [ICON_PEACE] Faith, +1 [ICON_PRODUCTION] Production, and +1 [ICON_GOLD] Gold from Granaries. +1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science from Farms on improved Resources.'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 -- God of War
@@ -138,12 +138,12 @@ SET Text = 'Goddess of the Home'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+25% [ICON_FOOD] Growth. +1 [ICON_PEACE] Faith and [ICON_FOOD] Food from Shrines. +8 [ICON_PEACE] Faith and [ICON_FOOD] Food when a Building is constructed, scaling with Era.'
+SET Text = '+25% [ICON_FOOD] Growth and +1 [ICON_HAPPINESS_1] Happiness. +1 [ICON_PEACE] Faith and [ICON_FOOD] Food from Shrines and Palace. +8 [ICON_PEACE] Faith and [ICON_FOOD] Food when a Building is constructed, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES';
 
 -- Goddess of the Hunt
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture from Camps. +2 [ICON_FOOD] Food from Smokehouses.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture from Camps. +1 [ICON_PEACE] Faith and [ICON_FOOD] Food from Smokehouses.'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT';
 
 UPDATE Language_en_US
