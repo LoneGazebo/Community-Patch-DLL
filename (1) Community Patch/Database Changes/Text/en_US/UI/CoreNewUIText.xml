@@ -1792,6 +1792,9 @@
 		<Row Tag="TXT_KEY_EXCESS_FOOD">
 			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'+#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"}[ENDCOLOR] excess [ICON_FOOD] before Modifiers[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GROWTH_ALWAYS_POSITIVE">
+			<Text>Total [ICON_FOOD] in this City cannot fall below 1</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GROWTH_MOD_BELIEF">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_RELIGION] Religious Beliefs</Text>
 		</Row>
