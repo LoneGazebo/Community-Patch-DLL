@@ -14,7 +14,7 @@
 			<Text>Epona, the Great Mare</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA">
-			<Text>+15% [ICON_GOLD] Gold and [ICON_RESEARCH] Science during "We Love the King Days". +3 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_GOLDEN_AGE] Golden Age Points in your [ICON_CAPITAL] Capital/Holy City for every unique Luxury Resource owned or imported. +3 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_GOLDEN_AGE] Golden Age Points per active Trade Route to or from the City. +5 [ICON_GOLD] Gold from Ceilidh Hall.</Text>
+			<Text>+10% [ICON_GOLD] Gold and [ICON_RESEARCH] Science during "We Love the King Days". +2 [ICON_GOLD] Gold and [ICON_RESEARCH] Science in your [ICON_CAPITAL] Capital/Holy City for every unique Luxury Resource owned or imported. +2 [ICON_GOLD] Gold and [ICON_RESEARCH] Science per active Trade Route to or from the City. +5 [ICON_GOLD] Gold from Ceilidh Hall.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
 			<Text>Nuada, the Silver-Handed</Text>
