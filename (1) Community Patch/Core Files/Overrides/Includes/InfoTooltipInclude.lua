@@ -2859,6 +2859,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND", kBuildingInfo.BorderObstacleCity);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_WATER", kBuildingInfo.BorderObstacleWater);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_NO_STARVATION_FROM_NON_SPECIALISTS", kBuildingInfo.NoStarvationNonSpecialist);
+	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_POSITIVE_FOOD", kBuildingInfo.PositiveFood);
 
 	AddTooltipIfTrue(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GAINLESS_PILLAGE_GLOBAL", kBuildingInfo.CityGainlessPillage);
 	AddTooltipIfTrue(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND_PLAYER", kBuildingInfo.PlayerBorderObstacle);
