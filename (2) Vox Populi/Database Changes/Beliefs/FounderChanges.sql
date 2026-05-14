@@ -22,7 +22,8 @@ INSERT INTO Belief_YieldFromConversion -- scaler = +(X^2)% where X is the number
 	(BeliefType, YieldType, Yield)
 VALUES
 	('BELIEF_PAPAL_PRIMACY', 'YIELD_PRODUCTION', 20),
-	('BELIEF_PAPAL_PRIMACY', 'YIELD_SCIENCE', 20);
+	('BELIEF_PAPAL_PRIMACY', 'YIELD_SCIENCE', 20),
+	('BELIEF_PAPAL_PRIMACY', 'YIELD_FAITH', 10);
 
 -- Peace Loving (now Divine Inheritance)
 UPDATE Beliefs SET HappinessPerXPeacefulForeignFollowers = 0 WHERE Type = 'BELIEF_PEACE_LOVING';
