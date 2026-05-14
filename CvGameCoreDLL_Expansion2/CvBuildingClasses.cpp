@@ -48,6 +48,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
 	m_bNoStarvationNonSpecialist(false),
+	m_bPositiveFood(false),
 	m_iGetCooldown(0),
 	m_bTradeRouteInvulnerable(false),
 	m_iTRSpeedBoost(0),
@@ -898,6 +899,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
 	m_bNoStarvationNonSpecialist = kResults.GetBool("NoStarvationNonSpecialist");
+	m_bPositiveFood = kResults.GetBool("PositiveFood");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 	m_iNumPoliciesNeeded = kResults.GetInt("NumPoliciesNeeded");
 
@@ -2068,6 +2070,11 @@ bool CvBuildingEntry::IsAllowsPuppetPurchase() const
 bool CvBuildingEntry::IsNoStarvationNonSpecialist() const
 {
 	return m_bNoStarvationNonSpecialist;
+}
+/// Does this building cause food to be clamped by +1?
+bool CvBuildingEntry::IsPositiveFood() const
+{
+	return m_bPositiveFood;
 }
 /// Does this building have a cooldown cost when purchased?
 int CvBuildingEntry::GetCooldown() const
