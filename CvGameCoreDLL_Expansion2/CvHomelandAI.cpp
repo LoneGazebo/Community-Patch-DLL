@@ -4013,7 +4013,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	for (list<int>::iterator it = allWorkers.begin(); it != allWorkers.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (!pUnit || pUnit->TurnProcessed() || pUnit->getUnitInfo().GetCombat() > 0 || (!pUnit->IsAutomated() && m_pPlayer->isHuman(ISHUMAN_AI_UNITS)))
+		if (!pUnit || pUnit->TurnProcessed() || pUnit->isDelayedDeath() || pUnit->IsDead() || pUnit->getUnitInfo().GetCombat() > 0 || (!pUnit->IsAutomated() && m_pPlayer->isHuman(ISHUMAN_AI_UNITS)))
 			continue;
 
 		//find the city which is most in need of workers
