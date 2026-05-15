@@ -232,29 +232,7 @@ VALUES
 	('BELIEF_SACRED_SITES', 'BUILDINGCLASS_HERMITAGE', 'YIELD_TOURISM', 10);
 
 -- To the Glory of God
-UPDATE Beliefs
-SET
-	GreatPeopleFaithCostMod = 50,
-	CityScalerLimiter = 20
-WHERE Type = 'BELIEF_TO_GLORY_OF_GOD';
-
-CREATE TEMP TABLE Helper4 (
-	YieldType TEXT
-);
-
-INSERT INTO Helper4
-VALUES
-	('YIELD_GOLD'),
-	('YIELD_SCIENCE'),
-	('YIELD_CULTURE');
-
-INSERT INTO Belief_GreatPersonExpendedYield -- does NOT scale with era unlike Ceremonial Burial
-	(BeliefType, GreatPersonType, YieldType, Yield)
-SELECT
-	'BELIEF_TO_GLORY_OF_GOD', a.Type, b.YieldType, 3
-FROM GreatPersons a, Helper4 b;
-
-DROP TABLE Helper4;
+UPDATE Beliefs SET GreatPeopleFaithCostMod = 50 WHERE Type = 'BELIEF_TO_GLORY_OF_GOD';
 
 -- Work Ethic
 UPDATE Beliefs SET CivilianWorkRate = 25 WHERE Type = 'BELIEF_WORK_ETHIC';
