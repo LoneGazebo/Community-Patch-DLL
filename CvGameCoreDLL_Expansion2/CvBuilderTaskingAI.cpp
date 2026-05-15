@@ -1807,6 +1807,23 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 	return aDirectives;
 }
 
+static ImprovementTypes GetImprovementFromBuild(BuildTypes eBuild)
+{
+	static const ImprovementTypes eArchaeologicalDigImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ARCHAEOLOGICAL_DIG");
+	static const ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+
+	CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+	if (!pkBuild)
+		return NO_IMPROVEMENT;
+
+	ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+
+	if (eImprovement == eArchaeologicalDigImprovement)
+		eImprovement = eLandmarkImprovement;
+
+	return eImprovement;
+}
+
 static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentImprovements(const vector<OptionWithScore<BuilderDirective>>& aDirectives, bool bIgnoreNoTwoAdjacent)
 {
 	vector<OptionWithScore<BuilderDirective>> aNewDirectives;
@@ -1822,8 +1839,7 @@ static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentIm
 			continue;
 		}
 
-		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		ImprovementTypes eImprovement = GetImprovementFromBuild(eBuild);
 		if (eImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -1857,8 +1873,7 @@ static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentIm
 			if (eOtherBuild == NO_BUILD)
 				continue;
 
-			CvBuildInfo* pkOtherBuild = GC.getBuildInfo(eOtherBuild);
-			ImprovementTypes eOtherImprovement = (ImprovementTypes)pkOtherBuild->getImprovement();
+			ImprovementTypes eOtherImprovement = GetImprovementFromBuild(eOtherBuild);
 			if (eOtherImprovement == NO_IMPROVEMENT)
 				continue;
 
@@ -1892,8 +1907,7 @@ static vector<OptionWithScore<BuilderDirective>> FilterNoTwoAdjacentDirectives(c
 			continue;
 		}
 
-		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		ImprovementTypes eImprovement = GetImprovementFromBuild(eBuild);
 		if (eImprovement == NO_IMPROVEMENT)
 		{
 			aNewDirectives.push_back(*it);
@@ -1991,8 +2005,7 @@ static vector<OptionWithScore<BuilderDirective>> FilterOnlyBestImprovements(cons
 		BuildTypes eBuild = eDirective.m_eBuild;
 		CvPlot* pPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
-		CvBuildInfo* pkBuild = eBuild != NO_BUILD ? GC.getBuildInfo(eBuild) : NULL;
-		ImprovementTypes eImprovement = pkBuild ? (ImprovementTypes)pkBuild->getImprovement() : pPlot->getImprovementType();
+		ImprovementTypes eImprovement = eBuild != NO_BUILD ? GetImprovementFromBuild(eBuild) : pPlot->getImprovementType();
 		if (eImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -2026,8 +2039,7 @@ static vector<OptionWithScore<BuilderDirective>> FilterOnlyBestImprovements(cons
 
 			BuildTypes eOtherBuild = eOtherDirective.m_eBuild;
 
-			CvBuildInfo* pkOtherBuild = eOtherBuild != NO_BUILD ? GC.getBuildInfo(eOtherBuild) : NULL;
-			ImprovementTypes eOtherImprovement = pkOtherBuild ? (ImprovementTypes)pkOtherBuild->getImprovement() : pPlot->getImprovementType();
+			ImprovementTypes eOtherImprovement = eOtherBuild != NO_BUILD ? GetImprovementFromBuild(eOtherBuild) : pPlot->getImprovementType();
 			if (eOtherImprovement == NO_IMPROVEMENT)
 				continue;
 
@@ -2054,8 +2066,7 @@ void CvBuilderTaskingAI::UpdateGreatPersonDirectives(vector<OptionWithScore<Buil
 		if (eBuild == NO_BUILD)
 			continue;
 
-		CvBuildInfo* pkBuild =  GC.getBuildInfo(eBuild);
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		ImprovementTypes eImprovement = GetImprovementFromBuild(eBuild);
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 
@@ -2082,8 +2093,7 @@ int CvBuilderTaskingAI::GetBestNonGPDirectiveScoreInPlot(const CvPlot* pPlot, co
 		BuildTypes eBuild = eDirective.m_eBuild;
 		if (eBuild != NO_BUILD)
 		{
-			CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-			ImprovementTypes eOtherImprovement = pkBuild ? (ImprovementTypes)pkBuild->getImprovement() : NO_IMPROVEMENT;
+			ImprovementTypes eOtherImprovement = GetImprovementFromBuild(eBuild);
 			if (eOtherImprovement != NO_IMPROVEMENT)
 			{
 				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
@@ -2110,10 +2120,15 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 	vector<OptionWithScore<BuilderDirective>> aDirectives;
 
 	// Check which builds we can build first
-	vector<BuildTypes> aPossibleBuilds;
+	vector<BuildTypes> aPossibleBuilds; // contains all builds we can build with our current units or with any regular worker
+
+	// The following vectors contain non-overlapping sets of builds. I.e. if a build is included in
+	// aAnywhereBuilds, it is not included in the others.
+	vector<BuildTypes> aAnywhereBuilds; // builds we can build anywhere
+	vector<BuildTypes> aOutsideBorderBuilds; // builds we can build outside our borders but not in other civs' territory
 	vector<BuildTypes> aAdjacentBuilds; // builds we can build adjacent to our borders
-	vector<BuildTypes> aOutsideBorderBuilds; // builds we can build anywhere
-	// TODO perhaps add support for IsIgnoreOwnership (landmarks) and IsOnlyCityStateTerritory (vanilla feitoria?)
+	vector<BuildTypes> aCityStateBuilds; // builds we can build in city state territory
+
 	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
 		BuildTypes eBuild = (BuildTypes)iBuildIndex;
@@ -2129,11 +2144,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 			{
 				aPossibleBuilds.push_back(eBuild);
 
-				CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-				if (!pkBuild)
-					continue;
-
-				ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+				ImprovementTypes eImprovement = GetImprovementFromBuild(eBuild);
 				if (eImprovement == NO_IMPROVEMENT)
 					continue;
 
@@ -2141,10 +2152,14 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 				if (!pkImprovement)
 					continue;
 
-				if (pkImprovement->IsOutsideBorders())
+				if (pkImprovement->IsIgnoreOwnership())
+					aAnywhereBuilds.push_back(eBuild);
+				else if (pkImprovement->IsOutsideBorders())
 					aOutsideBorderBuilds.push_back(eBuild);
 				else if (pkImprovement->IsInAdjacentFriendly())
 					aAdjacentBuilds.push_back(eBuild);
+				else if (pkImprovement->IsOnlyCityStateTerritory())
+					aCityStateBuilds.push_back(eBuild);
 
 				continue;
 			}
@@ -2159,11 +2174,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 				{
 					aPossibleBuilds.push_back(eBuild);
 
-					CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-					if (!pkBuild)
-						break;
-
-					ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+					ImprovementTypes eImprovement = GetImprovementFromBuild(eBuild);
 					if (eImprovement == NO_IMPROVEMENT)
 						break;
 
@@ -2171,10 +2182,14 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 					if (!pkImprovement)
 						break;
 
-					if (pkImprovement->IsOutsideBorders())
+					if (pkImprovement->IsIgnoreOwnership())
+						aAnywhereBuilds.push_back(eBuild);
+					else if (pkImprovement->IsOutsideBorders())
 						aOutsideBorderBuilds.push_back(eBuild);
 					else if (pkImprovement->IsInAdjacentFriendly())
 						aAdjacentBuilds.push_back(eBuild);
+					else if (pkImprovement->IsOnlyCityStateTerritory())
+						aCityStateBuilds.push_back(eBuild);
 
 					break;
 				}
@@ -2226,8 +2241,14 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 			if (!aAdjacentBuilds.empty() && (!pPlot->isOwned() || m_pPlayer->IsCultureBombForeignTerritory()) && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
 				AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aAdjacentBuilds);
 
-			if (!aOutsideBorderBuilds.empty())
+			if (!aOutsideBorderBuilds.empty() && !pPlot->isOwned())
 				AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aOutsideBorderBuilds);
+
+			if (!aAnywhereBuilds.empty())
+				AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aAnywhereBuilds);
+
+			if (!aCityStateBuilds.empty() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+				AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aCityStateBuilds);
 		}
 
 		if (pPlot->GetPlannedRouteState(m_pPlayer->GetID()) == ROAD_PLANNING_PRIORITY_CONSTRUCTION)
@@ -2261,13 +2282,9 @@ void CvBuilderTaskingAI::UpdateFutureYields(const vector<BuildTypes>& aPossibleB
 	// Consider every improvement we can build
 	for (vector<BuildTypes>::const_iterator it = aPossibleBuilds.begin(); it != aPossibleBuilds.end(); ++it)
 	{
-		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(*it);
-		if (pkBuildInfo)
-		{
-			ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-			if (eImprovement != NO_IMPROVEMENT && find(aImprovementsToConsider.begin(), aImprovementsToConsider.end(), eImprovement) == aImprovementsToConsider.end())
-				aImprovementsToConsider.push_back(eImprovement);
-		}
+		ImprovementTypes eImprovement = GetImprovementFromBuild(*it);
+		if (eImprovement != NO_IMPROVEMENT && find(aImprovementsToConsider.begin(), aImprovementsToConsider.end(), eImprovement) == aImprovementsToConsider.end())
+			aImprovementsToConsider.push_back(eImprovement);
 	}
 
 	// Consider every improvement we currently own
@@ -2445,7 +2462,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		if(pkBuild == NULL)
 			continue;
 
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		ImprovementTypes eImprovement = GetImprovementFromBuild(eBuild);
 		if(eImprovement == NO_IMPROVEMENT)
 			continue;
 
@@ -3074,7 +3091,7 @@ bool CvBuilderTaskingAI::PlotHasSpecialImprovement(const CvPlot* pPlot) const
 			}
 
 			//Don't delete landmarks!
-			ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+			static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 			if (eLandmark != NO_IMPROVEMENT && eImprovement == eLandmark)
 			{
 				return true;
@@ -3314,69 +3331,79 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 		}
 	}
 
-	if (pOwningCity && pOwningCity->IsRazing())
+	bool bIsOwned = pPlot->getOwner() == m_pPlayer->GetID();
+	bool bWillBeOwned = bIsOwned || bIsTileClaim || bIsCultureBomb;
+	bool bIgnoreOwnership = pkImprovementInfo && pkImprovementInfo->IsIgnoreOwnership();
+	bool bCityStateOnly = pkImprovementInfo && pkImprovementInfo->IsOnlyCityStateTerritory();
+
+	if (!bIgnoreOwnership && pOwningCity && pOwningCity->IsRazing())
 		return PlotBuildScore(-1);
 
 	// Give a small bonus for claiming tiles
-	if (pPlot->getOwner() != m_pPlayer->GetID())
+	if (!bIsOwned)
 	{
-		if (bIsTileClaim)
+		if (bWillBeOwned)
 			iSecondaryScore += 300;
-		else
-			// Assume building outside our borders is not worth it if we don't claim the tile
+		else if (!bIgnoreOwnership && !bCityStateOnly)
+			// Assume building outside our borders is not worth it except for special cases (like archaeological digs)
 			return PlotBuildScore(-1);
 	}
 
-	Likelyhood plotTheftLikelyhood = GetPlotTheftLikelyhood(m_pPlayer, pPlot);
-	if (pkImprovementInfo && pkImprovementInfo->IsBlockTileSteal())
+	const bool bWillBeAbleToWork = pPlot->isPlayerCityRadius(m_pPlayer->GetID()) && bWillBeOwned;
+
+	if (bWillBeOwned)
 	{
-		switch (plotTheftLikelyhood)
+		Likelyhood plotTheftLikelyhood = GetPlotTheftLikelyhood(m_pPlayer, pPlot);
+		if (pkImprovementInfo && pkImprovementInfo->IsBlockTileSteal())
 		{
-		case LIKELYHOOD_CERTAIN:
-			iSecondaryScore += 1000;
-			break;
-		case LIKELYHOOD_LIKELY:
-			iSecondaryScore += 500;
-			break;
-		case LIKELYHOOD_POSSIBLE:
-			iSecondaryScore += 100;
-			break;
-		case LIKELYHOOD_UNLIKELY:
-			iSecondaryScore += 40;
-			break;
-		case LIKELYHOOD_IMPOSSIBLE:
-			// No bonus for blocking tile steal if theft is impossible
-			break;
+			switch (plotTheftLikelyhood)
+			{
+			case LIKELYHOOD_CERTAIN:
+				iSecondaryScore += 1000;
+				break;
+			case LIKELYHOOD_LIKELY:
+				iSecondaryScore += 500;
+				break;
+			case LIKELYHOOD_POSSIBLE:
+				iSecondaryScore += 100;
+				break;
+			case LIKELYHOOD_UNLIKELY:
+				iSecondaryScore += 40;
+				break;
+			case LIKELYHOOD_IMPOSSIBLE:
+				// No bonus for blocking tile steal if theft is impossible
+				break;
+			}
 		}
-	}
-	else if (pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson() && !bIsCultureBomb)
-	{
-		switch (plotTheftLikelyhood)
+		else if (pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson() && !bIsCultureBomb)
 		{
-		case LIKELYHOOD_CERTAIN:
-			iSecondaryScore -= 1000;
-			break;
-		case LIKELYHOOD_LIKELY:
-			iSecondaryScore -= 500;
-			break;
-		case LIKELYHOOD_POSSIBLE:
-			iSecondaryScore -= 100;
-			break;
-		case LIKELYHOOD_UNLIKELY:
-			iSecondaryScore -= 40;
-			break;
-		case LIKELYHOOD_IMPOSSIBLE:
-			// No penalty for great person improvements if theft is impossible
-			break;
+			switch (plotTheftLikelyhood)
+			{
+			case LIKELYHOOD_CERTAIN:
+				iSecondaryScore -= 1000;
+				break;
+			case LIKELYHOOD_LIKELY:
+				iSecondaryScore -= 500;
+				break;
+			case LIKELYHOOD_POSSIBLE:
+				iSecondaryScore -= 100;
+				break;
+			case LIKELYHOOD_UNLIKELY:
+				iSecondaryScore -= 40;
+				break;
+			case LIKELYHOOD_IMPOSSIBLE:
+				// No penalty for great person improvements if theft is impossible
+				break;
+			}
 		}
 	}
 
 	// Give a flat bonus for GPP Rate (200 per 5%)
-	if (pkImprovementInfo && pkImprovementInfo->GetGreatPersonRateModifier() != 0)
+	if (bWillBeOwned && pkImprovementInfo && pkImprovementInfo->GetGreatPersonRateModifier() != 0)
 	{
 		iSecondaryScore += pkImprovementInfo->GetGreatPersonRateModifier() * 40;
 	}
-	
+
 	// Do we have or will we build a road here?
 	RouteTypes eRouteNeeded = GetBestRouteTypeAndValue(pPlot).first;
 	RouteTypes eForceCityConnection = eRouteNeeded;
@@ -3386,13 +3413,11 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 		eForceCityConnection = NO_ROUTE;
 	}
 
-	const bool bIsWithinWorkRange = pPlot->isPlayerCityRadius(m_pPlayer->GetID());
-
 	const ResourceTypes eResourceFromImprovement = pkImprovementInfo ? (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
 	const FeatureTypes eFeatureFromImprovement = pkImprovementInfo ? pkImprovementInfo->GetCreatedFeature() : NO_FEATURE;
 
 	// Give a bonus for chopping
-	if (eFeature != NO_FEATURE && pkBuildInfo && pkBuildInfo->isFeatureRemove(eFeature) && DoesBuildHelpRush(pPlot, eBuild))
+	if (bWillBeOwned && eFeature != NO_FEATURE && pkBuildInfo && pkBuildInfo->isFeatureRemove(eFeature) && DoesBuildHelpRush(pPlot, eBuild))
 	{
 		int iProductionFromChop = pPlot->getFeatureProduction(eBuild, m_pPlayer->GetID(), NULL);
 		if (iProductionFromChop > 0)
@@ -3425,7 +3450,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 	}
 
 	int iExtraResource = 0;
-	if ((eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource)) || eResourceFromImprovement != NO_RESOURCE)
+	if (bWillBeOwned && ((eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource)) || eResourceFromImprovement != NO_RESOURCE))
 	{
 		map<ResourceTypes, int>::const_iterator it;
 		if (eResourceFromImprovement != NO_RESOURCE)
@@ -3442,7 +3467,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 		}
 	}
 
-	if (bIsWithinWorkRange)
+	if (bWillBeAbleToWork)
 	{
 		if (bIsBuild)
 			UpdateProjectedPlotYields(pPlot, eBuild, eForceCityConnection);
@@ -3453,7 +3478,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 	vector<ImprovementTypes> bestPotentialImprovementInDirection((size_t)NUM_DIRECTION_TYPES, NO_IMPROVEMENT);
 
 	// Calculate the best potential adjacent improvements
-	if (MOD_BALANCE_VP && bIsWithinWorkRange && eImprovement != NO_IMPROVEMENT)
+	if (MOD_BALANCE_VP && bWillBeAbleToWork && eImprovement != NO_IMPROVEMENT)
 	{
 		for (int iDirection = 0; iDirection < NUM_DIRECTION_TYPES; iDirection++)
 		{
@@ -3488,7 +3513,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 				if (!pkOtherBuildInfo)
 					continue;
 
-				ImprovementTypes eOtherImprovement = (ImprovementTypes)pkOtherBuildInfo->getImprovement();
+				ImprovementTypes eOtherImprovement = GetImprovementFromBuild(eOtherBuild);
 
 				if (eOtherImprovement == NO_IMPROVEMENT && pkOtherBuildInfo->isRepair() && pAdjacentPlot->getImprovementType() != NO_IMPROVEMENT && pAdjacentPlot->IsImprovementPillaged())
 					eOtherImprovement = pAdjacentPlot->getImprovementType();
@@ -3547,7 +3572,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 		int iFutureYieldTimes100 = 0;
 		int iProjectedNewYieldsTimes100 = bIsBuild ? 100 * m_aiProjectedPlotYields[ui] : 100 * m_aiCurrentPlotYields[ui];
 
-		if (bIsWithinWorkRange)
+		if (bWillBeAbleToWork)
 		{
 			iNewYieldTimes100 = iProjectedNewYieldsTimes100;
 
@@ -3694,7 +3719,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 		}
 
 		// Special handling for vanilla celts
-		if (!MOD_BALANCE_VP && eYield == YIELD_FAITH && m_pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
+		if (!MOD_BALANCE_VP && eYield == YIELD_FAITH && bWillBeOwned && m_pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
 		{
 			if (eFeature == FEATURE_FOREST && pPlot->getImprovementType() == NO_IMPROVEMENT && (eImprovement != NO_IMPROVEMENT || (pkBuildInfo && pkBuildInfo->isFeatureRemove(eFeature))))
 			{
@@ -3840,7 +3865,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 		}
 
 		// Extra adjacency bonuses from potential adjacent same improvements
-		if (MOD_BALANCE_VP && bIsWithinWorkRange && eImprovement != NO_IMPROVEMENT)
+		if (MOD_BALANCE_VP && bWillBeAbleToWork && eImprovement != NO_IMPROVEMENT)
 		{
 			int iPotentialNewYieldTimes100 = 0;
 
@@ -3921,131 +3946,134 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 		}
 	}
 
-	//Improvement grants or connects resource
-	//Don't give any bonus if we are creating a resource on top of an existing one
-	bool bCreatesResource = eResourceFromImprovement != NO_RESOURCE;
-	bool bConnectsResource = eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource);
-	if (pPlot->getOwner() == m_pPlayer->GetID())
+	if (bWillBeOwned)
 	{
-		if (bCreatesResource || bConnectsResource)
+		//Improvement grants or connects resource
+		//Don't give any bonus if we are creating a resource on top of an existing one
+		bool bCreatesResource = eResourceFromImprovement != NO_RESOURCE;
+		bool bConnectsResource = eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource);
+		if (pPlot->getOwner() == m_pPlayer->GetID())
 		{
-			ResourceTypes eConnectedResource = bCreatesResource ? eResourceFromImprovement : eResource;
-
-			int iResourceQuantityFromImprovement = pkImprovementInfo->GetResourceQuantityFromImprovement();
-			if (iResourceQuantityFromImprovement <= 0)
-				iResourceQuantityFromImprovement = 1;
-
-			int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
-			int iBaseResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->getNumResource();
-
-			int iResourceWeight = GetResourceWeight(eConnectedResource, iResourceAmount);
-
-			// If the old improvement granted the same resource, subtract the resource from this improvement
-			ImprovementTypes eOldImprovement = !pPlot->IsImprovementPillaged() ? pPlot->getImprovementType() : NO_IMPROVEMENT;
-			if (eOldImprovement != NO_IMPROVEMENT && eResource != NO_RESOURCE)
+			if (bCreatesResource || bConnectsResource)
 			{
-				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
-				if (pkOldImprovementInfo && (pkOldImprovementInfo->IsConnectsResource(eResource) || pkOldImprovementInfo->GetResourceFromImprovement() == eResource))
+				ResourceTypes eConnectedResource = bCreatesResource ? eResourceFromImprovement : eResource;
+
+				int iResourceQuantityFromImprovement = pkImprovementInfo->GetResourceQuantityFromImprovement();
+				if (iResourceQuantityFromImprovement <= 0)
+					iResourceQuantityFromImprovement = 1;
+
+				int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
+				int iBaseResourceAmount = eResourceFromImprovement != NO_RESOURCE ? iResourceQuantityFromImprovement : pPlot->getNumResource();
+
+				int iResourceWeight = GetResourceWeight(eConnectedResource, iResourceAmount);
+
+				// If the old improvement granted the same resource, subtract the resource from this improvement
+				ImprovementTypes eOldImprovement = !pPlot->IsImprovementPillaged() ? pPlot->getImprovementType() : NO_IMPROVEMENT;
+				if (eOldImprovement != NO_IMPROVEMENT && eResource != NO_RESOURCE)
 				{
-					ResourceTypes eResourceFromOldImprovement = (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement();
-					int iOldResourceQuantityFromImprovement = pkOldImprovementInfo->GetResourceQuantityFromImprovement();
-					if (iOldResourceQuantityFromImprovement <= 0)
-						iOldResourceQuantityFromImprovement = 1;
-					int iOldResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? iOldResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eOldImprovement);
-					iExtraResource -= iOldResourceAmount;
-				}
-			}
-
-			int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eConnectedResource) + iExtraResource;
-
-			iSecondaryScore += iResourceWeight;
-
-			// give a priority reduction if we have this resource already
-			int iDownPrio = 0;
-			// We have plenty to spare
-			if (iNumResourceAvailable > 1)
-				iDownPrio = (iResourceWeight * 2) / 3;
-			// We have one already
-			else if (iNumResourceAvailable > 0)
-				iDownPrio = iResourceWeight / 3;
-
-			if (iDownPrio > 0)
-			{
-				iSecondaryScore -= iDownPrio;
-				iPotentialScore += iDownPrio;
-			}
-
-			CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eConnectedResource);
-			//amp up monopoly alloc!
-			if (pkConnectedResource && pkConnectedResource->isMonopoly() && !(pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_LUXURY && GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(m_pPlayer->GetID(), eConnectedResource)))
-			{
-				int iOwnedNumResource = m_pPlayer->getNumResourceTotal(eConnectedResource, false) + m_pPlayer->getResourceExport(eConnectedResource);
-
-				int iResourceFromMinors = 0;
-				if (m_pPlayer->IsCSResourcesCountMonopolies())
-				{
-					iResourceFromMinors += m_pPlayer->getResourceFromMinors(eConnectedResource);
-				}
-
-				int iResourceFromImports = 0;
-				if (m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
-				{
-					iResourceFromImports += m_pPlayer->getResourceImportFromMajor(eConnectedResource);
-				}
-				int iTotalNumResource = GC.getMap().getNumResources(eConnectedResource);
-				if (bCreatesResource)
-					iTotalNumResource += iResourceQuantityFromImprovement;
-
-				int iCurrentMonopolyPercent = 0;
-				int iFutureMonopolyPercent = 0;
-				if (iTotalNumResource <= 0)
-				{
-					iCurrentMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource > 0 ? 100 : 0;
-					iFutureMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount > 0 ? 100 : 0;
-				}
-				else
-				{
-					iCurrentMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource) * 100) / iTotalNumResource;
-					iFutureMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount) * 100) / iTotalNumResource;
-				}
-
-				int iGlobalThreshold = /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD);
-				int iStrategicThreshold = 0;
-				if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-					iStrategicThreshold = /*25*/ GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD);
-
-				bool bCanReachGlobalMonopoly = iFutureMonopolyPercent > iGlobalThreshold || m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies() || (100 * (m_pPlayer->getResourceInOwnedPlots(eConnectedResource) + iResourceFromMinors) > iGlobalThreshold * iTotalNumResource);
-				bool bCanReachStrategicMonopoly = iStrategicThreshold != 0 && (iFutureMonopolyPercent > iStrategicThreshold || m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies() || (100 * (m_pPlayer->getResourceInOwnedPlots(eConnectedResource) + iResourceFromMinors) > iStrategicThreshold * iTotalNumResource));
-
-				if (iCurrentMonopolyPercent <= iGlobalThreshold)
-				{
-					if (iFutureMonopolyPercent > iGlobalThreshold)
+					CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
+					if (pkOldImprovementInfo && (pkOldImprovementInfo->IsConnectsResource(eResource) || pkOldImprovementInfo->GetResourceFromImprovement() == eResource))
 					{
-						// Improving this will give us a global monopoly
-						iSecondaryScore += 2000;
+						ResourceTypes eResourceFromOldImprovement = (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement();
+						int iOldResourceQuantityFromImprovement = pkOldImprovementInfo->GetResourceQuantityFromImprovement();
+						if (iOldResourceQuantityFromImprovement <= 0)
+							iOldResourceQuantityFromImprovement = 1;
+						int iOldResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? iOldResourceQuantityFromImprovement : pPlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eOldImprovement);
+						iExtraResource -= iOldResourceAmount;
 					}
-					else if (iStrategicThreshold != 0 && iCurrentMonopolyPercent <= iStrategicThreshold && iFutureMonopolyPercent > iStrategicThreshold)
+				}
+
+				int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eConnectedResource) + iExtraResource;
+
+				iSecondaryScore += iResourceWeight;
+
+				// give a priority reduction if we have this resource already
+				int iDownPrio = 0;
+				// We have plenty to spare
+				if (iNumResourceAvailable > 1)
+					iDownPrio = (iResourceWeight * 2) / 3;
+				// We have one already
+				else if (iNumResourceAvailable > 0)
+					iDownPrio = iResourceWeight / 3;
+
+				if (iDownPrio > 0)
+				{
+					iSecondaryScore -= iDownPrio;
+					iPotentialScore += iDownPrio;
+				}
+
+				CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eConnectedResource);
+				//amp up monopoly alloc!
+				if (pkConnectedResource && pkConnectedResource->isMonopoly() && !(pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_LUXURY && GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(m_pPlayer->GetID(), eConnectedResource)))
+				{
+					int iOwnedNumResource = m_pPlayer->getNumResourceTotal(eConnectedResource, false) + m_pPlayer->getResourceExport(eConnectedResource);
+
+					int iResourceFromMinors = 0;
+					if (m_pPlayer->IsCSResourcesCountMonopolies())
 					{
-						// Improving this will give us a strategic monopoly
-						iSecondaryScore += 1000;
-						if (bCanReachGlobalMonopoly)
+						iResourceFromMinors += m_pPlayer->getResourceFromMinors(eConnectedResource);
+					}
+
+					int iResourceFromImports = 0;
+					if (m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+					{
+						iResourceFromImports += m_pPlayer->getResourceImportFromMajor(eConnectedResource);
+					}
+					int iTotalNumResource = GC.getMap().getNumResources(eConnectedResource);
+					if (bCreatesResource)
+						iTotalNumResource += iResourceQuantityFromImprovement;
+
+					int iCurrentMonopolyPercent = 0;
+					int iFutureMonopolyPercent = 0;
+					if (iTotalNumResource <= 0)
+					{
+						iCurrentMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource > 0 ? 100 : 0;
+						iFutureMonopolyPercent = iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount > 0 ? 100 : 0;
+					}
+					else
+					{
+						iCurrentMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource) * 100) / iTotalNumResource;
+						iFutureMonopolyPercent = ((iOwnedNumResource + iResourceFromMinors + iResourceFromImports + iExtraResource + iBaseResourceAmount) * 100) / iTotalNumResource;
+					}
+
+					int iGlobalThreshold = /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD);
+					int iStrategicThreshold = 0;
+					if (pkConnectedResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+						iStrategicThreshold = /*25*/ GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD);
+
+					bool bCanReachGlobalMonopoly = iFutureMonopolyPercent > iGlobalThreshold || m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies() || (100 * (m_pPlayer->getResourceInOwnedPlots(eConnectedResource) + iResourceFromMinors) > iGlobalThreshold * iTotalNumResource);
+					bool bCanReachStrategicMonopoly = iStrategicThreshold != 0 && (iFutureMonopolyPercent > iStrategicThreshold || m_pPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies() || (100 * (m_pPlayer->getResourceInOwnedPlots(eConnectedResource) + iResourceFromMinors) > iStrategicThreshold * iTotalNumResource));
+
+					if (iCurrentMonopolyPercent <= iGlobalThreshold)
+					{
+						if (iFutureMonopolyPercent > iGlobalThreshold)
+						{
+							// Improving this will give us a global monopoly
+							iSecondaryScore += 2000;
+						}
+						else if (iStrategicThreshold != 0 && iCurrentMonopolyPercent <= iStrategicThreshold && iFutureMonopolyPercent > iStrategicThreshold)
+						{
+							// Improving this will give us a strategic monopoly
+							iSecondaryScore += 1000;
+							if (bCanReachGlobalMonopoly)
+								iPotentialScore += 1000;
+						}
+						else if (bCanReachGlobalMonopoly)
+						{
+							// We can get a global monopoly eventually
+							iPotentialScore += 2000;
+						}
+						else if (bCanReachStrategicMonopoly)
+						{
 							iPotentialScore += 1000;
-					}
-					else if (bCanReachGlobalMonopoly)
-					{
-						// We can get a global monopoly eventually
-						iPotentialScore += 2000;
-					}
-					else if (bCanReachStrategicMonopoly)
-					{
-						iPotentialScore += 1000;
+						}
 					}
 				}
 			}
 		}
 	}
 
-	if (MOD_BALANCE_VP)
+	if (MOD_BALANCE_VP && bWillBeOwned)
 	{
 		bool bBenefitsFromRoads = false;
 		for (int iI = 0; iI <= YIELD_FAITH; iI++)
@@ -4073,10 +4101,45 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 			iSecondaryScore -= iPenalty;
 	}
 
-	// Don't build on antiquity sites
-	if (eResource != NO_RESOURCE && bIsBuild)
+	static const BuildTypes eDigBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
+
+	if (eBuild != eDigBuild && pkImprovementInfo && pkImprovementInfo->GetHappinessOnConstruction() > 0)
 	{
-		static const BuildTypes eDigBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
+		iSecondaryScore += pkImprovementInfo->GetHappinessOnConstruction() * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
+	}
+
+	// archaeological digs
+	if (eBuild == eDigBuild)
+	{
+		ArchaeologyChoiceType eArchaeologyChoice = m_pPlayer->GetCulture()->GetArchaeologyChoice(pPlot);
+
+		switch (eArchaeologyChoice)
+		{
+		case ARCHAEOLOGY_ARTIFACT_PLAYER1:
+		case ARCHAEOLOGY_ARTIFACT_PLAYER2:
+		case ARCHAEOLOGY_ARTIFACT_WRITING:
+			iYieldScore = 0;
+			iPotentialScore = 0;
+			iSecondaryScore += 4 * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
+			break;
+		case ARCHAEOLOGY_LANDMARK:
+			if (pkImprovementInfo && pkImprovementInfo->GetHappinessOnConstruction() > 0)
+			{
+				iSecondaryScore += pkImprovementInfo->GetHappinessOnConstruction() * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
+			}
+			break;
+		case ARCHAEOLOGY_CULTURE_BOOST:
+		case ARCHAEOLOGY_DO_NOTHING:
+		case NO_ARCHAEOLOGY_CHOICE:
+			iYieldScore = 0;
+			iPotentialScore = 0;
+			break;
+		}
+	}
+
+	// Don't build on antiquity sites
+	if (eResource != NO_RESOURCE && bIsBuild && eBuild != eDigBuild)
+	{
 		if (m_pPlayer->canBuild(pPlot, eDigBuild) && eDigBuild != eBuild)
 			return PlotBuildScore(-1);
 	}
@@ -4099,7 +4162,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 
 	//Is this a good spot for a defensive building?
 	bool bNewIsDefensive = pkImprovementInfo && (pkImprovementInfo->GetDefenseModifier() > 0 || pkImprovementInfo->GetNearbyEnemyDamage() > 0);
-	if (bNewIsDefensive)
+	if (bNewIsDefensive && bWillBeOwned)
 	{
 		int iDefenseBuildValue = pPlot->GetDefenseBuildValue(m_pPlayer->GetID(), eBuild, eImprovement, sState);
 		if (iDefenseBuildValue > 0)
@@ -4115,7 +4178,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 
 	// How many tiles will be covered by an encampment bonus (or similar)
 	CvPlayerTraits* pTraits = m_pPlayer->GetPlayerTraits();
-	if (pTraits->GetCombatBonusImprovementType() == eImprovement)
+	if (pTraits->GetCombatBonusImprovementType() == eImprovement && bWillBeOwned)
 	{
 		int iBonusRange = pTraits->GetNearbyImprovementBonusRange();
 		int iCombatBonusValue = pTraits->GetNearbyImprovementCombatBonus();
@@ -4149,13 +4212,13 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 	}
 
 	// Do we want a canal here?
-	if (MOD_GLOBAL_PASSABLE_FORTS && WantCanalAtPlot(pPlot))
+	if (MOD_GLOBAL_PASSABLE_FORTS && bWillBeOwned && WantCanalAtPlot(pPlot))
 	{
 		if (pkImprovementInfo && pkImprovementInfo->IsMakesPassable())
 			iSecondaryScore += 3000;
 	}
 
-	// Currently this is only for human player recommendations.
+	// Culture bombs (citadels)
 	if (bIsCultureBomb && bIsBuild)
 	{
 		int iStealScore = 0;
@@ -4288,6 +4351,11 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 					iTempScore += pAdjacentPlot->getYield(eYield);
 				}
 			}
+			else
+			{
+				// Add a small score for claiming unowned land
+				iTempScore++;
+			}
 
 			if (iTempScore != 0 && iMultiplier != 0 && bStealsEnemyLand)
 				iStealScore += iTempScore * iMultiplier * 10;
@@ -4346,7 +4414,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 	}
 
 	bool bYieldUnused = false;
-	if (bIsBuild && bIsWithinWorkRange && pOwningCity)
+	if (bIsBuild && bWillBeAbleToWork && pOwningCity)
 	{
 		int iSimplifiedYieldValue = GetPlotYieldValueSimplified(pPlot, eBuild);
 		int iWorstWorkedValue = INT_MAX;
@@ -4614,12 +4682,8 @@ void CvBuilderTaskingAI::SetupExtraXAdjacentPlots()
 	for (vector<BuildTypes>::const_iterator it = aPossibleBuilds.begin(); it != aPossibleBuilds.end(); ++it)
 	{
 		BuildTypes eBuild = *it;
-		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 
-		if (!pkBuildInfo)
-			continue;
-
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		ImprovementTypes eImprovement = GetImprovementFromBuild(eBuild);
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 
