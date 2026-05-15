@@ -944,7 +944,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 5
+	Type, 'YIELD_PRODUCTION', 10
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
 
@@ -959,13 +959,6 @@ INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
 SELECT
 	Type, 'IMPROVEMENT_MANUFACTORY', 'YIELD_PRODUCTION', 2
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
-
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT
-	Type, 'BUILDINGCLASS_FACTORY', 'YIELD_PRODUCTION', 2
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
 
@@ -1834,8 +1827,14 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 
 DELETE FROM Helper;
 
--- Shopping Mall
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	Type, 'BUILDINGCLASS_FACTORY', 'YIELD_PRODUCTION', 2
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 
+-- Shopping Mall
 INSERT INTO Helper
 	(YieldType, Yield)
 VALUES
