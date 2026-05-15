@@ -202,7 +202,7 @@ bool LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(BuildingTypes eBuilding)
 	}
 	return false;
 }
-ResolutionTypes LeagueHelpers::IsResolutionForTriggerActive(ResolutionTypes eType)
+bool LeagueHelpers::IsResolutionForTriggerActive(ResolutionTypes eType)
 {
 	if(eType != NO_RESOLUTION)
 	{
@@ -212,11 +212,12 @@ ResolutionTypes LeagueHelpers::IsResolutionForTriggerActive(ResolutionTypes eTyp
 		{
 			if (it->GetType() == eType)
 			{
-				return eType;
+				return true;
 			}
 		}
+		return false;
 	}
-	return NO_RESOLUTION;
+	return true;
 }
 
 
@@ -1400,10 +1401,6 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 			for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
 			{
 				PlayerTypes eMinor = (PlayerTypes) iMinor;
-				if(eMinor == NO_PLAYER)
-				{
-					continue;
-				}
 				if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).GetMinorCivAI()->GetBaseFriendshipWithMajor(ePlayer) < iNeutral)
 				{
 					if (pLeague->IsMember(eMinor))
@@ -3244,25 +3241,21 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 				return false;
 			}
 		}
-		if (eDiploVictory != NO_VICTORY)
+		for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
 		{
-			for (int i = 0; i < GC.getNumLeagueSpecialSessionInfos(); i++)
+			LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
+			CvLeagueSpecialSessionEntry* pSessionInfo = GC.getLeagueSpecialSessionInfo(e);
+			if(pSessionInfo->IsUnitedNations() && pSessionInfo->GetResolutionTrigger() != NO_RESOLUTION)
 			{
-				LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
-				CvLeagueSpecialSessionEntry* pSessionInfo = GC.getLeagueSpecialSessionInfo(e);
-				if(pSessionInfo->IsUnitedNations())
+				if(!LeagueHelpers::IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger()))
 				{
-					ResolutionTypes eResolution = LeagueHelpers::IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger());
-					if(eResolution == NO_RESOLUTION)
+					if (sTooltipSink != NULL)
 					{
-						if (sTooltipSink != NULL)
-						{
-							(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-							(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_PREREQ").toUTF8();
-							(*sTooltipSink) += "[ENDCOLOR]";
-						}
-						return false;
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_PREREQ").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
 					}
+					return false;
 				}
 			}
 		}
@@ -3418,7 +3411,7 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if ((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			{
 				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetNumVassals() > 0)
 				{
@@ -3949,7 +3942,7 @@ int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromP
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != eFromPlayer))
+							if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != eFromPlayer))
 							{
 								iNumVotes += GET_PLAYER(eFromPlayer).GetLeagueAI()->GetVoteCommitment(eLoopPlayer, it->GetID(), vChoices[i], /*bEnact*/ true);
 								iNumVotes += GET_PLAYER(eFromPlayer).GetLeagueAI()->GetVoteCommitment(eLoopPlayer, it->GetID(), vChoices[i], /*bEnact*/ false);
@@ -5325,7 +5318,7 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
+							if(GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
 							{
 								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion))
 								{
@@ -5716,7 +5709,7 @@ CvString CvLeague::GetResolutionName(ResolutionTypes eResolution, int iResolutio
 				}
 			}
 		}
-		else if (!bDone)
+		if (!bDone)
 		{
 			for (RepealProposalList::iterator it = m_vRepealProposals.begin(); it != m_vRepealProposals.end(); ++it)
 			{
@@ -7282,7 +7275,7 @@ void CvLeague::StartSession()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = PlayerTypes(iPlayerLoop);
-		if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
+		if (GET_PLAYER(ePlayer).isAlive())
 		{
 			int iDelegates = CalculateStartingVotesForMember(ePlayer);
 			if (iDelegates > 0)
@@ -8843,7 +8836,7 @@ void CvLeague::CheckProjectsProgress()
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
 					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-					if (eLoopPlayer == NO_PLAYER || !GET_PLAYER(eLoopPlayer).isAlive())
+					if (!GET_PLAYER(eLoopPlayer).isAlive())
 						continue;
 
 					CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
@@ -11216,7 +11209,7 @@ CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTyp
 	// Shared Ideology
 	PolicyBranchTypes eMyIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = GET_PLAYER(eToPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
-	bool bShareIdeology = ((eMyIdeology == eTheirIdeology) && (eMyIdeology != NO_POLICY_BRANCH_TYPE) && (eTheirIdeology != NO_POLICY_BRANCH_TYPE));
+	bool bShareIdeology = ((eMyIdeology == eTheirIdeology) && (eMyIdeology != NO_POLICY_BRANCH_TYPE));
 
 	// Espionage
 	bool bSpyVisitingUs = GetPlayer()->GetEspionage()->IsOtherDiplomatVisitingMe(eToPlayer);
@@ -11699,7 +11692,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)i;
-		if (ePlayer == NO_PLAYER || !pLeague->IsMember(ePlayer))
+		if (!pLeague->IsMember(ePlayer))
 			continue;
 
 		if (GetPlayer()->GetID() == ePlayer)

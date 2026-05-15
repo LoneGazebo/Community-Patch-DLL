@@ -215,7 +215,7 @@ function UpdateUnitActions( unit )
         local action = GameInfoActions[iAction];
         
 		-- test CanHandleAction w/ visible flag (ie COULD train if ... )
-        if(action.Visible and Game.CanHandleAction( iAction, 0, 1 ) ) then
+        if(action.Visible and Game.CanHandleAction( iAction, nil, 1 ) ) then
            	if( action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION ) then
                 hasPromotion = true;                
 			end
@@ -231,7 +231,7 @@ function UpdateUnitActions( unit )
 		action.ID = iAction
 		-- We hide the Action buttons when Units are out of moves so new players aren't confused
 		if (bUnitHasMovesLeft or action.Type == "COMMAND_CANCEL" or action.Type == "COMMAND_STOP_AUTOMATION" or action.SubType == ActionSubTypes.ACTIONSUBTYPE_PROMOTION) then
-			if ( action.Visible and Game.CanHandleAction( iAction, 0, 1 )) then
+			if ( action.Visible and Game.CanHandleAction( iAction, nil, 1 )) then
 				table.insert(availableActions, action)
 			end
         end

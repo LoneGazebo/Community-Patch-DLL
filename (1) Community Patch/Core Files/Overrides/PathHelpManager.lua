@@ -12,7 +12,7 @@ local MOVE_DENOMINATOR = GameDefines.MOVE_DENOMINATOR;
 -------------------------------------------------
 --- @param node PathNode
 --- @param bShowRemainingMoves boolean
-local function BuildNode(node, bShowRemainingMoves)
+local function BuildNode(node, bShowRemainingMoves, bAirlift, bChangePort)
 	local instance = instanceManager:GetInstance();
 
 	local bIsStopNode = false
@@ -44,16 +44,24 @@ local function BuildNode(node, bShowRemainingMoves)
 		local iMaxMoves = math.floor(iRemainder / 10);
 		local iMoves = iRemainder - iMaxMoves * 10;
 
-		if iMoves == 0 then
-			instance.TurnLabel:SetText(iTurns);
+		if bAirlift then
+			instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_AIRLIFT");
+		elseif bChangePort then
+			instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_CHANGE_PORT");
+		elseif iMoves == 0 then
 			if bIsStopNode then
 				instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_ENDING_MOVE_EARLY");
 			else
 				instance.RemainingMoves:SetText("");
 			end
 		else
-			instance.TurnLabel:SetText("<" .. (iTurns + 1));
 			instance.RemainingMoves:SetText("[ICON_MOVES]" .. iMoves .. "/" .. iMaxMoves);
+		end
+
+		if iMoves == 0 then
+			instance.TurnLabel:SetText(iTurns);
+		else
+			instance.TurnLabel:SetText("<" .. (iTurns + 1));
 		end
 	end
 
@@ -76,16 +84,33 @@ end
 Events.UIPathFinderUpdate.Add(function (tPath)
 	instanceManager:ResetInstances();
 
-	local lastNode = {turn = 1};
-	for _, node in ipairs(tPath) do
-		if node.turn ~= lastNode.turn then
-			BuildNode(lastNode, false);
-		end
+	local pSelectedUnit = UI.GetHeadSelectedUnit()
 
-		lastNode = node;
+	local tAirlift = {};
+	local tChangePort = {};
+	if pSelectedUnit then
+		local bIsLand = pSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_LAND;
+		local bIsSea  = pSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_SEA;
+		for i = 1, #tPath - 1 do
+			local nodeA = tPath[i];
+			local nodeB = tPath[i + 1];
+			if Map.PlotDistance(nodeA.x, nodeA.y, nodeB.x, nodeB.y) > 1 then
+				if bIsLand then
+					tAirlift[i]     = true;
+					tAirlift[i + 1] = true;
+				elseif bIsSea then
+					tChangePort[i]     = true;
+					tChangePort[i + 1] = true;
+				end
+			end
+		end
 	end
 
-	BuildNode(lastNode, true);
+	for i = #tPath, 1, -1 do
+		local node = tPath[i]
+		BuildNode(node, i == #tPath, tAirlift[i] or false, tChangePort[i] or false);
+	end
+
 end);
 
 -------------------------------------------------

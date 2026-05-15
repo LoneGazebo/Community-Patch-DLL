@@ -1266,7 +1266,7 @@ int CvBeliefEntry::GetMaxYieldModifierPerFollowerPercent(int i) const
 	return m_piMaxYieldModifierPerFollowerPercent ? m_piMaxYieldModifierPerFollowerPercent[i] : -1;
 }
 
-/// Can we buy units of this era with faith?
+/// Can we buy land units of this era with faith?
 bool CvBeliefEntry::IsFaithUnitPurchaseEra(int i) const
 {
 	PRECONDITION(i > -1, "Index out of bounds");
@@ -1280,7 +1280,7 @@ bool CvBeliefEntry::IsFaithUnitPurchaseSpecific(int i) const
 	PRECONDITION(i < GC.getNumUnitInfos(), "Index out of bounds");
 	return m_pbFaithPurchaseUnitSpecificEnabled ? m_pbFaithPurchaseUnitSpecificEnabled[i] : false;
 }
-/// Can we buy units of this era with faith?
+/// Can we access this building class?
 bool CvBeliefEntry::IsBuildingClassEnabled(int i) const
 {
 	PRECONDITION(i > -1, "Index out of bounds");
@@ -3906,7 +3906,7 @@ bool CvReligionBeliefs::IsBuildingClassEnabled(BuildingClassTypes eType, PlayerT
 	return false;
 }
 
-/// Is there a belief that allows faith buying of units
+/// Is there a belief that allows faith buying of land units
 bool CvReligionBeliefs::IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();

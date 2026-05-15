@@ -394,6 +394,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(IsOccupied);
 	Method(SetOccupied);
+	Method(IsIgnoreCityForHappiness);
 
 	Method(IsPuppet);
 	Method(SetPuppet);
@@ -4393,6 +4394,12 @@ int CvLuaCity::lIsOccupied(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::IsOccupied);
 }
 //------------------------------------------------------------------------------
+//bool IsIgnoreCityForHappiness();
+int CvLuaCity::lIsIgnoreCityForHappiness(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::IsIgnoreCityForHappiness);
+}
+//------------------------------------------------------------------------------
 //void SetOccupied(bool bValue);
 int CvLuaCity::lSetOccupied(lua_State* L)
 {
@@ -4713,10 +4720,6 @@ int CvLuaCity::lGetYieldFromCityYieldTimes100(lua_State* L)
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eIndex2 = (YieldTypes)iI;
-		if(eIndex2 == NO_YIELD)
-		{
-			continue;
-		}
 		if (eIndex2 == eIndex1)
 		{
 			continue;
@@ -6484,22 +6487,15 @@ int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
 						for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 						{
 							CityEventTypes eEvent = (CityEventTypes)iLoop;
-							if(eEvent != NO_EVENT_CITY)
+							CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+							if(pkEventInfo != NULL)
 							{
-								CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-								if(pkEventInfo != NULL)
+								if(pkEventChoiceInfo->isParentEvent(eEvent))
 								{
-									if(pkEventChoiceInfo->isParentEvent(eEvent))
+									if(pkEventInfo->getNumChoices() == 1)
 									{
-										CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-										if(pkEventInfo != NULL)
-										{
-											if(pkEventInfo->getNumChoices() == 1)
-											{
-												bResult = true;
-												break;
-											}
-										}
+										bResult = true;
+										break;
 									}
 								}
 							}

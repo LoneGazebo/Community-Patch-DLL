@@ -30,7 +30,7 @@
 
 // Returns a shortened version of a source file path for display in assertion dialogs.
 // Removes everything before "Community-Patch-DLL/"
-static const char* ShortenFilePath(const char* szFile)
+const char* ShortenFilePath(const char* szFile)
 {
 	if (!szFile) return szFile;
 	const char* anchor_uppercase = strstr(szFile, "Community-Patch-DLL");
@@ -207,7 +207,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			"Cancel - Exit the game. \n"
 			"OK - Continue playing. This warning will not be shown again in the current session.",
 			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-			expr, szFile, uiLine,
+			expr, ShortenFilePath(szFile), uiLine,
 			dumpPath ? "\nMinidump: " : "", dumpPath ? dumpPath : ""
 		);
 #else
@@ -242,6 +242,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			return false;
 
 		default:
+			SetPreconditionFired();
 			BUILTIN_TRAP();
 		}
 	}
@@ -280,7 +281,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		"Yes - Break into debugger\n"
 		"No - Continue execution\n"
 		"Cancel - Ignore this assert",
-		expr, szFile, uiLine,
+		expr, ShortenFilePath(szFile), uiLine,
 		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
 		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : "",
 		info.count,
@@ -362,7 +363,7 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 		"Line: %u\n"
 		"%s%s%s"
 		"%s%s\n",
-		expr, szFile, uiLine,
+		expr, ShortenFilePath(szFile), uiLine,
 		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
 		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : ""
 	);
@@ -382,13 +383,15 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 	);
 #endif
 
+	SetPreconditionFired();
+
 	// Show dialog
 	MessageBoxA(NULL, szBuffer, "Error",
 		MB_OK | MB_ICONERROR | MB_SYSTEMMODAL | MB_SETFOREGROUND);
 
 #else // VPRELEASE_ERRORMSG
 	bool bIgnoreAlways = false;
-	CvAssertDlg(expr, szFile, uiLine, bIgnoreAlways, msg);
+	CvAssertDlg(expr, ShortenFilePath(szFile), uiLine, bIgnoreAlways, msg);
 #endif
 #endif // WIN32
 #endif // CVASSERT_ENABLE
@@ -1967,12 +1970,16 @@ fraction fraction::operator/(const fraction &rhs)
 bool fraction::operator==(const fraction &rhs) const
 {
 	fraction lhs = *this;
-	return lhs.num * rhs.den == rhs.num * lhs.den;
+	return (long long)lhs.num * rhs.den == (long long)rhs.num * lhs.den;
 }
 bool fraction::operator<(const fraction &rhs) const
 {
-	fraction lhs = *this;
-	return lhs.num * rhs.den < rhs.num * lhs.den;
+	// Make sure we don't multiply with negative denominators as that would flip the inequality (a < b <=> -a > -b)
+	const int lnum = (den < 0) ? -num : num;
+	const int lden = (den < 0) ? -den : den;
+	const int rnum = (rhs.den < 0) ? -rhs.num : rhs.num;
+	const int rden = (rhs.den < 0) ? -rhs.den : rhs.den;
+	return (long long)lnum * rden < (long long)rnum * lden;
 }
 
 fraction abs(const fraction &lhs)
@@ -1981,7 +1988,7 @@ fraction abs(const fraction &lhs)
 }
 bool operator==(const int lhs, const fraction &rhs)
 {
-	return lhs * rhs.den == rhs.num;
+	return (long long)lhs * rhs.den == (long long)rhs.num;
 }
 bool operator!=(const int lhs, const fraction &rhs)
 {
@@ -2036,6 +2043,11 @@ fraction& fraction::Reduce()
 	int cd = gcd(num, den);
 	num /= cd;
 	den /= cd;
+	if (num <= 0 && den < 0)
+	{
+		num *= -1;
+		den *= -1;
+	}
 	return *this;
 }
 int fraction::gcd(int a, int b)

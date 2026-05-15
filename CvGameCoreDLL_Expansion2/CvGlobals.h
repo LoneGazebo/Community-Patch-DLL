@@ -478,6 +478,7 @@ public:
 	//some caching to avoid iterating all building types
 	const std::vector <BuildingTypes>& getBuildingInteractions(BuildingTypes eRefBuilding) const;
 	const std::vector <BuildingTypes>& getBuildingsWithYieldsFromAccomplishments() const;
+	const std::vector <BuildingTypes>& getBuildingsWithAirlift() const;
 
 	int getNumUnitClassInfos();
 	std::vector<CvUnitClassInfo*>& getUnitClassInfo();
@@ -698,6 +699,13 @@ public:
 	GD_INT_MEMBER(FLAVOR_MAX_VALUE);
 	GD_INT_MEMBER(FLAVOR_RANDOMIZATION_RANGE);
 	GD_INT_MEMBER(FLAVOR_EXPANDGROW_COEFFICIENT);
+	GD_INT_MEMBER(VICTORY_PURSUIT_PRIMARY_ONLY_HINT_WEIGHT); // VP
+	GD_INT_MEMBER(VICTORY_PURSUIT_PRIMARY_HINT_WEIGHT); // VP
+	GD_INT_MEMBER(VICTORY_PURSUIT_SECONDARY_HINT_WEIGHT); // VP
+	GD_INT_MEMBER(VICTORY_PURSUIT_DISABLED_VICTORY_PENALTY); // VP
+	GD_INT_MEMBER(VICTORY_PURSUIT_FEW_CITY_STATES_PENALTY); // VP
+	GD_INT_MEMBER(VICTORY_PURSUIT_MAX_RANDOMNESS); // VP
+	GD_INT_MEMBER(VICTORY_PURSUIT_DIFFERENTIAL_DIVISOR); // VP
 	GD_INT_MEMBER(AI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE);
 	GD_INT_MEMBER(AI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT);
 	GD_INT_MEMBER(AI_GRAND_STRATEGY_GUESS_NO_CLUE_WEIGHT);
@@ -1577,8 +1585,6 @@ public:
 	GD_INT_MEMBER(OPINION_WEIGHT_PER_DIVERGENT_POLICY); // VP
 	GD_INT_MEMBER(OPINION_WEIGHT_SIMILAR_POLICIES); // VP
 	GD_INT_MEMBER(OPINION_WEIGHT_DIVERGENT_POLICIES); // VP
-	GD_INT_MEMBER(POLICY_SCORE_NEEDY_THRESHOLD); // VP
-	GD_INT_MEMBER(POLICY_SCORE_NEEDY_BONUS); // VP
 	GD_INT_MEMBER(OPINION_WEIGHT_PTP_SAME_MINOR_EACH); // VP
 	GD_INT_MEMBER(OPINION_WEIGHT_PTP_SAME_MINOR_MIN); // VP
 	GD_INT_MEMBER(OPINION_WEIGHT_PTP_SAME_MINOR_DIPLOMAT_MULTIPLIER); // VP
@@ -3133,6 +3139,7 @@ protected:
 	CvBuildingXMLEntries* m_pBuildings;
 	std::map<BuildingTypes, std::vector<BuildingTypes>> m_buildingInteractionLookup;
 	std::vector<BuildingTypes> m_vBuildingsWithYieldsFromAccomplishments;
+	std::vector<BuildingTypes> m_vBuildingsWithAirlift;
 	CvUnitXMLEntries* m_pUnits;
 	CvProjectXMLEntries* m_pProjects;
 	CvPromotionXMLEntries* m_pPromotions;

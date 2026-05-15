@@ -414,20 +414,9 @@ end
 
 local function getUnitBuildProgressData( plot, buildID, unit )
 	local buildProgress = plot:GetBuildProgress( buildID )
-	local nominalWorkRate = unit:WorkRate( true )
 	local buildTime = plot:GetBuildTime( buildID, g_activePlayerID )
-	local buildTurnsLeft
-	if buildProgress == 0 then
-		buildTurnsLeft = plot:GetBuildTurnsTotal( buildID, g_activePlayerID )
-	else
-		buildProgress = buildProgress - nominalWorkRate
-		buildTurnsLeft = plot:GetBuildTurnsLeft( buildID, g_activePlayerID, -unit:WorkRate() )
-	end
-	if buildTurnsLeft > 99999 then
-		return math_ceil( ( buildTime - buildProgress ) / nominalWorkRate ), buildProgress, buildTime
-	else
-		return buildTurnsLeft, buildProgress, buildTime
-	end
+	local buildTurnsLeft = plot:GetBuildTurnsLeft( buildID, g_activePlayerID)
+	return buildTurnsLeft, buildProgress, buildTime
 end
 
 local function updateSmallUnitIcons( unit, instance )

@@ -426,7 +426,7 @@ local function SetupNotification( instance, sequence, Id, type, toolTip, strSumm
 			if i == sequence then
 				table_insert( tips, summary )
 				if toolTip ~= summary then
-					table_insert( tips, ( toolTip:gsub("%[NEWLINE%].*","") ) )
+					table_insert( tips, toolTip )
 				end
 			else
 				table_insert( tips, "[COLOR_LIGHT_GREY]"..summary.."[ENDCOLOR]" )
@@ -1156,7 +1156,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_FUTURE_TECH", player:GetScoreFromFutureTech() ) )
 		end
 -- Putmalk
-		if (Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE)) then
+		if (Game.IsOption("GAMEOPTION_ENABLE_VASSALAGE")) then
 			tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_VASSALS", player:GetScoreFromVassals() ) )
 		end
 --END 

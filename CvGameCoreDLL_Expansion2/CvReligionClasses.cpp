@@ -394,7 +394,7 @@ bool CvGameReligions::IsValidTarget(ReligionTypes eReligion, CvCity* pFromCity, 
 			}
 		}
 	}
-	else if (pFromCity->getOwner() == pToCity->getOwner())
+	else
 	{
 		if (GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsNoNaturalReligionSpread())
 		{
@@ -8077,6 +8077,7 @@ int CvReligionAI::ScoreYieldForReligionTimes100(YieldTypes eYield) const
 	{
 	case YIELD_FOOD:
 		iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) * 50;
+		break;
 	case YIELD_PRODUCTION:
 		iPersonFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION")) * 50;
 		break;

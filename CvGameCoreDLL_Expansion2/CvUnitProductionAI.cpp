@@ -125,7 +125,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bAllow
 		if(pkUnitInfo)
 		{
 			// Make sure it matches the requested unit AI type
-			if (eUnitAIType != NO_UNITAI && !pkUnitInfo->GetUnitAIType(eUnitAIType))
+			if (!pkUnitInfo->GetUnitAIType(eUnitAIType))
 				continue;
 
 			if (!bAllowStrategicResource && pkUnitInfo->GetResourceType() != NO_RESOURCE)
@@ -450,6 +450,30 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iBonus += 500;
 		}
 
+		if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CITY_SPECIAL)
+		{
+			// Roughly one per 6 units seems sensible
+			int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_SPECIAL, true);
+			if (eCurrentlyProducing != NO_UNIT && !bForPurchase)
+			{
+				CvUnitEntry* pkCurrentlyProducing = GC.getUnitInfo(eCurrentlyProducing);
+				if (pkCurrentlyProducing)
+				{
+					if (pkCurrentlyProducing->GetDefaultUnitAIType() == UNITAI_CITY_SPECIAL)
+						iNum--;
+				}
+			}
+			int iNumArmies = iNumLandUnits / 6;
+			if (iNum < iNumArmies)
+			{
+				iBonus += 2000 * max(3 - iNum, 1);
+
+				// If we are planning a city attack, pretty much force this
+				if (bForOperation)
+					iBonus += 10000;
+			}
+		}
+
 		//Sanity check for buildable support units.
 		if (!bFree && pkUnitEntry->IsCityAttackSupport() && !bForOperation)
 		{
@@ -736,7 +760,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && 
+				if (eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && 
 					(kPlayer.GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS || GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam())))
 				{
 					int iTheirAir = GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR, false) + GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR, false);
@@ -918,12 +942,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 							for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 							{
 								const YieldTypes eYield = static_cast<YieldTypes>(iI);
-								if (eYield != NO_YIELD)
+								if (pEntry->GetYieldFromKills(eYield) > 0)
 								{
-									if (pEntry->GetYieldFromKills(eYield) > 0)
-									{
-										iReligiousBonus += (pEntry->GetYieldFromKills(eYield) / 5);
-									}
+									iReligiousBonus += (pEntry->GetYieldFromKills(eYield) / 5);
 								}
 							}
 						}
@@ -1121,10 +1142,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Archaeologists? Only if we have digs nearby.
 		if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
 		{
-			if(kPlayer.isMinorCiv())
-			{
-				return SR_IMPOSSIBLE;
-			}
 			static EconomicAIStrategyTypes eWantArch = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_ARCHAEOLOGISTS");
 			if(!kPlayer.GetEconomicAI()->IsUsingStrategy(eWantArch))
 			{
@@ -1154,12 +1171,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						break;
 
 					const YieldTypes eYield = static_cast<YieldTypes>(iI);
-					if(eYield != NO_YIELD)
+
+					if(kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) > 0)
 					{
-						if(kPlayer.GetPlayerTraits()->GetArtifactYieldChanges(eYield) > 0)
-						{
-							iBonus += 500;
-						}
+						iBonus += 500;
 					}
 				}
 			}
@@ -1511,13 +1526,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
-		if (eYield != NO_YIELD)
+		int iYieldAmountOnComplete = GC.getUnitInfo(eUnit)->GetYieldOnCompletion(eYield);
+		if (iYieldAmountOnComplete > 0)
 		{
-			int iYieldAmountOnComplete = GC.getUnitInfo(eUnit)->GetYieldOnCompletion(eYield);
-			if (iYieldAmountOnComplete > 0)
-			{
-				iInstantYieldBonus += (iYieldAmountOnComplete * iInstantYieldImportanceScale);
-			}
+			iInstantYieldBonus += (iYieldAmountOnComplete * iInstantYieldImportanceScale);
 		}
 	}
 

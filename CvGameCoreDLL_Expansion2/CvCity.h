@@ -1476,7 +1476,7 @@ public:
 	int getAdjacentUnitsDefenseMod() const;
 
 	void updateStrengthValue();
-	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildings = false, const CvUnit* pDefender = NULL) const;
+	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildings = false, const CvUnit* pDefender = NULL, bool bOverrideGarrison = false, const CvUnit* pGarrisonOverride = NULL) const;
 	int GetPower() const;
 
 	int getDamage() const;

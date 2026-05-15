@@ -146,6 +146,9 @@
 					<Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1" ID="CivilianSeperator"/>
 					<Stack Anchor="L,T" StackGrowth="Bottom" Padding="0" ID="CivilianStack">
                     </Stack>
+					<Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1" ID="GreatPersonSeperator"/>
+					<Stack Anchor="L,T" StackGrowth="Bottom" Padding="0" ID="GreatPersonStack">
+                    </Stack>
 				</Stack>
 			</ScrollPanel>
 		</Box>

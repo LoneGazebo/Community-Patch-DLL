@@ -849,7 +849,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("FreeBuildingThisCity");
 	m_iFreeBuildingThisCity = GC.getInfoTypeForString(szTextVal, true);
 
-	szTextVal = kResults.GetText("FreeBuildingTradeTargetCity");
 	m_bTradeRouteInvulnerable = kResults.GetBool("TradeRouteInvulnerable");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");

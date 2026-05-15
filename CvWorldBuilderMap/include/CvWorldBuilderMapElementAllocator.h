@@ -234,9 +234,11 @@ private:
 
 		// Allocate the new memory block
 		Entry *aNew = (Entry*)FMALLOC(sizeof(Entry) * uiSize, c_eMPoolTypeGame, 0);
-		FAssertMsg(aNew != NULL, "Failed to allocate!");
 		if( aNew == NULL )
+		{
+			FAssertMsg(false, "Failed to allocate!");
 			return false;
+		}
 
 		// If there was a previous memory block then copy it over and free it
 		if( m_uiSize > 0 )
