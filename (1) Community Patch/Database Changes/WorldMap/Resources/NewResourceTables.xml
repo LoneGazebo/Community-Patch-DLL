@@ -15,10 +15,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
-	<!-- Combat modifier on all units if the player has a monopoly of this resource -->
+	<!-- Combat modifier on all units of this domain if the player has a monopoly of this resource -->
+	<!-- IsStrategicMonopoly = true: bonus is active for strategic monopoly -->
+	<!-- IsStrategicMonopoly = false: bonus is active for global monopoly -->
 	<Table name="Resource_MonopolyCombatModifiers">
-		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
-		<Column name="IsGlobalMonopoly" type="boolean" default="false"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
 		<Column name="IsStrategicMonopoly" type="boolean" default="false"/>
 		<Column name="Attack" type="integer" default="0"/>
 		<Column name="Defense" type="integer" default="0"/>

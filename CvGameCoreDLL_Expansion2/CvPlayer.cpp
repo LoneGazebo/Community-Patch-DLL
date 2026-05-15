@@ -1061,8 +1061,8 @@ void CvPlayer::uninit()
 	m_pabHasStrategicMonopoly.clear();
 	m_vResourcesWGlobalMonopoly.clear();
 	m_vResourcesWStrategicMonopoly.clear();
-	m_iCombatAttackBonusFromMonopolies = 0;
-	m_iCombatDefenseBonusFromMonopolies = 0;
+	m_vMonopolyAttackBonus.clear();
+	m_vMonopolyDefenseBonus.clear();
 	m_pabLoyalMember.clear();
 	m_pabGetsScienceFromPlayer.clear();
 
@@ -2027,8 +2027,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pabHasStrategicMonopoly.resize(GC.getNumResourceInfos(), false);
 		m_vResourcesWGlobalMonopoly.clear();
 		m_vResourcesWStrategicMonopoly.clear();
-		m_iCombatAttackBonusFromMonopolies = 0;
-		m_iCombatDefenseBonusFromMonopolies = 0;
+		m_vMonopolyAttackBonus.resize(GC.getNumUnitDomainInfos(), 0);
+		m_vMonopolyDefenseBonus.resize(GC.getNumUnitDomainInfos(), 0);
 
 		m_pabLoyalMember.clear();
 		m_pabLoyalMember.resize(GC.getNumVoteSourceInfos(), true);
@@ -38104,49 +38104,47 @@ void CvPlayer::UpdateMonopolyCache()
 {
 	m_vResourcesWStrategicMonopoly.clear();
 	m_vResourcesWGlobalMonopoly.clear();
-	m_iCombatAttackBonusFromMonopolies = 0;
-	m_iCombatDefenseBonusFromMonopolies = 0;
+	m_vMonopolyAttackBonus.assign(GC.getNumUnitDomainInfos(), 0);
+	m_vMonopolyDefenseBonus.assign(GC.getNumUnitDomainInfos(), 0);
 
 	if (!MOD_BALANCE_RESOURCE_MONOPOLIES)
 		return;
 
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		if (m_pabHasGlobalMonopoly[iResourceLoop])
-			m_vResourcesWGlobalMonopoly.push_back((ResourceTypes)iResourceLoop);
-		if (m_pabHasStrategicMonopoly[iResourceLoop])
-			m_vResourcesWStrategicMonopoly.push_back((ResourceTypes)iResourceLoop);
-	}
+		ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (HasGlobalMonopoly(eResource))
+		{
+			m_vResourcesWGlobalMonopoly.push_back(eResource);
+			for (int i = 0; i < GC.getNumUnitDomainInfos(); i++)
+			{
+				DomainTypes eDomain = static_cast<DomainTypes>(i);
+				m_vMonopolyAttackBonus[i] += pkResourceInfo->GetMonopolyAttackModifier(eDomain);
+				m_vMonopolyDefenseBonus[i] += pkResourceInfo->GetMonopolyDefenseModifier(eDomain);
+			}
+		}
 
-	// Strategic monopoly of resources
-	const std::vector<ResourceTypes>& vStrategicMonopolies = GetStrategicMonopolies();
-	for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
-	{
-		ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
-		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-		if (!pInfo)
-			continue;
+		if (HasStrategicMonopoly(eResource))
+		{
+			m_vResourcesWStrategicMonopoly.push_back(eResource);
+			for (int i = 0; i < GC.getNumUnitDomainInfos(); i++)
+			{
+				DomainTypes eDomain = static_cast<DomainTypes>(i);
+				m_vMonopolyAttackBonus[i] += pkResourceInfo->GetMonopolyAttackModifier(eDomain, true);
+				m_vMonopolyDefenseBonus[i] += pkResourceInfo->GetMonopolyDefenseModifier(eDomain, true);
+			}
+		}
 
-		m_iCombatAttackBonusFromMonopolies += pInfo->getMonopolyAttackBonus();
-		m_iCombatAttackBonusFromMonopolies += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
-		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus();
-		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC);
-	}
-
-	// Global monopoly of resources
-	const std::vector<ResourceTypes>& vGlobalMonopolies = GetGlobalMonopolies();
-	for (size_t iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
-	{
-		ResourceTypes eResourceLoop = vGlobalMonopolies[iResourceLoop];
-		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-		if (!pInfo)
-			continue;
-
-		m_iCombatAttackBonusFromMonopolies += pInfo->getMonopolyAttackBonus();
-		m_iCombatAttackBonusFromMonopolies += pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
-		//m_iCombatAttackBonusFromMonopolies += GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
-		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus();
-		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
+		// Either monopoly counts for these
+		if (HasStrategicMonopoly(eResource) || HasGlobalMonopoly(eResource))
+		{
+			for (int i = 0; i < GC.getNumUnitDomainInfos(); i++)
+			{
+				m_vMonopolyAttackBonus[i] += pkResourceInfo->getMonopolyAttackBonus();
+				m_vMonopolyDefenseBonus[i] += pkResourceInfo->getMonopolyDefenseBonus();
+			}
+		}
 	}
 }
 
@@ -38157,14 +38155,14 @@ void CvPlayer::UpdatePlotBlockades()
 		pLoopCity->GetCityCitizens()->DoVerifyWorkingPlots();
 }
 
-int CvPlayer::GetCombatAttackBonusFromMonopolies() const
+int CvPlayer::GetCombatAttackBonusFromMonopolies(DomainTypes eDomain) const
 {
-	return m_iCombatAttackBonusFromMonopolies;
+	return m_vMonopolyAttackBonus[eDomain];
 }
 
-int CvPlayer::GetCombatDefenseBonusFromMonopolies() const
+int CvPlayer::GetCombatDefenseBonusFromMonopolies(DomainTypes eDomain) const
 {
-	return m_iCombatDefenseBonusFromMonopolies;
+	return m_vMonopolyDefenseBonus[eDomain];
 }
 
 bool CvPlayer::HasGlobalMonopoly(ResourceTypes eResource) const

@@ -405,9 +405,10 @@ UPDATE Resources
 SET MonopolyAttackBonus = 10
 WHERE Type = 'RESOURCE_HORSE';
 
-UPDATE Resources
-SET MonopolyMovementBonus = 1
-WHERE Type = 'RESOURCE_COAL';
+INSERT INTO Resource_MonopolyCombatModifiers
+	(ResourceType, DomainType, IsStrategicMonopoly, Attack, Defense)
+VALUES
+	('RESOURCE_COAL', 'DOMAIN_SEA', 1, 10, 10);
 
 UPDATE Resources
 SET MonopolyXPBonus = 2

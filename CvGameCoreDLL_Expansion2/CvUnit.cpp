@@ -16429,7 +16429,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iModifier += /*25*/ GD_INT_GET(POLICY_ATTACK_BONUS_MOD);
 
 	//resource monopolies
-	iModifier += kPlayer.GetCombatAttackBonusFromMonopolies();
+	iModifier += kPlayer.GetCombatAttackBonusFromMonopolies(getDomainType());
 	iModifier += GetStrengthThisTurnFromPreviousSamePromotionAttacks();
 
 	// Adjacent Friendly military Unit? (attack mod only)
@@ -16646,7 +16646,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	iModifier += GetDamageCombatModifier(bFromRangedAttack, getDamage() + iAssumeExtraDamage);
 
 	//resource monopolies
-	iModifier += GET_PLAYER(getOwner()).GetCombatDefenseBonusFromMonopolies();
+	iModifier += GET_PLAYER(getOwner()).GetCombatDefenseBonusFromMonopolies(getDomainType());
 
 	// Adjacent Friendly military Unit? (defense mod only)
 	if (pInPlot != NULL && !bQuickAndDirty && pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
@@ -17000,9 +17000,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 	// Resource monopoly
 	if (bAttacking)
-		iModifier += kPlayer.GetCombatAttackBonusFromMonopolies();
+		iModifier += kPlayer.GetCombatAttackBonusFromMonopolies(getDomainType());
 	else
-		iModifier += kPlayer.GetCombatDefenseBonusFromMonopolies();
+		iModifier += kPlayer.GetCombatDefenseBonusFromMonopolies(getDomainType());
 
 	if (bAttacking)
 		iModifier += GetStrengthThisTurnFromPreviousSamePromotionAttacks();

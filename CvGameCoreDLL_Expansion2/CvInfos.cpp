@@ -5847,11 +5847,6 @@ CvResourceInfo::CvResourceInfo() :
 	m_piYieldChange(NULL),
 	m_piYieldChangeFromMonopoly(NULL),
 	m_piCityYieldModFromMonopoly(NULL),
-	m_piiMonopolyCombatModifiers(),
-	m_piMonopolyGreatPersonRateModifiers(),
-	m_piMonopolyGreatPersonRateChanges(),
-	m_piiiUnitCombatProductionCostModifiersLocal(),
-	m_aiiiBuildingProductionCostModifiersLocal(),
 	m_piResourceQuantityTypes(NULL),
 	m_piImprovementChange(NULL),
 	m_pbTerrain(NULL),
@@ -5865,11 +5860,6 @@ CvResourceInfo::~CvResourceInfo()
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangeFromMonopoly);
 	SAFE_DELETE_ARRAY(m_piCityYieldModFromMonopoly);
-	m_piiMonopolyCombatModifiers.clear();
-	m_piMonopolyGreatPersonRateModifiers.clear();
-	m_piMonopolyGreatPersonRateChanges.clear();
-	m_piiiUnitCombatProductionCostModifiersLocal.clear();
-	m_aiiiBuildingProductionCostModifiersLocal.clear();
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
 	SAFE_DELETE_ARRAY(m_piImprovementChange);
 	SAFE_DELETE_ARRAY(m_pbTerrain);
@@ -6112,113 +6102,36 @@ int CvResourceInfo::getCityYieldModFromMonopoly(int i) const
 //------------------------------------------------------------------------------
 int* CvResourceInfo::getCityYieldModFromMonopolyArray()
 {
-	return m_piCityYieldModFromMonopoly ;
+	return m_piCityYieldModFromMonopoly;
 }
 //------------------------------------------------------------------------------
-int CvResourceInfo::getMonopolyAttackBonus(MonopolyTypes eMonopoly) const
+int CvResourceInfo::GetMonopolyAttackModifier(DomainTypes eDomain, bool bStrategic) const
 {
-	ResourceMonopolySettings sKey;
-	int iMod = 0;
-	std::map<ResourceMonopolySettings, CombatModifiers>::const_iterator it;
 
-	if (eMonopoly == MONOPOLY_STRATEGIC)
+	for (size_t i = 0; i < m_vMonopolyCombatModifiers.size(); i++)
 	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
+		const ResourceMonopolyCombatModifier& kMod = m_vMonopolyCombatModifiers[i];
+		if (kMod.m_iDomain == eDomain && kMod.m_bStrategicMonopoly == bStrategic)
 		{
-			iMod += it->second.m_iAttackMod;
-		}
-
-		sKey.m_bGlobalMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iAttackMod;
+			return kMod.m_iAttack;
 		}
 	}
 
-	else if (eMonopoly == MONOPOLY_GLOBAL)
-	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iAttackMod;
-		}
-
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iAttackMod;
-		}
-	}
-
-	return iMod;
+	return 0;
 }
 //------------------------------------------------------------------------------
-int CvResourceInfo::getMonopolyDefenseBonus(MonopolyTypes eMonopoly) const
+int CvResourceInfo::GetMonopolyDefenseModifier(DomainTypes eDomain, bool bStrategic) const
 {
-	ResourceMonopolySettings sKey;
-	int iMod = 0;
-	std::map<ResourceMonopolySettings, CombatModifiers>::const_iterator it;
-
-	if (eMonopoly == MONOPOLY_STRATEGIC)
+	for (size_t i = 0; i < m_vMonopolyCombatModifiers.size(); i++)
 	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
+		const ResourceMonopolyCombatModifier& kMod = m_vMonopolyCombatModifiers[i];
+		if (kMod.m_iDomain == eDomain && kMod.m_bStrategicMonopoly == bStrategic)
 		{
-			iMod += it->second.m_iDefenseMod;
-		}
-
-		sKey.m_bGlobalMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iDefenseMod;
+			return kMod.m_iDefense;
 		}
 	}
 
-	if (eMonopoly == MONOPOLY_GLOBAL)
-	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iDefenseMod;
-		}
-
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iDefenseMod;
-		}
-	}
-
-	return iMod;
+	return 0;
 }
 //------------------------------------------------------------------------------
 int CvResourceInfo::getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const
@@ -6583,12 +6496,11 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	//Resource_MonopolyCombatModifiers
 	{
-
 		std::string sqlKey = "Resource_MonopolyCombatModifiers";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if (pResults == NULL)
 		{
-			const char* szSQL = "select IsGlobalMonopoly, IsStrategicMonopoly, Attack, Defense from Resource_MonopolyCombatModifiers where ResourceType = ?";
+			const char* szSQL = "select DomainType, IsStrategicMonopoly, Attack, Defense from Resource_MonopolyCombatModifiers where ResourceType = ?";
 			pResults = kUtility.PrepareResults(sqlKey, szSQL);
 		}
 
@@ -6596,23 +6508,38 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 		while (pResults->Step())
 		{
-			const bool bGlobalMonopoly = pResults->GetBool(0);
+			const int iDomain = pResults->GetInt(0);
 			const bool bStrategicMonopoly = pResults->GetBool(1);
-			const int iAttackMod = pResults->GetInt(2);
-			const int iDefenseMod = pResults->GetInt(3);
+			const int iAttack = pResults->GetInt(2);
+			const int iDefense = pResults->GetInt(3);
 
-			ResourceMonopolySettings sKey;
-			sKey.m_bGlobalMonopoly = bGlobalMonopoly;
-			sKey.m_bStrategicMonopoly = bStrategicMonopoly;
+			ResourceMonopolyCombatModifier* pTempMod = NULL;
+			for (size_t i = 0; i < m_vMonopolyCombatModifiers.size(); i++)
+			{
+				if (m_vMonopolyCombatModifiers[i].m_iDomain == iDomain && m_vMonopolyCombatModifiers[i].m_bStrategicMonopoly == bStrategicMonopoly)
+				{
+					pTempMod = &m_vMonopolyCombatModifiers[i];
+					break;
+				}
+			}
 
-			m_piiMonopolyCombatModifiers[sKey].m_iAttackMod += iAttackMod;
-			m_piiMonopolyCombatModifiers[sKey].m_iDefenseMod += iDefenseMod;
+			if (pTempMod)
+			{
+				pTempMod->m_iAttack += iAttack;
+				pTempMod->m_iDefense += iDefense;
+			}
+			else
+			{
+				ResourceMonopolyCombatModifier tempMod;
+				tempMod.m_iDomain = iDomain;
+				tempMod.m_bStrategicMonopoly = bStrategicMonopoly;
+				tempMod.m_iAttack = iAttack;
+				tempMod.m_iDefense = iDefense;
+				m_vMonopolyCombatModifiers.push_back(tempMod);
+			}
 		}
 
 		pResults->Reset();
-
-		//Trim extra memory off container since this is mostly read-only.
-		std::map<ResourceMonopolySettings, CombatModifiers>(m_piiMonopolyCombatModifiers).swap(m_piiMonopolyCombatModifiers);
 	}
 
 	//Resource_MonopolyGreatPersonRateModifiers
