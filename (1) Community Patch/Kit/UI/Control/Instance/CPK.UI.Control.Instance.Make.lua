@@ -52,12 +52,12 @@ local ControlInstanceMeta = {
 --- unless it will never be freed through this API.**
 ---
 --- @param name string # `<Instance Name="...">` as defined in XML
---- @param parent Control | nil # Parent control (defaults to `ContextPtr`)
+--- @param parent Control | nil # Parent control (defaults to context or `ContextPtr`)
+--- @param context Control | nil # Context control
 --- @return ControlInstance # Table of child controls indexed by XML ID
---- @return Control # Root control for the created instance (Always ControlBase)
-local function MakeControlInstance(name, parent)
-	local context = lua_loadstring('return ContextPtr')()
-
+--- @return Control # Root control for the created instance (Always `ControlBase`)
+local function MakeControlInstance(name, parent, context)
+	context = context or lua_loadstring('return ContextPtr')()
 	parent = parent or context
 
 	AssertIsTable(context)
