@@ -515,7 +515,7 @@ VALUES
 INSERT INTO Building_YieldFromVictoryGlobal
 	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BUILDING_TERRACOTTA_ARMY', 'YIELD_CULTURE', 10, 1);
+	('BUILDING_TERRACOTTA_ARMY', 'YIELD_CULTURE', 8, 1);
 
 -- Nalanda
 INSERT INTO Building_YieldChanges
