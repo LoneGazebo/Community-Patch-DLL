@@ -1039,6 +1039,12 @@
         <Description>EspionageChoice</Description>
         <FileName>Core Files/New UI/EspionageChoicePopup.lua</FileName>
       </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>CameraView</Name>
+        <Description>CameraView</Description>
+        <FileName>Core Files/New UI/CameraView.xml</FileName>
+      </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
   </PropertyGroup>
@@ -2657,6 +2663,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\New UI\CameraView.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\New UI\CameraView.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\New UI\CityEventPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -3973,6 +3987,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Kit\UI\Control\Instance\CPK.UI.Control.Instance.Move.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Kit\Util\CPK.Util.Benchmark.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -3990,6 +4008,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Kit\Util\CPK.Util.StringBuilder.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Util\CPK.Util.Timer.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
