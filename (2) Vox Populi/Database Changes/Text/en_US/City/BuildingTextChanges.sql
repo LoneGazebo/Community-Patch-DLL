@@ -51,6 +51,11 @@ UPDATE Language_en_US
 SET Text = 'The Forge improves sources of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper nearby, and boosts the [ICON_PRODUCTION] Production of Mines.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_STRATEGY';
 
+-- Factory
+UPDATE Language_en_US
+SET Text = 'Provides a baseline boost to City [ICON_PRODUCTION] Production that scales directly with the population of the City. Grants an urbanization-free Specialist slot to alleviate local unhappiness.[NEWLINE][NEWLINE]Additionally requires [ICON_RES_COAL] Coal, presenting a strict resource tradeoff with Coaling Stations. Rather than relying on local percentage modifiers, the Factory relies on the size of your global Coaling Station network to inject massive flat [ICON_PRODUCTION] Production bonuses into its baseline yields. To maximize empire-wide industrial output, focus your Factory network primarily within high-population Cities and the Capital where the citizen scaling and urbanization reduction can be fully exploited.'
+WHERE Tag = 'TXT_KEY_BUILDING_FACTORY_STRATEGY';
+
 -- Stone Works
 UPDATE Language_en_US
 SET Text = 'Stone Works can only be constructed in a City near an improved [ICON_RES_STONE] Stone, [ICON_RES_MARBLE] Marble, [ICON_RES_SALT] Salt, [ICON_RES_JADE] Jade, [ICON_RES_AMBER] Amber, [ICON_RES_LAPIS] Lapis Lazuli, or [ICON_RES_URANIUM] Uranium resource. Stone Works provides Production to your City whenever it claims new tiles, and allows [ICON_PRODUCTION] Production to be moved from this City along Trade Routes internal to your Civilization.'
