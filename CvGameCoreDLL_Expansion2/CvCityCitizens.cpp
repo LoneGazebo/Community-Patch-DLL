@@ -1256,6 +1256,11 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 				iGrossFoodNow *= 100 + cache.iGrowthMod;
 				iGrossFoodNow /= 100;
 			}
+			// if we aren't growing but have this flag, clamp the gross food to +1
+			else if (m_pCity->IsPositiveFood())
+			{
+				iGrossFoodNow = 1;
+			}
 			int iGrossFoodThen = iNetFoodThen;
 			if (iGrossFoodThen > 0)
 			{
@@ -1269,6 +1274,10 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 					iGrossFoodThen *= 100 + cache.iGrowthMod;
 				}
 				iGrossFoodThen /= 100;
+			}
+			else if (m_pCity->IsPositiveFood())
+			{
+				iGrossFoodThen = 1;
 			}
 
 			if (iGrossFoodNow == iGrossFoodThen)
