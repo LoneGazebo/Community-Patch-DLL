@@ -2074,8 +2074,8 @@ public:
 	bool WouldGainMonopoly(ResourceTypes eResource, int iExtraResource) const;
 
 	//cache these because we need them a lot
-	int GetCombatAttackBonusFromMonopolies() const;
-	int GetCombatDefenseBonusFromMonopolies() const;
+	int GetCombatAttackBonusFromMonopolies(DomainTypes eDomain) const;
+	int GetCombatDefenseBonusFromMonopolies(DomainTypes eDomain) const;
 	int GetNumGlobalMonopolies() const;
 	void UpdateMonopolyCache();
 	void UpdatePlotBlockades();
@@ -3555,8 +3555,8 @@ protected:
 	std::vector<bool> m_pabHasStrategicMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWGlobalMonopoly;
 	std::vector<ResourceTypes> m_vResourcesWStrategicMonopoly;
-	int m_iCombatAttackBonusFromMonopolies;
-	int m_iCombatDefenseBonusFromMonopolies;
+	std::vector<int> m_vMonopolyAttackBonus;
+	std::vector<int> m_vMonopolyDefenseBonus;
 
 	std::vector<ResourceTypes> m_vResourcesNotForSale;
 	bool m_refuseOpenBordersTrade;
@@ -3567,7 +3567,6 @@ protected:
 	bool m_refuseResearchAgreementTrade;
 
 	std::vector<bool> m_abInstantYieldNotificationsDisabled;
-
 
 	std::vector<bool> m_pabGetsScienceFromPlayer;
 

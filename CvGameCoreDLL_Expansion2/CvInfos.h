@@ -25,12 +25,21 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 #pragma warning( disable: 4127 )
 
+struct ResourceMonopolyCombatModifier
+{
+	int m_iDomain;
+	bool m_bStrategicMonopoly;
+	int m_iAttack;
+	int m_iDefense;
+};
+
 struct ResourceMonopolySettings
 {
 	ResourceMonopolySettings() :
 		m_bGlobalMonopoly(false),
 		m_bStrategicMonopoly(false)
-	{};
+	{
+	};
 
 	bool operator<(const ResourceMonopolySettings& t) const
 	{
@@ -1847,8 +1856,8 @@ public:
 	int getCityYieldModFromMonopoly(int i) const;
 	int* getCityYieldModFromMonopolyArray();
 
-	int getMonopolyAttackBonus(MonopolyTypes eMonopoly) const;
-	int getMonopolyDefenseBonus(MonopolyTypes eMonopoly) const;
+    int GetMonopolyAttackModifier(DomainTypes eDomain, bool bStrategic = false) const;
+    int GetMonopolyDefenseModifier(DomainTypes eDomain, bool bStrategic = false) const;
 
 	int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
 	int getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
@@ -1914,7 +1923,7 @@ protected:
 	int* m_piYieldChange;
 	int* m_piYieldChangeFromMonopoly;
 	int* m_piCityYieldModFromMonopoly;
-	std::map<ResourceMonopolySettings, CombatModifiers> m_piiMonopolyCombatModifiers;
+	std::vector<ResourceMonopolyCombatModifier> m_vMonopolyCombatModifiers;
 	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateModifiers;
 	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateChanges;
 	std::map<int, std::vector<ProductionCostModifiers>> m_piiiUnitCombatProductionCostModifiersLocal;
