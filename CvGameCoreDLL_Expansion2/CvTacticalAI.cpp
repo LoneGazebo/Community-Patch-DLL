@@ -8060,7 +8060,7 @@ static STacticalAssignment* ScorePlotForCombatUnitMove(const SUnitStats& unit, c
 			iPlotScore += 3;
 
 		// if we are not in a good spot, try moving
-		if (iPlotScore <= 6 && pTestPlot == pUnit->plot())
+		if (iPlotScore <= 6 && pTestPlot == pUnit->plot() && pUnit->getDamage() + unit.iSelfDamage < 10)
 			iPlotScore -= 2;
 
 		// Move melee units in to capture cities
@@ -9824,7 +9824,7 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 		//staying in place and bombarding is fine!
 		//staying in place and healing is also progress TODO: should we check whether we are healing more than we are taking damage?
 		//note that retreating a damaged unit counts as positive because it should be MS_THIRDLINE
-		return (iNegative < iPositive) || (iNegative == iPositive && (iAttacksNoMove > 0 || iHealingUnits > 1));
+		return (iNegative < iPositive) || (iNegative == iPositive && (iAttacksNoMove > 0 || iHealingUnits > 1 || (iHealingUnits == root->GetNumAvailableUnits())));
 	}
 	else
 	{
