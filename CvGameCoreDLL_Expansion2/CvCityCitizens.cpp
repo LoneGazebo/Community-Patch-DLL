@@ -1049,18 +1049,28 @@ int CvCityCitizens::ScoreYieldChangeQuick(YieldAndGPPList yieldChanges, SPrecomp
 		YieldTypes eYield = (YieldTypes)iI;
 		int iYield100 = yieldChanges.yield[iI];
 
-		// Inca exception: if we're already under the non-specialist food consumption threshold, we can safely remove even more food ...
-		if (m_pCity->IsNoStarvationNonSpecialist() && eYield == YIELD_FOOD && iYield100 < 0 && cache.iFoodConsumptionTimes100 <= cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100)
+		// Exception: if we're already under the food consumption threshold, we can safely remove even more food ...
+		if (eYield == YIELD_FOOD && iYield100 < 0 && cache.iFoodConsumptionTimes100 <= cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100)
 		{
-			// ... unless we're adding a specialist
-			int iNumSpecialistAdded = 0;
-			for (int iI = 0; iI < (int)yieldChanges.iNumSpecialists.size(); iI++)
-			{
-				iNumSpecialistAdded += yieldChanges.iNumSpecialists[iI];
-			}
-			if (iNumSpecialistAdded <= 0)
-				continue;
+			if (m_pCity->IsPositiveFood())
+		    {
+		        continue;
+		    }
 
+			// but in this case, only if no specialists are added
+		    if (m_pCity->IsNoStarvationNonSpecialist())
+		    {
+		        int iNumSpecialistAdded = 0;
+		        for (int iI = 0; iI < (int)yieldChanges.iNumSpecialists.size(); iI++)
+		        {
+		            iNumSpecialistAdded += yieldChanges.iNumSpecialists[iI];
+		        }
+		
+		        if (iNumSpecialistAdded <= 0)
+		        {
+		            continue;
+		        }
+		    }
 		}
 
 		if (iYield100 != 0)
