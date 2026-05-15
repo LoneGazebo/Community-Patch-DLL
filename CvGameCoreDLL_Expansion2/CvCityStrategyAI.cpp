@@ -5213,13 +5213,23 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += pkBuildingInfo->GetFoodKept() * pCity->getPopulation();
 	}
-	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist())
+	// NoStarvation is not as good as PositiveFood, but there is large overlap to consider
+	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist() && !pCity->IsPositiveFood())
 	{
 		iValue += 10 * pCity->getPopulation();
 		if (pCity->getYieldRateTimes100(YIELD_FOOD) < 0)
 		{
 			// higher value if we are starving
 			iValue += (-2) * pCity->getYieldRateTimes100(YIELD_FOOD);
+		}
+	}
+	if (pkBuildingInfo->IsPositiveFood() && !pCity->IsPositiveFood())
+	{
+		iValue += 10 * pCity->getPopulation();
+		if (pCity->getYieldRateTimes100(YIELD_FOOD) < 1)
+		{
+			int iAlreadyCannotStarve = pCity->IsNoStarvationNonSpecialist(); // heuristic: halve the value if already non-specialists dont count
+			iValue += (-2 + iAlreadyCannotStarve) * pCity->getYieldRateTimes100(YIELD_FOOD);
 		}
 	}
 
