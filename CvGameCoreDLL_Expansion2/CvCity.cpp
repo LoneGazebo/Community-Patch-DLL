@@ -23003,7 +23003,7 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 		else if (IsPositiveFood())
 		{
 			if (bBuildTooltip)
-				GC.getGame().BuildProdModHelpText(&tooltipGrowthMods, "TXT_KEY_GROWTH_ALWAYS_POSITIVE");
+				tooltipGrowthMods += GetLocalizedText("TXT_KEY_GROWTH_ALWAYS_POSITIVE");
 			iTotalYield = 1;
 		}
 	}
