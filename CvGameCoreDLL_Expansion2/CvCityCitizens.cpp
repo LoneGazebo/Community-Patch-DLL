@@ -1985,7 +1985,7 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 			return m_pCity->getPopulation() * 150;
 
 		//default (other specializations)
-		return 200;
+		return m_pCity->IsPositiveFood() ? 100 : 200;
 	}
 }
 
