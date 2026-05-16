@@ -120,7 +120,7 @@ VALUES
 
 UPDATE Buildings
 SET
-	PositiveFood = 1,
+	MinimumFood = 100,
 	AllowsProductionTradeRoutes = 1
 WHERE Type = 'BUILDING_QULLQA';
 
