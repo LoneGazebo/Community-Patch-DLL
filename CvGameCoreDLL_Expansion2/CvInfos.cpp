@@ -747,11 +747,6 @@ int CvSpecialistInfo::getGreatPeopleRateChange() const
 	return m_iGreatPeopleRateChange;
 }
 //------------------------------------------------------------------------------
-int CvSpecialistInfo::getCulturePerTurn() const
-{
-	return m_iCulturePerTurn;
-}
-
 int CvSpecialistInfo::getMissionType() const
 {
 	return m_iMissionType;
@@ -813,6 +808,8 @@ bool CvSpecialistInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	//Arrays
 	const char* szType = GetType();
 	kUtility.SetYields(m_piYieldChange, "SpecialistYields", "SpecialistType", szType);
+
+	m_piYieldChange[YIELD_CULTURE] += m_iCulturePerTurn;
 
 	return true;
 }
