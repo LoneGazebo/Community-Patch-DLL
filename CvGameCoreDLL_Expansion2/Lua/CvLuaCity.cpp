@@ -598,7 +598,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanPlaceUnitHere);
 
 	Method(GetSpecialistYield);
-	Method(GetCultureFromSpecialist);
 
 	Method(GetNumForcedWorkingPlots);
 
@@ -6223,11 +6222,6 @@ int CvLuaCity::lGetSpecialistYield(lua_State* L)
 	lua_pushinteger(L, iValue);
 
 	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaCity::lGetCultureFromSpecialist(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::GetCultureFromSpecialist);
 }
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetReligionCityRangeStrikeModifier(lua_State* L)
