@@ -453,7 +453,7 @@ CvCity::CvCity() :
 	, m_iNoUnhappfromXSpecialists()
 	, m_bNoWarmonger()
 	, m_iNoStarvationNonSpecialist()
-	, m_iPositiveFood()
+	, m_iMinimumFood()
 	, m_abIsBestForWonder()
 	, m_abIsPurchased()
 	, m_abTraded()
@@ -1374,7 +1374,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNoUnhappfromXSpecialists = 0;
 	m_bNoWarmonger = false;
 	m_iNoStarvationNonSpecialist = 0;
-	m_iPositiveFood = 0;
+	m_iMinimumFood = 0;
 	m_aiEconomicValue.resize(MAX_CIV_PLAYERS);
 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
@@ -13809,9 +13809,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeNoStarvationNonSpecialist(iChange);
 		}
-		if (pBuildingInfo->IsPositiveFood())
+		if (pBuildingInfo->GetMinimumFood())
 		{
-			ChangePositiveFood(iChange);
+			ChangeMinimumFood(iChange);
 		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
@@ -22106,15 +22106,15 @@ bool CvCity::IsNoStarvationNonSpecialist() const
 	return m_iNoStarvationNonSpecialist > 0;
 }
 
-void CvCity::ChangePositiveFood(int iValue)
+void CvCity::ChangeMinimumFood(int iValue)
 {
 	VALIDATE_OBJECT();
-	m_iPositiveFood += iValue;
+	m_iMinimumFood += iValue;
 }
-bool CvCity::IsPositiveFood() const
+bool CvCity::GetMinimumFood() const
 {
 	VALIDATE_OBJECT();
-	return m_iPositiveFood > 0;
+	return m_iMinimumFood;
 }
 
 int CvCity::GetNumTimesOwned(PlayerTypes ePlayer) const
@@ -23000,11 +23000,11 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 				iTotalYield /= 100;
 			}
 		}
-		else if (IsPositiveFood())
+		else if (GetMinimumFood() > 0)
 		{
 			if (bBuildTooltip)
-				tooltipGrowthMods += GetLocalizedText("TXT_KEY_GROWTH_ALWAYS_POSITIVE");
-			iTotalYield = 1;
+				tooltipGrowthMods += GetLocalizedText("TXT_KEY_GROWTH_MINIMUM", GetMinimumFood());
+			iTotalYield = GetMinimumFood();
 		}
 	}
 	
@@ -31896,7 +31896,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_bNoWarmonger);
 	visitor(city.m_iEmpireSizeModifierReduction);
 	visitor(city.m_iNoStarvationNonSpecialist);
-	visitor(city.m_iPositiveFood);
+	visitor(city.m_iMinimumFood);
 	visitor(city.m_iDistressFlatReduction);
 	visitor(city.m_iPovertyFlatReduction);
 	visitor(city.m_iIlliteracyFlatReduction);
