@@ -6954,6 +6954,7 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			else
 				Controls.AdjacentTerrainYieldLabel:SetText( fullstring );
 				Controls.AdjacentTerrainYieldFrame:SetHide( false );
+				UpdateNarrowTextBlock( fullstring, Controls.AdjacentTerrainYieldLabel, Controls.AdjacentTerrainYieldInnerFrame, Controls.AdjacentTerrainYieldFrame );
 			end
 
 			numYields = 0;
