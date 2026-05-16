@@ -154,23 +154,23 @@ public:
 	};
 	uint GetStartTurn() const
 	{
-		return m_iStartTurn;
+		return (uint)m_iStartTurn;
 	};
 	uint GetDuration()  const
 	{
-		return m_iDuration;
+		return (uint)m_iDuration;
 	};
 	uint GetEndTurn()   const
 	{
-		return m_iFinalTurn;
+		return (uint)m_iFinalTurn;
 	};
 	uint GetFromPlayerValue() const
 	{
-		return m_iFromPlayerValue;
+		return (uint)m_iFromPlayerValue;
 	};
 	uint GetToPlayerValue() const
 	{
-		return m_iToPlayerValue;
+		return (uint)m_iToPlayerValue;
 	};
 
 

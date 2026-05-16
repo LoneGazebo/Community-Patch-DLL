@@ -3153,10 +3153,9 @@ int CvDiplomacyAI::GetDiplomaticVictoryProgress() const
 		{
 			LeagueSpecialSessionTypes e = (LeagueSpecialSessionTypes)i;
 			CvLeagueSpecialSessionEntry* pSessionInfo = GC.getLeagueSpecialSessionInfo(e);
-			if (pSessionInfo->IsUnitedNations())
+			if (pSessionInfo->IsUnitedNations() && pSessionInfo->GetResolutionTrigger() != NO_RESOLUTION)
 			{
-				ResolutionTypes eResolution = LeagueHelpers::IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger());
-				if (eResolution != NO_RESOLUTION)
+				if (LeagueHelpers::IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger()))
 				{
 					iExtra += 1;
 				}
@@ -22764,7 +22763,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 			{
 				ePrimeLeagueAlly = ePlayer;
 				iPrimeVotes = iVotes;
-				ePrimeAlignment = eAlignment;
 			}
 			// In the event of yet another tie, sort by opinion score
 			else if (iVotes == iPrimeVotes)
@@ -22772,8 +22770,6 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 				if (GetCachedOpinionWeight(ePlayer) < GetCachedOpinionWeight(ePrimeLeagueAlly))
 				{
 					ePrimeLeagueAlly = ePlayer;
-					iPrimeVotes = iVotes;
-					ePrimeAlignment = eAlignment;
 				}
 			}
 		}
@@ -25820,7 +25816,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					if (GET_PLAYER(vEnemyTeamMembers[i]).isAlive())
 						RefusePeaceTreaty(vEnemyTeamMembers[i], strLogMessage);
 				}
-				continue;
 			}
 		}
 
@@ -42949,7 +42944,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	bool bCultural = iFlavorCulture > 6;
 	bCultural |= IsCultural() || IsSecondaryCultural();
 	bCultural |= IsCompetingForVictory() && IsGoingForCultureVictory();
-	bCultural = GetPlayer()->GetPlayerTraits()->IsTourism();
+	bCultural |= GetPlayer()->GetPlayerTraits()->IsTourism();
 
 	ePromiseState = GetNoDiggingPromiseState(ePlayer);
 	if (ePromiseState == PROMISE_STATE_BROKEN)
@@ -43712,7 +43707,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayer(GetID());
 	DoReevaluatePlayer(ePlayer);
 
-	Localization::String someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
+	Localization::String someoneDenounceInfo;
 	int iMessage = GetDenounceMessage(ePlayer);
 	if (iMessage > 0 && iMessage <= 7)
 	{
@@ -47351,7 +47346,7 @@ int CvDiplomacyAI::GetIdeologyScore(PlayerTypes ePlayer)
 				iOpinionWeight /= 100;
 			}
 		}
-		else if (eMyBranch != eTheirBranch)
+		else
 		{
 			iOpinionWeight += iEraMod * /*10*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_LATE_POLICIES);
 
@@ -54559,7 +54554,6 @@ void CvDiplomacyAI::DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploState
 						// Modify player view to all AI teammates
 						if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
 						{
-							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetVassalTaxRaised(eLoopPlayer, false);
 						}
 					}
@@ -54607,7 +54601,6 @@ void CvDiplomacyAI::DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStat
 						// Modify player view to all AI teammates
 						if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
 						{
-							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							GET_PLAYER(ePlayer).GetDiplomacyAI()->SetVassalTaxLowered(eLoopPlayer, false);
 						}
 					}

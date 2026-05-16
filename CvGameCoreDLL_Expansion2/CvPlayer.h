@@ -245,7 +245,7 @@ public:
 	bool hasReadyUnit() const;
 	int GetCountReadyUnits(bool bCreatedThisTurnSlice = false) const;
 	const CvUnit* GetFirstReadyUnit() const;
-	void EndTurnsForReadyUnits(bool bLinkedUnitsOnly = false);
+	void EndTurnsForReadyUnits(bool bSendNetworkMessage = false, bool bLinkedUnitsOnly = false);
 	bool hasAutoUnit() const;
 	bool hasBusyUnit() const;
 	const CvUnit* getBusyUnit() const;

@@ -2145,12 +2145,12 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 	}
 
 	//initial value
-	int iItemValue = 20000;
+	int iItemValue = 15000;
 
 	//economic value is important
 	int iEconomicValue = pCity->getEconomicValue(eAssumedOwner);
 	int iEconomicValuePerPop = (iEconomicValue / (max(1, pCity->getPopulation())));
-	iItemValue += (max(1,iEconomicValue-1000)/3); //tricky to define the correct factor
+	iItemValue += (max(1,iEconomicValue-1000)/4); //tricky to define the correct factor
 
 	//prevent cheesy exploit: founding cities just to sell them
 	if (!bPeaceTreatyTrade && (GC.getGame().getGameTurn() - pCity->getGameTurnFounded()) < (42 + GC.getGame().randRangeExclusive(0, 5, CvSeeder(iEconomicValue))))
@@ -2158,12 +2158,14 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 
 	//If not as good as any of our cities, we don't want it.
 	int iBetterThanCount = 0;
+	int iMinDistance = INT_MAX;
 	int iCityLoop = 0;
 	for(CvCity* pLoopCity = assumedOwner.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = assumedOwner.nextCity(&iCityLoop))
 	{
 		int iScore = (pLoopCity->getEconomicValue(eAssumedOwner) / (max(1, pLoopCity->getPopulation())));
 		if (iEconomicValuePerPop > iScore)
 			iBetterThanCount++;
+		iMinDistance = min(iMinDistance, plotDistance(pCity->getX(), pCity->getY(), pLoopCity->getX(), pLoopCity->getY()));
 	}
 	//better than half of the buyer's cities?
 	if (iBetterThanCount > assumedOwner.getNumCities() / 2)
@@ -2171,7 +2173,6 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 
 	//first some amount for the territory (outside of the first ring)
 	int iNewInternalBorderCount = 0;
-	int iOldInternalBorderCount = 0;
 	int iCityTiles = 0;
 	for(int iI = RING1_PLOTS; iI < RING5_PLOTS; iI++)
 	{
@@ -2185,17 +2186,14 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 		else if (pLoopPlot->getOwner() == eAssumedOwner)
 			//belongs to another one of the buyer's cities
 			iNewInternalBorderCount++;
-		else if (pLoopPlot->getOwner() == pCity->getOwner())
-			//belongs to another one of the current owner's cities
-			iOldInternalBorderCount++;
 	}
 
 	//this is how much ANY plot is worth to the buyer right now
-	int goldPerPlot = assumedOwner.GetBuyPlotCost();
-	iItemValue += goldPerPlot * 50 * iCityTiles;
+	int goldPerPlot = /*50*/ GD_INT_GET(PLOT_BASE_COST);
+	iItemValue += goldPerPlot * 10 * iCityTiles;
 
 	//important. it's valuable to have as much internal border as possible
-	iItemValue += goldPerPlot * 80 * iNewInternalBorderCount;
+	iItemValue += goldPerPlot * 100 * iNewInternalBorderCount;
 
 	//unhappy cities are worth less
 	iItemValue -= pCity->getUnhappyCitizenCount() * goldPerPlot * 30;
@@ -2213,22 +2211,14 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 		iItemValue *= 120;
 		iItemValue /= 100;
 	}
-	else if (iNewInternalBorderCount == 0 && iOldInternalBorderCount == 0)
+	else if (iMinDistance > 15)
 	{
-		//don't buy a city which doesn't overlap with existing cities, unless it's isolated from the current owner as well
 		return INT_MAX;
 	}
 
 	if (pCity->IsPuppet())
 	{
 		iItemValue *= 70;
-		iItemValue /= 100;
-	}
-
-	//don't want the trouble
-	if (pCity->IsResistance())
-	{
-		iItemValue *= (100-10*min(5,pCity->GetResistanceTurns()));
 		iItemValue /= 100;
 	}
 

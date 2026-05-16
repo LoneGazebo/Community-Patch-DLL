@@ -2158,11 +2158,11 @@ void CvGame::updateTestEndTurn()
 		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
 		{
 			// No notifications are blocking, check units/cities
-			if (activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING))
+			if (activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING) && activePlayer.isHuman(ISHUMAN_AI_UNIT_PROMOTIONS))
 			{
 				eEndTurnBlockingType = ENDTURN_BLOCKING_UNIT_PROMOTION;
 			}
-			else if (activePlayer.hasReadyUnit())
+			else if (activePlayer.hasReadyUnit() && activePlayer.isHuman(ISHUMAN_AI_UNITS))
 			{
 				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
 				ASSERT(pUnit, "GetFirstReadyUnit is returning null");
@@ -3297,7 +3297,7 @@ void CvGame::handleAction(int iAction)
 					if(pPlot != NULL)
 					{
 						ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-						ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+						ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 						if (pPlot->getResourceType() == eArtifactResourceType || pPlot->getResourceType() == eHiddenArtifactResourceType)
 						{
 							bShowConfirmPopup = true;

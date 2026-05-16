@@ -130,7 +130,7 @@ private:
 	short m_iMovesToTarget;
 	short m_iExpectedTargetDamage;
 	short m_iExpectedSelfDamage;
-	short m_iAttackPriority;
+	int m_iAttackPriority;
 	CvUnit* m_pInterceptor;
 };
 
@@ -548,9 +548,9 @@ public:
 
 	STacticalAssignment() : eAssignmentType(A_BLOCKED), iUnitID(-1), iTotalScore(0), iFromPlotIndex(0), iToPlotIndex(0),
 		iRemainingMoves(0), eMoveType(MS_NONE), unitDamage(SUnitIDValueContainer()), unitHealing(SUnitIDValueContainer()),
-		iCityDamage(0), iSelfDamage(0), iDamagedCityId(0), iPlotScore(0), iBonusScore(0), iDamageDelta(0) {}
+		iCityDamage(0), iSelfDamage(0), iDamagedCityId(0), iPlotScore(0), iBonusScore(0), iDamageDelta(0), iOldPlotScore(0) {}
 
-	STacticalAssignment(int iFromPlot, int iToPlot, int iUnitID_, int iRemainingMoves_, eUnitMovementStrategy eMoveType_, eUnitAssignmentType eType_)
+	STacticalAssignment(int iFromPlot, int iToPlot, int iUnitID_, int iRemainingMoves_, eUnitMovementStrategy eMoveType_, eUnitAssignmentType eType_, int iOldPlotScore_)
 	{
 		eAssignmentType = eType_;
 		iUnitID = iUnitID_;
@@ -558,6 +558,7 @@ public:
 		iToPlotIndex = iToPlot;
 		iRemainingMoves = iRemainingMoves_;
 		eMoveType = eMoveType_;
+		iOldPlotScore = iOldPlotScore_;
 
 		iCityDamage = 0;
 		iSelfDamage = 0;
@@ -569,7 +570,7 @@ public:
 		SetImpossible();
 	}
 
-	void init(int iFromPlot, int iToPlot, int iUnitID_, int iRemainingMoves_, eUnitMovementStrategy eMoveType_, eUnitAssignmentType eType_)
+	void init(int iFromPlot, int iToPlot, int iUnitID_, int iRemainingMoves_, eUnitMovementStrategy eMoveType_, eUnitAssignmentType eType_, int iOldPlotScore_)
 	{
 		VALIDATE_OBJECT();
 		eAssignmentType = eType_;
@@ -578,6 +579,7 @@ public:
 		iToPlotIndex = iToPlot;
 		iRemainingMoves = iRemainingMoves_;
 		eMoveType = eMoveType_;
+		iOldPlotScore = iOldPlotScore_;
 
 		iCityDamage = 0;
 		iSelfDamage = 0;
@@ -596,14 +598,14 @@ public:
 		iPlotScore = iPlotScore_;
 		iBonusScore = iBonusScore_;
 		iDamageDelta = iDamageDelta_;
-		iTotalScore = iPlotScore + (iBonusScore + iDamageDelta) * 10;
+		iTotalScore = iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10;
 	}
 	void SetScore(const STacticalAssignment* other)
 	{
 		iPlotScore = other->iPlotScore;
 		iBonusScore = other->iBonusScore;
 		iDamageDelta = other->iDamageDelta;
-		iTotalScore = iPlotScore + (iBonusScore + iDamageDelta) * 10;
+		iTotalScore = iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10;
 	}
 	void AddScore(int iPlotScoreChange, int iBonusScoreChange, int iDamageDeltaChange)
 	{
@@ -611,7 +613,7 @@ public:
 		iPlotScore += iPlotScoreChange;
 		iBonusScore += iBonusScoreChange;
 		iDamageDelta += iDamageDeltaChange;
-		iTotalScore = iPlotScore + (iBonusScore + iDamageDelta) * 10;
+		iTotalScore = iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10;
 	}
 	void AddScore(const STacticalAssignment* other)
 	{
@@ -619,7 +621,7 @@ public:
 		iPlotScore += other->iPlotScore;
 		iBonusScore += other->iBonusScore;
 		iDamageDelta += other->iDamageDelta;
-		iTotalScore = iPlotScore + (iBonusScore + iDamageDelta) * 10;
+		iTotalScore = iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10;
 	}
 	void SetImpossible()
 	{
@@ -628,6 +630,7 @@ public:
 	int GetPlotScore() const { return iPlotScore; }
 	int GetBonusScore() const { return iBonusScore; }
 	int GetDamageDelta() const { return iDamageDelta; }
+	int GetOldPlotScore() const { return iOldPlotScore; }
 	void wipe()
 	{
 		SUnitIDValueContainer().swap(unitDamage);
@@ -640,6 +643,7 @@ protected:
 	short iPlotScore;
 	short iBonusScore;
 	short iDamageDelta;
+	short iOldPlotScore;
 };
 
 struct SComboMove
@@ -698,17 +702,16 @@ struct SComboMove
 	bool operator<(const SComboMove& rhs) const {
 		return getA().Score() + (hasB() ? getB().Score() : 0) > rhs.getA().Score() + (rhs.hasB() ? rhs.getB().Score() : 0);
 	}
-	bool operator==(const SComboMove& rhs) const { return getA() == rhs.getA() && getB() == rhs.getB(); }
+	bool operator==(const SComboMove& rhs) const { return getA() == rhs.getA() && hasB() == rhs.hasB() && (!hasB() || getB() == rhs.getB()); }
 	bool addMove(const STacticalAssignment& move);
 
-	// When comparing combination moves, we should evaluate double moves as the average value of the two moves
 	struct PrEvalOrder
 	{
 		bool operator() (const SComboMove& lhs, const SComboMove& rhs)
 		{
-			int lhsScore = !lhs.hasB() ? lhs.getA().Score() : (lhs.getA().Score() + lhs.getB().Score()) / 2;
-			int rhsScore = !rhs.hasB() ? rhs.getA().Score() : (rhs.getA().Score() + rhs.getB().Score()) / 2;
-			return lhs.getA().Score() > rhs.getA().Score();
+			int lhsScore = !lhs.hasB() ? lhs.getA().Score() : lhs.getA().Score() + lhs.getB().Score();
+			int rhsScore = !rhs.hasB() ? rhs.getA().Score() : rhs.getA().Score() + rhs.getB().Score();
+			return lhsScore > rhsScore;
 		}
 	};
 };
@@ -1136,6 +1139,7 @@ protected:
 
 	SCoWField<vector<SUnitStats>> availableUnits; //units which still need an assignment
 	SCoWField<vector<SUnitStats>> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
+	SCoWField<vector<SUnitStats>> finishedUnits; //unit that is fully finished
 
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
@@ -1184,7 +1188,12 @@ public:
 			//within a generation always sort by (last round) score
 			//continue where it seems most promising right now, ignore "historical" scores
 			if (lhs->getGeneration() == rhs->getGeneration())
-				return lhs->getScoreLastRound() < rhs->getScoreLastRound();
+			{
+				if (lhs->getScoreLastRound() != rhs->getScoreLastRound())
+					return lhs->getScoreLastRound() < rhs->getScoreLastRound();
+				//tie-breaker: use ID to ensure deterministic ordering
+				return lhs->getID() > rhs->getID();
+			}
 
 			if (bDepthFirst)
 				//we want to pick the highest generation first
@@ -1198,14 +1207,16 @@ public:
 	struct PrPositionSortArrayTotalScore
 	{
 		// descending sort by total score, tie-breaker: fewer assignments first
+		// second tie-breaker: lower ID first
 		bool operator()(const CvBasePosition* lhs, const CvBasePosition* rhs) const
 		{
 			int iLhsScore = lhs->iTotalScore;
 			int iRhsScore = rhs->iTotalScore;
-			if (iLhsScore == iRhsScore)
+			if (iLhsScore != iRhsScore)
+				return iLhsScore > iRhsScore;
+			if (lhs->GetNumAssignments() != rhs->GetNumAssignments())
 				return lhs->GetNumAssignments() < rhs->GetNumAssignments();
-
-			return iLhsScore > iRhsScore;
+			return lhs->getID() < rhs->getID();
 		}
 	};
 
@@ -1216,6 +1227,7 @@ public:
 		assignedMoves.wipe();
 		availableUnits.wipe();
 		notQuiteFinishedUnits.wipe();
+		finishedUnits.wipe();
 		freedPlots.wipe();
 
 		// hook for derived classes
@@ -1253,7 +1265,7 @@ public:
 	size_t GetNumAssignments() const { return assignedMoves.read().size(); }
 
 	void UpdateScore(const STacticalAssignment& assignment);
-	void UpdateScore(int iUnitId, int iPlotScore, int iDamageDelta, int iBonusScore);
+	void UpdateScore(int iUnitId, int iPlotScore, int iOldPlotScore, int iDamageDelta, int iBonusScore);
 
 	//sort descending cumulative score. only makes sense for "completed" positions
 	bool operator<(const CvBasePosition& rhs) { return getScoreTotal() > rhs.getScoreTotal(); }
@@ -1359,6 +1371,7 @@ public:
 	void ChangeUnitDamage(int iUnitID, int iChange);
 	void ChangeCityDamage(int iCityID, int iChange);
 	void HealFriendlyUnit(int iUnitID, int iChange);
+	bool IsTargetToDistanceRelevant() const { return bTargetDistanceRelevant; }
 
 	bool HasSupport(DomainTypes eDomain) const { return eDomain == DOMAIN_SEA ? bHasAdmiral : bHasGeneral; }
 	bool HasCitySupport() const { return bHasSiegetower; }
@@ -1429,7 +1442,7 @@ public:
 
 	bool HasCombatBonus(int iPlotIndex, DomainTypes eDomain) const;
 	int GetCityAttackBonus(int iPlotIndex) const;
-	bool IsSafe(int iPlotIndex) const;
+	int GetUnitDanger(const SUnitStats& unit, const CvPlot* pPlot, const CvUnit*& pDefender, int& iDefenderDamage) const;
 	const CvPlot* GetCenterOfMass() const { return pCenterOfMass; }
 	int GetLastFromAttackPlotIndex() const { return iLastFromAttackPlotIndex; }
 	int GetLastToAttackPlotIndex() const { return iLastToAttackPlotIndex; }

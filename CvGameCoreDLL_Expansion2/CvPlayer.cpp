@@ -4613,7 +4613,6 @@ CvString CvPlayer::getNewCityName() const
 		strName = pNode->m_data;
 		if(isCityNameValid(strName, true))
 		{
-			strName = pNode->m_data;
 			break;
 		}
 	}
@@ -5130,7 +5129,8 @@ void CvPlayer::UpdateBestMilitaryCities()
 				{
 					if (GetBestMilitaryCity(eUnitCombatClass, NO_DOMAIN) == pLoopCity)
 					{
-						iDomainValue *= 2;
+						if (iDomainValue <= MAX_INT / 2)
+							iDomainValue *= 2;
 					}
 				}
 			}
@@ -10940,15 +10940,22 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 	return NULL;
 }
 
-void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
+void CvPlayer::EndTurnsForReadyUnits(bool bSendNetworkMessage, bool bLinkedUnitsOnly)
 {
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if (!bLinkedUnitsOnly && pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
-			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
-			pLoopUnit->SetTurnProcessed(true);
+			if (bSendNetworkMessage)
+			{
+				gDLL->sendPushMission(pLoopUnit->GetID(), CvTypes::getMISSION_SKIP(), 0, 0, 0, false);
+			}
+			else
+			{
+				pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
+				pLoopUnit->SetTurnProcessed(true);
+			}
 
 			if (GC.getLogging() && GC.getAILogging())
 			{
@@ -10960,15 +10967,30 @@ void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
 		}
 		if (MOD_LINKED_MOVEMENT && bLinkedUnitsOnly && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
 		{
-			if (pLoopUnit->canFortify(pLoopUnit->plot())) {
-				pLoopUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+			if (bSendNetworkMessage)
+			{
+				if (pLoopUnit->canFortify(pLoopUnit->plot())) {
+					gDLL->sendPushMission(pLoopUnit->GetID(), CvTypes::getMISSION_FORTIFY(), 0, 0, 0, false);
+				}
+				else
+				{
+					gDLL->sendPushMission(pLoopUnit->GetID(), CvTypes::getMISSION_SLEEP(), 0, 0, 0, false);
+				}
 			}
-			else {
-				pLoopUnit->PushMission(CvTypes::getMISSION_SLEEP());
+			else
+			{
+				if (pLoopUnit->canFortify(pLoopUnit->plot())) {
+					pLoopUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				}
+				else
+				{
+					pLoopUnit->PushMission(CvTypes::getMISSION_SLEEP());
+				}
 			}
 		}
 	}
 }
+
 bool CvPlayer::hasAutoUnit() const
 {
 	int iLoop = 0;
@@ -21984,7 +22006,6 @@ int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		bCityValid = false;
 
 		// Assume pLoopCity is Annexed, and does NOT count
 		if (pLoopCity == pAssumeCityAnnexed)
@@ -23481,7 +23502,7 @@ void CvPlayer::ProcessLeagueResolutions()
 			}
 		}
 	}
-	else if(!IsLeagueArt())
+	else
 	{
 		int iLoop = 0;
 		for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
@@ -46199,11 +46220,34 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore, b
 	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
 	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
+
+	if (!pUnit)
+		return vSettlePlots.back().pPlot;
+
+	// Try the top candidates individually first; successful paths terminate quickly.
+	// After enough consecutive failures (enemy territory likely blocking), switch to a
+	// single calculation of all plots in reach.
+	const int iMaxDirectAttempts = 3;
+	int iFailedAttempts = 0;
+	ReachablePlots reachablePlots;
 	for (vector<SPlotWithScore>::reverse_iterator it = vSettlePlots.rbegin(); it != vSettlePlots.rend(); ++it)
 	{
-		if (pUnit && !pUnit->GeneratePath(it->pPlot, iFlags, 23))
-			continue;
+		if (iFailedAttempts < iMaxDirectAttempts)
+		{
+			if (!pUnit->GeneratePath(it->pPlot, iFlags, 23))
+			{
+				iFailedAttempts++;
+				continue;
+			}
+		}
+		else
+		{
+			if (reachablePlots.empty())
+				reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), SPathFinderUserData(pUnit, iFlags, 23));
 
+			if (reachablePlots.find(it->pPlot->GetPlotIndex()) == reachablePlots.end())
+				continue;
+		}
 		return it->pPlot;
 	}
 	return NULL;
@@ -49477,7 +49521,7 @@ UnitTypes CvPlayer::GetCompetitiveSpawnUnitType(const bool bIncludeRanged, const
 				continue;
 
 			// Cross check in case mods forget to change unit classes after repurposing default units
-			if (!pUnitInfo || pUnitInfo->GetUnitClassType() != eUnitClass)
+			if (pUnitInfo->GetUnitClassType() != eUnitClass)
 				continue;
 
 			eUnit = eReplaceUnit;

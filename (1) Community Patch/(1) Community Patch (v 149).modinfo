@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="149">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.2.4) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.2.6) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -488,8 +488,8 @@
     <File md5="89551DF7CE0B41B8EC45796281BED2E3" import="1">Core Files/Overrides/TechAwardPopup.lua</File>
     <File md5="C0AE8C8702CC0692E89FE3F6194691B5" import="1">Core Files/Overrides/TechAwardPopup.xml</File>
     <File md5="2E864F44562CA1721134CE33FC7AFBA9" import="1">Core Files/Overrides/TechPanel_small.xml</File>
-    <File md5="6BA078450715659D31905349D1DCF914" import="1">Core Files/Overrides/TechPanel.lua</File>
-    <File md5="E1C28AB7919C255436CB2DCC597BA2A4" import="1">Core Files/Overrides/TechPanel.xml</File>
+    <File md5="361A1CDA7D4BD10ED77EEDCE08F796D3" import="1">Core Files/Overrides/TechPanel.lua</File>
+    <File md5="F95F5B373DB01636427DAA7C40343462" import="1">Core Files/Overrides/TechPanel.xml</File>
     <File md5="1B08CA6F85DC650A6872FC71BD259FC7" import="1">Core Files/Overrides/WonderPopup.lua</File>
     <File md5="F5AB9BBAD63869CA12E11710D48CD064" import="1">Core Files/Overrides/WonderPopup.xml</File>
     <File md5="C572C8883D6C7EBFE099569F6D5A5BE5" import="1">Core Files/Overrides/WorldView.lua</File>
@@ -497,10 +497,10 @@
     <File md5="29A9D05FECE48A1A379FC923B6CD07EC" import="1">Core Files/Overrides/YieldIconManager.lua</File>
     <File md5="C10F916FF1CD06DB8235408C1AAE097E" import="1">Core Files/Overrides/YieldIconManager.xml</File>
     <File md5="AA9CB9B8678EFAD4FEBB780B24385C24" import="1">Core Files/Overrides/Includes/AssignStartingPlots.lua</File>
-    <File md5="CBE5B0D89664AEBC084AB4AC6A38C68A" import="1">Core Files/Overrides/Includes/Bombardment.lua</File>
+    <File md5="78F3451AFA990C8CDC71994444A4247A" import="1">Core Files/Overrides/Includes/Bombardment.lua</File>
     <File md5="C9BEF8E5D5460528F0A19353D02397BE" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
     <File md5="F82D4290936952EACB989B91E36F79C6" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
-    <File md5="0114B0F7C085B997D57599A36ED8CFEC" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
+    <File md5="0E430E7555CD83EC37774C61E0354BFE" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
     <File md5="26FEF5BB17225CFD769717234B1DC468" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
     <File md5="B21DE322120D6F9F9016617F607D5E9B" import="1">Core Files/Overrides/Includes/TradeLogic.lua</File>
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/Includes/TradeRouteHelpers.lua</File>
@@ -508,7 +508,7 @@
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
     <File md5="B754666DDB6140255D210281D3501E88" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="E124DBEC8359E162E443C58544B098C0" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="0A7D31FE12792B3BA9774E35681308A9" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="E5C280A2AC65C19D051F27EE7AAE11B4" import="0">Database Changes/CoreGameSpeedChanges.sql</File>

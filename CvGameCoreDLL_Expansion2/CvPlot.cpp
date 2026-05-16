@@ -113,7 +113,11 @@ CvPlot::CvPlot()
 	: m_syncArchive()
 	, m_szScriptData(NULL)
 {
-	if (GC.getGame().isNetworkMultiPlayer())
+	// Null check required: CvPlot can be constructed during DLL static initialization
+	// (e.g. CvSupportPosition::dummyPlot via gSupportPosStorage) before the game
+	// object exists. getGamePointer() is NULL until CvGlobals::init() runs.
+	CvGame* pGame = GC.getGamePointer();
+	if (pGame && pGame->isNetworkMultiPlayer())
 	{
 		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvPlot>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
 	}
@@ -3280,12 +3284,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	{
 		if(GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
 		{
-			if(getFeatureType() == FEATURE_FALLOUT && GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT))
-			{
-				bValid = true;
-			}
-			else
-			if(bTestPlotOwner)
+			if((getFeatureType() != FEATURE_FALLOUT || !GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT)) &&
+				bTestPlotOwner)
 			{
 				if(isOwned() && (eTeam != getTeam()) && !atWar(eTeam, getTeam()))
 				{
@@ -6529,6 +6529,12 @@ bool CvPlot::IsResourceImprovedForOwner(bool bIgnoreTechPrereq, bool bFoundingCi
 	if (!GET_TEAM(getTeam()).IsResourceImproveable(eResource) && !bIgnoreTechPrereq)
 		return false;
 
+	// artifacts are never improved
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	if (eResource == eArtifact || eResource == eHiddenArtifact)
+		return false;
+
 	// cities always connect resources
 	if (isCity() || bFoundingCity)
 		return true;
@@ -8376,17 +8382,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					ClearArchaeologicalRecord();
 				}
 			}
-
-			// if the improvement has yield changes by era, it needs the historical record set. 
-			// in the rare case there is also an invisible artifact record on the tile, its age is altered (player has no way to know this)
-			for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
-			{
-				if (newImprovementEntry.GetYieldChangePerEra(iK) != 0)
-				{
-					m_kArchaeologyData.m_eEra = GET_PLAYER(eBuilder).GetCurrentEra();
-					break;
-				}
-			}
 			
 			// remove existing resource if this improvement places a new one (needs to be done before setting the improvement to make sure resource counts are updated correctly)
 			ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
@@ -8563,12 +8558,30 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 
-			if (newImprovementEntry.GetHappinessOnConstruction() != 0 && eBuilder != NO_PLAYER)
+			if (eBuilder != NO_PLAYER)
 			{
-				GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
-				if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
+				if (newImprovementEntry.GetHappinessOnConstruction() != 0)
 				{
-					GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+					// this actually tracks improvement happiness, not num landmarks built
+					GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+					if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
+					{
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+					}
+				}
+				// if the improvement isn't a landmark but has yield changes by era, it needs the historical record set. 
+				static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+				if (eNewValue != eLandmark)
+				{
+					for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+					{
+						if (newImprovementEntry.GetYieldChangePerEra(iK) != 0)
+						{
+							// in the rare case there is also an (invisible) artifact record on the tile, its age is altered
+							m_kArchaeologyData.m_eEra = GET_PLAYER(eBuilder).GetCurrentEra();
+							break;
+						}
+					}
 				}
 			}
 
@@ -13414,7 +13427,7 @@ void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
 		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
 	}
 
-	GC.getMap().plotManager().RemoveUnit(pUnit->GetIDInfo(), m_iX, m_iY, -1);
+	GC.getMap().plotManager().RemoveUnit(pUnit->GetIDInfo(), m_iX, m_iY, static_cast<uint>(-1));
 
 	if(bUpdate)
 	{

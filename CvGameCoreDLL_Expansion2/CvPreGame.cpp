@@ -3189,11 +3189,12 @@ void setNickname(PlayerTypes p, const CvString& n)
 		if(!n.IsEmpty())
 		{
 			size_t _pos = n.rfind('@');
-			size_t _cNum = n.length() - _pos;
 			// The max player name length is defined as 64 in ffirewiretypes, the max size of the string past that can only be 64 if we represent it as binary, currently representing it as HEX
-			if((_pos > 0 && _pos < 64) && _cNum < 32)
+			if(_pos != string::npos && _pos > 0 && _pos < 64)
 			{
-				_szName.erase(_pos, _cNum);
+				size_t _cNum = n.length() - _pos;
+				if(_cNum < 32)
+					_szName.erase(_pos, _cNum);
 			}
 		}
 		s_displayNicknames[p] = (CvString)_szName;
