@@ -1434,28 +1434,6 @@ CivilopediaCategory[CategoryTerrain].PopulateList = function()
 		categorizedList[(CategoryTerrain * absurdlyLargeNumTopicsInCategory) + row.ID + 1000] = article; -- add a fudge factor
 	end
 
-	-- now for the fake features (river and lake)
-	for row in GameInfo.FakeFeatures() do
-		local article = {};
-		local name = Locale.ConvertTextKey( row.Description )
-		article.entryName = name;
-		article.entryID = row.ID + 2000;
-		article.entryCategory = CategoryTerrain;
-		article.tooltipTextureOffset, article.tooltipTexture = IconLookup( row.PortraitIndex, buttonSize, row.IconAtlas );
-		if not article.tooltipTextureOffset then
-			article.tooltipTexture = defaultErrorTextureSheet;
-			article.tooltipTextureOffset = nullOffset;
-		end
-
-		sortedList[CategoryTerrain][2][tableid] = article;
-		tableid = tableid + 1;
-
-		-- index by various keys
-		searchableList[Locale.ToLower(name)] = article;
-		searchableTextKeyList[row.Description] = article;
-		categorizedList[(CategoryTerrain * absurdlyLargeNumTopicsInCategory) + row.ID + 2000] = article; -- add a fudge factor
-	end
-
 	-- sort this list alphabetically by localized name
 	table.sort(sortedList[CategoryTerrain][2], Alphabetically);
 
