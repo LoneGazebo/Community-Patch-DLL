@@ -146,7 +146,7 @@ public:
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
 	bool IsNoStarvationNonSpecialist() const;
-	bool IsPositiveFood() const;
+	int GetMinimumFood() const;
 	int GetCooldown() const;
 	bool IsTradeRouteInvulnerable() const;
 	int GetTRSpeedBoost() const;
@@ -731,7 +731,7 @@ private:
 	bool m_bPuppetPurchaseOverride;
 	bool m_bAllowsPuppetPurchase;
 	bool m_bNoStarvationNonSpecialist;
-	bool m_bPositiveFood;
+	int m_iMinimumFood;
 	int m_iGetCooldown;
 	bool m_bTradeRouteInvulnerable;
 	int m_iTRSpeedBoost;
