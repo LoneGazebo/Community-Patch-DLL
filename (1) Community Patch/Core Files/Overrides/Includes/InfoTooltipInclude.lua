@@ -2843,6 +2843,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Instant great person points on growth
 	AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GPP_ON_GROWTH", kBuildingInfo.GPPOnCitizenBirth);
 
+	-- Minimum food output
+	AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_MINIMUM_FOOD", kBuildingInfo.MinimumFood / 100);
+
 	-- Simple (boolean) abilities
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_START_GOLDEN_AGE", kBuildingInfo.GoldenAge);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_WATER_CONNECTION", kBuildingInfo.AllowsWaterRoutes);
@@ -2859,7 +2862,6 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND", kBuildingInfo.BorderObstacleCity);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_WATER", kBuildingInfo.BorderObstacleWater);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_NO_STARVATION_FROM_NON_SPECIALISTS", kBuildingInfo.NoStarvationNonSpecialist);
-	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_POSITIVE_FOOD", kBuildingInfo.PositiveFood);
 
 	AddTooltipIfTrue(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GAINLESS_PILLAGE_GLOBAL", kBuildingInfo.CityGainlessPillage);
 	AddTooltipIfTrue(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_BORDER_OBSTACLE_LAND_PLAYER", kBuildingInfo.PlayerBorderObstacle);
