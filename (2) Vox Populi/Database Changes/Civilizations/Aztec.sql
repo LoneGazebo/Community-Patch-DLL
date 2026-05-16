@@ -27,7 +27,7 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_LONGSWORDSMAN') + 1
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_LONGSWORDSMAN')
 WHERE Type = 'UNIT_AZTEC_JAGUAR';
 
 DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_AZTEC_JAGUAR';
