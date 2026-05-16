@@ -250,24 +250,15 @@ local function GetSpecialistYields( city, specialist )
 	local specialistID = specialist.ID
 	local tip = ""
 	if city then
-		-- Culture
-		local cultureFromSpecialist = city:GetCultureFromSpecialist( specialistID )
-		cultureFromSpecialist = (cultureFromSpecialist + city:GetSpecialistYield( specialistID, YieldTypes.YIELD_CULTURE ) + city:GetSpecialistYieldChange( specialistID, YieldTypes.YIELD_CULTURE))
-
 		-- Yield
 		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
 			-- CBP
-			if(yieldID ~= YieldTypes.YIELD_CULTURE)then		
-				local specialistYield = city:GetSpecialistYield( specialistID, yieldID )
-				specialistYield = (specialistYield + city:GetSpecialistYieldChange( specialistID, yieldID))
-				if specialistYield ~= 0 then
-					tip = S( "%s %+i%s", tip, specialistYield, YieldIcons[ yieldID ] or "???" )
-				end
+			local specialistYield = city:GetSpecialistYield( specialistID, yieldID )
+			specialistYield = (specialistYield + city:GetSpecialistYieldChange( specialistID, yieldID))
+			if specialistYield ~= 0 then
+				tip = S( "%s %+i%s", tip, specialistYield, YieldIcons[ yieldID ] or "???" )
 			end
 			--END
-		end
-		if cultureFromSpecialist > 0 then
-			tip = S( "%s %+i[ICON_CULTURE]", tip, cultureFromSpecialist )
 		end
 	else
 		for row in GameInfo.SpecialistYields{ SpecialistType = specialist.Type or -1 } do
