@@ -46,6 +46,7 @@ VALUES
 
 	('CIVILIZATION_SWEDEN', 'REGION_TUNDRA'),   -- UB wants tundra (historical)
 
+	('CIVILIZATION_ETHIOPIA', 'REGION_HILLS'),  -- UI and UU need hills (historical)
 	('CIVILIZATION_ROME', 'REGION_HILLS');      -- UU wants Iron, UA needs early production (historical)
 
 INSERT INTO Civilization_Start_Region_Avoid
