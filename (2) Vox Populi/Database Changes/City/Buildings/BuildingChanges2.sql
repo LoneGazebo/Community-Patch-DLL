@@ -1394,12 +1394,6 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_MENIN_GATE', 'YIELD_CULTURE', 2);
 
-INSERT INTO Building_YieldFromDeath
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_MENIN_GATE', 'YIELD_CULTURE', 2),
-	('BUILDING_MENIN_GATE', 'YIELD_GOLDEN_AGE_POINTS', 2);
-
 INSERT INTO Building_ImprovementYieldChangesGlobal
 	(BuildingType, ImprovementType, YieldType, Yield)
 VALUES
