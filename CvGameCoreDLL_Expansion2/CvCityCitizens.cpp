@@ -232,7 +232,7 @@ void CvCityCitizens::DoTurn()
 
 		static EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
 		bool bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
-		bool bNeedFood = m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD;
+		bool bNeedFood = (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD) && !(m_pCity->IsPositiveFood());
 
 		//---------------
 		// note that GetPlotValue already considers wonder/settler building so we don't do that here
