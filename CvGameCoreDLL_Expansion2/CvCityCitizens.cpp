@@ -807,9 +807,6 @@ YieldAndGPPList CvCityCitizens::GetSpecialistYields(SpecialistTypes eSpecialist)
 		{
 			iYield100 += GET_PLAYER(GetOwner()).getYieldFromNonSpecialistCitizensTimes100(eYield);
 		}
-		//Culture is treated differently, sadly.
-		if (eYield == YIELD_CULTURE)
-			iYield100 += m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
 
 		//religion bonus
 		ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
