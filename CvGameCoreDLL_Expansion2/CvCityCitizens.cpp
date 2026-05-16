@@ -1049,8 +1049,8 @@ int CvCityCitizens::ScoreYieldChangeQuick(YieldAndGPPList yieldChanges, SPrecomp
 		YieldTypes eYield = (YieldTypes)iI;
 		int iYield100 = yieldChanges.yield[iI];
 
-		// Exception: if we're already under the food consumption threshold, we can safely remove even more food ...
-		if (eYield == YIELD_FOOD && iYield100 < 0)
+		// Exception: if we're already under the food consumption threshold, and we arent food focus, we can safely remove even more food ...
+		if ((GetFocusType() != CITY_AI_FOCUS_TYPE_FOOD) && eYield == YIELD_FOOD && iYield100 < 0)
 		{
 			if (m_pCity->GetMinimumFood() > 0)
 		    {
