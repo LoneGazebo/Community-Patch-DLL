@@ -514,7 +514,7 @@
 			<Text>Menin Gate</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_STRATEGY">
-			<Text>A defensive wonder. Strengthens the yields from Forts, Citadels, and Landmarks. The Menin Gate also gives a small bonus for each unit that falls in battle. May only be built collaboratively through the World Congress.</Text>
+			<Text>A defensive wonder. Strengthens the yields from Forts, Citadels, and Landmarks. May only be built collaboratively through the World Congress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_HELP">
 			<Text></Text>
