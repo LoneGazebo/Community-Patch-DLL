@@ -5049,7 +5049,7 @@ void CvPlayer::UpdateBestMilitaryCities()
 				const CvReligion* pReligion = pLoopCity->GetCityReligions()->GetMajorityReligion();
 				if (pReligion)
 				{
-						iCombatClassValue += max(1, pReligion->m_Beliefs.GetUnitProductionModifier());	// if this could be guarded somehow the method would work on non-military combat classes too	
+						// iCombatClassValue += max(1, pReligion->m_Beliefs.GetUnitProductionModifier());	// if this could be guarded somehow... right now would apply to workers, diplos, etc.	
 						iCombatClassValue += max(1, pReligion->m_Beliefs.GetUnitCombatProductionModifiers(eUnitCombatClass, GetID(), pLoopCity));
 				}
 
