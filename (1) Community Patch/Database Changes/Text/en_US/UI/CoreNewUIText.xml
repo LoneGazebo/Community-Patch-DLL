@@ -1321,8 +1321,8 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NO_STARVATION_FROM_NON_SPECIALISTS">
 			<Text>Total non-Specialist [ICON_FOOD] Food consumption cannot exceed [ICON_FOOD] Food production</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_POSITIVE_FOOD">
-			<Text>Total [ICON_FOOD] Food output cannot fall below 1</Text>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_MINIMUM_FOOD">
+			<Text>Total [ICON_FOOD] Food output cannot fall below {1_Food}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SECONDARY_PANTHEON">
 			<Text>City benefits from the Pantheon bonus of the second-most popular [ICON_RELIGION] Religion if it has a [ICON_RELIGION] Majority Religion</Text>
