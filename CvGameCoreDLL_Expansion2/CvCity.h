@@ -478,8 +478,6 @@ public:
 	void SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 
-	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
-
 	void UpdateOceanStatus();
 
 	const CvHandicapInfo& getHandicapInfo() const;
