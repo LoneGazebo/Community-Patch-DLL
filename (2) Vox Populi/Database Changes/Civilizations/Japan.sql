@@ -34,7 +34,7 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_LONGSWORDSMAN') + 3
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_LONGSWORDSMAN') + 2
 WHERE Type = 'UNIT_JAPANESE_SAMURAI';
 
 INSERT INTO Unit_FreePromotions
