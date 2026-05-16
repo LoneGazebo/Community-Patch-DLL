@@ -22111,7 +22111,7 @@ void CvCity::ChangeMinimumFood(int iValue)
 	VALIDATE_OBJECT();
 	m_iMinimumFood += iValue;
 }
-bool CvCity::GetMinimumFood() const
+int CvCity::GetMinimumFood() const
 {
 	VALIDATE_OBJECT();
 	return m_iMinimumFood;
