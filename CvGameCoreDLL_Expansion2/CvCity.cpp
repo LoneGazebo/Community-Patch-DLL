@@ -13811,7 +13811,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 		if (pBuildingInfo->GetMinimumFood())
 		{
-			ChangeMinimumFood(iChange);
+			ChangeMinimumFood(pBuildingInfo->GetMinimumFood() * iChange);
 		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
