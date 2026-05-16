@@ -23003,7 +23003,7 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 		else if (GetMinimumFood() > 0)
 		{
 			if (bBuildTooltip)
-				tooltipGrowthMods += GetLocalizedText("TXT_KEY_GROWTH_MINIMUM", GetMinimumFood());
+				tooltipGrowthMods += GetLocalizedText("TXT_KEY_GROWTH_MINIMUM", (float)GetMinimumFood() / 100);
 			iTotalYield = GetMinimumFood();
 		}
 	}
