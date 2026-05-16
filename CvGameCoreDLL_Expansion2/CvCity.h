@@ -971,8 +971,8 @@ public:
 
 	void ChangeNoStarvationNonSpecialist(int iValue);
 	bool IsNoStarvationNonSpecialist() const;
-	void ChangePositiveFood(int iValue);
-	bool IsPositiveFood() const;
+	void ChangeMinimumFood(int iValue);
+	int GetMinimumFood() const;
 
 	int GetNumTimesOwned(PlayerTypes ePlayer) const;
 	void SetNumTimesOwned(PlayerTypes ePlayer, int iValue);
@@ -2045,7 +2045,7 @@ protected:
 	int m_iExperienceFromPreviousGoldenAges;
 	bool m_bNoWarmonger;
 	int m_iNoStarvationNonSpecialist;
-	int m_iPositiveFood;
+	int m_iMinimumFood;
 	int m_iEmpireSizeModifierReduction;
 	int m_iDistressFlatReduction;
 	int m_iPovertyFlatReduction;
@@ -2453,7 +2453,7 @@ SYNC_ARCHIVE_VAR(int, m_iExperiencePerGoldenAgeCap)
 SYNC_ARCHIVE_VAR(int, m_iExperienceFromPreviousGoldenAges)
 SYNC_ARCHIVE_VAR(bool, m_bNoWarmonger)
 SYNC_ARCHIVE_VAR(int, m_iNoStarvationNonSpecialist)
-SYNC_ARCHIVE_VAR(int, m_iPositiveFood)
+SYNC_ARCHIVE_VAR(int, m_iMinimumFood)
 SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierReduction)
 SYNC_ARCHIVE_VAR(int, m_iDistressFlatReduction)
 SYNC_ARCHIVE_VAR(int, m_iPovertyFlatReduction)
