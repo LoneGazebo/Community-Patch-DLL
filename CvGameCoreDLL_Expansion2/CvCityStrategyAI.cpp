@@ -5213,8 +5213,8 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += pkBuildingInfo->GetFoodKept() * pCity->getPopulation();
 	}
-	// NoStarvation is not as good as PositiveFood, but there is large overlap to consider
-	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist() && !pCity->IsPositiveFood())
+	// NoStarvation is not as good as MinimumFood, but there is large overlap to consider
+	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist() && !(pCity->GetMinimumFood() > 0))
 	{
 		iValue += 10 * pCity->getPopulation();
 		if (pCity->getYieldRateTimes100(YIELD_FOOD) < 0)
@@ -5223,13 +5223,14 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 			iValue += (-2) * pCity->getYieldRateTimes100(YIELD_FOOD);
 		}
 	}
-	if (pkBuildingInfo->IsPositiveFood() && !pCity->IsPositiveFood())
+	if (pkBuildingInfo->GetMinimumFood() > 0)
 	{
 		iValue += 10 * pCity->getPopulation();
-		if (pCity->getYieldRateTimes100(YIELD_FOOD) < 1)
+		int iNewTotalMinimum = pCity->GetMinimumFood() + pkBuildingInfo->GetMinimumFood();
+		if (pCity->getYieldRateTimes100(YIELD_FOOD) < iNewTotalMinimum)
 		{
 			int iAlreadyCannotStarve = pCity->IsNoStarvationNonSpecialist(); // heuristic: halve the value if already non-specialists dont count
-			iValue += (-2 + iAlreadyCannotStarve) * pCity->getYieldRateTimes100(YIELD_FOOD);
+			iValue += (-2 + iAlreadyCannotStarve) * (pCity->getYieldRateTimes100(YIELD_FOOD) - iNewTotalMinimum);
 		}
 	}
 
