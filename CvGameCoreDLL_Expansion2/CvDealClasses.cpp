@@ -702,7 +702,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman())
+			if (pFromPlayer->IsAITeammateOfHuman() || (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && pToPlayer->IsAITeammateOfHuman()))
 				return false;
 
 			// Neither of us yet has the tech for Open Borders
@@ -1209,6 +1209,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE) || !GC.getGame().isOption(GAMEOPTION_ENABLE_TECH_TRADING))
 				return false;
 
+			// Either side has not founded a city yet?
+			if (!pFromPlayer->GetPlayerTechs()->IsResearch())
+				return false;
+
+			if (!pToPlayer->GetPlayerTechs()->IsResearch())
+				return false;
+
 			// Mutual embassies are required (unless this is a peace deal)
 			if (!bPeaceDeal)
 			{
@@ -1226,7 +1233,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-			if (!pkTechInfo || pkTechInfo->IsRepeat())
+			if (pkTechInfo->IsRepeat())
 				return false;
 
 			// We don't own this tech
@@ -1254,7 +1261,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman())
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 				return false;
 
 			// Vassalage is disabled
@@ -1297,7 +1304,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pFromPlayer->IsAITeammateOfHuman())
 				return false;
 
-			// Must be able to end all vassals
+			// Must be able to end all vassals (this also checks > 0 vassals)
 			if (!pFromTeam->canEndAllVassal())
 				return false;
 
@@ -1773,7 +1780,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			}
 
 			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman())
+			if (pFromPlayer->IsAITeammateOfHuman() || (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && pToPlayer->IsAITeammateOfHuman()))
 			{
 				strTooltip = strDivider;
 				strTooltip += strStartColor;
@@ -2325,7 +2332,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			}
 
 			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman())
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 			{
 				strTooltip = strDivider;
 				strTooltip += strStartColor;

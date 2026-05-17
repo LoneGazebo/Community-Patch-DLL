@@ -4606,17 +4606,17 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		// Barbarians cannot enter owned plots in the beginning
 		return false;
 
+	if (isRivalTerritory() || isTrade())
+		return true;
+
 	TeamTypes eMyTeam = GET_PLAYER(getOwner()).getTeam();
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
-	if (isRivalTerritory() || isTrade())
-		return true;
-
 	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && eMyTeam != eTeam && kTheirTeam.isMinorCiv())
 	{
-		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(getUnitType());
-		if (pkUnitEntry->GetDefaultUnitAIType() != UNITAI_MESSENGER)
+		UnitAITypes eUnitAI = GC.getUnitInfo(getUnitType())->GetDefaultUnitAIType();
+		if (eUnitAI != UNITAI_MESSENGER && eUnitAI != UNITAI_DIPLOMAT)
 		{
 			PlayerTypes eMinor = kTheirTeam.getLeaderID();
 			ASSERT(eMinor != NO_PLAYER);

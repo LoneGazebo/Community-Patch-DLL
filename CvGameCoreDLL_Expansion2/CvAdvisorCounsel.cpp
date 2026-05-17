@@ -993,34 +993,25 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		PlayerTypes eOtherPlayer = (PlayerTypes)iPlayer;
 		TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
 
-		// don't evaluate yourself
-		if(eOtherPlayer == ePlayer)
-		{
+		// don't evaluate yourself or teammates
+		if (eOtherTeam == eTeam)
 			continue;
-		}
-
-		// don't evaluate teammates
-		if(eOtherTeam == eTeam)
-		{
-			continue;
-		}
 
 		// don't evaluate dead people
-		if(!GET_PLAYER(eOtherPlayer).isAlive())
-		{
+		if (!GET_PLAYER(eOtherPlayer).isAlive())
 			continue;
-		}
 
 		// don't evaluate players we haven't met
-		if(!GET_TEAM(eTeam).isHasMet(eOtherTeam))
-		{
+		if (!GET_TEAM(eTeam).isHasMet(eOtherTeam))
 			continue;
-		}
 
-		if(GET_TEAM(eTeam).isAtWar(eOtherTeam))
-		{
+		// don't evaluate players we're at war with
+		if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 			continue;
-		}
+
+		// don't evaluate based on hidden diplomacy modifiers
+		if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->ShouldHideDisputeMods(ePlayer))
+			continue;
 
 		DisputeLevelTypes eMinorCivDisputeLevel = pDiplomacyAI->GetMinorCivDisputeLevel(eOtherPlayer);
 		switch(eMinorCivDisputeLevel)
