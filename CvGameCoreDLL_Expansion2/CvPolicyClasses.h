@@ -281,6 +281,7 @@ public:
 	bool IsSpecialistValid(int i) const;
 	int GetFreeChosenBuilding(int i) const;
 	int GetResourceFromCSAlly(int i) const;
+	int GetFreeResource(int i) const;
 	int GetYieldFromBirth(int i) const;
 	int GetYieldFromBirthCapital(int i) const;
 	int GetYieldFromBirthRetroactive(int i) const;
@@ -719,6 +720,7 @@ private:
 	int* m_paiTourismOnUnitCreation;
 	int* m_paiFreeChosenBuilding;
 	int* m_piResourcefromCSAlly;
+	int* m_piFreeResource;
 	int* m_piYieldFromBirth;
 	int* m_piYieldFromBirthCapital;
 	int* m_piYieldFromBirthRetroactive;

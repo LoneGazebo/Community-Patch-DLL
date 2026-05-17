@@ -73,6 +73,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasStrategicMonopoly);
 	Method(GetResourcesMisc);
 	Method(GetResourcesFromGP);
+	Method(GetFreeResourceFromPolicies);
 	Method(GetResourcesFromCorporation);
 	Method(GetResourceFromCSAlliances);
 	Method(GetResourcesFromFranchises);
@@ -1809,6 +1810,16 @@ int CvLuaPlayer::lGetResourcesFromGP(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	const int iResult = (int)(pkPlayer->getResourceFromGP(eResource));
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetFreeResourceFromPolicies(ResourceTypes eResource)
+int CvLuaPlayer::lGetFreeResourceFromPolicies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->getFreeResourceFromPolicies(eResource);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

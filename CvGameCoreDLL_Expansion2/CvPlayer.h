@@ -2073,7 +2073,9 @@ public:
 
 	int getResourceFromCSAlliances(ResourceTypes eIndex) const;
 	void changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
-	void setResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
+
+	int getFreeResourceFromPolicies(ResourceTypes eIndex) const;
+	void changeFreeResourceFromPolicies(ResourceTypes eIndex, int iChange);
 
 	const std::vector<ResourceTypes>& GetResourcesNotForSale() const { return m_vResourcesNotForSale; }
 	bool IsResourceNotForSale(ResourceTypes eResource);
@@ -3418,6 +3420,7 @@ protected:
 	std::vector<int> m_paiJFDPoliticPercent;
 	std::vector<int> m_aiYieldFromMinors;
 	std::vector<int> m_paiResourceFromCSAlliances;
+	std::vector<int> m_paiFreeResourceFromPolicies;
 	std::vector<int> m_paiResourceShortageValue;
 	std::vector<int> m_aiYieldFromBirth;
 	std::vector<int> m_aiYieldFromBirthCapital;
@@ -4203,6 +4206,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiJFDPoliticPercent)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromCSAlliances)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeResourceFromPolicies)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceShortageValue)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirthCapital)
