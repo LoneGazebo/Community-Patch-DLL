@@ -1955,7 +1955,7 @@ public:
 	// Science
 
 	int GetScience() const;
-	int GetScienceTimes100() const;
+	int GetScienceTimes100(bool bExcludeResearchAgreements = false) const;
 
 
 	int GetScienceFromCitiesTimes100(bool bIgnoreTrade) const;
@@ -2008,6 +2008,9 @@ public:
 
 	pair<int,int> GetClosestCityPair(PlayerTypes ePlayer);
 	void DoUpdateProximityToPlayers();
+
+	void SetLastTurnYieldsTimes100(YieldTypes eYield, int iValueTimes100);
+	int GetLastTurnYieldsTimes100(YieldTypes eYield) const;
 
 	void UpdateResearchAgreements(int iValue);
 	int GetResearchAgreementCounter(PlayerTypes ePlayer) const;
@@ -3463,6 +3466,7 @@ protected:
 	std::vector<int> m_aiCapitalYieldRateModifier;
 	std::vector<int> m_aiExtraYieldThreshold;
 	std::vector<int> m_aiSpecialistExtraYield;
+	std::vector<int> m_aiLastTurnYieldsTimes100;
 	std::vector<int> m_aiLastCityCaptureTurn;
 	std::vector<int> m_aiWarValueLost;
 	std::vector<int> m_aiWarDamageValue;
@@ -4242,6 +4246,7 @@ SYNC_ARCHIVE_VAR(bool, m_bAllowsFoodTradeRoutesGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCapitalYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiExtraYieldThreshold)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistExtraYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLastTurnYieldsTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLastCityCaptureTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarValueLost)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarDamageValue)

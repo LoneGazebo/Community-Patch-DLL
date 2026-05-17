@@ -370,6 +370,7 @@ CvPlayer::CvPlayer() :
 	, m_aiCapitalYieldRateModifier()
 	, m_aiExtraYieldThreshold()
 	, m_aiSpecialistExtraYield()
+	, m_aiLastTurnYieldsTimes100()
 	, m_aiLastCityCaptureTurn()
 	, m_aiWarValueLost()
 	, m_aiWarDamageValue()
@@ -1842,6 +1843,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiSpecialistExtraYield.clear();
 	m_aiSpecialistExtraYield.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiLastTurnYieldsTimes100.clear();
+	m_aiLastTurnYieldsTimes100.resize(NUM_YIELD_TYPES, 0);
 
 	m_aiLastCityCaptureTurn.clear();
 	m_aiLastCityCaptureTurn.resize(MAX_PLAYERS, -1);
@@ -26022,7 +26026,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue += pLoopCity->GetYieldFromPillage(eYield);
 					break;
 				}
-				case INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT:
+				case INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT:
 				{
 					if (eYield == ePassYield)
 						iValue += iPassYield;
@@ -26564,7 +26568,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				//Exclusions
 				if(eYield != YIELD_POPULATION)
 				{
-					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_FAITH_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN && iType != INSTANT_YIELD_TYPE_BULLY && iType != INSTANT_YIELD_TYPE_FAITH_REFUND && iType != INSTANT_YIELD_TYPE_REFUND)
+					if (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_FAITH_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN && iType != INSTANT_YIELD_TYPE_BULLY && iType != INSTANT_YIELD_TYPE_FAITH_REFUND && iType != INSTANT_YIELD_TYPE_REFUND && iType != INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT)
 					{
 						if (ePlayer == NO_PLAYER && eYield == YIELD_TOURISM)
 						{
@@ -27513,7 +27517,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				localizedText << totalyieldString;
 				break;
 			}
-			case INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT:
+			case INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_RESEARCH_AGREEMENT");
 				localizedText << totalyieldString;
@@ -35512,7 +35516,7 @@ int CvPlayer::GetScience() const
 	return GetScienceTimes100() / 100;
 }
 
-int CvPlayer::GetScienceTimes100() const
+int CvPlayer::GetScienceTimes100(bool bExcludeResearchAgreements) const
 {
 	// If we're in anarchy, then no Research is done!
 	if(IsAnarchy())
@@ -35536,8 +35540,11 @@ int CvPlayer::GetScienceTimes100() const
 	// Happiness converted to Science? (Policies, etc.)
 	iValue += GetScienceFromHappinessTimes100();
 
-	// Research Agreement bonuses
-	iValue += GetScienceFromResearchAgreementsTimes100();
+	if (!bExcludeResearchAgreements)
+	{
+		// Research Agreement bonuses
+		iValue += GetScienceFromResearchAgreementsTimes100();
+	}
 
 	// If we have a negative Treasury + GPT then it gets removed from Science
 	iValue += GetScienceFromBudgetDeficitTimes100();
@@ -35626,13 +35633,47 @@ int CvPlayer::GetScienceFromHappinessTimes100() const
 /// Where is our Science coming from?
 int CvPlayer::GetScienceFromResearchAgreementsTimes100() const
 {
-	int iScience = GetScienceFromCitiesTimes100(false);
+	int iResult = 0;
 
 	int iResearchAgreementBonus = /*0*/ GD_INT_GET(RESEARCH_AGREEMENT_MOD) * GET_TEAM(getTeam()).GetTotalNumResearchAgreements(); // RAs currently do not have this effect
+	int iScience = GetScienceFromCitiesTimes100(false);
 	iScience *= iResearchAgreementBonus;	// Apply to the % to the current value
 	iScience /= 100;
 
-	return iScience;
+	iResult += iScience;
+
+	PlayerTypes ePlayerLoop;
+	TeamTypes eTeamLoop;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		ePlayerLoop = (PlayerTypes)iPlayerLoop;
+		eTeamLoop = GET_PLAYER(ePlayerLoop).getTeam();
+		if (ePlayerLoop == GetID())
+			continue;
+		if (eTeamLoop == getTeam())
+			continue;
+
+		if (GET_TEAM(getTeam()).IsHasResearchAgreement(eTeamLoop))
+		{
+			// Beaker boost = (RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT * (average of both players' beakers over term of RA) + (1 - RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT) * (minimum of both players' beakers over term of RA)) / 3) * (median tech percentage rate (50%))
+			int iToPlayerBeakers = GetLastTurnYieldsTimes100(YIELD_SCIENCE);
+			int iFromPlayerBeakers = GET_PLAYER(ePlayerLoop).GetLastTurnYieldsTimes100(YIELD_SCIENCE);
+			int iBeakersBonus = 0;
+
+			iBeakersBonus = ((100 - GD_INT_GET(RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT)) * min(iToPlayerBeakers, iFromPlayerBeakers) + GD_INT_GET(RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT) * (iToPlayerBeakers + iFromPlayerBeakers) / 2) / (100 * /*3*/ GD_INT_GET(RESEARCH_AGREEMENT_BOOST_DIVISOR));
+
+			iBeakersBonus *= GetMedianTechPercentage();
+			iBeakersBonus /= 100;
+
+			// some of the yields of the RA are given per turn, not as instant yield when the agreement ends
+			iBeakersBonus *= GD_INT_GET(RESEARCH_AGREEMENT_PER_TURN_YIELD_PERCENT);
+			iBeakersBonus /= 100;
+
+			iResult += iBeakersBonus;
+		}
+	}
+
+	return iResult;
 }
 
 /// Where is our Science coming from?
@@ -36539,6 +36580,23 @@ void CvPlayer::DoUpdateProximityToPlayers()
 
 		SetProximityToPlayer(eLoopPlayer, eProximity);
 	}
+}
+
+// currently only used for science to keep track of research agreement yields
+void CvPlayer::SetLastTurnYieldsTimes100(YieldTypes eYield, int iValueTimes100)
+{
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
+	m_aiLastTurnYieldsTimes100[eYield] = iValueTimes100;
+}
+
+int CvPlayer::GetLastTurnYieldsTimes100(YieldTypes eYield) const
+{
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
+	return m_aiLastTurnYieldsTimes100[eYield];
 }
 
 /// Update the beakers accumulated during the term of RAs
@@ -42057,7 +42115,7 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 				instantYieldName = "LUA";
 				break;
 			}
-	case INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT:
+	case INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT:
 			{
 				instantYieldName = "RA";
 				break;
@@ -42224,9 +42282,12 @@ void CvPlayer::doResearch()
 			{
 				int iBeakersTowardsTechTimes100 = GetScienceTimes100() + iOverflowResearch;
 				GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgressTimes100(eCurrentTech, iBeakersTowardsTechTimes100, GetID(), iOverflowResearch, 100);
-				UpdateResearchAgreements(GetScienceTimes100() / 100);
 			}
 		}
+
+		int iScienceForResearchAgreements = GetScienceTimes100(true);
+		UpdateResearchAgreements(iScienceForResearchAgreements);
+		SetLastTurnYieldsTimes100(YIELD_SCIENCE, iScienceForResearchAgreements);
 
 		// Force player to pick Research if he doesn't have anything assigned
 		if (GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
@@ -44116,6 +44177,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiCapitalYieldRateModifier);
 	visitor(player.m_aiExtraYieldThreshold);
 	visitor(player.m_aiSpecialistExtraYield);
+	visitor(player.m_aiLastTurnYieldsTimes100);
 	visitor(player.m_aiLastCityCaptureTurn);
 	visitor(player.m_aiWarValueLost);
 	visitor(player.m_aiWarDamageValue);
