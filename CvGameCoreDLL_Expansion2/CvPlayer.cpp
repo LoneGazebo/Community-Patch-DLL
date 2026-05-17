@@ -630,6 +630,7 @@ CvPlayer::CvPlayer() :
 	, m_paiBuildingChainSteps()
 	, m_paiJFDPoliticPercent()
 	, m_paiResourceFromCSAlliances()
+	, m_paiFreeResourceFromPolicies()
 	, m_paiResourceShortageValue()
 	, m_aiGlobalTourismAlreadyReceived()
 	, m_aiYieldFromMinors()
@@ -1989,6 +1990,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_paiResourceFromCSAlliances.clear();
 		m_paiResourceFromCSAlliances.resize(GC.getNumResourceInfos(), 0);
+
+		m_paiFreeResourceFromPolicies.clear();
+		m_paiFreeResourceFromPolicies.resize(GC.getNumResourceInfos(), 0);
 
 		m_paiResourceShortageValue.clear();
 		m_paiResourceShortageValue.resize(GC.getNumResourceInfos(), 0);
@@ -37457,6 +37461,9 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 
 	//GP resources? ie. Admiral, Diplomat
 	iTotalNumResource += getResourceFromGP(eIndex);
+	
+	// Free resources from policies?
+	iTotalNumResource += getFreeResourceFromPolicies(eIndex);
 
 	int iLoop = 0;
 	int iCityPOPResource = 0;
@@ -37726,16 +37733,28 @@ void CvPlayer::changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 	}
 }
 
-void CvPlayer::setResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
+int CvPlayer::getFreeResourceFromPolicies(ResourceTypes eIndex) const
+{
+	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiFreeResourceFromPolicies[eIndex];
+}
+
+void CvPlayer::changeFreeResourceFromPolicies(ResourceTypes eIndex, int iChange)
 {
 	ASSERT(eIndex >= 0);
 	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
-	m_paiResourceFromCSAlliances[eIndex] = iChange;
+	if (iChange != 0)
+	{
+		m_paiFreeResourceFromPolicies[eIndex] = m_paiFreeResourceFromPolicies[eIndex] + iChange;
+		ASSERT(m_paiFreeResourceFromPolicies[eIndex] >= 0);
 
-	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+		if (iChange > 0)
+			CheckForLuxuryResourceGainInstantYields(eIndex);
 
-	ASSERT(m_paiResourceFromCSAlliances[eIndex] >= 0);
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+	}
 }
 
 bool CvPlayer::IsResourceNotForSale(ResourceTypes eResource)
@@ -42581,6 +42600,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		changeResourceFromCSAlliances(eResource, pkPolicyInfo->GetResourceFromCSAlly(iI) * iChange);
 
+		changeFreeResourceFromPolicies(eResource, pkPolicyInfo->GetFreeResource(iI) * iChange);
+
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 
 		// Update strategic resource monopolies
@@ -44070,6 +44091,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiJFDPoliticPercent);
 	visitor(player.m_aiYieldFromMinors);
 	visitor(player.m_paiResourceFromCSAlliances);
+	visitor(player.m_paiFreeResourceFromPolicies);
 	visitor(player.m_paiResourceShortageValue);
 	visitor(player.m_aiYieldFromBirth);
 	visitor(player.m_aiYieldFromBirthCapital);
