@@ -8183,8 +8183,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 	}
 
-	bool bArchaeologyChoicePending = false;
-
 	if (eOldImprovement != eNewValue)
 	{
 		PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
@@ -9023,14 +9021,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				setImprovementType(NO_IMPROVEMENT);
 			}
 		}
-	}
-
-	// Do the AI's dig site choice at the very end since it could replace the tile with a Landmark, so it's better to do that after all the other code updating things has run
-	if (bArchaeologyChoicePending)
-	{
-		CvPlayer& kBuilder = GET_PLAYER(eBuilder);
-		ArchaeologyChoiceType eChoice = kBuilder.GetCulture()->GetArchaeologyChoice(this);
-		kBuilder.GetCulture()->DoArchaeologyChoice(eChoice);
 	}
 }
 
