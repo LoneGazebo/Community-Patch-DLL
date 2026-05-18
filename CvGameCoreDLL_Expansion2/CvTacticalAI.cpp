@@ -1190,6 +1190,10 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 	for (size_t i=0; i<m_pPlayer->getNumAIOperations(); i++)
 	{
 		CvAIOperation* pOp = m_pPlayer->getAIOperationByIndex(i);
+
+		if (pOp->GetOperationType() == AI_OPERATION_ESCORTED_IMPROVEMENT_BUILD)
+			continue; // handled in CvHomelandAI
+
 		if (!pOp->DoTurn())
 			opsToKill.push_back(pOp->GetID());
 	}
@@ -2182,7 +2186,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 	if (!pThisArmy)
 		return;
 
-	CvAIOperation* pOperation = GET_PLAYER(pThisArmy->GetOwner()).getAIOperation(pThisArmy->GetOperationID());
+	CvAIOperation* pOperation = pThisArmy->GetOperation();
+
 	if (!pOperation)
 		return;
 
@@ -2235,7 +2240,9 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					{
 						CvUnit* pNewEscort = SwitchEscort(pCivilian,pCivilian->plot(),pEscort,pThisArmy);
 						if (pNewEscort)
+						{
 							pOperation->CheckTransitionToNextStage();
+						}
 						else //did not switch
 						{
 							//Let's have them move forward, see if that clears things up.
@@ -2327,10 +2334,10 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			if (!pEscort->canMoveInto(*pTargetPlot) && !pEscort->plot()->isAdjacent(pTargetPlot))
 				iMoveFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1;
 
-			bool bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), iMoveFlags);
+			bool bHavePathEscort = pEscort->GeneratePath(pTargetPlot, iMoveFlags);
 			if(bHavePathEscort)
 			{
-				CvPlot* pCommonPlot = pEscort->GetPathEndFirstTurnPlot();
+				CvPlot* pCommonPlot = pEscort->plot() != pTargetPlot ? pEscort->GetPathEndFirstTurnPlot() : pTargetPlot;
 				//need to check if civilian can enter because of unrevealed tiles in path
 				if(pCommonPlot != NULL && pCivilian->canMoveInto(*pCommonPlot,CvUnit::MOVEFLAG_DESTINATION))
 				{
@@ -2345,8 +2352,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							pCommonPlot = pCivilian->GetPathEndFirstTurnPlot();
 
 						//we know they can stack
-						ExecuteMoveToPlot(pEscort, pCommonPlot);
-						ExecuteMoveToPlot(pCivilian, pCommonPlot);
+						ExecuteMoveToPlot(pEscort, pCommonPlot, false);
+						ExecuteMoveToPlot(pCivilian, pCommonPlot, false);
 
 						if (GC.getLogging() && GC.getAILogging())
 						{
@@ -2381,8 +2388,8 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 								pCommonPlot = pEscort->GetPathEndFirstTurnPlot();
 
 							//we know they can stack
-							ExecuteMoveToPlot(pEscort, pCommonPlot);
-							ExecuteMoveToPlot(pCivilian, pCommonPlot);
+							ExecuteMoveToPlot(pEscort, pCommonPlot, false);
+							ExecuteMoveToPlot(pCivilian, pCommonPlot, false);
 						}
 						else
 						{
@@ -2390,7 +2397,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 							CvUnit* pNewEscort = SwitchEscort(pCivilian,pCommonPlot,pEscort,pThisArmy);
 							if (pNewEscort)
 							{
-								ExecuteMoveToPlot(pCivilian, pCommonPlot);
+								ExecuteMoveToPlot(pCivilian, pCommonPlot, false);
 								pNewEscort->PushMission(CvTypes::getMISSION_SKIP());
 								UnitProcessed(pNewEscort->GetID());
 							}
@@ -2455,7 +2462,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						}
 					}
 
-					ExecuteMoveToPlot(pCivilian, pTurnTarget);
+					ExecuteMoveToPlot(pCivilian, pTurnTarget, false);
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						strLogString.Format("%s now at (%d,%d). Moving normally towards (%d,%d) without escort.",  pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
@@ -2478,12 +2485,15 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			}
 		}
 
-		// now we're done, if the operation was cancelled, let the units be handled by Homeland AI
-		if (bContinueOperation)
+		if (!pOperation->CheckTransitionToNextStage() || pOperation->GetOperationState() != AI_OPERATION_STATE_SUCCESSFUL_FINISH)
 		{
-			UnitProcessed(pCivilian->GetID());
-			if (pEscort)
-				UnitProcessed(pEscort->GetID());
+			// now we're done, if the operation was cancelled, let the units be handled by Homeland AI
+			if (bContinueOperation)
+			{
+				UnitProcessed(pCivilian->GetID());
+				if (pEscort)
+					UnitProcessed(pEscort->GetID());
+			}
 		}
 
 		// logging
@@ -2516,7 +2526,7 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 	if (!pThisArmy)
 		return;
 
-	CvAIOperation* pOperation = GET_PLAYER(pThisArmy->GetOwner()).getAIOperation(pThisArmy->GetOperationID());
+	CvAIOperation* pOperation = pThisArmy->GetOperation();
 	if (!pOperation || pOperation->GetMusterPlot() == NULL)
 		return;
 
@@ -3742,7 +3752,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 			if (pArmy)
 			{
 				//Don't do this for civilan operations!
-				CvAIOperation* AIOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
+				CvAIOperation* AIOperation = pArmy->GetOperation();
 				if (AIOperation && AIOperation->IsCivilianOperation())
 					continue;
 
