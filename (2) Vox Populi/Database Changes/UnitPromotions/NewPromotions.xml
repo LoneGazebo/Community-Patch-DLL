@@ -1178,11 +1178,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_DHANURVIDYA</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_CETBANG</Type>
-			<Description>TXT_KEY_PROMOTION_CETBANG</Description>
-			<Help>TXT_KEY_PROMOTION_CETBANG_HELP</Help>
-			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_CETBANG</PediaEntry>
+			<Type>PROMOTION_RETALIATION</Type>
+			<Description>TXT_KEY_PROMOTION_RETALIATION</Description>
+			<Help>TXT_KEY_PROMOTION_RETALIATION_HELP</Help>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RETALIATION</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_KANTAI_KESSEN</Type>

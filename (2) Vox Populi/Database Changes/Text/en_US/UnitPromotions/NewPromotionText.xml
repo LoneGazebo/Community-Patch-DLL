@@ -1198,10 +1198,10 @@
 			<Text>Gain 0.5 [ICON_CULTURE] Culture and [ICON_PEACE] Faith for each XP gained through Combat.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_CETBANG">
-			<Text>Cetbang</Text>
+		<Row Tag="TXT_KEY_PROMOTION_RETALIATION">
+			<Text>Retaliation</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_CETBANG_HELP">
+		<Row Tag="TXT_KEY_PROMOTION_RETALIATION_HELP">
 			<Text>Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.</Text>
 		</Row>
 

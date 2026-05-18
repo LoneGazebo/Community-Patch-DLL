@@ -34,8 +34,7 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 3,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 8,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 5,
 	Moves = 3
 WHERE Type = 'UNIT_INDIAN_WARELEPHANT';
 
@@ -47,7 +46,8 @@ DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_INDIAN_WARELEPHANT' AND P
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_INDIAN_WARELEPHANT', 'PROMOTION_ACCURACY_1'),
+	('UNIT_INDIAN_WARELEPHANT', 'PROMOTION_STALWART'),
+	('UNIT_INDIAN_WARELEPHANT', 'PROMOTION_RETALIATION'),
 	('UNIT_INDIAN_WARELEPHANT', 'PROMOTION_FEARED_ELEPHANT');
 
 ----------------------------------------------------------
