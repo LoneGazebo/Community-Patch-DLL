@@ -123,11 +123,26 @@ void CvHomelandAI::RecruitUnits()
 			continue;
 		}
 
-		//don't touch armies or units which are out of moves
-		if(!pLoopUnit->canMove() || pLoopUnit->getArmyID()!=-1)
+		//don't touch units which are out of moves
+		if (!pLoopUnit->canMove())
 		{
 			pLoopUnit->SetTurnProcessed(true);
 			continue;
+		}
+
+		//don't touch units in armies unless they are doing a build operation
+		if (pLoopUnit->getArmyID() != -1)
+		{
+			CvArmyAI* pArmy = m_pPlayer->getArmyAI(pLoopUnit->getArmyID());
+			if (pArmy)
+			{
+				CvAIOperation* pOperation = pArmy->GetOperation();
+				if (pOperation && pOperation->GetOperationType() != AI_OPERATION_ESCORTED_IMPROVEMENT_BUILD)
+				{
+					pLoopUnit->SetTurnProcessed(true);
+					continue;
+				}
+			}
 		}
 
 #if defined(VPDEBUG)
@@ -479,16 +494,9 @@ void CvHomelandAI::FindHomelandTargets()
 	// Clear out target lists since we rebuild them each turn
 	m_TargetedCities.clear();
 	m_TargetedSentryPoints.clear();
-	m_TargetedAntiquitySites.clear();
 	m_TargetedNavalSentryPoints.clear();
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
-
-	// Does the civ have access to a civilization specific build for artifacts (if so, don't target antiquity sites for archaeologists)?
-	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
-	CvImprovementEntry* pCivImproveArtifact = m_pPlayer->GetResourceImprovement(eArtifactResourceType, true);
-	CvImprovementEntry* pCivImproveHiddenArtifact = m_pPlayer->GetResourceImprovement(eHiddenArtifactResourceType, true);
 
 	// Look at every tile on map
 	CvMap& theMap = GC.getMap();
@@ -555,21 +563,6 @@ void CvHomelandAI::FindHomelandTargets()
 						newTarget.SetAuxIntData(30);
 						m_TargetedCities.push_back(newTarget);
 					}
-				}
-			}
-			// ... antiquity site?
-			if (m_pPlayer->isMajorCiv())
-			{
-				bool bArtifact = pLoopPlot->getResourceType(eTeam) == eArtifactResourceType;
-				bool bHiddenArtifact = pLoopPlot->getResourceType(eTeam) == eHiddenArtifactResourceType;
-				if ((bArtifact || bHiddenArtifact) &&
-					(pLoopPlot->getOwner() != m_pPlayer->GetID() || ((!bArtifact || !pCivImproveArtifact) && (!bHiddenArtifact || !pCivImproveHiddenArtifact))) &&
-					!m_pPlayer->GetDiplomacyAI()->IsBadTheftTarget(pLoopPlot->getOwner(), THEFT_TYPE_ARTIFACT, pLoopPlot))
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					m_TargetedAntiquitySites.push_back(newTarget);
 				}
 			}
 			// ... border fortification?
@@ -714,7 +707,6 @@ void CvHomelandAI::AssignHomelandMoves()
 
 	PlotTreasureMoves();
 	PlotTradeUnitMoves();
-	PlotArchaeologistMoves();
 
 	ReviewUnassignedUnits();
 }
@@ -1220,19 +1212,130 @@ void CvHomelandAI::PlanImprovements()
 	m_greatPeopleForImprovements.clear();
 }
 
+static bool NeedsMoreWorkers(const SWorkerRegion& region)
+{
+	return region.m_aCurrentWorkers.size() < region.m_iWantedWorkers;
+}
+
+static bool HasExcessWorkers(const SWorkerRegion& region)
+{
+	return region.m_aCurrentWorkers.size() > region.m_iWantedWorkers;
+}
+
+static std::vector<SWorkerTransferCandidate> GetTransferCandidates(const SWorkerRegion& targetRegion, std::vector<SWorkerRegion>& allRegions, const std::vector<int>& noRegionWorkers, CvPlayer* pPlayer)
+{
+	std::vector<SWorkerTransferCandidate> candidates;
+
+	// Unassigned workers
+	for (size_t i = 0;
+		i < noRegionWorkers.size();
+		++i)
+	{
+		int iUnitID = noRegionWorkers[i];
+
+		CvUnit* pUnit = pPlayer->getUnit(iUnitID);
+
+		if (pUnit == NULL)
+			continue;
+
+		int iDist = plotDistance(pUnit->getX(), pUnit->getY(), targetRegion.m_iCapitalX, targetRegion.m_iCapitalY);
+
+		candidates.push_back(SWorkerTransferCandidate(NULL, iUnitID, -iDist));
+	}
+
+	// Workers from regions with excess
+	for (std::vector<SWorkerRegion>::iterator it = allRegions.begin(); it != allRegions.end(); ++it)
+	{
+		SWorkerRegion& sourceRegion = *it;
+
+		// Don't steal from self
+		if (&sourceRegion == &targetRegion)
+			continue;
+
+		if (!HasExcessWorkers(sourceRegion))
+			continue;
+
+		for (size_t iI = 0; iI < sourceRegion.m_aCurrentWorkers.size(); ++iI)
+		{
+			int iUnitID = sourceRegion.m_aCurrentWorkers[iI];
+
+			CvUnit* pUnit = pPlayer->getUnit(iUnitID);
+
+			if (pUnit == NULL)
+				continue;
+
+			int iDist = plotDistance(pUnit->getX(), pUnit->getY(), targetRegion.m_iCapitalX, targetRegion.m_iCapitalY);
+
+			candidates.push_back(SWorkerTransferCandidate(&sourceRegion, iUnitID, -iDist));
+		}
+	}
+
+	std::stable_sort(candidates.begin(), candidates.end(), PRWorkerTransferSort());
+
+	return candidates;
+}
+
+void TransferWorker(SWorkerRegion& sourceRegion, SWorkerRegion& targetRegion, int iUnitID)
+{
+	std::vector<int>::iterator it = std::find(sourceRegion.m_aCurrentWorkers.begin(), sourceRegion.m_aCurrentWorkers.end(), iUnitID);
+
+	if (it == sourceRegion.m_aCurrentWorkers.end())
+		return;
+
+	targetRegion.m_aCurrentWorkers.push_back(iUnitID);
+
+	sourceRegion.m_aCurrentWorkers.erase(it);
+}
+
+void TransferUnassignedWorker(std::vector<int>& noRegionWorkers, SWorkerRegion& targetRegion, int iUnitID)
+{
+	std::vector<int>::iterator it = std::find(noRegionWorkers.begin(), noRegionWorkers.end(), iUnitID);
+
+	if (it == noRegionWorkers.end())
+		return;
+
+	targetRegion.m_aCurrentWorkers.push_back(iUnitID);
+
+	noRegionWorkers.erase(it);
+}
+
+static void FillRegionFromBestAvailableWorkers(SWorkerRegion& targetRegion, std::vector<SWorkerRegion>& allRegions, std::vector<int>& noRegionWorkers, CvPlayer* pPlayer)
+{
+	std::vector<SWorkerTransferCandidate> candidates = GetTransferCandidates(targetRegion, allRegions, noRegionWorkers, pPlayer);
+
+	for (size_t iI = 0; iI < candidates.size(); ++iI)
+	{
+		if (!NeedsMoreWorkers(targetRegion))
+			break;
+
+		SWorkerTransferCandidate& candidate = candidates[iI];
+
+		// Unassigned worker
+		if (candidate.m_pSourceRegion == NULL)
+		{
+			TransferUnassignedWorker(noRegionWorkers, targetRegion, candidate.m_iUnitID);
+		}
+		else
+		{
+			// Region may no longer have excess after previous transfers
+			if (!HasExcessWorkers(*candidate.m_pSourceRegion))
+				continue;
+
+			TransferWorker(*candidate.m_pSourceRegion, targetRegion, candidate.m_iUnitID);
+		}
+	}
+}
+
 // Figure out how many contiguous areas we have and how many workers should be in each
 void CvHomelandAI::PlanWorkerDistribution()
 {
-	if (m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian() || m_pPlayer->IsAtWar())
+	if (m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
 		return;
 
 	SWorkerRegion::ResetCounter();
 	m_aWorkerRegions.clear();
 	std::vector<SWorkerRegion> aWorkerRegions;
 	CitySet aProcessedCities;
-
-	if (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, false, true) == 0)
-		return;
 
 	int iGlobalImprovementNeed = 0;
 
@@ -1312,6 +1415,12 @@ void CvHomelandAI::PlanWorkerDistribution()
 			aNoRegionWorkers.push_back(pLoopUnit->GetID());
 	}
 
+	if (iAvailableWorkers == 0)
+	{
+		m_aWorkerRegions = aWorkerRegions;
+		return;
+	}
+
 	int iImprovementsPerWorker = max(iGlobalImprovementNeed / iAvailableWorkers, 1);
 
 	// First we want at least one worker in each contiguous region if possible
@@ -1339,34 +1448,9 @@ void CvHomelandAI::PlanWorkerDistribution()
 	// We have figured out how many workers each region should have, now we need to assign our workers to the different regions
 	for (std::vector<SWorkerRegion>::iterator it = aWorkerRegions.begin(); it != aWorkerRegions.end(); ++it)
 	{
-		if ((int)it->m_aCurrentWorkers.size() < it->m_iWantedWorkers)
+		if (NeedsMoreWorkers(*it))
 		{
-			// first check for unassigned workers (they are moving between regions)
-			std::vector<int> toRemove;
-			for (std::vector<int>::iterator it2 = aNoRegionWorkers.begin(); it2 != aNoRegionWorkers.end() && (int)it->m_aCurrentWorkers.size() < it->m_iWantedWorkers; ++it2)
-			{
-				it->m_aCurrentWorkers.push_back(*it2);
-				toRemove.push_back(*it2);
-			}
-
-			for (std::vector<int>::iterator it2 = toRemove.begin(); it2 != toRemove.end(); ++it2)
-			{
-				aNoRegionWorkers.erase(find(aNoRegionWorkers.begin(), aNoRegionWorkers.end(), *it2));
-			}
-
-			// then check if we can take some from another region
-			if ((int)it->m_aCurrentWorkers.size() < it->m_iWantedWorkers)
-			{
-				for (std::vector<SWorkerRegion>::iterator it2 = aWorkerRegions.begin(); it2 != aWorkerRegions.end(); ++it2)
-				{
-					while ((int)it->m_aCurrentWorkers.size() < it->m_iWantedWorkers && (int)it2->m_aCurrentWorkers.size() > it2->m_iWantedWorkers)
-					{
-						int iToMove = it2->m_aCurrentWorkers[0];
-						it2->m_aCurrentWorkers.erase(it2->m_aCurrentWorkers.begin());
-						it->m_aCurrentWorkers.push_back(iToMove);
-					}
-				}
-			}
+			FillRegionFromBestAvailableWorkers(*it, aWorkerRegions, aNoRegionWorkers, m_pPlayer);
 		}
 	}
 
@@ -1384,7 +1468,8 @@ void CvHomelandAI::PlotWorkerMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit)
 		{
-			bool bUsePrimaryUnit = pUnit->AI_getUnitAIType() == UNITAI_WORKER || pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_BUILD);
+			bool bUsePrimaryUnit = pUnit->AI_getUnitAIType() == UNITAI_WORKER || pUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA || pUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST 
+				|| (pUnit->IsAutomated() && (pUnit->GetAutomateType() == AUTOMATE_BUILD || pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST));
 			bool bUseSecondaryUnit = false;
 			if (!bUsePrimaryUnit)
 			{
@@ -2473,32 +2558,6 @@ void CvHomelandAI::PlotTradeUnitMoves()
 	}
 }
 
-/// Send archaeologists to safe sites
-void CvHomelandAI::PlotArchaeologistMoves()
-{
-	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_ARCHAEOLOGIST);
-
-	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
-		{
-			if(pUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST))
-			{
-				CvHomelandUnit unit;
-				unit.SetID(pUnit->GetID());
-				m_CurrentMoveUnits.push_back(unit);
-			}
-		}
-	}
-
-	if(m_CurrentMoveUnits.size() > 0)
-	{
-		ExecuteArchaeologistMoves();
-	}
-}
-
 /// Log that we couldn't find assignments for some units - this is the catchall, last-resort handler that makes sure we can end the turn
 void CvHomelandAI::ReviewUnassignedUnits()
 {
@@ -3133,7 +3192,7 @@ bool CvHomelandAI::ExecuteOpportunisticSettlementMoves(CvUnit* pUnit)
 }
 
 // Higher weight means better directive
-static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
+static int GetDirectiveWeight(SBuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
 {
 	int iScore = eDirective.m_plotBuildScore.GetPriorityScore();
 
@@ -3165,7 +3224,7 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 		return -(iScore * iScore) * (1 + iBuildTime);
 }
 
-static bool IsBestDirectiveForPlot(BuilderDirective eDirective, vector<BuilderDirective> aDirectives)
+static bool IsBestDirectiveForPlot(SBuilderDirective eDirective, vector<SBuilderDirective> aDirectives)
 {
 	if (eDirective.m_eBuild == NO_BUILD)
 		return false;
@@ -3173,9 +3232,9 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, vector<BuilderDi
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
 
 	int iDirectiveScore = eDirective.m_plotBuildScore.GetMaxScore();
-	for (vector<BuilderDirective>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
+	for (vector<SBuilderDirective>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
-		BuilderDirective eOtherDirective = *it;
+		SBuilderDirective eOtherDirective = *it;
 		if (eDirective.m_eBuild == eOtherDirective.m_eBuild)
 			continue;
 
@@ -3207,7 +3266,7 @@ static bool IsBestDirectiveForPlot(BuilderDirective eDirective, vector<BuilderDi
 	return true;
 }
 
-int CvHomelandAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirective, const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots) const
+int CvHomelandAI::GetBuilderNumTurnsAway(CvUnit* pUnit, SBuilderDirective eDirective, const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots) const
 {
 	int iMoveTurns = INT_MAX;
 	CvPlot* pTarget = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
@@ -3229,26 +3288,159 @@ int CvHomelandAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirect
 	return iMoveTurns;
 }
 
+static const SWorkerRegion* GetAssignedWorkerRegion(const CvUnit* pUnit, const std::vector<SWorkerRegion>& workerRegions)
+{
+	for (std::vector<SWorkerRegion>::const_iterator it = workerRegions.begin(); it != workerRegions.end(); ++it)
+	{
+		if (it->OwnsWorker(pUnit->GetID()))
+			return &(*it);
+	}
+
+	return NULL;
+}
+
+static const SWorkerRegion* GetWorkerRegionForPlot(const CvPlot* pPlot, const std::vector<SWorkerRegion>& workerRegions)
+{
+	if (!pPlot)
+		return NULL;
+
+	CvCity* pCity = pPlot->getOwningCity();
+	if (pCity)
+	{
+		for (std::vector<SWorkerRegion>::const_iterator it = workerRegions.begin(); it != workerRegions.end(); ++it)
+		{
+			if (it->ContainsCity(pCity->GetID()))
+				return &(*it);
+		}
+	}
+
+	// Check a one-tile radius around the plot, regions are considered contiguous if there is at most two tiles between them
+	for (int iI = 1; iI < RING1_PLOTS; iI++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pPlot, iI);
+		if (!pLoopPlot)
+			continue;
+
+		pCity = pLoopPlot->getOwningCity();
+		if (!pCity)
+			continue;
+
+		for (std::vector<SWorkerRegion>::const_iterator it = workerRegions.begin(); it != workerRegions.end(); ++it)
+		{
+			if (it->ContainsCity(pCity->GetID()))
+				return &(*it);
+		}
+	}
+
+	return NULL;
+}
+
+bool CvHomelandAI::IsWorkerAtAssignedRegion(const CvUnit* pUnit, const CvPlot* pTargetPlot) const
+{
+	const SWorkerRegion* plotRegion = GetWorkerRegionForPlot(pTargetPlot, m_aWorkerRegions);
+
+	// If the worker is not in any region, they need to go to safety
+	if (!plotRegion)
+		return false;
+
+	const SWorkerRegion* assignedRegion = GetAssignedWorkerRegion(pUnit, m_aWorkerRegions);
+
+	// If the worker has no assigned region, it can stay in the region it is in
+	if (!assignedRegion)
+		return true;
+
+	return assignedRegion == plotRegion;
+}
+
+static bool NeedsEscort(CvPlayer* pPlayer, CvUnit* pBuilder, const CvPlot* pPlot, const std::vector<SWorkerRegion>& workerRegions)
+{
+	// No escorts for humans, city states or barbarians
+	if (pPlayer->isHuman(ISHUMAN_AI_UNITS) || pPlayer->isMinorCiv() || pPlayer->isBarbarian())
+		return false;
+
+	// Generals need escorts unless we are building in a very safe location
+	if (pBuilder->IsGreatGeneral() && (pPlot->getOwner() != pBuilder->getOwner() || pPlot->IsAdjacentOwnedByTeamOtherThan(pBuilder->getTeam(), true, true, false, true)))
+		return true;
+
+	// Other units need an escort if we are doing work in a different worker region (no worker region is NULL)
+	// This means we have to travel into unsafe territory
+	const SWorkerRegion* builderRegion = GetWorkerRegionForPlot(pBuilder->plot(), workerRegions);
+	const SWorkerRegion* plotRegion = GetWorkerRegionForPlot(pPlot, workerRegions);
+	if (!builderRegion || !plotRegion || builderRegion != plotRegion)
+		return true;
+
+	return false;
+}
+
+CvAIOperationBuildImprovementEscorted* CvHomelandAI::AddBuildOperation(CvUnit* pBuilder, SBuilderDirective eDirective, bool bInstantBuild, bool bIsKill)
+{
+	//no AI operations for human players
+	if (m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
+	{
+		CUSTOMLOG("warning: trying to create an AI operation for a human player!");
+		return NULL;
+	}
+	
+	CvAIOperationBuildImprovementEscorted* pNewOperation = new CvAIOperationBuildImprovementEscorted(GC.getGame().GetNextGlobalID(), m_pPlayer->GetID(), pBuilder, eDirective, bInstantBuild, bIsKill);
+	if (!pNewOperation)
+		return NULL;
+
+	//bail early if impossible (just to avoid spamming the logs)
+	//note that for performance reasons we don't do real pathfinding here
+	if (!pNewOperation->PreconditionsAreMet(NULL, NULL, 0))
+	{
+		delete pNewOperation;
+		return NULL;
+	}
+
+	//because of stupidity, we need to enable CvPlayer::getOperation() before initializing the operation
+	m_pPlayer->addAIOperation(pNewOperation);
+
+	//check if initialization works out
+	pNewOperation->Init(NULL, NULL);
+
+	//check number of units again
+	if (pNewOperation->GetNumUnitsNeededToBeBuilt() > 0)
+		pNewOperation->SetToAbort(AI_ABORT_NO_UNITS);
+
+	//undo if necessary
+	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID)
+	{
+		pNewOperation->LogOperationEnd();
+		m_pPlayer->deleteAIOperation(pNewOperation->GetID());
+		return NULL;
+	}
+
+	return pNewOperation;
+}
+
+//workaround to make units from finished builder escorts accessible to homeland AI in the same turn
+void CvHomelandAI::AddCurrentTurnUnit(CvUnit* pUnit)
+{
+	if (pUnit && pUnit->canMove())
+		m_CurrentTurnUnits.push_back(pUnit->GetID());
+}
+
 // Rescale all directive weights depending on nearest usable worker
-vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeightedDirectives(
-	const vector<BuilderDirective> aDirectives, 
-	const set<BuilderDirective> ignoredDirectives, 
+vector<OptionWithScore<pair<CvUnit*, SBuilderDirective>>> CvHomelandAI::GetWeightedDirectives(
+	const vector<SBuilderDirective> aDirectives, 
+	const set<SBuilderDirective> ignoredDirectives, 
 	const list<int> allWorkers, 
 	const set<int> ignoredWorkers, 
 	const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots,
 	bool bConsiderRegions) const
 {
-	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> aWeightedDirectives;
+	vector<OptionWithScore<pair<CvUnit*, SBuilderDirective>>> aWeightedDirectives;
 	aWeightedDirectives.reserve(aDirectives.size());
 
 	int iBestWeightedScore = INT_MIN;
 
 	//this is an ugly nested loop with quadratic complexity ...
-	for (vector<BuilderDirective>::const_iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
+	for (vector<SBuilderDirective>::const_iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
-		BuilderDirective eDirective = *it;
+		SBuilderDirective eDirective = *it;
 		if (ignoredDirectives.find(eDirective) != ignoredDirectives.end())
-			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, SBuilderDirective>>(make_pair<CvUnit*, SBuilderDirective>(NULL, eDirective), INT_MIN));
 
 		const CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 		if (m_workedPlots.find(pDirectivePlot->GetPlotIndex()) != m_workedPlots.end())
@@ -3256,20 +3448,20 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 
 		if (eDirective.m_eBuild == NO_BUILD)
 		{
-			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, SBuilderDirective>>(make_pair<CvUnit*, SBuilderDirective>(NULL, eDirective), INT_MIN));
 			continue;
 		}
 
 		// If the score is lower than the best weighted score we have found, it will never be better than the best weighted score
 		if (GetDirectiveWeight(eDirective, 0, 0) <= iBestWeightedScore)
 		{
-			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, SBuilderDirective>>(make_pair<CvUnit*, SBuilderDirective>(NULL, eDirective), INT_MIN));
 			continue;
 		}
 
 		if (!IsBestDirectiveForPlot(eDirective, aDirectives))
 		{
-			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, SBuilderDirective>>(make_pair<CvUnit*, SBuilderDirective>(NULL, eDirective), INT_MIN));
 			continue;
 		}
 
@@ -3288,18 +3480,21 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 			if (ignoredWorkers.find(pUnit->GetID()) != ignoredWorkers.end())
 				continue;
 
-			if (bConsiderRegions)
-				if (GetWorkerRegionTargetPlot(pUnit) != NULL && !IsWorkerAtAllocatedRegion(pUnit, pDirectivePlot))
+			if (bConsiderRegions && IsWorkerAtAssignedRegion(pUnit, pUnit->plot())
+				&& !IsWorkerAtAssignedRegion(pUnit, pDirectivePlot))
 					continue;
 
 			if (!m_pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eDirective, true))
 				continue;
 
-			if (pUnit->GetDanger(pDirectivePlot) > pUnit->GetCurrHitPoints())
+			if (!pDirectivePlot->isVisible(m_pPlayer->getTeam()) || pUnit->GetDanger(pDirectivePlot) > pUnit->GetCurrHitPoints())
 			{
-				CvUnit* pBestDefender = pDirectivePlot->getBestDefender(m_pPlayer->GetID());
-				if (!pBestDefender || pBestDefender->GetDanger(pDirectivePlot) > pBestDefender->GetCurrHitPoints() / 2)
-					continue;
+				if (!NeedsEscort(m_pPlayer, pUnit, pDirectivePlot, m_aWorkerRegions))
+				{
+					CvUnit* pBestDefender = pDirectivePlot->getBestDefender(m_pPlayer->GetID());
+					if (!pBestDefender || pBestDefender->GetDanger(pDirectivePlot) > pBestDefender->GetCurrHitPoints() / 2)
+						continue;
+				}
 			}
 
 			//e.g., prisoners of war need longer to build ...
@@ -3328,68 +3523,71 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 		if (iBestBuilderWeightedScore > iBestWeightedScore)
 			iBestWeightedScore = iBestBuilderWeightedScore;
 
-		aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(pBestBuilder, eDirective), iBestBuilderWeightedScore));
+		aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, SBuilderDirective>>(make_pair<CvUnit*, SBuilderDirective>(pBestBuilder, eDirective), iBestBuilderWeightedScore));
 	}
 
 	std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 	return aWeightedDirectives;
 }
 
-
-bool CvHomelandAI::IsWorkerAtAllocatedRegion(const CvUnit* pUnit, const CvPlot* pTargetPlot) const
+CvPlot* CvHomelandAI::GetAssignedWorkerRegionCapitalPlot(const CvUnit* pUnit) const
 {
-	const CvPlot* pPlot = pTargetPlot ? pTargetPlot : pUnit->plot();
-	if (!pPlot)
-		return false;
+	const SWorkerRegion* assignedRegion = GetAssignedWorkerRegion(pUnit, m_aWorkerRegions);
 
-	CvCity* pCity = pPlot->getOwningCity();
-	if (pCity)
+	if (assignedRegion)
+		return GC.getMap().plot(assignedRegion->m_iCapitalX, assignedRegion->m_iCapitalY);
+
+	return NULL;
+}
+
+bool CvHomelandAI::AddAndExecuteEscortOperation(CvUnit* pUnit, CvPlot* pPlot)
+{
+	return AddAndExecuteEscortedBuildOperation(pUnit, SBuilderDirective(SBuilderDirective::NUM_DIRECTIVES, NO_BUILD, NO_RESOURCE, false, false, pPlot ? pPlot->getX() : INVALID_PLOT_COORD, pPlot ? pPlot->getY() : INVALID_PLOT_COORD, 0));
+}
+
+bool CvHomelandAI::AddAndExecuteEscortedBuildOperation(CvUnit* pUnit, SBuilderDirective eDirective)
+{
+	CvAIOperationBuildImprovementEscorted* pOperation = NULL;
+	if (pUnit->getArmyID() != -1)
 	{
-		for (std::vector<SWorkerRegion>::const_iterator it = m_aWorkerRegions.begin(); it != m_aWorkerRegions.end(); ++it)
+		pOperation = dynamic_cast<CvAIOperationBuildImprovementEscorted*>(GET_PLAYER(pUnit->getOwner()).getArmyAI(pUnit->getArmyID())->GetOperation());
+		pOperation->SetDirective(eDirective);
+	}
+	else
+	{
+		bool bInstantBuild = false;
+		bool bIsKill = false;
+		if (eDirective.m_eBuild != NO_BUILD)
 		{
-			if (!it->OwnsWorker(pUnit->GetID()))
-				continue;
-
-			if (it->ContainsCity(pCity->GetID()))
-				return true;
+			CvBuildInfo* pBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
+			bInstantBuild = pBuildInfo->getTime() == 0;
+			bIsKill = pBuildInfo->isKill();
 		}
+		pOperation = AddBuildOperation(pUnit, eDirective, bInstantBuild, bIsKill);
 	}
 
-	// Check a two-tile radius around the worker, they can be a bit outside of their assigned territory
-	for (int iI = 1; iI < RING2_PLOTS; iI++)
+	if (pOperation)
 	{
-		CvPlot* pLoopPlot = iterateRingPlots(pPlot, iI);
-		if (!pLoopPlot)
-			continue;
-
-		pCity = pLoopPlot->getOwningCity();
-		if (!pCity)
-			continue;
-
-		for (std::vector<SWorkerRegion>::const_iterator it = m_aWorkerRegions.begin(); it != m_aWorkerRegions.end(); ++it)
+		if (pOperation->DoTurn())
 		{
-			if (!it->OwnsWorker(pUnit->GetID()))
-				continue;
-
-			if (it->ContainsCity(pCity->GetID()))
+			UnitProcessed(pUnit->GetID());
+			return true;
+		}
+		else
+		{
+			if (pOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			{
+				if (!pUnit->canMove())
+					UnitProcessed(pUnit->GetID());
+				pOperation->Kill();
 				return true;
+			}
+			else
+				return false;
 		}
 	}
 
 	return false;
-}
-
-CvPlot* CvHomelandAI::GetWorkerRegionTargetPlot(const CvUnit* pUnit) const
-{
-	for (std::vector<SWorkerRegion>::const_iterator it = m_aWorkerRegions.begin(); it != m_aWorkerRegions.end(); ++it)
-	{
-		if (!it->OwnsWorker(pUnit->GetID()))
-			continue;
-
-		return GC.getMap().plot(it->m_iCapitalX, it->m_iCapitalY);
-	}
-
-	return NULL;
 }
 
 /// Moves units to improve plots
@@ -3411,7 +3609,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			continue;
 
 		allWorkers.push_back(pUnit->GetID());
-		SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER | CvUnit::MOVEFLAG_VISIBLE_ONLY, BUILDER_MAX_TURNS);
+		SPathFinderUserData data(pUnit, 0, BUILDER_MAX_TURNS);
 		allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
@@ -3436,8 +3634,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	}
 
 	CvBuilderTaskingAI* pBuilderTaskingAI = m_pPlayer->GetBuilderTaskingAI();
-	vector<BuilderDirective> topDirectives = pBuilderTaskingAI->GetDirectives();
-	set<BuilderDirective> ignoredDirectives;
+	vector<SBuilderDirective> topDirectives = pBuilderTaskingAI->GetDirectives();
+	set<SBuilderDirective> ignoredDirectives;
 
 	// Keep track of some states to recalculate directive scores during processing
 	SBuilderState sState;
@@ -3455,7 +3653,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 		if (bIsAutomated)
 		{
-			BuilderDirective eDirective = pBuilderTaskingAI->GetAssignedDirective(pUnit);
+			SBuilderDirective eDirective = pBuilderTaskingAI->GetAssignedDirective(pUnit);
 
 			if (eDirective.m_eBuild != NO_BUILD && pBuilderTaskingAI->ExecuteWorkerMove(pUnit, eDirective))
 			{
@@ -3470,7 +3668,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		}
 	}
 
-	bool bConsiderRegions = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian() && m_pPlayer->IsAtPeace();
+	bool bConsiderRegions = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian();
 	if (bConsiderRegions)
 	{
 		// Check if any worker is in the wrong region, if so they should move to the right one
@@ -3481,11 +3679,12 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			if (!pUnit)
 				continue;
 
-			if (IsWorkerAtAllocatedRegion(pUnit))
+			if (IsWorkerAtAssignedRegion(pUnit, pUnit->plot()))
 				continue;
 
-			CvPlot* pTargetPlot = GetWorkerRegionTargetPlot(pUnit);
-			if (pTargetPlot && ExecuteMoveToTarget(pUnit, pTargetPlot, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, false))
+			CvPlot* pTargetPlot = GetAssignedWorkerRegionCapitalPlot(pUnit);
+
+			if (AddAndExecuteEscortOperation(pUnit, pTargetPlot))
 			{
 				processedWorkers.insert(pUnit->GetID());
 			}
@@ -3493,14 +3692,14 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	}
 
 	// This is the important part
-	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> aDistanceWeightedDirectives = 
+	vector<OptionWithScore<pair<CvUnit*, SBuilderDirective>>> aDistanceWeightedDirectives = 
 		GetWeightedDirectives(topDirectives, ignoredDirectives, allWorkers, processedWorkers, allWorkersReachablePlots, bConsiderRegions);
 
 	// Loop through all the directives sorted by weighted score and distance (see GetDirectiveWeight)
 	while (!aDistanceWeightedDirectives.empty() && aDistanceWeightedDirectives.front().score != INT_MIN && allWorkers.size() > processedWorkers.size())
 	{
 		CvUnit* pBuilder = aDistanceWeightedDirectives.front().option.first;
-		BuilderDirective eDirective = aDistanceWeightedDirectives.front().option.second;
+		SBuilderDirective eDirective = aDistanceWeightedDirectives.front().option.second;
 		PlotBuildScore plotBuildScore = eDirective.m_plotBuildScore;
 
 		// Need to save the state of the plot in case we finish the improvement this turn
@@ -3517,40 +3716,61 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			bool bIsAutomated = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || pBuilder->IsAutomated();
 			if (bIsAutomated)
 			{
-				if (pBuilderTaskingAI->ExecuteWorkerMove(pBuilder, eDirective))
+				if (NeedsEscort(m_pPlayer, pBuilder, pDirectivePlot, m_aWorkerRegions))
 				{
-					UnitProcessed(pBuilder->GetID());
-					processedWorkers.insert(pBuilder->GetID());
-					ignoredDirectives.insert(eDirective);
-
-					// Add a sentry point here
-					if (pDirectivePlot->getOwner() != m_pPlayer->GetID() || pDirectivePlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), true, true, true, true))
+					if (AddAndExecuteEscortedBuildOperation(pBuilder, eDirective))
 					{
-						int iWeight = plotBuildScore.GetPriorityScore();
-						CvHomelandTarget newTarget;
-						if (pDirectivePlot->isWater())
-						{
-							newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
-							newTarget.SetTargetX(eDirective.m_sX);
-							newTarget.SetTargetY(eDirective.m_sY);
-							newTarget.SetAuxIntData(iWeight);
-							m_TargetedNavalSentryPoints.push_back(newTarget);
-						}
-						else
-						{
-							newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
-							newTarget.SetTargetX(eDirective.m_sX);
-							newTarget.SetTargetY(eDirective.m_sY);
-							newTarget.SetAuxIntData(iWeight);
-							m_TargetedSentryPoints.push_back(newTarget);
-						}
+						UnitProcessed(pBuilder->GetID());
+						processedWorkers.insert(pBuilder->GetID());
+						ignoredDirectives.insert(eDirective);
+					}
+					else
+					{
+						bCanBuild = false;
+						ignoredDirectives.insert(eDirective);
 					}
 				}
 				else
 				{
-					// we ran into danger on the way to the tile
-					bCanBuild = false;
-					ignoredDirectives.insert(eDirective);
+					// We no longer need the escort (if we had one)
+					if (pBuilder->getArmyID() != -1)
+						m_pPlayer->getArmyAI(pBuilder->getArmyID())->GetOperation()->Kill();
+
+					if (pBuilderTaskingAI->ExecuteWorkerMove(pBuilder, eDirective))
+					{
+						UnitProcessed(pBuilder->GetID());
+						processedWorkers.insert(pBuilder->GetID());
+						ignoredDirectives.insert(eDirective);
+
+						// Add a sentry point here
+						if (pDirectivePlot->getOwner() != m_pPlayer->GetID() || pDirectivePlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), true, true, true, true))
+						{
+							int iWeight = plotBuildScore.GetPriorityScore();
+							CvHomelandTarget newTarget;
+							if (pDirectivePlot->isWater())
+							{
+								newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT_NAVAL);
+								newTarget.SetTargetX(eDirective.m_sX);
+								newTarget.SetTargetY(eDirective.m_sY);
+								newTarget.SetAuxIntData(iWeight);
+								m_TargetedNavalSentryPoints.push_back(newTarget);
+							}
+							else
+							{
+								newTarget.SetTargetType(AI_HOMELAND_TARGET_SENTRY_POINT);
+								newTarget.SetTargetX(eDirective.m_sX);
+								newTarget.SetTargetY(eDirective.m_sY);
+								newTarget.SetAuxIntData(iWeight);
+								m_TargetedSentryPoints.push_back(newTarget);
+							}
+						}
+					}
+					else
+					{
+						// we ran into danger on the way to the tile
+						bCanBuild = false;
+						ignoredDirectives.insert(eDirective);
+					}
 				}
 			}
 			else
@@ -3596,31 +3816,31 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			bool bFinishedBuilding = false;
 			switch (eDirective.m_eDirectiveType)
 			{
-			case BuilderDirective::BUILD_IMPROVEMENT:
-			case BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE:
+			case SBuilderDirective::BUILD_IMPROVEMENT:
+			case SBuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE:
 				bFinishedBuilding = pDirectivePlot->getImprovementType() == eImprovement;
 				break;
-			case BuilderDirective::BUILD_ROUTE:
+			case SBuilderDirective::BUILD_ROUTE:
 				bFinishedBuilding = pDirectivePlot->getRouteType() == eRoute;
 				break;
-			case BuilderDirective::KEEP_IMPROVEMENT:
+			case SBuilderDirective::KEEP_IMPROVEMENT:
 				UNREACHABLE();
 				break;
-			case BuilderDirective::REMOVE_FEATURE:
+			case SBuilderDirective::REMOVE_FEATURE:
 				bFinishedBuilding = pDirectivePlot->getFeatureType() == NO_FEATURE;
 				break;
-			case BuilderDirective::REMOVE_ROAD:
+			case SBuilderDirective::REMOVE_ROAD:
 				bFinishedBuilding = pDirectivePlot->getRouteType() == NO_ROUTE;
 				break;
-			case BuilderDirective::REPAIR_IMPROVEMENT:
+			case SBuilderDirective::REPAIR_IMPROVEMENT:
 				bFinishedBuilding = !pDirectivePlot->IsImprovementPillaged();
 				break;
-			case BuilderDirective::REPAIR_ROUTE:
+			case SBuilderDirective::REPAIR_ROUTE:
 				bFinishedBuilding = !pDirectivePlot->IsRoutePillaged();
 				break;
 			}
 
-			if (eImprovement == NO_IMPROVEMENT && eDirective.m_eDirectiveType == BuilderDirective::REPAIR_IMPROVEMENT)
+			if (eImprovement == NO_IMPROVEMENT && eDirective.m_eDirectiveType == SBuilderDirective::REPAIR_IMPROVEMENT)
 				eImprovement = pDirectivePlot->getImprovementType();
 
 			CvImprovementEntry* pkImprovementInfo = eImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eImprovement) : NULL;
@@ -3638,7 +3858,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				}
 			}
 
-			std::vector<OptionWithScore<BuilderDirective>> aNewBuilderDirectives;
+			std::vector<OptionWithScore<SBuilderDirective>> aNewBuilderDirectives;
 
 			const CvCity* pOwningCity = pDirectivePlot->getEffectiveOwningCity();
 			if (!pOwningCity && eImprovement != NO_IMPROVEMENT)
@@ -3671,7 +3891,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				}
 			}
 			if (pOwningCity)
-				pBuilderTaskingAI->UpdateCityWorstPlots(pOwningCity, sState);
+				pBuilderTaskingAI->UpdateCityWorstPlots(pOwningCity, &sState);
 
 			// Resource considerations
 			bool bResourceStateChanged = false;
@@ -3714,7 +3934,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
 						if (bOldConnectedResource)
 							iResourceAmount -= pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eOldImprovement);
-						sState.mExtraResources[eCreatedResource] += iResourceAmount;
+						sState.m_ExtraResources[eCreatedResource] += iResourceAmount;
 					}
 					bResourceStateChanged = true;
 				}
@@ -3725,7 +3945,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						int iResourceAmount = eResourceFromOldImprovement != NO_RESOURCE ? pkOldImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eOldImprovement);
 						if (bNewConnectsResource)
 							iResourceAmount -= pDirectivePlot->GetNumResourcePostModifiers(m_pPlayer->GetID(), eImprovement);
-						sState.mExtraResources[eRemovedResource] -= iResourceAmount;
+						sState.m_ExtraResources[eRemovedResource] -= iResourceAmount;
 					}
 					bResourceStateChanged = true;
 				}
@@ -3749,7 +3969,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				if (eFeature != eOldFeature)
 				{
 					if (!bFinishedBuilding)
-						sState.mChangedPlotFeatures[pDirectivePlot->GetPlotIndex()] = eFeature;
+						sState.m_ChangedPlotFeatures[pDirectivePlot->GetPlotIndex()] = eFeature;
 
 					bFeatureStateChanged = true;
 				}
@@ -3757,12 +3977,12 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 			// Improvement considerations
 			bool bImprovementStateChanged = false;
-			if (bCanBuild && (eDirective.m_eDirectiveType == BuilderDirective::BUILD_IMPROVEMENT || 
-							  eDirective.m_eDirectiveType == BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE || 
-				              eDirective.m_eDirectiveType == BuilderDirective::REPAIR_IMPROVEMENT))
+			if (bCanBuild && (eDirective.m_eDirectiveType == SBuilderDirective::BUILD_IMPROVEMENT || 
+							  eDirective.m_eDirectiveType == SBuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE || 
+				              eDirective.m_eDirectiveType == SBuilderDirective::REPAIR_IMPROVEMENT))
 			{
 				if (!bFinishedBuilding)
-					sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()].second = eImprovement;
+					sState.m_ChangedPlotImprovements[pDirectivePlot->GetPlotIndex()].second = eImprovement;
 
 				bImprovementStateChanged = true;
 			}
@@ -3807,15 +4027,15 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 			// Road considerations
 			bool bRouteStateChanged = false;
-			if (bCanBuild && (eDirective.m_eDirectiveType == BuilderDirective::BUILD_ROUTE || eDirective.m_eDirectiveType == BuilderDirective::REPAIR_ROUTE))
+			if (bCanBuild && (eDirective.m_eDirectiveType == SBuilderDirective::BUILD_ROUTE || eDirective.m_eDirectiveType == SBuilderDirective::REPAIR_ROUTE))
 			{
 				bRouteStateChanged = true;
 			}
 
-			for (vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>>::iterator it = aDistanceWeightedDirectives.begin(); it != aDistanceWeightedDirectives.end(); ++it)
+			for (vector<OptionWithScore<pair<CvUnit*, SBuilderDirective>>>::iterator it = aDistanceWeightedDirectives.begin(); it != aDistanceWeightedDirectives.end(); ++it)
 			{
-				OptionWithScore<pair<CvUnit*, BuilderDirective>> eOtherDirectiveWithScore = *it;
-				BuilderDirective eOtherDirective = eOtherDirectiveWithScore.option.second;
+				OptionWithScore<pair<CvUnit*, SBuilderDirective>> eOtherDirectiveWithScore = *it;
+				SBuilderDirective eOtherDirective = eOtherDirectiveWithScore.option.second;
 
 				bool bDirectiveUpdated = false;
 
@@ -3832,8 +4052,8 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				// Pruning
 				if (eDirective.m_sX == eOtherDirective.m_sX && eDirective.m_sY == eOtherDirective.m_sY)
 				{
-					bool bCanBuildSimultaneously = (eDirective.m_bIsGreatPerson && eOtherDirective.m_eDirectiveType == BuilderDirective::BUILD_ROUTE)
-						|| (eOtherDirective.m_bIsGreatPerson && eDirective.m_eDirectiveType == BuilderDirective::BUILD_ROUTE);
+					bool bCanBuildSimultaneously = (eDirective.m_bIsGreatPerson && eOtherDirective.m_eDirectiveType == SBuilderDirective::BUILD_ROUTE)
+						|| (eOtherDirective.m_bIsGreatPerson && eDirective.m_eDirectiveType == SBuilderDirective::BUILD_ROUTE);
 					// Prune directives that are in the same plot
 					if ((bCanBuild && !bCanBuildSimultaneously) || eDirective == eOtherDirective)
 					{
@@ -3851,7 +4071,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 						if (!bCanBuildSimultaneously && eOtherImprovement != NO_IMPROVEMENT && eOtherImprovement != eOtherOldImprovement)
 						{
-							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pDirectivePlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pDirectivePlot, eOtherImprovement, eOtherDirective.m_eBuild, &sState);
 
 							int iOtherBaseScore = otherPlotBuildScore.m_iScore;
 							int iOtherPotentialScore = otherPlotBuildScore.m_iPotentialScore;
@@ -3880,7 +4100,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					// Connecting a resource may reduce or increase the value of connecting more instances of the same resource
 					if (pOtherPlot->getResourceType(m_pPlayer->getTeam()) == eOldResource || (pkOtherImprovementInfo && pkOtherImprovementInfo->GetResourceFromImprovement() == eOldResource))
 					{
-						PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+						PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, &sState);
 
 						if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 						{
@@ -3902,7 +4122,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 						if (eOtherFeature != pOtherPlot->getFeatureType() || eOtherImprovement != NO_IMPROVEMENT)
 						{
-							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, &sState);
 
 							if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 							{
@@ -3925,7 +4145,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 						if (iOtherDefenseModifier != 0 || iOtherImprovementDamage != 0)
 						{
-							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, &sState);
 
 							if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 							{
@@ -3947,7 +4167,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 						if (eBonusImprovement == eOtherImprovement)
 						{
-							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+							PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, &sState);
 
 							if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 							{
@@ -3965,7 +4185,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					// TODO check if we will actually change the yield value before we call ScorePlotBuild
 					if (plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
 					{
-						PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+						PlotBuildScore otherPlotBuildScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, &sState);
 
 						if (otherPlotBuildScore != eOtherDirective.m_plotBuildScore)
 						{
@@ -3990,14 +4210,14 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					}
 				}
 
-				aNewBuilderDirectives.push_back(OptionWithScore<BuilderDirective>(eOtherDirective, eOtherDirective.m_plotBuildScore.GetPriorityScore()));
+				aNewBuilderDirectives.push_back(OptionWithScore<SBuilderDirective>(eOtherDirective, eOtherDirective.m_plotBuildScore.GetPriorityScore()));
 			}
 
 			pBuilderTaskingAI->UpdateGreatPersonDirectives(aNewBuilderDirectives);
-			stable_sort(aNewBuilderDirectives.begin(), aNewBuilderDirectives.end());
+			std::stable_sort(aNewBuilderDirectives.begin(), aNewBuilderDirectives.end());
 
-			std::vector<BuilderDirective> aNewDirectives;
-			for (vector<OptionWithScore<BuilderDirective>>::const_iterator it = aNewBuilderDirectives.begin(); it != aNewBuilderDirectives.end(); ++it)
+			std::vector<SBuilderDirective> aNewDirectives;
+			for (vector<OptionWithScore<SBuilderDirective>>::const_iterator it = aNewBuilderDirectives.begin(); it != aNewBuilderDirectives.end(); ++it)
 				aNewDirectives.push_back(it->option);
 
 			aDistanceWeightedDirectives = GetWeightedDirectives(aNewDirectives, ignoredDirectives, allWorkers, processedWorkers, allWorkersReachablePlots, bConsiderRegions);
@@ -4034,7 +4254,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			}
 		}
 
-		if (pBestCity && ExecuteMoveToTarget(pUnit, pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, true))
+		if (pBestCity && ExecuteMoveToTarget(pUnit, pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED | CvUnit::MOVEFLAG_VISIBLE_ONLY, true))
 		{
 			mapCityAssignedWorkers[pBestCity->GetID()]++;
 			UnitProcessed(pUnit->GetID());
@@ -5288,16 +5508,20 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if (ll != vPlotsToAvoid.end())
 					continue;
 
-				ExecuteMoveToTarget(pUnit, pTarget, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, true);
-				vPlotsToAvoid.push_back(pTarget);
+				if (AddAndExecuteEscortOperation(pUnit, pTarget))
+					vPlotsToAvoid.push_back(pTarget);
 				break;
 			}
+
+			if (pUnit->plot()->isCity())
+				UnitProcessed(pUnit->GetID());
 
 			if (!pUnit->TurnProcessed())
 			{
 				CvCity* pCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
 				if (pCity)
-					ExecuteMoveToTarget(pUnit, pCity->plot(), CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, true);
+					if (!AddAndExecuteEscortOperation(pUnit, pCity->plot()))
+						ExecuteMoveToTarget(pUnit, pCity->plot(), CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER | CvUnit::MOVEFLAG_VISIBLE_ONLY, true);
 				if (pUnit->canMove())
 					ExecuteMovesToSafestPlot(pUnit);
 			}
@@ -6145,85 +6369,6 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	}
 }
 
-// Get an archaeologist and send it to an antiquity site
-void CvHomelandAI::ExecuteArchaeologistMoves()
-{
-	int iUnassignedArchaeologists = 0;
-
-	CHomelandUnitArray::iterator it;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit)
-		{
-			continue;
-		}
-
-		CvPlot* pTarget = FindArchaeologistTarget(pUnit);
-		if (pTarget)
-		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
-
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Archaeologist moving to site at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-				LogHomelandMessage(strLogString);
-			}
-
-			if(pUnit->plot() == pTarget)
-			{
-				BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
-				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eBuild, -1, 0, false, false, MISSIONAI_BUILD, pTarget);
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Archaeologist creating dig at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-
-			// Delete this unit from those we have to move
-			UnitProcessed(pUnit->GetID());
-		}
-		else
-		{
-			iUnassignedArchaeologists++;
-			UnitProcessed(pUnit->GetID());
-		}
-	}
-
-	// Unassigned archaeologists due to no valid targets, check against the possible targets left and scrap one if there are too many.
-	if (iUnassignedArchaeologists > 0)
-	{
-		int iPossibleSites = ((m_TargetedAntiquitySites.size() / 5) + 1);
-
-		if (iUnassignedArchaeologists > iPossibleSites)
-		{
-			// We should only scrap a unit if we have at least one valid unit in m_CurrentMoveUnits
-			if (!m_CurrentMoveUnits.empty())
-			{
-			// Scrap the last archaeologist in the list
-				CHomelandUnitArray::iterator lastUnit = m_CurrentMoveUnits.end();
-				--lastUnit; // Move back one position to point to the last element
-				CvUnit* pUnit = m_pPlayer->getUnit(lastUnit->GetID());
-
-				if (pUnit)
-				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Idle Archaeologist scrapped at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-
-					pUnit->scrap();
-				}
-			}
-		}
-	}
-}
-
 /// Don't allow adjacent tiles to both be sentry points
 void CvHomelandAI::EliminateAdjacentSentryPoints()
 {
@@ -6441,104 +6586,6 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns, i
 	return pBestUnit;
 }
 
-/// Find best target for this archaeologist
-CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
-{
-	CvPlot *pBestTarget = NULL;
-	int iBestTurns = MAX_INT;
-
-	BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
-
-	// Reverse the logic from most of the Homeland moves; for this we'll loop through units and find the best targets for them (instead of vice versa)
-	for (std::vector<CvHomelandTarget>::iterator it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); ++it)
-	{
-		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
-		if (pUnit->plot()==pTarget)
-		{
-			pBestTarget = pTarget;
-			break;
-		}
-		if (pTarget->getNumUnitsOfAIType(UNITAI_ARCHAEOLOGIST, NO_PLAYER) > 0)
-		{
-			bool bBad = false;
-			for (int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
-			{
-				CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
-				if (pLoopUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
-					continue;
-				
-				if (pLoopUnit->GetActivityType() == ACTIVITY_MISSION)
-				{
-					bBad = true;
-					break;
-				}
-			}
-			if (bBad)
-				continue;
-		}
-
-		//ignore if another digger is already near
-		bool bIgnore = false;
-		for (int i=0; i<RING1_PLOTS; i++)
-		{
-			CvPlot* pTest = iterateRingPlots(pTarget,i);
-			if (!pTest || pTest==pUnit->plot())
-				continue;
-
-			//other players' units are also a bad sign
-			if (pTest->isVisible(pUnit->getTeam()) && pTest->getNumUnitsOfAIType(UNITAI_ARCHAEOLOGIST,NO_PLAYER)>0)
-			{
-				bIgnore = true;
-				break;
-			}
-		}
-
-		if (bIgnore)
-			continue;
-
-		if (eBuild == NO_BUILD || !pUnit->canBuild(pTarget, eBuild))
-			continue;
-
-		if (pUnit->GetDanger(pTarget) == 0 && !m_pPlayer->IsAtWarWith(pTarget->getOwner()))
-		{
-			if(!pTarget->isRevealed(m_pPlayer->getTeam()))
-			{
-				continue;
-			}
-
-			if(pTarget->getImprovementType() != NO_IMPROVEMENT && pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST)
-			{
-				if(GC.getImprovementInfo( pTarget->getImprovementType())->IsCreatedByGreatPerson())
-				{
-					continue;
-				}
-			}
-
-			int iTurns = INT_MAX;
-			if (pUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iBestTurns, &iTurns) && pUnit->CachedPathIsSafeForCivilian())
-			{
-				pBestTarget = pTarget;
-				iBestTurns = iTurns;
-			}
-		}
-	}
-
-	// Erase this site from future contention
-	if (pBestTarget)
-	{
-		for (std::vector<CvHomelandTarget>::iterator it = m_TargetedAntiquitySites.begin(); it != m_TargetedAntiquitySites.end(); ++it)
-		{
-			if (it->GetTargetX() == pBestTarget->getX() && it->GetTargetY() == pBestTarget->getY())
-			{
-				m_TargetedAntiquitySites.erase(it);
-				break;
-			}
-		}
-	}
-
-	return pBestTarget;
-}
-
 void CvHomelandAI::LogHomelandMessage(const CvString& strMsg)
 {
 	if(GC.getLogging() && GC.getAILogging())
@@ -6726,9 +6773,9 @@ bool CvHomelandAI::ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot)
 	return false;
 }
 
-bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
+bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit* pUnit)
 {
-	if(pUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
+	if (pUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
 	{
 		return false;
 	}
@@ -6738,19 +6785,19 @@ bool CvHomelandAI::FindTestArchaeologistPlotPrimer(CvUnit *pUnit)
 	CvMap& theMap = GC.getMap();
 	int iNumPlots = theMap.numPlots();
 
-	for(int iI = 0; iI < iNumPlots; iI++)
+	for (int iI = 0; iI < iNumPlots; iI++)
 	{
 		CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
-		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
+		if (pLoopPlot->isVisible(m_pPlayer->getTeam()))
 		{
 			// ... antiquity site?
-			if((pLoopPlot->getResourceType(eTeam) == GD_INT_GET(ARTIFACT_RESOURCE) || pLoopPlot->getResourceType(eTeam) == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE)))
+			if ((pLoopPlot->getResourceType(eTeam) == GD_INT_GET(ARTIFACT_RESOURCE) || pLoopPlot->getResourceType(eTeam) == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE)))
 			{
 				PlayerTypes eLoopPlotOwner = pLoopPlot->getOwner();
-				if(eLoopPlotOwner != NO_PLAYER)
+				if (eLoopPlotOwner != NO_PLAYER)
 				{
-					if(eLoopPlotOwner == m_pPlayer->GetID() || !GET_PLAYER(eLoopPlotOwner).isMajorCiv() || !m_pPlayer->GetDiplomacyAI()->MadeNoDiggingPromise(eLoopPlotOwner))
+					if (eLoopPlotOwner == m_pPlayer->GetID() || !GET_PLAYER(eLoopPlotOwner).isMajorCiv() || !m_pPlayer->GetDiplomacyAI()->MadeNoDiggingPromise(eLoopPlotOwner))
 					{
 						return true;
 					}

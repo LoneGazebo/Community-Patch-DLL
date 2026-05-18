@@ -12251,7 +12251,19 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	if(pWorkerUnit == NULL)
 		return 0;
 
-	BuilderDirective assignedDirective = pkPlayer->GetBuilderTaskingAI()->GetAssignedDirective(pWorkerUnit);
+	SBuilderDirective assignedDirective = pkPlayer->GetBuilderTaskingAI()->GetAssignedDirective(pWorkerUnit);
+	if (assignedDirective.m_eBuild == NO_BUILD)
+	{
+		int iArmyID = pWorkerUnit->getArmyID();
+		if (iArmyID != -1)
+		{
+			CvAIOperation* pOperation = pkPlayer->getArmyAI(iArmyID)->GetOperation();
+			if (pOperation && pOperation->GetOperationType() == AI_OPERATION_ESCORTED_IMPROVEMENT_BUILD)
+			{
+				assignedDirective = dynamic_cast<CvAIOperationBuildImprovementEscorted*>(pOperation)->GetDirective();
+			}
+		}
+	}
 
 	if (assignedDirective.m_eBuild != NO_BUILD)
 	{

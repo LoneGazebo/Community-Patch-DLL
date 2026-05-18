@@ -321,12 +321,22 @@ int CvArmyAI::GetFurthestUnitDistance(CvPlot* pPlot)
 	return iLargestDistance;
 }
 
+CvAIOperation* CvArmyAI::GetOperation() const
+{
+	return GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
+}
+
 // FORMATION ACCESSORS
 
 /// Retrieve index of the formation used by this army
 CvMultiUnitFormationInfo* CvArmyAI::GetFormation() const
 {
 	return m_eFormation != NO_MUFORMATION ? GC.getMultiUnitFormationInfo(m_eFormation) : NULL;
+}
+
+MultiunitFormationTypes CvArmyAI::GetFormationType() const
+{
+	return m_eFormation;
 }
 
 /// Set index of the formation used by this army
@@ -367,7 +377,7 @@ size_t CvArmyAI::GetNumSlotsFilled() const
 /// Recalculate when each unit will arrive at the current army position, whatever that is
 void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 {
-	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
+	CvAIOperation* pOperation = GetOperation();
 	if (!pOperation)
 		return;
 
@@ -616,7 +626,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 
 		if (GC.getLogging() && GC.getAILogging())
 		{
-			CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
+			CvAIOperation* pOperation = GetOperation();
 			if (pOperation)
 			{
 				CvString strMsg;
