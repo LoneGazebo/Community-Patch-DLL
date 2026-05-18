@@ -126,18 +126,19 @@ SET InquisitorPressureRetention = 0
 WHERE Type = 'BELIEF_UNITY_OF_PROPHETS';
 
 CREATE TEMP TABLE Helper3 (
-	YieldType TEXT
+	YieldType TEXT,
+	Yield integer
 );
 
 INSERT INTO Helper3
 VALUES
-	('YIELD_SCIENCE'),
-	('YIELD_FAITH');
+	('YIELD_SCIENCE', 3),
+	('YIELD_FAITH', 2);
 
 INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)
 SELECT
-	'BELIEF_UNITY_OF_PROPHETS', a.Type, b.YieldType, 2
+	'BELIEF_UNITY_OF_PROPHETS', a.Type, b.YieldType, b.Yield
 FROM Improvements a, Helper3 b
 WHERE a.CreatedByGreatPerson = 1 OR a.Type = 'IMPROVEMENT_LANDMARK';
 
@@ -153,7 +154,7 @@ WHERE Class = 'UNITCLASS_ARCHAEOLOGIST';
 INSERT INTO Belief_GreatWorkYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_UNITY_OF_PROPHETS', 'YIELD_CULTURE', 2);
+	('BELIEF_UNITY_OF_PROPHETS', 'YIELD_CULTURE', 3);
 
 -- Sacred Sites
 UPDATE Beliefs SET FaithBuildingTourism = 3 WHERE Type = 'BELIEF_SACRED_SITES';

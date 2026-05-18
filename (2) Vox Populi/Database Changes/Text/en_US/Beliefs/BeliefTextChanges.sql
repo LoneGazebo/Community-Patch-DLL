@@ -490,7 +490,7 @@ SET Text = 'Inspired Works'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Landmarks and Great Person Improvements produce +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science. [ICON_GREAT_WORK] Great Works produce +2 [ICON_CULTURE] Culture. Can purchase Archaeologists with [ICON_PEACE] Faith.'
+SET Text = 'Landmarks and Great Person Improvements produce +2 [ICON_PEACE] Faith and +3 [ICON_RESEARCH] Science. [ICON_GREAT_WORK] Great Works produce +3 [ICON_CULTURE] Culture. Can purchase Archaeologists with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS';
 
 -- Sacred Sites
