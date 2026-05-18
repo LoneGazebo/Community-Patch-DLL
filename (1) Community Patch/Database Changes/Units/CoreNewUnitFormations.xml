@@ -13,6 +13,18 @@
 			<Type>MUFORMATION_CARRIER_ESCORT</Type>
 			<Name>Carrier Strike Group</Name>
 		</Row>
+		<Row>
+			<Type>MUFORMATION_BUILDER_ESCORT_OPTIONAL</Type>
+			<Name>Civilian Escort (optional)</Name>
+		</Row>
+		<Row>
+			<Type>MUFORMATION_BUILDER_ESCORT_MANDATORY</Type>
+			<Name>Civilian Escort (mandatory)</Name>
+		</Row>
+		<Row>
+			<Type>MUFORMATION_BUILDER_ESCORT_NAVAL</Type>
+			<Name>Naval Civilian Escort</Name>
+		</Row>
 	</MultiUnitFormations>
 	<!-- Delete everything and reinsert -->
 	<MultiUnitFormation_SlotEntries>
@@ -1060,6 +1072,50 @@
 			<PrimaryUnitType>UNITAI_ADMIRAL</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_ADMIRAL</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+		</Row>
+		<!-- Builder Escort (escort optional) -->
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BUILDER_ESCORT_OPTIONAL</MultiUnitFormationType>
+			<PrimaryUnitType>NO_UNITAI</PrimaryUnitType>
+			<SecondaryUnitType>NO_UNITAI</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BUILDER_ESCORT_OPTIONAL</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_DEFENSE</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+		</Row>
+		<!-- Builder Escort (escort mandatory) -->
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BUILDER_ESCORT_MANDATORY</MultiUnitFormationType>
+			<PrimaryUnitType>NO_UNITAI</PrimaryUnitType>
+			<SecondaryUnitType>NO_UNITAI</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BUILDER_ESCORT_MANDATORY</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_DEFENSE</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<!-- Naval Builder Escort (escort optional) -->
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BUILDER_ESCORT_NAVAL</MultiUnitFormationType>
+			<PrimaryUnitType>NO_UNITAI</PrimaryUnitType>
+			<SecondaryUnitType>NO_UNITAI</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BUILDER_ESCORT_NAVAL</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
 		</Row>
 	</MultiUnitFormation_SlotEntries>
 </GameData>

@@ -321,12 +321,22 @@ int CvArmyAI::GetFurthestUnitDistance(CvPlot* pPlot)
 	return iLargestDistance;
 }
 
+CvAIOperation* CvArmyAI::GetOperation() const
+{
+	return GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
+}
+
 // FORMATION ACCESSORS
 
 /// Retrieve index of the formation used by this army
 CvMultiUnitFormationInfo* CvArmyAI::GetFormation() const
 {
 	return m_eFormation != NO_MUFORMATION ? GC.getMultiUnitFormationInfo(m_eFormation) : NULL;
+}
+
+MultiunitFormationTypes CvArmyAI::GetFormationType() const
+{
+	return m_eFormation;
 }
 
 /// Set index of the formation used by this army
@@ -367,7 +377,7 @@ size_t CvArmyAI::GetNumSlotsFilled() const
 /// Recalculate when each unit will arrive at the current army position, whatever that is
 void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 {
-	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
+	CvAIOperation* pOperation = GetOperation();
 	if (!pOperation)
 		return;
 
@@ -394,6 +404,9 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 		}
 	}
 
+	//while moving to the destination the checkpoint is the army's center of mass, which travels with us
+	bool bCheckpointIsMoving = (m_eAIState == ARMYAISTATE_MOVING_TO_DESTINATION);
+
 	//update for all units in this army. ignore the ones still being built
 	int iGatherTolerance = pOperation->GetGatherTolerance(this, pCurrentArmyPlot);
 	for(unsigned int iI = 0; iI < m_FormationEntries.size(); iI++)
@@ -415,8 +428,8 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentArmyPlot, iFlags, pOperation->GetMaximumRecruitTurns());
 				m_FormationEntries[iI].SetCurrentTurnsToCheckpoint(iTurnsToReachCheckpoint);
 
-				//if we're already moving to target, the current army plot is moving, so we cannot check progress against ...
-				if (!m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint())
+				//if we're already moving to target, the current army plot is moving, so a flat ETA is fine
+				if (!m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint(bCheckpointIsMoving))
 				{
 					CvString strMsg;
 					strMsg.Format("Removing %s %d from army %d because no progress to checkpoint (%d:%d). ETA %d; prev %d; prev %d", 
@@ -616,7 +629,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 
 		if (GC.getLogging() && GC.getAILogging())
 		{
-			CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
+			CvAIOperation* pOperation = GetOperation();
 			if (pOperation)
 			{
 				CvString strMsg;
@@ -789,7 +802,7 @@ void CvArmyFormationSlot::ResetTurnsToCheckpoint()
 	m_estTurnsToCheckpoint.clear();
 }
 
-bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint() const
+bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint(bool bReferenceIsMoving) const
 {
 	//sometimes we get into a fight or there is a temporary block so we need some history
 	if (m_estTurnsToCheckpoint.size() < 3)
@@ -798,6 +811,15 @@ bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint() const
 	// can't get much better than this
 	if (m_estTurnsToCheckpoint.front() < 2)
 		return true;
+
+	// no path at all means stuck, no matter whether the checkpoint moves
+	if (m_estTurnsToCheckpoint.front() == INT_MAX)
+		return false;
+
+	// while the army is under way the checkpoint moves along with it, so a constant ETA means the unit
+	// is keeping pace rather than being stuck. only drop it if it is actually falling further behind.
+	if (bReferenceIsMoving)
+		return m_estTurnsToCheckpoint.front() <= m_estTurnsToCheckpoint.back();
 
 	// regular case, see if we made progress over several turns
 	if (m_estTurnsToCheckpoint.front() >= m_estTurnsToCheckpoint.back())

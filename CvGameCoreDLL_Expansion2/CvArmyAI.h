@@ -52,7 +52,8 @@ public:
 	};
 
 	void ResetTurnsToCheckpoint();
-	bool IsMakingProgressTowardsCheckpoint() const;
+	//bReferenceIsMoving must be set when the checkpoint travels with the army (ie it is the center of mass)
+	bool IsMakingProgressTowardsCheckpoint(bool bReferenceIsMoving) const;
 
 	bool IsFree() const { return m_iUnitID == -1; }
 	bool IsUsed() const { return m_iUnitID >= 0; }
@@ -129,6 +130,7 @@ public:
 	inline PlayerTypes GetOwner() const { return m_eOwner; }
 	void SetOperationID(int iID) { m_iOperationID = iID; }
 	inline int GetOperationID() const { return m_iOperationID; }
+	CvAIOperation* GetOperation() const;
 
 	// Formation accessors
 	CvMultiUnitFormationInfo* GetFormation() const;
@@ -142,6 +144,7 @@ public:
 	DomainTypes GetDomainType() const;
 	void SetType(ArmyType eType);
 	ArmyType GetType() const;
+	MultiunitFormationTypes GetFormationType() const;
 
 	void UpdateCheckpointTurnsAndRemoveBadUnits();
 	bool IsAllOceanGoing();
