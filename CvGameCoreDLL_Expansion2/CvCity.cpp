@@ -32652,10 +32652,38 @@ CvUnit* CvCity::getBestRangedStrikeTarget() const
 				//a bit redundant with the internal of canRangeStrikeAt but that's life
 				CvUnit* pTarget = rangedStrikeTarget(pTargetPlot);
 				int iDamage = rangeCombatDamage(pTarget, false, NULL);
-				if (iDamage > iBestScore)
+				int iBonus = 0;
+				if (iDamage > 0)
 				{
-					iBestScore = iDamage;
-					pBestTarget = pTarget;
+					int iCurrHitPoints = pTarget->GetCurrHitPoints();
+
+					// It's good to kill units
+					if (iDamage >= iCurrHitPoints)
+						iBonus += 15;
+
+					// it's good to damage city bombard units
+					if (pTarget->getUnitInfo().GetDefaultUnitAIType() == UNITAI_CITY_BOMBARD)
+						iBonus += 10;
+
+					// It's generally not useful to bombard civilians
+					else if (pTarget->IsCivilianUnit())
+					{
+						if (pTarget->IsGreatGeneral() || pTarget->IsGreatAdmiral())
+						{
+							// Killing great generals and admirals is good though
+							if (iDamage >= pTarget->GetCurrHitPoints())
+								iBonus = 10;
+							else
+								iDamage = 2;
+						}
+						else
+							iDamage = 1;
+					}
+					if (iDamage + iBonus > iBestScore)
+					{
+						iBestScore = iDamage + iBonus;
+						pBestTarget = pTarget;
+					}
 				}
 			}
 		}
