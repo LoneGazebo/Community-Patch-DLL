@@ -1310,10 +1310,13 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			//be extra careful if requested but don't really abort, else we might not find a path at all
 			int iScale = bAbortInDanger ? 2 : 1;
 
+			if (bAbortInDanger && iPlotDanger * 2 > pUnit->GetCurrHitPoints() * 3 && iTurnsInFuture < 2)
+				return -1; // is there ever a good reason to allow this?
+
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
 			//GetDanger returns MAX_INT for "fatal" plots (city about to fall, etc) - handle without overflow
-			int iScaledDanger = (iPlotDanger >= INT_MAX / 2) ? INT_MAX : iPlotDanger * iScale;
+			int iScaledDanger = (iPlotDanger >= INT_MAX / 2 && iScale > 1) ? INT_MAX : iPlotDanger * iScale;
 			if (iScaledDanger >= pUnit->GetCurrHitPoints()*3)
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
 			else if (iScaledDanger >= pUnit->GetCurrHitPoints())
