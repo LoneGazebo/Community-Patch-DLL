@@ -1,6 +1,5 @@
--- Reset these values to avoid carryover from the Community Patch / base game
+-- Reset these values to avoid carryover from the Community Patch
 UPDATE Leaders SET PrimaryVictoryPursuit = NULL, SecondaryVictoryPursuit = NULL;
-UPDATE Leader_MinorCivApproachBiases SET Bias = -1 WHERE MinorCivApproachType = 'MINOR_CIV_APPROACH_FRIENDLY';
 DELETE FROM Leader_MajorCivApproachBiases;
 DELETE FROM Leader_MinorCivApproachBiases WHERE MinorCivApproachType <> 'MINOR_CIV_APPROACH_FRIENDLY';
 
