@@ -838,12 +838,20 @@ SET
 	EmpireSizeModifierReduction = -5
 WHERE BuildingClass = 'BUILDINGCLASS_CASTLE';
 
-INSERT INTO Building_ImprovementYieldChanges
-	(BuildingType, ImprovementType, YieldType, Yield)
+INSERT INTO Helper
+	(BuildingClassType)
+VALUES
+	('BUILDINGCLASS_JAIL'),
+	('BUILDINGCLASS_CONSTABLE');
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
 SELECT
-	Type, 'IMPROVEMENT_QUARRY', 'YIELD_PRODUCTION', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_CASTLE';
+	a.Type, b.BuildingClassType, 'YIELD_TOURISM', 1
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_CASTLE';
+
+DELETE FROM Helper;
 
 -- Bastion Fort
 
@@ -1183,6 +1191,28 @@ WHERE BuildingClass = 'BUILDINGCLASS_STADIUM';
 -- Espionage line
 ----------------------------------------------------------------------------
 
+-- Jail
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_PRODUCTION', 2
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
+
+INSERT INTO Building_ImprovementYieldChanges
+	(BuildingType, ImprovementType, YieldType, Yield)
+SELECT
+	Type, 'IMPROVEMENT_QUARRY', 'YIELD_PRODUCTION', 2
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_CULTURE_LOCAL', 25
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
+
 -- Constabulary
 UPDATE Buildings
 SET
@@ -1190,6 +1220,13 @@ SET
 	SpySecurityModifier = 20,
 	SpySecurityModifierPerXPop = 180, -- ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = 360, so 180/360 gives 1 per 2 population in city
 	DistressFlatReduction = 1
+WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_PRODUCTION', 50
+FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 
 -- Police Station
@@ -2380,6 +2417,7 @@ VALUES
 	('BUILDINGCLASS_WORKSHOP', 'BUILDINGCLASS_FORGE'),
 	('BUILDINGCLASS_FACTORY', 'BUILDINGCLASS_WORKSHOP'),
 	('BUILDINGCLASS_SPACESHIP_FACTORY', 'BUILDINGCLASS_FACTORY'),
+	('BUILDINGCLASS_CONSTABLE', 'BUILDINGCLASS_JAIL'),
 	('BUILDINGCLASS_POLICE_STATION', 'BUILDINGCLASS_CONSTABLE'),
 	('BUILDINGCLASS_HARBOR', 'BUILDINGCLASS_LIGHTHOUSE'),
 	('BUILDINGCLASS_SEAPORT', 'BUILDINGCLASS_HARBOR'),

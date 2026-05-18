@@ -325,7 +325,7 @@ SET Text = 'Security Level'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL';
 
 UPDATE Language_en_US
-SET Text = 'Security Level reflects the difficulty of espionage in a city. The higher the value, the more time it will take for foreign spies to complete spy missions. To increase Security in a city, you can build espionage buildings, such as the Constabulary and the Police Station.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
+SET Text = 'Security Level reflects the difficulty of espionage in a city. The higher the value, the more time it will take for foreign spies to complete spy missions. To increase Security in a city, you can build espionage buildings, such as the Jail and the Constabulary.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL_SORT_TT';
 
 UPDATE Language_en_US

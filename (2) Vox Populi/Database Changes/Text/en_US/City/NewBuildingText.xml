@@ -194,6 +194,19 @@
 			<Text>An interpretive center is an institution for public education about a nearby cultural, historic, or natural sites. Unlike museums, interpretive centers rarely contain artifacts or collections, but mainly exist to give visitors background information for understanding the history or relevance of something on the landscape. Because preservation and protection is not part of an interpretive center's job, they can often be more interactive and make better use of modern media than traditional museums.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_JAIL">
+			<Text>Jail</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_JAIL_STRATEGY">
+			<Text>The Jail is the earliest Building that interacts with Spies. Both offensively and defensively the Jail improves your edge in the espionage game. While Jails offer a small baseline [ICON_PRODUCTION] Production boost that gradually offsets their initial construction cost, they are exceptionally valuable in cities with active Quarries, where they grant direct, significant yield improvements to those specific tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_JAIL_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_JAIL_TEXT">
+			<Text>A jail refers to a location where people charged with crimes may be imprisoned until their trial or simply held for a brief time for public safety. Imprisonment as a penalty was used initially for those who could not afford to pay their fines. Eventually, since impoverished Athenians could not pay their fines, leading to indefinite periods of imprisonment, time limits were set instead. The prison in ancient Athens was known as the desmoterion ("place of chains"). The Romans were among the first to use prisons as a form of punishment rather than simply for detention. A variety of existing structures were used to house prisoners, such as metal cages, basements of public buildings, and quarries. Generally speaking, longer-term or indefinite detention was not brought into the mainstream as a punitive measure until much later, mostly owing to the large logistical overhead of managing such sites and the existence of the institution of slavery. Today, locations that hold people for shorter periods of time are usually operated by a local government.</Text>
+		</Row>
+
 		<!-- Hospital -->
 		<Row Tag="TXT_KEY_BUILDING_HOSPITAL_HELP">
 			<Text></Text>

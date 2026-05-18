@@ -125,10 +125,11 @@ VALUES
 	('TECH_ENGINEERING', 'FLAVOR_INFRASTRUCTURE', 10),
 	('TECH_ENGINEERING', 'FLAVOR_WONDER', 10),
 
-	('TECH_METAL_CASTING', 'FLAVOR_PRODUCTION', 15), -- Buildings: Baths, CircusMaximus, Improvement: LumberMill, Yields: Manufactory +3 Prod
+	('TECH_METAL_CASTING', 'FLAVOR_PRODUCTION', 15), -- Buildings: Baths, Jail, CircusMaximus, Improvement: LumberMill, Yields: Manufactory +3 Prod
 	('TECH_METAL_CASTING', 'FLAVOR_GOLD', 15),
 	('TECH_METAL_CASTING', 'FLAVOR_CULTURE', 10),
 	('TECH_METAL_CASTING', 'FLAVOR_TILE_IMPROVEMENT', 15),
+	('TECH_METAL_CASTING', 'FLAVOR_ESPIONAGE', 10),
 
 	---------------------------------------------------------
 

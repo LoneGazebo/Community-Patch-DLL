@@ -134,6 +134,12 @@
 			<DefaultBuilding>BUILDING_WIRE_SERVICE</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_WIRE_SERVICE</Description>
 		</Row>
+		<!-- Jail -->
+		<Row>
+			<Type>BUILDINGCLASS_JAIL</Type>
+			<DefaultBuilding>BUILDING_JAIL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_JAIL</Description>
+		</Row>
 		<!-- Wat -->
 		<Row>
 			<Type>BUILDINGCLASS_WAT</Type>
@@ -797,6 +803,19 @@
 			<TrainedFreePromotion>PROMOTION_WIRE_SERVICE</TrainedFreePromotion>
 			<IconAtlas>TECH_ATLAS_1</IconAtlas>
 			<PortraitIndex>51</PortraitIndex>
+		</Row>
+		<!-- Jail -->
+		<Row>
+			<Type>BUILDING_JAIL</Type>
+			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
+			<Description>TXT_KEY_BUILDING_JAIL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_JAIL_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_JAIL_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_JAIL_STRATEGY</Strategy>
+			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+			<SpySecurityModifier>20</SpySecurityModifier>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>20</PortraitIndex>
 		</Row>
 		<!-- Shopping Mall -->
 		<Row>
