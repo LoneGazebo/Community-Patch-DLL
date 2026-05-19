@@ -207,6 +207,19 @@
 			<Text>A jail refers to a location where people charged with crimes may be imprisoned until their trial or simply held for a brief time for public safety. Imprisonment as a penalty was used initially for those who could not afford to pay their fines. Eventually, since impoverished Athenians could not pay their fines, leading to indefinite periods of imprisonment, time limits were set instead. The prison in ancient Athens was known as the desmoterion ("place of chains"). The Romans were among the first to use prisons as a form of punishment rather than simply for detention. A variety of existing structures were used to house prisoners, such as metal cages, basements of public buildings, and quarries. Generally speaking, longer-term or indefinite detention was not brought into the mainstream as a punitive measure until much later, mostly owing to the large logistical overhead of managing such sites and the existence of the institution of slavery. Today, locations that hold people for shorter periods of time are usually operated by a local government.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY">
+			<Text>Penitentiary</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY_STRATEGY">
+			<Text>Penitentiaries support the development of new Cities by allowing you to use Spy Missions to generate [ICON_FOOD] Food and [ICON_CULTURE_LOCAL] Border Growth. They also benefit large, established Cities by making them less susceptible to Spies, while providing a boost to Military Supply. Furthermore, the Penitentiary adds [ICON_PRODUCTION] Production to Tundra tiles to transform frozen terrain into productive zones that can match or even outperform Grassland and Plains.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY_TEXT">
+			<Text>A penitentiary or prison is a facility where people are imprisoned against their will and denied their liberty under the authority of the state, generally as punishment for various crimes. From the late 17th century and throughout the 18th century, popular resistance to public execution and torture became more widespread both in Europe and in the United States. Imposition of the death penalty for petty crimes, such as theft, was proving increasingly unpopular with the public; many jurors were refusing to convict defendants of minor offenses when they knew the conviction would result in a death sentence. Rulers began looking for means to punish and control their subjects in a way that did not cause people to associate them with spectacles of tyrannical and sadistic violence, developing systems of mass incarceration, often with hard labor, as a solution. Prisons can also be used as a tool of political repression by authoritarian regimes that detain perceived opponents for political crimes, often without a fair trial or due process; this use is illegal under most forms of international law governing fair administration of justice.</Text>
+		</Row>
+
 		<!-- Hospital -->
 		<Row Tag="TXT_KEY_BUILDING_HOSPITAL_HELP">
 			<Text></Text>

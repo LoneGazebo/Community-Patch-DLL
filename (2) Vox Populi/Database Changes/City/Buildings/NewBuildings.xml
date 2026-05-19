@@ -140,6 +140,12 @@
 			<DefaultBuilding>BUILDING_JAIL</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_JAIL</Description>
 		</Row>
+		<!-- Penitentiary -->
+		<Row>
+			<Type>BUILDINGCLASS_PENITENTIARY</Type>
+			<DefaultBuilding>BUILDING_PENITENTIARY</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_PENITENTIARY</Description>
+		</Row>
 		<!-- Wat -->
 		<Row>
 			<Type>BUILDINGCLASS_WAT</Type>
@@ -756,7 +762,7 @@
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<CityIndirectFire>true</CityIndirectFire>
 			<RangedStrikeModifier>10</RangedStrikeModifier>
-			<CitySupplyModifier>10</CitySupplyModifier>
+			<CitySupplyModifier>5</CitySupplyModifier>
 			<HealRateChange>5</HealRateChange>
 			<EmpireSizeModifierReduction>-5</EmpireSizeModifierReduction>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
@@ -816,6 +822,20 @@
 			<SpySecurityModifier>20</SpySecurityModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>20</PortraitIndex>
+		</Row>
+		<!-- Penitentiary -->
+		<Row>
+			<Type>BUILDING_PENITENTIARY</Type>
+			<BuildingClass>BUILDINGCLASS_PENITENTIARY</BuildingClass>
+			<Description>TXT_KEY_BUILDING_PENITENTIARY</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PENITENTIARY_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_PENITENTIARY_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_PENITENTIARY_STRATEGY</Strategy>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<CitySupplyModifier>5</CitySupplyModifier>
+			<SpySecurityModifier>15</SpySecurityModifier>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>21</PortraitIndex>
 		</Row>
 		<!-- Shopping Mall -->
 		<Row>

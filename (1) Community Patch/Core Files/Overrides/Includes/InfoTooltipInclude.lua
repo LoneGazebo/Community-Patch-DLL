@@ -2192,7 +2192,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- City security
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_SECURITY", kBuildingInfo.SpySecurityModifier);
 	AddTooltipGlobalNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_SECURITY", kBuildingInfo.GlobalSpySecurityModifier);
-	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_SECURITY_PER_X_POPULATION", kBuildingInfo.SpySecurityModifierPerXPop / ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER);
+	if kBuildingInfo.SpySecurityModifierPerXPop ~= 0 then
+		AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_SECURITY_PER_X_POPULATION", ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER / kBuildingInfo.SpySecurityModifierPerXPop);
+	end
 
 	-- City strike strength
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_CITY_STRIKE_STRENGTH_MODIFIER", kBuildingInfo.RangedStrikeModifier);
