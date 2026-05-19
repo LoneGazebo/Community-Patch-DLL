@@ -212,6 +212,16 @@ UPDATE Language_en_US
 SET Text = 'Build the Stadium if you are going for a [COLOR_POSITIVE_TEXT]Culture Victory[ENDCOLOR]. Increases your influence with all City-States by 20 when completed. Coordinate the construction of Stadiums across your empire for a global boost in diplomatic relations.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_STRATEGY';
 
+-- Constabulary
+UPDATE Language_en_US
+SET Text = 'The Constabulary is a defensive Building that enhances City Security and mitigates the Security penalty from Population. It also improves local Happiness by reducing Unhappiness from Distress.'
+WHERE Tag = 'TXT_KEY_BUILDING_CONSTABLE_STRATEGY';
+
+-- Police Station
+UPDATE Language_en_US
+SET Text = 'The Police Station provides flat City Security to significantly slow down enemy Spy operations in your urban centers. Combined with the Population-scaling Security from the Constabulary, the Police Station mostly neutralizes the inherent espionage vulnerability that Cities naturally suffer as they grow. Meanwhile, it acts as an unmatched tool for Happiness management by universally reducing Unhappiness from Distress, Poverty, Illiteracy, and Boredom all at once.'
+WHERE Tag = 'TXT_KEY_BUILDING_POLICE_STATION_STRATEGY';
+
 -- Monastery
 UPDATE Language_en_US
 SET Text = 'Monasteries increase [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science output. Can only be built if you have adopted the Fealty Policy Branch. Construct this building by purchasing it with [ICON_PEACE] Faith.'
