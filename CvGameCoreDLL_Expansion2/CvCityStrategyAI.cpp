@@ -5214,7 +5214,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		iValue += pkBuildingInfo->GetFoodKept() * pCity->getPopulation();
 	}
 	// NoStarvation is not as good as MinimumFood, but there is large overlap to consider
-	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist() && pCity->GetMinimumFood() <= 0))
+	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist() && pCity->GetMinimumFood() <= 0)
 	{
 		iValue += 10 * pCity->getPopulation();
 		if (pCity->getYieldRateTimes100(YIELD_FOOD) < 0)
