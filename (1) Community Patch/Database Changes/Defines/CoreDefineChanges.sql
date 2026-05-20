@@ -1004,8 +1004,8 @@ VALUES
 -- Unhappiness Need Modifiers (modify the median value)
 	('CAPITAL_NEED_MODIFIER', 25), -- +x% Needs in the capital. Offsets boost from Palace, helps make Capital a source of Unhappiness early on.
 	('TECH_NEED_MODIFIER_PERCENT_RESEARCHED', 0), -- Modifier to needs equal to % of techs researched, multiplied by this value and then divided by 100. Disabled by default.
-	('TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN', 0), -- Modifier to needs for each tech ahead of the median # of techs researched you are. Disabled by default. 100 = 1%.
-	('TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN', 0), -- Modifier to needs for each tech behind the median # of techs researched you are. Disabled by default. -100 = -1%.
+	('TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN', 100), -- Modifier to needs for each tech ahead of the median # of techs researched you are. Disabled by default. 100 = 1%.
+	('TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN', -200), -- Modifier to needs for each tech behind the median # of techs researched you are. Disabled by default. -100 = -1%.
 	('CITY_SIZE_NEED_MODIFIER', 0), -- Modifier to needs per citizen in the city. Disabled by default. -100 = -1%.
 	('EMPIRE_SIZE_NEED_MODIFIER_CITIES', 500), -- Modifier to needs per non-puppet city in the empire, excluding the capital. Scales with map size. Default is 500 (+5%). Does not support negative values.
 	('EMPIRE_SIZE_NEED_MODIFIER_POP', 125), --  Modifier to needs per citizen in the empire, excluding those in puppet cities. Scales with map size. Default is 125 (+1% per 8 citizens). Does not support negative values.

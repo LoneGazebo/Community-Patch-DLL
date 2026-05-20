@@ -30938,12 +30938,12 @@ int CvPlayer::GetTechNeedModifier() const
 	int iTechDifference = iOurTech - GC.getGame().GetMedianTechsResearched();
 	if (iTechDifference > 0)
 	{
-		iTechDifference *= /*0*/ GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN);
+		iTechDifference *= /*100*/ GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN);
 		iTechDifference /= 100;
 	}
 	else if (iTechDifference < 0)
 	{
-		iTechDifference *= /*0*/ -GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN);
+		iTechDifference *= /*200*/ -GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN);
 		iTechDifference /= 100;
 	}
 
