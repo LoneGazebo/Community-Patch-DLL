@@ -146,6 +146,12 @@
 			<DefaultBuilding>BUILDING_PENITENTIARY</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_PENITENTIARY</Description>
 		</Row>
+		<!-- Sorting Office -->
+		<Row>
+			<Type>BUILDINGCLASS_SORTING_OFFICE</Type>
+			<DefaultBuilding>BUILDING_SORTING_OFFICE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_SORTING_OFFICE</Description>
+		</Row>
 		<!-- Casino -->
 		<Row>
 			<Type>BUILDINGCLASS_CASINO</Type>
@@ -844,6 +850,22 @@
 			<SpySecurityModifier>15</SpySecurityModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>21</PortraitIndex>
+		</Row>
+		<!-- Sorting Office -->
+		<Row>
+			<Type>BUILDING_SORTING_OFFICE</Type>
+			<BuildingClass>BUILDINGCLASS_SORTING_OFFICE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_SORTING_OFFICE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_SORTING_OFFICE_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_SORTING_OFFICE_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_SORTING_OFFICE_STRATEGY</Strategy>
+			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+			<RequiresIndustrialCityConnection>true</RequiresIndustrialCityConnection>
+			<TradeRouteRecipientBonus>3</TradeRouteRecipientBonus>
+			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
+			<SpySecurityModifier>10</SpySecurityModifier>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>22</PortraitIndex>
 		</Row>
 		<!-- Casino -->
 		<Row>

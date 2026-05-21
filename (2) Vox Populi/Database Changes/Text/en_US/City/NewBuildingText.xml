@@ -220,6 +220,19 @@
 			<Text>A penitentiary or prison is a facility where people are imprisoned against their will and denied their liberty under the authority of the state, generally as punishment for various crimes. From the late 17th century and throughout the 18th century, popular resistance to public execution and torture became more widespread both in Europe and in the United States. Imposition of the death penalty for petty crimes, such as theft, was proving increasingly unpopular with the public; many jurors were refusing to convict defendants of minor offenses when they knew the conviction would result in a death sentence. Rulers began looking for means to punish and control their subjects in a way that did not cause people to associate them with spectacles of tyrannical and sadistic violence, developing systems of mass incarceration, often with hard labor, as a solution. Prisons can also be used as a tool of political repression by authoritarian regimes that detain perceived opponents for political crimes, often without a fair trial or due process; this use is illegal under most forms of international law governing fair administration of justice.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_SORTING_OFFICE">
+			<Text>Sorting Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SORTING_OFFICE_STRATEGY">
+			<Text>The Sorting Office continues the building line that began with the Market, increasing the desirability of your City to foreign Trade Routes. To your trade hubs, this Building offers yields on all City Connection tiles alongside a City Security boost to offset the vulnerability penalty of hosting Trade Routes. Carefully consider if a particular City stands to gain from a Sorting Office, as you may not need them everywhere immediately.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SORTING_OFFICE_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SORTING_OFFICE_TEXT">
+			<Text>A sorting office, mail center, or processing and distribution center is any location where postal operators bring mail after collection to be sorted into batches for delivery to the addressee. This process may involve a direct delivery, or the mail may be sent onward to another regional or local sorting office, or to a different postal administration. For example, in the UK, Royal Mail operates a network of 37 mail centres (as of 2019). Each mail centre serves a large, geographically defined area, and together they form the backbone network of the mail distribution operation.[NEWLINE][NEWLINE]Most buildings feature a large central area known as a sorting or postal hall. Integrated facilities combining mail processing with railroad stations or airports are further known as mail exchanges. Due to their position as a key network point in the distribution of letters, packages, and other documents, special postal censorship bureaus can exist within sorting offices to intercept and censor mail. In France, such offices were historically known as cabinets noirs.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_BUILDING_CASINO">
 			<Text>Casino</Text>
 		</Row>
