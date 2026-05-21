@@ -28,6 +28,7 @@ SET
 			)
 		)
 	),
+	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_CAVALRY') + 1,
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CAVALRY') + 2,
 	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CAVALRY') + 5
 WHERE Type = 'UNIT_BERBER_CAVALRY';
