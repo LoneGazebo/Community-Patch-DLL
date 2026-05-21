@@ -23014,12 +23014,13 @@ void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(PlayerTypes e
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFriendFlatBonusTimes100(GetID(), eYield, eEra, true);
 			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldAllyFlatBonusTimes100(GetID(), eYield, eEra, true);
 			iBonus *= iSign;
 	
 			//update if necessary
 			//bonus yields are tracked on city level
-			getCapitalCity()->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iBonus);
+			getCapitalCity()->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iBonus);  // all recorded under ally
 			m_piYieldInCapitalFromAnnexedMinorsTimes100[eYield] += iBonus;
 		}
 	}
@@ -23045,6 +23046,7 @@ void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(PlayerTyp
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFriendFlatBonusTimes100(GetID(), eYield, eEra, false);
 			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldAllyFlatBonusTimes100(GetID(), eYield, eEra, false);
 			iBonus *= iSign;
 	
@@ -23077,11 +23079,14 @@ void CvPlayer::ChangeYieldPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, in
 		const CvMinorCivAI* kMinor = GET_PLAYER(eMinor).GetMinorCivAI();
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
+			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 		
-			int iBonus = kMinor->GetYieldAllyFlatBonusTimes100(GetID(), eYield, eEra);
+			iBonus += kMinor->GetYieldFriendFlatBonusTimes100(GetID(), eYield, eEra);
+			iBonus += kMinor->GetYieldAllyFlatBonusTimes100(GetID(), eYield, eEra);
+			iBonus *= iSign;
 		
-			m_piYieldPerTurnFromAnnexedMinorsTimes100[eYield] += iBonus * iSign;
+			m_piYieldPerTurnFromAnnexedMinorsTimes100[eYield] += iBonus;
 		}
 	}
 }
