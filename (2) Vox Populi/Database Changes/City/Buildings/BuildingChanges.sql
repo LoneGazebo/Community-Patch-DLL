@@ -676,7 +676,8 @@ VALUES
 
 INSERT INTO Building_BuildingClassLocalYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT a.Type, b.BuildingClassType, 'YIELD_GOLD', 3
+SELECT
+	a.Type, b.BuildingClassType, 'YIELD_GOLD', 3
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_BANK';
 
@@ -701,11 +702,33 @@ VALUES
 
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT a.Type, b.BuildingClassType, b.YieldType, b.Yield
+SELECT
+	a.Type, b.BuildingClassType, b.YieldType, b.Yield
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_BANK';
 
 DELETE FROM Helper;
+
+-- Sorting Office
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_TOURISM', 2
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_SORTING_OFFICE';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_CULTURE'),
+	('YIELD_TOURISM');
+
+INSERT INTO Building_CityConnectionPlotYieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, 1
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_SORTING_OFFICE';
 
 -- Stock Exchange
 UPDATE Buildings
@@ -741,11 +764,19 @@ VALUES
 
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
-SELECT a.Type, b.ImprovementType, 'YIELD_GOLD', 2
+SELECT
+	a.Type, b.ImprovementType, 'YIELD_GOLD', 2
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_STOCK_EXCHANGE';
 
 DELETE FROM Helper;
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	Type, 'BUILDINGCLASS_SORTING_OFFICE', 'YIELD_GOLD', 5
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_STOCK_EXCHANGE';
 
 ----------------------------------------------------------------------------
 -- Military line
@@ -2481,6 +2512,7 @@ VALUES
 	('BUILDINGCLASS_LABORATORY', 'BUILDINGCLASS_PUBLIC_SCHOOL'),
 	('BUILDINGCLASS_CARAVANSARY', 'BUILDINGCLASS_MARKET'),
 	('BUILDINGCLASS_MINT', 'BUILDINGCLASS_MARKET'),
+	('BUILDINGCLASS_SORTING_OFFICE', 'BUILDINGCLASS_MINT'),
 	('BUILDINGCLASS_BANK', 'BUILDINGCLASS_MARKET'),
 	('BUILDINGCLASS_STOCK_EXCHANGE', 'BUILDINGCLASS_BANK'),
 	('BUILDINGCLASS_ARMORY', 'BUILDINGCLASS_BARRACKS'),
