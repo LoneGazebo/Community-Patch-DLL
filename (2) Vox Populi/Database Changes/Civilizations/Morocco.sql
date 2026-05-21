@@ -3,8 +3,7 @@
 ----------------------------------------------------------
 UPDATE Traits
 SET
-	NoTradeRouteProximityPenalty = 1,
-	CanPlunderWithoutWar = 1
+	NoTradeRouteProximityPenalty = 1
 WHERE Type = 'TRAIT_GATEWAY_AFRICA';
 
 DELETE FROM Trait_YieldChangesPerTradePartner WHERE TraitType = 'TRAIT_GATEWAY_AFRICA';
@@ -13,7 +12,7 @@ DELETE FROM Trait_YieldChangesIncomingTradeRoute WHERE TraitType = 'TRAIT_GATEWA
 INSERT INTO Trait_YieldChangesPerTradePartner
 	(TraitType, YieldType, Yield)
 SELECT
-	'TRAIT_GATEWAY_AFRICA', Type, 1
+	'TRAIT_GATEWAY_AFRICA', Type, 2
 FROM Yields
 WHERE ID < 6; -- "All" yields
 
@@ -30,7 +29,7 @@ SET
 		)
 	),
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CAVALRY') + 2,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CAVALRY') + 3
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CAVALRY') + 5
 WHERE Type = 'UNIT_BERBER_CAVALRY';
 
 INSERT INTO Unit_FreePromotions
@@ -68,7 +67,8 @@ WHERE Type = 'UNIT_CORSAIR';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_CORSAIR', 'PROMOTION_RAZZIA');
+	('UNIT_CORSAIR', 'PROMOTION_RAZZIA'),
+	('UNIT_CORSAIR', 'PROMOTION_NAVIGATOR_1');
 
 ----------------------------------------------------------
 -- Unique Improvement: Kasbah
@@ -129,17 +129,11 @@ UPDATE Buildings
 SET LandmarksTourismPercent = (SELECT LandmarksTourismPercent FROM Buildings WHERE Type = 'BUILDING_HOTEL') * 133 / 100
 WHERE Type = 'BUILDING_RIAD';
 
-INSERT INTO Building_YieldChangesEraScalingTimes100
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_RIAD', 'YIELD_GOLD', 100),
-	('BUILDING_RIAD', 'YIELD_CULTURE', 100);
-
 INSERT INTO Building_YieldChangesPerXBuilding
 	(BuildingType, YieldType, Yield, NumRequired)
 VALUES
-	('BUILDING_RIAD', 'YIELD_GOLD', 1, 8),
-	('BUILDING_RIAD', 'YIELD_CULTURE', 1, 8);
+	('BUILDING_RIAD', 'YIELD_GOLD', 1, 3),
+	('BUILDING_RIAD', 'YIELD_CULTURE', 1, 3);
 
 INSERT INTO Building_YieldFromPurchase
 	(BuildingType, YieldType, Yield)

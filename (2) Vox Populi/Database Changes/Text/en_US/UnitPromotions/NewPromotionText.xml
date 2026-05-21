@@ -1244,7 +1244,7 @@
 			<Text>Razzia</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAZZIA_HELP">
-			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City.[NEWLINE]Gain 100 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City when [ICON_RAZING] Pillaging Improvements.[NEWLINE]Gain 200 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
+			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLD] Gold and [ICON_PRODUCTION] Production in this unit's origin City.[NEWLINE]Gain 100 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production in this unit's origin City when [ICON_RAZING] Pillaging Improvements.[NEWLINE]Gain 400 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production in this unit's origin City when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BURGHER">
