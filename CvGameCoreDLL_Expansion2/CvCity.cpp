@@ -28877,10 +28877,10 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 	//this method should only be called once per city on its first turn or when the capital moves ...
 
 	int iSign = bRemove ? -1 : +1;
-
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	
 	if (isCapital())
 	{
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
 		int iNumAllies = kPlayer.GetNumCSAllies();
 		int iNumFriends = kPlayer.GetNumCSFriends();
 		if (iNumAllies > 0 || iNumFriends > 0)
@@ -28895,6 +28895,21 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 		}
 	}
 
+	// Rome UA
+	if (kPlayer.GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			int iAnnexedYields += isCapital() ? kPlayer.GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(eYield) : kPlayer.GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(eYield);
+			if (iAnnexedYields != 0)
+			{
+				ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iBonus);
+				//CUSTOMLOG("adjusted %s in %s by %d/100 for annexation, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iAnnexedYields, GetBaseYieldRateFromCSAlliance(eYield));
+			}
+		}
+	}
+	
 	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eCityOwner = (PlayerTypes)getOwner();
