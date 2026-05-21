@@ -28895,7 +28895,7 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 		}
 	}
 
-	// Rome UA
+	// Annexed CS
 	if (kPlayer.GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 	{
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
