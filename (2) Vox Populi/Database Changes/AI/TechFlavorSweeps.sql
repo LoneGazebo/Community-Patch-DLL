@@ -301,7 +301,8 @@ VALUES
 	('TECH_BIOLOGY', 'FLAVOR_GROWTH', 15),
 	('TECH_BIOLOGY', 'FLAVOR_WONDER', 5),
 
-	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 15), -- Buildings: StockExchange, Wonders: EmpireState, Ability: +1 TR
+	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 30), -- Buildings: StockExchange, Casino, Wonders: EmpireState, Ability: +1 TR
+	('TECH_ELECTRICITY', 'FLAVOR_ESPIONAGE', 10),
 	('TECH_ELECTRICITY', 'FLAVOR_WONDER', 10),
 
 	('TECH_CORPORATIONS', 'FLAVOR_GOLD', 30), -- Buildings: Corporations // Not changing this, it's supposed to be rushed I guess
