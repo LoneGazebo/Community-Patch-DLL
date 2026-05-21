@@ -28901,10 +28901,10 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes)iI;
-			int iAnnexedYields += isCapital() ? kPlayer.GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(eYield) : kPlayer.GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(eYield);
+			int iAnnexedYields = isCapital() ? kPlayer.GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(eYield) : kPlayer.GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(eYield);
 			if (iAnnexedYields != 0)
 			{
-				ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iBonus);
+				ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iAnnexedYields);
 				//CUSTOMLOG("adjusted %s in %s by %d/100 for annexation, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iAnnexedYields, GetBaseYieldRateFromCSAlliance(eYield));
 			}
 		}
