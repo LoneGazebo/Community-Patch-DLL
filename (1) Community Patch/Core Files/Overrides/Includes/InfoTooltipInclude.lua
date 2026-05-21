@@ -1322,7 +1322,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 		-- Policy requirement
 		if kUnitInfo.PolicyType then
 			-- Don't display dummy policies
-			if kUnitInfo.PolicyType.IsDummy == false then
+			if GameInfo.Policies[kUnitInfo.PolicyType].IsDummy == false then
 				-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
 				local bOpenerOrFinisher = false;
 				for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
@@ -3323,7 +3323,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		-- Policy requirement
 		if kBuildingInfo.PolicyType then
 			-- Don't display dummy policies
-			if kBuildingInfo.PolicyType.IsDummy == false then
+			if GameInfo.Policies[kBuildingInfo.PolicyType].IsDummy == false then
 				-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
 				local bOpenerOrFinisher = false;
 				for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
