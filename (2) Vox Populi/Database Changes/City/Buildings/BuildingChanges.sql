@@ -1076,7 +1076,7 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_MINEFIELD';
 
 ----------------------------------------------------------------------------
--- Instant yield line (which starts at Arena)
+-- Entertainment line
 ----------------------------------------------------------------------------
 
 -- Arena
@@ -1166,6 +1166,51 @@ SELECT
 	a.Type, b.FeatureType, b.YieldType, 1
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_THEATRE';
+
+DELETE FROM Helper;
+
+-- Casino
+INSERT INTO Building_TerrainYieldChanges
+	(BuildingType, TerrainType, YieldType, Yield)
+SELECT
+	Type, 'TERRAIN_DESERT', 'YIELD_GOLD', 1
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_CASINO';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_GOLD'),
+	('YIELD_CULTURE');
+
+INSERT INTO Building_FeatureYieldChanges
+	(BuildingType, FeatureType, YieldType, Yield)
+SELECT
+	a.Type, 'FEATURE_OASIS', b.YieldType, 5
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_CASINO';
+
+DELETE FROM Helper;
+
+INSERT INTO Building_InstantYield
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_GOLD', 1000
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_CASINO';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_GOLD'),
+	('YIELD_TOURISM');
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, 50
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_CASINO';
 
 DELETE FROM Helper;
 
@@ -2454,7 +2499,8 @@ VALUES
 	('BUILDINGCLASS_SEAPORT', 'BUILDINGCLASS_HARBOR'),
 	('BUILDINGCLASS_CIRCUS', 'BUILDINGCLASS_COLOSSEUM'),
 	('BUILDINGCLASS_THEATRE', 'BUILDINGCLASS_CIRCUS'),
-	('BUILDINGCLASS_STADIUM', 'BUILDINGCLASS_THEATRE'),
+	('BUILDINGCLASS_CASINO', 'BUILDINGCLASS_THEATRE'),
+	('BUILDINGCLASS_STADIUM', 'BUILDINGCLASS_CASINO'),
 	('BUILDINGCLASS_WIRE_SERVICE', 'BUILDINGCLASS_CHANCERY'),
 	-- National Wonders
 	('BUILDINGCLASS_NATIONAL_EPIC', 'BUILDINGCLASS_MONUMENT'),

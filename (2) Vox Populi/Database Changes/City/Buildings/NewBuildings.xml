@@ -146,6 +146,18 @@
 			<DefaultBuilding>BUILDING_PENITENTIARY</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_PENITENTIARY</Description>
 		</Row>
+		<!-- Casino -->
+		<Row>
+			<Type>BUILDINGCLASS_CASINO</Type>
+			<DefaultBuilding>BUILDING_CASINO</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CASINO</Description>
+		</Row>
+		<!-- Shopping Mall -->
+		<Row>
+			<Type>BUILDINGCLASS_SHOPPING_MALL</Type>
+			<DefaultBuilding>BUILDING_SHOPPING_MALL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_SHOPPING_MALL</Description>
+		</Row>
 		<!-- Wat -->
 		<Row>
 			<Type>BUILDINGCLASS_WAT</Type>
@@ -278,6 +290,13 @@
 			<Type>BUILDINGCLASS_CERN</Type>
 			<DefaultBuilding>BUILDING_CERN</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_CERN</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<!-- World Trade Center -->
+		<Row>
+			<Type>BUILDINGCLASS_WORLD_TRADE_CENTER</Type>
+			<DefaultBuilding>BUILDING_WORLD_TRADE_CENTER</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_WORLD_TRADE_CENTER</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
 		<!-- Smithsonian Institution -->
@@ -630,17 +649,6 @@
 			<DefaultBuilding>BUILDING_POPULI_MEDICINE_FRANCHISE</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE</Description>
 		</Row>
-		<Row>
-			<Type>BUILDINGCLASS_SHOPPING_MALL</Type>
-			<DefaultBuilding>BUILDING_SHOPPING_MALL</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_SHOPPING_MALL</Description>
-		</Row>
-		<Row>
-			<Type>BUILDINGCLASS_WORLD_TRADE_CENTER</Type>
-			<DefaultBuilding>BUILDING_WORLD_TRADE_CENTER</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_WORLD_TRADE_CENTER</Description>
-			<MaxGlobalInstances>1</MaxGlobalInstances>
-		</Row>
 	</BuildingClasses>
 	<Buildings>
 		<!-- Council -->
@@ -836,6 +844,18 @@
 			<SpySecurityModifier>15</SpySecurityModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>21</PortraitIndex>
+		</Row>
+		<!-- Casino -->
+		<Row>
+			<Type>BUILDING_CASINO</Type>
+			<BuildingClass>BUILDINGCLASS_CASINO</BuildingClass>
+			<Description>TXT_KEY_BUILDING_CASINO</Description>
+			<Civilopedia>TXT_KEY_BUILDING_CASINO_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_CASINO_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_CASINO_STRATEGY</Strategy>
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>23</PortraitIndex>
 		</Row>
 		<!-- Shopping Mall -->
 		<Row>

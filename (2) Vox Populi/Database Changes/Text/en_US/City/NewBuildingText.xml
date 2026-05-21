@@ -220,6 +220,19 @@
 			<Text>A penitentiary or prison is a facility where people are imprisoned against their will and denied their liberty under the authority of the state, generally as punishment for various crimes. From the late 17th century and throughout the 18th century, popular resistance to public execution and torture became more widespread both in Europe and in the United States. Imposition of the death penalty for petty crimes, such as theft, was proving increasingly unpopular with the public; many jurors were refusing to convict defendants of minor offenses when they knew the conviction would result in a death sentence. Rulers began looking for means to punish and control their subjects in a way that did not cause people to associate them with spectacles of tyrannical and sadistic violence, developing systems of mass incarceration, often with hard labor, as a solution. Prisons can also be used as a tool of political repression by authoritarian regimes that detain perceived opponents for political crimes, often without a fair trial or due process; this use is illegal under most forms of international law governing fair administration of justice.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_CASINO">
+			<Text>Casino</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CASINO_STRATEGY">
+			<Text>The Casino grants an immediate infusion of [ICON_GOLD] Gold upon construction to quickly fund your empire's immediate economic needs. It rewards active intelligence networks with direct injections of [ICON_GOLD] Gold and [ICON_TOURISM] Tourism whenever a Spy Mission is completed. Furthermore, it serves as a powerful tool for regional development, adding flat [ICON_GOLD] Gold to Desert tiles while heavily augmenting Oasis tiles with both [ICON_GOLD] Gold and [ICON_CULTURE] Culture to turn barren regions into highly profitable cultural centers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CASINO_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CASINO_TEXT">
+			<Text>The precise origin of gambling is unknown. It is generally believed that it has been seen in some form or another in almost every society in history. The first known European gambling house, not called a casino despite meeting the modern definition, was the Ridotto, established in Venice, Italy, in 1638 by the Great Council of Venice to provide controlled gambling during the carnival season. It was closed in 1774 as the city government felt it was impoverishing the local gentry.[NEWLINE][NEWLINE]Such locations have been famous throughout the modern era, often featuring in literature as extravagant (or even taboo) settings for tense interpersonal encounters over cards or roulette. From the concept of the house edge to the intermittent  illegality of gambling, casinos have always had a close association with crime and criminality.[NEWLINE][NEWLINE]The nature of the casino changed irreversibly in 1891 when Sittman and Pitt of Brooklyn, New York, developed the first gambling machine. These were primitive mechanical contraptions that often rewarded the player with candy to avoid anti-gambling regulations and because of the computational difficulty of assigning prizes based on rarity. Still, by the 1980s, the design had advanced considerably, with slot machine manufacturers incorporating microprocessors into their products and programming them to weight particular symbols. Thus, the odds of losing symbols appearing on the payline became disproportionate to their actual frequency on the physical reel.[NEWLINE][NEWLINE]Today, the gambling industry is worth over $100 billion, with slot machines averaging about 70% of a standard U.S. casino's income.</Text>
+		</Row>
+
 		<!-- Hospital -->
 		<Row Tag="TXT_KEY_BUILDING_HOSPITAL_HELP">
 			<Text></Text>
