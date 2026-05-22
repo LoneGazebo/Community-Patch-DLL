@@ -1194,18 +1194,18 @@ UPDATE UnitPromotions SET XPFromPillaging = 3, PillageBonusStrength = 20 WHERE T
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)
 VALUES
-	('PROMOTION_RAZZIA', 'YIELD_GOLD', 200),
-	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 200);
+	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 200),
+	('PROMOTION_RAZZIA', 'YIELD_GOLD', 200);
 INSERT INTO UnitPromotions_YieldFromPillage
 	(PromotionType, YieldType, YieldNoScale)
 VALUES
-	('PROMOTION_RAZZIA', 'YIELD_GOLD', 100),
-	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 100);
+	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 100),
+	('PROMOTION_RAZZIA', 'YIELD_GOLD', 100);
 INSERT INTO UnitPromotions_YieldFromTRPlunder
 	(PromotionType, YieldType, Yield)
 VALUES
-	('PROMOTION_RAZZIA', 'YIELD_GOLD', 400),
-	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 400);
+	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 400),
+	('PROMOTION_RAZZIA', 'YIELD_GOLD', 400);
 
 -- Goedendag: Burgher
 UPDATE UnitPromotions SET NearbyFriendlyCityCombatMod = 33, NearbyRange = 2 WHERE Type = 'PROMOTION_BURGHER';
