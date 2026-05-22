@@ -9137,11 +9137,14 @@ void CvPlot::SetImprovementPillaged(bool bPillaged, bool bEvents)
 		// Quantified Resource changes
 		if (getTeam() != NO_TEAM && getImprovementType() != NO_IMPROVEMENT)
 		{
-			if (getResourceType(getTeam()) != NO_RESOURCE)
+			static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+			static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+			ResourceTypes eRes = getResourceType(getTeam());
+			if (eRes != NO_RESOURCE && eRes != eArtifact && eRes != eHiddenArtifact)
 			{
-				if (GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
+				if (GET_TEAM(getTeam()).IsResourceImproveable(eRes))
 				{
-					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType()))
+					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(eRes))
 					{
 						if (bPillaged)
 						{
