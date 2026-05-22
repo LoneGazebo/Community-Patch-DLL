@@ -322,7 +322,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			controls.PuppetIcon:SetHide(true);
 		end
 
-		-- Rome UA (Annexed City-States)
+		-- Annexed City-States
 		controls.CityStateIcon:SetHide ( not Players[city:GetOriginalOwner()]:IsMinorCiv() or not player:IsAnnexedCityStatesGiveYields())
 		if Players[city:GetOriginalOwner()]:IsMinorCiv() and player:IsAnnexedCityStatesGiveYields() then
 			local cityOriginalOwner = Players[city:GetOriginalOwner()];

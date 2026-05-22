@@ -415,7 +415,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 		iNetGold += m_pPlayer->GetYieldPerTurnFromMinors(YIELD_GOLD) * 100;
 	}
 
-	// Annexed City-States (Rome UA)
+	// Annexed City-States
 	iNetGold += m_pPlayer->GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_GOLD);
 
 	//Espionage Events
