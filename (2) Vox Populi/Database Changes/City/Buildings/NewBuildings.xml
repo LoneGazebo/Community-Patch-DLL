@@ -263,6 +263,13 @@
 			<Description>TXT_KEY_BUILDING_SUMMER_PALACE</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
+		<!-- Port Royal -->
+		<Row>
+			<Type>BUILDINGCLASS_PORT_ROYAL</Type>
+			<DefaultBuilding>BUILDING_PORT_ROYAL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_PORT_ROYAL</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
 		<!-- Soho Foundry -->
 		<Row>
 			<Type>BUILDINGCLASS_SOHO_FOUNDRY</Type>
@@ -1876,6 +1883,23 @@
 			<WonderSplashImage>WonderSummerPalace.dds</WonderSplashImage>
 			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
 			<PortraitIndex>11</PortraitIndex>
+		</Row>
+		<!-- Port Royal -->
+		<Row>
+			<Type>BUILDING_PORT_ROYAL</Type>
+			<BuildingClass>BUILDINGCLASS_PORT_ROYAL</BuildingClass>
+			<Description>TXT_KEY_BUILDING_PORT_ROYAL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PORT_ROYAL_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_PORT_ROYAL_HELP</Help>
+			<Quote>TXT_KEY_WONDER_PORT_ROYAL_QUOTE</Quote>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			<Water>true</Water>
+			<ExtraSpies>10</ExtraSpies>
+			<FreeBuildingThisCity>BUILDINGCLASS_HARBOR</FreeBuildingThisCity>
+			<FreePromotion>PROMOTION_PIRACY</FreePromotion>
+			<WonderSplashImage>PortRoyal_Splash.dds</WonderSplashImage>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>14</PortraitIndex>
 		</Row>
 		<!-- Soho Foundry -->
 		<Row>

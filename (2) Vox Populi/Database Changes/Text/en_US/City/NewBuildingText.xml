@@ -463,6 +463,19 @@
 		<Row Tag="TXT_KEY_WONDER_KARLSTEJN_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"Seek the truth, hear the truth, learn the truth, love the truth, speak the truth, hold the truth, and defend the truth unto death."[NEWLINE][TAB][TAB] - Jan Hus[NEWLINE][TAB]</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_BUILDING_PORT_ROYAL">
+			<Text>Port Royal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PORT_ROYAL_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PORT_ROYAL_TEXT">
+			<Text>Port Royal is a town located at the end of the Palisadoes, at the mouth of Kingston Harbour, in southeastern Jamaica. Founded in 1494 by the Spanish, it was once the largest and most prosperous city in the Caribbean, functioning as the center of shipping and commerce in the Caribbean Sea by the latter half of the 17th century. It was destroyed by an earthquake and an accompanying tsunami on June 7, 1692, leading to the establishment of Kingston, which would eventually become the capital and the most populated and prosperous city in Jamaica.[NEWLINE][NEWLINE]Port Royal provided a safe harbor initially for privateers and subsequently for pirates plying the shipping lanes to and from Spain and Panama. By the 1660s, the city had, for some, become a pirate utopia and had gained a reputation as the "Sodom of the New World". However, following famous privateer-turned-knight of the realm Henry Morgan's appointment as lieutenant governor, Port Royal began to change. Pirates were no longer needed to defend the city and the selling of slaves took on greater importance. Upstanding citizens disliked the reputation the city had acquired and, in 1687, Jamaica passed anti-piracy laws. Consequently, instead of being a safe haven for pirates, Port Royal became noted as their place of execution.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_PORT_ROYAL_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"I'm dishonest, and a dishonest man you can always trust to be dishonest. Honestly. It's the honest ones you want to watch out for."[NEWLINE][TAB][TAB] - Captain Jack Sparrow[NEWLINE][TAB]</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SOHO_FOUNDRY">
 			<Text>Soho Foundry</Text>
