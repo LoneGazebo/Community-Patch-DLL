@@ -1045,11 +1045,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_BRUTE_STRENGTH</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_LEGACY</Type>
-			<Description>TXT_KEY_PROMOTION_LEGACY</Description>
-			<Help>TXT_KEY_PROMOTION_LEGACY_HELP</Help>
+			<Type>PROMOTION_SPEAR_WALL</Type>
+			<Description>TXT_KEY_PROMOTION_SPEAR_WALL</Description>
+			<Help>TXT_KEY_PROMOTION_SPEAR_WALL_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_LEGACY</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_SPEAR_WALL</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_RIACHUELO</Type>

@@ -1061,8 +1061,9 @@ UPDATE UnitPromotions SET BorderMod = 40 WHERE Type = 'PROMOTION_FRONTIERSMAN';
 -- Otomi: Brute Strength
 UPDATE UnitPromotions SET BarbarianCombatBonus = 40 WHERE Type = 'PROMOTION_BRUTE_STRENGTH';
 
--- Sabum Kibitum: Legacy
-UPDATE UnitPromotions SET CombatModPerLevel = 5 WHERE Type = 'PROMOTION_LEGACY';
+-- Sabum Kibitum: Spear Wall
+UPDATE UnitPromotions SET NearbyEnemyDamage = 5 WHERE Type = 'PROMOTION_SPEAR_WALL';
+UPDATE UnitPromotions SET AoEWhileFortified = 5 WHERE Type = 'PROMOTION_SPEAR_WALL';
 
 -- Amazonas: Riachuelo
 UPDATE UnitPromotions SET GoldenAgeValueFromKills = 100 WHERE Type = 'PROMOTION_RIACHUELO';
