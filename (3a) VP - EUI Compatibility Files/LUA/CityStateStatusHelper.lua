@@ -451,6 +451,15 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 		-- Status
 		tip = tip .. " " .. GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		table_insert( tips, tip )
+		-- How far behind second place is the leader (and is it us?)
+		if GetContenderInfo(majorPlayerID, minorPlayerID) ~= influenceAccumulated .. "[ICON_INFLUENCE]" then
+			tip = L( "TXT_KEY_CSTATE_CONTENDER_INFO", GetContenderInfo(majorPlayerID, minorPlayerID) )
+			table_insert( tips, tip )
+		else
+			tip = L"TXT_KEY_CSTATE_CONTENDER_YOU"
+			table_insert( tips, tip )
+		end
+		-- Embassy available?
 		local bIsEmbassyCheck = false
 		for k, v in pairs(tIsEmbassyImprovement) do
 			if minorPlayer:GetImprovementCount(k) > 0 then
