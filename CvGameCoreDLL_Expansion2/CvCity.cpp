@@ -494,6 +494,7 @@ CvCity::CvCity() :
 	, m_iResistanceCounter()
 	, m_iPlagueCounter()
 	, m_iPlagueTurns()
+	, m_iDefenseProcessTurns()
 	, m_iSappedTurns()
 	, m_iBuildingProductionBlockedTurns()
 	, m_iNoTourismTurns()
@@ -1647,6 +1648,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iResistanceCounter = 0;
 	m_iPlagueCounter = 0;
 	m_iPlagueTurns = -1;
+	m_iDefenseProcessTurns = 0;
 	m_iSappedTurns = 0;
 	m_iBuildingProductionBlockedTurns = 0;
 	m_iNoTourismTurns = 0;
@@ -2306,6 +2308,13 @@ void CvCity::doTurn()
 {
 	VALIDATE_OBJECT();
 
+	bool bRunningDefenseProcess = false;
+	if (getProductionProcess() != NO_PROCESS)
+	{
+		CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+		bRunningDefenseProcess = pkProcessInfo && pkProcessInfo->getDefenseValuePerTurn() != 0;
+	}
+
 	ResetGreatWorkYieldCache();
 
 	if (getDamage() > 0 && !IsBlockadedWaterAndLand())
@@ -2329,14 +2338,27 @@ void CvCity::doTurn()
 		if (getProductionProcess() != NO_PROCESS)
 		{
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+			if (pkProcessInfo && (pkProcessInfo->getDefenseValue() != 0 || pkProcessInfo->getDefenseValuePerTurn() != 0))
 			{
-				int iPile = getYieldRateTimes100(YIELD_PRODUCTION) * pkProcessInfo->getDefenseValue();
+				int iDefenseValue = pkProcessInfo->getDefenseValue() + GetDefenseProcessTurns() * pkProcessInfo->getDefenseValuePerTurn();
+				if (pkProcessInfo->getDefenseValueCap() > 0)
+					iDefenseValue = min(iDefenseValue, pkProcessInfo->getDefenseValueCap());
+
+				int iPile = getYieldRateTimes100(YIELD_PRODUCTION) * iDefenseValue;
 				iHitsHealed += iPile / 10000;
 			}
 		}
 
 		changeDamage(-iHitsHealed);
+	}
+
+	if (bRunningDefenseProcess)
+	{
+		ChangeDefenseProcessTurns(1);
+	}
+	else
+	{
+		SetDefenseProcessTurns(0);
 	}
 
 	if (getDamage() < 0)
@@ -27236,9 +27258,12 @@ void CvCity::updateStrengthValue()
 	if (getProductionProcess() != NO_PROCESS)
 	{
 		CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-		if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+		if (pkProcessInfo && (pkProcessInfo->getDefenseValue() != 0 || pkProcessInfo->getDefenseValuePerTurn() != 0))
 		{
-			iStrengthValue += (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * pkProcessInfo->getDefenseValue()) / 100;
+			int iDefenseValue = pkProcessInfo->getDefenseValue() + GetDefenseProcessTurns() * pkProcessInfo->getDefenseValuePerTurn();
+			if (pkProcessInfo->getDefenseValueCap() > 0)
+				iDefenseValue = min(iDefenseValue, pkProcessInfo->getDefenseValueCap());
+			iStrengthValue += (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * iDefenseValue) / 100;
 		}
 	}
 
@@ -27430,9 +27455,13 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 		if (getProductionProcess() != NO_PROCESS)
 		{
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+			if (pkProcessInfo && (pkProcessInfo->getDefenseValue() != 0 || pkProcessInfo->getDefenseValuePerTurn() != 0))
 			{
-				iValue -= (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * pkProcessInfo->getDefenseValue()) / 100;
+				int iDefenseValue = pkProcessInfo->getDefenseValue() + GetDefenseProcessTurns() * pkProcessInfo->getDefenseValuePerTurn();
+				if (pkProcessInfo->getDefenseValueCap() > 0)
+					iDefenseValue = min(iDefenseValue, pkProcessInfo->getDefenseValueCap());
+
+				iValue -= (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * iDefenseValue) / 100;
 			}
 		}
 
@@ -31972,6 +32001,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iResistanceCounter);
 	visitor(city.m_iPlagueCounter);
 	visitor(city.m_iPlagueTurns);
+	visitor(city.m_iDefenseProcessTurns);
 	visitor(city.m_iPlagueType);
 	visitor(city.m_iSappedTurns);
 	visitor(city.m_iBuildingProductionBlockedTurns);
@@ -34816,6 +34846,25 @@ void CvCity::SetPlagueTurns(int iValue)
 	if (iValue != m_iPlagueTurns)
 	{
 		m_iPlagueTurns = iValue;
+	}
+}
+
+int CvCity::GetDefenseProcessTurns() const
+{
+	return m_iDefenseProcessTurns;
+}
+void CvCity::ChangeDefenseProcessTurns(int iValue) //Set in city::doturn
+{
+	if (iValue != 0)
+	{
+		m_iDefenseProcessTurns += iValue;
+	}
+}
+void CvCity::SetDefenseProcessTurns(int iValue)
+{
+	if (iValue != m_iDefenseProcessTurns)
+	{
+		m_iDefenseProcessTurns = iValue;
 	}
 }
 
