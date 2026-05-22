@@ -1894,8 +1894,15 @@ void CvHomelandAI::PlotUpgradeMoves()
 		for(CHomelandUnitArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
+			bool bUnitUpgraded = false;
 			if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 			{
+				// Resource requirement
+				UnitTypes eUnit = pUnit->getUnitType();
+				UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
+				if (!m_pPlayer->HasResourceForNewUnit(eUpgradeUnit, false, true, eUnit))
+					continue;
+
 				// Don't upgrade if we will go over supply
 				if (bUnderSupplyLimit || !pUnit->isNoSupply())
 				{
@@ -1905,16 +1912,11 @@ void CvHomelandAI::PlotUpgradeMoves()
 					if (pArmy)
 						iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
 
-					// Resource requirement
-					UnitTypes eUnit = pUnit->getUnitType();
-					UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
-					if (!m_pPlayer->HasResourceForNewUnit(eUpgradeUnit, false, true, eUnit))
-						continue;
-
 					//avoid a warning, reset the last move
 					pUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
 					//this removes the unit from the army (if any)
 					CvUnit* pNewUnit = pUnit->DoUpgrade();
+					bUnitUpgraded = true;
 
 					//if it worked the old unit is now a zombie ...
 					UnitProcessed(pUnit->GetID());
@@ -1940,7 +1942,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 					}
 				}
 			}
-			else if (pFirstNonUpgradedUnit == NULL)
+			if (!bUnitUpgraded && pFirstNonUpgradedUnit == NULL)
 				pFirstNonUpgradedUnit = pUnit;
 		}
 

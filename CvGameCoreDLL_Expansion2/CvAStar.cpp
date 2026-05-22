@@ -1310,7 +1310,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			//be extra careful if requested but don't really abort, else we might not find a path at all
 			int iScale = bAbortInDanger ? 2 : 1;
 
-			if (bAbortInDanger && iPlotDanger * 2 > pUnit->GetCurrHitPoints() * 3 && iTurnsInFuture < 2)
+			if (bAbortInDanger && iPlotDanger > pUnit->GetCurrHitPoints() * 3 / 2 && iTurnsInFuture < 2)
 				return -1; // is there ever a good reason to allow this?
 
 			//combat units can still tolerate some danger
