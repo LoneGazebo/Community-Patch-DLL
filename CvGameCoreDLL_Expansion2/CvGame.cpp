@@ -8656,6 +8656,11 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 				continue;
 			}
 			
+			// No units that have a cap on instances (player/team/global)
+			// gifting these could push a player over their limit
+			if (isLimitedUnitClass(eLoopUnitClass))
+				continue;
+
 			// We only want unique units that are not in the game already, or are explicitly Minor Civ Gifts
 			if (!pkUnitInfo->IsMinorCivGift() )
 			{
