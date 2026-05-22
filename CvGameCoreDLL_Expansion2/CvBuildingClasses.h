@@ -208,8 +208,6 @@ public:
 	int GetCapturePlunderModifier() const;
 	int GetPolicyCostModifier() const;
 	int GetDiplomatInfluenceBoost() const;
-	int GetBorderGrowthRateIncrease() const;
-	int GetBorderGrowthRateIncreaseGlobal() const;
 	int GetGlobalPlotCultureCostModifier() const;
 	int GetPlotCultureCostModifier() const;
 	int GetGlobalPlotBuyCostModifier() const;

@@ -314,7 +314,6 @@ CvPlayer::CvPlayer() :
 	, m_iNumPlotsBought()
 	, m_iPlotGoldCostMod()
 	, m_iCachedGoldRate()
-	, m_iBorderGrowthRateIncreaseGlobal()
 	, m_iPlotCultureCostModifier()
 	, m_iPlotCultureExponentModifier()
 	, m_iNumCitiesPolicyCostDiscount()
@@ -677,8 +676,6 @@ CvPlayer::CvPlayer() :
 	, m_iExtraMoves()
 	, m_iNoUnhappinessExpansion()
 	, m_iNoUnhappyIsolation()
-	, m_iDoubleBorderGrowthGA()
-	, m_iDoubleBorderGrowthWLTKD()
 	, m_iIncreasedQuestInfluence()
 	, m_iCultureBombBoost()
 	, m_iCultureBombForeignTerritory()
@@ -1458,8 +1455,6 @@ void CvPlayer::uninit()
 	m_iExtraMoves = 0;
 	m_iNoUnhappinessExpansion = 0;
 	m_iNoUnhappyIsolation = 0;
-	m_iDoubleBorderGrowthGA = 0;
-	m_iDoubleBorderGrowthWLTKD = 0;
 	m_iIncreasedQuestInfluence = 0;
 	m_iCultureBombBoost = 0;
 	m_iCultureBombForeignTerritory = 0;
@@ -1538,7 +1533,6 @@ void CvPlayer::uninit()
 	m_iCityAutomatonWorkersChange = 0;
 
 	m_iCachedGoldRate = 0;
-	m_iBorderGrowthRateIncreaseGlobal = 0;
 	m_iPlotCultureCostModifier = 0;
 	m_iPlotCultureExponentModifier = 0;
 	m_iNumCitiesPolicyCostDiscount = 0;
@@ -15935,7 +15929,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	ChangePolicyCostBuildingModifier(pBuildingInfo->GetPolicyCostModifier() * iChange);
 
 	// Border growth mods
-	ChangeBorderGrowthRateIncreaseGlobal(pBuildingInfo->GetBorderGrowthRateIncreaseGlobal() * iChange);
 	ChangePlotCultureCostModifier(pBuildingInfo->GetGlobalPlotCultureCostModifier() * iChange);
 	ChangePlotGoldCostMod(pBuildingInfo->GetGlobalPlotBuyCostModifier() * iChange);
 
@@ -34982,36 +34975,6 @@ void CvPlayer::ChangeNoUnhappyIsolation(int iChange)
 	m_iNoUnhappyIsolation += iChange;
 }
 
-bool CvPlayer::IsDoubleBorderGrowthGA() const
-{
-	return (m_iDoubleBorderGrowthGA > 0);
-}
-
-int CvPlayer::GetDoubleBorderGrowthGA() const
-{
-	return m_iDoubleBorderGrowthGA;
-}
-
-void CvPlayer::ChangeDoubleBorderGrowthGA(int iChange)
-{
-	m_iDoubleBorderGrowthGA += iChange;
-}
-
-bool CvPlayer::IsDoubleBorderGrowthWLTKD() const
-{
-	return (m_iDoubleBorderGrowthWLTKD > 0);
-}
-
-int CvPlayer::GetDoubleBorderGrowthWLTKD() const
-{
-	return m_iDoubleBorderGrowthWLTKD;
-}
-
-void CvPlayer::ChangeDoubleBorderGrowthWLTKD(int iChange)
-{
-	m_iDoubleBorderGrowthWLTKD += iChange;
-}
-
 //Increased influence from CS quests
 bool CvPlayer::IsIncreasedQuestInfluence() const
 {
@@ -42615,8 +42578,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeWarScoreModifier(pkPolicyInfo->GetWarScoreModifier() * iChange);
 	ChangeNoUnhappinessExpansion(pkPolicyInfo->GetNoUnhappinessExpansion() * iChange);
 	ChangeNoUnhappyIsolation(pkPolicyInfo->GetNoUnhappyIsolation() * iChange);
-	ChangeDoubleBorderGrowthGA(pkPolicyInfo->GetDoubleBorderGrowthGA() * iChange);
-	ChangeDoubleBorderGrowthWLTKD(pkPolicyInfo->GetDoubleBorderGrowthWLTKD() * iChange);
 	changeGarrisonsOccupiedUnhappinessMod(pkPolicyInfo->GetGarrisonsOccupiedUnhappinessMod() * iChange);
 	changeTradeReligionModifier(pkPolicyInfo->GetTradeReligionModifier() * iChange);
 	changeFreeWCVotes(pkPolicyInfo->GetFreeWCVotes() * iChange);
@@ -43981,8 +43942,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iExtraMoves);
 	visitor(player.m_iNoUnhappinessExpansion);
 	visitor(player.m_iNoUnhappyIsolation);
-	visitor(player.m_iDoubleBorderGrowthGA);
-	visitor(player.m_iDoubleBorderGrowthWLTKD);
 	visitor(player.m_iIncreasedQuestInfluence);
 	visitor(player.m_iCultureBombBoost);
 	visitor(player.m_iCultureBombForeignTerritory);
@@ -44171,7 +44130,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCityWorkingChange);
 	visitor(player.m_iCityAutomatonWorkersChange);
 	visitor(player.m_iCachedGoldRate);
-	visitor(player.m_iBorderGrowthRateIncreaseGlobal);
 	visitor(player.m_iPlotCultureCostModifier);
 	visitor(player.m_iPlotCultureExponentModifier);
 	visitor(player.m_iNumCitiesPolicyCostDiscount);
@@ -45397,21 +45355,6 @@ void CvPlayer::ChangeCityAutomatonWorkersChange(int iChange)
 		{
 			pLoopCity->changeCityAutomatonWorkersChange(iChange);
 		}
-	}
-}
-
-/// Bonus to border growth rate in all cities
-int CvPlayer::GetBorderGrowthRateIncreaseGlobal() const
-{
-	return m_iBorderGrowthRateIncreaseGlobal;
-}
-
-/// Changes bonus to border growth rate in all cities
-void CvPlayer::ChangeBorderGrowthRateIncreaseGlobal(int iChange)
-{
-	if(iChange != 0)
-	{
-		m_iBorderGrowthRateIncreaseGlobal += iChange;
 	}
 }
 

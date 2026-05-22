@@ -193,7 +193,6 @@ CvCity::CvCity() :
 	, m_iWonderProductionModifier()
 	, m_iCapturePlunderModifier()
 	, m_iDiplomatInfluenceBoost()
-	, m_iBorderGrowthRateIncrease()
 	, m_iPlotCultureCostModifier()
 	, m_iPlotBuyCostModifier()
 	, m_iMaintenance()
@@ -1173,7 +1172,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iWonderProductionModifier = 0;
 	m_iCapturePlunderModifier = 0;
 	m_iDiplomatInfluenceBoost = 0;
-	m_iBorderGrowthRateIncrease = 0;
 	m_iPlotCultureCostModifier = 0;
 	m_iPlotBuyCostModifier = 0;
 	m_iCityWorkingChange = 0;
@@ -13904,7 +13902,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iBuildingCulture * iChange);
 		ChangeDiplomatInfluenceBoost(pBuildingInfo->GetDiplomatInfluenceBoost() * iChange);
-		ChangeBorderGrowthRateIncrease(pBuildingInfo->GetBorderGrowthRateIncrease() * iChange);
 		changePlotCultureCostModifier(pBuildingInfo->GetPlotCultureCostModifier() * iChange);
 		changePlotBuyCostModifier(pBuildingInfo->GetPlotBuyCostModifier() * iChange);
 
@@ -18539,10 +18536,6 @@ int CvCity::GetBorderGrowthRateIncreaseTotal(CvString* tooltipSink) const
 {
 	CvPlayer& kOwner = GET_PLAYER(getOwner());
 
-	int iModifier = GetBorderGrowthRateIncrease() + kOwner.GetBorderGrowthRateIncreaseGlobal();
-	if (tooltipSink)
-		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_MOD_BUILDINGS", iModifier);
-
 	// Religion modifier
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
@@ -18579,33 +18572,7 @@ int CvCity::GetBorderGrowthRateIncreaseTotal(CvString* tooltipSink) const
 	if (tooltipSink)
 		GC.getGame().BuildProdModHelpText(tooltipSink, "TXT_KEY_YIELD_MOD_BELIEF", iTempMod);
 
-	iModifier += iTempMod;
-
-	// Double border growth during GA or WLTKD? These intentionally do not stack with each other, but do stack multiplicatively with other modifiers.
-	if ((kOwner.IsDoubleBorderGrowthGA() && kOwner.isGoldenAge()) || (kOwner.IsDoubleBorderGrowthWLTKD() && GetWeLoveTheKingDayCounter() > 0))
-	{
-		iModifier *= 2; // double the extra rate (if any)
-		iModifier += 100; // double the base rate
-		if (tooltipSink)
-			(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_MULTIPLIER_POLICY");
-	}
-
-	return iModifier;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::GetBorderGrowthRateIncrease() const
-{
-	VALIDATE_OBJECT();
-	return m_iBorderGrowthRateIncrease;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvCity::ChangeBorderGrowthRateIncrease(int iChange)
-{
-	VALIDATE_OBJECT();
-	m_iBorderGrowthRateIncrease += iChange;
+	return iTempMod;
 }
 
 
@@ -31803,7 +31770,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iWonderProductionModifier);
 	visitor(city.m_iCapturePlunderModifier);
 	visitor(city.m_iDiplomatInfluenceBoost);
-	visitor(city.m_iBorderGrowthRateIncrease);
 	visitor(city.m_iPlotCultureCostModifier);
 	visitor(city.m_iPlotBuyCostModifier);
 	visitor(city.m_iCityWorkingChange);

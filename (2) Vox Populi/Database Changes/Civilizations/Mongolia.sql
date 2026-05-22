@@ -134,17 +134,18 @@ INSERT INTO Civilization_BuildingClassOverrides
 VALUES
 	('CIVILIZATION_MONGOL', 'BUILDINGCLASS_SMOKEHOUSE', 'BUILDING_GER');
 
-UPDATE Buildings
-SET
-	PlotBuyCostModifier = -25,
-	BorderGrowthRateIncrease = 40
-WHERE Type = 'BUILDING_GER';
+UPDATE Buildings SET PlotBuyCostModifier = -25 WHERE Type = 'BUILDING_GER';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 --	('BUILDING_GER', 'YIELD_CULTURE_LOCAL', 2),
 	('BUILDING_GER', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_YieldModifiers
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_GER', 'YIELD_CULTURE_LOCAL', 40);
 
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)

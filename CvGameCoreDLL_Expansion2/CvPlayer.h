@@ -1809,14 +1809,6 @@ public:
 	int GetNoUnhappyIsolation() const;
 	void ChangeNoUnhappyIsolation(int iChange);
 
-	bool IsDoubleBorderGrowthGA() const;
-	int GetDoubleBorderGrowthGA() const;
-	void ChangeDoubleBorderGrowthGA(int iChange);
-
-	bool IsDoubleBorderGrowthWLTKD() const;
-	int GetDoubleBorderGrowthWLTKD() const;
-	void ChangeDoubleBorderGrowthWLTKD(int iChange);
-
 	bool IsIncreasedQuestInfluence() const;
 	int GetIncreasedQuestInfluence() const;
 	void ChangeIncreasedQuestInfluence(int iChange);
@@ -2448,9 +2440,6 @@ public:
 
 	int GetCityAutomatonWorkersChange() const;
 	void ChangeCityAutomatonWorkersChange(int iChange);
-
-	int GetBorderGrowthRateIncreaseGlobal() const;
-	void ChangeBorderGrowthRateIncreaseGlobal(int iChange);
 
 	int GetPlotCultureCostModifier() const;
 	void ChangePlotCultureCostModifier(int iChange);
@@ -3147,8 +3136,6 @@ protected:
 	int m_iExtraMoves;
 	int m_iNoUnhappinessExpansion;
 	int m_iNoUnhappyIsolation;
-	int m_iDoubleBorderGrowthGA;
-	int m_iDoubleBorderGrowthWLTKD;
 	int m_iIncreasedQuestInfluence;
 	int m_iCultureBombBoost;
 	int m_iCultureBombForeignTerritory;
@@ -3352,7 +3339,6 @@ protected:
 	int m_iCityWorkingChange;
 	int m_iCityAutomatonWorkersChange;
 	int m_iCachedGoldRate;
-	int m_iBorderGrowthRateIncreaseGlobal;
 	int m_iPlotCultureCostModifier;
 	int m_iPlotCultureExponentModifier;
 	int m_iNumCitiesPolicyCostDiscount;
@@ -3960,8 +3946,6 @@ SYNC_ARCHIVE_VAR(int, m_iXPopulationConscription)
 SYNC_ARCHIVE_VAR(int, m_iExtraMoves)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappinessExpansion)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappyIsolation)
-SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthGA)
-SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthWLTKD)
 SYNC_ARCHIVE_VAR(int, m_iIncreasedQuestInfluence)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombBoost)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombForeignTerritory)
@@ -4150,7 +4134,6 @@ SYNC_ARCHIVE_VAR(int, m_iPlotGoldCostMod)
 SYNC_ARCHIVE_VAR(int, m_iCityWorkingChange)
 SYNC_ARCHIVE_VAR(int, m_iCityAutomatonWorkersChange)
 SYNC_ARCHIVE_VAR(int, m_iCachedGoldRate)
-SYNC_ARCHIVE_VAR(int, m_iBorderGrowthRateIncreaseGlobal)
 SYNC_ARCHIVE_VAR(int, m_iPlotCultureCostModifier)
 SYNC_ARCHIVE_VAR(int, m_iPlotCultureExponentModifier)
 SYNC_ARCHIVE_VAR(int, m_iNumCitiesPolicyCostDiscount)

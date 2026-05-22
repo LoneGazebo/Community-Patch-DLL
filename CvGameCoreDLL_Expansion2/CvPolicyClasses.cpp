@@ -1360,6 +1360,12 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		m_ppiBuildingClassYieldChanges[iI][YIELD_CULTURE] += m_paiBuildingClassCultureChanges[iI];
 	}
 
+	if (m_bDoubleBorderGrowthWLTKD)
+		m_piYieldFromWLTKD[YIELD_CULTURE_LOCAL] += 100;
+
+	if (m_bDoubleBorderGrowthGA)
+		m_piGoldenAgeYieldMod[YIELD_CULTURE_LOCAL] += 100;
+
 	return true;
 }
 
@@ -2971,16 +2977,6 @@ bool CvPolicyEntry::GetNoUnhappinessExpansion() const
 bool CvPolicyEntry::GetNoUnhappyIsolation() const
 {
 	return m_bNoUnhappyIsolation;
-}
-/// Does this Policy generate double border growth during GAs?
-bool CvPolicyEntry::GetDoubleBorderGrowthGA() const
-{
-	return m_bDoubleBorderGrowthGA;
-}
-/// Does this Policy generate double border growth during WLTKD?
-bool CvPolicyEntry::GetDoubleBorderGrowthWLTKD() const
-{
-	return m_bDoubleBorderGrowthWLTKD;
 }
 /// Are all buildings kept on city conquest?
 bool CvPolicyEntry::IsKeepConqueredBuildings() const

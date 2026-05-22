@@ -38,6 +38,7 @@ ALTER TABLE Buildings ADD AllowsIndustrialWaterRoutes boolean DEFAULT 0;
 ALTER TABLE Buildings ADD AllowsAirRoutes boolean DEFAULT 0;
 
 -- Increase to border growth expansion rate
+-- OBSOLETE, use Building_YieldModifiers and Building_GlobalYieldModifiers instead
 ALTER TABLE Buildings ADD BorderGrowthRateIncrease integer DEFAULT 0; -- For the city
 ALTER TABLE Buildings ADD BorderGrowthRateIncreaseGlobal integer DEFAULT 0; -- For the empire
 

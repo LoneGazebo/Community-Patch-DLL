@@ -294,8 +294,6 @@ public:
 	int GetYieldFromTechRetroactive(int i) const;
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
-	bool GetDoubleBorderGrowthGA() const;
-	bool GetDoubleBorderGrowthWLTKD() const;
 	bool IsKeepConqueredBuildings() const;
 	int GetIncreasedQuestInfluence() const;
 	int GetGreatScientistBeakerModifier() const;
