@@ -2,14 +2,38 @@
 UPDATE Beliefs
 SET
 	OtherReligionPressureErosion = 0,
-	CombatVersusOtherReligionTheirLands = 20
+	CombatBonusTheirLands = 10,
+	CombatBonusVersusOtherReligionTheirLands = 5
 WHERE Type = 'BELIEF_EVANGELISM';
 
-INSERT INTO Belief_YieldFromConquest
-	(BeliefType, YieldType, Yield)
+CREATE TEMP TABLE Helper (
+	BuildingClassType TEXT
+);
+
+CREATE TEMP TABLE Helper2 (
+	YieldType TEXT,
+	YieldChange INTEGER
+);
+
+INSERT INTO Helper
 VALUES
-	('BELIEF_EVANGELISM', 'YIELD_GOLD', 50),
-	('BELIEF_EVANGELISM', 'YIELD_CULTURE', 50);
+	('BUILDINGCLASS_BARRACKS'),
+	('BUILDINGCLASS_ARMORY'),
+	('BUILDINGCLASS_MILITARY_ACADEMY');
+
+INSERT INTO Helper2
+VALUES
+	('YIELD_GOLD', 2),
+	('YIELD_CULTURE', 2);
+
+INSERT INTO Belief_BuildingClassYieldChanges
+	(BeliefType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	'BELIEF_EVANGELISM', a.BuildingClassType, b.YieldType, b.YieldChange
+FROM Helper a, Helper2 b;
+
+DROP TABLE Helper;
+DROP TABLE Helper2;
 
 -- Defender of the Faith
 UPDATE Beliefs
@@ -17,7 +41,8 @@ SET
 	Enhancer = 0,
 	Reformation = 1,
 	CombatModifierFriendlyCities = 0,
-	CombatVersusOtherReligionOwnLands = 20
+	CombatBonusOwnLands = 10,
+	CombatBonusVersusOtherReligionOwnLands = 5
 WHERE Type = 'BELIEF_DEFENDER_FAITH';
 
 CREATE TEMP TABLE Helper (

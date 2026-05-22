@@ -113,8 +113,10 @@ public:
 	int GetYieldFromHost(int i) const;
 	int GetYieldFromFaithPurchase(int i) const;
 	int GetYieldFromKnownPantheons(int i) const;
-	int GetCombatVersusOtherReligionOwnLands() const;
-	int GetCombatVersusOtherReligionTheirLands() const;
+	int GetCombatBonusOwnLands() const;
+	int GetCombatBonusVersusOtherReligionOwnLands() const;
+	int GetCombatBonusTheirLands() const;
+	int GetCombatBonusVersusOtherReligionTheirLands() const;
 	int GetMissionaryInfluenceCS()const;
 	int GetHappinessPerPantheon() const;
 	int GetExtraVotes() const;
@@ -339,8 +341,10 @@ protected:
 	int* m_piImprovementVoteChange;
 	int m_iReducePolicyRequirements;
 	int m_iCSYieldBonus;
-	int m_iCombatVersusOtherReligionOwnLands;
-	int m_iCombatVersusOtherReligionTheirLands;
+	int m_iCombatBonusOwnLands;
+	int m_iCombatBonusVersusOtherReligionOwnLands;
+	int m_iCombatBonusTheirLands;
+	int m_iCombatBonusVersusOtherReligionTheirLands;
 	int m_iMissionaryInfluenceCS;
 	int m_iHappinessPerPantheon;
 	int m_iExtraVotes;
@@ -436,8 +440,10 @@ public:
 	int GetInquisitorPressureRetention(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetFaithBuildingTourism(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetFullyConvertedHappiness(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetCombatVersusOtherReligionOwnLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetCombatVersusOtherReligionTheirLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCombatBonusOwnLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCombatBonusVersusOtherReligionOwnLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCombatBonusTheirLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCombatBonusVersusOtherReligionTheirLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetMissionaryInfluenceCS(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetHappinessPerPantheon(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetExtraVotes(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

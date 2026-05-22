@@ -9349,14 +9349,22 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			iWarTemp += (pEntry->GetCombatModifierEnemyCities() * iNumNeighbors) * 2;
 		}
 
-		if (pEntry->GetCombatVersusOtherReligionOwnLands() > 0)
+		if (pEntry->GetCombatBonusOwnLands() > 0)
 		{
-			iWarTemp += (pEntry->GetCombatVersusOtherReligionOwnLands() * iIdealEmpireSize * iNumNeighbors) / 4;
+			iWarTemp += (pEntry->GetCombatBonusOwnLands() * iIdealEmpireSize * iNumNeighbors) / 6;
+		}
+		if (pEntry->GetCombatBonusVersusOtherReligionOwnLands() > 0)
+		{
+			iWarTemp += (pEntry->GetCombatBonusVersusOtherReligionOwnLands() * iIdealEmpireSize * iNumNeighbors) / 6;
 		}
 
-		if (pEntry->GetCombatVersusOtherReligionTheirLands() > 0)
+		if (pEntry->GetCombatBonusTheirLands() > 0)
 		{
-			iWarTemp += (pEntry->GetCombatVersusOtherReligionTheirLands() * iNumNeighbors) * 2;
+			iWarTemp += (pEntry->GetCombatBonusTheirLands() * iNumNeighbors) * 4 / 3;
+		}
+		if (pEntry->GetCombatBonusVersusOtherReligionTheirLands() > 0)
+		{
+			iWarTemp += (pEntry->GetCombatBonusVersusOtherReligionTheirLands() * iNumNeighbors) * 4 / 3;
 		}
 
 		MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
@@ -9387,11 +9395,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				{
 					iWarTemp *= 2;
 				}
-				if (pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(m_pPlayer->GetID(), pHolyCity) > 0)
+				if (pReligion->m_Beliefs.GetCombatBonusOwnLands(m_pPlayer->GetID(), pHolyCity) > 0 || pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionOwnLands(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
 					iWarTemp *= 2;
 				}
-				if (pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(m_pPlayer->GetID(), pHolyCity) > 0)
+				if (pReligion->m_Beliefs.GetCombatBonusTheirLands(m_pPlayer->GetID(), pHolyCity) > 0 || pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionTheirLands(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
 					iWarTemp *= 2;
 				}

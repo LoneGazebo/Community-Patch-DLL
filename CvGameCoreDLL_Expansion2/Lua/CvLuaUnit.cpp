@@ -117,8 +117,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanCreateGreatWork);
 	Method(CreateGreatWork);
 	Method(greatperson);
-	Method(GetCombatVersusOtherReligionOwnLands);
-	Method(GetCombatVersusOtherReligionTheirLands);
+	Method(GetReligionCombatBonusOwnLands);
+	Method(GetReligionCombatBonusTheirLands);
 
 	Method(GetExoticGoodsGoldAmount);
 	Method(GetExoticGoodsXPAmount);
@@ -1776,8 +1776,8 @@ int CvLuaUnit::lgreatperson(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool GetCombatVersusOtherReligionOwnLands();
-int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
+//bool GetReligionCombatBonusOwnLands();
+int CvLuaUnit::lGetReligionCombatBonusOwnLands(lua_State* L)
 {
 	int iRtnValue = 0;
 
@@ -1795,23 +1795,15 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 			if (pReligion)
 			{
 				CvCity* pHolyCity = pReligion->GetHolyCity();
-				if (eTheirReligion != eOwnedReligion)
-				{			
-					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
-					// Bonus in own land
-					if((iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
-					{
-						iRtnValue = iOtherOwn;
-					}
-				}
-				else
+							
+				int iOwn = pReligion->m_Beliefs.GetCombatBonusOwnLands(pkUnit->getOwner(), pHolyCity);
+				int iOtherOwn = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
+				// Bonus in own land
+				if((iOwn > 0 || iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
 				{
-					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
-					// Bonus in own land
-					if((iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
-					{
-						iRtnValue = (iOtherOwn / 2);
-					}
+					iRtnValue = iOwn;
+					if (eTheirReligion != eOwnedReligion)
+						iRtnValue += iOtherOwn;
 				}
 			}
 		}
@@ -1821,8 +1813,8 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool GetCombatVersusOtherReligionTheirLands();
-int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
+//bool GetReligionCombatBonusTheirLands();
+int CvLuaUnit::lGetReligionCombatBonusTheirLands(lua_State* L)
 {
 	int iRtnValue = 0;
 
@@ -1840,23 +1832,15 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 			if (pReligion)
 			{
 				CvCity* pHolyCity = pReligion->GetHolyCity();
-				if (eTheirReligion != eOwnedReligion)
-				{			
-					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
-					//Bonus in their land
-					if ((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
-					{
-						iRtnValue = iOtherTheir;
-					}
-				}
-				else
+
+				int iTheir = pReligion->m_Beliefs.GetCombatBonusTheirLands(pkUnit->getOwner(), pHolyCity);
+				int iOtherTheir = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
+				// Bonus in their lands
+				if((iTheir > 0 || iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
 				{
-					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
-					//Bonus in their land
-					if ((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
-					{
-						iRtnValue = (iOtherTheir / 2);
-					}
+					iRtnValue = iTheir;
+					if (eTheirReligion != eOwnedReligion)
+						iRtnValue += iOtherTheir;
 				}
 			}
 		}
