@@ -172,10 +172,10 @@ ALTER TABLE Policies ADD NoUnhappinessExpansion boolean DEFAULT 0;
 -- No Unhappiness from Isolation
 ALTER TABLE Policies ADD NoUnhappyIsolation boolean DEFAULT 0;
 
--- Double City Border Growth During GA (does not stack with WLTKD)
+-- +100% Border Growth During GA (OBSOLETE, use Policy_GoldenAgeYieldMod instead)
 ALTER TABLE Policies ADD DoubleBorderGrowthGA boolean DEFAULT 0;
 
--- Double City Border Growth During WLTKD (does not stack with GA)
+-- +100% Border Growth During WLTKD (OBSOLETE, use Policy_WLTKDYieldMod instead)
 ALTER TABLE Policies ADD DoubleBorderGrowthWLTKD boolean DEFAULT 0;
 
 -- Free Population

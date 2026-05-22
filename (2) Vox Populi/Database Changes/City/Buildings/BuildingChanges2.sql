@@ -561,7 +561,6 @@ SET
 	SpecialistType = 'SPECIALIST_ENGINEER',
 	GreatPeopleRateChange = 1,
 	FreeBuildingThisCity = 'BUILDINGCLASS_CHURCH',
-	BorderGrowthRateIncreaseGlobal = 40,
 	GlobalPlotBuyCostModifier = -25
 WHERE Type = 'BUILDING_HAGIA_SOPHIA';
 
@@ -570,6 +569,11 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_HAGIA_SOPHIA', 'YIELD_CULTURE', 1),
 	('BUILDING_HAGIA_SOPHIA', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_GlobalYieldModifiers
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HAGIA_SOPHIA', 'YIELD_CULTURE_LOCAL', 40);
 
 DELETE FROM Building_FreeUnits WHERE BuildingType = 'BUILDING_HAGIA_SOPHIA';
 

@@ -1922,7 +1922,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	// Merge some yield entries into generic yield arrays
 	m_piYieldModifier[YIELD_CULTURE] += m_iCultureRateModifier;
+	m_piYieldModifier[YIELD_CULTURE_LOCAL] += m_iBorderGrowthRateIncrease;
 	m_piGlobalYieldModifier[YIELD_CULTURE] += m_iGlobalCultureRateModifier;
+	m_piGlobalYieldModifier[YIELD_CULTURE_LOCAL] += m_iBorderGrowthRateIncreaseGlobal;
 	m_piInstantYield[YIELD_GOLD] += m_iGold;
 
 	// Slow, but specialist entries (and GC.getNumSpecialistInfos()) aren't available yet
@@ -2429,18 +2431,6 @@ int CvBuildingEntry::GetPolicyCostModifier() const
 int CvBuildingEntry::GetDiplomatInfluenceBoost() const
 {
 	return m_iDiplomatInfluenceBoost;
-}
-
-/// Increase to rate of border growth in city
-int CvBuildingEntry::GetBorderGrowthRateIncrease() const
-{
-	return m_iBorderGrowthRateIncrease;
-}
-
-/// Increase to rate of border growth in all cities
-int CvBuildingEntry::GetBorderGrowthRateIncreaseGlobal() const
-{
-	return m_iBorderGrowthRateIncreaseGlobal;
 }
 
 /// Change in culture cost to earn a new tile

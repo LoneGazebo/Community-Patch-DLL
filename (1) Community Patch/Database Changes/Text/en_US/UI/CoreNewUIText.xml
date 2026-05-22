@@ -1951,9 +1951,6 @@
 		<Row Tag="TXT_KEY_YIELD_MOD_WORLD_WONDER">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from having [ICON_WONDER] World Wonders</Text>
 		</Row>
-		<Row Tag="TXT_KEY_YIELD_MULTIPLIER_POLICY">
-			<Text>[NEWLINE][ICON_BULLET]Doubled by Policies</Text>
-		</Row>
 		<!-- Great person points -->
 		<Row Tag="TXT_KEY_GPP_FROM_SPECIALIST">
 			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Specialists</Text>

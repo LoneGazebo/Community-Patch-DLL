@@ -664,9 +664,6 @@ public:
 
 	int GetBorderGrowthRateIncreaseTotal(CvString* tooltipSink = NULL) const;
 
-	int GetBorderGrowthRateIncrease() const;
-	void ChangeBorderGrowthRateIncrease(int iChange);
-
 	int getPlotCultureCostModifier() const;
 	void changePlotCultureCostModifier(int iChange);
 
@@ -1872,7 +1869,6 @@ protected:
 	int m_iWonderProductionModifier;
 	int m_iCapturePlunderModifier;
 	int m_iDiplomatInfluenceBoost;
-	int m_iBorderGrowthRateIncrease;
 	int m_iPlotCultureCostModifier;
 	int m_iPlotBuyCostModifier;
 	int m_iCityWorkingChange;
@@ -2289,7 +2285,6 @@ SYNC_ARCHIVE_VAR(int, m_iNumNationalWonders)
 SYNC_ARCHIVE_VAR(int, m_iWonderProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iCapturePlunderModifier)
 SYNC_ARCHIVE_VAR(int, m_iDiplomatInfluenceBoost)
-SYNC_ARCHIVE_VAR(int, m_iBorderGrowthRateIncrease)
 SYNC_ARCHIVE_VAR(int, m_iPlotCultureCostModifier)
 SYNC_ARCHIVE_VAR(int, m_iPlotBuyCostModifier)
 SYNC_ARCHIVE_VAR(int, m_iCityWorkingChange)

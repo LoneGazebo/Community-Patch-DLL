@@ -243,9 +243,6 @@ protected:
 	static int lGetGAPFromCitiesTimes100(lua_State* L);
 	static int lGetGAPFromTraits(lua_State* L);
 
-	static int lIsDoubleBorderGrowthGA(lua_State* L);
-	static int lIsDoubleBorderGrowthWLTKD(lua_State* L);
-
 	static int lGetTotalJONSCulturePerTurn(lua_State* L);
 	static int lGetTotalJONSCulturePerTurnTimes100(lua_State* L);
 	static int lGetTotalCulturePerTurnTooltip(lua_State* L);

@@ -3630,17 +3630,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += 20;
 		}
 	}
-	if (PolicyInfo->GetDoubleBorderGrowthGA() || PolicyInfo->GetDoubleBorderGrowthWLTKD())
-	{
-		if (pPlayerTraits->IsExpansionist())
-		{
-			yield[YIELD_CULTURE] += 100;
-		}
-		else
-		{
-			yield[YIELD_CULTURE] += 50;
-		}
-	}
 	if (PolicyInfo->IsCSResourcesForMonopolies())
 	{
 		if (pPlayerTraits->IsDiplomat())

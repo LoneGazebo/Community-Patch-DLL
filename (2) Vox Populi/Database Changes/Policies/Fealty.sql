@@ -106,7 +106,6 @@ VALUES
 UPDATE Policies
 SET
 	AddReformationBelief = 0,
-	DoubleBorderGrowthWLTKD = 1,
 	ExtraHappiness = 5,
 	PortraitIndex = 45
 WHERE Type = 'POLICY_REFORMATION';
@@ -114,7 +113,8 @@ WHERE Type = 'POLICY_REFORMATION';
 INSERT INTO Policy_WLTKDYieldMod
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15);
+	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15),
+	('POLICY_REFORMATION', 'YIELD_CULTURE_LOCAL', 100);
 
 -- Finisher
 DELETE FROM Policy_FreeUnitClasses
