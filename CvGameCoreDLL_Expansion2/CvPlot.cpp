@@ -7501,6 +7501,11 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 			{
 				pOwningCity->ChangeNumTerrainWorked(eOldValue, -1);
 				pOwningCity->ChangeNumTerrainWorked(eNewValue, 1);
+				if (getFeatureType() == NO_FEATURE && !isHills())
+				{
+					pOwningCity->ChangeNumFeaturelessTerrainWorked(eOldValue, -1);
+					pOwningCity->ChangeNumFeaturelessTerrainWorked(eNewValue, 1);
+				}
 			}
 		}
 
@@ -8183,8 +8188,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 	}
 
-	bool bArchaeologyChoicePending = false;
-
 	if (eOldImprovement != eNewValue)
 	{
 		PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
@@ -8562,13 +8565,15 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				if (newImprovementEntry.GetHappinessOnConstruction() != 0)
 				{
-					// this actually tracks improvement happiness, not num landmarks built
-					GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
-					if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
+					TeamTypes eBuilderTeam = GET_PLAYER(eBuilder).getTeam();
+					TeamTypes ePlotTeam = getTeam();
+					GET_TEAM(eBuilderTeam).ChangeHappinessFromImprovements(newImprovementEntry.GetHappinessOnConstruction());
+					if (ePlotTeam != NO_TEAM && ePlotTeam != eBuilderTeam && GET_PLAYER(getOwner()).isMajorCiv())
 					{
-						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+						GET_TEAM(ePlotTeam).ChangeHappinessFromImprovements(newImprovementEntry.GetHappinessOnConstruction());
 					}
 				}
+
 				// if the improvement isn't a landmark but has yield changes by era, it needs the historical record set. 
 				static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 				if (eNewValue != eLandmark)
@@ -9024,14 +9029,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 		}
 	}
-
-	// Do the AI's dig site choice at the very end since it could replace the tile with a Landmark, so it's better to do that after all the other code updating things has run
-	if (bArchaeologyChoicePending)
-	{
-		CvPlayer& kBuilder = GET_PLAYER(eBuilder);
-		ArchaeologyChoiceType eChoice = kBuilder.GetCulture()->GetArchaeologyChoice(this);
-		kBuilder.GetCulture()->DoArchaeologyChoice(eChoice);
-	}
 }
 
 CvPlot* CvPlot::GetAdjacentResourceSpawnPlot(PlayerTypes ePlayer) const
@@ -9137,11 +9134,14 @@ void CvPlot::SetImprovementPillaged(bool bPillaged, bool bEvents)
 		// Quantified Resource changes
 		if (getTeam() != NO_TEAM && getImprovementType() != NO_IMPROVEMENT)
 		{
-			if (getResourceType(getTeam()) != NO_RESOURCE)
+			static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+			static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+			ResourceTypes eRes = getResourceType(getTeam());
+			if (eRes != NO_RESOURCE && eRes != eArtifact && eRes != eHiddenArtifact)
 			{
-				if (GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
+				if (GET_TEAM(getTeam()).IsResourceImproveable(eRes))
 				{
-					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType()))
+					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(eRes))
 					{
 						if (bPillaged)
 						{

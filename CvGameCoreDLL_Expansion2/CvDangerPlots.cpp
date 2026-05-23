@@ -871,10 +871,6 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const SUnitIDValueConta
 			int iEnemyRange = pAttacker->IsCanAttackRanged() ? pAttacker->GetRange() : 1;
 			bool bOutOfRange = plotDistance(*m_pPlot, *pAttacker->plot()) > iEnemyRange;
 
-			//assume enemy units will not abandon cities
-			if (bOutOfRange && pAttacker->plot()->isCity() && !pAttacker->canMoveAfterAttacking())
-				continue;
-
 			//if the attacker is not out of range, assume they need to move for the attack, so we don't know their plot
 			//todo: consider whether the enemy units would block each other from attacking?
 			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? NULL : pAttacker->plot(), iAttackerDamage, false, iExtraAttackerDamage, iExtraDamage, true);

@@ -28877,10 +28877,10 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 	//this method should only be called once per city on its first turn or when the capital moves ...
 
 	int iSign = bRemove ? -1 : +1;
-
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	
 	if (isCapital())
 	{
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
 		int iNumAllies = kPlayer.GetNumCSAllies();
 		int iNumFriends = kPlayer.GetNumCSFriends();
 		if (iNumAllies > 0 || iNumFriends > 0)
@@ -28895,6 +28895,21 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 		}
 	}
 
+	// Annexed CS
+	if (kPlayer.GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			int iAnnexedYields = isCapital() ? kPlayer.GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(eYield) : kPlayer.GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(eYield);
+			if (iAnnexedYields != 0)
+			{
+				ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iAnnexedYields);
+				//CUSTOMLOG("adjusted %s in %s by %d/100 for annexation, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iAnnexedYields, GetBaseYieldRateFromCSAlliance(eYield));
+			}
+		}
+	}
+	
 	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eCityOwner = (PlayerTypes)getOwner();
@@ -32652,10 +32667,38 @@ CvUnit* CvCity::getBestRangedStrikeTarget() const
 				//a bit redundant with the internal of canRangeStrikeAt but that's life
 				CvUnit* pTarget = rangedStrikeTarget(pTargetPlot);
 				int iDamage = rangeCombatDamage(pTarget, false, NULL);
-				if (iDamage > iBestScore)
+				int iBonus = 0;
+				if (iDamage > 0)
 				{
-					iBestScore = iDamage;
-					pBestTarget = pTarget;
+					int iCurrHitPoints = pTarget->GetCurrHitPoints();
+
+					// It's good to kill units
+					if (iDamage >= iCurrHitPoints)
+						iBonus += 15;
+
+					// it's good to damage city bombard units
+					if (pTarget->getUnitInfo().GetDefaultUnitAIType() == UNITAI_CITY_BOMBARD)
+						iBonus += 10;
+
+					// It's generally not useful to bombard civilians
+					else if (pTarget->IsCivilianUnit())
+					{
+						if (pTarget->IsGreatGeneral() || pTarget->IsGreatAdmiral())
+						{
+							// Killing great generals and admirals is good though
+							if (iDamage >= pTarget->GetCurrHitPoints())
+								iBonus = 10;
+							else
+								iDamage = 2;
+						}
+						else
+							iDamage = 1;
+					}
+					if (iDamage + iBonus > iBestScore)
+					{
+						iBestScore = iDamage + iBonus;
+						pBestTarget = pTarget;
+					}
 				}
 			}
 		}

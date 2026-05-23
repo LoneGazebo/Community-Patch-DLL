@@ -1310,7 +1310,7 @@ void CvPlayerAI::CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot
 	CvArmyAI* pThisArmy = getArmyAI(thisSlot.m_iArmyID);
 	if(pThisOperation && pThisArmy && pThisUnit)
 	{
-		pThisArmy->AddUnit(pThisUnit->GetID(), thisSlot.m_iSlotID,true);
+		pThisArmy->AddUnit(pThisUnit->GetID(), thisSlot.m_iSlotID, pThisArmy->GetSlotInfo(thisSlot.m_iSlotID).m_requiredSlot);
 		pThisOperation->FinishedBuildingUnit(thisSlot);
 	}
 }

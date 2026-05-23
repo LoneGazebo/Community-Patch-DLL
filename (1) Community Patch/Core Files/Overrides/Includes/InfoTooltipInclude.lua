@@ -1321,22 +1321,25 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 		-- Policy requirement
 		if kUnitInfo.PolicyType then
-			-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
-			local bOpenerOrFinisher = false;
-			for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
-				if kPolicyBranchInfo.FreePolicy == kUnitInfo.PolicyType then
-					bOpenerOrFinisher = true;
-					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_OPENER", kPolicyBranchInfo.Description);
-					break;
+			-- Don't display dummy policies
+			if GameInfo.Policies[kUnitInfo.PolicyType].IsDummy == false then
+				-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
+				local bOpenerOrFinisher = false;
+				for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
+					if kPolicyBranchInfo.FreePolicy == kUnitInfo.PolicyType then
+						bOpenerOrFinisher = true;
+						AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_OPENER", kPolicyBranchInfo.Description);
+						break;
+					end
+					if kPolicyBranchInfo.FreeFinishingPolicy == kUnitInfo.PolicyType then
+						bOpenerOrFinisher = true;
+						AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_COMPLETION", kPolicyBranchInfo.Description);
+						break;
+					end
 				end
-				if kPolicyBranchInfo.FreeFinishingPolicy == kUnitInfo.PolicyType then
-					bOpenerOrFinisher = true;
-					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_COMPLETION", kPolicyBranchInfo.Description);
-					break;
+				if not bOpenerOrFinisher then
+					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kUnitInfo.PolicyType].Description);
 				end
-			end
-			if not bOpenerOrFinisher then
-				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kUnitInfo.PolicyType].Description);
 			end
 		end
 
@@ -3319,22 +3322,25 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 		-- Policy requirement
 		if kBuildingInfo.PolicyType then
-			-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
-			local bOpenerOrFinisher = false;
-			for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
-				if kPolicyBranchInfo.FreePolicy == kBuildingInfo.PolicyType then
-					bOpenerOrFinisher = true;
-					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_OPENER", kPolicyBranchInfo.Description);
-					break;
+			-- Don't display dummy policies
+			if GameInfo.Policies[kBuildingInfo.PolicyType].IsDummy == false then
+				-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
+				local bOpenerOrFinisher = false;
+				for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
+					if kPolicyBranchInfo.FreePolicy == kBuildingInfo.PolicyType then
+						bOpenerOrFinisher = true;
+						AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_OPENER", kPolicyBranchInfo.Description);
+						break;
+					end
+					if kPolicyBranchInfo.FreeFinishingPolicy == kBuildingInfo.PolicyType then
+						bOpenerOrFinisher = true;
+						AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_COMPLETION", kPolicyBranchInfo.Description);
+						break;
+					end
 				end
-				if kPolicyBranchInfo.FreeFinishingPolicy == kBuildingInfo.PolicyType then
-					bOpenerOrFinisher = true;
-					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_COMPLETION", kPolicyBranchInfo.Description);
-					break;
+				if not bOpenerOrFinisher then
+					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kBuildingInfo.PolicyType].Description);
 				end
-			end
-			if not bOpenerOrFinisher then
-				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kBuildingInfo.PolicyType].Description);
 			end
 		end
 

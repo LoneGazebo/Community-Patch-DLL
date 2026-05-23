@@ -4238,7 +4238,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	GET_PLAYER(eOldOwner).DoUpdateProximityToPlayers();
 	DoUpdateProximityToPlayers();
 
-	// Rome UA
+	// Annexed CS
 	if (bOriginalMinorCapital)
 	{
 		if (isMajorCiv())
@@ -10056,7 +10056,7 @@ void CvPlayer::doTurn()
 	if(GetTurnsSinceSettledLastCity() >= 0)
 		ChangeTurnsSinceSettledLastCity(1);
 
-	// update timers for unit gifts from annexed city states (Rome UA) and spawn units
+	// update timers for unit gifts from annexed city states and spawn units
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 	{
 		updateTimerAnnexedMilitaryCityStates();
@@ -19918,6 +19918,9 @@ void CvPlayer::DoUpdateTotalHappiness()
 	// Increase from Natural Wonders
 	m_iHappiness += GetHappinessFromNaturalWonders();
 
+	// Increase from constructed Improvements
+	m_iHappiness += GetHappinessFromImprovements();
+
 	// Friendship with Minors can provide Happiness
 	m_iHappiness += GetHappinessFromMinorCivs();
 
@@ -21566,7 +21569,12 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 		iHappiness += iPlotHappiness;
 	}
 
-	return iHappiness + GET_TEAM(getTeam()).GetNumLandmarksBuilt();
+	return iHappiness;
+}
+
+int CvPlayer::GetHappinessFromImprovements() const
+{
+	return GET_TEAM(getTeam()).GetHappinessFromImprovements();
 }
 
 void CvPlayer::SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue)
@@ -22916,7 +22924,7 @@ void CvPlayer::ChangeConversionModifier(int iChange)
 	m_iConversionModifier = (m_iConversionModifier + iChange);
 }
 
-// set of functions needed to operate bonus from annexed city states trait (rome UA)
+// set of functions needed to operate bonus from annexed city states trait
 void CvPlayer::addAnnexedCityState(PlayerTypes eMinor)
 {
 	// city states shouldn't be already in the list
@@ -22993,14 +23001,14 @@ void CvPlayer::ChangeNumAnnexedCityStates(int iChange)
 	}
 }
 
-/// Get the yields in the capital from annexed City-States (Rome UA)
+/// Get the yields in the capital from annexed City-States
 int CvPlayer::GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const
 {
 	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldInCapitalFromAnnexedMinorsTimes100[eYield];
 }
-/// Update the yields in the capital from annexed City-States (Rome UA)
+/// Update the yields in the capital from annexed City-States
 void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, int iSign, EraTypes eEra)
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields() && getCapitalCity())
@@ -23014,24 +23022,25 @@ void CvPlayer::ChangeYieldInCapitalPerTurnFromAnnexedMinorTimes100(PlayerTypes e
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFriendFlatBonusTimes100(GetID(), eYield, eEra, true);
 			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldAllyFlatBonusTimes100(GetID(), eYield, eEra, true);
 			iBonus *= iSign;
 	
 			//update if necessary
 			//bonus yields are tracked on city level
-			getCapitalCity()->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iBonus);
+			getCapitalCity()->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iBonus);  // all recorded under ally
 			m_piYieldInCapitalFromAnnexedMinorsTimes100[eYield] += iBonus;
 		}
 	}
 }
-/// Get the yields in other cities from annexed City-States (Rome UA)
+/// Get the yields in other cities from annexed City-States
 int CvPlayer::GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const
 {
 	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldInOtherCitiesFromAnnexedMinorsTimes100[eYield];
 }
-/// Update the yields in other cities from annexed City-States (Rome UA)
+/// Update the yields in other cities from annexed City-States
 void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, int iSign, EraTypes eEra)
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
@@ -23045,6 +23054,7 @@ void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(PlayerTyp
 			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 			
+			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldFriendFlatBonusTimes100(GetID(), eYield, eEra, false);
 			iBonus += GET_PLAYER(eMinor).GetMinorCivAI()->GetCityYieldAllyFlatBonusTimes100(GetID(), eYield, eEra, false);
 			iBonus *= iSign;
 	
@@ -23058,14 +23068,14 @@ void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(PlayerTyp
 		}
 	}
 }
-/// Get the yields per turn from annexed City-States (Rome UA)
+/// Get the yields per turn from annexed City-States
 int CvPlayer::GetYieldPerTurnFromAnnexedMinorsTimes100(YieldTypes eYield) const
 {
 	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_piYieldPerTurnFromAnnexedMinorsTimes100[eYield];
 }
-/// Update the yields per turn from annexed City-States (Rome UA)
+/// Update the yields per turn from annexed City-States
 void CvPlayer::ChangeYieldPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, int iSign, EraTypes eEra)
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
@@ -23077,20 +23087,23 @@ void CvPlayer::ChangeYieldPerTurnFromAnnexedMinorTimes100(PlayerTypes eMinor, in
 		const CvMinorCivAI* kMinor = GET_PLAYER(eMinor).GetMinorCivAI();
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
+			int iBonus = 0;
 			YieldTypes eYield = (YieldTypes)iI;
 		
-			int iBonus = kMinor->GetYieldAllyFlatBonusTimes100(GetID(), eYield, eEra);
+			iBonus += kMinor->GetYieldFriendFlatBonusTimes100(GetID(), eYield, eEra);
+			iBonus += kMinor->GetYieldAllyFlatBonusTimes100(GetID(), eYield, eEra);
+			iBonus *= iSign;
 		
-			m_piYieldPerTurnFromAnnexedMinorsTimes100[eYield] += iBonus * iSign;
+			m_piYieldPerTurnFromAnnexedMinorsTimes100[eYield] += iBonus;
 		}
 	}
 }
-/// Get the happiness per turn from annexed City-States (Rome UA)
+/// Get the happiness per turn from annexed City-States
 int CvPlayer::GetHappinessFromAnnexedMinors() const
 {
 	return m_iHappinessFromAnnexedMinors;
 }
-/// Update the happiness per turn from annexed City-States (Rome UA)
+/// Update the happiness per turn from annexed City-States
 void CvPlayer::ChangeHappinessFromAnnexedMinor(PlayerTypes eMinor, int iSign, EraTypes eEra)
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields() && (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE))
@@ -33069,7 +33082,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 							iExpectedAlliance += GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies * iEra * 100;
 							iExpectedFriendship += GetPlayerTraits()->GetYieldFromCSFriend(eYield) * iNumFriends * iEra * 100;
 						}
-						// Rome UA
+						// Annexed CS
 						if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 						{
 							iExpectedAlliance += pCity->isCapital() ? GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(eYield) : GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(eYield);
@@ -37937,8 +37950,6 @@ int CvPlayer::GetNumGlobalMonopolies() const
 
 void CvPlayer::UpdateMonopolyCache()
 {
-	int iNumGlobalMonopoliesBefore = m_vResourcesWGlobalMonopoly.size();
-
 	m_vResourcesWStrategicMonopoly.clear();
 	m_vResourcesWGlobalMonopoly.clear();
 	m_iCombatAttackBonusFromMonopolies = 0;
@@ -37953,28 +37964,6 @@ void CvPlayer::UpdateMonopolyCache()
 			m_vResourcesWGlobalMonopoly.push_back((ResourceTypes)iResourceLoop);
 		if (m_pabHasStrategicMonopoly[iResourceLoop])
 			m_vResourcesWStrategicMonopoly.push_back((ResourceTypes)iResourceLoop);
-	}
-
-	// if the number of global monopolies has changed, update city yields
-	if (iNumGlobalMonopoliesBefore != static_cast<int>(m_vResourcesWGlobalMonopoly.size()))
-	{
-		int iLoop = 0;
-		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				YieldTypes eYield = (YieldTypes)iI;
-				int iCityYieldPerMonopoly = 0;
-				for (int iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
-				{
-					BuildingTypes eLoopBuilding = (BuildingTypes)iJ;
-					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
-					iCityYieldPerMonopoly += pLoopCity->GetCityBuildings()->GetNumRealBuilding(eLoopBuilding) * pkLoopBuilding->GetYieldChangePerMonopoly(eYield);
-				}
-				// subtract the old value and add the new one
-				pLoopCity->ChangeBaseYieldRateFromBuildings(eYield, iCityYieldPerMonopoly * (m_vResourcesWGlobalMonopoly.size() - iNumGlobalMonopoliesBefore));
-			}
-		}
 	}
 
 	// Strategic monopoly of resources
@@ -38095,6 +38084,24 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 						}
 					}
 				}
+			}
+		}
+
+		int iSign = bNewValue ? 1 : -1;
+		int iCityLoop = 0;
+		for (CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
+		{
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				int iCityYieldPerMonopoly = 0;
+				for (int iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
+				{
+					BuildingTypes eLoopBuilding = (BuildingTypes)iJ;
+					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eLoopBuilding);
+					iCityYieldPerMonopoly += pLoopCity->GetCityBuildings()->GetNumRealBuilding(eLoopBuilding) * pkLoopBuilding->GetYieldChangePerMonopoly(iI);
+				}
+				if (iCityYieldPerMonopoly != 0)
+					pLoopCity->ChangeBaseYieldRateFromBuildings((YieldTypes)iI, iCityYieldPerMonopoly * iSign);
 			}
 		}
 

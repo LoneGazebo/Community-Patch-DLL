@@ -2156,7 +2156,7 @@ CvUnit* SwitchEscort(CvUnit* pCivilian, CvPlot* pNewEscortPlot, CvUnit* pEscort,
 		int iSlot = pThisArmy->RemoveUnit(pEscort->GetID(),true);
 		if (iSlot>=0)
 		{
-			pThisArmy->AddUnit(pPlotDefender->GetID(), iSlot, true);
+			pThisArmy->AddUnit(pPlotDefender->GetID(), iSlot, pThisArmy->GetSlotInfo(iSlot).m_requiredSlot);
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
@@ -2442,7 +2442,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 						CvUnit* pDefender = pTurnTarget->getBestDefender(m_pPlayer->GetID());
 						if (pDefender && pDefender->getArmyID() == -1 && pDefender->getDomainType() == pCivilian->getDomainType())
 						{
-							pThisArmy->AddUnit(pDefender->GetID(), 1, true);
+							pThisArmy->AddUnit(pDefender->GetID(), 1, pThisArmy->GetSlotInfo(1).m_requiredSlot);
 							if (GC.getLogging() && GC.getAILogging())
 							{
 								CvString strLogString;
@@ -7283,7 +7283,7 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 				// If we take the city, the unit also dies
 				if (iPrevUnitHitPoints > 0)
 				{
-					iGarrisonDamage = max(iGarrisonDamage, iPrevUnitHitPoints + 5);
+					iGarrisonDamage = iPrevUnitHitPoints;
 				}
 			}
 			else
@@ -7438,7 +7438,7 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 	//don't be too precise because of randomness in damage calculation added later
 	//if it doesn't work out we can try again
 	//better than assuming it's not a kill and having a melee unit end up in a bad place
-	if (iPrevCityHitPoints > 0 && iCityDamageDealt >= iPrevCityHitPoints - 1)
+	if (iPrevCityHitPoints > 0 && iCityDamageDealt >= iPrevCityHitPoints)
 	{
 		bScoreReduction = false;
 
@@ -7448,21 +7448,29 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 		if (!bRanged && pUnit->IsCanAttackWithMove())
 			bCityKill = true;
 		else
-			iCityDamageDealt = iPrevCityHitPoints - 1;
+		{
+			if (iPrevCityHitPoints > 1)
+				iBonusScore += min(iCityDamageDealt - iPrevCityHitPoints + 1, 3);
+			iCityDamageDealt = min(iCityDamageDealt, iPrevCityHitPoints - 1);
+		}
 	}
 	for (SUnitIDValueContainer::const_iterator it = unitDamageDealt.begin(); it != unitDamageDealt.end(); ++it)
 	{
 		int iPrevUnitHitPoints = prevUnitHitPoints.GetValue((*it).first);
 		int iUnitDamageDealt = (*it).second;
 
+		if (iUnitDamageDealt > iPrevUnitHitPoints)
+			iBonusScore += min(iUnitDamageDealt - iPrevUnitHitPoints, 10);
+
 		actualDamageDealt.SetValue((*it).first, min(iPrevUnitHitPoints, iUnitDamageDealt));
 
 		iTotalUnitDamageDealt += iUnitDamageDealt;
 		iTotalActualUnitDamageDealt += min(iPrevUnitHitPoints, iUnitDamageDealt);
 
-		if (iPrevUnitHitPoints > 0 && iUnitDamageDealt >= iPrevUnitHitPoints - 1)
+		if (iPrevUnitHitPoints > 0 && iUnitDamageDealt >= iPrevUnitHitPoints)
 		{
-			bUnitKill = true;
+			if (pEnemyUnit && pEnemyUnit->GetID() == (*it).first)
+				bUnitKill = true;
 
 			iBonusScore += pUnit->GetExtraXPOnKill();
 
@@ -7524,7 +7532,7 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 	{
 		if (bRanged)
 			result->eAssignmentType = A_RANGEKILL;
-		else if (pUnitPlot->isFortification(pUnit->getTeam()))
+		else if (pUnitPlot->isFortification(pUnit->getTeam()) || iPrevCityHitPoints > 0)
 			result->eAssignmentType = A_MELEEKILL_NO_ADVANCE;
 		else
 			result->eAssignmentType = A_MELEEKILL;
@@ -7537,7 +7545,7 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 	result->iCityDamage = iCityDamageDealt;
 
 	//for melee units we check if the damage received is worth it ...
-	if (iDamageReceived > 0)
+	if (iDamageReceived > 0 && gSafePlotCount[pUnit->GetID()] > 0)
 	{
 		float fAggFactor = /*100*/ GD_INT_GET(COMBAT_AI_OFFENSE_DAMAGEWEIGHT) / 100.f;
 		switch (eAggLvl)
@@ -7593,10 +7601,7 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 	//todo: consider pEnemy->getUnitInfo().GetProductionCost() and pEnemy->GetBaseCombatStrength()
 	//todo: normalize damage done by max hp to balance between city attacks and unit attacks?
 
-	int iActualCityDamageDealt = min(iCityDamageDealt, iPrevCityHitPoints);
-
-	if (pUnit->IsCanAttackRanged() && iCityDamageDealt > 0 && iCityDamageDealt >= iPrevCityHitPoints)
-		iActualCityDamageDealt = iPrevCityHitPoints - 1;
+	int iActualCityDamageDealt = min(iCityDamageDealt, iPrevCityHitPoints + (pUnit->IsCanAttackRanged() ? 2 : 10));
 
 	int iActualDamageTaken = min(iDamageReceived, pUnit->GetCurrHitPoints() - iSelfDamage);
 	if (iActualDamageTaken < 0)
@@ -8060,7 +8065,7 @@ static STacticalAssignment* ScorePlotForCombatUnitMove(const SUnitStats& unit, c
 			iPlotScore += 3;
 
 		// if we are not in a good spot, try moving
-		if (iPlotScore <= 6 && pTestPlot == pUnit->plot())
+		if (iPlotScore <= 6 && pTestPlot == pUnit->plot() && pUnit->getDamage() + unit.iSelfDamage < 10)
 			iPlotScore -= 2;
 
 		// Move melee units in to capture cities
@@ -8198,7 +8203,7 @@ static STacticalAssignment* ScorePlotForCombatUnitMove(const SUnitStats& unit, c
 
 		if (iDangerScore == INT_MAX)
 		{
-			if (evalMode == EM_INITIAL || gSafePlotCount[unit.iUnitID] > 0)
+			if (gSafePlotCount[unit.iUnitID] > 0)
 				return result; //don't do it
 
 			//unit has no safe plots and must end turn somewhere (EM_FINAL)
@@ -8445,7 +8450,7 @@ static STacticalAssignment* ScorePlotForMeleeAttack(const SUnitStats& unit, cons
 	}
 
 	// barbarian camp
-	if (pEnemyPlot->getRevealedImprovementType(pUnit->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
+	if (result->eAssignmentType == A_MELEEKILL && pEnemyPlot->getRevealedImprovementType(pUnit->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 		iBonusScore += 100;
 
 	result->AddScore(0, iBonusScore, 0);
@@ -9000,6 +9005,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 	CvTacticalPosition tempPosition;
 	int iOldPlotDistanceToTarget = bTargetDistanceRelevant ? TacticalAIHelpers::GetPlotDistanceToTarget(unit.iPlotIndex, pUnit->getDomainType()) : 0;
+	if (iOldPlotDistanceToTarget < TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+		iOldPlotDistanceToTarget = TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
 
 	//check moves and melee attacks first
 	const ReachablePlots& reachablePlots = getReachablePlotsForUnit(unit);
@@ -9050,7 +9057,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		{
 			//try pillaging as an intermediate step
 			STacticalAssignment* pillaging = ScorePlotForPillageMove(unit, testPlot, it->iMovesLeft, *this);
-			if (pillaging->Score() > 0)
+			if (pillaging->Score() > 0 && pillaging->IsAcceptable())
 			{
 				GetNextPosition(*this, pillaging, tempPosition);
 				SUnitStats tempUnit = GetNextUnit(unit, pillaging);
@@ -9079,7 +9086,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 					if (enemyPlot && enemyPlot->isEnemy())
 					{
 						STacticalAssignment* rangedAttack = ScorePlotForRangedAttack(unit, assumedUnitPlot, enemyPlot, *this);
-						if (rangedAttack->Score() <= 0)
+						if (rangedAttack->Score() <= 0 || !rangedAttack->IsAcceptable())
 							continue;
 
 						GetNextPosition(*this, rangedAttack, tempPosition);
@@ -9101,7 +9108,6 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 						STacticalAssignment* stayAfterAttack = ScorePlotForMove(tempUnit, testPlot, tempPosition, EM_INTERMEDIATE);
 
 						rangedAttack->AddScore(stayAfterAttack);
-
 						gPossibleRangedAttacks.push_back(OptionWithScore<STacticalAssignment*>(rangedAttack, rangedAttack->Score()));
 					}
 				}
@@ -9153,10 +9159,12 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			int iMoveTowardsTargetScore = 0;
 
-			if (getNumEnemies() == 0 && bTargetDistanceRelevant)
+			if (bTargetDistanceRelevant)
 			{
 				// Try to move towards the target
 				int iNewPlotDistanceToTarget = TacticalAIHelpers::GetPlotDistanceToTarget(it->iPlotIndex, pUnit->getDomainType());
+				if (iNewPlotDistanceToTarget < TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+					iNewPlotDistanceToTarget = TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
 				iMoveTowardsTargetScore = (iOldPlotDistanceToTarget - iNewPlotDistanceToTarget) * 40;
 				if (iNewPlotDistanceToTarget > iOldPlotDistanceToTarget)
 					continue;
@@ -9819,17 +9827,18 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 		//note that RESTARTS are ignored here ... just hope that we still find good moves after the restart
 	}
 
+	bool bMovingTowardsTarget = (bTargetDistanceRelevant && iAfter < iBefore);
 	if (haveEnemies())
 	{
 		//staying in place and bombarding is fine!
 		//staying in place and healing is also progress TODO: should we check whether we are healing more than we are taking damage?
 		//note that retreating a damaged unit counts as positive because it should be MS_THIRDLINE
-		return (iNegative < iPositive) || (iNegative == iPositive && (iAttacksNoMove > 0 || iHealingUnits > 1));
+		return (iNegative < iPositive) || (iNegative == iPositive && (bMovingTowardsTarget || iAttacksNoMove > 0 || iHealingUnits > 1 || (iHealingUnits == root->GetNumAvailableUnits())));
 	}
 	else
 	{
 		//did we get closer to the target plot?
-		return ((bTargetDistanceRelevant && iAfter < iBefore) || iHealingUnits > 0);
+		return bMovingTowardsTarget || iHealingUnits > 0;
 	}
 }
 
@@ -11302,7 +11311,7 @@ void CvSupportPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, i
 
 		int iMoveTowardsTargetScore = 0;
 
-		if (GetFinalTacticalPosition()->getNumEnemies() == 0 && GetFinalTacticalPosition()->IsTargetToDistanceRelevant())
+		if (GetFinalTacticalPosition()->IsTargetToDistanceRelevant())
 		{
 			// Try to move towards the target
 			int iNewPlotDistanceToTarget = TacticalAIHelpers::GetPlotDistanceToTarget(it->iPlotIndex, pUnit->getDomainType());
