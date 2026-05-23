@@ -88,6 +88,11 @@
 			<LandmarkType>Improvement</LandmarkType>
 			<FriendlyName>Torii</FriendlyName>
 		</Row>
+		<Row>
+			<Type>ART_DEF_IMPROVEMENT_SALTWORKS</Type>
+			<LandmarkType>Improvement</LandmarkType>
+			<FriendlyName>Saltworks</FriendlyName>
+		</Row>
 	</ArtDefine_LandmarkTypes>
 	<ArtDefine_Landmarks>
 		<Row>
@@ -547,6 +552,33 @@
 			<Model>Assets/Buildings/Improvements/Monolith/Monolith_PL_ASIA.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_SALTWORKS</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>UnderConstruction</State>
+			<Scale>1.0</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>hb_saltworks.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_SALTWORKS</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Constructed</State>
+			<Scale>1.0</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>Saltworks.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ImprovementType>ART_DEF_IMPROVEMENT_SALTWORKS</ImprovementType>
+			<ResourceType>ART_DEF_RESOURCE_ALL</ResourceType>
+			<State>Pillaged</State>
+			<Scale>1.0</Scale>
+			<LayoutHandler>SNAPSHOT</LayoutHandler>
+			<Model>pl_saltworks.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
 	</ArtDefine_Landmarks>
 	<ArtDefine_StrategicView>
 		<Row>
@@ -634,6 +666,11 @@
 			<StrategicViewType>ART_DEF_IMPROVEMENT_TORII</StrategicViewType>
 			<TileType>Improvement</TileType>
 			<Asset>SV_Torii.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_SALTWORKS</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Saltworks.dds</Asset>
 		</Row>
 	</ArtDefine_StrategicView>
 </GameData>
