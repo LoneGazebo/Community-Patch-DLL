@@ -288,35 +288,35 @@
 			<IconSize>16</IconSize>
 			<Filename>promoVP_07_016.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>PROMOTION_ATLAS_VP_07</Atlas>
 			<IconSize>32</IconSize>
 			<Filename>promoVP_07_032.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>PROMOTION_ATLAS_VP_07</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>promoVP_07_045.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>PROMOTION_ATLAS_VP_07</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>promoVP_07_064.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>PROMOTION_ATLAS_VP_07</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>promoVP_07_256.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CORPORATION_ATLAS_VP</Atlas>
