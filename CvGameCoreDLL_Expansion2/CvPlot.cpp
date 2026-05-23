@@ -7501,6 +7501,11 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 			{
 				pOwningCity->ChangeNumTerrainWorked(eOldValue, -1);
 				pOwningCity->ChangeNumTerrainWorked(eNewValue, 1);
+				if (getFeatureType() == NO_FEATURE && !isHills())
+				{
+					pOwningCity->ChangeNumFeaturelessTerrainWorked(eOldValue, -1);
+					pOwningCity->ChangeNumFeaturelessTerrainWorked(eNewValue, 1);
+				}
 			}
 		}
 

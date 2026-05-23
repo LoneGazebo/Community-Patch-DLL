@@ -1126,6 +1126,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 	OutputDebugStringA("Calculating Areas...\n");
 
 	kMap.recalculateAreas();
+	kMap.updateAdjacency();
 
 	OutputDebugStringA("Adding Scenario Elements...\n");
 
