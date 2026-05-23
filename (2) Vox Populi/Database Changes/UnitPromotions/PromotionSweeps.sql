@@ -266,15 +266,6 @@ SELECT
 FROM UnitCombatInfos
 WHERE IsMilitary = 1 AND IsNaval = 0 AND IsAerial = 0;
 
--- Dojo
-INSERT INTO UnitPromotions_UnitCombats
-	(PromotionType, UnitCombatType)
-VALUES
-	('PROMOTION_BUSHIDO', 'UNITCOMBAT_MELEE'),
-	('PROMOTION_BUSHIDO', 'UNITCOMBAT_GUN'),
-	('PROMOTION_BUSHIDO', 'UNITCOMBAT_MOUNTED'),
-	('PROMOTION_BUSHIDO', 'UNITCOMBAT_ARMOR');
-
 -- Schützenstand
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)
@@ -542,7 +533,6 @@ OR Type IN (
 	'PROMOTION_HIMEJI_CASTLE', -- Himeji Castle
 	'PROMOTION_STATUE_ZEUS', -- Statue of Zeus
 	'PROMOTION_PROXENOS', -- Parthenon
-	'PROMOTION_BUSHIDO', -- Dojo
 	'PROMOTION_IKLWA', -- Ikanda
 	'PROMOTION_SCHUTZENKONIG', -- Schützenstand
 	'PROMOTION_VENETIAN_CRAFTSMANSHIP', -- Arsenale di Venezia

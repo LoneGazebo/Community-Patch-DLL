@@ -1126,15 +1126,15 @@
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>26</PortraitIndex>
 		</Row>
-		<!-- Dojo -->
+		<!-- Tatara -->
 		<Row>
-			<Type>BUILDING_DOJO</Type>
-			<BuildingClass>BUILDINGCLASS_ARMORY</BuildingClass>
-			<Description>TXT_KEY_BUILDING_DOJO</Description>
-			<Civilopedia>TXT_KEY_BUILDING_DOJO_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_DOJO_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_DOJO_STRATEGY</Strategy>
-			<PrereqTech>TECH_STEEL</PrereqTech>
+			<Type>BUILDING_TATARA</Type>
+			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_TATARA</Description>
+			<Civilopedia>TXT_KEY_BUILDING_TATARA_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_TATARA_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_TATARA_STRATEGY</Strategy>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ArtDefineTag>ART_DEF_BUILDING_BARRACKS</ArtDefineTag>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>27</PortraitIndex>

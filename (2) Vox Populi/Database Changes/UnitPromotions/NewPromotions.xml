@@ -467,6 +467,14 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SUN_NEVER_SETS</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_BUSHIDO</Type>
+			<Description>TXT_KEY_PROMOTION_BUSHIDO</Description>
+			<Help>TXT_KEY_PROMOTION_BUSHIDO_HELP</Help>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO</PediaEntry>
+			<HasPostCombatPromotions>true</HasPostCombatPromotions>
+		</Row>
 		<!-- Policy -->
 		<Row>
 			<Type>PROMOTION_FASTER_WORKER</Type>
@@ -641,14 +649,6 @@
 			<Help>TXT_KEY_PROMOTION_IKLWA_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_IKLWA</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_BUSHIDO</Type>
-			<Description>TXT_KEY_PROMOTION_BUSHIDO</Description>
-			<Help>TXT_KEY_PROMOTION_BUSHIDO_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO</PediaEntry>
-			<HasPostCombatPromotions>true</HasPostCombatPromotions>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SCHUTZENKONIG</Type>
