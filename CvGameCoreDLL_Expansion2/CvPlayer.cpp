@@ -26513,9 +26513,21 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					break;
 				}
+				case INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE:
+				{
+					if (pUnit == NULL)
+						continue;
+
+					// if (bEvent) then its an upgrade, else a scrap
+					
+					iValue = iPassYield;	
+					iValue /= 100;
+
+					break;
+				}
 				case INSTANT_YIELD_TYPE_HEALING:
 				{
-					if(pUnit == NULL)
+					if (pUnit == NULL)
 						continue;
 					
 					int iYieldPer100HP = 0;
@@ -26767,6 +26779,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					switch (iType)
 					{
 						case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+						case INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE:
 						case INSTANT_YIELD_TYPE_HEALING:
 						case INSTANT_YIELD_TYPE_CITY_DAMAGE:
 						{
@@ -27612,6 +27625,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			// These yields intentionally have no notification.
 			case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+			case INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE:
 			case INSTANT_YIELD_TYPE_HEALING:
 			case INSTANT_YIELD_TYPE_CITY_DAMAGE:
 			{
@@ -42092,6 +42106,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
 			{
 				instantYieldName = "Unit Combat";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE:
+			{
+				instantYieldName = "Scrap or Upgrade";
 				break;
 			}
 	case INSTANT_YIELD_TYPE_HEALING:
