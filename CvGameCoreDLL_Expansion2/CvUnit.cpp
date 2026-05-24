@@ -6026,20 +6026,12 @@ void CvUnit::scrap(bool bDelay)
 		kOwner.GetTreasury()->ChangeGold(iGold);
 	}
 
-	// TODO: change to instant yield
-	if (isCultureFromExperienceDisbandUpgrade())
+	if (getCultureFromExperienceDisbandUpgrade() > 0)
 	{
-		int iExperience = getExperienceTimes100() / 100;
-		if (iExperience > 0)
-		{
-			kOwner.changeJONSCulture(iExperience);
-			if (getOwner() == GC.getGame().getActivePlayer())
-			{
-				char text[256] = { 0 };
-				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-				SHOW_PLOT_POPUP(plot(), getOwner(), text);
-			}
-		}
+		int iExperienceTimes100 = getExperienceTimes100();
+		if (iExperienceTimes100 > 0)
+			doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
+				false, getOwner(), plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, false, YIELD_CULTURE, this);
 	}
 
 	kill(bDelay);
@@ -14222,20 +14214,13 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 				LuaSupport::CallHook(pkScriptSystem, "UnitUpgraded", args.get(), bResult);
 			}
 		}
-
-		if(isCultureFromExperienceDisbandUpgrade())
+		
+		if (getCultureFromExperienceDisbandUpgrade() > 0)
 		{
-			int iExperience = getExperienceTimes100() / 100;
-			if(iExperience > 0)
-			{
-				thisPlayer.changeJONSCulture(iExperience);
-				if (getOwner() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = { 0 };
-					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-					SHOW_PLOT_POPUP(plot(),getOwner(),text);
-				}
-			}
+			int iExperienceTimes100 = getExperienceTimes100();
+			if (iExperienceTimes100 > 0)
+				doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
+					false, getOwner(), plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, true, YIELD_CULTURE, this);
 		}
 
 		if (MOD_SQUADS && GetSquadNumber() > -1)
@@ -33914,10 +33899,10 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 	return loadFrom;
 }
 //	--------------------------------------------------------------------------------
-bool CvUnit::isCultureFromExperienceDisbandUpgrade() const
+int CvUnit::getCultureFromExperienceDisbandUpgrade() const
 {
 	VALIDATE_OBJECT();
-	return getUnitInfo().IsCultureFromExperienceDisbandUpgrade();
+	return getUnitInfo().GetCultureFromExperienceDisbandUpgrade();
 }
 bool CvUnit::isFreeUpgrade() const
 {
