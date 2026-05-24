@@ -6030,8 +6030,8 @@ void CvUnit::scrap(bool bDelay)
 	{
 		int iExperienceTimes100 = getExperienceTimes100();
 		if (iExperienceTimes100 > 0)
-			doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
-				false, getOwner(), plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, false, YIELD_CULTURE, this);
+			kOwner.doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
+				false, NO_PLAYER, plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, false, YIELD_CULTURE, this);
 	}
 
 	kill(bDelay);
@@ -14219,8 +14219,8 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 		{
 			int iExperienceTimes100 = getExperienceTimes100();
 			if (iExperienceTimes100 > 0)
-				doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
-					false, getOwner(), plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, true, YIELD_CULTURE, this);
+				thisPlayer.doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
+					false, NO_PLAYER, plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, true, YIELD_CULTURE, this);
 		}
 
 		if (MOD_SQUADS && GetSquadNumber() > -1)
