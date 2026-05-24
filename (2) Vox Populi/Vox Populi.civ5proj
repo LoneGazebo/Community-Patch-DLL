@@ -1648,6 +1648,7 @@
     <Folder Include="Assets\Models\Units\TreasureShip" />
     <Folder Include="Assets\Models\Units\Yamato" />
     <Folder Include="Assets\Models\Units\YellowBrow" />
+    <Folder Include="Assets\StrategicView\Features" />
     <Folder Include="Assets\StrategicView\Improvements" />
     <Folder Include="Assets\StrategicView\Resources" />
     <Folder Include="Assets\StrategicView\Units" />
@@ -5272,6 +5273,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Models\Units\YellowBrow\iropi1_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\StrategicView\Features\sv_salt_lake.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
