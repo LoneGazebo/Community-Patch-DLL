@@ -299,6 +299,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_COST_PRODUCTION">
 			<Text>{1_Num} [ICON_PRODUCTION]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_COST_PRODUCTION_ADDED_PER_ERA">
+			<Text>{1_Num} [ICON_PRODUCTION] + {2_Num} [ICON_PRODUCTION] per Era</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_COST_GOLD">
 			<Text>{1_Num} [ICON_GOLD]</Text>
 		</Row>
