@@ -26515,7 +26515,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE:
 				{
-					if (pUnit == NULL)
+					if (eYield != ePassYield)
 						continue;
 
 					// if (bEvent) then its an upgrade, else a scrap
