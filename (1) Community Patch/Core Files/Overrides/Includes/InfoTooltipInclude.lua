@@ -962,10 +962,11 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_MISSION_SPREAD_RELIGION", kUnitInfo.SpreadReligion);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_MISSION_REMOVE_HERESY", kUnitInfo.RemoveHeresy);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_MISSION_FOUND_RELIGION", kUnitInfo.FoundReligion);
-	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE", kUnitInfo.CulExpOnDisbandUpgrade);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_EXTRA_PLUNDER_GOLD", kUnitInfo.HighSeaRaider);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_EXPEND_COPY_TILE_YIELD", kUnitInfo.CopyYieldsFromExpendTile);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_MOVE_AFTER_UPGRADE", kUnitInfo.MoveAfterUpgrade);
+	
+	AddTooltipPositive(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE", kUnitInfo.CulExpOnDisbandUpgrade);
 
 	-- Block/weaken active spread
 	if kUnitInfo.ProhibitsSpread then

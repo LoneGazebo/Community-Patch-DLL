@@ -484,7 +484,7 @@
 			<Text>Ignores [ICON_STRENGTH] City Strength from Buildings when Attacking</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE">
-			<Text>Gains [ICON_CULTURE] Culture on Disband or Upgrade</Text>
+			<Text>On Disband or Upgrade: Receive [ICON_CULTURE] Culture equal to {1_Num}x total XP</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_GOODY_MODIFIER">
 			<Text>{2_Sign}{1_Num}% Ancient Ruin Rewards</Text>
