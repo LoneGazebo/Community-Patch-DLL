@@ -30743,9 +30743,9 @@ void CvPlayer::ChangeMonopolyModPercent(int iChange)
 		{
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				eYield = (YieldTypes)iI;
+				YieldTypes eYield = (YieldTypes)iI;
 
-				if (pResource->getCityYieldModFromMonopoly(eYield) != 0)
+				if (pkResource->getCityYieldModFromMonopoly(eYield) != 0)
 				{
 					changeCityYieldModFromMonopoly(eYield, iChange);
 				}
