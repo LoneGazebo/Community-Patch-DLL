@@ -84,14 +84,14 @@ INSERT INTO Civilization_BuildingClassOverrides
 VALUES
 	('CIVILIZATION_JAPAN', 'BUILDINGCLASS_FORGE', 'BUILDING_TATARA');
 
-UPDATE Building_YieldChanges
-SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_FORGE' AND YieldType = 'YIELD_SCIENCE') + 1
-WHERE BuildingType = 'BUILDING_TATARA' AND YieldType = 'YIELD_SCIENCE';
-
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_TATARA', 'YIELD_PRODUCTION', 2);
+
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_FORGE' AND YieldType = 'YIELD_SCIENCE') + 1
+WHERE BuildingType = 'BUILDING_TATARA' AND YieldType = 'YIELD_SCIENCE';
 
 UPDATE Buildings
 SET SpecialistCount = (SELECT SpecialistCount FROM Buildings WHERE Type = 'BUILDING_FORGE') + 1
