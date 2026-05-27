@@ -14281,81 +14281,23 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 int CvUnit::upgradePrice(UnitTypes eUnit) const
 {
 	VALIDATE_OBJECT();
-	int iPrice = 0;
-	
-	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-	if(pkUnitInfo == NULL)
-	{
-		return 0;
-	}
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
 
-	if(isBarbarian())
-	{
-		return 0;
-	}
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+	// Player-specific upgrade cost
+	int iPrice = kPlayer.GetUpgradeCost(getUnitType(), eUnit);
 
-	if (kPlayer.isMinorCiv())
-		return 0;
-
-	iPrice = /*10*/ GD_INT_GET(BASE_UNIT_UPGRADE_COST);
-
-	int iProductionBase = kPlayer.getProductionNeeded(getUnitType(), true);
-	if (iProductionBase == 0)
-	{
-		iProductionBase = kPlayer.getProductionNeeded(eUnit, true) / 2;
-	}
-
-	iPrice += (int)(std::max(0, (kPlayer.getProductionNeeded(eUnit, true) - iProductionBase)) * /*2.0f in CP, 1.25f in VP*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
-
-	// Upgrades for later units are more expensive
-	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
-	if (eTech != NO_TECH)
-	{
-		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-		const EraTypes eUpgradeEra = (EraTypes) pkTechInfo->GetEra();
-
-		double fMultiplier = 1.0f;
-		fMultiplier += (static_cast<float>(eUpgradeEra) * /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA));
-
-		iPrice = int(iPrice * fMultiplier);
-	}
-
-	if (kPlayer.isMajorCiv())
-	{
-		iPrice *= kPlayer.getHandicapInfo().getUnitUpgradePercent();
-		iPrice /= 100;
-
-		iPrice *= std::max(0, ((kPlayer.getHandicapInfo().getUnitUpgradePerEraModifier() * GC.getGame().getCurrentEra()) + 100));
-		iPrice /= 100;
-		if (!isHuman(ISHUMAN_HANDICAP))
-		{
-			iPrice *= GC.getGame().getHandicapInfo().getAIUnitUpgradePercent();
-			iPrice /= 100;
-
-			iPrice *= std::max(0, ((GC.getGame().getHandicapInfo().getAIUnitUpgradePerEraModifier() * GC.getGame().getCurrentEra()) + 100));
-			iPrice /= 100;
-		}
-	}
-
-	// Discount
-	iPrice -= (iPrice * getUpgradeDiscount()) / 100;
-
-	// Mod (Policies, etc.)
-	int iMod = kPlayer.GetUnitUpgradeCostMod();
-	iPrice *= (100 + iMod);
+	// Discount (from promotions)
+	iPrice *= 100 - getUpgradeDiscount();
 	iPrice /= 100;
-
-	// Apply exponent
-	iPrice = (int) pow((double) iPrice, (double) /*1.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_EXPONENT));
 
 	// Make the number not be funky
 	int iDivisor = /*5*/ GD_INT_GET(UNIT_UPGRADE_COST_VISIBLE_DIVISOR);
 	iPrice /= iDivisor;
 	iPrice *= iDivisor;
 
-	return max(1, iPrice);
+	return max(iDivisor, iPrice);
 }
 
 //	--------------------------------------------------------------------------------

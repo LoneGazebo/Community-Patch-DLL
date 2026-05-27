@@ -167,6 +167,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBuildingProductionNeeded);
 	Method(GetProjectProductionNeeded);
 
+	Method(GetUnitUpgradeCost);
+
 	Method(GetMaxStockpile);
 
 	Method(HasReadyUnit);
@@ -2679,7 +2681,7 @@ int CvLuaPlayer::lGetUnitProductionNeeded(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const UnitTypes iIndex = (UnitTypes)lua_tointeger(L, 2);
 
-	const int iResult = pkPlayer->getProductionNeeded(iIndex, false);
+	const int iResult = pkPlayer->getProductionNeeded(iIndex);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -2703,6 +2705,22 @@ int CvLuaPlayer::lGetProjectProductionNeeded(lua_State* L)
 
 	const int iResult = pkPlayer->getProductionNeeded(iIndex);
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetUnitUpgradeCost(lua_State* L)
+{
+	CvPlayer* pPlayer = GetInstance(L);
+	UnitTypes eCurrentUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
+	UnitTypes eNewUnit = static_cast<UnitTypes>(lua_tointeger(L, 3));
+	int iCost = pPlayer->GetUpgradeCost(eCurrentUnit, eNewUnit);
+
+	// Round down the cost
+	int iDivisor = /*5*/ GD_INT_GET(UNIT_UPGRADE_COST_VISIBLE_DIVISOR);
+	iCost /= iDivisor;
+	iCost *= iDivisor;
+
+	lua_pushinteger(L, max(iCost, iDivisor));
 	return 1;
 }
 //------------------------------------------------------------------------------

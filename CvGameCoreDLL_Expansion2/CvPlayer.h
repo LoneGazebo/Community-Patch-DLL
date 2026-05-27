@@ -329,9 +329,11 @@ public:
 	bool isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const;
 	bool isProductionMaxedBuilding(BuildingTypes eBuilding, bool bAcquireCity = false) const;
 	bool isProductionMaxedProject(ProjectTypes eProject) const;
-	int getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const;
+	int getProductionNeeded(UnitTypes eUnit, bool bIgnoreTraitsDifficulty = false, bool bIgnoreExistingCopies = false) const;
 	int getProductionNeeded(BuildingTypes eBuilding) const;
 	int getProductionNeeded(ProjectTypes eProject) const;
+
+	int GetUpgradeCost(const UnitTypes eCurrentUnit, const UnitTypes eNewUnit) const;
 
 	int getMaxStockpile() const;
 

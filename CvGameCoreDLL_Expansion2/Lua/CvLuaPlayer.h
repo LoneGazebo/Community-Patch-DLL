@@ -152,6 +152,8 @@ protected:
 	static int lGetBuildingProductionNeeded(lua_State* L);
 	static int lGetProjectProductionNeeded(lua_State* L);
 
+	LUAAPIEXTN(GetUnitUpgradeCost, int, iCurrentUnit, iNewUnit);
+
 	LUAAPIEXTN(GetMaxStockpile, int);
 
 	static int lHasReadyUnit(lua_State* L);

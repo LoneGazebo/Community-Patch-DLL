@@ -361,6 +361,13 @@
 		<!-- NOTE: Requires additional UI changes -->
 		<Row Class="6" Name="BALANCE_BUILDING_INVESTMENTS" Value="0"/>
 
+		<!-- Unit upgrade cost is the difference of Production cost between the Unit and its upgraded version -->
+		<!-- Both current and upgraded Unit costs factor in era scalers, settler extra costs, game speed modifiers, and start era modifiers -->
+		<!-- Only upgraded Unit cost factors in extra cost/modifier from existing instances of the Unit -->
+		<!-- Neither cost factors in trait modifiers and difficulty modifiers -->
+		<!-- Current Unit cost is assumed to be half of upgraded Unit cost if it cannot be produced -->
+		<Row Class="6" Name="BALANCE_UNIT_UPGRADE_COST" Value="0"/>
+
 		<!-- Resources can give monopoly bonuses -->
 		<!-- NOTE: Requires additional UI changes -->
 		<Row Class="6" Name="BALANCE_RESOURCE_MONOPOLIES" Value="0"/>
@@ -466,9 +473,6 @@
 		<!-- PostDefines: PRISONERS_OF_WAR_PROMOTION -->
 		<Row Class="5" Name="BALANCE_PRISONERS_OF_WAR" Value="0"/>
 
-		<!-- Increases the Gold cost of buildings (1% per 3 Techs researched) and units (1% per 2 Techs researched); also decreases the final Gold cost of Units by 20% -->
-		<Row Class="5" Name="BALANCE_PURCHASE_COST_ADJUSTMENTS" Value="0"/>
-
 		<!-- Vote Commitments cannot be cancelled by war; if the resolution becomes invalid, the votes are abstained instead of returned to the civ -->
 		<Row Class="5" Name="BALANCE_PERMANENT_VOTE_COMMITMENTS" Value="0"/>
 
@@ -537,6 +541,9 @@
 
 		<!-- Players can pillage permanent improvements if at war -->
 		<Row Class="4" Name="BALANCE_PILLAGE_PERMANENT_IMPROVEMENTS" Value="0"/>
+
+		<!-- Increases the Gold cost of buildings (1% per 3 Techs researched) and units (1% per 2 Techs researched); also decreases the final Gold cost of Units by 20% -->
+		<Row Class="5" Name="BALANCE_PURCHASE_COST_ADJUSTMENTS" Value="0"/>
 
 		<!-- Great Prophets spawn in a random city, partially based on Faith generation -->
 		<Row Class="6" Name="BALANCE_RANDOMIZED_GREAT_PROPHET_SPAWNS" Value="0"/>

@@ -210,7 +210,9 @@ UPDATE Defines SET Value = 1.25 WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
 
 -- Maximum discount you can get for stacking unit upgrade discounts, so the number doesn't go negative
 UPDATE Defines SET Value = -99 WHERE Name = 'UNIT_UPGRADE_COST_DISCOUNT_MAX';
-UPDATE Defines SET Value = 0.68 WHERE Name = 'HURRY_GOLD_PRODUCTION_EXPONENT';
+
+UPDATE Defines SET Value = 4 WHERE Name = 'GOLD_PURCHASE_GOLD_PER_PRODUCTION';
+UPDATE Defines SET Value = 0.88 WHERE Name = 'HURRY_GOLD_PRODUCTION_EXPONENT';
 
 -------------------------------------------------------------------------------------------------------------------
 -- Minors

@@ -272,11 +272,7 @@ OR IsDummy = 1;
 -----------------------------------------------------------------
 
 UPDATE Buildings
-SET HurryCostModifier = -20;
-
-UPDATE Buildings
-SET HurryCostModifier = -5
-WHERE WonderSplashImage IS NOT NULL;
+SET HurryCostModifier = 0;
 
 UPDATE Buildings
 SET HurryCostModifier = -1
@@ -304,7 +300,7 @@ VALUES
 	('BUILDING_PALACE', 'TXT_KEY_THEMING_BONUS_PALACE', 6, 2), -- More slots than Amphitheater, but no requirements
 	('BUILDING_GYMNASION', 'TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL', 6, 3), -- Has 3 slots with a lax requirement, should be lower priority
 	('BUILDING_NALANDA', 'TXT_KEY_THEMING_BONUS_BUILDING_NALANDA', 6, 3),
-	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 6, 3), 
+	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 6, 3),
 	('BUILDING_CHARTARIUM', 'TXT_KEY_THEMING_BONUS_RELIGIOUS_LIBRARY', 8, 4), -- Has 3 slots with no specified era requirement, can wait
 	('BUILDING_GREAT_LIBRARY', 'TXT_KEY_THEMING_BONUS_GREAT_LIBRARY', 10, 5),
 	('BUILDING_OXFORD_UNIVERSITY', 'TXT_KEY_THEMING_BONUS_OXFORD_UNIVERSITY', 10, 6), -- Strictly better yields than Great Library

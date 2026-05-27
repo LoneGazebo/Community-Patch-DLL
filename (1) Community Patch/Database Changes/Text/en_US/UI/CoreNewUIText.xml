@@ -621,6 +621,12 @@
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_PROMOTION_FROM_ERA">
 			<Text>[COLOR_CYAN]{2_Era:textkey}[ENDCOLOR] or later: [COLOR_POSITIVE_TEXT]{1_Promotions}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_UPGRADE">
+			<Text>Upgrades into: {1_Unit:textkey} ({2_Techs}{3_Cost} [ICON_GOLD])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_UPGRADE_NO_COST">
+			<Text>Upgrades into: {1_Unit:textkey} ({2_Techs})</Text>
+		</Row>
 		<!-- Building -->
 		<Row Tag="TXT_KEY_PRODUCTION_UNIQUE_BUILDING">
 			<Text>{1_CivAdj} Unique [COLOR_YIELD_FOOD]{2_Building:textkey}[ENDCOLOR]</Text>

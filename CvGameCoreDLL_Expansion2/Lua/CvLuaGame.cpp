@@ -517,6 +517,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(IsExeWantForceResyncAvailable);
 
 	Method(GetNumYieldTypes);
+	Method(GetBaseUnitUpgradeCost);
 }
 //------------------------------------------------------------------------------
 
@@ -4224,5 +4225,20 @@ int CvLuaGame::lIsExeWantForceResyncAvailable(lua_State* L)
 int CvLuaGame::lGetNumYieldTypes(lua_State* L) 
 {
 	lua_pushinteger(L, GC.getNUM_YIELD_TYPES());
+	return 1;
+}
+
+int CvLuaGame::lGetBaseUnitUpgradeCost(lua_State* L) 
+{
+	UnitTypes eCurrentUnit = static_cast<UnitTypes>(lua_tointeger(L, 1));
+	UnitTypes eNewUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
+	int iCost = GetBaseUnitUpgradeCost(eCurrentUnit, eNewUnit);
+
+	// Round down the cost
+	int iDivisor = /*5*/ GD_INT_GET(UNIT_UPGRADE_COST_VISIBLE_DIVISOR);
+	iCost /= iDivisor;
+	iCost *= iDivisor;
+
+	lua_pushinteger(L, max(iCost, iDivisor));
 	return 1;
 }

@@ -304,6 +304,9 @@
 // Purchasing buildings with Gold instead invests in them, reducing their Production cost by 50% (25% for Wonders); also reduces the final Gold cost of buildings by 40%
 #define MOD_BALANCE_BUILDING_INVESTMENTS							gCustomMods.isBALANCE_BUILDING_INVESTMENTS()
 
+// Unit upgrade cost is the difference of base Production cost between the Unit and its upgraded version
+#define MOD_BALANCE_UNIT_UPGRADE_COST								gCustomMods.isBALANCE_UNIT_UPGRADE_COST()
+
 // Resources can give monopoly bonuses
 #define MOD_BALANCE_RESOURCE_MONOPOLIES								gCustomMods.isBALANCE_RESOURCE_MONOPOLIES()
 
@@ -397,9 +400,6 @@
 // Workers receive a 50% work rate penalty for 50 turns when they are captured
 #define MOD_BALANCE_PRISONERS_OF_WAR								gCustomMods.isBALANCE_PRISONERS_OF_WAR()
 
-// Increases the Gold cost of buildings (1% per 3 Techs researched) and units (1% per 2 Techs researched); also decreases the final Gold cost of units by 20%
-#define MOD_BALANCE_PURCHASE_COST_ADJUSTMENTS						gCustomMods.isBALANCE_PURCHASE_COST_ADJUSTMENTS()
-
 // Vote Commitments cannot be cancelled by war; if the resolution becomes invalid, the votes are abstained instead of returned to the civ
 #define MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS						gCustomMods.isBALANCE_PERMANENT_VOTE_COMMITMENTS()
 
@@ -468,6 +468,9 @@
 
 // Players can pillage permanent improvements if at war
 #define MOD_BALANCE_PILLAGE_PERMANENT_IMPROVEMENTS					gCustomMods.isBALANCE_PILLAGE_PERMANENT_IMPROVEMENTS()
+
+// Increases the Gold cost of buildings (1% per 3 Techs researched) and units (1% per 2 Techs researched); also decreases the final Gold cost of units by 20%
+#define MOD_BALANCE_PURCHASE_COST_ADJUSTMENTS						gCustomMods.isBALANCE_PURCHASE_COST_ADJUSTMENTS()
 
 // Great Prophets spawn in a random city, partially based on Faith generation
 #define MOD_BALANCE_RANDOMIZED_GREAT_PROPHET_SPAWNS					gCustomMods.isBALANCE_RANDOMIZED_GREAT_PROPHET_SPAWNS()
@@ -1596,6 +1599,7 @@ public:
 	MOD_OPT_DECL(BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV);
 	MOD_OPT_DECL(BALANCE_CULTURE_VICTORY_CHANGES);
 	MOD_OPT_DECL(BALANCE_BUILDING_INVESTMENTS);
+	MOD_OPT_DECL(BALANCE_UNIT_UPGRADE_COST);
 	MOD_OPT_DECL(BALANCE_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_STRATEGIC_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_HEAVY_TRIBUTE);
@@ -1626,7 +1630,6 @@ public:
 	MOD_OPT_DECL(BALANCE_FLIPPED_OPEN_BORDERS_TOURISM);
 	MOD_OPT_DECL(BALANCE_NO_WARTIME_CONCERT_TOURS);
 	MOD_OPT_DECL(BALANCE_PRISONERS_OF_WAR);
-	MOD_OPT_DECL(BALANCE_PURCHASE_COST_ADJUSTMENTS);
 	MOD_OPT_DECL(BALANCE_PERMANENT_VOTE_COMMITMENTS);
 	MOD_OPT_DECL(BALANCE_QUEST_CHANGES);
 	MOD_OPT_DECL(BALANCE_RESILIENT_PANTHEONS);
@@ -1650,6 +1653,7 @@ public:
 	MOD_OPT_DECL(BALANCE_PASSIVE_SPREAD_BY_CONNECTION);
 	MOD_OPT_DECL(BALANCE_PERMANENT_PANTHEONS);
 	MOD_OPT_DECL(BALANCE_PILLAGE_PERMANENT_IMPROVEMENTS);
+	MOD_OPT_DECL(BALANCE_PURCHASE_COST_ADJUSTMENTS);
 	MOD_OPT_DECL(BALANCE_RANDOMIZED_GREAT_PROPHET_SPAWNS);
 	MOD_OPT_DECL(BALANCE_RELAXED_BORDER_CHECK);
 	MOD_OPT_DECL(BALANCE_SANE_UNIT_MOVEMENT_COST);
