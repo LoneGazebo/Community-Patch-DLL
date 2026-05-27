@@ -1441,6 +1441,39 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	end
 
 	----------------------
+	-- Upgrade section
+	-- In Civilopedia, show the player-agnostic value
+	-- In tech tree and city view, factor in player discounts and existing unit classes
+	----------------------
+	for row in GameInfo.Unit_ClassUpgrades{UnitType = kUnitInfo.Type} do
+		local eUpgradedUnit = GetUniqueUnitFromUnitClass(row.UnitClassType, pActivePlayer, pCity);
+		if eUpgradedUnit ~= -1 then
+			local kUpgradedUnitInfo = GameInfo.Units[eUpgradedUnit];
+
+			local tTechs = {};
+			if kUpgradedUnitInfo.PrereqTech then
+				AddTooltip(tTechs, GameInfo.Technologies[kUpgradedUnitInfo.PrereqTech].Description);
+			end
+			for row2 in GameInfo.Unit_TechTypes{UnitType = kUpgradedUnitInfo.Type} do
+				AddTooltip(tTechs, GameInfo.Technologies[row2.TechType].Description);
+			end
+
+			if Game then
+				local iCost;
+				if pActivePlayer then
+					iCost = pActivePlayer:GetUnitUpgradeCost(eUnit, eUpgradedUnit);
+				elseif Game then
+					iCost = Game.GetBaseUnitUpgradeCost(eUnit, eUpgradedUnit);
+				end
+
+				AddTooltip(tLines, "TXT_KEY_PRODUCTION_UNIT_UPGRADE", kUpgradedUnitInfo.Description, table.concat(tTechs, ", ") .. ", ", iCost);
+			else
+				AddTooltip(tLines, "TXT_KEY_PRODUCTION_UNIT_UPGRADE_NO_COST", kUpgradedUnitInfo.Description, table.concat(tTechs, ", "));
+			end
+		end
+	end
+
+	----------------------
 	-- Pre-written section
 	----------------------
 	local tPreWrittenLines = {};

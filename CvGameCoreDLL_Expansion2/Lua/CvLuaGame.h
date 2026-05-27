@@ -504,6 +504,8 @@ protected:
 	static int lSetExeWantForceResyncValue(lua_State* L);
 
 	LUAAPIEXTN(GetNumYieldTypes, int);
+
+	LUAAPIEXTN(GetBaseUnitUpgradeCost, int, iCurrentUnit, iNewUnit);
 };
 
 #endif //CVLUAGAME_H

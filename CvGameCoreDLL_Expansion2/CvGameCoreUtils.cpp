@@ -1214,43 +1214,152 @@ bool isLimitedProject(ProjectTypes eProject)
 	return (isWorldProject(eProject) || isTeamProject(eProject));
 }
 
-TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer)
+// Player-agnostic purchase cost based on given production cost
+int GetBasePurchaseCostFromProduction(const int iProduction)
 {
-	TechTypes eBestTech = NO_TECH;
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	// Gold per Production
+	int iPurchaseCost = iProduction * /*30 in CP, 4 in VP*/ GD_INT_GET(GOLD_PURCHASE_GOLD_PER_PRODUCTION);
+
+	// Cost ramps up
+	iPurchaseCost = static_cast<int>(pow((double) iPurchaseCost, (double) /*0.75f in CP, 0.88f in VP*/ GD_FLOAT_GET(HURRY_GOLD_PRODUCTION_EXPONENT)) + 1e-9);
+
+	// Game Speed modifier
+	iPurchaseCost *= GC.getGame().getGameSpeedInfo().getHurryPercent();
+	iPurchaseCost /= 100;
+
+	return max(0, iPurchaseCost);
+}
+
+// Unit production cost, optionally factoring in player era and existing copies
+int GetGenericUnitProductionCost(const UnitTypes eUnit, const CvPlayer* pPlayer, const bool bIgnoreExistingCopies)
+{
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-	if(pkUnitInfo)
+	UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pkUnitInfo->GetUnitClassType());
+	ASSERT(eUnitClass != NO_UNITCLASS);
+
+	int iProductionNeeded = pkUnitInfo->GetProductionCost();
+
+	// Is not supposed to be produced
+	if (iProductionNeeded == -1)
+		return 0;
+
+	if (pPlayer)
 	{
-		int iBestValue = 0;
-		for(int iI = 0; iI < GC.getNumTechInfos(); iI++)
+		if (pkUnitInfo->GetProductionCostPerEra() != 0)
 		{
-			const TechTypes eTech = static_cast<TechTypes>(iI);
-			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-			if(pkTechInfo)
+			int iEra = pPlayer->GetCurrentEra() - 1;
+			if (iEra > 0)
 			{
-				if(kPlayer.GetPlayerTechs()->CanResearch(eTech))
-				{
-					int iValue = 0;
-
-					for(int iJ = 0; iJ < GC.getNumFlavorTypes(); iJ++)
-					{
-						iValue += (pkTechInfo->GetFlavorValue(iJ) * pkUnitInfo->GetFlavorValue(iJ));
-					}
-
-					if(iValue > iBestValue)
-					{
-						iBestValue = iValue;
-						eBestTech = eTech;
-					}
-				}
+				iProductionNeeded += pkUnitInfo->GetProductionCostPerEra() * iEra;
 			}
+		}
+
+		if (!bIgnoreExistingCopies)
+		{
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+			iProductionNeeded *= 100 + pPlayer->getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier();
+			iProductionNeeded /= 100;
+
+			iProductionNeeded += pkUnitInfo->GetCostScalerNumberBuilt() * pPlayer->getUnitsBuiltCount(eUnit);
+		}
+
+		if (iProductionNeeded <= 0)
+			return 0;
+	}
+
+	iProductionNeeded *= /*100*/ GD_INT_GET(UNIT_PRODUCTION_PERCENT);
+	iProductionNeeded /= 100;
+
+	iProductionNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iProductionNeeded /= 100;
+
+	iProductionNeeded *= GC.getGame().getStartEraInfo().getTrainPercent();
+	iProductionNeeded /= 100;
+
+	return max(0, iProductionNeeded);
+}
+
+// Player/Game state-agnostic unit purchase cost (no rounding)
+int GetBaseUnitPurchaseCost(const UnitTypes eUnit)
+{
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
+
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+
+	bool bIsSpaceshipPart = pkUnitInfo->GetSpaceshipProject() != NO_PROJECT;
+	int iModifier = pkUnitInfo->GetHurryCostModifier();
+
+	// Cannot be bought
+	if (!bIsSpaceshipPart && iModifier == -1)
+		return -1;
+
+	int iCost = GetBasePurchaseCostFromProduction(GetGenericUnitProductionCost(eUnit));
+	iCost *= max(0, 100 + iModifier);
+	iCost /= 100;
+
+	return iCost;
+}
+
+// Unit upgrade cost, optionally factoring in existing copies
+int GetBaseUnitUpgradeCost(const UnitTypes eCurrentUnit, const UnitTypes eNewUnit, const CvPlayer* pPlayer)
+{
+	ASSERT(eCurrentUnit > NO_UNIT && eCurrentUnit < GC.getNumUnitInfos(), "eCurrentUnit is not a valid unit type");
+	ASSERT(eNewUnit > NO_UNIT && eNewUnit < GC.getNumUnitInfos(), "eNewUnit is not a valid unit type");
+
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eCurrentUnit);
+
+	int iPrice = 0;
+	if (MOD_BALANCE_UNIT_UPGRADE_COST)
+	{
+		int iCurrentCost;
+		int iUpgradedCost;
+		if (pPlayer)
+		{
+			// Shortcut: assume settler units only upgrade into settler units, and only settler units upgrade into settler units
+			iCurrentCost = GetBasePurchaseCostFromProduction(GetGenericUnitProductionCost(eCurrentUnit, pPlayer, true));
+			iUpgradedCost = GetBasePurchaseCostFromProduction(GetGenericUnitProductionCost(eNewUnit, pPlayer, false));
+		}
+		else
+		{
+			iCurrentCost = GetBaseUnitPurchaseCost(eCurrentUnit);
+			iUpgradedCost = GetBaseUnitPurchaseCost(eNewUnit);
+		}
+		if (iCurrentCost == 0)
+			iCurrentCost = iUpgradedCost / 2;
+		iPrice = iUpgradedCost - iCurrentCost;
+	}
+	else
+	{
+		// Shortcut: assume settler units only upgrade into settler units, and only settler units upgrade into settler units
+		int iCurrentCost = GetGenericUnitProductionCost(eCurrentUnit, pPlayer, true);
+		int iUpgradedCost = GetGenericUnitProductionCost(eNewUnit, pPlayer, true);
+		if (iCurrentCost == 0)
+			iCurrentCost = iUpgradedCost / 2;
+
+		iPrice = /*10*/ GD_INT_GET(BASE_UNIT_UPGRADE_COST);
+		iPrice += static_cast<int>(max(0, iUpgradedCost - iCurrentCost) * /*2.0f in CP, 1.25f in VP*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
+
+		// Upgrades for later units are more expensive
+		const TechTypes eTech = static_cast<TechTypes>(pkUnitInfo->GetPrereqAndTech());
+		if (eTech != NO_TECH)
+		{
+			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+			const EraTypes eUpgradeEra = static_cast<EraTypes>(pkTechInfo->GetEra());
+
+			float fMultiplier = 1.0f;
+			fMultiplier += eUpgradeEra * /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA);
+
+			iPrice = static_cast<int>(iPrice * fMultiplier);
 		}
 	}
 
-	return eBestTech;
-}
+	// Apply exponent
+	iPrice = static_cast<int>(pow((double) iPrice, (double) /*1.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_EXPONENT)) + 1e-9);
 
+	return iPrice;
+}
 
 bool PUF_isPlayer(const CvUnit* pUnit, int iData1, int)
 {

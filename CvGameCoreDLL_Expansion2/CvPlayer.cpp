@@ -15075,64 +15075,35 @@ bool CvPlayer::isProductionMaxedProject(ProjectTypes eProject) const
 	return false;
 }
 
-int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
+int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreTraitsDifficulty, bool bIgnoreExistingCopies) const
 {
-	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
 
-	ASSERT(pkUnitEntry, "This should never be hit");
-	if (pkUnitEntry == NULL)
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+	UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(pkUnitInfo->GetUnitClassType());
+	ASSERT(eUnitClass != NO_UNITCLASS);
+
+	int iProductionNeeded = GetGenericUnitProductionCost(eUnit, this, bIgnoreExistingCopies);
+	if (iProductionNeeded <= 0)
 		return 0;
 
-	UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitEntry->GetUnitClassType();
-	ASSERT(NO_UNITCLASS != eUnitClass);
-
-	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-	ASSERT(pkUnitClassInfo);
-	if (pkUnitClassInfo == NULL)
-		return 0;
-
-	bool bCombat = pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetNukeDamageLevel() > 0;
-	int iProductionNeeded = pkUnitEntry->GetProductionCost();
-
-	iProductionNeeded *= (100 + getUnitClassCount(eUnitClass) * pkUnitClassInfo->getInstanceCostModifier());
-	iProductionNeeded /= 100;
-
-	if (pkUnitEntry->GetProductionCostPerEra() != 0)
+	if (!bIgnoreTraitsDifficulty)
 	{
-		int iEra = GetCurrentEra() - 1;
-		if (iEra > 0)
-		{
-			iProductionNeeded += pkUnitEntry->GetProductionCostPerEra() * iEra;
-		}
-	}
-
-	iProductionNeeded += (pkUnitEntry->GetCostScalerNumberBuilt() * getUnitsBuiltCount(eUnit));
-
-	iProductionNeeded *= /*100*/ GD_INT_GET(UNIT_PRODUCTION_PERCENT);
-	iProductionNeeded /= 100;
-
-	iProductionNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iProductionNeeded /= 100;
-
-	iProductionNeeded *= GC.getGame().getStartEraInfo().getTrainPercent();
-	iProductionNeeded /= 100;
-
-	int iMod = 100;
-	UnitCombatTypes eUnitCombat = (UnitCombatTypes)pkUnitEntry->GetUnitCombatType();
-	if (eUnitCombat != NO_UNITCOMBAT && GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).first != 0)
-	{
-		if (GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second == false || (GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second == true && isGoldenAge()))
-		{
-			iMod += GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).first;
-		}
-	}
-	iProductionNeeded *= iMod;
-	iProductionNeeded /= 100;
-
-	if (!bIgnoreDifficulty)
-	{
+		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() > 0;
 		if (isMajorCiv())
 		{
+			int iMod = 100;
+			UnitCombatTypes eUnitCombat = (UnitCombatTypes)pkUnitInfo->GetUnitCombatType();
+			if (eUnitCombat != NO_UNITCOMBAT && GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).first != 0)
+			{
+				if (GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second == false || (GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second == true && isGoldenAge()))
+				{
+					iMod += GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).first;
+				}
+			}
+			iProductionNeeded *= iMod;
+			iProductionNeeded /= 100;
+
 			if (isWorldUnitClass(eUnitClass))
 			{
 				iProductionNeeded *= getHandicapInfo().getWorldTrainPercent();
@@ -15439,6 +15410,42 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 	}
 
 	return std::max(1, iProductionNeeded);
+}
+
+// How much does it cost to upgrade eCurrentUnit to eNewUnit for this player? (no rounding)
+int CvPlayer::GetUpgradeCost(const UnitTypes eCurrentUnit, const UnitTypes eNewUnit) const
+{
+	ASSERT(eCurrentUnit > NO_UNIT && eCurrentUnit < GC.getNumUnitInfos(), "eCurrentUnit is not a valid unit type");
+	ASSERT(eNewUnit > NO_UNIT && eNewUnit < GC.getNumUnitInfos(), "eNewUnit is not a valid unit type");
+
+	if (isBarbarian() || isMinorCiv())
+		return 0;
+
+	int iPrice = GetBaseUnitUpgradeCost(eCurrentUnit, eNewUnit, this);
+
+	// Difficulty
+	iPrice *= getHandicapInfo().getUnitUpgradePercent();
+	iPrice /= 100;
+
+	iPrice *= max(0, getHandicapInfo().getUnitUpgradePerEraModifier() * GC.getGame().getCurrentEra() + 100);
+	iPrice /= 100;
+
+	// AI Difficulty
+	if (!isHuman(ISHUMAN_HANDICAP))
+	{
+		iPrice *= GC.getGame().getHandicapInfo().getAIUnitUpgradePercent();
+		iPrice /= 100;
+
+		iPrice *= max(0, GC.getGame().getHandicapInfo().getAIUnitUpgradePerEraModifier() * GC.getGame().getCurrentEra() + 100);
+		iPrice /= 100;
+	}
+
+	// Mod (Policies, etc.)
+	int iMod = GetUnitUpgradeCostMod();
+	iPrice *= 100 + iMod;
+	iPrice /= 100;
+
+	return max(0, iPrice);
 }
 
 int CvPlayer::getMaxStockpile() const

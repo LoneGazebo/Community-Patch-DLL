@@ -11291,7 +11291,7 @@ int CvCity::getProductionNeeded() const
 int CvCity::getProductionNeeded(UnitTypes eUnit, bool bIgnoreInvestment) const
 {
 	VALIDATE_OBJECT();
-	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eUnit, false);
+	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eUnit);
 
 	if (eUnit != NO_UNIT)
 	{
@@ -11739,6 +11739,10 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 			iCost *= 100 + iTechProgress;
 			iCost /= 100;
 		}
+
+		// Decrease final cost by 20%
+		iCost *= 8;
+		iCost /= 10;
 	}
 
 	if (MOD_BALANCE_VP)
@@ -11775,19 +11779,12 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		}
 	}
 
-	// Decrease final cost by 20%
-	if (MOD_BALANCE_PURCHASE_COST_ADJUSTMENTS)
-	{
-		iCost *= 8;
-		iCost /= 10;
-	}
-
 	// Make the number not be funky
 	int iDivisor = /*10*/ GD_INT_GET(GOLD_PURCHASE_VISIBLE_DIVISOR);
 	iCost /= iDivisor;
 	iCost *= iDivisor;
 
-	return max(/*10*/ GD_INT_GET(GOLD_PURCHASE_VISIBLE_DIVISOR), iCost);
+	return max(iCost, iDivisor);
 }
 
 //	--------------------------------------------------------------------------------
@@ -12139,7 +12136,7 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	// Gold cost is calculated as HURRY_GOLD_BUILDING_COST_PERCENT% of Production Cost if we're investing in the building instead of buying it
 	if (MOD_BALANCE_BUILDING_INVESTMENTS)
 	{
-		iCost *= GD_INT_GET(HURRY_GOLD_BUILDING_COST_PERCENT);
+		iCost *= /*50*/ GD_INT_GET(HURRY_GOLD_BUILDING_COST_PERCENT);
 		iCost /= 100;
 	}
 
@@ -12223,10 +12220,7 @@ int CvCity::GetPurchaseCost(ProjectTypes eProject)
 int CvCity::GetPurchaseCostFromProduction(int iProduction)
 {
 	VALIDATE_OBJECT();
-	// Gold per Production
-	int iPurchaseCostBase = iProduction * /*30*/ GD_INT_GET(GOLD_PURCHASE_GOLD_PER_PRODUCTION);
-	// Cost ramps up
-	int iPurchaseCost = (int)pow((double)iPurchaseCostBase, (double) /*0.75f in CP, 0.68f in VP*/ GD_FLOAT_GET(HURRY_GOLD_PRODUCTION_EXPONENT));
+	int iPurchaseCost = GetBasePurchaseCostFromProduction(iProduction);
 
 	// Hurry Mod (Policies, etc.)
 	HurryTypes eHurry = static_cast<HurryTypes>(GC.getInfoTypeForString("HURRY_GOLD"));
@@ -12242,11 +12236,7 @@ int CvCity::GetPurchaseCostFromProduction(int iProduction)
 		}
 	}
 
-	// Game Speed modifier
-	iPurchaseCost *= GC.getGame().getGameSpeedInfo().getHurryPercent();
-	iPurchaseCost /= 100;
-
-	return max(0, iPurchaseCost);
+	return iPurchaseCost;
 }
 
 //	--------------------------------------------------------------------------------
