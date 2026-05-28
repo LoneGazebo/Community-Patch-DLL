@@ -1514,7 +1514,7 @@ if civ5_mode then
 			local BoredomUnhappiness = g_activePlayer:GetUnhappinessFromBoredom();
 			local ReligiousUnrestUnhappiness = g_activePlayer:GetUnhappinessFromReligiousUnrest();
 			local BuildingsUnhappiness = g_activePlayer:GetUnhappinessFromBuildings();
-			local UrbanizationUnhappiness = g_activePlayer:GetUnhappinessFromCitySpecialists() / 100;
+			local UrbanizationUnhappiness = g_activePlayer:GetUnhappinessFromCitySpecialists();
 			local UrbanizationPuppetUnhappiness = g_activePlayer:GetUnhappinessFromPuppetCitySpecialists();
 
 			tips:insert( "[COLOR:255:150:150:255]" )
