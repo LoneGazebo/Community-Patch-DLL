@@ -16602,10 +16602,11 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 
 	if (iOldPopulation != iNewValue)
 	{
-		// If we are reducing population, remove the workers first
-		if (bReassignPop)
+		// If we are reducing population
+		if (iPopChange < 0)
 		{
-			if (iPopChange < 0)
+			// remove the workers first
+			if (bReassignPop)
 			{
 				// Need to Remove Citizens
 				for (int iNewPopLoop = -iPopChange; iNewPopLoop--;)
@@ -16619,6 +16620,18 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 				int iUnassignedWorkers = GetCityCitizens()->GetNumUnassignedCitizens();
 				ASSERT(iUnassignedWorkers >= -iPopChange);
 				GetCityCitizens()->ChangeNumUnassignedCitizens(std::max(iPopChange, -iUnassignedWorkers));
+			}
+			
+			// make sure this doesn't bring City HP below 1
+			if (MOD_BALANCE_CITY_STRENGTH_SWITCH)
+			{
+				int iHPLoss = -1 * iPopChange * /*8*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);  // absolute value
+				int iCurrentHP = GetMaxHitPoints() - getDamage();
+				if (iCurrentHP < iHPLoss)
+				{
+					int iNewMaxHP = GetMaxHitPoints() - iHPLoss;
+					setDamage(iNewMaxHP - 1);
+				}
 			}
 		}
 
