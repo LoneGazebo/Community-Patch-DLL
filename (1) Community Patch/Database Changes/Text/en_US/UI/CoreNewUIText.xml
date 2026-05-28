@@ -2971,7 +2971,7 @@
 			<Text>They fear your warmongering will plunge the world into nuclear winter!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WARMONGER_HATE_MAXIMAL">
-			<Text>[SPACE](They furiously abhor warmongers!)</Text>
+			<Text>[SPACE](They fervently abhor warmongers!)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WARMONGER_HATE_EXTREME">
 			<Text>[SPACE](They hate warmongers!)</Text>
@@ -3187,6 +3187,57 @@
 		</Row>
 		<Row Tag="TXT_KEY_TRADE_WLTKD_RESOURCE_CITIES">
 			<Text>The following cities currently demand this Resource:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP">
+			<Text>WORLD MAP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP_TT">
+			<Text>Reveals all land explored by this civilization.[NEWLINE][NEWLINE]Note: Will not receive contact with unmet civilizations and city-states.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH">
+			<Text>Both players don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER">
+			<Text>They don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER">
+			<Text>You don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED">
+			<Text>They have already explored all of the lands revealed in your World Map.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED">
+			<Text>We have already explored all of the lands revealed in their World Map.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES">
+			<Text>TECHNOLOGIES</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TECHNOLOGIES">
+			<Text>TECHNOLOGIES</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES">
+			<Text>We have Technologies available to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO">
+			<Text>We have no Technologies available to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES_THEM">
+			<Text>The other leader has Technologies available to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO_THEM">
+			<Text>The other leader has no Technologies available to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_RESEARCH_PLAYER">
+			<Text>You must found a City in order to begin research endeavors.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_RESEARCH_OTHER_PLAYER">
+			<Text>They must found a City in order to begin research endeavors.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_OTHER_PLAYER">
+			<Text>They don't yet have the Technology to sell this item (Scientific Theory).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_PLAYER">
+			<Text>You don't yet have the Technology to sell this item (Scientific Theory).</Text>
 		</Row>
 		<!-- Deal value (normal) -->
 		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR">

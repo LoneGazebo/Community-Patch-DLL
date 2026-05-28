@@ -14070,21 +14070,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				aOpinions.push_back(kOpinion);
 			}
 		}
-		iValue = pDiplo->GetNumSamePolicies(ePlayer);
-		if (iValue > 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = -3;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES");
-			aOpinions.push_back(kOpinion);
-		}
-		else if (iValue < 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = bTeammate ? 0 : 3;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
-			aOpinions.push_back(kOpinion);
-		}
 		// Same religion?
 		if (pDiplo->IsPlayerSameReligion(ePlayer))
 		{

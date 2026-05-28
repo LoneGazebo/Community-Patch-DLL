@@ -8753,13 +8753,13 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				pDiploAI->SetWeDislikedTheirProposalTurn(*it, -1);
 				pDiploAI->SetTheyFoiledOurProposalTurn(*it, -1);
 
-				if (pDiploAI->GetLikedTheirProposalValue(*it) > 0)
+				if (pDiploAI->GetProposalAgreementValue(*it) > 0)
 				{
-					pDiploAI->SetLikedTheirProposalValue(*it, 0);
+					pDiploAI->SetProposalAgreementValue(*it, 0);
 				}
-				if (pDiploAI->GetSupportedOurProposalValue(*it) > 0)
+				if (pDiploAI->GetProposalSupportDelta(*it) > 0)
 				{
-					pDiploAI->SetSupportedOurProposalValue(*it, 0);
+					pDiploAI->SetProposalSupportDelta(*it, 0);
 				}
 				if (pDiploAI->GetVotingHistoryScore(*it) < 0)
 				{
