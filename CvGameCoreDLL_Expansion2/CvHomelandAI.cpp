@@ -3358,6 +3358,9 @@ static bool NeedsEscort(CvPlayer* pPlayer, CvUnit* pBuilder, const CvPlot* pPlot
 	if (pPlayer->isHuman(ISHUMAN_AI_UNITS) || pPlayer->isMinorCiv() || pPlayer->isBarbarian())
 		return false;
 
+	if (pBuilder->IsCombatUnit())
+		return false;
+
 	// Generals need escorts unless we are building in a very safe location
 	if (pBuilder->IsGreatGeneral() && (pPlot->getOwner() != pBuilder->getOwner() || pPlot->IsAdjacentOwnedByTeamOtherThan(pBuilder->getTeam(), true, true, false, true)))
 		return true;
@@ -3491,7 +3494,7 @@ vector<OptionWithScore<pair<CvUnit*, SBuilderDirective>>> CvHomelandAI::GetWeigh
 			{
 				if (!NeedsEscort(m_pPlayer, pUnit, pDirectivePlot, m_aWorkerRegions))
 				{
-					CvUnit* pBestDefender = pDirectivePlot->getBestDefender(m_pPlayer->GetID());
+					CvUnit* pBestDefender = pUnit->IsCombatUnit() ? pUnit : pDirectivePlot->getBestDefender(m_pPlayer->GetID());
 					if (!pBestDefender || pBestDefender->GetDanger(pDirectivePlot) > pBestDefender->GetCurrHitPoints() / 2)
 						continue;
 				}
