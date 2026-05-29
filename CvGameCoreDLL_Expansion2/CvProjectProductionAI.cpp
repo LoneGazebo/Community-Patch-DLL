@@ -168,6 +168,14 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			return SR_STRATEGY;
 	}
 
+	// For the AI, building the Utopia Project is controlled in AI_doSpaceshipAndUtopiaProduction, overriding normal AI production selection
+	if (MOD_BALANCE_CULTURE_VICTORY_CHANGES)
+	{
+		ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
+		if (eProject == eUtopia && !kPlayer.isHuman(ISHUMAN_AI_CITY_PRODUCTION))
+			return SR_STRATEGY;
+	}
+
 	if(kPlayer.isMinorCiv())
 	{
 		return SR_IMPOSSIBLE;
