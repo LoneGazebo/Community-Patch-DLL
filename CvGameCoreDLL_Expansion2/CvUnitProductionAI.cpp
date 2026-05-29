@@ -866,7 +866,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
 		{
-			// For the AI, spaceship production is controlled in AI_doSpaceshipProduction, overriding normal AI production selection
+			// For the AI, spaceship production is controlled in AI_doSpaceshipAndUtopiaProduction, overriding normal AI production selection
 			if (!kPlayer.isHuman(ISHUMAN_AI_CITY_PRODUCTION) && !kPlayer.isMinorCiv())
 			{
 				return SR_STRATEGY;

@@ -10339,8 +10339,8 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Do turn for all Cities
 	if (getNumCities() > 0)
 	{
-		// AI spaceship production is planned on player level, overriding the normal AI city production selection
-		AI_doSpaceshipProduction();
+		// AI spaceship production and building Citizen Earth Protocol is planned on player level, overriding the normal AI city production selection
+		AI_doSpaceshipAndUtopiaProduction();
 
 		int iLoop = 0;
 		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
