@@ -936,6 +936,10 @@ void CvPlayer::init(PlayerTypes eID)
 		{
 			ChangeEventTourism(GetPlayerTraits()->GetEventTourismBoost());
 		}
+		if(GetPlayerTraits()->GetReligionSpreadTourism() > 0)
+		{
+			ChangeReligionSpreadTourism(GetPlayerTraits()->GetReligionSpreadTourism());
+		}
 		if(GetPlayerTraits()->GetQuestYieldModifier() > 0)
 		{
 			ChangeIncreasedQuestInfluence(GetPlayerTraits()->GetQuestYieldModifier());
@@ -1425,6 +1429,7 @@ void CvPlayer::uninit()
 	m_iVotesPerGPT = 0;
 	m_iTRVisionBoost = 0;
 	m_iEventTourism = 0;
+	m_iReligionSpreadTourism = 0;
 	m_iEventTourismCS = 0;
 	m_iNumHistoricEvent = 0;
 	m_iSingleLeagueVotes = 0;
@@ -18570,6 +18575,9 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		case HISTORIC_EVENT_TRADE_CS:
 			strTemp.Format("HISTORIC EVENT: TRADE ROUTE (CITY-STATE) - Received Handicap Bonus");
 			break;
+		case HISTORIC_EVENT_RELIGION_SPREAD:
+			strTemp.Format("HISTORIC EVENT: RELIGION SPREAD - Received Handicap Bonus");
+			break;
 		case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
 			strTemp.Format("CAPITAL FOUNDING - Received Handicap Bonus");
 			break;
@@ -19158,6 +19166,9 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		case HISTORIC_EVENT_TRADE_CS:
 			strTemp.Format("HISTORIC EVENT: TRADE ROUTE (CITY-STATE) - Received Handicap Bonus");
 			break;
+		case HISTORIC_EVENT_RELIGION_SPREAD:
+			strTemp.Format("HISTORIC EVENT: RELIGION SPREAD - Received Handicap Bonus");
+			break;			
 		case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
 			strTemp.Format("CAPITAL FOUNDING - Received Handicap Bonus");
 			break;
@@ -30411,6 +30422,19 @@ int CvPlayer::GetEventTourism() const
 	return m_iEventTourism;
 }
 
+void CvPlayer::ChangeReligionSpreadTourism(int iChange)
+{
+	m_iReligionSpreadTourism += iChange;
+}
+void CvPlayer::SetReligionSpreadTourism(int iChange)
+{
+	m_iReligionSpreadTourism = iChange;
+}
+int CvPlayer::GetReligionSpreadTourism() const
+{
+	return m_iReligionSpreadTourism;
+}
+
 void CvPlayer::SetGlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest, int iValue)
 {
 	PRECONDITION(eQuest >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -30447,6 +30471,9 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		return;
 	}
 	m_iNumHistoricEvent += iChange;
+	// accomplishments always increase. no support for iChange>1 at the moment
+	if (iChange == 1)
+		CompleteAccomplishment(ACCOMPLISHMENT_HISTORIC_EVENT);	
 
 	CvCity* pCapital = getCapitalCity();
 	int iEventGP = GetPlayerTraits()->GetEventGP();
@@ -30648,6 +30675,13 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 			iTourism = pCity->GetSeaTourismBonus();
 		}
 		break;
+	case HISTORIC_EVENT_RELIGION_SPREAD:
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			strLogString.Format("Religion Spread Specific Event triggered.");
+		}
+		iTourism = GetReligionSpreadTourism();
+		break;
 	case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
 	case DIFFICULTY_BONUS_CITY_FOUND:
 	case DIFFICULTY_BONUS_CITY_CONQUEST:
@@ -30698,6 +30732,9 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 		iTotalBonus /= 15;
 		break;
 	case HISTORIC_EVENT_TRADE_SEA:
+		iTotalBonus /= 15;
+		break;
+	case HISTORIC_EVENT_RELIGION_SPREAD:
 		iTotalBonus /= 15;
 		break;
 	default:

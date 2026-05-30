@@ -191,6 +191,7 @@ public:
 	int GetMultipleAttackBonus() const;
 	int GetCityConquestGWAM() const;
 	int GetEventTourismBoost() const;
+	int GetReligionSpreadTourism() const;
 	int GetEventGP() const;
 	int GetWLTKDCulture() const;
 	int GetWLTKDGATimer() const;
@@ -534,6 +535,7 @@ protected:
 	int m_iMultipleAttackBonus;
 	int m_iCityConquestGWAM;
 	int m_iEventTourismBoost;
+	int m_iReligionSpreadTourism;
 	int m_iEventGP;
 	int m_iWonderProductionModifierToBuilding;
 	int m_iPolicyGEorGM;
@@ -1194,6 +1196,10 @@ public:
 	int GetEventTourismBoost() const
 	{
 		return m_iEventTourismBoost;
+	};
+	int GetReligionSpreadTourism() const
+	{
+		return m_iReligionSpreadTourism;
 	};
 	int GetEventGP() const
 	{
@@ -2117,6 +2123,7 @@ private:
 	int m_iMultipleAttackBonus;
 	int m_iCityConquestGWAM;
 	int m_iEventTourismBoost;
+	int m_iReligionSpreadTourism;
 	int m_iWLTKDGPImprovementModifier;
 	int m_iGrowthBoon;
 	int m_iAllianceCSDefense;

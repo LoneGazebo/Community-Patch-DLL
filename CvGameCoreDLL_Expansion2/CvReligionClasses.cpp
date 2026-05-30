@@ -4045,8 +4045,6 @@ void CvCityReligions::Copy(CvCityReligions* pOldCity)
 {
 	m_ReligionStatus.clear();
 
-	//SetPaidAdoptionBonus(pOldCity->HasPaidAdoptionBonus());
-
 	ReligionInCityList::iterator religionIt;
 	for(religionIt = pOldCity->m_ReligionStatus.begin(); religionIt != pOldCity->m_ReligionStatus.end(); ++religionIt)
 	{
@@ -5391,58 +5389,84 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		//bonuses might change ...
 		GET_PLAYER(pNewReligion->m_eFounder).UpdateReligion();
 
-		// Pay adoption bonuses (if any)
+		// Process first-time conversion effects
 		if(!m_pCity->HasPaidAdoptionBonus(eMajority))
 		{
-			int iGoldBonus = 0;
-			if(eResponsibleParty != NO_PLAYER)
+			m_pCity->SetPaidAdoptionBonus(eMajority, true);
+
+			// accomplishment doesn't require you to also own the religion, unlike the instant bonuses below
+			if (eResponsibleParty != NO_PLAYER && GET_PLAYER(eResponsibleParty).GetReligions()->GetStateReligion(false) == eMajority)
 			{
-				iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts(eResponsibleParty, pHolyCity);
-				iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-				iGoldBonus /= 100;
-			}
-			else
-			{
-				iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
-				iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-				iGoldBonus /= 100;
+				GET_PLAYER(eResponsibleParty).CompleteAccomplishment(ACCOMPLISHMENT_CITY_CONVERTED);
 			}
 
-			if (eReligionController != NO_PLAYER && GET_PLAYER(eReligionController).GetReligions()->GetStateReligion(false) == eMajority)
+			
+			if (eReligionController != NO_PLAYER)
 			{
-				bool paid = false;
-				if (iGoldBonus > 0)
+				CvPlayer& kController = GET_PLAYER(eReligionController);
+			
+				if (kController.GetReligions()->GetStateReligion(false) == eMajority)
 				{
-					GET_PLAYER(eReligionController).GetTreasury()->ChangeGold(iGoldBonus);
-					paid = true;
-
-					if (eReligionController == GC.getGame().getActivePlayer())
+					// does the religion controller gain yields for their religion spreading?
+					
+					kController.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
+					kController.doInstantYield(INSTANT_YIELD_TYPE_CONVERSION_EXPO, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
+					// vanilla column for gold on religion spreading
+					int iGoldBonus = 0;
+					if (eResponsibleParty != NO_PLAYER)
 					{
-						char text[256] = {0};
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
-						SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text);
+						iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts(eResponsibleParty, pHolyCity);
+						iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+						iGoldBonus /= 100;
 					}
-				}
-
-				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
-				GET_PLAYER(eReligionController).doInstantYield(INSTANT_YIELD_TYPE_CONVERSION_EXPO, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pHolyCity);
+					else
+					{
+						iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
+						iGoldBonus *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+						iGoldBonus /= 100;
+					}
+					if (iGoldBonus > 0)
+					{
+						kController.GetTreasury()->ChangeGold(iGoldBonus);
+	
+						if (eReligionController == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
+							SHOW_PLOT_POPUP(m_pCity->plot(), NO_PLAYER, text);
+						}
+					}
+					
+					// does the religion controller gain historic events from religion spread?
+					
+					int iTourism = kController.GetHistoricEventTourism(HISTORIC_EVENT_RELIGION_SPREAD);
+					// Culture boost based on previous turns
+					if(iTourism > 0)
+					{
+						kController.ChangeNumHistoricEvents(HISTORIC_EVENT_RELIGION_SPREAD, 1);
+						kController.GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
+						if(eReligionController == GC.getGame().getActivePlayer())
+						{
+							CvCity* pCity = kController.getCapitalCity();
+							if(pCity != NULL)
+							{
+								char text[256] = {0};
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
+								SHOW_PLOT_POPUP(pCity->plot(), eReligionController, text);
 				
-				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-				{
-					YieldTypes eYield = (YieldTypes)iI;
-					if(eYield == NO_YIELD)
-						continue;
-
-					int iValue = pNewReligion->m_Beliefs.GetYieldFromConversion(eYield, eReligionController, pHolyCity);
-					iValue += pNewReligion->m_Beliefs.GetYieldFromConversionExpo(eYield, eReligionController, pHolyCity);
-					if(iValue > 0)
-					{
-						paid = true;
-						break;
+								CvNotifications* pNotification = kController.GetNotifications();
+								if(pNotification)
+								{
+									CvString strMessage;
+									CvString strSummary;
+									strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_RELIGION_SPREAD", iTourism);
+									strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY");
+									pNotification->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strMessage, strSummary, pCity->getX(), pCity->getY(), eReligionController);
+								}
+							}
+						}
 					}
 				}
-				if (paid)
-					m_pCity->SetPaidAdoptionBonus(eMajority, true);
 			}
 		}
 

@@ -1431,6 +1431,10 @@ public:
 	int GetEventTourism() const;
 	void SetEventTourism(int iChange);
 
+	void ChangeReligionSpreadTourism(int iChange);
+	int GetReligionSpreadTourism() const;
+	void SetReligionSpreadTourism(int iChange);
+
 	int GlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest) const;
 	void SetGlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest, int iValue);
 
@@ -3278,6 +3282,7 @@ protected:
 	int m_iVotesPerGPT;
 	int m_iTRVisionBoost;
 	int m_iEventTourism;
+	int m_iReligionSpreadTourism;
 	std::vector<int> m_aiGlobalTourismAlreadyReceived;
 	int m_iEventTourismCS;
 	int m_iNumHistoricEvent;
@@ -4082,6 +4087,7 @@ SYNC_ARCHIVE_VAR(int, m_iTRSpeedBoost)
 SYNC_ARCHIVE_VAR(int, m_iVotesPerGPT)
 SYNC_ARCHIVE_VAR(int, m_iTRVisionBoost)
 SYNC_ARCHIVE_VAR(int, m_iEventTourism)
+SYNC_ARCHIVE_VAR(int, m_iReligionSpreadTourism)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGlobalTourismAlreadyReceived)
 SYNC_ARCHIVE_VAR(int, m_iEventTourismCS)
 SYNC_ARCHIVE_VAR(int, m_iNumHistoricEvent)

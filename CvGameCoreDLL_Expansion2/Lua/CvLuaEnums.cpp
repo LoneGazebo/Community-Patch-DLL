@@ -882,6 +882,8 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(ACCOMPLISHMENT_ELIMINATE_PLAYER);
 	RegisterEnum(ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST);
 	RegisterEnum(ACCOMPLISHMENT_WARS_WON);
+	RegisterEnum(ACCOMPLISHMENT_CITY_CONVERTED);
+	RegisterEnum(ACCOMPLISHMENT_HISTORIC_EVENT);
 	EnumEnd(L);
 
 	EnumStart(L, "InstantYieldType");
