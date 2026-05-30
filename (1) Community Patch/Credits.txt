@@ -305,3 +305,13 @@ Art Assets (General)
 --------------------------------------------------------------------------
 SocialPoliciesIndustry.dds : from JFD's Rise to Power, image by Leugi
 Mikasa model converted from Civ 4 by Wolfshanze, icon by Janboruta 
+Chartarium icon from Israel (Solomon) custom civ by Lastsword
+Jail icon by Janboruta
+Casino icon by AsterixRage
+Penitentiary, Sorting Office, Alamut Fortress, Port Royal, Chateau d'If, and Alcatraz icons by Hokath
+Heavenly Grotto icon by Pineappledan
+Grand Canal icon by Sukritact in JFD's Rise to Power
+Daoguan icon by Sukritact
+Order icon by Hokath and Jarcast
+Saltworks model by Gwennog
+Lake Fish icon by Gwennog

@@ -1428,7 +1428,7 @@
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>52</PortraitIndex>
+			<PortraitIndex>24</PortraitIndex>
 		</Row>
 		<!-- Foreign Bureau -->
 		<Row>
@@ -1749,8 +1749,8 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<FreePromotion>PROMOTION_IMPERIAL_SEAL</FreePromotion>
 			<WonderSplashImage>WonderForum.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>33</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
 		</Row>
 		<!-- Nalanda -->
 		<Row>
@@ -1768,8 +1768,8 @@
 			<GreatWorkCount>2</GreatWorkCount>
 			<FreeGreatWorK>GREAT_WORK_BODHISATTVA</FreeGreatWorK>
 			<WonderSplashImage>WonderNalandaSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>31</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>7</PortraitIndex>
 		</Row>
 		<!-- Karlstejn -->
 		<Row>
@@ -1784,8 +1784,8 @@
 			<ReformationFollowerReduction>5</ReformationFollowerReduction>
 			<FreeBuildingThisCity>BUILDINGCLASS_ORDER</FreeBuildingThisCity>
 			<WonderSplashImage>Karlstejn_WonderSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>29</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
 		</Row>
 		<!-- Summer Palace -->
 		<Row>
@@ -1802,8 +1802,8 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<FreePromotion>PROMOTION_NOBILITY</FreePromotion>
 			<WonderSplashImage>WonderSummerPalace.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>35</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>11</PortraitIndex>
 		</Row>
 		<!-- Soho Foundry -->
 		<Row>
@@ -1819,8 +1819,8 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<FreeBuildingThisCity>BUILDINGCLASS_FACTORY</FreeBuildingThisCity>
 			<WonderSplashImage>SlaterSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>34</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>10</PortraitIndex>
 		</Row>
 		<!-- The Motherland Calls -->
 		<Row>
@@ -1837,8 +1837,8 @@
 			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>
 			<WonderSplashImage>motherlandsplash.dds</WonderSplashImage>
 			<WonderSplashAudio>AS2D_WONDER_SPEECH_MOTHERLAND_CALLS</WonderSplashAudio>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>36</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>12</PortraitIndex>
 		</Row>
 		<!-- Bletchley Park -->
 		<Row>
@@ -1855,8 +1855,8 @@
 			<ExtraSpies>2</ExtraSpies>
 			<Espionage>true</Espionage>
 			<WonderSplashImage>bletchleysplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>24</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
 		</Row>
 		<!-- Empire State Building -->
 		<Row>
@@ -1870,8 +1870,8 @@
 			<FreeBuildingThisCity>BUILDINGCLASS_STOCK_EXCHANGE</FreeBuildingThisCity>
 			<FreeGreatPeople>1</FreeGreatPeople>
 			<WonderSplashImage>empiresplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>27</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>3</PortraitIndex>
 		</Row>
 		<!-- CERN -->
 		<Row>
@@ -1885,8 +1885,8 @@
 			<FreeTechs>2</FreeTechs>
 			<MinorFriendshipChange>100</MinorFriendshipChange>
 			<WonderSplashImage>CernSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>25</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
 		</Row>
 		<!-- World Trade Center -->
 		<Row>
@@ -1983,8 +1983,8 @@
 			<NumTradeRouteBonus>1</NumTradeRouteBonus>
 			<FreePromotion>PROMOTION_TREASURE_FLEET</FreePromotion>
 			<WonderSplashImage>WonderAdmiralty.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>28</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>4</PortraitIndex>
 		</Row>
 		<!-- Crystal Palace -->
 		<Row>
@@ -2000,8 +2000,8 @@
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<WonderSplashImage>CrystalPalace.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>26</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
 		</Row>
 		<!-- Menin Gate -->
 		<Row>
@@ -2017,8 +2017,8 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<Happiness>2</Happiness>
 			<WonderSplashImage>MeninGateSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>30</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
 		</Row>
 		<!-- Olympic Village -->
 		<Row>
@@ -2034,8 +2034,8 @@
 			<GreatWorksTourismModifier>25</GreatWorksTourismModifier>
 			<Happiness>3</Happiness>
 			<WonderSplashImage>OlympicVillage.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>32</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>8</PortraitIndex>
 		</Row>
 		<!-- United Nations -->
 		<Row>
