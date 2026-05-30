@@ -263,98 +263,104 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += 500;
 	}
 
-	// if we aren't currently unhappy, we need to massively reduce the value of happiness effects
-	int iScaleFactor = 30;
-	int iUnhappyWeight = GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy() ? iScaleFactor : 1;
-	
-	if (pkProjectInfo->GetHappiness() > 0)
-	{
-		iTempWeight += (iUnhappyWeight * pkProjectInfo->GetHappiness());
-	}
-
 	if (pkProjectInfo->GetCitySupplyFlat() > 0)
 	{
-		iTempWeight += iScaleFactor * pkProjectInfo->GetCitySupplyFlat();
+		iTempWeight += 30 * pkProjectInfo->GetCitySupplyFlat();
+	}
+
+	int iHappinessWeight = 0;
+	if (pkProjectInfo->GetHappiness() > 0)
+	{
+		iHappinessWeight += 20 * pkProjectInfo->GetHappiness();
 	}
 
 	if (pkProjectInfo->GetEmpireSizeModifierReduction() < 0)
 	{
-		iTempWeight += (iUnhappyWeight * (m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1)) / iScaleFactor;
+		iHappinessWeight += ((m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1));
 	}
 
 	if (pkProjectInfo->GetEmpireSizeModifierPerCityMod() < 0)
 	{
-		iTempWeight += (iUnhappyWeight * GET_PLAYER(m_pCity->getOwner()).getNumCities() * (pkProjectInfo->GetEmpireSizeModifierPerCityMod() * -1) / 100) / iScaleFactor;
+		iHappinessWeight += kPlayer.getNumCities() * (pkProjectInfo->GetEmpireSizeModifierPerCityMod() * -1) / 100;
 	}
 
 	if (pkProjectInfo->GetDistressFlatReduction() > 0)
 	{
 		int iDistress = m_pCity->GetDistress(false);
 		if (iDistress > 0)
-			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetDistressFlatReduction();
+			iHappinessWeight += 25 * pkProjectInfo->GetDistressFlatReduction() * iDistress;
 	}
 
 	if (pkProjectInfo->GetPovertyFlatReduction() > 0)
 	{
 		int iPoverty = m_pCity->GetPoverty(false);
 		if (iPoverty > 0)
-			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetPovertyFlatReduction();
+			iHappinessWeight += 25 * pkProjectInfo->GetPovertyFlatReduction() * iPoverty;
 	}
 
 	if (pkProjectInfo->GetIlliteracyFlatReduction() > 0)
 	{
 		int iIlliteracy = m_pCity->GetIlliteracy(false);
 		if (iIlliteracy > 0)
-			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetIlliteracyFlatReduction();
+			iHappinessWeight += 25 * pkProjectInfo->GetIlliteracyFlatReduction() * iIlliteracy;
 	}
 
 	if (pkProjectInfo->GetBoredomFlatReduction() > 0)
 	{
 		int iBoredom = m_pCity->GetBoredom(false);
 		if (iBoredom > 0)
-			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetBoredomFlatReduction();
+			iHappinessWeight += 25 * pkProjectInfo->GetBoredomFlatReduction() * iBoredom;
 	}
 
 	if (pkProjectInfo->GetReligiousUnrestFlatReduction() > 0)
 	{
 		int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
 		if (iReligiousUnrest > 0)
-			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetReligiousUnrestFlatReduction();
+			iHappinessWeight += 25 * pkProjectInfo->GetReligiousUnrestFlatReduction() * iReligiousUnrest;
 	}
 
 	if (pkProjectInfo->GetBasicNeedsMedianModifier() < 0)
 	{
 		int iDistress = m_pCity->GetDistress(false);
 		if (iDistress > 0)
-			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetBasicNeedsMedianModifier() * iDistress * iDistress) / iScaleFactor;
+			iHappinessWeight += -1 * pkProjectInfo->GetBasicNeedsMedianModifier() * iDistress;
 	}
 
 	if (pkProjectInfo->GetGoldMedianModifier() < 0)
 	{
 		int iPoverty = m_pCity->GetPoverty(false);
 		if (iPoverty > 0)
-			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetGoldMedianModifier() * iPoverty * iPoverty) / iScaleFactor;
+			iHappinessWeight += -1 * pkProjectInfo->GetGoldMedianModifier() * iPoverty;
 	}
 
 	if (pkProjectInfo->GetScienceMedianModifier() < 0)
 	{
 		int iIlliteracy = m_pCity->GetIlliteracy(false);
 		if (iIlliteracy > 0)
-			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetScienceMedianModifier() * iIlliteracy * iIlliteracy) / iScaleFactor;
+			iHappinessWeight += -1 * pkProjectInfo->GetScienceMedianModifier() * iIlliteracy;
 	}
 
 	if (pkProjectInfo->GetCultureMedianModifier() < 0)
 	{
 		int iBoredom = m_pCity->GetBoredom(false);
 		if (iBoredom > 0)
-			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetCultureMedianModifier() * iBoredom * iBoredom) / iScaleFactor;
+			iHappinessWeight += -1 * pkProjectInfo->GetCultureMedianModifier() * iBoredom;
 	}
 
 	if (pkProjectInfo->GetReligiousUnrestModifier() < 0)
 	{
 		int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
 		if (iReligiousUnrest > 0)
-			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetReligiousUnrestModifier() * iReligiousUnrest * iReligiousUnrest) / iScaleFactor;
+			iHappinessWeight += -1 * pkProjectInfo->GetReligiousUnrestModifier() * iReligiousUnrest;
+	}
+
+	if (!kPlayer.IsEmpireUnhappy())
+	{
+		iHappinessWeight /= 10;
+	}
+	else if (kPlayer.IsEmpireSuperUnhappy())
+	{
+		iHappinessWeight *= 3;
 	}
 
 	if (pkProjectInfo->GetSpySecurityModifier() > 0)
@@ -370,7 +376,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		if (iProjMod > 0)
 		{
 			int iTempBonus = 0;
-			iTempBonus += GET_PLAYER(m_pCity->getOwner()).getUnitCombatProductionModifiers(eUnitCombatClass);
+			iTempBonus += kPlayer.getUnitCombatProductionModifiers(eUnitCombatClass);
 			iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
 			iTempBonus += iProjMod;
 			if (iTempBonus > 0)
@@ -383,7 +389,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		int iProjMod = pkProjectInfo->GetYieldFromConquestAllCities(iI);
 		if (iProjMod > 0)
 		{
-			iTempWeight += iProjMod * GET_PLAYER(m_pCity->getOwner()).getNumCities() * (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsWarmonger() ? 3 : 1);
+			iTempWeight += iProjMod * kPlayer.getNumCities() * (kPlayer.GetPlayerTraits()->IsWarmonger() ? 3 : 1);
 		}
 	}
 
