@@ -15,7 +15,7 @@
 			<Text>Defense</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROCESS_DEFENSE_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] boosts City [ICON_STRENGTH] Defense and increases Hit Point recovery by 10% of the City's [ICON_PRODUCTION] Production.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] boosts City [ICON_STRENGTH] Defense and increases Hit Point recovery by 10% of the City's [ICON_PRODUCTION] Production, increasing by 1% for every turn the defense process is running, up to a maximum value of 15%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROCESS_DEFENSE_STRATEGY">
 			<Text>Investing production in defense is a last-ditch method to stave off your city's conquest by a foreign power.</Text>

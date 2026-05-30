@@ -9372,14 +9372,22 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			iWarTemp += (pEntry->GetCombatModifierEnemyCities() * iNumNeighbors) * 2;
 		}
 
-		if (pEntry->GetCombatVersusOtherReligionOwnLands() > 0)
+		if (pEntry->GetCombatBonusOwnLands() > 0)
 		{
-			iWarTemp += (pEntry->GetCombatVersusOtherReligionOwnLands() * iIdealEmpireSize * iNumNeighbors) / 4;
+			iWarTemp += (pEntry->GetCombatBonusOwnLands() * iIdealEmpireSize * iNumNeighbors) / 6;
+		}
+		if (pEntry->GetCombatBonusVersusOtherReligionOwnLands() > 0)
+		{
+			iWarTemp += (pEntry->GetCombatBonusVersusOtherReligionOwnLands() * iIdealEmpireSize * iNumNeighbors) / 6;
 		}
 
-		if (pEntry->GetCombatVersusOtherReligionTheirLands() > 0)
+		if (pEntry->GetCombatBonusTheirLands() > 0)
 		{
-			iWarTemp += (pEntry->GetCombatVersusOtherReligionTheirLands() * iNumNeighbors) * 2;
+			iWarTemp += (pEntry->GetCombatBonusTheirLands() * iNumNeighbors) * 4 / 3;
+		}
+		if (pEntry->GetCombatBonusVersusOtherReligionTheirLands() > 0)
+		{
+			iWarTemp += (pEntry->GetCombatBonusVersusOtherReligionTheirLands() * iNumNeighbors) * 4 / 3;
 		}
 
 		MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
@@ -9410,11 +9418,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				{
 					iWarTemp *= 2;
 				}
-				if (pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(m_pPlayer->GetID(), pHolyCity) > 0)
+				if (pReligion->m_Beliefs.GetCombatBonusOwnLands(m_pPlayer->GetID(), pHolyCity) > 0 || pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionOwnLands(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
 					iWarTemp *= 2;
 				}
-				if (pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(m_pPlayer->GetID(), pHolyCity) > 0)
+				if (pReligion->m_Beliefs.GetCombatBonusTheirLands(m_pPlayer->GetID(), pHolyCity) > 0 || pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionTheirLands(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
 					iWarTemp *= 2;
 				}
@@ -10092,6 +10100,18 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	// Other
 	///////////////////
 
+	int iImprovementTemp = 0;
+	
+	if (pEntry->GetCivilianWorkRate() > 0)
+	{
+		if (pPlayerTraits->IsExpansionist())
+			iImprovementTemp += pEntry->GetCivilianWorkRate() * 2;
+		else if (pPlayerTraits->IsSmaller())
+			iImprovementTemp += pEntry->GetCivilianWorkRate() / 4;
+		else
+			iImprovementTemp += pEntry->GetCivilianWorkRate();
+	}
+
 	int iPolicyGainTemp = 0;
 
 	bool bHasPolicyBelief = false;
@@ -10177,7 +10197,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	}
 
 	//sanity check - we don't want buildings to be the sole reason we get a founder.
-	if (pEntry->IsFounderBelief() && (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp + iDiploTemp) <= 250)
+	if (pEntry->IsFounderBelief() && (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp + iDiploTemp + iImprovementTemp) <= 250)
 		iBuildingTemp /= 100;
 
 	if (pPlayerTraits->IsWarmonger())
@@ -10250,7 +10270,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	iGoldenAgeTemp /= 100;
 
 	if (bReturnConquest)
-		return(iWarTemp + iHappinessTemp + iGoldenAgeTemp + iBuildingTemp) / 2;
+		return(iWarTemp + iHappinessTemp + iGoldenAgeTemp + iBuildingTemp + iImprovementTemp) / 2;
 
 	iCultureTemp *= (100 + (iCultureInterest / 10));
 	iCultureTemp /= 100;
@@ -10291,7 +10311,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	if (bReturnScience)
 		return(iGoldTemp + iScienceTemp + iBuildingTemp + iGPTemp + iGoldenAgeTemp) / 2;
 
-	iRtnValue = (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp +  iBuildingTemp + iDiploTemp);
+	iRtnValue = (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp +  iBuildingTemp + iDiploTemp + iImprovementTemp);
 
 	if (iMissionary > 0 && bNoMissionary)
 		iRtnValue /= 100;

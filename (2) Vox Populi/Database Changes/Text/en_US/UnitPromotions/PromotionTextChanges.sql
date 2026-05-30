@@ -494,7 +494,7 @@ SET Text = 'Can enter [COLOR_POSITIVE_TEXT]Impassable[ENDCOLOR] tiles, and can e
 WHERE Tag = 'TXT_KEY_PROMOTION_HOVERING_UNIT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'All tiles cost 1 [ICON_MOVES] Movement.[NEWLINE][COLOR_NEGATIVE_TEXT]Cannot use Roads and Railroads.[ENDCOLOR]'
+SET Text = 'Flat Movement Cost'
 WHERE Tag = 'TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST';
 
 UPDATE Language_en_US
@@ -657,14 +657,6 @@ WHERE Tag = 'TXT_KEY_PROMOTION_SKI_INFANTRY_HELP';
 UPDATE Language_en_US
 SET Text = '-20% [ICON_STRENGTH] Combat Strength for [COLOR_POSITIVE_TEXT]Adjacent Enemy Units[ENDCOLOR].[NEWLINE]Embarking and Disembarking cost only 1 [ICON_MOVES] Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Khaaaan!'
-WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL';
-
-UPDATE Language_en_US
-SET Text = 'Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.'
-WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';
 
 -- Quick Study
 UPDATE Language_en_US

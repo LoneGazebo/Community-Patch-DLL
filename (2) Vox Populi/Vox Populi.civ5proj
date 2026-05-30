@@ -8,7 +8,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>17</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(5.2.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.2.7) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -57,6 +57,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Art/NewImprovementArts.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Art/NewFeatureArts.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -1569,6 +1574,7 @@
     <Folder Include="Assets\Models\Improvements\MountainCity" />
     <Folder Include="Assets\Models\Improvements\Oppidum" />
     <Folder Include="Assets\Models\Improvements\Ordo" />
+    <Folder Include="Assets\Models\Improvements\Saltworks" />
     <Folder Include="Assets\Models\Improvements\Siheyuan" />
     <Folder Include="Assets\Models\Improvements\Tersane" />
     <Folder Include="Assets\Models\Improvements\Villa" />
@@ -1647,6 +1653,7 @@
     <Folder Include="Assets\Models\Units\TreasureShip" />
     <Folder Include="Assets\Models\Units\Yamato" />
     <Folder Include="Assets\Models\Units\YellowBrow" />
+    <Folder Include="Assets\StrategicView\Features" />
     <Folder Include="Assets\StrategicView\Improvements" />
     <Folder Include="Assets\StrategicView\Resources" />
     <Folder Include="Assets\StrategicView\Units" />
@@ -1743,6 +1750,26 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas2_256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_045.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_064.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_080.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_128.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_256.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2119,6 +2146,22 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Images\RandomVictory\SpaceRaceVictory.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Images\WonderSplash\Alamut_Splash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Images\WonderSplash\Alcatraz_Splash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Images\WonderSplash\ChateaudIf_Splash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Images\WonderSplash\PortRoyal_Splash.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2715,6 +2758,58 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Models\Improvements\Ordo\YurtCamp_PL.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_grnd_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_hb_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_hb_grnd.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_hb_grnd_h.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_hb_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\hb_saltworks.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\hb_saltworks.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\pl_saltworks.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\pl_saltworks.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -5186,6 +5281,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Assets\StrategicView\Features\sv_salt_lake.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Assets\StrategicView\Improvements\SV_Aplekton.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -5242,11 +5341,19 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Assets\StrategicView\Improvements\SV_Saltworks.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Assets\StrategicView\Improvements\SV_Siheyuan.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\StrategicView\Improvements\SV_Tersane.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\StrategicView\Improvements\SV_Torii.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -5275,6 +5382,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\StrategicView\Resources\sv_jade.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\StrategicView\Resources\sv_lake_fish.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -5940,6 +6051,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\Art\NewImprovementArts.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Art\NewFeatureArts.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

@@ -425,6 +425,10 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 /// What is the AI's response to a demand?
 DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal) const
 {
+	// AI teammates of humans will never give in to a demand.
+	if (GetPlayer()->IsAITeammateOfHuman())
+		return DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER;
+
 	PlayerTypes eFromPlayer = pDeal->GetOtherPlayer(GetPlayer()->GetID());
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 	TeamTypes eFromTeam = GET_PLAYER(eFromPlayer).getTeam();
@@ -2145,12 +2149,12 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 	}
 
 	//initial value
-	int iItemValue = 20000;
+	int iItemValue = 15000;
 
 	//economic value is important
 	int iEconomicValue = pCity->getEconomicValue(eAssumedOwner);
 	int iEconomicValuePerPop = (iEconomicValue / (max(1, pCity->getPopulation())));
-	iItemValue += (max(1,iEconomicValue-1000)/3); //tricky to define the correct factor
+	iItemValue += (max(1,iEconomicValue-1000)/4); //tricky to define the correct factor
 
 	//prevent cheesy exploit: founding cities just to sell them
 	if (!bPeaceTreatyTrade && (GC.getGame().getGameTurn() - pCity->getGameTurnFounded()) < (42 + GC.getGame().randRangeExclusive(0, 5, CvSeeder(iEconomicValue))))
@@ -2158,12 +2162,14 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 
 	//If not as good as any of our cities, we don't want it.
 	int iBetterThanCount = 0;
+	int iMinDistance = INT_MAX;
 	int iCityLoop = 0;
 	for(CvCity* pLoopCity = assumedOwner.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = assumedOwner.nextCity(&iCityLoop))
 	{
 		int iScore = (pLoopCity->getEconomicValue(eAssumedOwner) / (max(1, pLoopCity->getPopulation())));
 		if (iEconomicValuePerPop > iScore)
 			iBetterThanCount++;
+		iMinDistance = min(iMinDistance, plotDistance(pCity->getX(), pCity->getY(), pLoopCity->getX(), pLoopCity->getY()));
 	}
 	//better than half of the buyer's cities?
 	if (iBetterThanCount > assumedOwner.getNumCities() / 2)
@@ -2171,7 +2177,6 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 
 	//first some amount for the territory (outside of the first ring)
 	int iNewInternalBorderCount = 0;
-	int iOldInternalBorderCount = 0;
 	int iCityTiles = 0;
 	for(int iI = RING1_PLOTS; iI < RING5_PLOTS; iI++)
 	{
@@ -2185,17 +2190,14 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 		else if (pLoopPlot->getOwner() == eAssumedOwner)
 			//belongs to another one of the buyer's cities
 			iNewInternalBorderCount++;
-		else if (pLoopPlot->getOwner() == pCity->getOwner())
-			//belongs to another one of the current owner's cities
-			iOldInternalBorderCount++;
 	}
 
 	//this is how much ANY plot is worth to the buyer right now
-	int goldPerPlot = assumedOwner.GetBuyPlotCost();
-	iItemValue += goldPerPlot * 50 * iCityTiles;
+	int goldPerPlot = /*50*/ GD_INT_GET(PLOT_BASE_COST);
+	iItemValue += goldPerPlot * 10 * iCityTiles;
 
 	//important. it's valuable to have as much internal border as possible
-	iItemValue += goldPerPlot * 80 * iNewInternalBorderCount;
+	iItemValue += goldPerPlot * 100 * iNewInternalBorderCount;
 
 	//unhappy cities are worth less
 	iItemValue -= pCity->getUnhappyCitizenCount() * goldPerPlot * 30;
@@ -2213,22 +2215,14 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 		iItemValue *= 120;
 		iItemValue /= 100;
 	}
-	else if (iNewInternalBorderCount == 0 && iOldInternalBorderCount == 0)
+	else if (iMinDistance > 15)
 	{
-		//don't buy a city which doesn't overlap with existing cities, unless it's isolated from the current owner as well
 		return INT_MAX;
 	}
 
 	if (pCity->IsPuppet())
 	{
 		iItemValue *= 70;
-		iItemValue /= 100;
-	}
-
-	//don't want the trouble
-	if (pCity->IsResistance())
-	{
-		iItemValue *= (100-10*min(5,pCity->GetResistanceTurns()));
 		iItemValue /= 100;
 	}
 
@@ -5545,108 +5539,373 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	return (!pDeal->m_TradedItems.empty() && iTotalValue > 0);
 }
 
-/// A good time to make an offer for someone's extra Luxury?
-bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+/// A good time to make an offer to become their Vassal?
+bool CvDealAI::IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	ResourceTypes eLuxuryFromThem = NO_RESOURCE;
-
-	// Don't ask for a Luxury if we're hostile or planning a war
-	CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer);
-	if (eApproach <= CIV_APPROACH_HOSTILE)
-	{
+	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_VASSALAGE))
 		return false;
-	}
 
+	// Seed the deal with the item we want
+	pDeal->AddVassalageTrade(GetPlayer()->GetID());
 
-	int iBestValue = 20;
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 
-	// See if the other player has a Resource to trade
-	int iDuration = GC.getGame().GetDealDuration();
-	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+}
+
+/// A good time to make an offer to make them our Vassal?
+bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE))
+		return false;
+	
+	// Seed the deal with the item we want
+	pDeal->AddVassalageTrade(eOtherPlayer);
+
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+}
+
+/// A good time to make an offer for a Defensive Pact?
+bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_DEFENSIVE_PACT))
+		return false;
+
+	// Seed the deal with the item we want
+	pDeal->AddDefensivePact(GetPlayer()->GetID(), GC.getGame().GetDealDuration());
+	pDeal->AddDefensivePact(eOtherPlayer, GC.getGame().GetDealDuration());
+
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+}
+
+bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE_REVOKE))
+		return false;
+
+	// Seed the deal with the item we want
+	pDeal->AddRevokeVassalageTrade(eOtherPlayer);
+
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+}
+
+/// A good time to make an offer to trade cities?
+bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	int iCityLoop = 0;
+	CvCity* pBestBuyCity = NULL;
+	int iBestBuyCity = 120; // initial value, deal must be good to justify building a courthouse 
+	CvCity* pBestSellCity = NULL;
+	int iBestSellCity = 150; // initial value, they must overpay a lot
+
+	//check their cities
+	for (CvCity* pTheirCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pTheirCity != NULL; pTheirCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
 	{
-		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-
-		// Only look at Luxuries
-		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-
-		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eResource))
-			continue;
-
-		if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+		if (pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pTheirCity->getX(), pTheirCity->getY()))
 		{
-			continue;
-		}
+			int iMyPrice = GetCityValueForDeal(pTheirCity, GetPlayer()->GetID());
+			int iTheirPrice = GetCityValueForDeal(pTheirCity, eOtherPlayer);
 
-		//one copy is enough
-		if (m_pPlayer->getNumResourceAvailable(eResource, true) > 0)
-		{
-			continue;
-		}
-
-		// Don't ask if they have only one copy
-		if (GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) <= 1)
-			continue;
-
-		// Is it possible to trade that item?
-		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eResource, 1))
-			continue;
-
-		// Can we strike a deal with the other AI?
-		if (GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eOtherPlayer, eResource, 1, -1, false, iDuration, /* bIsAIOffer*/ true, /*bEqualize*/ true) == INT_MAX)
-			continue;
-
-		// Let's try to get the resource that's most valuable to us (do not do bEqualize here)
-		int iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eOtherPlayer, eResource, 1, -1, false, iDuration, /* bIsAIOffer*/ true, /*bEqualize*/ false);
-		if (iItemValue != INT_MAX && iItemValue > iBestValue)
-		{
-			eLuxuryFromThem = eResource;
-			iBestValue = iItemValue;
+			// Prevent integer overflow when multiplying by 100
+			int iBuyRatio = 0;
+			if (iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iMyPrice <= INT_MAX/100)
+			{
+				iBuyRatio = (iMyPrice*100) / max(1,iTheirPrice);
+			}
+			if (iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iBuyRatio > iBestBuyCity)
+			{
+				pBestBuyCity = pTheirCity;
+				iBestBuyCity = iBuyRatio;
+			}
 		}
 	}
 
-	// Extra Luxury found!
-	if (eLuxuryFromThem != NO_RESOURCE)
+	if (pBestBuyCity == NULL)
+		return false;
+
+	pDeal->AddCityTrade(eOtherPlayer, pBestBuyCity->GetID());
+
+	//check my cities
+	for (CvCity* pMyCity = GetPlayer()->firstCity(&iCityLoop); pMyCity != NULL; pMyCity = GetPlayer()->nextCity(&iCityLoop))
+	{
+		if (pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pMyCity->getX(), pMyCity->getY()))
+		{
+			int iMyPrice = GetCityValueForDeal(pMyCity, m_pPlayer->GetID());
+			int iTheirPrice = GetCityValueForDeal(pMyCity, eOtherPlayer);
+
+			// Prevent integer overflow when multiplying by 100
+			int iSellRatio = 0;
+			if (iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iTheirPrice <= INT_MAX/100)
+			{
+				iSellRatio = (iTheirPrice*100)/max(1,iMyPrice);
+			}
+			if (iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iSellRatio > iBestSellCity)
+			{
+				pBestSellCity = pMyCity;
+				iBestSellCity = iSellRatio;
+			}
+		}
+	}
+
+	if (pBestSellCity == NULL)
+		return false;
+
+	pDeal->AddCityTrade(m_pPlayer->GetID(), pBestSellCity->GetID());
+
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+}
+
+/// A good time to make an offer for technology?
+bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	// No current research? We may have just finished something.
+	if (GetPlayer()->GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
+		return false;
+
+	// Don't iterate through all techs if we know tech trading isn't possible
+	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE) || !GC.getGame().isOption(GAMEOPTION_ENABLE_TECH_TRADING))
+		return false;
+
+	TeamTypes eMyTeam = GetPlayer()->getTeam();
+	TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
+	CvTeam* pMyTeam = &GET_TEAM(eMyTeam);
+	CvTeam* pOtherTeam = &GET_TEAM(eOtherTeam);
+	if (!pOtherTeam->isTechTrading())
+		return false;
+	if (!pMyTeam->HasEmbassyAtTeam(eOtherTeam) || !pOtherTeam->HasEmbassyAtTeam(eMyTeam))
+		return false;
+
+	if (GET_PLAYER(eOtherPlayer).IsAITeammateOfHuman())
+		return false;
+
+	TechTypes eTechWeWant = NO_TECH;
+	int iBestValue = 0;
+
+	// See if the other player has a technology to trade
+	for (int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
+	{
+		TechTypes eTech = (TechTypes) iTechLoop;
+		int iValue = 0;
+
+		// Let's not ask for the tech we're currently researching
+		if (eTech == GetPlayer()->GetPlayerTechs()->GetCurrentResearch())
+			continue;
+
+		// don't do the expensive turn calculation for techs that can't be traded anyway
+		if (eTech == GET_PLAYER(eOtherPlayer).GetPlayerTechs()->GetCurrentResearch())
+			continue;
+		if (!GetPlayer()->GetPlayerTechs()->CanResearch(eTech))
+			continue;
+
+		// Can they sell that tech?
+		if (pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_TECHS, eTech))
+		{
+			iValue = GetTechValue(eTech, false, eOtherPlayer);
+			if (iValue > iBestValue)
+			{
+				eTechWeWant = eTech;
+				iBestValue = iValue;
+			}
+		}
+	}
+
+	// TECH FOUND!
+	if (eTechWeWant != NO_TECH)
 	{
 		// Seed the deal with the item we want
-		pDeal->AddResourceTrade(eOtherPlayer, eLuxuryFromThem, 1, iDuration);
+		pDeal->AddTechTrade(eOtherPlayer, eTechWeWant);
 
 		// AI evaluation
 		bool bUselessReferenceVariable = false;
 		bool bCantMatchOffer = false;
-		bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+		bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 
 		return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
 	}
+
 	return false;
 }
 
+/// A good time to make an offer for a Vote Commitment?
+bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (!pLeague)
+		return false;
+
+	if (!GET_PLAYER(eOtherPlayer).GetLeagueAI()->CanCommitVote(GetPlayer()->GetID()))
+		return false;
+
+	int iBestValue = 0;
+	int iBestProposal = -1;
+	int iProposalID = -1;
+	int iVoteChoice = -1;
+	int iNumVotes = -1;
+	bool bRepeal = false;
+	CvLeagueAI::VoteCommitmentList vDesiredCommitments = GetPlayer()->GetLeagueAI()->GetDesiredVoteCommitments(eOtherPlayer);
+	for (CvLeagueAI::VoteCommitmentList::iterator it = vDesiredCommitments.begin(); it != vDesiredCommitments.end(); ++it)
+	{
+		iProposalID = it->iResolutionID;
+		iVoteChoice = it->iVoteChoice;
+		iNumVotes = it->iNumVotes;
+		bRepeal = !it->bEnact;
+
+		if (iProposalID != -1 && pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_VOTE_COMMITMENT, iProposalID, iVoteChoice, iNumVotes, bRepeal))
+		{
+			int iItemValue = GetTradeItemValue(TRADE_ITEM_VOTE_COMMITMENT, /*bFromMe*/ false, eOtherPlayer, iProposalID, iVoteChoice, iNumVotes, bRepeal, -1, true);
+			if (iItemValue != INT_MAX && iItemValue > iBestValue)
+			{
+				iBestProposal = iProposalID;
+				iBestValue = iItemValue;
+			}
+		}
+	}
+
+	if (iBestProposal == -1)
+		return false;
+
+	pDeal->AddVoteCommitment(eOtherPlayer, iProposalID, iVoteChoice, iNumVotes, bRepeal);
+
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+}
+
+/// A good time to offer for World Map?
+bool CvDealAI::IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_MAPS))
+		return false;
+
+	// If this is a human, needs to be worth enough to bother them.
+	if (GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GetMapValue(false, eOtherPlayer) < 750)
+		return false;
+
+	// Seed the deal with the item we want
+	pDeal->AddMapTrade(eOtherPlayer);
+
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+}
+
+/// A good time to make an offer to start a war?
+bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	// Asking a vassal or AI teammate of human? Abort!
+	if (GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone() || GET_PLAYER(eOtherPlayer).IsAITeammateOfHuman())
+		return false;
+
+	int iBestValue = 0;
+	TeamTypes eBestTeam = NO_TEAM;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eAgainstPlayer = (PlayerTypes)iI;
+
+		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_WAR, GET_PLAYER(eAgainstPlayer).getTeam()))
+			continue;
+
+		int iWarValue = GetThirdPartyWarValue(false, eOtherPlayer, GET_PLAYER(eAgainstPlayer).getTeam());
+		if (iWarValue != INT_MAX && iWarValue > iBestValue)
+		{
+			eBestTeam = GET_PLAYER(eAgainstPlayer).getTeam();
+			iBestValue = iWarValue;
+		}
+	}
+
+	if (eBestTeam == NO_TEAM)
+		return false;
+
+	pDeal->AddThirdPartyWar(eOtherPlayer, eBestTeam);
+
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+}
+
+/// A good time to make an offer for a Peace Deal?
+bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+{
+	// Asking a vassal or AI teammate of human? Abort!
+	if (GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone() || GET_PLAYER(eOtherPlayer).IsAITeammateOfHuman())
+		return false;
+
+	int iBestValue = 0;
+	TeamTypes eBestTeam = NO_TEAM;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes eAgainstPlayer = (PlayerTypes)iI;
+
+		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, GET_PLAYER(eAgainstPlayer).getTeam()))
+			continue;
+
+		int iPeaceValue = GetThirdPartyPeaceValue(false, eOtherPlayer, GET_PLAYER(eAgainstPlayer).getTeam());
+		if (iPeaceValue != INT_MAX && iPeaceValue > iBestValue)
+		{
+			eBestTeam = GET_PLAYER(eAgainstPlayer).getTeam();
+			iBestValue = iPeaceValue;
+		}
+	}
+
+	if (eBestTeam == NO_TEAM)
+		return false;
+
+	pDeal->AddThirdPartyPeace(eOtherPlayer, eBestTeam, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
+
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+}
 
 /// A good time to make an offer for someone's extra strats?
 bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
 	ResourceTypes eStratFromThem = NO_RESOURCE;
-
-	// Don't ask for a resource if we're hostile or planning a war
-	CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer);
-	if (eApproach <= CIV_APPROACH_HOSTILE)
-		return false;
-
 	int iBestValue = 15;
 
 	// See if the other player has a Resource to trade
-	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 
 		// Only look at strategic resources here
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+		if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
 			continue;
 
 		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eResource))
@@ -5666,7 +5925,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 
 		// Let's try to get the resource that's most valuable to us (do not do bEqualize here)
 		int iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eOtherPlayer, eResource, 1, -1, false, GC.getGame().GetDealDuration(), /*bIsAIOffer*/ true, /*bEqualize*/ false);
-		if(iItemValue != INT_MAX && iItemValue > iBestValue)
+		if (iItemValue != INT_MAX && iItemValue > iBestValue)
 		{
 			eStratFromThem = eResource;
 			iBestValue = iItemValue;
@@ -5674,7 +5933,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 	}
 
 	// Extra Strat found!
-	if(eStratFromThem != NO_RESOURCE)
+	if (eStratFromThem != NO_RESOURCE)
 	{
 		int iAvailable = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eStratFromThem, false) - 1; // don't ask for all of their resources
 		int iDesired = 0;
@@ -5683,7 +5942,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		int iNextDealValue = 0;
 
 		// we try to increase iDesired as long as it's possible and as long as we're willing to pay more for the additional item
-		while(iPrevDealValue != iNextDealValue)
+		while (iPrevDealValue != iNextDealValue)
 		{
 			iDesired++;
 			// max 5 items
@@ -5741,115 +6000,55 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 	return false;
 }
 
-
-/// A good time to make an offer to get an embassy?
-bool CvDealAI::IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+/// A good time to make an offer to exchange embassies in each others' capitals?
+bool CvDealAI::IsMakeOfferForEmbassyExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	// Don't ask for an embassy if we're hostile or planning war
-	CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer);
-	if (eApproach <= CIV_APPROACH_HOSTILE || eApproach == CIV_APPROACH_GUARDED)
-	{
+	if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_ALLOW_EMBASSY))
 		return false;
-	}
 
-	// Can we actually complete this deal?
-	// Note the order of the player ids: This is because the trade item is "accept embassy" not "send embassy"
-	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_ALLOW_EMBASSY))
-	{
+	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_ALLOW_EMBASSY))
 		return false;
-	}
 
-	// AI should not offer embassies for gold - wait until embassy for embassy is possible
-	// Note that humans can still offer and get an embassy for gold trade, it's not illegal
-	if(!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_ALLOW_EMBASSY) && !GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).HasEmbassyAtTeam(GetPlayer()->getTeam()))
-	{
-		return false;
-	}
+	// Seed the deal with the item we want
+	pDeal->AddAllowEmbassy(GetPlayer()->GetID());
+	pDeal->AddAllowEmbassy(eOtherPlayer);
 
-	// Do we actually want an embassy with eOtherPlayer?
-	if(GetPlayer()->GetDiplomacyAI()->WantsEmbassyAtPlayer(eOtherPlayer))
-	{
-		// Seed the deal with the item we want
-		pDeal->AddAllowEmbassy(eOtherPlayer);
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 
-		// AI evaluation
-		bool bUselessReferenceVariable = false;
-		bool bCantMatchOffer = false;
-		bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-
-		return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
-	}
-
-	return false;
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
 }
 
-/// A good time to make an offer to get Open Borders?
-bool CvDealAI::IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+/// A good time to make an offer to establish an embassy in their capital?
+bool CvDealAI::IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	// Don't ask for Open Borders if we're hostile or planning war
-	CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer);
-	if (eApproach <= CIV_APPROACH_HOSTILE)
-	{
+	// Note the order of the player IDs: This is because the trade item is "accept embassy" not "send embassy"
+	if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_ALLOW_EMBASSY))
 		return false;
-	}
 
-	// Can we actually complete this deal?
-	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_OPEN_BORDERS))
-	{
+	// AI should avoid offering embassies for gold - wait until embassy for embassy is possible
+	// Note that humans can still offer and get an embassy for gold trade, it's not illegal
+	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_ALLOW_EMBASSY) && !GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).HasEmbassyAtTeam(GetPlayer()->getTeam()))
 		return false;
-	}
 
-	// Already allowing Open Borders?
-	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsAllowsOpenBordersToTeam(GetPlayer()->getTeam()))
-	{
-		return false;
-	}
+	// Seed the deal with the item we want
+	pDeal->AddAllowEmbassy(eOtherPlayer);
 
-	// Do we actually want OB with eOtherPlayer?
-	if(GetPlayer()->GetDiplomacyAI()->IsWantsOpenBordersWithPlayer(eOtherPlayer))
-	{
-		// Seed the deal with the item we want
-		pDeal->AddOpenBorders(eOtherPlayer, GC.getGame().GetDealDuration());
+	// AI evaluation
+	bool bUselessReferenceVariable = false;
+	bool bCantMatchOffer = false;
+	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 
-		// AI evaluation
-		bool bUselessReferenceVariable = false;
-		bool bCantMatchOffer = false;
-		bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-
-		return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
-	}
-
-	return false;
+	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
 }
 
 /// A good time to make an offer for a Research Agreement?
 bool CvDealAI::IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	if (GetPlayer()->IsAITeammateOfHuman())
+	if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESEARCH_AGREEMENT))
 		return false;
-
-	if (!GetPlayer()->GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(eOtherPlayer))
-		return false;
-
-	if (!GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsResearchAgreementWithPlayer(GetPlayer()->GetID()))
-		return false;
-
-	// Logic for when THIS AI wants to make a RA is in the Diplo AI
-
-	// Can we actually complete this deal?
-	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESEARCH_AGREEMENT))
-	{
-		return false;
-	}
 
 	// Seed the deal with the item we want
 	pDeal->AddResearchAgreement(GetPlayer()->GetID(), GC.getGame().GetDealDuration());
@@ -5863,32 +6062,18 @@ bool CvDealAI::IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal*
 	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
 }
 
-/// A good time to make an offer for a Defensive Pact?
-bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+/// A good time to make an offer to exchange Open Borders?
+bool CvDealAI::IsMakeOfferForOpenBordersExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	// Logic for when THIS AI wants to make a RA is in the Diplo AI
-
-	// Can we actually complete this deal?
-	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_DEFENSIVE_PACT))
-	{
+	if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_OPEN_BORDERS))
 		return false;
-	}
 
-	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
-	{
+	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_OPEN_BORDERS))
 		return false;
-	}
-	if (!GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(GetPlayer()->GetID()))
-	{
-		return false;
-	}
 
 	// Seed the deal with the item we want
-	pDeal->AddDefensivePact(GetPlayer()->GetID(), GC.getGame().GetDealDuration());
-	pDeal->AddDefensivePact(eOtherPlayer, GC.getGame().GetDealDuration());
+	pDeal->AddOpenBorders(GetPlayer()->GetID(), GC.getGame().GetDealDuration());
+	pDeal->AddOpenBorders(eOtherPlayer, GC.getGame().GetDealDuration());
 
 	// AI evaluation
 	bool bUselessReferenceVariable = false;
@@ -5898,91 +6083,14 @@ bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDe
 	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
 }
 
-/// A good time to make an offer to buy or sell a city?
-bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+/// A good time to make an offer to get Open Borders?
+bool CvDealAI::IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	// Don't ask for a city if we're hostile or planning a war
-	CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer);
-	if (eApproach <= CIV_APPROACH_HOSTILE || eApproach == CIV_APPROACH_GUARDED)
-	{
+	if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_OPEN_BORDERS))
 		return false;
-	}
 
-	int iCityLoop = 0;
-	CvCity* pBestBuyCity = NULL;
-	int iBestBuyCity = 120; //initial value, deal must be good to justify building a courthouse 
-	CvCity* pBestSellCity = NULL;
-	int iBestSellCity = 150; //initial value, they must overpay a lot
-
-	//check their cities
-	for (CvCity* pTheirCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pTheirCity != NULL; pTheirCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
-	{
-
-		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pTheirCity->getX(), pTheirCity->getY()))
-		{
-			int iMyPrice = GetCityValueForDeal(pTheirCity, GetPlayer()->GetID());
-			int iTheirPrice = GetCityValueForDeal(pTheirCity, eOtherPlayer);
-
-			// Prevent integer overflow when multiplying by 100
-			int iBuyRatio = 0;
-			if(iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iMyPrice <= INT_MAX/100)
-			{
-				iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
-			}
-			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio>iBestBuyCity)
-			{
-				pBestBuyCity = pTheirCity;
-				iBestBuyCity = iBuyRatio;
-			}
-		}
-	}
-	
-	if (pBestBuyCity == NULL)
-	{
-		pDeal->ClearItems();
-		return false;
-	}
-	else
-	{
-		pDeal->AddCityTrade(eOtherPlayer, pBestBuyCity->GetID());
-	}
-
-	//check my cities
-	for(CvCity* pMyCity = GetPlayer()->firstCity(&iCityLoop); pMyCity != NULL; pMyCity = GetPlayer()->nextCity(&iCityLoop))
-	{
-
-		if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pMyCity->getX(), pMyCity->getY()))
-		{
-			int iMyPrice = GetCityValueForDeal(pMyCity, m_pPlayer->GetID());
-			int iTheirPrice = GetCityValueForDeal(pMyCity, eOtherPlayer);
-
-			// Prevent integer overflow when multiplying by 100
-			int iSellRatio = 0;
-			if(iMyPrice != INT_MAX && iTheirPrice != INT_MAX && iTheirPrice <= INT_MAX/100)
-			{
-				iSellRatio = (iTheirPrice*100)/max(1,iMyPrice);
-			}
-			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iSellRatio>iBestSellCity)
-			{
-				pBestSellCity = pMyCity;
-				iBestSellCity = iSellRatio;
-			}
-		}
-	}
-
-	if(pBestSellCity == NULL)
-	{
-		pDeal->ClearItems();
-		return false;
-	}
-	else
-	{
-		//ok, everything is good
-		pDeal->AddCityTrade(m_pPlayer->GetID(), pBestSellCity->GetID());
-	}
+	// Seed the deal with the item we want
+	pDeal->AddOpenBorders(eOtherPlayer, GC.getGame().GetDealDuration());
 
 	// AI evaluation
 	bool bUselessReferenceVariable = false;
@@ -5992,279 +6100,65 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
 }
 
-/// A good time to make an offer to start a war?
-bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal)
+/// A good time to make an offer for someone's extra Luxury?
+bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 {
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
+	ResourceTypes eLuxuryFromThem = NO_RESOURCE;
+	int iBestValue = 20;
 
-	if(eOtherPlayer == NO_PLAYER)
+	// See if the other player has a Resource to trade
+	int iDuration = GC.getGame().GetDealDuration();
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		return false;
-	}
-	
-	// Don't ask humans' AI teammates
-	if (GET_PLAYER(eOtherPlayer).IsAITeammateOfHuman())
-	{
-		return false;
-	}
-
-	// Don't ask for a war if we're hostile or planning a war
-	CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer);
-	if (eApproach <= CIV_APPROACH_HOSTILE || eApproach == CIV_APPROACH_GUARDED)
-	{
-		return false;
-	}
-
-	// If we aren't at war, also buck on deceptive. Otherwise we want allies ASAP.
-	if (!GetPlayer()->IsAtWarAnyMajor() && eApproach == CIV_APPROACH_DECEPTIVE)
-		return false;
-
-	// Don't ask for war if they are weaker than us
-	if (GetPlayer()->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE && GetPlayer()->GetDiplomacyAI()->GetEconomicStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE)
-	{
-		return false;
-	}
-
-	// Don't ask for war if we are in a DoF (we'll do the 'free' method instead)
-	if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer))
-	{
-		return false;
-	}
-
-	//Don't offer if we have a DP.
-	if (GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
-	{
-		return false;
-	}
-
-	//Asking a vassal? Abort!
-	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
-	{
-		return false;
-	}
-	//Vassals asking? Nope!
-	if(GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-	{
-		return false;
-	}
-
-	int iWarValue = 0;
-	int iBestValue = 0;
-	TeamTypes eBestTeam = NO_TEAM;
-
-	// find the first player associated with the team
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes eAgainstPlayer = (PlayerTypes)iI;
-		if (eAgainstPlayer == NO_PLAYER)
-		{
-			continue;
-		}
-		//Is minor? Don't do it! (Too easy to wiggle out of)
-		if(GET_PLAYER(eAgainstPlayer).isMinorCiv())
-		{
-			continue;
-		}
-		//Is our major approach friendly? Don't do it!
-		if(GET_PLAYER(eAgainstPlayer).isMajorCiv() && GetPlayer()->GetDiplomacyAI()->GetCivApproach(eAgainstPlayer) > CIV_APPROACH_GUARDED)
-		{
-			continue;
-		}
-		// Can we actually complete this deal?
-		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_WAR, GET_PLAYER(eAgainstPlayer).getTeam()))
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eResource))
 			continue;
 
-		iWarValue = GetThirdPartyWarValue(false, eOtherPlayer, GET_PLAYER(eAgainstPlayer).getTeam());
-		if(iWarValue != INT_MAX && iWarValue > iBestValue)
-		{
-			eBestTeam = GET_PLAYER(eAgainstPlayer).getTeam();
-			iBestValue = iWarValue;
-		}
-	}
-
-	if(eBestTeam == NO_TEAM)
-	{
-		return false;
-	}
-	else
-	{
-		pDeal->AddThirdPartyWar(eOtherPlayer, eBestTeam);
-	}
-
-	// AI evaluation
-	bool bUselessReferenceVariable = false;
-	bool bCantMatchOffer = false;
-	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-
-	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
-}
-
-/// A good time to make an offer for a Peace Deal?
-bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal)
-{
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-	
-	if(eOtherPlayer == NO_PLAYER)
-	{
-		return false;
-	}
-	//Friends? We overlook friendly wars.
-	if(GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer) == CIV_APPROACH_FRIENDLY)
-	{
-		return false;
-	}
-	// Don't ask for peace if we are in a DoF
-	if(GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eOtherPlayer))
-	{
-		return false;
-	}
-
-	//Asking a vassal? Abort!
-	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
-	{
-		return false;
-	}
-	//Vassals asking? Nope!
-	if(GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-	{
-		return false;
-	}
-
-	int iWarValue = 0;
-	int iBestValue = 0;
-	TeamTypes eBestTeam = NO_TEAM;
-
-	// find the first player associated with the team
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes eAgainstPlayer = (PlayerTypes)iI;
-		if (eAgainstPlayer == NO_PLAYER)
-		{
+		// Only look at Luxuries
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 			continue;
-		}
-		//Minor Civ? Only if allies or protective
-		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && (!GET_PLAYER(eAgainstPlayer).GetMinorCivAI()->IsAllies(GetPlayer()->GetID())))
-		{
+
+		// One copy is enough
+		if (m_pPlayer->getNumResourceAvailable(eResource, true) > 0)
 			continue;
-		}
-		//Minor civ? Only if we're not out for conquest.
-		if(GET_PLAYER(eAgainstPlayer).isMinorCiv() && (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eAgainstPlayer) == CIV_APPROACH_WAR))
-		{
+
+		// Don't ask if they have only one copy
+		if (GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource, false) <= 1)
 			continue;
-		}
-		//Is our approach of the player we're asking about bad? Don't do it!
-		if(!GET_PLAYER(eAgainstPlayer).isMinorCiv() && GetPlayer()->GetDiplomacyAI()->GetCivApproach(eAgainstPlayer) < CIV_APPROACH_DECEPTIVE)
-		{
+
+		// Is it possible to trade that item?
+		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eResource, 1))
 			continue;
-		}
-		// Can we actually complete this deal?
-		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_THIRD_PARTY_PEACE, GET_PLAYER(eAgainstPlayer).getTeam()))
+
+		// Can we strike a deal with the other AI?
+		if (GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eOtherPlayer, eResource, 1, -1, false, iDuration, /* bIsAIOffer*/ true, /*bEqualize*/ true) == INT_MAX)
+			continue;
+
+		// Let's try to get the resource that's most valuable to us (do not do bEqualize here)
+		int iItemValue = GetTradeItemValue(TRADE_ITEM_RESOURCES, false, eOtherPlayer, eResource, 1, -1, false, iDuration, /* bIsAIOffer*/ true, /*bEqualize*/ false);
+		if (iItemValue != INT_MAX && iItemValue > iBestValue)
 		{
-			iWarValue = GetThirdPartyPeaceValue(false, eOtherPlayer, GET_PLAYER(eAgainstPlayer).getTeam());
-			if(iWarValue!=INT_MAX && iWarValue > iBestValue)
-			{
-				eBestTeam = GET_PLAYER(eAgainstPlayer).getTeam();
-				iBestValue = iWarValue;
-			}	
-		}
-	}
-	int iPeaceDuration = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
-	if(eBestTeam == NO_TEAM)
-	{
-		return false;
-	}
-	else
-	{
-		pDeal->AddThirdPartyPeace(eOtherPlayer, eBestTeam, iPeaceDuration);
-	}
-
-
-	// AI evaluation
-	bool bUselessReferenceVariable = false;
-	bool bCantMatchOffer = false;
-	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-
-	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
-}
-
-/// A good time to make an offer for a Peace Deal?
-bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
-{
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if(!pLeague)
-	{
-		return false;
-	}
-	
-	if(eOtherPlayer == NO_PLAYER)
-	{
-		return false;
-	}
-	//Friends?
-	if(GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer) < CIV_APPROACH_AFRAID)
-	{
-		return false;
-	}
-	if (!GET_PLAYER(eOtherPlayer).GetLeagueAI()->CanCommitVote(GetPlayer()->GetID()))
-	{
-		return false;
-	}
-	//Asking a vassal? Abort!
-	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsVassalOfSomeone())
-	{
-		return false;
-	}
-	//Vassals asking? Nope!
-	if(GET_TEAM(GetPlayer()->getTeam()).IsVassalOfSomeone())
-	{
-		return false;
-	}
-
-	int iBestValue = 0;
-	int iBestProposal = -1;
-	int iProposalID = -1;
-	int iVoteChoice = -1;
-	int iNumVotes = -1;
-	bool bRepeal = false;
-	CvLeagueAI::VoteCommitmentList vDesiredCommitments = GetPlayer()->GetLeagueAI()->GetDesiredVoteCommitments(eOtherPlayer);
-	for (CvLeagueAI::VoteCommitmentList::iterator it = vDesiredCommitments.begin(); it != vDesiredCommitments.end(); ++it)
-	{
-		iProposalID = it->iResolutionID;
-		iVoteChoice = it->iVoteChoice;
-		iNumVotes = it->iNumVotes;
-		bRepeal = !it->bEnact;
-
-		if (iProposalID != -1 && pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_VOTE_COMMITMENT, iProposalID, iVoteChoice, iNumVotes, bRepeal))
-		{
-			int iItemValue = GetTradeItemValue(TRADE_ITEM_VOTE_COMMITMENT, /*bFromMe*/ false, eOtherPlayer, iProposalID, iVoteChoice, iNumVotes, bRepeal, -1, true);
-			if(iItemValue!=INT_MAX && iItemValue > iBestValue)
-			{
-				iBestProposal = iProposalID;
-				iBestValue = iItemValue;
-			}
+			eLuxuryFromThem = eResource;
+			iBestValue = iItemValue;
 		}
 	}
 
-	if(iBestProposal == -1)
+	// Extra Luxury found!
+	if (eLuxuryFromThem != NO_RESOURCE)
 	{
-		return false;
-	}
-	else
-	{
-		pDeal->AddVoteCommitment(eOtherPlayer, iProposalID, iVoteChoice, iNumVotes, bRepeal);
+		// Seed the deal with the item we want
+		pDeal->AddResourceTrade(eOtherPlayer, eLuxuryFromThem, 1, iDuration);
+
+		// AI evaluation
+		bool bUselessReferenceVariable = false;
+		bool bCantMatchOffer = false;
+		bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+
+		return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
 	}
 
-	// AI evaluation
-	bool bUselessReferenceVariable = false;
-	bool bCantMatchOffer = false;
-	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-
-	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
+	return false;
 }
 
 /// This function called when human player enters diplomacy
@@ -6389,22 +6283,19 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal) const
 	bool bGiveUpOneTech = false;
 
 	// Too soon for another help request?
-	if(pDiploAI->IsHelpRequestTooSoon(eFromPlayer))
+	if (pDiploAI->IsHelpRequestTooSoon(eFromPlayer))
 		return DEMAND_RESPONSE_GIFT_REFUSE_TOO_SOON;
 
 	// Not too soon for a help request
 	else
 	{
 		// Deal valued impossible?
-		if (GET_PLAYER(eMyPlayer).GetDealAI()->GetDealValue(pDeal) == INT_MAX)
-		{
+		if (GetDealValue(pDeal) == INT_MAX)
 			return DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
-		}
+
 		// Deceptive AIs won't ever accept a help request
 		if (pDiploAI->GetCivApproach(eFromPlayer) <= CIV_APPROACH_DECEPTIVE)
-		{
 			return DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
-		}
 
 		int iOddsOfGivingIn = pDiploAI->GetLoyalty() * 10;	// initial odds of giving in are loyalty * 10
 
@@ -7473,284 +7364,6 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 
 
 	return iItemValue;
-}
-
-/// A good time to offer for World Map?
-bool CvDealAI::IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal)
-{
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	// Don't ask for a map if we're hostile
-	if (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer) == CIV_APPROACH_HOSTILE)
-	{
-		return false;
-	}
-
-	// Can we actually complete this deal?
-	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_MAPS))
-	{
-		return false;
-	}
-
-	// Do we actually want Maps from this other Player?
-	if(GetPlayer()->GetDiplomacyAI()->WantsMapsFromPlayer(eOtherPlayer))
-	{
-		// Seed the deal with the item we want
-		pDeal->AddMapTrade(eOtherPlayer);
-
-		// AI evaluation
-		bool bUselessReferenceVariable = false;
-		bool bCantMatchOffer = false;
-		bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-
-		return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
-	}
-	return false;
-}
-
-/// A good time to make an offer for technology?
-bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
-{
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	// Don't ask for Technology if we're hostile or planning war
-	CivApproachTypes eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer);
-	if (eApproach <= CIV_APPROACH_HOSTILE || eApproach == CIV_APPROACH_GUARDED)
-	{
-		return false;
-	}
-
-	//No current research? We may have just finished something.
-	if(GetPlayer()->GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
-	{
-		return false;
-	}
-	//No current research? We may have just finished something.
-	if(GET_PLAYER(eOtherPlayer).GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
-	{
-		return false;
-	}
-
-	int iTechLoop = 0;
-	TechTypes eTech;
-	TechTypes eTechWeWant = NO_TECH;
-
-	int iBestValue = 0;
-	// See if the other player has a technology to trade
-	for(iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
-	{
-		eTech = (TechTypes) iTechLoop;
-
-		int iValue = 0;
-		// Let's not ask for the tech we're currently researching
-		if(eTech == GetPlayer()->GetPlayerTechs()->GetCurrentResearch())
-		{
-			continue;
-		}
-
-		if(!GetPlayer()->GetPlayerTechs()->IsResearch())
-		{
-			continue;
-		}
-		if(!GET_PLAYER(eOtherPlayer).GetPlayerTechs()->IsResearch())
-		{
-			continue;
-		}
-		if(eTech == GET_PLAYER(eOtherPlayer).GetPlayerTechs()->GetCurrentResearch())
-		{
-			continue;
-		}
-		// don't do the expensive turn calculation for techs that can't be traded anyway
-		if(!GetPlayer()->GetPlayerTechs()->CanResearch(eTech))
-			continue;
-
-		// Can they sell that tech?
-		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_TECHS, eTech))
-		{
-			iValue = GetTechValue(eTech, false, eOtherPlayer);
-			if(iValue > iBestValue)
-			{
-				eTechWeWant = eTech;
-				iBestValue = iValue;
-			}
-		}
-	}
-
-	// TECH FOUND!
-	if(eTechWeWant != NO_TECH)
-	{
-		// Seed the deal with the item we want
-		pDeal->AddTechTrade(eOtherPlayer, eTechWeWant);
-
-		// AI evaluation
-		bool bUselessReferenceVariable = false;
-		bool bCantMatchOffer = false;
-		bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-
-		return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
-	}
-
-	return false;
-}
-
-/// A good time to make an offer for Vassalage?
-bool CvDealAI::IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
-{
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	// Human teams don't get asked for vassalage
-	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isHuman(ISHUMAN_AI_DIPLOMACY))
-	{
-		return false;
-	}
-
-	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE))
-	{
-		return false;
-	}
-
-	if (m_pPlayer->IsAtWarWith(eOtherPlayer))
-	{
-		return false;
-	}
-
-	// we don't want to do it?
-	if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eOtherPlayer, true))
-	{
-		return false;
-	}
-
-	// they don't want to do it?
-	if (!GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
-	{
-		return false;
-	}
-	
-	// Seed the deal with the item we want
-	pDeal->AddVassalageTrade(eOtherPlayer);
-
-	// AI evaluation
-	bool bUselessReferenceVariable = false;
-	bool bCantMatchOffer = false;
-	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-
-	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
-}
-
-/// A good time to make an offer for Vassalage?
-bool CvDealAI::IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal)
-{
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eOtherPlayer, TRADE_ITEM_VASSALAGE))
-	{
-		return false;
-	}
-
-	if (m_pPlayer->IsAtWarWith(eOtherPlayer))
-	{
-		return false;
-	}
-
-	// we don't want to do it?
-	if (!GetPlayer()->GetDiplomacyAI()->IsVassalageAcceptable(eOtherPlayer, false))
-	{
-		return false;
-	}
-
-	// they don't want to do it?
-	if (!GET_PLAYER(eOtherPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), true))
-	{
-		return false;
-	}
-
-	// Seed the deal with the item we want
-	pDeal->AddVassalageTrade(GetPlayer()->GetID());
-
-	// AI evaluation
-	bool bUselessReferenceVariable = false;
-	bool bCantMatchOffer = false;
-	bool bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-
-	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
-}
-
-bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal)
-{
-	PRECONDITION(eOtherPlayer >= 0);
-	PRECONDITION(eOtherPlayer < MAX_MAJOR_CIVS);
-
-	//If the other player has no vassals...
-	if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals() <= 0)
-	{
-		return false;
-	}
-
-	if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE_REVOKE))
-	{
-		return false;
-	}
-
-	bool bWorthIt = false;
-	for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
-	{
-		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
-
-		// Ignore minors.
-		if(!GET_TEAM(eLoopTeam).isMinorCiv())
-		{
-			// Is eLoopTeam the vassal of them?
-			if(GET_TEAM(eLoopTeam).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
-			{
-				if(GET_TEAM(eLoopTeam).isAlive())
-				{
-					const vector<PlayerTypes>& vVassalTeam = GET_TEAM(eLoopTeam).getPlayers();
-					for (size_t iPlayerLoop = 0; iPlayerLoop < vVassalTeam.size(); ++iPlayerLoop)
-					{
-						PlayerTypes eVassalPlayer = vVassalTeam[iPlayerLoop];
-
-						// Check if this player actually wants to be free of their vassalage.
-						// If not, we never consider freeing the team worth it and exit immediately.
-						// 
-						// Note: Any one player not wanting to be free is enough for us to disregard the rest of the team.
-						if (!GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->IsEndVassalageWithPlayerAcceptable(eOtherPlayer))
-						{
-							bWorthIt = false;
-							break;
-						}
-						// Now check if we actually care about this player.
-						// 
-						// Note: We only need to care for one player on the team to consider freeing the team.
-						if (!bWorthIt)
-						{
-							bWorthIt = (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eVassalPlayer) >= CIV_OPINION_FRIEND)
-								|| (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eVassalPlayer) >= CIV_OPINION_FAVORABLE
-									&& GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eVassalPlayer)
-									&& GetPlayer()->GetDiplomacyAI()->GetCivApproach(eVassalPlayer) == CIV_APPROACH_FRIENDLY)
-								|| (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eVassalPlayer)
-									|| GetPlayer()->GetDiplomacyAI()->IsMasterLiberatedMeFromVassalage(eVassalPlayer));
-						}
-					}
-				}
-			}
-		}
-	}
-	bool bDealAcceptable = false;
-	bool bCantMatchOffer = false;
-	if(bWorthIt)
-	{
-		// Seed the deal with the item we want
-		pDeal->AddRevokeVassalageTrade(eOtherPlayer);
-		// AI evaluation
-		bool bUselessReferenceVariable = false;
-		bDealAcceptable = DoEqualizeDeal(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-	}
-
-	return bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0;
 }
 
 /// See if adding Maps to their side of the deal helps even out pDeal

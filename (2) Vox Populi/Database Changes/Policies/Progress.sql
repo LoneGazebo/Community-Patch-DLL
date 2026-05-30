@@ -25,7 +25,7 @@ WHERE Type = 'POLICY_LIBERTY';
 INSERT INTO Policy_YieldFromBirth
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_LIBERTY', 'YIELD_SCIENCE', 10);
+	('POLICY_LIBERTY', 'YIELD_SCIENCE', 8);
 
 INSERT INTO Policy_InstantYield
 	(PolicyType, YieldType, Yield)

@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="149">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.2.5) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.2.7) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -498,7 +498,7 @@
     <File md5="C10F916FF1CD06DB8235408C1AAE097E" import="1">Core Files/Overrides/YieldIconManager.xml</File>
     <File md5="AA9CB9B8678EFAD4FEBB780B24385C24" import="1">Core Files/Overrides/Includes/AssignStartingPlots.lua</File>
     <File md5="78F3451AFA990C8CDC71994444A4247A" import="1">Core Files/Overrides/Includes/Bombardment.lua</File>
-    <File md5="C9BEF8E5D5460528F0A19353D02397BE" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
+    <File md5="527566B38B21795E8A20AC0894F6FFCA" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
     <File md5="F82D4290936952EACB989B91E36F79C6" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
     <File md5="0E430E7555CD83EC37774C61E0354BFE" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
     <File md5="26FEF5BB17225CFD769717234B1DC468" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
@@ -508,7 +508,7 @@
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
     <File md5="B754666DDB6140255D210281D3501E88" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="05D6EE31273F27C6F227996C25E7E338" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="46F3612908C213981E8203610E03823E" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="E5C280A2AC65C19D051F27EE7AAE11B4" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
@@ -613,7 +613,7 @@
     <File md5="2471B6633ABB3FBE01811D2B56801198" import="0">Database Changes/Text/en_US/Civilizations/CoreCivilizationTextChanges.sql</File>
     <File md5="954F559D1F4893B3F83D82728CFC6C01" import="0">Database Changes/Text/en_US/Civilizations/CoreLeaderTextChanges.sql</File>
     <File md5="45B8F6A4744551D601F2C33083BDC74D" import="0">Database Changes/Text/en_US/Civilizations/CoreNewCivilizationText.xml</File>
-    <File md5="D58DB495BF70201516D7D03090C62202" import="0">Database Changes/Text/en_US/Concepts/CoreConceptTextChanges.sql</File>
+    <File md5="4E0E8FC934467FAC02224D5F1739AB93" import="0">Database Changes/Text/en_US/Concepts/CoreConceptTextChanges.sql</File>
     <File md5="9D313B8578E3F39D1F1B2380BB09A8A9" import="0">Database Changes/Text/en_US/Concepts/CoreNewConceptText.xml</File>
     <File md5="F05356D5D0E61F6D8D34D00F4BA9AA35" import="0">Database Changes/Text/en_US/Espionage/CoreNewEspionageText.xml</File>
     <File md5="169E182DC2A836A78595244D969F0B7E" import="0">Database Changes/Text/en_US/Minors/CoreMinorTextChanges.sql</File>

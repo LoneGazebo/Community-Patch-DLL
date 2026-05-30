@@ -3,9 +3,6 @@
 UPDATE Leaders SET WorkWithWillingness = DoFWillingness;
 UPDATE Leaders SET WorkAgainstWillingness = DenounceWillingness;
 
--- FIXME: Remove this once Chattiness is fixed
-UPDATE Leaders SET Chattiness = 4;
-
 -- Sets default victory pursuits for all base game leaders
 CREATE TEMP TABLE Leader_VictoryPursuits (
 	TempLeaderType text,

@@ -40,11 +40,17 @@ ALTER TABLE Beliefs ADD PressureChangeTradeRoute integer DEFAULT 0;
 -- New Belief Element -- Assign Belief to Specific Civ only
 ALTER TABLE Beliefs ADD CivilizationType text REFERENCES Civilizations (Type);
 
+-- Combat bonus in our lands
+ALTER TABLE Beliefs ADD CombatBonusOwnLands integer DEFAULT 0;
+
 -- Combat bonus v. other religions in our lands
-ALTER TABLE Beliefs ADD CombatVersusOtherReligionOwnLands integer DEFAULT 0;
+ALTER TABLE Beliefs ADD CombatBonusVersusOtherReligionOwnLands integer DEFAULT 0;
+
+-- Combat bonus in their lands
+ALTER TABLE Beliefs ADD CombatBonusTheirLands integer DEFAULT 0;
 
 -- Combat bonus v. other religions in their lands
-ALTER TABLE Beliefs ADD CombatVersusOtherReligionTheirLands integer DEFAULT 0;
+ALTER TABLE Beliefs ADD CombatBonusVersusOtherReligionTheirLands integer DEFAULT 0;
 
 -- Production modifier for units
 ALTER TABLE Beliefs ADD UnitProductionModifier integer DEFAULT 0;
@@ -72,3 +78,6 @@ ALTER TABLE Beliefs ADD HappinessFromForeignSpies integer DEFAULT 0;
 
 -- Decrease inquisitor cost. What it says on the tin ya git.
 ALTER TABLE Beliefs ADD InquisitorCostModifier integer DEFAULT 0;
+
+-- Increases civilian work rate by x%
+ALTER TABLE Beliefs ADD CivilianWorkRate integer DEFAULT 0;

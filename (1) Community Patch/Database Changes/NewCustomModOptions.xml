@@ -129,8 +129,8 @@
 
 		<!-- Gandhis who have nukes or have nuked someone and aren't vassals will do what they're best known for in the Civilization series ;) -->
 		<!-- Random Personalities settings: -->
-		<!-- 1 (default) = disable Nuclear Gandhi if Random Personalities is enabled. -->
-		<!-- 2 = LeaderType LEADER_GANDHI enables Nuclear Gandhi if Random Personalities is enabled. Gandhi remains nuke happy even if his personality is otherwise random. -->
+		<!-- 1 (default) = disable Nuclear Gandhi if AI Random Personalities is enabled. -->
+		<!-- 2 = LeaderType LEADER_GANDHI enables Nuclear Gandhi if AI Random Personalities is enabled. Gandhi remains nuke happy even if his personality is otherwise random. -->
 		<Row Class="5" Name="DIPLOAI_ENABLE_NUCLEAR_GANDHI" Value="1"/>
 		<Row Class="0" Name="DIPLOAI_NUCLEAR_GANDHI_RANDOM_PERSONALITIES_SETTING" Value="1"/>
 

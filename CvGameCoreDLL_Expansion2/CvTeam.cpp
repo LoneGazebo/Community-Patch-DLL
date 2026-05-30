@@ -194,7 +194,7 @@ void CvTeam::uninit()
 	m_iDefensiveEmbarkCount = 0;
 	m_iEmbarkedAllWaterPassageCount = 0;
 	m_iNumNaturalWondersDiscovered = 0;
-	m_iNumLandmarksBuilt = 0;
+	m_iHappinessFromImprovements = 0;
 	m_iBestPossibleRoute = NO_ROUTE;
 	m_iNumMinorCivsAttacked = 0;
 	m_iBuildingDefenseModifier = 0;
@@ -3994,19 +3994,18 @@ void CvTeam::ChangeNumNaturalWondersDiscovered(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvTeam::GetNumLandmarksBuilt() const
+int CvTeam::GetHappinessFromImprovements() const
 {
-	return m_iNumLandmarksBuilt;
+	return m_iHappinessFromImprovements;
 }
 
 //	--------------------------------------------------------------------------------
-void CvTeam::ChangeNumLandmarksBuilt(int iChange)
+void CvTeam::ChangeHappinessFromImprovements(int iChange)
 {
 	if (iChange != 0)
 	{
-		m_iNumLandmarksBuilt += iChange;
+		m_iHappinessFromImprovements += iChange;
 	}
-	ASSERT(GetNumLandmarksBuilt() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9110,7 +9109,7 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(team.m_iDefensiveEmbarkCount);
 	visitor(team.m_iEmbarkedAllWaterPassageCount);
 	visitor(team.m_iNumNaturalWondersDiscovered);
-	visitor(team.m_iNumLandmarksBuilt);
+	visitor(team.m_iHappinessFromImprovements);
 	visitor(team.m_iBestPossibleRoute);
 	visitor(team.m_iNumMinorCivsAttacked);
 	visitor(team.m_iBuildingDefenseModifier);

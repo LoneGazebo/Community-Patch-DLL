@@ -2,14 +2,38 @@
 UPDATE Beliefs
 SET
 	OtherReligionPressureErosion = 0,
-	CombatVersusOtherReligionTheirLands = 20
+	CombatBonusTheirLands = 10,
+	CombatBonusVersusOtherReligionTheirLands = 5
 WHERE Type = 'BELIEF_EVANGELISM';
 
-INSERT INTO Belief_YieldFromConquest
-	(BeliefType, YieldType, Yield)
+CREATE TEMP TABLE Helper (
+	BuildingClassType TEXT
+);
+
+CREATE TEMP TABLE Helper2 (
+	YieldType TEXT,
+	YieldChange INTEGER
+);
+
+INSERT INTO Helper
 VALUES
-	('BELIEF_EVANGELISM', 'YIELD_GOLD', 50),
-	('BELIEF_EVANGELISM', 'YIELD_CULTURE', 50);
+	('BUILDINGCLASS_BARRACKS'),
+	('BUILDINGCLASS_ARMORY'),
+	('BUILDINGCLASS_MILITARY_ACADEMY');
+
+INSERT INTO Helper2
+VALUES
+	('YIELD_GOLD', 2),
+	('YIELD_CULTURE', 2);
+
+INSERT INTO Belief_BuildingClassYieldChanges
+	(BeliefType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	'BELIEF_EVANGELISM', a.BuildingClassType, b.YieldType, b.YieldChange
+FROM Helper a, Helper2 b;
+
+DROP TABLE Helper;
+DROP TABLE Helper2;
 
 -- Defender of the Faith
 UPDATE Beliefs
@@ -17,7 +41,8 @@ SET
 	Enhancer = 0,
 	Reformation = 1,
 	CombatModifierFriendlyCities = 0,
-	CombatVersusOtherReligionOwnLands = 20
+	CombatBonusOwnLands = 10,
+	CombatBonusVersusOtherReligionOwnLands = 5
 WHERE Type = 'BELIEF_DEFENDER_FAITH';
 
 CREATE TEMP TABLE Helper (
@@ -156,18 +181,19 @@ SET InquisitorPressureRetention = 0
 WHERE Type = 'BELIEF_UNITY_OF_PROPHETS';
 
 CREATE TEMP TABLE Helper3 (
-	YieldType TEXT
+	YieldType TEXT,
+	Yield integer
 );
 
 INSERT INTO Helper3
 VALUES
-	('YIELD_SCIENCE'),
-	('YIELD_FAITH');
+	('YIELD_SCIENCE', 3),
+	('YIELD_FAITH', 2);
 
 INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)
 SELECT
-	'BELIEF_UNITY_OF_PROPHETS', a.Type, b.YieldType, 2
+	'BELIEF_UNITY_OF_PROPHETS', a.Type, b.YieldType, b.Yield
 FROM Improvements a, Helper3 b
 WHERE a.CreatedByGreatPerson = 1 OR a.Type = 'IMPROVEMENT_LANDMARK';
 
@@ -183,7 +209,7 @@ WHERE Class = 'UNITCLASS_ARCHAEOLOGIST';
 INSERT INTO Belief_GreatWorkYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_UNITY_OF_PROPHETS', 'YIELD_CULTURE', 2);
+	('BELIEF_UNITY_OF_PROPHETS', 'YIELD_CULTURE', 3);
 
 -- Sacred Sites
 UPDATE Beliefs SET FaithBuildingTourism = 3 WHERE Type = 'BELIEF_SACRED_SITES';
@@ -229,3 +255,20 @@ SELECT
 FROM GreatPersons a, Helper4 b;
 
 DROP TABLE Helper4;
+
+-- Work Ethic
+UPDATE Beliefs SET CivilianWorkRate = 25 WHERE Type = 'BELIEF_WORK_ETHIC';
+
+INSERT INTO Belief_BuildingClassYieldChanges
+	(BeliefType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BELIEF_WORK_ETHIC', 'BUILDINGCLASS_WORKSHOP', 'YIELD_PRODUCTION', 2),
+	('BELIEF_WORK_ETHIC', 'BUILDINGCLASS_WINDMILL', 'YIELD_PRODUCTION', 2),
+	('BELIEF_WORK_ETHIC', 'BUILDINGCLASS_FACTORY', 'YIELD_PRODUCTION', 2);
+
+INSERT INTO Belief_BuildingClassFaithPurchase
+	(BeliefType, BuildingClassType)
+VALUES
+	('BELIEF_WORK_ETHIC', 'BUILDINGCLASS_WORKSHOP'),
+	('BELIEF_WORK_ETHIC', 'BUILDINGCLASS_WINDMILL'),
+	('BELIEF_WORK_ETHIC', 'BUILDINGCLASS_FACTORY');

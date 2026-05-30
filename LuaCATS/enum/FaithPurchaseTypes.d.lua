@@ -1,0 +1,9 @@
+--- @meta
+
+--- @enum FaithPurchaseType
+FaithPurchaseTypes = {
+	NO_AUTOMATIC_FAITH_PURCHASE = 0,
+	FAITH_PURCHASE_SAVE_PROPHET = 1,
+	FAITH_PURCHASE_UNIT = 3,
+	FAITH_PURCHASE_BUILDING = 2,
+}

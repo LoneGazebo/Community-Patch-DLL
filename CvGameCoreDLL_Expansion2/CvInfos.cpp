@@ -8454,6 +8454,8 @@ CvProcessInfo::CvProcessInfo() :
 	m_iTechPrereq(NO_TECH),
 	m_iRequiredPolicy(NO_POLICY),
 	m_iDefenseValue(0),
+	m_iDefenseValuePerTurn(0),
+	m_iDefenseValueCap(0),
 	m_eRequiredCivilization(NO_CIVILIZATION),
 	m_paiProductionToYieldModifier(NULL),
 	m_paiFlavorValue(NULL)
@@ -8481,6 +8483,16 @@ int CvProcessInfo::getRequiredPolicy() const
 int CvProcessInfo::getDefenseValue() const
 {
 	return m_iDefenseValue;
+}
+//------------------------------------------------------------------------------
+int CvProcessInfo::getDefenseValuePerTurn() const
+{
+	return m_iDefenseValuePerTurn;
+}
+//------------------------------------------------------------------------------
+int CvProcessInfo::getDefenseValueCap() const
+{
+	return m_iDefenseValueCap;
 }
 
 //------------------------------------------------------------------------------
@@ -8519,6 +8531,8 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iRequiredPolicy = GC.getInfoTypeForString(szRequiredPolicy, true);
 
 	m_iDefenseValue = kResults.GetInt("DefenseValue");
+	m_iDefenseValuePerTurn = kResults.GetInt("DefenseValuePerTurn");
+	m_iDefenseValueCap = kResults.GetInt("DefenseValueCap");
 
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);

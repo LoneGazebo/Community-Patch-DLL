@@ -2158,11 +2158,11 @@ void CvGame::updateTestEndTurn()
 		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
 		{
 			// No notifications are blocking, check units/cities
-			if (activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING))
+			if (activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING) && activePlayer.isHuman(ISHUMAN_AI_UNIT_PROMOTIONS))
 			{
 				eEndTurnBlockingType = ENDTURN_BLOCKING_UNIT_PROMOTION;
 			}
-			else if (activePlayer.hasReadyUnit())
+			else if (activePlayer.hasReadyUnit() && activePlayer.isHuman(ISHUMAN_AI_UNITS))
 			{
 				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
 				ASSERT(pUnit, "GetFirstReadyUnit is returning null");
@@ -8656,6 +8656,11 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 				continue;
 			}
 			
+			// No units that have a cap on instances (player/team/global)
+			// gifting these could push a player over their limit
+			if (isLimitedUnitClass(eLoopUnitClass))
+				continue;
+
 			// We only want unique units that are not in the game already, or are explicitly Minor Civ Gifts
 			if (!pkUnitInfo->IsMinorCivGift() )
 			{

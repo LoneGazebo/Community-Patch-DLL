@@ -494,6 +494,7 @@ CvCity::CvCity() :
 	, m_iResistanceCounter()
 	, m_iPlagueCounter()
 	, m_iPlagueTurns()
+	, m_iDefenseProcessTurns()
 	, m_iSappedTurns()
 	, m_iBuildingProductionBlockedTurns()
 	, m_iNoTourismTurns()
@@ -1647,6 +1648,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iResistanceCounter = 0;
 	m_iPlagueCounter = 0;
 	m_iPlagueTurns = -1;
+	m_iDefenseProcessTurns = 0;
 	m_iSappedTurns = 0;
 	m_iBuildingProductionBlockedTurns = 0;
 	m_iNoTourismTurns = 0;
@@ -2306,6 +2308,13 @@ void CvCity::doTurn()
 {
 	VALIDATE_OBJECT();
 
+	bool bRunningDefenseProcess = false;
+	if (getProductionProcess() != NO_PROCESS)
+	{
+		CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+		bRunningDefenseProcess = pkProcessInfo && pkProcessInfo->getDefenseValuePerTurn() != 0;
+	}
+
 	ResetGreatWorkYieldCache();
 
 	if (getDamage() > 0 && !IsBlockadedWaterAndLand())
@@ -2329,14 +2338,27 @@ void CvCity::doTurn()
 		if (getProductionProcess() != NO_PROCESS)
 		{
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+			if (pkProcessInfo && (pkProcessInfo->getDefenseValue() != 0 || pkProcessInfo->getDefenseValuePerTurn() != 0))
 			{
-				int iPile = getYieldRateTimes100(YIELD_PRODUCTION) * pkProcessInfo->getDefenseValue();
+				int iDefenseValue = pkProcessInfo->getDefenseValue() + GetDefenseProcessTurns() * pkProcessInfo->getDefenseValuePerTurn();
+				if (pkProcessInfo->getDefenseValueCap() > 0)
+					iDefenseValue = min(iDefenseValue, pkProcessInfo->getDefenseValueCap());
+
+				int iPile = getYieldRateTimes100(YIELD_PRODUCTION) * iDefenseValue;
 				iHitsHealed += iPile / 10000;
 			}
 		}
 
 		changeDamage(-iHitsHealed);
+	}
+
+	if (bRunningDefenseProcess)
+	{
+		ChangeDefenseProcessTurns(1);
+	}
+	else
+	{
+		SetDefenseProcessTurns(0);
 	}
 
 	if (getDamage() < 0)
@@ -16618,10 +16640,11 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 
 	if (iOldPopulation != iNewValue)
 	{
-		// If we are reducing population, remove the workers first
-		if (bReassignPop)
+		// If we are reducing population
+		if (iPopChange < 0)
 		{
-			if (iPopChange < 0)
+			// remove the workers first
+			if (bReassignPop)
 			{
 				// Need to Remove Citizens
 				for (int iNewPopLoop = -iPopChange; iNewPopLoop--;)
@@ -16635,6 +16658,18 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 				int iUnassignedWorkers = GetCityCitizens()->GetNumUnassignedCitizens();
 				ASSERT(iUnassignedWorkers >= -iPopChange);
 				GetCityCitizens()->ChangeNumUnassignedCitizens(std::max(iPopChange, -iUnassignedWorkers));
+			}
+			
+			// make sure this doesn't bring City HP below 1
+			if (MOD_BALANCE_CITY_STRENGTH_SWITCH)
+			{
+				int iHPLoss = -1 * iPopChange * /*8*/ GD_INT_GET(CITY_STRENGTH_POPULATION_CHANGE);  // absolute value
+				int iCurrentHP = GetMaxHitPoints() - getDamage();
+				if (iCurrentHP < iHPLoss)
+				{
+					int iNewMaxHP = GetMaxHitPoints() - iHPLoss;
+					setDamage(iNewMaxHP - 1);
+				}
 			}
 		}
 
@@ -22693,7 +22728,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 		int iTempMod = kOwner.getCityYieldModFromMonopoly(eIndex);
 		if (iTempMod != 0)
 		{
-			iTempMod += kOwner.GetMonopolyModPercent();
 			iModifier += iTempMod;
 			if (toolTipSink)
 			{
@@ -27252,9 +27286,12 @@ void CvCity::updateStrengthValue()
 	if (getProductionProcess() != NO_PROCESS)
 	{
 		CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-		if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+		if (pkProcessInfo && (pkProcessInfo->getDefenseValue() != 0 || pkProcessInfo->getDefenseValuePerTurn() != 0))
 		{
-			iStrengthValue += (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * pkProcessInfo->getDefenseValue()) / 100;
+			int iDefenseValue = pkProcessInfo->getDefenseValue() + GetDefenseProcessTurns() * pkProcessInfo->getDefenseValuePerTurn();
+			if (pkProcessInfo->getDefenseValueCap() > 0)
+				iDefenseValue = min(iDefenseValue, pkProcessInfo->getDefenseValueCap());
+			iStrengthValue += (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * iDefenseValue) / 100;
 		}
 	}
 
@@ -27446,9 +27483,13 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 		if (getProductionProcess() != NO_PROCESS)
 		{
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
+			if (pkProcessInfo && (pkProcessInfo->getDefenseValue() != 0 || pkProcessInfo->getDefenseValuePerTurn() != 0))
 			{
-				iValue -= (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * pkProcessInfo->getDefenseValue()) / 100;
+				int iDefenseValue = pkProcessInfo->getDefenseValue() + GetDefenseProcessTurns() * pkProcessInfo->getDefenseValuePerTurn();
+				if (pkProcessInfo->getDefenseValueCap() > 0)
+					iDefenseValue = min(iDefenseValue, pkProcessInfo->getDefenseValueCap());
+
+				iValue -= (getYieldRateTimes100(YIELD_PRODUCTION, false, true) * iDefenseValue) / 100;
 			}
 		}
 
@@ -28893,10 +28934,10 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 	//this method should only be called once per city on its first turn or when the capital moves ...
 
 	int iSign = bRemove ? -1 : +1;
-
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	
 	if (isCapital())
 	{
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
 		int iNumAllies = kPlayer.GetNumCSAllies();
 		int iNumFriends = kPlayer.GetNumCSFriends();
 		if (iNumAllies > 0 || iNumFriends > 0)
@@ -28911,6 +28952,21 @@ void CvCity::UpdateYieldsFromExistingFriendsAndAllies(bool bRemove)
 		}
 	}
 
+	// Annexed CS
+	if (kPlayer.GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			int iAnnexedYields = isCapital() ? kPlayer.GetYieldInCapitalPerTurnFromAnnexedMinorsTimes100(eYield) : kPlayer.GetYieldInOtherCitiesPerTurnFromAnnexedMinorsTimes100(eYield);
+			if (iAnnexedYields != 0)
+			{
+				ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iAnnexedYields);
+				//CUSTOMLOG("adjusted %s in %s by %d/100 for annexation, current value is %d", GC.getYieldInfo(eYield)->getDescription(), getNameKey(), iSign * iAnnexedYields, GetBaseYieldRateFromCSAlliance(eYield));
+			}
+		}
+	}
+	
 	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eCityOwner = (PlayerTypes)getOwner();
@@ -31988,6 +32044,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iResistanceCounter);
 	visitor(city.m_iPlagueCounter);
 	visitor(city.m_iPlagueTurns);
+	visitor(city.m_iDefenseProcessTurns);
 	visitor(city.m_iPlagueType);
 	visitor(city.m_iSappedTurns);
 	visitor(city.m_iBuildingProductionBlockedTurns);
@@ -32668,10 +32725,38 @@ CvUnit* CvCity::getBestRangedStrikeTarget() const
 				//a bit redundant with the internal of canRangeStrikeAt but that's life
 				CvUnit* pTarget = rangedStrikeTarget(pTargetPlot);
 				int iDamage = rangeCombatDamage(pTarget, false, NULL);
-				if (iDamage > iBestScore)
+				int iBonus = 0;
+				if (iDamage > 0)
 				{
-					iBestScore = iDamage;
-					pBestTarget = pTarget;
+					int iCurrHitPoints = pTarget->GetCurrHitPoints();
+
+					// It's good to kill units
+					if (iDamage >= iCurrHitPoints)
+						iBonus += 15;
+
+					// it's good to damage city bombard units
+					if (pTarget->getUnitInfo().GetDefaultUnitAIType() == UNITAI_CITY_BOMBARD)
+						iBonus += 10;
+
+					// It's generally not useful to bombard civilians
+					else if (pTarget->IsCivilianUnit())
+					{
+						if (pTarget->IsGreatGeneral() || pTarget->IsGreatAdmiral())
+						{
+							// Killing great generals and admirals is good though
+							if (iDamage >= pTarget->GetCurrHitPoints())
+								iBonus = 10;
+							else
+								iDamage = 2;
+						}
+						else
+							iDamage = 1;
+					}
+					if (iDamage + iBonus > iBestScore)
+					{
+						iBestScore = iDamage + iBonus;
+						pBestTarget = pTarget;
+					}
 				}
 			}
 		}
@@ -34832,6 +34917,25 @@ void CvCity::SetPlagueTurns(int iValue)
 	if (iValue != m_iPlagueTurns)
 	{
 		m_iPlagueTurns = iValue;
+	}
+}
+
+int CvCity::GetDefenseProcessTurns() const
+{
+	return m_iDefenseProcessTurns;
+}
+void CvCity::ChangeDefenseProcessTurns(int iValue) //Set in city::doturn
+{
+	if (iValue != 0)
+	{
+		m_iDefenseProcessTurns += iValue;
+	}
+}
+void CvCity::SetDefenseProcessTurns(int iValue)
+{
+	if (iValue != m_iDefenseProcessTurns)
+	{
+		m_iDefenseProcessTurns = iValue;
 	}
 }
 

@@ -1757,6 +1757,10 @@ public:
 	void ChangePlagueTurns(int iValue); //Set in city::doturn
 	void SetPlagueTurns(int iValue);
 
+	int GetDefenseProcessTurns() const;
+	void ChangeDefenseProcessTurns(int iValue); //Set in city::doturn
+	void SetDefenseProcessTurns(int iValue);
+
 	int GetSappedTurns() const;
 	void SetSappedTurns(int iValue);
 	void ChangeSappedTurns(int iValue);
@@ -2171,6 +2175,7 @@ protected:
 	int m_iPlagueCounter;
 	int m_iPlagueTurns;
 	int m_iPlagueType;
+	int m_iDefenseProcessTurns;
 	int m_iSappedTurns;
 	int m_iBuildingProductionBlockedTurns;
 	int m_iNoTourismTurns;
@@ -2559,6 +2564,7 @@ SYNC_ARCHIVE_VAR(int, m_iResistanceCounter)
 SYNC_ARCHIVE_VAR(int, m_iPlagueCounter)
 SYNC_ARCHIVE_VAR(int, m_iPlagueTurns)
 SYNC_ARCHIVE_VAR(int, m_iPlagueType)
+SYNC_ARCHIVE_VAR(int, m_iDefenseProcessTurns)
 SYNC_ARCHIVE_VAR(int, m_iSappedTurns)
 SYNC_ARCHIVE_VAR(int, m_iBuildingProductionBlockedTurns)
 SYNC_ARCHIVE_VAR(int, m_iNoTourismTurns)
