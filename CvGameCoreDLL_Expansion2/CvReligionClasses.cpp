@@ -9442,11 +9442,10 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	GreatPersonTypes eAdmiral = (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_ADMIRAL");
 	if (pEntry->GetGreatPersonRateModifier(eAdmiral) > 0)
 			iWarTemp += pEntry->GetGreatPersonRateModifier(eAdmiral);
-	}
+
 	GreatPersonTypes eGeneral = (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_GENERAL");
 	if (pEntry->GetGreatPersonRateModifier(eGeneral) > 0)
 			iWarTemp += pEntry->GetGreatPersonRateModifier(eGeneral);
-	}
 
 	////////////////////
 	// Happiness
