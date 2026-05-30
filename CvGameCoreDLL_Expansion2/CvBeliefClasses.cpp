@@ -121,6 +121,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piMaxYieldPerFollowerPercent(NULL),
 	m_iCivilianWorkRate(0),
 	m_piImprovementVoteChange(NULL),
+	m_piUnitCombatProductionModifiers(NULL),
 	m_iReducePolicyRequirements(0),
 	m_iCSYieldBonus(0),
 
@@ -248,6 +249,7 @@ CvBeliefEntry::~CvBeliefEntry()
 	SAFE_DELETE_ARRAY(m_piMaxYieldPerFollower);
 	SAFE_DELETE_ARRAY(m_piMaxYieldPerFollowerPercent);
 	SAFE_DELETE_ARRAY(m_piImprovementVoteChange);
+	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiers);
 
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
@@ -821,20 +823,24 @@ int CvBeliefEntry::GetCSYieldBonus() const
 {
 	return m_iCSYieldBonus;
 }
-
 int CvBeliefEntry::GetCivilianWorkRate() const
 {
 	return m_iCivilianWorkRate;
 }
-
-/// Accessor:: Extra yield from an improvement
+/// Accessor:: Extra votes from an improvement
 int CvBeliefEntry::GetImprovementVoteChange(ImprovementTypes eIndex1) const
 {
 	PRECONDITION(eIndex1 < GC.getNumImprovementInfos(), "Index out of bounds");
 	PRECONDITION(eIndex1 > -1, "Index out of bounds");
 	return m_piImprovementVoteChange ? m_piImprovementVoteChange[eIndex1] : 0;
 }
-
+/// Accessor:: Extra unit combat production modifer
+int CvBeliefEntry::GetUnitCombatProductionModifiers(int i) const
+{
+	PRECONDITION(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piUnitCombatProductionModifiers ? m_piUnitCombatProductionModifiers[i] : -1;
+}
 /// Accessor: combat bonus in own lands
 int CvBeliefEntry::GetCombatBonusOwnLands() const
 {
@@ -1438,6 +1444,8 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piMaxYieldPerFollowerPercent, "Yields", "Belief_MaxYieldPerFollowerPercent", "YieldType", "BeliefType", szBeliefType, "Max");
 
 	kUtility.PopulateArrayByValue(m_piImprovementVoteChange, "Improvements", "Belief_VotePerXImprovementOwned", "ImprovementType", "BeliefType", szBeliefType, "Amount");
+	
+	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiers, "UnitCombatInfos", "Belief_UnitCombatProductionModifiers", "UnitCombatType", "BeliefType", szBeliefType, "Modifier");
 
 	m_iReducePolicyRequirements = kResults.GetInt("ReducePolicyRequirements");
 	m_iCSYieldBonus = kResults.GetInt("CSYieldBonusFromSharedReligion");
@@ -4748,6 +4756,23 @@ fraction CvReligionBeliefs::GetVoteFromOwnedImprovement(ImprovementTypes eImprov
 	return fVotes;
 }
 
+/// Get yield from beliefs from # of followers halved
+int CvReligionBeliefs::GetUnitCombatProductionModifiers(UnitCombatTypes eUnitCombat, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetUnitCombatProductionModifiers(eUnitCombat);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
 
 /// Get unique civ
 CivilizationTypes CvReligionBeliefs::GetUniqueCiv(PlayerTypes ePlayer, bool bHolyCityOnly) const

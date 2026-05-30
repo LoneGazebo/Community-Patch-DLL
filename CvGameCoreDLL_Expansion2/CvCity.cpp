@@ -12745,6 +12745,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 	if (eUnitCombatType != NO_UNITCOMBAT)
 	{
 		iTempMod = getUnitCombatProductionModifier(eUnitCombatType);
+
 		iMultiplier += iTempMod;
 		if (toolTipSink && iTempMod)
 		{
@@ -12849,19 +12850,34 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPACE_PLAYER", iTempMod);
 		}
 	}
-	else
+
+	// Production bonus from the City's Religion
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if (eMajority != NO_RELIGION)
 	{
-		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		if (eMajority != NO_RELIGION && (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0))
+		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+		if (pReligion)
 		{
-			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-			if (pReligion)
+			// to all military units?
+			if (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
 			{
 				iTempMod = pReligion->m_Beliefs.GetUnitProductionModifier();
 				iMultiplier += iTempMod;
 				if (toolTipSink && iTempMod)
 				{
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RELIGION_UNIT", iTempMod);
+				}
+			}
+			
+			// what about to specific unit combats?
+			UnitCombatTypes eUnitCombatType = (UnitCombatTypes)(pkUnitInfo->GetUnitCombatType());
+			if (eUnitCombatType != NO_UNITCOMBAT)
+			{
+				iTempMod = pReligion->m_Beliefs.GetUnitCombatProductionModifiers(eUnitCombatType, getOwner(), this);
+				iMultiplier += iTempMod;
+				if (toolTipSink && iTempMod)
+				{
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RELIGION_UNIT_COMBAT", iTempMod);
 				}
 			}
 		}

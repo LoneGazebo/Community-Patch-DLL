@@ -75,8 +75,8 @@ SELECT
 	'BELIEF_DEFENDER_FAITH', a.BuildingClassType, b.YieldType, b.YieldChange
 FROM Helper a, Helper2 b;
 
-DROP TABLE Helper;
-DROP TABLE Helper2;
+DELETE FROM Helper;
+DELETE FROM Helper2;
 
 -- Jesuit Education (now Divine Teachings)
 UPDATE Beliefs SET GreatPersonExpendedFaith = 20 WHERE Type = 'BELIEF_JESUIT_EDUCATION';
@@ -121,11 +121,41 @@ VALUES
 	('BELIEF_UNDERGROUND_SECT', 'BUILDINGCLASS_BROADCAST_TOWER');
 
 -- Charitable Missions (now Global Commandments)
-UPDATE Beliefs
-SET
-	CityStateInfluenceModifier = 0,
-	SpreadStrengthModifier = 15
-WHERE Type = 'BELIEF_CHARITABLE_MISSIONS';
+UPDATE Beliefs SET CityStateInfluenceModifier = 0 WHERE Type = 'BELIEF_CHARITABLE_MISSIONS';
+
+INSERT INTO Belief_UnitCombatProductionModifiers
+	(BeliefType, UnitCombatType, Modifier)
+VALUES
+	('BELIEF_CHARITABLE_MISSIONS', 'UNITCOMBAT_DIPLOMACY', 20);
+
+INSERT INTO Helper
+VALUES
+	('BUILDINGCLASS_CHANCERY'),
+	('BUILDINGCLASS_PRINTING_HOUSE'),
+	('BUILDINGCLASS_WIRE_SERVICE');
+
+INSERT INTO Helper2
+VALUES
+	('YIELD_GOLD', 1),
+	('YIELD_SCIENCE', 1),
+	('YIELD_CULTURE', 1);
+
+INSERT INTO Belief_BuildingClassYieldChanges
+	(BeliefType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	'BELIEF_CHARITABLE_MISSIONS', a.Type, b.Type, b.YieldChange
+FROM 
+	FROM Helper a, Helper2 b;
+
+DROP TABLE Helper;
+DROP TABLE Helper2;
+
+INSERT INTO Belief_BuildingClassFaithPurchase
+	(BeliefType, BuildingClassType)
+VALUES
+	('BELIEF_CHARITABLE_MISSIONS', 'BUILDINGCLASS_CHANCERY'),
+	('BELIEF_CHARITABLE_MISSIONS', 'BUILDINGCLASS_PRINTING_HOUSE'),
+	('BELIEF_CHARITABLE_MISSIONS', 'BUILDINGCLASS_WIRE_SERVICE');
 
 INSERT INTO Belief_YieldFromProposal
 	(BeliefType, YieldType, Yield)

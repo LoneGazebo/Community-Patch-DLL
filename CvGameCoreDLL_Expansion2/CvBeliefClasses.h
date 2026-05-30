@@ -131,6 +131,7 @@ public:
 	int GetCSYieldBonus() const;
 	int GetCivilianWorkRate() const;
 	int GetImprovementVoteChange(ImprovementTypes eIndex1) const;
+	int GetUnitCombatProductionModifiers(int i) const;
 	CivilizationTypes GetRequiredCivilization() const;
 
 	EraTypes GetObsoleteEra() const;
@@ -340,6 +341,7 @@ protected:
 	int* m_piMaxYieldPerFollower;
 	int* m_piMaxYieldPerFollowerPercent;
 	int* m_piImprovementVoteChange;
+	int* m_piUnitCombatProductionModifiers;
 	int m_iReducePolicyRequirements;
 	int m_iCSYieldBonus;
 	int m_iCombatBonusOwnLands;
@@ -561,6 +563,7 @@ public:
 	int GetCSYieldBonus(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCivilianWorkRate(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	fraction GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetUnitCombatProductionModifiers(UnitCombatTypes eUnitCombat, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 
 	const BeliefList& GetBeliefList() const { return m_ReligionBeliefs; }
 

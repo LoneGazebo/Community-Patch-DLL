@@ -474,7 +474,7 @@ SET Text = 'Global Commandments'
 WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '[ICON_RELIGION] Religion spreads 15% faster (30% with Printing Press). Receive 350 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points when you pass a Proposal in the World Congress or United Nations, scaling with Era.'
+SET Text = 'May build Chanceries, Printing Houses, and Wire Services with [ICON_PEACE] Faith. These buildings produce +1 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture each. +20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]Diplomacy Units[ENDCOLOR]. Receive 350 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points when you pass a Proposal in the World Congress or United Nations, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS';
 
 UPDATE Language_en_US

@@ -986,31 +986,31 @@
 			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production from each [ICON_INTERNATIONAL_TRADE] Trade Route with City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BUILDING_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Non-Wonder Buildings</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Non-Wonder Buildings</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_WONDER_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Wonders</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Wonders</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_MILITARY_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Military Units</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Military Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_MILITARY_PRODUCTION_MODIFIER_FROM_WAR">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Military Units in all Cities for every Major Civilization at war with your Empire</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Military Units in all Cities for every Major Civilization at war with your Empire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPACESHIP_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Spaceship Parts</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Spaceship Parts</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{3_Unit:textkey}[ENDCOLOR]</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards [COLOR_YELLOW]{3_Unit:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_COMBAT_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{3_UnitCombat:textkey} Units[ENDCOLOR]</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards [COLOR_YELLOW]{3_UnitCombat:textkey} Units[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_DOMAIN_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR]</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_SPECIFIC_STRATEGIC_UNIT_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Units requiring {3_ResourceIcon} {4_Resource:textkey}</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Units requiring {3_ResourceIcon} {4_Resource:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CITY_CONNECTION_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production/[ICON_GOLD] Gold from [ICON_CONNECTED] City Connections and [ICON_INDUSTRIAL_CONNECTED] Industrial City Connections</Text>
@@ -1643,7 +1643,7 @@
 			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num} XP for [COLOR_YELLOW]{4_Domain:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_COMBAT_PRODUCTION_MODIFIER_FROM_ACCOMPLISHMENT">
-			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{4_UnitCombat:textkey}[ENDCOLOR] Units</Text>
+			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards [COLOR_YELLOW]{4_UnitCombat:textkey}[ENDCOLOR] Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PLAYER_INSTANCE_FROM_ACCOMPLISHMENT">
 			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{2_Accomplishment:textkey}[ENDCOLOR]: May build {1_Num} more of this Building</Text>
@@ -2060,6 +2060,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_PLEDGES_UNIT_DOMAIN">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Domain from Pledges: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_RELIGION_UNIT_COMBAT">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Combat Class from Religion: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_RELIGION_UNIT">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Military Units from Religion: {1_Num}%</Text>

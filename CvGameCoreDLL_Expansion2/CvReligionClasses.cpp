@@ -8672,6 +8672,30 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 	else
 		iRtnValue += pEntry->GetUnitProductionModifier() / 2;
 
+	// UnitCombat loop
+	for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	{
+		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
+		if (pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass) > 0)
+		{
+			if (eUnitCombatClass == GC.getInfoTypeForString("UNITCOMBAT_DIPLOMACY"))
+			{
+				if (m_pPlayer->GetPlayerTraits()->IsDiplomat())
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass);
+				else
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass) / 2;
+			}
+			// assume military
+			else
+			{
+				if (m_pPlayer->GetPlayerTraits()->IsWarmonger() || m_pPlayer->GetPlayerTraits()->IsExpansionist())
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass);
+				else
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass) / 2;
+			}
+		}
+	}
+	
 	// River happiness
 	if (pCity->plot()->isRiver())
 	{
@@ -9278,7 +9302,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			}
 		}
 	}
-
 
 	if (iNumNeighbors > 0)
 	{
