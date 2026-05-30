@@ -1786,12 +1786,12 @@ int CvLuaUnit::lGetReligionCombatBonusOwnLands(lua_State* L)
 	if (pkUnit && pkUnit->getDomainType() == DOMAIN_LAND && pkOtherUnit)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eOwnedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetOwnedReligion();
+		ReligionTypes eStateReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetStateReligion();
 		ReligionTypes eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetStateReligion();
 
-		if (eOwnedReligion != NO_RELIGION)
+		if (eStateReligion != NO_RELIGION)
 		{
-			const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, pkUnit->getOwner());
+			const CvReligion* pReligion = pReligions->GetReligion(eStateReligion, pkUnit->getOwner());
 			if (pReligion)
 			{
 				CvCity* pHolyCity = pReligion->GetHolyCity();
@@ -1802,7 +1802,7 @@ int CvLuaUnit::lGetReligionCombatBonusOwnLands(lua_State* L)
 				if((iOwn > 0 || iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
 				{
 					iRtnValue = iOwn;
-					if (eTheirReligion != eOwnedReligion)
+					if (eTheirReligion != eStateReligion)
 						iRtnValue += iOtherOwn;
 				}
 			}
