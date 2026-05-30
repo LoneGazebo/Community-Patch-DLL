@@ -25767,9 +25767,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					else
 					{
-						if (pReligion->m_Beliefs.GetGreatPersonBornYield(eYield, GetID(), pLoopCity, false) > 0)
+						if (pReligion->m_Beliefs.GetGreatPersonBornYield(eGreatPerson, eYield, GetID(), pLoopCity, false) > 0)
 						{
-							iValue += pReligion->m_Beliefs.GetGreatPersonBornYield(eYield, GetID(), pLoopCity, false, iNumFollowerCities);
+							iValue += pReligion->m_Beliefs.GetGreatPersonBornYield(eGreatPerson, eYield, GetID(), pLoopCity, false, iNumFollowerCities);
 						}
 						if (pUnit->GetCultureBlastStrength() > 0)
 						{
