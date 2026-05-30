@@ -16,7 +16,9 @@ local StackImpl = {}
 function StackImpl:Pop()
 	if self.count <= 0 then return nil end
 
-	local item = lua_table_remove(self.items)
+	local item = self.items[self.count]
+
+	self.items[self.count] = nil
 	self.count = self.count - 1
 
 	return item
@@ -45,7 +47,7 @@ end
 
 --- Checks if the stack is empty (has 0 items).
 function StackImpl:Empty()
-	return self.items[1] == nil
+	return self.count <= 0
 end
 
 --- @class StackMeta
