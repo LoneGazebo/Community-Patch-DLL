@@ -1063,11 +1063,11 @@
 			<Text>+40% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_LEGACY">
-			<Text>Legacy</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SPEAR_WALL">
+			<Text>Spear Wall</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_LEGACY_HELP">
-			<Text>+5% [ICON_STRENGTH] Combat Strength per Level beyond 1.</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SPEAR_WALL_HELP">
+			<Text>Deal [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.[NEWLINE][NEWLINE]Deal [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all adjacent Enemy Units if this Unit is [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR] when starting its turn.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RIACHUELO">

@@ -49,8 +49,8 @@ WHERE Type = 'UNIT_SABUM_KIBITUM';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_SABUM_KIBITUM', 'PROMOTION_GAIN_EXPERIENCE'),
-	('UNIT_SABUM_KIBITUM', 'PROMOTION_LEGACY');
+	('UNIT_SABUM_KIBITUM', 'PROMOTION_FORMATION_2'),
+	('UNIT_SABUM_KIBITUM', 'PROMOTION_SPEAR_WALL');
 
 ----------------------------------------------------------
 -- Unique Building: Walls of Babylon (Walls)
