@@ -10077,6 +10077,18 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	// Other
 	///////////////////
 
+	int iImprovementTemp = 0;
+	
+	if (pEntry->GetCivilianWorkRate() > 0)
+	{
+		if (pPlayerTraits->IsExpansionist())
+			iImprovementTemp += pEntry->GetCivilianWorkRate() * 2;
+		else if (pPlayerTraits->IsSmaller())
+			iImprovementTemp += pEntry->GetCivilianWorkRate() / 4;
+		else
+			iImprovementTemp += pEntry->GetCivilianWorkRate();
+	}
+
 	int iPolicyGainTemp = 0;
 
 	bool bHasPolicyBelief = false;
@@ -10162,7 +10174,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	}
 
 	//sanity check - we don't want buildings to be the sole reason we get a founder.
-	if (pEntry->IsFounderBelief() && (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp + iDiploTemp) <= 250)
+	if (pEntry->IsFounderBelief() && (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp + iDiploTemp + iImprovementTemp) <= 250)
 		iBuildingTemp /= 100;
 
 	if (pPlayerTraits->IsWarmonger())
@@ -10235,7 +10247,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	iGoldenAgeTemp /= 100;
 
 	if (bReturnConquest)
-		return(iWarTemp + iHappinessTemp + iGoldenAgeTemp + iBuildingTemp) / 2;
+		return(iWarTemp + iHappinessTemp + iGoldenAgeTemp + iBuildingTemp + iImprovementTemp) / 2;
 
 	iCultureTemp *= (100 + (iCultureInterest / 10));
 	iCultureTemp /= 100;
@@ -10276,7 +10288,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	if (bReturnScience)
 		return(iGoldTemp + iScienceTemp + iBuildingTemp + iGPTemp + iGoldenAgeTemp) / 2;
 
-	iRtnValue = (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp +  iBuildingTemp + iDiploTemp);
+	iRtnValue = (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp +  iBuildingTemp + iDiploTemp + iImprovementTemp);
 
 	if (iMissionary > 0 && bNoMissionary)
 		iRtnValue /= 100;
