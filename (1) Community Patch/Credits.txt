@@ -305,6 +305,14 @@ Art Assets (General)
 --------------------------------------------------------------------------
 SocialPoliciesIndustry.dds : from JFD's Rise to Power, image by Leugi
 Mikasa model converted from Civ 4 by Wolfshanze, icon by Janboruta 
+Ambassador icon by RawSasquatch, recolored by Hokath
+Diplomat icon by Jarcast and Hokath
+Ancient Great Diplomat icon by Hinin and Jarcast
+Emissary icon adapted by Hokath from Weanew icon by RawSasquatch
+Envoy icon by Janboruta
+Elder Stateman model converted from Civ IV by Wolfdog
+Envoy model from JFD's HRE civ by zwei833 
+Envoy, Emissary, Diplomat, Ambassador, and Great Diplomat model reskins by Hokath
 Chartarium icon from Israel (Solomon) custom civ by Lastsword
 Jail icon by Janboruta
 Casino icon by AsterixRage
