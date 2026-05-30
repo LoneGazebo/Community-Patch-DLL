@@ -6619,6 +6619,11 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				if (ePromotion != -1)
 				{
 					changeFreePromotionCount(ePromotion, 1);
+					if (MOD_BALANCE_RETROACTIVE_PROMOTIONS)
+					{
+						// not removed when event ends , as neither are promo gained from the city
+						SetRetroactivePromotion(ePromotion);
+					}
 				}
 			}
 			for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
