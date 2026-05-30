@@ -90,8 +90,8 @@ VALUES
 -- Naval Tradition (now Colonialism)
 UPDATE Policies
 SET
-	MonopolyModPercent = 10,
-	MonopolyModFlat = 3
+	MonopolyModPercent = 5,
+	MonopolyModFlat = 5
 WHERE Type = 'POLICY_NAVAL_TRADITION';
 
 DELETE FROM Policy_BuildingClassHappiness

@@ -4606,17 +4606,17 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		// Barbarians cannot enter owned plots in the beginning
 		return false;
 
+	if (isRivalTerritory() || isTrade())
+		return true;
+
 	TeamTypes eMyTeam = GET_PLAYER(getOwner()).getTeam();
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
-	if (isRivalTerritory() || isTrade())
-		return true;
-
 	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && eMyTeam != eTeam && kTheirTeam.isMinorCiv())
 	{
-		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(getUnitType());
-		if (pkUnitEntry->GetDefaultUnitAIType() != UNITAI_MESSENGER)
+		UnitAITypes eUnitAI = GC.getUnitInfo(getUnitType())->GetDefaultUnitAIType();
+		if (eUnitAI != UNITAI_MESSENGER && eUnitAI != UNITAI_DIPLOMAT)
 		{
 			PlayerTypes eMinor = kTheirTeam.getLeaderID();
 			ASSERT(eMinor != NO_PLAYER);
@@ -6026,20 +6026,12 @@ void CvUnit::scrap(bool bDelay)
 		kOwner.GetTreasury()->ChangeGold(iGold);
 	}
 
-	// TODO: change to instant yield
-	if (isCultureFromExperienceDisbandUpgrade())
+	if (getCultureFromExperienceDisbandUpgrade() > 0)
 	{
-		int iExperience = getExperienceTimes100() / 100;
-		if (iExperience > 0)
-		{
-			kOwner.changeJONSCulture(iExperience);
-			if (getOwner() == GC.getGame().getActivePlayer())
-			{
-				char text[256] = { 0 };
-				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-				SHOW_PLOT_POPUP(plot(), getOwner(), text);
-			}
-		}
+		int iExperienceTimes100 = getExperienceTimes100();
+		if (iExperienceTimes100 > 0)
+			kOwner.doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
+				false, NO_PLAYER, plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, false, YIELD_CULTURE, this);
 	}
 
 	kill(bDelay);
@@ -14222,20 +14214,13 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 				LuaSupport::CallHook(pkScriptSystem, "UnitUpgraded", args.get(), bResult);
 			}
 		}
-
-		if(isCultureFromExperienceDisbandUpgrade())
+		
+		if (getCultureFromExperienceDisbandUpgrade() > 0)
 		{
-			int iExperience = getExperienceTimes100() / 100;
-			if(iExperience > 0)
-			{
-				thisPlayer.changeJONSCulture(iExperience);
-				if (getOwner() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = { 0 };
-					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-					SHOW_PLOT_POPUP(plot(),getOwner(),text);
-				}
-			}
+			int iExperienceTimes100 = getExperienceTimes100();
+			if (iExperienceTimes100 > 0)
+				thisPlayer.doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
+					false, NO_PLAYER, plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, true, YIELD_CULTURE, this);
 		}
 
 		if (MOD_SQUADS && GetSquadNumber() > -1)
@@ -15678,6 +15663,19 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 
 	Modifiers += kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
 
+	if (IsCivilianUnit())
+	{
+		CvCity* pOriginCity = getOriginCity();
+		if (pOriginCity)
+		{
+			const CvReligion* pCityReligion = pOriginCity->GetCityReligions()->GetMajorityReligion();
+			if(pCityReligion)
+			{
+				Modifiers += pCityReligion->m_Beliefs.GetCivilianWorkRate(getOwner(), pOriginCity);
+			}
+		}
+	}
+
 	if (kPlayer.isMajorCiv())
 	{
 		Modifiers += kPlayer.getHandicapInfo().getWorkRateModifier();
@@ -16297,17 +16295,25 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 					{
 						CvCity* pHolyCity = pReligion->GetHolyCity();
 
-						//Full bonus against different religion
-						int iScaler = (eTheirReligion != eOwnedReligion) ? 1 : 2;
-						int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
-						int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+						int iOwn = pReligion->m_Beliefs.GetCombatBonusOwnLands(getOwner(), pHolyCity);
+						int iOwnOtherReligion = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+						int iTheir = pReligion->m_Beliefs.GetCombatBonusTheirLands(getOwner(), pHolyCity);
+						int iTheirOtherReligion = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionTheirLands(getOwner(), pHolyCity);
 
 						// Bonus in own land
-						if (iOtherOwn > 0 && pBattlePlot->IsFriendlyTerritory(getOwner()))
-							iModifier += iOtherOwn/iScaler;
+						if ((iOwn > 0 || iOwnOtherReligion > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
+						{
+							iModifier += iOwn;
+							if (eOwnedReligion != eTheirReligion)
+								iModifier += iOwnOtherReligion;
+						}
 						// Bonus in their lands
-						if (iOtherTheir > 0 && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-							iModifier += iOtherTheir/iScaler;
+						if ((iTheir > 0 || iTheirOtherReligion > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+						{
+							iModifier += iTheir;
+							if (eOwnedReligion != eTheirReligion)
+								iModifier += iTheirOtherReligion;
+						}
 					}
 				}
 			}
@@ -17154,17 +17160,25 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 					{
 						CvCity* pHolyCity = pReligion->GetHolyCity();
 
-						//Full bonus against different religion
-						int iScaler = (eTheirReligion != eOwnedReligion) ? 1 : 2;
-						int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
-						int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+						int iOwn = pReligion->m_Beliefs.GetCombatBonusOwnLands(getOwner(), pHolyCity);
+						int iOwnOtherReligion = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+						int iTheir = pReligion->m_Beliefs.GetCombatBonusTheirLands(getOwner(), pHolyCity);
+						int iTheirOtherReligion = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionTheirLands(getOwner(), pHolyCity);
 
 						// Bonus in own land
-						if (iOtherOwn > 0 && pTargetPlot->IsFriendlyTerritory(getOwner()))
-							iModifier += iOtherOwn/iScaler;
+						if ((iOwn > 0 || iOwnOtherReligion > 0) && pTargetPlot->IsFriendlyTerritory(getOwner()))
+						{
+							iModifier += iOwn;
+							if (eOwnedReligion != eTheirReligion)
+								iModifier += iOwnOtherReligion;
+						}
 						// Bonus in their lands
-						if (iOtherTheir > 0 && pTargetPlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-							iModifier += iOtherTheir/iScaler;
+						if ((iTheir > 0 || iTheirOtherReligion > 0) && pTargetPlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+						{
+							iModifier += iTheir;
+							if (eOwnedReligion != eTheirReligion)
+								iModifier += iTheirOtherReligion;
+						}
 					}
 				}
 			}
@@ -21828,12 +21842,12 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 		}
 		if (eNearestMinor != NO_PLAYER)
 		{
-			int iInfluenceGained = iUnitExperienceTimes100 * GetInfluenceFromCombatXPTimes100() / 100;
-			GET_PLAYER(eNearestMinor).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100(getOwner(), iInfluenceGained);
+			int iInfluenceGainedTimes100 = GetInfluenceFromCombatXPTimes100() * iUnitExperienceTimes100 / 100;
+			GET_PLAYER(eNearestMinor).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100(getOwner(), iInfluenceGainedTimes100);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", iInfluenceGained);
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", iInfluenceGainedTimes100 / 100);
 				SHOW_PLOT_POPUP(plot(), getOwner(), text);
 			}
 		}
@@ -33914,10 +33928,10 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 	return loadFrom;
 }
 //	--------------------------------------------------------------------------------
-bool CvUnit::isCultureFromExperienceDisbandUpgrade() const
+int CvUnit::getCultureFromExperienceDisbandUpgrade() const
 {
 	VALIDATE_OBJECT();
-	return getUnitInfo().IsCultureFromExperienceDisbandUpgrade();
+	return getUnitInfo().GetCultureFromExperienceDisbandUpgrade();
 }
 bool CvUnit::isFreeUpgrade() const
 {

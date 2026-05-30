@@ -323,10 +323,10 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AQUEDUCT';
 
-INSERT INTO Building_GrowthExtraYield
-	(BuildingType, YieldType, Yield)
+INSERT INTO Building_YieldFromBirth
+	(BuildingType, YieldType, Yield, IsEraScaling)
 SELECT
-	Type, 'YIELD_PRODUCTION', 60
+	Type, 'YIELD_PRODUCTION', 20, 1
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AQUEDUCT';
 
@@ -1093,13 +1093,6 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
 	Type, 'YIELD_CULTURE', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_COLOSSEUM';
-
-INSERT INTO Building_YieldChangesPerPop
-	(BuildingType, YieldType, Yield)
-SELECT
-	Type, 'YIELD_TOURISM', 25
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_COLOSSEUM';
 
@@ -2093,12 +2086,20 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
 
 DELETE FROM Helper;
 
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_GOLD'),
+	('YIELD_TOURISM');
+
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 SELECT
-	Type, 'BUILDINGCLASS_COLOSSEUM', 'YIELD_GOLD', 2
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
+	a.Type, 'BUILDINGCLASS_COLOSSEUM', b.YieldType, 2
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
+
+DELETE FROM Helper;
 
 -- Imperial College
 UPDATE Buildings
@@ -2435,7 +2436,7 @@ VALUES
 	-- World Wonders
 	('BUILDINGCLASS_RED_FORT', 600, 100, 0),
 	-- Beliefs
-	('BUILDINGCLASS_ORDER', 300, 0, 0);
+	('BUILDINGCLASS_GURDWARA', 300, 0, 0);
 
 UPDATE Buildings
 SET

@@ -84,6 +84,15 @@ WHERE Type IN (
 	'TECH_TELECOM'
 );
 
+-- Move Open Borders treaties to Philosophy
+UPDATE Technologies
+SET OpenBordersTradingAllowed = 0
+WHERE Type = 'TECH_CIVIL_SERVICE';
+
+UPDATE Technologies
+SET OpenBordersTradingAllowed = 1
+WHERE Type = 'TECH_PHILOSOPHY';
+
 -- Enable Corporations
 UPDATE Technologies SET CorporationsEnabled = 1 WHERE Type = 'TECH_CORPORATIONS';
 

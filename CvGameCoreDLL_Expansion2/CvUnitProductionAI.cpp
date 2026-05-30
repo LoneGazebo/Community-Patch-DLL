@@ -931,13 +931,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 							{
 								iReligiousBonus += (pEntry->GetCombatModifierFriendlyCities());
 							}
-							if (pEntry->GetCombatVersusOtherReligionOwnLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
+							if ((pEntry->GetCombatBonusVersusOtherReligionOwnLands() > 0 || pEntry->GetCombatBonusOwnLands() > 0) && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
 							{
-								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionOwnLands());
+								iReligiousBonus += (pEntry->GetCombatBonusVersusOtherReligionOwnLands() + pEntry->GetCombatBonusOwnLands()) * 2 / 3;
 							}
-							if (pEntry->GetCombatVersusOtherReligionTheirLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_SKIRMISHER) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
+							if ((pEntry->GetCombatBonusVersusOtherReligionTheirLands() > 0 || pEntry->GetCombatBonusTheirLands() > 0) && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_SKIRMISHER) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 							{
-								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionTheirLands());
+								iReligiousBonus += (pEntry->GetCombatBonusVersusOtherReligionTheirLands() + pEntry->GetCombatBonusTheirLands()) * 2 / 3;
 							}
 							for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 							{

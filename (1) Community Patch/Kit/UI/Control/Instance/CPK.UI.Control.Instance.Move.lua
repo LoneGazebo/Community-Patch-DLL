@@ -15,6 +15,10 @@ local function MoveControlInstance(inst, dest)
 
 	local root = inst[3]
 
+	AssertIsTable(root)
+
+	--[[@cast root Control]]
+
 	root:ChangeParent(dest)
 	inst[4] = dest
 

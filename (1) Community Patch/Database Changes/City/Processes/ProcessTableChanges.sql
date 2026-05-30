@@ -4,5 +4,11 @@ ALTER TABLE Processes ADD RequiredPolicy text REFERENCES Policies (Type);
 -- Add a percentage of the city's production to its strength and healing
 ALTER TABLE Processes ADD DefenseValue integer DEFAULT 0;
 
+-- Add a percentage of the city's production to its strength and healing per turn
+ALTER TABLE Processes ADD DefenseValuePerTurn integer DEFAULT 0;
+
+-- Add a percentage of the city's production to its strength and healing
+ALTER TABLE Processes ADD DefenseValueCap integer DEFAULT 0;
+
 -- Only the specified civilization can use this process
 ALTER TABLE Processes ADD CivilizationType text REFERENCES Civilizations (Type);

@@ -59,6 +59,7 @@ protected:
 	static int lHasStrategicMonopoly(lua_State* L);
 	static int lGetResourcesMisc(lua_State* L);
 	static int lGetResourcesFromGP(lua_State* L);
+	static int lGetFreeResourceFromPolicies(lua_State* L);
 	static int lGetResourcesFromCorporation(lua_State* L);
 	static int lGetResourceFromCSAlliances(lua_State* L);
 	static int lGetResourcesFromFranchises(lua_State* L);
@@ -391,6 +392,7 @@ protected:
 	static int lGetExtraHappinessPerLuxury(lua_State* L);
 	static int lGetHappinessFromReligion(lua_State* L);
 	static int lGetHappinessFromNaturalWonders(lua_State* L);
+	static int lGetHappinessFromImprovements(lua_State* L);
 	static int lGetHappinessFromLeagues(lua_State* L);
 	static int lGetHappinessFromMilitaryUnits(lua_State* L);
 

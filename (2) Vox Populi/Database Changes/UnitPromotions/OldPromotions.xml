@@ -912,9 +912,9 @@
 		<Replace>
 			<Type>PROMOTION_FLAT_MOVEMENT_COST</Type>
 			<Description>TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST</Description>
-			<Help>TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST</Help>
+			<Help>TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST_HELP</Help>
 			<PediaType>PEDIA_MOUNTED</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_FLAT_MOVEMENT_COST</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_MUST_SET_UP</Type>
@@ -1238,13 +1238,6 @@
 			<Help>TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HAKA_WAR_DANCE</PediaEntry>
-		</Replace>
-		<Replace>
-			<Type>PROMOTION_MEDIC_GENERAL</Type>
-			<Description>TXT_KEY_PROMOTION_MEDIC_GENERAL</Description>
-			<Help>TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP</Help>
-			<PediaType>PEDIA_HEAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_MEDIC_GENERAL</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_GAIN_EXPERIENCE</Type>

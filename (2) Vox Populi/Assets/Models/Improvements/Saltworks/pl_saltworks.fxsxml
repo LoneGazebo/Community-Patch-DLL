@@ -1,0 +1,18 @@
+<Asset>
+  <Mesh file="pl_saltworks.gr2" source="Max" />
+  <Texture file="FX_Blk_Blk4x4.dds" source="Max" />
+  <Texture file="Saltworks_hb_diff.dds" source="Max" />
+  <Texture file="Saltworks_hb_grnd.dds" source="Max" />
+  <Texture file="Saltworks_hb_grnd_h.dds" source="Max" />
+  <Texture file="Saltworks_hb_sref.dds" source="Max" />
+  <Texture file="Unit_Environment_Dull.dds" source="Max" />
+  <Texture file="Unit_Environment_Sharp.dds" source="Max" />
+  <Texture file="Unit_Irradiance.dds" source="Max" />
+  <BoneUsage>
+    <Bone name="" />
+    <Bone name="Pillaged_FX" />
+    <Bone name="berm04" />
+  </BoneUsage>
+  <TimedTrigger file="FX_Triggers_PL_ANC_Polder.ftsxml" source="Tool" model="berm04" state="0,1,2,3" />
+  <DecisionTree file="StaticLandmarkDecisionTree.ddtxml" source="Tool" />
+</Asset>

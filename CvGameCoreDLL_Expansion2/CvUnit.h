@@ -2010,7 +2010,7 @@ public:
 	void changeYieldFromAncientRuins(YieldTypes eIndex, int iChange);
 	int getYieldFromTRPlunder(YieldTypes eIndex) const;
 	void changeYieldFromTRPlunder(YieldTypes eIndex, int iChange);
-	bool isCultureFromExperienceDisbandUpgrade() const;
+	int getCultureFromExperienceDisbandUpgrade() const;
 	bool isFreeUpgrade() const;
 	bool isUnitEraUpgrade() const;
 	bool isReligiousUnit() const;

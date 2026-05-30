@@ -73,6 +73,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasStrategicMonopoly);
 	Method(GetResourcesMisc);
 	Method(GetResourcesFromGP);
+	Method(GetFreeResourceFromPolicies);
 	Method(GetResourcesFromCorporation);
 	Method(GetResourceFromCSAlliances);
 	Method(GetResourcesFromFranchises);
@@ -410,6 +411,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetExtraHappinessPerLuxury);
 	Method(GetHappinessFromReligion);
 	Method(GetHappinessFromNaturalWonders);
+	Method(GetHappinessFromImprovements);
 	Method(GetHappinessFromLeagues);
 	Method(GetHappinessFromMilitaryUnits);
 
@@ -1808,6 +1810,16 @@ int CvLuaPlayer::lGetResourcesFromGP(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	const int iResult = (int)(pkPlayer->getResourceFromGP(eResource));
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetFreeResourceFromPolicies(ResourceTypes eResource)
+int CvLuaPlayer::lGetFreeResourceFromPolicies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->getFreeResourceFromPolicies(eResource);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4630,6 +4642,13 @@ int CvLuaPlayer::lGetHappinessFromReligion(lua_State* L)
 int CvLuaPlayer::lGetHappinessFromNaturalWonders(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromNaturalWonders);
+}
+
+//------------------------------------------------------------------------------
+//int GetHappinessFromImprovements() const;
+int CvLuaPlayer::lGetHappinessFromImprovements(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromImprovements);
 }
 
 //------------------------------------------------------------------------------
@@ -14050,21 +14069,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = str;
 				aOpinions.push_back(kOpinion);
 			}
-		}
-		iValue = pDiplo->GetNumSamePolicies(ePlayer);
-		if (iValue > 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = -3;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES");
-			aOpinions.push_back(kOpinion);
-		}
-		else if (iValue < 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = bTeammate ? 0 : 3;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
-			aOpinions.push_back(kOpinion);
 		}
 		// Same religion?
 		if (pDiplo->IsPlayerSameReligion(ePlayer))

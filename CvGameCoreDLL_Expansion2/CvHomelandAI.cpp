@@ -340,7 +340,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) c
 				iHealRate -= pUnit->GetDanger(pEvalPlot);
 				if (iHealRate >= 7 || (iHealRate > 0 && iDamage > 30))
 				{
-					int iScore = iHealRate * 20;
+					int iScore = iHealRate * 40;
 					vReachablePlotByScore.push_back(SPlotWithScore(pEvalPlot, -iScore));
 				}
 			}
@@ -1894,28 +1894,29 @@ void CvHomelandAI::PlotUpgradeMoves()
 		for(CHomelandUnitArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
+			bool bUnitUpgraded = false;
 			if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 			{
-				//if the unit is currently in an army we need some extra bookkeeping
-				CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
-				int iArmySlot = -1;
-				if (pArmy)
-					iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
-
 				// Resource requirement
 				UnitTypes eUnit = pUnit->getUnitType();
 				UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
 				if (!m_pPlayer->HasResourceForNewUnit(eUpgradeUnit, false, true, eUnit))
 					continue;
 
-				//avoid a warning, reset the last move
-				pUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
-
 				// Don't upgrade if we will go over supply
 				if (bUnderSupplyLimit || !pUnit->isNoSupply())
 				{
+					//if the unit is currently in an army we need some extra bookkeeping
+					CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
+					int iArmySlot = -1;
+					if (pArmy)
+						iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
+
+					//avoid a warning, reset the last move
+					pUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
 					//this removes the unit from the army (if any)
 					CvUnit* pNewUnit = pUnit->DoUpgrade();
+					bUnitUpgraded = true;
 
 					//if it worked the old unit is now a zombie ...
 					UnitProcessed(pUnit->GetID());
@@ -1924,7 +1925,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 					{
 						//restore the army
 						if (pArmy)
-							pArmy->AddUnit(pNewUnit->GetID(), iArmySlot, true);
+							pArmy->AddUnit(pNewUnit->GetID(), iArmySlot, pArmy->GetSlotInfo(iArmySlot).m_requiredSlot);
 
 						UnitProcessed(pNewUnit->GetID());
 
@@ -1941,7 +1942,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 					}
 				}
 			}
-			else if (pFirstNonUpgradedUnit == NULL)
+			if (!bUnitUpgraded && pFirstNonUpgradedUnit == NULL)
 				pFirstNonUpgradedUnit = pUnit;
 		}
 
@@ -4013,7 +4014,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	for (list<int>::iterator it = allWorkers.begin(); it != allWorkers.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (!pUnit || pUnit->TurnProcessed() || pUnit->getUnitInfo().GetCombat() > 0 || (!pUnit->IsAutomated() && m_pPlayer->isHuman(ISHUMAN_AI_UNITS)))
+		if (!pUnit || pUnit->TurnProcessed() || pUnit->isDelayedDeath() || pUnit->IsDead() || pUnit->getUnitInfo().GetCombat() > 0 || (!pUnit->IsAutomated() && m_pPlayer->isHuman(ISHUMAN_AI_UNITS)))
 			continue;
 
 		//find the city which is most in need of workers

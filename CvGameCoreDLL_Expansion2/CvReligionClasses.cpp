@@ -7888,6 +7888,47 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 	int iModifier = 0; 
 	// iModifier is between 0 and 100. 100 for yields that are instantly available, lower value if it takes time to get them (build improvements, remove features etc.)
 
+	// When RequiresImprovement=1 and no improvement is present, compute a tech-based confidence modifier
+	int iRequiresImprovementModifier = 75; // fallback when bConsiderFutureTech=false (preserves old behavior)
+	if (pEntry->RequiresImprovement() && eImprovement == NO_IMPROVEMENT && bConsiderFutureTech)
+	{
+		iRequiresImprovementModifier = 0; // will be raised if any improvement can be built here
+		for (int jJ = 0; jJ < GC.getNumImprovementInfos(); jJ++)
+		{
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo((ImprovementTypes)jJ);
+			if (!pkImprovementInfo || pkImprovementInfo->IsCreatedByGreatPerson())
+				continue;
+			if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsConnectsResource(eResource)))
+				continue;
+			if (!pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->GetID()))
+				continue;
+			if (pkImprovementInfo->IsSpecificCivRequired() && pkImprovementInfo->GetRequiredCivilization() != m_pPlayer->getCivilizationType())
+				continue;
+			BuildTypes eThisBuild = NO_BUILD;
+			for (int iK = 0; iK < GC.getNumBuildInfos(); ++iK)
+			{
+				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iK);
+				if (pkBuildInfo && (ImprovementTypes)pkBuildInfo->getImprovement() == (ImprovementTypes)jJ)
+				{
+					eThisBuild = (BuildTypes)iK;
+					break;
+				}
+			}
+			if (eThisBuild != NO_BUILD)
+			{
+				int iLoopModifier;
+				TechTypes eBuildTech = (TechTypes)GC.getBuildInfo(eThisBuild)->getTechPrereq();
+				if (eBuildTech == NO_TECH || m_pPlayer->HasTech(eBuildTech))
+					iLoopModifier = 90;
+				else if (m_pPlayer->GetPlayerTechs()->GetCurrentResearch() == eBuildTech)
+					iLoopModifier = 80;
+				else
+					iLoopModifier = 50;
+				iRequiresImprovementModifier = max(iRequiresImprovementModifier, iLoopModifier);
+			}
+		}
+	}
+
 	if (eTerrain != NO_TERRAIN)
 	{
 		int iTerrainYieldChangeTimes100 = pEntry->GetTerrainYieldChange(eTerrain, iI) * 100;
@@ -7897,7 +7938,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 			iModifier = 100;
 			if (pEntry->RequiresImprovement() && eImprovement == NO_IMPROVEMENT)
 			{
-				iModifier = 75;
+				iModifier = iRequiresImprovementModifier;
 			}
 			else if (pEntry->RequiresNoImprovement() && eImprovement != NO_IMPROVEMENT)
 			{
@@ -7920,7 +7961,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 			iModifier = 100;
 			if (pEntry->RequiresImprovement() && eImprovement == NO_IMPROVEMENT)
 			{
-				iModifier = 75;
+				iModifier = iRequiresImprovementModifier;
 			}
 			else if (pEntry->RequiresNoImprovement() && eImprovement != NO_IMPROVEMENT)
 			{
@@ -8368,6 +8409,27 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 			iTempValue += iAvailabilityModifier * pEntry->GetCoastalCityYieldChange(iI);
 		}
 
+		// Nearby terrain city yield change (max across terrain types - city qualifies once for any matching terrain)
+		{
+			int iMaxNearbyTerrainScore = 0;
+			for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+			{
+				if (pEntry->GetNearbyTerrainYieldChange(iTerrain, iI) > 0)
+				{
+					if (pCity)
+					{
+						iAvailabilityModifier = (pCity->plot()->getTerrainType() == (TerrainTypes)iTerrain || pCity->IsAdjacentToTerrain((TerrainTypes)iTerrain)) ? 10 : 0;
+					}
+					else
+					{
+						iAvailabilityModifier = 3;
+					}
+					iMaxNearbyTerrainScore = max(iMaxNearbyTerrainScore, iAvailabilityModifier * pEntry->GetNearbyTerrainYieldChange(iTerrain, iI));
+				}
+			}
+			iTempValue += iMaxNearbyTerrainScore;
+		}
+
 		// Trade route yield change
 		if (pEntry->GetYieldChangeTradeRoute(iI) > 0)
 		{
@@ -8672,6 +8734,30 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 	else
 		iRtnValue += pEntry->GetUnitProductionModifier() / 2;
 
+	// UnitCombat loop
+	for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	{
+		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
+		if (pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass) > 0)
+		{
+			if (eUnitCombatClass == GC.getInfoTypeForString("UNITCOMBAT_DIPLOMACY"))
+			{
+				if (m_pPlayer->GetPlayerTraits()->IsDiplomat())
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass);
+				else
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass) / 2;
+			}
+			// assume military
+			else
+			{
+				if (m_pPlayer->GetPlayerTraits()->IsWarmonger() || m_pPlayer->GetPlayerTraits()->IsExpansionist())
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass);
+				else
+					iRtnValue += pEntry->GetUnitCombatProductionModifiers(eUnitCombatClass) / 2;
+			}
+		}
+	}
+	
 	// River happiness
 	if (pCity->plot()->isRiver())
 	{
@@ -8978,6 +9064,27 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			iRtnValue += iTempValue;
 		}
 
+		// Nearby terrain city yield change (max across terrain types - city qualifies once for any matching terrain)
+		{
+			int iMaxNearbyTerrainYield = 0;
+			for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+			{
+				if (pCity->plot()->getTerrainType() == (TerrainTypes)iTerrain || pCity->IsAdjacentToTerrain((TerrainTypes)iTerrain))
+				{
+					iMaxNearbyTerrainYield = max(iMaxNearbyTerrainYield, pEntry->GetNearbyTerrainYieldChange(iTerrain, iI));
+				}
+			}
+			if (iMaxNearbyTerrainYield > 0)
+			{
+				iTempValue = iMaxNearbyTerrainYield * iEraBonus;
+				if (iMinPop > 0 && pCity->getPopulation() >= iMinPop)
+				{
+					iTempValue *= 2;
+				}
+				iRtnValue += iTempValue;
+			}
+		}
+
 		// Trade route yield change
 		iTempValue = pEntry->GetYieldChangeTradeRoute(iI) * iEraBonus;
 		if (iMinPop > 0 && pCity->getPopulation() >= iMinPop)
@@ -9279,7 +9386,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		}
 	}
 
-
 	if (iNumNeighbors > 0)
 	{
 		if (pEntry->GetFaithFromKills() > 0)
@@ -9349,14 +9455,22 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			iWarTemp += (pEntry->GetCombatModifierEnemyCities() * iNumNeighbors) * 2;
 		}
 
-		if (pEntry->GetCombatVersusOtherReligionOwnLands() > 0)
+		if (pEntry->GetCombatBonusOwnLands() > 0)
 		{
-			iWarTemp += (pEntry->GetCombatVersusOtherReligionOwnLands() * iIdealEmpireSize * iNumNeighbors) / 4;
+			iWarTemp += (pEntry->GetCombatBonusOwnLands() * iIdealEmpireSize * iNumNeighbors) / 6;
+		}
+		if (pEntry->GetCombatBonusVersusOtherReligionOwnLands() > 0)
+		{
+			iWarTemp += (pEntry->GetCombatBonusVersusOtherReligionOwnLands() * iIdealEmpireSize * iNumNeighbors) / 6;
 		}
 
-		if (pEntry->GetCombatVersusOtherReligionTheirLands() > 0)
+		if (pEntry->GetCombatBonusTheirLands() > 0)
 		{
-			iWarTemp += (pEntry->GetCombatVersusOtherReligionTheirLands() * iNumNeighbors) * 2;
+			iWarTemp += (pEntry->GetCombatBonusTheirLands() * iNumNeighbors) * 4 / 3;
+		}
+		if (pEntry->GetCombatBonusVersusOtherReligionTheirLands() > 0)
+		{
+			iWarTemp += (pEntry->GetCombatBonusVersusOtherReligionTheirLands() * iNumNeighbors) * 4 / 3;
 		}
 
 		MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
@@ -9387,11 +9501,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				{
 					iWarTemp *= 2;
 				}
-				if (pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(m_pPlayer->GetID(), pHolyCity) > 0)
+				if (pReligion->m_Beliefs.GetCombatBonusOwnLands(m_pPlayer->GetID(), pHolyCity) > 0 || pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionOwnLands(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
 					iWarTemp *= 2;
 				}
-				if (pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(m_pPlayer->GetID(), pHolyCity) > 0)
+				if (pReligion->m_Beliefs.GetCombatBonusTheirLands(m_pPlayer->GetID(), pHolyCity) > 0 || pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionTheirLands(m_pPlayer->GetID(), pHolyCity) > 0)
 				{
 					iWarTemp *= 2;
 				}
@@ -10069,6 +10183,18 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	// Other
 	///////////////////
 
+	int iImprovementTemp = 0;
+	
+	if (pEntry->GetCivilianWorkRate() > 0)
+	{
+		if (pPlayerTraits->IsExpansionist())
+			iImprovementTemp += pEntry->GetCivilianWorkRate() * 2;
+		else if (pPlayerTraits->IsSmaller())
+			iImprovementTemp += pEntry->GetCivilianWorkRate() / 4;
+		else
+			iImprovementTemp += pEntry->GetCivilianWorkRate();
+	}
+
 	int iPolicyGainTemp = 0;
 
 	bool bHasPolicyBelief = false;
@@ -10154,7 +10280,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	}
 
 	//sanity check - we don't want buildings to be the sole reason we get a founder.
-	if (pEntry->IsFounderBelief() && (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp + iDiploTemp) <= 250)
+	if (pEntry->IsFounderBelief() && (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp + iDiploTemp + iImprovementTemp) <= 250)
 		iBuildingTemp /= 100;
 
 	if (pPlayerTraits->IsWarmonger())
@@ -10227,7 +10353,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	iGoldenAgeTemp /= 100;
 
 	if (bReturnConquest)
-		return(iWarTemp + iHappinessTemp + iGoldenAgeTemp + iBuildingTemp) / 2;
+		return(iWarTemp + iHappinessTemp + iGoldenAgeTemp + iBuildingTemp + iImprovementTemp) / 2;
 
 	iCultureTemp *= (100 + (iCultureInterest / 10));
 	iCultureTemp /= 100;
@@ -10268,7 +10394,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	if (bReturnScience)
 		return(iGoldTemp + iScienceTemp + iBuildingTemp + iGPTemp + iGoldenAgeTemp) / 2;
 
-	iRtnValue = (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp +  iBuildingTemp + iDiploTemp);
+	iRtnValue = (iWarTemp + iHappinessTemp + iGoldenAgeTemp + iScienceTemp + iGPTemp + iCultureTemp + iPolicyGainTemp + iGoldTemp + iSpreadTemp +  iBuildingTemp + iDiploTemp + iImprovementTemp);
 
 	if (iMissionary > 0 && bNoMissionary)
 		iRtnValue /= 100;

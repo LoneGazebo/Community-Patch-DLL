@@ -2442,19 +2442,32 @@ function ResetDisplay()
 			else
 				strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO");
 
+				-- No cities founded yet?
+				local bCityFoundingIssue = false;
+				if (not g_pUs:IsResearch()) then
+					strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_RESEARCH_PLAYER") .. "[ENDCOLOR]";
+					bCityFoundingIssue = true;
+				end
+				if (not g_pThem:IsResearch()) then
+					strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_RESEARCH_OTHER_PLAYER") .. "[ENDCOLOR]";
+					bCityFoundingIssue = true;
+				end
+
 				-- No tech?
 				if (not g_pUsTeam:IsTechTrading()) then
 					strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_PLAYER") .. "[ENDCOLOR]";
 				end
 			
 				-- No embassy?
-				if ((not bAtWar) and ((not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) or (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)))) then
-					if ((not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) and (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam))) then
-						strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT") .. "[ENDCOLOR]";
-					elseif (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) then
-						strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT") .. "[ENDCOLOR]";
-					elseif (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
-						strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT") .. "[ENDCOLOR]";
+				if (not bCityFoundingIssue) then
+					if ((not bAtWar) and ((not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) or (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)))) then
+						if ((not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) and (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam))) then
+							strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT") .. "[ENDCOLOR]";
+						elseif (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) then
+							strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT") .. "[ENDCOLOR]";
+						elseif (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+							strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT") .. "[ENDCOLOR]";
+						end
 					end
 				end
 

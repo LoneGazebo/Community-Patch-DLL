@@ -266,7 +266,7 @@
 			<Text>[COLOR_GREEN]Tech Trading[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_SUMMARY">
-			<Text>Once you have acquired the Replaceable Parts tech, you may sell your technological discoveries with another civ, as long as you have an Embassy in their capital.</Text>
+			<Text>Once you have acquired the Scientific Theory tech, you may sell your technological discoveries with another civ, as long as you have an Embassy in their capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_DESCRIPTION">
 			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC}</Text>

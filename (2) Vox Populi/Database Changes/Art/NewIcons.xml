@@ -288,35 +288,35 @@
 			<IconSize>16</IconSize>
 			<Filename>promoVP_07_016.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>PROMOTION_ATLAS_VP_07</Atlas>
 			<IconSize>32</IconSize>
 			<Filename>promoVP_07_032.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>PROMOTION_ATLAS_VP_07</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>promoVP_07_045.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>PROMOTION_ATLAS_VP_07</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>promoVP_07_064.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>PROMOTION_ATLAS_VP_07</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>promoVP_07_256.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerColumn>5</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>CORPORATION_ATLAS_VP</Atlas>
@@ -358,28 +358,28 @@
 			<IconSize>45</IconSize>
 			<Filename>VPResourceAtlas_045.dds</Filename>
 			<IconsPerRow>4</IconsPerRow>
-			<IconsPerColumn>5</IconsPerColumn>
+			<IconsPerColumn>6</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>RESOURCE_ATLAS_VP</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>VPResourceAtlas_064.dds</Filename>
 			<IconsPerRow>4</IconsPerRow>
-			<IconsPerColumn>5</IconsPerColumn>
+			<IconsPerColumn>6</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>RESOURCE_ATLAS_VP</Atlas>
 			<IconSize>80</IconSize>
 			<Filename>VPResourceAtlas_080.dds</Filename>
 			<IconsPerRow>4</IconsPerRow>
-			<IconsPerColumn>5</IconsPerColumn>
+			<IconsPerColumn>6</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>RESOURCE_ATLAS_VP</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>VPResourceAtlas_256.dds</Filename>
 			<IconsPerRow>4</IconsPerRow>
-			<IconsPerColumn>5</IconsPerColumn>
+			<IconsPerColumn>6</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>BUILD_ATLAS_VP</Atlas>
@@ -478,6 +478,41 @@
 			<Filename>VPBuildingAtlas2_256.dds</Filename>
 			<IconsPerRow>8</IconsPerRow>
 			<IconsPerColumn>8</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>45</IconSize>
+			<Filename>VPBuildingAtlas3_045.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>VPBuildingAtlas3_064.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>80</IconSize>
+			<Filename>VPBuildingAtlas3_080.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>128</IconSize>
+			<Filename>VPBuildingAtlas3_128.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>BUILDING_ATLAS_VP_3</Atlas>
+			<IconSize>256</IconSize>
+			<Filename>VPBuildingAtlas3_256.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>UNIT_ATLAS_VP_1</Atlas>

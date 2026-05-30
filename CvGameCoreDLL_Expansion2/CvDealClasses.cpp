@@ -702,7 +702,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman())
+			if (pFromPlayer->IsAITeammateOfHuman() || (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && pToPlayer->IsAITeammateOfHuman()))
 				return false;
 
 			// Neither of us yet has the tech for Open Borders
@@ -1209,6 +1209,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE) || !GC.getGame().isOption(GAMEOPTION_ENABLE_TECH_TRADING))
 				return false;
 
+			// Either side has not founded a city yet?
+			if (!pFromPlayer->GetPlayerTechs()->IsResearch())
+				return false;
+
+			if (!pToPlayer->GetPlayerTechs()->IsResearch())
+				return false;
+
 			// Mutual embassies are required (unless this is a peace deal)
 			if (!bPeaceDeal)
 			{
@@ -1226,7 +1233,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-			if (!pkTechInfo || pkTechInfo->IsRepeat())
+			if (pkTechInfo->IsRepeat())
 				return false;
 
 			// We don't own this tech
@@ -1254,7 +1261,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman())
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 				return false;
 
 			// Vassalage is disabled
@@ -1297,7 +1304,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pFromPlayer->IsAITeammateOfHuman())
 				return false;
 
-			// Must be able to end all vassals
+			// Must be able to end all vassals (this also checks > 0 vassals)
 			if (!pFromTeam->canEndAllVassal())
 				return false;
 
@@ -1773,7 +1780,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			}
 
 			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman())
+			if (pFromPlayer->IsAITeammateOfHuman() || (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && pToPlayer->IsAITeammateOfHuman()))
 			{
 				strTooltip = strDivider;
 				strTooltip += strStartColor;
@@ -2325,7 +2332,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			}
 
 			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman())
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 			{
 				strTooltip = strDivider;
 				strTooltip += strStartColor;
@@ -5735,29 +5742,39 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 
 		if(!GET_TEAM(eFromTeam).isAtWar(eToTeam) && !bCancelled)
 		{
-			// Beaker boost = ((sum of both players' beakers over term of RA) / 2) / 3) * (median tech percentage rate)
+			// Beaker boost = (RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT * (average of both players' beakers over term of RA) + (1 - RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT) * (minimum of both players' beakers over term of RA)) / 3) * (median tech percentage rate (50%))
 			CvTeam& kTeam = GET_TEAM(toPlayer.getTeam());
-			int iToPlayerBeakers = toPlayer.GetResearchAgreementCounter(eFromPlayer);
-			int iFromPlayerBeakers = fromPlayer.GetResearchAgreementCounter(eToPlayer);
-			int iBeakersBonus = min(iToPlayerBeakers, iFromPlayerBeakers) / /*3*/ GD_INT_GET(RESEARCH_AGREEMENT_BOOST_DIVISOR); //one (third) of minimum contribution
-			iBeakersBonus = (iBeakersBonus * toPlayer.GetMedianTechPercentage()) / 100;
+			int iToPlayerBeakers = toPlayer.GetResearchAgreementCounter(eFromPlayer) / 100;
+			int iFromPlayerBeakers = fromPlayer.GetResearchAgreementCounter(eToPlayer) / 100;
+			int iBeakersBonus = 0;
+
+			iBeakersBonus = ((100 - GD_INT_GET(RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT)) * min(iToPlayerBeakers, iFromPlayerBeakers) + GD_INT_GET(RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT) * (iToPlayerBeakers + iFromPlayerBeakers) / 2) / (100 * /*3*/ GD_INT_GET(RESEARCH_AGREEMENT_BOOST_DIVISOR));
+
+			iBeakersBonus *= toPlayer.GetMedianTechPercentage();
+			iBeakersBonus/= 100;
+
+			// some of the yields of the RA are given per turn, not as instant yield when the agreement ends
+			iBeakersBonus *= (100 - GD_INT_GET(RESEARCH_AGREEMENT_PER_TURN_YIELD_PERCENT));
+			iBeakersBonus /= 100;
 
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();
 			CvCity* pCapital = toPlayer.getCapitalCity();
 			if (pCapital)
 			{
-				toPlayer.doInstantYield(INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT, false, NO_GREATPERSON, NO_BUILDING, iBeakersBonus, false, NO_PLAYER, NULL, false, pCapital, false, false, false, YIELD_SCIENCE);
-			}
-			else
-			if(eCurrentTech == NO_TECH)
-			{
-				toPlayer.changeOverflowResearch(iBeakersBonus);
-				toPlayer.changeInstantYieldValue(YIELD_SCIENCE, iBeakersBonus);
+				toPlayer.doInstantYield(INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT, false, NO_GREATPERSON, NO_BUILDING, iBeakersBonus, false, NO_PLAYER, NULL, false, pCapital, false, false, false, YIELD_SCIENCE);
 			}
 			else
 			{
-				kTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, eToPlayer);
-				toPlayer.changeInstantYieldValue(YIELD_SCIENCE, iBeakersBonus);
+				if (eCurrentTech == NO_TECH)
+				{
+					toPlayer.changeOverflowResearch(iBeakersBonus);
+					toPlayer.changeInstantYieldValue(YIELD_SCIENCE, iBeakersBonus);
+				}
+				else
+				{
+					kTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, eToPlayer);
+					toPlayer.changeInstantYieldValue(YIELD_SCIENCE, iBeakersBonus);
+				}
 			}
 
 			pNotifications = toPlayer.GetNotifications();

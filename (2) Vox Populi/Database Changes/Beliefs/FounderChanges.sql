@@ -22,7 +22,8 @@ INSERT INTO Belief_YieldFromConversion -- scaler = +(X^2)% where X is the number
 	(BeliefType, YieldType, Yield)
 VALUES
 	('BELIEF_PAPAL_PRIMACY', 'YIELD_PRODUCTION', 20),
-	('BELIEF_PAPAL_PRIMACY', 'YIELD_SCIENCE', 20);
+	('BELIEF_PAPAL_PRIMACY', 'YIELD_SCIENCE', 20),
+	('BELIEF_PAPAL_PRIMACY', 'YIELD_FAITH', 10);
 
 -- Peace Loving (now Divine Inheritance)
 UPDATE Beliefs SET HappinessPerXPeacefulForeignFollowers = 0 WHERE Type = 'BELIEF_PEACE_LOVING';
@@ -66,9 +67,9 @@ WHERE Type = 'BELIEF_CHURCH_PROPERTY';
 INSERT INTO Belief_YieldFromPolicyUnlock
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_CHURCH_PROPERTY', 'YIELD_GOLD', 5),
-	('BELIEF_CHURCH_PROPERTY', 'YIELD_SCIENCE', 5),
-	('BELIEF_CHURCH_PROPERTY', 'YIELD_FAITH', 5);
+	('BELIEF_CHURCH_PROPERTY', 'YIELD_GOLD', 6),
+	('BELIEF_CHURCH_PROPERTY', 'YIELD_SCIENCE', 6),
+	('BELIEF_CHURCH_PROPERTY', 'YIELD_FAITH', 6);
 
 -- Tithe (now Revelation)
 UPDATE Beliefs
@@ -102,7 +103,7 @@ WHERE Type = 'BELIEF_INITIATION_RITES';
 INSERT INTO Belief_YieldFromEraUnlock
 	(BeliefType, YieldType, Yield)
 SELECT
-	'BELIEF_INITIATION_RITES', Type, 12
+	'BELIEF_INITIATION_RITES', Type, 15
 FROM Yields
 WHERE ID < 6; -- "All" yields
 

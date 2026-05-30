@@ -113,8 +113,10 @@ public:
 	int GetYieldFromHost(int i) const;
 	int GetYieldFromFaithPurchase(int i) const;
 	int GetYieldFromKnownPantheons(int i) const;
-	int GetCombatVersusOtherReligionOwnLands() const;
-	int GetCombatVersusOtherReligionTheirLands() const;
+	int GetCombatBonusOwnLands() const;
+	int GetCombatBonusVersusOtherReligionOwnLands() const;
+	int GetCombatBonusTheirLands() const;
+	int GetCombatBonusVersusOtherReligionTheirLands() const;
 	int GetMissionaryInfluenceCS()const;
 	int GetHappinessPerPantheon() const;
 	int GetExtraVotes() const;
@@ -127,7 +129,9 @@ public:
 	int GetMaxYieldPerFollowerPercent(int i) const;
 	int GetIgnorePolicyRequirementsAmount() const;
 	int GetCSYieldBonus() const;
+	int GetCivilianWorkRate() const;
 	int GetImprovementVoteChange(ImprovementTypes eIndex1) const;
+	int GetUnitCombatProductionModifiers(int i) const;
 	CivilizationTypes GetRequiredCivilization() const;
 
 	EraTypes GetObsoleteEra() const;
@@ -167,6 +171,7 @@ public:
 	int GetGoldenAgeGreatPersonRateModifier(int i) const;
 	int GetCapitalYieldChange(int i) const;
 	int GetCoastalCityYieldChange(int i) const;
+	int GetNearbyTerrainYieldChange(int i, int j) const;
 	int GetGreatWorkYieldChange(int i) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromRemoveHeresy(YieldTypes eYield) const;
@@ -286,6 +291,7 @@ protected:
 	int* m_piGreatPersonPoints;
 	int* m_piCapitalYieldChange;
 	int* m_piCoastalCityYieldChange;
+	int** m_ppiNearbyTerrainYieldChange;
 	int* m_piGreatWorkYieldChange;
 	int* m_piYieldFromKills;
 	int* m_piYieldFromRemoveHeresy;
@@ -337,10 +343,13 @@ protected:
 	int* m_piMaxYieldPerFollower;
 	int* m_piMaxYieldPerFollowerPercent;
 	int* m_piImprovementVoteChange;
+	int* m_piUnitCombatProductionModifiers;
 	int m_iReducePolicyRequirements;
 	int m_iCSYieldBonus;
-	int m_iCombatVersusOtherReligionOwnLands;
-	int m_iCombatVersusOtherReligionTheirLands;
+	int m_iCombatBonusOwnLands;
+	int m_iCombatBonusVersusOtherReligionOwnLands;
+	int m_iCombatBonusTheirLands;
+	int m_iCombatBonusVersusOtherReligionTheirLands;
 	int m_iMissionaryInfluenceCS;
 	int m_iHappinessPerPantheon;
 	int m_iExtraVotes;
@@ -348,6 +357,7 @@ protected:
 	int m_iFollowerScalerLimiter;
 	int m_iPolicyReductionWonderXFollowerCities;
 	int m_iGreatPeopleFaithCostMod;
+	int m_iCivilianWorkRate;
 	bool m_bAIGoodStartingPantheon;
 	CivilizationTypes m_eRequiredCivilization;
 
@@ -436,8 +446,10 @@ public:
 	int GetInquisitorPressureRetention(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetFaithBuildingTourism(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetFullyConvertedHappiness(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetCombatVersusOtherReligionOwnLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetCombatVersusOtherReligionTheirLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCombatBonusOwnLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCombatBonusVersusOtherReligionOwnLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCombatBonusTheirLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCombatBonusVersusOtherReligionTheirLands(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetMissionaryInfluenceCS(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetHappinessPerPantheon(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetExtraVotes(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -488,6 +500,8 @@ public:
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetNearbyTerrainYieldChange(int iPopulation, TerrainTypes eTerrain, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetNearbyTerrainYieldChangeForCity(int iPopulation, const std::vector<bool>& abTerrainMatch, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromKills(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -551,7 +565,9 @@ public:
 	CivilizationTypes GetUniqueCiv(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCSYieldBonus(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetCivilianWorkRate(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	fraction GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetUnitCombatProductionModifiers(UnitCombatTypes eUnitCombat, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 
 	const BeliefList& GetBeliefList() const { return m_ReligionBeliefs; }
 

@@ -954,7 +954,7 @@ bool CvAIOperation::BuyFinalUnit()
 		CvUnit* pUnit = GET_PLAYER(m_eOwner).GetMilitaryAI()->BuyEmergencyUnit(thisSlotEntry.m_primaryUnitType, pCity);
 		if(pUnit != NULL)
 		{
-			pArmy->AddUnit(pUnit->GetID(), thisSlot.m_iSlotID, true);
+			pArmy->AddUnit(pUnit->GetID(), thisSlot.m_iSlotID, thisSlotEntry.m_requiredSlot);
 			m_viListOfUnitsWeStillNeedToBuild.pop_front();
 
 			if (m_viListOfUnitsWeStillNeedToBuild.empty() && m_viListOfUnitsCitiesHaveCommittedToBuild.empty())
@@ -2901,7 +2901,7 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 		if(pLoopUnit && pLoopUnit->canNuke() && pLoopUnit->plot()==GetMusterPlot() && pLoopUnit->getArmyID()==-1)
 		{
 			CvArmyAI* pThisArmy = ownerPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
-			pThisArmy->AddUnit(pLoopUnit->GetID(), thisOperationSlot.m_iSlotID,true);
+			pThisArmy->AddUnit(pLoopUnit->GetID(), thisOperationSlot.m_iSlotID, pThisArmy->GetSlotInfo(thisOperationSlot.m_iSlotID).m_requiredSlot);
 			return true;
 		}
 	}
