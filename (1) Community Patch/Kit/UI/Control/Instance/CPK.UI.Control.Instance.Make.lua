@@ -3,6 +3,7 @@ local lua_next = next
 local lua_tostring = tostring
 local lua_loadstring = loadstring
 local lua_setmetatable = setmetatable
+local lua_string_format = string.format
 
 local IsString = CPK.Type.IsString
 
@@ -10,6 +11,7 @@ local AssertIsTable = CPK.Assert.IsTable
 local AssertIsString = CPK.Assert.IsString
 
 local InstanceError = CPK.UI.Control.Instance.Error
+local ControlInspect = CPK.UI.Control.Inspect
 
 --- @class ControlInstance
 --- @field [1] string # Instance name
@@ -33,6 +35,15 @@ local ControlInstanceMeta = {
 	end,
 	__newindex = function(self)
 		InstanceError(self, 'Instance modification is prohibited!')
+	end,
+	__tostring = function(self)
+		return lua_string_format(
+			'ControlInstance(name: %s, root: %s, parent: %s, released: %s)',
+			lua_tostring(self[1]),
+			ControlInspect(self[3]),
+			ControlInspect(self[4]),
+			lua_tostring(self[2])
+		)
 	end
 }
 
