@@ -8,19 +8,13 @@ WHERE Type = 'TRAIT_FIGHT_WELL_DAMAGED';
 DELETE FROM Trait_ImprovementYieldChanges WHERE TraitType = 'TRAIT_FIGHT_WELL_DAMAGED';
 DELETE FROM Trait_UnimprovedFeatureYieldChanges WHERE TraitType = 'TRAIT_FIGHT_WELL_DAMAGED';
 
-INSERT INTO Trait_BuildingClassYieldChanges
-	(TraitType, BuildingClassType, YieldType, YieldChange)
+INSERT INTO Trait_FreePromotionUnitCombats
+	(TraitType, UnitCombatType, PromotionType)
 VALUES
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_WALLS', 'YIELD_CULTURE', 1),
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_WALLS', 'YIELD_FAITH', 1),
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_CASTLE', 'YIELD_CULTURE', 1),
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_CASTLE', 'YIELD_FAITH', 1),
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_BASTION_FORT', 'YIELD_CULTURE', 1),
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_BASTION_FORT', 'YIELD_FAITH', 1),
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_ARSENAL', 'YIELD_CULTURE', 1),
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_ARSENAL', 'YIELD_FAITH', 1),
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_MILITARY_BASE', 'YIELD_CULTURE', 1),
-	('TRAIT_FIGHT_WELL_DAMAGED', 'BUILDINGCLASS_MILITARY_BASE', 'YIELD_FAITH', 1);
+	('TRAIT_FIGHT_WELL_DAMAGED', 'UNITCOMBAT_MELEE', 'PROMOTION_BUSHIDO'),
+	('TRAIT_FIGHT_WELL_DAMAGED', 'UNITCOMBAT_GUN', 'PROMOTION_BUSHIDO'),
+	('TRAIT_FIGHT_WELL_DAMAGED', 'UNITCOMBAT_MOUNTED', 'PROMOTION_BUSHIDO'),
+	('TRAIT_FIGHT_WELL_DAMAGED', 'UNITCOMBAT_ARMOR', 'PROMOTION_BUSHIDO');
 
 INSERT INTO Trait_GreatPersonBirthGWAM
 	(TraitType, GreatPersonType, Value)
@@ -83,37 +77,46 @@ VALUES
 	('UNIT_MIKASA', 'PROMOTION_KANTAI_KESSEN');
 
 ----------------------------------------------------------
--- Unique Building: Dojo (Armory)
+-- Unique Building: Tatara (Forge)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
 VALUES
-	('CIVILIZATION_JAPAN', 'BUILDINGCLASS_ARMORY', 'BUILDING_DOJO');
-
-UPDATE Buildings
-SET
-	CitySupplyFlat = (SELECT CitySupplyFlat FROM Buildings WHERE Type = 'BUILDING_ARMORY') + 1,
-	TrainedFreePromotion = 'PROMOTION_BUSHIDO'
-WHERE Type = 'BUILDING_DOJO';
-
-UPDATE Building_YieldChanges
-SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_ARMORY' AND YieldType = 'YIELD_SCIENCE') + 3
-WHERE BuildingType = 'BUILDING_DOJO' AND YieldType = 'YIELD_SCIENCE';
+	('CIVILIZATION_JAPAN', 'BUILDINGCLASS_FORGE', 'BUILDING_TATARA');
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_DOJO', 'YIELD_CULTURE', 3);
+	('BUILDING_TATARA', 'YIELD_PRODUCTION', 2);
 
-UPDATE Building_DomainFreeExperiences
-SET Experience = (SELECT Experience FROM Building_DomainFreeExperiences WHERE BuildingType = 'BUILDING_ARMORY') + 5
-WHERE BuildingType = 'BUILDING_DOJO';
+UPDATE Building_YieldChanges
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_FORGE' AND YieldType = 'YIELD_SCIENCE') + 1
+WHERE BuildingType = 'BUILDING_TATARA' AND YieldType = 'YIELD_SCIENCE';
+
+UPDATE Buildings
+SET SpecialistCount = (SELECT SpecialistCount FROM Buildings WHERE Type = 'BUILDING_FORGE') + 1
+WHERE Type = 'BUILDING_TATARA'; 
+
+INSERT INTO Building_ResourcePlotsToPlace
+	(BuildingType, ResourceType, NumPlots, ResourceQuantityToPlace)
+VALUES
+	('BUILDING_TATARA', 'RESOURCE_IRON', 1, 1);
+
+INSERT INTO Building_ResourceClaim
+	(BuildingType, ResourceType, IncludeOwnedByOtherPlayer)
+VALUES
+	('BUILDING_TATARA', 'RESOURCE_IRON', 0);
+
+INSERT INTO Building_ResourceYieldChanges
+	(BuildingType, ResourceType, YieldType, Yield)
+VALUES
+	('BUILDING_TATARA', 'RESOURCE_IRON', 'YIELD_CULTURE', 1);
 
 INSERT INTO Building_YieldFromCombatExperienceTimes100
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_DOJO', 'YIELD_CULTURE', 140),
-	('BUILDING_DOJO', 'YIELD_SCIENCE', 140);
+	('BUILDING_TATARA', 'YIELD_CULTURE', 140),
+	('BUILDING_TATARA', 'YIELD_SCIENCE', 140);
 
 ----------------------------------------------------------
 -- Unique Building: Kabuki Theater (Opera House)

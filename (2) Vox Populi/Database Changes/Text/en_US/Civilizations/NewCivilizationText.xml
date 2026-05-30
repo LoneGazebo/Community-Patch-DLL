@@ -880,17 +880,17 @@
 		</Row>
 
 		<!-- Japan -->
-		<Row Tag="TXT_KEY_BUILDING_DOJO">
-			<Text>Dojo</Text>
+		<Row Tag="TXT_KEY_BUILDING_TATARA">
+			<Text>Tatara</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_DOJO_TEXT">
-			<Text>A dojo is a Japanese term which literally means "place of the way". Initially, dojos were adjunct to temples. The term can refer to a formal training place for any of the Japanese do arts but typically it is considered the formal gathering place for students of any Japanese martial arts style such as karate, judo, or samurai, to conduct training, examinations and other related encounters. The concept of a dojo only referring to a training place specifically for Asian martial arts is a Western concept; in Japan, any physical training facility, including professional wrestling schools, may be called dojo because of its close martial arts roots.</Text>
+		<Row Tag="TXT_KEY_BUILDING_TATARA_TEXT">
+			<Text>Tatara was the technology for producing iron and steel used in Japan since ancient times. Sometimes called a bloomery, sometimes forge, tatara are most commonly known as furnaces.[NEWLINE][NEWLINE]The word tatara and the ancient technology of iron production used in East Asia seems to have originated in central Asia. The first iron used in Japan was imported, most probably from China, though later from what is now Korea, and took the form of ready-made iron items or as ingots. Metal-working spread across Japan, most probably from northern Kyushu, but the quantity of iron was not great.[NEWLINE][NEWLINE]Things changed in probably the 5th or 6th century when indigenous sources of iron were discovered. Archaeological and mythological sources suggest this was near the Sea of Japan Coast in western Japan centered on what is now Shimane Prefecture.[NEWLINE][NEWLINE]What was discovered was iron sand, though very small amounts of iron ore were also found. The tatara, probably introduced from Siberia via Korea, was used to smelt the iron sand to produce iron. Tatara appeared across Japan, but by the Medieval Period of Japanese history (13th to 16th centuries) the Chugoku region was the most important iron-producing region, and especially the Okuizumo area as it had the highest grade of iron sand.[NEWLINE][NEWLINE]Enough iron and steel was being produced that Japan was exporting swords to China by the thousand. The technology of iron production improved and became more efficient so that during the Edo Period the Okuizumo area can be said to have mass produced iron and it was exported all over Japan.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
+		<Row Tag="TXT_KEY_BUILDING_TATARA_HELP">
 			<Text></Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
-			<Text>Unique Japanese replacement for the {TXT_KEY_BUILDING_ARMORY}. In addition to the {TXT_KEY_BUILDING_ARMORY}'s bonuses, {TXT_KEY_BUILDING_DOJO} provides more training experience and more military supply; grants the {TXT_KEY_PROMOTION_BUSHIDO} promotion to all melee, gunpowder, mounted and armored units, which offers one of eight possible promotions to these unit types after their first combat and increases the unit's strength as it takes damage; and produces [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when units gain experience in combat.</Text>
+		<Row Tag="TXT_KEY_BUILDING_TATARA_STRATEGY">
+			<Text>Unique Japanese replacement for the {TXT_KEY_BUILDING_FORGE}. It provides an extra [ICON_RES_IRON] Iron resource in the map, further enhances yields from Iron tiles, and has an extra [ICON_ENGINEER] Engineer slot that can be used to generate Great Engineers for a Manufactory in that tile, should Iron prove scarce in your surroundings. It can also generate [ICON_RESEARCH] Science and [ICON_CULTURE] Culture from Combat XP earned by Units trained in the City. Combine an early expansion prioritizing the {TXT_KEY_BUILDING_TATARA} with and an early military force to secure key resources for your armies.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_KABUKI_THEATER">

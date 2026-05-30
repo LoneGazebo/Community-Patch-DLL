@@ -566,6 +566,20 @@ UPDATE UnitPromotions SET RiverDoubleMove = 1, River = 1 WHERE Type = 'PROMOTION
 
 UPDATE UnitPromotions SET AttackMod = 20 WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
 
+-- Eight Virtues of Bushido
+UPDATE UnitPromotions SET HasPostCombatPromotions = 1 WHERE Type = 'PROMOTION_BUSHIDO';
+INSERT INTO UnitPromotions_PostCombatRandomPromotion
+	(PromotionType, NewPromotion)
+VALUES
+	('PROMOTION_BUSHIDO', 'PROMOTION_RIGHTEOUSNESS'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_COURAGE'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_BENEVOLENCE'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_RESPECT'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_SINCERITY'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_HONOR'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_LOYALTY'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_SELF_CONTROL');
+
 --------------------------------------------
 -- Policy free promotions
 --------------------------------------------
@@ -636,20 +650,6 @@ UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_MORALE';
 UPDATE UnitPromotions SET AttackMod = 10 WHERE Type = 'PROMOTION_IKLWA';
 
 UPDATE UnitPromotions SET DiplomaticMissionAccomplishment = 1 WHERE Type = 'PROMOTION_PROXENOS';
-
--- Eight Virtues of Bushido
-UPDATE UnitPromotions SET HasPostCombatPromotions = 1 WHERE Type = 'PROMOTION_BUSHIDO';
-INSERT INTO UnitPromotions_PostCombatRandomPromotion
-	(PromotionType, NewPromotion)
-VALUES
-	('PROMOTION_BUSHIDO', 'PROMOTION_RIGHTEOUSNESS'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_COURAGE'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_BENEVOLENCE'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_RESPECT'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_SINCERITY'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_HONOR'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_LOYALTY'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_SELF_CONTROL');
 
 UPDATE UnitPromotions SET DiploMissionInfluence = 10 WHERE RankList = 'DIPLO_BOOST';
 UPDATE UnitPromotions SET DiploMissionInfluence = 15, RivalTerritory = 1 WHERE Type = 'PROMOTION_NOBILITY';
