@@ -719,7 +719,6 @@ CvSpecialistInfo::CvSpecialistInfo() :
 	m_iCost(0),
 	m_iGreatPeopleUnitClass(NO_UNITCLASS),
 	m_iGreatPeopleRateChange(0),
-	m_iCulturePerTurn(0),
 	m_iMissionType(NO_MISSION),
 	m_bVisible(false),
 	m_piYieldChange(NULL),
@@ -798,7 +797,6 @@ bool CvSpecialistInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iCost = kResults.GetInt("Cost");
 	m_iExperience = kResults.GetInt("Experience");
 	m_iGreatPeopleRateChange = kResults.GetInt("GreatPeopleRateChange");
-	m_iCulturePerTurn = kResults.GetInt("CulturePerTurn");
 
 	setTexture(kResults.GetText("Texture"));
 
@@ -809,7 +807,7 @@ bool CvSpecialistInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	const char* szType = GetType();
 	kUtility.SetYields(m_piYieldChange, "SpecialistYields", "SpecialistType", szType);
 
-	m_piYieldChange[YIELD_CULTURE] += m_iCulturePerTurn;
+	m_piYieldChange[YIELD_CULTURE] += kResults.GetInt("CulturePerTurn");
 
 	return true;
 }
