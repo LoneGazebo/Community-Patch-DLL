@@ -922,9 +922,6 @@ SET
 	DisembarkFlatCost = 1
 WHERE Type = 'PROMOTION_HAKA_WAR_DANCE';
 
--- Khan: Khaaaan!
-UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_MEDIC_GENERAL';
-
 -- Samurai, Sabum Kibitum, Treasure Ship: Quick Study
 UPDATE UnitPromotions SET ExperiencePercent = 50 WHERE Type = 'PROMOTION_GAIN_EXPERIENCE';
 
@@ -1157,8 +1154,8 @@ VALUES
 	('PROMOTION_DHANURVIDYA', 'YIELD_CULTURE', 50),
 	('PROMOTION_DHANURVIDYA', 'YIELD_FAITH', 50);
 
--- Djong: Cetbang
-UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_CETBANG';
+-- Djong, Khan, Naga-Malla: Retaliation
+UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_RETALIATION';
 
 -- Mikasa: Kantai Kessen
 UPDATE UnitPromotions SET AttackFullyHealedMod = 25 WHERE Type = 'PROMOTION_KANTAI_KESSEN';

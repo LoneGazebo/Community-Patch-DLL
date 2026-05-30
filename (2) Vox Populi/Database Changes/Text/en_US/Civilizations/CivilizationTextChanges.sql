@@ -423,7 +423,7 @@ SET Text = 'Naga-Malla'
 WHERE Tag = 'TXT_KEY_UNIT_INDIAN_WARELEPHANT';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_INDIAN_WARELEPHANT} is the Indian unique unit, replacing the {TXT_KEY_UNIT_CUIRASSIER}. As an elephant unit, it strikes fear into nearby enemy units and weakens them, has vastly superior [ICON_STRENGTH] Combat Strength and [ICON_RANGE_STRENGTH] Ranged Combat Strength, but moves slower. It does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained, and is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_GUNPOWDER_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_CUIRASSIER}. Does not start with the {TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE} promotion.'
+SET Text = 'The {TXT_KEY_UNIT_INDIAN_WARELEPHANT} is the Indian unique unit, replacing the {TXT_KEY_UNIT_CUIRASSIER}. As an elephant unit, it strikes fear into nearby enemy units and weakens them, has vastly superior [ICON_RANGE_STRENGTH] Ranged Combat Strength, but moves slower. It does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained, and is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_GUNPOWDER_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_CUIRASSIER}. Does not start with the {TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE} promotion, but starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_STALWART}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_RETALIATION}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_UNIT_INDIAN_WARELEPHANT_STRATEGY';
 
 UPDATE Language_en_US
