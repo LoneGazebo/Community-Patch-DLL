@@ -261,7 +261,6 @@ public:
 
 	int getGreatPeopleUnitClass() const;
 	int getGreatPeopleRateChange() const;
-	int getCulturePerTurn() const;
 	int getMissionType() const;
 	void setMissionType(int iNewType);
 	int getExperience() const;
@@ -282,7 +281,6 @@ protected:
 
 	int m_iGreatPeopleUnitClass;
 	int m_iGreatPeopleRateChange;
-	int m_iCulturePerTurn;
 	int m_iMissionType;
 	int m_iExperience;
 
