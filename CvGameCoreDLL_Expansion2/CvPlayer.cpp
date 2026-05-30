@@ -30755,6 +30755,26 @@ int CvPlayer::GetMonopolyModFlat() const
 void CvPlayer::ChangeMonopolyModPercent(int iChange)
 {
 	m_iMonopolyModPercent += iChange;
+
+	// all the yield monopolies you already have need to be updated
+	const std::vector<ResourceTypes>& vGlobalMonopolies = GetGlobalMonopolies();
+	for (int iResourceLoop = 0; iResourceLoop < vGlobalMonopolies.size(); iResourceLoop++)
+	{
+		ResourceTypes eResource = vGlobalMonopolies[iResourceLoop];
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource && m_pabHasGlobalMonopoly[eResource])
+		{
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+
+				if (pkResource->getCityYieldModFromMonopoly(eYield) != 0)
+				{
+					changeCityYieldModFromMonopoly(eYield, iChange);
+				}
+			}
+		}
+	}
 }
 void CvPlayer::SetMonopolyModPercent(int iChange)
 {
@@ -38133,6 +38153,7 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 				int iModValue = pResource->getCityYieldModFromMonopoly(eYield);
 				if (iModValue != 0)
 				{
+					iModValue += GetMonopolyModPercent();
 					if (bNewValue)
 					{
 						changeCityYieldModFromMonopoly(eYield, iModValue);

@@ -350,7 +350,7 @@ SET Text = 'Exchange Markets'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Exchange Markets[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+15% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Trade Routes[ENDCOLOR].[NEWLINE][ICON_BULLET]+1 of every Strategic Resource for every three City-State Alliances you maintain.[NEWLINE][ICON_BULLET]Resources from City-States count towards Global Monopolies.'
+SET Text = '[COLOR_POSITIVE_TEXT]Exchange Markets[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+15% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Trade Routes[ENDCOLOR].[NEWLINE][ICON_BULLET]+1 of every Strategic Resource for every three [ICON_CITY_STATE] City-State Alliances you maintain.[NEWLINE][ICON_BULLET]Resources from [ICON_CITY_STATE] City-States count towards [ICON_MONOPOLY] Global Monopolies.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY_HELP';
 
 UPDATE Language_en_US
@@ -362,7 +362,7 @@ SET Text = 'Trade Confederacy'
 WHERE Tag = 'TXT_KEY_POLICY_MERCHANT_CONFEDERACY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Trade Confederacy[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness for every active [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+25% Yields for International [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET][ICON_INTERNATIONAL_TRADE] Trade Routes to City-States generate +1 [ICON_INFLUENCE] Influence per turn (with the target City-State) per each owned City-State Trade Route (up to +5).'
+SET Text = '[COLOR_POSITIVE_TEXT]Trade Confederacy[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness for every active [ICON_INTERNATIONAL_TRADE] Trade Route.[NEWLINE][ICON_BULLET]+25% Yields for International [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET][ICON_INTERNATIONAL_TRADE] Trade Routes to City-States generate +1 [ICON_INFLUENCE] Influence per turn (with the target [ICON_CITY_STATE] City-State) per each owned City-State Trade Route (up to +5).'
 WHERE Tag = 'TXT_KEY_POLICY_MERCHANT_CONFEDERACY_HELP';
 
 UPDATE Language_en_US
@@ -569,7 +569,7 @@ SET Text = 'Colonialism'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Colonialism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture from Barracks, Armories, Military Academies, Forts, and Citadels.[NEWLINE][ICON_BULLET]Each unique [ICON_MONOPOLY] Global Monopoly modifier is increased by an additional 10% if it''s percentage-based, or +3 otherwise.'
+SET Text = '[COLOR_POSITIVE_TEXT]Colonialism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture from Barracks, Armories, Military Academies, Forts, and Citadels.[NEWLINE][ICON_BULLET]Each [ICON_MONOPOLY] Global Monopoly Bonus is increased by an additional 5% if it''s percentage-based, or by +5 otherwise.'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION_HELP';
 
 UPDATE Language_en_US
