@@ -862,7 +862,13 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 		end
 
 		if not kUnitInfo.PurchaseOnly then
-			AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_PRODUCTION", iProductionCost);
+			-- if production cost scales with era, it wouldn't be shown in pedia tooltip (no active city)
+			local iScalingProd = kUnitInfo.ProductionCostAddedPerEra;
+			if (iScalingProd > 0) and (not pActiveCity) then
+				AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_PRODUCTION_ADDED_PER_ERA", iProductionCost, iScalingProd);
+			else
+				AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_PRODUCTION", iProductionCost);
+			end
 		end
 		AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_GOLD", iGoldCost);
 		AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_FAITH", iFaithCost);

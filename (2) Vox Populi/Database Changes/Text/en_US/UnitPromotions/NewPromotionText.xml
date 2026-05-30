@@ -13,6 +13,11 @@
 			<Text>+1 [ICON_WAR] Attack.</Text>
 		</Row>
 
+		<!-- Flat Movement Cost -->
+		<Row Tag="TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST_HELP">
+			<Text>All tiles cost 1 [ICON_MOVES] Movement.[NEWLINE][COLOR_NEGATIVE_TEXT]Cannot use Roads and Railroads.[ENDCOLOR]</Text>
+		</Row>
+		
 		<!-- Tank Hunter -->
 		<Row Tag="TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP">
 			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].</Text>

@@ -22420,7 +22420,7 @@ int CvPlayer::GetUnhappinessFromCityJFDSpecial() const
 		iUnhappiness += pLoopCity->getJFDSpecialUnhappinessSources();
 	}
 
-	iUnhappiness += (GetUnhappinessFromCitySpecialists() / 100);
+	iUnhappiness += GetUnhappinessFromCitySpecialists();
 	return iUnhappiness;
 }
 

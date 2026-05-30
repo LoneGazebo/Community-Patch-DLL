@@ -1638,7 +1638,6 @@ int CvLuaCity::lGetBuildingYieldRateTimes100(lua_State* L)
 	iYieldTimes100 += pkBuildingInfo->GetYieldPerFriendTimes100(eYield) * kPlayer.GetNumCSFriends();
 	iYieldTimes100 += pkBuildingInfo->GetYieldPerAllyTimes100(eYield) * kPlayer.GetNumCSAllies();
 	iYieldTimes100 += pkBuildingInfo->GetYieldChangePerMonopoly(eYield) * kPlayer.GetNumGlobalMonopolies() * 100;
-	iYieldTimes100 += (pkBuildingInfo->GetYieldChangePerBuilding(eYield) * pCity->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 
 	int iYieldPerReligion = pkBuildingInfo->GetYieldChangePerReligion(eYield);
 	if (iYieldPerReligion != 0)

@@ -494,7 +494,7 @@ SET Text = 'Can enter [COLOR_POSITIVE_TEXT]Impassable[ENDCOLOR] tiles, and can e
 WHERE Tag = 'TXT_KEY_PROMOTION_HOVERING_UNIT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'All tiles cost 1 [ICON_MOVES] Movement.[NEWLINE][COLOR_NEGATIVE_TEXT]Cannot use Roads and Railroads.[ENDCOLOR]'
+SET Text = 'Flat Movement Cost'
 WHERE Tag = 'TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST';
 
 UPDATE Language_en_US

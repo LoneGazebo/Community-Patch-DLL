@@ -912,9 +912,9 @@
 		<Replace>
 			<Type>PROMOTION_FLAT_MOVEMENT_COST</Type>
 			<Description>TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST</Description>
-			<Help>TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST</Help>
+			<Help>TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST_HELP</Help>
 			<PediaType>PEDIA_MOUNTED</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_FLAT_MOVEMENT_COST</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_MUST_SET_UP</Type>
