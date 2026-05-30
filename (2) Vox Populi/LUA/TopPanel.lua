@@ -901,9 +901,14 @@ function HappinessTipHandler( control )
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", ResourceHappiness, AvgResourceHappiness);
 			end
 
-			local NaturalWonderAndLandmarkHappiness = pPlayer:GetHappinessFromNaturalWonders();
-			if (NaturalWonderAndLandmarkHappiness ~= 0) then
-				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", NaturalWonderAndLandmarkHappiness);
+			local NaturalWonderHappiness = pPlayer:GetHappinessFromNaturalWonders();
+			if (NaturalWonderHappiness ~= 0) then
+				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", NaturalWonderHappiness);
+			end
+
+			local ImprovementHappiness = pPlayer:GetHappinessFromImprovements();
+			if (ImprovementHappiness ~= 0) then
+				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_IMPROVEMENTS", ImprovementHappiness);
 			end
 
 			local ReligionHappiness = pPlayer:GetHappinessFromReligion();

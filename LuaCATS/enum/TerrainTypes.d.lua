@@ -1,0 +1,16 @@
+--- @meta
+
+--- @type table<string, TerrainType>
+TerrainTypes = {
+	NO_TERRAIN = -1,
+	TERRAIN_GRASS = 0,
+	TERRAIN_PLAINS = 1,
+	TERRAIN_DESERT = 2,
+	TERRAIN_TUNDRA = 3,
+	TERRAIN_SNOW = 4,
+	TERRAIN_COAST = 5,
+	TERRAIN_OCEAN = 6,
+	TERRAIN_MOUNTAIN = 7,
+	TERRAIN_HILL = 8,
+	NUM_TERRAIN_TYPES = 9,
+}

@@ -17,8 +17,8 @@ ALTER TABLE Units ADD FoundColony integer DEFAULT 0;
 -- Adds marker for city attack only units (for AI)
 ALTER TABLE Units ADD CityAttackOnly boolean DEFAULT 0;
 
--- Adds Culture from experience to owner of unit when disbanded or upgraded
-ALTER TABLE Units ADD CulExpOnDisbandUpgrade boolean DEFAULT 0;
+-- Adds Culture to owner of disbanded or upgraded unit equal to unit XP * x
+ALTER TABLE Units ADD CulExpOnDisbandUpgrade integer DEFAULT 0;
 
 -- Increases the cost by this amount every time you build the unit
 ALTER TABLE Units ADD CostScalerNumRepeats integer DEFAULT 0;

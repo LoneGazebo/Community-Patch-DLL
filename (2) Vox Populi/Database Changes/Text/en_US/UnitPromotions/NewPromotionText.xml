@@ -13,6 +13,11 @@
 			<Text>+1 [ICON_WAR] Attack.</Text>
 		</Row>
 
+		<!-- Flat Movement Cost -->
+		<Row Tag="TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST_HELP">
+			<Text>All tiles cost 1 [ICON_MOVES] Movement.[NEWLINE][COLOR_NEGATIVE_TEXT]Cannot use Roads and Railroads.[ENDCOLOR]</Text>
+		</Row>
+		
 		<!-- Tank Hunter -->
 		<Row Tag="TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP">
 			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].</Text>
@@ -348,14 +353,14 @@
 			<Text>Shrapnel Rounds I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1_HELP">
-			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2">
 			<Text>Shrapnel Rounds II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2_HELP">
-			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_VANGUARD">
@@ -1058,11 +1063,11 @@
 			<Text>+40% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_LEGACY">
-			<Text>Legacy</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SPEAR_WALL">
+			<Text>Spear Wall</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_LEGACY_HELP">
-			<Text>+5% [ICON_STRENGTH] Combat Strength per Level beyond 1.</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SPEAR_WALL_HELP">
+			<Text>Deal [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.[NEWLINE][NEWLINE]Deal [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all adjacent Enemy Units if this Unit is [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR] when starting its turn.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RIACHUELO">
@@ -1198,11 +1203,11 @@
 			<Text>Gain 0.5 [ICON_CULTURE] Culture and [ICON_PEACE] Faith for each XP gained through Combat.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_CETBANG">
-			<Text>Cetbang</Text>
+		<Row Tag="TXT_KEY_PROMOTION_RETALIATION">
+			<Text>Retaliation</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_CETBANG_HELP">
-			<Text>Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.</Text>
+		<Row Tag="TXT_KEY_PROMOTION_RETALIATION_HELP">
+			<Text>Deal [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR] to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_KANTAI_KESSEN">
@@ -1244,7 +1249,7 @@
 			<Text>Razzia</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAZZIA_HELP">
-			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City.[NEWLINE]Gain 100 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City when [ICON_RAZING] Pillaging Improvements.[NEWLINE]Gain 200 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
+			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_PRODUCTION] Production and [ICON_GOLD] Gold in this unit's origin City.[NEWLINE]Gain 100 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold in this unit's origin City when [ICON_RAZING] Pillaging Improvements.[NEWLINE]Gain 400 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold in this unit's origin City when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BURGHER">

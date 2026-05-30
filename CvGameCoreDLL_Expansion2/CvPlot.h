@@ -180,7 +180,7 @@ public:
 	int getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra = 0, int iThenExtra = 0) const;
 	int getFeatureProduction(BuildTypes eBuild, PlayerTypes ePlayer, CvCity** ppCity) const;
 
-	CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bIgnoreVisibility = false, bool bTestCanMove = false, bool bNoncombatAllowed = false) const;
+	CvUnit* getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer = NO_PLAYER, const CvUnit* pAttacker = NULL, bool bTestAtWar = false, bool bIgnoreVisibility = false, bool bTestCanMove = false, bool bNoncombatAllowed = false, const CvUnit* pIgnoreUnit = NULL) const;
 	CvUnit* getBestGarrison(PlayerTypes eOwner) const;
 	CvUnit* getSelectedUnit() const;
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
@@ -876,22 +876,22 @@ protected:
 		bool GetBit(const uint uiEntry) const
 		{
 			const uint uiOffset = uiEntry/eSize;
-			return (m_bits[uiOffset] & 1<<(uiEntry-(eSize*uiOffset))) != 0;
+			return (m_bits[uiOffset] & 1u<<(uiEntry-(eSize*uiOffset))) != 0;
 		}
 		void SetBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_bits[uiOffset] |= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] |= 1u<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_bits[uiOffset] &= ~(1<<(uiEntry-(eSize*uiOffset)));
+			m_bits[uiOffset] &= ~(1u<<(uiEntry-(eSize*uiOffset)));
 		}
 		void ToggleBit(const uint uiEntry)
 		{
 			const uint uiOffset = uiEntry/eSize;
-			m_bits[uiOffset] ^= 1<<(uiEntry-(eSize*uiOffset));
+			m_bits[uiOffset] ^= 1u<<(uiEntry-(eSize*uiOffset));
 		}
 		void ClearAll()
 		{

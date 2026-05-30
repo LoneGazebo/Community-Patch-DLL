@@ -392,6 +392,7 @@ protected:
 
 	static int lIsOccupied(lua_State* L);
 	static int lSetOccupied(lua_State* L);
+	static int lIsIgnoreCityForHappiness(lua_State* L);
 
 	static int lIsPuppet(lua_State* L);
 	static int lSetPuppet(lua_State* L);

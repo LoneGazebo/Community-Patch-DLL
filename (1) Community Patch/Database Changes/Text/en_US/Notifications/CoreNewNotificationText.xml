@@ -721,7 +721,7 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_LUXURY_RESOURCE_GAIN">
 			<Text>Acquiring a Luxury Resource:[NEWLINE]{1_YieldString}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_IINSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN_SHORT">
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN_SHORT">
 			<Text>Gaining a Luxury Resource</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START">
@@ -864,6 +864,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_HEALING_SHORT">
 			<Text>Restoring Hit Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE_SHORT">
+			<Text>Disbanding or Upgrading a Unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_CITY_DAMAGE_SHORT">
 			<Text>Inflicting Damage on a City</Text>

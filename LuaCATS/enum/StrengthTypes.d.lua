@@ -1,0 +1,12 @@
+--- @meta
+
+--- @enum StrengthType
+StrengthTypes = {
+	STRENGTH_PATHETIC = 0,
+	STRENGTH_WEAK = 1,
+	STRENGTH_POOR = 2,
+	STRENGTH_AVERAGE = 3,
+	STRENGTH_STRONG = 4,
+	STRENGTH_POWERFUL = 5,
+	STRENGTH_IMMENSE = 6,
+}

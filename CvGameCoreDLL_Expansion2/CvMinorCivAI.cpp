@@ -1099,7 +1099,7 @@ void CvMinorCivQuest::EnableInfluence(PlayerTypes ePlayer)
 CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) const
 {
 	CvString szTooltip = "";
-	CvString szTooltipHeader = "";
+	CvString szTooltipHeader;
 	if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isMajorCiv())
 		return szTooltip;
 
@@ -9828,7 +9828,7 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 	{
 		iRebelBoilPoint += iRebelBoilPoint * 125 / 100;
 	}
-	else if (eProximity < PLAYER_PROXIMITY_CLOSE)
+	else
 	{
 		iRebelBoilPoint += iRebelBoilPoint * 100 / 125;
 	}
@@ -14874,7 +14874,7 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer, bool bCityStateAnnexed)
 		return 0;
 
 	// Not friends
-	// Rome Exception: Annexed Militaristic City-States continue to give units at an allied level
+	// Trait Exception: Annexed Militaristic City-States continue to give units at an allied level
 	if (!bCityStateAnnexed && !IsFriends(ePlayer))
 		return 0;
 
@@ -15255,7 +15255,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 	}
 }
 
-/// Transfers all of this City-State's units and cities to eMajor. Called by an Austrian buyout (see above) as well as by the Merchant of Venice's buyout mission and the Rome forced annex.
+/// Transfers all of this City-State's units and cities to eMajor. Called by an Austrian buyout (see above) as well as by the Merchant of Venice's buyout mission and trait ability to force annex.
 int CvMinorCivAI::TransferUnitsAndCitiesToMajor(PlayerTypes eMajor, bool bForced)
 {
 	// Transfer all units

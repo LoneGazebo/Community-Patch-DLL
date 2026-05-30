@@ -347,8 +347,8 @@ void CvFlavorManager::AdjustWeightsForMap()
 		float fAdjust = log10(fTilesPerPlayer) - /*2.1f*/ GD_FLOAT_GET(FLAVOR_STANDARD_LOG10_TILES_PER_PLAYER);
 		int iAdjust = (int)(fAdjust * /*8*/ GD_INT_GET(FLAVOR_EXPANDGROW_COEFFICIENT));
 
-		int iMax = range(/*10*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 100);
-		int iMin = range(/*0*/ GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
+		int iMax = /*10*/ range(GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 100);
+		int iMin = /*1*/ range(GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
 
 		int iExpansionIndex = GC.getInfoTypeForString("FLAVOR_EXPANSION");
 		int iGrowthIndex = GC.getInfoTypeForString("FLAVOR_GROWTH");
@@ -387,7 +387,7 @@ CvEnumMap<FlavorTypes, int>& CvFlavorManager::GetAllPersonalityFlavors()
 /// Retrieve the value of one Personality flavor, modified for the diplomacy AI
 int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 {
-    int iMax = range(GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 100);
+    int iMax = /*10*/ range(GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 100);
     int iRawValue = GetPersonalityIndividualFlavor(eType);
 
 	// If the flavor was zeroed out, always return the minimum value
@@ -412,9 +412,9 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 /// Make a random adjustment to each flavor value for this leader so they don't play exactly the same
 void CvFlavorManager::RandomizeWeights()
 {
-	int iMax = range(/*10*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 100);
-	int iMin = range(/*0*/ GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
-	int iPlusMinus = max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
+	int iMax = /*10*/ range(GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 100);
+	int iMin = /*1*/ range(GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
+	int iPlusMinus = /*2*/ max(GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
 
 	for (int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 	{

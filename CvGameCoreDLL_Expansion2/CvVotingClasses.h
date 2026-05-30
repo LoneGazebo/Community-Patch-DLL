@@ -26,7 +26,7 @@ namespace LeagueHelpers
 	EraTypes GetNextGameEraForTrigger();
 	EraTypes GetNextGameEraForTrigger(EraTypes eThisEra);
 	bool IsBuildingForTriggerBuiltAnywhere(BuildingTypes eBuilding);
-	ResolutionTypes IsResolutionForTriggerActive(ResolutionTypes eType);
+	bool IsResolutionForTriggerActive(ResolutionTypes eType);
 
 	typedef vector<PlayerTypes> PlayerList;
 
@@ -553,6 +553,7 @@ public:
 	void ResetTurnsUntilSession();
 	int GetTurnsUntilVictorySession();
 	int GetVotesSpentThisSession();
+	int GetLastSessionEndedTurn() const;
 	LeagueSpecialSessionTypes GetLastSpecialSession() const;
 	LeagueSpecialSessionTypes GetCurrentSpecialSession() const;
 	bool CanStartSpecialSession(LeagueSpecialSessionTypes eSpecialSession);
@@ -710,6 +711,7 @@ public:
 	int m_iConsecutiveHostedSessions;
 	LeagueNameTypes m_eAssignedName;
 	char m_szCustomName[128];
+	int m_iLastSessionEndedTurn;
 	LeagueSpecialSessionTypes m_eLastSpecialSession;
 	LeagueSpecialSessionTypes m_eCurrentSpecialSession;
 	EnactProposalList m_vEnactProposalsOnHold;

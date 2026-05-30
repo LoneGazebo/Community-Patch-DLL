@@ -178,9 +178,11 @@ void CustomMods::prefetchCache() {
 	while (kPostDefines.Step()) {
 		Database::Results kLookup;
 		char szSQL[512];
-		sprintf_s(szSQL, "select ROWID from %s where Type = '%s' LIMIT 1", kPostDefines.GetText("Table"), kPostDefines.GetText("Type"));
+		// Table name must be concatenated (SQLite doesn't support parameterized identifiers)
+		sprintf_s(szSQL, "select ROWID from %s where Type = ? LIMIT 1", kPostDefines.GetText("Table"));
 
 		if (db->Execute(kLookup, szSQL)) {
+			kLookup.Bind(1, kPostDefines.GetText("Type"));
 			if (kLookup.Step()) {
 				kInsert.Bind(1, kPostDefines.GetText("Name"));
 				kInsert.Bind(2, kLookup.GetInt(0));

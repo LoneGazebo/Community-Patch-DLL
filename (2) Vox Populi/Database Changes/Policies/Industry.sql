@@ -68,7 +68,16 @@ WHERE b.Type IN ('BUILDINGCLASS_WORKSHOP', 'BUILDINGCLASS_WINDMILL', 'BUILDINGCL
 AND y.Type IN ('YIELD_PRODUCTION', 'YIELD_CULTURE');
 
 -- Wagon Trains (now Subsidies)
-UPDATE Policies SET LandTradeRouteGoldChange = 0 WHERE Type = 'POLICY_CARAVANS';
+UPDATE Policies
+SET
+	LandTradeRouteGoldChange = 0,
+	RouteGoldMaintenanceMod = 0
+WHERE Type = 'POLICY_CARAVANS';
+
+INSERT INTO Policy_FreeResource
+	(PolicyType, ResourceType, Number)
+VALUES
+	('POLICY_CARAVANS', 'RESOURCE_COAL', 4);
 
 INSERT INTO Policy_BuildingClassHappiness
 	(PolicyType, BuildingClassType, Happiness)

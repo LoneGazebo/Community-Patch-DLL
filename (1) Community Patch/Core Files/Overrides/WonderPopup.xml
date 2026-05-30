@@ -3,33 +3,40 @@
 
 <Box Style="BGBlock_ClearTopBar" />
 
-<ScrollPanel Disabled="1" Anchor="C,C" Offset="0,20" Size="971.565" FullClip="1" >
+<ScrollPanel Disabled="1" Anchor="C,C" Offset="0,-100" Size="971.565" FullClip="1" >
 <Image Anchor="R,T" Size="971.565" Sampler="Linear" ID="WonderSplash" />
 </ScrollPanel>
 
-<Box Size="990,650" Anchor="C,C" Offset="0,26"  Color="White.0"  >
+<Box Size="990,850" Anchor="C,C" Offset="0,26"  Color="White.0"  >
 <!--  <Image Anchor="L,T" Offset="17,43" Size="100,100"  Texture="TopLeftCorner.dds"  />
 <Image Anchor="R,T" Offset="16,43" Size="100,100"  Texture="TopRightCorner.dds"  />
 -->
 </Box>
 
-<Grid Size="990,650" Anchor="C,C" Offset="0,26" Style="Grid9DetailThree140" >
+<Grid Size="990,850" Anchor="C,C" Offset="0,26" Style="Grid9DetailThree140" >
 
 <Label Anchor="C,T" Offset="0,18" Font="TwCenMT22" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="Wonders Name" ID="Title" />
 
 <Image Anchor="C,T" AnchorSide="I.O"  Offset="0,-16" Texture="Assets/UI/Art/Controls/WonderPopupTop300.dds" Size="300.120" />
 
 <!-- Change the second value of Size to modify the horizontal text delimitator position from the wonder popup-->
-<Box Size="960,180" Anchor="C,B" Color="Black.200" AnchorSide="O.I" Offset="0,42" >
-<Label Anchor="L,T" Offset="10,-4" WrapWidth="420" LeadingOffset="-4"  String="[NEWLINE]wisdom:" Font="TwCenMT16" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="Quote" />
+<Box Size="960,230" Anchor="C,B" Color="Black.200" AnchorSide="O.I" Offset="0,42" >
+<Label Anchor="L,T" Offset="10,-4" WrapWidth="360" LeadingOffset="-4"  String="[NEWLINE]wisdom:" Font="TwCenMT16" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="Quote" />
 
-<Image Anchor="C,T" Offset="0,0" Size="128,128"  Texture="CitizenFrame128.dds" >
+<Image Anchor="C,T" Offset="-40,0" Size="128,128"  Texture="CitizenFrame128.dds" >
 <Image Anchor="C,T" Offset="0,-1" Size="128,128"  Texture="WonderAtlas1024.dds" ID="WonderIcon" />
 </Image>
 
 <Box Anchor="R,T" Size="420,1" Offset="10,24" Color="255,255,200,200" >
-<Label Anchor="L,B" Offset="0,4" WrapWidth="420" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="WONDERS NAME" ID="LowerTitle" />
-<Label Anchor="L,B" AnchorSide="I.O" Offset="6,4" WrapWidth="420" LeadingOffset="-4"  String="Bonus information" Font="TwCenMT16" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="Stats" />
+<Label Anchor="L,B" Offset="0,4" WrapWidth="480" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="WONDERS NAME" ID="LowerTitle" />
+<ScrollPanel Anchor="L,B" AnchorSide="I.O" Offset="-26,4" Size="430,200" Vertical="1" AutoScrollBar="1" ID="StatsScroll">
+<Stack Anchor="L,T" Padding="0">
+<Label Anchor="L,T" WrapWidth="395" LeadingOffset="-4" String="Bonus information" Font="TwCenMT16" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="Stats" />
+</Stack>
+<ScrollBar Style="VertSlider" Anchor="R,C" AnchorSide="o,i" Length="180"/>
+<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="o,i"/>
+<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="o,i"/>
+</ScrollPanel>
 </Box>
 
 <Image Anchor="C,T" Offset="0,0" Texture="HorizontalTrim.dds" Size="960.5" />

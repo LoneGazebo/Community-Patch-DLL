@@ -374,7 +374,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 		{
 			CvNotificationEntry* pkEntry = pkNotifications->GetEntry(i);		
 			if (pkEntry)
-				pRegisterEnum(L, pkEntry->GetType(), FStringHash(pkEntry->GetType()));
+				pRegisterEnum(L, pkEntry->GetType(), (int)FStringHash(pkEntry->GetType()));
 		}
 	}
 	EnumEnd(L);
@@ -929,14 +929,13 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN);
 	RegisterEnum(INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD);
 	RegisterEnum(INSTANT_YIELD_TYPE_LUA);
-	RegisterEnum(INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT);
+	RegisterEnum(INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT);
 	RegisterEnum(INSTANT_YIELD_TYPE_REFUND);
 	RegisterEnum(INSTANT_YIELD_TYPE_FAITH_REFUND);
 	RegisterEnum(INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY);
 	RegisterEnum(INSTANT_YIELD_TYPE_TECH_RETROACTIVE);
 	RegisterEnum(INSTANT_YIELD_TYPE_PILLAGE_UNIT);
 	RegisterEnum(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE);
-	RegisterEnum(INSTANT_YIELD_TYPE_HEALING);
 	RegisterEnum(INSTANT_YIELD_TYPE_SPY_IDENTIFY);
 	RegisterEnum(INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID);
 	RegisterEnum(INSTANT_YIELD_TYPE_SPY_RIG_ELECTION);
@@ -948,6 +947,8 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(INSTANT_YIELD_TYPE_WLTKD_START);
 	RegisterEnum(INSTANT_YIELD_TYPE_ANCIENT_RUIN);
 	RegisterEnum(INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE);
+	RegisterEnum(INSTANT_YIELD_TYPE_HEALING);
+	RegisterEnum(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE);
 	RegisterEnum(NUM_INSTANT_YIELD_TYPES);
 	EnumEnd(L);
 

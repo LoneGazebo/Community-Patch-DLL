@@ -1509,8 +1509,8 @@
 			<UnitArtInfo>ART_DEF_UNIT_INQUISITOR</UnitArtInfo>
 			<UnitFlagAtlas>EXPANSION_UNIT_FLAG_ATLAS</UnitFlagAtlas>
 			<UnitFlagIconOffset>17</UnitFlagIconOffset>
-			<IconAtlas>EXPANSION_UNIT_ATLAS_1</IconAtlas>
-			<PortraitIndex>17</PortraitIndex>
+			<IconAtlas>UNIT_ATLAS_VP_1</IconAtlas>
+			<PortraitIndex>42</PortraitIndex>
 			<ShowInPedia>false</ShowInPedia>
 		</Row>
 		<Row>

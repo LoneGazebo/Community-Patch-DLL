@@ -36,7 +36,7 @@ SET Text = 'God of Craftsmen'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Quarries. +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science from the Palace. +2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Stone Works.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science from Quarries. +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science from the Palace. +2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Stone Works.'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES';
 
 UPDATE Language_en_US
@@ -62,7 +62,7 @@ SET Text = 'God of the Stars and Sky'
 WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_CULTURE] Culture from Tundra and Snow tiles with Resources.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_CULTURE] Culture from Tundra and Snow tiles with improved Resources. +1 [ICON_PEACE] Faith and +1 [ICON_FOOD] Food from Cities on or adjacent to Snow or Tundra.'
 WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA';
 
 UPDATE Language_en_US
@@ -70,7 +70,7 @@ SET Text = 'God of the Sun'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold from Granaries. +1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science from Farms on improved Resources.'
+SET Text = '+2 [ICON_PEACE] Faith, +1 [ICON_PRODUCTION] Production, and +1 [ICON_GOLD] Gold from Granaries. +1 [ICON_PEACE] Faith, [ICON_FOOD] Food, and [ICON_RESEARCH] Science from Farms on improved Resources.'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 -- God of War
@@ -138,12 +138,12 @@ SET Text = 'Goddess of the Home'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+25% [ICON_FOOD] Growth. +1 [ICON_PEACE] Faith and [ICON_FOOD] Food from Shrines. +8 [ICON_PEACE] Faith and [ICON_FOOD] Food when a Building is constructed, scaling with Era.'
+SET Text = '+25% [ICON_FOOD] Growth and +1 [ICON_HAPPINESS_1] Happiness. +1 [ICON_PEACE] Faith and [ICON_FOOD] Food from Shrines and Palace. +8 [ICON_PEACE] Faith and [ICON_FOOD] Food when a Building is constructed, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES';
 
 -- Goddess of the Hunt
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture from Camps. +2 [ICON_FOOD] Food from Smokehouses.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture from Camps. +1 [ICON_PEACE] Faith and [ICON_FOOD] Food from Smokehouses.'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT';
 
 UPDATE Language_en_US
@@ -191,7 +191,7 @@ SET Text = 'Council of Elders'
 WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When a City adopts your [ICON_RELIGION] Religion for the first time, gain 20 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production in your Holy City, scaling gradually based on the number of Cities following your [ICON_RELIGION] Religion (bonus caps at 25 Cities).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Holy Council National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +5 [ICON_FOOD] Food; +5 [ICON_RESEARCH] Science from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When a City adopts your [ICON_RELIGION] Religion for the first time, gain 20 [ICON_RESEARCH] Science, 20 [ICON_PRODUCTION] Production, and 10 [ICON_PEACE] Faith in your Holy City, scaling gradually based on the number of Cities following your [ICON_RELIGION] Religion (bonus caps at 25 Cities).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Holy Council National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +5 [ICON_FOOD] Food; +5 [ICON_RESEARCH] Science from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY';
 
 UPDATE Language_en_US
@@ -215,7 +215,7 @@ SET Text = 'Holy Law'
 WHERE Tag = 'TXT_KEY_BELIEF_CHURCH_PROPERTY_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you unlock a Policy, gain 5 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for every Follower of your [ICON_RELIGION] Religion (max 250 Followers).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Divine Court National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +6 [ICON_GOLD] Gold; +5 [ICON_CULTURE] Culture from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When you unlock a Policy, gain 6 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for every Follower of your [ICON_RELIGION] Religion (max 250 Followers).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Divine Court National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +6 [ICON_GOLD] Gold; +5 [ICON_CULTURE] Culture from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_BELIEF_CHURCH_PROPERTY';
 
 UPDATE Language_en_US
@@ -231,7 +231,7 @@ SET Text = 'Transcendent Thoughts'
 WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you enter a new Era, Holy City gains 12 of every Yield for each City following your [ICON_RELIGION] Religion (max 25 Cities), scaling with Era.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Sacred Garden National Wonder[ENDCOLOR] (+3 [ICON_PEACE] Faith, +5 [ICON_CULTURE] Culture; +5 [ICON_FOOD] Food from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When you enter a new Era, Holy City gains 15 of every Yield for each City following your [ICON_RELIGION] Religion (max 25 Cities), scaling with Era.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Sacred Garden National Wonder[ENDCOLOR] (+3 [ICON_PEACE] Faith, +5 [ICON_CULTURE] Culture; +5 [ICON_FOOD] Food from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES';
 
 UPDATE Language_en_US
@@ -445,12 +445,12 @@ SET Text = 'Crusader Spirit'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Units in enemy territory, and an additional +10% versus Land Units of players that do not follow your Religion. Receive 50 [ICON_CULTURE] Culture and [ICON_GOLD] Gold when you conquer Cities, scaling with Era and City [ICON_CITIZEN] Population.'
+SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Units in enemy territory, and an additional +5% versus Land Units of players that do not follow your Religion. +2 [ICON_Gold] Gold and [ICON_CULTURE] Culture from Barracks, Armories, and Military Academies.'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM';
 
 -- Defender of the Faith
 UPDATE Language_en_US
-SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Units in friendly territory, and an additional +10% versus Land Units of players that do not follow your Religion. +1 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from all Defensive Buildings.'
+SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Units in friendly territory, and an additional +5% versus Land Units of players that do not follow your Religion. +1 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from all Defensive Buildings.'
 WHERE Tag = 'TXT_KEY_BELIEF_DEFENDER_FAITH';
 
 UPDATE Language_en_US
@@ -474,7 +474,7 @@ SET Text = 'Global Commandments'
 WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '[ICON_RELIGION] Religion spreads 15% faster (30% with Printing Press). Receive 350 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points when you pass a Proposal in the World Congress or United Nations, scaling with Era.'
+SET Text = 'May build Chanceries, Printing Houses, and Wire Services with [ICON_PEACE] Faith. These buildings produce +1 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture each. +20% [ICON_PRODUCTION] Production for [COLOR_YELLOW]Diplomacy Units[ENDCOLOR]. Receive 350 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points when you pass a Proposal in the World Congress or United Nations, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS';
 
 UPDATE Language_en_US
@@ -490,7 +490,7 @@ SET Text = 'Inspired Works'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Landmarks and Great Person Improvements produce +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science. [ICON_GREAT_WORK] Great Works produce +2 [ICON_CULTURE] Culture. Can purchase Archaeologists with [ICON_PEACE] Faith.'
+SET Text = 'Landmarks and Great Person Improvements produce +2 [ICON_PEACE] Faith and +3 [ICON_RESEARCH] Science. [ICON_GREAT_WORK] Great Works produce +3 [ICON_CULTURE] Culture. Can purchase Archaeologists with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS';
 
 -- Sacred Sites

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<ArtDefine_StrategicView>
+		<Row>
+			<StrategicViewType>ART_DEF_FEATURE_LAKE_SALT</StrategicViewType>
+			<TileType>Feature</TileType>
+			<Asset>sv_salt_lake.dds</Asset>
+		</Row>
+	</ArtDefine_StrategicView>
+</GameData>

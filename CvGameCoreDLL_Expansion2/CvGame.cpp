@@ -127,7 +127,7 @@ CvGame::CvGame() :
 #endif
 	, m_bArchaeologyTriggered(false)
 	, m_bIsDesynced(false)
-	, m_bHumanAIPath(false)
+	, m_bHumanAIPath(true)
 	, m_eObserverUIOverridePlayer(NO_PLAYER)
 	, m_lastTurnAICivsProcessed(-1)
 	, m_firstActivationOfPlayersAfterLoad(false)
@@ -135,6 +135,7 @@ CvGame::CvGame() :
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
 	, m_cityDistancePlots()
 	, m_eCurrentVisibilityPlayer(NO_PLAYER)
+	, m_eCurrentVisibilityTeam(NO_TEAM)
 {
 	m_pSettlerSiteEvaluator = NULL;
 	m_pStartSiteEvaluator = NULL;
@@ -692,6 +693,18 @@ void CvGame::InitPlayers()
 					CvPreGame::setLeaderHead(eLoopPlayer, eAssignedLeader);
 				}
 			}
+			else if (CvPreGame::leaderHead(eLoopPlayer) == NO_LEADER)
+			{
+				CvCivilizationInfo* pCivInfo = GC.getCivilizationInfo(ePlayerCiv);
+				for (int iLeader = 0; iLeader < GC.getNumLeaderHeadInfos(); iLeader++)
+				{
+					if (pCivInfo->isLeaders(iLeader))
+					{
+						CvPreGame::setLeaderHead(eLoopPlayer, static_cast<LeaderHeadTypes>(iLeader));
+						break;
+					}
+				}
+			}
 		}
 
 		ePlayerColor = CvPreGame::playerColor(eLoopPlayer);
@@ -1184,9 +1197,10 @@ void CvGame::uninit()
 	m_bCombatWarned = false;
 	m_bArchaeologyTriggered = false;
 	m_bIsDesynced = false;
-	m_bHumanAIPath = false;
+	m_bHumanAIPath = true;
 	m_eObserverUIOverridePlayer = NO_PLAYER;
 	m_eCurrentVisibilityPlayer = NO_PLAYER;
+	m_eCurrentVisibilityTeam = NO_TEAM;
 
 	m_eHandicap = NO_HANDICAP;
 	m_ePausePlayer = NO_PLAYER;
@@ -2144,11 +2158,11 @@ void CvGame::updateTestEndTurn()
 		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
 		{
 			// No notifications are blocking, check units/cities
-			if (activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING))
+			if (activePlayer.hasPromotableUnit() && !GC.getGame().isOption(GAMEOPTION_PROMOTION_SAVING) && activePlayer.isHuman(ISHUMAN_AI_UNIT_PROMOTIONS))
 			{
 				eEndTurnBlockingType = ENDTURN_BLOCKING_UNIT_PROMOTION;
 			}
-			else if (activePlayer.hasReadyUnit())
+			else if (activePlayer.hasReadyUnit() && activePlayer.isHuman(ISHUMAN_AI_UNITS))
 			{
 				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
 				ASSERT(pUnit, "GetFirstReadyUnit is returning null");
@@ -3283,7 +3297,7 @@ void CvGame::handleAction(int iAction)
 					if(pPlot != NULL)
 					{
 						ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-						ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+						ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
 						if (pPlot->getResourceType() == eArtifactResourceType || pPlot->getResourceType() == eHiddenArtifactResourceType)
 						{
 							bShowConfirmPopup = true;
@@ -8642,6 +8656,11 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 				continue;
 			}
 			
+			// No units that have a cap on instances (player/team/global)
+			// gifting these could push a player over their limit
+			if (isLimitedUnitClass(eLoopUnitClass))
+				continue;
+
 			// We only want unique units that are not in the game already, or are explicitly Minor Civ Gifts
 			if (!pkUnitInfo->IsMinorCivGift() )
 			{
@@ -8827,7 +8846,7 @@ void CvGame::updateMoves()
 					for(iI = 0; iI < MAX_PLAYERS; iI++)
 					{
 						CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
-						if(player.isHuman() && !player.isObserver() && !player.isAutoMoves())
+						if(player.isHuman(ISHUMAN_AI_UNITS) && !player.isObserver() && !player.isAutoMoves())
 							readyForAutoMoves = false;
 					}
 					m_processPlayerAutoMoves = readyForAutoMoves;
@@ -8930,7 +8949,7 @@ void CvGame::updateMoves()
 					}
 				}
 
-				if(player.isAutoMoves() && (!player.isHuman() || m_processPlayerAutoMoves))
+				if(player.isAutoMoves() && (!player.isHuman(ISHUMAN_AI_UNITS) || m_processPlayerAutoMoves))
 				{
 					bool bRepeatAutomoves = false;
 					int iRepeatPassCount = 2;	// Prevent getting stuck in a loop
@@ -13364,7 +13383,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false, false, iRangedSupportDamageInflicted);
 
 	int iDefenderDamageInflicted = 0; // passed by reference
-	int iAttackingDamageInflicted = pAttackingUnit->getMeleeCombatDamage(iAttackingStrength, iDefenderStrength, iDefenderDamageInflicted, false, pDefendingUnit, iRangedSupportDamageInflicted);
+	int iAttackingDamageInflicted = pAttackingUnit->getMeleeCombatDamage(iAttackingStrength, iDefenderStrength, iDefenderDamageInflicted, false, pDefendingUnit, 0, iRangedSupportDamageInflicted);
 	//iTheirDamageInflicted = iTheirDamageInflicted + iTheirFireSupportCombatDamage;
 
 	int iAttackerMaxHitPoints = pAttackingUnit->GetMaxHitPoints();
@@ -14158,11 +14177,17 @@ bool CvGame::isFirstActivationOfPlayersAfterLoad() const
 void CvGame::SetCurrentVisibilityPlayer(PlayerTypes ePlayer)
 {
 	m_eCurrentVisibilityPlayer = ePlayer;
+	m_eCurrentVisibilityTeam = GET_PLAYER(ePlayer).getTeam();
 }
 
 PlayerTypes CvGame::GetCurrentVisibilityPlayer() const
 {
 	return m_eCurrentVisibilityPlayer;
+}
+
+TeamTypes CvGame::GetCurrentVisibilityTeam() const
+{
+	return m_eCurrentVisibilityTeam;
 }
 
 //	--------------------------------------------------------------------------------

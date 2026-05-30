@@ -450,7 +450,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 			{
 				// check if we need to declare war first
 				// show a DOW popup only if the enemy unit is visible when the move order is given
-				if(hUnit->CheckDOWNeededForMove(pkMissionData->iData1, pkMissionData->iData2, iSteps == 0 && pkMissionData->iPushTurn == GC.getGame().getGameTurn()))
+				if(hUnit->CheckDOWNeededForMove(pkMissionData->iData1, pkMissionData->iData2, hUnit->getOwner() == GC.getGame().getActivePlayer() && iSteps == 0 && pkMissionData->iPushTurn == GC.getGame().getGameTurn()))
 				{
 					hUnit->ClearMissionQueue();
 					return;

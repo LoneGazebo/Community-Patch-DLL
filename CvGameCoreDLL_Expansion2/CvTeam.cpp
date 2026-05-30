@@ -194,7 +194,7 @@ void CvTeam::uninit()
 	m_iDefensiveEmbarkCount = 0;
 	m_iEmbarkedAllWaterPassageCount = 0;
 	m_iNumNaturalWondersDiscovered = 0;
-	m_iNumLandmarksBuilt = 0;
+	m_iHappinessFromImprovements = 0;
 	m_iBestPossibleRoute = NO_ROUTE;
 	m_iNumMinorCivsAttacked = 0;
 	m_iBuildingDefenseModifier = 0;
@@ -846,15 +846,13 @@ void CvTeam::doTurn()
 
 	testCircumnavigated();
 
-#if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		if(!isAtWar(GET_PLAYER((PlayerTypes) iMinorLoop).getTeam()))
 			continue;
 
-		ASSERT(GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->GetAlly() != getLeaderID(), "Major civ is now at war with a minor it is allied with! This is dumb and bad.");
+		ASSERT(GET_PLAYER((PlayerTypes) iMinorLoop).GetMinorCivAI()->GetAlly() != getLeaderID() || GET_PLAYER((PlayerTypes)iMinorLoop).GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER, "Major civ is now at war with a minor it is allied with! This is dumb and bad.");
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -1222,7 +1220,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	}
 
 	//is also catches the barbarians ...
-	if (isAtWar(eTeam) || GET_TEAM(eTeam).isAtWar(GetID()))
+	if (isAtWar(eTeam) && GET_TEAM(eTeam).isAtWar(GetID()))
 		return;
 
 	SetWonLatestWar(eTeam, false);
@@ -2184,6 +2182,9 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 		for (int iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			TeamTypes eLoopTeam = static_cast<TeamTypes>(iI);
+			if (eLoopTeam == eTeam || eLoopTeam == GetID())
+				continue;
+
 			CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
 			if (kLoopTeam.isAlive())
 			{
@@ -3993,19 +3994,18 @@ void CvTeam::ChangeNumNaturalWondersDiscovered(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvTeam::GetNumLandmarksBuilt() const
+int CvTeam::GetHappinessFromImprovements() const
 {
-	return m_iNumLandmarksBuilt;
+	return m_iHappinessFromImprovements;
 }
 
 //	--------------------------------------------------------------------------------
-void CvTeam::ChangeNumLandmarksBuilt(int iChange)
+void CvTeam::ChangeHappinessFromImprovements(int iChange)
 {
 	if (iChange != 0)
 	{
-		m_iNumLandmarksBuilt += iChange;
+		m_iHappinessFromImprovements += iChange;
 	}
-	ASSERT(GetNumLandmarksBuilt() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -6546,7 +6546,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 
 			ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);
-			CvResourceInfo* pHiddenArtifactResource = pHiddenArtifactResource = GC.getResourceInfo(eHiddenArtifactResource);
+			CvResourceInfo* pHiddenArtifactResource = GC.getResourceInfo(eHiddenArtifactResource);
 			if(eHiddenArtifactResource != NO_RESOURCE && pHiddenArtifactResource)
 			{
 				TechTypes eDefaultTech = (TechTypes)pHiddenArtifactResource->getTechReveal();
@@ -9109,7 +9109,7 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(team.m_iDefensiveEmbarkCount);
 	visitor(team.m_iEmbarkedAllWaterPassageCount);
 	visitor(team.m_iNumNaturalWondersDiscovered);
-	visitor(team.m_iNumLandmarksBuilt);
+	visitor(team.m_iHappinessFromImprovements);
 	visitor(team.m_iBestPossibleRoute);
 	visitor(team.m_iNumMinorCivsAttacked);
 	visitor(team.m_iBuildingDefenseModifier);
