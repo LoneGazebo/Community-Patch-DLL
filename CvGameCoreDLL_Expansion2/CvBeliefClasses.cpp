@@ -3557,7 +3557,7 @@ int CvReligionBeliefs::GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, Yi
 		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonBornYield(eGreatPerson, eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{		
-			int iMaxCities = pEntry->GetCityScalerLimiter();
+			int iMaxCities = pBeliefs->GetEntry(*it)->GetCityScalerLimiter();
 			iValue *= min(iMaxCities, iNumFollowerCities);
 			rtnValue += iValue;
 		}
