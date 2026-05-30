@@ -31,7 +31,7 @@ SET
 	Class = 'UNITCLASS_FREE_COMPANY',
 	ObsoleteTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION'),
 	PolicyType = 'POLICY_HONOR_FINISHER',
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PIKEMAN') + 2,
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PIKEMAN') + 1,
 	DefaultUnitAI = 'UNITAI_ATTACK',
 	PurchaseOnly = 1,
 	MoveAfterPurchase = 1

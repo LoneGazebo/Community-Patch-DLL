@@ -81,6 +81,11 @@
 			<LandmarkType>Resource</LandmarkType>
 			<FriendlyName>Figs</FriendlyName>
 		</Row>
+		<Row>
+			<Type>ART_DEF_RESOURCE_LAKE_FISH</Type>
+			<LandmarkType>Resource</LandmarkType>
+			<FriendlyName>LakeFish</FriendlyName>
+		</Row>
 	</ArtDefine_LandmarkTypes>
 	<ArtDefine_Landmarks>
 		<!-- Nutmeg -->
@@ -796,6 +801,43 @@
 			<Model>coral_industrial.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
+		<!-- Lake Fish -->
+		<Row>
+			<ResourceType>ART_DEF_RESOURCE_LAKE_FISH</ResourceType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_NONE</ImprovementType>
+			<Era>Ancient</Era>
+			<Scale>0.07</Scale>
+			<LayoutHandler>ANIMATED</LayoutHandler>
+			<Model>Assets/Buildings/Resources/Fish.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ResourceType>ART_DEF_RESOURCE_LAKE_FISH</ResourceType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_NONE</ImprovementType>
+			<Era>Industrial</Era>
+			<Scale>0.07</Scale>
+			<LayoutHandler>ANIMATED</LayoutHandler>
+			<Model>Assets/Buildings/Resources/Fish_Industrial.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ResourceType>ART_DEF_RESOURCE_LAKE_FISH</ResourceType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_FISHING_BOATS</ImprovementType>
+			<Era>Ancient</Era>
+			<Scale>0.07</Scale>
+			<LayoutHandler>ANIMATED</LayoutHandler>
+			<Model>Assets/Buildings/Resources/Fish.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
+		<Row>
+			<ResourceType>ART_DEF_RESOURCE_LAKE_FISH</ResourceType>
+			<ImprovementType>ART_DEF_IMPROVEMENT_FISHING_BOATS</ImprovementType>
+			<Era>Industrial</Era>
+			<Scale>0.07</Scale>
+			<LayoutHandler>ANIMATED</LayoutHandler>
+			<Model>Assets/Buildings/Resources/Fish_Industrial.fxsxml</Model>
+			<TerrainContour>1</TerrainContour>
+		</Row>
 		<!-- Lapis -->
 		<Row>
 			<ResourceType>ART_DEF_RESOURCE_LAPIS</ResourceType>
@@ -1201,6 +1243,11 @@
 			<StrategicViewType>ART_DEF_RESOURCE_CORAL</StrategicViewType>
 			<TileType>Resource</TileType>
 			<Asset>sv_coral.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_RESOURCE_LAKE_FISH</StrategicViewType>
+			<TileType>Resource</TileType>
+			<Asset>sv_lake_fish.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_RESOURCE_LAPIS</StrategicViewType>

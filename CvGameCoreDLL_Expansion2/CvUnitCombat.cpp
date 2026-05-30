@@ -658,7 +658,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 		int iGarrisonDamage = 0;
 		iDamage = kAttacker.GetRangeCombatDamage(/*pDefender*/ NULL, pCity, iGarrisonMaxHP, iGarrisonDamage,
-			/*bIncludeRand*/ bIncludeRand, 0, NULL, NULL, false, false);
+			/*bIncludeRand*/ bIncludeRand, 0, 0, NULL, NULL, false, false);
 
 		if(pGarrison && iGarrisonDamage > 0)
 		{
@@ -694,14 +694,14 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == kAttacker.getOwner());
 
-	bool bGeneralsXP = !kAttacker.isBarbarian();
+	bool bGeneralsXP;
 	if (!plot.isCity())
 	{
-		bGeneralsXP = !pkDefender->isBarbarian();
+		bGeneralsXP = !kAttacker.isBarbarian() && !pkDefender->isBarbarian();
 	} 
 	else
 	{
-		bGeneralsXP = !plot.getPlotCity()->isBarbarian();
+		bGeneralsXP = !kAttacker.isBarbarian() && !plot.getPlotCity()->isBarbarian();
 	}
 
 	if (GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
@@ -1482,7 +1482,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			iGarrisonMaxHP = pGarrison->GetMaxHitPoints();
 
 		int iGarrisonDamage = 0;
-		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(/*pUnit*/ NULL, pCity, iGarrisonMaxHP, iGarrisonDamage, /*bIncludeRand*/ true, 0, NULL, NULL, false);
+		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(/*pUnit*/ NULL, pCity, iGarrisonMaxHP, iGarrisonDamage, /*bIncludeRand*/ true);
 
 		if(pGarrison && iGarrisonDamage > 0)
 		{
@@ -1542,14 +1542,14 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
 
-	bool bGeneralsXP = !kAttacker.isBarbarian();
+	bool bGeneralsXP;
 	if (!plot.isCity())
 	{
-		bGeneralsXP = !pkDefender->isBarbarian();
+		bGeneralsXP = !kAttacker.isBarbarian() && !pkDefender->isBarbarian();
 	}
 	else
 	{
-		bGeneralsXP = !plot.getPlotCity()->isBarbarian();
+		bGeneralsXP = !kAttacker.isBarbarian() && !plot.getPlotCity()->isBarbarian();
 	}
 
 	if (GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
@@ -2640,79 +2640,82 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 		}
 	}
 
-	// Send out notifications to the world
-	for (std::vector<PlayerTypes>::iterator iter = vAffectedPlayers.begin(); iter != vAffectedPlayers.end(); ++iter)
+	// Send out notifications to the world (attacker identity required; skipped for meltdowns where pkAttacker is null)
+	if (pkAttacker != NULL)
 	{
-		if (*iter == pkAttacker->getOwner())
-			continue;
-
-		if (GET_PLAYER(pkAttacker->getOwner()).isMajorCiv() && GET_PLAYER(pkAttacker->getOwner()).getTeam() != GET_PLAYER(*iter).getTeam())
+		for (std::vector<PlayerTypes>::iterator iter = vAffectedPlayers.begin(); iter != vAffectedPlayers.end(); ++iter)
 		{
-			GET_PLAYER(*iter).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
-		}
+			if (*iter == pkAttacker->getOwner())
+				continue;
 
-		if (GET_PLAYER(*iter).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(*iter).isAlive())
-		{
-			CvNotifications* pNotifications = GET_PLAYER(*iter).GetNotifications();
-			if (pNotifications)
+			if (GET_PLAYER(pkAttacker->getOwner()).isMajorCiv() && GET_PLAYER(pkAttacker->getOwner()).getTeam() != GET_PLAYER(*iter).getTeam())
 			{
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED_S");
-				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED");
-				strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationAdjectiveKey();
-				pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
-			}
-		}
-	}
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(eLoopPlayer).isAlive()))
-		{
-			if (!GET_PLAYER(eLoopPlayer).isObserver())
-			{
-				if (eLoopPlayer == pkAttacker->getOwner())
-					continue;
-
-				if (pkTargetPlot->isOwned() && !pkTargetPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(pkTargetPlot->getOwner()).getTeam()))
-					continue;
-
-				if (std::find(vAffectedPlayers.begin(), vAffectedPlayers.end(), eLoopPlayer) != vAffectedPlayers.end())
-					continue;
+				GET_PLAYER(*iter).GetDiplomacyAI()->ChangeNumTimesNuked(pkAttacker->getOwner(), 1);
 			}
 
-			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-			if (pNotifications)
+			if (GET_PLAYER(*iter).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(*iter).isAlive())
 			{
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_STRIKE_S");
-
-				if (pkTargetPlot->isOwned())
+				CvNotifications* pNotifications = GET_PLAYER(*iter).GetNotifications();
+				if (pNotifications)
 				{
-					Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_OWNED_TERRITORY");
-					strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationShortDescription();
-					strBuffer << GET_PLAYER(pkTargetPlot->getOwner()).getCivilizationShortDescription();
-
-					if (pkTargetPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()))
-					{
-						pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
-					}
-					else
-					{
-						pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), -1, -1, (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
-					}
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED_S");
+					Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED");
+					strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationAdjectiveKey();
+					pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
 				}
-				else
-				{
-					Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_UNOWNED_TERRITORY");
-					strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationShortDescription();
+			}
+		}
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-					if (pkTargetPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()))
+			if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_NOTIFICATIONS) && GET_PLAYER(eLoopPlayer).isAlive()))
+			{
+				if (!GET_PLAYER(eLoopPlayer).isObserver())
+				{
+					if (eLoopPlayer == pkAttacker->getOwner())
+						continue;
+
+					if (pkTargetPlot->isOwned() && !pkTargetPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()) && !GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(pkTargetPlot->getOwner()).getTeam()))
+						continue;
+
+					if (std::find(vAffectedPlayers.begin(), vAffectedPlayers.end(), eLoopPlayer) != vAffectedPlayers.end())
+						continue;
+				}
+
+				CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_STRIKE_S");
+
+					if (pkTargetPlot->isOwned())
 					{
-						pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+						Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_OWNED_TERRITORY");
+						strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationShortDescription();
+						strBuffer << GET_PLAYER(pkTargetPlot->getOwner()).getCivilizationShortDescription();
+
+						if (pkTargetPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()))
+						{
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+						}
+						else
+						{
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), -1, -1, (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+						}
 					}
 					else
 					{
-						pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), -1, -1, (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+						Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_UNOWNED_TERRITORY");
+						strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationShortDescription();
+
+						if (pkTargetPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()))
+						{
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+						}
+						else
+						{
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), -1, -1, (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
+						}
 					}
 				}
 			}
@@ -4227,7 +4230,7 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 		}
 	}
 	// If the modder wants the healing to be negative (ie additional damage), then let it be
-	else if(pkWinner->getHPHealedIfDefeatEnemy() < 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians()) || !(pkWinner->isExtraAttackHealthOnKill())))
+	else if(pkWinner->getHPHealedIfDefeatEnemy() < 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())))
 	{
 		if(pkWinner->getHPHealedIfDefeatEnemy() <= (pkWinner->getDamage() - pkWinner->GetMaxHitPoints()))
 		{

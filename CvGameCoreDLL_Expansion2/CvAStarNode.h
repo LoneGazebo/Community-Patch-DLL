@@ -262,6 +262,12 @@ struct SMovePlot
 	int effectivePathLength(int iMovesPerTurn) const;
 };
 
+struct ReachablePlots_EqualRangeComparison
+{
+	bool operator() (const pair<int, size_t> a, int b) const { return a.first < b; }
+	bool operator() (int a, const pair<int, size_t> b) const { return a < b.first; }
+};
+
 class ReachablePlots
 {
 public:

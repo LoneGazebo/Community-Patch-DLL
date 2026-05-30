@@ -130,6 +130,12 @@
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="Number" type="integer" notnull="true"/>
 	</Table>
+	<!-- POLICY: Allows you to define a resource gained when adopting the policy -->
+	<Table name="Policy_FreeResource">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="Number" type="integer" notnull="true"/>
+	</Table>
 
 	<!-- POLICY: Allows you to define an yield granted to the capital based on x% of empire population.-->
 	<Table name="Policy_CapitalYieldPerPopChangeEmpire">

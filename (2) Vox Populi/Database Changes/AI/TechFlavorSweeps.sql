@@ -109,7 +109,7 @@ VALUES
 	('TECH_DRAMA', 'FLAVOR_GREAT_PEOPLE', 10),
 	('TECH_DRAMA', 'FLAVOR_WONDER', 10),
 
-	('TECH_PHILOSOPHY', 'FLAVOR_NAVAL', 15), -- Units: Trireme, Buildings: Courthouse, Temple, SchoolofPhilosophy, Wonders: Oracle
+	('TECH_PHILOSOPHY', 'FLAVOR_NAVAL', 15), -- Units: Trireme, Buildings: Courthouse, Temple, SchoolofPhilosophy, Wonders: Oracle, Ability: OpenBorders
 	('TECH_PHILOSOPHY', 'FLAVOR_SCIENCE', 10),
 	('TECH_PHILOSOPHY', 'FLAVOR_RELIGION', 10),
 	('TECH_PHILOSOPHY', 'FLAVOR_WONDER', 10),
@@ -160,7 +160,7 @@ VALUES
 
 	------------------------------------------------------
 
-	('TECH_CIVIL_SERVICE', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Units: Envoy, Buildings: Workshop, Wonders: ForbiddenPalace, Ability: OpenBorders, Yields: Laborer +1G, Farm +1F, Pasture +2F 
+	('TECH_CIVIL_SERVICE', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Units: Envoy, Buildings: Workshop, Wonders: ForbiddenPalace, Yields: Laborer +1G, Farm +1F, Pasture +2F 
 	('TECH_CIVIL_SERVICE', 'FLAVOR_GROWTH', 10),
 	('TECH_CIVIL_SERVICE', 'FLAVOR_PRODUCTION', 10),
 	('TECH_CIVIL_SERVICE', 'FLAVOR_WONDER', 5),
@@ -218,22 +218,23 @@ VALUES
 	('TECH_ARCHITECTURE', 'FLAVOR_WONDER', 20), -- Buildings: Royal Collection, Wonders: PorcelainTower, TajMahal, Yields: Artists +1C, Town +3F
 	('TECH_ARCHITECTURE', 'FLAVOR_CULTURE', 15),
 
-	('TECH_ECONOMICS', 'FLAVOR_GOLD', 5), -- Buildings: Windmill, Wonders: Uffizi, Ability: +1 TR, Yields: Merchant&Plantation +1G
+	('TECH_ACOUSTICS', 'FLAVOR_CULTURE', 25), -- Buildings: OperaHouse, Musicians' Guild, Wonders: Sistine, SummerPalace, Yields: HolySite +4Faith
+	('TECH_ACOUSTICS', 'FLAVOR_WONDER', 20),
+	
+	('TECH_ECONOMICS', 'FLAVOR_OFFENSE', 20), -- Units: Lancer, Buildings: Windmill, Wonders: Uffizi, Ability: +1 TR, Yields: Merchant&Plantation +1G
+	('TECH_ECONOMICS', 'FLAVOR_MOBILE', 10),
+	('TECH_ECONOMICS', 'FLAVOR_GOLD', 5), 
 	('TECH_ECONOMICS', 'FLAVOR_GROWTH', 5),
 	('TECH_ECONOMICS', 'FLAVOR_PRODUCTION', 20),
 	('TECH_ECONOMICS', 'FLAVOR_WONDER', 10),
 	('TECH_ECONOMICS', 'FLAVOR_TILE_IMPROVEMENT', 5),
-
-	('TECH_ACOUSTICS', 'FLAVOR_CULTURE', 25), -- Buildings: OperaHouse, Musicians' Guild, Wonders: Sistine, SummerPalace, Yields: HolySite +4Faith
-	('TECH_ACOUSTICS', 'FLAVOR_WONDER', 20),
 
 	('TECH_NAVIGATION', 'FLAVOR_NAVAL', 30), -- Units: Frigate, Corvette, Buildings: Bastion Fort, Ability: City embark costs 1 move, Yields: Servants +2G, Boats +1F
 	('TECH_NAVIGATION', 'FLAVOR_CITY_DEFENSE', 20),
 	('TECH_NAVIGATION', 'FLAVOR_GOLD', 10),
 	('TECH_NAVIGATION', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 5),
 
-	('TECH_METALLURGY', 'FLAVOR_OFFENSE', 20), -- Units: Lancer, Musketman, Cuirassier, Wonders: RedFort, Yields: Lumber +1P +1G
-	('TECH_METALLURGY', 'FLAVOR_MOBILE', 20),
+	('TECH_METALLURGY', 'FLAVOR_MOBILE', 10), -- Units: Musketman, Cuirassier, Wonders: RedFort, Yields: Lumber +1P +1G
 	('TECH_METALLURGY', 'FLAVOR_RANGED', 20),
 	('TECH_METALLURGY', 'FLAVOR_TILE_IMPROVEMENT', 5),
 	('TECH_METALLURGY', 'FLAVOR_WONDER', 5),

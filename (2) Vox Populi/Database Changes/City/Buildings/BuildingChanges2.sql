@@ -183,7 +183,14 @@ VALUES
 INSERT INTO Building_YieldFromUnitProduction
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_ORDER', 'YIELD_FAITH', 10);
+	('BUILDING_ORDER', 'YIELD_GOLD', 15);
+
+INSERT INTO Building_DomainFreeExperiences
+	(BuildingType, DomainType, Experience)
+VALUES
+	('BUILDING_ORDER', 'DOMAIN_LAND', 15),
+	('BUILDING_ORDER', 'DOMAIN_SEA', 15),
+	('BUILDING_ORDER', 'DOMAIN_AIR', 15);
 
 -- Teocalli
 INSERT INTO Building_YieldChanges
@@ -201,13 +208,6 @@ INSERT INTO Building_YieldFromVictory
 VALUES
 	('BUILDING_TEOCALLI', 'YIELD_FAITH', 8, 0);
 
-INSERT INTO Building_DomainFreeExperiences
-	(BuildingType, DomainType, Experience)
-VALUES
-	('BUILDING_TEOCALLI', 'DOMAIN_LAND', 10),
-	('BUILDING_TEOCALLI', 'DOMAIN_SEA', 10),
-	('BUILDING_TEOCALLI', 'DOMAIN_AIR', 10);
-
 -- Gurdwara
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -219,6 +219,10 @@ INSERT INTO Building_YieldModifiers
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_GURDWARA', 'YIELD_FOOD', 10);
+
+UPDATE Buildings
+SET AlwaysHeal = 5
+WHERE BuildingClass = 'BUILDINGCLASS_GURDWARA';
 
 ----------------------------------------------------------------------------
 -- Reformation Buildings
@@ -247,6 +251,7 @@ VALUES
 	('BUILDING_SACRED_GARDEN', 'IMPROVEMENT_HOLY_SITE', 'YIELD_FOOD', 5),
 	('BUILDING_HOLY_COUNCIL', 'IMPROVEMENT_HOLY_SITE', 'YIELD_SCIENCE', 5),
 	('BUILDING_APOSTOLIC_PALACE', 'IMPROVEMENT_HOLY_SITE', 'YIELD_TOURISM', 5),
+	('BUILDING_HEAVENLY_GROTTO', 'IMPROVEMENT_HOLY_SITE', 'YIELD_FOOD', 5),
 	('BUILDING_GRAND_OSSUARY', 'IMPROVEMENT_HOLY_SITE', 'YIELD_GOLD', 5);
 
 -- Mausoleum
@@ -321,6 +326,13 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_GRAND_OSSUARY', 'YIELD_FAITH', 10);
+
+-- Heavenly Grotto
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_GOLD', 2),
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 2);
 
 ----------------------------------------------------------------------------
 -- World Wonders
@@ -1393,12 +1405,6 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_MENIN_GATE', 'YIELD_CULTURE', 2);
-
-INSERT INTO Building_YieldFromDeath
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_MENIN_GATE', 'YIELD_CULTURE', 2),
-	('BUILDING_MENIN_GATE', 'YIELD_GOLDEN_AGE_POINTS', 2);
 
 INSERT INTO Building_ImprovementYieldChangesGlobal
 	(BuildingType, ImprovementType, YieldType, Yield)

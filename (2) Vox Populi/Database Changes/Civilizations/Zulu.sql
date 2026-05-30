@@ -27,7 +27,7 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_SPANISH_TERCIO') + 3
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_SPANISH_TERCIO') + 2
 WHERE Type = 'UNIT_ZULU_IMPI';
 
 INSERT INTO Unit_FreePromotions

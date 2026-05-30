@@ -279,7 +279,7 @@ struct ptr_less : std::binary_function<_Ty, _Ty, bool>
 #define MAX_SHORT                           (0x7fff)
 #define MIN_SHORT                           (0x8000)
 #define MAX_INT                             (0x7fffffff)
-#define MIN_INT                             (0x80000000)
+#define MIN_INT                             (-2147483647 - 1)
 #define MAX_UNSIGNED_CHAR                   (0xff)
 #define MIN_UNSIGNED_CHAR                   (0x00)
 #define MAX_UNSIGNED_SHORT                  (0xffff)

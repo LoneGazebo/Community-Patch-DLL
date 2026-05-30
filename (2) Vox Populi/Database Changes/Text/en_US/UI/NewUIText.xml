@@ -298,6 +298,12 @@
 		<Row Tag="TXT_KEY_POP_CSTATE_LABEL_CONTENDER">
 			<Text>Contender:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CSTATE_CONTENDER_INFO">
+			<Text>(Contender: {1_Info})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CSTATE_CONTENDER_YOU">
+			<Text>(You are the contender for Ally)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CSTATE_GOLD_BONUS">
 			<Text>You are receiving [COLOR_POSITIVE_TEXT]{1_Num} [ICON_GOLD] Gold[ENDCOLOR] per turn from them.</Text>
 		</Row>
@@ -511,6 +517,9 @@
 		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS">
 			<Text>[ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade with a [ICON_CITY_STATE] City-State</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_RELIGION_SPREAD">
+			<Text>[ICON_RELIGION] New City Converts</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_ERA_CHANGE_TT">
 			<Text>Each [ICON_RESEARCH] Era you advance to will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!</Text>
 		</Row>
@@ -537,6 +546,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS_TT">
 			<Text>Each [ICON_INTERNATIONAL_TRADE] Trade Route completed either by land or sea with a [ICON_CITY_STATE] City-State will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]! Unlike trading with a foreign Major City, this amount will be the same sent to all Civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_RELIGION_SPREAD_TT">
+			<Text>Every conversion of a City to your owned [ICON_RELIGION] Religion for the first time will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!</Text>
 		</Row>
 
 		<!-- Top panel -->
@@ -656,6 +668,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_TP_HAPPINESS_EVENT">
 			<Text>{1_Happiness} from Events.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_HAPPINESS_IMPROVEMENTS">
+			<Text>{1_Num} from Improvements.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_ILLITERACY">
 			<Text>{1_Num} from [ICON_RESEARCH] Illiteracy.</Text>
@@ -1450,6 +1465,21 @@
 		<Row Tag="TXT_KEY_PEDIA_YIELDPERERA_LABEL">
 			<Text>Yield Per Era:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_FEATURE_IMPROV_YIELD_LABEL">
+			<Text>Feature Yield Bonus:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_ADJACENT_CITY_IMPROV_YIELD_LABEL">
+			<Text>Adjacent City Yield:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TECH_IMPROV_YIELD_LABEL">
+			<Text>Tech Yield Bonus:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TECH_FRESH_WATER_IMPROV_YIELD_LABEL">
+			<Text>Tech Yield Bonus (With Fresh Water):</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_TECH_NO_FRESH_WATER_IMPROV_YIELD_LABEL">
+			<Text>Tech Yield Bonus (Without Fresh Water):</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTIONS_PEDIA_MELEE">
 			<Text>Melee Promotions</Text>
 		</Row>
@@ -1776,51 +1806,6 @@
 		</Row>
 
 		<!-- Trade screen -->
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP">
-			<Text>WORLD MAP</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP_TT">
-			<Text>Reveals all land explored by this civilization.[NEWLINE][NEWLINE]Note: Will not receive contact with unmet civilizations and city-states.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH">
-			<Text>Both players don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER">
-			<Text>They don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER">
-			<Text>You don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED">
-			<Text>They have already explored all of the lands revealed in your World Map.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED">
-			<Text>We have already explored all of the lands revealed in their World Map.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES">
-			<Text>TECHNOLOGIES</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TECHNOLOGIES">
-			<Text>TECHNOLOGIES</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES">
-			<Text>We have Technologies available to trade.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO">
-			<Text>We have no Technologies available to trade.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES_THEM">
-			<Text>The other leader has Technologies available to trade.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO_THEM">
-			<Text>The other leader has no Technologies available to trade.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_OTHER_PLAYER">
-			<Text>They don't yet have the Technology to sell this item (Scientific Theory).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_PLAYER">
-			<Text>You don't yet have the Technology to sell this item (Scientific Theory).</Text>
-		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_PEACE">
 			<Text>VASSAL STATE</Text>
 		</Row>
@@ -2971,7 +2956,7 @@
 			<Text>[NEWLINE] [ICON_BULLET] Requires City Event Choice that is not currently active</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_RECENT_SPY_MISSION">
-			<Text>[NEWLINE] [ICON_BULLET] Spy has recently conducted a mission</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Spy has recently conducted a mission (blocked for {1_Num} more {1_Num: plural 1?turn; other?turns;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT">
 			<Text>[NEWLINE] [ICON_BULLET] Invalid Active City Event</Text>

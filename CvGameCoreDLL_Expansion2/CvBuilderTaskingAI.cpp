@@ -2111,6 +2111,9 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 
 	// Check which builds we can build first
 	vector<BuildTypes> aPossibleBuilds;
+	vector<BuildTypes> aAdjacentBuilds; // builds we can build adjacent to our borders
+	vector<BuildTypes> aOutsideBorderBuilds; // builds we can build anywhere
+	// TODO perhaps add support for IsIgnoreOwnership (landmarks) and IsOnlyCityStateTerritory (vanilla feitoria?)
 	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
 		BuildTypes eBuild = (BuildTypes)iBuildIndex;
@@ -2125,6 +2128,24 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 			if (m_pPlayer->GetPlayerTraits()->HasUnitClassCanBuild(eBuild, pUnitInfo->GetUnitClassType()) || (pUnitInfo->GetBuilds(eBuild) && !m_pPlayer->GetPlayerTraits()->IsNoBuild(eBuild)))
 			{
 				aPossibleBuilds.push_back(eBuild);
+
+				CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+				if (!pkBuild)
+					continue;
+
+				ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+				if (eImprovement == NO_IMPROVEMENT)
+					continue;
+
+				CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
+				if (!pkImprovement)
+					continue;
+
+				if (pkImprovement->IsOutsideBorders())
+					aOutsideBorderBuilds.push_back(eBuild);
+				else if (pkImprovement->IsInAdjacentFriendly())
+					aAdjacentBuilds.push_back(eBuild);
+
 				continue;
 			}
 		}
@@ -2137,6 +2158,24 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 				if (pLoopUnit->canBuild(NULL, eBuild))
 				{
 					aPossibleBuilds.push_back(eBuild);
+
+					CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+					if (!pkBuild)
+						break;
+
+					ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+					if (eImprovement == NO_IMPROVEMENT)
+						break;
+
+					CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
+					if (!pkImprovement)
+						break;
+
+					if (pkImprovement->IsOutsideBorders())
+						aOutsideBorderBuilds.push_back(eBuild);
+					else if (pkImprovement->IsInAdjacentFriendly())
+						aAdjacentBuilds.push_back(eBuild);
+
 					break;
 				}
 			}
@@ -2182,19 +2221,23 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 			AddScrubFalloutDirectives(aDirectives, pPlot, pWorkingCity);
 			AddRepairImprovementDirective(aDirectives, pPlot, pWorkingCity);
 		}
-		else if ((!pPlot->isOwned() || m_pPlayer->IsCultureBombForeignTerritory()) && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+		else
 		{
-			//some special improvements
-			AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aPossibleBuilds);
-			AddRepairImprovementDirective(aDirectives, pPlot, pWorkingCity);
+			if (!aAdjacentBuilds.empty() && (!pPlot->isOwned() || m_pPlayer->IsCultureBombForeignTerritory()) && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+				AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aAdjacentBuilds);
+
+			if (!aOutsideBorderBuilds.empty())
+				AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aOutsideBorderBuilds);
 		}
-		if (pPlot->GetPlayerResponsibleForRoute() == m_pPlayer->GetID())
-		{
-			AddRemoveRouteDirective(aDirectives, pPlot, iNetGoldTimes100);
-		}
+
 		if (pPlot->GetPlannedRouteState(m_pPlayer->GetID()) == ROAD_PLANNING_PRIORITY_CONSTRUCTION)
 		{
 			AddRouteOrRepairDirective(aDirectives, pPlot, eBestRoute, 1000, PURPOSE_MANUAL);
+		}
+		else if (pPlot->GetPlayerResponsibleForRoute() == m_pPlayer->GetID())
+		{
+			// does nothing if we want to have a route here
+			AddRemoveRouteDirective(aDirectives, pPlot, iNetGoldTimes100);
 		}
 	}
 
@@ -2486,7 +2529,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 				if (pkChopBuild && pkChopBuild->getImprovement() == NO_IMPROVEMENT && pkChopBuild->isFeatureRemoveOnly(eFeature) && m_pPlayer->canBuild(pPlot, eLoopBuild))
 				{
 					eChopBuild = eLoopBuild;
-					pkChopBuild = pkChopBuild;
 					break;
 				}
 			}
@@ -3276,9 +3318,13 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 		return PlotBuildScore(-1);
 
 	// Give a small bonus for claiming tiles
-	if (bIsTileClaim && pPlot->getOwner() != m_pPlayer->GetID())
+	if (pPlot->getOwner() != m_pPlayer->GetID())
 	{
-		iSecondaryScore += 300;
+		if (bIsTileClaim)
+			iSecondaryScore += 300;
+		else
+			// Assume building outside our borders is not worth it if we don't claim the tile
+			return PlotBuildScore(-1);
 	}
 
 	Likelyhood plotTheftLikelyhood = GetPlotTheftLikelyhood(m_pPlayer, pPlot);
@@ -3437,9 +3483,6 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 			for (int iBuild = 0; iBuild < GC.getNumBuildInfos(); iBuild++)
 			{
 				BuildTypes eOtherBuild = (BuildTypes)iBuild;
-
-				if (eOtherBuild == NO_BUILD)
-					continue;
 
 				CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherBuild);
 				if (!pkOtherBuildInfo)
@@ -3782,7 +3825,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 
 				if (iNewAdjacentWorkedYield != 0 || iNewAdjacentUnworkedYield != 0)
 				{
-					int iAdjacentCityYieldModifier = pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, eYield) : 100;
+					int iAdjacentCityYieldModifier = GetYieldCityModifierTimes100(pAdjacentOwningCity, eYield);
 					iSecondaryScore += (iNewAdjacentWorkedYield * iYieldModifier * iAdjacentCityYieldModifier) / 100;
 					iPotentialScore += (iNewAdjacentUnworkedYield * iYieldModifier * iAdjacentCityYieldModifier) / 100;
 				}
@@ -3904,7 +3947,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
 				if (pkOldImprovementInfo && (pkOldImprovementInfo->IsConnectsResource(eResource) || pkOldImprovementInfo->GetResourceFromImprovement() == eResource))
 				{
-					ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+					ResourceTypes eResourceFromOldImprovement = (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement();
 					int iOldResourceQuantityFromImprovement = pkOldImprovementInfo->GetResourceQuantityFromImprovement();
 					if (iOldResourceQuantityFromImprovement <= 0)
 						iOldResourceQuantityFromImprovement = 1;

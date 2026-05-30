@@ -44,6 +44,14 @@ UPDATE Defines SET Value = 2 WHERE Name = 'AI_DEFENSIVE_PACT_LIMIT_BASE';
 UPDATE Defines SET Value = 10 WHERE Name = 'AI_DEFENSIVE_PACT_LIMIT_SCALER';
 
 -------------------------------------------------------------------------------------------------------------------
+-- Research Agreements
+-------------------------------------------------------------------------------------------------------------------
+-- Percentage of RA yields that are given as per-turn yields, not as instant yield when the agreement ends.
+UPDATE Defines SET Value = 50 WHERE Name = 'RESEARCH_AGREEMENT_PER_TURN_YIELD_PERCENT';
+-- RA yields are calculated as X*avg(SciencePlayer1, SciencePlayer2) + (1-X)*min(SciencePlayer1, SciencePlayer2).
+UPDATE Defines SET Value = 50 WHERE Name = 'RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT';
+
+-------------------------------------------------------------------------------------------------------------------
 -- War
 -------------------------------------------------------------------------------------------------------------------
 

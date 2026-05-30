@@ -51,7 +51,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iProductionCostPerEra(0),
 	m_iNumFreeLux(0),
 	m_iBeliefUnlock(NO_BELIEF),
-	m_bCultureFromExperienceOnDisband(false),
+	m_iCultureFromExperienceOnDisband(0),
 	m_bFreeUpgrade(false),
 	m_bUnitEraUpgrade(false),
 	m_bWarOnly(false),
@@ -374,7 +374,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	szTextVal = kResults.GetText("BeliefRequired");
 	m_iBeliefUnlock = GC.getInfoTypeForString(szTextVal, true);
-	m_bCultureFromExperienceOnDisband = kResults.GetBool("CulExpOnDisbandUpgrade");
+	m_iCultureFromExperienceOnDisband = kResults.GetInt("CulExpOnDisbandUpgrade");
 	m_bUnitEraUpgrade = kResults.GetBool("UnitEraUpgrade");
 	m_bWarOnly = kResults.GetBool("WarOnly");
 	m_bCopyYieldsFromExpendTile = kResults.GetBool("CopyYieldsFromExpendTile");
@@ -1328,9 +1328,9 @@ int CvUnitEntry::StackCombat() const
 {
 	return m_iStackCombat;
 }
-bool CvUnitEntry::IsCultureFromExperienceDisbandUpgrade() const
+int CvUnitEntry::GetCultureFromExperienceDisbandUpgrade() const
 {
-	return m_bCultureFromExperienceOnDisband;
+	return m_iCultureFromExperienceOnDisband;
 }
 bool CvUnitEntry::IsUnitEraUpgrade() const
 {

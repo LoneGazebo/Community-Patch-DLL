@@ -2535,6 +2535,8 @@ public:
 	int getTechPrereq() const;
 	int getRequiredPolicy() const;
 	int getDefenseValue() const;
+	int getDefenseValuePerTurn() const;
+	int getDefenseValueCap() const;
 
 	CivilizationTypes GetRequiredCivilization() const;
 
@@ -2548,6 +2550,8 @@ protected:
 	int m_iTechPrereq;
 	int m_iRequiredPolicy;
 	int m_iDefenseValue;
+	int m_iDefenseValuePerTurn;
+	int m_iDefenseValueCap;
 
 	CivilizationTypes m_eRequiredCivilization;
 

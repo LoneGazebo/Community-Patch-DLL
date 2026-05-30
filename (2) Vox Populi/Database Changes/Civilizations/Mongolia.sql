@@ -34,7 +34,7 @@ WHERE Type = 'UNIT_MONGOLIAN_KHAN';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC_GENERAL'),
+	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_RETALIATION'),
 	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC'),
 	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC_II');
 
@@ -155,8 +155,8 @@ VALUES
 INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, YieldType, Yield)
 VALUES
---	('BUILDING_GER', 'YIELD_FOOD', 5),
-	('BUILDING_GER', 'YIELD_PRODUCTION', 5);
+--	('BUILDING_GER', 'YIELD_FOOD', 10),
+	('BUILDING_GER', 'YIELD_PRODUCTION', 10);
 
 ----------------------------------------------------------
 -- Unique Project: Adopt the Yassa

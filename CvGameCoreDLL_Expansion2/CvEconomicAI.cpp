@@ -1213,7 +1213,7 @@ bool CvEconomicAI::CanWithdrawMoneyForPurchase(PurchaseType ePurchase, int iAmou
 		}
 
 		// Is this the one, if so, check balance remaining
-		else if(request.m_eType == ePurchase)
+		else
 		{
 			return (iBalance >=iAmount);
 		}
@@ -1249,7 +1249,7 @@ int CvEconomicAI::AmountAvailableForPurchase(PurchaseType ePurchase)
 		}
 
 		// Is this the one, if so, check balance remaining
-		else if(request.m_eType == ePurchase)
+		else
 		{
 			return (iBalance);
 		}
@@ -5009,7 +5009,7 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 				iScore += (iVictoryAllyDispute - iCSDistaste);
 			}
 		}
-		else if (iCSDistaste < 0)
+		else
 		{
 			if(iMinorAllyDispute > 0)
 			{

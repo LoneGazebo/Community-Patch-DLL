@@ -235,21 +235,18 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
-				if(eEventChoice != NO_EVENT_CHOICE_CITY)
+				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+				if(pkEventChoiceInfo != NULL)
 				{
-					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
-					if(pkEventChoiceInfo != NULL)
+					if(IsCityEventChoiceValid(eEventChoice, eChosenEvent))
 					{
-						if(IsCityEventChoiceValid(eEventChoice, eChosenEvent))
+						for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 						{
-							for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
+							if(pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
 							{
-								if(pkEventChoiceInfo->getFlavorValue(iFlavor) > 0)
-								{
-									int iOurFlavor = GET_PLAYER(getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
-									iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor);
-									flavorChoices.push_back(eEventChoice, iOurFlavor);
-								}
+								int iOurFlavor = GET_PLAYER(getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavor);
+								iOurFlavor += pkEventChoiceInfo->getFlavorValue(iFlavor);
+								flavorChoices.push_back(eEventChoice, iOurFlavor);
 							}
 						}
 					}
@@ -295,20 +292,17 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			for(int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
-				if(eEventChoice != NO_EVENT_CHOICE_CITY)
+				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+				if(pkEventChoiceInfo != NULL)
 				{
-					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
-					if(pkEventChoiceInfo != NULL)
+					if(IsCityEventChoiceValid(eEventChoice, eChosenEvent))
 					{
-						if(IsCityEventChoiceValid(eEventChoice, eChosenEvent))
+						int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
+						if(iRandom <= 0)
 						{
-							int iRandom = GC.getGame().getJonRandNum(pkEventInfo->getNumChoices(), "Random Event Choice");
-							if(iRandom <= 0)
-							{
-								iRandom = 1;
-							}
-							randomChoices.push_back(eEventChoice, iRandom);
+							iRandom = 1;
 						}
+						randomChoices.push_back(eEventChoice, iRandom);
 					}
 				}
 			}

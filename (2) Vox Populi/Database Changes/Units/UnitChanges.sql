@@ -155,12 +155,12 @@ SET PrereqTech = 'TECH_ARCHERY' -- Military Strategy
 WHERE Class = 'UNITCLASS_HORSEMAN';
 
 -- Knight
-UPDATE Units SET ObsoleteTech = 'TECH_METALLURGY' WHERE Class = 'UNITCLASS_KNIGHT';
+UPDATE Units SET ObsoleteTech = 'TECH_ECONOMICS' WHERE Class = 'UNITCLASS_KNIGHT';
 
 -- Lancer
 UPDATE Units
 SET
-	PrereqTech = 'TECH_METALLURGY',
+	PrereqTech = 'TECH_ECONOMICS',
 	ObsoleteTech = 'TECH_COMBUSTION'
 WHERE Class = 'UNITCLASS_LANCER';
 

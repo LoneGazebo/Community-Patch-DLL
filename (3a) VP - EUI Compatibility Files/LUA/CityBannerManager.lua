@@ -1090,7 +1090,7 @@ local function RefreshCityBannersNow()
 			-- Puppet ?
 			instance.CityIsPuppet:SetHide( not isPuppet )
 
-			-- Rome UA (Annexed City-States)
+			-- Annexed City-States
 			if Players[city:GetOriginalOwner()]:IsMinorCiv() then
 				instance.CityIsCityState:SetHide ( not cityOwner:IsAnnexedCityStatesGiveYields())
 			end

@@ -37,6 +37,17 @@ VALUES
 -- Number of rings a new city starts with
 	('CITY_STARTING_RINGS', 1),
 	('MAXIMUM_WORK_PLOT_DISTANCE', 3),
+-- AI non-diplomacy flavor caps (diplomacy flavors are hardcoded between 1-10)
+	('PERSONALITY_FLAVOR_MAX_VALUE', 10),
+	('PERSONALITY_FLAVOR_MIN_VALUE', 1), -- note: if a non-diplomacy flavor is zeroed out, it will stay at zero; the MIN_VALUE is to prevent the FLAVOR_RANDOMIZATION_RANGE randomization from taking it below 1
+-- AI default victory pursuit selection
+	('VICTORY_PURSUIT_PRIMARY_ONLY_HINT_WEIGHT', 16),
+	('VICTORY_PURSUIT_PRIMARY_HINT_WEIGHT', 10),
+	('VICTORY_PURSUIT_SECONDARY_HINT_WEIGHT', 6),
+	('VICTORY_PURSUIT_DISABLED_VICTORY_PENALTY', -20),
+	('VICTORY_PURSUIT_FEW_CITY_STATES_PENALTY', -20),
+	('VICTORY_PURSUIT_MAX_RANDOMNESS', 18),
+	('VICTORY_PURSUIT_DIFFERENTIAL_DIVISOR', 200),
 -- Minimum war score for third party peace requests
 	('THIRD_PARTY_PEACE_MIN_WAR_SCORE', 75),
 -- Minimum war duration for AI players
@@ -452,6 +463,9 @@ VALUES
 	('RELIGION_ADJACENT_CITY_DISTANCE', 9), -- Base trade route distance affected by religious pressure
 	('WOUNDED_DAMAGE_MULTIPLIER', 34), -- CP changed the wounded penalty from damage penalty to CS penalty. Adjust accordingly so it's actually 1% per 3HP lost.
 	('WLTKD_RESOURCE_RESET_TURNS', 0), -- WLTKD Reset Timer (<= 0 means disabled); scales with game speed
+	-- Research Agreements
+	('RESEARCH_AGREEMENT_PER_TURN_YIELD_PERCENT', 0), -- percentage of RA yields that are given as per-turn yields, not as instant yield when the agreement ends. Default 0 (in BNW / Community Patch)
+	('RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT', 0), -- RA yields are calculated as X*avg(SciencePlayer1, SciencePlayer2) + (1-X)*min(SciencePlayer1, SciencePlayer2). Default 0 (in BNW / Community Patch) 
 -- These will be replaced by PostDefines in VP
 	('EMBASSY_IMPROVEMENT', -1),
 	('IDEOLOGY_PREREQ_ERA', -1),

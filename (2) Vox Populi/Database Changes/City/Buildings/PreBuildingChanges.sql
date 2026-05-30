@@ -194,13 +194,11 @@ INSERT INTO Building_ResourceQuantityRequirements
 VALUES
 	('BUILDING_STEAM_MILL', 'RESOURCE_COAL', 1);
 
--- Japan: Armory
-INSERT INTO Building_DomainFreeExperiences
-	(BuildingType, DomainType, Experience)
+-- Japan: Forge
+INSERT INTO Building_DomainProductionModifiers
+	(BuildingType, DomainType, Modifier)
 VALUES
-	('BUILDING_DOJO', 'DOMAIN_LAND', 15),
-	('BUILDING_DOJO', 'DOMAIN_SEA', 15),
-	('BUILDING_DOJO', 'DOMAIN_AIR', 15);
+	('BUILDING_TATARA', 'DOMAIN_LAND', 15);
 
 -- Korea: University
 INSERT INTO Building_FeatureYieldChanges

@@ -132,6 +132,16 @@ BEGIN
         'IMPROVEMENT_MANUFACTORY', NEW.Type, 1;
 END;
 
+--------------------------------------------------------------------------------
+-- New Bonus Resources gets Thrift gold bonus
+--------------------------------------------------------------------------------
+CREATE TRIGGER IF NOT EXISTS BeliefFWNewBonusResources AFTER INSERT ON Resources
+WHEN NEW.ResourceClassType = 'RESOURCECLASS_BONUS'
+BEGIN
+	INSERT OR REPLACE INTO Belief_ResourceYieldChanges
+					(BeliefType,			ResourceType, YieldType, Yield)
+	SELECT DISTINCT	 'BELIEF_FEED_WORLD',	NEW.Type,	'YIELD_GOLD', 1;
+END;
 ---------------------------------------------------------------------------------
 -- Promotions that provide blanket immunity to all Plagues
 ---------------------------------------------------------------------------------

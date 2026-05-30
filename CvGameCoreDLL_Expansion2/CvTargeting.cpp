@@ -723,7 +723,7 @@ static bool CanMaybeSeeDisplacementPlot_Strict(int startX, int startY, int dx, i
 					if (!straightThrough && lookbackDirection != -1)
 					{
 						CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[lookbackDirection], startY + currentDY + ms_LookBackY[lookbackDirection]);
-						if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+						if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 						{
 							++iBlockedCount;
 							if (stepCount > STRICT_LOOSE_CUTOFF || iBlockedCount >= 2)
@@ -736,7 +736,7 @@ static bool CanMaybeSeeDisplacementPlot_Strict(int startX, int startY, int dx, i
 						break;
 
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
-					if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+					if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 						return false;
 
 					lookbackDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -754,7 +754,7 @@ static bool CanMaybeSeeDisplacementPlot_Strict(int startX, int startY, int dx, i
 			if (!straightThrough && lookbackDirection != -1)
 			{
 				CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[lookbackDirection], startY + currentDY + ms_LookBackY[lookbackDirection]);
-				if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+				if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 				{
 					if (stepCount > STRICT_LOOSE_CUTOFF || ++iBlockedCount >= 2)
 						return false;
@@ -766,7 +766,7 @@ static bool CanMaybeSeeDisplacementPlot_Strict(int startX, int startY, int dx, i
 				break;
 
 			CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
-			if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+			if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 				return false;
 
 			lookbackDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -805,7 +805,7 @@ static bool CanMaybeSeeDisplacementPlot_Strict(int startX, int startY, int dx, i
 					if (!straightThrough && lookbackDirection != -1)
 					{
 						CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[lookbackDirection], startY + currentDY + ms_LookBackY[lookbackDirection]);
-						if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+						if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 						{
 							if (stepCount > STRICT_LOOSE_CUTOFF || ++iBlockedCount >= 2)
 								return false;
@@ -817,7 +817,7 @@ static bool CanMaybeSeeDisplacementPlot_Strict(int startX, int startY, int dx, i
 						break;
 
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
-					if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+					if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 						return false;
 
 					lookbackDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -835,7 +835,7 @@ static bool CanMaybeSeeDisplacementPlot_Strict(int startX, int startY, int dx, i
 			if (!straightThrough && lookbackDirection != -1)
 			{
 				CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[lookbackDirection], startY + currentDY + ms_LookBackY[lookbackDirection]);
-				if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+				if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 				{
 					if (stepCount > STRICT_LOOSE_CUTOFF || ++iBlockedCount >= 2)
 						return false;
@@ -847,7 +847,7 @@ static bool CanMaybeSeeDisplacementPlot_Strict(int startX, int startY, int dx, i
 				break;
 
 			CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
-			if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+			if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 				return false;
 
 			lookbackDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -952,7 +952,7 @@ static bool CanMaybeSeeDisplacementPlot_Loose(int startX, int startY, int dx, in
 								bBlocked = (fromLevel < passThroughPlot->seeThroughLevel());
 							}
 
-							if (bBlocked && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+							if (bBlocked && passThroughPlot && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
 								return false;
 						}
 						else
@@ -964,7 +964,7 @@ static bool CanMaybeSeeDisplacementPlot_Loose(int startX, int startY, int dx, in
 						break;
 
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
-					if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+					if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 					{
 						bBlocked = true;
 						blockedDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -989,7 +989,7 @@ static bool CanMaybeSeeDisplacementPlot_Loose(int startX, int startY, int dx, in
 						bBlocked = (fromLevel < passThroughPlot->seeThroughLevel());
 					}
 
-					if (bBlocked && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+					if (bBlocked && passThroughPlot && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
 						return false;
 				}
 				else
@@ -1001,7 +1001,7 @@ static bool CanMaybeSeeDisplacementPlot_Loose(int startX, int startY, int dx, in
 				break;
 
 			CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
-			if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+			if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 			{
 				bBlocked = true;
 				blockedDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -1047,7 +1047,7 @@ static bool CanMaybeSeeDisplacementPlot_Loose(int startX, int startY, int dx, in
 								bBlocked = (fromLevel < passThroughPlot->seeThroughLevel());
 							}
 
-							if (bBlocked && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+							if (bBlocked && passThroughPlot && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
 								return false;
 						}
 						else
@@ -1059,7 +1059,7 @@ static bool CanMaybeSeeDisplacementPlot_Loose(int startX, int startY, int dx, in
 						break;
 
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
-					if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+					if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 					{
 						bBlocked = true;
 						blockedDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -1084,7 +1084,7 @@ static bool CanMaybeSeeDisplacementPlot_Loose(int startX, int startY, int dx, in
 						bBlocked = (fromLevel < passThroughPlot->seeThroughLevel());
 					}
 
-					if (bBlocked && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+					if (bBlocked && passThroughPlot && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
 						return false;
 				}
 				else
@@ -1096,7 +1096,7 @@ static bool CanMaybeSeeDisplacementPlot_Loose(int startX, int startY, int dx, in
 				break;
 
 			CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
-			if ((!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel()) && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam)))
+			if (!passThroughPlot || (fromLevel < passThroughPlot->seeThroughLevel() && (passThroughPlot->isRevealed(eTeam) || passThroughPlot->isAdjacentRevealed(eTeam))))
 			{
 				bBlocked = true;
 				blockedDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];

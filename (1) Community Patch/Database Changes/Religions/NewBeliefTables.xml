@@ -20,6 +20,13 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Yields for cities on or adjacent to specified terrain -->
+	<Table name="Belief_NearbyTerrainYieldChanges">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<Table name="Belief_GreatPersonExpendedYield">
 		<!-- Refer to Beliefs.GreatPersonExpendedFaith -->
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
@@ -375,5 +382,13 @@
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Intended as a Reformation (or Follower) taking the City as argument -->
+	<Table name="Belief_UnitCombatProductionModifiers">
+		<!-- Refer to Building_UnitCombatProductionModifiers -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
 	</Table>
 </GameData>

@@ -1309,7 +1309,7 @@ end
 Controls.UnitTributeButton:RegisterCallback( Mouse.eLClick, OnUnitTributeButtonClicked )
 
 ----------------------------------------------------------------
--- CBP: Forced Annex (Rome UA)
+-- CBP: Forced Annex
 ----------------------------------------------------------------
 function OnBullyAnnexButtonClicked()
 	local minorPlayer = Players[g_minorCivID]

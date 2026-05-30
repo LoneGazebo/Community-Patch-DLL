@@ -89,8 +89,6 @@ public:
 	CvEnumMap<FlavorTypes, int>& GetAllPersonalityFlavors();
 	int GetPersonalityFlavorForDiplomacy(FlavorTypes eType);
 
-	int GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, const CvSeeder& seed);
-
 private:
 
 	void RandomizeWeights();
