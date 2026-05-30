@@ -498,6 +498,9 @@
 		<!-- Pantheons can be picked even if they are already picked by someone else -->
 		<Row Class="6" Name="BALANCE_ANY_PANTHEON" Value="0"/>
 
+		<!-- Per city needs medians and modifiers are recalculated only on population change -->
+		<Row Class="6" Name="BALANCE_CACHE_CITY_MEDIAN" Value="0"/>
+
 		<!-- City-State Influence scales with era and Yields scale with the City-State's number of cities -->
 		<Row Class="6" Name="BALANCE_CITY_STATE_SCALE" Value="0"/>
 

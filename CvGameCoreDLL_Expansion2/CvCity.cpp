@@ -2451,7 +2451,10 @@ void CvCity::doTurn()
 	setMadeAttack(false);
 	GetCityBuildings()->SetSoldBuildingThisTurn(false);
 
-	
+	// Always update medians if the mod option is off
+	if (!MOD_BALANCE_CACHE_CITY_MEDIAN)
+		UpdateCachedYieldMedians();
+
 	if (getFoodPerTurnBeforeConsumptionTimes100() - getFoodConsumptionTimes100() < 0)
 	{
 		// avoid starvation if possible

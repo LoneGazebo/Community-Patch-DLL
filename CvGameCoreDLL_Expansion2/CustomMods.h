@@ -425,6 +425,9 @@
 // Pantheons can be picked even if they are already picked by someone else
 #define MOD_BALANCE_ANY_PANTHEON									gCustomMods.isBALANCE_ANY_PANTHEON()
 
+// Per city needs medians and modifiers are recalculated only on population change
+#define MOD_BALANCE_CACHE_CITY_MEDIAN								gCustomMods.isBALANCE_CACHE_CITY_MEDIAN()
+
 // City-State Influence scales with era and Yields scale with the City-State's number of cities
 #define MOD_BALANCE_CITY_STATE_SCALE								gCustomMods.isBALANCE_CITY_STATE_SCALE()
 
@@ -1638,6 +1641,7 @@ public:
 	MOD_OPT_DECL(BALANCE_ALTERNATE_ASSYRIA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_CELTS_TRAIT);
 	MOD_OPT_DECL(BALANCE_ANY_PANTHEON);
+	MOD_OPT_DECL(BALANCE_CACHE_CITY_MEDIAN);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_SCALE);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_TRAITS);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_PERSONALITIES);
