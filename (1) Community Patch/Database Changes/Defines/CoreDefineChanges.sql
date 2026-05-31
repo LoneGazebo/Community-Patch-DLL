@@ -52,8 +52,10 @@ VALUES
 	('VICTORY_PURSUIT_DIFFERENTIAL_DIVISOR', 200),
 -- Minimum war score for third party peace requests
 	('THIRD_PARTY_PEACE_MIN_WAR_SCORE', 75),
+-- Minimum number of turns before War Weariness starts accumulating each turn, even if no damage is inflicted
+	('WAR_WEARINESS_MINIMUM_TURNS', 10),
 -- Minimum war duration for AI players
-	('WAR_MAJOR_MINIMUM_TURNS', 10),
+	('WAR_MAJOR_MINIMUM_TURNS', 5),
 	('WAR_MINOR_MINIMUM_TURNS', 1),
 -- Religion
 	('INQUISITION_EFFECTIVENESS', 100), -- expected value between 1 and 100. percentage of heretics' pressure to be removed by inquisitors. does not affect prophets.

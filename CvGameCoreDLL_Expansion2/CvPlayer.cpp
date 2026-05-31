@@ -36378,7 +36378,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 		}
 
 		// Do not increase war weariness if minimum war length hasn't been reached yet, or not able to make peace.
-		if (GET_TEAM(getTeam()).GetNumTurnsAtWar(eLoopTeam) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+		if (GET_TEAM(getTeam()).GetNumTurnsAtWar(eLoopTeam) < /*10*/ GD_INT_GET(WAR_WEARINESS_MINIMUM_TURNS))
 			continue;
 
 		if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
