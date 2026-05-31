@@ -103,11 +103,12 @@
 			<Text>Animism</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_BELIEF_WORK_ETHIC">
+		<Row Tag="TXT_KEY_BELIEF_WORK_ETHIC_VP">
 			<Text>May build Workshops, Windmills, and Factories with [ICON_PEACE] Faith. These buildings produce +2 [ICON_PRODUCTION] Production each. +25% [ICON_WORKER] Tile Improvement Rate for [COLOR_YELLOW]Civilian Units[ENDCOLOR].</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BELIEF_WORK_ETHIC_SHORT">
+		<Row Tag="TXT_KEY_BELIEF_WORK_ETHIC_VP_SHORT">
 			<Text>Work Ethic</Text>
+		</Row>
 
 		<!-- Tooltips -->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_TOOLTIP">

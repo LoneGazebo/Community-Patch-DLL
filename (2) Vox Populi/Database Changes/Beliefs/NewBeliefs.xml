@@ -114,9 +114,10 @@
 		</Row>
 		<!-- New reformation beliefs -->
 		<Row>
-			<Type>BELIEF_WORK_ETHIC</Type>
-			<Description>TXT_KEY_BELIEF_WORK_ETHIC</Description>
-			<ShortDescription>TXT_KEY_BELIEF_WORK_ETHIC_SHORT</ShortDescription>
+			<!-- BELIEF_WORK_ETHIC already exists in a scenario -->
+			<Type>BELIEF_WORK_ETHIC_VP</Type>
+			<Description>TXT_KEY_BELIEF_WORK_ETHIC_VP</Description>
+			<ShortDescription>TXT_KEY_BELIEF_WORK_ETHIC_VP_SHORT</ShortDescription>
 			<Reformation>true</Reformation>
 		</Row>
 	</Beliefs>
