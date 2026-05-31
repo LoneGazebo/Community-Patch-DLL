@@ -2643,7 +2643,7 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 
 	// Generate dump filename with version, commit hash and build type
 	TCHAR szDumpFilename[MAX_PATH];
-	_stprintf_s(szDumpFilename, MAX_PATH, _T("CvMiniDump_%s_%hs_%s.dmp"),
+	_stprintf_s(szDumpFilename, MAX_PATH, _T("crashlogs\\CvMiniDump_%s_%hs_%s.dmp"),
 		szTimestamp,
 		shortVersion,
 #ifdef VPDEBUG
@@ -2788,90 +2788,267 @@ static const char* GetExceptionDescription(DWORD exceptionCode)
 	}
 }
 
+typedef const char* (CDECL *WINE_GET_VERSION)(void) ;
+typedef void (CDECL *WINE_GET_HOST_VERSION)(const char** sysname, const char** release) ;
+
+static void GetOsDescription( char* out, size_t len )
+{
+	HMODULE hNt = GetModuleHandleA("ntdll.dll");
+	if( hNt )
+	{
+		WINE_GET_VERSION fWineGetVersion = (WINE_GET_VERSION)GetProcAddress(hNt,"wine_get_version") ;
+		if( fWineGetVersion )
+		{
+			WINE_GET_HOST_VERSION fWineGetHostInfo = (WINE_GET_HOST_VERSION)GetProcAddress(hNt,"wine_get_host_version");
+			const char* host_sysname = NULL;
+			const char* host_release = NULL;
+			if( fWineGetHostInfo ) 
+			{
+				fWineGetHostInfo( &host_sysname, &host_release ) ;
+			}
+			if( host_sysname && host_release )
+			{
+				_snprintf_s( out, len, _TRUNCATE, "%s(Wine) - Host: %s %s", fWineGetVersion(), host_sysname, host_release );
+			}
+			else
+			{
+				_snprintf_s( out, len, _TRUNCATE, "%s(Wine) - Host: ?", fWineGetVersion() ) ;
+			}
+		}
+		else
+		{
+			// Get OS version information
+			/* This is useless because windows will spoof the version number..
+			OSVERSIONINFOEX osvi = {0};
+			osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+			GetVersionEx((LPOSVERSIONINFO)&osvi);
+			_snprintf_s( out, len, _TRUNCATE, "Native Windows %d.%d (Build %d)",
+				osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber
+			) ;
+			*/
+			_snprintf_s(out,len,_TRUNCATE,"Windows");
+		}
+	}
+	else
+	{
+		_snprintf_s( out, len, _TRUNCATE, "?? (No ntdll handle!?)" ) ;
+	}
+}
+
+static const char* GetOnlyFilename( const char* in )
+{
+	const char* ret = strrchr( in, '\\' ) ;
+	return ret == NULL ? in : ( ret + 1 ) ;
+}
+
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
+	CreateDirectory(_T("crashlogs"),NULL);
 #if defined(MOD_DEBUG_MINIDUMP)
 	CreateMiniDump(ExceptionInfo);
 #endif
 
-	// Show crash dialog to user
-	char szMessage[2048];
 	DWORD exceptionCode = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionCode : 0;
 	void* exceptionAddress = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionAddress : NULL;
+	DWORD exceptionAddressAdjusted = (DWORD)exceptionAddress ;
 
-	// Determine which module the crash address belongs to
-	char szCrashModule[MAX_PATH] = "unknown module";
-	if (exceptionAddress != NULL)
+	char szCrashModule[MAX_PATH] = "???" ;
+	if( exceptionAddress != NULL )
 	{
-		HMODULE hCrashModule = NULL;
-		if (GetModuleHandleExA(
-				GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-				(LPCSTR)exceptionAddress, &hCrashModule))
+		HMODULE hModule= NULL;
+		if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,(LPCSTR)exceptionAddress, &hModule))
 		{
-			char szFullPath[MAX_PATH] = {};
-			if (GetModuleFileNameA(hCrashModule, szFullPath, sizeof(szFullPath)))
-			{
-				const char* pFile = strrchr(szFullPath, '\\');
-				_snprintf_s(szCrashModule, sizeof(szCrashModule), _TRUNCATE, "%s", pFile ? pFile + 1 : szFullPath);
-			}
+			if (!GetModuleFileNameA(hModule, szCrashModule, MAX_PATH))
+				_snprintf_s(szCrashModule, MAX_PATH, _TRUNCATE, "???") ;
+
+			exceptionAddressAdjusted = (DWORD)exceptionAddress - (DWORD)hModule ;
 		}
 	}
 
-	char szDumpLine[MAX_PATH + 16] = "";
-#if defined(MOD_DEBUG_MINIDUMP)
-	if (g_szLastMiniDumpPath[0] != '\0')
-		_snprintf_s(szDumpLine, sizeof(szDumpLine), _TRUNCATE, "Minidump: %s\n", g_szLastMiniDumpPath);
+	//store time and date
+	char szTimestamp[64];
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+	_snprintf_s(szTimestamp, sizeof(szTimestamp), _TRUNCATE, "%02d:%02d:%02d %02d/%02d/%04d", st.wHour, st.wMinute, st.wSecond, st.wDay, st.wMonth, st.wYear);
+
+	//retrieve OS information...
+	char szOsInfo[512] ;
+	GetOsDescription( szOsInfo, _countof(szOsInfo) ) ;
+
+	//acquire memory statistics...
+	byte* minAddress = 0;
+	byte* maxAddress = 0;
+	size_t maxMemory = 0;
+
+	size_t committedMemoryLow = 0;
+	size_t reservedMemoryLow = 0;
+	size_t freeMemoryLow = 0;
+
+	size_t committedMemory = 0;
+	size_t freeMemory = 0;
+	size_t reservedMemory = 0;
+
+	byte* largestFreeBlockLowBase = 0;
+	size_t largestFreeBlockLowSize = 0;
+	byte* largestFreeBlockBase = 0;
+	size_t largestFreeBlockSize = 0;
+
+	{
+		SYSTEM_INFO si;
+		GetSystemInfo(&si);
+
+		minAddress = (byte*)si.lpMinimumApplicationAddress;
+		maxAddress = (byte*)si.lpMaximumApplicationAddress;
+
+		maxMemory = maxAddress - minAddress + 1;
+
+		byte* currentAddress = minAddress;
+
+		while (currentAddress < maxAddress)
+		{
+			MEMORY_BASIC_INFORMATION mInfo = { 0 };
+			VirtualQuery(currentAddress, &mInfo, sizeof(mInfo));
+
+			bool below2GB = currentAddress < (byte*)0x80000000;
+			if (below2GB && currentAddress + mInfo.RegionSize >= (byte*)0x80000000)
+				mInfo.RegionSize = (byte*)0x80000000 - currentAddress;
+			size_t adjSize = below2GB ? mInfo.RegionSize : 0;
+
+			if (mInfo.State == MEM_COMMIT)
+			{
+				committedMemory += mInfo.RegionSize;
+				committedMemoryLow += adjSize;
+			}
+			else if (mInfo.State == MEM_RESERVE)
+			{
+				reservedMemory += mInfo.RegionSize;
+				reservedMemoryLow += adjSize;
+			}
+			else
+			{
+				freeMemory += mInfo.RegionSize;
+				freeMemoryLow += adjSize;
+				if (largestFreeBlockSize < mInfo.RegionSize)
+				{
+					largestFreeBlockBase = (byte*)mInfo.BaseAddress;
+					largestFreeBlockSize = mInfo.RegionSize;
+				}
+				if (largestFreeBlockLowSize < adjSize)
+				{
+					largestFreeBlockLowBase = (byte*)mInfo.BaseAddress;
+					largestFreeBlockLowSize = adjSize;
+				}
+			}
+			currentAddress += mInfo.RegionSize;
+		}
+	}
+
+	//full path of the exe file...
+	char szExeName[MAX_PATH] = "???" ;
+	GetModuleFileNameA( NULL, szExeName, MAX_PATH) ;
+
+	char szCrashInfo[2048];
+	_snprintf_s(szCrashInfo, _countof(szCrashInfo), _TRUNCATE, 
+		"--Crash details--\n"
+		"Exception: 0x%08x (%s)\n"
+		"Location (in file): %s+0x%08x\n"
+		"Location (live memory): 0x%08x+0x%08x\n"
+		"Time: %s\n"
+		"Minidump: %s\n"
+		"OS Info: %s\n"
+		"Memory markers\n"
+		"minAddress / maxAddress / maxMemory(k)\n"
+		"0x%p / 0x%p / %u\n"
+		"committed(k) / reserved(k) / free(k)\n"
+		"Sub2G: %u / %u / %u\n"
+		"Total: %u / %u / %u\n"
+		"Largest free block: base / size(k)\n"
+		"Sub2G: 0x%p / %u\n"
+		"Total: 0x%p / %u\n"
+		"DLL-Version: %s\n"
+#ifdef VPDEBUG
+		"Configuration: DEBUG\n"
+#else
+		"Configuration: RELEASE\n"
 #endif
+		"Installation directory and .exe: %s\n\n",
+
+		exceptionCode, GetExceptionDescription(exceptionCode),
+		GetOnlyFilename(szCrashModule),exceptionAddressAdjusted-0xC00,
+		exceptionAddress,exceptionAddressAdjusted,
+		szTimestamp,
+#if defined(MOD_DEBUG_MINIDUMP)
+		((g_szLastMiniDumpPath[0] != '\0') ? GetOnlyFilename(g_szLastMiniDumpPath) : "Minidump creation failed?") ,
+#else
+		"DLL was built without minidump support!",
+#endif
+		szOsInfo,
+		minAddress, maxAddress, maxMemory>>10,
+		committedMemoryLow >> 10, reservedMemoryLow >> 10, freeMemoryLow >> 10,
+		committedMemory >> 10, reservedMemory >> 10, freeMemory >> 10,
+		largestFreeBlockLowBase, largestFreeBlockLowSize >> 10,
+		largestFreeBlockBase, largestFreeBlockSize >> 10,
+		CURRENT_GAMECORE_VERSION,
+		szExeName
+	);
+
+	HANDLE hCrashlogs = CreateFile(_T("crashlogs\\crashes.log"), FILE_APPEND_DATA, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if( hCrashlogs != INVALID_HANDLE_VALUE )
+	{
+		WriteFile(hCrashlogs, szCrashInfo, strlen(szCrashInfo), NULL, NULL);
+		CloseHandle(hCrashlogs);
+	}
+
+	// Show crash dialog to user
+	char szMessage[4096];
+	const char* szBaseMsg ;
 
 	bool bFromDLL = (_stricmp(szCrashModule, "CvGameCore_Expansion2.dll") == 0);
 	if (bFromDLL)
 	{
-		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
-			"The game has crashed due to a code error. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
-			"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n\n"
-			"==================\n"
-			"Crash details:\n"
-			"Exception: %s (0x%08X)\n"
-			"Address: 0x%p (%s)\n"
-			"%s",
-			GetExceptionDescription(exceptionCode),
-			exceptionCode,
-			exceptionAddress,
-			szCrashModule,
-			szDumpLine);
+		szBaseMsg = ""
+			"The game has crashed due to a code error in the gamecore dll. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n"
+			"\n"
+			"Please provide the VP version number, the list of other mods in use, the minidump if one one was created, crashes.log, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
+			"Minidumps and crashes.log are located in the folder 'crashlogs' in the civ5 installation directory\n"
+			"\n"
+			"%s" ;
 	}
 	else
 	{
-		_snprintf_s(szMessage, _countof(szMessage), _TRUNCATE,
-			"The game has crashed, likely due to insufficient memory. Common strategies to reduce the game's memory consumption include:\n\n"
+		szBaseMsg = ""
+			"The game has crashed for an unknown reason. If you see this popup repeatedly please create a report at https://github.com/LoneGazebo/Community-Patch-DLL/issues.\n"
+			"\n"
+			"When creating a report, please provide the VP version number, the list of other mods in use, any minidumps created, crashes.log, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
+			"Minidumps and crashes.log are located in the folder 'crashlogs' in the civ5 installation directory\n"
+			"\n"
+			"Civ5 is a 32bit program. This puts a hard limit on the amount of memory the process can use independently of your hardware. Exhaustion of memory address space may cause crashes. Common strategies to reduce memory consumption are:\n"
 			"- Disable yield icons\n"
 			"- Reduce Leader Screen Quality to Minimum\n"
 			"- Avoid zooming out too far\n"
 			"- Switch to Strategic View\n"
 			"- Disable memory-heavy mods such as InfoAddict\n"
 			"- Enable Single-Unit Graphics using the mod 'Unit Scaling and Formation for VP'\n"
-			"- If playing with EUI: Use the Non-EUI Version of Vox Populi (Reinstallation necessary, save games are compatible)\n\n"
-			"==================\n"
-			"Crash details:\n"
-			"Exception: %s (0x%08X)\n"
-			"Address: 0x%p (%s)\n",
-			GetExceptionDescription(exceptionCode),
-			exceptionCode,
-			exceptionAddress,
-			szCrashModule);
+			"- If playing with EUI: Use the Non-EUI Version of Vox Populi (Reinstallation necessary, save games are compatible)\n"
+			"\n"
+			"%s";
 	}
+
+	_snprintf_s( szMessage, _countof(szMessage), _TRUNCATE, szBaseMsg, szCrashInfo);
 
 	if (!g_bPreconditionFired)
 		MessageBoxA(NULL, szMessage, "Game Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
+#endif // WIN32
 
 //
 // allocate
 //
 void CvGlobals::init()
 {
+#ifdef WIN32
 	SetUnhandledExceptionFilter(CustomFilter);
 #if defined(MOD_DEBUG_MINIDUMP)
 #ifdef VPDEBUG
@@ -3049,7 +3226,7 @@ void CvGlobals::init()
 	m_interfacePathFinder = new CvTwoLayerPathFinder();
 	m_stepFinder = new CvStepFinder();
 }
-
+#pragma region NON_DEBUG_STUFF
 //
 // free
 //
@@ -7934,3 +8111,4 @@ bool CvGlobals::getOutOfSyncDebuggingEnabled() const
 {
 	return m_bOutOfSyncDebuggingEnabled;
 }
+#pragma endregion NON_DEBUG_STUFF
