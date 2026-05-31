@@ -96,6 +96,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGlobalMilitaryProductionModPerMajorWar(0),
 	m_iFoodKept(0),
 	m_bAirlift(false),
+	m_bSealift(false),
 	m_iAirModifier(0),
 	m_iAirModifierGlobal(0),
 	m_iNukeModifier(0),
@@ -692,6 +693,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGlobalMilitaryProductionModPerMajorWar = kResults.GetInt("GlobalMilitaryProductionModPerMajorWar");
 	m_iFoodKept = kResults.GetInt("FoodKept");
 	m_bAirlift = kResults.GetBool("Airlift");
+	m_bSealift = kResults.GetBool("Sealift");
 	m_iAirModifier = kResults.GetInt("AirModifier");
 	m_iAirModifierGlobal = kResults.GetInt("AirModifierGlobal");
 	m_iNukeModifier = kResults.GetInt("NukeModifier");
@@ -849,7 +851,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("FreeBuildingThisCity");
 	m_iFreeBuildingThisCity = GC.getInfoTypeForString(szTextVal, true);
 
-	szTextVal = kResults.GetText("FreeBuildingTradeTargetCity");
 	m_bTradeRouteInvulnerable = kResults.GetBool("TradeRouteInvulnerable");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
@@ -2333,6 +2334,11 @@ int CvBuildingEntry::GetFoodKept() const
 bool CvBuildingEntry::IsAirlift() const
 {
 	return m_bAirlift;
+}
+/// Does this building allow sealifts?
+bool CvBuildingEntry::IsSealift() const
+{
+	return m_bSealift;
 }
 
 /// Modifier to city air defense

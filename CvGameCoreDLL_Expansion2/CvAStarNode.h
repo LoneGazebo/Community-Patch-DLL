@@ -84,6 +84,10 @@ struct CvPathNodeCacheData
 	bool bCanEnterTerritoryPermanent:1;
 	bool bIsNonEnemyCity:1;
 	bool bIsEnemyCity:1;
+	bool bCanAirliftFromPlotCity:1;
+	bool bCanAirliftFromPlotImprovement:1;
+	bool bCanSealiftFromPlotCity:1;
+	bool bCanChangePortFromPlot:1;
 	bool bIsVisibleEnemyUnit:1;
 	bool bIsVisibleEnemyCombatUnit:1;
 	bool bIsVisibleNeutralCombatUnit:1;
@@ -257,6 +261,12 @@ struct SMovePlot
 
 	//for the step finder normally turns==steps, but sometimes we want effective path length from cost
 	int effectivePathLength(int iMovesPerTurn) const;
+};
+
+struct ReachablePlots_EqualRangeComparison
+{
+	bool operator() (const pair<int, size_t> a, int b) const { return a.first < b; }
+	bool operator() (int a, const pair<int, size_t> b) const { return a < b.first; }
 };
 
 class ReachablePlots

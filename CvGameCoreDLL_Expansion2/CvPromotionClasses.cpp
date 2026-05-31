@@ -3583,10 +3583,10 @@ bool CvPromotionEntry::IsUnitNaming(int i) const
 void CvPromotionEntry::GetUnitName(UnitTypes eUnit, CvString& sUnitName) const
 {
 	Database::Results kDBResults;
-	char szQuery[512] = {0};
-	sprintf_s(szQuery, "select Name from UnitPromotions_UnitName n, UnitPromotions p, Units u where n.PromotionType = p.Type and n.UnitType = u.Type and p.ID = %i and u.ID = %i;", GetID(), eUnit);
-	if(DB.Execute(kDBResults, szQuery))
+	if(DB.Execute(kDBResults, "select Name from UnitPromotions_UnitName n, UnitPromotions p, Units u where n.PromotionType = p.Type and n.UnitType = u.Type and p.ID = ? and u.ID = ?"))
 	{
+		kDBResults.Bind(1, GetID());
+		kDBResults.Bind(2, (int)eUnit);
 		while(kDBResults.Step())
 		{
 			sUnitName = kDBResults.GetText("Name");

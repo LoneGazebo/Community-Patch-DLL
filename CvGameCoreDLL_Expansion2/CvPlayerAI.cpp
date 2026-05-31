@@ -1310,7 +1310,7 @@ void CvPlayerAI::CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot
 	CvArmyAI* pThisArmy = getArmyAI(thisSlot.m_iArmyID);
 	if(pThisOperation && pThisArmy && pThisUnit)
 	{
-		pThisArmy->AddUnit(pThisUnit->GetID(), thisSlot.m_iSlotID,true);
+		pThisArmy->AddUnit(pThisUnit->GetID(), thisSlot.m_iSlotID, pThisArmy->GetSlotInfo(thisSlot.m_iSlotID).m_requiredSlot);
 		pThisOperation->FinishedBuildingUnit(thisSlot);
 	}
 }
@@ -2319,20 +2319,82 @@ const vector<CvCity*> CvPlayerAI::GetBestCitiesForSpaceshipParts()
 	return vpCitiesForSpaceshipParts;
 }
 
+
+//	--------------------------------------------------------------------------------
+/// planner for AI utopia project production: returns the city in which utopia project should be built
+CvCity* CvPlayerAI::GetBestCityForUtopiaProject()
+{
+	ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
+	if (eUtopia == NO_PROJECT)
+		return NULL;
+
+	if (!canCreate(eUtopia))
+		return NULL;
+
+	// find the city in which we can produce it the fastest
+	int iBestCityProductionTurns = INT_MAX;
+	CvCity* pBestCity = NULL;
+
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsPuppet())
+			continue;
+
+		if (pLoopCity->isUnderSiege())
+			continue;
+
+		if (pLoopCity->IsResistance() || pLoopCity->IsRazing() || pLoopCity->isInDangerOfFalling())
+			continue;
+
+		// building a spaceship part?
+		if (pLoopCity->isProductionSpaceshipPart())
+			continue;
+
+		if (!pLoopCity->canCreate(eUtopia))
+			continue;
+
+		// we can consider this city for utopia, check how many turns it would take to build it
+		
+		// temporarily change city focus to production before calculating production turns
+		CityAIFocusTypes eCurrentFocus = pLoopCity->GetCityCitizens()->GetFocusType();
+		pLoopCity->GetCityCitizens()->SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION, true);
+		int iProductionTurns = pLoopCity->getProductionTurnsLeft(eUtopia, 0);
+		// change city focus back to what it was before
+		pLoopCity->GetCityCitizens()->SetFocusType(eCurrentFocus, true);
+
+		if (iProductionTurns < iBestCityProductionTurns)
+		{
+			iBestCityProductionTurns = iProductionTurns;
+			pBestCity = pLoopCity;
+		}
+	}
+
+	return pBestCity;
+}
+
 //	--------------------------------------------------------------------------------
 /// if going for spaceship victory, the results from GetBestCitiesForSpaceshipParts are used to overwrite normal AI city production selection
-void CvPlayerAI::AI_doSpaceshipProduction()
+void CvPlayerAI::AI_doSpaceshipAndUtopiaProduction()
 {
 	if (isHuman(ISHUMAN_AI_CITY_PRODUCTION) || isMinorCiv())
 		return;
 
-	if (GetNumSpaceshipPartsBuildableNow(true) == 0)
+	bool bCanBuildUtopia = false;
+	ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
+	if (MOD_BALANCE_CULTURE_VICTORY_CHANGES && eUtopia != NO_PROJECT)
+	{
+		bCanBuildUtopia = canCreate(eUtopia);
+	}
+
+	if (!bCanBuildUtopia && GetNumSpaceshipPartsBuildableNow(true) == 0)
 		return;
 
 	// calculate cities to build spaceship parts in
 	const vector<CvCity*> vBestCitiesForSpaceshipParts = GetBestCitiesForSpaceshipParts();
+	CvCity* pBestCityForUtopia = GetBestCityForUtopiaProject();
 
-	// cancel spaceship part production in cities that are not considered the best cities (have to do this first to make the parts available)
+	// cancel spaceship part and utopia production in cities that are not considered the best cities (have to do this first to make the parts available)
 	CvString strOutBuf;
 	int iLoop = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -2350,13 +2412,22 @@ void CvPlayerAI::AI_doSpaceshipProduction()
 				}
 			}
 		}
+		if (eUtopia != NO_PROJECT && pLoopCity->getProductionProject() == eUtopia && pLoopCity != pBestCityForUtopia)
+			pLoopCity->clearOrderQueue();
 	}
 
-	// which of the best cities are not building spaceship parts?
+	// build utopia project in the best city
+	if (pBestCityForUtopia && pBestCityForUtopia->getProductionProject() != eUtopia)
+		pBestCityForUtopia->pushOrder(ORDER_CREATE, eUtopia, -1, false, true, false, false);
+
+	// which of the best cities for spaceship parts are not building spaceship parts?
 	vector<CvCity*> vCitiesForAvailableSpaceshipParts;
 	int iLoop2 = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop2); pLoopCity != NULL; pLoopCity = nextCity(&iLoop2))
 	{
+		if (pLoopCity == pBestCityForUtopia)
+			continue;
+
 		if (find(vBestCitiesForSpaceshipParts.begin(), vBestCitiesForSpaceshipParts.end(), pLoopCity) != vBestCitiesForSpaceshipParts.end())
 		{
 			// is the city producing a spaceship unit? continue doing so

@@ -3723,11 +3723,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			{
 				iSpecialistYield = pkSpecialistInfo->getYieldChange(eYield);
 
-				if (eYield == YIELD_CULTURE)
-				{
-					iSpecialistYield += pkSpecialistInfo->getCulturePerTurn();
-				}
-
 				// Laborers don't get any non-specific specialist boosts
 				if (eSpecialist != GD_INT_GET(DEFAULT_SPECIALIST))
 					iSpecialistYield += kPlayer.getSpecialistExtraYield(eYield);

@@ -6,7 +6,7 @@ SET
 	GreatPersonGiftInfluence = 0,
 	DOFGreatPersonModifier = 0,
 	GreatGeneralExtraBonus = 15,
-	XPBonusFromGreatPersonBirth = 2,
+	XPBonusFromGreatPersonBirth = 3,
 	UnitHealFromGreatPersonBirth = 10
 WHERE Type = 'TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
@@ -143,4 +143,4 @@ VALUES
 INSERT INTO Building_YieldFromGPExpend
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_BASTU', 'YIELD_CULTURE', 8);
+	('BUILDING_BASTU', 'YIELD_CULTURE', 12);

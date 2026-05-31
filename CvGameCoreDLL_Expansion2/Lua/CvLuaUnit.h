@@ -90,6 +90,8 @@ protected:
 
 	static int lCanAirlift(lua_State* L);
 	static int lCanAirliftAt(lua_State* L);
+	static int lCanSealift(lua_State* L);
+	static int lCanSealiftAt(lua_State* L);
 
 	static int lIsNukeVictim(lua_State* L);
 	static int lCanNuke(lua_State* L);
@@ -111,8 +113,8 @@ protected:
 	LUAAPIEXTN(CanCreateGreatWork, bool, pPlot);
 	LUAAPIEXTN(CreateGreatWork, bool);
 	LUAAPIEXTN(greatperson, bool);
-	static int lGetCombatVersusOtherReligionOwnLands(lua_State* L);
-	static int lGetCombatVersusOtherReligionTheirLands(lua_State* L);
+	static int lGetReligionCombatBonusOwnLands(lua_State* L);
+	static int lGetReligionCombatBonusTheirLands(lua_State* L);
 
 	static int lGetExoticGoodsGoldAmount(lua_State* L);
 	static int lGetExoticGoodsXPAmount(lua_State* L);

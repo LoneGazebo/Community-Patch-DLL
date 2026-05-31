@@ -4000,6 +4000,9 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
 	{
 		eResource = (ResourceTypes)iI;
+		if (GET_TEAM(pPlayer->getTeam()).IsResourceObsolete(eResource))
+			continue;
+
 		if (PolicyInfo->GetResourceFromCSAlly(eResource) != 0)
 		{
 			if (pPlayerTraits->IsDiplomat())
@@ -4009,6 +4012,28 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			else
 			{
 				yield[YIELD_GOLD] += PolicyInfo->GetResourceFromCSAlly(eResource) / 15;
+			}
+		}
+		if (PolicyInfo->GetFreeResource(eResource) != 0)
+		{
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				if (pPlayer->getNumResourceAvailable(eResource, false) == 0)
+				{
+					yield[YIELD_GOLD] += 100 + (PolicyInfo->GetFreeResource(eResource) - 1) * 10;
+				}
+				else
+				{
+					yield[YIELD_GOLD] += PolicyInfo->GetFreeResource(eResource) * 10;
+				}
+			}
+			else if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+			{
+				for (int iCnt = 0; iCnt < PolicyInfo->GetFreeResource(eResource); iCnt++)
+				{
+					yield[YIELD_PRODUCTION] += 50 * max(1, 10 - pPlayer->getNumResourceAvailable(eResource, false) - iCnt);
+				}
 			}
 		}
 

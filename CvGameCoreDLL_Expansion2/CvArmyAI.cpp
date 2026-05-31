@@ -478,7 +478,7 @@ int CvArmyAI::GetTotalPower()
 CvFormationSlotEntry CvArmyAI::GetSlotInfo(size_t iSlotID) const
 {
 	CvMultiUnitFormationInfo* thisFormation = GetFormation();
-	if (thisFormation && iSlotID >= 0 && iSlotID < thisFormation->getNumFormationSlotEntries())
+	if (thisFormation && iSlotID < thisFormation->getNumFormationSlotEntries())
 		return thisFormation->getFormationSlotEntry(iSlotID);
 
 	return CvFormationSlotEntry();

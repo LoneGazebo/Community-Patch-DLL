@@ -862,7 +862,13 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 		end
 
 		if not kUnitInfo.PurchaseOnly then
-			AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_PRODUCTION", iProductionCost);
+			-- if production cost scales with era, it wouldn't be shown in pedia tooltip (no active city)
+			local iScalingProd = kUnitInfo.ProductionCostAddedPerEra;
+			if (iScalingProd > 0) and (not pActiveCity) then
+				AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_PRODUCTION_ADDED_PER_ERA", iProductionCost, iScalingProd);
+			else
+				AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_PRODUCTION", iProductionCost);
+			end
 		end
 		AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_GOLD", iGoldCost);
 		AddTooltipPositive(tCosts, "TXT_KEY_PRODUCTION_COST_FAITH", iFaithCost);
@@ -962,10 +968,11 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_MISSION_SPREAD_RELIGION", kUnitInfo.SpreadReligion);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_MISSION_REMOVE_HERESY", kUnitInfo.RemoveHeresy);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_MISSION_FOUND_RELIGION", kUnitInfo.FoundReligion);
-	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE", kUnitInfo.CulExpOnDisbandUpgrade);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_EXTRA_PLUNDER_GOLD", kUnitInfo.HighSeaRaider);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_EXPEND_COPY_TILE_YIELD", kUnitInfo.CopyYieldsFromExpendTile);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_MOVE_AFTER_UPGRADE", kUnitInfo.MoveAfterUpgrade);
+	
+	AddTooltipPositive(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE", kUnitInfo.CulExpOnDisbandUpgrade);
 
 	-- Block/weaken active spread
 	if kUnitInfo.ProhibitsSpread then
@@ -1321,22 +1328,25 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 		-- Policy requirement
 		if kUnitInfo.PolicyType then
-			-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
-			local bOpenerOrFinisher = false;
-			for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
-				if kPolicyBranchInfo.FreePolicy == kUnitInfo.PolicyType then
-					bOpenerOrFinisher = true;
-					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_OPENER", kPolicyBranchInfo.Description);
-					break;
+			-- Don't display dummy policies
+			if GameInfo.Policies[kUnitInfo.PolicyType].IsDummy == false then
+				-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
+				local bOpenerOrFinisher = false;
+				for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
+					if kPolicyBranchInfo.FreePolicy == kUnitInfo.PolicyType then
+						bOpenerOrFinisher = true;
+						AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_OPENER", kPolicyBranchInfo.Description);
+						break;
+					end
+					if kPolicyBranchInfo.FreeFinishingPolicy == kUnitInfo.PolicyType then
+						bOpenerOrFinisher = true;
+						AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_COMPLETION", kPolicyBranchInfo.Description);
+						break;
+					end
 				end
-				if kPolicyBranchInfo.FreeFinishingPolicy == kUnitInfo.PolicyType then
-					bOpenerOrFinisher = true;
-					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_COMPLETION", kPolicyBranchInfo.Description);
-					break;
+				if not bOpenerOrFinisher then
+					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kUnitInfo.PolicyType].Description);
 				end
-			end
-			if not bOpenerOrFinisher then
-				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kUnitInfo.PolicyType].Description);
 			end
 		end
 
@@ -1463,8 +1473,9 @@ end
 --- @param pCity City?
 --- @param bGeneralInfo boolean? If true, don't compute any info that's player/city-specific. The `pCity` parameter is ignored. Defaults to true if the `Game` object doesn't exist.
 --- @param bShowProjectedYields boolean? If true, show projected yields when this building is built in `pCity`.
+--- @param bOnlyYieldsAndEffects boolean? If true, show only yields and effects of the buildings, not costs and requirements
 --- @return string
-function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCity, bGeneralInfo, bShowProjectedYields)
+function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCity, bGeneralInfo, bShowProjectedYields, bOnlyYieldsAndEffects)
 	local kBuildingInfo = GameInfo.Buildings[eBuilding];
 
 	--- @type Player?
@@ -1564,6 +1575,20 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		strYieldColumnName = strYieldColumnName or "Yield";
 		for row in GameInfo[strDatabaseTable]{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
 			tYieldTable[eYield] = row[strYieldColumnName];
+		end
+	end
+
+	--- Given a database table with BuildingType, YieldType and Yield where Yields are stored in Times100 format, extract all entries of the given building/yield pair.
+	--- Duplicate rows are overwritten.
+	--- @param tYieldTable table<integer, integer> The yield table, could be empty or partially filled
+	--- @param strDatabaseTable string The name of the database table to be extracted
+	--- @param kYieldInfo table The yield entry
+	--- @param strYieldColumnName string|nil The name of the yield column (default "Yield" if nil)
+	local function ExtractSimpleYieldTableTimes100(tYieldTable, strDatabaseTable, kYieldInfo, strYieldColumnName)
+		local eYield = kYieldInfo.ID;
+		strYieldColumnName = strYieldColumnName or "Yield";
+		for row in GameInfo[strDatabaseTable]{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
+			tYieldTable[eYield] = row[strYieldColumnName] / 100;
 		end
 	end
 
@@ -1812,7 +1837,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	if next(tHeaderLines) then
+	if not bOnlyYieldsAndEffects and next(tHeaderLines) then
 		table.insert(tLines, table.concat(tHeaderLines, "[NEWLINE]"));
 	end
 
@@ -1898,7 +1923,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			GameInfo.Resolutions[kSpecialSessionInfo.TriggerResolution].Description);
 	end
 
-	if next(tStatLines) then
+	if not bOnlyYieldsAndEffects and next(tStatLines) then
 		table.insert(tLines, table.concat(tStatLines, "[NEWLINE]"));
 	end
 
@@ -2500,7 +2525,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipSimpleYieldModifierTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_GOLDEN_AGE", tGoldenAgeModifiers);
 		AddTooltipSimpleYieldModifierTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_WLTKD", tWLTKDModifiers);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FAITH_PURCHASABLE_BUILDING_YIELDS", tFaithPurchasableBuildings);
-		AddTooltipSimpleYieldBoostTable(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FAITH_PURCHASABLE_BUILDING_YIELDS", tFaithPurchasableBuildingsGlobal);
+		AddTooltipSimpleYieldBoostTableGlobal(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FAITH_PURCHASABLE_BUILDING_YIELDS", tFaithPurchasableBuildingsGlobal);
 
 		-- Process boosts (both conversion rate and need modifier)
 		for row in GameInfo.Building_YieldFromProcessModifier{BuildingType = kBuildingInfo.Type} do
@@ -2838,6 +2863,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_ITR_PRODUCTION", kBuildingInfo.AllowsProductionTradeRoutes);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_EXTRA_LUXURIES", kBuildingInfo.ExtraLuxuries);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_AIRLIFT", kBuildingInfo.Airlift);
+	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_SEALIFT", kBuildingInfo.Sealift);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_REMOVE_OCCUPIED_UNHAPPINESS", kBuildingInfo.NoOccupiedUnhappiness);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_ADD_FRESH_WATER", kBuildingInfo.AddsFreshWater);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GAINLESS_PILLAGE", kBuildingInfo.CityGainlessPillage);
@@ -3156,7 +3182,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	local strInvestKey = MOD_BALANCE_BUILDING_INVESTMENTS and "TXT_KEY_PRODUCTION_PUPPET_INVESTABLE" or "TXT_KEY_PRODUCTION_PUPPET_PURCHASABLE";
 	AddTooltipIfTrue(tReqLines, strInvestKey, kBuildingInfo.PuppetPurchaseOverride);
 
-	if not pCity then
+	if not pCity and not bOnlyYieldsAndEffects then
 		-- Simple (boolean) requirements
 		AddTooltipIfTrue(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_CAPITAL", kBuildingInfo.CapitalOnly);
 		AddTooltipIfTrue(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_HOLY_CITY", kBuildingInfo.HolyCity);
@@ -3304,22 +3330,25 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 		-- Policy requirement
 		if kBuildingInfo.PolicyType then
-			-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
-			local bOpenerOrFinisher = false;
-			for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
-				if kPolicyBranchInfo.FreePolicy == kBuildingInfo.PolicyType then
-					bOpenerOrFinisher = true;
-					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_OPENER", kPolicyBranchInfo.Description);
-					break;
+			-- Don't display dummy policies
+			if GameInfo.Policies[kBuildingInfo.PolicyType].IsDummy == false then
+				-- Is this an opener or finisher? Assume openers and finishers are distinct across policy branches
+				local bOpenerOrFinisher = false;
+				for _, kPolicyBranchInfo in GameInfoCache("PolicyBranchTypes") do
+					if kPolicyBranchInfo.FreePolicy == kBuildingInfo.PolicyType then
+						bOpenerOrFinisher = true;
+						AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_OPENER", kPolicyBranchInfo.Description);
+						break;
+					end
+					if kPolicyBranchInfo.FreeFinishingPolicy == kBuildingInfo.PolicyType then
+						bOpenerOrFinisher = true;
+						AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_COMPLETION", kPolicyBranchInfo.Description);
+						break;
+					end
 				end
-				if kPolicyBranchInfo.FreeFinishingPolicy == kBuildingInfo.PolicyType then
-					bOpenerOrFinisher = true;
-					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY_BRANCH_COMPLETION", kPolicyBranchInfo.Description);
-					break;
+				if not bOpenerOrFinisher then
+					AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kBuildingInfo.PolicyType].Description);
 				end
-			end
-			if not bOpenerOrFinisher then
-				AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_POLICY", GameInfo.Policies[kBuildingInfo.PolicyType].Description);
 			end
 		end
 
@@ -3525,7 +3554,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		table.insert(tReqLines, string.format("%s %s", L("TXT_KEY_PRODUCTION_MAX_PLAYER_INSTANCE", iMaxPlayerInstance), strExtraInstance));
 	end
 
-	if next(tReqLines) then
+	if not bOnlyYieldsAndEffects and next(tReqLines) then
 		table.insert(tLines, table.concat(tReqLines, "[NEWLINE]"));
 	end
 
@@ -3621,7 +3650,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 
 			if not (pActivePlayer and pActivePlayer:HasReachedEra(iNumEras - 1)) then
-				ExtractSimpleYieldTable(tEraBoosts, "Building_YieldChangesEraScalingTimes100", kYieldInfo);
+				ExtractSimpleYieldTableTimes100(tEraBoosts, "Building_YieldChangesEraScalingTimes100", kYieldInfo);
 				ExtractSimpleYieldTable(tEraModifierBoosts, "Building_YieldModifiersEraScaling", kYieldInfo);
 			end
 
@@ -3965,7 +3994,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	if next(tExtraInstanceLines) then
+	if not bOnlyYieldsAndEffects and next(tExtraInstanceLines) then
 		table.insert(tBoostLines, table.concat(tExtraInstanceLines, "[NEWLINE]"));
 	end
 
@@ -4018,7 +4047,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		end
 	end
 
-	if pCity then
+	if not bOnlyYieldsAndEffects and pCity then
 		-- Investment rules (for unbuilt buildings only)
 		if MOD_BALANCE_BUILDING_INVESTMENTS and pCity:GetNumRealBuilding(eBuilding) <= 0 and pCity:GetNumFreeBuilding(eBuilding) <= 0 then
 			local iAmount = BALANCE_BUILDING_INVESTMENT_BASELINE * -1;
@@ -4175,12 +4204,8 @@ function GetHelpTextForSpecialist(eSpecialist, pCity)
 	local kGreatPersonInfo = GetGreatPersonInfoFromSpecialist(kSpecialistInfo.Type);
 	local strTooltip = L(kSpecialistInfo.Description);
 
-	local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(eSpecialist);
 	for eYield, kYieldInfo in GameInfoCache("Yields") do
 		local iYield = pCity:GetSpecialistYield(eSpecialist, eYield) + pCity:GetSpecialistYieldChange(eSpecialist, eYield);
-		if eYield == YieldTypes.YIELD_CULTURE then
-			iYield = iYield + iCultureFromSpecialist;
-		end
 		if iYield > 0 then
 			strTooltip = string.format("%s +%d%s", strTooltip, iYield, kYieldInfo.IconString);
 		end

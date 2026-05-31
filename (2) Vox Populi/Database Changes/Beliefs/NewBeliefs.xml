@@ -79,6 +79,13 @@
 			<Pantheon>true</Pantheon>
 			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
 		</Row>
+		<!-- New founder beliefs -->
+		<Row>
+			<Type>BELIEF_CITY_OF_GOD</Type>
+			<Description>TXT_KEY_BELIEF_CITY_OF_GOD</Description>
+			<ShortDescription>TXT_KEY_BELIEF_CITY_OF_GOD_SHORT</ShortDescription>
+			<Founder>true</Founder>
+		</Row>
 		<!-- New follower beliefs -->
 		<Row>
 			<Type>BELIEF_GURDWARA</Type>
@@ -97,6 +104,20 @@
 			<Description>TXT_KEY_BELIEF_COMMUNALISM</Description>
 			<ShortDescription>TXT_KEY_BELIEF_COMMUNALISM_SHORT</ShortDescription>
 			<Follower>true</Follower>
+		</Row>
+		<!-- New enhancer beliefs -->
+		<Row>
+			<Type>BELIEF_ANIMISM</Type>
+			<Description>TXT_KEY_BELIEF_ANIMISM</Description>
+			<ShortDescription>TXT_KEY_BELIEF_ANIMISM_SHORT</ShortDescription>
+			<Enhancer>true</Enhancer>
+		</Row>
+		<!-- New reformation beliefs -->
+		<Row>
+			<Type>BELIEF_WORK_ETHIC</Type>
+			<Description>TXT_KEY_BELIEF_WORK_ETHIC</Description>
+			<ShortDescription>TXT_KEY_BELIEF_WORK_ETHIC_SHORT</ShortDescription>
+			<Reformation>true</Reformation>
 		</Row>
 	</Beliefs>
 </GameData>

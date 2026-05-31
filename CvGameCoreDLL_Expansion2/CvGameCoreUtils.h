@@ -16,6 +16,14 @@
 #undef min
 
 void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine, const char* msg);
+const char* ShortenFilePath(const char* szFile);
+
+// Get the last minidump path (returns NULL if no dump has been created)
+#if defined(MOD_DEBUG_MINIDUMP)
+const char* GetLastMiniDumpPath();
+#endif
+
+void SetPreconditionFired();
 
 inline int sqrti(int input)
 {
@@ -488,6 +496,8 @@ public:
 	inline bool operator<=(const fraction &rhs) const { return operator<(rhs) || operator==(rhs); };
 	inline bool operator>=(const fraction &rhs) const { return !operator<(rhs); };
 	inline bool operator>(const fraction &rhs) const { return !operator<(rhs) && !operator==(rhs); };
+	inline int getDen() const { return den; };
+	inline int getNum() const { return num; };
 	
 	friend fraction abs(const fraction &lhs);
 	friend bool operator==(const int lhs, const fraction &rhs);

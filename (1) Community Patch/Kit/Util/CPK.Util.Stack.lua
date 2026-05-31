@@ -1,34 +1,36 @@
 local lua_setmetatable = setmetatable
-local lua_table_remove = table.remove
 
+--- LIFO stack. Items are pushed and popped from the same end (top).
 --- @generic T
 --- @class Stack<T>
---- @field protected items any[]
+--- @field protected items T[]
 --- @field protected count integer
+--- @field public Pop fun(self: Stack<T>): T | nil
+--- @field public Peek fun(self: Stack<T>): T | nil
+--- @field public Push fun(self: Stack<T>, item: T): Stack<T>
+--- @field public Size fun(self: Stack<T>): integer
+--- @field public Empty fun(self: Stack<T>): boolean
 local StackImpl = {}
 
 --- Removes and returns the value from the top of the stack.
---- @return any
 function StackImpl:Pop()
-	if self.count <= 0 then
-		return nil
-	end
+	if self.count <= 0 then return nil end
 
-	local item = lua_table_remove(self.items)
+	local item = self.items[self.count]
+
+	self.items[self.count] = nil
 	self.count = self.count - 1
 
 	return item
 end
 
 --- Returns the value at the top of the stack without removing it.
---- @return T
 function StackImpl:Peek()
 	return self.items[self.count]
 end
 
 --- Adds one value to the top of the stack.
 --- If value is nil then does nothing.
---- @param item any
 function StackImpl:Push(item)
 	if item ~= nil then
 		self.count = self.count + 1
@@ -39,15 +41,13 @@ function StackImpl:Push(item)
 end
 
 --- Returns the number of items currently in the stack.
---- @return integer # The number of items.
 function StackImpl:Size()
 	return self.count
 end
 
 --- Checks if the stack is empty (has 0 items).
---- @return boolean
 function StackImpl:Empty()
-	return self.items[1] == nil
+	return self.count <= 0
 end
 
 --- @class StackMeta
@@ -57,10 +57,8 @@ local StackMeta = {}
 StackMeta.__index = StackImpl
 
 --- Creates a new, empty stack.
---- @generic T
---- @param _ nil | `T`
---- @return Stack<T>
-function StackMeta.New(_)
+--- @return Stack<unknown>
+function StackMeta.New()
 	local this = {
 		count = 0,
 		items = {}

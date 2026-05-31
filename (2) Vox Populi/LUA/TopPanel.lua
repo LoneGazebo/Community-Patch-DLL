@@ -901,9 +901,14 @@ function HappinessTipHandler( control )
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", ResourceHappiness, AvgResourceHappiness);
 			end
 
-			local NaturalWonderAndLandmarkHappiness = pPlayer:GetHappinessFromNaturalWonders();
-			if (NaturalWonderAndLandmarkHappiness ~= 0) then
-				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", NaturalWonderAndLandmarkHappiness);
+			local NaturalWonderHappiness = pPlayer:GetHappinessFromNaturalWonders();
+			if (NaturalWonderHappiness ~= 0) then
+				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", NaturalWonderHappiness);
+			end
+
+			local ImprovementHappiness = pPlayer:GetHappinessFromImprovements();
+			if (ImprovementHappiness ~= 0) then
+				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_IMPROVEMENTS", ImprovementHappiness);
 			end
 
 			local ReligionHappiness = pPlayer:GetHappinessFromReligion();
@@ -1034,7 +1039,7 @@ function HappinessTipHandler( control )
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_RELIGIOUS_UNREST", ReligiousUnrestUnhappiness);
 			end
 
-			local UrbanizationUnhappiness = pPlayer:GetUnhappinessFromCitySpecialists() / 100;
+			local UrbanizationUnhappiness = pPlayer:GetUnhappinessFromCitySpecialists();
 			if (UrbanizationUnhappiness ~= 0) then
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", UrbanizationUnhappiness);
 			end
@@ -1469,29 +1474,6 @@ function InstantYieldHandler( control )
     -- Autosize tooltip
     tipControlTable.TopPanelMouseover:DoAutoSize();
 end
-
--- Spy Points Tooptip (hidden for now)
---[[function SpyPointsTipHandler( control )
-
-	local iPlayerID = g_activePlayerObserver;
-	local pPlayer = Players[iPlayerID];
-	local strSpiesStr;
-	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or Game.GetSpyThreshold() == 0) then
-		strSpiesStr = "";
-	else
-		strSpiesStr = Locale.ConvertTextKey("TXT_KEY_SPY_POINTS_TT", pPlayer:GetSpyPoints(false), Game.GetSpyThreshold(), pPlayer:GetSpyPoints(true));
-	end
-
-	if(strSpiesStr ~= "") then
-		tipControlTable.TopPanelMouseover:SetHide(false);
-		tipControlTable.TooltipLabel:SetText( strSpiesStr );
-	else
-		tipControlTable.TopPanelMouseover:SetHide(true);
-	end
-    
-    -- Autosize tooltip
-    tipControlTable.TopPanelMouseover:DoAutoSize();
-end]]
 
 -- Resources Tooltip
 function ResourcesTipHandler( control )

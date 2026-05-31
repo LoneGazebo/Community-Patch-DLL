@@ -1,0 +1,54 @@
+<Asset>
+	<Mesh file="ambassador.gr2"/>
+	<Animation file="Archeologist_IdleA.gr2" ec="1000"/>
+	<Animation file="Archeologist_FidgetA.gr2" ec="1040"/>
+	<Animation file="Archeologist_IdleA_Trans_IdleB.gr2" ec="1020"/>
+	<Animation file="Archeologist_IdleB.gr2" ec="2000"/>
+	<Animation file="Archeologist_FidgetB.gr2" ec="2040"/>
+	<Animation file="Archeologist_IdleB_Trans_IdleA.gr2" ec="2020"/>
+	<Animation file="Archeologist_Fortify.gr2" ec="1500"/>
+	<Animation file="Archeologist_Fortify_Idle.gr2" ec="1520"/>
+	<Animation file="Archeologist_Fortify_Idle_Trans_IdleA.gr2" ec="1580"/>
+	<Animation file="Archeologist_Run.gr2" ec="1400"/>
+	<Animation file="Archeologist_Stop_Run.gr2" ec="1440"/>
+	<Animation file="Archeologist_Build_activate_idle.gr2" ec="1995"/>
+	<Animation file="Archeologist_Shovel.gr2" ec="1910"/>
+	<Animation file="Archeologist_Rake.gr2" ec="1920"/>
+	<Animation file="Archeologist_Axe.gr2" ec="1930"/>
+	<Animation file="Archeologist_Pickaxe.gr2" ec="1940"/>
+	<Animation file="Archeologist_Hammer.gr2" ec="1950"/>
+	<Animation file="Archeologist_Railroad.gr2" ec="1960"/>
+	<Animation file="Archeologist_Bombard_Defense.gr2" ec="1280"/>
+	<Animation file="Archeologist_Bombard_Defense_Idle.gr2" ec="1285"/>
+	<Animation file="Archeologist_Bombard_Defense_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="Archeologist_DeathA.gr2" ec="1200"/>
+	<Animation file="Archeologist_DeathA_Idle.gr2" ec="1220"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<Texture file="Archeologist_DIFF.dds"/>
+	<Texture file="Archeologist_SREF.dds"/>
+	<AnimGraph file="WORKER_EXIT_SLEEP.dge"/>
+	<AnimGraph file="WORKER_ENTER_SLEEP.dge"/>
+	<AnimGraph file="FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="WORKER_ENTER_WORK.dge"/>
+	<AnimGraph file="WORKER_EXIT_WORK.dge"/>
+	<AnimGraph file="WORKER_WORK.dge"/>
+	<AnimGraph file="TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="RUNNING_LOOP_GRAPH.dge"/>
+	<AnimGraph file="IDLE_GRAPH.dge"/>
+	<AnimGraph file="FIDGETS_GRAPH.dge"/>
+	<AnimGraph file="STOP_RUNNING_CIVILIAN.dge"/>
+	<AnimGraph file="RUN_START_CIVILIAN.dge"/>
+	<AnimGraph file="CAPTURED.dge"/>
+	<StateMachine file="WORKER_STATE.fsmxml"/>
+	<AnimGraph file="BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="CIVILIAN_ENTER_BOMBARD_DEFEND.dge"/>
+	<AnimGraph file="CIVILIAN_DEATH_FINAL.dge"/>
+	<BoneUsage>
+		<Bone name="WORLD_center"/>
+	</BoneUsage>
+	<TimedTrigger file="FX_Triggers_Archeologist.ftsxml"/>
+</Asset>
+

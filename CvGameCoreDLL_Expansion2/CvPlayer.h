@@ -101,7 +101,7 @@ public:
 	void addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount, bool bCompleteKills = false);
 	CvPlot* addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUnitAI = NO_UNITAI, bool bCompleteKills = false);
 
-	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
+	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnit* pkSettler = NULL);
 
 	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bOriginally);
 	bool IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bConquest);
@@ -245,7 +245,7 @@ public:
 	bool hasReadyUnit() const;
 	int GetCountReadyUnits(bool bCreatedThisTurnSlice = false) const;
 	const CvUnit* GetFirstReadyUnit() const;
-	void EndTurnsForReadyUnits(bool bLinkedUnitsOnly = false);
+	void EndTurnsForReadyUnits(bool bSendNetworkMessage = false, bool bLinkedUnitsOnly = false);
 	bool hasAutoUnit() const;
 	bool hasBusyUnit() const;
 	const CvUnit* getBusyUnit() const;
@@ -318,7 +318,7 @@ public:
 	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, CvString* toolTipSink = NULL) const;
 	bool canFoundCity(int iX, int iY) const;
 
-	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
+	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnit* pkSettler = NULL);
 
 	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, bool bIgnoreTechRequirements = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
@@ -656,10 +656,10 @@ public:
 	int GetExtraHappinessPerCity() const;
 	void ChangeExtraHappinessPerCity(int iChange);
 	fraction GetExtraHappinessPolicies() const;
-	void ChangeExtraHappinessPolicies(fraction iChange);
+	void ChangeExtraHappinessPolicies(fraction fChange);
 
 	fraction GetExtraHappinessPoliciesFromPolicies() const;
-	void ChangeExtraHappinessPoliciesFromPolicies(fraction iChange);
+	void ChangeExtraHappinessPoliciesFromPolicies(fraction fChange);
 
 	int GetHappinessPerXGreatWorks() const;
 	void ChangeHappinessPerXGreatWorks(int iChange);
@@ -669,6 +669,7 @@ public:
 	int GetHappinessFromResourceVariety() const;
 	int GetHappinessFromReligion();
 	int GetHappinessFromNaturalWonders() const;
+	int GetHappinessFromImprovements() const;
 	void SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue);
 
 	void ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue);
@@ -1312,6 +1313,9 @@ public:
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
 
+	bool IsBorderSettle() const;
+	void SetBorderSettle(int iValue);
+
 	bool IsOnlyTradeSameIdeology() const;
 	void ChangeOnlyTradeSameIdeology(int iChange);
 	
@@ -1429,6 +1433,10 @@ public:
 	void ChangeEventTourism(int iChange);
 	int GetEventTourism() const;
 	void SetEventTourism(int iChange);
+
+	void ChangeReligionSpreadTourism(int iChange);
+	int GetReligionSpreadTourism() const;
+	void SetReligionSpreadTourism(int iChange);
 
 	int GlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest) const;
 	void SetGlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest, int iValue);
@@ -1958,7 +1966,7 @@ public:
 	// Science
 
 	int GetScience() const;
-	int GetScienceTimes100() const;
+	int GetScienceTimes100(bool bExcludeResearchAgreements = false) const;
 
 
 	int GetScienceFromCitiesTimes100(bool bIgnoreTrade) const;
@@ -2011,6 +2019,9 @@ public:
 
 	pair<int,int> GetClosestCityPair(PlayerTypes ePlayer);
 	void DoUpdateProximityToPlayers();
+
+	void SetLastTurnYieldsTimes100(YieldTypes eYield, int iValueTimes100);
+	int GetLastTurnYieldsTimes100(YieldTypes eYield) const;
 
 	void UpdateResearchAgreements(int iValue);
 	int GetResearchAgreementCounter(PlayerTypes ePlayer) const;
@@ -2075,7 +2086,9 @@ public:
 
 	int getResourceFromCSAlliances(ResourceTypes eIndex) const;
 	void changeResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
-	void setResourceFromCSAlliances(ResourceTypes eIndex, int iChange);
+
+	int getFreeResourceFromPolicies(ResourceTypes eIndex) const;
+	void changeFreeResourceFromPolicies(ResourceTypes eIndex, int iChange);
 
 	const std::vector<ResourceTypes>& GetResourcesNotForSale() const { return m_vResourcesNotForSale; }
 	bool IsResourceNotForSale(ResourceTypes eResource);
@@ -2461,8 +2474,8 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
-	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction = AIR_ACTION_ATTACK);
-	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL);
+	int GetPlotDanger(const CvPlot& Plot, const CvUnit* pUnit, const SUnitIDValueContainer& unitDamageDealt = SUnitIDValueContainer(), int iExtraDamage = 0, AirActionType iAirAction = AIR_ACTION_ATTACK);
+	int GetPlotDanger(const CvCity* pCity, const CvUnit* pPretendGarrison = NULL, const SUnitIDValueContainer& unitDamageDealt = SUnitIDValueContainer());
 	int GetPlotDanger(const CvPlot& Plot, bool bFixedDamageOnly);
 	bool IsVanishedUnit(const IDInfo& id) const;
 	std::vector<CvUnit*> GetPossibleAttackers(const CvPlot& Plot, TeamTypes eTeamForVisibilityCheck);
@@ -2502,6 +2515,7 @@ public:
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
+	const std::vector<TeamTypes>& GetTeamsAtWarWith() const { return m_teamsWeAreAtWarWith; }
 	void UpdateCityStrength();
 	void UpdateCurrentAndFutureWars();
 
@@ -2772,7 +2786,7 @@ public:
 	virtual void AI_doTurnPost() = 0;
 	virtual void AI_doTurnUnitsPre() = 0;
 	virtual void AI_doTurnUnitsPost() = 0;
-	virtual void AI_doSpaceshipProduction() = 0;
+	virtual void AI_doSpaceshipAndUtopiaProduction() = 0;
 	virtual void AI_unitUpdate(bool bHomelandAINeedsUpdate) = 0;
 	virtual void AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval) = 0;
 	bool HasSameIdeology(PlayerTypes ePlayer) const;
@@ -3241,6 +3255,7 @@ protected:
 	int m_iMinorScienceAlliesCount;
 	int m_iMinorResourceBonusCount;
 	int m_iAbleToAnnexCityStatesCount;
+	int m_iBorderSettle;
 	int m_iOnlyTradeSameIdeology;
 	int m_iSupplyFreeUnits; //military units which don't count against the supply limit
 	std::vector<CvString> m_aistrInstantYield; // not serialized
@@ -3275,6 +3290,7 @@ protected:
 	int m_iVotesPerGPT;
 	int m_iTRVisionBoost;
 	int m_iEventTourism;
+	int m_iReligionSpreadTourism;
 	std::vector<int> m_aiGlobalTourismAlreadyReceived;
 	int m_iEventTourismCS;
 	int m_iNumHistoricEvent;
@@ -3420,6 +3436,7 @@ protected:
 	std::vector<int> m_paiJFDPoliticPercent;
 	std::vector<int> m_aiYieldFromMinors;
 	std::vector<int> m_paiResourceFromCSAlliances;
+	std::vector<int> m_paiFreeResourceFromPolicies;
 	std::vector<int> m_paiResourceShortageValue;
 	std::vector<int> m_aiYieldFromBirth;
 	std::vector<int> m_aiYieldFromBirthCapital;
@@ -3466,6 +3483,7 @@ protected:
 	std::vector<int> m_aiCapitalYieldRateModifier;
 	std::vector<int> m_aiExtraYieldThreshold;
 	std::vector<int> m_aiSpecialistExtraYield;
+	std::vector<int> m_aiLastTurnYieldsTimes100;
 	std::vector<int> m_aiLastCityCaptureTurn;
 	std::vector<int> m_aiWarValueLost;
 	std::vector<int> m_aiWarDamageValue;
@@ -3717,6 +3735,7 @@ protected:
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
+	std::vector<TeamTypes> m_teamsWeAreAtWarWith;
 
 	mutable int m_iNumUnitsSuppliedCached; //not serialized
 	mutable int m_iNumUnitsSuppliedCachedWarWeariness; //not serialized
@@ -4045,6 +4064,7 @@ SYNC_ARCHIVE_VAR(int, m_iMinorFriendshipDecayMod)
 SYNC_ARCHIVE_VAR(int, m_iMinorScienceAlliesCount)
 SYNC_ARCHIVE_VAR(int, m_iMinorResourceBonusCount)
 SYNC_ARCHIVE_VAR(int, m_iAbleToAnnexCityStatesCount)
+SYNC_ARCHIVE_VAR(int, m_iBorderSettle)
 SYNC_ARCHIVE_VAR(int, m_iOnlyTradeSameIdeology)
 SYNC_ARCHIVE_VAR(int, m_iSupplyFreeUnits)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abActiveContract)
@@ -4077,6 +4097,7 @@ SYNC_ARCHIVE_VAR(int, m_iTRSpeedBoost)
 SYNC_ARCHIVE_VAR(int, m_iVotesPerGPT)
 SYNC_ARCHIVE_VAR(int, m_iTRVisionBoost)
 SYNC_ARCHIVE_VAR(int, m_iEventTourism)
+SYNC_ARCHIVE_VAR(int, m_iReligionSpreadTourism)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGlobalTourismAlreadyReceived)
 SYNC_ARCHIVE_VAR(int, m_iEventTourismCS)
 SYNC_ARCHIVE_VAR(int, m_iNumHistoricEvent)
@@ -4205,6 +4226,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiJFDPoliticPercent)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromCSAlliances)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeResourceFromPolicies)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceShortageValue)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirth)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromBirthCapital)
@@ -4245,6 +4267,7 @@ SYNC_ARCHIVE_VAR(bool, m_bAllowsFoodTradeRoutesGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCapitalYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiExtraYieldThreshold)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistExtraYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLastTurnYieldsTimes100)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLastCityCaptureTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarValueLost)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarDamageValue)

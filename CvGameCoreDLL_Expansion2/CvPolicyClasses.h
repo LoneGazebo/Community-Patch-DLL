@@ -233,6 +233,7 @@ public:
 	bool IsEnablesSSPartHurry() const;
 	bool IsEnablesSSPartPurchase() const;
 	bool IsAbleToAnnexCityStates() const;
+	bool IsBorderSettle() const;
 	std::string pyGetWeLoveTheKing()
 	{
 		return GetWeLoveTheKing();
@@ -281,6 +282,7 @@ public:
 	bool IsSpecialistValid(int i) const;
 	int GetFreeChosenBuilding(int i) const;
 	int GetResourceFromCSAlly(int i) const;
+	int GetFreeResource(int i) const;
 	int GetYieldFromBirth(int i) const;
 	int GetYieldFromBirthCapital(int i) const;
 	int GetYieldFromBirthRetroactive(int i) const;
@@ -653,6 +655,7 @@ private:
 	bool m_bEnablesSSPartHurry;
 	bool m_bEnablesSSPartPurchase;
 	bool m_bAbleToAnnexCityStates;
+	bool m_bBorderSettle;
 
 	bool m_bIsOnlyTradeSameIdeology;
 	bool m_bOneShot;
@@ -720,6 +723,7 @@ private:
 	int* m_paiTourismOnUnitCreation;
 	int* m_paiFreeChosenBuilding;
 	int* m_piResourcefromCSAlly;
+	int* m_piFreeResource;
 	int* m_piYieldFromBirth;
 	int* m_piYieldFromBirthCapital;
 	int* m_piYieldFromBirthRetroactive;

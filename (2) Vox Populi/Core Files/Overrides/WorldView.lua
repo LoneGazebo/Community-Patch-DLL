@@ -131,6 +131,7 @@ local InterfaceModeMessageHandler =
 	[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL] = {},
 	[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO] = {},
 	[InterfaceModeTypes.INTERFACEMODE_AIRLIFT] = {},
+	[InterfaceModeTypes.INTERFACEMODE_SEALIFT] = {},
 	[InterfaceModeTypes.INTERFACEMODE_NUKE] = {},
 	[InterfaceModeTypes.INTERFACEMODE_PARADROP] = {},
 	[InterfaceModeTypes.INTERFACEMODE_ATTACK] = {},
@@ -475,6 +476,7 @@ InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_TYPE][Mouse
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRLIFT][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
+InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SEALIFT][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_NUKE][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PARADROP][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRSTRIKE][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
@@ -487,6 +489,7 @@ InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_TYPE][Mouse
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRLIFT][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
+InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SEALIFT][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_NUKE][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PARADROP][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRSTRIKE][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
@@ -685,6 +688,7 @@ end
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRLIFT][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
+--InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SEALIFT][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_NUKE][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PARADROP][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 ----InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRSTRIKE][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
@@ -706,19 +710,6 @@ function canChangeTradeHomeCity(unit, targetPlot)
 		and targetPlot:IsCity() and targetPlot:IsFriendlyCity(unit)
 end
 
-function canChangeHomePort(unit, targetPlot)
-	return unit:GetUnitClassType() == GameInfoTypes["UNITCLASS_GREAT_ADMIRAL"]                     -- must be great admiral
-		and unit:GetPlot():IsCity()                                                                -- must be in a city
-		and targetPlot:IsCity() and targetPlot:IsFriendlyCity(unit) and targetPlot:IsCoastalLand() -- must be targeting a friendly coastal city
-		and (not canUnitMoveToPlotSameTurn(unit, targetPlot));                                     -- sailing is faster, don't use up whole turn to get there
-end
-
-function isAirliftFastestTravelToPlot(unit, targetPlot)
-	return unit:CanAirliftAt(targetPlot, unit:GetPlot():GetX(), unit:GetPlot():GetY())
-		and (not canUnitMoveToPlotSameTurn(unit, targetPlot))
-		and unit:CanMoveOrAttackInto(targetPlot)
-end
-
 function highlightAlternativeMove(targetPlot)
 	Events.DisplayMovementIndicator(false);
 	Events.ShowMovementRange();
@@ -731,9 +722,7 @@ end
 -- Returns true if unit can move to targetPlot without pathfinder
 function showAlternativeMoveHighlights(unit, targetPlot)
 	Events.ClearHexHighlightStyle("GroupBorder");
-	if canChangeHomePort(unit, targetPlot)
-		or canChangeTradeHomeCity(unit, targetPlot)
-		or isAirliftFastestTravelToPlot(unit, targetPlot) then
+	if canChangeTradeHomeCity(unit, targetPlot) then
 
 		highlightAlternativeMove(targetPlot)
 		return true;
@@ -1004,17 +993,15 @@ function MovementRButtonUp()
 						build = buildCustomsHouse
 					elseif pUnitClass == GameInfoTypes["UNITCLASS_GREAT_DIPLOMAT"] then
 						build = buildEmbassy
-					else
-						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
 					end
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);
+					if (build) then
+						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);
+					end
 				end -- VP end
 
 			else--if plot == UI.GetGotoPlot() then
-				if canChangeHomePort(pHeadSelectedUnit, plot) then
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_CHANGE_ADMIRAL_PORT, plotX, plotY, 0, false, bShift);
-				elseif canChangeTradeHomeCity(pHeadSelectedUnit, plot) then
+				if canChangeTradeHomeCity(pHeadSelectedUnit, plot) then
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_CHANGE_TRADE_UNIT_HOME_CITY, plotX, plotY, 0, false, bShift);
 					
 					-- Close trade popups if they are open when this trade unit moved via this shortcut
@@ -1028,8 +1015,6 @@ function MovementRButtonUp()
 						UIManager:DequeuePopup(chooseTradeUnitHome);
 					end
 
-				elseif isAirliftFastestTravelToPlot(pHeadSelectedUnit, plot) then
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_AIRLIFT, plotX, plotY, 0, false, bShift);
 				else
 					Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
         end

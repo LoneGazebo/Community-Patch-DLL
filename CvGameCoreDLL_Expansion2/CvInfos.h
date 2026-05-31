@@ -261,7 +261,6 @@ public:
 
 	int getGreatPeopleUnitClass() const;
 	int getGreatPeopleRateChange() const;
-	int getCulturePerTurn() const;
 	int getMissionType() const;
 	void setMissionType(int iNewType);
 	int getExperience() const;
@@ -282,7 +281,6 @@ protected:
 
 	int m_iGreatPeopleUnitClass;
 	int m_iGreatPeopleRateChange;
-	int m_iCulturePerTurn;
 	int m_iMissionType;
 	int m_iExperience;
 
@@ -2535,6 +2533,8 @@ public:
 	int getTechPrereq() const;
 	int getRequiredPolicy() const;
 	int getDefenseValue() const;
+	int getDefenseValuePerTurn() const;
+	int getDefenseValueCap() const;
 
 	CivilizationTypes GetRequiredCivilization() const;
 
@@ -2548,6 +2548,8 @@ protected:
 	int m_iTechPrereq;
 	int m_iRequiredPolicy;
 	int m_iDefenseValue;
+	int m_iDefenseValuePerTurn;
+	int m_iDefenseValueCap;
 
 	CivilizationTypes m_eRequiredCivilization;
 

@@ -345,6 +345,8 @@ ALTER TABLE Policies ADD ExtraMissionarySpreads integer DEFAULT 0;
 
 ALTER TABLE Policies ADD GreatDiplomatRateModifier integer DEFAULT 0;
 
+-- Ignore restriction on founding Cities next to borders
+ALTER TABLE Policies ADD BorderSettle boolean DEFAULT 0;
 ----------------------------------------------------------------
 -- Policy Branches
 ----------------------------------------------------------------

@@ -420,7 +420,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 
 			iBonus += iEffect;
 		}
-		iBonus = m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
+		iBonus += m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
@@ -807,9 +807,6 @@ YieldAndGPPList CvCityCitizens::GetSpecialistYields(SpecialistTypes eSpecialist)
 		{
 			iYield100 += GET_PLAYER(GetOwner()).getYieldFromNonSpecialistCitizensTimes100(eYield);
 		}
-		//Culture is treated differently, sadly.
-		if (eYield == YIELD_CULTURE)
-			iYield100 += m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
 
 		//religion bonus
 		ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
@@ -2316,7 +2313,11 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 				if (pPlot->getTerrainType() != NO_TERRAIN)
 				{
 					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), 1);
-					if (pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
+					if (pPlot->isHills())
+					{
+						GetCity()->ChangeNumTerrainWorked(TERRAIN_HILL, 1);
+					}
+					else if (pPlot->getFeatureType() == NO_FEATURE)
 					{
 						GetCity()->ChangeNumFeaturelessTerrainWorked(pPlot->getTerrainType(), 1);
 					}
@@ -2348,7 +2349,11 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 				if (pPlot->getTerrainType() != NO_TERRAIN)
 				{
 					GetCity()->ChangeNumTerrainWorked(pPlot->getTerrainType(), -1);
-					if (pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
+					if (pPlot->isHills())
+					{
+						GetCity()->ChangeNumTerrainWorked(TERRAIN_HILL, -1);
+					}
+					else if (pPlot->getFeatureType() == NO_FEATURE)
 					{
 						GetCity()->ChangeNumFeaturelessTerrainWorked(pPlot->getTerrainType(), -1);
 					}
@@ -3766,9 +3771,9 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 
 		// the smallest possible decrease in yield rate that would increase unhappiness from the respective need by 1
 		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
-		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
-		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
-		iBasicNeedsRateChangeForIncreasedDistress = -INT_MAX;
+		iGoldRateChangeForIncreasedPoverty = -INT_MAX;
+		iScienceRateChangeForIncreasedIlliteracy = -INT_MAX;
+		iCultureRateChangeForIncreasedBoredom = -INT_MAX;
 		int iLimit = MOD_BALANCE_UNCAPPED_UNHAPPINESS ? INT_MAX : pCity->getPopulation();
 		if (iDistress < iLimit)
 		{

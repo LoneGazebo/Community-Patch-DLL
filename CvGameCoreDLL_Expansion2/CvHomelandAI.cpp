@@ -231,6 +231,29 @@ bool CvHomelandAI::NeedsUpdate()
 	return m_bNeedsUpdate;
 }
 
+bool IsUnfriendlyTerritory(TeamTypes eTeam, const CvPlot* pPlot, const CvUnit* pUnit)
+{
+	TeamTypes ePlotTeam = pPlot->getTeam();
+	if (ePlotTeam != NO_TEAM && ePlotTeam != eTeam)
+	{
+		CvTeam& kMyTeam = GET_TEAM(eTeam);
+		CvTeam& kTheirTeam = GET_TEAM(ePlotTeam);
+		if (kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
+		{
+			if (kMyTeam.isHasMet(ePlotTeam) && !pUnit->IsAngerFreeUnit())
+			{
+				// If we are friends etc we may go there
+				CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
+				if (!pMinorAI->IsPlayerHasOpenBorders(pUnit->getOwner()))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) const
 {
 	if (!pUnit)
@@ -306,19 +329,19 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) c
 
 		if (pEvalPlot == pUnit->plot())
 		{
+			if (IsUnfriendlyTerritory(m_pPlayer->getTeam(), pEvalPlot, pUnit))
+				continue;
+
 			// Check if we should stay and heal
-			if (!pUnit->hasMoved() && iMaxTurns == 1 && !pUnit->isHuman(ISHUMAN_AI_UNITS))
+			if (!pUnit->hasMoved() && iMaxTurns <= 3 && !pUnit->isHuman(ISHUMAN_AI_UNITS))
 			{
 				int iDamage = pUnit->getDamage();
-				int iHealRate = pUnit->ActualHealRate(pEvalPlot, false);
-				if (iDamage >= iHealRate)
+				int iHealRate = min(pUnit->ActualHealRate(pEvalPlot, false), iDamage);
+				iHealRate -= pUnit->GetDanger(pEvalPlot);
+				if (iHealRate >= 7 || (iHealRate > 0 && iDamage > 30))
 				{
-					iHealRate -= pUnit->GetDanger(pEvalPlot);
-					if (iHealRate > 0)
-					{
-						int iScore = (iDamage + iHealRate) * 10;
-						vReachablePlotByScore.push_back(SPlotWithScore(pEvalPlot, -iScore));
-					}
+					int iScore = iHealRate * 40;
+					vReachablePlotByScore.push_back(SPlotWithScore(pEvalPlot, -iScore));
 				}
 			}
 			continue;
@@ -400,18 +423,34 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) c
 
 		iPlotScore += EconomicAIHelpers::GetExtraExploreValue(pEvalPlot, iPlotVisibilityRange, m_pPlayer->getTeam());
 
-		int iPathLengthPenalty = reachablePlot->iPathLength * GD_INT_GET(MOVE_DENOMINATOR) * pUnit->maxMoves() * 2;
+		int iPathLengthPenalty = reachablePlot->iPathLength * pUnit->maxMoves() * 2;
 		int iMovesLeftBonus = reachablePlot->iMovesLeft * 2;
 
 		int iTotalScore = iPlotScore - iNearbyPenalty + iMovesLeftBonus - iPathLengthPenalty;
 
 		//careful with plots that are too dangerous
-		int iAcceptableDanger = pUnit->GetCurrHitPoints() / 2;
-		int iDanger = pUnit->GetDanger(pEvalPlot);
-		if (iDanger > iAcceptableDanger)
-			continue;
-		if (iDanger > iAcceptableDanger / 2)
-			iTotalScore /= 2;
+		if (reachablePlot->iMovesLeft <= GD_INT_GET(MOVE_DENOMINATOR))
+		{
+			int iAcceptableDanger = pUnit->GetCurrHitPoints() / 2;
+			int iDanger = pUnit->GetDanger(pEvalPlot);
+			if (iDanger > iAcceptableDanger)
+				continue;
+
+			if (iDanger > 0)
+				iTotalScore -= iDanger * 10;
+		}
+
+		// Avoid angering city states
+		if (reachablePlot->iMovesLeft < 2 * GD_INT_GET(MOVE_DENOMINATOR))
+		{
+			if (IsUnfriendlyTerritory(m_pPlayer->getTeam(), pEvalPlot, pUnit))
+			{
+				if (reachablePlot->iMovesLeft == 0)
+					continue;
+				else
+					iTotalScore /= 2;
+			}
+		}
 
 		vReachablePlotByScore.push_back(SPlotWithScore(pEvalPlot, -iTotalScore));
 	}
@@ -1855,28 +1894,29 @@ void CvHomelandAI::PlotUpgradeMoves()
 		for(CHomelandUnitArray::iterator moveUnitIt = m_CurrentMoveUnits.begin(); moveUnitIt != m_CurrentMoveUnits.end(); ++moveUnitIt)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
+			bool bUnitUpgraded = false;
 			if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 			{
-				//if the unit is currently in an army we need some extra bookkeeping
-				CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
-				int iArmySlot = -1;
-				if (pArmy)
-					iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
-
 				// Resource requirement
 				UnitTypes eUnit = pUnit->getUnitType();
 				UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
 				if (!m_pPlayer->HasResourceForNewUnit(eUpgradeUnit, false, true, eUnit))
 					continue;
 
-				//avoid a warning, reset the last move
-				pUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
-
 				// Don't upgrade if we will go over supply
 				if (bUnderSupplyLimit || !pUnit->isNoSupply())
 				{
+					//if the unit is currently in an army we need some extra bookkeeping
+					CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
+					int iArmySlot = -1;
+					if (pArmy)
+						iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
+
+					//avoid a warning, reset the last move
+					pUnit->setHomelandMove(AI_HOMELAND_MOVE_NONE);
 					//this removes the unit from the army (if any)
 					CvUnit* pNewUnit = pUnit->DoUpgrade();
+					bUnitUpgraded = true;
 
 					//if it worked the old unit is now a zombie ...
 					UnitProcessed(pUnit->GetID());
@@ -1885,7 +1925,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 					{
 						//restore the army
 						if (pArmy)
-							pArmy->AddUnit(pNewUnit->GetID(), iArmySlot, true);
+							pArmy->AddUnit(pNewUnit->GetID(), iArmySlot, pArmy->GetSlotInfo(iArmySlot).m_requiredSlot);
 
 						UnitProcessed(pNewUnit->GetID());
 
@@ -1902,7 +1942,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 					}
 				}
 			}
-			else if (pFirstNonUpgradedUnit == NULL)
+			if (!bUnitUpgraded && pFirstNonUpgradedUnit == NULL)
 				pFirstNonUpgradedUnit = pUnit;
 		}
 
@@ -2490,7 +2530,10 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				}
 			}
 
-			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN | CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
+			int iFlags = CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED;
+			if (pUnit->IsCombatUnit())
+				iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+
 			if (pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if (pUnit->getMoves() > 0)
@@ -2952,17 +2995,11 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 
 	CvPlot* pBestPlot = NULL;
 
-	//step 5: if we didn't find a worthwhile plot among our adjacent plots, check the global targets and pick a new one
+	//step 5: look for good targets, starting nearby and extending outwards
 	if (pUnit->movesLeft() > 0)
 	{
-		int iDist = 1;
-		pBestPlot = GetBestExploreTarget(pUnit, iDist);
-
-		if (!pBestPlot)
-		{
-			iDist = 3;
-			pBestPlot = pBestPlotDist3;
-		}
+		int iDist = 3;
+		pBestPlot = pBestPlotDist3;
 
 		if (!pBestPlot)
 		{
@@ -3977,7 +4014,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	for (list<int>::iterator it = allWorkers.begin(); it != allWorkers.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (!pUnit || pUnit->TurnProcessed() || pUnit->getUnitInfo().GetCombat() > 0 || (!pUnit->IsAutomated() && m_pPlayer->isHuman(ISHUMAN_AI_UNITS)))
+		if (!pUnit || pUnit->TurnProcessed() || pUnit->isDelayedDeath() || pUnit->IsDead() || pUnit->getUnitInfo().GetCombat() > 0 || (!pUnit->IsAutomated() && m_pPlayer->isHuman(ISHUMAN_AI_UNITS)))
 			continue;
 
 		//find the city which is most in need of workers
@@ -5459,39 +5496,8 @@ void CvHomelandAI::ExecuteSSPartMoves()
 		if(!pUnit)
 			continue;
 
-		// do an airlift if it's possible and we'd need more than one turn to reach the capital normally
-		if (pUnit->plot() != pCapitalCity->plot())
-		{
-			bool bCanAirlift = pUnit->canAirliftAt(pUnit->plot(), pCapitalCity->plot()->getX(), pCapitalCity->plot()->getY());
-			bool bShouldUseAirlift = bCanAirlift;
 
-			if (pUnit->GeneratePath(pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED))
-			{
-				CvPlot* pWayPoint = pUnit->GetPathEndFirstTurnPlot();
-				if (pWayPoint == pCapitalCity->plot())
-				{
-					// can reach the capital normally in one turn or less
-					bShouldUseAirlift = false;
-				}
-			}
-
-			if (bShouldUseAirlift)
-			{
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					CvString strTemp;
-					strTemp = pUnit->getUnitInfo().GetDescription();
-					strLogString.Format("Airlifting %s into capital", strTemp.GetCString());
-					LogHomelandMessage(strLogString);
-				}
-				pUnit->airlift(pCapitalCity->plot()->getX(), pCapitalCity->plot()->getY());
-			}
-			else
-			{
-				ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
-			}
-		}
+		ExecuteMoveToTarget(pUnit, pCapitalCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
 
 		if(pUnit->plot() == pCapitalCity->plot() && pUnit->canMove())
 		{

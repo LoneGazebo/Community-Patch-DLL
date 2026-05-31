@@ -194,6 +194,7 @@ public:
 	int GetGlobalMilitaryProductionModPerMajorWar() const;
 	int GetFoodKept() const;
 	bool IsAirlift() const;
+	bool IsSealift() const;
 	int GetAirModifier() const;
 	int GetAirModifierGlobal() const;
 	int GetNukeModifier() const;
@@ -778,6 +779,7 @@ private:
 	int m_iGlobalMilitaryProductionModPerMajorWar;
 	int m_iFoodKept;
 	bool m_bAirlift;
+	bool m_bSealift;
 	int m_iAirModifier;
 	int m_iAirModifierGlobal;
 	int m_iNukeModifier;

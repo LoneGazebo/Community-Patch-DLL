@@ -113,7 +113,11 @@ CvPlot::CvPlot()
 	: m_syncArchive()
 	, m_szScriptData(NULL)
 {
-	if (GC.getGame().isNetworkMultiPlayer())
+	// Null check required: CvPlot can be constructed during DLL static initialization
+	// (e.g. CvSupportPosition::dummyPlot via gSupportPosStorage) before the game
+	// object exists. getGamePointer() is NULL until CvGlobals::init() runs.
+	CvGame* pGame = GC.getGamePointer();
+	if (pGame && pGame->isNetworkMultiPlayer())
 	{
 		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvPlot>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
 	}
@@ -3280,12 +3284,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	{
 		if(GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
 		{
-			if(getFeatureType() == FEATURE_FALLOUT && GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT))
-			{
-				bValid = true;
-			}
-			else
-			if(bTestPlotOwner)
+			if((getFeatureType() != FEATURE_FALLOUT || !GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT)) &&
+				bTestPlotOwner)
 			{
 				if(isOwned() && (eTeam != getTeam()) && !atWar(eTeam, getTeam()))
 				{
@@ -3588,7 +3588,7 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bIgnoreVisibility, bool bTestCanMove, bool bNoncombatAllowed) const
+CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer, const CvUnit* pAttacker, bool bTestAtWar, bool bIgnoreVisibility, bool bTestCanMove, bool bNoncombatAllowed, const CvUnit* pIgnoreUnit) const
 {
 	const IDInfo* pUnitNode = headUnitNode();
 	CvUnit* pLoopUnit = NULL;
@@ -3609,6 +3609,9 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
+
+		if (pLoopUnit && pLoopUnit == pIgnoreUnit)
+			continue;
 
 		if(pLoopUnit && (bNoncombatAllowed || pLoopUnit->IsCanDefend()) && pLoopUnit != pAttacker)	// Does the unit exist, and can it fight, or do we care if it can't fight?
 		{
@@ -3895,9 +3898,6 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMove
 {
 	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GD_INT_GET(MOVE_DENOMINATOR);
 
-	if (plotDistance(*this,*pFromPlot)>1)
-		return iMaxMoves;
-
 	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
 
@@ -3905,9 +3905,6 @@ int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMove
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const
 {
 	int iMaxMoves = pUnit->baseMoves( needsEmbarkation(pUnit) )*GD_INT_GET(MOVE_DENOMINATOR);
-
-	if (plotDistance(*this,*pFromPlot)>1)
-		return iMaxMoves;
 
 	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, iMovesRemaining, iMaxMoves);
 }
@@ -6532,6 +6529,12 @@ bool CvPlot::IsResourceImprovedForOwner(bool bIgnoreTechPrereq, bool bFoundingCi
 	if (!GET_TEAM(getTeam()).IsResourceImproveable(eResource) && !bIgnoreTechPrereq)
 		return false;
 
+	// artifacts are never improved
+	static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	if (eResource == eArtifact || eResource == eHiddenArtifact)
+		return false;
+
 	// cities always connect resources
 	if (isCity() || bFoundingCity)
 		return true;
@@ -6841,6 +6844,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 		if (isOwned())
 		{
 			CvPlayerAI& newPlayer = GET_PLAYER(eNewValue);
+			newPlayer.AddAPlot(this);
 
 			changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
 
@@ -7497,6 +7501,11 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 			{
 				pOwningCity->ChangeNumTerrainWorked(eOldValue, -1);
 				pOwningCity->ChangeNumTerrainWorked(eNewValue, 1);
+				if (getFeatureType() == NO_FEATURE && !isHills())
+				{
+					pOwningCity->ChangeNumFeaturelessTerrainWorked(eOldValue, -1);
+					pOwningCity->ChangeNumFeaturelessTerrainWorked(eNewValue, 1);
+				}
 			}
 		}
 
@@ -8179,8 +8188,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 	}
 
-	bool bArchaeologyChoicePending = false;
-
 	if (eOldImprovement != eNewValue)
 	{
 		PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
@@ -8378,17 +8385,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					ClearArchaeologicalRecord();
 				}
 			}
-
-			// if the improvement has yield changes by era, it needs the historical record set. 
-			// in the rare case there is also an invisible artifact record on the tile, its age is altered (player has no way to know this)
-			for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
-			{
-				if (newImprovementEntry.GetYieldChangePerEra(iK) != 0)
-				{
-					m_kArchaeologyData.m_eEra = GET_PLAYER(eBuilder).GetCurrentEra();
-					break;
-				}
-			}
 			
 			// remove existing resource if this improvement places a new one (needs to be done before setting the improvement to make sure resource counts are updated correctly)
 			ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
@@ -8565,12 +8561,32 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 			}
 
-			if (newImprovementEntry.GetHappinessOnConstruction() != 0 && eBuilder != NO_PLAYER)
+			if (eBuilder != NO_PLAYER)
 			{
-				GET_TEAM(GET_PLAYER(eBuilder).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
-				if (getOwner() != NO_PLAYER && getOwner() != eBuilder && GET_PLAYER(getOwner()).isMajorCiv())
+				if (newImprovementEntry.GetHappinessOnConstruction() != 0)
 				{
-					GET_TEAM(GET_PLAYER(getOwner()).getTeam()).ChangeNumLandmarksBuilt(newImprovementEntry.GetHappinessOnConstruction());
+					TeamTypes eBuilderTeam = GET_PLAYER(eBuilder).getTeam();
+					TeamTypes ePlotTeam = getTeam();
+					GET_TEAM(eBuilderTeam).ChangeHappinessFromImprovements(newImprovementEntry.GetHappinessOnConstruction());
+					if (ePlotTeam != NO_TEAM && ePlotTeam != eBuilderTeam && GET_PLAYER(getOwner()).isMajorCiv())
+					{
+						GET_TEAM(ePlotTeam).ChangeHappinessFromImprovements(newImprovementEntry.GetHappinessOnConstruction());
+					}
+				}
+
+				// if the improvement isn't a landmark but has yield changes by era, it needs the historical record set. 
+				static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+				if (eNewValue != eLandmark)
+				{
+					for (int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
+					{
+						if (newImprovementEntry.GetYieldChangePerEra(iK) != 0)
+						{
+							// in the rare case there is also an (invisible) artifact record on the tile, its age is altered
+							m_kArchaeologyData.m_eEra = GET_PLAYER(eBuilder).GetCurrentEra();
+							break;
+						}
+					}
 				}
 			}
 
@@ -9013,14 +9029,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 		}
 	}
-
-	// Do the AI's dig site choice at the very end since it could replace the tile with a Landmark, so it's better to do that after all the other code updating things has run
-	if (bArchaeologyChoicePending)
-	{
-		CvPlayer& kBuilder = GET_PLAYER(eBuilder);
-		ArchaeologyChoiceType eChoice = kBuilder.GetCulture()->GetArchaeologyChoice(this);
-		kBuilder.GetCulture()->DoArchaeologyChoice(eChoice);
-	}
 }
 
 CvPlot* CvPlot::GetAdjacentResourceSpawnPlot(PlayerTypes ePlayer) const
@@ -9126,11 +9134,14 @@ void CvPlot::SetImprovementPillaged(bool bPillaged, bool bEvents)
 		// Quantified Resource changes
 		if (getTeam() != NO_TEAM && getImprovementType() != NO_IMPROVEMENT)
 		{
-			if (getResourceType(getTeam()) != NO_RESOURCE)
+			static const ResourceTypes eArtifact = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+			static const ResourceTypes eHiddenArtifact = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+			ResourceTypes eRes = getResourceType(getTeam());
+			if (eRes != NO_RESOURCE && eRes != eArtifact && eRes != eHiddenArtifact)
 			{
-				if (GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
+				if (GET_TEAM(getTeam()).IsResourceImproveable(eRes))
 				{
-					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType()))
+					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(eRes))
 					{
 						if (bPillaged)
 						{
@@ -10878,11 +10889,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		// Policy improvement yield changes
 		iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
 
-		if (!pTraits->IsTradeRouteOnly())
-		{
-			// Trait player improvement yield changes that don't require a trade route connection
-			iYield += pTraits->GetImprovementYieldChange(eImprovement, eYield);
-		}
 		// Team Tech Yield Changes
 		iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
 
@@ -10914,50 +10920,46 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	if (eForceCityConnection != NUM_ROUTE_TYPES)
 		bIsCityConnection = eForceCityConnection != NO_ROUTE;
 	
-	// Trait player terrain/improvement (for features handled below) yield changes that don't require a trade route connection
-	if (pTraits->IsTradeRouteOnly() && getOwner() == ePlayer)
+	// Trait player terrain/improvement (for features handled below) yield changes, subject to a trade route connection or not
+	int iTerrainBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
+	
+	if (isHills())
+	    iTerrainBonus += pTraits->GetTerrainYieldChange(TERRAIN_HILL, eYield);
+		
+	int iImprovementBonus = 0;
+	if (eImprovement != NO_IMPROVEMENT)
 	{
-		int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
-		if (iBonus > 0)
+	    iImprovementBonus = pTraits->GetImprovementYieldChange(eImprovement, eYield);
+	}
+	
+	// generalized Era scaler
+	int iModifier = pTraits->CurrentEraScalingModifier();
+		
+	// logic
+	if (pTraits->IsTradeRouteOnly())
+	{
+		if (getOwner() == ePlayer)
 		{
-			if (bIsCityConnection || IsTradeUnitRoute())
-			{
-				int iScale = 0;
-				int iEra = (kPlayer.GetCurrentEra() + 1);
-
-				iScale = ((iBonus * iEra) / 4);
-
-				if (iScale <= 0)
-				{
-					iScale = 1;
-				}
-				iYield += iScale;
-			}
+		    bool bTerrainApplies = (bIsCityConnection || IsTradeUnitRoute());
+		    bool bImprovementApplies = (bIsCityConnection || IsTradeUnitRoute() || IsAdjacentToTradeRoute());
+		
+		    if (iTerrainBonus > 0 && bTerrainApplies)
+		    {
+		        iYield += (iModifier * iTerrainBonus) / 100;
+		    }
+		
+		    if (iImprovementBonus > 0 && bImprovementApplies)
+		    {
+		        iYield += (iModifier * iImprovementBonus) / 100;
+		    }
 		}
-		if (eImprovement != NO_IMPROVEMENT)
-		{
-			int iBonus2 = pTraits->GetImprovementYieldChange(eImprovement, eYield);
-			if (iBonus2 > 0)
-			{
-				if (bIsCityConnection || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
-				{
-					int iScale = 0;
-					int iEra = (kPlayer.GetCurrentEra() + 1);
-
-					iScale = ((iBonus2 * iEra) / 2);
-
-					if (iScale <= 0)
-					{
-						iScale = 1;
-					}
-					iYield += iScale;
-				}
-			}
-		}
+		// else, don't change the tile's yields 
+		// otherwise will show outside of borders everywhere and then be removed when claimed
 	}
 	else
 	{
-		iYield += pTraits->GetTerrainYieldChange(eTerrain, eYield);
+	    iYield += (iModifier * iTerrainBonus) / 100;
+		iYield += (iModifier * iImprovementBonus) / 100;
 	}
 
 	iYield += kPlayer.getTerrainYieldChange(eTerrain, eYield);
@@ -11916,14 +11918,8 @@ int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
 	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
-	PlayerTypes eCurrentPlayer = GC.getGame().GetCurrentVisibilityPlayer();
-	if (eCurrentPlayer != NO_PLAYER)
-	{
-		if (GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
-		{
-			return getVisibilityCount(eTeam);
-		}
-	}
+	if (GC.getGame().GetCurrentVisibilityTeam() == eTeam)
+		return getVisibilityCount(eTeam);
 
 	return m_aiKnownVisibilityCount[eTeam];
 }
@@ -11939,18 +11935,12 @@ bool CvPlot::IsKnownVisibleToTeam(TeamTypes eTeam) const
 /// Is this plot visible to an enemy to ePlayer according to current player knowledge
 bool CvPlot::IsKnownVisibleToEnemy(PlayerTypes ePlayer) const
 {
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(ePlayer).GetPlayersAtWarWith();
+	const std::vector<TeamTypes>& vEnemies = GET_PLAYER(ePlayer).GetTeamsAtWarWith();
 
-	for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
+	for (std::vector<TeamTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
 	{
-		CvPlayer& kEnemy = GET_PLAYER(*it);
-		if (kEnemy.isAlive() && kEnemy.IsAtWarWith(ePlayer))
-		{
-			if (IsKnownVisibleToTeam(kEnemy.getTeam()))
-			{
-				return true;
-			}
-		}
+		if (IsKnownVisibleToTeam(*it))
+			return true;
 	}
 
 	return false;
@@ -13428,7 +13418,7 @@ void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
 		gGlobals.getDLLIFace()->sendChat(msg, CHATTARGET_ALL, NO_PLAYER);
 	}
 
-	GC.getMap().plotManager().RemoveUnit(pUnit->GetIDInfo(), m_iX, m_iY, -1);
+	GC.getMap().plotManager().RemoveUnit(pUnit->GetIDInfo(), m_iX, m_iY, static_cast<uint>(-1));
 
 	if(bUpdate)
 	{

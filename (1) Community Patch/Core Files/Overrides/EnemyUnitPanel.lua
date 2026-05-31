@@ -726,11 +726,11 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 
 		if pTheirUnit then
 			-- Target is in friendly lands (+ following a different religion)
-			iModifier = pMyUnit:GetCombatVersusOtherReligionOwnLands(pTheirUnit);
+			iModifier = pMyUnit:GetReligionCombatBonusOwnLands(pTheirUnit);
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_FRIENDLY_CITY_BELIEF_BONUS_CBP", nBonus, iMiscModifier, true, true);
 
 			-- Target is in lands friendly to them (+ following a different religion)
-			iModifier = pMyUnit:GetCombatVersusOtherReligionTheirLands(pTheirUnit);
+			iModifier = pMyUnit:GetReligionCombatBonusTheirLands(pTheirUnit);
 			nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP", nBonus, iMiscModifier, true, true);
 		end
 
@@ -1150,7 +1150,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 
 					-- Defending in friendly lands (+ following a different religion)
 					if pMyUnit then
-						iModifier = pTheirUnit:GetCombatVersusOtherReligionOwnLands(pMyUnit);
+						iModifier = pTheirUnit:GetReligionCombatBonusOwnLands(pMyUnit);
 						nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_FRIENDLY_CITY_BELIEF_BONUS_CBP", nBonus, iMiscModifier, false, true);
 					end
 				else
@@ -1165,7 +1165,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 
 				-- Defending in lands friendly to the attacker (+ following a different religion)
 				if pMyUnit and pToPlot:IsFriendlyTerritory(eMyPlayer) then
-					iModifier = pTheirUnit:GetCombatVersusOtherReligionTheirLands(pMyUnit);
+					iModifier = pTheirUnit:GetReligionCombatBonusTheirLands(pMyUnit);
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP", nBonus, iMiscModifier, false, true);
 				end
 

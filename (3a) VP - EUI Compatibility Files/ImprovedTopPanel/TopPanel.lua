@@ -467,7 +467,7 @@ local function UpdateTopPanelNow()
 	local traitType = "";
 	if g_activePlayer ~= nil then
 		leaderID = g_activePlayer:GetLeaderType();
-		for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
+		for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = ?", leaderID ) do
 			traitType = leaderTraits.TraitType;
 			break;
 		end
@@ -1467,7 +1467,8 @@ if civ5_mode then
 			local ResourceHappiness = g_activePlayer:GetBonusHappinessFromLuxuriesFlat();
 			local AvgResourceHappiness  = g_activePlayer:GetBonusHappinessFromLuxuriesFlatForUI();
 			local LocalCityHappiness = g_activePlayer:GetEmpireHappinessFromCities();
-			local NaturalWonderAndLandmarkHappiness = g_activePlayer:GetHappinessFromNaturalWonders();
+			local NaturalWonderHappiness = g_activePlayer:GetHappinessFromNaturalWonders();
+			local ImprovementHappiness = g_activePlayer:GetHappinessFromImprovements();
 			local ReligionHappiness = g_activePlayer:GetHappinessFromReligion();
 			local LeagueHappiness = g_activePlayer:GetHappinessFromLeagues();
 			local EventHappiness = g_activePlayer:GetEventHappiness();
@@ -1481,7 +1482,8 @@ if civ5_mode then
 
 			tips:insert( "[ENDCOLOR][COLOR:150:255:150:255]" )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", ResourceHappiness, AvgResourceHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", NaturalWonderAndLandmarkHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", NaturalWonderHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_IMPROVEMENTS", ImprovementHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_VP", ReligionHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", LeagueHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_EVENT", EventHappiness )
@@ -1512,7 +1514,7 @@ if civ5_mode then
 			local BoredomUnhappiness = g_activePlayer:GetUnhappinessFromBoredom();
 			local ReligiousUnrestUnhappiness = g_activePlayer:GetUnhappinessFromReligiousUnrest();
 			local BuildingsUnhappiness = g_activePlayer:GetUnhappinessFromBuildings();
-			local UrbanizationUnhappiness = g_activePlayer:GetUnhappinessFromCitySpecialists() / 100;
+			local UrbanizationUnhappiness = g_activePlayer:GetUnhappinessFromCitySpecialists();
 			local UrbanizationPuppetUnhappiness = g_activePlayer:GetUnhappinessFromPuppetCitySpecialists();
 
 			tips:insert( "[COLOR:255:150:150:255]" )
@@ -2019,27 +2021,6 @@ if civ5_mode and gk_mode then
 	Controls.InstantYieldsIcon:SetToolTipCallback( requestTextToolTip )
 	Controls.InstantYieldsIcon:SetHide( false )
 end
--------------------------------------------------
--- Spy Points Tooltip
--------------------------------------------------
---[[if civ5_mode and gk_mode then
-	g_toolTipHandler.SpyPointsString = function()-- control )
-		local tips = table()
-		
-		local iPlayerID = g_activePlayerID;
-		local pPlayer = Players[iPlayerID];
-		local strSpiesStr;
-		if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or Game.GetSpyThreshold() == 0) then
-			strSpiesStr = "";
-		else
-		
-			strSpiesStr = Locale.ConvertTextKey("TXT_KEY_SPY_POINTS_TT", pPlayer:GetSpyPoints(false), Game.GetSpyThreshold(), pPlayer:GetSpyPoints(true));
-		end
-
-		tips:insert( strSpiesStr );
-		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
-	end
-end]]
 
 -- my modification for Luxury Resources
 if civ5_mode and gk_mode then
@@ -2051,7 +2032,7 @@ if civ5_mode and gk_mode then
 			local tip = ""
 			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID ) - g_activePlayer:GetResourcesFromGP(resourceID)
+				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID ) - g_activePlayer:GetResourcesFromGP(resourceID) - g_activePlayer:GetFreeResourceFromPolicies(resourceID)
 				if quantity > 0 then
 					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
@@ -2104,6 +2085,20 @@ if civ5_mode and gk_mode then
 			end
 			if #GPtip > 0 and (LuxuryResourcesMem == 0 or LuxuryResourcesMem == 4) then
 				tips:insert( "[COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_EO_GP_RESOURCES" .. "[ENDCOLOR]" .. GPtip)
+			end
+
+			----------------------------
+			-- Policy Resources
+			----------------------------
+			local PolicyTip = ""
+			for _, resource in pairs( g_luxuries) do
+				local numResourcePolicy = g_activePlayer:GetFreeResourceFromPolicies(resource.ID)
+				if numResourcePolicy > 0 then
+					PolicyTip = PolicyTip .. "[NEWLINE][ICON_BULLET]" .. ColorizeAbs( numResourcePolicy ) .. resource.IconString
+				end
+			end
+			if #PolicyTip > 0 and (LuxuryResourcesMem == 0 or LuxuryResourcesMem == 4) then
+				tips:insert( "[COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_EO_POLICY_RESOURCES" .. "[ENDCOLOR]" .. PolicyTip)
 			end
 
 			----------------------------
@@ -2447,7 +2442,7 @@ local function ResourcesToolTip( control )
 						end
 						canBuildSomeday = canBuildSomeday and not (
 							-- no espionage buildings for a non-espionage game
-							( Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) and building.IsEspionage )
+							( Game.IsOption("GAMEOPTION_NO_ESPIONAGE") and building.IsEspionage )
 							-- Has obsolete tech?
 							or ( building.ObsoleteTech and g_activeTeamTechs:HasTech( GameInfoTypes[building.ObsoleteTech] ) )
 						)
@@ -2485,18 +2480,22 @@ local function ResourcesToolTip( control )
 
 
 				local numResourceGP = g_activePlayer:GetResourcesFromGP(resourceID)
+				local numResourcePolicy = g_activePlayer:GetFreeResourceFromPolicies(resourceID)
 				local numResourceCorp = g_activePlayer:GetResourcesFromCorporation(resourceID)
 				local numResourceFranchises = g_activePlayer:GetResourcesFromFranchises(resourceID)
 				local numResourceCSAlly = g_activePlayer:GetResourceFromCSAlliances(resourceID)
 
 				--want the total, but before GetStrategicResourceMod and GetResourceModFromReligion are applied, so have to remove Misc then add back in parts of it
-				local totalBeforeMod =  g_activePlayer:GetNumResourceTotal( resourceID, false ) - numResourceMisc + numResourceGP + numResourceCorp + numResourceFranchises + numResourceCSAlly
+				local totalBeforeMod =  g_activePlayer:GetNumResourceTotal( resourceID, false ) - numResourceMisc + numResourceGP + numResourcePolicy + numResourceCorp + numResourceFranchises + numResourceCSAlly
 
 				local stratResMod = g_activePlayer:GetStrategicResourceMod()
 				local resourceModRel = g_activePlayer:GetResourceModFromReligion(resourceID)
 
 				if numResourceGP > 0 then
 					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceGP) .. resource.IconString .. " " .. L"TXT_KEY_EO_GP_RESOURCES" )
+				end
+				if numResourcePolicy > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourcePolicy) .. resource.IconString .. " " .. L"TXT_KEY_EO_POLICY_RESOURCES" )
 				end
 				if numResourceCorp > 0 then
 					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceCorp) .. resource.IconString .. " " .. L"TXT_KEY_EO_CORP_RESOURCES" )
@@ -2720,7 +2719,7 @@ local function ResourcesToolTip( control )
 					end
 					canBuildSomeday = canBuildSomeday and not (
 						-- no espionage buildings for a non-espionage game
-						( Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) and building.IsEspionage )
+						( Game.IsOption("GAMEOPTION_NO_ESPIONAGE") and building.IsEspionage )
 						-- Has obsolete tech?
 						or ( civ5_mode and building.ObsoleteTech and g_activeTeamTechs:HasTech( GameInfoTypes[building.ObsoleteTech] ) )
 					)
@@ -2955,7 +2954,7 @@ local function UpdateOptions()
 	g_isPoliciesEnabled = not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)
 	g_isHappinessEnabled = civ5_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
 	g_isReligionEnabled = civ5_mode and gk_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)
-	g_isHealthEnabled = not (civ5_mode or Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HEALTH) )
+	g_isHealthEnabled = not (civ5_mode or Game.IsOption("GAMEOPTION_NO_HEALTH") )
 	UpdateTopPanel()
 end
 

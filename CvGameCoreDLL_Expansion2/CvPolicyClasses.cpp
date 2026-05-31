@@ -224,6 +224,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bRevealAllCapitals(false),
 	m_bGarrisonFreeMaintenance(false),
 	m_bAbleToAnnexCityStates(false),
+	m_bBorderSettle(false),
 	m_bOneShot(false),
 	m_bIsOnlyTradeSameIdeology(false),
 	m_bIncludesOneShotFreeUnits(false),
@@ -274,6 +275,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_pabSpecialistValid(NULL),
 	m_paiFreeChosenBuilding(NULL),
 	m_piResourcefromCSAlly(NULL),
+	m_piFreeResource(NULL),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromBirthCapital(NULL),
 	m_piYieldFromBirthRetroactive(NULL),
@@ -419,6 +421,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_pabSpecialistValid);
 	SAFE_DELETE_ARRAY(m_paiFreeChosenBuilding);
 	SAFE_DELETE_ARRAY(m_piResourcefromCSAlly);
+	SAFE_DELETE_ARRAY(m_piFreeResource);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
@@ -687,6 +690,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bEnablesSSPartHurry = kResults.GetBool("EnablesSSPartHurry");
 	m_bEnablesSSPartPurchase = kResults.GetBool("EnablesSSPartPurchase");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
+	m_bBorderSettle = kResults.GetBool("BorderSettle");
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIsOnlyTradeSameIdeology = kResults.GetBool("IsOnlyTradeSameIdeology");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
@@ -808,6 +812,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
 	kUtility.PopulateArrayByValue(m_piResourcefromCSAlly, "Resources", "Policy_ResourcefromCSAlly", "ResourceType", "PolicyType", szPolicyType, "Number");
+	kUtility.PopulateArrayByValue(m_piFreeResource, "Resources", "Policy_FreeResource", "ResourceType", "PolicyType", szPolicyType, "Number");
 	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Policy_YieldFromBirthRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
@@ -2457,6 +2462,12 @@ bool CvPolicyEntry::IsAbleToAnnexCityStates() const
 	return m_bAbleToAnnexCityStates;
 }
 
+/// Do we ignore border adjancency restriction when founding cities?
+bool CvPolicyEntry::IsBorderSettle() const
+{
+	return m_bBorderSettle;
+}
+
 /// Only trade with same ideologies
 bool CvPolicyEntry::IsOnlyTradeSameIdeology() const
 {
@@ -2885,6 +2896,13 @@ int CvPolicyEntry::GetResourceFromCSAlly(int i) const
 	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourcefromCSAlly[i];
+}
+// Grants free resources when the policy is adopted
+int CvPolicyEntry::GetFreeResource(int i) const
+{
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piFreeResource[i];
 }
 /// Does this Policy grant yields from citizen birth?
 int CvPolicyEntry::GetYieldFromBirth(int i) const

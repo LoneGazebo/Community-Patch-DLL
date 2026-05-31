@@ -82,7 +82,7 @@ public:
 		YIELD_UPDATE_GLOBAL //update yields and player happiness
 	};
 
-	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
+	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnit* pkSettler = NULL);
 	void uninit();
 	void reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, int iX = 0, int iY = 0, bool bConstructorCall = false);
 	void setupGraphical();
@@ -478,8 +478,6 @@ public:
 	void SetReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 
-	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
-
 	void UpdateOceanStatus();
 
 	const CvHandicapInfo& getHandicapInfo() const;
@@ -741,6 +739,7 @@ public:
 	void changeFreeExperience(int iChange);
 
 	bool CanAirlift() const;
+	bool CanSealift() const;
 
 	int GetMaxAirUnits() const;
 	void ChangeMaxAirUnits(int iChange);
@@ -1476,7 +1475,7 @@ public:
 	int getAdjacentUnitsDefenseMod() const;
 
 	void updateStrengthValue();
-	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildings = false, const CvUnit* pDefender = NULL) const;
+	int getStrengthValue(bool bForRangeStrike = false, bool bIgnoreBuildings = false, const CvUnit* pDefender = NULL, bool bOverrideGarrison = false, const CvUnit* pGarrisonOverride = NULL) const;
 	int GetPower() const;
 
 	int getDamage() const;
@@ -1756,6 +1755,10 @@ public:
 	int GetPlagueTurns() const;
 	void ChangePlagueTurns(int iValue); //Set in city::doturn
 	void SetPlagueTurns(int iValue);
+
+	int GetDefenseProcessTurns() const;
+	void ChangeDefenseProcessTurns(int iValue); //Set in city::doturn
+	void SetDefenseProcessTurns(int iValue);
 
 	int GetSappedTurns() const;
 	void SetSappedTurns(int iValue);
@@ -2171,6 +2174,7 @@ protected:
 	int m_iPlagueCounter;
 	int m_iPlagueTurns;
 	int m_iPlagueType;
+	int m_iDefenseProcessTurns;
 	int m_iSappedTurns;
 	int m_iBuildingProductionBlockedTurns;
 	int m_iNoTourismTurns;
@@ -2559,6 +2563,7 @@ SYNC_ARCHIVE_VAR(int, m_iResistanceCounter)
 SYNC_ARCHIVE_VAR(int, m_iPlagueCounter)
 SYNC_ARCHIVE_VAR(int, m_iPlagueTurns)
 SYNC_ARCHIVE_VAR(int, m_iPlagueType)
+SYNC_ARCHIVE_VAR(int, m_iDefenseProcessTurns)
 SYNC_ARCHIVE_VAR(int, m_iSappedTurns)
 SYNC_ARCHIVE_VAR(int, m_iBuildingProductionBlockedTurns)
 SYNC_ARCHIVE_VAR(int, m_iNoTourismTurns)

@@ -563,8 +563,11 @@ local g_cityToolTips = {
 	CityIsMined = function()
 		return L"TXT_KEY_CITY_MINED"
 	end,
-	CityHasAirport = function()
-		return L"TXT_KEY_CITY_HAS_AIRPORT"
+	CityCanAirlift = function()
+		return L"TXT_KEY_CITY_HAS_AIRLIFT"
+	end,
+	CityCanSealift = function()
+		return L"TXT_KEY_CITY_HAS_SEALIFT"
 	end,
 	CityHasOffice = function( city )
 		if Players[city:GetOwner()]:GetCorporation() ~= -1  then
@@ -1090,7 +1093,7 @@ local function RefreshCityBannersNow()
 			-- Puppet ?
 			instance.CityIsPuppet:SetHide( not isPuppet )
 
-			-- Rome UA (Annexed City-States)
+			-- Annexed City-States
 			if Players[city:GetOriginalOwner()]:IsMinorCiv() then
 				instance.CityIsCityState:SetHide ( not cityOwner:IsAnnexedCityStatesGiveYields())
 			end
@@ -1101,9 +1104,12 @@ local function RefreshCityBannersNow()
 			-- Has minefield ?
 			instance.CityIsMined:SetHide( not city:IsMined() )
 
-			-- Has airport ?
-			instance.CityHasAirport:SetHide( not city:IsHasBuilding(GameInfoTypes["BUILDING_AIRPORT"]) )
+			-- Can airlift ?
+			instance.CityCanAirlift:SetHide( not city:CanAirlift() )
 
+			-- Can sealift ?
+			instance.CityCanSealift:SetHide( not city:CanSealift() )
+					
 			-- Has office ?
 			instance.CityHasOffice:SetHide( not city:HasOffice() )
 
@@ -1371,7 +1377,7 @@ local function RefreshCityBannersNow()
 				else
 					otherCivAlpha = 0.5
 					otherCivID = g_activeTeam:IsHasMet( originalCityOwner:GetTeam() ) and originalCityOwnerID
-					if (Game.IsOption(GameOptionTypes.GAMEOPTION_ENABLE_VASSALAGE) and not Players[originalCityOwnerID]:IsAlive() and Teams[Players[Game.GetActivePlayer()]:GetTeam()]:GetCurrentEra() >= Game.GetVassalageEnabledEra() and Players[Game.GetActivePlayer()]:CanLiberatePlayer(originalCityOwnerID)) then
+					if (Game.IsOption("GAMEOPTION_ENABLE_VASSALAGE") and not Players[originalCityOwnerID]:IsAlive() and Teams[Players[Game.GetActivePlayer()]:GetTeam()]:GetCurrentEra() >= Game.GetVassalageEnabledEra() and Players[Game.GetActivePlayer()]:CanLiberatePlayer(originalCityOwnerID)) then
 							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_RESURRECT", originalCityOwner:GetCivilizationShortDescription() )
 						elseif (Players[Game.GetActivePlayer()]:CanLiberatePlayer(originalCityOwnerID)) then
 							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", originalCityOwner:GetCivilizationShortDescription() )

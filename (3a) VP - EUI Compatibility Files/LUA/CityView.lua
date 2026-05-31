@@ -318,12 +318,6 @@ local function StringFormatNeatFloat(x)
 end
 
 -------------------------------------------------
--- See if the mod for faith purchase buildings in
--- puppets is activated, then cache the result.
--------------------------------------------------
-local g_isFaithPurchaseBuildingsInPuppetsMod = Game.IsCustomModOption("GLOBAL_PURCHASE_FAITH_BUILDINGS_IN_PUPPETS")
-
--------------------------------------------------
 -- Clear out the UI so that when a player changes
 -- the next update doesn't show the previous player's
 -- values for a frame
@@ -476,7 +470,6 @@ local function GetSpecialistYields( city, specialist )
 		local cityOwner = Players[ city:GetOwner() ]
 		-- Culture
 		local specialistYield = 0
-		local cultureFromSpecialist = city:GetCultureFromSpecialist( specialistID )
 		local specialistYieldModifier = 0
 		local specialistCultureModifier = city:GetCultureRateModifier() + ( cityOwner and ( cityOwner:GetCultureCityModifier() + ( city:GetNumWorldWonders() > 0 and cityOwner:GetCultureWonderMultiplier() or 0 )) or 0 )
 		-- Yield
@@ -488,16 +481,13 @@ local function GetSpecialistYields( city, specialist )
 			-- COMMUNITY PATCH ENDS
 			specialistYieldModifier = city:GetBaseYieldRateModifier( yieldID )
 			if yieldID == YieldTypes.YIELD_CULTURE then
-				specialistYield = specialistYield + cultureFromSpecialist
 				specialistYieldModifier = specialistYieldModifier + specialistCultureModifier
-				cultureFromSpecialist = 0
 			end
 			-- Vox Populi Comparable Yields
 			specialistYieldModifier = 100
 			yieldTips:insertIf( specialistYield ~= 0 and specialistYield * specialistYieldModifier / 100 .. tostring(YieldIcons[yieldID]) )
 			--yieldTips:insertIf( specialistYield ~= 0 and specialistYield .. tostring(YieldIcons[yieldID]) )
 		end
-		yieldTips:insertIf( cultureFromSpecialist ~= 0 and cultureFromSpecialist .. "[ICON_CULTURE]" )
 		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange + city:GetEventGPPFromSpecialists() .. GreatPeopleIcon( specialist.Type ) )
 		-- Vox Populi food info
 		local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;
@@ -1008,10 +998,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 	local city = UI_GetHeadSelectedCity()
 	if city then
 		local cityOwnerID = city:GetOwner()
-		if cityOwnerID == g_activePlayerID
-			and ( not city:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() ) or g_isFaithPurchaseBuildingsInPuppetsMod)
-							----------- Venice exception -----------
-		then
+		if cityOwnerID == g_activePlayerID then
 			local cityID = city:GetID()
 			local isPurchase
 			if orderID == OrderTypes.ORDER_TRAIN then
@@ -1030,9 +1017,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 				-- Invest in all buildings of this type in any cities queue
 				if UI.ShiftKeyDown() then
 					for cityX in g_activePlayer:Cities() do
-						if cityX ~= city
-								and ( not cityX:IsPuppet() or ( bnw_mode and g_activePlayer:MayNotAnnex() ) or g_isFaithPurchaseBuildingsInPuppetsMod)
-								and isItemInQueue(cityX, itemID) then
+						if cityX ~= city and isItemInQueue(cityX, itemID) then
 							if cityIsCanPurchase( cityX, true, true, -1, itemID, -1, yieldID ) then
 								Game.CityPurchaseBuilding( cityX, itemID, yieldID )
 								Network.SendUpdateCityCitizens( cityX:GetID() )
@@ -1392,6 +1377,8 @@ end)
 	g_ProdQueueIM.ResetInstances()
 	local queueItems = {}
 
+	local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
+	local isCityCaptureViewingMode = city:IsIgnoreCityForHappiness()
 	for queuedItemNumber = 0, math_max( queueLength-1, 0 ) do
 
 		local orderID, itemID, _, isRepeat, isReallyRepeat
@@ -1464,11 +1451,8 @@ end)
 
 		-- Vox Populi gold button
 		if itemInfo then
-			if (bnw_mode and g_activePlayer:MayNotAnnex()) then --Venice puppets needs to buy building on production queue
-				instance.PQGoldButton:SetHide( not goldCostPQ or (isActivePlayerCity or isCityCaptureViewingMode)) 
-			else
-				instance.PQGoldButton:SetHide( not goldCostPQ or g_isViewingMode)
-			end
+			instance.PQGoldButton:SetHide( not goldCostPQ or not isActivePlayerCity or isCityCaptureViewingMode)
+			
 			if goldCostPQ then
 				instance.PQGoldButton:SetDisabled( not canBuyWithGoldPQ )
 				instance.PQGoldButton:SetAlpha( canBuyWithGoldPQ and 1 or 0.5 )
@@ -1511,7 +1495,8 @@ end)
 	-- Update Selection List
 	-------------------------------------------
 
-	local isSelectionList = not g_isViewingMode or isVeniceException or g_isDebugMode or g_isFaithPurchaseBuildingsInPuppetsMod
+	local isSelectionList = isActivePlayerCity and not isCityCaptureViewingMode
+
 	Controls.SelectionScrollPanel:SetHide( not isSelectionList )
 	if isSelectionList then
 		local unitSelectList = table()
@@ -1997,7 +1982,7 @@ local function UpdateCityViewNow()
 		local cityOwnerID = city:GetOwner()
 		local cityOwner = Players[cityOwnerID]
 		local isActivePlayerCity = cityOwnerID == Game.GetActivePlayer()
-		local isCityCaptureViewingMode = UI.IsPopupTypeOpen(ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED)
+		local isCityCaptureViewingMode = city:IsIgnoreCityForHappiness()
 		g_isDebugMode = Game.IsDebugMode()
 		g_isViewingMode = city:IsPuppet() or not isActivePlayerCity or isCityCaptureViewingMode
 

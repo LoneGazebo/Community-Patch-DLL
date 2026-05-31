@@ -168,6 +168,14 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			return SR_STRATEGY;
 	}
 
+	// For the AI, building the Utopia Project is controlled in AI_doSpaceshipAndUtopiaProduction, overriding normal AI production selection
+	if (MOD_BALANCE_CULTURE_VICTORY_CHANGES)
+	{
+		ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
+		if (eProject == eUtopia && !kPlayer.isHuman(ISHUMAN_AI_CITY_PRODUCTION))
+			return SR_STRATEGY;
+	}
+
 	if(kPlayer.isMinorCiv())
 	{
 		return SR_IMPOSSIBLE;
@@ -252,109 +260,115 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 	}
 
-	bool bGoodforHappiness = false;
+	// if the project starts a player event, it's probably important
+	if (pkProjectInfo->GetEventToStart())
+	{
+		iTempWeight += 1000;
+	}
+	// if the project starts a city event, it's probably fairly important
+	if (pkProjectInfo->GetEventToStart())
+	{
+		iTempWeight += 500;
+	}
+
+	// if we aren't currently unhappy, we need to massively reduce the value of happiness effects
+	int iScaleFactor = 30;
+	int iUnhappyWeight = GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy() ? iScaleFactor : 1;
+	
 	if (pkProjectInfo->GetHappiness() > 0)
 	{
-		bGoodforHappiness = true;
-		iTempWeight += (30 * pkProjectInfo->GetHappiness());
+		iTempWeight += (iUnhappyWeight * pkProjectInfo->GetHappiness());
+	}
+
+	if (pkProjectInfo->GetCitySupplyFlat() > 0)
+	{
+		iTempWeight += iScaleFactor * pkProjectInfo->GetCitySupplyFlat();
 	}
 
 	if (pkProjectInfo->GetEmpireSizeModifierReduction() < 0)
 	{
-		bGoodforHappiness = true;
-		iTempWeight += ((m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1));
+		iTempWeight += (iUnhappyWeight * (m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1)) / iScaleFactor;
 	}
 
 	if (pkProjectInfo->GetEmpireSizeModifierPerCityMod() < 0)
 	{
-		bGoodforHappiness = true;
-		iTempWeight += GET_PLAYER(m_pCity->getOwner()).getNumCities() * (pkProjectInfo->GetEmpireSizeModifierPerCityMod() * -1) / 100;
+		iTempWeight += (iUnhappyWeight * GET_PLAYER(m_pCity->getOwner()).getNumCities() * (pkProjectInfo->GetEmpireSizeModifierPerCityMod() * -1) / 100) / iScaleFactor;
 	}
 
 	if (pkProjectInfo->GetDistressFlatReduction() > 0)
 	{
-		bGoodforHappiness = true;
 		int iDistress = m_pCity->GetDistress(false);
 		if (iDistress > 0)
-			iTempWeight += 75 * pkProjectInfo->GetDistressFlatReduction() * iDistress * iDistress;
+			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetDistressFlatReduction();
 	}
 
 	if (pkProjectInfo->GetPovertyFlatReduction() > 0)
 	{
-		bGoodforHappiness = true;
 		int iPoverty = m_pCity->GetPoverty(false);
 		if (iPoverty > 0)
-			iTempWeight += 75 * pkProjectInfo->GetPovertyFlatReduction() * iPoverty * iPoverty;
+			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetPovertyFlatReduction();
 	}
 
 	if (pkProjectInfo->GetIlliteracyFlatReduction() > 0)
 	{
-		bGoodforHappiness = true;
 		int iIlliteracy = m_pCity->GetIlliteracy(false);
 		if (iIlliteracy > 0)
-			iTempWeight += 75 * pkProjectInfo->GetIlliteracyFlatReduction() * iIlliteracy * iIlliteracy;
+			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetIlliteracyFlatReduction();
 	}
 
 	if (pkProjectInfo->GetBoredomFlatReduction() > 0)
 	{
-		bGoodforHappiness = true;
 		int iBoredom = m_pCity->GetBoredom(false);
 		if (iBoredom > 0)
-			iTempWeight += 75 * pkProjectInfo->GetBoredomFlatReduction() * iBoredom * iBoredom;
+			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetBoredomFlatReduction();
 	}
 
 	if (pkProjectInfo->GetReligiousUnrestFlatReduction() > 0)
 	{
-		bGoodforHappiness = true;
 		int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
 		if (iReligiousUnrest > 0)
-			iTempWeight += 75 * pkProjectInfo->GetReligiousUnrestFlatReduction() * iReligiousUnrest * iReligiousUnrest;
+			iTempWeight += iUnhappyWeight * 3 * pkProjectInfo->GetReligiousUnrestFlatReduction();
 	}
 
 	if (pkProjectInfo->GetBasicNeedsMedianModifier() < 0)
 	{
-		bGoodforHappiness = true;
 		int iDistress = m_pCity->GetDistress(false);
 		if (iDistress > 0)
-			iTempWeight += -5 * pkProjectInfo->GetBasicNeedsMedianModifier() * iDistress * iDistress;
+			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetBasicNeedsMedianModifier() * iDistress * iDistress) / iScaleFactor;
 	}
 
 	if (pkProjectInfo->GetGoldMedianModifier() < 0)
 	{
-		bGoodforHappiness = true;
 		int iPoverty = m_pCity->GetPoverty(false);
 		if (iPoverty > 0)
-			iTempWeight += -5 * pkProjectInfo->GetGoldMedianModifier() * iPoverty * iPoverty;
+			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetGoldMedianModifier() * iPoverty * iPoverty) / iScaleFactor;
 	}
 
 	if (pkProjectInfo->GetScienceMedianModifier() < 0)
 	{
-		bGoodforHappiness = true;
 		int iIlliteracy = m_pCity->GetIlliteracy(false);
 		if (iIlliteracy > 0)
-			iTempWeight += -5 * pkProjectInfo->GetScienceMedianModifier() * iIlliteracy * iIlliteracy;
+			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetScienceMedianModifier() * iIlliteracy * iIlliteracy) / iScaleFactor;
 	}
 
 	if (pkProjectInfo->GetCultureMedianModifier() < 0)
 	{
-		bGoodforHappiness = true;
 		int iBoredom = m_pCity->GetBoredom(false);
 		if (iBoredom > 0)
-			iTempWeight += -5 * pkProjectInfo->GetCultureMedianModifier() * iBoredom * iBoredom;
+			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetCultureMedianModifier() * iBoredom * iBoredom) / iScaleFactor;
 	}
 
 	if (pkProjectInfo->GetReligiousUnrestModifier() < 0)
 	{
-		bGoodforHappiness = true;
 		int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
 		if (iReligiousUnrest > 0)
-			iTempWeight += -5 * pkProjectInfo->GetReligiousUnrestModifier() * iReligiousUnrest * iReligiousUnrest;
+			iTempWeight += (-iUnhappyWeight * 5 * pkProjectInfo->GetReligiousUnrestModifier() * iReligiousUnrest * iReligiousUnrest) / iScaleFactor;
 	}
 
 	if (pkProjectInfo->GetSpySecurityModifier() > 0)
 	{
-		int iEsp = /*2000*/ (GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT) * 2);
-		iTempWeight += (iEsp/2);
+		int iEsp = pkProjectInfo->GetSpySecurityModifier() * /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
+		iTempWeight += iEsp / 100;
 	}
 
 	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
@@ -380,9 +394,6 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			iTempWeight += iProjMod * GET_PLAYER(m_pCity->getOwner()).getNumCities() * (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsWarmonger() ? 3 : 1);
 		}
 	}
-
-	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
-		iTempWeight /= 50;
 
 	return max(1,iTempWeight);
 }

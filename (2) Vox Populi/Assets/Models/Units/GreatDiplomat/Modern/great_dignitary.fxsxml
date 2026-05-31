@@ -1,0 +1,44 @@
+<Asset>
+	<Mesh file="great_dignitary.gr2"/>
+	<Animation file="Great_Writer_Early_F2_IdleA.gr2" ec="1000"/>
+	<Animation file="Great_Writer_Early_F2_FidgetA.gr2" ec="1040"/>
+	<Animation file="Great_Writer_Early_F2_IdleA_Trans_IdleB.gr2" ec="1020"/>
+	<Animation file="Great_Writer_Early_F2_IdleB.gr2" ec="2000"/>
+	<Animation file="Great_Writer_Early_F2_FidgetB.gr2" ec="2040"/>
+	<Animation file="Great_Writer_Early_F2_IdleB_Trans_IdleA.gr2" ec="2020"/>
+	<Animation file="Great_Writer_Early_F2_Fortify.gr2" ec="1500"/>
+	<Animation file="Great_Writer_Early_F2_Fortify_Idle.gr2" ec="1520"/>
+	<Animation file="Great_Writer_Early_F2_Fortify_Idle_Trans_IdleA.gr2" ec="1580"/>
+	<Animation file="Great_Writer_Early_F2_Run.gr2" ec="1400"/>
+	<Animation file="Great_Writer_Early_F2_Stop_Run.gr2" ec="1440"/>
+	<Animation file="Great_Writer_Early_F2_Build.gr2" ec="1990"/>
+	<Animation file="Great_Writer_Early_F2_Build_activate_idle.gr2" ec="1995"/>
+	<Animation file="Great_Writer_Early_F2_Bombard_Defense.gr2" ec="1280"/>
+	<Animation file="Great_Writer_Early_F2_Bombard_Defense_Idle.gr2" ec="1285"/>
+	<Animation file="Great_Writer_Early_F2_Bombard_Defense_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="Great_Writer_Early_F2_DeathA.gr2" ec="1200"/>
+	<Animation file="Great_Writer_Early_F2_DeathA_Idle.gr2" ec="1220"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<Texture file="great_dignitary.dds"/>
+	<Texture file="Great_Writer_Early_Follower_SREF.dds"/>
+	<AnimGraph file="CIVILIAN_DEATH_FINAL.dge"/>
+	<AnimGraph file="RUNNING_LOOP_GRAPH.dge"/>
+	<AnimGraph file="STOP_RUNNING_CIVILIAN.dge"/>
+	<AnimGraph file="RUN_START_CIVILIAN.dge"/>
+	<AnimGraph file="TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="FIDGETS_GRAPH.dge"/>
+	<AnimGraph file="IDLE_GRAPH.dge"/>
+	<AnimGraph file="IDLE_OFFSET_CONTINUE_TRUE_GRAPH.dge"/>
+	<AnimGraph file="BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="ENTER_SLEEP_CIVILIAN.dge"/>
+	<AnimGraph file="FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_FORTIFY_TO_IDLE_A.dge"/>
+	<AnimGraph file="CIVILIAN_ENTER_BOMBARD_DEFEND.dge"/>
+	<AnimGraph file="CIVILIAN_ACTIVATE_CAPTURED.dge"/>
+	<AnimGraph file="LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<StateMachine file="CIVILIAN_STATE_01.fsmxml"/>
+	<TimedTrigger file="FX_Triggers_Great_Writer_Early_F2.ftsxml"/>
+</Asset>
+

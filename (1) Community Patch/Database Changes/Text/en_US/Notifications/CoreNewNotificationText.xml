@@ -240,6 +240,9 @@
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GOLDEN_AGE">
 			<Text>Because your Civilization entered a [ICON_GOLDEN_AGE] Golden Age, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TOURISM_EVENT_RELIGION_SPREAD">
+			<Text>Because a City converted to your owned [ICON_RELIGION] Religion for the first time, your [ICON_TOURISM] Tourism with all known Civs has increased by {1_Num} (before Tourism modifiers)!</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_RETURNED_AI_SUMMARY">
 			<Text>{@2_UnitName} saved by {1_Player:textkey}!</Text>
@@ -721,7 +724,7 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_LUXURY_RESOURCE_GAIN">
 			<Text>Acquiring a Luxury Resource:[NEWLINE]{1_YieldString}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_IINSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN_SHORT">
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN_SHORT">
 			<Text>Gaining a Luxury Resource</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_GOLDEN_AGE_START">
@@ -864,6 +867,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_HEALING_SHORT">
 			<Text>Restoring Hit Points</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE_SHORT">
+			<Text>Disbanding or Upgrading a Unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TYPE_CITY_DAMAGE_SHORT">
 			<Text>Inflicting Damage on a City</Text>

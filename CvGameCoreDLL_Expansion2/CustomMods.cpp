@@ -178,9 +178,11 @@ void CustomMods::prefetchCache() {
 	while (kPostDefines.Step()) {
 		Database::Results kLookup;
 		char szSQL[512];
-		sprintf_s(szSQL, "select ROWID from %s where Type = '%s' LIMIT 1", kPostDefines.GetText("Table"), kPostDefines.GetText("Type"));
+		// Table name must be concatenated (SQLite doesn't support parameterized identifiers)
+		sprintf_s(szSQL, "select ROWID from %s where Type = ? LIMIT 1", kPostDefines.GetText("Table"));
 
 		if (db->Execute(kLookup, szSQL)) {
+			kLookup.Bind(1, kPostDefines.GetText("Type"));
 			if (kLookup.Step()) {
 				kInsert.Bind(1, kPostDefines.GetText("Name"));
 				kInsert.Bind(2, kLookup.GetInt(0));
@@ -369,6 +371,7 @@ int CustomMods::getOption(const string& sOption, int defValue)
 		MOD_OPT_CACHE(BALANCE_STRATEGIC_RESOURCE_MONOPOLIES);
 		MOD_OPT_CACHE(BALANCE_HEAVY_TRIBUTE);
 		MOD_OPT_CACHE(BALANCE_MINOR_PROTECTION_REQUIREMENTS);
+		MOD_OPT_CACHE(BALANCE_XP_ON_FIRST_ATTACK);
 		MOD_OPT_CACHE(BALANCE_CITY_STRENGTH_SWITCH);
 		MOD_OPT_CACHE(BALANCE_RIVER_CITY_CONNECTIONS);
 		MOD_OPT_CACHE(BALANCE_SPY_POINTS);
@@ -424,7 +427,6 @@ int CustomMods::getOption(const string& sOption, int defValue)
 		MOD_OPT_CACHE(BALANCE_SETTLERS_RESET_GROWTH);
 		MOD_OPT_CACHE(BALANCE_UNCAPPED_UNHAPPINESS);
 		MOD_OPT_CACHE(BALANCE_UNIT_INVESTMENTS);
-		MOD_OPT_CACHE(BALANCE_XP_ON_FIRST_ATTACK);
 		MOD_OPT_CACHE(CARGO_SHIPS); // disabled
 
 		// Other User Interface Options
@@ -505,6 +507,7 @@ int CustomMods::getOption(const string& sOption, int defValue)
 		MOD_OPT_CACHE(EVENTS_ACQUIRE_BELIEFS);
 		MOD_OPT_CACHE(EVENTS_AI_OVERRIDE_TECH);
 		MOD_OPT_CACHE(EVENTS_AIRLIFT);
+		MOD_OPT_CACHE(EVENTS_SEALIFT);
 		MOD_OPT_CACHE(EVENTS_AREA_RESOURCES);
 		MOD_OPT_CACHE(EVENTS_BARBARIANS);
 		MOD_OPT_CACHE(EVENTS_BATTLES);
@@ -513,6 +516,7 @@ int CustomMods::getOption(const string& sOption, int defValue)
 		MOD_OPT_CACHE(EVENTS_CIRCUMNAVIGATION);
 		MOD_OPT_CACHE(EVENTS_CITY);
 		MOD_OPT_CACHE(EVENTS_CITY_AIRLIFT);
+		MOD_OPT_CACHE(EVENTS_CITY_SEALIFT);
 		MOD_OPT_CACHE(EVENTS_CITY_BOMBARD);
 		MOD_OPT_CACHE(EVENTS_CITY_BORDERS);
 		MOD_OPT_CACHE(EVENTS_CITY_CAPITAL);

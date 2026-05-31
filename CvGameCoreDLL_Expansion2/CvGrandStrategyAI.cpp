@@ -743,9 +743,13 @@ int CvGrandStrategyAI::GetConquestPriority()
 					{
 						iPriorityBonus += pEntry->GetCombatModifierEnemyCities();
 					}
-					if (pEntry->GetCombatVersusOtherReligionTheirLands() > 0)
+					if (pEntry->GetCombatBonusTheirLands() > 0)
 					{
-						iPriorityBonus += pEntry->GetCombatVersusOtherReligionTheirLands();
+						iPriorityBonus += pEntry->GetCombatBonusTheirLands();
+					}
+					if (pEntry->GetCombatBonusVersusOtherReligionTheirLands() > 0)
+					{
+						iPriorityBonus += pEntry->GetCombatBonusVersusOtherReligionTheirLands();
 					}
 					if (pEntry->GetFaithFromKills() > 0)
 					{

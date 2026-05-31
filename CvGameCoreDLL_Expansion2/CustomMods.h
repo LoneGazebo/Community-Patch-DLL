@@ -164,6 +164,8 @@
 // When a Great Prophet spawns with a 100% spawn chance, any overflow Faith is kept, not discarded
 #define MOD_RELIGION_KEEP_PROPHET_OVERFLOW							gCustomMods.isRELIGION_KEEP_PROPHET_OVERFLOW()
 
+// Randomises religion choice if preferred religion is unavailable
+#define MOD_RELIGION_RANDOMISE										gCustomMods.isRELIGION_RANDOMISE()
 
 /////////////////////////////////////////
 // ENABLED PICK'N'MIX MODS
@@ -253,8 +255,6 @@
 // Removes religion preference
 // Kept the typo for backwards compatibility (sigh)
 #define MOD_RELIGION_NO_PREFERENCES									(gCustomMods.isRELIGION_NO_PREFERENCES() || gCustomMods.isRELIGION_NO_PREFERRENCES())
-// Randomises religion choice if preferred religion is unavailable
-#define MOD_RELIGION_RANDOMISE										gCustomMods.isRELIGION_RANDOMISE()
 
 // Send purchase notifications at every boundary and not just the first
 #define MOD_RELIGION_RECURRING_PURCHASE_NOTIFY						gCustomMods.isRELIGION_RECURRING_PURCHASE_NOTIFY()
@@ -315,6 +315,9 @@
 
 // Adds military strength, connection, and Influence requirements for pledging to protect a City-State, and enables the PtP revocation system
 #define MOD_BALANCE_MINOR_PROTECTION_REQUIREMENTS					gCustomMods.isBALANCE_MINOR_PROTECTION_REQUIREMENTS()
+
+// XP is granted only on a unit's first attack each turn
+#define MOD_BALANCE_XP_ON_FIRST_ATTACK								gCustomMods.isBALANCE_XP_ON_FIRST_ATTACK()
 
 // Increases city HP for each Citizen, removes garrisoned unit strength from city ranged strikes, removes Technologies' and (for major civs only) Citizens' effect on city strength
 #define MOD_BALANCE_CITY_STRENGTH_SWITCH							gCustomMods.isBALANCE_CITY_STRENGTH_SWITCH()
@@ -484,9 +487,6 @@
 
 // Units are invested at 50% (see define) of their production cost, instead of being built outright
 #define MOD_BALANCE_UNIT_INVESTMENTS								gCustomMods.isBALANCE_UNIT_INVESTMENTS()
-
-// XP is granted only on a unit's first attack
-#define MOD_BALANCE_XP_ON_FIRST_ATTACK								gCustomMods.isBALANCE_XP_ON_FIRST_ATTACK()
 
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 // FIXME: Disabled for now; this needs to be examined to see if it still works properly
@@ -690,10 +690,13 @@
 //   GameEvents.AiOverrideChooseNextTech.Add(function(iPlayer, bFreeTech) return iChoosenTech end)
 #define MOD_EVENTS_AI_OVERRIDE_TECH									gCustomMods.isEVENTS_AI_OVERRIDE_TECH()
 
-// Events sent to ascertain if a unit can airlift from/to a specific plot
+// Events sent to ascertain if a unit can airlift or sealift from/to a specific plot
 //   GameEvents.CanAirliftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
 //   GameEvents.CanAirliftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
 #define MOD_EVENTS_AIRLIFT											gCustomMods.isEVENTS_AIRLIFT()
+//   GameEvents.CanSealiftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
+//   GameEvents.CanSealiftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
+#define MOD_EVENTS_SEALIFT											gCustomMods.isEVENTS_SEALIFT()
 
 // Events sent to ascertain if an area can have civ specific resources and to place those resources
 //   GameEvents.AreaCanHaveAnyResource.Add(function(iPlayer, iArea) return true end)
@@ -734,9 +737,11 @@
 //   GameEvents.CitySoldBuilding.Add(function(iPlayer, iCity, iBuilding) end)
 #define MOD_EVENTS_CITY												gCustomMods.isEVENTS_CITY()
 	
-// Event sent to ascertain if a city can perform airlifts
+// Event sent to ascertain if a city can perform airlifts and sealifts
 //   GameEvents.CityCanAirlift.Add(function(iPlayer, iCity) return false end)
 #define MOD_EVENTS_CITY_AIRLIFT										gCustomMods.isEVENTS_CITY_AIRLIFT()
+//   GameEvents.CityCanSealift.Add(function(iPlayer, iCity) return false end)
+#define MOD_EVENTS_CITY_SEALIFT										gCustomMods.isEVENTS_CITY_SEALIFT()
 
 // Events sent to ascertain the bombard range for a city, and if indirect fire is allowed
 //   GameEvents.GetBombardRange.Add(function(iPlayer, iCity) return (-1 * GameDefines.CITY_ATTACK_RANGE) end)
@@ -1040,7 +1045,7 @@
 // Roads are built automatically when a trade route ends
 #define MOD_CIV6_ROADS												gCustomMods.isCIV6_ROADS()
 
-// Adds a "worker cost" to improvements and deletes the worker when he expands all his "strength"
+// Adds a "worker cost" to improvements and deletes the worker when he expends all his "strength"
 #define MOD_CIV6_WORKER												gCustomMods.isCIV6_WORKER()
 
 // Enables Iska Heritage modmod support
@@ -1106,12 +1111,14 @@ enum BattleTypeTypes
 #define BATTLE_JOINED(pCombatant, iRole, bIsCity) if (MOD_EVENTS_BATTLES && (pCombatant)) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleJoined, (pCombatant)->getOwner(), (pCombatant)->GetID(), iRole, bIsCity); }
 #define BATTLE_FINISHED()                         if (MOD_EVENTS_BATTLES) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleFinished); }
 
+const char* ShortenFilePath(const char* szFile);
+
 // Custom mod logger
 #if defined(CUSTOMLOGDEBUG)
 #if defined(CUSTOMLOGFILEINFO) && defined(CUSTOMLOGFUNCINFO)
 #define CUSTOMLOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", ShortenFilePath(__FILE__), __LINE__, __FUNCTION__, sMsg.c_str());	\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
@@ -1119,7 +1126,7 @@ enum BattleTypeTypes
 #if defined(CUSTOMLOGFILEINFO) && !defined(CUSTOMLOGFUNCINFO)
 #define CUSTOMLOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i] - %s", __FILE__, __LINE__, sMsg.c_str());					\
+	CvString sLine; CvString::format(sLine, "%s[%i] - %s", ShortenFilePath(__FILE__), __LINE__, sMsg.c_str());					\
 	LOGFILEMGR.GetLog(CUSTOMLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());							\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
@@ -1145,7 +1152,7 @@ enum BattleTypeTypes
 
 #define LIVELOG(sFmt, ...) {																					\
 	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);													\
-	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", __FILE__, __LINE__, __FUNCTION__, sMsg.c_str());	\
+	CvString sLine; CvString::format(sLine, "%s[%i]: %s - %s", ShortenFilePath(__FILE__), __LINE__, __FUNCTION__, sMsg.c_str());	\
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
 
@@ -1210,6 +1217,8 @@ enum BattleTypeTypes
 #define GAMEEVENT_BattleStarted					"BattleStarted",				"iii"
 #define GAMEEVENT_CanAirliftFrom				"CanAirliftFrom",				"iiii"
 #define GAMEEVENT_CanAirliftTo					"CanAirliftTo",					"iiii"
+#define GAMEEVENT_CanSealiftFrom				"CanSealiftFrom",				"iiii"
+#define GAMEEVENT_CanSealiftTo					"CanSealiftTo",					"iiii"
 #define GAMEEVENT_CanDoCommand					"CanDoCommand",					"iiiiiiib"
 #define GAMEEVENT_CanHaveAnyUpgrade				"CanHaveAnyUpgrade",			"ii"
 #define GAMEEVENT_CanHavePromotion				"CanHavePromotion",				"iii"
@@ -1225,6 +1234,7 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityBoughtPlot				"CityBoughtPlot",				"iiiibb"
 #define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
 #define GAMEEVENT_CityCanAirlift				"CityCanAirlift",				"ii"
+#define GAMEEVENT_CityCanSealift				"CityCanSealift",				"ii"
 #define GAMEEVENT_CityConnected					"CityConnected",				"iiiiib"
 #define GAMEEVENT_CityPuppeted					"CityPuppeted",					"ii"
 #define GAMEEVENT_CityConnections				"CityConnections",				"ib"
@@ -1590,6 +1600,7 @@ public:
 	MOD_OPT_DECL(BALANCE_STRATEGIC_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_HEAVY_TRIBUTE);
 	MOD_OPT_DECL(BALANCE_MINOR_PROTECTION_REQUIREMENTS);
+	MOD_OPT_DECL(BALANCE_XP_ON_FIRST_ATTACK);
 	MOD_OPT_DECL(BALANCE_CITY_STRENGTH_SWITCH);
 	MOD_OPT_DECL(BALANCE_RIVER_CITY_CONNECTIONS);
 	MOD_OPT_DECL(BALANCE_SPY_POINTS);
@@ -1645,7 +1656,6 @@ public:
 	MOD_OPT_DECL(BALANCE_SETTLERS_RESET_GROWTH);
 	MOD_OPT_DECL(BALANCE_UNCAPPED_UNHAPPINESS);
 	MOD_OPT_DECL(BALANCE_UNIT_INVESTMENTS);
-	MOD_OPT_DECL(BALANCE_XP_ON_FIRST_ATTACK);
 	MOD_OPT_DECL(CARGO_SHIPS); // disabled
 
 	// Other User Interface Options
@@ -1726,6 +1736,7 @@ public:
 	MOD_OPT_DECL(EVENTS_ACQUIRE_BELIEFS);
 	MOD_OPT_DECL(EVENTS_AI_OVERRIDE_TECH);
 	MOD_OPT_DECL(EVENTS_AIRLIFT);
+	MOD_OPT_DECL(EVENTS_SEALIFT);
 	MOD_OPT_DECL(EVENTS_AREA_RESOURCES);
 	MOD_OPT_DECL(EVENTS_BARBARIANS);
 	MOD_OPT_DECL(EVENTS_BATTLES);
@@ -1734,6 +1745,7 @@ public:
 	MOD_OPT_DECL(EVENTS_CIRCUMNAVIGATION);
 	MOD_OPT_DECL(EVENTS_CITY);
 	MOD_OPT_DECL(EVENTS_CITY_AIRLIFT);
+	MOD_OPT_DECL(EVENTS_CITY_SEALIFT);
 	MOD_OPT_DECL(EVENTS_CITY_BOMBARD);
 	MOD_OPT_DECL(EVENTS_CITY_BORDERS);
 	MOD_OPT_DECL(EVENTS_CITY_CAPITAL);

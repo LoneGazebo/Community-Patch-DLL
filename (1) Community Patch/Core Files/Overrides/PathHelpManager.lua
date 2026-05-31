@@ -12,7 +12,7 @@ local MOVE_DENOMINATOR = GameDefines.MOVE_DENOMINATOR;
 -------------------------------------------------
 --- @param node PathNode
 --- @param bShowRemainingMoves boolean
-local function BuildNode(node, bShowRemainingMoves)
+local function BuildNode(node, bShowRemainingMoves, bAirlift, bSealift, bChangePort)
 	local instance = instanceManager:GetInstance();
 
 	local bIsStopNode = false
@@ -44,16 +44,26 @@ local function BuildNode(node, bShowRemainingMoves)
 		local iMaxMoves = math.floor(iRemainder / 10);
 		local iMoves = iRemainder - iMaxMoves * 10;
 
-		if iMoves == 0 then
-			instance.TurnLabel:SetText(iTurns);
+		if bAirlift then
+			instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_AIRLIFT");
+		elseif bSealift then
+			instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_SEALIFT");
+		elseif bChangePort then
+			instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_CHANGE_PORT");
+		elseif iMoves == 0 then
 			if bIsStopNode then
 				instance.RemainingMoves:LocalizeAndSetText("TXT_KEY_PATHFINDING_ENDING_MOVE_EARLY");
 			else
 				instance.RemainingMoves:SetText("");
 			end
 		else
-			instance.TurnLabel:SetText("<" .. (iTurns + 1));
 			instance.RemainingMoves:SetText("[ICON_MOVES]" .. iMoves .. "/" .. iMaxMoves);
+		end
+
+		if iMoves == 0 then
+			instance.TurnLabel:SetText(iTurns);
+		else
+			instance.TurnLabel:SetText("<" .. (iTurns + 1));
 		end
 	end
 
@@ -72,20 +82,89 @@ local function BuildNode(node, bShowRemainingMoves)
 end
 
 -------------------------------------------------
+--- helpers to use below
+-------------------------------------------------
+--- maybe this exists already?
+function GetAdjacentCity(plot)
+    -- Check the plot itself first
+    local city = plot:GetPlotCity()
+    if city then
+        return city
+    end
+
+    -- Check surrounding plots (radius 1)
+    for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1 do
+        local adjPlot = Map.PlotDirection(plot:GetX(), plot:GetY(), direction)
+        if adjPlot then
+            local adjCity = adjPlot:GetPlotCity()
+            if adjCity then
+                return adjCity
+            end
+        end
+    end
+
+    return nil
+end
+
+--- airlift might not come just from airport in future
+local tAirliftBuildings = {}
+for building in GameInfo.Buildings() do
+    if building.Airlift == 1 then
+        table.insert(tAirliftBuildings, building.ID)
+    end
+end
+
+function CityHasAirlift(city)
+    if not city then return false end
+    for _, id in ipairs(tAirliftBuildings) do
+        if city:IsHasBuilding(id) then
+            return true
+        end
+    end
+    return false
+end
+
 --- @param tPath PathNode[]
 Events.UIPathFinderUpdate.Add(function (tPath)
 	instanceManager:ResetInstances();
 
-	local lastNode = {turn = 1};
-	for _, node in ipairs(tPath) do
-		if node.turn ~= lastNode.turn then
-			BuildNode(lastNode, false);
-		end
+	local pSelectedUnit = UI.GetHeadSelectedUnit()
 
-		lastNode = node;
+	local tAirlift = {};
+	local tSealift = {};
+	local tChangePort = {};
+	if pSelectedUnit then
+		local bIsLand = pSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_LAND;
+		local bIsSea  = pSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_SEA;
+		for i = 1, #tPath - 1 do
+			local nodeA = tPath[i];
+			local nodeB = tPath[i + 1];
+			if Map.PlotDistance(nodeA.x, nodeA.y, nodeB.x, nodeB.y) > 1 then
+				if bIsLand then
+						local plotA = Map.GetPlot(nodeA.x, nodeA.y)
+						local plotB = Map.GetPlot(nodeB.x, nodeB.y)
+						local cityA = GetAdjacentCity(plotA)
+						local cityB = GetAdjacentCity(plotB)
+						if CityHasAirlift(cityA) and CityHasAirlift(cityB) then
+							tAirlift[i]     = true;
+							tAirlift[i + 1] = true;
+						else
+							tSealift[i]     = true;
+							tSealift[i + 1] = true;
+						end
+				elseif bIsSea then
+					tChangePort[i]     = true;
+					tChangePort[i + 1] = true;
+				end
+			end
+		end
 	end
 
-	BuildNode(lastNode, true);
+	for i = #tPath, 1, -1 do
+		local node = tPath[i]
+		BuildNode(node, i == #tPath, tAirlift[i] or false, tSealift[i] or false, tChangePort[i] or false);
+	end
+
 end);
 
 -------------------------------------------------
