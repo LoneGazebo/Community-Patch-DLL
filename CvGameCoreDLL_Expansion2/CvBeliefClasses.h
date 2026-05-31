@@ -126,7 +126,6 @@ public:
 	int GetGreatPeopleFaithCostMod() const;
 	bool IsAIGoodStartingPantheon() const;
 	int GetMaxYieldPerFollower(int i) const;
-	int GetMaxYieldPerFollowerPercent(int i) const;
 	int GetIgnorePolicyRequirementsAmount() const;
 	int GetCSYieldBonus() const;
 	int GetCivilianWorkRate() const;
@@ -189,6 +188,7 @@ public:
 	int GetYieldModifierNaturalWonder(int i) const;
 	int GetMaxYieldModifierPerFollower(int i) const;
 	int GetMaxYieldModifierPerFollowerPercent(int i) const;
+	int GetFollowerRequiredPerYield(int i) const;
 	bool IsFaithUnitPurchaseEra(int i) const;
 	bool IsFaithUnitPurchaseSpecific(int i) const;
 	bool IsBuildingClassEnabled(int i) const;
@@ -341,7 +341,7 @@ protected:
 	int* m_piYieldFromFaithPurchase;
 	int* m_piYieldFromKnownPantheons;
 	int* m_piMaxYieldPerFollower;
-	int* m_piMaxYieldPerFollowerPercent;
+	int* m_piFollowerRequiredPerYield;
 	int* m_piImprovementVoteChange;
 	int* m_piUnitCombatProductionModifiers;
 	int m_iReducePolicyRequirements;
@@ -519,6 +519,7 @@ public:
 	int GetYieldModifierNaturalWonder(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetMaxYieldModifierPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetMaxYieldModifierPerFollowerPercent(int& iMaxVal, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetLocalFollowerYield(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, int iFollower = 0) const;
 
 	bool IsBuildingClassEnabled(BuildingClassTypes eType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	bool IsFaithBuyingEnabled(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -559,8 +560,6 @@ public:
 	int GetYieldFromProposal(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromHost(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromFaithPurchase(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetMaxYieldPerFollower(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetMaxYieldPerFollowerPercent(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromKnownPantheons(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	CivilizationTypes GetUniqueCiv(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

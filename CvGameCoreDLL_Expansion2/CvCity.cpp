@@ -15053,30 +15053,8 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 					}
 				}
 
-				int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldPerFollower((YieldTypes)iYield, getOwner(), this);
-				int iReligionYieldMaxFollowersPercent = pReligion->m_Beliefs.GetMaxYieldPerFollowerPercent((YieldTypes)iYield, getOwner(), this);
-				if (iReligionYieldMaxFollowersPercent > 0)
-				{
-					int iVal = iFollowers * iReligionYieldMaxFollowersPercent;
-					if (iVal > 0)
-					{
-						iVal /= 100;
-
-						if (iVal <= 0)
-							iVal = 1;
-
-						int iTempMod = min(iVal, iReligionYieldMaxFollowers);
-						iReligionYieldChange += iTempMod;
-					}
-				}
-				else
-				{
-					if (iReligionYieldMaxFollowers > 0)
-					{
-						int iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
-						iReligionYieldChange += iTempMod;
-					}
-				}
+				int iFollowerYield = pReligion->m_Beliefs.GetLocalFollowerYield((YieldTypes)iYield, getOwner(), this, false, iFollowers);
+				iReligionYieldChange += iFollowerYield;
 
 				if (isCapital()) 
 				{
