@@ -805,6 +805,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldModifier, "Policy_YieldModifiers", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCityYieldChange, "Policy_CityYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCoastalCityYieldChange, "Policy_CoastalCityYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piMonopolyCityYieldChange, "Policy_CityYieldPerMonopoly", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldChange, "Policy_CapitalYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldPerPopChange, "Policy_CapitalYieldPerPopChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldPerPopChangeEmpire, "Policy_CapitalYieldPerPopChangeEmpire", "PolicyType", szPolicyType);
@@ -2670,6 +2671,20 @@ int CvPolicyEntry::GetCoastalCityYieldChange(int i) const
 int* CvPolicyEntry::GetCoastalCityYieldChangeArray() const
 {
 	return m_piCoastalCityYieldChange;
+}
+
+/// Change to yield per monopoly owned
+int CvPolicyEntry::GetMonopolyCityYieldChange(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piMonopolyCityYieldChange ? m_piMonopolyCityYieldChange[i] : -1;
+}
+
+/// Array of yield changes per monopoly owned
+int* CvPolicyEntry::GetMonopolyCityYieldChangeArray() const
+{
+	return m_piMonopolyCityYieldChange;
 }
 
 /// Change to yield in Capital by type

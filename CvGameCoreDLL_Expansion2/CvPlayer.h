@@ -412,6 +412,9 @@ public:
 	int GetCoastalCityYieldChange(YieldTypes eYield) const;
 	void ChangeCoastalCityYieldChange(YieldTypes eYield, int iChange);
 
+	int GetMonopolyCityYieldChange(YieldTypes eYield) const;
+	void ChangeMonopolyCityYieldChange(YieldTypes eYield, int iChange);
+
 	int GetCapitalYieldChangeTimes100(YieldTypes eYield) const;
 	void ChangeCapitalYieldChangeTimes100(YieldTypes eYield, int iChange);
 
@@ -3428,6 +3431,7 @@ protected:
 
 	std::vector<int> m_aiCityYieldChange;
 	std::vector<int> m_aiCoastalCityYieldChange;
+	std::vector<int> m_aiMonopolyCityYieldChange;
 	std::vector<int> m_aiCapitalYieldChange;
 	std::vector<int> m_aiCapitalYieldPerPopChange;
 	std::vector<int> m_aiCapitalYieldPerPopChangeEmpire;
@@ -4218,6 +4222,7 @@ SYNC_ARCHIVE_VAR(bool, m_bHasAdoptedStateReligion)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiAccomplishments)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCityYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCoastalCityYieldChange)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiMonopolyCityYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCapitalYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCapitalYieldPerPopChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiCapitalYieldPerPopChangeEmpire)

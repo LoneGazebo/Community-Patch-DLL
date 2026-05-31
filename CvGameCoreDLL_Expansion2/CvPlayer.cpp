@@ -363,6 +363,7 @@ CvPlayer::CvPlayer() :
 	, m_aiAccomplishments()
 	, m_aiCityYieldChange()
 	, m_aiCoastalCityYieldChange()
+	, m_aiMonopolyCityYieldChange()
 	, m_aiCapitalYieldChange()
 	, m_aiCapitalYieldPerPopChange()
 	, m_aiCapitalYieldPerPopChangeEmpire()
@@ -1659,6 +1660,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiCoastalCityYieldChange.clear();
 	m_aiCoastalCityYieldChange.resize(NUM_YIELD_TYPES, 0);
 
+	m_aiMonopolyCityYieldChange.clear();
+	m_aiMonopolyCityYieldChange.resize(NUM_YIELD_TYPES, 0);
+	
 	m_aiCapitalYieldChange.clear();
 	m_aiCapitalYieldChange.resize(NUM_YIELD_TYPES, 0);
 
@@ -17435,6 +17439,27 @@ void CvPlayer::ChangeCoastalCityYieldChange(YieldTypes eYield, int iChange)
 	if (iChange != 0)
 	{
 		m_aiCoastalCityYieldChange[eYield] += iChange;
+		updateYield();
+	}
+}
+
+/// How much additional Yield do Cities produce per monopoly owned?
+int CvPlayer::GetMonopolyCityYieldChange(YieldTypes eYield) const
+{
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiMonopolyCityYieldChange[eYield];
+}
+
+/// Changes how much additional Yield Cities produce per monopoly owned
+void CvPlayer::ChangeMonopolyCityYieldChange(YieldTypes eYield, int iChange)
+{
+	PRECONDITION(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if (iChange != 0)
+	{
+		m_aiMonopolyCityYieldChange[eYield] += iChange;
 		updateYield();
 	}
 }
@@ -43006,6 +43031,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeYieldRateModifier(eYield, pkPolicyInfo->GetYieldModifier(iI) * iChange);
 		ChangeCityYieldChangeTimes100(eYield, pkPolicyInfo->GetCityYieldChange(iI) * iChange * 100);
 		ChangeCoastalCityYieldChange(eYield, pkPolicyInfo->GetCoastalCityYieldChange(iI) * iChange);
+		ChangeMonopolyCityYieldChange(eYield, pkPolicyInfo->GetMonopolyCityYieldChange(iI) * iChange);
 		ChangeCapitalYieldChangeTimes100(eYield, pkPolicyInfo->GetCapitalYieldChange(iI) * iChange * 100);
 		ChangeCapitalYieldPerPopChange(eYield, pkPolicyInfo->GetCapitalYieldPerPopChange(iI) * iChange);
 		ChangeCapitalYieldPerPopChangeEmpire(eYield, pkPolicyInfo->GetCapitalYieldPerPopChangeEmpire(iI) * iChange);
@@ -44264,6 +44290,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiAccomplishments);
 	visitor(player.m_aiCityYieldChange);
 	visitor(player.m_aiCoastalCityYieldChange);
+	visitor(player.m_aiMonopolyCityYieldChange);
 	visitor(player.m_aiCapitalYieldChange);
 	visitor(player.m_aiCapitalYieldPerPopChange);
 	visitor(player.m_aiCapitalYieldPerPopChangeEmpire);

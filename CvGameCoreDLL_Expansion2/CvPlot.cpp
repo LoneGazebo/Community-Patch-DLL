@@ -10202,6 +10202,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 				iYield += kPlayer.GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
 			}
 
+			// Yield per Monopoly owned
+			iYield += kPlayer.GetMonopolyCityYieldChange(eYield) * kPlayer.GetNumGlobalMonopolies();
+
 			// Yields from city strength
 			if (pOwningCity->GetYieldChangesPerCityStrengthTimes100(eYield) > 0)
 			{

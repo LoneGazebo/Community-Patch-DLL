@@ -4323,6 +4323,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[eYield] += PolicyInfo->GetCoastalCityYieldChange(eYield) * 5 * iNumCities;
 			}
 		}
+		if (PolicyInfo->GetMonopolyCityYieldChange(eYield) != 0)
+		{
+			if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsWarmonger())
+			{
+				yield[eYield] += PolicyInfo->GetMonopolyCityYieldChange(eYield) * 15 * iNumCities * pPlayer->GetNumGlobalMonopolies();
+			}
+			else
+			{
+				yield[eYield] += PolicyInfo->GetMonopolyCityYieldChange(eYield) * 10 * iNumCities * pPlayer->GetNumGlobalMonopolies();
+			}
+		}
 		if (PolicyInfo->GetCapitalYieldChange(eYield) != 0)
 		{
 			if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism())

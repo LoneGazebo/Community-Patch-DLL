@@ -250,6 +250,8 @@ public:
 	int* GetCityYieldChangeArray() const;
 	int GetCoastalCityYieldChange(int i) const;
 	int* GetCoastalCityYieldChangeArray() const;
+	int GetMonopolyCityYieldChange(int i) const;
+	int* GetMonopolyCityYieldChangeArray() const;
 	int GetCapitalYieldChange(int i) const;
 	int* GetCapitalYieldChangeArray() const;
 	int GetCapitalYieldPerPopChange(int i) const;
@@ -703,6 +705,7 @@ private:
 	int* m_piYieldModifier;
 	int* m_piCityYieldChange;
 	int* m_piCoastalCityYieldChange;
+	int* m_piMonopolyCityYieldChange;
 	int* m_piCapitalYieldChange;
 	int* m_piCapitalYieldPerPopChange;
 	int* m_piCapitalYieldPerPopChangeEmpire;
