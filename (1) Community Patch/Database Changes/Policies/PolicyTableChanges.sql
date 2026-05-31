@@ -306,6 +306,8 @@ ALTER TABLE Policies ADD AdditionalNumFranchisesMod integer DEFAULT 0;
 ALTER TABLE Policies ADD AdditionalNumFranchises integer DEFAULT 0;
 ALTER TABLE Policies ADD NoForeignCorpsInCities boolean DEFAULT 0;
 ALTER TABLE Policies ADD NoFranchisesInForeignCities boolean DEFAULT 0;
+-- Franchises of the player's corporation exert Pressure of the player's state religion, equal to this many cities of base pressure
+ALTER TABLE Policies ADD FranchisePressure integer DEFAULT 0;
 
 -- HH Mod
 ALTER TABLE Policies ADD ExtraNaturalWonderHappiness integer DEFAULT 0;
@@ -345,8 +347,10 @@ ALTER TABLE Policies ADD GreatDiplomatRateModifier integer DEFAULT 0;
 
 -- Ignore restriction on founding Cities next to borders
 ALTER TABLE Policies ADD BorderSettle boolean DEFAULT 0;
-
--- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
+----------------------------------------------------------------
+-- Policy Branches
+----------------------------------------------------------------
+-- number of unlocked policies (finishers excluded) required before branch is unlocked.
 ALTER TABLE PolicyBranchTypes ADD NumPolicyRequirement integer DEFAULT -1;
 
 -- A font icon for an ideology

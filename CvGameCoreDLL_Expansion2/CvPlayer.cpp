@@ -695,6 +695,7 @@ CvPlayer::CvPlayer() :
 	, m_iFreeTradeRoute()
 	, m_iReligionDistance()
 	, m_iPressureMod()
+	, m_iFranchisePressure()
 	, m_iTradeReligionModifier()
 	, m_iCityStateCombatModifier()
 	, m_iMaxAirUnits()
@@ -1477,6 +1478,7 @@ void CvPlayer::uninit()
 	m_iFreeTradeRoute = 0;
 	m_iReligionDistance = 0;
 	m_iPressureMod = 0;
+	m_iFranchisePressure = 0;
 	m_iTradeReligionModifier = 0;
 	m_iCityStateCombatModifier = 0;
 	m_iInfluenceForLiberation = 0;
@@ -35220,6 +35222,16 @@ void CvPlayer::changePressureMod(int iChange)
 	m_iPressureMod += iChange;
 }
 
+int CvPlayer::GetFranchisePressure() const
+{
+	return m_iFranchisePressure;
+}
+
+void CvPlayer::changeFranchisePressure(int iChange)
+{
+	m_iFranchisePressure += iChange;
+}
+
 int CvPlayer::GetCityStateCombatModifier() const
 {
 	return m_iCityStateCombatModifier;
@@ -42651,6 +42663,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeFreeTradeRoute(pkPolicyInfo->GetFreeTradeRoute() * iChange);
 	changeReligionDistance(pkPolicyInfo->GetReligionDistance() * iChange);
 	changePressureMod(pkPolicyInfo->GetPressureMod() * iChange);
+	changeFranchisePressure(pkPolicyInfo->GetFranchisePressure() * iChange);
 	changeCityStateCombatModifier(pkPolicyInfo->GetCityStateCombatModifier() * iChange);
 	changeInvestmentModifier(pkPolicyInfo->GetInvestmentModifier() * iChange);
 	changeMissionInfluenceModifier(pkPolicyInfo->GetMissionInfluenceModifier() * iChange);
@@ -44017,6 +44030,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iFreeTradeRoute);
 	visitor(player.m_iReligionDistance);
 	visitor(player.m_iPressureMod);
+	visitor(player.m_iFranchisePressure);
 	visitor(player.m_iTradeReligionModifier);
 	visitor(player.m_iCityStateCombatModifier);
 	visitor(player.m_iMaxAirUnits);

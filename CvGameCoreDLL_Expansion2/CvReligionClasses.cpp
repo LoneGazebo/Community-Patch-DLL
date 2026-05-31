@@ -315,6 +315,7 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if (kPlayer.isAlive())
 		{
+			// do they have a spy that spreads pressure?
 			int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
 			if (iSpyPressure > 0)
 			{
@@ -324,6 +325,21 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 					if (eReligionFounded != NO_RELIGION)
 					{
 						pCity->GetCityReligions()->AddSpyPressure(eReligionFounded, iSpyPressure);
+					}
+				}
+			}
+
+			// do we have their franchise that spreads pressure?
+			int iFranchisePressure = kPlayer.GetFranchisePressure();
+			if (iFranchisePressure > 0)
+			{
+				CorporationTypes eCorporation = kPlayer.GetCorporations()->GetFoundedCorporation();
+				if (eCorporation != NO_CORPORATION && pCity->IsHasFranchise(eCorporation))
+				{
+					ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetStateReligion();
+					if (eReligionFounded != NO_RELIGION)
+					{
+						pCity->GetCityReligions()->AddFranchisePressure(eReligionFounded, iFranchisePressure);
 					}
 				}
 			}
@@ -3908,6 +3924,22 @@ int CvPlayerReligions::GetSpyPressure(PlayerTypes ePlayer) const
 	return iRtnValue;
 }
 
+/// Does this religion get religious pressure from franchises?
+int CvPlayerReligions::GetFranchisePressure() const
+{
+	int iRtnValue = 0;
+	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetStateReligion();
+	if (eReligion != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+		if (pReligion)
+		{
+			iRtnValue += m_pPlayer->GetFranchisePressure();
+		}
+	}
+	return iRtnValue;
+}
+
 /// How many foreign cities are following a religion we founded?
 int CvPlayerReligions::GetNumForeignCitiesFollowing(ReligionTypes eReligion) const
 {
@@ -4538,6 +4570,20 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 					}
 				}
 			}
+			
+			// Include any pressure from Franchises
+			if (eReligion > RELIGION_PANTHEON && kPlayer.GetReligions()->GetStateReligion() == eReligion)
+			{
+				int iFranchisePressure = kPlayer.GetFranchisePressure();
+				if (iFranchisePressure > 0)
+				{
+					CorporationTypes eCorporation = kPlayer.GetCorporations()->GetFoundedCorporation();
+					if (eCorporation != NO_CORPORATION && m_pCity->IsHasFranchise(eCorporation))
+					{
+						iPressure += iFranchisePressure * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
+					}
+				}
+			}
 		}
 	}
 
@@ -5003,6 +5049,13 @@ void CvCityReligions::AddSpyPressure(ReligionTypes eReligion, int iBasePressure)
 {
 	AddReligiousPressure(FOLLOWER_CHANGE_SPY_PRESSURE, eReligion, iBasePressure*GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
 	RecomputeFollowers(FOLLOWER_CHANGE_SPY_PRESSURE);
+}
+
+/// Add pressure to recruit followers to a religion
+void CvCityReligions::AddFranchisePressure(ReligionTypes eReligion, int iBasePressure)
+{
+	AddReligiousPressure(FOLLOWER_CHANGE_FRANCHISE_PRESSURE, eReligion, iBasePressure*GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
+	RecomputeFollowers(FOLLOWER_CHANGE_FRANCHISE_PRESSURE);
 }
 
 /// Set this city to have all citizens following a religion (mainly for scripting)
