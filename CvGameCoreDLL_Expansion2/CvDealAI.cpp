@@ -2653,7 +2653,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	if(bFromMe)
 	{
 		//Our war score with the player
-		int iWarScore = pDiploAI->GetWarScore(eWithPlayer);
+		int iWarScore = GetPlayer()->GetWarScore(eWithPlayer);
 
 		iItemValue += (iWarScore * 15);
 
@@ -2752,7 +2752,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 	else
 	{
 		//Their war score with the player
-		int iTheirWarScore = GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetWarScore(eWithPlayer);
+		int iTheirWarScore = GET_PLAYER(eOtherPlayer).GetWarScore(eWithPlayer);
 
 		iItemValue += (iTheirWarScore * 5);
 
@@ -5108,7 +5108,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	CvPlayer* pWinningPlayer = &GET_PLAYER(eWinningPlayer);
 
 	pDeal->SetSurrenderingPlayer(eLosingPlayer);
-	int iWarScore = pLosingPlayer->GetDiplomacyAI()->GetWarScore(eWinningPlayer);
+	int iWarScore = pLosingPlayer->GetWarScore(eWinningPlayer);
 
 	bool bBecomeMyVassal = pLosingPlayer->GetDiplomacyAI()->IsVassalageAcceptable(eWinningPlayer, false);
 	bool bRevokeMyVassals = false;
@@ -7155,7 +7155,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 		//War? Refuse if we're not losing badly.
 		if (bWar)
 		{
-			if (m_pDiploAI->GetWarScore(eOtherPlayer) >= -75)
+			if (GetPlayer()->GetWarScore(eOtherPlayer) >= -75)
 			{
 				return INT_MAX;
 			}

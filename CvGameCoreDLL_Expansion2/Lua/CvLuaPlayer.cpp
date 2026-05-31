@@ -7079,7 +7079,7 @@ int CvLuaPlayer::lGetWarScore(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetDiplomacyAI()->GetWarScore(ePlayer);
+	const int iResult = pkPlayer->GetWarScore(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

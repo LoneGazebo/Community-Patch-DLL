@@ -10736,7 +10736,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			if (iNumTheirCities == 0)
 				bSeriousDangerThem = true;
 
-			int WarScore = GetWarScore(eLoopPlayer);
+			int WarScore = GetPlayer()->GetWarScore(eLoopPlayer);
 			bool bWeAreLosing = WarScore <= -75;
 			bool bTheyAreLosing = WarScore >= 75;
 			if (iUnhappinessFromWarWeariness > 0 && GET_PLAYER(eHighestWarWearinessPlayer).getTeam() == GET_PLAYER(eLoopPlayer).getTeam() && GetPlayer()->IsEmpireVeryUnhappy())
@@ -10907,21 +10907,6 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	}
 }
 
-/// What is the integer value of how well we think the war with ePlayer is going?
-int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
-
-	if (!IsAtWar(ePlayer))
-		return 0;
-
-	int iWarDamageWeInflicted = GET_PLAYER(ePlayer).GetWarDamageValue(GetID());
-	int iWarDamageTheyInflicted = GetPlayer()->GetWarDamageValue(ePlayer);
-
-	int iWarScore = (iWarDamageWeInflicted - iWarDamageTheyInflicted) * 2;
-	return range(iWarScore, -100, 100);
-}
-
 int CvDiplomacyAI::GetHighestWarscore()
 {
 	int iHighestWarscore = 0;
@@ -10931,7 +10916,7 @@ int CvDiplomacyAI::GetHighestWarscore()
 
 		if (IsPlayerValid(eLoopPlayer))
 		{
-			int iWarscore = GetWarScore(eLoopPlayer);
+			int iWarscore = GetPlayer()->GetWarScore(eLoopPlayer);
 			if (iWarscore > iHighestWarscore)
 			{
 				iHighestWarscore = iWarscore;
@@ -10955,7 +10940,7 @@ PlayerTypes CvDiplomacyAI::GetHighestWarscorePlayer()
 
 		if (IsPlayerValid(eLoopPlayer))
 		{
-			int iWarscore = GetWarScore(eLoopPlayer);
+			int iWarscore = GetPlayer()->GetWarScore(eLoopPlayer);
 			if (iWarscore >= iHighestWarscore)
 			{
 				if (iWarscore == 100 && iHighestWarscore == 100 && eBestPlayer != NO_PLAYER)
@@ -18627,7 +18612,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						bThinkingAboutDogpiling = true;
 					}
 
-					if (GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer) >= 40 && GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer) > GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer))
+					if (GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer) >= 80 && GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer) > GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer))
 					{
 						bThinkingAboutDogpiling = true;
 						vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * 5;
@@ -18646,7 +18631,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * 2;
 					}
 					// On the flipside, is this guy suffering from being at war with this player?
-					else if (!bStrategic && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) >= 20 && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) > GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer))
+					else if (!bStrategic && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) >= 40 && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) > GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer))
 					{
 						// Do we like them? Then we should defend our ally, if we can!
 						if ((IsFriendOrAlly(eLoopPlayer) || GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer || IsLiberator(eLoopPlayer, false, false) || IsMaster(eLoopPlayer) || (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)) && !IsUntrustworthy(eLoopPlayer) && GetCivApproach(eLoopPlayer) > CIV_APPROACH_GUARDED)
@@ -18667,8 +18652,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							}
 						}
 						// Do we hate the other guy? Then let's be more reluctant to go to war.
-						else if (!bUntrustworthy && !IsDenouncedByPlayer(ePlayer) && GetNumCitiesCapturedBy(ePlayer) <= 0 && GetWarScore(ePlayer) < GetWarscoreThresholdPositive() && 
-							(!IsAtWar(ePlayer) || IsPhonyWar(ePlayer, true) || GetWarScore(ePlayer) > GetWarscoreThresholdNegative()/2))
+						else if (!bUntrustworthy && !IsDenouncedByPlayer(ePlayer) && GetNumCitiesCapturedBy(ePlayer) <= 0 && GetPlayer()->GetWarScore(ePlayer) < GetWarscoreThresholdPositive() && 
+							(!IsAtWar(ePlayer) || IsPhonyWar(ePlayer, true) || GetPlayer()->GetWarScore(ePlayer) > GetWarscoreThresholdNegative()/2))
 						{
 							if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer || IsEndgameAggressiveTo(eLoopPlayer))
 							{
@@ -25182,7 +25167,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				}
 				else if (eWarState <= WAR_STATE_TROUBLED)
 				{
-					if (!bMajor || GetPlayer()->IsNoNewWars() || !IsPhonyWar(eLoopPlayer) || GetWarScore(eLoopPlayer) <= WARSCORE_THRESHOLD_NEGATIVE)
+					if (!bMajor || GetPlayer()->IsNoNewWars() || !IsPhonyWar(eLoopPlayer) || GetPlayer()->GetWarScore(eLoopPlayer) <= WARSCORE_THRESHOLD_NEGATIVE)
 						bMakePeaceWithAllMinors = true;
 				}
 			}
@@ -25490,7 +25475,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			if (iTurnsSinceCityCapture < iLowestTurnsSinceCityCapture)
 				iLowestTurnsSinceCityCapture = iTurnsSinceCityCapture;
 
-			int iWarScore = GetWarScore(ePlayer);
+			int iWarScore = GetPlayer()->GetWarScore(ePlayer);
 			if (iWarScore < iLowestWarScore)
 				iLowestWarScore = iWarScore;
 			if (iWarScore >= 75)
@@ -25873,7 +25858,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 			// War score is of course a significant factor
 			// If we get a tourism bonus from high warscore or special conquest bonuses, let's not end early!
-			int iWarScore = GetWarScore(ePlayer);
+			int iWarScore = GetPlayer()->GetWarScore(ePlayer);
 			if (iWarScore <= 0)
 			{
 				iPeaceScore += iWarScore / -2;
@@ -26323,7 +26308,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyOffers(vector<TeamTypes>& vMakePeaceTeams
 				continue;
 
 			// What we're willing to offer/accept in a peace treaty.
-			int iWarScore = GetWarScore(ePlayer);
+			int iWarScore = GetPlayer()->GetWarScore(ePlayer);
 
 			// Negative Warscore? Offer more.
 			if (iWarScore < 0)
@@ -26640,7 +26625,7 @@ PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	}
 
 	// Enemy captured a city and wants peace right away? Not if we can retaliate ... (sanity check: and our capital isn't about to fall)
-	if (GetWarScore(ePlayer) > -100 && GET_PLAYER(ePlayer).GetNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
+	if (GetPlayer()->GetWarScore(ePlayer) > -100 && GET_PLAYER(ePlayer).GetNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
 	{
 		CvCity* pCapital = GetPlayer()->getCapitalCity();
 		if (!pCapital || !pCapital->isInDangerOfFalling(true))
@@ -32195,7 +32180,7 @@ bool CvDiplomacyAI::IsPhonyWar(PlayerTypes ePlayer, bool bIgnoreCurrentApproach 
 		return false;
 
 	// War score is too high
-	int iWarScore = GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer);
+	int iWarScore = GetPlayer()->GetWarScore(ePlayer);
 	if (iWarScore <= GetWarscoreThresholdNegative() || iWarScore >= GetWarscoreThresholdPositive())
 		return false;
 
@@ -35317,7 +35302,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	{
 		if (bHuman)
 		{
-			int iOurWarScore = GetWarScore(ePlayer);
+			int iOurWarScore = GetPlayer()->GetWarScore(ePlayer);
 			if (iOurWarScore >= 10)
 			{
 				szText = GetDiploStringForMessage(DIPLO_MESSAGE_WINNER_PEACE_OFFER);
@@ -49696,7 +49681,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity)
 
 	if (!bLiberate)
 	{
-		bool bBadWarDecision = eOldOwner != NO_PLAYER && eOldOwner != BARBARIAN_PLAYER && IsAtWar(eOldOwner) && (GetWarState(eOldOwner) <= WAR_STATE_TROUBLED || GetWarScore(eOldOwner) <= -10) && (!GET_PLAYER(ePlayerToLiberate).isAlive() || GET_PLAYER(ePlayerToLiberate).IsAtWarWith(eOldOwner));
+		bool bBadWarDecision = eOldOwner != NO_PLAYER && eOldOwner != BARBARIAN_PLAYER && IsAtWar(eOldOwner) && (GetWarState(eOldOwner) <= WAR_STATE_TROUBLED || GetPlayer()->GetWarScore(eOldOwner) <= -10) && (!GET_PLAYER(ePlayerToLiberate).isAlive() || GET_PLAYER(ePlayerToLiberate).IsAtWarWith(eOldOwner));
 
 		// Player we'd be liberating is alive
 		if (GET_PLAYER(ePlayerToLiberate).isAlive())
@@ -52483,7 +52468,7 @@ void CvDiplomacyAI::LogWarStatus()
 
 					if(!GET_PLAYER(eLoopPlayer).isMinorCiv() && IsAtWar(eLoopPlayer))
 					{
-						strTemp.Format("   !!!!WAR SCORE: %d !!!! ", GetWarScore(eLoopPlayer));
+						strTemp.Format("   !!!!WAR SCORE: %d !!!! ", GetPlayer()->GetWarScore(eLoopPlayer));
 						strOutBuf += ", " + strTemp;
 					}
 
@@ -54144,7 +54129,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		vector<PlayerTypes> vMyTeam = GET_TEAM(GET_PLAYER(eObserver).getTeam()).getPlayers();
 		for (size_t i=0; i<vMyTeam.size(); i++)
 		{
-			if (GET_PLAYER(vMyTeam[i]).isAlive() && GET_PLAYER(vMyTeam[i]).isMajorCiv() && GET_PLAYER(vMyTeam[i]).getNumCities() > 0 && GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetWarScore(eCityOwner) < 0)
+			if (GET_PLAYER(vMyTeam[i]).isAlive() && GET_PLAYER(vMyTeam[i]).isMajorCiv() && GET_PLAYER(vMyTeam[i]).getNumCities() > 0 && GET_PLAYER(vMyTeam[i]).GetWarScore(eCityOwner) < 0)
 				return 0;
 		}
 	}
@@ -54473,6 +54458,42 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 
 	// Capped at 25% and SHARED_FATE_PERCENT
 	iWarmongerValue *= range(100 + iWarmongerPoliticalModifier, 25, max(100, /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT)));
+	iWarmongerValue /= 100;
+
+	if (iWarmongerValue <= 0)
+		return 0;
+
+	// ////////////////////////////////////
+	// THREAT MODIFIER : reduce warmonger penalty if the victim is a bigger threat to the observer than the conqueror.
+	// ////////////////////////////////////
+
+	int iWarmongerThreatModifier = 0;
+
+	if (!bHisLossIsOurOwn)
+	{
+		// Use the worst current/recent score against the city owner, since a lower score means a greater threat.
+		int iCityOwnerWarScore = GET_PLAYER(eObserver).IsAtWarWith(eCityOwner) ? min(GET_PLAYER(eObserver).GetWarScore(eCityOwner), GET_PLAYER(eObserver).GetMostRecentWarScore(eCityOwner)) : GET_PLAYER(eObserver).GetMostRecentWarScore(eCityOwner);
+
+		// Start with recent memory of the conqueror.
+		int iAttackerWarScore = GET_PLAYER(eObserver).GetMostRecentWarScore(eConqueror);
+		if (GET_PLAYER(eObserver).IsAtWarWith(eConqueror))
+		{
+			int iCurrentWarScore = GET_PLAYER(eObserver).GetWarScore(eConqueror);
+
+			// If the conqueror is currently beating us, that active threat overrides older memory.
+			if (iCurrentWarScore < 0)
+				iAttackerWarScore = iCurrentWarScore;
+			// Otherwise, use the better score; confidence against the conqueror increases the discount.
+			else
+				iAttackerWarScore = max(iCurrentWarScore, iAttackerWarScore);
+		}
+
+		// More negative = victim is more threatening than conqueror = lower warmonger penalty.
+		iWarmongerThreatModifier = iCityOwnerWarScore - iAttackerWarScore;
+	}
+
+	// Capped at 25% and 100%
+	iWarmongerValue *= range(100 + iWarmongerThreatModifier, 25, 100);
 	iWarmongerValue /= 100;
 
 	if (iWarmongerValue <= 0)
@@ -55879,7 +55900,7 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvalu
 /// Do we want to capitulate to ePlayer due to war?
 bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 {
-	int iWarScore = GetWarScore(ePlayer);
+	int iWarScore = GetPlayer()->GetWarScore(ePlayer);
 
 	// We've totally lost...
 	if (iWarScore <= -95)

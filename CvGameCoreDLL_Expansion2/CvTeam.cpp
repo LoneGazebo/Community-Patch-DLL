@@ -4360,11 +4360,36 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 	if (eIndex == GetID())
 		return;
 
+	vector<PlayerTypes> vOurTeam = getPlayers();
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(eIndex).getPlayers();
+
+	// If this is the first team out of the two to make peace, set recent war scores for Diplo AI
+	if (!bNewValue && isAtWar(eIndex) && GET_TEAM(eIndex).isAtWar(GetID()))
+	{
+		for (size_t i = 0; i < vOurTeam.size(); i++)
+		{
+			PlayerTypes eLoopPlayer = vOurTeam[i];
+			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+
+			if (kLoopPlayer.isAlive())
+			{
+				for (size_t j = 0; j < vTheirTeam.size(); j++)
+				{
+					PlayerTypes eLoopPlayer2 = vTheirTeam[j];
+					CvPlayer& kLoopPlayer2 = GET_PLAYER(eLoopPlayer2);
+
+					if (kLoopPlayer2.isAlive())
+					{
+						kLoopPlayer.SetMostRecentWarScore(eLoopPlayer2, kLoopPlayer.GetWarScore(eLoopPlayer2), false);
+						kLoopPlayer2.SetMostRecentWarScore(eLoopPlayer, kLoopPlayer2.GetWarScore(eLoopPlayer), false);
+					}
+				}
+			}
+		}
+	}
+
 	m_abAggressorPacifier[eIndex] = bAggressorPacifier;
 	m_abAtWar[eIndex] = bNewValue;
-
-	vector<PlayerTypes> vOurTeam= getPlayers();
-	vector<PlayerTypes> vTheirTeam= GET_TEAM(eIndex).getPlayers();
 
 	if (bNewValue)
 	{

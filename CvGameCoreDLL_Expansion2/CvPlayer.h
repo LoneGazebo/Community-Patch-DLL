@@ -2008,6 +2008,11 @@ public:
 	int GetUnhappinessFromWarWeariness() const;
 	int GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam, bool bConsiderHappinessOnly = false) const;
 
+	int GetWarScore(PlayerTypes ePlayer) const;
+	int GetMostRecentWarScore(PlayerTypes ePlayer, bool bFromDecay = false) const;
+	void SetMostRecentWarScore(PlayerTypes ePlayer, int iValue, bool bFromDecay);
+	void DoMostRecentWarScoreDecay(PlayerTypes ePlayer);
+
 	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
 	int getUnitsBuiltCount(UnitTypes eUnitType) const;
 
@@ -3480,6 +3485,7 @@ protected:
 	std::vector<int> m_aiWarValueLost;
 	std::vector<int> m_aiWarDamageValue;
 	std::vector<int> m_aiWarWeariness;
+	std::vector<int> m_aiMostRecentWarScore;
 	std::vector<int> m_aiNumUnitsBuilt;
 	std::vector<int> m_aiProximityToPlayer;
 	std::vector<int> m_aiResearchAgreementCounter;
@@ -4261,6 +4267,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLastCityCaptureTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarValueLost)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarDamageValue)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarWeariness)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiMostRecentWarScore)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumUnitsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProximityToPlayer)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResearchAgreementCounter)
