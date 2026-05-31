@@ -894,7 +894,7 @@
 			<Civilopedia>TXT_KEY_BUILDING_SHOPPING_MALL_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_SHOPPING_MALL_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_SHOPPING_MALL_STRATEGY</Strategy>
-			<PrereqTech>TECH_FLIGHT</PrereqTech>
+			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
 			<TradeRouteRecipientBonus>2</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>2</TradeRouteTargetBonus>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
