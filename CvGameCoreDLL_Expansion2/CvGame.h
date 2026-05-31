@@ -151,6 +151,13 @@ public:
 	int getTurnYear(int iGameTurn) const;
 	int getGameTurnYear();
 
+	// Persistent unique identifier for this game, generated once at game start and preserved across save/load.
+	const CvString& getGameId() const;
+
+	// Compact integer id for this game's UUID, resolved from the local stats.db uuid_dictionary.
+	// Not serialized; recomputed per machine from the string game id.
+	int getGameDatabaseId() const;
+
 	int getElapsedGameTurns() const;
 	void incrementElapsedGameTurns();
 
@@ -808,6 +815,9 @@ public:
 
 protected:
 
+	// Resolves m_intGameId from m_strGameId via the local stats.db uuid_dictionary. No-op when logging is off.
+	void resolveGameDatabaseId();
+
 	// exe things
 	CvBinType m_eExeBinType;
 	int* s_iExeWantForceResync;
@@ -916,6 +926,10 @@ protected:
 	CvEnumMap<ResourceTypes, PlayerTypes> m_aiGreatestMonopolyPlayer;
 
 	CvString m_strScriptData;
+
+	CvString m_strGameId;
+
+	int m_intGameId;
 
 	CvEnumMap<PlayerTypes, int> m_aiEndTurnMessagesReceived;
 	CvEnumMap<PlayerTypes, int> m_aiRankPlayer;		// Ordered by rank...

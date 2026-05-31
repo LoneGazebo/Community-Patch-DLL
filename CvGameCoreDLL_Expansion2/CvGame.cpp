@@ -33,6 +33,7 @@
 #include "CvAdvisorRecommender.h"
 #include "CvWorldBuilderMapLoader.h"
 #include "CvTypes.h"
+#include "SqliteLoggerRegistrations.h"
 #include "CvDllNetMessageExt.h"
 
 #include "cvStopWatch.h"
@@ -40,6 +41,14 @@
 
 #include "CvDLLUtilDefines.h"
 #include "CvAchievementUnlocker.h"
+
+// For CoCreateGuid (game UUID generation). Declared directly rather than via <objbase.h>,
+// which pulls in ole2.h/oleidl.h and conflicts with the SDK headers used by this project.
+// CoCreateGuid is exported from ole32.dll (ole32.lib is already linked).
+extern "C" __declspec(dllimport) long __stdcall CoCreateGuid(GUID* pguid);
+
+// SQLite statistics logging
+#include "SqliteLogger.h"
 
 // interface uses
 #include "ICvDLLUserInterface.h"
@@ -192,6 +201,22 @@ void CvGame::init(HandicapTypes eHandicap)
 	m_mapRand.init(CvPreGame::mapRandomSeed() % 73637381);
 	m_jonRand.init(CvPreGame::syncRandomSeed() % 52319761);
 
+	// Generate a unique identifier for this game. This is preserved across save/load
+	// so that statistics logged for the same game can always be correlated.
+	{
+		GUID kGuid;
+		if (CoCreateGuid(&kGuid) == S_OK)
+		{
+			m_strGameId.Format("%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+				kGuid.Data1, kGuid.Data2, kGuid.Data3,
+				kGuid.Data4[0], kGuid.Data4[1], kGuid.Data4[2], kGuid.Data4[3],
+				kGuid.Data4[4], kGuid.Data4[5], kGuid.Data4[6], kGuid.Data4[7]);
+		}
+	}
+
+	// Resolve the compact integer id for this game's UUID in the local stats database.
+	// stats.db compact integer lookup is a NO-OP when MOD_SQLITE_LOGGING is not enabled
+	resolveGameDatabaseId();
 	SetClosestCityMapDirty();
 
 	//--------------------------------
@@ -1229,6 +1254,8 @@ void CvGame::uninit()
 	m_iLastTurnCSSurrendered = 0;
 
 	m_strScriptData = "";
+	m_strGameId = "";
+	m_intGameId = 0;
 	m_iEarliestBarbarianReleaseTurn = 0;
 
 	m_iLastMouseoverUnitID = 0;
@@ -4733,6 +4760,38 @@ int CvGame::getNumSequentialHumans(PlayerTypes ignorePlayer)
 }
 
 //	------------------------------------------------------------------------------------------------
+const CvString& CvGame::getGameId() const
+{
+	return m_strGameId;
+}
+
+//	------------------------------------------------------------------------------------------------
+int CvGame::getGameDatabaseId() const
+{
+	return m_intGameId;
+}
+
+//	------------------------------------------------------------------------------------------------
+void CvGame::resolveGameDatabaseId()
+{
+	m_intGameId = 0;
+
+	if (m_strGameId.IsEmpty())
+		return;
+
+	// Strip the dashes from the UUID string to obtain a 32-char uppercase hex representation.
+	std::string strHex;
+	strHex.reserve(32);
+	for (const char* p = m_strGameId.c_str(); *p != '\0'; ++p)
+	{
+		if (*p != '-')
+			strHex += *p;
+	}
+
+	m_intGameId = GET_SQLITE_LOGGER().ResolveGameId(strHex);
+}
+
+//	------------------------------------------------------------------------------------------------
 int CvGame::getGameTurn() const
 {
 	return CvPreGame::gameTurn();
@@ -7475,6 +7534,30 @@ void CvGame::LogTurnScores() const
 
 void CvGame::LogGameResult(const char* victoryTypeText, const char* victoryCivText) const
 {
+	// Upon game completion, log each civ's final score, the winning civ, and the victory type to the SQLite stats database
+	if (MOD_SQLITE_LOGGING)
+	{
+		RegisterGameResultTable();
+
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			CvPlayer& eLoopCvPlayer = GET_PLAYER(eLoopPlayer);
+			if (eLoopPlayer != NO_PLAYER && eLoopCvPlayer.isEverAlive() && !eLoopCvPlayer.isMinorCiv() && !eLoopCvPlayer.isBarbarian())
+			{
+				const bool bIsWinningTeam = (eLoopCvPlayer.getTeam() == getWinner());
+				const int iScore = GET_TEAM(eLoopCvPlayer.getTeam()).GetScore();
+				const char* szCiv = eLoopCvPlayer.getCivilizationShortDescription();
+				const char* szVictoryTypeForCiv = bIsWinningTeam ? victoryTypeText : "";
+				GET_SQLITE_LOGGER().BeginLogRow("GameResult")
+					.bind(szCiv)
+					.bind(iScore)
+					.bind(szVictoryTypeForCiv)
+					.execute();
+			}
+		}
+	}
+
 	if (GC.getLogging() && GC.getAILogging())
 	{
 		CvString header = "Turn, VictoryType, VictoryCiv";
@@ -10853,6 +10936,8 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 
 	visitor(*game.m_pGameCorporations);
 	visitor(*game.m_pGameContracts);
+
+	visitor(game.m_strGameId);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10895,6 +10980,9 @@ void CvGame::Read(FDataStream& kStream)
 
 	CvStreamLoadVisitor serialVisitor(kStream);
 	Serialize(*this, serialVisitor);
+
+	// m_intGameId is not serialized; recompute it from the loaded string id for this machine's stats.db.
+	resolveGameDatabaseId();
 
 	// Save game database comes last
 	readSaveGameDB(kStream);
@@ -12433,6 +12521,104 @@ void CvGame::LogMapState() const
 }
 
 //	--------------------------------------------------------------------------------
+// Aggregated per-turn diplomacy / grand-strategy counts shared by the WorldState_Log.csv output and
+// the SQLite WorldStateLog mirror so the two code paths cannot drift apart.
+struct WorldStateLogCounts
+{
+	WorldStateLogCounts() :
+		iGSConquest(0), iGSSpaceship(0), iGSUN(0), iGSCulture(0),
+		iAlly(0), iFriend(0), iFavorable(0), iNeutral(0), iCompetitor(0), iEnemy(0), iUnforgivable(0),
+		iMajorWar(0), iMajorHostile(0), iMajorDeceptive(0), iMajorGuarded(0), iMajorAfraid(0), iMajorFriendly(0), iMajorNeutral(0),
+		iMinorIgnore(0), iMinorProtective(0), iMinorConquest(0), iMinorBully(0)
+	{
+	}
+
+	int iGSConquest, iGSSpaceship, iGSUN, iGSCulture;
+	int iAlly, iFriend, iFavorable, iNeutral, iCompetitor, iEnemy, iUnforgivable;
+	int iMajorWar, iMajorHostile, iMajorDeceptive, iMajorGuarded, iMajorAfraid, iMajorFriendly, iMajorNeutral;
+	int iMinorIgnore, iMinorProtective, iMinorConquest, iMinorBully;
+};
+
+//	--------------------------------------------------------------------------------
+static void ComputeWorldStateLogCounts(WorldStateLogCounts& kCounts)
+{
+	const AIGrandStrategyTypes eGSConquest = (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+	const AIGrandStrategyTypes eGSSpaceship = (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
+	const AIGrandStrategyTypes eGSUnitedNations = (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+	const AIGrandStrategyTypes eGSCulture = (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+
+	// Loop through all Players
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		CvPlayer* pPlayer = &GET_PLAYER(eLoopPlayer);
+
+		if (!pPlayer->isAlive())
+			continue;
+
+		const AIGrandStrategyTypes eGrandStrategy = pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
+		if (eGrandStrategy == eGSConquest)
+			kCounts.iGSConquest++;
+		else if (eGrandStrategy == eGSSpaceship)
+			kCounts.iGSSpaceship++;
+		else if (eGrandStrategy == eGSUnitedNations)
+			kCounts.iGSUN++;
+		else if (eGrandStrategy == eGSCulture)
+			kCounts.iGSCulture++;
+
+		// Loop through all players
+		for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
+		{
+			PlayerTypes eLoopPlayer2 = (PlayerTypes)iPlayerLoop2;
+
+			if (!GET_PLAYER(eLoopPlayer2).isAlive())
+				continue;
+
+			// Major
+			if (GET_PLAYER(eLoopPlayer2).isMajorCiv())
+			{
+				switch (pPlayer->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer2))
+				{
+				case CIV_OPINION_ALLY:         kCounts.iAlly++;         break;
+				case CIV_OPINION_FRIEND:       kCounts.iFriend++;       break;
+				case CIV_OPINION_FAVORABLE:    kCounts.iFavorable++;    break;
+				case CIV_OPINION_NEUTRAL:      kCounts.iNeutral++;      break;
+				case CIV_OPINION_COMPETITOR:   kCounts.iCompetitor++;   break;
+				case CIV_OPINION_ENEMY:        kCounts.iEnemy++;        break;
+				case CIV_OPINION_UNFORGIVABLE: kCounts.iUnforgivable++; break;
+				}
+
+				switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2))
+				{
+				case CIV_APPROACH_WAR:       kCounts.iMajorWar++;       break;
+				case CIV_APPROACH_HOSTILE:   kCounts.iMajorHostile++;   break;
+				case CIV_APPROACH_DECEPTIVE: kCounts.iMajorDeceptive++; break;
+				case CIV_APPROACH_GUARDED:   kCounts.iMajorGuarded++;   break;
+				case CIV_APPROACH_AFRAID:    kCounts.iMajorAfraid++;    break;
+				case CIV_APPROACH_NEUTRAL:   kCounts.iMajorNeutral++;   break;
+				case CIV_APPROACH_FRIENDLY:  kCounts.iMajorFriendly++;  break;
+				}
+			}
+			// Minor
+			else
+			{
+				switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2))
+				{
+				case CIV_APPROACH_WAR:      kCounts.iMinorConquest++;   break;
+				case CIV_APPROACH_HOSTILE:  kCounts.iMinorBully++;      break;
+				case CIV_APPROACH_NEUTRAL:  kCounts.iMinorIgnore++;     break;
+				case CIV_APPROACH_FRIENDLY: kCounts.iMinorProtective++; break;
+				case CIV_APPROACH_DECEPTIVE:
+				case CIV_APPROACH_GUARDED:
+				case CIV_APPROACH_AFRAID:
+					UNREACHABLE();
+				}
+			}
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
 void CvGame::LogGameState(bool bLogHeaders) const
 {
 	if(GC.getLogging() && GC.getAILogging())
@@ -12453,147 +12639,8 @@ void CvGame::LogGameState(bool bLogHeaders) const
 		CvString strLogName = "WorldState_Log.csv";
 		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
-		AIGrandStrategyTypes eGrandStrategy;
-		int iGSConquest = 0;
-		int iGSSpaceship = 0;
-		int iGSUN = 0;
-		int iGSCulture = 0;
-
-		int iAlly = 0;
-		int iFriend = 0;
-		int iFavorable = 0;
-		int iNeutral = 0;
-		int iCompetitor = 0;
-		int iEnemy = 0;
-		int iUnforgivable = 0;
-
-		int iMajorWar = 0;
-		int iMajorHostile = 0;
-		int iMajorDeceptive = 0;
-		int iMajorGuarded = 0;
-		int iMajorAfraid = 0;
-		int iMajorFriendly = 0;
-		int iMajorNeutral = 0;
-
-		int iMinorIgnore = 0;
-		int iMinorProtective = 0;
-		int iMinorConquest = 0;
-		int iMinorBully = 0;
-
-		// Loop through all Players
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			CvPlayer* pPlayer = &GET_PLAYER(eLoopPlayer);
-
-			if (pPlayer->isAlive())
-			{
-				eGrandStrategy = pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
-
-				if (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
-				{
-					iGSConquest++;
-				}
-				else if (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
-				{
-					iGSSpaceship++;
-				}
-				else if (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
-				{
-					iGSUN++;
-				}
-				else if (eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
-				{
-					iGSCulture++;
-				}
-
-				// Loop through all players
-				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_CIV_PLAYERS; iPlayerLoop2++)
-				{
-					PlayerTypes eLoopPlayer2 = (PlayerTypes) iPlayerLoop2;
-
-					if (GET_PLAYER(eLoopPlayer2).isAlive())
-					{
-						// Major
-						if (GET_PLAYER(eLoopPlayer2).isMajorCiv())
-						{
-							switch (pPlayer->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer2))
-							{
-							case CIV_OPINION_ALLY:
-								iAlly++;
-								break;
-							case CIV_OPINION_FRIEND:
-								iFriend++;
-								break;
-							case CIV_OPINION_FAVORABLE:
-								iFavorable++;
-								break;
-							case CIV_OPINION_NEUTRAL:
-								iNeutral++;
-								break;
-							case CIV_OPINION_COMPETITOR:
-								iCompetitor++;
-								break;
-							case CIV_OPINION_ENEMY:
-								iEnemy++;
-								break;
-							case CIV_OPINION_UNFORGIVABLE:
-								iUnforgivable++;
-								break;
-							}
-
-							switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2))
-							{
-							case CIV_APPROACH_WAR:
-								iMajorWar++;
-								break;
-							case CIV_APPROACH_HOSTILE:
-								iMajorHostile++;
-								break;
-							case CIV_APPROACH_DECEPTIVE:
-								iMajorDeceptive++;
-								break;
-							case CIV_APPROACH_GUARDED:
-								iMajorGuarded++;
-								break;
-							case CIV_APPROACH_AFRAID:
-								iMajorAfraid++;
-								break;
-							case CIV_APPROACH_NEUTRAL:
-								iMajorNeutral++;
-								break;
-							case CIV_APPROACH_FRIENDLY:
-								iMajorFriendly++;
-								break;
-							}
-						}
-						// Minor
-						else
-						{
-							switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2))
-							{
-							case CIV_APPROACH_WAR:
-								iMinorConquest++;
-								break;
-							case CIV_APPROACH_HOSTILE:
-								iMinorBully++;
-								break;
-							case CIV_APPROACH_NEUTRAL:
-								iMinorIgnore++;
-								break;
-							case CIV_APPROACH_FRIENDLY:
-								iMinorProtective++;
-								break;
-							case CIV_APPROACH_DECEPTIVE:
-							case CIV_APPROACH_GUARDED:
-							case CIV_APPROACH_AFRAID:
-								UNREACHABLE();
-							}
-						}
-					}
-				}
-			}
-		}
+		WorldStateLogCounts kCounts;
+		ComputeWorldStateLogCounts(kCounts);
 
 		bool bFirstTurn = bLogHeaders || getElapsedGameTurns() == 0;
 
@@ -12609,13 +12656,13 @@ void CvGame::LogGameState(bool bLogHeaders) const
 		else
 		{
 			strOutput.Format("%03d", GC.getGame().getElapsedGameTurns());
-			strTemp.Format("%d", iGSConquest);
+			strTemp.Format("%d", kCounts.iGSConquest);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iGSSpaceship);
+			strTemp.Format("%d", kCounts.iGSSpaceship);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iGSUN);
+			strTemp.Format("%d", kCounts.iGSUN);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iGSCulture);
+			strTemp.Format("%d", kCounts.iGSCulture);
 			strOutput += ", " + strTemp;
 		}
 
@@ -12632,19 +12679,19 @@ void CvGame::LogGameState(bool bLogHeaders) const
 		}
 		else
 		{
-			strTemp.Format("%d", iAlly);
+			strTemp.Format("%d", kCounts.iAlly);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iFriend);
+			strTemp.Format("%d", kCounts.iFriend);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iFavorable);
+			strTemp.Format("%d", kCounts.iFavorable);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iNeutral);
+			strTemp.Format("%d", kCounts.iNeutral);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iCompetitor);
+			strTemp.Format("%d", kCounts.iCompetitor);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iEnemy);
+			strTemp.Format("%d", kCounts.iEnemy);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iUnforgivable);
+			strTemp.Format("%d", kCounts.iUnforgivable);
 			strOutput += ", " + strTemp;
 		}
 
@@ -12661,19 +12708,19 @@ void CvGame::LogGameState(bool bLogHeaders) const
 		}
 		else
 		{
-			strTemp.Format("%d", iMajorWar);
+			strTemp.Format("%d", kCounts.iMajorWar);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMajorHostile);
+			strTemp.Format("%d", kCounts.iMajorHostile);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMajorDeceptive);
+			strTemp.Format("%d", kCounts.iMajorDeceptive);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMajorGuarded);
+			strTemp.Format("%d", kCounts.iMajorGuarded);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMajorAfraid);
+			strTemp.Format("%d", kCounts.iMajorAfraid);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMajorFriendly);
+			strTemp.Format("%d", kCounts.iMajorFriendly);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMajorNeutral);
+			strTemp.Format("%d", kCounts.iMajorNeutral);
 			strOutput += ", " + strTemp;
 		}
 
@@ -12687,13 +12734,13 @@ void CvGame::LogGameState(bool bLogHeaders) const
 		}
 		else
 		{
-			strTemp.Format("%d", iMinorIgnore);
+			strTemp.Format("%d", kCounts.iMinorIgnore);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMinorProtective);
+			strTemp.Format("%d", kCounts.iMinorProtective);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMinorConquest);
+			strTemp.Format("%d", kCounts.iMinorConquest);
 			strOutput += ", " + strTemp;
-			strTemp.Format("%d", iMinorBully);
+			strTemp.Format("%d", kCounts.iMinorBully);
 			strOutput += ", " + strTemp;
 		}
 
@@ -12718,6 +12765,46 @@ void CvGame::LogGameState(bool bLogHeaders) const
 		}
 
 		pLog->Msg(strOutput);
+	}
+
+	// Mirror WorldStateLog into the SQLite stats database
+	if (MOD_SQLITE_LOGGING)
+	{
+		WorldStateLogCounts kCounts;
+		ComputeWorldStateLogCounts(kCounts);
+
+		// Duplicate CSV header names (Neutral, Conquest) are disambiguated in the shared
+		// registration helper so every SQL column name remains unique.
+		RegisterWorldStateLogTable();
+
+		GET_SQLITE_LOGGER().BeginLogRow("WorldStateLog")
+			.bind(kCounts.iGSConquest)
+			.bind(kCounts.iGSSpaceship)
+			.bind(kCounts.iGSUN)
+			.bind(kCounts.iGSCulture)
+			.bind(kCounts.iAlly)
+			.bind(kCounts.iFriend)
+			.bind(kCounts.iFavorable)
+			.bind(kCounts.iNeutral)
+			.bind(kCounts.iCompetitor)
+			.bind(kCounts.iEnemy)
+			.bind(kCounts.iUnforgivable)
+			.bind(kCounts.iMajorWar)
+			.bind(kCounts.iMajorHostile)
+			.bind(kCounts.iMajorDeceptive)
+			.bind(kCounts.iMajorGuarded)
+			.bind(kCounts.iMajorAfraid)
+			.bind(kCounts.iMajorFriendly)
+			.bind(kCounts.iMajorNeutral)
+			.bind(kCounts.iMinorIgnore)
+			.bind(kCounts.iMinorProtective)
+			.bind(kCounts.iMinorConquest)
+			.bind(kCounts.iMinorBully)
+			.bind(GetBasicNeedsMedian())
+			.bind(GetGoldMedian())
+			.bind(GetScienceMedian())
+			.bind(GetCultureMedian())
+			.execute();
 	}
 }
 

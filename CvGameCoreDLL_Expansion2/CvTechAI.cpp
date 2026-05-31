@@ -11,6 +11,7 @@
 #include "CvGameCoreUtils.h"
 #include "CvInfosSerializationHelper.h"
 #include "CvEconomicAI.h"
+#include "SqliteLoggerRegistrations.h"
 
 #include "LintFree.h"
 
@@ -440,6 +441,20 @@ void CvTechAI::LogResearchChoice(TechTypes eTech)
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
 	}
+
+	// Log the beginning of a chosen tech being researched to the SQLite stats database
+	if (MOD_SQLITE_LOGGING)
+	{
+		RegisterTechChoicesTable();
+		CvString strPlayerName = m_pCurrentTechs->GetPlayer()->getCivilizationShortDescription();
+		CvTechEntry* pSqlEntry = GC.getTechInfo(eTech);
+		const char* szSqlTech = (pSqlEntry != NULL) ? pSqlEntry->GetType() : "Unknown Tech";
+		GET_SQLITE_LOGGER().BeginLogRow("TechChoices")
+			.bind(strPlayerName.c_str())
+			.bind(szSqlTech)
+			.bind("CHOSEN")
+			.execute();
+	}
 }
 
 /// Log chosen tech
@@ -470,6 +485,20 @@ void CvTechAI::LogResearchCompleted(TechTypes eTech)
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
+	}
+
+	// Log the completion of a technology to the SQLite stats database
+	if (MOD_SQLITE_LOGGING)
+	{
+		RegisterTechChoicesTable();
+		CvString strPlayerName = m_pCurrentTechs->GetPlayer()->getCivilizationShortDescription();
+		CvTechEntry* pSqlEntry = GC.getTechInfo(eTech);
+		const char* szSqlTech = (pSqlEntry != NULL) ? pSqlEntry->GetType() : "Unknown Tech";
+		GET_SQLITE_LOGGER().BeginLogRow("TechChoices")
+			.bind(strPlayerName.c_str())
+			.bind(szSqlTech)
+			.bind("COMPLETED")
+			.execute();
 	}
 }
 
