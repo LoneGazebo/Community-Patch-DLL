@@ -4203,12 +4203,8 @@ function GetHelpTextForSpecialist(eSpecialist, pCity)
 	local kGreatPersonInfo = GetGreatPersonInfoFromSpecialist(kSpecialistInfo.Type);
 	local strTooltip = L(kSpecialistInfo.Description);
 
-	local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(eSpecialist);
 	for eYield, kYieldInfo in GameInfoCache("Yields") do
 		local iYield = pCity:GetSpecialistYield(eSpecialist, eYield) + pCity:GetSpecialistYieldChange(eSpecialist, eYield);
-		if eYield == YieldTypes.YIELD_CULTURE then
-			iYield = iYield + iCultureFromSpecialist;
-		end
 		if iYield > 0 then
 			strTooltip = string.format("%s +%d%s", strTooltip, iYield, kYieldInfo.IconString);
 		end

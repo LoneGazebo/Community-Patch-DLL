@@ -606,7 +606,6 @@ protected:
 	static int lCanPlaceUnitHere(lua_State* L);
 
 	static int lGetSpecialistYield(lua_State* L);
-	static int lGetCultureFromSpecialist(lua_State* L);
 
 	static int lGetReligionCityRangeStrikeModifier(lua_State* L);
 

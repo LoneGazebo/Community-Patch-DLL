@@ -14982,10 +14982,6 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 	updateExtraSpecialistYield();
 	changeSpecialistFreeExperience(pkSpecialist->getExperience() * iChange);
 
-	// Culture
-	int iCulturePerSpecialist = GetCultureFromSpecialist(eSpecialist);
-	ChangeBaseYieldRateFromSpecialists(YIELD_CULTURE, iCulturePerSpecialist * iChange);
-
 	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		DomainTypes eDomain = (DomainTypes)iI;
@@ -15328,21 +15324,6 @@ void CvCity::ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewVa
 {
 	SetReligiousPressureModifier(eReligion, (GetReligiousPressureModifier(eReligion) + iNewValue));
 }
-//	--------------------------------------------------------------------------------
-/// Culture from eSpecialist
-int CvCity::GetCultureFromSpecialist(SpecialistTypes eSpecialist) const
-{
-	CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-	if (pkSpecialistInfo == NULL)
-	{
-		//This function REQUIRES a valid specialist type.
-		return 0;
-	}
-
-	int iCulture = pkSpecialistInfo->getCulturePerTurn();
-	return iCulture;
-}
-
 //	--------------------------------------------------------------------------------
 const CvHandicapInfo& CvCity::getHandicapInfo() const
 {
