@@ -185,6 +185,8 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 			expr, ShortenFilePath(szFile), uiLine
 		);
 		GC.getDLLIFace()->sendChat(CvString(szBuffer), CHATTARGET_ALL, NO_PLAYER);
+		g_AssertTracker.asserts[assertKey].isPermanentlyIgnored = true;
+		bIgnoreAlways = true;
 		return false;
 	}
 	else
