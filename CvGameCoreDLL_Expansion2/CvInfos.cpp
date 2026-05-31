@@ -10667,6 +10667,7 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bCapital(false),
 	 m_bCoastal(false),
 	 m_bIsRiver(false),
+	 m_bIsNoFreshWater(false),
 	 m_bEraScaling(false),
 	 m_iNumChoices(0),
 	 m_iCooldown(0),
@@ -10828,6 +10829,11 @@ bool CvModCityEventInfo::isCoastal() const
 bool CvModCityEventInfo::isRiver() const
 {
 	return m_bIsRiver;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isNoFreshWater() const
+{
+	return m_bIsNoFreshWater;
 }
 //------------------------------------------------------------------------------
 bool CvModCityEventInfo::isEraScaling() const
@@ -11108,6 +11114,7 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bCapital = kResults.GetBool("CapitalOnly");
 	m_bCoastal = kResults.GetBool("CoastalOnly");
 	m_bIsRiver = kResults.GetBool("RiverOnly");
+	m_bIsNoFreshWater = kResults.GetBool("NoFreshWater");
 	m_bEraScaling = kResults.GetBool("EraScaling");
 	m_iNumChoices = kResults.GetInt("NumChoices");
 
@@ -11241,6 +11248,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bCapital(false),
 	 m_bCoastal(false),
 	 m_bIsRiver(false),
+	 m_bIsNoFreshWater(false),
 	 m_bRequiresWarMinor(false),
 	 m_iRequiredStateReligion(-1),
 	 m_bRequiresGarrison(false),
@@ -11895,6 +11903,11 @@ bool CvModEventCityChoiceInfo::isRiver() const
 	return m_bIsRiver;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isNoFreshWater() const
+{
+	return m_bIsNoFreshWater;
+}
+//------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isRequiresIdeology() const
 {
 	return m_bRequiresIdeology;
@@ -12473,6 +12486,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bCapital = kResults.GetBool("CapitalOnly");
 	m_bCoastal = kResults.GetBool("CoastalOnly");
 	m_bIsRiver = kResults.GetBool("RiverOnly");
+	m_bIsNoFreshWater = kResults.GetBool("NoFreshWater");
 
 	szTextVal = kResults.GetText("RequiredBuildingClass");
 	m_iBuildingRequired =  GC.getInfoTypeForString(szTextVal, true);
