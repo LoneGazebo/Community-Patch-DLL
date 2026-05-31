@@ -17496,22 +17496,9 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 			if (iYieldChangePerImprovementBuilt == 0)
 				continue;
 
-			iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-			if (GET_PLAYER(m_eOwner).GetPlayerTraits()->IsOddEraScaler())
-			{
-				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true))
-				{
-					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				}
-				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
-				{
-					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				}
-				if ((EraTypes)GET_PLAYER(m_eOwner).GetCurrentEra() >= (EraTypes)GC.getInfoTypeForString("ERA_POSTMODERN", true))
-				{
-					iYield += iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement);
-				}
-			}
+			int iModifier = GET_PLAYER(m_eOwner).GetPlayerTraits()->CurrentEraScalingModifier();
+
+			iYield += (iYieldChangePerImprovementBuilt * GET_PLAYER(m_eOwner).getTotalImprovementsBuilt(eImprovement) * iModifier) / 100;
 		}
 	}
 

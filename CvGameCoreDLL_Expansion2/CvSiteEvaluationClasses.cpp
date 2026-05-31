@@ -78,12 +78,9 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 		return false;
 	}
 
-	if(!pPlot->isValidMovePlot(pPlayer ? pPlayer->GetID() : NO_PLAYER ))
-	{
-		if (!pPlot->isMountain() || !(pPlayer && pPlayer->WorkersMountainPass()))
-			return false;
-	}
-
+	// Used to check if plot was valid for moving. 
+	// Now should always be gated behind a unit call with this check at the unit level
+	
 	if (pPlot->IsNaturalWonder())
 	{
 		return false;

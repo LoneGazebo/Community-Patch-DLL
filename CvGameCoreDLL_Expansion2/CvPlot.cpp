@@ -10889,11 +10889,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		// Policy improvement yield changes
 		iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
 
-		if (!pTraits->IsTradeRouteOnly())
-		{
-			// Trait player improvement yield changes that don't require a trade route connection
-			iYield += pTraits->GetImprovementYieldChange(eImprovement, eYield);
-		}
 		// Team Tech Yield Changes
 		iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
 
@@ -10925,50 +10920,46 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	if (eForceCityConnection != NUM_ROUTE_TYPES)
 		bIsCityConnection = eForceCityConnection != NO_ROUTE;
 	
-	// Trait player terrain/improvement (for features handled below) yield changes that don't require a trade route connection
-	if (pTraits->IsTradeRouteOnly() && getOwner() == ePlayer)
+	// Trait player terrain/improvement (for features handled below) yield changes, subject to a trade route connection or not
+	int iTerrainBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
+	
+	if (isHills())
+	    iTerrainBonus += pTraits->GetTerrainYieldChange(TERRAIN_HILL, eYield);
+		
+	int iImprovementBonus = 0;
+	if (eImprovement != NO_IMPROVEMENT)
 	{
-		int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
-		if (iBonus > 0)
+	    iImprovementBonus = pTraits->GetImprovementYieldChange(eImprovement, eYield);
+	}
+	
+	// generalized Era scaler
+	int iModifier = pTraits->CurrentEraScalingModifier();
+		
+	// logic
+	if (pTraits->IsTradeRouteOnly())
+	{
+		if (getOwner() == ePlayer)
 		{
-			if (bIsCityConnection || IsTradeUnitRoute())
-			{
-				int iScale = 0;
-				int iEra = (kPlayer.GetCurrentEra() + 1);
-
-				iScale = ((iBonus * iEra) / 4);
-
-				if (iScale <= 0)
-				{
-					iScale = 1;
-				}
-				iYield += iScale;
-			}
+		    bool bTerrainApplies = (bIsCityConnection || IsTradeUnitRoute());
+		    bool bImprovementApplies = (bIsCityConnection || IsTradeUnitRoute() || IsAdjacentToTradeRoute());
+		
+		    if (iTerrainBonus > 0 && bTerrainApplies)
+		    {
+		        iYield += (iModifier * iTerrainBonus) / 100;
+		    }
+		
+		    if (iImprovementBonus > 0 && bImprovementApplies)
+		    {
+		        iYield += (iModifier * iImprovementBonus) / 100;
+		    }
 		}
-		if (eImprovement != NO_IMPROVEMENT)
-		{
-			int iBonus2 = pTraits->GetImprovementYieldChange(eImprovement, eYield);
-			if (iBonus2 > 0)
-			{
-				if (bIsCityConnection || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
-				{
-					int iScale = 0;
-					int iEra = (kPlayer.GetCurrentEra() + 1);
-
-					iScale = ((iBonus2 * iEra) / 2);
-
-					if (iScale <= 0)
-					{
-						iScale = 1;
-					}
-					iYield += iScale;
-				}
-			}
-		}
+		// else, don't change the tile's yields 
+		// otherwise will show outside of borders everywhere and then be removed when claimed
 	}
 	else
 	{
-		iYield += pTraits->GetTerrainYieldChange(eTerrain, eYield);
+	    iYield += (iModifier * iTerrainBonus) / 100;
+		iYield += (iModifier * iImprovementBonus) / 100;
 	}
 
 	iYield += kPlayer.getTerrainYieldChange(eTerrain, eYield);

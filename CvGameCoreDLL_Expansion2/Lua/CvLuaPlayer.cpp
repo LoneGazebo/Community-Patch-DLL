@@ -12335,8 +12335,8 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 				continue;
 
 			// Can't actually found here!
-			if(!pkPlayer->canFoundCity(iPlotX, iPlotY))
-				continue;
+			if(!pFoundingUnit->canFoundCity(pPlot))
+			    continue;
 
 			// Do we have to check if this is a safe place to go?
 			if(!pPlot->isVisibleEnemyUnit(pkPlayer->GetID()))

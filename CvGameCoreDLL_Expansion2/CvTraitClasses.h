@@ -306,7 +306,9 @@ public:
 	int GetReligiousUnrestModifier() const;
 	bool IsNoConnectionUnhappiness() const;
 	bool IsNoReligiousStrife() const;
+	bool IsEraScaling() const;
 	bool IsOddEraScaler() const;
+	int GetFractionalEraScaler() const;
 	int GetWonderProductionModGA() const;
 	int GetCultureBonusModifierConquest() const;
 	int GetProductionBonusModifierConquest() const;
@@ -646,7 +648,9 @@ protected:
 	int m_iReligiousUnrestModifier;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
+	bool m_bIsEraScaling;
 	bool m_bIsOddEraScaler;
+	int m_iFractionalEraScaler;
 	int m_iWonderProductionModGA;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;
@@ -865,8 +869,12 @@ public:
 		return m_bIsReligious;
 	}
 
-	// Accessor functions
 	bool HasTrait(TraitTypes eTrait) const;
+
+	// Handles the different types of possible scaling defined below
+	int CurrentEraScalingModifier() const;
+
+	// Accessor functions
 	int GetGreatPeopleRateModifier() const
 	{
 		return m_iGreatPeopleRateModifier;
@@ -1613,9 +1621,17 @@ public:
 	{
 		return m_bIsNoReligiousStrife;
 	}
+	bool IsEraScaling() const
+	{
+		return m_bIsEraScaling;
+	}
 	bool IsOddEraScaler() const
 	{
 		return m_bIsOddEraScaler;
+	}
+	int GetFractionalEraScaler() const
+	{
+		return m_iFractionalEraScaler;
 	}
 	int GetWonderProductionModGA() const
 	{
@@ -2231,7 +2247,9 @@ private:
 	int m_iReligiousUnrestModifier;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
+	bool m_bIsEraScaling;
 	bool m_bIsOddEraScaler;
+	int m_iFractionalEraScaler;
 	int m_iWonderProductionModGA;
 
 	UnitTypes m_eCampGuardType;
