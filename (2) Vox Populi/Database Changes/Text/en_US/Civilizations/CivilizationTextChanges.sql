@@ -25,7 +25,7 @@ SET Text = 'Unique Arabian replacement for the {TXT_KEY_BUILDING_MARKET}. In add
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} is the Arabian unique unit, replacing the {TXT_KEY_UNIT_HEAVY_SKIRMISHER}. Does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained. It can do chip damage to a group of enemies adjacent to itself. Unlike Horse-based Skirmishers, the {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} moves easily through Desert. What is more, it fights with increased Strength on Arabia's preferred Terrain. A mass of these Units will therefore be able to defend, or attack, a Desert location even against powerful opposing forces.'
+SET Text = 'The {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} is the Arabian unique unit, replacing the {TXT_KEY_UNIT_HEAVY_SKIRMISHER}. Does not require [ICON_RES_HORSE] {TXT_KEY_RESOURCE_HORSES} to be trained. It can do chip damage to a group of enemies adjacent to itself. Unlike Horse-based Skirmishers, the {TXT_KEY_UNIT_ARABIAN_CAMELARCHER} moves easily through Desert. What is more, it fights with increased Strength on Arabia''s preferred Terrain. A mass of these Units will therefore be able to defend, or attack, a Desert location even against powerful opposing forces.'
 WHERE Tag = 'TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY';
 
 --------------------
