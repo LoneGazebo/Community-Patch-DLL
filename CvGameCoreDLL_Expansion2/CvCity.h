@@ -1413,6 +1413,10 @@ public:
 	bool isEverLiberated(PlayerTypes eIndex) const;
 	void setEverLiberated(PlayerTypes eIndex, bool bNewValue);
 
+	int GetNumTimesCultureBombed(PlayerTypes eIndex) const;
+	void SetNumTimesCultureBombed(PlayerTypes eIndex, int iNewValue);
+	void ChangeNumTimesCultureBombed(PlayerTypes eIndex, int iChange);
+
 	bool isRevealed(TeamTypes eIndex, bool bDebug, bool bAdjacentIsGoodEnough) const;
 	bool setRevealed(TeamTypes eIndex, bool bNewValue);
 
@@ -2096,6 +2100,7 @@ protected:
 	std::vector<int> m_aiDomainProductionModifier;
 
 	std::vector<bool> m_abEverLiberated;
+	std::vector<int> m_aiNumTimesCultureBombed;
 	std::vector<bool> m_abIsBestForWonder;
 	std::vector<bool> m_abIsPurchased;
 	std::vector<bool> m_abTraded;
@@ -2502,6 +2507,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProductionToYieldModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainFreeExperience)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiDomainProductionModifier)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEverLiberated)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesCultureBombed)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsBestForWonder)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsPurchased)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abTraded)

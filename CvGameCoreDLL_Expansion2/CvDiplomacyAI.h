@@ -491,14 +491,24 @@ public:
 	void SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam);
 
-	// Num Minors Conquered
-	int GetPlayerNumMinorsConquered(PlayerTypes ePlayer) const;
-	void SetPlayerNumMinorsConquered(PlayerTypes ePlayer, int iValue);
-
 	// Num Majors Attacked
 	int GetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer) const;
 	void SetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam);
+
+	// Num Majors Culture Bombed
+	int GetOtherPlayerNumMajorsCultureBombed(PlayerTypes ePlayer) const;
+	void SetOtherPlayerNumMajorsCultureBombed(PlayerTypes ePlayer, int iValue);
+	void ChangeOtherPlayerNumMajorsCultureBombed(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam, int iStolenTileWeight);
+
+	// Num Players Nuked
+	int GetOtherPlayerNumPlayersNuked(PlayerTypes ePlayer) const;
+	void SetOtherPlayerNumPlayersNuked(PlayerTypes ePlayer, int iValue);
+	void ChangeOtherPlayerNumPlayersNuked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam);
+
+	// Num Minors Conquered
+	int GetPlayerNumMinorsConquered(PlayerTypes ePlayer) const;
+	void SetPlayerNumMinorsConquered(PlayerTypes ePlayer, int iValue);
 
 	// Num Majors Conquered
 	int GetPlayerNumMajorsConquered(PlayerTypes ePlayer) const;
@@ -1983,8 +1993,10 @@ private:
 
 	// Warmongering Penalties
 	unsigned char m_aiNumMinorsAttacked[MAX_MAJOR_CIVS];
-	unsigned char m_aiNumMinorsConquered[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumMajorsAttacked[MAX_MAJOR_CIVS];
+	unsigned char m_aiNumMajorsCultureBombed[MAX_MAJOR_CIVS];
+	unsigned char m_aiNumPlayersNuked[MAX_MAJOR_CIVS];
+	unsigned char m_aiNumMinorsConquered[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumMajorsConquered[MAX_MAJOR_CIVS];
 	int m_aiWarmongerAmountTimes100[MAX_MAJOR_CIVS];
 
@@ -2174,7 +2186,7 @@ namespace CvDiplomacyAIHelpers
 {
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
-	int GetWarmongerTriggerPenalty(PlayerTypes eWarmonger = NO_PLAYER, TeamTypes eDefendingTeam = NO_TEAM, PlayerTypes eObserver = NO_PLAYER, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
+	int GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, TeamTypes eDefendingTeam, PlayerTypes eObserver, WarmongerTriggerTypes eWarmongerTrigger, int iStolenTileWeight = 0);
 	void ApplyWarmongerPenalties(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner);
 	void ApplyLiberationBonuses(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner);
 	int GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner, PlayerTypes eObserver);

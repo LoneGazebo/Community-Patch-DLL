@@ -3788,18 +3788,20 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	bool bNoWarmongerYet = pCity->IsNoWarmongerYet();
 
 	//economic value is copied over to the new city so that the conquering AI sees the actual value of the city, not the value of the city in resistance (much lower)
-	std::vector<int> viEconValue(MAX_PLAYERS, false);
+	std::vector<int> viEconValue(MAX_PLAYERS, 0);
 
 	std::vector<bool> vbTraded(MAX_PLAYERS, false);
 	std::vector<bool> vbIgnoredForExpansionBickering(MAX_MAJOR_CIVS, false);
 	std::vector<bool> vbEverLiberated(MAX_PLAYERS, false);
-	std::vector<int> viNumTimesOwned(MAX_PLAYERS, false);
+	std::vector<int> viNumTimesOwned(MAX_PLAYERS, 0);
+	std::vector<int> viNumTimesCultureBombed(MAX_PLAYERS, 0);
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		vbTraded[iPlayerLoop] = pCity->IsTraded(eLoopPlayer);
 		vbEverLiberated[iPlayerLoop] = pCity->isEverLiberated(eLoopPlayer);
 		viNumTimesOwned[iPlayerLoop] = pCity->GetNumTimesOwned(eLoopPlayer);
+		viNumTimesCultureBombed[iPlayerLoop] = pCity->GetNumTimesCultureBombed(eLoopPlayer);
 		viEconValue[iPlayerLoop] = pCity->getEconomicValue(eLoopPlayer);
 
 		if (iPlayerLoop < MAX_MAJOR_CIVS)
@@ -4005,14 +4007,18 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		pNewCity->SetTraded(eLoopPlayer, vbTraded[iPlayerLoop]);
 		pNewCity->setEverLiberated(eLoopPlayer, vbEverLiberated[iPlayerLoop]);
 		if (iPlayerLoop < MAX_CIV_PLAYERS)
 			pNewCity->setEconomicValue(eLoopPlayer, viEconValue[iPlayerLoop]);
 
 		if (!bOriginally)
+		{
 			pNewCity->SetNumTimesOwned(eLoopPlayer, viNumTimesOwned[iPlayerLoop]);
+			if (GET_PLAYER(eLoopPlayer).getTeam() != getTeam()) // reset culture bomb delta when the player who was bombed acquires the city by any means
+				pNewCity->SetNumTimesCultureBombed(eLoopPlayer, viNumTimesCultureBombed[iPlayerLoop]);
+		}
 
 		if (iPlayerLoop < MAX_MAJOR_CIVS)
 		{

@@ -185,6 +185,9 @@
 		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_NIL">
 			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will barely notice.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CASUS_BELLI_CULTURE_BOMB">
+			<Text>Reduced by [COLOR_CYAN]{1_Num}%[ENDCOLOR] (except for the owner and their masters/vassals) because they have stolen territory from you!</Text>
+		</Row>
 		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_HEADER">
 			<Text>Bonuses from [COLOR_POSITIVE_TEXT]liberating[ENDCOLOR] this city:</Text>
 		</Row>

@@ -12581,12 +12581,13 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	CvPlot* pThisPlot = plot();
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+	CvCity* pCapitalCity = kPlayer.getCapitalCity();
 
 	// Figure out which City gets ownership of these plots
 	int iBestCityID = -1;
 
 	// Plot we're standing on belongs to a city already
-	if(pThisPlot->getOwner() == getOwner() && pThisPlot->getOwningCityID() != -1)
+	if (pThisPlot->getOwner() == getOwner() && pThisPlot->getOwningCityID() != -1)
 	{
 		iBestCityID = pThisPlot->getOwningCityID();
 	}
@@ -12594,37 +12595,49 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	else
 	{
 		int iBestCityDistance = -1;
-		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
-		for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
 			CvPlot* pPlot = pLoopCity->plot();
-			if(pPlot)
-			{
-				int iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+			if (!pPlot)
+				continue;
 
-				if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-				{
-					iBestCityID = pLoopCity->GetID();
-					iBestCityDistance = iDistance;
-				}
+			int iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+			if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+			{
+				iBestCityID = pLoopCity->GetID();
+				iBestCityDistance = iDistance;
 			}
 		}
+	}
+	CvCity* pBestCity = kPlayer.getCity(iBestCityID);
+	if (pBestCity == NULL)
+	{
+		if (pCapitalCity != NULL)
+			pBestCity = pCapitalCity;
 	}
 
 	// Keep track of got hit by this so we can figure the diplo ramifications later
 	vector<bool> vePlayersBombed;
+	vector<bool> vePlayersRevengeStealingFrom;
+	vector<CvCity*> vCitiesRevengeStealingFrom;
+	vector<bool> vePlayersToApplyCasusBelli;
 	vector<bool> vePlayersStoleHighValueTileFrom;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	CvWeightedVector<PlayerTypes> viCultureBombWarmongering;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		vePlayersBombed.push_back(false);
+		vePlayersRevengeStealingFrom.push_back(false);
+		vePlayersToApplyCasusBelli.push_back(false);
 		vePlayersStoleHighValueTileFrom.push_back(false);
+		if (iPlayerLoop < MAX_MAJOR_CIVS)
+			viCultureBombWarmongering.push_back((PlayerTypes)iPlayerLoop, 0);
 	}
 
 	// Change ownership of nearby plots
 	int iBombRange = iRadius;
 	CvPlot* pLoopPlot = NULL;
-	for(int i = -iBombRange; i <= iBombRange; ++i)
+	for (int i = -iBombRange; i <= iBombRange; ++i)
 	{
 		for(int j = -iBombRange; j <= iBombRange; ++j)
 		{
@@ -12639,8 +12652,8 @@ void CvUnit::PerformCultureBomb(int iRadius)
 
 			PlayerTypes ePlotOwner = pLoopPlot->getOwner();
 
-			// Can't be our plot
-			if (ePlotOwner == getOwner())
+			// Can't steal from own team
+			if (pLoopPlot->getTeam() == kPlayer.getTeam())
 				continue;
 
 			// Can't steal blocked tiles
@@ -12667,6 +12680,17 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				if (bHighValueTile)
 				{
 					vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
+				}
+
+				CvCity* pOwningCity = pLoopPlot->getOwningCity();
+				if (pOwningCity && pOwningCity->GetNumTimesCultureBombed(getOwner()) > 0)
+				{
+					if (std::find(vCitiesRevengeStealingFrom.begin(), vCitiesRevengeStealingFrom.end(), pOwningCity) == vCitiesRevengeStealingFrom.end())
+					{
+						vCitiesRevengeStealingFrom.push_back(pOwningCity);
+						vePlayersRevengeStealingFrom[ePlotOwner] = true;
+						pOwningCity->ChangeNumTimesCultureBombed(getOwner(), -1);
+					}
 				}
 
 				// Stole a major civ's embassy from a City-State?
@@ -12702,6 +12726,24 @@ void CvUnit::PerformCultureBomb(int iRadius)
 								GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
 							}
 						}
+					}
+				}
+
+				// Major stealing from major may count for warmongering
+				// If it's close to the thief's capital, it doesn't count; if it's close to the plot owner's capital, it counts 1.5x
+				if (kPlayer.isMajorCiv() && GET_PLAYER(ePlotOwner).isMajorCiv())
+				{
+					CvCity* pPlotOwnerCapital = GET_PLAYER(ePlotOwner).getCapitalCity();
+					if (!pCapitalCity || plotDistance(*pLoopPlot, *pCapitalCity->plot()) > /*3*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_RADIUS))
+					{
+						int iStolenTileWeight = 0;
+						if (pPlotOwnerCapital && plotDistance(*pLoopPlot, *pPlotOwnerCapital->plot()) <= GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_RADIUS))
+							iStolenTileWeight = /*1500*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_TILE_WEIGHT);
+						else
+							iStolenTileWeight = /*1000*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_NONCAPITAL_TILE_WEIGHT);
+
+						viCultureBombWarmongering.IncreaseWeight(ePlotOwner, iStolenTileWeight);
+						vePlayersToApplyCasusBelli[ePlotOwner] = true;
 					}
 				}
 
@@ -12756,15 +12798,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					iPassYield += kPlayer.GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
 				}
 
-				CvCity* pBestCity = kPlayer.getCity(iBestCityID);
-				if (pBestCity == NULL)
-				{
-					CvCity* pCapitalCity = kPlayer.getCapitalCity();
-					if (pCapitalCity != NULL)
-					{
-						pBestCity = pCapitalCity;
-					}
-				}
 				if (pBestCity != NULL)
 				{
 					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
@@ -12772,7 +12805,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			}
 
 			// Have to set owner after we do the above stuff
-			pLoopPlot->setOwner(getOwner(), iBestCityID);
+			pLoopPlot->setOwner(getOwner(), pBestCity->GetID());
 		}
 	}
 
@@ -12783,7 +12816,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	{
 		if (vePlayersBombed[iSlotLoop])
 		{
-			CvPlayer* pPlayer = &GET_PLAYER((PlayerTypes) iSlotLoop);
+			CvPlayer* pPlayer = &GET_PLAYER((PlayerTypes)iSlotLoop);
 			TeamTypes eOtherTeam = pPlayer->getTeam();
 			
 			if (pPlayer->isBarbarian())
@@ -12813,8 +12846,25 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				int iPenalty = vePlayersStoleHighValueTileFrom[iSlotLoop] ? 6 : 3;
 				pPlayer->GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
 
-				// Message for human
-				if (!pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader && !MOD_DIPLOAI_SHUT_UP_INSULTS)
+				// Apply global warmongering penalty (but not for revenge steals)
+				if (!vePlayersRevengeStealingFrom[iSlotLoop])
+				{
+					if (pBestCity != NULL && vePlayersToApplyCasusBelli[iSlotLoop])
+						pBestCity->ChangeNumTimesCultureBombed((PlayerTypes)iSlotLoop, 1);
+
+					int iStolenTileWeight = viCultureBombWarmongering.GetWeight(iSlotLoop);
+					if (iStolenTileWeight > 0)
+					{
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+							kLoopPlayer.GetDiplomacyAI()->ChangeOtherPlayerNumMajorsCultureBombed(getOwner(), 1, pPlayer->getTeam(), iStolenTileWeight);
+						}
+					}
+				}
+
+				// Message for human if not at war
+				if (!bAlreadyShownLeader && !pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !MOD_DIPLOAI_SHUT_UP)
 				{
 					bAlreadyShownLeader = true;
 
