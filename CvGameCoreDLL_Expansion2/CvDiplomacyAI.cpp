@@ -25914,15 +25914,15 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 
 		// How long do we wait before we want to make peace more?
-		int iMinimumWarDuration = max(0, /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS));
-		int iTooLongWarThreshold = max(15, iMinimumWarDuration);
+		int iTurnsBeforeEvaluation = 10;
+		int iTooLongWarThreshold = 15;
 		bool bProlongAll = GetPlayer()->GetPositiveWarScoreTourismMod() > 0 && GetHighestWarscorePlayer() != NO_PLAYER && GET_PLAYER(GetHighestWarscorePlayer()).getTeam() == GET_TEAM(*it).GetID() && !bInTerribleShape && !bAnySeriousDangerUs;
 		if (bProlongAll)
 		{
 			iTooLongWarThreshold *= 2;
-			iMinimumWarDuration *= 2;
+			iTurnsBeforeEvaluation *= 2;
 		}
-		int iDurationPenalty = iWarDuration - iMinimumWarDuration;
+		int iDurationPenalty = iWarDuration - iTurnsBeforeEvaluation;
 		bool bAnyAztecException = false;
 
 
@@ -26657,7 +26657,7 @@ PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 		return PEACE_BLOCK_REASON_WAR_DEAL;
 
 	// Too soon to make peace
-	if (GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eMyTeam).GetNumTurnsAtWar(eTeam) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+	if (GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(eMyTeam).GetNumTurnsAtWar(eTeam) < /*5*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 		return PEACE_BLOCK_REASON_TOO_SOON;
 
 	if (bMinor)
