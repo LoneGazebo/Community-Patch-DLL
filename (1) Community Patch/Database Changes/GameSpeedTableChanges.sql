@@ -36,7 +36,7 @@ ALTER TABLE GameSpeeds ADD MinimumVoluntaryVassalTurns integer DEFAULT 10;
 ALTER TABLE GameSpeeds ADD MinimumVassalTaxTurns integer DEFAULT 25;
 
 -- Number of turns after vassalage ends before the former vassal can be vassalized by the same master again
-ALTER TABLE GameSpeeds ADD NumTurnsBetweenVassals integer DEFAULT 30;
+ALTER TABLE GameSpeeds ADD NumTurnsBetweenVassals integer DEFAULT 0;
 
 -- JFD stuff
 ALTER TABLE GameSpeeds ADD PietyMin integer DEFAULT 0;
