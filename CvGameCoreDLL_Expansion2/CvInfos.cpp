@@ -7983,8 +7983,8 @@ CvWorldInfo::CvWorldInfo() :
 	m_iFeatureGrainChange(0),
 	m_iResearchPercent(0),
 	m_iNumCitiesUnhappinessPercent(100),
-	m_iNumCitiesPolicyCostMod(10),
-	m_iNumCitiesTechCostMod(5),
+	m_iNumCitiesPolicyCostMod(1000),
+	m_iNumCitiesTechCostMod(500),
 	m_iNumCitiesTourismCostMod(5),
 	m_iNumCitiesUnitSupplyMod(5),
 	m_iTradeRouteDistanceMod(100),
@@ -8070,12 +8070,12 @@ int CvWorldInfo::getNumCitiesUnhappinessPercent() const
 	return m_iNumCitiesUnhappinessPercent;
 }
 //------------------------------------------------------------------------------
-int CvWorldInfo::GetNumCitiesPolicyCostMod() const
+int CvWorldInfo::GetNumCitiesPolicyCostModTimes100() const
 {
 	return m_iNumCitiesPolicyCostMod;
 }
 //------------------------------------------------------------------------------
-int CvWorldInfo::GetNumCitiesTechCostMod() const
+int CvWorldInfo::GetNumCitiesTechCostModTimes100() const
 {
 	return m_iNumCitiesTechCostMod;
 }

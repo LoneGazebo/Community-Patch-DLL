@@ -250,7 +250,9 @@ public:
 	int GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow, int iAssumedResearchRate=-1) const;
 	int GetNumTechsCanBeResearched() const;
 	CvTechXMLEntries* GetTechs() const;
-	int GetResearchCost(TechTypes eTech) const;
+	int GetResearchCityModifierTimes100(int iCityOffset = 0) const;
+	int GetResearchOneMoreCityModifierTimes100(int iCityOffset = 0) const;
+	int GetResearchCost(TechTypes eTech, bool bIgnoreCities = false, int iCityOffset = 0) const;
 	int GetResearchProgressTimes100(TechTypes eTech) const;
 	int GetMedianTechResearch() const;
 

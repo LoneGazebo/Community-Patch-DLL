@@ -142,6 +142,8 @@ VALUES
 	('VASSALAGE_INDEPENDENCE_BASE_THRESHOLD', 100), -- How likely is a vassal to request independence from its master?
 -- Tech trading
 	('TECH_COST_ERA_EXPONENT', 0.7), -- Exponent for era multiplier.
+-- City cost scaling (VP overrides to 20 = 0.20%/city)
+	('NUM_CITIES_COST_MOD_SCALING', 0),
 -- Border growth tile selection
 	('PLOT_INFLUENCE_RING_COST', 200),
 	('PLOT_INFLUENCE_WATER_COST', 20),

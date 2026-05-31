@@ -165,6 +165,16 @@ local g_isPopupUp = false
 local g_requestTopPanelUpdate, g_requestToolTipControl, g_requestToolTipFunction
 local g_toolTipHandler = {}
 
+local function FormatCityCostPercentHundredths( iHundredths )
+	if iHundredths % 100 == 0 then
+		return tostring( math.floor( iHundredths / 100 ) )
+	end
+	if iHundredths % 10 == 0 then
+		return string.format( "%.1f", iHundredths / 100 )
+	end
+	return string.format( "%.2f", iHundredths / 100 )
+end
+
 local g_options = Modding.OpenUserData( "Enhanced User Interface Options", 1)
 local g_clockFormats = { "%H:%M", "%I:%M %p", "%X", "%c" }
 local g_clockFormat, g_alarmTime
@@ -1174,7 +1184,16 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 		-- Let people know that building more cities makes techs harder to get
 		if bnw_mode and g_isBasicHelp then
 			tips:insert( "" )
-			tips:insert( L( "TXT_KEY_TP_TECH_CITY_COST", Game.GetNumCitiesTechCostMod() * ( 100 + ( civBE_mode and g_activePlayer:GetNumCitiesResearchCostDiscount() or 0 ) ) / 100 ) )
+			local iTech = g_activePlayer:GetCurrentResearch()
+			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths = g_activePlayer:GetResearchCityCostBreakdown( iTech )
+			local baseFormulaStr = FormatCityCostPercentHundredths( baseFormulaHundredths )
+			local scalingFormulaStr = FormatCityCostPercentHundredths( scalingFormulaHundredths )
+			local cStr = FormatCityCostPercentHundredths( cHundredths )
+			local eStr = FormatCityCostPercentHundredths( eHundredths )
+			tips:insert( L( "TXT_KEY_TP_TECH_CITY_COST", baseFormulaStr, N_actual, scalingFormulaStr ) )
+			if totalCost >= 0 then
+				tips:insert( L( "TXT_KEY_TP_TECH_CITY_COST_DETAIL", totalCost, baseCost, cityCost, nextCityDelta, cStr, eStr, N_actual ) )
+			end
 		end
 	end
 
@@ -1873,8 +1892,14 @@ g_toolTipHandler.CultureString = function()-- control )
 		-- Let people know that building more cities makes policies harder to get
 
 		if g_isBasicHelp then
+			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths = g_activePlayer:GetNextPolicyCostBreakdown()
 			tips:insert( "" )
-			tips:insert( L("TXT_KEY_TP_CULTURE_CITY_COST", Game.GetNumCitiesPolicyCostMod() * ( 100 + ( civBE_mode and g_activePlayer:GetNumCitiesPolicyCostDiscount() or 0 ) ) / 100 ) )
+			local baseFormulaStr = FormatCityCostPercentHundredths( baseFormulaHundredths )
+			local scalingFormulaStr = FormatCityCostPercentHundredths( scalingFormulaHundredths )
+			local cStr = FormatCityCostPercentHundredths( cHundredths )
+			local eStr = FormatCityCostPercentHundredths( eHundredths )
+			tips:insert( L( "TXT_KEY_TP_CULTURE_CITY_COST", baseFormulaStr, N_actual, scalingFormulaStr ) )
+			tips:insert( L("TXT_KEY_TP_CULTURE_CITY_COST_DETAIL", totalCost, baseCost, cityCost, nextCityDelta, cStr, eStr, N_actual ) )
 		end
 	end
 

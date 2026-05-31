@@ -2356,8 +2356,8 @@ public:
 	int getFeatureGrainChange() const;
 	int getResearchPercent() const;
 	int getNumCitiesUnhappinessPercent() const;
-	int GetNumCitiesPolicyCostMod() const;
-	int GetNumCitiesTechCostMod() const;
+	int GetNumCitiesPolicyCostModTimes100() const;
+	int GetNumCitiesTechCostModTimes100() const;
 	int GetNumCitiesTourismCostMod() const;
 	int GetNumCitiesUnitSupplyMod() const;
 	int getTradeRouteDistanceMod() const;

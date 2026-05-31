@@ -215,6 +215,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsNoResearchAvailable);
 	Method(GetResearchTurnsLeft);
 	Method(GetResearchCost);
+	Method(GetResearchCityCostBreakdown);
 	Method(GetResearchProgress);
 	Method(GetResearchProgressTimes100);
 
@@ -508,6 +509,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasPolicy);
 	Method(SetHasPolicy);
 	Method(GetNextPolicyCost);
+	Method(GetNextPolicyCostBreakdown);
 	Method(CanAdoptPolicy);
 	Method(DoAdoptPolicy);
 	Method(CanUnlockPolicyBranch);
@@ -3094,6 +3096,52 @@ int CvLuaPlayer::lGetResearchCost(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetResearchCityCostBreakdown(TechTypes eTech); returns totalCost, baseCost, cityCost, nextCityDelta, currentModifierTimes100, nextCityModifierTimes100, cityCountUsed, basePerCityTimes100, scalingPerCityTimes100
+int CvLuaPlayer::lGetResearchCityCostBreakdown(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlayerTechs* pTechs = pkPlayer->GetPlayerTechs();
+	const int iTechArg = luaL_optint(L, 2, -1);
+	const bool bValidTech = (iTechArg >= 0 && iTechArg < GC.getNumTechInfos());
+
+	int iTotalCost = -1;
+	int iBaseCost = -1;
+	int iCityCost = 0;
+	int iNextCityDelta = 0;
+	if (bValidTech)
+	{
+		const TechTypes eTech = (TechTypes)iTechArg;
+		iTotalCost = pTechs->GetResearchCost(eTech);
+		iBaseCost = pTechs->GetResearchCost(eTech, /*bIgnoreCities*/ true);
+		iCityCost = iTotalCost - iBaseCost;
+		iNextCityDelta = pTechs->GetResearchCost(eTech, /*bIgnoreCities*/ false, /*iCityOffset*/ 1) - iTotalCost;
+	}
+
+	const int iCurrentModifierTimes100 = pTechs->GetResearchCityModifierTimes100();
+	const int iNextCityModifierTimes100 = pTechs->GetResearchOneMoreCityModifierTimes100();
+	const int iCityCountUsed = (pkPlayer->getNumCities() > 0) ? pkPlayer->GetNumEffectiveCities(/*bIncludePuppets*/ !MOD_BALANCE_PUPPET_CHANGES) : 0;
+	const int iMapBaseTimes100 = GC.getMap().getWorldInfo().GetNumCitiesTechCostModTimes100();
+	const int iBaseTimes100 = iMapBaseTimes100 + pkPlayer->GetTechCostXCitiesModifier() * 100;
+	const int iScalingRaw = GD_INT_GET(NUM_CITIES_COST_MOD_SCALING);
+	int iScalingTimes100 = iScalingRaw;
+	if (iMapBaseTimes100 > 0)
+	{
+		iScalingTimes100 = (iScalingTimes100 * iBaseTimes100 + iMapBaseTimes100 / 2) / iMapBaseTimes100;
+	}
+
+	lua_pushinteger(L, iTotalCost);
+	lua_pushinteger(L, iBaseCost);
+	lua_pushinteger(L, iCityCost);
+	lua_pushinteger(L, iNextCityDelta);
+	lua_pushinteger(L, iCurrentModifierTimes100);
+	lua_pushinteger(L, iNextCityModifierTimes100);
+	lua_pushinteger(L, iCityCountUsed);
+	lua_pushinteger(L, iBaseTimes100);
+	lua_pushinteger(L, iScalingTimes100);
+	return 9;
+}
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 //int GetResearchProgress(TechTypes  eTech);
@@ -3851,7 +3899,7 @@ int CvLuaPlayer::lGetTourismPenalty(lua_State* L)
 		return 0;
 
 	// Mod for City Count
-	int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 15, gets smaller on larger maps
+	int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();
 
 	lua_pushinteger(L, iMod);
 	return 1;
@@ -7310,6 +7358,40 @@ int CvLuaPlayer::lGetNextPolicyCost(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getNextPolicyCost);
 }
+//------------------------------------------------------------------------------
+//int getNextPolicyCostBreakdown(); returns totalCost, baseCost, cityCost, nextCityDelta, currentModifierTimes100, nextCityModifierTimes100, cityCountUsed, basePerCityTimes100, scalingPerCityTimes100
+int CvLuaPlayer::lGetNextPolicyCostBreakdown(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlayerPolicies* pPolicies = pkPlayer->GetPlayerPolicies();
+	const int iTotalCost = pPolicies->GetNextPolicyCost();
+	const int iBaseCost = pPolicies->GetNextPolicyCost(/*bIgnoreCities*/ true);
+	const int iCityCost = iTotalCost - iBaseCost;
+	const int iNextCityDelta = pPolicies->GetNextPolicyCost(/*bIgnoreCities*/ false, /*iCityOffset*/ 1) - iTotalCost;
+	const int iCurrentModifierTimes100 = pPolicies->GetPolicyCityModifierTimes100();
+	const int iNextCityModifierTimes100 = pPolicies->GetPolicyOneMoreCityModifierTimes100();
+	const int iCityCountUsed = (pkPlayer->getNumCities() > 0) ? pkPlayer->GetNumEffectiveCities() : 0;
+	int iBaseTimes100 = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostModTimes100();
+	const int iPolicyModDiscount = pkPlayer->GetNumCitiesPolicyCostDiscount();
+	if(iPolicyModDiscount != 0)
+	{
+		iBaseTimes100 = iBaseTimes100 * (100 + iPolicyModDiscount) / 100;
+	}
+	const int iScalingRaw = GD_INT_GET(NUM_CITIES_COST_MOD_SCALING);
+	const int iScalingTimes100 = iScalingRaw * (100 + iPolicyModDiscount) / 100;
+
+	lua_pushinteger(L, iTotalCost);
+	lua_pushinteger(L, iBaseCost);
+	lua_pushinteger(L, iCityCost);
+	lua_pushinteger(L, iNextCityDelta);
+	lua_pushinteger(L, iCurrentModifierTimes100);
+	lua_pushinteger(L, iNextCityModifierTimes100);
+	lua_pushinteger(L, iCityCountUsed);
+	lua_pushinteger(L, iBaseTimes100);
+	lua_pushinteger(L, iScalingTimes100);
+	return 9;
+}
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //bool canAdoptPolicy(PolicyTypes  iIndex);
 int CvLuaPlayer::lCanAdoptPolicy(lua_State* L)
