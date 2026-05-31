@@ -60,6 +60,7 @@ local InterfaceModeMessageHandler =
 	[InterfaceModeTypes.INTERFACEMODE_DISEMBARK] = {},
 	[InterfaceModeTypes.INTERFACEMODE_GIFT_UNIT] = {},
 	[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT] = {},
+	[InterfaceModeTypes.INTERFACEMODE_SEALIFT] = {},
 };
 
 if g_isSquadsModEnabled then
@@ -712,6 +713,36 @@ function HideAirliftRangeIndicator()
 	ClearUnitHexHighlights();
 end
 
+
+function ShowSealiftRangeIndicator()
+
+	print ("In ShowSealiftRangeIndicator()");
+
+	local pHeadSelectedUnit = UI.GetHeadSelectedUnit();
+	if not pHeadSelectedUnit then
+		return;
+	end
+
+	local thisPlot = pHeadSelectedUnit:GetPlot();
+	if pHeadSelectedUnit:CanSealift(thisPlot, false) then
+		for iPlotLoop = 0, Map.GetNumPlots()-1, 1 do
+			pPlot = Map.GetPlotByIndex(iPlotLoop);
+			local plotX = pPlot:GetX();
+			local plotY = pPlot:GetY();
+			if pHeadSelectedUnit:CanSealiftAt(thisPlot, plotX, plotY) then
+				local hexID = ToHexFromGrid( Vector2( plotX, plotY) );
+				Events.SerialEventHexHighlight( hexID, true, turn1Color, pathBorderStyle );
+			end
+		end
+	end
+end
+
+function HideSealiftRangeIndicator()
+	print ("In HideSealiftRangeIndicator()");
+
+	ClearUnitHexHighlights();
+end
+
 function ShowAttackTargetsIndicator()
 	local unit = UI.GetHeadSelectedUnit();
 	if not unit then
@@ -820,6 +851,7 @@ local OldInterfaceModeChangeHandler =
 	--[InterfaceModeTypes.INTERFACEMODE_CITY_PLOT_SELECTION] = ExitCityPlotSelection
 	--[InterfaceModeTypes.INTERFACEMODE_PURCHASE_PLOT] = ClearUnitHexHighlights
 	[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT] = ClearUnitHexHighlights,
+	[InterfaceModeTypes.INTERFACEMODE_SEALIFT] = HideSealiftRangeIndicator,
 };
 
 local NewInterfaceModeChangeHandler =
@@ -847,6 +879,7 @@ local NewInterfaceModeChangeHandler =
 	--[InterfaceModeTypes.INTERFACEMODE_CITY_PLOT_SELECTION] = EnterCityPlotSelection
 	--[InterfaceModeTypes.INTERFACEMODE_PURCHASE_PLOT] = nil
 	[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT] = HighlightImprovableCityStatePlots,
+	[InterfaceModeTypes.INTERFACEMODE_SEALIFT] = ShowSealiftRangeIndicator,
 };
 
 local defaultCursor = GameInfoTypes[GameInfo.InterfaceModes[InterfaceModeTypes.INTERFACEMODE_SELECTION].CursorType];

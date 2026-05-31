@@ -31,6 +31,7 @@ const MissionTypes getMISSION_DISEMBARK(); //deprecated
 const MissionTypes getMISSION_AIRPATROL();
 const MissionTypes getMISSION_HEAL();
 const MissionTypes getMISSION_AIRLIFT();
+const MissionTypes getMISSION_SEALIFT();
 const MissionTypes getMISSION_NUKE();
 const MissionTypes getMISSION_PARADROP();
 const MissionTypes getMISSION_AIR_SWEEP();

@@ -19020,6 +19020,26 @@ bool CvCity::CanAirlift() const
 
 	return false;
 }
+//	--------------------------------------------------------------------------------
+bool CvCity::CanSealift() const
+{
+	const std::vector<BuildingTypes>& vSealiftBuildings = GC.getBuildingsWithSealift();
+	for (std::vector<BuildingTypes>::const_iterator it = vSealiftBuildings.begin(); it != vSealiftBuildings.end(); ++it)
+	{
+		if (HasBuilding(*it))
+			return true;
+	}
+
+	if (MOD_EVENTS_CITY_SEALIFT)
+	{
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityCanSealift, getOwner(), GetID()) == GAMEEVENTRETURN_TRUE)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetMaxAirUnits() const

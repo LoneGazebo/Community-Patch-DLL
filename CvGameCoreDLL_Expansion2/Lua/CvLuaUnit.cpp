@@ -96,6 +96,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(CanAirlift);
 	Method(CanAirliftAt);
+	Method(CanSealift);
+	Method(CanSealiftAt);
 
 	Method(IsNukeVictim);
 	Method(CanNuke);
@@ -1586,6 +1588,30 @@ int CvLuaUnit::lCanAirliftAt(lua_State* L)
 	const int x = lua_tointeger(L, 3);
 	const int y = lua_tointeger(L, 4);
 	const bool bResult = pkUnit->canAirliftAt(pkPlot, x, y);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool canSealift(CyPlot* pPlot);
+int CvLuaUnit::lCanSealift(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	const bool bResult = pkUnit->canSealift(pkPlot);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool canSealiftAt(CyPlot* pPlot, int iX, int iY);
+int CvLuaUnit::lCanSealiftAt(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	const int x = lua_tointeger(L, 3);
+	const int y = lua_tointeger(L, 4);
+	const bool bResult = pkUnit->canSealiftAt(pkPlot, x, y);
 
 	lua_pushboolean(L, bResult);
 	return 1;

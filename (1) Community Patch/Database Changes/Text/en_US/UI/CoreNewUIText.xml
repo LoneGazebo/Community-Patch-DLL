@@ -856,6 +856,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIRLIFT">
 			<Text>Allows [ICON_AIRPORT] Airlift</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SEALIFT">
+			<Text>Allows [COLOR_POSITIVE_TEXT]Transportation[ENDCOLOR] via [ICON_CONNECTED] City Connections over Water</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ITR_FOOD">
 			<Text>Allows [ICON_FOOD] Food [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from City</Text>
 		</Row>
@@ -3576,6 +3579,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PATHFINDING_AIRLIFT">
 			<Text>[ICON_AIRPORT] Airlift</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PATHFINDING_SEALIFT">
+			<Text>[ICON_CARGO_SHIP] Transportation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PATHFINDING_CHANGE_PORT">
 			<Text>[ICON_GREAT_ADMIRAL] Port Change</Text>

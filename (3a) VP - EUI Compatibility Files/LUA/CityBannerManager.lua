@@ -563,8 +563,11 @@ local g_cityToolTips = {
 	CityIsMined = function()
 		return L"TXT_KEY_CITY_MINED"
 	end,
-	CityHasAirport = function()
-		return L"TXT_KEY_CITY_HAS_AIRPORT"
+	CityCanAirlift = function()
+		return L"TXT_KEY_CITY_HAS_AIRLIFT"
+	end,
+	CityCanSealift = function()
+		return L"TXT_KEY_CITY_HAS_SEALIFT"
 	end,
 	CityHasOffice = function( city )
 		if Players[city:GetOwner()]:GetCorporation() ~= -1  then
@@ -1101,9 +1104,12 @@ local function RefreshCityBannersNow()
 			-- Has minefield ?
 			instance.CityIsMined:SetHide( not city:IsMined() )
 
-			-- Has airport ?
-			instance.CityHasAirport:SetHide( not city:IsHasBuilding(GameInfoTypes["BUILDING_AIRPORT"]) )
+			-- Can airlift ?
+			instance.CityCanAirlift:SetHide( not city:CanAirlift() )
 
+			-- Can sealift ?
+			instance.CityCanSealift:SetHide( not city:CanSealift() )
+					
 			-- Has office ?
 			instance.CityHasOffice:SetHide( not city:HasOffice() )
 

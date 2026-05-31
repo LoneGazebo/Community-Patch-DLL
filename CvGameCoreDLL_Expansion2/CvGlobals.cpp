@@ -4313,6 +4313,11 @@ void CvGlobals::GameDataPostCache()
 		{
 			m_vBuildingsWithAirlift.push_back(eOuter);
 		}
+		
+		if (pOuter->IsSealift())
+		{
+			m_vBuildingsWithSealift.push_back(eOuter);
+		}
 	}
 
 	// Cache Great Person lookups
@@ -4484,6 +4489,11 @@ const vector<BuildingTypes>& CvGlobals::getBuildingsWithYieldsFromAccomplishment
 const vector<BuildingTypes>& CvGlobals::getBuildingsWithAirlift() const
 {
 	return m_vBuildingsWithAirlift;
+}
+
+const vector<BuildingTypes>& CvGlobals::getBuildingsWithSealift() const
+{
+	return m_vBuildingsWithSealift;
 }
 
 int CvGlobals::getNumUnitClassInfos()

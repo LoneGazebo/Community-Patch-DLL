@@ -186,6 +186,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetNumBuilding);
 	Method(IsHasBuilding);
+	Method(CanAirlift);
+	Method(CanSealift);
 	Method(GetNumBuildingClass);
 	Method(IsHasBuildingClass);
 	Method(GetLocalBuildingClassYield);
@@ -2610,6 +2612,7 @@ int CvLuaCity::lIsHasBuilding(lua_State* L)
 	}
 	return 1;
 }
+
 //------------------------------------------------------------------------------
 //int getNumBuildingClass(BuildingClassTypes eBuildingClassType);
 int CvLuaCity::lGetNumBuildingClass(lua_State* L)
@@ -6395,6 +6398,8 @@ LUAAPIIMPL(City, CountResource)
 LUAAPIIMPL(City, CountWorkedResource)
 LUAAPIIMPL(City, CountTerrain)
 LUAAPIIMPL(City, CountWorkedTerrain)
+LUAAPIIMPL(City, CanAirlift)
+LUAAPIIMPL(City, CanSealift)
 
 int CvLuaCity::lGetAdditionalFood(lua_State* L)
 {
