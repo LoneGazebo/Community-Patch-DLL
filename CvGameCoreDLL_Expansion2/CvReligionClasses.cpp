@@ -9877,7 +9877,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 			iSpreadYields += pEntry->GetYieldChangePerForeignCity(iI) * 2;
 
-			iSpreadYields += (10 / pEntry->GetYieldChangePerXForeignFollowers(iI));
+			if (pEntry->GetYieldChangePerXForeignFollowers(iI) > 0)
+				iSpreadYields += (10 / pEntry->GetYieldChangePerXForeignFollowers(iI));
 
 			if (pEntry->GetYieldChangePerXCityStateFollowers(iI) > 0)
 				iSpreadYields += (m_pPlayer->GetNumCSFriends() + GC.getGame().GetNumMinorCivsAlive()) / pEntry->GetYieldChangePerXCityStateFollowers(iI);
