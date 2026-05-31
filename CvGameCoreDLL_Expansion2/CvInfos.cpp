@@ -11372,7 +11372,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iPillageFortificationsChance(0),
 	 m_iMutuallyExclusiveGroup(0),
 	 m_iBlockBuildingTurns(0),
-	 m_iEventPromotion(0),
+	 m_iEventPromotion(-1),
 	 m_iCityHappiness(0),
 	 m_iReligiousPressureModifier(0),
 	 m_piResourceChange(NULL),
@@ -12267,7 +12267,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iCityHappiness = kResults.GetInt("CityHappiness");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
 
-	szTextVal = kResults.GetText("FreePromotionCity");
+	szTextVal = kResults.GetText("EventPromotion");
 	m_iEventPromotion =  GC.getInfoTypeForString(szTextVal, true);
 
 	szTextVal = kResults.GetText("EventChoiceAudio");
