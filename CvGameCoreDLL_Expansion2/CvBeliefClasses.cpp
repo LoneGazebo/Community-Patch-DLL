@@ -154,6 +154,8 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_ppiTradeRouteYieldChange(NULL),
 	m_ppiSpecialistYieldChange(NULL),
 	m_ppiGreatPersonExpendedYield(NULL),
+	m_ppiGreatPersonBornYield(NULL),
+	m_piGreatPersonRateModifier(NULL),
 	m_piGoldenAgeGreatPersonRateModifier(NULL),
 	m_piGreatPersonPoints(NULL),
 	m_piCapitalYieldChange(NULL),
@@ -200,6 +202,7 @@ CvBeliefEntry::~CvBeliefEntry()
 
 	SAFE_DELETE_ARRAY(m_paiLakePlotYieldChange);
 
+	SAFE_DELETE_ARRAY(m_piGreatPersonRateModifier);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeGreatPersonRateModifier);
 	SAFE_DELETE_ARRAY(m_piGreatPersonPoints);
 	SAFE_DELETE_ARRAY(m_piCapitalYieldChange);
@@ -265,6 +268,7 @@ CvBeliefEntry::~CvBeliefEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiTradeRouteYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonExpendedYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonBornYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChange);
 
 	if (MOD_RELIGION_EXTENSIONS)
@@ -1126,6 +1130,22 @@ int CvBeliefEntry::GetGreatPersonExpendedYield(int i, int j) const
 	return m_ppiGreatPersonExpendedYield ? m_ppiGreatPersonExpendedYield[i][j] : 0;
 }
 
+int CvBeliefEntry::GetGreatPersonBornYield(int i, int j) const
+{
+	PRECONDITION(i < GC.getNumGreatPersonInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(j > -1, "Index out of bounds");
+	return m_ppiGreatPersonBornYield ? m_ppiGreatPersonBornYield[i][j] : 0;
+}
+
+int CvBeliefEntry::GetGreatPersonRateModifier(int i) const
+{
+	PRECONDITION(i < GC.getNumGreatPersonInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piGreatPersonRateModifier ? m_piGreatPersonRateModifier[i] : 0;
+}
+
 int CvBeliefEntry::GetGoldenAgeGreatPersonRateModifier(int i) const
 {
 	PRECONDITION(i < GC.getNumGreatPersonInfos(), "Index out of bounds");
@@ -1812,7 +1832,30 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppiGreatPersonExpendedYield[GreatPersonID][YieldID] = yield;
 		}
 	}
+	//GreatPersonBornYield
+	{
+		kUtility.Initialize2DArray(m_ppiGreatPersonBornYield, "GreatPersons", "Yields");
+
+		std::string strKey("Belief_GreatPersonBornYield");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Yields.ID as YieldID, Yield from Belief_GreatPersonBornYield inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while(pResults->Step())
+		{
+			const int GreatPersonID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiGreatPersonBornYield[GreatPersonID][YieldID] = yield;
+		}
+	}
 	
+	kUtility.PopulateArrayByValue(m_piGreatPersonRateModifier, "GreatPersons", "Belief_GreatPersonRateModifier", "GreatPersonType", "BeliefType", szBeliefType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piGoldenAgeGreatPersonRateModifier, "GreatPersons", "Belief_GoldenAgeGreatPersonRateModifier", "GreatPersonType", "BeliefType", szBeliefType, "Modifier");
 	kUtility.PopulateArrayByValue(m_piGreatPersonPoints, "GreatPersons", "Belief_GreatPersonPoints", "GreatPersonType", "BeliefType", szBeliefType, "Value");
 	kUtility.SetYields(m_piCapitalYieldChange, "Belief_CapitalYieldChanges", "BeliefType", szBeliefType);
@@ -3589,6 +3632,42 @@ int CvReligionBeliefs::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonExpendedYield(eGreatPerson, eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly, int iNumFollowerCities) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonBornYield(eGreatPerson, eYieldType);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{		
+			int iMaxCities = pBeliefs->GetEntry(*it)->GetCityScalerLimiter();
+			iValue *= min(iMaxCities, iNumFollowerCities);
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonRateModifier(eGreatPerson);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

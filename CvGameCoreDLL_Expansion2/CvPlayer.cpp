@@ -25835,6 +25835,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					else
 					{
+						if (pReligion->m_Beliefs.GetGreatPersonBornYield(eGreatPerson, eYield, GetID(), pLoopCity, false) > 0)
+						{
+							iValue += pReligion->m_Beliefs.GetGreatPersonBornYield(eGreatPerson, eYield, GetID(), pLoopCity, false, iNumFollowerCities);
+						}
 						if (pUnit->GetCultureBlastStrength() > 0)
 						{
 							iValue += pUnit->GetCultureBlastStrength() * pLoopCity->GetYieldFromGPBirthScaledWithWriterBulb(eYield) / 100;
@@ -32388,6 +32392,29 @@ void CvPlayer::setCombatExperienceTimes100(int iExperienceTimes100, CvUnit* pFro
 
 void CvPlayer::changeCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit)
 {
+	// does the player's state religion boost GG rate?
+	if (iChangeTimes100 > 0)
+	{
+		ReligionTypes eStateReligion = GetReligions()->GetStateReligion();
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eStateReligion, GetID());
+		if (pReligion)
+		{
+			CvCity* pOriginCity = NULL;
+			if (pFromUnit)
+			{
+				pOriginCity = pFromUnit->getOriginCity();
+			}
+			
+			const GreatPersonTypes eGeneral = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_GENERAL"));
+			int iModifier = pReligion->m_Beliefs.GetGreatPersonRateModifier(eGeneral, GetID(), pOriginCity);
+			if (iModifier != 0)
+			{
+				iChangeTimes100 *= (100 + iModifier);
+				iChangeTimes100 /= 100;
+			}
+		}
+	}
+	
 	if (getCombatExperienceTimes100() + iChangeTimes100 < 0)
 	{
 		setCombatExperienceTimes100(0);
@@ -32520,6 +32547,28 @@ void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100, CvUnit*
 }
 void CvPlayer::changeNavalCombatExperienceTimes100(int iChangeTimes100, CvUnit* pFromUnit)
 {
+	// does the player's state religion boost GAd rate?
+	if (iChangeTimes100 > 0)
+	{
+		ReligionTypes eStateReligion = GetReligions()->GetStateReligion();
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eStateReligion, GetID());
+		if (pReligion)
+		{
+			CvCity* pOriginCity = NULL;
+			if (pFromUnit)
+			{
+				pOriginCity = pFromUnit->getOriginCity();
+			}
+			const GreatPersonTypes eAdmiral = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ADMIRAL"));
+			int iModifier = pReligion->m_Beliefs.GetGreatPersonRateModifier(eAdmiral, GetID(), pOriginCity);
+			if (iModifier != 0)
+			{
+				iChangeTimes100 *= (100 + iModifier);
+				iChangeTimes100 /= 100;
+			}
+		}
+	}
+	
 	if (getNavalCombatExperienceTimes100() + iChangeTimes100 < 0)
 	{
 		setNavalCombatExperienceTimes100(0);

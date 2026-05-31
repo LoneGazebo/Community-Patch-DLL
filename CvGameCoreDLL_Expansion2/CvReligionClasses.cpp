@@ -9655,6 +9655,14 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		}
 	}
 
+	GreatPersonTypes eAdmiral = (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_ADMIRAL");
+	if (pEntry->GetGreatPersonRateModifier(eAdmiral) > 0)
+			iWarTemp += pEntry->GetGreatPersonRateModifier(eAdmiral);
+
+	GreatPersonTypes eGeneral = (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_GENERAL");
+	if (pEntry->GetGreatPersonRateModifier(eGeneral) > 0)
+			iWarTemp += pEntry->GetGreatPersonRateModifier(eGeneral);
+
 	////////////////////
 	// Happiness
 	///////////////////
@@ -9914,12 +9922,21 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		{
 			iGPTemp += pEntry->GetGoldenAgeGreatPersonRateModifier(eGP) * 2;
 		}
+		if (pEntry->GetGreatPersonRateModifier(eGP) > 0)
+		{
+			if (eGP != GC.getInfoTypeForString("GREATPERSON_GENERAL") && eGP != GC.getInfoTypeForString("GREATPERSON_ADMIRAL"))
+				iGPTemp += pEntry->GetGreatPersonRateModifier(eGP);
+		}
 
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			if (pEntry->GetGreatPersonExpendedYield(eGP, iI) > 0)
 			{
 				iGPTemp += pEntry->GetGreatPersonExpendedYield(eGP, iI) * 2;
+			}
+			if (pEntry->GetGreatPersonBornYield(eGP, iI) > 0)
+			{
+				iGPTemp += pEntry->GetGreatPersonBornYield(eGP, iI) * 2;
 			}
 		}
 	}

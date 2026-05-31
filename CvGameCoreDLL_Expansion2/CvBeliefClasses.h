@@ -167,6 +167,8 @@ public:
 	int GetTradeRouteYieldChange(int i, int j) const;
 	int GetSpecialistYieldChange(int i, int j) const;
 	int GetGreatPersonExpendedYield(int i, int j) const;
+	int GetGreatPersonBornYield(int i, int j) const;
+	int GetGreatPersonRateModifier(int i) const;
 	int GetGoldenAgeGreatPersonRateModifier(int i) const;
 	int GetCapitalYieldChange(int i) const;
 	int GetCoastalCityYieldChange(int i) const;
@@ -287,6 +289,8 @@ protected:
 	int** m_ppiTradeRouteYieldChange;
 	int** m_ppiSpecialistYieldChange;
 	int** m_ppiGreatPersonExpendedYield;
+	int** m_ppiGreatPersonBornYield;
+	int* m_piGreatPersonRateModifier;
 	int* m_piGoldenAgeGreatPersonRateModifier;
 	int* m_piGreatPersonPoints;
 	int* m_piCapitalYieldChange;
@@ -497,6 +501,8 @@ public:
 	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, int iNumFollowerCities = 1) const;
+	int GetGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
