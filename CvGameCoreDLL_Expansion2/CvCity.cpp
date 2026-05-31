@@ -453,6 +453,7 @@ CvCity::CvCity() :
 	, m_iNoUnhappfromXSpecialists()
 	, m_bNoWarmonger()
 	, m_iNoStarvationNonSpecialist()
+	, m_iMinimumFood()
 	, m_abIsBestForWonder()
 	, m_abIsPurchased()
 	, m_abTraded()
@@ -1382,6 +1383,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNoUnhappfromXSpecialists = 0;
 	m_bNoWarmonger = false;
 	m_iNoStarvationNonSpecialist = 0;
+	m_iMinimumFood = 0;
 	m_aiEconomicValue.resize(MAX_CIV_PLAYERS);
 	for (iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
@@ -13858,6 +13860,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeNoStarvationNonSpecialist(iChange);
 		}
+		if (pBuildingInfo->GetMinimumFood())
+		{
+			ChangeMinimumFood(pBuildingInfo->GetMinimumFood() * iChange);
+		}
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
 		changeGPRateModifierPerMarriage(pBuildingInfo->GetGPRateModifierPerMarriage() * iChange);
@@ -22168,6 +22174,17 @@ bool CvCity::IsNoStarvationNonSpecialist() const
 	return m_iNoStarvationNonSpecialist > 0;
 }
 
+void CvCity::ChangeMinimumFood(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iMinimumFood += iValue;
+}
+int CvCity::GetMinimumFood() const
+{
+	VALIDATE_OBJECT();
+	return m_iMinimumFood;
+}
+
 int CvCity::GetNumTimesOwned(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT();
@@ -23040,10 +23057,22 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 	// for food there are two modifiers: the regular food modifier that has already been applied above, and a growth modifier that is applied now to the excess food after consumption
 	// only apply if the City is growing (and not starving, otherwise it would actually have the OPPOSITE of the intended effect!)
 	CvString tooltipGrowthMods;
-	if (!bIgnoreGrowthMods && eYield == YIELD_FOOD && iTotalYield > 0)
+	if (eYield == YIELD_FOOD)
 	{
-		iTotalYield *= 100 + getGrowthMods(bBuildTooltip ? &tooltipGrowthMods : NULL);
-		iTotalYield /= 100;
+		if (iTotalYield > 0)
+		{
+			if (!bIgnoreGrowthMods)
+			{
+				iTotalYield *= 100 + getGrowthMods(bBuildTooltip ? &tooltipGrowthMods : NULL);
+				iTotalYield /= 100;
+			}
+		}
+		else if (GetMinimumFood() > 0)
+		{
+			if (bBuildTooltip)
+				tooltipGrowthMods += GetLocalizedText("TXT_KEY_GROWTH_MINIMUM", (float)GetMinimumFood() / 100);
+			iTotalYield = GetMinimumFood();
+		}
 	}
 	
 	// multiplicative yield modifier
@@ -31956,6 +31985,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_bNoWarmonger);
 	visitor(city.m_iEmpireSizeModifierReduction);
 	visitor(city.m_iNoStarvationNonSpecialist);
+	visitor(city.m_iMinimumFood);
 	visitor(city.m_iDistressFlatReduction);
 	visitor(city.m_iPovertyFlatReduction);
 	visitor(city.m_iIlliteracyFlatReduction);

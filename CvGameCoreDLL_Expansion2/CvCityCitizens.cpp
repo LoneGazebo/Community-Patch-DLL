@@ -232,7 +232,7 @@ void CvCityCitizens::DoTurn()
 
 		static EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
 		bool bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
-		bool bNeedFood = m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD;
+		bool bNeedFood = (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == YIELD_FOOD) && !(m_pCity->GetMinimumFood() > 0);
 
 		//---------------
 		// note that GetPlotValue already considers wonder/settler building so we don't do that here
@@ -1046,18 +1046,28 @@ int CvCityCitizens::ScoreYieldChangeQuick(YieldAndGPPList yieldChanges, SPrecomp
 		YieldTypes eYield = (YieldTypes)iI;
 		int iYield100 = yieldChanges.yield[iI];
 
-		// Inca exception: if we're already under the non-specialist food consumption threshold, we can safely remove even more food ...
-		if (m_pCity->IsNoStarvationNonSpecialist() && eYield == YIELD_FOOD && iYield100 < 0 && cache.iFoodConsumptionTimes100 <= cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100)
+		// Exception: if we're already under the food consumption threshold, and we arent food focus, we can safely remove even more food ...
+		if ((GetFocusType() != CITY_AI_FOCUS_TYPE_FOOD) && eYield == YIELD_FOOD && iYield100 < 0)
 		{
-			// ... unless we're adding a specialist
-			int iNumSpecialistAdded = 0;
-			for (int iI = 0; iI < (int)yieldChanges.iNumSpecialists.size(); iI++)
-			{
-				iNumSpecialistAdded += yieldChanges.iNumSpecialists[iI];
-			}
-			if (iNumSpecialistAdded <= 0)
-				continue;
+			if (m_pCity->GetMinimumFood() > 0)
+		    {
+		        continue;
+		    }
 
+			// but in this case, only if no specialists are added
+		    if (m_pCity->IsNoStarvationNonSpecialist() && cache.iFoodConsumptionTimes100 <= cache.iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100)
+		    {
+		        int iNumSpecialistAdded = 0;
+		        for (int iI = 0; iI < (int)yieldChanges.iNumSpecialists.size(); iI++)
+		        {
+		            iNumSpecialistAdded += yieldChanges.iNumSpecialists[iI];
+		        }
+		
+		        if (iNumSpecialistAdded <= 0)
+		        {
+		            continue;
+		        }
+		    }
 		}
 
 		if (iYield100 != 0)
@@ -1243,6 +1253,11 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 				iGrossFoodNow *= 100 + cache.iGrowthMod;
 				iGrossFoodNow /= 100;
 			}
+			// if we aren't growing but have this flag, clamp the gross food
+			else if (m_pCity->GetMinimumFood() > 0)
+			{
+				iGrossFoodNow = m_pCity->GetMinimumFood();
+			}
 			int iGrossFoodThen = iNetFoodThen;
 			if (iGrossFoodThen > 0)
 			{
@@ -1256,6 +1271,10 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 					iGrossFoodThen *= 100 + cache.iGrowthMod;
 				}
 				iGrossFoodThen /= 100;
+			}
+			else if (m_pCity->GetMinimumFood() > 0)
+			{
+				iGrossFoodThen = m_pCity->GetMinimumFood();
 			}
 
 			if (iGrossFoodNow == iGrossFoodThen)
@@ -1963,7 +1982,8 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 			return m_pCity->getPopulation() * 150;
 
 		//default (other specializations)
-		return 200;
+		int iMinFood = m_pCity->GetMinimumFood();
+		return (iMinFood > 0) ? iMinFood : 200;
 	}
 }
 

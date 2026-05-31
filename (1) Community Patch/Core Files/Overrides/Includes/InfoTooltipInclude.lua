@@ -2853,6 +2853,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Instant great person points on growth
 	AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_GPP_ON_GROWTH", kBuildingInfo.GPPOnCitizenBirth);
 
+	-- Minimum food output
+	AddTooltipPositive(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_MINIMUM_FOOD", kBuildingInfo.MinimumFood / 100);
+
 	-- Simple (boolean) abilities
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_START_GOLDEN_AGE", kBuildingInfo.GoldenAge);
 	AddTooltipIfTrue(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_WATER_CONNECTION", kBuildingInfo.AllowsWaterRoutes);

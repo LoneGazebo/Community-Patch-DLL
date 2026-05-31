@@ -140,8 +140,8 @@ VALUES
 
 UPDATE Buildings
 SET
-	NoStarvationNonSpecialist = 1,
-	CityConnectionTradeRouteModifier = 5
+	MinimumFood = 100,
+	AllowsProductionTradeRoutes = 1
 WHERE Type = 'BUILDING_QULLQA';
 
 INSERT INTO Building_YieldChanges
@@ -149,3 +149,8 @@ INSERT INTO Building_YieldChanges
 VALUES
 --	('BUILDING_QULLQA', 'YIELD_FOOD', 1),
 	('BUILDING_QULLQA', 'YIELD_PRODUCTION', 2);
+
+INSERT INTO Building_YieldPerXTerrainTimes100
+	(BuildingType, TerrainType, YieldType, Yield)
+VALUES
+	('BUILDING_QULLQA', 'TERRAIN_HILL', 'YIELD_FOOD', 50);

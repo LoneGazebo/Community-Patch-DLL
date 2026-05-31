@@ -310,6 +310,9 @@ ALTER TABLE Buildings ADD GlobalMilitaryProductionModPerMajorWar integer DEFAULT
 -- Non-specialists cannot consume more than the city's food per turn
 ALTER TABLE Buildings ADD NoStarvationNonSpecialist boolean DEFAULT 0;
 
+-- City food is clamped below at this value (x100)
+ALTER TABLE Buildings ADD MinimumFood integer DEFAULT 0;
+
 -- 1 city strength per X national/world wonder
 ALTER TABLE Buildings ADD DefensePerXWonder integer DEFAULT 0;
 
