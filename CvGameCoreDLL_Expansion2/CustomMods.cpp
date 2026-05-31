@@ -289,6 +289,7 @@ int CustomMods::getOption(const string& sOption, int defValue)
 		MOD_OPT_CACHE(DIPLO_DEBUG_MODE);
 		MOD_OPT_CACHE(CORE_DEBUGGING);
 		MOD_OPT_CACHE(SQUADS);
+		MOD_OPT_CACHE(SQLITE_LOGGING);
 
 		// Core Balance Changes
 		MOD_OPT_CACHE(CORE_DELAYED_VISIBILITY);

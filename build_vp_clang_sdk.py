@@ -266,6 +266,7 @@ CPP = [
     'CvGameCoreDLL_Expansion2\\CvVotingClasses.cpp',
     'CvGameCoreDLL_Expansion2\\CvWonderProductionAI.cpp',
     'CvGameCoreDLL_Expansion2\\CvWorldBuilderMapLoader.cpp',
+    'CvGameCoreDLL_Expansion2\\SqliteLogger.cpp',
 ]
 
 class TaskResult:

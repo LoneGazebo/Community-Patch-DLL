@@ -38,6 +38,7 @@
 #include "CvBarbarians.h"
 #include "CvGoodyHuts.h"
 #include "CvCityConnections.h"
+#include "SqliteLoggerRegistrations.h"
 #include "CvNotifications.h"
 #include "CvEventLog.h"
 #include "CvDiplomacyRequests.h"
@@ -50,7 +51,6 @@
 #include "FStlContainerSerialization.h"
 #include <sstream>
 #include <iomanip>
-
 #include "CvInternalGameCoreUtils.h"
 #include "CvAchievementUnlocker.h"
 #include "CvInfosSerializationHelper.h"
@@ -3759,7 +3759,21 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 
 	// If Holy City, update religion status
 	if (bHolyCity)
+	{
+		// If the conquering player has no religion, record the acquisition of a religion by force in the SQLite stats database
+		if (MOD_SQLITE_LOGGING && bConquest && GetReligions()->GetStateReligion(false) == NO_RELIGION)
+		{
+			RegisterReligionChoicesTable();
+			CvString strCiv = getCivilizationShortDescription();
+			GET_SQLITE_LOGGER().BeginLogRow("ReligionChoices")
+				.bind(strCiv.c_str())
+				.bind("RELIGION_CONQUERED")
+				.bind("")
+				.bind("")
+				.execute();
+		}
 		UpdateReligion();
+	}
 
 	// Remove any Corporations from this city if it is acquired by another player
 	GetCorporations()->ClearAllCorporationsFromCity(pCity);
