@@ -12,6 +12,8 @@ VALUES
 	('IGNORE_GLOBAL_TERRAIN_COSTS_INCLUDES_RIVERS', 1),
 -- Can units that ignore SPECIFIC terrain costs via UnitPromotions_Features or UnitPromotions_Terrains cross rivers without expending additional movement? Doesn't affect trait abilities.
 	('IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS', 0),
+-- Num turns of disengagement after a war ends
+	('PEACE_DISENGAGEMENT_TURNS', 5),
 -- If > -1, a player with no cities but who is still alive (Complete Kills) will be granted a free Settler after this many turns
 	('COMPLETE_KILLS_TURN_TIMER', -1),
 -- Number of unique components displayed in the civ selection and loading screens

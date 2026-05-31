@@ -4635,6 +4635,9 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if (isEnemy(eTeam))
 		return true;
 
+	if (kTheirTeam.GetRemainingDisengagementTurns(eMyTeam) > 0)
+		return true;
+
 	if (kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
 		return true;
 

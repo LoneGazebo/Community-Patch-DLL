@@ -1172,6 +1172,15 @@
 
 		<!-- You have made peace with {1_TeamName}! -->
 		<Row Tag="TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED">
+			<Text>You have made peace with {1_TeamName}! Troops on both sides have {2_num} {2_num: plural 1?Turn; other?Turns;} to disengage from each other's territory. All allies and vassals of either side have also made peace with each other. {3_OurAllies} {4_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT">
+			<Text>You have made peace with {1_TeamName}! Troops on their side have {2_num} {2_num: plural 1?Turn; other?Turns;} to disengage from your territory. All allies and vassals of either side have also made peace with each other. {3_OurAllies} {4_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT">
+			<Text>You have made peace with {1_TeamName}! Troops on your side have {2_num} {2_num: plural 1?Turn; other?Turns;} to disengage from their territory. All allies and vassals of either side have also made peace with each other. {3_OurAllies} {4_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_NO_DISENGAGEMENT">
 			<Text>You have made peace with {1_TeamName}! All allies and vassals of either side have also made peace with each other. {2_OurAllies} {3_TheirAllies}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_YOU_MADE_PEACE_WITH_MINOR_DETAILED">
