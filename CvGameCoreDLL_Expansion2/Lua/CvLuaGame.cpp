@@ -2286,7 +2286,15 @@ int CvLuaGame::lIsHideOpinionTable(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumCitiesPolicyCostMod(lua_State* L)
 {
-	lua_pushinteger(L, GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod());
+	const PlayerTypes ePlayer = GC.getGame().getActivePlayer();
+	int iValueTimes100 = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostModTimes100();
+	if (ePlayer != NO_PLAYER)
+	{
+		int iDiscount = GET_PLAYER(ePlayer).GetNumCitiesPolicyCostDiscount();
+		if (iDiscount != 0)
+			iValueTimes100 = iValueTimes100 * (100 + iDiscount) / 100;
+	}
+	lua_pushnumber(L, iValueTimes100 / 100.0);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -2299,13 +2307,13 @@ int CvLuaGame::lGetNumCitiesTourismCostMod(lua_State* L)
 int CvLuaGame::lGetNumCitiesTechCostMod(lua_State* L)
 {
 	const PlayerTypes ePlayer = GC.getGame().getActivePlayer();
-	int iNormalValue = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();
+	int iNormalValueTimes100 = GC.getMap().getWorldInfo().GetNumCitiesTechCostModTimes100();
 	if (ePlayer != NO_PLAYER)
 	{
-		iNormalValue += GET_PLAYER(ePlayer).GetTechCostXCitiesModifier();
+		iNormalValueTimes100 += GET_PLAYER(ePlayer).GetTechCostXCitiesModifier() * 100;
 	}
 
-	lua_pushinteger(L, iNormalValue);
+	lua_pushnumber(L, iNormalValueTimes100 / 100.0);
 	return 1;
 }
 //------------------------------------------------------------------------------

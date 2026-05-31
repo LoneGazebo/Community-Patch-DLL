@@ -63,7 +63,7 @@ WHERE Tag = 'TXT_KEY_RESOLUTION_BAN_LUXURY_HAPPINESS_HELP';
 
 -- Scholars In Residence
 UPDATE Language_en_US
-SET Text = 'Civilizations have -20% [ICON_RESEARCH] Research cost for Technologies already discovered by another Civilization. Additional -2% for every City-State Ally, up to -50%.'
+SET Text = 'Civilizations have -20% [ICON_RESEARCH] Technology cost for Technologies already discovered by another Civilization. Additional -2% for every City-State Ally, up to -50%.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_MEMBER_DISCOVERED_TECH_DISCOUNT_HELP';
 
 -- Cultural Heritage Sites

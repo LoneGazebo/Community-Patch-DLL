@@ -4687,8 +4687,33 @@ int CvPlayerPolicies::GetTourismFromUnitCreation(UnitClassTypes eUnitClass) cons
 	return iTourism;
 }
 
+int CvPlayerPolicies::GetPolicyCityModifierTimes100(int iCityOffset) const
+{
+	int iBaseTimes100 = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostModTimes100();
+	int iPolicyModDiscount = m_pPlayer->GetNumCitiesPolicyCostDiscount();
+	if(iPolicyModDiscount != 0)
+	{
+		iBaseTimes100 = iBaseTimes100 * (100 + iPolicyModDiscount) / 100;
+	}
+	int iScalingTimes100 = GD_INT_GET(NUM_CITIES_COST_MOD_SCALING) * (100 + iPolicyModDiscount) / 100; //  20 in VP (0.2%/city penalty scaling), 0 in CP
+	int iNumCities = (m_pPlayer->getNumCities() > 0) ? m_pPlayer->GetNumEffectiveCities() : 0;
+	iNumCities += iCityOffset;
+	int iPolicyCities = max(0, iNumCities);
+	// Formula: flat_penalty * N + scaling_penalty * C(N,2)
+	// Where C(N,2) = N*(N-1)/2 is the number of city pairs ("N choose 2")
+	// Example: With base=5% and scaling=0.2%, 6 cities: 
+	// C(6,2) is 1+2+3+4+5=15; each city has higher penalty.
+	// 5%*6 + 0.2%*C(6,2) = 30% + 0.2%*15 = 33%
+	return iBaseTimes100 * iPolicyCities + iScalingTimes100 * iPolicyCities * (iPolicyCities - 1) / 2;
+}
+
+int CvPlayerPolicies::GetPolicyOneMoreCityModifierTimes100(int iCityOffset) const
+{
+	return GetPolicyCityModifierTimes100(iCityOffset + 1) - GetPolicyCityModifierTimes100(iCityOffset);
+}
+
 /// How much will the next policy cost?
-int CvPlayerPolicies::GetNextPolicyCost()
+int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset)
 {
 	int iActualNumPolicies = GetNumPoliciesOwned(false, true);
 
@@ -4704,20 +4729,13 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	// Base cost that doesn't get exponent-ed
 	iCost += /*25 in CP, 50 in VP*/ GD_INT_GET(BASE_POLICY_COST);
 
-	// Mod for City Count
-	int iMod = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod();	// Default is 40, gets smaller on larger maps
-	int iPolicyModDiscount = m_pPlayer->GetNumCitiesPolicyCostDiscount();
-	if(iPolicyModDiscount != 0)
+	if (!bIgnoreCities)
 	{
-		iMod = iMod * (100 + iPolicyModDiscount);
-		iMod /= 100;
+		// Unified city cost formula: cost *= (10000 + iTotalTimes100) / 10000
+		// Tech and policy now both use all effective cities (including the first one).
+		int iTotalTimes100 = GetPolicyCityModifierTimes100(iCityOffset);
+		iCost = iCost * (10000 + iTotalTimes100) / 10000;
 	}
-
-	int iNumCities = m_pPlayer->GetNumEffectiveCities();
-
-	iMod = (iCost * (iNumCities - 1) * iMod);
-	iMod /= 100;
-	iCost += iMod;
 
 	// Policy Cost Mod
 	iCost *= (100 + m_pPlayer->getPolicyCostModifier());
@@ -4799,11 +4817,6 @@ int CvPlayerPolicies::GetNextPolicyCost()
 			iCost /= 100;
 		}
 	}
-
-	// Make the number nice and even
-	int iDivisor = /*5*/ GD_INT_GET(POLICY_COST_VISIBLE_DIVISOR);
-	iCost /= iDivisor;
-	iCost *= iDivisor;
 
 	return iCost;
 }

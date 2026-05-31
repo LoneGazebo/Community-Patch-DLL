@@ -63,8 +63,12 @@ WHERE Tag = 'TXT_KEY_MAYA_DATE_TOOLTIP';
 
 -- Science
 UPDATE Language_en_US
-SET Text = 'Each ([ICON_PUPPET] non-Puppet) City you own will increase Technology costs by {1_Num}%.'
+SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% x current non-Puppet Cities) of base [ICON_RESEARCH] Technology cost.'
 WHERE Tag = 'TXT_KEY_TP_TECH_CITY_COST';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]Current Technology cost: {1_Num} [ICON_RESEARCH] Science = {2_Num} [ICON_RESEARCH] base + {3_Num} [ICON_RESEARCH] (+{5_Str}% from {7_Num} {7_Num: plural 1?city; other?cities;}).[NEWLINE][ICON_BULLET]Gaining a new City will add [COLOR_NEGATIVE_TEXT]+{4_Num}[ENDCOLOR] [ICON_RESEARCH] (+{6_Str}% of base).'
+WHERE Tag = 'TXT_KEY_TP_TECH_CITY_COST_DETAIL';
 
 UPDATE Language_en_US
 SET Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from Policies.'
@@ -76,8 +80,12 @@ WHERE Tag = 'TXT_KEY_TP_SCIENCE_FROM_MINORS';
 
 -- Culture
 UPDATE Language_en_US
-SET Text = 'Each ([ICON_PUPPET] non-Puppet) City you own will increase Social Policy costs by {1_Num}%.'
+SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% x current non-Puppet Cities) of base [ICON_CULTURE] Policy cost.'
 WHERE Tag = 'TXT_KEY_TP_CULTURE_CITY_COST';
+
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET]Next policy cost: {1_Num} [ICON_CULTURE] Culture = {2_Num} [ICON_CULTURE] base + {3_Num} [ICON_CULTURE] (+{5_Str}% from {7_Num} {7_Num: plural 1?city; other?cities;}).[NEWLINE][ICON_BULLET]Gaining a new City will add [COLOR_NEGATIVE_TEXT]+{4_Num}[ENDCOLOR] [ICON_CULTURE] (+{6_Str}% of base).'
+WHERE Tag = 'TXT_KEY_TP_CULTURE_CITY_COST_DETAIL';
 
 UPDATE Language_en_US
 SET Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from a temporary Cultural Boost (Turns left: {2_TurnsLeft}).'
@@ -746,7 +754,7 @@ SET Text = '+{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintena
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_UNIT_MAINTENANCE';
 
 UPDATE Language_en_US
-SET Text = '-{1_ResearchCostPercent}% [ICON_RESEARCH] Research cost for Technologies already discovered by another Civilization. Additional -2% for every City-State ally, up to -50%'
+SET Text = '-{1_ResearchCostPercent}% [ICON_RESEARCH] Technology cost for Technologies already discovered by another Civilization. Additional -2% for every City-State ally, up to -50%'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_DISCOVERED_TECH_MODIFIER';
 
 UPDATE Language_en_US

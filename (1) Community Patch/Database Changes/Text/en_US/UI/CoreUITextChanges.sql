@@ -647,10 +647,19 @@ UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]The empire is in Anarchy due to a change in Ideology for {1_Turns} more {1_Num: plural 1?turn; other?turns;}. During Anarchy, the empire will not gain any [ICON_RESEARCH] Science, [ICON_GOLD] Gold, [ICON_CULTURE] Culture, or [ICON_PEACE] Faith, and cities have no [ICON_PRODUCTION] Production to build anything[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TP_ANARCHY';
 
+-- Science
+UPDATE Language_en_US
+SET Text = 'Each City adds +{1_Str}% of base [ICON_RESEARCH] Technology cost.'
+WHERE Tag = 'TXT_KEY_TP_TECH_CITY_COST';
+
 -- Culture
 UPDATE Language_en_US
 SET Text = 'Next Policy: {1_Num} {1_Num: plural 1?Turn; other?Turns;}'
 WHERE Tag = 'TXT_KEY_NEXT_POLICY_TURN_LABEL';
+
+UPDATE Language_en_US
+SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +{1_Str}% of base [ICON_CULTURE] Policy cost.'
+WHERE Tag = 'TXT_KEY_TP_CULTURE_CITY_COST';
 
 -- Faith
 UPDATE Language_en_US

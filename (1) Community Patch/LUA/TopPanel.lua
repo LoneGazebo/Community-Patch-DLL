@@ -30,6 +30,16 @@ local function ConvertTextKeyFormatDecimal(textKey, ...)
 	return Locale.ConvertTextKey(textKey, unpack(args))
 end
 
+local function FormatCityCostPercentHundredths(iHundredths)
+	if (iHundredths % 100 == 0) then
+		return tostring(math.floor(iHundredths / 100));
+	end
+	if (iHundredths % 10 == 0) then
+		return string.format("%.1f", iHundredths / 100);
+	end
+	return string.format("%.2f", iHundredths / 100);
+end
+
 function UpdateData()
 
 	local iPlayerID = g_activePlayerObserver;
@@ -528,7 +538,16 @@ function ScienceTipHandler( control )
 		-- Let people know that building more cities makes techs harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_CITY_COST", Game.GetNumCitiesTechCostMod());
+			local iTech = pPlayer:GetCurrentResearch();
+			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths = pPlayer:GetResearchCityCostBreakdown(iTech);
+			local baseFormulaStr = FormatCityCostPercentHundredths(baseFormulaHundredths);
+			local scalingFormulaStr = FormatCityCostPercentHundredths(scalingFormulaHundredths);
+			local cStr = FormatCityCostPercentHundredths(cHundredths);
+			local eStr = FormatCityCostPercentHundredths(eHundredths);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_CITY_COST", baseFormulaStr, N_actual, scalingFormulaStr);
+			if totalCost >= 0 then
+				strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_CITY_COST_DETAIL", totalCost, baseCost, cityCost, nextCityDelta, cStr, eStr, N_actual);
+			end
 		end
 	end
 	
@@ -967,7 +986,13 @@ function CultureTipHandler( control )
 		-- Let people know that building more cities makes policies harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_CITY_COST", Game.GetNumCitiesPolicyCostMod());
+			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths = pPlayer:GetNextPolicyCostBreakdown();
+			local baseFormulaStr = FormatCityCostPercentHundredths(baseFormulaHundredths);
+			local scalingFormulaStr = FormatCityCostPercentHundredths(scalingFormulaHundredths);
+			local cStr = FormatCityCostPercentHundredths(cHundredths);
+			local eStr = FormatCityCostPercentHundredths(eHundredths);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_CITY_COST", baseFormulaStr, N_actual, scalingFormulaStr);
+			strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_CITY_COST_DETAIL", totalCost, baseCost, cityCost, nextCityDelta, cStr, eStr, N_actual);
 		end
 	end
 	
