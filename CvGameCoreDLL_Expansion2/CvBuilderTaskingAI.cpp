@@ -4175,7 +4175,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 
 			PlayerTypes eOwner = pAdjacentPlot->getOwner();
 
-			if (eOwner == m_pPlayer->GetID())
+			if (pAdjacentPlot->getTeam() == m_pPlayer->getTeam())
 				continue;
 
 			if (pAdjacentPlot->IsStealBlockedByImprovement())

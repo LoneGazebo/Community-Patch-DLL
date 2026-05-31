@@ -3210,8 +3210,8 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 
 				PlayerTypes eOwner = pAdjacentPlot->getOwner();
 
-				// We already own this plot
-				if (eOwner == GetID())
+				// Our team already owns this plot
+				if (pAdjacentPlot->getTeam() == getTeam())
 					continue;
 
 				if (pAdjacentPlot->IsStealBlockedByImprovement())

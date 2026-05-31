@@ -305,6 +305,7 @@ CvCity::CvCity() :
 	, m_iBuildingClassHappiness()
 	, m_iReligionHappiness()
 	, m_abEverLiberated()
+	, m_aiNumTimesCultureBombed()
 	, m_strScriptData()
 	, m_paiNumResourcesLocal()
 	, m_paiNumUnimprovedResourcesLocal()
@@ -1537,6 +1538,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 
 	m_abEverLiberated.resize(REALLY_MAX_PLAYERS);
+	m_aiNumTimesCultureBombed.resize(REALLY_MAX_PLAYERS);
 	m_abIsBestForWonder.resize(GC.getNumBuildingClassInfos());
 	m_abIsPurchased.resize(GC.getNumBuildingClassInfos());
 	for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -1555,6 +1557,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 	{
 		m_abEverLiberated[iI] = false;
+		m_aiNumTimesCultureBombed[iI] = 0;
 		m_abTraded[iI] = false;
 		m_aiNumTimesOwned[iI] = 0;
 
@@ -7976,8 +7979,8 @@ std::vector<CvPlot*> CvCity::GetPlotsClaimedByBuilding(BuildingTypes eBuilding) 
 		if (!pLoopPlot)
 			continue;
 		 
-		// already our plot?
-		if (pLoopPlot->getOwner() == getOwner())
+		// already our plot? also can't steal from own team
+		if (pLoopPlot->getTeam() == getTeam())
 			continue;
 
 		if (!pLoopPlot->isRevealed(getTeam()))
@@ -14272,31 +14275,69 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeBaseHappinessFromBuildings(pBuildingInfo->GetResourceHappiness(eResource) * iNumResourceLocal * iChange);
 		}
 		
-		// instant tile claim.
+		// instant tile claim
 		// goes after resource placement so new resources spawned by the building can also get claimed
 		if (iChange > 0)
 		{
-			if (GetPlotsClaimedByBuilding(eBuilding).size() > 0)
+			const std::vector<CvPlot*>& vTilesClaimed = GetPlotsClaimedByBuilding(eBuilding);
+			if (vTilesClaimed.size() > 0)
 			{
-				const std::vector<CvPlot*>& vTilesClaimed = GetPlotsClaimedByBuilding(eBuilding);
+				vector<CvCity*> vCitiesRevengeStealingFrom;
+				vector<PlayerTypes> vPlayersRevengeStealingFrom;
+				vector<PlayerTypes> vPlayersStoleTileFrom;
+				CvWeightedVector<PlayerTypes> viCultureBombWarmongering;
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					viCultureBombWarmongering.push_back((PlayerTypes)iPlayerLoop, 0);
+
 				for (std::vector<CvPlot*>::const_iterator it = vTilesClaimed.begin(); it != vTilesClaimed.end(); ++it)
 				{
 					int iX = (*it)->getX();
 					int iY = (*it)->getY();
+					CvPlot* pPlotClaimed = GC.getMap().plot(iX, iY);
+					PlayerTypes ePlotOwner = pPlotClaimed->getOwner();
+					
+					if (ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).isMajorCiv() && GET_PLAYER(getOwner()).isMajorCiv())
+					{
+						if (std::find(vPlayersStoleTileFrom.begin(), vPlayersStoleTileFrom.end(), ePlotOwner) == vPlayersStoleTileFrom.end())
+							vPlayersStoleTileFrom.push_back(ePlotOwner);
+
+						CvCity* pCapitalCity = GET_PLAYER(getOwner()).getCapitalCity();
+						if (!pCapitalCity || plotDistance(*pPlotClaimed, *pCapitalCity->plot()) > /*3*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_RADIUS))
+						{
+							CvCity* pPlotOwnerCapital = GET_PLAYER(ePlotOwner).getCapitalCity();
+							int iStolenTileWeight = 0;
+							if (pPlotOwnerCapital && plotDistance(*pPlotClaimed, *pPlotOwnerCapital->plot()) <= GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_RADIUS))
+								iStolenTileWeight = /*1500*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_PURCHASED_CAPITAL_TILE_WEIGHT);
+							else
+								iStolenTileWeight = /*1000*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_PURCHASED_NONCAPITAL_TILE_WEIGHT);
+
+							viCultureBombWarmongering.IncreaseWeight(ePlotOwner, iStolenTileWeight);
+						}
+						CvCity* pOwningCity = pPlotClaimed->getOwningCity();
+						if (pOwningCity && pOwningCity->GetNumTimesCultureBombed(getOwner()) > 0)
+						{
+							if (std::find(vCitiesRevengeStealingFrom.begin(), vCitiesRevengeStealingFrom.end(), pOwningCity) == vCitiesRevengeStealingFrom.end())
+							{
+								vCitiesRevengeStealingFrom.push_back(pOwningCity);
+								pOwningCity->ChangeNumTimesCultureBombed(getOwner(), -1);
+								if (std::find(vPlayersRevengeStealingFrom.begin(), vPlayersRevengeStealingFrom.end(), ePlotOwner) == vPlayersRevengeStealingFrom.end())
+									vPlayersRevengeStealingFrom.push_back(ePlotOwner);
+							}
+						}
+					}
 
 					if (getOwner() == GC.getGame().getActivePlayer())
 					{
 						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotifications)
 						{
-							CvPlot* pPlotClaimed = GC.getMap().plot(iX, iY);
 							ResourceTypes eResource = pPlotClaimed->getResourceType(getTeam());
 							CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
 							ASSERT(pResourceInfo);
 							NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
 
 							CvString strBuffer;
-							if (pPlotClaimed->getOwner() == NO_PLAYER)
+							if (ePlotOwner == NO_PLAYER)
 							{
 								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE", pBuildingInfo->GetTextKey(), getNameKey(), pResourceInfo->GetTextKey());
 							}
@@ -14323,6 +14364,34 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					}
 
 					BuyPlot(iX, iY, true);
+				}
+				// Now apply certain diplo ramifications all at once
+				for (std::vector<PlayerTypes>::iterator it = vPlayersStoleTileFrom.begin(); it != vPlayersStoleTileFrom.end(); ++it)
+				{
+					PlayerTypes eOtherPlayer = *it;
+					if (std::find(vPlayersRevengeStealingFrom.begin(), vPlayersRevengeStealingFrom.end(), eOtherPlayer) != vPlayersRevengeStealingFrom.end())
+						continue;
+
+					ChangeNumTimesCultureBombed(eOtherPlayer, 1);
+					if (viCultureBombWarmongering.GetWeight(eOtherPlayer) > 0)
+					{
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getTeam() == getTeam())
+								continue;
+
+							CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
+							if (pDiplo->IsIgnoreWarmonger() || pDiplo->IsVassal(getOwner()))
+								continue;
+
+							if (!pDiplo->IsHasMet(getOwner()) || !pDiplo->IsHasMet(eOtherPlayer))
+								continue;
+
+							int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(getOwner(), GET_PLAYER(eOtherPlayer).getTeam(), eLoopPlayer, WARMONGER_MAJOR_PURCHASED_TERRITORY, viCultureBombWarmongering.GetWeight(eOtherPlayer));
+							pDiplo->ChangeOtherPlayerWarmongerAmountTimes100(getOwner(), iWarmongerValueTimes100);
+						}
+					}
 				}
 			}
 		}
@@ -26755,6 +26824,30 @@ void CvCity::setEverLiberated(PlayerTypes eIndex, bool bNewValue)
 }
 
 //	--------------------------------------------------------------------------------
+int CvCity::GetNumTimesCultureBombed(PlayerTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	return m_aiNumTimesCultureBombed[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetNumTimesCultureBombed(PlayerTypes eIndex, int iNewValue)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < MAX_PLAYERS, "eIndex expected to be < MAX_PLAYERS");
+	m_aiNumTimesCultureBombed[eIndex] = iNewValue;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeNumTimesCultureBombed(PlayerTypes eIndex, int iChange)
+{
+	SetNumTimesCultureBombed(eIndex, GetNumTimesCultureBombed(eIndex) + iChange);
+}
+
+//	--------------------------------------------------------------------------------
 bool CvCity::isRevealed(TeamTypes eIndex, bool bDebug, bool bAdjacentIsGoodEnough) const
 {
 	if (!plot())
@@ -27781,7 +27874,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 		if (!kOwner.GetPlayerTraits()->IsBuyOwnedTiles())
 			return false;
 
-		if (pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
+		if (pTargetPlot->getTeam() == getTeam() || pTargetPlot->isCity())
 			return false;
 
 		if (pTargetPlot->IsStealBlockedByImprovement())
@@ -27987,8 +28080,8 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					if (!GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
 						continue;
 
-					// Can't buy self-owned plots or city plots
-					if (pLoopPlot->getOwner() == getOwner() || pLoopPlot->isCity())
+					// Can't buy team-owned plots or city plots
+					if (pLoopPlot->getTeam() == getTeam() || pLoopPlot->isCity())
 						continue;
 
 					if (pLoopPlot->IsStealBlockedByImprovement())
@@ -28380,9 +28473,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 	VALIDATE_OBJECT();
 	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
 	if (!pPlot)
-	{
 		return;
-	}
 
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
 	bool bWithGold = false;
@@ -28407,11 +28498,18 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 	}
 
 	// Did we buy this plot from someone? They're gonna be mad!
+	bool bRevengeSteal = false;
 	PlayerTypes ePlotOwner = pPlot->getOwner();
 	if (ePlotOwner != NO_PLAYER && (bAutomaticPurchaseFromBuilding || iCost > 0) && !GET_PLAYER(getOwner()).isBarbarian() && !GET_PLAYER(ePlotOwner).isBarbarian())
 	{
 		bool bStoleHighValueTile = false;
 		int iTileValue = pPlot->GetStealPlotValue(getOwner(), bStoleHighValueTile);
+		CvCity* pOwningCity = pPlot->getOwningCity();
+		if (!bAutomaticPurchaseFromBuilding && pOwningCity && pOwningCity->GetNumTimesCultureBombed(getOwner()) > 0)
+		{
+			bRevengeSteal = true;
+			pOwningCity->ChangeNumTimesCultureBombed(getOwner(), -1);
+		}
 
 		// Stole a major civ's embassy from a City-State?
 		if (pPlot->IsImprovementEmbassy() && GET_PLAYER(ePlotOwner).isMinorCiv())
@@ -28429,6 +28527,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 				}
 
 				// The embassy owner is mad (doubly so if they're diplomacy-inclined)!
+				// This does not apply a warmongering penalty, however, since stealing City-State tiles is free.
 				if (!GET_PLAYER(eEmbassyOwner).isHuman(ISHUMAN_AI_DIPLOMACY))
 				{
 					int iPenalty = (GET_PLAYER(eEmbassyOwner).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(eEmbassyOwner).GetPlayerTraits()->IsDiplomat()) ? 6 : 3;
@@ -28506,6 +28605,49 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 		{
 			int iPenalty = bStoleHighValueTile ? 3 : 1;
 			GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
+
+			// For major civs, this may also count for warmongering
+			// Automatic purchases handle this separately
+			if (!bAutomaticPurchaseFromBuilding)
+			{
+				CvCity* pThiefCapital = GET_PLAYER(getOwner()).getCapitalCity();
+				CvCity* pPlotOwnerCapital = GET_PLAYER(ePlotOwner).getCapitalCity();
+
+				// If it's close to the thief's capital, it doesn't count; if it's close to the plot owner's capital, it counts 1.5x
+				// Revenge steals also do not count
+				if (!bRevengeSteal && (!pThiefCapital || plotDistance(*pPlot, *pThiefCapital->plot()) > /*3*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_RADIUS)))
+				{
+					ChangeNumTimesCultureBombed(ePlotOwner, 1);
+
+					int iStolenTileWeight = 0;
+					if (pPlotOwnerCapital && plotDistance(*pPlot, *pPlotOwnerCapital->plot()) <= GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_RADIUS))
+						iStolenTileWeight = /*1500*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_PURCHASED_CAPITAL_TILE_WEIGHT);
+					else
+						iStolenTileWeight = /*1000*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_PURCHASED_NONCAPITAL_TILE_WEIGHT);
+
+					// Now apply the global warmongering penalty
+					if (iStolenTileWeight > 0)
+					{
+						TeamTypes eThiefTeam = GET_PLAYER(getOwner()).getTeam();
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+							if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getTeam() == eThiefTeam)
+								continue;
+
+							CvDiplomacyAI* pDiplo = GET_PLAYER(eLoopPlayer).GetDiplomacyAI();
+							if (pDiplo->IsIgnoreWarmonger() || pDiplo->IsVassal(getOwner()))
+								continue;
+
+							if (!pDiplo->IsHasMet(getOwner()) || !pDiplo->IsHasMet(ePlotOwner))
+								continue;
+
+							int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(getOwner(), GET_PLAYER(ePlotOwner).getTeam(), eLoopPlayer, WARMONGER_MAJOR_PURCHASED_TERRITORY, iStolenTileWeight);
+							pDiplo->ChangeOtherPlayerWarmongerAmountTimes100(getOwner(), iWarmongerValueTimes100);
+						}
+					}
+				}
+			}
 		}
 
 		// Message for human
@@ -32014,6 +32156,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiDomainFreeExperience);
 	visitor(city.m_aiDomainProductionModifier);
 	visitor(city.m_abEverLiberated);
+	visitor(city.m_aiNumTimesCultureBombed);
 	visitor(city.m_abIsBestForWonder);
 	visitor(city.m_abIsPurchased);
 	visitor(city.m_abTraded);

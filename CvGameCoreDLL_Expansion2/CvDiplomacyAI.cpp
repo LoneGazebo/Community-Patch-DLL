@@ -200,8 +200,10 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 
 			// Warmongering Penalties
 			m_aiNumMinorsAttacked[iI] = 0;
-			m_aiNumMinorsConquered[iI] = 0;
 			m_aiNumMajorsAttacked[iI] = 0;
+			m_aiNumMajorsCultureBombed[iI] = 0;
+			m_aiNumPlayersNuked[iI] = 0;
+			m_aiNumMinorsConquered[iI] = 0;
 			m_aiNumMajorsConquered[iI] = 0;
 			m_aiWarmongerAmountTimes100[iI] = 0;
 
@@ -525,8 +527,10 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 
 	// Warmongering Penalties
 	visitor(diplomacyAI.m_aiNumMinorsAttacked);
-	visitor(diplomacyAI.m_aiNumMinorsConquered);
 	visitor(diplomacyAI.m_aiNumMajorsAttacked);
+	visitor(diplomacyAI.m_aiNumMajorsCultureBombed);
+	visitor(diplomacyAI.m_aiNumPlayersNuked);
+	visitor(diplomacyAI.m_aiNumMinorsConquered);
 	visitor(diplomacyAI.m_aiNumMajorsConquered);
 	visitor(diplomacyAI.m_aiWarmongerAmountTimes100);
 
@@ -5442,6 +5446,9 @@ void CvDiplomacyAI::SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iVa
 
 void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam)
 {
+	if (!GetPlayer()->isAlive())
+		return;
+
 	// Flag has been set to ignore warmongering? (Set when this player has purchased third party war, or a declaration of independence occurs.)
 	if (IsIgnoreWarmonger())
 		return;
@@ -5466,25 +5473,10 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 	if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
 		return;
 
-	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
-
-	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, eAttackedTeam, GetID(), WARMONGER_MINOR_ATTACKED) * 100;
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, eAttackedTeam, GetID(), WARMONGER_MINOR_ATTACKED);
 	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
+	SetOtherPlayerNumMinorsAttacked(ePlayer, GetOtherPlayerNumMinorsAttacked(ePlayer) + iChange);
 	DoUpdateWarmongerThreats(true);
-}
-
-/// How many Minors have we seen this Player conquer?
-int CvDiplomacyAI::GetPlayerNumMinorsConquered(PlayerTypes ePlayer) const
-{
-	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
-	return m_aiNumMinorsConquered[ePlayer];
-}
-
-void CvDiplomacyAI::SetPlayerNumMinorsConquered(PlayerTypes ePlayer, int iValue)
-{
-	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
-	ASSERT(iValue >= 0, "Setting NumMinorsConquered to negative value");
-	m_aiNumMinorsConquered[ePlayer] = min(iValue, UCHAR_MAX);
 }
 
 /// How many Majors have we seen this Player attack?
@@ -5504,6 +5496,9 @@ void CvDiplomacyAI::SetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iVa
 
 void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam)
 {
+	if (!GetPlayer()->isAlive())
+		return;
+
 	// Flag has been set to ignore warmongering? (Set when this player has purchased third party war, or a declaration of independence occurs.)
 	if (IsIgnoreWarmonger())
 		return;
@@ -5554,11 +5549,106 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 		}
 	}
 
-	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
-
-	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, eAttackedTeam, GetID(), WARMONGER_MAJOR_ATTACKED) * 100;
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, eAttackedTeam, GetID(), WARMONGER_MAJOR_ATTACKED);
 	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
+	SetOtherPlayerNumMajorsAttacked(ePlayer, GetOtherPlayerNumMajorsAttacked(ePlayer) + iChange);
 	DoUpdateWarmongerThreats(true);
+}
+
+/// How many times have we seen this player culture bomb other civilizations?
+int CvDiplomacyAI::GetOtherPlayerNumMajorsCultureBombed(PlayerTypes ePlayer) const
+{
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
+	return m_aiNumMajorsCultureBombed[ePlayer];
+}
+
+void CvDiplomacyAI::SetOtherPlayerNumMajorsCultureBombed(PlayerTypes ePlayer, int iValue)
+{
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
+	ASSERT(iValue >= 0, "Setting NumMajorsCultureBombed to negative value");
+	m_aiNumMajorsCultureBombed[ePlayer] = min(iValue, UCHAR_MAX);
+}
+
+void CvDiplomacyAI::ChangeOtherPlayerNumMajorsCultureBombed(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam, int iStolenTileWeight)
+{
+	if (!GetPlayer()->isAlive())
+		return;
+
+	// Flag has been set to ignore warmongering?
+	if (IsIgnoreWarmonger())
+		return;
+
+	// Disregard our own warmongering
+	if (GetTeam() == GET_PLAYER(ePlayer).getTeam())
+		return;
+	
+	// Don't apply warmongering if we haven't met the attacker or the attacked team (otherwise that's cheating)
+	if (!IsHasMet(ePlayer) || !GET_TEAM(GetTeam()).isHasMet(eAttackedTeam))
+		return;
+
+	// Ignore our master's warmongering
+	if (IsVassal(ePlayer))
+		return;
+
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, eAttackedTeam, GetID(), WARMONGER_MAJOR_CULTURE_BOMBED, iStolenTileWeight);
+	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
+	SetOtherPlayerNumMajorsCultureBombed(ePlayer, GetOtherPlayerNumMajorsCultureBombed(ePlayer) + iChange);
+	DoUpdateWarmongerThreats(true);
+}
+
+/// How many times have we seen this player nuke other players?
+int CvDiplomacyAI::GetOtherPlayerNumPlayersNuked(PlayerTypes ePlayer) const
+{
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
+	return m_aiNumPlayersNuked[ePlayer];
+}
+
+void CvDiplomacyAI::SetOtherPlayerNumPlayersNuked(PlayerTypes ePlayer, int iValue)
+{
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
+	ASSERT(iValue >= 0, "Setting NumPlayersNuked to negative value");
+	m_aiNumPlayersNuked[ePlayer] = min(iValue, UCHAR_MAX);
+}
+
+void CvDiplomacyAI::ChangeOtherPlayerNumPlayersNuked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam)
+{
+	if (!GetPlayer()->isAlive())
+		return;
+
+	// Flag has been set to ignore warmongering?
+	if (IsIgnoreWarmonger())
+		return;
+
+	// Disregard our own warmongering
+	if (GetTeam() == GET_PLAYER(ePlayer).getTeam())
+		return;
+	
+	// Don't apply warmongering if we haven't met the attacker or the attacked team (otherwise that's cheating)
+	if (!IsHasMet(ePlayer) || !GET_TEAM(GetTeam()).isHasMet(eAttackedTeam))
+		return;
+
+	// Ignore our master's warmongering
+	if (IsVassal(ePlayer))
+		return;
+
+	int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, eAttackedTeam, GetID(), WARMONGER_NUKED_PLAYER);
+	ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
+	SetOtherPlayerNumPlayersNuked(ePlayer, GetOtherPlayerNumPlayersNuked(ePlayer) + iChange);
+	DoUpdateWarmongerThreats(true);
+}
+
+/// How many Minors have we seen this Player conquer?
+int CvDiplomacyAI::GetPlayerNumMinorsConquered(PlayerTypes ePlayer) const
+{
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
+	return m_aiNumMinorsConquered[ePlayer];
+}
+
+void CvDiplomacyAI::SetPlayerNumMinorsConquered(PlayerTypes ePlayer, int iValue)
+{
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
+	ASSERT(iValue >= 0, "Setting NumMinorsConquered to negative value");
+	m_aiNumMinorsConquered[ePlayer] = min(iValue, UCHAR_MAX);
 }
 
 /// How many Majors have we seen this Player conquer?
@@ -8088,24 +8178,11 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 	{
 		SetBackstabbedBy(ePlayer, true, false);
 
-		int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, GetTeam(), GetID(), WARMONGER_NUKED_PLAYER) * 100;
-		ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
-		DoUpdateWarmongerThreats(true);
-
 		// Global warmongering penalty for this!
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if (eLoopPlayer == GetID() || GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
-				continue;
-
-			if (!IsHasMet(eLoopPlayer) || !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasMet(eLoopPlayer))
-				continue;
-
-			iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, GetTeam(), eLoopPlayer, WARMONGER_NUKED_PLAYER) * 100;
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateWarmongerThreats(true);
+			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+			kLoopPlayer.GetDiplomacyAI()->ChangeOtherPlayerNumPlayersNuked(ePlayer, iChange, GetTeam());
 		}
 	}
 }
@@ -11806,7 +11883,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 			}
 
 			// Do warmonger decay
-			int iDecayValue = !bUpdateOnly ? (/*200*/ GD_INT_GET(WARMONGER_THREAT_PER_TURN_DECAY) * 100) : 0;
+			int iDecayValue = !bUpdateOnly ? /*-200*/ GD_INT_GET(WARMONGER_THREAT_PER_TURN_DECAY) : 0;
 
 			if (!bUpdateOnly)
 			{
@@ -11841,7 +11918,8 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				// Decay faster if we have a good relationship with this player.
 				if (IsDoFAccepted(eLoopPlayer) || IsHasDefensivePact(eLoopPlayer) || GetDoFType(eLoopPlayer) >= DOF_TYPE_FRIENDS)
 				{
-					iDecayModifier *= 2;
+					iDecayModifier *= /*200*/ GD_INT_GET(WARMONGER_THREAT_PER_TURN_DECAY_INCREASED_FRIENDS);
+					iDecayModifier /= 100;
 				}
 
 				if (GC.getGame().GetGameLeagues()->IsWorldWar(GetID()) > 0)
@@ -11857,7 +11935,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 
 				iDecayValue *= iDecayModifier;
 				iDecayValue /= 100;
-				ChangeOtherPlayerWarmongerAmountTimes100(eLoopPlayer, min(iDecayValue, -100)); // Make sure it decays by at least -1 every turn
+				ChangeOtherPlayerWarmongerAmountTimes100(eLoopPlayer, min(iDecayValue, /*-100*/ GD_INT_GET(WARMONGER_THREAT_PER_TURN_DECAY_MINIMUM))); // Make sure it decays by at least -1 every turn
 			}
 
 			ThreatTypes eThreatType = THREAT_NONE;
@@ -11874,18 +11952,22 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				eThreatType = THREAT_MINOR;
 
 			// Also test % of players killed
-			int iNumPlayersEver = GC.getGame().GetNumMajorCivsEver();
-			int iNumPlayersKilled = GetPlayerNumMajorsConquered(eLoopPlayer) + (GetPlayerNumMinorsConquered(eLoopPlayer)/2);
-
-			if (eThreatType != THREAT_CRITICAL)
+			// Don't do this test if they resurrected us, unless they're a backstabber
+			if (!WasResurrectedBy(eLoopPlayer) || IsUntrustworthy(eLoopPlayer))
 			{
-				int iPlayersKilledPercent = iNumPlayersKilled * 100 / max(1, iNumPlayersEver);
+				int iNumPlayersEver = GC.getGame().GetNumMajorCivsEver();
+				int iNumPlayersKilled = GetPlayerNumMajorsConquered(eLoopPlayer) + (GetPlayerNumMinorsConquered(eLoopPlayer)/2);
 
-				if (iPlayersKilledPercent >= /*33*/ GD_INT_GET(WARMONGER_THREAT_CRITICAL_PERCENT_THRESHOLD))
-					eThreatType = THREAT_CRITICAL;
+				if (eThreatType != THREAT_CRITICAL)
+				{
+					int iPlayersKilledPercent = iNumPlayersKilled * 100 / max(1, iNumPlayersEver);
 
-				else if (iPlayersKilledPercent >= /*25*/ GD_INT_GET(WARMONGER_THREAT_SEVERE_PERCENT_THRESHOLD))
-					eThreatType = THREAT_SEVERE;
+					if (iPlayersKilledPercent >= /*33*/ GD_INT_GET(WARMONGER_THREAT_CRITICAL_PERCENT_THRESHOLD))
+						eThreatType = THREAT_CRITICAL;
+
+					else if (iPlayersKilledPercent >= /*25*/ GD_INT_GET(WARMONGER_THREAT_SEVERE_PERCENT_THRESHOLD))
+						eThreatType = THREAT_SEVERE;
+				}
 			}
 
 			// Set the Threat
@@ -53901,36 +53983,43 @@ bool CvDiplomacyAI::IsValidUIDiplomacyTarget(PlayerTypes eTargetPlayer)
 
 // AI HELPER ROUTINES
 
-int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, TeamTypes eDefendingTeam, PlayerTypes eObserver, WarmongerTriggerTypes eWarmongerTrigger)
+int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, TeamTypes eDefendingTeam, PlayerTypes eObserver, WarmongerTriggerTypes eWarmongerTrigger, int iStolenTileWeight)
 {
-	if (eObserver < 0 || eObserver >= MAX_MAJOR_CIVS || !GET_PLAYER(eObserver).isAlive() || !GET_PLAYER(eObserver).isMajorCiv())
-		return 0;
+	PRECONDITION(eObserver < MAX_MAJOR_CIVS, "Non-major player attempting to apply WarmongerTriggerType");
+	PRECONDITION(eWarmongerTrigger >= 0 && eWarmongerTrigger <= WARMONGER_NUKED_PLAYER, "Invalid WarmongerTriggerType");
 
 	int iWarmongerValue = 0;
 
 	switch (eWarmongerTrigger)
 	{
-		case WARMONGER_MAJOR_ATTACKED:
-		{
-			iWarmongerValue = /*10*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT);
-			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(eWarmonger) * /*10*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT) / 2;
-			break;
-		}
 		case WARMONGER_MINOR_ATTACKED:
 		{
-			iWarmongerValue = /*5*/ GD_INT_GET(WARMONGER_THREAT_MINOR_ATTACKED_WEIGHT);
-			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(eWarmonger) * /*5*/ GD_INT_GET(WARMONGER_THREAT_MINOR_ATTACKED_WEIGHT) / 2;
+			iWarmongerValue = /*750*/ GD_INT_GET(WARMONGER_THREAT_MINOR_ATTACKED_WEIGHT);
+			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetOtherPlayerNumMinorsAttacked(eWarmonger) * /*250*/ GD_INT_GET(WARMONGER_THREAT_MINOR_PREVIOUSLY_ATTACKED_WEIGHT);
+			break;
+		}
+		case WARMONGER_MAJOR_ATTACKED:
+		{
+			iWarmongerValue = /*1500*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_ATTACKED_WEIGHT);
+			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetOtherPlayerNumMajorsAttacked(eWarmonger) * /*500*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_PREVIOUSLY_ATTACKED_WEIGHT);
+			break;
+		}
+		case WARMONGER_MAJOR_PURCHASED_TERRITORY:
+		{
+			iWarmongerValue = iStolenTileWeight;
+			break;
+		}
+		case WARMONGER_MAJOR_CULTURE_BOMBED:
+		{
+			iWarmongerValue = iStolenTileWeight;
+			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetOtherPlayerNumMajorsCultureBombed(eWarmonger) * /*500*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_PREVIOUSLY_CULTURE_BOMBED_WEIGHT);
 			break;
 		}
 		case WARMONGER_NUKED_PLAYER:
 		{
-			iWarmongerValue = /*20*/ GD_INT_GET(WARMONGER_THREAT_USED_NUKE_WEIGHT);
-			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetNumTimesNuked(eWarmonger) * /*20*/ GD_INT_GET(WARMONGER_THREAT_USED_NUKE_WEIGHT);
+			iWarmongerValue = /*4000*/ GD_INT_GET(WARMONGER_THREAT_PLAYER_NUKED_WEIGHT);
+			iWarmongerValue += GET_PLAYER(eObserver).GetDiplomacyAI()->GetOtherPlayerNumPlayersNuked(eWarmonger) * /*2000*/ GD_INT_GET(WARMONGER_THREAT_PLAYER_PREVIOUSLY_NUKED_WEIGHT);
 			break;
-		}
-		default:
-		{
-			return 0;
 		}
 	}
 
@@ -54169,12 +54258,14 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 
 	int iWarmongerStatusModifier = 100;
 	bool bHisLossIsOurOwn = false;
+	bool bIgnoreCasusBelli = false;
 
 	// Vassalage?
 	if (GET_PLAYER(eCityOwner).isMajorCiv() && (pDiplo->IsVassal(eCityOwner) || pDiplo->IsMaster(eCityOwner)))
 	{
 		iWarmongerStatusModifier = /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT);
 		bHisLossIsOurOwn = true;
+		bIgnoreCasusBelli = true;
 	}
 	// Alliances?
 	else if (GET_PLAYER(eCityOwner).isMajorCiv())
@@ -54189,6 +54280,8 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		{
 			iWarmongerStatusModifier = max(100, /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT));
 			bHisLossIsOurOwn = true;
+			if (GET_PLAYER(eObserver).getTeam() == GET_PLAYER(eCityOwner).getTeam())
+				bIgnoreCasusBelli = true;
 		}
 		// Care less if we're also at war with the city owner
 		else if (pDiplo->IsAtWar(eCityOwner))
@@ -54386,28 +54479,24 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 				}
 			}
 
-			// Religious brothers/sisters should turn a blind eye to war conducted on different faiths.
-			if (pDiplo->IsPlayerSameReligion(eConqueror))
+			// Religious founders should turn a blind eye to war conducted on different faiths.
+			ReligionTypes eOwnedReligion = GET_PLAYER(eObserver).GetReligions()->GetOwnedReligion();
+			if (eOwnedReligion != NO_RELIGION)
 			{
-				// Reduced penalties for religious friends.
-				iWarmongerPoliticalModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
-
-				// We don't mind when you war on enemies of the faith.
-				if (pDiplo->IsPlayerOpposingReligion(eCityOwner) && !pDiplo->IsIgnoreReligionDifferences(eCityOwner))
+				if (pDiplo->IsPlayerSameReligion(eConqueror))
 				{
+					// Reduced penalties for religious friends.
 					iWarmongerPoliticalModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
-				}
-			}
-			// Religious enemies will not be allowed to expand!
-			else if (pDiplo->IsPlayerOpposingReligion(eConqueror) && !pDiplo->IsIgnoreReligionDifferences(eConqueror))
-			{
-				// Increased penalties for religious enemies.
-				iWarmongerPoliticalModifier += /*25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_SMALL);
 
-				// We don't like it when you war on brothers of the faith.
-				if (pDiplo->IsPlayerSameReligion(eCityOwner))
+					// We don't mind when you war on enemies of the faith.
+					if (pDiplo->IsPlayerOpposingReligion(eCityOwner) && !pDiplo->IsIgnoreReligionDifferences(eCityOwner))
+						iWarmongerPoliticalModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
+				}
+				// Religious enemies will not be allowed to expand!
+				// Increased penalties for religious enemies, but only if they war on brothers of the faith.
+				else if (pDiplo->IsPlayerSameReligion(eCityOwner) && pDiplo->IsPlayerOpposingReligion(eConqueror) && !pDiplo->IsIgnoreReligionDifferences(eConqueror))
 				{
-					iWarmongerPoliticalModifier += /*25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_SMALL);
+					iWarmongerPoliticalModifier += /*50*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_MEDIUM);
 				}
 			}
 
@@ -54511,6 +54600,24 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 	{
 		iWarmongerValue *= 2;
 	}
+
+	if (iWarmongerValue <= 0)
+		return 0;
+
+	// ////////////////////////////////////
+	// CASUS BELLI - are there any justifications for this war that could reduce warmongering penalties?
+	// ////////////////////////////////////
+
+	// Did the city steal territory from the conqueror more times than the conqueror stole territory from the city?
+	// If so, reduce warmonger value of the city by 75%.
+	if (pCity->GetNumTimesCultureBombed(eConqueror) > 0 && !bIgnoreCasusBelli)
+	{
+		iWarmongerValue *= /*25*/ GD_INT_GET(WARMONGER_THREAT_CASUS_BELLI_CULTURE_BOMBED);
+		iWarmongerValue /= 100;
+	}
+
+	if (iWarmongerValue <= 0)
+		return 0;
 
 	// ////////////////////////////////////
 	// GLOBAL WARMONGERING MODIFIERS
@@ -54833,24 +54940,16 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 				}
 			}
 
-			// We're happy when you liberate our religious brothers/sisters.
-			if (pDiplo->IsPlayerSameReligion(eNewOwner))
+			ReligionTypes eOwnedReligion = GET_PLAYER(eObserver).GetReligions()->GetOwnedReligion();
+			if (eOwnedReligion != NO_RELIGION)
 			{
-				iWarmongerPoliticalModifier += /*25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_SMALL);
-
-				// Even moreso when you're also of our faith!
-				if (pDiplo->IsPlayerSameReligion(eLiberator))
+				// Religious founders are happy when you liberate their religious brothers/sisters.
+				if (pDiplo->IsPlayerSameReligion(eNewOwner))
 				{
 					iWarmongerPoliticalModifier += /*25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_SMALL);
 				}
-			}
-			// We don't like when you liberate enemies of the faith.
-			else if (pDiplo->IsPlayerOpposingReligion(eNewOwner) && !pDiplo->IsIgnoreReligionDifferences(eNewOwner))
-			{
-				iWarmongerPoliticalModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
-
-				// Even moreso if you're also of another faith.
-				if (pDiplo->IsPlayerOpposingReligion(eLiberator) && !pDiplo->IsIgnoreReligionDifferences(eLiberator))
+				// We don't like when you liberate enemies of the faith.
+				else if (pDiplo->IsPlayerOpposingReligion(eNewOwner) && !pDiplo->IsIgnoreReligionDifferences(eNewOwner))
 				{
 					iWarmongerPoliticalModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
 				}
@@ -54919,6 +55018,9 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		iLiberationValue *= 2;
 	}
 
+	if (iLiberationValue <= 0)
+		return 0;
+
 	// ////////////////////////////////////
 	// GLOBAL WARMONGERING MODIFIERS
 	// ////////////////////////////////////
@@ -54956,28 +55058,28 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwner, CvCity* pCity, PlayerTypes eActivePlayer)
 {
 	CvString szRtnValue = "";
-
 	if (eActivePlayer == NO_PLAYER)
 		eActivePlayer = GC.getGame().getActivePlayer();
 
 	if (pCity != NULL && eActivePlayer != NO_PLAYER && eCurrentOwner != NO_PLAYER)
 	{
+		TeamTypes eCurrentOwnerTeam = GET_PLAYER(eCurrentOwner).getTeam();
+		bool bCheckCasusBelli = false;
 		szRtnValue = Localization::Lookup("TXT_KEY_WARMONGER_PREVIEW_HEADER").toUTF8();
 		CvWeightedVector<PlayerTypes> veWarmongerWeights;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			// Ignore minors
-			if (!GET_PLAYER((PlayerTypes)iPlayerLoop).isMinorCiv() && GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && (PlayerTypes)iPlayerLoop != eActivePlayer)
+			PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+			if (GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).isAlive() && ePlayer != eActivePlayer && GET_TEAM(GET_PLAYER(eActivePlayer).getTeam()).isHasMet(eTeam))
 			{
-				// Ignore unmet players
-				if (!GET_TEAM(GET_PLAYER(eActivePlayer).getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iPlayerLoop).getTeam()))
-					continue;
-
 				int iWarmongerCare = CvDiplomacyAIHelpers::GetCityWarmongerValue(pCity, eActivePlayer, eCurrentOwner, (PlayerTypes)iPlayerLoop);
-
 				if (iWarmongerCare > 0)
 				{
 					veWarmongerWeights.push_back((PlayerTypes)iPlayerLoop, iWarmongerCare);
+					if (eTeam != eCurrentOwnerTeam && !GET_TEAM(eTeam).IsVassal(eCurrentOwnerTeam) && !GET_TEAM(eCurrentOwnerTeam).IsVassal(eTeam))
+						bCheckCasusBelli = true;
 				}
 			}
 		}
@@ -55033,6 +55135,18 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 					{
 						szRtnValue += "[NEWLINE]";
 						szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_NIL", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+					}
+				}
+			}
+			if (bCheckCasusBelli)
+			{
+				if (pCity->GetNumTimesCultureBombed(eActivePlayer) > 0)
+				{
+					int iModifier = 100 - /*25*/ GD_INT_GET(WARMONGER_THREAT_CASUS_BELLI_CULTURE_BOMBED);
+					if (iModifier < 100)
+					{
+						szRtnValue += "[NEWLINE]";
+						szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CASUS_BELLI_CULTURE_BOMB", iModifier);
 					}
 				}
 			}
