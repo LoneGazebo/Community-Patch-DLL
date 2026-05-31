@@ -224,6 +224,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bRevealAllCapitals(false),
 	m_bGarrisonFreeMaintenance(false),
 	m_bAbleToAnnexCityStates(false),
+	m_bBorderSettle(false),
 	m_bOneShot(false),
 	m_bIsOnlyTradeSameIdeology(false),
 	m_bIncludesOneShotFreeUnits(false),
@@ -688,6 +689,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bEnablesSSPartHurry = kResults.GetBool("EnablesSSPartHurry");
 	m_bEnablesSSPartPurchase = kResults.GetBool("EnablesSSPartPurchase");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
+	m_bBorderSettle = kResults.GetBool("BorderSettle");
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIsOnlyTradeSameIdeology = kResults.GetBool("IsOnlyTradeSameIdeology");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
@@ -2456,6 +2458,12 @@ bool CvPolicyEntry::IsEnablesSSPartPurchase() const
 bool CvPolicyEntry::IsAbleToAnnexCityStates() const
 {
 	return m_bAbleToAnnexCityStates;
+}
+
+/// Do we ignore border adjancency restriction when founding cities?
+bool CvPolicyEntry::IsBorderSettle() const
+{
+	return m_bBorderSettle;
 }
 
 /// Only trade with same ideologies

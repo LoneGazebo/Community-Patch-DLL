@@ -554,7 +554,7 @@ CvCity::~CvCity()
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
+void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnit* pkSettler)
 {
 	VALIDATE_OBJECT();
 	//CvPlot* pAdjacentPlot;
@@ -605,8 +605,15 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	//only after the owner is set!
 	pPlot->setIsCity(true, m_iID, getWorkPlotDistance());
 
-	//clear the first ring
+	//clear the first ring(s)
 	int iRange = min(1, /*1*/ GD_INT_GET(CITY_STARTING_RINGS));
+
+	// if this is also a culture bomb (passed check in SiteEvaluator->CanFoundCity), first use the culture bomb code
+	if (pkSettler && pPlot->IsAdjacentOwnedByTeamOtherThan(kOwner.getTeam()))
+	{
+		pkSettler->PerformCultureBomb(iRange);
+	}
+	
 	for (int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for (int iDY = -iRange; iDY <= iRange; iDY++)
@@ -994,24 +1001,25 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// Stuff for Pioneers and Colonists
-	if (bInitialFounding && pkSettlerUnitEntry)
+	if (bInitialFounding && pkSettler)
 	{
-		if (pkSettlerUnitEntry->GetNumColonyFound() > 0)
+		CvUnitEntry& pkSettlerUnitEntry = pkSettler->getUnitInfo();
+		if (pkSettlerUnitEntry.GetNumColonyFound() > 0)
 		{
 			InitBoost(/*3*/ GD_INT_GET(PIONEER_EXTRA_PLOTS), /*3*/ GD_INT_GET(PIONEER_POPULATION_CHANGE), 1);
 			DoCreatePuppet();
 		}
-		if (pkSettlerUnitEntry->IsFoundMid())
+		if (pkSettlerUnitEntry.IsFoundMid())
 		{
 			InitBoost(/*3*/ GD_INT_GET(PIONEER_EXTRA_PLOTS), /*3*/ GD_INT_GET(PIONEER_POPULATION_CHANGE), /*25*/ GD_INT_GET(PIONEER_FOOD_PERCENT));
 		}
-		if (pkSettlerUnitEntry->IsFoundLate())
+		if (pkSettlerUnitEntry.IsFoundLate())
 		{
 			InitBoost(/*5*/ GD_INT_GET(COLONIST_EXTRA_PLOTS), /*5*/ GD_INT_GET(COLONIST_POPULATION_CHANGE), /*50*/ GD_INT_GET(COLONIST_FOOD_PERCENT));
 		}
 
 		const CvCivilizationInfo& kCivInfo = getCivilizationInfo();
-		for (set<int>::const_iterator it = pkSettlerUnitEntry->GetBuildOnFound().begin(); it != pkSettlerUnitEntry->GetBuildOnFound().end(); ++it)
+		for (set<int>::const_iterator it = pkSettlerUnitEntry.GetBuildOnFound().begin(); it != pkSettlerUnitEntry.GetBuildOnFound().end(); ++it)
 		{
 			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(*it);
 			const BuildingTypes eFreeBuilding = static_cast<BuildingTypes>(kCivInfo.getCivilizationBuildings(eBuildingClass));
@@ -14149,60 +14157,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeUnitClassTrainingAllowed((UnitClassTypes)*it, iChange);
 		}
 
-		// instant tile claim
-		if (iChange > 0)
-		{
-			if (GetPlotsClaimedByBuilding(eBuilding).size() > 0)
-			{
-				const std::vector<CvPlot*>& vTilesClaimed = GetPlotsClaimedByBuilding(eBuilding);
-				for (std::vector<CvPlot*>::const_iterator it = vTilesClaimed.begin(); it != vTilesClaimed.end(); ++it)
-				{
-					int iX = (*it)->getX();
-					int iY = (*it)->getY();
-
-					if (getOwner() == GC.getGame().getActivePlayer())
-					{
-						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-						if (pNotifications)
-						{
-							CvPlot* pPlotClaimed = GC.getMap().plot(iX, iY);
-							ResourceTypes eResource = pPlotClaimed->getResourceType(getTeam());
-							CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
-							ASSERT(pResourceInfo);
-							NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
-
-							CvString strBuffer;
-							if (pPlotClaimed->getOwner() == NO_PLAYER)
-							{
-								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE", pBuildingInfo->GetTextKey(), getNameKey(), pResourceInfo->GetTextKey());
-							}
-							else
-							{
-								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE_FROM_OTHER_PLAYER", pBuildingInfo->GetTextKey(), getNameKey(), pResourceInfo->GetTextKey(), GET_PLAYER(pPlotClaimed->getOwner()).getNameKey());
-							}
-							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE_S");
-
-							switch (pResourceInfo->getResourceUsage())
-							{
-							case RESOURCEUSAGE_LUXURY:
-								eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
-								break;
-							case RESOURCEUSAGE_STRATEGIC:
-								eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
-								break;
-							case RESOURCEUSAGE_BONUS:
-								eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
-								break;
-							}
-							pNotifications->Add(eNotificationType, strBuffer, strSummary, iX, iY, eResource);
-						}
-					}
-
-					BuyPlot(iX, iY, true);
-				}
-			}
-		}
-
 		// Resource loop
 		ResourceTypes eResource;
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -14320,6 +14274,61 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, pBuildingInfo->GetResourceCultureChange(eResource) * iNumResourceLocal * iChange);
 			ChangeBaseYieldRateFromBuildings(YIELD_FAITH, pBuildingInfo->GetResourceFaithChange(eResource) * iNumResourceLocal * iChange);
 			ChangeBaseHappinessFromBuildings(pBuildingInfo->GetResourceHappiness(eResource) * iNumResourceLocal * iChange);
+		}
+		
+		// instant tile claim.
+		// goes after resource placement so new resources spawned by the building can also get claimed
+		if (iChange > 0)
+		{
+			if (GetPlotsClaimedByBuilding(eBuilding).size() > 0)
+			{
+				const std::vector<CvPlot*>& vTilesClaimed = GetPlotsClaimedByBuilding(eBuilding);
+				for (std::vector<CvPlot*>::const_iterator it = vTilesClaimed.begin(); it != vTilesClaimed.end(); ++it)
+				{
+					int iX = (*it)->getX();
+					int iY = (*it)->getY();
+
+					if (getOwner() == GC.getGame().getActivePlayer())
+					{
+						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+						if (pNotifications)
+						{
+							CvPlot* pPlotClaimed = GC.getMap().plot(iX, iY);
+							ResourceTypes eResource = pPlotClaimed->getResourceType(getTeam());
+							CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+							ASSERT(pResourceInfo);
+							NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+
+							CvString strBuffer;
+							if (pPlotClaimed->getOwner() == NO_PLAYER)
+							{
+								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE", pBuildingInfo->GetTextKey(), getNameKey(), pResourceInfo->GetTextKey());
+							}
+							else
+							{
+								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE_FROM_OTHER_PLAYER", pBuildingInfo->GetTextKey(), getNameKey(), pResourceInfo->GetTextKey(), GET_PLAYER(pPlotClaimed->getOwner()).getNameKey());
+							}
+							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_BUILDING_CLAIMED_RESOURCE_S");
+
+							switch (pResourceInfo->getResourceUsage())
+							{
+							case RESOURCEUSAGE_LUXURY:
+								eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
+								break;
+							case RESOURCEUSAGE_STRATEGIC:
+								eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
+								break;
+							case RESOURCEUSAGE_BONUS:
+								eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
+								break;
+							}
+							pNotifications->Add(eNotificationType, strBuffer, strSummary, iX, iY, eResource);
+						}
+					}
+
+					BuyPlot(iX, iY, true);
+				}
+			}
 		}
 
 		if (pBuildingInfo->IsExtraLuxuries())

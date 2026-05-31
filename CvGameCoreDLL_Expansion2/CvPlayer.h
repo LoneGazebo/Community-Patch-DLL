@@ -101,7 +101,7 @@ public:
 	void addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount, bool bCompleteKills = false);
 	CvPlot* addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUnitAI = NO_UNITAI, bool bCompleteKills = false);
 
-	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
+	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnit* pkSettler = NULL);
 
 	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bOriginally);
 	bool IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, bool bConquest);
@@ -318,7 +318,7 @@ public:
 	bool canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCities, bool bIgnoreHappiness, CvString* toolTipSink = NULL) const;
 	bool canFoundCity(int iX, int iY) const;
 
-	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnitEntry* pkSettlerUnitEntry = NULL);
+	void foundCity(int iX, int iY, ReligionTypes eReligion = NO_RELIGION, bool bForce = false, CvUnit* pkSettler = NULL);
 
 	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, bool bIgnoreTechRequirements = false, CvString* toolTipSink = NULL) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
@@ -1312,6 +1312,9 @@ public:
 	bool IsAbleToAnnexCityStates() const;
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
+
+	bool IsBorderSettle() const;
+	void SetBorderSettle(int iValue);
 
 	bool IsOnlyTradeSameIdeology() const;
 	void ChangeOnlyTradeSameIdeology(int iChange);
@@ -3248,6 +3251,7 @@ protected:
 	int m_iMinorScienceAlliesCount;
 	int m_iMinorResourceBonusCount;
 	int m_iAbleToAnnexCityStatesCount;
+	int m_iBorderSettle;
 	int m_iOnlyTradeSameIdeology;
 	int m_iSupplyFreeUnits; //military units which don't count against the supply limit
 	std::vector<CvString> m_aistrInstantYield; // not serialized
@@ -4055,6 +4059,7 @@ SYNC_ARCHIVE_VAR(int, m_iMinorFriendshipDecayMod)
 SYNC_ARCHIVE_VAR(int, m_iMinorScienceAlliesCount)
 SYNC_ARCHIVE_VAR(int, m_iMinorResourceBonusCount)
 SYNC_ARCHIVE_VAR(int, m_iAbleToAnnexCityStatesCount)
+SYNC_ARCHIVE_VAR(int, m_iBorderSettle)
 SYNC_ARCHIVE_VAR(int, m_iOnlyTradeSameIdeology)
 SYNC_ARCHIVE_VAR(int, m_iSupplyFreeUnits)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abActiveContract)

@@ -10824,7 +10824,7 @@ bool CvUnit::foundCity()
 	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 
 	ReligionTypes eReligion = (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON) ? GetReligionData()->GetReligion() : NO_RELIGION;
-	kPlayer.foundCity(getX(), getY(), eReligion, false, m_pUnitInfo);
+	kPlayer.foundCity(getX(), getY(), eReligion, false, this);
 
 	if (IsCanAttack() && plot()->getPlotCity() != NULL) 
 	{

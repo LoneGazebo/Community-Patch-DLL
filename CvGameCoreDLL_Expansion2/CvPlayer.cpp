@@ -277,6 +277,7 @@ CvPlayer::CvPlayer() :
 	, m_iMinorScienceAlliesCount()
 	, m_iMinorResourceBonusCount()
 	, m_iAbleToAnnexCityStatesCount()
+	, m_iBorderSettle()
 	, m_iOnlyTradeSameIdeology()
 	, m_iFreeSpecialist()
 	, m_iCultureBombTimer()
@@ -1398,6 +1399,7 @@ void CvPlayer::uninit()
 	m_iMinorScienceAlliesCount = 0;
 	m_iMinorResourceBonusCount = 0;
 	m_iAbleToAnnexCityStatesCount = 0;
+	m_iBorderSettle = 0;
 	m_iOnlyTradeSameIdeology = 0;
 	m_iSupplyFreeUnits = 0;
 	m_strJFDCurrencyName = "";
@@ -2882,14 +2884,14 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 	return pNewUnit->plot();
 }
 
-CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnitEntry* pkSettlerUnitEntry)
+CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding, ReligionTypes eInitialReligion, const char* szName, CvUnit* pkSettler)
 {
 	CvCity* pNewCity = addCity();
 	ASSERT(pNewCity != NULL, "City is not assigned a valid value");
 	if(pNewCity != NULL)
 	{
 		ASSERT(!(GC.getMap().plot(iX, iY)->isCity()), "No city is expected at this plot when initializing new city");
-		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName, pkSettlerUnitEntry);
+		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName, pkSettler);
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 		pNewCity->DoUpdateCheapestPlotInfluenceDistance();
 
@@ -13738,7 +13740,7 @@ bool CvPlayer::canFoundCityExt(int iX, int iY, bool bIgnoreDistanceToExistingCit
 	return bCanFound;
 }
 
-void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, CvUnitEntry* pkSettlerUnitEntry)
+void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, CvUnit* pkSettler)
 {
 	if(!bForce && !canFoundCity(iX, iY))
 		return;
@@ -13750,7 +13752,7 @@ void CvPlayer::foundCity(int iX, int iY, ReligionTypes eReligion, bool bForce, C
 	if (GetNumCitiesFounded() == 0 && isMajorCiv())
 		GC.getGame().NewCapitalFounded(getPlotFoundValue(iX, iY));
 
-	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettlerUnitEntry);
+	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettler);
 
 	ASSERT(pCity != NULL, "City is not assigned a valid value");
 	if(pCity == NULL)
@@ -29905,7 +29907,21 @@ bool CvPlayer::IsAbleToAnnexCityStates() const
 
 	return false;
 }
-	//JFD
+
+bool CvPlayer::IsBorderSettle() const
+{
+	if (m_iBorderSettle > 0)
+		return true;
+
+	return false;
+}
+
+void CvPlayer::SetBorderSettle(int iValue)
+{
+	m_iBorderSettle += iValue;
+}
+
+// JFD
 void CvPlayer::SetPiety(int iValue)
 {
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_PietyChanged, GetID(), GetPiety(), iValue);
@@ -42593,6 +42609,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeFreeFoodBox(pkPolicyInfo->GetFreeFoodBox() * iChange);
 	ChangeStrategicResourceMod(pkPolicyInfo->GetStrategicResourceMod() * iChange);
 	ChangeAbleToAnnexCityStatesCount(pkPolicyInfo->IsAbleToAnnexCityStates() * iChange);
+	SetBorderSettle(pkPolicyInfo->IsBorderSettle() * iChange);
 	ChangeOnlyTradeSameIdeology(pkPolicyInfo->IsOnlyTradeSameIdeology() * iChange);
 	ChangeDistressFlatReductionGlobal(pkPolicyInfo->GetDistressFlatReduction() * iChange);
 	ChangePovertyFlatReductionGlobal(pkPolicyInfo->GetPovertyFlatReduction() * iChange);
@@ -44077,6 +44094,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iMinorScienceAlliesCount);
 	visitor(player.m_iMinorResourceBonusCount);
 	visitor(player.m_iAbleToAnnexCityStatesCount);
+	visitor(player.m_iBorderSettle);
 	visitor(player.m_iOnlyTradeSameIdeology);
 	visitor(player.m_iSupplyFreeUnits);
 	visitor(player.m_abActiveContract);
