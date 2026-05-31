@@ -182,6 +182,7 @@ protected:
 	static int lHasEmbassyAtTeam(lua_State* L);
 	LUAAPIEXTN(HasSpyAtTeam, bool, iTeam);
 	static int lIsAllowsOpenBordersToTeam(lua_State* L);
+	static int lGetRemainingDisengagementTurns(lua_State* L);
 	static int lIsForcePeace(lua_State* L);
 	static int lIsWarBlockedByPeaceTreaty(lua_State* L);
 	static int lIsDefensivePact(lua_State* L);

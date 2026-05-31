@@ -2167,6 +2167,11 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 		}
 	}
 
+	// Both of us have now made a peace treaty. Keep track of this in case either one breaks the agreement
+	int iCurrentTurn = GC.getGame().getGameTurn();
+	SetTurnMadePeaceTreatyWithTeam(eTeam, iCurrentTurn);
+	kTeam.SetTurnMadePeaceTreatyWithTeam(GetID(), iCurrentTurn);
+
 	vector<TeamTypes> veFirstPlayerAllies;
 	vector<TeamTypes> veSecondPlayerAllies;
 
@@ -2306,11 +2311,6 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 		GC.getMap().verifyUnitValidPlot();
 	}
 
-	// Both of us have now made a peace treaty. Keep track of this in case either one breaks the agreement
-	int iCurrentTurn = GC.getGame().getElapsedGameTurns();
-	SetTurnMadePeaceTreatyWithTeam(eTeam, iCurrentTurn);
-	kTeam.SetTurnMadePeaceTreatyWithTeam(GetID(), iCurrentTurn);
-
 	// Update interface
 	TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
 	if (eActiveTeam == GetID() || eActiveTeam == eTeam)
@@ -2406,8 +2406,29 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				}
 				else
 				{
-					locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
-					locString << strTheirTeamName.GetCString();
+					if ((IsAllowsOpenBordersToTeam(eTeam) && GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID())) || GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) <= 0)
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_NO_DISENGAGEMENT");
+						locString << strTheirTeamName.GetCString();
+					}
+					else if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
+						locString << strTheirTeamName.GetCString();
+						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					}
+					else if (IsAllowsOpenBordersToTeam(eTeam))
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
+						locString << strTheirTeamName.GetCString();
+						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					}
+					else
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						locString << strTheirTeamName.GetCString();
+						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					}
 					locString << strFirstPlayerAllyInformation;
 					locString << strSecondPlayerAllyInformation;
 				}
@@ -2428,8 +2449,29 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				}
 				else
 				{
-					locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
-					locString << strOurTeamName.GetCString();
+					if ((GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()) && IsAllowsOpenBordersToTeam(eTeam)) || GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) <= 0)
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_NO_DISENGAGEMENT");
+						locString << strOurTeamName.GetCString();
+					}
+					else if (IsAllowsOpenBordersToTeam(eTeam))
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
+						locString << strOurTeamName.GetCString();
+						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					}
+					else if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
+						locString << strOurTeamName.GetCString();
+						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					}
+					else
+					{
+						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						locString << strOurTeamName.GetCString();
+						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					}
 					locString << strFirstPlayerAllyInformation;
 					locString << strSecondPlayerAllyInformation;
 				}
@@ -4828,6 +4870,32 @@ void CvTeam::SetAllowsOpenBordersToTeam(TeamTypes eIndex, bool bNewValue)
 			DLLUI->setDirty(Score_DIRTY_BIT, true);
 		}
 	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvTeam::GetRemainingDisengagementTurns(TeamTypes eIndex) const
+{
+	// No disengagement when at war
+	if (isAtWar(eIndex))
+		return 0;
+
+	// Never made peace before?
+	int iGameTurn = GC.getGame().getGameTurn();
+	int iPeaceTreatyTurn = GetTurnMadePeaceTreatyWithTeam(eIndex);
+	if (iPeaceTreatyTurn < 0)
+		return 0;
+
+	// Disengagement turns > 0?
+	int iDisengagementTurns = /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+	if (iDisengagementTurns <= 0)
+		return 0;
+
+	// Already expired?
+	int iTurnDifference = iGameTurn - iPeaceTreatyTurn;
+	if (iTurnDifference >= iDisengagementTurns)
+		return 0;
+
+	return iDisengagementTurns - iTurnDifference;
 }
 
 
