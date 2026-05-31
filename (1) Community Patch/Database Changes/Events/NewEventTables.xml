@@ -688,6 +688,7 @@
 		<Column name="CapitalOnly" type="boolean" default="false"/>
 		<Column name="CoastalOnly" type="boolean" default="false"/>
 		<Column name="RiverOnly" type="boolean" default="false"/>
+		<Column name="NoFreshWater" type="boolean" default="false"/>
 		<Column name="RequiresWar" type="boolean" default="false"/>
 		<Column name="RequiresWarMinor" type="boolean" default="false"/>
 		<Column name="RequiresResistance" type="boolean" default="false"/>
@@ -923,6 +924,7 @@
 		<Column name="CapitalOnly" type="boolean" default="false"/>
 		<Column name="CoastalOnly" type="boolean" default="false"/>
 		<Column name="RiverOnly" type="boolean" default="false"/>
+		<Column name="NoFreshWater" type="boolean" default="false"/>
 		<Column name="RequiresWar" type="boolean" default="false"/>
 		<Column name="RequiresWarMinor" type="boolean" default="false"/>
 		<Column name="RequiresResistance" type="boolean" default="false"/>

@@ -3701,6 +3701,9 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 
 	if (pkEventInfo->isRiver() && !plot()->isRiver())
 		return false;
+	
+	if (pkEventInfo->isNoFreshWater() && plot()->isFreshWater())
+		return false;
 
 	if (pkEventInfo->isRequiresGarrison() && !HasGarrison())
 		return false;
@@ -4171,6 +4174,9 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		return false;
 
 	if (pkEventInfo->isRiver() && !plot()->isRiver())
+		return false;
+	
+	if (pkEventInfo->isNoFreshWater() && plot()->isFreshWater())
 		return false;
 
 	if (pkEventInfo->isResistance() && GetResistanceTurns() <= 0)
@@ -5776,6 +5782,12 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	if (pkEventInfo->isRiver() && !plot()->isRiver())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_RIVER");
+		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if (pkEventInfo->isNoFreshWater() && plot()->isFreshWater())
+	{
+		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_FRESH_WATER");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 

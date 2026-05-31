@@ -1017,6 +1017,7 @@
 			<Expires>true</Expires>
 			<SapCityTurns>5</SapCityTurns>
 			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<NoFreshWater>true</NoFreshWater>
 			<CannotHaveBuildingClass>BUILDINGCLASS_MEDICAL_LAB</CannotHaveBuildingClass>
 		</Row>
 		<!-- Pilfer Religious Relics -->

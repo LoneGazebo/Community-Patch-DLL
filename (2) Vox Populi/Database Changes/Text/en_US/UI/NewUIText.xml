@@ -2893,7 +2893,7 @@
 			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Desc} Technology</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_GARRISON">
-			<Text>[NEWLINE] [ICON_BULLET] City needs a garrison</Text>
+			<Text>[NEWLINE] [ICON_BULLET] City needs a Garrison</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_DISABLED_LUA">
 			<Text>[NEWLINE] [ICON_BULLET] Disabled for specific scenario reasons (ask Mom)</Text>
@@ -2926,10 +2926,13 @@
 			<Text>[NEWLINE] [ICON_BULLET] Barbarians are not allowed to enter owned territory yet</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_BE_RIVER">
-			<Text>[NEWLINE] [ICON_BULLET] City must be on a river</Text>
+			<Text>[NEWLINE] [ICON_BULLET] City must be on a River</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NEED_NO_FRESH_WATER">
+			<Text>[NEWLINE] [ICON_BULLET] City must not have access to Fresh Water</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_BE_COASTAL">
-			<Text>[NEWLINE] [ICON_BULLET] City must be coastal</Text>
+			<Text>[NEWLINE] [ICON_BULLET] City must be Coastal</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_BE_CAPITAL">
 			<Text>[NEWLINE] [ICON_BULLET] City must be a Capital</Text>
@@ -2938,7 +2941,7 @@
 			<Text>[NEWLINE] [ICON_BULLET] Event choice can only be chosen once per game</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_BLOCKED_BY_COUNTERSPY">
-			<Text>[NEWLINE] [ICON_BULLET] Blocked by enemy counterspy</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Blocked by enemy Counterspy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_ACTIVE">
 			<Text>[NEWLINE] [ICON_BULLET] Event choice already active</Text>

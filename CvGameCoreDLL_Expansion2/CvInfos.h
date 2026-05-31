@@ -3362,6 +3362,7 @@ public:
 	bool isCapital() const;
 	bool isCoastal() const;
 	bool isRiver() const;
+	bool isNoFreshWater() const;
 	bool isEraScaling() const;
 	bool isRequiresWarMinor() const;
 	const char* getSplashArt() const;
@@ -3431,6 +3432,7 @@ protected:
 	bool m_bCapital;
 	bool m_bCoastal;
 	bool m_bIsRiver;
+	bool m_bIsNoFreshWater;
 	bool m_bEraScaling;
 	bool m_bRequiresWarMinor;
 	CvString m_strSplashArt;
@@ -3661,6 +3663,7 @@ public:
 	bool isCapital() const;
 	bool isCoastal() const;
 	bool isRiver() const;
+	bool isNoFreshWater() const;
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
 	bool isUnhappy() const;
@@ -3802,6 +3805,7 @@ protected:
 	bool m_bCapital;
 	bool m_bCoastal;
 	bool m_bIsRiver;
+	bool m_bIsNoFreshWater;
 	bool m_bRequiresWarMinor;
 	int m_iRequiredStateReligion;
 	bool m_bRequiresGarrison;
