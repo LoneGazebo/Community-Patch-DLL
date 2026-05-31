@@ -413,14 +413,14 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		end
 
 		-- CityCanAirlift Status
-		if (city:CanAirlift() then
+		if (city:CanAirlift()) then
 			controls.CityCanAirlift:SetHide(false);
 			controls.CityCanAirlift:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_HAS_AIRLIFT"));
 		else
 			controls.CityCanAirlift:SetHide(true);
 		end
 		-- CityCanSealift Status
-		if (city:CanSealift() then
+		if (city:CanSealift()) then
 			controls.CityCanSealift:SetHide(false);
 			controls.CityCanSealift:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_HAS_SEALIFT"));
 		else
