@@ -1651,6 +1651,12 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_ACCOMPLISHMENT">
 			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_EXTRA_SPIES_FROM_ACCOMPLISHMENT">
+			<Text>[COLOR_WATER_TEXT]{2_Accomplishment:textkey}[ENDCOLOR]: Gain {1_Num} [ICON_SPY] {1: plural 1?Spy; other?Spies;}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_EXTRA_SPY_POINTS_FROM_ACCOMPLISHMENT">
+			<Text>[COLOR_WATER_TEXT]{2_Accomplishment:textkey}[ENDCOLOR]: Gain {1_Num} [ICON_SPY_POINT] Spy {1: plural 1?Point; other?Points;}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_XP_FOR_DOMAIN_FROM_ACCOMPLISHMENT">
 			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num} XP for [COLOR_YELLOW]{4_Domain:textkey}[ENDCOLOR]</Text>
 		</Row>
@@ -1670,6 +1676,9 @@
 			<Text>[ICON_BULLET]Each point of [ICON_STRENGTH] City Strength: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ACCOMPLISHMENT">
+			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{1_Accomplishment:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_ACCOMPLISHMENT">
 			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{1_Accomplishment:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PASSING_TR">

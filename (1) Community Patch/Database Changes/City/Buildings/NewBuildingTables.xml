@@ -591,11 +591,19 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Yield modifier to the building per specified accomplishment that the player has achieved -->
+	<Table name="Building_YieldModifiersFromAccomplishments">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
+		<Column name="AccomplishmentType" type="text" reference="Accomplishments(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<!-- Bonuses to the city per specified accomplishment that the player has achieved -->
 	<Table name="Building_BonusFromAccomplishments">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
 		<Column name="AccomplishmentType" type="text" reference="Accomplishments(Type)" notnull="true"/>
 		<Column name="Happiness" type="integer" notnull="true" default="0"/>
+		<Column name="ExtraSpies" type="integer" notnull="true" default="0"/>
 		<!-- Extra XP for units of the specified domain -->
 		<Column name="DomainType" type="text" reference="Domains(Type)"/>
 		<Column name="DomainXP" type="integer" notnull="true" default="0"/>

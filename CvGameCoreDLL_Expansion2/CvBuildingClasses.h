@@ -17,6 +17,7 @@
 struct AccomplishmentBonusInfo
 {
 	int iHappiness;
+	int ExtraSpies;
 	DomainTypes eDomainType;
 	int iDomainXP;
 	UnitCombatTypes eUnitCombatType;
@@ -663,6 +664,7 @@ public:
 	std::map<int, std::map<int, int>> GetTechEnhancedYields() const;
 	const std::map<int, std::vector<AccomplishmentBonusInfo>>& GetBonusFromAccomplishments() const;
 	std::map<int, std::map<int, int>> GetYieldChangesFromAccomplishments() const;
+	std::map<int, std::map<int, int>> GetYieldModifiersFromAccomplishments() const;
 	std::map<pair<GreatPersonTypes, EraTypes>, int> GetGreatPersonPointFromConstruction() const;
 	int GetImprovementYieldChange(int i, int j) const;
 	int* GetImprovementYieldChangeArray(int i) const;
@@ -1121,6 +1123,7 @@ private:
 	std::map<int, std::map<int, int>> m_miTechEnhancedYields;
 	std::map<int, std::vector<AccomplishmentBonusInfo>> m_miBonusFromAccomplishments;
 	std::map<int, std::map<int, int>> m_miYieldChangesFromAccomplishments;
+	std::map<int, std::map<int, int>> m_miYieldModifiersFromAccomplishments;
 	std::map<pair<GreatPersonTypes, EraTypes>, int> m_miGreatPersonPointFromConstruction;
 	CvDoubleYieldInfo* m_paYieldFromYield;
 	CvDoubleYieldInfo* m_paYieldFromYieldGlobal;

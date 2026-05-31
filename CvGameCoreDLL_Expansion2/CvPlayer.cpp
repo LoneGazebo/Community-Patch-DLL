@@ -15786,6 +15786,25 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		{
 			CreateSpies(pBuildingInfo->GetExtraSpies());
 		}
+		// Building Bonuses from Accomplishments
+		if (!pBuildingInfo->GetBonusFromAccomplishments().empty())
+		{
+			const std::map<int, std::vector<AccomplishmentBonusInfo>>& mBonusFromAccomplishments = pBuildingInfo->GetBonusFromAccomplishments();
+			for (std::map<int, std::vector<AccomplishmentBonusInfo>>::const_iterator it = mBonusFromAccomplishments.begin(); it != mBonusFromAccomplishments.end(); ++it)
+			{
+				int iNumAccomplishmentCompleted = GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)it->first);
+			
+				if (iNumAccomplishmentCompleted > 0)
+				{
+					const std::vector<AccomplishmentBonusInfo>& vBonuses = it->second;
+					for (size_t i = 0; i < vBonuses.size(); i++)
+					{
+						const AccomplishmentBonusInfo& bonusInfo = vBonuses[i];
+						CreateSpies(bonusInfo.ExtraSpies * iNumAccomplishmentCompleted);
+					}
+				}
+			}
+		}
 
 		if(pBuildingInfo->GetInstantSpyRankChange() > 0)
 		{
@@ -38110,6 +38129,9 @@ void CvPlayer::CompleteAccomplishment(AccomplishmentTypes eAccomplishment)
 					        const AccomplishmentBonusInfo& bonusInfo = vBonuses[iBonus];
 					        // apply the bonuses
 					        pLoopCity->ChangeBaseHappinessFromBuildings(bonusInfo.iHappiness);
+
+							CreateSpies(bonusInfo.ExtraSpies);
+							
 					        if (bonusInfo.eDomainType != NO_DOMAIN)
 					        {
 					            pLoopCity->changeDomainFreeExperience(

@@ -2683,6 +2683,15 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	else
 		AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_SPIES", kBuildingInfo.ExtraSpies);
 	end
+	
+	for row in GameInfo.Building_BonusFromAccomplishments{BuildingType = kBuildingInfo.Type} do
+		local kAccomplishmentInfo = GameInfo.Accomplishments[row.AccomplishmentType];
+		if MOD_BALANCE_SPY_POINTS then
+			AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_EXTRA_SPY_POINTS_FROM_ACCOMPLISHMENT", row.ExtraSpies * ESPIONAGE_SPY_POINT_UNIT, kAccomplishmentInfo.Description);
+		else
+			AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_EXTRA_SPIES_FROM_ACCOMPLISHMENT", row.ExtraSpies, kAccomplishmentInfo.Description);
+		end
+	end
 
 	-- Free units
 	for row in GameInfo.Building_FreeSpecUnits{BuildingType = kBuildingInfo.Type} do
@@ -3611,6 +3620,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local tEraBoosts = {};
 		local tEraModifierBoosts = {};
 		local tAccomplishmentBoosts = {};
+		local tAccomplishmentModifiers = {};
 		local tCityStrengthBoosts = {};
 		local tCSStrategicBoosts = {};
 		local tPassingTRBoosts = {};
@@ -3727,6 +3737,20 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 					tAccomplishmentBoosts[eAccomplishment] = tAccomplishmentBoosts[eAccomplishment] or {};
 					tAccomplishmentBoosts[eAccomplishment][eYield] = tAccomplishmentBoosts[eAccomplishment][eYield] or 0;
 					tAccomplishmentBoosts[eAccomplishment][eYield] = tAccomplishmentBoosts[eAccomplishment][eYield] + row.Yield;
+				end
+			end
+			
+			for row in GameInfo.Building_YieldModifiersFromAccomplishments{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
+				local kAccomplishmentInfo = GameInfo.Accomplishments[row.AccomplishmentType];
+				local eAccomplishment = kAccomplishmentInfo.ID;
+				local iMaxAccomplishments = kAccomplishmentInfo.MaxPossibleCompletions;
+
+				-- Don't show if the player already has this accomplishment maxed out
+				if tAccomplishmentModifiers[eAccomplishment] or
+				not (pCity and iMaxAccomplishments and pActivePlayer and pActivePlayer:GetNumTimesAccomplishmentCompleted(eAccomplishment) >= iMaxAccomplishments) then
+					tAccomplishmentModifiers[eAccomplishment] = tAccomplishmentModifiers[eAccomplishment] or {};
+					tAccomplishmentModifiers[eAccomplishment][eYield] = tAccomplishmentModifiers[eAccomplishment][eYield] or 0;
+					tAccomplishmentModifiers[eAccomplishment][eYield] = tAccomplishmentModifiers[eAccomplishment][eYield] + row.Yield;
 				end
 			end
 
@@ -3938,6 +3962,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CORPORATION", tCorporationBoosts, "Corporations");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_TRAIT", tTraitBoosts, "Civilizations");
 		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ACCOMPLISHMENT", tAccomplishmentBoosts, "Accomplishments");
+		AddTooltipsYieldModifierTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_ACCOMPLISHMENT", tAccomplishmentModifiers, "Accomplishments");
 		AddTooltipsYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT", tImprovementBoosts, "Improvements");
 		AddTooltipsYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT_GLOBAL", tImprovementBoostsGlobal, "Improvements");
 		AddTooltipsYieldModifierTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_GLOBAL", tBuildingModifierBoosts, "Buildings");
