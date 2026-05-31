@@ -3736,7 +3736,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				else
 				{
 					// We no longer need the escort (if we had one)
-					if (pBuilder->getArmyID() != -1)
+					if (pBuilder->getArmyID() != -1 && pBuilder->IsCivilianUnit())
 						m_pPlayer->getArmyAI(pBuilder->getArmyID())->GetOperation()->Kill();
 
 					if (pBuilderTaskingAI->ExecuteWorkerMove(pBuilder, eDirective))

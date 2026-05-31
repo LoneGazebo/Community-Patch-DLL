@@ -3266,7 +3266,7 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, int iQuantity
 	else if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
 		// measure quantity
-		int iValue = (iQuantity + 1) * 250;
+		int iValue = (iQuantity + 1) * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE) / 3;
 
 		// big bonus for late game resources
 		TechTypes eRevealTech = (TechTypes)pkResource->getTechReveal();
