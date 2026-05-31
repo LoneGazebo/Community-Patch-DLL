@@ -340,15 +340,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_ENCIRCLEMENT</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_MINELAYER</Type>
-			<Description>TXT_KEY_PROMOTION_MINELAYER</Description>
-			<Help>TXT_KEY_PROMOTION_MINELAYER_HELP</Help>
-			<TechPrereq>TECH_COMBUSTION</TechPrereq>
-			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
-			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_MINELAYER</PediaEntry>
-		</Row>
-		<Row>
 			<Type>PROMOTION_AERIAL_TORPEDO</Type>
 			<Description>TXT_KEY_PROMOTION_AERIAL_TORPEDO</Description>
 			<Help>TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP</Help>

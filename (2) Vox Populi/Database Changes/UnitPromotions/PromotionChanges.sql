@@ -244,7 +244,7 @@ UPDATE UnitPromotions SET ExtraFlankPower = 1, FlankAttackModifier = 10 WHERE Ty
 --                    │                         └───► Medic I ────► Medic II    Blitz
 --                    │                               Piracy
 --                    │                               Encirclement
---                    │                               Minelayer
+--                    │                               
 --                    │
 --                    └───► Navigator I ─────► Navigator II
 ----------------------------------------------------------------------------------------------------------------------------
@@ -295,12 +295,6 @@ SELECT
 	'PROMOTION_ENCIRCLEMENT', Type, 10
 FROM UnitCombatInfos
 WHERE IsNaval = 1;
-
-UPDATE UnitPromotions
-SET
-	AdjacentEnemySapMovement = (SELECT Value FROM Defines WHERE Name = 'MOVE_DENOMINATOR') * 2,
-	RangedDefenseMod = -10
-WHERE Type = 'PROMOTION_MINELAYER';
 
 UPDATE UnitPromotions SET CityAttack = 125, DamageReductionCityAssault = 50 WHERE Type = 'PROMOTION_VANGUARD';
 
