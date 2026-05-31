@@ -3859,7 +3859,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WinningWars(CvPlayer* pPlayer)
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
+			iSum += pPlayer->GetWarScore(eLoopPlayer);
 		}
 	}
 
@@ -3881,7 +3881,7 @@ bool MilitaryAIHelpers::IsTestStrategy_LosingWars(CvPlayer* pPlayer)
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
+			iSum += pPlayer->GetWarScore(eLoopPlayer);
 		}
 	}
 	return iSum < -10;

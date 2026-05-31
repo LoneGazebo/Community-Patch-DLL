@@ -376,6 +376,7 @@ CvPlayer::CvPlayer() :
 	, m_aiWarValueLost()
 	, m_aiWarDamageValue()
 	, m_aiWarWeariness()
+	, m_aiMostRecentWarScore()
 	, m_aiNumUnitsBuilt()
 	, m_aiProximityToPlayer()
 	, m_aiResearchAgreementCounter()
@@ -1866,6 +1867,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiWarWeariness.clear();
 	m_aiWarWeariness.resize(MAX_MAJOR_CIVS, 0);
+
+	m_aiMostRecentWarScore.clear();
+	m_aiMostRecentWarScore.resize(MAX_PLAYERS, 0);
 
 	m_aiNumUnitsBuilt.clear();
 	m_aiNumUnitsBuilt.resize(GC.getNumUnitInfos());
@@ -10329,6 +10333,8 @@ void CvPlayer::doTurnPostDiplomacy()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (isAlive() && GET_PLAYER(eLoopPlayer).isAlive())
+			DoMostRecentWarScoreDecay(eLoopPlayer);
 
 		if (getTourismBonusTurnsPlayer(eLoopPlayer) > 0)
 			changeTourismBonusTurnsPlayer(eLoopPlayer, -1);
@@ -32862,6 +32868,10 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			GET_PLAYER(eLoopPlayer).SetWarDamageValue(GetID(), 0);
 			GET_PLAYER(eLoopPlayer).SetLastCityCaptureTurn(GetID(), -1);
 
+			// Will be updated later for the killer(s)
+			SetMostRecentWarScore(eLoopPlayer, 0, false);
+			GET_PLAYER(eLoopPlayer).SetMostRecentWarScore(GetID(), 0, false);
+
 			if (isMajorCiv())
 			{
 				SetWarWeariness(eLoopPlayer, 0);
@@ -33857,19 +33867,17 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 	CvPlayer& kPossibleVictimPlayer = GET_PLAYER(ePossibleVictimPlayer);
 
 	// Trigger war victory bonuses for all majors at war if a major was killed
+	bool bMajorVictim = kPossibleVictimPlayer.isMajorCiv();
+	TeamTypes eVictimTeam = kPossibleVictimPlayer.getTeam();
 	vector<PlayerTypes> vAtWarWithPossibleVictim;
-	if (kPossibleVictimPlayer.isMajorCiv())
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getTeam() == eVictimTeam)
+			continue;
 
-			if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePossibleVictimPlayer).getTeam())
-				continue;
-
-			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).IsAtWarWith(ePossibleVictimPlayer))
-				vAtWarWithPossibleVictim.push_back(eLoopPlayer);
-		}
+		if (GET_PLAYER(eLoopPlayer).IsAtWarWith(ePossibleVictimPlayer))
+			vAtWarWithPossibleVictim.push_back(eLoopPlayer);
 	}
 
 	// This may 'kill' the player if it is deemed that he does not have the proper cities/units to stay alive
@@ -33880,20 +33888,26 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 	{
 		CompleteAccomplishment(ACCOMPLISHMENT_ELIMINATE_PLAYER);
 
-		if (kPossibleVictimPlayer.isMajorCiv())
+		for (vector<PlayerTypes>::iterator it = vAtWarWithPossibleVictim.begin(); it != vAtWarWithPossibleVictim.end(); ++it)
 		{
-			for (vector<PlayerTypes>::iterator it = vAtWarWithPossibleVictim.begin(); it != vAtWarWithPossibleVictim.end(); it++)
-			{
-				GET_PLAYER(*it).DoWarVictoryBonuses();
-			}
+			// These will start ticking down only if the victim is resurrected
+			GET_PLAYER(*it).SetMostRecentWarScore(ePossibleVictimPlayer, 100, false);
+			kPossibleVictimPlayer.SetMostRecentWarScore(*it, -100, false);
 
+			// If a major civ was killed, every major civ at war with them gets victory bonuses
+			if (bMajorVictim && GET_PLAYER(*it).isMajorCiv())
+				GET_PLAYER(*it).DoWarVictoryBonuses();
+		}
+
+		if (bMajorVictim)
+		{
 			// Leader pops up and whines
 			if (isMajorCiv() && !CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman(ISHUMAN_AI_DIPLOMACY)) // Not humans or in MP
 			{
 				kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 			}
 		}
-		else if (kPossibleVictimPlayer.isMinorCiv())
+		else if (isMajorCiv() && kPossibleVictimPlayer.isMinorCiv())
 		{
 			// Killing a city state gives war victory bonuses to the civ that eliminated them
 			DoWarVictoryBonuses();
@@ -36317,11 +36331,11 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 		{
 			if (iCurrentValue > 0)
 			{
-				iValueLostRatio = (iWarValueLost * 100) / iCurrentValue;
+				iValueLostRatio = (iWarValueLost * 200) / iCurrentValue; // 2x the value so that odd values in GetWarScore() are possible
 			}
 			else
 			{
-				iValueLostRatio = iWarValueLost;
+				iValueLostRatio = iWarValueLost * 2;
 			}
 		}
 
@@ -36540,6 +36554,85 @@ int CvPlayer::GetUnhappinessFromWarWearinessWithTeam(TeamTypes eTeam, bool bCons
 		iUnhappiness -= getHappinessPerMajorWar() > 0 ? getHappinessPerMajorWar() * GET_TEAM(eTeam).getAliveCount() : 0;
 
 	return max(iUnhappiness, 0);
+}
+
+/// What is the integer value of how well we think the war with ePlayer is going?
+int CvPlayer::GetWarScore(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+
+	if (!IsAtWarWith(ePlayer))
+		return 0;
+
+	int iWarDamageWeInflicted = GET_PLAYER(ePlayer).GetWarDamageValue(GetID());
+	int iWarDamageTheyInflicted = GetWarDamageValue(ePlayer);
+
+	return range(iWarDamageWeInflicted - iWarDamageTheyInflicted, -100, 100);
+}
+
+/// What was the war score the most recent time we made peace, modified by game speed?
+/// Changes towards 0 by 1 each turn on standard speed; 1 per X turns on slower speeds
+int CvPlayer::GetMostRecentWarScore(PlayerTypes ePlayer, bool bFromDecay /* = false */) const
+{
+	if (isBarbarian()) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+
+	int iCurrentValue = m_aiMostRecentWarScore[ePlayer];
+
+	if (!bFromDecay)
+	{
+		// Retrieve the actual value (which has decayed more slowly on slower game speeds)
+		int iTrainPercent = GC.getGame().getGameSpeedInfo().getTrainPercent();
+		if (iTrainPercent > 100)
+		{
+			iCurrentValue *= 100;
+
+			// Round to ensure accuracy
+			if (iCurrentValue >= 0)
+				iCurrentValue += iTrainPercent / 2;
+			else
+				iCurrentValue -= iTrainPercent / 2;
+
+			iCurrentValue /= iTrainPercent;
+		}
+	}
+
+	return iCurrentValue;
+}
+
+void CvPlayer::SetMostRecentWarScore(PlayerTypes ePlayer, int iValue, bool bFromDecay)
+{
+	if (isBarbarian()) return;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+
+	if (!bFromDecay)
+	{
+		// Decay more slowly on higher game speeds, but don't decay more quickly on faster game speeds
+		int iTrainPercent = GC.getGame().getGameSpeedInfo().getTrainPercent();
+		if (iTrainPercent > 100)
+		{
+			iValue *= iTrainPercent;
+
+			// Round to ensure accuracy
+			if (iValue >= 0)
+				iValue += 50;
+			else
+				iValue -= 50;
+
+			iValue /= 100;
+		}
+	}
+
+	m_aiMostRecentWarScore[ePlayer] = iValue;
+}
+
+void CvPlayer::DoMostRecentWarScoreDecay(PlayerTypes ePlayer)
+{
+	int iCurrentValue = GetMostRecentWarScore(ePlayer, true);
+	if (iCurrentValue > 0)
+		SetMostRecentWarScore(ePlayer, iCurrentValue - 1, true);
+	else if (iCurrentValue < 0)
+		SetMostRecentWarScore(ePlayer, iCurrentValue + 1, true);
 }
 
 /// Returns how "close" we are to another player (useful for diplomacy, war planning, etc.)
@@ -44385,6 +44478,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiWarValueLost);
 	visitor(player.m_aiWarDamageValue);
 	visitor(player.m_aiWarWeariness);
+	visitor(player.m_aiMostRecentWarScore);
 	visitor(player.m_aiNumUnitsBuilt);
 	visitor(player.m_aiProximityToPlayer);
 	visitor(player.m_aiResearchAgreementCounter);

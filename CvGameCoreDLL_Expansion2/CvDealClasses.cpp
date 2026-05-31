@@ -911,7 +911,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					else
 					{
 						// Only a decisive winner can agree to make peace
-						if (pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]) < /*75*/ range(GD_INT_GET(THIRD_PARTY_PEACE_MIN_WAR_SCORE), 0, 100))
+						if (pFromPlayer->GetWarScore(vMembers[i]) < /*75*/ range(GD_INT_GET(THIRD_PARTY_PEACE_MIN_WAR_SCORE), 0, 100))
 							return false;
 
 						// Check for peace blocks
@@ -2721,7 +2721,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 						if (!GET_PLAYER(vMembers[i]).isAlive() || !GET_PLAYER(vMembers[i]).isMajorCiv())
 							continue;
 
-						int iWarscore = pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]);
+						int iWarscore = pFromPlayer->GetWarScore(vMembers[i]);
 						if (iWarscore < iLowestWarscore)
 							iLowestWarscore = iWarscore;
 					}
@@ -2758,7 +2758,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 						if (!GET_PLAYER(vMembers[i]).isAlive() || !GET_PLAYER(vMembers[i]).isMajorCiv())
 							continue;
 
-						int iWarscore = pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]);
+						int iWarscore = pFromPlayer->GetWarScore(vMembers[i]);
 						if (iWarscore < iRequiredWarscore)
 						{
 							return GetLocalizedText("TXT_KEY_DIPLO_WAR_SCORE", iRequiredWarscore, iWarscore);							
@@ -4475,6 +4475,12 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	bool bShouldSetHumanSurrender = bHumanToHuman && bIsPeaceDeal;
 	bool bFromPlayerItem = false;
 	bool bToPlayerItem = false;
+	bool bFromPlayerWon = GET_PLAYER(eFromPlayer).GetWarScore(eToPlayer) >= WARSCORE_THRESHOLD_POSITIVE;
+	bool bToPlayerWon = GET_PLAYER(eToPlayer).GetWarScore(eFromPlayer) >= WARSCORE_THRESHOLD_POSITIVE;
+	bool bFromPlayerSurrender = !bShouldSetHumanSurrender && bToPlayerWon;
+	bool bToPlayerSurrender = !bShouldSetHumanSurrender && bFromPlayerWon;
+	TeamTypes eFromTeam = GET_PLAYER(eFromPlayer).getTeam();
+	TeamTypes eToTeam = GET_PLAYER(eToPlayer).getTeam();
 
 	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); ++it)
 	{
@@ -4487,7 +4493,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				iLatestItemLastTurn = it->m_iFinalTurn;
 			}
 		}
-		if (bShouldSetHumanSurrender && it->m_eItemType != TRADE_ITEM_NONE && it->m_eItemType != TRADE_ITEM_PEACE_TREATY && it->m_eItemType != TRADE_ITEM_DECLARATION_OF_FRIENDSHIP && it->m_eItemType != TRADE_ITEM_DEFENSIVE_PACT && it->m_eItemType != TRADE_ITEM_RESEARCH_AGREEMENT)
+		if (bShouldSetHumanSurrender && it->m_eItemType != TRADE_ITEM_NONE && !it->IsTwoSided())
 		{
 			if (it->m_eItemType == TRADE_ITEM_THIRD_PARTY_PEACE)
 			{
@@ -4505,7 +4511,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					PlayerTypes eAlly = GET_PLAYER(eTargetMinor).GetMinorCivAI()->GetAlly();
 					if (eAlly != NO_PLAYER)
 					{
-						if (GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eFromPlayer).getTeam() || GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eToPlayer).getTeam())
+						if (GET_PLAYER(eAlly).getTeam() == eFromTeam || GET_PLAYER(eAlly).getTeam() == eToTeam)
 							continue;
 					}
 				}
@@ -4520,10 +4526,12 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	if (bFromPlayerItem && !bToPlayerItem)
 	{
 		kDeal.SetSurrenderingPlayer(eFromPlayer);
+		bFromPlayerSurrender = true;
 	}
 	else if (!bFromPlayerItem && bToPlayerItem)
 	{
 		kDeal.SetSurrenderingPlayer(eToPlayer);
+		bToPlayerSurrender = true;
 	}
 
 	// if this is a renewal deal, cancel all items from the original deal that are no longer included now
@@ -4552,12 +4560,15 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	// Set one-time values here
 	bool bDoDefensivePactNotification = true;
 	bool bDoResearchAgreementNotification = true;
-	bool bDoWarVictoryBonuses = true;
 
 	// Process each item in the deal!
 	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); ++it)
 	{
 		if (it->m_eItemType == TRADE_ITEM_NONE)
+			continue;
+
+		// Make sure peace is processed last
+		if (it->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 			continue;
 
 		PlayerTypes eGivingPlayer = it->m_eFromPlayer;
@@ -4746,7 +4757,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		{
 			for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 			{
-				TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+				TeamTypes eLoopTeam = (TeamTypes)iTeamLoop;
 
 				if (GET_TEAM(eLoopTeam).IsVassal(eGivingTeam))
 				{
@@ -4756,7 +4767,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					if (!bWasVoluntary)
 					{
 						vector<PlayerTypes> vVassalTeam = GET_TEAM(eLoopTeam).getPlayers();
-						for (size_t i = 0; i<vVassalTeam.size(); i++)
+						for (size_t i = 0; i < vVassalTeam.size(); i++)
 						{
 							PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(vVassalTeam[i]);
 							if (GET_PLAYER(eLoopPlayer).isAlive())
@@ -4784,7 +4795,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			if (eTargetPlayer == NO_PLAYER)
 				break;
 
-			if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eTargetPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
+			if (GET_PLAYER(eGivingPlayer).GetWarScore(eTargetPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
 			{
 				if (!bIsPeaceDeal && !bCityState)
 					GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
@@ -4817,7 +4828,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			// Process global reactions
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
-				PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
 				if (ePlayer == eGivingPlayer || ePlayer == eReceivingPlayer)
 					continue;
 
@@ -4904,7 +4915,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 							}
 							else
 							{
-								for (size_t i=0; i<vTargetTeam.size(); i++)
+								for (size_t i = 0; i < vTargetTeam.size(); i++)
 								{
 									if (!GET_PLAYER(vTargetTeam[i]).isAlive() || !GET_PLAYER(vTargetTeam[i]).isMajorCiv() || GET_PLAYER(vTargetTeam[i]).getNumCities() <= 0)
 										continue;
@@ -4938,7 +4949,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 								{
 									GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 150);
 								}
-							}								
+							}
 						}
 					}
 				}
@@ -4959,7 +4970,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			vector<PlayerTypes> vDebugModePlayers;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
-				PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+				PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
 				if (ePlayer == eGivingPlayer || ePlayer == eReceivingPlayer)
 					continue;
 
@@ -5035,7 +5046,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 						}
 						else
 						{
-							for (size_t i=0; i<vTargetTeam.size(); i++)
+							for (size_t i = 0; i < vTargetTeam.size(); i++)
 							{
 								if (!GET_PLAYER(vTargetTeam[i]).isAlive() || !GET_PLAYER(vTargetTeam[i]).isMajorCiv())
 									continue;
@@ -5123,12 +5134,12 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 				// All AI players on the attacking team go to war now.
 				vector<PlayerTypes> vAttackingTeam = GET_TEAM(eGivingTeam).getPlayers();
-				for (size_t i=0; i<vAttackingTeam.size(); i++)
+				for (size_t i = 0; i < vAttackingTeam.size(); i++)
 				{
 					if (!GET_PLAYER(vAttackingTeam[i]).isAlive() || !GET_PLAYER(vAttackingTeam[i]).isMajorCiv() || GET_PLAYER(vAttackingTeam[i]).isHuman(ISHUMAN_AI_DIPLOMACY) || GET_PLAYER(vAttackingTeam[i]).getNumCities() <= 0)
 						continue;
 
-					for (size_t j=0; j<vTargetTeam.size(); j++)
+					for (size_t j = 0; j < vTargetTeam.size(); j++)
 					{
 						if (!GET_PLAYER(vTargetTeam[j]).isAlive() || GET_PLAYER(vTargetTeam[j]).getNumCities() <= 0)
 							continue;
@@ -5160,30 +5171,61 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			break;
 		}
 
-		// **** Peace Treaty **** this should always be the last item processed!!!
 		case TRADE_ITEM_PEACE_TREATY:
+			UNREACHABLE();
+		}
+	}
+
+	// **** Peace Treaty **** this should always be the last item processed!!!
+	if (bIsPeaceDeal)
+	{
+		// Update war damage because cities might have been traded away, affecting war score.
+		// If it was already positive, or if it is now, then it counts. However, we don't let tech trading (which can reduce unit value) reduce a war score below eligibility.
+		GET_PLAYER(eFromPlayer).DoUpdateWarDamageAndWeariness(true);
+		GET_PLAYER(eToPlayer).DoUpdateWarDamageAndWeariness(true);
+		bFromPlayerWon = bFromPlayerWon || GET_PLAYER(eFromPlayer).GetWarScore(eToPlayer) >= WARSCORE_THRESHOLD_POSITIVE;
+		bToPlayerWon = bToPlayerWon || GET_PLAYER(eToPlayer).GetWarScore(eFromPlayer) >= WARSCORE_THRESHOLD_POSITIVE;
+
+		vector<PlayerTypes> vFromTeam = GET_TEAM(eFromTeam).getPlayers();
+		for (size_t i = 0; i < vFromTeam.size(); i++)
 		{
-			if (bDoWarVictoryBonuses)
+			PlayerTypes eLoopPlayer = vFromTeam[i];
+			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+			if (kLoopPlayer.isAlive())
 			{
-				if (GET_PLAYER(eReceivingPlayer).GetDiplomacyAI()->GetWarScore(eGivingPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
-				{
-					GET_PLAYER(eReceivingPlayer).DoWarVictoryBonuses();
-					GET_TEAM(eReceivingTeam).SetWonLatestWar(eGivingTeam, true);
-				}
-				else if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eReceivingPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
-				{
-					GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
-					GET_TEAM(eGivingTeam).SetWonLatestWar(eReceivingTeam, true);
-				}
+				// Need to set this here for Diplo AI
+				if (eLoopPlayer != eFromPlayer)
+					kLoopPlayer.DoUpdateWarDamageAndWeariness(true);
 
-				bDoWarVictoryBonuses = false;
+				if (bFromPlayerWon && bToPlayerSurrender)
+					kLoopPlayer.DoWarVictoryBonuses();
 			}
+		}
+		vector<PlayerTypes> vToTeam = GET_TEAM(eToTeam).getPlayers();
+		for (size_t i = 0; i < vToTeam.size(); i++)
+		{
+			PlayerTypes eLoopPlayer = vToTeam[i];
+			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+			if (kLoopPlayer.isAlive())
+			{
+				// Need to set this here for Diplo AI
+				if (eLoopPlayer != eToPlayer)
+					kLoopPlayer.DoUpdateWarDamageAndWeariness(true);
 
-			GET_TEAM(eGivingTeam).makePeace(eReceivingTeam, true, false, eGivingPlayer);
-			GET_TEAM(eGivingTeam).setForcePeace(eReceivingTeam, true);
-			break;
+				if (bToPlayerWon && bFromPlayerSurrender)
+					kLoopPlayer.DoWarVictoryBonuses();
+			}
 		}
-		}
+
+		if (bFromPlayerWon)
+			GET_TEAM(eFromTeam).SetWonLatestWar(eToTeam, true);
+		else if (bToPlayerWon)
+			GET_TEAM(eToTeam).SetWonLatestWar(eFromTeam, true);
+
+		GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
+		GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
+		GET_TEAM(eToTeam).makePeace(eFromTeam, true, false, eToPlayer);
+		GET_TEAM(eToTeam).setForcePeace(eFromTeam, true);
 	}
 
 	// set the expiry date of the deal that we renewed to the previous turn, so it won't be canceled a second time when this turn ends
@@ -5220,7 +5262,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 	GET_PLAYER(eFromPlayer).GetDealAI()->ClearCachedDealItemValues();
 	GET_PLAYER(eToPlayer).GetDealAI()->ClearCachedDealItemValues();
-
 }
 
 CvDeal* CvGameDeals::GetTempDeal()
@@ -5969,7 +6010,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			if(pDeal->GetSurrenderingPlayer() != NO_PLAYER)
 			{
 				playerName = GET_PLAYER(pDeal->GetSurrenderingPlayer()).getCivilizationShortDescription();
-				int iWarScore = GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetWarScore(eToPlayer);
+				int iWarScore = GET_PLAYER(eFromPlayer).GetWarScore(eToPlayer);
 				CvString strWarscore;
 				strWarscore.Format("%d", iWarScore);
 				strOutBuf += ", " + playerName + " is giving up" + " at a Warscore of: " + strWarscore;
@@ -6199,7 +6240,7 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 			if(pDeal->GetSurrenderingPlayer() != NO_PLAYER)
 			{
 				playerName = GET_PLAYER(pDeal->GetSurrenderingPlayer()).getCivilizationShortDescription();
-				int iWarScore = GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetWarScore(eToPlayer);
+				int iWarScore = GET_PLAYER(eFromPlayer).GetWarScore(eToPlayer);
 				CvString strWarscore;
 				strWarscore.Format("%d", iWarScore);
 				strOutBuf += ", " + playerName + " is giving up" + " at a Warscore of: " + strWarscore;
