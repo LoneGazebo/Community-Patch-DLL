@@ -123,7 +123,7 @@ struct STradePathInfo
 	int iScoreFromPassingTR;
 	int iScoreFromTerrain;
 
-	STradePathInfo() : iTotalCost(-1), iNormalizedDistanceRaw(-1), iTotalTurns(-1), iPathLength(0) {}
+	STradePathInfo() : iTotalCost(-1), iNormalizedDistanceRaw(-1), iTotalTurns(-1), iPathLength(0), iDangerScore(0), iDangerScoreInternal(0), iScoreFromPassingTR(0), iScoreFromTerrain(0) {}
 	STradePathInfo(const SPath& path, int iDangerScore, int iDangerScoreInternal, int iScoreFromPassingTR, int iScoreFromTerrain) 
 		: iTotalCost(path.iTotalCost)
 		, iNormalizedDistanceRaw(path.iNormalizedDistanceRaw)

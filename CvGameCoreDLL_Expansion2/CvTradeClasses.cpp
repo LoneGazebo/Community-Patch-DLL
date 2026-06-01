@@ -6321,6 +6321,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
 
 	const STradePathInfo* pPathInfo = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pFromCity, pToCity, kTradeConnection.m_eDomain);
+	ASSERT(pPathInfo, "Trade route path valid, but no path found in cache");
 
 	iScore += pPathInfo ? pPathInfo->iScoreFromPassingTR : 0;
 	iScore += pPathInfo ? pPathInfo->iScoreFromTerrain : 0;
@@ -6613,7 +6614,8 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		return 0;
 
 	const STradePathInfo* pPathInfo = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pOriginCity, pDestCity, kTradeConnection.m_eDomain);
-	int iDistance = (pPathInfo->iPathLength / 5);
+	ASSERT(pPathInfo, "Trade route path valid, but no path found in cache");
+	int iDistance = pPathInfo ? (pPathInfo->iPathLength / 5) : 0;
 
 	int iScore = 0;
 	switch (kTradeConnection.m_eConnectionType)
@@ -6911,6 +6913,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	int iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
 
 	const STradePathInfo* pPathInfo = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pFromCity, pToCity, kTradeConnection.m_eDomain);
+	ASSERT(pPathInfo, "Trade route path valid, but no path found in cache");
 
 	iScore += pPathInfo ? pPathInfo->iScoreFromPassingTR : 0;
 	iScore += pPathInfo ? pPathInfo->iScoreFromTerrain : 0;
