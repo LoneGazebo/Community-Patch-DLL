@@ -847,10 +847,10 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	local tStatLines = {};
 
 	-- Costs
-	if kUnitInfo.Cost > 0 or kUnitInfo.FaithCost > 0 then
+	if kUnitInfo.Cost >= 0 or kUnitInfo.FaithCost > 0 then
 		local tCosts = {};
 		local iProductionCost, iGoldCost, iFaithCost = 0, 0, 0;
-		if kUnitInfo.Cost > 0 then
+		if kUnitInfo.Cost >= 0 then
 			iProductionCost = (iInvestedCost > 0) and iInvestedCost or
 				(pActiveCity and pActiveCity:GetUnitProductionNeeded(eUnit) or
 				(pActivePlayer and pActivePlayer:GetUnitProductionNeeded(eUnit) or kUnitInfo.Cost));
