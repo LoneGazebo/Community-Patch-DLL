@@ -106,12 +106,6 @@ VALUES
 	('IMPROVEMENT_SIHEYUAN', 'YIELD_GOLD', 1),
 	('IMPROVEMENT_SIHEYUAN', 'YIELD_SCIENCE', 1);
 
-INSERT INTO Improvement_GoldenAgeYields
-	(ImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_SIHEYUAN', 'YIELD_GREAT_GENERAL_POINTS', 1),
-	('IMPROVEMENT_SIHEYUAN', 'YIELD_GREAT_ADMIRAL_POINTS', 1);
-
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
 VALUES
