@@ -15106,7 +15106,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreTraitsDifficulty,
 	ASSERT(eUnitClass != NO_UNITCLASS);
 
 	int iProductionNeeded = GetGenericUnitProductionCost(eUnit, this, bIgnoreExistingCopies);
-	if (iProductionNeeded <= 0)
+	if (iProductionNeeded < 0)
 		return 0;
 
 	if (!bIgnoreTraitsDifficulty)
