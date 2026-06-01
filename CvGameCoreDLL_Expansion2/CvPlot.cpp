@@ -10141,6 +10141,30 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 				iYield += isFreshWater() ? pkYieldInfo->getMinCityHillFreshWater() : pkYieldInfo->getMinCityHillNoFreshWater();
 			else
 				iYield += isFreshWater() ? pkYieldInfo->getMinCityFlatFreshWater() : pkYieldInfo->getMinCityFlatNoFreshWater();
+
+			if (MOD_PLOTS_EXTENSIONS)
+			{
+				PlotTypes ePlot = getPlotType();
+				CvPlotInfo* pkPlotInfo = GC.getPlotInfo(ePlot);
+				if (pkPlotInfo->IsAdjacentFeatureYieldChange())
+				{
+					// Yield from adjacent features
+					bool bNaturalWonderPlot = IsNaturalWonder();
+					for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+					{
+						DirectionTypes eDirection = static_cast<DirectionTypes>(iI);
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDirection);
+						if (!pAdjacentPlot)
+							continue;
+
+						FeatureTypes eAdjacentFeature = pAdjacentPlot->getFeatureType();
+						if (eAdjacentFeature != NO_FEATURE)
+						{
+							iYield += pkPlotInfo->GetAdjacentFeatureYieldChange(eAdjacentFeature, eYield, bNaturalWonderPlot);
+						}
+					}
+				}
+			}
 		}
 		// Community Patch Only: Min. 2 Food & 1 Production for city center tile yields
 		else
