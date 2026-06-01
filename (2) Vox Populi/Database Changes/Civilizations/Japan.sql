@@ -95,7 +95,7 @@ WHERE BuildingType = 'BUILDING_TATARA' AND YieldType = 'YIELD_SCIENCE';
 
 UPDATE Buildings
 SET SpecialistCount = (SELECT SpecialistCount FROM Buildings WHERE Type = 'BUILDING_FORGE') + 1
-WHERE Type = 'BUILDING_TATARA'; 
+WHERE Type = 'BUILDING_TATARA';
 
 INSERT INTO Building_ResourcePlotsToPlace
 	(BuildingType, ResourceType, NumPlots, ResourceQuantityToPlace)

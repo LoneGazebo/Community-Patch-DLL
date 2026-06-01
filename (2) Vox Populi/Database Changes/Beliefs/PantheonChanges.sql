@@ -308,7 +308,7 @@ VALUES
 
 -- Fertility Rites (now Goddess of the Home)
 UPDATE Beliefs
-SET 
+SET
 	CityGrowthModifier = 25,
 	HappinessPerCity = 1
 WHERE Type = 'BELIEF_FERTILITY_RITES';

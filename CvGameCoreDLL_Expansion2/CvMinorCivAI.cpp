@@ -1098,12 +1098,11 @@ void CvMinorCivQuest::EnableInfluence(PlayerTypes ePlayer)
 
 CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) const
 {
-	CvString szTooltip = "";
-	CvString szTooltipHeader;
 	if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isMajorCiv())
-		return szTooltip;
+		return "";
 
-	szTooltipHeader = bFinish ? GetLocalizedText("TXT_KEY_CS_QUEST_BONUS_HEADER_FINISH") : GetLocalizedText("TXT_KEY_CS_QUEST_BONUS_HEADER_START");
+	CvString szTooltip = "";
+	CvString szTooltipHeader = bFinish ? GetLocalizedText("TXT_KEY_CS_QUEST_BONUS_HEADER_FINISH") : GetLocalizedText("TXT_KEY_CS_QUEST_BONUS_HEADER_START");
 
 	if (GetInfluence() > 0)
 	{

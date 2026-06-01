@@ -117,7 +117,7 @@ UPDATE Defines SET Value = 75 WHERE Name = 'COMBAT_CAPTURE_HEALTH';
 -- Naval unit blockade range (land blockade is set in CustomModOptions BALANCE_LAND_UNITS_ADJACENT_BLOCKADE)
 UPDATE Defines SET Value = 1 WHERE Name = 'NAVAL_PLOT_BLOCKADE_RANGE';
 
--- Coastal city gold per turn penalty if all WATER tiles are blockaded 
+-- Coastal city gold per turn penalty if all WATER tiles are blockaded
 UPDATE Defines SET Value = -25 WHERE Name = 'BLOCKADE_GOLD_PENALTY';
 
 -- Bonus combat strength against a blockaded city (on BOTH land and water)

@@ -5,9 +5,8 @@
 ---------------------------------------------------------------------------------
 -- New units have same building requirements for purchase as base unit
 ---------------------------------------------------------------------------------
-CREATE TRIGGER Unit_BuildingClassPurchaseRequireds
+CREATE TRIGGER VP_Unit_BuildingClassPurchaseRequireds
 AFTER INSERT ON Units
-WHEN (EXISTS (SELECT Type FROM Units WHERE Type = NEW.Type))
 BEGIN
 	INSERT INTO Unit_BuildingClassPurchaseRequireds
 		(UnitType, BuildingClassType)
@@ -28,7 +27,8 @@ WHEN (NEW.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN'))
 BEGIN
 	INSERT INTO Trait_BuildsUnitClasses
 		(TraitType, UnitClassType, BuildType)
-	SELECT 'TRAIT_WAYFINDING', NEW.Class, 'BUILD_FISHING_BOATS_EMBARKED'
+	SELECT
+		'TRAIT_WAYFINDING', NEW.Class, 'BUILD_FISHING_BOATS_EMBARKED'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM Trait_BuildsUnitClasses
 		WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = NEW.Class AND BuildType = 'BUILD_FISHING_BOATS_EMBARKED'
@@ -42,7 +42,8 @@ WHEN (NEW.CombatClass IN ('UNITCOMBAT_MELEE', 'UNITCOMBAT_GUN') AND OLD.CombatCl
 BEGIN
 	INSERT INTO Trait_BuildsUnitClasses
 		(TraitType, UnitClassType, BuildType)
-	SELECT 'TRAIT_WAYFINDING', NEW.Class, 'BUILD_FISHING_BOATS_EMBARKED'
+	SELECT
+		'TRAIT_WAYFINDING', NEW.Class, 'BUILD_FISHING_BOATS_EMBARKED'
 	WHERE NOT EXISTS (
 		SELECT 1 FROM Trait_BuildsUnitClasses
 		WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = NEW.Class AND BuildType = 'BUILD_FISHING_BOATS_EMBARKED'
@@ -74,9 +75,8 @@ END;
 
 ---------------------------------------------------------------------------------
 -- Spain: New resources boost adjacent Hacienda
--- This assumes resource class won't be updated
 ---------------------------------------------------------------------------------
-CREATE TRIGGER VP_HaciendaCompatibility_Bonus
+CREATE TRIGGER VP_HaciendaCompatibility_Bonus_Insert
 AFTER INSERT ON Resources
 WHEN (NEW.ResourceClassType = 'RESOURCECLASS_BONUS')
 BEGIN
@@ -86,7 +86,7 @@ BEGIN
 		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_FOOD', 3;
 END;
 
-CREATE TRIGGER VP_HaciendaCompatibility_Strategic
+CREATE TRIGGER VP_HaciendaCompatibility_Strategic_Insert
 AFTER INSERT ON Resources
 WHEN (NEW.ResourceClassType IN ('RESOURCECLASS_RUSH', 'RESOURCECLASS_MODERN'))
 BEGIN
@@ -96,7 +96,7 @@ BEGIN
 		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_PRODUCTION', 3;
 END;
 
-CREATE TRIGGER VP_HaciendaCompatibility_Luxury
+CREATE TRIGGER VP_HaciendaCompatibility_Luxury_Insert
 AFTER INSERT ON Resources
 WHEN (NEW.ResourceClassType = 'RESOURCECLASS_LUXURY')
 BEGIN
@@ -106,42 +106,125 @@ BEGIN
 		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_GOLD', 3;
 END;
 
-DROP TRIGGER IF EXISTS Units_GlobalSeparateGreatAdmiral;
+CREATE TRIGGER VP_HaciendaCompatibility_Bonus_Update
+AFTER UPDATE OF ResourceClassType ON Resources
+WHEN (NEW.ResourceClassType = 'RESOURCECLASS_BONUS')
+BEGIN
+	DELETE FROM Improvement_AdjacentResourceYieldChanges
+	WHERE ImprovementType = 'IMPROVEMENT_HACIENDA' AND ResourceType = OLD.Type;
 
-CREATE TRIGGER Units_GlobalSeparateGreatAdmiral
+	INSERT INTO Improvement_AdjacentResourceYieldChanges
+		(ImprovementType, ResourceType, YieldType, Yield)
+	SELECT
+		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_FOOD', 3;
+END;
+
+CREATE TRIGGER VP_HaciendaCompatibility_Strategic_Update
+AFTER UPDATE OF ResourceClassType ON Resources
+WHEN (NEW.ResourceClassType IN ('RESOURCECLASS_RUSH', 'RESOURCECLASS_MODERN'))
+BEGIN
+	DELETE FROM Improvement_AdjacentResourceYieldChanges
+	WHERE ImprovementType = 'IMPROVEMENT_HACIENDA' AND ResourceType = OLD.Type;
+
+	INSERT INTO Improvement_AdjacentResourceYieldChanges
+		(ImprovementType, ResourceType, YieldType, Yield)
+	SELECT
+		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_PRODUCTION', 3;
+END;
+
+CREATE TRIGGER VP_HaciendaCompatibility_Luxury_Update
+AFTER UPDATE OF ResourceClassType ON Resources
+WHEN (NEW.ResourceClassType = 'RESOURCECLASS_LUXURY')
+BEGIN
+	DELETE FROM Improvement_AdjacentResourceYieldChanges
+	WHERE ImprovementType = 'IMPROVEMENT_HACIENDA' AND ResourceType = OLD.Type;
+
+	INSERT INTO Improvement_AdjacentResourceYieldChanges
+		(ImprovementType, ResourceType, YieldType, Yield)
+	SELECT
+		'IMPROVEMENT_HACIENDA', NEW.Type, 'YIELD_GOLD', 3;
+END;
+
+CREATE TRIGGER VP_HaciendaCompatibility_Delete
+AFTER DELETE ON Resources
+BEGIN
+	DELETE FROM Improvement_AdjacentResourceYieldChanges
+	WHERE ImprovementType = 'IMPROVEMENT_HACIENDA' AND ResourceType = OLD.Type;
+END;
+
+--------------------------------------------------------------------------------
+-- VP Great Admiral changes
+-- Updating an existing unit to admiral class is not handled
+--------------------------------------------------------------------------------
+CREATE TRIGGER VP_Units_GlobalSeparateGreatAdmiral
 AFTER INSERT ON Units
 WHEN (NEW.Class = 'UNITCLASS_GREAT_ADMIRAL')
 BEGIN
-    -- your modified logic here
-    UPDATE Units
-    SET
-        CanRepairFleet = 0,
-        CanChangePort = 1
-    WHERE Type = NEW.Type;
+	UPDATE Units
+	SET
+		CanRepairFleet = 0,
+		CanChangePort = 1
+	WHERE Type = NEW.Type;
 END;
 
 --------------------------------------------------------------------------------
 -- New Resources provide extra copies when a Manufactory is placed on them
 --------------------------------------------------------------------------------
-CREATE TRIGGER VP_ManufactoryNewResourceCompatibility
+CREATE TRIGGER VP_ManufactoryNewResourceCompatibility_Insert
 AFTER INSERT ON Resources
 BEGIN
-    INSERT INTO Improvement_ResourceExtractionIncrease
-        (ImprovementType, ResourceType, Num)
-    SELECT
-        'IMPROVEMENT_MANUFACTORY', NEW.Type, 1;
+	INSERT INTO Improvement_ResourceExtractionIncrease
+		(ImprovementType, ResourceType, Num)
+	SELECT
+		'IMPROVEMENT_MANUFACTORY', NEW.Type, 1;
+END;
+
+CREATE TRIGGER VP_ManufactoryNewResourceCompatibility_Delete
+AFTER DELETE ON Resources
+BEGIN
+	DELETE FROM Improvement_ResourceExtractionIncrease
+	WHERE ImprovementType = 'IMPROVEMENT_MANUFACTORY' AND ResourceType = OLD.Type;
 END;
 
 --------------------------------------------------------------------------------
 -- New Bonus Resources gets Thrift gold bonus
 --------------------------------------------------------------------------------
-CREATE TRIGGER IF NOT EXISTS BeliefFWNewBonusResources AFTER INSERT ON Resources
-WHEN NEW.ResourceClassType = 'RESOURCECLASS_BONUS'
+CREATE TRIGGER VP_BeliefFWBonusResources_Insert
+AFTER INSERT ON Resources
+WHEN (NEW.ResourceClassType = 'RESOURCECLASS_BONUS')
 BEGIN
-	INSERT OR REPLACE INTO Belief_ResourceYieldChanges
-					(BeliefType,			ResourceType, YieldType, Yield)
-	SELECT DISTINCT	 'BELIEF_FEED_WORLD',	NEW.Type,	'YIELD_GOLD', 1;
+	INSERT INTO Belief_ResourceYieldChanges
+		(BeliefType, ResourceType, YieldType, Yield)
+	SELECT
+		'BELIEF_FEED_WORLD', NEW.Type, 'YIELD_GOLD', 1;
 END;
+
+CREATE TRIGGER VP_BeliefFWBonusResources_UpdateTo
+AFTER UPDATE OF ResourceClassType ON Resources
+WHEN (NEW.ResourceClassType = 'RESOURCECLASS_BONUS' AND OLD.ResourceClassType <> 'RESOURCECLASS_BONUS')
+BEGIN
+	INSERT INTO Belief_ResourceYieldChanges
+		(BeliefType, ResourceType, YieldType, Yield)
+	SELECT
+		'BELIEF_FEED_WORLD', NEW.Type, 'YIELD_GOLD', 1;
+END;
+
+CREATE TRIGGER VP_BeliefFWBonusResources_UpdateAway
+AFTER UPDATE OF ResourceClassType ON Resources
+WHEN (NEW.ResourceClassType <> 'RESOURCECLASS_BONUS' AND OLD.ResourceClassType = 'RESOURCECLASS_BONUS')
+BEGIN
+	DELETE FROM Belief_ResourceYieldChanges
+	WHERE BeliefType = 'BELIEF_FEED_WORLD' AND ResourceType = OLD.Type;
+END;
+
+CREATE TRIGGER VP_BeliefFWBonusResources_Delete
+AFTER DELETE ON Resources
+WHEN (OLD.ResourceClassType = 'RESOURCECLASS_BONUS')
+BEGIN
+	DELETE FROM Belief_ResourceYieldChanges
+	WHERE BeliefType = 'BELIEF_FEED_WORLD' AND ResourceType = OLD.Type;
+END;
+
 ---------------------------------------------------------------------------------
 -- Promotions that provide blanket immunity to all Plagues
 ---------------------------------------------------------------------------------
@@ -149,17 +232,17 @@ END;
 CREATE TRIGGER VP_BlanketPlagueImmunityCompatibility
 AFTER INSERT ON UnitPromotions_Plagues
 BEGIN
-  INSERT INTO UnitPromotions_BlockedPromotions
-      (PromotionType, BlockedPromotionType)
-  SELECT
-      a.PromotionType,
-      NEW.PlaguePromotionType
-  FROM (
-       SELECT 'PROMOTION_ONE' AS PromotionType, 'DOMAIN_SEA' AS DomainType
-       UNION ALL SELECT 'PROMOTION_TWO', 'DOMAIN_LAND'
-       UNION ALL SELECT 'PROMOTION_THREE', NULL
-  ) AS a
-  WHERE (a.DomainType = NEW.DomainType OR a.DomainType IS NULL OR NEW.DomainType IS NULL)
-  AND NOT EXISTS (SELECT 1 FROM UnitPromotions_BlockedPromotions WHERE PromotionType = a.PromotionType AND BlockedPromotionType = NEW.PlaguePromotionType);
+	INSERT INTO UnitPromotions_BlockedPromotions
+		(PromotionType, BlockedPromotionType)
+	SELECT
+		a.PromotionType,
+		NEW.PlaguePromotionType
+	FROM (
+		SELECT 'PROMOTION_ONE' AS PromotionType, 'DOMAIN_SEA' AS DomainType
+		UNION ALL SELECT 'PROMOTION_TWO', 'DOMAIN_LAND'
+		UNION ALL SELECT 'PROMOTION_THREE', NULL
+	) AS a
+	WHERE (a.DomainType = NEW.DomainType OR a.DomainType IS NULL OR NEW.DomainType IS NULL)
+	AND NOT EXISTS (SELECT 1 FROM UnitPromotions_BlockedPromotions WHERE PromotionType = a.PromotionType AND BlockedPromotionType = NEW.PlaguePromotionType);
 END;
 */
