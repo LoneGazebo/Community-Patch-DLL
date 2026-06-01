@@ -864,13 +864,13 @@ bool CvGameTrade::IsValidTradeRoutePath(CvCity* pOriginCity, CvCity* pDestCity, 
 
 	//get path info from cache
 	STradePathInfo sPathInfo;
-	if (HavePotentialTradePath(eDomain==DOMAIN_SEA,pOriginCity,pDestCity,sPathInfo,pPath))
+	if (HavePotentialTradePath(eDomain == DOMAIN_SEA, pOriginCity, pDestCity, sPathInfo, pPath))
 	{
 		// check if beyond the origin player's trade range
 		int iMaxNormDist = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
 
 		int iNormDist = sPathInfo.iNormalizedDistanceRaw;
-		if (iNormDist>0 && iNormDist<=iMaxNormDist*SPath::getNormalizedDistanceBase())
+		if (iNormDist>0 && iNormDist <= iMaxNormDist*SPath::getNormalizedDistanceBase())
 			return true;
 	}
 
@@ -1271,16 +1271,21 @@ void CvGameTrade::UpdateTradePlots()
 int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete)
 {
 	// calculate distance
-	SPath path;
-	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain, &path);
+	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain);
 	if (!bTradeAvailable)
 		return -1;
-	int iDistance = path.length();
+
+	const STradePathInfo* pPath = GetCachedTradePathInfo(pOriginCity, pDestCity, eDomain);
+	ASSERT(pPath, "Trade route path valid, but no path found in cache");
+	if (!pPath)
+		return -1;
+
+	int iDistance = pPath->iPathLength;
 	CvPlayer& kOriginPlayer = GET_PLAYER(pOriginCity->getOwner());
 
 	// calculate turns per circuit
 	int iRawSpeed = kOriginPlayer.GetTrade()->GetTradeRouteSpeed(eDomain);
-	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / max(1,path.iNormalizedDistanceRaw);
+	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * pPath->iPathLength) / max(1,pPath->iNormalizedDistanceRaw);
 	int iRouteSpeed = int(0.5f + iSpeedFactor*iRawSpeed / 100.f);
 
 	float fTurnsPerCircuit = 1;
@@ -2190,7 +2195,7 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 	{
 		//get path info from cache
 		STradePathInfo sPathInfo;
-		if (HavePotentialTradePath(eDomain==DOMAIN_SEA,pOriginPlot->getPlotCity(),pDestPlot->getPlotCity(),sPathInfo,&path))
+		if (HavePotentialTradePath(eDomain == DOMAIN_SEA, pOriginPlot->getPlotCity(), pDestPlot->getPlotCity(), sPathInfo, &path))
 		{
 			size_t n = path.vPlots.size();
 			if (n>0 && n<=MAX_PLOTS_TO_DISPLAY)

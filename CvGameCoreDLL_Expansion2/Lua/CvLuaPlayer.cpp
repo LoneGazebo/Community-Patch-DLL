@@ -5633,12 +5633,16 @@ int CvLuaPlayer::lGetTradeConnectionDistance(lua_State* L)
 	kTradeConnection.SetCities(pOriginCity, pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
 
-	SPath path;
-	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, kTradeConnection.m_eDomain, &path);
+	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, kTradeConnection.m_eDomain);
 	if (!bTradeAvailable)
 		return 0;
 
-	int iLength = path.iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase();
+	const STradePathInfo* pPath = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pOriginCity, pDestCity, kTradeConnection.m_eDomain);
+	ASSERT(pPath, "Trade route path valid, but no path found in cache");
+	if (!pPath)
+		return 0;
+
+	int iLength = pPath->iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase();
 	lua_pushinteger(L, iLength);
 	return 1;
 }
