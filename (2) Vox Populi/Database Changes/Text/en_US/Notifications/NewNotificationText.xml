@@ -720,7 +720,7 @@
 			<Text>You received additional [ICON_SPY_POINT] Spy Points!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_POINTS_RECEIVED">
-			<Text>You received an additional {1_SpyPoints} [ICON_SPY_POINT] Spy Points, bring your current progress toward a new [ICON_SPY] Spy to {2_SpyPoints}/{3_Threshold}.[NEWLINE]You have accumulated a total of {4_SpyPoints} [ICON_SPY_POINTS] Spy Points.</Text>
+			<Text>You received an additional {1_SpyPoints} [ICON_SPY_POINT] Spy Points, bringing your current progress toward a new [ICON_SPY] Spy to {2_SpyPoints}/{3_Threshold}.[NEWLINE]You have accumulated a total of {4_SpyPoints} [ICON_SPY_POINTS] Spy Points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_S">
 			<Text>New Passive Spy Bonus unlocked</Text>

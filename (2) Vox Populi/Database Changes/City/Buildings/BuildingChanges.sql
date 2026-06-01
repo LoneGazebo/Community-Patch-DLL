@@ -730,6 +730,8 @@ SELECT
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_SORTING_OFFICE';
 
+DELETE FROM Helper;
+
 -- Stock Exchange
 UPDATE Buildings
 SET SpecialistCount = 1
