@@ -76,7 +76,7 @@ SET
 	SharedIdeologyTradeGoldChange = 6
 WHERE Type = 'POLICY_ECONOMIC_UNION';
 
--- Universal Suffrage 
+-- Universal Suffrage
 UPDATE Policies
 SET
 	Level = 1,

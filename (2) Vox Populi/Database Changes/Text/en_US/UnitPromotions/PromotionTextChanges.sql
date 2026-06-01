@@ -461,7 +461,7 @@ UPDATE Language_en_US
 SET Text = '+10% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALTITUDE_TRAINING_HELP';
 
--- Morale 
+-- Morale
 UPDATE Language_en_US
 SET Text = '+10% [ICON_STRENGTH] Combat Strength.'
 WHERE Tag = 'TXT_KEY_PROMOTION_MORALE_HELP';

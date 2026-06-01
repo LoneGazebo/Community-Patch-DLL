@@ -372,7 +372,7 @@ UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_WATER_CONNECTION
 UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' AND LeaderType = 'LEADER_ELIZABETH'; -- 9, DOM
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_ELIZABETH'; -- 8, DOM
 
-UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' AND LeaderType = 'LEADER_ENRICO_DANDOLO'; -- 8, has few, better protect them 
+UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' AND LeaderType = 'LEADER_ENRICO_DANDOLO'; -- 8, has few, better protect them
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_RECON' AND LeaderType = 'LEADER_ENRICO_DANDOLO'; -- 9
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_NAVAL' AND LeaderType = 'LEADER_ENRICO_DANDOLO'; -- 5, has strong coast bias
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_ANTIAIR' AND LeaderType = 'LEADER_ENRICO_DANDOLO'; -- 5
@@ -500,11 +500,11 @@ UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_TILE_IMPROVEMENT
 
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_RAMESSES'; -- 6, primary: culture
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY' AND LeaderType = 'LEADER_RAMESSES'; -- 6, UA!
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_RAMESSES'; -- 9, 
-UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_GOLD' AND LeaderType = 'LEADER_RAMESSES'; -- 7, UB 
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_RAMESSES'; -- 9
+UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_GOLD' AND LeaderType = 'LEADER_RAMESSES'; -- 7, UB
 
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 7, UU2
-UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 4, UU 
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 4, UU
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_ANTIAIR' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 5
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 8, only: diplo
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_RAMKHAMHAENG'; -- 9
@@ -515,7 +515,7 @@ UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_CULTURE' AND Lea
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY' AND LeaderType = 'LEADER_SEJONG'; -- 9, only: science
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_SEJONG'; -- 9, only: science
 
-UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_SELASSIE'; -- 7 
+UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_SELASSIE'; -- 7
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_SELASSIE'; -- 7
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_SELASSIE'; -- 8, strong secondary: science
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_SELASSIE'; -- 9, only: science
@@ -535,8 +535,8 @@ UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_NAVAL' AND Leade
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_PRODUCTION' AND LeaderType = 'LEADER_SULEIMAN'; -- 7, UB
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_SULEIMAN'; -- 7, primary: science
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_SULEIMAN'; -- 5, primary: science
-UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_I_TRADE_ORIGIN' AND LeaderType = 'LEADER_SULEIMAN'; -- 4, UA 
-UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_I_TRADE_DESTINATION' AND LeaderType = 'LEADER_SULEIMAN'; -- 4, UA 
+UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_I_TRADE_ORIGIN' AND LeaderType = 'LEADER_SULEIMAN'; -- 4, UA
+UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_I_TRADE_DESTINATION' AND LeaderType = 'LEADER_SULEIMAN'; -- 4, UA
 
 UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_THEODORA'; -- 3, generalist
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_THEODORA'; -- 4, UU

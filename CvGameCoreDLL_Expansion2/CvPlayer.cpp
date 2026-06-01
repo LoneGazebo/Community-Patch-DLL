@@ -22096,11 +22096,10 @@ int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity
 	int iUnhappiness = 0;
 	int iUnhappinessFromThisCity;
 
-	bool bCityValid = false;
-
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
+		bool bCityValid = false;
 
 		// Assume pLoopCity is Annexed, and does NOT count
 		if (pLoopCity == pAssumeCityAnnexed)

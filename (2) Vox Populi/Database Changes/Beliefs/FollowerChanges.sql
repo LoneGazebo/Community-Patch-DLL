@@ -80,7 +80,7 @@ INSERT INTO Belief_YieldPerXFollowersLocal
 	(BeliefType, YieldType, NumRequired)
 VALUES
 	('BELIEF_DIVINE_INSPIRATION', 'YIELD_CULTURE', 3);
-  
+
 INSERT INTO Belief_GreatWorkYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
@@ -104,7 +104,7 @@ INSERT INTO Belief_YieldPerXFollowersLocal
 	(BeliefType, YieldType, NumRequired)
 VALUES
 	('BELIEF_FEED_WORLD', 'YIELD_GOLD', 2);
-  
+
 INSERT INTO Belief_ResourceYieldChanges
 	(BeliefType, ResourceType, YieldType, Yield)
 SELECT

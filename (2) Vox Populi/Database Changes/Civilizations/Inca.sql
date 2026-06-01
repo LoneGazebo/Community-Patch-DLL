@@ -6,9 +6,9 @@ SET
 	ImprovementMaintenanceModifier = 0,
 	NoHillsImprovementMaintenance = 0,
 	-- FasterInHills = 1,
-	TradeRouteOnly = 1, 
-	IsEraScaling = 1, 
-	FractionalEraScaler = 4	
+	TradeRouteOnly = 1,
+	IsEraScaling = 1,
+	FractionalEraScaler = 4
 WHERE Type = 'TRAIT_GREAT_ANDEAN_ROAD';
 
 INSERT INTO Trait_TerrainYieldChanges
@@ -19,7 +19,7 @@ VALUES
 
 INSERT INTO Trait_FreePromotionUnitCombats
 	(TraitType, UnitCombatType, PromotionType)
-SELECT	
+SELECT
 	'TRAIT_GREAT_ANDEAN_ROAD', Type, 'PROMOTION_CHASQUI_TRAINING'
 FROM UnitCombatInfos WHERE IsMilitary = 0;
 

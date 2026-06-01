@@ -41,7 +41,7 @@ ALTER TABLE Traits ADD AnnexedCityStatesGiveYields boolean DEFAULT 0;
 ---- Trait_ImprovementYieldChanges
 -- Defaults to standard VP Era Scaling. Use two options below for non-standard scaling
 ALTER TABLE Traits ADD IsEraScaling boolean DEFAULT 1;
--- Use Abnormal scaler. (Default x2/x3/x4 in medieval/industrial/atomic eras) 
+-- Use Abnormal scaler. (Default x2/x3/x4 in medieval/industrial/atomic eras)
 -- Also works for FreeSocialPoliciesPerEra in Traits
 ALTER TABLE Traits ADD IsOddEraScaler boolean DEFAULT 0;
 -- Use Abnormal scaler. (increase yield modifier by 100/X percent per Era passed. If IsOddEraScaler is active, the results add)

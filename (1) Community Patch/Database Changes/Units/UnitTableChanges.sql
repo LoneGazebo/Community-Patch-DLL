@@ -126,7 +126,7 @@ ALTER TABLE Units ADD CannotEmbark boolean DEFAULT 0;
 -- This unit can only be gifted by a City-State as its unique unit
 ALTER TABLE Units ADD MinorCivGift boolean DEFAULT 0;
 
--- This unit cannot be a City-State's unique unit or gifted by City-States at all 
+-- This unit cannot be a City-State's unique unit or gifted by City-States at all
 ALTER TABLE Units ADD NoMinorCivGift boolean DEFAULT 0;
 
 -- This unit cannot be a City-State's unique unit, but can still be gifted by City-States if all other requirements are met (GLOBAL_EXCLUDE_FROM_GIFTS, integrated)
@@ -143,7 +143,7 @@ ALTER TABLE Units ADD CanRepairFleet boolean DEFAULT 0;
 ALTER TABLE Units ADD CanChangePort boolean DEFAULT 0;
 
 -- GLOBAL_STACKING_RULES
--- Additional units that can stack with this unit 
+-- Additional units that can stack with this unit
 ALTER TABLE Units ADD NumberStackingUnits integer DEFAULT 0;
 ALTER TABLE Units ADD StackCombat integer DEFAULT 0;
 

@@ -91,7 +91,7 @@ ALTER TABLE Policies ADD CSResourcesCountForMonopolies boolean DEFAULT 0;
 -- Liberating a city gives influence to all CS
 ALTER TABLE Policies ADD InfluenceAllCSFromLiberation integer DEFAULT 0;
 
--- Liberating a city gives that city some units 
+-- Liberating a city gives that city some units
 ALTER TABLE Policies ADD NumUnitsInLiberatedCities integer DEFAULT 0;
 
 -- Liberating a city gives XP to all units

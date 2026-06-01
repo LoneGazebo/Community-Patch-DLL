@@ -5,11 +5,16 @@ UPDATE Eras SET LaterEraBuildingConstructMod = -2;
 
 -- Default value
 UPDATE Buildings
-SET Cost = -1, GoldMaintenance = 0, FaithCost = 0;
+SET
+	Cost = -1,
+	GoldMaintenance = 0,
+	FaithCost = 0;
 
 -- No prereq
 UPDATE Buildings
-SET Cost = 65, GoldMaintenance = 0
+SET
+	Cost = 65,
+	GoldMaintenance = 0
 WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
 
 CREATE TEMP TABLE BuildingCost (
@@ -90,14 +95,16 @@ WHERE BuildingClass IN (
 
 -- Corporations
 UPDATE Buildings
-SET Cost = 1300, GoldMaintenance = 4
+SET
+	Cost = 1300,
+	GoldMaintenance = 4
 WHERE BuildingClass IN (
 	SELECT HeadquartersBuildingClass FROM Corporations
 );
 
 -- No Prereq tech for Offices. Set to T1 Modern
 UPDATE Buildings
-SET 
+SET
 	Cost = (SELECT CostTemp FROM BuildingCost WHERE GridXTemp = 11),
 	GoldMaintenance = (SELECT GoldMaintenanceTemp FROM BuildingCost WHERE GridXTemp = 11)
 WHERE BuildingClass IN (
@@ -105,7 +112,9 @@ WHERE BuildingClass IN (
 );
 
 UPDATE Buildings
-SET Cost = -1, GoldMaintenance = 6
+SET
+	Cost = -1,
+	GoldMaintenance = 6
 WHERE BuildingClass IN (
 	SELECT FranchiseBuildingClass FROM Corporations
 );
@@ -155,7 +164,9 @@ DROP TABLE WorldWonderCost;
 
 -- World Congress
 UPDATE Buildings
-SET Cost = -1, GoldMaintenance = 0
+SET
+	Cost = -1,
+	GoldMaintenance = 0
 WHERE UnlockedByLeague = 1;
 
 -- Outliers
@@ -250,7 +261,10 @@ UPDATE Buildings SET FaithCost = 500, UnlockedByBelief = 1 WHERE BuildingClass =
 UPDATE Buildings SET FaithCost = 600, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
 
 -- Religious buildings
-UPDATE Buildings SET Cost = -1, FaithCost = 200
+UPDATE Buildings
+SET
+	Cost = -1,
+	FaithCost = 200
 WHERE BuildingClass IN (
 	'BUILDINGCLASS_MONASTERY',
 	'BUILDINGCLASS_CATHEDRAL',

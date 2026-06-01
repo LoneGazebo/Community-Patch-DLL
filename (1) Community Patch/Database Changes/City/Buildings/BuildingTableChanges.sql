@@ -150,10 +150,10 @@ ALTER TABLE Buildings ADD TradeReligionModifier integer DEFAULT 0;
 -- Allows you to define a building needed by this building (similar to BuildingClassNeeded) -->
 ALTER TABLE Buildings ADD NeedBuildingThisCity text REFERENCES Buildings (Type);
 
--- Allows you to define a number of WLTKD turns for the City -- 
+-- Allows you to define a number of WLTKD turns for the City --
 ALTER TABLE Buildings ADD WLTKDTurns integer DEFAULT 0;
 
--- Allows you to define an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. 
+-- Allows you to define an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed.
 ALTER TABLE Buildings ADD EventTourism integer DEFAULT 0;
 
 -- Allows you to define an amount that a unit will heal in a city whether or not it took an action this turn.

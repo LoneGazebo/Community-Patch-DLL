@@ -739,8 +739,8 @@ local function BuildProductionBox(pCity, ePlayer)
 		Hide(Controls.b1remove);
 	end
 
-	if ePlayer == eActivePlayer  then
-		Show(Controls.ProductionButton, Controls.PurchaseButton);
+	if ePlayer == eActivePlayer then
+		Show(Controls.AutomateProduction, Controls.ProductionButton, Controls.PurchaseButton);
 		if pCity:IsIgnoreCityForHappiness() then
 			Disable(Controls.ProductionButton, Controls.PurchaseButton);
 		elseif pCity:IsPuppet() then
@@ -750,8 +750,7 @@ local function BuildProductionBox(pCity, ePlayer)
 			Enable(Controls.ProductionButton, Controls.PurchaseButton);
 		end
 	else
-		Hide(Controls.AutomateProduction);
-		Hide(Controls.ProductionButton, Controls.PurchaseButton);
+		Hide(Controls.AutomateProduction, Controls.ProductionButton, Controls.PurchaseButton);
 	end
 end
 

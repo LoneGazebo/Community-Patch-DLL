@@ -161,7 +161,7 @@ VALUES
 
 	------------------------------------------------------
 
-	('TECH_CIVIL_SERVICE', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Units: Envoy, Buildings: Workshop, Wonders: ForbiddenPalace, Yields: Laborer +1G, Farm +1F, Pasture +2F 
+	('TECH_CIVIL_SERVICE', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Units: Envoy, Buildings: Workshop, Wonders: ForbiddenPalace, Yields: Laborer +1G, Farm +1F, Pasture +2F
 	('TECH_CIVIL_SERVICE', 'FLAVOR_GROWTH', 10),
 	('TECH_CIVIL_SERVICE', 'FLAVOR_PRODUCTION', 10),
 	('TECH_CIVIL_SERVICE', 'FLAVOR_WONDER', 5),

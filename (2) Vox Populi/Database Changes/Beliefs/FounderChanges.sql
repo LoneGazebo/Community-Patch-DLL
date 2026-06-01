@@ -120,7 +120,7 @@ UPDATE Beliefs SET CityScalerLimiter = 25 WHERE Type = 'BELIEF_CITY_OF_GOD';
 
 INSERT INTO Belief_YieldPerHolyCityBirth
 	(BeliefType, YieldType, Yield)
-VALUES	
+VALUES
 	('BELIEF_CITY_OF_GOD', 'YIELD_SCIENCE', 15),
 	('BELIEF_CITY_OF_GOD', 'YIELD_CULTURE', 15),
 	('BELIEF_CITY_OF_GOD', 'YIELD_FAITH', 15);
