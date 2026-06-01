@@ -549,25 +549,25 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	//estimate the distance between the cities from the traderoute cost. 
 	//will be influences by terrain features, routes, open borders etc
 	//note: trade routes are not necessarily symmetric in case of of unrevealed tiles etc
-	SPath path;
-	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pFromCity, pToCity, &path))
+	STradePathInfo sPathInfo;
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pFromCity, pToCity, sPathInfo))
 	{
-		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceLand;
+		int iPercent = (sPathInfo.iNormalizedDistanceRaw * 100) / iMaxDistanceLand;
 		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
 	}
-	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pToCity, pFromCity, &path))
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pToCity, pFromCity, sPathInfo))
 	{
-		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceLand;
+		int iPercent = (sPathInfo.iNormalizedDistanceRaw * 100) / iMaxDistanceLand;
 		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
 	}
-	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pFromCity, pToCity, &path))
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pFromCity, pToCity, sPathInfo))
 	{
-		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceSea;
+		int iPercent = (sPathInfo.iNormalizedDistanceRaw * 100) / iMaxDistanceSea;
 		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
 	}
-	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pToCity, pFromCity, &path))
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pToCity, pFromCity, sPathInfo))
 	{
-		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceSea;
+		int iPercent = (sPathInfo.iNormalizedDistanceRaw * 100) / iMaxDistanceSea;
 		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
 	}
 
@@ -5172,22 +5172,22 @@ void CvCityReligions::UpdateNumTradeRouteConnections(CvCity* pOtherCity)
 
 	//estimate the distance between the cities from the traderoute cost. will be influences by terrain features, routes, open borders etc
 	int iApparentDistance = INT_MAX;
-	SPath path; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
-	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pOtherCity, m_pCity, &path))
+	STradePathInfo sPathInfo; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pOtherCity, m_pCity, sPathInfo))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		iApparentDistance = min(iApparentDistance, sPathInfo.iNormalizedDistanceRaw);
 	}
-	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, m_pCity, pOtherCity, &path))
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, m_pCity, pOtherCity, sPathInfo))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		iApparentDistance = min(iApparentDistance, sPathInfo.iNormalizedDistanceRaw);
 	}
-	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pOtherCity, m_pCity, &path))
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pOtherCity, m_pCity, sPathInfo))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		iApparentDistance = min(iApparentDistance, sPathInfo.iNormalizedDistanceRaw);
 	}
-	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, m_pCity, pOtherCity, &path))
+	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, m_pCity, pOtherCity, sPathInfo))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		iApparentDistance = min(iApparentDistance, sPathInfo.iNormalizedDistanceRaw);
 	}
 
 	bool bWithinDistance = (iApparentDistance <= iDistance*SPath::getNormalizedDistanceBase());
