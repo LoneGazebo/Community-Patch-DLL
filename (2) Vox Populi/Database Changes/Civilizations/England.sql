@@ -83,15 +83,15 @@ SET
 WHERE Type = 'BUILDING_WHITE_TOWER';
 
 UPDATE Building_YieldChanges
-SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINITERIAL_DISTRICT' AND YieldType = 'YIELD_GOLD') + 2
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINISTERIAL_DISTRICT' AND YieldType = 'YIELD_GOLD') + 2
 WHERE BuildingType = 'BUILDING_WHITE_TOWER' AND YieldType = 'YIELD_GOLD';
 
 UPDATE Building_YieldChanges
-SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINITERIAL_DISTRICT' AND YieldType = 'YIELD_SCIENCE') + 2
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINISTERIAL_DISTRICT' AND YieldType = 'YIELD_SCIENCE') + 2
 WHERE BuildingType = 'BUILDING_WHITE_TOWER' AND YieldType = 'YIELD_SCIENCE';
 
 UPDATE Building_YieldChanges
-SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINITERIAL_DISTRICT' AND YieldType = 'YIELD_CULTURE') + 1
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINISTERIAL_DISTRICT' AND YieldType = 'YIELD_CULTURE') + 1
 WHERE BuildingType = 'BUILDING_WHITE_TOWER' AND YieldType = 'YIELD_CULTURE';
 
 UPDATE Building_YieldFromSpyRigElection SET Yield = 25 WHERE BuildingType = 'BUILDING_WHITE_TOWER';
