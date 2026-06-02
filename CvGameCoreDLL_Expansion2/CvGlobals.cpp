@@ -3017,7 +3017,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 	char szMessage[4096];
 	const char* szBaseMsg ;
 
-	bool bFromDLL = (_stricmp(szCrashModule, "CvGameCore_Expansion2.dll") == 0);
+	bool bFromDLL = (_stricmp(GetOnlyFilename(szCrashModule), "CvGameCore_Expansion2.dll") == 0);
 	if (bFromDLL)
 	{
 		szBaseMsg = ""
