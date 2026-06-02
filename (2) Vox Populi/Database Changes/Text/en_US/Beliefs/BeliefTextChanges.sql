@@ -445,7 +445,7 @@ SET Text = 'Crusader Spirit'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Units in enemy territory, and an additional +5% versus Land Units of players that do not follow your Religion. +2 [ICON_Gold] Gold and [ICON_CULTURE] Culture from Barracks, Armories, and Military Academies.'
+SET Text = 'Land Units gain +10% [ICON_STRENGTH] Combat Strength versus Land Units in enemy territory, and an additional +5% versus Land Units of players that do not follow your Religion. +2 [ICON_GOLD] Gold and [ICON_CULTURE] Culture from Barracks, Armories, and Military Academies.'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM';
 
 -- Defender of the Faith
