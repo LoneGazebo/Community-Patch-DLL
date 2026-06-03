@@ -15,6 +15,7 @@ local civ_map_get_plot_by_index = Map.GetPlotByIndex
 
 local Stack = CPK.Util.Stack
 local Always = CPK.FP.Always
+local IsNumber = CPK.Type.IsNumber
 
 local MakeInstance = CPK.UI.Control.Instance.Make
 local MoveInstance = CPK.UI.Control.Instance.Move
@@ -287,7 +288,8 @@ end
 
 --------------------------------------------------------------------------------
 
-local updates_enabled = true
+local updates_enabled = false
+local global_yields_on = false
 
 local RequestViewPlot = LuaEvents.RequestViewPlot
 local RequestViewPlots = LuaEvents.RequestViewPlots
@@ -302,6 +304,8 @@ RespondViewPlots.Add(function(caller, plots)
 		for idx in lua_next, plots do
 			RenderAnchor(idx)
 		end
+
+		C.Anchors:SetHide(false)
 	end
 end)
 
@@ -329,34 +333,57 @@ CivEvents.HexFOWStateChanged.Add(function(hex)
 end)
 
 CivEvents.HexYieldMightHaveChanged.Add(function(gx, gy)
-	if updates_enabled then
-		local idx = gx + gy * WORLD_GW
+	local idx = gx + gy * WORLD_GW
 
-		if active_anchors[idx] then
-			RenderAnchor(idx)
+	if active_anchors[idx] then
+		RenderAnchor(idx)
+	end
+end)
+
+
+local ShowYields = function()
+	if not updates_enabled then
+		updates_enabled = true
+		RecycleAll()
+		RequestRender()
+	end
+end
+
+local HideYields = function()
+	updates_enabled = false
+	C.Anchors:SetHide(true)
+	RecycleAll()
+end
+
+CivEvents.RequestYieldDisplay.Add(function(id, a)
+	if id == YieldDisplayTypes.USER_ALL_ON then
+		global_yields_on = true
+		ShowYields()
+	elseif id == YieldDisplayTypes.USER_ALL_OFF then
+		global_yields_on = false
+		HideYields()
+	elseif not global_yields_on then
+		if id == YieldDisplayTypes.AREA then
+			if IsNumber(a) and a > 0 then
+				ShowYields()
+			else
+				HideYields()
+			end
+		elseif false
+				or id == YieldDisplayTypes.EMPIRE
+				or id == YieldDisplayTypes.CITY_OWNED
+				or id == YieldDisplayTypes.CITY_WORKED
+				or id == YieldDisplayTypes.CITY_PURCHASABLE then
+			ShowYields()
 		end
 	end
 end)
 
-CivEvents.RequestYieldDisplay.Add(function(id)
-	if id == YieldDisplayTypes.USER_ALL_ON then
-		updates_enabled = true
-		C.Anchors:SetHide(false)
-		RequestRender()
-	elseif id == YieldDisplayTypes.USER_ALL_OFF then
-		updates_enabled = false
-		C.Anchors:SetHide(true)
-		RecycleAll()
-	end
-end)
-
 CivEvents.GameplaySetActivePlayer.Add(function()
-	local last_state = updates_enabled
 	updates_enabled = false
+	global_yields_on = false
 	RecycleAll()
-	updates_enabled = last_state
 	UI.RefreshYieldVisibleMode()
-	RequestRender()
 end)
 
 UI.RefreshYieldVisibleMode()
@@ -387,26 +414,26 @@ function PrintYieldIconStats()
 		active_label_count = active_label_count + #labels
 	end
 
-	local pooled_icon_count = 0
+	local hidden_icon_count = 0
 	for _, stack in lua_next, hidden_icons do
-		pooled_icon_count = pooled_icon_count + stack:Size()
+		hidden_icon_count = hidden_icon_count + stack:Size()
 	end
 
-	local pooled_anchor_count = hidden_anchors:Size()
-	local pooled_stack_count  = hidden_stacks:Size()
-	local pooled_label_count  = hidden_labels:Size()
+	local hidden_anchor_count = hidden_anchors:Size()
+	local hidden_stack_count  = hidden_stacks:Size()
+	local hidden_label_count  = hidden_labels:Size()
 
 	print(string.format([[Yield Icon Stats:
+		hidden -> anchors: %d, stacks: %d, icons: %d, labels: %d
 		active -> anchors: %d, stacks: %d, icons: %d, labels: %d
-		pooled -> anchors: %d, stacks: %d, icons: %d, labels: %d
 		total  -> anchors: %d, stacks: %d, icons: %d, labels: %d]],
+		hidden_anchor_count, hidden_stack_count,
+		hidden_icon_count, hidden_label_count,
 		active_anchor_count, active_stack_count,
 		active_icon_count, active_label_count,
-		pooled_anchor_count, pooled_stack_count,
-		pooled_icon_count, pooled_label_count,
-		active_anchor_count + pooled_anchor_count,
-		active_stack_count + pooled_stack_count,
-		active_icon_count + pooled_icon_count,
-		active_label_count + pooled_label_count
+		active_anchor_count + hidden_anchor_count,
+		active_stack_count + hidden_stack_count,
+		active_icon_count + hidden_icon_count,
+		active_label_count + hidden_label_count
 	))
 end
