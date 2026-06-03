@@ -77,7 +77,7 @@ public:
 	int GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false) const;
 	int GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam) const;
 	int GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal) const;
-	int GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) const;
+	int GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool bOnlyCitiesAboutToBeConquered = false, int iWarScore = 0, bool bForCityComparison = false) const;
 
 	void DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 	void DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
