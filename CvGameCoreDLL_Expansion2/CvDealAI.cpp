@@ -2118,10 +2118,13 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 }
 
 /// How much is a City worth - that is: how much would the buyer pay?
-int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) const
+int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool bOnlyCitiesAboutToBeConquered, int iWarScore, bool bForCityComparison) const
 {
+	if (!pCity)
+		return INT_MAX;
+
 	//can't trade capitals ever
-	if (!pCity || pCity->isCapital())
+	if (!bForCityComparison && pCity->isCapital())
 		return INT_MAX;
 
 	//note that it can also happen that a player pretends to buy a city they already own, just to see the appropriate price
@@ -2160,12 +2163,14 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 	if (!bPeaceTreatyTrade && (GC.getGame().getGameTurn() - pCity->getGameTurnFounded()) < (42 + GC.getGame().randRangeExclusive(0, 5, CvSeeder(iEconomicValue))))
 		return INT_MAX;
 
-	//If not as good as any of our cities, we don't want it.
 	int iBetterThanCount = 0;
 	int iMinDistance = INT_MAX;
 	int iCityLoop = 0;
 	for(CvCity* pLoopCity = assumedOwner.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = assumedOwner.nextCity(&iCityLoop))
 	{
+		if (pLoopCity == pCity)
+			continue;
+
 		int iScore = (pLoopCity->getEconomicValue(eAssumedOwner) / (max(1, pLoopCity->getPopulation())));
 		if (iEconomicValuePerPop > iScore)
 			iBetterThanCount++;
@@ -2186,10 +2191,28 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 
 		//if it belongs to the city
 		if (pCity->GetID() == pLoopPlot->getOwningCityID())
+		{
 			iCityTiles++;
-		else if (pLoopPlot->getOwner() == eAssumedOwner)
-			//belongs to another one of the buyer's cities
-			iNewInternalBorderCount++;
+
+			if (eAssumedOwner != pCity->getOwner())
+			{
+				bool bAdjacentToNewOwner = false;
+				CvPlot** pAdjacentPlots = GC.getMap().getNeighborsUnchecked(pLoopPlot->GetPlotIndex());
+				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					CvPlot* pAdjacentPlot = pAdjacentPlots[iI];
+					if (pAdjacentPlot && pAdjacentPlot->getOwner() == eAssumedOwner)
+					{
+						bAdjacentToNewOwner = true;
+						break;
+					}
+				}
+
+				if (bAdjacentToNewOwner)
+					iNewInternalBorderCount++;
+			}
+
+		}
 	}
 
 	//this is how much ANY plot is worth to the buyer right now
@@ -2197,7 +2220,15 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 	iItemValue += goldPerPlot * 10 * iCityTiles;
 
 	//important. it's valuable to have as much internal border as possible
-	iItemValue += goldPerPlot * 100 * iNewInternalBorderCount;
+	if (iNewInternalBorderCount > 0)
+	{
+		iItemValue += goldPerPlot * 50 * iNewInternalBorderCount;
+	}
+	else if (pCity->getOwner() != eAssumedOwner)
+	{
+		// reduce value of a city we're buying if we won't have an internal border with it based on distance to our closest city, up to half of the value
+		iItemValue -= min(iItemValue / 2, goldPerPlot * 5 * iMinDistance);
+	}
 
 	//unhappy cities are worth less
 	iItemValue -= pCity->getUnhappyCitizenCount() * goldPerPlot * 30;
@@ -2210,14 +2241,48 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 	}
 
 	// premium if buyer currently owns it
-	if ( pCity->getOwner() == eAssumedOwner )
+	if (pCity->getOwner() == eAssumedOwner)
 	{
 		iItemValue *= 120;
 		iItemValue /= 100;
 	}
-	else if (iMinDistance > 15)
+	else
 	{
-		return INT_MAX;
+		if (!bForCityComparison)
+		{
+			// we only accept cities that a) we have a common border with, or b) are not significantly further away from our closest city than to the other player's closest city or c) we're about to conquer anyway. otherwise it will be difficult to defend the city in case of a war
+
+			int iMinDistanceOldOwner = INT_MAX;
+			int iCityLoop = 0;
+			for (CvCity* pLoopCity = GET_PLAYER(pCity->getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pCity->getOwner()).nextCity(&iCityLoop))
+			{
+				if (pLoopCity == pCity)
+					continue;
+
+				iMinDistanceOldOwner = min(iMinDistanceOldOwner, plotDistance(pCity->getX(), pCity->getY(), pLoopCity->getX(), pLoopCity->getY()));
+			}
+
+			bool bAboutToCaptureCity = false;
+			if (bPeaceTreatyTrade)
+			{
+				if (pCity->plot()->GetNumEnemyUnitsAdjacent(pCity->getTeam(), NO_DOMAIN, NULL, false, GET_PLAYER(eAssumedOwner).getTeam(), true) >= 2)
+				{
+					int iHPPercent = 100 * (pCity->GetMaxHitPoints() - pCity->getDamage()) / pCity->GetMaxHitPoints();
+					if (iHPPercent < 10 + iWarScore / 10)
+					{
+						bAboutToCaptureCity = true;
+					}
+				}
+			}
+			if (!bAboutToCaptureCity)
+			{
+				if (bOnlyCitiesAboutToBeConquered)
+					return INT_MAX;
+
+				if (iNewInternalBorderCount == 0 && iMinDistance > iMinDistanceOldOwner * 3 / 2)
+					return INT_MAX;
+			}
+		}
 	}
 
 	if (pCity->IsPuppet())
@@ -2245,7 +2310,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 	}
 
 	// add some friction
-	if (pCity->getOwner() != eAssumedOwner)
+	if (!bPeaceTreatyTrade && pCity->getOwner() != eAssumedOwner)
 	{
 		//don't sell to warmongers
 		switch (GET_PLAYER(pCity->getOwner()).GetDiplomacyAI()->GetWarmongerThreat(eAssumedOwner))
@@ -2258,28 +2323,17 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) cons
 			break;
 		case THREAT_SEVERE:
 		case THREAT_CRITICAL:
-			if (bPeaceTreatyTrade)
-				iItemValue *= 3;
-			else
-				return INT_MAX;
+			return INT_MAX;
 			break;
 		}
+	}
 
-		// reduce city value if it's about to be captured by the assumed owner
-		if (bPeaceTreatyTrade && pCity->plot()->GetNumEnemyUnitsAdjacent(pCity->getTeam(), NO_DOMAIN, NULL, false, GET_PLAYER(eAssumedOwner).getTeam(),true) >= 2)
-		{
-			int iHPPercent = 100 * (pCity->GetMaxHitPoints() - pCity->getDamage()) / pCity->GetMaxHitPoints();
-			iItemValue *= max(10, min(2*iHPPercent, 100));
-			iItemValue /= 100;
-		}
-
-		if (!bPeaceTreatyTrade && !assumedOwner.isHuman(ISHUMAN_AI_DIPLOMACY))
-		{
-			// don't buy a city we're trying to liberate (exploitable)
-			// this is not an ideal solution - ideally AI would check whether the city is at risk of getting recaptured if liberated ... but will do for now
-			if (assumedOwner.GetDiplomacyAI()->IsTryingToLiberate(pCity))
-				return INT_MAX;
-		}
+	if (!bPeaceTreatyTrade && pCity->getOwner() != eAssumedOwner && !assumedOwner.isHuman(ISHUMAN_AI_DIPLOMACY))
+	{
+		// don't buy a city we're trying to liberate (exploitable)
+		// this is not an ideal solution - ideally AI would check whether the city is at risk of getting recaptured if liberated ... but will do for now
+		if (assumedOwner.GetDiplomacyAI()->IsTryingToLiberate(pCity))
+			return INT_MAX;
 	}
 
 	//OutputDebugString(CvString::format("City value for %s from %s to %s is %d\n", pCity->getName().c_str(), sellingPlayer.getName(), buyingPlayer.getName(), iItemValue).c_str());
@@ -5148,21 +5202,14 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		for (pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
 		{
 			//do this from the winner's perspective!
-			int iCurrentCityValue = GetCityValueForDeal(pLoopCity, eWinningPlayer);
+			int iCurrentCityValue = GetCityValueForDeal(pLoopCity, eWinningPlayer, true, iWarScore);
 			if (iCurrentCityValue == INT_MAX)
 				continue;
-
-			if (pLoopCity->plot()->GetNumEnemyUnitsAdjacent(pLoopCity->getTeam(), NO_DOMAIN, NULL, false, GET_PLAYER(eWinningPlayer).getTeam()) >= 2)
+	
+			if (iCurrentCityValue > iMaxCityValue)
 			{
-				int iHPPercent = 100 * (pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage()) / pLoopCity->GetMaxHitPoints();
-				if (iHPPercent < 10 + iWarScore / 10)
-				{
-					if (iCurrentCityValue > iMaxCityValue)
-					{
-						iMaxCityValue = iCurrentCityValue;
-						pCityToOffer = pLoopCity;
-					}
-				}
+				iMaxCityValue = iCurrentCityValue;
+				pCityToOffer = pLoopCity;
 			}
 		}
 	}
@@ -5193,44 +5240,42 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
 		{
 			//do this from the winner's perspective!
-			int iCurrentCityValue = GetCityValueForDeal(pLoopCity, eWinningPlayer);
+			int iCurrentCityValue = GetCityValueForDeal(pLoopCity, eWinningPlayer, false, iWarScore);
+			int iCurrentCityValueForCityComparison = GetCityValueForDeal(pLoopCity, eWinningPlayer, false, iWarScore, true);
+
+			//add up total city value of the loser (before danger and damage adjustment)
+			iTotalCityValue += iCurrentCityValueForCityComparison;
+
+			//Remember the for later if the winner is interested in it
 			if (iCurrentCityValue == INT_MAX)
 				continue;
 
-			//add up total city value of the loser (before danger and damage adjustment)
-			iTotalCityValue += iCurrentCityValue;
+			if (iCurrentCityValue <= 0)
+				continue;
 
-			//Remember for later
 			viCityValue.push_back(pLoopCity->GetID(), iCurrentCityValue);
 		}
 
-		// Sort the vector based on distance from winner's capital
+		// Sort the vector based on city value from the winner's perspective
 		viCityValue.StableSortItems();
 		int iSortedCityID = 0;
 
 		// Determine the value of Cities to be given up
 		int iCityValueToSurrender = iTotalCityValue * iPercentCitiesGiveUp / 100;
 		// Loop through sorted Cities and add them to the deal if they're under the amount to give up
-		// Start from the back of the list, because that's where the cheapest cities are
-		for(int iSortedCityIndex = viCityValue.size() - 1; iSortedCityIndex > -1 ; iSortedCityIndex--)
+		// start with the cities with the highest value
+		for(int iSortedCityIndex = 0; iSortedCityIndex < viCityValue.size(); iSortedCityIndex++)
 		{
 			iSortedCityID = viCityValue.GetElement(iSortedCityIndex);
 			pLoopCity = pLosingPlayer->getCity(iSortedCityID);
 
-			int iCurrentCityValue = GetCityValueForDeal(pLoopCity, eWinningPlayer);
-			if (iCurrentCityValue == INT_MAX)
-				continue;
+			int iCurrentCityValue =viCityValue.GetWeight(iSortedCityIndex);
 
 			// City is worth less than what is left to be added to the deal, so add it
-			if (iCurrentCityValue < iCityValueToSurrender && iCurrentCityValue > 0)
+			if (iCurrentCityValue < iCityValueToSurrender)
 			{
 				pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
 				iCityValueToSurrender -= iCurrentCityValue;
-
-				//Frontline cities count more than they're worth. Ideally they should satisfy the winner?
-				iCityValueToSurrender -= (pLoopCity->getDamage() * 10);
-				if (pLosingPlayer->GetPlotDanger(pLoopCity) > /*20 in CP, 8 in VP*/ GD_INT_GET(CITY_HIT_POINTS_HEALED_PER_TURN))
-					iCityValueToSurrender -= iCurrentCityValue / 10;
 			}
 		}
 	}
