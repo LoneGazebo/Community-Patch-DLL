@@ -10,12 +10,22 @@ local LuaEvents = LuaEvents
 local civ_db_query = DB.Query
 local civ_grid_to_world = GridToWorld
 local civ_to_grid_from_hex = ToGridFromHex
+
 local civ_game_get_active_team = Game.GetActiveTeam
+local civ_game_get_active_player = Game.GetActivePlayer
+
+local civ_map_get_plot = Map.GetPlot
+local civ_plot_xy_range_check = Map.PlotXYWithRangeCheck
 local civ_map_get_plot_by_index = Map.GetPlotByIndex
 
 local Stack = CPK.Util.Stack
 local Always = CPK.FP.Always
+
+local IsTable = CPK.Type.IsTable
 local IsNumber = CPK.Type.IsNumber
+local IsFunction = CPK.Type.IsFunction
+
+local Memoize1 = CPK.Cache.Memoize1
 
 local MakeInstance = CPK.UI.Control.Instance.Make
 local MoveInstance = CPK.UI.Control.Instance.Move
@@ -83,7 +93,7 @@ end
 --------------------------------------------------------------------------------
 
 --- @param idx integer
-local RecycleHex = function(idx)
+local RecycleOne = function(idx)
 	if not active_anchors[idx] then return end
 
 	local labels = active_labels[idx]
@@ -120,12 +130,8 @@ local RecycleHex = function(idx)
 end
 
 local RecycleAll = function()
-	local indices = {}
 	for idx in lua_next, active_anchors do
-		indices[#indices + 1] = idx
-	end
-	for i = 1, #indices do
-		RecycleHex(indices[i])
+		RecycleOne(idx)
 	end
 end
 
@@ -236,14 +242,33 @@ end
 
 --------------------------------------------------------------------------------
 
-local RenderAnchor = function(idx)
-	RecycleHex(idx)
+local PlotEnterView = LuaEvents.PlotEnterView
+local PlotLeaveView = LuaEvents.PlotLeaveView
+
+local RequestViewPlot = LuaEvents.RequestViewPlot
+local RespondViewPlot = LuaEvents.RespondViewPlot
+
+local RequestViewPlots = LuaEvents.RequestViewPlots
+local RespondViewPlots = LuaEvents.RespondViewPlots
+
+--------------------------------------------------------------------------------
+
+local filter = nil --[[@type nil | table<integer, true> | (fun(plot: Plot): boolean)]]
+local is_global_on = false
+local is_listening = false
+
+local RenderOne = function(idx)
+	RecycleOne(idx)
+
+	if IsTable(filter) and not filter[idx] then return end
 
 	local plot = civ_map_get_plot_by_index(idx)
 
 	if not plot or not plot:IsRevealed(civ_game_get_active_team(), false) then
 		return
 	end
+
+	if IsFunction(filter) and not filter(plot) then return end
 
 	local anc = nil --[[@type nil | ControlInstance]]
 	local stk = nil --[[@type nil | ControlInstance]]
@@ -288,38 +313,30 @@ end
 
 --------------------------------------------------------------------------------
 
-local updates_enabled = false
-local global_yields_on = false
-
-local RequestViewPlot = LuaEvents.RequestViewPlot
-local RequestViewPlots = LuaEvents.RequestViewPlots
-local RespondViewPlots = LuaEvents.RespondViewPlots
-
-local RequestRender = function()
-	if updates_enabled then RequestViewPlots(CALLER) end
-end
 
 RespondViewPlots.Add(function(caller, plots)
-	if caller == CALLER then
+	if is_listening and caller == CALLER then
 		for idx in lua_next, plots do
-			RenderAnchor(idx)
+			if not active_anchors[idx] then
+				RenderOne(idx)
+			end
 		end
 
 		C.Anchors:SetHide(false)
 	end
 end)
 
-LuaEvents.PlotEnterView.Add(function(idx)
-	if updates_enabled then RenderAnchor(idx) end
+PlotEnterView.Add(function(idx)
+	if is_listening then RenderOne(idx) end
 end)
 
-LuaEvents.PlotLeaveView.Add(function(idx)
-	if updates_enabled then RecycleHex(idx) end
+PlotLeaveView.Add(function(idx)
+	if is_listening then RecycleOne(idx) end
 end)
 
-LuaEvents.RespondViewPlot.Add(function(caller, idx, isInView)
-	if caller == CALLER and isInView and updates_enabled then
-		RenderAnchor(idx)
+RespondViewPlot.Add(function(caller, idx, isInView)
+	if is_listening and isInView and caller == CALLER then
+		RenderOne(idx)
 	end
 end)
 
@@ -336,52 +353,158 @@ CivEvents.HexYieldMightHaveChanged.Add(function(gx, gy)
 	local idx = gx + gy * WORLD_GW
 
 	if active_anchors[idx] then
-		RenderAnchor(idx)
+		RenderOne(idx)
 	end
 end)
 
+do
+	local Reconcile = function(data)
+		filter = data
 
-local ShowYields = function()
-	if not updates_enabled then
-		updates_enabled = true
-		RecycleAll()
-		RequestRender()
-	end
-end
-
-local HideYields = function()
-	updates_enabled = false
-	C.Anchors:SetHide(true)
-	RecycleAll()
-end
-
-CivEvents.RequestYieldDisplay.Add(function(id, a)
-	if id == YieldDisplayTypes.USER_ALL_ON then
-		global_yields_on = true
-		ShowYields()
-	elseif id == YieldDisplayTypes.USER_ALL_OFF then
-		global_yields_on = false
-		HideYields()
-	elseif not global_yields_on then
-		if id == YieldDisplayTypes.AREA then
-			if IsNumber(a) and a > 0 then
-				ShowYields()
-			else
-				HideYields()
+		if IsTable(filter) then
+			--[[@cast filter table<integer, true>]]
+			for idx in lua_next, active_anchors do
+				if not filter[idx] then
+					RecycleOne(idx)
+				end
 			end
-		elseif false
-				or id == YieldDisplayTypes.EMPIRE
-				or id == YieldDisplayTypes.CITY_OWNED
-				or id == YieldDisplayTypes.CITY_WORKED
-				or id == YieldDisplayTypes.CITY_PURCHASABLE then
-			ShowYields()
+		elseif IsFunction(filter) then
+			--[[@cast filter fun(plot: Plot): boolean]]
+			for idx in lua_next, active_anchors do
+				local plot = civ_map_get_plot_by_index(idx)
+
+				if not plot or not filter(plot) then
+					RecycleOne(idx)
+				end
+			end
 		end
 	end
-end)
+
+	local ApplySet = function(set)
+		is_listening = false
+
+		Reconcile(set)
+
+		for idx in lua_next, set do
+			if not active_anchors[idx] then RenderOne(idx) end
+		end
+
+		C.Anchors:SetHide(false)
+	end
+
+	local prepare_owns_check = Memoize1(
+	--- @param player_id PlayerId
+		function(player_id)
+			--- @param plot Plot
+			--- @return boolean
+			return function(plot)
+				return plot:GetOwner() == player_id
+			end
+		end
+	)
+
+	local prepare_city_check = function(predicate)
+		return function(_, vec)
+			if not vec then return end
+
+			local city_plot = civ_map_get_plot(vec.x, vec.y)
+			local city = city_plot and city_plot:GetPlotCity()
+
+			if not city then return end
+
+			local set = {}
+
+			for i = 0, city:GetNumCityPlots() - 1 do
+				local plot = city:GetCityIndexPlot(i)
+
+				if plot and predicate(plot, city) then
+					set[plot:GetPlotIndex()] = true
+				end
+			end
+
+			ApplySet(set)
+		end
+	end
+
+	local YDT = YieldDisplayTypes
+
+	local actions = {
+		[YDT.AREA] = function(radius, vec)
+			if IsNumber(radius) and IsTable(vec) and radius > 0 then
+				local gx, gy = vec.x, vec.y
+				local set = {}
+
+				for dy = -radius, radius do
+					for dx = -radius, radius do
+						local plot = civ_plot_xy_range_check(gx, gy, dx, dy, radius)
+
+						if plot then
+							set[plot:GetPlotIndex()] = true
+						end
+					end
+				end
+
+				ApplySet(set)
+			end
+		end,
+
+		[YDT.EMPIRE] = function()
+			is_listening = true
+
+			Reconcile(prepare_owns_check(civ_game_get_active_player()))
+			RequestViewPlots(CALLER)
+		end,
+
+		[YDT.CITY_OWNED] = prepare_city_check(function(plot, city)
+			return plot:GetOwner() == city:GetOwner()
+		end),
+
+		[YDT.CITY_WORKED] = prepare_city_check(function(plot, city)
+			return plot:GetWorkingCity() == city
+		end),
+
+		[YDT.CITY_PURCHASABLE] = prepare_city_check(function(plot, city)
+			return plot:GetOwner() ~= city:GetOwner()
+		end)
+	}
+
+	CivEvents.RequestYieldDisplay.Add(function(id, a, b)
+		if id == YDT.USER_ALL_ON then
+			filter = nil
+			is_global_on = true
+			is_listening = true
+			RequestViewPlots(CALLER)
+		elseif id == YDT.USER_ALL_OFF then
+			filter = nil
+			is_global_on = false
+			is_listening = false
+			C.Anchors:SetHide(true)
+			RecycleAll()
+		elseif not is_global_on then
+			-- Special case for cleanup
+			if id == YDT.AREA and a == 0 then
+				filter = nil
+				is_listening = false
+				C.Anchors:SetHide(true)
+				RecycleAll()
+
+				return
+			end
+
+			local action = actions[id]
+
+			if action then
+				action(a, b)
+			end
+		end
+	end)
+end
 
 CivEvents.GameplaySetActivePlayer.Add(function()
-	updates_enabled = false
-	global_yields_on = false
+	filter = nil
+	is_global_on = false
+	is_listening = false
+
 	RecycleAll()
 	UI.RefreshYieldVisibleMode()
 end)
@@ -393,8 +516,8 @@ UI.RefreshYieldVisibleMode()
 function PrintYieldIconStats()
 	local active_anchor_count = 0
 	local active_stack_count  = 0
-	local active_icon_count   = 0
 	local active_label_count  = 0
+	local active_icon_count   = 0
 
 	for _, _ in lua_next, active_anchors do
 		active_anchor_count = active_anchor_count + 1
