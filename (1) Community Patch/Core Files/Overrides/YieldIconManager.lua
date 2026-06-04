@@ -26,6 +26,7 @@ local IsNumber = CPK.Type.IsNumber
 local IsFunction = CPK.Type.IsFunction
 
 local Memoize1 = CPK.Cache.Memoize1
+local TableEmpty = CPK.Table.Empty
 
 local MakeInstance = CPK.UI.Control.Instance.Make
 local MoveInstance = CPK.UI.Control.Instance.Move
@@ -71,6 +72,7 @@ lua_setmetatable(yield_img_offy, { __index = Always(512) })
 lua_setmetatable(yield_lbl_offx, { __index = Always(256) })
 lua_setmetatable(yield_lbl_offy, { __index = Always(768) })
 
+
 --------------------------------------------------------------------------------
 
 local WORLD_GW = Map.GetGridSize()
@@ -88,6 +90,54 @@ local hidden_anchors = Stack.New() --[[@type Stack<ControlInstance>]]
 
 for _, texture in lua_next, yield_img_file do
 	hidden_icons[texture] = Stack.New()
+end
+
+function PrintYieldIconStats()
+	local active_anchor_count = 0
+	local active_stack_count = 0
+	local active_label_count = 0
+	local active_icon_count = 0
+
+	for _, _ in lua_next, active_anchors do
+		active_anchor_count = active_anchor_count + 1
+	end
+
+	for _, stacks in lua_next, active_stacks do
+		active_stack_count = active_stack_count + #stacks
+	end
+
+	for _, icons in lua_next, active_icons do
+		for _, _ in lua_next, icons do
+			active_icon_count = active_icon_count + 1
+		end
+	end
+
+	for _, labels in lua_next, active_labels do
+		active_label_count = active_label_count + #labels
+	end
+
+	local hidden_icon_count = 0
+	for _, stack in lua_next, hidden_icons do
+		hidden_icon_count = hidden_icon_count + stack:Size()
+	end
+
+	local hidden_anchor_count = hidden_anchors:Size()
+	local hidden_stack_count = hidden_stacks:Size()
+	local hidden_label_count = hidden_labels:Size()
+
+	print(string.format([[Yield Icon Stats:
+		hidden -> anchors: %d, stacks: %d, icons: %d, labels: %d
+		active -> anchors: %d, stacks: %d, icons: %d, labels: %d
+		total  -> anchors: %d, stacks: %d, icons: %d, labels: %d]],
+		hidden_anchor_count, hidden_stack_count,
+		hidden_icon_count, hidden_label_count,
+		active_anchor_count, active_stack_count,
+		active_icon_count, active_label_count,
+		active_anchor_count + hidden_anchor_count,
+		active_stack_count + hidden_stack_count,
+		active_icon_count + hidden_icon_count,
+		active_label_count + hidden_label_count
+	))
 end
 
 --------------------------------------------------------------------------------
@@ -129,11 +179,35 @@ local RecycleOne = function(idx)
 	hidden_anchors:Push(anc)
 end
 
-local RecycleAll = function()
-	for idx in lua_next, active_anchors do
-		RecycleOne(idx)
+--- @param unless nil | table<integer, boolean> | fun(idx: integer): boolean
+local RecycleAll = function(unless)
+	if IsTable(unless) then
+		--[[@cast unless table<integer, true>]]
+
+		for idx in lua_next, active_anchors do
+			if not unless[idx] then
+				RecycleOne(idx)
+			end
+		end
+	elseif IsFunction(unless) then
+		--[[@cast unless fun(idx: integer): boolean]]
+
+		for idx in lua_next, active_anchors do
+			if not unless(idx) then
+				RecycleOne(idx)
+			end
+		end
+	else
+		for idx in lua_next, active_anchors do
+			RecycleOne(idx)
+		end
+	end
+
+	if TableEmpty(active_anchors) then
+		C.Anchors:SetHide(true)
 	end
 end
+
 
 --------------------------------------------------------------------------------
 
@@ -253,22 +327,30 @@ local RespondViewPlots = LuaEvents.RespondViewPlots
 
 --------------------------------------------------------------------------------
 
-local filter = nil --[[@type nil | table<integer, true> | (fun(plot: Plot): boolean)]]
 local is_global_on = false
 local is_listening = false
+local condition_fn = nil --[[@type nil | fun(idx: integer): boolean]]
+local transient_set = nil --[[@type nil | table<integer, true>]]
+local persistent_set = nil --[[@type nil | table<integer, true>]]
 
 local RenderOne = function(idx)
 	RecycleOne(idx)
 
-	if IsTable(filter) and not filter[idx] then return end
+	if not is_global_on then
+		if transient_set then
+			if not transient_set[idx] then return end
+		elseif condition_fn then
+			if not condition_fn(idx) then return end
+		elseif persistent_set then
+			if not persistent_set[idx] then return end
+		end
+	end
 
 	local plot = civ_map_get_plot_by_index(idx)
 
 	if not plot or not plot:IsRevealed(civ_game_get_active_team(), false) then
 		return
 	end
-
-	if IsFunction(filter) and not filter(plot) then return end
 
 	local anc = nil --[[@type nil | ControlInstance]]
 	local stk = nil --[[@type nil | ControlInstance]]
@@ -311,32 +393,96 @@ local RenderOne = function(idx)
 	end
 end
 
+--- @param set table<integer, true>
+local RenderSet = function(set)
+	RecycleAll(set)
+
+	for idx in lua_next, set do
+		if not active_anchors[idx] then
+			RenderOne(idx)
+		end
+	end
+
+	C.Anchors:SetHide(false)
+end
+
+--- @param fn fun(idx: integer): boolean
+local RenderConditional = function(fn)
+	is_listening = true
+	condition_fn = fn
+	transient_set = nil
+	persistent_set = nil
+
+	if is_global_on then return end
+
+	RecycleAll(condition_fn)
+	RequestViewPlots(CALLER)
+end
+
+--- @param set nil | table<integer, true>
+local RenderPersistent = function(set)
+	is_listening = false
+	condition_fn = nil
+	transient_set = nil
+	persistent_set = set
+
+	if is_global_on then return end
+
+	if set then
+		RenderSet(set)
+	else
+		C.Anchors:SetHide(true)
+		RecycleAll()
+	end
+end
+
+--- @param set table<integer, true>
+local RenderTransient = function(set)
+	transient_set = set
+
+	if is_global_on then return end
+
+	RenderSet(set)
+end
+
+local RenderCurrent = function()
+	if is_listening and not transient_set then
+		RecycleAll(condition_fn)
+		RequestViewPlots(CALLER)
+	elseif transient_set then
+		RenderSet(transient_set)
+	elseif persistent_set then
+		RenderSet(persistent_set)
+	else
+		C.Anchors:SetHide(true)
+		RecycleAll()
+	end
+end
+
 --------------------------------------------------------------------------------
 
 
-RespondViewPlots.Add(function(caller, plots)
-	if is_listening and caller == CALLER then
-		for idx in lua_next, plots do
-			if not active_anchors[idx] then
-				RenderOne(idx)
-			end
-		end
-
-		C.Anchors:SetHide(false)
-	end
-end)
+local IsListening = function()
+	return is_global_on or (is_listening and not transient_set)
+end
 
 PlotEnterView.Add(function(idx)
-	if is_listening then RenderOne(idx) end
+	if IsListening() then RenderOne(idx) end
 end)
 
 PlotLeaveView.Add(function(idx)
-	if is_listening then RecycleOne(idx) end
+	if IsListening() then RecycleOne(idx) end
 end)
 
 RespondViewPlot.Add(function(caller, idx, isInView)
-	if is_listening and isInView and caller == CALLER then
+	if IsListening() and caller == CALLER and isInView then
 		RenderOne(idx)
+	end
+end)
+
+RespondViewPlots.Add(function(caller, plots)
+	if IsListening() and caller == CALLER then
+		RenderSet(plots)
 	end
 end)
 
@@ -344,7 +490,7 @@ CivEvents.HexFOWStateChanged.Add(function(hex)
 	local gx, gy = civ_to_grid_from_hex(hex.x, hex.y)
 	local idx = gx + gy * WORLD_GW
 
-	if not active_anchors[idx] then
+	if not active_anchors[idx] and IsListening() then
 		RequestViewPlot(CALLER, idx)
 	end
 end)
@@ -358,47 +504,14 @@ CivEvents.HexYieldMightHaveChanged.Add(function(gx, gy)
 end)
 
 do
-	local Reconcile = function(data)
-		filter = data
-
-		if IsTable(filter) then
-			--[[@cast filter table<integer, true>]]
-			for idx in lua_next, active_anchors do
-				if not filter[idx] then
-					RecycleOne(idx)
-				end
-			end
-		elseif IsFunction(filter) then
-			--[[@cast filter fun(plot: Plot): boolean]]
-			for idx in lua_next, active_anchors do
-				local plot = civ_map_get_plot_by_index(idx)
-
-				if not plot or not filter(plot) then
-					RecycleOne(idx)
-				end
-			end
-		end
-	end
-
-	local ApplySet = function(set)
-		is_listening = false
-
-		Reconcile(set)
-
-		for idx in lua_next, set do
-			if not active_anchors[idx] then RenderOne(idx) end
-		end
-
-		C.Anchors:SetHide(false)
-	end
-
 	local prepare_owns_check = Memoize1(
 	--- @param player_id PlayerId
 		function(player_id)
-			--- @param plot Plot
+			--- @param idx integer
 			--- @return boolean
-			return function(plot)
-				return plot:GetOwner() == player_id
+			return function(idx)
+				local plot = civ_map_get_plot_by_index(idx)
+				return plot ~= nil and plot:GetOwner() == player_id
 			end
 		end
 	)
@@ -422,7 +535,7 @@ do
 				end
 			end
 
-			ApplySet(set)
+			RenderTransient(set)
 		end
 	end
 
@@ -444,15 +557,12 @@ do
 					end
 				end
 
-				ApplySet(set)
+				RenderPersistent(set)
 			end
 		end,
 
 		[YDT.EMPIRE] = function()
-			is_listening = true
-
-			Reconcile(prepare_owns_check(civ_game_get_active_player()))
-			RequestViewPlots(CALLER)
+			RenderConditional(prepare_owns_check(civ_game_get_active_player()))
 		end,
 
 		[YDT.CITY_OWNED] = prepare_city_check(function(plot, city)
@@ -470,93 +580,30 @@ do
 
 	CivEvents.RequestYieldDisplay.Add(function(id, a, b)
 		if id == YDT.USER_ALL_ON then
-			filter = nil
 			is_global_on = true
-			is_listening = true
 			RequestViewPlots(CALLER)
 		elseif id == YDT.USER_ALL_OFF then
-			filter = nil
 			is_global_on = false
-			is_listening = false
-			C.Anchors:SetHide(true)
-			RecycleAll()
-		elseif not is_global_on then
-			-- Special case for cleanup
-			if id == YDT.AREA and a == 0 then
-				filter = nil
-				is_listening = false
-				C.Anchors:SetHide(true)
-				RecycleAll()
-
-				return
-			end
-
+			RenderCurrent()
+		elseif id == YDT.AREA and a == 0 then
+			RenderPersistent(nil)
+		else
 			local action = actions[id]
-
-			if action then
-				action(a, b)
-			end
+			if action then action(a, b) end
 		end
 	end)
 end
 
+
 CivEvents.GameplaySetActivePlayer.Add(function()
-	filter = nil
 	is_global_on = false
 	is_listening = false
+	condition_fn = nil
+	transient_set = nil
+	persistent_set = nil
 
 	RecycleAll()
 	UI.RefreshYieldVisibleMode()
 end)
 
 UI.RefreshYieldVisibleMode()
-
---------------------------------------------------------------------------------
-
-function PrintYieldIconStats()
-	local active_anchor_count = 0
-	local active_stack_count  = 0
-	local active_label_count  = 0
-	local active_icon_count   = 0
-
-	for _, _ in lua_next, active_anchors do
-		active_anchor_count = active_anchor_count + 1
-	end
-
-	for _, stacks in lua_next, active_stacks do
-		active_stack_count = active_stack_count + #stacks
-	end
-
-	for _, icons in lua_next, active_icons do
-		for _, _ in lua_next, icons do
-			active_icon_count = active_icon_count + 1
-		end
-	end
-
-	for _, labels in lua_next, active_labels do
-		active_label_count = active_label_count + #labels
-	end
-
-	local hidden_icon_count = 0
-	for _, stack in lua_next, hidden_icons do
-		hidden_icon_count = hidden_icon_count + stack:Size()
-	end
-
-	local hidden_anchor_count = hidden_anchors:Size()
-	local hidden_stack_count  = hidden_stacks:Size()
-	local hidden_label_count  = hidden_labels:Size()
-
-	print(string.format([[Yield Icon Stats:
-		hidden -> anchors: %d, stacks: %d, icons: %d, labels: %d
-		active -> anchors: %d, stacks: %d, icons: %d, labels: %d
-		total  -> anchors: %d, stacks: %d, icons: %d, labels: %d]],
-		hidden_anchor_count, hidden_stack_count,
-		hidden_icon_count, hidden_label_count,
-		active_anchor_count, active_stack_count,
-		active_icon_count, active_label_count,
-		active_anchor_count + hidden_anchor_count,
-		active_stack_count + hidden_stack_count,
-		active_icon_count + hidden_icon_count,
-		active_label_count + hidden_label_count
-	))
-end
