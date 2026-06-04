@@ -10954,15 +10954,17 @@ void CvGame::readSaveGameDB(FDataStream& kStream)
 		FIFile* pkFile = FFILESYSTEM.Create(wstrDatabasePath.c_str(), FIFile::modeWrite);
 		if (pkFile != NULL)
 		{
-			byte* szBuffer = new byte[sizeof(char) * lSize];
-			ZeroMemory((void*)szBuffer, lSize);
-
-			kStream.ReadIt(lSize, szBuffer);
-
-			pkFile->Write(szBuffer, lSize);
-
+			const unsigned int CHUNK = 1024u * 1024u;
+			byte* szBuffer = new byte[CHUNK];
+			unsigned int uRemaining = lSize;
+			while (uRemaining > 0)
+			{
+				unsigned int uToRead = (uRemaining < CHUNK) ? uRemaining : CHUNK;
+				kStream.ReadIt(uToRead, szBuffer);
+				pkFile->Write(szBuffer, uToRead);
+				uRemaining -= uToRead;
+			}
 			pkFile->Close();
-
 			delete[] szBuffer;
 		}
 		else
@@ -10988,17 +10990,21 @@ void CvGame::writeSaveGameDB(FDataStream& kStream) const
 		DWORD dwSize = GetFileSize(hFile, NULL);
 		if (dwSize != INVALID_FILE_SIZE)
 		{
-			byte* szBuffer = new byte[sizeof(char) * dwSize];
-			ZeroMemory((void*)szBuffer, dwSize);
+			//Serialize out the file size first.
+			kStream << dwSize;
 
-			DWORD dwBytesRead = 0;
-			if (ReadFile(hFile, szBuffer, dwSize, &dwBytesRead, NULL) == TRUE)
+			const DWORD CHUNK = 1024u * 1024u;
+			byte* szBuffer = new byte[CHUNK];
+			DWORD dwRemaining = dwSize;
+			while (dwRemaining > 0)
 			{
-				//Serialize out the file size first.
-				kStream << dwBytesRead;
+				DWORD dwToRead = (dwRemaining < CHUNK) ? dwRemaining : CHUNK;
+				DWORD dwBytesRead = 0;
+				if (ReadFile(hFile, szBuffer, dwToRead, &dwBytesRead, NULL) != TRUE || dwBytesRead == 0)
+					break;
 				kStream.WriteIt(dwBytesRead, szBuffer);
+				dwRemaining -= dwBytesRead;
 			}
-
 			delete[] szBuffer;
 		}
 		else
