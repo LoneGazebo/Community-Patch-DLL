@@ -1524,6 +1524,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		else if(!pCity->CanRangeStrikeNow())
 			return true;
 	}
+	break;
 
 	case NOTIFICATION_GOODY:
 	{
