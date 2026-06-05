@@ -1819,6 +1819,13 @@ int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 }
 
 //	--------------------------------------------------------------------------------
+/// Heuristic cost for land trade routes. Plot costs can be much lower than PATH_BASE_COST, see TradePathLandCost
+int StepHeuristicTradeLand(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY, int /*iBaseMoves*/)
+{
+	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST / 4;
+}
+
+//	--------------------------------------------------------------------------------
 /// Step path finder - compute cost of a path
 int StepCost(const CvAStarNode*, const CvAStarNode* node, const SPathFinderUserData&, CvAStar*)
 {
@@ -3144,7 +3151,7 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_TRADE_LAND:
-		SetFunctionPointers(NULL, StepHeuristic, TradePathLandCost, TradePathLandValid, NULL, TradePathInitialize, TradePathUninitialize);
+		SetFunctionPointers(NULL, StepHeuristicTradeLand, TradePathLandCost, TradePathLandValid, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE:
@@ -3663,6 +3670,7 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 // --------------------------------------------------------------------------------
 // need to be very careful here - trade distance is used in lots of places
 // what's more, there is a maximum trade distance and cities might appear unreachable
+// when adding discounts, make sure StepHeuristicTradeLand returns the lowest possible cost per step, otherwise the heuristic is inadmissible and paths can be missed
 // --------------------------------------------------------------------------------
 int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
