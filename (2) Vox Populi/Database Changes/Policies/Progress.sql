@@ -25,7 +25,7 @@ WHERE Type = 'POLICY_LIBERTY';
 INSERT INTO Policy_YieldFromBirth
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_LIBERTY', 'YIELD_SCIENCE', 10);
+	('POLICY_LIBERTY', 'YIELD_SCIENCE', 8);
 
 INSERT INTO Policy_InstantYield
 	(PolicyType, YieldType, Yield)
@@ -64,6 +64,7 @@ INSERT INTO Policy_UnitClassProductionModifiers
 	(PolicyType, UnitClassType, ProductionModifier)
 VALUES
 	('POLICY_COLLECTIVE_RULE', 'UNITCLASS_WORKER', 25),
+	('POLICY_COLLECTIVE_RULE', 'UNITCLASS_WORKBOAT', 25),
 	('POLICY_COLLECTIVE_RULE', 'UNITCLASS_CARGO_SHIP', 25),
 	('POLICY_COLLECTIVE_RULE', 'UNITCLASS_CARAVAN', 25);
 

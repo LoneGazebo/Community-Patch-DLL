@@ -134,3 +134,9 @@ INSERT INTO Belief_EraFaithUnitPurchase
 SELECT
 	'BELIEF_HEATHEN_CONVERSION', Type
 FROM Eras;
+
+-- Animism
+INSERT INTO Belief_FreePromotions
+	(BeliefType, PromotionType)
+VALUES
+	('BELIEF_ANIMISM', 'PROMOTION_ANIMISM');

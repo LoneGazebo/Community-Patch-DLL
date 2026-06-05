@@ -48,6 +48,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
 	m_bNoStarvationNonSpecialist(false),
+	m_iMinimumFood(0),
 	m_iGetCooldown(0),
 	m_bTradeRouteInvulnerable(false),
 	m_iTRSpeedBoost(0),
@@ -96,6 +97,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGlobalMilitaryProductionModPerMajorWar(0),
 	m_iFoodKept(0),
 	m_bAirlift(false),
+	m_bSealift(false),
 	m_iAirModifier(0),
 	m_iAirModifierGlobal(0),
 	m_iNukeModifier(0),
@@ -397,6 +399,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromFaithPurchasableBuildings(NULL),
 	m_piYieldFromFaithPurchasableBuildingsGlobal(NULL),
 	m_piLuxuryYieldChanges(NULL),
+	m_piCityConnectionPlotYieldChanges(NULL),
+	m_piCityConnectionPlotYieldChangesGlobal(NULL),
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
 	m_bArtInfoCulturalVariation(false),
@@ -407,6 +411,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_miTechEnhancedYields(),
 	m_miBonusFromAccomplishments(),
 	m_miYieldChangesFromAccomplishments(),
+	m_miYieldModifiersFromAccomplishments(),
 	m_miGreatPersonPointFromConstruction(),
 	m_ppaiImprovementYieldChange(NULL),
 	m_ppaiImprovementYieldChangeGlobal(NULL),
@@ -555,6 +560,8 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchasableBuildings);
 	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchasableBuildingsGlobal);
 	SAFE_DELETE_ARRAY(m_piLuxuryYieldChanges);
+	SAFE_DELETE_ARRAY(m_piCityConnectionPlotYieldChanges);
+	SAFE_DELETE_ARRAY(m_piCityConnectionPlotYieldChangesGlobal);
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
@@ -568,6 +575,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	m_miTechEnhancedYields.clear();
 	m_miBonusFromAccomplishments.clear();
 	m_miYieldChangesFromAccomplishments.clear();
+	m_miYieldModifiersFromAccomplishments.clear();
 	m_miGreatPersonPointFromConstruction.clear();
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiImprovementYieldChangeGlobal);
@@ -692,6 +700,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGlobalMilitaryProductionModPerMajorWar = kResults.GetInt("GlobalMilitaryProductionModPerMajorWar");
 	m_iFoodKept = kResults.GetInt("FoodKept");
 	m_bAirlift = kResults.GetBool("Airlift");
+	m_bSealift = kResults.GetBool("Sealift");
 	m_iAirModifier = kResults.GetInt("AirModifier");
 	m_iAirModifierGlobal = kResults.GetInt("AirModifierGlobal");
 	m_iNukeModifier = kResults.GetInt("NukeModifier");
@@ -898,6 +907,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
 	m_bNoStarvationNonSpecialist = kResults.GetBool("NoStarvationNonSpecialist");
+	m_iMinimumFood = kResults.GetInt("MinimumFood");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 	m_iNumPoliciesNeeded = kResults.GetInt("NumPoliciesNeeded");
 
@@ -1111,6 +1121,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromFaithPurchasableBuildings, "Building_ReligionYieldFromFaithPurchasableBuildings", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromFaithPurchasableBuildingsGlobal, "Building_ReligionYieldFromFaithPurchasableBuildingsGlobal", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piLuxuryYieldChanges, "Building_LuxuryYieldChanges", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piCityConnectionPlotYieldChanges, "Building_CityConnectionPlotYieldChanges", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piCityConnectionPlotYieldChangesGlobal, "Building_CityConnectionPlotYieldChangesGlobal", "BuildingType", szBuildingType);
 	
 	m_iGPRateModifierPerXFranchises = kResults.GetInt("GPRateModifierPerXFranchises");
 
@@ -1301,15 +1313,43 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		//Trim extra memory off container since this is mostly read-only.
 		std::map<int, std::map<int, int>>(m_miYieldChangesFromAccomplishments).swap(m_miYieldChangesFromAccomplishments);
 	}
+	
+	// Building_YieldModifiersFromAccomplishments
+	// Table structure (BuildingType, YieldType, Yield, AccomplishmentType)
+	// The building boosts yield output% once the corresponding accomplishment has been achieved
+	{
+		std::string strKey("Building_YieldModifiersFromAccomplishments");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Accomplishments.ID, Yields.ID as YieldID, Yield from Building_YieldModifiersFromAccomplishments left join Accomplishments on Accomplishments.Type = AccomplishmentType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while (pResults->Step())
+		{
+			const int iAccomplishment = pResults->GetInt(0);
+			const int iYieldType = pResults->GetInt(1);
+			const int iYield = pResults->GetInt(2);
+
+			m_miYieldModifiersFromAccomplishments[iAccomplishment][iYieldType] += iYield;
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::map<int, int>>(m_miYieldModifiersFromAccomplishments).swap(m_miYieldModifiersFromAccomplishments);
+	}
 	// Building_BonusFromAccomplishments
-	// Table structure (BuildingType, AccomplishmentType, Happiness, DomainType, DomainXP, UnitCombatType, UnitProductionModifier)
+	// Table structure (BuildingType, AccomplishmentType, Happiness, ExtraSpies, DomainType, DomainXP, UnitCombatType, UnitProductionModifier)
 	// The building gives additional bonuses once the corresponding accomplishment has been achieved
 	{
 		std::string strKey("Building_BonusFromAccomplishments");
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Accomplishments.ID, Happiness, coalesce(Domains.ID, -1), DomainXP, coalesce(UnitCombatInfos.ID, -1), UnitProductionModifier from Building_BonusFromAccomplishments inner join Accomplishments on Accomplishments.Type = AccomplishmentType left join Domains on Domains.Type = DomainType left join UnitCombatInfos on UnitCombatInfos.Type = UnitCombatType where BuildingType = ?");
+			pResults = kUtility.PrepareResults(strKey, "select Accomplishments.ID, Happiness, ExtraSpies, coalesce(Domains.ID, -1), DomainXP, coalesce(UnitCombatInfos.ID, -1), UnitProductionModifier from Building_BonusFromAccomplishments inner join Accomplishments on Accomplishments.Type = AccomplishmentType left join Domains on Domains.Type = DomainType left join UnitCombatInfos on UnitCombatInfos.Type = UnitCombatType where BuildingType = ?");
 		}
 
 		pResults->Bind(1, szBuildingType);
@@ -1320,10 +1360,11 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 			const int iAccomplishment = pResults->GetInt(0);
 			bonusInfo.iHappiness = pResults->GetInt(1);
-			bonusInfo.eDomainType = (DomainTypes)pResults->GetInt(2);
-			bonusInfo.iDomainXP = pResults->GetInt(3);
-			bonusInfo.eUnitCombatType = (UnitCombatTypes)pResults->GetInt(4);
-			bonusInfo.iUnitProductionModifier = pResults->GetInt(5);
+			bonusInfo.ExtraSpies = pResults->GetInt(2);
+			bonusInfo.eDomainType = (DomainTypes)pResults->GetInt(3);
+			bonusInfo.iDomainXP = pResults->GetInt(4);
+			bonusInfo.eUnitCombatType = (UnitCombatTypes)pResults->GetInt(5);
+			bonusInfo.iUnitProductionModifier = pResults->GetInt(6);
 
 			m_miBonusFromAccomplishments[iAccomplishment].push_back(bonusInfo);
 		}
@@ -1918,7 +1959,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	// Merge some yield entries into generic yield arrays
 	m_piYieldModifier[YIELD_CULTURE] += m_iCultureRateModifier;
+	m_piYieldModifier[YIELD_CULTURE_LOCAL] += m_iBorderGrowthRateIncrease;
 	m_piGlobalYieldModifier[YIELD_CULTURE] += m_iGlobalCultureRateModifier;
+	m_piGlobalYieldModifier[YIELD_CULTURE_LOCAL] += m_iBorderGrowthRateIncreaseGlobal;
 	m_piInstantYield[YIELD_GOLD] += m_iGold;
 
 	// Slow, but specialist entries (and GC.getNumSpecialistInfos()) aren't available yet
@@ -2068,6 +2111,11 @@ bool CvBuildingEntry::IsAllowsPuppetPurchase() const
 bool CvBuildingEntry::IsNoStarvationNonSpecialist() const
 {
 	return m_bNoStarvationNonSpecialist;
+}
+/// Does this building cause food to be clamped?
+int CvBuildingEntry::GetMinimumFood() const
+{
+	return m_iMinimumFood;
 }
 /// Does this building have a cooldown cost when purchased?
 int CvBuildingEntry::GetCooldown() const
@@ -2333,6 +2381,11 @@ bool CvBuildingEntry::IsAirlift() const
 {
 	return m_bAirlift;
 }
+/// Does this building allow sealifts?
+bool CvBuildingEntry::IsSealift() const
+{
+	return m_bSealift;
+}
 
 /// Modifier to city air defense
 int CvBuildingEntry::GetAirModifier() const
@@ -2415,18 +2468,6 @@ int CvBuildingEntry::GetPolicyCostModifier() const
 int CvBuildingEntry::GetDiplomatInfluenceBoost() const
 {
 	return m_iDiplomatInfluenceBoost;
-}
-
-/// Increase to rate of border growth in city
-int CvBuildingEntry::GetBorderGrowthRateIncrease() const
-{
-	return m_iBorderGrowthRateIncrease;
-}
-
-/// Increase to rate of border growth in all cities
-int CvBuildingEntry::GetBorderGrowthRateIncreaseGlobal() const
-{
-	return m_iBorderGrowthRateIncreaseGlobal;
 }
 
 /// Change in culture cost to earn a new tile
@@ -4591,6 +4632,26 @@ int CvBuildingEntry::GetLuxuryYieldChanges(int i) const
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piLuxuryYieldChanges ? m_piLuxuryYieldChanges[i] : 0;
 }
+int* CvBuildingEntry::GetCityConnectionPlotYieldChangeArray() const
+{
+	return m_piCityConnectionPlotYieldChanges;
+}
+int CvBuildingEntry::GetCityConnectionPlotYieldChange(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piCityConnectionPlotYieldChanges ? m_piCityConnectionPlotYieldChanges[i] : 0;
+}
+int* CvBuildingEntry::GetCityConnectionPlotYieldChangeGlobalArray() const
+{
+	return m_piCityConnectionPlotYieldChangesGlobal;
+}
+int CvBuildingEntry::GetCityConnectionPlotYieldChangeGlobal(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piCityConnectionPlotYieldChangesGlobal ? m_piCityConnectionPlotYieldChangesGlobal[i] : 0;
+}
 /// Free units which appear near the capital
 int CvBuildingEntry::GetNumFreeUnits(int i) const
 {
@@ -4712,6 +4773,11 @@ const std::map<int, std::vector<AccomplishmentBonusInfo>>& CvBuildingEntry::GetB
 std::map<int, std::map<int, int>> CvBuildingEntry::GetYieldChangesFromAccomplishments() const
 {
 	return m_miYieldChangesFromAccomplishments;
+}
+
+std::map<int, std::map<int, int>> CvBuildingEntry::GetYieldModifiersFromAccomplishments() const
+{
+	return m_miYieldModifiersFromAccomplishments;
 }
 
 std::map<pair<GreatPersonTypes, EraTypes>, int> CvBuildingEntry::GetGreatPersonPointFromConstruction() const

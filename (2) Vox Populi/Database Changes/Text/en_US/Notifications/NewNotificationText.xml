@@ -48,7 +48,7 @@
 			<Text>Mission of your {1_UnitType} completed!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER">
-			<Text>A {1_UnitType} increased {4_OwnerAdj} [ICON_INFLUENCE] Influence in {3_CivShortDesc} by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR], and reduced your [ICON_INFLUENCE] Influence in the City-State by the same amount! Their minimum [ICON_INFLUENCE] Influence with the City-State has also increased by [COLOR_NEGATIVE_TEXT]{5_Num}[ENDCOLOR]!</Text>
+			<Text>A {1_UnitType} increased {4_OwnerAdj} [ICON_INFLUENCE] Influence in {3_CivShortDesc} by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR], and reduced your [ICON_INFLUENCE] Influence in the City-State by the same amount!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER_SUMMARY">
 			<Text>Foreign {1_UnitType} mission completed!</Text>
@@ -715,6 +715,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_CREATED_VASSAL_DIPLOMAT">
 			<Text>{1_SpyName} has been recruited to serve as a Diplomat in the Capital of your newly acquired Vassal {2_CivName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_SPY_POINTS_RECEIVED">
+			<Text>You received additional [ICON_SPY_POINT] Spy Points!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_POINTS_RECEIVED">
+			<Text>You received an additional {1_SpyPoints} [ICON_SPY_POINT] Spy Points, bringing your current progress toward a new [ICON_SPY] Spy to {2_SpyPoints}/{3_Threshold}.[NEWLINE]You have accumulated a total of {4_SpyPoints} [ICON_SPY_POINTS] Spy Points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_S">
 			<Text>New Passive Spy Bonus unlocked</Text>

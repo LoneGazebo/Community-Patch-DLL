@@ -5,13 +5,17 @@ WHERE Tag = 'TXT_KEY_BUILDING_WATERMILL_STRATEGY';
 
 -- Aqueduct
 UPDATE Language_en_US
-SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15%. Build Aqueducts in cities that you want to grow large over time. The City needs to have a Granary in order to construct the Aqueduct.'
+SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a City needs to for [ICON_CITIZEN] Citizen Birth by 15%, and provides [ICON_PRODUCTION] Production when that happens. Build Aqueducts in cities that can grow large over time. When built early while citizens are born the fastest, the production bonus will be most impactful. The City needs to have a Granary in order to construct the Aqueduct.'
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_STRATEGY';
 
 -- Medical Lab
 UPDATE Language_en_US
 SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15%, immediately increases the City''s size, and generates instant [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen born in the City (applying retroactively). The City needs to have a Hospital in order to construct the Medical Lab.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Blocks the {TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_POISON} [ICON_SPY] Spy Mission in this City.'
+WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP';
 
 -- Garden
 UPDATE Language_en_US
@@ -51,10 +55,20 @@ UPDATE Language_en_US
 SET Text = 'The Forge improves sources of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper nearby, and boosts the [ICON_PRODUCTION] Production of Mines.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_STRATEGY';
 
+-- Factory
+UPDATE Language_en_US
+SET Text = 'Provides a baseline boost to City [ICON_PRODUCTION] Production that scales directly with the population of the City. Grants an urbanization-free Specialist slot to alleviate local unhappiness.[NEWLINE][NEWLINE]Additionally requires [ICON_RES_COAL] Coal, presenting a strict resource tradeoff with Coaling Stations. Rather than relying on local percentage modifiers, the Factory relies on the size of your global Coaling Station network to inject massive flat [ICON_PRODUCTION] Production bonuses into its baseline yields. To maximize empire-wide industrial output, focus your Factory network primarily within high-population Cities and the Capital where the citizen scaling and urbanization reduction can be fully exploited.'
+WHERE Tag = 'TXT_KEY_BUILDING_FACTORY_STRATEGY';
+
 -- Stone Works
 UPDATE Language_en_US
-SET Text = 'Stone Works can only be constructed in a City near an improved [ICON_RES_STONE] Stone, [ICON_RES_MARBLE] Marble, [ICON_RES_SALT] Salt, [ICON_RES_JADE] Jade, [ICON_RES_AMBER] Amber, [ICON_RES_LAPIS] Lapis Lazuli, or [ICON_RES_URANIUM] Uranium resource. Stone Works increase [ICON_PRODUCTION] Production and allow [ICON_PRODUCTION] Production to be moved from this City along trade routes inside your Civilization.'
+SET Text = 'Stone Works can only be constructed in a City near an improved [ICON_RES_STONE] Stone, [ICON_RES_MARBLE] Marble, [ICON_RES_SALT] Salt, [ICON_RES_JADE] Jade, [ICON_RES_AMBER] Amber, [ICON_RES_LAPIS] Lapis Lazuli, or [ICON_RES_URANIUM] Uranium resource. Stone Works provides Production to your City whenever it claims new tiles, and allows [ICON_PRODUCTION] Production to be moved from this City along Trade Routes internal to your Civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_STONE_WORKS_STRATEGY';
+
+-- Stable
+UPDATE Language_en_US
+SET Text = 'Stable can only be constructed in a City near an improved [ICON_RES_HORSE] Horse, [ICON_RES_SHEEP] Sheep, or [ICON_RES_COW] Cattle resource. It boosts the yields of the above resources and provides [ICON_WAR] Military Supply.'
+WHERE Tag = 'TXT_KEY_BUILDING_STABLE_STRATEGY';
 
 -- Lighthouse
 UPDATE Language_en_US
@@ -145,7 +159,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_WALLS_STRATEGY';
 
 -- Castle
 UPDATE Language_en_US
-SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength and reduces all incoming damage by 2. Increases Military Units supplied by this City''s population by 5%, and increases Production for all nearby Quarries by 1. Also helps with managing the Empire Size Modifier in this City. The City must already possess Walls before a Castle can be constructed.'
+SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength and reduces all incoming damage by 2. Increases Military Units supplied by this City''s population by 5%, and provides Tourism to Jail and Constabulary in this City. Also helps with managing the Empire Size Modifier in this City. The City must already possess Walls before a Castle can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_STRATEGY';
 
 -- Arsenal
@@ -185,7 +199,7 @@ SET Text = 'Arena'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM';
 
 UPDATE Language_en_US
-SET Text = 'The Arena provides additional Culture, and generates Tourism from City''s population. Reduces Boredom in a City, and improves the output of nearby [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives. Build these to combat Unhappiness from Boredom, to increase your Culture, and to improve the production of your military buildings.'
+SET Text = 'The Arena provides additional Culture, reduces Boredom in a City, and improves the output of nearby [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives. Build these to combat Unhappiness from Boredom, to increase your Culture, and to improve the production of your military buildings.'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_STRATEGY';
 
 UPDATE Language_en_US
@@ -201,6 +215,16 @@ WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'Build the Stadium if you are going for a [COLOR_POSITIVE_TEXT]Culture Victory[ENDCOLOR]. Increases your influence with all City-States by 20 when completed. Coordinate the construction of Stadiums across your empire for a global boost in diplomatic relations.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_STRATEGY';
+
+-- Constabulary
+UPDATE Language_en_US
+SET Text = 'The Constabulary is a defensive Building that enhances City Security and mitigates the Security penalty from Population. It also improves local Happiness by reducing Unhappiness from Distress.'
+WHERE Tag = 'TXT_KEY_BUILDING_CONSTABLE_STRATEGY';
+
+-- Police Station
+UPDATE Language_en_US
+SET Text = 'The Police Station provides flat City Security to significantly slow down enemy Spy operations in your urban centers. Combined with the Population-scaling Security from the Constabulary, the Police Station mostly neutralizes the inherent espionage vulnerability that Cities naturally suffer as they grow. Meanwhile, it acts as an unmatched tool for Happiness management by universally reducing Unhappiness from Distress, Poverty, Illiteracy, and Boredom all at once.'
+WHERE Tag = 'TXT_KEY_BUILDING_POLICE_STATION_STRATEGY';
 
 -- Monastery
 UPDATE Language_en_US

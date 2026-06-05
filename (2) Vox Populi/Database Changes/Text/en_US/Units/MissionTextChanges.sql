@@ -10,7 +10,7 @@ WHERE Tag = 'TXT_KEY_MISSION_CREATE_GREAT_WORK_HELP';
 
 -- Write Political Treatise
 UPDATE Language_en_US
-SET Text = 'This order will consume the Great Person and will grant a large amount of [ICON_CULTURE] Culture, scaling by [COLOR_POSITIVE_TEXT]3%[ENDCOLOR] for every owned [ICON_GREAT_WORK] Great Work.'
+SET Text = 'This order will consume the Great Person and will grant a large amount of [ICON_CULTURE] Culture, scaling by [COLOR_POSITIVE_TEXT]8%[ENDCOLOR] for every owned [ICON_GW_WRITING] Great Work of Writing.'
 WHERE Tag = 'TXT_KEY_MISSION_GIVE_POLICIES_HELP';
 
 -- Start a Golden Age

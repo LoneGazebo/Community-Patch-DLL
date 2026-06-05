@@ -378,16 +378,21 @@
 			<IconFontTexture>ICON_FONT_TEXTURE_CP</IconFontTexture>
 			<IconMapping>74</IconMapping>
 		</Row>
+		<Row>
+			<IconName>ICON_RES_LAKE_FISH</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_CP</IconFontTexture>
+			<IconMapping>75</IconMapping>
+		</Row>
 
 		<Row>
 			<IconName>ICON_CULTURE_LOCAL</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_CP</IconFontTexture>
-			<IconMapping>75</IconMapping>
+			<IconMapping>76</IconMapping>
 		</Row>
 		<Row>
 			<IconName>ICON_CITY_SECURITY</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_CP</IconFontTexture>
-			<IconMapping>76</IconMapping>
+			<IconMapping>77</IconMapping>
 		</Row>
 	</IconFontMapping>
 </GameData>

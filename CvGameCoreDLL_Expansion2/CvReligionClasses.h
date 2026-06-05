@@ -288,6 +288,7 @@ enum CvReligiousFollowChangeReason
     FOLLOWER_CHANGE_REMOVE_HERESY,
 	FOLLOWER_CHANGE_SCRIPTED_CONVERSION,
 	FOLLOWER_CHANGE_SPY_PRESSURE,
+	FOLLOWER_CHANGE_FRANCHISE_PRESSURE,
 	FOLLOWER_CHANGE_INSTANT_YIELD,
 	FOLLOWER_CHANGE_ADOPT_FULLY,
 };
@@ -353,6 +354,7 @@ public:
 	int GetCityStateInfluenceModifier(PlayerTypes ePlayer) const;
 	int GetCityStateYieldModifier(PlayerTypes ePlayer) const;
 	int GetSpyPressure(PlayerTypes ePlayer) const;
+	int GetFranchisePressure() const;
 	int GetNumForeignCitiesFollowing(ReligionTypes eReligion) const;
 	int GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReligion) const;
 	int GetNumCityStateFollowers(ReligionTypes eReligion) const;
@@ -439,6 +441,7 @@ public:
 	void ConvertNumberAllOtherFollowers(ReligionTypes eToReligion, int iPop);
 	void AddHolyCityPressure();
 	void AddSpyPressure(ReligionTypes eReligion, int iBasePressure);
+	void AddFranchisePressure(ReligionTypes eReligion, int iBasePressure);
 	void AdoptReligionFully(ReligionTypes eReligion);
 	void RemoveFormerPantheon();
 	void RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes eResponsiblePlayer);

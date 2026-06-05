@@ -416,7 +416,7 @@ static int GetYieldCityModifierTimes100(const CvCity* pCity, YieldTypes eYield)
 	return iModifier;
 }
 
-void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild)
+void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iPlotBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild)
 {
 	vector<int> aiMovingForwardCostsWithRoute(path.length() - 1);
 	vector<int> aiMovingBackwardCostsWithRoute(path.length() - 1);
@@ -461,6 +461,16 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 						iVillageBonusesIfCityConnected += iVillageYieldBonus;
 					}
 				}
+			}
+
+			// Also add yields on would-be city connection plots
+			CvPlayer& kPlayer = GET_PLAYER(pPlot->getOwner());
+			for (int j = 0; j < GC.getNUM_YIELD_TYPES(); j++)
+			{
+				YieldTypes eYield = static_cast<YieldTypes>(j);
+				int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+				iPlotBonusesIfCityConnected += pPlot->getEffectiveOwningCity()->GetCityConnectionPlotYield(eYield) * iYieldModifier;
+				iPlotBonusesIfCityConnected += kPlayer.GetCityConnectionPlotYield(eYield) * iYieldModifier;
 			}
 		}
 
@@ -887,15 +897,19 @@ void CvBuilderTaskingAI::ShortcutConnectionHelper(CvCity* pCity1, CvCity* pCity2
 	int iNumRoadsNeededToBuild = 0;
 
 	int iVillageBonusesIfCityConnected = 0;
+	int iPlotBonusesIfCityConnected = 0;
 	int iMovementBonus = 0;
 
-	GetPathValues(path, eRoute, iVillageBonusesIfCityConnected, iMovementBonus, iNumRoadsNeededToBuild);
+	GetPathValues(path, eRoute, iVillageBonusesIfCityConnected, iPlotBonusesIfCityConnected, iMovementBonus, iNumRoadsNeededToBuild);
 
 	// If one of the cities is connected to the capital, both will be when this route is completed
 	if (!pCity1->IsConnectedToCapital() && !pCity2->IsConnectedToCapital())
+	{
 		iVillageBonusesIfCityConnected = 0;
+		iPlotBonusesIfCityConnected = 0;
+	}
 
-	int iValue = iVillageBonusesIfCityConnected + iMovementBonus;
+	int iValue = iVillageBonusesIfCityConnected + iPlotBonusesIfCityConnected + iMovementBonus;
 
 	// Add a small part of the capital connection bonus, it's good to have some redundancy
 	if (pCity1->IsConnectedToCapital() || pCity2->IsConnectedToCapital())
@@ -948,9 +962,10 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 	int iMovementBonus = 0;
 
-	int iDummy = 0;
+	int iDummy1 = 0;
+	int iDummy2 = 0;
 
-	GetPathValues(path, eRoute, iDummy, iMovementBonus, iNumRoadsNeededToBuild);
+	GetPathValues(path, eRoute, iDummy1, iDummy2, iMovementBonus, iNumRoadsNeededToBuild);
 
 	int iValue = iMovementBonus;
 
@@ -980,6 +995,74 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 		return;
 
 	AddRoutePlots(pCity1->plot(), pCity2->plot(), eRoute, 100, path, PURPOSE_SHORTCUT, false);
+}
+
+void CvBuilderTaskingAI::ConnectForeignCitiesForYields(CvCity* pOwnedCity, CvCity* pForeignCity, BuildTypes eBuild, RouteTypes eRoute)
+{
+	ASSERT(pOwnedCity->getOwner() == m_pPlayer->GetID(), "pOwnedCity is not owned by the player");
+	ASSERT(pForeignCity->getOwner() != m_pPlayer->GetID(), "pForeignCity is owned by the player");
+
+	// No point considering any route other than roads
+	if (eRoute != ROUTE_ROAD)
+		return;
+
+	CvPlayer& kOtherPlayer = GET_PLAYER(pForeignCity->getOwner());
+
+	// Don't connect razing cities
+	if (pOwnedCity->IsRazing() || pForeignCity->IsRazing())
+		return;
+
+	// Don't bother with cities too far away
+	int iPlotDistance = plotDistance(pOwnedCity->getX(), pOwnedCity->getY(), pForeignCity->getX(), pForeignCity->getY());
+	const map<int, vector<int>>& mviYieldChangePerLandConnectedCity = m_pPlayer->GetPlayerTraits()->GetYieldChangesPerLandConnectedCityTimes100();
+	ASSERT(!mviYieldChangePerLandConnectedCity.empty());
+	int iMaxRadius = mviYieldChangePerLandConnectedCity.rbegin()->first;
+	if (iPlotDistance >= iMaxRadius)
+		return;
+
+	// Build a path between the two cities - this will reuse roads owned by minors/teammates/vassals, but will only consider rivers in other civs (roads are volatile)
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_BUILD_ROUTE, eBuild, eRoute, PURPOSE_SHORTCUT, MOD_BALANCE_RIVER_CITY_CONNECTIONS);
+	data.iMaxTurns = iPlotDistance * 2;
+	SPath path = GC.GetStepFinder().GetPath(pOwnedCity->getX(), pOwnedCity->getY(), pForeignCity->getX(), pForeignCity->getY(), data);
+
+	// Path is not possible?
+	if (!path)
+		return;
+
+	int iNumRoadsNeededToBuild = 0;
+	for (int i = 0; i < path.length(); i++)
+	{
+		CvPlot* pPlot = path.get(i);
+
+		// Don't count the cities themselves
+		if (pPlot->isCity())
+			continue;
+
+		if (!m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
+		{
+			if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+				iNumRoadsNeededToBuild++;
+		}
+	}
+
+	// Loop the trait table in descending order of radius
+	int iConnectionValue = 0;
+	int iGoldYieldBaseModifier = GetYieldBaseModifierTimes100(YIELD_GOLD);
+	for (map<int, vector<int>>::const_reverse_iterator it = mviYieldChangePerLandConnectedCity.rbegin(); it != mviYieldChangePerLandConnectedCity.rend(); ++it)
+	{
+		if (it->first < iPlotDistance)
+			break;
+
+		for (int i = 0; i < GC.getNUM_YIELD_TYPES(); i++)
+		{
+			YieldTypes eYield = static_cast<YieldTypes>(i);
+			iConnectionValue += it->second[i] * GetYieldBaseModifierTimes100(eYield) / iGoldYieldBaseModifier;
+		}
+	}
+
+	iConnectionValue -= iNumRoadsNeededToBuild * 10;
+
+	AddRoutePlots(pOwnedCity->plot(), pForeignCity->plot(), eRoute, iConnectionValue, path, PURPOSE_SHORTCUT, MOD_BALANCE_RIVER_CITY_CONNECTIONS);
 }
 
 pair<RouteTypes, int> CvBuilderTaskingAI::GetBestRouteTypeAndValue(const CvPlot* pPlot) const
@@ -1483,7 +1566,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotIndex);
 		CvCity* pCity = pPlot->getPlotCity();
 
-		if (pCity)
+		if (pCity && pCity->getOwner() == m_pPlayer->GetID())
 		{
 			int iPop = pCity->getPopulation();
 			iValue = iPop;
@@ -1500,6 +1583,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 		return;
 	}
 
+	bool bHasTraitBonus = m_pPlayer->GetPlayerTraits()->HasPositiveYieldChangesPerLandConnectedCity();
 	for(int i = GC.getNumBuildInfos() - 1; i >= 0; i--)
 	{
 		BuildTypes eBuild = (BuildTypes)i;
@@ -1556,6 +1640,18 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				else
 				{
 					ConnectCitiesForScenario(pFirstCity, pSecondCity, eBuild, eBestRoute);
+				}
+
+				if (bHasTraitBonus)
+				{
+					if (pFirstCity->getOwner() == m_pPlayer->GetID() && pSecondCity->getOwner() != m_pPlayer->GetID())
+					{
+						ConnectForeignCitiesForYields(pFirstCity, pSecondCity, eBuild, eRoute);
+					}
+					else if (pFirstCity->getOwner() != m_pPlayer->GetID() && pSecondCity->getOwner() == m_pPlayer->GetID())
+					{
+						ConnectForeignCitiesForYields(pSecondCity, pFirstCity, eBuild, eRoute);
+					}
 				}
 			}
 		}
@@ -4175,7 +4271,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 
 			PlayerTypes eOwner = pAdjacentPlot->getOwner();
 
-			if (eOwner == m_pPlayer->GetID())
+			if (pAdjacentPlot->getTeam() == m_pPlayer->getTeam())
 				continue;
 
 			if (pAdjacentPlot->IsStealBlockedByImprovement())

@@ -250,7 +250,11 @@ bool isWorldProject(ProjectTypes eProject);
 bool isTeamProject(ProjectTypes eProject);
 bool isLimitedProject(ProjectTypes eProject);
 
-TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer);
+int GetBasePurchaseCostFromProduction(const int iProduction);
+
+int GetGenericUnitProductionCost(const UnitTypes eUnit, const CvPlayer* pPlayer = NULL, const bool bIgnoreExistingCopies = false);
+int GetBaseUnitPurchaseCost(const UnitTypes eUnit);
+int GetBaseUnitUpgradeCost(const UnitTypes eCurrentUnit, const UnitTypes eNewUnit, const CvPlayer* pPlayer = NULL);
 
 // PlotUnitFunc's...
 bool PUF_isPlayer(const CvUnit* pUnit, int iData1, int iData2 = -1);

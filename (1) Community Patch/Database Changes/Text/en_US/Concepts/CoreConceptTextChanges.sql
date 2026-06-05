@@ -34,8 +34,8 @@ SET Text = 'At the end of melee combat, one or both units may have sustained dam
 WHERE Tag = 'TXT_KEY_COMBAT_MELEERESULTS_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'Missiles are one-shot weapons. They perform a single air strike mission against a target, and then, win or lose, they are destroyed. They can be intercepted.' 
-WHERE Tag= 'TXT_KEY_AIRPOWER_MISSILES_HEADING2_BODY';
+SET Text = 'Missiles are one-shot weapons. They perform a single air strike mission against a target, and then, win or lose, they are destroyed. They can be intercepted.'
+WHERE Tag = 'TXT_KEY_AIRPOWER_MISSILES_HEADING2_BODY';
 
 -- Map
 UPDATE Language_en_US

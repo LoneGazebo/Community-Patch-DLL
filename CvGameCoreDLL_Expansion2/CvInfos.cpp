@@ -719,7 +719,6 @@ CvSpecialistInfo::CvSpecialistInfo() :
 	m_iCost(0),
 	m_iGreatPeopleUnitClass(NO_UNITCLASS),
 	m_iGreatPeopleRateChange(0),
-	m_iCulturePerTurn(0),
 	m_iMissionType(NO_MISSION),
 	m_bVisible(false),
 	m_piYieldChange(NULL),
@@ -747,11 +746,6 @@ int CvSpecialistInfo::getGreatPeopleRateChange() const
 	return m_iGreatPeopleRateChange;
 }
 //------------------------------------------------------------------------------
-int CvSpecialistInfo::getCulturePerTurn() const
-{
-	return m_iCulturePerTurn;
-}
-
 int CvSpecialistInfo::getMissionType() const
 {
 	return m_iMissionType;
@@ -803,7 +797,6 @@ bool CvSpecialistInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iCost = kResults.GetInt("Cost");
 	m_iExperience = kResults.GetInt("Experience");
 	m_iGreatPeopleRateChange = kResults.GetInt("GreatPeopleRateChange");
-	m_iCulturePerTurn = kResults.GetInt("CulturePerTurn");
 
 	setTexture(kResults.GetText("Texture"));
 
@@ -813,6 +806,8 @@ bool CvSpecialistInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	//Arrays
 	const char* szType = GetType();
 	kUtility.SetYields(m_piYieldChange, "SpecialistYields", "SpecialistType", szType);
+
+	m_piYieldChange[YIELD_CULTURE] += kResults.GetInt("CulturePerTurn");
 
 	return true;
 }
@@ -4530,11 +4525,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		kUtility.InitializeArray(m_piGoodies, m_iNumGoodies, 0);
 
 		Database::Results kArrayResults;
-		char szSQL[512];
-		sprintf_s(szSQL, "select GoodyHuts.ID from HandicapInfo_Goodies inner join GoodyHuts on GoodyType = GoodyHuts.Type where HandicapType = '%s';", szHandicapType);
-
-		if (DB.Execute(kArrayResults, szSQL))
+		if (DB.Execute(kArrayResults, "select GoodyHuts.ID from HandicapInfo_Goodies inner join GoodyHuts on GoodyType = GoodyHuts.Type where HandicapType = ?"))
 		{
+			kArrayResults.Bind(1, szHandicapType);
 			int i = 0;
 			while (kArrayResults.Step())
 			{
@@ -4930,21 +4923,22 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		const char* szGameSpeedInfoType = GetType();
 
 		//Calculate number of turn increments
-		char szCountSQL[256];
-		sprintf_s(szCountSQL, "select count(*) from GameSpeed_Turns where GameSpeedType = '%s'", szGameSpeedInfoType);
-		Database::SingleResult kCount;
-		if(DB.Execute(kCount, szCountSQL))
+		Database::Results kCount;
+		if(DB.Execute(kCount, "select count(*) from GameSpeed_Turns where GameSpeedType = ?"))
 		{
-			m_iNumTurnIncrements = kCount.GetInt(0);
+			kCount.Bind(1, szGameSpeedInfoType);
+			if(kCount.Step())
+			{
+				m_iNumTurnIncrements = kCount.GetInt(0);
+			}
 		}
 
 		//Update turn increments
 		allocateGameTurnInfos(getNumTurnIncrements());
-		char szSQL[256];
-		sprintf_s(szSQL, "select * from GameSpeed_Turns where GameSpeedType = '%s'", szGameSpeedInfoType);
 		Database::Results kArrayResults;
-		if(DB.Execute(kArrayResults, szSQL))
+		if(DB.Execute(kArrayResults, "select * from GameSpeed_Turns where GameSpeedType = ?"))
 		{
+			kArrayResults.Bind(1, szGameSpeedInfoType);
 			int i = 0;
 			while(kArrayResults.Step())
 			{
@@ -5372,13 +5366,10 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		kUtility.InitializeArray(m_paiFeatureObsoleteTech, "Features");
 		kUtility.InitializeArray(m_pabFeatureRemoveOnly, "Features");
 
-		char szQuery[512];
-		const char* szFeatureQuery = "select * from BuildFeatures where BuildType = '%s'";
-		sprintf_s(szQuery, 512, szFeatureQuery, GetType());
-
 		Database::Results kArrayResults;
-		if(DB.Execute(kArrayResults, szQuery))
+		if(DB.Execute(kArrayResults, "select * from BuildFeatures where BuildType = ?"))
 		{
+			kArrayResults.Bind(1, GetType());
 			while(kArrayResults.Step())
 			{
 				const char* szFeatureType			= kArrayResults.GetText("FeatureType");
@@ -5851,11 +5842,6 @@ CvResourceInfo::CvResourceInfo() :
 	m_piYieldChange(NULL),
 	m_piYieldChangeFromMonopoly(NULL),
 	m_piCityYieldModFromMonopoly(NULL),
-	m_piiMonopolyCombatModifiers(),
-	m_piMonopolyGreatPersonRateModifiers(),
-	m_piMonopolyGreatPersonRateChanges(),
-	m_piiiUnitCombatProductionCostModifiersLocal(),
-	m_aiiiBuildingProductionCostModifiersLocal(),
 	m_piResourceQuantityTypes(NULL),
 	m_piImprovementChange(NULL),
 	m_pbTerrain(NULL),
@@ -5869,11 +5855,6 @@ CvResourceInfo::~CvResourceInfo()
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangeFromMonopoly);
 	SAFE_DELETE_ARRAY(m_piCityYieldModFromMonopoly);
-	m_piiMonopolyCombatModifiers.clear();
-	m_piMonopolyGreatPersonRateModifiers.clear();
-	m_piMonopolyGreatPersonRateChanges.clear();
-	m_piiiUnitCombatProductionCostModifiersLocal.clear();
-	m_aiiiBuildingProductionCostModifiersLocal.clear();
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
 	SAFE_DELETE_ARRAY(m_piImprovementChange);
 	SAFE_DELETE_ARRAY(m_pbTerrain);
@@ -6116,113 +6097,36 @@ int CvResourceInfo::getCityYieldModFromMonopoly(int i) const
 //------------------------------------------------------------------------------
 int* CvResourceInfo::getCityYieldModFromMonopolyArray()
 {
-	return m_piCityYieldModFromMonopoly ;
+	return m_piCityYieldModFromMonopoly;
 }
 //------------------------------------------------------------------------------
-int CvResourceInfo::getMonopolyAttackBonus(MonopolyTypes eMonopoly) const
+int CvResourceInfo::GetMonopolyAttackModifier(DomainTypes eDomain, bool bStrategic) const
 {
-	ResourceMonopolySettings sKey;
-	int iMod = 0;
-	std::map<ResourceMonopolySettings, CombatModifiers>::const_iterator it;
 
-	if (eMonopoly == MONOPOLY_STRATEGIC)
+	for (size_t i = 0; i < m_vMonopolyCombatModifiers.size(); i++)
 	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
+		const ResourceMonopolyCombatModifier& kMod = m_vMonopolyCombatModifiers[i];
+		if (kMod.m_iDomain == eDomain && kMod.m_bStrategicMonopoly == bStrategic)
 		{
-			iMod += it->second.m_iAttackMod;
-		}
-
-		sKey.m_bGlobalMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iAttackMod;
+			return kMod.m_iAttack;
 		}
 	}
 
-	else if (eMonopoly == MONOPOLY_GLOBAL)
-	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iAttackMod;
-		}
-
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iAttackMod;
-		}
-	}
-
-	return iMod;
+	return 0;
 }
 //------------------------------------------------------------------------------
-int CvResourceInfo::getMonopolyDefenseBonus(MonopolyTypes eMonopoly) const
+int CvResourceInfo::GetMonopolyDefenseModifier(DomainTypes eDomain, bool bStrategic) const
 {
-	ResourceMonopolySettings sKey;
-	int iMod = 0;
-	std::map<ResourceMonopolySettings, CombatModifiers>::const_iterator it;
-
-	if (eMonopoly == MONOPOLY_STRATEGIC)
+	for (size_t i = 0; i < m_vMonopolyCombatModifiers.size(); i++)
 	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
+		const ResourceMonopolyCombatModifier& kMod = m_vMonopolyCombatModifiers[i];
+		if (kMod.m_iDomain == eDomain && kMod.m_bStrategicMonopoly == bStrategic)
 		{
-			iMod += it->second.m_iDefenseMod;
-		}
-
-		sKey.m_bGlobalMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iDefenseMod;
+			return kMod.m_iDefense;
 		}
 	}
 
-	if (eMonopoly == MONOPOLY_GLOBAL)
-	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iDefenseMod;
-		}
-
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iDefenseMod;
-		}
-	}
-
-	return iMod;
+	return 0;
 }
 //------------------------------------------------------------------------------
 int CvResourceInfo::getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const
@@ -6572,11 +6476,9 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		m_piResourceQuantityTypes[0] = 1;
 
 		Database::Results kArrayResults;
-		char szQuery[512];
-		sprintf_s(szQuery, "select Quantity from Resource_QuantityTypes where ResourceType = '%s';", szResourceType);
-
-		if(DB.Execute(kArrayResults, szQuery))
+		if(DB.Execute(kArrayResults, "select Quantity from Resource_QuantityTypes where ResourceType = ?"))
 		{
+			kArrayResults.Bind(1, szResourceType);
 			int i = 0;
 			while(kArrayResults.Step())
 			{
@@ -6589,12 +6491,11 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	//Resource_MonopolyCombatModifiers
 	{
-
 		std::string sqlKey = "Resource_MonopolyCombatModifiers";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if (pResults == NULL)
 		{
-			const char* szSQL = "select IsGlobalMonopoly, IsStrategicMonopoly, Attack, Defense from Resource_MonopolyCombatModifiers where ResourceType = ?";
+			const char* szSQL = "select DomainType, IsStrategicMonopoly, Attack, Defense from Resource_MonopolyCombatModifiers where ResourceType = ?";
 			pResults = kUtility.PrepareResults(sqlKey, szSQL);
 		}
 
@@ -6602,23 +6503,38 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 		while (pResults->Step())
 		{
-			const bool bGlobalMonopoly = pResults->GetBool(0);
+			const int iDomain = pResults->GetInt(0);
 			const bool bStrategicMonopoly = pResults->GetBool(1);
-			const int iAttackMod = pResults->GetInt(2);
-			const int iDefenseMod = pResults->GetInt(3);
+			const int iAttack = pResults->GetInt(2);
+			const int iDefense = pResults->GetInt(3);
 
-			ResourceMonopolySettings sKey;
-			sKey.m_bGlobalMonopoly = bGlobalMonopoly;
-			sKey.m_bStrategicMonopoly = bStrategicMonopoly;
+			ResourceMonopolyCombatModifier* pTempMod = NULL;
+			for (size_t i = 0; i < m_vMonopolyCombatModifiers.size(); i++)
+			{
+				if (m_vMonopolyCombatModifiers[i].m_iDomain == iDomain && m_vMonopolyCombatModifiers[i].m_bStrategicMonopoly == bStrategicMonopoly)
+				{
+					pTempMod = &m_vMonopolyCombatModifiers[i];
+					break;
+				}
+			}
 
-			m_piiMonopolyCombatModifiers[sKey].m_iAttackMod += iAttackMod;
-			m_piiMonopolyCombatModifiers[sKey].m_iDefenseMod += iDefenseMod;
+			if (pTempMod)
+			{
+				pTempMod->m_iAttack += iAttack;
+				pTempMod->m_iDefense += iDefense;
+			}
+			else
+			{
+				ResourceMonopolyCombatModifier tempMod;
+				tempMod.m_iDomain = iDomain;
+				tempMod.m_bStrategicMonopoly = bStrategicMonopoly;
+				tempMod.m_iAttack = iAttack;
+				tempMod.m_iDefense = iDefense;
+				m_vMonopolyCombatModifiers.push_back(tempMod);
+			}
 		}
 
 		pResults->Reset();
-
-		//Trim extra memory off container since this is mostly read-only.
-		std::map<ResourceMonopolySettings, CombatModifiers>(m_piiMonopolyCombatModifiers).swap(m_piiMonopolyCombatModifiers);
 	}
 
 	//Resource_MonopolyGreatPersonRateModifiers
@@ -8454,6 +8370,8 @@ CvProcessInfo::CvProcessInfo() :
 	m_iTechPrereq(NO_TECH),
 	m_iRequiredPolicy(NO_POLICY),
 	m_iDefenseValue(0),
+	m_iDefenseValuePerTurn(0),
+	m_iDefenseValueCap(0),
 	m_eRequiredCivilization(NO_CIVILIZATION),
 	m_paiProductionToYieldModifier(NULL),
 	m_paiFlavorValue(NULL)
@@ -8481,6 +8399,16 @@ int CvProcessInfo::getRequiredPolicy() const
 int CvProcessInfo::getDefenseValue() const
 {
 	return m_iDefenseValue;
+}
+//------------------------------------------------------------------------------
+int CvProcessInfo::getDefenseValuePerTurn() const
+{
+	return m_iDefenseValuePerTurn;
+}
+//------------------------------------------------------------------------------
+int CvProcessInfo::getDefenseValueCap() const
+{
+	return m_iDefenseValueCap;
 }
 
 //------------------------------------------------------------------------------
@@ -8519,6 +8447,8 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iRequiredPolicy = GC.getInfoTypeForString(szRequiredPolicy, true);
 
 	m_iDefenseValue = kResults.GetInt("DefenseValue");
+	m_iDefenseValuePerTurn = kResults.GetInt("DefenseValuePerTurn");
+	m_iDefenseValueCap = kResults.GetInt("DefenseValueCap");
 
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
@@ -10737,6 +10667,7 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bCapital(false),
 	 m_bCoastal(false),
 	 m_bIsRiver(false),
+	 m_bIsNoFreshWater(false),
 	 m_bEraScaling(false),
 	 m_iNumChoices(0),
 	 m_iCooldown(0),
@@ -10898,6 +10829,11 @@ bool CvModCityEventInfo::isCoastal() const
 bool CvModCityEventInfo::isRiver() const
 {
 	return m_bIsRiver;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isNoFreshWater() const
+{
+	return m_bIsNoFreshWater;
 }
 //------------------------------------------------------------------------------
 bool CvModCityEventInfo::isEraScaling() const
@@ -11178,6 +11114,7 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bCapital = kResults.GetBool("CapitalOnly");
 	m_bCoastal = kResults.GetBool("CoastalOnly");
 	m_bIsRiver = kResults.GetBool("RiverOnly");
+	m_bIsNoFreshWater = kResults.GetBool("NoFreshWater");
 	m_bEraScaling = kResults.GetBool("EraScaling");
 	m_iNumChoices = kResults.GetInt("NumChoices");
 
@@ -11311,6 +11248,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bCapital(false),
 	 m_bCoastal(false),
 	 m_bIsRiver(false),
+	 m_bIsNoFreshWater(false),
 	 m_bRequiresWarMinor(false),
 	 m_iRequiredStateReligion(-1),
 	 m_bRequiresGarrison(false),
@@ -11364,7 +11302,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iPillageFortificationsChance(0),
 	 m_iMutuallyExclusiveGroup(0),
 	 m_iBlockBuildingTurns(0),
-	 m_iEventPromotion(0),
+	 m_iEventPromotion(-1),
 	 m_iCityHappiness(0),
 	 m_iReligiousPressureModifier(0),
 	 m_piResourceChange(NULL),
@@ -11965,6 +11903,11 @@ bool CvModEventCityChoiceInfo::isRiver() const
 	return m_bIsRiver;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isNoFreshWater() const
+{
+	return m_bIsNoFreshWater;
+}
+//------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isRequiresIdeology() const
 {
 	return m_bRequiresIdeology;
@@ -12259,7 +12202,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iCityHappiness = kResults.GetInt("CityHappiness");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
 
-	szTextVal = kResults.GetText("FreePromotionCity");
+	szTextVal = kResults.GetText("EventPromotion");
 	m_iEventPromotion =  GC.getInfoTypeForString(szTextVal, true);
 
 	szTextVal = kResults.GetText("EventChoiceAudio");
@@ -12543,6 +12486,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bCapital = kResults.GetBool("CapitalOnly");
 	m_bCoastal = kResults.GetBool("CoastalOnly");
 	m_bIsRiver = kResults.GetBool("RiverOnly");
+	m_bIsNoFreshWater = kResults.GetBool("NoFreshWater");
 
 	szTextVal = kResults.GetText("RequiredBuildingClass");
 	m_iBuildingRequired =  GC.getInfoTypeForString(szTextVal, true);

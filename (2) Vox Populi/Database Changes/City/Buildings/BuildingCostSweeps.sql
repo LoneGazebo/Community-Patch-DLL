@@ -5,11 +5,16 @@ UPDATE Eras SET LaterEraBuildingConstructMod = -2;
 
 -- Default value
 UPDATE Buildings
-SET Cost = -1, GoldMaintenance = 0, FaithCost = 0;
+SET
+	Cost = -1,
+	GoldMaintenance = 0,
+	FaithCost = 0;
 
 -- No prereq
 UPDATE Buildings
-SET Cost = 65, GoldMaintenance = 0
+SET
+	Cost = 65,
+	GoldMaintenance = 0
 WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
 
 CREATE TEMP TABLE BuildingCost (
@@ -88,6 +93,32 @@ WHERE BuildingClass IN (
 	WHERE MaxPlayerInstances = 1
 ) AND PolicyBranchType IS NOT NULL;
 
+-- Corporations
+UPDATE Buildings
+SET
+	Cost = 1300,
+	GoldMaintenance = 4
+WHERE BuildingClass IN (
+	SELECT HeadquartersBuildingClass FROM Corporations
+);
+
+-- No Prereq tech for Offices. Set to T1 Modern
+UPDATE Buildings
+SET
+	Cost = (SELECT CostTemp FROM BuildingCost WHERE GridXTemp = 11),
+	GoldMaintenance = (SELECT GoldMaintenanceTemp FROM BuildingCost WHERE GridXTemp = 11)
+WHERE BuildingClass IN (
+	SELECT OfficeBuildingClass FROM Corporations
+);
+
+UPDATE Buildings
+SET
+	Cost = -1,
+	GoldMaintenance = 6
+WHERE BuildingClass IN (
+	SELECT FranchiseBuildingClass FROM Corporations
+);
+
 DROP TABLE BuildingCost;
 
 -- World Wonders
@@ -133,27 +164,10 @@ DROP TABLE WorldWonderCost;
 
 -- World Congress
 UPDATE Buildings
-SET Cost = -1, GoldMaintenance = 0
+SET
+	Cost = -1,
+	GoldMaintenance = 0
 WHERE UnlockedByLeague = 1;
-
--- Corporations
-UPDATE Buildings
-SET Cost = 1300, GoldMaintenance = 4
-WHERE BuildingClass IN (
-	SELECT HeadquartersBuildingClass FROM Corporations
-);
-
-UPDATE Buildings
-SET Cost = 900, GoldMaintenance = 6
-WHERE BuildingClass IN (
-	SELECT OfficeBuildingClass FROM Corporations
-);
-
-UPDATE Buildings
-SET Cost = -1, GoldMaintenance = 6
-WHERE BuildingClass IN (
-	SELECT FranchiseBuildingClass FROM Corporations
-);
 
 -- Outliers
 
@@ -170,6 +184,7 @@ WHERE BuildingClass IN (
 	'BUILDINGCLASS_CARAVANSARY',
 	'BUILDINGCLASS_MINT',
 	'BUILDINGCLASS_BANK',
+	'BUILDINGCLASS_SORTING_OFFICE',
 	'BUILDINGCLASS_STOCK_EXCHANGE'
 );
 
@@ -186,13 +201,10 @@ UPDATE Buildings
 SET Cost = 65
 WHERE BuildingClass = 'BUILDINGCLASS_HERBALIST';
 
--- Non-unique Courthouse, Garden and Chancery
+-- Courthouse
 UPDATE Buildings
 SET GoldMaintenance = 3
-WHERE Type IN (
-	'BUILDING_COURTHOUSE',
-	'BUILDING_GARDEN'
-);
+WHERE Type = 'BUILDING_COURTHOUSE';
 
 -- Barbican
 UPDATE Buildings
@@ -238,8 +250,21 @@ UPDATE Buildings SET FaithCost = 400, UnlockedByBelief = 1 WHERE BuildingClass =
 UPDATE Buildings SET FaithCost = 600, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_PUBLIC_SCHOOL';
 UPDATE Buildings SET FaithCost = 800, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_LABORATORY';
 
+-- Diplomacy line (Global Commandments)
+UPDATE Buildings SET FaithCost = 400, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
+UPDATE Buildings SET FaithCost = 500, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_HOUSE';
+UPDATE Buildings SET FaithCost = 800, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_WIRE_SERVICE';
+
+-- Production line (Work Ethic)
+UPDATE Buildings SET FaithCost = 400, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_WORKSHOP';
+UPDATE Buildings SET FaithCost = 500, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_WINDMILL';
+UPDATE Buildings SET FaithCost = 600, UnlockedByBelief = 1 WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
+
 -- Religious buildings
-UPDATE Buildings SET Cost = -1, FaithCost = 200
+UPDATE Buildings
+SET
+	Cost = -1,
+	FaithCost = 200
 WHERE BuildingClass IN (
 	'BUILDINGCLASS_MONASTERY',
 	'BUILDINGCLASS_CATHEDRAL',
@@ -251,7 +276,8 @@ WHERE BuildingClass IN (
 	'BUILDINGCLASS_SYNAGOGUE',
 	'BUILDINGCLASS_ORDER',
 	'BUILDINGCLASS_TEOCALLI',
-	'BUILDINGCLASS_GURDWARA'
+	'BUILDINGCLASS_GURDWARA',
+	'BUILDINGCLASS_DAOGUAN'
 );
 
 -- Wat

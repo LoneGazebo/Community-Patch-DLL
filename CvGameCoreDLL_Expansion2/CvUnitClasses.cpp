@@ -51,12 +51,13 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iProductionCostPerEra(0),
 	m_iNumFreeLux(0),
 	m_iBeliefUnlock(NO_BELIEF),
-	m_bCultureFromExperienceOnDisband(false),
+	m_iCultureFromExperienceOnDisband(0),
 	m_bFreeUpgrade(false),
 	m_bUnitEraUpgrade(false),
 	m_bWarOnly(false),
 	m_bCopyYieldsFromExpendTile(false),
 	m_iTileXPOnExpend(0),
+	m_iExtraSpies(0),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
 	m_bCultureBoost(false),
@@ -374,11 +375,12 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	szTextVal = kResults.GetText("BeliefRequired");
 	m_iBeliefUnlock = GC.getInfoTypeForString(szTextVal, true);
-	m_bCultureFromExperienceOnDisband = kResults.GetBool("CulExpOnDisbandUpgrade");
+	m_iCultureFromExperienceOnDisband = kResults.GetInt("CulExpOnDisbandUpgrade");
 	m_bUnitEraUpgrade = kResults.GetBool("UnitEraUpgrade");
 	m_bWarOnly = kResults.GetBool("WarOnly");
 	m_bCopyYieldsFromExpendTile = kResults.GetBool("CopyYieldsFromExpendTile");
 	m_iTileXPOnExpend = kResults.GetInt("TileXPOnExpend");
+	m_iExtraSpies = kResults.GetInt("ExtraSpies");
 	m_bWLTKD = kResults.GetBool("WLTKDFromBirth");
 	m_bGoldenAge = kResults.GetBool("GoldenAgeFromBirth");
 	m_bCultureBoost = kResults.GetBool("CultureBoost");
@@ -1328,9 +1330,9 @@ int CvUnitEntry::StackCombat() const
 {
 	return m_iStackCombat;
 }
-bool CvUnitEntry::IsCultureFromExperienceDisbandUpgrade() const
+int CvUnitEntry::GetCultureFromExperienceDisbandUpgrade() const
 {
-	return m_bCultureFromExperienceOnDisband;
+	return m_iCultureFromExperienceOnDisband;
 }
 bool CvUnitEntry::IsUnitEraUpgrade() const
 {
@@ -1347,6 +1349,10 @@ bool CvUnitEntry::IsCopyYieldsFromExpendTile() const
 int CvUnitEntry::GetTileXPOnExpend() const
 {
     return m_iTileXPOnExpend;
+}
+int CvUnitEntry::GetExtraSpies() const
+{
+    return m_iExtraSpies;
 }
 bool CvUnitEntry::IsWLTKDFromBirth() const
 {

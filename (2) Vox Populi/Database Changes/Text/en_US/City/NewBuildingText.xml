@@ -5,7 +5,7 @@
 			<Text>Coaling Station</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_STRATEGY">
-			<Text>Provides a massive boost to City Production and Gold, particularly in Cities where those base yields are high. Boosts internal Food trade routes, so it's best to build in Cities that already can send strongest internal trade routes.[NEWLINE][NEWLINE]Requires an Industrial City Connection (see Concepts for more details).[NEWLINE][NEWLINE]Additionally requires Coal, presenting a tradeoff with Factories if you don't have enough Coal for both in all your Cities. While Coaling Stations are usually stronger, the production of individual Factories increases by 2 for each built in your Empire. Therefore, Factories become stronger the more cities you own, surpassing Coaling Stations at a specific number of them, usually between 6 and 12.</Text>
+			<Text>Provides a massive boost to City [ICON_PRODUCTION] Production and [ICON_GOLD] Gold, particularly in Cities where those base yields are high. Boosts internal Food trade routes, so it's best to build in Cities that already can send strongest internal trade routes.[NEWLINE][NEWLINE]Requires an Industrial City Connection (see Concepts for more details).[NEWLINE][NEWLINE]Additionally requires [ICON_RES_COAL] Coal, presenting a strict resource tradeoff with Factories. Coaling Stations serve as the foundational engine of your economy by granting a yield modifier to the City. They also heavily synergize with your empire-wide industrial network by scaling up the flat baseline [ICON_PRODUCTION] Production of all your Factories globally. To maximize total empire efficiency, prioritize a wide global footprint of Coaling Stations across your Cities to elevate your entire industrial infrastructure.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COALING_STATION_HELP">
 			<Text></Text>
@@ -194,6 +194,58 @@
 			<Text>An interpretive center is an institution for public education about a nearby cultural, historic, or natural sites. Unlike museums, interpretive centers rarely contain artifacts or collections, but mainly exist to give visitors background information for understanding the history or relevance of something on the landscape. Because preservation and protection is not part of an interpretive center's job, they can often be more interactive and make better use of modern media than traditional museums.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_JAIL">
+			<Text>Jail</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_JAIL_STRATEGY">
+			<Text>The Jail is the earliest Building that interacts with Spies. Both offensively and defensively the Jail improves your edge in the espionage game. While Jails offer a small baseline [ICON_PRODUCTION] Production boost that gradually offsets their initial construction cost, they are exceptionally valuable in cities with active Quarries, where they grant direct, significant yield improvements to those specific tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_JAIL_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_JAIL_TEXT">
+			<Text>A jail refers to a location where people charged with crimes may be imprisoned until their trial or simply held for a brief time for public safety. Imprisonment as a penalty was used initially for those who could not afford to pay their fines. Eventually, since impoverished Athenians could not pay their fines, leading to indefinite periods of imprisonment, time limits were set instead. The prison in ancient Athens was known as the desmoterion ("place of chains"). The Romans were among the first to use prisons as a form of punishment rather than simply for detention. A variety of existing structures were used to house prisoners, such as metal cages, basements of public buildings, and quarries. Generally speaking, longer-term or indefinite detention was not brought into the mainstream as a punitive measure until much later, mostly owing to the large logistical overhead of managing such sites and the existence of the institution of slavery. Today, locations that hold people for shorter periods of time are usually operated by a local government.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY">
+			<Text>Penitentiary</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY_STRATEGY">
+			<Text>Penitentiaries support the development of new Cities by allowing you to use Spy Missions to generate [ICON_FOOD] Food and [ICON_CULTURE_LOCAL] Border Growth. They also benefit large, established Cities by making them less susceptible to Spies, while providing a boost to Military Supply. Furthermore, the Penitentiary adds [ICON_PRODUCTION] Production to Tundra tiles to transform frozen terrain into productive zones that can match or even outperform Grassland and Plains.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY_TEXT">
+			<Text>A penitentiary or prison is a facility where people are imprisoned against their will and denied their liberty under the authority of the state, generally as punishment for various crimes. From the late 17th century and throughout the 18th century, popular resistance to public execution and torture became more widespread both in Europe and in the United States. Imposition of the death penalty for petty crimes, such as theft, was proving increasingly unpopular with the public; many jurors were refusing to convict defendants of minor offenses when they knew the conviction would result in a death sentence. Rulers began looking for means to punish and control their subjects in a way that did not cause people to associate them with spectacles of tyrannical and sadistic violence, developing systems of mass incarceration, often with hard labor, as a solution. Prisons can also be used as a tool of political repression by authoritarian regimes that detain perceived opponents for political crimes, often without a fair trial or due process; this use is illegal under most forms of international law governing fair administration of justice.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_SORTING_OFFICE">
+			<Text>Sorting Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SORTING_OFFICE_STRATEGY">
+			<Text>The Sorting Office continues the building line that began with the Market, increasing the desirability of your City to foreign Trade Routes. To your trade hubs, this Building offers yields on all City Connection tiles alongside a City Security boost to offset the vulnerability penalty of hosting Trade Routes. Carefully consider if a particular City stands to gain from a Sorting Office, as you may not need them everywhere immediately.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SORTING_OFFICE_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SORTING_OFFICE_TEXT">
+			<Text>A sorting office, mail center, or processing and distribution center is any location where postal operators bring mail after collection to be sorted into batches for delivery to the addressee. This process may involve a direct delivery, or the mail may be sent onward to another regional or local sorting office, or to a different postal administration. For example, in the UK, Royal Mail operates a network of 37 mail centres (as of 2019). Each mail centre serves a large, geographically defined area, and together they form the backbone network of the mail distribution operation.[NEWLINE][NEWLINE]Most buildings feature a large central area known as a sorting or postal hall. Integrated facilities combining mail processing with railroad stations or airports are further known as mail exchanges. Due to their position as a key network point in the distribution of letters, packages, and other documents, special postal censorship bureaus can exist within sorting offices to intercept and censor mail. In France, such offices were historically known as cabinets noirs.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CASINO">
+			<Text>Casino</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CASINO_STRATEGY">
+			<Text>The Casino grants an immediate infusion of [ICON_GOLD] Gold upon construction to quickly fund your empire's immediate economic needs. It rewards active intelligence networks with direct injections of [ICON_GOLD] Gold and [ICON_TOURISM] Tourism whenever a Spy Mission is completed. Furthermore, it serves as a powerful tool for regional development, adding flat [ICON_GOLD] Gold to Desert tiles while heavily augmenting Oasis tiles with both [ICON_GOLD] Gold and [ICON_CULTURE] Culture to turn barren regions into highly profitable cultural centers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CASINO_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CASINO_TEXT">
+			<Text>The precise origin of gambling is unknown. It is generally believed that it has been seen in some form or another in almost every society in history. The first known European gambling house, not called a casino despite meeting the modern definition, was the Ridotto, established in Venice, Italy, in 1638 by the Great Council of Venice to provide controlled gambling during the carnival season. It was closed in 1774 as the city government felt it was impoverishing the local gentry.[NEWLINE][NEWLINE]Such locations have been famous throughout the modern era, often featuring in literature as extravagant (or even taboo) settings for tense interpersonal encounters over cards or roulette. From the concept of the house edge to the intermittent  illegality of gambling, casinos have always had a close association with crime and criminality.[NEWLINE][NEWLINE]The nature of the casino changed irreversibly in 1891 when Sittman and Pitt of Brooklyn, New York, developed the first gambling machine. These were primitive mechanical contraptions that often rewarded the player with candy to avoid anti-gambling regulations and because of the computational difficulty of assigning prizes based on rarity. Still, by the 1980s, the design had advanced considerably, with slot machine manufacturers incorporating microprocessors into their products and programming them to weight particular symbols. Thus, the odds of losing symbols appearing on the payline became disproportionate to their actual frequency on the physical reel.[NEWLINE][NEWLINE]Today, the gambling industry is worth over $100 billion, with slot machines averaging about 70% of a standard U.S. casino's income.</Text>
+		</Row>
+
 		<!-- Hospital -->
 		<Row Tag="TXT_KEY_BUILDING_HOSPITAL_HELP">
 			<Text></Text>
@@ -234,7 +286,7 @@
 			<Text></Text>
 		</Row>
 
-		<!-- CSD Civil Servant Buildings -->
+		<!-- Civil Servant Buildings -->
 		<Row Tag="TXT_KEY_BUILDING_CHANCERY">
 			<Text>Chancery</Text>
 		</Row>
@@ -246,6 +298,19 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHANCERY_TEXT">
 			<Text>During the early medieval period, chanceries emerged in Europe as a branch of many royal households. Tasked with issuing court documents, managing royal decrees, administering justice, and assessing a monarch's revenue, chanceries dabbled in every element of statecraft, including diplomacy. As kingdoms and states grew in size and scope throughout the early modern period, the power of chanceries continually expanded until, in the 17th and 18th centuries, most western countries legally separated chanceries into multiple, more specific bureaus. Thus, the chancery is the ancestor of the modern civil service.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_HOUSE">
+			<Text>Printing House</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_HOUSE_STRATEGY">
+			<Text>Printing Houses only provide yields if you have many City-State Friends and Allies, otherwise they are a drain on your Gold and a diversion of Production. But, if you intend to work Civil Servant slots they are a key Building, and give increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_HOUSE_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_HOUSE_TEXT">
+			<Text>From a single print shop in Mainz, Germany, printing had spread to no less than around 270 cities in Central, Western and Eastern Europe by the end of the 15th century. As early as 1480, it is assumed that "the printed book was in universal use in Europe". By 1500, the printing presses in operation throughout Western Europe had already produced more than twenty million copies. European printing presses of around 1600 were capable of producing 3,600 impressions per workday. By comparison, movable type printing in the Far East, which did not know presses and was solely done by manually rubbing the back of the paper to the page, did not exceed an output of forty pages per day. The rapidity of typographical text production, as well as the sharp fall in unit costs, led to the issuing of the first newspapers which opened up an entirely new field for conveying up-to-date information to the public.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE">
@@ -275,19 +340,32 @@
 			<Text>The position of royal scrivener, and the office therein, is one of the oldest and most important positions within a civil service. Though the modern state has hundreds of civil servants that write, edit and issue government documentation, in the ancient world these tasks were usually given to one individual, the scrivener. Scrivener's wielded immense power, as they had control over the wording, translations and interpretations of the laws of the land. Because of this great power, a good, loyal scrivener was an invaluable resource.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS">
-			<Text>Printing Press</Text>
+		<Row Tag="TXT_KEY_BUILDING_MINISTERIAL_DISTRICT">
+			<Text>Ministerial District</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY">
-			<Text>This National Wonder cannot be built unless the city has a Chancery. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.</Text>
+		<Row Tag="TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_STRATEGY">
+			<Text>This National Wonder cannot be built unless the city has a Chancery. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units. It also grants enough points for a Spy.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_HELP">
+		<Row Tag="TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_HELP">
 			<Text></Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_TEXT">
-			<Text>From a single print shop in Mainz, Germany, printing had spread to no less than around 270 cities in Central, Western and Eastern Europe by the end of the 15th century. As early as 1480, it is assumed that "the printed book was in universal use in Europe". By 1500, the printing presses in operation throughout Western Europe had already produced more than twenty million copies. European printing presses of around 1600 were capable of producing 3,600 impressions per workday. By comparison, movable type printing in the Far East, which did not know presses and was solely done by manually rubbing the back of the paper to the page, did not exceed an output of forty pages per day. The rapidity of typographical text production, as well as the sharp fall in unit costs, led to the issuing of the first newspapers which opened up an entirely new field for conveying up-to-date information to the public.</Text>
+		<Row Tag="TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_TEXT">
+			<Text>A ministry, cabinet, secretariat, or - in modern American parlance - administration is a collective body of governing officials. As society transitioned away from feudal monarchies and became more developed, populous, and interconnected, governance became a more and more demanding activity which necessitated the setting up of extensive offices and personnel tasked with transforming political will into reality. The role of the royal court evolved into separate institutions: assemblies to make law, law courts to dispense justice, and a state treasury to collect taxes and pay significant bills (often, wars).[NEWLINE][NEWLINE]A case of this branching, expansion of the state can be seen in Europe with the creation of the office of a Lord Chancellor. This traces its origins to the Carolingian monarchy, in which a chancellor acted as the keeper of the royal seal. Sources suggest that the first English king to appoint a chancellor was Edward the Confessor, who is said to have adopted the practice of sealing documents instead of personally signing them. The staff of the growing office became separate from the king's household under Henry III. The chancellor headed the Court of Chancery, and was responsible for overseeing the international affairs of the monarchy and for delivering justice on behalf of the king. By 1345 the lord chancellor, who was usually a bishop, began to have writs and bills addressed directly to him, rather than as a representative of the king.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_GENERAL_POST_OFFICE">
+			<Text>General Post Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GENERAL_POST_OFFICE_STRATEGY">
+			<Text>The General Post Office is a late Industrial Era National Wonder that grants a Spy. It also slightly increases the yields of City Connections everywhere, increases Gold and (with Railroads) Production derived from your Population. The General Post Office's other bonuses are to Diplomacy. Once you have the General Post Office, making Friends with City-States will reward you with Tourism, which can later boost your Spies and other yields. Further, the yields from Civil Servants in the City are increased, so it is also wise to construct it where you have you highest concentration of bureaucracy. It is doubly desirable to construct it in a Specialist-heavy location because that City will receive extra Food for each City-State Ally.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GENERAL_POST_OFFICE_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GENERAL_POST_OFFICE_TEXT">
+			<Text>The term "post-office" has been in use since the 1650s, shortly after the legalisation of private mail services in England in 1635. In early modern England, mounted couriers were placed, or "posted", every few hours along post roads at posting houses between major cities, or "post towns". These stables or inns permitted important correspondence to travel without delay. Historically, there is evidence of corps of royal couriers disseminating the decrees of Egyptian pharaohs as early as 2400 BCE, and it is possible that the service greatly precedes that date. In Herodotus's Histories, he refers to a courier service of the ancient Persian Empire with praise, writing, "neither by snow nor rain nor heat nor darkness from accomplishing their appointed course with all speed."[NEWLINE][NEWLINE]Administering the flow of parcels and messages is not just important to the economy of a country, it also allows an otherwise impossible level of surveillance of the population and control over the lines of communcation. For example in the First World War, postal interception was used to find the disclosure of military secrets and test the morale of soldiers. Those writing postcards in the field knew they were being censored, and deliberately held back controversial content and personal matters.</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BUILDING_FOREIGN_BUREAU">
 			<Text>Foreign Bureau</Text>
 		</Row>
@@ -411,6 +489,32 @@
 		<Row Tag="TXT_KEY_WONDER_KARLSTEJN_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"Seek the truth, hear the truth, learn the truth, love the truth, speak the truth, hold the truth, and defend the truth unto death."[NEWLINE][TAB][TAB] - Jan Hus[NEWLINE][TAB]</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_BUILDING_ALAMUT_FORTRESS">
+			<Text>Alamut Fortress</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ALAMUT_FORTRESS_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ALAMUT_FORTRESS_TEXT">
+			<Text>The 'eagle's nest' is a mountain fortress at an altitude of 2163 meters at the central Alborz, in the Iranian stanza of Qazvin, about 100 kilometers from Tehran. In 1090 AD, the Alamut Castle, a mountain fortress in present-day Iran, came into the possession of Hassan-i Sabbah, a champion of the Nizari Ismaili cause. Until 1256, Alamut functioned as the headquarters of the Nizari Ismaili state and was thought impregnable to any military attack and was fabled for its heavenly gardens, library, and laboratories where philosophers, scientists, and theologians could debate in intellectual freedom.[NEWLINE][NEWLINE]In 1256, Rukn al-Din Khurshah surrendered the fortress to the invading Mongols, who dismantled it and destroyed its famous library holdings. Though commonly assumed that the Mongol conquest obliterated the Nizari Ismailis presence at Alamut, the fortress was recaptured in 1275 by Nizari forces, demonstrating that while the destruction and damage to the Ismailis in that region was extensive, it was not the complete annihilation attempted by the Mongols.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_ALAMUT_FORTRESS_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Nothing is true. Everything is permitted."[NEWLINE][TAB][TAB] - Hassan-i Sabbah[NEWLINE][TAB]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_BUILDING_PORT_ROYAL">
+			<Text>Port Royal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PORT_ROYAL_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PORT_ROYAL_TEXT">
+			<Text>Port Royal is a town located at the end of the Palisadoes, at the mouth of Kingston Harbour, in southeastern Jamaica. Founded in 1494 by the Spanish, it was once the largest and most prosperous city in the Caribbean, functioning as the center of shipping and commerce in the Caribbean Sea by the latter half of the 17th century. It was destroyed by an earthquake and an accompanying tsunami on June 7, 1692, leading to the establishment of Kingston, which would eventually become the capital and the most populated and prosperous city in Jamaica.[NEWLINE][NEWLINE]Port Royal provided a safe harbor initially for privateers and subsequently for pirates plying the shipping lanes to and from Spain and Panama. By the 1660s, the city had, for some, become a pirate utopia and had gained a reputation as the "Sodom of the New World". However, following famous privateer-turned-knight of the realm Henry Morgan's appointment as lieutenant governor, Port Royal began to change. Pirates were no longer needed to defend the city and the selling of slaves took on greater importance. Upstanding citizens disliked the reputation the city had acquired and, in 1687, Jamaica passed anti-piracy laws. Consequently, instead of being a safe haven for pirates, Port Royal became noted as their place of execution.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_PORT_ROYAL_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"I'm dishonest, and a dishonest man you can always trust to be dishonest. Honestly. It's the honest ones you want to watch out for."[NEWLINE][TAB][TAB] - Captain Jack Sparrow[NEWLINE][TAB]</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SOHO_FOUNDRY">
 			<Text>Soho Foundry</Text>
@@ -425,6 +529,19 @@
 			<Text>[NEWLINE][TAB][TAB]"I sell here, Sir, what all the world desires to have: Power."[NEWLINE][TAB][TAB] - Matthew Boulton[NEWLINE][TAB]</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_CHATEAU_DIF">
+			<Text>Chateau d'If</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHATEAU_DIF_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHATEAU_DIF_TEXT">
+			<Text>A fortress located on the Ile d'If, the smallest island in the Frioul archipelago, situated about 1.5 kilometres offshore from Marseille in southeastern France. Built in the 16th century, it later served as a prison until the end of the 19th century. The isolated location and dangerous offshore currents soon made it one of the most feared and notorious jails in France. The embalmed body of general Jean Baptiste Kléber was repatriated to France after his assassination in Cairo in 1800. First Consul Napoleon Bonaparte, fearing that his tomb would become a symbol to Republicanism, ordered that the body stay at the château. It remained there for 18 years, until King Louis XVIII granted Kléber a proper burial in his native Strasbourg. The fortress was demilitarized and opened to the public in 1890. It is famous for being one of the settings of Alexandre Dumas's adventure novel The Count of Monte Cristo.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CHATEAU_DIF_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Only he who has experienced extreme misfortune is capable of feeling extreme happiness. One must have wanted to die to know how good it is to live."[NEWLINE][TAB][TAB] - Alexandre Dumas, The Count of Monte Cristo[NEWLINE][TAB]</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING">
 			<Text>Empire State Building</Text>
 		</Row>
@@ -436,6 +553,19 @@
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_EMPIRE_STATE_BUILDING_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"The importance of money flows from it being a link between the present and the future."[NEWLINE][TAB][TAB] - John Maynard Keynes[NEWLINE][TAB]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_BUILDING_ALCATRAZ">
+			<Text>Alcatraz</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ALCATRAZ_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ALCATRAZ_TEXT">
+			<Text>Alcatraz Island is a small island about 1.25 miles offshore from San Francisco in San Francisco Bay, California, near the Golden Gate Strait. The island was developed in the mid-19th century with facilities for a lighthouse, a military fortification, and a military prison. In 1934, the island was converted into a federal prison, Alcatraz Federal Penitentiary. The strong tidal currents around the island and ice-cold water temperatures made escape nearly impossible, giving the prison one of the most notorious reputations of its kind in American history.[NEWLINE][NEWLINE]The earliest recorded private owner of the island of Alcatraz is Julian Workman, to whom it was given by Mexican Governor Pio Pico in June 1846, with the understanding he would build a lighthouse on it, but within two years the Treaty of Guadalupe Hidalgo ceeded California to the United States, and the U.S. Army began preparing the island for coastal batteries to protect San Francisco Bay. When the American Civil War broke out in 1861, the island mounted 85 cannons and served as the San Francisco Arsenal for storage of firearms to keep them from Confederate sympathizers. During the war, Fort Alcatraz was used to imprison Confederates and privateers, but its guns were never fired at an enemy.[NEWLINE][NEWLINE]In 1867, the first brick jailhouse was built and, in 1898, the prison population rose from 26 to over 450 due to the Spanish–American War. In 1909 construction began on the huge concrete main cell block, which was completed in 1912. It was not until 1934 that the island was designated as a federal. During the 29 years it was in use, the prison held some of the most notorious criminals in American history, including gangsters such as Al Capone, Robert Franklin Stroud (the "Birdman of Alcatraz"), George "Machine Gun" Kelly and Bumpy Johnson, and political terrorists such as Rafael Cancel Miranda, a member of the Puerto Rican Nationalist Party who attacked the United States Capitol building in 1954.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_ALCATRAZ_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"You can get much further with a kind word and a gun than you can with a kind word alone."[NEWLINE][TAB][TAB] - Al Capone[NEWLINE][TAB]</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_BUILDING_MOTHERLAND_CALLS">
@@ -514,7 +644,7 @@
 			<Text>Menin Gate</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_STRATEGY">
-			<Text>A defensive wonder. Strengthens the yields from Forts, Citadels, and Landmarks. The Menin Gate also gives a small bonus for each unit that falls in battle. May only be built collaboratively through the World Congress.</Text>
+			<Text>A defensive wonder. Strengthens the yields from Forts, Citadels, and Landmarks. May only be built collaboratively through the World Congress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_HELP">
 			<Text></Text>
@@ -912,7 +1042,7 @@
 			<Text>Order</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, Gold and the Morale promotion for all Military units trained in the city.</Text>
+			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Gold, Experience, and the Morale promotion for Military units trained in the city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
 			<Text></Text>
@@ -925,7 +1055,7 @@
 			<Text>Teocalli</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Teocallis belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Teocalli offers bonuses towards military training and faith generation.</Text>
+			<Text>Can only be built in cities following a religion with the Teocallis belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Teocalli offers bonuses towards Military Supply and Faith generation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_HELP">
 			<Text></Text>
@@ -947,6 +1077,19 @@
 			<Text>A Gurdwara -- which means "door to the guru" -- is the place of worship for Sikhs. All gurdwaras contain the holy Sikh scripture, the Guru Granth Sahib, placed on an elevated platform. From this platform, a Raagis recites, sings, and explains the scripture for the congregation. The other universal feature of all gurdwaras is a community kitchen called a Langar. Sikhs place great importance on serving free vegetarian meals, allowing all community members, regardless of ethnicity, caste, status or religion, to both eat and volunteer free of charge.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_DAOGUAN">
+			<Text>Daoguan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DAOGUAN_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Daoguans belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Daoguan offers bonuses towards Espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DAOGUAN_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DAOGUAN_TEXT">
+			<Text>A Daoguan is a place of worship in Taoism. Taoism is a religion that originated in China, with the belief in immortality, which urges people to become immortal through moral and health cultivation. Heavily influenced by Buddhism, Taoists practice as form of monasticism. Temples received patronage from wealthy individuals, which in the Ming dynasty were often powerful eunuchs of the imperial palace. Seeking retirement or refuge from court life, social stigma and lack of family ties left few options open. Even though ordination was barred to them, retirement in a monastery offered community, security, and a way to secure religious merit for the afterlife.</Text>
+		</Row>
+		
 		<!-- Cathedral -->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
 			<Text></Text>
@@ -1080,6 +1223,19 @@
 			<Text>An ossuary is a chest, box, building, well, or site made to serve as the final resting place of human skeletal remains. They are frequently used where burial space is scarce. A body is first buried in a temporary grave, then after some years the skeletal remains are removed and placed in an ossuary. The greatly reduced space taken up by an ossuary means that it is possible to store the remains of many more people in a single tomb than if the original coffins were left as is. In Persia, the Zoroastrians used a deep well for this function from the earliest times (circa 3,000 years ago) and called it astudan (literally, "the place for the bones"). There are many rituals and regulations in the Zoroastrian faith concerning the astudans. Among the pre-7th-century Sogdians in the region of central Asia, the name for an ossuary was tanbar.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_GROTTO">
+			<Text>Heavenly Grotto</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_GROTTO_STRATEGY">
+			<Text>Build the Heavenly Grotto to gain [ICON_HAPPINESS_1] Happiness and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_GROTTO_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_GROTTO_TEXT">
+			<Text>A grotto is a type of cavern, often closely associated with water. Grottos are a prominent feature of many religious and garden settings as places of contemplation. One of the most impressive collection of grottos is the Longmen Grottos in Luoyang, China, which houses tens of thousands of Buddhas, stelae, and inscriptions.</Text>
+		</Row>
+		
 		<!-- Policy buildings -->
 		<Row Tag="TXT_KEY_BUILDING_MONASTERY">
 			<Text>Monastery</Text>

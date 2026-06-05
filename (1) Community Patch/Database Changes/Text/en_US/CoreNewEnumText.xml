@@ -67,5 +67,11 @@
 		<Row Tag="TXT_KEY_ACCOMPLISHMENT_WARS_WON">
 			<Text>Winning a War</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_CITY_CONVERTED">
+			<Text>Converting a City to your Religion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACCOMPLISHMENT_HISTORIC_EVENT">
+			<Text>Completing a Historic Event</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

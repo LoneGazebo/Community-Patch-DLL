@@ -5558,29 +5558,6 @@ bool CvPlot::isValidRoute(const CvUnit* pUnit) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial)
-{
-	if (ePlayer == NO_PLAYER)
-		return;
-
-	if( GET_PLAYER(ePlayer).UpdateCityConnection(this,bActive,bIndustrial) )
-	{
-		for(int iI = 0; iI < MAX_TEAMS; ++iI)
-		{
-			if ( GET_TEAM((TeamTypes)iI).isObserver() || ((GET_TEAM((TeamTypes)iI).isAlive()) && GC.getGame().getActiveTeam() == (TeamTypes)iI) )
-			{
-				if(isVisible((TeamTypes)iI))
-				{
-					setLayoutDirty(true);
-				}
-			}
-		}
-		updateYield();
-	}
-}
-
-
-//	--------------------------------------------------------------------------------
 bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 {
 	if (ePlayer == NO_PLAYER)
@@ -5590,7 +5567,7 @@ bool CvPlot::IsCityConnection(PlayerTypes ePlayer, bool bIndustrial) const
 	if (ePlayer == NO_PLAYER)
 		return false;
 
-	return GET_PLAYER(ePlayer).IsCityConnectionPlot(this, bIndustrial);
+	return GET_PLAYER(ePlayer).GetCityConnections()->IsPlotCityConnection(this, bIndustrial);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10164,6 +10141,30 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 				iYield += isFreshWater() ? pkYieldInfo->getMinCityHillFreshWater() : pkYieldInfo->getMinCityHillNoFreshWater();
 			else
 				iYield += isFreshWater() ? pkYieldInfo->getMinCityFlatFreshWater() : pkYieldInfo->getMinCityFlatNoFreshWater();
+
+			if (MOD_PLOTS_EXTENSIONS)
+			{
+				PlotTypes ePlot = getPlotType();
+				CvPlotInfo* pkPlotInfo = GC.getPlotInfo(ePlot);
+				if (pkPlotInfo->IsAdjacentFeatureYieldChange())
+				{
+					// Yield from adjacent features
+					bool bNaturalWonderPlot = IsNaturalWonder();
+					for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+					{
+						DirectionTypes eDirection = static_cast<DirectionTypes>(iI);
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), eDirection);
+						if (!pAdjacentPlot)
+							continue;
+
+						FeatureTypes eAdjacentFeature = pAdjacentPlot->getFeatureType();
+						if (eAdjacentFeature != NO_FEATURE)
+						{
+							iYield += pkPlotInfo->GetAdjacentFeatureYieldChange(eAdjacentFeature, eYield, bNaturalWonderPlot);
+						}
+					}
+				}
+			}
 		}
 		// Community Patch Only: Min. 2 Food & 1 Production for city center tile yields
 		else
@@ -10201,6 +10202,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, Feature
 				iYield += kPlayer.GetCoastalCityYieldChange(eYield);
 				iYield += kPlayer.GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
 			}
+
+			// Yield per Monopoly owned
+			iYield += kPlayer.GetMonopolyCityYieldChange(eYield) * kPlayer.GetNumGlobalMonopolies();
 
 			// Yields from city strength
 			if (pOwningCity->GetYieldChangesPerCityStrengthTimes100(eYield) > 0)
@@ -10889,11 +10893,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		// Policy improvement yield changes
 		iYield += kPlayer.getImprovementYieldChange(eImprovement, eYield);
 
-		if (!pTraits->IsTradeRouteOnly())
-		{
-			// Trait player improvement yield changes that don't require a trade route connection
-			iYield += pTraits->GetImprovementYieldChange(eImprovement, eYield);
-		}
 		// Team Tech Yield Changes
 		iYield += kTeam.getImprovementYieldChange(eImprovement, eYield);
 
@@ -10925,50 +10924,46 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	if (eForceCityConnection != NUM_ROUTE_TYPES)
 		bIsCityConnection = eForceCityConnection != NO_ROUTE;
 	
-	// Trait player terrain/improvement (for features handled below) yield changes that don't require a trade route connection
-	if (pTraits->IsTradeRouteOnly() && getOwner() == ePlayer)
+	// Trait player terrain/improvement (for features handled below) yield changes, subject to a trade route connection or not
+	int iTerrainBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
+	
+	if (isHills())
+	    iTerrainBonus += pTraits->GetTerrainYieldChange(TERRAIN_HILL, eYield);
+		
+	int iImprovementBonus = 0;
+	if (eImprovement != NO_IMPROVEMENT)
 	{
-		int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
-		if (iBonus > 0)
+	    iImprovementBonus = pTraits->GetImprovementYieldChange(eImprovement, eYield);
+	}
+	
+	// generalized Era scaler
+	int iModifier = pTraits->CurrentEraScalingModifier();
+		
+	// logic
+	if (pTraits->IsTradeRouteOnly())
+	{
+		if (getOwner() == ePlayer)
 		{
-			if (bIsCityConnection || IsTradeUnitRoute())
-			{
-				int iScale = 0;
-				int iEra = (kPlayer.GetCurrentEra() + 1);
-
-				iScale = ((iBonus * iEra) / 4);
-
-				if (iScale <= 0)
-				{
-					iScale = 1;
-				}
-				iYield += iScale;
-			}
+		    bool bTerrainApplies = (bIsCityConnection || IsTradeUnitRoute());
+		    bool bImprovementApplies = (bIsCityConnection || IsTradeUnitRoute() || IsAdjacentToTradeRoute());
+		
+		    if (iTerrainBonus > 0 && bTerrainApplies)
+		    {
+		        iYield += (iModifier * iTerrainBonus) / 100;
+		    }
+		
+		    if (iImprovementBonus > 0 && bImprovementApplies)
+		    {
+		        iYield += (iModifier * iImprovementBonus) / 100;
+		    }
 		}
-		if (eImprovement != NO_IMPROVEMENT)
-		{
-			int iBonus2 = pTraits->GetImprovementYieldChange(eImprovement, eYield);
-			if (iBonus2 > 0)
-			{
-				if (bIsCityConnection || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
-				{
-					int iScale = 0;
-					int iEra = (kPlayer.GetCurrentEra() + 1);
-
-					iScale = ((iBonus2 * iEra) / 2);
-
-					if (iScale <= 0)
-					{
-						iScale = 1;
-					}
-					iYield += iScale;
-				}
-			}
-		}
+		// else, don't change the tile's yields 
+		// otherwise will show outside of borders everywhere and then be removed when claimed
 	}
 	else
 	{
-		iYield += pTraits->GetTerrainYieldChange(eTerrain, eYield);
+	    iYield += (iModifier * iTerrainBonus) / 100;
+		iYield += (iModifier * iImprovementBonus) / 100;
 	}
 
 	iYield += kPlayer.getTerrainYieldChange(eTerrain, eYield);
@@ -11047,6 +11042,12 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			{
 				iYield += pOwningCity->GetTerrainExtraYield(eTerrain, eYield);
 			}
+		}
+
+		if (IsCityConnection())
+		{
+			iYield += kPlayer.GetCityConnectionPlotYield(eYield);
+			iYield += pOwningCity->GetCityConnectionPlotYield(eYield);
 		}
 
 		if (eImprovement != NO_IMPROVEMENT)

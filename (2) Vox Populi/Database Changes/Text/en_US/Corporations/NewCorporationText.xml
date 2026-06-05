@@ -53,7 +53,7 @@
 			<Text>+3 [ICON_CULTURE_LOCAL] Border Growth Points for every Global [ICON_FRANCHISE] Franchise. +15% [ICON_PRODUCTION] Production towards Military Units. When you train a Military Unit in this City, gain [ICON_RESEARCH] Science equal to 25% of the Unit's [ICON_PRODUCTION] Production cost.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_HEXXON_REFINERY">
-			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from Cities with a Hexxon Refinery Office to Cities with a Hexxon Refinery Franchise produce +50% additional [ICON_SCIENCE] Science.</Text>
+			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes from Cities with a Hexxon Refinery Office to Cities with a Hexxon Refinery Franchise produce +50% additional [ICON_RESEARCH] Science.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_HEXXON_REFINERY_OFFICE_BENEFIT_HELP">
 			<Text>Current Office Bonus: {1_String}</Text>

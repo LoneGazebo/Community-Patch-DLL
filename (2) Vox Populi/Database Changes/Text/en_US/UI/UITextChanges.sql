@@ -311,6 +311,11 @@ WHERE Tag = 'TXT_KEY_CO_INFLUENCE_BONUSES_DOMINANT';
 ------------------------------------------------
 -- Espionage overview
 ------------------------------------------------
+-- can have spies before renaissance now
+UPDATE Language_en_US
+SET Text = 'Espionage starts when you accumulate enough [ICON_SPY_POINT] Spy Points to receive your first [ICON_SPY] Spy'
+WHERE Tag = 'TXT_KEY_ESPIONAGE_NOT_STARTED_YET';
+
 UPDATE Language_en_US
 SET Text = 'Name'
 WHERE Tag = 'TXT_KEY_EO_NAME_RANK';
@@ -325,7 +330,7 @@ SET Text = 'Security Level'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL';
 
 UPDATE Language_en_US
-SET Text = 'Security Level reflects the difficulty of espionage in a city. The higher the value, the more time it will take for foreign spies to complete spy missions. To increase Security in a city, you can build espionage buildings, such as the Constabulary and the Police Station.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
+SET Text = 'Security Level reflects the difficulty of espionage in a city. The higher the value, the more time it will take for foreign spies to complete spy missions. To increase Security in a city, you can build espionage buildings, such as the Jail and the Constabulary.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL_SORT_TT';
 
 UPDATE Language_en_US

@@ -81,6 +81,14 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 	if (isProductionSpaceshipPart())
 		return;
 
+	// the same is true for the Citizen Earth Protocol
+	if (MOD_BALANCE_CULTURE_VICTORY_CHANGES)
+	{
+		ProjectTypes eUtopia = (ProjectTypes)GC.getInfoTypeForString("PROJECT_UTOPIA_PROJECT", true);
+		if (eUtopia != NO_PROJECT && getProductionProject() == eUtopia)
+			return;
+	}
+
 	bool bBuildWonder = false;
 
 	bool bAlreadyBuildingWonder = false;

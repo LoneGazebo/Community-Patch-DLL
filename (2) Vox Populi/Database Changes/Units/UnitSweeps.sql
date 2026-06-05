@@ -99,11 +99,6 @@ WHERE Class IN (
 	'UNITCLASS_NUCLEAR_MISSILE'
 );
 
--- Spaceship parts
-UPDATE Units
-SET HurryCostModifier = 25
-WHERE SpaceshipProject IS NOT NULL;
-
 -----------------------------------------------------------------
 -- RequiresFaithPurchaseEnabled
 -- This blocks the unit from being always faith purchasable as long as it has a faith cost

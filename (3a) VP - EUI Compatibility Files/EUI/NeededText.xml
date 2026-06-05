@@ -17,6 +17,9 @@
 		<Row Tag="TXT_KEY_EO_GP_RESOURCES">
 			<Text>From Great People</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_POLICY_RESOURCES">
+			<Text>From Policies</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_CORP_RESOURCES">
 			<Text>From Corporation</Text>
 		</Row>

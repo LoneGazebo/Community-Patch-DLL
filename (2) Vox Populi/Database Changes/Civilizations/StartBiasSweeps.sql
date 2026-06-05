@@ -46,7 +46,7 @@ VALUES
 
 	('CIVILIZATION_SWEDEN', 'REGION_TUNDRA'),   -- UB wants tundra (historical)
 
-	('CIVILIZATION_ROME', 'REGION_HILLS');      -- UU wants Iron, UA needs early production (historical)
+	('CIVILIZATION_ETHIOPIA', 'REGION_HILLS');  -- UI and UU need hills (historical)
 
 INSERT INTO Civilization_Start_Region_Avoid
 	(CivilizationType, RegionType)
@@ -55,7 +55,8 @@ VALUES
 	('CIVILIZATION_INDIA', 'REGION_HILLS'),     -- Classical UB wants farms
 	('CIVILIZATION_SHOSHONE', 'REGION_HILLS'),  -- UI needs flat land (historical)
 	('CIVILIZATION_POLAND', 'REGION_JUNGLE'),   -- Medieval UB wants Sheep/Cattle/Horses
-	('CIVILIZATION_POLAND', 'REGION_FOREST');
+	('CIVILIZATION_POLAND', 'REGION_FOREST'),
+	('CIVILIZATION_JAPAN', 'REGION_JUNGLE');    -- UB wants Iron, can't spawn Iron in Jungle tiles
 
 INSERT INTO Civilization_Start_Prefer_Mountain
 	(CivilizationType, StartPreferMountain)

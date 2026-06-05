@@ -185,6 +185,9 @@
 		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CARE_NIL">
 			<Text>[ICON_BULLET]  [COLOR_POSITIVE_TEXT]{1_LeaderName}[ENDCOLOR] will barely notice.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_WARMONGER_PREVIEW_CASUS_BELLI_CULTURE_BOMB">
+			<Text>Reduced by [COLOR_CYAN]{1_Num}%[ENDCOLOR] (except for the owner and their masters/vassals) because they have stolen territory from you!</Text>
+		</Row>
 		<Row Tag="TXT_KEY_LIBERATOR_PREVIEW_HEADER">
 			<Text>Bonuses from [COLOR_POSITIVE_TEXT]liberating[ENDCOLOR] this city:</Text>
 		</Row>
@@ -299,6 +302,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_COST_PRODUCTION">
 			<Text>{1_Num} [ICON_PRODUCTION]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_COST_PRODUCTION_ADDED_PER_ERA">
+			<Text>{1_Num} [ICON_PRODUCTION] + {2_Num} [ICON_PRODUCTION] per Era</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_COST_GOLD">
 			<Text>{1_Num} [ICON_GOLD]</Text>
 		</Row>
@@ -403,7 +409,7 @@
 			<Text>Max Hit Points: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_SIGHT">
-			<Text>[ICON_BULLET] Sight: {1_Num}</Text>
+			<Text>[ICON_VISION] Sight: {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_AIR_DEFENSE">
 			<Text>[ICON_AIRSTRIKE_DEFENSE] Air Strike Defense: {1_Num}</Text>
@@ -484,7 +490,7 @@
 			<Text>Ignores [ICON_STRENGTH] City Strength from Buildings when Attacking</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE">
-			<Text>Gains [ICON_CULTURE] Culture on Disband or Upgrade</Text>
+			<Text>On Disband or Upgrade: Receive [ICON_CULTURE] Culture equal to {1_Num}x total XP</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_GOODY_MODIFIER">
 			<Text>{2_Sign}{1_Num}% Ancient Ruin Rewards</Text>
@@ -618,6 +624,12 @@
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_PROMOTION_FROM_ERA">
 			<Text>[COLOR_CYAN]{2_Era:textkey}[ENDCOLOR] or later: [COLOR_POSITIVE_TEXT]{1_Promotions}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_UPGRADE">
+			<Text>Upgrades into: {1_Unit:textkey} ({2_Techs}{3_Cost} [ICON_GOLD])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_UPGRADE_NO_COST">
+			<Text>Upgrades into: {1_Unit:textkey} ({2_Techs})</Text>
+		</Row>
 		<!-- Building -->
 		<Row Tag="TXT_KEY_PRODUCTION_UNIQUE_BUILDING">
 			<Text>{1_CivAdj} Unique [COLOR_YIELD_FOOD]{2_Building:textkey}[ENDCOLOR]</Text>
@@ -737,7 +749,7 @@
 			<Text>Up to {1_YieldBoosts} when [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_FROM_WONDERS">
-			<Text>+{1_Num} [ICON_STRENGTH] City Strength for every National/World Wonder in City</Text>
+			<Text>[ICON_BULLET]+{1_Num} [ICON_STRENGTH] City Strength for every National/World Wonder in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DEFENSE_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength from Buildings</Text>
@@ -746,7 +758,7 @@
 			<Text>{2_Sign}{1_Num}% [ICON_STRENGTH] City Strength from Buildings in all Cities of your Team</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DAMAGE_REDUCTION">
-			<Text>[ICON_STRENGTH] Damage Reduction: {2_Sign}{1_Num}</Text>
+			<Text>[ICON_BULLET][ICON_STRENGTH] Damage Reduction: {2_Sign}{1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_FREE_RESOURCE">
 			<Text>{2_Sign}{1_Num} {3_ResourceIcon} {4_Resource:textkey}</Text>
@@ -852,6 +864,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_AIRLIFT">
 			<Text>Allows [ICON_AIRPORT] Airlift</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SEALIFT">
+			<Text>Allows [COLOR_POSITIVE_TEXT]Transportation[ENDCOLOR] via [ICON_CONNECTED] City Connections over Water</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_ITR_FOOD">
 			<Text>Allows [ICON_FOOD] Food [ICON_INTERNATIONAL_TRADE] Internal Trade Routes from City</Text>
@@ -983,31 +998,31 @@
 			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production from each [ICON_INTERNATIONAL_TRADE] Trade Route with City-States</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_BUILDING_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Non-Wonder Buildings</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Non-Wonder Buildings</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_WONDER_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Wonders</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Wonders</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_MILITARY_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Military Units</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Military Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_MILITARY_PRODUCTION_MODIFIER_FROM_WAR">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Military Units in all Cities for every Major Civilization at war with your Empire</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Military Units in all Cities for every Major Civilization at war with your Empire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPACESHIP_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Spaceship Parts</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Spaceship Parts</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{3_Unit:textkey}[ENDCOLOR]</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards [COLOR_YELLOW]{3_Unit:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_UNIT_COMBAT_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{3_UnitCombat:textkey} Units[ENDCOLOR]</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards [COLOR_YELLOW]{3_UnitCombat:textkey} Units[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIFIC_DOMAIN_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR]</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards [COLOR_YELLOW]{3_Domain:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_CORPORATION_SPECIFIC_STRATEGIC_UNIT_PRODUCTION_MODIFIER">
-			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production for Units requiring {3_ResourceIcon} {4_Resource:textkey}</Text>
+			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards Units requiring {3_ResourceIcon} {4_Resource:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CITY_CONNECTION_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_PRODUCTION] Production/[ICON_GOLD] Gold from [ICON_CONNECTED] City Connections and [ICON_INDUSTRIAL_CONNECTED] Industrial City Connections</Text>
@@ -1088,7 +1103,7 @@
 			<Text>{2_Sign}{1_Num}% Duration for [ICON_INTERNATIONAL_TRADE] Trade Routes originated from this City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TRADE_UNIT_EXTRA_SIGHT">
-			<Text>{2_Sign}{1_Num} Sight for Trade Units</Text>
+			<Text>{2_Sign}{1_Num} [ICON_VISION] Sight for Trade Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_TRADE_UNIT_SPEED_MULTIPLIER">
 			<Text>{1_Num}x Speed for Trade Units</Text>
@@ -1321,6 +1336,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NO_STARVATION_FROM_NON_SPECIALISTS">
 			<Text>Total non-Specialist [ICON_FOOD] Food consumption cannot exceed [ICON_FOOD] Food production</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_MINIMUM_FOOD">
+			<Text>Total [ICON_FOOD] Food output cannot fall below {1_Food}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SECONDARY_PANTHEON">
 			<Text>City benefits from the Pantheon bonus of the second-most popular [ICON_RELIGION] Religion if it has a [ICON_RELIGION] Majority Religion</Text>
 		</Row>
@@ -1543,6 +1561,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_WATER_RESOURCE_BOOST">
 			<Text>{1_YieldBoosts} to Resource Tiles in [COLOR_POSITIVE_TEXT]Water[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_CITY_CONNECTION_TILE_BOOST">
+			<Text>{1_YieldBoosts} to [COLOR_POSITIVE_TEXT]City Connection[ENDCOLOR] Tiles</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SPECIALIST_BOOST">
 			<Text>{2_YieldBoosts} to {1_Items}</Text>
 		</Row>
@@ -1636,11 +1657,17 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_HAPPINESS_FROM_ACCOMPLISHMENT">
 			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num} [ICON_HAPPINESS_1] Happiness</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_EXTRA_SPIES_FROM_ACCOMPLISHMENT">
+			<Text>[COLOR_WATER_TEXT]{2_Accomplishment:textkey}[ENDCOLOR]: Gain {1_Num} [ICON_SPY] {1: plural 1?Spy; other?Spies;}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_EXTRA_SPY_POINTS_FROM_ACCOMPLISHMENT">
+			<Text>[COLOR_WATER_TEXT]{2_Accomplishment:textkey}[ENDCOLOR]: Gain {1_Num} [ICON_SPY_POINT] Spy {1: plural 1?Point; other?Points;}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_XP_FOR_DOMAIN_FROM_ACCOMPLISHMENT">
 			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num} XP for [COLOR_YELLOW]{4_Domain:textkey}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_COMBAT_PRODUCTION_MODIFIER_FROM_ACCOMPLISHMENT">
-			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num}% [ICON_PRODUCTION] Production for [COLOR_YELLOW]{4_UnitCombat:textkey}[ENDCOLOR] Units</Text>
+			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{3_Accomplishment:textkey}[ENDCOLOR]: {2_Sign}{1_Num}% [ICON_PRODUCTION] Production towards [COLOR_YELLOW]{4_UnitCombat:textkey}[ENDCOLOR] Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PLAYER_INSTANCE_FROM_ACCOMPLISHMENT">
 			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{2_Accomplishment:textkey}[ENDCOLOR]: May build {1_Num} more of this Building</Text>
@@ -1655,6 +1682,9 @@
 			<Text>[ICON_BULLET]Each point of [ICON_STRENGTH] City Strength: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ACCOMPLISHMENT">
+			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{1_Accomplishment:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_ACCOMPLISHMENT">
 			<Text>[ICON_BULLET][COLOR_WATER_TEXT]{1_Accomplishment:textkey}[ENDCOLOR]: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PASSING_TR">
@@ -1791,6 +1821,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_EXCESS_FOOD">
 			<Text>{1: number "'[COLOR_POSITIVE_TEXT]'+#,##0.00;'[COLOR_NEGATIVE_TEXT]-'#,##0.00"}[ENDCOLOR] excess [ICON_FOOD] before Modifiers[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GROWTH_MINIMUM">
+			<Text>Total [ICON_FOOD] in this City cannot fall below {1_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GROWTH_MOD_BELIEF">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_RELIGION] Religious Beliefs</Text>
@@ -1939,9 +1972,6 @@
 		<Row Tag="TXT_KEY_YIELD_MOD_WORLD_WONDER">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from having [ICON_WONDER] World Wonders</Text>
 		</Row>
-		<Row Tag="TXT_KEY_YIELD_MULTIPLIER_POLICY">
-			<Text>[NEWLINE][ICON_BULLET]Doubled by Policies</Text>
-		</Row>
 		<!-- Great person points -->
 		<Row Tag="TXT_KEY_GPP_FROM_SPECIALIST">
 			<Text>[ICON_BULLET]{1_Num} {2_IconString} from Specialists</Text>
@@ -2057,6 +2087,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_PLEDGES_UNIT_DOMAIN">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Domain from Pledges: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_RELIGION_UNIT_COMBAT">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Combat Class from Religion: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_RELIGION_UNIT">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Military Units from Religion: {1_Num}%</Text>
@@ -2968,7 +3001,7 @@
 			<Text>They fear your warmongering will plunge the world into nuclear winter!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WARMONGER_HATE_MAXIMAL">
-			<Text>[SPACE](They furiously abhor warmongers!)</Text>
+			<Text>[SPACE](They fervently abhor warmongers!)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WARMONGER_HATE_EXTREME">
 			<Text>[SPACE](They hate warmongers!)</Text>
@@ -3184,6 +3217,57 @@
 		</Row>
 		<Row Tag="TXT_KEY_TRADE_WLTKD_RESOURCE_CITIES">
 			<Text>The following cities currently demand this Resource:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP">
+			<Text>WORLD MAP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP_TT">
+			<Text>Reveals all land explored by this civilization.[NEWLINE][NEWLINE]Note: Will not receive contact with unmet civilizations and city-states.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH">
+			<Text>Both players don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER">
+			<Text>They don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER">
+			<Text>You don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED">
+			<Text>They have already explored all of the lands revealed in your World Map.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED">
+			<Text>We have already explored all of the lands revealed in their World Map.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES">
+			<Text>TECHNOLOGIES</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TECHNOLOGIES">
+			<Text>TECHNOLOGIES</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES">
+			<Text>We have Technologies available to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO">
+			<Text>We have no Technologies available to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES_THEM">
+			<Text>The other leader has Technologies available to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO_THEM">
+			<Text>The other leader has no Technologies available to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_RESEARCH_PLAYER">
+			<Text>You must found a City in order to begin research endeavors.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_RESEARCH_OTHER_PLAYER">
+			<Text>They must found a City in order to begin research endeavors.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_OTHER_PLAYER">
+			<Text>They don't yet have the Technology to sell this item (Scientific Theory).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_PLAYER">
+			<Text>You don't yet have the Technology to sell this item (Scientific Theory).</Text>
 		</Row>
 		<!-- Deal value (normal) -->
 		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR">
@@ -3487,7 +3571,7 @@
 			<Text>Area Damage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_FORTIFY">
-			<Text>Pilum</Text>
+			<Text>Fortified Strike</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH">
 			<Text>Splash Damage</Text>
@@ -3519,6 +3603,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PATHFINDING_AIRLIFT">
 			<Text>[ICON_AIRPORT] Airlift</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PATHFINDING_SEALIFT">
+			<Text>[ICON_CARGO_SHIP] Transportation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PATHFINDING_CHANGE_PORT">
 			<Text>[ICON_GREAT_ADMIRAL] Port Change</Text>

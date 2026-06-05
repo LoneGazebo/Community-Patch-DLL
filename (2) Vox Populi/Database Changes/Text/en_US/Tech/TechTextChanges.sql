@@ -66,7 +66,7 @@ WHERE Tag = 'TXT_KEY_TECH_CHEMISTRY_HELP';
 
 -- Metallurgy
 UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Lancer[ENDCOLOR], a powerful Renaissance-Era mounted unit.'
+SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Musketman[ENDCOLOR], a powerful Renaissance-Era ranged unit.'
 WHERE Tag = 'TXT_KEY_TECH_METALLURGY_HELP';
 
 -- Industrialization
@@ -231,7 +231,7 @@ WHERE Tag = 'TXT_KEY_TECH_GUILDS_HELP';
 
 -- Printing Press
 UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Printing Press[ENDCOLOR], a building which allows Diplomatic Units to ignore terrain costs. Also enables the founding of the World Congress.'
+SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Printing House[ENDCOLOR], a building which allows Diplomatic Units to ignore terrain costs. Also enables the founding of the World Congress.'
 WHERE Tag = 'TXT_KEY_TECH_PRINTING_PRESS_HELP';
 
 -- Astronomy

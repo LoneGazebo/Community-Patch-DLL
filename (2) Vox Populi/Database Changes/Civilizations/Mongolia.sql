@@ -34,7 +34,7 @@ WHERE Type = 'UNIT_MONGOLIAN_KHAN';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC_GENERAL'),
+	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_RETALIATION'),
 	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC'),
 	('UNIT_MONGOLIAN_KHAN', 'PROMOTION_MEDIC_II');
 
@@ -134,17 +134,18 @@ INSERT INTO Civilization_BuildingClassOverrides
 VALUES
 	('CIVILIZATION_MONGOL', 'BUILDINGCLASS_SMOKEHOUSE', 'BUILDING_GER');
 
-UPDATE Buildings
-SET
-	PlotBuyCostModifier = -25,
-	BorderGrowthRateIncrease = 40
-WHERE Type = 'BUILDING_GER';
+UPDATE Buildings SET PlotBuyCostModifier = -25 WHERE Type = 'BUILDING_GER';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 --	('BUILDING_GER', 'YIELD_CULTURE_LOCAL', 2),
 	('BUILDING_GER', 'YIELD_FAITH', 1);
+
+INSERT INTO Building_YieldModifiers
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_GER', 'YIELD_CULTURE_LOCAL', 40);
 
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
@@ -155,8 +156,8 @@ VALUES
 INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, YieldType, Yield)
 VALUES
---	('BUILDING_GER', 'YIELD_FOOD', 5),
-	('BUILDING_GER', 'YIELD_PRODUCTION', 5);
+--	('BUILDING_GER', 'YIELD_FOOD', 10),
+	('BUILDING_GER', 'YIELD_PRODUCTION', 10);
 
 ----------------------------------------------------------
 -- Unique Project: Adopt the Yassa

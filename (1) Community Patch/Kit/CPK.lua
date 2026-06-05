@@ -16,6 +16,7 @@
 
 	local lua_type = type
 	local lua_next = next
+	local lua_pcall = pcall
 	local lua_error = error
 	local lua_tostring = tostring
 
@@ -87,7 +88,7 @@
 				error('Error in include emulation: dofile is not a function')
 			end
 
-			local success, result = pcall(dofile, GetCandidatePath(filename))
+			local success, result = lua_pcall(dofile, GetCandidatePath(filename))
 
 			if not success then
 				if result:find('^cannot open') then
@@ -356,7 +357,7 @@
 			})
 		end
 
-		local success, result = pcall(Import, filename)
+		local success, result = lua_pcall(Import, filename)
 
 		if not success then
 			Error(4, {

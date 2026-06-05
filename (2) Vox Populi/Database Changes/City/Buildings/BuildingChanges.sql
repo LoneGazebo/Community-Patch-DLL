@@ -323,10 +323,10 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AQUEDUCT';
 
-INSERT INTO Building_GrowthExtraYield
-	(BuildingType, YieldType, Yield)
+INSERT INTO Building_YieldFromBirth
+	(BuildingType, YieldType, Yield, IsEraScaling)
 SELECT
-	Type, 'YIELD_PRODUCTION', 60
+	Type, 'YIELD_PRODUCTION', 20, 1
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AQUEDUCT';
 
@@ -676,7 +676,8 @@ VALUES
 
 INSERT INTO Building_BuildingClassLocalYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT a.Type, b.BuildingClassType, 'YIELD_GOLD', 3
+SELECT
+	a.Type, b.BuildingClassType, 'YIELD_GOLD', 3
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_BANK';
 
@@ -701,9 +702,33 @@ VALUES
 
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT a.Type, b.BuildingClassType, b.YieldType, b.Yield
+SELECT
+	a.Type, b.BuildingClassType, b.YieldType, b.Yield
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_BANK';
+
+DELETE FROM Helper;
+
+-- Sorting Office
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_TOURISM', 2
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_SORTING_OFFICE';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_CULTURE'),
+	('YIELD_TOURISM');
+
+INSERT INTO Building_CityConnectionPlotYieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, 1
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_SORTING_OFFICE';
 
 DELETE FROM Helper;
 
@@ -741,11 +766,19 @@ VALUES
 
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
-SELECT a.Type, b.ImprovementType, 'YIELD_GOLD', 2
+SELECT
+	a.Type, b.ImprovementType, 'YIELD_GOLD', 2
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_STOCK_EXCHANGE';
 
 DELETE FROM Helper;
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	Type, 'BUILDINGCLASS_SORTING_OFFICE', 'YIELD_GOLD', 5
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_STOCK_EXCHANGE';
 
 ----------------------------------------------------------------------------
 -- Military line
@@ -838,12 +871,20 @@ SET
 	EmpireSizeModifierReduction = -5
 WHERE BuildingClass = 'BUILDINGCLASS_CASTLE';
 
-INSERT INTO Building_ImprovementYieldChanges
-	(BuildingType, ImprovementType, YieldType, Yield)
+INSERT INTO Helper
+	(BuildingClassType)
+VALUES
+	('BUILDINGCLASS_JAIL'),
+	('BUILDINGCLASS_CONSTABLE');
+
+INSERT INTO Building_BuildingClassLocalYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
 SELECT
-	Type, 'IMPROVEMENT_QUARRY', 'YIELD_PRODUCTION', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_CASTLE';
+	a.Type, b.BuildingClassType, 'YIELD_TOURISM', 1
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_CASTLE';
+
+DELETE FROM Helper;
 
 -- Bastion Fort
 
@@ -944,7 +985,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 5
+	Type, 'YIELD_PRODUCTION', 10
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
 
@@ -959,13 +1000,6 @@ INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
 SELECT
 	Type, 'IMPROVEMENT_MANUFACTORY', 'YIELD_PRODUCTION', 2
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
-
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT
-	Type, 'BUILDINGCLASS_FACTORY', 'YIELD_PRODUCTION', 2
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_FACTORY';
 
@@ -1075,7 +1109,7 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_MINEFIELD';
 
 ----------------------------------------------------------------------------
--- Instant yield line (which starts at Arena)
+-- Entertainment line
 ----------------------------------------------------------------------------
 
 -- Arena
@@ -1093,13 +1127,6 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
 	Type, 'YIELD_CULTURE', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_COLOSSEUM';
-
-INSERT INTO Building_YieldChangesPerPop
-	(BuildingType, YieldType, Yield)
-SELECT
-	Type, 'YIELD_TOURISM', 25
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_COLOSSEUM';
 
@@ -1175,10 +1202,56 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_THEATRE';
 
 DELETE FROM Helper;
 
+-- Casino
+INSERT INTO Building_TerrainYieldChanges
+	(BuildingType, TerrainType, YieldType, Yield)
+SELECT
+	Type, 'TERRAIN_DESERT', 'YIELD_GOLD', 1
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_CASINO';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_GOLD'),
+	('YIELD_CULTURE');
+
+INSERT INTO Building_FeatureYieldChanges
+	(BuildingType, FeatureType, YieldType, Yield)
+SELECT
+	a.Type, 'FEATURE_OASIS', b.YieldType, 5
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_CASINO';
+
+DELETE FROM Helper;
+
+INSERT INTO Building_InstantYield
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_GOLD', 1000
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_CASINO';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_GOLD'),
+	('YIELD_TOURISM');
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, 50
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_CASINO';
+
+DELETE FROM Helper;
+
 -- Stadium
 UPDATE BuildingClasses SET Description = 'TXT_KEY_BUILDING_STADIUM_DESC' WHERE Type = 'BUILDINGCLASS_STADIUM';
 
-UPDATE Buildings SET
+UPDATE Buildings
+SET
 	PrereqTech = 'TECH_ATOMIC_THEORY',
 	Happiness = 0,
 	MinorFriendshipChange = 20,
@@ -1196,19 +1269,78 @@ WHERE BuildingClass = 'BUILDINGCLASS_STADIUM';
 -- Espionage line
 ----------------------------------------------------------------------------
 
+-- Jail
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_PRODUCTION', 2
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
+
+INSERT INTO Building_ImprovementYieldChanges
+	(BuildingType, ImprovementType, YieldType, Yield)
+SELECT
+	Type, 'IMPROVEMENT_QUARRY', 'YIELD_PRODUCTION', 2
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_CULTURE_LOCAL', 25
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
+
 -- Constabulary
 UPDATE Buildings
 SET
 	EspionageModifier = 0,
-	SpySecurityModifier = 20,
-	SpySecurityModifierPerXPop = 180, -- ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = 360, so 180/360 gives 1 per 2 population in city
+	SpySecurityModifier = 15,
+	SpySecurityModifierPerXPop = 90, -- ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = 360, so 90/360 gives 1 per 4 population in city
 	DistressFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_PRODUCTION', 50
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
+
+-- Penitentiary
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_CULTURE_LOCAL', 5
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_PENITENTIARY';
+
+INSERT INTO Building_TerrainYieldChanges
+	(BuildingType, TerrainType, YieldType, Yield)
+SELECT
+	Type, 'TERRAIN_TUNDRA', 'YIELD_PRODUCTION', 1
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_PENITENTIARY';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_FOOD'),
+	('YIELD_CULTURE_LOCAL');
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, 50
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_PENITENTIARY';
+
+DELETE FROM Helper;
 
 -- Police Station
 UPDATE Buildings
 SET
-	PrereqTech = 'TECH_ELECTRONICS',
+	PrereqTech = 'TECH_COMBINED_ARMS',
 	EspionageModifier = 0,
 	SpySecurityModifier = 10,
 	SpySecurityModifierPerXPop = 180, -- ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = 360, so 180/360 gives 1 per 2 population in city
@@ -1271,6 +1403,28 @@ SELECT
 	Type, 'YIELD_PRODUCTION', 50
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
+
+-- Printing House
+INSERT INTO Building_YieldPerFriendTimes100
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_GOLD', 25
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_HOUSE';
+
+INSERT INTO Building_YieldPerAllyTimes100
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_SCIENCE', 50
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_HOUSE';
+
+INSERT INTO Building_UnitCombatProductionModifiers
+	(BuildingType, UnitCombatType, Modifier)
+SELECT
+	Type, 'UNITCOMBAT_DIPLOMACY', 10
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_HOUSE';
 
 -- Wire Service
 INSERT INTO Building_UnitCombatProductionModifiers
@@ -1591,10 +1745,10 @@ SET
 	Happiness = 0
 WHERE BuildingClass = 'BUILDINGCLASS_STONE_WORKS';
 
-INSERT INTO Building_YieldChanges
+INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 1
+	Type, 'YIELD_PRODUCTION', 10
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_STONE_WORKS';
 
@@ -1629,7 +1783,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_SMOKEHOUSE';
 INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_FOOD', 5
+	Type, 'YIELD_FOOD', 10
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_SMOKEHOUSE';
 
@@ -1691,8 +1845,7 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_STABLE';
 
-UPDATE Building_UnitCombatProductionModifiers
-SET Modifier = 20
+DELETE FROM Building_UnitCombatProductionModifiers
 WHERE BuildingType IN (
 	SELECT Type FROM Buildings
 	WHERE BuildingClass = 'BUILDINGCLASS_STABLE'
@@ -1841,8 +1994,14 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 
 DELETE FROM Helper;
 
--- Shopping Mall
+INSERT INTO Building_BuildingClassYieldChanges
+	(BuildingType, BuildingClassType, YieldType, YieldChange)
+SELECT
+	Type, 'BUILDINGCLASS_FACTORY', 'YIELD_PRODUCTION', 2
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 
+-- Shopping Mall
 INSERT INTO Helper
 	(YieldType, Yield)
 VALUES
@@ -1922,7 +2081,8 @@ SET
 	PrereqTech = 'TECH_ROCKETRY',
 	LandmarksTourismPercent = 0,
 	GreatWorksTourismModifier = 0,
-	CityAirStrikeDefense = 10
+	CityAirStrikeDefense = 10,
+	AllowsAirRoutes = 1
 WHERE BuildingClass = 'BUILDINGCLASS_AIRPORT';
 
 -- Courthouse
@@ -2093,12 +2253,20 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
 
 DELETE FROM Helper;
 
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_GOLD'),
+	('YIELD_TOURISM');
+
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 SELECT
-	Type, 'BUILDINGCLASS_COLOSSEUM', 'YIELD_GOLD', 2
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
+	a.Type, 'BUILDINGCLASS_COLOSSEUM', b.YieldType, 2
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
+
+DELETE FROM Helper;
 
 -- Imperial College
 UPDATE Buildings
@@ -2206,27 +2374,43 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_IRONWORKS';
 
--- Printing Press
+-- Ministerial District
+INSERT INTO Helper
+	(YieldType, Yield)
+VALUES
+	('YIELD_GOLD', 3),
+	('YIELD_SCIENCE', 2),
+	('YIELD_CULTURE', 1);
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_CULTURE', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_PRESS';
+	b.Type, h.YieldType, h.Yield
+FROM Buildings b, Helper h
+WHERE b.BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
+
+DELETE FROM Helper;
 
 INSERT INTO Building_ResourceQuantity
 	(BuildingType, ResourceType, Quantity)
 SELECT
 	Type, 'RESOURCE_PAPER', 1
 FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_PRESS';
+WHERE BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
 
 INSERT INTO Building_UnitCombatProductionModifiers
 	(BuildingType, UnitCombatType, Modifier)
 SELECT
 	Type, 'UNITCOMBAT_DIPLOMACY', 20
 FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_PRESS';
+WHERE BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
+
+INSERT INTO Building_YieldFromSpyRigElection
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_GOLD', 40
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
 
 -- Royal Collection
 UPDATE Buildings
@@ -2248,6 +2432,67 @@ SELECT
 	Type, 'YIELD_CULTURE', 25
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_HERMITAGE';
+
+-- General Post Office
+INSERT INTO Helper
+	(YieldType, Yield)
+VALUES
+	('YIELD_PRODUCTION', 3),
+	('YIELD_GOLD', 3),
+	('YIELD_CULTURE', 1);
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	b.Type, h.YieldType, h.Yield
+FROM Buildings b, Helper h
+WHERE b.BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+DELETE FROM Helper;
+
+INSERT INTO Building_ResourceQuantity
+	(BuildingType, ResourceType, Quantity)
+SELECT
+	Type, 'RESOURCE_PAPER', 1
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+INSERT INTO Building_UnitCombatProductionModifiers
+	(BuildingType, UnitCombatType, Modifier)
+SELECT
+	Type, 'UNITCOMBAT_DIPLOMACY', 20
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_PRODUCTION'),
+	('YIELD_GOLD'),
+	('YIELD_TOURISM');
+
+INSERT INTO Building_SpecialistYieldChangesLocal
+	(BuildingType, SpecialistType, YieldType, Yield)
+SELECT
+	b.Type, 'SPECIALIST_CIVIL_SERVANT', y.YieldType, 1
+FROM Buildings b, Helper y
+WHERE b.BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+DELETE FROM Helper;
+
+INSERT INTO Building_YieldPerFriendTimes100
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_FOOD', 200
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
+
+INSERT INTO Building_YieldPerAllyTimes100
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_TOURISM', 100
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_GENERAL_POST_OFFICE';
 
 -- Foreign Bureau
 INSERT INTO Building_YieldChanges
@@ -2278,7 +2523,8 @@ SET
 	GlobalEspionageModifier = 0,
 	SpyRankChange = 0,
 	InstantSpyRankChange = 0,
-	SpySecurityModifier = 10
+	SpySecurityModifier = 10,
+	ExtraSpies = 100
 WHERE BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
 
 INSERT INTO Helper
@@ -2368,6 +2614,7 @@ VALUES
 	('BUILDINGCLASS_LABORATORY', 'BUILDINGCLASS_PUBLIC_SCHOOL'),
 	('BUILDINGCLASS_CARAVANSARY', 'BUILDINGCLASS_MARKET'),
 	('BUILDINGCLASS_MINT', 'BUILDINGCLASS_MARKET'),
+	('BUILDINGCLASS_SORTING_OFFICE', 'BUILDINGCLASS_MINT'),
 	('BUILDINGCLASS_BANK', 'BUILDINGCLASS_MARKET'),
 	('BUILDINGCLASS_STOCK_EXCHANGE', 'BUILDINGCLASS_BANK'),
 	('BUILDINGCLASS_ARMORY', 'BUILDINGCLASS_BARRACKS'),
@@ -2379,13 +2626,17 @@ VALUES
 	('BUILDINGCLASS_WORKSHOP', 'BUILDINGCLASS_FORGE'),
 	('BUILDINGCLASS_FACTORY', 'BUILDINGCLASS_WORKSHOP'),
 	('BUILDINGCLASS_SPACESHIP_FACTORY', 'BUILDINGCLASS_FACTORY'),
-	('BUILDINGCLASS_POLICE_STATION', 'BUILDINGCLASS_CONSTABLE'),
+	('BUILDINGCLASS_CONSTABLE', 'BUILDINGCLASS_JAIL'),
+	('BUILDINGCLASS_PENITENTIARY', 'BUILDINGCLASS_CONSTABLE'),
+	('BUILDINGCLASS_POLICE_STATION', 'BUILDINGCLASS_PENITENTIARY'),
 	('BUILDINGCLASS_HARBOR', 'BUILDINGCLASS_LIGHTHOUSE'),
 	('BUILDINGCLASS_SEAPORT', 'BUILDINGCLASS_HARBOR'),
 	('BUILDINGCLASS_CIRCUS', 'BUILDINGCLASS_COLOSSEUM'),
 	('BUILDINGCLASS_THEATRE', 'BUILDINGCLASS_CIRCUS'),
+	('BUILDINGCLASS_CASINO', 'BUILDINGCLASS_THEATRE'),
 	('BUILDINGCLASS_STADIUM', 'BUILDINGCLASS_THEATRE'),
-	('BUILDINGCLASS_WIRE_SERVICE', 'BUILDINGCLASS_CHANCERY'),
+	('BUILDINGCLASS_PRINTING_HOUSE', 'BUILDINGCLASS_CHANCERY'),
+	('BUILDINGCLASS_WIRE_SERVICE', 'BUILDINGCLASS_PRINTING_HOUSE'),
 	-- National Wonders
 	('BUILDINGCLASS_NATIONAL_EPIC', 'BUILDINGCLASS_MONUMENT'),
 	('BUILDINGCLASS_HEROIC_EPIC', 'BUILDINGCLASS_BARRACKS'),
@@ -2395,7 +2646,7 @@ VALUES
 	('BUILDINGCLASS_NATIONAL_TREASURY', 'BUILDINGCLASS_MINT'),
 	('BUILDINGCLASS_GRAND_TEMPLE', 'BUILDINGCLASS_TEMPLE'),
 	('BUILDINGCLASS_OXFORD_UNIVERSITY', 'BUILDINGCLASS_UNIVERSITY'),
-	('BUILDINGCLASS_PRINTING_PRESS', 'BUILDINGCLASS_CHANCERY'),
+	('BUILDINGCLASS_MINISTERIAL_DISTRICT', 'BUILDINGCLASS_CHANCERY'),
 	('BUILDINGCLASS_HERMITAGE', 'BUILDINGCLASS_GALLERY'),
 	('BUILDINGCLASS_FOREIGN_BUREAU', 'BUILDINGCLASS_WIRE_SERVICE'),
 	('BUILDINGCLASS_INTELLIGENCE_AGENCY', 'BUILDINGCLASS_POLICE_STATION'),
@@ -2435,7 +2686,7 @@ VALUES
 	-- World Wonders
 	('BUILDINGCLASS_RED_FORT', 600, 100, 0),
 	-- Beliefs
-	('BUILDINGCLASS_ORDER', 300, 0, 0);
+	('BUILDINGCLASS_GURDWARA', 300, 0, 0);
 
 UPDATE Buildings
 SET

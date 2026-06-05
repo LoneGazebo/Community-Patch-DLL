@@ -34,11 +34,18 @@ ALTER TABLE Traits ADD NonSpecialistFoodChange integer DEFAULT 0;
 -- TRAIT: Annexed City States continue to give yields. --
 ALTER TABLE Traits ADD AnnexedCityStatesGiveYields boolean DEFAULT 0;
 
--- Abnormal scaler. Works for:
----- Trait_SpecialistYieldChanges (specialist yield change x2/x3/x4 in medieval/industrial/atomic eras)
----- FreeSocialPoliciesPerEra in Traits
----- Trait_YieldChangesPerImprovementBuilt (x2/x3/x4 of the bonus in Medieval/Industrial/Atomic)
+-- TRAIT: Needed to switch on any kind of Era Scaling. Works for:
+---- Trait_SpecialistYieldChanges
+---- Trait_YieldChangesPerImprovementBuilt
+---- Trait_TerrainYieldChanges
+---- Trait_ImprovementYieldChanges
+-- Defaults to standard VP Era Scaling. Use two options below for non-standard scaling
+ALTER TABLE Traits ADD IsEraScaling boolean DEFAULT 1;
+-- Use Abnormal scaler. (Default x2/x3/x4 in medieval/industrial/atomic eras)
+-- Also works for FreeSocialPoliciesPerEra in Traits
 ALTER TABLE Traits ADD IsOddEraScaler boolean DEFAULT 0;
+-- Use Abnormal scaler. (increase yield modifier by 100/X percent per Era passed. If IsOddEraScaler is active, the results add)
+ALTER TABLE Traits ADD FractionalEraScaler integer DEFAULT 0;
 
 -- Trait affects capital only. Works for:
 ---- Trait_YieldChangesPerImprovementBuilt (yield only shows up in capital)
@@ -83,11 +90,15 @@ ALTER TABLE Traits ADD AllianceCSStrength integer DEFAULT 0;
 -- Adds a trait that converts x% of tourism from cities to GAP, where x is the integer below.
 ALTER TABLE Traits ADD TourismToGAP integer DEFAULT 0;
 
--- Adds a trait that converts x% of GROSS GPT to GAP, where x is the interger below.
+-- Adds a trait that converts x% of GROSS GPT to GAP, where x is the integer below.
 ALTER TABLE Traits ADD GoldToGAP integer DEFAULT 0;
 
 -- Adds a trait that boosts the value of historic event tourism. 1 = 10%, 2 = 20%, etc.
 ALTER TABLE Traits ADD EventTourismBoost integer DEFAULT 0;
+
+-- Adds a trait that adds historic events when your owned religion spreads to a city for the first time
+-- Instant yield equal to (average (0.2*culture+tourism) of last 10 turns * x / 15), where x is the integer below
+ALTER TABLE Traits ADD ReligionSpreadTourism integer DEFAULT 0;
 
 -- Adds x# of GP Points to Capital (scaling with era) when you complete a Historic Event.
 ALTER TABLE Traits ADD EventGP integer DEFAULT 0;
@@ -209,7 +220,8 @@ ALTER TABLE Traits ADD ExtraConqueredCityTerritoryClaimRange integer DEFAULT 0;
 -- New Traits - Extra Terrain When Conquering a City
 ALTER TABLE Traits ADD KeepConqueredBuildings boolean DEFAULT 0;
 
--- New Traits - Extra Terrain Yields IF you have a trade route or city connection crossing tile - this scales with era (making this false causes terrain yields not to be scaled)
+-- New Traits - Extra Terrain Yields IF you have a trade route or city connection crossing tile
+-- Also Extra Improvement Yields IF you have a trade route, or city connection crossing tile, or a trade route adjacent to tile
 ALTER TABLE Traits ADD TradeRouteOnly boolean DEFAULT 0;
 
 -- New Traits - Mountain Movement and City Connections

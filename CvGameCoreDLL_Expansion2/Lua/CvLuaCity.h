@@ -182,6 +182,8 @@ protected:
 
 	static int lGetNumBuilding(lua_State* L);
 	static int lIsHasBuilding(lua_State* L);
+	LUAAPIEXTN(CanSealift, bool);
+	LUAAPIEXTN(CanAirlift, bool);
 	LUAAPIEXTN(GetNumBuildingClass, int, iBuildingClassType);
 	LUAAPIEXTN(IsHasBuildingClass, bool, iBuildingClassType);
 	static int lGetLocalBuildingClassYield(lua_State* L);
@@ -606,7 +608,6 @@ protected:
 	static int lCanPlaceUnitHere(lua_State* L);
 
 	static int lGetSpecialistYield(lua_State* L);
-	static int lGetCultureFromSpecialist(lua_State* L);
 
 	static int lGetReligionCityRangeStrikeModifier(lua_State* L);
 

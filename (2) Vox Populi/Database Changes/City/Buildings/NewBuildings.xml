@@ -128,11 +128,47 @@
 			<DefaultBuilding>BUILDING_CHANCERY</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_CHANCERY</Description>
 		</Row>
+		<!-- Printing House -->
+		<Row>
+			<Type>BUILDINGCLASS_PRINTING_HOUSE</Type>
+			<DefaultBuilding>BUILDING_PRINTING_HOUSE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_PRINTING_HOUSE</Description>
+		</Row>
 		<!-- Wire Service -->
 		<Row>
 			<Type>BUILDINGCLASS_WIRE_SERVICE</Type>
 			<DefaultBuilding>BUILDING_WIRE_SERVICE</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_WIRE_SERVICE</Description>
+		</Row>
+		<!-- Jail -->
+		<Row>
+			<Type>BUILDINGCLASS_JAIL</Type>
+			<DefaultBuilding>BUILDING_JAIL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_JAIL</Description>
+		</Row>
+		<!-- Penitentiary -->
+		<Row>
+			<Type>BUILDINGCLASS_PENITENTIARY</Type>
+			<DefaultBuilding>BUILDING_PENITENTIARY</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_PENITENTIARY</Description>
+		</Row>
+		<!-- Sorting Office -->
+		<Row>
+			<Type>BUILDINGCLASS_SORTING_OFFICE</Type>
+			<DefaultBuilding>BUILDING_SORTING_OFFICE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_SORTING_OFFICE</Description>
+		</Row>
+		<!-- Casino -->
+		<Row>
+			<Type>BUILDINGCLASS_CASINO</Type>
+			<DefaultBuilding>BUILDING_CASINO</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CASINO</Description>
+		</Row>
+		<!-- Shopping Mall -->
+		<Row>
+			<Type>BUILDINGCLASS_SHOPPING_MALL</Type>
+			<DefaultBuilding>BUILDING_SHOPPING_MALL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_SHOPPING_MALL</Description>
 		</Row>
 		<!-- Wat -->
 		<Row>
@@ -148,11 +184,18 @@
 			<Description>TXT_KEY_BUILDING_SCRIVENERS_OFFICE</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
-		<!-- Printing Press -->
+		<!-- Ministerial District -->
 		<Row>
-			<Type>BUILDINGCLASS_PRINTING_PRESS</Type>
-			<DefaultBuilding>BUILDING_PRINTING_PRESS</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_PRINTING_PRESS</Description>
+			<Type>BUILDINGCLASS_MINISTERIAL_DISTRICT</Type>
+			<DefaultBuilding>BUILDING_MINISTERIAL_DISTRICT</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_MINISTERIAL_DISTRICT</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!-- General Post Office -->
+		<Row>
+			<Type>BUILDINGCLASS_GENERAL_POST_OFFICE</Type>
+			<DefaultBuilding>BUILDING_GENERAL_POST_OFFICE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_GENERAL_POST_OFFICE</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
 		<!-- Foreign Bureau -->
@@ -226,11 +269,32 @@
 			<Description>TXT_KEY_BUILDING_KARLSTEJN</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
+		<!-- Alamut Fortress -->
+		<Row>
+			<Type>BUILDINGCLASS_ALAMUT_FORTRESS</Type>
+			<DefaultBuilding>BUILDING_ALAMUT_FORTRESS</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_ALAMUT_FORTRESS</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
 		<!-- Summer Palace -->
 		<Row>
 			<Type>BUILDINGCLASS_SUMMER_PALACE</Type>
 			<DefaultBuilding>BUILDING_SUMMER_PALACE</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_SUMMER_PALACE</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<!-- Port Royal -->
+		<Row>
+			<Type>BUILDINGCLASS_PORT_ROYAL</Type>
+			<DefaultBuilding>BUILDING_PORT_ROYAL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_PORT_ROYAL</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<!-- Chateau d'If-->
+		<Row>
+			<Type>BUILDINGCLASS_CHATEAU_DIF</Type>
+			<DefaultBuilding>BUILDING_CHATEAU_DIF</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CHATEAU_DIF</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
 		<!-- Soho Foundry -->
@@ -254,6 +318,13 @@
 			<Description>TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
+		<!-- Alcatraz -->
+		<Row>
+			<Type>BUILDINGCLASS_ALCATRAZ</Type>
+			<DefaultBuilding>BUILDING_ALCATRAZ</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_ALCATRAZ</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
 		<!-- Bletchley Park -->
 		<Row>
 			<Type>BUILDINGCLASS_BLETCHLEY_PARK</Type>
@@ -266,6 +337,13 @@
 			<Type>BUILDINGCLASS_CERN</Type>
 			<DefaultBuilding>BUILDING_CERN</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_CERN</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<!-- World Trade Center -->
+		<Row>
+			<Type>BUILDINGCLASS_WORLD_TRADE_CENTER</Type>
+			<DefaultBuilding>BUILDING_WORLD_TRADE_CENTER</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_WORLD_TRADE_CENTER</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
 		<!-- Smithsonian Institution -->
@@ -418,6 +496,12 @@
 			<DefaultBuilding>BUILDING_GURDWARA</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_GURDWARA</Description>
 		</Row>
+		<!-- Daoguan -->
+		<Row>
+			<Type>BUILDINGCLASS_DAOGUAN</Type>
+			<DefaultBuilding>BUILDING_DAOGUAN</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_DAOGUAN</Description>
+		</Row>
 		<!-- Reformation Wonders -->
 		<!-- Mausoleum -->
 		<Row>
@@ -480,6 +564,13 @@
 			<Type>BUILDINGCLASS_GRAND_OSSUARY</Type>
 			<DefaultBuilding>BUILDING_GRAND_OSSUARY</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_GRAND_OSSUARY</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!-- Heavenly Grotto -->
+		<Row>
+			<Type>BUILDINGCLASS_HEAVENLY_GROTTO</Type>
+			<DefaultBuilding>BUILDING_HEAVENLY_GROTTO</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_HEAVENLY_GROTTO</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
 		<!-- Corporations -->
@@ -611,17 +702,6 @@
 			<DefaultBuilding>BUILDING_POPULI_MEDICINE_FRANCHISE</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_POPULI_MEDICINE_FRANCHISE</Description>
 		</Row>
-		<Row>
-			<Type>BUILDINGCLASS_SHOPPING_MALL</Type>
-			<DefaultBuilding>BUILDING_SHOPPING_MALL</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_SHOPPING_MALL</Description>
-		</Row>
-		<Row>
-			<Type>BUILDINGCLASS_WORLD_TRADE_CENTER</Type>
-			<DefaultBuilding>BUILDING_WORLD_TRADE_CENTER</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_WORLD_TRADE_CENTER</Description>
-			<MaxGlobalInstances>1</MaxGlobalInstances>
-		</Row>
 	</BuildingClasses>
 	<Buildings>
 		<!-- Council -->
@@ -701,6 +781,23 @@
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>9</PortraitIndex>
 		</Row>
+		<!-- Printing House -->
+		<Row>
+			<Type>BUILDING_PRINTING_HOUSE</Type>
+			<BuildingClass>BUILDINGCLASS_PRINTING_HOUSE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_PRINTING_HOUSE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PRINTING_HOUSE_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_PRINTING_HOUSE_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_PRINTING_HOUSE_STRATEGY</Strategy>
+			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+			<FreeStartEra>ERA_FUTURE</FreeStartEra>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<TrainedFreePromotion>PROMOTION_LITERACY</TrainedFreePromotion>			
+			<SpySecurityModifier>15</SpySecurityModifier>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>24</PortraitIndex>
+		</Row>
 		<!-- Grocer -->
 		<Row>
 			<Type>BUILDING_GROCER</Type>
@@ -743,7 +840,7 @@
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<CityIndirectFire>true</CityIndirectFire>
 			<RangedStrikeModifier>10</RangedStrikeModifier>
-			<CitySupplyModifier>10</CitySupplyModifier>
+			<CitySupplyModifier>5</CitySupplyModifier>
 			<HealRateChange>5</HealRateChange>
 			<EmpireSizeModifierReduction>-5</EmpireSizeModifierReduction>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
@@ -786,10 +883,65 @@
 			<Strategy>TXT_KEY_BUILDING_WIRE_SERVICE_STRATEGY</Strategy>
 			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
-			<SpecialistCount>2</SpecialistCount>
+			<SpecialistCount>1</SpecialistCount>
 			<TrainedFreePromotion>PROMOTION_WIRE_SERVICE</TrainedFreePromotion>
 			<IconAtlas>TECH_ATLAS_1</IconAtlas>
 			<PortraitIndex>51</PortraitIndex>
+		</Row>
+		<!-- Jail -->
+		<Row>
+			<Type>BUILDING_JAIL</Type>
+			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
+			<Description>TXT_KEY_BUILDING_JAIL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_JAIL_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_JAIL_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_JAIL_STRATEGY</Strategy>
+			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+			<SpySecurityModifier>20</SpySecurityModifier>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>20</PortraitIndex>
+		</Row>
+		<!-- Penitentiary -->
+		<Row>
+			<Type>BUILDING_PENITENTIARY</Type>
+			<BuildingClass>BUILDINGCLASS_PENITENTIARY</BuildingClass>
+			<Description>TXT_KEY_BUILDING_PENITENTIARY</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PENITENTIARY_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_PENITENTIARY_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_PENITENTIARY_STRATEGY</Strategy>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<CitySupplyModifier>5</CitySupplyModifier>
+			<SpySecurityModifier>15</SpySecurityModifier>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>21</PortraitIndex>
+		</Row>
+		<!-- Sorting Office -->
+		<Row>
+			<Type>BUILDING_SORTING_OFFICE</Type>
+			<BuildingClass>BUILDINGCLASS_SORTING_OFFICE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_SORTING_OFFICE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_SORTING_OFFICE_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_SORTING_OFFICE_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_SORTING_OFFICE_STRATEGY</Strategy>
+			<PrereqTech>TECH_COMBUSTION</PrereqTech>
+			<RequiresIndustrialCityConnection>true</RequiresIndustrialCityConnection>
+			<TradeRouteRecipientBonus>3</TradeRouteRecipientBonus>
+			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
+			<SpySecurityModifier>10</SpySecurityModifier>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>22</PortraitIndex>
+		</Row>
+		<!-- Casino -->
+		<Row>
+			<Type>BUILDING_CASINO</Type>
+			<BuildingClass>BUILDINGCLASS_CASINO</BuildingClass>
+			<Description>TXT_KEY_BUILDING_CASINO</Description>
+			<Civilopedia>TXT_KEY_BUILDING_CASINO_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_CASINO_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_CASINO_STRATEGY</Strategy>
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>23</PortraitIndex>
 		</Row>
 		<!-- Shopping Mall -->
 		<Row>
@@ -799,7 +951,7 @@
 			<Civilopedia>TXT_KEY_BUILDING_SHOPPING_MALL_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_SHOPPING_MALL_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_SHOPPING_MALL_STRATEGY</Strategy>
-			<PrereqTech>TECH_FLIGHT</PrereqTech>
+			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
 			<TradeRouteRecipientBonus>2</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>2</TradeRouteTargetBonus>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
@@ -1126,33 +1278,18 @@
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>26</PortraitIndex>
 		</Row>
-		<!-- Dojo -->
+		<!-- Tatara -->
 		<Row>
-			<Type>BUILDING_DOJO</Type>
-			<BuildingClass>BUILDINGCLASS_ARMORY</BuildingClass>
-			<Description>TXT_KEY_BUILDING_DOJO</Description>
-			<Civilopedia>TXT_KEY_BUILDING_DOJO_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_DOJO_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_DOJO_STRATEGY</Strategy>
-			<PrereqTech>TECH_STEEL</PrereqTech>
+			<Type>BUILDING_TATARA</Type>
+			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_TATARA</Description>
+			<Civilopedia>TXT_KEY_BUILDING_TATARA_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_TATARA_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_TATARA_STRATEGY</Strategy>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<ArtDefineTag>ART_DEF_BUILDING_BARRACKS</ArtDefineTag>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>27</PortraitIndex>
-		</Row>
-		<!-- Kabuki Theater -->
-		<Row>
-			<Type>BUILDING_KABUKI_THEATER</Type>
-			<BuildingClass>BUILDINGCLASS_OPERA_HOUSE</BuildingClass>
-			<Description>TXT_KEY_BUILDING_KABUKI_THEATER</Description>
-			<Civilopedia>TXT_KEY_BUILDING_KABUKI_THEATER_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_KABUKI_THEATER_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_KABUKI_THEATER_STRATEGY</Strategy>
-			<PrereqTech>TECH_ACOUSTICS</PrereqTech>
-			<ArtDefineTag>OPERA_HOUSE</ArtDefineTag>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
-			<GreatWorkCount>1</GreatWorkCount>
-			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
-			<PortraitIndex>28</PortraitIndex>
 		</Row>
 		<!-- Seowon -->
 		<Row>
@@ -1411,24 +1548,43 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>50</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>54</PortraitIndex>
 		</Row>
-		<!-- Printing Press -->
+		<!-- Ministerial District -->
 		<Row>
-			<Type>BUILDING_PRINTING_PRESS</Type>
-			<BuildingClass>BUILDINGCLASS_PRINTING_PRESS</BuildingClass>
-			<Description>TXT_KEY_BUILDING_PRINTING_PRESS</Description>
-			<Civilopedia>TXT_KEY_BUILDING_PRINTING_PRESS_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_PRINTING_PRESS_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY</Strategy>
-			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-			<FreePromotion>PROMOTION_LITERACY</FreePromotion>
+			<Type>BUILDING_MINISTERIAL_DISTRICT</Type>
+			<BuildingClass>BUILDINGCLASS_MINISTERIAL_DISTRICT</BuildingClass>
+			<Description>TXT_KEY_BUILDING_MINISTERIAL_DISTRICT</Description>
+			<Civilopedia>TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_MINISTERIAL_DISTRICT_STRATEGY</Strategy>
+			<PrereqTech>TECH_BANKING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
+			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
+			<IconAtlas>NEW_BLDG_ATLAS_DLC</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+		</Row>
+		<!-- General Post Office -->
+		<Row>
+			<Type>BUILDING_GENERAL_POST_OFFICE</Type>
+			<BuildingClass>BUILDINGCLASS_GENERAL_POST_OFFICE</BuildingClass>
+			<Description>TXT_KEY_BUILDING_GENERAL_POST_OFFICE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_GENERAL_POST_OFFICE_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_GENERAL_POST_OFFICE_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_GENERAL_POST_OFFICE_STRATEGY</Strategy>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
+			<CityConnectionTradeRouteModifier>20</CityConnectionTradeRouteModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>52</PortraitIndex>
+			<PortraitIndex>55</PortraitIndex>
 		</Row>
 		<!-- Foreign Bureau -->
 		<Row>
@@ -1443,6 +1599,7 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>44</PortraitIndex>
 		</Row>
@@ -1523,16 +1680,17 @@
 		<!-- Ballhausplatz -->
 		<Row>
 			<Type>BUILDING_BALLHAUSPLATZ</Type>
-			<BuildingClass>BUILDINGCLASS_PRINTING_PRESS</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_MINISTERIAL_DISTRICT</BuildingClass>
 			<Description>TXT_KEY_BUILDING_BALLHAUSPLATZ</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BALLHAUSPLATZ_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_BALLHAUSPLATZ_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_BALLHAUSPLATZ_STRATEGY</Strategy>
-			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
-			<FreePromotion>PROMOTION_LITERACY</FreePromotion>
+			<PrereqTech>TECH_BANKING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
+			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
 		</Row>
@@ -1584,13 +1742,17 @@
 		<!-- White Tower -->
 		<Row>
 			<Type>BUILDING_WHITE_TOWER</Type>
-			<BuildingClass>BUILDINGCLASS_IRONWORKS</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_MINISTERIAL_DISTRICT</BuildingClass>
 			<Description>TXT_KEY_BUILDING_WHITE_TOWER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_WHITE_TOWER_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_WHITE_TOWER_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_WHITE_TOWER_STRATEGY</Strategy>
-			<PrereqTech>TECH_MACHINERY</PrereqTech>
-			<ArtDefineTag>ART_DEF_BUILDING_IRONWORKS</ArtDefineTag>
+			<PrereqTech>TECH_BANKING</PrereqTech>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
+			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>19</PortraitIndex>
 		</Row>
@@ -1653,6 +1815,7 @@
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<ExtraSpies>100</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>45</PortraitIndex>
 		</Row>
@@ -1749,8 +1912,8 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<FreePromotion>PROMOTION_IMPERIAL_SEAL</FreePromotion>
 			<WonderSplashImage>WonderForum.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>33</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
 		</Row>
 		<!-- Nalanda -->
 		<Row>
@@ -1768,8 +1931,8 @@
 			<GreatWorkCount>2</GreatWorkCount>
 			<FreeGreatWorK>GREAT_WORK_BODHISATTVA</FreeGreatWorK>
 			<WonderSplashImage>WonderNalandaSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>31</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>7</PortraitIndex>
 		</Row>
 		<!-- Karlstejn -->
 		<Row>
@@ -1782,10 +1945,28 @@
 			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<HolyCity>true</HolyCity>
 			<ReformationFollowerReduction>5</ReformationFollowerReduction>
-			<FreeBuildingThisCity>BUILDINGCLASS_ORDER</FreeBuildingThisCity>
 			<WonderSplashImage>Karlstejn_WonderSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>29</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+		</Row>
+		<!-- Alamut Fortress -->
+		<Row>
+			<Type>BUILDING_ALAMUT_FORTRESS</Type>
+			<BuildingClass>BUILDINGCLASS_ALAMUT_FORTRESS</BuildingClass>
+			<Description>TXT_KEY_BUILDING_ALAMUT_FORTRESS</Description>
+			<Civilopedia>TXT_KEY_BUILDING_ALAMUT_FORTRESS_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_ALAMUT_FORTRESS_HELP</Help>
+			<Quote>TXT_KEY_WONDER_ALAMUT_FORTRESS_QUOTE</Quote>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+			<Defense>300</Defense>
+			<ExtraSpies>100</ExtraSpies>
+			<NearbyMountainRequired>1</NearbyMountainRequired>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<WonderSplashImage>Alamut_Splash.dds</WonderSplashImage>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>13</PortraitIndex>
 		</Row>
 		<!-- Summer Palace -->
 		<Row>
@@ -1802,8 +1983,45 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<FreePromotion>PROMOTION_NOBILITY</FreePromotion>
 			<WonderSplashImage>WonderSummerPalace.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>35</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>11</PortraitIndex>
+		</Row>
+		<!-- Port Royal -->
+		<Row>
+			<Type>BUILDING_PORT_ROYAL</Type>
+			<BuildingClass>BUILDINGCLASS_PORT_ROYAL</BuildingClass>
+			<Description>TXT_KEY_BUILDING_PORT_ROYAL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_PORT_ROYAL_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_PORT_ROYAL_HELP</Help>
+			<Quote>TXT_KEY_WONDER_PORT_ROYAL_QUOTE</Quote>
+			<PrereqTech>TECH_NAVIGATION</PrereqTech>
+			<Water>true</Water>
+			<ExtraSpies>100</ExtraSpies>
+			<FreeBuildingThisCity>BUILDINGCLASS_HARBOR</FreeBuildingThisCity>
+			<FreePromotion>PROMOTION_PIRACY</FreePromotion>
+			<WonderSplashImage>PortRoyal_Splash.dds</WonderSplashImage>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>14</PortraitIndex>
+		</Row>
+		<!-- Chateau d'If -->
+		<Row>
+			<Type>BUILDING_CHATEAU_DIF</Type>
+			<BuildingClass>BUILDINGCLASS_CHATEAU_DIF</BuildingClass>
+			<Description>TXT_KEY_BUILDING_CHATEAU_DIF</Description>
+			<Civilopedia>TXT_KEY_BUILDING_CHATEAU_DIF_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_CHATEAU_DIF_HELP</Help>
+			<Quote>TXT_KEY_WONDER_CHATEAU_DIF_QUOTE</Quote>
+			<PrereqTech>TECH_RIFLING</PrereqTech>
+			<MaxStartEra>ERA_MODERN</MaxStartEra>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
+			<Water>true</Water>
+			<MinAreaSize>10</MinAreaSize>
+			<ExtraSpies>100</ExtraSpies>
+			<FreeBuildingThisCity>BUILDINGCLASS_PENITENTIARY</FreeBuildingThisCity>
+			<WonderSplashImage>ChateaudIf_Splash.dds</WonderSplashImage>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>15</PortraitIndex>
 		</Row>
 		<!-- Soho Foundry -->
 		<Row>
@@ -1819,8 +2037,8 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<FreeBuildingThisCity>BUILDINGCLASS_FACTORY</FreeBuildingThisCity>
 			<WonderSplashImage>SlaterSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>34</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>10</PortraitIndex>
 		</Row>
 		<!-- The Motherland Calls -->
 		<Row>
@@ -1837,8 +2055,8 @@
 			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>
 			<WonderSplashImage>motherlandsplash.dds</WonderSplashImage>
 			<WonderSplashAudio>AS2D_WONDER_SPEECH_MOTHERLAND_CALLS</WonderSplashAudio>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>36</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>12</PortraitIndex>
 		</Row>
 		<!-- Bletchley Park -->
 		<Row>
@@ -1852,11 +2070,11 @@
 			<PolicyType>POLICY_RATIONALISM_FINISHER</PolicyType>
 			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
 			<GlobalSpySecurityModifier>20</GlobalSpySecurityModifier>
-			<ExtraSpies>2</ExtraSpies>
+			<ExtraSpies>200</ExtraSpies>
 			<Espionage>true</Espionage>
 			<WonderSplashImage>bletchleysplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>24</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
 		</Row>
 		<!-- Empire State Building -->
 		<Row>
@@ -1870,8 +2088,30 @@
 			<FreeBuildingThisCity>BUILDINGCLASS_STOCK_EXCHANGE</FreeBuildingThisCity>
 			<FreeGreatPeople>1</FreeGreatPeople>
 			<WonderSplashImage>empiresplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>27</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>3</PortraitIndex>
+		</Row>
+		<!-- Alcatraz -->
+		<Row>
+			<Type>BUILDING_ALCATRAZ</Type>
+			<BuildingClass>BUILDINGCLASS_ALCATRAZ</BuildingClass>
+			<Description>TXT_KEY_BUILDING_ALCATRAZ</Description>
+			<Civilopedia>TXT_KEY_BUILDING_ALCATRAZ_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_ALCATRAZ_HELP</Help>
+			<Quote>TXT_KEY_WONDER_ALCATRAZ_QUOTE</Quote>
+			<PrereqTech>TECH_BALLISTICS</PrereqTech>
+			<MaxStartEra>ERA_POSTMODERN</MaxStartEra>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<Defense>500</Defense>
+			<ExtraSpies>100</ExtraSpies>
+			<Water>1</Water>
+			<MinAreaSize>10</MinAreaSize>
+			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
+			<FreeBuildingThisCity>BUILDINGCLASS_ARSENAL</FreeBuildingThisCity>
+			<WonderSplashImage>Alcatraz_Splash.dds</WonderSplashImage>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>16</PortraitIndex>
 		</Row>
 		<!-- CERN -->
 		<Row>
@@ -1885,8 +2125,8 @@
 			<FreeTechs>2</FreeTechs>
 			<MinorFriendshipChange>100</MinorFriendshipChange>
 			<WonderSplashImage>CernSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>25</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
 		</Row>
 		<!-- World Trade Center -->
 		<Row>
@@ -1983,8 +2223,8 @@
 			<NumTradeRouteBonus>1</NumTradeRouteBonus>
 			<FreePromotion>PROMOTION_TREASURE_FLEET</FreePromotion>
 			<WonderSplashImage>WonderAdmiralty.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>28</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>4</PortraitIndex>
 		</Row>
 		<!-- Crystal Palace -->
 		<Row>
@@ -2000,8 +2240,8 @@
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<WonderSplashImage>CrystalPalace.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>26</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
 		</Row>
 		<!-- Menin Gate -->
 		<Row>
@@ -2017,8 +2257,8 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<Happiness>2</Happiness>
 			<WonderSplashImage>MeninGateSplash.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>30</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
 		</Row>
 		<!-- Olympic Village -->
 		<Row>
@@ -2034,8 +2274,8 @@
 			<GreatWorksTourismModifier>25</GreatWorksTourismModifier>
 			<Happiness>3</Happiness>
 			<WonderSplashImage>OlympicVillage.dds</WonderSplashImage>
-			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
-			<PortraitIndex>32</PortraitIndex>
+			<IconAtlas>BUILDING_ATLAS_VP_3</IconAtlas>
+			<PortraitIndex>8</PortraitIndex>
 		</Row>
 		<!-- United Nations -->
 		<Row>
@@ -2231,8 +2471,6 @@
 			<Help>TXT_KEY_BUILDING_ORDER_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_ORDER_STRATEGY</Strategy>
 			<TrainedFreePromotion>PROMOTION_MORALE</TrainedFreePromotion>
-			<RangedStrikeModifier>10</RangedStrikeModifier>
-			<CitySupplyFlat>1</CitySupplyFlat>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<DistressFlatReduction>1</DistressFlatReduction>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
@@ -2247,6 +2485,7 @@
 			<Civilopedia>TXT_KEY_BUILDING_TEOCALLI_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_TEOCALLI_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_TEOCALLI_STRATEGY</Strategy>
+			<CitySupplyFlat>1</CitySupplyFlat>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<DistressFlatReduction>1</DistressFlatReduction>
 			<IconAtlas>EXPANSION_BW_ATLAS_1</IconAtlas>
@@ -2262,10 +2501,28 @@
 			<Help>TXT_KEY_BUILDING_GURDWARA_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_GURDWARA_STRATEGY</Strategy>
 			<BuildingDefenseModifier>10</BuildingDefenseModifier>
+			<RangedStrikeModifier>10</RangedStrikeModifier>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<DistressFlatReduction>1</DistressFlatReduction>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>57</PortraitIndex>
+			<UnlockedByBelief>true</UnlockedByBelief>
+		</Row>
+		<!-- Daoguan -->
+		<Row>
+			<Type>BUILDING_DAOGUAN</Type>
+			<BuildingClass>BUILDINGCLASS_DAOGUAN</BuildingClass>
+			<Description>TXT_KEY_BUILDING_DAOGUAN</Description>
+			<Civilopedia>TXT_KEY_BUILDING_DAOGUAN_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_DAOGUAN_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_DAOGUAN_STRATEGY</Strategy>
+			<ReligiousPressureModifier>15</ReligiousPressureModifier>
+			<ConversionModifier>-10</ConversionModifier>
+			<ExtraSpies>10</ExtraSpies>
+			<SpySecurityModifier>10</SpySecurityModifier>
+			<NoUnhappfromXSpecialists>1</NoUnhappfromXSpecialists>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>62</PortraitIndex>
 			<UnlockedByBelief>true</UnlockedByBelief>
 		</Row>
 		<!-- Reformation Wonders -->
@@ -2290,6 +2547,7 @@
 			<Help>TXT_KEY_BUILDING_CELESTIAL_THRONE_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_CELESTIAL_THRONE_STRATEGY</Strategy>
 			<IsReformation>true</IsReformation>
+			<ExtraSpies>80</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>41</PortraitIndex>
 		</Row>
@@ -2318,6 +2576,7 @@
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>3</GreatWorkCount>
 			<IsReformation>true</IsReformation>
+			<SpySecurityModifierPerXPop>180</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>42</PortraitIndex>
 		</Row>
@@ -2330,6 +2589,7 @@
 			<Help>TXT_KEY_BUILDING_DIVINE_COURT_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_DIVINE_COURT_STRATEGY</Strategy>
 			<IsReformation>true</IsReformation>
+			<ExtraSpies>50</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>43</PortraitIndex>
 		</Row>
@@ -2354,6 +2614,7 @@
 			<Help>TXT_KEY_BUILDING_HOLY_COUNCIL_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_HOLY_COUNCIL_STRATEGY</Strategy>
 			<IsReformation>true</IsReformation>
+			<GlobalSpySecurityModifier>10</GlobalSpySecurityModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>48</PortraitIndex>
 		</Row>
@@ -2380,6 +2641,19 @@
 			<IsReformation>true</IsReformation>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>45</PortraitIndex>
+		</Row>
+		<!-- Heavenly Grotto -->
+		<Row>
+			<Type>BUILDING_HEAVENLY_GROTTO</Type>
+			<BuildingClass>BUILDINGCLASS_HEAVENLY_GROTTO</BuildingClass>
+			<Description>TXT_KEY_BUILDING_HEAVENLY_GROTTO</Description>
+			<Civilopedia>TXT_KEY_BUILDING_HEAVENLY_GROTTO_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_HEAVENLY_GROTTO_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_HEAVENLY_GROTTO_STRATEGY</Strategy>
+			<IsReformation>true</IsReformation>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>52</PortraitIndex>
+			<Happiness>2</Happiness>
 		</Row>
 		<!-- Corporations Headquarters -->
 		<Row>

@@ -13,6 +13,11 @@
 			<Text>+1 [ICON_WAR] Attack.</Text>
 		</Row>
 
+		<!-- Flat Movement Cost -->
+		<Row Tag="TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST_HELP">
+			<Text>All tiles cost 1 [ICON_MOVES] Movement.[NEWLINE][COLOR_NEGATIVE_TEXT]Cannot use Roads and Railroads.[ENDCOLOR]</Text>
+		</Row>
+		
 		<!-- Tank Hunter -->
 		<Row Tag="TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP">
 			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].</Text>
@@ -348,14 +353,14 @@
 			<Text>Shrapnel Rounds I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1_HELP">
-			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2">
 			<Text>Shrapnel Rounds II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_2_HELP">
-			<Text>+35% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_VANGUARD">
@@ -384,13 +389,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT_HELP">
 			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Owned Naval Unit[ENDCOLOR] when attacking.[NEWLINE]Heal 10 HP after [COLOR_POSITIVE_TEXT]defeating an Enemy Unit[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_MINELAYER">
-			<Text>Minelayer</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_MINELAYER_HELP">
-			<Text>-10% [ICON_STRENGTH] Combat Strength when defending against [COLOR_NEGATIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]-2 [ICON_MOVES] Movement for Enemy Naval Units starting their turn adjacent to this Unit.[NEWLINE]Units that ignore Zone of Control are immune to this effect.[NEWLINE][NEWLINE]Available once you have researched [COLOR_CYAN]{TXT_KEY_TECH_COMBUSTION_TITLE}[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO">
@@ -489,6 +487,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SUN_NEVER_SETS_HELP">
 			<Text>+1 [ICON_MOVES] Movement.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength per tile away from the [ICON_CAPITAL] Capital (max +30%).</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_CHASQUI_TRAINING">
+			<Text>Chasqui Training</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_CHASQUI_TRAINING_HELP">
+			<Text>Can cross Mountains.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FASTER_WORKER">
@@ -596,6 +601,13 @@
 			<Text>+5 HP when [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_ANIMISM">
+			<Text>Animist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ANIMISM_HELP">
+			<Text>Ignore Terrain Costs.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_ROYAL_SIGNET">
 			<Text>Royal Signet</Text>
 		</Row>
@@ -687,6 +699,13 @@
 			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1 [ICON_VISION] Sight.[NEWLINE]Can Heal [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_TRIUMPH">
+			<Text>Triumph</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TRIUMPH_HELP">
+			<Text>+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Gain 50% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Land Units as [ICON_GREAT_GENERAL] Great General Points.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_BRUTE_FORCE">
 			<Text>Brute Force</Text>
 		</Row>
@@ -740,7 +759,7 @@
 			<Text>Covering Fire II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COVERING_FIRE_2_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]-15% [ICON_STRENGTH] Combat Strength on Enemy Units [COLOR_POSITIVE_TEXT]within 2 tiles of this Unit[ENDCOLOR].</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when defending against [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]-15% [ICON_STRENGTH] Combat Strength on Enemy Units [COLOR_POSITIVE_TEXT]within 2 tiles of this Unit[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_TITANIC">
@@ -1058,11 +1077,11 @@
 			<Text>+40% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_LEGACY">
-			<Text>Legacy</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SPEAR_WALL">
+			<Text>Spear Wall</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_LEGACY_HELP">
-			<Text>+5% [ICON_STRENGTH] Combat Strength per Level beyond 1.</Text>
+		<Row Tag="TXT_KEY_PROMOTION_SPEAR_WALL_HELP">
+			<Text>Deal [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.[NEWLINE][NEWLINE]Deal [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all adjacent Enemy Units if this Unit is [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR] when starting its turn.[NEWLINE]This Damage ignores damage reduction, but does not affect Units in [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Fortifications[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RIACHUELO">
@@ -1198,11 +1217,11 @@
 			<Text>Gain 0.5 [ICON_CULTURE] Culture and [ICON_PEACE] Faith for each XP gained through Combat.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_CETBANG">
-			<Text>Cetbang</Text>
+		<Row Tag="TXT_KEY_PROMOTION_RETALIATION">
+			<Text>Retaliation</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_CETBANG_HELP">
-			<Text>Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.</Text>
+		<Row Tag="TXT_KEY_PROMOTION_RETALIATION_HELP">
+			<Text>Deal [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR] to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_KANTAI_KESSEN">
@@ -1244,7 +1263,7 @@
 			<Text>Razzia</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAZZIA_HELP">
-			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City.[NEWLINE]Gain 100 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City when [ICON_RAZING] Pillaging Improvements.[NEWLINE]Gain 200 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in this unit's origin City when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
+			<Text>Gain 200% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_PRODUCTION] Production and [ICON_GOLD] Gold in this unit's origin City.[NEWLINE]Gain 100 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold in this unit's origin City when [ICON_RAZING] Pillaging Improvements.[NEWLINE]Gain 400 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold in this unit's origin City when plundering [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BURGHER">

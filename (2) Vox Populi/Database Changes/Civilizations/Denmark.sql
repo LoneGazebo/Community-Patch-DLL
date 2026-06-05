@@ -32,7 +32,7 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PIKEMAN') + 2,
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PIKEMAN') + 1,
 	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_PIKEMAN') + 1
 WHERE Type = 'UNIT_DANISH_BERSERKER';
 

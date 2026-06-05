@@ -186,6 +186,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetNumBuilding);
 	Method(IsHasBuilding);
+	Method(CanAirlift);
+	Method(CanSealift);
 	Method(GetNumBuildingClass);
 	Method(IsHasBuildingClass);
 	Method(GetLocalBuildingClassYield);
@@ -598,7 +600,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanPlaceUnitHere);
 
 	Method(GetSpecialistYield);
-	Method(GetCultureFromSpecialist);
 
 	Method(GetNumForcedWorkingPlots);
 
@@ -1638,7 +1639,6 @@ int CvLuaCity::lGetBuildingYieldRateTimes100(lua_State* L)
 	iYieldTimes100 += pkBuildingInfo->GetYieldPerFriendTimes100(eYield) * kPlayer.GetNumCSFriends();
 	iYieldTimes100 += pkBuildingInfo->GetYieldPerAllyTimes100(eYield) * kPlayer.GetNumCSAllies();
 	iYieldTimes100 += pkBuildingInfo->GetYieldChangePerMonopoly(eYield) * kPlayer.GetNumGlobalMonopolies() * 100;
-	iYieldTimes100 += (pkBuildingInfo->GetYieldChangePerBuilding(eYield) * pCity->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
 
 	int iYieldPerReligion = pkBuildingInfo->GetYieldChangePerReligion(eYield);
 	if (iYieldPerReligion != 0)
@@ -2612,6 +2612,7 @@ int CvLuaCity::lIsHasBuilding(lua_State* L)
 	}
 	return 1;
 }
+
 //------------------------------------------------------------------------------
 //int getNumBuildingClass(BuildingClassTypes eBuildingClassType);
 int CvLuaCity::lGetNumBuildingClass(lua_State* L)
@@ -6225,11 +6226,6 @@ int CvLuaCity::lGetSpecialistYield(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-int CvLuaCity::lGetCultureFromSpecialist(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvCity::GetCultureFromSpecialist);
-}
-//------------------------------------------------------------------------------
 int CvLuaCity::lGetReligionCityRangeStrikeModifier(lua_State* L)
 {
 	int iReligionRangeStrikeMod = 0;
@@ -6402,6 +6398,8 @@ LUAAPIIMPL(City, CountResource)
 LUAAPIIMPL(City, CountWorkedResource)
 LUAAPIIMPL(City, CountTerrain)
 LUAAPIIMPL(City, CountWorkedTerrain)
+LUAAPIIMPL(City, CanAirlift)
+LUAAPIIMPL(City, CanSealift)
 
 int CvLuaCity::lGetAdditionalFood(lua_State* L)
 {

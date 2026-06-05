@@ -191,6 +191,7 @@ public:
 	int GetMultipleAttackBonus() const;
 	int GetCityConquestGWAM() const;
 	int GetEventTourismBoost() const;
+	int GetReligionSpreadTourism() const;
 	int GetEventGP() const;
 	int GetWLTKDCulture() const;
 	int GetWLTKDGATimer() const;
@@ -305,7 +306,9 @@ public:
 	int GetReligiousUnrestModifier() const;
 	bool IsNoConnectionUnhappiness() const;
 	bool IsNoReligiousStrife() const;
+	bool IsEraScaling() const;
 	bool IsOddEraScaler() const;
+	int GetFractionalEraScaler() const;
 	int GetWonderProductionModGA() const;
 	int GetCultureBonusModifierConquest() const;
 	int GetProductionBonusModifierConquest() const;
@@ -423,7 +426,7 @@ public:
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
 	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
-	set<int> GetFreePromotions() const
+	const set<int>& GetFreePromotions() const
 	{
 		return m_siFreePromotions;
 	}
@@ -437,6 +440,11 @@ public:
 	bool IsEnabledByPolicy(PlayerTypes ePlayer);
 
 	bool NoTrain(UnitClassTypes eUnitClassType);
+
+	const map<int, vector<int>>& GetYieldChangesPerLandConnectedCityTimes100() const
+	{
+		return m_mviYieldChangePerLandConnectedCityTimes100;
+	}
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -534,6 +542,7 @@ protected:
 	int m_iMultipleAttackBonus;
 	int m_iCityConquestGWAM;
 	int m_iEventTourismBoost;
+	int m_iReligionSpreadTourism;
 	int m_iEventGP;
 	int m_iWonderProductionModifierToBuilding;
 	int m_iPolicyGEorGM;
@@ -644,7 +653,9 @@ protected:
 	int m_iReligiousUnrestModifier;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
+	bool m_bIsEraScaling;
 	bool m_bIsOddEraScaler;
+	int m_iFractionalEraScaler;
 	int m_iWonderProductionModGA;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;
@@ -761,6 +772,7 @@ protected:
 	std::map<int, AlternateResourceTechs> m_piiAlternateResourceTechs;
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
+	map<int, vector<int>> m_mviYieldChangePerLandConnectedCityTimes100;
 
 	set<int> m_siFreePromotions;
 
@@ -863,8 +875,12 @@ public:
 		return m_bIsReligious;
 	}
 
-	// Accessor functions
 	bool HasTrait(TraitTypes eTrait) const;
+
+	// Handles the different types of possible scaling defined below
+	int CurrentEraScalingModifier() const;
+
+	// Accessor functions
 	int GetGreatPeopleRateModifier() const
 	{
 		return m_iGreatPeopleRateModifier;
@@ -1194,6 +1210,10 @@ public:
 	int GetEventTourismBoost() const
 	{
 		return m_iEventTourismBoost;
+	};
+	int GetReligionSpreadTourism() const
+	{
+		return m_iReligionSpreadTourism;
 	};
 	int GetEventGP() const
 	{
@@ -1607,9 +1627,17 @@ public:
 	{
 		return m_bIsNoReligiousStrife;
 	}
+	bool IsEraScaling() const
+	{
+		return m_bIsEraScaling;
+	}
 	bool IsOddEraScaler() const
 	{
 		return m_bIsOddEraScaler;
+	}
+	int GetFractionalEraScaler() const
+	{
+		return m_iFractionalEraScaler;
 	}
 	int GetWonderProductionModGA() const
 	{
@@ -2009,11 +2037,12 @@ public:
 	bool IsFreeMayaGreatPersonChoice() const;
 	bool IsProphetValid() const;
 
-	// Serialization
-	template<typename PlayerTraits, typename Visitor>
-	static void Serialize(PlayerTraits& playerTraits, Visitor& visitor);
-	void Read(FDataStream& kStream);
-	void Write(FDataStream& kStream) const;
+	const map<int, vector<int>>& GetYieldChangesPerLandConnectedCityTimes100() const
+	{
+		return m_mviYieldChangePerLandConnectedCityTimes100;
+	}
+	bool HasPositiveYieldChangesPerLandConnectedCity() const;
+	int GetYieldChangePerLandConnectedCityTimes100(int iRadius, YieldTypes eYield) const;
 
 	const std::vector<TraitTypes> GetPotentiallyActiveTraits() { return m_vPotentiallyActiveLeaderTraits; }
 
@@ -2021,6 +2050,12 @@ public:
 	{
 		return m_seFreePromotions;
 	}
+
+	// Serialization
+	template<typename PlayerTraits, typename Visitor>
+	static void Serialize(PlayerTraits& playerTraits, Visitor& visitor);
+	void Read(FDataStream& kStream);
+	void Write(FDataStream& kStream) const;
 
 private:
 	bool ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot);
@@ -2117,6 +2152,7 @@ private:
 	int m_iMultipleAttackBonus;
 	int m_iCityConquestGWAM;
 	int m_iEventTourismBoost;
+	int m_iReligionSpreadTourism;
 	int m_iWLTKDGPImprovementModifier;
 	int m_iGrowthBoon;
 	int m_iAllianceCSDefense;
@@ -2224,7 +2260,9 @@ private:
 	int m_iReligiousUnrestModifier;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
+	bool m_bIsEraScaling;
 	bool m_bIsOddEraScaler;
+	int m_iFractionalEraScaler;
 	int m_iWonderProductionModGA;
 
 	UnitTypes m_eCampGuardType;
@@ -2361,6 +2399,7 @@ private:
 
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 
+	map<int, vector<int>> m_mviYieldChangePerLandConnectedCityTimes100;
 	set<PromotionTypes> m_seFreePromotions;
 };
 

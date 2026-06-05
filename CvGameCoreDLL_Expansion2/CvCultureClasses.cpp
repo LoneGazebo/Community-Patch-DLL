@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "LintFree.h"
+#include "CvCultureClasses.h"
 
 //=====================================
 // CvGreatWork
@@ -141,7 +142,6 @@ GreatWorkClass CvGameCulture::GetGreatWorkClass(int iIndex) const
 CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) const
 {
 	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
-	CvString szTooltip;
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	PRECONDITION(pWork->m_eClassType != NO_GREAT_WORK_CLASS, "Invalid Great Work Class");
@@ -156,7 +156,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 
 	Localization::String strGreatWorkName = Localization::Lookup(CultureHelpers::GetGreatWorkName(pWork->m_eType));
 
-	szTooltip = strGreatWorkName.toUTF8();
+	CvString szTooltip = strGreatWorkName.toUTF8();
 	szTooltip += "[NEWLINE]";
 
 	if (strlen(pWork->m_szGreatPersonName) > 0)
@@ -328,10 +328,9 @@ CvString CvGameCulture::GetGreatWorkName(int iIndex) const
 CvString CvGameCulture::GetGreatWorkArtist(int iIndex) const
 {
 	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
-	CvString szArtist;
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
-	szArtist = pWork->m_szGreatPersonName;
+	CvString szArtist = pWork->m_szGreatPersonName;
 
 	return szArtist;
 }
@@ -363,10 +362,9 @@ CvString CvGameCulture::GetGreatWorkEra(int iIndex) const
 CvString CvGameCulture::GetGreatWorkEraAbbreviation(int iIndex) const
 {
 	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
-	CvString szEra;
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
-	szEra = GC.getEraInfo(pWork->m_eEra)->getAbbreviation();
+	CvString szEra = GC.getEraInfo(pWork->m_eEra)->getAbbreviation();
 
 	return szEra;	
 }
@@ -374,10 +372,9 @@ CvString CvGameCulture::GetGreatWorkEraAbbreviation(int iIndex) const
 CvString CvGameCulture::GetGreatWorkEraShort(int iIndex) const
 {
 	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
-	CvString szEra;
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
-	szEra = GC.getEraInfo(pWork->m_eEra)->getShortDesc();
+	CvString szEra = GC.getEraInfo(pWork->m_eEra)->getShortDesc();
 
 	return szEra;	
 }
@@ -1005,7 +1002,7 @@ CvCity* CvPlayerCulture::GetClosestAvailableGreatWorkSlot(int iX, int iY, GreatW
 	return pBestCity;
 }
 
-/// How many Great Works are in the entire empure?
+/// How many Great Works are in the entire empire?
 int CvPlayerCulture::GetNumGreatWorks() const
 {
 	CvCity* pLoopCity = NULL;
@@ -1015,6 +1012,19 @@ int CvPlayerCulture::GetNumGreatWorks() const
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		iRtnValue += pLoopCity->GetCityCulture()->GetNumGreatWorks();
+	}
+
+	return iRtnValue;
+}
+
+/// How many Great Works of eSlotType are in the entire empire?
+int CvPlayerCulture::GetNumGreatWorks(GreatWorkSlotType eSlotType) const
+{
+	int iLoop = 0;
+	int iRtnValue = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	{
+		iRtnValue += pLoopCity->GetCityBuildings()->GetNumGreatWorks(eSlotType);
 	}
 
 	return iRtnValue;
@@ -5909,23 +5919,17 @@ CvString CvCityCulture::GetTourismTooltip()
 /// What is the tooltip describing the tourism output?
 CvString CvCityCulture::GetFilledSlotsTooltip()
 {
-	CvString szRtnValue;
 	const int iGWWriting = m_pCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_LITERATURE());
 	const int iGWArt = m_pCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT());
 	const int iGWMusic = m_pCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-	szRtnValue = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_TT", iGWWriting, iGWArt, iGWMusic);
+	CvString szRtnValue = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_TT", iGWWriting, iGWArt, iGWMusic);
 
 	return szRtnValue;
 }
 
 /// What is the tooltip describing the tourism output?
 CvString CvCityCulture::GetTotalSlotsTooltip()
-{
-	CvString szRtnValue;
-	CvString szTemp1;
-	CvString szTemp2;
-	CvString szTemp3;
-	
+{	
 	GreatWorkSlotType eLiteratureSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
 	int iFilledWriting = m_pCity->GetCityBuildings()->GetNumGreatWorks(eLiteratureSlot);
 	int iGWWriting = iFilledWriting + m_pCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eLiteratureSlot);
@@ -5938,10 +5942,10 @@ CvString CvCityCulture::GetTotalSlotsTooltip()
 	int iFilledMusic = m_pCity->GetCityBuildings()->GetNumGreatWorks(eMusicSlot);
 	int iGWMusic = iFilledMusic + m_pCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eMusicSlot);
 
-	szTemp1 = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_SLOTS_TT_ENTRY", iFilledWriting, iGWWriting);
-	szTemp2 = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_SLOTS_TT_ENTRY", iFilledArt, iGWArt);
-	szTemp3 = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_SLOTS_TT_ENTRY", iFilledMusic, iGWMusic);
-	szRtnValue = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_SLOTS_TT", szTemp1, szTemp2, szTemp3);
+	CvString szTemp1 = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_SLOTS_TT_ENTRY", iFilledWriting, iGWWriting);
+	CvString szTemp2 = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_SLOTS_TT_ENTRY", iFilledArt, iGWArt);
+	CvString szTemp3 = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_SLOTS_TT_ENTRY", iFilledMusic, iGWMusic);
+	CvString szRtnValue = GetLocalizedText("TXT_KEY_CO_GREAT_WORK_SLOTS_TT", szTemp1, szTemp2, szTemp3);
 
 	return szRtnValue;
 }

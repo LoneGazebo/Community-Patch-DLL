@@ -470,7 +470,6 @@ local function GetSpecialistYields( city, specialist )
 		local cityOwner = Players[ city:GetOwner() ]
 		-- Culture
 		local specialistYield = 0
-		local cultureFromSpecialist = city:GetCultureFromSpecialist( specialistID )
 		local specialistYieldModifier = 0
 		local specialistCultureModifier = city:GetCultureRateModifier() + ( cityOwner and ( cityOwner:GetCultureCityModifier() + ( city:GetNumWorldWonders() > 0 and cityOwner:GetCultureWonderMultiplier() or 0 )) or 0 )
 		-- Yield
@@ -482,16 +481,13 @@ local function GetSpecialistYields( city, specialist )
 			-- COMMUNITY PATCH ENDS
 			specialistYieldModifier = city:GetBaseYieldRateModifier( yieldID )
 			if yieldID == YieldTypes.YIELD_CULTURE then
-				specialistYield = specialistYield + cultureFromSpecialist
 				specialistYieldModifier = specialistYieldModifier + specialistCultureModifier
-				cultureFromSpecialist = 0
 			end
 			-- Vox Populi Comparable Yields
 			specialistYieldModifier = 100
 			yieldTips:insertIf( specialistYield ~= 0 and specialistYield * specialistYieldModifier / 100 .. tostring(YieldIcons[yieldID]) )
 			--yieldTips:insertIf( specialistYield ~= 0 and specialistYield .. tostring(YieldIcons[yieldID]) )
 		end
-		yieldTips:insertIf( cultureFromSpecialist ~= 0 and cultureFromSpecialist .. "[ICON_CULTURE]" )
 		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange + city:GetEventGPPFromSpecialists() .. GreatPeopleIcon( specialist.Type ) )
 		-- Vox Populi food info
 		local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;

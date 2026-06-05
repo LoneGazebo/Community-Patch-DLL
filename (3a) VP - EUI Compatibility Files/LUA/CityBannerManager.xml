@@ -125,7 +125,8 @@
 				<Label ID="CityIsCityState" String="[ICON_CITY_STATE]" Hidden="1"/>
 				<Label ID="CityIsMined" String="[ICON_MINEFIELD]"/>
 				<Label ID="CityIsUnhappy" String="[ICON_HAPPINESS_3]"/>
-				<Label ID="CityHasAirport" String="[ICON_AIRPORT]"/>
+				<Label ID="CityCanAirlift" String="[ICON_AIRPORT]"/>
+				<Label ID="CityCanSealift" String="[ICON_CARGO_SHIP]"/>
 				<Label ID="CityHasOffice" String="[ICON_OFFICE]"/>
 				<Label ID="CityHasFranchise" String="[ICON_FRANCHISE]"/>
 				<Label ID="CityHasObstacle" String="[ICON_BORDER_OBSTRUCTION]"/>
@@ -225,7 +226,8 @@
 				<Label ID="CityIsOccupied" String="[ICON_OCCUPIED]"/>
 				<Label ID="CityIsMined" String="[ICON_MINEFIELD]"/>
 				<Label ID="CityIsUnhappy" String="[ICON_HAPPINESS_3]"/>
-				<Label ID="CityHasAirport" String="[ICON_AIRPORT]"/>
+				<Label ID="CityCanAirlift" String="[ICON_AIRPORT]"/>
+				<Label ID="CityCanSealift" String="[ICON_CARGO_SHIP]"/>
 				<Label ID="CityHasOffice" String="[ICON_OFFICE]"/>
 				<Label ID="CityHasFranchise" String="[ICON_FRANCHISE]"/>
 				<Label ID="CityHasObstacle" String="[ICON_BORDER_OBSTRUCTION]"/>

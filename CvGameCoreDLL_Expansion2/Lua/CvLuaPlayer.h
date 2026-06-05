@@ -59,6 +59,7 @@ protected:
 	static int lHasStrategicMonopoly(lua_State* L);
 	static int lGetResourcesMisc(lua_State* L);
 	static int lGetResourcesFromGP(lua_State* L);
+	static int lGetFreeResourceFromPolicies(lua_State* L);
 	static int lGetResourcesFromCorporation(lua_State* L);
 	static int lGetResourceFromCSAlliances(lua_State* L);
 	static int lGetResourcesFromFranchises(lua_State* L);
@@ -151,6 +152,8 @@ protected:
 	static int lGetBuildingProductionNeeded(lua_State* L);
 	static int lGetProjectProductionNeeded(lua_State* L);
 
+	LUAAPIEXTN(GetUnitUpgradeCost, int, iCurrentUnit, iNewUnit);
+
 	LUAAPIEXTN(GetMaxStockpile, int);
 
 	static int lHasReadyUnit(lua_State* L);
@@ -241,9 +244,6 @@ protected:
 	static int lGetGAPFromCities(lua_State* L);
 	static int lGetGAPFromCitiesTimes100(lua_State* L);
 	static int lGetGAPFromTraits(lua_State* L);
-
-	static int lIsDoubleBorderGrowthGA(lua_State* L);
-	static int lIsDoubleBorderGrowthWLTKD(lua_State* L);
 
 	static int lGetTotalJONSCulturePerTurn(lua_State* L);
 	static int lGetTotalJONSCulturePerTurnTimes100(lua_State* L);

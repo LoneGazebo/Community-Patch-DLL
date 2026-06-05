@@ -4,6 +4,7 @@ ALTER TABLE Projects ADD FreePolicyIfFirst text REFERENCES Policies (Type);
 
 ALTER TABLE Projects ADD CostScalerEra integer DEFAULT 0;
 ALTER TABLE Projects ADD CostScalerNumRepeats integer DEFAULT 0;
+ALTER TABLE Projects ADD Maintenance integer DEFAULT 0;
 ALTER TABLE Projects ADD IsRepeatable boolean DEFAULT 0;
 ALTER TABLE Projects ADD Happiness integer DEFAULT 0;
 ALTER TABLE Projects ADD EmpireSizeModifierReduction integer DEFAULT 0;

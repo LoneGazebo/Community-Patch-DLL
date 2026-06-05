@@ -90,8 +90,9 @@
     <glyph ch="72" u="132" v="142" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="73" u="154" v="142" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="74" u="176" v="142" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="75" u="198" v="142" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
 
-    <glyph ch="75" u="0" v="168" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
-    <glyph ch="76" u="22" v="168" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="76" u="0" v="168" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="77" u="22" v="168" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
   </glyphs>
 </glyphgen>

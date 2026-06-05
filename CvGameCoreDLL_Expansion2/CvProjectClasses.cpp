@@ -137,10 +137,9 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		kUtility.InitializeArray(m_piVictoryMinThreshold, iNumVictories);
 
 		Database::Results kDBResults;
-		char szQuery[512] = {0};
-		sprintf_s(szQuery, "select VictoryType, Threshold, MinThreshold from Project_VictoryThresholds where ProjectType = '%s';", szProjectType);
-		if(DB.Execute(kDBResults, szQuery))
+		if(DB.Execute(kDBResults, "select VictoryType, Threshold, MinThreshold from Project_VictoryThresholds where ProjectType = ?"))
 		{
+			kDBResults.Bind(1, szProjectType);
 			while(kDBResults.Step())
 			{
 				const char* szVictoryType = kDBResults.GetText("VictoryType");

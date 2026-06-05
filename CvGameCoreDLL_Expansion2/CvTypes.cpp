@@ -42,6 +42,7 @@ MissionTypes s_eMISSION_DISEMBARK = NO_MISSION;
 MissionTypes s_eMISSION_AIRPATROL = NO_MISSION;
 MissionTypes s_eMISSION_HEAL = NO_MISSION;
 MissionTypes s_eMISSION_AIRLIFT = NO_MISSION;
+MissionTypes s_eMISSION_SEALIFT = NO_MISSION;
 MissionTypes s_eMISSION_NUKE = NO_MISSION;
 MissionTypes s_eMISSION_PARADROP = NO_MISSION;
 MissionTypes s_eMISSION_AIR_SWEEP = NO_MISSION;
@@ -186,6 +187,7 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_AIRPATROL"), &s_eMISSION_AIRPATROL));
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_HEAL"), &s_eMISSION_HEAL));
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_AIRLIFT"), &s_eMISSION_AIRLIFT));
+		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_SEALIFT"), &s_eMISSION_SEALIFT));
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_NUKE"), &s_eMISSION_NUKE));
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_PARADROP"), &s_eMISSION_PARADROP));
 		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_AIR_SWEEP"), &s_eMISSION_AIR_SWEEP));
@@ -393,6 +395,10 @@ const MissionTypes CvTypes::getMISSION_HEAL()
 const MissionTypes CvTypes::getMISSION_AIRLIFT()
 {
 	return s_eMISSION_AIRLIFT;
+}
+const MissionTypes CvTypes::getMISSION_SEALIFT()
+{
+	return s_eMISSION_SEALIFT;
 }
 const MissionTypes CvTypes::getMISSION_NUKE()
 {

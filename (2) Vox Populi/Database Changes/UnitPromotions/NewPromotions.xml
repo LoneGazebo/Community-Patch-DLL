@@ -340,15 +340,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_ENCIRCLEMENT</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_MINELAYER</Type>
-			<Description>TXT_KEY_PROMOTION_MINELAYER</Description>
-			<Help>TXT_KEY_PROMOTION_MINELAYER_HELP</Help>
-			<TechPrereq>TECH_COMBUSTION</TechPrereq>
-			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
-			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_MINELAYER</PediaEntry>
-		</Row>
-		<Row>
 			<Type>PROMOTION_AERIAL_TORPEDO</Type>
 			<Description>TXT_KEY_PROMOTION_AERIAL_TORPEDO</Description>
 			<Help>TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP</Help>
@@ -467,6 +458,21 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SUN_NEVER_SETS</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_BUSHIDO</Type>
+			<Description>TXT_KEY_PROMOTION_BUSHIDO</Description>
+			<Help>TXT_KEY_PROMOTION_BUSHIDO_HELP</Help>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO</PediaEntry>
+			<HasPostCombatPromotions>true</HasPostCombatPromotions>
+		</Row>
+		<Row>
+			<Type>PROMOTION_CHASQUI_TRAINING</Type>
+			<Description>TXT_KEY_PROMOTION_CHASQUI_TRAINING</Description>
+			<Help>TXT_KEY_PROMOTION_CHASQUI_TRAINING_HELP</Help>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_CHASQUI_TRAINING</PediaEntry>
+		</Row>
 		<!-- Policy -->
 		<Row>
 			<Type>PROMOTION_FASTER_WORKER</Type>
@@ -578,6 +584,14 @@
 			<PediaType>PEDIA_HEAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EVERLASTING_YOUTH</PediaEntry>
 		</Row>
+		<!-- Belief -->
+		<Row>
+			<Type>PROMOTION_ANIMISM</Type>
+			<Description>TXT_KEY_PROMOTION_ANIMISM</Description>
+			<Help>TXT_KEY_PROMOTION_ANIMISM_HELP</Help>
+			<PediaType>PEDIA_CIVILIAN</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ANIMISM</PediaEntry>
+		</Row>
 		<!-- Building -->
 		<Row>
 			<Type>PROMOTION_ROYAL_SIGNET</Type>
@@ -643,14 +657,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_IKLWA</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_BUSHIDO</Type>
-			<Description>TXT_KEY_PROMOTION_BUSHIDO</Description>
-			<Help>TXT_KEY_PROMOTION_BUSHIDO_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO</PediaEntry>
-			<HasPostCombatPromotions>true</HasPostCombatPromotions>
-		</Row>
-		<Row>
 			<Type>PROMOTION_SCHUTZENKONIG</Type>
 			<Description>TXT_KEY_PROMOTION_SCHUTZENKONIG</Description>
 			<Help>TXT_KEY_PROMOTION_SCHUTZENKONIG_HELP</Help>
@@ -677,6 +683,13 @@
 			<Help>TXT_KEY_PROMOTION_TREASURE_FLEET_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_TREASURE_FLEET</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_TRIUMPH</Type>
+			<Description>TXT_KEY_PROMOTION_TRIUMPH</Description>
+			<Help>TXT_KEY_PROMOTION_TRIUMPH_HELP</Help>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_TRIUMPH</PediaEntry>
 		</Row>
 		<!-- Unit -->
 		<Row>
@@ -1045,11 +1058,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_BRUTE_STRENGTH</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_LEGACY</Type>
-			<Description>TXT_KEY_PROMOTION_LEGACY</Description>
-			<Help>TXT_KEY_PROMOTION_LEGACY_HELP</Help>
+			<Type>PROMOTION_SPEAR_WALL</Type>
+			<Description>TXT_KEY_PROMOTION_SPEAR_WALL</Description>
+			<Help>TXT_KEY_PROMOTION_SPEAR_WALL_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_LEGACY</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_SPEAR_WALL</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_RIACHUELO</Type>
@@ -1178,11 +1191,11 @@
 			<PediaEntry>TXT_KEY_PROMOTION_DHANURVIDYA</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_CETBANG</Type>
-			<Description>TXT_KEY_PROMOTION_CETBANG</Description>
-			<Help>TXT_KEY_PROMOTION_CETBANG_HELP</Help>
-			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_CETBANG</PediaEntry>
+			<Type>PROMOTION_RETALIATION</Type>
+			<Description>TXT_KEY_PROMOTION_RETALIATION</Description>
+			<Help>TXT_KEY_PROMOTION_RETALIATION_HELP</Help>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RETALIATION</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_KANTAI_KESSEN</Type>

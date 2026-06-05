@@ -109,7 +109,7 @@ VALUES
 	('TECH_DRAMA', 'FLAVOR_GREAT_PEOPLE', 10),
 	('TECH_DRAMA', 'FLAVOR_WONDER', 10),
 
-	('TECH_PHILOSOPHY', 'FLAVOR_NAVAL', 15), -- Units: Trireme, Buildings: Courthouse, Temple, SchoolofPhilosophy, Wonders: Oracle
+	('TECH_PHILOSOPHY', 'FLAVOR_NAVAL', 15), -- Units: Trireme, Buildings: Courthouse, Temple, SchoolofPhilosophy, Wonders: Oracle, Ability: OpenBorders
 	('TECH_PHILOSOPHY', 'FLAVOR_SCIENCE', 10),
 	('TECH_PHILOSOPHY', 'FLAVOR_RELIGION', 10),
 	('TECH_PHILOSOPHY', 'FLAVOR_WONDER', 10),
@@ -125,10 +125,11 @@ VALUES
 	('TECH_ENGINEERING', 'FLAVOR_INFRASTRUCTURE', 10),
 	('TECH_ENGINEERING', 'FLAVOR_WONDER', 10),
 
-	('TECH_METAL_CASTING', 'FLAVOR_PRODUCTION', 15), -- Buildings: Baths, CircusMaximus, Improvement: LumberMill, Yields: Manufactory +3 Prod
+	('TECH_METAL_CASTING', 'FLAVOR_PRODUCTION', 15), -- Buildings: Baths, Jail, CircusMaximus, Improvement: LumberMill, Yields: Manufactory +3 Prod
 	('TECH_METAL_CASTING', 'FLAVOR_GOLD', 15),
 	('TECH_METAL_CASTING', 'FLAVOR_CULTURE', 10),
 	('TECH_METAL_CASTING', 'FLAVOR_TILE_IMPROVEMENT', 15),
+	('TECH_METAL_CASTING', 'FLAVOR_ESPIONAGE', 10),
 
 	---------------------------------------------------------
 
@@ -160,13 +161,13 @@ VALUES
 
 	------------------------------------------------------
 
-	('TECH_CIVIL_SERVICE', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Units: Envoy, Buildings: Workshop, Wonders: ForbiddenPalace, Ability: OpenBorders, Yields: Laborer +1G, Farm +1F, Pasture +2F 
+	('TECH_CIVIL_SERVICE', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Units: Envoy, Buildings: Workshop, Wonders: ForbiddenPalace, Yields: Laborer +1G, Farm +1F, Pasture +2F
 	('TECH_CIVIL_SERVICE', 'FLAVOR_GROWTH', 10),
 	('TECH_CIVIL_SERVICE', 'FLAVOR_PRODUCTION', 10),
 	('TECH_CIVIL_SERVICE', 'FLAVOR_WONDER', 5),
 	('TECH_CIVIL_SERVICE', 'FLAVOR_DIPLOMACY', 15),
 
-	('TECH_GUILDS', 'FLAVOR_GOLD', 15), -- Units: Galleass, Buildings: Customs House, Artists' Guild, EastIndia, Wonders: Karlstejn, Yields: Camp & Village +1G
+	('TECH_GUILDS', 'FLAVOR_GOLD', 15), -- Units: Galleass, Buildings: Customs House, Artists' Guild, EastIndia, Wonders: Karlstejn, AlamutFortress Yields: Camp & Village +1G
 	('TECH_GUILDS', 'FLAVOR_CULTURE', 25),
 	('TECH_GUILDS', 'FLAVOR_WONDER', 10),
 	('TECH_GUILDS', 'FLAVOR_NAVAL', 15),
@@ -188,13 +189,15 @@ VALUES
 
 	-----------------------------------------------------
 
-	('TECH_BANKING', 'FLAVOR_GOLD', 15), -- Units: Pioneer, Buildings: Bank, Constabulary, Yields: Town +3G
+	('TECH_BANKING', 'FLAVOR_GOLD', 15), -- Units: Pioneer, Buildings: Ministerial District, Bank, Constabulary, Yields: Town +3G
 	('TECH_BANKING', 'FLAVOR_SCIENCE', 5),
 	('TECH_BANKING', 'FLAVOR_EXPANSION', 15),
 	('TECH_BANKING', 'FLAVOR_ESPIONAGE', 10),
+	('TECH_BANKING', 'FLAVOR_DIPLOMACY', 10),
 
-	('TECH_PRINTING_PRESS', 'FLAVOR_CULTURE', 5), -- Buildings: Printing Press, Wonders: GlobeTheatre, Ability: WC, Yeild: Writers +1C
+	('TECH_PRINTING_PRESS', 'FLAVOR_CULTURE', 5), -- Buildings: Printing House, Wonders: GlobeTheatre, Ability: WC, Yield: Writers +1C
 	('TECH_PRINTING_PRESS', 'FLAVOR_WONDER', 10),
+	('TECH_PRINTING_PRESS', 'FLAVOR_SCIENCE', 5),
 	('TECH_PRINTING_PRESS', 'FLAVOR_DIPLOMACY', 25),
 
 	('TECH_ASTRONOMY', 'FLAVOR_WONDER', 10),-- Buildings: Observatory, Wonders: ChichenItza, Ability: Faster embark&cross oceans, Yields: Scientist +1S
@@ -218,22 +221,24 @@ VALUES
 	('TECH_ARCHITECTURE', 'FLAVOR_WONDER', 20), -- Buildings: Royal Collection, Wonders: PorcelainTower, TajMahal, Yields: Artists +1C, Town +3F
 	('TECH_ARCHITECTURE', 'FLAVOR_CULTURE', 15),
 
-	('TECH_ECONOMICS', 'FLAVOR_GOLD', 5), -- Buildings: Windmill, Wonders: Uffizi, Ability: +1 TR, Yields: Merchant&Plantation +1G
+	('TECH_ACOUSTICS', 'FLAVOR_CULTURE', 25), -- Buildings: OperaHouse, Musicians' Guild, Wonders: Sistine, SummerPalace, Yields: HolySite +4Faith
+	('TECH_ACOUSTICS', 'FLAVOR_WONDER', 20),
+
+	('TECH_ECONOMICS', 'FLAVOR_OFFENSE', 20), -- Units: Lancer, Buildings: Windmill, Wonders: Uffizi, Ability: +1 TR, Yields: Merchant&Plantation +1G
+	('TECH_ECONOMICS', 'FLAVOR_MOBILE', 10),
+	('TECH_ECONOMICS', 'FLAVOR_GOLD', 5),
 	('TECH_ECONOMICS', 'FLAVOR_GROWTH', 5),
 	('TECH_ECONOMICS', 'FLAVOR_PRODUCTION', 20),
 	('TECH_ECONOMICS', 'FLAVOR_WONDER', 10),
 	('TECH_ECONOMICS', 'FLAVOR_TILE_IMPROVEMENT', 5),
 
-	('TECH_ACOUSTICS', 'FLAVOR_CULTURE', 25), -- Buildings: OperaHouse, Musicians' Guild, Wonders: Sistine, SummerPalace, Yields: HolySite +4Faith
-	('TECH_ACOUSTICS', 'FLAVOR_WONDER', 20),
-
-	('TECH_NAVIGATION', 'FLAVOR_NAVAL', 30), -- Units: Frigate, Corvette, Buildings: Bastion Fort, Ability: City embark costs 1 move, Yields: Servants +2G, Boats +1F
+	('TECH_NAVIGATION', 'FLAVOR_NAVAL', 30), -- Units: Frigate, Corvette, Buildings: Bastion Fort, Wonders: PortRoyal, Ability: City embark costs 1 move, Yields: Servants +2G, Boats +1F
 	('TECH_NAVIGATION', 'FLAVOR_CITY_DEFENSE', 20),
 	('TECH_NAVIGATION', 'FLAVOR_GOLD', 10),
 	('TECH_NAVIGATION', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 5),
+	('TECH_NAVIGATION', 'FLAVOR_WONDER', 10),
 
-	('TECH_METALLURGY', 'FLAVOR_OFFENSE', 20), -- Units: Lancer, Musketman, Cuirassier, Wonders: RedFort, Yields: Lumber +1P +1G
-	('TECH_METALLURGY', 'FLAVOR_MOBILE', 20),
+	('TECH_METALLURGY', 'FLAVOR_MOBILE', 10), -- Units: Musketman, Cuirassier, Wonders: RedFort, Yields: Lumber +1P +1G
 	('TECH_METALLURGY', 'FLAVOR_RANGED', 20),
 	('TECH_METALLURGY', 'FLAVOR_TILE_IMPROVEMENT', 5),
 	('TECH_METALLURGY', 'FLAVOR_WONDER', 5),
@@ -259,10 +264,11 @@ VALUES
 	('TECH_STEAM_POWER', 'FLAVOR_WONDER', 10),
 	('TECH_STEAM_POWER', 'FLAVOR_MILITARY_TRAINING', 5),
 
-	('TECH_RIFLING', 'FLAVOR_DEFENSE', 10), -- Units: Fusilier, Field Gun, ForeignLegion, Yields: Camp +1G
+	('TECH_RIFLING', 'FLAVOR_DEFENSE', 10), -- Units: Fusilier, Field Gun, ForeignLegion, Buildings: Penitentiary, Yields: Camp +1G
 	('TECH_RIFLING', 'FLAVOR_OFFENSE', 20),
 	('TECH_RIFLING', 'FLAVOR_RANGED', 10),
 	('TECH_RIFLING', 'FLAVOR_TILE_IMPROVEMENT', 5),
+	('TECH_RIFLING', 'FLAVOR_ESPIONAGE', 15),
 
 	-------------------------------------------------------
 
@@ -298,7 +304,8 @@ VALUES
 	('TECH_BIOLOGY', 'FLAVOR_GROWTH', 15),
 	('TECH_BIOLOGY', 'FLAVOR_WONDER', 5),
 
-	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 15), -- Buildings: StockExchange, Wonders: EmpireState, Ability: +1 TR
+	('TECH_ELECTRICITY', 'FLAVOR_GOLD', 30), -- Buildings: StockExchange, Casino, Wonders: EmpireState, Ability: +1 TR
+	('TECH_ELECTRICITY', 'FLAVOR_ESPIONAGE', 10),
 	('TECH_ELECTRICITY', 'FLAVOR_WONDER', 10),
 
 	('TECH_CORPORATIONS', 'FLAVOR_GOLD', 30), -- Buildings: Corporations // Not changing this, it's supposed to be rushed I guess
@@ -336,7 +343,7 @@ VALUES
 	('TECH_FLIGHT', 'FLAVOR_OFFENSE', 10),
 	('TECH_FLIGHT', 'FLAVOR_WONDER', 5),
 
-	('TECH_BALLISTICS', 'FLAVOR_MOBILE', 10), -- Units: Artillery, AAGun, LightTank, MachineGun, Buildings: HallofHonor, Ability: EngineeringCorps
+	('TECH_BALLISTICS', 'FLAVOR_MOBILE', 10), -- Units: Artillery, AAGun, LightTank, MachineGun, Wonders: Alcatraz, Buildings: HallofHonor, Ability: EngineeringCorps
 	('TECH_BALLISTICS', 'FLAVOR_RANGED', 30),
 	('TECH_BALLISTICS', 'FLAVOR_ANTIAIR', 10),
 	('TECH_BALLISTICS', 'FLAVOR_OFFENSE', 10),

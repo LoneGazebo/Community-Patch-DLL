@@ -73,6 +73,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasStrategicMonopoly);
 	Method(GetResourcesMisc);
 	Method(GetResourcesFromGP);
+	Method(GetFreeResourceFromPolicies);
 	Method(GetResourcesFromCorporation);
 	Method(GetResourceFromCSAlliances);
 	Method(GetResourcesFromFranchises);
@@ -165,6 +166,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnitProductionNeeded);
 	Method(GetBuildingProductionNeeded);
 	Method(GetProjectProductionNeeded);
+
+	Method(GetUnitUpgradeCost);
 
 	Method(GetMaxStockpile);
 
@@ -260,9 +263,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGAPFromCitiesTimes100);
 	Method(GetGAPFromTraits);
 	// Culture
-
-	Method(IsDoubleBorderGrowthGA);
-	Method(IsDoubleBorderGrowthWLTKD);
 
 	Method(GetTotalJONSCulturePerTurn);
 	Method(GetTotalJONSCulturePerTurnTimes100);
@@ -1813,6 +1813,16 @@ int CvLuaPlayer::lGetResourcesFromGP(lua_State* L)
 	return 1;
 }
 // -----------------------------------------------------------------------------
+// int CvPlayer::GetFreeResourceFromPolicies(ResourceTypes eResource)
+int CvLuaPlayer::lGetFreeResourceFromPolicies(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->getFreeResourceFromPolicies(eResource);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
 // int CvPlayer::GetResourcesFromCorporation(ResourceTypes eResource)
 int CvLuaPlayer::lGetResourcesFromCorporation(lua_State* L)
 {
@@ -2671,7 +2681,7 @@ int CvLuaPlayer::lGetUnitProductionNeeded(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const UnitTypes iIndex = (UnitTypes)lua_tointeger(L, 2);
 
-	const int iResult = pkPlayer->getProductionNeeded(iIndex, false);
+	const int iResult = pkPlayer->getProductionNeeded(iIndex);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -2695,6 +2705,22 @@ int CvLuaPlayer::lGetProjectProductionNeeded(lua_State* L)
 
 	const int iResult = pkPlayer->getProductionNeeded(iIndex);
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetUnitUpgradeCost(lua_State* L)
+{
+	CvPlayer* pPlayer = GetInstance(L);
+	UnitTypes eCurrentUnit = static_cast<UnitTypes>(lua_tointeger(L, 2));
+	UnitTypes eNewUnit = static_cast<UnitTypes>(lua_tointeger(L, 3));
+	int iCost = pPlayer->GetUpgradeCost(eCurrentUnit, eNewUnit);
+
+	// Round down the cost
+	int iDivisor = /*5*/ GD_INT_GET(UNIT_UPGRADE_COST_VISIBLE_DIVISOR);
+	iCost /= iDivisor;
+	iCost *= iDivisor;
+
+	lua_pushinteger(L, max(iCost, iDivisor));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -3394,18 +3420,6 @@ int CvLuaPlayer::lGetGAPFromTraits(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int IsDoubleBorderGrowthGA();
-int CvLuaPlayer::lIsDoubleBorderGrowthGA(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::IsDoubleBorderGrowthGA);
-}
-//------------------------------------------------------------------------------
-//int IsDoubleBorderGrowthWLTKD();
-int CvLuaPlayer::lIsDoubleBorderGrowthWLTKD(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::IsDoubleBorderGrowthWLTKD);
-}
-//------------------------------------------------------------------------------
 //int GetTotalJONSCulturePerTurn();
 // LEGACY METHOD, use GetTotalJONSCulturePerTurnTimes100 instead
 int CvLuaPlayer::lGetTotalJONSCulturePerTurn(lua_State* L)
@@ -3910,8 +3924,7 @@ int CvLuaPlayer::lGetInfluenceSpyRankTooltip(lua_State* L)
 	CvString szRank = lua_tostring(L, 3);
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 4);
 
-	CvString szResult;
-	szResult = pkPlayer->GetCulture()->GetInfluenceSpyRankTooltip(szSpyName, szRank, eOtherPlayer);
+	CvString szResult = pkPlayer->GetCulture()->GetInfluenceSpyRankTooltip(szSpyName, szRank, eOtherPlayer);
 	lua_pushstring(L, szResult);
 	return 1;
 }
@@ -5619,12 +5632,16 @@ int CvLuaPlayer::lGetTradeConnectionDistance(lua_State* L)
 	kTradeConnection.SetCities(pOriginCity, pDestCity);
 	kTradeConnection.m_eDomain = eDomain;
 
-	SPath path;
-	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, kTradeConnection.m_eDomain, &path);
+	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, kTradeConnection.m_eDomain);
 	if (!bTradeAvailable)
 		return 0;
 
-	int iLength = path.iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase();
+	const STradePathInfo* pPath = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pOriginCity, pDestCity, kTradeConnection.m_eDomain);
+	ASSERT(pPath, "Trade route path valid, but no path found in cache");
+	if (!pPath)
+		return 0;
+
+	int iLength = pPath->iNormalizedDistanceRaw / SPath::getNormalizedDistanceBase();
 	lua_pushinteger(L, iLength);
 	return 1;
 }
@@ -7065,7 +7082,7 @@ int CvLuaPlayer::lGetWarScore(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetDiplomacyAI()->GetWarScore(ePlayer);
+	const int iResult = pkPlayer->GetWarScore(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -12324,8 +12341,8 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 				continue;
 
 			// Can't actually found here!
-			if(!pkPlayer->canFoundCity(iPlotX, iPlotY))
-				continue;
+			if(!pFoundingUnit->canFoundCity(pPlot))
+			    continue;
 
 			// Do we have to check if this is a safe place to go?
 			if(!pPlot->isVisibleEnemyUnit(pkPlayer->GetID()))
@@ -14058,21 +14075,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				kOpinion.m_str = str;
 				aOpinions.push_back(kOpinion);
 			}
-		}
-		iValue = pDiplo->GetNumSamePolicies(ePlayer);
-		if (iValue > 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = -3;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_SAME_POLICIES");
-			aOpinions.push_back(kOpinion);
-		}
-		else if (iValue < 0)
-		{
-			Opinion kOpinion;
-			kOpinion.m_iValue = bTeammate ? 0 : 3;
-			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DIFFERENT_POLICIES");
-			aOpinions.push_back(kOpinion);
 		}
 		// Same religion?
 		if (pDiplo->IsPlayerSameReligion(ePlayer))

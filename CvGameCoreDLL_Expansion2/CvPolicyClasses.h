@@ -233,6 +233,7 @@ public:
 	bool IsEnablesSSPartHurry() const;
 	bool IsEnablesSSPartPurchase() const;
 	bool IsAbleToAnnexCityStates() const;
+	bool IsBorderSettle() const;
 	std::string pyGetWeLoveTheKing()
 	{
 		return GetWeLoveTheKing();
@@ -249,6 +250,8 @@ public:
 	int* GetCityYieldChangeArray() const;
 	int GetCoastalCityYieldChange(int i) const;
 	int* GetCoastalCityYieldChangeArray() const;
+	int GetMonopolyCityYieldChange(int i) const;
+	int* GetMonopolyCityYieldChangeArray() const;
 	int GetCapitalYieldChange(int i) const;
 	int* GetCapitalYieldChangeArray() const;
 	int GetCapitalYieldPerPopChange(int i) const;
@@ -281,6 +284,7 @@ public:
 	bool IsSpecialistValid(int i) const;
 	int GetFreeChosenBuilding(int i) const;
 	int GetResourceFromCSAlly(int i) const;
+	int GetFreeResource(int i) const;
 	int GetYieldFromBirth(int i) const;
 	int GetYieldFromBirthCapital(int i) const;
 	int GetYieldFromBirthRetroactive(int i) const;
@@ -293,8 +297,6 @@ public:
 	int GetYieldFromTechRetroactive(int i) const;
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
-	bool GetDoubleBorderGrowthGA() const;
-	bool GetDoubleBorderGrowthWLTKD() const;
 	bool IsKeepConqueredBuildings() const;
 	int GetIncreasedQuestInfluence() const;
 	int GetGreatScientistBeakerModifier() const;
@@ -315,6 +317,7 @@ public:
 	int GetFreeSpy() const;
 	int GetReligionDistance() const;
 	int GetPressureMod() const;
+	int GetFranchisePressure() const;
 	int GetYieldFromBorderGrowth(int i) const;
 	int GetYieldGPExpend(int i) const;
 	int GetGarrisonsOccupiedUnhappinessMod() const;
@@ -652,6 +655,7 @@ private:
 	bool m_bEnablesSSPartHurry;
 	bool m_bEnablesSSPartPurchase;
 	bool m_bAbleToAnnexCityStates;
+	bool m_bBorderSettle;
 
 	bool m_bIsOnlyTradeSameIdeology;
 	bool m_bOneShot;
@@ -699,6 +703,7 @@ private:
 	int* m_piYieldModifier;
 	int* m_piCityYieldChange;
 	int* m_piCoastalCityYieldChange;
+	int* m_piMonopolyCityYieldChange;
 	int* m_piCapitalYieldChange;
 	int* m_piCapitalYieldPerPopChange;
 	int* m_piCapitalYieldPerPopChangeEmpire;
@@ -719,6 +724,7 @@ private:
 	int* m_paiTourismOnUnitCreation;
 	int* m_paiFreeChosenBuilding;
 	int* m_piResourcefromCSAlly;
+	int* m_piFreeResource;
 	int* m_piYieldFromBirth;
 	int* m_piYieldFromBirthCapital;
 	int* m_piYieldFromBirthRetroactive;
@@ -752,6 +758,7 @@ private:
 	int m_iFreeSpy;
 	int m_iReligionDistance;
 	int m_iPressureMod;
+	int m_iFranchisePressure;
 	int* m_piYieldFromUnitProduction;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldGPExpend;

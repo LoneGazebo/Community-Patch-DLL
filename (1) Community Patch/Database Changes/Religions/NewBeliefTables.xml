@@ -20,8 +20,28 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Yields for cities on or adjacent to specified terrain -->
+	<Table name="Belief_NearbyTerrainYieldChanges">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<Table name="Belief_GreatPersonExpendedYield">
 		<!-- Refer to Beliefs.GreatPersonExpendedFaith -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_GreatPersonRateModifier">
+		<!-- Cities gain +% GPPoints, and Players convert more XP to Admirals/Generals-->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_GreatPersonBornYield">
+		<!-- Does not scale with Era. Scales with CityScalerLimiter -->
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
@@ -309,19 +329,14 @@
 		<Column name="Amount" type="integer" notnull="true"/>
 	</Table>
 
-	<!-- FOLLOWER: Allows you to define a policy to grant a yield per follower in a city, up to a maximum amount. -->
-	<Table name="Belief_MaxYieldPerFollower">
+	<!-- FOLLOWER: Allows you to define a belief to grant a yield per X followers in a city, up to a maximum amount (defaults no cap). -->
+	<Table name="Belief_YieldPerXFollowersLocal">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Max" type="integer" notnull="true"/>
+		<Column name="NumRequired" type="integer" notnull="true"/>
+		<Column name="YieldCap" type="integer" notnull="true" default="-1"/>
 	</Table>
-	<!-- Same as above, but x * followers / 100 -->
-	<Table name="Belief_MaxYieldPerFollowerPercent">
-		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Max" type="integer" notnull="true"/>
-	</Table>
-
+		
 	<!-- Same as vanilla but percent (as above)-->
 	<Table name="Belief_MaxYieldModifierPerFollowerPercent">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
@@ -380,5 +395,13 @@
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+
+	<!-- Intended as a Reformation (or Follower) taking the City as argument -->
+	<Table name="Belief_UnitCombatProductionModifiers">
+		<!-- Refer to Building_UnitCombatProductionModifiers -->
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="UnitCombatType" type="text" reference="UnitCombatInfos(Type)"/>
+		<Column name="Modifier" type="integer" notnull="true"/>
 	</Table>
 </GameData>

@@ -224,6 +224,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bRevealAllCapitals(false),
 	m_bGarrisonFreeMaintenance(false),
 	m_bAbleToAnnexCityStates(false),
+	m_bBorderSettle(false),
 	m_bOneShot(false),
 	m_bIsOnlyTradeSameIdeology(false),
 	m_bIncludesOneShotFreeUnits(false),
@@ -274,6 +275,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_pabSpecialistValid(NULL),
 	m_paiFreeChosenBuilding(NULL),
 	m_piResourcefromCSAlly(NULL),
+	m_piFreeResource(NULL),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromBirthCapital(NULL),
 	m_piYieldFromBirthRetroactive(NULL),
@@ -307,6 +309,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iFreeSpy(0),
 	m_iReligionDistance(0),
 	m_iPressureMod(0),
+	m_iFranchisePressure(0),
 	m_piYieldFromUnitProduction(NULL),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldGPExpend(NULL),
@@ -418,6 +421,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_pabSpecialistValid);
 	SAFE_DELETE_ARRAY(m_paiFreeChosenBuilding);
 	SAFE_DELETE_ARRAY(m_piResourcefromCSAlly);
+	SAFE_DELETE_ARRAY(m_piFreeResource);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
@@ -686,6 +690,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bEnablesSSPartHurry = kResults.GetBool("EnablesSSPartHurry");
 	m_bEnablesSSPartPurchase = kResults.GetBool("EnablesSSPartPurchase");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
+	m_bBorderSettle = kResults.GetBool("BorderSettle");
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIsOnlyTradeSameIdeology = kResults.GetBool("IsOnlyTradeSameIdeology");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
@@ -750,6 +755,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iFreeSpy = kResults.GetInt("FreeSpy");
 	m_iReligionDistance = kResults.GetInt("ReligionDistance");
 	m_iPressureMod = kResults.GetInt("PressureMod");
+	m_iFranchisePressure = kResults.GetInt("FranchisePressure");
 	m_iMissionInfluenceModifier = kResults.GetInt("MissionInfluenceModifier");
 	m_iHappinessPerActiveTradeRoute = kResults.GetInt("HappinessPerActiveTradeRoute");
 	m_bCSResourcesForMonopolies = kResults.GetBool("CSResourcesCountForMonopolies");
@@ -799,6 +805,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldModifier, "Policy_YieldModifiers", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCityYieldChange, "Policy_CityYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCoastalCityYieldChange, "Policy_CoastalCityYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piMonopolyCityYieldChange, "Policy_CityYieldPerMonopoly", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldChange, "Policy_CapitalYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldPerPopChange, "Policy_CapitalYieldPerPopChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldPerPopChangeEmpire, "Policy_CapitalYieldPerPopChangeEmpire", "PolicyType", szPolicyType);
@@ -806,6 +813,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
 	kUtility.PopulateArrayByValue(m_piResourcefromCSAlly, "Resources", "Policy_ResourcefromCSAlly", "ResourceType", "PolicyType", szPolicyType, "Number");
+	kUtility.PopulateArrayByValue(m_piFreeResource, "Resources", "Policy_FreeResource", "ResourceType", "PolicyType", szPolicyType, "Number");
 	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Policy_YieldFromBirthRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
@@ -1356,6 +1364,12 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	{
 		m_ppiBuildingClassYieldChanges[iI][YIELD_CULTURE] += m_paiBuildingClassCultureChanges[iI];
 	}
+
+	if (m_bDoubleBorderGrowthWLTKD)
+		m_piYieldFromWLTKD[YIELD_CULTURE_LOCAL] += 100;
+
+	if (m_bDoubleBorderGrowthGA)
+		m_piGoldenAgeYieldMod[YIELD_CULTURE_LOCAL] += 100;
 
 	return true;
 }
@@ -2455,6 +2469,12 @@ bool CvPolicyEntry::IsAbleToAnnexCityStates() const
 	return m_bAbleToAnnexCityStates;
 }
 
+/// Do we ignore border adjancency restriction when founding cities?
+bool CvPolicyEntry::IsBorderSettle() const
+{
+	return m_bBorderSettle;
+}
+
 /// Only trade with same ideologies
 bool CvPolicyEntry::IsOnlyTradeSameIdeology() const
 {
@@ -2657,6 +2677,20 @@ int CvPolicyEntry::GetCoastalCityYieldChange(int i) const
 int* CvPolicyEntry::GetCoastalCityYieldChangeArray() const
 {
 	return m_piCoastalCityYieldChange;
+}
+
+/// Change to yield per monopoly owned
+int CvPolicyEntry::GetMonopolyCityYieldChange(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piMonopolyCityYieldChange ? m_piMonopolyCityYieldChange[i] : -1;
+}
+
+/// Array of yield changes per monopoly owned
+int* CvPolicyEntry::GetMonopolyCityYieldChangeArray() const
+{
+	return m_piMonopolyCityYieldChange;
 }
 
 /// Change to yield in Capital by type
@@ -2884,6 +2918,13 @@ int CvPolicyEntry::GetResourceFromCSAlly(int i) const
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourcefromCSAlly[i];
 }
+// Grants free resources when the policy is adopted
+int CvPolicyEntry::GetFreeResource(int i) const
+{
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piFreeResource[i];
+}
 /// Does this Policy grant yields from citizen birth?
 int CvPolicyEntry::GetYieldFromBirth(int i) const
 {
@@ -2961,16 +3002,6 @@ bool CvPolicyEntry::GetNoUnhappinessExpansion() const
 bool CvPolicyEntry::GetNoUnhappyIsolation() const
 {
 	return m_bNoUnhappyIsolation;
-}
-/// Does this Policy generate double border growth during GAs?
-bool CvPolicyEntry::GetDoubleBorderGrowthGA() const
-{
-	return m_bDoubleBorderGrowthGA;
-}
-/// Does this Policy generate double border growth during WLTKD?
-bool CvPolicyEntry::GetDoubleBorderGrowthWLTKD() const
-{
-	return m_bDoubleBorderGrowthWLTKD;
 }
 /// Are all buildings kept on city conquest?
 bool CvPolicyEntry::IsKeepConqueredBuildings() const
@@ -3067,6 +3098,10 @@ int CvPolicyEntry::GetReligionDistance() const
 int CvPolicyEntry::GetPressureMod() const
 {
 	return m_iPressureMod;
+}
+int CvPolicyEntry::GetFranchisePressure() const
+{
+	return m_iFranchisePressure;
 }
 // Does this policy grant % of prod cost as yield on unit train?
 int CvPolicyEntry::GetYieldFromUnitProduction(int i) const

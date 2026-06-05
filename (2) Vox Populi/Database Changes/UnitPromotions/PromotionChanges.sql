@@ -244,7 +244,7 @@ UPDATE UnitPromotions SET ExtraFlankPower = 1, FlankAttackModifier = 10 WHERE Ty
 --                    │                         └───► Medic I ────► Medic II    Blitz
 --                    │                               Piracy
 --                    │                               Encirclement
---                    │                               Minelayer
+--                    │                               
 --                    │
 --                    └───► Navigator I ─────► Navigator II
 ----------------------------------------------------------------------------------------------------------------------------
@@ -296,12 +296,6 @@ SELECT
 FROM UnitCombatInfos
 WHERE IsNaval = 1;
 
-UPDATE UnitPromotions
-SET
-	AdjacentEnemySapMovement = (SELECT Value FROM Defines WHERE Name = 'MOVE_DENOMINATOR') * 2,
-	RangedDefenseMod = -10
-WHERE Type = 'PROMOTION_MINELAYER';
-
 UPDATE UnitPromotions SET CityAttack = 125, DamageReductionCityAssault = 50 WHERE Type = 'PROMOTION_VANGUARD';
 
 UPDATE UnitPromotions SET ChangeDamageValue = -5, FriendlyHealChange = 10, NeutralHealChange = 10, EnemyHealChange = 10 WHERE Type = 'PROMOTION_DAUNTLESS';
@@ -314,7 +308,7 @@ UPDATE UnitPromotions SET HealOutsideFriendly = 1, FriendlyHealChange = 5, Neutr
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Naval Ranged promotion tree drawn using ASCIIFlow
---                                                                Splash I
+--                                                                Splash I ──► Splash II
 -- Targeting I ──┬───► Targeting II ───┬───► Targeting III ───┬─► Indomitable ─────────────────────────┐
 --               │                     │                      │                                        │
 --               │                     │                      └───────────────────────────┐            │
@@ -368,8 +362,8 @@ UPDATE UnitPromotions SET CityAttack = 40 WHERE Type = 'PROMOTION_BROADSIDE';
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 35),
-	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 35);
+	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 50),
+	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 50);
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Submarine promotion tree drawn using ASCIIFlow
@@ -566,6 +560,23 @@ UPDATE UnitPromotions SET RiverDoubleMove = 1, River = 1 WHERE Type = 'PROMOTION
 
 UPDATE UnitPromotions SET AttackMod = 20 WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
 
+UPDATE UnitPromotions SET CanCrossMountains = 1 WHERE Type = 'PROMOTION_CHASQUI_TRAINING';
+
+-- Eight Virtues of Bushido
+UPDATE UnitPromotions SET HasPostCombatPromotions = 1 WHERE Type = 'PROMOTION_BUSHIDO';
+
+INSERT INTO UnitPromotions_PostCombatRandomPromotion
+	(PromotionType, NewPromotion)
+VALUES
+	('PROMOTION_BUSHIDO', 'PROMOTION_RIGHTEOUSNESS'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_COURAGE'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_BENEVOLENCE'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_RESPECT'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_SINCERITY'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_HONOR'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_LOYALTY'),
+	('PROMOTION_BUSHIDO', 'PROMOTION_SELF_CONTROL');
+
 --------------------------------------------
 -- Policy free promotions
 --------------------------------------------
@@ -615,6 +626,11 @@ UPDATE UnitPromotions SET FriendlyHealChange = 5, NeutralHealChange = 5, EnemyHe
 UPDATE UnitPromotions_Terrains SET DoubleMove = 0 WHERE PromotionType = 'PROMOTION_ALTITUDE_TRAINING';
 
 --------------------------------------------
+-- Religion free promotions
+--------------------------------------------
+UPDATE UnitPromotions SET IgnoreTerrainCost = 1 WHERE Type = 'PROMOTION_ANIMISM';
+
+--------------------------------------------
 -- Building free promotions
 --------------------------------------------
 UPDATE UnitPromotions SET FriendlyLandsModifier = 15 WHERE Type = 'PROMOTION_HIMEJI_CASTLE';
@@ -633,23 +649,15 @@ UPDATE UnitPromotions SET CombatPercent = 10, MovesChange = 1 WHERE Type = 'PROM
 
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_MORALE';
 
+UPDATE UnitPromotions SET CombatPercent = 15 WHERE Type = 'PROMOTION_TRIUMPH';
+INSERT INTO UnitPromotions_YieldFromKills
+	(PromotionType, YieldType, Yield)
+VALUES
+	('PROMOTION_TRIUMPH', 'YIELD_GREAT_GENERAL_POINTS', 50);
+
 UPDATE UnitPromotions SET AttackMod = 10 WHERE Type = 'PROMOTION_IKLWA';
 
 UPDATE UnitPromotions SET DiplomaticMissionAccomplishment = 1 WHERE Type = 'PROMOTION_PROXENOS';
-
--- Eight Virtues of Bushido
-UPDATE UnitPromotions SET HasPostCombatPromotions = 1 WHERE Type = 'PROMOTION_BUSHIDO';
-INSERT INTO UnitPromotions_PostCombatRandomPromotion
-	(PromotionType, NewPromotion)
-VALUES
-	('PROMOTION_BUSHIDO', 'PROMOTION_RIGHTEOUSNESS'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_COURAGE'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_BENEVOLENCE'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_RESPECT'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_SINCERITY'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_HONOR'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_LOYALTY'),
-	('PROMOTION_BUSHIDO', 'PROMOTION_SELF_CONTROL');
 
 UPDATE UnitPromotions SET DiploMissionInfluence = 10 WHERE RankList = 'DIPLO_BOOST';
 UPDATE UnitPromotions SET DiploMissionInfluence = 15, RivalTerritory = 1 WHERE Type = 'PROMOTION_NOBILITY';
@@ -685,7 +693,7 @@ VALUES
 
 UPDATE UnitPromotions SET DefenseMod = 10, NearbyEnemyCombatMod = -15, NearbyEnemyCombatRange = 2 WHERE RankList = 'COVERING_FIRE';
 UPDATE UnitPromotions SET AttackFortifiedMod = -50, CityAttack = -50 WHERE Type = 'PROMOTION_COVERING_FIRE_1';
-UPDATE UnitPromotions SET AttackFortifiedMod = -25, CityAttack = -25 WHERE Type = 'PROMOTION_COVERING_FIRE_2';
+UPDATE UnitPromotions SET AttackFortifiedMod = -25, CityAttack = -25, RangedDefenseMod = 15 WHERE Type = 'PROMOTION_COVERING_FIRE_2';
 INSERT INTO UnitPromotions_UnitCombatMods
 	(PromotionType, UnitCombatType, Modifier)
 VALUES
@@ -922,9 +930,6 @@ SET
 	DisembarkFlatCost = 1
 WHERE Type = 'PROMOTION_HAKA_WAR_DANCE';
 
--- Khan: Khaaaan!
-UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_MEDIC_GENERAL';
-
 -- Samurai, Sabum Kibitum, Treasure Ship: Quick Study
 UPDATE UnitPromotions SET ExperiencePercent = 50 WHERE Type = 'PROMOTION_GAIN_EXPERIENCE';
 
@@ -1061,8 +1066,8 @@ UPDATE UnitPromotions SET BorderMod = 40 WHERE Type = 'PROMOTION_FRONTIERSMAN';
 -- Otomi: Brute Strength
 UPDATE UnitPromotions SET BarbarianCombatBonus = 40 WHERE Type = 'PROMOTION_BRUTE_STRENGTH';
 
--- Sabum Kibitum: Legacy
-UPDATE UnitPromotions SET CombatModPerLevel = 5 WHERE Type = 'PROMOTION_LEGACY';
+-- Sabum Kibitum: Spear Wall
+UPDATE UnitPromotions SET NearbyEnemyDamage = 5, AoEWhileFortified = 5 WHERE Type = 'PROMOTION_SPEAR_WALL';
 
 -- Amazonas: Riachuelo
 UPDATE UnitPromotions SET GoldenAgeValueFromKills = 100 WHERE Type = 'PROMOTION_RIACHUELO';
@@ -1157,8 +1162,8 @@ VALUES
 	('PROMOTION_DHANURVIDYA', 'YIELD_CULTURE', 50),
 	('PROMOTION_DHANURVIDYA', 'YIELD_FAITH', 50);
 
--- Djong: Cetbang
-UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_CETBANG';
+-- Djong, Khan, Naga-Malla: Retaliation
+UPDATE UnitPromotions SET NearbyEnemyDamage = 10 WHERE Type = 'PROMOTION_RETALIATION';
 
 -- Mikasa: Kantai Kessen
 UPDATE UnitPromotions SET AttackFullyHealedMod = 25 WHERE Type = 'PROMOTION_KANTAI_KESSEN';
@@ -1194,18 +1199,18 @@ UPDATE UnitPromotions SET XPFromPillaging = 3, PillageBonusStrength = 20 WHERE T
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)
 VALUES
-	('PROMOTION_RAZZIA', 'YIELD_FOOD', 200),
-	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 200);
+	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 200),
+	('PROMOTION_RAZZIA', 'YIELD_GOLD', 200);
 INSERT INTO UnitPromotions_YieldFromPillage
 	(PromotionType, YieldType, YieldNoScale)
 VALUES
-	('PROMOTION_RAZZIA', 'YIELD_FOOD', 100),
-	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 100);
+	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 100),
+	('PROMOTION_RAZZIA', 'YIELD_GOLD', 100);
 INSERT INTO UnitPromotions_YieldFromTRPlunder
 	(PromotionType, YieldType, Yield)
 VALUES
-	('PROMOTION_RAZZIA', 'YIELD_FOOD', 200),
-	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 200);
+	('PROMOTION_RAZZIA', 'YIELD_PRODUCTION', 400),
+	('PROMOTION_RAZZIA', 'YIELD_GOLD', 400);
 
 -- Goedendag: Burgher
 UPDATE UnitPromotions SET NearbyFriendlyCityCombatMod = 33, NearbyRange = 2 WHERE Type = 'PROMOTION_BURGHER';
