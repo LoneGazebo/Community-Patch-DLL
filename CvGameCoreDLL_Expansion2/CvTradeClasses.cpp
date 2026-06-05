@@ -152,6 +152,18 @@ bool HaveTradePathInCache(const TradePathLookup& cache, int iCityPlotA, int iCit
 	return false;
 }
 
+// helper function
+void RemoveTradePathFromCache(TradePathLookup& cache, int iCityPlotA, int iCityPlotB)
+{
+	TradePathLookup::iterator itA = cache.find(iCityPlotA);
+	if (itA != cache.end())
+	{
+		itA->second.erase(iCityPlotB);
+		if (itA->second.empty())
+			cache.erase(itA);
+	}
+}
+
 // helper function - stores only metadata, not the full path (99.9% memory reduction)
 bool AddTradePathToCache(TradePathLookup& cache, int iCityPlotA, int iCityPlotB, const SPath& path)
 {
@@ -271,6 +283,13 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	{
 		DomainTypes eDomain = bWater ? DOMAIN_SEA : DOMAIN_LAND;
 		*pPathOut = ComputeTradePath(pOriginCity, pDestCity, eDomain);
+		if (pPathOut->vPlots.size() == 0)
+		{
+			// no path could be generated, remove the stale entry from cache
+			ASSERT(false, "No path could be generated for a trade route found in cache. This shouldn't happen");
+			RemoveTradePathFromCache(cache, iCityPlotA, iCityPlotB);
+			return false;
+		}
 	}
 
 	return hasPath;
@@ -5109,8 +5128,7 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 		{
 			if (CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, TRADE_CONNECTION_INTERNATIONAL, false, false))
 			{
-				SPath outPath;
-				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain, &outPath);
+				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain);
 
 				if (iLength <= 0)
 					continue;
@@ -5589,6 +5607,10 @@ std::vector<CvString> CvPlayerTrade::GetPlotToolTips (CvPlot* pPlot)
 		else
 		{
 			int iTradeUnitIndex = pConnection->m_iTradeUnitLocationIndex;
+			ASSERT(pConnection->m_aPlotList.size() > 0, "A trade route has an empty plot list.");
+			if (pConnection->m_aPlotList.size() == 0)
+				return aToolTips;
+
 			int iTradeUnitX = pConnection->m_aPlotList[iTradeUnitIndex].m_iX;
 			int iTradeUnitY = pConnection->m_aPlotList[iTradeUnitIndex].m_iY;
 			if (iTradeUnitX == iX && iTradeUnitY == iY)
