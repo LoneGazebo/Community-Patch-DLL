@@ -140,3 +140,26 @@ INSERT INTO Belief_FreePromotions
 	(BeliefType, PromotionType)
 VALUES
 	('BELIEF_ANIMISM', 'PROMOTION_ANIMISM');
+
+INSERT INTO Belief_LakePlotYield
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_ANIMISM', 'YIELD_FOOD', 1),
+	('BELIEF_ANIMISM', 'YIELD_CULTURE', 1);
+
+INSERT INTO Belief_UnimprovedFeatureYieldChanges
+	(BeliefType, FeatureType, YieldType, Yield)
+SELECT
+	'BELIEF_ANIMISM', f.Type, y.Type, 1
+FROM Features f, Yields y
+WHERE y.Type IN ('YIELD_FOOD', 'YIELD_CULTURE')
+AND f.NaturalWonder = 0;
+
+-- some natural wonders can be improved in modmods
+INSERT INTO Belief_FeatureYieldChanges
+	(BeliefType, FeatureType, YieldType, Yield)
+SELECT
+	'BELIEF_ANIMISM', f.Type, y.Type, 1
+FROM Features f, Yields y
+WHERE y.Type IN ('YIELD_FOOD', 'YIELD_CULTURE')
+AND f.NaturalWonder = 1;
