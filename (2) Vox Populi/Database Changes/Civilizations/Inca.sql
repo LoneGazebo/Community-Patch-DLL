@@ -23,6 +23,11 @@ SELECT
 	'TRAIT_GREAT_ANDEAN_ROAD', Type, 'PROMOTION_CHASQUI_TRAINING'
 FROM UnitCombatInfos WHERE IsMilitary = 0;
 
+INSERT INTO Trait_FreePromotionUnitCombats
+	(TraitType, UnitCombatType, PromotionType)
+VALUES
+	('TRAIT_GREAT_ANDEAN_ROAD', 'UNITCOMBAT_RECON', 'PROMOTION_CHASQUI_TRAINING');
+
 ----------------------------------------------------------
 -- Unique Unit: Warak'aq (Archer)
 ----------------------------------------------------------
