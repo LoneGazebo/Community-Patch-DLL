@@ -331,6 +331,18 @@ SET Text = 'Agents stationed in the Cities of Major Civilizations can spend Netw
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_STEALING_TECHS_SUMMARY';
 
 UPDATE Language_en_US
+SET Text = Text || '[NEWLINE][NEWLINE]' || 'The list of [ICON_SPY] Spy Missions: ' || '[NEWLINE][NEWLINE]' || 
+    (
+        SELECT group_concat(
+            '{' || Description || '} ([COLOR_POSITIVE_TEXT]' || NetworkPointsNeeded || ' NP[ENDCOLOR])' || '[NEWLINE]' || '{' || Pedia || '} ',
+            '[NEWLINE][NEWLINE]'
+        )
+        FROM CityEventChoices
+   	WHERE IsEspionageMission = 1
+    )
+WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_STEALING_TECHS_SUMMARY';
+
+UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Rigging City-State Elections[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_RIG_ELECTION_TOPIC';
 UPDATE Language_en_US
@@ -349,6 +361,19 @@ SET Text = '[COLOR_YELLOW]Counter-Intelligence[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_COUNTER_INTEL_TOPIC';
 UPDATE Language_en_US
 SET Text = 'By default there are 4 Counterspy Focus options. Each grants Yields when a foreign Spy in the City is Identified, and triple if they are Killed. Therefore the first reason to use a Counterspy is because you have reason to believe subterfuge is likely to occur in your City.[NEWLINE][NEWLINE]The second reason is preventative. Certain Spy Missions are unavailable if particular Counterspy Focus operations are underway. For example it can be infuriating to have your [ICON_GREAT_WORK] Great Works stolen, especially if you are pursuing the [ICON_VICTORY_CULTURE] Cultural Victory. Hence, you may wish to protect them by using one of your Spies with the "Hunt Down Heretics" Focus.[NEWLINE][NEWLINE]Finally, each Focus has passive effects. So while you may enjoy the safety of those Great Works, your City will unfortunately lose some [ICON_FOOD] Growth when running the Focus. However, all Focus passive effects contain bonuses, and for "Hunt Down Heretics" that is a +25% [ICON_RELIGION] Pressure boost. A particularly focussed Player might therefore be able to derive additional beneift from certain Focus choices!'
+WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_COUNTER_INTEL_SUMMARY';
+
+UPDATE Language_en_US
+SET Text = Text || '[NEWLINE][NEWLINE]' || 'The following is the list of [ICON_SPY] Counterspy Focusses: ' || '[NEWLINE][NEWLINE]' || 
+    (
+        SELECT group_concat(
+            '{' || c.Description || '} ([COLOR_CYAN]{' || t.Description || '}[ENDCOLOR])' || '[NEWLINE]' || '{' || c.Help || '} ',
+            '[NEWLINE][NEWLINE]'
+        )
+        FROM CityEventChoices c, Technologies t
+   	    WHERE IsCounterSpyMission = 1
+	      AND t.Type = c.PrereqTech
+    )
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_COUNTER_INTEL_SUMMARY';
 
 -- Constabularies and Police
