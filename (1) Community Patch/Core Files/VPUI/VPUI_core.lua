@@ -9,7 +9,7 @@ if not VP and not (MapModData and MapModData.VP) then
 	local table_insert = table.insert;
 	local math_floor = math.floor;
 
-	local MOD_BALANCE_CORE_JFD = GameInfo.CustomModOptions("Name = 'BALANCE_CORE_JFD'")().Value == 1;
+	local MOD_BALANCE_CORE_JFD = GameInfo.CustomModOptions and (GameInfo.CustomModOptions("Name = 'BALANCE_CORE_JFD'")().Value == 1) or false;
 
 	print("VPUI - Populating VP core library");
 

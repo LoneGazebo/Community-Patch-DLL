@@ -10,6 +10,11 @@ include("MapGenerator");
 include("FractalWorld");
 include("TerrainGenerator");
 include("FeatureGenerator");
+include("VPUI_core");
+
+local VP = MapModData and MapModData.VP or VP;
+local GameInfoCache = VP.GameInfoCache;
+local GameInfoTypes = VP.GameInfoTypes;
 
 ------------------------------------------------------------------------------
 function GetMapScriptInfo()
@@ -26,22 +31,19 @@ end
 function GetMapInitData(worldSize)
 	-- Great Plains has fully custom grid sizes to match the slice of Earth being represented.
 	local worldsizes = {
-		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {18, 14},
-		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = {28, 22},
-		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {36, 26},
-		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {44, 32},
-		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {56, 44},
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {72, 56},
+		[GameInfoTypes.WORLDSIZE_DUEL] = {18, 14},
+		[GameInfoTypes.WORLDSIZE_TINY] = {28, 22},
+		[GameInfoTypes.WORLDSIZE_SMALL] = {36, 26},
+		[GameInfoTypes.WORLDSIZE_STANDARD] = {44, 32},
+		[GameInfoTypes.WORLDSIZE_LARGE] = {56, 44},
+		[GameInfoTypes.WORLDSIZE_HUGE] = {72, 56},
 	};
 	local grid_size = worldsizes[worldSize];
-
-	if GameInfo.Worlds[worldSize] then
-		return {
-			Width = grid_size[1],
-			Height = grid_size[2],
-			WrapX = false,
-		};
-	end
+	return {
+		Width = grid_size[1],
+		Height = grid_size[2],
+		WrapX = false,
+	};
 end
 ------------------------------------------------------------------------------
 
@@ -53,20 +55,19 @@ function GeneratePlotTypes()
 	local iW, iH = Map.GetGridSize();
 
 	-- Initiate plot table, fill all data slots with type PLOT_LAND
-	local plotTypes = {};
-	table.fill(plotTypes, PlotTypes.PLOT_LAND, iW * iH);
+	local plotTypes = table.fill(PlotTypes.PLOT_LAND, iW * iH);
 
 	-- Set fractal flags, no wrap, no zero row anomalies.
 	local iFlags = {};
 
 	-- Grains for reducing "clumping" of hills/peaks on larger maps.
 	local grainvalues = {
-		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 3,
-		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 3,
-		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = 3,
-		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = 4,
-		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = 5,
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 6,
+		[GameInfoTypes.WORLDSIZE_DUEL] = 3,
+		[GameInfoTypes.WORLDSIZE_TINY] = 3,
+		[GameInfoTypes.WORLDSIZE_SMALL] = 3,
+		[GameInfoTypes.WORLDSIZE_STANDARD] = 4,
+		[GameInfoTypes.WORLDSIZE_LARGE] = 5,
+		[GameInfoTypes.WORLDSIZE_HUGE] = 6,
 	};
 	local grain_amount = grainvalues[Map.GetWorldSize()];
 
@@ -279,7 +280,7 @@ function GeneratePlotTypes()
 				if (hillVal >= iHillsBottom1 and hillVal <= iForty) or (hillVal >= iSixty and hillVal <= iHillsTop2) then
 					local peakVal = peaksFrac:GetHeight(x, y);
 					if peakVal <= iPeakThreshold then
-						plotTypes[i] = PlotTypes.PLOT_PEAK;
+						plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 					else
 						plotTypes[i] = PlotTypes.PLOT_HILLS;
 					end
@@ -294,7 +295,7 @@ function GeneratePlotTypes()
 				if hillVal >= iHillsTop1 then
 					local peakVal = peaksFrac:GetHeight(x, y);
 					if peakVal <= iPeakRockies then
-						plotTypes[i] = PlotTypes.PLOT_PEAK;
+						plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 					else
 						plotTypes[i] = PlotTypes.PLOT_HILLS;
 					end
@@ -856,219 +857,33 @@ function AddRivers()
 	end
 end
 ------------------------------------------------------------------------------
-
-------------------------------------------------------------------------------
-function AssignStartingPlots:__CustomInit()
-	-- This function included to provide a quick and easy override for changing
-	-- any initial settings. Add your customized version to the map script.
-	self.CanBeGeyser = AssignStartingPlots.CanBeGeyser;
-	self.CanBeCrater = AssignStartingPlots.CanBeCrater;
-	self.CanBeMesa = AssignStartingPlots.CanBeMesa;
-	self.geyser_list, self.crater_list, self.mesa_list = {}, {}, {};
-end
-------------------------------------------------------------------------------
-function AssignStartingPlots:DetermineRegionTypes()
-	-- Determine region type and conditions. Use self.regionTypes to store the results
-
-	-- REGION TYPES
-	-- 0. Undefined
-	-- 1. Tundra
-	-- 2. Jungle
-	-- 3. Forest
-	-- 4. Desert
-	-- 5. Hills
-	-- 6. Plains
-	-- 7. Grassland
-	-- 8. Hybrid
-	-- 9. Mountain
-	-- 10. Snow
-
-	-- Main loop
-	for this_region, terrainCounts in ipairs(self.regionTerrainCounts) do
-		-- Set each region to "Undefined Type" as default.
-		-- If all efforts fail at determining what type of region this should be, region type will remain Undefined.
-		-- local totalPlots = terrainCounts[1];
-		local regionPlots = terrainCounts[2];
-		-- local waterCount = terrainCounts[3];
-		local flatlandsCount = terrainCounts[4];
-		local hillsCount = terrainCounts[5];
-		-- local peaksCount = terrainCounts[6];
-		-- local lakeCount = terrainCounts[7];
-		-- local coastCount = terrainCounts[8];
-		-- local oceanCount = terrainCounts[9];
-		-- local iceCount = terrainCounts[10];
-		local grassCount = terrainCounts[11];
-		local plainsCount = terrainCounts[12];
-		local desertCount = terrainCounts[13];
-		local tundraCount = terrainCounts[14];
-		-- local snowCount = terrainCounts[15];
-		local forestCount = terrainCounts[16];
-		-- local jungleCount = terrainCounts[17];
-		local marshCount = terrainCounts[18];
-		-- local riverCount = terrainCounts[19];
-		-- local floodplainCount = terrainCounts[20];
-		-- local oasisCount = terrainCounts[21];
-		-- local coastalLandCount = terrainCounts[22];
-		-- local nextToCoastCount = terrainCounts[23];
-
-		-- If Rectangular regional division, then water plots would be included in region plots.
-		-- Let's recalculate region plots based only on flatland and hills plots.
-		if self.method == RegionDivision.RECTANGULAR or self.method == RegionDivision.RECTANGULAR_SELF_DEFINED then
-			regionPlots = flatlandsCount + hillsCount;
-		end
-
-		local found_region = false;
-		-- MOD.Barathor: These are the minimum values
-		local desert_percent = 0.20;
-		local tundra_percent = 0.20;
-		local jungle_percent = 0.08;
-		local forest_percent = 0.25;
-		local hills_percent = 0.25;
-		local plains_percent = 0.30;
-		local grass_percent = 0.30;
-
-		-- MOD.Barathor: This variable will decrement until a region is assigned; starts off very high.
-		local adjustment = 0.50;
-
-		-- MOD.Barathor: Reordered condition checks and modified what some checks include.
-		while not found_region do
-			-- Desert check.
-			if desertCount >= regionPlots * (desert_percent + adjustment) then
-				table.insert(self.regionTypes, RegionTypes.REGION_DESERT);
-				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-				print("Region #", this_region, " has been defined as a DESERT Region.");
-				found_region = true;
-
-			-- Tundra check.
-			elseif tundraCount >= regionPlots * (tundra_percent + adjustment) then
-				table.insert(self.regionTypes, RegionTypes.REGION_TUNDRA);
-				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-				print("Region #", this_region, " has been defined as a TUNDRA Region.");
-				found_region = true;
-
-			-- Jungle (now Marsh) check.
-			elseif marshCount >= regionPlots * (jungle_percent + adjustment) then
-				table.insert(self.regionTypes, RegionTypes.REGION_JUNGLE);
-				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-				print("Region #", this_region, " has been defined as a JUNGLE Region.");
-				found_region = true;
-
-			-- Forest check.
-			elseif forestCount >= regionPlots * (forest_percent + adjustment) and tundraCount < regionPlots * tundra_percent then
-				table.insert(self.regionTypes, RegionTypes.REGION_FOREST);
-				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-				print("Region #", this_region, " has been defined as a FOREST Region.");
-				found_region = true;
-
-			-- Hills check.
-			elseif hillsCount >= regionPlots * (hills_percent + adjustment) then
-				table.insert(self.regionTypes, RegionTypes.REGION_HILLS);
-				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-				print("Region #", this_region, " has been defined as a HILLS Region.");
-				found_region = true;
-
-			else
-				if adjustment <= 0 then
-					-- Plains check.
-					if plainsCount >= regionPlots * plains_percent and plainsCount * 0.8 > grassCount then
-						table.insert(self.regionTypes, RegionTypes.REGION_PLAINS);
-						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-						print("Region #", this_region, " has been defined as a PLAINS Region.");
-						found_region = true;
-					-- Grass check.
-					elseif grassCount >= regionPlots * grass_percent and grassCount * 0.8 > plainsCount then
-						table.insert(self.regionTypes, RegionTypes.REGION_GRASSLAND);
-						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-						print("Region #", this_region, " has been defined as a GRASSLAND Region.");
-						found_region = true;
-					else
-						-- Hybrid: No conditions dominate or other mods have included new terrain/feature/plot types which aren't recognized here.
-						table.insert(self.regionTypes, RegionTypes.REGION_HYBRID);
-						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-						print("Region #", this_region, " has been defined as a HYBRID Region.");
-						found_region = true;
-					end
-				end
-				adjustment = adjustment - 0.01;
-			end
-		end
-
-		-- MOD.Barathor: New data for very useful debug printouts.
-		-- print("Threshold Values:")
-		-- print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desert_percent, tundra_percent, jungle_percent, forest_percent, hills_percent, plains_percent, grass_percent))
-		-- print("Region Values:")
-		-- print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desertCount / regionPlots, tundraCount / regionPlots, marshCount / regionPlots, forestCount / regionPlots, hillsCount / regionPlots, plainsCount / regionPlots, grassCount / regionPlots))
-		-- print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
-
-	end
-
-	-- Added by azum4roll: Support for Mountain and Snow "bias"
-	-- This changes one region to a "Mountain region" or "Snow region", if a civ with the respective start bias exists
-	-- It's possible that there's no snow/mountain on the map, so we need to handle it later in BalanceAndAssign
-
-	if self.hasSnowBias then
-		-- Get ID of region with the most snow, prioritizing tundra regions first
-		local snowRegion = -1;
-		local snowCount = 0;
-		for this_region, terrainCounts in ipairs(self.regionTerrainCounts) do
-			local regionType = self.regionTypes[this_region];
-			local thisSnowCount = terrainCounts[15];
-			if regionType == RegionTypes.REGION_TUNDRA then
-				thisSnowCount = thisSnowCount + 1000;
-			end
-			if thisSnowCount > snowCount then
-				snowRegion = this_region;
-				snowCount = thisSnowCount;
-			end
-		end
-
-		if snowRegion ~= -1 then
-			self.regionTypes[snowRegion] = RegionTypes.REGION_SNOW;
-			print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-			print("Region #", snowRegion, " has been converted into a SNOW Region.");
-		end
-	end
-
-	if self.hasMountainBias then
-		-- Get ID of region with the most mountains
-		local mountainRegion = -1;
-		local mountainCount = 0;
-		for this_region, terrainCounts in ipairs(self.regionTerrainCounts) do
-			local regionType = self.regionTypes[this_region];
-			local thisMountainCount = terrainCounts[6];
-			if thisMountainCount > mountainCount and regionType ~= RegionTypes.REGION_SNOW then
-				mountainRegion = this_region;
-				mountainCount = thisMountainCount;
-			end
-		end
-
-		if mountainRegion ~= -1 then
-			self.regionTypes[mountainRegion] = RegionTypes.REGION_MOUNTAIN;
-			print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
-			print("Region #", mountainRegion, " has been converted into a MOUNTAIN Region.");
-		end
-	end
-end
-------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateCandidatePlotListsForSpecificNW()
+--- @return PlotId[][] # The eligibility plot IDs of each Natural Wonder ID
+function GenerateCandidatePlotListsForSpecificNW(ASP)
 	-- Only check Old Faithful, Barringer Crater and Grand Mesa.
 	local iW, iH = Map.GetGridSize();
+	local tEligibilityLists = {};
+	for i = 0, #GameInfo.Natural_Wonder_Placement - 1 do
+		tEligibilityLists[i] = {};
+	end
 	for y = 0, iH - 1 do
 		for x = 0, iW - 1 do
-			local landEligibility, _ = self:ExaminePlotForNaturalWondersEligibility(x, y);
+			local landEligibility = ASP:ExaminePlotForNaturalWondersEligibility(x, y);
+			local iPlotId = GetLuaPlotIndexFromCoordinates(x, y);
 			-- Plot has passed checks applicable to all NW types. Move on to specific checks.
-			if landEligibility then
-				for nw_number, _ in ipairs(self.xml_row_numbers) do
-					if self.wonder_list[nw_number] == "FEATURE_GEYSER" or
-						self.wonder_list[nw_number] == "FEATURE_CRATER" or
-						self.wonder_list[nw_number] == "FEATURE_MESA" then
-
-						self:CanBeThisNaturalWonderType(x, y, nw_number);
+			for iRowId, row in GameInfoCache("Natural_Wonder_Placement") do
+				if landEligibility and (
+					row.NaturalWonderType == "FEATURE_GEYSER" or
+					row.NaturalWonderType == "FEATURE_CRATER" or
+					row.NaturalWonderType == "FEATURE_MESA"
+				) then
+					if ASP:CanBeThisNaturalWonderType(x, y, row) then
+						table.insert(tEligibilityLists[iRowId], iPlotId);
 					end
 				end
 			end
 		end
 	end
+	return tEligibilityLists;
 end
 ------------------------------------------------------------------------------
 function PlaceBuffalo(ASP)
@@ -1133,13 +948,22 @@ function StartPlotSystem()
 	print("Creating start plot database (MapGenerator.Lua)");
 	local start_plot_database = AssignStartingPlots.Create();
 
-	start_plot_database.PlaceBuffalo = PlaceBuffalo;
-	start_plot_database.oldPlaceBonusResources = start_plot_database.PlaceBonusResources;
-	local newPlaceBonusResources = function (ASP)
-		ASP:PlaceBuffalo();
-		ASP:oldPlaceBonusResources();
-	end
-	start_plot_database.PlaceBonusResources = newPlaceBonusResources;
+	start_plot_database.tRegionTypeMinReq = {
+		[GameInfoTypes.REGION_TUNDRA] = 0.20,
+		[GameInfoTypes.REGION_JUNGLE] = 0.08,
+		[GameInfoTypes.REGION_FOREST] = 0.25,
+		[GameInfoTypes.REGION_DESERT] = 0.20,
+		[GameInfoTypes.REGION_HILLS] = 0.25,
+		[GameInfoTypes.REGION_PLAINS] = 0.30,
+		[GameInfoTypes.REGION_GRASS] = 0.30,
+	};
+	start_plot_database.GenerateCandidatePlotListsForSpecificNW = GenerateCandidatePlotListsForSpecificNW;
+
+	local OldPlaceBonusResources = start_plot_database.PlaceBonusResources;
+	start_plot_database.PlaceBonusResources = function (ASP)
+		PlaceBuffalo(ASP);
+		OldPlaceBonusResources(ASP);
+	end;
 
 	print("Dividing the map in to Regions (Lua Inland Sea)");
 	-- Regional Division Method 1: Biggest Landmass
@@ -1165,7 +989,7 @@ end
 -------------------------------------------------------------------------------
 function DetermineContinents()
 	-- Setting all continental art to America style.
-	for i, plot in Plots() do
+	for _, plot in Plots() do
 		if plot:IsWater() then
 			plot:SetContinentArtType(0);
 		else

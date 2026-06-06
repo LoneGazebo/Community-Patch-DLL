@@ -2,6 +2,8 @@
 
 --- Below refer to the ingame instance IDs
 --- @alias PlayerId integer
+--- @alias LandmassId integer
+--- @alias ContinentId integer
 --- @alias AreaId integer
 --- @alias CityId integer
 --- @alias PlotId integer
@@ -10,6 +12,7 @@
 --- @alias GreatWorkId integer
 
 --- Below refer to the database row IDs
+--- @alias WorldSizeType integer
 --- @alias UnitType integer
 --- @alias TechType integer
 --- @alias YieldType integer
@@ -35,6 +38,8 @@
 --- @alias GreatWorkType integer
 --- @alias SpecialistType integer
 --- @alias GreatPersonType integer
+--- @alias RegionType integer
+--- @alias NaturalWonderType integer # This corresponds to the Natural_Wonder_Placement table
 
 --- Usually acceptable values for DLL calls, but may not be valid database row IDs
 
@@ -77,3 +82,30 @@ ReligionTypes = {
 --- 	y: integer,
 --- 	turn: integer,
 --- }
+
+--- Used in AssignStartingPlots
+--- @alias ResourceToPlaceArray {
+--- 	[1]: ResourceType,
+--- 	[2]: integer,
+--- 	[3]: integer,
+--- 	[4]: integer,
+--- 	[5]: integer,
+--- }
+
+--- Used in AssignStartingPlots
+--- @alias ResourceToPlace {
+--- 	ID: ResourceType,
+--- 	Quantity: integer,
+--- 	MinRadius: integer,
+--- 	MaxRadius: integer,
+--- }
+
+--- Used in AssignStartingPlots
+--- @alias PlotYieldPotential {
+--- 	Food: {Two: integer, Three: integer, Four: integer, Five: integer},
+--- 	Prod: {One: integer, Two: integer, Three: integer},
+--- 	NativeTwoFood: integer,
+--- }
+
+--- Used in AssignStartingPlots
+--- @alias RegionId integer

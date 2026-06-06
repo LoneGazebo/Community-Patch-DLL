@@ -1,5 +1,9 @@
 --- @meta
 
+--- Unlike the other database types, FeatureTypes is a closed enum defined in the DLL and exposed to Lua.<br>
+--- As such, adding/removing features in the database requires also modifying the DLL if you want them to stay synced.<br>
+--- There isn't really much point using these though, as `GameInfoTypes` does just the same and is auto-populated.<br>
+--- The only needed value is `NO_FEATURE`.
 --- @type table<string, FeatureType>
 FeatureTypes = {
 	NO_FEATURE = -1,

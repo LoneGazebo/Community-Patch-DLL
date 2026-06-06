@@ -2,7 +2,6 @@
 
 --- @enum DirectionType
 DirectionTypes = {
-	NO_DIRECTION = 7,
 	DIRECTION_NORTHEAST = 0,
 	DIRECTION_EAST = 1,
 	DIRECTION_SOUTHEAST = 2,
@@ -10,4 +9,5 @@ DirectionTypes = {
 	DIRECTION_WEST = 4,
 	DIRECTION_NORTHWEST = 5,
 	NUM_DIRECTION_TYPES = 6,
+	NO_DIRECTION = 7,
 }

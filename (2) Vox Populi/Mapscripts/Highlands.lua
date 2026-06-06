@@ -196,7 +196,7 @@ function GeneratePlotTypes()
 				if passVal >= iPassThreshold then
 					plotTypes[i] = PlotTypes.PLOT_HILLS;
 				else
-					plotTypes[i] = PlotTypes.PLOT_PEAK;
+					plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 				end
 			elseif val >= iHillsThreshold and val < iPeaksThreshold then
 				plotTypes[i] = PlotTypes.PLOT_HILLS;
