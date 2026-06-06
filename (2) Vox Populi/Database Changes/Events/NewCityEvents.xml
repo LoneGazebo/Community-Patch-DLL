@@ -1066,7 +1066,6 @@
 			<SpyIDChance>25</SpyIDChance>
 			<SpyKillChance>5</SpyKillChance>
 			<Expires>true</Expires>
-			<SapCityTurns>5</SapCityTurns>
 			<RandomBarbarianSpawn>2</RandomBarbarianSpawn>
 			<NoTourismTurns>10</NoTourismTurns>
 			<HasTradeConnection>1</HasTradeConnection>
