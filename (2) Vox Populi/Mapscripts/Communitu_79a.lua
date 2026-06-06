@@ -545,8 +545,8 @@ function MapGlobals:New()
 			ASP.PlaceResourcesAndCityStates = PlaceResourcesAndCityStates;
 		end
 		------------------------------------------------------------------------------
-		function MeasureStartPlacementFertilityOfPlot(ASP, x, y)
-			return ASP:Plot_GetFertility(Map.GetPlot(x, y));
+		function MeasureStartPlacementFertilityOfPlot(_, x, y)
+			return Plot_GetFertility(Map.GetPlot(x, y));
 		end
 		------------------------------------------------------------------------------
 		function GetNumNaturalWondersToPlace(_, iWorldSize)
@@ -573,7 +573,7 @@ function MapGlobals:New()
 
 			-- MOD.HungryForFood: Start
 			local resWeights;
-			if ASP:IsEvenMoreResourcesActive() then
+			if ASP:IsModActive("EvenMoreResources") then
 				resWeights = {
 					[ASP.stone_ID] = 1,
 					[ASP.coal_ID] = 8,
@@ -605,7 +605,7 @@ function MapGlobals:New()
 						plot:GetResourceType() == -1 and
 						IsBetween(1, landmassSize, 0.05 * biggestLandmassSize) and
 						not islandAreaBuffed[landmassID] then
-					local resID = GetRandomWeighted(resWeights);
+					local resID = GetRandomFromWeightedTable(resWeights, "Pick resource - BuffIslands");
 					local resNum = 1;
 					if resID ~= ASP.stone_ID then
 						resNum = resNum + Map.Rand(2, "BuffIslands Random Resource Quantity - Lua");
@@ -728,7 +728,7 @@ function MapGlobals:New()
 			elseif ASP.resDensity == 3 then -- Abundant, so reduce the number of tiles per strategic.
 				resMultiplier = 0.66666667;
 			elseif ASP.resDensity == 4 then -- Random
-				resMultiplier = ASP:GetRandomMultiplier(0.5);
+				resMultiplier = GetRandomMultiplier(0.5);
 			end
 
 			-- Place Strategic resources.
@@ -884,7 +884,7 @@ function MapGlobals:New()
 				if not nearPlot:IsWater() and distance < landDistance then
 					landDistance = distance;
 				end
-				sumFertility = sumFertility + ASP:Plot_GetFertility(nearPlot, false, true);
+				sumFertility = sumFertility + Plot_GetFertility(nearPlot, nil, true);
 				if nearPlot:GetResourceType() == ASP.fish_ID then
 					oddsMultiplier = oddsMultiplier - 0.5 / distance;
 				end
@@ -924,14 +924,14 @@ function MapGlobals:New()
 
 			local resources_to_place = {};
 
-			if ASP:IsAloeVeraResourceActive() then
+			if ASP:IsModActive("AloeVera") then
 				resources_to_place = {
 					{ASP.aloevera_ID, 1, 100, 1, 2}
 				};
 				ASP:ProcessResourceList(10 * resMultiplier, ImpactLayers.LAYER_BONUS, tPlotList[PlotListTypes.FLAT_DESERT_NO_FEATURE], resources_to_place);
 			end
 
-			if ASP:IsEvenMoreResourcesActive() then
+			if ASP:IsModActive("EvenMoreResources") then
 				resources_to_place = {
 					{ASP.deer_ID, 1, 100, 0, 2}
 				};
@@ -4773,67 +4773,6 @@ function Plot_GetID(plot)
 	return plot:GetY() * iW + plot:GetX();
 end
 
-function Plot_GetPlotsInCircle(plot, minR, maxR)
-	if not plot then
-		print("plot:GetPlotsInCircle plot = nil");
-		return;
-	end
-	if not maxR then
-		maxR = minR;
-		minR = 1;
-	end
-
-	local mapW, mapH = Map.GetGridSize();
-	local isWrapX = Map:IsWrapX();
-	local isWrapY = Map:IsWrapY();
-	local centerX = plot:GetX();
-	local centerY = plot:GetY();
-
-	local leftX = isWrapX and (centerX - maxR) % mapW or Constrain(0, centerX - maxR, mapW - 1);
-	local rightX = isWrapX and (centerX + maxR) % mapW or Constrain(0, centerX + maxR, mapW - 1);
-	local bottomY = isWrapY and (centerY - maxR) % mapH or Constrain(0, centerY - maxR, mapH - 1);
-	local topY = isWrapY and (centerY + maxR) % mapH or Constrain(0, centerY + maxR, mapH - 1);
-
-	local nearX = leftX;
-	local nearY = bottomY;
-	local stepX = 0;
-	local stepY = 0;
-	local rectW = rightX - leftX;
-	local rectH = topY - bottomY;
-
-	if rectW < 0 then
-		rectW = rectW + mapW;
-	end
-
-	if rectH < 0 then
-		rectH = rectH + mapH;
-	end
-
-	local nextPlot = Map.GetPlot(nearX, nearY);
-
-	return function ()
-		while stepY < 1 + rectH and nextPlot do
-			while stepX < 1 + rectW and nextPlot do
-				local thisPlot = nextPlot;
-				local distance = Map.PlotDistance(nearX, nearY, centerX, centerY);
-
-				nearX = (nearX + 1) % mapW;
-				stepX = stepX + 1;
-				nextPlot = Map.GetPlot(nearX, nearY);
-
-				if IsBetween(minR, distance, maxR) then
-					return thisPlot, distance;
-				end
-			end
-			nearX = leftX;
-			nearY = (nearY + 1) % mapH;
-			stepX = 0;
-			stepY = stepY + 1;
-			nextPlot = Map.GetPlot(nearX, nearY);
-		end
-	end
-end
-
 function Plot_GetPlotsInCircleFast(x, y, radius)
 	-- Assumes X wrap
 	local plotIDs = {};
@@ -5196,10 +5135,6 @@ function Round(num, places)
 	return math.floor(num * mult + 0.5) / mult;
 end
 
-function IsBetween(lower, mid, upper)
-	return lower <= mid and mid <= upper;
-end
-
 function Contains(list, value)
 	for _, v in pairs(list) do
 		if v == value then
@@ -5228,63 +5163,12 @@ function DeepCopy(object)
 	return _copy(object);
 end
 
-function Constrain(lower, mid, upper)
-	return math.max(lower, math.min(mid, upper));
-end
-
 function Push(a, item)
 	table.insert(a, item);
 end
 
 function Pop(a)
 	return table.remove(a);
-end
-
-function GetRandomWeighted(list, size)
-	-- GetRandomWeighted(list, size) returns a key from a list of (key, weight) pairs
-	size = size or 100;
-	local chanceIDs = GetWeightedTable(list, size);
-
-	if chanceIDs == -1 then
-		return -1;
-	end
-	local randomID = 1 + Map.Rand(size, "GetRandomWeighted");
-	if not chanceIDs[randomID] then
-		print("GetRandomWeighted: invalid random index selected = %s", randomID);
-		chanceIDs[randomID] = -1;
-	end
-	return chanceIDs[randomID];
-end
-
-function GetWeightedTable(list, size)
-	-- GetWeightedTable(list, size) returns a table with key blocks sized proportionately to a weighted list
-	local totalWeight = 0;
-	local chanceIDs = {};
-	local position = 1;
-
-	for _, weight in pairs(list) do
-		totalWeight = totalWeight + weight;
-	end
-
-	if totalWeight == 0 then
-		for key in pairs(list) do
-			list[key] = 1;
-			totalWeight = totalWeight + 1;
-		end
-		if totalWeight == 0 then
-			print("GetWeightedTable: empty list");
-			return -1;
-		end
-	end
-
-	for key, weight in pairs(list) do
-		local positionNext = position + size * weight / totalWeight;
-		for i = math.floor(position), math.floor(positionNext) do
-			chanceIDs[i] = key;
-		end
-		position = positionNext;
-	end
-	return chanceIDs;
 end
 
 function GetBellCurve(value, normalize)
@@ -5566,28 +5450,6 @@ end
 function PWRandint(low, high)
 	-- range is inclusive, low and high are possible results
 	return math.random(low, high);
-end
-
--- Get random multiplier normalized to 1
--- rand: optional random value
--- higher: optional boolean, determines >1 or <1
-function GetRandomMultiplier(variance, rand, higher)
-	if higher == nil then
-		higher = (1 == Map.Rand(2, "GetRandomMultiplier"));
-	end
-
-	local multiplier = 1;
-	if not rand then
-		multiplier = 1 + PWRand() * variance;
-	else
-		multiplier = 1 + rand * variance;
-	end
-
-	if higher then
-		return multiplier;
-	else
-		return 1 / multiplier;
-	end
 end
 
 -- Get modified odds when you roll the dice multiple times
