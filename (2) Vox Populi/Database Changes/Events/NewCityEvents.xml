@@ -1060,7 +1060,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
+			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>800</NetworkPointsNeeded>
 			<SpyIDChance>25</SpyIDChance>
@@ -1113,7 +1113,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
+			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
 			<SpyIDChance>75</SpyIDChance>
@@ -1163,7 +1163,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
+			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
 			<SpyIDChance>75</SpyIDChance>
@@ -1182,7 +1182,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
+			<EventDuration>5</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
 			<SpyIDChance>75</SpyIDChance>
