@@ -3567,11 +3567,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsDiplomat())
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetFreeSpy() * 250;
+			yield[YIELD_GOLD] += PolicyInfo->GetFreeSpy() * 250 * GD_INT_GET(ESPIONAGE_SPY_POINT_UNIT) / GC.getGame().GetSpyThreshold();
 		}
 		else
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetFreeSpy() * 50;
+			yield[YIELD_GOLD] += PolicyInfo->GetFreeSpy() * 50 * GD_INT_GET(ESPIONAGE_SPY_POINT_UNIT) / GC.getGame().GetSpyThreshold();
 		}
 	}
 	if (PolicyInfo->GetReligionDistance() != 0)
