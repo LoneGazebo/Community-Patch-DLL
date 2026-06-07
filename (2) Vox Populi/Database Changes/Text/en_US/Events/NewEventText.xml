@@ -1369,7 +1369,7 @@
 			<Text>[ICON_PUPPET] Infiltrate the Governor's Office</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_PEDIA">
-			<Text>[COLOR_POSITIVE_TEXT]Siphon[ENDCOLOR] 10% of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture produced by this City. Lasts 15 turns (Standard Speed).[NEWLINE]The City cannot be the [ICON_CAPITAL] Capital.[NEWLINE]5% ID Chance / 5% Kill Chance</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Siphon[ENDCOLOR] 10% of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture produced by this City. Lasts 15 turns (Standard Speed).[NEWLINE]The City cannot be the [ICON_CAPITAL] Capital.[NEWLINE]5% ID Chance / 25% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_HELP">
 			<Text>[COLOR_POSITIVE_TEXT]Siphon[ENDCOLOR] 10% of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture produced by this City for {5_Duration}.</Text>

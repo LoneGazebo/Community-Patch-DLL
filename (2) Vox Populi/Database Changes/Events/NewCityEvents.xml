@@ -1087,7 +1087,7 @@
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>800</NetworkPointsNeeded>
 			<SpyIDChance>5</SpyIDChance>
-			<SpyKillChance>5</SpyKillChance>
+			<SpyKillChance>25</SpyKillChance>
 			<CannotHaveBuildingClass>BUILDINGCLASS_PALACE</CannotHaveBuildingClass>
 		</Row>
 		<!-- Desitribute Seidious Leaflets -->
