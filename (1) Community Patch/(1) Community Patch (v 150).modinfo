@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="150">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.3.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.3.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -496,7 +496,7 @@
     <File md5="F5AB9BBAD63869CA12E11710D48CD064" import="1">Core Files/Overrides/WonderPopup.xml</File>
     <File md5="C572C8883D6C7EBFE099569F6D5A5BE5" import="1">Core Files/Overrides/WorldView.lua</File>
     <File md5="B95F2F22A828EE429EB7D4EDCE9A28D2" import="1">Core Files/Overrides/WorldView.xml</File>
-    <File md5="3AFDCD18B22DB17AAB44C4D340AA4F00" import="1">Core Files/Overrides/YieldIconManager.lua</File>
+    <File md5="D7D86391D7546EC89D493DF4790A8743" import="1">Core Files/Overrides/YieldIconManager.lua</File>
     <File md5="8024171C92685B855E0AD88CEE1C8296" import="1">Core Files/Overrides/YieldIconManager.xml</File>
     <File md5="AA9CB9B8678EFAD4FEBB780B24385C24" import="1">Core Files/Overrides/Includes/AssignStartingPlots.lua</File>
     <File md5="78F3451AFA990C8CDC71994444A4247A" import="1">Core Files/Overrides/Includes/Bombardment.lua</File>
@@ -510,7 +510,7 @@
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
     <File md5="B754666DDB6140255D210281D3501E88" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="D821D8813A80C9C2C70833FCC299D2AD" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="26FDC6F9974257E8F001A86D4CB6B23B" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="E5C280A2AC65C19D051F27EE7AAE11B4" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
@@ -579,7 +579,7 @@
     <File md5="567CE3935D9B561FA74496986B08DABD" import="0">Database Changes/Difficulty/PreCoreDifficultyChanges.sql</File>
     <File md5="376FF84B710068713C93114E15F923FE" import="0">Database Changes/Espionage/NewEspionageTables.xml</File>
     <File md5="E8DB394A191BD15765AA9CF41BC8C178" import="0">Database Changes/Events/CoreNewEvents.xml</File>
-    <File md5="66D2C2A3BC1436723DF85BA874457427" import="0">Database Changes/Events/NewEventTables.xml</File>
+    <File md5="07F8550FC45E6E69DEEF45E43845D6B2" import="0">Database Changes/Events/NewEventTables.xml</File>
     <File md5="403CF5DE2272BA61FC73BF9042621547" import="0">Database Changes/Minors/CoreMinorYieldChanges.sql</File>
     <File md5="0511A30F6DE34B29A94B48E50273CA85" import="0">Database Changes/Minors/CoreNewMinorQuests.xml</File>
     <File md5="2E9871416E370B514409E1D1A79860E2" import="0">Database Changes/Minors/CoreNewMinorTables.xml</File>

@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(5.3.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.3.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -1115,7 +1115,7 @@
     <File md5="AADB27C95BCDB004A504407B49686D9C" import="1">Core Files/Overrides/TradeRouteHelpers.lua</File>
     <File md5="721C4142F9A38E92D58532486E244098" import="1">Core Files/Overrides/TradeRouteOverview.lua</File>
     <File md5="AB738F4C7D7411D8A21F9D9EC84F7570" import="1">Core Files/Overrides/TradeRouteOverview.xml</File>
-    <File md5="F90593F334CFDB26DB2F3F458AF91D11" import="1">Core Files/Overrides/UniqueBonuses.lua</File>
+    <File md5="F7490D84107450F0514161A2046449BD" import="1">Core Files/Overrides/UniqueBonuses.lua</File>
     <File md5="FCFC1D78C16242F2FACFDE27FF45976A" import="1">Core Files/Overrides/VictoryProgress.lua</File>
     <File md5="1789009F209A70B6EBE6CB940152CCF4" import="1">Core Files/Overrides/VictoryProgress.xml</File>
     <File md5="BC174D7E8CBD73F3B962BC1409BD0A67" import="1">Core Files/Overrides/WhosWinningPopup.lua</File>
@@ -1154,9 +1154,9 @@
     <File md5="B3845C7481F51EB6365441268184946B" import="0">Database Changes/Art/ResourceArtChanges.sql</File>
     <File md5="8AFB7AE54D0CBF9D8B5C4F25FEE6AA1F" import="0">Database Changes/Art/UnitArtChanges.sql</File>
     <File md5="E5E47269747A1FA12B609986983A9598" import="0">Database Changes/Barbarians/BarbarianSweeps.sql</File>
-    <File md5="383D80AC3F7FD85D7D9CEE04791B7998" import="0">Database Changes/Beliefs/EnhancerChanges.sql</File>
+    <File md5="3095C5886AB976B24C71201A322B7D81" import="0">Database Changes/Beliefs/EnhancerChanges.sql</File>
     <File md5="70573C4B58680A35B787CE5F470B174A" import="0">Database Changes/Beliefs/FollowerChanges.sql</File>
-    <File md5="BBBD49C62FFAD7BA79927E6274F0B1BE" import="0">Database Changes/Beliefs/FounderChanges.sql</File>
+    <File md5="D8A2C0A24B631722ABE307C2F4B9B688" import="0">Database Changes/Beliefs/FounderChanges.sql</File>
     <File md5="F22EB23846787F27C108E7272570A38B" import="0">Database Changes/Beliefs/NewBeliefs.xml</File>
     <File md5="C52276A60B9C034FCD19E9601E56F788" import="0">Database Changes/Beliefs/PantheonChanges.sql</File>
     <File md5="1F869A7D97BEE31973C711205DE832A7" import="0">Database Changes/Beliefs/PreBeliefChanges.sql</File>
@@ -1194,7 +1194,7 @@
     <File md5="DD993EA547FA14CDB71E5A3AD1F049E8" import="0">Database Changes/Civilizations/Germany.sql</File>
     <File md5="D96A6B1604BC03E40DA879DA6017EFA6" import="0">Database Changes/Civilizations/Greece.sql</File>
     <File md5="9419AB7223E4AA2ECB74A0021C8F42E3" import="0">Database Changes/Civilizations/Huns.sql</File>
-    <File md5="613C5C2FA683688F43F05E7F5F13BA46" import="0">Database Changes/Civilizations/Inca.sql</File>
+    <File md5="75A5526CA71659D9D25C4BDF30FC44B4" import="0">Database Changes/Civilizations/Inca.sql</File>
     <File md5="2053B6781DEB42E49B99A323F37F4BE7" import="0">Database Changes/Civilizations/India.sql</File>
     <File md5="34E340BE78526B320D0A8B6D54A44B21" import="0">Database Changes/Civilizations/Indonesia.sql</File>
     <File md5="ED750BB151304578550C60876B1B546B" import="0">Database Changes/Civilizations/Iroquois.sql</File>
@@ -1219,7 +1219,7 @@
     <File md5="0543AE8B63EA23ED4E79846C067BF035" import="0">Database Changes/Civilizations/Sweden.sql</File>
     <File md5="281509B1CA3E6A5E82663F9CDC2AA529" import="0">Database Changes/Civilizations/Venice.sql</File>
     <File md5="46DB4D3B077A1F38AF876531ED6A4A93" import="0">Database Changes/Civilizations/Zulu.sql</File>
-    <File md5="65780B01B61C5E70BE1D9BE5D1F9F532" import="0">Database Changes/Concepts/ConceptChanges.sql</File>
+    <File md5="979E9219AAEA5E3DBA2E5F18FDD9F070" import="0">Database Changes/Concepts/ConceptChanges.sql</File>
     <File md5="9053CF957542871FF4A1718612485AFF" import="0">Database Changes/Concepts/NewConcepts.xml</File>
     <File md5="F26F0824E56B126EC4F99222075A3736" import="0">Database Changes/Corporations/CorporationChanges.sql</File>
     <File md5="D63E17DF51350DB2FDB8C885032D503C" import="0">Database Changes/Corporations/NewCorporations.xml</File>
@@ -1230,7 +1230,7 @@
     <File md5="5F0D3DE99F4F9284FEC5E2D269EEC8C8" import="0">Database Changes/Espionage/SpyPassiveBonusesDiplomat.xml</File>
     <File md5="04F838961A27A42A929229F43B21205A" import="0">Database Changes/Events/CityEventChanges.sql</File>
     <File md5="472AA41E8CAB53F17E654EFB30921281" import="0">Database Changes/Events/EventChanges.sql</File>
-    <File md5="E4D2C05E68EE087E9772A9FB470853A2" import="0">Database Changes/Events/NewCityEvents.xml</File>
+    <File md5="DF60FF26A46339B759137FCE29B12A69" import="0">Database Changes/Events/NewCityEvents.xml</File>
     <File md5="61BE887C8E1DF4717AB3E352A3E5203D" import="0">Database Changes/Events/NewEvents.xml</File>
     <File md5="CED4EED32A8246DBCCD9960E3A493494" import="0">Database Changes/Minors/MinorCivilizationChanges.sql</File>
     <File md5="CEB0D4C88257899484D831A201A9CA9F" import="0">Database Changes/Minors/MinorClassOverrideSweeps.sql</File>
@@ -1263,7 +1263,7 @@
     <File md5="5501AC6C2717BED81F9B485359E2A06C" import="0">Database Changes/Text/en_US/NewMapscriptText.xml</File>
     <File md5="726494AE19D2C3A3132A4B710AFCD498" import="0">Database Changes/Text/en_US/AI/DiplomacyResponseTextChanges.sql</File>
     <File md5="701584AAECE6149996D3FABF93F9DCFA" import="0">Database Changes/Text/en_US/AI/NewDiplomacyResponseText.xml</File>
-    <File md5="1DCA3B1438FB6F9D439AEE4BD04F056C" import="0">Database Changes/Text/en_US/Beliefs/BeliefTextChanges.sql</File>
+    <File md5="910989791BB2D9210FB5CEDAAF035172" import="0">Database Changes/Text/en_US/Beliefs/BeliefTextChanges.sql</File>
     <File md5="151D477C990391102A86EB1E094BE6DF" import="0">Database Changes/Text/en_US/Beliefs/NewBeliefText.xml</File>
     <File md5="AA64216AE091FCB37C934575BE8D08C6" import="0">Database Changes/Text/en_US/City/PreBuildingTextChanges.sql</File>
     <File md5="BB1333826DFD36236DE45B04D0719E7B" import="0">Database Changes/Text/en_US/City/BuildingTextChanges.sql</File>
@@ -1277,12 +1277,12 @@
     <File md5="B98B12751887ADF4F191AAB5D9248321" import="0">Database Changes/Text/en_US/City/SpecialistTextChanges.sql</File>
     <File md5="B88DBED538FA1FF6D26C78DEDD0A2876" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
     <File md5="8819296ED0FE14FBD39B4C17A19D436A" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
-    <File md5="3A280E392332EFE95AC8F60964A34363" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
-    <File md5="686FE356FB3FF2D941F7827728D214D3" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
+    <File md5="76654E2D3E56720D304DBA1BBC85F0DD" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
+    <File md5="D9D49B7AE95791A28C666CED565299C9" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
     <File md5="E49407D79E4BA9F1F3255A30296ABAB2" import="0">Database Changes/Text/en_US/Corporations/NewCorporationText.xml</File>
     <File md5="D0A442F7DEB463CDCCA45E6503687C87" import="0">Database Changes/Text/en_US/Difficulty/DifficultyTextChanges.sql</File>
     <File md5="38CF020F44DB78BF0C56FCF2ED65C7EC" import="0">Database Changes/Text/en_US/Espionage/NewEspionageText.xml</File>
-    <File md5="0FDF0CA55E048809EA4F9D69FE9C47E7" import="0">Database Changes/Text/en_US/Events/NewEventText.xml</File>
+    <File md5="08837E3917AEF45C638C99D9914E2B5B" import="0">Database Changes/Text/en_US/Events/NewEventText.xml</File>
     <File md5="2AE7FA74A4CB324CDA2EFDE30EEAAE6D" import="0">Database Changes/Text/en_US/Minors/MinorTextChanges.sql</File>
     <File md5="8C1CB465B3875A826633F3A4743C8C6B" import="0">Database Changes/Text/en_US/Minors/NewMinorText.xml</File>
     <File md5="52F6D750F2BCE4654D2371CA15C82FF1" import="0">Database Changes/Text/en_US/Notifications/NewNotificationText.xml</File>
@@ -1294,7 +1294,7 @@
     <File md5="E5CB0AB92FAA1B2128EE557C30451B66" import="0">Database Changes/Text/en_US/UI/InterfaceModeTextChanges.sql</File>
     <File md5="B5C60FD5DF02295B68C1FEE0052EFD88" import="0">Database Changes/Text/en_US/UI/NewUIText.sql</File>
     <File md5="2C517A88F1ACBAC57016937989D53D2C" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
-    <File md5="71D007678ECB17614BBDF89E548186AC" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
+    <File md5="A233B4C108E27A8635D9ED313D214969" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
     <File md5="6DB9F05DFDDDDDF467192096B48F669C" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
     <File md5="CBC8264AE4B4F10D45E52598B837B395" import="0">Database Changes/Text/en_US/UnitPromotions/PromotionTextChanges.sql</File>
     <File md5="DDA7CA65AFBAC78647BE27D28C01203E" import="0">Database Changes/Text/en_US/Units/PreUnitTextChanges.sql</File>
