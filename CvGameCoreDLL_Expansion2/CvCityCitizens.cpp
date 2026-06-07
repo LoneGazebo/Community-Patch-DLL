@@ -1008,6 +1008,10 @@ int CvCityCitizens::GetBaseValuePerGPP(SpecialistTypes eSpecialist, SPrecomputed
 		{
 			iMod += 50;
 		}
+		else
+		{
+			iMod += cache.iEspionage;  // <= 50
+		}
 	}
 
 	//Bonus for existing progress towards a Great Person of that type
@@ -3617,6 +3621,7 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 	bWantArt(false),
 	bWantScience(false),
 	bWantDiplo(false),
+	iEspionage(0),
 	iNetGold(0),
 	iSpecialistGPPRates(vector<int>(GC.getNumSpecialistInfos(), INT_MAX)),
 	bAnySpecialistInOtherCity(vector<bool>(GC.getNumSpecialistInfos(), false)),
@@ -3717,12 +3722,15 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 			bWantArt = false;
 			bWantScience = false;
 			bWantDiplo = false;
+			iEspionage = 0;
 		}
 		else
 		{
 			bWantArt = kPlayer.GetPlayerTraits()->IsTourism() || kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() || kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory();
 			bWantScience = kPlayer.GetPlayerTraits()->IsNerd() || kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory() || kPlayer.GetDiplomacyAI()->IsCloseToSpaceshipVictory();
 			bWantDiplo = kPlayer.GetPlayerTraits()->IsDiplomat() || kPlayer.GetDiplomacyAI()->IsGoingForDiploVictory() || kPlayer.GetDiplomacyAI()->IsCloseToDiploVictory();
+			int iEspionageFlavor = kPlayer.GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ESPIONAGE"));
+			iEspionage = iEspionageFlavor * iEspionageFlavor / 2;  // max 50
 		}
 	}
 
