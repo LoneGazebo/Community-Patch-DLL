@@ -342,7 +342,7 @@ SET Text = 'The Security Level of {1_CityName} is [COLOR_POSITIVE_TEXT]{2_Securi
 WHERE Tag = 'TXT_KEY_EO_OWN_CITY_POTENTIAL_TT';
 
 UPDATE Language_en_US
-SET Text = 'Spy Missions may not be conducted in City-States, so they do not have a Security Level.[NEWLINE][NEWLINE]Sending a spy into a City-State will increase your influence there by rigging elections. If there is more than one spy in the city, the highest ranked spy who has been in the City-State the longest has the greatest chance of rigging the election.'
+SET Text = 'Spy Missions may not be conducted in [ICON_CITY_STATE] City-States, so they do not have a [ICON_CITY_SECURITY] Security Level.[NEWLINE][NEWLINE]Sending a [ICON_SPY] Spy into a City-State will increase your [ICON_INFLUENCE] Influence there by [ICON_PUPPET] Rigging Elections. If there is more than one Spy in the City, the Spy who has been in the City-State the longest has the greatest chance of Rigging the Election.'
 WHERE Tag = 'TXT_KEY_EO_CITY_STATE_POTENTIAL_TT';
 
 UPDATE Language_en_US
@@ -350,7 +350,7 @@ SET Text = 'The population of the city.[NEWLINE][NEWLINE]Click to sort cities by
 WHERE Tag = 'TXT_KEY_EO_POPULATION_SORT_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there.[NEWLINE][NEWLINE]Only one civilization may successfuly rig an election. If more than one spy is in a City-State, the highest ranked spy that has been in that City-State the longest has the greatest chance of successfully rigging the election in its favor. Streaks of consecutive successfully rigged elections provide more influence.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]If you successfully rig the next election, your influence will increase by {4_Influence}.[ENDCOLOR]'
+SET Text = '{1_RankName} {2_SpyName} is attempting to [ICON_PUPPET] Rig the Election in {3_CityName} to increase our [ICON_INFLUENCE] Influence there.[NEWLINE][NEWLINE]Only one civilization may successfuly Rig an Election. If more than one Spy is in a City-State, the highest ranked Spy that has been in that City-State the longest has the greatest chance of successfully Rigging the Election in its favor. Streaks of consecutive successfully Rigged Elections provide more Influence.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]If you successfully Rig the next Election, your Influence will increase by {4_Influence}.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_EO_SPY_RIGGING_ELECTIONS_TT';
 
 UPDATE Language_en_US
@@ -374,7 +374,7 @@ SET Text = '{1_SpyRank} {2_SpyName} is in {3_CityName}. While {4_SpyRank} {5_Spy
 WHERE Tag = 'TXT_KEY_CITY_SPY_OTHER_CIV_TT';
 
 UPDATE Language_en_US
-SET Text = 'Options for {1_SpyRank} {2_SpyName}:[NEWLINE][NEWLINE][ICON_BULLET] Move to a City-State and attempt to [COLOR_POSITIVE_TEXT]Rig an Election[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a City owned by a Major Civilization and Gather Intelligence to conduct a [COLOR_POSITIVE_TEXT]Spy Mission[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a Capital City owned by a Major Civilization and [COLOR_POSITIVE_TEXT]Schmooze[ENDCOLOR] as a Diplomat.'
+SET Text = 'Options for {1_SpyRank} {2_SpyName}:[NEWLINE][NEWLINE][ICON_BULLET] Move to a City-State and attempt to [COLOR_POSITIVE_TEXT]Rig an Election[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a City owned by a Major Civilization and Gather Intelligence to conduct a [COLOR_POSITIVE_TEXT]Spy Mission[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a Capital City owned by a Major Civilization and [COLOR_POSITIVE_TEXT]Schmooze[ENDCOLOR] as a Diplomat.[NEWLINE][ICON_BULLET] Move to one of your own Cities to select a [COLOR_POSITIVE_TEXT]Counterspy Focus[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
 
 UPDATE Language_en_US
