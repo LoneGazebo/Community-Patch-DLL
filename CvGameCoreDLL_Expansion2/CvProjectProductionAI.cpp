@@ -142,7 +142,7 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 		return NO_PROJECT;
 	}
 }
-int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
+int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iFlavorWeight)
 {
 	if(eProject == NO_PROJECT)
 		return SR_IMPOSSIBLE;
@@ -153,14 +153,14 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	if(iTempWeight < 1)
+	if (iFlavorWeight < 1)
 		return SR_IMPOSSIBLE;
 
 	if (m_pCity->isUnderSiege())
 		return SR_STRATEGY;
 
 	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
-	iTempWeight = sqrti(10 * iTempWeight);
+	int iTempWeight = sqrti(10 * iFlavorWeight);
 
 	if (pkProjectInfo->IsRepeatable())
 	{
@@ -261,12 +261,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	}
 
 	// if the project starts a player event, it's probably important
-	if (pkProjectInfo->GetEventToStart())
+	if (pkProjectInfo->GetEventToStart() != NO_EVENT)
 	{
 		iTempWeight += 1000;
 	}
 	// if the project starts a city event, it's probably fairly important
-	if (pkProjectInfo->GetEventToStart())
+	if (pkProjectInfo->GetCityEventToStart() != NO_EVENT_CITY)
 	{
 		iTempWeight += 500;
 	}
@@ -274,6 +274,36 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	if (pkProjectInfo->GetCitySupplyFlat() > 0)
 	{
 		iTempWeight += 30 * pkProjectInfo->GetCitySupplyFlat();
+	}
+
+	if (pkProjectInfo->GetSpySecurityModifier() > 0)
+	{
+		int iEsp = pkProjectInfo->GetSpySecurityModifier() * /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
+		iTempWeight += iEsp / 100;
+	}
+
+	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	{
+		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
+		int iProjMod = pkProjectInfo->GetUnitCombatProductionModifiersGlobal(iI);
+		if (iProjMod > 0)
+		{
+			int iTempBonus = 0;
+			iTempBonus += kPlayer.getUnitCombatProductionModifiers(eUnitCombatClass);
+			iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
+			iTempBonus += iProjMod;
+			if (iTempBonus > 0)
+				iTempWeight += iTempBonus;
+		}
+	}
+	
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		int iProjMod = pkProjectInfo->GetYieldFromConquestAllCities(iI);
+		if (iProjMod > 0)
+		{
+			iTempWeight += iProjMod * kPlayer.getNumCities() * (kPlayer.GetPlayerTraits()->IsWarmonger() ? 3 : 1);
+		}
 	}
 
 	int iHappinessWeight = 0;
@@ -284,7 +314,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 
 	if (pkProjectInfo->GetEmpireSizeModifierReduction() < 0)
 	{
-		iHappinessWeight += ((m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1));
+		iHappinessWeight += m_pCity->GetReducedEmpireSizeModifier(true, false) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1) / 20;
 	}
 
 	if (pkProjectInfo->GetEmpireSizeModifierPerCityMod() < 0)
@@ -362,44 +392,21 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			iHappinessWeight += -1 * pkProjectInfo->GetReligiousUnrestModifier() * iReligiousUnrest;
 	}
 
-	if (!kPlayer.IsEmpireUnhappy())
+	// If the city is happy and this project is only for happiness, we don't want it
+	if (m_pCity->getHappinessDelta() > 0 && iTempWeight <= sqrti(10 * iFlavorWeight))
+		return SR_USELESS;
+
+	// If enemies are nearby, the unhappiness is likely caused by blockaded tiles
+	if (m_pCity->GetCityCitizens()->AnyPlotBlockaded() || !kPlayer.IsEmpireUnhappy())
 	{
 		iHappinessWeight /= 10;
 	}
-	else if (kPlayer.IsEmpireSuperUnhappy())
+	else if (kPlayer.IsEmpireVeryUnhappy())
 	{
 		iHappinessWeight *= 3;
 	}
 
-	if (pkProjectInfo->GetSpySecurityModifier() > 0)
-	{
-		int iEsp = pkProjectInfo->GetSpySecurityModifier() * /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
-		iTempWeight += iEsp / 100;
-	}
-
-	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
-	{
-		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
-		int iProjMod = pkProjectInfo->GetUnitCombatProductionModifiersGlobal(iI);
-		if (iProjMod > 0)
-		{
-			int iTempBonus = 0;
-			iTempBonus += kPlayer.getUnitCombatProductionModifiers(eUnitCombatClass);
-			iTempBonus += m_pCity->getUnitCombatProductionModifier(eUnitCombatClass);
-			iTempBonus += iProjMod;
-			if (iTempBonus > 0)
-				iTempWeight += iTempBonus;
-		}
-	}
-	
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		int iProjMod = pkProjectInfo->GetYieldFromConquestAllCities(iI);
-		if (iProjMod > 0)
-		{
-			iTempWeight += iProjMod * kPlayer.getNumCities() * (kPlayer.GetPlayerTraits()->IsWarmonger() ? 3 : 1);
-		}
-	}
+	iTempWeight += iHappinessWeight;
 
 	return max(1,iTempWeight);
 }
