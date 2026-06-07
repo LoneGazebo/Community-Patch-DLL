@@ -2031,21 +2031,40 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)
 {
-	bool bTheVeniceException = GetPlayerTraits()->IsNoAnnexing();
-	bool bTheAustriaException = GetPlayerTraits()->IsAbleToAnnexCityStates();
+	// if no congress, embassies are worthless, always go for mission
+	if (!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)))
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	
-	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
-	int iEmbassies = GetImprovementLeagueVotes();
-	int iDesiredEmb = range(iFlavorDiplo*2 - 3, 1, iNumMinors);
-
-	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
+	bool bTheVeniceException = GetPlayerTraits()->IsNoAnnexing();  // dont need embassies if you will buyout
+	bool bAnnexException = GetPlayerTraits()->IsAbleToAnnexCityStates();  // dont need embassies if you will annex
+	
+	int iFlavorDiplo = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	int iFlavorEspionage = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ESPIONAGE"));
+	
 	CvPlot* pPlot = FindBestDiplomatTargetPlot(pGreatDiplomat);
-	if (pPlot && !bTheAustriaException && !bTheVeniceException)
+	if (pPlot && !bAnnexException && !bTheVeniceException)
 	{
-		if ((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
+		// trying to win diplo, only care about total votes so choose embassy if possible
+		if (GetDiplomacyAI()->IsGoingForDiploVictory())
+				return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+			
+		// Embassy vs Mission will be based on Diplomacy Flavor vs Espionage Flavor due to spy points
+		// first roll a number between 0 and 2 * iFlavorDiplo - 1
+		int iRandom = GC.getGame().getJonRandNum(2 * iFlavorDiplo, "Diplomat Choice");
+		// decide whether to try for an embassy
+		if (iRandom >= iFlavorEspionage || GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+		// equal flavors results in 50/50 chance
+		// Espionage >= 2 * Diplo results in always false, use for spy-focussed civs
+		// Diplo > Espionage smoothly reduces chance of mission, but mission is always possible (still good for CS Influence)
 		{
-			return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+			// getting too many embassies is overcommitting (since you can lose them)
+			// unless you are set up for diplo victory, in which case take the risk
+			int iFairShare = GC.getGame().GetNumMinorCivsAlive() / GC.getGame().GetNumMajorCivsAlive();  // will not divide by zero
+			int iEmbassies = GetImprovementLeagueVotes();
+			if ((iEmbassies < iFairShare) || GetPlayerTraits()->IsDiplomat())
+			{
+				return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+			}
 		}
 	}
 
