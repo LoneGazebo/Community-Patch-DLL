@@ -11934,15 +11934,11 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			int iCostMod = 0;
 			if (pReligion)
 			{
-				// two ways, either can buy all GPs in a particular era
 				if (kPlayer.GetCurrentEra() >= GC.getGame().GetGameReligions()->GetFaithPurchaseGreatPeopleEra() &&
 					pReligion->m_Beliefs.IsFaithPurchaseAllGreatPeople(getOwner(), this, false, &iCostMod))
 				{
 					bAllUnlockedByBelief = true;
 				}
-				// or can buy specific units whenever GP are unlocked for you
-				if (pReligion->m_Beliefs.IsSpecificFaithBuyingEnabled(eUnit, getOwner(), this, false))
-					bAllUnlockedByBelief = true;
 			}
 
 			// Does any of our policies unlock faith purchasing this unit?
