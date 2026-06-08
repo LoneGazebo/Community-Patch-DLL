@@ -78,6 +78,9 @@ ALTER TABLE Improvements ADD NoFollowUp boolean DEFAULT 0;
 -- Improvement grants new Ownership if plot is not owned.
 ALTER TABLE Improvements ADD NewOwner boolean DEFAULT 0;
 
+-- Improvement can be built in plots owned by other players. Has to be combined with OutsideBorders or InFriendlyAdjacent
+ALTER TABLE Improvements ADD InEnemyTerritory boolean DEFAULT 0;
+
 -- Improvement grants promotion if plot is owned by the player.
 ALTER TABLE Improvements ADD OwnerOnly boolean DEFAULT 1;
 

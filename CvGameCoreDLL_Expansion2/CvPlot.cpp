@@ -3152,10 +3152,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 				// Gifts for minors can ignore borders requirements
 				if(bTestPlotOwner)
 				{
-					// Outside Borders - Can be built in or outside our lands, but not in other lands
+					// Outside Borders - Can be built in or outside our lands
+					// Can be built in other lands if IsInEnemyTerritory is true
 					if(GC.getImprovementInfo(eImprovement)->IsOutsideBorders())
 					{
-						if (getTeam() != eTeam && getTeam() != NO_TEAM)
+						if (!GC.getImprovementInfo(eImprovement)->IsInEnemyTerritory() && getTeam() != eTeam && getTeam() != NO_TEAM)
 						{
 							if (toolTipSink && !toolTipSink->empty())
 								(*toolTipSink) += "[NEWLINE]";
@@ -3167,7 +3168,6 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 					// In Adjacent Friendly - Can be built in or adjacent to our lands
 					else if (GC.getImprovementInfo(eImprovement)->IsInAdjacentFriendly())
 					{
-						//citadels only in adjacent _unowned_ territory
 						if (getTeam() == NO_TEAM)
 						{
 							if (!isAdjacentTeam(eTeam, false))
@@ -3182,7 +3182,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						else if (getTeam() != eTeam)
 						{
 							bool bBlocked = true;
-							if (GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() > 0 && GET_PLAYER(ePlayer).IsCultureBombForeignTerritory())
+							if (GC.getImprovementInfo(eImprovement)->IsInEnemyTerritory() || (GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() > 0 && GET_PLAYER(ePlayer).IsCultureBombForeignTerritory()))
 							{
 								if (!IsStealBlockedByImprovement() && isAdjacentTeam(eTeam, false))
 									bBlocked = false;
@@ -3226,7 +3226,8 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						}
 					}
 					else if(getTeam() != eTeam)
-					{//only buildable in own culture
+					{
+						//only buildable in own culture
 						if (toolTipSink && !toolTipSink->empty())
 							(*toolTipSink) += "[NEWLINE]";
 						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());

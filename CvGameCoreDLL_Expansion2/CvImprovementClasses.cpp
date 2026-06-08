@@ -125,6 +125,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bPermanent(false),
 	m_bOutsideBorders(false),
 	m_bInAdjacentFriendly(false),
+	m_bInEnemyTerritory(false),
 	m_bIgnoreOwnership(false),
 	m_bOnlyCityStateTerritory(false),
 	m_bIsEmbassy(false),
@@ -315,6 +316,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iPillageGold = kResults.GetInt("PillageGold");
 	m_bOutsideBorders = kResults.GetBool("OutsideBorders");
 	m_bInAdjacentFriendly = kResults.GetBool("InAdjacentFriendly");
+	m_bInEnemyTerritory = kResults.GetBool("InEnemyTerritory");
 	m_bIgnoreOwnership = kResults.GetBool("IgnoreOwnership");
 	m_bOnlyCityStateTerritory = kResults.GetBool("OnlyCityStateTerritory");
 	m_bIsEmbassy = kResults.GetBool("IsEmbassy");
@@ -1357,6 +1359,12 @@ bool CvImprovementEntry::IsAllowsWalkWater() const
 bool CvImprovementEntry::IsInAdjacentFriendly() const
 {
 	return m_bInAdjacentFriendly;
+}
+
+/// Can this improvement be built in territory owned by other players?
+bool CvImprovementEntry::IsInEnemyTerritory() const
+{
+	return m_bInEnemyTerritory;
 }
 
 bool CvImprovementEntry::IsCreatedByGreatPerson() const
