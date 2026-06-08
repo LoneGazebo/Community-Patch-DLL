@@ -5049,26 +5049,38 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	}
 
 	/* Spy Buildings */
-	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetGlobalEspionageModifier() != 0 || pkBuildingInfo->GetGlobalSpySecurityModifier() != 0  || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
+	if (pkBuildingInfo->GetExtraSpies() > 0 || 
+		pkBuildingInfo->GetGlobalEspionageModifier() != 0 || pkBuildingInfo->GetGlobalSpySecurityModifier() != 0  || 
+		pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
 	{
-		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetGlobalEspionageModifier() * -20) + (pkBuildingInfo->GetGlobalSpySecurityModifier() * 30) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 100));
+		// build the modifier that synergises with spies
+		int iModifier = 100;
 
-		iValue += 1000;
-		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER) != 0)
+		// CP-only effects. If more spies exist in the world, these are worth more
+		iModifier += pkBuildingInfo->GetGlobalEspionageModifier() * -20;
+		iModifier += pkBuildingInfo->GetGlobalSpySecurityModifier() * 30;
+		// CP-only effects that scale with your own spies
+		iModifier += (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange()) * 20;
+
+		if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER) != 0)
 		{
-			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
+			iModifier += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
 		}
-		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER) != 0)
+
+		// CP+VP effects
+		// Freedom tenets
+		if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER) != 0)
 		{
-			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER);
+			iModifier += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER);
 		}
-		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER) != 0)
+		if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER) != 0)
 		{
-			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
+			iModifier += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
 		}
-		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER) != 0)
+		// Order tenet (Science from Surveillance boost)
+		if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER) != 0)
 		{
-			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER);
+			iModifier += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER);
 		}
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
 		if (eReligion != NO_RELIGION)
@@ -5078,7 +5090,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			{
 				if (pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) != 0)
 				{
-					iValue += pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity);
+					iModifier += /*8*/ pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) * 5;
 				}
 			}
 		}
@@ -5091,9 +5103,24 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 
 			if (kPlayer.getYieldModifierFromActiveSpies(yield) > 0)
 			{
-				iValue += kPlayer.getYieldModifierFromActiveSpies(yield);
+				iModifier += kPlayer.getYieldModifierFromActiveSpies(yield) * 10;
 			}
 		}
+		
+		int iSpiesBaseTimes100 = 0;
+		// if the effect hits all existing spies
+		if (pkBuildingInfo->GetGlobalEspionageModifier() != 0 || pkBuildingInfo->GetGlobalSpySecurityModifier() != 0  || 
+			pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
+		{
+			iSpiesBaseTimes100 += (kPlayer.GetEspionage()->GetNumSpies() * GC.getGame().GetSpyThreshold()) + (pkBuildingInfo->GetExtraSpies() * GD_INT_GET(ESPIONAGE_SPY_POINT_UNIT));
+		}
+		// else, just count any new spies being gained
+		else if (pkBuildingInfo->GetExtraSpies() > 0)
+		{
+			iSpiesBaseTimes100 += (pkBuildingInfo->GetExtraSpies() * GD_INT_GET(ESPIONAGE_SPY_POINT_UNIT));
+		}
+		// score = (100 VP spy points) * relevant num of spies * % modifier
+		iValue += (100 * iSpiesBaseTimes100 / GC.getGame().GetSpyThreshold()) * iModifier / 100;
 	}
 	
 	return iValue * (kPlayer.GetCurrentEra()+1);
