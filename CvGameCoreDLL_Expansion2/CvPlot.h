@@ -118,6 +118,7 @@ public:
 	void updateCenterUnit();
 
 	void verifyUnitValidPlot(PlayerTypes eForSpecificPlayer = NO_PLAYER, bool bWakeUp = false);
+	void verifyUnitValidPlot(vector<TeamTypes>& vAffectedTeams, bool bWakeUp = false);
 
 	void nukeExplosion(int iDamageLevel, CvUnit* pNukeUnit = NULL);
 
@@ -1032,6 +1033,7 @@ protected:
 
 	CvArchaeologyData m_kArchaeologyData;
 
+	void verifyUnitValidPlotInternal(PlayerTypes eForSpecificPlayer, vector<TeamTypes>* pvAffectedTeams, bool bWakeUp);
 	void processArea(CvArea* pArea, int iChange);
 	void doImprovementUpgrade();
 

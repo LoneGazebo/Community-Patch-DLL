@@ -1092,6 +1092,18 @@ void CvMap::verifyUnitValidPlot(PlayerTypes eForSpecificPlayer)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+void CvMap::verifyUnitValidPlot(vector<TeamTypes>& vAffectedTeams)
+{
+	if (vAffectedTeams.empty())
+		return;
+
+	for (int iI = 0; iI < numPlots(); iI++)
+	{
+		plotByIndexUnchecked(iI)->verifyUnitValidPlot(vAffectedTeams);
+	}
+}
+
 
 //	--------------------------------------------------------------------------------
 CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTimeout)

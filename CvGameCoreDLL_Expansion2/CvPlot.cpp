@@ -657,132 +657,166 @@ void CvPlot::updateCenterUnit()
 	}
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvPlot::verifyUnitValidPlot(PlayerTypes eForSpecificPlayer, bool bWakeUp)
+{
+	verifyUnitValidPlotInternal(eForSpecificPlayer, NULL, bWakeUp);
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::verifyUnitValidPlot(vector<TeamTypes>& vAffectedTeams, bool bWakeUp)
+{
+	verifyUnitValidPlotInternal(NO_PLAYER, &vAffectedTeams, bWakeUp);
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::verifyUnitValidPlotInternal(PlayerTypes eForSpecificPlayer, vector<TeamTypes>* pvAffectedTeams, bool bWakeUp)
 {
 	vector<IDInfo> oldUnitList;
 
 	IDInfo* pUnitNode = headUnitNode();
-	while(pUnitNode != NULL)
+	while (pUnitNode != NULL)
 	{
 		oldUnitList.push_back(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 	}
 
-	for(size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
+	for (size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
 	{
 		CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
-		if(pLoopUnit != NULL)
-		{
-			if (eForSpecificPlayer == NO_PLAYER || pLoopUnit->getOwner() == eForSpecificPlayer)
-			{
-				if (!pLoopUnit->isDelayedDeath())
-				{
-					if (pLoopUnit->atPlot(*this))
-					{
-						//if plot ownership changes we want to make sure that human units
-						//which would suffer attrition or cause annoyance are woken up
-						if (bWakeUp)
-							pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+		if (pLoopUnit == NULL || pLoopUnit->isDelayedDeath())
+			continue;
 
-						if (!(pLoopUnit->isCargo()))
-						{
-							if (!(pLoopUnit->isInCombat()))
-							{
-								if (!pLoopUnit->canEndTurnAtPlot(this))
-								{
-									if (!pLoopUnit->jumpToNearestValidPlot())
-										pLoopUnit->kill(true);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		if (eForSpecificPlayer != NO_PLAYER && pLoopUnit->getOwner() != eForSpecificPlayer)
+			continue;
+
+		if (pvAffectedTeams != NULL && std::find(pvAffectedTeams->begin(), pvAffectedTeams->end(), pLoopUnit->getTeam()) == pvAffectedTeams->end())
+			continue;
+
+		if (!pLoopUnit->atPlot(*this))
+			continue;
+
+		// if plot ownership changes we want to make sure that human units which would suffer attrition or cause annoyance are woken up
+		if (bWakeUp)
+			pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+
+		if (pLoopUnit->isCargo() || pLoopUnit->isInCombat())
+			continue;
+
+		if (pLoopUnit->canEndTurnAtPlot(this))
+			continue;
+
+		if (!pLoopUnit->jumpToNearestValidPlot())
+			pLoopUnit->kill(true);
 	}
 
 	// Unit not allowed in a plot owned by someone?
-	if(isOwned())
+	if (isOwned())
 	{
-		for(size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
+		for (size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
 		{
 			CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
-			if(pLoopUnit != NULL)
-			{
-				if(!pLoopUnit->isDelayedDeath())
-				{
-					if(pLoopUnit->atPlot(*this))  // it may have jumped
-					{
-						if(!(pLoopUnit->isInCombat()))
-						{
-							if(pLoopUnit->getTeam() != getTeam()) // && getTeam() == NO_TEAM)// || !GET_TEAM(getTeam()).isVassal(pLoopUnit->getTeam())))
-							{
-								if(isVisibleEnemyUnit(pLoopUnit))
-								{
-									if(!(pLoopUnit->isInvisible(getTeam(), false)))
-									{
-										if (!pLoopUnit->jumpToNearestValidPlot())
-											pLoopUnit->kill(true);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			if (pLoopUnit == NULL || pLoopUnit->isDelayedDeath())
+				continue;
+
+			if (eForSpecificPlayer != NO_PLAYER && pLoopUnit->getOwner() != eForSpecificPlayer)
+				continue;
+
+			if (pvAffectedTeams != NULL && std::find(pvAffectedTeams->begin(), pvAffectedTeams->end(), pLoopUnit->getTeam()) == pvAffectedTeams->end())
+				continue;
+
+			if (!pLoopUnit->atPlot(*this))  // it may have jumped
+				continue;
+
+			if (pLoopUnit->isInCombat())
+				continue;
+
+			if (pLoopUnit->getTeam() == getTeam()) // && getTeam() == NO_TEAM)// || !GET_TEAM(getTeam()).isVassal(pLoopUnit->getTeam())))
+				continue;
+
+			if (!isVisibleEnemyUnit(pLoopUnit))
+				continue;
+
+			if (pLoopUnit->isInvisible(getTeam(), false))
+				continue;
+
+			if (!pLoopUnit->jumpToNearestValidPlot())
+				pLoopUnit->kill(true);
 		}
 	}
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	else
 	{
-		for(size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
+		for (size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
 		{
 			CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
-			if(pLoopUnit != NULL)
+			if (pLoopUnit == NULL)
+				continue;
+
+			if (pLoopUnit->isDelayedDeath())
+				continue;
+
+			if (!pLoopUnit->atPlot(*this))  // it may have jumped
+				continue;
+
+			if (pLoopUnit->isInCombat())
+				continue;
+
+			for (size_t iVectorLoop2 = iVectorLoop+1; iVectorLoop2 < oldUnitList.size(); ++iVectorLoop2)
 			{
-				if(!pLoopUnit->isDelayedDeath())
+				CvUnit* pLoopUnit2 = GetPlayerUnit(oldUnitList[iVectorLoop2]);
+				if (pLoopUnit2 == NULL || pLoopUnit2->isDelayedDeath())
+					continue;
+
+				if (!pLoopUnit2->atPlot(*this))  // it may have jumped
+					continue;
+
+				if (pLoopUnit2->isInCombat())
+					continue;
+
+				if (!atWar(pLoopUnit->getTeam(), pLoopUnit2->getTeam()))
+					continue;
+
+				bool bLoopUnitMatches = true;
+				bool bLoopUnit2Matches = true;
+
+				if (eForSpecificPlayer != NO_PLAYER)
 				{
-					if(pLoopUnit->atPlot(*this))  // it may have jumped
-					{
-						if(!(pLoopUnit->isInCombat()))
-						{
-							for(size_t iVectorLoop2 = iVectorLoop+1; iVectorLoop2 < oldUnitList.size(); ++iVectorLoop2)
-							{
-								CvUnit* pLoopUnit2 = GetPlayerUnit(oldUnitList[iVectorLoop2]);
-								if(pLoopUnit2 != NULL)
-								{
-									if(!pLoopUnit2->isDelayedDeath())
-									{
-										if(pLoopUnit2->atPlot(*this))  // it may have jumped
-										{
-											if(!(pLoopUnit2->isInCombat()))
-											{
-												if(atWar(pLoopUnit->getTeam(), pLoopUnit2->getTeam()))
-												{
-													// We have to evict the weaker of pLoopUnit and pLoopUnit2
-													if (pLoopUnit->GetPower() < pLoopUnit2->GetPower())
-													{
-														CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit->getOwner(), pLoopUnit->getName().c_str(), getX(), getY());
-														if (!pLoopUnit->jumpToNearestValidPlot())
-															pLoopUnit->kill(true);
-													}
-													else
-													{
-														CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit2->getOwner(), pLoopUnit2->getName().c_str(), getX(), getY());
-														if (!pLoopUnit2->jumpToNearestValidPlot())
-															pLoopUnit2->kill(true);
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+					bLoopUnitMatches = (pLoopUnit->getOwner() == eForSpecificPlayer);
+					bLoopUnit2Matches = (pLoopUnit2->getOwner() == eForSpecificPlayer);
 				}
+
+				if (pvAffectedTeams != NULL)
+				{
+					bLoopUnitMatches = (std::find(pvAffectedTeams->begin(), pvAffectedTeams->end(), pLoopUnit->getTeam()) != pvAffectedTeams->end());
+					bLoopUnit2Matches = (std::find(pvAffectedTeams->begin(), pvAffectedTeams->end(), pLoopUnit2->getTeam()) != pvAffectedTeams->end());
+				}
+
+				if (!bLoopUnitMatches && !bLoopUnit2Matches)
+					continue;
+
+				CvUnit* pEvictedUnit = NULL;
+
+				if (bLoopUnitMatches && bLoopUnit2Matches)
+				{
+					// We have to evict the weaker of pLoopUnit and pLoopUnit2
+					if (pLoopUnit->GetPower() < pLoopUnit2->GetPower())
+						pEvictedUnit = pLoopUnit;
+					else
+						pEvictedUnit = pLoopUnit2;
+				}
+				else if (bLoopUnitMatches)
+				{
+					pEvictedUnit = pLoopUnit;
+				}
+				else
+				{
+					pEvictedUnit = pLoopUnit2;
+				}
+
+				CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pEvictedUnit->getOwner(), pEvictedUnit->getName().c_str(), getX(), getY());
+				if (!pEvictedUnit->jumpToNearestValidPlot())
+					pEvictedUnit->kill(true);
 			}
 		}
 	}

@@ -8410,6 +8410,45 @@ void CvGame::doTurn()
 	incrementElapsedGameTurns();
 	gDLL->PublishNewGameTurn(getGameTurn());
 
+	// After disengagement ends, bump any units out of tiles where they shouldn't be
+	// Don't iterate through all tiles *and* all players, that's expensive - only check any teams where disengagement just ended
+	if (/*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) > 0)
+	{
+		vector<TeamTypes> vTeams;
+		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+		{
+			TeamTypes eTeam = (TeamTypes)iTeamLoop;
+			CvTeam* pTeam = &GET_TEAM(eTeam);
+			if (!pTeam->isAlive() || std::find(vTeams.begin(), vTeams.end(), eTeam) != vTeams.end())
+				continue;
+
+			bool bAlreadyAddedThisTeam = false;
+			for (int iOtherTeamLoop = 0; iOtherTeamLoop < MAX_CIV_TEAMS; iOtherTeamLoop++)
+			{
+				TeamTypes eOtherTeam = (TeamTypes)iOtherTeamLoop;
+				CvTeam* pOtherTeam = &GET_TEAM(eOtherTeam);
+				if (eOtherTeam == eTeam || !pOtherTeam->isAlive())
+					continue;
+
+				// Did disengagement just end?
+				if (pTeam->GetRemainingDisengagementTurns(eOtherTeam) == 0)
+				{
+					// If the teams have Open Borders, skip the check
+					if (!bAlreadyAddedThisTeam && !pOtherTeam->IsAllowsOpenBordersToTeam(eTeam))
+					{
+						vTeams.push_back(eTeam);
+						bAlreadyAddedThisTeam = true;
+					}
+
+					if (!pTeam->IsAllowsOpenBordersToTeam(eOtherTeam) && std::find(vTeams.begin(), vTeams.end(), eOtherTeam) == vTeams.end())
+						vTeams.push_back(eOtherTeam);
+				}
+			}
+		}
+		if (vTeams.size() > 0)
+			GC.getMap().verifyUnitValidPlot(vTeams);
+	}
+
 	if(isOption(GAMEOPTION_DYNAMIC_TURNS))
 	{// update turn mode for dynamic turn mode.
 		for(int teamIdx = 0; teamIdx < MAX_TEAMS; ++teamIdx)
