@@ -840,6 +840,7 @@ public:
 
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	bool IsEnemyUnitAdjacent(TeamTypes eMyTeam) const;
+	int GetNumThisTeamUnitsAdjacent(TeamTypes eMyTeam, TeamTypes eSpecificTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, bool bIncludeEmbarked = false) const;
 	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, TeamTypes eSpecificTeam = NO_TEAM, bool bIncludeEmbarked = false) const;
 	vector<CvUnit*> GetAdjacentFriendlyCombatUnits(TeamTypes eMyTeam, int iRange, DomainTypes eDomain) const;
 	pair<int, int> GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const;
