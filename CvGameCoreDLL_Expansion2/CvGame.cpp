@@ -50,6 +50,7 @@
 #include "CvGoodyHuts.h"
 
 #include <sstream>
+#include <regex>
 
 #include "CvDiplomacyRequests.h"
 
@@ -14220,4 +14221,496 @@ void CvGame::SetExeWantForceResyncValue(int value)
 void CvGame::SetExeWantForceResyncPointer(int* pointer)
 {
 	s_iExeWantForceResync = pointer;
+}
+
+// Modpack making functions by Gedemon/cicero225
+bool CvGame::DeleteMPMP()
+{
+	// Logging
+	FILogFile* pLog = LOGFILEMGR.GetLog("MPMPMaker.log", FILogFile::kDontTimeStamp);
+	pLog->Msg("Delete MPMP...");
+
+	// Delete the previous VP_MODPACK folder
+	int iRC = DeleteDirectory("Assets\\DLC\\VP_MODPACK", true);
+	if (iRC)
+	{
+		CvString strTemp = CvString::format("DeleteDirectory failed with Error %d", iRC);
+		pLog->Msg(strTemp);
+		pLog->Msg("--------------------------------------------------------------------------------");
+		return false;
+	}
+	pLog->Msg("MPMP Folder deleted...");
+	pLog->Msg("--------------------------------------------------------------------------------");
+	return true;
+}
+
+bool CvGame::CreateMPMP()
+{
+	// Logging
+	FILogFile* pLog = LOGFILEMGR.GetLog("MPMPMaker.log", FILogFile::kDontTimeStamp);
+	pLog->Msg("Create MPMP Folder...");
+
+	// Create the VP_MODPACK DLC folder
+	CreateDirectory("Assets\\DLC\\VP_MODPACK", NULL);
+
+	// Create the MPModsPack.Civ5Pkg (to do: copy the file from the mods folder)
+	pLog->Msg("Create MPModsPack.Civ5Pkg...");
+	ofstream civ5Pkg("Assets\\DLC\\VP_MODPACK\\MPModsPack.Civ5Pkg");
+	civ5Pkg << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+	           "<Civ5Package>\n"
+	           "  <GUID>{b5932ae4-0f4f-498f-9333-e2d31b20e095}</GUID>\n"
+	           "  <SteamApp>235580</SteamApp>\n"
+	           "  <Version>1</Version>\n"
+	           "  <Priority>300</Priority>\n"
+	           "  <Key>bf6d34a0074b7ad4b1d1716475f7f7fe</Key>\n"
+	           "  <PTags>\n"
+	           "    <Tag>Version</Tag>\n"
+	           "  </PTags>\n"
+	           "  <Name>\n"
+	           "    <Value language=\"en_US\">VP Modpack</Value>\n"
+	           "  </Name>\n"
+	           "  <Description>\n"
+	           "    <Value language=\"en_US\">Modpack compatible with VP</Value>\n"
+	           "  </Description>\n"
+	           "  <UISkin name=\"Expansion2Primary\" set=\"Expansion2\" platform=\"Common\">\n"
+	           "    <GameplaySkin>\n"
+	           "      <Directory>UI</Directory>\n"
+	           "      <Directory>Mods</Directory>\n"
+	           "    </GameplaySkin>\n"
+	           "  </UISkin>\n"
+	           "</Civ5Package>\n";
+	civ5Pkg.close();
+
+	// Create subdirs
+	pLog->Msg("Create Subdirs...");
+	CreateDirectory("Assets\\DLC\\VP_MODPACK\\UI", NULL);
+	CreateDirectory("Assets\\DLC\\VP_MODPACK\\Override", NULL);
+	CreateDirectory("Assets\\DLC\\VP_MODPACK\\Mods", NULL);
+
+	// Copy files from the base game for UIAddins
+	pLog->Msg("Copy UI files from base game...");
+	CopyFile("Assets\\DLC\\Expansion2\\UI\\InGame\\InGame.lua", "Assets\\DLC\\VP_MODPACK\\UI\\InGame.lua", false);
+	CopyFile("Assets\\DLC\\Expansion2\\UI\\InGame\\CityView\\CityView.lua", "Assets\\DLC\\VP_MODPACK\\UI\\CityView.lua", false);
+	CopyFile("Assets\\DLC\\Expansion2\\UI\\InGame\\LeaderHead\\LeaderHeadRoot.lua", "Assets\\DLC\\VP_MODPACK\\UI\\LeaderHeadRoot.lua", false);
+
+	// Create empty gameplay files for the base game and DLC (the Database changes will be handled in the override of the base game's files)
+	// This way we keep the database.log clean.
+	pLog->Msg("Create empty gameplay files from:");
+	pLog->Msg(" - Base Game...");
+	OverrideGamePlayFiles("Assets\\Gameplay");
+	pLog->Msg(" - DLC 01-08 and Deluxe...");
+	OverrideGamePlayFiles("Assets\\DLC\\DLC_01\\Gameplay");
+	OverrideGamePlayFiles("Assets\\DLC\\DLC_02\\Gameplay");
+	OverrideGamePlayFiles("Assets\\DLC\\DLC_03\\Gameplay");
+	OverrideGamePlayFiles("Assets\\DLC\\DLC_04\\Gameplay");
+	OverrideGamePlayFiles("Assets\\DLC\\DLC_05\\Gameplay");
+	OverrideGamePlayFiles("Assets\\DLC\\DLC_06\\Gameplay");
+	OverrideGamePlayFiles("Assets\\DLC\\DLC_07\\Gameplay");
+	OverrideGamePlayFiles("Assets\\DLC\\DLC_Deluxe\\Gameplay");
+	pLog->Msg(" - Expansion 1...");
+	OverrideGamePlayFiles("Assets\\DLC\\Expansion\\Gameplay");
+	pLog->Msg(" - Expension 2...");
+	OverrideGamePlayFiles("Assets\\DLC\\Expansion2\\Gameplay");
+
+	pLog->Msg("Base Folder created...");
+	pLog->Msg("--------------------------------------------------------------------------------");
+	return true;
+}
+
+bool CvGame::WriteMPMP(const char* szFileName, const char* szDataBase, bool bInitialize)
+{
+	// Logging
+	FILogFile* pLog = LOGFILEMGR.GetLog("MPMPMaker.log", FILogFile::kDontTimeStamp);
+	pLog->Msg("Write Data in file...");
+
+	// Do not allow NULL entries
+	if (szDataBase == NULL || strlen(szDataBase) == 0)
+	{
+		pLog->Msg("szDataBase is NULL, aborting");
+		pLog->Msg("--------------------------------------------------------------------------------");
+		return false;
+	}
+
+	CvString filePath = CvString::format("Assets\\DLC\\VP_MODPACK\\Override\\%s", szFileName);
+
+	ofstream outFile;
+	if (bInitialize)
+		outFile.open(filePath, ofstream::trunc);
+	else
+		outFile.open(filePath, ofstream::out | ofstream::app);
+
+	outFile << szDataBase << endl;
+	outFile.close();
+
+	pLog->Msg("File updated...");
+	pLog->Msg("--------------------------------------------------------------------------------");
+	return true;
+}
+
+bool CvGame::CopyModDataToMPMP(const char* szModFolder, const char* szId, const char* szVersion)
+{
+	// Logging
+	FILogFile* pLog = LOGFILEMGR.GetLog("MPMPMaker.log", FILogFile::kDontTimeStamp);
+	pLog->Msg(CvString::format("Copy Mod's Data To MPMP Folder for %s", szModFolder));
+
+	// Get Mods folder
+	DWORD dwType = REG_SZ;
+    HKEY hKey = 0;
+	char strPath[1024];
+	DWORD strPath_length = 1024;
+	const char* subkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders";
+	if (::RegOpenKeyExA(HKEY_CURRENT_USER, subkey, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+	{
+		::RegQueryValueExA(hKey, "Personal", NULL, &dwType, (LPBYTE) strPath, &strPath_length);
+		::RegCloseKey(hKey);
+	}
+	else
+	{
+		pLog->Msg("Failed to open the Explorer registry configuration hive paths, aborting...");
+		pLog->Msg("--------------------------------------------------------------------------------");
+		return false;
+	}
+
+	pLog->Msg(CvString::format("Path to \"My Documents\" folder: %s", strPath));
+
+	CvString strModsPath = CvString::format("%s\\My Games\\Sid Meier's Civilization 5\\MODS\\%s", strPath, szModFolder);
+	pLog->Msg(CvString::format("Path to the mod's folder: %s", strModsPath.c_str()));
+
+	// Check mod folder for correct mod, which has the correct id and version in its .modinfo
+	CvString strTemp = GetModFromIdAndVersion(strModsPath, szModFolder, szId, szVersion);
+	if (strTemp.size() == 0)
+	{
+		pLog->Msg("Copying mod failed: Folder Not Found");
+		pLog->Msg(strTemp);
+		pLog->Msg("--------------------------------------------------------------------------------");
+		return false;
+	}
+
+	// Check if the folder exists
+	DWORD ftyp = GetFileAttributesA(strModsPath.c_str());
+	if (ftyp == INVALID_FILE_ATTRIBUTES)
+	{
+		pLog->Msg("Mod's path does not exist, aborting...");
+		pLog->Msg("--------------------------------------------------------------------------------");
+		return false;
+	}
+
+	// Create new folder in MP Modspack
+	CvString strDLCPath = CvString::format("Assets\\DLC\\VP_MODPACK\\Mods\\%s", szModFolder);
+	CreateDirectory(strDLCPath, NULL);
+
+	// Copy the mod's files into the new folder
+	int iRC = CopyModFiles(strModsPath, strDLCPath, "");
+	if (iRC)
+	{
+		pLog->Msg(CvString::format("Copying mod failed with Error %d", iRC));
+		pLog->Msg("--------------------------------------------------------------------------------");
+		return false;
+	}
+
+	pLog->Msg("Mod's Data copied...");
+	pLog->Msg("--------------------------------------------------------------------------------");
+	return true;
+}
+
+// Code from http://forums.codeguru.com/showthread.php?239271-Windows-SDK-File-System-How-to-delete-a-directory-and-subdirectories
+// with minor fixes applied
+int CvGame::DeleteDirectory(const string& refcstrRootDirectory, bool bDeleteSubdirectories)
+{
+
+	string strPattern = refcstrRootDirectory + "\\*.*";
+	WIN32_FIND_DATA FileInformation; // File information
+	HANDLE hFile = ::FindFirstFile(strPattern.c_str(), &FileInformation); // Handle to directory
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		bool bSubdirectory = false; // Flag, indicating whether subdirectories have been found
+		do
+		{
+			string cName = FileInformation.cFileName;
+			if (cName != "." && cName != "..")
+			{
+				string strFilePath = refcstrRootDirectory + "\\" + cName;
+
+				if (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					if (bDeleteSubdirectories)
+					{
+						// Delete subdirectory
+						int iRC = DeleteDirectory(strFilePath, bDeleteSubdirectories);
+						if (iRC)
+							return iRC;
+					}
+					else
+						bSubdirectory = true;
+				}
+				else
+				{
+					// Set file attributes
+					if (::SetFileAttributes(strFilePath.c_str(), FILE_ATTRIBUTE_NORMAL) == FALSE)
+						return ::GetLastError();
+
+					// Delete file
+					if (::DeleteFile(strFilePath.c_str()) == FALSE)
+						return ::GetLastError();
+				}
+			}
+		} while (::FindNextFile(hFile, &FileInformation) == TRUE);
+
+		// Close handle
+		::FindClose(hFile);
+
+		DWORD dwError = ::GetLastError();
+		if (dwError != ERROR_NO_MORE_FILES)
+			return dwError;
+
+		if (!bSubdirectory)
+		{
+			// Set directory attributes
+			if (::SetFileAttributes(refcstrRootDirectory.c_str(), FILE_ATTRIBUTE_NORMAL) == FALSE)
+				return ::GetLastError();
+
+			// Delete directory
+			if (::RemoveDirectory(refcstrRootDirectory.c_str()) == FALSE)
+				return ::GetLastError();
+		}
+	}
+
+	return 0;
+}
+
+// Recursively copy all gameplay files from the game folder (and empty their contents)
+int CvGame::OverrideGamePlayFiles(const string& refcstrRootDirectory)
+{
+	string strPattern = refcstrRootDirectory + "\\*.*";
+	WIN32_FIND_DATA FileInformation; // File information
+	HANDLE hFile = ::FindFirstFile(strPattern.c_str(), &FileInformation); // Handle to directory
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			string cName = FileInformation.cFileName;
+			if (cName != "." && cName != "..")
+			{
+				string strFilePath = refcstrRootDirectory + "\\" + cName;
+
+				if (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					// Found subdirectory
+					int iRC = OverrideGamePlayFiles(strFilePath);
+					if (iRC)
+						return iRC;
+				}
+				else
+				{
+					// Create an empty file with the same name
+					if (cName.size() >= 4 && (_stricmp(cName.c_str() + cName.size() - 4, ".xml") == 0)) // We want only XML files
+					{
+						string strNewFilePath = "Assets\\DLC\\VP_MODPACK\\Override\\" + cName;
+						ofstream outFile(strNewFilePath.c_str(), ios::trunc);
+					}
+				}
+			}
+		} while (::FindNextFile(hFile, &FileInformation) == TRUE);
+
+		// Close handle
+		::FindClose(hFile);
+	}
+	return 0;
+}
+
+// Recursively copy all files from a mod's folder
+int CvGame::CopyModFiles(const string& strModDirectory, const string& strDLCDirectory, const string& strRootModSource)
+{
+	// If strRootModSource is provided, use it. Otherwise, this is the root, so use strModDirectory.
+	const string& strBaseSource = strRootModSource.empty() ? strModDirectory : strRootModSource;
+
+	string strPattern = strModDirectory + "\\*.*";
+	WIN32_FIND_DATA FileInformation;
+	HANDLE hFile = ::FindFirstFile(strPattern.c_str(), &FileInformation);
+
+	int iRC = 0;
+
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		// Only log the start statement on the very first top-level call
+		if (strRootModSource.empty())
+		{
+			FILogFile* pLog = LOGFILEMGR.GetLog("MPMPMaker.log", FILogFile::kDontTimeStamp);
+			pLog->Msg("Beginning Mod File Copy...");
+		}
+
+		do
+		{
+			string cName = FileInformation.cFileName;
+			if (cName != "." && cName != "..")
+			{
+				string strFilePath = strModDirectory + "\\" + cName;
+
+				// Calculate relative destination path (e.g., "Art\Textures\Unit.dds")
+				string strRelativePath = strFilePath.substr(strBaseSource.size() + 1);
+				string strNewFilePath = strDLCDirectory + "\\" + strRelativePath;
+
+				if (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					// Safely create the matching subdirectory structure in the DLC folder layout
+					::CreateDirectoryA(strNewFilePath.c_str(), NULL);
+
+					// Recurse deeper, passing down the root source tracker
+					iRC = CopyModFiles(strFilePath, strDLCDirectory, strBaseSource);
+					if (iRC != 0)
+					{
+						::FindClose(hFile);
+						return iRC;
+					}
+				}
+				else
+				{
+					// All Lua files with custom entry points need to be listed here
+					const char* specialUiFiles[] = {
+						"InGame.lua",
+						"CityView.lua",
+						"LeaderHeadRoot.lua",
+						"MiniMapPanel.lua",
+						"MapGenerator.lua",
+					};
+
+					int iNumFiles = sizeof(specialUiFiles) / sizeof(specialUiFiles[0]);
+					for (int i = 0; i < iNumFiles; i++)
+					{
+						if (_stricmp(cName.c_str(), specialUiFiles[i]) == 0)
+						{
+							string strUiDest = "Assets\\DLC\\VP_MODPACK\\UI\\" + cName;
+							::CopyFileA(strFilePath.c_str(), strUiDest.c_str(), FALSE);
+							break;
+						}
+					}
+
+					// Safely execute the file copy operation into the tree structure
+					::CopyFileA(strFilePath.c_str(), strNewFilePath.c_str(), FALSE);
+				}
+			}
+		} while (::FindNextFile(hFile, &FileInformation) == TRUE);
+
+		::FindClose(hFile);
+	}
+
+	return iRC;
+}
+
+bool CvGame::AddUIAddinToMPMP(const char* szUIFileName, const char* szAddinFileName)
+{
+	// Logging
+	FILogFile* pLog = LOGFILEMGR.GetLog("MPMPMaker.log", FILogFile::kDontTimeStamp);
+	pLog->Msg("Add UIAddin...");
+
+	// Do not allow NULL entries
+	if (szUIFileName == NULL || strlen(szUIFileName) == 0 || szAddinFileName == NULL || strlen(szAddinFileName) == 0 )
+	{
+		pLog->Msg("One or both FileName(s) are NULL, aborting");
+		pLog->Msg("--------------------------------------------------------------------------------");
+		return false;
+	}
+
+	CvString strUIfilePath = CvString::format("Assets\\DLC\\VP_MODPACK\\UI\\%s", szUIFileName);
+
+	// Check if the file exists
+	DWORD ftyp = GetFileAttributesA(strUIfilePath.c_str());
+	if (ftyp == INVALID_FILE_ATTRIBUTES)
+	{
+		pLog->Msg("UI file does not exist, aborting...");
+		pLog->Msg("--------------------------------------------------------------------------------");
+		return false;
+	}
+
+	CvString strInclude = CvString::format("ContextPtr:LoadNewContext(\"%s\")", szAddinFileName);
+
+	// Check if the LoadNewContext line is already included in the file
+	ifstream checkFile(strUIfilePath.c_str());
+	string line;
+	while (getline(checkFile, line))
+	{
+		if (line.find(strInclude.c_str()) != string::npos)
+		{
+			pLog->Msg("UI Addin entry already exists in target file. Skipping...");
+			pLog->Msg("--------------------------------------------------------------------------------");
+			return true; // Return true because the desired end state is already satisfied
+		}
+	}
+
+	ofstream outFile(strUIfilePath.c_str(), ios::out | ios::app);
+	if (outFile.is_open())
+	{
+		// Leading newline protects against a missing trailing newline in the source file
+		outFile << "\n" << strInclude.c_str() << "\n";
+		outFile.close();
+	}
+	else
+	{
+		pLog->Msg("Failed to open UI file for writing!");
+		pLog->Msg("--------------------------------------------------------------------------------");
+		return false;
+	}
+	
+	pLog->Msg("File updated...");
+	pLog->Msg("--------------------------------------------------------------------------------");
+	return true;
+}
+
+CvString CvGame::GetModFromIdAndVersion(const string& refcstrRootDirectory, const string& modName, const string& id, const string& version)
+{
+	FILogFile* pLog = LOGFILEMGR.GetLog("MPMPMaker.log", FILogFile::kDontTimeStamp);
+	string strPattern = refcstrRootDirectory + "\\*.*";
+	WIN32_FIND_DATA FileInformation; // File information
+	HANDLE hFile = ::FindFirstFile(strPattern.c_str(), &FileInformation); // Handle to directory
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		tr1::regex idRegex("id\\s*=\\s*[\"']([^\"']+)[\"']", tr1::regex_constants::icase);
+		tr1::regex verRegex("version\\s*=\\s*[\"']([^\"']+)[\"']", tr1::regex_constants::icase);
+		do
+		{
+			string cName = FileInformation.cFileName;
+			if (cName != "." && cName != "..")
+			{
+				string strFolderPath = refcstrRootDirectory + "\\" + cName;
+				if (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					// Folder found, check .modinfo
+					string strModinfoPattern = strFolderPath + "\\*.modinfo";
+					WIN32_FIND_DATA ModinfoFileInformation; // Modinfo file information
+					HANDLE hModInfoFile = ::FindFirstFile(strModinfoPattern.c_str(), &ModinfoFileInformation); // Handle to modinfo file
+					if (hModInfoFile != INVALID_HANDLE_VALUE)
+					{
+						string strFilePath = strFolderPath + "\\" + ModinfoFileInformation.cFileName;
+						ifstream file(strFilePath.c_str());
+
+						string fileContent((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+
+						tr1::smatch idMatch;
+						tr1::smatch verMatch;
+
+						// Run regex over the entire header chunk globally, ignoring manual line tracking entirely
+						if (tr1::regex_search(fileContent, idMatch, idRegex) && tr1::regex_search(fileContent, verMatch, verRegex))
+						{
+							string strModId = idMatch[1].str();
+							string strModVersion = verMatch[1].str();
+
+							if (_stricmp(id.c_str(), strModId.c_str()) == 0 && _stricmp(version.c_str(), strModVersion.c_str()) == 0)
+							{
+								::FindClose(hModInfoFile);
+								::FindClose(hFile);
+								return strFolderPath; // Safe match found!
+							}
+						}
+						::FindClose(hModInfoFile);
+					}
+				}
+			}
+		} while (::FindNextFile(hFile, &FileInformation) == TRUE);
+
+		// Close handle
+		::FindClose(hFile);
+	}
+
+	pLog->Msg(CvString::format("Modinfo not found for %s (v %s). This folder will not copy!", modName.c_str(), version.c_str()));
+	return CvString();
 }
