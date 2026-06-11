@@ -241,7 +241,7 @@ CvCity::CvCity() :
 	, m_iResistanceTurns()
 	, m_iRazingTurns()
 	, m_iLowestRazingPop()
-	, m_iCountExtraLuxuries()
+	, m_aiExtraResources()
 	, m_iCheapestPlotInfluenceDistance()
 	, m_iEspionageModifier()
 	, m_iSpySecurityModifier()
@@ -1235,7 +1235,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iResistanceTurns = 0;
 	m_iRazingTurns = 0;
 	m_iLowestRazingPop = 0;
-	m_iCountExtraLuxuries = 0;
 	m_iCheapestPlotInfluenceDistance = 0;
 	m_unitBeingBuiltForOperation.Invalidate();
 	m_hGarrisonOverride = -1;
@@ -1258,6 +1257,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_eOriginalOwner = eOwner;
 	m_ePlayersReligion = NO_PLAYER;
 
+	m_aiExtraResources.resize(GC.getNumResourceInfos());
 
 	m_aiSeaPlotYield.resize(NUM_YIELD_TYPES);
 	m_aiRiverPlotYield.resize(NUM_YIELD_TYPES);
@@ -9173,6 +9173,20 @@ bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible,
 	if (!(GET_PLAYER(getOwner()).canCreate(eProject, bContinue, bTestVisible, toolTipSink)))
 	{
 		return false;
+	}
+
+	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+	if (pkProjectInfo)
+	{
+		ResourceTypes eResource = (ResourceTypes)pkProjectInfo->GetLocalResourcePrereq();
+
+		// IsBuildingLocalResourceValid
+		if (eResource != NO_RESOURCE && !IsHasResourceLocal(eResource, bTestVisible))
+		{
+			CvResourceInfo* pResource = GC.getResourceInfo(eResource);
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LOCAL_RESOURCE", pResource->GetTextKey(), pResource->GetIconString());
+			return false;
+		}
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -27040,21 +27054,33 @@ void CvCity::doFoundMessage()
 }
 
 //	--------------------------------------------------------------------------------
-bool CvCity::IsExtraLuxuryResources()
+int CvCity::GetExtraResources(ResourceTypes eResource)
 {
-	return (m_iCountExtraLuxuries > 0);
+	PRECONDITION(eResource < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(eResource > -1, "Index out of bounds");
+	return m_aiExtraResources[eResource];
 }
-
 //	--------------------------------------------------------------------------------
-void CvCity::SetExtraLuxuryResources(int iNewValue)
+void CvCity::ChangeExtraResources(ResourceTypes eResource, int iChange)
 {
-	m_iCountExtraLuxuries = iNewValue;
+	PRECONDITION(eResource < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(eResource > -1, "Index out of bounds");
+	m_aiExtraResources[eResource] += iChange;
 }
-
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeExtraLuxuryResources(int iChange)
 {
-	m_iCountExtraLuxuries += iChange;
+	for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
+	{
+		ResourceTypes eLoopResource = (ResourceTypes)iI;
+		if (eLoopResource != NO_RESOURCE)
+		{
+			if (GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				m_aiExtraResources[eLoopResource] += iChange;
+			}
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -30320,7 +30346,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 	CvProjectEntry* pProject = GC.getProjectInfo(eProjectType);
 	if (pProject)
 	{
-		GET_PLAYER(getOwner()).GetTreasury()->ChangeBaseBuildingGoldMaintenance(pProject->GetGoldMaintenance()); // Maintenance cost
+		thisPlayer.GetTreasury()->ChangeBaseBuildingGoldMaintenance(pProject->GetGoldMaintenance()); // Maintenance cost
 		ChangeUnmoddedHappinessFromBuildings(pProject->GetHappiness());
 		ChangeEmpireSizeModifierReduction(pProject->GetEmpireSizeModifierReduction());
 		ChangeDistressFlatReduction(pProject->GetDistressFlatReduction());
@@ -30335,14 +30361,14 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
 		changeCitySupplyFlat(pProject->GetCitySupplyFlat());
-		GET_PLAYER(getOwner()).ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
+		thisPlayer.ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
 		
 		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
 			int iModifier = pProject->GetUnitCombatProductionModifiersGlobal(iI);
 			if (iModifier != 0)
 			{
-				GET_PLAYER(getOwner()).changeUnitCombatProductionModifiers((UnitCombatTypes)iI, iModifier);
+				thisPlayer.changeUnitCombatProductionModifiers((UnitCombatTypes)iI, iModifier);
 			}
 		}
 		
@@ -30351,10 +30377,85 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 			int iModifier = pProject->GetYieldFromConquestAllCities(iI);
 			if (iModifier != 0)
 			{
-				GET_PLAYER(getOwner()).changeYieldFromConquestAllCities((YieldTypes)iI, iModifier);
+				thisPlayer.changeYieldFromConquestAllCities((YieldTypes)iI, iModifier);
+			}
+		}
+
+		int iExtraLux = pProject->GetExtraLuxuries();
+		if (iExtraLux > 0)
+		{
+			// if there is a prereq resource set, only affect that
+			ResourceTypes ePrereqResource = (ResourceTypes)pProject->GetLocalResourcePrereq();
+			
+			CvPlot* pLoopPlot = NULL;
+
+			// TODO: Do we want this to be removed if the city is lost? is it already?
+			if (iExtraLux > 0)
+			{
+				if (ePrereqResource != NO_RESOURCE)
+				{
+					ChangeExtraResources(ePrereqResource, iExtraLux);
+				}
+				else
+				{
+					ChangeExtraLuxuryResources(iExtraLux);
+				}
+			}
+
+			// Add extra luxury counts
+			std::set<int>::iterator it;
+			for (it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
+			{
+				pLoopPlot = GC.getMap().plotByIndex(*it);
+				ASSERT(pLoopPlot);
+
+				ResourceTypes eLoopResource = pLoopPlot->getResourceType(getTeam());
+				if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					if (ePrereqResource != NO_RESOURCE && eLoopResource != ePrereqResource)
+						continue;
+							
+					if (pLoopPlot->IsResourceImprovedForOwner())
+					{
+						if (iExtraLux > 0)
+						{
+							thisPlayer.addResourcesOnPlotToTotal(pLoopPlot, true);
+						}
+						else
+						{
+							thisPlayer.removeResourcesOnPlotFromTotal(pLoopPlot, true);
+						}
+					}
+					else
+					{
+						if (iExtraLux > 0)
+						{
+							thisPlayer.addResourcesOnPlotToUnimproved(pLoopPlot, true);
+						}
+						else
+						{
+							thisPlayer.removeResourcesOnPlotFromUnimproved(pLoopPlot, true);
+						}
+					}
+				}
 			}
 		}
 	}
+
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+
+		if (pProject->GetFreeResources(eResource) > 0)
+		{
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo)
+			{
+					GET_PLAYER(getOwner()).changeNumResourceTotal(eResource, pProject->GetFreeResources(eResource), true, true, false);
+			}
+		}
+	}
+	
 	if (GetWLTKDFromProject(eProjectType) > 0)
 	{
 		int iWLTKDTurns = GetWLTKDFromProject(eProjectType);
@@ -32033,7 +32134,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iResistanceTurns);
 	visitor(city.m_iRazingTurns);
 	visitor(city.m_iLowestRazingPop);
-	visitor(city.m_iCountExtraLuxuries);
+	visitor(city.m_aiExtraResources);
 	visitor(city.m_iCheapestPlotInfluenceDistance);
 	visitor(city.m_iEspionageModifier);
 	visitor(city.m_iSpySecurityModifier);

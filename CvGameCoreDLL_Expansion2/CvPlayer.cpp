@@ -33240,14 +33240,11 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 						if (eRes == (ResourceTypes)iJ)
 						{
 							CvResourceInfo* pResourceInfo = GC.getResourceInfo(eRes);
-							int iNumExtraLuxury = 0;
-							if (pResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+							int iNumExtraResource = 0;
+							CvCity* pCity = pLoopPlot->getOwningCity();
+							if (pCity && pCity->GetExtraResources(eRes) > 0)
 							{
-								CvCity* pCity = pLoopPlot->getOwningCity();
-								if (pCity && pCity->IsExtraLuxuryResources())
-								{
-									iNumExtraLuxury = 1;
-								}
+								iNumExtraResource = pCity->GetExtraResources(eRes);
 							}
 							int iNumResource = pLoopPlot->getNumResource();
 
@@ -33291,7 +33288,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 							}
 							else
 							{
-								iCntUnimproved += iNumResource + iNumExtraLuxury;
+								iCntUnimproved += iNumResource + iNumExtraResource;
 
 							}
 						}

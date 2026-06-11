@@ -46,3 +46,10 @@ ALTER TABLE Projects ADD CityEventToStart text REFERENCES CityEvents (Type);
 
 -- Requires this Policy to be unlocked in order to build
 ALTER TABLE Projects ADD PolicyType text REFERENCES Policies (Type);
+
+-- Requires this Resource locally
+ALTER TABLE Projects ADD LocalResourcePrereq text REFERENCES Resources (Type);
+
+-- Increases copies of luxuries from this city by this integer
+-- If LocalResourcePrereq is set, only affects that one
+ALTER TABLE Projects ADD ExtraLuxuries integer DEFAULT 0;

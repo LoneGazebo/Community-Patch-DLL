@@ -29,6 +29,7 @@ public:
 
 	int GetVictoryPrereq() const;
 	int GetTechPrereq() const;
+	int GetLocalResourcePrereq() const;
 	int GetAnyoneProjectPrereq() const;
 	void SetAnyoneProjectPrereq(int i);
 	int GetMaxGlobalInstances() const;
@@ -69,6 +70,8 @@ public:
 	int GetReligiousUnrestModifier() const;
 	int GetSpySecurityModifier() const;
 	int GetCitySupplyFlat() const;
+	int GetExtraLuxuries() const;
+
 	EventTypes GetEventToStart() const;
 	CityEventTypes GetCityEventToStart() const;
 
@@ -84,10 +87,12 @@ public:
 	int GetProjectsNeeded(int i) const;
 	int GetUnitCombatProductionModifiersGlobal(int i) const;
 	int GetYieldFromConquestAllCities(int i) const;
+	int GetFreeResources(int i) const;
 
 protected:
 	int m_iVictoryPrereq;
 	int m_iTechPrereq;
+	int m_iLocalResourcePrereq;
 	int m_iAnyoneProjectPrereq;
 	int m_iMaxGlobalInstances;
 	int m_iMaxTeamInstances;
@@ -127,6 +132,8 @@ protected:
 	int m_iReligiousUnrestModifier;
 	int m_iSpySecurityModifier;
 	int m_iCitySupplyFlat;
+	int m_iExtraLuxuries;
+
 	EventTypes m_eEventToStart;
 	CityEventTypes m_eCityEventToStart;
 
@@ -141,6 +148,7 @@ protected:
 	int* m_piFlavorValue;
 	int* m_piUnitCombatProductionModifiersGlobal;
 	int* m_piYieldFromConquestAllCities;
+	int* m_piFreeResources;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

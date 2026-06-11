@@ -7901,15 +7901,12 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources, b
 			{
 				if (bExtraResources)
 				{
-					if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+					CvCity* pCity = getOwningCity();
+					if (pCity)
 					{
-						CvCity* pCity = getOwningCity();
-						if (pCity)
+						if (pCity->GetExtraResources(eResource) > 0)
 						{
-							if (pCity->IsExtraLuxuryResources())
-							{
-								return 1;
-							}
+							return pCity->GetExtraResources(eResource);
 						}
 					}
 					return 0;
