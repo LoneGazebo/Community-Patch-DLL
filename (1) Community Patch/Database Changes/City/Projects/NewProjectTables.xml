@@ -13,4 +13,11 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	
+	<!-- Free copies of these resources from the city -->
+	<Table name="Project_FreeResource">
+		<Column name="ProjectType" type="text" reference="Projects(Type)" notnull="true"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
+		<Column name="Number" type="integer" notnull="true"/>
+	</Table>
 </GameData>
