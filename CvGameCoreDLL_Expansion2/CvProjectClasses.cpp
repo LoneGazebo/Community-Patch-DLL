@@ -25,7 +25,8 @@ CvProjectEntry::CvProjectEntry(void):
 	m_piProjectsNeeded(NULL),
 	m_piFlavorValue(NULL),
 	m_piUnitCombatProductionModifiersGlobal(NULL),
-	m_piYieldFromConquestAllCities(NULL)
+	m_piYieldFromConquestAllCities(NULL),
+	m_piFreeResources(NULL)
 {
 }
 //------------------------------------------------------------------------------
@@ -38,6 +39,7 @@ CvProjectEntry::~CvProjectEntry(void)
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
 	SAFE_DELETE_ARRAY(m_piUnitCombatProductionModifiersGlobal);
 	SAFE_DELETE_ARRAY(m_piYieldFromConquestAllCities);
+	SAFE_DELETE_ARRAY(m_piFreeResources);
 }
 //------------------------------------------------------------------------------
 bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -82,6 +84,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
 	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
 	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
+	m_iExtraLuxuries = kResults.GetInt("ExtraLuxuries");
 	
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
@@ -117,6 +120,9 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	const char* szTechPrereq = kResults.GetText("TechPrereq");
 	m_iTechPrereq = GC.getInfoTypeForString(szTechPrereq, true);
 
+	const char* szResourcePrereq = kResults.GetText("LocalResourcePrereq");
+	m_iLocalResourcePrereq = GC.getInfoTypeForString(szResourcePrereq, true);
+	
 	const char* szEveryoneSpecialUnit = kResults.GetText("EveryoneSpecialUnit");
 	m_iEveryoneSpecialUnit = GC.getInfoTypeForString(szEveryoneSpecialUnit, true);
 
@@ -159,6 +165,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	kUtility.PopulateArrayByValue(m_piProjectsNeeded, "Projects", "Project_Prereqs", "PrereqProjectType", "ProjectType", szProjectType, "AmountNeeded");
 	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiersGlobal, "UnitCombatInfos", "Project_UnitCombatProductionModifiersGlobal", "UnitCombatType", "ProjectType", szProjectType, "Modifier");
 	kUtility.SetYields(m_piYieldFromConquestAllCities, "Project_YieldFromConquestAllCities", "ProjectType", szProjectType);
+	kUtility.PopulateArrayByValue(m_piFreeResources, "Resources", "Project_FreeResource", "ResourceType", "ProjectType", szProjectType, "Number");
 
 	return true;
 }
@@ -173,6 +180,12 @@ int CvProjectEntry::GetVictoryPrereq() const
 int CvProjectEntry::GetTechPrereq() const
 {
 	return m_iTechPrereq;
+}
+
+/// Local Resource prerequisite
+int CvProjectEntry::GetLocalResourcePrereq() const
+{
+	return m_iLocalResourcePrereq;
 }
 
 /// Is there a project someone must have completed?
@@ -374,6 +387,11 @@ int CvProjectEntry::GetCitySupplyFlat() const
 {
 	return m_iCitySupplyFlat;
 }
+int CvProjectEntry::GetExtraLuxuries() const
+{
+	return m_iExtraLuxuries;
+}
+
 EventTypes CvProjectEntry::GetEventToStart() const
 {
 	return m_eEventToStart;
@@ -491,6 +509,20 @@ int CvProjectEntry::GetYieldFromConquestAllCities(int i) const
 	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromConquestAllCities)
 	{
 		return m_piYieldFromConquestAllCities[i];
+	}
+
+	return 0;
+}
+
+/// Unit combat production modifiers global
+int CvProjectEntry::GetFreeResources(int i) const
+{
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < NUM_YIELD_TYPES && m_piFreeResources)
+	{
+		return m_piFreeResources[i];
 	}
 
 	return 0;
