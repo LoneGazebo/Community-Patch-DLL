@@ -1451,8 +1451,8 @@ public:
 
 	void doFoundMessage();
 
-	bool IsExtraLuxuryResources();
-	void SetExtraLuxuryResources(int iNewValue);
+	int GetExtraResources(ResourceTypes eResource);
+	void ChangeExtraResources(ResourceTypes eResource, int iChange);
 	void ChangeExtraLuxuryResources(int iChange);
 
 	CvCityBuildings* GetCityBuildings() const;
@@ -1943,7 +1943,6 @@ protected:
 	int m_iResistanceTurns;
 	int m_iRazingTurns;
 	int m_iLowestRazingPop;
-	int m_iCountExtraLuxuries;
 	int m_iCheapestPlotInfluenceDistance;
 	int m_iEspionageModifier;
 	int m_iSpySecurityModifier;
@@ -1954,6 +1953,7 @@ protected:
 
 	OperationSlot m_unitBeingBuiltForOperation;
 
+	std::vector<int> m_aiExtraResources;
 	bool m_bNeverLost;
 	bool m_bDrafted;
 	bool m_bProductionAutomated;
@@ -2364,7 +2364,7 @@ SYNC_ARCHIVE_VAR(int, m_iDemandResourceCounter)
 SYNC_ARCHIVE_VAR(int, m_iResistanceTurns)
 SYNC_ARCHIVE_VAR(int, m_iRazingTurns)
 SYNC_ARCHIVE_VAR(int, m_iLowestRazingPop)
-SYNC_ARCHIVE_VAR(int, m_iCountExtraLuxuries)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiExtraResources)
 SYNC_ARCHIVE_VAR(int, m_iCheapestPlotInfluenceDistance)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)

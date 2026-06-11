@@ -408,6 +408,47 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iF
 
 	iTempWeight += iHappinessWeight;
 
+	/// Resources check
+	int iTempBonus = 0;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		int iLuxuries = 0;
+		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+
+		// do we need to both calling the class?
+		if (pkProjectInfo->GetFreeResources(eResource) > 0 || pkProjectInfo->GetExtraLuxuries() > 0)
+		{
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo)
+			{
+				
+				if (pkProjectInfo->GetFreeResources(eResource))
+				{
+					if (kPlayer.getNumResourceAvailable(eResource, false) == 0)
+					{
+						iTempBonus += 100 + (pkProjectInfo->GetFreeResources(eResource) - 1) * 20;
+					}
+					else
+					{
+						iTempBonus += pkProjectInfo->GetFreeResources(eResource) * 20;
+					}
+				}
+				
+				if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					if (pkProjectInfo->GetExtraLuxuries() && (pkProjectInfo->GetLocalResourcePrereq() == NO_RESOURCE || pkProjectInfo->GetLocalResourcePrereq() == eResource))
+					{
+						iLuxuries += m_pCity->GetNumResourceLocal(eResource, true);
+						iLuxuries += m_pCity->GetNumResourceLocal(eResource, false);
+						
+						iTempBonus += pkProjectInfo->GetExtraLuxuries() * iLuxuries * 20;
+					}
+				}
+			}
+		}
+	}
+	iTempWeight += iTempBonus;
+
 	return max(1,iTempWeight);
 }
 /// Log all potential builds
