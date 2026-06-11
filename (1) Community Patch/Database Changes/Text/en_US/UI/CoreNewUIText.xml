@@ -1373,7 +1373,7 @@
 			<Text>When killing an enemy [ICON_SPY] Spy: {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_EXTRA_LUXURIES">
-			<Text>+100% Luxury Resources from Improved Tiles owned by this City</Text>
+			<Text>+1 copy of Luxury Resources from Improved Tiles owned by this City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_REMOVE_OCCUPIED_UNHAPPINESS">
 			<Text>Removes [ICON_HAPPINESS_3] Unhappiness from [ICON_OCCUPIED] Occupation</Text>
