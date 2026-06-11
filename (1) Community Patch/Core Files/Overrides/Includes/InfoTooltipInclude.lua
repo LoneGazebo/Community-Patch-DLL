@@ -1995,7 +1995,10 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			end
 		end
 		tProjectedModifiers[eYield] = pCity and pCity:GetBuildingYieldModifier(eBuilding, eYield) or 0;
-		if eYield == GameInfoTypes.YIELD_CULTURE_LOCAL then
+		if eYield == GameInfoTypes.YIELD_CULTURE then
+			iModifier = iModifier + kBuildingInfo.CultureRateModifier;
+			tProjectedModifiers[eYield] = tProjectedModifiers[eYield] + kBuildingInfo.CultureRateModifier;
+		elseif eYield == GameInfoTypes.YIELD_CULTURE_LOCAL then
 			iModifier = iModifier + kBuildingInfo.BorderGrowthRateIncrease;
 			tProjectedModifiers[eYield] = tProjectedModifiers[eYield] + kBuildingInfo.BorderGrowthRateIncrease;
 		end
