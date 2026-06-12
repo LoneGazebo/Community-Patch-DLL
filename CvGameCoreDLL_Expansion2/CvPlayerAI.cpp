@@ -1701,8 +1701,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchant)
 {
 	// if the merchant is in an army, he's already marching to a destination, so don't evaluate him
-	if(pGreatMerchant->getArmyID() != -1)
+	if (pGreatMerchant->getArmyID() != -1)
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+
+	// do we have a special bonus to merchant mission? if so, use it!
+	if (pGreatMerchant->getUnitInfo().GetExtraLuxuries() + GetGreatMerchantExtraLuxuries())
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 
 	ImprovementTypes eCustomHouse = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
 	// buff up customs houses up to your flavor

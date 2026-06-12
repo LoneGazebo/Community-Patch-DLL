@@ -150,6 +150,9 @@ ALTER TABLE Units ADD StackCombat integer DEFAULT 0;
 -- This Great Person will give the player Spy Points when it is expended. See also the building column of the same name
 ALTER TABLE Units ADD ExtraSpies integer DEFAULT 0;
 
+-- This Great Person will give +x copies of every luxury resource in the City State's borders when expended for a trade mission
+ALTER TABLE Units ADD ExtraLuxuries integer DEFAULT 0;
+
 --------------------------------------------------------
 -- Other Tables
 --------------------------------------------------------

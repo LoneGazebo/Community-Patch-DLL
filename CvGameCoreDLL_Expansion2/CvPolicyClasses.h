@@ -234,6 +234,7 @@ public:
 	bool IsEnablesSSPartPurchase() const;
 	bool IsAbleToAnnexCityStates() const;
 	bool IsBorderSettle() const;
+	int GetGreatMerchantExtraLuxuries() const;
 	std::string pyGetWeLoveTheKing()
 	{
 		return GetWeLoveTheKing();
@@ -657,6 +658,7 @@ private:
 	bool m_bEnablesSSPartPurchase;
 	bool m_bAbleToAnnexCityStates;
 	bool m_bBorderSettle;
+	int m_iGreatMerchantExtraLuxuries;
 
 	bool m_bIsOnlyTradeSameIdeology;
 	bool m_bOneShot;
