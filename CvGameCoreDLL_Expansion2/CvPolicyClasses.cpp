@@ -199,6 +199,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bAbleToAnnexCityStates(false),
 	m_bBorderSettle(false),
 	m_bIsOnlyTradeSameIdeology(false),
+	m_iGreatMerchantExtraLuxuries(0),
 	m_bOneShot(false),
 	m_bIncludesOneShotFreeUnits(false),
 	m_iDistressFlatReduction(0),
@@ -691,6 +692,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bEnablesSSPartPurchase = kResults.GetBool("EnablesSSPartPurchase");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bBorderSettle = kResults.GetBool("BorderSettle");
+	m_iGreatMerchantExtraLuxuries = kResults.GetInt("GreatMerchantExtraLuxuries");
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIsOnlyTradeSameIdeology = kResults.GetBool("IsOnlyTradeSameIdeology");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
@@ -2473,6 +2475,12 @@ bool CvPolicyEntry::IsAbleToAnnexCityStates() const
 bool CvPolicyEntry::IsBorderSettle() const
 {
 	return m_bBorderSettle;
+}
+
+// Does this enable Great Merchants to copy luxuries?
+int CvPolicyEntry::GetGreatMerchantExtraLuxuries() const
+{
+	return m_iGreatMerchantExtraLuxuries;
 }
 
 /// Only trade with same ideologies

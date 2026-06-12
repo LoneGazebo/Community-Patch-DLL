@@ -347,6 +347,10 @@ ALTER TABLE Policies ADD GreatDiplomatRateModifier integer DEFAULT 0;
 
 -- Ignore restriction on founding Cities next to borders
 ALTER TABLE Policies ADD BorderSettle boolean DEFAULT 0;
+
+-- Great Merchants copy city-state resources x times
+ALTER TABLE Policies ADD GreatMerchantExtraLuxuries integer DEFAULT 0;
+
 ----------------------------------------------------------------
 -- Policy Branches
 ----------------------------------------------------------------
