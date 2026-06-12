@@ -2873,7 +2873,7 @@ int CvGameReligions::GetFaithGreatProphetNumber(int iNum) const
 		{
 			iRtnValue = /*200 in CP, 800 in VP*/ GD_INT_GET(RELIGION_MIN_FAITH_FIRST_PROPHET);
 		}
-		else if (MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES && iNum == 1)
+		else if (MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES && iNum == 2)
 		{
 			iRtnValue = /*600 in CP, 1200 in VP*/ GD_INT_GET(RELIGION_MIN_FAITH_SECOND_PROPHET);
 		}
