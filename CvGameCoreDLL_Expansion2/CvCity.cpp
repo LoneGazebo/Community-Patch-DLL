@@ -4756,6 +4756,21 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	return true;
 }
 
+// helper for effects from counterspies that scale with rank
+int CvCity::getEventCounterspyRank(CityEventChoiceTypes eChosenEventChoice)
+{
+	int iSpyRank = 0;
+	CvCityEspionage* pCityEspionage = GetCityEspionage();
+	if (pCityEspionage)
+	{
+		if (eChosenEventChoice == pCityEspionage->GetCounterSpyFocus())
+		{
+			iSpyRank = pCityEspionage->GetCounterSpyRank();
+		}
+	}
+	return iSpyRank;
+}
+
 void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 {
 	if (eChosenEventChoice == NO_EVENT_CHOICE_CITY)
@@ -4916,34 +4931,40 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 			{
 				for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
 				{
+					int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
 					ReligionTypes eReligion = (ReligionTypes)iI;
-					ChangeReligiousPressureModifier(eReligion, pkEventChoiceInfo->getReligiousPressureModifier() * -1);
+					ChangeReligiousPressureModifier(eReligion, (pkEventChoiceInfo->getReligiousPressureModifier() + 5 * iSpyRank) * -1);
 				}
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getBasicNeedsMedianModifier() != 0)
 			{
-				ChangeBasicNeedsMedianModifier(pkEventChoiceInfo->getBasicNeedsMedianModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeBasicNeedsMedianModifier((pkEventChoiceInfo->getBasicNeedsMedianModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getGoldMedianModifier() != 0)
 			{
-				ChangeGoldMedianModifier(pkEventChoiceInfo->getGoldMedianModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeGoldMedianModifier((pkEventChoiceInfo->getGoldMedianModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getScienceMedianModifier() != 0)
 			{
-				ChangeScienceMedianModifier(pkEventChoiceInfo->getScienceMedianModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeScienceMedianModifier((pkEventChoiceInfo->getScienceMedianModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getCultureMedianModifier() != 0)
 			{
-				ChangeCultureMedianModifier(pkEventChoiceInfo->getCultureMedianModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeCultureMedianModifier((pkEventChoiceInfo->getCultureMedianModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getReligiousUnrestModifier() != 0)
 			{
-				ChangeReligiousUnrestModifier(pkEventChoiceInfo->getReligiousUnrestModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeReligiousUnrestModifier((pkEventChoiceInfo->getReligiousUnrestModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->isCounterspyMission())
@@ -7190,29 +7211,35 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
 				{
+					int iSpyRank = getEventCounterspyRank(eEventChoice);
 					ReligionTypes eReligion = (ReligionTypes)iI;
-					ChangeReligiousPressureModifier(eReligion, pkEventChoiceInfo->getReligiousPressureModifier());
+					ChangeReligiousPressureModifier(eReligion, (pkEventChoiceInfo->getReligiousPressureModifier() + 5 * iSpyRank));
 				}
 			}
 			if (pkEventChoiceInfo->getBasicNeedsMedianModifier() != 0)
 			{
-				ChangeBasicNeedsMedianModifier(pkEventChoiceInfo->getBasicNeedsMedianModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeBasicNeedsMedianModifier(pkEventChoiceInfo->getBasicNeedsMedianModifier() - 5 * iSpyRank);
 			}
 			if (pkEventChoiceInfo->getGoldMedianModifier() != 0)
 			{
-				ChangeGoldMedianModifier(pkEventChoiceInfo->getGoldMedianModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeGoldMedianModifier(pkEventChoiceInfo->getGoldMedianModifier() - 5 * iSpyRank);
 			}
 			if (pkEventChoiceInfo->getScienceMedianModifier() != 0)
 			{
-				ChangeScienceMedianModifier(pkEventChoiceInfo->getScienceMedianModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeScienceMedianModifier(pkEventChoiceInfo->getScienceMedianModifier() - 5 * iSpyRank);
 			}
 			if (pkEventChoiceInfo->getCultureMedianModifier() != 0)
 			{
-				ChangeCultureMedianModifier(pkEventChoiceInfo->getCultureMedianModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeCultureMedianModifier(pkEventChoiceInfo->getCultureMedianModifier() - 5 * iSpyRank);
 			}
 			if (pkEventChoiceInfo->getReligiousUnrestModifier() != 0)
 			{
-				ChangeReligiousUnrestModifier(pkEventChoiceInfo->getReligiousUnrestModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeReligiousUnrestModifier(pkEventChoiceInfo->getReligiousUnrestModifier() - 5 * iSpyRank);
 			}
 			for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
 			{

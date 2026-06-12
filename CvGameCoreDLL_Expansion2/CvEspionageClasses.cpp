@@ -2954,9 +2954,22 @@ void CvPlayerEspionage::LevelUpSpy(uint uiSpyIndex, int iExperience)
 		{
 			CvSpyRank eOriginalRank = m_aSpyList[uiSpyIndex].m_eRank;
 
-			// announce promotion through notification
+			// counterspy rank scaling needs to be updated here
+			CityEventChoiceTypes eCurrentFocus = NO_EVENT_CHOICE_CITY;
+			CvCity* pCity = GetCityWithSpy(uiSpyIndex);
+			if (pCity)
+			{
+				eCurrentFocus = pCity->GetCityEspionage()->GetCounterSpyFocus();
+				pCity->DoCancelEventChoice(eCurrentFocus);
+			}
+
+			// levels up!
 			m_aSpyList[uiSpyIndex].m_eRank = (CvSpyRank)(m_aSpyList[uiSpyIndex].m_eRank + 1);
 
+			if (eCurrentFocus != NO_EVENT_CHOICE_CITY)
+				pCity->DoEventChoice(eCurrentFocus, NO_EVENT_CITY, false, uiSpyIndex, m_pPlayer->GetID());
+
+			// announce promotion through notification
 			CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 			if (pNotifications)
 			{
