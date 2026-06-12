@@ -188,6 +188,7 @@ public:
     bool IsCopyYieldsFromExpendTile() const;
     int GetTileXPOnExpend() const;
     int GetExtraSpies() const;
+    int GetExtraLuxuries() const;
     bool IsWLTKDFromBirth() const;
     bool IsGoldenAgeFromBirth() const;
 	bool IsCultureBoost() const;
@@ -351,6 +352,7 @@ private:
 	bool m_bCopyYieldsFromExpendTile;
 	int m_iTileXPOnExpend;
 	int m_iExtraSpies;
+	int m_iExtraLuxuries;
 	bool m_bWLTKD;
 	bool m_bGoldenAge;
 	bool m_bCultureBoost;

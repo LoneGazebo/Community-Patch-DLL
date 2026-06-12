@@ -430,6 +430,7 @@ CvPlayer::CvPlayer() :
 	, m_iMinorResourceBonusCount()
 	, m_iAbleToAnnexCityStatesCount()
 	, m_iBorderSettle()
+	, m_iGreatMerchantExtraLuxuries()
 	, m_iOnlyTradeSameIdeology()
 	, m_iSupplyFreeUnits()
 	, m_aistrInstantYield()
@@ -1414,6 +1415,7 @@ void CvPlayer::uninit()
 	m_iMinorResourceBonusCount = 0;
 	m_iAbleToAnnexCityStatesCount = 0;
 	m_iBorderSettle = 0;
+	m_iGreatMerchantExtraLuxuries = 0;
 	m_iOnlyTradeSameIdeology = 0;
 	m_iSupplyFreeUnits = 0;
 	m_strJFDCurrencyName = "";
@@ -28461,6 +28463,8 @@ CvString CvPlayer::getInstantGreatPersonProgressText(InstantYieldType iType) con
 /// Do effects when a GP is consumed
 void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatPersonUnit)
 {
+	PRECONDITION(pGreatPersonUnit, "DoGreatPersonExpended shouldn't ever be called with a non-existent unit");
+
 	// If it's an artsy unit, increment the counter
 	if (pGreatPersonUnit->isGoldenAge() || pGreatPersonUnit->GetGAPBlastStrength() > 0 // Great Artist
 		|| pGreatPersonUnit->GetCultureBlastStrength() > 0 // Great Writer
@@ -28475,7 +28479,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 	{
 		ChangeNumExpendedScienceyUnits(1);
 	}
-
+	
 	// Gold gained
 	int iExpendGold = GetGreatPersonExpendGold();
 	if (iExpendGold > 0)
@@ -28506,86 +28510,98 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 		}
 	}
 
-	if (pGreatPersonUnit)
+	const CvUnitEntry& kGreatPersonUnitInfo = pGreatPersonUnit->getUnitInfo();
+	
+	//is this expended on the tile of a foreign city? pre-evaluate for the loop below
+	bool bForeignTerritory = false;
+	CvCity* pForeignCity = NULL;
+	int iExtraLux = kGreatPersonUnitInfo.GetExtraLuxuries();
+	if (pGreatPersonUnit->getUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+		iExtraLux += GetGreatMerchantExtraLuxuries();
+	if (iExtraLux > 0)
 	{
-		//great diplomat grants a paper resource - admiral code is handled in CvUnit::createFreeLuxury()
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		PlayerTypes eOwner = pGreatPersonUnit->plot()->getOwner();
+		if (eOwner != NO_PLAYER && eOwner != GetID())
 		{
-			int Gained = pGreatPersonUnit->getUnitInfo().GetResourceQuantityExpended((ResourceTypes)iResourceLoop);
-			if (Gained != 0)
-			{
-				changeResourceFromGP((ResourceTypes)iResourceLoop, Gained);
-			}
+			bForeignTerritory = true;
+			pForeignCity = pGreatPersonUnit->plot()->getOwningCity();
+		}
+	}
+
+	//great diplomat grants a paper resource - admiral code is handled in CvUnit::createFreeLuxury()
+	//extra luxuries copy resources from minors
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+		
+		int Gained = kGreatPersonUnitInfo.GetResourceQuantityExpended(eResource);
+		if (Gained != 0)
+		{
+			changeResourceFromGP(eResource, Gained);
 		}
 
-		//general grants supply points
-		int iSupply = pGreatPersonUnit->getUnitInfo().GetSupplyCapBoost() + pGreatPersonUnit->GetMilitaryCapChange();
-		if (iSupply > 0)
+		if (bForeignTerritory && pForeignCity && iExtraLux > 0)
 		{
-			ChangeUnitSupplyFromExpendedGreatPeople(iSupply);
-
-			// force recalculation
-			m_iNumUnitsSuppliedCached = -1;
-			m_iNumUnitsSuppliedCachedWarWeariness = -1;
-
-			if (GetID() == GC.getGame().getActivePlayer())
+			if (pForeignCity->IsHasResourceLocal(eResource, true))  // improved or unimproved
 			{
-				char text[256] = { 0 };
-
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", iSupply);
-				SHOW_PLOT_POPUP( pGreatPersonUnit->plot(), GetID(), text);
-
-				CvNotifications* pNotification = GetNotifications();
-				if (pNotification)
+				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					CvString strMessage;
-					CvString strSummary;
-					strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", pGreatPersonUnit->getName().c_str(), iSupply);
-					strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
-					pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, pGreatPersonUnit->getX(), pGreatPersonUnit->getY(), GetID());
+					changeResourceFromGP(eResource, iExtraLux);
 				}
 			}
 		}
 	}
 
-	//Influence Gained with all CS per expend
-	int iExpendInfluence = GetInfluenceGPExpend() + GetGPExpendInfluence();
-	if(iExpendInfluence > 0)
+	//general grants supply points
+	int iSupply = kGreatPersonUnitInfo.GetSupplyCapBoost() + pGreatPersonUnit->GetMilitaryCapChange();
+	if (iSupply > 0)
 	{
-		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		ChangeUnitSupplyFromExpendedGreatPeople(iSupply);
+
+		// force recalculation
+		m_iNumUnitsSuppliedCached = -1;
+		m_iNumUnitsSuppliedCachedWarWeariness = -1;
+
+		if (GetID() == GC.getGame().getActivePlayer())
 		{
-			PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
-			if(eMinorLoop != NO_PLAYER)
+			char text[256] = { 0 };
+
+			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", iSupply);
+			SHOW_PLOT_POPUP( pGreatPersonUnit->plot(), GetID(), text);
+
+			CvNotifications* pNotification = GetNotifications();
+			if (pNotification)
 			{
-				CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-				if(pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
-				{
-					if(GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
-					{
-						pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iExpendInfluence, false);
-					}
-				}
+				CvString strMessage;
+				CvString strSummary;
+				strMessage = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY", pGreatPersonUnit->getName().c_str(), iSupply);
+				strSummary = GetLocalizedText("TXT_KEY_UNIT_EXPENDED_SUPPLY_S");
+				pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, pGreatPersonUnit->getX(), pGreatPersonUnit->getY(), GetID());
 			}
 		}
 	}
 
+	// spy points
+	int iExtraSpies = kGreatPersonUnitInfo.GetExtraSpies();
+	if (iExtraSpies > 0)
+	{
+		CreateSpies(iExtraSpies);
+	}
+	
 	// add yields to capital based on the tile the GP was expended on
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPersonUnit->getUnitClassType());
-	if (pGreatPersonUnit->getUnitInfo().IsCopyYieldsFromExpendTile())
+	if (kGreatPersonUnitInfo.IsCopyYieldsFromExpendTile())
 	{
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes)iI;
 			changeYieldFromExpendTileCapital(eYield, pGreatPersonUnit->plot()->calculateYield(eYield));
 		}
-		
 	}
 	
-	doInstantYield(INSTANT_YIELD_TYPE_GP_USE, false, eGreatPerson);
-	
-	if (pGreatPersonUnit->getUnitInfo().GetTileXPOnExpend() > 0)
+	// give XP to the nearest eligible unit
+	if (kGreatPersonUnitInfo.GetTileXPOnExpend() > 0)
 	{
-		// give XP to the nearest eligible unit
 		// first check for units on the tile the GP was expended on
 		CvUnit* pNearestCombatUnit = NULL;
 		IDInfo* pPlotUnitNode = pGreatPersonUnit->plot()->headUnitNode();
@@ -28620,10 +28636,34 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 		}
 		if (pNearestCombatUnit)
 		{
-			pNearestCombatUnit->changeExperienceTimes100(pGreatPersonUnit->getUnitInfo().GetTileXPOnExpend() * 100);
+			pNearestCombatUnit->changeExperienceTimes100(kGreatPersonUnitInfo.GetTileXPOnExpend() * 100);
 			pNearestCombatUnit->testPromotionReady();
 		}
 	}
+
+	//Influence Gained with all CS per expend
+	int iExpendInfluence = GetInfluenceGPExpend() + GetGPExpendInfluence();
+	if(iExpendInfluence > 0)
+	{
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
+			if(eMinorLoop != NO_PLAYER)
+			{
+				CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
+				if(pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
+				{
+					if(GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
+					{
+						pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iExpendInfluence, false);
+					}
+				}
+			}
+		}
+	}
+	
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPersonUnit->getUnitClassType());
+	doInstantYield(INSTANT_YIELD_TYPE_GP_USE, false, eGreatPerson);
 
 	if (MOD_EVENTS_GREAT_PEOPLE)
 	{
@@ -30171,6 +30211,16 @@ bool CvPlayer::IsBorderSettle() const
 void CvPlayer::SetBorderSettle(int iValue)
 {
 	m_iBorderSettle += iValue;
+}
+
+int CvPlayer::GetGreatMerchantExtraLuxuries() const
+{
+	return m_iGreatMerchantExtraLuxuries;
+}
+
+void CvPlayer::ChangeGreatMerchantExtraLuxuries(int iChange)
+{
+	m_iGreatMerchantExtraLuxuries += iChange;
 }
 
 // JFD
@@ -43037,6 +43087,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeConquestPerEraBuildingProductionMod(pkPolicyInfo->GetConquestPerEraBuildingProductionMod() * iChange);
 	ChangePerPastEraBuildingProductionMod(pkPolicyInfo->GetPerPastEraBuildingProductionMod() * iChange);
 	changeAdmiralLuxuryBonus(pkPolicyInfo->GetAdmiralLuxuryBonus() * iChange);
+	ChangeGreatMerchantExtraLuxuries(pkPolicyInfo->GetGreatMerchantExtraLuxuries() * iChange);
 	changeExtraMoves(pkPolicyInfo->GetExtraMoves() * iChange);
 	ChangeAllFeatureProduction(pkPolicyInfo->GetAllFeatureProduction());
 	ChangeIncreasedQuestInfluence(pkPolicyInfo->GetIncreasedQuestInfluence() * iChange);
@@ -44472,6 +44523,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iMinorResourceBonusCount);
 	visitor(player.m_iAbleToAnnexCityStatesCount);
 	visitor(player.m_iBorderSettle);
+	visitor(player.m_iGreatMerchantExtraLuxuries);
 	visitor(player.m_iOnlyTradeSameIdeology);
 	visitor(player.m_iSupplyFreeUnits);
 	visitor(player.m_abActiveContract);
