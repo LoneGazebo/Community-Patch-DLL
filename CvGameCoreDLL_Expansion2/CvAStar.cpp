@@ -262,8 +262,10 @@ void CvAStar::Reset()
 
 	//will be set multiple times but who cares
 	g_bPathFinderLogging = false;
+#if defined(MOD_CORE_DEBUGGING)
 	g_svPathLog.clear();
 	g_svPathLog.reserve(10000);
+#endif
 }
 
 

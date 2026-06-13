@@ -355,6 +355,10 @@ public:
 	DealList m_CurrentDeals;
 	DealList m_HistoricalDeals;
 
+	// Monotonic counter for unique deal IDs in m_CurrentDeals/m_HistoricalDeals.
+	// Avoids O(n) scan of all deals on every activation. Recomputed on load.
+	int m_iNextDealID;
+
 protected:
 	int m_aaiRenewDeal[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];
 	void LogDealComplete(CvDeal* pDeal);
