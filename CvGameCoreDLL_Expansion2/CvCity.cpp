@@ -10055,13 +10055,13 @@ void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTyp
 
 		if (iResourceTypesBoosted.count(pLoopPlot->getResourceType(getTeam())) ||
 			iTerrainTypesBoosted.count(pLoopPlot->getTerrainType()) ||
-			bSeaPlotsBoosted && pLoopPlot->isWater() && !pLoopPlot->isLake() ||
-			bSeaResourcesBoosted && pLoopPlot->isWater() && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE ||
-			bLakePlotsBoosted && pLoopPlot->isLake() ||
-			bRiverPlotsBoosted && pLoopPlot->IsFeatureRiver() ||
+			(bSeaPlotsBoosted && pLoopPlot->isWater() && !pLoopPlot->isLake()) ||
+			(bSeaResourcesBoosted && pLoopPlot->isWater() && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE) ||
+			(bLakePlotsBoosted && pLoopPlot->isLake()) ||
+			(bRiverPlotsBoosted && pLoopPlot->IsFeatureRiver()) ||
 			iImprovementTypesBoosted.count(pLoopPlot->getImprovementType()) ||
 			iFeatureTypesBoosted.count(pLoopPlot->getFeatureType()) ||
-			bCityConnectionPlotsBoosted && pLoopPlot->IsCityConnection())
+			(bCityConnectionPlotsBoosted && pLoopPlot->IsCityConnection()))
 		{
 			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
 		}
