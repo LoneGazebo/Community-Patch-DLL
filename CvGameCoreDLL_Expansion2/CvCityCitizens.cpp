@@ -3634,11 +3634,10 @@ YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 
 SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 	bNeedUpdate(true),
-	bonusForXFeature(YIELD_TOURISM, vector<int>(GC.getNumFeatureInfos(), INT_MAX)),
-	bonusForXTerrain(YIELD_TOURISM, vector<int>(GC.getNumTerrainInfos(), INT_MAX)),
-	iSpecialistGPPRates(vector<int>(GC.getNumSpecialistInfos(), INT_MAX)),
-	bAnySpecialistInOtherCity(vector<bool>(GC.getNumSpecialistInfos(), false)),
-	iYieldChangeAnySpecialist(YIELD_TOURISM, INT_MAX),
+	iFoodRateTimes100(0),
+	iFoodConsumptionTimes100(0),
+	iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100(0),
+	iFoodCorpMod(0),
 	iDistress(0),
 	iPoverty(0),
 	iIlliteracy(0),
@@ -3658,14 +3657,15 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 	iScienceRateChangeForIncreasedIlliteracy(0),
 	iCultureRateChangeForIncreasedBoredom(0),
 	iOtherUnhappiness(0),
-	iFoodRateTimes100(0),
-	iFoodConsumptionTimes100(0),
-	iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100(0),
-	iFoodCorpMod(0),
 	bWantArt(false),
 	bWantScience(false),
 	bWantDiplo(false),
-	iNetGold(0)
+	iNetGold(0),
+	iSpecialistGPPRates(vector<int>(GC.getNumSpecialistInfos(), INT_MAX)),
+	bAnySpecialistInOtherCity(vector<bool>(GC.getNumSpecialistInfos(), false)),
+	iYieldChangeAnySpecialist(YIELD_TOURISM, INT_MAX),
+	bonusForXTerrain(YIELD_TOURISM, vector<int>(GC.getNumTerrainInfos(), INT_MAX)),
+	bonusForXFeature(YIELD_TOURISM, vector<int>(GC.getNumFeatureInfos(), INT_MAX))
 {
 }
 

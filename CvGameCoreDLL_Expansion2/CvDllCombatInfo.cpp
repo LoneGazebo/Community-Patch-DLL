@@ -13,8 +13,8 @@
 #include "CvDllUnit.h"
 
 CvDllCombatInfo::CvDllCombatInfo(CvCombatInfo* pCombatInfo)
-	: m_pCombatInfo(pCombatInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pCombatInfo(pCombatInfo)
 {
 }
 //------------------------------------------------------------------------------

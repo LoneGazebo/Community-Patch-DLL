@@ -11,8 +11,8 @@
 #include "CvDllContext.h"
 
 CvDllDeal::CvDllDeal(CvDeal* pDeal)
-	: m_pDeal(pDeal)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pDeal(pDeal)
 {
 }
 //------------------------------------------------------------------------------

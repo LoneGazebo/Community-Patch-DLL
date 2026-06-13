@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllGameSpeedInfo::CvDllGameSpeedInfo(CvGameSpeedInfo* pGameSpeedInfo)
-	: m_pGameSpeedInfo(pGameSpeedInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pGameSpeedInfo(pGameSpeedInfo)
 {
 	ASSERT(pGameSpeedInfo != NULL, "SHOULD NOT HAPPEN");
 }

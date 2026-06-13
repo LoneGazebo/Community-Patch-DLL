@@ -19,8 +19,8 @@
 
 
 CvDllPlayer::CvDllPlayer(CvPlayerAI* pPlayer)
-	: m_pPlayer(pPlayer)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pPlayer(pPlayer)
 {
 	if(gDLL)
 		gDLL->GetGameCoreLock();

@@ -532,8 +532,8 @@ void CvCombatInfo::setDamageMemberCount(int iDamageMemberCount)
 //! \brief      Default constructor.
 //------------------------------------------------------------------------------------------------
 CvMissionDefinition::CvMissionDefinition() :
-	m_fMissionTime(0.0f),
 	m_eMissionType(NO_MISSION),
+	m_fMissionTime(0.0f),
 	m_pPlot(NULL),
 	m_pSecondaryPlot(NULL)
 {

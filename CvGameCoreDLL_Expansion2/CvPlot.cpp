@@ -110,8 +110,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 // CvPlot
 //////////////////////////////////////////////////////////////////////////
 CvPlot::CvPlot()
-	: m_syncArchive()
-	, m_szScriptData(NULL)
+	: m_szScriptData(NULL)
+	, m_syncArchive()
 {
 	// Null check required: CvPlot can be constructed during DLL static initialization
 	// (e.g. CvSupportPosition::dummyPlot via gSupportPosStorage) before the game

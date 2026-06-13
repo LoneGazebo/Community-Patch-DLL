@@ -13,8 +13,8 @@
 #include "CvDllUnit.h"
 
 CvDllRandom::CvDllRandom(CvRandom* pRandom)
-	: m_pRandom(pRandom)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pRandom(pRandom)
 {
 	ASSERT(pRandom != NULL, "SHOULD NOT HAPPEN");
 }

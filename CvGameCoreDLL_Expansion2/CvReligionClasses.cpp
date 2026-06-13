@@ -3335,14 +3335,14 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameReligions& readFrom)
 /// Constructor
 CvPlayerReligions::CvPlayerReligions(void):
 	m_pPlayer(NULL),
-	m_iFaithAtLastNotifyTimes100(0),
 	m_iNumFreeProphetsSpawned(0),
-	m_eMajorityReligion(NO_RELIGION),
-	m_eStateReligionOverride(NO_RELIGION),
-	m_eStateReligion(NO_RELIGION),
-	m_bOwnsStateReligion(false),
 	m_iNumProphetsSpawned(0),
-	m_bFoundingReligion(false)
+	m_bFoundingReligion(false),
+	m_iFaithAtLastNotifyTimes100(0),
+	m_eMajorityReligion(NO_RELIGION),
+	m_eStateReligion(NO_RELIGION),
+	m_eStateReligionOverride(NO_RELIGION),
+	m_bOwnsStateReligion(false)
 {
 }
 
@@ -5891,8 +5891,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvUnitReligion& readFrom)
 //=====================================
 /// Constructor
 CvReligionAI::CvReligionAI(void):
-	m_pPlayer(NULL)
-	, m_pBeliefs(NULL)
+	m_pBeliefs(NULL)
+	, m_pPlayer(NULL)
 	, m_eReligionToSpread(NO_RELIGION)
 	, m_iTurnReligionToSpreadUpdated(-1)
 {

@@ -19,8 +19,8 @@
 #include "CvGameTextMgr.h"
 
 CvDllGame::CvDllGame(CvGame* pGame)
-	: m_pGame(pGame)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pGame(pGame)
 {
 	if(gDLL)
 		gDLL->GetGameCoreLock();

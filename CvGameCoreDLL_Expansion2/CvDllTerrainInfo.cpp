@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllTerrainInfo::CvDllTerrainInfo(CvTerrainInfo* pTerrainInfo)
-	: m_pTerrainInfo(pTerrainInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pTerrainInfo(pTerrainInfo)
 {
 	ASSERT(pTerrainInfo != NULL, "SHOULD NOT HAPPEN");
 }

@@ -111,31 +111,31 @@ CvGameInitialItemsOverrides::CvGameInitialItemsOverrides()
 
 //------------------------------------------------------------------------------
 CvGame::CvGame() :
-	m_jonRand("GameRng")
-	, m_mapRand("PreGameRng")
-	, m_endTurnTimer()
-	, m_endTurnTimerSemaphore(0)
-	, m_curTurnTimer()
-	, m_timeSinceGameTurnStart()
-	, m_fCurrentTurnTimerPauseDelta(0.f)
-	, m_sentAutoMoves(false)
-	, m_bForceEndingTurn(false)
-	, m_pDiploResponseQuery(NULL)
+	m_firstActivationOfPlayersAfterLoad(false)
+	, m_bIsDesynced(false)
+	, m_bHumanAIPath(true)
+	, m_eObserverUIOverridePlayer(NO_PLAYER)
+	, m_eCurrentVisibilityPlayer(NO_PLAYER)
+	, m_eCurrentVisibilityTeam(NO_TEAM)
 	, m_bFOW(true)
 #ifdef EA_EVENT_GAME_SAVE
 	, m_bSavedOnce(false)
 #endif
 	, m_bArchaeologyTriggered(false)
-	, m_bIsDesynced(false)
-	, m_bHumanAIPath(true)
-	, m_eObserverUIOverridePlayer(NO_PLAYER)
+	, m_pDiploResponseQuery(NULL)
+	, m_mapRand("PreGameRng")
+	, m_jonRand("GameRng")
+	, m_endTurnTimer()
+	, m_endTurnTimerSemaphore(0)
 	, m_lastTurnAICivsProcessed(-1)
-	, m_firstActivationOfPlayersAfterLoad(false)
-	, m_processPlayerAutoMoves(false)
-	, m_cityDistancePathLength(NO_DOMAIN) //for now!
+	, m_curTurnTimer()
+	, m_timeSinceGameTurnStart()
+	, m_fCurrentTurnTimerPauseDelta(0.f)
+	, m_sentAutoMoves(false)
+	, m_processPlayerAutoMoves(false) //for now!
+	, m_bForceEndingTurn(false)
+	, m_cityDistancePathLength(NO_DOMAIN)
 	, m_cityDistancePlots()
-	, m_eCurrentVisibilityPlayer(NO_PLAYER)
-	, m_eCurrentVisibilityTeam(NO_TEAM)
 {
 	m_pSettlerSiteEvaluator = NULL;
 	m_pStartSiteEvaluator = NULL;

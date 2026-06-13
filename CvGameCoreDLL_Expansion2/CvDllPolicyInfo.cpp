@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllPolicyInfo::CvDllPolicyInfo(CvPolicyEntry* pPolicyInfo)
-	: m_pPolicyInfo(pPolicyInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pPolicyInfo(pPolicyInfo)
 {
 	ASSERT(pPolicyInfo != NULL, "SHOULD NOT HAPPEN");
 }
