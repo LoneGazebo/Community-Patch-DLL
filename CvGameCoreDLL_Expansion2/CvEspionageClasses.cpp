@@ -232,19 +232,19 @@ CvSpyPassiveBonusDiplomatEntry* CvSpyPassiveBonusDiplomatXMLEntries::GetEntry(in
 /// Default Constructor
 CvEspionageSpy::CvEspionageSpy()
 	: m_sName("")
-	, m_eRank(SPY_RANK_RECRUIT)
-	, m_iExperience(0)
 	, m_iCityX(-1)
 	, m_iCityY(-1)
+	, m_iExperience(0)
+	, m_eRank(SPY_RANK_RECRUIT)
 	, m_eSpyState(SPY_STATE_UNASSIGNED)
 	, m_iReviveCounter(0)
-	, m_eSpyFocus(NO_EVENT_CHOICE_CITY)
 	, m_bIsDiplomat(false)
 	, m_eVassalDiplomatPlayer(NO_PLAYER)
 	, m_bEvaluateReassignment(true)
 	, m_bPassive(false)
 	, m_iTurnCounterspyMissionChanged(0)
 	, m_iTurnActiveMissionConducted(0)
+	, m_eSpyFocus(NO_EVENT_CHOICE_CITY)
 {
 }
 

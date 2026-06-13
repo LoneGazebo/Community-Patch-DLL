@@ -11,10 +11,10 @@
 
 
 CvDllPathFinderUpdate::CvDllPathFinderUpdate(int iX, int iY, int iTurnNumber)
-	: m_iX(iX)
+	: m_uiRefCount(1)
+	, m_iX(iX)
 	, m_iY(iY)
 	, m_iTurnNumber(iTurnNumber)
-	, m_uiRefCount(1)
 {
 }
 //------------------------------------------------------------------------------

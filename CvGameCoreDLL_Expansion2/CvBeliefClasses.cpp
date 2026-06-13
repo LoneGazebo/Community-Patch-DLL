@@ -77,60 +77,9 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_bRequiresNoFeature(false),
 	m_bRequiresOwnTerritory(false),
 
-	m_iHappinessFromForeignSpies(0),
-	m_iGetPressureChangeTradeRoute(0),
-	m_piYieldPerActiveTR(NULL),
-	m_piYieldPerConstruction(NULL),
-	m_piYieldPerWorldWonderConstruction(NULL),
-	m_piYieldPerPop(NULL),
-	m_piYieldPerGPT(NULL),
-	m_piYieldPerLux(NULL),
-	m_pbiYieldPerBorderGrowth(),
-	m_piYieldPerHeal(NULL),
-	m_piYieldPerBirth(NULL),
-	m_piYieldPerHolyCityBirth(NULL),
-	m_piYieldPerScience(NULL),
-	m_piYieldFromGPUse(NULL),
-	m_piYieldBonusGoldenAge(NULL),
-	m_piYieldFromSpread(NULL),
-	m_piYieldFromForeignSpread(NULL),
-	m_piYieldFromConquest(NULL),
-	m_piYieldFromPolicyUnlock(NULL),
-	m_piYieldFromEraUnlock(NULL),
-	m_pbiYieldFromTechUnlock(),
-	m_piYieldFromConversion(NULL),
-	m_piYieldFromConversionExpo(NULL),
-	m_piYieldFromWLTKD(NULL),
-	m_piYieldFromProposal(NULL),
-	m_piYieldFromHost(NULL),
-	m_piYieldFromFaithPurchase(NULL),
-	m_piYieldFromKnownPantheons(NULL),
-	m_iCombatBonusOwnLands(0),
-	m_iCombatBonusVersusOtherReligionOwnLands(0),
-	m_iCombatBonusTheirLands(0),
-	m_iCombatBonusVersusOtherReligionTheirLands(0),
-	m_iMissionaryInfluenceCS(0),
-	m_iHappinessPerPantheon(0),
-	m_iExtraVotes(0),
-	m_iCityScalerLimiter(0),
-	m_iFollowerScalerLimiter(0),
-	m_iPolicyReductionWonderXFollowerCities(0),
-	m_iGreatPeopleFaithCostMod(0),
-	m_bAIGoodStartingPantheon(false),
-	m_piMaxYieldPerFollower(NULL),
-	m_piFollowerRequiredPerYield(NULL),
-	m_iCivilianWorkRate(0),
-	m_piImprovementVoteChange(NULL),
-	m_piUnitCombatProductionModifiers(NULL),
-	m_iReducePolicyRequirements(0),
-	m_iCSYieldBonus(0),
-
-	m_eRequiredCivilization(NO_CIVILIZATION),
-
 	m_eObsoleteEra(NO_ERA),
 	m_eResourceRevealed(NO_RESOURCE),
 	m_eSpreadModifierDoublingTech(NO_TECH),
-
 	m_paiCityYieldChange(NULL),
 	m_paiHolyCityYieldChange(NULL),
 	m_paiYieldChangePerForeignCity(NULL),
@@ -166,22 +115,71 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldFromRemoveHeresy(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 	m_ppiPlotYieldChange(NULL),
-	m_pbFaithPurchaseUnitSpecificEnabled(NULL),
-
 	m_aiFreePromotions(),
 	m_pbiYieldFromImprovementBuild(),
 	m_pbiYieldFromPillageGlobal(),
-
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
 	m_piYieldChangeTradeRoute(NULL),
 	m_piYieldChangeNaturalWonder(NULL),
 	m_piYieldChangeWorldWonder(NULL),
+
 	m_piYieldModifierNaturalWonder(NULL),
+
 	m_piMaxYieldModifierPerFollower(NULL),
 	m_piMaxYieldModifierPerFollowerPercent(NULL),
+	m_pbFaithPurchaseUnitSpecificEnabled(NULL),
+
 	m_pbFaithPurchaseUnitEraEnabled(NULL),
-	m_pbBuildingClassEnabled(NULL)
+	m_pbBuildingClassEnabled(NULL),
+	m_iHappinessFromForeignSpies(0),
+	m_iGetPressureChangeTradeRoute(0),
+	m_piYieldPerActiveTR(NULL),
+	m_piYieldPerConstruction(NULL),
+	m_piYieldPerWorldWonderConstruction(NULL),
+	m_piYieldPerPop(NULL),
+	m_piYieldPerGPT(NULL),
+	m_piYieldPerLux(NULL),
+	m_pbiYieldPerBorderGrowth(),
+	m_piYieldPerHeal(NULL),
+	m_piYieldPerBirth(NULL),
+	m_piYieldPerHolyCityBirth(NULL),
+	m_piYieldPerScience(NULL),
+	m_piYieldFromGPUse(NULL),
+	m_piYieldBonusGoldenAge(NULL),
+	m_piYieldFromSpread(NULL),
+	m_piYieldFromForeignSpread(NULL),
+	m_piYieldFromConquest(NULL),
+	m_piYieldFromPolicyUnlock(NULL),
+	m_piYieldFromEraUnlock(NULL),
+	m_pbiYieldFromTechUnlock(),
+	m_piYieldFromConversion(NULL),
+	m_piYieldFromConversionExpo(NULL),
+	m_piYieldFromWLTKD(NULL),
+	m_piYieldFromProposal(NULL),
+	m_piYieldFromHost(NULL),
+	m_piYieldFromFaithPurchase(NULL),
+	m_piYieldFromKnownPantheons(NULL),
+	m_piMaxYieldPerFollower(NULL),
+	m_piFollowerRequiredPerYield(NULL),
+	m_piImprovementVoteChange(NULL),
+	m_piUnitCombatProductionModifiers(NULL),
+	m_iReducePolicyRequirements(0),
+	m_iCSYieldBonus(0),
+	m_iCombatBonusOwnLands(0),
+	m_iCombatBonusVersusOtherReligionOwnLands(0),
+	m_iCombatBonusTheirLands(0),
+	m_iCombatBonusVersusOtherReligionTheirLands(0),
+	m_iMissionaryInfluenceCS(0),
+	m_iHappinessPerPantheon(0),
+	m_iExtraVotes(0),
+	m_iCityScalerLimiter(0),
+	m_iFollowerScalerLimiter(0),
+	m_iPolicyReductionWonderXFollowerCities(0),
+	m_iGreatPeopleFaithCostMod(0),
+	m_iCivilianWorkRate(0),
+	m_bAIGoodStartingPantheon(false),
+	m_eRequiredCivilization(NO_CIVILIZATION)
 {
 }
 
@@ -2035,18 +2033,18 @@ CvBeliefEntry* CvBeliefXMLEntries::GetEntry(int index)
 //=====================================
 /// Constructor
 CvReligionBeliefs::CvReligionBeliefs() :
+	m_ReligionBeliefs(),
 	m_eReligion(NO_RELIGION),
-	m_BeliefLookup(GC.GetGameBeliefs()->GetNumBeliefs(), 0),
-	m_ReligionBeliefs()
+	m_BeliefLookup(GC.GetGameBeliefs()->GetNumBeliefs(), 0)
 {
 	Reset();
 }
 
 /// Copy Constructor with typical parameters
 CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source) :
+	m_ReligionBeliefs(source.m_ReligionBeliefs),
 	m_eReligion(source.m_eReligion),
-	m_BeliefLookup(source.m_BeliefLookup),
-	m_ReligionBeliefs(source.m_ReligionBeliefs)
+	m_BeliefLookup(source.m_BeliefLookup)
 {
 	// No need to call Reset here since we're copying the state from source
 }

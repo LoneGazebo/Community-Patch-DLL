@@ -11,8 +11,8 @@
 
 
 CvDllUnitCombatClassInfo::CvDllUnitCombatClassInfo(CvBaseInfo* pUnitCombatClassInfo)
-	: m_pUnitCombatClassInfo(pUnitCombatClassInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pUnitCombatClassInfo(pUnitCombatClassInfo)
 {
 	ASSERT(pUnitCombatClassInfo != NULL, "SHOULD NOT HAPPEN");
 }

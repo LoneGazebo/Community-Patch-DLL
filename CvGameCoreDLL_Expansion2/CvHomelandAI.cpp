@@ -7198,8 +7198,8 @@ SWorkerRegion::SWorkerRegion()
 	, m_iCapitalY(INVALID_PLOT_COORD)
 	, m_aCities()
 	, m_iImprovementNeed(0)
-	, m_iWantedWorkers(0)
 	, m_aCurrentWorkers()
+	, m_iWantedWorkers(0)
 {
 }
 
@@ -7209,8 +7209,8 @@ SWorkerRegion::SWorkerRegion(CitySet aCities, int iImprovementNeed, int iCapital
 	, m_iCapitalY(iCapitalY)
 	, m_aCities(aCities)
 	, m_iImprovementNeed(iImprovementNeed)
-	, m_iWantedWorkers(0)
 	, m_aCurrentWorkers()
+	, m_iWantedWorkers(0)
 {
 }
 

@@ -207,13 +207,13 @@ void CvCitySpecializationXMLEntries::DeleteArray()
 /// Constructor
 CvCitySpecializationAI::CvCitySpecializationAI():
 	m_bSpecializationsDirty(false),
+	m_iLastTurnEvaluated(0),
+	m_bChooseNewWonder(false),
 	m_bInterruptWonders(false),
 	m_bInterruptBuildings(false),
-	m_bChooseNewWonder(false),
 	m_eNextWonderDesired(NO_BUILDING),
 	m_iWonderCityID(-1),
-	m_iNextWonderWeight(0),
-	m_iLastTurnEvaluated(0)
+	m_iNextWonderWeight(0)
 {
 }
 

@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllBuildInfo::CvDllBuildInfo(CvBuildInfo* pBuildInfo)
-	: m_pBuildInfo(pBuildInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pBuildInfo(pBuildInfo)
 {
 	ASSERT(pBuildInfo != NULL, "SHOULD NOT HAPPEN");
 }

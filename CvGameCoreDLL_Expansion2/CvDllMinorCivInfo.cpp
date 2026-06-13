@@ -12,8 +12,8 @@
 #include "CvMinorCivAI.h"
 
 CvDllMinorCivInfo::CvDllMinorCivInfo(CvMinorCivInfo* pMinorCivInfo)
-	: m_pMinorCivInfo(pMinorCivInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pMinorCivInfo(pMinorCivInfo)
 {
 	ASSERT(pMinorCivInfo != NULL, "SHOULD NOT HAPPEN");
 }

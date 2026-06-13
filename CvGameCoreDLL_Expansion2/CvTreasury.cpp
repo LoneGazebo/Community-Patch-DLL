@@ -18,18 +18,18 @@
 
 /// Constructor
 CvTreasury::CvTreasury():
+	m_pPlayer(NULL),
 	m_iGold(0),
 	m_iGoldPerTurnFromDiplomacy(0),
 	m_iExpensePerTurnUnitMaintenance(0),
 	m_iCityConnectionGoldTimes100(0),
+	m_iInternalTradeGoldBonus(0),
+	m_iExpensePerTurnFromVassalTax(0),
 	m_iCityConnectionTradeRouteGoldModifier(0),
 	m_iCityConnectionTradeRouteGoldChange(0),
 	m_iBaseBuildingGoldMaintenance(0),
 	m_iBaseImprovementGoldMaintenance(0),
-	m_iLifetimeGrossGoldIncome(0),
-	m_iInternalTradeGoldBonus(0),
-	m_iExpensePerTurnFromVassalTax(0),
-	m_pPlayer(NULL)
+	m_iLifetimeGrossGoldIncome(0)
 {
 }
 

@@ -15,14 +15,14 @@ CvCorporationEntry::CvCorporationEntry(void):
 	m_iTradeRouteSeaDistanceModifier(0),
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteSpeedModifier(0),
-	m_iTradeRouteVisionBoost(0),
 	m_iNumFreeTradeRoutes(0),
 	m_iBaseFranchises(0),
+	m_bTradeRoutesInvulnerable(false),
+	m_iTradeRouteVisionBoost(0),
 	m_iTradeRouteRecipientBonus(0),
 	m_iTradeRouteTargetBonus(0),
 	m_iBaseSpreadChance(0),
 	m_iTourismMod(0),
-	m_bTradeRoutesInvulnerable(false),
 	m_viResourceMonopolyAnds(),
 	m_viResourceMonopolyOrs(),
 	m_piNumFreeResource(NULL),
@@ -498,9 +498,9 @@ CvPlayerCorporations::CvPlayerCorporations(void):
 	m_iCorporationOfficesAsFranchises(0),
 	m_iCorporationRandomForeignFranchiseMod(0),
 	m_iCorporationFreeFranchiseAbovePopular(0),
+	m_aiFranchisesPerImprovement(),
 	m_iNoForeignCorpsInCities(0),
-	m_iNoFranchisesInForeignCities(0),
-	m_aiFranchisesPerImprovement()
+	m_iNoFranchisesInForeignCities(0)
 {
 }
 

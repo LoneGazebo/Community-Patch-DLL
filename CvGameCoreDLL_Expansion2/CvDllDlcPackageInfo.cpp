@@ -11,8 +11,8 @@
 #include "CvDllContext.h"
 
 CvDllDlcPackageInfo::CvDllDlcPackageInfo(const GUID& kGuid)
-	: m_packageId(kGuid)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_packageId(kGuid)
 {
 }
 //------------------------------------------------------------------------------
