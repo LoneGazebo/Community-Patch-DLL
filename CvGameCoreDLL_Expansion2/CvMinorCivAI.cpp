@@ -3028,7 +3028,8 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 {
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
 	CvPlayer* pAssignedPlayer = &GET_PLAYER(m_eAssignedPlayer);
-	if (pMinor == NULL || pAssignedPlayer == NULL || pExistingQuest == NULL) return;
+	if (pMinor == NULL || pAssignedPlayer == NULL || pExistingQuest == NULL)
+		return;
 
 	Localization::String strMessage;
 	Localization::String strSummary;
@@ -5568,7 +5569,8 @@ MinorCivStatusTypes CvMinorCivAI::GetStatus() const
 void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 {
 	ASSERT(pCityPlot != NULL, "City's plot should not be NULL.");
-	if (pCityPlot == NULL) return;
+	if (pCityPlot == NULL)
+		return;
 
 	MinorCivTraitTypes eTrait = GetTrait();
 
@@ -6219,7 +6221,8 @@ void CvMinorCivAI::AddQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* p
 void CvMinorCivAI::DoTestQuestsOnFirstContact(PlayerTypes eMajor)
 {
 	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 
 	std::set<MinorCivQuestTypes> setGlobalQuests;
 	
@@ -6313,7 +6316,8 @@ WeightedCivsList CvMinorCivAI::CalculateFriendshipFromQuests()
 void CvMinorCivAI::DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType)
 {
 	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
 
 	bool bCheckAllQuests = true;
 	if (eSpecifyQuestType > NO_MINOR_CIV_QUEST_TYPE && eSpecifyQuestType < NUM_MINOR_CIV_QUEST_TYPES)
@@ -6354,7 +6358,8 @@ void CvMinorCivAI::DoObsoleteQuests()
 void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType, bool bWar)
 {
 	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
 
 	bool bCheckAllQuests = true;
 	if (eSpecifyQuestType > NO_MINOR_CIV_QUEST_TYPE && eSpecifyQuestType < NUM_MINOR_CIV_QUEST_TYPES)
@@ -6422,7 +6427,8 @@ void CvMinorCivAI::DoQuestsCleanup()
 void CvMinorCivAI::DoQuestsCleanupForPlayer(PlayerTypes ePlayer)
 {
 	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
 
 	bool bPersonalQuestDone = false;
 	bool bGlobalQuestDone = false;
@@ -6474,9 +6480,11 @@ bool CvMinorCivAI::IsTargetQuest(MinorCivQuestTypes eQuest)
 bool CvMinorCivAI::PlayerHasTarget(PlayerTypes ePlayer, MinorCivQuestTypes eQuest)
 {
 	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return false;
 	ASSERT(eQuest >= NO_MINOR_CIV_QUEST_TYPE && eQuest < NUM_MINOR_CIV_QUEST_TYPES, "Invalid eQuest index");
-	if (eQuest < NO_MINOR_CIV_QUEST_TYPE || eQuest >= NUM_MINOR_CIV_QUEST_TYPES) return false;
+	if (eQuest < NO_MINOR_CIV_QUEST_TYPE || eQuest >= NUM_MINOR_CIV_QUEST_TYPES)
+		return false;
 
 	if (IsTargetQuest(eQuest))
 	{
@@ -9337,9 +9345,11 @@ void CvMinorCivAI::ChangeQuestCountdownForPlayer(PlayerTypes ePlayer, int iChang
 bool CvMinorCivAI::AddQuestIfAble(PlayerTypes eMajor, MinorCivQuestTypes eQuest)
 {
 	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 	ASSERT(eQuest >= NO_MINOR_CIV_QUEST_TYPE && eQuest < NUM_MINOR_CIV_QUEST_TYPES, "Invalid eQuest index");
-	if (eQuest < NO_MINOR_CIV_QUEST_TYPE || eQuest >= NUM_MINOR_CIV_QUEST_TYPES) return false;
+	if (eQuest < NO_MINOR_CIV_QUEST_TYPE || eQuest >= NUM_MINOR_CIV_QUEST_TYPES)
+		return false;
 
 	if (!IsValidQuestForPlayer(eMajor, eQuest))
 		return false;
@@ -9467,7 +9477,8 @@ CvString CvMinorCivAI::GetRewardString(PlayerTypes ePlayer, MinorCivQuestTypes e
 }
 CvString CvMinorCivAI::GetTargetCityString(PlayerTypes ePlayer, MinorCivQuestTypes eType)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return "";
 
 	for (uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -12101,7 +12112,8 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	CvPlayerReligions* pMajorReligions = pMajor->GetReligions();
 	PRECONDITION(pMajorReligions, "MINOR CIV AI: pMajorReligions not expected to be NULL. ");
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
-	if (!pMinorCapital) return iAnchor; // Happens when city was just captured, after buyout, etc., so just return the anchor value we have
+	if (!pMinorCapital)
+		return iAnchor; // Happens when city was just captured, after buyout, etc., so just return the anchor value we have
 	CvCityReligions* pMinorCapitalReligions = pMinorCapital->GetCityReligions();
 	PRECONDITION(pMinorCapitalReligions, "MINOR CIV AI: pMinorCapitalReligions not expected to be NULL. ");
 	iAnchor += pMajorReligions->GetCityStateMinimumInfluence(pMinorCapitalReligions->GetReligiousMajority(), eMajor);
@@ -12114,7 +12126,8 @@ void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
 {
 	// If ePlayer isn't a major civ then there is no influence value to reset, so just return
 	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return; // as defined during Reset()
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return; // as defined during Reset()
 
 	int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 	const int iResetFriendship = 0;
@@ -12603,7 +12616,8 @@ bool CvMinorCivAI::IsAllies(PlayerTypes ePlayer) const
 /// Is ePlayer Friends with this minor?
 bool CvMinorCivAI::IsFriends(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return false;
 	return m_abFriends[ePlayer];
 }
 
@@ -13319,7 +13333,8 @@ int CvMinorCivAI::GetTurnLiberated() const
 void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 {
 	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 
 	if (!IsProtectedByMajor(eMajor))
 		return;
@@ -13630,9 +13645,11 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken, bool bSendNotification)
 {
 	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 
-	if (bProtect == IsProtectedByMajor(eMajor)) return;
+	if (bProtect == IsProtectedByMajor(eMajor))
+		return;
 
 	if (bProtect)
 	{
@@ -13703,7 +13720,8 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 
 bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequirement)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
@@ -13826,13 +13844,15 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 
 bool CvMinorCivAI::CanMajorStartProtection(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 	return (CanMajorProtect(eMajor, false) && !IsProtectedByMajor(eMajor));
 }
 
 bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 
 	if (!IsProtectedByMajor(eMajor))
 		return false;
@@ -13857,7 +13877,8 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 
 bool CvMinorCivAI::IsProtectedByMajor(PlayerTypes eMajor) const
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 	return m_abPledgeToProtect[eMajor];
 }
 
@@ -14548,7 +14569,8 @@ void CvMinorCivAI::SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue)
 CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore, bool bCityStateAnnexed, bool bJuggernaut)
 {
 	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return NULL;
 	CvPlayer& kMajor = GET_PLAYER(eMajor);
 
 	if (bCityStateAnnexed && !kMajor.GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
@@ -14885,13 +14907,15 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 /// Has the player chosen to disable Influence rewards from quests?
 bool CvMinorCivAI::IsQuestInfluenceDisabled(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return false;
 	return m_abQuestInfluenceDisabled[ePlayer];
 }
 
 void CvMinorCivAI::SetQuestInfluenceDisabled(PlayerTypes ePlayer, bool bValue)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
 
 	if (bValue != m_abQuestInfluenceDisabled[ePlayer])
 	{
@@ -14938,14 +14962,16 @@ void CvMinorCivAI::EnableQuestInfluence(PlayerTypes ePlayer)
 /// Has this minor been married by us?
 bool CvMinorCivAI::IsMarried(PlayerTypes eMajor) const
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 	return m_abIsMarried[eMajor];
 }
 
 void CvMinorCivAI::SetMajorMarried(PlayerTypes eMajor, bool bValue)
 {
 	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 	m_abIsMarried[eMajor] = bValue;
 }
 
@@ -14958,7 +14984,8 @@ PlayerTypes CvMinorCivAI::GetMajorBoughtOutBy() const
 void CvMinorCivAI::SetMajorBoughtOutBy(PlayerTypes eMajor)
 {
 	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 	m_eMajorBoughtOutBy = eMajor;
 }
 
@@ -14973,7 +15000,8 @@ bool CvMinorCivAI::IsBoughtOut() const
 bool CvMinorCivAI::CanMajorDiploMarriage(PlayerTypes eMajor)
 {
 	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 
 	// Can't be already married
 	if (IsMarried(eMajor))
@@ -15009,7 +15037,8 @@ bool CvMinorCivAI::CanMajorDiploMarriage(PlayerTypes eMajor)
 /// Can this minor be bought out by this major? (Austria BNW UA)
 bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 
 	// We must both be alive and they must have a capital
 	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive() || GET_PLAYER(eMajor).getCapitalCity() == NULL)
@@ -15052,7 +15081,8 @@ bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
 /// What is the cost for eMajor to marry this City-State? (Austria VP UA)
 int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return -1;
 
 	int iGold = /*200*/ GD_INT_GET(BALANCE_MARRIAGE_COST_BASE);
 
@@ -15081,7 +15111,8 @@ int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
 /// What is the cost for eMajor to buy out this City-State? (Austria BNW UA)
 int CvMinorCivAI::GetBuyoutCost(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return -1;
 
 	int iGold = /*500*/ GD_INT_GET(MINOR_CIV_BUYOUT_COST);
 
@@ -15109,7 +15140,8 @@ int CvMinorCivAI::GetBuyoutCost(PlayerTypes eMajor)
 void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 {
 	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 
 	// Marriage overrides buyout!
 	bool bMarriage = GET_PLAYER(eMajor).GetPlayerTraits()->IsDiplomaticMarriage();
@@ -16370,7 +16402,8 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	{
 		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
 		CvPlayer* pMajorLoop = &GET_PLAYER(eMajorLoop);
-		if (!pMajorLoop) continue;
+		if (!pMajorLoop)
+			continue;
 
 		if (pMajorLoop->isAlive() && eMajorLoop != eBully && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GetPlayer()->getTeam()) && GET_TEAM(pMajorLoop->getTeam()).isHasMet(pBully->getTeam()))
 		{
@@ -16749,7 +16782,8 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUn
 	PRECONDITION(eFromPlayer < MAX_MAJOR_CIVS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
 
 	ASSERT(pGiftUnit != NULL, "pGiftUnit is NULL");
-	if (pGiftUnit == NULL) return;
+	if (pGiftUnit == NULL)
+		return;
 
 	ChangeNumUnitsGifted(eFromPlayer, 1);
 	if (GET_PLAYER(eFromPlayer).isInstantYieldsFromUnitGift())
@@ -16778,7 +16812,8 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUn
 
 int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreatPerson, bool /*bDistanceGift*/)
 {
-	if (eFromPlayer < 0 || eFromPlayer >= MAX_MAJOR_CIVS) return 0;
+	if (eFromPlayer < 0 || eFromPlayer >= MAX_MAJOR_CIVS)
+		return 0;
 
 	int iInfluence = 0;
 	CvPlayer& kFromPlayer = GET_PLAYER(eFromPlayer);
@@ -17081,13 +17116,15 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 // Convenience wrapper function
 bool CvMinorCivAI::CanMajorGiftTileImprovementAtPlot(PlayerTypes eMajor, int iPlotX, int iPlotY)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 	return (CanMajorGiftTileImprovement(eMajor) && IsLackingGiftableTileImprovementAtPlot(eMajor, iPlotX, iPlotY));
 }
 
 int CvMinorCivAI::GetGiftTileImprovementCost(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return -1;
 	return /*200*/ GD_INT_GET(MINOR_CIV_TILE_IMPROVEMENT_GIFT_COST);
 }
 
@@ -17495,7 +17532,8 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 bool CvMinorCivAI::IsPermanentWar(TeamTypes eTeam) const
 {
 	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return false;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return false;
 	return m_abPermanentWar[eTeam];
 }
 
@@ -17503,7 +17541,8 @@ bool CvMinorCivAI::IsPermanentWar(TeamTypes eTeam) const
 void CvMinorCivAI::SetPermanentWar(TeamTypes eTeam, bool bValue)
 {
 	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
 
 	if (ENABLE_PERMANENT_WAR)
 		m_abPermanentWar[eTeam] = bValue;
@@ -17516,7 +17555,8 @@ void CvMinorCivAI::SetPermanentWar(TeamTypes eTeam, bool bValue)
 bool CvMinorCivAI::IsWaryOfTeam(TeamTypes eTeam) const
 {
 	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return false;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return false;
 	return m_abWaryOfTeam[eTeam];
 }
 
@@ -17524,7 +17564,8 @@ bool CvMinorCivAI::IsWaryOfTeam(TeamTypes eTeam) const
 void CvMinorCivAI::SetWaryOfTeam(TeamTypes eTeam, bool bValue)
 {
 	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
 	m_abWaryOfTeam[eTeam] = bValue;
 }
 
@@ -17532,14 +17573,16 @@ void CvMinorCivAI::SetWaryOfTeam(TeamTypes eTeam, bool bValue)
 int CvMinorCivAI::GetTurnLastAttacked(TeamTypes eTeam) const
 {
 	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return -1;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return -1;
 	return m_aiTurnLastAttacked[eTeam];
 }
 
 void CvMinorCivAI::SetTurnLastAttacked(TeamTypes eTeam, int iTurn)
 {
 	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
 	m_aiTurnLastAttacked[eTeam] = max(iTurn, -1);
 }
 
@@ -17572,14 +17615,16 @@ int CvMinorCivAI::GetJerkTurnsRemaining(TeamTypes eTeam) const
 bool CvMinorCivAI::IsIgnoreJerk(TeamTypes eTeam) const
 {
 	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return false;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return false;
 	return m_abIgnoreJerk[eTeam];
 }
 
 void CvMinorCivAI::SetIgnoreJerk(TeamTypes eTeam, bool bValue)
 {
 	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
 	m_abIgnoreJerk[eTeam] = bValue;
 }
 

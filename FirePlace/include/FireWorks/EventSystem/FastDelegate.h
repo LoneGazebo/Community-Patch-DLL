@@ -583,11 +583,15 @@ public:
 #if !defined(FASTDELEGATE_USESTATICFUNCTIONHACK)
 	inline bool IsEqual (const DelegateMemento &x) const{
 	    // We have to cope with the static function pointers as a special case
-		if (m_pFunction!=x.m_pFunction) return false;
+		if (m_pFunction!=x.m_pFunction)
+			return false;
 		// the static function ptrs must either both be equal, or both be 0.
-		if (m_pStaticFunction!=x.m_pStaticFunction) return false;
-		if (m_pStaticFunction!=0) return m_pthis==x.m_pthis;
-		else return true;
+		if (m_pStaticFunction!=x.m_pStaticFunction)
+			return false;
+		if (m_pStaticFunction!=0)
+			return m_pthis==x.m_pthis;
+		else
+			return true;
 	}
 #else // Evil Method
 	inline bool IsEqual (const DelegateMemento &x) const{
@@ -601,7 +605,8 @@ public:
 		if (m_pStaticFunction !=0 || right.m_pStaticFunction!=0) 
 				return m_pStaticFunction < right.m_pStaticFunction;
 #endif
-		if (m_pthis !=right.m_pthis) return m_pthis < right.m_pthis;
+		if (m_pthis !=right.m_pthis)
+			return m_pthis < right.m_pthis;
 	// There are no ordering operators for member function pointers, 
 	// but we can fake one by comparing each byte. The resulting ordering is
 	// arbitrary (and compiler-dependent), but it permits storage in ordered STL containers.
@@ -800,10 +805,12 @@ public:
 
 	// Does the closure contain this static function?
 	inline bool IsEqualToStaticFuncPtr(StaticFuncPtr funcptr){
-		if (funcptr==0) return empty(); 
+		if (funcptr==0)
+			return empty();
 	// For the Evil method, if it doesn't actually contain a static function, this will return an arbitrary
 	// value that is not equal to any valid function pointer.
-		else return funcptr==reinterpret_cast<StaticFuncPtr>(GetStaticFunction());
+		else
+			return funcptr==reinterpret_cast<StaticFuncPtr>(GetStaticFunction());
 	}
 };
 

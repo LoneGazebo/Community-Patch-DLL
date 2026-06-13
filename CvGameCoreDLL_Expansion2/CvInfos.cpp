@@ -94,16 +94,26 @@ const char* CvBaseInfo::GetTextKey() const
 
 bool CvBaseInfo::operator==(const CvBaseInfo& rhs) const
 {
-	if(this == &rhs) return true;
-	if(m_iID != rhs.m_iID) return false;
-	if(m_strCivilopedia != rhs.m_strCivilopedia) return false;
-	if(m_strDescription != rhs.m_strDescription) return false;
-	if(m_strHelp != rhs.m_strHelp) return false;
-	if(m_strDisabledHelp != rhs.m_strDisabledHelp) return false;
-	if(m_strStrategy != rhs.m_strStrategy) return false;
-	if(m_strType != rhs.m_strType) return false;
-	if(m_strTextKey != rhs.m_strTextKey) return false;
-	if(m_strText != rhs.m_strText) return false;
+	if(this == &rhs)
+		return true;
+	if(m_iID != rhs.m_iID)
+		return false;
+	if(m_strCivilopedia != rhs.m_strCivilopedia)
+		return false;
+	if(m_strDescription != rhs.m_strDescription)
+		return false;
+	if(m_strHelp != rhs.m_strHelp)
+		return false;
+	if(m_strDisabledHelp != rhs.m_strDisabledHelp)
+		return false;
+	if(m_strStrategy != rhs.m_strStrategy)
+		return false;
+	if(m_strType != rhs.m_strType)
+		return false;
+	if(m_strTextKey != rhs.m_strTextKey)
+		return false;
+	if(m_strText != rhs.m_strText)
+		return false;
 	return true;
 }
 
@@ -5000,12 +5010,18 @@ bool CvTurnTimerInfo::CacheResults(Database::Results& results, CvDatabaseUtility
 
 bool CvTurnTimerInfo::operator==(const CvTurnTimerInfo& rhs) const
 {
-	if(this == &rhs) return true;
-	if(!CvBaseInfo::operator==(rhs)) return false;
-	if(m_iBaseTime != rhs.m_iBaseTime) return false;
-	if(m_iCityResource != rhs.m_iCityResource) return false;
-	if(m_iUnitResource != rhs.m_iUnitResource) return false;
-	if(m_iFirstTurnMultiplier != rhs.m_iFirstTurnMultiplier) return false;
+	if(this == &rhs)
+		return true;
+	if(!CvBaseInfo::operator==(rhs))
+		return false;
+	if(m_iBaseTime != rhs.m_iBaseTime)
+		return false;
+	if(m_iCityResource != rhs.m_iCityResource)
+		return false;
+	if(m_iUnitResource != rhs.m_iUnitResource)
+		return false;
+	if(m_iFirstTurnMultiplier != rhs.m_iFirstTurnMultiplier)
+		return false;
 	return true;
 }
 
@@ -5082,10 +5098,14 @@ bool CvDiploModifierInfo::CacheResults(Database::Results& results, CvDatabaseUti
 
 bool CvDiploModifierInfo::operator==(const CvDiploModifierInfo& rhs) const
 {
-	if(this == &rhs) return true;
-	if(!CvBaseInfo::operator==(rhs)) return false;
-	if(m_eFromCiv != rhs.m_eFromCiv) return false;
-	if(m_eToCiv != rhs.m_eToCiv) return false;
+	if(this == &rhs)
+		return true;
+	if(!CvBaseInfo::operator==(rhs))
+		return false;
+	if(m_eFromCiv != rhs.m_eFromCiv)
+		return false;
+	if(m_eToCiv != rhs.m_eToCiv)
+		return false;
 	return true;
 }
 
@@ -8125,31 +8145,56 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 {
-	if(this == &rhs) return true;
-	if(!CvBaseInfo::operator==(rhs)) return false;
-	if(m_iDefaultPlayers != rhs.m_iDefaultPlayers) return false;
-	if(m_iDefaultMinorCivs != rhs.m_iDefaultMinorCivs) return false;
-	if(m_iFogTilesPerBarbarianCamp != rhs.m_iFogTilesPerBarbarianCamp) return false;
-	if(m_iNumNaturalWonders != rhs.m_iNumNaturalWonders) return false;
-	if(m_iUnitNameModifier != rhs.m_iUnitNameModifier) return false;
-	if(m_iTargetNumCities != rhs.m_iTargetNumCities) return false;
-	if(m_iNumFreeBuildingResources != rhs.m_iNumFreeBuildingResources) return false;
-	if(m_iBuildingClassPrereqModifier != rhs.m_iBuildingClassPrereqModifier) return false;
-	if(m_iGridWidth != rhs.m_iGridWidth) return false;
-	if(m_iGridHeight != rhs.m_iGridHeight) return false;
-	if(m_iMaxActiveReligions != rhs.m_iMaxActiveReligions) return false;
-	if(m_iTerrainGrainChange != rhs.m_iTerrainGrainChange) return false;
-	if(m_iFeatureGrainChange != rhs.m_iFeatureGrainChange) return false;
-	if(m_iResearchPercent != rhs.m_iResearchPercent) return false;
-	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent) return false;
-	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) return false;
-	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) return false;
-	if (m_iNumCitiesTourismCostMod != rhs.m_iNumCitiesTourismCostMod) return false;
-	if (m_iNumCitiesUnitSupplyMod != rhs.m_iNumCitiesUnitSupplyMod) return false;
-	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities) return false;
-	if(m_iMinDistanceCityStates != rhs.m_iMinDistanceCityStates) return false;
-	if(m_iReformationPercent != rhs.m_iReformationPercent) return false;
-	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod) return false;
+	if(this == &rhs)
+		return true;
+	if(!CvBaseInfo::operator==(rhs))
+		return false;
+	if(m_iDefaultPlayers != rhs.m_iDefaultPlayers)
+		return false;
+	if(m_iDefaultMinorCivs != rhs.m_iDefaultMinorCivs)
+		return false;
+	if(m_iFogTilesPerBarbarianCamp != rhs.m_iFogTilesPerBarbarianCamp)
+		return false;
+	if(m_iNumNaturalWonders != rhs.m_iNumNaturalWonders)
+		return false;
+	if(m_iUnitNameModifier != rhs.m_iUnitNameModifier)
+		return false;
+	if(m_iTargetNumCities != rhs.m_iTargetNumCities)
+		return false;
+	if(m_iNumFreeBuildingResources != rhs.m_iNumFreeBuildingResources)
+		return false;
+	if(m_iBuildingClassPrereqModifier != rhs.m_iBuildingClassPrereqModifier)
+		return false;
+	if(m_iGridWidth != rhs.m_iGridWidth)
+		return false;
+	if(m_iGridHeight != rhs.m_iGridHeight)
+		return false;
+	if(m_iMaxActiveReligions != rhs.m_iMaxActiveReligions)
+		return false;
+	if(m_iTerrainGrainChange != rhs.m_iTerrainGrainChange)
+		return false;
+	if(m_iFeatureGrainChange != rhs.m_iFeatureGrainChange)
+		return false;
+	if(m_iResearchPercent != rhs.m_iResearchPercent)
+		return false;
+	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent)
+		return false;
+	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod)
+		return false;
+	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod)
+		return false;
+	if (m_iNumCitiesTourismCostMod != rhs.m_iNumCitiesTourismCostMod)
+		return false;
+	if (m_iNumCitiesUnitSupplyMod != rhs.m_iNumCitiesUnitSupplyMod)
+		return false;
+	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities)
+		return false;
+	if(m_iMinDistanceCityStates != rhs.m_iMinDistanceCityStates)
+		return false;
+	if(m_iReformationPercent != rhs.m_iReformationPercent)
+		return false;
+	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod)
+		return false;
 	return true;
 }
 

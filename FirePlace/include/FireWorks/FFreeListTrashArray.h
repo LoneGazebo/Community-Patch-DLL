@@ -385,7 +385,8 @@ void FFreeListTrashArray<T>::Load(T* pData)
 {
 	assert(pData != NULL);
 	assert(m_pArray != NULL);
-	if (!pData || !m_pArray) return;
+	if (!pData || !m_pArray)
+		return;
 
 	assert((pData->GetID() & FLTA_ID_MASK) < m_iCurrentID);
 
@@ -410,7 +411,8 @@ void FFreeListTrashArray<T>::GrowArray()
 
 	assert(m_pArray != NULL);
 	
-	if(!m_pArray) return;
+	if(!m_pArray)
+		return;
 
 	pOldArray = m_pArray;
 	iOldNumSlots = this->m_iNumSlots;

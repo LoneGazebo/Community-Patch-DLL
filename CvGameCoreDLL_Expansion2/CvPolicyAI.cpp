@@ -5196,7 +5196,8 @@ bool CvPolicyAI::IsBranchEffectiveInGame(PolicyBranchTypes eBranch)
 {
 	CvPolicyBranchEntry* pBranchInfo = GC.getPolicyBranchInfo(eBranch);
 	ASSERT(pBranchInfo, "Branch info not found!");
-	if (!pBranchInfo) return false;
+	if (!pBranchInfo)
+		return false;
 	
 	if (pBranchInfo->IsDelayWhenNoReligion())
 		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))

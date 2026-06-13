@@ -475,7 +475,8 @@ public:
 		unsigned int uiOldFirst = m_uiFirst;
 		m_uiFirst = uiNewIndex;
 		m_uiSize++;
-		if( m_uiLast == ANCHOR_NODE_INDEX ) m_uiLast = m_uiFirst;
+		if( m_uiLast == ANCHOR_NODE_INDEX )
+			m_uiLast = m_uiFirst;
 		InsertBefore( m_uiFirst, uiOldFirst );
 	};
 
@@ -492,7 +493,8 @@ public:
 		unsigned int uiOldLast = m_uiLast;
 		m_uiLast = uiNewIndex;
 		m_uiSize++;
-		if( m_uiFirst == ANCHOR_NODE_INDEX ) m_uiFirst = m_uiLast;
+		if( m_uiFirst == ANCHOR_NODE_INDEX )
+			m_uiFirst = m_uiLast;
 		InsertAfter(m_uiLast, uiOldLast);
 	};
 
@@ -668,8 +670,10 @@ protected:
 			T& kEnd = get_allocator()[uiEnd];
 			unsigned int uiNext = kEnd.LIST_GetNext();
 			unsigned int uiPrev = kEnd.LIST_GetPrev();
-			if( uiNext != ANCHOR_NODE_INDEX ) get_allocator()[uiNext].LIST_SetPrev( uiPrev );
-			if( uiPrev != ANCHOR_NODE_INDEX ) get_allocator()[uiPrev].LIST_SetNext( uiNext );
+			if( uiNext != ANCHOR_NODE_INDEX )
+				get_allocator()[uiNext].LIST_SetPrev( uiPrev );
+			if( uiPrev != ANCHOR_NODE_INDEX )
+				get_allocator()[uiPrev].LIST_SetNext( uiNext );
 			kEnd.LIST_SetDeleted(true);
 			get_allocator().FreeIfDeleted(uiEnd);
 
@@ -1280,7 +1284,8 @@ public:
 		unsigned int uiOldFirst = kLD.uiFirst;
 		kLD.uiFirst = uiNewIndex;
 		kLD.uiSize++;
-		if( kLD.uiLast == ANCHOR_NODE_INDEX ) kLD.uiLast = kLD.uiFirst;
+		if( kLD.uiLast == ANCHOR_NODE_INDEX )
+			kLD.uiLast = kLD.uiFirst;
 		InsertBefore(kLD.uiFirst, uiOldFirst);
 	};
 
@@ -1298,7 +1303,8 @@ public:
 		unsigned int uiOldLast = kLD.uiLast;
 		kLD.uiLast = uiNewIndex;
 		kLD.uiSize++;
-		if( kLD.uiFirst == ANCHOR_NODE_INDEX ) kLD.uiFirst = kLD.uiLast;
+		if( kLD.uiFirst == ANCHOR_NODE_INDEX )
+			kLD.uiFirst = kLD.uiLast;
 		InsertAfter(kLD.uiLast, uiOldLast);
 	};
 
@@ -1522,8 +1528,10 @@ protected:
 			T& kEnd = (*m_pVec)[uiEnd];
 			unsigned int uiNext = kEnd.LIST_GetNext();
 			unsigned int uiPrev = kEnd.LIST_GetPrev();
-			if( uiNext != ANCHOR_NODE_INDEX ) (*m_pVec)[uiNext].LIST_SetPrev( uiPrev );
-			if( uiPrev != ANCHOR_NODE_INDEX ) (*m_pVec)[uiPrev].LIST_SetNext( uiNext );
+			if( uiNext != ANCHOR_NODE_INDEX )
+				(*m_pVec)[uiNext].LIST_SetPrev( uiPrev );
+			if( uiPrev != ANCHOR_NODE_INDEX )
+				(*m_pVec)[uiPrev].LIST_SetNext( uiNext );
 			kEnd.LIST_SetDeleted(true);
 			m_pVec->FreeIfDeleted(uiEnd);
 

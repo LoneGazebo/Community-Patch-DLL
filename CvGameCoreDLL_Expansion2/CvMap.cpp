@@ -1115,7 +1115,8 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 		ASSERT(pTestPlot != NULL, "TestPlot is not assigned a valid value");
 
-		if(!pTestPlot) continue;
+		if(!pTestPlot)
+			continue;
 
 		if((iArea == -1) || (pTestPlot->getArea() == iArea))
 		{

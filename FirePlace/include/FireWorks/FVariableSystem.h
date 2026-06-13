@@ -136,17 +136,28 @@ class FVariable
 
 		static eVariableType GetEditType( const char * szType )
 		{
-			if ( !_stricmp(szType, "Check" ) ) return FVARTYPE_BOOL; 
-			if ( !_stricmp(szType, "Char")) return FVARTYPE_CHAR; 
-			if ( !_stricmp(szType, "Char")) return FVARTYPE_UCHAR; 
-			if ( !_stricmp(szType, "Int")) return FVARTYPE_SHORT; 
-			if ( !_stricmp(szType, "UInt")) return FVARTYPE_USHORT; 
-			if ( !_stricmp(szType, "Int")) return FVARTYPE_INT; 
-			if ( !_stricmp(szType, "UInt")) return FVARTYPE_UINT; 
-			if ( !_stricmp(szType, "Float"))return FVARTYPE_FLOAT; 
-			if ( !_stricmp(szType, "Float")) return FVARTYPE_DOUBLE; 
-			if ( !_stricmp(szType, "String")) return FVARTYPE_STRING; 
-			if ( !_stricmp(szType, "String")) return FVARTYPE_WSTRING; 
+			if ( !_stricmp(szType, "Check" ) )
+				return FVARTYPE_BOOL;
+			if ( !_stricmp(szType, "Char"))
+				return FVARTYPE_CHAR;
+			if ( !_stricmp(szType, "Char"))
+				return FVARTYPE_UCHAR;
+			if ( !_stricmp(szType, "Int"))
+				return FVARTYPE_SHORT;
+			if ( !_stricmp(szType, "UInt"))
+				return FVARTYPE_USHORT;
+			if ( !_stricmp(szType, "Int"))
+				return FVARTYPE_INT;
+			if ( !_stricmp(szType, "UInt"))
+				return FVARTYPE_UINT;
+			if ( !_stricmp(szType, "Float"))
+				return FVARTYPE_FLOAT;
+			if ( !_stricmp(szType, "Float"))
+				return FVARTYPE_DOUBLE;
+			if ( !_stricmp(szType, "String"))
+				return FVARTYPE_STRING;
+			if ( !_stricmp(szType, "String"))
+				return FVARTYPE_WSTRING;
 			return FVARTYPE_INT; // ?
 		}
 

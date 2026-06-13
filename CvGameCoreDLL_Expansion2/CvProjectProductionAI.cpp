@@ -417,7 +417,8 @@ void CvProjectProductionAI::LogPossibleBuilds()
 		CvString strLogName;
 
 		ASSERT(m_pCity);
-		if(!m_pCity) return;
+		if(!m_pCity)
+			return;
 
 		// Find the name of this civ and city
 		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
@@ -427,7 +428,8 @@ void CvProjectProductionAI::LogPossibleBuilds()
 		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(m_pCity->GetCityStrategyAI()->GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 		ASSERT(pLog);
-		if(!pLog) return;
+		if(!pLog)
+			return;
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());

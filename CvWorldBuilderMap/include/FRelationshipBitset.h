@@ -58,8 +58,10 @@ public:
 			const uint uiByte = uiBitIndex / 8;
 			const uint uiBit = uiBitIndex % 8;
 			const byte byMask = (1 << uiBit);
-			if( bVal ) m_Mem[uiByte] |= byMask;
-			else m_Mem[uiByte] &= ~byMask;
+			if( bVal )
+				m_Mem[uiByte] |= byMask;
+			else
+				m_Mem[uiByte] &= ~byMask;
 		}
 	}
 

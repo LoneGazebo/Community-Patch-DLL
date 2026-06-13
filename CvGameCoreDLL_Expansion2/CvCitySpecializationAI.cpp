@@ -454,22 +454,28 @@ CvWeightedVector<YieldTypes> CvCitySpecializationAI::WeightSpecializations()
 	 if (m_pPlayer->getCapitalCity() != NULL)
 	 {
 		 int iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-		 if (iFlavorGold < 0) iFlavorGold = 0;
+		 if (iFlavorGold < 0)
+		 	iFlavorGold = 0;
 
 		 int iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-		 if (iFlavorScience < 0) iFlavorScience = 0;
+		 if (iFlavorScience < 0)
+		 	iFlavorScience = 0;
 
 		 int iFlavorGrowth = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-		 if (iFlavorGrowth < 0) iFlavorGrowth = 0;
+		 if (iFlavorGrowth < 0)
+		 	iFlavorGrowth = 0;
 
 		 int iFlavorCulture = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-		 if (iFlavorCulture < 0) iFlavorCulture = 0;
+		 if (iFlavorCulture < 0)
+		 	iFlavorCulture = 0;
 
 		 int iFlavorFaith = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-		 if (iFlavorFaith < 0) iFlavorFaith = 0;
+		 if (iFlavorFaith < 0)
+		 	iFlavorFaith = 0;
 
 		 int iFlavorProduction = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
-		 if (iFlavorProduction < 0) iFlavorProduction = 0;
+		 if (iFlavorProduction < 0)
+		 	iFlavorProduction = 0;
 
 		 //   Add in any contribution from the current grand strategy
 		 CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy());
@@ -540,11 +546,14 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	int iSpaceshipWeight = 0;
 
 	int iFlavorWonder = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
-	if (iFlavorWonder < 0) iFlavorWonder = 0;
+	if (iFlavorWonder < 0)
+		iFlavorWonder = 0;
 	int iFlavorSpaceship = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
-	if (iFlavorSpaceship < 0) iFlavorSpaceship = 0;
+	if (iFlavorSpaceship < 0)
+		iFlavorSpaceship = 0;
 	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-	if (iFlavorOffense < 0) iFlavorOffense = 0;
+	if (iFlavorOffense < 0)
+		iFlavorOffense = 0;
 
 	int iUnitsRequested = m_pPlayer->GetNumUnitsNeededToBeBuilt();
 

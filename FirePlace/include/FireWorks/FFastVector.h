@@ -417,7 +417,8 @@ protected:
 	void GrowSize(unsigned int uiFit)
 	{
 		unsigned int nOld = this->m_uiCurrMaxSize;
-		if( this->m_uiCurrMaxSize == 0 ) this->m_uiCurrMaxSize = 1;
+		if( this->m_uiCurrMaxSize == 0 )
+			this->m_uiCurrMaxSize = 1;
 		while( uiFit >= this->m_uiCurrMaxSize ){
 
 			//Try to double size...
@@ -738,7 +739,8 @@ protected:
 	//Grow the size of the internal data store by a factor of two
 	void GrowSize(unsigned int uiFit)
 	{
-		if( this->m_uiCurrMaxSize == 0 ) this->m_uiCurrMaxSize = 1;
+		if( this->m_uiCurrMaxSize == 0 )
+			this->m_uiCurrMaxSize = 1;
 		while( uiFit >= this->m_uiCurrMaxSize ){
 
 			//Try to double size...
@@ -803,7 +805,8 @@ protected:
 	//Free the memory store.
 	void Free(T* pVal, unsigned int uiNumElements)
 	{
-		if( !bPODType) this->Destroy(pVal, uiNumElements);
+		if( !bPODType)
+			this->Destroy(pVal, uiNumElements);
 		if( pVal != (T*)m_aData )
 			FFREEALIGNED( (unsigned char*)pVal );
 	};
@@ -1277,7 +1280,8 @@ protected:
 	//Free the memory store.
 	void Free(T* pVal, unsigned int uiNumElements)
 	{
-		if( !bPODType) Destroy(pVal, uiNumElements);
+		if( !bPODType)
+			Destroy(pVal, uiNumElements);
 		FFREEALIGNED( (unsigned char*)pVal );
 	};
 

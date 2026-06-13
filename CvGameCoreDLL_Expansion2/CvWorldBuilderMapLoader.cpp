@@ -815,32 +815,38 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 		{
 			const CvPlot* pkTestPlot = kMap.plot(iPlotX - iDist, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity) return pkCity;
+			if(pkCity)
+				return pkCity;
 		}
 		else if(bWorldWrap)
 		{
 			int iX = iPlotX - iDist;
-			while(iX < 0) iX += iMapWidth;
+			while(iX < 0)
+				iX += iMapWidth;
 
 			const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity) return pkCity;
+			if(pkCity)
+				return pkCity;
 		}
 
 		if(iPlotX + iDist < iMapWidth)
 		{
 			const CvPlot* pkTestPlot = kMap.plot(iPlotX + iDist, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity) return pkCity;
+			if(pkCity)
+				return pkCity;
 		}
 		else if(bWorldWrap)
 		{
 			int iX = iPlotX + iDist;
-			while(iX >= iMapWidth) iX -= iMapWidth;
+			while(iX >= iMapWidth)
+				iX -= iMapWidth;
 
 			const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity) return pkCity;
+			if(pkCity)
+				return pkCity;
 		}
 
 		// Top and Bottom Rows
@@ -852,7 +858,8 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 			{
 				// Left-most plot in the current row
 				int iX = iPlotX - (iRowWidth / 2);
-				if(iRow % 2 == 1) iX += iRowOffset;
+				if(iRow % 2 == 1)
+					iX += iRowOffset;
 
 				if(iX < 0)
 				{
@@ -870,14 +877,16 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY - iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity) return pkCity;
+						if(pkCity)
+							return pkCity;
 					}
 
 					if(iPlotY + iRow < iMapHeight)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY + iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity) return pkCity;
+						if(pkCity)
+							return pkCity;
 					}
 				}
 			}
@@ -885,7 +894,8 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 			{
 				// Right-most plot in the current row
 				int iX = iPlotX + (iRowWidth / 2) - 1;
-				if(iRow % 2 == 1) iX += iRowOffset;
+				if(iRow % 2 == 1)
+					iX += iRowOffset;
 
 				if(iX >= iMapWidth)
 				{
@@ -903,14 +913,16 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY - iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity) return pkCity;
+						if(pkCity)
+							return pkCity;
 					}
 
 					if(iPlotY + iRow < iMapHeight)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY + iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity) return pkCity;
+						if(pkCity)
+							return pkCity;
 					}
 				}
 			}
@@ -922,7 +934,8 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 			for(int iPlot = 0; iPlot < iRowWidth; ++iPlot)
 			{
 				int iX = iPlotX + iPlot - (iRowWidth / 2);
-				if(iDist % 2 == 1) iX += iRowOffset;
+				if(iDist % 2 == 1)
+					iX += iRowOffset;
 
 				if(iX < 0)
 				{
@@ -951,14 +964,16 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 				{
 					const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY - iDist);
 					const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-					if(pkCity) return pkCity;
+					if(pkCity)
+						return pkCity;
 				}
 
 				if(iPlotY + iDist < iMapHeight)
 				{
 					const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY + iDist);
 					const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-					if(pkCity) return pkCity;
+					if(pkCity)
+						return pkCity;
 				}
 			}
 		}
@@ -1047,7 +1062,8 @@ bool CvWorldBuilderMapLoader::InitMap()
 		const CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
 		ASSERT(pkPlot, "Missing CvPlot for this location");
-		if(pkPlot == NULL) continue;
+		if(pkPlot == NULL)
+			continue;
 
 		pkPlot->setTerrainType((TerrainTypes)kPlotData.GetTerrainType(), false, false);
 
@@ -1208,7 +1224,8 @@ bool CvWorldBuilderMapLoader::InitMap()
 		const CvWorldBuilderMap::PlotScenarioData& kPlotData = sg_kSave.GetPlotScenarioData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
 		ASSERT(pkPlot, "Missing CvPlot for this location");
-		if(pkPlot == NULL) continue;
+		if(pkPlot == NULL)
+			continue;
 
 		const int iPlotX = pkPlot->getX();
 		const int iPlotY = pkPlot->getY();
@@ -1259,14 +1276,16 @@ bool CvWorldBuilderMapLoader::InitMap()
 		const CvWorldBuilderMap::PlotScenarioData& kPlotData = sg_kSave.GetPlotScenarioData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
 		ASSERT(pkPlot, "Missing CvPlot for this location");
-		if(pkPlot == NULL) continue;
+		if(pkPlot == NULL)
+			continue;
 
 		const PlayerTypes eOwner = GetPlayerType(kPlotData.m_byCulture);
 		if(eOwner != NO_PLAYER)
 		{
 			int iCityID = 0;
 			const CvCity* pkCity = FindClosestCity(eOwner, *pkPlot);
-			if(pkCity) iCityID = pkCity->GetID();
+			if(pkCity)
+				iCityID = pkCity->GetID();
 			pkPlot->setOwner(eOwner, iCityID);
 		}
 	}
@@ -1324,7 +1343,8 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
 		ASSERT(pkPlot, "Missing CvPlot for this location");
-		if(pkPlot == NULL) continue;
+		if(pkPlot == NULL)
+			continue;
 
 		kPlotData.SetTerrainType((byte)pkPlot->getTerrainType());
 
@@ -1479,7 +1499,8 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 				{
 					int iValue = kEntry.GetFieldAsInt(uiField);
 					const char* szMember = pkEnum->GetMember((uint)iValue);
-					if(szMember == NULL) szMember = "";
+					if(szMember == NULL)
+						szMember = "";
 					lua_pushstring(L, szMember);
 				}
 				else
@@ -1543,7 +1564,8 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 				if(pkEnum != NULL)
 				{
 					const char* szMember = pkEnum->GetMember((uint)iValue);
-					if(szMember == NULL) szMember = "";
+					if(szMember == NULL)
+						szMember = "";
 					lua_pushstring(L, szMember);
 				}
 				else

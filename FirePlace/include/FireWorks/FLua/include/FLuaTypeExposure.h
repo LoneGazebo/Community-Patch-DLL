@@ -595,9 +595,11 @@ namespace FLua
 					FLUA_SAVECALLSTACK(L);
 					(pkObj->*pfn)();
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and no arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and no arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -614,9 +616,11 @@ namespace FLua
 					Push( L, pushMe );
 					return 1;
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and no arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and no arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -632,11 +636,14 @@ namespace FLua
 					Analog0 arg0 = Get<Analog0>(L, 2); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
 					if( bValidArgs )
 						(pkObj->*pfn)(FromLuaAnalog<TArg0>::Convert(arg0));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 1 argument."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 1 argument."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -657,11 +664,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 1 argument."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 1 argument."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -679,11 +689,14 @@ namespace FLua
 					Analog1 arg1 = Get<Analog1>(L, 3); ArgValidator<TArg1>::Validate(arg1, bValidArgs);
 					if( bValidArgs )
 						(pkObj->*pfn)(FromLuaAnalog<TArg0>::Convert(arg0), FromLuaAnalog<TArg1>::Convert(arg1));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 2 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 2 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -706,11 +719,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 2 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 2 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -732,11 +748,14 @@ namespace FLua
 						(pkObj->*pfn)(FromLuaAnalog<TArg0>::Convert(arg0),
 						              FromLuaAnalog<TArg1>::Convert(arg1),
 									  FromLuaAnalog<TArg2>::Convert(arg2));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 3 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 3 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -763,11 +782,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 3 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 3 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -792,11 +814,14 @@ namespace FLua
 						              FromLuaAnalog<TArg1>::Convert(arg1),
 						              FromLuaAnalog<TArg2>::Convert(arg2),
 									  FromLuaAnalog<TArg3>::Convert(arg3));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 4 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 4 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -826,11 +851,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 4 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 4 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -858,11 +886,14 @@ namespace FLua
 						              FromLuaAnalog<TArg2>::Convert(arg2),
 						              FromLuaAnalog<TArg3>::Convert(arg3),
 									  FromLuaAnalog<TArg4>::Convert(arg4));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 5 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 5 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -895,11 +926,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 5 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 5 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -915,9 +949,11 @@ namespace FLua
 					FLUA_SAVECALLSTACK(L);
 					(pkObj->*pfn)();
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and no arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and no arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -934,9 +970,11 @@ namespace FLua
 					Push( L, pushMe );
 					return 1;
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and no arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and no arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -952,11 +990,14 @@ namespace FLua
 					Analog0 arg0 = Get<Analog0>(L, 2); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
 					if( bValidArgs )
 						(pkObj->*pfn)(FromLuaAnalog<TArg0>::Convert(arg0));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 1 argument."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 1 argument."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -977,11 +1018,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 1 argument."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 1 argument."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -999,11 +1043,14 @@ namespace FLua
 					Analog1 arg1 = Get<Analog1>(L, 3); ArgValidator<TArg1>::Validate(arg1, bValidArgs);
 					if( bValidArgs )
 						(pkObj->*pfn)(FromLuaAnalog<TArg0>::Convert(arg0), FromLuaAnalog<TArg1>::Convert(arg1));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 2 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 2 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -1026,11 +1073,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 2 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 2 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -1052,11 +1102,14 @@ namespace FLua
 						(pkObj->*pfn)(FromLuaAnalog<TArg0>::Convert(arg0),
 						              FromLuaAnalog<TArg1>::Convert(arg1),
 						              FromLuaAnalog<TArg2>::Convert(arg2));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 3 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 3 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -1083,11 +1136,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 3 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 3 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -1112,11 +1168,14 @@ namespace FLua
 						              FromLuaAnalog<TArg1>::Convert(arg1),
 						              FromLuaAnalog<TArg2>::Convert(arg2),
 						              FromLuaAnalog<TArg3>::Convert(arg3));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 4 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 4 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -1146,11 +1205,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 4 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 4 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -1178,11 +1240,14 @@ namespace FLua
 						              FromLuaAnalog<TArg2>::Convert(arg2),
 						              FromLuaAnalog<TArg3>::Convert(arg3),
 						              FromLuaAnalog<TArg4>::Convert(arg4));
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 5 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 5 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 
@@ -1215,11 +1280,14 @@ namespace FLua
 						Push( L, pushMe );
 						return 1;
 					}
-					else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+					else
+						Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 				}
-				else Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
+				else
+					Error(_T("%s could not be called: Call cannot be made on NULL"), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 5 arguments."), szLuaFnName, lua_gettop(L) );
+			else
+				Error(_T("%s could not be called: %i values on stack.  Expected 1 parent table and 5 arguments."), szLuaFnName, lua_gettop(L) );
 			return 0;
 		}
 

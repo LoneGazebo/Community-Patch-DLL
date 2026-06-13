@@ -13690,7 +13690,8 @@ int CvUnit::getBuilderStrength() const
 void CvUnit::setBuilderStrength(const int newPower)
 {
 	m_iBuilderStrength = newPower;
-	if (m_iBuilderStrength < 0) m_iBuilderStrength = 0;
+	if (m_iBuilderStrength < 0)
+		m_iBuilderStrength = 0;
 
 }
 

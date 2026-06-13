@@ -2817,11 +2817,13 @@ int CvMilitaryAI::GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int iRange, bo
 					// Let's not factor in revealed or visible - As a human I can remember past attacks and intuit whether a bomber could be in range of the city, AIs don't have great intuition...
 					if (pLoopUnit->IsAirSweepCapable() || pLoopUnit->canAirDefend())
 					{
-						if (bCountFighters) iRtnValue++;
+						if (bCountFighters)
+							iRtnValue++;
 					}
 					else
 					{
-						if (bCountBombers) iRtnValue++;
+						if (bCountBombers)
+							iRtnValue++;
 					}
 				}
 			}

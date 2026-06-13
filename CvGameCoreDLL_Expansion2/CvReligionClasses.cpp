@@ -3411,7 +3411,8 @@ void CvPlayerReligions::Write(FDataStream& kStream) const
 int CvPlayerReligions::GetNumProphetsSpawned(bool bExcludeFree) const
 {
 	int iCount = m_iNumProphetsSpawned;
-	if (bExcludeFree) iCount -= m_iNumFreeProphetsSpawned;
+	if (bExcludeFree)
+		iCount -= m_iNumFreeProphetsSpawned;
 	return iCount;
 }
 
@@ -3429,7 +3430,8 @@ FDataStream& operator<<(FDataStream& stream, const CvPlayerReligions& playerReli
 /// Change count of prophets spawned
 void CvPlayerReligions::ChangeNumProphetsSpawned(int iValue, bool bIsFree)
 {
-	if (bIsFree) m_iNumFreeProphetsSpawned += iValue;
+	if (bIsFree)
+		m_iNumFreeProphetsSpawned += iValue;
 	m_iNumProphetsSpawned += iValue;
 }
 
