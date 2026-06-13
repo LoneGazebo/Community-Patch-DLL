@@ -6340,7 +6340,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iReligionScore = (iReligionDelta *  (iFlavorReligion / 2));
 
 	//add it all up
-	int iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
+	long long iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
 
 	const STradePathInfo* pPathInfo = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pFromCity, pToCity, kTradeConnection.m_eDomain);
 	ASSERT(pPathInfo, "Trade route path valid, but no path found in cache");
@@ -6568,7 +6568,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		iScore *= 5;
 	}
 
-	ret.m_iScore = iScore;
+	ret.m_iScore = (int)min(iScore, (long long)INT_MAX);
 	ret.m_iCultureScore = iCultureScore;
 	ret.m_iGoldScore = iGoldScore;
 	ret.m_iScienceScore = iScienceScore;
