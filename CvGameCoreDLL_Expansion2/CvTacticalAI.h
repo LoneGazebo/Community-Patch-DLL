@@ -593,35 +593,41 @@ public:
 
 	int Score() const { return iTotalScore; }
 	bool IsAcceptable() const { return iDamageDelta != TACTICAL_COMBAT_IMPOSSIBLE_SCORE; }
+	static short ClampShort(int v)
+	{
+		if (v > SHRT_MAX) return SHRT_MAX;
+		if (v < SHRT_MIN) return SHRT_MIN;
+		return (short)v;
+	}
 	void SetScore(int iPlotScore_, int iBonusScore_, int iDamageDelta_)
 	{
-		iPlotScore = iPlotScore_;
-		iBonusScore = iBonusScore_;
-		iDamageDelta = iDamageDelta_;
-		iTotalScore = iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10;
+		iPlotScore = ClampShort(iPlotScore_);
+		iBonusScore = ClampShort(iBonusScore_);
+		iDamageDelta = ClampShort(iDamageDelta_);
+		iTotalScore = ClampShort(iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10);
 	}
 	void SetScore(const STacticalAssignment* other)
 	{
 		iPlotScore = other->iPlotScore;
 		iBonusScore = other->iBonusScore;
 		iDamageDelta = other->iDamageDelta;
-		iTotalScore = iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10;
+		iTotalScore = ClampShort(iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10);
 	}
 	void AddScore(int iPlotScoreChange, int iBonusScoreChange, int iDamageDeltaChange)
 	{
 		ASSERT(iDamageDelta != TACTICAL_COMBAT_IMPOSSIBLE_SCORE);
-		iPlotScore += iPlotScoreChange;
-		iBonusScore += iBonusScoreChange;
-		iDamageDelta += iDamageDeltaChange;
-		iTotalScore = iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10;
+		iPlotScore = ClampShort(iPlotScore + iPlotScoreChange);
+		iBonusScore = ClampShort(iBonusScore + iBonusScoreChange);
+		iDamageDelta = ClampShort(iDamageDelta + iDamageDeltaChange);
+		iTotalScore = ClampShort(iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10);
 	}
 	void AddScore(const STacticalAssignment* other)
 	{
 		ASSERT(iDamageDelta != TACTICAL_COMBAT_IMPOSSIBLE_SCORE);
-		iPlotScore += other->iPlotScore;
-		iBonusScore += other->iBonusScore;
-		iDamageDelta += other->iDamageDelta;
-		iTotalScore = iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10;
+		iPlotScore = ClampShort(iPlotScore + other->iPlotScore);
+		iBonusScore = ClampShort(iBonusScore + other->iBonusScore);
+		iDamageDelta = ClampShort(iDamageDelta + other->iDamageDelta);
+		iTotalScore = ClampShort(iPlotScore - iOldPlotScore + (iBonusScore + iDamageDelta) * 10);
 	}
 	void SetImpossible()
 	{
@@ -839,7 +845,7 @@ struct SIntPairHash
 
 typedef tr1::unordered_map<SPathFinderStartPos, ReachablePlots, SPathFinderStartPosHash> TCachedMovePlots;
 typedef tr1::unordered_map<pair<int, int>, vector<int>, SIntPairHash> TCachedRangeAttackPlots; // (unit:plot) -> plots
-typedef tr1::unordered_map<int, unsigned char> TUnitFlagLookup;
+typedef tr1::unordered_map<int, unsigned short> TUnitFlagLookup;
 typedef tr1::unordered_map<DomainTypes, ReachablePlots> TCachedDistanceToTargetPlots;
 
 //forward
@@ -1300,7 +1306,7 @@ protected:
 	CvPlot* pTargetPlot;
 	bool bTargetDistanceRelevant;
 	bool bReturnToStartPositions;
-	unsigned char nSaveMovement;
+	unsigned short nSaveMovement;
 
 	//------------
 	const vector<int>& getRangeAttackPlotsForUnit(const SUnitStats& unit) const;

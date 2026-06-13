@@ -1027,7 +1027,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldTypes eYield, int iInitialValue)
 {
 	// Everything looks at yield modifier
-	int iRtnValue = iInitialValue * (100 + pCity->getYieldRateModifier(eYield)) / 100;
+	long long iRtnValue = (long long)iInitialValue * (100 + pCity->getYieldRateModifier(eYield)) / 100;
 
 	// ... and yield per pop
 	int iYieldPerPop = pCity->GetYieldPerPopTimes100(eYield);
@@ -1158,7 +1158,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		break; // Yield unmodified.
 	}
 
-	return iRtnValue;
+	return (int)min(iRtnValue, (long long)INT_MAX);
 }
 
 /// Should this player worry about assigning cities to build spaceship parts?
