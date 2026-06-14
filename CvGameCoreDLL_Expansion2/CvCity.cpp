@@ -8983,6 +8983,10 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 	if (pkBuildingInfo->IsNoOccupiedUnhappiness() && !IsOccupied() && !pkBuildingInfo->IsBuildAnywhere())
 		return false;
 
+	// Some buildings can only be built in puppet cities
+	if (pkBuildingInfo->IsRequiresPuppet() && !IsPuppet())
+		return false;
+
 	// Does this city have prereq buildings?
 	if (!hasBuildingPrerequisites(eBuilding))
 	{
