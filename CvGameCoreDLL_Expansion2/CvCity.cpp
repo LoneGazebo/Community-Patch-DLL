@@ -2442,15 +2442,7 @@ void CvCity::doTurn()
 		}
 	}
 
-	if (GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS) || GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS) || GC.getGame().isOption(GAMEOPTION_BAD_EVENTS)
-		|| GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS) || GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
-	{
-		DoEvents();
-	}
-	else
-	{
-		DoEvents(/*bEspionageOnly*/ true);
-	}
+	DoEvents();
 
 	setDrafted(false);
 	setMadeAttack(false);
@@ -3332,6 +3324,37 @@ void CvCity::DoEvents(bool bEspionageOnly)
 		if (pkEventInfo->isOneShot() && IsEventFired(eEvent))
 			continue;
 
+		// is the event's class enabled in the options?
+		EventClassTypes eEventClass = (EventClassTypes)pkEventInfo->getEventClass();
+		if (eEventClass != NO_EVENT_CLASS)
+		{
+			if (eEventClass == EVENT_CLASS_GOOD)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS))
+					continue;
+			}
+			else if (eEventClass == EVENT_CLASS_BAD)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_BAD_EVENTS))
+					continue;
+			}
+			else if (eEventClass == EVENT_CLASS_NEUTRAL)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS))
+					continue;
+			}
+			else if (eEventClass == EVENT_CLASS_TRADE)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS))
+					continue;
+			}
+			else if (eEventClass == EVENT_CLASS_CIV_SPECIFIC)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
+					continue;
+			}
+		}
+
 		// Is this event on cooldown?
 		if (GetEventCooldown(eEvent) > 0)
 		{
@@ -3601,36 +3624,6 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventCanActivate, getOwner(), GetID(), eEvent) == GAMEEVENTRETURN_FALSE)
 	{
 		return false;
-	}
-
-	EventClassTypes eEventClass = (EventClassTypes)pkEventInfo->getEventClass();
-	if (eEventClass != NO_EVENT_CLASS)
-	{
-		if (eEventClass == EVENT_CLASS_GOOD)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS))
-				return false;
-		}
-		else if (eEventClass == EVENT_CLASS_BAD)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_BAD_EVENTS))
-				return false;
-		}
-		else if (eEventClass == EVENT_CLASS_NEUTRAL)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS))
-				return false;
-		}
-		else if (eEventClass == EVENT_CLASS_TRADE)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS))
-				return false;
-		}
-		else if (eEventClass == EVENT_CLASS_CIV_SPECIFIC)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
-				return false;
-		}
 	}
 
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
