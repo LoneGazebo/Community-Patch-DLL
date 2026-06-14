@@ -2941,6 +2941,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if (kPlayerDeclaringWar.IsAtWarAnyMajor() && pDiploAI->GetStateAllWars() != STATE_ALL_WARS_WINNING)
 		return INT_MAX;
 
+	if (kPlayerDeclaringWar.CountNumDangerousMajorsAtWarWith(true, false) > 0)
+		return INT_MAX;
+
 	// Player must be a potential war target
 	if (GET_PLAYER(eWithPlayer).isMajorCiv() && !pDiploAI->IsPotentialWarTarget(eWithPlayer))
 		return INT_MAX;
