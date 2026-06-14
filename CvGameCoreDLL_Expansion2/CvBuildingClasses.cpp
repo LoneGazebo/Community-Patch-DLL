@@ -46,6 +46,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iResourceType(NO_RESOURCE),
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
+	m_bRequiresPuppet(false),
 	m_bAllowsPuppetPurchase(false),
 	m_bNoStarvationNonSpecialist(false),
 	m_iMinimumFood(0),
@@ -905,6 +906,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iNeedBuildingThisCity = GC.getInfoTypeForString(szTextVal, true);
 	m_iGrantsRandomResourceTerritory = kResults.GetInt("GrantsRandomResourceTerritory");
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
+	m_bRequiresPuppet = kResults.GetBool("RequiresPuppet");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
 	m_bNoStarvationNonSpecialist = kResults.GetBool("NoStarvationNonSpecialist");
 	m_iMinimumFood = kResults.GetInt("MinimumFood");
@@ -2101,6 +2103,11 @@ int CvBuildingEntry::GrantsRandomResourceTerritory() const
 bool CvBuildingEntry::IsPuppetPurchaseOverride() const
 {
 	return m_bPuppetPurchaseOverride;
+}
+/// Is this building only buildable in puppets?
+bool CvBuildingEntry::IsRequiresPuppet() const
+{
+	return m_bRequiresPuppet;
 }
 /// Does this building unlock purchasing in any city?
 bool CvBuildingEntry::IsAllowsPuppetPurchase() const

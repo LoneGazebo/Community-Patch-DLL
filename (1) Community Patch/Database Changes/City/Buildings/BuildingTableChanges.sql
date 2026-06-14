@@ -135,6 +135,9 @@ ALTER TABLE Buildings ADD ResourceType text REFERENCES Resources (Type);
 -- Allows for Building to be purchased in puppet city
 ALTER TABLE Buildings ADD PuppetPurchaseOverride boolean DEFAULT 0;
 
+-- The building can only be built in a puppet city
+ALTER TABLE Buildings ADD RequiresPuppet boolean DEFAULT 0;
+
 -- Allows for Building to grant a single WC vote (or any value) - not scaled by CS
 ALTER TABLE Buildings ADD SingleLeagueVotes integer DEFAULT 0;
 

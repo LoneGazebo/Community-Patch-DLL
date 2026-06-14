@@ -145,6 +145,7 @@ public:
 	int GetNumPoliciesNeeded() const;
 	int GrantsRandomResourceTerritory() const;
 	bool IsPuppetPurchaseOverride() const;
+	bool IsRequiresPuppet() const;
 	bool IsAllowsPuppetPurchase() const;
 	bool IsNoStarvationNonSpecialist() const;
 	int GetMinimumFood() const;
@@ -734,6 +735,7 @@ private:
 	int m_iResourceType;
 	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
+	bool m_bRequiresPuppet;
 	bool m_bAllowsPuppetPurchase;
 	bool m_bNoStarvationNonSpecialist;
 	int m_iMinimumFood;
