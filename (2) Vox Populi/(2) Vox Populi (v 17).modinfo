@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(5.3.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.3.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -62,7 +62,7 @@
     <File md5="F26E2D9C6078D9AD7907424BF0CBC08A" import="1">Assets/Atlases/Corporations/VPCorporationAtlas_256.dds</File>
     <File md5="D5B3B03F086DD908A050D2FED16C66AC" import="1">Assets/Atlases/Improvements/VPImprovementAtlas_064.dds</File>
     <File md5="E03944BB8A4684EFBE342CF3F77B943C" import="1">Assets/Atlases/Improvements/VPImprovementAtlas_256.dds</File>
-    <File md5="DF2D6015E21BE25E77C938D9A9114798" import="1">Assets/Atlases/Processes_Projects/VPProcessProjectAtlas_045.dds</File>
+    <File md5="26D122D64D0F05F2D9F697DC372CED75" import="1">Assets/Atlases/Processes_Projects/VPProcessProjectAtlas_045.dds</File>
     <File md5="D8562BCFF515DF2F8873623941F9CFFC" import="1">Assets/Atlases/Processes_Projects/VPProcessProjectAtlas_064.dds</File>
     <File md5="A4772131342F3B2D94729B48D44D0734" import="1">Assets/Atlases/Processes_Projects/VPProcessProjectAtlas_080.dds</File>
     <File md5="13B72271938B1C36F94F53B9A04FCD7F" import="1">Assets/Atlases/Processes_Projects/VPProcessProjectAtlas_128.dds</File>
@@ -147,9 +147,9 @@
     <File md5="BA0C8260B5111FDD8BC1D18E4A0B27B1" import="1">Assets/Images/RandomVictory/CultureVictory.dds</File>
     <File md5="407E9022FA87BA8E2DD012CBA9408F09" import="1">Assets/Images/RandomVictory/DiploVictory.dds</File>
     <File md5="79EA3996416872E4E08DD1276661C4A0" import="1">Assets/Images/RandomVictory/SpaceRaceVictory.dds</File>
-    <File md5="DD2FC2D4850FC886664099E3FF18D856" import="1">Assets/Images/WonderSplash/Alamut_Splash.dds</File>
-    <File md5="843AA572E3DE05065006B88AF691D6EE" import="1">Assets/Images/WonderSplash/Alcatraz_Splash.dds</File>
-    <File md5="FD2879530BB2F086749E646032C2D55F" import="1">Assets/Images/WonderSplash/ChateaudIf_Splash.dds</File>
+    <File md5="6BA2B8898B431C061B1D7D7681AC78B5" import="1">Assets/Images/WonderSplash/Alamut_Splash.dds</File>
+    <File md5="A2D749745616C2DF38E705B08ABE9546" import="1">Assets/Images/WonderSplash/Alcatraz_Splash.dds</File>
+    <File md5="737A41A48A0DC7AC58A67984FF4D14D5" import="1">Assets/Images/WonderSplash/ChateaudIf_Splash.dds</File>
     <File md5="EFBDD760420BF616CBD430623163C250" import="1">Assets/Images/WonderSplash/PortRoyal_Splash.dds</File>
     <File md5="57A573910C992F08F6F9C13B31BC96E8" import="1">Assets/Images/WonderSplash/bletchleysplash.dds</File>
     <File md5="E855F14B4AD601BEE30BF7186A31B2FC" import="1">Assets/Images/WonderSplash/CernSplash.dds</File>
@@ -170,7 +170,7 @@
     <File md5="3F8BAC99D9F98BC026AF05A7CFF2015C" import="1">Assets/Images/WonderSplash/WonderForum.dds</File>
     <File md5="71B201948D8F1191B5A3FFA3E85E4642" import="1">Assets/Images/WonderSplash/WonderNalandaSplash.dds</File>
     <File md5="3CCC66415EC7D1C4700094F1FA90B50B" import="1">Assets/Images/WonderSplash/WonderSummerPalace.dds</File>
-    <File md5="32EA80F1FB5A59301FB5A37EB2AC6473" import="1">Assets/Images/WonderSplash/WTC_Splash.dds</File>
+    <File md5="AAB94B1B794963205A5D8F3A9B3CF0E1" import="1">Assets/Images/WonderSplash/WTC_Splash.dds</File>
     <File md5="BA0D234DE017F5CEB6DEF37CE7DFE384" import="1">Assets/Models/AnimationGraphs/edited_aim_ms_attack_city_to_run.dge</File>
     <File md5="75D8FBC3A2C4D56B1089F20A2E9D9DA1" import="1">Assets/Models/AnimationGraphs/edited_aim_ms_attack_to_run_graph.dge</File>
     <File md5="82C3CE94F7827159DEA80CCF8AAF5D9E" import="1">Assets/Models/AnimationGraphs/edited_aim_ms_bombard_defend_loop_graph.dge</File>
@@ -1070,7 +1070,7 @@
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="0">Core Files/New UI/RandomVCPopup.xml</File>
     <File md5="5931374F09F2627F11BECB1EB69351DE" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
-    <File md5="CF305A78607C562EE5417CE15ED81C2A" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
+    <File md5="3AF94806989EA3AE2AF25644E28C3091" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
     <File md5="FFE3EACD6A5F007D90AF95EC7E7E7DF0" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.lua</File>
     <File md5="2DB0554E1E472DCB81904C7B0050BD7A" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.xml</File>
     <File md5="8F9687C985560D7DB4A8972058E706DD" import="1">Core Files/Overrides/ChooseMayaBonus.lua</File>
@@ -1161,7 +1161,7 @@
     <File md5="C52276A60B9C034FCD19E9601E56F788" import="0">Database Changes/Beliefs/PantheonChanges.sql</File>
     <File md5="1F869A7D97BEE31973C711205DE832A7" import="0">Database Changes/Beliefs/PreBeliefChanges.sql</File>
     <File md5="3A3484A60A008076B2A788CBA4893081" import="0">Database Changes/Beliefs/ReformationChanges.sql</File>
-    <File md5="392D98709B24AD128672096EFA028553" import="0">Database Changes/Beliefs/TooltipSweeps.sql</File>
+    <File md5="D2DC1C33418B2C854337D6661E786B55" import="0">Database Changes/Beliefs/TooltipSweeps.sql</File>
     <File md5="044A57B02AC7076B0E8C07B084B2C66D" import="0">Database Changes/City/NewGreatWorks.xml</File>
     <File md5="30A23D7C0C11E9BF2439711C66FB75D6" import="0">Database Changes/City/Buildings/BuildingChanges.sql</File>
     <File md5="BCD29D5BE24A362578D25659D556F59E" import="0">Database Changes/City/Buildings/BuildingChanges2.sql</File>
@@ -1275,7 +1275,7 @@
     <File md5="1C7DE8D3EFB10BFAFDCF7E3804E3CECB" import="0">Database Changes/Text/en_US/City/ProcessTextChanges.sql</File>
     <File md5="0238F4CE191069DD34CA219B95347542" import="0">Database Changes/Text/en_US/City/ProjectTextChanges.sql</File>
     <File md5="B98B12751887ADF4F191AAB5D9248321" import="0">Database Changes/Text/en_US/City/SpecialistTextChanges.sql</File>
-    <File md5="B88DBED538FA1FF6D26C78DEDD0A2876" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
+    <File md5="CA9B43AA5591AE8627CE977E2FA32913" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
     <File md5="8819296ED0FE14FBD39B4C17A19D436A" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
     <File md5="76654E2D3E56720D304DBA1BBC85F0DD" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
     <File md5="D9D49B7AE95791A28C666CED565299C9" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
@@ -1342,6 +1342,7 @@
     <File md5="E4815DEA0F2C70FE60A19E65D930033F" import="0">Database Changes/WorldCongress/ProjectChanges.sql</File>
     <File md5="AE3C3121011E21997C0C8A850CDAFF1E" import="0">Database Changes/WorldCongress/ResolutionChanges.sql</File>
     <File md5="6A061E75BCB114D6F55C89154F062398" import="0">Database Changes/WorldMap/AncientRuinChanges.sql</File>
+    <File md5="421FDA739929C25674AB60CDC483CA47" import="0">Database Changes/WorldMap/NewRegions.xml</File>
     <File md5="3B28A1DDA9E9D7424064D8380CB60739" import="0">Database Changes/WorldMap/TerrainChanges.sql</File>
     <File md5="E71E98C03F681ACECBF9A4351541421B" import="0">Database Changes/WorldMap/YieldChanges.sql</File>
     <File md5="F00E75F4BCFBBF3105195BF8BCBBD20E" import="0">Database Changes/WorldMap/Features/FeatureChanges.sql</File>
@@ -1381,26 +1382,26 @@
     <File md5="3DA0ECD74812B794EDF21FE68A96AFD1" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="4574AF7EAF3BDB05D2B739F7CD877158" import="1">LUA/UnitPanel.lua</File>
-    <File md5="1FD115D18B1D863544BA1A0E907FA0A5" import="1">Mapscripts/Amazon_XP.lua</File>
+    <File md5="B2C144C336B89AC862C6FFF7429E6717" import="1">Mapscripts/Amazon_XP.lua</File>
     <File md5="F38869FAB20A53207EA7DF69390BAE1E" import="1">Mapscripts/Arborea.lua</File>
     <File md5="D528028FBBA4F55BFF2401C61FA40AFD" import="1">Mapscripts/Boreal.lua</File>
-    <File md5="C1C197998D5C75E537D6338E99F39DEC" import="1">Mapscripts/Communitu_79a.lua</File>
+    <File md5="D6B136A610D4856420832C36E33F7D37" import="1">Mapscripts/Communitu_79a.lua</File>
     <File md5="CB525B04CD8CD589F22BD94E958DA337" import="1">Mapscripts/Continental_Drift.lua</File>
-    <File md5="C948191FB5394D1ABEF2905A8785EAB9" import="1">Mapscripts/Europe.lua</File>
+    <File md5="5CFFFD5CB825EBA1135C2F2D1974D1EE" import="1">Mapscripts/Europe.lua</File>
     <File md5="E29B7AB4BE8C003D836F0ABBDFB662BF" import="1">Mapscripts/Four_Corners.lua</File>
-    <File md5="268791B317C0D25A4EEF6F4166DD68CF" import="1">Mapscripts/Frontier.lua</File>
-    <File md5="0437EFF2C9082C0176EBA5AEDED74290" import="1">Mapscripts/Great_Plains_XP.lua</File>
-    <File md5="62F5248047874760F55359CAB9C597D7" import="1">Mapscripts/Highlands.lua</File>
+    <File md5="41C5C22C0333CE24FD32501866E6EA95" import="1">Mapscripts/Frontier.lua</File>
+    <File md5="00539BB333FDC4F50395B92E178F1539" import="1">Mapscripts/Great_Plains_XP.lua</File>
+    <File md5="E32BA16BA6F6232A19481408711DD40B" import="1">Mapscripts/Highlands.lua</File>
     <File md5="F81963F4092C8B67ECD5CCB6A311F397" import="1">Mapscripts/InlandSea.lua</File>
     <File md5="528707C3302E53BFDD42B8B9BC36632D" import="1">Mapscripts/Lakes.lua</File>
     <File md5="567540032A1457C3DA4077AF2C5E27D6" import="1">Mapscripts/Large_Islands.lua</File>
-    <File md5="75CE6CFB1D4C9416E7440A90A74A7E29" import="1">Mapscripts/North_vs_South.lua</File>
+    <File md5="2F78F6D3599AA3D5558F41524C3A976C" import="1">Mapscripts/North_vs_South.lua</File>
     <File md5="5D02EA90039EA21470890000C8DB2D34" import="1">Mapscripts/Rainforest.lua</File>
     <File md5="A77DAEEF2CDD5F27A45EEB4D7DBDBEA3" import="1">Mapscripts/Ring.lua</File>
-    <File md5="94EC93F38BDD444A0E5A06213E6C967D" import="1">Mapscripts/Script_Random_China.lua</File>
-    <File md5="EBFD82BD933EEDBE6D7D9FFCA6D79491" import="1">Mapscripts/Skirmish.lua</File>
+    <File md5="3A56C31D791532E80588E8B953050033" import="1">Mapscripts/Script_Random_China.lua</File>
+    <File md5="485572A732214C2DF900FA48C6847E5B" import="1">Mapscripts/Skirmish.lua</File>
     <File md5="97DD3F351B573474164B253ADE97C62C" import="1">Mapscripts/Terra.lua</File>
-    <File md5="0E684DA3A73C9D29EFAAEF559C499D4B" import="1">Mapscripts/West_vs_East.lua</File>
+    <File md5="3BAE6FF6BDA4111EBCA98F2AC6C1FA83" import="1">Mapscripts/West_vs_East.lua</File>
     <File md5="410809A384298F8335B1E4F1C5FC22F3" import="1">Mapscripts/EMP/ContinentsPlus.lua</File>
     <File md5="5629667BEDC8304DB0F6D6D8FCB84588" import="1">Mapscripts/EMP/Donut.lua</File>
     <File md5="C9837AE28C480828B49045BDA4547DFF" import="1">Mapscripts/EMP/PangaeaPlus.lua</File>
@@ -1436,6 +1437,7 @@
       <UpdateDatabase>Database Changes/Corporations/NewCorporations.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/WorldCongress/NewProjects.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/WorldCongress/NewResolutions.xml</UpdateDatabase>
+      <UpdateDatabase>Database Changes/WorldMap/NewRegions.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/WorldMap/Resources/NewResources.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/WorldMap/Improvements/NewBuilds.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/WorldMap/Improvements/NewImprovements.xml</UpdateDatabase>
