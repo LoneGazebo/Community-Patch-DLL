@@ -4513,18 +4513,24 @@ function SelectBuildingOrWonderArticle( buildingID )
 		end
 		UpdateButtonFrame( buttonAdded, Controls.ReplacesInnerFrame, Controls.ReplacesFrame );
 
+		g_CivilizationsManager:ResetInstances();
 		buttonAdded = 0;
-		if thisCiv then
-			g_CivilizationsManager:ResetInstances();
-			local thisCivInstance = g_CivilizationsManager:GetInstance();
-			if thisCivInstance then
-				local textureOffset, textureSheet = IconLookup( thisCiv.PortraitIndex, buttonSize, thisCiv.IconAtlas );
-				if textureOffset == nil then
-					textureSheet = defaultErrorTextureSheet;
-					textureOffset = nullOffset;
+		for row in GameInfo.Civilization_BuildingClassOverrides( condition ) do
+			if row.CivilizationType ~= "CIVILIZATION_BARBARIAN" and row.CivilizationType ~= "CIVILIZATION_MINOR" then
+				local otherCondition = "Type = '" .. row.BuildingClassType .. "'";
+				if row.BuildingType then
+					thisCiv = GameInfo.Civilizations[row.CivilizationType];
+					local thisCivInstance = g_CivilizationsManager:GetInstance();
+					if thisCivInstance then
+						local textureOffset, textureSheet = IconLookup( thisCiv.PortraitIndex, buttonSize, thisCiv.IconAtlas );
+						if textureOffset == nil then
+							textureSheet = defaultErrorTextureSheet;
+							textureOffset = nullOffset;
+						end
+						UpdateSmallButton( buttonAdded, thisCivInstance.CivilizationImage, thisCivInstance.CivilizationButton, textureSheet, textureOffset, CategoryCivilizations, Locale.ConvertTextKey( thisCiv.ShortDescription ), thisCiv.ID );
+						buttonAdded = buttonAdded + 1;
+					end
 				end
-				UpdateSmallButton( buttonAdded, thisCivInstance.CivilizationImage, thisCivInstance.CivilizationButton, textureSheet, textureOffset, CategoryCivilizations, Locale.ConvertTextKey( thisCiv.ShortDescription ), thisCiv.ID );
-				buttonAdded = buttonAdded + 1;
 			end
 		end
 		UpdateButtonFrame( buttonAdded, Controls.CivilizationsInnerFrame, Controls.CivilizationsFrame );
