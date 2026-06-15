@@ -5371,7 +5371,7 @@ bool CvPlayer::IsEventFired(EventTypes eEvent) const
 
 	return m_abEventFired[eEvent];
 }
-void CvPlayer::DoEvents(bool bEspionageOnly)
+void CvPlayer::DoEvents()
 {
 	//Minors? Barbs? Get out!
 	if (!isMajorCiv())
@@ -5414,9 +5414,6 @@ void CvPlayer::DoEvents(bool bEspionageOnly)
 			}
 		}
 	}
-
-	if (bEspionageOnly)
-		return;
 
 	if (GetPlayerEventCooldown() > 0)
 	{
