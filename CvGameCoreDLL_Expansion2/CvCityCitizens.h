@@ -255,6 +255,8 @@ public:
 
 	YieldTypes GetFocusTypeYield(CityAIFocusTypes eFocus);
 
+	void LogMsg(const CvString& msg);
+
 private:
 
 	CvCity* m_pCity;

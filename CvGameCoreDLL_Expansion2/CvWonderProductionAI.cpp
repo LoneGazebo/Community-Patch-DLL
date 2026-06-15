@@ -203,30 +203,18 @@ void CvWonderProductionAI::LogPossibleWonders()
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		// Find the name of this civ
-		CvString playerName = m_pPlayer->getCivilizationShortDescription();
-
-		// Get the leading info for this line
-		CvString strBaseString;
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += playerName + ", ";
-
 		// Dump out the weight of each buildable item
 		for(int iI = 0; iI < m_Buildables.size(); iI++)
 		{
-			CvString strOutBuf = strBaseString;
 
 			CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(m_Buildables.GetElement(iI));
 			if(pEntry != NULL)
 			{
 				CvString strDesc = pEntry->GetDescription();
-				CvString strTemp;
-				strTemp.Format("Possible Wonder, %s, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI));
-				strOutBuf += strTemp;
-
+				CvString strOutBuf;
+				strOutBuf.Format("Possible Wonder, %s, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI));
+				m_pPlayer->GetCitySpecializationAI()->LogMsg(strOutBuf);
 			}
-
-			m_pPlayer->GetCitySpecializationAI()->LogMsg(strOutBuf);
 		}
 	}
 }

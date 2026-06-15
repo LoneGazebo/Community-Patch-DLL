@@ -697,18 +697,9 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 		}
 	}
 
-	if (bLogging && GC.getLogging() && pBestBuildingInfo)
-	{
-		CvString strBaseString;
-		CvString strOutBuf;
-		CvString strFileName = "CityTileScorer.csv";
-		FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strOutBuf.Format("%s, focus %d, idle citizens %d, specialist building: %s, score %d", 
-			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, GetNumUnassignedCitizens(), pBestBuildingInfo->GetDescription(), iSpecialistValue);
-		strBaseString += strOutBuf;
-		pLog->Msg(strBaseString);
-	}
+	if (bLogging && pBestBuildingInfo)
+		LogMsg(CvString::format("%s, focus %d, idle citizens %d, specialist building: %s, score %d",
+			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, GetNumUnassignedCitizens(), pBestBuildingInfo->GetDescription(), iSpecialistValue));
 
 	return eBestBuilding;
 }
@@ -1561,7 +1552,6 @@ vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAd
 
 void CvCityCitizens::DoApplyTileChange(TileChange tileChange, bool bAdd, bool bLogging)
 {
-	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 	if (tileChange.plot)
 	{
 		if (bAdd == IsWorkingPlot(tileChange.plot))
@@ -1571,13 +1561,10 @@ void CvCityCitizens::DoApplyTileChange(TileChange tileChange, bool bAdd, bool bL
 		}
 
 		SetWorkingPlot(tileChange.plot, bAdd, CvCity::YIELD_UPDATE_LOCAL);
-		if (pLog)
+		if (bLogging)
 		{
 			const char* logStr = (bAdd ? "now working" : "no longer working");
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
-			CvString strOutBuf;
-			strOutBuf.Format("%s plot %d:%d, current net food %d", logStr, tileChange.plot->getX(), tileChange.plot->getY(), iExcessFoodTimes100);
-			pLog->Msg(strOutBuf);
+			LogMsg(CvString::format("%s plot %d:%d, current net food %d", logStr, tileChange.plot->getX(), tileChange.plot->getY(), m_pCity->getYieldRateTimes100(YIELD_FOOD)));
 		}
 	}
 	else if (tileChange.specialist != NO_SPECIALIST)
@@ -1586,13 +1573,10 @@ void CvCityCitizens::DoApplyTileChange(TileChange tileChange, bool bAdd, bool bL
 		{
 			// laborer
 			ChangeNumDefaultSpecialists(bAdd ? 1 : -1, CvCity::YIELD_UPDATE_LOCAL);
-			if (pLog)
+			if (bLogging)
 			{
 				const char* logStr = (bAdd ? "now working" : "no longer working");
-				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
-				CvString strOutBuf;
-				strOutBuf.Format("%s laborer, current net food % d", logStr, iExcessFoodTimes100);
-				pLog->Msg(strOutBuf);
+				LogMsg(CvString::format("%s laborer, current net food %d", logStr, m_pCity->getYieldRateTimes100(YIELD_FOOD)));
 			}
 		}
 		else
@@ -1631,14 +1615,11 @@ void CvCityCitizens::DoApplyTileChange(TileChange tileChange, bool bAdd, bool bL
 			if (!bFoundBuilding)
 				UNREACHABLE();
 
-			if (pLog)
+			if (bLogging)
 			{
 				const char* logStr = (bAdd ? "now working" : "no longer working");
-				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
 				CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo(tileChange.specialist);
-				CvString strOutBuf;
-				strOutBuf.Format("%s %s, current net food %d", logStr, pSpecialistInfo->GetDescription(), iExcessFoodTimes100);
-				pLog->Msg(strOutBuf);
+				LogMsg(CvString::format("%s %s, current net food %d", logStr, pSpecialistInfo->GetDescription(), m_pCity->getYieldRateTimes100(YIELD_FOOD)));
 			}
 		}
 	}
@@ -1717,8 +1698,6 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, eBEST_UNWORKED_NO_OVERRIDE, gCachedNumbers, bLogging);
 
 	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT) && ( IsNoAutoAssignSpecialists() || NoSpecialists );
-	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
-
 	int iSpecialistValue = -1;
 	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
 
@@ -1730,13 +1709,8 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 		// Plot is best
 		SetWorkingPlot(pBestPlot, true, updateMode);
 
-		if (pLog)
-		{
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
-			CvString strOutBuf;
-			strOutBuf.Format("now working plot %d:%d, current net food %d", pBestPlot->getX(), pBestPlot->getY(), iExcessFoodTimes100);
-			pLog->Msg(strOutBuf);
-		}
+		if (bLogging)
+			LogMsg(CvString::format("now working plot %d:%d, current net food %d", pBestPlot->getX(), pBestPlot->getY(), m_pCity->getYieldRateTimes100(YIELD_FOOD)));
 
 		return true;
 	}
@@ -1744,13 +1718,8 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	{
 		DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, updateMode);
 
-		if (pLog)
-		{
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
-			CvString strOutBuf;
-			strOutBuf.Format("now working building %d, current net food %d", eBestSpecialistBuilding, iExcessFoodTimes100);
-			pLog->Msg(strOutBuf);
-		}
+		if (bLogging)
+			LogMsg(CvString::format("now working building %d, current net food %d", eBestSpecialistBuilding, m_pCity->getYieldRateTimes100(YIELD_FOOD)));
 
 		return true;
 	}
@@ -1759,13 +1728,8 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 		// Laborer if we can't do anything else or if they're better than both plots and specialists
 		ChangeNumDefaultSpecialists(1, updateMode);
 
-		if (pLog)
-		{
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD);
-			CvString strOutBuf;
-			strOutBuf.Format("now working laborer, current net food %d", iExcessFoodTimes100);
-			pLog->Msg(strOutBuf);
-		}
+		if (bLogging)
+			LogMsg(CvString::format("now working laborer, current net food %d", m_pCity->getYieldRateTimes100(YIELD_FOOD)));
 
 		return false;
 	}
@@ -1948,18 +1912,11 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 	if (pBestPlot == NULL)
 		return NULL;
 
-	if (pLog)
-	{
-		CvString strBaseString;
-		CvString strOutBuf;
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strOutBuf.Format("%s, focus %d%s, idle citizens %d, plot %d:%d (%df%dp%dg%do), score %d", 
-			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, IsForcedAvoidGrowth()?" no growth":"", GetNumUnassignedCitizens(), pBestPlot->getX(), pBestPlot->getY(), 
-			pBestPlot->getYield(YIELD_FOOD), pBestPlot->getYield(YIELD_PRODUCTION), pBestPlot->getYield(YIELD_GOLD), 
-			pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iChosenValue);
-		strBaseString += strOutBuf;
-		pLog->Msg(strBaseString);
-	}
+	if (bLogging)
+		LogMsg(CvString::format("%s, focus %d%s, idle citizens %d, plot %d:%d (%df%dp%dg%do), score %d",
+			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, IsForcedAvoidGrowth()?" no growth":"", GetNumUnassignedCitizens(), pBestPlot->getX(), pBestPlot->getY(),
+			pBestPlot->getYield(YIELD_FOOD), pBestPlot->getYield(YIELD_PRODUCTION), pBestPlot->getYield(YIELD_GOLD),
+			pBestPlot->getYield(YIELD_SCIENCE) + pBestPlot->getYield(YIELD_CULTURE) + pBestPlot->getYield(YIELD_FAITH), iChosenValue));
 
 	return pBestPlot;
 }
@@ -1995,20 +1952,14 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		return;
 
 	int iCount = 0;
-	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 	bool bIsHuman = GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT);
 	bool bSpecialistForbidden = bIsHuman && IsNoAutoAssignSpecialists();
 
-	if (pLog)
+	if (bLogging)
 	{
-		pLog->Msg("==== starting optimization");
-		CvString strBaseString;
-		CvString strOutBuf;
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strOutBuf.Format("%s, focus %d%s, idle citizens %d",
-			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, IsForcedAvoidGrowth() ? " no growth" : "", GetNumUnassignedCitizens());
-		strBaseString += strOutBuf;
-		pLog->Msg(strBaseString);
+		LogMsg("==== starting optimization");
+		LogMsg(CvString::format("focus %d%s, idle citizens %d",
+			m_eCityAIFocusTypes, IsForcedAvoidGrowth() ? " no growth" : "", GetNumUnassignedCitizens()));
 	}
 
 	gCachedNumbers.update(m_pCity);
@@ -2196,17 +2147,11 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	if (!bForce && !NeedReworkCitizens())
 		return;
 
-	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
-	if (pLog)
+	if (bLogging)
 	{
-		pLog->Msg("==== starting reallocation");
-		CvString strBaseString;
-		CvString strOutBuf;
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strOutBuf.Format("%s, focus %d%s, idle citizens %d",
-			m_pCity->getName().GetCString(), m_eCityAIFocusTypes, IsForcedAvoidGrowth() ? " no growth" : "", GetNumUnassignedCitizens());
-		strBaseString += strOutBuf;
-		pLog->Msg(strBaseString);
+		LogMsg("==== starting reallocation");
+		LogMsg(CvString::format("focus %d%s, idle citizens %d",
+			m_eCityAIFocusTypes, IsForcedAvoidGrowth() ? " no growth" : "", GetNumUnassignedCitizens()));
 	}
 
 	// initial assigment is quick and simple, we'll optimize it later
@@ -2215,18 +2160,18 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	// are we below the growth threshold? retry the initial assigment with higher food valuation
 	if (m_pCity->getYieldRateTimes100(YIELD_FOOD) < GetExcessFoodThreshold100())
 	{
-		if (pLog)
-			pLog->Msg("==== repeating initial allocation with higher emphasis on food");
+		if (bLogging)
+			LogMsg("==== repeating initial allocation with higher emphasis on food");
 		DoInitialAssigment(false, true, bLogging);
 	}
-	// are we starving? 
+	// are we starving?
 	if (m_pCity->getYieldRateTimes100(YIELD_FOOD) < 0)
 	{
-		if (pLog)
-			pLog->Msg("==== repeating initial allocation with even higher emphasis on food");
+		if (bLogging)
+			LogMsg("==== repeating initial allocation with even higher emphasis on food");
 		DoInitialAssigment(true, true, bLogging);
 	}
-		
+
 
 	// now we check if we can switch some of the tiles to optimize the result
 	OptimizeWorkedPlots(bLogging);
@@ -2236,8 +2181,8 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 
 	SetDirty(false);
 
-	if (pLog)
-		pLog->Msg("==== finished reallocation");
+	if (bLogging)
+		LogMsg("==== finished reallocation");
 }
 
 
@@ -3547,6 +3492,18 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass) con
 	}
 
 	return iThreshold;
+}
+
+void CvCityCitizens::LogMsg(const CvString& msg)
+{
+	if (GC.getLogging())
+	{
+		CvString strBaseString;
+		strBaseString.Format("%03d, %s, %s, ", GC.getGame().getElapsedGameTurns(),
+			GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription(), m_pCity->getName().GetCString());
+		FILogFile* pLog = LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp);
+		pLog->Msg((strBaseString + msg).c_str());
+	}
 }
 
 /// Create a GP!
