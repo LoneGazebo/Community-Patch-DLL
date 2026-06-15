@@ -149,7 +149,7 @@ public:
 	int GetUnhappinessFromEmpire() const;
 	void UpdateUnhappinessFromEmpire();
 
-	void DoEvents(bool bEspionageOnly = false);
+	void DoEvents();
 	bool IsCityEventValid(CityEventTypes eEvent);
 	bool IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive = false, bool bIgnorePlayer = false);
 	bool IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner, bool bIgnoreActive = false, bool bIgnoreNetworkPoints = false);

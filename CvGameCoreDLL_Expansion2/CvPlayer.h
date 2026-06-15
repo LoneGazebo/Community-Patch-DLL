@@ -129,7 +129,7 @@ public:
 	// Declared public because CvPlayerCorporations needs to access this. Maybe want to use a friend
 	void processCorporations(CorporationTypes eCorporation, int iChange);
 
-	void DoEvents(bool bEspionageOnly = false);
+	void DoEvents();
 	void DoCancelEventChoice(EventChoiceTypes eChosenEventChoice);
 	bool IsEventValid(EventTypes eEvent);
 	bool IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventTypes eParentEvent);

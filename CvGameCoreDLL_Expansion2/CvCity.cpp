@@ -3236,7 +3236,7 @@ void CvCity::ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2, 
 	if (ModifierUpdateInsertRemove(y.forFeature, eFeature, iChange, true))
 		updateYield();
 }
-void CvCity::DoEvents(bool bEspionageOnly)
+void CvCity::DoEvents()
 {
 	//Minors? Barbs? Get out!
 	if (!GET_PLAYER(getOwner()).isMajorCiv())
@@ -3280,9 +3280,6 @@ void CvCity::DoEvents(bool bEspionageOnly)
 			}
 		}
 	}
-
-	if (bEspionageOnly)
-		return;
 
 	if (GetCityEventCooldown() > 0)
 	{
