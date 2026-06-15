@@ -1255,7 +1255,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	{
 		if(GetLastError() != ERROR_FILE_NOT_FOUND)
 		{
-			ASSERT(false, "Warning! Cannot delete existing Civ5SavedGameDatabase! Does something have it opened?");
+			ASSERT(false, CvString::format("Warning! Cannot delete existing Civ5SavedGameDatabase at '%s'! Does something have it opened?", strUTF8DatabasePath.c_str()).c_str());
 		}
 	}
 
@@ -1266,7 +1266,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	}
 	else
 	{
-		ASSERT(false, "Warning! Cannot create new Civ5SavedGameDatabase.");
+		ASSERT(false, CvString::format("Warning! Cannot create new Civ5SavedGameDatabase at '%s'.", strUTF8DatabasePath.c_str()).c_str());
 	}
 
 
