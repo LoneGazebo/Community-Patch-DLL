@@ -3127,10 +3127,9 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					int iMod = 0;
 
 					// City mod
-					iMod += pCity->getGreatPeopleRateModifier();
+					iMod += pCity->getTotalGreatPeopleRateModifier();
 
 					// Player mod
-					iMod += pCity->GetPlayer()->getGreatPeopleRateModifier();
 					iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 
 					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
@@ -3886,7 +3885,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromGPExpend(eYield) > 0)
 	{
-		iInstant += (pkBuildingInfo->GetYieldFromGPExpend(eYield) * max(10, ((pCity->getGreatPeopleRateModifier() + kPlayer.getGreatPeopleRateModifier()) / 10)));
+		iInstant += (pkBuildingInfo->GetYieldFromGPExpend(eYield) * max(10, (pCity->getTotalGreatPeopleRateModifier() / 10)));
 		iInstant += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 	}
 	if (pkBuildingInfo->GetYieldFromTech(eYield) > 0)
@@ -4953,7 +4952,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	}
 	if(pkBuildingInfo->GetFreeGreatPeople() > 0 || pkBuildingInfo->GetGreatPeopleRateChange() > 0 || pkBuildingInfo->GetGlobalGreatPeopleRateModifier() > 0 || pkBuildingInfo->GetGreatPeopleRateModifier() > 0)
 	{
-		iValue += kPlayer.getGreatPeopleRateModifier() + pCity->getGreatPeopleRateModifier() + (kPlayer.GetGreatPersonExpendGold() / 10) + pkBuildingInfo->GetGlobalGreatPeopleRateModifier() + pkBuildingInfo->GetGreatPeopleRateModifier();
+		iValue += pCity->getTotalGreatPeopleRateModifier() + (kPlayer.GetGreatPersonExpendGold() / 10) + pkBuildingInfo->GetGlobalGreatPeopleRateModifier() + pkBuildingInfo->GetGreatPeopleRateModifier();
 
 		iValue += pkBuildingInfo->GetGreatPeopleRateChange() * 50;
 

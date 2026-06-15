@@ -17057,10 +17057,40 @@ int CvCity::getTotalGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT();
 	int iModifier = getGreatPeopleRateModifier() + GET_PLAYER(getOwner()).getGreatPeopleRateModifier();
+	
+	int iNumMarried = GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar();
+	if (iNumMarried > 0)
+	{
+		iModifier += (iNumMarried * getGPRateModifierPerMarriage());
+		if (isCapital())
+		{
+			iModifier += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE));
+		}
+	}
+
+	int iGPRateModifierPerLocalTheme = getGPRateModifierPerLocalTheme();
+	if (iGPRateModifierPerLocalTheme > 0)
+	{
+		iModifier += iGPRateModifierPerLocalTheme * GetCityBuildings()->GetTotalNumThemedBuildings();
+	}
+
+	// Corporations: Great people rate modifier by number of franchises
+	int iGPRateCorp = GetGPRateModifierPerXFranchises();
+	if (iGPRateCorp > 0)
+	{
+		iModifier += iGPRateCorp;
+	}
+
+	// Improvements: Great people rate modifier by number of worked improvements
+	int iGPRateImprovements = GetImprovementGreatPersonRateModifier();
+	if (iGPRateImprovements > 0)
+	{
+		iModifier += iGPRateImprovements;
+	}
 
 	if (GET_PLAYER(getOwner()).isGoldenAge())
 	{
-		iModifier += /*100*/ GD_INT_GET(GOLDEN_AGE_GREAT_PEOPLE_MODIFIER);
+		iModifier += /*0*/ GD_INT_GET(GOLDEN_AGE_GREAT_PEOPLE_MODIFIER);
 	}
 
 	return std::max(0, (iModifier + 100));
@@ -17080,40 +17110,7 @@ void CvCity::changeBaseGreatPeopleRate(int iChange)
 int CvCity::getGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT();
-	int iValue = m_iGreatPeopleRateModifier;
-	// todo: getGreatPropleRateModifier shouldn't do anything else but get the value of m_iGreatPeopleRateModifier, all the other calculations should be put into a different function
-
-	int iNumMarried = GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar();
-	if (iNumMarried > 0)
-	{
-		iValue += (iNumMarried * getGPRateModifierPerMarriage());
-		if (isCapital())
-		{
-			iValue += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE));
-		}
-	}
-
-	int iGPRateModifierPerLocalTheme = getGPRateModifierPerLocalTheme();
-	if (iGPRateModifierPerLocalTheme > 0)
-	{
-		iValue += iGPRateModifierPerLocalTheme * GetCityBuildings()->GetTotalNumThemedBuildings();
-	}
-
-	// Corporations: Great people rate modifier by number of franchises
-	int iGPRateCorp = GetGPRateModifierPerXFranchises();
-	if (iGPRateCorp > 0)
-	{
-		iValue += iGPRateCorp;
-	}
-
-	// Improvements: Great people rate modifier by number of worked improvements
-	int iGPRateImprovements = GetImprovementGreatPersonRateModifier();
-	if (iGPRateImprovements > 0)
-	{
-		iValue += iGPRateImprovements;
-	}
-
-	return iValue;
+	return m_iGreatPeopleRateModifier;
 }
 
 //	--------------------------------------------------------------------------------
