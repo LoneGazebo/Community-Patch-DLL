@@ -81,6 +81,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
 	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
+	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
 	
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
@@ -380,6 +381,10 @@ EventTypes CvProjectEntry::GetEventToStart() const
 CityEventTypes CvProjectEntry::GetCityEventToStart() const
 {
 	return m_eCityEventToStart;
+}
+int CvProjectEntry::GetCityAutomatonWorkersChange() const
+{
+	return m_iCityAutomatonWorkersChange;
 }
 
 /// Retrieve movie file name
