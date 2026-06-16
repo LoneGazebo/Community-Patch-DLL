@@ -2267,6 +2267,12 @@
 		<Row Tag="TXT_KEY_BUILD_BLOCKED_OTHER_UNIT_WORKING">
 			<Text>Another unit is already building something here.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILD_BLOCKED_NOT_IN_ENEMY_TERRITORY">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {@1_ImprovementName}} cannot be constructed in enemy territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_BLOCKED_TILE_IMPROVEMENT">
+			<Text>The existing improvement on this tile prevents the tile from being claimed.</Text>
+		</Row>
 		<!-- Upgrade action disabled tooltips -->
 		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_EMBARKED">
 			<Text>Embarked units cannot upgrade.</Text>
