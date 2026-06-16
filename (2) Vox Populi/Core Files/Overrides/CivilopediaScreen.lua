@@ -6841,6 +6841,7 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			else
 				Controls.YieldLabel:SetText( Locale.ConvertTextKey( yieldString ) );
 				Controls.YieldFrame:SetHide( false );
+				UpdateNarrowTextBlock( yieldString, Controls.YieldLabel, Controls.YieldInnerFrame, Controls.YieldFrame );
 			end
 
 			-- Feature yield bonus (from Improvement_FeatureYieldChanges)
@@ -7060,9 +7061,9 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 						end
 						local entry = tTechYields[kTechInfo.ID];
 						if row.Yield > 0 then
-							entry.yieldStr = entry.yieldStr .. "+" .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+							entry.yieldStr = entry.yieldStr .. " " .. "+" .. tostring(row.Yield) .. kYieldInfo.IconString;
 						else
-							entry.yieldStr = entry.yieldStr .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+							entry.yieldStr = entry.yieldStr .. " " .. tostring(row.Yield) .. kYieldInfo.IconString;
 						end
 					end
 				end
@@ -7073,7 +7074,7 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 				table.sort(sortedEntries, function(a, b) return a.tech.Cost < b.tech.Cost; end);
 				local lines = {};
 				for _, entry in ipairs(sortedEntries) do
-					table.insert(lines, Locale.ConvertTextKey(entry.tech.Description) .. ": " .. entry.yieldStr);
+					table.insert(lines, Locale.ConvertTextKey(entry.tech.Description) .. ":" .. entry.yieldStr);
 				end
 				return table.concat(lines, "[NEWLINE]");
 			end
