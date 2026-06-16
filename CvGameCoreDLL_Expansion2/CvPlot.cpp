@@ -3168,7 +3168,7 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 					// In Adjacent Friendly - Can be built in or adjacent to our lands
 					else if (GC.getImprovementInfo(eImprovement)->IsInAdjacentFriendly())
 					{
-						if (getTeam() == NO_TEAM)
+						if (getTeam() != eTeam)
 						{
 							if (!isAdjacentTeam(eTeam, false))
 							{
@@ -3178,22 +3178,25 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 								if (toolTipSink == NULL) return false;
 								bPlotCanBuild = false;
 							}
-						}
-						else if (getTeam() != eTeam)
-						{
-							bool bBlocked = true;
-							if (GC.getImprovementInfo(eImprovement)->IsInEnemyTerritory() || (GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() > 0 && GET_PLAYER(ePlayer).IsCultureBombForeignTerritory()))
+
+							if (getTeam() != NO_TEAM)
 							{
-								if (!IsStealBlockedByImprovement() && isAdjacentTeam(eTeam, false))
-									bBlocked = false;
-							}
-							if (bBlocked)
-							{
-								if (toolTipSink && !toolTipSink->empty())
-									(*toolTipSink) += "[NEWLINE]";
-								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
-								if (toolTipSink == NULL) return false;
-								bPlotCanBuild = false;
+								if (!GC.getImprovementInfo(eImprovement)->IsInEnemyTerritory() && (GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() == 0 || !GET_PLAYER(ePlayer).IsCultureBombForeignTerritory()))
+								{
+									if (toolTipSink && !toolTipSink->empty())
+										(*toolTipSink) += "[NEWLINE]";
+									GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ENEMY_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
+									if (toolTipSink == NULL) return false;
+									bPlotCanBuild = false;
+								}
+								else if (IsStealBlockedByImprovement())
+								{
+									if (toolTipSink && !toolTipSink->empty())
+										(*toolTipSink) += "[NEWLINE]";
+									GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_TILE_IMPROVEMENT");
+									if (toolTipSink == NULL) return false;
+									bPlotCanBuild = false;
+								}
 							}
 						}
 					}
