@@ -213,6 +213,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetResearchTurnsLeft);
 	Method(GetResearchCost);
 	Method(GetResearchCityCostBreakdown);
+	Method(GetResearchTechDiscountBreakdown);
 	Method(GetResearchProgress);
 	Method(GetResearchProgressTimes100);
 
@@ -509,6 +510,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetHasPolicy);
 	Method(GetNextPolicyCost);
 	Method(GetNextPolicyCostBreakdown);
+	Method(GetPolicyCostModifierBreakdown);
 	Method(CanAdoptPolicy);
 	Method(DoAdoptPolicy);
 	Method(CanUnlockPolicyBranch);
@@ -760,6 +762,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsAllyAtWar);
 	Method(IsMinorPermanentWar);
 	Method(GetNumMinorCivsMet);
+	Method(GetNumCSAllies);
 	Method(DoMinorLiberationByMajor);
 	Method(IsProtectedByMajor);
 	Method(CanMajorProtect);
@@ -3110,6 +3113,148 @@ int CvLuaPlayer::lGetResearchCityCostBreakdown(lua_State* L)
 	lua_pushinteger(L, iBaseTimes100);
 	lua_pushinteger(L, iScalingTimes100);
 	return 9;
+}
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// int GetResearchTechDiscountBreakdown(TechTypes eTech)
+// Returns 10 values:
+//   iKnownTeamsWithTech      - known non-teammate major teams that have this tech
+//   iTotalKnownTeams         - total known non-teammate major teams
+//   iCatchupModTimes100      - catch-up modifier in % times 100
+//   iScholarDiscountTimes100 - Scholars in Residence base modifier in hundredths
+//   iAlliesDiscountTimes100  - allied CS modifier in hundredths
+//   iBaseTeamCost            - team Technology cost before player modifiers
+//   iPrereqModTimes100       - boost from optional prereq techs, doesn't trigger in current civ 5 tech trees
+//   iPreScholarModPct        - additive modifier before scholars multiplier (without the base 100)
+//   iScholarModPct           - effective scholars modifier used in the multiplicative step
+//   iFinalResearchModPct      - exact final divisor used by GetResearchCost (after integer division)
+//
+// Engine math:
+//   iModifier = 100 + iPreScholarModPct
+//   if iScholarModPct ~= 0 then
+//     iModifier = iModifier * (100 + iScholarModPct) / 100
+//   end
+//   iFinalCost = iBaseTeamCost * 100 / iModifier
+int CvLuaPlayer::lGetResearchTechDiscountBreakdown(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iTechArg = luaL_optint(L, 2, -1);
+	const bool bValidTech = (iTechArg >= 0 && iTechArg < GC.getNumTechInfos());
+
+	int iKnownTeamsWithTech = 0;
+	int iTotalKnownTeams = 0;
+	int iCatchupModTimes100 = 0;
+	int iScholarDiscountTimes100 = 0;
+	int iAlliesDiscountTimes100 = 0;
+	int iBaseTeamCost = 0;
+	int iPrereqModTimes100 = 0;
+	int iPreScholarModPct = 0;
+	int iScholarModPct = 0;
+	int iFinalResearchModPct = 100;
+
+	if (bValidTech)
+	{
+		const TechTypes eTech = (TechTypes)iTechArg;
+		const CvTeamTechs* pTeamTechs = GET_TEAM(pkPlayer->getTeam()).GetTeamTechs();
+
+		// Base team Technology cost before player research modifier.
+		iBaseTeamCost = pTeamTechs->GetResearchCost(eTech);
+
+		// --- Catch-up discount ---
+		// Mirrors calculateResearchModifier exactly: iterate major teams, gate on met/embassy.
+		int iCatchupModPct = 0;
+		for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+		{
+			CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iI);
+			if (!kLoopTeam.isAlive() || kLoopTeam.isMinorCiv() || kLoopTeam.GetID() == pkPlayer->getTeam())
+				continue;
+
+			bool bCouldBorrowTech = false;
+			if (MOD_DIPLOMACY_TECH_BONUSES)
+			{
+				if (pkPlayer->GetEspionage()->GetNumSpies() > 0)
+					bCouldBorrowTech = GET_TEAM(pkPlayer->getTeam()).HasSpyAtTeam((TeamTypes)iI);
+				else
+					bCouldBorrowTech = GET_TEAM(pkPlayer->getTeam()).HasEmbassyAtTeam((TeamTypes)iI);
+			}
+			else
+			{
+				bCouldBorrowTech = GET_TEAM(pkPlayer->getTeam()).isHasMet((TeamTypes)iI);
+			}
+
+			if (bCouldBorrowTech)
+			{
+				if (kLoopTeam.GetTeamTechs()->HasTech(eTech))
+					iKnownTeamsWithTech++;
+				iTotalKnownTeams++;
+			}
+		}
+
+		if (iTotalKnownTeams > 0 && iKnownTeamsWithTech > 0)
+		{
+			// Replicate the extra catch-up from handicap + era, same as calculateResearchModifier.
+			int iExtraCatchUp = 0;
+			if (pkPlayer->isMajorCiv())
+			{
+				iExtraCatchUp = pkPlayer->getHandicapInfo().getTechCatchUpMod();
+				iExtraCatchUp += pkPlayer->isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAITechCatchUpMod();
+				iExtraCatchUp *= GC.getGame().getCurrentEra();
+			}
+			iCatchupModPct = (GD_INT_GET(TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER) + iExtraCatchUp)
+				* iKnownTeamsWithTech / iTotalKnownTeams;
+			iCatchupModTimes100 = iCatchupModPct * 100;
+		}
+
+		// --- Known prerequisite path discount ---
+		int iPossiblePaths = 0;
+		int iUnknownPaths = 0;
+		for (int iI = 0; iI < GD_INT_GET(NUM_OR_TECH_PREREQS); iI++)
+		{
+			TechTypes ePrereq = (TechTypes)GC.getTechInfo(eTech)->GetPrereqOrTechs(iI);
+			if (ePrereq != NO_TECH)
+			{
+				if (!pTeamTechs->HasTech(ePrereq))
+					iUnknownPaths++;
+				iPossiblePaths++;
+			}
+		}
+		const int iPrereqModPct = (iPossiblePaths - iUnknownPaths) * GD_INT_GET(TECH_COST_KNOWN_PREREQ_MODIFIER);
+		iPrereqModTimes100 = iPrereqModPct * 100;
+
+		// --- Scholars in Residence discount ---
+		// GetResearchMod mirrors the league modifier in calculateResearchModifier.
+		const int iLeaguesMod = GC.getGame().GetGameLeagues()->GetResearchMod(pkPlayer->GetID(), eTech);
+		int iLeagueEffectivePct = iLeaguesMod;
+		if (iLeaguesMod > 0)
+		{
+			iScholarDiscountTimes100 = iLeaguesMod * 100;
+			// gets SCHOLAR_MINOR_ALLY_MULTIPLIER
+			const int iAlliesPct = pkPlayer->GetScienceRateFromMinorAllies();
+			iAlliesDiscountTimes100 = iAlliesPct * 100;
+			iLeagueEffectivePct += iAlliesPct;
+		}
+
+		iPreScholarModPct = iCatchupModPct + iPrereqModPct;
+		iScholarModPct = iLeagueEffectivePct;
+		iFinalResearchModPct = 100 + iPreScholarModPct;
+		if (iScholarModPct != 0)
+		{
+			iFinalResearchModPct = iFinalResearchModPct * (100 + iScholarModPct) / 100;
+		}
+	}
+
+	lua_pushinteger(L, iKnownTeamsWithTech);
+	lua_pushinteger(L, iTotalKnownTeams);
+	lua_pushinteger(L, iCatchupModTimes100);
+	lua_pushinteger(L, iScholarDiscountTimes100);
+	lua_pushinteger(L, iAlliesDiscountTimes100);
+	lua_pushinteger(L, iBaseTeamCost);
+	lua_pushinteger(L, iPrereqModTimes100);
+	lua_pushinteger(L, iPreScholarModPct);
+	lua_pushinteger(L, iScholarModPct);
+	lua_pushinteger(L, iFinalResearchModPct);
+	return 10;
 }
 //------------------------------------------------------------------------------
 
@@ -7331,13 +7476,14 @@ int CvLuaPlayer::lGetNextPolicyCost(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::getNextPolicyCost);
 }
 //------------------------------------------------------------------------------
-//int getNextPolicyCostBreakdown(); returns totalCost, baseCost, cityCost, nextCityDelta, currentModifierTimes100, nextCityModifierTimes100, cityCountUsed, basePerCityTimes100, scalingPerCityTimes100
+//int getNextPolicyCostBreakdown(); returns totalCost, baseCost, cityCost, nextCityDelta, currentModifierTimes100, nextCityModifierTimes100, cityCountUsed, basePerCityTimes100, scalingPerCityTimes100, baseCostBeforePolicyDiscount, policyCostMultiplierPct, tenetPenaltyPct, tenetsAdopted, tenetTier1PenaltyPct, tenetTier2PenaltyPct, tenetTier3PenaltyPct
 int CvLuaPlayer::lGetNextPolicyCostBreakdown(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvPlayerPolicies* pPolicies = pkPlayer->GetPlayerPolicies();
 	const int iTotalCost = pPolicies->GetNextPolicyCost();
-	const int iBaseCost = pPolicies->GetNextPolicyCost(/*bIgnoreCities*/ true);
+	int iBaseCostBeforePolicyDiscount = 0;
+	const int iBaseCost = pPolicies->GetNextPolicyCost(/*bIgnoreCities*/ true, /*iCityOffset*/ 0, &iBaseCostBeforePolicyDiscount);
 	const int iCityCost = iTotalCost - iBaseCost;
 	const int iNextCityDelta = pPolicies->GetNextPolicyCost(/*bIgnoreCities*/ false, /*iCityOffset*/ 1) - iTotalCost;
 	const int iCurrentModifierTimes100 = pPolicies->GetPolicyCityModifierTimes100();
@@ -7351,6 +7497,12 @@ int CvLuaPlayer::lGetNextPolicyCostBreakdown(lua_State* L)
 	}
 	const int iScalingRaw = GD_INT_GET(NUM_CITIES_COST_MOD_SCALING);
 	const int iScalingTimes100 = iScalingRaw * (100 + iPolicyModDiscount) / 100;
+	const int iPolicyCostMultiplierPct = 100 + pkPlayer->getPolicyCostModifier();
+	int iTenetsAdopted = 0;
+	const int iTenetPenaltyPct = pPolicies->GetIdeologyTenetPolicyCostPenalty(&iTenetsAdopted);
+	const int iTenetTier1PenaltyPct = pPolicies->GetIdeologyTenetPolicyCostPenaltyByLevel(1);
+	const int iTenetTier2PenaltyPct = pPolicies->GetIdeologyTenetPolicyCostPenaltyByLevel(2);
+	const int iTenetTier3PenaltyPct = pPolicies->GetIdeologyTenetPolicyCostPenaltyByLevel(3);
 
 	lua_pushinteger(L, iTotalCost);
 	lua_pushinteger(L, iBaseCost);
@@ -7361,7 +7513,56 @@ int CvLuaPlayer::lGetNextPolicyCostBreakdown(lua_State* L)
 	lua_pushinteger(L, iCityCountUsed);
 	lua_pushinteger(L, iBaseTimes100);
 	lua_pushinteger(L, iScalingTimes100);
-	return 9;
+	lua_pushinteger(L, iBaseCostBeforePolicyDiscount);
+	lua_pushinteger(L, iPolicyCostMultiplierPct);
+	lua_pushinteger(L, iTenetPenaltyPct);
+	lua_pushinteger(L, iTenetsAdopted);
+	lua_pushinteger(L, iTenetTier1PenaltyPct);
+	lua_pushinteger(L, iTenetTier2PenaltyPct);
+	lua_pushinteger(L, iTenetTier3PenaltyPct);
+	return 16;
+}
+//------------------------------------------------------------------------------
+//int GetPolicyCostModifierBreakdown(); returns totalModPctApplied, policiesModPct, buildingsModPct, minorCivsModPct, traitsModPct, uncappedTotalModPct, discountCapPct
+int CvLuaPlayer::lGetPolicyCostModifierBreakdown(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iPoliciesModPct = 0;
+	int iBuildingsModPct = 0;
+	int iMinorCivsModPct = 0;
+	int iTraitsModPct = 0;
+	int iUncappedTotalModPct = 0;
+	int iTotalModPctApplied = 0;
+	const int iDiscountCapPct = GD_INT_GET(POLICY_COST_DISCOUNT_MAX);
+
+	if (pkPlayer)
+	{
+		CvPlayerPolicies* pPolicies = pkPlayer->GetPlayerPolicies();
+		if (pPolicies)
+		{
+			iPoliciesModPct = pPolicies->GetNumericModifier(POLICYMOD_POLICY_COST_MODIFIER);
+		}
+
+		iBuildingsModPct = pkPlayer->GetPolicyCostBuildingModifier();
+		iMinorCivsModPct = pkPlayer->GetPolicyCostMinorCivModifier();
+		iTraitsModPct = pkPlayer->GetPlayerTraits()->GetPolicyCostModifier();
+
+		iUncappedTotalModPct = iPoliciesModPct + iBuildingsModPct + iMinorCivsModPct + iTraitsModPct;
+		iTotalModPctApplied = iUncappedTotalModPct;
+		if (iTotalModPctApplied < iDiscountCapPct)
+		{
+			iTotalModPctApplied = iDiscountCapPct;
+		}
+	}
+
+	lua_pushinteger(L, iTotalModPctApplied);
+	lua_pushinteger(L, iPoliciesModPct);
+	lua_pushinteger(L, iBuildingsModPct);
+	lua_pushinteger(L, iMinorCivsModPct);
+	lua_pushinteger(L, iTraitsModPct);
+	lua_pushinteger(L, iUncappedTotalModPct);
+	lua_pushinteger(L, iDiscountCapPct);
+	return 7;
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -7981,6 +8182,12 @@ int CvLuaPlayer::lGetGreatDiplomatRateModifier(lua_State* L)
 int CvLuaPlayer::lGetScienceRateFromMinorAllies(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetScienceRateFromMinorAllies);
+}
+//------------------------------------------------------------------------------
+//int GetNumCSAllies();
+int CvLuaPlayer::lGetNumCSAllies(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetNumCSAllies);
 }
 //int GetArtsyGreatPersonRateModifier();
 int CvLuaPlayer::lGetArtsyGreatPersonRateModifier(lua_State* L)

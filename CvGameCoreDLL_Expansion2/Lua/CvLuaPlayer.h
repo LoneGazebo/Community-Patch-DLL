@@ -197,6 +197,7 @@ protected:
 	static int lGetResearchTurnsLeft(lua_State* L);
 	static int lGetResearchCost(lua_State* L);
 	static int lGetResearchCityCostBreakdown(lua_State* L);
+	static int lGetResearchTechDiscountBreakdown(lua_State* L);
 	static int lGetResearchProgress(lua_State* L);
 	static int lGetResearchProgressTimes100(lua_State* L);
 
@@ -584,6 +585,7 @@ protected:
 	static int lSetHasPolicy(lua_State* L);
 	static int lGetNextPolicyCost(lua_State* L);
 	static int lGetNextPolicyCostBreakdown(lua_State* L);
+	static int lGetPolicyCostModifierBreakdown(lua_State* L);
 	static int lCanAdoptPolicy(lua_State* L);
 	static int lDoAdoptPolicy(lua_State* L);
 	static int lCanUnlockPolicyBranch(lua_State* L);
@@ -854,6 +856,7 @@ protected:
 	static int lIsAllyAtWar(lua_State* L);
 	static int lIsMinorPermanentWar(lua_State* L);
 	static int lGetNumMinorCivsMet(lua_State* L);
+	static int lGetNumCSAllies(lua_State* L);
 	static int lDoMinorLiberationByMajor(lua_State* L);
 	static int lIsProtectedByMajor(lua_State* L);
 	static int lCanMajorProtect(lua_State* L);

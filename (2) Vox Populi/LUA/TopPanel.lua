@@ -595,19 +595,6 @@ function ScienceTipHandler( control )
 			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_TP_SCIENCE_VASSALS", iScienceFromVassals);
 		end
 
-		-- Science from Allies (CSD MOD)
-		local iScienceFromAllies = pPlayer:GetScienceRateFromMinorAllies() * 100;
-		if (iScienceFromAllies ~= 0) then
-		
-			-- Add separator for non-initial entries
-			if (bFirstEntry) then
-				bFirstEntry = false;
-			else
-				strText = strText .. "[NEWLINE]";
-			end
-	
-			strText = strText .. ConvertTextKeyFormatDecimalTimes100("TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", iScienceFromAllies);
-		end
 		
 -- CBP
 		-- Science from Annexed Minors
@@ -677,9 +664,51 @@ function ScienceTipHandler( control )
 		
 		-- Let people know that building more cities makes techs harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
-			strText = strText .. "[NEWLINE][NEWLINE]";
 			local iTech = pPlayer:GetCurrentResearch();
 			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths = pPlayer:GetResearchCityCostBreakdown(iTech);
+			
+			-- Display Technology cost modifier effects like dll does.
+			if (iTech >= 0) then
+				local iKnownWithTech, iTotalKnown, iCatchupModTimes100, iScholarDiscountTimes100, iAlliesDiscountTimes100, iBaseTeamCost, iPrereqModTimes100, iPreScholarModPct, iScholarModPct, iFinalResearchModPct = pPlayer:GetResearchTechDiscountBreakdown(iTech);
+				local bAnyDiscount = (iCatchupModTimes100 > 0) or (iPrereqModTimes100 > 0) or (iScholarDiscountTimes100 > 0) or (iAlliesDiscountTimes100 > 0);
+				
+				if (bAnyDiscount) then
+					strText = strText .. "[NEWLINE][NEWLINE]";
+					strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_DISCOUNT_HEADER", iBaseTeamCost, baseCost);
+					
+					-- Catch-up: always-on when known civs have this tech (30% max in CP, 10% in VP)
+					if (iCatchupModTimes100 > 0) then
+						local sCatchupPct = FormatCityCostPercentHundredths(iCatchupModTimes100);
+						strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_CATCHUP_DISCOUNT", sCatchupPct, iKnownWithTech, iTotalKnown);
+					end
+
+					if (iPrereqModTimes100 > 0) then
+						local sPrereqPct = FormatCityCostPercentHundredths(iPrereqModTimes100);
+						strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_PREREQ_DISCOUNT", sPrereqPct);
+					end
+					
+					-- Scholars in Residence base discount (VP only)
+					if (iScholarDiscountTimes100 > 0) then
+						local iScholarPct = math.floor(iScholarDiscountTimes100 / 100);
+						strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_SCHOLAR_DISCOUNT", iScholarPct);
+					end
+					
+					-- Allies discount (VP only, requires Scholars in Residence + allies)
+					if (iAlliesDiscountTimes100 > 0) then
+						local iAlliesPct = math.floor(iAlliesDiscountTimes100 / 100);
+						local iMinorAllies = pPlayer:GetNumCSAllies();
+						strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_ALLIES_DISCOUNT", iAlliesPct, iMinorAllies);
+					end
+
+					if (iLeagueModPct ~= 0) then
+						strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_DISCOUNT_FORMULA_WITH_LEAGUE", iBaseTeamCost, 100 + iPreLeagueModPct, 100 + iLeagueModPct, iFinalResearchModPct, baseCost);
+					else
+						strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_DISCOUNT_FORMULA_NO_LEAGUE", iBaseTeamCost, iPreLeagueModPct, iFinalResearchModPct, baseCost);
+					end
+				end
+			end
+			
+			strText = strText .. "[NEWLINE][NEWLINE]";
 			local baseFormulaStr = FormatCityCostPercentHundredths(baseFormulaHundredths);
 			local scalingFormulaStr = FormatCityCostPercentHundredths(scalingFormulaHundredths);
 			local cStr = FormatCityCostPercentHundredths(cHundredths);
@@ -1230,8 +1259,53 @@ function CultureTipHandler( control )
 
 		-- Let people know that building more cities makes policies harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
+			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths, iBasePolicyCostBeforeDiscount, iPolicyMultiplierPct, iTenetPenaltyPct, iTenetsAdopted, iTenetTier1PenaltyPct, iTenetTier2PenaltyPct, iTenetTier3PenaltyPct = pPlayer:GetNextPolicyCostBreakdown();
+			local iPolicyModPct, iPoliciesModPct, iBuildingsModPct, iMinorCivsModPct, iTraitsModPct, iUncappedPolicyModPct, iPolicyDiscountCapPct = pPlayer:GetPolicyCostModifierBreakdown();
+			if (pPlayer:GetNumPolicies(true, false) >= 17) then
+				strText = strText .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_TENET_PENALTY_EXPLAINER", iTenetTier1PenaltyPct, iTenetTier2PenaltyPct, iTenetTier3PenaltyPct);
+			end
+			local iPolicyDiscountPct = math.max(0, -iPolicyModPct);
+			if (iPolicyDiscountPct > 0 or iTenetPenaltyPct > 0) then
+				strText = strText .. "[NEWLINE]";
+
+				if (iPolicyDiscountPct ~= 0) then
+					strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_DISCOUNT_HEADER");
+				end
+
+				local iPoliciesDiscountPct = math.max(0, -iPoliciesModPct);
+				if (iPoliciesDiscountPct > 0) then
+					strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_DISCOUNT_FROM_POLICIES", iPoliciesDiscountPct);
+				end
+
+				local iBuildingsDiscountPct = math.max(0, -iBuildingsModPct);
+				if (iBuildingsDiscountPct > 0) then
+					strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_DISCOUNT_FROM_BUILDINGS", iBuildingsDiscountPct);
+				end
+
+				local iMinorCivsDiscountPct = math.max(0, -iMinorCivsModPct);
+				if (iMinorCivsDiscountPct > 0) then
+					strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_DISCOUNT_FROM_MINOR_CIVS", iMinorCivsDiscountPct);
+				end
+
+				local iTraitsDiscountPct = math.max(0, -iTraitsModPct);
+				if (iTraitsDiscountPct > 0) then
+					strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_DISCOUNT_FROM_TRAITS", iTraitsDiscountPct);
+				end
+
+				if (iTenetPenaltyPct > 0 and iTenetsAdopted > 0) then
+					strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_TENET_PENALTY", iTenetPenaltyPct, iTenetsAdopted);
+				end
+
+				local sCappedNote = (iUncappedPolicyModPct < iPolicyDiscountCapPct) and "(capped)" or "";
+				local sPositiveFactor = (iPolicyMultiplierPct ~= 100) and (" x [COLOR_POSITIVE_TEXT]" .. iPolicyMultiplierPct .. "%[ENDCOLOR]") or "";
+				if (sPositiveFactor == "") then
+					sCappedNote = "";
+				end
+				local sNegativeFactor = (iTenetPenaltyPct > 0 and iTenetsAdopted > 0) and (" x [COLOR_NEGATIVE_TEXT]" .. (100 + iTenetPenaltyPct) .. "%[ENDCOLOR]") or "";
+				strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_DISCOUNT_FORMULA", iBasePolicyCostBeforeDiscount, sPositiveFactor, sCappedNote, sNegativeFactor, baseCost);
+			end
+
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths = pPlayer:GetNextPolicyCostBreakdown();
 			local baseFormulaStr = FormatCityCostPercentHundredths(baseFormulaHundredths);
 			local scalingFormulaStr = FormatCityCostPercentHundredths(scalingFormulaHundredths);
 			local cStr = FormatCityCostPercentHundredths(cHundredths);
