@@ -508,7 +508,7 @@ void CvPlayerEspionage::LogSpyStatus()
 			}
 		}
 		PlayerTypes eMinorAlly = NO_PLAYER;
-		strSpyStatus.Format("Spy #%d %s (Lvl. %d, %d/%d): ", uiSpy, GetLocalizedText(pSpy->GetSpyName()).c_str(), pSpy->GetSpyRank(ePlayer) + 1, pSpy->m_iExperience, GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR));
+		strSpyStatus.Format("Spy #%d %s (Lvl. %d %d/%d): ", uiSpy, GetLocalizedText(pSpy->GetSpyName()).c_str(), pSpy->GetSpyRank(ePlayer) + 1, pSpy->m_iExperience, GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR));
 		switch (pSpy->GetSpyState())
 		{
 		case SPY_STATE_UNASSIGNED:
@@ -637,7 +637,7 @@ void CvPlayerEspionage::LogSpyStatus()
 				strMissionInfo += GC.getCityEventChoiceInfo(aCityScores[i].m_eMission)->GetDescription();
 			}
 			CvString strMsg;
-			strMsg.Format("Top City Choices: %s (%s)%s. Score: %d", aCityScores[i].m_pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), aCityScores[i].m_iScore);
+			strMsg.Format("Top City Choices: %s (%s)%s, Score: %d", aCityScores[i].m_pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), aCityScores[i].m_iScore);
 			LogEspionageMsg(strMsg);
 		}
 	}
@@ -9022,7 +9022,8 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		int iScore = GD_INT_GET(ESPIONAGE_XP_PER_TURN_COUNTERSPY);
 
 		// consider possible positive and negative effects to city first
-		iScore += GetCounterspyEffectsMissionScore(pCity, ePlayer, pkMissionInfo, pDiplomacyAI);
+		int iPositiveScoring = GetCounterspyEffectsMissionScore(pCity, ePlayer, pkMissionInfo, pDiplomacyAI);
+		iScore += iPositiveScoring;
 
 		// now take into account the missions that are blocked
 		// unless there are no offensive spy missions or we don't know any other players who have spies, then counterspies blocking has little-to-no value: skip
@@ -9099,7 +9100,15 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 			CvString strCiv = GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
 			CvString strMissionInfo = GC.getCityEventChoiceInfo(eMission)->GetDescription();
 			CvString strMsg;
-			strMsg.Format("%s (%s), %s. Score: %d", pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), iScore);
+			CvString strModifiers;
+			strMsg.Format("%s (%s), %s, Score: %d", pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), iScore);
+			
+			strModifiers.Format(", Effect Scoring: %d", iPositiveScoring);
+			strMsg = strMsg + strModifiers;
+			
+			strModifiers.Format(", Defense Scoring: %d", iMaxScore);
+			strMsg = strMsg + strModifiers;
+			
 			m_pPlayer->GetEspionage()->LogEspionageScoringMsg(strMsg);
 		}
 
@@ -9140,11 +9149,13 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		{
 			iHateFactor = min(iHateFactor, 0);
 		}
-		iScore -= GetNegativeMissionScoreForOwner(pCity, eOwner, pkMissionInfo, pOwnerDiploAI) * iHateFactor / 100;
-
+		int iEnemyScoring = GetNegativeMissionScoreForOwner(pCity, eOwner, pkMissionInfo, pOwnerDiploAI) * iHateFactor / 100;
+		iScore -= iEnemyScoring;
+		
 		// now evaluate direct benefits
-		iScore += GetMissionScoreOffensiveBenefits(pCity, eOwner, pkMissionInfo, pDiplomacyAI, iSpyIndex);
-
+		int iYourScoring = GetMissionScoreOffensiveBenefits(pCity, eOwner, pkMissionInfo, pDiplomacyAI, iSpyIndex);
+		iScore += iYourScoring;
+		
 		// cheaper and safer missions can be better because you get to use more of them
 		// cost multiplies by up to 2.5 for 800 cost vs 2000 cost
 		
@@ -9202,10 +9213,17 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 			CvString strMissionInfo = GC.getCityEventChoiceInfo(eMission)->GetDescription();
 			CvString strMsg;
 			CvString strModifiers;
-			strMsg.Format("%s (%s), %s. Score: %d.", pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), iTotalScore);
+			strMsg.Format("%s (%s), %s, Score: %d.", pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), iTotalScore);
+			
+			strModifiers.Format(", Enemy Scoring: %d", iEnemyScoring);
+			strMsg = strMsg + strModifiers;
+		
+			strModifiers.Format(", Your Scoring: %d", iYourScoring);
+			strMsg = strMsg + strModifiers;
+			
 			if (iTotalScore != iScore)
 			{
-				strModifiers.Format(" Base: %d", iScore);
+				strModifiers.Format(", Base: %d", iScore);
 				strMsg = strMsg + strModifiers;
 				if (iProgress > 0)
 				{
@@ -9223,6 +9241,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 					strMsg = strMsg + strModifiers;
 				}
 			}
+			
 			m_pPlayer->GetEspionage()->LogEspionageScoringMsg(strMsg);
 		}
 
