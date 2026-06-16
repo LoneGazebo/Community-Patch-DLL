@@ -1081,7 +1081,9 @@ public:
 	// Functions to give current player status with respect to policies
 	int GetPolicyCityModifierTimes100(int iCityOffset = 0) const;
 	int GetPolicyOneMoreCityModifierTimes100(int iCityOffset = 0) const;
-	int GetNextPolicyCost(bool bIgnoreCities = false, int iCityOffset = 0);
+	int GetIdeologyTenetPolicyCostPenaltyByLevel(int iLevel) const;
+	int GetIdeologyTenetPolicyCostPenalty(int* pTenetsAdopted = NULL) const;
+	int GetNextPolicyCost(bool bIgnoreCities = false, int iCityOffset = 0, int* pCostBeforePolicyDiscount = NULL);
 	bool CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost = false) const;
 	int GetNumPoliciesCanBeAdopted();
 

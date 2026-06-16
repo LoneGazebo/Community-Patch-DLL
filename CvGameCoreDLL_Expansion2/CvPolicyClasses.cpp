@@ -4747,8 +4747,55 @@ int CvPlayerPolicies::GetPolicyOneMoreCityModifierTimes100(int iCityOffset) cons
 	return GetPolicyCityModifierTimes100(iCityOffset + 1) - GetPolicyCityModifierTimes100(iCityOffset);
 }
 
+int CvPlayerPolicies::GetIdeologyTenetPolicyCostPenaltyByLevel(int iLevel) const
+{
+	if (!MOD_BALANCE_VP || iLevel <= 0)
+	{
+		return 0;
+	}
+
+	return (int)(GD_FLOAT_GET(POLICY_COST_EXPONENT) * iLevel);
+}
+
+int CvPlayerPolicies::GetIdeologyTenetPolicyCostPenalty(int* pTenetsAdopted) const
+{
+	int iTier1 = 0;
+	int iTier2 = 0;
+	int iTier3 = 0;
+
+	if (MOD_BALANCE_VP)
+	{
+		for (int iBranchLoop = 0; iBranchLoop < m_pPolicies->GetNumPolicyBranches(); iBranchLoop++)
+		{
+			PolicyBranchTypes eLoopBranch = (PolicyBranchTypes)iBranchLoop;
+
+			if (eLoopBranch != NO_POLICY_BRANCH_TYPE)
+			{
+				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eLoopBranch);
+				if (pkPolicyBranchInfo && pkPolicyBranchInfo->IsPurchaseByLevel())
+				{
+					iTier1 += GetNumTenetsOfLevel(eLoopBranch, 1);
+					iTier2 += GetNumTenetsOfLevel(eLoopBranch, 2);
+					iTier3 += GetNumTenetsOfLevel(eLoopBranch, 3);
+				}
+			}
+		}
+	}
+
+	if (pTenetsAdopted != NULL)
+	{
+		*pTenetsAdopted = iTier1 + iTier2 + iTier3;
+	}
+
+	int iPenaltyPct = 0;
+	iPenaltyPct += iTier1 * GetIdeologyTenetPolicyCostPenaltyByLevel(1);
+	iPenaltyPct += iTier2 * GetIdeologyTenetPolicyCostPenaltyByLevel(2);
+	iPenaltyPct += iTier3 * GetIdeologyTenetPolicyCostPenaltyByLevel(3);
+	return iPenaltyPct;
+}
+
 /// How much will the next policy cost?
-int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset)
+int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset, int* pCostBeforePolicyDiscount)
 {
 	int iActualNumPolicies = GetNumPoliciesOwned(false, true);
 
@@ -4772,6 +4819,11 @@ int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset)
 		iCost = iCost * (10000 + iTotalTimes100) / 10000;
 	}
 
+	if (pCostBeforePolicyDiscount != NULL)
+	{
+		*pCostBeforePolicyDiscount = iCost;
+	}
+
 	// Policy Cost Mod
 	iCost *= (100 + m_pPlayer->getPolicyCostModifier());
 	iCost /= 100;
@@ -4780,36 +4832,10 @@ int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset)
 	iCost *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 	iCost /= 100;
 
-	// Adopting Ideology tenets increases the cost of future policies/tenets
-	if (MOD_BALANCE_VP)
-	{
-		int iTier1 = 0;
-		int iTier2 = 0;
-		int iTier3 = 0;
-		for (int iBranchLoop = 0; iBranchLoop < m_pPolicies->GetNumPolicyBranches(); iBranchLoop++)
-		{
-			PolicyBranchTypes eLoopBranch = (PolicyBranchTypes) iBranchLoop;
-
-			if (eLoopBranch != NO_POLICY_BRANCH_TYPE)
-			{
-				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eLoopBranch);
-				if (pkPolicyBranchInfo && pkPolicyBranchInfo->IsPurchaseByLevel())
-				{
-					iTier1 += m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eLoopBranch, 1);
-					iTier2 += m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eLoopBranch, 2);
-					iTier3 += m_pPlayer->GetPlayerPolicies()->GetNumTenetsOfLevel(eLoopBranch, 3);
-				}
-			}
-		}
-
-		//% cost increases.
-		iTier1 *= /*2*/ (int)(GD_FLOAT_GET(POLICY_COST_EXPONENT));
-		iTier2 *= /*4*/ (int)(GD_FLOAT_GET(POLICY_COST_EXPONENT) * 2);
-		iTier3 *= /*6*/ (int)(GD_FLOAT_GET(POLICY_COST_EXPONENT) * 3);
-
-		iCost *= (100 + iTier1 + iTier2 + iTier3);
-		iCost /= 100;
-	}
+	// Adopting ideology tenets increases the cost of future policies/tenets.
+	const int iTenetPenaltyPct = GetIdeologyTenetPolicyCostPenalty();
+	iCost *= (100 + iTenetPenaltyPct);
+	iCost /= 100;
 
 	if (GetPlayer()->isMajorCiv())
 	{
