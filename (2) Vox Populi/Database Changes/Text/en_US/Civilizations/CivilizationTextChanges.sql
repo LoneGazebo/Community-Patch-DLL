@@ -693,7 +693,7 @@ SET Text = 'All Roads Lead to Rome'
 WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+25% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital. +2 [ICON_GOLD] Gold, +1 [ICON_CULTURE] Culture, and +1 [ICON_TOURISM] Tourism in [ICON_CAPITAL] Capital for every City within 8 tiles of and [ICON_CONNECTED] Connected by land to any owned City, scaling with Era.'
+SET Text = '+25% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital. +2 [ICON_GOLD] Gold, +1 [ICON_CULTURE] Culture, and +1 [ICON_TOURISM] Tourism in [ICON_CAPITAL] Capital for every City within 8 tiles of any owned City, provided the Cities are [ICON_CONNECTED] Connected by land, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Language_en_US
