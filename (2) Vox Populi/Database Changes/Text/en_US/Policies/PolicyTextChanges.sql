@@ -245,7 +245,7 @@ SET Text = '[COLOR_POSITIVE_TEXT]Fealty[ENDCOLOR] enhances the ability to levera
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE][ICON_BULLET]+25% Pressure from owned Cities following your [ICON_RELIGION] Primary Religion.[NEWLINE][ICON_BULLET]+1 [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Primary Religion.[NEWLINE][ICON_BULLET]+2 [ICON_CULTURE] Culture from Shrines and +6 [ICON_CULTURE] from the Grand Temple.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE][ICON_BULLET]+25% Pressure from owned Cities following your [ICON_RELIGION] Primary Religion.[NEWLINE][ICON_BULLET]+1 [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Primary Religion.[NEWLINE][ICON_BULLET]+2 [ICON_CULTURE] Culture from Temples and +6 [ICON_CULTURE] from the Grand Temple.'
 WHERE Tag = 'TXT_KEY_POLICY_ORGANIZED_RELIGION_HELP';
 
 UPDATE Language_en_US
