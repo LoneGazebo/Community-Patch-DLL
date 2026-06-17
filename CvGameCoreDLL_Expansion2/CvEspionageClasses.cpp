@@ -8738,7 +8738,7 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 		if (iModifier != 0)
 		{
 			int iCityYield = iModifier * pCity->getBaseYieldRateTimes100(eYield);
-			iCityYield *= pkMissionInfo->getEventDuration();
+			iCityYield *= 15;  // dont use pkMissionInfo->getEventDuration() because focusses are 999 turns
 			iCityYield /= 10000;
 			iCityYield /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
 
@@ -8752,7 +8752,7 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 			{
 				// include eaten food and don't include existing growth bonuses (additive)
 				int iCityYield = pkMissionInfo->getGrowthMod() * pCity->getYieldRateTimes100(eYield, false, false, 0, false, false, true);
-				iCityYield *= pkMissionInfo->getEventDuration();
+				iCityYield *= 15;
 				iCityYield /= 10000;
 				iCityYield /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
 
@@ -8783,7 +8783,22 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 				int iNumSpecialists = pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist);
 				iScore += iSpecYield * iNumSpecialists;
 			}
-		}			
+		}
+	}
+
+	// starts WLTKD? it's one off so if we're not swapping to it, we dont get benefit
+	int iWLTKDTurns = pkMissionInfo->getWLTKD();
+	if (iWLTKDTurns > 0 && pCity->GetWeLoveTheKingDayCounter() <= 0)
+	{		
+		CityEventChoiceTypes eFocus = pCity->GetCityEspionage()->GetCounterSpyFocus();
+		CvModEventCityChoiceInfo* pkCSInfo = GC.getCityEventChoiceInfo(eFocus);
+		if (!pkCSInfo || pkCSInfo != pkMissionInfo)
+		{
+			iScore += iWLTKDTurns;
+			// try to keep capital in WLTKD
+			if (pCity->isCapital())
+				iScore += iWLTKDTurns * 2;
+		}
 	}
 	
 	return iScore;
@@ -9004,6 +9019,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	CvDiplomacyAI* pDiplomacyAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
+	int iEspionageCooldown = GC.getGame().GetTurnsBetweenMinorCivElections();
 
 	if (ePlayer == eOwner)
 	{
@@ -9093,7 +9109,28 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 				}
 			}
 		}
-		iScore += iMaxScore;
+		// whether we actually need a counterspy will depend if there's evidence we are being spied upon!
+		int iNumCityRobbed = 0;
+		int iNumSpiesInCity = 0;  // a human can only guess at this based on notification frequency. TODO: similar idea for AI
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iLoopPlayer;
+			iNumCityRobbed += pCityEspionage->m_aiNumTimesCityRobbed[eLoopPlayer];
+			if (pCityEspionage->m_aiSpyAssignment[eLoopPlayer] != -1)
+				iNumSpiesInCity++;
+		}
+		if (pCityEspionage->HasCounterSpy())
+			iNumSpiesInCity--;
+		
+		if (iNumSpiesInCity > 0)
+		{
+			int iTurnsOfEspionage = max(1, GC.getGame().getGameTurn() - m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted);
+			iTurnsOfEspionage *= 100;
+			iTurnsOfEspionage /= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			//TODO: actually evaluate yields from counterspy ID/Kill.
+			// scale by how much of the time the city has been under a spy cooldown (multiple players' spies can exceed 100%)
+			iScore += iMaxScore * (100 + 100 * iEspionageCooldown * iNumCityRobbed / iTurnsOfEspionage) / 100;
+		}
 
 		if (bLogAllChoices && GC.getLogging() && GC.getAILogging() && iScore > GD_INT_GET(ESPIONAGE_XP_PER_TURN_COUNTERSPY))
 		{
@@ -9107,6 +9144,9 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 			strMsg = strMsg + strModifiers;
 			
 			strModifiers.Format(", Defense Scoring: %d", iMaxScore);
+			strMsg = strMsg + strModifiers;
+			
+			strModifiers.Format(", Num times robbed: %d", iNumCityRobbed);
 			strMsg = strMsg + strModifiers;
 			
 			m_pPlayer->GetEspionage()->LogEspionageScoringMsg(strMsg);
@@ -9160,8 +9200,6 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		// cost multiplies by up to 2.5 for 800 cost vs 2000 cost
 		
 		int iExpectedNP = m_pPlayer->GetEspionage()->CalcNetworkPointsPerTurn(SPY_STATE_GATHERING_INTEL, pCity, iSpyIndex);
-		// even a free mission would still trigger a cooldown, so there is a minimum
-		int iEspionageCooldown = GC.getGame().GetTurnsBetweenMinorCivElections();
 		// if you get killed, you effectively lose network points due to downtime. calc assumes you come back to the same city
 		int iTravel = m_pPlayer->GetEspionage()->CalcRequired(SPY_STATE_TRAVELLING, pCity, iSpyIndex) / m_pPlayer->GetEspionage()->CalcPerTurn(SPY_STATE_TRAVELLING, pCity, iSpyIndex);
 		int iTurnsLostToDeath = iTravel + GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER);
@@ -9177,9 +9215,10 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		}
 		// scale the score by how relatively expensive this mission is
 		int iEffectiveCost = pkMissionInfo->GetNetworkPointsNeededScaled() + (iExpectedNP * iTurnsLostToDeath * iKillChance / 100);
+		// this numerator is arbitrary between offensive missions (set to max possible cost) but it affects counterspy vs mission vs rig vs diplomat relative scoring
 		int iNumerator = (2000 * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100) + (iTurnsLostToDeath * iExpectedNP);
 		
-		// this numerator is arbitrary between offensive missions (set to max possible cost) but it affects counterspy vs mission vs rig vs diplomat relative scoring
+		// even a free mission would still trigger a cooldown, so there is a minimum cost
 		iScore *= iNumerator / (iLeftover + max(iEspionageCooldown * iExpectedNP, iEffectiveCost));
 		// therefore, normalize to a typical cheap missions
 		iScore /= 2; 
