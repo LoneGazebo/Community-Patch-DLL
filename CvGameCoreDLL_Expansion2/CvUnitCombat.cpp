@@ -2631,7 +2631,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					iNukedPopulation *= std::max(0, (pkCity->getNukeModifier() + 100));
 					iNukedPopulation /= 100;
 
-					pkCity->changePopulation(-(std::min((pkCity->getPopulation() - 1), iNukedPopulation)));
+					pkCity->changePopulation(-(std::min(std::max(iNukedPopulation, iDamageLevel), (pkCity->getPopulation() - 1))));
 
 					// Add damage to the city
 					pkCity->setDamage(kEntry.GetFinalDamage());
