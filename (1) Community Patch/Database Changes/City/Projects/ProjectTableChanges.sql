@@ -53,3 +53,5 @@ ALTER TABLE Projects ADD LocalResourcePrereq text REFERENCES Resources (Type);
 -- Increases copies of luxuries from this city by this integer
 -- If LocalResourcePrereq is set, only affects that one
 ALTER TABLE Projects ADD ExtraLuxuries integer DEFAULT 0;
+
+ALTER TABLE Projects ADD ShowInTechTree boolean DEFAULT 1;

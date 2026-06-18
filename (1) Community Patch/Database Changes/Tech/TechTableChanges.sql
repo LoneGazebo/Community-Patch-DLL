@@ -39,3 +39,6 @@ ALTER TABLE Technologies ADD CityAutomatonWorkersChange integer DEFAULT 0;
 -- Extra working range for every city
 -- Note that working range caps at MAX_CITY_RADIUS
 ALTER TABLE Technologies ADD CityWorkingChange integer DEFAULT 0;
+
+-- database hook to display tooltip in tech tree
+ALTER TABLE Technologies ADD ExtraLuxuriesEnabled boolean DEFAULT 0;
