@@ -143,6 +143,9 @@
 		<Row Tag="TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE">
 			<Text>+1 City Indirect Attack Range</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ALLOWS_EXTRA_LUXURIES">
+			<Text>Unlocks Projects that increase local Luxury copies</Text>
+		</Row>
 
 		<!-- Theming bonus -->
 		<Row Tag="TXT_KEY_CO_TOURISM_THEME_BONUS">

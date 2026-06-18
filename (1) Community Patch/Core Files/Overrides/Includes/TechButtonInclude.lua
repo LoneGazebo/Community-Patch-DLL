@@ -427,7 +427,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		end
 	end
 
-	for kProjectInfo in GameInfo.Projects{TechPrereq = kTechInfo.Type} do
+	for kProjectInfo in GameInfo.Projects{TechPrereq = kTechInfo.Type, ShowInTechTree = 1} do
 		if not kProjectInfo.CivilizationType or kProjectInfo.CivilizationType == strCivType then
 			GenerateNextButtonFromInfo(SetupProjectButton, kProjectInfo);
 			if iButtonIndex > iButtonCount then return iButtonCount end
@@ -640,6 +640,11 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		if iButtonIndex > iButtonCount then return iButtonCount end
 	end
 
+	if kTechInfo.MiscButtonText then
+		GenerateNextButtonCustom(L(kTechInfo.MiscButtonText));
+		if iButtonIndex > iButtonCount then return iButtonCount end
+	end
+	
 	-- Yield-related
 	local tSpecialistBoosts = {};
 	local tTerrainBoosts = {};

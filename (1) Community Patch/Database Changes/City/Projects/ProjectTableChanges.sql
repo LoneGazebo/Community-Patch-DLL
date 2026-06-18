@@ -56,3 +56,5 @@ ALTER TABLE Projects ADD ExtraLuxuries integer DEFAULT 0;
 
 -- Provides x free citizens that dont count towards pop
 ALTER TABLE Projects ADD CityAutomatonWorkersChange integer DEFAULT 0;
+
+ALTER TABLE Projects ADD ShowInTechTree boolean DEFAULT 1;
