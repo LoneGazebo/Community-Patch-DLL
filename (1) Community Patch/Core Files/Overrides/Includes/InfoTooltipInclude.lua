@@ -3250,7 +3250,11 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipIfTrue(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_NO_RIVER", kBuildingInfo.IsNoRiver);
 		AddTooltipIfTrue(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_NO_COASTAL", kBuildingInfo.IsNoCoast);
 		AddTooltipIfTrue(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_INDUSTRIAL_CONNECTION", kBuildingInfo.RequiresIndustrialCityConnection);
+		AddTooltipIfTrue(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_PUPPET", kBuildingInfo.RequiresPuppet);
 		AddTooltipIfTrue(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_OCCUPIED_ONLY", kBuildingInfo.NoOccupiedUnhappiness and not kBuildingInfo.BuildAnywhere);
+
+		AddTooltipPositive(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_NUM_FRANCHISES", kBuildingInfo.RequiresXFranchises);
+		AddTooltipPositive(tReqLines, "TXT_KEY_PRODUCTION_BUILDING_PERCENT_MONOPOLIES", kBuildingInfo.RequiresXPercentGlobalMonopolies);
 
 		-- Coastal or whatever custom water size
 		if kBuildingInfo.Water then
