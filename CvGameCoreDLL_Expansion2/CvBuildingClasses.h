@@ -146,6 +146,8 @@ public:
 	int GrantsRandomResourceTerritory() const;
 	bool IsPuppetPurchaseOverride() const;
 	bool IsRequiresPuppet() const;
+	int GetRequiredFranchises() const;
+	int GetRequiredPercentGlobalMonopolies() const;
 	bool IsAllowsPuppetPurchase() const;
 	bool IsNoStarvationNonSpecialist() const;
 	int GetMinimumFood() const;
@@ -736,6 +738,8 @@ private:
 	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bRequiresPuppet;
+	int m_iRequiredFranchises;
+	int m_iRequiredPercentGlobalMonopolies;
 	bool m_bAllowsPuppetPurchase;
 	bool m_bNoStarvationNonSpecialist;
 	int m_iMinimumFood;
