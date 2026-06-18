@@ -1492,6 +1492,15 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INDUSTRIAL_CONNECTION">
 			<Text>City must have [ICON_INDUSTRIAL_CONNECTED] Industrial City Connection with [ICON_CAPITAL] Capital</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PUPPET">
+			<Text>City must be a [ICON_PUPPET] Puppet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_NUM_FRANCHISES">
+			<Text>Requires {1_Num} Global [ICON_FRANCHISE] Franchises</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_PERCENT_MONOPOLIES">
+			<Text>Requires control of {1_Num}% of possible Global [ICON_MONOPOLY] Monopolies</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_REQUIRED_BUILDINGS_GLOBAL">
 			<Text>Required Buildings in any City: [COLOR_YIELD_FOOD]{1_Buildings}[ENDCOLOR]</Text>
 		</Row>

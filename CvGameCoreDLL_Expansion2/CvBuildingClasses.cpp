@@ -388,6 +388,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_viResourceMonopolyOrs(),
 	m_piYieldChangePerMonopoly(NULL),
 	m_piYieldChangeFromPassingTR(NULL),
+	m_iRequiredPercentGlobalMonopolies(0),
+	m_iRequiredFranchises(0),
 	m_piYieldPerFranchise(NULL),
 	m_iGPRateModifierPerXFranchises(0),
 	m_piResourceQuantityPerXFranchises(NULL),
@@ -917,6 +919,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iMinimumFood = kResults.GetInt("MinimumFood");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 	m_iNumPoliciesNeeded = kResults.GetInt("NumPoliciesNeeded");
+	m_iRequiredPercentGlobalMonopolies = kResults.GetInt("RequiresXPercentGlobalMonopolies");
+	m_iRequiredFranchises = kResults.GetInt("RequiresXFranchises");
 
 	szTextVal = kResults.GetText("SpecialistType");
 	m_iSpecialistType = GC.getInfoTypeForString(szTextVal, true);
@@ -4526,7 +4530,19 @@ int CvBuildingEntry::GetResourceMonopolyOr(uint ui) const
 	PRECONDITION(ui < m_viResourceMonopolyOrs.size(), "Index out of bounds");
 	return m_viResourceMonopolyOrs[ui];
 }
-//Coroporation Stuff
+/// Requires certain percent of the world's global monopolies to build
+int CvBuildingEntry::GetRequiredPercentGlobalMonopolies() const
+{
+	return m_iRequiredPercentGlobalMonopolies;
+}
+
+/// Corporation Stuff
+/// Requires certain number of franchises to build
+int CvBuildingEntry::GetRequiredFranchises() const
+{
+	return m_iRequiredFranchises;
+}
+/// GP bonus per franchise
 int CvBuildingEntry::GetGPRateModifierPerXFranchises() const
 {
 	return m_iGPRateModifierPerXFranchises;

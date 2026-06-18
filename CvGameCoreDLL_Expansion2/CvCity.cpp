@@ -8899,6 +8899,10 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 	{
 		return false;
 	}
+	if (!IsBuildingFeatureValid(eBuilding, toolTipSink))
+	{
+		return false;
+	}
 
 	// Religion-enabled national wonder
 	if (pkBuildingInfo->IsUnlockedByBelief() && pkBuildingInfo->IsReformation())
@@ -8929,9 +8933,14 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 	{
 		return false;
 	}
-	if (!IsBuildingFeatureValid(eBuilding, toolTipSink))
+	// Own a certain percentage of the world's global monopolies?
+	if (pkBuildingInfo->GetRequiredPercentGlobalMonopolies() > 0)
 	{
-		return false;
+		int iPercentOwned = GET_PLAYER(getOwner()).GetPercentGlobalMonopolies();
+		if (iPercentOwned < pkBuildingInfo->GetRequiredPercentGlobalMonopolies())
+		{
+			return false;
+		}
 	}
 	// Corporation building?
 	if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
@@ -8969,6 +8978,30 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 			}
 		}
 	}
+	// this buildings requires a certain number of franchises established
+	if (pkBuildingInfo->GetRequiredFranchises() > 0)
+	{
+		// Must have Corporations tech
+		if (!GET_TEAM(GET_PLAYER(getOwner()).getTeam()).IsCorporationsEnabled())
+		{
+			return false;
+		}
+
+		CvPlayerCorporations* pPlayerCorporation = GET_PLAYER(getOwner()).GetCorporations();
+		if (pPlayerCorporation->HasFoundedCorporation())
+		{
+			int iNumFranchises = pPlayerCorporation->GetNumFranchises();
+			if (iNumFranchises < pkBuildingInfo->GetRequiredFranchises())
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
 	// Holy city requirement
 	if (pkBuildingInfo->IsRequiresHolyCity() && !GetCityReligions()->IsHolyCityAnyReligion())
 	{

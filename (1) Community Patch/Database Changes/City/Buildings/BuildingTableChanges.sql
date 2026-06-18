@@ -237,6 +237,8 @@ ALTER TABLE Buildings ADD TRSpeedBoost integer DEFAULT 0;
 ALTER TABLE Buildings ADD TRVisionBoost integer DEFAULT 0;
 ALTER TABLE Buildings ADD TRTurnModGlobal integer DEFAULT 0; -- modifies the turns a TR takes to complete, an int between 100 and -100, like a percent
 ALTER TABLE Buildings ADD TRTurnModLocal integer DEFAULT 0;
+ALTER TABLE Buildings ADD RequiresXFranchises integer DEFAULT 0;
+ALTER TABLE Buildings ADD RequiresXPercentGlobalMonopolies integer DEFAULT 0;
 
 -- CSD
 ALTER TABLE Buildings ADD DPToVotes integer DEFAULT 0;

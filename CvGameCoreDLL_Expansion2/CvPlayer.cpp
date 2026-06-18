@@ -38700,6 +38700,18 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 	}
 }
 
+int CvPlayer::GetPercentGlobalMonopolies() const
+{
+	int iGlobalsOnMap = GetNumGlobalMonopolies();
+	
+	if (iGlobalsOnMap == 0)
+		return 0;
+	
+	int iNumMonopolies = GetGlobalMonopolies().size();
+			
+	return 100 * iNumMonopolies / iGlobalsOnMap;
+}
+
 bool CvPlayer::HasStrategicMonopoly(ResourceTypes eResource) const
 {
 	return m_pabHasStrategicMonopoly[eResource];
