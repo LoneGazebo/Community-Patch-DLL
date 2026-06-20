@@ -80,6 +80,7 @@ protected:
 	int m_iMorrocoMultiplier;
 	int m_iFranceMultiplier;
 	int m_iNetherlandsMultiplier;
+	int m_iMountainMultiplier;
 	int m_iIncaMultiplier;
 };
 
