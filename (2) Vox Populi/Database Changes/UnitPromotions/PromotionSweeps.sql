@@ -365,7 +365,20 @@ SELECT
 FROM Units
 WHERE Class = 'UNITCLASS_GREAT_GENERAL';
 
--- Promotions from technologies
+-- Promotions from Traits (given by Trait_FreePromotions instead of Trait_FreePromotionUnitCombats)
+INSERT INTO UnitPromotions_UnitCombats
+	(PromotionType, UnitCombatType)
+SELECT
+	'PROMOTION_CHASQUI_TRAINING', Type
+FROM UnitCombatInfos WHERE IsMilitary = 0;
+
+INSERT INTO UnitPromotions_UnitCombats
+	(PromotionType, UnitCombatType)
+VALUES
+	('PROMOTION_CHASQUI_TRAINING', 'UNITCOMBAT_RECON'),
+	('PROMOTION_GOODY_HUT_PICKER', 'UNITCOMBAT_RECON');
+
+-- Promotions from Technologies
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)
 VALUES

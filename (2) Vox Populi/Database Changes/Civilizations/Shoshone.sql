@@ -12,10 +12,11 @@ WHERE Type = 'TRAIT_GREAT_EXPANSE';
 
 DELETE FROM Trait_FreePromotionUnitCombats WHERE TraitType = 'TRAIT_GREAT_EXPANSE' AND PromotionType = 'PROMOTION_HOMELAND_GUARDIAN_BOOGALOO';
 
-INSERT INTO Trait_FreePromotionUnitCombats
-	(TraitType, UnitCombatType, PromotionType)
+-- dont give AI warmonger eval to this promotion
+INSERT INTO Trait_FreePromotions
+	(TraitType, PromotionType)
 VALUES
-	('TRAIT_GREAT_EXPANSE', 'UNITCOMBAT_RECON', 'PROMOTION_GOODY_HUT_PICKER');
+	('TRAIT_GREAT_EXPANSE', 'PROMOTION_GOODY_HUT_PICKER');
 
 INSERT INTO Trait_TerrainClaimBoost
 	(TraitType, TerrainType)
