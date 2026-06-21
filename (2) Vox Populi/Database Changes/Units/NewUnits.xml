@@ -752,7 +752,7 @@
 			<Class>UNITCLASS_IRON_CHARIOT</Class>
 			<DefaultUnitAI>UNITAI_FAST_ATTACK</DefaultUnitAI>
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
-			<ObsoleteTech>TECH_METALLURGY</ObsoleteTech>
+			<ObsoleteTech>TECH_ECONOMICS</ObsoleteTech>
 			<MoveRate>WHEELED</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_IRON_CHARIOT</UnitArtInfo>
 			<UnitFlagAtlas>UNIT_FLAG_ATLAS_VP_1</UnitFlagAtlas>
