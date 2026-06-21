@@ -588,3 +588,12 @@ OR Type IN (
 	'PROMOTION_DESERT_WALKER',
 	'PROMOTION_HILL_WALKER'
 );
+
+-- Trait_FreePromotions promotions currently shouldn't be pickable 
+-- (this might not be true for all cases, in the future)
+UPDATE UnitPromotions 
+SET CannotBeChosen = 1
+WHERE Type IN (
+	'PROMOTION_CHASQUI_TRAINING',
+	'PROMOTION_GOODY_HUT_PICKER'
+);

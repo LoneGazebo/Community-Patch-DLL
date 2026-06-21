@@ -4298,8 +4298,8 @@ void CvPlayerTraits::SetIsExpansionist()
 			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
 			if (GetYieldChangeFromTileEarnTerrainType(eTerrain, eYield) > 0 ||
 				GetYieldChangeFromTilePurchaseTerrainType(eTerrain, eYield) > 0 ||
-				GetYieldChangeFromTileSettle(eTerrain, eYield) > 0) ||
-				GetTerrainYieldChanges(eTerrain, eYield) > 0)
+				GetYieldChangeFromTileSettle(eTerrain, eYield) > 0 ||
+				GetTerrainYieldChange(eTerrain, eYield) > 0)
 			{
 				m_bIsExpansionist = true;
 				return;
