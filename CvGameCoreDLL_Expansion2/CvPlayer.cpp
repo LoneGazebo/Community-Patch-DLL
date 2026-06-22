@@ -28420,12 +28420,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 			}
 		}
 	}
-	// spy points
-	int iExtraSpies = pGreatPersonUnit->getUnitInfo().GetExtraSpies();
-	if (iExtraSpies > 0)
-	{
-		CreateSpies(iExtraSpies);
-	}
+
 	// add yields to capital based on the tile the GP was expended on
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPersonUnit->getUnitClassType());
 	if (pGreatPersonUnit->getUnitInfo().IsCopyYieldsFromExpendTile())
@@ -28437,7 +28432,9 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 		}
 		
 	}
+	
 	doInstantYield(INSTANT_YIELD_TYPE_GP_USE, false, eGreatPerson);
+	
 	if (pGreatPersonUnit->getUnitInfo().GetTileXPOnExpend() > 0)
 	{
 		// give XP to the nearest eligible unit
