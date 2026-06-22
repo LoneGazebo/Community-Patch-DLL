@@ -484,7 +484,7 @@ SET Text = 'Shogunate'
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Non-Recon Melee Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BUSHIDO}[ENDCOLOR] Promotion. When a [ICON_GREAT_ADMIRAL] Great Admiral or [ICON_GREAT_GENERAL] Great General is born, gain 50% progress toward a [ICON_GREAT_WORK] Great Writer, Artist, and Musician in your [ICON_CAPITAL] Capital.'
+SET Text = 'Melee, Gunpowder, Mounted, and Armored Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BUSHIDO}[ENDCOLOR] Promotion. When a [ICON_GREAT_ADMIRAL] Great Admiral or [ICON_GREAT_GENERAL] Great General is born, gain 50% progress toward a [ICON_GREAT_WORK] Great Writer, Artist, and Musician in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED';
 
 UPDATE Language_en_US
