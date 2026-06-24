@@ -672,5 +672,10 @@
 			<TileType>Improvement</TileType>
 			<Asset>SV_Saltworks.dds</Asset>
 		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_IMPROVEMENT_MONOLITH_AFRI</StrategicViewType>
+			<TileType>Improvement</TileType>
+			<Asset>SV_Obelisk.dds</Asset>
+		</Row>
 	</ArtDefine_StrategicView>
 </GameData>
