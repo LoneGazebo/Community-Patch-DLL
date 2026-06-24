@@ -1943,6 +1943,9 @@ public:
 	int GetConquestPerEraBuildingProductionMod() const;
 	void changeConquestPerEraBuildingProductionMod(int iChange);
 
+	int GetPerPastEraBuildingProductionMod() const;
+	void ChangePerPastEraBuildingProductionMod(int iChange);
+
 	int GetAdmiralLuxuryBonus() const;
 	void changeAdmiralLuxuryBonus(int iChange);
 	ResourceTypes GetFreeLuxury() const;
@@ -3193,6 +3196,7 @@ protected:
 	int m_iHappinessPerActiveTradeRoute;
 	int m_iCSResourcesCountMonopolies;
 	int m_iConquestPerEraBuildingProductionMod;
+	int m_iPerPastEraBuildingProductionMod;
 	int m_iAdmiralLuxuryBonus;
 	int m_iPuppetYieldAndSupplyModifierChange;
 	int m_iNeedsModifierFromAirUnits;
@@ -4003,6 +4007,7 @@ SYNC_ARCHIVE_VAR(int, m_iMissionInfluenceModifier)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerActiveTradeRoute)
 SYNC_ARCHIVE_VAR(int, m_iCSResourcesCountMonopolies)
 SYNC_ARCHIVE_VAR(int, m_iConquestPerEraBuildingProductionMod)
+SYNC_ARCHIVE_VAR(int, m_iPerPastEraBuildingProductionMod)
 SYNC_ARCHIVE_VAR(int, m_iAdmiralLuxuryBonus)
 SYNC_ARCHIVE_VAR(int, m_iPuppetYieldAndSupplyModifierChange)
 SYNC_ARCHIVE_VAR(int, m_iNeedsModifierFromAirUnits)

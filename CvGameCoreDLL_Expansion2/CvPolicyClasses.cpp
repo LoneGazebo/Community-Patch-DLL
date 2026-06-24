@@ -380,6 +380,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iFlatDefenseFromAirUnits(0),
 	m_iPuppetYieldAndSupplyModifierChange(0),
 	m_iConquestPerEraBuildingProductionMod(0),
+	m_iPerPastEraBuildingProductionMod(0),
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	m_iAdmiralLuxuryBonus(0),
 #endif
@@ -763,6 +764,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iFlatDefenseFromAirUnits = kResults.GetInt("FlatDefenseFromAirUnits");
 	m_iPuppetYieldAndSupplyModifierChange = kResults.GetInt("PuppetYieldAndSupplyModifierChange");
 	m_iConquestPerEraBuildingProductionMod = kResults.GetInt("ConquestPerEraBuildingProductionMod");
+	m_iPerPastEraBuildingProductionMod = kResults.GetInt("PerPastEraBuildingProductionMod");
 	m_iAdmiralLuxuryBonus = kResults.GetInt("AdmiralLuxuryBonus");
 	m_iInvestmentModifier = kResults.GetInt("InvestmentModifier");
 	m_strWeLoveTheKingKey = kResults.GetText("WeLoveTheKing");
@@ -3598,6 +3600,10 @@ int CvPolicyEntry::GetPuppetYieldAndSupplyModifierChange() const
 int CvPolicyEntry::GetConquestPerEraBuildingProductionMod() const
 {
 	return m_iConquestPerEraBuildingProductionMod;
+}
+int CvPolicyEntry::GetPerPastEraBuildingProductionMod() const
+{
+	return m_iPerPastEraBuildingProductionMod;
 }
 int CvPolicyEntry::GetAdmiralLuxuryBonus() const
 {

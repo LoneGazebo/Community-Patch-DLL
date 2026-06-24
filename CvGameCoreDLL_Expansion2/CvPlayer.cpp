@@ -357,6 +357,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessPerActiveTradeRoute()
 	, m_iCSResourcesCountMonopolies()
 	, m_iConquestPerEraBuildingProductionMod()
+	, m_iPerPastEraBuildingProductionMod()
 	, m_iAdmiralLuxuryBonus()
 	, m_iPuppetYieldAndSupplyModifierChange()
 	, m_iNeedsModifierFromAirUnits()
@@ -1506,6 +1507,7 @@ void CvPlayer::uninit()
 	m_iHappinessPerActiveTradeRoute = 0;
 	m_iCSResourcesCountMonopolies = 0;
 	m_iConquestPerEraBuildingProductionMod = 0;
+	m_iPerPastEraBuildingProductionMod = 0;
 	m_iAdmiralLuxuryBonus = 0;
 	m_iPuppetYieldAndSupplyModifierChange = 0;
 	m_iNeedsModifierFromAirUnits = 0;
@@ -15493,16 +15495,23 @@ int CvPlayer::getMaxStockpile() const
 
 int CvPlayer::getProductionModifier(CvString* toolTipSink) const
 {
-	int iMultiplier = 0;
-
-	int iTempMod = 0;
+	int iModifier = 0;
 
 	// Unit Supply
-	iTempMod = GetUnitProductionMaintenanceMod();
-	iMultiplier += iTempMod;
+	int iTempMod = GetUnitProductionMaintenanceMod();
+	iModifier += iTempMod;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_UNIT_SUPPLY", iTempMod);
 
-	return iMultiplier;
+	// From trait after conquest
+	if (GetProductionBonusTurnsConquest() > 0)
+	{
+		int iTempMod = GetPlayerTraits()->GetProductionBonusModifierConquest();
+		iModifier += iTempMod;
+		CvString strTurns = CvString::format("%d", GetProductionBonusTurnsConquest());
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CONQUEST", iTempMod, strTurns.c_str());
+	}
+
+	return iModifier;
 }
 
 int CvPlayer::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
@@ -15570,72 +15579,84 @@ int CvPlayer::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) cons
 
 int CvPlayer::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink) const
 {
-	int iMultiplier = getProductionModifier(toolTipSink);
+	ASSERT(eBuilding >= 0 && eBuilding < GC.getNumBuildingInfos(), "Invalid building index");
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	if(pkBuildingInfo == NULL)
-	{
-		return iMultiplier;
-	}
-
-	CvGame& kGame = GC.getGame();
+	BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(pkBuildingInfo->GetBuildingClassType());
 	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 
-	int iTempMod = 0;
+	int iModifier = getProductionModifier(toolTipSink);
 
-	CvPlayerTraits* pPlayerTraits = GetPlayerTraits();
-	std::vector<TraitTypes> vTraits = pPlayerTraits->GetPotentiallyActiveTraits();
-	for(size_t iI = 0; iI < vTraits.size(); iI++)
+	// Wonder
+	if (isLimitedWonderClass(kBuildingClassInfo))
 	{
-		if(pPlayerTraits->HasTrait(vTraits[iI]))
+		int iTempMod = GetPlayerPolicies()->GetNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER);
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_POLICY", iTempMod);
+
+		iTempMod = getWonderProductionModifier();
+		if (isGoldenAge())
 		{
-			iTempMod = pkBuildingInfo->GetProductionTraits(iI);
-			iMultiplier += iTempMod;
-			kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_TRAIT", iTempMod);
+			iTempMod += GetPlayerTraits()->GetWonderProductionModGA();
+		}
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_PLAYER", iTempMod);
+
+		if (isWorldWonderClass(kBuildingClassInfo))
+		{
+			int iTempMod = getMaxGlobalBuildingProductionModifier();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WORLD_WONDER_PLAYER", iTempMod);
+		}
+		else if (isTeamWonderClass(kBuildingClassInfo))
+		{
+			int iTempMod = getMaxTeamBuildingProductionModifier();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_TEAM_WONDER_PLAYER", iTempMod);
+		}
+		else if (isNationalWonderClass(kBuildingClassInfo))
+		{
+			int iTempMod = getMaxPlayerBuildingProductionModifier();
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_NATIONAL_WONDER_PLAYER", iTempMod);
+		}
+	}
+	// Normal building
+	else
+	{
+		int iTempMod = GetPlayerPolicies()->GetNumericModifier(POLICYMOD_BUILDING_PRODUCTION_MODIFIER);
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_POLICY_PLAYER", iTempMod);
+
+		if (GetPlayerTraits()->GetWonderProductionModifierToBuilding() > 0)
+		{
+			int iMod = GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
+
+			iTempMod = getWonderProductionModifier();
+			if (isGoldenAge())
+			{
+				iTempMod += GetPlayerTraits()->GetWonderProductionModGA();
+			}
+			iTempMod = iTempMod * iMod / 100;
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_PLAYER_TRAIT", iTempMod);
+
+			iTempMod = GetPlayerPolicies()->GetNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER) * iMod / 100;
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_POLICY_TRAIT", iTempMod);
 		}
 	}
 
-	// World Wonder
-	if(::isWorldWonderClass(kBuildingClassInfo))
-	{
-		iTempMod = getMaxGlobalBuildingProductionModifier();
-		iMultiplier += iTempMod;
-		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WORLD_WONDER_PLAYER", iTempMod);
-		iTempMod = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER);
-		iMultiplier += iTempMod;
-		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_POLICY", iTempMod);
-	}
+	// From policies
+	int iTempMod = GetPlayerPolicies()->GetBuildingClassProductionModifier(eBuildingClass);
+	iModifier += iTempMod;
+	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_POLICY", iTempMod);
 
-	// Team Wonder
-	else if(::isTeamWonderClass(kBuildingClassInfo))
-	{
-		iTempMod = getMaxTeamBuildingProductionModifier();
-		iMultiplier += iTempMod;
-		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_TEAM_WONDER_PLAYER", iTempMod);
-		iTempMod = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER);
-		iMultiplier += iTempMod;
-		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_POLICY", iTempMod);
-	}
+	// From traits
+	iTempMod = GetPlayerTraits()->GetCapitalBuildingDiscount(eBuilding);
+	iModifier += iTempMod;
+	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CAPITAL_BUILDING_TRAIT", iTempMod);
 
-	// National Wonder
-	else if(::isNationalWonderClass(kBuildingClassInfo))
-	{
-		iTempMod = getMaxPlayerBuildingProductionModifier();
-		iMultiplier += iTempMod;
-		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_NATIONAL_WONDER_PLAYER", iTempMod);
-		iTempMod = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER);
-		iMultiplier += iTempMod;
-		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_POLICY", iTempMod);
-	}
-
-	// Normal Building
-	else
-	{
-		iTempMod = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_BUILDING_PRODUCTION_MODIFIER);
-		iMultiplier += iTempMod;
-		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_POLICY_PLAYER", iTempMod);
-	}
-
-	return iMultiplier;
+	return iModifier;
 }
 
 int CvPlayer::getProductionModifier(ProjectTypes eProject, CvString* toolTipSink) const
@@ -35599,6 +35620,16 @@ void CvPlayer::changeConquestPerEraBuildingProductionMod(int iChange)
 	m_iConquestPerEraBuildingProductionMod += iChange;
 }
 
+int CvPlayer::GetPerPastEraBuildingProductionMod() const
+{
+	return m_iPerPastEraBuildingProductionMod;
+}
+
+void CvPlayer::ChangePerPastEraBuildingProductionMod(int iChange)
+{
+	m_iPerPastEraBuildingProductionMod += iChange;
+}
+
 // prefers luxuries that you dont have and arent on the map
 ResourceTypes CvPlayer::GetFreeLuxury() const
 {
@@ -42993,6 +43024,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeFlatDefenseFromAirUnits(pkPolicyInfo->GetFlatDefenseFromAirUnits() * iChange);
 	changePuppetYieldAndSupplyModifierChange(pkPolicyInfo->GetPuppetYieldAndSupplyModifierChange() * iChange);
 	changeConquestPerEraBuildingProductionMod(pkPolicyInfo->GetConquestPerEraBuildingProductionMod() * iChange);
+	ChangePerPastEraBuildingProductionMod(pkPolicyInfo->GetPerPastEraBuildingProductionMod() * iChange);
 	changeAdmiralLuxuryBonus(pkPolicyInfo->GetAdmiralLuxuryBonus() * iChange);
 	changeExtraMoves(pkPolicyInfo->GetExtraMoves() * iChange);
 	ChangeAllFeatureProduction(pkPolicyInfo->GetAllFeatureProduction());
@@ -44358,6 +44390,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iHappinessPerActiveTradeRoute);
 	visitor(player.m_iCSResourcesCountMonopolies);
 	visitor(player.m_iConquestPerEraBuildingProductionMod);
+	visitor(player.m_iPerPastEraBuildingProductionMod);
 	visitor(player.m_iAdmiralLuxuryBonus);
 	visitor(player.m_iPuppetYieldAndSupplyModifierChange);
 	visitor(player.m_iNeedsModifierFromAirUnits);

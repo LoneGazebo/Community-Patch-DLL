@@ -1431,6 +1431,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_PRODUCTION] += PolicyInfo->GetConquestPerEraBuildingProductionMod() * 2 * max(1, pPlayer->GetNumPuppetCities());
 		}
 	}
+	if (PolicyInfo->GetPerPastEraBuildingProductionMod() != 0)
+	{
+		if (pPlayerTraits->IsExpansionist())
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetPerPastEraBuildingProductionMod() * 7 * max(1, pPlayer->getNumCities());
+		}
+		else
+		{
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetPerPastEraBuildingProductionMod() * 4 * max(1, pPlayer->getNumCities());
+		}
+	}
 	if (PolicyInfo->GetPuppetYieldAndSupplyModifierChange() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsWarmonger())
