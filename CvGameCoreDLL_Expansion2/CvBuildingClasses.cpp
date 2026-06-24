@@ -292,7 +292,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piResourceQuantity(NULL),
 	m_piResourceCultureChanges(NULL),
 	m_piResourceFaithChanges(NULL),
-	m_piProductionTraits(NULL),
 	m_piSeaPlotYieldChange(NULL),
 	m_piRiverPlotYieldChange(NULL),
 	m_piLakePlotYieldChange(NULL),
@@ -452,7 +451,6 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piResourceQuantity);
 	SAFE_DELETE_ARRAY(m_piResourceCultureChanges);
 	SAFE_DELETE_ARRAY(m_piResourceFaithChanges);
-	SAFE_DELETE_ARRAY(m_piProductionTraits);
 	SAFE_DELETE_ARRAY(m_piSeaPlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piRiverPlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piLakePlotYieldChange);
@@ -1087,8 +1085,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByValue(m_paiHurryModifier, "HurryInfos", "Building_HurryModifiers", "HurryType", "BuildingType", szBuildingType, "HurryCostModifier");
 	kUtility.PopulateArrayByValue(m_paiHurryModifierLocal, "HurryInfos", "Building_HurryModifiersLocal", "HurryType", "BuildingType", szBuildingType, "HurryCostModifier");
 	kUtility.PopulateArrayByValue(m_paiResourceHappinessChange, "Resources", "Building_ResourceHappinessChange", "ResourceType", "BuildingType", szBuildingType, "HappinessChange");
-
-	//kUtility.PopulateArrayByValue(m_piProductionTraits, "Traits", "Building_ProductionTraits", "TraitType", "BuildingType", szBuildingType, "Trait");
 
 	kUtility.PopulateArrayByValue(m_piUnitCombatFreeExperience, "UnitCombatInfos", "Building_UnitCombatFreeExperiences", "UnitCombatType", "BuildingType", szBuildingType, "Experience");
 	kUtility.PopulateArrayByValue(m_piUnitCombatProductionModifiers, "UnitCombatInfos", "Building_UnitCombatProductionModifiers", "UnitCombatType", "BuildingType", szBuildingType, "Modifier");
@@ -4440,14 +4436,6 @@ int CvBuildingEntry::GetResourceFaithChange(int i) const
 	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourceFaithChanges ? m_piResourceFaithChanges[i] : -1;
-}
-
-/// Boost in production for leader with this trait
-int CvBuildingEntry::GetProductionTraits(int i) const
-{
-	PRECONDITION(i < GC.getNumTraitInfos(), "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piProductionTraits ? m_piProductionTraits[i] : 0;
 }
 
 /// Number of prerequisite buildings of a particular class

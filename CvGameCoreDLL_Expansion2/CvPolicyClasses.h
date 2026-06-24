@@ -426,6 +426,7 @@ public:
 	int GetFlatDefenseFromAirUnits() const;
 	int GetPuppetYieldAndSupplyModifierChange() const;
 	int GetConquestPerEraBuildingProductionMod() const;
+	int GetPerPastEraBuildingProductionMod() const;
 	int GetAdmiralLuxuryBonus() const;
 
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
@@ -857,6 +858,7 @@ private:
 	int m_iFlatDefenseFromAirUnits;
 	int m_iPuppetYieldAndSupplyModifierChange;
 	int m_iConquestPerEraBuildingProductionMod;
+	int m_iPerPastEraBuildingProductionMod;
 	int m_iAdmiralLuxuryBonus;
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
 	int* m_piInternationalRouteYieldModifiers;

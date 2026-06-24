@@ -12685,51 +12685,39 @@ int CvCity::getCurrentProductionModifier(CvString* toolTipSink) const
 //	--------------------------------------------------------------------------------
 int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 {
-	int iMultiplier = 0;
+	int iModifier = 0;
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
 	// Railroad to capital?
 	if (IsIndustrialRouteToCapitalConnected())
 	{
-		const int iTempMod = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod != 0)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_RAILROAD_CONNECTION", iTempMod);
-		}
+		int iTempMod = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_RAILROAD_CONNECTION", iTempMod);
 	}
 
-	if (GET_PLAYER(getOwner()).IsPuppetProdMod() && IsPuppet())
+	if (kPlayer.IsPuppetProdMod() && IsPuppet())
 	{
-		int iTempMod = GET_PLAYER(getOwner()).GetPuppetProdMod();
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_PUPPET_POLICY", iTempMod);
-		}
-	}
-	if (GET_PLAYER(getOwner()).IsOccupiedProdMod() && IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		int iTempMod = GET_PLAYER(getOwner()).GetOccupiedProdMod();
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_OCCUPIED_POLICY", iTempMod);
-		}
+		int iTempMod = kPlayer.GetPuppetProdMod();
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_PUPPET_POLICY", iTempMod);
 	}
 
-	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsProductionModFromNumSpecialists())
+	if (kPlayer.IsOccupiedProdMod() && IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
-		if (GetCityCitizens()->GetTotalSpecialistCount() > 0)
-		{
-			int iTempMod = GetCityCitizens()->GetTotalSpecialistCount();
-			iMultiplier += iTempMod;
-			if (toolTipSink && iTempMod)
-			{
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_NUM_SPECIALISTS", iTempMod);
-			}
-		}
+		int iTempMod = kPlayer.GetOccupiedProdMod();
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_OCCUPIED_POLICY", iTempMod);
 	}
-	return iMultiplier;
+
+	if (kPlayer.GetPlayerTraits()->IsProductionModFromNumSpecialists())
+	{
+		int iTempMod = GetCityCitizens()->GetTotalSpecialistCount();
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_NUM_SPECIALISTS", iTempMod);
+	}
+
+	return iModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -12761,16 +12749,6 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		iTempMod = GET_PLAYER(getOwner()).GetUnitClassProductionModifier((UnitClassTypes)pkUnitInfo->GetUnitClassType());
 		iMultiplier += iTempMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_UNIT_CLASS", iTempMod);
-	}
-
-	// Trait Bonus from Conquest
-	if (thisPlayer.GetProductionBonusTurnsConquest() > 0)
-	{
-		iTempMod = thisPlayer.GetPlayerTraits()->GetProductionBonusModifierConquest();
-		iMultiplier += iTempMod;
-		int iTurns = thisPlayer.GetProductionBonusTurnsConquest();
-		if (toolTipSink && iTempMod != 0)
-			*toolTipSink += GetLocalizedText("TXT_KEY_YIELD_MOD_CONQUEST", iTempMod, iTurns);
 	}
 
 	// Domain bonus
@@ -12981,347 +12959,99 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
-	CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eBuilding);
-	if (thisBuildingEntry == NULL)	//should never happen
-		return -1;
+	ASSERT(eBuilding >= 0 && eBuilding < GC.getNumBuildingInfos(), "Invalid building index");
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	int iMultiplier = getGeneralProductionModifiers(toolTipSink) + GET_PLAYER(getOwner()).getProductionModifier(eBuilding, toolTipSink);
-	const CvBuildingClassInfo& kBuildingClassInfo = thisBuildingEntry->GetBuildingClassInfo();
-	int iTempMod = 0;
+	int iModifier = getGeneralProductionModifiers(toolTipSink) + kPlayer.getProductionModifier(eBuilding, toolTipSink);
 
 	EraTypes eEra = NO_ERA;
-	TechTypes eTech = (TechTypes)thisBuildingEntry->GetPrereqAndTech();
-	CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
-	if (pEntry)
+	TechTypes eTech = static_cast<TechTypes>(pkBuildingInfo->GetPrereqAndTech());
+	if (eTech != NO_TECH)
 	{
-		eEra = (EraTypes)pEntry->GetEra();
+		eEra = static_cast<EraTypes>(GC.getTechInfo(eTech)->GetEra());
 	}
 
 	// Wonder bonus
-	if (::isWorldWonderClass(kBuildingClassInfo) ||
-		::isTeamWonderClass(kBuildingClassInfo) ||
-		::isNationalWonderClass(kBuildingClassInfo))
+	if (isLimitedWonderClass(kBuildingClassInfo))
 	{
-		iTempMod = GetWonderProductionModifier();
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_CITY", iTempMod);
-		}
+		int iTempMod = GetWonderProductionModifier();
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_CITY", iTempMod);
 
-		iTempMod = GET_PLAYER(getOwner()).getWonderProductionModifier();
-		if (GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA() > 0)
-		{
-			iTempMod += GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA();
-		}
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_PLAYER", iTempMod);
-		}
+		iTempMod = GetWonderProductionModifierFromLocalResources(eBuilding, toolTipSink);
+		iModifier += iTempMod;
 
-		iTempMod = GetLocalResourceWonderProductionMod(eBuilding, toolTipSink);
-		iMultiplier += iTempMod;
+		iTempMod = GetWonderProductionModifierFromReligion(eEra);
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_RELIGION", iTempMod);
 
-		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		BeliefTypes eSecondaryPantheon = NO_BELIEF;
-		iTempMod = 0;
-		if (eMajority != NO_RELIGION)
-		{
-			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-			if (pReligion)
-			{
-				// Depends on era of wonder
-				if (eTech != NO_TECH)
-				{
-					if (pEntry)
-					{
-						if (eEra != NO_ERA)
-						{
-							iTempMod = pReligion->m_Beliefs.GetWonderProductionModifier(eEra, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-							eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-							if (eSecondaryPantheon != NO_BELIEF)
-							{
-								if ((int)eEra < GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetObsoleteEra())
-								{
-									iTempMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetWonderProductionModifier();
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		iTempMod = GetWonderProductionModifierFromUnits();
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
 
-		// Mod for civs keeping their pantheon belief forever
-		if (MOD_BALANCE_PERMANENT_PANTHEONS)
-		{
-			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-			{
-				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-				{
-					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-					{
-						if (eEra != NO_ERA)
-						{
-							if ((int)eEra < GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetObsoleteEra())
-							{
-								iTempMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetWonderProductionModifier();
-							}
-						}
-					}
-				}
-			}
-		}
-
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_RELIGION", iTempMod);
-		}
-
-		CvPlot* pCityPlot = plot();
-		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
-		{
-			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->getWonderProductionModifier();
-			if (iTempMod != 0)
-			{
-				iMultiplier += iTempMod;
-				if (toolTipSink)
-				{
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_UNITPROMOTION", iTempMod);
-				}
-			}
-		}
-
-		iTempMod = 0;
-		for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
-		{
-			CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
-			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
-			if (eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
-			{
-				CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
-				iTempMod += pImprovementInfo->GetWonderProductionModifier();
-			}
-		}
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_IMPROVEMENT", iTempMod);
-		}
+		iTempMod = GetWonderProductionModifierFromImprovements();
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_IMPROVEMENT", iTempMod);
 	}
-	// Not-wonder bonus
+	// Non-wonder bonus
 	else
 	{
-		iTempMod = m_pCityBuildings->GetBuildingProductionModifier();
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_CITY", iTempMod);
-		}
-	}
+		int iTempMod = GetCityBuildings()->GetBuildingProductionModifier();
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_CITY", iTempMod);
 
-	// From policies
-	iTempMod = GET_PLAYER(getOwner()).GetPlayerPolicies()->GetBuildingClassProductionModifier((BuildingClassTypes)kBuildingClassInfo.GetID());
-	if (iTempMod != 0)
-	{
-		iMultiplier += iTempMod;
-		if (toolTipSink)
+		if (kPlayer.GetPlayerTraits()->GetWonderProductionModifierToBuilding() > 0)
 		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_POLICY", iTempMod);
-		}
-	}
+			int iMod = kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
 
-	// From traits
-	iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalBuildingDiscount(eBuilding);
-	if (iTempMod != 0)
-	{
-		iMultiplier += iTempMod;
-		if (toolTipSink)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CAPITAL_BUILDING_TRAIT", iTempMod);
-		}
-	}
-
-	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModifierToBuilding() > 0)
-	{
-		int iMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
-		iTempMod = (GetWonderProductionModifier() * iMod) / 100;
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
+			int iTempMod = GetWonderProductionModifier() * iMod / 100;
+			iModifier += iTempMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_CITY_TRAIT", iTempMod);
-		}
 
-		iTempMod = (GET_PLAYER(getOwner()).getWonderProductionModifier() * iMod) / 100;
-		if (GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA() > 0)
-		{
-			iTempMod += (GET_PLAYER(getOwner()).GetPlayerTraits()->GetWonderProductionModGA() * iMod) / 100;
-		}
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_PLAYER_TRAIT", iTempMod);
-		}
-
-		BuildingTypes ePyramidWonder = (BuildingTypes)GC.getInfoTypeForString("BUILDING_PYRAMID");
-		iTempMod = (GetLocalResourceWonderProductionMod(ePyramidWonder) * iMod) / 100;
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
+			iTempMod = GetWonderProductionModifierFromLocalResources(eEra) * iMod / 100;
+			iModifier += iTempMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RESOURCE_TRAIT", iTempMod);
-		}
 
-		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		BeliefTypes eSecondaryPantheon = NO_BELIEF;
-		if (eMajority != NO_RELIGION)
-		{
-			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-			if (pReligion)
-			{
-				// Depends on era of wonder
-				if (eTech != NO_TECH)
-				{
-					if (pEntry)
-					{
-						eEra = (EraTypes)pEntry->GetEra();
-						if (eEra != NO_ERA)
-						{
-							iTempMod = (pReligion->m_Beliefs.GetWonderProductionModifier(eEra, getOwner(), GET_PLAYER(getOwner()).getCity(GetID())) * iMod) / 100;
-							eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-							if (eSecondaryPantheon != NO_BELIEF)
-							{
-								if ((int)eEra < GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetObsoleteEra())
-								{
-									iTempMod += (GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetWonderProductionModifier() * iMod) / 100;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+			iTempMod = GetWonderProductionModifierFromReligion(eEra) * iMod / 100;
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RELIGION_TRAIT", iTempMod);
 
-		// Mod for civs keeping their pantheon belief forever
-		if (MOD_BALANCE_PERMANENT_PANTHEONS)
-		{
-			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-			{
-				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-				{
-					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-					{
-						if (eEra != NO_ERA)
-						{
-							if ((int)eEra < GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetObsoleteEra())
-							{
-								iTempMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetWonderProductionModifier();
-							}
-						}
-					}
-				}
-			}
-		}
+			iTempMod = GetWonderProductionModifierFromUnits() * iMod / 100;
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
 
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_RELIGION", iTempMod);
-		}
-		iTempMod = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER) * iMod) / 100;
-		iMultiplier += iTempMod;
-		if (toolTipSink && iTempMod)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_POLICY_TRAIT", iTempMod);
-		}
-
-		CvPlot* pCityPlot = plot();
-		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
-		{
-			iTempMod = (pCityPlot->getUnitByIndex(iUnitLoop)->getWonderProductionModifier() * iMod) / 100;
-			if (iTempMod != 0)
-			{
-				iMultiplier += iTempMod;
-				if (toolTipSink)
-				{
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT", iTempMod);
-				}
-			}
-		}
-		int iNumberOfImprovements = 0;
-		CvPlot* pLoopPlot = NULL;
-		for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
-		{
-			pLoopPlot = GC.getMap().plotByIndex(*it);
-			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
-			{
-				CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-				if (pImprovementInfo->GetWonderProductionModifier() > 0)
-				{
-					iTempMod = (pImprovementInfo->GetWonderProductionModifier() * iMod) / 100;
-					iMultiplier += iTempMod;
-					iNumberOfImprovements++;
-				}
-			}
-		}
-		if (toolTipSink && iTempMod && iNumberOfImprovements)
-		{
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_IMPROVEMENT_TRAIT", iTempMod * iNumberOfImprovements);
+			iTempMod = GetWonderProductionModifierFromImprovements() * iMod / 100;
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_IMPROVEMENT_TRAIT", iTempMod);
 		}
 	}
 
-	if (GET_PLAYER(getOwner()).GetConquestPerEraBuildingProductionMod() != 0)
+	// Bonus on past era buildings
+	if (eEra != NO_ERA)
 	{
+		int iTempMod = 0;
+		int iEraDelta = kPlayer.GetCurrentEra() - eEra;
 		if (IsPuppet() || IsNoOccupiedUnhappiness())
 		{
-			iTempMod = GET_PLAYER(getOwner()).GetConquestPerEraBuildingProductionMod();
-			EraTypes eBuildingEra = (EraTypes)0;
-
-			if (thisBuildingEntry->IsCorp())
-				eBuildingEra = NO_ERA;
-
-			if (eTech != NO_TECH)
+			iTempMod += kPlayer.GetConquestPerEraBuildingProductionMod();
+			if (iEraDelta > 0)
 			{
-				if (pEntry)
-				{
-					eBuildingEra = (EraTypes)pEntry->GetEra();
-				}
-			}
-
-			if (eBuildingEra != NO_ERA)
-			{
-				int iEraDelta = GET_PLAYER(getOwner()).GetCurrentEra() - eBuildingEra;
-				if (iEraDelta > 0)
-				{
-					iTempMod += GET_PLAYER(getOwner()).GetConquestPerEraBuildingProductionMod() * iEraDelta;
-				}
-			}
-			iMultiplier += iTempMod;
-			if (toolTipSink && iTempMod)
-			{
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CONQUEST_BUILDINGS_PRIOR_ERAS", iTempMod);
+				iTempMod += kPlayer.GetConquestPerEraBuildingProductionMod() * iEraDelta;
 			}
 		}
+
+		if (iEraDelta > 0)
+		{
+			iTempMod += kPlayer.GetPerPastEraBuildingProductionMod() * iEraDelta;
+		}
+
+		iModifier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDINGS_PRIOR_ERAS", iTempMod);
 	}
 
-	// Trait Bonus from Conquest
-	if (GET_PLAYER(getOwner()).GetProductionBonusTurnsConquest() > 0)
-	{
-		iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetProductionBonusModifierConquest();
-		iMultiplier += iTempMod;
-		int iTurns = GET_PLAYER(getOwner()).GetProductionBonusTurnsConquest();
-		if (toolTipSink && iTempMod != 0)
-			*toolTipSink += GetLocalizedText("TXT_KEY_YIELD_MOD_CONQUEST", iTempMod, iTurns);
-	}
-
-	return iMultiplier;
+	return iModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13337,16 +13067,6 @@ int CvCity::getProductionModifier(ProjectTypes eProject, CvString* toolTipSink) 
 		iTempMod = getSpaceProductionModifier();
 		iMultiplier += iTempMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPACE", iTempMod);
-	}
-
-	// Trait Bonus from Conquest
-	if (GET_PLAYER(getOwner()).GetProductionBonusTurnsConquest() > 0)
-	{
-		iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetProductionBonusModifierConquest();
-		iMultiplier += iTempMod;
-		int iTurns = GET_PLAYER(getOwner()).GetProductionBonusTurnsConquest();
-		if (toolTipSink && iTempMod != 0)
-			*toolTipSink += GetLocalizedText("TXT_KEY_YIELD_MOD_CONQUEST", iTempMod, iTurns);
 	}
 
 	return iMultiplier;
@@ -18482,120 +18202,178 @@ void CvCity::ChangeWonderProductionModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetLocalResourceWonderProductionMod(BuildingTypes eBuilding, CvString* toolTipSink) const
+int CvCity::GetWonderProductionModifierFromLocalResources(BuildingTypes eBuilding, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT();
-	int iMultiplier = 0;
-
 	PRECONDITION(eBuilding > -1 && eBuilding < GC.getNumBuildingInfos(), "Invalid building index.");
+
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	if (pkBuildingInfo)
+
+	// Is this even a wonder?
+	const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
+	if (!isLimitedWonderClass(kBuildingClassInfo))
+		return 0;
+
+	EraTypes eEra = NO_ERA;
+	TechTypes eTech = static_cast<TechTypes>(pkBuildingInfo->GetPrereqAndTech());
+	if (eTech != NO_TECH)
 	{
-		// Is this even a wonder?
-		const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
-		if (!::isWorldWonderClass(kBuildingClassInfo) &&
-			!::isTeamWonderClass(kBuildingClassInfo) &&
-			!::isNationalWonderClass(kBuildingClassInfo))
-		{
-			return 0;
-		}
+		eEra = static_cast<EraTypes>(GC.getTechInfo(eTech)->GetEra());
+	}
 
-		// Are we using a trade route to ship the wonder resource from/to this city?
-		bool bWonderResourceIn = false;
-		bool bWonderResourceOut = false;
-		if (MOD_TRADE_WONDER_RESOURCE_ROUTES)
+	int iModifier = GetWonderProductionModifierFromLocalResources(eEra);
+	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_LOCAL_RES", iModifier, pkBuildingInfo->GetDescription());
+
+	return iModifier;
+}
+
+// Generic version taking in only the building era, already assuming it's a wonder
+int CvCity::GetWonderProductionModifierFromLocalResources(EraTypes eEra) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eEra >= NO_ERA && eEra < GC.getNumEraInfos(), "Invalid era index.");
+
+	// Are we using a trade route to ship the wonder resource from/to this city?
+	bool bWonderResourceIn = false;
+	bool bWonderResourceOut = false;
+	if (MOD_TRADE_WONDER_RESOURCE_ROUTES)
+	{
+		for (uint ui = 0; ui < GC.getGame().GetGameTrade()->GetNumTradeConnections(); ui++)
 		{
-			CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
-			for (uint ui = 0; ui < pGameTrade->GetNumTradeConnections(); ui++)
+			if (GC.getGame().GetGameTrade()->IsTradeRouteIndexEmpty(ui))
+				continue;
+
+			const TradeConnection& kConnection = GC.getGame().GetGameTrade()->GetTradeConnection(ui);
+			if (kConnection.m_eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE)
 			{
-				if (pGameTrade->IsTradeRouteIndexEmpty(ui))
+				CvCity* pOriginCity = CvGameTrade::GetOriginCity(kConnection);
+				CvCity* pDestCity = CvGameTrade::GetDestCity(kConnection);
+
+				if (pDestCity->getX() == getX() && pDestCity->getY() == getY())
 				{
-					continue;
+					ResourceTypes eWonderResource = getWonderResource();
+					bWonderResourceIn = (eWonderResource != NO_RESOURCE && pOriginCity->GetNumResourceLocal(eWonderResource) > 0);
+				}
+				else if (pOriginCity->getX() == getX() && pOriginCity->getY() == getY())
+				{
+					bWonderResourceOut = true;
 				}
 
-				if (pGameTrade->GetTradeConnection(ui).m_eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE)
-				{
-					CvCity* pOriginCity = CvGameTrade::GetOriginCity(pGameTrade->GetTradeConnection(ui));
-					CvCity* pDestCity = CvGameTrade::GetDestCity(pGameTrade->GetTradeConnection(ui));
-
-					if (pDestCity->getX() == getX() && pDestCity->getY() == getY())
-					{
-						ResourceTypes eWonderResource = ::getWonderResource();
-						bWonderResourceIn = (eWonderResource != NO_RESOURCE && pOriginCity->GetNumResourceLocal(eWonderResource) > 0);
-					}
-					else
-					{
-						if (pOriginCity->getX() == getX() && pOriginCity->getY() == getY())
-						{
-							bWonderResourceOut = true;
-						}
-					}
-
-					break;
-				}
+				break;
 			}
-			// if (bWonderResourceIn) CUSTOMLOG("Shipping a wonder resource into %s", getName().c_str());
-			// if (bWonderResourceOut) CUSTOMLOG("Shipping a wonder resource out of %s", getName().c_str());
-		}
-
-		// Resource wonder bonus
-		int iTotalBonus = 0;
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			if (pkResource)
-			{
-				int iBonus = pkResource->getWonderProductionMod();
-				if (iBonus != 0)
-				{
-					bool bHasLocalResource = IsHasResourceLocal(eResource, /*bTestVisible*/ false);
-					if (MOD_TRADE_WONDER_RESOURCE_ROUTES)
-					{
-						// We're shipping one in, or we're not shipping our only one out, or we have more than one
-						bHasLocalResource = bWonderResourceIn || (m_paiNumResourcesLocal[eResource] == 1 && !bWonderResourceOut) || (m_paiNumResourcesLocal[eResource] > 1);
-					}
-
-					if (bHasLocalResource)
-					{
-						// Depends on era of wonder?
-						EraTypes eResourceObsoleteEra = pkResource->getWonderProductionModObsoleteEra();
-						if (eResourceObsoleteEra != NO_ERA)
-						{
-							EraTypes eWonderEra;
-							TechTypes eTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
-							if (eTech != NO_TECH)
-							{
-								CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
-								if (pEntry)
-								{
-									eWonderEra = (EraTypes)pEntry->GetEra();
-									if (eWonderEra != NO_ERA)
-									{
-										if (eWonderEra >= eResourceObsoleteEra)
-										{
-											continue;
-										}
-									}
-								}
-							}
-						}
-
-						iTotalBonus += iBonus;
-					}
-				}
-			}
-		}
-		if (iTotalBonus != 0)
-		{
-			iMultiplier += iTotalBonus;
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_LOCAL_RES", iTotalBonus, pkBuildingInfo->GetDescription());
 		}
 	}
 
-	return iMultiplier;
+	// Resource wonder bonus
+	int iModifier = 0;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		int iBonus = pkResourceInfo->getWonderProductionMod();
+		if (iBonus != 0)
+		{
+			bool bHasLocalResource = IsHasResourceLocal(eResource, /*bTestVisible*/ false);
+			if (MOD_TRADE_WONDER_RESOURCE_ROUTES)
+			{
+				// We're shipping one in, or we're not shipping our only one out, or we have more than one
+				bHasLocalResource = bWonderResourceIn || (m_paiNumResourcesLocal[eResource] == 1 && !bWonderResourceOut) || (m_paiNumResourcesLocal[eResource] > 1);
+			}
+
+			if (!bHasLocalResource)
+				continue;
+
+			// Depends on era of wonder?
+			EraTypes eResourceObsoleteEra = pkResourceInfo->getWonderProductionModObsoleteEra();
+			if (eResourceObsoleteEra != NO_ERA && eEra >= eResourceObsoleteEra)
+				continue;
+
+			iModifier += iBonus;
+		}
+	}
+
+	return iModifier;
 }
 
+int CvCity::GetWonderProductionModifierFromReligion(EraTypes eEra) const
+{
+	if (eEra == NO_ERA)
+		return 0;
+
+	int iModifier = 0;
+	BeliefTypes eSecondaryPantheon = NO_BELIEF;
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if (eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+		ASSERT(pReligion);
+		iModifier = pReligion->m_Beliefs.GetWonderProductionModifier(eEra, getOwner(), this);
+
+		// Secondary pantheon
+		eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+		if (eSecondaryPantheon != NO_BELIEF)
+		{
+			CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(eSecondaryPantheon);
+			if (eEra < pBeliefInfo->GetObsoleteEra())
+			{
+				iModifier += pBeliefInfo->GetWonderProductionModifier();
+			}
+		}
+	}
+
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_BALANCE_PERMANENT_PANTHEONS)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+		{
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+			if (ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				// Check that the our religion does not have our belief, to prevent double counting
+				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) 
+				{
+					CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(ePantheonBelief);
+					if (eEra < pBeliefInfo->GetObsoleteEra())
+					{
+						iModifier += pBeliefInfo->GetWonderProductionModifier();
+					}
+				}
+			}
+		}
+	}
+
+	return iModifier;
+}
+
+int CvCity::GetWonderProductionModifierFromUnits() const
+{
+	CvPlot* pCityPlot = plot();
+	int iModifier = 0;
+	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
+	{
+		iModifier += pCityPlot->getUnitByIndex(iUnitLoop)->getWonderProductionModifier();
+	}
+
+	return iModifier;
+}
+
+int CvCity::GetWonderProductionModifierFromImprovements() const
+{
+	int iModifier = 0;
+	for (std::set<int>::const_iterator it = m_siPlots.begin(); it != m_siPlots.end(); ++it)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
+		ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+		if (eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+		{
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
+			iModifier += pImprovementInfo->GetWonderProductionModifier();
+		}
+	}
+
+	return iModifier;
+}
 
 //	--------------------------------------------------------------------------------
 int CvCity::getCapturePlunderModifier() const

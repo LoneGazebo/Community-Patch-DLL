@@ -613,7 +613,6 @@ public:
 	int GetResourceQuantity(int i) const;
 	int GetResourceCultureChange(int i) const;
 	int GetResourceFaithChange(int i) const;
-	int GetProductionTraits(int i) const;
 	int GetPrereqNumOfBuildingClass(int i) const;
 	int GetFlavorValue(int i) const;
 	uint GetLocalResourceAndSize() const;
@@ -1010,7 +1009,6 @@ private:
 	int* m_piResourceQuantity;
 	int* m_piResourceCultureChanges;
 	int* m_piResourceFaithChanges;
-	int* m_piProductionTraits;
 	int* m_piSeaPlotYieldChange;
 	int* m_piRiverPlotYieldChange;
 	int* m_piLakePlotYieldChange;

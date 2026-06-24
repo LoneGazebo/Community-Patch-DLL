@@ -3882,7 +3882,7 @@ int CvLuaCity::lGetLocalResourceWonderProductionMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 
-	lua_pushinteger(L, pkCity->GetLocalResourceWonderProductionMod(static_cast<BuildingTypes>(lua_tointeger(L, 2))));
+	lua_pushinteger(L, pkCity->GetWonderProductionModifierFromLocalResources(static_cast<BuildingTypes>(lua_tointeger(L, 2))));
 	return 1;
 }
 

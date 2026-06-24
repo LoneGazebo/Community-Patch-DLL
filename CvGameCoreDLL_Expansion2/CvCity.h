@@ -656,7 +656,11 @@ public:
 	int GetWonderProductionModifier() const;
 	void ChangeWonderProductionModifier(int iChange);
 
-	int GetLocalResourceWonderProductionMod(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
+	int GetWonderProductionModifierFromLocalResources(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
+	int GetWonderProductionModifierFromLocalResources(EraTypes eEra) const; // generic version taking in only the building era
+	int GetWonderProductionModifierFromReligion(EraTypes eEra) const;
+	int GetWonderProductionModifierFromUnits() const;
+	int GetWonderProductionModifierFromImprovements() const;
 
 	int getCapturePlunderModifier() const;
 	void changeCapturePlunderModifier(int iChange);

@@ -82,6 +82,9 @@ ALTER TABLE Policies ADD PuppetYieldAndSupplyModifierChange integer DEFAULT 0;
 -- Puppet/Occupied cities gain x+x*era difference for buildings.
 ALTER TABLE Policies ADD ConquestPerEraBuildingProductionMod integer DEFAULT 0;
 
+-- +X% production towards buildings for every era past the building's era.
+ALTER TABLE Policies ADD PerPastEraBuildingProductionMod integer DEFAULT 0;
+
 -- Increased free luxuries created by freelux routine for units (used by admiral in VP).
 ALTER TABLE Policies ADD AdmiralLuxuryBonus integer DEFAULT 0;
 

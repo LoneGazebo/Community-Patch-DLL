@@ -1930,9 +1930,6 @@
 		<Row Tag="TXT_KEY_YIELD_MOD_CAPITAL">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% for [ICON_CAPITAL] Capital from Policies</Text>
 		</Row>
-		<Row Tag="TXT_KEY_YIELD_MOD_CONQUEST">
-			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from City Conquest ({2_Num} {2: plural 1?Turn; other?Turns;} remaining)</Text>
-		</Row>
 		<Row Tag="TXT_KEY_YIELD_MOD_CORPORATION">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_INTERNATIONAL_TRADE] Trade Routes with [ICON_FRANCHISE] Established Franchise</Text>
 		</Row>
@@ -2157,7 +2154,7 @@
 		<Row Tag="TXT_KEY_PRODMOD_UNIT_CORPORATION">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit from Corporation: {1_Num}%</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODMOD_CONQUEST_BUILDINGS_PRIOR_ERAS">
+		<Row Tag="TXT_KEY_PRODMOD_BUILDINGS_PRIOR_ERAS">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Past Era Buildings: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_WONDER_UNITPROMOTION">
@@ -2178,6 +2175,9 @@
 		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_POLICY_TRAIT">
 			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Policies: {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RELIGION_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Religion: {1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RESOURCE_TRAIT">
 			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Resources: {1_Num}%</Text>
 		</Row>
@@ -2186,6 +2186,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_CITY_TRAIT">
 			<Text>[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from City: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_CONQUEST">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Recent City Conquest: {1: number "'+'##;'-'##"}% ({2_Num} {2: plural 1?Turn; other?Turns;} remaining)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART">
 			<Text>{1_Num} [ICON_RESEARCH] added by [ICON_GREAT_WORK] Great Works</Text>
