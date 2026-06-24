@@ -15793,9 +15793,59 @@ pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bS
 	return make_pair(iFriendlyPower,iEnemyPower);
 }
 
+// iterator needs same structure as the next function, where it is used as a helper
+int CvPlot::GetNumThisTeamUnitsAdjacent(TeamTypes eMyTeam, TeamTypes eSpecificTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, bool bIncludeEmbarked) const
+{
+	int iNumEnemiesAdjacent = 0;
+
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for (int iCount=0; iCount < NUM_DIRECTION_TYPES; iCount++)
+	{
+		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+		if (pLoopPlot != NULL && pLoopPlot->isVisible(eMyTeam))
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while (pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// No NULL, and no unit we want to exclude
+				if (pLoopUnit && pLoopUnit != pUnitToExclude)
+				{
+					// Must be a combat Unit
+					if (pLoopUnit->IsCombatUnit() && (!pLoopUnit->isEmbarked() || bIncludeEmbarked))
+					{
+						TeamTypes eTheirTeam = pLoopUnit->getTeam();
+
+						// This team which this unit belongs to must be the passed team
+						if (eTheirTeam == eSpecificTeam)
+						{
+							// Must be same domain
+							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
+							{
+								iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iNumEnemiesAdjacent;
+}
+
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, TeamTypes eSpecificTeam, bool bIncludeEmbarked) const
 {
 	int iNumEnemiesAdjacent = 0;
+
+	if (eSpecificTeam != NO_TEAM && !GET_TEAM(eSpecificTeam).isAtWar(eMyTeam))
+	{
+		iNumEnemiesAdjacent += GetNumThisTeamUnitsAdjacent(eMyTeam, eSpecificTeam, eDomain, pUnitToExclude, bConsiderFlanking, bIncludeEmbarked);
+	}
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -15820,7 +15870,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
 						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam) || eTheirTeam == eSpecificTeam)
+						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
 						{
 							// Must be same domain
 							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)

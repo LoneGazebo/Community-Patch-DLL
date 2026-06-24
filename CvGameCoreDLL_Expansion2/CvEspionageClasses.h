@@ -562,6 +562,9 @@ public:
 	void AttemptCoups(void);
 	void PerformSpyMissions(void);
 
+	int GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eOwner, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pOwnerDiplomacyAI);
+	int GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes eOwner, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pDiplomacyAI);
+	int GetMissionScoreOffensiveBenefits(CvCity* pCity, PlayerTypes eOwner, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pDiplomacyAI, int iSpyIndex);
 	int GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission, int iSpyIndex = -1, bool bLogAllChoices = false);
 	CityEventChoiceTypes GetBestMissionInCity(CvCity* pCity, int& iScore, std::vector<int> aMissionList, int iSpyIndex = -1, bool bLogAllChoices = false);
 

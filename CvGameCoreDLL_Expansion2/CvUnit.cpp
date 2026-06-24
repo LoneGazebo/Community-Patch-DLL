@@ -12219,6 +12219,12 @@ bool CvUnit::trade()
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
+	// does this Unit give extra spy points on its missions?
+	if (m_pUnitInfo->GetExtraSpies() > 0)
+	{
+		kOwner.CreateSpies(m_pUnitInfo->GetExtraSpies());
+	}
+
 	if (IsGreatPerson())
 	{
 		kOwner.DoGreatPersonExpended(getUnitType(), this);

@@ -44,6 +44,7 @@ struct SPrecomputedExpensiveNumbers
 	bool bWantArt;
 	bool bWantScience;
 	bool bWantDiplo;
+	bool iEspionage;
 	int iNetGold;
 
 	vector<int> iSpecialistGPPRates;
