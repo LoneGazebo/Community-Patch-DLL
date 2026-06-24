@@ -7350,7 +7350,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 				}
 			}
 
-			ASSERT(iAreaCount == 1, "This should be logically impossible");
+			ASSERT(iAreaCount != 1, "This should be logically impossible");
 			ASSERT(pLastPlot && pLastValidArea, "All adjacent plots are invalid???")
 
 			CvArea* pNewArea = NULL;
