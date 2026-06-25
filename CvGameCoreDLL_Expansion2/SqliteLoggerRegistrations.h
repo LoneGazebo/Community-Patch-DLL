@@ -170,3 +170,51 @@ static void RegisterGameResultTable()
 		GET_SQLITE_LOGGER().RegisterTable("GameResult", kColumns);
 	}
 }
+
+static void RegisterMapPlotsStateTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("plotX", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("plotY", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("cityName", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("owner", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("routeType", Database::COLTYPE_INT));
+		GET_SQLITE_LOGGER().RegisterTable("MapPlotsState", kColumns);
+	}
+}
+
+// Long-format per-building yield breakdown, one row per (city, constructed building, yield).
+// BaseYieldTimes100   = the building's own intrinsic flat yield (incl. population/era/per-tile and
+//                       similar self-scalers) PLUS the extra yields the building grants to the tiles
+//                       this city is actually working (resource/luxury/terrain/feature/improvement/
+//                       sea/lake/river/city-connection plot yields).
+// BonusYieldTimes100  = the extra flat yield layered on top of the base by external sources such as
+//                       beliefs, policies, traits, corporations, leagues, events and other buildings.
+// Percentage-based modifiers and instant/event yields are intentionally excluded (tracked elsewhere).
+static void RegisterBuildingYieldsTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("Era", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("Civ", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("City", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Building", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Yield", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("BaseYieldTimes100", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("BonusYieldTimes100", Database::COLTYPE_INT));
+		GET_SQLITE_LOGGER().RegisterTable("BuildingYields", kColumns);
+	}
+}
