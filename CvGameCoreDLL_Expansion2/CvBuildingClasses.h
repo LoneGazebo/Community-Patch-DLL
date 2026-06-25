@@ -716,6 +716,8 @@ public:
 	bool IsFaithPurchaseOnly() const;
 	int GetBasePressureModGlobal() const;
 
+	int GetLocalFranchiseChance() const;
+
 private:
 	int m_iBuildingClassType;
 	const CvBuildingClassInfo* m_pkBuildingClassInfo;
@@ -996,6 +998,8 @@ private:
 	int m_iInstantReligionPressure;
 	int m_iBasePressureModGlobal;
 	int m_iDefensePerXWonder;
+
+	int m_iLocalFranchiseChance;
 
 	CvString m_strArtDefineTag;
 	CvString m_strWonderSplashAudio;

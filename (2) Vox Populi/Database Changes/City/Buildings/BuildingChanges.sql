@@ -2005,8 +2005,8 @@ WHERE BuildingClass = 'BUILDINGCLASS_COALING_STATION';
 INSERT INTO Helper
 	(YieldType, Yield)
 VALUES
-	('YIELD_GOLD', 2),
-	('YIELD_TOURISM', 3);
+	('YIELD_GOLD', 8),
+	('YIELD_TOURISM', 2);
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -2027,14 +2027,14 @@ WHERE BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
 INSERT INTO Building_BuildingClassLocalYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 SELECT
-	b.Type, c.FranchiseBuildingClass, 'YIELD_GOLD', 4
+	b.Type, c.FranchiseBuildingClass, 'YIELD_GOLD', 8
 FROM Buildings b, Corporations c
 WHERE b.BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
 
 INSERT INTO Building_BuildingClassLocalYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 SELECT
-	b.Type, c.FranchiseBuildingClass, 'YIELD_CULTURE', 2
+	b.Type, c.FranchiseBuildingClass, 'YIELD_TOURISM', 2
 FROM Buildings b, Corporations c
 WHERE b.BuildingClass = 'BUILDINGCLASS_SHOPPING_MALL';
 

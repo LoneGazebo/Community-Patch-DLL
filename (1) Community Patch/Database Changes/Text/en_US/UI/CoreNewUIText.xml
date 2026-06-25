@@ -1171,6 +1171,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_REDUCED_GLOBAL_FOLLOWER_REQUIREMENT">
 			<Text>{2_Sign}{1_Num}% Worldwide Follower Requirement for all Buildings</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_LOCAL_FRANCHISE_CHANCE">
+			<Text>{2_Sign}{1_Num}% chance a random eligible foreign [ICON_FRANCHISE] Franchise is established in this City each turn</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_FROM_OTHER_YIELD">
 			<Text>{1_Num}% of City {2_YieldIcon} {3_Yield:textkey} output (pre-Modifiers) is added to City {4_YieldIcon} {5_Yield:textkey} output (post-Modifiers)</Text>
 		</Row>

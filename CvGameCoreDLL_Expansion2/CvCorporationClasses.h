@@ -229,6 +229,7 @@ public:
 
 	void BuildFranchiseInCity(CvCity* pOriginCity, CvCity* pDestCity);
 	void BuildRandomFranchiseInCity();
+	bool CanBuildFranchiseInPlayer(PlayerTypes ePlayer); // doesn't check cities
 
 	void LogCorporationMessage(const CvString& strMsg);
 	CvString GetLogFileName(CvString& playerName) const;

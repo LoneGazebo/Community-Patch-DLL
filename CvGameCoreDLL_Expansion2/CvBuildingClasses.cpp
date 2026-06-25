@@ -286,6 +286,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iInstantReligionPressure(0),
 	m_iBasePressureModGlobal(0),
 	m_iDefensePerXWonder(0),
+	m_iLocalFranchiseChance(0),
 	m_piLockedBuildingClasses(NULL),
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
@@ -953,6 +954,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	m_iBasePressureModGlobal = kResults.GetInt("BasePressureModifierGlobal");
 	m_iDefensePerXWonder = kResults.GetInt("DefensePerXWonder");
+
+	m_iLocalFranchiseChance = kResults.GetInt("LocalFranchiseChance");
 
 	//Arrays
 	const char* szBuildingType = GetType();
@@ -3426,6 +3429,11 @@ int CvBuildingEntry::GetInstantReligionPressure() const
 int CvBuildingEntry::GetDefensePerXWonder() const
 {
 	return m_iDefensePerXWonder;
+}
+
+int CvBuildingEntry::GetLocalFranchiseChance() const
+{
+	return m_iLocalFranchiseChance;
 }
 
 int CvBuildingEntry::GetBasePressureModGlobal() const

@@ -963,7 +963,7 @@
 			<Text>Shopping Mall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SHOPPING_MALL_STRATEGY">
-			<Text>The Mall interacts with Corporations and the Trade Route subsystem on which they rely. In an appropriate City, it turns Franchises from a cost into a benefit.</Text>
+			<Text>The Shopping Mall converts existing foreign [ICON_FRANCHISE] Franchises within the city from an economic drain into a direct local benefit, while randomly attracting new ones - a mutually beneficial expansion that fuels both your city's local growth and your rivals' corporate profits. Furthermore, every purchase or investment made with [ICON_GOLD] Gold will generate [ICON_TOURISM] Tourism, allowing you to convert your wealth directly into cultural dominance.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SHOPPING_MALL_HELP">
 			<Text></Text>
