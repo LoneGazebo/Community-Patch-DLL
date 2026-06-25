@@ -22,6 +22,7 @@
 #include "TContainer.h"
 #include "CvMinorCivAI.h"
 #include "CvSerialize.h"
+#include "CvBuilderTaskingAI.h"
 
 class CvPlayerPolicies;
 class CvEconomicAI;
@@ -75,6 +76,15 @@ struct SPlayerActiveEspionageEvent
 	int iEndTurn;
 	YieldTypes eYield;
 	int iAmount;
+};
+
+struct SBuilderOperationSettings
+{
+	SBuilderOperationSettings(CvUnit* pUnit, SBuilderDirective eDirective, bool bAllowDangerous) : m_pUnit(pUnit), m_eDirective(eDirective), m_bAllowDangerous(bAllowDangerous) {};
+
+	CvUnit* m_pUnit;
+	SBuilderDirective m_eDirective;
+	bool m_bAllowDangerous;
 };
 
 class CvPlayer
@@ -2363,6 +2373,7 @@ public:
 	CvAIOperation* getAIOperation(int iID);
 	const CvAIOperation* getAIOperation(int iID) const;
 	CvAIOperation* addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy = NO_PLAYER, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	void addAIOperation(CvAIOperation* pOperation);
 	void deleteAIOperation(int iID);
 	CvAIOperation* getFirstAIOperationOfType(AIOperationTypes eOperationType, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	CvAIOperation* getFirstOffensiveAIOperation(PlayerTypes eTargetPlayer);

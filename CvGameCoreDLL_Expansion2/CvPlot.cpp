@@ -10571,7 +10571,7 @@ int CvPlot::calculateReligionImprovementYield(YieldTypes eYield, PlayerTypes ePl
 	return iReligionChange;
 }
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, RouteTypes eRoute, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, bool bOptimal) const
+int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, RouteTypes eRoute, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, bool bOptimal, bool bPlanning) const
 {
 	int iBestYield = 0;
 	int iYield = 0;
@@ -10597,7 +10597,7 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 		fFractionalYield += ComputeFractionalYieldFromAdjacentTerrain(*pkImprovementInfo, eYield);
 
 		int iYieldChangePerEra = pkImprovementInfo->GetYieldChangePerEra(eYield);
-		if (iYieldChangePerEra > 0)
+		if (iYieldChangePerEra > 0 && !bPlanning)
 		{
 			int iPlotEra = GetArchaeologicalRecord().m_eEra;
 			int iNumEras = kPlayer.GetCurrentEra() - iPlotEra;
@@ -10716,7 +10716,7 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 		if(ePlayer != NO_PLAYER)
 		{
 			// GetRouteYieldChanges gives extra yieds if a trade route passes over the tile
-			if(IsTradeUnitRoute() && eForceCityConnection == NUM_ROUTE_TYPES)
+			if(IsTradeUnitRoute() && !bPlanning)
 			{
 				if( GET_PLAYER(ePlayer).GetCurrentEra() >= 4 )
 				{
@@ -10728,13 +10728,13 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 				}
 			}
 
-			if (eRoute != NO_ROUTE || (eForceCityConnection != NUM_ROUTE_TYPES && eForceCityConnection != NO_ROUTE))
+			if (eRoute != NO_ROUTE || (bPlanning && eForceCityConnection != NO_ROUTE))
 			{
-				if ((eForceCityConnection == ROUTE_RAILROAD || (eForceCityConnection == NUM_ROUTE_TYPES && IsCityConnection(ePlayer, true /*bIndustrial*/))) && MOD_BALANCE_VP)
+				if ((eForceCityConnection == ROUTE_RAILROAD || (!bPlanning && IsCityConnection(ePlayer, true /*bIndustrial*/))) && MOD_BALANCE_VP)
 				{
 					iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
 				}
-				else if (eForceCityConnection == ROUTE_ROAD || eForceCityConnection == ROUTE_RAILROAD || (eForceCityConnection == NUM_ROUTE_TYPES && IsCityConnection(ePlayer, false /*bIndustrial*/)))
+				else if (eForceCityConnection == ROUTE_ROAD || eForceCityConnection == ROUTE_RAILROAD || (!bPlanning && IsCityConnection(ePlayer, false /*bIndustrial*/)))
 				{
 					iYield += pkImprovementInfo->GetRouteYieldChanges(ROUTE_ROAD, eYield);
 				}
@@ -11277,7 +11277,7 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	int iYield = calculateNatureYield(eYield, ePlayer, eFeature, eResource, eImprovement, pOwningCity, bDisplay);
 	iYield += calculateReligionImprovementYield(eYield, ePlayer, eImprovement, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, eImprovement, eFeature, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
-	iYield += calculateImprovementYield(eYield, ePlayer, eImprovement, eRoute, eFeature, eResource, NUM_ROUTE_TYPES, pOwningCity, false);
+	iYield += calculateImprovementYield(eYield, ePlayer, eImprovement, eRoute, eFeature, eResource, NUM_ROUTE_TYPES, pOwningCity);
 	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, eFeature, eResource, NUM_ROUTE_TYPES, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, bDisplay);
 
 	if (MOD_BALANCE_PERMANENT_PANTHEONS && pPlayerPantheon != NULL)
@@ -14100,7 +14100,7 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, RouteTypes eForceCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon) const
+int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, RouteTypes eForceCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bPlanning) const
 {
 	int iYield = 0;
 
@@ -14115,6 +14115,12 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 	ImprovementTypes eNewImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
 	ImprovementTypes eOldImprovement = getImprovementType();
+
+	static const ImprovementTypes eArchaeologicalDigImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ARCHAEOLOGICAL_DIG");
+	static const ImprovementTypes eLandmarkImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+
+	if (bPlanning && eNewImprovement == eArchaeologicalDigImprovement)
+		eNewImprovement = eLandmarkImprovement;
 
 	// If we're not changing the improvement that's here, use the improvement that's here already
 	if (eNewImprovement == NO_IMPROVEMENT)
@@ -14214,7 +14220,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			}
 		}
 
-		iYield += calculateImprovementYield(eYield, ePlayer, eNewImprovement, eNewRoute, eFeature, eResource, eForceCityConnection, pOwningCity, false) + calculateReligionImprovementYield(eYield, ePlayer, eNewImprovement, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+		iYield += calculateImprovementYield(eYield, ePlayer, eNewImprovement, eNewRoute, eFeature, eResource, eForceCityConnection, pOwningCity, false, bPlanning) + calculateReligionImprovementYield(eYield, ePlayer, eNewImprovement, eResource, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 		if (MOD_BALANCE_PERMANENT_PANTHEONS && pPlayerPantheon != NULL)
 		{
 			iYield += calculateReligionImprovementYield(eYield, ePlayer, eNewImprovement, eResource, pOwningCity, pPlayerPantheon, NULL);
@@ -16165,7 +16171,7 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 	return iStrategicValue;
 }
 
-int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, ImprovementTypes eImprovement, const SBuilderState& sState) const
+int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, ImprovementTypes eImprovement, const SBuilderState* pState) const
 {
 	CvPlayer& kPlayer = GET_PLAYER(eOwner);
 	TeamTypes eTeam = kPlayer.getTeam();
@@ -16245,8 +16251,13 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 						if (pLoopAdjacentAdjacentPlot->getOwner() != eOwner)
 							continue;
 
-						map<int, pair<BuildTypes, ImprovementTypes>>::const_iterator it = sState.mChangedPlotImprovements.find(pLoopAdjacentAdjacentPlot->GetPlotIndex());
-						ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second.second : NO_IMPROVEMENT;
+						ImprovementTypes eAdjacentImprovement = NO_IMPROVEMENT;
+
+						if (pState)
+						{
+							std::tr1::unordered_map<int, pair<BuildTypes, ImprovementTypes>>::const_iterator it = pState->m_ChangedPlotImprovements.find(pLoopAdjacentAdjacentPlot->GetPlotIndex());
+							eAdjacentImprovement = it != pState->m_ChangedPlotImprovements.end() ? it->second.second : NO_IMPROVEMENT;
+						}
 
 						// If we are not planning on building an improvement here, use the one that exists already
 						if (eAdjacentImprovement == NO_IMPROVEMENT)
@@ -16268,8 +16279,13 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 						iTotalAdjacentDamage += iImprovementDamage - iMaxDamageAlreadyInPlot;
 				}
 
-				map<int, pair<BuildTypes, ImprovementTypes>>::const_iterator it = sState.mChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
-				ImprovementTypes eAdjacentImprovement = it != sState.mChangedPlotImprovements.end() ? it->second.second : NO_IMPROVEMENT;
+				ImprovementTypes eAdjacentImprovement = NO_IMPROVEMENT;
+
+				if (pState)
+				{
+					std::tr1::unordered_map<int, pair<BuildTypes, ImprovementTypes>>::const_iterator it = pState->m_ChangedPlotImprovements.find(pAdjacentPlot->GetPlotIndex());
+					eAdjacentImprovement = it != pState->m_ChangedPlotImprovements.end() ? it->second.second : NO_IMPROVEMENT;
+				}
 
 				// If we are not planning on building an improvement here, use the one that exists already
 				if (eAdjacentImprovement == NO_IMPROVEMENT)

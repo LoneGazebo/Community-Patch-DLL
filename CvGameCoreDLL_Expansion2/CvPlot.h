@@ -28,7 +28,6 @@
 #include "CvGame.h"
 #include "CvEnums.h"
 #include "CvSerialize.h"
-#include "CvHomelandAI.h"
 
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
@@ -37,6 +36,7 @@ class CvLandmass;
 class CvContinent;
 class CvRiver;
 class CvRoute;
+struct SBuilderState;
 
 typedef bool (*ConstPlotUnitFunc)(const CvUnit* pUnit, int iData1, int iData2);
 typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
@@ -577,7 +577,7 @@ public:
 	int calculateBestNatureYield(YieldTypes eYield, PlayerTypes ePlayer) const;
 	int calculateTotalBestNatureYield(PlayerTypes ePlayer) const;
 
-	int calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, RouteTypes eRoute, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, bool bOptimal = false) const;
+	int calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, RouteTypes eRoute, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, bool bOptimal = false, bool bPlanning = false) const;
 
 	int calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource, RouteTypes eForceCityConnection, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon, bool bDisplay) const;
 
@@ -592,7 +592,7 @@ public:
 	void updateYield();
 	void updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL);
 
-	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, RouteTypes eForceCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL) const;
+	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, RouteTypes eForceCityConnection, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL, bool bPlanning = false) const;
 
 	int countNumAirUnits(TeamTypes eTeam, bool bNoSuicide = false) const;
 
@@ -850,7 +850,7 @@ public:
 	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
 
 	int GetStrategicValue(PlayerTypes ePlayer) const;
-	int GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild=NO_BUILD, ImprovementTypes eImprovement=NO_IMPROVEMENT, const SBuilderState& sState=SBuilderState::DefaultInstance()) const;
+	int GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild=NO_BUILD, ImprovementTypes eImprovement=NO_IMPROVEMENT, const SBuilderState* sState=NULL) const;
 
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 

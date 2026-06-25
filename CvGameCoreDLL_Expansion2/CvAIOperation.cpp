@@ -302,6 +302,9 @@ CvAIOperation* CreateAIOperation(AIOperationTypes eAIOperationType, int iID, Pla
 		return new CvAIOperationCivilianDiplomatDelegation(iID, eOwner, eEnemy);
 	case AI_OPERATION_MUSICIAN_CONCERT_TOUR:
 		return new CvAIOperationCivilianConcertTour(iID, eOwner, eEnemy);
+	// Only used for serialization
+	case AI_OPERATION_ESCORTED_IMPROVEMENT_BUILD:
+		return new CvAIOperationBuildImprovementEscorted(iID, eOwner, NULL, SBuilderDirective(), false, false);
 	}
 
 	return NULL;
@@ -2228,6 +2231,193 @@ bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CvAIOperationBuildImprovementEscorted
+////////////////////////////////////////////////////////////////////////////////
+
+/// Kick off this operation
+void CvAIOperationBuildImprovementEscorted::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+{
+	CvPlot* pTargetSite = GetBuilderTargetPlot();
+
+	//don't wait for the escort in the wild
+	CvPlot* pMusterPlot = m_pBuilder->plot();
+	if (IsEscorted() && pMusterPlot->getOwner() != m_eOwner)
+	{
+		CvCity* pClosestCity = NULL;
+		if (IsNavalOperation())
+			pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, m_pBuilder->plot(), 1);
+		else if (!pMusterPlot->IsFriendlyTerritory(m_eOwner))
+			pClosestCity = GET_PLAYER(m_eOwner).GetClosestCityByPathLength(m_pBuilder->plot());
+
+		if (pClosestCity)
+			pMusterPlot = pClosestCity->plot();
+	}
+
+	CvArmyAI* pArmy = AddArmy(GetFormationType());
+	if (!pArmy)
+		return;
+
+	//we know the civilian is slot 0
+	pArmy->AddUnit(m_pBuilder->GetID(), 0, true);
+
+	//a little hack - set the escort slot to not required if we can reach the target this turn
+	if (IsKill() && m_pBuilder->TurnsToReachTarget(pTargetSite, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) < 1)
+		pArmy->GetSlotStatus(1)->Clear();
+
+	SetUpArmy(pArmy, pMusterPlot, pTargetSite, NULL);
+}
+
+bool CvAIOperationBuildImprovementEscorted::PerformMission(CvUnit* pBuilder)
+{
+	if (!pBuilder)
+		return false;
+
+	if (m_eDirective.m_eBuild == NO_BUILD)
+		return false;
+
+	CvPlot* pTargetPlot = GC.getMap().plotUnchecked(m_eDirective.m_sX, m_eDirective.m_sY);
+
+	if (pBuilder->plot() != pTargetPlot || !pBuilder->canMove())
+		return false;
+
+	if (GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->ExecuteWorkerMove(pBuilder, m_eDirective))
+		return !pTargetPlot->canBuild(m_eDirective.m_eBuild) || pBuilder->IsDead() || pBuilder->isDelayedDeath();
+
+	return false;
+}
+
+/// Always abort if builder is removed
+void CvAIOperationBuildImprovementEscorted::UnitWasRemoved(int iArmyID, int iSlotID)
+{
+	//the civilian slot is special - without it there's nothing we can do
+	if (iSlotID == 0)
+		SetToAbort(AI_ABORT_LOST_CIVILIAN);
+
+	//now the default handling
+	CvAIOperation::UnitWasRemoved(iArmyID, iSlotID);
+}
+
+bool CvAIOperationBuildImprovementEscorted::CheckTransitionToNextStage()
+{
+	//only a single army right now!
+	CvArmyAI* pThisArmy = GetArmy(0);
+	if (!pThisArmy)
+		return false;
+
+	//we look at the army's state. the operation state is really not required
+	bool bStateChanged = false;
+	CvUnit* pCivilian = pThisArmy->GetFirstUnit();
+	switch (pThisArmy->GetArmyAIState())
+	{
+	case NO_ARMYAISTATE:
+		break;
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
+	{
+		if (OperationalAIHelpers::HaveEnoughUnits(pThisArmy->GetSlotStatus(), 0) || (m_bInstantBuild && pCivilian && pCivilian->TurnsToReachTarget(GetTargetPlot(), 0, 1) < 1))
+		{
+			pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+			m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+			LogOperationSpecialMessage("Transition to gathering stage");
+			bStateChanged = true;
+		}
+		break;
+	}
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
+	{
+		if (pCivilian && pThisArmy->GetFurthestUnitDistance(pCivilian->plot()) < GetGatherTolerance(pThisArmy, pCivilian->plot()))
+		{
+			pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+			m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+			LogOperationSpecialMessage("Transition to movement stage");
+			bStateChanged = true;
+		}
+		break;
+	}
+	case ARMYAISTATE_MOVING_TO_DESTINATION:
+	{
+		if (IsMovingToBuildTarget())
+		{
+			if (pCivilian && pCivilian->plot() == GetBuilderTargetPlot())
+			{
+				pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
+				m_eCurrentState = AI_OPERATION_STATE_AT_TARGET;
+				LogOperationSpecialMessage("Transition to target stage");
+				bStateChanged = true;
+
+				//maybe we can finish right now?
+				if (PerformMission(pCivilian))
+				{
+					LogOperationSpecialMessage("Transition to finished stage");
+					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+				}
+			}
+		}
+		else
+		{
+			if (pCivilian && GET_PLAYER(m_eOwner).GetHomelandAI()->IsWorkerAtAssignedRegion(pCivilian, pCivilian->plot()))
+			{
+				LogOperationSpecialMessage("Transition to finished stage");
+				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+			}
+		}
+		break;
+	}
+	case ARMYAISTATE_AT_DESTINATION:
+	{
+		if (pCivilian && PerformMission(pCivilian))
+		{
+			if (IsKill())
+			{
+				LogOperationSpecialMessage("Transition to finished stage");
+				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+				bStateChanged = true;
+			}
+			else
+			{
+				pThisArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+				m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+				LogOperationSpecialMessage("Transition to movement stage");
+				CvPlot* pNewTarget = GET_PLAYER(m_eOwner).GetHomelandAI()->GetAssignedWorkerRegionCapitalPlot(pCivilian);
+				SetDirective(SBuilderDirective(SBuilderDirective::NUM_DIRECTIVES, NO_BUILD, NO_RESOURCE, false, false, pNewTarget ? pNewTarget->getX() : INVALID_PLOT_COORD, pNewTarget ? pNewTarget->getY() : INVALID_PLOT_COORD, 0));
+				bStateChanged = true;
+			}
+		}
+		break;
+	}
+	}
+
+	return bStateChanged;
+}
+
+MultiunitFormationTypes CvAIOperationBuildImprovementEscorted::GetFormationType() const
+{
+	switch (m_pBuilder->getUnitInfo().GetDefaultUnitAIType())
+	{
+	// Generals need a military escort
+	case UNITAI_GENERAL:
+		return MUFORMATION_BUILDER_ESCORT_MANDATORY;
+	case UNITAI_WORKER_SEA:
+	case UNITAI_ADMIRAL:
+		return MUFORMATION_BUILDER_ESCORT_NAVAL;
+	// Other civilians can do without an escort if none are available
+	default:
+		return MUFORMATION_BUILDER_ESCORT_OPTIONAL;
+	}
+}
+
+CvPlot* CvAIOperationBuildImprovementEscorted::GetBuilderTargetPlot() const
+{
+	if (m_eDirective.m_sX >= 0)
+		return GC.getMap().plotUnchecked(m_eDirective.m_sX, m_eDirective.m_sY);
+	
+	CvCity* pClosestCity = GET_PLAYER(m_pBuilder->getOwner()).GetClosestCityByPathLength(m_pBuilder->plot());
+	if (pClosestCity)
+		return pClosestCity->plot();
+
+	return NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationNavalSuperiority
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -3036,6 +3226,90 @@ AIOperationAbortReason CvAIOperationCivilianConcertTour::VerifyOrAdjustTarget(Cv
 	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;
 }
 
+AIOperationAbortReason CvAIOperationBuildImprovementEscorted::VerifyOrAdjustTarget(CvArmyAI* pArmy)
+{
+	CvUnit* pCivilian = pArmy->GetFirstUnit();
+	if (!pCivilian)
+		return AI_ABORT_LOST_CIVILIAN;
+
+	CvPlot* pTargetPlot = GetTargetPlot();
+	CvPlot* pNewTarget = GetBuilderTargetPlot();
+
+	if (!pNewTarget)
+		return AI_ABORT_NO_TARGET;
+
+	if (pNewTarget != pTargetPlot)
+	{
+		SetTargetPlot(pNewTarget);
+		pArmy->SetGoalPlot(pNewTarget);
+	}
+
+	//allow some fog danger
+	if (pCivilian->GetDanger(pNewTarget) > 20 && !IsEscorted())
+		return AI_ABORT_TOO_DANGEROUS;
+
+	return NO_ABORT_REASON;
+}
+
+bool CvAIOperationBuildImprovementEscorted::IsEscorted() const
+{
+	CvArmyAI* pThisArmy = GetArmy(0);
+	if (m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS || m_eCurrentState == AI_OPERATION_STATE_INVALID)
+	{
+		//be careful, don't check the army directly, it might not exist right now
+		if (pThisArmy)
+			return pThisArmy->GetNumSlotsFilled() + pThisArmy->GetOpenSlots(true).size() > 1;
+		else
+		{
+			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(GetFormationType());
+			if (thisFormation && thisFormation->getNumFormationSlotEntriesRequired() > 1)
+				return true;
+		}
+
+		return false;
+	}
+	else
+	{
+		//the unit to be escorted is always the first one
+		CvUnit* pCivilian = pThisArmy ? pThisArmy->GetFirstUnit() : NULL;
+		if (!pCivilian)
+			return false;
+		//the second unit would be the first escort
+		return (pThisArmy->GetNextUnit(pCivilian) != NULL);
+	}
+}
+
+void CvAIOperationBuildImprovementEscorted::Read(FDataStream& kStream)
+{
+	CvAIOperation::Read(kStream);
+
+	int iBuilderID;
+	kStream >> iBuilderID;
+
+	kStream >> m_eDirective;
+	kStream >> m_bInstantBuild;
+
+	if (iBuilderID != -1)
+	{
+		m_pBuilder = GET_PLAYER(m_eOwner).getUnit(iBuilderID);
+	}
+	else
+	{
+		m_pBuilder = NULL;
+	}
+}
+
+void CvAIOperationBuildImprovementEscorted::Write(FDataStream& kStream) const
+{
+	CvAIOperation::Write(kStream);
+
+	int iBuilderID = (m_pBuilder ? m_pBuilder->GetID() : -1);
+
+	kStream << iBuilderID;
+	kStream << m_eDirective;
+	kStream << m_bInstantBuild;
+}
+
 //----------------------------------------------
 
 FDataStream& operator<<(FDataStream& saveTo, const AIOperationTypes& readFrom)
@@ -3540,4 +3814,45 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot
 	//	or check if there is enough room to deploy at the target? --> no visibility
 
 	return OperationalAIHelpers::HaveEnoughUnits(fakeStatus,iMaxMissingUnits);
+}
+
+bool CvAIOperationBuildImprovementEscorted::PreconditionsAreMet(CvPlot*, CvPlot*, int)
+{
+	//we check existance of suitable target in subclassed implementations
+
+	//use all slots, not only required slots
+	vector<pair<size_t, CvFormationSlotEntry>> freeSlots;
+	vector<CvArmyFormationSlot> fakeStatus;
+	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(GetFormationType());
+	for (size_t i = 0; i < thisFormation->getNumFormationSlotEntries(); i++)
+	{
+		freeSlots.push_back(make_pair(i, thisFormation->getFormationSlotEntry(i)));
+		fakeStatus.push_back(CvArmyFormationSlot(-1, thisFormation->getFormationSlotEntry(i).m_requiredSlot));
+	}
+
+	bool bOcean = true;
+	ReachablePlots turnsFromMuster;
+
+	// Put our builder in slot 0
+	fakeStatus[freeSlots[0].first] = CvArmyFormationSlot(m_pBuilder->GetID(), freeSlots[0].second.m_requiredSlot);
+	freeSlots.erase(freeSlots.begin());
+
+	int iLoop = 0;
+	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
+	{
+		//if we pass an empty turnsFromMuster, all units will be eligible no matter where they are
+		int iIndex = OperationalAIHelpers::IsUnitSuitableForRecruitment(pLoopUnit, turnsFromMuster, NULL, IsNavalOperation(), bOcean, freeSlots);
+		if (iIndex >= 0)
+		{
+			fakeStatus[freeSlots[iIndex].first] = CvArmyFormationSlot(pLoopUnit->GetID(), freeSlots[iIndex].second.m_requiredSlot);
+			freeSlots.erase(freeSlots.begin() + iIndex);
+			if (freeSlots.empty())
+				break;
+		}
+	}
+
+	//todo: check path for danger? eg embarkation in enemy-dominated water?
+	//	or check if there is enough room to deploy at the target? --> no visibility
+
+	return OperationalAIHelpers::HaveEnoughUnits(fakeStatus, 0);
 }

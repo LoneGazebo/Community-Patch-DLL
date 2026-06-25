@@ -129,6 +129,7 @@ public:
 	inline PlayerTypes GetOwner() const { return m_eOwner; }
 	void SetOperationID(int iID) { m_iOperationID = iID; }
 	inline int GetOperationID() const { return m_iOperationID; }
+	CvAIOperation* GetOperation() const;
 
 	// Formation accessors
 	CvMultiUnitFormationInfo* GetFormation() const;
@@ -142,6 +143,7 @@ public:
 	DomainTypes GetDomainType() const;
 	void SetType(ArmyType eType);
 	ArmyType GetType() const;
+	MultiunitFormationTypes GetFormationType() const;
 
 	void UpdateCheckpointTurnsAndRemoveBadUnits();
 	bool IsAllOceanGoing();

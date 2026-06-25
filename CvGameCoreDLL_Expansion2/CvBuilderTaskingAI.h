@@ -11,6 +11,7 @@
 #define CIV5_BUILDER_TASKING_AI_H
 
 class CvPlayer;
+struct SBuilderState;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvBuilderTaskingAI
 //!  \brief		Deals with what builders need to deal with
@@ -78,7 +79,7 @@ struct PlotBuildScore
 FDataStream& operator<<(FDataStream&, const PlotBuildScore&);
 FDataStream& operator>>(FDataStream&, PlotBuildScore&);
 
-struct BuilderDirective
+struct SBuilderDirective
 {
 	enum CLOSED_ENUM BuilderDirectiveType
 	{
@@ -93,8 +94,8 @@ struct BuilderDirective
 		NUM_DIRECTIVES ENUM_META_VALUE
 	};
 
-	BuilderDirective() : m_eDirectiveType(NUM_DIRECTIVES), m_eBuild(NO_BUILD), m_eResource(NO_RESOURCE), m_bIsGreatPerson(false), m_bCanBuild(false), m_sX(-1), m_sY(-1), m_plotBuildScore(0) {}
-	BuilderDirective(BuilderDirectiveType eDirective, BuildTypes eBuild, ResourceTypes eResource, bool bIsGreatPerson, bool bCanBuild, short sX, short sY, PlotBuildScore plotBuildScore)
+	SBuilderDirective() : m_eDirectiveType(NUM_DIRECTIVES), m_eBuild(NO_BUILD), m_eResource(NO_RESOURCE), m_bIsGreatPerson(false), m_bCanBuild(false), m_sX(-1), m_sY(-1), m_plotBuildScore(0) {}
+	SBuilderDirective(BuilderDirectiveType eDirective, BuildTypes eBuild, ResourceTypes eResource, bool bIsGreatPerson, bool bCanBuild, short sX, short sY, PlotBuildScore plotBuildScore)
 	{
 		m_eDirectiveType = eDirective;
 		m_eBuild = eBuild;
@@ -116,11 +117,11 @@ struct BuilderDirective
 	short m_sY;
 	PlotBuildScore m_plotBuildScore;
 
-	bool operator==(const BuilderDirective& rhs) const
+	bool operator==(const SBuilderDirective& rhs) const
 	{
 		return m_eBuild == rhs.m_eBuild && m_sX == rhs.m_sX && m_sY == rhs.m_sY;
 	};
-	bool operator<(const BuilderDirective& rhs) const
+	bool operator<(const SBuilderDirective& rhs) const
 	{
 		if (m_eDirectiveType != rhs.m_eDirectiveType) return m_eDirectiveType < rhs.m_eDirectiveType;
 		if (m_eBuild != rhs.m_eBuild) return m_eBuild < rhs.m_eBuild;
@@ -130,8 +131,8 @@ struct BuilderDirective
 		return m_bIsGreatPerson < rhs.m_bIsGreatPerson;
 	}
 };
-FDataStream& operator<<(FDataStream&, const BuilderDirective&);
-FDataStream& operator>>(FDataStream&, BuilderDirective&);
+FDataStream& operator<<(FDataStream&, const SBuilderDirective&);
+FDataStream& operator>>(FDataStream&, SBuilderDirective&);
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvBuilderTaskingAI
@@ -158,19 +159,19 @@ public:
 	void UpdateRoutePlots(void);
 	void UpdateImprovementPlots(void);
 
-	bool CanUnitPerformDirective(CvUnit* pUnit, BuilderDirective eDirective, bool bTestEra = false);
+	bool CanUnitPerformDirective(CvUnit* pUnit, SBuilderDirective eDirective, bool bTestEra = false);
 	int GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, const CvPlot* pPlot) const;
-	vector<BuilderDirective> GetDirectives();
-	bool ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDirective);
+	vector<SBuilderDirective> GetDirectives();
+	bool ExecuteWorkerMove(CvUnit* pUnit, SBuilderDirective aDirective);
 
-	void AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider);
-	void AddRouteOrRepairDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, PlotBuildScore plotBuildScore, RoutePurpose ePurpose);
-	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, PlotBuildScore plotBuildScore);
-	void AddRemoveRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, int iNetGoldTimes100);
-	void AddChopDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
-	void AddRepairImprovementDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
-	void AddRepairRouteDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, PlotBuildScore plotBuildScore);
-	void AddScrubFalloutDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
+	void AddImprovingPlotsDirective(vector<OptionWithScore<SBuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider);
+	void AddRouteOrRepairDirective(vector<OptionWithScore<SBuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, PlotBuildScore plotBuildScore, RoutePurpose ePurpose);
+	void AddRouteDirective(vector<OptionWithScore<SBuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, PlotBuildScore plotBuildScore);
+	void AddRemoveRouteDirective(vector<OptionWithScore<SBuilderDirective>> &aDirectives, CvPlot* pPlot, int iNetGoldTimes100);
+	void AddChopDirectives(vector<OptionWithScore<SBuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
+	void AddRepairImprovementDirective(vector<OptionWithScore<SBuilderDirective>>& aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
+	void AddRepairRouteDirective(vector<OptionWithScore<SBuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, PlotBuildScore plotBuildScore);
+	void AddScrubFalloutDirectives(vector<OptionWithScore<SBuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
 
 	bool ShouldAnyBuilderConsiderPlot(const CvPlot* pPlot) const;  // general checks for whether the plot should be considered
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // specific checks for this particular worker
@@ -184,7 +185,7 @@ public:
 	bool WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const;
 	ImprovementTypes SavePlotForUniqueImprovement(const CvPlot* pPlot) const;
 
-	PlotBuildScore ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState = SBuilderState::DefaultInstance());
+	PlotBuildScore ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState* pState = NULL);
 	int GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot* pPlot) const;
 
 	BuildTypes GetRepairBuild(void);
@@ -193,8 +194,8 @@ public:
 	BuildTypes GetRemoveRoute(void);
 	BuildTypes GetBuildRoute(RouteTypes eRoute) const;
 
-	BuilderDirective GetAssignedDirective(CvUnit* pUnit);
-	void SetAssignedDirective(CvUnit* pUnit, BuilderDirective eDirective);
+	SBuilderDirective GetAssignedDirective(CvUnit* pUnit);
+	void SetAssignedDirective(CvUnit* pUnit, SBuilderDirective eDirective);
 
 	static void LogInfo(const CvString& str, CvPlayer* pPlayer, bool bWriteToOutput = false);
 	static void LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
@@ -205,9 +206,9 @@ public:
 
 	int GetResourceSpawnWorkableChance(CvPlot* pPlot, int& iTileClaimChance);
 
-	void UpdateCityWorstPlots(const CvCity* pCity, const SBuilderState& sState);
+	void UpdateCityWorstPlots(const CvCity* pCity, const SBuilderState* pState);
 
-	void UpdateGreatPersonDirectives(vector<OptionWithScore<BuilderDirective>>& aDirectives) const;
+	void UpdateGreatPersonDirectives(vector<OptionWithScore<SBuilderDirective>>& aDirectives) const;
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
@@ -215,8 +216,8 @@ protected:
 	typedef pair<int, int> PlotPair;
 	typedef pair<PlotPair, pair<RouteTypes, bool>> PlannedRoute;
 
-	void LogDirectives(vector<OptionWithScore<BuilderDirective>> directives);
-	void LogDirective(BuilderDirective directive, int iWeight, bool bChosen = false);
+	void LogDirectives(vector<OptionWithScore<SBuilderDirective>> directives);
+	void LogDirective(SBuilderDirective directive, int iWeight, bool bChosen = false);
 
 	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute);
 	void ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute);
@@ -226,12 +227,12 @@ protected:
 
 	void ShortcutConnectionHelper(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute, int iPlotDistance, bool bUseRivers);
 
-	vector<OptionWithScore<BuilderDirective>> GetRouteDirectives();
-	vector<OptionWithScore<BuilderDirective>> GetImprovementDirectives();
+	vector<OptionWithScore<SBuilderDirective>> GetRouteDirectives();
+	vector<OptionWithScore<SBuilderDirective>> GetImprovementDirectives();
 	void UpdateFutureYields(const vector<BuildTypes>& aPossibleBuilds);
 	int GetFutureYields(ImprovementTypes eImprovement, YieldTypes eYield);
 
-	int GetBestNonGPDirectiveScoreInPlot(const CvPlot* pPlot, const vector<OptionWithScore<BuilderDirective>>& aDirectives) const;
+	int GetBestNonGPDirectiveScoreInPlot(const CvPlot* pPlot, const vector<OptionWithScore<SBuilderDirective>>& aDirectives) const;
 
 	void UpdateCurrentPlotYields(const CvPlot* pPlot);
 	void UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTypes eBuild, RouteTypes eForceCityConnection);
@@ -270,8 +271,8 @@ protected:
 	map<int, RoutePurpose> m_plotRoutePurposes; //serialized
 	map<int, PlannedRoute> m_bestRouteForPlot;
 	set<int> m_canalWantedPlots; //serialized
-	vector<BuilderDirective> m_directives;
-	map<int, BuilderDirective> m_assignedDirectives;
+	vector<SBuilderDirective> m_directives;
+	map<int, SBuilderDirective> m_assignedDirectives;
 	map<const CvCity*, int> m_worstCityPlotValues;
 	std::tr1::unordered_map<ImprovementTypes, std::tr1::unordered_map<YieldTypes, int>> m_futureYieldBonuses;
 

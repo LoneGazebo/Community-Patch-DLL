@@ -33,6 +33,7 @@
 #include "CvBarbarians.h"
 #include "CvTypes.h"
 #include "CvEnumMap.h"
+#include "CvAIOperation.h"
 
 #include "CvDistanceMap.h"
 
@@ -1813,9 +1814,19 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		}
 	}
 
-	// Units in armies are always field commanders
-	if (!bHasGeneralNegation && pGreatGeneral->getArmyID() != -1)
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	if (pGreatGeneral->getArmyID() != -1)
+	{
+		bool bEscortOperation = getArmyAI(pGreatGeneral->getArmyID())->GetOperation()->GetOperationType() == AI_OPERATION_ESCORTED_IMPROVEMENT_BUILD;
+		bool bForBuild = bEscortOperation && dynamic_cast<CvAIOperationBuildImprovementEscorted*>(getArmyAI(pGreatGeneral->getArmyID())->GetOperation())->GetDirective().m_eBuild != NO_BUILD;
+
+		// Units in escorts are either moving to build an improvement (e.g. citadel) or are just being escorted to a different city
+		if (bForBuild)
+			return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+
+		// Units in non-escort armies are field commanders
+		if (!bHasGeneralNegation && !bEscortOperation)
+			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
 
 	// Always stick to culture bomb if it has already decided to do so (it can be reset in CvHomelandAI)
 	if (pGreatGeneral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
@@ -1852,7 +1863,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		int iPotentialArmies = min(3, max(1, iNumPotentialUnits / 12));
 
 		int iDesiredNumCommanders = iWars > 0 ? iPotentialArmies : 0;
-		if (iCommanders < iDesiredNumCommanders || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
+		if (iCommanders < iDesiredNumCommanders || pGreatGeneral->IsRecentlyDeployedFromOperation())
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 
@@ -1963,8 +1974,19 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	}
 
 	// Units in armies are always field commanders
-	if (!bHasAdmiralNegation && pGreatAdmiral->getArmyID() != -1)
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	if (pGreatAdmiral->getArmyID() != -1)
+	{
+		bool bEscortOperation = getArmyAI(pGreatAdmiral->getArmyID())->GetOperation()->GetOperationType() == AI_OPERATION_ESCORTED_IMPROVEMENT_BUILD;
+		bool bForBuild = bEscortOperation && dynamic_cast<CvAIOperationBuildImprovementEscorted*>(getArmyAI(pGreatAdmiral->getArmyID())->GetOperation())->GetDirective().m_eBuild != NO_BUILD;
+
+		// Units in escorts are either moving to build an improvement (e.g. tersane) or are just being escorted to a different city
+		if (bForBuild)
+			return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+
+		// Units in non-escort armies are field commanders
+		if (!bHasAdmiralNegation && !bEscortOperation)
+			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
 
 	int iCommanders = 0;
 	int iLoop = 0;
@@ -1996,7 +2018,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		int iPotentialArmies = min(2, max(1, iNumPotentialUnits / 12));
 
 		int iDesiredNumCommanders = iWars > 0 ? iPotentialArmies : 0;
-		if (iCommanders < iDesiredNumCommanders || pGreatAdmiral->getArmyID() != -1 || pGreatAdmiral->IsRecentlyDeployedFromOperation())
+		if (iCommanders < iDesiredNumCommanders || pGreatAdmiral->IsRecentlyDeployedFromOperation())
 			return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 

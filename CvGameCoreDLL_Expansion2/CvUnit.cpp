@@ -3286,14 +3286,14 @@ bool CvUnit::isActionRecommended(int iAction)
 		PRECONDITION(eBuild != NO_BUILD);
 		PRECONDITION(eBuild < GC.getNumBuildInfos(), "Invalid Build");
 
-		vector<BuilderDirective> directives = kPlayer.GetBuilderTaskingAI()->GetDirectives();
+		vector<SBuilderDirective> directives = kPlayer.GetBuilderTaskingAI()->GetDirectives();
 
 		if (directives.empty())
 			return false;
 
-		for (vector<BuilderDirective>::iterator it = directives.begin(); it != directives.end(); ++it)
+		for (vector<SBuilderDirective>::iterator it = directives.begin(); it != directives.end(); ++it)
 		{
-			BuilderDirective eDirective = *it;
+			SBuilderDirective eDirective = *it;
 			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
 			if (pPlot != pDirectivePlot)
@@ -7465,6 +7465,14 @@ bool CvUnit::canUseForTacticalAI() const
 	//these are only used for operations
 	if (AI_getUnitAIType() == UNITAI_CARRIER_SEA || AI_getUnitAIType() == UNITAI_ICBM)
 		return false;
+
+	//leave builder escort army units alone
+	if (getArmyID() != -1)
+	{
+		CvAIOperation* pOperation = GET_PLAYER(m_eOwner).getArmyAI(getArmyID())->GetOperation();
+		if (pOperation->GetOperationType() == AI_OPERATION_ESCORTED_IMPROVEMENT_BUILD)
+			return false;
+	}
 
 	//we want all barbarians ...
 	if (isBarbarian())
@@ -24735,7 +24743,7 @@ void CvUnit::DoFinishBuildIfSafe()
 		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner());
 		if (iBuildTimeLeft <= 1 && canMove() && GetDanger() == 0)
 		{
-			BuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
+			SBuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
 			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)
 				return;
 
