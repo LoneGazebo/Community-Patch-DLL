@@ -376,7 +376,6 @@ SqliteLogger::BatchWriter SqliteLogger::BeginLogBatch(const std::string& strTabl
 	return BatchWriter(this, strTableName, &itSchema->second, pkResults, iGameId, iTurn, iMaxRows, true);
 }
 
-
 //	===============================================================================================
 //	SqliteLogger::Statement
 //	===============================================================================================
@@ -597,6 +596,9 @@ void SqliteLogger::BatchWriter::flush()
 		}
 	}
 
+	// Intentional: a failed row above asserts but does not abort the batch, and this is a plain
+	// commit with no rollback path. For best-effort stats logging, committing the rows that did
+	// succeed is preferable to discarding the whole batch on a single bad row.
 	m_pkOwner->m_kConnection.CommitTransaction();
 
 	m_pkResults->Reset();
