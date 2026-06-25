@@ -96,6 +96,70 @@
 	       GET_SQLITE_LOGGER().RegisterTable("badTable", kBad); // no-op
 
 	---------------------------------------------------------------------------------------------------
+	BATCHED (TRANSACTIONAL) LOGGING
+	---------------------------------------------------------------------------------------------------
+
+	BeginLogRow()/execute() writes one row per call, which is ideal for occasional, low-volume logging.
+	When you need to write many rows at once (for example, one row per map plot every turn), prefer the
+	batched writer instead. It buffers rows in memory and writes them to stats.db in a single SQLite
+	transaction, amortizing the per-row commit overhead across the whole batch.
+
+	1) BEGIN A BATCH, ADD ROWS, FLUSH
+
+	   Register the table exactly as above, then open a batch with BeginLogBatch(). For each row, call
+	   BeginLogRow() on the batch, bind one value per declared column (in declaration order, exactly like
+	   the single-row API), and finish the row with addRowToBatch() instead of execute(). When you are
+	   done, call flush() to write whatever remains buffered:
+
+	       if (MOD_SQLITE_LOGGING)
+	       {
+	           RegisterMapPlotsStateTable();
+	           SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("MapPlotsState");
+	           for (int i = 0; i < GC.getMap().numPlots(); ++i)
+	           {
+	               CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
+	               kBatch.BeginLogRow()
+	                   .bind(pPlot->getX())          // plotX
+	                   .bind(pPlot->getY())          // plotY
+	                   .bind(szCityName)             // cityName
+	                   .bind(szOwner)                // owner
+	                   .bind(iRouteType)             // routeType
+	                   .addRowToBatch();
+	           }
+	           kBatch.flush();                       // REQUIRED: writes any rows still buffered
+	       }
+
+	   The implicit GameId and Turn values are captured once when the batch is opened and reused for
+	   every row, so (as with the single-row API) you never bind them yourself.
+
+	2) WHEN ROWS ARE ACTUALLY WRITTEN
+
+	   addRowToBatch() does not necessarily touch the database. Buffered rows are written to stats.db
+	   (inside one transaction) at two moments:
+	     - automatically, when the buffer reaches the SQLITE_LOGGING_BATCHED_BUFFER_ROWS_MAX row cap; and
+	     - when you call flush() (which also runs whatever is left after the last auto-flush).
+
+	   SQLITE_LOGGING_BATCHED_BUFFER_ROWS_MAX is a numeric Define (default 1024). Higher values buffer
+	   more rows in memory before writing, which reduces total write time by paying the transaction cost
+	   less often, at the expense of a larger peak memory footprint; lower values use less memory but
+	   write more frequently. Because this DLL is 32-bit and memory-constrained in the late game, the
+	   buffer is intentionally bounded by this cap rather than growing without limit.
+
+	3) YOU MUST FLUSH BEFORE THE WRITER GOES OUT OF SCOPE
+
+	   The BatchWriter does NOT flush automatically when it is destroyed: any rows still buffered at that
+	   point are silently discarded. Always call flush() once you have finished adding rows (and before
+	   the BatchWriter leaves scope) or those final rows will be lost. flush() is safe to call when the
+	   buffer is empty and safe to call more than once.
+
+	4) MISUSE IS SAFE
+
+	   Like the single-row API, batched misuse is caught and turned into a safe no-op (with a debug
+	   assert): binding the wrong type for a column, binding too many or too few values before
+	   addRowToBatch(), or opening a batch for an unregistered table all skip the offending row (or the
+	   whole batch) instead of writing bad data.
+
+	---------------------------------------------------------------------------------------------------
 	BEHAVIOR NOTES
 	---------------------------------------------------------------------------------------------------
 	  - Every table implicitly begins with GameId (INT) and Turn (INT). They are added by
@@ -110,6 +174,10 @@
 	    dropped and recreated.
 	  - When MOD_SQLITE_LOGGING is disabled, RegisterTable()/BeginLogRow() do nothing and stats.db is
 	    never created or modified.
+	  - BeginLogBatch() likewise returns a disabled, do-nothing BatchWriter when logging is disabled or
+	    the table is not registered. A BatchWriter buffers rows and only writes them on an auto-flush
+	    (at the SQLITE_LOGGING_BATCHED_BUFFER_ROWS_MAX cap) or an explicit flush(); rows still buffered
+	    when it is destroyed are discarded, so callers must flush() before it leaves scope.
 	------------------------------------------------------------------------------------------------------- */
 
 #pragma once
@@ -173,6 +241,84 @@ public:
 		int m_iBindIndex;
 	};
 
+	//! Batched insert helper returned by SqliteLogger::BeginLogBatch.
+	//! Rows are buffered in memory and written to stats.db in a single transaction, either when the
+	//! buffer reaches SQLITE_LOGGING_BATCHED_BUFFER_ROWS_MAX rows or when flush() is called. The
+	//! implicit GameId and Turn values are captured once for the whole batch, so every row shares them.
+	//! NOTE: any rows still buffered when the BatchWriter is destroyed are silently discarded; callers
+	//! are responsible for calling flush() before the writer goes out of scope.
+	class BatchWriter
+	{
+	public:
+		//! One buffered cell. Numeric values use the scalar members; TEXT values use strValue.
+		//! Kept as a single flat type so a whole batch lives in one contiguous vector (low overhead,
+		//! bounded by SQLITE_LOGGING_BATCHED_BUFFER_ROWS_MAX rows).
+		struct BatchCell
+		{
+			BatchCell() : eType(Database::COLTYPE_NULL), iValue(0), dValue(0.0), strValue() {}
+			Database::ColumnTypes eType;
+			int iValue;            //!< INT / BOOL payload
+			double dValue;         //!< FLOAT payload
+			std::string strValue;  //!< TEXT payload
+		};
+
+		//! Fluent per-row builder. bind() validates each value against the next caller column and
+		//! chains; addRowToBatch() appends the completed row to the batch (auto-flushing if full).
+		class RowBuilder
+		{
+		public:
+			RowBuilder& bind(int iValue);
+			RowBuilder& bind(bool bValue);
+			RowBuilder& bind(float fValue);
+			RowBuilder& bind(double dValue);
+			RowBuilder& bind(const char* szValue);
+			RowBuilder& bind(const std::string& strValue);
+
+			//! Commits the row currently being built to the in-memory batch buffer. If the buffer
+			//! reaches its configured maximum, the whole batch is flushed in one transaction.
+			void addRowToBatch();
+
+		private:
+			friend class BatchWriter;
+			RowBuilder(BatchWriter* pkBatch, bool bEnabled);
+
+			//! Validates that the next expected caller column matches eActual; advances on success.
+			bool expectColumn(Database::ColumnTypes eActual);
+
+			BatchWriter* m_pkBatch;
+			bool m_bEnabled;
+			bool m_bValid;
+			int m_iBindIndex;
+		};
+
+		BatchWriter(SqliteLogger* pkOwner, const std::string& strTableName, const TableDef* pkSchema, Database::Results* pkResults, int iGameId, int iTurn, int iMaxRows, bool bEnabled);
+
+		//! Begins building a new row. Bind one value per caller-declared column, then addRowToBatch().
+		RowBuilder BeginLogRow();
+
+		//! Writes all currently buffered rows to stats.db in a single transaction. Safe to call when
+		//! the buffer is empty (no-op) and safe to call repeatedly.
+		void flush();
+
+	private:
+		friend class RowBuilder;
+
+		//! Number of caller-declared columns (schema size minus the implicit GameId/Turn columns).
+		int CallerColumnCount() const;
+
+		SqliteLogger* m_pkOwner;
+		std::string m_strTableName;
+		const TableDef* m_pkSchema;
+		Database::Results* m_pkResults;
+		int m_iGameId;
+		int m_iTurn;
+		int m_iMaxRows;
+		bool m_bEnabled;
+
+		std::vector<BatchCell> m_buffer;   //!< Completed rows, flattened (rows * caller columns).
+		std::vector<BatchCell> m_scratch;  //!< Cells for the row currently being built.
+	};
+
 	//! Returns the process-wide singleton instance.
 	static SqliteLogger& getInstance();
 
@@ -193,7 +339,14 @@ public:
 	//! columns, starting with the first column it declared in RegisterTable().
 	Statement BeginLogRow(const std::string& strTableName);
 
+	//! Begins a batched (transactional) insert for a previously registered table. Buffered rows are
+	//! written in a single transaction when the buffer is full or flush() is called. Returns a disabled
+	//! BatchWriter on error. The implicit GameId and Turn values are captured once for the whole batch.
+	BatchWriter BeginLogBatch(const std::string& strTableName);
+
 private:
+	friend class BatchWriter;
+
 	SqliteLogger();
 	~SqliteLogger();
 	SqliteLogger(const SqliteLogger&);

@@ -439,6 +439,8 @@ VALUES
 	('PUPPET_YIELD_AND_SUPPLY_MODIFIER_MULTIPLICATIVE', 100),
 -- If set to a positive value, observer mode will stop automatically after this many turns
 	('MAX_TURNS_OBSERVER_MODE', 0),
+-- SQLite Logging
+	('SQLITE_LOGGING_BATCHED_BUFFER_ROWS_MAX', 1024), -- Max number of rows the batched SQLite logger buffers in memory before writing them to stats.db in a single transaction. Higher values buffer more rows in memory (larger peak memory footprint) but reduce total write time by amortizing transaction overhead across more rows; lower values use less memory but write more frequently.
 -- Misc.
 	('MIN_CITY_RANGE', 3), -- Backup min city range (if MinDistanceCities or MinDistanceCityStates are 0 in the Worlds table)
 	('UNHAPPINESS_PER_POPULATION_FLOAT', 0.0),

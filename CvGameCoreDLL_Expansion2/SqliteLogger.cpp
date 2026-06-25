@@ -345,6 +345,38 @@ SqliteLogger::Statement SqliteLogger::BeginLogRow(const std::string& strTableNam
 	return kStatement;
 }
 
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter SqliteLogger::BeginLogBatch(const std::string& strTableName)
+{
+	if (!EnsureOpen())
+		return BatchWriter(this, strTableName, NULL, NULL, 0, 0, 0, false);
+
+	SchemaMap::iterator itSchema = m_registeredTableSchemas.find(strTableName);
+	if (itSchema == m_registeredTableSchemas.end())
+	{
+		ASSERT(false, "SqliteLogger: BeginLogBatch called for an unregistered table");
+		return BatchWriter(this, strTableName, NULL, NULL, 0, 0, 0, false);
+	}
+
+	Database::Results* pkResults = GetOrCreateInsert(strTableName);
+	if (pkResults == NULL)
+		return BatchWriter(this, strTableName, NULL, NULL, 0, 0, 0, false);
+
+	// GameId and Turn are constant for the lifetime of a batch (same game, same turn), so capture
+	// them once here instead of re-reading them for every buffered row.
+	const int iGameId = GC.getGame().getGameDatabaseId();
+	const int iTurn = GC.getGame().getElapsedGameTurns();
+
+	// Higher values buffer more rows in memory before writing, reducing total write time; clamp to
+	// at least one row so a misconfigured (zero/negative) value still makes forward progress.
+	int iMaxRows = GD_INT_GET(SQLITE_LOGGING_BATCHED_BUFFER_ROWS_MAX);
+	if (iMaxRows < 1)
+		iMaxRows = 1;
+
+	return BatchWriter(this, strTableName, &itSchema->second, pkResults, iGameId, iTurn, iMaxRows, true);
+}
+
+
 //	===============================================================================================
 //	SqliteLogger::Statement
 //	===============================================================================================
@@ -475,3 +507,253 @@ void SqliteLogger::Statement::execute()
 	// Leave the statement ready for the next row.
 	m_pkResults->Reset();
 }
+
+//	===============================================================================================
+//	SqliteLogger::BatchWriter
+//	===============================================================================================
+
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter::BatchWriter(SqliteLogger* pkOwner, const std::string& strTableName, const TableDef* pkSchema, Database::Results* pkResults, int iGameId, int iTurn, int iMaxRows, bool bEnabled) :
+	m_pkOwner(pkOwner),
+	m_strTableName(strTableName),
+	m_pkSchema(pkSchema),
+	m_pkResults(pkResults),
+	m_iGameId(iGameId),
+	m_iTurn(iTurn),
+	m_iMaxRows(iMaxRows),
+	m_bEnabled(bEnabled),
+	m_buffer(),
+	m_scratch()
+{
+}
+
+//	-----------------------------------------------------------------------------------------------
+int SqliteLogger::BatchWriter::CallerColumnCount() const
+{
+	// Every schema implicitly leads with GameId and Turn, which are not bound per row in a batch.
+	if (m_pkSchema == NULL || m_pkSchema->size() < 2)
+		return 0;
+	return (int)m_pkSchema->size() - 2;
+}
+
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter::RowBuilder SqliteLogger::BatchWriter::BeginLogRow()
+{
+	// Discard any half-built row left over from a previous (incomplete) BeginLogRow.
+	m_scratch.clear();
+	return RowBuilder(this, m_bEnabled && m_pkResults != NULL && m_pkSchema != NULL);
+}
+
+//	-----------------------------------------------------------------------------------------------
+void SqliteLogger::BatchWriter::flush()
+{
+	if (!m_bEnabled || m_pkResults == NULL || m_pkSchema == NULL)
+		return;
+
+	const int iCallerCols = CallerColumnCount();
+	if (iCallerCols <= 0 || m_buffer.empty())
+	{
+		m_buffer.clear();
+		return;
+	}
+
+	const size_t uiRows = m_buffer.size() / (size_t)iCallerCols;
+
+	// Write every buffered row inside a single transaction so the per-row commit overhead is paid
+	// once for the whole batch rather than once per row.
+	m_pkOwner->m_kConnection.BeginTransaction();
+
+	for (size_t uiRow = 0; uiRow < uiRows; ++uiRow)
+	{
+		m_pkResults->Reset();
+		m_pkResults->Bind(1, m_iGameId);
+		m_pkResults->Bind(2, m_iTurn);
+
+		const size_t uiBase = uiRow * (size_t)iCallerCols;
+		for (int iCol = 0; iCol < iCallerCols; ++iCol)
+		{
+			const BatchCell& kCell = m_buffer[uiBase + (size_t)iCol];
+			const int iParam = iCol + 3; // 1=GameId, 2=Turn, caller columns follow
+
+			switch (kCell.eType)
+			{
+			case Database::COLTYPE_TEXT:
+				m_pkResults->Bind(iParam, kCell.strValue.c_str());
+				break;
+			case Database::COLTYPE_FLOAT:
+				m_pkResults->Bind(iParam, kCell.dValue);
+				break;
+			case Database::COLTYPE_BOOL:
+			case Database::COLTYPE_INT:
+			default:
+				m_pkResults->Bind(iParam, kCell.iValue);
+				break;
+			}
+		}
+
+		if (!m_pkResults->Execute())
+		{
+			ASSERT(false, "SqliteLogger: failed to execute batched insert");
+		}
+	}
+
+	m_pkOwner->m_kConnection.CommitTransaction();
+
+	m_pkResults->Reset();
+	m_buffer.clear();
+}
+
+//	===============================================================================================
+//	SqliteLogger::BatchWriter::RowBuilder
+//	===============================================================================================
+
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter::RowBuilder::RowBuilder(BatchWriter* pkBatch, bool bEnabled) :
+	m_pkBatch(pkBatch),
+	m_bEnabled(bEnabled),
+	m_bValid(bEnabled),
+	m_iBindIndex(0)
+{
+}
+
+//	-----------------------------------------------------------------------------------------------
+bool SqliteLogger::BatchWriter::RowBuilder::expectColumn(Database::ColumnTypes eActual)
+{
+	if (!m_bEnabled || !m_bValid)
+		return false;
+
+	const int iCallerCols = m_pkBatch->CallerColumnCount();
+	if (m_iBindIndex >= iCallerCols)
+	{
+		ASSERT(false, "SqliteLogger: too many values bound for batched row");
+		m_bValid = false;
+		return false;
+	}
+
+	// Caller columns start after the implicit GameId/Turn columns in the schema.
+	const Database::ColumnTypes eExpected = (*m_pkBatch->m_pkSchema)[m_iBindIndex + 2].type;
+	if (eExpected != eActual)
+	{
+		ASSERT(false, "SqliteLogger: bound value type does not match the registered column type");
+		m_bValid = false;
+		return false;
+	}
+
+	return true;
+}
+
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter::RowBuilder& SqliteLogger::BatchWriter::RowBuilder::bind(int iValue)
+{
+	if (expectColumn(Database::COLTYPE_INT))
+	{
+		BatchCell kCell;
+		kCell.eType = Database::COLTYPE_INT;
+		kCell.iValue = iValue;
+		m_pkBatch->m_scratch.push_back(kCell);
+		++m_iBindIndex;
+	}
+	return *this;
+}
+
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter::RowBuilder& SqliteLogger::BatchWriter::RowBuilder::bind(bool bValue)
+{
+	if (expectColumn(Database::COLTYPE_BOOL))
+	{
+		BatchCell kCell;
+		kCell.eType = Database::COLTYPE_BOOL;
+		kCell.iValue = bValue ? 1 : 0;
+		m_pkBatch->m_scratch.push_back(kCell);
+		++m_iBindIndex;
+	}
+	return *this;
+}
+
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter::RowBuilder& SqliteLogger::BatchWriter::RowBuilder::bind(float fValue)
+{
+	if (expectColumn(Database::COLTYPE_FLOAT))
+	{
+		BatchCell kCell;
+		kCell.eType = Database::COLTYPE_FLOAT;
+		kCell.dValue = (double)fValue;
+		m_pkBatch->m_scratch.push_back(kCell);
+		++m_iBindIndex;
+	}
+	return *this;
+}
+
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter::RowBuilder& SqliteLogger::BatchWriter::RowBuilder::bind(double dValue)
+{
+	if (expectColumn(Database::COLTYPE_FLOAT))
+	{
+		BatchCell kCell;
+		kCell.eType = Database::COLTYPE_FLOAT;
+		kCell.dValue = dValue;
+		m_pkBatch->m_scratch.push_back(kCell);
+		++m_iBindIndex;
+	}
+	return *this;
+}
+
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter::RowBuilder& SqliteLogger::BatchWriter::RowBuilder::bind(const char* szValue)
+{
+	if (expectColumn(Database::COLTYPE_TEXT))
+	{
+		BatchCell kCell;
+		kCell.eType = Database::COLTYPE_TEXT;
+		kCell.strValue = (szValue != NULL) ? szValue : "";
+		m_pkBatch->m_scratch.push_back(kCell);
+		++m_iBindIndex;
+	}
+	return *this;
+}
+
+//	-----------------------------------------------------------------------------------------------
+SqliteLogger::BatchWriter::RowBuilder& SqliteLogger::BatchWriter::RowBuilder::bind(const std::string& strValue)
+{
+	if (expectColumn(Database::COLTYPE_TEXT))
+	{
+		BatchCell kCell;
+		kCell.eType = Database::COLTYPE_TEXT;
+		kCell.strValue = strValue;
+		m_pkBatch->m_scratch.push_back(kCell);
+		++m_iBindIndex;
+	}
+	return *this;
+}
+
+//	-----------------------------------------------------------------------------------------------
+void SqliteLogger::BatchWriter::RowBuilder::addRowToBatch()
+{
+	if (!m_bEnabled || !m_bValid)
+	{
+		m_pkBatch->m_scratch.clear();
+		return;
+	}
+
+	if (m_iBindIndex != m_pkBatch->CallerColumnCount())
+	{
+		ASSERT(false, "SqliteLogger: addRowToBatch() called before all columns were bound");
+		m_pkBatch->m_scratch.clear();
+		return;
+	}
+
+	// Move the completed row's cells into the flat batch buffer, then reset the scratch row.
+	for (size_t i = 0; i < m_pkBatch->m_scratch.size(); ++i)
+		m_pkBatch->m_buffer.push_back(m_pkBatch->m_scratch[i]);
+	m_pkBatch->m_scratch.clear();
+
+	// Auto-flush once the buffer reaches the configured row cap to bound peak memory usage.
+	const int iCallerCols = m_pkBatch->CallerColumnCount();
+	if (iCallerCols > 0)
+	{
+		const size_t uiRows = m_pkBatch->m_buffer.size() / (size_t)iCallerCols;
+		if (uiRows >= (size_t)m_pkBatch->m_iMaxRows)
+			m_pkBatch->flush();
+	}
+}
+

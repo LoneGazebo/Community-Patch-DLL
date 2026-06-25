@@ -21,6 +21,7 @@
 #include "CvSpanSerialization.h"
 #include "CvGameCoreEnumSerialization.h"
 #include "CvInternalGameCoreUtils.h"
+#include "SqliteLoggerRegistrations.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -491,6 +492,7 @@ void CvEconomicAI::DoTurn()
 {
 	LogMonitor();
 	LogCityMonitor();
+	LogBuildingYields();
 
 	// Functions that need to run before we look at strategies
 	DoReconState();
@@ -1762,6 +1764,370 @@ void CvEconomicAI::LogCityMonitor()
 		}
 		pLog->Msg(strLog);
 	}
+}
+
+//	--------------------------------------------------------------------------------
+// Helpers backing the BuildingYields SQLite table (see RegisterBuildingYieldsTable).
+//
+// GetBuildingFlatYieldSplitTimes100 mirrors CvLuaCity::lGetBuildingYieldRateTimes100, but rather than
+// returning a single total it separates the per-turn flat yield (x100) into two buckets:
+//
+//   BASE  - the building's own intrinsic flat yield and the self-scalers that belong to the building
+//           itself: the raw YieldChange, per-population and per-empire-population, era scaling,
+//           per-building, per-tile, per-religion, per-local-theme, monopoly, city-state friend/ally
+//           and strategic-resource scalers, the passing-trade-route bonus, and the YieldPerX
+//           terrain/feature/improvement families (which already aggregate this city's worked tiles).
+//   BONUS - the extra flat yield layered on top of the base by EXTERNAL sources: the culture-building
+//           trait bonus, tech-enhanced yields, accomplishment yields, every religion/belief yield
+//           (majority-belief building-class yields, world-wonder yields, faith-building tourism, the
+//           secondary pantheon and permanent pantheon), league and trait world-wonder yields, policy
+//           building-class yields, player and trait building-class yields, the city-local
+//           building-class yield, corporation-franchise yields and event building-class yields.
+//
+// Percentage-based modifiers (CvLuaCity::lGetBuildingYieldModifier) and instant/event yields are
+// intentionally excluded here, because those are applied at the city level or tracked separately.
+static void GetBuildingFlatYieldSplitTimes100(const CvCity* pCity, BuildingTypes eBuilding, YieldTypes eYield, int& iBaseTimes100, int& iBonusTimes100)
+{
+	iBaseTimes100 = 0;
+	iBonusTimes100 = 0;
+
+	const PlayerTypes ePlayer = pCity->getOwner();
+	const CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if (pkBuildingInfo == NULL)
+		return;
+
+	const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
+	const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+
+	// BASE: the building's own flat yield from XML.
+	const int iRawYield = pkBuildingInfo->GetYieldChange(eYield);
+	iBaseTimes100 += iRawYield * 100;
+
+	// BONUS: culture-building trait bonus (only when the building itself produces culture).
+	if (eYield == YIELD_CULTURE && iRawYield != 0)
+	{
+		iBonusTimes100 += kPlayer.GetPlayerTraits()->GetCultureBuildingYieldChange() * 100;
+	}
+
+	// BONUS: tech-enhanced yields.
+	if (!pkBuildingInfo->GetTechEnhancedYields().empty())
+	{
+		const map<int, map<int, int>> mTechEnhancedYields = pkBuildingInfo->GetTechEnhancedYields();
+		for (map<int, map<int, int>>::const_iterator it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); ++it)
+		{
+			if (kPlayer.HasTech(static_cast<TechTypes>(it->first)))
+			{
+				map<int, int>::const_iterator it2 = it->second.find(eYield);
+				if (it2 != it->second.end())
+				{
+					iBonusTimes100 += it2->second * 100;
+				}
+			}
+		}
+	}
+
+	// BONUS: accomplishment yields.
+	if (!pkBuildingInfo->GetYieldChangesFromAccomplishments().empty())
+	{
+		const map<int, map<int, int>> mYieldsFromAccomplishments = pkBuildingInfo->GetYieldChangesFromAccomplishments();
+		for (map<int, map<int, int>>::const_iterator it = mYieldsFromAccomplishments.begin(); it != mYieldsFromAccomplishments.end(); ++it)
+		{
+			int iAccomplishment = kPlayer.GetNumTimesAccomplishmentCompleted(static_cast<AccomplishmentTypes>(it->first));
+			if (iAccomplishment > 0)
+			{
+				map<int, int>::const_iterator it2 = it->second.find(eYield);
+				if (it2 != it->second.end())
+				{
+					iBonusTimes100 += it2->second * iAccomplishment * 100;
+				}
+			}
+		}
+	}
+
+	// BONUS: religion / belief yields.
+	const ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+	const BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, ePlayer);
+	if (pReligion)
+	{
+		if (eYield == YIELD_TOURISM)
+		{
+			int iFaithBuildingTourism = pReligion->m_Beliefs.GetFaithBuildingTourism(ePlayer, pCity);
+			if (pkBuildingInfo->IsFaithPurchaseOnly())
+			{
+				iBonusTimes100 += iFaithBuildingTourism * 100;
+			}
+		}
+		int iFollowers = pCity->GetCityReligions()->GetNumFollowers(eMajority);
+		iBonusTimes100 += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYield, iFollowers, ePlayer, pCity) * 100;
+
+		if (::isWorldWonderClass(*pkBuildingClassInfo))
+		{
+			iBonusTimes100 += pReligion->m_Beliefs.GetYieldChangeWorldWonder(eYield, ePlayer, pCity) * 100;
+		}
+
+		if (eSecondaryPantheon != NO_BELIEF)
+		{
+			const CvBeliefEntry* pkBeliefInfo = GC.getBeliefInfo(eSecondaryPantheon);
+			iFollowers = pCity->GetCityReligions()->GetNumFollowers(pCity->GetCityReligions()->GetReligionByAccumulatedPressure(1));
+			if (iFollowers >= pkBeliefInfo->GetMinFollowers())
+			{
+				iBonusTimes100 += pkBeliefInfo->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+			}
+		}
+	}
+	// BONUS: civs that keep their pantheon belief forever.
+	if (MOD_BALANCE_PERMANENT_PANTHEONS)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(ePlayer))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, ePlayer);
+			const BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(ePlayer);
+			if (pPantheon && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				if (!pReligion || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, ePlayer)) // check that our religion does not have our belief, to prevent double counting
+				{
+					iBonusTimes100 += GC.getBeliefInfo(ePantheonBelief)->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+				}
+			}
+		}
+	}
+
+	// BONUS: league and trait world-wonder yields.
+	if (::isWorldWonderClass(*pkBuildingClassInfo))
+	{
+		iBonusTimes100 += GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(ePlayer, eYield) * 100;
+		iBonusTimes100 += kPlayer.GetPlayerTraits()->GetYieldChangeWorldWonder(eYield) * 100;
+	}
+
+	// BONUS: policy building-class yields.
+	for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+	{
+		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
+		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
+		if (kPlayer.GetPlayerPolicies()->HasPolicy(ePolicy) && !kPlayer.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
+		{
+			iBonusTimes100 += pkPolicyInfo->GetBuildingClassYieldChanges(eBuildingClass, eYield) * 100;
+			if (isWorldWonderClass(*pkBuildingClassInfo))
+			{
+				iBonusTimes100 += pkPolicyInfo->GetYieldChangeWorldWonder(eYield) * 100;
+			}
+		}
+	}
+
+	// BASE: yields per worked terrain.
+	for (int i = 0; i < GC.getNumTerrainInfos(); i++)
+	{
+		TerrainTypes eTerrain = static_cast<TerrainTypes>(i);
+		int iYieldPerXTerrain = pkBuildingInfo->GetYieldPerXTerrain(i, eYield);
+		switch (eTerrain)
+		{
+			case TERRAIN_SNOW:
+				iBaseTimes100 += iYieldPerXTerrain * pCity->CountTerrain(TERRAIN_SNOW);
+				break;
+			case TERRAIN_MOUNTAIN:
+				iBaseTimes100 += iYieldPerXTerrain * pCity->GetNearbyMountains();
+				break;
+			default:
+				iBaseTimes100 += iYieldPerXTerrain * pCity->GetNumTerrainWorked(eTerrain);
+				break;
+		}
+	}
+
+	// BASE: yields per worked feature.
+	for (int i = 0; i < GC.getNumFeatureInfos(); i++)
+	{
+		FeatureTypes eFeature = static_cast<FeatureTypes>(i);
+		iBaseTimes100 += pkBuildingInfo->GetYieldPerXFeature(i, eYield) * pCity->GetNumFeatureWorked(eFeature);
+	}
+
+	// BASE: yields per local/global improvement count.
+	fraction fYieldFromImprovementCount;
+	for (int i = 0; i < GC.getNumImprovementInfos(); i++)
+	{
+		ImprovementTypes eImprovement = static_cast<ImprovementTypes>(i);
+		fYieldFromImprovementCount += pkBuildingInfo->GetYieldPerXImprovementLocal(eImprovement, eYield) * pCity->GetImprovementCount(eImprovement);
+		fYieldFromImprovementCount += pkBuildingInfo->GetYieldPerXImprovementGlobal(eImprovement, eYield) * kPlayer.getImprovementCount(eImprovement);
+	}
+	iBaseTimes100 += (fYieldFromImprovementCount * 100).Truncate();
+
+	// BONUS: player, trait, city-local, corporation and event building-class yields.
+	iBonusTimes100 += kPlayer.GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+	iBonusTimes100 += kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+	iBonusTimes100 += pCity->getLocalBuildingClassYield(eBuildingClass, eYield) * 100;
+	iBonusTimes100 += pCity->GetBuildingYieldChangeFromCorporationFranchises(eBuildingClass, eYield) * 100;
+	iBonusTimes100 += pCity->GetEventBuildingClassCityYield(eBuildingClass, eYield) * 100;
+
+	// BASE: building self-scalers (population, era, per-building/tile, monopoly, city-state, etc.).
+	iBaseTimes100 += pkBuildingInfo->GetYieldChangePerPop(eYield) * pCity->getPopulation();
+	iBaseTimes100 += pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * kPlayer.getTotalPopulation();
+	iBaseTimes100 += (pkBuildingInfo->GetYieldChangePerBuilding(eYield) * pCity->GetCityBuildings()->GetNumBuildings() * 100).Truncate();
+	iBaseTimes100 += (pkBuildingInfo->GetYieldChangePerTile(eYield) * pCity->GetPlotList().size() * 100).Truncate();
+	iBaseTimes100 += pCity->plot()->IsTradeUnitRoute() ? pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) * 100 : 0;
+	iBaseTimes100 += (pkBuildingInfo->GetYieldChangePerCityStateStrategicResource(eYield) * kPlayer.GetNumStrategicResourcesFromMinors() * 100).Truncate();
+	iBaseTimes100 += pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * max(1, static_cast<int>(kPlayer.GetCurrentEra()));
+	iBaseTimes100 += pkBuildingInfo->GetYieldPerFriendTimes100(eYield) * kPlayer.GetNumCSFriends();
+	iBaseTimes100 += pkBuildingInfo->GetYieldPerAllyTimes100(eYield) * kPlayer.GetNumCSAllies();
+	iBaseTimes100 += pkBuildingInfo->GetYieldChangePerMonopoly(eYield) * kPlayer.GetNumGlobalMonopolies() * 100;
+
+	int iYieldPerReligion = pkBuildingInfo->GetYieldChangePerReligion(eYield);
+	if (iYieldPerReligion != 0)
+	{
+		iBaseTimes100 += iYieldPerReligion * pCity->GetCityReligions()->GetNumReligionsWithFollowers();
+	}
+
+	int iYieldPerLocalTheme = pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield);
+	if (iYieldPerLocalTheme > 0)
+	{
+		iBaseTimes100 += iYieldPerLocalTheme * pCity->GetCityBuildings()->GetTotalNumThemedBuildings() * 100;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+// Sums the EXTRA yield (x100) that eBuilding grants to the tiles pCity is actually working. The plot
+// classification mirrors CvCity::GetPlotsBoostedByBuilding, but is restricted to tiles citizens are
+// working (the city-center tile is always worked). Only the per-plot yield the building itself adds is
+// counted, never the underlying tile yield. This is folded into the BASE column, consistent with how
+// the rest of the codebase treats a building's per-plot yields as part of its intrinsic output.
+static int GetBuildingWorkedPlotYieldTimes100(CvCity* pCity, BuildingTypes eBuilding, YieldTypes eYield)
+{
+	const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if (pkBuildingInfo == NULL)
+		return 0;
+
+	const TeamTypes eTeam = pCity->getTeam();
+	int iYield = 0;
+
+	for (int targetPlotIdx = 0; targetPlotIdx < RING_PLOTS[pCity->getWorkPlotDistance()]; targetPlotIdx++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pCity->plot(), targetPlotIdx);
+		if (!pLoopPlot)
+			continue;
+
+		// The city-center tile is always worked; for every other tile, only count those being worked.
+		const bool bCityCenter = (pLoopPlot == pCity->plot());
+		if (!bCityCenter && !pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
+			continue;
+
+		// Resource yields (plus the generic luxury-resource yield bonus).
+		const ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
+		if (eResource != NO_RESOURCE)
+		{
+			iYield += pkBuildingInfo->GetResourceYieldChange(eResource, eYield);
+
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				iYield += pkBuildingInfo->GetLuxuryYieldChanges(eYield);
+		}
+
+		// Terrain yields.
+		const TerrainTypes eTerrain = pLoopPlot->getTerrainType();
+		if (eTerrain != NO_TERRAIN)
+			iYield += pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield);
+
+		// Feature yields.
+		const FeatureTypes eFeature = pLoopPlot->getFeatureType();
+		if (eFeature != NO_FEATURE)
+			iYield += pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield);
+
+		// Improvement yields.
+		const ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+		if (eImprovement != NO_IMPROVEMENT)
+			iYield += pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield);
+
+		// Water (sea / lake) and the sea-resource bonus.
+		if (pLoopPlot->isWater())
+		{
+			if (!pLoopPlot->isLake())
+				iYield += pkBuildingInfo->GetSeaPlotYieldChange(eYield);
+			else
+				iYield += pkBuildingInfo->GetLakePlotYieldChange(eYield) + pkBuildingInfo->GetLakePlotYieldChangeGlobal(eYield);
+
+			if (eResource != NO_RESOURCE)
+				iYield += pkBuildingInfo->GetSeaResourceYieldChange(eYield);
+		}
+
+		// River plot yields.
+		if (pLoopPlot->IsFeatureRiver())
+			iYield += pkBuildingInfo->GetRiverPlotYieldChange(eYield);
+
+		// City-connection plot yields.
+		if (pLoopPlot->IsCityConnection())
+			iYield += pkBuildingInfo->GetCityConnectionPlotYieldChange(eYield) + pkBuildingInfo->GetCityConnectionPlotYieldChangeGlobal(eYield);
+	}
+
+	return iYield * 100;
+}
+
+/// Per-turn snapshot of every constructed building's base and externally-buffed flat yields (one row
+/// per city / building / yield), written in a single batched SQLite transaction.
+void CvEconomicAI::LogBuildingYields()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	// Mirror the CSV monitors: skip minor civs.
+	if (m_pPlayer->isMinorCiv())
+		return;
+
+	RegisterBuildingYieldsTable();
+
+	const CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
+	const int iEra = static_cast<int>(m_pPlayer->GetCurrentEra());
+
+	SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("BuildingYields");
+
+	int iLoopCity = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+	{
+		const CvString strCityName = pLoopCity->getName();
+
+		const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+		for (std::vector<BuildingTypes>::const_iterator it = vBuildings.begin(); it != vBuildings.end(); ++it)
+		{
+			const BuildingTypes eBuilding = *it;
+
+			// Constructed buildings only (GetNumRealBuilding excludes free buildings).
+			if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) <= 0)
+				continue;
+
+			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if (pkBuildingInfo == NULL)
+				continue;
+
+			const char* szBuildingName = pkBuildingInfo->GetDescription();
+
+			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+			{
+				const YieldTypes eYield = static_cast<YieldTypes>(iYield);
+
+				int iBaseTimes100 = 0;
+				int iBonusTimes100 = 0;
+				GetBuildingFlatYieldSplitTimes100(pLoopCity, eBuilding, eYield, iBaseTimes100, iBonusTimes100);
+				iBaseTimes100 += GetBuildingWorkedPlotYieldTimes100(pLoopCity, eBuilding, eYield);
+
+				// Skip rows where this building contributes nothing of this yield.
+				if (iBaseTimes100 == 0 && iBonusTimes100 == 0)
+					continue;
+
+				const CvYieldInfo* pkYieldInfo = GC.getYieldInfo(eYield);
+				const char* szYieldName = pkYieldInfo ? pkYieldInfo->GetDescription() : "";
+
+				kBatch.BeginLogRow()
+					.bind(iEra)
+					.bind(strPlayerName.c_str())
+					.bind(strCityName.c_str())
+					.bind(szBuildingName)
+					.bind(szYieldName)
+					.bind(iBaseTimes100)
+					.bind(iBonusTimes100)
+					.addRowToBatch();
+			}
+		}
+	}
+
+	kBatch.flush();
 }
 
 // PRIVATE METHODS

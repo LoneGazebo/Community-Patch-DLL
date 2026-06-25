@@ -229,6 +229,7 @@ public:
 
 	void LogMonitor();
 	void LogCityMonitor();
+	void LogBuildingYields();
 	void LogPossibleHurries(CvWeightedVector<CvCityBuildable> const& m_Buildables);
 
 	ReconState GetReconState() const

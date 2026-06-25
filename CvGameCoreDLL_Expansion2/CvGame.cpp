@@ -12475,6 +12475,73 @@ void CvGame::LogMapState() const
 }
 
 //	--------------------------------------------------------------------------------
+// SQLite mirror of mapStateLog_Turn%03d.json. Lives alongside LogMapState() but is independent of the
+// CSV/AI logging switches: it only runs when MOD_SQLITE_LOGGING is enabled. Each plot of interest is
+// buffered through the batched writer and the whole map is committed in as few transactions as the
+// configured buffer cap allows, which matters because the map can contain many thousands of plots.
+void CvGame::LogMapPlotsState() const
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	RegisterMapPlotsStateTable();
+
+	CvMap& kMap = GC.getMap();
+	const int iNumPlots = kMap.numPlots();
+
+	SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("MapPlotsState");
+
+	for (int i = 0; i < iNumPlots; i++)
+	{
+		CvPlot* pPlot = kMap.plotByIndexUnchecked(i);
+
+		const CvCity* pCity = pPlot->getPlotCity();
+		const PlayerTypes eOwner = pPlot->getOwner();
+		const RouteTypes eRoute = pPlot->getRouteType();
+
+		const bool bHasCity = (pCity != NULL);
+		const bool bHasRoute = (eRoute != NO_ROUTE);
+		const bool bOwned = (eOwner != NO_PLAYER);
+		const bool bIsLastPlot = (i == iNumPlots - 1);
+
+		// Skip empty plots (no city, no route, unowned) to keep the table compact. The final plot is
+		// always written so the map dimensions (and thus the omitted empty plots) can be inferred.
+		if (!bHasCity && !bHasRoute && !bOwned && !bIsLastPlot)
+			continue;
+
+		int iRouteType = 255;
+		switch (eRoute)
+		{
+		case ROUTE_ROAD:
+			iRouteType = 0;
+			break;
+		case ROUTE_RAILROAD:
+			iRouteType = 1;
+			break;
+		default:
+			iRouteType = 255;
+		}
+
+		// getName() returns a CvString by value, so keep it alive for the duration of the bind below.
+		CvString strCityName;
+		if (bHasCity)
+			strCityName = pCity->getName();
+
+		const char* szOwner = bOwned ? GET_PLAYER(eOwner).getCivilizationShortDescription() : "";
+
+		kBatch.BeginLogRow()
+			.bind(pPlot->getX())
+			.bind(pPlot->getY())
+			.bind(strCityName.c_str())
+			.bind(szOwner)
+			.bind(iRouteType)
+			.addRowToBatch();
+	}
+
+	kBatch.flush();
+}
+
+//	--------------------------------------------------------------------------------
 // Aggregated per-turn diplomacy / grand-strategy counts shared by the WorldState_Log.csv output and
 // the SQLite WorldStateLog mirror so the two code paths cannot drift apart.
 struct WorldStateLogCounts
@@ -12724,6 +12791,10 @@ void CvGame::LogGameState(bool bLogHeaders) const
 	// Mirror WorldStateLog into the SQLite stats database
 	if (MOD_SQLITE_LOGGING)
 	{
+		// Mirror mapStateLog into stats.db. Gated purely behind the SQLite flag (independent of the
+		// CSV logging switches above) and internally guarded, so it is safe to call unconditionally.
+		LogMapPlotsState();
+
 		WorldStateLogCounts kCounts;
 		ComputeWorldStateLogCounts(kCounts);
 
