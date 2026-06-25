@@ -952,8 +952,7 @@
 			<Help>TXT_KEY_BUILDING_SHOPPING_MALL_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_SHOPPING_MALL_STRATEGY</Strategy>
 			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
-			<TradeRouteRecipientBonus>2</TradeRouteRecipientBonus>
-			<TradeRouteTargetBonus>2</TradeRouteTargetBonus>
+			<LocalFranchiseChance>5</LocalFranchiseChance>
 			<IconAtlas>CORPORATION_ATLAS_VP</IconAtlas>
 			<PortraitIndex>36</PortraitIndex>
 		</Row>

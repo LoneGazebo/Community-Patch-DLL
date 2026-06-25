@@ -520,6 +520,7 @@ CvCity::CvCity() :
 	, m_aiUnitCostInvestmentReduction()
 	, m_abBuildingConstructed()
 	, m_iVassalLevyEra()
+	, m_iLocalFranchiseChance()
 	, m_bConnectedToOcean()
 {
 	OBJECT_ALLOCATED
@@ -1820,6 +1821,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 
 	m_iVassalLevyEra = 0;
+	m_iLocalFranchiseChance = 0;
 	m_bConnectedToOcean = false;
 }
 
@@ -2605,6 +2607,9 @@ void CvCity::doTurn()
 		doProduction(!doCheckProduction());
 		doDecay();
 		doMeltdown();
+
+		if (GET_PLAYER(getOwner()).isMajorCiv())
+			DoRandomFranchise();
 
 		for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 		{
@@ -13901,6 +13906,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		ChangeNumTradeRouteBonus(pBuildingInfo->GetTradeRouteLandGoldBonus() * iChange);
 		ChangeCityConnectionTradeRouteGoldModifier(pBuildingInfo->GetCityConnectionTradeRouteGoldModifier() * iChange);
 		ChangeVassalLevyEra(pBuildingInfo->GetVassalLevyEra() * iChange);
+		ChangeLocalFranchiseChance(pBuildingInfo->GetLocalFranchiseChance() * iChange);
 
 		if (pBuildingInfo->AffectSpiesNow() && iChange > 0)
 		{
@@ -31601,6 +31607,121 @@ bool CvCity::doCheckProduction()
 	return CleanUpQueue();
 }
 
+void CvCity::DoRandomFranchise()
+{
+	// Do we gain a franchise this turn?
+	int iRandom = GC.getGame().randRangeExclusive(0, 100, CvSeeder::fromRaw(0x347961a3).mix(plot()->GetPseudoRandomSeed()));
+	if (iRandom >= GetLocalFranchiseChance())
+		return;
+
+	vector<BuildingTypes> vePossibleFranchise;
+	vector<PlayerTypes> vePossiblePlayer;
+	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	{
+		PlayerTypes ePlayer = static_cast<PlayerTypes>(iLoopPlayer);
+		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+		// Does this player own a corporation?
+		if (!kPlayer.GetCorporations()->HasFoundedCorporation())
+			continue;
+
+		// Can this player establish foreign franchises?
+		if (kPlayer.GetCorporations()->GetCorporationOfficesAsFranchises() > 0)
+			continue;
+
+		CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(kPlayer.GetCorporations()->GetFoundedCorporation());
+
+		// Do we already have this franchise?
+		if (HasBuildingClass(pkCorporationInfo->GetFranchiseBuildingClass()))
+			continue;
+
+		// Get the correct franchise building for us
+		BuildingTypes eFranchiseBuilding = static_cast<BuildingTypes>(getCivilizationInfo().getCivilizationBuildings(pkCorporationInfo->GetFranchiseBuildingClass()));
+		if (eFranchiseBuilding == NO_BUILDING)
+			continue;
+
+		// Already reached max franchises?
+		if (kPlayer.GetCorporations()->GetNumFranchises() > kPlayer.GetCorporations()->GetMaxNumFranchises())
+			continue;
+
+		// Can this player build a franchise in our cities?
+		if (!kPlayer.GetCorporations()->CanBuildFranchiseInPlayer(getOwner()))
+			continue;
+
+		int iCityLoop = 0;
+		bool bFound = false;
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
+		{
+			// Need an office to spread franchise
+			if (!pLoopCity->IsHasOffice())
+				continue;
+
+			for (int i = 0; i < NUM_DOMAIN_TYPES; i++)
+			{
+				DomainTypes eDomain = static_cast<DomainTypes>(i);
+				if (!GC.getGame().GetGameTrade()->IsValidTradeDomain(eDomain))
+					continue;
+
+				if (kPlayer.GetTrade()->CanCreateTradeRoute(pLoopCity, this, eDomain, TRADE_CONNECTION_INTERNATIONAL, true))
+				{
+					bFound = true;
+					vePossibleFranchise.push_back(eFranchiseBuilding);
+					vePossiblePlayer.push_back(ePlayer);
+					break;
+				}
+			}
+
+			if (bFound)
+				break;
+		}
+	}
+
+	if (vePossibleFranchise.empty())
+		return;
+
+	// Pick a random franchise and add it to this city
+	uint uChoice = GC.getGame().urandLimitExclusive(vePossibleFranchise.size(), CvSeeder::fromRaw(0x8f321ace).mix(plot()->GetPseudoRandomSeed()));
+	BuildingTypes eSelectedFranchise = vePossibleFranchise[uChoice];
+	CvPlayer& kSelectedPlayer = GET_PLAYER(vePossiblePlayer[uChoice]);
+	GetCityBuildings()->SetNumRealBuilding(eSelectedFranchise, 1, true);
+	kSelectedPlayer.GetCorporations()->RecalculateNumFranchises();
+
+	// Send notifications to both players
+	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+	Localization::String strSummary;
+	Localization::String strMessage;
+	CvNotifications* pNotifications = NULL;
+	if (eActivePlayer == getOwner())
+	{
+		pNotifications = GET_PLAYER(eActivePlayer).GetNotifications();
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_LOCAL_FRANCHISE_SUMMARY");
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_LOCAL_FRANCHISE");
+	}
+	else if (eActivePlayer == vePossiblePlayer[uChoice])
+	{
+		pNotifications = GET_PLAYER(eActivePlayer).GetNotifications();
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_LOCAL_FRANCHISE_OWNER_SUMMARY");
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CORPORATION_LOCAL_FRANCHISE_OWNER");
+	}
+
+	CvBuildingEntry* pkFranchiseInfo = GC.getBuildingInfo(eSelectedFranchise);
+	if (pNotifications)
+	{
+		const char* szBuildingName = pkFranchiseInfo->GetTextKey();
+		strSummary << szBuildingName;
+		strSummary << getNameKey();
+		strMessage << szBuildingName;
+		strMessage << getNameKey();
+		pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1, -1);
+	}
+
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strLog = CvString::format("Foreign City Established Franchise via Randomized Function. City: %s. Building: %s.", getName().c_str(), pkFranchiseInfo->GetText());
+		kSelectedPlayer.GetCorporations()->LogCorporationMessage(strLog);
+	}
+}
+
 //	--------------------------------------------------------------------------------
 void CvCity::doProduction(bool bAllowNoProduction)
 {
@@ -32222,6 +32343,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_abIsBuildingHidden);
 	visitor(city.m_inumHiddenBuildings);
 	visitor(city.m_iVassalLevyEra);
+	visitor(city.m_iLocalFranchiseChance);
 	visitor(city.m_bConnectedToOcean);
 
 	visitor(*city.m_pCityBuildings);
@@ -35362,6 +35484,16 @@ void CvCity::ChangeVassalLevyEra(int iChange)
 int CvCity::GetVassalLevyEra() const
 {
 	return m_iVassalLevyEra;
+}
+
+void CvCity::ChangeLocalFranchiseChance(int iChange)
+{
+	m_iLocalFranchiseChance += iChange;
+}
+
+int CvCity::GetLocalFranchiseChance() const
+{
+	return m_iLocalFranchiseChance;
 }
 
 // Spawn one eUnit on city plot (moved to nearest valid plot)

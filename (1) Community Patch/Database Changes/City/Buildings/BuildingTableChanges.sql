@@ -320,6 +320,19 @@ ALTER TABLE Buildings ADD DefensePerXWonder integer DEFAULT 0;
 -- Modifier for ranged combat strength of garrison when attacking
 ALTER TABLE Buildings ADD GarrisonRangedAttackModifier integer DEFAULT 0;
 
+-- Chance of a random eligible franchise appearing in the city each turn
+-- Eligibility:
+-- City must not be being razed
+-- City is within trade route range of a foreign city that:
+	-- Is not nationalized
+	-- Has an office with a franchise that this city doesn't have
+-- City must be allowed to have franchises (not nationalized unless city owner is the vassal of the foreign city owner)
+-- City owner must be already trading with the foreign city owner (doesn't matter in which city or who originates)
+-- Basically the inverse of the CvPlayerCorporations::BuildRandomFranchiseInCity() function
+-- Unlike the above function, this picks from all eligible franchises randomly unweighted
+-- DOES NOTHING FOR MINOR/BARBARIAN CITIES
+ALTER TABLE Buildings ADD LocalFranchiseChance integer DEFAULT 0;
+
 -- GLOBAL_GREATWORK_YIELDTYPES
 ALTER TABLE Buildings ADD GreatWorkYieldType text REFERENCES Yields (Type) DEFAULT 'YIELD_CULTURE';
 

@@ -7,6 +7,7 @@
 
 // must be included after all other headers
 #include "LintFree.h"
+#include "CvCorporationClasses.h"
 
 CvCorporationEntry::CvCorporationEntry(void):
 	m_eHeadquartersBuildingClass(NO_BUILDINGCLASS),
@@ -976,8 +977,6 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	if (!HasFoundedCorporation())
 		return;
 
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-
 	int iFranchises = GetNumFranchises();
 	int iMaxFranchises = GetMaxNumFranchises();
 
@@ -989,8 +988,6 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 		return;
 
 	CvCorporationEntry* pkCorporation = GC.getCorporationInfo(GetFoundedCorporation());
-	if (pkCorporation == NULL)
-		return;
 
 	BuildingTypes eFranchiseBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(pkCorporation->GetFranchiseBuildingClass());
 	if (eFranchiseBuilding == NO_BUILDING)
@@ -1012,26 +1009,12 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	{
 		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
 
-		if (!GET_PLAYER(ePlayer).isAlive())
+		if (!CanBuildFranchiseInPlayer(ePlayer))
 			continue;
 
-		if (GET_PLAYER(ePlayer).isBarbarian())
-			continue;
-
-		if (GET_PLAYER(ePlayer).GetID() == m_pPlayer->GetID())
-			continue;
-
-		if (pLeague != NULL && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
-			continue;
-
-		if (!m_pPlayer->GetTrade()->IsConnectedToPlayer(ePlayer))
-			continue;
-
-		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != m_pPlayer->getTeam() && GET_PLAYER(ePlayer).GetCorporations()->IsNoForeignCorpsInCities())
-			continue;
-
+		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 		int iLoop = 0;
-		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
 			if (m_pPlayer->GetTrade()->IsCityAlreadyConnectedByTrade(pLoopCity))
 				continue;
@@ -1040,21 +1023,18 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 			if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
 				continue;
 
-			int iChance = GC.getGame().randRangeExclusive(0, 101, CvSeeder::fromRaw(0x61e74940).mix(pLoopCity->plot()->GetPseudoRandomSeed())) + GC.getGame().randRangeExclusive(0, 101, CvSeeder::fromRaw(0x533dfdcd).mix(pLoopCity->plot()->GetPseudoRandomSeed()));
-			int iScore = 500 - iChance;
+			if (!m_pPlayer->GetTrade()->CanCreateTradeRoute(pLoopCity, TRADE_CONNECTION_INTERNATIONAL))
+				continue;
 
-			int iLoop2 = 0;
-			for (CvCity* pLoopCity2 = m_pPlayer->firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = m_pPlayer->nextCity(&iLoop2))
-			{
-				if (!m_pPlayer->GetTrade()->CanCreateTradeRoute(pLoopCity2, pLoopCity, DOMAIN_LAND, TRADE_CONNECTION_INTERNATIONAL, false) && !m_pPlayer->GetTrade()->CanCreateTradeRoute(pLoopCity2, pLoopCity, DOMAIN_SEA, TRADE_CONNECTION_INTERNATIONAL, false))
-					continue;
+			int iChance = GC.getGame().randRangeExclusive(0, 1000, CvSeeder::fromRaw(0x61e74940).mix(pLoopCity->plot()->GetPseudoRandomSeed()));
+			int iScore = 5000 - iChance;
 
-				//Prioritize closer cities first.
-				int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
-				iScore -= (iDistance * 5);
-				if (iScore <= 0)
-					iScore = 1;
-			}
+			// Prioritize closer cities first.
+			int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCapital->getX(), pCapital->getY());
+			iScore -= iDistance * 50;
+			if (iScore <= 0)
+				iScore = 1;
+
 			if (iScore > iBestScore)
 			{
 				iBestScore = iScore;
@@ -1062,7 +1042,8 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 			}
 		}
 	}
-	if (pBestCity != NULL && iBestScore != 0)
+
+	if (pBestCity && iBestScore != 0)
 	{
 		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFranchiseBuilding);
 		if (pBuildingInfo)
@@ -1126,6 +1107,30 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 			}
 		}
 	}
+}
+
+bool CvPlayerCorporations::CanBuildFranchiseInPlayer(PlayerTypes ePlayer)
+{
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "Invalid index for player");
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+	if (!kPlayer.isAlive())
+		return false;
+
+	if (ePlayer == m_pPlayer->GetID())
+		return false;
+
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
+		return false;
+
+	if (!m_pPlayer->GetTrade()->IsConnectedToPlayer(ePlayer))
+		return false;
+
+	if (GET_TEAM(kPlayer.getTeam()).GetMaster() != m_pPlayer->getTeam() && kPlayer.GetCorporations()->IsNoForeignCorpsInCities())
+		return false;
+
+	return true;
 }
 
 void CvPlayerCorporations::LogCorporationMessage(const CvString& strMsg)

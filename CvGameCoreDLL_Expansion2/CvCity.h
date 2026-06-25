@@ -1835,6 +1835,9 @@ public:
 	void ChangeVassalLevyEra(int iChange);
 	int GetVassalLevyEra() const;
 
+	void ChangeLocalFranchiseChance(int iChange);
+	int GetLocalFranchiseChance() const;
+
 	void SpawnFreeUnit(UnitTypes eUnit);
 	int SpawnPlayerUnitsNearby(const PlayerTypes ePlayer, const int iNumber, const bool bIncludeUUs = false, bool bIncludeShips = false, const bool bNoResource = false) const;
 
@@ -2248,6 +2251,8 @@ protected:
 
 	int m_iVassalLevyEra;
 
+	int m_iLocalFranchiseChance;
+
 	bool m_bConnectedToOcean;
 
 	//cache for great work yields, they are need often during citizen re-assignment but they don't change
@@ -2262,6 +2267,7 @@ protected:
 	void doMeltdown();
 	void doUnitCompletionYields(CvUnit* pUnit, UnitCreationReason eReason);
 	bool doCheckProduction();
+	void DoRandomFranchise();
 
 	//we can pretend a garrison in this city, but only for limited time
 	void OverrideGarrison(const CvUnit* pUnit) const;
@@ -2623,6 +2629,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBuildingCostInvestmentReduction)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abUnitInvestment)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiUnitCostInvestmentReduction)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abBuildingConstructed)
+SYNC_ARCHIVE_VAR(int, m_iVassalLevyEra)
+SYNC_ARCHIVE_VAR(int, m_iLocalFranchiseChance)
 SYNC_ARCHIVE_END()
 
 //just a guard class so we never forget to unset the garrison override

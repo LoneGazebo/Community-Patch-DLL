@@ -2369,6 +2369,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	-- Production modifier from trade routes with city states
 	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_PRODUCTION_MODIFIER_FROM_MINOR_TRADE_ROUTES", kBuildingInfo.CityStateTradeRouteProductionModifier);
 
+	-- Chance a random foriegn franchise appears each turn
+	AddTooltipNonZeroSigned(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_LOCAL_FRANCHISE_CHANCE", kBuildingInfo.LocalFranchiseChance);
+
 	-- Discover tech science modifier
 	AddTooltipNonZeroSigned(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_DISCOVER_TECH_SCIENCE_MODIFIER", kBuildingInfo.GreatScientistBeakerModifier);
 

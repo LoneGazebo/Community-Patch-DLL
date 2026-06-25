@@ -1353,6 +1353,74 @@
 			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_RESEARCH] Science</Text>
 		</Row>
 
+		<!-- Corporations -->
+		<Row Tag="TXT_KEY_TECH_CORP_ENABLED_S">
+			<Text>Corporations Enabled!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORP_ENABLED">
+			<Text>It is now possible to found a Corporation! Check the [COLOR_POSITIVE_TEXT]Corporations and Monopolies[ENDCOLOR] screen for information on your current Resource Monopolies, all possible Corporations, and the Corporations that you are eligible for.[NEWLINE][NEWLINE]Construct the Corporation's HQ in one of your Cities to found it! Remember that you can only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make it count!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED_SUMMARY">
+			<Text>Corporation Founded!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED">
+			<Text>You have founded [COLOR_POSITIVE_TEXT]{@1_CorporationName}[ENDCOLOR]! To spread your new Corporation far and wide, build Corporate Offices in owned Cities and send [ICON_INTERNATIONAL_TRADE] Trade Routes from these Cities to foreign Cities!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED_OTHER_PLAYER_SUMMARY">
+			<Text>{1_PlayerName} has founded a Corporation!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED_OTHER_PLAYER">
+			<Text>{1_PlayerName} has founded [COLOR_POSITIVE_TEXT]{@2_CorporationName}[ENDCOLOR]! This Corporation can no longer be established unless the other player's Corporation Headquarters is destroyed (on city capture).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_LOCAL_FRANCHISE_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_LOCAL_FRANCHISE">
+			<Text>{@1_BldgName}, a foreign Corporation, has spread to the City of {@2_City} as a result of rising consumer demand. This will increase the value of their Corporation!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_LOCAL_FRANCHISE_OWNER_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_LOCAL_FRANCHISE_OWNER">
+			<Text>{@1_BldgName} has spread to the City of {@2_City} as a result of rising consumer demand. This will increase the value of all of your Corporate Offices!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING">
+			<Text>{@2_BldgName} has spread to the City of {@1_City} as a result of a Trade Route with {@3_City}. This will increase the value of all of your Corporate Offices!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN">
+			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City} as a result of a Trade Route with {@3_City}. This will increase the value of their Corporation!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM">
+			<Text>{@2_BldgName} has spread to the City of {@1_City}! This will increase the value of all of your Corporate Offices!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM">
+			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City}! This will increase the value of their Corporation!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED_SUMMARY">
+			<Text>{@1_BldgName} closes all offices and franchises!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_DESTROYED">
+			<Text>{@1_BldgName} has closed all global offices and franchises as a result of their headquarter's untimely destruction.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY_S">
+			<Text>{@1_BldgName} removed from {2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CORPORATION_BUILDINGS_REMOVED_CITY">
+			<Text>{@1_BldgName} was forcefully closed by {3_Civ} in {2_City}, due to a Tenet or Resolution!</Text>
+		</Row>
+
 		<!-- Project completion -->
 		<Row Tag="TXT_KEY_MISC_SOMEONE_HAS_COMPLETED_FIRST">
 			<Text>{1_PlyrName} first to complete {@2_PrjctName}!</Text>

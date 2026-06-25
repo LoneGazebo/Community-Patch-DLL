@@ -26,6 +26,7 @@
 #include "CvGrandStrategyAI.h"
 
 #include "LintFree.h"
+#include "CvTradeClasses.h"
 
 //=====================================
 // CvGameTrade
@@ -638,7 +639,7 @@ bool CvGameTrade::CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDe
 					continue;
 				}
 
-				if (eDomain != DOMAIN_LAND && eDomain != DOMAIN_SEA)
+				if (!IsValidTradeDomain(eDomain))
 				{
 					continue;
 				}
@@ -877,6 +878,19 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	
 
 	return true;
+}
+
+bool CvGameTrade::IsValidTradeDomain(DomainTypes eDomain) const
+{
+	switch (eDomain)
+	{
+		case DOMAIN_LAND:
+		case DOMAIN_SEA:
+			return true;
+
+		default:
+			return false;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -4319,6 +4333,32 @@ bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, 
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	return pTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, bIgnoreExisting, bCheckPath);
+}
+
+// Can any of our cities trade with pDestCity via eDomain using eConnectionType?
+bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pDestCity, TradeConnectionType eConnectionType, DomainTypes eDomain, bool bIgnoreExisting)
+{
+	if (eDomain != NO_DOMAIN && !GC.getGame().GetGameTrade()->IsValidTradeDomain(eDomain))
+		return false;
+
+	for (int i = 0; i < NUM_DOMAIN_TYPES; i++)
+	{
+		DomainTypes eLoopDomain = static_cast<DomainTypes>(i);
+		if (!GC.getGame().GetGameTrade()->IsValidTradeDomain(eLoopDomain))
+			continue;
+
+		if (eDomain != NO_DOMAIN && eDomain != eLoopDomain)
+			continue;
+
+		int iCityLoop = 0;
+		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+		{
+			if (CanCreateTradeRoute(pLoopCity, pDestCity, eDomain, eConnectionType, bIgnoreExisting))
+				return true;
+		}
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------

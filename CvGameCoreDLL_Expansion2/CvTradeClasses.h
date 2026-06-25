@@ -155,8 +155,10 @@ public:
 	void DoTurn (void);
 
 	bool CanCreateTradeRoute (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath);
-	bool CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDestPlayer, DomainTypes eDomainRestriction);
+	bool CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDestPlayer, DomainTypes eDomainRestriction = NO_DOMAIN);
 	bool CreateTradeRoute (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, int& iRouteID);
+
+	bool IsValidTradeDomain(DomainTypes eDomain) const;
 
 	bool IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut=NULL, bool bWarCheck = true);
 	int GetValidTradeRoutePathLength(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut = NULL, bool bWarCheck = true);
@@ -341,6 +343,7 @@ public:
 	bool IsConnectedToPlayer(PlayerTypes eOtherPlayer) const;
 
 	bool CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath = true) const;
+	bool CanCreateTradeRoute(CvCity* pDestCity, TradeConnectionType eConnectionType, DomainTypes eDomain = NO_DOMAIN, bool bIgnoreExisting = true);
 	bool CanCreateTradeRoute(PlayerTypes eOtherPlayer, DomainTypes eDomain);
 	bool CanCreateTradeRoute(DomainTypes eDomain) const;
 
