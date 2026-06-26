@@ -269,7 +269,7 @@
 		<!-- Great Generals and Admirals spawned from combat experience appear on top of the unit that triggered the spawn, and not in a distant city -->
 		<!-- If LOCAL_GENERALS_NEAREST_CITY is also enabled, the general or admiral instead spawns in the closest city to the triggering unit -->
 		<Row Class="5" Name="GLOBAL_LOCAL_GENERALS" Value="0"/>
-		<Row Class="5" Name="LOCAL_GENERALS_NEAREST_CITY" Value="1"/>
+		<Row Class="5" Name="LOCAL_GENERALS_NEAREST_CITY" Value="0"/>
 
 		<!-- Removes assembled spaceship parts from conquered capitals -->
 		<Row Class="6" Name="GLOBAL_NO_CONQUERED_SPACESHIPS" Value="0"/>
