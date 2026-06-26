@@ -286,7 +286,7 @@
 		<!-- Units that can found a city take the city's majority religion with them -->
 		<!-- If RELIGIOUS_SETTLERS_WEIGHTED=1, it's instead a weighted random choice, with each religion having a weight equal to its local followers -->
 		<Row Class="5" Name="GLOBAL_RELIGIOUS_SETTLERS" Value="0"/>
-		<Row Class="5" Name="RELIGIOUS_SETTLERS_WEIGHTED" Value="1"/>
+		<Row Class="5" Name="RELIGIOUS_SETTLERS_WEIGHTED" Value="0"/>
 
 		<!-- Submarines under ice are immune to ranged attacks, except from other submarines -->
 		<Row Class="5" Name="GLOBAL_SUBS_UNDER_ICE_IMMUNITY" Value="0"/>
