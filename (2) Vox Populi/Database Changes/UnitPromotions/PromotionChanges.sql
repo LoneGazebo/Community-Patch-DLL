@@ -1278,6 +1278,11 @@ VALUES
 UPDATE UnitPromotions SET CombatChange = 6, MinEffectiveHealth = 100 WHERE Type = 'PROMOTION_INVINCIBLE';
 
 --------------------------------------------
+-- Ancient ruin free promotions
+--------------------------------------------
+UPDATE UnitPromotions SET DefenseMod = 20, UpgradeDiscount = 100 WHERE Type = 'PROMOTION_LOST_PROTOTYPE';
+
+--------------------------------------------
 -- Post-combat promotions
 --------------------------------------------
 

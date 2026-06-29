@@ -12197,6 +12197,12 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		}
 	}
 
+	if (kGoodyInfo.getPromotionType() != NO_PROMOTION)
+	{
+		if (!pUnit)
+			return false;
+	}
+
 	///////////////////////////////////////
 	///////////////////////////////////////
 	// Bad Goodies follow beneath this line
@@ -12919,6 +12925,14 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			// Since the old unit died, it will block the goody reward popup unless we call this
 			GC.GetEngineUserInterface()->SetDontShowPopups(false);
 		}
+	}
+
+	// Free promotion
+	if (kGoodyInfo.getPromotionType() != NO_PROMOTION)
+	{
+		ASSERT(pUnit);
+		PromotionTypes ePromotion = static_cast<PromotionTypes>(kGoodyInfo.getPromotionType());
+		pUnit->setHasPromotion(ePromotion, true);
 	}
 
 	// Tech

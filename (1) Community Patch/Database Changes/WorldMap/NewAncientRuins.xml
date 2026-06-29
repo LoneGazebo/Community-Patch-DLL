@@ -25,5 +25,11 @@
 			<ChooseDescription>TXT_KEY_GOODY_CHOOSE_SCIENCE</ChooseDescription>
 			<Science>35</Science>
 		</Row>
+		<Row>
+			<Type>GOODY_LOST_PROTOTYPE</Type>
+			<Description>TXT_KEY_GOODY_LOST_PROTOTYPE</Description>
+			<ChooseDescription>TXT_KEY_GOODY_CHOOSE_LOST_PROTOTYPE</ChooseDescription>
+			<Promotion>PROMOTION_LOST_PROTOTYPE</Promotion>
+		</Row>
 	</GoodyHuts>
 </GameData>

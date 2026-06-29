@@ -542,7 +542,7 @@
 			<Text>Banzai!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BANZAI_HELP">
-			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
+			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUNPOWDER">
@@ -570,7 +570,7 @@
 			<Text>Engineering Corp</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENGINEERING_CORP_HELP">
-			<Text>Can enter [ICON_POSITIVE_TEXT]Impassable[ENDCOLOR] tiles.</Text>
+			<Text>Can enter [COLOR_POSITIVE_TEXT]Impassable[ENDCOLOR] tiles.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_RESISTANCE">
@@ -773,7 +773,7 @@
 			<Text>Beam Axle</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BEAM_AXLE_HELP">
-			<Text>Entering [ICON_NEGATIVE_TEXT]Forest[ENDCOLOR], [ICON_NEGATIVE_TEXT]Jungle[ENDCOLOR], [ICON_NEGATIVE_TEXT]Marsh[ENDCOLOR], and [ICON_NEGATIVE_TEXT]Hill[ENDCOLOR] costs +1 [ICON_MOVES] Movement (does not stack).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+			<Text>Entering [COLOR_NEGATIVE_TEXT]Forest[ENDCOLOR], [COLOR_NEGATIVE_TEXT]Jungle[ENDCOLOR], [COLOR_NEGATIVE_TEXT]Marsh[ENDCOLOR], and [COLOR_NEGATIVE_TEXT]Hill[ENDCOLOR] costs +1 [ICON_MOVES] Movement (does not stack).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE">
@@ -906,7 +906,7 @@
 			<Text>Shielded Silo</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHIELDED_SILO_HELP">
-			<Text>Immune to Damage from [ICON_POSITIVE_TEXT]Nuclear Weapons[ENDCOLOR].</Text>
+			<Text>Immune to Damage from [COLOR_POSITIVE_TEXT]Nuclear Weapons[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HEAVY_FLANKING">
@@ -1298,7 +1298,7 @@
 			<Text>Fighting Cock</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIGHTING_COCK_HELP">
-			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
+			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LEGATUS_LEGIONIS">
@@ -1326,7 +1326,7 @@
 			<Text>Big Horse Dance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BIG_HORSE_DANCE_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
+			<Text>+20% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_CROUCHING_TIGER">
@@ -1371,12 +1371,19 @@
 			<Text>+6 base [ICON_STRENGTH] Combat Strength if the Unit started the turn with full HP.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_LOST_PROTOTYPE">
+			<Text>Lost Prototype</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LOST_PROTOTYPE_HELP">
+			<Text>+20% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]-100% Upgrade Cost.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- Eight Virtues of Bushido -->
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS">
 			<Text>Righteousness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
+			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_PEDIA">
 			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Righteousness</Text>
@@ -1386,7 +1393,7 @@
 			<Text>Courage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE_PEDIA">
 			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Courage</Text>
@@ -1396,7 +1403,7 @@
 			<Text>Benevolence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE_HELP">
-			<Text>+5 HP when [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR] for Units [COLOR_POSITIVE_TEXT]adjacent to this tile[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
+			<Text>+5 HP when [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR] for Units [COLOR_POSITIVE_TEXT]adjacent to this tile[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE_PEDIA">
 			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Benevolence</Text>
@@ -1406,7 +1413,7 @@
 			<Text>Respect</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
+			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT_PEDIA">
 			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Respect</Text>
@@ -1416,7 +1423,7 @@
 			<Text>Sincerity</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_HELP">
-			<Text>+50% Experience gained from Combat.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
+			<Text>+50% Experience gained from Combat.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_PEDIA">
 			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Sincerity</Text>
@@ -1426,7 +1433,7 @@
 			<Text>Honor</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_PEDIA">
 			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Honor</Text>
@@ -1436,7 +1443,7 @@
 			<Text>Loyalty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY_PEDIA">
 			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Loyalty</Text>
@@ -1446,7 +1453,7 @@
 			<Text>Self Control</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL_PEDIA">
 			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Self Control</Text>
