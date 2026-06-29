@@ -5531,6 +5531,7 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_iMinBarbarians(0)
 	, m_iUnitClassType(NO_UNITCLASS)
 	, m_iBarbarianUnitClass(NO_UNITCLASS)
+	, m_iPromotionType(NO_PROMOTION)
 	, m_bTech(false)
 	, m_bRevealUnknownResource(false)
 	, m_bUpgradeUnit(false)
@@ -5659,6 +5660,11 @@ int CvGoodyInfo::getBarbarianUnitClass() const
 	return m_iBarbarianUnitClass;
 }
 
+int CvGoodyInfo::getPromotionType() const
+{
+	return m_iPromotionType;
+}
+
 bool CvGoodyInfo::isTech() const
 {
 	return m_bTech;
@@ -5748,10 +5754,9 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_bUpgradeUnit = results.GetBool("UpgradeUnit");
 	m_bPantheonFaith = results.GetBool("PantheonFaith");
 
-	//TEMP TEMP TEMP TEMP
 	m_iUnitClassType = GC.getInfoTypeForString(results.GetText("UnitClass"), true);
 	m_iBarbarianUnitClass = GC.getInfoTypeForString(results.GetText("BarbarianUnitClass"), true);
-
+	m_iPromotionType = GC.getInfoTypeForString(results.GetText("Promotion"), true);
 
 	return true;
 }

@@ -12,7 +12,7 @@ VALUES
 	('GOODY_PROPHET_FAITH'),
 	('GOODY_GOLD'),
 	('GOODY_MAP'),
-	('GOODY_UPGRADE_UNIT'),
+	('GOODY_LOST_PROTOTYPE'),
 	('GOODY_PRODUCTION'),
 	('GOODY_GOLDEN_AGE'),
 	('GOODY_TILES'),
@@ -224,7 +224,7 @@ AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp
 UPDATE HandicapInfo_AIDifficultyBonus
 SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsFoodOrGoldBeforeRenaissance = 1) / 100
 WHERE YieldType IN ('YIELD_FOOD', 'YIELD_GOLD') AND EraType IN (
-	SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE')
+	SELECT Type FROM Eras a WHERE a.ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE')
 )
 AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsFoodOrGoldBeforeRenaissance = 1);
 
@@ -236,7 +236,7 @@ AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp
 UPDATE HandicapInfo_AIDifficultyBonus
 SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsTourismBeforeRenaissance = 1) / 100
 WHERE YieldType = 'YIELD_TOURISM' AND EraType IN (
-	SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE')
+	SELECT Type FROM Eras a WHERE a.ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE')
 )
 AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsTourismBeforeRenaissance = 1);
 

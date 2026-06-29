@@ -1684,6 +1684,7 @@ public:
 	int getMinBarbarians() const;
 	int getUnitClassType() const;
 	int getBarbarianUnitClass() const;
+	int getPromotionType() const;
 
 	bool isTech() const;
 	bool isRevealUnknownResource() const;
@@ -1725,6 +1726,7 @@ protected:
 	int m_iMinBarbarians;
 	int m_iUnitClassType;
 	int m_iBarbarianUnitClass;
+	int m_iPromotionType;
 
 	bool m_bTech;
 	bool m_bRevealUnknownResource;

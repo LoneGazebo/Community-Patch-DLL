@@ -100,6 +100,8 @@ VALUES
 	('PROMOTION_PRISONERS_OF_WAR', 5),
 	-- Really important promotions
 	('PROMOTION_JUGGERNAUT', 10),
+	-- Ancient ruin promotions
+	('PROMOTION_LOST_PROTOTYPE', 20),
 	-- Unique unit free promotions (stays on upgrade)
 	('PROMOTION_ADJACENT_BONUS', 113),
 	('PROMOTION_IGNORE_TERRAIN_COST', 114),
@@ -329,7 +331,7 @@ WHERE EXISTS (SELECT 1 FROM UnitPromotion_Orders WHERE PromotionType = Type);
 
 DROP TABLE UnitPromotion_Orders;
 
--- don't show these on the unit panel
+-- Don't show these on the unit panel
 UPDATE UnitPromotions SET ShowInUnitPanel = 0 WHERE Type IN (
 	'PROMOTION_ONLY_DEFENSIVE'
 );
