@@ -2397,6 +2397,7 @@ public:
 	void changeInstantYieldValue(YieldTypes eYield, int iValue);
 
 	void LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType eInstantYield, CvCity* pCity);
+	void LogBuildingInstantYields(InstantYieldType iType, CvCity* pLoopCity, YieldTypes eYield, int iEra, int iPassYield, bool bEraScale, PlayerTypes ePlayer, YieldTypes ePassYield, BuildingTypes ePassBuilding, CvCity* pCity, bool bInternational, CvUnit* pUnit, GreatPersonTypes eGreatPerson);
 
 	CvString getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount);
 

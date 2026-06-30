@@ -2139,11 +2139,14 @@ void CvEconomicAI::LogBuildingYields()
 		return;
 
 	RegisterBuildingYieldsTable();
+	RegisterBuildingsOverviewTable();
 
 	const CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
 	const int iEra = static_cast<int>(m_pPlayer->GetCurrentEra());
 
 	SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("BuildingYields");
+	SqliteLogger::BatchWriter kOverviewBatch = GET_SQLITE_LOGGER().BeginLogBatch("BuildingsOverview");
+	std::vector<int> aiBuildingCounts(GC.getNumBuildingInfos(), 0);
 
 	int iLoopCity = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
@@ -2154,6 +2157,9 @@ void CvEconomicAI::LogBuildingYields()
 		for (std::vector<BuildingTypes>::const_iterator it = vBuildings.begin(); it != vBuildings.end(); ++it)
 		{
 			const BuildingTypes eBuilding = *it;
+			const int iNumControlledInCity = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+			if (iNumControlledInCity > 0)
+				aiBuildingCounts[eBuilding] += iNumControlledInCity;
 
 			// Constructed buildings only (GetNumRealBuilding excludes free buildings).
 			if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) <= 0)
@@ -2200,7 +2206,26 @@ void CvEconomicAI::LogBuildingYields()
 		}
 	}
 
+	for (int iBuilding = 0; iBuilding < GC.getNumBuildingInfos(); ++iBuilding)
+	{
+		if (aiBuildingCounts[iBuilding] <= 0)
+			continue;
+
+		const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(static_cast<BuildingTypes>(iBuilding));
+		if (!pkBuildingInfo)
+			continue;
+
+		const char* szBuildingName = pkBuildingInfo->GetDescription();
+		kOverviewBatch.BeginLogRow()
+			.bind(iEra)
+			.bind(strPlayerName.c_str())
+			.bind(szBuildingName)
+			.bind(aiBuildingCounts[iBuilding])
+			.addRowToBatch();
+	}
+
 	kBatch.flush();
+	kOverviewBatch.flush();
 }
 
 // PRIVATE METHODS
