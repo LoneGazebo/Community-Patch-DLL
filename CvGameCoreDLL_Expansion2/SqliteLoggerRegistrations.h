@@ -218,3 +218,48 @@ static void RegisterBuildingYieldsTable()
 		GET_SQLITE_LOGGER().RegisterTable("BuildingYields", kColumns);
 	}
 }
+
+// Per-turn overview of each civ's controlled building inventory (one row per building type).
+static void RegisterBuildingsOverviewTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("Era", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("Civ", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Building", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Count", Database::COLTYPE_INT));
+		GET_SQLITE_LOGGER().RegisterTable("BuildingsOverview", kColumns);
+	}
+}
+
+// Long-format instant-yield breakdown, one row per (building, city, yield) at the moment an
+// instant yield fires (citizen born, building constructed, policy unlocked, tile pillaged, etc.).
+// EventType is a short label derived from the instant-yield source table (Birth, PolicyUnlock,
+// Pillage, ...). YieldTimes100 is the building's attributed share of the granted yield, multiplied
+// by 100 so that fractional per-building contributions are preserved.
+static void RegisterBuildingInstantYieldsTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("Era", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("Civ", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("City", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Building", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("EventType", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Yield", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("YieldTimes100", Database::COLTYPE_INT));
+		GET_SQLITE_LOGGER().RegisterTable("BuildingInstantYields", kColumns);
+	}
+}
