@@ -4392,15 +4392,16 @@ bool CvMinorCivIncomingUnitGift::hasIncomingUnit() const
 }
 
 ///
-void CvMinorCivIncomingUnitGift::applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const
+void CvMinorCivIncomingUnitGift::applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit, bool bReturn) const
 {
 	destUnit.SetOriginalOwner(getOriginalOwner());
-	destUnit.SetGiftedByPlayer(getGiftedByPlayer());
+	destUnit.SetGiftedByPlayer(bReturn ? NO_PLAYER : getGiftedByPlayer());
 	destUnit.setGameTurnCreated(getGameTurnCreated());
 	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(i);
-		if (isHasPromotion(ePromotion))
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		if (isHasPromotion(ePromotion) && (bReturn || !pkPromotionInfo->IsLostOnGifting()))
 		{
 			ASSERT(CvUnit::IsRetainablePromotion(ePromotion));
 			destUnit.setHasPromotion(ePromotion, true);
@@ -16389,7 +16390,7 @@ void CvMinorCivAI::doIncomingUnitGifts()
 					ASSERT(pNewUnit);
 					if (pNewUnit)
 					{
-						unitGift.applyToUnit(eLoopPlayer, *pNewUnit);
+						unitGift.applyToUnit(eLoopPlayer, *pNewUnit, false);
 
 						if (GC.getLogging() && GC.getAILogging())
 						{
@@ -16507,7 +16508,7 @@ void CvMinorCivAI::returnIncomingUnitGift(PlayerTypes eMajor)
 			CvUnit* pNewUnit = GET_PLAYER(eMajor).initUnit(eUnitType, pReturnToPlot->getX(), pReturnToPlot->getY());
 			if (pNewUnit)
 			{
-				unitGift.applyToUnit(eMajor, *pNewUnit);
+				unitGift.applyToUnit(eMajor, *pNewUnit, true);
 				if (pNewUnit->getDomainType() != DOMAIN_AIR && !pNewUnit->jumpToNearestValidPlot())
 				{
 					pNewUnit->kill(false);

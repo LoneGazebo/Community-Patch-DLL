@@ -41,6 +41,9 @@ ALTER TABLE UnitPromotions ADD ReconChange integer DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD PromotionDuration integer DEFAULT 0;
 
+-- Promotion is lost if unit is gifted to another player
+ALTER TABLE UnitPromotions ADD LostOnGifting boolean DEFAULT 0;
+
 -- Promotion restricted to tile. Lost if unit leaves it. Only used in conjuction with free promotions from features and terrains (see above)
 ALTER TABLE UnitPromotions ADD IsLostOnMove boolean DEFAULT 0;
 

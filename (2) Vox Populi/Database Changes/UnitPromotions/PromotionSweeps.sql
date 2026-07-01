@@ -575,3 +575,29 @@ OR Type IN (
 	'PROMOTION_DESERT_WALKER',
 	'PROMOTION_HILL_WALKER'
 );
+
+----------------------------------------------
+-- LostOnGifting
+----------------------------------------------
+
+UPDATE UnitPromotions
+SET LostOnGifting = 1
+WHERE Type IN (
+	-- Non-generic promotions granted by leader traits are lost on gifting
+	'PROMOTION_ATTACK_BONUS_SWEDEN',
+	'PROMOTION_BENEVOLENCE',
+	'PROMOTION_BUSHIDO',
+	'PROMOTION_CHASQUI_TRAINING',
+	'PROMOTION_COERCION',
+	'PROMOTION_COURAGE',
+	'PROMOTION_LONGBOAT',
+	'PROMOTION_LOYALTY',
+	'PROMOTION_HONOR',
+	'PROMOTION_RESPECT',
+	'PROMOTION_RIGHTEOUSNESS',
+	'PROMOTION_SELF_CONTROL',
+	'PROMOTION_SEWN_CANOES',
+	'PROMOTION_SINCERITY',
+	'PROMOTION_SUN_NEVER_SETS',
+	'PROMOTION_VIKING'
+);

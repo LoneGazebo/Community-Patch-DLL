@@ -8150,7 +8150,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 						{
 							UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
 							CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pLoopUnit->getX(), pLoopUnit->getY(), eZuluImpiAI);
-							pZuluImpi->convert(pLoopUnit, true);
+							pZuluImpi->convert(pLoopUnit, true, false);
 						}
 					}
 				}
