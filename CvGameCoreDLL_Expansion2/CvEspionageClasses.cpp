@@ -3308,6 +3308,11 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 	iNP += iTemp;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_POLICIES_TT", iTemp);
 
+	// Religion
+	iTemp = m_pPlayer->GetReligions()->GetEspionageNetworkPoints(m_pPlayer->GetID());
+	iNP += iTemp;
+	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_RELIGION_TT", iTemp);
+
 	// counterespionage. only calculate if we actually have a spy in the city, not if we calculate NP per turn for AI city selection
 	if (eSpyState == SPY_STATE_GATHERING_INTEL && iSpyIndex >= 0)
 	{

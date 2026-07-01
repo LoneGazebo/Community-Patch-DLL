@@ -316,16 +316,18 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 		if (kPlayer.isAlive())
 		{
 			// do they have a spy that spreads pressure?
-			int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
-			if (iSpyPressure > 0)
+			CvPlayerEspionage* pEspionage = kPlayer.GetEspionage();
+			if (pEspionage && pEspionage->GetSpyIndexInCity(pCity) != -1)
 			{
-				if (kPlayer.GetEspionage()->GetSpyIndexInCity(pCity) != -1)
+				ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
+				if (eStateReligion != NO_PLAYER)
 				{
-					ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetStateReligion();
-					if (eReligionFounded != NO_RELIGION)
-					{
-						pCity->GetCityReligions()->AddSpyPressure(eReligionFounded, iSpyPressure);
-					}
+					int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
+					int iSpyPressureErosion = kPlayer.GetReligions()->GetSpyPressureErosion((PlayerTypes)iI);
+					if (iSpyPressure > 0)
+						pCity->GetCityReligions()->AddSpyPressure(eStateReligion, iSpyPressure);
+					if (iSpyPressureErosion > 0)
+						pCity->GetCityReligions()->DoSpyPressureErosion(eStateReligion, iSpyPressureErosion, (PlayerTypes)iI);
 				}
 			}
 
@@ -3905,7 +3907,24 @@ int CvPlayerReligions::GetCityStateYieldModifier(PlayerTypes ePlayer) const
 		}
 	}
 	return iRtnValue;
-} 
+}
+
+/// Does this player benefit from a boost in Spy NP generation?
+int CvPlayerReligions::GetEspionageNetworkPoints(PlayerTypes ePlayer) const
+{
+	int iRtnValue = 0;
+	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetStateReligion();
+	if (eReligion != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+		if (pReligion)
+		{
+			CvCity* pHolyCity = pReligion->GetHolyCity();
+			iRtnValue += pReligion->m_Beliefs.GetEspionageNetworkPoints(ePlayer, pHolyCity);
+		}
+	}
+	return iRtnValue;
+}
 
 /// Does this player get religious pressure from spies?
 int CvPlayerReligions::GetSpyPressure(PlayerTypes ePlayer) const
@@ -3919,6 +3938,23 @@ int CvPlayerReligions::GetSpyPressure(PlayerTypes ePlayer) const
 		{
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			iRtnValue += pReligion->m_Beliefs.GetSpyPressure(ePlayer, pHolyCity);
+		}
+	}
+	return iRtnValue;
+}
+
+/// Do this player's spies erode the pressure of other religions?
+int CvPlayerReligions::GetSpyPressureErosion(PlayerTypes ePlayer) const
+{
+	int iRtnValue = 0;
+	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetStateReligion();
+	if (eReligion != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+		if (pReligion)
+		{
+			CvCity* pHolyCity = pReligion->GetHolyCity();
+			iRtnValue += pReligion->m_Beliefs.GetSpyPressureErosion(ePlayer, pHolyCity);
 		}
 	}
 	return iRtnValue;
@@ -4558,15 +4594,28 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 				}
 			}
 
-			// Include any pressure from "Underground Sects"
 			if (eReligion > RELIGION_PANTHEON && kPlayer.GetReligions()->GetStateReligion() == eReligion)
 			{
-				int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
-				if (iSpyPressure > 0)
+				CvPlayerEspionage* pEspionage = kPlayer.GetEspionage();
+				if (pEspionage && pEspionage->GetSpyIndexInCity(m_pCity) != -1)
 				{
-					if (kPlayer.GetEspionage()->GetSpyIndexInCity(m_pCity) != -1)
+					ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
+					if (eStateReligion != NO_RELIGION)
 					{
-						iPressure += iSpyPressure * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
+						// Do they have a spy that applies pressure to this religion?
+						if (kPlayer.GetReligions()->GetStateReligion() == eReligion)
+						{
+							int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
+							if (iSpyPressure > 0)
+								iPressure += iSpyPressure * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
+						}
+						// Do they have a spy that erodes pressure from other religions?
+						else
+						{
+							int iSpyPressureErosion = kPlayer.GetReligions()->GetSpyPressureErosion((PlayerTypes)iI);
+							if (iSpyPressureErosion > 0)
+								iPressure -= iSpyPressureErosion * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
+						}
 					}
 				}
 			}
@@ -5038,7 +5087,7 @@ void CvCityReligions::AddHolyCityPressure()
 	ReligionTypes eHolyReligion = GetReligionForHolyCity();
 	if (eHolyReligion != NO_RELIGION)
 	{
-		int iHolyPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity() *  /*5*/ GD_INT_GET(RELIGION_PER_TURN_FOUNDING_CITY_PRESSURE);
+		int iHolyPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity() * /*5*/ GD_INT_GET(RELIGION_PER_TURN_FOUNDING_CITY_PRESSURE);
 		AddReligiousPressure(FOLLOWER_CHANGE_HOLY_CITY, eHolyReligion, iHolyPressure);
 		RecomputeFollowers(FOLLOWER_CHANGE_HOLY_CITY);
 	}
@@ -5048,6 +5097,28 @@ void CvCityReligions::AddHolyCityPressure()
 void CvCityReligions::AddSpyPressure(ReligionTypes eReligion, int iBasePressure)
 {
 	AddReligiousPressure(FOLLOWER_CHANGE_SPY_PRESSURE, eReligion, iBasePressure*GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
+	RecomputeFollowers(FOLLOWER_CHANGE_SPY_PRESSURE);
+}
+
+/// Remove pressure from followers of other religions
+void CvCityReligions::DoSpyPressureErosion(ReligionTypes eReligion, int iBasePressure, PlayerTypes eResponsiblePlayer)
+{
+	ReligionInCityList::iterator it;
+	for (it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
+	{
+		//ignore atheists and pantheons
+		if (it->m_eReligion == NO_RELIGION || it->m_eReligion <= RELIGION_PANTHEON)
+			continue;
+		
+		//do not touch the exempted religion or dead ones
+		if (eReligion == it->m_eReligion || it->m_iPressure==0)
+			continue;
+
+		// make it so!
+		int iReductionAmount = max(iBasePressure * GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity() * -1, -it->m_iPressure);
+		it->m_iPressure += iReductionAmount;
+		LogPressureChange(FOLLOWER_CHANGE_SPY_PRESSURE, it->m_eReligion, iReductionAmount, it->m_iPressure, eResponsiblePlayer);
+	}
 	RecomputeFollowers(FOLLOWER_CHANGE_SPY_PRESSURE);
 }
 
@@ -9851,14 +9922,25 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			iSpreadTemp += iSpreadTempCS;
 		}
 
-		if (pEntry->GetSpyPressure() != 0)
+		if (!GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
 		{
-			iSpreadTemp += (pEntry->GetSpyPressure() * m_pPlayer->GetEspionage()->GetNumSpies());
-			iSpreadTemp /= 2;
-
-			if (m_pPlayer->GetEspionageModifier() != 0)
+			if (pEntry->GetSpyPressure() != 0)
 			{
-				iSpreadTemp *= 2;
+				iSpreadTemp += (pEntry->GetSpyPressure() * max(2, m_pPlayer->GetEspionage()->GetNumSpies()));
+				iSpreadTemp /= 2;
+
+				if (m_pPlayer->GetEspionageModifier() != 0)
+				{
+					iSpreadTemp *= 2;
+				}
+			}
+			if (pEntry->GetSpyPressureErosion() != 0)
+			{
+				iSpreadTemp += (pEntry->GetSpyPressureErosion() * max(2, m_pPlayer->GetEspionage()->GetNumSpies()));
+				if (m_pPlayer->GetEspionageModifier() != 0)
+				{
+					iSpreadTemp *= 2;
+				}
 			}
 		}
 
@@ -10159,9 +10241,20 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		}
 	}
 
-	if (pEntry->GetHappinessFromForeignSpies() != 0)
+	if (!GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
 	{
-		iDiploTemp += pEntry->GetHappinessFromForeignSpies() * max(2, m_pPlayer->GetEspionage()->GetNumSpies() * 25);
+		if (pEntry->GetEspionageNetworkPoints() != 0)
+		{
+			iDiploTemp += pEntry->GetEspionageNetworkPoints() * max(2, m_pPlayer->GetEspionage()->GetNumSpies() * 6);
+		}
+		if (pEntry->GetHappinessFromSpies() != 0)
+		{
+			iDiploTemp += pEntry->GetHappinessFromSpies() * max(2, m_pPlayer->GetEspionage()->GetNumSpies() * 30);
+		}
+		if (pEntry->GetHappinessFromForeignSpies() != 0)
+		{
+			iDiploTemp += pEntry->GetHappinessFromForeignSpies() * max(2, m_pPlayer->GetEspionage()->GetNumSpies() * 25);
+		}
 	}
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
