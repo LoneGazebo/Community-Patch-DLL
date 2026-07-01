@@ -507,21 +507,21 @@
 			<Text>Endurance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENDURANCE_HELP">
-			<Text>Heal 15 HP after [COLOR_POSITIVE_TEXT]defeating an Enemy Unit[ENDCOLOR].</Text>
+			<Text>Heal 15 HP after [COLOR_POSITIVE_TEXT]defeating an Enemy Unit[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_CONSCRIPTION">
 			<Text>Conscription</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_CONSCRIPTION_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_IMPERIALISM">
 			<Text>Imperialism</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_HELP">
-			<Text>+1 [ICON_VISION] Sight.</Text>
+			<Text>+1 [ICON_VISION] Sight.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FASTER_GENERAL">
@@ -542,28 +542,28 @@
 			<Text>Banzai!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BANZAI_HELP">
-			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
+			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUNPOWDER">
 			<Text>Lightning Warfare (Gunpowder)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUNPOWDER_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMORED">
 			<Text>Lightning Warfare (Armored)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LIGHTNING_WARFARE_ARMORED_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1 [ICON_MOVES] Movement.</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MARE_NOSTRUM">
 			<Text>Mare Nostrum</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MARE_NOSTRUM_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+5 HP when Healing [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+5 HP when Healing [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ENGINEERING_CORP">
@@ -591,14 +591,14 @@
 			<Text>Sacred Steps</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SACRED_STEPS_HELP">
-			<Text>+2 [ICON_MOVES] Movement.</Text>
+			<Text>+2 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_EVERLASTING_YOUTH">
 			<Text>Everlasting Youth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_EVERLASTING_YOUTH_HELP">
-			<Text>+5 HP when [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR].</Text>
+			<Text>+5 HP when [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANIMISM">
@@ -654,14 +654,14 @@
 			<Text>Jinete</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_JINETE_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_IKLWA">
 			<Text>Iklwa</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_IKLWA_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO">
@@ -682,28 +682,28 @@
 			<Text>Age of Discovery</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AGE_OF_DISCOVERY_HELP">
-			<Text>Gain 1 [ICON_GOLD] Gold and 0.1 XP when revealing a tile.[NEWLINE]This value is multiplied by 12 for Natural Wonders, 4 for {TXT_KEY_IMPROVEMENT_GOODY_HUT}, and 3 for Resources.[NEWLINE]Can claim [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_GOODY_HUT}[ENDCOLOR].</Text>
+			<Text>Gain 1 [ICON_GOLD] Gold and 0.1 XP when revealing a tile.[NEWLINE]This value is multiplied by 12 for Natural Wonders, 4 for {TXT_KEY_IMPROVEMENT_GOODY_HUT}, and 3 for Resources.[NEWLINE]Can claim [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_GOODY_HUT}[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP">
 			<Text>Venetian Craftsmanship</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_VENETIAN_CRAFTSMANSHIP_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+1 [ICON_MOVES] Movement.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET">
 			<Text>Treasure Fleet</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1 [ICON_VISION] Sight.[NEWLINE]Can Heal [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1 [ICON_VISION] Sight.[NEWLINE]Can Heal [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_TRIUMPH">
 			<Text>Triumph</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TRIUMPH_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Gain 50% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Land Units as [ICON_GREAT_GENERAL] Great General Points.</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Gain 50% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Land Units as [ICON_GREAT_GENERAL] Great General Points.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BRUTE_FORCE">
@@ -1067,7 +1067,7 @@
 			<Text>Schützenkönig</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCHUTZENKONIG_HELP">
-			<Text>+2% [ICON_STRENGTH] Combat Strength for each non-Enemy [ICON_RES_MARRIAGE] Married City-State (max +30%).</Text>
+			<Text>+2% [ICON_STRENGTH] Combat Strength for each non-Enemy [ICON_RES_MARRIAGE] Married City-State (max +30%).[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BRUTE_STRENGTH">
@@ -1472,7 +1472,7 @@
 			<Text>Fervor</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FERVOR_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]Lasts for 30 turns.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]Lasts for 30 turns.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER">
