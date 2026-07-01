@@ -716,6 +716,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetQuestData2);
 	Method(GetQuestData3);
 	Method(GetQuestTurnsRemaining);
+	Method(GetQuestSpyMissionString);
 	Method(QuestSpyActionsRemaining);
 	Method(GetXQuestBuildingRemaining);
 	Method(GetExplorePercent);
@@ -9076,6 +9077,17 @@ int CvLuaPlayer::lGetXQuestBuildingRemaining(lua_State* L)
 
 	const int iResult = iNeeded - iBuilt;
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetQuestSpyMissionString(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
+	const CityEventChoiceTypes eSpyMission = (CityEventChoiceTypes)pkPlayer->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
+	CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eSpyMission);
+	const char* strMissionName = pkMissionInfo->getEventDescription();
+	lua_pushstring(L, strMissionName);
 	return 1;
 }
 int CvLuaPlayer::lQuestSpyActionsRemaining(lua_State* L)

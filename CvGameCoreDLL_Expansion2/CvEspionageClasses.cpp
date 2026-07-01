@@ -1636,6 +1636,13 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 	pCityEspionage->m_aiNumTimesCityRobbed[eSpyOwner]++;
 	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING);
 
+	for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes)iMinorCivLoop;
+		if (GET_PLAYER(eMinor).isAlive())
+			GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(m_pPlayer->GetID(), /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_SPY_MISSION, eMission);
+	}
+
 	pDefendingPlayerEspionage->AddSpyMessage(pCity->getX(), pCity->getY(), eSpyOwner, eResult, eMission);
 
 	if (bIdentified)
@@ -8267,7 +8274,7 @@ int CvEspionageAI::GetPlayerModifier(PlayerTypes eTargetPlayer, bool bOnlyDiplo)
 	if (pDiploAI->GetPrimeLeagueAlly() == eTargetPlayer)
 		iDiploModifier -= 25;
 
-	iDiploModifier *= 100 + 10 * (m_pPlayer->GetDiplomacyAI()->GetDiploBalance() - 5);
+	iDiploModifier *= 100 + 10 * (pDiploAI->GetDiploBalance() - 5);
 	iDiploModifier /= 100;
 
 	if (bOnlyDiplo)
@@ -8278,18 +8285,22 @@ int CvEspionageAI::GetPlayerModifier(PlayerTypes eTargetPlayer, bool bOnlyDiplo)
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
-		if (eMinor != NO_PLAYER)
+		// Ignore if we're planning bullying/war
+		if (pDiploAI->GetCivApproach(eMinor) <= CIV_APPROACH_HOSTILE)
+			continue;
+
+		CvPlayer* pMinor = &GET_PLAYER(eMinor);
+		if (pMinor->isAlive() && pMinor->isMinorCiv())
 		{
-			CvPlayer* pMinor = &GET_PLAYER(eMinor);
-			if (pMinor && pMinor->isMinorCiv())
+			CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+			if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_SPY_ON_MAJOR))
 			{
-				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_SPY_ON_MAJOR))
+				if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_SPY_ON_MAJOR) == eTargetPlayer)
 				{
-					if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_SPY_ON_MAJOR) == eTargetPlayer)
-					{
-						iPlayerModifier += 15;
-					}
+					if (pMinorCivAI->GetPermanentAlly() == NO_PLAYER && !pMinorCivAI->IsNoAlly())
+						iPlayerModifier += pDiploAI->IsGoingForDiploVictory() ? 25 : 15;
+					else
+						iPlayerModifier += 10;
 				}
 			}
 		}
@@ -9237,6 +9248,35 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 			iTotalScore += iProgress;
 		}
 
+		// If a City-State wants us to do this mission, boost its score
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+			// Ignore if we're planning bullying/war
+			if (pDiplomacyAI->GetCivApproach(eMinor) <= CIV_APPROACH_HOSTILE)
+				continue;
+
+			CvPlayer* pMinor = &GET_PLAYER(eMinor);
+			if (pMinor->isAlive() && pMinor->isMinorCiv())
+			{
+				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_SPY_MISSION))
+				{
+					if ((CityEventChoiceTypes)pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_SPY_MISSION) == eMission)
+					{
+						int iModifier = 0;
+						if (pMinorCivAI->GetPermanentAlly() == NO_PLAYER && !pMinorCivAI->IsNoAlly())
+							iModifier = pDiplomacyAI->IsGoingForDiploVictory() ? 50 : 33;
+						else
+							iModifier = 15;
+
+						iTotalScore *= 100 + iModifier;
+						iTotalScore /= 100;
+					}
+				}
+			}
+		}
+
 		// modify score based on difference between base NP and expected NP. Accounts for security differences between cities
 		int iBaseNP = GD_INT_GET(ESPIONAGE_NP_BASE);
 		iTotalScore *= iExpectedNP;
@@ -9912,18 +9952,19 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
 			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
-			if (eMinor != NO_PLAYER)
+			// Ignore if we're planning bullying/war
+			if (pDiploAI->GetCivApproach(eMinor) <= CIV_APPROACH_HOSTILE)
+				continue;
+
+			CvPlayer* pMinor = &GET_PLAYER(eMinor);
+			if (pMinor->isAlive() && pMinor->isMinorCiv())
 			{
-				CvPlayer* pMinor = &GET_PLAYER(eMinor);
-				if (pMinor && pMinor->isMinorCiv())
+				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP))
 				{
-					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP))
+					if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP) == eTargetPlayer)
 					{
-						if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP) == eTargetPlayer)
-						{
-							iModifier += 50;
-						}
+						iModifier += pDiploAI->IsGoingForDiploVictory() ? 75 : 50;
 					}
 				}
 			}

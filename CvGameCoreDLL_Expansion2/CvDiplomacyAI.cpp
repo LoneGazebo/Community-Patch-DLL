@@ -52776,6 +52776,9 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
 		strTemp.Format("Build X Buildings");
 		break;
+	case MINOR_CIV_QUEST_SPY_MISSION:
+		strTemp.Format("Spy Mission");
+		break;
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 		strTemp.Format("Spy On Major");
 		break;

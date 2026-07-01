@@ -3593,6 +3593,9 @@
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL">
 			<Text>Construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {@1_Building} {2_Num: plural 1?building; other?buildings;} in non-puppet cities in your empire.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_SPY_MISSION_FORMAL">
+			<Text>Conduct the [COLOR_POSITIVE_TEXT]{@1_SpyMission}[ENDCOLOR] Spy Mission against any civilization.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL">
 			<Text>Conduct a Spy Mission against {1_Civ}.</Text>
 		</Row>

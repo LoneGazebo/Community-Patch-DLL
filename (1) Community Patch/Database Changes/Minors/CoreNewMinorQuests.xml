@@ -150,6 +150,10 @@
 			<Influence>30</Influence>
 		</Row>
 		<Row>
+			<Type>MINOR_CIV_QUEST_SPY_MISSION</Type>
+			<Influence>40</Influence>
+		</Row>
+		<Row>
 			<Type>MINOR_CIV_QUEST_SPY_ON_MAJOR</Type>
 			<Influence>40</Influence>
 		</Row>

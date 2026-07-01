@@ -3561,6 +3561,7 @@ public:
 	CvModEventCityChoiceInfo();
 	virtual ~CvModEventCityChoiceInfo();
 
+	const char* getEventDescription() const;
 	bool isParentEvent(CityEventTypes eCityEvent) const;
 	int getEventBuilding() const;
 	int getEventBuildingDestruction() const;
@@ -3705,6 +3706,7 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
+	CvString m_strDescription;
 	int m_iEventBuilding;
 	int m_iEventBuildingDestruction;
 	int m_iEventDuration;

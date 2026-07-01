@@ -816,6 +816,7 @@ protected:
 	static int lGetTargetCityString(lua_State* L);
 	static int lGetExplorePercent(lua_State* L);
 	static int lGetXQuestBuildingRemaining(lua_State* L);
+	static int lGetQuestSpyMissionString(lua_State* L);
 	static int lQuestSpyActionsRemaining(lua_State* L);
 	static int lIsMinorCivContestLeader(lua_State* L);
 	static int lGetMinorCivContestValueForLeader(lua_State* L);
