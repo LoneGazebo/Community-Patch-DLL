@@ -18,14 +18,10 @@ UPDATE Beliefs
 SET
 	SpreadStrengthModifier = 0,
 	InquisitorCostModifier = -33,
-	HappinessFromForeignSpies = 2,
-	SpyPressure = 8 -- number of full city pressure applied to target city
+	HappinessFromSpies = 2,
+	EspionageNetworkPoints = 8,
+	SpyPressureErosion = 4 -- 4x Gamespeeds.ReligiousPressureAdjacentCity = -26 per turn (Standard Speed) 
 WHERE Type = 'BELIEF_RELIGIOUS_TEXTS';
-
-INSERT INTO Belief_YieldFromRemoveHeresy
-	(BeliefType, YieldType, Yield)
-VALUES
-	('BELIEF_RELIGIOUS_TEXTS', 'YIELD_GOLD', 25);
 
 -- Reliquary (now Mendicancy)
 UPDATE Beliefs
