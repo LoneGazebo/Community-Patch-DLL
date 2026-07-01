@@ -777,6 +777,8 @@ public:
 	void ChangeStartingSpyRank(int iChange);
 	int GetSpyPoints(bool bTotal) const;
 	void CreateSpies(int iNumSpies, bool bScaling = true);
+	int GetSpyIdentificationChance(int iBaseChance);
+	int GetSpyKillChance(int iBaseChance);
 	// END Espionage
 
 	int GetConversionModifier() const;

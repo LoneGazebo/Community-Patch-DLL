@@ -4793,9 +4793,9 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		{
 			return false;
 		}
-		else if (kPlayer.isMinorCiv() && enterPlot.getRevealedImprovementType(getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
+		else if (MOD_BALANCE_MINORS_CANNOT_ENTER_ENCAMPMENTS && kPlayer.isMinorCiv() && enterPlot.getRevealedImprovementType(getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 		{
-			//vp special: minors cannot enter/clear barbarian camps
+			//minors cannot enter/clear barbarian camps
 			return false;
 		}
 
@@ -14617,17 +14617,21 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 	case DOMAIN_AIR:
 		return true;
 	case DOMAIN_SEA:
+	{
+		if (pPlot->isWater())
+			return true;
+
+		if (!MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES && pPlot->isCity())
+			return true;
+
 		if (!MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS)
 		{
-			if (pPlot->isWater() || pPlot->isCity())
-				return true;
-			else
-			{
-				ImprovementTypes eImprovement = pPlot->getImprovementType();
-				return eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsMakesPassable();
-			}
+			ImprovementTypes eImprovement = pPlot->getImprovementType();
+			return eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsMakesPassable();
 		}
-		return (pPlot->isWater());
+
+		return false;
+	}
 	case DOMAIN_HOVER:
 		return true;
 	case DOMAIN_IMMOBILE:

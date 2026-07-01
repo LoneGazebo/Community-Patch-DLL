@@ -24598,7 +24598,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	}
 
 	// Check for kill CS quests
-	if ((!MOD_BALANCE_QUEST_CHANGES && GET_PLAYER(ePlayer).GetMinorCivAI()->IsEnabledQuest(MINOR_CIV_QUEST_KILL_CITY_STATE)) || (MOD_BALANCE_QUEST_CHANGES && GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE)))
+	if ((!MOD_BALANCE_QUEST_CHANGES && GET_PLAYER(ePlayer).GetMinorCivAI()->IsEnabledQuest(MINOR_CIV_QUEST_KILL_CITY_STATE, GetPlayer()->GetCurrentEra())) || (MOD_BALANCE_QUEST_CHANGES && GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE)))
 	{
 		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{

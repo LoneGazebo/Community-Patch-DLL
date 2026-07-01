@@ -9835,6 +9835,12 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 		return false;
 	}
 
+	// Voluntary Vassalage is disabled
+	if (!isAtWar(eTeam) && GC.getGame().isOption(GAMEOPTION_NO_VOLUNTARY_VASSALAGE))
+	{
+		return false;
+	}
+
 	// Have to have met eTeam
 	if(!isHasMet(eTeam))
 	{

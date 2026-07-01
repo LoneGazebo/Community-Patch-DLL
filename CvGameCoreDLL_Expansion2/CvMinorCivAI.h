@@ -448,14 +448,14 @@ public:
 
 	bool IsTargetQuest(MinorCivQuestTypes eQuest);
 	bool PlayerHasTarget(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
-	bool IsEnabledQuest(MinorCivQuestTypes eQuest);
+	bool IsEnabledQuest(MinorCivQuestTypes eQuest, EraTypes eEra, bool bCheckPriorEras = true, bool bRecursive = false);
 	bool IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTypes eQuest, int iData1 = -1, int iData2 = -1);
-	bool IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
+	bool IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest, EraTypes eEra);
 	bool IsValidQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* pQuest);
 	bool IsGlobalQuest(MinorCivQuestTypes eQuest) const;
 	bool IsPersonalQuest(MinorCivQuestTypes eQuest) const;
 	int GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const;
-	int GetNumQuestCopies(MinorCivQuestTypes eQuest) const;
+	int GetQuestWeight(MinorCivQuestTypes eQuest, EraTypes eEra) const;
 
 	int GetNumActiveGlobalQuests() const;
 	int GetNumActiveQuestsForAllPlayers() const;
@@ -547,6 +547,7 @@ public:
 	int GetNumTurnsSincePtPWarning(PlayerTypes ePlayer);
 	void ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
 
+	PlayerTypes GetMostRecentAttackerForQuest(bool bExcludeCurrentWars);
 	PlayerTypes GetMostRecentBullyForQuest() const;
 	bool IsWantsMinorDead(PlayerTypes eMinor);
 	PlayerTypes GetBestPlayerToFind(PlayerTypes ePlayer);
@@ -958,6 +959,8 @@ public:
 	int getAllyCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const;
 	bool hasAllyCityYieldBonuses(YieldTypes eYield) const;
 
+	int GetQuestWeight(MinorCivPersonalityTypes ePersonality, EraTypes eEra, MinorCivQuestTypes eQuest) const;
+
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
@@ -996,6 +999,8 @@ protected:
 	bool* m_pbHasAllyByYield;
 	std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>> m_miAllyCityYieldBonuses;
 	bool* m_pbHasAllyCityByYield;
+
+	int* m_pppiQuestWeights;
 };
 
 #endif //CIV5_MINOR_CIV_AI_H

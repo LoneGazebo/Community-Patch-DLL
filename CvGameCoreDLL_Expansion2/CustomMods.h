@@ -87,7 +87,10 @@
 // Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended
 #define MOD_CORE_ENGINEER_HURRY										gCustomMods.isCORE_ENGINEER_HURRY()
 
-// Naval units cannot do ranged attacks from cities or passable improvements
+// Naval units cannot do ranged attacks from cities
+#define MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES				gCustomMods.isCORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES()
+
+// Naval units cannot do ranged attacks from passable improvements
 #define MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS				gCustomMods.isCORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS()
 
 // Prevents repairing improvements in foreign lands with Workers, blocking the pillage-repair loop exploit
@@ -404,8 +407,12 @@
 #define MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS						gCustomMods.isBALANCE_PERMANENT_VOTE_COMMITMENTS()
 
 // Changes to City-State Quests (Faith Contest now based on followers converted, Kill City-State now mutual and solvable by allying both City-States)
+// Pledge to Protect quest prioritizes the most recent attacker if jerk status is active, then the most recent bully
 // Also disables City-States' resistance to conversion if an active Spread Religion quest is being fulfilled (correct player and religion)
 #define MOD_BALANCE_QUEST_CHANGES									gCustomMods.isBALANCE_QUEST_CHANGES()
+
+// City-State units cannot enter Barbarian Encampments
+#define MOD_BALANCE_MINORS_CANNOT_ENTER_ENCAMPMENTS					gCustomMods.isBALANCE_MINORS_CANNOT_ENTER_ENCAMPMENTS()
 
 // Halves the pantheon follower reduction that occurs when a city receives pressure from an actual religion, making pantheons stick around a little longer
 #define MOD_BALANCE_RESILIENT_PANTHEONS								gCustomMods.isBALANCE_RESILIENT_PANTHEONS()
@@ -1532,6 +1539,7 @@ public:
 	MOD_OPT_DECL(CORE_CIVILIANS_RETREAT_WITH_MILITARY);
 	MOD_OPT_DECL(CORE_PERSISTENT_DEFENSIVE_PACTS);
 	MOD_OPT_DECL(CORE_ENGINEER_HURRY);
+	MOD_OPT_DECL(CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES);
 	MOD_OPT_DECL(CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS);
 	MOD_OPT_DECL(CORE_NO_REPAIRING_FOREIGN_LANDS);
 	MOD_OPT_DECL(CORE_NO_INTERMAJOR_UNIT_GIFTING);
@@ -1635,6 +1643,7 @@ public:
 	MOD_OPT_DECL(BALANCE_PRISONERS_OF_WAR);
 	MOD_OPT_DECL(BALANCE_PERMANENT_VOTE_COMMITMENTS);
 	MOD_OPT_DECL(BALANCE_QUEST_CHANGES);
+	MOD_OPT_DECL(BALANCE_MINORS_CANNOT_ENTER_ENCAMPMENTS);
 	MOD_OPT_DECL(BALANCE_RESILIENT_PANTHEONS);
 
 	// Other Balance Options

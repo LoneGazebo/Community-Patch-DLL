@@ -2838,7 +2838,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		iPressureMod += /*100*/ GD_INT_GET(VASSAL_PRESSURE_PERCENT);
 	}
 
-	// Modify iPressure based on city defenses, but only against hostile cities (ie any not the same player as this city)
+	// Modify iPressure based on city defenses, but only against hostile cities (i.e., any not the same player as this city)
 	PlayerTypes eFromPlayer = pFromCity->getOwner();
 	PlayerTypes eToPlayer = pToCity->getOwner();
 	
