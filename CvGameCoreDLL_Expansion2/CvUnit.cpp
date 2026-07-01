@@ -577,7 +577,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if (eReason == REASON_UPGRADE && pPassUnit != NULL && pPassUnit->IsPromotionEverObtained(ePromotion))
 		{
 			SetPromotionEverObtained(ePromotion, true);
-	}
+		}
 		if(getUnitInfo().GetFreePromotions(iI))
 		{
 			if(GC.getPromotionInfo(ePromotion)->IsHoveringUnit())
@@ -1915,7 +1915,7 @@ void CvUnit::grantExperienceFromLostPromotions(int iNumLost)
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
+void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bIsGift)
 {
 	VALIDATE_OBJECT();
 	IDInfo* pUnitNode = NULL;
@@ -1943,7 +1943,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			}
 
 			// Old unit has the promotion
-			if (pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade())
+			if (pUnit->isHasPromotion(ePromotion) && (!bIsUpgrade || !pkPromotionInfo->IsLostWithUpgrade()) && (!bIsGift || !pkPromotionInfo->IsLostOnGifting()))
 			{
 				bGivePromotion = true;
 			}
@@ -6234,7 +6234,7 @@ void CvUnit::gift(bool bTestTransport)
 
 	if (pGiftUnit != NULL)
 	{
-		pGiftUnit->convert(this, false);
+		pGiftUnit->convert(this, false, true);
 		pGiftUnit->setupGraphical();
 
 		pGiftUnit->GetReligionDataMutable()->SetReligion(GetReligionData()->GetReligion());
@@ -14441,7 +14441,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			pNewUnit->AssignToSquad(GetSquadNumber());
 		}
 
-		pNewUnit->convert(this, true);
+		pNewUnit->convert(this, true, false);
 		pNewUnit->setupGraphical();
 		
 		// Can't move after upgrading
@@ -24565,7 +24565,7 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 					{
 						eAIType = pkUnitType->GetDefaultUnitAIType();
 						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDamageOrFullHPUnit(), getX(), getY(), eAIType);
-						pNewUnit->convert(this, true);
+						pNewUnit->convert(this, true, false);
 						pNewUnit->finishMoves();
 						pNewUnit->restoreFullMoves();
 					}
@@ -24585,7 +24585,7 @@ void CvUnit::DoConvertOnDamageThreshold(const CvPlot* pPlot)
 					{
 						eAIType = pkUnitType->GetDefaultUnitAIType();
 						CvUnit* pNewUnit = GET_PLAYER(getOwner()).initUnit(getConvertDamageOrFullHPUnit(), getX(), getY(), eAIType);
-						pNewUnit->convert(this, true);
+						pNewUnit->convert(this, true, false);
 						pNewUnit->finishMoves();
 						pNewUnit->restoreFullMoves();
 					}
@@ -24625,7 +24625,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 							{
 								CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
 								pConvertUnit = pBarbPlayer->initUnit(pAdjacentUnit->getUnitType(), pAdjacentUnit->getX(), pAdjacentUnit->getY(), pAdjacentUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);
-								pConvertUnit->convert(pAdjacentUnit, false);
+								pConvertUnit->convert(pAdjacentUnit, false, false);
 								pConvertUnit->setupGraphical();
 								pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
 								pConvertUnit->finishMoves();
@@ -24661,7 +24661,7 @@ void CvUnit::DoConvertEnemyUnitToBarbarian(const CvPlot* pPlot)
 
 										CvPlayer* pBarbPlayer = &GET_PLAYER(BARBARIAN_PLAYER);
 										pConvertUnit = pBarbPlayer->initUnit(getUnitType(), getX(), getY(), AI_getUnitAIType(), NO_DIRECTION, true /*bNoMove, false);
-										pConvertUnit->convert(this, false);
+										pConvertUnit->convert(this, false, false);
 										pConvertUnit->setupGraphical();
 										pConvertUnit->setDamage(iExistingDamage, BARBARIAN_PLAYER);
 										pConvertUnit->finishMoves();
@@ -24713,7 +24713,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 			return;
 
 		CvUnit* pConvertUnit = kPlayer.initUnit(eUnit, this->getX(), this->getY(), NO_UNITAI, REASON_CONVERT, true);
-		pConvertUnit->convert(this, false);
+		pConvertUnit->convert(this, false, false);
 		CvNotifications* pNotifications = kPlayer.GetNotifications();
 		if (pNotifications)
 		{

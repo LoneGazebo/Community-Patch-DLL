@@ -222,6 +222,7 @@ public:
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
 	bool IsNotWithUpgrade() const;
+	bool IsLostOnGifting() const;
 	bool IsInstaHeal() const;
 	bool IsLeader() const;
 	bool IsBlitz() const;
@@ -521,6 +522,7 @@ protected:
 	bool m_bCannotBeChosen;
 	bool m_bLostWithUpgrade;
 	bool m_bNotWithUpgrade;
+	bool m_bLostOnGifting;
 	bool m_bInstaHeal;
 	bool m_bLeader;
 	bool m_bBlitz;
