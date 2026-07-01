@@ -1287,6 +1287,19 @@
 			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 			<EventDuration>999</EventDuration>
 		</Row>
+		<!-- Double-Cross Foreign Agents -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DOUBLE_CROSS</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DOUBLE_CROSS</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DOUBLE_CROSS_HELP</Help>
+			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DOUBLE_CROSS_MISSION</MissionTooltip>
+			<IsCounterSpyMission>true</IsCounterSpyMission>
+			<CapitalOnly>true</CapitalOnly>
+			<SpyIdentificationChanceReductionGlobal>20</SpyIdentificationChanceReductionGlobal>
+			<SpySecurityModifier>-30</SpySecurityModifier>
+			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			<EventDuration>999</EventDuration>
+		</Row>
 	</CityEventChoices>
 	<CityEventChoice_Notification>
 		<Row>

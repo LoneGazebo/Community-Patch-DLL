@@ -1517,5 +1517,14 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_MISSION">
 			<Text>Deploy Checkpoints</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DOUBLE_CROSS">
+			<Text>[ICON_PIRATE] Double-Cross Foreign Agents</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DOUBLE_CROSS_HELP">
+			<Text>Reduces your chance to be Identified when performing a Spy Mission in any foreign City by 20%, but also reduces [ICON_CITY_SECURITY] City Security in the [ICON_CAPITAL] Capital by 30.[NEWLINE][NEWLINE]Gain 100 [ICON_GOLD] Gold when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_GOLD] Gold when you kill a foreign Spy, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DOUBLE_CROSS_MISSION">
+			<Text>Double-Cross Foreign Agents</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

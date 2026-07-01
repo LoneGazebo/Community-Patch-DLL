@@ -26027,6 +26027,19 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 		iCitySecurity += iTempMod;
 	}
 
+	// Double-Cross Foreign Agents
+	CvCityEspionage* pCityEspionage = GetCityEspionage();
+	if (pCityEspionage->HasCounterSpy())
+	{
+		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
+		iTempMod = pkEventChoiceInfo->getSpySecurityModifier();
+		if (iTempMod != 0)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_COUNTERSPY_TT", iTempMod);
+			iCitySecurity += iTempMod;
+		}
+	}
+
 	// Population
 	iTempMod = getPopulation() * GD_INT_GET(ESPIONAGE_SECURITY_PER_POPULATION);
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_POPULATION_TT", iTempMod);
