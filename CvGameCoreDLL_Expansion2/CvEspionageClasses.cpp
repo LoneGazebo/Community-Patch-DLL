@@ -8705,7 +8705,7 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 	{
 		int iSecurity = pCity->CalculateCitySecurity();
 		// -30 Security doesn't matter if you have no security to begin with *taps head*
-		int iSecurityAfter = min(max(0, pkMissionInfo->getSpySecurityModifier() + iSecurity), GD_INT_GET(ESPIONAGE_MAX_NUM_SECURITY_POINTS))
+		int iSecurityAfter = min(max(0, pkMissionInfo->getSpySecurityModifier() + iSecurity), GD_INT_GET(ESPIONAGE_MAX_NUM_SECURITY_POINTS));
 		// if the city is our capital, loss of security is much worse, as above
 		int iCapital = pCity->isCapital() ? 2 : 1;
 		iScore += iCapital * (iSecurityAfter - iSecurity) * GD_INT_GET(ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT) / 100;
