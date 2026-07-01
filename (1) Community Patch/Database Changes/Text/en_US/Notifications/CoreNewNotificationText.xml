@@ -914,6 +914,12 @@
 		</Row>
 
 		<!-- City-State quests -->
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_PLEDGE_TO_PROTECT_ATTACKED">
+			<Text>{2_MinorCivName:textkey} was attacked by {1_AttackerName:textkey} recently, and seeks protection from a major power. If you pledge to protect them, they will reward you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_PLEDGE_TO_PROTECT_ATTACKED">
+			<Text>Your promise to protect {2_MinorCivName:textkey} has helped them recover from {1_AttackerName:textkey}'s recent attack!</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_START_WAR">
 			<Text>{@2_MinorCivName} seeks war against {1_TargetName:textkey}</Text>
 		</Row>
