@@ -72,6 +72,7 @@ enum CLOSED_ENUM MinorCivQuestTypes
 	MINOR_CIV_QUEST_FIND_CITY_STATE,
 	MINOR_CIV_QUEST_INFLUENCE,
 	MINOR_CIV_QUEST_CONTEST_TOURISM,
+	MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS,
 	MINOR_CIV_QUEST_ARCHAEOLOGY,
 	MINOR_CIV_QUEST_CIRCUMNAVIGATION,
 	MINOR_CIV_QUEST_LIBERATION,
@@ -178,12 +179,13 @@ public:
 	void DisableInfluence(PlayerTypes ePlayer);
 
 	// Contest helper functions
+	bool IsContestQuest() const;
 	int GetContestValueForPlayer(PlayerTypes ePlayer) const;
 	int GetContestValueForLeader();
 	CivsList GetContestLeaders();
+	bool IsContestLeader(PlayerTypes ePlayer = NO_PLAYER);
 
 	// Quest status for assigned player
-	bool IsContestLeader(PlayerTypes ePlayer = NO_PLAYER);
 	bool IsComplete();
 	bool IsRevoked(bool bWar = false, bool bHeavyTribute = false);
 	bool IsExpiredGlobal();
