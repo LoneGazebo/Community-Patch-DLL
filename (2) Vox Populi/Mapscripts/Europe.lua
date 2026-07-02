@@ -11,6 +11,11 @@ include("MultilayeredFractal");
 include("TerrainGenerator");
 include("FeatureGenerator");
 include("MapmakerUtilities");
+include("VPUI_core");
+
+local VP = MapModData and MapModData.VP or VP;
+local GameInfoCache = VP.GameInfoCache;
+local Void = CPK.FP.Void;
 
 -------------------------------------------------------------------------------------------------------------
 function GetMapScriptInfo()
@@ -513,41 +518,32 @@ function GenerateTerrain()
 
 	SetTerrainTypes(terrainTypes);
 end
--------------------------------------------------------------------------------------------------------------
 
--------------------------------------------------------------------------------------------------------------
 function GetRiverValueAtPlot(plot)
 	local numPlots = PlotTypes.NUM_PLOT_TYPES;
 	local sum = (numPlots - plot:GetPlotType()) * 20;
-	local numDirections = DirectionTypes.NUM_DIRECTION_TYPES;
-	for direction = 0, numDirections - 1, 1 do
-		local adjacentPlot = Map.PlotDirection(plot:GetX(), plot:GetY(), direction);
-		if adjacentPlot then
-			sum = sum + (numPlots - adjacentPlot:GetPlotType());
-		else
-			sum = 0;
-		end
+	for pAdjacentPlot in Plot_GetPlotsInCircle(plot, 1) do
+		sum = sum + (numPlots - pAdjacentPlot:GetPlotType());
 	end
-	sum = sum + Map.Rand(10, "River Rand");
-	return sum;
+	return sum + Map.Rand(10, "River Rand");
 end
--------------------------------------------------------------------------------------------------------------
-function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
-	-- Customizing to handle problems in top row of the map. Only this aspect has been altered.
 
+-- Customizing to handle problems in top row of the map. Only this aspect has been altered.
+function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 	local _, iH = Map.GetGridSize();
 	thisFlowDirection = thisFlowDirection or FlowDirectionTypes.NO_FLOWDIRECTION;
 	originalFlowDirection = originalFlowDirection or FlowDirectionTypes.NO_FLOWDIRECTION;
 
-	-- pStartPlot = the plot at whose SE corner the river is starting
-	if not riverID then
+	-- startPlot = the plot at whose SE corner the river is starting
+	if riverID then
 		riverID = nextRiverID;
 		nextRiverID = nextRiverID + 1;
 	end
 
 	local otherRiverID = _rivers[startPlot];
 	if otherRiverID and otherRiverID ~= riverID and originalFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION then
-		return; -- Another river already exists here; can't branch off of an existing river!
+		-- Another river already exists here; can't branch off of an existing river!
+		return;
 	end
 
 	local riverPlot;
@@ -570,7 +566,6 @@ function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 		end
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetNWOfRiver(true, thisFlowDirection);
-		-- riverPlot does not change
 	elseif thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHEAST then
 		riverPlot = Map.PlotDirection(startPlot:GetX(), startPlot:GetY(), DirectionTypes.DIRECTION_EAST);
 		if not riverPlot then
@@ -582,7 +577,6 @@ function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 		end
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetNEOfRiver(true, thisFlowDirection);
-		-- riverPlot does not change
 	elseif thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTH then
 		riverPlot = Map.PlotDirection(startPlot:GetX(), startPlot:GetY(), DirectionTypes.DIRECTION_SOUTHWEST);
 		if not riverPlot then
@@ -594,7 +588,6 @@ function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 		end
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetWOfRiver(true, thisFlowDirection);
-		-- riverPlot does not change
 	elseif thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST then
 		riverPlot = startPlot;
 		local adjacentPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_SOUTHEAST);
@@ -603,7 +596,6 @@ function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 		end
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetNWOfRiver(true, thisFlowDirection);
-		-- riverPlot does not change
 	elseif thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHWEST then
 		riverPlot = startPlot;
 		local adjacentPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_SOUTHWEST);
@@ -660,44 +652,44 @@ function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 		for flowDirection, getAdjacentPlot in pairs(adjacentPlotFunctions) do
 			if GetOppositeFlowDirection(flowDirection) ~= originalFlowDirection then
 				if thisFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION or
-					flowDirection == TurnRightFlowDirections[thisFlowDirection] or
-					flowDirection == TurnLeftFlowDirections[thisFlowDirection] then
-
+				flowDirection == TurnRightFlowDirections[thisFlowDirection] or
+				flowDirection == TurnLeftFlowDirections[thisFlowDirection] then
 					local adjacentPlot = getAdjacentPlot();
 					if adjacentPlot then
 						local value = GetRiverValueAtPlot(adjacentPlot);
 						if flowDirection == originalFlowDirection then
-							value = (value * 3) / 4;
+							value = value * 3 / 4;
 						end
+
 						if value < bestValue then
 							bestValue = value;
 							bestFlowDirection = flowDirection;
 						end
-					elseif not adjacentPlot and riverPlotY == iH - 1 then
-						 -- Top row of map, needs special handling
-						if flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTH or
-							flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHWEST or
-							flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHEAST then
 
+					-- Top row of map, needs special handling
+					elseif not adjacentPlot and riverPlotY == iH - 1 then
+						if flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTH or
+						flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHWEST or
+						flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHEAST then
 							local value = Map.Rand(5, "River Rand");
-							if (flowDirection == originalFlowDirection) then
-								value = (value * 3) / 4;
+							if flowDirection == originalFlowDirection then
+								value = value * 3 / 4;
 							end
-							if (value < bestValue) then
+							if value < bestValue then
 								bestValue = value;
 								bestFlowDirection = flowDirection;
 							end
 						end
-					elseif not adjacentPlot and riverPlotX == 0 then
-						-- Left column of map, needs special handling
-						if flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTH or
-							flowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTH or
-							flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHWEST or
-							flowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST then
 
+					-- Left column of map, needs special handling
+					elseif not adjacentPlot and riverPlotX == 0 then
+						if flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTH or
+						flowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTH or
+						flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHWEST or
+						flowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST then
 							local value = Map.Rand(5, "River Rand");
 							if flowDirection == originalFlowDirection then
-								value = (value * 3) / 4;
+								value = value * 3 / 4;
 							end
 							if value < bestValue then
 								bestValue = value;
@@ -714,9 +706,8 @@ function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 			bestValue = math.huge;
 			for flowDirection, getAdjacentPlot in pairs(adjacentPlotFunctions) do
 				if thisFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION or
-					flowDirection == TurnRightFlowDirections[thisFlowDirection] or
-					flowDirection == TurnLeftFlowDirections[thisFlowDirection] then
-
+				flowDirection == TurnRightFlowDirections[thisFlowDirection] or
+				flowDirection == TurnLeftFlowDirections[thisFlowDirection] then
 					local adjacentPlot = getAdjacentPlot();
 					if adjacentPlot then
 						local value = GetRiverValueAtPlot(adjacentPlot);
@@ -735,41 +726,20 @@ function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 		if originalFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION then
 			originalFlowDirection = bestFlowDirection;
 		end
+
 		DoRiver(riverPlot, bestFlowDirection, originalFlowDirection, riverID);
 	end
 end
--------------------------------------------------------------------------------------------------------------
 
--------------------------------------------------------------------------------------------------------------
-function FeatureGenerator:AddIceAtPlot()
-	-- Do nothing. No ice to be placed.
-end
--------------------------------------------------------------------------------------------------------------
-function FeatureGenerator:AddJunglesAtPlot()
-	-- Do nothing. No jungle to be placed.
-end
--------------------------------------------------------------------------------------------------------------
-function FeatureGenerator:AddAtolls()
-	-- Do nothing. No atolls to be placed.
-end
--------------------------------------------------------------------------------------------------------------
 function AddFeatures()
 	print("Adding Features (Lua Europe) ...");
-	local featuregen = FeatureGenerator.Create();
-	featuregen:AddFeatures(false);
+	FeatureGenerator.AddIceAtPlot = Void;
+	FeatureGenerator.AddJunglesAtPlot = Void;
+	FeatureGenerator.AddAtolls = Void;
+	FeatureGenerator.Create():AddFeatures(false);
 end
--------------------------------------------------------------------------------------------------------------
 
--------------------------------------------------------------------------------------------------------------
-function AssignStartingPlots:__CustomInit()
-	-- This function included to provide a quick and easy override for changing any initial settings.
-	-- Add your customized version to the map script.
-	self.CanBeGibraltar = AssignStartingPlots.CanBeGibraltar;
-	self.CanBeMtSinai = AssignStartingPlots.CanBeMtSinai;
-	self.gibraltar_list, self.sinai_list = {}, {};
-end
--------------------------------------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateRegions()
+local function GenerateRegions(self)
 	-- Custom method for Europe. Will start a civ in Britain if eight or more civs in the game.
 	print("Map Generation - Dividing the map in to Regions");
 	local iW, iH = Map.GetGridSize();
@@ -797,7 +767,7 @@ function AssignStartingPlots:GenerateRegions()
 	local iLandmassID = Map.FindBiggestLandmassID(false);
 
 	-- We'll need all eight data fields returned in the results table from the boundary finder:
-	local landmass_data = self:GetLandmassBoundaries(iLandmassID);
+	local landmass_data = GetLandmassBoundaries(iLandmassID);
 	local iWestX = landmass_data[1];
 	local iSouthY = landmass_data[2];
 	local iEastX = landmass_data[3];
@@ -833,30 +803,38 @@ function AssignStartingPlots:GenerateRegions()
 	end
 	--]]
 end
--------------------------------------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateCandidatePlotListsForSpecificNW()
+
+--- @return PlotId[][] # The eligibility plot IDs of each Natural Wonder ID
+local function GenerateCandidatePlotListsForSpecificNW(self)
 	-- Only check Gibraltar and Sinai.
 	local iW, iH = Map.GetGridSize();
+	local tEligibilityLists = {};
+	for i = 0, #GameInfo.Natural_Wonder_Placement - 1 do
+		tEligibilityLists[i] = {};
+	end
 	for y = 0, iH - 1 do
 		for x = 0, iW - 1 do
 			local landEligibility, seaEligibility = self:ExaminePlotForNaturalWondersEligibility(x, y);
+			local iPlotId = GetLuaPlotIndexFromCoordinates(x, y);
 			-- Plot has passed checks applicable to all NW types. Move on to specific checks.
-			for nw_number, _ in ipairs(self.xml_row_numbers) do
-				if seaEligibility and self.wonder_list[nw_number] == "FEATURE_GIBRALTAR" then
-					self:CanBeThisNaturalWonderType(x, y, nw_number);
-				elseif landEligibility and self.wonder_list[nw_number] == "FEATURE_MT_SINAI" then
-					self:CanBeThisNaturalWonderType(x, y, nw_number);
+			for iRowId, row in GameInfoCache("Natural_Wonder_Placement") do
+				if (landEligibility and row.NaturalWonderType == "FEATURE_GIBRALTAR") or
+				(seaEligibility and row.NaturalWonderType == "FEATURE_MT_SINAI") then
+					if self:CanBeThisNaturalWonderType(x, y, row) then
+						table.insert(tEligibilityLists[iRowId], iPlotId);
+					end
 				end
 			end
 		end
 	end
+	return tEligibilityLists;
 end
--------------------------------------------------------------------------------------------------------------
-function AssignStartingPlots:GetNumNaturalWondersToPlace()
+
+local function GetNumNaturalWondersToPlace()
 	return 2;
 end
--------------------------------------------------------------------------------------------------------------
-function AssignStartingPlots:AssignCityStatesToRegions(current_cs_index)
+
+local function AssignCityStatesToRegions(self, current_cs_index)
 	local starting_region_number = 1;
 	if self.iNumCivs >= 8 then -- Civ in Britain
 		starting_region_number = 2;
@@ -876,17 +854,17 @@ function AssignStartingPlots:AssignCityStatesToRegions(current_cs_index)
 
 	return current_cs_index;
 end
--------------------------------------------------------------------------------------------------------------
-function ExtraNWEligibilityCheck(x, y)
+
+local function ExtraNWEligibilityCheck(x, y)
 	-- Adding this check for Europe in AssignStartingPlots:ExaminePlotForNaturalWondersEligibility, forcing NWs to be in specific areas
 	local iW, iH = Map.GetGridSize();
 	return ((x >= iW * 0.1 and x <= iW * 0.3) and (y >= iH * 0.15 and y <= iH * 0.35)) or (x >= iW * 0.8 and y <= iH * 0.2);
 end
--------------------------------------------------------------------------------------------------------------
-function ExtraCityStateCheck(ASP, x, y)
+
+local function ExtraCityStateCheck(self, x, y)
 	-- Adding this check for Europe in AssignStartingPlots:CanPlaceCityStateAt, to keep CS out of British Isles when a Civ is there.
 	local iW, iH = Map.GetGridSize();
-	if ASP.iNumCivs >= 8 then
+	if self.iNumCivs >= 8 then
 		if x <= math.floor(iW * 0.055) + math.ceil(iW * 0.19) + 1 and y >= math.floor(iH * 0.61) - 1 then
 			-- Plot is in Britain, reject it.
 			-- print("Rejected British plot: ", x, y);
@@ -895,30 +873,35 @@ function ExtraCityStateCheck(ASP, x, y)
 	end
 	return true;
 end
--------------------------------------------------------------------------------------------------------------
-function StartPlotSystem()
-	print("Creating start plot database.");
-	local start_plot_database = AssignStartingPlots.Create();
 
-	start_plot_database.ExtraCityStateCheck = ExtraCityStateCheck;
+local function __CustomInit(self)
+	self.GenerateRegions = GenerateRegions;
+	self.GetNumNaturalWondersToPlace = GetNumNaturalWondersToPlace;
+	self.GenerateCandidatePlotListsForSpecificNW = GenerateCandidatePlotListsForSpecificNW;
+	self.AssignCityStatesToRegions = AssignCityStatesToRegions;
 
-	start_plot_database.oldExaminePlotForNaturalWondersEligibility = start_plot_database.ExaminePlotForNaturalWondersEligibility;
-	local newExaminePlotForNaturalWondersEligibility = function (ASP, x, y)
+	local OldExaminePlotForNaturalWondersEligibility = self.ExaminePlotForNaturalWondersEligibility;
+	self.ExaminePlotForNaturalWondersEligibility = function (ASP, x, y)
 		if not ExtraNWEligibilityCheck(x, y) then
 			return false, false;
 		end
-		return ASP:oldExaminePlotForNaturalWondersEligibility(x, y);
+		return OldExaminePlotForNaturalWondersEligibility(ASP, x, y);
 	end
-	start_plot_database.ExaminePlotForNaturalWondersEligibility = newExaminePlotForNaturalWondersEligibility;
 
-	start_plot_database.oldCanPlaceCityStateAt = start_plot_database.CanPlaceCityStateAt;
-	local newCanPlaceCityStateAt = function (ASP, x, y, area_ID, force_it, ignore_collisions)
-		if not ASP:ExtraCityStateCheck(x, y) then
+	local OldCanPlaceCityStateAt = self.CanPlaceCityStateAt;
+	self.CanPlaceCityStateAt = function (ASP, x, y, area_ID, force_it, ignore_collisions)
+		if not ExtraCityStateCheck(ASP, x, y) then
 			return false;
 		end
-		return ASP:oldCanPlaceCityStateAt(x, y, area_ID, force_it, ignore_collisions);
-	end
-	start_plot_database.CanPlaceCityStateAt = newCanPlaceCityStateAt;
+		return OldCanPlaceCityStateAt(ASP, x, y, area_ID, force_it, ignore_collisions);
+	end;
+end
+
+function StartPlotSystem()
+	AssignStartingPlots.__CustomInit = __CustomInit;
+
+	print("Creating start plot database.");
+	local start_plot_database = AssignStartingPlots.Create();
 
 	print("Dividing the map in to Regions.");
 	start_plot_database:GenerateRegions();

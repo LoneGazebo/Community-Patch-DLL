@@ -204,7 +204,7 @@ function GeneratePlotTypes()
 					if hillVal >= iHillsBottom1 then
 						local peakVal = peaksFrac:GetHeight(x,y);
 						if peakVal >= iPeakAndes then
-							plotTypes[i] = PlotTypes.PLOT_PEAK;
+							plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 						else
 							plotTypes[i] = PlotTypes.PLOT_HILLS;
 						end
@@ -218,7 +218,7 @@ function GeneratePlotTypes()
 				if hillVal >= iFifty then
 					local peakVal = peaksFrac:GetHeight(x,y);
 					if peakVal >= iPeakCol then
-						plotTypes[i] = PlotTypes.PLOT_PEAK;
+						plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 					else
 						plotTypes[i] = PlotTypes.PLOT_HILLS;
 					end

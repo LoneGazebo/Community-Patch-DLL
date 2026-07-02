@@ -13,8 +13,8 @@
 #include "CvDllPlot.h"
 
 CvDllMap::CvDllMap(CvMap* pMap)
-	: m_pMap(pMap)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pMap(pMap)
 {
 }
 //------------------------------------------------------------------------------

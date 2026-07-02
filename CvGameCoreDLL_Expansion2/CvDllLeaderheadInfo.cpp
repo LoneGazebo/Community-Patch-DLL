@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllLeaderHeadInfo::CvDllLeaderHeadInfo(CvLeaderHeadInfo* pLeaderHeadInfo)
-	: m_pLeaderHeadInfo(pLeaderHeadInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pLeaderHeadInfo(pLeaderHeadInfo)
 {
 	ASSERT(pLeaderHeadInfo != NULL, "SHOULD NOT HAPPEN");
 }

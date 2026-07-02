@@ -44,6 +44,7 @@ struct SPrecomputedExpensiveNumbers
 	bool bWantArt;
 	bool bWantScience;
 	bool bWantDiplo;
+	bool iEspionage;
 	int iNetGold;
 
 	vector<int> iSpecialistGPPRates;
@@ -254,6 +255,8 @@ public:
 	void DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet, bool bIsFree);
 
 	YieldTypes GetFocusTypeYield(CityAIFocusTypes eFocus);
+
+	void LogMsg(const CvString& msg);
 
 private:
 

@@ -450,13 +450,6 @@ function AssignStartingPlots:BalanceAndAssign()
 			local player = Players[player_ID];
 			player:SetStartingPlot(start_plot);
 		end
-
-		-- If this is a team game (any team has more than one Civ in it) then make sure team members start near each other if possible.
-		-- (This may scramble Civ biases in some cases, but there is no cure).
-		if self.bTeamGame and team_setting ~= 2 then
-			print("However, this IS a team game, so we will try to group team members together."); print("-");
-			self:NormalizeTeamLocations();
-		end
 	end
 end
 ------------------------------------------------------------------------------

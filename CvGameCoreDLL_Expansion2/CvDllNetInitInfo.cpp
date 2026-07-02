@@ -11,7 +11,6 @@
 #include "CvDllContext.h"
 
 CvDllNetInitInfo::CvDllNetInitInfo() :
-	m_uiRefCount(1),
 	m_szLoadFileName(CvPreGame::loadFileName()),
 	m_eLoadFileStorage(CvPreGame::loadFileStorage()),
 	m_szMapScriptName(CvPreGame::mapScriptName()),
@@ -40,6 +39,7 @@ CvDllNetInitInfo::CvDllNetInitInfo() :
 	m_iMaxCityElimination(CvPreGame::maxCityElimination()),
 	m_iNumMinorCivs(CvPreGame::numMinorCivs()),
 	m_eMode(CvPreGame::gameMode()),
+	m_uiRefCount(1),
 	m_aiKnownPlayersTable(CvPreGame::GetKnownPlayersTable())
 {
 	ZeroMemory(m_szDebugString, sizeof m_szDebugString);

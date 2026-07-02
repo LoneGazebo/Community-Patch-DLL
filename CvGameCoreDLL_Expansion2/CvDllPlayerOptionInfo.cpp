@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllPlayerOptionInfo::CvDllPlayerOptionInfo(CvPlayerOptionInfo* pPlayerOptionInfo)
-	: m_pPlayerOptionInfo(pPlayerOptionInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pPlayerOptionInfo(pPlayerOptionInfo)
 {
 	ASSERT(pPlayerOptionInfo != NULL, "SHOULD NOT HAPPEN");
 }

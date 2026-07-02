@@ -1036,15 +1036,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(NO_CONTRACT);
 	EnumEnd(L);
 
-
-	// Resource Usage
-	EnumStart(L, "ResourceUsageTypes");
-	RegisterEnum(RESOURCEUSAGE_BONUS);
-	RegisterEnum(RESOURCEUSAGE_STRATEGIC);
-	RegisterEnum(RESOURCEUSAGE_LUXURY);
-	RegisterEnum(NUM_RESOURCEUSAGE_TYPES);
-	EnumEnd(L);
-
 	// CityAIFocusTypes
 	EnumStart(L, "CityAIFocusTypes");
 	RegisterEnum(NO_CITY_AI_FOCUS_TYPE);
@@ -1060,7 +1051,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(NUM_CITY_AI_FOCUS_TYPES);
 	EnumEnd(L);
 
-	// Resource Usage
+	// AdvisorTypes
 	EnumStart(L, "AdvisorTypes");
 	RegisterEnum(NO_ADVISOR_TYPE);
 	RegisterEnum(ADVISOR_ECONOMIC);

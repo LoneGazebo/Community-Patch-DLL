@@ -6340,7 +6340,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iReligionScore = (iReligionDelta *  (iFlavorReligion / 2));
 
 	//add it all up
-	int iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
+	long long iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
 
 	const STradePathInfo* pPathInfo = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pFromCity, pToCity, kTradeConnection.m_eDomain);
 	ASSERT(pPathInfo, "Trade route path valid, but no path found in cache");
@@ -6423,13 +6423,14 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	}
 
 	//If we aren't connected to a player, and we benefit from this, ramp up the score!
-	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 	{
-		if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 		{
-			if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
+			if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
 			{
 				iScore *= 10;
+				break;
 			}
 		}
 	}
@@ -6460,14 +6461,15 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	}
 	if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
 	{
-		int iCityLoop = 0;
-		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 		{
-			if (pLoopCity->GetCityBuildings()->GetCityStateTradeRouteProductionModifier() > 0)
+			int iCityLoop = 0;
+			for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
-				if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
+				if (pLoopCity->GetCityBuildings()->GetCityStateTradeRouteProductionModifier() > 0)
 				{
 					iScore *= 25;
+					break;
 				}
 			}
 		}
@@ -6568,7 +6570,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		iScore *= 5;
 	}
 
-	ret.m_iScore = iScore;
+	ret.m_iScore = (int)min(iScore, (long long)INT_MAX);
 	ret.m_iCultureScore = iCultureScore;
 	ret.m_iGoldScore = iGoldScore;
 	ret.m_iScienceScore = iScienceScore;

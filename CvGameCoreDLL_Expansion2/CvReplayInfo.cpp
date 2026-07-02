@@ -28,13 +28,13 @@ CvReplayInfo::CvReplayInfo() :
 	m_eSeaLevel(NO_SEALEVEL),
 	m_eEra(NO_ERA),
 	m_eGameSpeed(NO_GAMESPEED),
+	m_eVictoryType(NO_VICTORY),
 	m_iInitialTurn(0),
 	m_iFinalTurn(0),
-	m_eVictoryType(NO_VICTORY),
-	m_iMapHeight(0),
-	m_iMapWidth(0),
+	m_iStartYear(0),
 	m_iNormalizedScore(0),
-	m_iStartYear(0)
+	m_iMapHeight(0),
+	m_iMapWidth(0)
 {
 }
 

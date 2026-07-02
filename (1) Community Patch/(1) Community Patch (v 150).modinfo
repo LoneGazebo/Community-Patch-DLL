@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="150">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.3.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.3.3) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -55,7 +55,7 @@
     <File md5="D189054DBC0B89454E00137394C4CB1A" import="1">Assets/Events/playereventdefaultbackground.dds</File>
     <File md5="AEE60C482823978F3CCFD48FE23F6867" import="1">Assets/Events/StockMarketCrash.dds</File>
     <File md5="4C0FA5BDC561A08771875B67938B484E" import="1">Assets/Events/SunHeat.dds</File>
-    <File md5="1692ED8CF004C0BA637827D58B4DA7DC" import="1">Assets/FontIcons/CommunityFontIconAtlas.dds</File>
+    <File md5="CEFEE0208CFB5C2AFEEE3E4C3305E9B2" import="1">Assets/FontIcons/CommunityFontIconAtlas.dds</File>
     <File md5="181A055FE4DC036F3677111447B9BC5A" import="1">Assets/FontIcons/CommunityFontIconAtlas.ggxml</File>
     <File md5="D6A84377DC0A60D68C78E911777E9E88" import="1">Assets/GreatWorks/ancientchina.dds</File>
     <File md5="1154AB813A0500E7664C5894CEAFCB15" import="1">Assets/GreatWorks/ancientjapan.dds</File>
@@ -464,7 +464,7 @@
     <File md5="D8A8BB74144BC653D26E1A07D7A9717E" import="1">Core Files/Overrides/GPList.lua</File>
     <File md5="A0B9DBA07F98E3B8D050AAD5A247EFCB" import="1">Core Files/Overrides/HappinessInfo.lua</File>
     <File md5="3F0909308CAEA0B4F8CD7073E4DF6047" import="1">Core Files/Overrides/HappinessInfo.xml</File>
-    <File md5="027208EDB70FE36F52E8E239178D2EC7" import="1">Core Files/Overrides/Includes/FLuaVector.lua</File>
+    <File md5="4835BCD74F2D08517B7002E4B6069624" import="1">Core Files/Overrides/Includes/FLuaVector.lua</File>
     <File md5="9B74F4B133B4FFC11F8F593FA529E5A8" import="1">Core Files/Overrides/InGame.lua</File>
     <File md5="7DF4AF6E9D5F16CD06D0CD576615869F" import="1">Core Files/Overrides/LeagueOverview.lua</File>
     <File md5="D1B2B6362725A779E49BAD0C8366DE6A" import="1">Core Files/Overrides/LeagueOverview.xml</File>
@@ -501,7 +501,8 @@
     <File md5="AA9CB9B8678EFAD4FEBB780B24385C24" import="1">Core Files/Overrides/Includes/AssignStartingPlots.lua</File>
     <File md5="78F3451AFA990C8CDC71994444A4247A" import="1">Core Files/Overrides/Includes/Bombardment.lua</File>
     <File md5="26D3A40C7373E99224903805BAF7E52B" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
-    <File md5="F82D4290936952EACB989B91E36F79C6" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
+    <File md5="3082092A1FD955ECBDD28552020F34AD" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
+    <File md5="9A55C83178BE5720BA16E8852FDC30AB" import="1">Core Files/Overrides/Includes/MapmakerUtilities.lua</File>
     <File md5="0E430E7555CD83EC37774C61E0354BFE" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
     <File md5="26FEF5BB17225CFD769717234B1DC468" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
     <File md5="5EA90BBC3C0D9BB9EBD86442D326C4EA" import="1">Core Files/Overrides/Includes/TradeLogic.lua</File>
@@ -509,8 +510,8 @@
     <File md5="F61707422D4D58CC960B62B9AF1EF312" import="1">Core Files/VPUI/VPUI_common_small.xml</File>
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
-    <File md5="B754666DDB6140255D210281D3501E88" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="26FDC6F9974257E8F001A86D4CB6B23B" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="E6C9E5504C37F7069D97E10B8A4D06BE" import="1">Core Files/VPUI/VPUI_core.lua</File>
+    <File md5="73F5DC678120BF7E4A01858B53144689" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="E5C280A2AC65C19D051F27EE7AAE11B4" import="0">Database Changes/CoreGameSpeedChanges.sql</File>

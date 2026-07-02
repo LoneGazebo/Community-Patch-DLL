@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllGameOptionInfo::CvDllGameOptionInfo(CvGameOptionInfo* pGameOptionInfo)
-	: m_pGameOptionInfo(pGameOptionInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pGameOptionInfo(pGameOptionInfo)
 {
 	ASSERT(pGameOptionInfo != NULL, "SHOULD NOT HAPPEN");
 }

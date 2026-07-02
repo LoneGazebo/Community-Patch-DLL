@@ -110,8 +110,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 // CvPlot
 //////////////////////////////////////////////////////////////////////////
 CvPlot::CvPlot()
-	: m_syncArchive()
-	, m_szScriptData(NULL)
+	: m_szScriptData(NULL)
+	, m_syncArchive()
 {
 	// Null check required: CvPlot can be constructed during DLL static initialization
 	// (e.g. CvSupportPosition::dummyPlot via gSupportPosStorage) before the game
@@ -657,132 +657,166 @@ void CvPlot::updateCenterUnit()
 	}
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvPlot::verifyUnitValidPlot(PlayerTypes eForSpecificPlayer, bool bWakeUp)
+{
+	verifyUnitValidPlotInternal(eForSpecificPlayer, NULL, bWakeUp);
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::verifyUnitValidPlot(vector<TeamTypes>& vAffectedTeams, bool bWakeUp)
+{
+	verifyUnitValidPlotInternal(NO_PLAYER, &vAffectedTeams, bWakeUp);
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::verifyUnitValidPlotInternal(PlayerTypes eForSpecificPlayer, vector<TeamTypes>* pvAffectedTeams, bool bWakeUp)
 {
 	vector<IDInfo> oldUnitList;
 
 	IDInfo* pUnitNode = headUnitNode();
-	while(pUnitNode != NULL)
+	while (pUnitNode != NULL)
 	{
 		oldUnitList.push_back(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 	}
 
-	for(size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
+	for (size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
 	{
 		CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
-		if(pLoopUnit != NULL)
-		{
-			if (eForSpecificPlayer == NO_PLAYER || pLoopUnit->getOwner() == eForSpecificPlayer)
-			{
-				if (!pLoopUnit->isDelayedDeath())
-				{
-					if (pLoopUnit->atPlot(*this))
-					{
-						//if plot ownership changes we want to make sure that human units
-						//which would suffer attrition or cause annoyance are woken up
-						if (bWakeUp)
-							pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+		if (pLoopUnit == NULL || pLoopUnit->isDelayedDeath())
+			continue;
 
-						if (!(pLoopUnit->isCargo()))
-						{
-							if (!(pLoopUnit->isInCombat()))
-							{
-								if (!pLoopUnit->canEndTurnAtPlot(this))
-								{
-									if (!pLoopUnit->jumpToNearestValidPlot())
-										pLoopUnit->kill(true);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		if (eForSpecificPlayer != NO_PLAYER && pLoopUnit->getOwner() != eForSpecificPlayer)
+			continue;
+
+		if (pvAffectedTeams != NULL && std::find(pvAffectedTeams->begin(), pvAffectedTeams->end(), pLoopUnit->getTeam()) == pvAffectedTeams->end())
+			continue;
+
+		if (!pLoopUnit->atPlot(*this))
+			continue;
+
+		// if plot ownership changes we want to make sure that human units which would suffer attrition or cause annoyance are woken up
+		if (bWakeUp)
+			pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+
+		if (pLoopUnit->isCargo() || pLoopUnit->isInCombat())
+			continue;
+
+		if (pLoopUnit->canEndTurnAtPlot(this))
+			continue;
+
+		if (!pLoopUnit->jumpToNearestValidPlot())
+			pLoopUnit->kill(true);
 	}
 
 	// Unit not allowed in a plot owned by someone?
-	if(isOwned())
+	if (isOwned())
 	{
-		for(size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
+		for (size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
 		{
 			CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
-			if(pLoopUnit != NULL)
-			{
-				if(!pLoopUnit->isDelayedDeath())
-				{
-					if(pLoopUnit->atPlot(*this))  // it may have jumped
-					{
-						if(!(pLoopUnit->isInCombat()))
-						{
-							if(pLoopUnit->getTeam() != getTeam()) // && getTeam() == NO_TEAM)// || !GET_TEAM(getTeam()).isVassal(pLoopUnit->getTeam())))
-							{
-								if(isVisibleEnemyUnit(pLoopUnit))
-								{
-									if(!(pLoopUnit->isInvisible(getTeam(), false)))
-									{
-										if (!pLoopUnit->jumpToNearestValidPlot())
-											pLoopUnit->kill(true);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			if (pLoopUnit == NULL || pLoopUnit->isDelayedDeath())
+				continue;
+
+			if (eForSpecificPlayer != NO_PLAYER && pLoopUnit->getOwner() != eForSpecificPlayer)
+				continue;
+
+			if (pvAffectedTeams != NULL && std::find(pvAffectedTeams->begin(), pvAffectedTeams->end(), pLoopUnit->getTeam()) == pvAffectedTeams->end())
+				continue;
+
+			if (!pLoopUnit->atPlot(*this))  // it may have jumped
+				continue;
+
+			if (pLoopUnit->isInCombat())
+				continue;
+
+			if (pLoopUnit->getTeam() == getTeam()) // && getTeam() == NO_TEAM)// || !GET_TEAM(getTeam()).isVassal(pLoopUnit->getTeam())))
+				continue;
+
+			if (!isVisibleEnemyUnit(pLoopUnit))
+				continue;
+
+			if (pLoopUnit->isInvisible(getTeam(), false))
+				continue;
+
+			if (!pLoopUnit->jumpToNearestValidPlot())
+				pLoopUnit->kill(true);
 		}
 	}
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	else
 	{
-		for(size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
+		for (size_t iVectorLoop = 0; iVectorLoop < oldUnitList.size(); ++iVectorLoop)
 		{
 			CvUnit* pLoopUnit = GetPlayerUnit(oldUnitList[iVectorLoop]);
-			if(pLoopUnit != NULL)
+			if (pLoopUnit == NULL)
+				continue;
+
+			if (pLoopUnit->isDelayedDeath())
+				continue;
+
+			if (!pLoopUnit->atPlot(*this))  // it may have jumped
+				continue;
+
+			if (pLoopUnit->isInCombat())
+				continue;
+
+			for (size_t iVectorLoop2 = iVectorLoop+1; iVectorLoop2 < oldUnitList.size(); ++iVectorLoop2)
 			{
-				if(!pLoopUnit->isDelayedDeath())
+				CvUnit* pLoopUnit2 = GetPlayerUnit(oldUnitList[iVectorLoop2]);
+				if (pLoopUnit2 == NULL || pLoopUnit2->isDelayedDeath())
+					continue;
+
+				if (!pLoopUnit2->atPlot(*this))  // it may have jumped
+					continue;
+
+				if (pLoopUnit2->isInCombat())
+					continue;
+
+				if (!atWar(pLoopUnit->getTeam(), pLoopUnit2->getTeam()))
+					continue;
+
+				bool bLoopUnitMatches = true;
+				bool bLoopUnit2Matches = true;
+
+				if (eForSpecificPlayer != NO_PLAYER)
 				{
-					if(pLoopUnit->atPlot(*this))  // it may have jumped
-					{
-						if(!(pLoopUnit->isInCombat()))
-						{
-							for(size_t iVectorLoop2 = iVectorLoop+1; iVectorLoop2 < oldUnitList.size(); ++iVectorLoop2)
-							{
-								CvUnit* pLoopUnit2 = GetPlayerUnit(oldUnitList[iVectorLoop2]);
-								if(pLoopUnit2 != NULL)
-								{
-									if(!pLoopUnit2->isDelayedDeath())
-									{
-										if(pLoopUnit2->atPlot(*this))  // it may have jumped
-										{
-											if(!(pLoopUnit2->isInCombat()))
-											{
-												if(atWar(pLoopUnit->getTeam(), pLoopUnit2->getTeam()))
-												{
-													// We have to evict the weaker of pLoopUnit and pLoopUnit2
-													if (pLoopUnit->GetPower() < pLoopUnit2->GetPower())
-													{
-														CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit->getOwner(), pLoopUnit->getName().c_str(), getX(), getY());
-														if (!pLoopUnit->jumpToNearestValidPlot())
-															pLoopUnit->kill(true);
-													}
-													else
-													{
-														CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pLoopUnit2->getOwner(), pLoopUnit2->getName().c_str(), getX(), getY());
-														if (!pLoopUnit2->jumpToNearestValidPlot())
-															pLoopUnit2->kill(true);
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+					bLoopUnitMatches = (pLoopUnit->getOwner() == eForSpecificPlayer);
+					bLoopUnit2Matches = (pLoopUnit2->getOwner() == eForSpecificPlayer);
 				}
+
+				if (pvAffectedTeams != NULL)
+				{
+					bLoopUnitMatches = (std::find(pvAffectedTeams->begin(), pvAffectedTeams->end(), pLoopUnit->getTeam()) != pvAffectedTeams->end());
+					bLoopUnit2Matches = (std::find(pvAffectedTeams->begin(), pvAffectedTeams->end(), pLoopUnit2->getTeam()) != pvAffectedTeams->end());
+				}
+
+				if (!bLoopUnitMatches && !bLoopUnit2Matches)
+					continue;
+
+				CvUnit* pEvictedUnit = NULL;
+
+				if (bLoopUnitMatches && bLoopUnit2Matches)
+				{
+					// We have to evict the weaker of pLoopUnit and pLoopUnit2
+					if (pLoopUnit->GetPower() < pLoopUnit2->GetPower())
+						pEvictedUnit = pLoopUnit;
+					else
+						pEvictedUnit = pLoopUnit2;
+				}
+				else if (bLoopUnitMatches)
+				{
+					pEvictedUnit = pLoopUnit;
+				}
+				else
+				{
+					pEvictedUnit = pLoopUnit2;
+				}
+
+				CUSTOMLOG("Evicting player %i's %s at (%i, %i)", pEvictedUnit->getOwner(), pEvictedUnit->getName().c_str(), getX(), getY());
+				if (!pEvictedUnit->jumpToNearestValidPlot())
+					pEvictedUnit->kill(true);
 			}
 		}
 	}
@@ -7181,251 +7215,221 @@ bool CvPlot::isFlatlands() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGraphics, bool bEraseUnitsIfWater)
 {
-	CvArea* pNewArea = NULL;
-	CvArea* pCurrArea = NULL;
-	CvArea* pLastArea = NULL;
-	CvPlot* pLoopPlot = NULL;
-	bool bWasWater = false;
-	bool bWasDeepWater = false;
-	bool bRecalculateAreas = false;
-	int iAreaCount = 0;
-	int iI = 0;
+	if (getPlotType() == eNewValue)
+		return;
 
-	if (eNewValue <= NO_PLOT || eNewValue >= NUM_PLOT_TYPES) return;
+	if (eNewValue <= NO_PLOT || eNewValue >= NUM_PLOT_TYPES)
+		return;
 
-	if(getPlotType() != eNewValue)
+	if (getPlotType() == PLOT_OCEAN || eNewValue == PLOT_OCEAN)
 	{
-		if((getPlotType() == PLOT_OCEAN) || (eNewValue == PLOT_OCEAN))
+		erase(bEraseUnitsIfWater);
+	}
+
+	bool bWasWater = isWater();
+	bool bWasDeepWater = isDeepWater();
+
+	updateSeeFromSight(false, bRecalculate);
+
+	if (MOD_EVENTS_TERRAFORMING)
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_PLOT, m_iX, m_iY, 0, eNewValue, m_ePlotType, -1, -1);
+
+	m_ePlotType = eNewValue;
+
+	updateYield();
+	updateImpassable();
+
+	updateSeeFromSight(true, bRecalculate);
+
+	if (getTerrainType() == NO_TERRAIN || GC.getTerrainInfo(getTerrainType())->isWater() != isWater())
+	{
+		if (isWater())
 		{
-			erase(bEraseUnitsIfWater);
+			if (isAdjacentToLand(false))
+			{
+				setTerrainType(static_cast<TerrainTypes>(GD_INT_GET(SHALLOW_WATER_TERRAIN)), bRecalculate, bRebuildGraphics);
+			}
+			else
+			{
+				setTerrainType(static_cast<TerrainTypes>(GD_INT_GET(DEEP_WATER_TERRAIN)), bRecalculate, bRebuildGraphics);
+			}
+		}
+		else
+		{
+			setTerrainType(static_cast<TerrainTypes>(GD_INT_GET(LAND_TERRAIN)), bRecalculate, bRebuildGraphics);
+		}
+	}
+
+	bool bRecalculateContinents = false;
+	if (bWasDeepWater != isDeepWater() && bRecalculate)
+	{
+		bRecalculateContinents = true;
+	}
+
+	if (bWasWater != isWater())
+	{
+		GC.getMap().changeLandPlots(isWater() ? -1 : 1);
+		if (isOwned())
+		{
+			GET_PLAYER(getOwner()).changeTotalLand(isWater() ? -1 : 1);
+			GET_TEAM(getTeam()).changeTotalLand(isWater() ? -1 : 1);
 		}
 
-		bWasWater = isWater();
-		bWasDeepWater = isDeepWater();
-
-		updateSeeFromSight(false,bRecalculate);
-
-		if (MOD_EVENTS_TERRAFORMING)
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_PLOT, m_iX, m_iY, 0, eNewValue, m_ePlotType, -1, -1);
-
-		m_ePlotType = eNewValue;
-
-		updateYield();
-		updateImpassable();
-
-		updateSeeFromSight(true,bRecalculate);
-
-		if((getTerrainType() == NO_TERRAIN) || (GC.getTerrainInfo(getTerrainType())->isWater() != isWater()))
+		if (getResourceType() != NO_RESOURCE)
 		{
-			if(isWater())
+			GC.getMap().changeNumResourcesOnLand(getResourceType(), isWater() ? -1 : 1);
+		}
+
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			CvPlot* pLoopPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iI));
+			if (pLoopPlot)
 			{
-				if(isAdjacentToLand(false))
+				// Update adjacent water plots to coast if new plot is land
+				if (bRecalculate && !isWater() && pLoopPlot->isDeepWater() && pLoopPlot->isAdjacentToLand(false))
 				{
-					setTerrainType(((TerrainTypes)(GD_INT_GET(SHALLOW_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
-					m_bIsAdjacentToLand = true;
+					pLoopPlot->setTerrainType(static_cast<TerrainTypes>(GD_INT_GET(SHALLOW_WATER_TERRAIN)), true, bRebuildGraphics);
+					bRecalculateContinents = true;
+				}
+
+				pLoopPlot->updateYield();
+			}
+		}
+
+		for (int iI = 0; iI < MAX_CITY_PLOTS; ++iI)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
+			if (pLoopPlot)
+			{
+				pLoopPlot->updatePotentialCityWork();
+			}
+		}
+
+		if (bRecalculate)
+		{
+			bool bRecalculateAreas = false;
+
+			// Cycle through all adjacent plots and calculate number of times that their area ID is different from the previous one (also count invalid plots)
+			// 0 = All adjacent plots are from the same area, so check whether this plot is the same isWater() as them.
+			// 2 = Adjacent plots have both land and water, and this plot isn't connecting different areas or splitting an area.
+			// >2 = We can't be sure which area this plot should belong to. A full recalculation is needed.
+			CvPlot* pLastPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(NUM_DIRECTION_TYPES - 1));
+			CvArea* pLastArea = pLastPlot ? pLastPlot->area() : NULL;
+			CvArea* pLandArea = NULL;
+			CvArea* pWaterArea = NULL;
+			CvArea* pLastValidArea = NULL;
+			CvLandmass* pLandLandmass = NULL;
+			CvLandmass* pWaterLandmass = NULL;
+			int iAreaCount = 0;
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pLoopPlot = plotDirection(getX(), getY(), static_cast<DirectionTypes>(iI));
+				CvArea* pLoopArea = pLoopPlot ? pLoopPlot->area() : NULL;
+				if (pLoopArea != pLastArea)
+				{
+					iAreaCount++;
+				}
+				pLastArea = pLoopArea;
+				if (pLoopPlot)
+				{
+					pLastPlot = pLoopPlot;
+				}
+				if (pLastArea)
+				{
+					pLastValidArea = pLastArea;
+					if (pLastArea->isWater())
+					{
+						pWaterArea = pLastArea;
+						pWaterLandmass = pLoopPlot->landmass();
+					}
+					else
+					{
+						pLandArea = pLastArea;
+						pLandLandmass = pLoopPlot->landmass();
+					}
+				}
+			}
+
+			ASSERT(iAreaCount == 1, "This should be logically impossible");
+			ASSERT(pLastPlot && pLastValidArea, "All adjacent plots are invalid???")
+
+			CvArea* pNewArea = NULL;
+			CvLandmass* pNewLandmass = NULL;
+			if (iAreaCount == 0)
+			{
+				if (isWater() == pLastPlot->isWater())
+				{
+					pNewArea = pLastValidArea;
+					pNewLandmass = pLastPlot->landmass();
 				}
 				else
 				{
-					setTerrainType(((TerrainTypes)(GD_INT_GET(DEEP_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
-					m_bIsAdjacentToLand = false;
+					pNewArea = GC.getMap().addArea();
+					pNewArea->init(pNewArea->GetID(), isWater());
+					pNewLandmass = GC.getMap().addLandmass();
+					pNewLandmass->init(pNewLandmass->GetID(), isWater());
+				}
+			}
+			else if (iAreaCount == 2)
+			{
+				pNewArea = isWater() ? pWaterArea : pLandArea;
+				pNewLandmass = isWater() ? pWaterLandmass : pLandLandmass;
+
+				// In case the surrounding areas are both land or both water
+				if (!pNewArea)
+				{
+					if (isWater() == pLastPlot->isWater())
+					{
+						pNewArea = pLastValidArea;
+						pNewLandmass = pLastPlot->landmass();
+					}
+					else
+					{
+						pNewArea = GC.getMap().addArea();
+						pNewArea->init(pNewArea->GetID(), isWater());
+						pNewLandmass = GC.getMap().addLandmass();
+						pNewLandmass->init(pNewLandmass->GetID(), isWater());
+					}
 				}
 			}
 			else
 			{
-				setTerrainType(((TerrainTypes)(GD_INT_GET(LAND_TERRAIN))), bRecalculate, bRebuildGraphics);
+				bRecalculateAreas = true;
+			}
+
+			if (bRecalculateAreas)
+			{
+				GC.getMap().recalculateAreas();
+			}
+			else
+			{
+				CvArea* pCurrArea = area();
+				CvLandmass* pCurrLandmass = landmass();
+				setArea(-1);
+				setLandmass(-1);
+
+				if (pCurrArea->getNumTiles() == 0)
+				{
+					GC.getMap().deleteArea(pCurrArea->GetID());
+				}
+
+				if (pCurrLandmass->getNumTiles() == 0)
+				{
+					GC.getMap().deleteLandmass(pCurrLandmass->GetID());
+				}
+
+				setArea(pNewArea->GetID());
+				setLandmass(pNewLandmass->GetID());
+				if (bRecalculateContinents)
+					GC.getMap().recalculateContinents();
 			}
 		}
+	}
 
-		if (bWasDeepWater != isDeepWater() && bRecalculate)
-		{
-			GC.getMap().recalculateContinents();
-		}
-
-		if(bWasWater != isWater())
-		{
-			if(bRecalculate)
-			{
-
-				for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pLoopPlot != NULL)
-					{
-						if(pLoopPlot->isWater())
-						{
-							if(pLoopPlot->isAdjacentToLand(false))
-							{
-								pLoopPlot->setTerrainType(((TerrainTypes)(GD_INT_GET(SHALLOW_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
-								m_bIsAdjacentToLand = true;
-							}
-							else
-							{
-								pLoopPlot->setTerrainType(((TerrainTypes)(GD_INT_GET(DEEP_WATER_TERRAIN))), bRecalculate, bRebuildGraphics);
-								m_bIsAdjacentToLand = false;
-							}
-						}
-					}
-				}
-			}
-
-			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-			{
-				pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->updateYield();
-				}
-			}
-
-
-			for(iI = 0; iI < MAX_CITY_PLOTS; ++iI)
-			{
-				pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-
-				if(pLoopPlot != NULL)
-				{
-					pLoopPlot->updatePotentialCityWork();
-				}
-			}
-
-			GC.getMap().changeLandPlots((isWater()) ? -1 : 1);
-
-			if(getResourceType() != NO_RESOURCE)
-			{
-				GC.getMap().changeNumResourcesOnLand(getResourceType(), ((isWater()) ? -1 : 1));
-			}
-
-			if(isOwned())
-			{
-				GET_PLAYER(getOwner()).changeTotalLand((isWater()) ? -1 : 1);
-				GET_TEAM(getTeam()).changeTotalLand((isWater()) ? -1 : 1);
-			}
-
-			if(bRecalculate)
-			{
-				pNewArea = NULL;
-				bRecalculateAreas = false;
-
-				if(isWater())
-				{
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-					{
-						pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-						if(pLoopPlot != NULL && pLoopPlot->getArea()!=-1)
-						{
-							if(pLoopPlot->area()->isWater())
-							{
-								if(pNewArea == NULL)
-								{
-									pNewArea = pLoopPlot->area();
-								}
-								else if(pNewArea != pLoopPlot->area())
-								{
-									bRecalculateAreas = true;
-									break;
-								}
-							}
-						}
-					}
-				}
-				else
-				{
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-					{
-						pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-						if(pLoopPlot != NULL && pLoopPlot->getArea()!=-1)
-						{
-							if(!(pLoopPlot->area()->isWater()))
-							{
-								if(pNewArea == NULL)
-								{
-									pNewArea = pLoopPlot->area();
-								}
-								else if(pNewArea != pLoopPlot->area())
-								{
-									bRecalculateAreas = true;
-									break;
-								}
-							}
-						}
-					}
-				}
-
-				if(!bRecalculateAreas)
-				{
-					pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)(NUM_DIRECTION_TYPES - 1)));
-
-					if(pLoopPlot != NULL)
-					{
-						pLastArea = pLoopPlot->area();
-					}
-					else
-					{
-						pLastArea = NULL;
-					}
-
-					iAreaCount = 0;
-
-					for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-					{
-						pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-						if(pLoopPlot != NULL)
-						{
-							pCurrArea = pLoopPlot->area();
-						}
-						else
-						{
-							pCurrArea = NULL;
-						}
-
-						if(pCurrArea != pLastArea)
-						{
-							iAreaCount++;
-						}
-
-						pLastArea = pCurrArea;
-					}
-
-					if(iAreaCount > 2)
-					{
-						bRecalculateAreas = true;
-					}
-				}
-
-				if(bRecalculateAreas)
-				{
-					GC.getMap().recalculateAreas();
-				}
-				else
-				{
-					setArea(-1);
-
-					if((area() != NULL) && (area()->getNumTiles() == 1))
-					{
-						GC.getMap().deleteArea(getArea());
-					}
-
-					if(pNewArea == NULL)
-					{
-						pNewArea = GC.getMap().addArea();
-						pNewArea->init(pNewArea->GetID(), isWater());
-					}
-
-					setArea(pNewArea->GetID());
-				}
-			}
-		}
-
-		if(bRebuildGraphics && GC.IsGraphicsInitialized())
-		{
-			//Update terrain graphical
-			setLayoutDirty(true);
-		}
+	if (bRebuildGraphics && GC.IsGraphicsInitialized())
+	{
+		// Update terrain graphics
+		setLayoutDirty(true);
 	}
 }
 
@@ -15789,9 +15793,59 @@ pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bS
 	return make_pair(iFriendlyPower,iEnemyPower);
 }
 
+// iterator needs same structure as the next function, where it is used as a helper
+int CvPlot::GetNumThisTeamUnitsAdjacent(TeamTypes eMyTeam, TeamTypes eSpecificTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, bool bIncludeEmbarked) const
+{
+	int iNumEnemiesAdjacent = 0;
+
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for (int iCount=0; iCount < NUM_DIRECTION_TYPES; iCount++)
+	{
+		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+		if (pLoopPlot != NULL && pLoopPlot->isVisible(eMyTeam))
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while (pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// No NULL, and no unit we want to exclude
+				if (pLoopUnit && pLoopUnit != pUnitToExclude)
+				{
+					// Must be a combat Unit
+					if (pLoopUnit->IsCombatUnit() && (!pLoopUnit->isEmbarked() || bIncludeEmbarked))
+					{
+						TeamTypes eTheirTeam = pLoopUnit->getTeam();
+
+						// This team which this unit belongs to must be the passed team
+						if (eTheirTeam == eSpecificTeam)
+						{
+							// Must be same domain
+							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
+							{
+								iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iNumEnemiesAdjacent;
+}
+
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, TeamTypes eSpecificTeam, bool bIncludeEmbarked) const
 {
 	int iNumEnemiesAdjacent = 0;
+
+	if (eSpecificTeam != NO_TEAM && !GET_TEAM(eSpecificTeam).isAtWar(eMyTeam))
+	{
+		iNumEnemiesAdjacent += GetNumThisTeamUnitsAdjacent(eMyTeam, eSpecificTeam, eDomain, pUnitToExclude, bConsiderFlanking, bIncludeEmbarked);
+	}
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -15816,7 +15870,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
 						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam) || eTheirTeam == eSpecificTeam)
+						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
 						{
 							// Must be same domain
 							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)

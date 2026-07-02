@@ -125,16 +125,16 @@ CvDeal::CvDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
     : m_iID(-1),
 	  m_eFromPlayer(eFromPlayer),
       m_eToPlayer(eToPlayer),
+      m_iStartTurn(0),
+      m_iFinalTurn(0),
+      m_iDuration(0),
+      m_iFromPlayerValue(-1),
+      m_iToPlayerValue(-1),
       m_ePeaceTreatyType(NO_PEACE_TREATY_TYPE),
       m_eSurrenderingPlayer(NO_PLAYER),
       m_eDemandingPlayer(NO_PLAYER),
       m_eRequestingPlayer(NO_PLAYER),
-      m_iStartTurn(0),
-      m_iFinalTurn(0),
-      m_iDuration(0),
-      m_bIsGift(false),
-      m_iFromPlayerValue(-1),
-      m_iToPlayerValue(-1)
+      m_bIsGift(false)
 {
 }
 
@@ -143,16 +143,16 @@ CvDeal::CvDeal(const CvDeal& source)
     : m_iID(source.m_iID), 
 	  m_eFromPlayer(source.m_eFromPlayer),
       m_eToPlayer(source.m_eToPlayer),
-      m_iDuration(source.m_iDuration),
-      m_iFinalTurn(source.m_iFinalTurn),
       m_iStartTurn(source.m_iStartTurn),
+      m_iFinalTurn(source.m_iFinalTurn),
+      m_iDuration(source.m_iDuration),
+      m_iFromPlayerValue(source.m_iFromPlayerValue),
+      m_iToPlayerValue(source.m_iToPlayerValue),
       m_ePeaceTreatyType(source.m_ePeaceTreatyType),
       m_eSurrenderingPlayer(source.m_eSurrenderingPlayer),
       m_eDemandingPlayer(source.m_eDemandingPlayer),
       m_eRequestingPlayer(source.m_eRequestingPlayer),
       m_bIsGift(source.m_bIsGift),
-      m_iFromPlayerValue(source.m_iFromPlayerValue),
-      m_iToPlayerValue(source.m_iToPlayerValue),
       m_TradedItems(source.m_TradedItems)
 {
 }
@@ -484,6 +484,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			// Already have a DoF?
 			if (pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
 				return false;
+
+			break;
 		}
 
 	case TRADE_ITEM_GOLD:
@@ -5144,7 +5146,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 						if (!GET_PLAYER(vTargetTeam[j]).isAlive() || GET_PLAYER(vTargetTeam[j]).getNumCities() <= 0)
 							continue;
 
-						bool bCareful = GET_PLAYER(vAttackingTeam[i]).CountNumDangerousMajorsAtWarWith(true, false) > 0 && GET_PLAYER(vAttackingTeam[i]).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(vTargetTeam[j]) < COOP_WAR_STATE_PREPARING;
+						bool bCareful = GET_PLAYER(vAttackingTeam[i]).CountNumDangerousMajorsAtWarWith(true, false) > 0;
 						GET_PLAYER(vAttackingTeam[i]).GetMilitaryAI()->RequestCityAttack(vTargetTeam[j], 2, bCareful);
 					}
 				}

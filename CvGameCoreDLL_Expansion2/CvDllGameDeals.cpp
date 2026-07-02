@@ -12,8 +12,8 @@
 #include "CvDllContext.h"
 
 CvDllGameDeals::CvDllGameDeals(CvGameDeals* pGameDeals)
-	: m_pGameDeals(pGameDeals)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pGameDeals(pGameDeals)
 {
 }
 //------------------------------------------------------------------------------

@@ -2795,7 +2795,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		}
 
 		// Otherwise go for Landmark if from Medieval Era or earlier and we're not going for a cultural victory, or if we're very unhappy
-		else if (!pPlot->HasWrittenArtifact() && (!m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() && pPlot->GetArchaeologicalRecord().m_eEra <= 2) || m_pPlayer->IsEmpireVeryUnhappy())
+		else if (!pPlot->HasWrittenArtifact() && ((!m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() && pPlot->GetArchaeologicalRecord().m_eEra <= 2) || m_pPlayer->IsEmpireVeryUnhappy()))
 		{
 			eRtnValue = ARCHAEOLOGY_LANDMARK;
 		}

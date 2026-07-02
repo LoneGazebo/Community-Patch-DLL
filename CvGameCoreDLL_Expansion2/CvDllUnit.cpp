@@ -13,8 +13,8 @@
 #include "CvDllUnitInfo.h"
 
 CvDllUnit::CvDllUnit(CvUnit* pUnit)
-	: m_pUnit(pUnit)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pUnit(pUnit)
 {
 	ASSERT(pUnit != NULL, "SHOULD NOT HAPPEN");
 }

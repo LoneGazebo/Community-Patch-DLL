@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllFeatureInfo::CvDllFeatureInfo(CvFeatureInfo* pFeatureInfo)
-	: m_pFeatureInfo(pFeatureInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pFeatureInfo(pFeatureInfo)
 {
 	ASSERT(pFeatureInfo != NULL, "SHOULD NOT HAPPEN");
 }

@@ -1249,8 +1249,8 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 		}
 	}
 
-	// Economic value / hardness of target
-	float fEconomicValue =  sqrt( pTargetCity->getEconomicValue( GetPlayer()->GetID() ) / float(max(1,pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage())) );
+	// Economic value / hardness of target (clamp to non-negative — maintenance can make economic value negative)
+	float fEconomicValue =  sqrt( max(0, pTargetCity->getEconomicValue( GetPlayer()->GetID() )) / float(max(1,pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage())) );
 
 	//everything together now
 	int iRtnValue = (int)(target.m_iApproachScore * fDistWeightInterpolated * fDesirability * fEconomicValue);

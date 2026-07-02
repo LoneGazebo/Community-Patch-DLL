@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllMissionInfo::CvDllMissionInfo(CvMissionInfo* pMissionInfo)
-	: m_pMissionInfo(pMissionInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pMissionInfo(pMissionInfo)
 {
 	ASSERT(pMissionInfo != NULL, "SHOULD NOT HAPPEN");
 }

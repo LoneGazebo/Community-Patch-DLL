@@ -149,10 +149,11 @@ public:
 	int GetUnhappinessFromEmpire() const;
 	void UpdateUnhappinessFromEmpire();
 
-	void DoEvents(bool bEspionageOnly = false);
+	void DoEvents();
 	bool IsCityEventValid(CityEventTypes eEvent);
 	bool IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive = false, bool bIgnorePlayer = false);
 	bool IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner, bool bIgnoreActive = false, bool bIgnoreNetworkPoints = false);
+	int getEventCounterspyRank(CityEventChoiceTypes eChosenEventChoice);
 	void DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice);
 	CvString GetScaledSpyEffectText(CityEventChoiceTypes eEventChoice, bool bSpyMissionEnd, TechTypes eTech = NO_TECH, int iGWID = -1, int iAmountStolen = -1);
 	void DoStartEvent(CityEventTypes eChosenEvent, bool bSendMsg);

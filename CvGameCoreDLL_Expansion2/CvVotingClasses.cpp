@@ -11460,6 +11460,26 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 		return eUsefulness;
 
 	int iScore = 0;
+
+	// do we have own the belief that gives yields for passing proposals?
+	ReligionTypes eStateReligion = m_pPlayer->GetReligions()->GetStateReligion();
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eStateReligion, m_pPlayer->GetID());
+	if (pReligion)
+	{
+		bool bProposal = false;
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if (pReligion->m_Beliefs.GetYieldFromProposal(eYield, m_pPlayer->GetID(), NULL, true) > 0)
+			{
+				bProposal = true;
+				break;
+			}
+		}
+		if (bProposal)
+			iScore += 1;
+	}
+	
 	if (GetExtraVotesPerDiplomat() > 0)
 	{
 		iScore += 1;
@@ -11468,22 +11488,24 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 			iScore += 2;
 		}
 	}
+	
 	if (EvaluateAlignment(ePlayer) > ALIGNMENT_NEUTRAL)
 	{
 		iScore += 1;
 	}
+	
 	int iLeague = pLeague->GetPotentialVotesForMember(m_pPlayer->GetID(), ePlayer);
 	if(iLeague > pLeague->GetCoreVotesForMember(ePlayer))
 	{
 		iScore += 1;
 	}
+
+	// decide return enum
 	if (iScore >= 3)
 	{
 		eUsefulness = DIPLOMAT_USEFULNESS_HIGH;
 	}
-	else
-
-	if (iScore >= 2)
+	else if (iScore >= 2)
 	{
 		eUsefulness = DIPLOMAT_USEFULNESS_MEDIUM;
 	}

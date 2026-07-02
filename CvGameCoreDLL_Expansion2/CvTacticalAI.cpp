@@ -6252,7 +6252,10 @@ pair<CvPlot*, int> TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUni
 		if (iScore > 0)
 		{
 			//tiebreaker
-			iScore -= plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY()) * 2 - GET_PLAYER(pUnit->getOwner()).GetCityDistancePathLength(pPlot);
+			int iCityDist = GET_PLAYER(pUnit->getOwner()).GetCityDistancePathLength(pPlot);
+			if (iCityDist == INT_MAX)
+				iCityDist = 0; // No cities (e.g. city-state lost capital) - distance irrelevant, use 0 to avoid overflow
+			iScore -= plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY()) * 2 - iCityDist;
 			vCandidates.push_back(OptionWithScore<pair<CvPlot*, int>>(make_pair(pPlot, it->iMovesLeft), iScore));
 		}
 	}
@@ -9165,9 +9168,10 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				int iNewPlotDistanceToTarget = TacticalAIHelpers::GetPlotDistanceToTarget(it->iPlotIndex, pUnit->getDomainType());
 				if (iNewPlotDistanceToTarget < TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 					iNewPlotDistanceToTarget = TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
-				iMoveTowardsTargetScore = (iOldPlotDistanceToTarget - iNewPlotDistanceToTarget) * 40;
 				if (iNewPlotDistanceToTarget > iOldPlotDistanceToTarget)
 					continue;
+				if (iOldPlotDistanceToTarget != INT_MAX)
+					iMoveTowardsTargetScore = (iOldPlotDistanceToTarget - iNewPlotDistanceToTarget) * 40;
 			}
 			SUnitStats tempUnit = unit;
 			tempUnit.iMovesLeft = it->iMovesLeft;
@@ -10054,9 +10058,9 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 	{
 		//iterate neighbors
 		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(GC.getMap().plotByIndexUnchecked(gCitadels[i].first));
-		for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+		for (int iDir = 0; iDir < NUM_DIRECTION_TYPES; iDir++)
 		{
-			CvPlot* pNeighbor = aNeighbors[i];
+			CvPlot* pNeighbor = aNeighbors[iDir];
 			if (!pNeighbor)
 				continue;
 

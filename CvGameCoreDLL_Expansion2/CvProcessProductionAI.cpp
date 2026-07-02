@@ -355,7 +355,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					// Free Building in Capital
 					if (pRewardInfo->GetBuilding() != NO_BUILDING)
 					{
-						CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(pRewardInfo->GetBuilding());
 						int iValue = 2000;
 						if(kPlayer.getCapitalCity() != NULL)
 						{

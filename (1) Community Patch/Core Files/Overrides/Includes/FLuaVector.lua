@@ -31,16 +31,6 @@
 		return
 	end
 
-	--- @class Vector2
-	--- @field x number
-	--- @field y number
-
-	--- @class Vector3 : Vector2
-	--- @field z number
-
-	--- @class Vector4 : Vector3
-	--- @field w number
-
 	--- @alias Vector
 	--- | Vector2
 	--- | Vector3

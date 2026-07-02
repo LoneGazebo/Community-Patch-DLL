@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllInterfaceModeInfo::CvDllInterfaceModeInfo(CvInterfaceModeInfo* pInterfaceModeInfo)
-	: m_pInterfaceModeInfo(pInterfaceModeInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pInterfaceModeInfo(pInterfaceModeInfo)
 {
 	ASSERT(pInterfaceModeInfo != NULL, "SHOULD NOT HAPPEN");
 }

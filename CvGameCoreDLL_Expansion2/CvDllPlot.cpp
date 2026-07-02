@@ -13,8 +13,8 @@
 #include "CvDllUnit.h"
 
 CvDllPlot::CvDllPlot(CvPlot* pPlot)
-	: m_pPlot(pPlot)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pPlot(pPlot)
 {
 	ASSERT(pPlot != NULL, "SHOULD NOT HAPPEN");
 }

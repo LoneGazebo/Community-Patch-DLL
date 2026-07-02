@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllBuildingInfo::CvDllBuildingInfo(CvBuildingEntry* pBuildingInfo)
-	: m_pBuildingInfo(pBuildingInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pBuildingInfo(pBuildingInfo)
 {
 }
 //------------------------------------------------------------------------------

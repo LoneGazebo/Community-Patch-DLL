@@ -220,6 +220,7 @@ public:
 	void updateAdjacency();
 
 	void verifyUnitValidPlot(PlayerTypes eForSpecificPlayer = NO_PLAYER);
+	void verifyUnitValidPlot(vector<TeamTypes>& vAffectedTeams);
 
 	CvPlot* syncRandPlot(int iFlags = 0, int iArea = -1, int iMinUnitDistance = -1, int iTimeout = 100);
 

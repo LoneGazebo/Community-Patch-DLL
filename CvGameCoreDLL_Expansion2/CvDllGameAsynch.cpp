@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllGameAsynch::CvDllGameAsynch(CvGame* pGame)
-: m_pGame(pGame)
-, m_uiRefCount(1)
+: m_uiRefCount(1)
+, m_pGame(pGame)
 {
 
 }

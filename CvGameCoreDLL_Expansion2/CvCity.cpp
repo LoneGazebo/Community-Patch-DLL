@@ -169,11 +169,6 @@ CvCity::CvCity() :
 	, m_iGameTurnFounded()
 	, m_iGameTurnAcquired()
 	, m_iGameTurnLastExpanded()
-	, m_iAdditionalFood()
-	, m_iCityBuildingBombardRange()
-	, m_iCityIndirectFire()
-	, m_iCityBuildingRangeStrikeModifier()
-	, m_iGarrisonRangedAttackModifier()
 	, m_iPopulation()
 	, m_iAutomatons(0)
 	, m_iHighestPopulation()
@@ -187,6 +182,11 @@ CvCity::CvCity() :
 	, m_iJONSCultureLevel()
 	, m_iaAddedYieldPerTurnFromTraits()
 	, m_aiBaseYieldRateFromPolicies()
+	, m_iAdditionalFood()
+	, m_iCityBuildingBombardRange()
+	, m_iCityIndirectFire()
+	, m_iCityBuildingRangeStrikeModifier()
+	, m_iGarrisonRangedAttackModifier()
 	, m_iNumWorldWonders()
 	, m_iNumTeamWonders()
 	, m_iNumNationalWonders()
@@ -195,6 +195,14 @@ CvCity::CvCity() :
 	, m_iDiplomatInfluenceBoost()
 	, m_iPlotCultureCostModifier()
 	, m_iPlotBuyCostModifier()
+	, m_iCityWorkingChange()
+	, m_iCitySupplyModifier()
+	, m_iCitySupplyFlat()
+	, m_iDamageReductionFlat()
+	, m_bAllowsProductionTradeRoutes()
+	, m_bAllowsFoodTradeRoutes()
+	, m_bAllowPuppetPurchase()
+	, m_iCityAutomatonWorkersChange()
 	, m_iMaintenance()
 	, m_iHealRate()
 	, m_iNoOccupiedUnhappinessCount()
@@ -211,6 +219,12 @@ CvCity::CvCity() :
 	, m_iFreeExperience()
 	, m_iMaxAirUnits()
 	, m_iNukeModifier()
+	, m_iTradeRouteTargetBonus()
+	, m_iTradeRouteRecipientBonus()
+	, m_iTradeRouteSeaGoldBonus()
+	, m_iTradeRouteLandGoldBonus()
+	, m_iNumTradeRouteBonus()
+	, m_iCityConnectionTradeRouteGoldModifier()
 	, m_iCitySizeBoost()
 	, m_iSpecialistFreeExperience()
 	, m_iStrengthValue()
@@ -232,12 +246,9 @@ CvCity::CvCity() :
 	, m_iEspionageModifier()
 	, m_iSpySecurityModifier()
 	, m_iSpySecurityModifierPerXPop()
-	, m_iTradeRouteRecipientBonus()
-	, m_iTradeRouteSeaGoldBonus()
-	, m_iTradeRouteLandGoldBonus()
-	, m_iTradeRouteTargetBonus()
-	, m_iNumTradeRouteBonus()
-	, m_iCityConnectionTradeRouteGoldModifier()
+	, m_iNumPreviousSpyMissions()
+	, m_fDefensePerWonder()
+	, m_iConversionModifier()
 	, m_unitBeingBuiltForOperation()
 	, m_bNeverLost()
 	, m_bDrafted()
@@ -261,6 +272,11 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromSpecialists()
 	, m_aiBaseYieldRateFromMisc()
 	, m_aiBaseYieldRatePermanentWLTKDTimes100()
+	, m_aiBaseYieldRateFromLeague()
+	, m_siPlots()
+	, m_siAccomplishmentsWithBonuses()
+	, m_aiChangeGrowthExtraYield()
+	, m_aiYieldFromPassingTR()
 	, m_aiBaseYieldRateFromReligion()
 	, m_aiYieldRateModifier()
 	, m_aiLuxuryExtraYield()
@@ -336,13 +352,6 @@ CvCity::CvCity() :
 	, m_aiYieldRank()
 	, m_abYieldRankValid()
 	, m_bOwedCultureBuilding()
-	, m_iCityWorkingChange()
-	, m_iCitySupplyModifier()
-	, m_iCitySupplyFlat()
-	, m_iDamageReductionFlat()
-	, m_bAllowsProductionTradeRoutes()
-	, m_bAllowsFoodTradeRoutes()
-	, m_bAllowPuppetPurchase()
 	, m_iHappinessFromEmpire()
 	, m_iUnhappinessFromEmpire()
 	, m_iCachedBasicNeedsMedian()
@@ -352,41 +361,9 @@ CvCity::CvCity() :
 	, m_iCachedTechNeedModifier()
 	, m_iCachedEmpireSizeModifier()
 	, m_iYieldMediansCachedTurn()
-	, m_iCityAutomatonWorkersChange()
-	, m_iNumPreviousSpyMissions()
-	, m_fDefensePerWonder()
-	, m_iConversionModifier()
-	, m_aiBaseYieldRateFromLeague()
-	, m_siPlots()
-	, m_siAccomplishmentsWithBonuses()
-	, m_iEmpireSizeModifierReduction()
-	, m_iDistressFlatReduction()
-	, m_iPovertyFlatReduction()
-	, m_iIlliteracyFlatReduction()
-	, m_iBoredomFlatReduction()
-	, m_iReligiousUnrestFlatReduction()
-	, m_iBasicNeedsMedianModifier()
-	, m_iGoldMedianModifier()
-	, m_iScienceMedianModifier()
-	, m_iCultureMedianModifier()
-	, m_iReligiousUnrestModifier()
-	, m_aiChangeGrowthExtraYield()
-	, m_aiYieldFromPassingTR()
-	, m_iNukeInterceptionChance()
-	, m_iTradeRouteSeaDistanceModifier()
-	, m_iTradeRouteLandDistanceModifier()
-	, m_iTradePriorityLand()
-	, m_iTradePrioritySea()
-	, m_iUnitPurchaseCooldown()
-	, m_iUnitPurchaseCooldownCivilian()
-	, m_iUnitPurchaseCooldownMod()
-	, m_iUnitPurchaseCooldownCivilianMod()
-	, m_iUnitFaithPurchaseCooldown()
-	, m_iUnitFaithPurchaseCooldownCivilian()
-	, m_iBuildingPurchaseCooldown()
-	, m_iReligiousTradeModifier()
-	, m_iCityAirStrikeDefense()
-	, m_iFreeBuildingTradeTargetCity()
+	, m_aiNumProjects()
+	, m_aiNumTimesAttackedThisTurn()
+	, m_aiSpecialReligionYieldsTimes100()
 	, m_aiYieldFromVictory()
 	, m_aiYieldFromVictoryEraScaling()
 	, m_aiYieldFromVictoryGlobal()
@@ -395,9 +372,6 @@ CvCity::CvCity() :
 	, m_aiYieldFromVictoryGlobalInGoldenAgeEraScaling()
 	, m_aiYieldFromPillage()
 	, m_aiYieldFromPillageGlobal()
-	, m_aiNumTimesAttackedThisTurn()
-	, m_aiNumProjects()
-	, m_aiSpecialReligionYieldsTimes100()
 	, m_aiYieldFromGoldenAgeStart()
 	, m_aiYieldChangePerGoldenAge()
 	, m_aiYieldChangePerGoldenAgeCap()
@@ -409,9 +383,9 @@ CvCity::CvCity() :
 	, m_aiInstantYieldFromWLTKDStart()
 	, m_aiYieldFromConstruction()
 	, m_aiYieldFromTech()
-	, m_aiYieldFromUnitProduction()
 	, m_aiYieldFromBirth()
 	, m_aiYieldFromBirthEraScaling()
+	, m_aiYieldFromUnitProduction()
 	, m_aiYieldFromBorderGrowth()
 	, m_aiYieldFromPolicyUnlock()
 	, m_aiYieldFromPurchase()
@@ -431,8 +405,6 @@ CvCity::CvCity() :
 	, m_aiYieldFromGPBirthScaledWithArtistBulb()
 	, m_miYieldFromGPBirthScaledWithPerTurnYield()
 	, m_aiSpecialistRateModifierFromBuildings()
-	, m_aiNumTimesOwned()
-	, m_aiStaticCityYield()
 	, m_aiThemingYieldBonus()
 	, m_aiYieldFromSpyAttack()
 	, m_aiYieldFromSpyDefense()
@@ -440,6 +412,44 @@ CvCity::CvCity() :
 	, m_aiYieldFromSpyDefenseOrID()
 	, m_aiYieldFromSpyRigElection()
 	, m_aiYieldChangesPerCityStrengthTimes100()
+	, m_aiNumTimesOwned()
+	, m_aiStaticCityYield()
+	, m_iTradePriorityLand()
+	, m_iTradePrioritySea()
+	, m_iUnitPurchaseCooldown()
+	, m_iUnitPurchaseCooldownCivilian()
+	, m_iUnitPurchaseCooldownMod()
+	, m_iUnitPurchaseCooldownCivilianMod()
+	, m_iUnitFaithPurchaseCooldown()
+	, m_iUnitFaithPurchaseCooldownCivilian()
+	, m_iBuildingPurchaseCooldown()
+	, m_iReligiousTradeModifier()
+	, m_iCityAirStrikeDefense()
+	, m_iFreeBuildingTradeTargetCity()
+	, m_iBorderObstacleCity()
+	, m_iBorderObstacleWater()
+	, m_iDeepWaterTileDamage()
+	, m_iNumNearbyMountains()
+	, m_iLocalUnhappinessMod()
+	, m_iExperiencePerGoldenAge()
+	, m_iExperiencePerGoldenAgeCap()
+	, m_iExperienceFromPreviousGoldenAges()
+	, m_bNoWarmonger()
+	, m_iNoStarvationNonSpecialist()
+	, m_iEmpireSizeModifierReduction()
+	, m_iDistressFlatReduction()
+	, m_iPovertyFlatReduction()
+	, m_iIlliteracyFlatReduction()
+	, m_iBoredomFlatReduction()
+	, m_iReligiousUnrestFlatReduction()
+	, m_iBasicNeedsMedianModifier()
+	, m_iGoldMedianModifier()
+	, m_iScienceMedianModifier()
+	, m_iCultureMedianModifier()
+	, m_iReligiousUnrestModifier()
+	, m_iTradeRouteSeaDistanceModifier()
+	, m_iTradeRouteLandDistanceModifier()
+	, m_iNukeInterceptionChance()
 	, m_aiBaseYieldRateFromCSAllianceTimes100()
 	, m_aiBaseYieldRateFromCSFriendshipTimes100()
 	, m_aiYieldFromMinors()
@@ -451,8 +461,6 @@ CvCity::CvCity() :
 	, m_iAlwaysHeal()
 	, m_iResourceDiversityModifier()
 	, m_iNoUnhappfromXSpecialists()
-	, m_bNoWarmonger()
-	, m_iNoStarvationNonSpecialist()
 	, m_iMinimumFood()
 	, m_abIsBestForWonder()
 	, m_abIsPurchased()
@@ -467,39 +475,25 @@ CvCity::CvCity() :
 	, m_paiNumImprovementWorked()
 	, m_paiImprovementCount()
 	, m_paiYieldFromUnimprovedFeatures()
-	, m_paiHurryModifier()
-	, m_vClosestNeighbors()
-	, m_yieldChanges(NUM_YIELD_TYPES)
-	, m_eventYields(NUM_YIELD_TYPES)
-	, m_ppiGreatPersonProgressFromConstruction()
-	, m_abOwedChosenBuilding()
-	, m_abBuildingInvestment()
-	, m_aiBuildingCostInvestmentReduction()
-	, m_abUnitInvestment()
-	, m_aiUnitCostInvestmentReduction()
-	, m_abBuildingConstructed()
-	, m_iBorderObstacleCity()
-	, m_iBorderObstacleWater()
-	, m_iDeepWaterTileDamage()
-	, m_iNumNearbyMountains()
-	, m_iLocalUnhappinessMod()
-	, m_iExperiencePerGoldenAge()
-	, m_iExperiencePerGoldenAgeCap()
-	, m_iExperienceFromPreviousGoldenAges()
-	, m_bOwedFoodBuilding()
 	, m_iDamageTakenThisTurn()
 	, m_iDamageTakenLastTurn()
+	, m_paiHurryModifier()
+	, m_vClosestNeighbors()
+	, m_bOwedFoodBuilding()
+	, m_yieldChanges(NUM_YIELD_TYPES)
+	, m_ppiGreatPersonProgressFromConstruction()
+	, m_eventYields(NUM_YIELD_TYPES)
 	, m_bIsColony()
 	, m_iProvinceLevel()
 	, m_iOrganizedCrime()
 	, m_iResistanceCounter()
 	, m_iPlagueCounter()
 	, m_iPlagueTurns()
+	, m_iPlagueType()
 	, m_iDefenseProcessTurns()
 	, m_iSappedTurns()
 	, m_iBuildingProductionBlockedTurns()
 	, m_iNoTourismTurns()
-	, m_iPlagueType()
 	, m_iLoyaltyCounter()
 	, m_bHasFreeCultureBuilding()
 	, m_bHasFreeFoodBuilding()
@@ -516,6 +510,12 @@ CvCity::CvCity() :
 	, m_aiTempCaptureData()
 	, m_abTempCaptureData()
 	, m_bIsPendingCapture()
+	, m_abOwedChosenBuilding()
+	, m_abBuildingInvestment()
+	, m_aiBuildingCostInvestmentReduction()
+	, m_abUnitInvestment()
+	, m_aiUnitCostInvestmentReduction()
+	, m_abBuildingConstructed()
 	, m_iVassalLevyEra()
 	, m_bConnectedToOcean()
 {
@@ -2442,15 +2442,7 @@ void CvCity::doTurn()
 		}
 	}
 
-	if (GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS) || GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS) || GC.getGame().isOption(GAMEOPTION_BAD_EVENTS)
-		|| GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS) || GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
-	{
-		DoEvents();
-	}
-	else
-	{
-		DoEvents(/*bEspionageOnly*/ true);
-	}
+	DoEvents();
 
 	setDrafted(false);
 	setMadeAttack(false);
@@ -3244,7 +3236,7 @@ void CvCity::ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2, 
 	if (ModifierUpdateInsertRemove(y.forFeature, eFeature, iChange, true))
 		updateYield();
 }
-void CvCity::DoEvents(bool bEspionageOnly)
+void CvCity::DoEvents()
 {
 	//Minors? Barbs? Get out!
 	if (!GET_PLAYER(getOwner()).isMajorCiv())
@@ -3289,9 +3281,6 @@ void CvCity::DoEvents(bool bEspionageOnly)
 		}
 	}
 
-	if (bEspionageOnly)
-		return;
-
 	if (GetCityEventCooldown() > 0)
 	{
 		if (GC.getLogging())
@@ -3331,6 +3320,37 @@ void CvCity::DoEvents(bool bEspionageOnly)
 
 		if (pkEventInfo->isOneShot() && IsEventFired(eEvent))
 			continue;
+
+		// is the event's class enabled in the options?
+		EventClassTypes eEventClass = (EventClassTypes)pkEventInfo->getEventClass();
+		if (eEventClass != NO_EVENT_CLASS)
+		{
+			if (eEventClass == EVENT_CLASS_GOOD)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS))
+					continue;
+			}
+			else if (eEventClass == EVENT_CLASS_BAD)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_BAD_EVENTS))
+					continue;
+			}
+			else if (eEventClass == EVENT_CLASS_NEUTRAL)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS))
+					continue;
+			}
+			else if (eEventClass == EVENT_CLASS_TRADE)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS))
+					continue;
+			}
+			else if (eEventClass == EVENT_CLASS_CIV_SPECIFIC)
+			{
+				if (!GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
+					continue;
+			}
+		}
 
 		// Is this event on cooldown?
 		if (GetEventCooldown(eEvent) > 0)
@@ -3601,36 +3621,6 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventCanActivate, getOwner(), GetID(), eEvent) == GAMEEVENTRETURN_FALSE)
 	{
 		return false;
-	}
-
-	EventClassTypes eEventClass = (EventClassTypes)pkEventInfo->getEventClass();
-	if (eEventClass != NO_EVENT_CLASS)
-	{
-		if (eEventClass == EVENT_CLASS_GOOD)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_GOOD_EVENTS))
-				return false;
-		}
-		else if (eEventClass == EVENT_CLASS_BAD)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_BAD_EVENTS))
-				return false;
-		}
-		else if (eEventClass == EVENT_CLASS_NEUTRAL)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_NEUTRAL_EVENTS))
-				return false;
-		}
-		else if (eEventClass == EVENT_CLASS_TRADE)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_TRADE_EVENTS))
-				return false;
-		}
-		else if (eEventClass == EVENT_CLASS_CIV_SPECIFIC)
-		{
-			if (!GC.getGame().isOption(GAMEOPTION_CIV_SPECIFIC_EVENTS))
-				return false;
-		}
 	}
 
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
@@ -4766,6 +4756,21 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	return true;
 }
 
+// helper for effects from counterspies that scale with rank
+int CvCity::getEventCounterspyRank(CityEventChoiceTypes eChosenEventChoice)
+{
+	int iSpyRank = 0;
+	CvCityEspionage* pCityEspionage = GetCityEspionage();
+	if (pCityEspionage)
+	{
+		if (eChosenEventChoice == pCityEspionage->GetCounterSpyFocus())
+		{
+			iSpyRank = pCityEspionage->GetCounterSpyRank();
+		}
+	}
+	return iSpyRank;
+}
+
 void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 {
 	if (eChosenEventChoice == NO_EVENT_CHOICE_CITY)
@@ -4926,34 +4931,40 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 			{
 				for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
 				{
+					int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
 					ReligionTypes eReligion = (ReligionTypes)iI;
-					ChangeReligiousPressureModifier(eReligion, pkEventChoiceInfo->getReligiousPressureModifier() * -1);
+					ChangeReligiousPressureModifier(eReligion, (pkEventChoiceInfo->getReligiousPressureModifier() + 5 * iSpyRank) * -1);
 				}
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getBasicNeedsMedianModifier() != 0)
 			{
-				ChangeBasicNeedsMedianModifier(pkEventChoiceInfo->getBasicNeedsMedianModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeBasicNeedsMedianModifier((pkEventChoiceInfo->getBasicNeedsMedianModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getGoldMedianModifier() != 0)
 			{
-				ChangeGoldMedianModifier(pkEventChoiceInfo->getGoldMedianModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeGoldMedianModifier((pkEventChoiceInfo->getGoldMedianModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getScienceMedianModifier() != 0)
 			{
-				ChangeScienceMedianModifier(pkEventChoiceInfo->getScienceMedianModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeScienceMedianModifier((pkEventChoiceInfo->getScienceMedianModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getCultureMedianModifier() != 0)
 			{
-				ChangeCultureMedianModifier(pkEventChoiceInfo->getCultureMedianModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeCultureMedianModifier((pkEventChoiceInfo->getCultureMedianModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getReligiousUnrestModifier() != 0)
 			{
-				ChangeReligiousUnrestModifier(pkEventChoiceInfo->getReligiousUnrestModifier() * -1);
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeReligiousUnrestModifier((pkEventChoiceInfo->getReligiousUnrestModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->isCounterspyMission())
@@ -7200,29 +7211,35 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
 				{
+					int iSpyRank = getEventCounterspyRank(eEventChoice);
 					ReligionTypes eReligion = (ReligionTypes)iI;
-					ChangeReligiousPressureModifier(eReligion, pkEventChoiceInfo->getReligiousPressureModifier());
+					ChangeReligiousPressureModifier(eReligion, (pkEventChoiceInfo->getReligiousPressureModifier() + 5 * iSpyRank));
 				}
 			}
 			if (pkEventChoiceInfo->getBasicNeedsMedianModifier() != 0)
 			{
-				ChangeBasicNeedsMedianModifier(pkEventChoiceInfo->getBasicNeedsMedianModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeBasicNeedsMedianModifier(pkEventChoiceInfo->getBasicNeedsMedianModifier() - 5 * iSpyRank);
 			}
 			if (pkEventChoiceInfo->getGoldMedianModifier() != 0)
 			{
-				ChangeGoldMedianModifier(pkEventChoiceInfo->getGoldMedianModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeGoldMedianModifier(pkEventChoiceInfo->getGoldMedianModifier() - 5 * iSpyRank);
 			}
 			if (pkEventChoiceInfo->getScienceMedianModifier() != 0)
 			{
-				ChangeScienceMedianModifier(pkEventChoiceInfo->getScienceMedianModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeScienceMedianModifier(pkEventChoiceInfo->getScienceMedianModifier() - 5 * iSpyRank);
 			}
 			if (pkEventChoiceInfo->getCultureMedianModifier() != 0)
 			{
-				ChangeCultureMedianModifier(pkEventChoiceInfo->getCultureMedianModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeCultureMedianModifier(pkEventChoiceInfo->getCultureMedianModifier() - 5 * iSpyRank);
 			}
 			if (pkEventChoiceInfo->getReligiousUnrestModifier() != 0)
 			{
-				ChangeReligiousUnrestModifier(pkEventChoiceInfo->getReligiousUnrestModifier());
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeReligiousUnrestModifier(pkEventChoiceInfo->getReligiousUnrestModifier() - 5 * iSpyRank);
 			}
 			for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
 			{
@@ -10062,13 +10079,13 @@ void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTyp
 
 		if (iResourceTypesBoosted.count(pLoopPlot->getResourceType(getTeam())) ||
 			iTerrainTypesBoosted.count(pLoopPlot->getTerrainType()) ||
-			bSeaPlotsBoosted && pLoopPlot->isWater() && !pLoopPlot->isLake() ||
-			bSeaResourcesBoosted && pLoopPlot->isWater() && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE ||
-			bLakePlotsBoosted && pLoopPlot->isLake() ||
-			bRiverPlotsBoosted && pLoopPlot->IsFeatureRiver() ||
+			(bSeaPlotsBoosted && pLoopPlot->isWater() && !pLoopPlot->isLake()) ||
+			(bSeaResourcesBoosted && pLoopPlot->isWater() && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE) ||
+			(bLakePlotsBoosted && pLoopPlot->isLake()) ||
+			(bRiverPlotsBoosted && pLoopPlot->IsFeatureRiver()) ||
 			iImprovementTypesBoosted.count(pLoopPlot->getImprovementType()) ||
 			iFeatureTypesBoosted.count(pLoopPlot->getFeatureType()) ||
-			bCityConnectionPlotsBoosted && pLoopPlot->IsCityConnection())
+			(bCityConnectionPlotsBoosted && pLoopPlot->IsCityConnection()))
 		{
 			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
 		}
@@ -17040,10 +17057,40 @@ int CvCity::getTotalGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT();
 	int iModifier = getGreatPeopleRateModifier() + GET_PLAYER(getOwner()).getGreatPeopleRateModifier();
+	
+	int iNumMarried = GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar();
+	if (iNumMarried > 0)
+	{
+		iModifier += (iNumMarried * getGPRateModifierPerMarriage());
+		if (isCapital())
+		{
+			iModifier += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE));
+		}
+	}
+
+	int iGPRateModifierPerLocalTheme = getGPRateModifierPerLocalTheme();
+	if (iGPRateModifierPerLocalTheme > 0)
+	{
+		iModifier += iGPRateModifierPerLocalTheme * GetCityBuildings()->GetTotalNumThemedBuildings();
+	}
+
+	// Corporations: Great people rate modifier by number of franchises
+	int iGPRateCorp = GetGPRateModifierPerXFranchises();
+	if (iGPRateCorp > 0)
+	{
+		iModifier += iGPRateCorp;
+	}
+
+	// Improvements: Great people rate modifier by number of worked improvements
+	int iGPRateImprovements = GetImprovementGreatPersonRateModifier();
+	if (iGPRateImprovements > 0)
+	{
+		iModifier += iGPRateImprovements;
+	}
 
 	if (GET_PLAYER(getOwner()).isGoldenAge())
 	{
-		iModifier += /*100*/ GD_INT_GET(GOLDEN_AGE_GREAT_PEOPLE_MODIFIER);
+		iModifier += /*0*/ GD_INT_GET(GOLDEN_AGE_GREAT_PEOPLE_MODIFIER);
 	}
 
 	return std::max(0, (iModifier + 100));
@@ -17063,40 +17110,7 @@ void CvCity::changeBaseGreatPeopleRate(int iChange)
 int CvCity::getGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT();
-	int iValue = m_iGreatPeopleRateModifier;
-	// todo: getGreatPropleRateModifier shouldn't do anything else but get the value of m_iGreatPeopleRateModifier, all the other calculations should be put into a different function
-
-	int iNumMarried = GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar();
-	if (iNumMarried > 0)
-	{
-		iValue += (iNumMarried * getGPRateModifierPerMarriage());
-		if (isCapital())
-		{
-			iValue += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE));
-		}
-	}
-
-	int iGPRateModifierPerLocalTheme = getGPRateModifierPerLocalTheme();
-	if (iGPRateModifierPerLocalTheme > 0)
-	{
-		iValue += iGPRateModifierPerLocalTheme * GetCityBuildings()->GetTotalNumThemedBuildings();
-	}
-
-	// Corporations: Great people rate modifier by number of franchises
-	int iGPRateCorp = GetGPRateModifierPerXFranchises();
-	if (iGPRateCorp > 0)
-	{
-		iValue += iGPRateCorp;
-	}
-
-	// Improvements: Great people rate modifier by number of worked improvements
-	int iGPRateImprovements = GetImprovementGreatPersonRateModifier();
-	if (iGPRateImprovements > 0)
-	{
-		iValue += iGPRateImprovements;
-	}
-
-	return iValue;
+	return m_iGreatPeopleRateModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -17360,15 +17374,10 @@ void CvCity::DoJONSCultureLevelIncrease()
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-				CvString strBaseString;
 				CvString strOutBuf;
-				CvString playerName = kOwner.getCivilizationShortDescription();
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				strBaseString += playerName + ", ";
 				strOutBuf.Format("%s, City Culture Leveled Up. Level: %d Border Expanded, X: %d, Y: %d", getName().GetCString(),
 					GetJONSCultureLevel(), pPlotToAcquire->getX(), pPlotToAcquire->getY());
-				strBaseString += strOutBuf;
-				kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
+				kOwner.GetCitySpecializationAI()->LogMsg(strOutBuf);
 			}
 			DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
 		}
@@ -28053,9 +28062,8 @@ bool CvCity::CanBuyAnyPlot(void)
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strPlayerName = kOwner.getCivilizationShortDescription();
-					CvString strBaseString = CvString::format("%03d, %s, %s, CanBuyAnyPlot failed in lua hook",
-						GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), getName().GetCString());
-					kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
+					CvString strOutBuf = CvString::format("CanBuyAnyPlot failed in lua hook");
+					kOwner.GetCitySpecializationAI()->LogMsg(strOutBuf);
 				}
 
 				return false;
@@ -28798,14 +28806,9 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY, bool bAutomaticPurchaseFromBuilding
 	if (GC.getLogging() && GC.getAILogging())
 	{
 		CvPlayerAI& kOwner = GET_PLAYER(getOwner());
-		CvString strBaseString;
 		CvString strOutBuf;
-		CvString playerName = kOwner.getCivilizationShortDescription();
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += playerName + ", ";
 		strOutBuf.Format("%s, City Plot Purchased, X: %d, Y: %d", getName().GetCString(), iPlotX, iPlotY);
-		strBaseString += strOutBuf;
-		kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
+		kOwner.GetCitySpecializationAI()->LogMsg(strOutBuf);
 	}
 
 	if (pPlot->getOwner() != getOwner() && pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isHuman())
@@ -29991,14 +29994,9 @@ void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 		{
 			if (kOwner.GetWonderProductionAI()->IsWonder(*pkConstructBuildingInfo))
 			{
-				CvString strBaseString;
 				CvString strOutBuf;
-				CvString playerName = kOwner.getCivilizationShortDescription();
-				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-				strBaseString += playerName + ", ";
 				strOutBuf.Format("%s, WONDER - Finished %s", getName().GetCString(), pkConstructBuildingInfo->GetDescription());
-				strBaseString += strOutBuf;
-				kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
+				kOwner.GetCitySpecializationAI()->LogMsg(strOutBuf);
 			}
 		}
 

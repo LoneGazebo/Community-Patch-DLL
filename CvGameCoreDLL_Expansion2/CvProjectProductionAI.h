@@ -41,7 +41,7 @@ public:
 
 	// Recommend highest-weighted Project
 	ProjectTypes RecommendProject();
-	int CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight);
+	int CheckProjectBuildSanity(ProjectTypes eProject, int iFlavorWeight);
 
 	// Logging
 	void LogPossibleBuilds();
