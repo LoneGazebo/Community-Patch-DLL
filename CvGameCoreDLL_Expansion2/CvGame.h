@@ -699,6 +699,8 @@ public:
 
 	void LogMapState() const;
 	void LogMapPlotsState() const;
+	void LogMapUnitsState() const;
+	void LogCivTurnEra() const;
 	void LogGameState(bool bLogHeaders = false) const;
 	void unitIsMoving() const;
 
