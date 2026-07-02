@@ -746,7 +746,7 @@
 		<Column name="CityEventChoice" type="text" reference="CityEventChoices(Type)"/>
 		<!-- This makes the event link span all known players and all known player cities looking for the four elements above. Be sparing with this, can be expensive! -->
 		<Column name="CheckKnownPlayers" type="boolean" default="false"/>
-		<!-- This looks only at the event city. Only works if you have a CityEvent or CityEventChoice defined above. Also does not work with CheckKnownPlayers-->
+		<!-- This looks only at the event city. Only works if you have a CityEvent or CityEventChoice defined above.-->
 		<Column name="CheckOnlyEventCity" type="boolean" default="false"/>
 		<!-- Defaults to TRUE, meaning that any event/choice defined above must be active for the event to fire. Setting it to false makes it so that any event/choice defined above that is NOT active is the trigger.
 		Think of this as a boolean switch - if the state of the event(s) above are hoped to be inactive, make this false. If you want it active, leave it true.
@@ -1134,7 +1134,7 @@
 		<Column name="CityEventChoiceLinker" type="text" reference="CityEventChoices(Type)"/>
 		<!-- This makes the event link span all known players and all known player cities looking for the four elements above. Be sparing with this, can be expensive! -->
 		<Column name="CheckKnownPlayers" type="boolean" default="false"/>
-		<!-- This looks only at the event city. Only works if you have a CityEvent or CityEventChoice defined above. Also does not work with CheckKnownPlayers-->
+		<!-- This looks only at the event city. Only works if you have a CityEvent or CityEventChoice defined above.-->
 		<Column name="CheckOnlyEventCity" type="boolean" default="false"/>
 		<!-- Defaults to TRUE, meaning that any event/choice defined above must be active for the event to fire. Setting it to false makes it so that any event/choice defined above that is NOT active is the trigger.
 		Think of this as a boolean switch - if the state of the event(s) above are hoped to be inactive, make this false. If you want it active, leave it true.
