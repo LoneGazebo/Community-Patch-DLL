@@ -46,7 +46,7 @@ VALUES
 UPDATE Policies
 SET
 	MinorGoldFriendshipMod = 0,
-	FreeSpy = 1,
+	FreeSpy = 100,
 	GreatDiplomatRateModifier = 50,
 	IncreasedQuestRewards = 50,
 	PortraitIndex = 39

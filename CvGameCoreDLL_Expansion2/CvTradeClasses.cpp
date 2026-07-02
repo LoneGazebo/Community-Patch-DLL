@@ -136,41 +136,117 @@ void CvGameTrade::SetTradePathsCacheUpdateCounter(PlayerTypes ePlayer, int iValu
 }
 
 // helper function
-bool HaveTradePathInCache(const TradePathLookup& cache, int iCityPlotA, int iCityPlotB)
-{
-	TradePathLookup::const_iterator itA = cache.find(iCityPlotA);
-	if (itA!=cache.end())
-	{
-		TradePathLookup::value_type::second_type::const_iterator itB = itA->second.find(iCityPlotB);
-		return (itB!=itA->second.end());
-	}
-	
-	return false;
-}
-
-// helper function
-bool AddTradePathToCache(TradePathLookup& cache, int iCityPlotA, int iCityPlotB, const SPath& path)
+bool HaveTradePathInCache(const TradePathLookup& cache, int iCityPlotA, int iCityPlotB, STradePathInfo& sPathInfo)
 {
 	TradePathLookup::const_iterator itA = cache.find(iCityPlotA);
 	if (itA!=cache.end())
 	{
 		TradePathLookup::value_type::second_type::const_iterator itB = itA->second.find(iCityPlotB);
 		if (itB!=itA->second.end())
-			cache[iCityPlotA][iCityPlotB] = path;
+		{
+			sPathInfo = itB->second;
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+// helper function
+void RemoveTradePathFromCache(TradePathLookup& cache, int iCityPlotA, int iCityPlotB)
+{
+	TradePathLookup::iterator itA = cache.find(iCityPlotA);
+	if (itA != cache.end())
+	{
+		itA->second.erase(iCityPlotB);
+		if (itA->second.empty())
+			cache.erase(itA);
+	}
+}
+
+// helper function - stores only metadata, not the full path (99.9% memory reduction)
+bool AddTradePathToCache(TradePathLookup& cache, int iCityPlotA, int iCityPlotB, const SPath& path)
+{
+
+	// calculate some path-dependent scoring values
+	int iDangerScore = 0;
+	int iDangerScoreInternal = 0;
+	int iScoreFromPassingTR = 0;
+	int iScoreFromTerrain = 0;
+	CvPlayer& kPlayer = GET_PLAYER(GC.getMap().plotByIndexUnchecked(iCityPlotA)->getOwner());
+	CvCorporationEntry* pkCorporationInfo = kPlayer.GetCorporations()->GetCorporationEntry();
+	bool bInvulnerability = pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable();
+
+	for (size_t i = 0; i<path.vPlots.size(); i++)
+	{
+		CvPlot* pPlot = GC.getMap().plot(path.vPlots[i].x, path.vPlots[i].y);
+		ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
+		if (pPlot == NULL)
+		{
+			break;
+		}
+
+		if (!bInvulnerability)
+		{
+			//danger is hard to quantify for routes which be definition pass by a lot of invisible plots
+			if (!pPlot->isVisible(kPlayer.getTeam()))
+				iDangerScore += 1;
+
+			if (pPlot->getTeam() != NO_TEAM && GET_TEAM(kPlayer.getTeam()).isAtWar(pPlot->getTeam()))
+				iDangerScore += 100;
+
+			else if (pPlot->getTeam() != kPlayer.getTeam())
+				iDangerScore += 10;
+
+			if (kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pPlot))
+				iDangerScore += 100;
+		}
+
+		//avoid fallout etc
+		if (kPlayer.GetPlotDanger(*pPlot,true) > 0)
+			iDangerScoreInternal++;
+
+		// yields in owned cities the trade route passes
+		if (pPlot->isCity() && pPlot->getOwner() == kPlayer.GetID() && !pPlot->IsTradeUnitRoute())
+		{
+			for (int iYieldLoop = 0; iYieldLoop < GC.getNUM_YIELD_TYPES(); iYieldLoop++)
+			{
+				iScoreFromPassingTR += pPlot->getPlotCity()->GetYieldFromPassingTR((YieldTypes)iYieldLoop); // todo: weighting depending on yield type
+			}
+		}
+
+		if (pPlot->getOwner() == kPlayer.GetID() && pPlot->getTerrainType() != NO_TERRAIN)
+		{
+			for (int iJ = 0; iJ < GC.getNUM_YIELD_TYPES(); iJ++)
+			{
+
+				iScoreFromTerrain += (kPlayer.GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), (YieldTypes)iJ) * 10);
+			}
+		}
+	}
+
+	STradePathInfo info(path, iDangerScore, iDangerScoreInternal, iScoreFromPassingTR, iScoreFromTerrain);
+	
+	TradePathLookup::const_iterator itA = cache.find(iCityPlotA);
+	if (itA!=cache.end())
+	{
+		TradePathLookup::value_type::second_type::const_iterator itB = itA->second.find(iCityPlotB);
+		if (itB!=itA->second.end())
+			cache[iCityPlotA][iCityPlotB] = info;
 		else
-			cache[iCityPlotA].insert( std::make_pair(iCityPlotB,path) );
+			cache[iCityPlotA].insert( std::make_pair(iCityPlotB,info) );
 	}
 	else
 	{
 		TradePathLookup::value_type::second_type newDestinations;
-		newDestinations.insert( std::make_pair(iCityPlotB,path) );
+		newDestinations.insert( std::make_pair(iCityPlotB,info) );
 		cache.insert( std::make_pair(iCityPlotA,newDestinations) );
 	}
 	
 	return false;
 }
 
-const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCity* pOriginCity, bool bWater)
+const std::map<int, STradePathInfo>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCity* pOriginCity, bool bWater)
 {
 	if (!pOriginCity)
 		return m_dummyTradePaths; //always empty
@@ -186,7 +262,7 @@ const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCi
 		return m_dummyTradePaths; //always empty
 }
 
-bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut)
+bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, STradePathInfo& sPathInfo, SPath* pPathOut)
 {
 	if (!pOriginCity || !pDestCity)
 		return false;
@@ -200,12 +276,68 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 
 	int iCityPlotA = pOriginCity->plot()->GetPlotIndex();
 	int iCityPlotB = pDestCity->plot()->GetPlotIndex();
-	bool hasPath = HaveTradePathInCache(cache, iCityPlotA, iCityPlotB);
+	bool hasPath = HaveTradePathInCache(cache, iCityPlotA, iCityPlotB, sPathInfo);
+
+	// If caller needs the full path, compute it on demand (not cached)
 	if (hasPath && pPathOut)
-		*pPathOut = cache[iCityPlotA][iCityPlotB];
+	{
+		DomainTypes eDomain = bWater ? DOMAIN_SEA : DOMAIN_LAND;
+		*pPathOut = ComputeTradePath(pOriginCity, pDestCity, eDomain);
+		if (pPathOut->vPlots.size() == 0)
+		{
+			// no path could be generated, remove the stale entry from cache
+			ASSERT(false, "No path could be generated for a trade route found in cache. This shouldn't happen");
+			RemoveTradePathFromCache(cache, iCityPlotA, iCityPlotB);
+			return false;
+		}
+	}
 
 	return hasPath;
 }
+
+const STradePathInfo* CvGameTrade::GetCachedTradePathInfo(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain)
+{
+	if (!pOriginCity || !pDestCity)
+		return NULL;
+
+	bool bWater = (eDomain == DOMAIN_SEA);
+	TradePathLookup& cache = GetTradePathsCache(bWater);
+
+	int iOriginPlot = pOriginCity->plot()->GetPlotIndex();
+	int iDestPlot = pDestCity->plot()->GetPlotIndex();
+
+	TradePathLookup::iterator itOrigin = cache.find(iOriginPlot);
+	if (itOrigin != cache.end())
+	{
+		std::map<int, STradePathInfo>::iterator itDest = itOrigin->second.find(iDestPlot);
+		if (itDest != itOrigin->second.end())
+			return &(itDest->second);
+	}
+	return NULL;
+}
+
+
+// Compute full path on demand - only call this when you actually need the path nodes
+// This is much more expensive than GetCachedTradePathInfo, but doesn't store path in memory
+SPath CvGameTrade::ComputeTradePath(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain)
+{
+	SPath result;
+	if (!pOriginCity || !pDestCity)
+		return result;
+
+	PlayerTypes ePlayer = pOriginCity->getOwner();
+	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	
+	PathType ePathType = (eDomain == DOMAIN_SEA) ? PT_TRADE_WATER : PT_TRADE_LAND;
+	int iMaxDist = kPlayer.GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
+	
+	SPathFinderUserData data(ePlayer, ePathType);
+	data.iMaxNormalizedDistance = iMaxDist;
+	
+	result = GC.GetStepFinder().GetPath(pOriginCity->plot(), pDestCity->plot(), data);
+	return result;
+}
+
 
 void CvGameTrade::InvalidateTradePathCache()
 {
@@ -541,9 +673,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
 	PlayerTypes eDestPlayer = pDestCity->getOwner();
 
-	//get path from cache
+	//get path info from cache
+	STradePathInfo sPathInfo;
 	SPath path;
-	if (!HavePotentialTradePath( (eDomain == DOMAIN_SEA), pOriginCity, pDestCity, &path))
+	if (!HavePotentialTradePath( (eDomain == DOMAIN_SEA), pOriginCity, pDestCity, sPathInfo, &path))
 	{
 		return false;
 	}
@@ -745,21 +878,18 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 //	--------------------------------------------------------------------------------
 bool CvGameTrade::IsValidTradeRoutePath(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath, bool bWarCheck)
 {
-	SPath path;
-	//if we did not get an external pointer, make up our own
-	if (!pPath)
-		pPath = &path;
-
 	if (bWarCheck && GET_PLAYER(pOriginCity->getOwner()).IsAtWarWith(pDestCity->getOwner()))
 		return false;
 
-	if (HavePotentialTradePath(eDomain==DOMAIN_SEA,pOriginCity,pDestCity,pPath))
+	//get path info from cache
+	STradePathInfo sPathInfo;
+	if (HavePotentialTradePath(eDomain == DOMAIN_SEA, pOriginCity, pDestCity, sPathInfo, pPath))
 	{
 		// check if beyond the origin player's trade range
 		int iMaxNormDist = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
 
-		int iNormDist = pPath->iNormalizedDistanceRaw;
-		if (iNormDist>0 && iNormDist<=iMaxNormDist*SPath::getNormalizedDistanceBase())
+		int iNormDist = sPathInfo.iNormalizedDistanceRaw;
+		if (iNormDist>0 && iNormDist <= iMaxNormDist*SPath::getNormalizedDistanceBase())
 			return true;
 	}
 
@@ -769,20 +899,17 @@ bool CvGameTrade::IsValidTradeRoutePath(CvCity* pOriginCity, CvCity* pDestCity, 
 //	--------------------------------------------------------------------------------
 int CvGameTrade::GetValidTradeRoutePathLength(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPath, bool bWarCheck)
 {
-	SPath path;
-	//if we did not get an external pointer, make up our own
-	if (!pPath)
-		pPath = &path;
-
 	if (bWarCheck && GET_PLAYER(pOriginCity->getOwner()).IsAtWarWith(pDestCity->getOwner()))
 		return false;
 
-	if (HavePotentialTradePath(eDomain == DOMAIN_SEA, pOriginCity, pDestCity, pPath))
+	//get path info from cache
+	STradePathInfo sPathInfo;
+	if (HavePotentialTradePath(eDomain == DOMAIN_SEA, pOriginCity, pDestCity, sPathInfo, pPath))
 	{
 		// check if beyond the origin player's trade range
 		int iMaxNormDist = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteRange(eDomain, pOriginCity);
 
-		int iNormDist = pPath->iNormalizedDistanceRaw;
+		int iNormDist = sPathInfo.iNormalizedDistanceRaw;
 		if (iNormDist>0 && iNormDist <= iMaxNormDist*SPath::getNormalizedDistanceBase())
 			return iNormDist;
 	}
@@ -1163,16 +1290,21 @@ void CvGameTrade::UpdateTradePlots()
 int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, int* piCircuitsToComplete)
 {
 	// calculate distance
-	SPath path;
-	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain, &path);
+	bool bTradeAvailable = GC.getGame().GetGameTrade()->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain);
 	if (!bTradeAvailable)
 		return -1;
-	int iDistance = path.length();
+
+	const STradePathInfo* pPath = GetCachedTradePathInfo(pOriginCity, pDestCity, eDomain);
+	ASSERT(pPath, "Trade route path valid, but no path found in cache");
+	if (!pPath)
+		return -1;
+
+	int iDistance = pPath->iPathLength;
 	CvPlayer& kOriginPlayer = GET_PLAYER(pOriginCity->getOwner());
 
 	// calculate turns per circuit
 	int iRawSpeed = kOriginPlayer.GetTrade()->GetTradeRouteSpeed(eDomain);
-	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / max(1,path.iNormalizedDistanceRaw);
+	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * pPath->iPathLength) / max(1,pPath->iNormalizedDistanceRaw);
 	int iRouteSpeed = int(0.5f + iSpeedFactor*iRawSpeed / 100.f);
 
 	float fTurnsPerCircuit = 1;
@@ -2080,7 +2212,9 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 	CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
 	if (pOriginPlot && pDestPlot && pOriginPlot->isCity() && pDestPlot->isCity())
 	{
-		if (HavePotentialTradePath(eDomain==DOMAIN_SEA,pOriginPlot->getPlotCity(),pDestPlot->getPlotCity(),&path))
+		//get path info from cache
+		STradePathInfo sPathInfo;
+		if (HavePotentialTradePath(eDomain == DOMAIN_SEA, pOriginPlot->getPlotCity(), pDestPlot->getPlotCity(), sPathInfo, &path))
 		{
 			size_t n = path.vPlots.size();
 			if (n>0 && n<=MAX_PLOTS_TO_DISPLAY)
@@ -4994,8 +5128,7 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 		{
 			if (CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, TRADE_CONNECTION_INTERNATIONAL, false, false))
 			{
-				SPath outPath;
-				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain, &outPath);
+				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain);
 
 				if (iLength <= 0)
 					continue;
@@ -5474,6 +5607,10 @@ std::vector<CvString> CvPlayerTrade::GetPlotToolTips (CvPlot* pPlot)
 		else
 		{
 			int iTradeUnitIndex = pConnection->m_iTradeUnitLocationIndex;
+			ASSERT(pConnection->m_aPlotList.size() > 0, "A trade route has an empty plot list.");
+			if (pConnection->m_aPlotList.size() == 0)
+				return aToolTips;
+
 			int iTradeUnitX = pConnection->m_aPlotList[iTradeUnitIndex].m_iX;
 			int iTradeUnitY = pConnection->m_aPlotList[iTradeUnitIndex].m_iY;
 			if (iTradeUnitX == iX && iTradeUnitY == iY)
@@ -5728,6 +5865,9 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 	GC.getGame().GetGameTrade()->UpdateTradePathCache(m_pPlayer->GetID());
 
 	aTradeConnectionList.clear();
+	// Reserve capacity to reduce reallocations - estimate based on cities and players
+	int iEstimatedRoutes = m_pPlayer->getNumCities() * GC.getGame().countCivPlayersAlive() * 8;
+	aTradeConnectionList.reserve(min(iEstimatedRoutes, 2000));
 
 	// build trade route list
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
@@ -5765,9 +5905,8 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 					if (eDomain != DOMAIN_LAND && eDomain != DOMAIN_SEA)
 						continue;
 
-					// Now get the path
-					SPath path;
-					bool bTradeAvailable = pGameTrade->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain, &path);
+					// Now get the path - just check validity, don't copy path data
+					bool bTradeAvailable = pGameTrade->IsValidTradeRoutePath(pOriginCity, pDestCity, eDomain, NULL);
 					if (!bTradeAvailable)
 						continue;		// If there is no path for this domain, just skip the rest of the connection tests.
 
@@ -5785,7 +5924,6 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 						kConnection.m_eConnectionType = eConnection;
 						kConnection.m_eDomain = eDomain;
 
-						GC.getGame().GetGameTrade()->CopyPathIntoTradeConnection(path, &kConnection);
 						aTradeConnectionList.push_back(kConnection);
 					}
 				}
@@ -6202,51 +6340,22 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iReligionScore = (iReligionDelta *  (iFlavorReligion / 2));
 
 	//add it all up
-	int iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
+	long long iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
 
-	// yields in owned cities the trade route passes
-	for (uint uiLoopPlot = 0; uiLoopPlot < kTradeConnection.m_aPlotList.size(); uiLoopPlot++)
-	{
-		CvPlot* pLoopPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiLoopPlot].m_iX, kTradeConnection.m_aPlotList[uiLoopPlot].m_iY);
-		if (pLoopPlot->isCity() && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->IsTradeUnitRoute())
-		{
-			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
-			{
-				iScore += pLoopPlot->getPlotCity()->GetYieldFromPassingTR((YieldTypes)iYieldLoop); // todo: weighting depending on yield type
-			}
-		}
-	}
+	const STradePathInfo* pPathInfo = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pFromCity, pToCity, kTradeConnection.m_eDomain);
+	ASSERT(pPathInfo, "Trade route path valid, but no path found in cache");
 
-	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
-	{
-		iScore *= 5;
-	}
+	iScore += pPathInfo ? pPathInfo->iScoreFromPassingTR : 0;
+	iScore += pPathInfo ? pPathInfo->iScoreFromTerrain : 0;
 
 	//abort if we're negative
 	if(iScore <= 0)
 		return ret;
 
+
 	for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
 		YieldTypes eYieldLoop = (YieldTypes)iJ;
-		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-		{
-			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-			ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
-			if (pPlot == NULL)
-			{
-				continue;
-			}
-			if (pPlot->getOwner() != m_pPlayer->GetID())
-			{
-				continue;
-			}
-			if (pPlot->getTerrainType() == NO_TERRAIN)
-			{
-				continue;
-			}
-			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), eYieldLoop) * 10);
-		}
 
 		if (eYieldLoop != YIELD_GOLD && eYieldLoop != YIELD_SCIENCE && eYieldLoop != YIELD_CULTURE) // We already checked these yield types above with a more sophisticated routine
 		{
@@ -6285,34 +6394,10 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	}
 
 	// Account for danger along the path
-	int iDangerSum = 0;
-	if (!bInvulnerability)
-	{
-		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-		{
-			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-			ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
-			if (pPlot == NULL)
-			{
-				break;
-			}
+	int iDangerScore = pPathInfo ? pPathInfo->iDangerScore : 0;
 
-			//danger is hard to quantify for routes which be definition pass by a lot of invisible plots
-			if (!pPlot->isVisible(m_pPlayer->getTeam()))
-				iDangerSum += 1;
-
-			if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
-				iDangerSum += 100;
-			else if (pPlot->getTeam() != m_pPlayer->getTeam())
-				iDangerSum += 10;
-
-			if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pPlot))
-				iDangerSum += 100;
-		}
-	}
-
-	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
-	iScore = (iScore * iEra) / max(iDangerSum, 1);
+	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More internal trade late game, please.
+	iScore = (iScore * iEra) / max(iDangerScore, 1);
 
 	//Let's encourage TRs to feitorias.
 	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(m_pPlayer->GetID()))
@@ -6338,13 +6423,14 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	}
 
 	//If we aren't connected to a player, and we benefit from this, ramp up the score!
-	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 	{
-		if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 		{
-			if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
+			if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
 			{
 				iScore *= 10;
+				break;
 			}
 		}
 	}
@@ -6375,14 +6461,15 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	}
 	if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
 	{
-		int iCityLoop = 0;
-		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 		{
-			if (pLoopCity->GetCityBuildings()->GetCityStateTradeRouteProductionModifier() > 0)
+			int iCityLoop = 0;
+			for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
-				if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
+				if (pLoopCity->GetCityBuildings()->GetCityStateTradeRouteProductionModifier() > 0)
 				{
 					iScore *= 25;
+					break;
 				}
 			}
 		}
@@ -6478,7 +6565,12 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		iScore /= max(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
 	}
 
-	ret.m_iScore = iScore;
+	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMajorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerTraits()->IsCanPlunderWithoutWar())
+	{
+		iScore *= 5;
+	}
+
+	ret.m_iScore = (int)min(iScore, (long long)INT_MAX);
 	ret.m_iCultureScore = iCultureScore;
 	ret.m_iGoldScore = iGoldScore;
 	ret.m_iScienceScore = iScienceScore;
@@ -6545,7 +6637,9 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	if (!bInvulnerability && m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
 		return 0;
 
-	int iDistance = (kTradeConnection.m_aPlotList.size() / 5);
+	const STradePathInfo* pPathInfo = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pOriginCity, pDestCity, kTradeConnection.m_eDomain);
+	ASSERT(pPathInfo, "Trade route path valid, but no path found in cache");
+	int iDistance = pPathInfo ? (pPathInfo->iPathLength / 5) : 0;
 
 	int iScore = 0;
 	switch (kTradeConnection.m_eConnectionType)
@@ -6622,45 +6716,13 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		}
 	}
 
-	int iDangerSum = 0;
-	if (!bInvulnerability)
-	{
-		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-		{
-			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-			ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
-			if (pPlot == NULL)
-			{
-				break;
-			}
+	int iDangerScoreInternal = pPathInfo ? pPathInfo->iDangerScoreInternal : 0;
 
-			//avoid fallout etc
-			if (m_pPlayer->GetPlotDanger(*pPlot,true)>0)
-				iDangerSum++;
-		}
-	}
+	iScore += pPathInfo ? pPathInfo->iScoreFromTerrain : 0;
 
 	for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
 		YieldTypes eYieldLoop = (YieldTypes)iJ;
-		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-		{
-			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-			ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
-			if (pPlot == NULL)
-			{
-				continue;
-			}
-			if(pPlot->getOwner() != m_pPlayer->GetID())
-			{
-				continue;
-			}
-			if(pPlot->getTerrainType() == NO_TERRAIN)
-			{
-				continue;
-			}
-			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), eYieldLoop) * 10);
-		}
 
 		// instant yields when the trade route ends?
 		if (pOriginCity->GetYieldFromInternalTREnd(eYieldLoop) + pDestCity->GetYieldFromInternalTREnd(eYieldLoop) > 0)
@@ -6682,20 +6744,9 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		iScore *= 5;
 	}
 
-	// yields in owned cities the trade route passes
-	for (uint uiLoopPlot = 0; uiLoopPlot < kTradeConnection.m_aPlotList.size(); uiLoopPlot++)
-	{
-		CvPlot* pLoopPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiLoopPlot].m_iX, kTradeConnection.m_aPlotList[uiLoopPlot].m_iY);
-		if (pLoopPlot->isCity() && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->IsTradeUnitRoute())
-		{
-			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
-			{
-				iScore += pLoopPlot->getPlotCity()->GetYieldFromPassingTR((YieldTypes)iYieldLoop); // todo: weighting depending on yield type
-			}
-		}
-	}
+	iScore += pPathInfo ? pPathInfo->iScoreFromPassingTR : 0;
 
-	return iScore / (iDistance + max(iDangerSum, 1));
+	return iScore / (iDistance + max(iDangerScoreInternal, 1));
 }
 
 int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList)
@@ -6743,8 +6794,12 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_GOLD_INTERNAL)
 		return ret;
 
+	// Check for trade route invulnerability (corporate franchise)
+	CvCorporationEntry* pkCorporationInfo = m_pPlayer->GetCorporations()->GetCorporationEntry();
+	bool bInvulnerability = pkCorporationInfo && pkCorporationInfo->IsTradeRoutesInvulnerable();
+		
 	// if this was recently plundered, 0 the score
-	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
+	if (!bInvulnerability && m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
 		return ret;
 
 	CvCity* pToCity = CvGameTrade::GetDestCity(kTradeConnection);
@@ -6881,6 +6936,12 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	//add it all up
 	int iScore = iGoldScore + iScienceScore + iCultureScore + iReligionScore;
 
+	const STradePathInfo* pPathInfo = GC.getGame().GetGameTrade()->GetCachedTradePathInfo(pFromCity, pToCity, kTradeConnection.m_eDomain);
+	ASSERT(pPathInfo, "Trade route path valid, but no path found in cache");
+
+	iScore += pPathInfo ? pPathInfo->iScoreFromPassingTR : 0;
+	iScore += pPathInfo ? pPathInfo->iScoreFromTerrain : 0;
+
 	//abort if we're negative
 	if (iScore <= 0)
 		return ret;
@@ -6888,25 +6949,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 	{
 		YieldTypes eYieldLoop = (YieldTypes)iJ;
-		for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-		{
-			CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-			ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
-			if (pPlot == NULL)
-			{
-				continue;
-			}
-			if (pPlot->getOwner() != m_pPlayer->GetID())
-			{
-				continue;
-			}
-			if (pPlot->getTerrainType() == NO_TERRAIN)
-			{
-				continue;
-			}
-			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), eYieldLoop) * 10);
-		}
-
+		
 		// instant yields when the trade route ends?
 		if (pFromCity->GetYieldFromInternalTREnd(eYieldLoop) + pToCity->GetYieldFromInternalTREnd(eYieldLoop) > 0)
 		{
@@ -6916,32 +6959,10 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 		}
 	}
 
-	int iDangerSum = 1; // can't be zero because we divide by it!
-	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
-	{
-		CvPlot* pPlot = GC.getMap().plot(kTradeConnection.m_aPlotList[uiPlotList].m_iX, kTradeConnection.m_aPlotList[uiPlotList].m_iY);
-		ASSERT(pPlot, "pPlot is null when trying to evaluate the list");
-		if (pPlot == NULL)
-		{
-			break;
-		}
+	int iDangerScore = pPathInfo ? pPathInfo->iDangerScore : 0;
 
-		//danger is hard to quantify for routes which be definition pass by a lot of invisible plots
-		if (!pPlot->isVisible(m_pPlayer->getTeam()))
-			iDangerSum += 1;
-
-		if (pPlot->getTeam() && m_pPlayer->getTeam())
-			iDangerSum += 10;
-
-		if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
-			iDangerSum += 100;
-
-		if (m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pPlot))
-			iDangerSum += 100;
-	}
-
-	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
-	iScore = (iScore * iEra) / iDangerSum;
+	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More internal gold trade late game
+	iScore = (iScore * iEra) / max(iDangerScore, 1);
 
 	//finally
 	ret.m_iScore = iScore;

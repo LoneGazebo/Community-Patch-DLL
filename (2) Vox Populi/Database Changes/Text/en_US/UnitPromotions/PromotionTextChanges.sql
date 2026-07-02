@@ -461,7 +461,7 @@ UPDATE Language_en_US
 SET Text = '+10% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALTITUDE_TRAINING_HELP';
 
--- Morale 
+-- Morale
 UPDATE Language_en_US
 SET Text = '+10% [ICON_STRENGTH] Combat Strength.'
 WHERE Tag = 'TXT_KEY_PROMOTION_MORALE_HELP';
@@ -494,7 +494,7 @@ SET Text = 'Can enter [COLOR_POSITIVE_TEXT]Impassable[ENDCOLOR] tiles, and can e
 WHERE Tag = 'TXT_KEY_PROMOTION_HOVERING_UNIT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'All tiles cost 1 [ICON_MOVES] Movement.[NEWLINE][COLOR_NEGATIVE_TEXT]Cannot use Roads and Railroads.[ENDCOLOR]'
+SET Text = 'Flat Movement Cost'
 WHERE Tag = 'TXT_KEY_PROMOTION_FLAT_MOVEMENT_COST';
 
 UPDATE Language_en_US
@@ -658,14 +658,6 @@ UPDATE Language_en_US
 SET Text = '-20% [ICON_STRENGTH] Combat Strength for [COLOR_POSITIVE_TEXT]Adjacent Enemy Units[ENDCOLOR].[NEWLINE]Embarking and Disembarking cost only 1 [ICON_MOVES] Movement.'
 WHERE Tag = 'TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP';
 
-UPDATE Language_en_US
-SET Text = 'Khaaaan!'
-WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL';
-
-UPDATE Language_en_US
-SET Text = 'Deal 10 Damage to Enemy Units ending their turn adjacent to this Unit.[NEWLINE]This Damage ignores damage reduction.'
-WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';
-
 -- Quick Study
 UPDATE Language_en_US
 SET Text = '+50% Experience gained from combat.'
@@ -713,7 +705,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_LIGHTNING_WARFARE_HELP';
 
 -- Exotic Cargo
 UPDATE Language_en_US
-SET Text = 'Can {TXT_KEY_MISSION_SELL_EXOTIC_GOODS} when adjacent to foreign territory to gain [ICON_GOLD] Gold and XP based on the distance from your [ICON_CAPITAL] Capital up to two times.[NEWLINE]If sold to a City-State as the Portuguese, a Feitoria is [COLOR_POSITIVE_TEXT]automatically created[ENDCOLOR] in its territory.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]'
+SET Text = 'Can {TXT_KEY_MISSION_SELL_EXOTIC_GOODS} when adjacent to foreign territory to gain [ICON_GOLD] Gold and XP based on the distance from your [ICON_CAPITAL] Capital up to two times.[NEWLINE]If sold to a City-State as the Portuguese, a Feitoria is [COLOR_POSITIVE_TEXT]automatically created[ENDCOLOR] in its territory.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SELL_EXOTIC_GOODS_HELP';
 
 -- City Plunder

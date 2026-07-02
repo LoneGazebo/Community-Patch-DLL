@@ -57,22 +57,22 @@ VALUES
 	('UNIT_GRENZER', 'PROMOTION_FRONTIERSMAN');
 
 ----------------------------------------------------------
--- Unique Building: Ballhausplatz (Printing Press)
+-- Unique Building: Ballhausplatz (Ministerial District)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
 VALUES
-	('CIVILIZATION_AUSTRIA', 'BUILDINGCLASS_PRINTING_PRESS', 'BUILDING_BALLHAUSPLATZ');
+	('CIVILIZATION_AUSTRIA', 'BUILDINGCLASS_MINISTERIAL_DISTRICT', 'BUILDING_BALLHAUSPLATZ');
 
 UPDATE Buildings
 SET
-	SpecialistCount = (SELECT SpecialistCount FROM Buildings WHERE Type = 'BUILDING_PRINTING_PRESS') + 1,
-	GreatPeopleRateChange = (SELECT GreatPeopleRateChange FROM Buildings WHERE Type = 'BUILDING_PRINTING_PRESS') + 2,
+	SpecialistCount = (SELECT SpecialistCount FROM Buildings WHERE Type = 'BUILDING_MINISTERIAL_DISTRICT') + 1,
+	GreatPeopleRateChange = (SELECT GreatPeopleRateChange FROM Buildings WHERE Type = 'BUILDING_MINISTERIAL_DISTRICT') + 2,
 	GPRateModifierPerMarriage = 15
 WHERE Type = 'BUILDING_BALLHAUSPLATZ';
 
 UPDATE Building_YieldChanges
-SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_PRINTING_PRESS' AND YieldType = 'YIELD_CULTURE') + 4
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_MINISTERIAL_DISTRICT' AND YieldType = 'YIELD_CULTURE') + 4
 WHERE BuildingType = 'BUILDING_BALLHAUSPLATZ' AND YieldType = 'YIELD_CULTURE';
 
 INSERT INTO Building_YieldChanges

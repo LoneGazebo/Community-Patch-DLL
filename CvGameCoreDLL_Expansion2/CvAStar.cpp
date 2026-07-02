@@ -93,7 +93,15 @@ int SMovePlot::effectivePathLength(int iMovesPerTurn) const
 //	--------------------------------------------------------------------------------
 /// Constructor
 CvAStar::CvAStar()
-    : m_iColumns(0),
+    : udDestValid(NULL),
+      udHeuristic(NULL),
+      udCost(NULL),
+      udValid(NULL),
+      udGetExtraChildrenFunc(NULL),
+      udInitializeFunc(NULL),
+      udUninitializeFunc(NULL),
+      m_iCurrentGenerationID(0),
+      m_iColumns(0),
       m_iRows(0),
       m_iXstart(0),
       m_iYstart(0),
@@ -103,25 +111,18 @@ CvAStar::CvAStar()
       m_bWrapX(false),
       m_bWrapY(false),
       m_bHeapDirty(false),
-      udDestValid(NULL),
-      udHeuristic(NULL),
-      udCost(NULL),
-      udValid(NULL),
-      udGetExtraChildrenFunc(NULL),
-      udInitializeFunc(NULL),
-      udUninitializeFunc(NULL),
-      m_iCurrentGenerationID(0),
       m_pBest(NULL),
-      m_ppaaNodes(NULL),
-      m_ppaaNeighbors(NULL),
       m_iProcessedNodes(0),
       m_iTestedNodes(0),
       m_iRounds(0),
+      m_ppaaNodes(NULL),
+      m_ppaaNeighbors(NULL),
       m_iBasicPlotCost(1),
       m_iMovesCached(0),
       m_iTurnsCached(0),
 	  m_bAirliftCitiesChecked(false),
 	  m_bAirliftImprovementsChecked(false),
+	  m_bSealiftCitiesChecked(false),
 	  m_bChangePortCitiesChecked(false),
       m_strName("AStar") // for debugging
 {
@@ -256,6 +257,7 @@ void CvAStar::Reset()
 
 	m_bAirliftCitiesChecked = false;
 	m_bAirliftImprovementsChecked = false;
+	m_bSealiftCitiesChecked = false;
 	m_bChangePortCitiesChecked = false;
 
 	//will be set multiple times but who cares
@@ -953,6 +955,8 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	const CvPlot* pAirliftFromPlot = pUnit->getAirliftFromPlot(pPlot, true);
 	kToNodeCacheData.bCanAirliftFromPlotCity = pAirliftFromPlot && pAirliftFromPlot->isCity();
 	kToNodeCacheData.bCanAirliftFromPlotImprovement = pAirliftFromPlot && !pAirliftFromPlot->isCity();
+	const CvPlot* pSealiftFromPlot = pUnit->getSealiftFromPlot(pPlot, true);
+	kToNodeCacheData.bCanSealiftFromPlotCity = pSealiftFromPlot && pSealiftFromPlot->isCity();
 	kToNodeCacheData.bCanChangePortFromPlot = pUnit->canChangeAdmiralPort(pPlot);
 
 	kToNodeCacheData.bIsVisibleEnemyUnit = false;
@@ -1815,6 +1819,13 @@ int StepHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 }
 
 //	--------------------------------------------------------------------------------
+/// Heuristic cost for land trade routes. Plot costs can be much lower than PATH_BASE_COST, see TradePathLandCost
+int StepHeuristicTradeLand(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, int iDestX, int iDestY, int /*iBaseMoves*/)
+{
+	return plotDistance(iNextX, iNextY, iDestX, iDestY) * PATH_BASE_COST / 4;
+}
+
+//	--------------------------------------------------------------------------------
 /// Step path finder - compute cost of a path
 int StepCost(const CvAStarNode*, const CvAStarNode* node, const SPathFinderUserData&, CvAStar*)
 {
@@ -2266,8 +2277,53 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 
 		// todo: improvements that allow airlift
 
+	}	
+	if (node->m_kCostCacheData.bCanSealiftFromPlotCity)
+	{
+		// only with full moves
+		if (node->m_iMoves != pUnit->baseMoves(false) * GD_INT_GET(MOVE_DENOMINATOR) && node->m_iMoves != 0)
+			return 0;
+
+		if (node->m_kCostCacheData.bCanSealiftFromPlotCity)
+		{
+			// valid targets are all sealift cities owned by us or our minor civ allies
+			vector<PlayerTypes> vFriendlyPlayers;
+			vFriendlyPlayers.push_back(ePlayer);
+			for (uint iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+
+				if (!GET_PLAYER(eMinor).isAlive())
+					continue;
+
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == ePlayer)
+					vFriendlyPlayers.push_back(eMinor);
+			}
+
+			for (vector<PlayerTypes>::iterator it = vFriendlyPlayers.begin(); it != vFriendlyPlayers.end(); ++it)
+			{
+				int iCityLoop;
+				CvCity* pLoopCity = NULL;
+				for (pLoopCity = GET_PLAYER(*it).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iCityLoop))
+				{
+					if (!pLoopCity->CanSealift())
+						continue;
+
+					CvPlot* pCityPlot = pLoopCity->plot();
+					for (int i = 0; i < RING1_PLOTS; i++)
+					{
+						CvPlot* pLoopPlot = iterateRingPlots(pCityPlot, i);
+						if (!pLoopPlot)
+							continue;
+
+						if (pUnit->canSealiftAt(pPlot, pLoopPlot->getX(), pLoopPlot->getY(), true))
+							out.push_back(make_pair(pLoopPlot->getX(), pLoopPlot->getY()));
+					}
+				}
+			}
+		}
 	}
-	else if (node->m_kCostCacheData.bCanChangePortFromPlot)
+	if (node->m_kCostCacheData.bCanChangePortFromPlot)
 	{
 		// great admiral target plots only need to be checked once during pathfinding. they don't depend on the starting plot so considering them early is always better
 		if (finder->IsChangePortCitiesChecked())
@@ -2959,8 +3015,9 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	}
 
 	bool bAirlift = current->m_kCostCacheData.bCanAirliftFromPlotCity || current->m_kCostCacheData.bCanAirliftFromPlotImprovement;
+	bool bSealift = current->m_kCostCacheData.bCanSealiftFromPlotCity;
 
-	if (bBlockAhead || bTempPlotAhead || bAttrition || bAirlift)
+	if (bBlockAhead || bTempPlotAhead || bAttrition || bAirlift || bSealift)
 	{
 		CvPlot* pToPlot = GC.getMap().plot(current->m_iX, current->m_iY);
 		int iEndTurnCost = PathEndTurnCost(pToPlot, current->m_kCostCacheData, pUnitDataCache, current->m_iTurns, GetData().iFlags);
@@ -3094,7 +3151,7 @@ bool CvStepFinder::Configure(const SPathFinderUserData& config)
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_TRADE_LAND:
-		SetFunctionPointers(NULL, StepHeuristic, TradePathLandCost, TradePathLandValid, NULL, TradePathInitialize, TradePathUninitialize);
+		SetFunctionPointers(NULL, StepHeuristicTradeLand, TradePathLandCost, TradePathLandValid, NULL, TradePathInitialize, TradePathUninitialize);
 		m_iBasicPlotCost = PATH_BASE_COST;
 		break;
 	case PT_BUILD_ROUTE:
@@ -3613,6 +3670,7 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 // --------------------------------------------------------------------------------
 // need to be very careful here - trade distance is used in lots of places
 // what's more, there is a maximum trade distance and cities might appear unreachable
+// when adding discounts, make sure StepHeuristicTradeLand returns the lowest possible cost per step, otherwise the heuristic is inadmissible and paths can be missed
 // --------------------------------------------------------------------------------
 int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
@@ -4111,16 +4169,16 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
     : ePath(_ePathType),
       eRoute(NO_ROUTE),
       eBuild(NO_BUILD),
+      eRoutePurpose(NO_ROUTE_PURPOSE),
+      bUseRivers(false),
+      iFlags(0),
       ePlayer(_ePlayer),
       eEnemy(NO_PLAYER),
-      eRoutePurpose(NO_ROUTE_PURPOSE),
       iUnitID(0),
-      iFlags(0),
       iMaxTurns(INT_MAX),
       iMaxNormalizedDistance(INT_MAX),
       iMinMovesLeft(0),
-      iStartMoves(0),
-      bUseRivers(false)
+      iStartMoves(0)
 {
 }
 

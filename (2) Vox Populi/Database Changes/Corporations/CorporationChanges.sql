@@ -152,6 +152,6 @@ ON a.CorporationType = b.CorporationType
 WHERE b.YieldType IN ('YIELD_CULTURE_LOCAL');
 
 -- Hexxon is an outlier to the general pattern
-DELETE FROM Corporation_ResourceYieldChanges 
+DELETE FROM Corporation_ResourceYieldChanges
 WHERE CorporationType = 'CORPORATION_HEXXON_REFINERY'
-  AND YieldType <> 'YIELD_CULTURE_LOCAL';
+AND YieldType <> 'YIELD_CULTURE_LOCAL';

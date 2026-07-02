@@ -363,6 +363,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(INTERFACEMODE_CITY_RANGE_ATTACK);
 	RegisterEnum(INTERFACEMODE_GIFT_TILE_IMPROVEMENT);
 	RegisterEnum(INTERFACEMODE_ESTABLISH_TRADE_ROUTE);
+	RegisterEnum(INTERFACEMODE_SEALIFT);
 	RegisterEnum(NUM_INTERFACEMODE_TYPES);
 	EnumEnd(L);
 
@@ -882,6 +883,8 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(ACCOMPLISHMENT_ELIMINATE_PLAYER);
 	RegisterEnum(ACCOMPLISHMENT_DIPLOMATIC_MISSION_BOOST);
 	RegisterEnum(ACCOMPLISHMENT_WARS_WON);
+	RegisterEnum(ACCOMPLISHMENT_CITY_CONVERTED);
+	RegisterEnum(ACCOMPLISHMENT_HISTORIC_EVENT);
 	EnumEnd(L);
 
 	EnumStart(L, "InstantYieldType");
@@ -929,14 +932,13 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN);
 	RegisterEnum(INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD);
 	RegisterEnum(INSTANT_YIELD_TYPE_LUA);
-	RegisterEnum(INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT);
+	RegisterEnum(INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT);
 	RegisterEnum(INSTANT_YIELD_TYPE_REFUND);
 	RegisterEnum(INSTANT_YIELD_TYPE_FAITH_REFUND);
 	RegisterEnum(INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY);
 	RegisterEnum(INSTANT_YIELD_TYPE_TECH_RETROACTIVE);
 	RegisterEnum(INSTANT_YIELD_TYPE_PILLAGE_UNIT);
 	RegisterEnum(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE);
-	RegisterEnum(INSTANT_YIELD_TYPE_HEALING);
 	RegisterEnum(INSTANT_YIELD_TYPE_SPY_IDENTIFY);
 	RegisterEnum(INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID);
 	RegisterEnum(INSTANT_YIELD_TYPE_SPY_RIG_ELECTION);
@@ -948,6 +950,8 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(INSTANT_YIELD_TYPE_WLTKD_START);
 	RegisterEnum(INSTANT_YIELD_TYPE_ANCIENT_RUIN);
 	RegisterEnum(INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE);
+	RegisterEnum(INSTANT_YIELD_TYPE_HEALING);
+	RegisterEnum(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE);
 	RegisterEnum(NUM_INSTANT_YIELD_TYPES);
 	EnumEnd(L);
 
@@ -1032,15 +1036,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(NO_CONTRACT);
 	EnumEnd(L);
 
-
-	// Resource Usage
-	EnumStart(L, "ResourceUsageTypes");
-	RegisterEnum(RESOURCEUSAGE_BONUS);
-	RegisterEnum(RESOURCEUSAGE_STRATEGIC);
-	RegisterEnum(RESOURCEUSAGE_LUXURY);
-	RegisterEnum(NUM_RESOURCEUSAGE_TYPES);
-	EnumEnd(L);
-
 	// CityAIFocusTypes
 	EnumStart(L, "CityAIFocusTypes");
 	RegisterEnum(NO_CITY_AI_FOCUS_TYPE);
@@ -1056,7 +1051,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(NUM_CITY_AI_FOCUS_TYPES);
 	EnumEnd(L);
 
-	// Resource Usage
+	// AdvisorTypes
 	EnumStart(L, "AdvisorTypes");
 	RegisterEnum(NO_ADVISOR_TYPE);
 	RegisterEnum(ADVISOR_ECONOMIC);

@@ -572,6 +572,18 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Yield boost to city connection tiles -->
+	<Table name="Building_CityConnectionPlotYieldChanges">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- Yield boost to city connection tiles in every city -->
+	<Table name="Building_CityConnectionPlotYieldChangesGlobal">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<!-- Instant yields to the city when it gains WLTKD turns, scaling with era -->
 	<Table name="Building_InstantYieldFromWLTKDStart">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
@@ -591,11 +603,19 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- Yield modifier to the building per specified accomplishment that the player has achieved -->
+	<Table name="Building_YieldModifiersFromAccomplishments">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
+		<Column name="AccomplishmentType" type="text" reference="Accomplishments(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<!-- Bonuses to the city per specified accomplishment that the player has achieved -->
 	<Table name="Building_BonusFromAccomplishments">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
 		<Column name="AccomplishmentType" type="text" reference="Accomplishments(Type)" notnull="true"/>
 		<Column name="Happiness" type="integer" notnull="true" default="0"/>
+		<Column name="ExtraSpies" type="integer" notnull="true" default="0"/>
 		<!-- Extra XP for units of the specified domain -->
 		<Column name="DomainType" type="text" reference="Domains(Type)"/>
 		<Column name="DomainXP" type="integer" notnull="true" default="0"/>

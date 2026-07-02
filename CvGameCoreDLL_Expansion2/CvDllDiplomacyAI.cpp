@@ -12,8 +12,8 @@
 #include "CvDllContext.h"
 
 CvDllDiplomacyAI::CvDllDiplomacyAI(CvDiplomacyAI* pDiplomacyAI)
-	: m_pDiplomacyAI(pDiplomacyAI)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pDiplomacyAI(pDiplomacyAI)
 {
 }
 //------------------------------------------------------------------------------

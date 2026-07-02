@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllEraInfo::CvDllEraInfo(CvEraInfo* pEraInfo)
-	: m_pEraInfo(pEraInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pEraInfo(pEraInfo)
 {
 	ASSERT(pEraInfo != NULL, "SHOULD NOT HAPPEN");
 }

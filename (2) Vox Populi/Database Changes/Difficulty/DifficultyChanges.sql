@@ -74,8 +74,7 @@ VALUES
 	('HISTORIC_EVENT_GOLDEN_AGE', 'YIELD_CULTURE'),
 	('HISTORIC_EVENT_GOLDEN_AGE', 'YIELD_SCIENCE'),
 	('HISTORIC_EVENT_WORLD_WONDER', 'YIELD_GOLD'),
-	('HISTORIC_EVENT_WORLD_WONDER', 'YIELD_CULTURE'),
-	('HISTORIC_EVENT_WORLD_WONDER', 'YIELD_SCIENCE'),
+	('HISTORIC_EVENT_WORLD_WONDER', 'YIELD_TOURISM'),
 	('DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_FOOD'),
 	('DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_GOLD'),
 	('DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_CULTURE'),
@@ -169,6 +168,8 @@ CREATE TEMP TABLE DifficultyBonusMultipliers (
 	IsNotGold boolean,
 	IsFoodOrGold boolean,
 	IsFoodOrGoldBeforeRenaissance boolean,
+	IsTourism boolean,
+	IsTourismBeforeRenaissance boolean,
 	IsAny boolean,
 	MultiplierTimes100 integer
 );
@@ -177,7 +178,7 @@ INSERT INTO DifficultyBonusMultipliers
 	(HistoricEventTypeTemp, IsGold, IsNotGold, MultiplierTimes100)
 VALUES
 	('HISTORIC_EVENT_GOLDEN_AGE', 1, 0, 300), -- 3x Gold for Golden Ages
-	('HISTORIC_EVENT_WORLD_WONDER', 1, 0, 300), -- 3x Gold for World Wonders
+	('HISTORIC_EVENT_WORLD_WONDER', 1, 0, 250), -- 2.5x Gold for World Wonders
 	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 1, 0, 20), -- 0.2x Gold for killing a major civ unit
 	('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 0, 1, 10), -- 0.1x other yields for killing a major civ unit
 	('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 1, 0, 20), -- 0.2x Gold for killing a City-State unit
@@ -198,6 +199,12 @@ INSERT INTO DifficultyBonusMultipliers
 VALUES
 	('DIFFICULTY_BONUS_CITY_FOUND', 1, 0, 200), -- 2x Food and Gold for founding a city
 	('DIFFICULTY_BONUS_CITY_FOUND', 0, 1, 0); -- 0x Food and Gold for founding a city before Renaissance Era
+
+INSERT INTO DifficultyBonusMultipliers
+	(HistoricEventTypeTemp, IsTourism, IsTourismBeforeRenaissance, MultiplierTimes100)
+VALUES
+	('HISTORIC_EVENT_WORLD_WONDER', 1, 0, 90), -- 0.9x Tourism for World Wonders
+	('HISTORIC_EVENT_WORLD_WONDER', 0, 1, 0); -- 0x Tourism for World Wonders before Renaissance Era
 
 UPDATE HandicapInfo_AIDifficultyBonus
 SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsGold = 1) / 100
@@ -222,6 +229,18 @@ WHERE YieldType IN ('YIELD_FOOD', 'YIELD_GOLD') AND EraType IN (
 AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsFoodOrGoldBeforeRenaissance = 1);
 
 UPDATE HandicapInfo_AIDifficultyBonus
+SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsTourism = 1) / 100
+WHERE YieldType = 'YIELD_TOURISM'
+AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsTourism = 1);
+
+UPDATE HandicapInfo_AIDifficultyBonus
+SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsTourismBeforeRenaissance = 1) / 100
+WHERE YieldType = 'YIELD_TOURISM' AND EraType IN (
+	SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE')
+)
+AND EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsTourismBeforeRenaissance = 1);
+
+UPDATE HandicapInfo_AIDifficultyBonus
 SET Amount = Amount * (SELECT MultiplierTimes100 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsAny = 1) / 100
 WHERE EXISTS (SELECT 1 FROM DifficultyBonusMultipliers WHERE HistoricEventTypeTemp = HistoricEventType AND IsAny = 1);
 
@@ -237,7 +256,6 @@ CREATE TEMP TABLE AncientDifficultyBonusMultipliers (
 INSERT INTO AncientDifficultyBonusMultipliers
 VALUES
 	('DIFFICULTY_BONUS_CITY_FOUND', 'YIELD_SCIENCE', 89), -- 0.89x Science for founding a city
-	('HISTORIC_EVENT_WORLD_WONDER', 'YIELD_SCIENCE', 89), -- 0.89x Science for World Wonders
 	('DIFFICULTY_BONUS_ADOPTED_POLICY', 'YIELD_SCIENCE', 78), -- 0.78x Science for adopting a policy
 	('DIFFICULTY_BONUS_RESEARCHED_TECH', 'YIELD_CULTURE', 79); -- 0.79x Culture for researching a tech
 

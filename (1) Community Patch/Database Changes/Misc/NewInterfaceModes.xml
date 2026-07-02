@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<InterfaceModes>
+		<Row>
+			<Type>INTERFACEMODE_ESTABLISH_TRADE_ROUTE</Type>
+			<CursorType>CURSOR_GO_TO</CursorType>
+			<OrderPriority>198</OrderPriority>
+			<ShiftDown>1</ShiftDown>
+			<Visible>0</Visible>
+		</Row>
+	</InterfaceModes>
+	<InterfaceModes>
+		<Row>
+			<Type>INTERFACEMODE_SEALIFT</Type>
+			<Description>TXT_KEY_INTERFACEMODE_SEALIFT</Description>
+			<Help>TXT_KEY_INTERFACEMODE_SEALIFT_HELP</Help>
+			<CursorType>CURSOR_ROUTE_TO</CursorType>
+			<Mission>MISSION_SEALIFT</Mission>
+			<HotKey>KB_T</HotKey>
+			<OrderPriority>198</OrderPriority>
+			<ShiftDown>1</ShiftDown>
+			<Visible>1</Visible>
+			<HighlightPlot>1</HighlightPlot>
+			<IconIndex>16</IconIndex>
+			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
+		</Row>
+	</InterfaceModes>
+</GameData>

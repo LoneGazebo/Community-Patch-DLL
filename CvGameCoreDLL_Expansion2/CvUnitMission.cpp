@@ -757,6 +757,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_SET_UP_FOR_RANGED_ATTACK() ||
 				kMissionData.eMissionType == CvTypes::getMISSION_AIRLIFT() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_SEALIFT() ||
 				kMissionData.eMissionType == CvTypes::getMISSION_NUKE() ||
 				kMissionData.eMissionType == CvTypes::getMISSION_PARADROP() ||
 				kMissionData.eMissionType == CvTypes::getMISSION_AIR_SWEEP() ||
@@ -1091,6 +1092,13 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	else if(iMission == CvTypes::getMISSION_AIRLIFT())
 	{
 		if(hUnit->canAirliftAt(pPlot, iData1, iData2))
+		{
+			return true;
+		}
+	}
+	else if(iMission == CvTypes::getMISSION_SEALIFT())
+	{
+		if(hUnit->canSealiftAt(pPlot, iData1, iData2))
 		{
 			return true;
 		}
@@ -1523,6 +1531,14 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 				}
 			}
 
+			else if(pkQueueData->eMissionType == CvTypes::getMISSION_SEALIFT())
+			{
+				if(hUnit->sealift(pkQueueData->iData1, pkQueueData->iData2))
+				{
+					bAction = true;
+				}
+			}
+				
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_NUKE())
 			{
 				MissionData& kMissionData = *hUnit->HeadMissionData();

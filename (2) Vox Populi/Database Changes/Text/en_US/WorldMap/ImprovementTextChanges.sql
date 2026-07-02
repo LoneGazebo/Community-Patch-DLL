@@ -82,7 +82,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_HOLY_SITE_TEXT';
 
 -- Landmark
 UPDATE Language_en_US
-SET Text = 'Landmarks provide +3 Empire-Wide [ICON_HAPPINESS_1] Happiness to the builder and plot owner when constructed, as well as +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on the Tile for each additional Era that has passed in comparison to the original Era of the Artifact.[NEWLINE][NEWLINE]A Landmark is any magnificent artifact, structure, work of art, or wonder of nature that draws visitors to a location. Nelson''s Column in London is a landmark, as is Mount Rushmore in the United States. Not every significantly sized object, however, is a landmark: the World''s Largest Ball of Twine may never rise to that stature (though it might well be worth a visit).'
+SET Text = 'Landmarks provide +3 Empire-Wide [ICON_HAPPINESS_1] Happiness to the builder''s team and plot owner''s team upon construction (max +3 per landmark per team), as well as +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on the Tile for each additional Era that has passed in comparison to the original Era of the Artifact.[NEWLINE][NEWLINE]A Landmark is any magnificent artifact, structure, work of art, or wonder of nature that draws visitors to a location. Nelson''s Column in London is a landmark, as is Mount Rushmore in the United States. Not every significantly sized object, however, is a landmark: the World''s Largest Ball of Twine may never rise to that stature (though it might well be worth a visit).'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_LANDMARK_TEXT';
 
 -- Barbarian Encampment

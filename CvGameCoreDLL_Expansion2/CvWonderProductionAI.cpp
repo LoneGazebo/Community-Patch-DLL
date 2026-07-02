@@ -140,6 +140,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(int& iWonderWeight)
 
 	// Guess which city will be producing this (doesn't matter that much since weights are all relative)
 	int iLoop = 0;
+	vector<int> allExistingBuildings = m_pPlayer->GetTotalBuildingCount();
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		int iEstimatedProductionPerTurn = pLoopCity->getRawProductionPerTurnTimes100() / 100;
@@ -147,6 +148,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(int& iWonderWeight)
 			iEstimatedProductionPerTurn = 1;
 
 		// Loop through adding the available wonders
+		SPlotStats plotStats = pLoopCity->getPlotStats();
 		for (int iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 		{
 			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBldgLoop);
@@ -167,7 +169,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(int& iWonderWeight)
 			if (iWeight <= 0)
 				continue;
 
-			iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, false, false, true);
+			iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, plotStats, allExistingBuildings, false, false, true);
 			if (iWeight > 0)
 				m_Buildables.push_back(iBldgLoop, iWeight);
 		}
@@ -201,30 +203,18 @@ void CvWonderProductionAI::LogPossibleWonders()
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		// Find the name of this civ
-		CvString playerName = m_pPlayer->getCivilizationShortDescription();
-
-		// Get the leading info for this line
-		CvString strBaseString;
-		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-		strBaseString += playerName + ", ";
-
 		// Dump out the weight of each buildable item
 		for(int iI = 0; iI < m_Buildables.size(); iI++)
 		{
-			CvString strOutBuf = strBaseString;
 
 			CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(m_Buildables.GetElement(iI));
 			if(pEntry != NULL)
 			{
 				CvString strDesc = pEntry->GetDescription();
-				CvString strTemp;
-				strTemp.Format("Possible Wonder, %s, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI));
-				strOutBuf += strTemp;
-
+				CvString strOutBuf;
+				strOutBuf.Format("Possible Wonder, %s, %d", strDesc.GetCString(), m_Buildables.GetWeight(iI));
+				m_pPlayer->GetCitySpecializationAI()->LogMsg(strOutBuf);
 			}
-
-			m_pPlayer->GetCitySpecializationAI()->LogMsg(strOutBuf);
 		}
 	}
 }

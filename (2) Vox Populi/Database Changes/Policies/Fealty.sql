@@ -100,13 +100,12 @@ INSERT INTO Policy_BuildingClassYieldChanges
 	(PolicyType, BuildingClassType, YieldType, YieldChange)
 VALUES
 	('POLICY_ORGANIZED_RELIGION', 'BUILDINGCLASS_SHRINE', 'YIELD_CULTURE', 2),
-	('POLICY_ORGANIZED_RELIGION', 'BUILDINGCLASS_TEMPLE', 'YIELD_CULTURE', 2);
+	('POLICY_ORGANIZED_RELIGION', 'BUILDINGCLASS_GRAND_TEMPLE', 'YIELD_CULTURE', 6);
 
 -- Reformation (now Divine Right)
 UPDATE Policies
 SET
 	AddReformationBelief = 0,
-	DoubleBorderGrowthWLTKD = 1,
 	ExtraHappiness = 5,
 	PortraitIndex = 45
 WHERE Type = 'POLICY_REFORMATION';
@@ -114,7 +113,8 @@ WHERE Type = 'POLICY_REFORMATION';
 INSERT INTO Policy_WLTKDYieldMod
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15);
+	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15),
+	('POLICY_REFORMATION', 'YIELD_CULTURE_LOCAL', 100);
 
 -- Finisher
 DELETE FROM Policy_FreeUnitClasses

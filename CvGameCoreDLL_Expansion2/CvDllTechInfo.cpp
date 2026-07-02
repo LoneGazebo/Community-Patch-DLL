@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllTechInfo::CvDllTechInfo(CvTechEntry* pTechInfo)
-	: m_pTechInfo(pTechInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pTechInfo(pTechInfo)
 {
 }
 //------------------------------------------------------------------------------

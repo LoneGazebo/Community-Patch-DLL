@@ -20,8 +20,8 @@
 #define RANDOM_SHIFT  (16)
 
 CvRandom::CvRandom(const std::string& name) :
-	m_name(name)
-	, m_ullRandomSeed(0)
+	m_ullRandomSeed(0)
+	, m_name(name)
 	, m_ulCallCount(0)
 	, m_ulResetCount(0)
 	, m_bSynchronous(true)

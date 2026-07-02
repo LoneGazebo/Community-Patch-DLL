@@ -370,6 +370,7 @@ void CvNotifications::Dismiss(int iLookupIndex, bool bUserInvoked)
 				{
 					GC.GetEngineUserInterface()->SetPolicyNotificationSeen(true);
 				}
+				break;
 			}
 			default:
 				break;
@@ -1524,6 +1525,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		else if(!pCity->CanRangeStrikeNow())
 			return true;
 	}
+	break;
 
 	case NOTIFICATION_GOODY:
 	{
@@ -1782,6 +1784,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 			}
 		}
 	}
+	break;
 
 	case NOTIFICATION_FOUND_PANTHEON:
 	{
@@ -1985,6 +1988,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		if (!pCity->isPendingCapture())
 			return true;
 	}
+	break;
 
 	default:	// don't expire
 	{

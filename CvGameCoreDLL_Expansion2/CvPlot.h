@@ -118,6 +118,7 @@ public:
 	void updateCenterUnit();
 
 	void verifyUnitValidPlot(PlayerTypes eForSpecificPlayer = NO_PLAYER, bool bWakeUp = false);
+	void verifyUnitValidPlot(vector<TeamTypes>& vAffectedTeams, bool bWakeUp = false);
 
 	void nukeExplosion(int iDamageLevel, CvUnit* pNukeUnit = NULL);
 
@@ -312,8 +313,6 @@ public:
 
 	bool isRoute() const;
 	bool isValidRoute(const CvUnit* pUnit) const;
-
-	void SetCityConnection(PlayerTypes ePlayer, bool bActive, bool bIndustrial);
 	bool IsCityConnection(PlayerTypes ePlayer = NO_PLAYER, bool bIndustrial = false) const;
 
 	void ChangeNumTradeUnitRoute(int iChange);
@@ -841,6 +840,7 @@ public:
 
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	bool IsEnemyUnitAdjacent(TeamTypes eMyTeam) const;
+	int GetNumThisTeamUnitsAdjacent(TeamTypes eMyTeam, TeamTypes eSpecificTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, bool bIncludeEmbarked = false) const;
 	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, TeamTypes eSpecificTeam = NO_TEAM, bool bIncludeEmbarked = false) const;
 	vector<CvUnit*> GetAdjacentFriendlyCombatUnits(TeamTypes eMyTeam, int iRange, DomainTypes eDomain) const;
 	pair<int, int> GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const;
@@ -1034,6 +1034,7 @@ protected:
 
 	CvArchaeologyData m_kArchaeologyData;
 
+	void verifyUnitValidPlotInternal(PlayerTypes eForSpecificPlayer, vector<TeamTypes>* pvAffectedTeams, bool bWakeUp);
 	void processArea(CvArea* pArea, int iChange);
 	void doImprovementUpgrade();
 

@@ -1098,12 +1098,11 @@ void CvMinorCivQuest::EnableInfluence(PlayerTypes ePlayer)
 
 CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) const
 {
-	CvString szTooltip = "";
-	CvString szTooltipHeader;
 	if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isMajorCiv())
-		return szTooltip;
+		return "";
 
-	szTooltipHeader = bFinish ? GetLocalizedText("TXT_KEY_CS_QUEST_BONUS_HEADER_FINISH") : GetLocalizedText("TXT_KEY_CS_QUEST_BONUS_HEADER_START");
+	CvString szTooltip = "";
+	CvString szTooltipHeader = bFinish ? GetLocalizedText("TXT_KEY_CS_QUEST_BONUS_HEADER_FINISH") : GetLocalizedText("TXT_KEY_CS_QUEST_BONUS_HEADER_START");
 
 	if (GetInfluence() > 0)
 	{
@@ -12348,8 +12347,9 @@ bool CvMinorCivAI::SetAllyInternal(PlayerTypes eNewAlly)
 			}
 		}
 
-		//teleport our units if necessary
-		GC.getMap().verifyUnitValidPlot(m_pPlayer->GetID());
+		// teleport our units if necessary
+		// unfortunately we cannot just piggyback on the verification call at the end of the function, because this could capture units if we're standing on top of the old ally's civilians
+		theMap.verifyUnitValidPlot(m_pPlayer->GetID());
 
 		if(eOldAlly == GC.getGame().getActivePlayer())
 		{
@@ -12460,9 +12460,15 @@ bool CvMinorCivAI::SetAllyInternal(PlayerTypes eNewAlly)
 		LuaSupport::CallHook(pkScriptSystem, "SetAlly", args.get(), bResult);
 	}
 
-	// Test for Domination Victory
 	if (eNewAlly != NO_PLAYER)
+	{
+		// We may need to bump units out of tiles where they shouldn't be
+		if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY)
+			theMap.verifyUnitValidPlot();
+
+		// Test for Domination Victory
 		GC.getGame().DoTestConquestVictory();
+	}
 
 	return true;
 }

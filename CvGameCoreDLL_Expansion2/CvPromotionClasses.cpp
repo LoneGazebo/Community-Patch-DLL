@@ -105,8 +105,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iHillsAttackPercent(0),
 	m_iHillsDefensePercent(0),
 	m_iOpenAttackPercent(0),
+	m_iOpenFromPercent(0),
 	m_iOpenRangedAttackMod(0),
 	m_iRoughAttackPercent(0),
+	m_iRoughFromPercent(0),
 	m_iRoughRangedAttackMod(0),
 	m_iAttackFortifiedMod(0),
 	m_iAttackWoundedMod(0),
@@ -120,8 +122,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyEnemyCombatRange(0),
 	m_iOpenDefensePercent(0),
 	m_iRoughDefensePercent(0),
-	m_iOpenFromPercent(0),
-	m_iRoughFromPercent(0),
 	m_iExtraAttacks(0),
 	m_bGreatGeneral(false),
 	m_bGreatAdmiral(false),
@@ -183,13 +183,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iExtraXPOnKill(0),
 	m_bGainsXPFromSpotting(false),
 	m_bCannotBeCaptured(false),
-	m_bIsLostOnMove(false),
-	m_bCityStateOnly(false),
-	m_bDiplomaticMissionAccomplishment(false),
-	m_bBarbarianOnly(false),
-	m_bStrongerDamaged(false),
-	m_bFightWellDamaged(false),
-	m_bFreeAttackMoves(false),
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
@@ -199,6 +192,13 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iMoraleBreakChance(0),
 	m_iDamageAoEFortified(0),
 	m_iWorkRateMod(0),
+	m_bIsLostOnMove(false),
+	m_bCityStateOnly(false),
+	m_bDiplomaticMissionAccomplishment(false),
+	m_bBarbarianOnly(false),
+	m_bStrongerDamaged(false),
+	m_bFightWellDamaged(false),
+	m_bFreeAttackMoves(false),
 	m_bCannotBeChosen(false),
 	m_bLostWithUpgrade(false),
 	m_bNotWithUpgrade(false),
@@ -299,10 +299,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAdjacentCityDefenseMod(0),
 	m_iNearbyEnemyDamage(0),
 	m_iMilitaryProductionModifier(0),
-	m_piYieldModifier(NULL),
-	m_piYieldChange(NULL),
-	m_piYieldFromAncientRuins(NULL),
-	m_piYieldFromTRPlunder(NULL),
 	m_iGeneralGoldenAgeExpPercent(0),
 	m_iGiveCombatMod(0),
 	m_iGiveHPHealedIfEnemyKilled(0),
@@ -316,9 +312,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNearbyHealEnemyTerritory(0),
 	m_iNearbyHealNeutralTerritory(0),
 	m_iNearbyHealFriendlyTerritory(0),
-	m_iPassiveAoEHeal(0),
 	m_iAdjacentEnemySapMovement(0),
 	m_bCanHeavyCharge(false),
+	m_iPassiveAoEHeal(0),
 	m_piTerrainAttackPercent(NULL),
 	m_piTerrainDefensePercent(NULL),
 	m_piFeatureAttackPercent(NULL),
@@ -326,6 +322,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piTerrainModifierAttack(NULL),
 	m_piTerrainModifierDefense(NULL),
 	m_piYieldFromScoutingTimes100(NULL),
+	m_piYieldModifier(NULL),
+	m_piYieldChange(NULL),
+	m_piYieldFromAncientRuins(NULL),
+	m_piYieldFromTRPlunder(NULL),
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
 	m_piYieldFromCombatExperienceTimes100(NULL),
@@ -340,10 +340,11 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piDomainModifierPercent(NULL),
 	m_piDomainAttackPercent(NULL),
 	m_piDomainDefensePercent(NULL),
-	m_piFeaturePassableTech(NULL),
 	m_piCombatModPerAdjacentUnitCombatModifierPercent(NULL),
 	m_piCombatModPerAdjacentUnitCombatAttackModifier(NULL),
 	m_piCombatModPerAdjacentUnitCombatDefenseModifier(NULL),
+	m_piTerrainPassableTech(NULL),
+	m_piFeaturePassableTech(NULL),
 	m_pbIgnoreTerrainCostIn(NULL),
 	m_pbIgnoreTerrainCostFrom(NULL),
 	m_pbIgnoreFeatureCostIn(NULL),
@@ -357,7 +358,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_pbTerrainDoubleHeal(NULL),
 	m_pbFeatureDoubleHeal(NULL),
 	m_pbTerrainImpassable(NULL),
-	m_piTerrainPassableTech(NULL),
 	m_pbFeatureImpassable(NULL),
 	m_pbUnitCombat(NULL),
 	m_pbCivilianUnitType(NULL),
@@ -3583,10 +3583,10 @@ bool CvPromotionEntry::IsUnitNaming(int i) const
 void CvPromotionEntry::GetUnitName(UnitTypes eUnit, CvString& sUnitName) const
 {
 	Database::Results kDBResults;
-	char szQuery[512] = {0};
-	sprintf_s(szQuery, "select Name from UnitPromotions_UnitName n, UnitPromotions p, Units u where n.PromotionType = p.Type and n.UnitType = u.Type and p.ID = %i and u.ID = %i;", GetID(), eUnit);
-	if(DB.Execute(kDBResults, szQuery))
+	if(DB.Execute(kDBResults, "select Name from UnitPromotions_UnitName n, UnitPromotions p, Units u where n.PromotionType = p.Type and n.UnitType = u.Type and p.ID = ? and u.ID = ?"))
 	{
+		kDBResults.Bind(1, GetID());
+		kDBResults.Bind(2, (int)eUnit);
 		while(kDBResults.Step())
 		{
 			sUnitName = kDBResults.GetText("Name");

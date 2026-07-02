@@ -2106,6 +2106,7 @@ CvLeague::CvLeague(void)
 	m_iConsecutiveHostedSessions = 0;
 	m_eAssignedName = NO_LEAGUE_NAME;
 	ZeroMemory(m_szCustomName, sizeof(m_szCustomName));
+	m_iLastSessionEndedTurn = -1;
 	m_eLastSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 	m_eCurrentSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 	m_vEnactProposalsOnHold.clear();
@@ -2129,6 +2130,7 @@ CvLeague::CvLeague(LeagueTypes eID)
 	m_iConsecutiveHostedSessions = 0;
 	m_eAssignedName = NO_LEAGUE_NAME;
 	ZeroMemory(m_szCustomName, sizeof(m_szCustomName));
+	m_iLastSessionEndedTurn = -1;
 	m_eLastSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 	m_eCurrentSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
 	m_vEnactProposalsOnHold.clear();
@@ -2181,6 +2183,7 @@ void CvLeague::Init(LeagueSpecialSessionTypes eGoverningSpecialSession)
 	PRECONDITION(m_eID != NO_LEAGUE, "Initializing a CvLeague without a proper ID.");
 	PRECONDITION(eGoverningSpecialSession != NO_LEAGUE_SPECIAL_SESSION);
 	m_eLastSpecialSession = eGoverningSpecialSession; // Fake the last special session so we have data to inform the World Congress's status
+	m_iLastSessionEndedTurn = GC.getGame().getGameTurn();
 	AssignProposalPrivileges();
 	ResetTurnsUntilSession();
 }
@@ -2345,16 +2348,13 @@ bool CvLeague::IsInSpecialSession()
 void CvLeague::SetInSession(bool bInSession)
 {
 	m_bInSession = bInSession;
-	if (bInSession)
-	{
-	}
-	else
+	if (!bInSession)
 	{
 		if (m_eCurrentSpecialSession != NO_LEAGUE_SPECIAL_SESSION)
-		{
 			m_eLastSpecialSession = m_eCurrentSpecialSession;
-		}
+
 		m_eCurrentSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
+		m_iLastSessionEndedTurn = GC.getGame().getGameTurn();
 	}
 }
 
@@ -2479,6 +2479,11 @@ int CvLeague::GetVotesSpentThisSession()
 		}
 	}
 	return iVotes;
+}
+
+int CvLeague::GetLastSessionEndedTurn() const
+{
+	return m_iLastSessionEndedTurn;
 }
 
 LeagueSpecialSessionTypes CvLeague::GetLastSpecialSession() const
@@ -4451,7 +4456,7 @@ void CvLeague::DoEnactProposalDiplomacy(ResolutionTypes eResolution, PlayerTypes
 			{
 				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eProposer, GC.getGame().getGameTurn());
 				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eProposer, -1);
-				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
+				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
 				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetTheySanctionedUsTurn(eProposer, GC.getGame().getGameTurn());
 				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetTheyUnsanctionedUsTurn(eProposer, -1);
 				GET_PLAYER(it->ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eProposer, -300);
@@ -4477,16 +4482,16 @@ void CvLeague::DoEnactProposalDiplomacy(ResolutionTypes eResolution, PlayerTypes
 				switch (eDesire)
 				{
 				case CvLeagueAI::DESIRE_ALWAYS:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
 					break;
 				case CvLeagueAI::DESIRE_STRONG_LIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-45*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*-45*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG));
 					break;
 				case CvLeagueAI::DESIRE_LIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL));
 					break;
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-15*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*-15*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK));
 					break;
 				case CvLeagueAI::DESIRE_NEUTRAL:
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
@@ -4504,16 +4509,16 @@ void CvLeague::DoEnactProposalDiplomacy(ResolutionTypes eResolution, PlayerTypes
 				switch (eDesire)
 				{
 				case CvLeagueAI::DESIRE_NEVER:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
 					break;
 				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*45*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*45*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG));
 					break;
 				case CvLeagueAI::DESIRE_DISLIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
 					break;
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_WEAK));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_WEAK));
 					break;
 				case CvLeagueAI::DESIRE_NEUTRAL:
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
@@ -4544,7 +4549,7 @@ void CvLeague::DoRepealProposalDiplomacy(int iTargetResolutionID, PlayerTypes eP
 					{
 						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeLikedTheirProposalTurn(eProposer, GC.getGame().getGameTurn());
 						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetWeDislikedTheirProposalTurn(eProposer, -1);
-						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
+						GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
 
 						// If they ever succeeded in sanctioning us, we don't apply the extra bonus
 						if (!GET_PLAYER(it->ePlayer).GetDiplomacyAI()->HasEverSanctionedUs(eProposer))
@@ -4583,16 +4588,16 @@ void CvLeague::DoRepealProposalDiplomacy(int iTargetResolutionID, PlayerTypes eP
 				switch (eDesire)
 				{
 				case CvLeagueAI::DESIRE_ALWAYS:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*-60*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_OVERWHELMING));
 					break;
 				case CvLeagueAI::DESIRE_STRONG_LIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-45*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*-45*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_STRONG));
 					break;
 				case CvLeagueAI::DESIRE_LIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL));
 					break;
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-15*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*-15*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK));
 					break;
 				case CvLeagueAI::DESIRE_NEUTRAL:
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
@@ -4610,16 +4615,16 @@ void CvLeague::DoRepealProposalDiplomacy(int iTargetResolutionID, PlayerTypes eP
 				switch (eDesire)
 				{
 				case CvLeagueAI::DESIRE_NEVER:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*60*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_OVERWHELMING));
 					break;
 				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*45*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*45*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_STRONG));
 					break;
 				case CvLeagueAI::DESIRE_DISLIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
 					break;
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
-					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_WEAK));
+					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetProposalAgreementValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_WEAK));
 					break;
 				case CvLeagueAI::DESIRE_NEUTRAL:
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
@@ -7510,7 +7515,7 @@ void CvLeague::FinishSession()
 						if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
 							continue;
 
-						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, -iVotePercent);
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetProposalSupportDelta(*playerIt, -iVotePercent);
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, -1);
 					}
@@ -7699,7 +7704,7 @@ void CvLeague::FinishSession()
 					if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam() || GET_PLAYER(eProposer).GetLeagueAI()->IsSanctionProposal(&(*it), eProposer))
 						continue;
 
-					GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, iVotePercent);
+					GET_PLAYER(eProposer).GetDiplomacyAI()->SetProposalSupportDelta(*playerIt, iVotePercent);
 					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 					GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, -1);
 				}
@@ -7910,7 +7915,7 @@ void CvLeague::FinishSession()
 						if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam())
 							continue;
 
-						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, -iVotePercent);
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetProposalSupportDelta(*playerIt, -iVotePercent);
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, -1);
 					}
@@ -8129,7 +8134,7 @@ void CvLeague::FinishSession()
 						if (GET_PLAYER(*playerIt).getTeam() == GET_PLAYER(eProposer).getTeam() || GET_PLAYER(eProposer).GetLeagueAI()->IsSanctionProposal(&(*it), eProposer))
 							continue;
 
-						GET_PLAYER(eProposer).GetDiplomacyAI()->SetSupportedOurProposalValue(*playerIt, iVotePercent);
+						GET_PLAYER(eProposer).GetDiplomacyAI()->SetProposalSupportDelta(*playerIt, iVotePercent);
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheyFoiledOurProposalTurn(*playerIt, (GC.getGame().getGameTurn()+1));
 						GET_PLAYER(eProposer).GetDiplomacyAI()->SetTheySupportedOurProposalTurn(*playerIt, -1);
 					}
@@ -9279,6 +9284,7 @@ void CvLeague::Serialize(League& league, Visitor& visitor)
 	visitor(league.m_iConsecutiveHostedSessions);
 	visitor(league.m_eAssignedName);
 	visitor(league.m_szCustomName);
+	visitor(league.m_iLastSessionEndedTurn);
 	visitor(league.m_eLastSpecialSession);
 	visitor(league.m_eCurrentSpecialSession);
 	visitor(league.m_vEnactProposalsOnHold);
@@ -10895,9 +10901,9 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	}
 
 	// Do we (dis)like their proposals or votes?
-	if (pDiplo->GetLikedTheirProposalValue(ePlayer) < 0)
+	if (pDiplo->GetProposalAgreementValue(ePlayer) < 0)
 	{
-		if (pDiplo->GetLikedTheirProposalValue(ePlayer) < /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL))
+		if (pDiplo->GetProposalAgreementValue(ePlayer) < /*-30*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL))
 		{
 			iAlignment += 2;
 		}
@@ -10906,9 +10912,9 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 			iAlignment += 1;
 		}
 	}
-	else if (pDiplo->GetLikedTheirProposalValue(ePlayer) > 0)
+	else if (pDiplo->GetProposalAgreementValue(ePlayer) > 0)
 	{
-		if (pDiplo->GetLikedTheirProposalValue(ePlayer) > /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL))
+		if (pDiplo->GetProposalAgreementValue(ePlayer) > /*30*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL))
 		{
 			iAlignment -= 2;
 		}
@@ -11454,6 +11460,26 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 		return eUsefulness;
 
 	int iScore = 0;
+
+	// do we have own the belief that gives yields for passing proposals?
+	ReligionTypes eStateReligion = m_pPlayer->GetReligions()->GetStateReligion();
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eStateReligion, m_pPlayer->GetID());
+	if (pReligion)
+	{
+		bool bProposal = false;
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if (pReligion->m_Beliefs.GetYieldFromProposal(eYield, m_pPlayer->GetID(), NULL, true) > 0)
+			{
+				bProposal = true;
+				break;
+			}
+		}
+		if (bProposal)
+			iScore += 1;
+	}
+	
 	if (GetExtraVotesPerDiplomat() > 0)
 	{
 		iScore += 1;
@@ -11462,22 +11488,24 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 			iScore += 2;
 		}
 	}
+	
 	if (EvaluateAlignment(ePlayer) > ALIGNMENT_NEUTRAL)
 	{
 		iScore += 1;
 	}
+	
 	int iLeague = pLeague->GetPotentialVotesForMember(m_pPlayer->GetID(), ePlayer);
 	if(iLeague > pLeague->GetCoreVotesForMember(ePlayer))
 	{
 		iScore += 1;
 	}
+
+	// decide return enum
 	if (iScore >= 3)
 	{
 		eUsefulness = DIPLOMAT_USEFULNESS_HIGH;
 	}
-	else
-
-	if (iScore >= 2)
+	else if (iScore >= 2)
 	{
 		eUsefulness = DIPLOMAT_USEFULNESS_MEDIUM;
 	}

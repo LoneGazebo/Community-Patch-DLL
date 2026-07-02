@@ -182,11 +182,12 @@ public:
 	int GetLocalFaithCooldown() const;
 	PromotionTypes GetFriendlyLandsPromotion() const;
 	bool IsMounted() const;
-	bool IsCultureFromExperienceDisbandUpgrade() const;
+	int GetCultureFromExperienceDisbandUpgrade() const;
 	bool IsUnitEraUpgrade() const;
 	bool IsWarOnly() const;
     bool IsCopyYieldsFromExpendTile() const;
     int GetTileXPOnExpend() const;
+    int GetExtraSpies() const;
     bool IsWLTKDFromBirth() const;
     bool IsGoldenAgeFromBirth() const;
 	bool IsCultureBoost() const;
@@ -343,12 +344,13 @@ private:
 	int m_iLocalFaithCooldown;
 	int m_iFriendlyLandsPromotion;
 	int m_iBeliefUnlock;
-	bool m_bCultureFromExperienceOnDisband;
+	int m_iCultureFromExperienceOnDisband;
 	bool m_bIsConvertUnit;
 	bool m_bUnitEraUpgrade;
 	bool m_bWarOnly;
 	bool m_bCopyYieldsFromExpendTile;
 	int m_iTileXPOnExpend;
+	int m_iExtraSpies;
 	bool m_bWLTKD;
 	bool m_bGoldenAge;
 	bool m_bCultureBoost;

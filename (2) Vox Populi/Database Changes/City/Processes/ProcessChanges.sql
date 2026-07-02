@@ -1,5 +1,10 @@
 -- Process yields
-UPDATE Processes SET DefenseValue = 10 WHERE Type = 'PROCESS_DEFENSE';
+UPDATE Processes
+SET
+	DefenseValue = 10,
+	DefenseValuePerTurn = 1,
+	DefenseValueCap = 15
+WHERE Type = 'PROCESS_DEFENSE';
 
 INSERT INTO Process_ProductionYields
 	(ProcessType, YieldType, Yield)

@@ -543,6 +543,7 @@ CvMap::CvMap()
 	, m_iAIMapHints(0)
 	, m_bWrapX(false)
 	, m_bWrapY(false)
+	, m_bMapGenerated(false)
 	, m_paiNumResource()
 	, m_paiNumResourceOnLand()
 	, m_pMapPlots(NULL)
@@ -575,7 +576,6 @@ CvMap::CvMap()
 	, m_vPlotsAtRange3()
 	, m_vPlotsShared()
 	, m_plotPopupCount()
-	, m_bMapGenerated(false)
 {
 	ASSERT(sgCvMapInstanceCount == 0);
 	++sgCvMapInstanceCount;
@@ -1089,6 +1089,18 @@ void CvMap::verifyUnitValidPlot(PlayerTypes eForSpecificPlayer)
 	for (int iI = 0; iI < numPlots(); iI++)
 	{
 		plotByIndexUnchecked(iI)->verifyUnitValidPlot(eForSpecificPlayer);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvMap::verifyUnitValidPlot(vector<TeamTypes>& vAffectedTeams)
+{
+	if (vAffectedTeams.empty())
+		return;
+
+	for (int iI = 0; iI < numPlots(); iI++)
+	{
+		plotByIndexUnchecked(iI)->verifyUnitValidPlot(vAffectedTeams);
 	}
 }
 

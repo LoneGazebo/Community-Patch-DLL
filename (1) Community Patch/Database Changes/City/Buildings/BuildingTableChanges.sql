@@ -37,7 +37,11 @@ ALTER TABLE Buildings ADD AllowsIndustrialWaterRoutes boolean DEFAULT 0;
 -- Allows city connections via the air
 ALTER TABLE Buildings ADD AllowsAirRoutes boolean DEFAULT 0;
 
+-- Allows airlift-type action to other sealift cities directly connected by water
+ALTER TABLE Buildings ADD Sealift boolean DEFAULT 0;
+
 -- Increase to border growth expansion rate
+-- OBSOLETE, use Building_YieldModifiers and Building_GlobalYieldModifiers instead
 ALTER TABLE Buildings ADD BorderGrowthRateIncrease integer DEFAULT 0; -- For the city
 ALTER TABLE Buildings ADD BorderGrowthRateIncreaseGlobal integer DEFAULT 0; -- For the empire
 
@@ -146,10 +150,10 @@ ALTER TABLE Buildings ADD TradeReligionModifier integer DEFAULT 0;
 -- Allows you to define a building needed by this building (similar to BuildingClassNeeded) -->
 ALTER TABLE Buildings ADD NeedBuildingThisCity text REFERENCES Buildings (Type);
 
--- Allows you to define a number of WLTKD turns for the City -- 
+-- Allows you to define a number of WLTKD turns for the City --
 ALTER TABLE Buildings ADD WLTKDTurns integer DEFAULT 0;
 
--- Allows you to define an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. 
+-- Allows you to define an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed.
 ALTER TABLE Buildings ADD EventTourism integer DEFAULT 0;
 
 -- Allows you to define an amount that a unit will heal in a city whether or not it took an action this turn.
@@ -306,6 +310,9 @@ ALTER TABLE Buildings ADD GlobalMilitaryProductionModPerMajorWar integer DEFAULT
 
 -- Non-specialists cannot consume more than the city's food per turn
 ALTER TABLE Buildings ADD NoStarvationNonSpecialist boolean DEFAULT 0;
+
+-- City food is clamped below at this value (x100)
+ALTER TABLE Buildings ADD MinimumFood integer DEFAULT 0;
 
 -- 1 city strength per X national/world wonder
 ALTER TABLE Buildings ADD DefensePerXWonder integer DEFAULT 0;

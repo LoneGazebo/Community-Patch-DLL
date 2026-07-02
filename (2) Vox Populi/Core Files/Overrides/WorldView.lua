@@ -131,6 +131,7 @@ local InterfaceModeMessageHandler =
 	[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL] = {},
 	[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO] = {},
 	[InterfaceModeTypes.INTERFACEMODE_AIRLIFT] = {},
+	[InterfaceModeTypes.INTERFACEMODE_SEALIFT] = {},
 	[InterfaceModeTypes.INTERFACEMODE_NUKE] = {},
 	[InterfaceModeTypes.INTERFACEMODE_PARADROP] = {},
 	[InterfaceModeTypes.INTERFACEMODE_ATTACK] = {},
@@ -475,6 +476,7 @@ InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_TYPE][Mouse
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRLIFT][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
+InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SEALIFT][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_NUKE][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PARADROP][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRSTRIKE][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
@@ -487,6 +489,7 @@ InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_TYPE][Mouse
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRLIFT][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
+InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SEALIFT][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_NUKE][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PARADROP][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRSTRIKE][MouseEvents.PointerUp] = missionTypeLButtonUpHandler;
@@ -685,6 +688,7 @@ end
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRLIFT][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
+--InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SEALIFT][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_NUKE][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PARADROP][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 ----InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_AIRSTRIKE][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;

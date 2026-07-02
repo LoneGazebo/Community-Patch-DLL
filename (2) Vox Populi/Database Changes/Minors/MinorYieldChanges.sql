@@ -5,12 +5,12 @@ DELETE FROM MinorCivilizationTraits_FriendYieldBonuses;
 DELETE FROM MinorCivilizationTraits_AllyYieldBonuses;
 
 -----------------------------------------------------------------------------------------------
--- Maritime: Food on capital tile and other city tiles x100 
+-- Maritime: Food on capital tile and other city tiles x100
 -----------------------------------------------------------------------------------------------
 INSERT INTO MinorCivilizationTraits_FriendCityYieldBonuses
 	(MinorCivTraitType, EraType, YieldType, Yield, CapitalOnly)
 VALUES
-	('MINOR_TRAIT_MARITIME', 'ERA_ANCIENT', 'YIELD_FOOD', 200, 1),
+	('MINOR_TRAIT_MARITIME', 'ERA_ANCIENT', 'YIELD_FOOD', 300, 1),
 	('MINOR_TRAIT_MARITIME', 'ERA_CLASSICAL', 'YIELD_FOOD', 300, 1),
 	('MINOR_TRAIT_MARITIME', 'ERA_MEDIEVAL', 'YIELD_FOOD', 500, 1),
 	('MINOR_TRAIT_MARITIME', 'ERA_RENAISSANCE', 'YIELD_FOOD', 600, 1),
@@ -30,7 +30,7 @@ VALUES
 INSERT INTO MinorCivilizationTraits_AllyCityYieldBonuses
 	(MinorCivTraitType, EraType, YieldType, Yield, CapitalOnly)
 VALUES
-	('MINOR_TRAIT_MARITIME', 'ERA_ANCIENT', 'YIELD_FOOD', 100, 1),
+	('MINOR_TRAIT_MARITIME', 'ERA_ANCIENT', 'YIELD_FOOD', 200, 1),
 	('MINOR_TRAIT_MARITIME', 'ERA_CLASSICAL', 'YIELD_FOOD', 300, 1),
 	('MINOR_TRAIT_MARITIME', 'ERA_MEDIEVAL', 'YIELD_FOOD', 400, 1),
 	('MINOR_TRAIT_MARITIME', 'ERA_RENAISSANCE', 'YIELD_FOOD', 600, 1),
@@ -38,9 +38,9 @@ VALUES
 	('MINOR_TRAIT_MARITIME', 'ERA_MODERN', 'YIELD_FOOD', 900, 1),
 	('MINOR_TRAIT_MARITIME', 'ERA_POSTMODERN', 'YIELD_FOOD', 1000, 1),
 	('MINOR_TRAIT_MARITIME', 'ERA_FUTURE', 'YIELD_FOOD', 1200, 1),
-  
-	('MINOR_TRAIT_MARITIME', 'ERA_ANCIENT', 'YIELD_FOOD', 100, 0),
-	('MINOR_TRAIT_MARITIME', 'ERA_CLASSICAL', 'YIELD_FOOD', 100, 0),
+
+	('MINOR_TRAIT_MARITIME', 'ERA_ANCIENT', 'YIELD_FOOD', 200, 0),
+	('MINOR_TRAIT_MARITIME', 'ERA_CLASSICAL', 'YIELD_FOOD', 200, 0),
 	('MINOR_TRAIT_MARITIME', 'ERA_MEDIEVAL', 'YIELD_FOOD', 200, 0),
 	('MINOR_TRAIT_MARITIME', 'ERA_RENAISSANCE', 'YIELD_FOOD', 200, 0),
 	('MINOR_TRAIT_MARITIME', 'ERA_INDUSTRIAL', 'YIELD_FOOD', 300, 0),

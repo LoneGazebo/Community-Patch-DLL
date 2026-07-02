@@ -59,7 +59,7 @@ WHERE UnitType = 'UNIT_DJONG' AND PromotionType IN (
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_DJONG', 'PROMOTION_CETBANG');
+	('UNIT_DJONG', 'PROMOTION_RETALIATION');
 
 ----------------------------------------------------------
 -- Unique Improvement: Kampong

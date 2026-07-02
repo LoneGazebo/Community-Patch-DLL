@@ -328,11 +328,13 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	}
 
 	bool bIsProject = false;
+	SPlotStats plotStats = kPlayer.getCapitalCity() ? kPlayer.getCapitalCity()->getPlotStats() : SPlotStats();
+	vector<int> allExistingBuildings = kPlayer.GetTotalBuildingCount();
 	for(int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
 	{
 		LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) iI;
 		CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
-		if (pInfo && pInfo->GetProcess() == eProcess)
+		if (pInfo->GetProcess() == eProcess)
 		{
 			bIsProject = true;
 			if (m_pCity->getProductionProcess() == eProcess)
@@ -349,26 +351,20 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				for (uint i = 0; i < veRewards.size(); i++)
 				{
 					CvLeagueProjectRewardEntry* pRewardInfo = GC.getLeagueProjectRewardInfo(veRewards[i]);
-					ASSERT(pRewardInfo);
-					if (!pRewardInfo) continue;
 
 					// Free Building in Capital
 					if (pRewardInfo->GetBuilding() != NO_BUILDING)
 					{
-						CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(pRewardInfo->GetBuilding());
-						if(pBuildingInfo)
+						int iValue = 2000;
+						if(kPlayer.getCapitalCity() != NULL)
 						{
-							int iValue = 2000;
-							if(kPlayer.getCapitalCity() != NULL)
-							{
-								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue);
-								if (iValue > 0)
-									iModifier += iValue;
-							}
-							else
-							{
-								iModifier += m_pCity->GetCityStrategyAI()->GetBuildingProductionAI()->GetWeight(pRewardInfo->GetBuilding());
-							}
+							iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue, plotStats, allExistingBuildings);
+							if (iValue > 0)
+								iModifier += iValue;
+						}
+						else
+						{
+							iModifier += m_pCity->GetCityStrategyAI()->GetBuildingProductionAI()->GetWeight(pRewardInfo->GetBuilding());
 						}
 					}
 

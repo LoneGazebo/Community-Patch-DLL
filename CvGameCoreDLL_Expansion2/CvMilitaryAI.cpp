@@ -1248,8 +1248,8 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 		}
 	}
 
-	// Economic value / hardness of target
-	float fEconomicValue =  sqrt( pTargetCity->getEconomicValue( GetPlayer()->GetID() ) / float(max(1,pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage())) );
+	// Economic value / hardness of target (clamp to non-negative — maintenance can make economic value negative)
+	float fEconomicValue =  sqrt( max(0, pTargetCity->getEconomicValue( GetPlayer()->GetID() )) / float(max(1,pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage())) );
 
 	//everything together now
 	int iRtnValue = (int)(target.m_iApproachScore * fDistWeightInterpolated * fDesirability * fEconomicValue);
@@ -3859,7 +3859,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WinningWars(CvPlayer* pPlayer)
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
+			iSum += pPlayer->GetWarScore(eLoopPlayer);
 		}
 	}
 
@@ -3881,7 +3881,7 @@ bool MilitaryAIHelpers::IsTestStrategy_LosingWars(CvPlayer* pPlayer)
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
 		if (eLoopPlayer != pPlayer->GetID() && pPlayer->IsAtWarWith(eLoopPlayer) && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			iSum += pPlayer->GetDiplomacyAI()->GetWarScore(eLoopPlayer);
+			iSum += pPlayer->GetWarScore(eLoopPlayer);
 		}
 	}
 	return iSum < -10;

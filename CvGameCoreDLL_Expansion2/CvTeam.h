@@ -281,6 +281,8 @@ public:
 	bool IsAllowsOpenBordersToTeam(TeamTypes eIndex) const;
 	void SetAllowsOpenBordersToTeam(TeamTypes eIndex, bool bNewValue);
 
+	int GetRemainingDisengagementTurns(TeamTypes eIndex) const;
+
 	bool IsHasDefensivePact(TeamTypes eIndex) const;
 	void SetHasDefensivePact(TeamTypes eIndex, bool bNewValue);
 

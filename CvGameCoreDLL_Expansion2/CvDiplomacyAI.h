@@ -491,14 +491,24 @@ public:
 	void SetOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam);
 
-	// Num Minors Conquered
-	int GetPlayerNumMinorsConquered(PlayerTypes ePlayer) const;
-	void SetPlayerNumMinorsConquered(PlayerTypes ePlayer, int iValue);
-
 	// Num Majors Attacked
 	int GetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer) const;
 	void SetOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iValue);
 	void ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam);
+
+	// Num Majors Culture Bombed
+	int GetOtherPlayerNumMajorsCultureBombed(PlayerTypes ePlayer) const;
+	void SetOtherPlayerNumMajorsCultureBombed(PlayerTypes ePlayer, int iValue);
+	void ChangeOtherPlayerNumMajorsCultureBombed(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam, int iStolenTileWeight);
+
+	// Num Players Nuked
+	int GetOtherPlayerNumPlayersNuked(PlayerTypes ePlayer) const;
+	void SetOtherPlayerNumPlayersNuked(PlayerTypes ePlayer, int iValue);
+	void ChangeOtherPlayerNumPlayersNuked(PlayerTypes ePlayer, int iChange, TeamTypes eAttackedTeam);
+
+	// Num Minors Conquered
+	int GetPlayerNumMinorsConquered(PlayerTypes ePlayer) const;
+	void SetPlayerNumMinorsConquered(PlayerTypes ePlayer, int iValue);
 
 	// Num Majors Conquered
 	int GetPlayerNumMajorsConquered(PlayerTypes ePlayer) const;
@@ -800,11 +810,11 @@ public:
 	void SetNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iValue);
 	void ChangeNumTimesPerformedCoupAgainstUs(PlayerTypes ePlayer, int iChange);
 
-	int GetLikedTheirProposalValue(PlayerTypes ePlayer) const;
-	void SetLikedTheirProposalValue(PlayerTypes ePlayer, int iValue);
+	int GetProposalAgreementValue(PlayerTypes ePlayer) const;
+	void SetProposalAgreementValue(PlayerTypes ePlayer, int iValue);
 
-	int GetSupportedOurProposalValue(PlayerTypes ePlayer) const;
-	void SetSupportedOurProposalValue(PlayerTypes ePlayer, int iValue);
+	int GetProposalSupportDelta(PlayerTypes ePlayer) const;
+	void SetProposalSupportDelta(PlayerTypes ePlayer, int iValue);
 	bool IsSupportedOurProposalAndThenFoiledUs(PlayerTypes ePlayer) const;
 	bool IsFoiledOurProposalAndThenSupportedUs(PlayerTypes ePlayer) const;
 
@@ -938,6 +948,9 @@ public:
 
 	bool IsAvoidDeals() const;
 	void SetAvoidDeals(bool bValue);
+
+	bool SkipForTeammates() const;
+	void SetSkipForTeammates(bool bValue);
 
 	bool IsIgnoreWarmonger() const;
 	void SetIgnoreWarmonger(bool bValue);
@@ -1078,7 +1091,6 @@ public:
 	// ------------------------------------
 
 	void DoUpdateWarStates();
-	int GetWarScore(PlayerTypes ePlayer) const;
 	int GetHighestWarscore();
 	PlayerTypes GetHighestWarscorePlayer();
 
@@ -1185,7 +1197,6 @@ public:
 	bool IsGoodChoiceForDoF(PlayerTypes ePlayer);
 	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
 	bool IsGoodChoiceForResearchAgreement(PlayerTypes ePlayer);
-	bool IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer);
 	PlayerTypes GetHighestScoringDefensivePact(vector<PlayerTypes>& vAcceptableChoices, vector<PlayerTypes>& vPlayersToExclude);
 	int ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal);
 
@@ -1243,6 +1254,112 @@ public:
 	// Diplomatic Interactions
 	// ************************************
 
+	// Highest priority statements - these can trigger WAR!
+	void DoWeAttackedYourMinorStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	//void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	// After the war stuff but before any other statement, try to renew expired deals
+	CvDeal* DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	// Broken promises
+	void DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoExpansionBrokenPromiseStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoPlotBuyingBrokenPromiseStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	// Other things the player has done to piss off the AI
+	void DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	//void DoSeriousExpansionWarningStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
+	//void DoSeriousPlotBuyingWarningStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
+	void DoExpansionWarningStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoPlotBuyingWarningStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	// Spying
+	void DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoCaughtYourSpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	// "Now Influential" & Ideology Statements
+	void DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	// AI wants to worsen diplomatic relations with a player
+	void DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+
+	// AI wants to improve diplomatic relations with a player
+	void DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+
+	// Vassal tax statements
+	void DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	// Very time-sensitive compliments & insults
+	void DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoHappyBefriendedFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+	void DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
+
+	// Time-sensitive compliments & insults
+	void DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoTheySupportedOurHosting(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoTheySupportedOurProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	// Request help from them?
+	void DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+
+	// OFFERS
+	// Try to get the things we want most first!
+	void DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoEmbassyOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+
+	// Give help to them?
+	void DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+
+	// Non-time-sensitive compliments & insults
+	//void DoNowUnforgivableStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
+	//void DoNowEnemyStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
+	void DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoAfraidStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1, bool bFromAdvisor = false);
+	void DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	//void DoFriendlyStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
+
+	// Peace Offer
+	void DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+
 	// ************************************
 	// Counters
 	// ************************************
@@ -1268,7 +1385,6 @@ public:
 	bool IsGoldRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias);
 
 	bool IsEmbassyExchangeAcceptable(PlayerTypes ePlayer);
-	bool WantsEmbassyAtPlayer(PlayerTypes ePlayer) const;
 	bool IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer);
 	bool IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer);
 	bool IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer);
@@ -1331,86 +1447,9 @@ public:
 
 	void DoUpdateMinorCivProtection(PlayerTypes eMinor);
 
-	//void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-
 	void DoMakeDemand(PlayerTypes ePlayer);
 
-	void DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoKilledCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoAttackedCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	//void DoSeriousExpansionWarningStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
-	void DoExpansionWarningStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoExpansionBrokenPromiseStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	//void DoSeriousPlotBuyingWarningStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
-	void DoPlotBuyingWarningStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoPlotBuyingBrokenPromiseStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-
-	void DoWeAttackedYourMinorStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-
-	void DoCaughtYourSpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-
-	void DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-
-	void DoConvertedMyCityStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-
-	void DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement) const;
-	void DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-
-	void DoLuxuryTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoEmbassyOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoStrategicTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoCityExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoVoteTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	CvDeal* DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-
-	void DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-
-	//void DoNowUnforgivableStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
-	//void DoNowEnemyStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
-
-	void DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	//void DoFriendlyStatement(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
-	void DoAfraidStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1, bool bIgnoreTurnsBetweenLimit = false);
-
-	void DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoHappyDenouncedEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoHappyBefriendedFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
-	void DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-
-	void DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoTheySupportedOurProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoTheySupportedOurHosting(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-
-	void DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 
 	/////////////////////////////////////////////////////////
 	// Diplo stuff relating to UI
@@ -1516,15 +1555,8 @@ public:
 	PlayerTypes GetRequestFriendToDenounce(PlayerTypes ePlayer, bool& bRandFailed);
 	bool IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
-	// Contact Statements
-	void DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-
 	// Requests
 	bool IsTechRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias);
-
-	bool WantsMapsFromPlayer(PlayerTypes ePlayer);
 
 	// Offers
 	bool IsMakeLuxuryOffer(PlayerTypes ePlayer, CvDeal* pDeal) const;
@@ -1555,16 +1587,6 @@ public:
 	bool IsEndVassalageAcceptable(PlayerTypes ePlayer); // can be called in either direction, for the master or the vassal
 	bool IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer); // vassal only, evaluates one master
 	bool IsEndVassalageRequestAcceptable(PlayerTypes ePlayer); // master only, evaluates one vassal
-
-	void DoBecomeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoRevokeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-
-	void DoLiberateMyVassalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-
-	void DoVassalTaxesRaisedStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoVassalTaxesLoweredStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 
 	bool IsHappyAboutPlayerVassalagePeacefullyRevoked(PlayerTypes ePlayer);
 	bool IsAngryAboutPlayerVassalageForcefullyRevoked(PlayerTypes ePlayer);
@@ -1886,6 +1908,7 @@ private:
 
 	// Other Global Memory
 	bool m_bAvoidDeals; // Not serialized!
+	bool m_bSkipForTeammates; // Not serialized!
 	bool m_bIgnoreWarmonger; // Not serialized!
 	PlayerTypes m_eVassalPlayerToLiberate; // Not serialized!
 	bool m_bWasHumanLastUpdate;
@@ -1970,8 +1993,10 @@ private:
 
 	// Warmongering Penalties
 	unsigned char m_aiNumMinorsAttacked[MAX_MAJOR_CIVS];
-	unsigned char m_aiNumMinorsConquered[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumMajorsAttacked[MAX_MAJOR_CIVS];
+	unsigned char m_aiNumMajorsCultureBombed[MAX_MAJOR_CIVS];
+	unsigned char m_aiNumPlayersNuked[MAX_MAJOR_CIVS];
+	unsigned char m_aiNumMinorsConquered[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumMajorsConquered[MAX_MAJOR_CIVS];
 	int m_aiWarmongerAmountTimes100[MAX_MAJOR_CIVS];
 
@@ -2076,8 +2101,8 @@ private:
 	unsigned short m_aiNegativeReligiousConversionPoints[MAX_MAJOR_CIVS];
 	unsigned char m_aiNumTimesRobbedBy[MAX_MAJOR_CIVS];
 	unsigned char m_aiPerformedCoupAgainstUs[MAX_MAJOR_CIVS];
-	char m_aiLikedTheirProposalValue[MAX_MAJOR_CIVS];
-	char m_aiSupportedOurProposalValue[MAX_MAJOR_CIVS];
+	char m_aiProposalAgreementValue[MAX_MAJOR_CIVS];
+	char m_aiProposalSupportDelta[MAX_MAJOR_CIVS];
 	short m_aiVotingHistoryScore[MAX_MAJOR_CIVS];
 	char m_aiSupportedOurHostingValue[MAX_MAJOR_CIVS];
 	unsigned char m_aiNegativeArchaeologyPoints[MAX_MAJOR_CIVS];
@@ -2161,14 +2186,15 @@ namespace CvDiplomacyAIHelpers
 {
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner = NO_PLAYER, CvCity* pCity = NULL, PlayerTypes eActivePlayer = NO_PLAYER);
-	int GetWarmongerTriggerPenalty(PlayerTypes eWarmonger = NO_PLAYER, TeamTypes eDefendingTeam = NO_TEAM, PlayerTypes eObserver = NO_PLAYER, WarmongerTriggerTypes eWarmongerTrigger = NO_WARMONGER_TRIGGER_TYPE);
+	int GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, TeamTypes eDefendingTeam, PlayerTypes eObserver, WarmongerTriggerTypes eWarmongerTrigger, int iStolenTileWeight = 0);
 	void ApplyWarmongerPenalties(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner);
 	void ApplyLiberationBonuses(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner);
 	int GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner, PlayerTypes eObserver);
 	int GetCityLiberationValue(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner, PlayerTypes eObserver);
 	bool BackstabbedPlayer(PlayerTypes eBackstabber, PlayerTypes eVictim, bool bIncludeDoFEnd);
 	bool IgnoresBackstabbing(PlayerTypes eObserver, PlayerTypes eVictim, bool bCheckCurrent = false);
-	bool ProposedSanctionsBlockingDiplomacy(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
+	bool ProposedSanctionsBlockingDiplomacy(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bStrict = false);
+	int GetProposalAgreementTalkativeness(PlayerTypes eObserver, PlayerTypes eProposer, bool bGood, int iTurnsSinceTrigger, int iEligibleWindow);
 }
 
 #endif //CIV5_AI_DIPLOMACY_H

@@ -44,6 +44,14 @@ UPDATE Defines SET Value = 2 WHERE Name = 'AI_DEFENSIVE_PACT_LIMIT_BASE';
 UPDATE Defines SET Value = 10 WHERE Name = 'AI_DEFENSIVE_PACT_LIMIT_SCALER';
 
 -------------------------------------------------------------------------------------------------------------------
+-- Research Agreements
+-------------------------------------------------------------------------------------------------------------------
+-- Percentage of RA yields that are given as per-turn yields, not as instant yield when the agreement ends.
+UPDATE Defines SET Value = 50 WHERE Name = 'RESEARCH_AGREEMENT_PER_TURN_YIELD_PERCENT';
+-- RA yields are calculated as X*avg(SciencePlayer1, SciencePlayer2) + (1-X)*min(SciencePlayer1, SciencePlayer2).
+UPDATE Defines SET Value = 50 WHERE Name = 'RESEARCH_AGREEMENT_PLAYER_AVERAGE_YIELD_PERCENT';
+
+-------------------------------------------------------------------------------------------------------------------
 -- War
 -------------------------------------------------------------------------------------------------------------------
 
@@ -109,7 +117,7 @@ UPDATE Defines SET Value = 75 WHERE Name = 'COMBAT_CAPTURE_HEALTH';
 -- Naval unit blockade range (land blockade is set in CustomModOptions BALANCE_LAND_UNITS_ADJACENT_BLOCKADE)
 UPDATE Defines SET Value = 1 WHERE Name = 'NAVAL_PLOT_BLOCKADE_RANGE';
 
--- Coastal city gold per turn penalty if all WATER tiles are blockaded 
+-- Coastal city gold per turn penalty if all WATER tiles are blockaded
 UPDATE Defines SET Value = -25 WHERE Name = 'BLOCKADE_GOLD_PENALTY';
 
 -- Bonus combat strength against a blockaded city (on BOTH land and water)
@@ -202,7 +210,9 @@ UPDATE Defines SET Value = 1.25 WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION';
 
 -- Maximum discount you can get for stacking unit upgrade discounts, so the number doesn't go negative
 UPDATE Defines SET Value = -99 WHERE Name = 'UNIT_UPGRADE_COST_DISCOUNT_MAX';
-UPDATE Defines SET Value = 0.68 WHERE Name = 'HURRY_GOLD_PRODUCTION_EXPONENT';
+
+UPDATE Defines SET Value = 4 WHERE Name = 'GOLD_PURCHASE_GOLD_PER_PRODUCTION';
+UPDATE Defines SET Value = 0.88 WHERE Name = 'HURRY_GOLD_PRODUCTION_EXPONENT';
 
 -------------------------------------------------------------------------------------------------------------------
 -- Minors
@@ -347,7 +357,6 @@ WHERE Name IN (
 	'QUEST_DISABLED_GIFT_SPECIFIC_UNIT',
 	'QUEST_DISABLED_FIND_CITY_STATE',
 	'QUEST_DISABLED_INFLUENCE',
-	'QUEST_DISABLED_CONTEST_TOURISM',
 	'QUEST_DISABLED_ARCHAEOLOGY',
 	'QUEST_DISABLED_CIRCUMNAVIGATION',
 	'QUEST_DISABLED_LIBERATION',
@@ -557,6 +566,12 @@ UPDATE Defines SET Value = 0 WHERE Name = 'INDUSTRIAL_ROUTE_PRODUCTION_MOD';
 -------------------------------------------------------------------------------------------------------------------
 -- Espionage
 -------------------------------------------------------------------------------------------------------------------
+-- spy points
+UPDATE Defines SET VALUE = 100 WHERE NAME = 'BALANCE_SPY_POINT_THRESHOLD_MIN';
+UPDATE Defines SET VALUE = 100 WHERE NAME = 'BALANCE_SPY_POINT_THRESHOLD_MAX';
+UPDATE Defines SET VALUE = 1 WHERE NAME = 'ESPIONAGE_SPY_POINT_UNIT';
+
+-- other
 UPDATE Defines SET Value = 10 WHERE Name = 'BALANCE_SPY_RESPAWN_TIMER';
 UPDATE Defines SET Value = 30 WHERE Name = 'ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION';
 UPDATE Defines SET Value = 1000 WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PERCENT';

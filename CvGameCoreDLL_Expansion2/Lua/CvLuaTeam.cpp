@@ -183,6 +183,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(HasEmbassyAtTeam);
 	Method(HasSpyAtTeam);
 	Method(IsAllowsOpenBordersToTeam);
+	Method(GetRemainingDisengagementTurns);
 	Method(IsForcePeace);
 	Method(IsWarBlockedByPeaceTreaty);
 	Method(IsDefensivePact);
@@ -1132,6 +1133,12 @@ int CvLuaTeam::lHasSpyAtTeam(lua_State* L)
 int CvLuaTeam::lIsAllowsOpenBordersToTeam(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::IsAllowsOpenBordersToTeam);
+}
+//------------------------------------------------------------------------------
+//int GetRemainingDisengagementTurns();
+int CvLuaTeam::lGetRemainingDisengagementTurns(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvTeam::GetRemainingDisengagementTurns);
 }
 
 //------------------------------------------------------------------------------

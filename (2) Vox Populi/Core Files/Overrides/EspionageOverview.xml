@@ -720,10 +720,11 @@
 					<Label Anchor="C,T" String="TXT_KEY_EO_MISSIONS" Offset="0,20" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow"/>
 					<Label Anchor="L,T" Offset="35,60" WrapWidth="450" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="MissionSelectionDescription"/>
 					<Stack Anchor="L,T" Offset="0,90" Padding="0" StackGrowth="Bottom" ID="MissionSelectionContent">
-						<ScrollPanel Anchor="L,T" Offset="0,100" Size="560,580" AutoScrollBar="1" Vertical="1" ID="MissionSelectionScrollPanel">
-							<Stack Anchor="L,T" Offset="0,0" Size="560,350" Padding="10" StackGrowth="Bottom">
-								<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="MissionSelectionStack"/>
-							</Stack>
+						<ScrollPanel Anchor="L,T" Offset="0,100" Size="505,490" AutoScrollBar="1" Vertical="1" ID="MissionSelectionScrollPanel">
+    						<ScrollBar Style="VertSlider" Length="454" Anchor="R,C" AnchorSide="O,I"/>
+    						<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+   							<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+							<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="MissionSelectionStack"/>
 						</ScrollPanel>
 					</Stack>
 				</Box>

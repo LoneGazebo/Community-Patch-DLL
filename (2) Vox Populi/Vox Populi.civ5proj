@@ -8,7 +8,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>17</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(5.2.7) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.3.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -57,6 +57,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Art/NewImprovementArts.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Art/NewFeatureArts.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -152,6 +157,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes/WorldCongress/NewResolutions.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/WorldMap/NewRegions.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -1071,11 +1081,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Database Changes/Text/en_US/WorldMap/NewGoodyHutText.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Text/en_US/WorldMap/NewImprovementText.xml</FileName>
       </Action>
       <Action>
@@ -1234,7 +1239,7 @@
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>149</MinVersion>
+        <MinVersion>150</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
@@ -1569,6 +1574,7 @@
     <Folder Include="Assets\Models\Improvements\MountainCity" />
     <Folder Include="Assets\Models\Improvements\Oppidum" />
     <Folder Include="Assets\Models\Improvements\Ordo" />
+    <Folder Include="Assets\Models\Improvements\Saltworks" />
     <Folder Include="Assets\Models\Improvements\Siheyuan" />
     <Folder Include="Assets\Models\Improvements\Tersane" />
     <Folder Include="Assets\Models\Improvements\Villa" />
@@ -1590,6 +1596,7 @@
     <Folder Include="Assets\Models\Resources\Tea" />
     <Folder Include="Assets\Models\Resources\Tobacco" />
     <Folder Include="Assets\Models\Units\Amazonas" />
+    <Folder Include="Assets\Models\Units\Ambassador" />
     <Folder Include="Assets\Models\Units\Armada" />
     <Folder Include="Assets\Models\Units\AttackSubmarine" />
     <Folder Include="Assets\Models\Units\Bandeirante" />
@@ -1603,8 +1610,11 @@
     <Folder Include="Assets\Models\Units\Cuirassier" />
     <Folder Include="Assets\Models\Units\Destroyer" />
     <Folder Include="Assets\Models\Units\Dhanurdhara" />
+    <Folder Include="Assets\Models\Units\Diplomat" />
     <Folder Include="Assets\Models\Units\Djong" />
     <Folder Include="Assets\Models\Units\Dreadnought" />
+    <Folder Include="Assets\Models\Units\Emissary" />
+    <Folder Include="Assets\Models\Units\Envoy" />
     <Folder Include="Assets\Models\Units\FieldGun" />
     <Folder Include="Assets\Models\Units\FleetDestroyer" />
     <Folder Include="Assets\Models\Units\FreeCompany" />
@@ -1612,6 +1622,8 @@
     <Folder Include="Assets\Models\Units\Galley" />
     <Folder Include="Assets\Models\Units\Goedendag" />
     <Folder Include="Assets\Models\Units\GreatBombard" />
+    <Folder Include="Assets\Models\Units\GreatDiplomat\Renaissance" />
+    <Folder Include="Assets\Models\Units\GreatDiplomat\Modern" />
     <Folder Include="Assets\Models\Units\Grenzer" />
     <Folder Include="Assets\Models\Units\HashemiteRaider" />
     <Folder Include="Assets\Models\Units\HeavySkirmisher" />
@@ -1647,6 +1659,7 @@
     <Folder Include="Assets\Models\Units\TreasureShip" />
     <Folder Include="Assets\Models\Units\Yamato" />
     <Folder Include="Assets\Models\Units\YellowBrow" />
+    <Folder Include="Assets\StrategicView\Features" />
     <Folder Include="Assets\StrategicView\Improvements" />
     <Folder Include="Assets\StrategicView\Resources" />
     <Folder Include="Assets\StrategicView\Units" />
@@ -1743,6 +1756,26 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas2_256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_045.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_064.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_080.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_128.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Atlases\Buildings\VPBuildingAtlas3_256.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2119,6 +2152,22 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Images\RandomVictory\SpaceRaceVictory.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Images\WonderSplash\Alamut_Splash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Images\WonderSplash\Alcatraz_Splash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Images\WonderSplash\ChateaudIf_Splash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Images\WonderSplash\PortRoyal_Splash.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2715,6 +2764,58 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Models\Improvements\Ordo\YurtCamp_PL.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_grnd_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_hb_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_hb_grnd.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_hb_grnd_h.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_hb_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\Saltworks_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\hb_saltworks.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\hb_saltworks.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\pl_saltworks.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Improvements\Saltworks\pl_saltworks.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3898,6 +3999,22 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Assets\Models\Units\Ambassador\ambassador.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Ambassador\ambassador.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Ambassador\ambassador_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Ambassador\ambassador_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Assets\Models\Units\Armada\mod_spanish_galleon.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -4226,6 +4343,22 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Assets\Models\Units\Diplomat\DiplomatVP.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Diplomat\DiplomatVP.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Diplomat\DiplomatVP_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Diplomat\DiplomatVP_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Assets\Models\Units\Djong\WarJunk.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -4259,6 +4392,46 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Models\Units\Dreadnought\edited_fx_triggers_battleship_4turret.ftsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Emissary\IncaScout.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Emissary\IncaScout.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Emissary\IncaScout.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Emissary\IncaScout_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Envoy\EnvoyVP.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Envoy\EnvoyVP.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Envoy\envoy_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Envoy\envoy_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Envoy\hat_envoy_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\Envoy\hat_envoy_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -4435,6 +4608,34 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\Models\Units\GreatBombard\Bombard_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\Elder_Statesman.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\Elder_Statesman.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\Elder_statesman_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Renaissance\Elder_statesman_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Modern\great_dignitary.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Modern\great_dignitary.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Models\Units\GreatDiplomat\Modern\great_dignitary.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -5186,6 +5387,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Assets\StrategicView\Features\sv_salt_lake.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Assets\StrategicView\Improvements\SV_Aplekton.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -5242,11 +5447,19 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Assets\StrategicView\Improvements\SV_Saltworks.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Assets\StrategicView\Improvements\SV_Siheyuan.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\StrategicView\Improvements\SV_Tersane.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\StrategicView\Improvements\SV_Torii.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -5275,6 +5488,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Assets\StrategicView\Resources\sv_jade.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\StrategicView\Resources\sv_lake_fish.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -5943,6 +6160,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Database Changes\Art\NewFeatureArts.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Database Changes\Art\NewResourceArts.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -6587,10 +6808,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Database Changes\Text\en_US\WorldMap\NewGoodyHutText.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Database Changes\Text\en_US\WorldMap\NewImprovementText.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -6716,6 +6933,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\WorldMap\AncientRuinChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\WorldMap\NewRegions.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

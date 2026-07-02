@@ -1002,147 +1002,238 @@
 		
 		<!-- Espionage -->
 		
-		<!-- Steal a Great Work in the City -->
+		<!-- Poison the Water Supply -->
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_GW</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_EFFECT</SpyMissionEffect>
+			<Type>ESPIONAGE_EVENT_CHOICE_POISON_WATER</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
+			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
-			<SpyIDChance>100</SpyIDChance>
-			<SpyKillChance>40</SpyKillChance>
-			<StealNumGW>1</StealNumGW>
-		</Row>
-		<!-- Sabotage Production -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT</SpyMissionEffect>
-			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
-			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
-			<SpyIDChance>20</SpyIDChance>
-			<SpyKillChance>10</SpyKillChance>
-			<BlockBuildingTurns>5</BlockBuildingTurns>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>50</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
+			<Expires>true</Expires>
+			<SapCityTurns>5</SapCityTurns>
+			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<NoFreshWater>true</NoFreshWater>
+			<CannotHaveBuildingClass>BUILDINGCLASS_MEDICAL_LAB</CannotHaveBuildingClass>
 		</Row>
 		<!-- Pilfer Religious Relics -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_FAITH</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_PEDIA</Pedia>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>750</NetworkPointsNeeded>
-			<SpyIDChance>20</SpyIDChance>
-			<SpyKillChance>10</SpyKillChance>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>25</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
 			<ReligiousPressureModifier>-100</ReligiousPressureModifier>
+			<RequiredBuildingClass>BUILDINGCLASS_TEMPLE</RequiredBuildingClass>
 			<Expires>true</Expires>
+			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
 		</Row>
-		<!-- Kidnap Specialists in the City -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_EFFECT</SpyMissionEffect>
-			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
-			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
-			<SpyIDChance>30</SpyIDChance>
-			<SpyKillChance>10</SpyKillChance>
-			<SpecialistsGreatPersonPointsPerTurn>-1</SpecialistsGreatPersonPointsPerTurn>
-			<Expires>true</Expires>
-			<RequiresNotPuppet>true</RequiresNotPuppet>
-			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</TriggerPlayerEventChoice>
-		</Row>
-		<!-- Steal From Treasury -->
+		<!-- Burgle the National Treasury -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_PEDIA</Pedia>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1000</NetworkPointsNeeded>
-			<SpyIDChance>30</SpyIDChance>
-			<SpyKillChance>20</SpyKillChance>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>25</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
 			<CapitalOnly>true</CapitalOnly>
-			<StealFromTreasuryPercent>20</StealFromTreasuryPercent>
+			<StealFromTreasuryPercent>35</StealFromTreasuryPercent>
+			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 		</Row>
-		<!-- Steal a Technology -->
+		<!-- Hijack a Trade Convoy -->
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_EFFECT</SpyMissionEffect>
+			<Type>ESPIONAGE_EVENT_CHOICE_HIJACK</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>0</EventDuration>
+			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
-			<NetworkPointsScaling>true</NetworkPointsScaling>
-			<SpyIDChance>50</SpyIDChance>
-			<SpyKillChance>20</SpyKillChance>
-			<CapitalOnly>true</CapitalOnly>
-			<StealNumTechs>1</StealNumTechs>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>25</SpyIDChance>
+			<SpyKillChance>5</SpyKillChance>
+			<Expires>true</Expires>
+			<RandomBarbarianSpawn>2</RandomBarbarianSpawn>
+			<NoTourismTurns>10</NoTourismTurns>
+			<HasTradeConnection>1</HasTradeConnection>
+			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
+		</Row>
+		<!-- Infiltrate governors office -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>5</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
+			<CannotHaveBuildingClass>BUILDINGCLASS_PALACE</CannotHaveBuildingClass>
+		</Row>
+		<!-- Desitribute Seidious Leaflets -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_LEAFLETS</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>5</SpyKillChance>
+			<BasicNeedsMedianModifier>25</BasicNeedsMedianModifier>
+			<GoldMedianModifier>25</GoldMedianModifier>
+			<ScienceMedianModifier>25</ScienceMedianModifier>
+			<CultureMedianModifier>25</CultureMedianModifier>
+			<ReligiousUnrestModifier>25</ReligiousUnrestModifier>
+			<Expires>true</Expires>
+			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
+			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+		</Row>
+		<!-- Assassinate the Governor -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>10</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>5</SpyKillChance>
+			<BlockBuildingTurns>10</BlockBuildingTurns>
+			<SapCityTurns>2</SapCityTurns>
+			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+		</Row>
+		<!-- Kidnap Specialists in the City -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
+			<SpyIDChance>25</SpyIDChance>
+			<SpyKillChance>50</SpyKillChance>
+			<SpecialistsGreatPersonPointsPerTurn>-1</SpecialistsGreatPersonPointsPerTurn>
+			<Expires>true</Expires>
+			<RequiresNotPuppet>true</RequiresNotPuppet>
+			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</TriggerPlayerEventChoice>
+			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Radicalize the rural citizenry -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_PEDIA</Pedia>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
 			<SpyIDChance>50</SpyIDChance>
-			<SpyKillChance>70</SpyKillChance>
+			<SpyKillChance>5</SpyKillChance>
 			<PillageResourceTilesChance>100</PillageResourceTilesChance>
 			<PillageRoadsChance>50</PillageRoadsChance>
-			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Arm the local populace -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_PEDIA</Pedia>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>15</EventDuration>
+			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
-			<SpyIDChance>30</SpyIDChance>
-			<SpyKillChance>30</SpyKillChance>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
 			<IsEnemyUnhappy>true</IsEnemyUnhappy>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
 			<RandomBarbarianSpawnPerEra>1</RandomBarbarianSpawnPerEra>
 			<NoTourismTurns>10</NoTourismTurns>
-			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
 		</Row>
-		<!-- Target local City Defenses -->
+		<!-- Sabotage City Defenses -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_PEDIA</Pedia>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>5</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>75</SpyKillChance>
+			<SapCityTurns>5</SapCityTurns>
+			<PillageFortificationsChance>100</PillageFortificationsChance>
+			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+		</Row>
+		<!-- Purloin a Great Work in the City -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_GW</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
 			<EventDuration>15</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
-			<SpyIDChance>80</SpyIDChance>
-			<SpyKillChance>70</SpyKillChance>
-			<SapCityTurns>5</SapCityTurns>
-			<PillageFortificationsChance>100</PillageFortificationsChance>
-			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<SpyIDChance>95</SpyIDChance>
+			<SpyKillChance>75</SpyKillChance>
+			<StealNumGW>1</StealNumGW>
+			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
+		</Row>
+		<!-- Steal a Technology -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>0</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>2000</NetworkPointsNeeded>
+			<NetworkPointsScaling>true</NetworkPointsScaling>
+			<SpyIDChance>5</SpyIDChance>
+			<SpyKillChance>95</SpyKillChance>
+			<CapitalOnly>true</CapitalOnly>
+			<StealNumTechs>1</StealNumTechs>
 		</Row>
 		
 		<!--- Counterspy Missions -->
@@ -1154,6 +1245,8 @@
 			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_MISSION</MissionTooltip>
 			<IsCounterSpyMission>true</IsCounterSpyMission>
 			<CounterspyNPRateReduction>20</CounterspyNPRateReduction>
+			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			<EventDuration>999</EventDuration>
 		</Row>
 		<!-- Inspect the local garrison and fine-tune our city defenses -->
 		<Row>
@@ -1163,7 +1256,36 @@
 			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION</MissionTooltip>
 			<IsCounterSpyMission>true</IsCounterSpyMission>
 			<CityDefenseModifierBase>30</CityDefenseModifierBase>
-			<CounterspyBlockSapCity>true</CounterspyBlockSapCity>
+			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<EventDuration>999</EventDuration>
+		</Row>
+		<!-- Hunt down heretics -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_HELP</Help>
+			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_MISSION</MissionTooltip>
+			<IsCounterSpyMission>true</IsCounterSpyMission>
+			<CityHasPlayerMajorityReligion>1</CityHasPlayerMajorityReligion>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+			<GrowthMod>-15</GrowthMod>
+			<EventDuration>999</EventDuration>
+		</Row>
+		<!-- Set up checkpoints -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_HELP</Help>
+			<MissionTooltip>TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_MISSION</MissionTooltip>
+			<IsCounterSpyMission>true</IsCounterSpyMission>
+			<BasicNeedsMedianModifier>-25</BasicNeedsMedianModifier>
+			<GoldMedianModifier>-25</GoldMedianModifier>
+			<ScienceMedianModifier>-25</ScienceMedianModifier>
+			<CultureMedianModifier>-25</CultureMedianModifier>
+			<ReligiousUnrestModifier>-25</ReligiousUnrestModifier>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<EventDuration>999</EventDuration>
 		</Row>
 	</CityEventChoices>
 	<CityEventChoice_Notification>

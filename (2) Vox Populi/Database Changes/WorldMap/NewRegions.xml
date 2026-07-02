@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Regions>
+		<!-- Only used in AssignStartingPlots.lua. The description texts are unused and undefined just like vanilla ones. -->
+		<Row>
+			<Type>REGION_MOUNTAIN</Type>
+			<Description>TXT_KEY_REGION_MOUNTAIN</Description>
+		</Row>
+		<Row>
+			<Type>REGION_SNOW</Type>
+			<Description>TXT_KEY_REGION_SNOW</Description>
+		</Row>
+	</Regions>
+</GameData>

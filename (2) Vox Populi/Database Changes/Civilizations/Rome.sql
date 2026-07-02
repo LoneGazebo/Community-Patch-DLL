@@ -1,12 +1,12 @@
 ----------------------------------------------------------
--- Unique Ability: The Glory of Rome
+-- Unique Ability: All Roads Lead to Rome
 ----------------------------------------------------------
-UPDATE Traits
-SET
-	CapitalBuildingModifier = 15,
-	CityStateCombatModifier = 30,
-	AnnexedCityStatesGiveYields = 1
-WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER';
+INSERT INTO Trait_YieldChangesPerLandConnectedCityTimes100
+	(TraitType, YieldType, Yield, Radius)
+VALUES
+	('TRAIT_CAPITAL_BUILDINGS_CHEAPER', 'YIELD_GOLD', 200, 8),
+	('TRAIT_CAPITAL_BUILDINGS_CHEAPER', 'YIELD_CULTURE', 100, 8),
+	('TRAIT_CAPITAL_BUILDINGS_CHEAPER', 'YIELD_TOURISM', 100, 8);
 
 ----------------------------------------------------------
 -- Unique Unit: Legion (Swordsman)
@@ -140,13 +140,10 @@ VALUES
 	('CIVILIZATION_ROME', 'BUILDINGCLASS_HEROIC_EPIC', 'BUILDING_FORNIX');
 
 UPDATE Buildings
-SET WLTKDTurns = 10
+SET
+	WLTKDTurns = 10,
+	TrainedFreePromotion = 'PROMOTION_TRIUMPH'
 WHERE Type = 'BUILDING_FORNIX';
-
-INSERT INTO Building_ExtraPlayerInstancesFromAccomplishments
-	(BuildingType, AccomplishmentType, ExtraInstances)
-VALUES
-	('BUILDING_FORNIX', 'ACCOMPLISHMENT_ELIMINATE_PLAYER', 1);
 
 UPDATE Building_YieldChanges
 SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_HEROIC_EPIC' AND YieldType = 'YIELD_CULTURE') + 1
@@ -157,13 +154,12 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_FORNIX', 'YIELD_TOURISM', 2);
 
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
+INSERT INTO Building_CityConnectionPlotYieldChangesGlobal
+	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_FORNIX', 'BUILDINGCLASS_AQUEDUCT', 'YIELD_GOLD', 1),
-	('BUILDING_FORNIX', 'BUILDINGCLASS_AQUEDUCT', 'YIELD_TOURISM', 1);
+	('BUILDING_FORNIX', 'YIELD_PRODUCTION', 1);
 
-INSERT INTO Building_BuildingClassLocalYieldChanges
+INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 VALUES
 	('BUILDING_FORNIX', 'BUILDINGCLASS_AQUEDUCT', 'YIELD_GOLD', 1),

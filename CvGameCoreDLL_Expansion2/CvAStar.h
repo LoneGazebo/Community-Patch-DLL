@@ -158,6 +158,15 @@ public:
 		m_bAirliftImprovementsChecked = bNewValue;
 	}
 
+	inline bool IsSealiftCitiesChecked() const
+	{
+		return m_bSealiftCitiesChecked;
+	}
+	inline void SetSealiftCitiesChecked(bool bNewValue)
+	{
+		m_bSealiftCitiesChecked = bNewValue;
+	}
+
 	inline bool IsChangePortCitiesChecked() const
 	{
 		return m_bChangePortCitiesChecked;
@@ -269,6 +278,8 @@ protected:
 
 	bool m_bAirliftCitiesChecked; // performance: we need to evaluate airlift targets only the first time we're on a plot that allows airlift from
 	bool m_bAirliftImprovementsChecked; // we need two cached values for airlift: improvements can always be targeted, but cities only when airlifting from a city, not when airlifting from an improvement
+	bool m_bSealiftCitiesChecked;
+	bool m_bSealiftImprovementsChecked;
 	bool m_bChangePortCitiesChecked; // performance: we need to evaluate great admiral targets only the first time we're on a plot that allows changing ports
 
 	//for debugging

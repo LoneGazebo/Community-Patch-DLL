@@ -15,6 +15,7 @@
 #include "CvGrandStrategyAI.h"
 
 #include "LintFree.h"
+#include "CvTraitClasses.h"
 
 //======================================================================================================
 //					CvTraitEntry
@@ -95,11 +96,11 @@ CvTraitEntry::CvTraitEntry() :
 	m_bExpansionWLTKD(false),
 	m_bTradeRouteOnly(false),
 	m_bKeepConqueredBuildings(false),
-	m_iWLTKDGPImprovementModifier(0),
-	m_iGrowthBoon(0),
 	m_bMountainPass(false),
 	m_bWorkersMountainPass(false),
 	m_bUniqueBeliefsOnly(false),
+	m_iGrowthBoon(0),
+	m_iWLTKDGPImprovementModifier(0),
 	m_iAllianceCSDefense(0),
 	m_iAllianceCSStrength(0),
 	m_iTourismGABonus(0),
@@ -113,16 +114,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_iMultipleAttackBonus(0),
 	m_iCityConquestGWAM(0),
 	m_iEventTourismBoost(0),
+	m_iReligionSpreadTourism(0),
 	m_iEventGP(0),
-	m_iWLTKDCulture(0),
-	m_iWLTKDGATimer(0),
-	m_iWLTKDUnhappinessNeedsMod(0),
-	m_iStartingSpies(0),
-	m_iSpyOffensiveStrengthModifier(0),
-	m_iSpyMoveRateBonus(0),
-	m_iSpySecurityModifier(0),
-	m_iSpyExtraRankBonus(0),
-	m_iQuestYieldModifier(0),
 	m_iWonderProductionModifierToBuilding(0),
 	m_iPolicyGEorGM(0),
 	m_iGAGarrisonCityRangeStrikeModifier(0),
@@ -178,6 +171,15 @@ CvTraitEntry::CvTraitEntry() :
 	m_iSeaTradeRouteRangeBonus(0),
 	m_iTradeReligionModifier(0),
 	m_iTradeBuildingModifier(0),
+	m_iWLTKDCulture(0),
+	m_iWLTKDGATimer(0),
+	m_iWLTKDUnhappinessNeedsMod(0),
+	m_iStartingSpies(0),
+	m_iSpyOffensiveStrengthModifier(0),
+	m_iSpyMoveRateBonus(0),
+	m_iSpySecurityModifier(0),
+	m_iSpyExtraRankBonus(0),
+	m_iQuestYieldModifier(0),
 
 	m_eFreeUnitPrereqTech(NO_TECH),
 	m_eFreeBuilding(NO_BUILDING),
@@ -223,10 +225,18 @@ CvTraitEntry::CvTraitEntry() :
 	m_piStrategicResourceQuantityModifier(NULL),
 	m_piResourceQuantityModifiers(NULL),
 	m_piNumFreeResourceOnWorldWonderCompletion(NULL),
-	m_ppiImprovementYieldChanges(NULL),
-	m_ppiPlotYieldChanges(NULL),
 	m_paiGAPToYield(NULL),
 	m_paiMountainRangeYield(NULL),
+	m_ppiYieldFromTileEarnTerrainType(NULL),
+	m_ppiYieldFromTilePurchaseTerrainType(NULL),
+	m_ppiYieldFromTileConquest(NULL),
+	m_ppiYieldFromTileCultureBomb(NULL),
+	m_ppiYieldFromTileStealCultureBomb(NULL),
+	m_ppiYieldFromTileSettle(NULL),
+	m_ppiYieldChangePerImprovementBuilt(NULL),
+	m_pbiYieldFromBarbarianCampClear(),
+	m_ppiImprovementYieldChanges(NULL),
+	m_ppiPlotYieldChanges(NULL),
 	m_piYieldFromLevelUp(NULL),
 	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
@@ -256,16 +266,11 @@ CvTraitEntry::CvTraitEntry() :
 	m_bProphetFervor(false),
 	m_bCombatBoostNearNaturalWonder(false),
 	m_piNumPledgesDomainProdMod(NULL),
-	m_piFreeUnitClassesDOW(NULL),
 	m_piDomainFreeExperienceModifier(NULL),
-	m_ppiYieldFromTileEarnTerrainType(NULL),
-	m_ppiYieldFromTilePurchaseTerrainType(NULL),
-	m_ppiYieldFromTileConquest(NULL),
-	m_ppiYieldFromTileCultureBomb(NULL),
-	m_ppiYieldFromTileStealCultureBomb(NULL),
-	m_ppiYieldFromTileSettle(NULL),
-	m_ppiYieldChangePerImprovementBuilt(NULL),
-	m_pbiYieldFromBarbarianCampClear(),
+	m_piGreatPersonProgressFromPolicyUnlock(NULL),
+	m_piGreatPersonProgressFromKills(),
+	m_piRandomGreatPersonProgressFromKills(),
+	m_piFreeUnitClassesDOW(NULL),
 	m_pbiYieldFromRouteMovementInForeignTerritory(),
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piCapitalYieldChanges(NULL),
@@ -294,15 +299,12 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiSpecialistYieldChanges(NULL),
 	m_ppiGreatPersonExpendedYield(NULL),
 	m_ppiGreatPersonBornYield(NULL),
-	m_piGoldenAgeGreatPersonRateModifier(NULL),
 	m_piGreatPersonCostReduction(NULL),
+	m_piGoldenAgeGreatPersonRateModifier(NULL),
 	m_piPerPuppetGreatPersonRateModifier(NULL),
 	m_piGreatPersonGWAM(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
 	m_piGoldenAgeFromGreatPersonBirth(NULL),
-	m_piGreatPersonProgressFromPolicyUnlock(NULL),
-	m_piGreatPersonProgressFromKills(),
-	m_piRandomGreatPersonProgressFromKills(),
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
 {
 }
@@ -853,6 +855,10 @@ int CvTraitEntry::GetEventTourismBoost() const
 {
 	return m_iEventTourismBoost;
 }
+int CvTraitEntry::GetReligionSpreadTourism() const
+{
+	return m_iReligionSpreadTourism;
+}
 int CvTraitEntry::GetEventGP() const
 {
 	return m_iEventGP;
@@ -1400,9 +1406,17 @@ bool CvTraitEntry::IsNoReligiousStrife() const
 {
 	return m_bIsNoReligiousStrife;
 }
+bool CvTraitEntry::IsEraScaling() const
+{
+	return m_bIsEraScaling;
+}
 bool CvTraitEntry::IsOddEraScaler() const
 {
 	return m_bIsOddEraScaler;
+}
+int CvTraitEntry::GetFractionalEraScaler() const
+{
+	return m_iFractionalEraScaler;
 }
 int CvTraitEntry::GetWonderProductionModGA() const
 {
@@ -1864,7 +1878,7 @@ int CvTraitEntry::GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eInde
 	return m_ppiTradeRouteYieldChange ? m_ppiTradeRouteYieldChange[eIndex1][eIndex2] : 0;
 }
 
-/// Accessor:: Extra yield from an improvement
+/// Accessor:: Extra yield from specialists
 int CvTraitEntry::GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const
 {
 	PRECONDITION(eIndex1 < GC.getNumSpecialistInfos(), "Index out of bounds");
@@ -2415,6 +2429,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iMultipleAttackBonus					= kResults.GetInt("MultipleAttackBonus");
 	m_iCityConquestGWAM						= kResults.GetInt("CityConquestGWAM");
 	m_iEventTourismBoost					= kResults.GetInt("EventTourismBoost");
+	m_iReligionSpreadTourism				= kResults.GetInt("ReligionSpreadTourism");
 	m_iEventGP								= kResults.GetInt("EventGP");
 	m_iWLTKDCulture							= kResults.GetInt("WLTKDCultureBoost");
 	m_iWLTKDGATimer							= kResults.GetInt("WLTKDFromGATurns");
@@ -2615,7 +2630,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
 	m_bIsNoReligiousStrife = kResults.GetBool("IsNoReligiousStrife");
+	m_bIsEraScaling = kResults.GetBool("IsEraScaling");
 	m_bIsOddEraScaler = kResults.GetBool("IsOddEraScaler");
+	m_iFractionalEraScaler = kResults.GetInt("FractionalEraScaler");
 	m_iWonderProductionModGA = kResults.GetInt("WonderProductionModGA");
 	m_iCultureBonusModifierConquest = kResults.GetInt("CultureBonusModifierConquest");
 	m_iProductionBonusModifierConquest = kResults.GetInt("ProductionBonusModifierConquest");
@@ -3751,6 +3768,35 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		std::map<int, AlternateResourceTechs>(m_piiAlternateResourceTechs).swap(m_piiAlternateResourceTechs);
 	}
 
+	// Populate m_mviYieldChangePerLandConnectedCityTimes100
+	{
+		string sqlKey = "Trait_YieldChangesPerLandConnectedCityTimes100";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (!pResults)
+		{
+			const char* szSQL = "select Yields.ID, Yield, Radius from Trait_YieldChangesPerLandConnectedCityTimes100 inner join Yields on Type = YieldType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int iYieldId = pResults->GetInt(0);
+			const int iYield = pResults->GetInt(1);
+			int iRadius = pResults->GetInt(2);
+			if (iRadius <= 0)
+			{
+				iRadius = INT_MAX;
+			}
+			if (m_mviYieldChangePerLandConnectedCityTimes100[iRadius].empty())
+				m_mviYieldChangePerLandConnectedCityTimes100[iRadius].resize(GC.getNUM_YIELD_TYPES());
+			m_mviYieldChangePerLandConnectedCityTimes100[iRadius][iYieldId] += iYield;
+		}
+
+		pResults->Reset();
+	}
+
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_WRITER")] += m_iGoldenAgeGreatWriterRateModifier;
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_ARTIST")] += m_iGoldenAgeGreatArtistRateModifier;
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_MUSICIAN")] += m_iGoldenAgeGreatMusicianRateModifier;
@@ -4259,11 +4305,18 @@ void CvPlayerTraits::SetIsExpansionist()
 			}
 		}
 	}
+
+	if (HasPositiveYieldChangesPerLandConnectedCity())
+	{
+		m_bIsExpansionist = true;
+		return;
+	}
 }
 
 void CvPlayerTraits::SetIsReligious()
 {
 	if (GetYieldFromHistoricEvent(YIELD_FAITH) > 0 ||
+		GetReligionSpreadTourism() > 0 ||
 		GetYieldFromLevelUp(YIELD_FAITH) > 0 ||
 		GetYieldFromConquest(YIELD_FAITH) > 0 ||
 		GetYieldFromCityDamageTimes100(YIELD_FAITH) > 0 ||
@@ -4526,6 +4579,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iMultipleAttackBonus += trait->GetMultipleAttackBonus();
 			m_iCityConquestGWAM += trait->GetCityConquestGWAM();
 			m_iEventTourismBoost += trait->GetEventTourismBoost();
+			m_iReligionSpreadTourism += trait->GetReligionSpreadTourism();
 			m_iGrowthBoon += trait->GetGrowthBoon();		
 			m_iWLTKDGPImprovementModifier += trait->GetWLTKDGPImprovementModifier();
 			m_iAllianceCSDefense += trait->GetAllianceCSDefense();
@@ -4724,18 +4778,23 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iCultureMedianModifier += trait->GetCultureMedianModifier();
 			m_iReligiousUnrestModifier += trait->GetReligiousUnrestModifier();
 
-			if( trait->IsNoConnectionUnhappiness())
+			if(trait->IsNoConnectionUnhappiness())
 			{
 				m_bNoConnectionUnhappiness = true;
 			}
-			if( trait->IsNoReligiousStrife())
+			if(trait->IsNoReligiousStrife())
 			{
 				m_bIsNoReligiousStrife = true;
 			}
-			if( trait->IsOddEraScaler())
+			if(trait->IsEraScaling())
 			{
-				m_bIsOddEraScaler= true;
+				m_bIsEraScaling = true;
 			}
+			if(trait->IsOddEraScaler())
+			{
+				m_bIsOddEraScaler = true;
+			}
+			m_iFractionalEraScaler += trait->GetFractionalEraScaler();
 			m_iWonderProductionModGA += trait->GetWonderProductionModGA();
 			m_iCultureBonusModifierConquest += trait->GetCultureBonusModifierConquest();
 			m_iProductionBonusModifierConquest += trait->GetProductionBonusModifierConquest();
@@ -5175,9 +5234,26 @@ void CvPlayerTraits::InitPlayerTraits()
 				}
 			}
 
+			// Yields from land-connected cities
+			const map<int, vector<int>>& mviYieldChangePerLandConnectedCity = trait->GetYieldChangesPerLandConnectedCityTimes100();
+			for (map<int, vector<int>>::const_iterator it = mviYieldChangePerLandConnectedCity.begin(); it != mviYieldChangePerLandConnectedCity.end(); ++it)
+			{
+				const vector<int>& vSource = it->second;
+				vector<int>& vDest = m_mviYieldChangePerLandConnectedCityTimes100[it->first];
+				if (vDest.size() < vSource.size())
+				{
+					vDest.resize(vSource.size());
+				}
+
+				for (size_t i = 0; i < vSource.size(); i++)
+				{
+					vDest[i] += vSource[i];
+				}
+			}
+
 			// Free promotions
-			set<int> siFreePromotions = trait->GetFreePromotions();
-			for (set<int>::iterator it = siFreePromotions.begin(); it != siFreePromotions.end(); ++it)
+			const set<int>& siFreePromotions = trait->GetFreePromotions();
+			for (set<int>::const_iterator it = siFreePromotions.begin(); it != siFreePromotions.end(); ++it)
 			{
 				PromotionTypes ePromotion = static_cast<PromotionTypes>(*it);
 				m_seFreePromotions.insert(ePromotion);
@@ -5348,6 +5424,7 @@ void CvPlayerTraits::Reset()
 	m_iMultipleAttackBonus = 0;
 	m_iCityConquestGWAM = 0;
 	m_iEventTourismBoost = 0;
+	m_iReligionSpreadTourism = 0;
 	m_iWonderProductionModifierToBuilding = 0;
 	m_iPolicyGEorGM = 0;
 	m_iGAGarrisonCityRangeStrikeModifier = 0;
@@ -5441,7 +5518,9 @@ void CvPlayerTraits::Reset()
 	m_iReligiousUnrestModifier = 0;
 	m_bNoConnectionUnhappiness = false;
 	m_bIsNoReligiousStrife = false;
+	m_bIsEraScaling = false;
 	m_bIsOddEraScaler = false;
+	m_iFractionalEraScaler = 0;
 	m_iWonderProductionModGA = 0;
 	m_iCultureBonusModifierConquest = 0;
 	m_iProductionBonusModifierConquest = 0;
@@ -5711,6 +5790,9 @@ void CvPlayerTraits::Reset()
 		FreeResourceXCities temp;
 		m_aFreeResourceXCities.push_back(temp);
 	}
+
+	m_mviYieldChangePerLandConnectedCityTimes100.clear();
+	m_seFreePromotions.clear();
 }
 
 /// Does this player possess a specific trait?
@@ -5735,6 +5817,39 @@ bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 	{
 		return false;
 	}
+}
+
+/// What kind of Era scaling does this player have on their traits?
+int CvPlayerTraits::CurrentEraScalingModifier() const
+{
+	int iModifier = 100;
+	
+	if (!IsEraScaling())
+		return iModifier;
+
+	int iCurrentEra = (int)m_pPlayer->GetCurrentEra();
+	
+	if (IsOddEraScaler() && iCurrentEra > 1)
+	{
+		iModifier += 100 * (iCurrentEra / 2);
+	}
+
+	int iFractional = GetFractionalEraScaler();
+	if (iFractional > 0)
+	{
+		iModifier += (100 * iCurrentEra) / iFractional;
+	}
+
+	// no abnormal scaling? default to standard era scaling
+	if (iModifier == 100)
+	{
+		if (iCurrentEra > 1)
+		{
+			iModifier += 100 * (iCurrentEra - 1);
+		}
+	}
+
+	return iModifier;
 }
 
 /// Will settling a city in this new area unlock a unique luxury?
@@ -6178,28 +6293,10 @@ int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldT
 	{
 		return 0;
 	}
-	if(IsOddEraScaler())
-	{
-		int iYield = m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
-		if(iYield > 0)
-		{
-			if(m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true))
-			{
-				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
-			}
-			if(m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true))
-			{
-				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
-			}
-			if(m_pPlayer->GetCurrentEra() >= (EraTypes) GC.getInfoTypeForString("ERA_POSTMODERN", true))
-			{
-				iYield += m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
-			}
-			return iYield;
-		}
-	}
 
-	return m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield];
+	int iModifier = CurrentEraScalingModifier();
+
+	return (iModifier * m_ppaaiSpecialistYieldChange[(int)eSpecialist][(int)eYield]) / 100;
 }
 
 int CvPlayerTraits::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const
@@ -7315,6 +7412,31 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 	return ((int)m_aMayaBonusChoices.size() >= iNumGreatPeopleTypes);
 }
 
+bool CvPlayerTraits::HasPositiveYieldChangesPerLandConnectedCity() const
+{
+	for (map<int, vector<int>>::const_iterator it = m_mviYieldChangePerLandConnectedCityTimes100.begin(); it != m_mviYieldChangePerLandConnectedCityTimes100.end(); ++it)
+	{
+		for (vector<int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+		{
+			if (*it2 > 0)
+				return true;
+		}
+	}
+	return false;
+}
+
+int CvPlayerTraits::GetYieldChangePerLandConnectedCityTimes100(int iRadius, YieldTypes eYield) const
+{
+	ASSERT(iRadius > 0, "Invalid radius");
+	ASSERT(eYield > NO_YIELD, "eYield is invalid");
+	ASSERT(eYield <= GC.getNUM_YIELD_TYPES(), "eYield is invalid");
+	map<int, vector<int>>::const_iterator it = m_mviYieldChangePerLandConnectedCityTimes100.find(iRadius);
+	if (it == m_mviYieldChangePerLandConnectedCityTimes100.end())
+		return 0;
+
+	return it->second[eYield];
+}
+
 // SERIALIZATION METHODS
 
 // FreeResourceXCities
@@ -7510,6 +7632,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iMultipleAttackBonus);
 	visitor(playerTraits.m_iCityConquestGWAM);
 	visitor(playerTraits.m_iEventTourismBoost);
+	visitor(playerTraits.m_iReligionSpreadTourism);
 	visitor(playerTraits.m_iEventGP);
 	visitor(playerTraits.m_iWLTKDCulture);
 	visitor(playerTraits.m_iWLTKDGATimer);
@@ -7614,7 +7737,9 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iReligiousUnrestModifier);
 	visitor(playerTraits.m_bNoConnectionUnhappiness);
 	visitor(playerTraits.m_bIsNoReligiousStrife);
+	visitor(playerTraits.m_bIsEraScaling);
 	visitor(playerTraits.m_bIsOddEraScaler);
+	visitor(playerTraits.m_iFractionalEraScaler);
 	visitor(playerTraits.m_iWonderProductionModGA);
 	visitor(playerTraits.m_iCultureBonusModifierConquest);
 	visitor(playerTraits.m_iProductionBonusModifierConquest);
@@ -7730,6 +7855,8 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_ppiCityYieldFromUnimprovedFeature);
 	visitor(playerTraits.m_ppaaiUnimprovedFeatureYieldChange);
 	visitor(playerTraits.m_aUniqueLuxuryAreas);
+	visitor(playerTraits.m_mviYieldChangePerLandConnectedCityTimes100);
+	visitor(playerTraits.m_seFreePromotions);
 }
 
 /// Serialization read

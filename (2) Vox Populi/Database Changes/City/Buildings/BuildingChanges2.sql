@@ -183,7 +183,14 @@ VALUES
 INSERT INTO Building_YieldFromUnitProduction
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_ORDER', 'YIELD_FAITH', 10);
+	('BUILDING_ORDER', 'YIELD_GOLD', 15);
+
+INSERT INTO Building_DomainFreeExperiences
+	(BuildingType, DomainType, Experience)
+VALUES
+	('BUILDING_ORDER', 'DOMAIN_LAND', 15),
+	('BUILDING_ORDER', 'DOMAIN_SEA', 15),
+	('BUILDING_ORDER', 'DOMAIN_AIR', 15);
 
 -- Teocalli
 INSERT INTO Building_YieldChanges
@@ -201,14 +208,11 @@ INSERT INTO Building_YieldFromVictory
 VALUES
 	('BUILDING_TEOCALLI', 'YIELD_FAITH', 8, 0);
 
-INSERT INTO Building_DomainFreeExperiences
-	(BuildingType, DomainType, Experience)
-VALUES
-	('BUILDING_TEOCALLI', 'DOMAIN_LAND', 10),
-	('BUILDING_TEOCALLI', 'DOMAIN_SEA', 10),
-	('BUILDING_TEOCALLI', 'DOMAIN_AIR', 10);
-
 -- Gurdwara
+UPDATE Buildings
+SET AlwaysHeal = 5
+WHERE BuildingClass = 'BUILDINGCLASS_GURDWARA';
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
@@ -219,6 +223,12 @@ INSERT INTO Building_YieldModifiers
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_GURDWARA', 'YIELD_FOOD', 10);
+
+-- Daoguan
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_DAOGUAN', 'YIELD_FAITH', 4);
 
 ----------------------------------------------------------------------------
 -- Reformation Buildings
@@ -247,6 +257,7 @@ VALUES
 	('BUILDING_SACRED_GARDEN', 'IMPROVEMENT_HOLY_SITE', 'YIELD_FOOD', 5),
 	('BUILDING_HOLY_COUNCIL', 'IMPROVEMENT_HOLY_SITE', 'YIELD_SCIENCE', 5),
 	('BUILDING_APOSTOLIC_PALACE', 'IMPROVEMENT_HOLY_SITE', 'YIELD_TOURISM', 5),
+	('BUILDING_HEAVENLY_GROTTO', 'IMPROVEMENT_HOLY_SITE', 'YIELD_FOOD', 5),
 	('BUILDING_GRAND_OSSUARY', 'IMPROVEMENT_HOLY_SITE', 'YIELD_GOLD', 5);
 
 -- Mausoleum
@@ -302,6 +313,12 @@ VALUES
 	('BUILDING_SACRED_GARDEN', 'YIELD_CULTURE', 5),
 	('BUILDING_SACRED_GARDEN', 'YIELD_FAITH', 3);
 
+INSERT INTO Building_YieldFromSpyDefenseOrID
+	(BuildingType, YieldType, Yield)
+SELECT
+	'BUILDING_SACRED_GARDEN', Type, 20
+FROM Yields WHERE ID < 6; -- "all yields"
+
 -- Holy Council
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -316,11 +333,36 @@ VALUES
 	('BUILDING_APOSTOLIC_PALACE', 'YIELD_FAITH', 4),
 	('BUILDING_APOSTOLIC_PALACE', 'YIELD_GOLDEN_AGE_POINTS', 4);
 
+INSERT INTO Building_YieldFromSpyRigElection
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_APOSTOLIC_PALACE', 'YIELD_TOURISM', 25);
+
 -- Grand Ossuary
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_GRAND_OSSUARY', 'YIELD_FAITH', 10);
+
+INSERT INTO Building_YieldFromSpyDefense
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_GRAND_OSSUARY', 'YIELD_CULTURE', 100),
+	('BUILDING_GRAND_OSSUARY', 'YIELD_FAITH', 100);
+
+-- Heavenly Grotto
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_GOLD', 2),
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 2);
+
+INSERT INTO Building_YieldFromSpyIdentify
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_SCIENCE', 50),
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_CULTURE', 50),
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 50);
 
 ----------------------------------------------------------------------------
 -- World Wonders
@@ -503,7 +545,7 @@ VALUES
 INSERT INTO Building_YieldFromVictoryGlobal
 	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BUILDING_TERRACOTTA_ARMY', 'YIELD_CULTURE', 10, 1);
+	('BUILDING_TERRACOTTA_ARMY', 'YIELD_CULTURE', 8, 1);
 
 -- Nalanda
 INSERT INTO Building_YieldChanges
@@ -527,7 +569,8 @@ UPDATE Buildings
 SET
 	FreePolicies = 0,
 	FreeBuildingThisCity = 'BUILDINGCLASS_TEMPLE',
-	IlliteracyFlatReduction = 1
+	IlliteracyFlatReduction = 1,
+	SpySecurityModifier = 15
 WHERE Type = 'BUILDING_ORACLE';
 
 INSERT INTO Building_YieldChanges
@@ -549,7 +592,6 @@ SET
 	SpecialistType = 'SPECIALIST_ENGINEER',
 	GreatPeopleRateChange = 1,
 	FreeBuildingThisCity = 'BUILDINGCLASS_CHURCH',
-	BorderGrowthRateIncreaseGlobal = 40,
 	GlobalPlotBuyCostModifier = -25
 WHERE Type = 'BUILDING_HAGIA_SOPHIA';
 
@@ -559,6 +601,11 @@ VALUES
 	('BUILDING_HAGIA_SOPHIA', 'YIELD_CULTURE', 1),
 	('BUILDING_HAGIA_SOPHIA', 'YIELD_FAITH', 1);
 
+INSERT INTO Building_GlobalYieldModifiers
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_HAGIA_SOPHIA', 'YIELD_CULTURE_LOCAL', 40);
+
 DELETE FROM Building_FreeUnits WHERE BuildingType = 'BUILDING_HAGIA_SOPHIA';
 
 -- Great Wall
@@ -566,7 +613,8 @@ UPDATE Buildings
 SET
 	ObsoleteTech = 'TECH_GUNPOWDER',
 	WorkerSpeedModifier = 25,
-	CitySupplyFlat = 3
+	CitySupplyFlat = 3,
+	ExtraSpies = 50
 WHERE Type = 'BUILDING_GREAT_WALL';
 
 INSERT INTO Building_YieldChanges
@@ -690,7 +738,8 @@ SET
 	SingleLeagueVotes = 0,
 	PrereqTech = 'TECH_CIVIL_SERVICE',
 	PolicyType = 'POLICY_LIBERTY_FINISHER',
-	PovertyFlatReduction = 1
+	PovertyFlatReduction = 1,
+	SpySecurityModifier = 10
 WHERE Type = 'BUILDING_FORBIDDEN_PALACE';
 
 INSERT INTO Building_YieldChanges
@@ -709,6 +758,19 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_KARLSTEJN', 'YIELD_CULTURE', 3),
 	('BUILDING_KARLSTEJN', 'YIELD_FAITH', 4);
+
+-- Alamut Fortress
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ALAMUT_FORTRESS', 'YIELD_SCIENCE', 3),
+	('BUILDING_ALAMUT_FORTRESS', 'YIELD_CULTURE', 3),
+	('BUILDING_ALAMUT_FORTRESS', 'YIELD_FAITH', 3);
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ALAMUT_FORTRESS', 'YIELD_FAITH', 100);
 
 -- Notre Dame
 UPDATE Buildings
@@ -773,7 +835,9 @@ UPDATE Buildings
 SET
 	FreeBuildingThisCity = 'BUILDINGCLASS_BASTION_FORT',
 	GlobalDefenseMod = 10,
-	CitySupplyFlat = 5
+	CitySupplyFlat = 5,
+	ExtraSpies = 50,
+	GlobalSpySecurityModifier = 5
 WHERE Type = 'BUILDING_HIMEJI_CASTLE';
 
 INSERT INTO Building_YieldChanges
@@ -863,6 +927,11 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_SISTINE_CHAPEL', 'YIELD_CULTURE', 1);
 
+INSERT INTO Building_YieldFromSpyRigElection
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_SISTINE_CHAPEL', 'YIELD_FAITH', 25);
+
 -- Summer Palace
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -884,6 +953,24 @@ INSERT INTO Building_BuildingClassYieldChanges
 VALUES
 	('BUILDING_SUMMER_PALACE', 'BUILDINGCLASS_CHANCERY', 'YIELD_GOLD', 3),
 	('BUILDING_SUMMER_PALACE', 'BUILDINGCLASS_CHANCERY', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_YieldFromSpyRigElection
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_SUMMER_PALACE', 'YIELD_PRODUCTION', 25);
+
+-- Port Royal
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_PORT_ROYAL', 'YIELD_CULTURE', 1),
+	('BUILDING_PORT_ROYAL', 'YIELD_GREAT_ADMIRAL_POINTS', 2);
+
+INSERT INTO Building_YieldFromSpyAttack
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_PORT_ROYAL', 'YIELD_GOLD', 150),
+	('BUILDING_PORT_ROYAL', 'YIELD_CULTURE', 150);
 
 -- Red Fort
 UPDATE Buildings
@@ -918,6 +1005,24 @@ VALUES
 UPDATE Building_BuildingClassYieldChanges
 SET YieldChange = 1 -- Gold, Culture
 WHERE BuildingType = 'BUILDING_NEUSCHWANSTEIN';
+
+-- Chateau d'If
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CHATEAU_DIF', 'YIELD_PRODUCTION', 2),
+	('BUILDING_CHATEAU_DIF', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_YieldFromSpyIdentify
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_CHATEAU_DIF', 'YIELD_CULTURE', 50),
+	('BUILDING_CHATEAU_DIF', 'YIELD_TOURISM', 50);
+
+INSERT INTO Building_GreatPersonProgressFromConstruction
+	(BuildingType, EraType, GreatPersonType, Value)
+VALUES
+	('BUILDING_CHATEAU_DIF', 'ERA_INDUSTRIAL', 'GREATPERSON_DIPLOMAT', 10);
 
 -- Soho Foundry
 INSERT INTO Building_YieldChanges
@@ -971,6 +1076,11 @@ INSERT INTO Building_FreeUnits
 	(BuildingType, UnitType, NumUnits)
 VALUES
 	('BUILDING_BIG_BEN', 'UNIT_MERCHANT', 1);
+
+INSERT INTO Building_YieldFromSpyDefense
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_BIG_BEN', 'YIELD_GOLD', 150);
 
 -- Eiffel Tower
 UPDATE Buildings
@@ -1034,11 +1144,25 @@ SELECT
 FROM Specialists
 WHERE GreatPeopleUnitClass IS NOT NULL;
 
+-- Alcatraz
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ALCATRAZ', 'YIELD_CULTURE', 1);
+
+INSERT INTO Building_YieldFromSpyDefense
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ALCATRAZ', 'YIELD_GOLD', 100),
+	('BUILDING_ALCATRAZ', 'YIELD_CULTURE', 100);
+
 -- Kremlin
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_REPLACEABLE_PARTS',
-	DistressFlatReduction = 1
+	DistressFlatReduction = 1,
+	ExtraSpies = 50,
+	GlobalSpySecurityModifier = 10
 WHERE Type = 'BUILDING_KREMLIN';
 
 INSERT INTO Building_YieldChanges
@@ -1125,6 +1249,11 @@ INSERT INTO Building_DomainFreeExperiences
 VALUES
 	('BUILDING_PENTAGON', 'DOMAIN_AIR', 20);
 
+INSERT INTO Building_YieldFromSpyIdentify
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_PENTAGON', 'YIELD_SCIENCE', 80);
+
 -- The Motherland Calls
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -1142,6 +1271,11 @@ INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)
 VALUES
 	('BUILDING_BLETCHLEY_PARK', 'SPECIALIST_SCIENTIST', 'YIELD_SCIENCE', 1);
+
+INSERT INTO Building_YieldFromSpyDefense
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_BLETCHLEY_PARK', 'YIELD_SCIENCE', 150);
 
 -- CN Tower
 UPDATE Buildings
@@ -1393,12 +1527,6 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_MENIN_GATE', 'YIELD_CULTURE', 2);
-
-INSERT INTO Building_YieldFromDeath
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_MENIN_GATE', 'YIELD_CULTURE', 2),
-	('BUILDING_MENIN_GATE', 'YIELD_GOLDEN_AGE_POINTS', 2);
 
 INSERT INTO Building_ImprovementYieldChangesGlobal
 	(BuildingType, ImprovementType, YieldType, Yield)

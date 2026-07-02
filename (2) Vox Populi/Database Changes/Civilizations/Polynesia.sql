@@ -30,7 +30,7 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PIKEMAN') + 5
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_PIKEMAN') + 4
 WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
 INSERT INTO Unit_FreePromotions

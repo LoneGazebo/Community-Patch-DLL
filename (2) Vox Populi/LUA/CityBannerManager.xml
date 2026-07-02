@@ -106,7 +106,8 @@
 				<Label ID="CityHasOffice" String="[ICON_OFFICE]" Hidden="1"/>
 				<Label ID="CityHasFranchise" String="[ICON_FRANCHISE]" Hidden="1"/>
 				<Label ID="CityHasObstacle" String="[ICON_BORDER_OBSTRUCTION]" Hidden="1"/>
-				<Label ID="CityHasAirport" Anchor="C,C" Offset="0,0" String="[ICON_AIRPORT]" Hidden="1"/>
+				<Label ID="CityCanAirlift" Anchor="C,C" Offset="0,0" String="[ICON_AIRPORT]" Hidden="1"/>
+				<Label ID="CityCanSealift" Anchor="C,C" Offset="0,0" String="[ICON_CARGO_SHIP]" Hidden="1"/>
 				<Label ID="CityIsAutomated" Anchor="C,C" Offset="0,0" String="[ICON_AUTOMATED]" Hidden="1"/>
 				<Label ID="UnhappyIcon" Anchor="C,C" Offset="0,0" String="[ICON_HAPPINESS_3]" Hidden="1"/>
 				<Label ID="SpyIcon" Anchor="C,C" Offset="0,0" String="[ICON_SPY]" Hidden="0" />
@@ -182,7 +183,8 @@
 				<Label ID="CityHasOffice" Anchor="C,C" Offset="0,0" String="[ICON_OFFICE]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="CityHasFranchise" Anchor="C,C" Offset="0,0" String="[ICON_FRANCHISE]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="CityHasObstacle" Anchor="C,C" Offset="0,0" String="[ICON_BORDER_OBSTRUCTION]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
-				<Label ID="CityHasAirport" Anchor="C,C" Offset="0,0" String="[ICON_AIRPORT]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="CityCanAirlift" Anchor="C,C" Offset="0,0" String="[ICON_AIRPORT]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="CityCanSealift" Anchor="C,C" Offset="0,0" String="[ICON_CARGO_SHIP]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="UnhappyIcon" Anchor="C,C" Offset="0,0" String="[ICON_HAPPINESS_3]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="CityIsAutomated" Anchor="C,C" Offset="0,0" String="[ICON_AUTOMATED]" Hidden="1"/>
 				<Label ID="SpyIcon" Anchor="C,C" Offset="0,0" String="[ICON_SPY]" Font="TwCenMT18" FontStyle="Shadow" Hidden="0"/>

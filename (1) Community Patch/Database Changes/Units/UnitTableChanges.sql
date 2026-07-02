@@ -17,8 +17,8 @@ ALTER TABLE Units ADD FoundColony integer DEFAULT 0;
 -- Adds marker for city attack only units (for AI)
 ALTER TABLE Units ADD CityAttackOnly boolean DEFAULT 0;
 
--- Adds Culture from experience to owner of unit when disbanded or upgraded
-ALTER TABLE Units ADD CulExpOnDisbandUpgrade boolean DEFAULT 0;
+-- Adds Culture to owner of disbanded or upgraded unit equal to unit XP * x
+ALTER TABLE Units ADD CulExpOnDisbandUpgrade integer DEFAULT 0;
 
 -- Increases the cost by this amount every time you build the unit
 ALTER TABLE Units ADD CostScalerNumRepeats integer DEFAULT 0;
@@ -126,7 +126,7 @@ ALTER TABLE Units ADD CannotEmbark boolean DEFAULT 0;
 -- This unit can only be gifted by a City-State as its unique unit
 ALTER TABLE Units ADD MinorCivGift boolean DEFAULT 0;
 
--- This unit cannot be a City-State's unique unit or gifted by City-States at all 
+-- This unit cannot be a City-State's unique unit or gifted by City-States at all
 ALTER TABLE Units ADD NoMinorCivGift boolean DEFAULT 0;
 
 -- This unit cannot be a City-State's unique unit, but can still be gifted by City-States if all other requirements are met (GLOBAL_EXCLUDE_FROM_GIFTS, integrated)
@@ -143,10 +143,16 @@ ALTER TABLE Units ADD CanRepairFleet boolean DEFAULT 0;
 ALTER TABLE Units ADD CanChangePort boolean DEFAULT 0;
 
 -- GLOBAL_STACKING_RULES
--- Additional units that can stack with this unit 
+-- Additional units that can stack with this unit
 ALTER TABLE Units ADD NumberStackingUnits integer DEFAULT 0;
 ALTER TABLE Units ADD StackCombat integer DEFAULT 0;
 
+-- This Great Person will give the player Spy Points when it is expended. See also the building column of the same name
+ALTER TABLE Units ADD ExtraSpies integer DEFAULT 0;
+
+--------------------------------------------------------
+-- Other Tables
+--------------------------------------------------------
 -- Amount of units of this class that the player can have per owned city. No limit if -1. Overrides the MaxPlayerInstances column.
 ALTER TABLE UnitClasses ADD UnitInstancePerCity integer DEFAULT -1;
 

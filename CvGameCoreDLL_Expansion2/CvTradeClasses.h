@@ -110,8 +110,34 @@ FDataStream& operator>>(FDataStream&, TradeConnection&);
 
 typedef std::vector<TradeConnection> TradeConnectionList;
 
-//org plot index -> dst plot index -> path
-typedef std::map<int,std::map<int,SPath>> TradePathLookup;
+// Lightweight path metadata - stores only what's needed for scoring, not the full path
+// This reduces memory from ~64KB per path (8000 nodes * 8 bytes) to just 16 bytes
+struct STradePathInfo
+{
+	int iTotalCost;
+	int iNormalizedDistanceRaw;
+	int iTotalTurns;
+	int iPathLength;  // Number of nodes in path - NOT the path itself
+	int iDangerScore;
+	int iDangerScoreInternal;
+	int iScoreFromPassingTR;
+	int iScoreFromTerrain;
+
+	STradePathInfo() : iTotalCost(-1), iNormalizedDistanceRaw(-1), iTotalTurns(-1), iPathLength(0), iDangerScore(0), iDangerScoreInternal(0), iScoreFromPassingTR(0), iScoreFromTerrain(0) {}
+	STradePathInfo(const SPath& path, int iDangerScore, int iDangerScoreInternal, int iScoreFromPassingTR, int iScoreFromTerrain) 
+		: iTotalCost(path.iTotalCost)
+		, iNormalizedDistanceRaw(path.iNormalizedDistanceRaw)
+		, iTotalTurns(path.iTotalTurns)
+		, iPathLength(path.length())
+		, iDangerScore(iDangerScore)
+		, iDangerScoreInternal(iDangerScoreInternal)
+		, iScoreFromPassingTR(iScoreFromPassingTR)
+		, iScoreFromTerrain(iScoreFromTerrain)
+	{}
+};
+
+//org plot index -> dst plot index -> path info
+typedef std::map<int,std::map<int,STradePathInfo>> TradePathLookup;
 
 class CvGameTrade
 {
@@ -206,8 +232,10 @@ public:
 	void SetOriginYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiOriginYields[iYield]=iValue; }
 	void SetDestYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiDestYields[iYield]=iValue; }
 
-	const std::map<int, SPath>& GetAllPotentialTradeRoutesFromCity(CvCity* pOrigin, bool bWater);
-	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
+	const std::map<int, STradePathInfo>& GetAllPotentialTradeRoutesFromCity(CvCity* pOrigin, bool bWater);
+	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, STradePathInfo& sPathInfo, SPath* pPathOut=NULL);
+	const STradePathInfo* GetCachedTradePathInfo(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain);
+	SPath ComputeTradePath(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain);
 	void UpdateTradePathCache(PlayerTypes ePlayer1);
 	void InvalidateTradePathCache();
 	void InvalidateTradePathCache(PlayerTypes ePlayer);
@@ -233,7 +261,7 @@ protected:
 	vector<int> m_lastTradePathUpdate;
 	vector<int> m_lastTradePathUpdateUi;
 	std::vector<vector<int>> m_routesPerPlayer;
-	std::map<int, SPath> m_dummyTradePaths; //always empty, just for us to return a reference
+	std::map<int, STradePathInfo> m_dummyTradePaths; //always empty, just for us to return a reference
 
 	int m_iNextID; // used to assign IDs to trade routes to avoid confusion when some are disrupted in multiplayer
 	int m_aaiTechDifference[MAX_MAJOR_CIVS][MAX_MAJOR_CIVS];

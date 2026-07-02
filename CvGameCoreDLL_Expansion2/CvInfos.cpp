@@ -413,7 +413,7 @@ CvString CvHotKeyInfo::CreateKeyStringFromKBCode(const char* pszHotKey)
 		{"KB_APOSTROPHE","'", false},
 		{"KB_GRAVE","`", false},		// accent grave
 		{"KB_LSHIFT", "TXT_KEY_KEYBOARD_LEFT_SHIFT_KEY", true},
-		{"KB_BACKSLASH","\\"},
+		{"KB_BACKSLASH","\\", false},
 		{"KB_COMMA",",", false},
 		{"KB_PERIOD",".", false},
 		{"KB_SLASH","/", false},
@@ -719,11 +719,10 @@ CvSpecialistInfo::CvSpecialistInfo() :
 	m_iCost(0),
 	m_iGreatPeopleUnitClass(NO_UNITCLASS),
 	m_iGreatPeopleRateChange(0),
-	m_iCulturePerTurn(0),
 	m_iMissionType(NO_MISSION),
+	m_iExperience(0),
 	m_bVisible(false),
-	m_piYieldChange(NULL),
-	m_iExperience(0)
+	m_piYieldChange(NULL)
 {
 }
 //------------------------------------------------------------------------------
@@ -747,11 +746,6 @@ int CvSpecialistInfo::getGreatPeopleRateChange() const
 	return m_iGreatPeopleRateChange;
 }
 //------------------------------------------------------------------------------
-int CvSpecialistInfo::getCulturePerTurn() const
-{
-	return m_iCulturePerTurn;
-}
-
 int CvSpecialistInfo::getMissionType() const
 {
 	return m_iMissionType;
@@ -803,7 +797,6 @@ bool CvSpecialistInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iCost = kResults.GetInt("Cost");
 	m_iExperience = kResults.GetInt("Experience");
 	m_iGreatPeopleRateChange = kResults.GetInt("GreatPeopleRateChange");
-	m_iCulturePerTurn = kResults.GetInt("CulturePerTurn");
 
 	setTexture(kResults.GetText("Texture"));
 
@@ -813,6 +806,8 @@ bool CvSpecialistInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	//Arrays
 	const char* szType = GetType();
 	kUtility.SetYields(m_piYieldChange, "SpecialistYields", "SpecialistType", szType);
+
+	m_piYieldChange[YIELD_CULTURE] += kResults.GetInt("CulturePerTurn");
 
 	return true;
 }
@@ -1721,11 +1716,11 @@ CvBuildingClassInfo::CvBuildingClassInfo() :
 	m_iDefaultBuildingIndex(NO_BUILDING),
 	m_bNoLimit(false),
 	m_bMonument(false),
+	m_piVictoryThreshold(NULL),
 	m_eCorporationType(NO_CORPORATION),
 	m_bIsHeadquarters(false),
 	m_bIsOffice(false),
-	m_bIsFranchise(false),
-	m_piVictoryThreshold(NULL)
+	m_bIsFranchise(false)
 {
 }
 //------------------------------------------------------------------------------
@@ -1931,8 +1926,8 @@ void UnitClassArrayHelpers::Write(FDataStream& kStream, int* paiArray, int iArra
 //					CvCivilizationBaseInfo
 //======================================================================================================
 CvCivilizationBaseInfo::CvCivilizationBaseInfo():
-	m_bPlayable(false),
-	m_bAIPlayable(false)
+	m_bAIPlayable(false),
+	m_bPlayable(false)
 {
 	memset((void*)&m_kPackageID, 0, sizeof(m_kPackageID));
 }
@@ -2012,9 +2007,9 @@ CvCivilizationInfo::CvCivilizationInfo():
 	m_pbCivilizationFreeBuildingClass(NULL),
 	m_pbCivilizationFreeTechs(NULL),
 	m_pbCivilizationDisableTechs(NULL),
+	m_pbReligions(NULL),
 	m_bCoastalCiv(NULL),
-	m_bPlaceFirst(NULL),
-	m_pbReligions(NULL)
+	m_bPlaceFirst(NULL)
 {
 
 }
@@ -2558,6 +2553,7 @@ CvVictoryInfo::CvVictoryInfo() :
 	m_iTotalCultureRatio(0),
 	m_iVictoryDelayTurns(0),
 	m_bWinsGame(false),
+	m_bTargetScore(false),
 	m_bEndScore(false),
 	m_bConquest(false),
 	m_bInfluential(false),
@@ -2565,8 +2561,7 @@ CvVictoryInfo::CvVictoryInfo() :
 	m_bPermanent(false),
 	m_bReligionInAllCities(false),
 	m_bFindAllNaturalWonders(false),
-	m_piVictoryPointAwards(NULL),
-	m_bTargetScore(false)
+	m_piVictoryPointAwards(NULL)
 {
 }
 //------------------------------------------------------------------------------
@@ -2734,8 +2729,8 @@ CvSmallAwardInfo::CvSmallAwardInfo() :
 	m_iCityPopulation(0),
 	m_iCSInfluence(0),
 	m_iDuration(0),
-	m_iGPPointsGlobal(0),
 	m_iGPPoints(0),
+	m_iGPPointsGlobal(0),
 	m_iExperience(0),
 	m_iGold(0),
 	m_iCulture(0),
@@ -2744,11 +2739,11 @@ CvSmallAwardInfo::CvSmallAwardInfo() :
 	m_iFood(0),
 	m_iProduction(0),
 	m_iGAP(0),
-	m_iTourism(0),
 	m_iHappiness(0),
 	m_iGeneralPoints(0),
 	m_iAdmiralPoints(0),
 	m_iJuggernauts(0),
+	m_iTourism(0),
 	m_iRand(0)
 {
 }
@@ -4530,11 +4525,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		kUtility.InitializeArray(m_piGoodies, m_iNumGoodies, 0);
 
 		Database::Results kArrayResults;
-		char szSQL[512];
-		sprintf_s(szSQL, "select GoodyHuts.ID from HandicapInfo_Goodies inner join GoodyHuts on GoodyType = GoodyHuts.Type where HandicapType = '%s';", szHandicapType);
-
-		if (DB.Execute(kArrayResults, szSQL))
+		if (DB.Execute(kArrayResults, "select GoodyHuts.ID from HandicapInfo_Goodies inner join GoodyHuts on GoodyType = GoodyHuts.Type where HandicapType = ?"))
 		{
+			kArrayResults.Bind(1, szHandicapType);
 			int i = 0;
 			while (kArrayResults.Step())
 			{
@@ -4646,21 +4639,21 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iGoldenAgePercent(0),
 	m_iHurryPercent(0),
 	m_iInflationOffset(0),
-	m_iInflationPercent(0),
 	m_iReligiousPressureAdjacentCity(0),
+	m_iInflationPercent(0),
 	m_iVictoryDelayPercent(0),
 	m_iMinorCivElectionFreqMod(0),
 	m_iTradeRouteSpeedMod(100),
+	m_iMilitaryRatingDecayPercent(0),
 	m_iPietyMax(0),
 	m_iPietyMin(0),
-	m_iMilitaryRatingDecayPercent(0),
+	m_iLeaguePercent(0),
 	m_iTechCostPerTurnMultiplier(0),
 	m_iMinimumVoluntaryVassalTurns(15),
 	m_iMinimumVassalTurns(75),
-	m_iMinimumVassalTaxTurns(0),
 	m_iNumTurnsBetweenVassals(0),
 	m_iMinimumVassalLiberateTurns(0),
-	m_iLeaguePercent(0),
+	m_iMinimumVassalTaxTurns(0),
 	m_iNumTurnIncrements(0),
 	m_pGameTurnInfo(NULL)
 {
@@ -4930,21 +4923,22 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		const char* szGameSpeedInfoType = GetType();
 
 		//Calculate number of turn increments
-		char szCountSQL[256];
-		sprintf_s(szCountSQL, "select count(*) from GameSpeed_Turns where GameSpeedType = '%s'", szGameSpeedInfoType);
-		Database::SingleResult kCount;
-		if(DB.Execute(kCount, szCountSQL))
+		Database::Results kCount;
+		if(DB.Execute(kCount, "select count(*) from GameSpeed_Turns where GameSpeedType = ?"))
 		{
-			m_iNumTurnIncrements = kCount.GetInt(0);
+			kCount.Bind(1, szGameSpeedInfoType);
+			if(kCount.Step())
+			{
+				m_iNumTurnIncrements = kCount.GetInt(0);
+			}
 		}
 
 		//Update turn increments
 		allocateGameTurnInfos(getNumTurnIncrements());
-		char szSQL[256];
-		sprintf_s(szSQL, "select * from GameSpeed_Turns where GameSpeedType = '%s'", szGameSpeedInfoType);
 		Database::Results kArrayResults;
-		if(DB.Execute(kArrayResults, szSQL))
+		if(DB.Execute(kArrayResults, "select * from GameSpeed_Turns where GameSpeedType = ?"))
 		{
+			kArrayResults.Bind(1, szGameSpeedInfoType);
 			int i = 0;
 			while(kArrayResults.Step())
 			{
@@ -5138,8 +5132,8 @@ CvBuildInfo::CvBuildInfo() :
 	m_iBuilderCost(0),
 	m_iCostIncreasePerImprovement(0),
 	m_iTechPrereq(NO_TECH),
-	m_iTechObsolete(NO_TECH),
 	m_bKillOnlyCivilian(false),
+	m_iTechObsolete(NO_TECH),
 	m_bFreeBestDomainUnit(false),
 	m_bCultureBoost(false),
 	m_iImprovement(NO_IMPROVEMENT),
@@ -5156,9 +5150,9 @@ CvBuildInfo::CvBuildInfo() :
 	m_paiFeatureProduction(NULL),
 	m_paiFeatureCost(NULL),
 	m_paiTechTimeChange(NULL),
+	m_pabFeatureRemove(NULL),
 	m_paiFeatureObsoleteTech(NULL),
-	m_pabFeatureRemoveOnly(NULL),
-	m_pabFeatureRemove(NULL)
+	m_pabFeatureRemoveOnly(NULL)
 {
 }
 //------------------------------------------------------------------------------
@@ -5372,13 +5366,10 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		kUtility.InitializeArray(m_paiFeatureObsoleteTech, "Features");
 		kUtility.InitializeArray(m_pabFeatureRemoveOnly, "Features");
 
-		char szQuery[512];
-		const char* szFeatureQuery = "select * from BuildFeatures where BuildType = '%s'";
-		sprintf_s(szQuery, 512, szFeatureQuery, GetType());
-
 		Database::Results kArrayResults;
-		if(DB.Execute(kArrayResults, szQuery))
+		if(DB.Execute(kArrayResults, "select * from BuildFeatures where BuildType = ?"))
 		{
+			kArrayResults.Bind(1, GetType());
 			while(kArrayResults.Step())
 			{
 				const char* szFeatureType			= kArrayResults.GetText("FeatureType");
@@ -5833,11 +5824,9 @@ CvResourceInfo::CvResourceInfo() :
 	m_iStartingResourceQuantity(0),
 	m_iHappiness(0),
 	m_iWonderProductionMod(0),
-	m_eWonderProductionModObsoleteEra(NO_ERA),
 	m_iMinAreaSize(0),
 	m_iMinLatitude(0),
 	m_iMaxLatitude(0),
-	m_eResourceUsage(RESOURCEUSAGE_BONUS),
 	m_iMonopolyHappiness(0),
 	m_iMonopolyGALength(0),
 	m_bIsMonopoly(false),
@@ -5848,14 +5837,11 @@ CvResourceInfo::CvResourceInfo() :
 	m_bNoRiverSide(false),
 	m_bOnlyMinorCivs(false),
 	m_eRequiredCivilization(NO_CIVILIZATION),
+	m_eResourceUsage(RESOURCEUSAGE_BONUS),
+	m_eWonderProductionModObsoleteEra(NO_ERA),
 	m_piYieldChange(NULL),
 	m_piYieldChangeFromMonopoly(NULL),
 	m_piCityYieldModFromMonopoly(NULL),
-	m_piiMonopolyCombatModifiers(),
-	m_piMonopolyGreatPersonRateModifiers(),
-	m_piMonopolyGreatPersonRateChanges(),
-	m_piiiUnitCombatProductionCostModifiersLocal(),
-	m_aiiiBuildingProductionCostModifiersLocal(),
 	m_piResourceQuantityTypes(NULL),
 	m_piImprovementChange(NULL),
 	m_pbTerrain(NULL),
@@ -5869,11 +5855,6 @@ CvResourceInfo::~CvResourceInfo()
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangeFromMonopoly);
 	SAFE_DELETE_ARRAY(m_piCityYieldModFromMonopoly);
-	m_piiMonopolyCombatModifiers.clear();
-	m_piMonopolyGreatPersonRateModifiers.clear();
-	m_piMonopolyGreatPersonRateChanges.clear();
-	m_piiiUnitCombatProductionCostModifiersLocal.clear();
-	m_aiiiBuildingProductionCostModifiersLocal.clear();
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
 	SAFE_DELETE_ARRAY(m_piImprovementChange);
 	SAFE_DELETE_ARRAY(m_pbTerrain);
@@ -6116,113 +6097,36 @@ int CvResourceInfo::getCityYieldModFromMonopoly(int i) const
 //------------------------------------------------------------------------------
 int* CvResourceInfo::getCityYieldModFromMonopolyArray()
 {
-	return m_piCityYieldModFromMonopoly ;
+	return m_piCityYieldModFromMonopoly;
 }
 //------------------------------------------------------------------------------
-int CvResourceInfo::getMonopolyAttackBonus(MonopolyTypes eMonopoly) const
+int CvResourceInfo::GetMonopolyAttackModifier(DomainTypes eDomain, bool bStrategic) const
 {
-	ResourceMonopolySettings sKey;
-	int iMod = 0;
-	std::map<ResourceMonopolySettings, CombatModifiers>::const_iterator it;
 
-	if (eMonopoly == MONOPOLY_STRATEGIC)
+	for (size_t i = 0; i < m_vMonopolyCombatModifiers.size(); i++)
 	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
+		const ResourceMonopolyCombatModifier& kMod = m_vMonopolyCombatModifiers[i];
+		if (kMod.m_iDomain == eDomain && kMod.m_bStrategicMonopoly == bStrategic)
 		{
-			iMod += it->second.m_iAttackMod;
-		}
-
-		sKey.m_bGlobalMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iAttackMod;
+			return kMod.m_iAttack;
 		}
 	}
 
-	else if (eMonopoly == MONOPOLY_GLOBAL)
-	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iAttackMod;
-		}
-
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iAttackMod;
-		}
-	}
-
-	return iMod;
+	return 0;
 }
 //------------------------------------------------------------------------------
-int CvResourceInfo::getMonopolyDefenseBonus(MonopolyTypes eMonopoly) const
+int CvResourceInfo::GetMonopolyDefenseModifier(DomainTypes eDomain, bool bStrategic) const
 {
-	ResourceMonopolySettings sKey;
-	int iMod = 0;
-	std::map<ResourceMonopolySettings, CombatModifiers>::const_iterator it;
-
-	if (eMonopoly == MONOPOLY_STRATEGIC)
+	for (size_t i = 0; i < m_vMonopolyCombatModifiers.size(); i++)
 	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
+		const ResourceMonopolyCombatModifier& kMod = m_vMonopolyCombatModifiers[i];
+		if (kMod.m_iDomain == eDomain && kMod.m_bStrategicMonopoly == bStrategic)
 		{
-			iMod += it->second.m_iDefenseMod;
-		}
-
-		sKey.m_bGlobalMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iDefenseMod;
+			return kMod.m_iDefense;
 		}
 	}
 
-	if (eMonopoly == MONOPOLY_GLOBAL)
-	{
-		sKey.m_bGlobalMonopoly = true;
-		sKey.m_bStrategicMonopoly = false;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iDefenseMod;
-		}
-
-		sKey.m_bStrategicMonopoly = true;
-
-		it = m_piiMonopolyCombatModifiers.find(sKey);
-
-		if (it != m_piiMonopolyCombatModifiers.end())
-		{
-			iMod += it->second.m_iDefenseMod;
-		}
-	}
-
-	return iMod;
+	return 0;
 }
 //------------------------------------------------------------------------------
 int CvResourceInfo::getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const
@@ -6572,11 +6476,9 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		m_piResourceQuantityTypes[0] = 1;
 
 		Database::Results kArrayResults;
-		char szQuery[512];
-		sprintf_s(szQuery, "select Quantity from Resource_QuantityTypes where ResourceType = '%s';", szResourceType);
-
-		if(DB.Execute(kArrayResults, szQuery))
+		if(DB.Execute(kArrayResults, "select Quantity from Resource_QuantityTypes where ResourceType = ?"))
 		{
+			kArrayResults.Bind(1, szResourceType);
 			int i = 0;
 			while(kArrayResults.Step())
 			{
@@ -6589,12 +6491,11 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	//Resource_MonopolyCombatModifiers
 	{
-
 		std::string sqlKey = "Resource_MonopolyCombatModifiers";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if (pResults == NULL)
 		{
-			const char* szSQL = "select IsGlobalMonopoly, IsStrategicMonopoly, Attack, Defense from Resource_MonopolyCombatModifiers where ResourceType = ?";
+			const char* szSQL = "select DomainType, IsStrategicMonopoly, Attack, Defense from Resource_MonopolyCombatModifiers where ResourceType = ?";
 			pResults = kUtility.PrepareResults(sqlKey, szSQL);
 		}
 
@@ -6602,23 +6503,38 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 		while (pResults->Step())
 		{
-			const bool bGlobalMonopoly = pResults->GetBool(0);
+			const int iDomain = pResults->GetInt(0);
 			const bool bStrategicMonopoly = pResults->GetBool(1);
-			const int iAttackMod = pResults->GetInt(2);
-			const int iDefenseMod = pResults->GetInt(3);
+			const int iAttack = pResults->GetInt(2);
+			const int iDefense = pResults->GetInt(3);
 
-			ResourceMonopolySettings sKey;
-			sKey.m_bGlobalMonopoly = bGlobalMonopoly;
-			sKey.m_bStrategicMonopoly = bStrategicMonopoly;
+			ResourceMonopolyCombatModifier* pTempMod = NULL;
+			for (size_t i = 0; i < m_vMonopolyCombatModifiers.size(); i++)
+			{
+				if (m_vMonopolyCombatModifiers[i].m_iDomain == iDomain && m_vMonopolyCombatModifiers[i].m_bStrategicMonopoly == bStrategicMonopoly)
+				{
+					pTempMod = &m_vMonopolyCombatModifiers[i];
+					break;
+				}
+			}
 
-			m_piiMonopolyCombatModifiers[sKey].m_iAttackMod += iAttackMod;
-			m_piiMonopolyCombatModifiers[sKey].m_iDefenseMod += iDefenseMod;
+			if (pTempMod)
+			{
+				pTempMod->m_iAttack += iAttack;
+				pTempMod->m_iDefense += iDefense;
+			}
+			else
+			{
+				ResourceMonopolyCombatModifier tempMod;
+				tempMod.m_iDomain = iDomain;
+				tempMod.m_bStrategicMonopoly = bStrategicMonopoly;
+				tempMod.m_iAttack = iAttack;
+				tempMod.m_iDefense = iDefense;
+				m_vMonopolyCombatModifiers.push_back(tempMod);
+			}
 		}
 
 		pResults->Reset();
-
-		//Trim extra memory off container since this is mostly read-only.
-		std::map<ResourceMonopolySettings, CombatModifiers>(m_piiMonopolyCombatModifiers).swap(m_piiMonopolyCombatModifiers);
 	}
 
 	//Resource_MonopolyGreatPersonRateModifiers
@@ -6771,7 +6687,6 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_iFirstFinderGold(0),
 	m_iInBorderHappiness(0),
 	m_iAdjacentUnitFreePromotion(NO_PROMOTION),
-	m_iPrereqTechPassable(NO_TECH),
 	m_iPromotionIfOwned(NO_PROMOTION),
 	m_iLocationUnitFreePromotion(NO_PROMOTION),
 	m_iSpawnLocationUnitFreePromotion(NO_PROMOTION),
@@ -6784,6 +6699,7 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_bRequiresRiver(false),
 	m_bAddsFreshWater(false),
 	m_bImpassable(false),
+	m_iPrereqTechPassable(NO_TECH),
 	m_bNoCity(false),
 	m_bNoImprovement(false),
 	m_bVisibleAlways(false),
@@ -6791,6 +6707,7 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_bRough(false),
 	m_bNaturalWonder(false),
 	m_bPseudoNaturalWonder(false),
+	m_bClearable(false),
 	m_iWorldSoundscapeScriptId(0),
 	m_iEffectProbability(0),
 	m_piYieldChange(NULL),
@@ -6800,8 +6717,7 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_piFreshWaterChange(NULL),
 	m_ppiTechYieldChanges(NULL),
 	m_pi3DAudioScriptFootstepIndex(NULL),
-	m_pbTerrain(NULL),
-	m_bClearable(false)
+	m_pbTerrain(NULL)
 {
 }
 //------------------------------------------------------------------------------
@@ -7374,13 +7290,13 @@ CvTerrainInfo::CvTerrainInfo() :
 	m_iInfluenceCost(0),
 	m_iTurnDamage(0),
 	m_iExtraTurnDamage(0),
-	m_iPrereqTechPassable(NO_TECH),
 	m_iLocationUnitFreePromotionTerrain(NO_PROMOTION),
 	m_iSpawnLocationUnitFreePromotionTerrain(NO_PROMOTION),
 	m_iAdjacentSpawnLocationUnitFreePromotionTerrain(NO_PROMOTION),
 	m_iAdjacentUnitFreePromotionTerrain(NO_PROMOTION),
 	m_bWater(false),
 	m_bImpassable(false),
+	m_iPrereqTechPassable(NO_TECH),
 	m_bFound(false),
 	m_bFoundCoast(false),
 	m_bFoundFreshWater(false),
@@ -7738,10 +7654,10 @@ CvLeaderHeadInfo::CvLeaderHeadInfo() :
 	m_iNeediness(0),
 	m_iMeanness(0),
 	m_iChattiness(0),
-	m_ePrimaryVictoryPursuit(NO_VICTORY_PURSUIT),
-	m_eSecondaryVictoryPursuit(NO_VICTORY_PURSUIT),
 	m_piMajorCivApproachBiases(NULL),
 	m_piMinorCivApproachBiases(NULL),
+	m_ePrimaryVictoryPursuit(NO_VICTORY_PURSUIT),
+	m_eSecondaryVictoryPursuit(NO_VICTORY_PURSUIT),
 	m_pbTraits(NULL),
 	m_piFlavorValue(NULL)
 {
@@ -8454,6 +8370,8 @@ CvProcessInfo::CvProcessInfo() :
 	m_iTechPrereq(NO_TECH),
 	m_iRequiredPolicy(NO_POLICY),
 	m_iDefenseValue(0),
+	m_iDefenseValuePerTurn(0),
+	m_iDefenseValueCap(0),
 	m_eRequiredCivilization(NO_CIVILIZATION),
 	m_paiProductionToYieldModifier(NULL),
 	m_paiFlavorValue(NULL)
@@ -8481,6 +8399,16 @@ int CvProcessInfo::getRequiredPolicy() const
 int CvProcessInfo::getDefenseValue() const
 {
 	return m_iDefenseValue;
+}
+//------------------------------------------------------------------------------
+int CvProcessInfo::getDefenseValuePerTurn() const
+{
+	return m_iDefenseValuePerTurn;
+}
+//------------------------------------------------------------------------------
+int CvProcessInfo::getDefenseValueCap() const
+{
+	return m_iDefenseValueCap;
 }
 
 //------------------------------------------------------------------------------
@@ -8519,6 +8447,8 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iRequiredPolicy = GC.getInfoTypeForString(szRequiredPolicy, true);
 
 	m_iDefenseValue = kResults.GetInt("DefenseValue");
+	m_iDefenseValuePerTurn = kResults.GetInt("DefenseValuePerTurn");
+	m_iDefenseValueCap = kResults.GetInt("DefenseValueCap");
 
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
@@ -8750,10 +8680,10 @@ CvEraInfo::CvEraInfo() :
 	m_iWarmongerPercent(0),
 	m_iSpecialistExtraFoodCost(0),
 	m_bVassalageEnabled(false),
+	m_uiCityBombardEffectTagHash(0),
 	m_bNoGoodies(false),
 	m_bNoBarbUnits(false),
-	m_bNoReligion(false),
-	m_uiCityBombardEffectTagHash(0)
+	m_bNoReligion(false)
 {
 }
 //------------------------------------------------------------------------------
@@ -9295,45 +9225,45 @@ bool CvVoteSourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 //		CvModEventInfo
 //======================================================================================================
 CvModEventInfo::CvModEventInfo() :
-	 m_iNumChoices(0),
-	 m_iEventClass(-1),
-	 m_iCooldown(0),
-	 m_iRandomChance(0),
-	 m_iRandomChanceDelta(0),
-	 m_bGlobal(false),
-	 m_bEraScaling(false),
 	 m_iPrereqTech(-1),
 	 m_iObsoleteTech(-1),
 	 m_iMinimumNationalPopulation(0),
 	 m_iMinimumNumberCities(0),
+	 m_iUnitTypeRequired(-1),
+	 m_iEventClass(-1),
+	 m_iRandomChance(0),
+	 m_iRandomChanceDelta(0),
 	 m_iRequiredCiv(-1),
 	 m_iRequiredEra(-1),
 	 m_iObsoleteEra(-1),
+	 m_iRequiredImprovement(-1),
 	 m_iRequiredPolicy(-1),
 	 m_iIdeology(-1),
-	 m_iRequiredImprovement(-1),
-	 m_iUnitTypeRequired(-1),
 	 m_iRequiredReligion(-1),
 	 m_bRequiredPantheon(false),
+	 m_iNumChoices(0),
+	 m_iBuildingRequired(-1),
+	 m_iBuildingLimiter(-1),
+	 m_iCooldown(0),
+	 m_piMinimumYield(NULL),
+	 m_bRequiresHolyCity(false),
+	 m_bGlobal(false),
+	 m_bEraScaling(false),
+	 m_bRequiresIdeology(false),
+	 m_bRequiresWar(false),
+	 m_bRequiresWarMinor(false),
+	 m_strSplashArt(""),
+	 m_strEventAudio(""),
+	 m_piRequiredResource(NULL),
+	 m_piRequiredFeature(NULL),
 	 m_iRequiredStateReligion(-1),
 	 m_bHasStateReligion(false),
 	 m_bUnhappy(false),
 	 m_bSuperUnhappy(false),
-	 m_iBuildingRequired(-1),
-	 m_iBuildingLimiter(-1),
-	 m_bRequiresHolyCity(false),
-	 m_bRequiresIdeology(false),
-	 m_bRequiresWar(false),
-	 m_bRequiresWarMinor(false),
-	 m_piRequiredResource(NULL),
-	 m_piRequiredFeature(NULL),
-	 m_piMinimumYield(NULL),
-	 m_strSplashArt(""),
-	 m_strEventAudio(""),
 	 m_bOneShot(false),
+	 m_bMetAnotherCiv(false),
 	 m_bInDebt(false),
 	 m_bLosingMoney(false),
-	 m_bMetAnotherCiv(false),
 	 m_bVassal(false),
 	 m_bMaster(false),
 	 m_iCoastal(0),
@@ -9742,8 +9672,20 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_iEventDuration(0),
 	 m_bEventDurationScaling(true),
 	 m_iEventChance(0),
+	 m_pbParentEventIDs(NULL),
 	 m_bEraScaling(false),
 	 m_bExpires(false),
+	 m_piFlavor(NULL),
+	 m_piEventYield(NULL),
+	 m_piPreCheckEventYield(NULL),
+	 m_piResourceChange(NULL),
+	 m_piConvertReligion(NULL),
+	 m_piConvertReligionPercent(NULL),
+	 m_piCityYield(NULL),
+	 m_iFreeScaledUnits(0),
+	 m_iSpecialistsGreatPersonPointsPerTurn(0),
+	 m_iMaxAirUnitsChange(0),
+	 m_strEventChoiceSoundEffect(""),
 	 m_iNumFreePolicies(0),
 	 m_iNumFreeTechs(0),
 	 m_iNumFreeGreatPeople(0),
@@ -9753,71 +9695,59 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_iRandomBarbs(0),
 	 m_piNumFreeUnits(NULL),
 	 m_piNumFreeSpecificUnits(NULL),
-	 m_iPrereqTech(-1),
-	 m_iObsoleteTech(-1),
-	 m_iMinimumNationalPopulation(0),
-	 m_iMinimumNumberCities(0),
-	 m_iRequiredCiv(-1),
-	 m_iRequiredEra(-1),
-	 m_iObsoleteEra(-1),
-	 m_iRequiredPolicy(-1),
-	 m_iIdeology(-1),
-	 m_iRequiredImprovement(-1),
-	 m_iUnitTypeRequired(-1),
-	 m_iRequiredReligion(-1),
-	 m_bRequiredPantheon(false),
-	 m_iRequiredStateReligion(-1),
-	 m_bHasStateReligion(false),
-	 m_bRequiresHolyCity(false),
-	 m_bRequiresIdeology(false),
-	 m_bUnhappy(false),
-	 m_bSuperUnhappy(false),
-	 m_bRequiresWar(false),
-	 m_iBuildingRequired(-1),
-	 m_iBuildingLimiter(-1),
-	 m_piMinimumYield(NULL),
-	 m_bRequiresWarMinor(false),
-	 m_piRequiredResource(NULL),
-	 m_piRequiredFeature(NULL),
-	 m_piResourceChange(NULL),
-	 m_piFlavor(NULL),
-	 m_piEventYield(NULL),
-	 m_piPreCheckEventYield(NULL),
-	 m_strEventChoiceSoundEffect(""),
-	 m_piConvertReligion(NULL),
-	 m_piConvertReligionPercent(NULL),
 	 m_ppiBuildingClassYield(NULL),
 	 m_ppiBuildingClassYieldModifier(NULL),
-	 m_piCityYield(NULL),
-	 m_pbParentEventIDs(NULL),
-	 m_bOneShot(false),
-	 m_bMetAnotherCiv(false),
-	 m_bInDebt(false),
-	 m_bLosingMoney(false),
 	 m_iPlayerHappiness(0),
 	 m_iCityHappinessGlobal(0),
-	 m_iFreeScaledUnits(0),
-	 m_iSpecialistsGreatPersonPointsPerTurn(0),
-	 m_iMaxAirUnitsChange(0),
-	 m_strDisabledTooltip(""),
-	 m_bVassal(false),
-	 m_bMaster(false),
 	 m_ppiTerrainYield(NULL),
 	 m_ppiFeatureYield(NULL),
 	 m_ppiImprovementYield(NULL),
 	 m_ppiResourceYield(NULL),
+	 m_iBasicNeedsMedianModifierGlobal(0),
+	 m_iGoldMedianModifierGlobal(0),
+	 m_iScienceMedianModifierGlobal(0),
+	 m_iCultureMedianModifierGlobal(0),
+	 m_iReligiousUnrestModifierGlobal(0),
+	 m_strDisabledTooltip(""),
+	 m_iPrereqTech(-1),
+	 m_iObsoleteTech(-1),
+	 m_iMinimumNationalPopulation(0),
+	 m_iMinimumNumberCities(0),
+	 m_iUnitTypeRequired(-1),
+	 m_iRequiredCiv(-1),
+	 m_iRequiredEra(-1),
+	 m_iObsoleteEra(-1),
+	 m_iRequiredImprovement(-1),
+	 m_iRequiredPolicy(-1),
+	 m_iIdeology(-1),
+	 m_iRequiredReligion(-1),
+	 m_bRequiredPantheon(false),
+	 m_iBuildingRequired(-1),
+	 m_iBuildingLimiter(-1),
+	 m_piMinimumYield(NULL),
+	 m_bRequiresHolyCity(false),
+	 m_bRequiresIdeology(false),
+	 m_bRequiresWar(false),
+	 m_bRequiresWarMinor(false),
+	 m_piRequiredResource(NULL),
+	 m_piRequiredFeature(NULL),
+	 m_iRequiredStateReligion(-1),
+	 m_bHasStateReligion(false),
+	 m_bUnhappy(false),
+	 m_bSuperUnhappy(false),
+	 m_bOneShot(false),
+	 m_bMetAnotherCiv(false),
+	 m_bInDebt(false),
+	 m_bLosingMoney(false),
+	 m_bVassal(false),
+	 m_bMaster(false),
 	 m_iCoastal(0),
 	 m_bCoastalOnly(false),
 	 m_bTradeCapped(false),
 	 m_bCapitalEffectOnly(false),
 	 m_bInstantYieldAllCities(false),
 	 m_paLinkerInfo(NULL),
-	 m_iLinkerInfos(0),
-	 m_iBasicNeedsMedianModifierGlobal(0),
-	 m_iGoldMedianModifierGlobal(0),
-	 m_iScienceMedianModifierGlobal(0),
-	 m_iCultureMedianModifierGlobal(0),
-	 m_iReligiousUnrestModifierGlobal(0)
+	 m_iLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -10725,33 +10655,34 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_iRandomChance(0),
 	 m_iRandomChanceDelta(0),
 	 m_iRequiredCiv(-1),
-	 m_iRequiredPolicy(-1),
-	 m_iIdeology(-1),
 	 m_iRequiredEra(-1),
 	 m_iObsoleteEra(-1),
-	 m_iRequiredReligion(-1),
 	 m_iRequiredImprovement(-1),
+	 m_iRequiredPolicy(-1),
+	 m_iIdeology(-1),
+	 m_iRequiredReligion(-1),
+	 m_iNumChoices(0),
+	 m_iBuildingRequired(-1),
+	 m_iBuildingLimiter(-1),
+	 m_iCooldown(0),
 	 m_bRequiresHolyCity(false),
+	 m_piMinimumYield(NULL),
 	 m_bRequiresIdeology(false),
 	 m_bRequiresWar(false),
 	 m_bCapital(false),
 	 m_bCoastal(false),
 	 m_bIsRiver(false),
+	 m_bIsNoFreshWater(false),
 	 m_bEraScaling(false),
-	 m_iNumChoices(0),
-	 m_iCooldown(0),
-	 m_iBuildingRequired(-1),
-	 m_iBuildingLimiter(-1),
-	 m_piMinimumYield(NULL),
-	 m_iLocalResourceRequired(-1),
 	 m_bRequiresWarMinor(false),
+	 m_strSplashArt(""),
+	 m_strEventAudio(""),
 	 m_iRequiredStateReligion(-1),
 	 m_bRequiresGarrison(false),
 	 m_bHasStateReligion(false),
 	 m_bUnhappy(false),
 	 m_bSuperUnhappy(false),
-	 m_strSplashArt(""),
-	 m_strEventAudio(""),
+	 m_iLocalResourceRequired(-1),
 	 m_bIsResistance(false),
 	 m_bIsWLTKD(false),
 	 m_bIsOccupied(false),
@@ -10760,12 +10691,12 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bIsPuppet(false),
 	 m_bTradeConnection(false),
 	 m_bCityConnection(false),
+	 m_bNearNaturalWonder(false),
+	 m_bNearMountain(false),
+	 m_bPantheon(false),
 	 m_iNearbyFeature(-1),
 	 m_iNearbyTerrain(-1),
 	 m_iMaximumPopulation(0),
-	 m_bPantheon(false),
-	 m_bNearMountain(false),
-	 m_bNearNaturalWonder(false),
 	 m_bOneShot(false),
 	 m_bMetAnotherCiv(false),
 	 m_bInDebt(false),
@@ -10773,8 +10704,8 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bVassal(false),
 	 m_bMaster(false),
 	 m_bHasPlayerReligion(false),
-	 m_bHasPlayerMajority(false),
 	 m_bLacksPlayerReligion(false),
+	 m_bHasPlayerMajority(false),
 	 m_bLacksPlayerMajority(false),
 	 m_bEspionageSetup(false),
 	 m_bIsCounterSpy(false),
@@ -10898,6 +10829,11 @@ bool CvModCityEventInfo::isCoastal() const
 bool CvModCityEventInfo::isRiver() const
 {
 	return m_bIsRiver;
+}
+//------------------------------------------------------------------------------
+bool CvModCityEventInfo::isNoFreshWater() const
+{
+	return m_bIsNoFreshWater;
 }
 //------------------------------------------------------------------------------
 bool CvModCityEventInfo::isEraScaling() const
@@ -11178,6 +11114,7 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bCapital = kResults.GetBool("CapitalOnly");
 	m_bCoastal = kResults.GetBool("CoastalOnly");
 	m_bIsRiver = kResults.GetBool("RiverOnly");
+	m_bIsNoFreshWater = kResults.GetBool("NoFreshWater");
 	m_bEraScaling = kResults.GetBool("EraScaling");
 	m_iNumChoices = kResults.GetInt("NumChoices");
 
@@ -11272,19 +11209,18 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 //======================================================================================================
 CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iEventBuilding(-1),
-	 m_bEraScaling(false),
-	 m_bExpires(false),
+	 m_iEventBuildingDestruction(-1),
 	 m_iEventDuration(0),
 	 m_bEventDurationScaling(true),
 	 m_iEventChance(0),
-	 m_iEventBuildingDestruction(-1),
+	 m_bEraScaling(false),
+	 m_bExpires(false),
+	 m_iEventPromotion(-1),
+	 m_piDestroyImprovement(NULL),
 	 m_piEventYield(NULL),
 	 m_piPreCheckEventYield(NULL),
-	 m_piGPChange(NULL),
-	 m_piDestroyImprovement(NULL),
 	 m_piFlavor(NULL),
-	 m_piNumFreeUnits(NULL),
-	 m_piNumFreeSpecificUnits(NULL),
+	 m_piGPChange(NULL),
 	 m_iNumWLTKD(0),
 	 m_iGrowthMod(0),
 	 m_iResistanceTurns(0),
@@ -11292,6 +11228,61 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iRandomBarbsPerEra(0),
 	 m_iFreeScaledUnits(0),
 	 m_iSpecialistsGreatPersonPointsPerTurn(0),
+	 m_piBuildingDestructionChance(NULL),
+	 m_piNumFreeUnits(NULL),
+	 m_piNumFreeSpecificUnits(NULL),
+	 m_piConvertReligion(NULL),
+	 m_piConvertReligionPercent(NULL),
+	 m_iLocalResourceRequired(-1),
+	 m_strEventChoiceSoundEffect(""),
+	 m_piCityYield(NULL),
+	 m_piCityYieldModifier(NULL),
+	 m_ppiBuildingClassYield(NULL),
+	 m_ppiBuildingClassYieldModifier(NULL),
+	 m_ppiTerrainYield(NULL),
+	 m_ppiFeatureYield(NULL),
+	 m_ppiImprovementYield(NULL),
+	 m_ppiResourceYield(NULL),
+	 m_pbParentEventIDs(NULL),
+	 m_iCityWideDestructionChance(0),
+	 m_iCityStrategicResourcePillage(0),
+	 m_iPillageResourceTilesChance(0),
+	 m_iPillageRoadsChance(0),
+	 m_iPillageFortificationsChance(0),
+	 m_iMutuallyExclusiveGroup(0),
+	 m_iBlockBuildingTurns(0),
+	 m_iCityHappiness(0),
+	 m_iReligiousPressureModifier(0),
+	 m_iBasicNeedsMedianModifier(0),
+	 m_iGoldMedianModifier(0),
+	 m_iScienceMedianModifier(0),
+	 m_iCultureMedianModifier(0),
+	 m_iReligiousUnrestModifier(0),
+	 m_piResourceChange(NULL),
+	 m_piYieldSiphon(NULL),
+	 m_piYieldOnSpyIdentified(NULL),
+	 m_piYieldOnSpyKilled(NULL),
+	 m_strDisabledTooltip(""),
+	 m_strSpyMissionEffect(""),
+	 m_iConvertsCityToPlayerReligion(0),
+	 m_iConvertsCityToPlayerMajorityReligion(0),
+	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
+	 m_iNetworkPointsNeeded(0),
+	 m_bNetworkPointsScaling(false),
+	 m_iSpyIdentificationChance(0),
+	 m_iSpyKillChance(0),
+	 m_iSpyLevelRequired(0),
+	 m_bIsEspionageMission(false),
+	 m_iStealTech(0),
+	 m_iStealGW(0),
+	 m_iSapCityTurns(0),
+	 m_iNoTourismTurns(0),
+	 m_iStealFromTreasuryPercent(0),
+	 m_bIsCounterspyMission(false),
+	 m_iCounterspyNPRateReduction(0),
+	 m_bCounterspyBlockSapCity(false),
+	 m_iCityDefenseModifierBase(0),
+	 m_iCityDefenseModifier(0),
 	 m_iPrereqTech(-1),
 	 m_iObsoleteTech(-1),
 	 m_iMinimumPopulation(0),
@@ -11311,6 +11302,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bCapital(false),
 	 m_bCoastal(false),
 	 m_bIsRiver(false),
+	 m_bIsNoFreshWater(false),
 	 m_bRequiresWarMinor(false),
 	 m_iRequiredStateReligion(-1),
 	 m_bRequiresGarrison(false),
@@ -11319,11 +11311,6 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bSuperUnhappy(false),
 	 m_bEnemyUnhappy(false),
 	 m_bEnemySuperUnhappy(false),
-	 m_strEventChoiceSoundEffect(""),
-	 m_piConvertReligion(NULL),
-	 m_piConvertReligionPercent(NULL),
-	 m_piBuildingDestructionChance(NULL),
-	 m_iLocalResourceRequired(-1),
 	 m_bIsResistance(false),
 	 m_bIsWLTKD(false),
 	 m_bIsOccupied(false),
@@ -11333,73 +11320,24 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bIsNotPuppet(false),
 	 m_bTradeConnection(false),
 	 m_bCityConnection(false),
-	 m_ppiBuildingClassYield(NULL),
-	 m_ppiBuildingClassYieldModifier(NULL),
-	 m_ppiTerrainYield(NULL),
-	 m_ppiFeatureYield(NULL),
-	 m_ppiImprovementYield(NULL),
-	 m_ppiResourceYield(NULL),
-	 m_piCityYield(NULL),
-	 m_piCityYieldModifier(NULL),
-	 m_piYieldSiphon(NULL),
-	 m_piYieldOnSpyIdentified(NULL),
-	 m_piYieldOnSpyKilled(NULL),
+	 m_bNearNaturalWonder(false),
+	 m_bNearMountain(false),
+	 m_bPantheon(false),
 	 m_iNearbyFeature(-1),
 	 m_iNearbyTerrain(-1),
 	 m_iMaximumPopulation(0),
-	 m_bPantheon(false),
-	 m_bNearMountain(false),
-	 m_bNearNaturalWonder(false),
-	 m_pbParentEventIDs(NULL),
 	 m_bOneShot(false),
 	 m_bMetAnotherCiv(false),
 	 m_bInDebt(false),
 	 m_bLosingMoney(false),
 	 m_bVassal(false),
 	 m_bMaster(false),
-	 m_iCityWideDestructionChance(0),
-	 m_iCityStrategicResourcePillage(0),
-	 m_iPillageResourceTilesChance(0),
-	 m_iPillageRoadsChance(0),
-	 m_iPillageFortificationsChance(0),
-	 m_iMutuallyExclusiveGroup(0),
-	 m_iBlockBuildingTurns(0),
-	 m_iEventPromotion(0),
-	 m_iCityHappiness(0),
-	 m_iReligiousPressureModifier(0),
-	 m_piResourceChange(NULL),
-	 m_strDisabledTooltip(""),
-	 m_strSpyMissionEffect(""),
-	 m_iConvertsCityToPlayerReligion(0),
-	 m_iConvertsCityToPlayerMajorityReligion(0),
-	 m_iNetworkPointsNeeded(0),
-	 m_bNetworkPointsScaling(false),
-	 m_iSpyIdentificationChance(0),
-	 m_iSpyKillChance(0),
-	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
 	 m_bHasPlayerReligion(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bHasPlayerMajority(false),
 	 m_bLacksPlayerMajority(false),
-	 m_iSpyLevelRequired(0),
-	 m_iStealTech(0),
-	 m_iStealGW(0),
-	 m_iSapCityTurns(0),
-	 m_iNoTourismTurns(0),
-	 m_iStealFromTreasuryPercent(0),
-	 m_bIsEspionageMission(false),
-	 m_bIsCounterspyMission(false),
-	 m_iCounterspyNPRateReduction(0),
-	 m_bCounterspyBlockSapCity(false),
-	 m_iCityDefenseModifierBase(0),
-	 m_iCityDefenseModifier(0),
 	 m_paCityLinkerInfo(NULL),
-	 m_iCityLinkerInfos(0),
-	 m_iBasicNeedsMedianModifier(0),
-	 m_iGoldMedianModifier(0),
-	 m_iScienceMedianModifier(0),
-	 m_iCultureMedianModifier(0),
-	 m_iReligiousUnrestModifier(0)
+	 m_iCityLinkerInfos(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -11965,6 +11903,11 @@ bool CvModEventCityChoiceInfo::isRiver() const
 	return m_bIsRiver;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isNoFreshWater() const
+{
+	return m_bIsNoFreshWater;
+}
+//------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isRequiresIdeology() const
 {
 	return m_bRequiresIdeology;
@@ -12259,7 +12202,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iCityHappiness = kResults.GetInt("CityHappiness");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
 
-	szTextVal = kResults.GetText("FreePromotionCity");
+	szTextVal = kResults.GetText("EventPromotion");
 	m_iEventPromotion =  GC.getInfoTypeForString(szTextVal, true);
 
 	szTextVal = kResults.GetText("EventChoiceAudio");
@@ -12543,6 +12486,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bCapital = kResults.GetBool("CapitalOnly");
 	m_bCoastal = kResults.GetBool("CoastalOnly");
 	m_bIsRiver = kResults.GetBool("RiverOnly");
+	m_bIsNoFreshWater = kResults.GetBool("NoFreshWater");
 
 	szTextVal = kResults.GetText("RequiredBuildingClass");
 	m_iBuildingRequired =  GC.getInfoTypeForString(szTextVal, true);

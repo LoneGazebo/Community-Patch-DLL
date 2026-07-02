@@ -605,7 +605,7 @@
 			<Text>The banker's case is more sound, as his investments match those of his father.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_CHOICE_2_HELP">
-			<Text>Receive a free Caravan in your Capital.</Text>
+			<Text>Receive a free Caravan in your [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_CHOICE_3">
 			<Text>The sailor's ideas would benefit all of our coastal cities.</Text>
@@ -1302,35 +1302,98 @@
 		</Row>
 
 		<!-- Espionage events -->
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
-			<Text>[ICON_GREAT_WORK] Steal a Great Work</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER">
+			<Text>[ICON_FOOD] Poison the Water Supply</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP">
-			<Text>Steal a randomly selected [ICON_GREAT_WORK] Great Work from the Target City.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER_PEDIA">
+			<Text>The City produces -50% [ICON_FOOD] Food. Lasts 10 turns (Standard Speed). For half that time the City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.[NEWLINE]The City cannot have access to Fresh Water, or a Medical Lab.[NEWLINE]50% ID Chance / 25% Kill Chance</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_EFFECT">
-			<Text>The [ICON_GREAT_WORK] Great Work "{2_GWName}" has been stolen.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER_HELP">
+			<Text>The City produces -50% [ICON_FOOD] Food for {5_Duration}, and for half that time the City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER_EFFECT">
+			<Text>The water has been poisoned, the City produces -50% [ICON_FOOD] Food for {5_Duration}, and for half that time is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION">
-			<Text>[ICON_PRODUCTION] Sabotage City Production</Text>
+			<Text>[ICON_STAR] Assassinate the City Governor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_PEDIA">
+			<Text>The City is unable to construct or invest in Buildings, Wonders and Projects. Lasts 10 turns (Standard Speed). During the first 2 turns it enters [ICON_RESISTANCE] Resistance and is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.[NEWLINE]75% ID Chance / 5% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP">
-			<Text>City is unable to construct or invest in Buildings, Wonders and Projects for {8_Num} Turns.</Text>
+			<Text>The City is unable to construct or invest in Buildings, Wonders and Projects for {8_Num} turns. During the first 2 turns it enters [ICON_RESISTANCE] Resistance and is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT">
-			<Text>The city is unable to construct or invest in Buildings, Wonders and Projects for {8_Num} Turns</Text>
+			<Text>The City enters [ICON_RESISTANCE] Resistance and is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes for 2 turns. The City is unable to construct or invest in Buildings, Wonders and Projects for a total {8_Num} turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH">
 			<Text>[ICON_PEACE] Pilfer Religious Relics</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_PEDIA">
+			<Text>Steal 100% of the [ICON_PEACE] Faith produced by this City each turn. The City emits -100% [ICON_RELIGION] Religious Pressure. Lasts 15 turns (Standard Speed).[NEWLINE]The City must have a Temple.[NEWLINE]25% ID Chance / 25% Kill Chance</Text>
+		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_HELP">
-			<Text>Steal 100% [ICON_PEACE] Faith per turn from the Target City. -100% Religious Pressure emitted by the Target City. Lasts for {5_Duration}.</Text>
+			<Text>Steal 100% of the [ICON_PEACE] Faith produced by this City each turn for {5_Duration}. It emits -100% [ICON_RELIGION] Religious Pressure during this time.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_EFFECT">
-			<Text>Each turn, 100% of the City's [ICON_PEACE] Faith Output is stolen. The City emits -100% Religious Pressure. {5_DurationText}</Text>
+			<Text>Each turn, 100% of the City's [ICON_PEACE] Faith Output is stolen. The City emits -100% [ICON_RELIGION] Religious Pressure. {5_DurationText}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY">
+			<Text>[ICON_GOLD] Burgle the National Treasury</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_PEDIA">
+			<Text>Steal 35% of [ICON_GOLD] Gold from the Treasury of the Target Empire.[NEWLINE]The City must be a [ICON_CAPITAL] Capital.[NEWLINE]25% ID Chance / 25% Kill Chance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_HELP">
+			<Text>Steal {8_Num}% of [ICON_GOLD] Gold from the Treasury of the Target Empire. {7_AmountToSteal}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_EFFECT">
+			<Text>{3_Num} [ICON_GOLD] Gold has been stolen from your Treasury.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_STEAL_TREASURY_AMOUNT">
+			<Text>[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Amount to steal:[ENDCOLOR] {1_Num} [ICON_GOLD] Gold</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK">
+			<Text>[ICON_PIRATE] Hijack a Trade Convoy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_PEDIA">
+			<Text>2 [ICON_TEAM_2] Rebel Units appear near the City. The City does not generate any [ICON_TOURISM] Tourism. Lasts 10 turns (Standard Speed).[NEWLINE]The City must have a [ICON_INTERNATIONAL_TRADE] Trade Route connection.[NEWLINE]25% ID Chance / 5% Kill Chance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP">
+			<Text>2 [ICON_TEAM_2] Rebel Units appear in the area and the City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_EFFECT">
+			<Text>2 [ICON_TEAM_2] Rebel Units have appeared in the area. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE">
+			<Text>[ICON_PUPPET] Infiltrate the Governor's Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_PEDIA">
+			<Text>Steal 10% of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture produced by this City each turn. Lasts 15 turns (Standard Speed).[NEWLINE]The City cannot be a [ICON_CAPITAL] Capital.[NEWLINE]5% ID Chance / 25% Kill Chance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_HELP">
+			<Text>Steal 10% of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture produced by this City each turn for {5_Duration}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE_EFFECT">
+			<Text>There is a mole in the Governor's Office: 10% of [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture are stolen each turn for {5_Duration}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS">
+			<Text>[ICON_HAPPINESS_4] Distribute Seditious Leaflets</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_PEDIA">
+			<Text>Increase the City's [ICON_HAPPINESS_3] Needs Modifier by 25%. Lasts 15 turns (Standard Speed).[NEWLINE]Must have unlocked [COLOR_CYAN]Printing Press[ENDCOLOR].[NEWLINE]75% ID Chance / 5% Kill Chance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_HELP">
+			<Text>Increase the City's [ICON_HAPPINESS_3] Needs Modifier by 25% for {5_Duration}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_LEAFLETS_EFFECT">
+			<Text>Rebellious literature is inspiring protests, increasing all [ICON_HAPPINESS_3] Needs Modifiers by 25% for {5_Duration}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
-			<Text>[ICON_GREAT_PEOPLE] Kidnap Specialists in the City</Text>
+			<Text>[ICON_GREAT_PEOPLE] Kidnap Specialists</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_PEDIA">
+			<Text>Specialists produce -1 [ICON_GREAT_PEOPLE] GPP per turn in the Target City. Specialists in your Capital produce +1 [ICON_GREAT_PEOPLE] GPP per turn. Lasts for 15 turns (Standard Speed).[NEWLINE]The City cannot be a [ICON_PUPPET] Puppet.[NEWLINE]25% ID Chance / 50% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP">
 			<Text>Specialists produce -1 [ICON_GREAT_PEOPLE] GPP per turn in the Target City. {6_PlayerEventEffect}</Text>
@@ -1350,29 +1413,11 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_PARENT_HELP">
 			<Text>Specialists in your Capital produce +1 [ICON_GREAT_PEOPLE] GPP per turn.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY">
-			<Text>[ICON_GOLD] Steal from National Treasury</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_HELP">
-			<Text>Steal {8_Num}% of [ICON_GOLD] Gold from the Treasury of the Target Empire. {7_AmountToSteal}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_EFFECT">
-			<Text>{3_Num} [ICON_GOLD] Gold has been stolen from your Treasury.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_STEAL_TREASURY_AMOUNT">
-			<Text>[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Amount to steal:[ENDCOLOR] {1_Num} [ICON_GOLD] Gold</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH">
-			<Text>[ICON_RESEARCH] Steal a Technology</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP">
-			<Text>Steal a randomly selected Technology.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_EFFECT">
-			<Text>The Technology "{1_TechName}" has been stolen.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
-			<Text>[ICON_CITIZEN] Radicalize the rural citizenry</Text>
+			<Text>[ICON_CITIZEN] Radicalize the Rural Citizenry</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_PEDIA">
+			<Text>All improved Resource Tiles owned by the City are pillaged. Each Road or Railroad has a 50% chance to be pillaged.[NEWLINE]50% ID Chance / 5% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP">
 			<Text>All improved Resource Tiles owned by the City are pillaged. Each Road or Railroad has a 50% chance to be pillaged.</Text>
@@ -1381,22 +1426,52 @@
 			<Text>All improved Resourced Tiles and some Roads/Railroads around the City have been pillaged.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST">
-			<Text>[ICON_RESISTANCE] Arm the local populace</Text>
+			<Text>[ICON_RESISTANCE] Arm Local Rebels</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_PEDIA">
+			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism. Lasts 10 turns (Standard Speed).[NEWLINE]75% ID Chance / 25% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP">
-			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 Turns and Rebel Units appear in the area. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_EFFECT">
-			<Text>The City has entered [ICON_RESISTANCE] Resistance for 2 Turns and Rebel Units have appeared in the area. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+			<Text>The City has entered [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES">
-			<Text>[ICON_STRENGTH] Target City Defenses</Text>
+			<Text>[ICON_STRENGTH] Sabotage City Defenses</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_PEDIA">
+			<Text>All [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] owned by this City are [ICON_RAZING] Pillaged. The City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes. Lasts 5 turns (Standard Speed).[NEWLINE]75% ID Chance / 75% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_HELP">
-			<Text>All Fortifications owned by this City are pillaged. The City is blockaded and cannot perform ranged strikes for {8_Num} Turns.</Text>
+			<Text>All [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] owned by this City are [ICON_RAZING] Pillaged. The City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes for {8_Num} turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_EFFECT">
-			<Text>Fortifications around the City have been pillaged. The City is blockaded and cannot perform ranged strikes for {8_Num} Turns.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] around the City have been [ICON_RAZING] Pillaged. The City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes for {8_Num} turns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
+			<Text>[ICON_GREAT_WORK] Steal a Great Work</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_PEDIA">
+			<Text>Steal a randomly selected [ICON_GREAT_WORK] Great Work from the Target City.[NEWLINE]The City must be a [ICON_CAPITAL] Capital.[NEWLINE]95% ID Chance / 75% Kill Chance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP">
+			<Text>Steal a randomly selected [ICON_GREAT_WORK] Great Work from the Target City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_EFFECT">
+			<Text>The [ICON_GREAT_WORK] Great Work "{2_GWName}" has been stolen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH">
+			<Text>[ICON_RESEARCH] Steal a Technology</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_PEDIA">
+			<Text>Unlock a randomly selected Technology known by the Target Empire.[NEWLINE]5% ID Chance / 95% Kill Chance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP">
+			<Text>Unlock a randomly selected Technology known by the Target Empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_EFFECT">
+			<Text>The secrets of [COLOR_CYAN]"{1_TechName}"[ENDCOLOR] have been stolen.</Text>
 		</Row>
 
 		<!-- Counterspy -->
@@ -1407,28 +1482,52 @@
 			<Text>Your Spy has established their new counterintelligence operation. What would you like them to focus on?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK">
-			<Text>[ICON_CITY_SECURITY] Establish a counter-espionage network.</Text>
+			<Text>[ICON_CITY_SECURITY] Establish a Counter-Espionage Network</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_HELP">
-			<Text>Foreign [ICON_SPY] Spies generate -20 Network Points per turn.[NEWLINE][NEWLINE]Gain 50 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
+			<Text>Foreign [ICON_SPY] Spies generate [COLOR_POSITIVE_TEXT]-20[ENDCOLOR] Network Points per turn. [ICON_CIVIL_SERVANT] Civil Servants produce [COLOR_NEGATIVE_TEXT]-1[ENDCOLOR] of each of their base yields.[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Kidnap Specialists", "Radicalize the Rural Citizenry", or "Burgle the National Treasury" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_EFFECT">
-			<Text>Foreign [ICON_SPY] Spies generate [ICON_NEGATIVE_TEXT]-20 Network Points[ENDCOLOR] per turn.</Text>
+			<Text>Foreign [ICON_SPY] Spies generate [ICON_POSITIVE_TEXT]-20 Network Points[ENDCOLOR] per turn. [ICON_CIVIL_SERVANT] Civil Servants produce [COLOR_NEGATIVE_TEXT]-1[ENDCOLOR] of each of their base yields. Foreign Spies are unable to perform the "Kidnap Specialists", "Radicalize the Rural Citizenry", or "Burgle the National Treasury" Missions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_MISSION">
 			<Text>Establish Network</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE">
-			<Text>[ICON_STRENGTH] Strengthen City Defenses.</Text>
+			<Text>[ICON_STRENGTH] Inspect City Defenses</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP">
-			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.[NEWLINE][NEWLINE]Gain 50 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. +2 [ICON_PRODUCTION] Production and [ICON_CULTURE_LOCAL] Border Growth Points from [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR].[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Sabotage City Defenses", "Poison the Water Supply", and "Assassinate the City Governor" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture when you kill a foreign spy, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_EFFECTS">
-			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. +2 [ICON_PRODUCTION] Production and [ICON_CULTURE_LOCAL] Border Growth Points from [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR]. Foreign Spies are unable to perform the "Sabotage City Defenses", "Poison the Water Supply", or "Assassinate the City Governor" Missions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION">
 			<Text>Strenghen Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION">
+			<Text>[ICON_RELIGION] Hunt Down Heretics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_HELP">
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority from this City by +25%, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_FOOD] Growth by 15%.[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Pilfer Religious Relics", "Purloin a Great Work", or "Distribute Seditious Leaflets" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_CULTURE] Culture and [ICON_PEACE] Faith when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_CULTURE] Culture and [ICON_PEACE] Faith when you kill a foreign spy, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_EFFECTS">
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority from this City by +25%, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_FOOD] Growth by 15%. Foreign Spies are unable to perform the "Pilfer Religious Relics", "Purloin a Great Work", or "Distribute Seditious Leaflets" Missions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_RELIGION_MISSION">
+			<Text>Hunt Down Heretics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM">
+			<Text>[ICON_OCCUPIED] Deploy Checkpoints</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_HELP">
+			<Text>-25% [ICON_HAPPINESS_3] Needs Modifier in the City, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_TOURISM] Tourism by 15%.[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Hijack Trade Convoy" or "Arm the Local Populace" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism when you kill a foreign spy, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_EFFECTS">
+			<Text>-25% [ICON_HAPPINESS_3] Needs Modifier in the City, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_TOURISM] Tourism by 15%. Foreign Spies are unable to perform the "Hijack Trade Convoy" or "Arm the Local Populace" Missions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_MISSION">
+			<Text>Deploy Checkpoints</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

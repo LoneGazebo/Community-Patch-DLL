@@ -58,6 +58,8 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	CvCityBuildable buildable;
 
 	// buildings
+	SPlotStats plotStats = pCity->getPlotStats();
+	vector<int> allExistingBuildings = GET_PLAYER(pCity->getOwner()).GetTotalBuildingCount();
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.GetGameBuildings()->GetNumBuildings(); iBuildingLoop++)
 	{
 		BuildingTypes eBuilding = (BuildingTypes)iBuildingLoop;
@@ -71,7 +73,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		buildable.m_iTurnsToConstruct = pCity->getProductionTurnsLeft(eBuilding, 0);
 
 		int iFlavorWeight = pCityStrategy->GetBuildingProductionAI()->GetWeight(eBuilding);
-		int iSaneWeight = pCityStrategy->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iFlavorWeight, false, false);
+		int iSaneWeight = pCityStrategy->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iFlavorWeight, plotStats, allExistingBuildings);
 
 		if (iSaneWeight > 0)
 			m_aCityBuildables.push_back(buildable, iSaneWeight);

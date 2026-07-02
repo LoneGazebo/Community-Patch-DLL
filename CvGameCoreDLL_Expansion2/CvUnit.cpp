@@ -128,18 +128,13 @@ OBJECT_VALIDATE_DEFINITION(CvUnit)
 // Public Functions...
 CvUnit::CvUnit() :
 	m_syncArchive()
-	, m_iID()
-	, m_iHotKeyNumber()
+	, m_eOwner()
+	, m_eOriginalOwner()
+	, m_eGiftedByPlayer()
+	, m_eUnitType()
 	, m_iX()
 	, m_iY()
-	, m_iLastMoveTurn()
-	, m_iCycleOrder()
-	, m_iDeployFromOperationTurn()
-	, m_iReconX()
-	, m_iReconY()
-	, m_iReconCount()
-	, m_iGameTurnCreated()
-	, m_iTurnSliceCreated()
+	, m_iID()
 	, m_iDamage()
 	, m_iMoves()
 #if defined(MOD_LINKED_MOVEMENT)
@@ -150,10 +145,22 @@ CvUnit::CvUnit() :
 	, m_LinkedUnitIDs()
 	, m_iLinkedLeaderID()
 #endif
+	, m_iArmyId()
+	, m_iBaseCombat()
+	, m_iBaseRangedCombat()
 	, m_iSquadNumber()
 	, m_iSquadDestinationX()
 	, m_iSquadDestinationY()
 	, m_SquadEndMovementType()
+	, m_iHotKeyNumber()
+	, m_iDeployFromOperationTurn()
+	, m_iLastMoveTurn()
+	, m_iCycleOrder()
+	, m_iReconX()
+	, m_iReconY()
+	, m_iReconCount()
+	, m_iGameTurnCreated()
+	, m_iTurnSliceCreated()
 	, m_bImmobile()
 	, m_iExperienceTimes100()
 	, m_iStartingExperienceTimes100()
@@ -165,16 +172,24 @@ CvUnit::CvUnit() :
 	, m_iCombatTimer()
 	, m_bMovedThisTurn()
 	, m_bFortified()
-	, m_iBlitzCount()
+    , m_iBlitzCount()
 	, m_iAmphibCount()
 	, m_iRiverCrossingNoPenaltyCount()
 	, m_iEnemyRouteCount()
 	, m_iRivalTerritoryCount()
 	, m_iIsSlowInEnemyLandCount()
 	, m_iRangeAttackIgnoreLOSCount()
-    , m_iSeeThrough()
+	, m_iSeeThrough()
 	, m_iCityAttackOnlyCount()
 	, m_iCaptureDefeatedEnemyCount()
+	, m_iOriginCity()
+	, m_iCannotBeCapturedCount()
+	, m_iForcedDamage()
+	, m_iChangeDamage()
+	, m_iDamageTakenMod()
+	, m_iInfluenceFromCombatXPTimes100()
+	, m_PromotionDuration()
+	, m_TurnPromotionGained()
 	, m_iRangedSupportFireCount()
 	, m_iAlwaysHealCount()
 	, m_iFlatHealRate()
@@ -186,7 +201,7 @@ CvUnit::CvUnit() :
 	, m_iAOEDamageOnPillage()
 	, m_iAOEHealOnPillage()
 	, m_iCombatModPerCSAlliance()
-	, m_sePromotionsWithSameAttackBonus()
+	, m_sePromotionsWithSameAttackBonus()  // JJ: This is new
 	, m_iStrengthThisTurnFromPreviousSamePromotionAttacks()
 	, m_iAoEDamageOnMove()
 	, m_seBlockedPromotions()
@@ -197,11 +212,11 @@ CvUnit::CvUnit() :
 	, m_iMultiAttackBonus()
 	, m_iLandAirDefenseValue()
 	, m_iExtraVisibilityRange()
+	, m_iExtraReconRange()
 	, m_iExtraMoves()
 	, m_iExtraMoveDiscount()
 	, m_iExtraRange()
 	, m_iInterceptChance()
-	, m_iExtraAirInterceptRange()  // JJ: This is new
 	, m_iExtraEvasion()
 	, m_iExtraWithdrawal()
 	, m_eUnitContract()
@@ -210,18 +225,14 @@ CvUnit::CvUnit() :
 	, m_iExtraEnemyHeal()
 	, m_iExtraNeutralHeal()
 	, m_iExtraFriendlyHeal()
-	, m_iSameTileHeal()
-	, m_iAdjacentTileHeal()
 	, m_iEnemyDamageChance()
 	, m_iNeutralDamageChance()
 	, m_iEnemyDamage()
 	, m_iNeutralDamage()
 	, m_iNearbyEnemyCombatMod()
 	, m_iNearbyEnemyCombatRange()
-	, m_iSapperCount()
-	, m_iCanHeavyCharge()
-	, m_iRequiresLeadershipCount()
-	, m_iNumExoticGoods()
+	, m_iSameTileHeal()
+	, m_iAdjacentTileHeal()
 	, m_iAdjacentModifier()
 	, m_iNoAdjacentUnitModifier()
 	, m_iRangedAttackModifier()
@@ -259,177 +270,8 @@ CvUnit::CvUnit() :
 	, m_iDropRange()
 	, m_iAirSweepCapableCount()
 	, m_iExtraNavalMoves()
-	, m_iBaseCombat()
 	, m_eFacingDirection()
-	, m_iArmyId()
 	, m_iIgnoreTerrainCostCount()
-	, m_iGGFromBarbariansCount()
-	, m_iRoughTerrainEndsTurnCount()
-	, m_iCapturedUnitsConscriptedCount()
-	, m_iEmbarkAbilityCount()
-	, m_iHoveringUnitCount()
-	, m_iFlatMovementCostCount()
-	, m_iCanMoveImpassableCount()
-	, m_iOnlyDefensiveCount()
-	, m_iNoAttackInOceanCount()
-	, m_iNoDefensiveBonusCount()
-	, m_iNoCaptureCount()
-	, m_iNukeImmuneCount()
-	, m_iHiddenNationalityCount()
-	, m_iAlwaysHostileCount()
-	, m_iNoRevealMapCount()
-	, m_iCanMoveAllTerrainCount()
-	, m_iCanMoveAfterAttackingCount()
-	, m_iFreePillageMoveCount()
-	, m_iHealOnPillageCount()
-	, m_iHPHealedIfDefeatEnemy()
-	, m_iGoldenAgeValueFromKills()
-	, m_iHealIfDefeatExcludeBarbariansCount()
-	, m_iTacticalAIPlotX()
-	, m_iTacticalAIPlotY()
-	, m_iGarrisonCityID()
-	, m_iNumAttacks()
-	, m_iAttacksMade()
-	, m_iGreatGeneralCount()
-	, m_iGreatAdmiralCount()
-	, m_iAuraRangeChange()
-	, m_iAuraEffectChange()
-	, m_iNumRepairCharges()
-	, m_iMilitaryCapChange()
-	, m_iGreatGeneralModifier()
-	, m_iGreatGeneralReceivesMovementCount()
-	, m_iGreatGeneralCombatModifier()
-	, m_iIgnoreGreatGeneralBenefit()
-	, m_iIgnoreZOC()
-	, m_iNoSupply()
-	, m_iMaxHitPointsBase(GD_INT_GET(MAX_HIT_POINTS))
-	, m_iMaxHitPointsChange()
-	, m_iMaxHitPointsModifier()
-	, m_iVsUnhappyMod()
-	, m_iFriendlyLandsModifier()
-	, m_iFriendlyLandsAttackModifier()
-	, m_iOutsideFriendlyLandsModifier()
-	, m_iBorderCombatModifier()
-	, m_iCombatStrengthModifierPerMarriage()
-	, m_iCombatStrengthModifierPerMarriageCap()
-	, m_iNumInterceptions()
-	, m_iMadeInterceptionCount()
-	, m_iEverSelectedCount()
-	, m_iEmbarkedAllWaterCount()
-	, m_iEmbarkExtraVisibility()
-	, m_iEmbarkDefensiveModifier()
-	, m_iCapitalDefenseModifier()
-	, m_iCapitalDefenseFalloff()
-	, m_iCapitalDefenseLimit()
-	, m_iCityAttackPlunderModifier()
-	, m_iReligiousStrengthLossRivalTerritory()
-	, m_iTradeMissionInfluenceModifier()
-	, m_iTradeMissionGoldModifier()
-	, m_iCombatModPerLevel()
-	, m_iDiploMissionInfluence()
-	, m_strName("")
-	, m_eGreatWork(NO_GREAT_WORK)
-	, m_iTourismBlastStrength()
-	, m_iTourismBlastLength()
-	, m_bPromotionReady()
-	, m_bDeathDelay()
-	, m_bCombatFocus()
-	, m_bInfoBarDirty()
-	, m_bNotConverting()
-	, m_bAirCombat()
-	, m_bEmbarked()
-	, m_bPromotedFromGoody()
-	, m_bAITurnProcessed()
-	, m_eOwner()
-	, m_eOriginalOwner()
-	, m_eGiftedByPlayer()
-	, m_eCapturingPlayer()
-	, m_bCapturedAsIs()
-	, m_bCapturedAsConscript()
-	, m_eUnitType()
-	, m_eLeaderUnitType()
-	, m_eInvisibleType()
-	, m_eSeeInvisibleType()
-	, m_eGreatPeopleDirectiveType()
-	, m_combatUnit()
-	, m_transportUnit()
-	, m_extraDomainModifiers()
-	, m_extraDomainAttacks()
-	, m_extraDomainDefenses()
-	, m_YieldModifier()
-	, m_YieldChange()
-	, m_aiYieldFromCombatExperienceTimes100()
-	, m_iGarrisonYieldChange()
-	, m_iFortificationYieldChange()
-	, m_strScriptData()
-	, m_iScenarioData()
-	, m_ignoreTerrainCostInCount()
-	, m_ignoreTerrainCostFromCount()
-	, m_ignoreFeatureCostInCount()
-	, m_ignoreFeatureCostFromCount()
-	, m_terrainDoubleMoveCount()
-	, m_featureDoubleMoveCount()
-	, m_terrainImpassableCount()
-	, m_featureImpassableCount()
-	, m_extraTerrainAttackPercent()
-	, m_extraTerrainDefensePercent()
-	, m_vTerrainModifierAttack()
-	, m_vTerrainModifierDefense()
-	, m_extraFeatureAttackPercent()
-	, m_extraFeatureDefensePercent()
-	, m_extraUnitClassAttackMod()
-	, m_extraUnitClassDefenseMod()
-	, m_extraUnitCombatModifier()
-	, m_extraUnitCombatModifierAttack()
-	, m_extraUnitCombatModifierDefense()
-	, m_unitClassModifier()
-	, m_iCombatModPerAdjacentUnitCombatModifier()
-	, m_iCombatModPerAdjacentUnitCombatAttackMod()
-	, m_iCombatModPerAdjacentUnitCombatDefenseMod()
-	, m_yieldFromPillage()
-	, m_iMissionTimer()
-	, m_iMissionAIX()
-	, m_iMissionAIY()
-	, m_eMissionAIType()
-	, m_missionAIUnit()
-	, m_eActivityType()
-	, m_eAutomateType()
-	, m_eUnitAIType()
-	, m_bWaitingForMove(false)
-	, m_iMapLayer()
-	, m_iNumGoodyHutsPopped()
-	, m_eCombatType()
-	, m_iOriginCity()
-	, m_iCannotBeCapturedCount()
-	, m_iForcedDamage()
-	, m_iChangeDamage()
-	, m_iDamageTakenMod()
-	, m_iInfluenceFromCombatXPTimes100()
-	, m_PromotionDuration()
-	, m_TurnPromotionGained()
-	, m_iNumTilesRevealedThisTurn()
-	, m_bSpottedEnemy()
-	, m_bSpottedRuin()
-	, m_bRevealedPlot()
-	, m_iGainsXPFromScouting()
-	, m_iXPFromPillaging()
-	, m_iExtraXPOnKill()
-	, m_iGainsXPFromSpotting()
-	, m_iCaptureDefeatedEnemyChance()
-	, m_iBarbCombatBonus()
-	, m_iAdjacentEnemySapMovement()
-	, m_iCanMoraleBreak()
-	, m_iDamageAoEFortified()
-	, m_iWorkRateMod()
-	, m_iDamageReductionCityAssault()
-	, m_iStrongerDamaged()
-	, m_iDiplomaticMissionAccomplishment()
-	, m_iFightWellDamaged()
-	, m_iFreeAttackMoves()
-	, m_iGoodyHutYieldBonus()
-	, m_iReligiousPressureModifier()
-	, m_iExtraReconRange()
-	, m_iBaseRangedCombat()
 	, m_iIgnoreTerrainDamageCount()
 	, m_iIgnoreFeatureDamageCount()
 	, m_iExtraTerrainDamageCount()
@@ -439,9 +281,9 @@ CvUnit::CvUnit() :
 	, m_iNearbyImprovementCombatBonus()
 	, m_iNearbyImprovementBonusRange()
 	, m_eCombatBonusImprovement()
-	, m_iCombatBonusFromNearbyUnitClass()
-	, m_iNearbyUnitClassBonusRange()
 	, m_iNearbyUnitClassBonus()
+	, m_iNearbyUnitClassBonusRange()
+	, m_iCombatBonusFromNearbyUnitClass()
 	, m_iNearbyPromotion()
 	, m_iNearbyUnitPromotionRange()
 	, m_iNearbyCityCombatMod()
@@ -481,29 +323,187 @@ CvUnit::CvUnit() :
 	, m_iCanCrossMountainsCount()
 	, m_iCanCrossOceansCount()
 	, m_iCanCrossIceCount()
-	, m_iEmbarkedDeepWaterCount()
-	, m_strUnitName("")
+	, m_iNumTilesRevealedThisTurn()
+	, m_bSpottedEnemy()
+	, m_bSpottedRuin()
+	, m_bRevealedPlot()
+	, m_iGainsXPFromScouting()
+	, m_iXPFromPillaging()
+	, m_iExtraXPOnKill()
+	, m_iGainsXPFromSpotting()
+	, m_iCaptureDefeatedEnemyChance()
+	, m_iBarbCombatBonus()
+	, m_iAdjacentEnemySapMovement()
+	, m_iGGFromBarbariansCount()
+	, m_iAuraRangeChange()
+	, m_iAuraEffectChange()
+	, m_iNumRepairCharges()
+	, m_iMilitaryCapChange()
+	, m_iRoughTerrainEndsTurnCount()
+	, m_iCapturedUnitsConscriptedCount()
+	, m_iEmbarkAbilityCount()
+	, m_iHoveringUnitCount()
+	, m_iFlatMovementCostCount()
+	, m_iCanMoveImpassableCount()
+	, m_iOnlyDefensiveCount()
+	, m_iNoAttackInOceanCount()
+	, m_iNoDefensiveBonusCount()
+	, m_iNoCaptureCount()
+	, m_iNukeImmuneCount()
+	, m_iHiddenNationalityCount()
+	, m_iAlwaysHostileCount()
+	, m_iNoRevealMapCount()
+	, m_iCanMoveAllTerrainCount()
+	, m_iCanMoveAfterAttackingCount()
+	, m_iFreePillageMoveCount()
+	, m_iHealOnPillageCount()
+	, m_iHPHealedIfDefeatEnemy()
+	, m_iGoldenAgeValueFromKills()
+	, m_iTacticalAIPlotX()
+	, m_iTacticalAIPlotY()
+	, m_iGarrisonCityID()
+	, m_iNumAttacks()
+	, m_iAttacksMade()
+	, m_iGreatGeneralCount()
+	, m_iGreatAdmiralCount()
+	, m_iGreatGeneralModifier()
+	, m_iGreatGeneralReceivesMovementCount()
+	, m_iGreatGeneralCombatModifier()
+	, m_iIgnoreGreatGeneralBenefit()
+	, m_iIgnoreZOC()
+	, m_iNoSupply()
+	, m_iMaxHitPointsBase(GD_INT_GET(MAX_HIT_POINTS))
+	, m_iMaxHitPointsChange()
+	, m_iMaxHitPointsModifier()
+	, m_iVsUnhappyMod()
+	, m_iFriendlyLandsModifier()
+	, m_iFriendlyLandsAttackModifier()
+	, m_iOutsideFriendlyLandsModifier()
+	, m_iBorderCombatModifier()
+	, m_iCombatStrengthModifierPerMarriage()
+	, m_iCombatStrengthModifierPerMarriageCap()
+	, m_iHealIfDefeatExcludeBarbariansCount()
+	, m_iNumInterceptions()
+	, m_iExtraAirInterceptRange()
+	, m_iMadeInterceptionCount()
+	, m_iEverSelectedCount()
+	, m_iSapperCount()
+	, m_iCanHeavyCharge()
+	, m_iStrongerDamaged()
+	, m_iDiplomaticMissionAccomplishment()
+	, m_iFightWellDamaged()
+	, m_iFreeAttackMoves()
+	, m_iCanMoraleBreak()
+	, m_iDamageAoEFortified()
+	, m_iRequiresLeadershipCount()
+	, m_iWorkRateMod()
+	, m_iDamageReductionCityAssault()
+	, m_iGoodyHutYieldBonus()
+	, m_iReligiousPressureModifier()
+	, m_iNumExoticGoods()
+	, m_bPromotionReady()
+	, m_bDeathDelay()
+	, m_bCombatFocus()
+	, m_bInfoBarDirty()
+	, m_bNotConverting()
+	, m_bAirCombat()
+	, m_bEmbarked()
+	, m_bPromotedFromGoody()
+	, m_bAITurnProcessed()
 	, m_iDamageTakenThisTurn()
 	, m_iDamageTakenLastTurn()
+	, m_eCapturingPlayer()
+	, m_bCapturedAsIs()
+	, m_bCapturedAsConscript()
+	, m_eLeaderUnitType()
+	, m_eInvisibleType()
+	, m_eSeeInvisibleType()
+	, m_eGreatPeopleDirectiveType()
+	, m_bWaitingForMove(false)
+	, m_combatUnit()
+	, m_transportUnit()
+	, m_extraDomainModifiers()
+	, m_extraDomainAttacks()
+	, m_extraDomainDefenses()
+	, m_YieldModifier()
+	, m_YieldChange()
+	, m_aiYieldFromCombatExperienceTimes100()
+	, m_iGarrisonYieldChange()
+	, m_iFortificationYieldChange()
+	, m_strScriptData()
+	, m_iScenarioData()
+	, m_iBuilderStrength()
+	, m_ignoreTerrainCostInCount()
+	, m_ignoreTerrainCostFromCount()
+	, m_ignoreFeatureCostInCount()
+	, m_ignoreFeatureCostFromCount()
+	, m_terrainDoubleMoveCount()
+	, m_featureDoubleMoveCount()
 	, m_terrainHalfMoveCount()
 	, m_featureHalfMoveCount()
 	, m_terrainExtraMoveCount()
 	, m_featureExtraMoveCount()
+	, m_terrainDoubleHeal()
+	, m_featureDoubleHeal()
+	, m_terrainImpassableCount()
+	, m_featureImpassableCount()
+	, m_extraTerrainAttackPercent()
+	, m_extraTerrainDefensePercent()
+	, m_vTerrainModifierAttack()
+	, m_vTerrainModifierDefense()
+	, m_extraFeatureAttackPercent()
+	, m_extraFeatureDefensePercent()
+	, m_extraUnitClassAttackMod()
+	, m_extraUnitClassDefenseMod()
+	, m_aiNumTimesAttackedThisTurn()
+	, m_yieldFromScoutingTimes100()
+	, m_piYieldFromAncientRuins()
+	, m_piYieldFromTRPlunder()
+	, m_yieldFromKills()
+	, m_yieldFromBarbarianKills()
+	, m_extraUnitCombatModifier()
+	, m_extraUnitCombatModifierAttack()
+	, m_extraUnitCombatModifierDefense()
+	, m_unitClassModifier()
+	, m_iCombatModPerAdjacentUnitCombatModifier()
+	, m_iCombatModPerAdjacentUnitCombatAttackMod()
+	, m_iCombatModPerAdjacentUnitCombatDefenseMod()
+	, m_yieldFromPillage()
+	, m_iMissionTimer()
+	, m_iMissionAIX()
+	, m_iMissionAIY()
+	, m_eMissionAIType()
+	, m_missionAIUnit()
+	, m_eActivityType()
+	, m_eAutomateType()
+	, m_eUnitAIType()
+	, m_eCombatType()
+	, m_iEmbarkedAllWaterCount()
+	, m_iEmbarkedDeepWaterCount()
+	, m_iEmbarkExtraVisibility()
+	, m_iEmbarkDefensiveModifier()
+	, m_iCapitalDefenseModifier()
+	, m_iCapitalDefenseFalloff()
+	, m_iCapitalDefenseLimit()
+	, m_iCityAttackPlunderModifier()
+	, m_iReligiousStrengthLossRivalTerritory()
+	, m_iTradeMissionInfluenceModifier()
+	, m_iTradeMissionGoldModifier()
+	, m_iCombatModPerLevel()
+	, m_iDiploMissionInfluence()
+	, m_iMapLayer()
+	, m_iNumGoodyHutsPopped()
+	, m_iTourismBlastStrength()
+	, m_iTourismBlastLength()
 	, m_iHurryStrength()
 	, m_iGoldBlastStrength()
 	, m_iScienceBlastStrength()
 	, m_iCultureBlastStrength()
 	, m_iGAPBlastStrength()
 	, m_abPromotionEverObtained()
-	, m_terrainDoubleHeal()
-	, m_featureDoubleHeal()
-	, m_yieldFromKills()
-	, m_yieldFromBarbarianKills()
-	, m_aiNumTimesAttackedThisTurn()
-	, m_yieldFromScoutingTimes100()
-	, m_piYieldFromAncientRuins()
-	, m_piYieldFromTRPlunder()
-	, m_iBuilderStrength()
+	, m_strUnitName("")
+	, m_strName("")
+	, m_eGreatWork(NO_GREAT_WORK)
 	, m_eTacticalMove()
 	, m_iTacticalMoveSetTurn()
 	, m_eHomelandMove()
@@ -4606,17 +4606,17 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		// Barbarians cannot enter owned plots in the beginning
 		return false;
 
+	if (isRivalTerritory() || isTrade())
+		return true;
+
 	TeamTypes eMyTeam = GET_PLAYER(getOwner()).getTeam();
 	CvTeam& kMyTeam = GET_TEAM(eMyTeam);
 	CvTeam& kTheirTeam = GET_TEAM(eTeam);
 
-	if (isRivalTerritory() || isTrade())
-		return true;
-
 	if (MOD_GLOBAL_CS_OVERSEAS_TERRITORY && eMyTeam != eTeam && kTheirTeam.isMinorCiv())
 	{
-		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(getUnitType());
-		if (pkUnitEntry->GetDefaultUnitAIType() != UNITAI_MESSENGER)
+		UnitAITypes eUnitAI = GC.getUnitInfo(getUnitType())->GetDefaultUnitAIType();
+		if (eUnitAI != UNITAI_MESSENGER && eUnitAI != UNITAI_DIPLOMAT)
 		{
 			PlayerTypes eMinor = kTheirTeam.getLeaderID();
 			ASSERT(eMinor != NO_PLAYER);
@@ -4633,6 +4633,9 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	}
 
 	if (isEnemy(eTeam))
+		return true;
+
+	if (kTheirTeam.GetRemainingDisengagementTurns(eMyTeam) > 0)
 		return true;
 
 	if (kTheirTeam.IsAllowsOpenBordersToTeam(eMyTeam))
@@ -6026,20 +6029,12 @@ void CvUnit::scrap(bool bDelay)
 		kOwner.GetTreasury()->ChangeGold(iGold);
 	}
 
-	// TODO: change to instant yield
-	if (isCultureFromExperienceDisbandUpgrade())
+	if (getCultureFromExperienceDisbandUpgrade() > 0)
 	{
-		int iExperience = getExperienceTimes100() / 100;
-		if (iExperience > 0)
-		{
-			kOwner.changeJONSCulture(iExperience);
-			if (getOwner() == GC.getGame().getActivePlayer())
-			{
-				char text[256] = { 0 };
-				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-				SHOW_PLOT_POPUP(plot(), getOwner(), text);
-			}
-		}
+		int iExperienceTimes100 = getExperienceTimes100();
+		if (iExperienceTimes100 > 0)
+			kOwner.doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
+				false, NO_PLAYER, plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, false, YIELD_CULTURE, this);
 	}
 
 	kill(bDelay);
@@ -8321,6 +8316,8 @@ int CvUnit::GetDanger(const CvPlot* pAtPlot, const SUnitIDValueContainer& unitDa
 }
 
 //	--------------------------------------------------------------------------------
+// airlift methods
+// ---------------------------------------------------------------------------------
 bool CvUnit::canAirlift(const CvPlot* pPlot, bool bIgnoreMoves) const
 {
 	return (getAirliftFromPlot(pPlot, bIgnoreMoves) != NULL);
@@ -8444,8 +8441,6 @@ const CvPlot* CvUnit::getAirliftFromPlot(const CvPlot* pPlot, bool bIgnoreMoves)
 	return pFromPlot;
 }
 
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves) const
 {
 	VALIDATE_OBJECT();
@@ -8488,8 +8483,6 @@ bool CvUnit::canAirliftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves
 	return true;
 }
 
-
-//	--------------------------------------------------------------------------------
 bool CvUnit::airlift(int iX, int iY)
 {
 	VALIDATE_OBJECT();
@@ -8532,6 +8525,220 @@ bool CvUnit::airlift(int iX, int iY)
 		}
 	}
 
+
+	if(pTargetPlot != NULL)
+	{
+		finishMoves();
+		setXY(pTargetPlot->getX(), pTargetPlot->getY());
+		return true;
+	}
+
+	return false;
+}
+
+// now the equivalent sealift methods
+bool CvUnit::canSealift(const CvPlot* pPlot, bool bIgnoreMoves) const
+{
+	return (getSealiftFromPlot(pPlot, bIgnoreMoves) != NULL);
+}
+
+const CvPlot* CvUnit::getSealiftToPlot(const CvPlot* pPlot, bool bIncludeCities) const
+{
+	if (MOD_EVENTS_SEALIFT)
+	{
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanSealiftTo, getOwner(), GetID(), pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_TRUE)
+		{
+			return pPlot;
+		}
+	}
+
+	// NYI
+	/*
+	// Is there a friendly improvement that AllowsSealiftTo
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		CvImprovementEntry *pkEntry = GC.getImprovementInfo(eImprovement);
+		if (pkEntry && pkEntry->IsAllowsSealiftTo() && !pPlot->IsImprovementPillaged() && pPlot->IsFriendlyTerritory(getOwner()) && !pPlot->isVisibleEnemyUnit(getOwner()))
+		{
+			return pPlot;
+		}
+	}
+	*/
+
+	if (!bIncludeCities)
+		return NULL;
+
+	CvCity* pEndCity = pPlot->getPlotCity();
+	if (pEndCity == NULL)
+	{
+		pEndCity = pPlot->GetAdjacentCity();
+		if (pEndCity == NULL)
+		{
+			return NULL;
+		}
+	}
+
+	if (!pEndCity->CanSealift())
+	{
+		return NULL;
+	}
+	if (pEndCity->getOwner() == getOwner() || (GET_PLAYER(pEndCity->getOwner()).isMinorCiv() && GET_PLAYER(pEndCity->getOwner()).GetMinorCivAI()->GetAlly() == getOwner()))
+	{
+		return pPlot;
+	}
+	return NULL;
+}
+
+const CvPlot* CvUnit::getSealiftFromPlot(const CvPlot* pPlot, bool bIgnoreMoves) const
+{
+	VALIDATE_OBJECT();
+
+	// Early out if we're a trade unit
+	if (isTrade())
+	{
+		return NULL;
+	}
+
+	if (MOD_EVENTS_SEALIFT)
+	{
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CanSealiftFrom, getOwner(), GetID(), pPlot->getX(), pPlot->getY()) == GAMEEVENTRETURN_TRUE)
+		{
+			return pPlot;
+		}
+	}
+
+	if(getDomainType() != DOMAIN_LAND)
+	{
+		return NULL;
+	}
+
+	if(hasMoved() && !bIgnoreMoves)
+	{
+		return NULL;
+	}
+
+	// NYI
+	/*
+	// Are we stood on a friendly improvement that AllowsSealiftFrom
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		CvImprovementEntry *pkEntry = GC.getImprovementInfo(eImprovement);
+		if (pkEntry && pkEntry->IsAllowsSealiftFrom() && !pPlot->IsImprovementPillaged() && pPlot->IsFriendlyTerritory(getOwner()) && !pPlot->isVisibleEnemyUnit(getOwner()))
+		{
+			return pPlot;
+		}
+	}
+	*/
+
+	const CvPlot* pFromPlot = pPlot;
+
+	if (pPlot->isWater())
+	{
+		return NULL;
+	}
+
+	CvCity* pCity = pPlot->getPlotCity();
+	if(pCity == NULL)
+	{
+		pCity = pPlot->GetAdjacentCity();
+		if (pCity == NULL)
+		{
+			return NULL;
+		}
+		else
+		{
+			pFromPlot = pCity->plot();
+		}
+	}
+
+	if(pCity->getTeam() != getTeam())
+	{
+		return NULL;
+	}
+
+	if (!pCity->CanSealift())
+	{
+		return NULL;
+	}
+
+	return pFromPlot;
+}
+
+bool CvUnit::canSealiftAt(const CvPlot* pPlot, int iX, int iY, bool bIgnoreMoves) const
+{
+	VALIDATE_OBJECT();
+	const CvPlot* pFromPlot = getSealiftFromPlot(pPlot, bIgnoreMoves);
+	
+	if(pFromPlot == NULL)
+		return false;
+
+	CvPlot* pTargetPlot = GC.getMap().plot(iX, iY);
+	if (pPlot == pTargetPlot)
+		return false;
+
+	int iMoveFlags = CvUnit::MOVEFLAG_DESTINATION;
+	if(!pTargetPlot || !canMoveInto(*pTargetPlot, iMoveFlags) || pTargetPlot->isWater())
+	{
+		return false;
+	}
+
+	const CvPlot* pToPlot = getSealiftToPlot(pTargetPlot, pFromPlot->isCity());
+	if(pToPlot == NULL)
+		return false;
+
+	if (pToPlot == pFromPlot)
+		return false;
+
+	// We have valid endpoints, but are the cities connected by water?
+	CvCity* pCurrentCity = pFromPlot->getPlotCity();  // the origin city should be on this plot
+	if (pCurrentCity == NULL)
+	{
+		pCurrentCity = pFromPlot->GetAdjacentCity();  
+	}
+	CvCity* pTargetCity = pToPlot->getPlotCity();  // the target city might not be this plot specifically
+	if (pTargetCity == NULL)
+	{
+		// to get here, getSealiftToPlot cannot have failed. so this must populate correctly
+		pTargetCity = pToPlot->GetAdjacentCity();  
+	}
+	CvPlayer& kPlayer = GET_PLAYER(pCurrentCity->getOwner());
+	bool bWaterConnection = kPlayer.GetCityConnections()->AreCitiesDirectlyConnected(pCurrentCity, pTargetCity, CvCityConnections::CONNECTION_ANY_WATER);
+	if (!bWaterConnection)
+	{
+		return false;
+	}
+
+	// No enemy units adjacent
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(iX, iY, ((DirectionTypes)iI));
+		if(pAdjacentPlot != NULL)
+		{
+			CvUnit* pDefender = pAdjacentPlot->getBestDefender(NO_PLAYER, getOwner(), NULL, true);
+			if (pDefender)
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool CvUnit::sealift(int iX, int iY)
+{
+	VALIDATE_OBJECT();
+	CvPlot* pTargetPlot = NULL;
+
+	if(!canSealiftAt(plot(), iX, iY))
+	{
+		return false;
+	}
+
+	pTargetPlot = GC.getMap().plot(iX, iY);
+	ASSERT(pTargetPlot != NULL);
 
 	if(pTargetPlot != NULL)
 	{
@@ -10620,7 +10827,7 @@ bool CvUnit::foundCity()
 	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
 
 	ReligionTypes eReligion = (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON) ? GetReligionData()->GetReligion() : NO_RELIGION;
-	kPlayer.foundCity(getX(), getY(), eReligion, false, m_pUnitInfo);
+	kPlayer.foundCity(getX(), getY(), eReligion, false, this);
 
 	if (IsCanAttack() && plot()->getPlotCity() != NULL) 
 	{
@@ -11892,7 +12099,7 @@ bool CvUnit::trade()
 	// Acquire Influence
 	int iInfluence = getTradeInfluence(pPlot);
 
-	bool bGreatDiplomat = MOD_BALANCE_VP && m_pUnitInfo->GetNumInfPerEra() > 0 && m_pUnitInfo->GetRestingPointChange() != 0;
+	bool bGreatDiplomat = MOD_BALANCE_VP && m_pUnitInfo->GetNumInfPerEra() > 0;
 
 	// Save the original influence of every major civ for ally status change
 	vector<int> viOriginalInfluence;
@@ -11907,7 +12114,7 @@ bool CvUnit::trade()
 			GET_PLAYER(eMinor).GetMinorCivAI()->ChangeRestingPointChange(getOwner(), iRestingPointChange);
 		}
 
-		// Great Diplomat? Reduce everyone else's Influence and raise minimum Influence.
+		// Great Diplomat? Reduce everyone else's Influence.
 		if (bGreatDiplomat)
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -11926,7 +12133,7 @@ bool CvUnit::trade()
 					if (pNotifications)
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER");
-						strText << getNameKey() << iInfluence << GET_PLAYER(eMinor).getNameKey() << kOwner.getCivilizationAdjectiveKey() << iRestingPointChange;
+						strText << getNameKey() << iInfluence << GET_PLAYER(eMinor).getNameKey() << kOwner.getCivilizationAdjectiveKey();
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER_SUMMARY");
 						strSummary << getNameKey() << GET_PLAYER(eMinor).getNameKey();
 						pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), getUnitType());
@@ -11937,7 +12144,7 @@ bool CvUnit::trade()
 			if (pNotifications)
 			{
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT");
-				strText << getNameKey() << iInfluence << GET_PLAYER(eMinor).getNameKey() << iRestingPointChange;
+				strText << getNameKey() << iInfluence << GET_PLAYER(eMinor).getNameKey();
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_SUMMARY");
 				strSummary << getNameKey() << GET_PLAYER(eMinor).getNameKey();
 				pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), getUnitType());
@@ -12010,6 +12217,12 @@ bool CvUnit::trade()
 	{
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
+	}
+
+	// does this Unit give extra spy points on its missions?
+	if (m_pUnitInfo->GetExtraSpies() > 0)
+	{
+		kOwner.CreateSpies(m_pUnitInfo->GetExtraSpies());
 	}
 
 	if (IsGreatPerson())
@@ -12374,12 +12587,13 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	CvPlot* pThisPlot = plot();
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+	CvCity* pCapitalCity = kPlayer.getCapitalCity();
 
 	// Figure out which City gets ownership of these plots
 	int iBestCityID = -1;
 
 	// Plot we're standing on belongs to a city already
-	if(pThisPlot->getOwner() == getOwner() && pThisPlot->getOwningCityID() != -1)
+	if (pThisPlot->getOwner() == getOwner() && pThisPlot->getOwningCityID() != -1)
 	{
 		iBestCityID = pThisPlot->getOwningCityID();
 	}
@@ -12387,37 +12601,49 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	else
 	{
 		int iBestCityDistance = -1;
-		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
-		for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
 			CvPlot* pPlot = pLoopCity->plot();
-			if(pPlot)
-			{
-				int iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+			if (!pPlot)
+				continue;
 
-				if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
-				{
-					iBestCityID = pLoopCity->GetID();
-					iBestCityDistance = iDistance;
-				}
+			int iDistance = plotDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY());
+			if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+			{
+				iBestCityID = pLoopCity->GetID();
+				iBestCityDistance = iDistance;
 			}
 		}
+	}
+	CvCity* pBestCity = kPlayer.getCity(iBestCityID);
+	if (pBestCity == NULL)
+	{
+		if (pCapitalCity != NULL)
+			pBestCity = pCapitalCity;
 	}
 
 	// Keep track of got hit by this so we can figure the diplo ramifications later
 	vector<bool> vePlayersBombed;
+	vector<bool> vePlayersRevengeStealingFrom;
+	vector<CvCity*> vCitiesRevengeStealingFrom;
+	vector<bool> vePlayersToApplyCasusBelli;
 	vector<bool> vePlayersStoleHighValueTileFrom;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	CvWeightedVector<PlayerTypes> viCultureBombWarmongering;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		vePlayersBombed.push_back(false);
+		vePlayersRevengeStealingFrom.push_back(false);
+		vePlayersToApplyCasusBelli.push_back(false);
 		vePlayersStoleHighValueTileFrom.push_back(false);
+		if (iPlayerLoop < MAX_MAJOR_CIVS)
+			viCultureBombWarmongering.push_back((PlayerTypes)iPlayerLoop, 0);
 	}
 
 	// Change ownership of nearby plots
 	int iBombRange = iRadius;
 	CvPlot* pLoopPlot = NULL;
-	for(int i = -iBombRange; i <= iBombRange; ++i)
+	for (int i = -iBombRange; i <= iBombRange; ++i)
 	{
 		for(int j = -iBombRange; j <= iBombRange; ++j)
 		{
@@ -12432,8 +12658,8 @@ void CvUnit::PerformCultureBomb(int iRadius)
 
 			PlayerTypes ePlotOwner = pLoopPlot->getOwner();
 
-			// Can't be our plot
-			if (ePlotOwner == getOwner())
+			// Can't steal from own team
+			if (pLoopPlot->getTeam() == kPlayer.getTeam())
 				continue;
 
 			// Can't steal blocked tiles
@@ -12460,6 +12686,17 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				if (bHighValueTile)
 				{
 					vePlayersStoleHighValueTileFrom[ePlotOwner] = true;
+				}
+
+				CvCity* pOwningCity = pLoopPlot->getOwningCity();
+				if (pOwningCity && pOwningCity->GetNumTimesCultureBombed(getOwner()) > 0)
+				{
+					if (std::find(vCitiesRevengeStealingFrom.begin(), vCitiesRevengeStealingFrom.end(), pOwningCity) == vCitiesRevengeStealingFrom.end())
+					{
+						vCitiesRevengeStealingFrom.push_back(pOwningCity);
+						vePlayersRevengeStealingFrom[ePlotOwner] = true;
+						pOwningCity->ChangeNumTimesCultureBombed(getOwner(), -1);
+					}
 				}
 
 				// Stole a major civ's embassy from a City-State?
@@ -12495,6 +12732,24 @@ void CvUnit::PerformCultureBomb(int iRadius)
 								GET_PLAYER(ePlotOwner).GetMinorCivAI()->SetFriendshipWithMajor(getOwner(), 0);
 							}
 						}
+					}
+				}
+
+				// Major stealing from major may count for warmongering
+				// If it's close to the thief's capital, it doesn't count; if it's close to the plot owner's capital, it counts 1.5x
+				if (kPlayer.isMajorCiv() && GET_PLAYER(ePlotOwner).isMajorCiv())
+				{
+					CvCity* pPlotOwnerCapital = GET_PLAYER(ePlotOwner).getCapitalCity();
+					if (!pCapitalCity || plotDistance(*pLoopPlot, *pCapitalCity->plot()) > /*3*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_RADIUS))
+					{
+						int iStolenTileWeight = 0;
+						if (pPlotOwnerCapital && plotDistance(*pLoopPlot, *pPlotOwnerCapital->plot()) <= GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_RADIUS))
+							iStolenTileWeight = /*1500*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_CAPITAL_TILE_WEIGHT);
+						else
+							iStolenTileWeight = /*1000*/ GD_INT_GET(WARMONGER_THREAT_MAJOR_CULTURE_BOMBED_NONCAPITAL_TILE_WEIGHT);
+
+						viCultureBombWarmongering.IncreaseWeight(ePlotOwner, iStolenTileWeight);
+						vePlayersToApplyCasusBelli[ePlotOwner] = true;
 					}
 				}
 
@@ -12549,15 +12804,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					iPassYield += kPlayer.GetPlayerTraits()->GetYieldChangeFromTileCultureBomb(eTerrain, eYield);
 				}
 
-				CvCity* pBestCity = kPlayer.getCity(iBestCityID);
-				if (pBestCity == NULL)
-				{
-					CvCity* pCapitalCity = kPlayer.getCapitalCity();
-					if (pCapitalCity != NULL)
-					{
-						pBestCity = pCapitalCity;
-					}
-				}
 				if (pBestCity != NULL)
 				{
 					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_CULTURE_BOMB, false, NO_GREATPERSON, NO_BUILDING, iPassYield, true, NO_PLAYER, NULL, false, pBestCity, false, true, false, eYield);
@@ -12565,7 +12811,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			}
 
 			// Have to set owner after we do the above stuff
-			pLoopPlot->setOwner(getOwner(), iBestCityID);
+			pLoopPlot->setOwner(getOwner(), pBestCity->GetID());
 		}
 	}
 
@@ -12576,7 +12822,7 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	{
 		if (vePlayersBombed[iSlotLoop])
 		{
-			CvPlayer* pPlayer = &GET_PLAYER((PlayerTypes) iSlotLoop);
+			CvPlayer* pPlayer = &GET_PLAYER((PlayerTypes)iSlotLoop);
 			TeamTypes eOtherTeam = pPlayer->getTeam();
 			
 			if (pPlayer->isBarbarian())
@@ -12606,8 +12852,25 @@ void CvUnit::PerformCultureBomb(int iRadius)
 				int iPenalty = vePlayersStoleHighValueTileFrom[iSlotLoop] ? 6 : 3;
 				pPlayer->GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
 
-				// Message for human
-				if (!pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !bAlreadyShownLeader && !MOD_DIPLOAI_SHUT_UP_INSULTS)
+				// Apply global warmongering penalty (but not for revenge steals)
+				if (!vePlayersRevengeStealingFrom[iSlotLoop])
+				{
+					if (pBestCity != NULL && vePlayersToApplyCasusBelli[iSlotLoop])
+						pBestCity->ChangeNumTimesCultureBombed((PlayerTypes)iSlotLoop, 1);
+
+					int iStolenTileWeight = viCultureBombWarmongering.GetWeight(iSlotLoop);
+					if (iStolenTileWeight > 0)
+					{
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+							kLoopPlayer.GetDiplomacyAI()->ChangeOtherPlayerNumMajorsCultureBombed(getOwner(), 1, pPlayer->getTeam(), iStolenTileWeight);
+						}
+					}
+				}
+
+				// Message for human if not at war
+				if (!bAlreadyShownLeader && !pPlayer->isHuman(ISHUMAN_AI_DIPLOMACY) && getTeam() != eOtherTeam && !GET_TEAM(eOtherTeam).isAtWar(getTeam()) && !CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == getOwner() && !MOD_DIPLOAI_SHUT_UP)
 				{
 					bAlreadyShownLeader = true;
 
@@ -14077,81 +14340,23 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 int CvUnit::upgradePrice(UnitTypes eUnit) const
 {
 	VALIDATE_OBJECT();
-	int iPrice = 0;
-	
-	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-	if(pkUnitInfo == NULL)
-	{
-		return 0;
-	}
+	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
 
-	if(isBarbarian())
-	{
-		return 0;
-	}
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+	// Player-specific upgrade cost
+	int iPrice = kPlayer.GetUpgradeCost(getUnitType(), eUnit);
 
-	if (kPlayer.isMinorCiv())
-		return 0;
-
-	iPrice = /*10*/ GD_INT_GET(BASE_UNIT_UPGRADE_COST);
-
-	int iProductionBase = kPlayer.getProductionNeeded(getUnitType(), true);
-	if (iProductionBase == 0)
-	{
-		iProductionBase = kPlayer.getProductionNeeded(eUnit, true) / 2;
-	}
-
-	iPrice += (int)(std::max(0, (kPlayer.getProductionNeeded(eUnit, true) - iProductionBase)) * /*2.0f in CP, 1.25f in VP*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
-
-	// Upgrades for later units are more expensive
-	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
-	if (eTech != NO_TECH)
-	{
-		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-		const EraTypes eUpgradeEra = (EraTypes) pkTechInfo->GetEra();
-
-		double fMultiplier = 1.0f;
-		fMultiplier += (static_cast<float>(eUpgradeEra) * /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA));
-
-		iPrice = int(iPrice * fMultiplier);
-	}
-
-	if (kPlayer.isMajorCiv())
-	{
-		iPrice *= kPlayer.getHandicapInfo().getUnitUpgradePercent();
-		iPrice /= 100;
-
-		iPrice *= std::max(0, ((kPlayer.getHandicapInfo().getUnitUpgradePerEraModifier() * GC.getGame().getCurrentEra()) + 100));
-		iPrice /= 100;
-		if (!isHuman(ISHUMAN_HANDICAP))
-		{
-			iPrice *= GC.getGame().getHandicapInfo().getAIUnitUpgradePercent();
-			iPrice /= 100;
-
-			iPrice *= std::max(0, ((GC.getGame().getHandicapInfo().getAIUnitUpgradePerEraModifier() * GC.getGame().getCurrentEra()) + 100));
-			iPrice /= 100;
-		}
-	}
-
-	// Discount
-	iPrice -= (iPrice * getUpgradeDiscount()) / 100;
-
-	// Mod (Policies, etc.)
-	int iMod = kPlayer.GetUnitUpgradeCostMod();
-	iPrice *= (100 + iMod);
+	// Discount (from promotions)
+	iPrice *= 100 - getUpgradeDiscount();
 	iPrice /= 100;
-
-	// Apply exponent
-	iPrice = (int) pow((double) iPrice, (double) /*1.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_EXPONENT));
 
 	// Make the number not be funky
 	int iDivisor = /*5*/ GD_INT_GET(UNIT_UPGRADE_COST_VISIBLE_DIVISOR);
 	iPrice /= iDivisor;
 	iPrice *= iDivisor;
 
-	return max(1, iPrice);
+	return max(iDivisor, iPrice);
 }
 
 //	--------------------------------------------------------------------------------
@@ -14222,20 +14427,13 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 				LuaSupport::CallHook(pkScriptSystem, "UnitUpgraded", args.get(), bResult);
 			}
 		}
-
-		if(isCultureFromExperienceDisbandUpgrade())
+		
+		if (getCultureFromExperienceDisbandUpgrade() > 0)
 		{
-			int iExperience = getExperienceTimes100() / 100;
-			if(iExperience > 0)
-			{
-				thisPlayer.changeJONSCulture(iExperience);
-				if (getOwner() == GC.getGame().getActivePlayer())
-				{
-					char text[256] = { 0 };
-					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-					SHOW_PLOT_POPUP(plot(),getOwner(),text);
-				}
-			}
+			int iExperienceTimes100 = getExperienceTimes100();
+			if (iExperienceTimes100 > 0)
+				thisPlayer.doInstantYield(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE, false, NO_GREATPERSON, NO_BUILDING, iExperienceTimes100 * getCultureFromExperienceDisbandUpgrade(), 
+					false, NO_PLAYER, plot(), false, getOriginCity(), getDomainType()==DOMAIN_SEA, false, true, YIELD_CULTURE, this);
 		}
 
 		if (MOD_SQUADS && GetSquadNumber() > -1)
@@ -15678,6 +15876,19 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 
 	Modifiers += kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
 
+	if (IsCivilianUnit())
+	{
+		CvCity* pOriginCity = getOriginCity();
+		if (pOriginCity)
+		{
+			const CvReligion* pCityReligion = pOriginCity->GetCityReligions()->GetMajorityReligion();
+			if(pCityReligion)
+			{
+				Modifiers += pCityReligion->m_Beliefs.GetCivilianWorkRate(getOwner(), pOriginCity);
+			}
+		}
+	}
+
 	if (kPlayer.isMajorCiv())
 	{
 		Modifiers += kPlayer.getHandicapInfo().getWorkRateModifier();
@@ -16287,27 +16498,35 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		{
 			if (!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
-				ReligionTypes eOwnedReligion = kPlayer.GetReligions()->GetOwnedReligion();
+				ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
 				ReligionTypes eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetStateReligion();
 
-				if (eOwnedReligion != NO_RELIGION)
+				if (eStateReligion != NO_RELIGION)
 				{
-					const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, getOwner());
+					const CvReligion* pReligion = pReligions->GetReligion(eStateReligion, getOwner());
 					if (pReligion)
 					{
 						CvCity* pHolyCity = pReligion->GetHolyCity();
 
-						//Full bonus against different religion
-						int iScaler = (eTheirReligion != eOwnedReligion) ? 1 : 2;
-						int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
-						int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+						int iOwn = pReligion->m_Beliefs.GetCombatBonusOwnLands(getOwner(), pHolyCity);
+						int iOwnOtherReligion = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+						int iTheir = pReligion->m_Beliefs.GetCombatBonusTheirLands(getOwner(), pHolyCity);
+						int iTheirOtherReligion = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionTheirLands(getOwner(), pHolyCity);
 
 						// Bonus in own land
-						if (iOtherOwn > 0 && pBattlePlot->IsFriendlyTerritory(getOwner()))
-							iModifier += iOtherOwn/iScaler;
+						if ((iOwn > 0 || iOwnOtherReligion > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
+						{
+							iModifier += iOwn;
+							if (eStateReligion != eTheirReligion)
+								iModifier += iOwnOtherReligion;
+						}
 						// Bonus in their lands
-						if (iOtherTheir > 0 && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-							iModifier += iOtherTheir/iScaler;
+						if ((iTheir > 0 || iTheirOtherReligion > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+						{
+							iModifier += iTheir;
+							if (eStateReligion != eTheirReligion)
+								iModifier += iTheirOtherReligion;
+						}
 					}
 				}
 			}
@@ -16423,7 +16642,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iModifier += /*25*/ GD_INT_GET(POLICY_ATTACK_BONUS_MOD);
 
 	//resource monopolies
-	iModifier += kPlayer.GetCombatAttackBonusFromMonopolies();
+	iModifier += kPlayer.GetCombatAttackBonusFromMonopolies(getDomainType());
 	iModifier += GetStrengthThisTurnFromPreviousSamePromotionAttacks();
 
 	// Adjacent Friendly military Unit? (attack mod only)
@@ -16640,7 +16859,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	iModifier += GetDamageCombatModifier(bFromRangedAttack, getDamage() + iAssumeExtraDamage);
 
 	//resource monopolies
-	iModifier += GET_PLAYER(getOwner()).GetCombatDefenseBonusFromMonopolies();
+	iModifier += GET_PLAYER(getOwner()).GetCombatDefenseBonusFromMonopolies(getDomainType());
 
 	// Adjacent Friendly military Unit? (defense mod only)
 	if (pInPlot != NULL && !bQuickAndDirty && pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
@@ -16994,9 +17213,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 	// Resource monopoly
 	if (bAttacking)
-		iModifier += kPlayer.GetCombatAttackBonusFromMonopolies();
+		iModifier += kPlayer.GetCombatAttackBonusFromMonopolies(getDomainType());
 	else
-		iModifier += kPlayer.GetCombatDefenseBonusFromMonopolies();
+		iModifier += kPlayer.GetCombatDefenseBonusFromMonopolies(getDomainType());
 
 	if (bAttacking)
 		iModifier += GetStrengthThisTurnFromPreviousSamePromotionAttacks();
@@ -17144,27 +17363,35 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 			if (!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
-				ReligionTypes eOwnedReligion = kPlayer.GetReligions()->GetOwnedReligion();
+				ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
 				ReligionTypes eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetStateReligion();
 
-				if (eOwnedReligion != NO_RELIGION)
+				if (eStateReligion != NO_RELIGION)
 				{
-					const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, getOwner());
+					const CvReligion* pReligion = pReligions->GetReligion(eStateReligion, getOwner());
 					if (pReligion)
 					{
 						CvCity* pHolyCity = pReligion->GetHolyCity();
 
-						//Full bonus against different religion
-						int iScaler = (eTheirReligion != eOwnedReligion) ? 1 : 2;
-						int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
-						int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
+						int iOwn = pReligion->m_Beliefs.GetCombatBonusOwnLands(getOwner(), pHolyCity);
+						int iOwnOtherReligion = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionOwnLands(getOwner(), pHolyCity);
+						int iTheir = pReligion->m_Beliefs.GetCombatBonusTheirLands(getOwner(), pHolyCity);
+						int iTheirOtherReligion = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionTheirLands(getOwner(), pHolyCity);
 
 						// Bonus in own land
-						if (iOtherOwn > 0 && pTargetPlot->IsFriendlyTerritory(getOwner()))
-							iModifier += iOtherOwn/iScaler;
+						if ((iOwn > 0 || iOwnOtherReligion > 0) && pTargetPlot->IsFriendlyTerritory(getOwner()))
+						{
+							iModifier += iOwn;
+							if (eStateReligion != eTheirReligion)
+								iModifier += iOwnOtherReligion;
+						}
 						// Bonus in their lands
-						if (iOtherTheir > 0 && pTargetPlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-							iModifier += iOtherTheir/iScaler;
+						if ((iTheir > 0 || iTheirOtherReligion > 0) && pTargetPlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+						{
+							iModifier += iTheir;
+							if (eStateReligion != eTheirReligion)
+								iModifier += iTheirOtherReligion;
+						}
 					}
 				}
 			}
@@ -21828,12 +22055,12 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 		}
 		if (eNearestMinor != NO_PLAYER)
 		{
-			int iInfluenceGained = iUnitExperienceTimes100 * GetInfluenceFromCombatXPTimes100() / 100;
-			GET_PLAYER(eNearestMinor).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100(getOwner(), iInfluenceGained);
+			int iInfluenceGainedTimes100 = GetInfluenceFromCombatXPTimes100() * iUnitExperienceTimes100 / 100;
+			GET_PLAYER(eNearestMinor).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100(getOwner(), iInfluenceGainedTimes100);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", iInfluenceGained);
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", iInfluenceGainedTimes100 / 100);
 				SHOW_PLOT_POPUP(plot(), getOwner(), text);
 			}
 		}
@@ -28905,8 +29132,8 @@ bool CvUnit::canRangeStrike() const
 		return false;
 
 	//this concerns not only embarked units but also ships in harbor!
-    if(!isNativeDomain(plot()))
-        return false;
+	if(!isNativeDomain(plot()))
+		return false;
 
 	if (!canEndTurnAtPlot(plot()))
 		return false;
@@ -30263,12 +30490,13 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 
 	bool bIsCombatUnit = (this == pCombatUnit);
 	bool bExecuteMove = false;
+	int iDistance = plotDistance(getX(), getY(), pPlot->getX(), pPlot->getY());
 
 	if(pPlot && (bCanMoveIntoPlot || (bIsCombatUnit && !(bIsNoCapture && bEnemyCity))))
 	{
 		// execute move
 		LOG_UNIT_MOVES_MESSAGE_OSTR(std::string("UnitMove() : player ") << GET_PLAYER(getOwner()).getName(); << std::string(" ") << getName() << std::string(" id=") << GetID() << std::string(" moving to ") << pPlot->getX() << std::string(", ") << pPlot->getY());
-		move(*pPlot, true, bIsCombatUnit && IsFreeAttackMoves());
+		move(*pPlot, iDistance == 1, bIsCombatUnit && IsFreeAttackMoves());
 	}
 	else
 	{
@@ -30286,7 +30514,7 @@ bool CvUnit::UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEn
 		bExecuteMove = false;
 	}
 
-	if(bExecuteMove)
+	if(bExecuteMove && iDistance == 1)
 	{
 		PublishQueuedVisualizationMoves();
 	}
@@ -30648,6 +30876,13 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		}
 		break;
 
+	case INTERFACEMODE_SEALIFT:
+		if(canSealift(plot()))
+		{
+			return true;
+		}
+		break;
+
 	case INTERFACEMODE_NUKE:
 		if(canNuke())
 		{
@@ -30736,6 +30971,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		{
 			return true;
 		}
+		break;
 
 	default:
 		break;
@@ -33914,10 +34150,10 @@ FDataStream& operator>>(FDataStream& loadFrom, CvUnit& writeTo)
 	return loadFrom;
 }
 //	--------------------------------------------------------------------------------
-bool CvUnit::isCultureFromExperienceDisbandUpgrade() const
+int CvUnit::getCultureFromExperienceDisbandUpgrade() const
 {
 	VALIDATE_OBJECT();
-	return getUnitInfo().IsCultureFromExperienceDisbandUpgrade();
+	return getUnitInfo().GetCultureFromExperienceDisbandUpgrade();
 }
 bool CvUnit::isFreeUpgrade() const
 {

@@ -48,7 +48,6 @@
 --- @field MinorCivilizations GameInfoPrimaryTable
 --- @field Missions GameInfoPrimaryTable
 --- @field Months GameInfoPrimaryTable
---- @field Natural_Wonder_Placement GameInfoPrimaryTable
 --- @field PlayerColors GameInfoPrimaryTable
 --- @field Plots GameInfoPrimaryTable
 --- @field Policies GameInfoPrimaryTable

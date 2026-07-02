@@ -1,0 +1,13 @@
+--- @meta
+
+--- @enum ActivityType
+ActivityTypes = {
+	NO_ACTIVITY = -1,
+	ACTIVITY_AWAKE = 0,
+	ACTIVITY_HOLD = 1,
+	ACTIVITY_SLEEP = 2,
+	ACTIVITY_HEAL = 3,
+	ACTIVITY_SENTRY = 4,
+	ACTIVITY_INTERCEPT = 5,
+	ACTIVITY_MISSION = 6,
+}

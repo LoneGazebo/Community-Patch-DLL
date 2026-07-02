@@ -467,7 +467,7 @@ local function UpdateTopPanelNow()
 	local traitType = "";
 	if g_activePlayer ~= nil then
 		leaderID = g_activePlayer:GetLeaderType();
-		for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
+		for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = ?", leaderID ) do
 			traitType = leaderTraits.TraitType;
 			break;
 		end
@@ -1514,7 +1514,7 @@ if civ5_mode then
 			local BoredomUnhappiness = g_activePlayer:GetUnhappinessFromBoredom();
 			local ReligiousUnrestUnhappiness = g_activePlayer:GetUnhappinessFromReligiousUnrest();
 			local BuildingsUnhappiness = g_activePlayer:GetUnhappinessFromBuildings();
-			local UrbanizationUnhappiness = g_activePlayer:GetUnhappinessFromCitySpecialists() / 100;
+			local UrbanizationUnhappiness = g_activePlayer:GetUnhappinessFromCitySpecialists();
 			local UrbanizationPuppetUnhappiness = g_activePlayer:GetUnhappinessFromPuppetCitySpecialists();
 
 			tips:insert( "[COLOR:255:150:150:255]" )
@@ -2032,7 +2032,7 @@ if civ5_mode and gk_mode then
 			local tip = ""
 			for _, resource in pairs( g_luxuries) do
 				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID ) - g_activePlayer:GetResourcesFromGP(resourceID)
+				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID ) - g_activePlayer:GetResourcesFromGP(resourceID) - g_activePlayer:GetFreeResourceFromPolicies(resourceID)
 				if quantity > 0 then
 					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
@@ -2085,6 +2085,20 @@ if civ5_mode and gk_mode then
 			end
 			if #GPtip > 0 and (LuxuryResourcesMem == 0 or LuxuryResourcesMem == 4) then
 				tips:insert( "[COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_EO_GP_RESOURCES" .. "[ENDCOLOR]" .. GPtip)
+			end
+
+			----------------------------
+			-- Policy Resources
+			----------------------------
+			local PolicyTip = ""
+			for _, resource in pairs( g_luxuries) do
+				local numResourcePolicy = g_activePlayer:GetFreeResourceFromPolicies(resource.ID)
+				if numResourcePolicy > 0 then
+					PolicyTip = PolicyTip .. "[NEWLINE][ICON_BULLET]" .. ColorizeAbs( numResourcePolicy ) .. resource.IconString
+				end
+			end
+			if #PolicyTip > 0 and (LuxuryResourcesMem == 0 or LuxuryResourcesMem == 4) then
+				tips:insert( "[COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_EO_POLICY_RESOURCES" .. "[ENDCOLOR]" .. PolicyTip)
 			end
 
 			----------------------------
@@ -2466,18 +2480,22 @@ local function ResourcesToolTip( control )
 
 
 				local numResourceGP = g_activePlayer:GetResourcesFromGP(resourceID)
+				local numResourcePolicy = g_activePlayer:GetFreeResourceFromPolicies(resourceID)
 				local numResourceCorp = g_activePlayer:GetResourcesFromCorporation(resourceID)
 				local numResourceFranchises = g_activePlayer:GetResourcesFromFranchises(resourceID)
 				local numResourceCSAlly = g_activePlayer:GetResourceFromCSAlliances(resourceID)
 
 				--want the total, but before GetStrategicResourceMod and GetResourceModFromReligion are applied, so have to remove Misc then add back in parts of it
-				local totalBeforeMod =  g_activePlayer:GetNumResourceTotal( resourceID, false ) - numResourceMisc + numResourceGP + numResourceCorp + numResourceFranchises + numResourceCSAlly
+				local totalBeforeMod =  g_activePlayer:GetNumResourceTotal( resourceID, false ) - numResourceMisc + numResourceGP + numResourcePolicy + numResourceCorp + numResourceFranchises + numResourceCSAlly
 
 				local stratResMod = g_activePlayer:GetStrategicResourceMod()
 				local resourceModRel = g_activePlayer:GetResourceModFromReligion(resourceID)
 
 				if numResourceGP > 0 then
 					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceGP) .. resource.IconString .. " " .. L"TXT_KEY_EO_GP_RESOURCES" )
+				end
+				if numResourcePolicy > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourcePolicy) .. resource.IconString .. " " .. L"TXT_KEY_EO_POLICY_RESOURCES" )
 				end
 				if numResourceCorp > 0 then
 					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceCorp) .. resource.IconString .. " " .. L"TXT_KEY_EO_CORP_RESOURCES" )

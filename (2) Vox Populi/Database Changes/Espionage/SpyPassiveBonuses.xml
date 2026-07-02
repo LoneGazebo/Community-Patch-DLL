@@ -7,7 +7,7 @@
 			<Description>TXT_KEY_SPY_PASSIVE_1</Description>
 			<Help>TXT_KEY_SPY_PASSIVE_1_HELP</Help>
 			<NetworkPointsNeeded>500</NetworkPointsNeeded>
-			<SciencePercentAdded>3</SciencePercentAdded>
+			<SciencePercentAdded>5</SciencePercentAdded>
 			<RevealCityScreen>true</RevealCityScreen>
 		</Row>
 		<Row>
@@ -23,7 +23,7 @@
 			<Description>TXT_KEY_SPY_PASSIVE_3</Description>
 			<Help>TXT_KEY_SPY_PASSIVE_3_HELP</Help>
 			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
-			<SciencePercentAdded>2</SciencePercentAdded>
+			<SciencePercentAdded>5</SciencePercentAdded>
 			<TilesRevealed>1</TilesRevealed>
 		</Row>
 		<Row>

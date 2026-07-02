@@ -681,6 +681,7 @@ bool HaveSettlerInBuildables(const CvWeightedVector<CvCityBuildable>& choices)
 				UnitTypes eUnitType = (UnitTypes)choices.GetElement(i).m_iIndex;
 				if (GC.getUnitInfo(eUnitType)->IsFound())
 					return true;
+				break;
 			}
 			case NOT_A_CITY_BUILDABLE:
 			case CITY_BUILDABLE_BUILDING:
@@ -3019,7 +3020,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
 	float fRatio = 0.0;
 	int iTurnsOfEspionage = GC.getGame().getGameTurn() - pEspionageAI->m_iTurnEspionageStarted;
-	if (pEspionageAI->m_iTurnEspionageStarted != 0)
+	if (pEspionageAI->m_iTurnEspionageStarted != 0 && iTurnsOfEspionage > 0)
 	{		
 		fRatio = pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] / (float)(iTurnsOfEspionage);
 	}
@@ -3126,10 +3127,9 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					int iMod = 0;
 
 					// City mod
-					iMod += pCity->getGreatPeopleRateModifier();
+					iMod += pCity->getTotalGreatPeopleRateModifier();
 
 					// Player mod
-					iMod += pCity->GetPlayer()->getGreatPeopleRateModifier();
 					iMod += pCity->GetPlayer()->GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 
 					GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
@@ -3695,6 +3695,9 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iFlatYield += (iCount * pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield)) * kPlayer.getNumCities();
 	}
 
+	iFlatYield += plotStats.iCityConnectionCount * pkBuildingInfo->GetCityConnectionPlotYieldChange(eYield);
+	iFlatYield += kPlayer.GetCityConnections()->GetNumCityConnectionPlot() * pkBuildingInfo->GetCityConnectionPlotYieldChangeGlobal(eYield);
+
 	if ((pkBuildingInfo->GetTradeRouteRecipientBonus() > 0 || pkBuildingInfo->GetTradeRouteTargetBonus() > 0) && eYield == YIELD_GOLD)
 	{
 		iFlatYield += ((kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) / 100) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
@@ -3722,11 +3725,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			if (pkSpecialistInfo)
 			{
 				iSpecialistYield = pkSpecialistInfo->getYieldChange(eYield);
-
-				if (eYield == YIELD_CULTURE)
-				{
-					iSpecialistYield += pkSpecialistInfo->getCulturePerTurn();
-				}
 
 				// Laborers don't get any non-specific specialist boosts
 				if (eSpecialist != GD_INT_GET(DEFAULT_SPECIALIST))
@@ -3887,7 +3885,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromGPExpend(eYield) > 0)
 	{
-		iInstant += (pkBuildingInfo->GetYieldFromGPExpend(eYield) * max(10, ((pCity->getGreatPeopleRateModifier() + kPlayer.getGreatPeopleRateModifier()) / 10)));
+		iInstant += (pkBuildingInfo->GetYieldFromGPExpend(eYield) * max(10, (pCity->getTotalGreatPeopleRateModifier() / 10)));
 		iInstant += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 	}
 	if (pkBuildingInfo->GetYieldFromTech(eYield) > 0)
@@ -3949,7 +3947,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromBorderGrowth(eYield) > 0)
 	{
-		iInstant += pkBuildingInfo->GetYieldFromBorderGrowth(eYield) + (pCity->getPlotCultureCostModifier() * -1) + (kPlayer.GetPlotCultureCostModifier() * -1) + pCity->GetBorderGrowthRateIncrease() + kPlayer.GetBorderGrowthRateIncreaseGlobal();
+		iInstant += pkBuildingInfo->GetYieldFromBorderGrowth(eYield) + (pCity->getPlotCultureCostModifier() * -1) + (kPlayer.GetPlotCultureCostModifier() * -1) + pCity->getYieldRateModifier(YIELD_CULTURE_LOCAL) + kPlayer.getYieldRateModifier(YIELD_CULTURE_LOCAL);
 	}
 	if (pkBuildingInfo->GetYieldFromPolicyUnlock(eYield) > 0)
 	{
@@ -4853,10 +4851,6 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		iValue += kPlayer.getWorkerSpeedModifier() + pkBuildingInfo->GetWorkerSpeedModifier();
 	}
 
-	if(pkBuildingInfo->GetBorderGrowthRateIncrease() > 0)
-	{
-		iValue += 2 * abs((kPlayer.GetBorderGrowthRateIncreaseGlobal() + pkBuildingInfo->GetBorderGrowthRateIncrease()));
-	}
 	if(pkBuildingInfo->GetPlotCultureCostModifier() < 0)
 	{
 		iValue += 2 * abs((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier()));
@@ -4958,7 +4952,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	}
 	if(pkBuildingInfo->GetFreeGreatPeople() > 0 || pkBuildingInfo->GetGreatPeopleRateChange() > 0 || pkBuildingInfo->GetGlobalGreatPeopleRateModifier() > 0 || pkBuildingInfo->GetGreatPeopleRateModifier() > 0)
 	{
-		iValue += kPlayer.getGreatPeopleRateModifier() + pCity->getGreatPeopleRateModifier() + (kPlayer.GetGreatPersonExpendGold() / 10) + pkBuildingInfo->GetGlobalGreatPeopleRateModifier() + pkBuildingInfo->GetGreatPeopleRateModifier();
+		iValue += pCity->getTotalGreatPeopleRateModifier() + (kPlayer.GetGreatPersonExpendGold() / 10) + pkBuildingInfo->GetGlobalGreatPeopleRateModifier() + pkBuildingInfo->GetGreatPeopleRateModifier();
 
 		iValue += pkBuildingInfo->GetGreatPeopleRateChange() * 50;
 
@@ -5054,26 +5048,38 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	}
 
 	/* Spy Buildings */
-	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetGlobalEspionageModifier() != 0 || pkBuildingInfo->GetGlobalSpySecurityModifier() != 0  || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
+	if (pkBuildingInfo->GetExtraSpies() > 0 || 
+		pkBuildingInfo->GetGlobalEspionageModifier() != 0 || pkBuildingInfo->GetGlobalSpySecurityModifier() != 0  || 
+		pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
 	{
-		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetGlobalEspionageModifier() * -20) + (pkBuildingInfo->GetGlobalSpySecurityModifier() * 30) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 100));
+		// build the modifier that synergises with spies
+		int iModifier = 100;
 
-		iValue += 1000;
-		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER) != 0)
+		// CP-only effects. If more spies exist in the world, these are worth more
+		iModifier += pkBuildingInfo->GetGlobalEspionageModifier() * -20;
+		iModifier += pkBuildingInfo->GetGlobalSpySecurityModifier() * 30;
+		// CP-only effects that scale with your own spies
+		iModifier += (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange()) * 20;
+
+		if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER) != 0)
 		{
-			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
+			iModifier += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
 		}
-		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER) != 0)
+
+		// CP+VP effects
+		// Freedom tenets
+		if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER) != 0)
 		{
-			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER);
+			iModifier += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER);
 		}
-		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER) != 0)
+		if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER) != 0)
 		{
-			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
+			iModifier += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
 		}
-		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER) != 0)
+		// Order tenet (Science from Surveillance boost)
+		if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER) != 0)
 		{
-			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER);
+			iModifier += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PASSIVE_ESPIONAGE_MODIFIER);
 		}
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
 		if (eReligion != NO_RELIGION)
@@ -5083,7 +5089,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			{
 				if (pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) != 0)
 				{
-					iValue += pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity);
+					iModifier += /*8*/ pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) * 5;
 				}
 			}
 		}
@@ -5096,14 +5102,29 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 
 			if (kPlayer.getYieldModifierFromActiveSpies(yield) > 0)
 			{
-				iValue += kPlayer.getYieldModifierFromActiveSpies(yield);
+				iModifier += kPlayer.getYieldModifierFromActiveSpies(yield) * 10;
 			}
 		}
+		
+		int iSpiesBaseTimes100 = 0;
+		// if the effect hits all existing spies
+		if (pkBuildingInfo->GetGlobalEspionageModifier() != 0 || pkBuildingInfo->GetGlobalSpySecurityModifier() != 0  || 
+			pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
+		{
+			iSpiesBaseTimes100 += (kPlayer.GetEspionage()->GetNumSpies() * GC.getGame().GetSpyThreshold()) + (pkBuildingInfo->GetExtraSpies() * GD_INT_GET(ESPIONAGE_SPY_POINT_UNIT));
+		}
+		// else, just count any new spies being gained
+		else if (pkBuildingInfo->GetExtraSpies() > 0)
+		{
+			iSpiesBaseTimes100 += (pkBuildingInfo->GetExtraSpies() * GD_INT_GET(ESPIONAGE_SPY_POINT_UNIT));
+		}
+		// score = (100 VP spy points) * relevant num of spies * % modifier
+		iValue += (100 * iSpiesBaseTimes100 / GC.getGame().GetSpyThreshold()) * iModifier / 100;
 	}
 	
 	return iValue * (kPlayer.GetCurrentEra()+1);
 }
-int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding)
+int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding, const SPlotStats& plotStats, const vector<int>& allExistingBuildings)
 {
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -5213,13 +5234,24 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += pkBuildingInfo->GetFoodKept() * pCity->getPopulation();
 	}
-	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist())
+	// NoStarvation is not as good as MinimumFood, but there is large overlap to consider
+	if (pkBuildingInfo->IsNoStarvationNonSpecialist() && !pCity->IsNoStarvationNonSpecialist() && pCity->GetMinimumFood() <= 0)
 	{
 		iValue += 10 * pCity->getPopulation();
 		if (pCity->getYieldRateTimes100(YIELD_FOOD) < 0)
 		{
 			// higher value if we are starving
 			iValue += (-2) * pCity->getYieldRateTimes100(YIELD_FOOD);
+		}
+	}
+	if (pkBuildingInfo->GetMinimumFood() > 0)
+	{
+		iValue += 10 * pCity->getPopulation();
+		int iNewTotalMinimum = pCity->GetMinimumFood() + pkBuildingInfo->GetMinimumFood();
+		if (pCity->getYieldRateTimes100(YIELD_FOOD) < iNewTotalMinimum)
+		{
+			int iAlreadyCannotStarve = pCity->IsNoStarvationNonSpecialist(); // heuristic: halve the value if already non-specialists dont count
+			iValue += (-2 + iAlreadyCannotStarve) * (pCity->getYieldRateTimes100(YIELD_FOOD) - iNewTotalMinimum);
 		}
 	}
 
@@ -5303,7 +5335,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 
 		if (eFreeBuildingThisCity != NO_BUILDING)
 		{
-			int iFreeValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, true, true);
+			int iFreeValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, plotStats, allExistingBuildings, true, true);
 			if (iFreeValue > 0)
 			{
 				iValue += iFreeValue;

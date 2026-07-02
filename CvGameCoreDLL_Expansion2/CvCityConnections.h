@@ -58,6 +58,8 @@ public:
 	typedef std::map<int,SingleCityConnectionStore> AllCityConnectionStore;
 	typedef std::vector<int> PlotIndexStore;
 
+	bool IsPlotCityConnection(const CvPlot* pPlot, bool bIndustrial) const;
+	int GetNumCityConnectionPlot(bool bIndustrial = false) const;
 	bool AreCitiesDirectlyConnected( const CvCity* pCityA, const CvCity* pCityB, CityConnectionTypes eConnectionType );
 	const SingleCityConnectionStore& GetDirectConnectionsFromCity(const CvCity* pOrigin);
 
@@ -66,9 +68,8 @@ protected:
 
 	void UpdatePlotsToConnect(void);
 	void UpdateRouteInfo(void);
-	void CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState, bool bIndustrial);
+	void CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState);
 	CityConnectionTypes GetConnectionState( const CvCity* pCityA, const CvCity* pCityB ) const;
-	bool ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer);
 
 	AllCityConnectionStore m_connectionState;
 	PlotIndexStore m_plotsWithConnectionToCapital;

@@ -77,7 +77,7 @@ public:
 	int GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false) const;
 	int GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam) const;
 	int GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal) const;
-	int GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner) const;
+	int GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool bOnlyCitiesAboutToBeConquered = false, int iWarScore = 0, bool bForCityComparison = false) const;
 
 	void DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 	void DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
@@ -129,21 +129,23 @@ public:
 	int GetPotentialDemandValue(PlayerTypes eOtherPlayer, CvDeal* pDeal, int iIdealValue);
 	bool IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 
-	bool IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForEmbassyExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForOpenBordersExchange(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 
 	// Called when the human opens or closes the Trade Screen
 

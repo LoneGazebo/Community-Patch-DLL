@@ -96,6 +96,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(CanAirlift);
 	Method(CanAirliftAt);
+	Method(CanSealift);
+	Method(CanSealiftAt);
 
 	Method(IsNukeVictim);
 	Method(CanNuke);
@@ -117,8 +119,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanCreateGreatWork);
 	Method(CreateGreatWork);
 	Method(greatperson);
-	Method(GetCombatVersusOtherReligionOwnLands);
-	Method(GetCombatVersusOtherReligionTheirLands);
+	Method(GetReligionCombatBonusOwnLands);
+	Method(GetReligionCombatBonusTheirLands);
 
 	Method(GetExoticGoodsGoldAmount);
 	Method(GetExoticGoodsXPAmount);
@@ -1591,6 +1593,30 @@ int CvLuaUnit::lCanAirliftAt(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+//bool canSealift(CyPlot* pPlot);
+int CvLuaUnit::lCanSealift(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	const bool bResult = pkUnit->canSealift(pkPlot);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool canSealiftAt(CyPlot* pPlot, int iX, int iY);
+int CvLuaUnit::lCanSealiftAt(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	const int x = lua_tointeger(L, 3);
+	const int y = lua_tointeger(L, 4);
+	const bool bResult = pkUnit->canSealiftAt(pkPlot, x, y);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 //bool isNukeVictim(CyPlot* pPlot, int /*TeamTypes*/ eTeam);
 int CvLuaUnit::lIsNukeVictim(lua_State* L)
 {
@@ -1776,8 +1802,8 @@ int CvLuaUnit::lgreatperson(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool GetCombatVersusOtherReligionOwnLands();
-int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
+//bool GetReligionCombatBonusOwnLands();
+int CvLuaUnit::lGetReligionCombatBonusOwnLands(lua_State* L)
 {
 	int iRtnValue = 0;
 
@@ -1786,32 +1812,24 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 	if (pkUnit && pkUnit->getDomainType() == DOMAIN_LAND && pkOtherUnit)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eOwnedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetOwnedReligion();
+		ReligionTypes eStateReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetStateReligion();
 		ReligionTypes eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetStateReligion();
 
-		if (eOwnedReligion != NO_RELIGION)
+		if (eStateReligion != NO_RELIGION)
 		{
-			const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, pkUnit->getOwner());
+			const CvReligion* pReligion = pReligions->GetReligion(eStateReligion, pkUnit->getOwner());
 			if (pReligion)
 			{
 				CvCity* pHolyCity = pReligion->GetHolyCity();
-				if (eTheirReligion != eOwnedReligion)
-				{			
-					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
-					// Bonus in own land
-					if((iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
-					{
-						iRtnValue = iOtherOwn;
-					}
-				}
-				else
+							
+				int iOwn = pReligion->m_Beliefs.GetCombatBonusOwnLands(pkUnit->getOwner(), pHolyCity);
+				int iOtherOwn = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
+				// Bonus in own land
+				if((iOwn > 0 || iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
 				{
-					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
-					// Bonus in own land
-					if((iOtherOwn > 0) && pkUnit->plot()->IsFriendlyTerritory(pkUnit->getOwner()))
-					{
-						iRtnValue = (iOtherOwn / 2);
-					}
+					iRtnValue = iOwn;
+					if (eTheirReligion != eStateReligion)
+						iRtnValue += iOtherOwn;
 				}
 			}
 		}
@@ -1821,8 +1839,8 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool GetCombatVersusOtherReligionTheirLands();
-int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
+//bool GetReligionCombatBonusTheirLands();
+int CvLuaUnit::lGetReligionCombatBonusTheirLands(lua_State* L)
 {
 	int iRtnValue = 0;
 
@@ -1840,23 +1858,15 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 			if (pReligion)
 			{
 				CvCity* pHolyCity = pReligion->GetHolyCity();
-				if (eTheirReligion != eOwnedReligion)
-				{			
-					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
-					//Bonus in their land
-					if ((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
-					{
-						iRtnValue = iOtherTheir;
-					}
-				}
-				else
+
+				int iTheir = pReligion->m_Beliefs.GetCombatBonusTheirLands(pkUnit->getOwner(), pHolyCity);
+				int iOtherTheir = pReligion->m_Beliefs.GetCombatBonusVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
+				// Bonus in their lands
+				if((iTheir > 0 || iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
 				{
-					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
-					//Bonus in their land
-					if ((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
-					{
-						iRtnValue = (iOtherTheir / 2);
-					}
+					iRtnValue = iTheir;
+					if (eTheirReligion != eOwnedReligion)
+						iRtnValue += iOtherTheir;
 				}
 			}
 		}
@@ -6565,60 +6575,15 @@ int CvLuaUnit::lGetCombatModFromUnitLevel(lua_State* L)
 int CvLuaUnit::lGetMonopolyAttackBonus(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	int iAttackBonus = 0;
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-		if (pInfo && pInfo->isMonopoly())
-		{
-			// Strategic monopolies
-			if (GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && (pInfo->getMonopolyAttackBonus() > 0 || pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC) > 0))
-			{
-				iAttackBonus +=  pInfo->getMonopolyAttackBonus();
-				iAttackBonus += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
-			}
-			// Global monopolies
-			if (GET_PLAYER(pkUnit->getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL) > 0)
-			{
-				int iTempBonus = pInfo->getMonopolyAttackBonus(MONOPOLY_GLOBAL);
-				iTempBonus += GET_PLAYER(pkUnit->getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
-				iAttackBonus += iTempBonus;
-			}
-		}
-	}
-	lua_pushinteger(L, iAttackBonus);
-
+	lua_pushinteger(L, GET_PLAYER(pkUnit->getOwner()).GetCombatAttackBonusFromMonopolies(pkUnit->getDomainType()));
 	return 1;
 }
+
 //int GetMonopolyDefenseBonus();
 int CvLuaUnit::lGetMonopolyDefenseBonus(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	int iDefenseBonus = 0;
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-		if (pInfo && pInfo->isMonopoly())
-		{
-			// Strategic monopolies
-			if (GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && (pInfo->getMonopolyDefenseBonus() > 0 || pInfo->getMonopolyDefenseBonus(MONOPOLY_STRATEGIC) > 0))
-			{
-				iDefenseBonus +=  pInfo->getMonopolyDefenseBonus();
-				iDefenseBonus += pInfo->getMonopolyAttackBonus(MONOPOLY_STRATEGIC);
-			}
-			// Global monopolies
-			if (GET_PLAYER(pkUnit->getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL) > 0)
-			{
-				int iTempBonus = pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
-				iTempBonus += GET_PLAYER(pkUnit->getOwner()).GetMonopolyModPercent(); // Global monopolies get the mod percent boost from policies.
-				iDefenseBonus += iTempBonus;
-			}
-		}
-	}
-	lua_pushinteger(L, iDefenseBonus);
-
+	lua_pushinteger(L, GET_PLAYER(pkUnit->getOwner()).GetCombatDefenseBonusFromMonopolies(pkUnit->getDomainType()));
 	return 1;
 }
 

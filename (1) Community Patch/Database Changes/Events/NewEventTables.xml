@@ -688,6 +688,7 @@
 		<Column name="CapitalOnly" type="boolean" default="false"/>
 		<Column name="CoastalOnly" type="boolean" default="false"/>
 		<Column name="RiverOnly" type="boolean" default="false"/>
+		<Column name="NoFreshWater" type="boolean" default="false"/>
 		<Column name="RequiresWar" type="boolean" default="false"/>
 		<Column name="RequiresWarMinor" type="boolean" default="false"/>
 		<Column name="RequiresResistance" type="boolean" default="false"/>
@@ -760,6 +761,7 @@
 		<Column name="Type" type="text" notnull="true" unique="true"/>
 		<!-- Help is used for Tooltips, Description for button text -->
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Pedia" type="text" reference="Language_en_US(Tag)"/>		
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Espionage only: the text of the notification when a spy mission has been conducted against the player -->
 		<Column name="SpyMissionEffect" type="text" reference="Language_en_US(Tag)"/>
@@ -923,6 +925,7 @@
 		<Column name="CapitalOnly" type="boolean" default="false"/>
 		<Column name="CoastalOnly" type="boolean" default="false"/>
 		<Column name="RiverOnly" type="boolean" default="false"/>
+		<Column name="NoFreshWater" type="boolean" default="false"/>
 		<Column name="RequiresWar" type="boolean" default="false"/>
 		<Column name="RequiresWarMinor" type="boolean" default="false"/>
 		<Column name="RequiresResistance" type="boolean" default="false"/>

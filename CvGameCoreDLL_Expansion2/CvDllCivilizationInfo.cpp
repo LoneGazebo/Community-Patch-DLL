@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllCivilizationInfo::CvDllCivilizationInfo(CvCivilizationInfo* pCivilizationInfo)
-	: m_pCivilizationInfo(pCivilizationInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pCivilizationInfo(pCivilizationInfo)
 {
 	ASSERT(pCivilizationInfo != NULL, "SHOULD NOT HAPPEN");
 }

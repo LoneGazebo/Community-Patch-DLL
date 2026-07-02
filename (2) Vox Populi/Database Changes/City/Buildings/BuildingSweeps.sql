@@ -79,7 +79,8 @@ WHERE BuildingClass IN (
 	'BUILDINGCLASS_SYNAGOGUE',
 	'BUILDINGCLASS_ORDER',
 	'BUILDINGCLASS_TEOCALLI',
-	'BUILDINGCLASS_GURDWARA'
+	'BUILDINGCLASS_GURDWARA',
+	'BUILDINGCLASS_DAOGUAN'
 );
 
 -----------------------------------------------------------------
@@ -162,13 +163,19 @@ WHERE Type IN (
 -- Renaissance T1
 UPDATE Buildings SET NationalPopRequired = 25
 WHERE Type IN (
-	'BUILDING_PRINTING_PRESS'
+	'BUILDING_MINISTERIAL_DISTRICT'
 );
 
 -- Renaissance T2
 UPDATE Buildings SET NationalPopRequired = 30
 WHERE Type IN (
 	'BUILDING_HERMITAGE'
+);
+
+-- Industrial T2
+UPDATE Buildings SET NationalPopRequired = 35
+WHERE Type IN (
+	'BUILDING_GENERAL_POST_OFFICE'
 );
 
 -- Modern T2 + Ideology NW
@@ -272,11 +279,7 @@ OR IsDummy = 1;
 -----------------------------------------------------------------
 
 UPDATE Buildings
-SET HurryCostModifier = -20;
-
-UPDATE Buildings
-SET HurryCostModifier = -5
-WHERE WonderSplashImage IS NOT NULL;
+SET HurryCostModifier = 0;
 
 UPDATE Buildings
 SET HurryCostModifier = -1
@@ -304,7 +307,7 @@ VALUES
 	('BUILDING_PALACE', 'TXT_KEY_THEMING_BONUS_PALACE', 6, 2), -- More slots than Amphitheater, but no requirements
 	('BUILDING_GYMNASION', 'TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL', 6, 3), -- Has 3 slots with a lax requirement, should be lower priority
 	('BUILDING_NALANDA', 'TXT_KEY_THEMING_BONUS_BUILDING_NALANDA', 6, 3),
-	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 6, 3), 
+	('BUILDING_ROYAL_LIBRARY', 'TXT_KEY_THEMING_BONUS_ROYAL_LIBRARY', 6, 3),
 	('BUILDING_CHARTARIUM', 'TXT_KEY_THEMING_BONUS_RELIGIOUS_LIBRARY', 8, 4), -- Has 3 slots with no specified era requirement, can wait
 	('BUILDING_GREAT_LIBRARY', 'TXT_KEY_THEMING_BONUS_GREAT_LIBRARY', 10, 5),
 	('BUILDING_OXFORD_UNIVERSITY', 'TXT_KEY_THEMING_BONUS_OXFORD_UNIVERSITY', 10, 6), -- Strictly better yields than Great Library
@@ -419,6 +422,7 @@ WHERE Type IN (
 	'BUILDING_SACRED_GARDEN',
 	'BUILDING_HOLY_COUNCIL',
 	'BUILDING_GRAND_OSSUARY',
+	'BUILDING_HEAVENLY_GROTTO',
 	'BUILDING_APOSTOLIC_PALACE'
 );
 

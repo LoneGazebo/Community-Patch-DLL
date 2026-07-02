@@ -25,12 +25,21 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 #pragma warning( disable: 4127 )
 
+struct ResourceMonopolyCombatModifier
+{
+	int m_iDomain;
+	bool m_bStrategicMonopoly;
+	int m_iAttack;
+	int m_iDefense;
+};
+
 struct ResourceMonopolySettings
 {
 	ResourceMonopolySettings() :
 		m_bGlobalMonopoly(false),
 		m_bStrategicMonopoly(false)
-	{};
+	{
+	};
 
 	bool operator<(const ResourceMonopolySettings& t) const
 	{
@@ -261,7 +270,6 @@ public:
 
 	int getGreatPeopleUnitClass() const;
 	int getGreatPeopleRateChange() const;
-	int getCulturePerTurn() const;
 	int getMissionType() const;
 	void setMissionType(int iNewType);
 	int getExperience() const;
@@ -282,7 +290,6 @@ protected:
 
 	int m_iGreatPeopleUnitClass;
 	int m_iGreatPeopleRateChange;
-	int m_iCulturePerTurn;
 	int m_iMissionType;
 	int m_iExperience;
 
@@ -1849,8 +1856,8 @@ public:
 	int getCityYieldModFromMonopoly(int i) const;
 	int* getCityYieldModFromMonopolyArray();
 
-	int getMonopolyAttackBonus(MonopolyTypes eMonopoly) const;
-	int getMonopolyDefenseBonus(MonopolyTypes eMonopoly) const;
+    int GetMonopolyAttackModifier(DomainTypes eDomain, bool bStrategic = false) const;
+    int GetMonopolyDefenseModifier(DomainTypes eDomain, bool bStrategic = false) const;
 
 	int getMonopolyGreatPersonRateModifier(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
 	int getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist, MonopolyTypes eMonopoly) const;
@@ -1916,7 +1923,7 @@ protected:
 	int* m_piYieldChange;
 	int* m_piYieldChangeFromMonopoly;
 	int* m_piCityYieldModFromMonopoly;
-	std::map<ResourceMonopolySettings, CombatModifiers> m_piiMonopolyCombatModifiers;
+	std::vector<ResourceMonopolyCombatModifier> m_vMonopolyCombatModifiers;
 	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateModifiers;
 	std::map<MonopolyGreatPersonRateModifierKey, int> m_piMonopolyGreatPersonRateChanges;
 	std::map<int, std::vector<ProductionCostModifiers>> m_piiiUnitCombatProductionCostModifiersLocal;
@@ -2535,6 +2542,8 @@ public:
 	int getTechPrereq() const;
 	int getRequiredPolicy() const;
 	int getDefenseValue() const;
+	int getDefenseValuePerTurn() const;
+	int getDefenseValueCap() const;
 
 	CivilizationTypes GetRequiredCivilization() const;
 
@@ -2548,6 +2557,8 @@ protected:
 	int m_iTechPrereq;
 	int m_iRequiredPolicy;
 	int m_iDefenseValue;
+	int m_iDefenseValuePerTurn;
+	int m_iDefenseValueCap;
 
 	CivilizationTypes m_eRequiredCivilization;
 
@@ -3351,6 +3362,7 @@ public:
 	bool isCapital() const;
 	bool isCoastal() const;
 	bool isRiver() const;
+	bool isNoFreshWater() const;
 	bool isEraScaling() const;
 	bool isRequiresWarMinor() const;
 	const char* getSplashArt() const;
@@ -3420,6 +3432,7 @@ protected:
 	bool m_bCapital;
 	bool m_bCoastal;
 	bool m_bIsRiver;
+	bool m_bIsNoFreshWater;
 	bool m_bEraScaling;
 	bool m_bRequiresWarMinor;
 	CvString m_strSplashArt;
@@ -3650,6 +3663,7 @@ public:
 	bool isCapital() const;
 	bool isCoastal() const;
 	bool isRiver() const;
+	bool isNoFreshWater() const;
 	int getRequiredStateReligion() const;
 	bool hasStateReligion() const;
 	bool isUnhappy() const;
@@ -3791,6 +3805,7 @@ protected:
 	bool m_bCapital;
 	bool m_bCoastal;
 	bool m_bIsRiver;
+	bool m_bIsNoFreshWater;
 	bool m_bRequiresWarMinor;
 	int m_iRequiredStateReligion;
 	bool m_bRequiresGarrison;

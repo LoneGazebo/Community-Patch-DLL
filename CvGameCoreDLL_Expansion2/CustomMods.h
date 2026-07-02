@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v149 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 149)
+#define MOD_DLL_NAME "Community Patch v150 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 150)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -164,6 +164,8 @@
 // When a Great Prophet spawns with a 100% spawn chance, any overflow Faith is kept, not discarded
 #define MOD_RELIGION_KEEP_PROPHET_OVERFLOW							gCustomMods.isRELIGION_KEEP_PROPHET_OVERFLOW()
 
+// Randomises religion choice if preferred religion is unavailable
+#define MOD_RELIGION_RANDOMISE										gCustomMods.isRELIGION_RANDOMISE()
 
 /////////////////////////////////////////
 // ENABLED PICK'N'MIX MODS
@@ -253,8 +255,6 @@
 // Removes religion preference
 // Kept the typo for backwards compatibility (sigh)
 #define MOD_RELIGION_NO_PREFERENCES									(gCustomMods.isRELIGION_NO_PREFERENCES() || gCustomMods.isRELIGION_NO_PREFERRENCES())
-// Randomises religion choice if preferred religion is unavailable
-#define MOD_RELIGION_RANDOMISE										gCustomMods.isRELIGION_RANDOMISE()
 
 // Send purchase notifications at every boundary and not just the first
 #define MOD_RELIGION_RECURRING_PURCHASE_NOTIFY						gCustomMods.isRELIGION_RECURRING_PURCHASE_NOTIFY()
@@ -303,6 +303,9 @@
 
 // Purchasing buildings with Gold instead invests in them, reducing their Production cost by 50% (25% for Wonders); also reduces the final Gold cost of buildings by 40%
 #define MOD_BALANCE_BUILDING_INVESTMENTS							gCustomMods.isBALANCE_BUILDING_INVESTMENTS()
+
+// Unit upgrade cost is the difference of base Production cost between the Unit and its upgraded version
+#define MOD_BALANCE_UNIT_UPGRADE_COST								gCustomMods.isBALANCE_UNIT_UPGRADE_COST()
 
 // Resources can give monopoly bonuses
 #define MOD_BALANCE_RESOURCE_MONOPOLIES								gCustomMods.isBALANCE_RESOURCE_MONOPOLIES()
@@ -397,9 +400,6 @@
 // Workers receive a 50% work rate penalty for 50 turns when they are captured
 #define MOD_BALANCE_PRISONERS_OF_WAR								gCustomMods.isBALANCE_PRISONERS_OF_WAR()
 
-// Increases the Gold cost of buildings (1% per 3 Techs researched) and units (1% per 2 Techs researched); also decreases the final Gold cost of units by 20%
-#define MOD_BALANCE_PURCHASE_COST_ADJUSTMENTS						gCustomMods.isBALANCE_PURCHASE_COST_ADJUSTMENTS()
-
 // Vote Commitments cannot be cancelled by war; if the resolution becomes invalid, the votes are abstained instead of returned to the civ
 #define MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS						gCustomMods.isBALANCE_PERMANENT_VOTE_COMMITMENTS()
 
@@ -424,6 +424,9 @@
 
 // Pantheons can be picked even if they are already picked by someone else
 #define MOD_BALANCE_ANY_PANTHEON									gCustomMods.isBALANCE_ANY_PANTHEON()
+
+// Per city needs medians and modifiers are recalculated only on population change
+#define MOD_BALANCE_CACHE_CITY_MEDIAN								gCustomMods.isBALANCE_CACHE_CITY_MEDIAN()
 
 // City-State Influence scales with era and Yields scale with the City-State's number of cities
 #define MOD_BALANCE_CITY_STATE_SCALE								gCustomMods.isBALANCE_CITY_STATE_SCALE()
@@ -468,6 +471,9 @@
 
 // Players can pillage permanent improvements if at war
 #define MOD_BALANCE_PILLAGE_PERMANENT_IMPROVEMENTS					gCustomMods.isBALANCE_PILLAGE_PERMANENT_IMPROVEMENTS()
+
+// Increases the Gold cost of buildings (1% per 3 Techs researched) and units (1% per 2 Techs researched); also decreases the final Gold cost of units by 20%
+#define MOD_BALANCE_PURCHASE_COST_ADJUSTMENTS						gCustomMods.isBALANCE_PURCHASE_COST_ADJUSTMENTS()
 
 // Great Prophets spawn in a random city, partially based on Faith generation
 #define MOD_BALANCE_RANDOMIZED_GREAT_PROPHET_SPAWNS					gCustomMods.isBALANCE_RANDOMIZED_GREAT_PROPHET_SPAWNS()
@@ -690,10 +696,13 @@
 //   GameEvents.AiOverrideChooseNextTech.Add(function(iPlayer, bFreeTech) return iChoosenTech end)
 #define MOD_EVENTS_AI_OVERRIDE_TECH									gCustomMods.isEVENTS_AI_OVERRIDE_TECH()
 
-// Events sent to ascertain if a unit can airlift from/to a specific plot
+// Events sent to ascertain if a unit can airlift or sealift from/to a specific plot
 //   GameEvents.CanAirliftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
 //   GameEvents.CanAirliftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
 #define MOD_EVENTS_AIRLIFT											gCustomMods.isEVENTS_AIRLIFT()
+//   GameEvents.CanSealiftFrom.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
+//   GameEvents.CanSealiftTo.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return false end)
+#define MOD_EVENTS_SEALIFT											gCustomMods.isEVENTS_SEALIFT()
 
 // Events sent to ascertain if an area can have civ specific resources and to place those resources
 //   GameEvents.AreaCanHaveAnyResource.Add(function(iPlayer, iArea) return true end)
@@ -734,9 +743,11 @@
 //   GameEvents.CitySoldBuilding.Add(function(iPlayer, iCity, iBuilding) end)
 #define MOD_EVENTS_CITY												gCustomMods.isEVENTS_CITY()
 	
-// Event sent to ascertain if a city can perform airlifts
+// Event sent to ascertain if a city can perform airlifts and sealifts
 //   GameEvents.CityCanAirlift.Add(function(iPlayer, iCity) return false end)
 #define MOD_EVENTS_CITY_AIRLIFT										gCustomMods.isEVENTS_CITY_AIRLIFT()
+//   GameEvents.CityCanSealift.Add(function(iPlayer, iCity) return false end)
+#define MOD_EVENTS_CITY_SEALIFT										gCustomMods.isEVENTS_CITY_SEALIFT()
 
 // Events sent to ascertain the bombard range for a city, and if indirect fire is allowed
 //   GameEvents.GetBombardRange.Add(function(iPlayer, iCity) return (-1 * GameDefines.CITY_ATTACK_RANGE) end)
@@ -1212,6 +1223,8 @@ const char* ShortenFilePath(const char* szFile);
 #define GAMEEVENT_BattleStarted					"BattleStarted",				"iii"
 #define GAMEEVENT_CanAirliftFrom				"CanAirliftFrom",				"iiii"
 #define GAMEEVENT_CanAirliftTo					"CanAirliftTo",					"iiii"
+#define GAMEEVENT_CanSealiftFrom				"CanSealiftFrom",				"iiii"
+#define GAMEEVENT_CanSealiftTo					"CanSealiftTo",					"iiii"
 #define GAMEEVENT_CanDoCommand					"CanDoCommand",					"iiiiiiib"
 #define GAMEEVENT_CanHaveAnyUpgrade				"CanHaveAnyUpgrade",			"ii"
 #define GAMEEVENT_CanHavePromotion				"CanHavePromotion",				"iii"
@@ -1227,6 +1240,7 @@ const char* ShortenFilePath(const char* szFile);
 #define GAMEEVENT_CityBoughtPlot				"CityBoughtPlot",				"iiiibb"
 #define GAMEEVENT_CityCanAcquirePlot			"CityCanAcquirePlot",			"iiii"
 #define GAMEEVENT_CityCanAirlift				"CityCanAirlift",				"ii"
+#define GAMEEVENT_CityCanSealift				"CityCanSealift",				"ii"
 #define GAMEEVENT_CityConnected					"CityConnected",				"iiiiib"
 #define GAMEEVENT_CityPuppeted					"CityPuppeted",					"ii"
 #define GAMEEVENT_CityConnections				"CityConnections",				"ib"
@@ -1588,6 +1602,7 @@ public:
 	MOD_OPT_DECL(BALANCE_UNIQUE_BELIEFS_ONLY_FOR_CIV);
 	MOD_OPT_DECL(BALANCE_CULTURE_VICTORY_CHANGES);
 	MOD_OPT_DECL(BALANCE_BUILDING_INVESTMENTS);
+	MOD_OPT_DECL(BALANCE_UNIT_UPGRADE_COST);
 	MOD_OPT_DECL(BALANCE_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_STRATEGIC_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_HEAVY_TRIBUTE);
@@ -1618,7 +1633,6 @@ public:
 	MOD_OPT_DECL(BALANCE_FLIPPED_OPEN_BORDERS_TOURISM);
 	MOD_OPT_DECL(BALANCE_NO_WARTIME_CONCERT_TOURS);
 	MOD_OPT_DECL(BALANCE_PRISONERS_OF_WAR);
-	MOD_OPT_DECL(BALANCE_PURCHASE_COST_ADJUSTMENTS);
 	MOD_OPT_DECL(BALANCE_PERMANENT_VOTE_COMMITMENTS);
 	MOD_OPT_DECL(BALANCE_QUEST_CHANGES);
 	MOD_OPT_DECL(BALANCE_RESILIENT_PANTHEONS);
@@ -1627,6 +1641,7 @@ public:
 	MOD_OPT_DECL(BALANCE_ALTERNATE_ASSYRIA_TRAIT);
 	MOD_OPT_DECL(BALANCE_ALTERNATE_CELTS_TRAIT);
 	MOD_OPT_DECL(BALANCE_ANY_PANTHEON);
+	MOD_OPT_DECL(BALANCE_CACHE_CITY_MEDIAN);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_SCALE);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_TRAITS);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_PERSONALITIES);
@@ -1642,6 +1657,7 @@ public:
 	MOD_OPT_DECL(BALANCE_PASSIVE_SPREAD_BY_CONNECTION);
 	MOD_OPT_DECL(BALANCE_PERMANENT_PANTHEONS);
 	MOD_OPT_DECL(BALANCE_PILLAGE_PERMANENT_IMPROVEMENTS);
+	MOD_OPT_DECL(BALANCE_PURCHASE_COST_ADJUSTMENTS);
 	MOD_OPT_DECL(BALANCE_RANDOMIZED_GREAT_PROPHET_SPAWNS);
 	MOD_OPT_DECL(BALANCE_RELAXED_BORDER_CHECK);
 	MOD_OPT_DECL(BALANCE_SANE_UNIT_MOVEMENT_COST);
@@ -1728,6 +1744,7 @@ public:
 	MOD_OPT_DECL(EVENTS_ACQUIRE_BELIEFS);
 	MOD_OPT_DECL(EVENTS_AI_OVERRIDE_TECH);
 	MOD_OPT_DECL(EVENTS_AIRLIFT);
+	MOD_OPT_DECL(EVENTS_SEALIFT);
 	MOD_OPT_DECL(EVENTS_AREA_RESOURCES);
 	MOD_OPT_DECL(EVENTS_BARBARIANS);
 	MOD_OPT_DECL(EVENTS_BATTLES);
@@ -1736,6 +1753,7 @@ public:
 	MOD_OPT_DECL(EVENTS_CIRCUMNAVIGATION);
 	MOD_OPT_DECL(EVENTS_CITY);
 	MOD_OPT_DECL(EVENTS_CITY_AIRLIFT);
+	MOD_OPT_DECL(EVENTS_CITY_SEALIFT);
 	MOD_OPT_DECL(EVENTS_CITY_BOMBARD);
 	MOD_OPT_DECL(EVENTS_CITY_BORDERS);
 	MOD_OPT_DECL(EVENTS_CITY_CAPITAL);

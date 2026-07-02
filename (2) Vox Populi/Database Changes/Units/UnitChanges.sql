@@ -155,12 +155,12 @@ SET PrereqTech = 'TECH_ARCHERY' -- Military Strategy
 WHERE Class = 'UNITCLASS_HORSEMAN';
 
 -- Knight
-UPDATE Units SET ObsoleteTech = 'TECH_METALLURGY' WHERE Class = 'UNITCLASS_KNIGHT';
+UPDATE Units SET ObsoleteTech = 'TECH_ECONOMICS' WHERE Class = 'UNITCLASS_KNIGHT';
 
 -- Lancer
 UPDATE Units
 SET
-	PrereqTech = 'TECH_METALLURGY',
+	PrereqTech = 'TECH_ECONOMICS',
 	ObsoleteTech = 'TECH_COMBUSTION'
 WHERE Class = 'UNITCLASS_LANCER';
 
@@ -704,7 +704,7 @@ UPDATE Units
 SET
 	CombatClass = 'UNITCOMBAT_SPECIAL_PEOPLE',
 	BaseCultureTurnsToCount = 5,
-	ScaleFromNumGWs = 3
+	ScaleFromNumGWs = 8
 WHERE Class = 'UNITCLASS_WRITER';
 
 -- Great Artist

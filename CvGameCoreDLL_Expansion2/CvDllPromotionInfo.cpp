@@ -11,8 +11,8 @@
 
 
 CvDllPromotionInfo::CvDllPromotionInfo(CvPromotionEntry* pPromotionInfo)
-	: m_pPromotionInfo(pPromotionInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pPromotionInfo(pPromotionInfo)
 {
 	ASSERT(pPromotionInfo != NULL, "SHOULD NOT HAPPEN");
 }

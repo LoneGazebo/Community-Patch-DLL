@@ -24,11 +24,12 @@
 			<Help>TXT_KEY_PROJECT_PUBLIC_WORKS_HELP</Help>
 			<Civilopedia>TXT_KEY_PROJECT_PUBLIC_WORKS_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_PROJECT_PUBLIC_WORKS_STRATEGY</Strategy>
-			<TechPrereq>TECH_MACHINERY</TechPrereq>
+			<TechPrereq>TECH_ENGINEERING</TechPrereq>
 			<IsRepeatable>true</IsRepeatable>
-			<Cost>300</Cost>
-			<CostScalerEra>100</CostScalerEra>
+			<Cost>100</Cost>
+			<CostScalerEra>200</CostScalerEra>
 			<CostScalerNumRepeats>100</CostScalerNumRepeats>
+			<Maintenance>2</Maintenance>
 			<Happiness>1</Happiness>
 			<EmpireSizeModifierReduction>-10</EmpireSizeModifierReduction>
 			<DistressFlatReduction>1</DistressFlatReduction>
@@ -36,7 +37,6 @@
 			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>
 			<BoredomFlatReduction>1</BoredomFlatReduction>
 			<ReligiousUnrestFlatReduction>1</ReligiousUnrestFlatReduction>
-			<SpySecurityModifier>5</SpySecurityModifier>
 			<IconAtlas>PROCESS_PROJECT_ATLAS_VP</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
 		</Row>

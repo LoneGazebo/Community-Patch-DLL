@@ -70,9 +70,10 @@ public:
 	CvPlot* FindBestMerchantTargetPlotForCash(CvUnit* pMerchant);
 	CvPlot* FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant);
 
-	//spaceship planning
+	//spaceship planning and Citizen Earth Protocol
 	const vector<CvCity*> GetBestCitiesForSpaceshipParts();
-	void AI_doSpaceshipProduction();
+	CvCity* GetBestCityForUtopiaProject();
+	void AI_doSpaceshipAndUtopiaProduction();
 
 	//For Great Diplomats
 	CvPlot* FindBestDiplomatTargetPlot(CvUnit* pUnit);

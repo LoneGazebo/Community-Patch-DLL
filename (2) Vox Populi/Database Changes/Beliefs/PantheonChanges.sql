@@ -48,6 +48,7 @@ INSERT INTO Belief_ImprovementYieldChanges
 	(BeliefType, ImprovementType, YieldType, Yield)
 VALUES
 	('BELIEF_STONE_CIRCLES', 'IMPROVEMENT_QUARRY', 'YIELD_PRODUCTION', 1),
+	('BELIEF_STONE_CIRCLES', 'IMPROVEMENT_QUARRY', 'YIELD_SCIENCE', 1),
 	('BELIEF_STONE_CIRCLES', 'IMPROVEMENT_QUARRY', 'YIELD_FAITH', 1);
 
 INSERT INTO Belief_BuildingClassYieldChanges
@@ -124,7 +125,7 @@ VALUES
 
 -- Dance of the Aurora (now God of the Stars and Sky)
 UPDATE Beliefs
-SET RequiresResource = 1
+SET RequiresResource = 1, RequiresImprovement = 1
 WHERE Type = 'BELIEF_DANCE_AURORA';
 
 INSERT INTO Belief_TerrainYieldChanges
@@ -135,6 +136,14 @@ VALUES
 	('BELIEF_DANCE_AURORA', 'TERRAIN_TUNDRA', 'YIELD_FAITH', 1),
 	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_FOOD', 1),
 	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_CULTURE', 1),
+	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_FAITH', 1);
+
+INSERT INTO Belief_NearbyTerrainYieldChanges
+	(BeliefType, TerrainType, YieldType, Yield)
+VALUES
+	('BELIEF_DANCE_AURORA', 'TERRAIN_TUNDRA', 'YIELD_FOOD', 1),
+	('BELIEF_DANCE_AURORA', 'TERRAIN_TUNDRA', 'YIELD_FAITH', 1),
+	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_FOOD', 1),
 	('BELIEF_DANCE_AURORA', 'TERRAIN_SNOW', 'YIELD_FAITH', 1);
 
 -- Sun God (now God of the Sun)
@@ -150,7 +159,8 @@ VALUES
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BELIEF_SUN_GOD', 'BUILDINGCLASS_GRANARY', 'YIELD_GOLD', 2),
+	('BELIEF_SUN_GOD', 'BUILDINGCLASS_GRANARY', 'YIELD_PRODUCTION', 1),
+	('BELIEF_SUN_GOD', 'BUILDINGCLASS_GRANARY', 'YIELD_GOLD', 1),
 	('BELIEF_SUN_GOD', 'BUILDINGCLASS_GRANARY', 'YIELD_FAITH', 2);
 
 -- God of War
@@ -298,12 +308,16 @@ VALUES
 
 -- Fertility Rites (now Goddess of the Home)
 UPDATE Beliefs
-SET CityGrowthModifier = 25
+SET
+	CityGrowthModifier = 25,
+	HappinessPerCity = 1
 WHERE Type = 'BELIEF_FERTILITY_RITES';
 
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
+	('BELIEF_FERTILITY_RITES', 'BUILDINGCLASS_PALACE', 'YIELD_FOOD', 1),
+	('BELIEF_FERTILITY_RITES', 'BUILDINGCLASS_PALACE', 'YIELD_FAITH', 1),
 	('BELIEF_FERTILITY_RITES', 'BUILDINGCLASS_SHRINE', 'YIELD_FOOD', 1),
 	('BELIEF_FERTILITY_RITES', 'BUILDINGCLASS_SHRINE', 'YIELD_FAITH', 1);
 
@@ -324,7 +338,8 @@ VALUES
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BELIEF_GODDESS_HUNT', 'BUILDINGCLASS_SMOKEHOUSE', 'YIELD_FOOD', 2);
+	('BELIEF_GODDESS_HUNT', 'BUILDINGCLASS_SMOKEHOUSE', 'YIELD_FAITH', 1),
+	('BELIEF_GODDESS_HUNT', 'BUILDINGCLASS_SMOKEHOUSE', 'YIELD_FOOD', 1);
 
 -- Religious Idols (now Goddess of Wisdom)
 INSERT INTO Belief_CityYieldChanges
@@ -434,22 +449,20 @@ VALUES
 INSERT INTO Belief_YieldFromWLTKD
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_NUADA', 'YIELD_GOLD', 15),
-	('BELIEF_NUADA', 'YIELD_SCIENCE', 15);
+	('BELIEF_NUADA', 'YIELD_GOLD', 10),
+	('BELIEF_NUADA', 'YIELD_SCIENCE', 10);
 
 INSERT INTO Belief_YieldPerLux
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_NUADA', 'YIELD_GOLD', 3),
-	('BELIEF_NUADA', 'YIELD_SCIENCE', 3),
-	('BELIEF_NUADA', 'YIELD_GOLDEN_AGE_POINTS', 3);
+	('BELIEF_NUADA', 'YIELD_GOLD', 2),
+	('BELIEF_NUADA', 'YIELD_SCIENCE', 2);
 
 INSERT INTO Belief_YieldPerActiveTR
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_NUADA', 'YIELD_GOLD', 3),
-	('BELIEF_NUADA', 'YIELD_SCIENCE', 3),
-	('BELIEF_NUADA', 'YIELD_GOLDEN_AGE_POINTS', 3);
+	('BELIEF_NUADA', 'YIELD_GOLD', 2),
+	('BELIEF_NUADA', 'YIELD_SCIENCE', 2);
 
 -- Cernunnos, the Horned Stag
 INSERT INTO Belief_ImprovementYieldChanges

@@ -21,8 +21,8 @@ CvReplayMessage::CvReplayMessage()
 //------------------------------------------------------------------------------
 CvReplayMessage::CvReplayMessage(int iTurn, ReplayMessageTypes eType, PlayerTypes ePlayer) :
 	m_iTurn(iTurn),
-	m_ePlayer(ePlayer),
-	m_eType(eType)
+	m_eType(eType),
+	m_ePlayer(ePlayer)
 {
 }
 //------------------------------------------------------------------------------

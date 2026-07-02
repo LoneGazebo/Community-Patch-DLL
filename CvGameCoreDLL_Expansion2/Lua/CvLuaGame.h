@@ -504,6 +504,14 @@ protected:
 	static int lSetExeWantForceResyncValue(lua_State* L);
 
 	LUAAPIEXTN(GetNumYieldTypes, int);
+
+	LUAAPIEXTN(GetBaseUnitUpgradeCost, int, iCurrentUnit, iNewUnit);
+
+	LUAAPIEXTN(DeleteMPMP, bool);
+	LUAAPIEXTN(CreateMPMP, bool);
+	LUAAPIEXTN(WriteMPMP, bool, strFileName, strDatabase, bInitialize);
+	LUAAPIEXTN(CopyModDataToMPMP, bool, strModFolder, strId, strVersion);
+	LUAAPIEXTN(AddUIAddinToMPMP, bool, strUIFileName, strAddinFileName);
 };
 
 #endif //CVLUAGAME_H

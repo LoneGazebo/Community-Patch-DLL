@@ -4,6 +4,7 @@
 UPDATE Traits
 SET
 	TechBoostFromCapitalScienceBuildings = 0,
+	IsEraScaling = 1,
 	IsOddEraScaler = 1
 WHERE Type = 'TRAIT_SCHOLARS_JADE_HALL';
 

@@ -22,6 +22,7 @@
 
 /// Constructor
 CvPolicyEntry::CvPolicyEntry(void):
+	m_iTechPrereq(NO_TECH),
 	m_iCultureCost(0),
 	m_iGridX(0),
 	m_iGridY(0),
@@ -59,10 +60,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iDomesticGreatGeneralRateModifier(0),
 	m_iGAPFromHappinessModifier(0),
 	m_iExtraHappiness(0),
-	m_iExtraHappinessPerCity(0),
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
-	m_iExtraNaturalWonderHappiness(0),
+	m_iExtraHappinessPerCity(0),
 #endif
+	m_iExtraNaturalWonderHappiness(0),
 	m_iUnhappinessMod(0),
 	m_iCityCountUnhappinessMod(0),
 	m_iOccupiedPopulationUnhappinessMod(0),
@@ -85,33 +86,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_ePolicyEraUnlock(NO_ERA),
 	m_iIdeologyPoint(0),
 	m_bNoXPLossUnitPurchase(false),
-	m_piGoldenAgeYieldMod(NULL),
-	m_bNoForeignCorpsInCities(false),
-	m_bNoFranchisesInForeignCities(false),
-	m_iCorporationOfficesAsFranchises(0),
-	m_iCorporationFreeFranchiseAbovePopular(0),
-	m_iCorporationRandomForeignFranchise(0),
-	m_iAdditionalNumFranchisesMod(0),
-	m_iAdditionalNumFranchises(0),
-	m_bUpgradeCSVassalTerritory(false),
-	m_iLandmarksTourismPercent(0),
-	m_iArchaeologicalDigTourism(0),
-	m_iGoldenAgeTourism(0),
-	m_bInternalTRTourism(false),
-	m_iExtraCultureandScienceTradeRoutes(0),
-	m_iTradeRouteLandDistanceModifier(0),
-	m_iTradeRouteSeaDistanceModifier(0),
-	m_iEspionageNetworkPoints(0),
-	m_iRigElectionInfluenceModifier(0),
-	m_iPassiveEspionageBonusModifier(0),
-	m_iXCSAlliesLowersPolicyNeedWonders(0),
-	m_iHappinessPerCityOverStrengthThreshold(0),
-	m_iTRSpeedBoost(0),
-	m_iTRVisionBoost(0),
-	m_iHappinessPerXPolicies(0),
-	m_iHappinessPerXGreatWorks(0),
-	m_iExtraMissionaryStrength(0),
-	m_iExtraMissionarySpreads(0),
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
 	m_iNumExtraBuilders(0),
@@ -147,8 +121,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iUnitGoldMaintenanceMod(0),
 	m_iUnitSupplyMod(0),
 	m_iHappyPerMilitaryUnit(0),
-	m_iFreeSpecialist(0),
-	m_iTechPrereq(NO_TECH),
 	m_iExpModifier(0),
 	m_iExpInBorderModifier(0),
 	m_iMinorQuestFriendshipMod(0),
@@ -170,10 +142,14 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iMinorBullyScoreModifier(0),
 	m_iThemingBonusMultiplier(0),
 	m_iInternalTradeRouteYieldModifier(0),
+	m_iPositiveWarScoreTourismMod(0),
 	m_iInternalTradeRouteYieldModifierCapital(0),
 	m_iTradeRouteYieldModifierCapital(0),
 	m_iTradeRouteYieldModifier(0),
-	m_iPositiveWarScoreTourismMod(0),
+	m_eNewCityFreeBuilding(NO_BUILDINGCLASS),
+	m_eAllCityFreeBuilding(NO_BUILDINGCLASS),
+	m_eNewFoundCityFreeUnit(NO_UNITCLASS),
+	m_eNewFoundCityFreeBuilding(NO_BUILDINGCLASS),
 	m_bNoCSDecayAtWar(false),
 	m_iMinimumAllyInfluenceIncreaseAtWar(0),
 	m_bBullyFriendlyCS(false),
@@ -188,21 +164,20 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bMinorGreatPeopleAllies(false),
 	m_bMinorScienceAllies(false),
 	m_bMinorResourceBonus(false),
-	m_bGoldenAgeCultureBonusDisabled(false),
-	m_bSecondReligionPantheon(false),
-	m_bAddReformationBelief(false),
-	m_bEnablesSSPartHurry(false),
-	m_bEnablesSSPartPurchase(false),
+	m_iFreeSpecialist(0),
 	m_iPolicyBranchType(NO_POLICY_BRANCH_TYPE),
+	m_iWoundedUnitDamageMod(0),
+	m_iUnitUpgradeCostMod(0),
+	m_iBarbarianCombatBonus(0),
 	m_iHappinessToCulture(0),
 	m_iHappinessToScience(0),
 	m_iNumCitiesFreeCultureBuilding(0),
 	m_iNumCitiesFreeFoodBuilding(0),
 	m_bHalfSpecialistUnhappiness(false),
 	m_bHalfSpecialistFood(false),
-	m_bHalfSpecialistFoodCapital(false),
 	m_iStealGWSlowerModifier(0),
 	m_iStealGWFasterModifier(0),
+	m_bHalfSpecialistFoodCapital(false),
 	m_iEventTourism(0),
 	m_iEventTourismCS(0),
 	m_iMonopolyModFlat(0),
@@ -212,20 +187,19 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iCityStateCombatModifier(0),
 	m_iGreatEngineerRateModifier(0),
 	m_iDefenseBoost(0),
-	m_eNewCityFreeBuilding(NO_BUILDINGCLASS),
-	m_eAllCityFreeBuilding(NO_BUILDINGCLASS),
-	m_eNewFoundCityFreeUnit(NO_UNITCLASS),
-	m_eNewFoundCityFreeBuilding(NO_BUILDINGCLASS),
 	m_bMilitaryFoodProduction(false),
-	m_iWoundedUnitDamageMod(0),
-	m_iUnitUpgradeCostMod(0),
-	m_iBarbarianCombatBonus(0),
 	m_bAlwaysSeeBarbCamps(false),
 	m_bRevealAllCapitals(false),
 	m_bGarrisonFreeMaintenance(false),
+	m_bGoldenAgeCultureBonusDisabled(false),
+	m_bSecondReligionPantheon(false),
+	m_bAddReformationBelief(false),
+	m_bEnablesSSPartHurry(false),
+	m_bEnablesSSPartPurchase(false),
 	m_bAbleToAnnexCityStates(false),
-	m_bOneShot(false),
+	m_bBorderSettle(false),
 	m_bIsOnlyTradeSameIdeology(false),
+	m_bOneShot(false),
 	m_bIncludesOneShotFreeUnits(false),
 	m_iDistressFlatReduction(0),
 	m_iPovertyFlatReduction(0),
@@ -249,6 +223,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iWarWearinessModifier(0),
 	m_iWarScoreModifier(0),
 	m_iGreatGeneralExtraBonus(0),
+	m_eFreeBuildingOnConquest(NO_BUILDING),
+	m_piYieldChangesPerReligion(NULL),
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
 	m_piYieldModifier(NULL),
@@ -263,6 +239,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_pabFreePromotion(NULL),
 	m_paiUnitCombatProductionModifiers(NULL),
 	m_paiUnitCombatFreeExperiences(NULL),
+	m_paiHurryModifier(NULL),
 	m_paiBuildingClassCultureChanges(NULL),
 	m_paiBuildingClassSecurityChanges(NULL),
 	m_paiBuildingClassProductionModifiers(NULL),
@@ -270,15 +247,14 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiBuildingClassHappiness(NULL),
 	m_paiFreeUnitClasses(NULL),
 	m_paiTourismOnUnitCreation(NULL),
-	m_paiHurryModifier(NULL),
-	m_pabSpecialistValid(NULL),
 	m_paiFreeChosenBuilding(NULL),
 	m_piResourcefromCSAlly(NULL),
+	m_piFreeResource(NULL),
 	m_piYieldFromBirth(NULL),
 	m_piYieldFromBirthCapital(NULL),
 	m_piYieldFromBirthRetroactive(NULL),
 	m_piYieldFromBirthCapitalRetroactive(NULL),
-    m_piInstantYield(NULL),
+	m_piInstantYield(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piYieldFromWorldWonderConstruction(NULL),
 	m_piYieldFromTech(NULL),
@@ -288,25 +264,26 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bDoubleBorderGrowthGA(false),
 	m_bDoubleBorderGrowthWLTKD(false),
 	m_bKeepConqueredBuildings(false),
-	m_iIncreasedQuestInfluence(0),
 	m_iGreatScientistBeakerModifier(0),
 	m_iGreatEngineerHurryModifier(0),
 	m_iTechCostXCitiesMod(0),
 	m_iTourismCostXCitiesMod(0),
-	m_iInternalTradeGold(0),
+	m_iIncreasedQuestInfluence(0),
+	m_iPuppetProdMod(0),
+	m_iOccupiedProdMod(0),
 	m_iCultureBombBoost(0),
 	m_bCultureBombForeignTerritory(false),
 	m_bRetainRazedTerritory(false),
-	m_iPuppetProdMod(0),
-	m_iOccupiedProdMod(0),
+	m_iInternalTradeGold(0),
 	m_iFreeWCVotes(0),
 	m_iSpySecurityModifier(0),
 	m_iVotesPerFollowingCityTimes100(0),
 	m_iInfluenceGPExpend(0),
 	m_iFreeTradeRoute(0),
-	m_iFreeSpy(0),
+    m_iFreeSpy(0),
 	m_iReligionDistance(0),
 	m_iPressureMod(0),
+	m_iFranchisePressure(0),
 	m_piYieldFromUnitProduction(NULL),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldGPExpend(NULL),
@@ -325,10 +302,37 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iExtraSupplyPerPopulation(0),
 	m_iExtraSupplyFlat(0),
 	m_bNoPartisans(false),
+	m_bNoForeignCorpsInCities(false),
+	m_bNoFranchisesInForeignCities(false),
+	m_iCorporationOfficesAsFranchises(0),
+	m_iCorporationFreeFranchiseAbovePopular(0),
+	m_iCorporationRandomForeignFranchise(0),
+	m_iAdditionalNumFranchisesMod(0),
+	m_iAdditionalNumFranchises(0),
+	m_bUpgradeCSVassalTerritory(false),
+	m_iLandmarksTourismPercent(0),
+	m_iArchaeologicalDigTourism(0),
+	m_iGoldenAgeTourism(0),
+	m_bInternalTRTourism(false),
+	m_iExtraCultureandScienceTradeRoutes(0),
+	m_iTradeRouteLandDistanceModifier(0),
+	m_iTradeRouteSeaDistanceModifier(0),
+	m_iEspionageNetworkPoints(0),
+	m_iRigElectionInfluenceModifier(0),
+	m_iPassiveEspionageBonusModifier(0),
 	m_piConquerorYield(NULL),
 	m_piFounderYield(NULL),
 	m_piReligionYieldMod(NULL),
+	m_piGoldenAgeYieldMod(NULL),
 	m_ppiReligionBuildingYieldMod(NULL),
+	m_iXCSAlliesLowersPolicyNeedWonders(0),
+	m_iHappinessPerCityOverStrengthThreshold(0),
+	m_iTRSpeedBoost(0),
+	m_iTRVisionBoost(0),
+	m_iHappinessPerXPolicies(0),
+	m_iHappinessPerXGreatWorks(0),
+	m_iExtraMissionaryStrength(0),
+	m_iExtraMissionarySpreads(0),
 	m_piYieldForSpyID(NULL),
 	m_piYieldForLiberation(NULL),
 	m_iInfluenceForLiberation(0),
@@ -340,6 +344,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iCityCaptureHealGlobal(0),
 	m_iCityCaptureHealLocal(0),
 	m_iInvestmentModifier(0),
+	m_pabSpecialistValid(NULL),
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiPlotYieldChanges(NULL),
 	m_ppiFeatureYieldChanges(NULL),
@@ -368,7 +373,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldFromDelegateCount(NULL),
 	m_piYieldFromXMilitaryUnits(NULL),
 	m_piYieldPerCityOverStrengthThreshold(NULL),
-	m_piYieldChangesPerReligion(NULL),
 	m_iMissionInfluenceModifier(0),
 	m_iHappinessPerActiveTradeRoute(0),
 	m_bCSResourcesForMonopolies(false),
@@ -376,15 +380,14 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iFlatDefenseFromAirUnits(0),
 	m_iPuppetYieldAndSupplyModifierChange(0),
 	m_iConquestPerEraBuildingProductionMod(0),
-	m_iAdmiralLuxuryBonus(0),
 #if defined(HH_MOD_API_TRADEROUTE_MODIFIERS)
-	m_piInternationalRouteYieldModifiers(NULL),
+	m_iAdmiralLuxuryBonus(0),
 #endif
+	m_piInternationalRouteYieldModifiers(NULL),
 	m_piUnitClassReplacements(),
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
-	m_piFlavorValue(NULL),
-	m_eFreeBuildingOnConquest(NO_BUILDING)
+	m_piFlavorValue(NULL)
 {
 }
 
@@ -418,6 +421,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_pabSpecialistValid);
 	SAFE_DELETE_ARRAY(m_paiFreeChosenBuilding);
 	SAFE_DELETE_ARRAY(m_piResourcefromCSAlly);
+	SAFE_DELETE_ARRAY(m_piFreeResource);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
@@ -686,6 +690,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bEnablesSSPartHurry = kResults.GetBool("EnablesSSPartHurry");
 	m_bEnablesSSPartPurchase = kResults.GetBool("EnablesSSPartPurchase");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
+	m_bBorderSettle = kResults.GetBool("BorderSettle");
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIsOnlyTradeSameIdeology = kResults.GetBool("IsOnlyTradeSameIdeology");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
@@ -750,6 +755,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iFreeSpy = kResults.GetInt("FreeSpy");
 	m_iReligionDistance = kResults.GetInt("ReligionDistance");
 	m_iPressureMod = kResults.GetInt("PressureMod");
+	m_iFranchisePressure = kResults.GetInt("FranchisePressure");
 	m_iMissionInfluenceModifier = kResults.GetInt("MissionInfluenceModifier");
 	m_iHappinessPerActiveTradeRoute = kResults.GetInt("HappinessPerActiveTradeRoute");
 	m_bCSResourcesForMonopolies = kResults.GetBool("CSResourcesCountForMonopolies");
@@ -799,6 +805,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldModifier, "Policy_YieldModifiers", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCityYieldChange, "Policy_CityYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCoastalCityYieldChange, "Policy_CoastalCityYieldChanges", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piMonopolyCityYieldChange, "Policy_CityYieldPerMonopoly", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldChange, "Policy_CapitalYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldPerPopChange, "Policy_CapitalYieldPerPopChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piCapitalYieldPerPopChangeEmpire, "Policy_CapitalYieldPerPopChangeEmpire", "PolicyType", szPolicyType);
@@ -806,6 +813,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
 	kUtility.PopulateArrayByValue(m_piResourcefromCSAlly, "Resources", "Policy_ResourcefromCSAlly", "ResourceType", "PolicyType", szPolicyType, "Number");
+	kUtility.PopulateArrayByValue(m_piFreeResource, "Resources", "Policy_FreeResource", "ResourceType", "PolicyType", szPolicyType, "Number");
 	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthRetroactive, "Policy_YieldFromBirthRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
@@ -1356,6 +1364,12 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	{
 		m_ppiBuildingClassYieldChanges[iI][YIELD_CULTURE] += m_paiBuildingClassCultureChanges[iI];
 	}
+
+	if (m_bDoubleBorderGrowthWLTKD)
+		m_piYieldFromWLTKD[YIELD_CULTURE_LOCAL] += 100;
+
+	if (m_bDoubleBorderGrowthGA)
+		m_piGoldenAgeYieldMod[YIELD_CULTURE_LOCAL] += 100;
 
 	return true;
 }
@@ -2455,6 +2469,12 @@ bool CvPolicyEntry::IsAbleToAnnexCityStates() const
 	return m_bAbleToAnnexCityStates;
 }
 
+/// Do we ignore border adjancency restriction when founding cities?
+bool CvPolicyEntry::IsBorderSettle() const
+{
+	return m_bBorderSettle;
+}
+
 /// Only trade with same ideologies
 bool CvPolicyEntry::IsOnlyTradeSameIdeology() const
 {
@@ -2657,6 +2677,20 @@ int CvPolicyEntry::GetCoastalCityYieldChange(int i) const
 int* CvPolicyEntry::GetCoastalCityYieldChangeArray() const
 {
 	return m_piCoastalCityYieldChange;
+}
+
+/// Change to yield per monopoly owned
+int CvPolicyEntry::GetMonopolyCityYieldChange(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piMonopolyCityYieldChange ? m_piMonopolyCityYieldChange[i] : -1;
+}
+
+/// Array of yield changes per monopoly owned
+int* CvPolicyEntry::GetMonopolyCityYieldChangeArray() const
+{
+	return m_piMonopolyCityYieldChange;
 }
 
 /// Change to yield in Capital by type
@@ -2884,6 +2918,13 @@ int CvPolicyEntry::GetResourceFromCSAlly(int i) const
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piResourcefromCSAlly[i];
 }
+// Grants free resources when the policy is adopted
+int CvPolicyEntry::GetFreeResource(int i) const
+{
+	PRECONDITION(i < GC.getNumResourceInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piFreeResource[i];
+}
 /// Does this Policy grant yields from citizen birth?
 int CvPolicyEntry::GetYieldFromBirth(int i) const
 {
@@ -2961,16 +3002,6 @@ bool CvPolicyEntry::GetNoUnhappinessExpansion() const
 bool CvPolicyEntry::GetNoUnhappyIsolation() const
 {
 	return m_bNoUnhappyIsolation;
-}
-/// Does this Policy generate double border growth during GAs?
-bool CvPolicyEntry::GetDoubleBorderGrowthGA() const
-{
-	return m_bDoubleBorderGrowthGA;
-}
-/// Does this Policy generate double border growth during WLTKD?
-bool CvPolicyEntry::GetDoubleBorderGrowthWLTKD() const
-{
-	return m_bDoubleBorderGrowthWLTKD;
 }
 /// Are all buildings kept on city conquest?
 bool CvPolicyEntry::IsKeepConqueredBuildings() const
@@ -3067,6 +3098,10 @@ int CvPolicyEntry::GetReligionDistance() const
 int CvPolicyEntry::GetPressureMod() const
 {
 	return m_iPressureMod;
+}
+int CvPolicyEntry::GetFranchisePressure() const
+{
+	return m_iFranchisePressure;
 }
 // Does this policy grant % of prod cost as yield on unit train?
 int CvPolicyEntry::GetYieldFromUnitProduction(int i) const
@@ -3946,8 +3981,8 @@ CvPlayerPolicies::CvPlayerPolicies():
 	m_pabPolicyBranchBlocked(NULL),
 	m_pabPolicyBranchFinished(NULL),
 	m_paePolicyBlockedBranchCheck(NULL),
-	m_pPolicyAI(NULL),
 	m_pPolicies(NULL),
+	m_pPolicyAI(NULL),
 	m_pPlayer(NULL)
 {
 	m_vBuildingClassHappinessModifier.resize(GC.getNumBuildingClassInfos(), 0);

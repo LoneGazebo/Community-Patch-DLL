@@ -24,7 +24,7 @@
 			<Text>[NEWLINE] [ICON_BULLET]Advanced Spy Missions are disabled.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_POINTS_TT">
-			<Text>Your Current [ICON_SPY_POINT] Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of [ICON_SPY_POINT] Spy Points exceeds the threshold of {2_Threshold}. The threshold value scales on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_SPY_POINT] Spy Points. Some Buildings and Policies also provide [ICON_SPY_POINT] Spy Points.[NEWLINE][NEWLINE]Total Number of [ICON_SPY_POINT] Spy Points ever accumulated: {3_NumTotal}</Text>
+			<Text>Your Current [ICON_SPY_POINT] Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of [ICON_SPY_POINT] Spy Points exceeds the threshold of {2_Threshold}.[NEWLINE][NEWLINE]Total Number of [ICON_SPY_POINT] Spy Points ever accumulated: {3_NumTotal}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_NO_TECH_STEAL">
 			<Text>[NEWLINE] [ICON_BULLET] No Technologies to steal.</Text>
@@ -517,6 +517,9 @@
 		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS">
 			<Text>[ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade with a [ICON_CITY_STATE] City-State</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_RELIGION_SPREAD">
+			<Text>[ICON_RELIGION] New City Converts</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_ERA_CHANGE_TT">
 			<Text>Each [ICON_RESEARCH] Era you advance to will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!</Text>
 		</Row>
@@ -543,6 +546,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS_TT">
 			<Text>Each [ICON_INTERNATIONAL_TRADE] Trade Route completed either by land or sea with a [ICON_CITY_STATE] City-State will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]! Unlike trading with a foreign Major City, this amount will be the same sent to all Civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_HISTORIC_EVENT_RELIGION_SPREAD_TT">
+			<Text>Every conversion of a City to your owned [ICON_RELIGION] Religion for the first time will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!</Text>
 		</Row>
 
 		<!-- Top panel -->
@@ -1135,8 +1141,11 @@
 		<Row Tag="TXT_KEY_CITY_HAS_OBSTACLE_WATER">
 			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water territory owned by this City.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_HAS_AIRPORT">
-			<Text>Allows [COLOR_POSITIVE_TEXT]Airlifts[ENDCOLOR] to or from this City. Increased Air Unit Capacity of the City. +10 [ICON_STRENGTH] Damage to Enemy Air Units during Air Strikes on the City.</Text>
+		<Row Tag="TXT_KEY_CITY_HAS_AIRLIFT">
+			<Text>Allows [COLOR_POSITIVE_TEXT]Airlifts[ENDCOLOR] to or from this City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_HAS_SEALIFT">
+			<Text>Allows [COLOR_POSITIVE_TEXT]Transportation[ENDCOLOR] to or from this City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICEHQ_TT">
 			<Text>[ICON_CAPITAL] Headquarters of [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]</Text>
@@ -1800,51 +1809,6 @@
 		</Row>
 
 		<!-- Trade screen -->
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP">
-			<Text>WORLD MAP</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP_TT">
-			<Text>Reveals all land explored by this civilization.[NEWLINE][NEWLINE]Note: Will not receive contact with unmet civilizations and city-states.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH">
-			<Text>Both players don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER">
-			<Text>They don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER">
-			<Text>You don't yet have the Technology required to trade this item ({1_Tech:textkey}).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED">
-			<Text>They have already explored all of the lands revealed in your World Map.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED">
-			<Text>We have already explored all of the lands revealed in their World Map.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES">
-			<Text>TECHNOLOGIES</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TECHNOLOGIES">
-			<Text>TECHNOLOGIES</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES">
-			<Text>We have Technologies available to trade.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO">
-			<Text>We have no Technologies available to trade.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES_THEM">
-			<Text>The other leader has Technologies available to trade.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO_THEM">
-			<Text>The other leader has no Technologies available to trade.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_OTHER_PLAYER">
-			<Text>They don't yet have the Technology to sell this item (Scientific Theory).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_PLAYER">
-			<Text>You don't yet have the Technology to sell this item (Scientific Theory).</Text>
-		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_PEACE">
 			<Text>VASSAL STATE</Text>
 		</Row>
@@ -2929,7 +2893,7 @@
 			<Text>[NEWLINE] [ICON_BULLET] Requires {1_Desc} Technology</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_GARRISON">
-			<Text>[NEWLINE] [ICON_BULLET] City needs a garrison</Text>
+			<Text>[NEWLINE] [ICON_BULLET] City needs a Garrison</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_DISABLED_LUA">
 			<Text>[NEWLINE] [ICON_BULLET] Disabled for specific scenario reasons (ask Mom)</Text>
@@ -2962,10 +2926,13 @@
 			<Text>[NEWLINE] [ICON_BULLET] Barbarians are not allowed to enter owned territory yet</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_BE_RIVER">
-			<Text>[NEWLINE] [ICON_BULLET] City must be on a river</Text>
+			<Text>[NEWLINE] [ICON_BULLET] City must be on a River</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NEED_NO_FRESH_WATER">
+			<Text>[NEWLINE] [ICON_BULLET] City must not have access to Fresh Water</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_BE_COASTAL">
-			<Text>[NEWLINE] [ICON_BULLET] City must be coastal</Text>
+			<Text>[NEWLINE] [ICON_BULLET] City must be Coastal</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_BE_CAPITAL">
 			<Text>[NEWLINE] [ICON_BULLET] City must be a Capital</Text>
@@ -2974,7 +2941,7 @@
 			<Text>[NEWLINE] [ICON_BULLET] Event choice can only be chosen once per game</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_BLOCKED_BY_COUNTERSPY">
-			<Text>[NEWLINE] [ICON_BULLET] Blocked by enemy counterspy</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Blocked by enemy Counterspy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_ACTIVE">
 			<Text>[NEWLINE] [ICON_BULLET] Event choice already active</Text>

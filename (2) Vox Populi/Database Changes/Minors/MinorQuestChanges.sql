@@ -24,7 +24,7 @@ UPDATE SmallAwards SET Influence = 30, GlobalGPPoints = 20, RandomMod = 10 WHERE
 -- Tech contest
 UPDATE SmallAwards SET Influence = 25, Tourism = 300, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TECHS';
 
--- Tourism contest
+-- Tourism contest (disabled)
 UPDATE SmallAwards SET Influence = 50, Culture = 80, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TOURISM';
 
 ---------------------------------------------------------------------------------------------------------
