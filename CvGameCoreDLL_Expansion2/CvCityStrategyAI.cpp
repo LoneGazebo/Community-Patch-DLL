@@ -5097,7 +5097,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 				}
 				if (pReligion->m_Beliefs.GetEspionageNetworkPoints(kPlayer.GetID(), pCity) != 0)
 				{
-					iModifier += /*80*/ pReligion->m_Beliefs.GetEspionageNetworkPoints(kPlayer.GetID(), pCity) * 20;
+					iModifier += /*80*/ pReligion->m_Beliefs.GetEspionageNetworkPoints(kPlayer.GetID(), pCity) * 10;
 				}
 			}
 		}
