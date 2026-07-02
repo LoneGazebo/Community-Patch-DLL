@@ -12542,6 +12542,74 @@ void CvGame::LogMapPlotsState() const
 }
 
 //	--------------------------------------------------------------------------------
+// SQLite companion to LogMapPlotsState(): the "units" half of the map-state dump. Writes one
+// batched row per unit owned by each alive major civ. Gated purely behind MOD_SQLITE_LOGGING.
+void CvGame::LogMapUnitsState() const
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	RegisterMapUnitsStateTable();
+
+	SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("MapUnitsState");
+
+	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
+	{
+		const CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
+		if (!kPlayer.isAlive())
+			continue;
+
+		const char* szOwner = kPlayer.getCivilizationShortDescription();
+
+		int iLoop = 0;
+		for (const CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+		{
+			// getNameKey() -> localized human-readable type name ("Spearman", "Bazooka").
+			// GetLocalizedText returns a CvString by value; keep it alive for the bind below.
+			CvString strUnitName = GetLocalizedText(pLoopUnit->getNameKey());
+
+			kBatch.BeginLogRow()
+				.bind(szOwner)                                                // owner
+				.bind(pLoopUnit->getX())                                      // plotX
+				.bind(pLoopUnit->getY())                                      // plotY
+				.bind(pLoopUnit->GetID())                                     // unitID
+				.bind(strUnitName.c_str())                                    // unitName
+				.bind(pLoopUnit->GetMaxHitPoints())                           // unitMaxHP
+				.bind(pLoopUnit->GetMaxHitPoints() - pLoopUnit->getDamage())  // unitCurrHP
+				.addRowToBatch();
+		}
+	}
+
+	kBatch.flush();   // REQUIRED: BatchWriter discards buffered rows if not flushed before scope exit
+}
+
+//	--------------------------------------------------------------------------------
+// Per-turn snapshot of which era each major civ is in: one batched row per alive major civ.
+void CvGame::LogCivTurnEra() const
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	RegisterCivTurnEraTable();
+
+	SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("civ_turn_era");
+
+	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++)
+	{
+		const CvPlayer& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(iPlayer));
+		if (!kPlayer.isAlive())
+			continue;
+
+		kBatch.BeginLogRow()
+			.bind(kPlayer.getCivilizationShortDescription())   // civ
+			.bind(static_cast<int>(kPlayer.GetCurrentEra()))   // era
+			.addRowToBatch();
+	}
+
+	kBatch.flush();
+}
+
+//	--------------------------------------------------------------------------------
 // Aggregated per-turn diplomacy / grand-strategy counts shared by the WorldState_Log.csv output and
 // the SQLite WorldStateLog mirror so the two code paths cannot drift apart.
 struct WorldStateLogCounts
@@ -12794,6 +12862,12 @@ void CvGame::LogGameState(bool bLogHeaders) const
 		// Mirror mapStateLog into stats.db. Gated purely behind the SQLite flag (independent of the
 		// CSV logging switches above) and internally guarded, so it is safe to call unconditionally.
 		LogMapPlotsState();
+
+		// Mirror the "units" half of mapStateLog into stats.db: one row per unit per major civ.
+		LogMapUnitsState();
+
+		// Record which era each civ is in this turn (one row per civ).
+		LogCivTurnEra();
 
 		WorldStateLogCounts kCounts;
 		ComputeWorldStateLogCounts(kCounts);

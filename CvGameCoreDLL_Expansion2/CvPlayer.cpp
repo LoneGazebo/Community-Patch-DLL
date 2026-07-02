@@ -26987,6 +26987,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				if (MOD_SQLITE_LOGGING)
 				{
 					LogBuildingInstantYields(iType, pLoopCity, eYield, iEra, iPassYield, bEraScale, ePlayer, ePassYield, ePassBuilding, pCity, bInternational, pUnit, eGreatPerson);
+					LogReligionBeliefInstantYields(iType, pLoopCity, eYield, iEra, iPassYield, bEraScale, ePassYield, eGreatPerson, pUnit, pPlot, ePlayer, pReligion, eReligion, iNumFollowerCities, iNumFollowers);
 				}
 			}
 		}
@@ -42568,6 +42569,204 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 // tail game-speed/era scaling doInstantYield applies. Per-building re-derivation can drift slightly
 // from the granted aggregate (independent integer truncation), which is accepted. Values are stored
 // multiplied by 100 (YieldTimes100) so inherently fractional sources are preserved.
+// Logs the per-belief share of an event/instant yield to the ReligionBeliefYields SQLite table, one
+// row per (belief) for the single (iType, eYield) being granted. Mirrors the belief-driven branches of
+// doInstantYield: it loops the player's owned/state religion beliefs, gates each with the same
+// IsBeliefValid(holyCityOnly) the matching case uses, and applies the same multiplier so the logged
+// value equals the granted value (x100 to match the other rows). Several rows may be written for the
+// same belief across a turn (multiple events); downstream aggregation sums them.
+void CvPlayer::LogReligionBeliefInstantYields(InstantYieldType iType, CvCity* pLoopCity, YieldTypes eYield, int iEra, int iPassYield, bool bEraScale, YieldTypes ePassYield, GreatPersonTypes eGreatPerson, CvUnit* pUnit, CvPlot* pPlot, PlayerTypes eSpreadPlayer, const CvReligion* pReligion, ReligionTypes eReligion, int iNumFollowerCities, int iNumFollowers)
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+	if (pReligion == NULL || pLoopCity == NULL || isMinorCiv())
+		return;
+
+	// Map the instant-yield type to a source label and the holy-city gate the matching case uses. Bail
+	// for instant-yield types that carry no belief-sourced yield.
+	const char* szSource = NULL;
+	bool bHolyGate = true;
+	switch (iType)
+	{
+	case INSTANT_YIELD_TYPE_BIRTH:           szSource = "Birth";          bHolyGate = false; break;
+	case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY: szSource = "HolyCityBirth";  bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_ERA_UNLOCK:      szSource = "EraUnlock";      bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_POLICY_UNLOCK:   szSource = "PolicyUnlock";   bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_TECH:            szSource = "TechUnlock";     bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_CONSTRUCTION:    szSource = "Construction";   bHolyGate = false; break;
+	case INSTANT_YIELD_TYPE_BORDERS:         szSource = "BorderGrowth";   bHolyGate = false; break;
+	case INSTANT_YIELD_TYPE_GP_USE:          szSource = "GPUse";          bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_GP_BORN:         szSource = "GPBorn";         bHolyGate = false; break;
+	case INSTANT_YIELD_TYPE_CONVERSION:      szSource = "Conversion";     bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_CONVERSION_EXPO: szSource = "ConversionExpo"; bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_SPREAD:          szSource = "Spread";         bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_F_SPREAD:        szSource = "ForeignSpread";  bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:  szSource = "Pillage";        bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_REMOVE_HERESY:   szSource = "RemoveHeresy";   bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_PROPOSAL:        szSource = "Proposal";       bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_FAITH_PURCHASE:  szSource = "FaithPurchase";  bHolyGate = false; break;
+	default:
+		return; // no belief-sourced instant yield for this type
+	}
+
+	// Per-type guards that mirror the conditions in the matching doInstantYield case.
+	if ((iType == INSTANT_YIELD_TYPE_BIRTH) && !bEraScale)
+		return; // belief birth yields are only granted on the era-scaling path
+	if ((iType == INSTANT_YIELD_TYPE_GP_BORN) && (bEraScale || eGreatPerson == NO_GREATPERSON))
+		return; // belief GP-born yields are only granted on the non-era-scaling path
+	if ((iType == INSTANT_YIELD_TYPE_GP_USE) && eGreatPerson == NO_GREATPERSON)
+		return;
+	if (iType == INSTANT_YIELD_TYPE_SPREAD)
+	{
+		if (pPlot == NULL || (pPlot->getPlotCity() == NULL && pPlot->GetAdjacentCity() == NULL))
+			return;
+	}
+	if (iType == INSTANT_YIELD_TYPE_F_SPREAD)
+	{
+		if (eSpreadPlayer == NO_PLAYER || eSpreadPlayer == GetID())
+			return;
+		if (!GET_PLAYER(eSpreadPlayer).isMajorCiv() && eYield == YIELD_TOURISM)
+			return;
+	}
+	if ((iType == INSTANT_YIELD_TYPE_PILLAGE_GLOBAL) && !MOD_RELIGION_EXTENSIONS)
+		return;
+	if ((iType == INSTANT_YIELD_TYPE_FAITH_PURCHASE) && pUnit != NULL && eYield == ePassYield)
+		return; // that path is the unit faith-cost refund, not a belief yield
+
+	// Religion-wide multipliers (identical for every belief), resolved once.
+	const int iCityScaler = pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+	const int iFollowerScaler = pReligion->m_Beliefs.GetFollowerScalerLimiter(iNumFollowers);
+	const bool bGPAttr = MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES;
+
+	// IsReligionOwner: does this player control the religion's holy city (eligible for founder benefits)?
+	bool bOwner = false;
+	{
+		// Pass GetID() (not NO_PLAYER): pantheons are per-player, so NO_PLAYER would not resolve to this
+		// player's own pantheon and would wrongly report owner=false for their pantheon beliefs.
+		const CvReligion* pBaseReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
+		if (pBaseReligion)
+		{
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pBaseReligion->m_iHolyCityX, pBaseReligion->m_iHolyCityY);
+			if (pBaseReligion->m_bPantheon && pHolyCityPlot == NULL)
+				bOwner = (pBaseReligion->m_eFounder == GetID());
+			else
+				bOwner = (pHolyCityPlot != NULL && pHolyCityPlot->getOwner() == GetID());
+		}
+	}
+
+	RegisterReligionBeliefYieldsTable();
+
+	const int iEraRow = (int)GetCurrentEra();
+	const char* szCiv = getCivilizationShortDescription();
+	const CvYieldInfo* pYieldInfo = GC.getYieldInfo(eYield);
+	const char* szYield = pYieldInfo ? pYieldInfo->GetDescription() : "";
+
+	const int iNumBeliefs = pReligion->m_Beliefs.GetNumBeliefs();
+	for (int i = 0; i < iNumBeliefs; i++)
+	{
+		const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(i);
+		if (!pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, GetID(), pLoopCity, bHolyGate))
+			continue;
+		const CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+		if (pkBelief == NULL)
+			continue;
+
+		long long iValue = 0; // raw yield (not x100)
+		switch (iType)
+		{
+		case INSTANT_YIELD_TYPE_BIRTH:
+			iValue = (long long)pkBelief->GetYieldPerBirth(eYield) * max(1, iPassYield);
+			if (bGPAttr)
+				iValue *= iEra;
+			break;
+		case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:
+			iValue = (long long)pkBelief->GetYieldPerHolyCityBirth(eYield) * iNumFollowerCities;
+			break;
+		case INSTANT_YIELD_TYPE_ERA_UNLOCK:
+			iValue = (long long)pkBelief->GetYieldFromEraUnlock(eYield) * iCityScaler;
+			break;
+		case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
+			iValue = (long long)pkBelief->GetYieldFromPolicyUnlock(eYield) * iFollowerScaler;
+			break;
+		case INSTANT_YIELD_TYPE_TECH:
+			iValue = (long long)pkBelief->GetYieldFromTechUnlock(eYield, bEraScale) * iFollowerScaler;
+			break;
+		case INSTANT_YIELD_TYPE_CONSTRUCTION:
+			iValue = pkBelief->GetYieldPerConstruction(eYield);
+			break;
+		case INSTANT_YIELD_TYPE_BORDERS:
+			iValue = (long long)pkBelief->GetYieldPerBorderGrowth(eYield, true) * iEra + pkBelief->GetYieldPerBorderGrowth(eYield, false);
+			break;
+		case INSTANT_YIELD_TYPE_GP_USE:
+		{
+			long long iChange = (long long)pkBelief->GetYieldFromGPUse(eYield) * iCityScaler;
+			if (bEraScale)
+				iChange *= iEra;
+			iValue = iChange;
+			iValue += (long long)pkBelief->GetGreatPersonExpendedYield((int)eGreatPerson, (int)eYield) * iCityScaler;
+			break;
+		}
+		case INSTANT_YIELD_TYPE_GP_BORN:
+			iValue = (long long)pkBelief->GetGreatPersonBornYield((int)eGreatPerson, (int)eYield) * iNumFollowerCities;
+			break;
+		case INSTANT_YIELD_TYPE_CONVERSION:
+		{
+			long long iBase = pkBelief->GetYieldFromConversion(eYield);
+			if (iBase != 0)
+				iBase = iBase * (100 + iCityScaler * iCityScaler) / 100;
+			iValue = iBase;
+			break;
+		}
+		case INSTANT_YIELD_TYPE_CONVERSION_EXPO:
+			iValue = (long long)pkBelief->GetYieldFromConversionExpo(eYield) * iNumFollowerCities;
+			break;
+		case INSTANT_YIELD_TYPE_SPREAD:
+			iValue = (long long)pkBelief->GetYieldFromSpread(eYield) * max(1, iPassYield + 1);
+			break;
+		case INSTANT_YIELD_TYPE_F_SPREAD:
+			iValue = (long long)pkBelief->GetYieldFromForeignSpread(eYield) * max(1, iPassYield + 1);
+			break;
+		case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:
+			iValue = pkBelief->GetYieldFromPillageGlobal(eYield, bEraScale);
+			break;
+		case INSTANT_YIELD_TYPE_REMOVE_HERESY:
+			iValue = (long long)pkBelief->GetYieldFromRemoveHeresy(eYield) * iPassYield;
+			break;
+		case INSTANT_YIELD_TYPE_PROPOSAL:
+			iValue = pkBelief->GetYieldFromProposal(eYield);
+			break;
+		case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
+			iValue = (long long)pkBelief->GetYieldFromFaithPurchase(eYield) * iPassYield / 100;
+			break;
+		default:
+			continue;
+		}
+
+		if (iValue == 0)
+			continue;
+
+		const char* szBeliefType = "";
+		if (pkBelief->IsPantheonBelief())         szBeliefType = "Pantheon";
+		else if (pkBelief->IsFounderBelief())     szBeliefType = "Founder";
+		else if (pkBelief->IsFollowerBelief())    szBeliefType = "Follower";
+		else if (pkBelief->IsEnhancerBelief())    szBeliefType = "Enhancer";
+		else if (pkBelief->IsReformationBelief()) szBeliefType = "Reformation";
+
+		const CvString strBelief = GetLocalizedText(pkBelief->getShortDescription());
+
+		GET_SQLITE_LOGGER().BeginLogRow("ReligionBeliefYields")
+			.bind(iEraRow)
+			.bind(szCiv)
+			.bind(strBelief.c_str())
+			.bind(szBeliefType)
+			.bind(bOwner)
+			.bind(szSource)
+			.bind(szYield)
+			.bind((int)(iValue * 100))
+			.execute();
+	}
+}
+
 void CvPlayer::LogBuildingInstantYields(InstantYieldType iType, CvCity* pLoopCity, YieldTypes eYield, int iEra, int iPassYield, bool bEraScale, PlayerTypes ePlayer, YieldTypes ePassYield, BuildingTypes ePassBuilding, CvCity* pCity, bool bInternational, CvUnit* pUnit, GreatPersonTypes eGreatPerson)
 {
 	if (!MOD_SQLITE_LOGGING)

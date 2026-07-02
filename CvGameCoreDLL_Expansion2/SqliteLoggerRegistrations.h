@@ -171,6 +171,23 @@ static void RegisterGameResultTable()
 	}
 }
 
+// Per-turn snapshot of which era each civ is in, one row per civ per turn.
+static void RegisterCivTurnEraTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("civ", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("era", Database::COLTYPE_INT));
+		GET_SQLITE_LOGGER().RegisterTable("civ_turn_era", kColumns);
+	}
+}
+
 static void RegisterMapPlotsStateTable()
 {
 	if (!MOD_SQLITE_LOGGING)
@@ -187,6 +204,28 @@ static void RegisterMapPlotsStateTable()
 		kColumns.push_back(ColumnDef("owner", Database::COLTYPE_TEXT));
 		kColumns.push_back(ColumnDef("routeType", Database::COLTYPE_INT));
 		GET_SQLITE_LOGGER().RegisterTable("MapPlotsState", kColumns);
+	}
+}
+
+// Per-turn snapshot of every unit owned by each major civ, one row per unit.
+static void RegisterMapUnitsStateTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("owner", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("plotX", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("plotY", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("unitID", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("unitName", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("unitMaxHP", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("unitCurrHP", Database::COLTYPE_INT));
+		GET_SQLITE_LOGGER().RegisterTable("MapUnitsState", kColumns);
 	}
 }
 
@@ -216,6 +255,36 @@ static void RegisterBuildingYieldsTable()
 		kColumns.push_back(ColumnDef("BaseYieldTimes100", Database::COLTYPE_INT));
 		kColumns.push_back(ColumnDef("BonusYieldTimes100", Database::COLTYPE_INT));
 		GET_SQLITE_LOGGER().RegisterTable("BuildingYields", kColumns);
+	}
+}
+
+// Long-format per-belief yield breakdown, one row per (civ, belief, source, yield) per turn.
+// Captures how many raw yields each active religious belief generates for a player, aggregated across
+// all of that player's cities. Passive per-turn yields use a mechanic label in Source (BuildingClass,
+// Terrain, GreatWork, PerPop, PlayerGlobal, ReligiousBuilding, GreatPersonPoints, ...); event-driven
+// yields use the event label (GPBorn, Spread, Conversion, Tech, Pillage, ...) and may emit several
+// rows per turn sharing the same keys (summed downstream). IsReligionOwner is true when the player
+// controls the religion's holy city (eligible for founder benefits) and false for follower/pantheon
+// benefits gained from a religion the player does not own. YieldTimes100 is the yield value x100.
+static void RegisterReligionBeliefYieldsTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("Era", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("Civ", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Belief", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("BeliefType", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("IsReligionOwner", Database::COLTYPE_BOOL));
+		kColumns.push_back(ColumnDef("Source", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Yield", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("YieldTimes100", Database::COLTYPE_INT));
+		GET_SQLITE_LOGGER().RegisterTable("ReligionBeliefYields", kColumns);
 	}
 }
 
