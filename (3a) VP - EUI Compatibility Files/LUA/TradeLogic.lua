@@ -39,6 +39,7 @@ local g_bAllowResearchAgreements = not Game.IsOption("GAMEOPTION_DISABLE_RESEARC
 local g_bDisableScience = Game.IsOption("GAMEOPTION_NO_SCIENCE");
 local g_bDisableTechTrading = not Game.IsOption("GAMEOPTION_ENABLE_TECH_TRADING");
 local g_bDisableVassalage = not Game.IsOption("GAMEOPTION_ENABLE_VASSALAGE");
+local g_bDisableVoluntaryVassalage = Game.IsOption("GAMEOPTION_NO_VOLUNTARY_VASSALAGE");
 local g_bDisableLeague = Game.IsOption("GAMEOPTION_NO_LEAGUES");
 
 ----------------------------------------------------------------
@@ -1262,7 +1263,7 @@ function ResetDisplay()
 	local bShowDefensivePact = (not bTeammates) and (not g_bAlwaysPeace) and (not g_bNoChangeWar);
 	local bShowResearchAgreement = g_bAllowResearchAgreements and (not bTeammates) and (not g_bDisableScience);
 	local bShowVotes = not g_bDisableLeague;
-	local bShowVassalage = (not bTeammates) and (not g_bDisableVassalage);
+	local bShowVassalage = (not bTeammates) and (not g_bDisableVassalage) and ((not g_bDisableVoluntaryVassalage) or Teams[g_iUsTeam]:IsAtWar(g_iThemTeam));
 	local bShowLiberation = (not bTeammates) and (not g_bDisableVassalage);
 	local bShowMap = not bTeammates;
 	local bShowTechs = (not g_bDisableTechTrading) and (not g_bDisableScience) and (not bTeammates);

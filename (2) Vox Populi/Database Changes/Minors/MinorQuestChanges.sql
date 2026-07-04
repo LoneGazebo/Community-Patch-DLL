@@ -172,3 +172,178 @@ UPDATE Defines SET Value = 125 WHERE Name = 'MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_N
 -- Experience
 UPDATE Defines SET Value = 125 WHERE Name = 'MINOR_CIV_QUEST_REWARD_EXPERIENCE_MILITARISTIC';
 UPDATE Defines SET Value = 50 WHERE Name = 'MINOR_CIV_QUEST_REWARD_EXPERIENCE_RELIGIOUS';
+
+---------------------------------------------------------------------------------------------------------
+-- City-State Quest probabilities
+---------------------------------------------------------------------------------------------------------
+
+DELETE FROM MinorCivilizations_QuestWeights;
+
+CREATE TEMP TABLE Helper (
+	MinorCivTraitType TEXT,
+	MinorCivPersonalityType TEXT,
+	QuestType TEXT,
+	Weight INTEGER
+);
+
+-- This code replaces the previous ugly method of using GameDefines for every quest combination
+-- Start by adding 10 weight to every quest, even the ones disabled in Vox Populi
+INSERT INTO Helper
+	(MinorCivTraitType, MinorCivPersonalityType, QuestType, Weight)
+SELECT
+	a.Type, b.Type, c.Type, 10
+FROM MinorCivTraits a, MinorCivPersonalityTypes b, SmallAwards c;
+
+-- Disable the quests we don't want to pop up by setting their weight to 0
+UPDATE Helper
+SET Weight = 0
+WHERE QuestType IN
+	('MINOR_CIV_QUEST_FIND_PLAYER',
+	'MINOR_CIV_QUEST_GIVE_GOLD',
+	'MINOR_CIV_QUEST_COUP',
+	'MINOR_CIV_QUEST_INVEST',
+	'MINOR_CIV_QUEST_CONTEST_TOURISM'
+);
+
+-- Now process the individual VP overrides for each quest
+
+-- PERSONAL QUESTS
+-- Construct Route
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_ROUTE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE';
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_ROUTE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_ROUTE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+
+-- Connect Resource
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_CONNECT_RESOURCE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE';
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_CONNECT_RESOURCE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_CONNECT_RESOURCE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+
+-- Build Wonder
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_CONSTRUCT_WONDER' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_RELIGIOUS';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_CONSTRUCT_WONDER' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_RELIGIOUS' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+
+-- Generate Great Person
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_GREAT_PERSON' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_GREAT_PERSON' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+
+-- Find Natural Wonder
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_FIND_NATURAL_WONDER' AND MinorCivTraitType IN ('MINOR_CIV_TRAIT_MARITIME', 'MINOR_CIV_TRAIT_RELIGIOUS');
+
+-- Pledge Protection
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+
+-- Demand Tribute from City-State
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_BULLY_CITY_STATE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MILITARISTIC';
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_BULLY_CITY_STATE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_BULLY_CITY_STATE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MILITARISTIC' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+
+-- Denounce Player
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_DENOUNCE_MAJOR' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+
+-- Spread Religion
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_SPREAD_RELIGION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_RELIGIOUS';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_SPREAD_RELIGION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_RELIGIOUS' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+
+-- Establish Trade Route
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_TRADE_ROUTE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE';
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_TRADE_ROUTE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_TRADE_ROUTE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_TRADE_ROUTE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+
+-- Find City
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_FIND_CITY' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME';
+
+-- Start War against Player
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_WAR' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MILITARISTIC';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_WAR' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MILITARISTIC' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+
+-- Build National Wonder
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+
+-- Gift Unit
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MILITARISTIC';
+
+-- Find City-State
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_FIND_CITY_STATE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME';
+
+-- Liberate City-State
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_LIBERATION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MILITARISTIC' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_LIBERATION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+
+-- Discover Land
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_EXPLORE_AREA' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_EXPLORE_AREA' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME' AND MinorCivPersonalityType IN ('MINOR_CIV_PERSONALITY_FRIENDLY', 'MINOR_CIV_PERSONALITY_NEUTRAL');
+
+-- Conduct Espionage
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_SPY_ON_MAJOR' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE';
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_SPY_ON_MAJOR' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_SPY_ON_MAJOR' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+
+-- Conquer City
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_ACQUIRE_CITY';
+UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_ACQUIRE_CITY' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_ACQUIRE_CITY' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+UPDATE Helper SET Weight = 0 WHERE QuestType = 'MINOR_CIV_QUEST_ACQUIRE_CITY' AND MinorCivTraitType <> 'MINOR_CIV_TRAIT_MILITARISTIC';
+
+
+-- GLOBAL QUESTS
+-- Kill Camp
+UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_KILL_CAMP' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+
+-- Kill City-State
+UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_KILL_CITY_STATE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+
+-- Culture Contest
+UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_CULTURE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED';
+UPDATE Helper SET Weight = 45 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_CULTURE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+
+-- Faith Contest
+UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_FAITH' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_RELIGIOUS';
+UPDATE Helper SET Weight = 45 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_FAITH' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_RELIGIOUS' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+
+-- Tech Contest
+UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_TECHS' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MILITARISTIC';
+
+-- Influence
+UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_INFLUENCE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_FRIENDLY';
+
+-- Archaeology
+UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_ARCHAEOLOGY' AND MinorCivTraitType IN ('MINOR_CIV_TRAIT_CULTURED', 'MINOR_CIV_TRAIT_MILITARISTIC', 'MINOR_CIV_TRAIT_RELIGIOUS');
+
+-- Circumnavigation
+UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_CIRCUMNAVIGATION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME';
+UPDATE Helper SET Weight = 45 WHERE QuestType = 'MINOR_CIV_QUEST_CIRCUMNAVIGATION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME' AND MinorCivPersonalityType IN ('MINOR_CIV_PERSONALITY_FRIENDLY', 'MINOR_CIV_PERSONALITY_NEUTRAL');
+
+-- Quell Horde
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_HORDE';
+UPDATE Helper SET Weight = 60 WHERE QuestType = 'MINOR_CIV_QUEST_HORDE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+
+-- Quell Rebellion
+UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_REBELLION';
+UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_REBELLION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
+
+
+-- Now move this data to the table where it is used!
+-- Different quest weights by era are supported, but are currently only used to gatekeep certain quests
+INSERT INTO MinorCivilizations_QuestWeights
+	(MinorCivTraitType, MinorCivPersonalityType, EraType, QuestType, Weight)
+SELECT
+	a.MinorCivTraitType, a.MinorCivPersonalityType, b.Type, a.QuestType, a.Weight
+FROM Helper a, Eras b;
+
+DROP TABLE Helper;
+
+
+-- Block contest and Influence boost quests prior to the Medieval Era
+UPDATE MinorCivilizations_QuestWeights
+SET Weight = 0
+WHERE QuestType IN ('MINOR_CIV_QUEST_CONTEST_CULTURE', 'MINOR_CIV_QUEST_CONTEST_FAITH', 'MINOR_CIV_QUEST_CONTEST_TECHS', 'MINOR_CIV_QUEST_INFLUENCE')
+AND EraType IN (SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_MEDIEVAL'));
+
+-- Block the Find-City-State quest prior to the Renaissance Era
+UPDATE MinorCivilizations_QuestWeights
+SET Weight = 0
+WHERE QuestType = 'MINOR_CIV_QUEST_FIND_CITY_STATE'
+AND EraType IN (SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE'));

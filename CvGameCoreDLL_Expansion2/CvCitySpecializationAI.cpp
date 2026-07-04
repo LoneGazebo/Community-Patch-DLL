@@ -417,18 +417,17 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 CvCity* CvCitySpecializationAI::GetWonderBuildCity() const
 {
 	CvCity* pRtnValue = NULL;
-	if(m_iWonderCityID != -1)
+	if (m_iWonderCityID != -1)
 	{
 		pRtnValue = m_pPlayer->getCity(m_iWonderCityID);
 	}
 	else
 	{
 		int iLoop = 0;
-		CvCity* pLoopCity = NULL;
-		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			BuildingTypes eCurrentBuilding = pLoopCity->getProductionBuilding();
-			//alright, we found a city with the wonder we want.
+			// alright, we found a city with the wonder we want.
 			if (m_eNextWonderDesired != NO_BUILDING && eCurrentBuilding != NO_BUILDING && eCurrentBuilding == m_eNextWonderDesired)
 			{
 				return pLoopCity;
@@ -875,10 +874,10 @@ CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(
 	}
 
 	// If this is the wonder type, make sure we have a city to build it
-	if(eSubtype == GetWonderSubtype())
+	if (eSubtype == GetWonderSubtype())
 	{
 		CvCity* pCity = FindBestWonderCity();
-		if(pCity != NULL)
+		if (pCity != NULL)
 		{
 			m_iWonderCityID = pCity->GetID();
 		}

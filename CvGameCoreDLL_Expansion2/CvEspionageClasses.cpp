@@ -1560,9 +1560,6 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 		return;
 
 	CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eMission);
-	if (pkMissionInfo == NULL)
-		return;
-
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
 
 	PlayerTypes eCityOwner = pCity->getOwner();
@@ -1579,12 +1576,11 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 	ASSERT(pDefenderEspionageAI, "pDefenderEspionageAI is null");
 
 
-
 	// Spy result is calculated based on the ID and kill chance of the selected mission
 	int iIdentifyRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix((int)eMission).mix(GetNumSpyActionsDone(pCity->getOwner())));
-	bool bIdentified = (iIdentifyRoll <= pkMissionInfo->GetSpyIdentificationChance());
+	bool bIdentified = iIdentifyRoll <= GET_PLAYER(eSpyOwner).GetSpyIdentificationChance(pkMissionInfo->GetSpyIdentificationChance());
 	int iKillRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x80599453).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix((int)eMission).mix(GetNumSpyActionsDone(pCity->getOwner())));
-	bool bKilled = (iKillRoll <= pkMissionInfo->GetSpyKillChance());
+	bool bKilled = iKillRoll <= GET_PLAYER(eSpyOwner).GetSpyKillChance(pkMissionInfo->GetSpyKillChance());
 
 	// counterspy?
 	CityEventChoiceTypes eCounterSpyFocus = pCityEspionage->GetCounterSpyFocus();
@@ -3583,18 +3579,14 @@ bool CvPlayerEspionage::IsAnySchmoozing (CvCity* pCity)
 bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 {
 	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
-	if(uiSpyIndex >= m_aSpyList.size())
+
+	// no coups in VP
+	if (MOD_BALANCE_NO_COUPS)
 	{
 		return false;
 	}
 
 	if(!IsSpyInCity(uiSpyIndex))
-	{
-		return false;
-	}
-
-	// no coups in VP
-	if (MOD_BALANCE_VP)
 	{
 		return false;
 	}
@@ -8371,7 +8363,7 @@ int CvEspionageAI::GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eO
 		iScore -= 50;
 		// if this breaks a theme, extra annoying
 		iScore -= pCity->GetCityBuildings()->GetTotalNumThemedBuildings() > 0 ? 25 : 0;
-		// this is really bad for cultural grand strategy, but a few thefts cant stop us at the end
+		// this is really bad for cultural grand strategy, but a few thefts can't stop us at the end
 		if (pOwnerDiploAI->IsGoingForCultureVictory() && !pOwnerDiploAI->IsCloseToCultureVictory())
 			iScore -= 125;
 	}
@@ -8500,7 +8492,7 @@ int CvEspionageAI::GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eO
 		iScore -= iCapital * pkMissionInfo->getPillageRoadsChance() / 10 ;
 	}
 
-	// having fortifications pillaged is annoying, but at war its really bad
+	// having fortifications pillaged is annoying, but during war it's really bad
 	if (pkMissionInfo->getPillageFortificationsChance() > 0)
 	{
 		int iWar = pOwnerDiploAI->IsAtWar(eOwner) ? 5 : 1;
@@ -8520,7 +8512,7 @@ int CvEspionageAI::GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eO
 	if (pkMissionInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
 	{
 		int iCapSpecialists = pCity->GetCityCitizens()->GetTotalSpecialistCount();
-		// if you had to focus a yield you would want to work all one specialist, lets a midgame value for that of 3 as the minimum
+		// if you had to focus a yield you would want to work all one specialist, set a midgame value for that of 3 as the minimum
 		int iGPP = /* base GPP from a specialist */ 3 * min(3, iCapSpecialists) * pCity->getTotalGreatPeopleRateModifier() / 100;
 		iGPP *= pkMissionInfo->getEventDuration();
 		// GPP are less of a great person as the game goes on
@@ -8654,13 +8646,13 @@ int CvEspionageAI::GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eO
 	return iScore;
 }
 
-// Helper for considering the positive and negative effects attached to counterspy focusses
+// Helper for considering the positive and negative effects attached to counterspy focuses
 int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes eOwner, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pDiplomacyAI)
 {
 	int iScore = 0;
 	
 	// CityEventChoice_YieldOnSpyIdentified and CityEventChoice_YieldOnSpyKilled need to be hooked up
-	// but currently the same for all focusses so doesn't affect relative score
+	// but currently the same for all focuses so doesn't affect relative score
 	/*
 	// Yields on Kill and Identification depend if this city is a target
 	int iTurnsOfEspionage = GC.getGame().getGameTurn() - m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted;
@@ -8742,7 +8734,7 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 		if (iModifier != 0)
 		{
 			int iCityYield = iModifier * pCity->getBaseYieldRateTimes100(eYield);
-			iCityYield *= 15;  // dont use pkMissionInfo->getEventDuration() because focusses are 999 turns
+			iCityYield *= 15;  // don't use pkMissionInfo->getEventDuration() because focuses are 999 turns
 			iCityYield /= 10000;
 			iCityYield /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
 
@@ -8772,7 +8764,7 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 			if (iImprovementYield != 0)
 			{
 				int iNumImprovements = pCity->GetImprovementCount(eImprovement);
-				// at +4 overall for each, this only gets significant at 5 or 6 fortifications (e.g. Chateau)
+				// at +4 overall for each, this only gets significant at 5 or 6 fortifications (e.g., Chateau)
 				iScore += iNumImprovements * iImprovementYield;
 			}
 		}
@@ -8790,7 +8782,7 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 		}
 	}
 
-	// starts WLTKD? it's one off so if we're not swapping to it, we dont get benefit
+	// starts WLTKD? it's one off so if we're not swapping to it, we don't get a benefit
 	int iWLTKDTurns = pkMissionInfo->getWLTKD();
 	if (iWLTKDTurns > 0 && pCity->GetWeLoveTheKingDayCounter() <= 0)
 	{		
@@ -8816,9 +8808,9 @@ int CvEspionageAI::GetMissionScoreOffensiveBenefits(CvCity* pCity, PlayerTypes e
 	// this has no negative effects to consider and a high kill chance
 	if (pkMissionInfo->getStealTech() > 0)
 	{
-		// if you are many techs behind, its important to catch up asap!
+		// if you are many techs behind, it's important to catch up asap!
 		iScore += min(m_pPlayer->GetEspionage()->GetNumTechsToSteal(eTargetPlayer) * 25, 75);
-		// if you are trying to win with scientific advantage, its crucial you are number #1
+		// if you are trying to win with scientific advantage, it's crucial you are number #1
 		if (pDiplomacyAI->IsGoingForSpaceshipVictory())
 		{
 			iScore += 150;
@@ -9207,7 +9199,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		// if you get killed, you effectively lose network points due to downtime. calc assumes you come back to the same city
 		int iTravel = m_pPlayer->GetEspionage()->CalcRequired(SPY_STATE_TRAVELLING, pCity) / m_pPlayer->GetEspionage()->CalcPerTurn(SPY_STATE_TRAVELLING, pCity, iSpyIndex);
 		int iTurnsLostToDeath = iTravel + GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER);
-		int iKillChance = pkMissionInfo->GetSpyKillChance();
+		int iKillChance = m_pPlayer->GetSpyKillChance(pkMissionInfo->GetSpyKillChance());
 		// if you always use cheap missions you could overcap on points, then you might as well use something expensive
 		// often you are looking at missions you cant afford yet, in which case ignore this as zero
 		int iProgress = 0;
@@ -9224,12 +9216,12 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		
 		// even a free mission would still trigger a cooldown, so there is a minimum cost
 		iScore *= iNumerator / (iLeftover + max(iEspionageCooldown * iExpectedNP, iEffectiveCost));
-		// therefore, normalize to a typical cheap missions
+		// therefore, normalize to a typical cheap mission
 		iScore /= 2; 
 
 		// now scaling is done, take into account possible diplo penalties
-		// the diplo penalty for getting identified is bad if we spy on our friends, but its only a mild inconveniece if they are our enemies (e.g. gives them yields)
-		int iIDOffset = ((200 - iHateFactor) / 4) * pkMissionInfo->GetSpyIdentificationChance() / 100;
+		// the diplo penalty for getting identified is bad if we spy on our friends, but it's only a mild inconvenience if they are our enemies (e.g., gives them yields)
+		int iIDOffset = ((200 - iHateFactor) / 4) * m_pPlayer->GetSpyIdentificationChance(pkMissionInfo->GetSpyIdentificationChance()) / 100;
 		int iTotalScore = iScore - iIDOffset;
 		
 		// this could be negative at this point, in which case zero it
@@ -9917,23 +9909,20 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 
 		int iModifier = 0;
 
-		if (/*FALSE*/ GD_INT_GET(QUEST_DISABLED_COUP) < 1)
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+			if (eMinor != NO_PLAYER)
 			{
-				PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
-				if (eMinor != NO_PLAYER)
+				CvPlayer* pMinor = &GET_PLAYER(eMinor);
+				if (pMinor && pMinor->isMinorCiv())
 				{
-					CvPlayer* pMinor = &GET_PLAYER(eMinor);
-					if (pMinor && pMinor->isMinorCiv())
+					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP))
 					{
-						CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-						if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP))
+						if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP) == eTargetPlayer)
 						{
-							if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP) == eTargetPlayer)
-							{
-								iModifier += 50;
-							}
+							iModifier += 50;
 						}
 					}
 				}

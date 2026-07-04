@@ -4538,7 +4538,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				iExtraScore += (120 * iCandidateContributionTimes100) / iCityStrengthNoGarrison;
 
 				// Naval garrisons cannot attack, so they're much worse
-				if (pLoopUnit->getDomainType() == DOMAIN_SEA && MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS && !pLoopUnit->isNativeDomain(pTarget))
+				if (pLoopUnit->getDomainType() == DOMAIN_SEA && MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES && !pLoopUnit->isNativeDomain(pTarget))
 					iExtraScore -= 50;
 
 				// Don't put units with a defense boosted from promotions in cities, these boosts are ignored

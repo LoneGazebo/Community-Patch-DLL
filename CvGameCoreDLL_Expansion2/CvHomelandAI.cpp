@@ -2453,24 +2453,19 @@ void CvHomelandAI::PlotTradeUnitMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_TRADE_UNIT);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if (pUnit && !pUnit->isDelayedDeath() && pUnit->AI_getUnitAIType() == UNITAI_TRADE_UNIT && pUnit->canMove() && !pUnit->TurnProcessed() && !pUnit->IsAutomated())
 		{
-			if(pUnit->AI_getUnitAIType() == UNITAI_TRADE_UNIT)
-			{
-				CvHomelandUnit unit;
-				unit.SetID(pUnit->GetID());
-				m_CurrentMoveUnits.push_back(unit);
-			}
+			CvHomelandUnit unit;
+			unit.SetID(pUnit->GetID());
+			m_CurrentMoveUnits.push_back(unit);
 		}
 	}
 
-	if(m_CurrentMoveUnits.size() > 0)
-	{
+	if (m_CurrentMoveUnits.size() > 0)
 		ExecuteTradeUnitMoves();
-	}
 }
 
 /// Send archaeologists to safe sites
@@ -2482,9 +2477,9 @@ void CvHomelandAI::PlotArchaeologistMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if(pUnit)
+		if (pUnit)
 		{
-			if(pUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST))
+			if (pUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_ARCHAEOLOGIST))
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -6018,164 +6013,315 @@ set<int> CvHomelandAI::GetWorkedPlots()
 	return m_workedPlots;
 }
 
-// Get a trade unit and send it to a city!
+struct HomelandTradeRoutePlan
+{
+	TradeConnection m_kTradeConnection;
+	CvPlot* m_pOriginPlot;
+	CvCity* m_pOriginCity;
+	CvCity* m_pDestCity;
+	DomainTypes m_eDomain;
+	TradeConnectionType m_eConnectionType;
+	bool m_bExecuted;
+};
+
+/// Get trade units and send them to cities!
 void CvHomelandAI::ExecuteTradeUnitMoves()
 {
-	TradeConnectionList aTradeConnections;
-	CvTradeAI* pkTradeAI = m_pPlayer->GetTradeAI();
-	pkTradeAI->GetPrioritizedTradeRoutes(aTradeConnections,true);
-	
-	//stats to decide whether to disband a unit
-	int iWaterRoutes = 0;
-	int iLandRoutes = 0;
-
-	//for the N best trade routes, find a suitable unit
-	//check at least the 8 best routes, at max 3 times the number of free trade units
-	uint nRoutesToCheck = MIN(aTradeConnections.size(),MAX(m_CurrentMoveUnits.size()*3,8u));
-	for (uint ui = 0; ui < nRoutesToCheck; ui++)
+	vector<CvUnit*> vpCaravans;
+	vector<CvUnit*> vpCargoShips;
+	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
+		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+		if (pUnit->getDomainType() == DOMAIN_LAND)
+			vpCaravans.push_back(pUnit);
+		else if (pUnit->getDomainType() == DOMAIN_SEA)
+			vpCargoShips.push_back(pUnit);
+		else
+			ASSERT(false, "Invalid unit pointer included in ExecuteTradeUnitMoves()");
+	}
+
+	int iMaxCaravans = vpCaravans.size();
+	int iMaxCargoShips = vpCargoShips.size();
+
+	ASSERT(iMaxCaravans > 0 || iMaxCargoShips > 0, "AI entered ExecuteTradeUnitMoves() but doesn't have any unassigned trade units");
+	if (iMaxCaravans == 0 && iMaxCargoShips == 0)
+		return;
+
+	// Score all (available) Trade Routes!
+	TradeConnectionList aTradeConnections;
+	m_pPlayer->GetTradeAI()->GetPrioritizedTradeRoutes(aTradeConnections, true, iMaxCaravans > 0, iMaxCargoShips > 0);
+
+	// Is the restriction of one Gold Trade Route per destination city active?
+	bool bEnforceTargetingRestriction = MOD_BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION && !m_pPlayer->GetPlayerTraits()->IsNoAnnexing();
+	std::set<int> siTargetingRestrictionCities;
+
+	// First plan which Trade Routes we want, in global score order.
+	// Do not bind specific units yet; trade units of the same domain are interchangeable.
+	std::vector<HomelandTradeRoutePlan> vTradeRoutePlans;
+	int iPlannedCaravans = 0;
+	int iPlannedCargoShips = 0;
+
+	for (uint ui = 0; ui < aTradeConnections.size(); ui++)
+	{
+		// Check to make sure we haven't exceeded our number of unassigned units for this domain
+		DomainTypes eDomain = aTradeConnections[ui].m_eDomain;
+		if (eDomain == DOMAIN_LAND)
+		{
+			if (iPlannedCaravans >= iMaxCaravans)
+				continue;
+		}
+		else if (iPlannedCargoShips >= iMaxCargoShips)
+			continue;
+
+		// Don't send a second route to the same city if the targeting restriction is in place
+		TradeConnectionType eConnectionType = aTradeConnections[ui].m_eConnectionType;
+		bool bDoTargetRestrictionCheck = bEnforceTargetingRestriction && (eConnectionType == TRADE_CONNECTION_INTERNATIONAL || eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL);
+		CvCity* pDestCity = CvGameTrade::GetDestCity(aTradeConnections[ui]);
+		if (bDoTargetRestrictionCheck && siTargetingRestrictionCities.find(pDestCity->GetID()) != siTargetingRestrictionCities.end())
+			continue;
+
 		CvPlot* pOriginPlot = GC.getMap().plot(aTradeConnections[ui].m_iOriginX, aTradeConnections[ui].m_iOriginY);
 
-		//stats
-		if (aTradeConnections[ui].m_eDomain==DOMAIN_SEA)
-			iWaterRoutes++;
-		if (aTradeConnections[ui].m_eDomain==DOMAIN_LAND)
-			iLandRoutes++;
-
-		//we don't really care about the distance but not having to re-base is good
-		CvUnit *pBestUnit = NULL;
-		int iBestDistance = INT_MAX;
-		for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+		// Validate the route once with any unit of this domain.
+		// Same-domain trade units are currently interchangeable, but preserve a fallback in case canMakeTradeRouteAt() ever becomes unit-specific.
+		bool bAnyUnitCanMakeRoute = eDomain == DOMAIN_LAND ? vpCaravans[0]->canMakeTradeRouteAt(pOriginPlot, aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY, eConnectionType) :
+															vpCargoShips[0]->canMakeTradeRouteAt(pOriginPlot, aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY, eConnectionType);
+		if (!bAnyUnitCanMakeRoute)
 		{
-			CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-			if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed() || pUnit->IsAutomated())
-				continue;
-
-			if (aTradeConnections[ui].m_eDomain != pUnit->getDomainType())
-				continue;
-
-			if (pUnit->canMakeTradeRouteAt(pOriginPlot, aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY, aTradeConnections[ui].m_eConnectionType))
+			if (eDomain == DOMAIN_LAND)
 			{
-				int iDistance = plotDistance(*pOriginPlot,*pUnit->plot());
-				if (iDistance < iBestDistance)
+				if (iMaxCaravans > 1)
 				{
-					pBestUnit = pUnit;
-					iDistance = MIN(iDistance,iBestDistance);
-
-					//can't get any better
-					if (iDistance==0)
-						break;
-				}
-			}
-		}
-
-		if (pBestUnit)
-		{
-			CvCity* pOriginCity = CvGameTrade::GetOriginCity(aTradeConnections[ui]);
-			CvCity* pDestCity = CvGameTrade::GetDestCity(aTradeConnections[ui]);
-
-			if (pOriginPlot != pBestUnit->plot())
-			{
-				pBestUnit->PushMission(CvTypes::getMISSION_CHANGE_TRADE_UNIT_HOME_CITY(), pOriginPlot->getX(), pOriginPlot->getY());
-				if(GC.getLogging() && GC.getAILogging() && pBestUnit->plot()->isCity())
-				{
-					CvString strLogString;
-					strLogString.Format("Changing trade route home city from %s to %s", pBestUnit->plot()->getPlotCity()->getName().c_str(), pOriginCity->getName().c_str());
-					LogHomelandMessage(strLogString);
+					for (std::vector<CvUnit*>::iterator it = vpCaravans.begin() + 1; it != vpCaravans.end(); ++it)
+					{
+						CvUnit* pUnit = *it;
+						if (pUnit->canMakeTradeRouteAt(pOriginPlot, aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY, eConnectionType))
+						{
+							bAnyUnitCanMakeRoute = true;
+							break;
+						}
+					}
 				}
 			}
 			else
 			{
-				pBestUnit->PushMission(CvTypes::getMISSION_ESTABLISH_TRADE_ROUTE(), pDestCity->plot()->GetPlotIndex(), aTradeConnections[ui].m_eConnectionType);
-				if(GC.getLogging() && GC.getAILogging())
+				if (iMaxCargoShips > 1)
 				{
-					CvString strLogString;
-					switch (aTradeConnections[ui].m_eConnectionType)
+					for (std::vector<CvUnit*>::iterator it = vpCargoShips.begin() + 1; it != vpCargoShips.end(); ++it)
 					{
-					case TRADE_CONNECTION_FOOD:
-						strLogString.Format("Establishing food trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
-						break;
-					case TRADE_CONNECTION_INTERNATIONAL:
-						strLogString.Format("Establishing gold trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
-						break;
-					case TRADE_CONNECTION_PRODUCTION:
-						strLogString.Format("Establishing production trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
-						break;
-					case TRADE_CONNECTION_WONDER_RESOURCE:
-						strLogString.Format("Establishing wonder trade route from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
-						break;
-					case TRADE_CONNECTION_GOLD_INTERNAL:
-						strLogString.Format("Establishing gold trade route (internal) from %s to %s", pOriginCity->getName().c_str(), pDestCity->getName().c_str());
-						break;
+						CvUnit* pUnit = *it;
+						if (pUnit->canMakeTradeRouteAt(pOriginPlot, aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY, eConnectionType))
+						{
+							bAnyUnitCanMakeRoute = true;
+							break;
+						}
 					}
-
-					LogHomelandMessage(strLogString);
 				}
 			}
-
-			UnitProcessed(pBestUnit->GetID());
 		}
-	}
 
-	//unassigned trade units?
-	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit || !pUnit->canMove() || pUnit->TurnProcessed())
+		// This should not happen because the available TR list should filter out invalid trade routes (minus the targeting restriction which is handled above).
+		// If this assert triggered because trade units are no longer interchangeable, this function needs to be changed.
+		ASSERT(bAnyUnitCanMakeRoute, "No valid trade unit to fulfill next best scoring Trade Route");
+		if (!bAnyUnitCanMakeRoute)
 			continue;
 
-		bool bKill = false;
+		// We're going with this route - do any targeting restriction bookkeeping first
+		if (bDoTargetRestrictionCheck && !GET_PLAYER(pDestCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+			siTargetingRestrictionCities.insert(pDestCity->GetID());
 
-		if ( pUnit->getDomainType()==DOMAIN_SEA )
-			bKill = ((iWaterRoutes+2<iLandRoutes) || (iWaterRoutes == 0));
+		// Now add the route plan to the vector
+		HomelandTradeRoutePlan kPlan;
+		kPlan.m_kTradeConnection = aTradeConnections[ui];
+		kPlan.m_pOriginPlot = pOriginPlot;
+		kPlan.m_pOriginCity = CvGameTrade::GetOriginCity(aTradeConnections[ui]);
+		kPlan.m_pDestCity = pDestCity;
+		kPlan.m_eDomain = eDomain;
+		kPlan.m_eConnectionType = eConnectionType;
+		kPlan.m_bExecuted = false;
 
-		if ( pUnit->getDomainType()==DOMAIN_LAND )
-			bKill = ((iLandRoutes+2<iWaterRoutes) || (iLandRoutes == 0));
+		vTradeRoutePlans.push_back(kPlan);
 
-		if (bKill)
+		if (eDomain == DOMAIN_LAND)
+			iPlannedCaravans++;
+		else if (eDomain == DOMAIN_SEA)
+			iPlannedCargoShips++;
+
+		// Have all trade units been assigned?
+		if (iPlannedCaravans >= iMaxCaravans && iPlannedCargoShips >= iMaxCargoShips)
+			break;
+	}
+
+	// First execute planned routes that already have a valid unit at the origin city.
+	for (uint ui = 0; ui < vTradeRoutePlans.size(); ui++)
+	{
+		// Does this require a Caravan or a Cargo Ship?
+		HomelandTradeRoutePlan& kPlan = vTradeRoutePlans[ui];
+		std::vector<CvUnit*>* pvpTradeUnits = kPlan.m_eDomain == DOMAIN_LAND ? &vpCaravans : &vpCargoShips;
+		std::vector<CvUnit*>& vpTradeUnits = *pvpTradeUnits;
+		CvUnit* pBestUnit = NULL;
+		std::vector<CvUnit*>::iterator itBestUnit = vpTradeUnits.end();
+
+		// Find an eligible unit
+		for (std::vector<CvUnit*>::iterator it = vpTradeUnits.begin(); it != vpTradeUnits.end(); ++it)
 		{
-			if(GC.getLogging() && GC.getAILogging())
-			{	
-				CvString strLogString;
-				strLogString.Format("Disbanding %s trade unit %d because no suitable target",pUnit->getDomainType()==DOMAIN_SEA?"sea":"land",pUnit->GetID());
-				LogHomelandMessage(strLogString);
+			CvUnit* pUnit = *it;
+			if (pUnit->plot() != kPlan.m_pOriginPlot)
+				continue;
+
+			// Validate the route again, just to be safe.
+			if (pUnit->canMakeTradeRouteAt(kPlan.m_pOriginPlot, kPlan.m_kTradeConnection.m_iDestX, kPlan.m_kTradeConnection.m_iDestY, kPlan.m_eConnectionType))
+			{
+				pBestUnit = pUnit;
+				itBestUnit = it;
+				break;
 			}
-			pUnit->kill(true);
 		}
+
+		// This is OK, we might not have any trade units in this city at the moment (either they were never there to begin with, or they've been sent to another route already)
+		if (!pBestUnit)
+			continue;
+
+		// Establish the Trade Route!
+		pBestUnit->PushMission(CvTypes::getMISSION_ESTABLISH_TRADE_ROUTE(), kPlan.m_pDestCity->plot()->GetPlotIndex(), kPlan.m_eConnectionType);
+
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			switch (kPlan.m_eConnectionType)
+			{
+			case TRADE_CONNECTION_FOOD:
+				strLogString.Format("Establishing food trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
+				break;
+			case TRADE_CONNECTION_INTERNATIONAL:
+				strLogString.Format("Establishing gold trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
+				break;
+			case TRADE_CONNECTION_PRODUCTION:
+				strLogString.Format("Establishing production trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
+				break;
+			case TRADE_CONNECTION_WONDER_RESOURCE:
+				strLogString.Format("Establishing wonder trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
+				break;
+			case TRADE_CONNECTION_GOLD_INTERNAL:
+				strLogString.Format("Establishing gold trade route (internal) from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
+				break;
+			}
+
+			LogHomelandMessage(strLogString);
+		}
+
+		UnitProcessed(pBestUnit->GetID());
+		vpTradeUnits.erase(itBestUnit);
+		kPlan.m_bExecuted = true;
+	}
+
+	// Then rebase units for planned routes that could not be established immediately.
+	for (uint ui = 0; ui < vTradeRoutePlans.size(); ui++)
+	{
+		HomelandTradeRoutePlan& kPlan = vTradeRoutePlans[ui];
+		if (kPlan.m_bExecuted)
+			continue;
+
+		// Does this require a Caravan or a Cargo Ship?
+		std::vector<CvUnit*>* pvpTradeUnits = kPlan.m_eDomain == DOMAIN_LAND ? &vpCaravans : &vpCargoShips;
+		std::vector<CvUnit*>& vpTradeUnits = *pvpTradeUnits;
+		CvUnit* pBestUnit = NULL;
+		std::vector<CvUnit*>::iterator itBestUnit = vpTradeUnits.end();
+
+		// Find an eligible unit
+		for (std::vector<CvUnit*>::iterator it = vpTradeUnits.begin(); it != vpTradeUnits.end(); ++it)
+		{
+			CvUnit* pUnit = *it;
+
+			// Validate the route again, just to be safe.
+			if (pUnit->canMakeTradeRouteAt(kPlan.m_pOriginPlot, kPlan.m_kTradeConnection.m_iDestX, kPlan.m_kTradeConnection.m_iDestY, kPlan.m_eConnectionType))
+			{
+				pBestUnit = pUnit;
+				itBestUnit = it;
+				break;
+			}
+		}
+
+		// This is not OK, as it means something went wrong during the planning stage
+		ASSERT(pBestUnit, "No valid trade unit to fulfill planned Trade Route");
+		if (!pBestUnit)
+			continue;
+
+		CvCity* pCurrentCity = pBestUnit->plot()->isCity() ? pBestUnit->plot()->getPlotCity() : NULL;
+
+		// Send the rebase order!
+		pBestUnit->PushMission(CvTypes::getMISSION_CHANGE_TRADE_UNIT_HOME_CITY(), kPlan.m_pOriginPlot->getX(), kPlan.m_pOriginPlot->getY());
+
+		if (GC.getLogging() && GC.getAILogging() && pCurrentCity)
+		{
+			CvString strLogString;
+			strLogString.Format("Changing trade route home city from %s to %s", pCurrentCity->getName().c_str(), kPlan.m_pOriginCity->getName().c_str());
+			LogHomelandMessage(strLogString);
+		}
+
+		UnitProcessed(pBestUnit->GetID());
+		vpTradeUnits.erase(itBestUnit);
+		kPlan.m_bExecuted = true;
+	}
+
+	// Disband any unassigned trade units
+	vector<CvUnit*> vpWanderingTraders;
+	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	{
+		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
+		// Don't include units that we already assigned above or that somehow aren't usable
+		if (!pUnit || pUnit->isDelayedDeath() || !pUnit->canMove() || pUnit->TurnProcessed() || pUnit->IsAutomated())
+			continue;
+
+		vpWanderingTraders.push_back(pUnit);
+	}
+
+	for (std::vector<CvUnit*>::iterator it = vpWanderingTraders.begin(); it != vpWanderingTraders.end(); ++it)
+	{
+		CvUnit* pUnit = *it;
+		if (!pUnit->canScrap())
+			continue;
+
+		if (GC.getLogging() && GC.getAILogging())
+		{	
+			CvString strLogString;
+			strLogString.Format("Disbanding %s trade unit %d because no suitable target", pUnit->getDomainType() == DOMAIN_SEA ? "sea" : "land", pUnit->GetID());
+			LogHomelandMessage(strLogString);
+		}
+
+		// Despawn the Wandering Trader...poof!
+		pUnit->scrap();
 	}
 }
 
-// Get an archaeologist and send it to an antiquity site
+// Get an archaeologist and send it to an Antiquity Site
 void CvHomelandAI::ExecuteArchaeologistMoves()
 {
 	int iUnassignedArchaeologists = 0;
 
-	CHomelandUnitArray::iterator it;
-	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit)
-		{
+		if (!pUnit)
 			continue;
-		}
 
 		CvPlot* pTarget = FindArchaeologistTarget(pUnit);
 		if (pTarget)
 		{
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY);
 
-			if(GC.getLogging() && GC.getAILogging())
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
 				strLogString.Format("Archaeologist moving to site at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
 				LogHomelandMessage(strLogString);
 			}
 
-			if(pUnit->plot() == pTarget)
+			if (pUnit->plot() == pTarget)
 			{
 				BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_ARCHAEOLOGY_DIG");
 				pUnit->PushMission(CvTypes::getMISSION_BUILD(), eBuild, -1, 0, false, false, MISSIONAI_BUILD, pTarget);
-				if(GC.getLogging() && GC.getAILogging())
+				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
 					strLogString.Format("Archaeologist creating dig at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
@@ -6196,21 +6342,21 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 	// Unassigned archaeologists due to no valid targets, check against the possible targets left and scrap one if there are too many.
 	if (iUnassignedArchaeologists > 0)
 	{
-		int iPossibleSites = ((m_TargetedAntiquitySites.size() / 5) + 1);
+		int iPossibleSites = (m_TargetedAntiquitySites.size() / 5) + 1;
 
 		if (iUnassignedArchaeologists > iPossibleSites)
 		{
 			// We should only scrap a unit if we have at least one valid unit in m_CurrentMoveUnits
 			if (!m_CurrentMoveUnits.empty())
 			{
-			// Scrap the last archaeologist in the list
+				// Scrap the last archaeologist in the list
 				CHomelandUnitArray::iterator lastUnit = m_CurrentMoveUnits.end();
 				--lastUnit; // Move back one position to point to the last element
 				CvUnit* pUnit = m_pPlayer->getUnit(lastUnit->GetID());
 
-				if (pUnit)
+				if (pUnit && pUnit->canScrap())
 				{
-					if(GC.getLogging() && GC.getAILogging())
+					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
 						strLogString.Format("Idle Archaeologist scrapped at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
