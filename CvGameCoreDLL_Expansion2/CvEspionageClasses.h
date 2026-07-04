@@ -342,7 +342,7 @@ public:
 	void UpdateCity(CvCity* pCity);
 
 	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
-	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
+	int CalcRequired(int iSpyState, CvCity* pCity, bool bGlobalCheck = false);
 	int CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pCity, int iSpyIndex, CvString* toolTipSink = NULL);
 
 	const char* GetSpyRankName(int iRank) const;

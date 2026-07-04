@@ -16556,7 +16556,7 @@ void CvMinorCivAI::DoElection()
 			pCityEspionage->ResetProgress(eEspionagePlayer);
 
 			int iRate = pPlayerEspionage->CalcPerTurn(SPY_STATE_RIG_ELECTION, pCity, iSpyID);
-			int iGoal = pPlayerEspionage->CalcRequired(SPY_STATE_RIG_ELECTION, pCity, iSpyID);
+			int iGoal = pPlayerEspionage->CalcRequired(SPY_STATE_RIG_ELECTION, pCity);
 			pCityEspionage->SetActivity(eEspionagePlayer, 0, iRate, iGoal);
 			pCityEspionage->SetLastProgress(eEspionagePlayer, iRate);
 		}

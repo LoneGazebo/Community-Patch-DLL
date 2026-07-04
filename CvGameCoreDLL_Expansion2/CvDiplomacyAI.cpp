@@ -55542,8 +55542,7 @@ void CvDiplomacyAI::DetermineVassalToLiberate()
 /// Do we want to liberate ePlayer's team?
 bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer, int& iScoreForLiberate) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
-		UNREACHABLE();
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS);
 
 	// Can't liberate? Abort!
 	TeamTypes eVassalTeam = GET_PLAYER(ePlayer).getTeam();

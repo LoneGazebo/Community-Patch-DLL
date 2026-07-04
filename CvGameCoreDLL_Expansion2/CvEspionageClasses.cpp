@@ -819,7 +819,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				{
 					pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_MAKING_INTRODUCTIONS);
 					int iRate = CalcPerTurn(SPY_STATE_MAKING_INTRODUCTIONS, pCity, uiSpyIndex);
-					int iGoal = CalcRequired(SPY_STATE_MAKING_INTRODUCTIONS, pCity, uiSpyIndex);
+					int iGoal = CalcRequired(SPY_STATE_MAKING_INTRODUCTIONS, pCity);
 					pCityEspionage->SetActivity(ePlayer, 0, iRate, iGoal);
 				}
 			}
@@ -873,7 +873,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 				pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, eState);
 				int iRate = CalcPerTurn(eState, pCity, uiSpyIndex, false);
-				int iGoal = CalcRequired(eState, pCity, uiSpyIndex, false);
+				int iGoal = CalcRequired(eState, pCity, false);
 				pCityEspionage->SetActivity(ePlayer, 0, iRate, iGoal);
 
 			}
@@ -898,7 +898,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_RIG_ELECTION);
 					pCityEspionage->ResetProgress(ePlayer);
 					int iRate = CalcPerTurn(SPY_STATE_RIG_ELECTION, pCity, uiSpyIndex);
-					int iGoal = CalcRequired(SPY_STATE_RIG_ELECTION, pCity, uiSpyIndex);
+					int iGoal = CalcRequired(SPY_STATE_RIG_ELECTION, pCity);
 					pCityEspionage->SetActivity(ePlayer, 0, iRate, iGoal);
 					pCityEspionage->SetLastProgress(ePlayer, iRate);
 				}
@@ -917,7 +917,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_GATHERING_INTEL);
 						pCityEspionage->ResetProgress(ePlayer);
 						int iPotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-						int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
+						int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity);
 						pCityEspionage->SetActivity(ePlayer, 0, iPotentialRate, iGoal);
 						pCityEspionage->SetLastProgress(ePlayer, iPotentialRate);
 						pCityEspionage->SetLastPotential(ePlayer, iPotentialRate);
@@ -1013,7 +1013,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 
 				int iRate = CalcPerTurn(SPY_STATE_SURVEILLANCE, pCity, uiSpyIndex);
-				int iGoal = CalcRequired(SPY_STATE_SURVEILLANCE, pCity, uiSpyIndex);
+				int iGoal = CalcRequired(SPY_STATE_SURVEILLANCE, pCity);
 				int iAmount = iGoal; // put the player back at surveillance levels
 				pCityEspionage->SetActivity(ePlayer, iAmount, iRate, iGoal);
 
@@ -1193,7 +1193,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					m_aiNumTechsToStealList[iCityOwner] = m_aiNumTechsToStealList[iCityOwner] + 1;
 					pCityEspionage->ResetProgress(ePlayer);
 					int iRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-					int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
+					int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity);
 					pCityEspionage->SetActivity(ePlayer, 0, iRate, iGoal);
 					pCityEspionage->SetLastProgress(ePlayer, iRate);
 					pCityEspionage->m_aiNumTimesCityRobbed[eCityOwner]++;
@@ -2815,7 +2815,7 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 		m_aSpyList[uiSpyIndex].SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_TRAVELLING);
 		m_aSpyList[uiSpyIndex].m_bIsDiplomat = bAsDiplomat;
 		int iRate = CalcPerTurn(SPY_STATE_TRAVELLING, pCity, uiSpyIndex);
-		int iGoal = CalcRequired(SPY_STATE_TRAVELLING, pCity, uiSpyIndex);
+		int iGoal = CalcRequired(SPY_STATE_TRAVELLING, pCity);
 		pCityEspionage->SetActivity(m_pPlayer->GetID(), 0, iRate, iGoal);
 	}
 
@@ -3132,7 +3132,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 }
 
 /// CalcRequired - How much the spy is needed to do to accomplish this task
-int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck)
+int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, bool bGlobalCheck)
 {
 	ASSERT(pCity, "pCity is null");
 
@@ -9205,7 +9205,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		
 		int iExpectedNP = m_pPlayer->GetEspionage()->CalcNetworkPointsPerTurn(SPY_STATE_GATHERING_INTEL, pCity, iSpyIndex);
 		// if you get killed, you effectively lose network points due to downtime. calc assumes you come back to the same city
-		int iTravel = m_pPlayer->GetEspionage()->CalcRequired(SPY_STATE_TRAVELLING, pCity, iSpyIndex) / m_pPlayer->GetEspionage()->CalcPerTurn(SPY_STATE_TRAVELLING, pCity, iSpyIndex);
+		int iTravel = m_pPlayer->GetEspionage()->CalcRequired(SPY_STATE_TRAVELLING, pCity) / m_pPlayer->GetEspionage()->CalcPerTurn(SPY_STATE_TRAVELLING, pCity, iSpyIndex);
 		int iTurnsLostToDeath = iTravel + GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER);
 		int iKillChance = pkMissionInfo->GetSpyKillChance();
 		// if you always use cheap missions you could overcap on points, then you might as well use something expensive
