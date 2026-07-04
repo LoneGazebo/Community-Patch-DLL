@@ -850,6 +850,9 @@
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME">
 			<Text>Construct Buildings</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_SPY_MISSION_NAME">
+			<Text>Conduct Spy Mission</Text>
+		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_SPY_ON_MAJOR_NAME">
 			<Text>Conduct Espionage</Text>
 		</Row>
@@ -1192,6 +1195,18 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_COUP_FAILED_B_S">
 			<Text>Your coup has failed, either because your spy has died or the city is no longer a valid target. As such, the quest from {@1_Civname} was withdrawn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SPY_MISSION">
+			<Text>Espionage opportunity from {@1_Civ}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SPY_MISSION">
+			<Text>{@2_Civ} has requested intelligence from abroad. Conduct the [COLOR_POSITIVE_TEXT]{@1_SpyMission}[ENDCOLOR] Spy Mission against any civilization to earn their gratitude.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_SPY_MISSION_COMPLETE">
+			<Text>Spy Mission completed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SPY_MISSION_COMPLETE">
+			<Text>{@2_Civ} is pleased with the intelligence gathered by your agents. Your successful [COLOR_POSITIVE_TEXT]{@1_SpyMission}[ENDCOLOR] Spy Mission has earned you their favor.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SPY_ON_MAJOR">
 			<Text>Intelligence update from {@1_Civ}</Text>
