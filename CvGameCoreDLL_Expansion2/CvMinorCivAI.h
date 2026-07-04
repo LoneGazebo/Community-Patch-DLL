@@ -548,7 +548,8 @@ public:
 	void ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
 
 	PlayerTypes GetMostRecentAttackerForQuest(bool bExcludeCurrentWars);
-	PlayerTypes GetMostRecentBullyForQuest() const;
+	PlayerTypes GetMostRecentBullyForQuest();
+	PlayerTypes GetDenounceOrWarMajorTarget(PlayerTypes ePlayer, bool bWar);
 	bool IsWantsMinorDead(PlayerTypes eMinor);
 	PlayerTypes GetBestPlayerToFind(PlayerTypes ePlayer);
 	CvCity* GetBestCityToFind(PlayerTypes ePlayer);

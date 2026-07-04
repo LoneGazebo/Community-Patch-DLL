@@ -2695,10 +2695,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	}
 	case MINOR_CIV_QUEST_DENOUNCE_MAJOR:
 	{
-		PlayerTypes eMostRecentBully = pMinor->GetMinorCivAI()->GetMostRecentBullyForQuest();
-		m_iData1 = eMostRecentBully;
+		PlayerTypes eTarget = pMinor->GetMinorCivAI()->GetDenounceOrWarMajorTarget(m_eAssignedPlayer, /*bWar*/ false);
+		m_iData1 = eTarget;
 
-		const char* strCivKey = GET_PLAYER(eMostRecentBully).getCivilizationShortDescriptionKey();
+		const char* strCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_DENOUNCE_MAJOR");
 		strMessage << strCivKey;
@@ -2728,10 +2728,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	}
 	case MINOR_CIV_QUEST_WAR:
 	{
-		PlayerTypes eMostRecentBully = pMinor->GetMinorCivAI()->GetMostRecentBullyForQuest();
-		m_iData1 = eMostRecentBully;
+		PlayerTypes eTarget = pMinor->GetMinorCivAI()->GetDenounceOrWarMajorTarget(m_eAssignedPlayer, /*bWar*/ true);
+		m_iData1 = eTarget;
 
-		const char* strCivKey = GET_PLAYER(eMostRecentBully).getCivilizationShortDescriptionKey();
+		const char* strCivKey = GET_PLAYER(eTarget).getCivilizationShortDescriptionKey();
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_START_WAR");
 		strMessage << strCivKey;
@@ -2739,8 +2739,8 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		strSummary << strCivKey;
 
 		//Let's issue an attack request.
-		if (!pAssignedPlayer->isHuman(ISHUMAN_AI_UNITS) && GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), pAssignedPlayer->GetID()))
-			pAssignedPlayer->GetMilitaryAI()->RequestCityAttack(eMostRecentBully,2);
+		if (!pAssignedPlayer->isHuman(ISHUMAN_AI_UNITS) && GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eTarget).getTeam(), pAssignedPlayer->GetID()))
+			pAssignedPlayer->GetMilitaryAI()->RequestCityAttack(eTarget,2);
 
 		break;
 	}
@@ -6970,36 +6970,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	case MINOR_CIV_QUEST_DENOUNCE_MAJOR:
 	{
-		// Is there a recent bully?
-		if (!IsRecentlyBulliedByAnyMajor())
-			return false;
-
-		PlayerTypes eMostRecentBully = GetMostRecentBullyForQuest();
-		if (eMostRecentBully == NO_PLAYER)
-			return false;
-
-		// This player must not be the ally
-		if (GetAlly() == eMostRecentBully)
-			return false;
-
-		// Humans are unable to denounce each other
-		if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GET_PLAYER(eMostRecentBully).isHuman(ISHUMAN_AI_DIPLOMACY))
-			return false;
-
-		// This player must not have already denounced the most recent bully
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eMostRecentBully))
-			return false;
-
-		// Cannot denounce due to game options
-		if (GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && GET_PLAYER(ePlayer).IsAtWarWith(eMostRecentBully))
-			return false;
-
-		// Is this a bad target? (Same team, haven't met, backstabbing?)
-		if (!IsAcceptableQuestEnemy(MINOR_CIV_QUEST_DENOUNCE_MAJOR, ePlayer, eMostRecentBully))
-			return false;
-
-		// Check for duplicate quests involving this player
-		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_DENOUNCE_MAJOR, (int)eMostRecentBully))
+		if (GetDenounceOrWarMajorTarget(ePlayer, /*bWar*/ false) == NO_PLAYER)
 			return false;
 
 		break;
@@ -7072,29 +7043,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	case MINOR_CIV_QUEST_WAR:
 	{
-		// Is there a recent bully?
-		PlayerTypes eMostRecentBully = GetMostRecentBullyForQuest();
-		if (eMostRecentBully == NO_PLAYER || GET_PLAYER(eMostRecentBully).getTeam() == GET_PLAYER(ePlayer).getTeam())
-			return false;
-
-		// This player must not be the ally
-		if (GetAlly() != NO_PLAYER && GET_PLAYER(eMostRecentBully).getTeam() == GET_PLAYER(GetAlly()).getTeam())
-			return false;
-
-		// This player must not be at war with the most recent bully
-		if (GET_PLAYER(ePlayer).IsAtWarWith(eMostRecentBully))
-			return false;
-
-		// This player must be able to declare war on the most recent bully
-		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), ePlayer))
-			return false;
-
-		// Is this a bad target? (Same team, haven't met, backstabbing?)
-		if (!IsAcceptableQuestEnemy(MINOR_CIV_QUEST_WAR, ePlayer, eMostRecentBully))
-			return false;
-
-		// Check for duplicate quests involving this player
-		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_WAR, (int)eMostRecentBully))
+		if (GetDenounceOrWarMajorTarget(ePlayer, /*bWar*/ true) == NO_PLAYER)
 			return false;
 
 		break;
@@ -9779,7 +9728,7 @@ PlayerTypes CvMinorCivAI::GetMostRecentAttackerForQuest(bool bExcludeCurrentWars
 }
 
 /// Returns the most recent valid bully, NO_PLAYER if there isn't one
-PlayerTypes CvMinorCivAI::GetMostRecentBullyForQuest() const
+PlayerTypes CvMinorCivAI::GetMostRecentBullyForQuest()
 {
 	PlayerTypes eBully = NO_PLAYER;
 	int iTurn = -1;
@@ -9795,6 +9744,10 @@ PlayerTypes CvMinorCivAI::GetMostRecentBullyForQuest() const
 		if (GET_PLAYER(eLoopPlayer).IsCanBullyFriendlyCS())
 			continue;
 
+		// Skip if we're friends
+		if (MOD_BALANCE_QUEST_CHANGES && IsFriends(eLoopPlayer))
+			continue;
+
 		int iBullyTurn = GetTurnLastBulliedByMajor(eLoopPlayer);
 		if (iBullyTurn > iTurn)
 		{
@@ -9804,6 +9757,135 @@ PlayerTypes CvMinorCivAI::GetMostRecentBullyForQuest() const
 	}
 
 	return eBully;
+}
+
+/// Which player should we target when assigning a denounce / declare war on quest to ePlayer?
+PlayerTypes CvMinorCivAI::GetDenounceOrWarMajorTarget(PlayerTypes ePlayer, bool bWar)
+{
+	PlayerTypes eTarget = NO_PLAYER;
+	int iWorstInfluence = 0;
+	PlayerTypes eMostRecentBully = GetMostRecentBullyForQuest();
+	if (!bWar && !MOD_BALANCE_QUEST_CHANGES && eMostRecentBully == NO_PLAYER)
+		return NO_PLAYER;
+
+	PlayerTypes eMostRecentAttacker = (MOD_BALANCE_QUEST_CHANGES || bWar) ? GetMostRecentAttackerForQuest(/*bExcludeCurrentWars*/ false) : NO_PLAYER;
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (eLoopPlayer == ePlayer)
+			continue;
+
+		// Community Patch Only: Must be most recent bully
+		if (!bWar && !MOD_BALANCE_QUEST_CHANGES && eLoopPlayer != eMostRecentBully)
+			continue;
+
+		// Cannot be the current ally
+		if (bWar)
+		{
+			if (GetAlly() != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(GetAlly()).getTeam())
+				continue;
+		}
+		else if (GetAlly() == eLoopPlayer)
+			continue;
+
+		if (bWar || MOD_BALANCE_QUEST_CHANGES)
+		{
+			// Target must have < 0 Influence with the City-State
+			if (GetEffectiveFriendshipWithMajor(eLoopPlayer) >= 0 || IsFriends(eLoopPlayer))
+				continue;
+		}
+
+		if (!bWar)
+		{
+			// Humans are unable to denounce each other
+			if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
+				continue;
+
+			// This player must not have already denounced the target
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eLoopPlayer))
+				continue;
+
+			// Cannot denounce due to game options
+			if (GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && GET_PLAYER(ePlayer).IsAtWarWith(eLoopPlayer))
+				continue;
+
+			// Is this a bad target? (Same team, haven't met, backstabbing?)
+			if (!IsAcceptableQuestEnemy(MINOR_CIV_QUEST_DENOUNCE_MAJOR, ePlayer, eLoopPlayer))
+				continue;
+
+			// Check for duplicate quests involving this player
+			if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_DENOUNCE_MAJOR, (int)eLoopPlayer))
+				continue;
+		}
+		else
+		{
+			// This player must not be at war with the target
+			if (GET_PLAYER(ePlayer).IsAtWarWith(eLoopPlayer))
+				continue;
+
+			// This player must be able to declare war on the target
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GET_PLAYER(eLoopPlayer).getTeam(), ePlayer))
+				continue;
+
+			// Is this a bad target? (Same team, haven't met, backstabbing?)
+			if (!IsAcceptableQuestEnemy(MINOR_CIV_QUEST_WAR, ePlayer, eLoopPlayer))
+				continue;
+
+			// Check for duplicate quests involving this player
+			if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_WAR, (int)eLoopPlayer))
+				continue;
+		}
+
+		// Prefer the most recent attacker, if it was indeed recent
+		if (eLoopPlayer == eMostRecentAttacker && GetJerkTurnsRemaining(GET_PLAYER(eMostRecentAttacker).getTeam()) > 0)
+		{
+			eTarget = eMostRecentAttacker;
+			break;
+		}
+		// Prefer the most recent bully, if it was indeed recent
+		if (eLoopPlayer == eMostRecentBully && IsRecentlyBulliedByMajor(eMostRecentBully))
+		{
+			eTarget = eLoopPlayer;
+		}
+		else if (eMostRecentBully == NO_PLAYER || eTarget != eMostRecentBully || !IsRecentlyBulliedByMajor(eMostRecentBully))
+		{
+			// Otherwise pick whoever has the worst Influence score
+			int iInfluence = GetEffectiveFriendshipWithMajorTimes100(eLoopPlayer);
+			if (eTarget == NO_PLAYER)
+			{
+				eTarget = eLoopPlayer;
+				iWorstInfluence = iInfluence;
+			}
+			else if (iInfluence < iWorstInfluence)
+			{
+				eTarget = eLoopPlayer;
+				iWorstInfluence = iInfluence;
+			}
+			else if (iInfluence == iWorstInfluence)
+			{
+				// Tiebreaker 1: which civ has attacked this minor most recently?
+				TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+				TeamTypes eTargetTeam = GET_PLAYER(eTarget).getTeam();
+				int iLoopAttackTurn = (IsIgnoreJerk(eLoopTeam) || GET_PLAYER(eLoopPlayer).GetPlayerTraits()->IsAnnexedCityStatesGiveYields()) ? -1 : GetTurnLastAttacked(eLoopTeam);
+				int iTargetAttackTurn = (IsIgnoreJerk(eTargetTeam) || GET_PLAYER(eTarget).GetPlayerTraits()->IsAnnexedCityStatesGiveYields()) ? -1 : GetTurnLastAttacked(eTargetTeam);
+				if (iLoopAttackTurn > iTargetAttackTurn)
+				{
+					eTarget = eLoopPlayer;
+				}
+				else if (iLoopAttackTurn == iTargetAttackTurn)
+				{
+					// Tiebreaker 2: which civ has bullied this minor most recently?
+					int iLoopBullyTurn = (IsFriends(eLoopPlayer) || GET_PLAYER(eLoopPlayer).IsCanBullyFriendlyCS()) ? -1 : GetTurnLastBulliedByMajor(eLoopPlayer);
+					int iTargetBullyTurn = (IsFriends(eTarget) || GET_PLAYER(eTarget).IsCanBullyFriendlyCS()) ? -1 : GetTurnLastBulliedByMajor(eTarget);
+					if (iLoopBullyTurn > iTargetBullyTurn)
+						eTarget = eLoopPlayer;
+				}
+			}
+		}
+	}
+
+	return eTarget;
 }
 
 /// Has this minor asked any other player to go after eMinor?
