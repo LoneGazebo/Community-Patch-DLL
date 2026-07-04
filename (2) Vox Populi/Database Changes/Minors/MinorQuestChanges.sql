@@ -15,11 +15,11 @@ UPDATE SmallAwards SET Influence = 25, Tourism = 200, RandomMod = 10 WHERE Type 
 -- Circumnavigate the World
 UPDATE SmallAwards SET Influence = 30, AdmiralPoints = 25, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_CIRCUMNAVIGATION';
 
--- Culture contest
-UPDATE SmallAwards SET Influence = 50, Happiness = 1, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_CONTEST_CULTURE';
-
 -- Faith contest
 UPDATE SmallAwards SET Influence = 30, GlobalGPPoints = 20, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_CONTEST_FAITH';
+
+-- Artsy Units contest
+UPDATE SmallAwards SET Influence = 50, Happiness = 1, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS';
 
 -- Tech contest
 UPDATE SmallAwards SET Influence = 25, Tourism = 300, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TECHS';
@@ -201,6 +201,7 @@ WHERE QuestType IN
 	('MINOR_CIV_QUEST_FIND_PLAYER',
 	'MINOR_CIV_QUEST_GIVE_GOLD',
 	'MINOR_CIV_QUEST_COUP',
+	'MINOR_CIV_QUEST_CONTEST_CULTURE',
 	'MINOR_CIV_QUEST_INVEST',
 	'MINOR_CIV_QUEST_CONTEST_TOURISM'
 );
@@ -295,13 +296,13 @@ UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_KILL_CAMP' AND 
 -- Kill City-State
 UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_KILL_CITY_STATE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
 
--- Culture Contest
-UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_CULTURE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED';
-UPDATE Helper SET Weight = 45 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_CULTURE' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
-
 -- Faith Contest
 UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_FAITH' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_RELIGIOUS';
 UPDATE Helper SET Weight = 45 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_FAITH' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_RELIGIOUS' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+
+-- Artsy Units Contest
+UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED';
+UPDATE Helper SET Weight = 45 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_CULTURED' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
 
 -- Tech Contest
 UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_CONTEST_TECHS' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MILITARISTIC';
@@ -339,7 +340,7 @@ DROP TABLE Helper;
 -- Block contest and Influence boost quests prior to the Medieval Era
 UPDATE MinorCivilizations_QuestWeights
 SET Weight = 0
-WHERE QuestType IN ('MINOR_CIV_QUEST_CONTEST_CULTURE', 'MINOR_CIV_QUEST_CONTEST_FAITH', 'MINOR_CIV_QUEST_CONTEST_TECHS', 'MINOR_CIV_QUEST_INFLUENCE')
+WHERE QuestType IN ('MINOR_CIV_QUEST_CONTEST_FAITH', 'MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS', 'MINOR_CIV_QUEST_CONTEST_TECHS', 'MINOR_CIV_QUEST_INFLUENCE')
 AND EraType IN (SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_MEDIEVAL'));
 
 -- Block the Find-City-State quest prior to the Renaissance Era

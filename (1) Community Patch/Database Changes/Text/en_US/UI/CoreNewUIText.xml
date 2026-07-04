@@ -3566,6 +3566,15 @@
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_TOURISM_LOSING_FORMAL">
 			<Text>{TXT_KEY_CITY_STATE_QUEST_INFLUENCE_TOURISM_FORMAL} So far, the leader has [ICON_TOURISM] {1_LeaderScore} per turn and you have [ICON_TOURISM] [COLOR_POSITIVE_TEXT]{2_PlayerScore} per turn[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_FORMAL">
+			<Text>They will reward the player who expends the most [ICON_GREAT_PEOPLE] Great Artists, Great Writers, Great Musicians, and Archaeologists.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_WINNING_FORMAL">
+			<Text>{TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_FORMAL} So far, you have the lead with [ICON_GREAT_PEOPLE][COLOR_POSITIVE_TEXT]{1_PlayerScore}[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_LOSING_FORMAL">
+			<Text>{TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_FORMAL} So far, the leader has [ICON_GREAT_PEOPLE]{1_LeaderScore} and you have [ICON_GREAT_PEOPLE][COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR].</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ARCHAEOLOGY_FORMAL">
 			<Text>Send an archaeologist to a site near this city-state.</Text>
 		</Row>
