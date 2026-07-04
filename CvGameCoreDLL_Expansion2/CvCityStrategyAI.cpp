@@ -5089,7 +5089,15 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			{
 				if (pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) != 0)
 				{
-					iModifier += /*8*/ pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) * 5;
+					iModifier += /*40*/ pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) * 5;
+				}
+				if (pReligion->m_Beliefs.GetSpyPressureErosion(kPlayer.GetID(), pCity) != 0)
+				{
+					iModifier += /*40*/ pReligion->m_Beliefs.GetSpyPressureErosion(kPlayer.GetID(), pCity) * 10;
+				}
+				if (pReligion->m_Beliefs.GetEspionageNetworkPoints(kPlayer.GetID(), pCity) != 0)
+				{
+					iModifier += /*80*/ pReligion->m_Beliefs.GetEspionageNetworkPoints(kPlayer.GetID(), pCity) * 10;
 				}
 			}
 		}
