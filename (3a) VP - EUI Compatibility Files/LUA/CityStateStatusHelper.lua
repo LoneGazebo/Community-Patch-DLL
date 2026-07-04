@@ -104,6 +104,7 @@ local ktQuestsIcon = {
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or false ] = function() return "[ICON_INFLUENCE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or false ] = function() return "[ICON_TOURISM]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS or false ] = function() return "[ICON_CULTURE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS or false ] = function() return "[ICON_GOLDEN_AGE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or false ] = function() return "[ICON_RES_ARTIFACTS]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or false ] = function() return "[ICON_TURNS_REMAINING]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or false ] = function() return "[ICON_OCCUPIED]" end,
@@ -124,6 +125,7 @@ if gk_mode then
 		-- Global quests are first
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS or false, -- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST or false,		-- g&k+
@@ -855,6 +857,14 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1, ques
 				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_WINNING_FORMAL", iMajorScore )
 			else
 				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_LOSING_FORMAL", iLeaderScore, iMajorScore )
+			end
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS then
+			local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID)
+			local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID)
+			if minorPlayer:IsMinorCivContestLeader(majorPlayerID, questID) then
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_WINNING_FORMAL", iMajorScore )
+			else
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_LOSING_FORMAL", iLeaderScore, iMajorScore )
 			end
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST then
 			return L( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL" )

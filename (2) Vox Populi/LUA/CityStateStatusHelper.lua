@@ -29,6 +29,7 @@ ktQuestsDisplayOrder = {
 	-- Global quests are first
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST,
@@ -633,6 +634,8 @@ function GetActiveQuestText(iMajor, iMinor)
 				sIconText = sIconText .. "[ICON_TOURISM]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS) then
 				sIconText = sIconText .. "[ICON_CULTURE]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS) then
+				sIconText = sIconText .. "[ICON_GOLDEN_AGE]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY) then
 				sIconText = sIconText .. "[ICON_RES_ARTIFACTS]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION) then
@@ -805,6 +808,14 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_WINNING_FORMAL", iMajorScore );
 				else
 					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_LOSING_FORMAL", iLeaderScore, iMajorScore );
+				end
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS) then
+				local iLeaderScore = pMinor:GetMinorCivContestValueForLeader(MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS);
+				local iMajorScore = pMinor:GetMinorCivContestValueForPlayer(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS);
+				if (pMinor:IsMinorCivContestLeader(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS)) then
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_WINNING_FORMAL", iMajorScore );
+				else
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_LOSING_FORMAL", iLeaderScore, iMajorScore );
 				end
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL" );

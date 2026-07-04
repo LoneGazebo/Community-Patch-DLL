@@ -829,6 +829,9 @@
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS_NAME">
 			<Text>Artsy Units Contest</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS_NAME">
+			<Text>Sciencey Units Contest</Text>
+		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ARCHAEOLOGY_NAME">
 			<Text>Archaeology</Text>
 		</Row>
@@ -1021,6 +1024,24 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_ARTSY_UNITS">
 			<Text>{1_MinorCivName:textkey} applauds another civilization</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SCIENCEY_UNITS">
+			<Text>{3_MinorCivName:textkey} is preparing a grand exhibition of innovation, commerce, and engineering. Whoever expends the most Great Scientists, Great Merchants, and Great Engineers over the next {2_TurnsDuration} turns will gain [ICON_INFLUENCE] Influence with them. [COLOR_POSITIVE_TEXT]{1_TurnsRemaining} turns remaining.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SCIENCEY_UNITS">
+			<Text>{1_MinorCivName:textkey} prepares an exhibition of progress!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_SCIENCEY_UNITS">
+			<Text>Your scientists, merchants, and engineers have amazed {1_MinorCivName:textkey}! Civilizations that succeeded (ties are allowed):[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_SCIENCEY_UNITS">
+			<Text>{1_MinorCivName:textkey} was amazed by your ingenuity!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_SCIENCEY_UNITS">
+			<Text>Another civilization's scientists, merchants, and engineers have stolen the show in {1_MinorCivName:textkey}. Your delegation of innovators was not enough, and your [ICON_INFLUENCE] Influence remains the same as before. Civilizations that succeeded (ties are allowed):[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_SCIENCEY_UNITS">
+			<Text>{1_MinorCivName:textkey} backs another innovator</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ARCHAEOLOGY">
 			<Text>{1_MinorCivName:textkey} seeks an archaeologist</Text>

@@ -52798,6 +52798,9 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
 		strTemp.Format("Contest Artsy Units");
 		break;
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
+		strTemp.Format("Contest Sciencey Units");
+		break;
 	case MINOR_CIV_QUEST_ARCHAEOLOGY:
 		strTemp.Format("Archaeology");
 		break;

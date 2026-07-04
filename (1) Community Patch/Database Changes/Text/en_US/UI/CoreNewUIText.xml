@@ -3575,6 +3575,15 @@
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_LOSING_FORMAL">
 			<Text>{TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_FORMAL} So far, the leader has [ICON_GREAT_PEOPLE]{1_LeaderScore} and you have [ICON_GREAT_PEOPLE][COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_FORMAL">
+			<Text>They will reward the player who expends the most [ICON_GREAT_PEOPLE] Great Scientists, Great Merchants, and Great Engineers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_WINNING_FORMAL">
+			<Text>{TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_FORMAL} So far, you have the lead with [ICON_GREAT_PEOPLE][COLOR_POSITIVE_TEXT]{1_PlayerScore}[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_LOSING_FORMAL">
+			<Text>{TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_FORMAL} So far, the leader has [ICON_GREAT_PEOPLE]{1_LeaderScore} and you have [ICON_GREAT_PEOPLE][COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR].</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ARCHAEOLOGY_FORMAL">
 			<Text>Send an archaeologist to a site near this city-state.</Text>
 		</Row>
