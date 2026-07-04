@@ -3787,7 +3787,7 @@ function ASP:BalanceAndAssign()
 
 	---[[ Debug printout
 	print("Cost Matrix: ");
-	for i = 1, iNumRegions do
+	for i = 1,  #self.player_ID_list do
 		print(table.concat(tCostMatrix[i], ", "));
 	end
 	--]]
