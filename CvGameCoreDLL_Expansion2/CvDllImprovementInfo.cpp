@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllImprovementInfo::CvDllImprovementInfo(CvImprovementEntry* pImprovementInfo)
-	: m_pImprovementInfo(pImprovementInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pImprovementInfo(pImprovementInfo)
 {
 }
 //------------------------------------------------------------------------------

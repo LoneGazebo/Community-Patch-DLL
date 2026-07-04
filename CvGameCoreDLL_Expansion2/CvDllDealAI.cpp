@@ -15,8 +15,8 @@
 #include "CvDiplomacyAI.h"
 
 CvDllDealAI::CvDllDealAI(CvDealAI* pDealAI)
-	: m_pDealAI(pDealAI)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pDealAI(pDealAI)
 {
 }
 //------------------------------------------------------------------------------

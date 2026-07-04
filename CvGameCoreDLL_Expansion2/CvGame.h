@@ -795,6 +795,17 @@ public:
 	void SetExeWantForceResyncValue(int value);
 	void SetExeWantForceResyncPointer(int* pointer);
 
+	// Modpack
+	bool DeleteMPMP();
+	bool CreateMPMP();
+	bool WriteMPMP(const char* szFileName, const char* szDataBase, bool bInitialize);
+	bool CopyModDataToMPMP(const char* szModFolder, const char* szId, const char* szVersion);
+	int DeleteDirectory(const string& refcstrRootDirectory, bool bDeleteSubdirectories);
+	int OverrideGamePlayFiles(const string& refcstrRootDirectory);
+	int CopyModFiles(const string& strModDirectory, const string& strDLCDirectory, const string& strRootModSource);
+	bool AddUIAddinToMPMP(const char* szUIFileName, const char* szAddinFileName);
+	CvString GetModFromIdAndVersion(const string& refcstrRootDirectory,const string& modName, const string& id, const string& version);
+
 protected:
 
 	// exe things

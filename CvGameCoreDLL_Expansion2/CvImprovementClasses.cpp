@@ -64,9 +64,6 @@ int CvImprovementResourceInfo::getYieldChange(int i) const
 CvImprovementEntry::CvImprovementEntry(void):
 	m_iGoldMaintenance(0),
 	m_iCultureBombRadius(0),
-	m_iRequiresXAdjacentLand(-1),
-	m_iRequiresXAdjacentWater(-1),
-	m_bNoFollowUp(false),
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iAdditionalUnits(0),
 #endif
@@ -93,8 +90,14 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_eCreatesFeature(NO_FEATURE),
 	m_bNewOwner(false),
 	m_bOwnerOnly(true),
+	m_iMovesChange(0),
+	m_bRestoreMoves(false),
+	m_bFreeMoveAcross(false),
 	m_iImprovementPillage(NO_IMPROVEMENT),
 	m_iImprovementUpgrade(NO_IMPROVEMENT),
+	m_iRequiresXAdjacentLand(-1),
+	m_iRequiresXAdjacentWater(-1),
+	m_bNoFollowUp(false),
 	m_bAllowsRebaseTo(false),
 	m_bAllowsAirliftFrom(false),
 	m_bAllowsAirliftTo(false),
@@ -125,6 +128,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bPermanent(false),
 	m_bOutsideBorders(false),
 	m_bInAdjacentFriendly(false),
+	m_bInEnemyTerritory(false),
 	m_bIgnoreOwnership(false),
 	m_bOnlyCityStateTerritory(false),
 	m_bIsEmbassy(false),
@@ -133,9 +137,6 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bAdjacentCity(false),
 	m_bAdjacentLake(false),
 	m_iGrantsVision(0),
-	m_iMovesChange(0),
-	m_bRestoreMoves(false),
-	m_bFreeMoveAcross(false),
 	m_bNoTwoAdjacent(false),
 	m_iXSameAdjacentMakesValid(0),
 	m_bAdjacentLuxury(false),
@@ -315,6 +316,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iPillageGold = kResults.GetInt("PillageGold");
 	m_bOutsideBorders = kResults.GetBool("OutsideBorders");
 	m_bInAdjacentFriendly = kResults.GetBool("InAdjacentFriendly");
+	m_bInEnemyTerritory = kResults.GetBool("InEnemyTerritory");
 	m_bIgnoreOwnership = kResults.GetBool("IgnoreOwnership");
 	m_bOnlyCityStateTerritory = kResults.GetBool("OnlyCityStateTerritory");
 	m_bIsEmbassy = kResults.GetBool("IsEmbassy");
@@ -1357,6 +1359,12 @@ bool CvImprovementEntry::IsAllowsWalkWater() const
 bool CvImprovementEntry::IsInAdjacentFriendly() const
 {
 	return m_bInAdjacentFriendly;
+}
+
+/// Can this improvement be built in territory owned by other players?
+bool CvImprovementEntry::IsInEnemyTerritory() const
+{
+	return m_bInEnemyTerritory;
 }
 
 bool CvImprovementEntry::IsCreatedByGreatPerson() const

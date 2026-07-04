@@ -67,12 +67,12 @@ CvTechEntry::CvTechEntry(void):
 	m_piFlavorValue(NULL),
 	m_piPrereqOrTechs(NULL),
 	m_piPrereqAndTechs(NULL),
-	m_iHappiness(0),
+	m_pabFreePromotion(NULL),
 	m_ppiTechYieldChanges(NULL),
+	m_iHappiness(0),
 	m_bCorporationsEnabled(false),
 	m_iEurekaPerMillion(0),
-	m_bVassalageTradingAllowed(false),
-	m_pabFreePromotion(NULL)
+	m_bVassalageTradingAllowed(false)
 {
 }
 
@@ -638,8 +638,8 @@ CvPlayerTechs::CvPlayerTechs():
 	m_bHasUUTech(false),
 	m_bWillHaveUUTechSoon(false),
 	m_peLocaleTechResources(NULL),
-	m_peCivTechUniqueBuildings(NULL),
 	m_peCivTechUniqueUnits(NULL),
+	m_peCivTechUniqueBuildings(NULL),
 	m_peCivTechUniqueImprovements(NULL),
 	m_pTechs(NULL),
 	m_pPlayer(NULL),

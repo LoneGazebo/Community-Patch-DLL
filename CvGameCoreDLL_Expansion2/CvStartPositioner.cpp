@@ -852,8 +852,8 @@ struct SStartRegion
 
 	SStartRegion(int iIndex = 0, int iPlotWorth = 0)
 		: iID(iIndex),
-		  iTotalWorth(iPlotWorth),
-		  vPlots(1, iIndex)
+		  vPlots(1, iIndex),
+		  iTotalWorth(iPlotWorth)
 	{  
 	}
 

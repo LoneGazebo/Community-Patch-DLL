@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllUnitInfo::CvDllUnitInfo(CvUnitEntry* pUnitInfo)
-	: m_pUnitInfo(pUnitInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pUnitInfo(pUnitInfo)
 {
 }
 //------------------------------------------------------------------------------

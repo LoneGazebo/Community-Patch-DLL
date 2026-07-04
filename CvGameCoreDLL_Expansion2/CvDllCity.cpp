@@ -12,8 +12,8 @@
 #include "CvDllPlot.h"
 
 CvDllCity::CvDllCity(CvCity* pCity)
-	: m_pCity(pCity)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pCity(pCity)
 {
 }
 //------------------------------------------------------------------------------

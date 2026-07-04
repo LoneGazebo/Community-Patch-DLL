@@ -756,12 +756,12 @@ function StartPlotSystem()
 	start_plot_database:ChooseLocations();
 
 	print("Normalizing start locations and assigning them to Players.");
-	start_plot_database:BalanceAndAssign{iNumExtraRegions = start_plot_database.iNumFrontiers};
+	start_plot_database:BalanceAndAssign();
 
 	print("Placing Natural Wonders.");
 	start_plot_database:PlaceNaturalWonders();
 
 	print("Placing Resources and City States.");
-	start_plot_database:PlaceResourcesAndCityStates{iNumExtraRegions = start_plot_database.iNumFrontiers};
+	start_plot_database:PlaceResourcesAndCityStates();
 end
 ------------------------------------------------------------------------------

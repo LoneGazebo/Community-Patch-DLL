@@ -232,19 +232,19 @@ CvSpyPassiveBonusDiplomatEntry* CvSpyPassiveBonusDiplomatXMLEntries::GetEntry(in
 /// Default Constructor
 CvEspionageSpy::CvEspionageSpy()
 	: m_sName("")
-	, m_eRank(SPY_RANK_RECRUIT)
-	, m_iExperience(0)
 	, m_iCityX(-1)
 	, m_iCityY(-1)
+	, m_iExperience(0)
+	, m_eRank(SPY_RANK_RECRUIT)
 	, m_eSpyState(SPY_STATE_UNASSIGNED)
 	, m_iReviveCounter(0)
-	, m_eSpyFocus(NO_EVENT_CHOICE_CITY)
 	, m_bIsDiplomat(false)
 	, m_eVassalDiplomatPlayer(NO_PLAYER)
 	, m_bEvaluateReassignment(true)
 	, m_bPassive(false)
 	, m_iTurnCounterspyMissionChanged(0)
 	, m_iTurnActiveMissionConducted(0)
+	, m_eSpyFocus(NO_EVENT_CHOICE_CITY)
 {
 }
 
@@ -508,7 +508,7 @@ void CvPlayerEspionage::LogSpyStatus()
 			}
 		}
 		PlayerTypes eMinorAlly = NO_PLAYER;
-		strSpyStatus.Format("Spy #%d %s (Lvl. %d, %d/%d): ", uiSpy, GetLocalizedText(pSpy->GetSpyName()).c_str(), pSpy->GetSpyRank(ePlayer) + 1, pSpy->m_iExperience, GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR));
+		strSpyStatus.Format("Spy #%d %s (Lvl. %d %d/%d): ", uiSpy, GetLocalizedText(pSpy->GetSpyName()).c_str(), pSpy->GetSpyRank(ePlayer) + 1, pSpy->m_iExperience, GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR));
 		switch (pSpy->GetSpyState())
 		{
 		case SPY_STATE_UNASSIGNED:
@@ -637,7 +637,7 @@ void CvPlayerEspionage::LogSpyStatus()
 				strMissionInfo += GC.getCityEventChoiceInfo(aCityScores[i].m_eMission)->GetDescription();
 			}
 			CvString strMsg;
-			strMsg.Format("Top City Choices: %s (%s)%s. Score: %d", aCityScores[i].m_pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), aCityScores[i].m_iScore);
+			strMsg.Format("Top City Choices: %s (%s)%s, Score: %d", aCityScores[i].m_pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), aCityScores[i].m_iScore);
 			LogEspionageMsg(strMsg);
 		}
 	}
@@ -2954,9 +2954,22 @@ void CvPlayerEspionage::LevelUpSpy(uint uiSpyIndex, int iExperience)
 		{
 			CvSpyRank eOriginalRank = m_aSpyList[uiSpyIndex].m_eRank;
 
-			// announce promotion through notification
+			// counterspy rank scaling needs to be updated here
+			CityEventChoiceTypes eCurrentFocus = NO_EVENT_CHOICE_CITY;
+			CvCity* pCity = GetCityWithSpy(uiSpyIndex);
+			if (pCity)
+			{
+				eCurrentFocus = pCity->GetCityEspionage()->GetCounterSpyFocus();
+				pCity->DoCancelEventChoice(eCurrentFocus);
+			}
+
+			// levels up!
 			m_aSpyList[uiSpyIndex].m_eRank = (CvSpyRank)(m_aSpyList[uiSpyIndex].m_eRank + 1);
 
+			if (eCurrentFocus != NO_EVENT_CHOICE_CITY)
+				pCity->DoEventChoice(eCurrentFocus, NO_EVENT_CITY, false, uiSpyIndex, m_pPlayer->GetID());
+
+			// announce promotion through notification
 			CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 			if (pNotifications)
 			{
@@ -3121,9 +3134,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 /// CalcRequired - How much the spy is needed to do to accomplish this task
 int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck)
 {
-	DEBUG_VARIABLE(iSpyIndex);
 	ASSERT(pCity, "pCity is null");
-	PRECONDITION(iSpyIndex >= 0, "iSpyIndex is out of bounds");
 
 	switch (iSpyState)
 	{
@@ -4127,7 +4138,7 @@ int CvPlayerEspionage::GetNetworkPointsStored(uint uiSpyIndex)
 	return -1;
 }
 
-/// GetNetworkPointsStored - What is the highest amount of network points the spy has ever had collected during his current stay?
+/// GetMaxNetworkPointsStored - What is the highest amount of network points the spy has ever had collected during his current stay?
 int CvPlayerEspionage::GetMaxNetworkPointsStored(uint uiSpyIndex)
 {
 	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
@@ -4229,6 +4240,7 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 		{
 			return -1;
 		}
+		break;
 	}
 	case SPY_STATE_RIG_ELECTION:
 		if(GC.getGame().GetTurnsBetweenMinorCivElections() != 0)
@@ -8259,6 +8271,10 @@ int CvEspionageAI::GetPlayerModifier(PlayerTypes eTargetPlayer, bool bOnlyDiplo)
 		}
 	}
 
+	// do we rely on this person in the world congress?
+	if (pDiploAI->GetPrimeLeagueAlly() == eTargetPlayer)
+		iDiploModifier -= 25;
+
 	iDiploModifier *= 100 + 10 * (m_pPlayer->GetDiplomacyAI()->GetDiploBalance() - 5);
 	iDiploModifier /= 100;
 
@@ -8343,6 +8359,654 @@ void CvEspionageAI::AttemptCoups()
 	}
 }
 
+// Helper for considering the impact of missions performed against this city and its owner
+int CvEspionageAI::GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eOwner, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pOwnerDiploAI)
+{	
+	int iScore = 0;
+
+	// spies can steal GW from the city
+	if (pkMissionInfo->getStealGW() > 0)
+	{
+		// base value for losing a GW
+		iScore -= 50;
+		// if this breaks a theme, extra annoying
+		iScore -= pCity->GetCityBuildings()->GetTotalNumThemedBuildings() > 0 ? 25 : 0;
+		// this is really bad for cultural grand strategy, but a few thefts cant stop us at the end
+		if (pOwnerDiploAI->IsGoingForCultureVictory() && !pOwnerDiploAI->IsCloseToCultureVictory())
+			iScore -= 125;
+	}
+
+	// several missions reduce tourism output to zero
+	if (pkMissionInfo->getNoTourismTurns() > 0)
+	{
+		// how bad this is depends how much of the total tourism this city gives
+		int iTotalTourism = GET_PLAYER(eOwner).GetCulture()->GetTourism() / 100;
+		int iPercentTotal = pCity->getYieldRateTimes100(YIELD_TOURISM) / max(1, iTotalTourism);
+		// if the player is close to winning, then this mission going off is very bad
+		int iVictoryMultiplier = pOwnerDiploAI->IsCloseToCultureVictory() ? 10 : 1;
+		// if the city is 50% of total, then 10 turns is 500. set that to 50 points
+		iScore -= iVictoryMultiplier * iPercentTotal * pkMissionInfo->getNoTourismTurns() / 10;
+	}
+
+	// city being made more unhappy is always bad
+	// if the empire itself is unhappy, double the valuation
+	int iEmpireUnhappy = pOwnerDiploAI->GetPlayer()->IsEmpireUnhappy() ? 2 : 1;
+	
+	if (pkMissionInfo->getBasicNeedsMedianModifier() < 0 && pCity->GetDistress(false) > 0)
+		iScore -= -1 * pkMissionInfo->getEventDuration() * iEmpireUnhappy * pkMissionInfo->getBasicNeedsMedianModifier() / 75;
+	
+	if (pkMissionInfo->getGoldMedianModifier() < 0 && pCity->GetPoverty(false) > 0)
+		iScore -= -1 * pkMissionInfo->getEventDuration() * iEmpireUnhappy * pkMissionInfo->getGoldMedianModifier() / 75;
+	
+	if (pkMissionInfo->getScienceMedianModifier() < 0 && pCity->GetIlliteracy(false) > 0)
+		iScore -= -1 * pkMissionInfo->getEventDuration() * iEmpireUnhappy * pkMissionInfo->getScienceMedianModifier() / 75;
+	
+	if (pkMissionInfo->getCultureMedianModifier() < 0 && pCity->GetBoredom(false) > 0)
+		iScore -= -1 * pkMissionInfo->getEventDuration() * iEmpireUnhappy * pkMissionInfo->getCultureMedianModifier() / 75;
+	
+	if (pkMissionInfo->getReligiousUnrestModifier() < 0 && pCity->GetUnhappinessFromReligiousUnrest() > 0)
+		iScore -= -1 * pkMissionInfo->getEventDuration() * iEmpireUnhappy * pkMissionInfo->getReligiousUnrestModifier() / 75;
+	
+	int iEra = (int)m_pPlayer->GetCurrentEra();
+	int iNumBarbs = (pkMissionInfo->getRandomBarbs() + pkMissionInfo->getRandomBarbsPerEra() * iEra);
+	if (iNumBarbs > 0)
+	{
+		CvPlayer& kOwner = GET_PLAYER(eOwner);
+		// if the owner is at war, their units are much less able to dispatch the barbarians
+		int iWarMultiplier = kOwner.GetMilitaryAI()->GetNumberCivsAtWarWith(false) ? 5 : 1;
+		// note: barbarian kills can grant yields, makes this less bad (even good?)
+		int iWarmonger = kOwner.GetPlayerTraits()->IsWarmonger() ? 1 : 4;
+		
+		iScore -= iWarMultiplier * iNumBarbs * iWarmonger;
+	}
+
+	// this is just an annoyance unless a race is on, then it can be very serious!
+	if (pkMissionInfo->getBlockBuildingTurns() > 0)
+	{
+		BuildingTypes eBuilding = pCity->getProductionBuilding();
+		if (eBuilding != NO_BUILDING)
+		{
+			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+			ASSERT(pBuildingInfo, "pBuildingInfo is null");
+			if (pBuildingInfo)
+			{
+				if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+				{
+					iScore -= 100;
+				}
+			}
+		}
+		ProjectTypes eProject = pCity->getProductionProject();
+		if (eProject != NO_PROJECT)
+		{
+			CvProjectEntry* pkProject = GC.getProjectInfo(eProject);
+			if (pkProject && !pkProject->IsRepeatable())
+			{
+				if (eProject == (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT))
+				{
+					iScore -= 150;
+				}
+				else if (eProject == (ProjectTypes)GD_INT_GET(NUKE_TRIGGER_PROJECT))
+				{
+					iScore -= 150;
+				}
+				// cannot afford to have victory progress stopped
+				else if (pkProject->GetVictoryPrereq())
+				{
+					iScore -= 1000;
+				}
+			}
+		}
+	}
+
+	// if resource tiles are pillaged, it depends how many there are and what kind of resources
+	if (pkMissionInfo->getPillageResourceTilesChance() > 0)
+	{
+		ResourceTypes eResource;
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			eResource = (ResourceTypes)iResourceLoop;
+			
+			int iNumLocal = pCity->GetNumResourceLocal(eResource);
+			if (iNumLocal > 0)
+			{
+				CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+				if (pResourceInfo)
+				{
+					int iIntensityFactor = 1;
+					switch (pResourceInfo->getResourceUsage())
+					{
+					case RESOURCEUSAGE_LUXURY:
+						iIntensityFactor = 3;
+    					break;
+					case RESOURCEUSAGE_STRATEGIC:
+						iIntensityFactor = 5;
+    					break;
+					case RESOURCEUSAGE_BONUS:
+						iIntensityFactor = 1;
+    					break;
+					}
+					
+					iScore -= iIntensityFactor * iNumLocal * pkMissionInfo->getPillageResourceTilesChance() / 10;
+				}
+			}
+		}
+	}
+
+	// road pillage is annoying, but particularly bad if it hit the capital since it breaks connections
+	if (pkMissionInfo->getPillageRoadsChance() > 0)
+	{
+		int iCapital = pCity->isCapital() ? 5 : 1;
+		iScore -= iCapital * pkMissionInfo->getPillageRoadsChance() / 10 ;
+	}
+
+	// having fortifications pillaged is annoying, but at war its really bad
+	if (pkMissionInfo->getPillageFortificationsChance() > 0)
+	{
+		int iWar = pOwnerDiploAI->IsAtWar(eOwner) ? 5 : 1;
+		for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
+			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
+			if (pImprovementInfo && pImprovementInfo->IsNoFollowUp())
+			{
+				int iNumImprovements = pCity->GetImprovementCount(eImprovement);
+				iScore -= iWar * iNumImprovements * pkMissionInfo->getPillageFortificationsChance() / 50;
+			}
+		}
+	}
+
+	// the current pkMissionInfo is beneficial, but triggers a secondary event that reduces GPP in the city
+	if (pkMissionInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
+	{
+		int iCapSpecialists = pCity->GetCityCitizens()->GetTotalSpecialistCount();
+		// if you had to focus a yield you would want to work all one specialist, lets a midgame value for that of 3 as the minimum
+		int iGPP = /* base GPP from a specialist */ 3 * min(3, iCapSpecialists) * pCity->getTotalGreatPeopleRateModifier() / 100;
+		iGPP *= pkMissionInfo->getEventDuration();
+		// GPP are less of a great person as the game goes on
+		iGPP /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
+		iScore -= iGPP / 5;
+		if (pOwnerDiploAI->IsGoingForCultureVictory() || pOwnerDiploAI->IsGoingForSpaceshipVictory())
+		{
+			iScore -= iGPP / 5;
+		}
+	}
+
+	// if we have lots of gold, this steals more of it!
+	if (pkMissionInfo->getStealFromTreasuryPercent() > 0)
+	{
+		int iStealPercent = pkMissionInfo->getStealFromTreasuryPercent();
+		// inverse scaling with game speed
+		iStealPercent *= 100;
+		iStealPercent /= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		int iAmount = GET_PLAYER(eOwner).GetTreasury()->GetGold() * iStealPercent / 100;
+		// the value of yields decreases with era
+		iAmount /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
+
+		iScore -= iAmount / 15;
+	}
+
+	// if we are under attack, being sapped is really bad
+	if (pkMissionInfo->getSapCityTurns() > 0)
+	{
+		if (pOwnerDiploAI->IsAtWar(eOwner) && pCity->getDamageTakenLastTurn() > 5)
+		{
+			int iDamagePercent = 100 * pCity->getDamage() / pCity->GetMaxHitPoints();
+			int iNumAttackers = pCity->plot()->GetNumEnemyUnitsAdjacent(pCity->getTeam(), NO_DOMAIN);
+			iScore -= (iDamagePercent * iNumAttackers + pCity->getDamageTakenLastTurn() * 5);
+		}
+	}
+
+	// if religious pressure is decreased. no great way to measure that
+	if (pkMissionInfo->getReligiousPressureModifier() < 0)
+	{
+		int iSpreading = GET_PLAYER(eOwner).GetPlayerTraits()->IsReligious() ? 4 : 1;
+		iScore -= -1 * pkMissionInfo->getReligiousPressureModifier() * iSpreading * pkMissionInfo->getEventDuration() / 300;
+	}
+	
+	int iNumYieldTypes = GC.getNUM_YIELD_TYPES(true);
+	for (int iYield = 0; iYield < iNumYieldTypes; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+
+		// yield loss to siphon
+		int iSiphonYield = pkMissionInfo->getYieldSiphon(eYield);
+		if (iSiphonYield > 0)
+		{
+			int iCityYield = pCity->getYieldRateTimes100(eYield);
+			iCityYield *= iSiphonYield;
+			iCityYield *= pkMissionInfo->getEventDuration();
+			iCityYield /= 10000;
+			// the value of yields decreases with era
+			iCityYield /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
+	
+			iScore -= iCityYield / 3;
+		}
+
+		// CityEventChoice_CityYieldModifier
+		int iModifier = pkMissionInfo->getCityYieldModifier(eYield);
+		if (iModifier != 0)
+		{
+			int iCityYield = iModifier * pCity->getBaseYieldRateTimes100(eYield);
+			iCityYield *= pkMissionInfo->getEventDuration();
+			iCityYield /= 10000;
+			iCityYield /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
+
+			iScore -= iCityYield / 3;
+		}
+
+		// CityEventChoice_ImprovementYieldChange. unused as a negative at the moment
+		for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
+			int iImprovementYield = pkMissionInfo->getImprovementYield(eImprovement, eYield);
+			if (iImprovementYield != 0)
+			{
+				int iNumImprovements = pCity->GetImprovementCount(eImprovement);
+				iScore -= iNumImprovements * iImprovementYield;
+			}
+		}
+	}
+
+	// missions might destroy specific buildings
+	for (int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+	{
+		BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iJ);
+		int iDestroyChance = pkMissionInfo->getBuildingDestructionChance(eBuildingClass);
+		if (iDestroyChance > 0 && pCity->HasBuildingClass(eBuildingClass))
+		{
+			BuildingTypes eDefaultBuilding = static_cast<BuildingTypes>(GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex());
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eDefaultBuilding);
+			if (pkBuildingInfo)
+			{
+				// the more this building costs, the worse it would be to lose
+				iScore -= iDestroyChance * (pkBuildingInfo->GetProductionCost() / 50) / 100;
+			}
+		}
+	}
+	// or it might destroy random buildings
+	if (pkMissionInfo->getCityWideDestructionChance() > 0)
+	{
+		int iTotalDestructibleCost = 0;
+
+		// loop over all buildings and, if they can be destroyed, tally their cost
+		const std::vector<BuildingTypes>& vBuildings = pCity->GetCityBuildings()->GetAllBuildingsHere();
+		for (size_t i = 0; i < vBuildings.size(); i++)
+		{
+			BuildingTypes eBuilding = static_cast<BuildingTypes>(i);
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			
+			if (pkBuildingClassInfo && pkBuildingClassInfo->getMaxGlobalInstances() != -1)
+				continue;
+
+			if (pkBuildingClassInfo && pkBuildingClassInfo->getMaxPlayerInstances() != -1)
+				continue;
+
+			if (pkBuildingInfo)
+				iTotalDestructibleCost += pkBuildingInfo->GetProductionCost() / 50;
+		}
+			
+		iScore -= pkMissionInfo->getCityWideDestructionChance() * iTotalDestructibleCost / 100;
+	}
+	
+	return iScore;
+}
+
+// Helper for considering the positive and negative effects attached to counterspy focusses
+int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes eOwner, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pDiplomacyAI)
+{
+	int iScore = 0;
+	
+	// CityEventChoice_YieldOnSpyIdentified and CityEventChoice_YieldOnSpyKilled need to be hooked up
+	// but currently the same for all focusses so doesn't affect relative score
+	/*
+	// Yields on Kill and Identification depend if this city is a target
+	int iTurnsOfEspionage = GC.getGame().getGameTurn() - m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted;
+	iTurnsOfEspionage *= 100;
+	iTurnsOfEspionage /= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	if (m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted != 0 && iTurnsOfEspionage > 0)
+	{
+		int iNumCityRobbed = 0;
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+		{
+			iNumCityRobbed += pCityEspionage->m_aiNumTimesCityRobbed[(PlayerTypes)iLoopPlayer];
+		}
+		iScore += min(75, 1000 * iNumCityRobbed / iTurnsOfEspionage);
+	}
+	*/
+
+	// NP reduction is best used against thefts in the capital
+	if (pCity->isCapital() && pkMissionInfo->getCounterspyNPRateReduction() > 0)
+	{
+		iScore += pkMissionInfo->getCounterspyNPRateReduction();
+		// if going for SV and ahead in science, protect our capital from having techs stolen
+		if (pDiplomacyAI->IsGoingForSpaceshipVictory() && pDiplomacyAI->IsCloseToSpaceshipVictory())
+		{
+			iScore += 35;
+		}
+	}
+	
+	// ranged attack is only good if we're under siege
+	if (pkMissionInfo->getCityDefenseModifierBase() > 0)
+	{
+		if (!m_pPlayer->IsAtPeaceAllMajors() || pCity->isUnderSiege())
+		{
+			// big value, based on the damage percent the city has taken
+			int iPanicMultiplier = pCity->isCapital() ? 2 : 1;
+			int iDamageScore = min(50, 100 * pCity->getDamage() / pCity->GetMaxHitPoints()) * 4;
+			iScore += iDamageScore * iPanicMultiplier;
+		}
+	}	
+	
+	// religious pressure change depends on if we are spreading
+	if (pkMissionInfo->getReligiousPressureModifier() != 0)
+	{
+		// there's not really a good way to tell if they player is actively spreading?
+		int iSpreading = m_pPlayer->GetPlayerTraits()->IsReligious() ? 5 : 1;
+		iScore += pkMissionInfo->getReligiousPressureModifier() * iSpreading / 10;
+	}
+	
+	// needs modifiers depend on city happiness
+	// if you need all sources, at -25% each the score is 5*5=25
+	if (pCity->updateNetHappiness() < 0)
+	{
+		// if the empire itself is unhappy, double the valuation
+		int iEmpireUnhappy = pDiplomacyAI->GetPlayer()->IsEmpireUnhappy() ? 2 : 1;
+		
+		if (pkMissionInfo->getBasicNeedsMedianModifier() < 0 && pCity->GetDistress(false) > 0)
+			iScore += -1 * iEmpireUnhappy * pkMissionInfo->getBasicNeedsMedianModifier() / 5;
+		
+		if (pkMissionInfo->getGoldMedianModifier() < 0 && pCity->GetPoverty(false) > 0)
+			iScore += -1 * iEmpireUnhappy * pkMissionInfo->getGoldMedianModifier() / 5;
+		
+		if (pkMissionInfo->getScienceMedianModifier() < 0 && pCity->GetIlliteracy(false) > 0)
+			iScore += -1 * iEmpireUnhappy * pkMissionInfo->getScienceMedianModifier() / 5;
+		
+		if (pkMissionInfo->getCultureMedianModifier() < 0 && pCity->GetBoredom(false) > 0)
+			iScore += -1 * iEmpireUnhappy * pkMissionInfo->getCultureMedianModifier() / 5;
+		
+		if (pkMissionInfo->getReligiousUnrestModifier() < 0 && pCity->GetUnhappinessFromReligiousUnrest() > 0)
+			iScore += -1 * iEmpireUnhappy * pkMissionInfo->getReligiousUnrestModifier() / 5;
+	}
+
+	// effects that change yields
+	int iNumYieldTypes = GC.getNUM_YIELD_TYPES(true);
+	for (int iYield = 0; iYield < iNumYieldTypes; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+
+		// CityEventChoice_CityYieldModifier(YIELD_TOURISM). will depend if we are a big source of that yield
+		int iModifier = pkMissionInfo->getCityYieldModifier(eYield);
+		if (iModifier != 0)
+		{
+			int iCityYield = iModifier * pCity->getBaseYieldRateTimes100(eYield);
+			iCityYield *= 15;  // dont use pkMissionInfo->getEventDuration() because focusses are 999 turns
+			iCityYield /= 10000;
+			iCityYield /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
+
+			iScore += iCityYield / 3;
+		}
+
+		// Growth Mod. assume if the city is fairly happy we would want it to grow asap
+		if (eYield == YIELD_FOOD)
+		{
+			if (pCity->updateNetHappiness() > 5 && pkMissionInfo->getGrowthMod() != 0)
+			{
+				// include eaten food and don't include existing growth bonuses (additive)
+				int iCityYield = pkMissionInfo->getGrowthMod() * pCity->getYieldRateTimes100(eYield, false, false, 0, false, false, true);
+				iCityYield *= 15;
+				iCityYield /= 10000;
+				iCityYield /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
+
+				iScore += iCityYield / 3;
+			}
+		}
+
+		// CityEventChoice_ImprovementYieldChange. Check if we have any improvements to change
+		for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
+			int iImprovementYield = pkMissionInfo->getImprovementYield(eImprovement, eYield);
+			if (iImprovementYield != 0)
+			{
+				int iNumImprovements = pCity->GetImprovementCount(eImprovement);
+				// at +4 overall for each, this only gets significant at 5 or 6 fortifications (e.g. Chateau)
+				iScore += iNumImprovements * iImprovementYield;
+			}
+		}
+
+		// CityEventChoice_SpecialistYieldChange
+		for (int iSpecialist = 0; iSpecialist < GC.getNumSpecialistInfos(); iSpecialist++)
+		{
+			SpecialistTypes eSpecialist = (SpecialistTypes)iSpecialist;
+			int iSpecYield = pkMissionInfo->getCitySpecialistYieldChange(eSpecialist, eYield);
+			if (iSpecYield != 0)
+			{
+				int iNumSpecialists = pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist);
+				iScore += iSpecYield * iNumSpecialists;
+			}
+		}
+	}
+
+	// starts WLTKD? it's one off so if we're not swapping to it, we dont get benefit
+	int iWLTKDTurns = pkMissionInfo->getWLTKD();
+	if (iWLTKDTurns > 0 && pCity->GetWeLoveTheKingDayCounter() <= 0)
+	{		
+		CityEventChoiceTypes eFocus = pCity->GetCityEspionage()->GetCounterSpyFocus();
+		CvModEventCityChoiceInfo* pkCSInfo = GC.getCityEventChoiceInfo(eFocus);
+		if (!pkCSInfo || pkCSInfo != pkMissionInfo)
+		{
+			iScore += iWLTKDTurns;
+			// try to keep capital in WLTKD
+			if (pCity->isCapital())
+				iScore += iWLTKDTurns * 2;
+		}
+	}
+	
+	return iScore;
+}
+
+// Helper for calculating what you will gain directly from performing this offensive mission
+int CvEspionageAI::GetMissionScoreOffensiveBenefits(CvCity* pCity, PlayerTypes eTargetPlayer, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pDiplomacyAI, int iSpyIndex)
+{
+	int iScore = 0;
+
+	// this has no negative effects to consider and a high kill chance
+	if (pkMissionInfo->getStealTech() > 0)
+	{
+		// if you are many techs behind, its important to catch up asap!
+		iScore += min(m_pPlayer->GetEspionage()->GetNumTechsToSteal(eTargetPlayer) * 25, 75);
+		// if you are trying to win with scientific advantage, its crucial you are number #1
+		if (pDiplomacyAI->IsGoingForSpaceshipVictory())
+		{
+			iScore += 150;
+		}
+		// if you are trying to dominate, techs are good
+		else if (pDiplomacyAI->IsGoingForWorldConquest())
+		{
+			iScore += 25;
+		}
+	}
+
+	if (pkMissionInfo->getStealGW() > 0)
+	{
+		// base value of having a new GW
+		iScore += 50;
+		// this is worth much more if we are going for cultural victory, but it doesn't help that much near the end
+		if (pDiplomacyAI->IsGoingForCultureVictory() && !pDiplomacyAI->IsCloseToCultureVictory())
+		{
+			iScore += 150;
+		}
+	}
+
+	if (pkMissionInfo->getBlockBuildingTurns() > 0)
+	{
+		// only check while we're in the city
+		if (iSpyIndex >= 0 && pCity->GetCityEspionage()->GetRevealCityScreen(m_pPlayer->GetID()))
+		{
+			BuildingTypes eBuilding = pCity->getProductionBuilding();
+			if (eBuilding != NO_BUILDING)
+			{
+				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+				ASSERT(pBuildingInfo, "pBuildingInfo is null");
+				if (pBuildingInfo)
+				{
+					if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+					{
+						// are we constructing the same wonder somewhere?
+						CvCity* pLoopCity = NULL;
+						int iLoop = 0;
+						for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+						{
+							if (pLoopCity->getProductionBuilding() == eBuilding)
+							{
+								int iTheirProductionTurnsLeft = pCity->getProductionTurnsLeft();
+								int iOurProductionTurnsLeft = pLoopCity->getProductionTurnsLeft();
+
+								// Can we build the Wonder if we stall them for X turns?
+								if (iOurProductionTurnsLeft >= iTheirProductionTurnsLeft && iOurProductionTurnsLeft < (iTheirProductionTurnsLeft + pkMissionInfo->getBlockBuildingTurns()))
+								{
+									iScore += 500;
+								}
+								else if (iOurProductionTurnsLeft > iTheirProductionTurnsLeft && iOurProductionTurnsLeft == (iTheirProductionTurnsLeft + pkMissionInfo->getBlockBuildingTurns())
+										&& (m_pPlayer->GetID() < GET_PLAYER(eTargetPlayer).GetID()))
+								{
+									iScore += 500;
+								}
+								// Might also be worth it if they're just behind us, to account for any instant Production boosts they might receive.
+								else if (iTheirProductionTurnsLeft > iOurProductionTurnsLeft && iTheirProductionTurnsLeft <= (iOurProductionTurnsLeft - 3))
+								{
+									iScore += 100;
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
+			ProjectTypes eProject = pCity->getProductionProject();
+			if (eProject != NO_PROJECT)
+			{
+				CvProjectEntry* pkProject = GC.getProjectInfo(eProject);
+				if (pkProject && !pkProject->IsRepeatable())
+				{
+					// Are they building the Apollo Program? Stop them!
+					if (eProject == (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT))
+					{
+						if (pDiplomacyAI->GetVictoryDisputeLevel(eTargetPlayer) > DISPUTE_LEVEL_NONE || pDiplomacyAI->GetVictoryBlockLevel(eTargetPlayer) > BLOCK_LEVEL_NONE)
+						{
+							iScore += 150;
+						}
+					}
+					// Are they building the Manhattan Project?
+					else if (eProject == (ProjectTypes)GD_INT_GET(NUKE_TRIGGER_PROJECT))
+					{
+						// At war, planning war, or they've declared war on us before? Let's make it harder for them to nuke us.
+						if (m_pPlayer->IsAtWarWith(eTargetPlayer) || pDiplomacyAI->GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
+						{
+							iScore += 150;
+						}
+						else if (!GET_PLAYER(eTargetPlayer).IsVassalOfSomeone())
+						{
+							if (pDiplomacyAI->GetNumWarsDeclaredOnUs(eTargetPlayer) > 0 || pDiplomacyAI->GetNumCitiesCapturedBy(eTargetPlayer) > 0 || pDiplomacyAI->GetNumTimesTheyPlottedAgainstUs(eTargetPlayer) > 0)
+								iScore += 15;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if (pkMissionInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
+	{
+		int iCapSpecialists = m_pPlayer->getCapitalCity() ? m_pPlayer->getCapitalCity()->GetCityCitizens()->GetTotalSpecialistCount() : 0;
+		// if it became profitable, you could always work around 2 merchant, scientist, engineer, wam/cs = 8
+		int iGPP = /* base GPP from a specialist */ 3 * min(8, iCapSpecialists) * pCity->getTotalGreatPeopleRateModifier() / 100;
+		iGPP *= pkMissionInfo->getEventDuration();
+		// GPP are less of a great person as the game goes on
+		iGPP /= max(1, (int)GET_PLAYER(eTargetPlayer).GetCurrentEra());
+		iScore += iGPP / 5;
+		if (pDiplomacyAI->IsGoingForCultureVictory() || pDiplomacyAI->IsGoingForSpaceshipVictory())
+		{
+			iScore += iGPP / 5;
+		}
+	}
+
+	if (pkMissionInfo->getStealFromTreasuryPercent() > 0)
+	{
+		int iStealPercent = pkMissionInfo->getStealFromTreasuryPercent();
+		// inverse scaling with game speed
+		iStealPercent *= 100;
+		iStealPercent /= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		int iAmount = GET_PLAYER(eTargetPlayer).GetTreasury()->GetGold() * iStealPercent / 100;
+		// the value of yields decreases with era
+		iAmount /= max(1, (int)GET_PLAYER(eTargetPlayer).GetCurrentEra());
+
+		iScore += iAmount / 15;
+	}
+
+	if (pkMissionInfo->getSapCityTurns() > 0)
+	{
+		if (m_pPlayer->IsAtWarWith(eTargetPlayer) || pDiplomacyAI->GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
+		{
+			if (pDiplomacyAI->GetTargetValue(eTargetPlayer) == TARGET_VALUE_FAVORABLE || pDiplomacyAI->GetTargetValue(eTargetPlayer) == TARGET_VALUE_SOFT)
+			{
+				// do we have a border with the city?
+				int iBorderTiles = 0;
+				for (int iI = RING1_PLOTS; iI < RING5_PLOTS; iI++)
+				{
+					CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+					if (!pLoopPlot)
+						continue;
+
+					if (pCity->GetID() != pLoopPlot->getOwningCityID() && pLoopPlot->getOwner() == m_pPlayer->GetID())
+						iBorderTiles++;
+				}
+				iScore += min(50, iBorderTiles * pkMissionInfo->getSapCityTurns() * 3);
+				if (pDiplomacyAI->IsGoingForWorldConquest())
+				{
+					iScore += pkMissionInfo->getSapCityTurns() * 5;
+				}
+			}
+		}
+		if (iSpyIndex > 0)
+		{
+			// increase score if it's now a good opportunity to do the mission for us right now
+			int iNumOurUnits = pCity->plot()->GetNumThisTeamUnitsAdjacent(pCity->getTeam(), m_pPlayer->getTeam(), NO_DOMAIN);
+			if (m_pPlayer->IsAtWarWith(eTargetPlayer) && iNumOurUnits > 0 && pCity->getDamageTakenLastTurn() > 5)
+			{
+				int iDamagePercent = 100 * pCity->getDamage() / pCity->GetMaxHitPoints();
+				iScore += iDamagePercent * iNumOurUnits + pCity->getDamageTakenLastTurn() * 5;
+			}
+		}
+	}
+
+	int iNumYieldTypes = GC.getNUM_YIELD_TYPES(true);
+	for (int iYield = 0; iYield < iNumYieldTypes; iYield++)
+	{
+		YieldTypes eYield = (YieldTypes)iYield;
+
+		int iSiphonYield = pkMissionInfo->getYieldSiphon(eYield);
+		if (iSiphonYield <= 0)
+			continue;
+
+		int iCityYield = pCity->getYieldRateTimes100(eYield);
+		iCityYield *= iSiphonYield;
+		iCityYield *= pkMissionInfo->getEventDuration();
+		iCityYield /= 10000;
+		// the value of yields decreases with era
+		iCityYield /= max(1, (int)GET_PLAYER(eTargetPlayer).GetCurrentEra());
+
+		iScore += iCityYield / 3;
+	}
+	
+	iScore += GD_INT_GET(ESPIONAGE_XP_PER_TURN_OFFENSIVE);
+
+	return iScore;
+}
+
 /// VP only. Returns AI evaluation of a mission in a city
 int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission, int iSpyIndex, bool bLogAllChoices)
 {
@@ -8350,16 +9014,26 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 	if (!pkMissionInfo)
 		return -1;
 
-	if (GET_PLAYER(pCity->getOwner()).isMinorCiv())
+	PlayerTypes eOwner = pCity->getOwner();
+
+	if (GET_PLAYER(eOwner).isMinorCiv())
 		return -1;
+
+	CvDiplomacyAI* pOwnerDiploAI = GET_PLAYER(eOwner).GetDiplomacyAI();
 
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	CvDiplomacyAI* pDiplomacyAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
+	int iEspionageCooldown = GC.getGame().GetTurnsBetweenMinorCivElections();
 
-	if (ePlayer == pCity->getOwner())
+	if (ePlayer == eOwner)
 	{
 		// own city. evaluate only counterspy missions
 		if (!pkMissionInfo->isCounterspyMission())
+			return -1;
+
+		// mission requirements (excluding cooldowns and network point requirements) not met?
+		CityEventTypes eParentEvent = m_pPlayer->GetEspionage()->GetCounterspyEvent();
+		if (!pCity->IsCityEventChoiceValidEspionage(eMission, eParentEvent, iSpyIndex, ePlayer, true, true))
 			return -1;
 
 		CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
@@ -8367,87 +9041,99 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		// low base value because of the XP counterspies get per turn
 		int iScore = GD_INT_GET(ESPIONAGE_XP_PER_TURN_COUNTERSPY);
 
-		if (pkMissionInfo->isCounterspyBlockSapCity())
-		{
-			// this is only interesting if we're under siege
-			if (!m_pPlayer->IsAtPeaceAllMajors() || pCity->isUnderSiege())
-			{
-				// value based on the damage percent the city has taken
-				iScore += min(50, 100 * pCity->getDamage() / pCity->GetMaxHitPoints()) * 4;
+		// consider possible positive and negative effects to city first
+		int iPositiveScoring = GetCounterspyEffectsMissionScore(pCity, ePlayer, pkMissionInfo, pDiplomacyAI);
+		iScore += iPositiveScoring;
 
-				if (pCity->isCapital())
+		// now take into account the missions that are blocked
+		// unless there are no offensive spy missions or we don't know any other players who have spies, then counterspies blocking has little-to-no value: skip
+		if (!GC.getGame().isOption(GAMEOPTION_PASSIVE_ESPIONAGE))
+		{
+			bool bNoOffensiveMissions = true;
+			for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
+			{
+				CvModEventCityChoiceInfo* pkLoopMissionInfo = GC.getCityEventChoiceInfo((CityEventChoiceTypes)i);
+				if (pkLoopMissionInfo && pkLoopMissionInfo->isEspionageMission())
 				{
-					iScore *= 2;
+					bNoOffensiveMissions = false;
+					break;
 				}
 			}
-		}
-		else
-		{
-			// irrelevant unless in capital
-			if (pCity->isCapital())
+			if (bNoOffensiveMissions)
+				return iScore;
+			
+			bool bNoForeignSpies = true;
+			for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 			{
-				// if there are no offensive spy missions or we don't know any other players who have spies, counterspies have very little value
-				bool bNoOffensiveMissions = true;
-				if (!GC.getGame().isOption(GAMEOPTION_PASSIVE_ESPIONAGE))
+				PlayerTypes eTargetPlayer = (PlayerTypes)i;
+				if (eTargetPlayer == ePlayer)
 				{
-					for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
+					continue;
+				}
+		
+				if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+					continue;
+		
+				if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
+					continue;
+		
+				if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > 0)
+				{
+					bNoForeignSpies = false;
+					break;
+				}
+			}
+			if (bNoForeignSpies)
+				return iScore;
+		}
+
+		// loop over all missions and check each to see if they are blocked by this counterspy focus
+		// because they tend to do similar things, and the enemy can only choose one to perform, only take the max value
+		int iMaxScore = 0;
+		for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
+		{
+			CityEventChoiceTypes eOffensiveMission = (CityEventChoiceTypes)i;
+			CvModEventCityChoiceInfo* pkOffensiveMissionInfo = GC.getCityEventChoiceInfo(eOffensiveMission);
+			if (pkOffensiveMissionInfo && pkOffensiveMissionInfo->isEspionageMission() && !pkOffensiveMissionInfo->isCounterspyMission())
+			{	
+				for (int iI = 0; iI < pkOffensiveMissionInfo->GetNumLinkers(); iI++)
+				{
+					CvCityEventChoiceLinkingInfo* pLinkerInfo = pkOffensiveMissionInfo->GetLinkerInfo(iI);
+					if (pLinkerInfo)
 					{
-						CvModEventCityChoiceInfo* pkLoopMissionInfo = GC.getCityEventChoiceInfo((CityEventChoiceTypes)i);
-						if (pkLoopMissionInfo && pkLoopMissionInfo->isEspionageMission())
+						CityEventChoiceTypes eLinkerCityEventChoice = (CityEventChoiceTypes)pLinkerInfo->GetCityLinkingEventChoice();
+						if (eLinkerCityEventChoice == eMission)
 						{
-							bNoOffensiveMissions = false;
-							break;
+							// this one would be blocked by this counterspy. score how valuable that is to us
+							int iTempScore = -1 * GetNegativeMissionScoreForOwner(pCity, ePlayer, pkOffensiveMissionInfo, pOwnerDiploAI);
+							if (iTempScore > iMaxScore)
+								iMaxScore = iTempScore;
 						}
 					}
 				}
-				if (bNoOffensiveMissions)
-					return iScore;
-
-				bool bNoForeignSpies = true;
-				for (int i = 0; i < MAX_MAJOR_CIVS; i++)
-				{
-					PlayerTypes eTargetPlayer = (PlayerTypes)i;
-					if (eTargetPlayer == ePlayer)
-					{
-						continue;
-					}
-
-					if (GET_PLAYER(eTargetPlayer).isMinorCiv())
-						continue;
-
-					if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
-						continue;
-
-					if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > 0)
-					{
-						bNoForeignSpies = false;
-						break;
-					}
-				}
-				if (bNoForeignSpies)
-					return iScore;
-
-				iScore += 15;
-				// how many spy actions have been performed against us?
-				int iTurnsOfEspionage = GC.getGame().getGameTurn() - m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted;
-				iTurnsOfEspionage *= 100;
-				iTurnsOfEspionage /= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				if (m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted != 0 && iTurnsOfEspionage > 0)
-				{
-					int iNumCityRobbed = 0;
-					for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
-					{
-						iNumCityRobbed += pCityEspionage->m_aiNumTimesCityRobbed[(PlayerTypes)iLoopPlayer];
-					}
-					iScore += min(75, 1000 * iNumCityRobbed / iTurnsOfEspionage);
-				}
-
-				// if going for SV and ahead in science, protect our capital from having techs stolen
-				if (pDiplomacyAI->IsGoingForSpaceshipVictory() && pDiplomacyAI->IsCloseToSpaceshipVictory())
-				{
-					iScore += 35;
-				}
 			}
+		}
+		// whether we actually need a counterspy will depend if there's evidence we are being spied upon!
+		int iNumCityRobbed = 0;
+		int iNumSpiesInCity = 0;  // a human can only guess at this based on notification frequency. TODO: similar idea for AI
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iLoopPlayer;
+			iNumCityRobbed += pCityEspionage->m_aiNumTimesCityRobbed[eLoopPlayer];
+			if (pCityEspionage->m_aiSpyAssignment[eLoopPlayer] != -1)
+				iNumSpiesInCity++;
+		}
+		if (pCityEspionage->HasCounterSpy())
+			iNumSpiesInCity--;
+		
+		if (iNumSpiesInCity > 0)
+		{
+			int iTurnsOfEspionage = max(1, GC.getGame().getGameTurn() - m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted);
+			iTurnsOfEspionage *= 100;
+			iTurnsOfEspionage /= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			//TODO: actually evaluate yields from counterspy ID/Kill.
+			// scale by how much of the time the city has been under a spy cooldown (multiple players' spies can exceed 100%)
+			iScore += iMaxScore * (100 + 100 * iEspionageCooldown * iNumCityRobbed / iTurnsOfEspionage) / 100;
 		}
 
 		if (bLogAllChoices && GC.getLogging() && GC.getAILogging() && iScore > GD_INT_GET(ESPIONAGE_XP_PER_TURN_COUNTERSPY))
@@ -8455,7 +9141,18 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 			CvString strCiv = GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription();
 			CvString strMissionInfo = GC.getCityEventChoiceInfo(eMission)->GetDescription();
 			CvString strMsg;
-			strMsg.Format("%s (%s), %s. Score: %d", pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), iScore);
+			CvString strModifiers;
+			strMsg.Format("%s (%s), %s, Score: %d", pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), iScore);
+			
+			strModifiers.Format(", Effect Scoring: %d", iPositiveScoring);
+			strMsg = strMsg + strModifiers;
+			
+			strModifiers.Format(", Defense Scoring: %d", iMaxScore);
+			strMsg = strMsg + strModifiers;
+			
+			strModifiers.Format(", Num times robbed: %d", iNumCityRobbed);
+			strMsg = strMsg + strModifiers;
+			
 			m_pPlayer->GetEspionage()->LogEspionageScoringMsg(strMsg);
 		}
 
@@ -8467,233 +9164,89 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		if (!pkMissionInfo->isEspionageMission())
 			return -1;
 
-		PlayerTypes eTargetPlayer = pCity->getOwner();
-
 		// mission requirements (excluding cooldowns and network point requirements) not met?
 		CityEventTypes eParentEvent = m_pPlayer->GetEspionage()->GetSpyMissionEvent();
 		if (!pCity->IsCityEventChoiceValidEspionage(eMission, eParentEvent, iSpyIndex, ePlayer, true, true))
 			return -1;
 
 		int iScore = 0;
-		if (pkMissionInfo->getStealTech() > 0)
-		{
-			iScore +=  min(m_pPlayer->GetEspionage()->GetNumTechsToSteal(eTargetPlayer) * 20, 100);
-			if (pDiplomacyAI->IsGoingForSpaceshipVictory() || pDiplomacyAI->IsGoingForWorldConquest())
-			{
-				iScore += 25;
-			}
-		}
-		if (pkMissionInfo->getStealGW() > 0)
-		{
-			iScore += min(pCity->GetCityCulture()->GetNumGreatWorks() * 10, 20);
-			if (pDiplomacyAI->IsGoingForCultureVictory())
-			{
-				iScore += 25;
-				// if we want to go for culture victory and still need a lot of influence, focus on this mission
-				if (!pDiplomacyAI->IsCloseToCultureVictory())
-				{
-					iScore += 20;
-				}
-			}
-			if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
-			{
-				// try to stop another player from winning?
-				iScore += 25;
-			}
-		}
-		if (pkMissionInfo->getNoTourismTurns() > 0)
-		{
-			if (GET_PLAYER(eTargetPlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
-			{
-				iScore += min(pCity->getYieldRateTimes100(YIELD_TOURISM) / 5, 100);
-			}
-		}
-		if (pkMissionInfo->getRandomBarbs() > 0)
-		{
-			if (pDiplomacyAI->GetCivApproach(eTargetPlayer) <= CIV_APPROACH_HOSTILE)
-			{
-				iScore += 21;
-				if (m_pPlayer->IsAtWarWith(eTargetPlayer))
-				{
-					iScore += 30;
-				}
-			}
-		}
-		if (pkMissionInfo->getBlockBuildingTurns() > 0)
-		{
-			// only check while we're in the city
-			if (iSpyIndex >= 0 && pCity->GetCityEspionage()->GetRevealCityScreen(ePlayer))
-			{
-				BuildingTypes eBuilding = pCity->getProductionBuilding();
-				if (eBuilding != NO_BUILDING)
-				{
-					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
-					ASSERT(pBuildingInfo, "pBuildingInfo is null");
-					if (pBuildingInfo)
-					{
-						if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
-						{
-							// city is constructing a wonder.
-							// are we spiteful enough to delay them just because? add a small bonus.
-							if (pDiplomacyAI->IsWonderSpammer(ePlayer) || (pDiplomacyAI->GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && pDiplomacyAI->GetCivOpinion(ePlayer) <= CIV_OPINION_COMPETITOR)
-								|| pDiplomacyAI->GetVictoryDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE || pDiplomacyAI->GetVictoryBlockLevel(ePlayer) == BLOCK_LEVEL_FIERCE
-								|| pDiplomacyAI->GetBiggestCompetitor() == ePlayer)
-							{
-								iScore += 10;
-							}
 
-							// are we constructing the same wonder somewhere
-							CvCity* pLoopCity = NULL;
-							int iLoop = 0;
-							for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
-							{
-								if (pLoopCity->getProductionBuilding() == eBuilding)
-								{
-									int iTheirProductionTurnsLeft = pCity->getProductionTurnsLeft();
-									int iOurProductionTurnsLeft = pLoopCity->getProductionTurnsLeft();
+		// two considerations: direct benefits to you, and indirect benefit via the detriment to them
 
-									// Can we build the Wonder if we stall them for X turns?
-									if (iOurProductionTurnsLeft >= iTheirProductionTurnsLeft && iOurProductionTurnsLeft < (iTheirProductionTurnsLeft + pkMissionInfo->getBlockBuildingTurns()))
-									{
-										iScore += 500;
-									}
-									else if (iOurProductionTurnsLeft > iTheirProductionTurnsLeft && iOurProductionTurnsLeft == (iTheirProductionTurnsLeft + pkMissionInfo->getBlockBuildingTurns())
-											&& (m_pPlayer->GetID() < GET_PLAYER(ePlayer).GetID()))
-									{
-										iScore += 500;
-									}
-									// Might also be worth it if they're just behind us, to account for any instant Production boosts they might receive.
-									else if (iTheirProductionTurnsLeft > iOurProductionTurnsLeft && iTheirProductionTurnsLeft <= (iOurProductionTurnsLeft - 3))
-									{
-										iScore += 100;
-									}
-									break;
-								}
-							}
-						}
-					}
-				}
-				ProjectTypes eProject = pCity->getProductionProject();
-				if (eProject != NO_PROJECT)
-				{
-					CvProjectEntry* pkProject = GC.getProjectInfo(eProject);
-					if (pkProject && !pkProject->IsRepeatable())
-					{
-						// Are they building the Apollo Program? Stop them!
-						if (eProject == (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT))
-						{
-							if (pDiplomacyAI->GetVictoryDisputeLevel(ePlayer) > DISPUTE_LEVEL_NONE || pDiplomacyAI->GetVictoryBlockLevel(ePlayer) > BLOCK_LEVEL_NONE)
-							{
-								iScore += 50;
-							}
-						}
-						// Are they building the Manhattan Project?
-						else if (eProject == (ProjectTypes)GD_INT_GET(NUKE_TRIGGER_PROJECT))
-						{
-							// At war, planning war, or they've declared war on us before? Let's make it harder for them to nuke us.
-							if (m_pPlayer->IsAtWarWith(ePlayer) || pDiplomacyAI->GetCivApproach(ePlayer) == CIV_APPROACH_WAR)
-							{
-								iScore += 30;
-							}
-							else if (!GET_PLAYER(ePlayer).IsVassalOfSomeone())
-							{
-								if (pDiplomacyAI->GetNumWarsDeclaredOnUs(ePlayer) > 0 || pDiplomacyAI->GetNumCitiesCapturedBy(ePlayer) > 0 || pDiplomacyAI->GetNumTimesTheyPlottedAgainstUs(ePlayer) > 0)
-									iScore += 15;
-							}
-						}
-					}
-				}
-			}
-		}
-		if (pkMissionInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
+		// there is a valuation for detriment already, just have to decide how much we value hurting this player
+		// by default, hurting someone is not as good for us as it is bad for them (say, half)
+		int iHateFactor = 50;
+		// modify this based on diplo approach (friends is negative, war/denounce is positive)
+		iHateFactor += GetPlayerModifier(eOwner, /*bOnlyDiplo*/ true);
+		// are we trying to stop them winning? If yes, we are desperate to hurt them
+		if (pDiplomacyAI->GetVictoryDisputeLevel(eOwner) == DISPUTE_LEVEL_FIERCE || pDiplomacyAI->GetVictoryBlockLevel(eOwner) == BLOCK_LEVEL_FIERCE)
 		{
-			int iCapSpecialists = GET_PLAYER(ePlayer).getCapitalCity() ? GET_PLAYER(ePlayer).getCapitalCity()->GetCityCitizens()->GetTotalSpecialistCount() : 0;
-			iScore = (min(15, pCity->GetCityCitizens()->GetTotalSpecialistCount()) + 3 * min(15, iCapSpecialists)) / 2;
-			if (pDiplomacyAI->IsGoingForCultureVictory())
-			{
-				iScore += 15;
-			}
+			iHateFactor = 200;
 		}
-		if (pkMissionInfo->getStealFromTreasuryPercent() > 0)
+		// are these our rivals? If yes, their loss is our gain
+		else if (pDiplomacyAI->GetBiggestCompetitor() == eOwner)
 		{
-			int iStealPercent = pkMissionInfo->getStealFromTreasuryPercent();
-			// inverse scaling with game speed
-			iStealPercent *= 100;
-			iStealPercent /= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			int iAmount = GET_PLAYER(eTargetPlayer).GetTreasury()->GetGold() * iStealPercent / 100;
-
-			iScore += iAmount / 100;
+			iHateFactor = 100;
 		}
-		if (pkMissionInfo->getSapCityTurns() > 0)
+		// are these our strategic allies? If yes, we don't benefit from hurting them economically
+		else if (pDiplomacyAI->IsHasDefensivePact(eOwner) || pDiplomacyAI->IsStrategicTradePartner(eOwner))
 		{
-			if (m_pPlayer->IsAtWarWith(eTargetPlayer) || pDiplomacyAI->GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
-			{
-				if (pDiplomacyAI->GetTargetValue(eTargetPlayer) == TARGET_VALUE_FAVORABLE || pDiplomacyAI->GetTargetValue(eTargetPlayer) == TARGET_VALUE_SOFT)
-				{
-					// do we have a border with the city?
-					int iBorderTiles = 0;
-					for (int iI = RING1_PLOTS; iI < RING5_PLOTS; iI++)
-					{
-						CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-						if (!pLoopPlot)
-							continue;
-
-						if (pCity->GetID() != pLoopPlot->getOwningCityID() && pLoopPlot->getOwner() == ePlayer)
-							iBorderTiles++;
-					}
-					iScore += min(60, iBorderTiles * 15);
-					if (pDiplomacyAI->IsGoingForWorldConquest())
-					{
-						iScore += 25;
-					}
-				}
-			}
-			if (iSpyIndex > 0)
-			{
-				// increase score if it's now a good opportunity to do the mission
-				if (m_pPlayer->IsAtWarWith(eTargetPlayer) && pCity->plot()->GetNumEnemyUnitsAdjacent(pCity->getTeam(), NO_DOMAIN) >= 2 && pCity->getDamageTakenLastTurn() > 5)
-				{
-					int iDamagePercent = 100 * pCity->getDamage() / pCity->GetMaxHitPoints();
-					iScore += iDamagePercent * 2 + pCity->getDamageTakenLastTurn() * 5;
-				}
-			}
+			iHateFactor = min(iHateFactor, 0);
 		}
-
-		int iNumYieldTypes = GC.getNUM_YIELD_TYPES(true);
-		for (int iYield = 0; iYield < iNumYieldTypes; iYield++)
-		{
-			YieldTypes eYield = (YieldTypes)iYield;
-
-			int iSiphonYield = pkMissionInfo->getYieldSiphon(eYield);
-			if (iSiphonYield <= 0)
-				continue;
-
-			int iCityYield = pCity->getYieldRateTimes100(eYield);
-			iCityYield *= iSiphonYield;
-			iCityYield /= 10000;
-			iCityYield *= pkMissionInfo->getEventDuration();
-			// the value of yields decreases with era
-			iCityYield /= max(1, (int)GET_PLAYER(ePlayer).GetCurrentEra());
-
-			iScore += iCityYield / 25;
-		}
-		iScore += GD_INT_GET(ESPIONAGE_XP_PER_TURN_OFFENSIVE);
-
-		int iTotalScore = iScore;
+		int iEnemyScoring = GetNegativeMissionScoreForOwner(pCity, eOwner, pkMissionInfo, pOwnerDiploAI) * iHateFactor / 100;
+		iScore -= iEnemyScoring;
+		
+		// now evaluate direct benefits
+		int iYourScoring = GetMissionScoreOffensiveBenefits(pCity, eOwner, pkMissionInfo, pDiplomacyAI, iSpyIndex);
+		iScore += iYourScoring;
+		
+		// cheaper and safer missions can be better because you get to use more of them
+		// cost multiplies by up to 2.5 for 800 cost vs 2000 cost
+		
+		int iExpectedNP = m_pPlayer->GetEspionage()->CalcNetworkPointsPerTurn(SPY_STATE_GATHERING_INTEL, pCity, iSpyIndex);
+		// if you get killed, you effectively lose network points due to downtime. calc assumes you come back to the same city
+		int iTravel = m_pPlayer->GetEspionage()->CalcRequired(SPY_STATE_TRAVELLING, pCity, iSpyIndex) / m_pPlayer->GetEspionage()->CalcPerTurn(SPY_STATE_TRAVELLING, pCity, iSpyIndex);
+		int iTurnsLostToDeath = iTravel + GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER);
+		int iKillChance = pkMissionInfo->GetSpyKillChance();
+		// if you always use cheap missions you could overcap on points, then you might as well use something expensive
+		// often you are looking at missions you cant afford yet, in which case ignore this as zero
 		int iProgress = 0;
+		int iLeftover = 0;
+		if (iSpyIndex >= 0)
+		{
+			iProgress = m_pPlayer->GetEspionage()->GetNetworkPointsStored(iSpyIndex);
+			iLeftover = max(0, iProgress - pkMissionInfo->GetNetworkPointsNeededScaled());
+		}
+		// scale the score by how relatively expensive this mission is
+		int iEffectiveCost = pkMissionInfo->GetNetworkPointsNeededScaled() + (iExpectedNP * iTurnsLostToDeath * iKillChance / 100);
+		// this numerator is arbitrary between offensive missions (set to max possible cost) but it affects counterspy vs mission vs rig vs diplomat relative scoring
+		int iNumerator = (2000 * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100) + (iTurnsLostToDeath * iExpectedNP);
+		
+		// even a free mission would still trigger a cooldown, so there is a minimum cost
+		iScore *= iNumerator / (iLeftover + max(iEspionageCooldown * iExpectedNP, iEffectiveCost));
+		// therefore, normalize to a typical cheap missions
+		iScore /= 2; 
+
+		// now scaling is done, take into account possible diplo penalties
+		// the diplo penalty for getting identified is bad if we spy on our friends, but its only a mild inconveniece if they are our enemies (e.g. gives them yields)
+		int iIDOffset = ((200 - iHateFactor) / 4) * pkMissionInfo->GetSpyIdentificationChance() / 100;
+		int iTotalScore = iScore - iIDOffset;
+		
+		// this could be negative at this point, in which case zero it
+		iTotalScore = max(0, iScore);
+
+		// weight missions higher if you have already earned points towards them (otherwise spies might switch all the time)
 		if (iSpyIndex >= 0 && iScore > 0)
 		{
 			// add current progress
-			iProgress = m_pPlayer->GetEspionage()->GetNetworkPointsStored(iSpyIndex);
 			iProgress *= 100;
 			iProgress /= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iProgress /= 20;
+			iProgress /= 5;
+			iTotalScore += iProgress;
 		}
-		iTotalScore += iProgress;
 
+		// modify score based on difference between base NP and expected NP. Accounts for security differences between cities
 		int iBaseNP = GD_INT_GET(ESPIONAGE_NP_BASE);
-		int iExpectedNP = m_pPlayer->GetEspionage()->CalcNetworkPointsPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
-		// modify score based on difference between base NP and expected NP
 		iTotalScore *= iExpectedNP;
 		iTotalScore /= iBaseNP;
 
@@ -8703,10 +9256,17 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 			CvString strMissionInfo = GC.getCityEventChoiceInfo(eMission)->GetDescription();
 			CvString strMsg;
 			CvString strModifiers;
-			strMsg.Format("%s (%s), %s. Score: %d.", pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), iTotalScore);
+			strMsg.Format("%s (%s), %s, Score: %d.", pCity->getName().c_str(), strCiv.c_str(), strMissionInfo.c_str(), iTotalScore);
+			
+			strModifiers.Format(", Enemy Scoring: %d", iEnemyScoring);
+			strMsg = strMsg + strModifiers;
+		
+			strModifiers.Format(", Your Scoring: %d", iYourScoring);
+			strMsg = strMsg + strModifiers;
+			
 			if (iTotalScore != iScore)
 			{
-				strModifiers.Format(" Base: %d", iScore);
+				strModifiers.Format(", Base: %d", iScore);
 				strMsg = strMsg + strModifiers;
 				if (iProgress > 0)
 				{
@@ -8718,7 +9278,13 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 					strModifiers.Format(", Percentage Modifier for NP: %d", 100 * iExpectedNP / iBaseNP);
 					strMsg = strMsg + strModifiers;
 				}
+				if (iIDOffset != 0)
+				{
+					strModifiers.Format(", Diplomatic Offset for Spy ID: %d", iIDOffset);
+					strMsg = strMsg + strModifiers;
+				}
 			}
+			
 			m_pPlayer->GetEspionage()->LogEspionageScoringMsg(strMsg);
 		}
 
@@ -8846,10 +9412,10 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList(bool bLogAllCho
 			iLeagueScore += 25;
 			break;
 		case(CvLeagueAI::DIPLOMAT_USEFULNESS_MEDIUM) :
-			iLeagueScore += 50;
+			iLeagueScore += 75;
 			break;
 		case(CvLeagueAI::DIPLOMAT_USEFULNESS_HIGH) :
-			iLeagueScore += 100;
+			iLeagueScore += 150;
 			break;
 		default:
 			break;
@@ -8859,30 +9425,26 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList(bool bLogAllCho
 		int iTourismScore = 0;
 		if (pDiploAI->IsGoingForCultureVictory())
 		{
-			// if we are still far away from a culture victory, don't use diplomats for tourism bonuses. focus on something else with spies
-			if (iAverageTurnsUntilInfluential < 300)
+			int iTurnsUntilInfluential = m_pPlayer->GetCulture()->GetTurnsToInfluential(eTargetPlayer);
+			if (iTurnsUntilInfluential != 0)
 			{
-				int iTurnsUntilInfluential = m_pPlayer->GetCulture()->GetTurnsToInfluential(eTargetPlayer);
-				if (iTurnsUntilInfluential != 0)
+				// are we are reasonably close to culture victory?
+				int iNumPlayersNotInfluential = 0;
+				int iNumWorsePlayers = 0;
+				for (size_t iLoop = 0; iLoop < vTourismTurnsNeeded.size(); iLoop++)
 				{
-					// we are reasonably close to culture victory
-					int iNumPlayersNotInfluential = 0;
-					int iNumWorsePlayers = 0;
-					for (size_t iLoop = 0; iLoop < vTourismTurnsNeeded.size(); iLoop++)
-					{
 
-						if (vTourismTurnsNeeded[iLoop] > 0)
-						{
-							iNumPlayersNotInfluential++;
-						}
-						if (vTourismTurnsNeeded[iLoop] > iTurnsUntilInfluential)
-						{
-							iNumWorsePlayers++;
-						}
+					if (vTourismTurnsNeeded[iLoop] > 0)
+					{
+						iNumPlayersNotInfluential++;
 					}
-					// the less holdouts there are, the higher is the score. if there is more than one option, give the highest score to the players for which we still need the longest
-					iTourismScore += max(100, (500 - 100 * iNumPlayersNotInfluential)) * (100 - 100 * iNumWorsePlayers / iNumPlayers) / 100;
+					if (vTourismTurnsNeeded[iLoop] > iTurnsUntilInfluential)
+					{
+						iNumWorsePlayers++;
+					}
 				}
+				// the less holdouts there are, the higher is the score. if there is more than one option, give the highest score to the players for which we still need the longest
+				iTourismScore += max(100, (500 - 100 * iNumPlayersNotInfluential)) * (100 - 100 * iNumWorsePlayers / iNumPlayers) / 100;
 			}
 		}
 
@@ -9030,10 +9592,6 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList(bool bLogAllChoi
 				CityEventChoiceTypes eBestMission = GetBestMissionInCity(pLoopCity, iValue, aSpyMissionList, pEspionage->GetSpyIndexInCity(pLoopCity), bLogAllChoices);
 				if (iValue <= 0)
 					continue;
-
-				// player modifier
-				iValue *= 100 + iPlayerModifier;
-				iValue /= 100;
 
 				kEntry.m_iScore = iValue;
 				kEntry.m_eMission = eBestMission;
@@ -9349,7 +9907,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList(bool bLogAllChoice
 		iRiggingInfluence /= 100;
 		if (MOD_BALANCE_VP)
 		{
-			int iEra = m_pPlayer->GetCurrentEra();
+			int iEra = (int)m_pPlayer->GetCurrentEra();
 			if (iEra <= 0)
 			{
 				iEra = 1;

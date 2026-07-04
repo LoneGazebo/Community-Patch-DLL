@@ -3565,14 +3565,13 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	}
 	if (PolicyInfo->GetFreeSpy() != 0)
 	{
-		if (pPlayerTraits->IsDiplomat())
-		{
-			yield[YIELD_GOLD] += PolicyInfo->GetFreeSpy() * 250;
-		}
-		else
-		{
-			yield[YIELD_GOLD] += PolicyInfo->GetFreeSpy() * 50;
-		}
+		int iEspionageFlavor = pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ESPIONAGE"));
+		int iDiplomacyFlavor = pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		yield[YIELD_GOLD] += PolicyInfo->GetFreeSpy() * (iEspionageFlavor * iEspionageFlavor * iDiplomacyFlavor / 2) * GD_INT_GET(ESPIONAGE_SPY_POINT_UNIT) / GC.getGame().GetSpyThreshold();
+		// max spy-focus valuation is 10 * 10 * 5 / 2 = 250
+		// standard diplo valuation is 8 * 8 * 8 / 2 = 256
+		// expansionist valuation is 5 * 5 * 6 / 2 = 75
+		// conquerer valuation is 4 * 4 * 2 / 2 = 16
 	}
 	if (PolicyInfo->GetReligionDistance() != 0)
 	{

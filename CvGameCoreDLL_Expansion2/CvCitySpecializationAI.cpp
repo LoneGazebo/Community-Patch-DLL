@@ -207,13 +207,13 @@ void CvCitySpecializationXMLEntries::DeleteArray()
 /// Constructor
 CvCitySpecializationAI::CvCitySpecializationAI():
 	m_bSpecializationsDirty(false),
+	m_iLastTurnEvaluated(0),
+	m_bChooseNewWonder(false),
 	m_bInterruptWonders(false),
 	m_bInterruptBuildings(false),
-	m_bChooseNewWonder(false),
 	m_eNextWonderDesired(NO_BUILDING),
 	m_iWonderCityID(-1),
-	m_iNextWonderWeight(0),
-	m_iLastTurnEvaluated(0)
+	m_iNextWonderWeight(0)
 {
 }
 
@@ -725,7 +725,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 		bool bCoastal = pkCitySpecializationEntry->IsMustBeCoastal();
 
 		// Pick best existing city based on a better computation of existing city's value for a yield type
-		int iBestValue = 1;
+		long long iBestValue = 1;
 		int iBestCityID = -1;
 		for (map<int, vector<int>>::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
 		{
@@ -737,7 +737,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 			if (pCity->getHappinessDelta()<0 && eYield == YIELD_FOOD)
 				continue;
 
-			int iCityValue = 0;
+			long long iCityValue = 0;
 			if (eYield == NO_YIELD)
 			{
 				for (int iI = 0; iI < YIELD_TOURISM; iI++)
@@ -1036,7 +1036,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldTypes eYield, int iInitialValue)
 {
 	// Everything looks at yield modifier
-	int iRtnValue = iInitialValue * (100 + pCity->getYieldRateModifier(eYield)) / 100;
+	long long iRtnValue = (long long)iInitialValue * (100 + pCity->getYieldRateModifier(eYield)) / 100;
 
 	// ... and yield per pop
 	int iYieldPerPop = pCity->GetYieldPerPopTimes100(eYield);
@@ -1167,7 +1167,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		break; // Yield unmodified.
 	}
 
-	return iRtnValue;
+	return (int)min(iRtnValue, (long long)INT_MAX);
 }
 
 /// Should this player worry about assigning cities to build spaceship parts?

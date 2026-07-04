@@ -484,7 +484,7 @@ SET Text = 'Shogunate'
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Non-Recon Melee Land Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BUSHIDO}[ENDCOLOR] Promotion. When a [ICON_GREAT_ADMIRAL] Great Admiral or [ICON_GREAT_GENERAL] Great General is born, gain 50% progress toward a [ICON_GREAT_WORK] Great Writer, Artist, and Musician in your [ICON_CAPITAL] Capital.'
+SET Text = 'Melee, Gunpowder, Mounted, and Armored Units start with the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_BUSHIDO}[ENDCOLOR] Promotion. When a [ICON_GREAT_ADMIRAL] Great Admiral or [ICON_GREAT_GENERAL] Great General is born, gain 50% progress toward a [ICON_GREAT_WORK] Great Writer, Artist, and Musician in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED';
 
 UPDATE Language_en_US
@@ -567,7 +567,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 -- Netherlands
 --------------------
 UPDATE Language_en_US
-SET Text = '+3 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era.'
+SET Text = '+3 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. [COLOR_YELLOW](Benefit to The Netherlands is taken into account during AI Trade Deal evaluation)[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION';
 
 UPDATE Language_en_US
@@ -689,7 +689,11 @@ WHERE Tag = 'TXT_KEY_UNIT_PORTUGUESE_NAU_STRATEGY';
 -- Rome
 --------------------
 UPDATE Language_en_US
-SET Text = '+25% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital. +2 [ICON_GOLD] Gold, +1 [ICON_CULTURE] Culture, and +1 [ICON_TOURISM] Tourism in [ICON_CAPITAL] Capital for every City within 8 tiles of and [ICON_CONNECTED] Connected by land to any owned City, scaling with Era.'
+SET Text = 'All Roads Lead to Rome'
+WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER_SHORT';
+
+UPDATE Language_en_US
+SET Text = '+25% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital. +2 [ICON_GOLD] Gold, +1 [ICON_CULTURE] Culture, and +1 [ICON_TOURISM] Tourism in [ICON_CAPITAL] Capital for every City within 8 tiles of any owned City, provided the Cities are [ICON_CONNECTED] Connected by land, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Language_en_US

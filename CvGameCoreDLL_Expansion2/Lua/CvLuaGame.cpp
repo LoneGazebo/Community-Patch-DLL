@@ -518,6 +518,12 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetNumYieldTypes);
 	Method(GetBaseUnitUpgradeCost);
+
+	Method(DeleteMPMP);
+	Method(CreateMPMP);
+	Method(WriteMPMP);
+	Method(CopyModDataToMPMP);
+	Method(AddUIAddinToMPMP);
 }
 //------------------------------------------------------------------------------
 
@@ -4243,3 +4249,9 @@ int CvLuaGame::lGetBaseUnitUpgradeCost(lua_State* L)
 	lua_pushinteger(L, max(iCost, iDivisor));
 	return 1;
 }
+
+LUAAPIIMPL(Game, DeleteMPMP)
+LUAAPIIMPL(Game, CreateMPMP)
+LUAAPIIMPL(Game, WriteMPMP)
+LUAAPIIMPL(Game, CopyModDataToMPMP)
+LUAAPIIMPL(Game, AddUIAddinToMPMP)

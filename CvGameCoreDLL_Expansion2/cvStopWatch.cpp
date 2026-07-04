@@ -23,8 +23,8 @@ cvStopWatch::cvStopWatch(const char* szName, const char* szLogFile /* = NULL */,
 	m_szName(szName),
 	m_szLogFile(szLogFile),
 	m_dtseconds(0.0),
-	m_logFlags(logFlags), m_bStarted(),
-	m_nesting(ms_nesting), m_bDisable(bDisable),
+	m_logFlags(logFlags), m_nesting(ms_nesting),
+	m_bStarted(), m_bDisable(bDisable),
 	m_bShowNesting(bShowNesting), m_oldTimerVal()
 {
 	

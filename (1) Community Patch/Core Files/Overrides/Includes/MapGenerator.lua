@@ -9,46 +9,6 @@
 
 include("AssignStartingPlots");
 
-------------------------------------------------------------------------------
---	Various Map utility functions
-------------------------------------------------------------------------------
--- Iterate through plots
-function Shuffle(t)
-	local len = #t;
-	local random = Map.Rand;
-	for i = 1, len, 1 do
-		local k = random(len - 1, "Shuffling Values") + 1;
-		t[i], t[k] = t[k], t[i];
-	end
-end
-
-local _plots = {}; --memoize table of plots
-function Plots(sort)
-	local _indices = {};
-	for i = 1, Map.GetNumPlots(), 1 do
-		_indices[i] = i - 1;
-	end
-
-	if(sort) then
-		sort(_indices);
-	end
-
-	local cur = 0;
-	local it = function()
-		cur = cur + 1;
-		local index = _indices[cur];
-		local plot;
-
-		if(index) then
-			plot = _plots[index] or Map.GetPlotByIndex(index);
-			_plots[index] = plot;
-		end
-		return index, plot;
-	end
-
-	return it;
-end
-
 function GetCoreMapOptions()
 	--[[ All options have a default SortPriority of 0. Lower values will be shown above
 	higher values. Negative integers are valid. So the Core Map Options, which should 

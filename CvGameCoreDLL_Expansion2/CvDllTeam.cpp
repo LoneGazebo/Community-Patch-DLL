@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllTeam::CvDllTeam(CvTeam* pTeam)
-	: m_pTeam(pTeam)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pTeam(pTeam)
 {
 }
 //------------------------------------------------------------------------------

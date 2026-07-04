@@ -96,11 +96,11 @@ CvTraitEntry::CvTraitEntry() :
 	m_bExpansionWLTKD(false),
 	m_bTradeRouteOnly(false),
 	m_bKeepConqueredBuildings(false),
-	m_iWLTKDGPImprovementModifier(0),
-	m_iGrowthBoon(0),
 	m_bMountainPass(false),
 	m_bWorkersMountainPass(false),
 	m_bUniqueBeliefsOnly(false),
+	m_iGrowthBoon(0),
+	m_iWLTKDGPImprovementModifier(0),
 	m_iAllianceCSDefense(0),
 	m_iAllianceCSStrength(0),
 	m_iTourismGABonus(0),
@@ -116,15 +116,6 @@ CvTraitEntry::CvTraitEntry() :
 	m_iEventTourismBoost(0),
 	m_iReligionSpreadTourism(0),
 	m_iEventGP(0),
-	m_iWLTKDCulture(0),
-	m_iWLTKDGATimer(0),
-	m_iWLTKDUnhappinessNeedsMod(0),
-	m_iStartingSpies(0),
-	m_iSpyOffensiveStrengthModifier(0),
-	m_iSpyMoveRateBonus(0),
-	m_iSpySecurityModifier(0),
-	m_iSpyExtraRankBonus(0),
-	m_iQuestYieldModifier(0),
 	m_iWonderProductionModifierToBuilding(0),
 	m_iPolicyGEorGM(0),
 	m_iGAGarrisonCityRangeStrikeModifier(0),
@@ -180,6 +171,15 @@ CvTraitEntry::CvTraitEntry() :
 	m_iSeaTradeRouteRangeBonus(0),
 	m_iTradeReligionModifier(0),
 	m_iTradeBuildingModifier(0),
+	m_iWLTKDCulture(0),
+	m_iWLTKDGATimer(0),
+	m_iWLTKDUnhappinessNeedsMod(0),
+	m_iStartingSpies(0),
+	m_iSpyOffensiveStrengthModifier(0),
+	m_iSpyMoveRateBonus(0),
+	m_iSpySecurityModifier(0),
+	m_iSpyExtraRankBonus(0),
+	m_iQuestYieldModifier(0),
 
 	m_eFreeUnitPrereqTech(NO_TECH),
 	m_eFreeBuilding(NO_BUILDING),
@@ -225,10 +225,18 @@ CvTraitEntry::CvTraitEntry() :
 	m_piStrategicResourceQuantityModifier(NULL),
 	m_piResourceQuantityModifiers(NULL),
 	m_piNumFreeResourceOnWorldWonderCompletion(NULL),
-	m_ppiImprovementYieldChanges(NULL),
-	m_ppiPlotYieldChanges(NULL),
 	m_paiGAPToYield(NULL),
 	m_paiMountainRangeYield(NULL),
+	m_ppiYieldFromTileEarnTerrainType(NULL),
+	m_ppiYieldFromTilePurchaseTerrainType(NULL),
+	m_ppiYieldFromTileConquest(NULL),
+	m_ppiYieldFromTileCultureBomb(NULL),
+	m_ppiYieldFromTileStealCultureBomb(NULL),
+	m_ppiYieldFromTileSettle(NULL),
+	m_ppiYieldChangePerImprovementBuilt(NULL),
+	m_pbiYieldFromBarbarianCampClear(),
+	m_ppiImprovementYieldChanges(NULL),
+	m_ppiPlotYieldChanges(NULL),
 	m_piYieldFromLevelUp(NULL),
 	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
@@ -258,16 +266,11 @@ CvTraitEntry::CvTraitEntry() :
 	m_bProphetFervor(false),
 	m_bCombatBoostNearNaturalWonder(false),
 	m_piNumPledgesDomainProdMod(NULL),
-	m_piFreeUnitClassesDOW(NULL),
 	m_piDomainFreeExperienceModifier(NULL),
-	m_ppiYieldFromTileEarnTerrainType(NULL),
-	m_ppiYieldFromTilePurchaseTerrainType(NULL),
-	m_ppiYieldFromTileConquest(NULL),
-	m_ppiYieldFromTileCultureBomb(NULL),
-	m_ppiYieldFromTileStealCultureBomb(NULL),
-	m_ppiYieldFromTileSettle(NULL),
-	m_ppiYieldChangePerImprovementBuilt(NULL),
-	m_pbiYieldFromBarbarianCampClear(),
+	m_piGreatPersonProgressFromPolicyUnlock(NULL),
+	m_piGreatPersonProgressFromKills(),
+	m_piRandomGreatPersonProgressFromKills(),
+	m_piFreeUnitClassesDOW(NULL),
 	m_pbiYieldFromRouteMovementInForeignTerritory(),
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_piCapitalYieldChanges(NULL),
@@ -296,15 +299,12 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiSpecialistYieldChanges(NULL),
 	m_ppiGreatPersonExpendedYield(NULL),
 	m_ppiGreatPersonBornYield(NULL),
-	m_piGoldenAgeGreatPersonRateModifier(NULL),
 	m_piGreatPersonCostReduction(NULL),
+	m_piGoldenAgeGreatPersonRateModifier(NULL),
 	m_piPerPuppetGreatPersonRateModifier(NULL),
 	m_piGreatPersonGWAM(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
 	m_piGoldenAgeFromGreatPersonBirth(NULL),
-	m_piGreatPersonProgressFromPolicyUnlock(NULL),
-	m_piGreatPersonProgressFromKills(),
-	m_piRandomGreatPersonProgressFromKills(),
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
 {
 }
@@ -3966,17 +3966,14 @@ void CvPlayerTraits::SetIsWarmonger()
 
 	// Not optimal, since this assumes the free promotions are always combat-based.
 	// But there isn't a good way to classify promotions.
+	// annoyingly we cannot access the IsMilitary database flag because CvBaseInfo* pkUnitCombatClassInfo doesnt know about it
 	for (int iNumPromos = 0; iNumPromos < GC.getNumPromotionInfos(); iNumPromos++)
 	{
 		for (int iNumUnits = 0; iNumUnits < GC.getNumUnitCombatClassInfos(); iNumUnits++)
 		{
 			UnitCombatTypes eUClass = (UnitCombatTypes)iNumUnits;
-			if (eUClass == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
-				continue;
-
 			if (HasFreePromotionUnitCombat((PromotionTypes)iNumPromos, eUClass))
 			{
-
 				m_bIsWarmonger = true;
 				return;
 			}
@@ -3992,11 +3989,14 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
+	/*
+	// this table can be used specifically to avoid AI valuation, otherwise it is redundant now we have civilian units classes
 	if (!GetFreePromotions().empty())
 	{
 		m_bIsWarmonger = true;
 		return;
 	}
+	*/
 
 	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
 	{
@@ -4298,7 +4298,8 @@ void CvPlayerTraits::SetIsExpansionist()
 			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
 			if (GetYieldChangeFromTileEarnTerrainType(eTerrain, eYield) > 0 ||
 				GetYieldChangeFromTilePurchaseTerrainType(eTerrain, eYield) > 0 ||
-				GetYieldChangeFromTileSettle(eTerrain, eYield) > 0)
+				GetYieldChangeFromTileSettle(eTerrain, eYield) > 0 ||
+				GetTerrainYieldChange(eTerrain, eYield) > 0)
 			{
 				m_bIsExpansionist = true;
 				return;

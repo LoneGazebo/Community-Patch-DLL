@@ -4513,18 +4513,24 @@ function SelectBuildingOrWonderArticle( buildingID )
 		end
 		UpdateButtonFrame( buttonAdded, Controls.ReplacesInnerFrame, Controls.ReplacesFrame );
 
+		g_CivilizationsManager:ResetInstances();
 		buttonAdded = 0;
-		if thisCiv then
-			g_CivilizationsManager:ResetInstances();
-			local thisCivInstance = g_CivilizationsManager:GetInstance();
-			if thisCivInstance then
-				local textureOffset, textureSheet = IconLookup( thisCiv.PortraitIndex, buttonSize, thisCiv.IconAtlas );
-				if textureOffset == nil then
-					textureSheet = defaultErrorTextureSheet;
-					textureOffset = nullOffset;
+		for row in GameInfo.Civilization_BuildingClassOverrides( condition ) do
+			if row.CivilizationType ~= "CIVILIZATION_BARBARIAN" and row.CivilizationType ~= "CIVILIZATION_MINOR" then
+				local otherCondition = "Type = '" .. row.BuildingClassType .. "'";
+				if row.BuildingType then
+					thisCiv = GameInfo.Civilizations[row.CivilizationType];
+					local thisCivInstance = g_CivilizationsManager:GetInstance();
+					if thisCivInstance then
+						local textureOffset, textureSheet = IconLookup( thisCiv.PortraitIndex, buttonSize, thisCiv.IconAtlas );
+						if textureOffset == nil then
+							textureSheet = defaultErrorTextureSheet;
+							textureOffset = nullOffset;
+						end
+						UpdateSmallButton( buttonAdded, thisCivInstance.CivilizationImage, thisCivInstance.CivilizationButton, textureSheet, textureOffset, CategoryCivilizations, Locale.ConvertTextKey( thisCiv.ShortDescription ), thisCiv.ID );
+						buttonAdded = buttonAdded + 1;
+					end
 				end
-				UpdateSmallButton( buttonAdded, thisCivInstance.CivilizationImage, thisCivInstance.CivilizationButton, textureSheet, textureOffset, CategoryCivilizations, Locale.ConvertTextKey( thisCiv.ShortDescription ), thisCiv.ID );
-				buttonAdded = buttonAdded + 1;
 			end
 		end
 		UpdateButtonFrame( buttonAdded, Controls.CivilizationsInnerFrame, Controls.CivilizationsFrame );
@@ -6835,6 +6841,7 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 			else
 				Controls.YieldLabel:SetText( Locale.ConvertTextKey( yieldString ) );
 				Controls.YieldFrame:SetHide( false );
+				UpdateNarrowTextBlock( yieldString, Controls.YieldLabel, Controls.YieldInnerFrame, Controls.YieldFrame );
 			end
 
 			-- Feature yield bonus (from Improvement_FeatureYieldChanges)
@@ -7054,9 +7061,9 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 						end
 						local entry = tTechYields[kTechInfo.ID];
 						if row.Yield > 0 then
-							entry.yieldStr = entry.yieldStr .. "+" .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+							entry.yieldStr = entry.yieldStr .. " " .. "+" .. tostring(row.Yield) .. kYieldInfo.IconString;
 						else
-							entry.yieldStr = entry.yieldStr .. tostring(row.Yield) .. kYieldInfo.IconString .. " ";
+							entry.yieldStr = entry.yieldStr .. " " .. tostring(row.Yield) .. kYieldInfo.IconString;
 						end
 					end
 				end
@@ -7067,7 +7074,7 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 				table.sort(sortedEntries, function(a, b) return a.tech.Cost < b.tech.Cost; end);
 				local lines = {};
 				for _, entry in ipairs(sortedEntries) do
-					table.insert(lines, Locale.ConvertTextKey(entry.tech.Description) .. ": " .. entry.yieldStr);
+					table.insert(lines, Locale.ConvertTextKey(entry.tech.Description) .. ":" .. entry.yieldStr);
 				end
 				return table.concat(lines, "[NEWLINE]");
 			end

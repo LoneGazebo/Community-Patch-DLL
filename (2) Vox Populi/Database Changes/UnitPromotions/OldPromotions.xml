@@ -1371,42 +1371,42 @@
 			<Description>TXT_KEY_PROMOTION_INVULNERABIILITY</Description>
 			<Help>TXT_KEY_PROMOTION_INVULNERABIILITY_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_INVULNERABIILITY</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_INVULNERABIILITY_PEDIA</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_SNEAK_ATTACK</Type>
 			<Description>TXT_KEY_PROMOTION_SNEAK_ATTACK</Description>
 			<Help>TXT_KEY_PROMOTION_SNEAK_ATTACK_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SNEAK_ATTACK</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_SNEAK_ATTACK_PEDIA</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_AMBITION</Type>
 			<Description>TXT_KEY_PROMOTION_AMBITION</Description>
 			<Help>TXT_KEY_PROMOTION_AMBITION_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_AMBITION</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_AMBITION_PEDIA</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_RESTLESSNESS</Type>
 			<Description>TXT_KEY_PROMOTION_RESTLESSNESS</Description>
 			<Help>TXT_KEY_PROMOTION_RESTLESSNESS_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RESTLESSNESS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_RESTLESSNESS_PEDIA</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ENEMY_BLADE</Type>
 			<Description>TXT_KEY_PROMOTION_ENEMY_BLADE</Description>
 			<Help>TXT_KEY_PROMOTION_ENEMY_BLADE_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ENEMY_BLADE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ENEMY_BLADE_PEDIA</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_EVIL_SPIRITS</Type>
 			<Description>TXT_KEY_PROMOTION_EVIL_SPIRITS</Description>
 			<Help>TXT_KEY_PROMOTION_EVIL_SPIRITS_HELP</Help>
 			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_EVIL_SPIRITS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_EVIL_SPIRITS_PEDIA</PediaEntry>
 		</Replace>
 	</UnitPromotions>
 </GameData>

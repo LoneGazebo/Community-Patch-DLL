@@ -114,6 +114,8 @@ CvSparseIDInfoGrid::~CvSparseIDInfoGrid()
 //	---------------------------------------------------------------------------
 const CvIDInfoFixedVector *CvSparseIDInfoGrid::Get(int iX, int iY) const
 {
+	if (iX < 0 || iY < 0)
+		return NULL;
 	uint uiIndex = ((uint) iY * m_uiWidth) + (uint) iX;
 	if (uiIndex < m_uiMaxIndex)
 	{
@@ -128,6 +130,8 @@ const CvIDInfoFixedVector *CvSparseIDInfoGrid::Get(int iX, int iY) const
 //	---------------------------------------------------------------------------
 bool CvSparseIDInfoGrid::Add(const IDInfo& kInfo, int iX, int iY)
 {
+	if (iX < 0 || iY < 0)
+		return false;
 	uint uiIndex = ((uint) iY * m_uiWidth) + (uint) iX;
 	if (uiIndex < m_uiMaxIndex)
 	{
@@ -151,6 +155,8 @@ bool CvSparseIDInfoGrid::Add(const IDInfo& kInfo, int iX, int iY)
 //	---------------------------------------------------------------------------
 void CvSparseIDInfoGrid::Remove(const IDInfo& kInfo, int iX, int iY)
 {
+	if (iX < 0 || iY < 0)
+		return;
 	uint uiIndex = ((uint) iY * m_uiWidth) + (uint) iX;
 	if (uiIndex < m_uiMaxIndex)
 	{

@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllResourceInfo::CvDllResourceInfo(CvResourceInfo* pResourceInfo)
-	: m_pResourceInfo(pResourceInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pResourceInfo(pResourceInfo)
 {
 	ASSERT(pResourceInfo != NULL, "SHOULD NOT HAPPEN");
 }

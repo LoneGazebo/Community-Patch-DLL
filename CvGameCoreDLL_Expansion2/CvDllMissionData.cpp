@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllMissionData::CvDllMissionData(const MissionData* pMissionData)
-	: m_pMissionData(pMissionData)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pMissionData(pMissionData)
 {
 }
 //------------------------------------------------------------------------------

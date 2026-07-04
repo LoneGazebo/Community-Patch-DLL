@@ -4903,24 +4903,26 @@ int CvTeam::GetRemainingDisengagementTurns(TeamTypes eIndex) const
 {
 	// No disengagement when at war
 	if (isAtWar(eIndex))
-		return 0;
+		return -1;
 
 	// Never made peace before?
 	int iGameTurn = GC.getGame().getGameTurn();
 	int iPeaceTreatyTurn = GetTurnMadePeaceTreatyWithTeam(eIndex);
 	if (iPeaceTreatyTurn < 0)
-		return 0;
+		return -1;
 
 	// Disengagement turns > 0?
 	int iDisengagementTurns = /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
 	if (iDisengagementTurns <= 0)
-		return 0;
+		return -1;
 
 	// Already expired?
 	int iTurnDifference = iGameTurn - iPeaceTreatyTurn;
-	if (iTurnDifference >= iDisengagementTurns)
-		return 0;
+	if (iTurnDifference > iDisengagementTurns)
+		return -1;
 
+	// This function is called whenever the game turn number changes.
+	// A return value of 0 means the game will teleport out any units that are where they shouldn't be!
 	return iDisengagementTurns - iTurnDifference;
 }
 

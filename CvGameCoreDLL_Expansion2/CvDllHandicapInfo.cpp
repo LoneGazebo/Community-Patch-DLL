@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllHandicapInfo::CvDllHandicapInfo(CvHandicapInfo* pHandicapInfo)
-	: m_pHandicapInfo(pHandicapInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pHandicapInfo(pHandicapInfo)
 {
 	ASSERT(pHandicapInfo != NULL, "SHOULD NOT HAPPEN");
 }

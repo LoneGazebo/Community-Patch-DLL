@@ -10,8 +10,8 @@
 #include "CvDllContext.h"
 
 CvDllColorInfo::CvDllColorInfo(CvColorInfo* pColorInfo)
-	: m_pColorInfo(pColorInfo)
-	, m_uiRefCount(1)
+	: m_uiRefCount(1)
+	, m_pColorInfo(pColorInfo)
 {
 	ASSERT(pColorInfo != NULL, "SHOULD NOT HAPPEN");
 }

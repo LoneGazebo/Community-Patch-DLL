@@ -13,19 +13,19 @@
 #include "LintFree.h"
 
 CvProjectEntry::CvProjectEntry(void):
+	m_eFreeBuilding(NO_BUILDINGCLASS),
+	m_eFreePolicy(NO_POLICY),
+	m_ePolicyType(NO_POLICY),
+	m_eCivType(NO_CIVILIZATION),
+	m_eEventToStart(NO_EVENT),
+	m_eCityEventToStart(NO_EVENT_CITY),
 	m_piResourceQuantityRequirements(NULL),
 	m_piVictoryThreshold(NULL),
 	m_piVictoryMinThreshold(NULL),
 	m_piProjectsNeeded(NULL),
+	m_piFlavorValue(NULL),
 	m_piUnitCombatProductionModifiersGlobal(NULL),
-	m_piYieldFromConquestAllCities(NULL),
-	m_eFreeBuilding(NO_BUILDINGCLASS),
-	m_eFreePolicy(NO_POLICY),
-	m_eCivType(NO_CIVILIZATION),
-	m_ePolicyType(NO_POLICY),
-	m_eEventToStart(NO_EVENT),
-	m_eCityEventToStart(NO_EVENT_CITY),
-	m_piFlavorValue(NULL)
+	m_piYieldFromConquestAllCities(NULL)
 {
 }
 //------------------------------------------------------------------------------

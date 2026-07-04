@@ -1006,8 +1006,6 @@ void CvBuilderTaskingAI::ConnectForeignCitiesForYields(CvCity* pOwnedCity, CvCit
 	if (eRoute != ROUTE_ROAD)
 		return;
 
-	CvPlayer& kOtherPlayer = GET_PLAYER(pForeignCity->getOwner());
-
 	// Don't connect razing cities
 	if (pOwnedCity->IsRazing() || pForeignCity->IsRazing())
 		return;

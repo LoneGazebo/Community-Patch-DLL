@@ -2873,7 +2873,7 @@ int CvGameReligions::GetFaithGreatProphetNumber(int iNum) const
 		{
 			iRtnValue = /*200 in CP, 800 in VP*/ GD_INT_GET(RELIGION_MIN_FAITH_FIRST_PROPHET);
 		}
-		else if (MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES && iNum == 1)
+		else if (MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES && iNum == 2)
 		{
 			iRtnValue = /*600 in CP, 1200 in VP*/ GD_INT_GET(RELIGION_MIN_FAITH_SECOND_PROPHET);
 		}
@@ -3335,14 +3335,14 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameReligions& readFrom)
 /// Constructor
 CvPlayerReligions::CvPlayerReligions(void):
 	m_pPlayer(NULL),
-	m_iFaithAtLastNotifyTimes100(0),
 	m_iNumFreeProphetsSpawned(0),
-	m_eMajorityReligion(NO_RELIGION),
-	m_eStateReligionOverride(NO_RELIGION),
-	m_eStateReligion(NO_RELIGION),
-	m_bOwnsStateReligion(false),
 	m_iNumProphetsSpawned(0),
-	m_bFoundingReligion(false)
+	m_bFoundingReligion(false),
+	m_iFaithAtLastNotifyTimes100(0),
+	m_eMajorityReligion(NO_RELIGION),
+	m_eStateReligion(NO_RELIGION),
+	m_eStateReligionOverride(NO_RELIGION),
+	m_bOwnsStateReligion(false)
 {
 }
 
@@ -5893,8 +5893,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvUnitReligion& readFrom)
 //=====================================
 /// Constructor
 CvReligionAI::CvReligionAI(void):
-	m_pPlayer(NULL)
-	, m_pBeliefs(NULL)
+	m_pBeliefs(NULL)
+	, m_pPlayer(NULL)
 	, m_eReligionToSpread(NO_RELIGION)
 	, m_iTurnReligionToSpreadUpdated(-1)
 {
