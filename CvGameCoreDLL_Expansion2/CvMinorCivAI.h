@@ -816,6 +816,7 @@ public:
 	int GetNumResourcesMajorLacks(PlayerTypes eMajor);
 
 	bool IsSameReligionAsMajor(PlayerTypes eMajor);
+	bool IsSameStateReligionAsMajor(PlayerTypes eMajor);
 
 	//horrible API but too lazy to fix
 	CvString GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies);

@@ -347,3 +347,9 @@ UPDATE MinorCivilizations_QuestWeights
 SET Weight = 0
 WHERE QuestType = 'MINOR_CIV_QUEST_FIND_CITY_STATE'
 AND EraType IN (SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE'));
+
+-- Block the Spread Religion quest beginning in the Industrial Era
+UPDATE MinorCivilizations_QuestWeights
+SET Weight = 0
+WHERE QuestType = 'MINOR_CIV_QUEST_SPREAD_RELIGION'
+AND EraType IN (SELECT Type FROM Eras WHERE ID >= (SELECT ID FROM Eras WHERE Type = 'ERA_INDUSTRIAL'));

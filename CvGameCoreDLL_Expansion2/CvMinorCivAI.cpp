@@ -1963,10 +1963,40 @@ bool CvMinorCivQuest::IsExpired()
 	}
 	case MINOR_CIV_QUEST_SPREAD_RELIGION:
 	{
-		// Player's Owned Religion now differs from the original religion
-		ReligionTypes eReligion = (ReligionTypes)m_iData1;
-		if (pAssignedPlayer->GetReligions()->GetOwnedReligion() != eReligion)
-			return true;
+		if (MOD_BALANCE_QUEST_CHANGES)
+		{
+			// Player's State Religion now differs from the original religion
+			ReligionTypes eReligion = (ReligionTypes)m_iData1;
+			if (pAssignedPlayer->GetReligions()->GetStateReligion(false) != eReligion)
+				return true;
+
+			// City-State must be within trade route range of a city owned by this player
+			if (pAssignedPlayer->GetTrade()->GetNumTradeRoutesPossible() <= 0)
+				return true;
+
+			bool bValid = false;
+			int iLoop = 0;
+			for (CvCity* pLoopCity = pAssignedPlayer->firstCity(&iLoop); pLoopCity; pLoopCity = pAssignedPlayer->nextCity(&iLoop))
+			{
+				// Skip religion check, only check if we can still make a Trade Route
+				// This prevents arbitrary quest expiry due to temporary flips by Missionaries/Prophets
+				if (GC.getGame().GetGameTrade()->CanCreateTradeRoute(pLoopCity, pMinorCapital, DOMAIN_LAND, TRADE_CONNECTION_INTERNATIONAL, /*bIgnoreExisting*/ true, /*bCheckPath*/ true) ||
+					GC.getGame().GetGameTrade()->CanCreateTradeRoute(pLoopCity, pMinorCapital, DOMAIN_SEA, TRADE_CONNECTION_INTERNATIONAL, /*bIgnoreExisting*/ true, /*bCheckPath*/ true))
+				{
+					bValid = true;
+					break;
+				}
+			}
+			if (!bValid)
+				return true;
+		}
+		else
+		{
+			// Player's Owned Religion now differs from the original religion
+			ReligionTypes eReligion = (ReligionTypes)m_iData1;
+			if (pAssignedPlayer->GetReligions()->GetOwnedReligion() != eReligion)
+				return true;
+		}
 
 		break;
 	}
@@ -2678,7 +2708,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	}
 	case MINOR_CIV_QUEST_SPREAD_RELIGION:
 	{
-		ReligionTypes eReligion = GET_PLAYER(m_eAssignedPlayer).GetReligions()->GetOwnedReligion();
+		ReligionTypes eReligion = MOD_BALANCE_QUEST_CHANGES ? GET_PLAYER(m_eAssignedPlayer).GetReligions()->GetStateReligion(false) : GET_PLAYER(m_eAssignedPlayer).GetReligions()->GetOwnedReligion();
 		m_iData1 = eReligion;
 
 		const CvReligion* pkReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
@@ -6976,14 +7006,49 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	case MINOR_CIV_QUEST_SPREAD_RELIGION:
 	{
-		// Player must have founded (or conquered) a religion
-		ReligionTypes eOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
-		if (eOwnedReligion == NO_RELIGION)
-			return false;
+		if (MOD_BALANCE_QUEST_CHANGES)
+		{
+			// Player must have a state religion
+			ReligionTypes eStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
+			if (eStateReligion == NO_RELIGION)
+				return false;
 
-		// Minor must not already share player's religion
-		if (IsSameReligionAsMajor(ePlayer))
-			return false;
+			// Minor must not already share player's religion
+			if (IsSameStateReligionAsMajor(ePlayer))
+				return false;
+
+			// City-State must be within trade route range of a city owned by this player that has the state religion
+			if (GET_PLAYER(ePlayer).GetTrade()->GetNumTradeRoutesPossible() <= 0)
+				return false;
+
+			bool bValid = false;
+			int iLoop = 0;
+			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+			{
+				if (pLoopCity->GetCityReligions()->GetReligiousMajority() != eStateReligion)
+					continue;
+
+				if (GC.getGame().GetGameTrade()->CanCreateTradeRoute(pLoopCity, pMinorCapital, DOMAIN_LAND, TRADE_CONNECTION_INTERNATIONAL, /*bIgnoreExisting*/ true, /*bCheckPath*/ true) ||
+					GC.getGame().GetGameTrade()->CanCreateTradeRoute(pLoopCity, pMinorCapital, DOMAIN_SEA, TRADE_CONNECTION_INTERNATIONAL, /*bIgnoreExisting*/ true, /*bCheckPath*/ true))
+				{
+					bValid = true;
+					break;
+				}
+			}
+			if (!bValid)
+				return false;
+		}
+		else
+		{
+			// Player must have founded (or conquered) a religion
+			ReligionTypes eOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
+			if (eOwnedReligion == NO_RELIGION)
+				return false;
+
+			// Minor must not already share player's religion
+			if (IsSameReligionAsMajor(ePlayer))
+				return false;
+		}
 
 		break;
 	}
@@ -16244,6 +16309,22 @@ bool CvMinorCivAI::IsSameReligionAsMajor(PlayerTypes eMajor)
 	{
 		ReligionTypes eMinorReligion = pCapital->GetCityReligions()->GetReligiousMajority();
 		ReligionTypes eMajorReligion = GET_PLAYER(eMajor).GetReligions()->GetOwnedReligion();
+
+		if (eMajorReligion != NO_RELIGION && eMajorReligion == eMinorReligion)
+			return true;
+	}
+
+	return false;
+}
+
+/// Checks to see if the majority religion of the city-state is the major's state religion
+bool CvMinorCivAI::IsSameStateReligionAsMajor(PlayerTypes eMajor)
+{
+	CvCity* pCapital = GetPlayer()->getCapitalCity();
+	if (pCapital)
+	{
+		ReligionTypes eMinorReligion = pCapital->GetCityReligions()->GetReligiousMajority();
+		ReligionTypes eMajorReligion = GET_PLAYER(eMajor).GetReligions()->GetStateReligion(false);
 
 		if (eMajorReligion != NO_RELIGION && eMajorReligion == eMinorReligion)
 			return true;
