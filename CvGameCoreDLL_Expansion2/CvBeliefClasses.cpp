@@ -5045,21 +5045,19 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReligionBeliefs& writeTo)
 
 /// Is there an adjacent barbarian naval unit that could be converted?
 bool CvBeliefHelpers::ConvertBarbarianUnit(const CvUnit *pByUnit, CvUnit* pUnit)
-
 {
 	CvUnit* pNewUnit = NULL;
 	CvPlot *pPlot = pUnit->plot();
 
 	CvPlayer* pPlayer = &GET_PLAYER(pByUnit->getOwner());
 
-	if (MOD_EVENTS_UNIT_CAPTURE) {
+	if (MOD_EVENTS_UNIT_CAPTURE)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, pPlayer->GetID(), pByUnit->GetID(), pUnit->getOwner(), pUnit->GetID(), false, 4);
-	}
 
 	// Convert the barbarian into our unit
 	pNewUnit = pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);
 	ASSERT(pNewUnit, "pNewUnit is not assigned a valid value");
-	pNewUnit->convert(pUnit, false);
+	pNewUnit->convert(pUnit, false, false);
 	pNewUnit->setupGraphical();
 	pNewUnit->finishMoves(); // No move first turn
 

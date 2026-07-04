@@ -673,7 +673,8 @@ int CvLuaUnit::lConvert(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkUnitToConvert = GetInstance(L, 2);
 	bool bIsUpgrade = lua_toboolean(L, 3);
-	pkUnit->convert(pkUnitToConvert, bIsUpgrade);
+	bool bIsGift = luaL_optbool(L, 4, false);
+	pkUnit->convert(pkUnitToConvert, bIsUpgrade, bIsGift);
 
 	// Unlike every other call to CvUnit::convert() do NOT call CvUnit::setupGraphical() here as it creates ghost units on the map
 	return 0;

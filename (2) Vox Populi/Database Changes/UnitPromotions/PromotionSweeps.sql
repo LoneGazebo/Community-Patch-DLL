@@ -559,6 +559,8 @@ OR RankList IN (
 	'IMPERIALISM'
 )
 OR Type IN (
+	'PROMOTION_CHASQUI_TRAINING', -- Inca UA
+	'PROMOTION_GOODY_HUT_PICKER', -- Shoshone UA
 	'PROMOTION_MORALE', -- Heroic Epic, Order
 	'PROMOTION_HIMEJI_CASTLE', -- Himeji Castle
 	'PROMOTION_STATUE_ZEUS', -- Statue of Zeus
@@ -589,11 +591,29 @@ OR Type IN (
 	'PROMOTION_HILL_WALKER'
 );
 
--- Trait_FreePromotions promotions currently shouldn't be pickable 
--- (this might not be true for all cases, in the future)
-UPDATE UnitPromotions 
-SET CannotBeChosen = 1
+----------------------------------------------
+-- LostOnGifting
+----------------------------------------------
+
+UPDATE UnitPromotions
+SET LostOnGifting = 1
 WHERE Type IN (
+	-- Non-generic promotions granted by leader traits are lost on gifting
+	'PROMOTION_ATTACK_BONUS_SWEDEN',
+	'PROMOTION_BENEVOLENCE',
+	'PROMOTION_BUSHIDO',
 	'PROMOTION_CHASQUI_TRAINING',
-	'PROMOTION_GOODY_HUT_PICKER'
+	'PROMOTION_COERCION',
+	'PROMOTION_COURAGE',
+	'PROMOTION_GOODY_HUT_PICKER',
+	'PROMOTION_LONGBOAT',
+	'PROMOTION_LOYALTY',
+	'PROMOTION_HONOR',
+	'PROMOTION_RESPECT',
+	'PROMOTION_RIGHTEOUSNESS',
+	'PROMOTION_SELF_CONTROL',
+	'PROMOTION_SEWN_CANOES',
+	'PROMOTION_SINCERITY',
+	'PROMOTION_SUN_NEVER_SETS',
+	'PROMOTION_VIKING'
 );
