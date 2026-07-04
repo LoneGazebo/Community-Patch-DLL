@@ -140,8 +140,10 @@ namespace FLua
 
 		// 0 args with no return value
 		static int Call(void(*pfn)(), lua_State *L, const TCHAR *szLuaFnName) {
-			if( lua_gettop(L) == 0 ) (*pfn)();
-			else Error(_T("%s could not be called: takes no arguments but received %i."), szLuaFnName, lua_gettop(L));
+			if( lua_gettop(L) == 0 )
+				(*pfn)();
+			else
+				Error(_T("%s could not be called: takes no arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -155,7 +157,8 @@ namespace FLua
 				Push( L, pushMe );
 				return 1;
 			}
-			else Error(_T("%s could not be called: takes no arguments but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: takes no arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -168,9 +171,11 @@ namespace FLua
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
 				if( bValidArgs )
 					(*pfn)(FromLuaAnalog<TArg0>::Convert(arg0));
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 1 argument but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 1 argument but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -188,9 +193,11 @@ namespace FLua
 					Push( L, pushMe );
 					return 1;
 				}
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 1 argument but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 1 argument but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -205,9 +212,11 @@ namespace FLua
 				Analog1 arg1 = Get<Analog1>(L, 2); ArgValidator<TArg1>::Validate(arg1, bValidArgs);
 				if( bValidArgs )
 					(*pfn)(FromLuaAnalog<TArg0>::Convert(arg0), FromLuaAnalog<TArg1>::Convert(arg1));
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 2 arguments but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 2 arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -227,9 +236,11 @@ namespace FLua
 					Push( L, pushMe );
 					return 1;
 				}
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 2 arguments but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 2 arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -249,9 +260,11 @@ namespace FLua
 					       FromLuaAnalog<TArg1>::Convert(arg1),
 						   FromLuaAnalog<TArg2>::Convert(arg2));
 				}
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 3 arguments but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 3 arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -275,9 +288,11 @@ namespace FLua
 					Push( L, pushMe );
 					return 1;
 				}
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 3 arguments but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 3 arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -300,9 +315,11 @@ namespace FLua
 					       FromLuaAnalog<TArg2>::Convert(arg2),
 						   FromLuaAnalog<TArg3>::Convert(arg3));
 				}
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 4 arguments but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 4 arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -329,9 +346,11 @@ namespace FLua
 					Push( L, pushMe );
 					return 1;
 				}
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 4 arguments but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 4 arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -357,9 +376,11 @@ namespace FLua
 					       FromLuaAnalog<TArg3>::Convert(arg3),
 						   FromLuaAnalog<TArg4>::Convert(arg4));
 				}
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 5 arguments but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 5 arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 
@@ -389,9 +410,11 @@ namespace FLua
 					Push( L, pushMe );
 					return 1;
 				}
-				else Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
+				else
+					Error(_T("%s could not be called: received an invalid argument."), szLuaFnName);
 			}
-			else Error(_T("%s could not be called: requires 5 arguments but received %i."), szLuaFnName, lua_gettop(L));
+			else
+				Error(_T("%s could not be called: requires 5 arguments but received %i."), szLuaFnName, lua_gettop(L));
 			return 0;
 		}
 

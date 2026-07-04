@@ -2675,7 +2675,8 @@ CvUnit *CvPlayerCulture::GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const
 					pRtnValue = pLoopUnit;
 					iClosestDistance = iDistance;
 				}
-				if (iDistance == 0) break;
+				if (iDistance == 0)
+					break;
 			}
 		}
 	}
@@ -3719,7 +3720,6 @@ int CvPlayerCulture::GetLastTurnInfluenceOnTimes100(PlayerTypes ePlayer) const
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
 	return m_aiLastTurnCulturalInfluenceTimes100[iIndex];
 }
 
@@ -3730,7 +3730,6 @@ void CvPlayerCulture::SetLastTurnInfluenceOnTimes100(PlayerTypes ePlayer, int iN
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
 	m_aiLastTurnCulturalInfluenceTimes100[iIndex] = iNewValue;
 }
 
@@ -3741,7 +3740,6 @@ int CvPlayerCulture::GetLastTurnInfluenceIPTTimes100(PlayerTypes ePlayer) const
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
 	return m_aiLastTurnCulturalIPTTimes100[iIndex];
 }
 
@@ -3752,7 +3750,6 @@ void CvPlayerCulture::SetLastTurnInfluenceIPTTimes100(PlayerTypes ePlayer, int i
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
 	m_aiLastTurnCulturalIPTTimes100[iIndex] = iNewValue;
 }
 

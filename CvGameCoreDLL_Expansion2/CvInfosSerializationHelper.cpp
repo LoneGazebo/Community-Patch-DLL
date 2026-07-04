@@ -139,7 +139,8 @@ int Read(FDataStream& kStream, bool* bValid /*= NULL*/)
 {
 	CvString sTemp;
 	kStream >> sTemp;
-	if(bValid) *bValid = true;
+	if(bValid)
+		*bValid = true;
 	if(sTemp.GetLength() > 0 && sTemp != "NO_TYPE")
 	{
 		int iType = GC.getInfoTypeForString(sTemp);
@@ -149,7 +150,8 @@ int Read(FDataStream& kStream, bool* bValid /*= NULL*/)
 		}
 		else
 		{
-			if(bValid) *bValid = false;
+			if(bValid)
+				*bValid = false;
 			CvString szError;
 			szError.Format("LOAD ERROR: Type not found: %s", sTemp.c_str());
 			GC.LogMessage(szError.GetCString());
@@ -164,7 +166,8 @@ int Read(FDataStream& kStream, bool* bValid /*= NULL*/)
 int ReadHashed(FDataStream& kStream, bool* bValid /*= NULL*/)
 {
 	uint uiHash = 0;
-	if(bValid) *bValid = true;
+	if(bValid)
+		*bValid = true;
 	kStream >> uiHash;
 	if(uiHash != 0)
 	{
@@ -179,7 +182,8 @@ int ReadHashed(FDataStream& kStream, bool* bValid /*= NULL*/)
 			szError.Format("LOAD ERROR: Type not found for hash: %u", uiHash);
 			GC.LogMessage(szError.GetCString());
 			ASSERT(false, szError);
-			if(bValid) *bValid = false;
+			if(bValid)
+				*bValid = false;
 		}
 	}
 
@@ -192,7 +196,8 @@ int ReadDBLookup(FDataStream& kStream, const char* szTable, bool* bValid /*= NUL
 {
 	CvString sTemp;
 	kStream >> sTemp;
-	if (bValid) *bValid = true;
+	if (bValid)
+		*bValid = true;
 	if(sTemp.GetLength() > 0 && sTemp != "NO_TYPE")
 	{
 		Database::Connection* pDB = GC.GetGameDatabase();
@@ -209,11 +214,13 @@ int ReadDBLookup(FDataStream& kStream, const char* szTable, bool* bValid /*= NUL
 					return kResults.GetInt(0);
 				}
 				else
-					if (bValid) *bValid = false;
+					if (bValid)
+						*bValid = false;
 			}
 		}
 		else
-			if (bValid) *bValid = false;
+			if (bValid)
+				*bValid = false;
 	}
 	
 	return -1;

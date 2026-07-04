@@ -71,7 +71,8 @@ public:
 	void Release()
 	{
 		// Free allocated memory
-		if( m_aData ) FFREE(m_aData);
+		if( m_aData )
+			FFREE(m_aData);
 
 		// Re-initialize data members.  (this also sets m_aData to NULL again)
 		new(this)CvWorldBuilderMapElementAllocator();
@@ -115,14 +116,18 @@ public:
 
 	_Ret_opt_ inline T *operator[](Handle h)
 	{
-		if( h.m_wIndex < m_uiSize ) return (T*)&(m_aData[h.m_wIndex]);
-		else return NULL;
+		if( h.m_wIndex < m_uiSize )
+			return (T*)&(m_aData[h.m_wIndex]);
+		else
+			return NULL;
 	}
 
 	_Ret_opt_ inline const T *operator[](Handle h) const
 	{
-		if( uint(h.m_wIndex) < m_uiSize ) return (const T*)&(m_aData[h.m_wIndex]);
-		else return NULL;
+		if( uint(h.m_wIndex) < m_uiSize )
+			return (const T*)&(m_aData[h.m_wIndex]);
+		else
+			return NULL;
 	}
 
 	uint GetSerializedSize() const

@@ -904,7 +904,8 @@ protected:
 		bool ValidateFromBoolArray(const bool* pBools, uint uiCount) const
 		{
 			for(uint i = 0; i < uiCount; ++i)
-				if(GetBit(i) != pBools[i]) return false;
+				if(GetBit(i) != pBools[i])
+					return false;
 
 			return true;
 		}
@@ -912,7 +913,8 @@ protected:
 		void InitFromBoolArray(bool* pBools, uint uiCount)
 		{
 			for(uint i = 0; i < uiCount; ++i)
-				if(GetBit(i) != pBools[i]) ToggleBit(i);
+				if(GetBit(i) != pBools[i])
+					ToggleBit(i);
 		}
 	};
 

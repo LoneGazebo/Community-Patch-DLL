@@ -2871,7 +2871,8 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, 
 void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
 {
 	ASSERT(pCity);
-	if(!pCity) return;
+	if(!pCity)
+		return;
 	gDLL->sendPushOrder(pCity->GetID(), eOrder, iData, bAlt, bShift, bCtrl);
 }
 
@@ -2879,7 +2880,8 @@ void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAl
 void CvGame::CityPurchase(CvCity* pCity, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield)
 {
 	ASSERT(pCity);
-	if(!pCity) return;
+	if(!pCity)
+		return;
 
 	// we're trying to buy a unit
 	if(eUnitType >= 0)
@@ -3005,7 +3007,8 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt) cons
 			bGroup = true;
 		}
 
-		if(!pUnit) return;
+		if(!pUnit)
+			return;
 
 		pUnitPlot = pUnit->plot();
 
@@ -3133,7 +3136,8 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible)
 
 	CvActionInfo* pActionInfo = GC.getActionInfo(iAction);
 	ASSERT(pActionInfo != NULL);
-	if(!pActionInfo) return false;
+	if(!pActionInfo)
+		return false;
 
 	if(pActionInfo->getControlType() != NO_CONTROL)
 	{
@@ -5823,7 +5827,6 @@ TeamTypes CvGame::GetPreviousVoteCast(TeamTypes eVotingTeam) const
 {
 	PRECONDITION(eVotingTeam >= 0, "eVotingTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eVotingTeam < MAX_CIV_TEAMS, "eVotingTeam is expected to be within maximum bounds (invalid Index)");
-	if (eVotingTeam < 0 || eVotingTeam >= MAX_CIV_TEAMS) return NO_TEAM;
 
 	return (TeamTypes) m_aiPreviousVotesCast[eVotingTeam];
 }
@@ -5834,7 +5837,6 @@ void CvGame::SetPreviousVoteCast(TeamTypes eVotingTeam, TeamTypes eVotingTarget)
 {
 	PRECONDITION(eVotingTeam >= 0, "eVotingTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eVotingTeam < MAX_CIV_TEAMS, "eVotingTeam is expected to be within maximum bounds (invalid Index)");
-	if (eVotingTeam < 0 || eVotingTeam >= MAX_CIV_TEAMS) return;
 
 	if (eVotingTarget != GetPreviousVoteCast(eVotingTeam))
 	{
@@ -11748,8 +11750,10 @@ void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 /// Do the action of a major buying out a minor and acquiring it
 void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
-	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	gDLL->sendMinorBuyout(eMajor, eMinor);
 }
@@ -11757,8 +11761,10 @@ void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 /// Do the action of a major annexing a minor using tribute (Rome UA)
 void CvGame::DoMinorBullyAnnex(PlayerTypes eMajor, PlayerTypes eMinor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
-	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	NetMessageExt::Send::DoMinorBullyAnnex(eMajor, eMinor);
 }
@@ -11766,8 +11772,10 @@ void CvGame::DoMinorBullyAnnex(PlayerTypes eMajor, PlayerTypes eMinor)
 /// Do the action of a major buying out a minor and marrying it
 void CvGame::DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
-	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS) return;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	gDLL->sendMinorBuyout(eMajor, eMinor);
 }
@@ -14007,7 +14015,8 @@ void CvGame::UpdateGreatestPlayerResourceMonopoly(ResourceTypes eTestResource)
 		{
 			eLoopPlayer = (PlayerTypes)iLoopPlayer;
 
-			if (!GET_PLAYER(eLoopPlayer).isAlive()) continue;
+			if (!GET_PLAYER(eLoopPlayer).isAlive())
+				continue;
 
 			int iMonopolyPercent = GET_PLAYER(eLoopPlayer).GetMonopolyPercent(eResource);
 			if (iMonopolyPercent > iMax)

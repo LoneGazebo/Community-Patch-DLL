@@ -756,7 +756,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -815,7 +816,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if (!pResults) return false;
+		if (!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -854,7 +856,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -912,7 +915,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -938,7 +942,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -964,7 +969,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -990,7 +996,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1017,7 +1024,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if (!pResults) return false;
+		if (!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1044,7 +1052,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1073,7 +1082,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1110,7 +1120,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1174,7 +1185,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1214,7 +1226,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1249,7 +1262,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1277,7 +1291,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if(!pResults) return false;
+		if(!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1305,7 +1320,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if (!pResults) return false;
+		if (!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1332,7 +1348,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		ASSERT(pResults);
-		if (!pResults) return false;
+		if (!pResults)
+			return false;
 
 		pResults->Bind(1, szPromotionType);
 

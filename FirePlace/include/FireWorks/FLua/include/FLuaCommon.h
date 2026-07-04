@@ -209,7 +209,8 @@ namespace FLua
 			bool bValid(true); Details::ArgValidator<T>::Validate(analog, bValid);
 
 			// Convert and return the value if it is valid
-			if( bValid ) ret = Details::FromLuaAnalog<T>::Convert(analog);
+			if( bValid )
+				ret = Details::FromLuaAnalog<T>::Convert(analog);
 
 			return ret;
 		}
@@ -363,7 +364,8 @@ namespace FLua
 			assert(idx > 0);
 
 			// If T is a const type and the value at idx is a compatible non-const type then a cast is fine.
-			if( ConstCheck<T>::bIsConst && CompatibleType<StripConst<T>::Result>(L, idx)) return true;
+			if( ConstCheck<T>::bIsConst && CompatibleType<StripConst<T>::Result>(L, idx))
+				return true;
 
 			// Compare metatables to determine type compatibility
 			PushMetaTableFn pfnPushMetaTable = GetPushMetaTableFn<StripPtr<T>::Result>();
@@ -418,7 +420,8 @@ namespace FLua
 				lua_pop(L, 2);
 			}
 
-			if( !szTypeName ) szTypeName = "Unkown_Type";
+			if( !szTypeName )
+				szTypeName = "Unkown_Type";
 
 			return szTypeName;
 		}
@@ -436,7 +439,8 @@ namespace FLua
 				lua_pop(L, 2);
 			}
 
-			if( !szTypeName ) szTypeName = "Unkown_Type";
+			if( !szTypeName )
+				szTypeName = "Unkown_Type";
 
 			return szTypeName;
 		}
@@ -457,7 +461,8 @@ namespace FLua
 					pkRet = (T)kCData.GetPtr();
 					lua_pop(L, 2); // Pop table and CData field
 				}
-				else Error(_T("Cannot cast from %s to %s.  Using NULL instead."), GetTypeNameFromMetatable(L, idx), GetTypeNameFromMetatable<T>(L));
+				else
+					Error(_T("Cannot cast from %s to %s.  Using NULL instead."), GetTypeNameFromMetatable(L, idx), GetTypeNameFromMetatable<T>(L));
 			}
 			else if( lua_islightuserdata(L, idx) )
 			{

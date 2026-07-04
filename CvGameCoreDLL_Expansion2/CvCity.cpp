@@ -16531,7 +16531,8 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 			if(GET_PLAYER(getOwner()).IsGarrisonFreeMaintenance())
 			{
 				int iMaintenanceChange = -pUnit->getUnitInfo().GetExtraMaintenanceCost();
-				if(pOldGarrison != NULL) iMaintenanceChange += pOldGarrison->getUnitInfo().GetExtraMaintenanceCost();
+				if(pOldGarrison != NULL)
+					iMaintenanceChange += pOldGarrison->getUnitInfo().GetExtraMaintenanceCost();
 				GET_PLAYER(getOwner()).changeExtraUnitCost(iMaintenanceChange);
 			}
 		}
@@ -31747,7 +31748,6 @@ void CvCity::doProcess()
 {
 	ProcessTypes eProcess = getProductionProcess();
 	PRECONDITION(eProcess != NO_PROCESS, "Invalid Process for city production.");
-	if (eProcess == NO_PROCESS) return;
 
 	if (MOD_PROCESS_STOCKPILE && eProcess == GC.getInfoTypeForString("PROCESS_STOCKPILE", true))
 	{

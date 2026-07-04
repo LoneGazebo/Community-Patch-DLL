@@ -7681,10 +7681,14 @@ struct PlayerAndTechTurnEval
 	bool operator()(PlayerAndTechTurn const& a, PlayerAndTechTurn const& b) const
 	{
 		PRECONDITION(g_eSortPlayer != NO_PLAYER, "g_eSortPlayer not defined when sort was called");
-		if(a.iOutOfTechTurn < b.iOutOfTechTurn) return true;
-		if(a.iOutOfTechTurn > b.iOutOfTechTurn) return false;
-		if(a.iLargestProgress > b.iLargestProgress) return true;
-		if(a.iLargestProgress < b.iLargestProgress) return false;
+		if(a.iOutOfTechTurn < b.iOutOfTechTurn)
+			return true;
+		if(a.iOutOfTechTurn > b.iOutOfTechTurn)
+			return false;
+		if(a.iLargestProgress > b.iLargestProgress)
+			return true;
+		if(a.iLargestProgress < b.iLargestProgress)
+			return false;
 		return false;
 	}
 };

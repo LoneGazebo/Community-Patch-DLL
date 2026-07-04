@@ -3028,7 +3028,8 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 {
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
 	CvPlayer* pAssignedPlayer = &GET_PLAYER(m_eAssignedPlayer);
-	if (pMinor == NULL || pAssignedPlayer == NULL || pExistingQuest == NULL) return;
+	if (pMinor == NULL || pAssignedPlayer == NULL || pExistingQuest == NULL)
+		return;
 
 	Localization::String strMessage;
 	Localization::String strSummary;
@@ -5568,7 +5569,8 @@ MinorCivStatusTypes CvMinorCivAI::GetStatus() const
 void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 {
 	ASSERT(pCityPlot != NULL, "City's plot should not be NULL.");
-	if (pCityPlot == NULL) return;
+	if (pCityPlot == NULL)
+		return;
 
 	MinorCivTraitTypes eTrait = GetTrait();
 
@@ -6218,7 +6220,9 @@ void CvMinorCivAI::AddQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* p
 /// Works on the assumption that any quests eMajor would be given in this way are valid for eMajor without having to check.
 void CvMinorCivAI::DoTestQuestsOnFirstContact(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 
 	std::set<MinorCivQuestTypes> setGlobalQuests;
 	
@@ -6311,7 +6315,9 @@ WeightedCivsList CvMinorCivAI::CalculateFriendshipFromQuests()
 // If no quest type is specified, will check all quest types.
 void CvMinorCivAI::DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
 
 	bool bCheckAllQuests = true;
 	if (eSpecifyQuestType > NO_MINOR_CIV_QUEST_TYPE && eSpecifyQuestType < NUM_MINOR_CIV_QUEST_TYPES)
@@ -6351,7 +6357,9 @@ void CvMinorCivAI::DoObsoleteQuests()
 // If no quest type is specified, will check all quest types.
 void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType, bool bWar)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
 
 	bool bCheckAllQuests = true;
 	if (eSpecifyQuestType > NO_MINOR_CIV_QUEST_TYPE && eSpecifyQuestType < NUM_MINOR_CIV_QUEST_TYPES)
@@ -6418,7 +6426,9 @@ void CvMinorCivAI::DoQuestsCleanup()
 // Deletes active completed and/or obsolete quests from memory, and resets the countdown timer if needed.
 void CvMinorCivAI::DoQuestsCleanupForPlayer(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
 
 	bool bPersonalQuestDone = false;
 	bool bGlobalQuestDone = false;
@@ -6469,8 +6479,12 @@ bool CvMinorCivAI::IsTargetQuest(MinorCivQuestTypes eQuest)
 
 bool CvMinorCivAI::PlayerHasTarget(PlayerTypes ePlayer, MinorCivQuestTypes eQuest)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	if (eQuest < NO_MINOR_CIV_QUEST_TYPE || eQuest >= NUM_MINOR_CIV_QUEST_TYPES) return false;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return false;
+	ASSERT(eQuest >= NO_MINOR_CIV_QUEST_TYPE && eQuest < NUM_MINOR_CIV_QUEST_TYPES, "Invalid eQuest index");
+	if (eQuest < NO_MINOR_CIV_QUEST_TYPE || eQuest >= NUM_MINOR_CIV_QUEST_TYPES)
+		return false;
 
 	if (IsTargetQuest(eQuest))
 	{
@@ -9093,7 +9107,6 @@ int CvMinorCivAI::GetNumActiveQuestsForPlayer(PlayerTypes ePlayer) const
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	return m_QuestsGiven[ePlayer].size();
 }
@@ -9102,7 +9115,6 @@ int CvMinorCivAI::GetNumActivePersonalQuestsForPlayer(PlayerTypes ePlayer) const
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	int iCount = 0;
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
@@ -9120,11 +9132,9 @@ bool CvMinorCivAI::IsActiveQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestType
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	PRECONDITION(eType >= NO_MINOR_CIV_QUEST_TYPE, "eType is expected to be non-negative (invalid Index)");
 	PRECONDITION(eType < NUM_MINOR_CIV_QUEST_TYPES, "eType is expected to be within maximum bounds (invalid Index)");
-	if(eType < NO_MINOR_CIV_QUEST_TYPE || eType >= NUM_MINOR_CIV_QUEST_TYPES) return false;
 
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9142,7 +9152,6 @@ void CvMinorCivAI::EndAllActiveQuestsForPlayer(PlayerTypes ePlayer, bool bWar)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	//antonjs: todo: instead, call for cancel quest (with flag for no notif)
 	DoObsoleteQuestsForPlayer(ePlayer, NO_MINOR_CIV_QUEST_TYPE, bWar);
@@ -9151,11 +9160,9 @@ void CvMinorCivAI::DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	PRECONDITION(eType >= NO_MINOR_CIV_QUEST_TYPE, "eType is expected to be non-negative (invalid Index)");
 	PRECONDITION(eType < NUM_MINOR_CIV_QUEST_TYPES, "eType is expected to be within maximum bounds (invalid Index)");
-	if(eType < NO_MINOR_CIV_QUEST_TYPE || eType >= NUM_MINOR_CIV_QUEST_TYPES) return;
 
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9170,7 +9177,6 @@ int CvMinorCivAI::GetNumDisplayedQuestsForPlayer(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	int iValue = 0;
 	
@@ -9189,11 +9195,9 @@ bool CvMinorCivAI::IsDisplayedQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	PRECONDITION(eType >= NO_MINOR_CIV_QUEST_TYPE, "eType is expected to be non-negative (invalid Index)");
 	PRECONDITION(eType < NUM_MINOR_CIV_QUEST_TYPES, "eType is expected to be within maximum bounds (invalid Index)");
-	if(eType < NO_MINOR_CIV_QUEST_TYPE || eType >= NUM_MINOR_CIV_QUEST_TYPES) return false;
 
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9318,7 +9322,6 @@ int CvMinorCivAI::GetQuestCountdownForPlayer(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1; // as set during Reset()
 
 	return m_aiQuestCountdown[ePlayer];
 }
@@ -9328,7 +9331,6 @@ void CvMinorCivAI::SetQuestCountdownForPlayer(PlayerTypes ePlayer, int iValue)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	m_aiQuestCountdown[ePlayer] = iValue;
 }
@@ -9342,8 +9344,12 @@ void CvMinorCivAI::ChangeQuestCountdownForPlayer(PlayerTypes ePlayer, int iChang
 /// For debugging and testing only. Adds eQuest if able, ignoring quest countdown timers.
 bool CvMinorCivAI::AddQuestIfAble(PlayerTypes eMajor, MinorCivQuestTypes eQuest)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
-	if (eQuest < NO_MINOR_CIV_QUEST_TYPE || eQuest >= NUM_MINOR_CIV_QUEST_TYPES) return false;
+	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
+	ASSERT(eQuest >= NO_MINOR_CIV_QUEST_TYPE && eQuest < NUM_MINOR_CIV_QUEST_TYPES, "Invalid eQuest index");
+	if (eQuest < NO_MINOR_CIV_QUEST_TYPE || eQuest >= NUM_MINOR_CIV_QUEST_TYPES)
+		return false;
 
 	if (!IsValidQuestForPlayer(eMajor, eQuest))
 		return false;
@@ -9392,7 +9398,6 @@ int CvMinorCivAI::GetQuestData1(PlayerTypes ePlayer, MinorCivQuestTypes eType) c
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return CvMinorCivQuest::NO_QUEST_DATA;
 
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9410,7 +9415,6 @@ int CvMinorCivAI::GetQuestData2(PlayerTypes ePlayer, MinorCivQuestTypes eType) c
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return CvMinorCivQuest::NO_QUEST_DATA;
 
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9428,7 +9432,6 @@ int CvMinorCivAI::GetQuestData3(PlayerTypes ePlayer, MinorCivQuestTypes eType) c
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return CvMinorCivQuest::NO_QUEST_DATA;
 
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9445,7 +9448,6 @@ int CvMinorCivAI::GetQuestTurnsRemaining(PlayerTypes ePlayer, MinorCivQuestTypes
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return CvMinorCivQuest::NO_TURN;
 
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9462,7 +9464,6 @@ CvString CvMinorCivAI::GetRewardString(PlayerTypes ePlayer, MinorCivQuestTypes e
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
 
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9476,7 +9477,8 @@ CvString CvMinorCivAI::GetRewardString(PlayerTypes ePlayer, MinorCivQuestTypes e
 }
 CvString CvMinorCivAI::GetTargetCityString(PlayerTypes ePlayer, MinorCivQuestTypes eType)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return "";
 
 	for (uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9503,7 +9505,6 @@ bool CvMinorCivAI::IsContestLeader(PlayerTypes ePlayer, MinorCivQuestTypes eType
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	for (uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9538,7 +9539,6 @@ int CvMinorCivAI::GetContestValueForPlayer(PlayerTypes ePlayer, MinorCivQuestTyp
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	for (uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -9556,7 +9556,6 @@ bool CvMinorCivAI::IsRouteConnectionEstablished(PlayerTypes eMajor) const
 {
 	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
 	return m_abRouteConnectionEstablished[eMajor];
 }
@@ -9566,7 +9565,6 @@ void CvMinorCivAI::SetRouteConnectionEstablished(PlayerTypes eMajor, bool bValue
 {
 	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
 	m_abRouteConnectionEstablished[eMajor] = bValue;
 }
@@ -11129,7 +11127,6 @@ bool CvMinorCivAI::IsCoupAttempted(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;  // as defined in Reset()
 	return m_abCoupAttempted[ePlayer];
 }
 void CvMinorCivAI::SetTargetedAreaID(PlayerTypes ePlayer, int iValue)
@@ -11145,7 +11142,6 @@ int CvMinorCivAI::GetTargetedAreaID(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;  // as defined in Reset()
 	return m_aiAssignedPlotAreaID[ePlayer];
 }
 void CvMinorCivAI::SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
@@ -11161,7 +11157,6 @@ int CvMinorCivAI::GetNumTurnsSincePtPWarning(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;  // as defined in Reset()
 	return m_aiTurnsSincePtPWarning[ePlayer];
 }
 void CvMinorCivAI::ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
@@ -11273,7 +11268,6 @@ int CvMinorCivAI::GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQue
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	int iPercent = 0;
@@ -11943,7 +11937,6 @@ int CvMinorCivAI::GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer, b
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0; // as defined during Reset()
 
 	// Are we at war?
 	if (!bIgnoreWar && IsAtWarWithPlayersTeam(ePlayer))
@@ -11957,7 +11950,6 @@ int CvMinorCivAI::GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0; // as defined during Reset()
 
 	return m_aiFriendshipWithMajorTimes100[ePlayer];
 }
@@ -11967,7 +11959,6 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	int iOldEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer, bFromWar);
 
@@ -12045,12 +12036,10 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 {
 	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return 0;
 
 	PlayerTypes eMinor = GetPlayer()->GetID();
 	CvPlayer* pMajor = &GET_PLAYER(eMajor);
 	PRECONDITION(pMajor, "MINOR CIV AI: pMajor not expected to be NULL. ");
-	if (!pMajor) return 0;
 
 	int iEra = pMajor->GetCurrentEra();
 	if (iEra <= 0)
@@ -12122,12 +12111,11 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	// Religion
 	CvPlayerReligions* pMajorReligions = pMajor->GetReligions();
 	PRECONDITION(pMajorReligions, "MINOR CIV AI: pMajorReligions not expected to be NULL. ");
-	if (!pMajorReligions) return iAnchor;
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
-	if (!pMinorCapital) return iAnchor; // Happens when city was just captured, after buyout, etc., so just return the anchor value we have
+	if (!pMinorCapital)
+		return iAnchor; // Happens when city was just captured, after buyout, etc., so just return the anchor value we have
 	CvCityReligions* pMinorCapitalReligions = pMinorCapital->GetCityReligions();
 	PRECONDITION(pMinorCapitalReligions, "MINOR CIV AI: pMinorCapitalReligions not expected to be NULL. ");
-	if (!pMinorCapitalReligions) return iAnchor;
 	iAnchor += pMajorReligions->GetCityStateMinimumInfluence(pMinorCapitalReligions->GetReligiousMajority(), eMajor);
 
 	return iAnchor;
@@ -12137,7 +12125,9 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
 {
 	// If ePlayer isn't a major civ then there is no influence value to reset, so just return
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return; // as defined during Reset()
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return; // as defined during Reset()
 
 	int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 	const int iResetFriendship = 0;
@@ -12633,7 +12623,8 @@ bool CvMinorCivAI::IsAllies(PlayerTypes ePlayer) const
 /// Is ePlayer Friends with this minor?
 bool CvMinorCivAI::IsFriends(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return false;
 	return m_abFriends[ePlayer];
 }
 
@@ -12642,7 +12633,6 @@ bool CvMinorCivAI::IsEverFriends(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	return m_abEverFriends[ePlayer];
 }
@@ -12652,7 +12642,6 @@ void CvMinorCivAI::SetEverFriends(PlayerTypes ePlayer, bool bValue)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	m_abEverFriends[ePlayer] = bValue;
 }
@@ -12662,7 +12651,6 @@ void CvMinorCivAI::SetFriends(PlayerTypes ePlayer, bool bValue)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	if (m_abFriends[ePlayer] != bValue)
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorStatusChange(m_pPlayer->GetID(), bValue ? "gained friend" : "lost friend");
@@ -13351,7 +13339,9 @@ int CvMinorCivAI::GetTurnLiberated() const
 
 void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 
 	if (!IsProtectedByMajor(eMajor))
 		return;
@@ -13661,9 +13651,12 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 
 void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken, bool bSendNotification)
 {
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 
-	if (bProtect == IsProtectedByMajor(eMajor)) return;
+	if (bProtect == IsProtectedByMajor(eMajor))
+		return;
 
 	if (bProtect)
 	{
@@ -13734,7 +13727,8 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 
 bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequirement)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
@@ -13857,13 +13851,15 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 
 bool CvMinorCivAI::CanMajorStartProtection(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 	return (CanMajorProtect(eMajor, false) && !IsProtectedByMajor(eMajor));
 }
 
 bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 
 	if (!IsProtectedByMajor(eMajor))
 		return false;
@@ -13888,7 +13884,8 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 
 bool CvMinorCivAI::IsProtectedByMajor(PlayerTypes eMajor) const
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 	return m_abPledgeToProtect[eMajor];
 }
 
@@ -13904,7 +13901,6 @@ int CvMinorCivAI::GetTurnLastPledgedProtectionByMajor(PlayerTypes eMajor) const
 {
 	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
 
 	return m_aiTurnLastPledged[eMajor];
 }
@@ -13913,7 +13909,6 @@ void CvMinorCivAI::SetTurnLastPledgedProtectionByMajor(PlayerTypes eMajor, int i
 {
 	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
 	m_aiTurnLastPledged[eMajor] = iTurn;
 }
@@ -13922,7 +13917,6 @@ int CvMinorCivAI::GetTurnLastPledgeBrokenByMajor(PlayerTypes eMajor) const
 {
 	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
 
 	return m_aiTurnLastBrokePledge[eMajor];
 }
@@ -13931,7 +13925,6 @@ void CvMinorCivAI::SetTurnLastPledgeBrokenByMajor(PlayerTypes eMajor, int iTurn)
 {
 	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
 	m_aiTurnLastBrokePledge[eMajor] = iTurn;
 }
@@ -14170,7 +14163,6 @@ int CvMinorCivAI::GetCurrentHappinessFlatBonus(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
 
 	// Minor civ players do not get a bonus
 	if(ePlayer >= MAX_MAJOR_CIVS)
@@ -14287,7 +14279,6 @@ int CvMinorCivAI::GetCurrentHappinessPerLuxuryBonus(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
 
 	// Minor civ players do not get a bonus
 	if(ePlayer >= MAX_MAJOR_CIVS)
@@ -14367,7 +14358,6 @@ int CvMinorCivAI::GetCurrentYieldBonusTimes100(PlayerTypes ePlayer, YieldTypes e
 {
 	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
 
 	// Minor civ players do not get a bonus
 	if(ePlayer >= MAX_MAJOR_CIVS)
@@ -14508,7 +14498,6 @@ int CvMinorCivAI::GetUnitSpawnCounter(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1; // as defined during Reset()
 
 	return m_aiUnitSpawnCounter[ePlayer];
 }
@@ -14518,7 +14507,6 @@ void CvMinorCivAI::SetUnitSpawnCounter(PlayerTypes ePlayer, int iValue)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	m_aiUnitSpawnCounter[ePlayer] = iValue;
 }
@@ -14571,7 +14559,6 @@ bool CvMinorCivAI::IsUnitSpawningDisabled(PlayerTypes ePlayer) const
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	return m_abUnitSpawningDisabled[ePlayer];
 }
@@ -14581,7 +14568,6 @@ void CvMinorCivAI::SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	m_abUnitSpawningDisabled[ePlayer] = bValue;
 }
@@ -14589,7 +14575,9 @@ void CvMinorCivAI::SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue)
 /// Create a unit
 CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore, bool bCityStateAnnexed, bool bJuggernaut)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
+	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return NULL;
 	CvPlayer& kMajor = GET_PLAYER(eMajor);
 
 	if (bCityStateAnnexed && !kMajor.GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
@@ -14926,13 +14914,15 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 /// Has the player chosen to disable Influence rewards from quests?
 bool CvMinorCivAI::IsQuestInfluenceDisabled(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return false;
 	return m_abQuestInfluenceDisabled[ePlayer];
 }
 
 void CvMinorCivAI::SetQuestInfluenceDisabled(PlayerTypes ePlayer, bool bValue)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
 
 	if (bValue != m_abQuestInfluenceDisabled[ePlayer])
 	{
@@ -14979,13 +14969,16 @@ void CvMinorCivAI::EnableQuestInfluence(PlayerTypes ePlayer)
 /// Has this minor been married by us?
 bool CvMinorCivAI::IsMarried(PlayerTypes eMajor) const
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 	return m_abIsMarried[eMajor];
 }
 
 void CvMinorCivAI::SetMajorMarried(PlayerTypes eMajor, bool bValue)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 	m_abIsMarried[eMajor] = bValue;
 }
 
@@ -14997,7 +14990,9 @@ PlayerTypes CvMinorCivAI::GetMajorBoughtOutBy() const
 
 void CvMinorCivAI::SetMajorBoughtOutBy(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 	m_eMajorBoughtOutBy = eMajor;
 }
 
@@ -15011,7 +15006,9 @@ bool CvMinorCivAI::IsBoughtOut() const
 /// Can this minor be bought out by this major? (Austria VP UA)
 bool CvMinorCivAI::CanMajorDiploMarriage(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 
 	// Can't be already married
 	if (IsMarried(eMajor))
@@ -15047,7 +15044,8 @@ bool CvMinorCivAI::CanMajorDiploMarriage(PlayerTypes eMajor)
 /// Can this minor be bought out by this major? (Austria BNW UA)
 bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 
 	// We must both be alive and they must have a capital
 	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive() || GET_PLAYER(eMajor).getCapitalCity() == NULL)
@@ -15090,7 +15088,8 @@ bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
 /// What is the cost for eMajor to marry this City-State? (Austria VP UA)
 int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return -1;
 
 	int iGold = /*200*/ GD_INT_GET(BALANCE_MARRIAGE_COST_BASE);
 
@@ -15119,7 +15118,8 @@ int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
 /// What is the cost for eMajor to buy out this City-State? (Austria BNW UA)
 int CvMinorCivAI::GetBuyoutCost(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return -1;
 
 	int iGold = /*500*/ GD_INT_GET(MINOR_CIV_BUYOUT_COST);
 
@@ -15146,7 +15146,9 @@ int CvMinorCivAI::GetBuyoutCost(PlayerTypes eMajor)
 /// Do a City-State buyout (handles both of Austria's VP marriage and BNW buyout abilities)
 void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
 
 	// Marriage overrides buyout!
 	bool bMarriage = GET_PLAYER(eMajor).GetPlayerTraits()->IsDiplomaticMarriage();
@@ -15375,6 +15377,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 {
 	const int iFailScore = -1000;
 	CvString sFactors = "";
+	ASSERT(eBullyPlayer >= 0 && eBullyPlayer < MAX_MAJOR_CIVS, "Invalid eBullyPlayer index");
 	if (eBullyPlayer < 0 || eBullyPlayer >= MAX_MAJOR_CIVS)
 		return iFailScore;
 
@@ -15762,7 +15765,6 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	// Can't bully us if we're dead!
 	if(!GetPlayer()->isAlive())
@@ -15781,7 +15783,6 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMet
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	// Can't bully us if we're dead!
 	if(!GetPlayer()->isAlive())
@@ -15806,7 +15807,6 @@ CvString CvMinorCivAI::GetMajorBullyGoldDetails(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
 	
 	CvString sFactors = "";
 	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ false, &sFactors);
@@ -15840,7 +15840,6 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	// Can't bully us if we're dead!
 	if(!GetPlayer()->isAlive())
@@ -15858,7 +15857,6 @@ bool CvMinorCivAI::CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMet
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	// Can't bully us if we're dead!
 	if(!GetPlayer()->isAlive())
@@ -15880,7 +15878,6 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
 
 	CvString sFactors = "";
 	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ true, &sFactors);
@@ -15931,7 +15928,6 @@ CvString CvMinorCivAI::GetMajorBullyAnnexDetails(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
 
 	CvString sFactors = "";
 	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ true, &sFactors);
@@ -15969,7 +15965,6 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 {
 	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
 	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	if(eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
 	if (pMinorCapital == NULL)
@@ -16119,7 +16114,6 @@ void CvMinorCivAI::DoMajorBullyAnnex(PlayerTypes eBully)
 {
 	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
 	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
 	int iBullyMetric = CalculateBullyScore(eBully, /*bForUnit*/ false);
 	bool bSuccess = CanMajorBullyUnit(eBully, iBullyMetric);
@@ -16195,7 +16189,6 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 {
 	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
 	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	if(eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
 	int iBullyMetric = CalculateBullyScore(eBully, /*bForUnit*/ true);
 	bool bSuccess = CanMajorBullyUnit(eBully, iBullyMetric);
@@ -16394,7 +16387,6 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 {
 	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
 	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
 
 	CvPlayer* pBully = &GET_PLAYER(eBully);
 	PRECONDITION(pBully, "pBully not expected to be NULL.");
@@ -16417,7 +16409,8 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	{
 		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
 		CvPlayer* pMajorLoop = &GET_PLAYER(eMajorLoop);
-		if (!pMajorLoop) continue;
+		if (!pMajorLoop)
+			continue;
 
 		if (pMajorLoop->isAlive() && eMajorLoop != eBully && GET_TEAM(pMajorLoop->getTeam()).isHasMet(GetPlayer()->getTeam()) && GET_TEAM(pMajorLoop->getTeam()).isHasMet(pBully->getTeam()))
 		{
@@ -16460,7 +16453,6 @@ bool CvMinorCivAI::IsEverBulliedByMajor(PlayerTypes ePlayer) const
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	return (m_aiTurnLastBullied[ePlayer] >= 0); // -1 means never bullied
 }
@@ -16487,7 +16479,6 @@ bool CvMinorCivAI::IsRecentlyBulliedByMajor(PlayerTypes ePlayer) const
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
 
 	const int iRecentlyBulliedTurnInterval = 20; //antonjs: todo: constant/XML
 	return (m_aiTurnLastBullied[ePlayer] >= 0 && m_aiTurnLastBullied[ePlayer] >= (GC.getGame().getGameTurn() - iRecentlyBulliedTurnInterval)); // -1 means never bullied
@@ -16497,7 +16488,6 @@ int CvMinorCivAI::GetTurnLastBulliedByMajor(PlayerTypes ePlayer) const
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1;
 
 	return m_aiTurnLastBullied[ePlayer];
 }
@@ -16506,7 +16496,6 @@ void CvMinorCivAI::SetTurnLastBulliedByMajor(PlayerTypes ePlayer, int iTurn)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	m_aiTurnLastBullied[ePlayer] = iTurn;
 }
@@ -16772,7 +16761,6 @@ int CvMinorCivAI::GetNumUnitsGifted(PlayerTypes ePlayer)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return -1; // as defined during Reset()
 
 	return m_aiNumUnitsGifted[ePlayer];
 }
@@ -16782,7 +16770,6 @@ void CvMinorCivAI::SetNumUnitsGifted(PlayerTypes ePlayer, int iValue)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	m_aiNumUnitsGifted[ePlayer] = iValue;
 }
@@ -16800,10 +16787,10 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUn
 {
 	PRECONDITION(eFromPlayer >= 0, "eFromPlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(eFromPlayer < MAX_MAJOR_CIVS, "eFromPlayer is expected to be within maximum bounds (invalid Index)");
-	if (eFromPlayer < 0 || eFromPlayer >= MAX_MAJOR_CIVS) return;
 
 	ASSERT(pGiftUnit != NULL, "pGiftUnit is NULL");
-	if (pGiftUnit == NULL) return;
+	if (pGiftUnit == NULL)
+		return;
 
 	ChangeNumUnitsGifted(eFromPlayer, 1);
 	if (GET_PLAYER(eFromPlayer).isInstantYieldsFromUnitGift())
@@ -16832,7 +16819,8 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUn
 
 int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreatPerson, bool /*bDistanceGift*/)
 {
-	if (eFromPlayer < 0 || eFromPlayer >= MAX_MAJOR_CIVS) return 0;
+	if (eFromPlayer < 0 || eFromPlayer >= MAX_MAJOR_CIVS)
+		return 0;
 
 	int iInfluence = 0;
 	CvPlayer& kFromPlayer = GET_PLAYER(eFromPlayer);
@@ -16877,7 +16865,6 @@ int CvMinorCivAI::GetNumGoldGifted(PlayerTypes ePlayer) const
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;  // as defined in Reset()
 	return m_aiNumGoldGifted[ePlayer];
 }
 
@@ -16885,7 +16872,6 @@ void CvMinorCivAI::SetNumGoldGifted(PlayerTypes ePlayer, int iValue)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiNumGoldGifted[ePlayer] = iValue;
 }
 
@@ -16893,7 +16879,6 @@ void CvMinorCivAI::ChangeNumGoldGifted(PlayerTypes ePlayer, int iChange)
 {
 	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	SetNumGoldGifted(ePlayer, GetNumGoldGifted(ePlayer) + iChange);
 }
 
@@ -16984,7 +16969,6 @@ bool CvMinorCivAI::CanMajorGiftTileImprovement(PlayerTypes eMajor)
 {
 	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 	CvPlayer* pPlayer = &GET_PLAYER(eMajor);
 	if(pPlayer == NULL)
 	{
@@ -17092,7 +17076,6 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 {
 	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
 	if(pPlot == NULL)
 	{
@@ -17140,13 +17123,15 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 // Convenience wrapper function
 bool CvMinorCivAI::CanMajorGiftTileImprovementAtPlot(PlayerTypes eMajor, int iPlotX, int iPlotY)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
 	return (CanMajorGiftTileImprovement(eMajor) && IsLackingGiftableTileImprovementAtPlot(eMajor, iPlotX, iPlotY));
 }
 
 int CvMinorCivAI::GetGiftTileImprovementCost(PlayerTypes eMajor)
 {
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return -1;
 	return /*200*/ GD_INT_GET(MINOR_CIV_TILE_IMPROVEMENT_GIFT_COST);
 }
 
@@ -17553,14 +17538,18 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 /// Permanent War with eTeam?
 bool CvMinorCivAI::IsPermanentWar(TeamTypes eTeam) const
 {
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return false;
+	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return false;
 	return m_abPermanentWar[eTeam];
 }
 
 /// Permanent War with eTeam?
 void CvMinorCivAI::SetPermanentWar(TeamTypes eTeam, bool bValue)
 {
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
 
 	if (ENABLE_PERMANENT_WAR)
 		m_abPermanentWar[eTeam] = bValue;
@@ -17572,27 +17561,35 @@ void CvMinorCivAI::SetPermanentWar(TeamTypes eTeam, bool bValue)
 // Wary of eTeam?
 bool CvMinorCivAI::IsWaryOfTeam(TeamTypes eTeam) const
 {
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return false;
+	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return false;
 	return m_abWaryOfTeam[eTeam];
 }
 
 // Wary of eTeam?
 void CvMinorCivAI::SetWaryOfTeam(TeamTypes eTeam, bool bValue)
 {
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
 	m_abWaryOfTeam[eTeam] = bValue;
 }
 
 //JERK COOLDOWN RATE
 int CvMinorCivAI::GetTurnLastAttacked(TeamTypes eTeam) const
 {
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return -1;
+	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return -1;
 	return m_aiTurnLastAttacked[eTeam];
 }
 
 void CvMinorCivAI::SetTurnLastAttacked(TeamTypes eTeam, int iTurn)
 {
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
 	m_aiTurnLastAttacked[eTeam] = max(iTurn, -1);
 }
 
@@ -17624,13 +17621,17 @@ int CvMinorCivAI::GetJerkTurnsRemaining(TeamTypes eTeam) const
 
 bool CvMinorCivAI::IsIgnoreJerk(TeamTypes eTeam) const
 {
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return false;
+	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return false;
 	return m_abIgnoreJerk[eTeam];
 }
 
 void CvMinorCivAI::SetIgnoreJerk(TeamTypes eTeam, bool bValue)
 {
-	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
+	ASSERT(eTeam >= 0 && eTeam < MAX_CIV_TEAMS, "Invalid eTeam index");
+	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS)
+		return;
 	m_abIgnoreJerk[eTeam] = bValue;
 }
 
