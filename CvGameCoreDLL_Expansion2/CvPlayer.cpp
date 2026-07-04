@@ -497,6 +497,7 @@ CvPlayer::CvPlayer() :
 	, m_iCitySupplyFlatGlobal()
 	, m_iUnitSupplyFromExpendedGP()
 	, m_iExpendedArtsyUnits()
+	, m_iExpendedScienceyUnits()
 	, m_iMissionaryExtraStrength()
 	, m_iFreeSpecialist()
 	, m_iCultureBombTimer()
@@ -1467,6 +1468,7 @@ void CvPlayer::uninit()
 	m_iCitySupplyFlatGlobal = 0;
 	m_iUnitSupplyFromExpendedGP = 0;
 	m_iExpendedArtsyUnits = 0;
+	m_iExpendedScienceyUnits = 0;
 	m_iMissionaryExtraStrength = 0;
 	m_iGarrisonsOccupiedUnhappinessMod = 0;
 	m_iXPopulationConscription = 0;
@@ -27136,6 +27138,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS_NAME");
 							break;
+						case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS_NAME");
+							break;
 						case MINOR_CIV_QUEST_ARCHAEOLOGY:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ARCHAEOLOGY_NAME");
 							break;
@@ -28388,6 +28393,13 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 		|| pGreatPersonUnit->GetTourismBlastStrength() > 0 || pGreatPersonUnit->GetTourismBlastLength() > 0) // Great Musician
 	{
 		ChangeNumExpendedArtsyUnits(1);
+	}
+	// If it's a sciencey unit, increment the counter
+	if (pGreatPersonUnit->GetScienceBlastStrength() > 0 || // Great Scientist
+		pGreatPersonUnit->GetGoldBlastStrength() > 0 || pGreatPersonUnit->getUnitInfo().GetBaseWLTKDTurns() > 0 || // Great Merchant
+		pGreatPersonUnit->GetHurryStrength() > 0) // Great Engineer
+	{
+		ChangeNumExpendedScienceyUnits(1);
 	}
 
 	// Gold gained
@@ -44453,6 +44465,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCitySupplyFlatGlobal);
 	visitor(player.m_iUnitSupplyFromExpendedGP);
 	visitor(player.m_iExpendedArtsyUnits);
+	visitor(player.m_iExpendedScienceyUnits);
 	visitor(player.m_iMissionaryExtraStrength);
 	visitor(player.m_iFreeSpecialist);
 	visitor(player.m_iCultureBombTimer);
@@ -46411,6 +46424,14 @@ int CvPlayer::GetNumExpendedArtsyUnits() const
 void CvPlayer::ChangeNumExpendedArtsyUnits(int iChange)
 {
 	m_iExpendedArtsyUnits += iChange;
+}
+int CvPlayer::GetNumExpendedScienceyUnits() const
+{
+	return m_iExpendedScienceyUnits;
+}
+void CvPlayer::ChangeNumExpendedScienceyUnits(int iChange)
+{
+	m_iExpendedScienceyUnits += iChange;
 }
 
 /// How many Natural Wonders has this player found in its area?

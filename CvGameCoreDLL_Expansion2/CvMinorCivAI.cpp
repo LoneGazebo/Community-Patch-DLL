@@ -1233,6 +1233,7 @@ bool CvMinorCivQuest::IsContestQuest() const
 	case MINOR_CIV_QUEST_CONTEST_FAITH:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
 	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 		return true;
 	default:
@@ -1298,9 +1299,10 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 		break;
 	}
 	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
 	{
 		int iStartUnits = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
-		int iEndUnits = GET_PLAYER(ePlayer).GetNumExpendedArtsyUnits();
+		int iEndUnits = eType == MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS ? GET_PLAYER(ePlayer).GetNumExpendedArtsyUnits() : GET_PLAYER(ePlayer).GetNumExpendedScienceyUnits();
 		iValue = iEndUnits - iStartUnits;
 		break;
 	}
@@ -1502,6 +1504,7 @@ bool CvMinorCivQuest::IsComplete(CityEventChoiceTypes eSpyMission)
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
 	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
 	{
 		// Player won the contest?
 		return GetEndTurn() <= GC.getGame().getGameTurn() && IsContestLeader(m_eAssignedPlayer);
@@ -1928,6 +1931,7 @@ bool CvMinorCivQuest::IsExpired()
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
 	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
 	{
 		// Contest completed, and not the winner
 		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
@@ -2860,6 +2864,18 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ARTSY_UNITS");
 		break;
 	}
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
+	{
+		m_iData1 = pAssignedPlayer->GetNumExpendedScienceyUnits();
+
+		int iTurnsRemaining = GetEndTurn() - GC.getGame().getGameTurn();
+
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_SCIENCEY_UNITS");
+		strMessage << iTurnsRemaining;
+		strMessage << iDuration;
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SCIENCEY_UNITS");
+		break;
+	}
 	case MINOR_CIV_QUEST_ARCHAEOLOGY:
 	{
 		CvPlot* pPlot = pMinor->GetMinorCivAI()->GetBestNearbyDig();
@@ -3589,6 +3605,13 @@ bool CvMinorCivQuest::DoFinishQuest()
 		veNamesToShow = GetContestLeaders();
 		break;
 	}
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
+	{
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_COMPLETE_SCIENCEY_UNITS");
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_SCIENCEY_UNITS");
+		veNamesToShow = GetContestLeaders();
+		break;
+	}
 	case MINOR_CIV_QUEST_ARCHAEOLOGY:
 	{
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_COMPLETE_ARCHAEOLOGY");
@@ -3891,6 +3914,13 @@ bool CvMinorCivQuest::DoCancelQuest()
 	{
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_ARTSY_UNITS");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONTEST_ARTSY_UNITS");
+		veNamesToShow = GetContestLeaders();
+		break;
+	}
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
+	{
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_SCIENCEY_UNITS");
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONTEST_SCIENCEY_UNITS");
 		veNamesToShow = GetContestLeaders();
 		break;
 	}
@@ -7030,6 +7060,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
 	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
 	case MINOR_CIV_QUEST_INFLUENCE:
 	{
 		break;
@@ -7335,6 +7366,7 @@ bool CvMinorCivAI::IsGlobalQuest(MinorCivQuestTypes eQuest) const
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
 	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
 	case MINOR_CIV_QUEST_CONTEST_FAITH:
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 	case MINOR_CIV_QUEST_INVEST:
@@ -7369,6 +7401,7 @@ int CvMinorCivAI::GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const
 	case MINOR_CIV_QUEST_CONTEST_FAITH:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
 	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 		iPlayersNeeded = 3;
 		break;
