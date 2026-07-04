@@ -292,7 +292,7 @@ public:
 
 	bool hasIncomingUnit() const;
 
-	void applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const;
+	void applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit, bool bReturn) const;
 	void reset();
 
 private:
