@@ -409,8 +409,13 @@
 // Vote Commitments cannot be cancelled by war; if the resolution becomes invalid, the votes are abstained instead of returned to the civ
 #define MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS						gCustomMods.isBALANCE_PERMANENT_VOTE_COMMITMENTS()
 
-// Changes to City-State Quests (Faith Contest now based on followers converted, Kill City-State now mutual and solvable by allying both City-States, Spread Religion requires a city within Trade Route range and doesn't require founding)
-// Pledge to Protect quest prioritizes the most recent attacker if jerk status is active, then the most recent bully
+// Changes to City-State Quests:
+// * Faith Contest now based on followers converted instead of total Faith generated
+// * Kill City-State now mutual and solvable by allying both City-States
+// * Pledge to Protect prioritizes the most recent attacker if jerk status is active, then the most recent bully
+// * Denounce Major can target players with < 0 Influence other than the most recent bully
+// * Current friends are excluded when finding the most recent bully
+// * Spread Religion requires a city within Trade Route range and doesn't require founding
 // Also disables City-States' resistance to conversion if an active Spread Religion quest is being fulfilled (correct player and religion)
 #define MOD_BALANCE_QUEST_CHANGES									gCustomMods.isBALANCE_QUEST_CHANGES()
 
