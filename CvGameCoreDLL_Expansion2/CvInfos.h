@@ -3641,6 +3641,8 @@ public:
 	bool isCounterspyBlockSapCity() const;
 	int getCityDefenseModifierBase() const;
 	int getCityDefenseModifier() const;
+	int getSpyIdentificationChanceReductionGlobal() const;
+	int getSpySecurityModifier() const;
 	EventChoiceTypes GetTriggerPlayerEventChoice() const;
 
 	//Filters
@@ -3786,6 +3788,8 @@ protected:
 	bool m_bCounterspyBlockSapCity;
 	int m_iCityDefenseModifierBase;
 	int m_iCityDefenseModifier;
+	int m_iSpyIdentificationChanceReductionGlobal;
+	int m_iSpySecurityModifier;
 
 	//Filters
 	int m_iPrereqTech;

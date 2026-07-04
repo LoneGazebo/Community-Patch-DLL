@@ -23053,7 +23053,19 @@ void CvPlayer::CreateSpies(int iNumSpies, bool bScaling)
 /// Calculate the identification chance when this player performs a spy mission
 int CvPlayer::GetSpyIdentificationChance(int iBaseChance)
 {
-	return range(iBaseChance, 0, 100);
+	int iIdentificationChanceReductionGlobal = 0;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity; pLoopCity = nextCity(&iLoop))
+	{
+		CvCityEspionage* pCityEspionage = pLoopCity->GetCityEspionage();
+		if (pCityEspionage->HasCounterSpy())
+		{
+			CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
+			iIdentificationChanceReductionGlobal += pkEventChoiceInfo->getSpyIdentificationChanceReductionGlobal();
+		}
+	}
+
+	return range(iBaseChance - iIdentificationChanceReductionGlobal, 0, 100);
 }
 
 /// Calculate the kill chance when this player performs a spy mission

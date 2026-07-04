@@ -8691,10 +8691,25 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 	{
 		iScore += pkMissionInfo->getCounterspyNPRateReduction();
 		// if going for SV and ahead in science, protect our capital from having techs stolen
-		if (pDiplomacyAI->IsGoingForSpaceshipVictory() && pDiplomacyAI->IsCloseToSpaceshipVictory())
+		if (pDiplomacyAI->IsCloseToSpaceshipVictory())
+		{
+			iScore += 150;
+		}
+		else if (pDiplomacyAI->IsGoingForSpaceshipVictory())
 		{
 			iScore += 35;
-		}
+		}		
+	}
+	
+	// does this change our city security?
+	if (pkMissionInfo->getSpySecurityModifier() != 0)
+	{
+		int iSecurity = pCity->CalculateCitySecurity();
+		// -30 Security doesn't matter if you have no security to begin with *taps head*
+		int iSecurityAfter = min(max(0, pkMissionInfo->getSpySecurityModifier() + iSecurity), GD_INT_GET(ESPIONAGE_MAX_NUM_SECURITY_POINTS));
+		// if the city is our capital, loss of security is much worse, as above
+		int iCapital = pCity->isCapital() ? 2 : 1;
+		iScore += iCapital * (iSecurityAfter - iSecurity) * GD_INT_GET(ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT) / 100;
 	}
 	
 	// ranged attack is only good if we're under siege
@@ -8797,6 +8812,23 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 				iScore += iSpecYield * iNumSpecialists;
 			}
 		}
+	}
+
+	// does this change our chance to be detected? If we are trying to kill everyone, don't care!
+	if (pkMissionInfo->getSpyIdentificationChanceReductionGlobal() != 0 && !pDiplomacyAI->IsGoingForWorldConquest())
+	{			
+		// the more offensive spies we have, the more significant this would be
+		int iNumOffensiveSpies = 0;
+		CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
+		for (uint uiSpy = 0; uiSpy < (uint)pEspionage->GetNumSpies(); uiSpy++)
+		{
+			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(uiSpy);
+			if (pSpy->GetSpyState() == SPY_STATE_GATHERING_INTEL)
+			{
+				iNumOffensiveSpies++;
+			}
+		}
+		iScore +=  iNumOffensiveSpies * pkMissionInfo->getSpyIdentificationChanceReductionGlobal();
 	}
 
 	// starts WLTKD? it's one off so if we're not swapping to it, we don't get a benefit

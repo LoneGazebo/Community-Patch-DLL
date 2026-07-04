@@ -11354,6 +11354,8 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bCounterspyBlockSapCity(false),
 	 m_iCityDefenseModifierBase(0),
 	 m_iCityDefenseModifier(0),
+	 m_iSpyIdentificationChanceReductionGlobal(0),
+	 m_iSpySecurityModifier(0),
 	 m_iPrereqTech(-1),
 	 m_iObsoleteTech(-1),
 	 m_iMinimumPopulation(0),
@@ -11557,6 +11559,14 @@ int CvModEventCityChoiceInfo::getCityDefenseModifierBase() const
 int CvModEventCityChoiceInfo::getCityDefenseModifier() const
 {
 	return m_iCityDefenseModifier;
+}
+int CvModEventCityChoiceInfo::getSpyIdentificationChanceReductionGlobal() const
+{
+	return m_iSpyIdentificationChanceReductionGlobal;
+}
+int CvModEventCityChoiceInfo::getSpySecurityModifier() const
+{
+	return m_iSpySecurityModifier;
 }
 
 EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
@@ -12221,6 +12231,8 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bCounterspyBlockSapCity = kResults.GetBool("CounterspyBlockSapCity");
 	m_iCityDefenseModifierBase = kResults.GetInt("CityDefenseModifierBase");
 	m_iCityDefenseModifier = kResults.GetInt("CityDefenseModifier");
+	m_iSpyIdentificationChanceReductionGlobal = kResults.GetInt("SpyIdentificationChanceReductionGlobal");
+	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
 
 	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");
 	m_iConvertsCityToPlayerMajorityReligion = kResults.GetBool("ConvertToPlayerMajorityReligionPercent");
