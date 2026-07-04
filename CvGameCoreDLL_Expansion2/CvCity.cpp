@@ -13554,66 +13554,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 
-			// Free Units
-			int iFreeUnitLoop = 0;
-			int iFreeSpecUnitLoop = 0;
-			for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
-			{
-				const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
-				const CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
-				if (pUnitInfo)
-				{
-					// No settling units for One City Challenge
-					if (isHuman(ISHUMAN_MECHANICS) && pUnitInfo->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-						continue;
-
-					int iNumFreeUnits = pBuildingInfo->GetNumFreeUnits(iUnitLoop);
-					int iNumFreeSpecUnits = pBuildingInfo->GetNumFreeSpecialUnits(iUnitLoop);
-
-					if (iNumFreeUnits > 0 || iNumFreeSpecUnits > 0)
-					{
-						for (iFreeSpecUnitLoop = 0; iFreeSpecUnitLoop < iNumFreeSpecUnits; iFreeSpecUnitLoop++)
-						{
-							SpawnFreeUnit(eUnit);
-						}
-
-						// Get the right unit of this class for this civ
-						const UnitClassTypes eFreeUnitClass = static_cast<UnitClassTypes>(pUnitInfo->GetUnitClassType());
-						UnitTypes eFreeUnit = owningPlayer.GetSpecificUnitType(eFreeUnitClass);
-
-						// For Venice, replace any spawned settling unit with Merchant of Venice
-						if (pUnitInfo->IsFound() && owningPlayer.GetPlayerTraits()->IsNoAnnexing())
-						{
-							bool bFound = false;
-							for (int iVeniceSearch = 0; iVeniceSearch < GC.getNumUnitClassInfos(); iVeniceSearch++)
-							{
-								const UnitClassTypes eVeniceUnitClass = static_cast<UnitClassTypes>(iVeniceSearch);
-								const UnitTypes eMerchantOfVeniceUnit = owningPlayer.GetSpecificUnitType(eVeniceUnitClass);
-								if (eMerchantOfVeniceUnit != NO_UNIT)
-								{
-									CvUnitEntry* pVeniceUnitEntry = GC.getUnitInfo(eMerchantOfVeniceUnit);
-									if (pVeniceUnitEntry->IsCanBuyCityState())
-									{
-										eFreeUnit = eMerchantOfVeniceUnit;
-										bFound = true;
-										break;
-									}
-								}
-							}
-
-							// Failed to find a replacement
-							if (!bFound)
-								continue;
-						}
-
-						for (iFreeUnitLoop = 0; iFreeUnitLoop < iNumFreeUnits; iFreeUnitLoop++)
-						{
-							SpawnFreeUnit(eFreeUnit);
-						}
-					}
-				}
-			}
-
 			// Should we found a Corporation?
 			if (pkCorporationInfo)
 			{
@@ -13689,6 +13629,66 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 
+			// Free Units
+			int iFreeUnitLoop = 0;
+			int iFreeSpecUnitLoop = 0;
+			for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+			{
+				const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
+				const CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+				if (pUnitInfo)
+				{
+					// No settling units for One City Challenge
+					if (isHuman(ISHUMAN_MECHANICS) && pUnitInfo->IsFound() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+						continue;
+
+					int iNumFreeUnits = pBuildingInfo->GetNumFreeUnits(iUnitLoop);
+					int iNumFreeSpecUnits = pBuildingInfo->GetNumFreeSpecialUnits(iUnitLoop);
+
+					if (iNumFreeUnits > 0 || iNumFreeSpecUnits > 0)
+					{
+						for (iFreeSpecUnitLoop = 0; iFreeSpecUnitLoop < iNumFreeSpecUnits; iFreeSpecUnitLoop++)
+						{
+							SpawnFreeUnit(eUnit);
+						}
+
+						// Get the right unit of this class for this civ
+						const UnitClassTypes eFreeUnitClass = static_cast<UnitClassTypes>(pUnitInfo->GetUnitClassType());
+						UnitTypes eFreeUnit = owningPlayer.GetSpecificUnitType(eFreeUnitClass);
+
+						// For Venice, replace any spawned settling unit with Merchant of Venice
+						if (pUnitInfo->IsFound() && owningPlayer.GetPlayerTraits()->IsNoAnnexing())
+						{
+							bool bFound = false;
+							for (int iVeniceSearch = 0; iVeniceSearch < GC.getNumUnitClassInfos(); iVeniceSearch++)
+							{
+								const UnitClassTypes eVeniceUnitClass = static_cast<UnitClassTypes>(iVeniceSearch);
+								const UnitTypes eMerchantOfVeniceUnit = owningPlayer.GetSpecificUnitType(eVeniceUnitClass);
+								if (eMerchantOfVeniceUnit != NO_UNIT)
+								{
+									CvUnitEntry* pVeniceUnitEntry = GC.getUnitInfo(eMerchantOfVeniceUnit);
+									if (pVeniceUnitEntry->IsCanBuyCityState())
+									{
+										eFreeUnit = eMerchantOfVeniceUnit;
+										bFound = true;
+										break;
+									}
+								}
+							}
+
+							// Failed to find a replacement
+							if (!bFound)
+								continue;
+						}
+
+						for (iFreeUnitLoop = 0; iFreeUnitLoop < iNumFreeUnits; iFreeUnitLoop++)
+						{
+							SpawnFreeUnit(eFreeUnit);
+						}
+					}
+				}
+			}
+			
 			// TERRA COTTA AWESOME
 			if (pBuildingInfo->GetInstantMilitaryIncrease())
 			{
