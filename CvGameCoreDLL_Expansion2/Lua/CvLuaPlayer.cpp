@@ -1168,6 +1168,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetRandomIntrigue);
 	Method(GetCachedValueOfPeaceWithHuman);
 	Method(GetSpyPoints);
+	Method(GetSpyIdentificationChance);
+	Method(GetSpyKillChance);
 	Method(GetSpyMissionTooltip);
 	Method(GetCitySecurityTooltip);
 	Method(GetCityWithSpy);
@@ -16650,10 +16652,22 @@ int CvLuaPlayer::lGetCachedValueOfPeaceWithHuman(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int GetSpyPoints();
+//int GetSpyPoints(bool bTotal);
 int CvLuaPlayer::lGetSpyPoints(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetSpyPoints);
+}
+//------------------------------------------------------------------------------
+//int GetSpyIdentificationChance(int iBaseChance);
+int CvLuaPlayer::lGetSpyIdentificationChance(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetSpyIdentificationChance);
+}
+//------------------------------------------------------------------------------
+//int GetSpyKillChance(int iBaseChance);
+int CvLuaPlayer::lGetSpyKillChance(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetSpyKillChance);
 }
 
 //------------------------------------------------------------------------------

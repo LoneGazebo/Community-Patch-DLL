@@ -384,46 +384,6 @@
 			<Text>Unfortunately, they have nothing to offer you, but as {2: gender *:an?an; other?a;} {2_Personality} City State your [COLOR_POSITIVE_TEXT]friendship increases by {1_NumFriendship}[ENDCOLOR].</Text>
 		</Row>
 		<!-- Quests -->
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_WAR_FORMAL">
-			<Text>They want you to declare war on {1_TargetName:textkey}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_NATIONAL_WONDER_FORMAL">
-			<Text>They want you to build the {1_NationalWonderName:textkey}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT_FORMAL">
-			<Text>They want you to send them {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_UnitName}} with at least {2_XP} XP.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_FIND_CITY_STATE_FORMAL">
-			<Text>They want you to find the City-State of {1_CityStateName:textkey}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_INFLUENCE_FORMAL">
-			<Text>Diplomatic Missions are temporarily more effective.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_INFLUENCE_TOURISM_FORMAL">
-			<Text>They will reward the player with the highest [ICON_TOURISM] Tourism per turn.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_TOURISM_WINNING_FORMAL">
-			<Text>{TXT_KEY_CITY_STATE_QUEST_INFLUENCE_TOURISM_FORMAL} So far, you have the lead with [ICON_TOURISM] [COLOR_POSITIVE_TEXT]{1_PlayerScore} per turn[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CONTEST_TOURISM_LOSING_FORMAL">
-			<Text>{TXT_KEY_CITY_STATE_QUEST_INFLUENCE_TOURISM_FORMAL} So far, the leader has [ICON_TOURISM] {1_LeaderScore} per turn and you have [ICON_TOURISM] [COLOR_POSITIVE_TEXT]{2_PlayerScore} per turn[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ARCHAEOLOGY_FORMAL">
-			<Text>Send an archaeologist to a site near this city-state.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_CIRCUMNAVIGATION_FORMAL">
-			<Text>Be the first to circumnavigate the world.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL">
-			<Text>They want you to liberate the city of {1_CityName:textkey}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_HORDE_FORMAL">
-			<Text>Protect them from a barbarian horde! If there are barbarians next to the city when the quest ends, the city will be [COLOR_NEGATIVE_TEXT]sacked[ENDCOLOR]!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL">
-			<Text>A revolution against their ally is occurring!</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GLOBAL_HEADER">
 			<Text>Global Quests:</Text>
 		</Row>

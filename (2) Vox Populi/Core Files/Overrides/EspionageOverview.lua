@@ -1609,12 +1609,12 @@ PopulateSelectionList = function(stackControl, playerID, city, spy)
 			local szHelpString;
 			szDescString = Locale.Lookup(info.Description);
 			szHelpString = Locale.ConvertTextKey(city:GetScaledEventChoiceValue(info.ID, false, spyID, playerID), localizedCityName);
-			
+
 			if (playerID ~= city:GetOwner()) then
 				szHelpString = szHelpString .. "[NEWLINE][NEWLINE]";
-				szHelpString = szHelpString .. Locale.Lookup("TXT_KEY_EO_ID_KILL_CHANCE", info.SpyIDChance, info.SpyKillChance);
+				szHelpString = szHelpString .. Locale.Lookup("TXT_KEY_EO_ID_KILL_CHANCE", player:GetSpyIdentificationChance(info.SpyIDChance), player:GetSpyKillChance(info.SpyKillChance));
 			end
-	
+
 			if(info.NetworkPointsNeeded > 0) then
 				local iNPScaled = GetNetworkPointsScaled(info);
 				instance.Name:LocalizeAndSetText("TXT_KEY_EO_MISSION_COST", iNPScaled, szDescString);

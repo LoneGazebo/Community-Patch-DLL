@@ -22106,21 +22106,10 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		// Are we going for diplo victory? Check minor civ dispute.
 		if (bGoingForDiploVictory || bCloseToDiploVictory)
 		{
-			if (bCloseToDiploVictory)
+			if (IsMinorCivTroublemaker(eLoopPlayer, bCloseToDiploVictory))
 			{
-				if (IsMinorCivTroublemaker(eLoopPlayer, true))
-				{
-					SetStrategicTradePartner(eLoopPlayer, false);
-					continue;
-				}
-			}
-			else
-			{
-				if (IsMinorCivTroublemaker(eLoopPlayer, false))
-				{
-					SetStrategicTradePartner(eLoopPlayer, false);
-					continue;
-				}
+				SetStrategicTradePartner(eLoopPlayer, false);
+				continue;
 			}
 		}
 
@@ -24602,7 +24591,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 	}
 
 	// Check for kill CS quests
-	if ((!MOD_BALANCE_QUEST_CHANGES && GET_PLAYER(ePlayer).GetMinorCivAI()->IsEnabledQuest(MINOR_CIV_QUEST_KILL_CITY_STATE)) || (MOD_BALANCE_QUEST_CHANGES && GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE)))
+	if ((!MOD_BALANCE_QUEST_CHANGES && GET_PLAYER(ePlayer).GetMinorCivAI()->IsEnabledQuest(MINOR_CIV_QUEST_KILL_CITY_STATE, GetPlayer()->GetCurrentEra())) || (MOD_BALANCE_QUEST_CHANGES && GET_PLAYER(ePlayer).GetMinorCivAI()->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_KILL_CITY_STATE)))
 	{
 		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
@@ -55955,7 +55944,7 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer, int& iScoreForLi
 	iScoreForLiberate *= 100 + (GET_TEAM(eVassalTeam).GetNumTurnsIsVassal() * GC.getGame().getGameSpeedInfo().getTrainPercent() / 1000); // 1% per 10 turns (standard speed)
 	iScoreForLiberate /= 100;
 
-	return iScoreForLiberate > /*100*/ GD_INT_GET(VASSALAGE_LIBERATE_BASE_THRESHOLD);
+	return iScoreForLiberate > /*100*/ GD_INT_GET(VASSALAGE_LIBERATION_BASE_THRESHOLD);
 }
 
 /// Do we want to become the vassal of ePlayer?
@@ -56262,7 +56251,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 		iCapitulationScore += min(30, 10 * (iTheirCivs - iOurCivs));
 	}
 
-	return iCapitulationScore > /*100*/ GD_INT_GET(VASSALAGE_CAPITULATE_BASE_THRESHOLD);
+	return iCapitulationScore > /*100*/ GD_INT_GET(VASSALAGE_CAPITULATION_BASE_THRESHOLD);
 }
 
 /// Do we want to voluntarily become ePlayer's vassal?
@@ -56693,7 +56682,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		break;
 	}
 
-	return iWantVassalageScore >= /*100*/ GD_INT_GET(VASSALAGE_CAPITULATE_BASE_THRESHOLD);
+	return iWantVassalageScore >= /*100*/ GD_INT_GET(VASSALAGE_VOLUNTARY_BASE_THRESHOLD);
 }
 
 /// Do we want to accept ePlayer as our voluntary vassal?
@@ -57129,7 +57118,7 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 		break;
 	}
 
-	return iIndependenceScore >= 100; // todo: global define
+	return iIndependenceScore >= /*100*/ GD_INT_GET(VASSALAGE_INDEPENDENCE_BASE_THRESHOLD);
 }
 
 /// Player ended vassalage with us, is that acceptable?

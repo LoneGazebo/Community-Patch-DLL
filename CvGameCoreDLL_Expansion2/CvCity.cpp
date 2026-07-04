@@ -25987,21 +25987,24 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 	iCitySecurity += iTempMod;
 
 	// Not all players have spies
-	bool bAllPlayersHaveSpies = true;
-	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	if (/*0*/ GD_INT_GET(ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES) != 0)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() == 0)
+		bool bAllPlayersHaveSpies = true;
+		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
-			bAllPlayersHaveSpies = false;
-			break;
+			PlayerTypes ePlayer = (PlayerTypes)ui;
+			if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() == 0)
+			{
+				bAllPlayersHaveSpies = false;
+				break;
+			}
 		}
-	}
-	if (!bAllPlayersHaveSpies)
-	{
-		iTempMod = GD_INT_GET(ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES);
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_NOT_ALL_HAVE_SPIES_TT", iTempMod);
-		iCitySecurity += iTempMod;
+		if (!bAllPlayersHaveSpies)
+		{
+			iTempMod = GD_INT_GET(ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES);
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_NOT_ALL_HAVE_SPIES_TT", iTempMod);
+			iCitySecurity += iTempMod;
+		}
 	}
 
 	// Local Buildings
@@ -26016,11 +26019,14 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 	iCitySecurity += iTempMod;
 
 	// Previous Spy Missions
-	iTempMod = GetNumPreviousSpyMissions() * GD_INT_GET(ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS);
-	iTempMod *= 100;
-	iTempMod /= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
-	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_PREVIOUS_SPY_MISSIONS_TT", iTempMod);
-	iCitySecurity += iTempMod;
+	if (/*0*/ GD_INT_GET(ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS) != 0)
+	{
+		iTempMod = GetNumPreviousSpyMissions() * GD_INT_GET(ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS);
+		iTempMod *= 100;
+		iTempMod /= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_PREVIOUS_SPY_MISSIONS_TT", iTempMod);
+		iCitySecurity += iTempMod;
+	}
 
 	// Population
 	iTempMod = getPopulation() * GD_INT_GET(ESPIONAGE_SECURITY_PER_POPULATION);

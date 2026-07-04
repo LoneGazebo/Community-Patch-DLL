@@ -8819,7 +8819,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 
 			// Resurrected civ becomes a vassal of the resurrector, if possible
-			if (kLiberatedTeam.GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone())
+			if (kLiberatedTeam.GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone() && !GC.getGame().isOption(GAMEOPTION_NO_VOLUNTARY_VASSALAGE))
 			{
 				if (!kLiberatedTeam.IsVassal(getTeam()))
 				{
@@ -23044,6 +23044,18 @@ void CvPlayer::CreateSpies(int iNumSpies, bool bScaling)
 			}
 		}
 	}
+}
+
+/// Calculate the identification chance when this player performs a spy mission
+int CvPlayer::GetSpyIdentificationChance(int iBaseChance)
+{
+	return range(iBaseChance, 0, 100);
+}
+
+/// Calculate the kill chance when this player performs a spy mission
+int CvPlayer::GetSpyKillChance(int iBaseChance)
+{
+	return range(iBaseChance, 0, 100);
 }
 
 /// Get the global modifier on the conversion progress rate

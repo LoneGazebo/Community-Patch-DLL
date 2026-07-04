@@ -429,6 +429,7 @@ public:
 	void Init(CvPlayer* pPlayer);
 	void Uninit(void);
 	void Reset(void);
+	void DoTurn(void);
 
 	template<typename TradeAI, typename Visitor>
 	static void Serialize(TradeAI& tradeAI, Visitor& visitor);
@@ -445,25 +446,21 @@ public:
 		int m_iScienceScore;
 	};
 
-	void DoTurn(void);
+	void GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList, bool bSkipExisting, bool bHaveCaravans, bool bHaveCargoShips);
+	void GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool bSkipExisting, bool bHaveCaravans, bool bHaveCargoShips);
 
-	void GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
-	void GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
-
+	// generic methods
 	TRSortElement ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism) const;
-
-	//generic method
-	int ScoreInternalTR(const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
-
-	//wrapper for different types of trade route
-	int ScoreFoodTR(const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
-	int ScoreProductionTR(const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
-	int ScoreWonderTR(const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 	TRSortElement ScoreGoldInternalTR(const TradeConnection& kTradeConnection) const;
+	int ScoreInternalTR(const TradeConnection& kTradeConnection, const std::set<int>& siTargetCityIDs);
 
-	int m_iRemovableValue;
+	// wrapper for different types of trade route
+	int ScoreProductionTR(const TradeConnection& kTradeConnection, const std::set<int>& siTargetCityIDs);
+	int ScoreFoodTR(const TradeConnection& kTradeConnection, const std::set<int>& siTargetCityIDs);
+	int ScoreWonderTR(const TradeConnection& kTradeConnection, const std::set<int>& siTargetCityIDs);
 
 	CvPlayer* m_pPlayer;
+	int m_iRemovableValue;
 };
 
 FDataStream& operator>>(FDataStream&, CvTradeAI&);

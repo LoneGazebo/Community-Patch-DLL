@@ -1262,12 +1262,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
 
-			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
-				return false;
-
 			// Vassalage is disabled
 			if (!GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
+				return false;
+
+			// Voluntary Vassalage is disabled
+			if (!bPeaceDeal && GC.getGame().isOption(GAMEOPTION_NO_VOLUNTARY_VASSALAGE))
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 				return false;
 
 			// Can we become the vassal of this team?
@@ -2278,6 +2282,9 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 		case TRADE_ITEM_VASSALAGE:
 		{
 			if (!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
+				return strError;
+
+			if (!bPeaceDeal && GC.getGame().isOption(GAMEOPTION_NO_VOLUNTARY_VASSALAGE))
 				return strError;
 
 			// We are already their vassal
