@@ -73,8 +73,15 @@ ALTER TABLE Beliefs ADD ReducePolicyRequirements integer DEFAULT 0;
 -- Increase yields from friendship/alliance for CS sharing your religion by x%
 ALTER TABLE Beliefs ADD CSYieldBonusFromSharedReligion integer DEFAULT 0;
 
--- Increase happiness from owned foreign spies active in other cities
-ALTER TABLE Beliefs ADD HappinessFromForeignSpies integer DEFAULT 0;
+-- Spies gain additional Network Points per Turn
+ALTER TABLE Beliefs ADD EspionageNetworkPoints integer DEFAULT 0;
+
+-- Spies provide Happiness to Holy City when stationed in a city
+ALTER TABLE Beliefs ADD HappinessFromSpies integer DEFAULT 0;
+ALTER TABLE Beliefs ADD HappinessFromForeignSpies integer DEFAULT 0; -- foreign cities only (including Diplomats and City-States)
+
+-- Spies erode pressure from other religions by -(X * Gamespeeds.ReligiousPressureAdjacentCity) per turn
+ALTER TABLE Beliefs ADD SpyPressureErosion integer DEFAULT 0;
 
 -- Decrease inquisitor cost. What it says on the tin ya git.
 ALTER TABLE Beliefs ADD InquisitorCostModifier integer DEFAULT 0;

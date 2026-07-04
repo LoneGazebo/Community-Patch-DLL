@@ -66,6 +66,7 @@ public:
 	int GetCityStateInfluenceModifier() const;
 	int GetOtherReligionPressureErosion() const;
 	int GetSpyPressure() const;
+	int GetSpyPressureErosion() const;
 	int GetInquisitorPressureRetention() const;
 	int GetFullyConvertedHappiness() const;
 	int GetFaithBuildingTourism() const;
@@ -85,6 +86,8 @@ public:
 	bool RequiresNoFeature() const;
 	bool RequiresOwnTerritory() const;
 
+	int GetEspionageNetworkPoints() const;
+	int GetHappinessFromSpies() const;
 	int GetHappinessFromForeignSpies() const;
 	int GetPressureChangeTradeRoute() const;
 	int GetYieldPerActiveTR(int i) const;
@@ -239,6 +242,7 @@ protected:
 	int m_iCityStateInfluenceModifier;
 	int m_iOtherReligionPressureErosion;
 	int m_iSpyPressure;
+	int m_iSpyPressureErosion;
 	int m_iInquisitorPressureRetention;
 	int m_iFaithBuildingTourism;
 	int m_iFullyConvertedHappiness;
@@ -316,6 +320,8 @@ protected:
 	bool* m_pbFaithPurchaseUnitEraEnabled;
     bool* m_pbBuildingClassEnabled;
 
+	int m_iEspionageNetworkPoints;
+	int m_iHappinessFromSpies;
 	int m_iHappinessFromForeignSpies;
 	int m_iGetPressureChangeTradeRoute;
 	int* m_piYieldPerActiveTR;
@@ -447,6 +453,7 @@ public:
 	int GetCityStateInfluenceModifier(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetOtherReligionPressureErosion(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetSpyPressure(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetSpyPressureErosion(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetInquisitorPressureRetention(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetFaithBuildingTourism(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetFullyConvertedHappiness(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -539,6 +546,8 @@ public:
 	bool RequiresNoImprovement(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	bool RequiresNoFeature(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 
+	int GetEspionageNetworkPoints(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetHappinessFromSpies(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetHappinessFromForeignSpies(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetPressureChangeTradeRoute(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerActiveTR(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
