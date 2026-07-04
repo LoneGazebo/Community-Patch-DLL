@@ -448,32 +448,32 @@ WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_MOVEMENT_HELP';
 
 -- Exploration
 UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement.'
+SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_PROMOTION_NAVAL_TRADITION_HELP';
 
 -- Patriotic War
 UPDATE Language_en_US
-SET Text = '+20% [ICON_STRENGTH] Combat Strength in or adjacent to [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+SET Text = '+20% [ICON_STRENGTH] Combat Strength in or adjacent to [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_PROMOTION_NATIONALISM_HELP';
 
 -- Altitude Training
 UPDATE Language_en_US
-SET Text = '+10% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].'
+SET Text = '+10% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALTITUDE_TRAINING_HELP';
 
 -- Morale
 UPDATE Language_en_US
-SET Text = '+10% [ICON_STRENGTH] Combat Strength.'
+SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_PROMOTION_MORALE_HELP';
 
 -- Statue Of Zeus
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Military Units:[ENDCOLOR] +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Workers:[ENDCOLOR] Immune to the [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_PRISONERS_OF_WAR}[ENDCOLOR] status.'
+SET Text = '[COLOR_POSITIVE_TEXT]Military Units:[ENDCOLOR] +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Workers:[ENDCOLOR] Immune to the [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_PRISONERS_OF_WAR}[ENDCOLOR] status.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_PROMOTION_STATUE_ZEUS_HELP';
 
 -- Himeji Castle
 UPDATE Language_en_US
-SET Text = '+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].'
+SET Text = '+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_PROMOTION_HIMEJI_CASTLE_HELP';
 
 UPDATE Language_en_US
