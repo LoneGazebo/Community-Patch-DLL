@@ -11278,6 +11278,7 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 //		CvModEventCityChoiceInfo
 //======================================================================================================
 CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
+	 m_strDescription(""),
 	 m_iEventBuilding(-1),
 	 m_iEventBuildingDestruction(-1),
 	 m_iEventDuration(0),
@@ -11439,6 +11440,11 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYield);
 	SAFE_DELETE_ARRAY(m_paCityLinkerInfo);
+}
+//------------------------------------------------------------------------------
+const char* CvModEventCityChoiceInfo::getEventDescription() const
+{
+	return m_strDescription;
 }
 //------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isParentEvent(CityEventTypes eCityEvent) const
@@ -12178,6 +12184,9 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	const char* szEventType = GetType();
 	kUtility.PopulateArrayByExistence(m_pbParentEventIDs, "CityEvents", "CityEvent_ParentEvents", "CityEventType", "CityEventChoiceType", szEventType);
+
+	szTextVal = kResults.GetText("Description");
+	m_strDescription = szTextVal;
 
 	szTextVal = kResults.GetText("EventBuildingClass");
 	m_iEventBuilding =  GC.getInfoTypeForString(szTextVal, true);

@@ -1371,7 +1371,7 @@ bool CvMinorCivQuest::IsContestLeader(PlayerTypes ePlayer)
 		return false;
 
 	// Player must actually be in the contest!
-	if (!pMinor->GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, eType))
+	if (!pMinor->GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, GetType()))
 		return false;
 
 	CivsList veTiedForLead = GetContestLeaders();
@@ -1387,7 +1387,7 @@ bool CvMinorCivQuest::IsContestLeader(PlayerTypes ePlayer)
 // END CONTEST FUNCTIONS
 
 // Checks if the conditions for completing the quest are met.  Does not actually complete the quest.
-bool CvMinorCivQuest::IsComplete()
+bool CvMinorCivQuest::IsComplete(CityEventChoiceTypes eSpyMission)
 {
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
 	CvPlayer* pAssignedPlayer = &GET_PLAYER(m_eAssignedPlayer);
@@ -1626,6 +1626,11 @@ bool CvMinorCivQuest::IsComplete()
 
 		// Built X of this building?
 		return iNumConstructed >= iNumToConstruct;
+	}
+	case MINOR_CIV_QUEST_SPY_MISSION:
+	{
+		CityEventChoiceTypes eTargetMission = (CityEventChoiceTypes)m_iData1;
+		return eSpyMission == eTargetMission;
 	}
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 	{
@@ -2254,6 +2259,15 @@ bool CvMinorCivQuest::IsExpired()
 			iNumValidCities++;
 		}
 		if (iNumValidCities < m_iData2)
+			return true;
+
+		break;
+	}
+	case MINOR_CIV_QUEST_SPY_MISSION:
+	{
+		// Test if the current mission is still valid anywhere
+		CityEventChoiceTypes eSpyMission = (CityEventChoiceTypes)GetPrimaryData();
+		if (pMinor->GetMinorCivAI()->GetBestSpyMission(pAssignedPlayer->GetID(), eSpyMission) == NO_EVENT_CHOICE_CITY)
 			return true;
 
 		break;
@@ -3043,6 +3057,18 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_BUILD_X_BUILDINGS");
 		break;
 	}
+	case MINOR_CIV_QUEST_SPY_MISSION:
+	{
+		CityEventChoiceTypes eSpyMission = pMinor->GetMinorCivAI()->GetBestSpyMission(m_eAssignedPlayer);
+		m_iData1 = (int)eSpyMission;
+
+		CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eSpyMission);
+		const char* strMissionName = pkMissionInfo->getEventDescription();
+
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_SPY_MISSION");
+		strMessage << strMissionName;
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SPY_MISSION");
+	}
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 	{
 		CvCity* pCity = pMinor->GetMinorCivAI()->GetBestSpyTarget(m_eAssignedPlayer, false);
@@ -3634,6 +3660,16 @@ bool CvMinorCivQuest::DoFinishQuest()
 	{
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_BUILD_X_BUILDINGS_COMPLETE");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_BUILD_X_BUILDINGS_COMPLETE");
+		break;
+	}
+	case MINOR_CIV_QUEST_SPY_MISSION:
+	{
+		CityEventChoiceTypes eSpyMission = (CityEventChoiceTypes)GetPrimaryData();
+		CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eSpyMission);
+		const char* strMissionName = pkMissionInfo->getEventDescription();
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_SPY_MISSION_COMPLETE");
+		strMessage << strMissionName;
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_SPY_MISSION_COMPLETE");
 		break;
 	}
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
@@ -6364,10 +6400,10 @@ void CvMinorCivAI::DoTestActiveQuests(bool bTestComplete, bool bTestObsolete)
 
 // Check all active quests for ePlayer, processing and deleting ones that are complete or obsolete.
 // If no quest type is specified, will check all quest types.
-void CvMinorCivAI::DoTestActiveQuestsForPlayer(PlayerTypes ePlayer, bool bTestComplete, bool bTestObsolete, MinorCivQuestTypes eQuest)
+void CvMinorCivAI::DoTestActiveQuestsForPlayer(PlayerTypes ePlayer, bool bTestComplete, bool bTestObsolete, MinorCivQuestTypes eQuest, CityEventChoiceTypes eSpyMission)
 {
 	if (bTestComplete)
-		DoCompletedQuestsForPlayer(ePlayer, eQuest);
+		DoCompletedQuestsForPlayer(ePlayer, eQuest, eSpyMission);
 	
 	if (bTestObsolete)
 		DoObsoleteQuestsForPlayer(ePlayer, eQuest);
@@ -6415,7 +6451,7 @@ WeightedCivsList CvMinorCivAI::CalculateFriendshipFromQuests()
 
 // Process completed quests that are active, and seed countdowns if needed.
 // If no quest type is specified, will check all quest types.
-void CvMinorCivAI::DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType)
+void CvMinorCivAI::DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType, CityEventChoiceTypes eSpyMission)
 {
 	ASSERT(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "Invalid ePlayer index");
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
@@ -6432,7 +6468,7 @@ void CvMinorCivAI::DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuest
 		CvMinorCivQuest& quest = m_QuestsGiven[ePlayer][i];
 		if (bCheckAllQuests || quest.GetType() == eSpecifyQuestType)
 		{
-			if (quest.IsComplete())
+			if (quest.IsComplete(eSpyMission))
 			{
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 				bool bCompleted = quest.DoFinishQuest();
@@ -6635,6 +6671,9 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest, EraTypes eEra, bool
 	case MINOR_CIV_QUEST_REBELLION:
 		bInvalid = GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS);
 		break;
+	case MINOR_CIV_QUEST_SPY_MISSION:
+		bInvalid = !MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) || GC.getGame().isOption(GAMEOPTION_PASSIVE_ESPIONAGE);
+		break;
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 		bInvalid = GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) || GC.getGame().isOption(GAMEOPTION_PASSIVE_ESPIONAGE) || (!MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_NO_SCIENCE));
 		break;
@@ -6692,6 +6731,7 @@ bool CvMinorCivAI::IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTy
 	case MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT:
 	case MINOR_CIV_QUEST_FIND_CITY_STATE:
 	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
+	case MINOR_CIV_QUEST_SPY_MISSION:
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 	case MINOR_CIV_QUEST_COUP:
 		bCompareData1 = true;
@@ -7206,6 +7246,13 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			return false;
 
 		if (GetBestBuildingForQuest(ePlayer, iQuestDuration) == NO_BUILDING)
+			return false;
+
+		break;
+	}
+	case MINOR_CIV_QUEST_SPY_MISSION:
+	{
+		if (GetBestSpyMission(ePlayer) == NO_EVENT_CHOICE_CITY)
 			return false;
 
 		break;
@@ -9436,6 +9483,93 @@ void CvMinorCivAI::ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue
 	{
 		m_aiTurnsSincePtPWarning[ePlayer] += iValue;
 	}
+}
+
+CityEventChoiceTypes CvMinorCivAI::GetBestSpyMission(PlayerTypes ePlayer, CityEventChoiceTypes eCurrentMission)
+{
+	CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer).GetEspionage();
+	if (!pEspionage || pEspionage->GetNumSpies() <= 0)
+		return NO_EVENT_CHOICE_CITY;
+
+	// Build a list of all offensive spy missions
+	std::vector<CityEventChoiceTypes> aSpyMissionList;
+	for (int i = 0; i < GC.getNumCityEventChoiceInfos(); i++)
+	{
+		CityEventChoiceTypes eMission = (CityEventChoiceTypes)i;
+		// If we're only checking one mission, don't add the others to the list
+		if (eCurrentMission != NO_EVENT_CHOICE_CITY && eCurrentMission != eMission)
+			continue;
+
+		CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eMission);
+		if (pkMissionInfo && pkMissionInfo->isEspionageMission())
+		{
+			aSpyMissionList.push_back(eMission);
+			if (eCurrentMission == eMission)
+				break;
+		}
+	}
+
+	if (aSpyMissionList.empty())
+		return NO_EVENT_CHOICE_CITY;
+
+	// Build a list of foreign cities
+	std::vector<CvCity*> aCityList;
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() == 0 || GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+			continue;
+
+		int iLoop = 0;
+		for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+		{
+			// Ignore cities that are in resistance or being razed
+			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+				continue;
+
+			aCityList.push_back(pLoopCity);
+		}
+	}
+
+	if (aCityList.empty())
+		return NO_EVENT_CHOICE_CITY;
+
+	// Go through each mission and determine if the player can execute it anywhere
+	std::vector<int> aValidSpyMissions;
+	CityEventTypes eParentEvent = pEspionage->GetSpyMissionEvent();
+	for (std::vector<CityEventChoiceTypes>::iterator it = aSpyMissionList.begin(); it != aSpyMissionList.end(); ++it)
+	{
+		CityEventChoiceTypes eSpyMission = (CityEventChoiceTypes)*it;
+		CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eSpyMission);
+		if (!pkMissionInfo)
+			continue;
+
+		// Are the mission requirements (excluding cooldowns, network point requirements, and spy rank) met in any city?
+		bool bRequirementsMet = false;
+		for (std::vector<CvCity*>::iterator it2 = aCityList.begin(); it2 != aCityList.end(); ++it2)
+		{
+			CvCity* pLoopCity = *it2;
+			if (pLoopCity->IsCityEventChoiceValidEspionage(eSpyMission, eParentEvent, -1, ePlayer, true, true))
+			{
+				bRequirementsMet = true;
+				break;
+			}
+		}
+		if (bRequirementsMet)
+			aValidSpyMissions.push_back(eSpyMission);
+	}
+
+	// No valid spy missions?
+	if (aValidSpyMissions.empty())
+		return NO_EVENT_CHOICE_CITY;
+
+	// Only checking the validity of the current mission? If we got here, then it's valid.
+	if (eCurrentMission != NO_EVENT_CHOICE_CITY)
+		return eCurrentMission;
+
+	uint uRandIndex = GC.getGame().urandLimitExclusive(aValidSpyMissions.size(), CvSeeder::fromRaw(0x4f472d67).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
+	return (CityEventChoiceTypes)aValidSpyMissions[uRandIndex];
 }
 
 CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)

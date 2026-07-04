@@ -24,9 +24,6 @@ UPDATE SmallAwards SET Influence = 50, Happiness = 1, RandomMod = 10 WHERE Type 
 -- Tech contest
 UPDATE SmallAwards SET Influence = 25, Tourism = 300, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TECHS';
 
--- Tourism contest (disabled)
-UPDATE SmallAwards SET Influence = 50, Culture = 80, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TOURISM';
-
 ---------------------------------------------------------------------------------------------------------
 -- Personal Quests
 -- Given to one player only
@@ -68,8 +65,8 @@ UPDATE SmallAwards SET Influence = 75, Happiness = 1, RandomMod = 10, QuestDurat
 -- Denounce specific Player
 UPDATE SmallAwards SET Influence = 30, GeneralPoints = 50, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_DENOUNCE_MAJOR';
 
--- Spy on specific Player
-UPDATE SmallAwards SET Influence = 60, Science = 150, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_SPY_ON_MAJOR';
+-- Conduct spy mission
+UPDATE SmallAwards SET Influence = 60, Science = 150, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_SPY_MISSION';
 
 -- Pledge to Protect us
 UPDATE SmallAwards SET Influence = 30, CapitalGPPoints = 20, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_PLEDGE_TO_PROTECT';
@@ -200,6 +197,7 @@ SET Weight = 0
 WHERE QuestType IN
 	('MINOR_CIV_QUEST_FIND_PLAYER',
 	'MINOR_CIV_QUEST_GIVE_GOLD',
+	'MINOR_CIV_QUEST_SPY_ON_MAJOR',
 	'MINOR_CIV_QUEST_COUP',
 	'MINOR_CIV_QUEST_CONTEST_CULTURE',
 	'MINOR_CIV_QUEST_INVEST',
@@ -277,10 +275,10 @@ UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_LIBERATION' AND
 UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_EXPLORE_AREA' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME';
 UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_EXPLORE_AREA' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME' AND MinorCivPersonalityType IN ('MINOR_CIV_PERSONALITY_FRIENDLY', 'MINOR_CIV_PERSONALITY_NEUTRAL');
 
--- Conduct Espionage
-UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_SPY_ON_MAJOR' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE';
-UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_SPY_ON_MAJOR' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
-UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_SPY_ON_MAJOR' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+-- Conduct Spy Mission
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_SPY_MISSION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE';
+UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_SPY_MISSION' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
+UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_SPY_MISSION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MERCANTILE' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
 
 -- Conquer City
 UPDATE Helper SET Weight = 30 WHERE QuestType = 'MINOR_CIV_QUEST_ACQUIRE_CITY';

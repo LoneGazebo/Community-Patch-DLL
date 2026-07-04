@@ -111,6 +111,7 @@ local ktQuestsIcon = {
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or false ] = function() return "[ICON_HAPPINESS_4]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA or false ] = function() return "[ICON_RANGE_STRENGTH]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false ] = function() return "[ICON_PRODUCTION]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION or false ] = function() return "[ICON_VIEW_CITY]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR or false ] = function() return "[ICON_VIEW_CITY]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_COUP or false ] = function() return "[ICON_INQUISITOR]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY or false ] = function() return "[ICON_VICTORY_DOMINATION]" end,
@@ -140,6 +141,7 @@ if gk_mode then
 		-- Then other personal quests
 		MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_COUP or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY or false,		-- VP
@@ -887,6 +889,8 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1, ques
 			return L( "TXT_KEY_CITY_STATE_QUEST_EXPLORE_AREA_FORMAL", minorPlayer:GetExplorePercent(majorPlayerID , questID) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS then
 			return L( "TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL", GameInfo.Buildings[questData1].Description, minorPlayer:GetXQuestBuildingRemaining(majorPlayerID, questID, questData1 ) )
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION then
+			return L( "TXT_KEY_CITY_STATE_QUEST_SPY_MISSION_FORMAL", minorPlayer:GetQuestSpyMissionString(majorPlayerID, questID))
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR then
 			return L( "TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL", Players[questData1]:GetNameKey(), minorPlayer:QuestSpyActionsRemaining(majorPlayerID, questID) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_COUP then
