@@ -21493,7 +21493,7 @@ int CvCity::GetUnhappinessFromOccupation() const
 //	--------------------------------------------------------------------------------
 int CvCity::GetUnhappinessFromFamine() const
 {
-	if (IsPuppet() || IsResistance() || IsRazing())
+	if (IsPuppet() || IsResistance() || IsRazing() || GetMinimumFood() > 0)
 		return 0;
 
 	// we can ignore growth mods here
