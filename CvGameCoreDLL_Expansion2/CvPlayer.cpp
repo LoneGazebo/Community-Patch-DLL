@@ -36615,21 +36615,9 @@ int CvPlayer::GetHighestWarWearinessPercent() const
 		if (iWarWeariness <= iHighestWarWeariness)
 			continue;
 
-		// Did we just capture a city from this player? Ignore, due to a temporary boost in support amongst our population (in hopes of a favorable end-of-war settlement).
-		// This is meant to equalize human/AI, human/human, and AI/AI wars, since the AI will always refuse to make peace for a little bit after their city is captured.
-		if (GetNumTurnsSinceCityCapture(eLoopPlayer) <= 1)
+		// At war and unable to make peace? Ignore.
+		if (IsAtWarWith(eLoopPlayer) && !GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
 			continue;
-
-		if (IsAtWarWith(eLoopPlayer))
-		{
-			// At war and unable to make peace? Ignore.
-			if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
-				continue;
-
-			// Exception between human and AI players: if the AI is unwilling to make peace, ignore war weariness from them.
-			if (isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
-				continue;
-		}
 
 		iHighestWarWeariness = iWarWeariness;
 	}
@@ -36673,16 +36661,9 @@ PlayerTypes CvPlayer::GetHighestWarWearinessPlayer(bool bConsiderHappinessOnly) 
 		if (iWarWeariness <= iHighestWarWeariness)
 			continue;
 
-		if (IsAtWarWith(eLoopPlayer))
-		{
-			// At war and unable to make peace? Ignore.
-			if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
-				continue;
-
-			// Exception between human and AI players: if the AI is unwilling to make peace, ignore war weariness from them.
-			if (isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eLoopPlayer).isHuman(ISHUMAN_AI_DIPLOMACY) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
-				continue;
-		}
+		// At war and unable to make peace? Ignore.
+		if (IsAtWarWith(eLoopPlayer) && !GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
+			continue;
 
 		iHighestWarWeariness = iWarWeariness;
 		eHighestWarWearinessPlayer = eLoopPlayer;
