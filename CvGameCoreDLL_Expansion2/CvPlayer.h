@@ -2538,6 +2538,9 @@ public:
 	int GetUnitSupplyFromExpendedGreatPeople() const;
 	void ChangeUnitSupplyFromExpendedGreatPeople(int iChange);
 
+	int GetNumExpendedArtsyUnits() const;
+	void ChangeNumExpendedArtsyUnits(int iChange);
+
 	int GetAvgUnitExp100() const;
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -3325,6 +3328,7 @@ protected:
 	int m_iExtraSupplyFlat;
 	int m_iCitySupplyFlatGlobal;
 	int m_iUnitSupplyFromExpendedGP;
+	int m_iExpendedArtsyUnits;
 	int m_iMissionaryExtraStrength;
 	int m_iFreeSpecialist;
 	int m_iCultureBombTimer;
@@ -4125,6 +4129,7 @@ SYNC_ARCHIVE_VAR(int, m_iExtraSupplyPerPopulation)
 SYNC_ARCHIVE_VAR(int, m_iExtraSupplyFlat)
 SYNC_ARCHIVE_VAR(int, m_iCitySupplyFlatGlobal)
 SYNC_ARCHIVE_VAR(int, m_iUnitSupplyFromExpendedGP)
+SYNC_ARCHIVE_VAR(int, m_iExpendedArtsyUnits)
 SYNC_ARCHIVE_VAR(int, m_iMissionaryExtraStrength)
 SYNC_ARCHIVE_VAR(int, m_iFreeSpecialist)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombTimer)

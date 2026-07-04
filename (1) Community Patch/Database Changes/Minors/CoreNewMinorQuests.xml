@@ -115,6 +115,11 @@
 			<QuestDuration>30</QuestDuration>
 		</Row>
 		<Row>
+			<Type>MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS</Type>
+			<Influence>40</Influence>
+			<QuestDuration>30</QuestDuration>
+		</Row>
+		<Row>
 			<Type>MINOR_CIV_QUEST_ARCHAEOLOGY</Type>
 			<Influence>40</Influence>
 		</Row>

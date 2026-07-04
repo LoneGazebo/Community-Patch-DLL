@@ -1223,20 +1223,36 @@ CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) con
 
 // CONTEST FUNCTIONS
 
-// Assumes that only one contest of a particular Type is active from this minor at any given time.
-// Otherwise, the results across different spans of contest will be calculated together here.
+/// Is this a contest quest to begin with?
+bool CvMinorCivQuest::IsContestQuest() const
+{
+	MinorCivQuestTypes eType = GetType();
+	switch (eType)
+	{
+	case MINOR_CIV_QUEST_CONTEST_CULTURE:
+	case MINOR_CIV_QUEST_CONTEST_FAITH:
+	case MINOR_CIV_QUEST_CONTEST_TOURISM:
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	case MINOR_CIV_QUEST_CONTEST_TECHS:
+		return true;
+	default:
+		return false;
+	}
+}
+
+/// What is the current progress of ePlayer in the contest?
 int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 {
-	int iValue = -1;
-
 	CvPlayer* pMinor = &GET_PLAYER(GetMinor());
 	if (!pMinor)
-		return iValue;
+		return -1;
 
 	// Player must actually be in the contest to have a score!
 	MinorCivQuestTypes eType = GetType();
 	if (!pMinor->GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, eType))
-		return iValue;
+		return -1;
+
+	int iValue = -1;
 
 	switch (eType)
 	{
@@ -1259,7 +1275,7 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 				iValue = iEndFollowers - iStartFollowers;
 			}
 			else
-				return iValue;
+				return -1;
 		}
 		else
 		{
@@ -1281,6 +1297,13 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 		iValue = GET_PLAYER(ePlayer).GetCulture()->GetTourism() / 100;
 		break;
 	}
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	{
+		int iStartUnits = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
+		int iEndUnits = GET_PLAYER(ePlayer).GetNumExpendedArtsyUnits();
+		iValue = iEndUnits - iStartUnits;
+		break;
+	}
 	default:
 		break; // Not a contest quest.
 	}
@@ -1290,11 +1313,10 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 
 int CvMinorCivQuest::GetContestValueForLeader()
 {
-	int iHighestValue = -1;
-	MinorCivQuestTypes eType = GetType();
+	if (!IsContestQuest())
+		return -1;
 
-	if (eType != MINOR_CIV_QUEST_CONTEST_CULTURE && eType != MINOR_CIV_QUEST_CONTEST_FAITH && eType != MINOR_CIV_QUEST_CONTEST_TOURISM && eType != MINOR_CIV_QUEST_CONTEST_TECHS)
-		return iHighestValue;
+	int iHighestValue = -1;
 
 	// What is the largest value a participant has for this contest?
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -1312,10 +1334,8 @@ int CvMinorCivQuest::GetContestValueForLeader()
 // Returns a list, since ties are allowed
 CivsList CvMinorCivQuest::GetContestLeaders()
 {
-	MinorCivQuestTypes eType = GetType();
-	CivsList veTiedForLead; // Recursive to-do: remove nonstandard vector
-
-	if (eType != MINOR_CIV_QUEST_CONTEST_CULTURE && eType != MINOR_CIV_QUEST_CONTEST_FAITH && eType != MINOR_CIV_QUEST_CONTEST_TOURISM && eType != MINOR_CIV_QUEST_CONTEST_TECHS)
+	CivsList veTiedForLead; // Recursive to-do: handle nonstandard vector
+	if (!IsContestQuest())
 		return veTiedForLead;
 
 	int iHighestValue = GetContestValueForLeader();
@@ -1347,8 +1367,7 @@ bool CvMinorCivQuest::IsContestLeader(PlayerTypes ePlayer)
 	if (ePlayer == NO_PLAYER)
 		return false;
 
-	MinorCivQuestTypes eType = GetType();
-	if (eType != MINOR_CIV_QUEST_CONTEST_CULTURE && eType != MINOR_CIV_QUEST_CONTEST_FAITH && eType != MINOR_CIV_QUEST_CONTEST_TOURISM && eType != MINOR_CIV_QUEST_CONTEST_TECHS)
+	if (!IsContestQuest())
 		return false;
 
 	// Player must actually be in the contest!
@@ -1482,6 +1501,7 @@ bool CvMinorCivQuest::IsComplete()
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
 	{
 		// Player won the contest?
 		return GetEndTurn() <= GC.getGame().getGameTurn() && IsContestLeader(m_eAssignedPlayer);
@@ -1902,6 +1922,7 @@ bool CvMinorCivQuest::IsExpired()
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
 	{
 		// Contest completed, and not the winner
 		if (GC.getGame().getGameTurn() == GetEndTurn() && !IsComplete())
@@ -2813,6 +2834,18 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_TOURISM");
 		break;
 	}
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	{
+		m_iData1 = pAssignedPlayer->GetNumExpendedArtsyUnits();
+
+		int iTurnsRemaining = GetEndTurn() - GC.getGame().getGameTurn();
+
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ARTSY_UNITS");
+		strMessage << iTurnsRemaining;
+		strMessage << iDuration;
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ARTSY_UNITS");
+		break;
+	}
 	case MINOR_CIV_QUEST_ARCHAEOLOGY:
 	{
 		CvPlot* pPlot = pMinor->GetMinorCivAI()->GetBestNearbyDig();
@@ -3523,6 +3556,13 @@ bool CvMinorCivQuest::DoFinishQuest()
 		veNamesToShow = GetContestLeaders();
 		break;
 	}
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	{
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_COMPLETE_ARTSY_UNITS");
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_ARTSY_UNITS");
+		veNamesToShow = GetContestLeaders();
+		break;
+	}
 	case MINOR_CIV_QUEST_ARCHAEOLOGY:
 	{
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_COMPLETE_ARCHAEOLOGY");
@@ -3808,6 +3848,13 @@ bool CvMinorCivQuest::DoCancelQuest()
 	{
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_TOURISM");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONTEST_TOURISM");
+		veNamesToShow = GetContestLeaders();
+		break;
+	}
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	{
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_ARTSY_UNITS");
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONTEST_ARTSY_UNITS");
 		veNamesToShow = GetContestLeaders();
 		break;
 	}
@@ -6942,6 +6989,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
 	case MINOR_CIV_QUEST_INFLUENCE:
 	{
 		break;
@@ -7239,6 +7287,7 @@ bool CvMinorCivAI::IsGlobalQuest(MinorCivQuestTypes eQuest) const
 	case MINOR_CIV_QUEST_KILL_CAMP:
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
 	case MINOR_CIV_QUEST_CONTEST_FAITH:
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
 	case MINOR_CIV_QUEST_INVEST:
@@ -7262,45 +7311,25 @@ int CvMinorCivAI::GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const
 {
 	int iPlayersNeeded = 1;
 
-	if(eQuest == MINOR_CIV_QUEST_CONTEST_CULTURE)
+	switch (eQuest)
 	{
-		iPlayersNeeded = 3; //antonjs: todo: XML
-	}
-
-	else if(eQuest == MINOR_CIV_QUEST_CONTEST_FAITH)
-	{
-		iPlayersNeeded = 3; //antonjs: todo: XML
-	}
-
-	else if(eQuest == MINOR_CIV_QUEST_CONTEST_TECHS)
-	{
-		iPlayersNeeded = 3; //antonjs: todo: XML
-	}
-
-	else if(eQuest == MINOR_CIV_QUEST_INVEST)
-	{
-		iPlayersNeeded = 2; //antonjs: todo: XML
-	}
-
-	else if(eQuest == MINOR_CIV_QUEST_KILL_CITY_STATE)
-	{
-		iPlayersNeeded = 2; //antonjs: todo: XML
-	}
-
-	else if(eQuest == MINOR_CIV_QUEST_INFLUENCE)
-	{
+	case MINOR_CIV_QUEST_KILL_CITY_STATE: // only relevant in VP
+	case MINOR_CIV_QUEST_INVEST:
+	case MINOR_CIV_QUEST_INFLUENCE:
 		iPlayersNeeded = 2;
-	}
-
-	else if(eQuest == MINOR_CIV_QUEST_CONTEST_TOURISM)
-	{
+		break;
+	case MINOR_CIV_QUEST_CONTEST_CULTURE:
+	case MINOR_CIV_QUEST_CONTEST_FAITH:
+	case MINOR_CIV_QUEST_CONTEST_TOURISM:
+	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
+	case MINOR_CIV_QUEST_CONTEST_TECHS:
 		iPlayersNeeded = 3;
+		break;
+	default:
+		break;
 	}
 
-	int iMajorsEverAlive = GC.getGame().GetNumMajorCivsEver();
-	iPlayersNeeded = min(iPlayersNeeded, iMajorsEverAlive);
-
-	return iPlayersNeeded;
+	return min(iPlayersNeeded, GC.getGame().GetNumMajorCivsEver());
 }
 
 //------------------------------------------------------------------------------

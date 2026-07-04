@@ -826,6 +826,9 @@
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_TOURISM_NAME">
 			<Text>Tourism Contest</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS_NAME">
+			<Text>Artsy Units Contest</Text>
+		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ARCHAEOLOGY_NAME">
 			<Text>Archaeology</Text>
 		</Row>
@@ -997,6 +1000,24 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_TOURISM">
 			<Text>Another civilization has awed {1_MinorCivName:textkey} with its [ICON_TOURISM] Tourism. Your [ICON_TOURISM] Tourism was not enough. Civilizations that succeeded (ties are allowed):[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ARTSY_UNITS">
+			<Text>{3_MinorCivName:textkey} is preparing a grand festival of art, music, literature, and antiquities. Whoever expends the most Great Artists, Great Writers, Great Musicians, and Archaeologists over the next {2_TurnsDuration} turns will gain [ICON_INFLUENCE] Influence with them. [COLOR_POSITIVE_TEXT]{1_TurnsRemaining} turns remaining.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ARTSY_UNITS">
+			<Text>{1_MinorCivName:textkey} prepares a cultural festival!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_ARTSY_UNITS">
+			<Text>Your artists, writers, musicians, and archaeologists have dazzled {1_MinorCivName:textkey}! Civilizations that succeeded (ties are allowed):[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_ARTSY_UNITS">
+			<Text>{1_MinorCivName:textkey} was dazzled by your culture!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_ARTSY_UNITS">
+			<Text>Another civilization's artists, writers, musicians, and archaeologists have stolen the show in {1_MinorCivName:textkey}. Your cultural delegation was not enough, and your [ICON_INFLUENCE] Influence remains the same as before. Civilizations that succeeded (ties are allowed):[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_ARTSY_UNITS">
+			<Text>{1_MinorCivName:textkey} applauds another civilization</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ARCHAEOLOGY">
 			<Text>{1_MinorCivName:textkey} seeks an archaeologist</Text>

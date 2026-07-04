@@ -2856,7 +2856,10 @@ void CvPlayerCulture::DoArchaeologyChoice(ArchaeologyChoiceType eChoice)
 			pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
 			if (pUnit)
+			{
+				m_pPlayer->ChangeNumExpendedArtsyUnits(1);
 				pUnit->kill(true);
+			}
 
 			if (pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != m_pPlayer->GetID())
 			{
@@ -2936,10 +2939,13 @@ void CvPlayerCulture::DoArchaeologyChoice(ArchaeologyChoiceType eChoice)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
 
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-
 		pHousingCity->UpdateAllNonPlotYields(true);
+
 		if (pUnit)
+		{
+			m_pPlayer->ChangeNumExpendedArtsyUnits(1);
 			pUnit->kill(true);
+		}
 
 		if (!m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
 		{
@@ -2989,7 +2995,10 @@ void CvPlayerCulture::DoArchaeologyChoice(ArchaeologyChoiceType eChoice)
 		pHousingCity->UpdateAllNonPlotYields(true);
 
 		if (pUnit)
+		{
+			m_pPlayer->ChangeNumExpendedArtsyUnits(1);
 			pUnit->kill(true);
+		}
 
 		if (!m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
 		{
@@ -3042,7 +3051,10 @@ void CvPlayerCulture::DoArchaeologyChoice(ArchaeologyChoiceType eChoice)
 		pHousingCity->UpdateAllNonPlotYields(true);
 
 		if (pUnit)
+		{
+			m_pPlayer->ChangeNumExpendedArtsyUnits(1);
 			pUnit->kill(true);
+		}
 
 		if (!m_pPlayer->isHuman(ISHUMAN_AI_TOURISM))
 		{
@@ -3073,7 +3085,10 @@ void CvPlayerCulture::DoArchaeologyChoice(ArchaeologyChoiceType eChoice)
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
 		if (pUnit)
+		{
+			m_pPlayer->ChangeNumExpendedArtsyUnits(1);
 			pUnit->kill(true);
+		}
 	}
 	break;
 	}
