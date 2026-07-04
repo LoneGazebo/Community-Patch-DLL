@@ -625,7 +625,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		{
 			ImprovementTypes eImprovement = (ImprovementTypes)iImprovementLoop;
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
-			if (pkEntry != NULL && pkEntry->IsSpecificCivRequired())
+			if (pkEntry->IsSpecificCivRequired())
 			{
 				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
 				if (eCiv == pPlayer->getCivilizationType())
