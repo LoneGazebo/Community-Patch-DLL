@@ -1693,6 +1693,18 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_GOLDEN_AGE_START">
 			<Text>[ICON_BULLET]{1_YieldBoosts} per Turn for every [ICON_GOLDEN_AGE] Golden Age started or extended after the building has been built (capped at {2_YieldBoostCaps})</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_DISTANCE_TO_CAPITAL_INCREASING">
+			<Text>[ICON_BULLET]{1_YieldBoosts} for each tile away from the capital (maximum value: {2_YieldBoostCaps}%)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_DISTANCE_TO_CAPITAL_DECREASING">
+			<Text>[ICON_BULLET]{1_YieldBoosts} for each tile away from the capital (minimum value: {2_YieldBoostCaps}%)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_DISTANCE_TO_CAPITAL_INCREASING_WITH_BASE_VALUE">
+			<Text>[ICON_BULLET]{1_YieldBoostsBase}, plus {2_YieldBoosts}% for each tile away from the capital (maximum value: {3_YieldBoostCaps}%)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_DISTANCE_TO_CAPITAL_DECREASING_WITH_BASE_VALUE">
+			<Text>[ICON_BULLET]{1_YieldBoostsBase}, minus {2_YieldBoosts}% for each tile away from the capital (minimum value: {3_YieldBoostCaps}%)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_THEMES">
 			<Text>[ICON_BULLET]Each themed [ICON_GREAT_WORK] Great Work set in City: {1_YieldBoosts}</Text>
 		</Row>
@@ -1860,6 +1872,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_MOD_AREA">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Area Bonus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_MOD_DISTANCE_CAPITAL">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Distance to Capital</Text>
 		</Row>
 		<Row Tag="TXT_KEY_YIELD_MOD_BELIEF">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_RELIGION] Religious Beliefs</Text>

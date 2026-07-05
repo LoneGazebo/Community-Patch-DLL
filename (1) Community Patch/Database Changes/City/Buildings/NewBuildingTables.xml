@@ -488,6 +488,14 @@
 		<Column name="Yield" type="integer" notnull="true"/>
 		<Column name="YieldCap" type="integer"/>
 	</Table>
+	<!-- Yield modifier in the city depending on the distance to capital: The yield modifier is calculated as (YieldBase + (Distance to Capital) * YieldFalloff)). It does not go above YieldLimit (if YieldFalloff > 0), or below YieldLimit (if YieldFalloff < 0) -->
+	<Table name="Building_YieldModifiersFromDistanceToCapital">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldBase" type="integer"/>
+		<Column name="YieldFalloff" type="integer" notnull="true"/>
+		<Column name="YieldLimit" type="integer"/>
+	</Table>
 	<!-- Instant yields to the city when investing or purchasing buildings or units in any city -->
 	<Table name="Building_YieldFromPurchaseGlobal">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)" notnull="true"/>

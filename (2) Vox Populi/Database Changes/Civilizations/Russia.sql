@@ -87,23 +87,10 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_KREPOST', 'YIELD_PRODUCTION', 3);
 
-CREATE TEMP TABLE Helper (
-	YieldType TEXT
-);
-
-INSERT INTO Helper
+INSERT INTO Building_YieldModifiersFromDistanceToCapital
+	(BuildingType, YieldType, YieldBase, YieldFalloff, YieldLimit)
 VALUES
-	('YIELD_PRODUCTION'),
-	('YIELD_GOLD');
-
-INSERT INTO Building_ResourceYieldChanges
-	(BuildingType, ResourceType, YieldType, Yield)
-SELECT
-	'BUILDING_KREPOST', a.Type, b.YieldType, 2
-FROM Resources a, Helper b
-WHERE a.ResourceUsage = 1 AND a.type <> 'RESOURCE_PAPER';
-
-DROP TABLE Helper;
+	('BUILDING_KREPOST', 'YIELD_PRODUCTION', 0, 1, 30);
 
 ----------------------------------------------------------
 -- Unique Building: Pogost (Customs House)

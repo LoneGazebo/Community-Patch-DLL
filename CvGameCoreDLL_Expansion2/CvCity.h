@@ -1103,6 +1103,15 @@ public:
 	int GetGoldenAgeYieldMod(YieldTypes eIndex) const;
 	void ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
+	int GetYieldModifierFromDistanceToCapitalBase(YieldTypes eIndex) const;
+	void ChangeYieldModifierFromDistanceToCapitalBase(YieldTypes eIndex, int iChange);
+
+	int GetYieldModifierFromDistanceToCapitalFalloff(YieldTypes eIndex) const;
+	void ChangeYieldModifierFromDistanceToCapitalFalloff(YieldTypes eIndex, int iChange);
+	
+	int GetYieldModifierFromDistanceToCapitalLimit(YieldTypes eIndex) const;
+	void ChangeYieldModifierFromDistanceToCapitalLimit(YieldTypes eIndex, int iChange);
+
 	int GetYieldChangesPerLocalTheme(YieldTypes eIndex) const;
 	void ChangeYieldChangesPerLocalTheme(YieldTypes eIndex, int iChange);
 
@@ -1995,6 +2004,9 @@ protected:
 	std::vector<int> m_aiYieldChangePerGoldenAgeCap;
 	std::vector<int> m_aiYieldFromPreviousGoldenAges;
 	std::vector<int> m_aiGoldenAgeYieldMod;
+	std::vector<int> m_aiYieldModifierFromDistanceToCapitalBase;
+	std::vector<int> m_aiYieldModifierFromDistanceToCapitalFalloff;
+	std::vector<int> m_aiYieldModifierFromDistanceToCapitalLimit;
 	std::vector<int> m_aiYieldChangesPerLocalTheme;
 	std::vector<int> m_aiYieldFromUnitGiftGlobal;
 	std::vector<int> m_aiYieldFromWLTKD;

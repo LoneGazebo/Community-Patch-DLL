@@ -464,6 +464,10 @@ public:
 	int GetYieldChangePerGoldenAgeCap(int i) const;
 	int* GetYieldChangePerGoldenAgeCapArray() const;
 
+	int GetYieldModifierFromDistanceToCapitalBase(int i) const;
+	int GetYieldModifierFromDistanceToCapitalFalloff(int i) const;
+	int GetYieldModifierFromDistanceToCapitalLimit(int i) const;
+
 	int GetYieldChangesPerLocalTheme(int i) const;
 
 	int GetYieldFromUnitGiftGlobal(int i) const;
@@ -1028,6 +1032,9 @@ private:
 	int* m_piYieldFromGoldenAgeStart;
 	int* m_piYieldChangePerGoldenAge;
 	int* m_piYieldChangePerGoldenAgeCap;
+	int* m_piYieldModifierFromDistanceToCapitalBase;
+	int* m_piYieldModifierFromDistanceToCapitalFalloff;
+	int* m_piYieldModifierFromDistanceToCapitalLimit;
 	int* m_piGoldenAgeYieldMod;
 	int* m_piYieldChangesPerLocalTheme;
 	int* m_piYieldFromUnitGiftGlobal;
