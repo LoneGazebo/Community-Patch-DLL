@@ -5,16 +5,6 @@
 -- Base setting
 UPDATE Buildings SET ConquestProb = 80, NeverCapture = 0;
 
--- World Wonders should always be retained
-UPDATE Buildings SET ConquestProb = 100, NeverCapture = 0 WHERE WonderSplashImage IS NOT NULL;
-
--- National Wonders and other limited buildings should never be retained
-UPDATE Buildings SET ConquestProb = 0, NeverCapture = 1
-WHERE BuildingClass IN (
-	SELECT Type FROM BuildingClasses
-	WHERE MaxPlayerInstances <> -1
-);
-
 -- Instant benefit buildings, courthouse, and corporation buildings should never be retained
 UPDATE Buildings SET ConquestProb = 0, NeverCapture = 1
 WHERE BuildingClass IN (
@@ -49,7 +39,7 @@ WHERE BuildingClass IN (
 	'BUILDINGCLASS_POPULI_MEDICINE_FRANCHISE'
 );
 
--- Defensive, military and policy-exclusive buildings cannot be captured normally
+-- Defensive and military cannot be captured normally
 UPDATE Buildings SET ConquestProb = 0, NeverCapture = 0
 WHERE BuildingClass IN (
 	'BUILDINGCLASS_WALLS',
@@ -62,9 +52,20 @@ WHERE BuildingClass IN (
 	'BUILDINGCLASS_MILITARY_ACADEMY',
 	'BUILDINGCLASS_MINEFIELD',
 	'BUILDINGCLASS_AIRPORT',
-	'BUILDINGCLASS_BOMB_SHELTER',
-	'BUILDINGCLASS_OBSERVATORY',
-	'BUILDINGCLASS_MONASTERY'
+	'BUILDINGCLASS_BOMB_SHELTER'
+);
+
+-- Policy-exclusive buildings cannot be captured normally
+UPDATE Buildings SET ConquestProb = 0, NeverCapture = 0 WHERE PolicyType IS NOT NULL;
+
+-- World Wonders should always be retained (incl. Policy-exclusive ones)
+UPDATE Buildings SET ConquestProb = 100, NeverCapture = 0 WHERE WonderSplashImage IS NOT NULL;
+
+-- National Wonders and other limited buildings should never be retained
+UPDATE Buildings SET ConquestProb = 0, NeverCapture = 1
+WHERE BuildingClass IN (
+	SELECT Type FROM BuildingClasses
+	WHERE MaxPlayerInstances <> -1
 );
 
 -- Religious buildings should always be retained
