@@ -1110,7 +1110,7 @@
 		</Row>
 		<!-- Yield -->
 		<Row Tag="TXT_KEY_GROWTH_MOD_HAPPY">
-			<Text>[NEWLINE][ICON_BULLET]{1_Num}% from [ICON_HAPPINESS_1] Local Happiness</Text>
+			<Text>[NEWLINE][ICON_BULLET]+{1_Num}% from [ICON_HAPPINESS_1] Local Happiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GROWTH_MOD_OVER_SUPPLY">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [COLOR_NEGATIVE_TEXT]Exceeding Supply Cap[ENDCOLOR]</Text>

@@ -4185,7 +4185,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetGlobalYieldModifier(eYield) > 0)
 	{
-		iModifier += pkBuildingInfo->GetGlobalYieldModifier(eYield);
+		iModifier += pkBuildingInfo->GetGlobalYieldModifier(eYield) * kPlayer.getNumCities();
 	}
 
 	int iYieldPolicyModBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassYieldModifier(pkBuildingInfo->GetBuildingClassType(), eYield);
