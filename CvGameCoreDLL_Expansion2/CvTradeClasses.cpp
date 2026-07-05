@@ -473,6 +473,11 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		return false;
 	}
 
+	ASSERT(pOriginCity->getOwner() > -1);
+	ASSERT(pOriginCity->getOwner() <= MAX_CIV_PLAYERS);
+	ASSERT(pDestCity->getOwner() > -1);
+	ASSERT(pDestCity->getOwner() <= MAX_CIV_PLAYERS);
+
 	TeamTypes eOriginTeam = pOriginCity->getTeam();
 	TeamTypes eDestTeam = pDestCity->getTeam();
 
@@ -602,7 +607,6 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 	{
 		return false;
 	}
-
 	if (MOD_EVENTS_TRADE_ROUTES)
 	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanCreateTradeRoute, pOriginCity->getOwner(), pOriginCity->GetID(), pDestCity->getOwner(), pDestCity->GetID(), eDomain, eConnectionType) == GAMEEVENTRETURN_FALSE)
