@@ -1283,10 +1283,10 @@
 			<Text>When adopting a Policy: {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GOLDEN_AGE_START">
-			<Text>When starting a [ICON_GOLDEN_AGE] Golden Age: {1_InstantYield}</Text>
+			<Text>When starting or extending a [ICON_GOLDEN_AGE] Golden Age: {1_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_UNIT_XP_ON_GOLDEN_AGE_START">
-			<Text>When starting a [ICON_GOLDEN_AGE] Golden Age: {2_Sign}{1_Num} XP for all future Units trained in this City, capped at {3_Num} XP</Text>
+			<Text>When starting or extending a [ICON_GOLDEN_AGE] Golden Age: {2_Sign}{1_Num} XP for all future Units trained in this City, capped at {3_Num} XP</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_WLTKD">
 			<Text>When this City starts a [ICON_HAPPINESS_1] "We Love the King Day": {1_InstantYield}</Text>
@@ -1736,7 +1736,7 @@
 			<Text>[ICON_BULLET]Any Trade Route passing through this City: {1_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_GOLDEN_AGE_START">
-			<Text>[ICON_BULLET]Adding [ICON_GOLDEN_AGE] Golden Age Turns: {1_YieldBoosts} (capped at {2_YieldBoostCaps})</Text>
+			<Text>[ICON_BULLET]{1_YieldBoosts} per Turn for every [ICON_GOLDEN_AGE] Golden Age started or extended after the building has been built (capped at {2_YieldBoostCaps})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_THEMES">
 			<Text>[ICON_BULLET]Each themed [ICON_GREAT_WORK] Great Work set in City: {1_YieldBoosts}</Text>
