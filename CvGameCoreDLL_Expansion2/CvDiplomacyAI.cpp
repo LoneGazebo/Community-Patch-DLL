@@ -56404,6 +56404,29 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	// ...or if we have more capitals than team members
 	if (iOurCapitals > iOurCivs)
 		return false;
+	
+	// Do we need protection at all? Are there hostile civs that are significantly stronger than us?
+	bool bNeedProtection = false;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || !IsHasMet(eLoopPlayer))
+			continue;
+
+		if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam() || GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
+			continue;
+
+		if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetSurfaceApproach(GetID()) > CIV_APPROACH_GUARDED)
+			continue;
+
+		if (GetRawMilitaryStrengthComparedToUs(eLoopPlayer) < STRENGTH_POWERFUL)
+			continue;
+
+		bNeedProtection = true;
+		break;
+	}
+	if (!bNeedProtection)
+		return false;
 
 	// If we got down here, then vassalage is possible - let's evaluate
 	int iWantVassalageScore = 0;
