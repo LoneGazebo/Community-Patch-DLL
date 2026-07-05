@@ -4188,6 +4188,20 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iModifier += pkBuildingInfo->GetGlobalYieldModifier(eYield) * kPlayer.getNumCities();
 	}
 
+	// Yield Modifier from Distance to Capital
+	if (pkBuildingInfo->GetYieldModifierFromDistanceToCapitalBase(eYield) != 0)
+	{
+		CvCity* pCapital = kPlayer.getCapitalCity();
+		if (pCapital)
+		{
+			int iDistanceToCapital = plotDistance(pCity->getX(), pCity->getY(), pCapital->getX(), pCapital->getY());
+			if (pkBuildingInfo->GetYieldModifierFromDistanceToCapitalFalloff(eYield) > 0)
+				iModifier += min(pkBuildingInfo->GetYieldModifierFromDistanceToCapitalLimit(eYield), pkBuildingInfo->GetYieldModifierFromDistanceToCapitalBase(eYield) + iDistanceToCapital * pkBuildingInfo->GetYieldModifierFromDistanceToCapitalFalloff(eYield));
+			else
+				iModifier += max(pkBuildingInfo->GetYieldModifierFromDistanceToCapitalLimit(eYield), pkBuildingInfo->GetYieldModifierFromDistanceToCapitalBase(eYield) + iDistanceToCapital * pkBuildingInfo->GetYieldModifierFromDistanceToCapitalFalloff(eYield));
+		}
+	}
+
 	int iYieldPolicyModBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassYieldModifier(pkBuildingInfo->GetBuildingClassType(), eYield);
 	if (iYieldPolicyModBonus > 0)
 	{
