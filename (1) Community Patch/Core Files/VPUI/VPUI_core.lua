@@ -15,7 +15,8 @@ if not VP and not (MapModData and MapModData.VP) then
 
 	local iNumYields = Game and Game.GetNumYieldTypes();
 	if not iNumYields then
-		local iNumJFDYields = GameInfo.Yields.YIELD_JFD_SOVEREIGNTY.ID + 1;
+		local tLastJFDYield = GameInfo.Yields.YIELD_JFD_SOVEREIGNTY;
+		local iNumJFDYields = tLastJFDYield and (tLastJFDYield.ID + 1) or nil;
 		local iNumCoreYields = GameInfo.Yields.YIELD_CULTURE_LOCAL.ID + 1;
 		iNumYields = MOD_BALANCE_CORE_JFD and iNumJFDYields or iNumCoreYields;
 	end
