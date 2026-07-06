@@ -7934,11 +7934,15 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 void CvCity::ChangeInstantYieldTotal(YieldTypes eYield, int iValue)
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 	m_miInstantYieldsTotal[eYield] += iValue;
 }
- 
+
 int CvCity::GetInstantYieldTotal(YieldTypes eYield)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
 	return m_miInstantYieldsTotal[eYield];
 }
 
@@ -25489,6 +25493,9 @@ void CvCity::ChangeBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex, int iC
 }
 void CvCity::SetBaseYieldRateFromCSAllianceTimes100(YieldTypes eIndex, int iValue)
 {
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
 	if (GetBaseYieldRateFromCSAllianceTimes100(eIndex) != iValue)
 	{
 		m_aiBaseYieldRateFromCSAllianceTimes100[eIndex] = iValue;
@@ -25541,6 +25548,9 @@ void CvCity::ChangeBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex, int 
 }
 void CvCity::SetBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex, int iValue)
 {
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
 	if (GetBaseYieldRateFromCSFriendshipTimes100(eIndex) != iValue)
 	{
 		m_aiBaseYieldRateFromCSFriendshipTimes100[eIndex] = iValue;
@@ -25549,10 +25559,16 @@ void CvCity::SetBaseYieldRateFromCSFriendshipTimes100(YieldTypes eIndex, int iVa
 
 void CvCity::SetYieldFromMinors(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	m_aiYieldFromMinors[eYield] = iValue;
 }
 int CvCity::GetYieldFromMinors(YieldTypes eYield) const
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	return m_aiYieldFromMinors[eYield];
 }
 //CORPORATIONS
@@ -25729,6 +25745,9 @@ int CvCity::GetBuildingYieldChangeFromCorporationFranchises(BuildingClassTypes e
 
 void CvCity::SetYieldChangeFromCorporationFranchises(YieldTypes eIndex, int iTotal)
 {
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
 	if (GetYieldChangeFromCorporationFranchises(eIndex) != iTotal)
 	{
 		m_aiYieldChangeFromCorporationFranchises[eIndex] = iTotal;
@@ -35250,6 +35269,9 @@ void CvCity::SetLoyaltyState(int iLoyalty)
 
 void CvCity::SetYieldModifierFromHappiness(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (GetYieldModifierFromHappiness(eYield) != iValue)
 	{
 		m_aiYieldModifierFromHappiness[eYield] = iValue;
@@ -35267,6 +35289,9 @@ int CvCity::GetYieldModifierFromHappiness(YieldTypes eYield) const
 
 void CvCity::SetYieldModifierFromHealth(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (GetYieldModifierFromHealth(eYield) != iValue)
 	{
 		m_aiYieldModifierFromHealth[eYield] = iValue;
@@ -35284,6 +35309,9 @@ int CvCity::GetYieldModifierFromHealth(YieldTypes eYield) const
 
 void CvCity::SetYieldModifierFromCrime(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (GetYieldModifierFromCrime(eYield) != iValue)
 	{
 		m_aiYieldModifierFromCrime[eYield] = iValue;
@@ -35301,6 +35329,9 @@ int CvCity::GetYieldModifierFromCrime(YieldTypes eYield) const
 
 void CvCity::SetYieldModifierFromDevelopment(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (GetYieldModifierFromDevelopment(eYield) != iValue)
 	{
 		m_aiYieldModifierFromDevelopment[eYield] = iValue;
@@ -35318,6 +35349,9 @@ int CvCity::GetYieldModifierFromDevelopment(YieldTypes eYield) const
 
 void CvCity::SetYieldFromHappiness(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (GetYieldFromHappiness(eYield) != iValue)
 	{
 		m_aiYieldFromHappiness[eYield] = iValue;
@@ -35327,11 +35361,17 @@ void CvCity::SetYieldFromHappiness(YieldTypes eYield, int iValue)
 int CvCity::GetYieldFromHappiness(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	return m_aiYieldFromHappiness[eYield];
 }
 
 void CvCity::SetYieldFromHealth(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (GetYieldFromHealth(eYield) != iValue)
 	{
 		m_aiYieldFromHealth[eYield] = iValue;
@@ -35341,10 +35381,16 @@ void CvCity::SetYieldFromHealth(YieldTypes eYield, int iValue)
 int CvCity::GetYieldFromHealth(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	return m_aiYieldFromHealth[eYield];
 }
 void CvCity::SetYieldFromCrime(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (GetYieldFromCrime(eYield) != iValue)
 	{
 		m_aiYieldFromCrime[eYield] = iValue;
@@ -35362,6 +35408,9 @@ int CvCity::GetYieldFromCrime(YieldTypes eYield) const
 
 void CvCity::SetYieldFromDevelopment(YieldTypes eYield, int iValue)
 {
+	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
+	PRECONDITION(eYield < NUM_YIELD_TYPES, "eYield expected to be < NUM_YIELD_TYPES");
+
 	if (GetYieldFromDevelopment(eYield) != iValue)
 	{
 		m_aiYieldFromDevelopment[eYield] = iValue;
