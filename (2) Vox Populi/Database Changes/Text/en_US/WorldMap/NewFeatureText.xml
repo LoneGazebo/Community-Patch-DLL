@@ -2,7 +2,7 @@
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_CIV5_FEATURES_SRI_PADA_HELP">
-			<Text>All new and existing Workers, Work Boats, Missionaries, Inquisitors, and Settler Units produced by the owner of this Natural Wonder gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SACRED_STEPS}[ENDCOLOR] Promotion, granting them +2 [ICON_MOVES] Movement.</Text>
+			<Text>All new and existing Missionaries, Inquisitors, and Great Prophets produced by the owner of this Natural Wonder gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SACRED_STEPS}[ENDCOLOR] Promotion, granting them +2 [ICON_MOVES] Movement.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>	
