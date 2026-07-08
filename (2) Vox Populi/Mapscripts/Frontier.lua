@@ -715,7 +715,7 @@ end
 function AssignStartingPlots:GetLowFertilityCompensations(iNumRegions)
 	-- Extracted from PlaceLuxuries() for easy override
 	local region_low_fert_compensation = table.fill(0, iNumRegions); -- Stores number of luxury compensation each region received
-	local luxury_low_fert_compensation = table.fill(0, self.MAX_RESOURCE_INDEX); -- Stores number of times each resource ID had extras handed out at civ starts. WARNING: Don't use ID 0.
+	local luxury_low_fert_compensation = table.fill(0, #GameInfo.Resources - 1); -- Stores number of times each resource ID had extras handed out at civ starts. WARNING: Don't use ID 0.
 
 	-- Custom for Frontier
 	for _, reg_data in ipairs(self.regions_sorted_by_type) do
