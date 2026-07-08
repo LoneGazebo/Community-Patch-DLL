@@ -7887,7 +7887,7 @@ void CvCity::updateEconomicValue()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePossibleOwner = (PlayerTypes)iPlayerLoop;
-		m_aiEconomicValue[iPlayerLoop] = 0; //everybody gets a new value
+		setEconomicValue(ePossibleOwner, 0); //everybody gets a new value
 
 		if (GET_PLAYER(ePossibleOwner).isAlive())
 		{
@@ -7942,18 +7942,15 @@ void CvCity::updateEconomicValue()
 				}
 			}
 
-			m_aiEconomicValue[ePossibleOwner] = iYieldValue + iResourceValue;
+			setEconomicValue(ePossibleOwner, iYieldValue + iResourceValue);
 		}
 	}
 }
 
 int CvCity::getEconomicValue(PlayerTypes ePossibleOwner)
 {
-	if (ePossibleOwner == NO_PLAYER || ePossibleOwner >= MAX_CIV_PLAYERS)
-		return 0;
-
-	if ((int)m_aiEconomicValue.size() <= ePossibleOwner)
-		updateEconomicValue();
+	PRECONDITION(ePossibleOwner >= 0, "ePossibleOwner expected to be >= 0");
+	PRECONDITION(ePossibleOwner < MAX_CIV_PLAYERS, "ePossibleOwner expected to be < MAX_CIV_PLAYERS");
 
 	return m_aiEconomicValue[ePossibleOwner];
 }

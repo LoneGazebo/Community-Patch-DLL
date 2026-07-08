@@ -3805,7 +3805,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	bool bNoWarmongerYet = pCity->IsNoWarmongerYet();
 
 	//economic value is copied over to the new city so that the conquering AI sees the actual value of the city, not the value of the city in resistance (much lower)
-	std::vector<int> viEconValue(MAX_PLAYERS, 0);
+	std::vector<int> viEconValue(MAX_CIV_PLAYERS, 0);
 
 	std::vector<bool> vbTraded(MAX_PLAYERS, false);
 	std::vector<bool> vbIgnoredForExpansionBickering(MAX_MAJOR_CIVS, false);
@@ -3819,7 +3819,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		vbEverLiberated[iPlayerLoop] = pCity->isEverLiberated(eLoopPlayer);
 		viNumTimesOwned[iPlayerLoop] = pCity->GetNumTimesOwned(eLoopPlayer);
 		viNumTimesCultureBombed[iPlayerLoop] = pCity->GetNumTimesCultureBombed(eLoopPlayer);
-		viEconValue[iPlayerLoop] = pCity->getEconomicValue(eLoopPlayer);
+
+		if (iPlayerLoop < MAX_CIV_PLAYERS)
+			viEconValue[iPlayerLoop] = pCity->getEconomicValue(eLoopPlayer);
 
 		if (iPlayerLoop < MAX_MAJOR_CIVS)
 			vbIgnoredForExpansionBickering[iPlayerLoop] = pCity->IsIgnoredForExpansionBickering(eLoopPlayer);
