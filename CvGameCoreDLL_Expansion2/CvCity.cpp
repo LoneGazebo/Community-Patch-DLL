@@ -13428,6 +13428,38 @@ SPlotStats CvCity::getPlotStats() const
 }
 
 //	--------------------------------------------------------------------------------
+SActiveCityBeliefs CvCity::GetActiveBeliefs() const
+{
+    SActiveCityBeliefs active;
+    ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+    const CvReligion* pMajorityReligion = (eMajority != NO_RELIGION) ? GetCityReligions()->GetMajorityReligion() : NULL;
+
+    if (pMajorityReligion)
+    {
+        active.eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+        if (active.eSecondaryPantheon != NO_BELIEF)
+        {
+            active.eBeliefs[active.iCount++] = active.eSecondaryPantheon;
+        }
+    }
+
+	if (MOD_BALANCE_PERMANENT_PANTHEONS && GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+    {
+        BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+        if (ePantheonBelief != NO_BELIEF && ePantheonBelief != active.eSecondaryPantheon)
+        {
+            // Verify our current majority religion doesn't already give us this exact pantheon bonus
+            if (pMajorityReligion == NULL || !pMajorityReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))
+            {
+                active.eBeliefs[active.iCount++] = ePantheonBelief;
+            }
+        }
+    }
+
+    return active;
+}
+
+//	--------------------------------------------------------------------------------
 int CvCity::getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource) const
 {
 	VALIDATE_OBJECT();
