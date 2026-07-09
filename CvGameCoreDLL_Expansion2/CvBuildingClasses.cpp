@@ -914,6 +914,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("SpecialistType");
 	m_iSpecialistType = GC.getInfoTypeForString(szTextVal, true);
 	m_iSpecialistCount = kResults.GetInt("SpecialistCount");
+	ASSERT(m_iSpecialistCount == 0 || m_iSpecialistType > -1, "Mod error: Building %s has SpecialistCount > 0, but no valid SpecialistType is specified", kResults.GetText("Type"));
+	if (m_iSpecialistType == -1)
+		m_iSpecialistCount = 0;
+
 	m_iSpecialistExtraCulture = kResults.GetInt("SpecialistExtraCulture");
 	m_iGreatPeopleRateChange= kResults.GetInt("GreatPeopleRateChange");
 
