@@ -15201,7 +15201,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 			int iExtraYieldChange = 0;
 			
 	        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
-	        if (pBeliefInfo && eEra < pBeliefInfo->GetObsoleteEra())
+	        if (pBeliefInfo)
 	        {
 				if (getPopulation() >= pBeliefInfo->GetMinPopulation())
 	            	iExtraYieldChange += pBeliefInfo->GetCityYieldChange((YieldTypes)iYield);
