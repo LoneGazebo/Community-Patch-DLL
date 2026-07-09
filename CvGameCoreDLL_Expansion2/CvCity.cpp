@@ -16146,7 +16146,7 @@ int CvCity::getGrowthMods(CvString* toolTipSink, int iAssumedLocalHappinessChang
 			}
 		}
 	}
- 	SActiveCityBeliefs activeBeliefs = GetActiveBeliefs();
+ 	SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
 	for (int i = 0; i < activeBeliefs.iCount; ++i)
     {
         CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
