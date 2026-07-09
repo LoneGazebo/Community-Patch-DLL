@@ -15152,51 +15152,11 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 					iReligionYieldChange += pReligion->m_Beliefs.GetNearbyTerrainYieldChangeForCity(getPopulation(), abTerrainMatch, (YieldTypes)iYield, getOwner(), this);
 				}
 
-				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				if (eSecondaryPantheon != NO_BELIEF && getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
-				{
-					iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange((YieldTypes)iYield);
-
-					if ((getPopulation() > 0) && (GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerPop((YieldTypes)iYield) > 0))
-					{
-						int iFaithPerPop = (getPopulation() / GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerPop((YieldTypes)iYield));
-						if (iFaithPerPop != 0)
-						{
-							iReligionYieldChange += iFaithPerPop;
-						}
-					}
-
-					if (isCapital()) 
-					{
-						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCapitalYieldChange((YieldTypes)iYield);
-					}
-					if (isCoastal()) 
-					{
-						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCoastalCityYieldChange((YieldTypes)iYield);
-					}
-					{
-						int iNearbyTerrainYield = 0;
-						for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
-						{
-							if (plot()->getTerrainType() == (TerrainTypes)iTerrain || IsAdjacentToTerrain((TerrainTypes)iTerrain))
-							{
-								iNearbyTerrainYield = max(iNearbyTerrainYield, GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetNearbyTerrainYieldChange(iTerrain, iYield));
-							}
-						}
-						iReligionYieldChange += iNearbyTerrainYield;
-					}
-				}
-
 				ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iReligionYieldChange);
 
 				if (IsRouteToCapitalConnected())
 				{
 					int iReligionChange = pReligion->m_Beliefs.GetYieldChangeTradeRoute((YieldTypes)iYield, getOwner(), this);
-					//BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
-					{
-						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldChangeTradeRoute((YieldTypes)iYield);
-					}
 
 					ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iReligionChange);
 				}
@@ -15234,77 +15194,70 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 			}
 		}
 
-		// Mod for civs keeping their pantheon belief forever
-		if (MOD_BALANCE_PERMANENT_PANTHEONS)
-		{
-			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-			{
-				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+		// now go through extra sources of beliefs
+		SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eNewMajority);
+	    for (int i = 0; i < activeBeliefs.iCount; ++i)
+	    {
+			int iExtraYieldChange = 0;
+			
+	        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+	        if (pBeliefInfo && eEra < pBeliefInfo->GetObsoleteEra())
+	        {
+				if (getPopulation() >= pBeliefInfo->GetMinPopulation())
+	            	iExtraYieldChange += pBeliefInfo->GetCityYieldChange((YieldTypes)iYield);
+
+				if ((getPopulation() > 0) && pBeliefInfo->GetYieldPerPop((YieldTypes)iYield) > 0)
 				{
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eNewMajority, getOwner());
-					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eNewMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
+					iExtraYieldChange += (getPopulation() / pBeliefInfo->GetYieldPerPop((YieldTypes)iYield));
+				}
+				
+				if (isCapital()) 
+				{
+					iExtraYieldChange +=pBeliefInfo->GetCapitalYieldChange((YieldTypes)iYield);
+				}
+				
+				if (isCoastal()) 
+				{
+					iExtraYieldChange += pBeliefInfo->GetCoastalCityYieldChange((YieldTypes)iYield);
+				}
+				
+				int iNearbyTerrainYield = 0;
+				for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+				{
+					if (plot()->getTerrainType() == (TerrainTypes)iTerrain || IsAdjacentToTerrain((TerrainTypes)iTerrain))
 					{
-						int iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityYieldChange((YieldTypes)iYield);
-
-						if ((getPopulation() > 0) && (GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldPerPop((YieldTypes)iYield) > 0))
-						{
-							int iFaithPerPop = (getPopulation() / GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldPerPop((YieldTypes)iYield));
-							if (iFaithPerPop != 0)
-							{
-								iReligionYieldChange += iFaithPerPop;
-							}
-						}
-
-						if (isCapital()) 
-						{
-							iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCapitalYieldChange((YieldTypes)iYield);
-						}
-						if (isCoastal()) 
-						{
-							iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCoastalCityYieldChange((YieldTypes)iYield);
-						}
-						{
-							int iNearbyTerrainYield = 0;
-							for (int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
-							{
-								if (plot()->getTerrainType() == (TerrainTypes)iTerrain || IsAdjacentToTerrain((TerrainTypes)iTerrain))
-								{
-									iNearbyTerrainYield = max(iNearbyTerrainYield, GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetNearbyTerrainYieldChange(iTerrain, iYield));
-								}
-							}
-							iReligionYieldChange += iNearbyTerrainYield;
-						}
-
-						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldChangeTradeRoute((YieldTypes)iYield);
-						ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iReligionYieldChange);
-
-						const std::vector<BuildingTypes>& allBuildings = GetCityBuildings()->GetAllBuildingsHere();
-						for (size_t iI = 0; iI < allBuildings.size(); iI++)
-						{
-							CvBuildingEntry* pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
-							if (pkBuilding)
-							{
-								BuildingClassTypes eBuildingClass = pkBuilding->GetBuildingClassType();
-								int iYieldFromBuilding = GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetBuildingClassYieldChange((int)eBuildingClass, iYield);
-
-								iYieldFromBuilding *= GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
-
-								if (isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
-								{
-									iYieldFromBuilding += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldChangeWorldWonder(iYield);
-								}
-
-								ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iYieldFromBuilding);
-							}
-						}
+						iNearbyTerrainYield = max(iNearbyTerrainYield, pBeliefInfo->GetNearbyTerrainYieldChange(iTerrain, iYield));
 					}
 				}
-			}
-		}
-	}
+				iExtraYieldChange += iNearbyTerrainYield;
+
+				if (IsRouteToCapitalConnected())
+					iExtraYieldChange += pBeliefInfo->GetYieldChangeTradeRoute((YieldTypes)iYield);
+
+				const std::vector<BuildingTypes>& allBuildings = GetCityBuildings()->GetAllBuildingsHere();
+				for (size_t iI = 0; iI < allBuildings.size(); iI++)
+				{
+					CvBuildingEntry* pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
+					if (pkBuilding)
+					{
+						BuildingClassTypes eBuildingClass = pkBuilding->GetBuildingClassType();
+						int iYieldFromBuilding = pBeliefInfo->GetBuildingClassYieldChange((int)eBuildingClass, iYield);
+
+						iYieldFromBuilding *= GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
+
+						if (isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
+						{
+							iYieldFromBuilding += pBeliefInfo->GetYieldChangeWorldWonder(iYield);
+						}
+						
+						iExtraYieldChange += iYieldFromBuilding;
+					}
+				}
+	        }
+			
+			if (iExtraYieldChange > 0)
+				ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iExtraYieldChange);
+	    }
 
 	//Some yield cleanup and refresh here - note that not all of this has to do with religion, however any time religion is updated, that's a good time to update the city's yields.
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
