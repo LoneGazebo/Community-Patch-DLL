@@ -131,7 +131,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY';
 -- Carthage
 --------------------
 UPDATE Language_en_US
-SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your all-time highest tradeable quantity of a Luxury increases, and +5 XP to [ICON_GOLD] Gold purchased Units, both scaling with Era. +100% Resource Diversity on [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '+100 [ICON_GOLD] Gold and +25 [ICON_RESEARCH] Science when your all-time highest tradeable quantity of a Luxury increases, scaling with Era. +5 XP to [ICON_GOLD] Gold purchased Units, scaling with Era. +100% Resource Diversity on [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 UPDATE Language_en_US
@@ -590,7 +590,7 @@ SET Text = 'Kanuni'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Completing a [ICON_INTERNATIONAL_TRADE] Trade Route grants +150 [ICON_FOOD] Food and [ICON_RESEARCH] Science to the origin City if International, or +75 [ICON_GOLD] Gold and [ICON_CULTURE] Culture to both Cities if Internal. Bonuses scale with Era.'
+SET Text = 'Completing a [ICON_INTERNATIONAL_TRADE] Trade Route grants +150 [ICON_FOOD] Food and [ICON_RESEARCH] Science to the origin City if International, or +75 [ICON_GOLD] Gold and [ICON_CULTURE] Culture to both Cities if Internal, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS';
 
 UPDATE Language_en_US
