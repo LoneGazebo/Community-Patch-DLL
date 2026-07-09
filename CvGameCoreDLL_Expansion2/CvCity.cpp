@@ -16128,7 +16128,7 @@ int CvCity::getGrowthMods(CvString* toolTipSink, int iAssumedLocalHappinessChang
 		if (iTempMod < 0)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_GROWTH_MOD_PUPPET", iTempMod);
 	}
-	// Religion growth mod
+	
 	int iReligionGrowthMod = 0;
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if (eMajority != NO_RELIGION)
@@ -16138,39 +16138,23 @@ int CvCity::getGrowthMods(CvString* toolTipSink, int iAssumedLocalHappinessChang
 		{
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
 			iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-			BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 			{
 				int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 				iReligionGrowthMod += (iFollowers * /*0*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
 			}
-
-			if (eSecondaryPantheon != NO_BELIEF)
-			{
-				iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityGrowthModifier();
-			}
 		}
 	}
-
-	// Mod for civs keeping their pantheon belief forever
-	if (MOD_BALANCE_PERMANENT_PANTHEONS)
-	{
-		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-		{
-			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != GetCityReligions()->GetSecondaryReligionPantheonBelief())
-			{
-				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-				{
-					iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityGrowthModifier();
-				}
-			}
-		}
-	}
-
+ 	SActiveCityBeliefs activeBeliefs = GetActiveBeliefs();
+	for (int i = 0; i < activeBeliefs.iCount; ++i)
+    {
+        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+        if (pBeliefInfo)
+        {
+            iReligionGrowthMod += pBeliefInfo->GetCityGrowthModifier();
+        }
+    }
 	iTotalMod += iReligionGrowthMod;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_GROWTH_MOD_BELIEF", iReligionGrowthMod);
 
