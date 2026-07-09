@@ -13014,58 +13014,20 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		iMultiplier += iTempMod;
 
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		BeliefTypes eSecondaryPantheon = NO_BELIEF;
-		iTempMod = 0;
-		if (eMajority != NO_RELIGION)
-		{
-			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-			if (pReligion)
-			{
-				// Depends on era of wonder
-				if (eTech != NO_TECH)
-				{
-					if (pEntry)
-					{
-						if (eEra != NO_ERA)
-						{
-							iTempMod = pReligion->m_Beliefs.GetWonderProductionModifier(eEra, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-							eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-							if (eSecondaryPantheon != NO_BELIEF)
-							{
-								if ((int)eEra < GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetObsoleteEra())
-								{
-									iTempMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetWonderProductionModifier();
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Mod for civs keeping their pantheon belief forever
-		if (MOD_BALANCE_PERMANENT_PANTHEONS)
-		{
-			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-			{
-				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-				{
-					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-					{
-						if (eEra != NO_ERA)
-						{
-							if ((int)eEra < GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetObsoleteEra())
-							{
-								iTempMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetWonderProductionModifier();
-							}
-						}
-					}
-				}
-			}
-		}
+	    const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GetCityReligions()->GetMajorityReligion() : NULL;
+	    if (pReligion)
+	    {
+	        iModifier = pReligion->m_Beliefs.GetWonderProductionModifier(eEra, getOwner(), this);
+	    }
+	    SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+	    for (int i = 0; i < activeBeliefs.iCount; ++i)
+	    {
+	        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+	        if (pBeliefInfo && eEra < pBeliefInfo->GetObsoleteEra())
+	        {
+	            iModifier += pBeliefInfo->GetWonderProductionModifier();
+	        }
+	    }
 
 		iMultiplier += iTempMod;
 		if (toolTipSink && iTempMod)
@@ -13166,65 +13128,28 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RESOURCE_TRAIT", iTempMod);
 		}
 
-		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		BeliefTypes eSecondaryPantheon = NO_BELIEF;
-		if (eMajority != NO_RELIGION)
-		{
-			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-			if (pReligion)
-			{
-				// Depends on era of wonder
-				if (eTech != NO_TECH)
-				{
-					if (pEntry)
-					{
-						eEra = (EraTypes)pEntry->GetEra();
-						if (eEra != NO_ERA)
-						{
-							iTempMod = (pReligion->m_Beliefs.GetWonderProductionModifier(eEra, getOwner(), GET_PLAYER(getOwner()).getCity(GetID())) * iMod) / 100;
-							eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-							if (eSecondaryPantheon != NO_BELIEF)
-							{
-								if ((int)eEra < GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetObsoleteEra())
-								{
-									iTempMod += (GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetWonderProductionModifier() * iMod) / 100;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// Mod for civs keeping their pantheon belief forever
-		if (MOD_BALANCE_PERMANENT_PANTHEONS)
-		{
-			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-			{
-				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-				{
-					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-					{
-						if (eEra != NO_ERA)
-						{
-							if ((int)eEra < GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetObsoleteEra())
-							{
-								iTempMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetWonderProductionModifier();
-							}
-						}
-					}
-				}
-			}
-		}
-
+		iTempMod = 0;
+	    ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	    const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GetCityReligions()->GetMajorityReligion() : NULL;
+	    if (pReligion)
+	    {
+	        iTempMod += pReligion->m_Beliefs.GetWonderProductionModifier(eEra, getOwner(), this);
+	    }
+	    SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+	    for (int i = 0; i < activeBeliefs.iCount; ++i)
+	    {
+	        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+	        if (pBeliefInfo && eEra < pBeliefInfo->GetObsoleteEra())
+	        {
+	            iTempMod += pBeliefInfo->GetWonderProductionModifier();
+	        }
+	    }
 		iMultiplier += iTempMod;
 		if (toolTipSink && iTempMod)
 		{
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_RELIGION", iTempMod);
 		}
+		
 		iTempMod = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_WONDER_PRODUCTION_MODIFIER) * iMod) / 100;
 		iMultiplier += iTempMod;
 		if (toolTipSink && iTempMod)
@@ -13428,10 +13353,9 @@ SPlotStats CvCity::getPlotStats() const
 }
 
 //	--------------------------------------------------------------------------------
-SActiveCityBeliefs CvCity::GetActiveBeliefs() const
+SActiveCityBeliefs CvCity::GetActiveBeliefs(ReligionTypes eMajority) const
 {
     SActiveCityBeliefs active;
-    ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
     const CvReligion* pMajorityReligion = (eMajority != NO_RELIGION) ? GetCityReligions()->GetMajorityReligion() : NULL;
 
     if (pMajorityReligion)
