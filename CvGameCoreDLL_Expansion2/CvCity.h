@@ -80,7 +80,7 @@ struct SActiveCityBeliefs
     int iCount;
     BeliefTypes eBeliefs[4]; // Max possible active beliefs impacting a single stat slot simultaneously
 
-    SActiveCityBeliefs() : eMajorityPantheon(NO_BELIEF), eSecondaryPantheon(NO_BELIEF), ePantheonPermanent(NO_BELIEF), iCount(0) {}
+    SActiveCityBeliefs(ReligionTypes eMajority) : eMajorityPantheon(NO_BELIEF), eSecondaryPantheon(NO_BELIEF), ePantheonPermanent(NO_BELIEF), iCount(0) {}
 };
 
 class CvCity
