@@ -6133,7 +6133,11 @@ function ASP:AssignLuxuryRoles()
 	end
 
 	self.iNumTypesRandom = self:GetRandomLuxuriesTargetNumber();
-	for _ = 1, self.iNumTypesRandom do
+	for i = 1, self.iNumTypesRandom do
+		if #rand_resource_IDs == 0 then
+			self.iNumTypesRandom = i - 1;
+			break;
+		end
 		local eResource, iIndex = GetRandomFromWeightedList(rand_resource_IDs, rand_resource_weights, "Choose resource type - Random Luxuries - Lua");
 		table.insert(self.resourceIDs_assigned_to_random, eResource);
 		table.remove(rand_resource_IDs, iIndex);
