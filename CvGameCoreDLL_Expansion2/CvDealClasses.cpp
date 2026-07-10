@@ -4365,28 +4365,27 @@ bool CvGameDeals::FinalizeMPDeal(CvDeal kDeal, bool bAccepted)
 	bool bFoundIt = true;
 	bool bValid = kDeal.AreAllTradeItemsValid();
 	CvWeightedVector<TeamTypes> veNowAtPeacePairs; // hacked CvWeighedVector to keep track of third party minors that this deal makes at peace
-	{
-		if(!bValid || !bAccepted)
-		{
-			LogDealFailed(&kDeal, false, !bAccepted, true);
-		}
 
-		if(bValid && bAccepted)
+	if(bValid && bAccepted)
+	{
+		FinalizeDealValidAndAccepted(eFromPlayer, eToPlayer, kDeal, bAccepted, veNowAtPeacePairs);
+		GC.getGame().GetGameDeals().SetRenewDealID(eFromPlayer, eToPlayer, -1); // this must be reset before the remaining notifications are checked
+		PlayerTypes eLoopPlayer;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			FinalizeDealValidAndAccepted(eFromPlayer, eToPlayer, kDeal, bAccepted, veNowAtPeacePairs);
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer != NO_PLAYER)
 			{
-				eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				if (eLoopPlayer != NO_PLAYER)
-				{
-					GET_PLAYER(eLoopPlayer).GetDiplomacyRequests()->CheckRemainingNotifications();
-				}
+				GET_PLAYER(eLoopPlayer).GetDiplomacyRequests()->CheckRemainingNotifications();
 			}
 		}
 	}
+	else
+	{
+		GC.getGame().GetGameDeals().SetRenewDealID(eFromPlayer, eToPlayer, -1);
+		LogDealFailed(&kDeal, false, !bAccepted, true);
+	}
 
-	GC.getGame().GetGameDeals().SetRenewDealID(eFromPlayer, eToPlayer, -1);
 	
 	// Update UI if we were involved in the deal
 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
