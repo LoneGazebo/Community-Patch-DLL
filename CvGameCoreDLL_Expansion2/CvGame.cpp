@@ -12520,11 +12520,6 @@ void CvGame::LogMapState() const
 	pLog->Msg(outputJson);
 }
 
-//	--------------------------------------------------------------------------------
-// SQLite mirror of mapStateLog_Turn%03d.json. Lives alongside LogMapState() but is independent of the
-// CSV/AI logging switches: it only runs when MOD_SQLITE_LOGGING is enabled. Each plot of interest is
-// buffered through the batched writer and the whole map is committed in as few transactions as the
-// configured buffer cap allows, which matters because the map can contain many thousands of plots.
 void CvGame::LogMapPlotsState() const
 {
 	if (!MOD_SQLITE_LOGGING)
@@ -12587,9 +12582,6 @@ void CvGame::LogMapPlotsState() const
 	kBatch.flush();
 }
 
-//	--------------------------------------------------------------------------------
-// SQLite companion to LogMapPlotsState(): the "units" half of the map-state dump. Writes one
-// batched row per unit owned by each alive major civ. Gated purely behind MOD_SQLITE_LOGGING.
 void CvGame::LogMapUnitsState() const
 {
 	if (!MOD_SQLITE_LOGGING)

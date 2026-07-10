@@ -19775,7 +19775,6 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				pLog->Msg(strBaseString);
 			}
 
-			// Independent SQLite long-format logging (no shared code with the CSV writer above).
 			if (MOD_SQLITE_LOGGING)
 			{
 				LogHandicapYields(pHandicapInfo, eHistoricEvent, iEra, iDifficultyBonusPercent, bSeparateYieldTypes, iCommonAmount, vYields);
@@ -42752,19 +42751,6 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	pLog->Msg(strBaseString);
 }
 
-// Logs one BuildingInstantYields row per (building, city, yield) for the building-sourced portion of
-// an instant yield that just fired. doInstantYield reads city/player aggregates, so individual
-// building identity is lost there; here we re-iterate the relevant buildings and re-derive each
-// building's share from the SAME CvBuildingEntry getter the matching case uses, then replicate the
-// tail game-speed/era scaling doInstantYield applies. Per-building re-derivation can drift slightly
-// from the granted aggregate (independent integer truncation), which is accepted. Values are stored
-// multiplied by 100 (YieldTimes100) so inherently fractional sources are preserved.
-// Logs the per-belief share of an event/instant yield to the ReligionBeliefYields SQLite table, one
-// row per (belief) for the single (iType, eYield) being granted. Mirrors the belief-driven branches of
-// doInstantYield: it loops the player's owned/state religion beliefs, gates each with the same
-// IsBeliefValid(holyCityOnly) the matching case uses, and applies the same multiplier so the logged
-// value equals the granted value (x100 to match the other rows). Several rows may be written for the
-// same belief across a turn (multiple events); downstream aggregation sums them.
 void CvPlayer::LogReligionBeliefInstantYields(InstantYieldType iType, CvCity* pLoopCity, YieldTypes eYield, int iEra, int iPassYield, bool bEraScale, YieldTypes ePassYield, GreatPersonTypes eGreatPerson, CvUnit* pUnit, CvPlot* pPlot, PlayerTypes eSpreadPlayer, const CvReligion* pReligion, ReligionTypes eReligion, int iNumFollowerCities, int iNumFollowers)
 {
 	if (!MOD_SQLITE_LOGGING)

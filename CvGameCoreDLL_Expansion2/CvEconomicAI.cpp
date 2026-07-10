@@ -2030,13 +2030,6 @@ static void GetBuildingFlatYieldSplitTimes100(const CvCity* pCity, BuildingTypes
 	}
 }
 
-//	--------------------------------------------------------------------------------
-// Sums the EXTRA yield (x100) that eBuilding grants to the tiles pCity is actually working, filling the
-// caller's [NUM_YIELD_TYPES] array. The plot classification mirrors CvCity::GetPlotsBoostedByBuilding,
-// but is restricted to tiles citizens are working (the city-center tile is always worked). Only the
-// per-plot yield the building itself adds is counted, never the underlying tile yield. This is folded
-// into the BASE column, consistent with how the rest of the codebase treats a building's per-plot
-// yields as part of its intrinsic output. Each plot is classified once and applied to every yield.
 static void GetBuildingWorkedPlotYieldTimes100(const CvCity* pCity, BuildingTypes eBuilding, int aiYieldTimes100[NUM_YIELD_TYPES])
 {
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -2264,8 +2257,7 @@ bool PlayerOwnsReligion(ReligionTypes eReligion, PlayerTypes ePlayer)
 }
 
 // "Pure" religious building: unlocked by a belief and cheap enough to be a dedicated religious
-// building rather than an ordinary building merely made faith-purchasable (e.g. Jesuit Education's
-// University or Work Ethic's Factory). Decoupled into its own helper because the rule may change.
+// building rather than an ordinary building merely made faith-purchasable
 bool IsBuildingPureReligious(const CvBuildingEntry* pkBuildingInfo)
 {
 	return pkBuildingInfo != NULL && pkBuildingInfo->IsUnlockedByBelief() && pkBuildingInfo->GetFaithCost() <= 250;
