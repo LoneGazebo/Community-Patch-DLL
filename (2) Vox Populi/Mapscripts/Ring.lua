@@ -11,6 +11,9 @@ include("MultilayeredFractal");
 include("FeatureGenerator");
 include("TerrainGenerator");
 include("MapmakerUtilities");
+
+local MAX_MAJOR_CIVS = GameDefines.MAX_MAJOR_CIVS;
+
 local dominant_terrain;
 local centWestX, centEastX, centNorthY, centSouthY;
 local region_coords_data;
@@ -545,7 +548,7 @@ end
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateRegions()
+local function GenerateRegions(self)
 	print("Map Generation - Dividing the map in to Regions - Lua Ring");
 	self.resBalance = true;
 	self.method = RegionDivision.BIGGEST_LANDMASS;
@@ -599,7 +602,7 @@ function AssignStartingPlots:GenerateRegions()
 	--]]
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
+local function AssignCityStatesToRegionsOrToUninhabited(self)
 	-- Assign to uninhabited landmasses
 	local iW, _ = Map.GetGridSize();
 
@@ -619,23 +622,29 @@ function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
 	end
 end
 ------------------------------------------------------------------------------
-function ExtraRingCheck(x, y)
+local function ExtraRingCheck(x, y)
 	-- Adding this check for Ring in AssignStartingPlots:CanPlaceCityStateAt, to force all City States to the polar region in the center.
 	return x > centWestX and x < centEastX and y > centSouthY and y < centNorthY;
 end
 ------------------------------------------------------------------------------
-function StartPlotSystem()
-	print("Creating start plot database (MapGenerator.Lua)");
-	local start_plot_database = AssignStartingPlots.Create();
+local function __CustomInit(self)
+	self.GenerateRegions = GenerateRegions;
+	self.AssignCityStatesToRegionsOrToUninhabited = AssignCityStatesToRegionsOrToUninhabited;
 
-	start_plot_database.oldCanPlaceCityStateAt = start_plot_database.CanPlaceCityStateAt;
-	local newCanPlaceCityStateAt = function (ASP, x, y, area_ID, force_it, ignore_collisions)
+	local OldCanPlaceCityStateAt = self.CanPlaceCityStateAt;
+	self.CanPlaceCityStateAt = function (ASP, x, y, area_ID, force_it, ignore_collisions)
 		if not ExtraRingCheck(x, y) then
 			return false;
 		end
-		return ASP:oldCanPlaceCityStateAt(x, y, area_ID, force_it, ignore_collisions);
+		return OldCanPlaceCityStateAt(ASP, x, y, area_ID, force_it, ignore_collisions);
 	end
-	start_plot_database.CanPlaceCityStateAt = newCanPlaceCityStateAt;
+end
+
+function StartPlotSystem()
+	AssignStartingPlots.__CustomInit = __CustomInit;
+
+	print("Creating start plot database (MapGenerator.Lua)");
+	local start_plot_database = AssignStartingPlots.Create();
 
 	print("Dividing the map in to Regions (Lua Ring)"); -- Custom for Ring
 	start_plot_database:GenerateRegions();
