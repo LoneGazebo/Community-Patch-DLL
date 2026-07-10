@@ -586,7 +586,7 @@ public:
 	void SetAdditionalFood(int iValue);
 
 	int getPopulation(bool bIncludeAutomatons = false) const;
-	void setPopulation(int iNewValue, bool bReassignPop = true, bool bNoBonus = false);
+	void setPopulation(int iNewValue, bool bReassignPop = true);
 	void changePopulation(int iChange, bool bReassignPop = true, bool bIgnoreStaticUpdate = false);
 
 	void setLowestRazingPop(int iValue);

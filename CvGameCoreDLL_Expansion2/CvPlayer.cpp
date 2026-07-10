@@ -4013,9 +4013,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	}
 
 	int iNewPopulation = max(1, (iPopulation * iPercentPopulationRetained) / 100);
-	pNewCity->setPopulation(iNewPopulation, true, true);
-	pNewCity->setLowestRazingPop(iNewPopulation);
 	pNewCity->setHighestPopulation(iHighestPopulation);
+	pNewCity->setPopulation(iNewPopulation, true);
+	pNewCity->setLowestRazingPop(iNewPopulation);
 	pNewCity->SetJONSCultureLevel(iCultureLevel);
 	pNewCity->setMadeAttack(bHasMadeAttack);
 	pNewCity->SetNoWarmonger(bNoWarmongerYet);

@@ -16719,7 +16719,7 @@ int CvCity::getPopulation(bool bIncludeAutomatons /* = false */) const
 //	Be very careful with setting bReassignPop to false.  This assumes that the caller
 //  is manually adjusting the worker assignments *and* handling the setting of
 //  the CityCitizens unassigned worker value.
-void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool bNoBonus)
+void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 {
 	VALIDATE_OBJECT();
 	//make sure this is valid
@@ -16773,7 +16773,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 			setHighestPopulation(getPopulation());
 
 			int iGameTurn = GC.getGame().getGameTurn() - getGameTurnFounded();
-			if (!IsResistance() && iGameTurn > 0 && !bNoBonus)
+			if (!IsResistance() && iGameTurn > 0)
 			{
 				// Two triggers: one era scaling and one not
 				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BIRTH, true, NO_GREATPERSON, NO_BUILDING, iPopChange, false, NO_PLAYER, NULL, false, this);
