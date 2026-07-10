@@ -19774,8 +19774,105 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 				pLog->Msg(strBaseString);
 			}
+
+			// Independent SQLite long-format logging (no shared code with the CSV writer above).
+			if (MOD_SQLITE_LOGGING)
+			{
+				LogHandicapYields(pHandicapInfo, eHistoricEvent, iEra, iDifficultyBonusPercent, bSeparateYieldTypes, iCommonAmount, vYields);
+			}
 		}
 	}
+}
+
+// Independent SQLite logger for the AI difficulty-bonus yields (long format, one row per granted yield)
+void CvPlayer::LogHandicapYields(CvHandicapInfo* pHandicapInfo, HistoricEventTypes eHistoricEvent, int iEra, int iDifficultyBonusPercent, bool bSeparateYieldTypes, int iCommonAmount, const std::vector<YieldTypes>& vYields)
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+	if (pHandicapInfo == NULL || vYields.empty())
+		return;
+
+	// Title-case trigger label (independent copy of the CSV switch in DoDifficultyBonus).
+	const char* szTrigger = NULL;
+	switch (eHistoricEvent)
+	{
+	case HISTORIC_EVENT_ERA_CHANGE:               szTrigger = "Era"; break;
+	case HISTORIC_EVENT_WORLD_WONDER:             szTrigger = "World Wonder"; break;
+	case HISTORIC_EVENT_GREAT_PERSON:             szTrigger = "Great Person"; break;
+	case HISTORIC_EVENT_WON_WAR:                  szTrigger = "War"; break;
+	case HISTORIC_EVENT_GOLDEN_AGE:               szTrigger = "Golden Age"; break;
+	case HISTORIC_EVENT_DIG:                      szTrigger = "Dig"; break;
+	case HISTORIC_EVENT_TRADE_LAND:               szTrigger = "Trade Route (Land)"; break;
+	case HISTORIC_EVENT_TRADE_SEA:                szTrigger = "Trade Route (Sea)"; break;
+	case HISTORIC_EVENT_TRADE_CS:                 szTrigger = "Trade Route (City-State)"; break;
+	case HISTORIC_EVENT_RELIGION_SPREAD:          szTrigger = "Religion Spread"; break;
+	case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:     szTrigger = "Capital Founding"; break;
+	case DIFFICULTY_BONUS_CITY_FOUND:             szTrigger = "City Founding"; break;
+	case DIFFICULTY_BONUS_CITY_CONQUEST:          szTrigger = "City Conquest"; break;
+	case DIFFICULTY_BONUS_RESEARCHED_TECH:        szTrigger = "Researching Tech"; break;
+	case DIFFICULTY_BONUS_ADOPTED_POLICY:         szTrigger = "Adopting Policy"; break;
+	case DIFFICULTY_BONUS_COMPLETED_POLICY_TREE:  szTrigger = "Completing Policy Tree"; break;
+	case DIFFICULTY_BONUS_KILLED_MAJOR_UNIT:      szTrigger = "Killing Major Civ Unit"; break;
+	case DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT: szTrigger = "Killing City-State Unit"; break;
+	case DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT:  szTrigger = "Killing Barbarian Unit"; break;
+	case DIFFICULTY_BONUS_PLAYER_TURNS_PASSED:    szTrigger = "Turns Passed"; break;
+	case DIFFICULTY_BONUS_AI_TURNS_PASSED:        szTrigger = "Turns Passed"; break;
+	default:
+		return;
+	}
+
+	// CityCount is a per-event value: if the event grants any per-city yield (Food/Production/Border
+	// Growth) count the valid cities the yield is divided across and stamp that count on every row of
+	// the event; otherwise the event is not per-city, so store -1. Uses the same city filter as the
+	// per-city branches in DoDifficultyBonus (skip puppet-annexable, resistance and razing cities).
+	const bool bHasPerCityYield = (std::find(vYields.begin(), vYields.end(), YIELD_FOOD) != vYields.end())
+		|| (std::find(vYields.begin(), vYields.end(), YIELD_PRODUCTION) != vYields.end())
+		|| (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE_LOCAL) != vYields.end());
+	int iCityCount = -1;
+	if (bHasPerCityYield)
+	{
+		int iValidCities = 0;
+		int iLoop = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			// Skip puppets, unless Venice.
+			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+				continue;
+			// Skip resistance or razing cities.
+			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+				continue;
+			iValidCities++;
+		}
+		iCityCount = iValidCities;
+	}
+
+	RegisterHandicapYieldsTable();
+
+	const char* szCiv = getCivilizationShortDescription();
+
+	SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("HandicapYields");
+	for (std::vector<YieldTypes>::const_iterator it = vYields.begin(); it != vYields.end(); ++it)
+	{
+		const YieldTypes eYield = *it;
+		const int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, eYield) : iCommonAmount;
+		if (iAmount <= 0)
+			continue;
+
+		const int iYieldTimes100 = (eYield == YIELD_POPULATION) ? (iAmount * 100) : (iAmount * iDifficultyBonusPercent);
+
+		const CvYieldInfo* pYieldInfo = GC.getYieldInfo(eYield);
+		const char* szYield = pYieldInfo ? pYieldInfo->GetDescription() : "";
+
+		kBatch.BeginLogRow()
+			.bind(szCiv)
+			.bind(iEra)
+			.bind(iCityCount)
+			.bind(szTrigger)
+			.bind(szYield)
+			.bind(iYieldTimes100)
+			.addRowToBatch();
+	}
+	kBatch.flush();
 }
 
 void CvPlayer::DoHealGlobal(int iHealPercent)
@@ -25482,6 +25579,79 @@ void CvPlayer::DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlaye
 		LuaSupport::CallHook(pkScriptSystem, "UnitKilledInCombat", args.get(), bResult);
 	}
 }
+
+static const char* GetInstantYieldSqliteLabel(InstantYieldType eInstantYield)
+{
+	switch (eInstantYield)
+	{
+	case INSTANT_YIELD_TYPE_BIRTH:                  return "Birth";
+	case INSTANT_YIELD_TYPE_DEATH:                  return "Death";
+	case INSTANT_YIELD_TYPE_PROPOSAL:               return "WC Proposal";
+	case INSTANT_YIELD_TYPE_ERA_UNLOCK:             return "New Era";
+	case INSTANT_YIELD_TYPE_POLICY_UNLOCK:          return "Policy Unlock";
+	case INSTANT_YIELD_TYPE_INSTANT:                return "Instant";
+	case INSTANT_YIELD_TYPE_TECH:                   return "Tech";
+	case INSTANT_YIELD_TYPE_CONSTRUCTION:           return "Construction";
+	case INSTANT_YIELD_TYPE_BORDERS:                return "Border Growth";
+	case INSTANT_YIELD_TYPE_GP_USE:                 return "GP Use";
+	case INSTANT_YIELD_TYPE_GP_BORN:                return "GP Born";
+	case INSTANT_YIELD_TYPE_F_SPREAD:               return "Spread Foreign";
+	case INSTANT_YIELD_TYPE_F_CONQUEST:             return "Conquest";
+	case INSTANT_YIELD_TYPE_VICTORY:                return "Won Battle";
+	case INSTANT_YIELD_TYPE_U_PROD:                 return "Produced Unit";
+	case INSTANT_YIELD_TYPE_PURCHASE:               return "Bought Something";
+	case INSTANT_YIELD_TYPE_TILE_PURCHASE:          return "Tile Purchase";
+	case INSTANT_YIELD_TYPE_FOUND:                  return "Founded City";
+	case INSTANT_YIELD_TYPE_TR_END:                 return "End TR";
+	case INSTANT_YIELD_TYPE_CONVERSION:             return "Converted City";
+	case INSTANT_YIELD_TYPE_SPREAD:                 return "Spread Religion";
+	case INSTANT_YIELD_TYPE_BULLY:                  return "Bully CS";
+	case INSTANT_YIELD_TYPE_TR_MOVEMENT:            return "TR Moved";
+	case INSTANT_YIELD_TYPE_SCOUTING:               return "Scouting";
+	case INSTANT_YIELD_TYPE_LEVEL_UP:               return "Unit Leveled";
+	case INSTANT_YIELD_TYPE_PILLAGE:                return "Pillaging";
+	case INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE:      return "Birth Retro";
+	case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:       return "Tech Retro";
+	case INSTANT_YIELD_TYPE_SPY_ATTACK:             return "Spy Attack";
+	case INSTANT_YIELD_TYPE_SPY_DEFENSE:            return "Spy Defense (Capture/Killed)";
+	case INSTANT_YIELD_TYPE_SPY_IDENTIFY:           return "Spy Identify";
+	case INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID:      return "Spy Defense or ID";
+	case INSTANT_YIELD_TYPE_SPY_RIG_ELECTION:       return "Spy Rig Election";
+	case INSTANT_YIELD_TYPE_DELEGATES:              return "WC Delegates";
+	case INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER:    return "Wonder Const";
+	case INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD:     return "Quest Minor";
+	case INSTANT_YIELD_TYPE_CULTURE_BOMB:           return "Culture Bomb";
+	case INSTANT_YIELD_TYPE_REMOVE_HERESY:          return "Remove Heresy";
+	case INSTANT_YIELD_TYPE_FAITH_PURCHASE:         return "Faith Purchase";
+	case INSTANT_YIELD_TYPE_VICTORY_GLOBAL:         return "Unit Won Battle (Anywhere)";
+	case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:         return "Pillage (Anywhere)";
+	case INSTANT_YIELD_TYPE_CONVERSION_EXPO:        return "Conversion Expo.";
+	case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:     return "Promotion";
+	case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED: return "Barb Camp";
+	case INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON:   return "Siphon";
+	case INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN: return "TR Foreign";
+	case INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD:      return "Build Improvement";
+	case INSTANT_YIELD_TYPE_LUA:                    return "LUA";
+	case INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT:     return "RA";
+	case INSTANT_YIELD_TYPE_REFUND:                 return "Refund";
+	case INSTANT_YIELD_TYPE_FAITH_REFUND:           return "Faith Refund";
+	case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:        return "Holy City Birth";
+	case INSTANT_YIELD_TYPE_PILLAGE_UNIT:           return "Pillage (Unit)";
+	case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:      return "Unit Combat";
+	case INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE:       return "Scrap or Upgrade";
+	case INSTANT_YIELD_TYPE_HEALING:                return "Healing";
+	case INSTANT_YIELD_TYPE_CITY_DAMAGE:            return "City Damage";
+	case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:   return "Luxury Resource Gain";
+	case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:       return "Start Golden Age";
+	case INSTANT_YIELD_TYPE_UNIT_GIFT:              return "Unit Gift";
+	case INSTANT_YIELD_TYPE_BAKTUN_END:             return "Maya Baktun End";
+	case INSTANT_YIELD_TYPE_WLTKD_START:            return "WLTKD Start";
+	case INSTANT_YIELD_TYPE_ANCIENT_RUIN:           return "Ancient Ruin";
+	case INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE:    return "Plunder Trade Route";
+	default:                                        return "";
+	}
+}
+
 void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes ePassBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain, CvMinorCivQuest* pQuestData, CvCity* pOtherCity, CvUnit* pAttackingUnit)
 {
 	//No minors or barbs here, please!
@@ -25493,6 +25663,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 	CvString totalyieldString = "";
 	//Let's loop through all cities for this.
+
+	// InstantYields SQLite logging (long format, one row per granted yield). Batched across
+	// the whole city loop below and flushed once after it.
+	if (MOD_SQLITE_LOGGING)
+		RegisterInstantYieldsTable();
+	SqliteLogger::BatchWriter kInstantYieldsBatch = GET_SQLITE_LOGGER().BeginLogBatch("InstantYields");
+
 	int iLoop = 0;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
@@ -26991,6 +27168,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					LogBuildingInstantYields(iType, pLoopCity, eYield, iEra, iPassYield, bEraScale, ePlayer, ePassYield, ePassBuilding, pCity, bInternational, pUnit, eGreatPerson);
 					LogReligionBeliefInstantYields(iType, pLoopCity, eYield, iEra, iPassYield, bEraScale, ePassYield, eGreatPerson, pUnit, pPlot, ePlayer, pReligion, eReligion, iNumFollowerCities, iNumFollowers);
+
+					kInstantYieldsBatch.BeginLogRow()
+						.bind(getCivilizationShortDescription())
+						.bind(iEra)
+						.bind(GetInstantYieldSqliteLabel(iType))
+						.bind(pYieldInfo->GetDescription())
+						.bind(iValue * 100)
+						.addRowToBatch();
 				}
 			}
 		}
@@ -27004,6 +27189,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		}
 		totalyieldString += citynameString;
 	}
+
+	// Flush the InstantYields batch after the city loop has finished.
+	if (MOD_SQLITE_LOGGING)
+		kInstantYieldsBatch.flush();
+
 	CvNotifications* pNotifications = GetNotifications();
 	if(!bSuppress && pNotifications && !totalyieldString.empty())
 	{

@@ -259,13 +259,6 @@ static void RegisterBuildingYieldsTable()
 }
 
 // Long-format per-belief yield breakdown, one row per (civ, belief, source, yield) per turn.
-// Captures how many raw yields each active religious belief generates for a player, aggregated across
-// all of that player's cities. Passive per-turn yields use a mechanic label in Source (BuildingClass,
-// Terrain, GreatWork, PerPop, PlayerGlobal, ReligiousBuilding, GreatPersonPoints, ...); event-driven
-// yields use the event label (GPBorn, Spread, Conversion, Tech, Pillage, ...) and may emit several
-// rows per turn sharing the same keys (summed downstream). IsReligionOwner is true when the player
-// controls the religion's holy city (eligible for founder benefits) and false for follower/pantheon
-// benefits gained from a religion the player does not own. YieldTimes100 is the yield value x100.
 static void RegisterReligionBeliefYieldsTable()
 {
 	if (!MOD_SQLITE_LOGGING)
@@ -330,5 +323,46 @@ static void RegisterBuildingInstantYieldsTable()
 		kColumns.push_back(ColumnDef("Yield", Database::COLTYPE_TEXT));
 		kColumns.push_back(ColumnDef("YieldTimes100", Database::COLTYPE_INT));
 		GET_SQLITE_LOGGER().RegisterTable("BuildingInstantYields", kColumns);
+	}
+}
+
+// Long-format difficulty-bonus yield breakdown, one row per (civ, trigger, yield) each time an AI player receives an AI difficulty bonus
+static void RegisterHandicapYieldsTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("Civ", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Era", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("CityCount", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("Trigger", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Yield", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("YieldTimes100", Database::COLTYPE_INT));
+		GET_SQLITE_LOGGER().RegisterTable("HandicapYields", kColumns);
+	}
+}
+
+// Long-format instant-yield breakdown, one row per (civ, instant-yield type, yield) at the moment an instant yield fires.
+static void RegisterInstantYieldsTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("Civ", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Era", Database::COLTYPE_INT));
+		kColumns.push_back(ColumnDef("Type", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Yield", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("YieldTimes100", Database::COLTYPE_INT));
+		GET_SQLITE_LOGGER().RegisterTable("InstantYields", kColumns);
 	}
 }
