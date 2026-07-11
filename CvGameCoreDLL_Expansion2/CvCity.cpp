@@ -22457,6 +22457,99 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 			iYieldValue += pReligion->m_Beliefs.GetYieldPerActiveTR(eYield, getOwner(), this) * 100;
 		}
 	}
+
+	SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eReligion);
+	for (int i = 0; i < activeBeliefs.iCount; ++i)
+	{
+	    CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+	    if (pBeliefInfo)
+	    {
+			// extra sources that bonus holy city will go to capital
+			if (isCapital())
+			{
+				iYieldValue += pBeliefInfo->GetHolyCityYieldChange(eYield) * 100;
+
+				int iPantheon = 0;
+				int iYieldPerPantheonTimes100 = pBeliefInfo->GetYieldFromKnownPantheons(eYield);
+				if (iYieldPerPantheonTimes100 > 0)
+				{
+					iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
+					if (iPantheon > 0)
+					{
+						iPantheon = min(iPantheon, 8);
+						iPantheon *= iYieldPerPantheonTimes100;
+	
+						iYieldValue += iPantheon;
+					}
+				}
+		
+				int iLuxYield = pBeliefInfo->GetYieldPerLux(eYield);
+				if (iLuxYield > 0)
+				{
+					int iNumBonuses = 0;
+					ResourceTypes eResource;
+					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+					{
+						eResource = (ResourceTypes)iResourceLoop;
+	
+						if (kPlayer.GetHappinessFromLuxury(eResource) > 0)
+						{
+							if ((kPlayer.getNumResourceTotal(eResource, true) + kPlayer.getResourceExport(eResource)) > 0)
+								iNumBonuses++;
+						}
+					}
+					if (iNumBonuses > 0)
+					{
+						iLuxYield *= iNumBonuses;
+						iYieldValue += iLuxYield * 100;
+					}
+				}
+	
+				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+				if (pLeague != NULL)
+				{
+					int iEra = kPlayer.GetCurrentEra();
+					if (iEra <= 1)
+					{
+						iEra = 1;
+					}
+					int iHostYield = (pBeliefInfo->GetYieldFromHost(eYield) * iEra);
+					if (iHostYield > 0)
+					{
+						if (pLeague->GetHostMember() == getOwner())
+						{
+							iYieldValue += iHostYield * 100;
+						}
+					}
+				}
+			}
+			
+			int iYieldPerGPT = pBeliefInfo->GetYieldPerGPT(eYield);
+			if (iYieldPerGPT > 0)
+			{
+				int iNetGoldTimes100 = getYieldRateTimes100(YIELD_GOLD, false);
+				if (iNetGoldTimes100 > 0)
+				{
+					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
+					iYieldValue += min((100 * iNumFollowers / 2), (iNetGoldTimes100 / iYieldPerGPT));
+				}
+			}
+
+			int iYieldPerScience = pReligion->pBeliefInfo->GetYieldPerScience(eYield);
+			if (iYieldPerScience > 0)
+			{
+				int iNetScienceTimes100 = getYieldRateTimes100(YIELD_SCIENCE, false);
+				if (iNetScienceTimes100 > 0)
+				{
+					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
+					iYieldValue += min((100 * iNumFollowers / 2), (iNetScienceTimes100 / iYieldPerScience));
+				}
+			}
+
+			iYieldValue += pBeliefInfo->GetYieldPerActiveTR(eYield) * 100;
+	    }
+	}
+	
 	SetSpecialReligionYieldsTimes100(eYield, iYieldValue);
 }
 //	--------------------------------------------------------------------------------
