@@ -17348,38 +17348,23 @@ int CvCity::GetJONSCultureThreshold() const
 	// Religion modifier
 	int iReligionMod = 0;
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	if (eMajority != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 		if (pReligion)
 		{
 			iReligionMod = pReligion->m_Beliefs.GetPlotCultureCostModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-			eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-			if (eSecondaryPantheon != NO_BELIEF)
-			{
-				iReligionMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetPlotCultureCostModifier();
-			}
 		}
 	}
-
-	// Mod for civs keeping their pantheon belief forever
-	if (MOD_BALANCE_PERMANENT_PANTHEONS)
-	{
-		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-		{
-			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-				{
-					iReligionMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetPlotCultureCostModifier();
-				}
-			}
-		}
-	}
+	SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+	for (int i = 0; i < activeBeliefs.iCount; ++i)
+    {
+        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+        if (pBeliefInfo)
+        {
+            iReligionGrowthMod += pBeliefInfo->GetPlotCultureCostModifier();
+        }
+    }
 
 	// -50 = 50% cost
 	int iModifier = GET_PLAYER(getOwner()).GetPlotCultureCostModifier() + m_iPlotCultureCostModifier + iReligionMod;
@@ -17775,6 +17760,15 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 			if (eTerrain != NO_TERRAIN)
 			{
 				iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, getOwner(), this);
+				SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eReligionFounded);
+				for (int i = 0; i < activeBeliefs.iCount; ++i)
+			    {
+			        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+			        if (pBeliefInfo)
+			        {
+			            iBaseYieldReligion += pBeliefInfo->GetYieldPerXTerrainTimes100(eTerrain, eYield);
+			        }
+			    }
 				if (iBaseYieldReligion > 0)
 				{
 					if (eTerrain == TERRAIN_MOUNTAIN)
@@ -17928,6 +17922,7 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 	int iBaseYield = 0;
 	int iBaseYieldReligion = 0;
 
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 
 	//If we passed in a feature, let's only refresh that.
@@ -17937,6 +17932,15 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 		{
 			iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, getOwner(), this);
 		}
+		SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+		for (int i = 0; i < activeBeliefs.iCount; ++i)
+	    {
+	        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+	        if (pBeliefInfo)
+	        {
+	            iBaseYieldReligion += pBeliefInfo->GetYieldPerXFeatureTimes100(eFeature, eYield);
+	        }
+	    }
 
 		iBaseYield = GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield);
 
@@ -17988,21 +17992,8 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield)
 	int iYield = 0;
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-	BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-
-	const CvReligion* pPantheon = NULL;
-	BeliefTypes ePantheonBelief = NO_BELIEF;
-
-	// Mod for civs keeping their pantheon belief forever
-	if (MOD_BALANCE_PERMANENT_PANTHEONS)
-	{
-		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-		{
-			pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-			ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-		}
-	}
 
 	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 	{
@@ -18016,22 +18007,16 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield)
 			if (pReligion)
 			{
 				iBaseYield += pReligion->m_Beliefs.GetCityYieldFromUnimprovedFeature(eFeature, eYield, getOwner(), this);
-				if (eSecondaryPantheon != NO_BELIEF)
-				{
-					iBaseYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldFromUnimprovedFeature(eFeature, eYield);
-				}
-			}
-
-			if (MOD_BALANCE_PERMANENT_PANTHEONS)
-			{
-				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-				{
-					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-					{
-						iBaseYield += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityYieldFromUnimprovedFeature(eFeature, eYield);
-					}
-				}
-			}
+			}	
+			SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+			for (int i = 0; i < activeBeliefs.iCount; ++i)
+		    {
+		        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+		        if (pBeliefInfo)
+		        {
+		            iBaseYield += pBeliefInfo->GetCityYieldFromUnimprovedFeature(eFeature, eYield);
+		        }
+		    }
 
 			if (eYield == YIELD_FAITH && eFeature == FEATURE_FOREST && kPlayer.GetPlayerTraits()->IsFaithFromUnimprovedForest())
 			{
@@ -18485,7 +18470,6 @@ int CvCity::GetBorderGrowthRateIncreaseTotal(CvString* tooltipSink) const
 
 	// Religion modifier
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 	int iTempMod = 0;
 	if (eMajority != NO_RELIGION)
 	{
@@ -18493,27 +18477,16 @@ int CvCity::GetBorderGrowthRateIncreaseTotal(CvString* tooltipSink) const
 		if (pReligion)
 		{
 			iTempMod += pReligion->m_Beliefs.GetBorderGrowthRateIncreaseGlobal(getOwner(), kOwner.getCity(GetID()));
-			if (eSecondaryPantheon != NO_BELIEF)
-				iTempMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBorderGrowthRateIncreaseGlobal();
 		}
-	}
-
-	// Mod for civs keeping their pantheon belief forever
-	if (MOD_BALANCE_PERMANENT_PANTHEONS)
+	}	
+	SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+	for (int i = 0; i < activeBeliefs.iCount; ++i)
 	{
-		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-		{
-			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-			if (pPantheon && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-				if (!pReligion || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-				{
-					iTempMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetBorderGrowthRateIncreaseGlobal();
-				}
-			}
-		}
+	    CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+	    if (pBeliefInfo)
+	    {
+	        iTempMod += pBeliefInfo->GetBorderGrowthRateIncreaseGlobal();
+	    }
 	}
 
 	if (tooltipSink)
@@ -19710,29 +19683,21 @@ void CvCity::UpdateHappinessFromReligion()
 	// Follower beliefs
 	int iHappinessFromReligion = 0;
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	BeliefTypes eSecondaryPantheon = NO_BELIEF;
+	int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 	if (eMajority != NO_RELIGION)
 	{
 		eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 
-		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 		int iBuildingHappiness = 0;
 
 		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 		if (pReligion)
 		{
 			iHappinessFromReligion += pReligion->m_Beliefs.GetHappinessPerCity(getPopulation(), getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-			if (eSecondaryPantheon != NO_BELIEF && getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
-			{
-				iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetHappinessPerCity();
-			}
+			
 			if (plot()->isRiver())
 			{
 				iHappinessFromReligion += pReligion->m_Beliefs.GetRiverHappiness(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-				if (eSecondaryPantheon != NO_BELIEF)
-				{
-					iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetRiverHappiness();
-				}
 			}
 
 			// Buildings
@@ -19758,27 +19723,36 @@ void CvCity::UpdateHappinessFromReligion()
 			}
 		}
 	}
-
-	// Mod for civs keeping their pantheon belief forever
-	if (MOD_BALANCE_PERMANENT_PANTHEONS)
+	SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+	for (int i = 0; i < activeBeliefs.iCount; ++i)
 	{
-		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-		{
-			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+	    CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+	    if (pBeliefInfo)
+	    {
+			iHappinessFromReligion += pBeliefInfo->GetHappinessPerCity();
+			
+			iHappinessFromReligion += pBeliefInfo->GetRiverHappiness();
+
+			// Buildings
+			const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildingsHere();
+			for (size_t jJ = 0; jJ < vBuildings.size(); jJ++)
 			{
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
+				BuildingTypes eBuilding = vBuildings[jJ];
+				CvBuildingEntry* pkInfo = GC.getBuildingInfo(eBuilding);
+				if (pkInfo && (iFollowers >= pBeliefInfo->GetMinFollowers()))
 				{
-					iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetHappinessPerCity();
-					if (plot()->isRiver())
-					{
-						iHappinessFromReligion += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetRiverHappiness();
-					}
+					BuildingClassTypes eBuildingClass = pkInfo->GetBuildingClassType();
+					iBuildingHappiness += (pBeliefInfo->GetBuildingClassHappiness(eBuildingClass) * GetCityBuildings()->GetNumBuilding(eBuilding));
 				}
 			}
-		}
+
+			int iConvertHappiness = pBeliefInfo->GetFullyConvertedHappiness();
+			if (iConvertHappiness > 0)
+			{
+				if (GetCityReligions()->GetFollowersOtherReligions(eMajority) <= 0)
+					iHappinessFromReligion += iConvertHappiness;
+			}
+	    }
 	}
 
 	m_iReligionHappiness = iHappinessFromReligion;
