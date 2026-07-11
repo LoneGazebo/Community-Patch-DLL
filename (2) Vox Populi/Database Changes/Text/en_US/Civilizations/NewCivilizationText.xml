@@ -520,7 +520,7 @@
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WHITE_TOWER_STRATEGY">
-			<Text>Unique English replacement for the {TXT_KEY_BUILDING_IRONWORKS}. In addition to the bonuses of the {TXT_KEY_BUILDING_IRONWORKS}, the {TXT_KEY_BUILDING_WHITE_TOWER} boosts Constabularies, Castles, and Armories; provides [ICON_GOLD] Gold and [ICON_RESEARCH] Science for both offensive and defensive Spy actions; and contains a free [ICON_GW_ART] Great Work of Art.</Text>
+			<Text>Unique English replacement for the {TXT_KEY_BUILDING_MINISTERIAL_DISTRICT}. It has improved yields, including granting enough [ICON_SPY_POINT] Spy Points for a whole additional [ICON_SPY] Spy. In addition to the bonuses of the {TXT_KEY_BUILDING_MINISTERIAL_DISTRICT}, the {TXT_KEY_BUILDING_WHITE_TOWER} provides additional [ICON_CULTURE] Culture by boosting Constabularies, Castles, and Armories, and arriving with a free [ICON_GW_ART] Great Work of Art. Finally, and most signficiantly, the Unique National Wonder provides [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_GREAT_ADMIRAL] Great Admiral Points for both offensive and defensive Spy events, including Rigging Elections, turning Espionage into an engine for Naval dominance!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL">
