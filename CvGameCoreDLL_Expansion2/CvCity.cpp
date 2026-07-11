@@ -26630,37 +26630,22 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	iYieldMultiplier += getSpecialistExtraYield(eSpecialist, eIndex);
 
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	if (eMajority >= RELIGION_PANTHEON)
 	{
 		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 		if (pReligion)
 		{
 			iYieldMultiplier += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-			eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-			if (eSecondaryPantheon != NO_BELIEF)
-			{
-				iYieldMultiplier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, eIndex);
-			}
 		}
 	}
-
-	// Mod for civs keeping their pantheon belief forever
-	if (MOD_BALANCE_PERMANENT_PANTHEONS)
+	SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+	for (int i = 0; i < activeBeliefs.iCount; ++i)
 	{
-		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-		{
-			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-			{
-				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
-				{
-					iYieldMultiplier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetSpecialistYieldChange(eSpecialist, eIndex);
-				}
-			}
-		}
+	    CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+	    if (pBeliefInfo)
+	    {
+	        iYieldMultiplier += pBeliefInfo->GetSpecialistYieldChange(eSpecialist, eIndex);
+	    }
 	}
 
 	int iExtraYield = GetCityCitizens()->GetSpecialistCount(eSpecialist) * iYieldMultiplier;
@@ -27679,37 +27664,21 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 
 		// Religion city strike mod
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		BeliefTypes eSecondaryPantheon = NO_BELIEF;
 		if (eMajority != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 			if (pReligion)
 			{
 				iModifier += pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-				eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				if (eSecondaryPantheon != NO_BELIEF)
-				{
-					iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
-				}
 			}
 		}
-
-		// Mod for civs keeping their pantheon belief forever
-		if (MOD_BALANCE_PERMANENT_PANTHEONS)
+		SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+		for (int i = 0; i < activeBeliefs.iCount; ++i)
 		{
-			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+			CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+			if (pBeliefInfo)
 			{
-				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-				{
-					// Check that the our religion does not have our belief, to prevent double counting
-					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))
-					{
-						iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
-					}
-				}
+				iReligionGrowthMod += pBeliefInfo->GetCityRangeStrikeModifier();
 			}
 		}
 
