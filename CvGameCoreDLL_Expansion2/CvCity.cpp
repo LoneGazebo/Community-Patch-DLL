@@ -12079,6 +12079,19 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			else if (pkUnitInfo->IsRemoveHeresy())
 				iReligionCostMod = pReligion->m_Beliefs.GetInquisitorCostModifier(getOwner(), this);
 
+			SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eCityReligion);
+			for (int i = 0; i < activeBeliefs.iCount; ++i)
+			{
+				CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+				if (pBeliefInfo)
+				{
+					if (pkUnitInfo->IsSpreadReligion())
+						iReligionCostMod += pBeliefInfo->GetMissionaryCostModifier();
+					else if (pkUnitInfo->IsRemoveHeresy())
+						iReligionCostMod += pBeliefInfo->GetInquisitorCostModifier();
+				}
+			}
+
 			if (iReligionCostMod != 0)
 			{
 				iCost *= (100 + iReligionCostMod);
@@ -15079,19 +15092,32 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 //very reduced version of UpdateReligion() which assumes only the number of specialists changed
 void CvCity::UpdateReligiousYieldFromSpecialist(bool bFirstOneAdded)
 {
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion( GetCityReligions()->GetReligiousMajority(), getOwner() );
-	if (pReligion)
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+	
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
-		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		int iChange = 0;
+		
+		if (pReligion)
 		{
-			int iChange = pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield, getOwner(), this);
-
-			//surgically add or remove some yields but don't recalculate from scratch
-			if (bFirstOneAdded)
-				ChangeBaseYieldRateFromReligion((YieldTypes)iYield, +iChange);
-			else
-				ChangeBaseYieldRateFromReligion((YieldTypes)iYield, -iChange);
+			iChange += pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield, getOwner(), this);
 		}
+		SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
+		for (int i = 0; i < activeBeliefs.iCount; ++i)
+		{
+			CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+			if (pBeliefInfo)
+			{
+				iChange += pBeliefInfo->GetYieldChangeAnySpecialist((YieldTypes)iYield);
+			}
+		}
+		
+		//surgically add or remove some yields but don't recalculate from scratch
+		if (bFirstOneAdded)
+			ChangeBaseYieldRateFromReligion((YieldTypes)iYield, +iChange);
+		else
+			ChangeBaseYieldRateFromReligion((YieldTypes)iYield, -iChange);
 	}
 }
 
@@ -17353,7 +17379,7 @@ int CvCity::GetJONSCultureThreshold() const
 		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
 		if (pReligion)
 		{
-			iReligionMod = pReligion->m_Beliefs.GetPlotCultureCostModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+			iReligionMod += pReligion->m_Beliefs.GetPlotCultureCostModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
 		}
 	}
 	SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eMajority);
@@ -17362,7 +17388,7 @@ int CvCity::GetJONSCultureThreshold() const
         CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
         if (pBeliefInfo)
         {
-            iReligionGrowthMod += pBeliefInfo->GetPlotCultureCostModifier();
+            iReligionMod += pBeliefInfo->GetPlotCultureCostModifier();
         }
     }
 
@@ -17751,65 +17777,69 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 	int iValidTilesTerrain = 0;
 	int iBaseYieldReligion = 0;
 	ReligionTypes eReligionFounded = GetCityReligions()->GetReligiousMajority();
-	if (eReligionFounded != NO_RELIGION)
+		
+	//Passed in a Terrain? Use that.
+	if (eTerrain != NO_TERRAIN)
 	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
-		if (pReligion)
+		iBaseYieldReligion = 0;
+		
+		if (eReligionFounded != NO_RELIGION)
 		{
-			//Passed in a Terrain? Use that.
-			if (eTerrain != NO_TERRAIN)
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+			if (pReligion)
 			{
-				iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, getOwner(), this);
-				SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eReligionFounded);
-				for (int i = 0; i < activeBeliefs.iCount; ++i)
-			    {
-			        CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
-			        if (pBeliefInfo)
-			        {
-			            iBaseYieldReligion += pBeliefInfo->GetYieldPerXTerrainTimes100(eTerrain, eYield);
-			        }
-			    }
-				if (iBaseYieldReligion > 0)
-				{
-					if (eTerrain == TERRAIN_MOUNTAIN)
-					{
-						iValidTilesTerrain = GetNearbyMountains();
-					}
-					else if (eTerrain == TERRAIN_SNOW)
-					{
-						iValidTilesTerrain = CountTerrain(TERRAIN_SNOW);
-					}
-					else if (pReligion->m_Beliefs.RequiresNoFeature(getOwner()))
-					{
-						iValidTilesTerrain = GetNumFeaturelessTerrainWorked(eTerrain);
-					}
-					else
-					{
-						iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
-					}
-
-					iYieldTimes100 += (iValidTilesTerrain * iBaseYieldReligion);
-
-					if (eTerrain == TERRAIN_MOUNTAIN && iYieldTimes100 > getPopulation() * 100)
-					{
-						iYieldTimes100 = getPopulation() * 100;
-					}
-					if (eTerrain == TERRAIN_SNOW && iYieldTimes100 > getPopulation() * 100)
-					{
-						iYieldTimes100 = getPopulation() * 100;
-					}
-				}
-				SetYieldPerXTerrainFromReligionTimes100(eTerrain, eYield, iYieldTimes100);
-
+				iBaseYieldReligion += pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, getOwner(), this);
+			}
+		}
+		SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eReligionFounded);
+		for (int i = 0; i < activeBeliefs.iCount; ++i)
+		{
+			CvBeliefEntry* pBeliefInfo = GC.getBeliefInfo(activeBeliefs.eBeliefs[i]);
+			if (pBeliefInfo)
+			{
+				iBaseYieldReligion += pBeliefInfo->GetYieldPerXTerrainTimes100(eTerrain, eYield);
+			}
+		}
+		
+		if (iBaseYieldReligion > 0)
+		{
+			if (eTerrain == TERRAIN_MOUNTAIN)
+			{
+				iValidTilesTerrain = GetNearbyMountains();
+			}
+			else if (eTerrain == TERRAIN_SNOW)
+			{
+				iValidTilesTerrain = CountTerrain(TERRAIN_SNOW);
+			}
+			else if (pReligion->m_Beliefs.RequiresNoFeature(getOwner()))
+			{
+				iValidTilesTerrain = GetNumFeaturelessTerrainWorked(eTerrain);
 			}
 			else
 			{
-				for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
-				{
-					eTerrain = static_cast<TerrainTypes>(iI);
-					UpdateYieldPerXTerrainFromReligion(eYield, eTerrain);
-				}
+				iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
 			}
+
+			iYieldTimes100 += (iValidTilesTerrain * iBaseYieldReligion);
+
+			if (eTerrain == TERRAIN_MOUNTAIN && iYieldTimes100 > getPopulation() * 100)
+			{
+				iYieldTimes100 = getPopulation() * 100;
+			}
+			if (eTerrain == TERRAIN_SNOW && iYieldTimes100 > getPopulation() * 100)
+			{
+				iYieldTimes100 = getPopulation() * 100;
+			}
+		}
+		SetYieldPerXTerrainFromReligionTimes100(eTerrain, eYield, iYieldTimes100);
+
+	}
+	else
+	{
+		for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		{
+			eTerrain = static_cast<TerrainTypes>(iI);
+			UpdateYieldPerXTerrainFromReligion(eYield, eTerrain);
 		}
 	}
 }
