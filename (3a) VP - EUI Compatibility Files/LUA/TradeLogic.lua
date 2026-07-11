@@ -1798,7 +1798,7 @@ function ResetDisplay()
     ----------------------------------------------------------------------------------
 
 	if (Controls.UsPocketDoF ~= nil and Controls.ThemPocketDoF ~= nil) then
-		if (g_bPVPTrade) then	-- Only PvP trade, with the AI there is a dedicated interface for this trade.
+		if (g_bPVPTrade and g_iUsTeam ~= g_iThemTeam) then	-- Only PvP trade, with the AI there is a dedicated interface for this trade.
 		
 			strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP_TT");
 			bTradeAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, g_iDealDuration);
