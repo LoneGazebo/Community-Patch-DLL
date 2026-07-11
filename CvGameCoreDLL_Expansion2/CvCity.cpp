@@ -17777,6 +17777,7 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 	int iValidTilesTerrain = 0;
 	int iBaseYieldReligion = 0;
 	ReligionTypes eReligionFounded = GetCityReligions()->GetReligiousMajority();
+	bool bNoFeature = false;  // assume this is the same for all sources (pantheons) for this terrain
 		
 	//Passed in a Terrain? Use that.
 	if (eTerrain != NO_TERRAIN)
@@ -17789,6 +17790,8 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 			if (pReligion)
 			{
 				iBaseYieldReligion += pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, getOwner(), this);
+				if (pReligion->m_Beliefs.RequiresNoFeature(getOwner()))
+					bNoFeature = true;
 			}
 		}
 		SActiveCityBeliefs activeBeliefs = GetActiveBeliefs(eReligionFounded);
@@ -17798,6 +17801,8 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 			if (pBeliefInfo)
 			{
 				iBaseYieldReligion += pBeliefInfo->GetYieldPerXTerrainTimes100(eTerrain, eYield);
+				if (pBeliefInfo->RequiresNoFeature())
+					bNoFeature = true;
 			}
 		}
 		
@@ -17811,7 +17816,7 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 			{
 				iValidTilesTerrain = CountTerrain(TERRAIN_SNOW);
 			}
-			else if (pReligion->m_Beliefs.RequiresNoFeature(getOwner()))
+			else if (bNoFeature)
 			{
 				iValidTilesTerrain = GetNumFeaturelessTerrainWorked(eTerrain);
 			}
