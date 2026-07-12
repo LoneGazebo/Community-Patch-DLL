@@ -30379,6 +30379,13 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 	if (SkipForTeammates())
 		return;
 
+	if (MOD_BALANCE_VP)
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
+			return;
+	}
+
 	if (MOD_DIPLOAI_SHUT_UP_HELP_REQUESTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
