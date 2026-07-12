@@ -2371,7 +2371,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 						}
 					}
 					// Unit was killed in our master's territory
-					else if (GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsPlayerValid(pPlot->getOwner()) && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsVassal(pPlot->getOwner()))
+					else if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsPlayerValid(pPlot->getOwner()) && GET_PLAYER(eUnitOwner).GetDiplomacyAI()->IsVassal(pPlot->getOwner()))
 					{
 						// Penalize the master whose territory we're in
 						if (iCivValue > 0)
