@@ -875,10 +875,14 @@ int CvCityCitizens::GetBaseValuePerYield(YieldTypes eYield, SPrecomputedExpensiv
 		// in small cities, treat being under the growth threshold like starvation, unless we focus on a yield other than food
 		if (bAssumeStarving)
 			iYieldMod =  /*500*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_STARVING);
-		else if (bAssumeBelowGrowthThreshold || eFocus == CITY_AI_FOCUS_TYPE_FOOD || bFoodProcess)
+		else if (bAssumeBelowGrowthThreshold)
 			iYieldMod =  /*22*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD_NEED_GROWTH);
 		else
 			iYieldMod = /*8*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD);
+
+		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bFoodProcess)
+			iYieldMod = max(iYieldMod, 3 * GD_INT_GET(AI_CITIZEN_VALUE_FOOD_NEED_GROWTH));
+
 		break;
 	case YIELD_PRODUCTION:
 		iYieldMod = /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_PRODUCTION);
