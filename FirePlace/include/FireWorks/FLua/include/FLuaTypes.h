@@ -110,7 +110,8 @@ namespace FLua
 				bool bValid(true); Details::ArgValidator<T>::Validate(analog, bValid);
 
 				// Convert and return the value if it is valid
-				if( bValid ) ret = Details::FromLuaAnalog<T>::Convert(analog);
+				if( bValid )
+					ret = Details::FromLuaAnalog<T>::Convert(analog);
 
 				// Finally pop the lua value off of the stack
 				lua_pop(m_pkLuaState, 1);
@@ -126,7 +127,8 @@ namespace FLua
 				lua_pop(m_pkLuaState, 1);
 				return bCompatible;
 			}
-			else return false;
+			else
+				return false;
 		}
 
 		Metatable GetMetatable() const;
@@ -355,7 +357,8 @@ namespace FLua
 						lua_rawset(L, -3); // Set the field (pops key and value)
 					}
 				}
-				else Details::Error("Invalid key sent to FLua::Table::SetField");
+				else
+					Details::Error("Invalid key sent to FLua::Table::SetField");
 				lua_pop(L, 1); // Pop the table
 			}
 		}
@@ -475,7 +478,8 @@ namespace FLua
 					lua_pop(L, 1); // Clean up the stack
 				}
 			}
-			else Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
+			else
+				Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
 			Details::UnlockAccess();
 			return kRetVal;
 		}
@@ -501,7 +505,8 @@ namespace FLua
 					lua_pop(L, 1);
 				}
 			}
-			else Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
+			else
+				Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
 			Details::UnlockAccess();
 			return kRetVal;
 		}
@@ -531,7 +536,8 @@ namespace FLua
 					lua_pop(L, 1);
 				}
 			}
-			else Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
+			else
+				Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
 			Details::UnlockAccess();
 			return kRetVal;
 		}
@@ -564,7 +570,8 @@ namespace FLua
 					lua_pop(L, 1);
 				}
 			}
-			else Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
+			else
+				Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
 			Details::UnlockAccess();
 			return kRetVal;
 		}
@@ -600,7 +607,8 @@ namespace FLua
 					lua_pop(L, 1);
 				}
 			}
-			else Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
+			else
+				Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
 			Details::UnlockAccess();
 			return kRetVal;
 		}
@@ -641,7 +649,8 @@ namespace FLua
 					lua_pop(L, 1);
 				}
 			}
-			else Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
+			else
+				Details::Error(_T("Attempt to call a FLua::Function with an invalid function"));
 			Details::UnlockAccess();
 			return kRetVal;
 		}

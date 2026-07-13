@@ -109,8 +109,10 @@ public:
 		__forceinline void ClearFlag(PlotFlags eFlag) { m_byFlags &= ~eFlag; } 
 		__forceinline void SetFlag(PlotFlags eFlag, bool bValue)
 		{
-			if( bValue ) m_byFlags |= eFlag;
-			else m_byFlags &= ~eFlag;
+			if( bValue )
+				m_byFlags |= eFlag;
+			else
+				m_byFlags &= ~eFlag;
 		}
 
 		__forceinline byte GetFlags() const { return m_byFlags; }
@@ -268,8 +270,10 @@ public:
 		__forceinline void ClearFlag(Flags eFlag) { m_byFlags &= ~eFlag; } 
 		__forceinline void SetFlag(Flags eFlag, bool bValue)
 		{
-			if( bValue ) m_byFlags |= eFlag;
-			else m_byFlags &= ~eFlag;
+			if( bValue )
+				m_byFlags |= eFlag;
+			else
+				m_byFlags &= ~eFlag;
 		}
 	};
 
@@ -360,8 +364,10 @@ public:
 		__forceinline void ClearFlag(Flags eFlag) { m_byFlags &= ~eFlag; } 
 		__forceinline void SetFlag(Flags eFlag, bool bValue)
 		{
-			if( bValue ) m_byFlags |= eFlag;
-			else m_byFlags &= ~eFlag;
+			if( bValue )
+				m_byFlags |= eFlag;
+			else
+				m_byFlags &= ~eFlag;
 		}
 	};
 
@@ -729,8 +735,10 @@ public:
 	__forceinline void ClearFlag(MapFlags eFlag) { m_uiFlags &= ~eFlag; } 
 	__forceinline void SetFlag(MapFlags eFlag, bool bValue)
 	{
-		if( bValue ) m_uiFlags |= eFlag;
-		else m_uiFlags &= ~eFlag;
+		if( bValue )
+			m_uiFlags |= eFlag;
+		else
+			m_uiFlags &= ~eFlag;
 	}
 
 	uint m_uiFlags;
@@ -825,8 +833,10 @@ private:
 
 			if( uiByte < ByteCount )
 			{
-				if( bVal ) m_Mem[uiByte] |= byMask;
-				else m_Mem[uiByte] &= ~byMask;
+				if( bVal )
+					m_Mem[uiByte] |= byMask;
+				else
+					m_Mem[uiByte] &= ~byMask;
 			}
 		}
 

@@ -1912,7 +1912,8 @@ public:
 
 	void reset(T* ptr = NULL)
 	{
-		if (m_ptr) m_ptr->Destroy();
+		if (m_ptr)
+			m_ptr->Destroy();
 		m_ptr = ptr;
 	}
 private:

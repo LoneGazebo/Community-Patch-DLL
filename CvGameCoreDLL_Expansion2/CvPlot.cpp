@@ -3186,48 +3186,55 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 				// Gifts for minors can ignore borders requirements
 				if(bTestPlotOwner)
 				{
-					// Outside Borders - Can be built in or outside our lands, but not in other lands
+					// Outside Borders - Can be built in or outside our lands
+					// Can be built in other lands if IsInEnemyTerritory is true
 					if(GC.getImprovementInfo(eImprovement)->IsOutsideBorders())
 					{
-						if (getTeam() != eTeam && getTeam() != NO_TEAM)
+						if (!GC.getImprovementInfo(eImprovement)->IsInEnemyTerritory() && getTeam() != eTeam && getTeam() != NO_TEAM)
 						{
 							if (toolTipSink && !toolTipSink->empty())
 								(*toolTipSink) += "[NEWLINE]";
 							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
-							if (toolTipSink == NULL) return false;
+							if (toolTipSink == NULL)
+								return false;
 							bPlotCanBuild = false;
 						}
 					}
 					// In Adjacent Friendly - Can be built in or adjacent to our lands
 					else if (GC.getImprovementInfo(eImprovement)->IsInAdjacentFriendly())
 					{
-						//citadels only in adjacent _unowned_ territory
-						if (getTeam() == NO_TEAM)
+						if (getTeam() != eTeam)
 						{
 							if (!isAdjacentTeam(eTeam, false))
 							{
 								if (toolTipSink && !toolTipSink->empty())
 									(*toolTipSink) += "[NEWLINE]";
 								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
-								if (toolTipSink == NULL) return false;
+								if (toolTipSink == NULL)
+									return false;
 								bPlotCanBuild = false;
 							}
-						}
-						else if (getTeam() != eTeam)
-						{
-							bool bBlocked = true;
-							if (GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() > 0 && GET_PLAYER(ePlayer).IsCultureBombForeignTerritory())
+
+							if (getTeam() != NO_TEAM)
 							{
-								if (!IsStealBlockedByImprovement() && isAdjacentTeam(eTeam, false))
-									bBlocked = false;
-							}
-							if (bBlocked)
-							{
-								if (toolTipSink && !toolTipSink->empty())
-									(*toolTipSink) += "[NEWLINE]";
-								GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ADJACENT_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
-								if (toolTipSink == NULL) return false;
-								bPlotCanBuild = false;
+								if (!GC.getImprovementInfo(eImprovement)->IsInEnemyTerritory() && (GC.getImprovementInfo(eImprovement)->GetCultureBombRadius() == 0 || !GET_PLAYER(ePlayer).IsCultureBombForeignTerritory()))
+								{
+									if (toolTipSink && !toolTipSink->empty())
+										(*toolTipSink) += "[NEWLINE]";
+									GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_ENEMY_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
+									if (toolTipSink == NULL)
+                    return false;
+									bPlotCanBuild = false;
+								}
+								else if (IsStealBlockedByImprovement())
+								{
+									if (toolTipSink && !toolTipSink->empty())
+										(*toolTipSink) += "[NEWLINE]";
+									GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_TILE_IMPROVEMENT");
+									if (toolTipSink == NULL)
+                    return false;
+									bPlotCanBuild = false;
+								}
 							}
 						}
 					}
@@ -3255,16 +3262,19 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 							if (toolTipSink && !toolTipSink->empty())
 								(*toolTipSink) += "[NEWLINE]";
 							GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_NOT_IN_CITY_STATE_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
-							if (toolTipSink == NULL) return false;
+							if (toolTipSink == NULL)
+								return false;
 							bPlotCanBuild = false;
 						}
 					}
 					else if(getTeam() != eTeam)
-					{//only buildable in own culture
+					{
+						//only buildable in own culture
 						if (toolTipSink && !toolTipSink->empty())
 							(*toolTipSink) += "[NEWLINE]";
 						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_BUILD_BLOCKED_OUTSIDE_TERRITORY", GC.getImprovementInfo(eImprovement)->GetDescription());
-						if (toolTipSink == NULL) return false;
+						if (toolTipSink == NULL)
+							return false;
 						bPlotCanBuild = false;
 					}
 				}
@@ -3839,7 +3849,8 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(!pLoopUnit) continue;
+		if(!pLoopUnit)
+			continue;
 
 		if((eOwner == NO_PLAYER) || (pLoopUnit->getOwner() == eOwner))
 		{
@@ -7350,7 +7361,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 				}
 			}
 
-			ASSERT(iAreaCount == 1, "This should be logically impossible");
+			ASSERT(iAreaCount != 1, "This should be logically impossible");
 			ASSERT(pLastPlot && pLastValidArea, "All adjacent plots are invalid???")
 
 			CvArea* pNewArea = NULL;
@@ -7438,7 +7449,8 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 {
 	bool bUpdateSight = false;
 
-	if (eNewValue <= NO_TERRAIN || eNewValue >= NUM_TERRAIN_TYPES) return;
+	if (eNewValue <= NO_TERRAIN || eNewValue >= NUM_TERRAIN_TYPES)
+		return;
 
 	TerrainTypes eOldValue = getTerrainType();
 
@@ -7743,8 +7755,10 @@ ResourceTypes CvPlot::getNonObsoleteResourceType(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bForMinorCivPlot)
 {
-	if (eNewValue < NO_RESOURCE) return;
-	if (eNewValue > NO_RESOURCE && GC.getResourceInfo(eNewValue) == NULL) return;
+	if (eNewValue < NO_RESOURCE)
+		return;
+	if (eNewValue > NO_RESOURCE && GC.getResourceInfo(eNewValue) == NULL)
+		return;
 
 	ResourceTypes eOldValue = (ResourceTypes)m_eResourceType;
 	if(eOldValue != eNewValue)
@@ -8142,8 +8156,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	int iI = 0;
 	ImprovementTypes eOldImprovement = getImprovementType();
 
-	if (eNewValue < NO_IMPROVEMENT) return;
-	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return;
+	if (eNewValue < NO_IMPROVEMENT)
+		return;
+	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL)
+		return;
 
 	// Clear the pillage state if the improvement was replaced by any means
 	bool bPillageStateChanged = IsImprovementPillaged();
@@ -9321,8 +9337,10 @@ void CvPlot::setRouteType(RouteTypes eNewValue, PlayerTypes eBuilder)
 	RouteTypes eOldRoute = getRouteType();
 	int iI = 0;
 
-	if (eNewValue < NO_ROUTE) return;
-	if (eNewValue > NO_ROUTE && GC.getRouteInfo(eNewValue) == NULL) return;
+	if (eNewValue < NO_ROUTE)
+		return;
+	if (eNewValue > NO_ROUTE && GC.getRouteInfo(eNewValue) == NULL)
+		return;
 
 	if(eOldRoute != eNewValue || IsRoutePillaged())
 	{
@@ -12508,8 +12526,10 @@ bool CvPlot::setRevealedImprovementType(TeamTypes eTeam, ImprovementTypes eNewVa
 	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
-	if (eNewValue < NO_IMPROVEMENT) return false;
-	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return false;
+	if (eNewValue < NO_IMPROVEMENT)
+		return false;
+	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL)
+		return false;
 
 	ImprovementTypes eOldImprovementType = getRevealedImprovementType(eTeam);
 	if(eOldImprovementType != eNewValue)
@@ -12564,8 +12584,10 @@ bool CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
 	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 
-	if (eNewValue < NO_ROUTE) return false;
-	if (eNewValue > NO_ROUTE && GC.getRouteInfo(eNewValue) == NULL) return false;
+	if (eNewValue < NO_ROUTE)
+		return false;
+	if (eNewValue > NO_ROUTE && GC.getRouteInfo(eNewValue) == NULL)
+		return false;
 
 	if(getRevealedRouteType(eTeam, false) != eNewValue)
 	{
@@ -12988,7 +13010,6 @@ void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 
 	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	if (eTeam < 0 || eTeam >= MAX_TEAMS) return;
 
 	if (iChange != 0)
 	{
@@ -13049,8 +13070,6 @@ int CvPlot::getInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisib
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	PRECONDITION(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
 	PRECONDITION(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
-	if (eTeam < 0 || eTeam >= MAX_TEAMS) return 0;
-	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return 0;
 
 	for (size_t i = 0; i < m_vInvisibleVisibilityCount.size(); i++)
 		if (m_vInvisibleVisibilityCount[i].first == eTeam)
@@ -13077,8 +13096,6 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	PRECONDITION(eInvisible >= 0, "eInvisible is expected to be non-negative (invalid Index)");
 	PRECONDITION(eInvisible < NUM_INVISIBLE_TYPES, "eInvisible is expected to be within maximum bounds (invalid Index)");
-	if (eTeam < 0 || eTeam >= MAX_TEAMS) return;
-	if (eInvisible < 0 || eInvisible >= NUM_INVISIBLE_TYPES) return;
 
 	if (iChange != 0)
 	{
@@ -15793,9 +15810,59 @@ pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bS
 	return make_pair(iFriendlyPower,iEnemyPower);
 }
 
+// iterator needs same structure as the next function, where it is used as a helper
+int CvPlot::GetNumThisTeamUnitsAdjacent(TeamTypes eMyTeam, TeamTypes eSpecificTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, bool bIncludeEmbarked) const
+{
+	int iNumEnemiesAdjacent = 0;
+
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for (int iCount=0; iCount < NUM_DIRECTION_TYPES; iCount++)
+	{
+		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+		if (pLoopPlot != NULL && pLoopPlot->isVisible(eMyTeam))
+		{
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			// Loop through all units on this plot
+			while (pUnitNode != NULL)
+			{
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+				// No NULL, and no unit we want to exclude
+				if (pLoopUnit && pLoopUnit != pUnitToExclude)
+				{
+					// Must be a combat Unit
+					if (pLoopUnit->IsCombatUnit() && (!pLoopUnit->isEmbarked() || bIncludeEmbarked))
+					{
+						TeamTypes eTheirTeam = pLoopUnit->getTeam();
+
+						// This team which this unit belongs to must be the passed team
+						if (eTheirTeam == eSpecificTeam)
+						{
+							// Must be same domain
+							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
+							{
+								iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iNumEnemiesAdjacent;
+}
+
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, TeamTypes eSpecificTeam, bool bIncludeEmbarked) const
 {
 	int iNumEnemiesAdjacent = 0;
+
+	if (eSpecificTeam != NO_TEAM && !GET_TEAM(eSpecificTeam).isAtWar(eMyTeam))
+	{
+		iNumEnemiesAdjacent += GetNumThisTeamUnitsAdjacent(eMyTeam, eSpecificTeam, eDomain, pUnitToExclude, bConsiderFlanking, bIncludeEmbarked);
+	}
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -15820,7 +15887,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
 						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam) || eTheirTeam == eSpecificTeam)
+						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
 						{
 							// Must be same domain
 							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)

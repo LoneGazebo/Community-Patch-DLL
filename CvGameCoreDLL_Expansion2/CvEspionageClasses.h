@@ -342,7 +342,7 @@ public:
 	void UpdateCity(CvCity* pCity);
 
 	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
-	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
+	int CalcRequired(int iSpyState, CvCity* pCity, bool bGlobalCheck = false);
 	int CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pCity, int iSpyIndex, CvString* toolTipSink = NULL);
 
 	const char* GetSpyRankName(int iRank) const;
@@ -562,6 +562,9 @@ public:
 	void AttemptCoups(void);
 	void PerformSpyMissions(void);
 
+	int GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eOwner, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pOwnerDiplomacyAI);
+	int GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes eOwner, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pDiplomacyAI);
+	int GetMissionScoreOffensiveBenefits(CvCity* pCity, PlayerTypes eOwner, CvModEventCityChoiceInfo* pkMissionInfo, CvDiplomacyAI* pDiplomacyAI, int iSpyIndex);
 	int GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission, int iSpyIndex = -1, bool bLogAllChoices = false);
 	CityEventChoiceTypes GetBestMissionInCity(CvCity* pCity, int& iScore, std::vector<int> aMissionList, int iSpyIndex = -1, bool bLogAllChoices = false);
 

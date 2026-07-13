@@ -1371,11 +1371,15 @@
 			<Text>+6 base [ICON_STRENGTH] Combat Strength if the Unit started the turn with full HP.</Text>
 		</Row>
 
+		<!-- Eight Virtues of Bushido -->
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS">
 			<Text>Righteousness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP">
 			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Righteousness</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE">
@@ -1384,12 +1388,18 @@
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE_HELP">
 			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COURAGE_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Courage</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE">
 			<Text>Benevolence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE_HELP">
 			<Text>+5 HP when [COLOR_POSITIVE_TEXT]Healing[ENDCOLOR] for Units [COLOR_POSITIVE_TEXT]adjacent to this tile[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Benevolence</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT">
@@ -1398,12 +1408,18 @@
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT_HELP">
 			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RESPECT_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Respect</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY">
 			<Text>Sincerity</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_HELP">
 			<Text>+50% Experience gained from Combat.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Sincerity</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HONOR">
@@ -1412,12 +1428,18 @@
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_HELP">
 			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HONOR_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Honor</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY">
 			<Text>Loyalty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY_HELP">
 			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_LOYALTY_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Loyalty</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL">
@@ -1426,7 +1448,31 @@
 		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL_HELP">
 			<Text>+15% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [ICON_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED_SHORT})[ENDCOLOR] Self Control</Text>
+		</Row>
 
+		<!-- Kris Swordsman pedia entries -->
+		<Row Tag="TXT_KEY_PROMOTION_INVULNERABIILITY_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_PROMOTION_MYSTIC_BLADE})[ENDCOLOR] Invulnerability</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SNEAK_ATTACK_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_PROMOTION_MYSTIC_BLADE})[ENDCOLOR] Sneak Attack</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AMBITION_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_PROMOTION_MYSTIC_BLADE})[ENDCOLOR] Determination</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RESTLESSNESS_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_PROMOTION_MYSTIC_BLADE})[ENDCOLOR] Ceaselessness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENEMY_BLADE_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_PROMOTION_MYSTIC_BLADE})[ENDCOLOR] Enemy Blade</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_EVIL_SPIRITS_PEDIA">
+			<Text>[COLOR_POSITIVE_TEXT]({TXT_KEY_PROMOTION_MYSTIC_BLADE})[ENDCOLOR] Ancestral Protection</Text>
+		</Row>
+
+		<!-- Plagues -->
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_1">
 			<Text>Boarded I</Text>
 		</Row>

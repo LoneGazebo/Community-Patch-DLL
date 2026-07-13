@@ -127,6 +127,7 @@ public:
 	bool IsPermanent() const;
 	bool IsOutsideBorders() const;
 	bool IsInAdjacentFriendly() const;
+	bool IsInEnemyTerritory() const;
 	bool IsIgnoreOwnership() const;
 	bool IsOnlyCityStateTerritory() const;
 	bool IsEmbassy() const;
@@ -302,6 +303,7 @@ protected:
 	bool m_bPermanent;
 	bool m_bOutsideBorders;
 	bool m_bInAdjacentFriendly;
+	bool m_bInEnemyTerritory;
 	bool m_bIgnoreOwnership;
 	bool m_bOnlyCityStateTerritory;
 	bool m_bIsEmbassy;

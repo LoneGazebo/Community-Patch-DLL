@@ -1537,7 +1537,9 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 					else
 					{
 						CvUnit* pEnemy = pNeighbor->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true);
-						PRECONDITION(pEnemy, "isEnemyUnit is true, but getBestDefender didn't return a unit");
+						ASSERT(pEnemy, "isEnemyUnit is true, but getBestDefender didn't return a unit");
+						if (!pEnemy)
+							continue;
 						ReachablePlots reachablePlots = pEnemy->GetAllPlotsInReachThisTurn(true, true, true, pEnemy->maxMoves());
 
 						if (reachablePlots.find(pPlot->GetPlotIndex()) != reachablePlots.end())
@@ -5722,7 +5724,9 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 		if (pTestPlot->isEnemyUnit(pUnit->getOwner(), true, true) && !pUnit->isOutOfAttacks())
 		{
 			CvUnit* pEnemy = pTestPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(), pUnit, true);
-			PRECONDITION(pEnemy, "isEnemyUnit is true, but getBestDefender didn't return a unit");
+			ASSERT(pEnemy, "isEnemyUnit is true, but getBestDefender didn't return a unit");
+			if (!pEnemy)
+				continue;
 			int iDamageReceived = 0;
 			int iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemy, pUnit, pTestPlot, pOrigin, iDamageReceived);
 

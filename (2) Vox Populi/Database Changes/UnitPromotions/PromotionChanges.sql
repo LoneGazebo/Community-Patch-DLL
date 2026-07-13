@@ -847,7 +847,7 @@ UPDATE UnitPromotions SET NukeImmune = 1 WHERE Type = 'PROMOTION_SHIELDED_SILO';
 -- Unique unit free promotions
 --------------------------------------------
 
--- Camel Archer, Comanche Rider, Nau: Withdraw Before Melee
+-- Comanche Rider, Hashemite Raider, Nau: Withdraw Before Melee
 UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE';
 
 -- Hoplite: Phalanx
@@ -1050,8 +1050,12 @@ UPDATE UnitPromotions SET AdjacentCityDefenseMod = 5 WHERE Type = 'PROMOTION_HAR
 -- Hashemite Raider: Garland Mine
 UPDATE UnitPromotions SET FreePillageMoves = 1, AOEDamageOnPillage = 15 WHERE Type = 'PROMOTION_GARLAND_MINE';
 
--- Hashemite Raider: Desert Raider
-UPDATE UnitPromotions_TerrainModifiers SET Attack = 25, Defense = 25 WHERE PromotionType = 'PROMOTION_DESERT_RAIDER';
+-- Camel Archer: Desert Raider
+INSERT INTO UnitPromotions_TerrainModifiers
+	(PromotionType, TerrainType, Attack, Defense)
+VALUES
+	('PROMOTION_DESERT_RAIDER', 'TERRAIN_DESERT', 25, 25);
+
 INSERT INTO UnitPromotions_Terrains
 	(PromotionType, TerrainType, DoubleMove)
 VALUES

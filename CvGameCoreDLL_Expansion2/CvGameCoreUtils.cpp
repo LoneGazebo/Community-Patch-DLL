@@ -32,7 +32,8 @@
 // Removes everything before "Community-Patch-DLL/"
 const char* ShortenFilePath(const char* szFile)
 {
-	if (!szFile) return szFile;
+	if (!szFile)
+		return szFile;
 	const char* anchor_uppercase = strstr(szFile, "Community-Patch-DLL");
 	if (anchor_uppercase)
 		return anchor_uppercase;
@@ -109,7 +110,8 @@ static struct AssertTracker {
 	}
 
 	void LogAssert(const char* expr, const char* file, unsigned int line, const char* msg) {
-		if (!logFile) return;
+		if (!logFile)
+			return;
 
 		time_t rawtime;
 		time(&rawtime);
@@ -148,7 +150,8 @@ static struct AssertTracker {
 
 bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool& bIgnoreAlways, const char* msg)
 {
-	if (!expr) return false;
+	if (!expr)
+		return false;
 
 	bool bMsg = msg && msg[0] != '\0';
 
@@ -346,7 +349,8 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 
 void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine, const char* msg)
 {
-	if (!expr) return;
+	if (!expr)
+		return;
 #ifdef CVASSERT_ENABLE
 #ifdef WIN32
 #if defined(VPRELEASE_ERRORMSG)

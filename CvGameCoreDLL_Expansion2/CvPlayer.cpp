@@ -23734,12 +23734,16 @@ int CvPlayer::ScoreDifferencePercent(int eType)
 			default:
 				iScore = pMajorLoop->GetScore();
 			}
-			if(iScore > iBestScore) iBestScore = iScore;
-			if(iScore < iWorstScore) iWorstScore = iScore;
-			if(GetID() == eLoopPlayer) iPlayerScore = iScore;
+			if(iScore > iBestScore)
+				iBestScore = iScore;
+			if(iScore < iWorstScore)
+				iWorstScore = iScore;
+			if(GetID() == eLoopPlayer)
+				iPlayerScore = iScore;
 		}
 	}
-	if(iBestScore == 0) return 0; // nothing to scale
+	if(iBestScore == 0)
+		return 0; // nothing to scale
 	// rescale to 0..100
 	return MapToPercent(iPlayerScore, iBestScore, iWorstScore);
 }
@@ -24966,192 +24970,222 @@ void CvPlayer::changeGoldenAgeModifier(int iChange)
 int CvPlayer::getGreatPeopleCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatPeopleCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatPeopleCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatPeopleCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatPeopleCreated(bool bIsFree)
 {
 	m_iGreatPeopleCreated++;
-	if (bIsFree) m_iFreeGreatPeopleCreated++;
+	if (bIsFree)
+		m_iFreeGreatPeopleCreated++;
 }
 
 int CvPlayer::getGreatGeneralsCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatGeneralsCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatGeneralsCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatGeneralsCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatGeneralsCreated(bool bIsFree)
 {
 	m_iGreatGeneralsCreated++;
-	if (bIsFree) m_iFreeGreatGeneralsCreated++;
+	if (bIsFree)
+		m_iFreeGreatGeneralsCreated++;
 }
 
 int CvPlayer::getGreatAdmiralsCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatAdmiralsCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatAdmiralsCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatAdmiralsCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatAdmiralsCreated(bool bIsFree)
 {
 	m_iGreatAdmiralsCreated++;
-	if (bIsFree) m_iFreeGreatAdmiralsCreated++;
+	if (bIsFree)
+		m_iFreeGreatAdmiralsCreated++;
 }
 
 int CvPlayer::getGreatMerchantsCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatMerchantsCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatMerchantsCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatMerchantsCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatMerchantsCreated(bool bIsFree)
 {
 	m_iGreatMerchantsCreated++;
-	if (bIsFree) m_iFreeGreatMerchantsCreated++;
+	if (bIsFree)
+		m_iFreeGreatMerchantsCreated++;
 }
 
 int CvPlayer::getGreatScientistsCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatScientistsCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatScientistsCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatScientistsCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatScientistsCreated(bool bIsFree)
 {
 	m_iGreatScientistsCreated++;
-	if (bIsFree) m_iFreeGreatScientistsCreated++;
+	if (bIsFree)
+		m_iFreeGreatScientistsCreated++;
 }
 
 int CvPlayer::getGreatEngineersCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatEngineersCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatEngineersCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatEngineersCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatEngineersCreated(bool bIsFree)
 {
 	m_iGreatEngineersCreated++;
-	if (bIsFree) m_iFreeGreatEngineersCreated++;
+	if (bIsFree)
+		m_iFreeGreatEngineersCreated++;
 }
 
 int CvPlayer::getGreatWritersCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatWritersCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatWritersCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatWritersCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatWritersCreated(bool bIsFree)
 {
 	m_iGreatWritersCreated++;
-	if (bIsFree) m_iFreeGreatWritersCreated++;
+	if (bIsFree)
+		m_iFreeGreatWritersCreated++;
 }
 
 int CvPlayer::getGreatArtistsCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatArtistsCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatArtistsCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatArtistsCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatArtistsCreated(bool bIsFree)
 {
 	m_iGreatArtistsCreated++;
-	if (bIsFree) m_iFreeGreatArtistsCreated++;
+	if (bIsFree)
+		m_iFreeGreatArtistsCreated++;
 }
 
 int CvPlayer::getGreatMusiciansCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatMusiciansCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatMusiciansCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatMusiciansCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatMusiciansCreated(bool bIsFree)
 {
 	m_iGreatMusiciansCreated++;
-	if (bIsFree) m_iFreeGreatMusiciansCreated++;
+	if (bIsFree)
+		m_iFreeGreatMusiciansCreated++;
 }
 
 int CvPlayer::getGreatDiplomatsCreated(bool bExcludeFree) const
 {
 	int iCount = m_iGreatDiplomatsCreated;
-	if (bExcludeFree) iCount -= m_iFreeGreatDiplomatsCreated;
+	if (bExcludeFree)
+		iCount -= m_iFreeGreatDiplomatsCreated;
 	return iCount;
 }
 
 void CvPlayer::incrementGreatDiplomatsCreated(bool bIsFree)
 {
 	m_iGreatDiplomatsCreated++;
-	if (bIsFree) m_iFreeGreatDiplomatsCreated++;
+	if (bIsFree)
+		m_iFreeGreatDiplomatsCreated++;
 }
 
 int CvPlayer::getGPExtra1Created(bool bExcludeFree) const
 {
 	int iCount = m_iGPExtra1Created;
-	if (bExcludeFree) iCount -= m_iFreeGPExtra1Created;
+	if (bExcludeFree)
+		iCount -= m_iFreeGPExtra1Created;
 	return iCount;
 }
 
 void CvPlayer::incrementGPExtra1Created(bool bIsFree)
 {
 	m_iGPExtra1Created++;
-	if (bIsFree) m_iFreeGPExtra1Created++;
+	if (bIsFree)
+		m_iFreeGPExtra1Created++;
 }
 int CvPlayer::getGPExtra2Created(bool bExcludeFree) const
 {
 	int iCount = m_iGPExtra2Created;
-	if (bExcludeFree) iCount -= m_iFreeGPExtra2Created;
+	if (bExcludeFree)
+		iCount -= m_iFreeGPExtra2Created;
 	return iCount;
 }
 
 void CvPlayer::incrementGPExtra2Created(bool bIsFree)
 {
 	m_iGPExtra2Created++;
-	if (bIsFree) m_iFreeGPExtra2Created++;
+	if (bIsFree)
+		m_iFreeGPExtra2Created++;
 }
 int CvPlayer::getGPExtra3Created(bool bExcludeFree) const
 {
 	int iCount = m_iGPExtra3Created;
-	if (bExcludeFree) iCount -= m_iFreeGPExtra3Created;
+	if (bExcludeFree)
+		iCount -= m_iFreeGPExtra3Created;
 	return iCount;
 }
 
 void CvPlayer::incrementGPExtra3Created(bool bIsFree)
 {
 	m_iGPExtra3Created++;
-	if (bIsFree) m_iFreeGPExtra3Created++;
+	if (bIsFree)
+		m_iFreeGPExtra3Created++;
 }
 int CvPlayer::getGPExtra4Created(bool bExcludeFree) const
 {
 	int iCount = m_iGPExtra4Created;
-	if (bExcludeFree) iCount -= m_iFreeGPExtra4Created;
+	if (bExcludeFree)
+		iCount -= m_iFreeGPExtra4Created;
 	return iCount;
 }
 
 void CvPlayer::incrementGPExtra4Created(bool bIsFree)
 {
 	m_iGPExtra4Created++;
-	if (bIsFree) m_iFreeGPExtra4Created++;
+	if (bIsFree)
+		m_iFreeGPExtra4Created++;
 }
 int CvPlayer::getGPExtra5Created(bool bExcludeFree) const
 {
 	int iCount = m_iGPExtra5Created;
-	if (bExcludeFree) iCount -= m_iFreeGPExtra5Created;
+	if (bExcludeFree)
+		iCount -= m_iFreeGPExtra5Created;
 	return iCount;
 }
 
 void CvPlayer::incrementGPExtra5Created(bool bIsFree)
 {
 	m_iGPExtra5Created++;
-	if (bIsFree) m_iFreeGPExtra5Created++;
+	if (bIsFree)
+		m_iFreeGPExtra5Created++;
 }
 
 // Generic function to increment count after spawning a Great Person
@@ -28420,12 +28454,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 			}
 		}
 	}
-	// spy points
-	int iExtraSpies = pGreatPersonUnit->getUnitInfo().GetExtraSpies();
-	if (iExtraSpies > 0)
-	{
-		CreateSpies(iExtraSpies);
-	}
+
 	// add yields to capital based on the tile the GP was expended on
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(pGreatPersonUnit->getUnitClassType());
 	if (pGreatPersonUnit->getUnitInfo().IsCopyYieldsFromExpendTile())
@@ -28437,7 +28466,9 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 		}
 		
 	}
+	
 	doInstantYield(INSTANT_YIELD_TYPE_GP_USE, false, eGreatPerson);
+	
 	if (pGreatPersonUnit->getUnitInfo().GetTileXPOnExpend() > 0)
 	{
 		// give XP to the nearest eligible unit
@@ -36078,7 +36109,9 @@ int CvPlayer::GetNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
 
 void CvPlayer::SetLastCityCaptureTurn(PlayerTypes ePlayer, int iTurn)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_PLAYERS, "Invalid ePlayer index");
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
 	m_aiLastCityCaptureTurn[ePlayer] = iTurn;
 }
 
@@ -36161,15 +36194,21 @@ void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingCh
 /// What is the value of stuff (Units & Cities) lost in a war against a particular player?
 int CvPlayer::GetWarValueLost(PlayerTypes ePlayer) const
 {
-	if (isBarbarian()) return 0;
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+	if (isBarbarian())
+		return 0;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "Invalid ePlayer index");
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
+		return 0;
 	return m_aiWarValueLost[ePlayer];
 }
 
 void CvPlayer::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 {
-	if (isBarbarian()) return;
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	if (isBarbarian())
+		return;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "Invalid ePlayer index");
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
+		return;
 	m_aiWarValueLost[ePlayer] = max(iValue, 0);
 }
 
@@ -36214,31 +36253,41 @@ void CvPlayer::DoWarValueLostDecay()
 /// How much damage have we taken in a war against a particular player?
 int CvPlayer::GetWarDamageValue(PlayerTypes ePlayer) const
 {
-	if (isBarbarian()) return 0;
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+	if (isBarbarian())
+		return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
+		return 0;
 	return m_aiWarDamageValue[ePlayer];
 }
 
 void CvPlayer::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 {
-	if (isBarbarian()) return;
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	if (isBarbarian())
+		return;
+	ASSERT(ePlayer >= 0 && ePlayer < MAX_CIV_PLAYERS, "Invalid ePlayer index");
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
+		return;
 	m_aiWarDamageValue[ePlayer] = max(iValue, 0);
 }
 
 /// How weary are we of war with ePlayer?
 int CvPlayer::GetWarWeariness(PlayerTypes ePlayer) const
 {
-	if (!isMajorCiv()) return 0;
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	if (!isMajorCiv())
+		return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return 0;
 	return m_aiWarWeariness[ePlayer];
 }
 
 void CvPlayer::SetWarWeariness(PlayerTypes ePlayer, int iValue)
 {
-	if (!isMajorCiv()) return;
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	if (GET_PLAYER(ePlayer).getTeam() == getTeam()) return;
+	if (!isMajorCiv())
+		return;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return;
+	if (GET_PLAYER(ePlayer).getTeam() == getTeam())
+		return;
 	m_aiWarWeariness[ePlayer] = max(iValue, 0);
 }
 
@@ -40686,7 +40735,8 @@ int CvPlayer::findPathLengthNew(TechTypes eTech, int pTechs[]) const
 		std::fill(pTechBuffer, pTechBuffer+200, 0);
 		(void) findPathLengthNew(eTech, pTechBuffer);
 		int iNumTechs = 0;
-		for (i=0; i<200; i++) iNumTechs += pTechBuffer[i]; // count all techs that we visited during recursive calls
+		for (i=0; i<200; i++)
+			iNumTechs += pTechBuffer[i]; // count all techs that we visited during recursive calls
 		return iNumTechs;
 	}
 
@@ -48050,7 +48100,8 @@ std::string CvPlayer::debugDump(const FAutoVariableBase& var) const
 					if (GET_PLAYER(eMinor).isAlive() && 
 					    GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetID())
 					{
-						if (!first) result << ", ";
+						if (!first)
+							result << ", ";
 						result << GET_PLAYER(eMinor).getName();
 						first = false;
 					}
@@ -48072,7 +48123,8 @@ std::string CvPlayer::debugDump(const FAutoVariableBase& var) const
 			PlayerTypes ePlayer = (PlayerTypes)i;
 			if (GET_PLAYER(ePlayer).isAlive() && IsAtWarWith(ePlayer))
 			{
-				if (!first) result << ", ";
+				if (!first)
+					result << ", ";
 				result << GET_PLAYER(ePlayer).getName();
 				first = false;
 			}

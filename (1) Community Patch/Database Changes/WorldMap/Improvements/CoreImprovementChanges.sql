@@ -9,3 +9,5 @@ INSERT INTO Improvement_YieldPerXAdjacentImprovement
 	(ImprovementType, OtherImprovementType, YieldType, Yield, NumRequired)
 VALUES
 	('IMPROVEMENT_MOAI', 'IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1, 1);
+
+UPDATE Improvements SET InEnemyTerritory = 1 WHERE Type = 'IMPROVEMENT_CITADEL';

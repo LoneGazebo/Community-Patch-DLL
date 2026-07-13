@@ -50,7 +50,8 @@ void CvFlavorRecipient::SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedF
 {
 	ASSERT(piUpdatedFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
-	if(!piUpdatedFlavorValues.valid()) return;
+	if(!piUpdatedFlavorValues.valid())
+		return;
 
 	int iNumFlavors = GC.getNumFlavorTypes();
 	for (int iI = 0; iI < iNumFlavors; iI++)
@@ -67,7 +68,8 @@ void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDelta
 {
 	ASSERT(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
-	if(!piDeltaFlavorValues.valid()) return;
+	if(!piDeltaFlavorValues.valid())
+		return;
 
 	int iNumFlavors = GC.getNumFlavorTypes();
 	for(int iI = 0; iI < iNumFlavors; iI++)
@@ -283,7 +285,8 @@ void CvFlavorManager::ChangeActivePersonalityFlavors(const CvEnumMap<FlavorTypes
 {
 	ASSERT(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor manager");
 
-	if(!piDeltaFlavorValues.valid()) return;
+	if(!piDeltaFlavorValues.valid())
+		return;
 
 	int iNumFlavors = GC.getNumFlavorTypes();
 	for(int iI = 0; iI < iNumFlavors; iI++)

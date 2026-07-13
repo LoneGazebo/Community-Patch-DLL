@@ -71,6 +71,7 @@ VALUES
 -- Golden age
 	('GOLDEN_AGE_BASE_THRESHOLD_INITIAL', 500),
 	('GOLDEN_AGE_THRESHOLD_CITY_MULTIPLIER', 1),
+	('GOLDEN_AGE_GREAT_PEOPLE_MODIFIER', 0),
 -- Minimum war duration for aggressively attacked City-States (scales with game speed)
 	('WAR_MINOR_PEACE_BLOCKED_TURNS', 2),
 -- City strength threshold used for Policy_YieldPerCityOverStrengthThreshold

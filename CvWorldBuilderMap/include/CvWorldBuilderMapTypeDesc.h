@@ -122,7 +122,8 @@ public:
 					if( sFrom == kTo.Get(uiTo) )
 					{
 						auiLookupTable[uiFrom] = uiTo;
-						if( uiFrom != uiTo ) bDifferencesFound = true;
+						if( uiFrom != uiTo )
+							bDifferencesFound = true;
 						break;
 					}
 				}

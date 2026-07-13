@@ -638,11 +638,13 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	}
 	else
 	{
-		if (kAttacker.isRangedSupportFire()) return; // can't attack cities with this
+		if (kAttacker.isRangedSupportFire())
+			return; // can't attack cities with this
 
 		CvCity* pCity = plot.getPlotCity();
 		ASSERT(pCity != NULL);
-		if(!pCity) return;
+		if(!pCity)
+			return;
 		BATTLE_JOINED(pCity, BATTLE_UNIT_DEFENDER, true);
 
 		iExperience = /*3 in CP, 2 in VP*/ GD_INT_GET(EXPERIENCE_ATTACKING_CITY_RANGED);
@@ -1465,7 +1467,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	{
 		CvCity* pCity = plot.getPlotCity();
 		ASSERT(pCity != NULL);
-		if(!pCity) return;
+		if(!pCity)
+			return;
 		BATTLE_JOINED(pCity, BATTLE_UNIT_DEFENDER, true);
 
 		eDefenderOwner = plot.getOwner();
@@ -4037,7 +4040,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 	ATTACK_RESULT eResult = ATTACK_ABORTED;
 	CvCity* pCity = plot.getPlotCity();
 	ASSERT(pCity != NULL, "If this unit is attacking a NULL city then something funky is goin' down");
-	if(!pCity) return eResult;
+	if(!pCity)
+		return eResult;
 
 	kAttacker.SetAutomateType(NO_AUTOMATE);
 

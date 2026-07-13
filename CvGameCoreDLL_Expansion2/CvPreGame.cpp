@@ -3929,9 +3929,12 @@ bool handleKnownPlayerReq(PlayerTypes ePlayer)
 bool isKnownPlayer(PlayerTypes eA, PlayerTypes eB)
 {
 	// table will be empty if GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN, i.e. not keeping track of unmet players and consider all to be met for the purposes of PreGame UI.
-	if (s_knownPlayersTable.empty()) return true;
-	if (eA < 0 || eB < 0) return true; // erring on the side of caution
-	if ((size_t)eA >= s_knownPlayersTable.size() || (size_t)eB >= s_knownPlayersTable.size()) return true; // erring on the side of caution
+	if (s_knownPlayersTable.empty())
+		return true;
+	if (eA < 0 || eB < 0)
+		return true; // erring on the side of caution
+	if ((size_t)eA >= s_knownPlayersTable.size() || (size_t)eB >= s_knownPlayersTable.size())
+		return true; // erring on the side of caution
 
 	return (s_knownPlayersTable[eA] & (KnownPlayersBitArray(1) << eB)) != 0;
 }

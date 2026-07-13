@@ -303,19 +303,22 @@ struct ptr_less : std::binary_function<_Ty, _Ty, bool>
 
 template<class T> __forceinline void SAFE_DELETE( T *& pkInstance )
 {
-	if (pkInstance) delete pkInstance;
+	if (pkInstance)
+		delete pkInstance;
 	pkInstance = NULL;
 };
 
 template<class T> __forceinline void SAFE_DELETE_ARRAY( T *& pkInstanceArray )
 {
-	if (pkInstanceArray) delete[] pkInstanceArray;
+	if (pkInstanceArray)
+		delete[] pkInstanceArray;
 	pkInstanceArray = NULL;
 };
 
 template<class T> __forceinline void SAFE_RELEASE( T *& pkRefObject )
 {
-	if (pkRefObject) pkRefObject->Release();
+	if (pkRefObject)
+		pkRefObject->Release();
 	pkRefObject = NULL;
 };
 

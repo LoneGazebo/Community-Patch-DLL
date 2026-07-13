@@ -281,7 +281,8 @@ public:
 		const unsigned int uiTypeSize = sizeof(VectorType::TYPE);
 		const byte* pHead = reinterpret_cast<byte*>(&m_vec.front());
 		const byte* pLast = pHead+(m_vec.capacity()*uiTypeSize);
-		if( pLoc < pHead || pLoc >= pLast ) return 0xFFFFFFFF;
+		if( pLoc < pHead || pLoc >= pLast )
+			return 0xFFFFFFFF;
 
 		return (reinterpret_cast<byte*>(pLoc)-pHead)/uiTypeSize;
 	}
@@ -523,7 +524,8 @@ public:
 			pRoot->ALLOC_SetNext(uiIndex);
 		}
 		m_uiSize--;
-		if( uiIndex == m_uiMaxActiveIndex-1 ) m_uiMaxActiveIndex--;
+		if( uiIndex == m_uiMaxActiveIndex-1 )
+			m_uiMaxActiveIndex--;
 	};
 
 	////////////////////////////////////////////////////////////////////////
@@ -547,7 +549,8 @@ public:
 			pRoot->ALLOC_SetNext(uiIndex);
 		}
 		m_uiSize--;
-		if( uiIndex == m_uiMaxActiveIndex-1 ) m_uiMaxActiveIndex--;
+		if( uiIndex == m_uiMaxActiveIndex-1 )
+			m_uiMaxActiveIndex--;
 
 		return true;
 	};
@@ -588,7 +591,8 @@ public:
 		const unsigned int uiTypeSize = sizeof(VectorType::TYPE);
 		const byte* pHead = reinterpret_cast<byte*>(&m_vec.front());
 		const byte* pLast = pHead+(m_vec.capacity()*uiTypeSize);
-		if( pLoc < pHead || pLoc >= pLast ) return 0xFFFFFFFF;
+		if( pLoc < pHead || pLoc >= pLast )
+			return 0xFFFFFFFF;
 
 		return (reinterpret_cast<byte*>(pLoc)-pHead)/uiTypeSize;
 	}*/

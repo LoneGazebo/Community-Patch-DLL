@@ -370,7 +370,7 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_HAPPINESS' AND L
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_EXPANSION' AND LeaderType = 'LEADER_ELIZABETH'; -- 7, UA, UU2
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_WATER_CONNECTION' AND LeaderType = 'LEADER_ELIZABETH'; -- 6, naval oriented
 UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' AND LeaderType = 'LEADER_ELIZABETH'; -- 9, DOM
-UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_ELIZABETH'; -- 8, DOM
+UPDATE Leader_Flavors SET Flavor = 5 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_ELIZABETH'; -- 8, half espionage for guaranteed spy production
 
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_CITY_DEFENSE' AND LeaderType = 'LEADER_ENRICO_DANDOLO'; -- 8, has few, better protect them
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_RECON' AND LeaderType = 'LEADER_ENRICO_DANDOLO'; -- 9
@@ -416,7 +416,10 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND L
 
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_HIAWATHA'; -- 5, secondary: dom
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DEFENSE' AND LeaderType = 'LEADER_HIAWATHA'; -- 9, secondary: dom
-UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_HIAWATHA'; -- 6, primary: dom
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_HIAWATHA'; -- 6, unique great diplomat
+UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_I_LAND_TRADE_ROUTE' AND LeaderType = 'LEADER_HIAWATHA'; -- 5, increased chance of statecraft (and UA)
+UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_GOLD' AND LeaderType = 'LEADER_HIAWATHA'; -- 7, increased chance of statecraft (lacks gold in kit)
+UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_ESPIONAGE' AND LeaderType = 'LEADER_HIAWATHA'; -- 5, higher chance of spy production
 
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_ISABELLA'; -- 5, primary: dom
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_OFFENSE' AND LeaderType = 'LEADER_ISABELLA'; -- 5, primary: dom

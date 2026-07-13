@@ -100,6 +100,12 @@ SET
 WHERE Type = 'IMPROVEMENT_FORT';
 
 -- Citadel
+
+-- can no longer be built in foreign territory by default
+UPDATE Improvements
+SET InEnemyTerritory = 0
+WHERE Type = 'IMPROVEMENT_CITADEL';
+
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES

@@ -122,11 +122,16 @@ struct BuilderDirective
 	};
 	bool operator<(const BuilderDirective& rhs) const
 	{
-		if (m_eDirectiveType != rhs.m_eDirectiveType) return m_eDirectiveType < rhs.m_eDirectiveType;
-		if (m_eBuild != rhs.m_eBuild) return m_eBuild < rhs.m_eBuild;
-		if (m_eResource != rhs.m_eResource) return m_eResource < rhs.m_eResource;
-		if (m_sX != rhs.m_sX) return m_sX < rhs.m_sX;
-		if (m_sY != rhs.m_sY) return m_sY < rhs.m_sY;
+		if (m_eDirectiveType != rhs.m_eDirectiveType)
+			return m_eDirectiveType < rhs.m_eDirectiveType;
+		if (m_eBuild != rhs.m_eBuild)
+			return m_eBuild < rhs.m_eBuild;
+		if (m_eResource != rhs.m_eResource)
+			return m_eResource < rhs.m_eResource;
+		if (m_sX != rhs.m_sX)
+			return m_sX < rhs.m_sX;
+		if (m_sY != rhs.m_sY)
+			return m_sY < rhs.m_sY;
 		return m_bIsGreatPerson < rhs.m_bIsGreatPerson;
 	}
 };

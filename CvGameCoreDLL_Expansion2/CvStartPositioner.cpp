@@ -521,9 +521,11 @@ void CvStartPositioner::SubdivideRegion(CvStartRegion region, int iNumDivisions)
 void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, int iChopPercent)
 {
 	ASSERT(region);
-	if(!region) return;
+	if(!region)
+		return;
 	ASSERT(secondRegion);
-	if(!secondRegion) return;
+	if(!secondRegion)
+		return;
 
 	int uiTargetFertility = 0;
 	int uiFertilitySoFar = 0;
@@ -589,11 +591,14 @@ void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, 
 void CvStartPositioner::ChopIntoThreeRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, CvStartRegion* thirdRegion)
 {
 	ASSERT(region);
-	if(!region) return;
+	if(!region)
+		return;
 	ASSERT(secondRegion);
-	if(!secondRegion) return;
+	if(!secondRegion)
+		return;
 	ASSERT(thirdRegion);
-	if(!thirdRegion) return;
+	if(!thirdRegion)
+		return;
 
 	// Chop off the first third
 	ChopIntoTwoRegions(bTaller, region, secondRegion, 33);

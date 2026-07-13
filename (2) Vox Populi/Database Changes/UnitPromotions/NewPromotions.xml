@@ -462,7 +462,7 @@
 			<Type>PROMOTION_BUSHIDO</Type>
 			<Description>TXT_KEY_PROMOTION_BUSHIDO</Description>
 			<Help>TXT_KEY_PROMOTION_BUSHIDO_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BUSHIDO</PediaEntry>
 			<HasPostCombatPromotions>true</HasPostCombatPromotions>
 		</Row>
@@ -1349,57 +1349,57 @@
 			<Type>PROMOTION_RIGHTEOUSNESS</Type>
 			<Description>TXT_KEY_PROMOTION_RIGHTEOUSNESS</Description>
 			<Help>TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RIGHTEOUSNESS</PediaEntry>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RIGHTEOUSNESS_PEDIA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_COURAGE</Type>
 			<Description>TXT_KEY_PROMOTION_COURAGE</Description>
 			<Help>TXT_KEY_PROMOTION_COURAGE_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_COURAGE</PediaEntry>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_COURAGE_PEDIA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_BENEVOLENCE</Type>
 			<Description>TXT_KEY_PROMOTION_BENEVOLENCE</Description>
 			<Help>TXT_KEY_PROMOTION_BENEVOLENCE_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BENEVOLENCE</PediaEntry>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BENEVOLENCE_PEDIA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_RESPECT</Type>
 			<Description>TXT_KEY_PROMOTION_RESPECT</Description>
 			<Help>TXT_KEY_PROMOTION_RESPECT_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_RESPECT</PediaEntry>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RESPECT_PEDIA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SINCERITY</Type>
 			<Description>TXT_KEY_PROMOTION_SINCERITY</Description>
 			<Help>TXT_KEY_PROMOTION_SINCERITY_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SINCERITY</PediaEntry>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SINCERITY_PEDIA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_HONOR</Type>
 			<Description>TXT_KEY_PROMOTION_HONOR</Description>
 			<Help>TXT_KEY_PROMOTION_HONOR_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_HONOR</PediaEntry>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_HONOR_PEDIA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_LOYALTY</Type>
 			<Description>TXT_KEY_PROMOTION_LOYALTY</Description>
 			<Help>TXT_KEY_PROMOTION_LOYALTY_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_LOYALTY</PediaEntry>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_LOYALTY_PEDIA</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SELF_CONTROL</Type>
 			<Description>TXT_KEY_PROMOTION_SELF_CONTROL</Description>
 			<Help>TXT_KEY_PROMOTION_SELF_CONTROL_HELP</Help>
-			<PediaType>PEDIA_MELEE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SELF_CONTROL</PediaEntry>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SELF_CONTROL_PEDIA</PediaEntry>
 		</Row>
 		<!-- Plague -->
 		<Row>

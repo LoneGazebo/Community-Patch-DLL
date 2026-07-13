@@ -3966,17 +3966,14 @@ void CvPlayerTraits::SetIsWarmonger()
 
 	// Not optimal, since this assumes the free promotions are always combat-based.
 	// But there isn't a good way to classify promotions.
+	// annoyingly we cannot access the IsMilitary database flag because CvBaseInfo* pkUnitCombatClassInfo doesnt know about it
 	for (int iNumPromos = 0; iNumPromos < GC.getNumPromotionInfos(); iNumPromos++)
 	{
 		for (int iNumUnits = 0; iNumUnits < GC.getNumUnitCombatClassInfos(); iNumUnits++)
 		{
 			UnitCombatTypes eUClass = (UnitCombatTypes)iNumUnits;
-			if (eUClass == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
-				continue;
-
 			if (HasFreePromotionUnitCombat((PromotionTypes)iNumPromos, eUClass))
 			{
-
 				m_bIsWarmonger = true;
 				return;
 			}
@@ -3992,11 +3989,14 @@ void CvPlayerTraits::SetIsWarmonger()
 		}
 	}
 
+	/*
+	// this table can be used specifically to avoid AI valuation, otherwise it is redundant now we have civilian units classes
 	if (!GetFreePromotions().empty())
 	{
 		m_bIsWarmonger = true;
 		return;
 	}
+	*/
 
 	for (int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
 	{
@@ -4298,7 +4298,8 @@ void CvPlayerTraits::SetIsExpansionist()
 			TerrainTypes eTerrain = (TerrainTypes)iTerrain;
 			if (GetYieldChangeFromTileEarnTerrainType(eTerrain, eYield) > 0 ||
 				GetYieldChangeFromTilePurchaseTerrainType(eTerrain, eYield) > 0 ||
-				GetYieldChangeFromTileSettle(eTerrain, eYield) > 0)
+				GetYieldChangeFromTileSettle(eTerrain, eYield) > 0 ||
+				GetTerrainYieldChange(eTerrain, eYield) > 0)
 			{
 				m_bIsExpansionist = true;
 				return;

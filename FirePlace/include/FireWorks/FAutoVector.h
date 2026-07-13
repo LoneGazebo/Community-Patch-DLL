@@ -55,7 +55,8 @@ struct AutoVectorCommand
 
 	bool operator==(const AutoVectorCommand & rhs) const
 	{
-		if(command != rhs.command || index != rhs.index) return false;
+		if(command != rhs.command || index != rhs.index)
+			return false;
 		switch(command)
 		{
 		case AutoVectorCommand<ElementType>::ERASE:
@@ -64,7 +65,8 @@ struct AutoVectorCommand
 		case AutoVectorCommand<ElementType>::RESIZE_WITH_VALUE:
 		case AutoVectorCommand<ElementType>::PUSH_BACK:
 			{
-				if(!(value == rhs.value)) return false;
+				if(!(value == rhs.value))
+					return false;
 			}
 		}
 		return true;

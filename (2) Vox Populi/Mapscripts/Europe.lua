@@ -12,6 +12,7 @@ include("TerrainGenerator");
 include("FeatureGenerator");
 include("MapmakerUtilities");
 include("VPUI_core");
+include("CPK.lua");
 
 local VP = MapModData and MapModData.VP or VP;
 local GameInfoCache = VP.GameInfoCache;

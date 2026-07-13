@@ -17,17 +17,11 @@ VALUES
 	('TRAIT_GREAT_ANDEAN_ROAD', 'TERRAIN_HILL', 'YIELD_GOLD', 1),
 	('TRAIT_GREAT_ANDEAN_ROAD', 'TERRAIN_MOUNTAIN', 'YIELD_GOLD', 1);
 
-INSERT INTO Trait_FreePromotionUnitCombats
-	(TraitType, UnitCombatType, PromotionType)
-SELECT
-	'TRAIT_GREAT_ANDEAN_ROAD', Type, 'PROMOTION_CHASQUI_TRAINING'
-FROM UnitCombatInfos WHERE IsMilitary = 0;
-
-INSERT INTO Trait_FreePromotionUnitCombats
-	(TraitType, UnitCombatType, PromotionType)
+-- dont give AI warmonger eval to these promotions
+INSERT INTO Trait_FreePromotions
+	(TraitType, PromotionType)
 VALUES
-	('TRAIT_GREAT_ANDEAN_ROAD', 'UNITCOMBAT_RECON', 'PROMOTION_CHASQUI_TRAINING');
-
+	('TRAIT_GREAT_ANDEAN_ROAD', 'PROMOTION_CHASQUI_TRAINING');
 ----------------------------------------------------------
 -- Unique Unit: Warak'aq (Archer)
 ----------------------------------------------------------

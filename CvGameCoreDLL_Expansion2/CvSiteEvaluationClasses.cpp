@@ -494,7 +494,8 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 		// for the central plot
 		if (iDistance==0)
-			if (pDebug) vQualifiersPositive.push_back( CvString::format("raw plot value %d", iPlotValue).c_str() );
+			if (pDebug)
+				vQualifiersPositive.push_back( CvString::format("raw plot value %d", iPlotValue).c_str() );
 
 		// avoid this
 		if (iDistance==1 && !pPlot->isCoastalLand() && pLoopPlot->isCoastalLand())
@@ -612,12 +613,14 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		if (pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
 		{
 			iCivModifier += iCelticForestCount * m_iCelticMultiplier;
-			if (pDebug) vQualifiersPositive.push_back("(C) forest");
+			if (pDebug)
+				vQualifiersPositive.push_back("(C) forest");
 		}
 		else if (pPlayer->GetPlayerTraits()->GetNaturalWonderYieldModifier() > 0)
 		{
 			iCivModifier += iNaturalWonderCount * m_iSpainMultiplier;
-			if (pDebug) vQualifiersPositive.push_back("(C) natural wonders");
+			if (pDebug)
+				vQualifiersPositive.push_back("(C) natural wonders");
 		}
 
 		// Custom code for UIs
@@ -687,20 +690,23 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	if (pPlot->IsNaturalWonder())
 	{
 		iValueModifier += (iTotalPlotValue * /*-10*/ GD_INT_GET(BUILD_ON_RESOURCE_PERCENT)) / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) city on natural wonder");
+		if (pDebug)
+			vQualifiersNegative.push_back("(V) city on natural wonder");
 	}
 
 	if ( iTotalProductionValue > 4 * iTotalFoodValue )
 	{
 		iValueModifier -= 20 * iTotalPlotValue / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
+		if (pDebug)
+			vQualifiersNegative.push_back("(V) unbalanced yields (lacking food)");
 	}
 
 	//food has a higher weight than production anyway, so set a high threshold here
 	if (iTotalFoodValue > 12 * iTotalProductionValue)
 	{
 		iValueModifier -= 20 * iTotalPlotValue / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
+		if (pDebug)
+			vQualifiersNegative.push_back("(V) unbalanced yields (lacking hammers)");
 	}
 
 	if (pPlot->isRiver())
@@ -708,13 +714,15 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		iValueModifier += (iTotalPlotValue * /*35*/ GD_INT_GET(BUILD_ON_RIVER_PERCENT)) / 100;
 		if(pPlayer && pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
 			iValueModifier += (iTotalPlotValue * /*35*/ GD_INT_GET(BUILD_ON_RIVER_PERCENT)) / 100;
-		if (pDebug) vQualifiersPositive.push_back("(V) river");
+		if (pDebug)
+			vQualifiersPositive.push_back("(V) river");
 	}
 
 	if (bIsAlmostCoast)
 	{
 		iValueModifier -= 20 * iTotalPlotValue / 100;
-		if (pDebug) vQualifiersNegative.push_back("(V) almost coast");
+		if (pDebug)
+			vQualifiersNegative.push_back("(V) almost coast");
 	}
 
 	if (pPlot->isCoastalLand(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
@@ -722,7 +730,8 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		if (nWaterPlots <= 3)
 		{
 			iValueModifier += (iTotalPlotValue * /*40*/ GD_INT_GET(SETTLER_BUILD_ON_COAST_PERCENT)) / 100;
-			if (pDebug) vQualifiersPositive.push_back("(V) coast but not too exposed");
+			if (pDebug)
+				vQualifiersPositive.push_back("(V) coast but not too exposed");
 		}
 
 		if (pPlayer)
@@ -740,13 +749,15 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	if(pPlot->IsChokePoint())
 	{
 		iStratModifier += (iTotalPlotValue * /*10*/ GD_INT_GET(CHOKEPOINT_STRATEGIC_VALUE)) / 100;
-		if (pDebug) vQualifiersPositive.push_back("(S) chokepoint");
+		if (pDebug)
+			vQualifiersPositive.push_back("(S) chokepoint");
 	}
 	//Can we create a canal here?
 	if(pPlot->IsWaterAreaSeparator())
 	{
 		iStratModifier += (iTotalPlotValue * /*10*/ GD_INT_GET(CHOKEPOINT_STRATEGIC_VALUE)) / 100;
-		if (pDebug) vQualifiersPositive.push_back("(S) landbridge");
+		if (pDebug)
+			vQualifiersPositive.push_back("(S) landbridge");
 	}
 
 	// for later cities consider placement relative to other players
@@ -838,7 +849,8 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		{
 			//this case should be handled by the distance check in CanFound() also
 			iValueModifier -= (20*iTotalPlotValue) / 100;
-			if (pDebug) vQualifiersNegative.push_back("(V) too close to existing friendly city");
+			if (pDebug)
+				vQualifiersNegative.push_back("(V) too close to existing friendly city");
 		}
 
 		int iSweetMin = /*4*/ GD_INT_GET(SETTLER_DISTANCE_DROPOFF_MODIFIER);
@@ -877,7 +889,8 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		if (iCityDistance >= iSweetMin && iOwnCityDistance <= iSweetMax)
 		{
 			iValueModifier += (iTotalPlotValue*20)/100; //make this a small bonus, there is a separate distance check anyway
-			if (pDebug) vQualifiersPositive.push_back("(V) optimal distance to existing cities");
+			if (pDebug)
+				vQualifiersPositive.push_back("(V) optimal distance to existing cities");
 		}
 	}
 
@@ -913,7 +926,8 @@ int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, const CvPlayer* pPlay
 		rtnValue += ComputeTradeableResourceValue(pPlot, pPlayer);
 	}
 
-	if(rtnValue < 0) rtnValue = 0;
+	if(rtnValue < 0)
+		rtnValue = 0;
 
 	return rtnValue;
 }
@@ -1147,7 +1161,8 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, int iPlotsFromCity)
 {
 	int rtnValue = 0;
-	if (!pPlot) return rtnValue;
+	if (!pPlot)
+		return rtnValue;
 
 	//Some features and terrain types are useful strategically. (Or really bad)
 	if (pPlot->getOwner() == NO_PLAYER)

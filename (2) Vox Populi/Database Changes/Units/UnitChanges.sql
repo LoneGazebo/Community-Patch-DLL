@@ -13,6 +13,8 @@ CREATE TEMP TABLE Helper (
 -- Unit Combat Categories
 ----------------------------------------------------------------------------
 
+UPDATE UnitCombatInfos SET IsNaval = 1 WHERE Type = 'UNITCOMBAT_CARGO';
+
 UPDATE UnitCombatInfos
 SET
 	IsMilitary = 1,

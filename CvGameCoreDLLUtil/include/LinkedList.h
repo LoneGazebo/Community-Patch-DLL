@@ -247,7 +247,8 @@ inline CLLNode<tVARTYPE>* CLinkList<tVARTYPE>::deleteNode(CLLNode<tVARTYPE>* pNo
 	CLLNode<tVARTYPE>* pNextNode;
 
 	assert(pNode != NULL);
-	if (!pNode) return NULL;
+	if (!pNode)
+		return NULL;
 
 	pPrevNode = pNode->m_pPrev;
 	pNextNode = pNode->m_pNext;
