@@ -2783,8 +2783,9 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		kCaptureDef.bAsIs = true;
 		kCaptureDef.eCaptureUnitType = getUnitType();
 	}
+		
 	// Barbs captured this unit, or a player capturing this unit from the barbs
-	else if(isBarbarian() || (kCaptureDef.eCapturingPlayer != NO_PLAYER && GET_PLAYER(kCaptureDef.eCapturingPlayer).isBarbarian()))
+	else if (isBarbarian() || (kCaptureDef.eCapturingPlayer != NO_PLAYER && GET_PLAYER(kCaptureDef.eCapturingPlayer).isBarbarian()))
 	{
 		// Must be able to capture this unit normally... don't want the barbs picking up Workboats, Generals, etc.
 		if(kCaptureDef.eCapturingPlayer != NO_PLAYER && getCaptureUnitType(kCaptureDef.eCapturingPlayer) != NO_UNIT)
@@ -2800,7 +2801,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	}
 
 	CvPlot* pkPlot = plot();
-	if(pkPlot)
+	if (pkPlot)
 	{
 		kCaptureDef.iX = pkPlot->getX();
 		kCaptureDef.iY = pkPlot->getY();
@@ -20410,46 +20411,50 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											!bDoEvade )
 										{
 											bDoCapture = true;
-
-											Localization::String strMessage;
-											Localization::String strSummary;
-											if(isBarbarian())
-											{
-												strMessage = Localization::Lookup("TXT_KEY_UNIT_CAPTURED_BARBS_DETAILED");
-												strMessage << pLoopUnit->getUnitInfo().GetTextKey();
-												strSummary = Localization::Lookup("TXT_KEY_UNIT_CAPTURED_BARBS");
-											}
-											else
-											{
-												strMessage = Localization::Lookup("TXT_KEY_UNIT_CAPTURED_DETAILED");
-												strMessage << pLoopUnit->getUnitInfo().GetTextKey() << kPlayer.getNameKey();
-												strSummary = Localization::Lookup("TXT_KEY_UNIT_CAPTURED");
-											}
 										}
-										// Unit was killed instead
-
-										if (MOD_EVENTS_UNIT_CAPTURE) {
+										
+										if (MOD_EVENTS_UNIT_CAPTURE)
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, getOwner(), GetID(), pLoopUnit->getOwner(), pLoopUnit->GetID(), !bDoCapture, 0);
-										}
+
 										if (!bDoEvade)
 										{
-											if (!bDoCapture)
+											Localization::String strMessage;
+											Localization::String strSummary;
+											if (bDoCapture)
+											{
+												if (isBarbarian())
+												{
+													strMessage = Localization::Lookup("TXT_KEY_UNIT_CAPTURED_BARBS_DETAILED");
+													strMessage << pLoopUnit->getUnitInfo().GetTextKey();
+													strSummary = Localization::Lookup("TXT_KEY_UNIT_CAPTURED_BARBS");
+												}
+												else
+												{
+													strMessage = Localization::Lookup("TXT_KEY_UNIT_CAPTURED_DETAILED");
+													strMessage << pLoopUnit->getUnitInfo().GetTextKey() << kPlayer.getNameKey();
+													strSummary = Localization::Lookup("TXT_KEY_UNIT_CAPTURED");
+												}
+											}
+											// Unit was killed instead
+											else
 											{
 												CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(), 0, pLoopUnit->getNameKey());
 												DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 												if (MOD_WH_MILITARY_LOG)
 													MILITARYLOG(getOwner(), strBuffer.c_str(), plot(), pLoopUnit->getOwner());
+												
+												Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_LOST");
+												Localization::String strSummary = strMessage;
 											}
 
-											kPlayer.DoYieldsFromKill(this, pLoopUnit);
-											kPlayer.DoUnitKilledCombat(this, pLoopUnit->getOwner(), pLoopUnit->getUnitType());
 											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
 											if (pNotification)
 											{
-												Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_LOST");
-												Localization::String strSummary = strMessage;
 												pNotification->Add(NOTIFICATION_UNIT_DIED, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int)pLoopUnit->getUnitType(), pLoopUnit->getOwner());
 											}
+											
+											kPlayer.DoYieldsFromKill(this, pLoopUnit);
+											kPlayer.DoUnitKilledCombat(this, pLoopUnit->getOwner(), pLoopUnit->getUnitType());
 
 											// If we're capturing the unit, we want to delay the capture, else as the unit is converted to our side, it will be the first unit on our
 											// side in the plot and can end up taking over a city, rather than the advancing unit
