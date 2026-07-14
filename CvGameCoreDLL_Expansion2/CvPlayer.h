@@ -1878,9 +1878,9 @@ public:
 	int GetCityStateCombatModifier() const;
 	void changeCityStateCombatModifier(int iChange);
 
-	int GetHappinessPerXPopulationGlobal() const;
-	void SetHappinessPerXPopulationGlobal(int iValue);
-	void ChangeHappinessPerXPopulationGlobal(int iChange);
+	fraction GetHappinessPerXPopulationGlobal() const;
+	void SetHappinessPerXPopulationGlobal(fraction fValue);
+	void ChangeHappinessPerXPopulationGlobal(fraction fChange);
 
 	int GetIdeologyPoint() const;
 	void SetIdeologyPoint(int iValue);
@@ -3008,7 +3008,7 @@ protected:
 	int m_iHappinessPerGarrisonedUnitCount;
 	int m_iHappinessPerTradeRouteCount;
 	int m_iHappinessPerXPopulation;
-	int m_iHappinessPerXPopulationGlobal;
+	fraction m_fHappinessPerXPopulationGlobal;
 	int m_iIdeologyPoint;
 	int m_iNoXPLossUnitPurchase;
 	int m_iXCSAlliesLowersPolicyNeedWonders;
@@ -3831,7 +3831,7 @@ SYNC_ARCHIVE_VAR(int, m_iCityRevoltCounter)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerGarrisonedUnitCount)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerTradeRouteCount)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPopulation)
-SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPopulationGlobal)
+SYNC_ARCHIVE_VAR(fraction, m_fHappinessPerXPopulationGlobal)
 SYNC_ARCHIVE_VAR(int, m_iIdeologyPoint)
 SYNC_ARCHIVE_VAR(int, m_iNoXPLossUnitPurchase)
 SYNC_ARCHIVE_VAR(int, m_iXCSAlliesLowersPolicyNeedWonders)

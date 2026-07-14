@@ -19720,13 +19720,13 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 
 	if (MOD_BALANCE_VP)
 	{
-		int iHappinessPerXPopulationGlobal = kPlayer.GetHappinessPerXPopulationGlobal();
+		fraction fHappinessPerXPopulationGlobal = kPlayer.GetHappinessPerXPopulationGlobal();
 
-		if (iHappinessPerXPopulationGlobal > 0)
+		if (fHappinessPerXPopulationGlobal > 0)
 		{
 			if (iTotalPop > 0)
 			{
-				iTotalHappiness += (iTotalPop / iHappinessPerXPopulationGlobal);
+				iTotalHappiness += (fHappinessPerXPopulationGlobal * iTotalPop).Truncate();
 			}
 		}
 	}
@@ -19737,13 +19737,13 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 
 		if (!MOD_BALANCE_VP)
 		{
-			int iHappinessPerXPopulationGlobal = kPlayer.GetHappinessPerXPopulationGlobal();
+			fraction fHappinessPerXPopulationGlobal = kPlayer.GetHappinessPerXPopulationGlobal();
 
-			if (iHappinessPerXPopulationGlobal > 0)
+			if (fHappinessPerXPopulationGlobal > 0)
 			{
 				if (iTotalPop > 0)
 				{
-					iTotalHappiness += (iTotalPop / iHappinessPerXPopulationGlobal);
+					iTotalHappiness += (fHappinessPerXPopulationGlobal * iTotalPop).Truncate();
 				}
 			}
 		}
