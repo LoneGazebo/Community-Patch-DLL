@@ -186,7 +186,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessPerGarrisonedUnitCount()
 	, m_iHappinessPerTradeRouteCount()
 	, m_iHappinessPerXPopulation()
-	, m_iHappinessPerXPopulationGlobal()
+	, m_fHappinessPerXPopulationGlobal()
 	, m_iIdeologyPoint()
 	, m_iNoXPLossUnitPurchase()
 	, m_iXCSAlliesLowersPolicyNeedWonders()
@@ -1219,7 +1219,7 @@ void CvPlayer::uninit()
 	m_iHappinessPerGarrisonedUnitCount = 0;
 	m_iHappinessPerTradeRouteCount = 0;
 	m_iHappinessPerXPopulation = 0;
-	m_iHappinessPerXPopulationGlobal = 0;
+	m_fHappinessPerXPopulationGlobal = 0;
 	m_iIdeologyPoint = 0;
 	m_iNoXPLossUnitPurchase = 0;
 	m_iXCSAlliesLowersPolicyNeedWonders = 0;
@@ -22719,21 +22719,21 @@ void CvPlayer::ChangeHappinessPerXPopulation(int iChange)
 }
 
 /// How much Happiness are we getting from large empires?
-int CvPlayer::GetHappinessPerXPopulationGlobal() const
+fraction CvPlayer::GetHappinessPerXPopulationGlobal() const
 {
-	return m_iHappinessPerXPopulationGlobal;
+	return m_fHappinessPerXPopulationGlobal;
 }
 
 /// Set the amount of Happiness we're getting from large empires
-void CvPlayer::SetHappinessPerXPopulationGlobal(int iValue)
+void CvPlayer::SetHappinessPerXPopulationGlobal(fraction fValue)
 {
-	m_iHappinessPerXPopulationGlobal = iValue;
+	m_fHappinessPerXPopulationGlobal = fValue;
 }
 
 /// Change the amount of Happiness we're getting from large empires
-void CvPlayer::ChangeHappinessPerXPopulationGlobal(int iChange)
+void CvPlayer::ChangeHappinessPerXPopulationGlobal(fraction fChange)
 {
-	m_iHappinessPerXPopulationGlobal += iChange;
+	m_fHappinessPerXPopulationGlobal += fChange;
 }
 
 /// How much Happiness are we getting from large empires?
@@ -42836,7 +42836,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeExtraSupplyFlat(pkPolicyInfo->GetExtraSupplyFlat() * iChange);
 	ChangeCSAlliesLowersPolicyNeedWonders(pkPolicyInfo->GetXCSAlliesLowersPolicyNeedWonders() * iChange);
 	ChangeHappinessPerCityOverStrengthThreshold(pkPolicyInfo->GetHappinessPerCityOverStrengthThreshold() * iChange);
-	ChangeHappinessPerXPopulationGlobal(pkPolicyInfo->GetHappinessPerXPopulationGlobal() * iChange);
+	if (pkPolicyInfo->GetHappinessPerXPopulationGlobal() > 0)
+	{
+		ChangeHappinessPerXPopulationGlobal(fraction(1, pkPolicyInfo->GetHappinessPerXPopulationGlobal()) * iChange);
+	}
 	ChangeIdeologyPoint(pkPolicyInfo->GetIdeologyPoint() * iChange);
 	ChangeNoXPLossUnitPurchase(pkPolicyInfo->IsNoXPLossUnitPurchase() * iChange);
 	ChangeEventTourism(pkPolicyInfo->GetEventTourism() * iChange);
@@ -44195,7 +44198,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iHappinessPerGarrisonedUnitCount);
 	visitor(player.m_iHappinessPerTradeRouteCount);
 	visitor(player.m_iHappinessPerXPopulation);
-	visitor(player.m_iHappinessPerXPopulationGlobal);
+	visitor(player.m_fHappinessPerXPopulationGlobal);
 	visitor(player.m_iIdeologyPoint);
 	visitor(player.m_iNoXPLossUnitPurchase);
 	visitor(player.m_iXCSAlliesLowersPolicyNeedWonders);
