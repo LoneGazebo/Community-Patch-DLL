@@ -1813,7 +1813,7 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
-		int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, NUM_ROUTE_TYPES, ePlayer, pOwningCity, pReligion, pBelief);
+		const CvReligion* pPlayerPantheon = NULL;
 
 		// Mod for civs keeping their pantheon belief forever
 		if (MOD_BALANCE_PERMANENT_PANTHEONS)
@@ -1826,12 +1826,13 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 				{
 					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pOwningCity->getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
-						iResult += pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, NUM_ROUTE_TYPES, ePlayer, pOwningCity, pPantheon, NULL);
+						pPlayerPantheon = pPantheon;
 					}
 				}
 			}
 		}
 
+		const int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, NUM_ROUTE_TYPES, ePlayer, pOwningCity, pReligion, pBelief, pPlayerPantheon);
 		lua_pushinteger(L, iResult);
 		return 1;
 	}
