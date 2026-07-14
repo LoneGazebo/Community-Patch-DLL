@@ -69,7 +69,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BELIEF_CITY_OF_GOD">
-			<Text>When a [ICON_CITIZEN] Citizen is born in your Holy City, gain 15 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for each City following your [ICON_RELIGION] Religion (max 25 Cities).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Heavenly Grotto National Wonder[ENDCOLOR] (+2 [ICON_PEACE] Faith, +2 [ICON_GOLD] Gold, +2 [ICON_HAPPINESS_1] Happiness; +50 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith when a [ICON_SPY] Spy is Identified in the Empire, scaling with Era. +5 [ICON_FOOD] Food from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).</Text>
+			<Text>When a [ICON_CITIZEN] Citizen is born in your Holy City, gain 15 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for each City following your [ICON_RELIGION] Religion (max 25 Cities).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Sacred Garden National Wonder[ENDCOLOR] (+2 [ICON_PEACE] Faith, +2 [ICON_GOLD] Gold, +2 [ICON_HAPPINESS_1] Happiness; +50 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith when a [ICON_SPY] Spy is Identified in the Empire, scaling with Era. +5 [ICON_FOOD] Food from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CITY_OF_GOD_SHORT">
 			<Text>City of God</Text>

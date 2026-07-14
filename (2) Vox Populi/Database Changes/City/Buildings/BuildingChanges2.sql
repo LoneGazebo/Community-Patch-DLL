@@ -306,18 +306,32 @@ VALUES
 	('BUILDING_DIVINE_COURT', 'YIELD_GOLD', 6),
 	('BUILDING_DIVINE_COURT', 'YIELD_FAITH', 3);
 
--- Sacred Garden
+-- Heavenly Grotto
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_SACRED_GARDEN', 'YIELD_CULTURE', 5),
-	('BUILDING_SACRED_GARDEN', 'YIELD_FAITH', 3);
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_CULTURE', 5),
+	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 3);
 
 INSERT INTO Building_YieldFromSpyDefenseOrID
 	(BuildingType, YieldType, Yield)
 SELECT
-	'BUILDING_SACRED_GARDEN', Type, 20
+	'BUILDING_HEAVENLY_GROTTO', Type, 20
 FROM Yields WHERE ID < 6; -- "all yields"
+
+-- Sacred Garden
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_SACRED_GARDEN', 'YIELD_GOLD', 2),
+	('BUILDING_SACRED_GARDEN', 'YIELD_FAITH', 2);
+
+INSERT INTO Building_YieldFromSpyIdentify
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_SACRED_GARDEN', 'YIELD_SCIENCE', 50),
+	('BUILDING_SACRED_GARDEN', 'YIELD_CULTURE', 50),
+	('BUILDING_SACRED_GARDEN', 'YIELD_FAITH', 50);
 
 -- Holy Council
 INSERT INTO Building_YieldChanges
@@ -349,20 +363,6 @@ INSERT INTO Building_YieldFromSpyDefense
 VALUES
 	('BUILDING_GRAND_OSSUARY', 'YIELD_CULTURE', 100),
 	('BUILDING_GRAND_OSSUARY', 'YIELD_FAITH', 100);
-
--- Heavenly Grotto
-INSERT INTO Building_YieldChanges
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_HEAVENLY_GROTTO', 'YIELD_GOLD', 2),
-	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 2);
-
-INSERT INTO Building_YieldFromSpyIdentify
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_HEAVENLY_GROTTO', 'YIELD_SCIENCE', 50),
-	('BUILDING_HEAVENLY_GROTTO', 'YIELD_CULTURE', 50),
-	('BUILDING_HEAVENLY_GROTTO', 'YIELD_FAITH', 50);
 
 ----------------------------------------------------------------------------
 -- World Wonders
