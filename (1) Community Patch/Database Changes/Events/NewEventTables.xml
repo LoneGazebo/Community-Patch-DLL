@@ -865,6 +865,10 @@
 		<Column name="CityDefenseModifierBase" type="integer" default="0"/>
 		<!-- Counterspy affects city ranged strength, scaling with counterspy level-->
 		<Column name="CityDefenseModifier" type="integer" default="0"/>
+		<!-- Counterspy affects all of this player's offensive spy mission identification chances -->
+		<Column name="SpyIdentificationChanceReductionGlobal" type="integer" default="0"/>
+		<!-- Counterspy affects this city's Security Level -->
+		<Column name="SpySecurityModifier" type="integer" default="0"/>
 		<!-- Checks if empire of the targeted civ is unhappy -->
 		<Column name="IsEnemyUnhappy" type="boolean" default="false"/>
 		<Column name="IsEnemySuperUnhappy" type="boolean" default="false"/>

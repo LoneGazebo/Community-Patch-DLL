@@ -802,7 +802,8 @@ void CvNotifications::Activate(Notification& notification)
 	break;
 	case NOTIFICATION_PRODUCTION:
 	{
-		CvCity* pCity = GC.getMap().plot(notification.m_iX, notification.m_iY)->getPlotCity();//GET_PLAYER(m_ePlayer).getCity(notification.m_iGameDataIndex);
+		CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
+		CvCity* pCity = pPlot ? pPlot->getPlotCity() : NULL; //GET_PLAYER(m_ePlayer).getCity(notification.m_iGameDataIndex);
 		if(!pCity || (pCity->getOwner() != m_ePlayer))
 		{
 			return;
@@ -829,7 +830,8 @@ void CvNotifications::Activate(Notification& notification)
 	{
 		if (MOD_UI_CITY_EXPANSION)
 		{
-			CvCity* pCity = GC.getMap().plot(notification.m_iX, notification.m_iY)->getPlotCity();
+			CvPlot* pNotifPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
+			CvCity* pCity = pNotifPlot ? pNotifPlot->getPlotCity() : NULL;
 			if (!pCity)
 				return;
 

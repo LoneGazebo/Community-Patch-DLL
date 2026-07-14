@@ -3470,9 +3470,9 @@ int CvHandicapInfo::getYieldAmountForDifficultyBonus(int iEra, int iHistoricEven
 	const int x = GC.getNumEraInfos();
 	const int y = NUM_HISTORIC_EVENT_TYPES;
 	const int z = NUM_YIELD_TYPES;
-	ASSERT(iEra >= 0 && iEra < x);
-	ASSERT(iHistoricEvent >= 0 && iHistoricEvent < y);
-	ASSERT(iYield >= 0 && iYield < z);
+	PRECONDITION(iEra >= 0 && iEra < x);
+	PRECONDITION(iHistoricEvent >= 0 && iHistoricEvent < y);
+	PRECONDITION(iYield >= 0 && iYield < z);
 	const int index = iEra * y * z + iHistoricEvent * z + iYield;
 	return m_pppiDifficultyBonus[index];
 }
@@ -3780,9 +3780,9 @@ int CvHandicapInfo::getYieldAmountForAIDifficultyBonus(int iEra, int iHistoricEv
 	const int x = GC.getNumEraInfos();
 	const int y = NUM_HISTORIC_EVENT_TYPES;
 	const int z = NUM_YIELD_TYPES;
-	ASSERT(iEra >= 0 && iEra < x);
-	ASSERT(iHistoricEvent >= 0 && iHistoricEvent < y);
-	ASSERT(iYield >= 0 && iYield < z);
+	PRECONDITION(iEra >= 0 && iEra < x);
+	PRECONDITION(iHistoricEvent >= 0 && iHistoricEvent < y);
+	PRECONDITION(iYield >= 0 && iYield < z);
 	const int index = iEra * y * z + iHistoricEvent * z + iYield;
 	return m_pppiAIDifficultyBonus[index];
 }
@@ -4554,7 +4554,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	const int iNumYields = kUtility.MaxRows("Yields");
 	const int iDifficultyBonusArrSize = iNumEras * iNumHistoricEvents * iNumYields;
 
-	//Difficulty Bonus Yield Multipliers
+	// Event-Triggered Instant Yields (Human Players)
+	// HandicapInfo_DifficultyBonus
+	// Table: (HandicapType, EraType, HistoricEventType, YieldType, Amount)
 	{
 		kUtility.InitializeArray(m_pppiDifficultyBonus, iDifficultyBonusArrSize, 0);
 
@@ -4562,30 +4564,43 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, HistoricEventTypes.ID as HistoricEventID, Eras.ID as EraID, Amount from HandicapInfo_DifficultyBonus inner join Yields on YieldType = Yields.Type inner join HistoricEventTypes on HistoricEventType = HistoricEventTypes.Type inner join Eras on EraType = Eras.Type where HandicapType = ?");
+			pResults = kUtility.PrepareResults(
+				strKey,
+				"SELECT Eras.ID, HistoricEventTypes.ID, Yields.ID, Amount "
+				"FROM HandicapInfo_DifficultyBonus "
+				"INNER JOIN Eras ON EraType = Eras.Type "
+				"INNER JOIN HistoricEventTypes ON HistoricEventType = HistoricEventTypes.Type "
+				"INNER JOIN Yields ON YieldType = Yields.Type "
+				"WHERE HandicapType = ?"
+			);
 		}
 
 		pResults->Bind(1, szHandicapType, strlen(szHandicapType), false);
 
 		while (pResults->Step())
 		{
-			const int yield_idx = pResults->GetInt(0);
-			PRECONDITION(yield_idx > -1);
+			const int era_idx = pResults->GetInt(0);
+			PRECONDITION(era_idx > -1);
 
 			const int historicevent_idx = pResults->GetInt(1);
 			PRECONDITION(historicevent_idx > -1);
 
-			const int era_idx = pResults->GetInt(2);
-			PRECONDITION(era_idx > -1);
+			const int yield_idx = pResults->GetInt(2);
+			PRECONDITION(yield_idx > -1);
 
-			const int amount = pResults->GetInt(3);
+			const int iAmount = pResults->GetInt(3);
 
 			// Manually index the array
 			const int index = era_idx * iNumHistoricEvents * iNumYields + historicevent_idx * iNumYields + yield_idx;
-			m_pppiDifficultyBonus[index] = amount;
+			m_pppiDifficultyBonus[index] = iAmount;
 		}
+
+		pResults->Reset();
 	}
-	//AI Difficulty Bonus Yield Multipliers
+
+	// Event-Triggered Instant Yields (AI Players)
+	// HandicapInfo_AIDifficultyBonus
+	// Table: (HandicapType, EraType, HistoricEventType, YieldType, Amount)
 	{
 		kUtility.InitializeArray(m_pppiAIDifficultyBonus, iDifficultyBonusArrSize, 0);
 
@@ -4593,28 +4608,38 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, HistoricEventTypes.ID as HistoricEventID, Eras.ID as EraID, Amount from HandicapInfo_AIDifficultyBonus inner join Yields on YieldType = Yields.Type inner join HistoricEventTypes on HistoricEventType = HistoricEventTypes.Type inner join Eras on EraType = Eras.Type where HandicapType = ?");
+			pResults = kUtility.PrepareResults(
+				strKey,
+				"SELECT Eras.ID, HistoricEventTypes.ID, Yields.ID, Amount "
+				"FROM HandicapInfo_AIDifficultyBonus "
+				"INNER JOIN Eras ON EraType = Eras.Type "
+				"INNER JOIN HistoricEventTypes ON HistoricEventType = HistoricEventTypes.Type "
+				"INNER JOIN Yields ON YieldType = Yields.Type "
+				"WHERE HandicapType = ?"
+			);
 		}
 
 		pResults->Bind(1, szHandicapType, strlen(szHandicapType), false);
 
 		while (pResults->Step())
 		{
-			const int yield_idx = pResults->GetInt(0);
-			PRECONDITION(yield_idx > -1);
+			const int era_idx = pResults->GetInt(0);
+			PRECONDITION(era_idx > -1);
 
 			const int historicevent_idx = pResults->GetInt(1);
 			PRECONDITION(historicevent_idx > -1);
 
-			const int era_idx = pResults->GetInt(2);
-			PRECONDITION(era_idx > -1);
+			const int yield_idx = pResults->GetInt(2);
+			PRECONDITION(yield_idx > -1);
 
-			const int amount = pResults->GetInt(3);
+			const int iAmount = pResults->GetInt(3);
 
 			// Manually index the array
 			const int index = era_idx * iNumHistoricEvents * iNumYields + historicevent_idx * iNumYields + yield_idx;
-			m_pppiAIDifficultyBonus[index] = amount;
+			m_pppiAIDifficultyBonus[index] = iAmount;
 		}
+
+		pResults->Reset();
 	}
 
 	return true;
@@ -7958,8 +7983,8 @@ CvWorldInfo::CvWorldInfo() :
 	m_iFeatureGrainChange(0),
 	m_iResearchPercent(0),
 	m_iNumCitiesUnhappinessPercent(100),
-	m_iNumCitiesPolicyCostMod(10),
-	m_iNumCitiesTechCostMod(5),
+	m_iNumCitiesPolicyCostMod(1000),
+	m_iNumCitiesTechCostMod(500),
 	m_iNumCitiesTourismCostMod(5),
 	m_iNumCitiesUnitSupplyMod(5),
 	m_iTradeRouteDistanceMod(100),
@@ -8045,12 +8070,12 @@ int CvWorldInfo::getNumCitiesUnhappinessPercent() const
 	return m_iNumCitiesUnhappinessPercent;
 }
 //------------------------------------------------------------------------------
-int CvWorldInfo::GetNumCitiesPolicyCostMod() const
+int CvWorldInfo::GetNumCitiesPolicyCostModTimes100() const
 {
 	return m_iNumCitiesPolicyCostMod;
 }
 //------------------------------------------------------------------------------
-int CvWorldInfo::GetNumCitiesTechCostMod() const
+int CvWorldInfo::GetNumCitiesTechCostModTimes100() const
 {
 	return m_iNumCitiesTechCostMod;
 }
@@ -11253,6 +11278,7 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 //		CvModEventCityChoiceInfo
 //======================================================================================================
 CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
+	 m_strDescription(""),
 	 m_iEventBuilding(-1),
 	 m_iEventBuildingDestruction(-1),
 	 m_iEventDuration(0),
@@ -11328,6 +11354,8 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bCounterspyBlockSapCity(false),
 	 m_iCityDefenseModifierBase(0),
 	 m_iCityDefenseModifier(0),
+	 m_iSpyIdentificationChanceReductionGlobal(0),
+	 m_iSpySecurityModifier(0),
 	 m_iPrereqTech(-1),
 	 m_iObsoleteTech(-1),
 	 m_iMinimumPopulation(0),
@@ -11414,6 +11442,11 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYield);
 	SAFE_DELETE_ARRAY(m_paCityLinkerInfo);
+}
+//------------------------------------------------------------------------------
+const char* CvModEventCityChoiceInfo::getEventDescription() const
+{
+	return m_strDescription;
 }
 //------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::isParentEvent(CityEventTypes eCityEvent) const
@@ -11526,6 +11559,14 @@ int CvModEventCityChoiceInfo::getCityDefenseModifierBase() const
 int CvModEventCityChoiceInfo::getCityDefenseModifier() const
 {
 	return m_iCityDefenseModifier;
+}
+int CvModEventCityChoiceInfo::getSpyIdentificationChanceReductionGlobal() const
+{
+	return m_iSpyIdentificationChanceReductionGlobal;
+}
+int CvModEventCityChoiceInfo::getSpySecurityModifier() const
+{
+	return m_iSpySecurityModifier;
 }
 
 EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
@@ -12154,6 +12195,9 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	const char* szEventType = GetType();
 	kUtility.PopulateArrayByExistence(m_pbParentEventIDs, "CityEvents", "CityEvent_ParentEvents", "CityEventType", "CityEventChoiceType", szEventType);
 
+	szTextVal = kResults.GetText("Description");
+	m_strDescription = szTextVal;
+
 	szTextVal = kResults.GetText("EventBuildingClass");
 	m_iEventBuilding =  GC.getInfoTypeForString(szTextVal, true);
 
@@ -12187,6 +12231,8 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bCounterspyBlockSapCity = kResults.GetBool("CounterspyBlockSapCity");
 	m_iCityDefenseModifierBase = kResults.GetInt("CityDefenseModifierBase");
 	m_iCityDefenseModifier = kResults.GetInt("CityDefenseModifier");
+	m_iSpyIdentificationChanceReductionGlobal = kResults.GetInt("SpyIdentificationChanceReductionGlobal");
+	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
 
 	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");
 	m_iConvertsCityToPlayerMajorityReligion = kResults.GetBool("ConvertToPlayerMajorityReligionPercent");

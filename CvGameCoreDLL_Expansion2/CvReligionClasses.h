@@ -353,7 +353,9 @@ public:
 	int GetCityStateMinimumInfluence(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 	int GetCityStateInfluenceModifier(PlayerTypes ePlayer) const;
 	int GetCityStateYieldModifier(PlayerTypes ePlayer) const;
+	int GetEspionageNetworkPoints(PlayerTypes ePlayer) const;
 	int GetSpyPressure(PlayerTypes ePlayer) const;
+	int GetSpyPressureErosion(PlayerTypes ePlayer) const;
 	int GetFranchisePressure() const;
 	int GetNumForeignCitiesFollowing(ReligionTypes eReligion) const;
 	int GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReligion) const;
@@ -441,6 +443,7 @@ public:
 	void ConvertNumberAllOtherFollowers(ReligionTypes eToReligion, int iPop);
 	void AddHolyCityPressure();
 	void AddSpyPressure(ReligionTypes eReligion, int iBasePressure);
+	void DoSpyPressureErosion(ReligionTypes eReligion, int iBasePressure, PlayerTypes eResponsiblePlayer);
 	void AddFranchisePressure(ReligionTypes eReligion, int iBasePressure);
 	void AdoptReligionFully(ReligionTypes eReligion);
 	void RemoveFormerPantheon();

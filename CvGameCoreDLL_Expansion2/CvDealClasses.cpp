@@ -1262,12 +1262,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
 
-			// AI teammate of human
-			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
-				return false;
-
 			// Vassalage is disabled
 			if (!GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
+				return false;
+
+			// Voluntary Vassalage is disabled
+			if (!bPeaceDeal && GC.getGame().isOption(GAMEOPTION_NO_VOLUNTARY_VASSALAGE))
+				return false;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 				return false;
 
 			// Can we become the vassal of this team?
@@ -2278,6 +2282,9 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 		case TRADE_ITEM_VASSALAGE:
 		{
 			if (!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
+				return strError;
+
+			if (!bPeaceDeal && GC.getGame().isOption(GAMEOPTION_NO_VOLUNTARY_VASSALAGE))
 				return strError;
 
 			// We are already their vassal
@@ -4198,6 +4205,7 @@ void CvDeal::RemoveTechTrade(TechTypes eTech)
 /// Constructor
 CvGameDeals::CvGameDeals()
 	: m_uiDealCounter(0)
+	, m_iNextDealID(0)
 {
 	Init();
 }
@@ -4221,6 +4229,7 @@ void CvGameDeals::Init()
 	m_ProposedDeals.clear();
 	m_CurrentDeals.clear();
 	m_HistoricalDeals.clear();
+	m_iNextDealID = 0;
 
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
@@ -5240,19 +5249,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	kDeal.m_iFinalTurn = iLatestItemLastTurn;
 	kDeal.m_iStartTurn = GC.getGame().getGameTurn();
 
-	// get first available ID
-	int iHighestDealID = -1;
-	DealList::iterator it;
-	for (it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
-	{
-		iHighestDealID = max(iHighestDealID, it->m_iID);
-	}
-	for (it = m_HistoricalDeals.begin(); it != m_HistoricalDeals.end(); ++it)
-	{
-		iHighestDealID = max(iHighestDealID, it->m_iID);
-	}
-
-	kDeal.m_iID = iHighestDealID + 1;
+	kDeal.m_iID = m_iNextDealID++;
 	m_CurrentDeals.push_back(kDeal);
 
 	LogDealComplete(&kDeal);
@@ -6749,6 +6746,15 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameDeals& writeTo)
 {
 	CvStreamLoadVisitor serialVisitor(loadFrom);
 	CvGameDeals::Serialize(writeTo, serialVisitor);
+
+	// Recompute monotonic deal-ID counter from loaded data
+	int iMaxID = -1;
+	for (DealList::iterator it = writeTo.m_CurrentDeals.begin(); it != writeTo.m_CurrentDeals.end(); ++it)
+		iMaxID = max(iMaxID, it->m_iID);
+	for (DealList::iterator it = writeTo.m_HistoricalDeals.begin(); it != writeTo.m_HistoricalDeals.end(); ++it)
+		iMaxID = max(iMaxID, it->m_iID);
+	writeTo.m_iNextDealID = iMaxID + 1;
+
 	return loadFrom;
 }
 

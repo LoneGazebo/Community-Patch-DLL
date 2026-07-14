@@ -4605,9 +4605,9 @@ void CvGame::UpdateGameEra()
 			iCount++;
 		}
 	}
-	if (iCount >= 0)
+	if (iCount > 0)
 	{
-		int iRoundedEra = int(fEra / (max(1, iCount)) + 0.5f);
+		int iRoundedEra = int(fEra / iCount + 0.5f);
 		m_eGameEra = (EraTypes)iRoundedEra;
 	}
 	else
@@ -13132,10 +13132,6 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	// Place the hidden writing sites first
 	while (iNumExistingHiddenWritingSites < iTargetNumHiddenWritingSites)
 	{
-		// Out of Great Works of Writing?
-		if (vDeadSeaScrolls.empty())
-			break;
-
 		// Out of valid tiles?
 		if (viProximityAdjustedDigSiteScores.empty() || viProximityAdjustedDigSiteScores.GetWeight(0) == 0)
 			break;
@@ -13293,7 +13289,7 @@ void CvGame::CalculateDigSiteScores(CvWeightedVector<CvPlot*>& viDigSiteScores)
 			iScore = 600;
 
 		// Prioritize artifacts from earlier eras.
-		int iEra = range(static_cast<int>(kArchaeology.m_eEra), 0, 10);
+		int iEra = range(static_cast<int>(kArchaeology.m_eEra), 0, 9);
 		iScore *= 10 - iEra;
 
 		// Add some randomness.

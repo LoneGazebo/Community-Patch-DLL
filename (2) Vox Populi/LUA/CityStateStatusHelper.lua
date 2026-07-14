@@ -28,6 +28,8 @@ end
 ktQuestsDisplayOrder = {
 	-- Global quests are first
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST,
@@ -45,6 +47,7 @@ ktQuestsDisplayOrder = {
 	-- Then other personal quests
 	MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_COUP,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY,
@@ -629,6 +632,10 @@ function GetActiveQuestText(iMajor, iMinor)
 				sIconText = sIconText .. "[ICON_INFLUENCE]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM) then
 				sIconText = sIconText .. "[ICON_TOURISM]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS) then
+				sIconText = sIconText .. "[ICON_CULTURE]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS) then
+				sIconText = sIconText .. "[ICON_GOLDEN_AGE]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY) then
 				sIconText = sIconText .. "[ICON_RES_ARTIFACTS]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION) then
@@ -643,6 +650,8 @@ function GetActiveQuestText(iMajor, iMinor)
 				sIconText = sIconText .. "[ICON_RANGE_STRENGTH]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS) then
 				sIconText = sIconText .. "[ICON_PRODUCTION]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION) then
+				sIconText = sIconText .. "[ICON_VIEW_CITY]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR) then
 				sIconText = sIconText .. "[ICON_VIEW_CITY]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_COUP) then
@@ -792,6 +801,22 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				else
 					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TOURISM_LOSING_FORMAL", iLeaderScore, iMajorScore );
 				end
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS) then
+				local iLeaderScore = pMinor:GetMinorCivContestValueForLeader(MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS);
+				local iMajorScore = pMinor:GetMinorCivContestValueForPlayer(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS);
+				if (pMinor:IsMinorCivContestLeader(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS)) then
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_WINNING_FORMAL", iMajorScore );
+				else
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_LOSING_FORMAL", iLeaderScore, iMajorScore );
+				end
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS) then
+				local iLeaderScore = pMinor:GetMinorCivContestValueForLeader(MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS);
+				local iMajorScore = pMinor:GetMinorCivContestValueForPlayer(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS);
+				if (pMinor:IsMinorCivContestLeader(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS)) then
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_WINNING_FORMAL", iMajorScore );
+				else
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_LOSING_FORMAL", iLeaderScore, iMajorScore );
+				end
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL" );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE) then
@@ -826,6 +851,8 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_EXPLORE_AREA_FORMAL", pMinor:GetExplorePercent(iMajor , eType));
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL", GameInfo.Buildings[iQuestData1].Description, pMinor:GetXQuestBuildingRemaining(iMajor, eType, iQuestData1));
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPY_MISSION_FORMAL" , Players[iQuestData1]:GetNameKey(), pMinor:GetQuestSpyMissionString(iMajor, eType) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL" , Players[iQuestData1]:GetNameKey(), pMinor:QuestSpyActionsRemaining(iMajor, eType) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_COUP) then

@@ -87,7 +87,10 @@
 // Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended
 #define MOD_CORE_ENGINEER_HURRY										gCustomMods.isCORE_ENGINEER_HURRY()
 
-// Naval units cannot do ranged attacks from cities or passable improvements
+// Naval units cannot do ranged attacks from cities
+#define MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES				gCustomMods.isCORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES()
+
+// Naval units cannot do ranged attacks from passable improvements
 #define MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS				gCustomMods.isCORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS()
 
 // Prevents repairing improvements in foreign lands with Workers, blocking the pillage-repair loop exploit
@@ -331,6 +334,9 @@
 // Enables the Spy Point system and the number of spies scaling with map size
 #define MOD_BALANCE_SPY_POINTS										gCustomMods.isBALANCE_SPY_POINTS()
 
+// Removes coups against City-States
+#define MOD_BALANCE_NO_COUPS										gCustomMods.isBALANCE_NO_COUPS()
+
 // Enables VP-specific adjustments to air warfare, such as units and cities having air defense
 #define MOD_BALANCE_AIR_UNIT_CHANGES								gCustomMods.isBALANCE_AIR_UNIT_CHANGES()
 
@@ -384,7 +390,7 @@
 // Traits.NoTradeRouteProximityPenalty removes this malus if the player with the trait owns the origin or destination city
 #define MOD_BALANCE_TRADE_ROUTE_PROXIMITY_PENALTY					gCustomMods.isBALANCE_TRADE_ROUTE_PROXIMITY_PENALTY()
 
-// Players cannot send more than one Trade Route to the same destination city
+// Players cannot send more than one Gold Trade Route to the same destination city
 // Traits.NoAnnexing removes this restriction if the player with the trait owns the origin or destination city
 #define MOD_BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION				gCustomMods.isBALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION()
 
@@ -403,9 +409,18 @@
 // Vote Commitments cannot be cancelled by war; if the resolution becomes invalid, the votes are abstained instead of returned to the civ
 #define MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS						gCustomMods.isBALANCE_PERMANENT_VOTE_COMMITMENTS()
 
-// Changes to City-State Quests (Faith Contest now based on followers converted, Kill City-State now mutual and solvable by allying both City-States)
+// Changes to City-State Quests:
+// * Faith Contest now based on followers converted instead of total Faith generated
+// * Kill City-State now mutual and solvable by allying both City-States
+// * Pledge to Protect prioritizes the most recent attacker if jerk status is active, then the most recent bully
+// * Denounce Major can target players with < 0 Influence other than the most recent bully
+// * Current friends are excluded when finding the most recent bully
+// * Spread Religion requires a city within Trade Route range and doesn't require founding
 // Also disables City-States' resistance to conversion if an active Spread Religion quest is being fulfilled (correct player and religion)
 #define MOD_BALANCE_QUEST_CHANGES									gCustomMods.isBALANCE_QUEST_CHANGES()
+
+// City-State units cannot enter Barbarian Encampments
+#define MOD_BALANCE_MINORS_CANNOT_ENTER_ENCAMPMENTS					gCustomMods.isBALANCE_MINORS_CANNOT_ENTER_ENCAMPMENTS()
 
 // Halves the pantheon follower reduction that occurs when a city receives pressure from an actual religion, making pantheons stick around a little longer
 #define MOD_BALANCE_RESILIENT_PANTHEONS								gCustomMods.isBALANCE_RESILIENT_PANTHEONS()
@@ -1532,6 +1547,7 @@ public:
 	MOD_OPT_DECL(CORE_CIVILIANS_RETREAT_WITH_MILITARY);
 	MOD_OPT_DECL(CORE_PERSISTENT_DEFENSIVE_PACTS);
 	MOD_OPT_DECL(CORE_ENGINEER_HURRY);
+	MOD_OPT_DECL(CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES);
 	MOD_OPT_DECL(CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS);
 	MOD_OPT_DECL(CORE_NO_REPAIRING_FOREIGN_LANDS);
 	MOD_OPT_DECL(CORE_NO_INTERMAJOR_UNIT_GIFTING);
@@ -1611,6 +1627,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CITY_STRENGTH_SWITCH);
 	MOD_OPT_DECL(BALANCE_RIVER_CITY_CONNECTIONS);
 	MOD_OPT_DECL(BALANCE_SPY_POINTS);
+	MOD_OPT_DECL(BALANCE_NO_COUPS);
 	MOD_OPT_DECL(BALANCE_AIR_UNIT_CHANGES);
 	MOD_OPT_DECL(BALANCE_RANGED_DEFENSE_UNIT_HEALTH);
 	MOD_OPT_DECL(BALANCE_LAND_UNITS_ADJACENT_BLOCKADE);
@@ -1635,6 +1652,7 @@ public:
 	MOD_OPT_DECL(BALANCE_PRISONERS_OF_WAR);
 	MOD_OPT_DECL(BALANCE_PERMANENT_VOTE_COMMITMENTS);
 	MOD_OPT_DECL(BALANCE_QUEST_CHANGES);
+	MOD_OPT_DECL(BALANCE_MINORS_CANNOT_ENTER_ENCAMPMENTS);
 	MOD_OPT_DECL(BALANCE_RESILIENT_PANTHEONS);
 
 	// Other Balance Options

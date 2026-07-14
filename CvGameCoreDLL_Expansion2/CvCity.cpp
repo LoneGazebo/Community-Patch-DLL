@@ -377,6 +377,9 @@ CvCity::CvCity() :
 	, m_aiYieldChangePerGoldenAgeCap()
 	, m_aiYieldFromPreviousGoldenAges()
 	, m_aiGoldenAgeYieldMod()
+	, m_aiYieldModifierFromDistanceToCapitalBase()
+	, m_aiYieldModifierFromDistanceToCapitalFalloff()
+	, m_aiYieldModifierFromDistanceToCapitalLimit()
 	, m_aiYieldChangesPerLocalTheme()
 	, m_aiYieldFromUnitGiftGlobal()
 	, m_aiYieldFromWLTKD()
@@ -1339,6 +1342,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiYieldChangePerGoldenAgeCap.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPreviousGoldenAges.resize(NUM_YIELD_TYPES);
 	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
+	m_aiYieldModifierFromDistanceToCapitalBase.resize(NUM_YIELD_TYPES);
+	m_aiYieldModifierFromDistanceToCapitalFalloff.resize(NUM_YIELD_TYPES);
+	m_aiYieldModifierFromDistanceToCapitalLimit.resize(NUM_YIELD_TYPES);
 	m_aiYieldChangesPerLocalTheme.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromUnitGiftGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromWLTKD.resize(NUM_YIELD_TYPES);
@@ -1454,6 +1460,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldChangePerGoldenAgeCap[iI] = 0;
 		m_aiYieldFromPreviousGoldenAges[iI] = 0;
 		m_aiGoldenAgeYieldMod[iI] = 0;
+		m_aiYieldModifierFromDistanceToCapitalBase[iI] = 0;
+		m_aiYieldModifierFromDistanceToCapitalFalloff[iI] = 0;
+		m_aiYieldModifierFromDistanceToCapitalLimit[iI] = 0;
 		m_aiYieldChangesPerLocalTheme[iI] = 0;
 		m_aiYieldFromUnitGiftGlobal[iI] = 0;
 		m_aiYieldFromWLTKD[iI] = 0;
@@ -14606,6 +14615,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(eYield) * iChange);
 			}
 
+			if (pBuildingInfo->GetYieldModifierFromDistanceToCapitalBase(eYield) != 0)
+			{
+				ChangeYieldModifierFromDistanceToCapitalBase(eYield, pBuildingInfo->GetYieldModifierFromDistanceToCapitalBase(eYield) * iChange);
+			}
+
+			if (pBuildingInfo->GetYieldModifierFromDistanceToCapitalFalloff(eYield) != 0)
+			{
+				ChangeYieldModifierFromDistanceToCapitalFalloff(eYield, pBuildingInfo->GetYieldModifierFromDistanceToCapitalFalloff(eYield) * iChange);
+			}
+
+			if (pBuildingInfo->GetYieldModifierFromDistanceToCapitalLimit(eYield) != 0)
+			{
+				ChangeYieldModifierFromDistanceToCapitalLimit(eYield, pBuildingInfo->GetYieldModifierFromDistanceToCapitalLimit(eYield) * iChange);
+			}
+
 			if ((pBuildingInfo->GetYieldChangesPerLocalTheme(eYield) > 0))
 			{
 				ChangeYieldChangesPerLocalTheme(eYield, pBuildingInfo->GetYieldChangesPerLocalTheme(eYield) * iChange);
@@ -22686,6 +22710,24 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 	if (toolTipSink)
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_ERA", iTempMod);
 
+	// Yield Modifier from Distance to Capital
+	if (GetYieldModifierFromDistanceToCapitalFalloff(eIndex) != 0)
+	{
+		iTempMod = 0;
+		CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+		if (pCapital)
+		{
+			int iDistanceToCapital = plotDistance(getX(), getY(), pCapital->getX(), pCapital->getY());
+			if (GetYieldModifierFromDistanceToCapitalFalloff(eIndex) > 0)
+				iTempMod = min(GetYieldModifierFromDistanceToCapitalLimit(eIndex), GetYieldModifierFromDistanceToCapitalBase(eIndex) + iDistanceToCapital * GetYieldModifierFromDistanceToCapitalFalloff(eIndex));
+			else
+				iTempMod = max(GetYieldModifierFromDistanceToCapitalLimit(eIndex), GetYieldModifierFromDistanceToCapitalBase(eIndex) + iDistanceToCapital * GetYieldModifierFromDistanceToCapitalFalloff(eIndex));
+		}
+		iModifier += iTempMod;
+		if (toolTipSink)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_YIELD_MOD_DISTANCE_CAPITAL", iTempMod);
+	}
+
 	// Area Yield Rate Modifier
 	CvArea* pArea = plot()->area();
 	if (pArea != NULL)
@@ -24280,6 +24322,70 @@ void CvCity::ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 	{
 		m_aiGoldenAgeYieldMod[eIndex] = m_aiGoldenAgeYieldMod[eIndex] + iChange;
 		ASSERT(GetGoldenAgeYieldMod(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetYieldModifierFromDistanceToCapitalBase(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldModifierFromDistanceToCapitalBase[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldModifierFromDistanceToCapitalBase(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldModifierFromDistanceToCapitalBase[eIndex] = m_aiYieldModifierFromDistanceToCapitalBase[eIndex] + iChange;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetYieldModifierFromDistanceToCapitalFalloff(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldModifierFromDistanceToCapitalFalloff[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldModifierFromDistanceToCapitalFalloff(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldModifierFromDistanceToCapitalFalloff[eIndex] = m_aiYieldModifierFromDistanceToCapitalFalloff[eIndex] + iChange;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetYieldModifierFromDistanceToCapitalLimit(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldModifierFromDistanceToCapitalLimit[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldModifierFromDistanceToCapitalLimit(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eIndex >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldModifierFromDistanceToCapitalLimit[eIndex] = m_aiYieldModifierFromDistanceToCapitalLimit[eIndex] + iChange;
 	}
 }
 
@@ -25987,21 +26093,24 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 	iCitySecurity += iTempMod;
 
 	// Not all players have spies
-	bool bAllPlayersHaveSpies = true;
-	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	if (/*0*/ GD_INT_GET(ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES) != 0)
 	{
-		PlayerTypes ePlayer = (PlayerTypes)ui;
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() == 0)
+		bool bAllPlayersHaveSpies = true;
+		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
-			bAllPlayersHaveSpies = false;
-			break;
+			PlayerTypes ePlayer = (PlayerTypes)ui;
+			if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() == 0)
+			{
+				bAllPlayersHaveSpies = false;
+				break;
+			}
 		}
-	}
-	if (!bAllPlayersHaveSpies)
-	{
-		iTempMod = GD_INT_GET(ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES);
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_NOT_ALL_HAVE_SPIES_TT", iTempMod);
-		iCitySecurity += iTempMod;
+		if (!bAllPlayersHaveSpies)
+		{
+			iTempMod = GD_INT_GET(ESPIONAGE_SECURITY_NOT_ALL_HAVE_SPIES);
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_NOT_ALL_HAVE_SPIES_TT", iTempMod);
+			iCitySecurity += iTempMod;
+		}
 	}
 
 	// Local Buildings
@@ -26016,11 +26125,27 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 	iCitySecurity += iTempMod;
 
 	// Previous Spy Missions
-	iTempMod = GetNumPreviousSpyMissions() * GD_INT_GET(ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS);
-	iTempMod *= 100;
-	iTempMod /= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
-	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_PREVIOUS_SPY_MISSIONS_TT", iTempMod);
-	iCitySecurity += iTempMod;
+	if (/*0*/ GD_INT_GET(ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS) != 0)
+	{
+		iTempMod = GetNumPreviousSpyMissions() * GD_INT_GET(ESPIONAGE_SECURITY_PREVIOUS_CITY_MISSIONS);
+		iTempMod *= 100;
+		iTempMod /= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_PREVIOUS_SPY_MISSIONS_TT", iTempMod);
+		iCitySecurity += iTempMod;
+	}
+
+	// Double-Cross Foreign Agents
+	CvCityEspionage* pCityEspionage = GetCityEspionage();
+	if (pCityEspionage->HasCounterSpy())
+	{
+		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
+		iTempMod = pkEventChoiceInfo->getSpySecurityModifier();
+		if (iTempMod != 0)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_COUNTERSPY_TT", iTempMod);
+			iCitySecurity += iTempMod;
+		}
+	}
 
 	// Population
 	iTempMod = getPopulation() * GD_INT_GET(ESPIONAGE_SECURITY_PER_POPULATION);
@@ -29854,7 +29979,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 				{
 					UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
 					CvUnit* pZuluImpi = kOwner.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
-					pZuluImpi->convert(pUnit, true);
+					pZuluImpi->convert(pUnit, true, false);
 					pUnit = pZuluImpi;
 				}
 			}
@@ -30335,6 +30460,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
 		changeCitySupplyFlat(pProject->GetCitySupplyFlat());
+		changeCityAutomatonWorkersChange(pProject->GetCityAutomatonWorkersChange());
 		GET_PLAYER(getOwner()).ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
 		
 		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
@@ -31143,7 +31269,7 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 				{
 					UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
 					CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pNewUnit->getX(), pNewUnit->getY(), eZuluImpiAI);
-					pZuluImpi->convert(pNewUnit, true);
+					pZuluImpi->convert(pNewUnit, true, false);
 
 					//return value must not be a zombie
 					pNewUnit = pZuluImpi;
@@ -32096,6 +32222,9 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldChangePerGoldenAgeCap);
 	visitor(city.m_aiYieldFromPreviousGoldenAges);
 	visitor(city.m_aiGoldenAgeYieldMod);
+	visitor(city.m_aiYieldModifierFromDistanceToCapitalBase);
+	visitor(city.m_aiYieldModifierFromDistanceToCapitalFalloff);
+	visitor(city.m_aiYieldModifierFromDistanceToCapitalLimit);
 	visitor(city.m_aiYieldChangesPerLocalTheme);
 	visitor(city.m_aiYieldFromUnitGiftGlobal);
 	visitor(city.m_aiYieldFromWLTKD);

@@ -4185,7 +4185,21 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetGlobalYieldModifier(eYield) > 0)
 	{
-		iModifier += pkBuildingInfo->GetGlobalYieldModifier(eYield);
+		iModifier += pkBuildingInfo->GetGlobalYieldModifier(eYield) * kPlayer.getNumCities();
+	}
+
+	// Yield Modifier from Distance to Capital
+	if (pkBuildingInfo->GetYieldModifierFromDistanceToCapitalBase(eYield) != 0)
+	{
+		CvCity* pCapital = kPlayer.getCapitalCity();
+		if (pCapital)
+		{
+			int iDistanceToCapital = plotDistance(pCity->getX(), pCity->getY(), pCapital->getX(), pCapital->getY());
+			if (pkBuildingInfo->GetYieldModifierFromDistanceToCapitalFalloff(eYield) > 0)
+				iModifier += min(pkBuildingInfo->GetYieldModifierFromDistanceToCapitalLimit(eYield), pkBuildingInfo->GetYieldModifierFromDistanceToCapitalBase(eYield) + iDistanceToCapital * pkBuildingInfo->GetYieldModifierFromDistanceToCapitalFalloff(eYield));
+			else
+				iModifier += max(pkBuildingInfo->GetYieldModifierFromDistanceToCapitalLimit(eYield), pkBuildingInfo->GetYieldModifierFromDistanceToCapitalBase(eYield) + iDistanceToCapital * pkBuildingInfo->GetYieldModifierFromDistanceToCapitalFalloff(eYield));
+		}
 	}
 
 	int iYieldPolicyModBonus = kPlayer.GetPlayerPolicies()->GetBuildingClassYieldModifier(pkBuildingInfo->GetBuildingClassType(), eYield);
@@ -5089,7 +5103,15 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			{
 				if (pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) != 0)
 				{
-					iModifier += /*8*/ pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) * 5;
+					iModifier += /*40*/ pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) * 5;
+				}
+				if (pReligion->m_Beliefs.GetSpyPressureErosion(kPlayer.GetID(), pCity) != 0)
+				{
+					iModifier += /*40*/ pReligion->m_Beliefs.GetSpyPressureErosion(kPlayer.GetID(), pCity) * 10;
+				}
+				if (pReligion->m_Beliefs.GetEspionageNetworkPoints(kPlayer.GetID(), pCity) != 0)
+				{
+					iModifier += /*80*/ pReligion->m_Beliefs.GetEspionageNetworkPoints(kPlayer.GetID(), pCity) * 10;
 				}
 			}
 		}

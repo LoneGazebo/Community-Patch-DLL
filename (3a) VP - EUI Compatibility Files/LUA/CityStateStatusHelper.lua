@@ -103,6 +103,8 @@ local ktQuestsIcon = {
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE or false ] = function() return "[ICON_CITY_STATE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or false ] = function() return "[ICON_INFLUENCE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or false ] = function() return "[ICON_TOURISM]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS or false ] = function() return "[ICON_CULTURE]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS or false ] = function() return "[ICON_GOLDEN_AGE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or false ] = function() return "[ICON_RES_ARTIFACTS]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or false ] = function() return "[ICON_TURNS_REMAINING]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or false ] = function() return "[ICON_OCCUPIED]" end,
@@ -110,6 +112,7 @@ local ktQuestsIcon = {
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or false ] = function() return "[ICON_HAPPINESS_4]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA or false ] = function() return "[ICON_RANGE_STRENGTH]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false ] = function() return "[ICON_PRODUCTION]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION or false ] = function() return "[ICON_VIEW_CITY]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR or false ] = function() return "[ICON_VIEW_CITY]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_COUP or false ] = function() return "[ICON_INQUISITOR]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY or false ] = function() return "[ICON_VICTORY_DOMINATION]" end,
@@ -121,6 +124,8 @@ if gk_mode then
 	ktQuestsDisplayOrder = {
 		-- Global quests are first
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_CULTURE or false,	-- g&k+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS or false, -- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST or false,		-- g&k+
@@ -138,6 +143,7 @@ if gk_mode then
 		-- Then other personal quests
 		MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_COUP or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY or false,		-- VP
@@ -836,7 +842,6 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1, ques
 			else
 				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL", iLeaderScore, iMajorScore )
 			end
--- CBP
 		elseif (questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM) then
 				local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID);
 				local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID);
@@ -845,7 +850,22 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1, ques
 				else
 					return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TOURISM_LOSING_FORMAL", iLeaderScore, iMajorScore );
 				end
--- END
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS then
+			local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID)
+			local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID)
+			if minorPlayer:IsMinorCivContestLeader(majorPlayerID, questID) then
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_WINNING_FORMAL", iMajorScore )
+			else
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_ARTSY_UNITS_LOSING_FORMAL", iLeaderScore, iMajorScore )
+			end
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS then
+			local iLeaderScore = minorPlayer:GetMinorCivContestValueForLeader(questID)
+			local iMajorScore = minorPlayer:GetMinorCivContestValueForPlayer(majorPlayerID, questID)
+			if minorPlayer:IsMinorCivContestLeader(majorPlayerID, questID) then
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_WINNING_FORMAL", iMajorScore )
+			else
+				return L( "TXT_KEY_CITY_STATE_QUEST_CONTEST_SCIENCEY_UNITS_LOSING_FORMAL", iLeaderScore, iMajorScore )
+			end
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST then
 			return L( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL" )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE then
@@ -879,6 +899,8 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1, ques
 			return L( "TXT_KEY_CITY_STATE_QUEST_EXPLORE_AREA_FORMAL", minorPlayer:GetExplorePercent(majorPlayerID , questID) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS then
 			return L( "TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL", GameInfo.Buildings[questData1].Description, minorPlayer:GetXQuestBuildingRemaining(majorPlayerID, questID, questData1 ) )
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION then
+			return L( "TXT_KEY_CITY_STATE_QUEST_SPY_MISSION_FORMAL", minorPlayer:GetQuestSpyMissionString(majorPlayerID, questID))
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR then
 			return L( "TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL", Players[questData1]:GetNameKey(), minorPlayer:QuestSpyActionsRemaining(majorPlayerID, questID) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_COUP then

@@ -8151,7 +8151,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 						{
 							UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
 							CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pLoopUnit->getX(), pLoopUnit->getY(), eZuluImpiAI);
-							pZuluImpi->convert(pLoopUnit, true);
+							pZuluImpi->convert(pLoopUnit, true, false);
 						}
 					}
 				}
@@ -9833,6 +9833,12 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 
 	// Vassalage is disabled...
 	if(!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_ENABLE_VASSALAGE))
+	{
+		return false;
+	}
+
+	// Voluntary Vassalage is disabled
+	if (!isAtWar(eTeam) && GC.getGame().isOption(GAMEOPTION_NO_VOLUNTARY_VASSALAGE))
 	{
 		return false;
 	}

@@ -58,6 +58,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iCityStateInfluenceModifier(0),
 	m_iOtherReligionPressureErosion(0),
 	m_iSpyPressure(0),
+	m_iSpyPressureErosion(0),
 	m_iInquisitorPressureRetention(0),
 	m_iFaithBuildingTourism(0),
 	m_iFullyConvertedHappiness(0),
@@ -132,6 +133,8 @@ CvBeliefEntry::CvBeliefEntry() :
 
 	m_pbFaithPurchaseUnitEraEnabled(NULL),
 	m_pbBuildingClassEnabled(NULL),
+	m_iEspionageNetworkPoints(0),
+	m_iHappinessFromSpies(0),
 	m_iHappinessFromForeignSpies(0),
 	m_iGetPressureChangeTradeRoute(0),
 	m_piYieldPerActiveTR(NULL),
@@ -511,6 +514,12 @@ int CvBeliefEntry::GetSpyPressure() const
 	return m_iSpyPressure;
 }
 
+/// Accessor: base religious pressure erosion from other religions (before speed multiplier) from having a spy in a city
+int CvBeliefEntry::GetSpyPressureErosion() const
+{
+	return m_iSpyPressureErosion;
+}
+
 /// Accessor: percentage of religious pressure retained if one of your cities is hit with an Inquisitor
 int CvBeliefEntry::GetInquisitorPressureRetention() const
 {
@@ -602,6 +611,14 @@ bool CvBeliefEntry::RequiresOwnTerritory() const
 	return m_bRequiresOwnTerritory;
 }
 
+int CvBeliefEntry::GetEspionageNetworkPoints() const
+{
+	return m_iEspionageNetworkPoints;
+}
+int CvBeliefEntry::GetHappinessFromSpies() const
+{
+	return m_iHappinessFromSpies;
+}
 int CvBeliefEntry::GetHappinessFromForeignSpies() const
 {
 	return m_iHappinessFromForeignSpies;
@@ -1386,6 +1403,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCityStateInfluenceModifier     = kResults.GetInt("CityStateInfluenceModifier");
 	m_iOtherReligionPressureErosion   = kResults.GetInt("OtherReligionPressureErosion");
 	m_iSpyPressure					  = kResults.GetInt("SpyPressure");
+	m_iSpyPressureErosion			  = kResults.GetInt("SpyPressureErosion");
 	m_iInquisitorPressureRetention    = kResults.GetInt("InquisitorPressureRetention");
 	m_iFaithBuildingTourism           = kResults.GetInt("FaithBuildingTourism");
 	m_iFullyConvertedHappiness		  = kResults.GetInt("FullyConvertedHappiness");
@@ -1406,6 +1424,8 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bRequiresNoFeature			  = kResults.GetBool("RequiresNoImprovementFeature");
 	m_bRequiresOwnTerritory			  = kResults.GetBool("RequiresOwnTerritory");
 
+	m_iEspionageNetworkPoints = kResults.GetInt("EspionageNetworkPoints");
+	m_iHappinessFromSpies = kResults.GetInt("HappinessFromSpies");
 	m_iHappinessFromForeignSpies = kResults.GetInt("HappinessFromForeignSpies");
 	m_iGetPressureChangeTradeRoute = kResults.GetInt("PressureChangeTradeRoute");
 	m_iCombatBonusOwnLands = kResults.GetInt("CombatBonusOwnLands");
@@ -2676,10 +2696,25 @@ int CvReligionBeliefs::GetSpyPressure(PlayerTypes ePlayer, const CvCity* pCity, 
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
-
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetSpyPressure();
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+int CvReligionBeliefs::GetSpyPressureErosion(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetSpyPressureErosion();
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
@@ -4384,6 +4419,40 @@ int CvReligionBeliefs::GetPressureChangeTradeRoute(PlayerTypes ePlayer, const Cv
 
 	return rtnValue;
 }
+/// Spies in foreign cities gain +NP per turn
+int CvReligionBeliefs::GetEspionageNetworkPoints(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetEspionageNetworkPoints();
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+/// Get bonus happiness from spies
+int CvReligionBeliefs::GetHappinessFromSpies(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetHappinessFromSpies();
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
 /// Get bonus happiness from foreign spies
 int CvReligionBeliefs::GetHappinessFromForeignSpies(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
@@ -4976,21 +5045,19 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReligionBeliefs& writeTo)
 
 /// Is there an adjacent barbarian naval unit that could be converted?
 bool CvBeliefHelpers::ConvertBarbarianUnit(const CvUnit *pByUnit, CvUnit* pUnit)
-
 {
 	CvUnit* pNewUnit = NULL;
 	CvPlot *pPlot = pUnit->plot();
 
 	CvPlayer* pPlayer = &GET_PLAYER(pByUnit->getOwner());
 
-	if (MOD_EVENTS_UNIT_CAPTURE) {
+	if (MOD_EVENTS_UNIT_CAPTURE)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, pPlayer->GetID(), pByUnit->GetID(), pUnit->getOwner(), pUnit->GetID(), false, 4);
-	}
 
 	// Convert the barbarian into our unit
 	pNewUnit = pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);
 	ASSERT(pNewUnit, "pNewUnit is not assigned a valid value");
-	pNewUnit->convert(pUnit, false);
+	pNewUnit->convert(pUnit, false, false);
 	pNewUnit->setupGraphical();
 	pNewUnit->finishMoves(); // No move first turn
 

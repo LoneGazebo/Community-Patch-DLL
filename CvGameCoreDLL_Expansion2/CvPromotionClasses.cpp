@@ -202,6 +202,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bCannotBeChosen(false),
 	m_bLostWithUpgrade(false),
 	m_bNotWithUpgrade(false),
+	m_bLostOnGifting(false),
 	m_bInstaHeal(false),
 	m_bLeader(false),
 	m_bBlitz(false),
@@ -456,6 +457,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bCannotBeChosen = kResults.GetBool("CannotBeChosen");
 	m_bLostWithUpgrade = kResults.GetBool("LostWithUpgrade");
 	m_bNotWithUpgrade = kResults.GetBool("NotWithUpgrade");
+	m_bLostOnGifting = kResults.GetBool("LostOnGifting");
 	m_bInstaHeal = kResults.GetBool("InstaHeal");
 	m_bLeader = kResults.GetBool("Leader");
 	m_bBlitz = kResults.GetBool("Blitz");
@@ -2307,6 +2309,12 @@ bool CvPromotionEntry::IsLostWithUpgrade() const
 bool CvPromotionEntry::IsNotWithUpgrade() const
 {
 	return m_bNotWithUpgrade;
+}
+
+/// Accessor: Is this lost when gifting the unit?
+bool CvPromotionEntry::IsLostOnGifting() const
+{
+	return m_bLostOnGifting;
 }
 
 /// Accessor: Does this promotion instantly heal a Unit?

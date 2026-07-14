@@ -314,6 +314,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromGoldenAgeStart(NULL),
 	m_piYieldChangePerGoldenAge(NULL),
 	m_piYieldChangePerGoldenAgeCap(NULL),
+	m_piYieldModifierFromDistanceToCapitalBase(NULL),
+	m_piYieldModifierFromDistanceToCapitalFalloff(NULL),
+	m_piYieldModifierFromDistanceToCapitalLimit(NULL),
 	m_piGoldenAgeYieldMod(NULL),
 	m_piYieldChangesPerLocalTheme(NULL),
 	m_piYieldFromUnitGiftGlobal(NULL),
@@ -470,6 +473,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromGoldenAgeStart);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerGoldenAge);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerGoldenAgeCap);
+	SAFE_DELETE_ARRAY(m_piYieldModifierFromDistanceToCapitalBase);
+	SAFE_DELETE_ARRAY(m_piYieldModifierFromDistanceToCapitalFalloff);
+	SAFE_DELETE_ARRAY(m_piYieldModifierFromDistanceToCapitalLimit);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	SAFE_DELETE_ARRAY(m_piYieldChangesPerLocalTheme);
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitGiftGlobal);
@@ -971,6 +977,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromGoldenAgeStart, "Building_YieldFromGoldenAgeStart", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangePerGoldenAge, "Building_YieldChangesPerGoldenAge", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piYieldChangePerGoldenAgeCap, "Yields", "Building_YieldChangesPerGoldenAge", "YieldType", "BuildingType", szBuildingType, "YieldCap");
+	kUtility.PopulateArrayByValue(m_piYieldModifierFromDistanceToCapitalBase, "Yields", "Building_YieldModifiersFromDistanceToCapital", "YieldType", "BuildingType", szBuildingType, "YieldBase");
+	kUtility.PopulateArrayByValue(m_piYieldModifierFromDistanceToCapitalFalloff, "Yields", "Building_YieldModifiersFromDistanceToCapital", "YieldType", "BuildingType", szBuildingType, "YieldFalloff");
+	kUtility.PopulateArrayByValue(m_piYieldModifierFromDistanceToCapitalLimit, "Yields", "Building_YieldModifiersFromDistanceToCapital", "YieldType", "BuildingType", szBuildingType, "YieldLimit");
 	kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangesPerLocalTheme, "Building_YieldChangesPerLocalTheme", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromUnitGiftGlobal, "Building_YieldFromUnitGiftGlobal", "BuildingType", szBuildingType);
@@ -3630,7 +3639,31 @@ int* CvBuildingEntry::GetYieldChangePerGoldenAgeCapArray() const
 	return m_piYieldChangePerGoldenAgeCap;
 }
 
-/// Change to yield during golden ages
+/// Yield Modifier from distance to capital - base value
+int CvBuildingEntry::GetYieldModifierFromDistanceToCapitalBase(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldModifierFromDistanceToCapitalBase ? m_piYieldModifierFromDistanceToCapitalBase[i] : -1;
+}
+
+/// Yield Modifier from distance to capital - falloff
+int CvBuildingEntry::GetYieldModifierFromDistanceToCapitalFalloff(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldModifierFromDistanceToCapitalFalloff ? m_piYieldModifierFromDistanceToCapitalFalloff[i] : -1;
+}
+
+/// Yield Modifier from distance to capital - limit
+int CvBuildingEntry::GetYieldModifierFromDistanceToCapitalLimit(int i) const
+{
+	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_piYieldModifierFromDistanceToCapitalLimit ? m_piYieldModifierFromDistanceToCapitalLimit[i] : -1;
+}
+
+/// Yield changes per themed great work in the building
 int CvBuildingEntry::GetYieldChangesPerLocalTheme(int i) const
 {
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");

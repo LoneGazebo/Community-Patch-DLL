@@ -2035,8 +2035,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	if (!GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)))
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	
-	bool bTheVeniceException = GetPlayerTraits()->IsNoAnnexing();  // dont need embassies if you will buyout
-	bool bAnnexException = GetPlayerTraits()->IsAbleToAnnexCityStates();  // dont need embassies if you will annex
+	bool bTheVeniceException = GetPlayerTraits()->IsNoAnnexing();  // don't need embassies if you will buyout
+	bool bAnnexException = GetPlayerTraits()->IsAbleToAnnexCityStates();  // don't need embassies if you will annex
 	
 	int iFlavorDiplo = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 	int iFlavorEspionage = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ESPIONAGE"));
@@ -2046,15 +2046,15 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	{
 		// trying to win diplo, only care about total votes so choose embassy if possible
 		if (GetDiplomacyAI()->IsGoingForDiploVictory())
-				return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+			return GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 			
 		// Embassy vs Mission will be based on Diplomacy Flavor vs Espionage Flavor due to spy points
 		// first roll a number between 0 and 2 * iFlavorDiplo - 1
-		int iRandom = GC.getGame().getJonRandNum(2 * iFlavorDiplo, "Diplomat Choice");
+		int iRandom = GC.getGame().randRangeInclusive(0, max(2 * iFlavorDiplo - 1, 0), CvSeeder::fromRaw(0xdefb982b).mix(GetID()).mix(pGreatDiplomat->GetID()));
 		// decide whether to try for an embassy
 		if (iRandom >= iFlavorEspionage || GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
 		// equal flavors results in 50/50 chance
-		// Espionage >= 2 * Diplo results in always false, use for spy-focussed civs
+		// Espionage >= 2 * Diplo results in always false, use for spy-focused civs
 		// Diplo > Espionage smoothly reduces chance of mission, but mission is always possible (still good for CS Influence)
 		{
 			// getting too many embassies is overcommitting (since you can lose them)

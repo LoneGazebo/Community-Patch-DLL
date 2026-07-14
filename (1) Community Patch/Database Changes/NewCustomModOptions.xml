@@ -77,7 +77,10 @@
 		<!-- Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended -->
 		<Row Class="5" Name="CORE_ENGINEER_HURRY" Value="1"/>
 
-		<!-- Naval units cannot do ranged attacks from cities or passable improvements -->
+		<!-- Naval units cannot do ranged attacks from cities -->
+		<Row Class="5" Name="CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES" Value="1"/>
+
+		<!-- Naval units cannot do ranged attacks from passable improvements -->
 		<Row Class="5" Name="CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS" Value="1"/>
 
 		<!-- Prevents repairing improvements in foreign lands with Workers, blocking the pillage-repair loop exploit -->
@@ -398,6 +401,10 @@
 		<!-- Defines: ESPIONAGE_SPY_POINT_UNIT, BALANCE_SPY_TO_PLAYER_RATIO, BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER, BALANCE_SPY_POINT_THRESHOLD_MIN, BALANCE_SPY_POINT_THRESHOLD_MAX -->
 		<Row Class="6" Name="BALANCE_SPY_POINTS" Value="0"/>
 
+		<!-- Removes coups against City-States -->
+		<!-- NOTE: Requires additional UI changes -->
+		<Row Class="6" Name="BALANCE_NO_COUPS" Value="0"/>
+
 		<!-- Enables VP-specific adjustments to air warfare, such as units and cities having air defense -->
 		<!-- NOTE: Requires additional UI changes -->
 		<Row Class="6" Name="BALANCE_AIR_UNIT_CHANGES" Value="0"/>
@@ -455,7 +462,7 @@
 		<!-- Traits.NoTradeRouteProximityPenalty removes this malus if the player with the trait owns the origin or destination city -->
 		<Row Class="5" Name="BALANCE_TRADE_ROUTE_PROXIMITY_PENALTY" Value="0"/>
 
-		<!-- Players cannot send more than one Trade Route to the same destination city -->
+		<!-- Players cannot send more than one Gold Trade Route to the same destination city -->
 		<!-- Traits.NoAnnexing removes this restriction if the player with the trait owns the origin or destination city -->
 		<Row Class="5" Name="BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION" Value="0"/>
 
@@ -476,10 +483,19 @@
 		<!-- Vote Commitments cannot be cancelled by war; if the resolution becomes invalid, the votes are abstained instead of returned to the civ -->
 		<Row Class="5" Name="BALANCE_PERMANENT_VOTE_COMMITMENTS" Value="0"/>
 
-		<!-- Changes to City-State Quests (Faith Contest now based on followers converted, Kill City-State now mutual and solvable by allying both City-States) -->
+		<!-- Changes to City-State Quests: -->
+		<!-- * Faith Contest now based on followers converted instead of total Faith generated -->
+		<!-- * Kill City-State now mutual and solvable by allying both City-States -->
+		<!-- * Pledge to Protect prioritizes the most recent attacker if jerk status is active, then the most recent bully -->
+		<!-- * Denounce Major can target players with < 0 Influence other than the most recent bully -->
+		<!-- * Current friends are excluded when finding the most recent bully -->
+		<!-- * Spread Religion requires a city within Trade Route range and doesn't require founding -->
 		<!-- Also disables City-States' resistance to conversion if an active Spread Religion quest is being fulfilled (correct player and religion) -->
 		<!-- NOTE: Updates to text keys are also required -->
 		<Row Class="5" Name="BALANCE_QUEST_CHANGES" Value="0"/>
+
+		<!-- City-State units cannot enter Barbarian Encampments -->
+		<Row Class="4" Name="BALANCE_MINORS_CANNOT_ENTER_ENCAMPMENTS" Value="0"/>
 
 		<!-- Halves the pantheon follower reduction that occurs when a city receives pressure from an actual religion, making pantheons stick around a little longer -->
 		<Row Class="4" Name="BALANCE_RESILIENT_PANTHEONS" Value="0"/>

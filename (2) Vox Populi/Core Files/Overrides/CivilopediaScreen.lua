@@ -962,6 +962,22 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 			if #civNames > 0 then
 				local civNameStr = table.concat(civNames, ", ");
 				name = "[COLOR_POSITIVE_TEXT](" .. civNameStr .. ")[ENDCOLOR] " .. name;
+			elseif building.CivilizationRequired ~= nil then
+				name = "[COLOR_POSITIVE_TEXT](" .. Locale.ConvertTextKey(GameInfo.Civilizations[building.CivilizationRequired].Adjective) .. ")[ENDCOLOR] " .. name;
+			end
+
+			-- If it comes from a policy, prepend that information
+			if building.PolicyType ~= nil then
+				local policy = GameInfo.Policies[building.PolicyType]
+				local ppbranch = policy.PolicyBranchType
+				if ppbranch then
+				    name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[ppbranch].Description ) .. ")[ENDCOLOR] " .. name;
+				-- if not, its an opener or finisher, so the policy name is the branch name
+				else
+					name = "[COLOR_MAGENTA](" .. Locale.Lookup( policy.Description ) .. ")[ENDCOLOR] " .. name;
+				end
+			elseif building.PolicyBranchType ~= nil then
+				name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[building.PolicyBranchType].Description ) .. ")[ENDCOLOR] " .. name;
 			end
 
 			article.entryName = name;
@@ -1009,6 +1025,27 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 			if #civNames > 0 then
 				local civNameStr = table.concat(civNames, ", ");
 				name = "[COLOR_POSITIVE_TEXT](" .. civNameStr .. ")[ENDCOLOR] " .. name;
+			elseif building.CivilizationRequired ~= nil then
+				name = "[COLOR_POSITIVE_TEXT](" .. Locale.ConvertTextKey(GameInfo.Civilizations[building.CivilizationRequired].Adjective) .. ")[ENDCOLOR] " .. name;
+			end
+
+			-- If it's a reformation wonder, prepend that information
+			if building.IsReformation then
+				name = "[COLOR_WHITE](Reformation)[ENDCOLOR] " .. name;
+			end
+
+			-- If it comes from a policy, prepend that information
+			if building.PolicyType ~= nil then
+				local policy = GameInfo.Policies[building.PolicyType]
+				local ppbranch = policy.PolicyBranchType
+				if ppbranch then
+				    name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[ppbranch].Description ) .. ")[ENDCOLOR] " .. name;
+				-- if not, its an opener or finisher, so the policy name is the branch name
+				else
+					name = "[COLOR_MAGENTA](" .. Locale.Lookup( policy.Description ) .. ")[ENDCOLOR] " .. name;
+				end
+			elseif building.PolicyBranchType ~= nil then
+				name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[building.PolicyBranchType].Description ) .. ")[ENDCOLOR] " .. name;
 			end
 
 			article.entryName = name;

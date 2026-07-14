@@ -202,22 +202,18 @@ bool LeagueHelpers::IsBuildingForTriggerBuiltAnywhere(BuildingTypes eBuilding)
 	}
 	return false;
 }
-bool LeagueHelpers::IsResolutionForTriggerActive(ResolutionTypes eType)
+bool CvLeague::IsResolutionForTriggerActive(ResolutionTypes eType) const
 {
-	if(eType != NO_RESOLUTION)
-	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		const ActiveResolutionList& vActiveResolutions = pLeague->GetActiveResolutions();
-		for (ActiveResolutionList::const_iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); ++it)
-		{
-			if (it->GetType() == eType)
-			{
-				return true;
-			}
-		}
+	if (eType == NO_RESOLUTION)
 		return false;
+
+	const ActiveResolutionList& vActiveResolutions = GetActiveResolutions();
+	for (ActiveResolutionList::const_iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); ++it)
+	{
+		if (it->GetType() == eType)
+			return true;
 	}
-	return true;
+	return false;
 }
 
 
@@ -869,6 +865,9 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 	if (iVotes <= 0)
 		return 0;
 
+	if (iTotalVotes <= 0)
+		return 0;
+
 	// What percentage of their total votes did they dedicate to this outcome? Relevant for voting history score.
 	if (!bChangeHost)
 	{
@@ -913,6 +912,9 @@ int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, in
 	}
 
 	if (iVotes <= 0)
+		return 0;
+
+	if (iTotalVotes <= 0)
 		return 0;
 
 	// What percentage of their total votes did they dedicate to this outcome? Relevant for voting history score.
@@ -3264,7 +3266,7 @@ bool CvLeague::IsResolutionEffectsValid(ResolutionTypes eResolution, int iPropos
 			CvLeagueSpecialSessionEntry* pSessionInfo = GC.getLeagueSpecialSessionInfo(e);
 			if(pSessionInfo->IsUnitedNations() && pSessionInfo->GetResolutionTrigger() != NO_RESOLUTION)
 			{
-				if(!LeagueHelpers::IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger()))
+				if (!IsResolutionForTriggerActive(pSessionInfo->GetResolutionTrigger()))
 				{
 					if (sTooltipSink != NULL)
 					{

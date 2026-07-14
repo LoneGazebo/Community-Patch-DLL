@@ -26,7 +26,6 @@ namespace LeagueHelpers
 	EraTypes GetNextGameEraForTrigger();
 	EraTypes GetNextGameEraForTrigger(EraTypes eThisEra);
 	bool IsBuildingForTriggerBuiltAnywhere(BuildingTypes eBuilding);
-	bool IsResolutionForTriggerActive(ResolutionTypes eType);
 
 	typedef vector<PlayerTypes> PlayerList;
 
@@ -574,6 +573,7 @@ public:
 	bool IsResolutionEffectsValid(ResolutionTypes eResolution, int iProposerChoice, CvString* sTooltipSink = NULL);
 	bool IsAnythingProposed();
 	bool IsActiveResolution(ResolutionTypes eResolution, int iProposerChoice);
+	bool IsResolutionForTriggerActive(ResolutionTypes eType) const;
 	bool IsProposed(int iResolutionID, bool bRepeal, bool bCheckOnHold = false);
 	bool IsEnactProposed(ResolutionTypes eResolution, int iProposerChoice);
 	bool IsRepealProposed(int iResolutionID) const;

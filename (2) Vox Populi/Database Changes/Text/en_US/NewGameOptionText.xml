@@ -8,6 +8,13 @@
 			<Text>Enables the Vassalage System, allowing weaker civilizations to become the vassals of stronger civilizations.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_VOLUNTARY_VASSALAGE">
+			<Text>No Voluntary Vassalage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_VOLUNTARY_VASSALAGE_HELP">
+			<Text>Capitulation in a Peace Treaty is the only method of vassalizing other civilizations. NOTE: This option does nothing if 'Enable Vassalage' is disabled.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_GAME_OPTION_PASSIVE_ESPIONAGE">
 			<Text>Passive Espionage</Text>
 		</Row>

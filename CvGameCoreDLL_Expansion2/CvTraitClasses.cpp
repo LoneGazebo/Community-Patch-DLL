@@ -8004,7 +8004,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit)
 		// Convert the barbarian into our unit
 		pGiftUnit = m_pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);
 		ASSERT(pGiftUnit, "GiftUnit is not assigned a valid value");
-		pGiftUnit->convert(pUnit, false);
+		pGiftUnit->convert(pUnit, false, false);
 		pGiftUnit->setupGraphical();
 		pGiftUnit->finishMoves(); // No move first turn
 

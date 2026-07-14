@@ -115,6 +115,16 @@
 			<QuestDuration>30</QuestDuration>
 		</Row>
 		<Row>
+			<Type>MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS</Type>
+			<Influence>40</Influence>
+			<QuestDuration>30</QuestDuration>
+		</Row>
+		<Row>
+			<Type>MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS</Type>
+			<Influence>40</Influence>
+			<QuestDuration>30</QuestDuration>
+		</Row>
+		<Row>
 			<Type>MINOR_CIV_QUEST_ARCHAEOLOGY</Type>
 			<Influence>40</Influence>
 		</Row>
@@ -143,6 +153,10 @@
 		<Row>
 			<Type>MINOR_CIV_QUEST_BUILD_X_BUILDINGS</Type>
 			<Influence>30</Influence>
+		</Row>
+		<Row>
+			<Type>MINOR_CIV_QUEST_SPY_MISSION</Type>
+			<Influence>40</Influence>
 		</Row>
 		<Row>
 			<Type>MINOR_CIV_QUEST_SPY_ON_MAJOR</Type>

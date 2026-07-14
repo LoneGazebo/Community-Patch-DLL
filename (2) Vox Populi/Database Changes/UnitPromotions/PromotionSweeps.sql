@@ -546,41 +546,52 @@ WHERE RankList IN (
 	'PROMOTION_STEAM_POWERED'
 );
 
+CREATE TEMP TABLE Helper(Type TEXT);
+INSERT INTO Helper
+	(Type)
+VALUES
+	('PROMOTION_CHASQUI_TRAINING'), -- Inca UA
+	('PROMOTION_GOODY_HUT_PICKER'), -- Shoshone UA
+	('PROMOTION_MORALE'), -- Heroic Epic, Order
+	('PROMOTION_HIMEJI_CASTLE'), -- Himeji Castle
+	('PROMOTION_STATUE_ZEUS'), -- Statue of Zeus
+	('PROMOTION_JINETE'), -- Alhambra
+	('PROMOTION_IKLWA'), -- Ikanda
+	('PROMOTION_SCHUTZENKONIG'), -- Schützenstand
+	('PROMOTION_VENETIAN_CRAFTSMANSHIP'), -- Arsenale di Venezia
+	('PROMOTION_AGE_OF_DISCOVERY'), -- University of Coimbra
+	('PROMOTION_TRIUMPH'), -- Fornix
+	('PROMOTION_TREASURE_FLEET'), -- Grand Canal
+	('PROMOTION_EVERLASTING_YOUTH'), -- Fountain of Youth
+	('PROMOTION_ALTITUDE_TRAINING'), -- Mt. Kilimanjaro
+	('PROMOTION_SACRED_STEPS'), -- Sri Pada
+	('PROMOTION_NATIONALISM'), -- Patriotic War
+	('PROMOTION_LIGHTNING_WARFARE_GUNPOWDER'), -- Lightning Warfare
+	('PROMOTION_LIGHTNING_WARFARE_ARMORED'), -- Lightning Warfare
+	('PROMOTION_MARE_NOSTRUM'), -- Mare Nostrum
+	('PROMOTION_FERVOR'), -- Event
+	-- These don't have a text indicator since these units shouldn't be giftable anyway
+	('PROMOTION_PROXENOS'), -- Parthenon
+	('PROMOTION_FASTER_WORKER'), -- Organization
+	('PROMOTION_ENGINEERING_CORP'), -- Ballistics
+	('PROMOTION_FALLOUT_RESISTANCE'), -- Penicillin
+	('PROMOTION_FALLOUT_IMMUNITY'); -- Nanotechnology
+
 -- Lost with upgrade promotions can never be chosen (or it'll feel really bad)
 UPDATE UnitPromotions
 SET CannotBeChosen = 1
 WHERE LostWithUpgrade = 1
 -- Only as free promotions
 OR NOT EXISTS (SELECT 1 FROM UnitPromotions_UnitCombats WHERE PromotionType = Type)
--- Others
+-- Building, Natural Wonder, Policy, Tech, and Event promotions can never be chosen
+OR Type IN (SELECT Type FROM Helper)
 OR RankList IN (
 	'EMBARKATION',
 	'AUTHORITY',
 	'IMPERIALISM'
 )
+-- Others
 OR Type IN (
-	'PROMOTION_MORALE', -- Heroic Epic, Order
-	'PROMOTION_HIMEJI_CASTLE', -- Himeji Castle
-	'PROMOTION_STATUE_ZEUS', -- Statue of Zeus
-	'PROMOTION_PROXENOS', -- Parthenon
-	'PROMOTION_IKLWA', -- Ikanda
-	'PROMOTION_SCHUTZENKONIG', -- Schützenstand
-	'PROMOTION_VENETIAN_CRAFTSMANSHIP', -- Arsenale di Venezia
-	'PROMOTION_AGE_OF_DISCOVERY', -- University of Coimbra
-	'PROMOTION_TRIUMPH', -- Fornix
-	'PROMOTION_TREASURE_FLEET', -- Grand Canal
-	'PROMOTION_EVERLASTING_YOUTH', -- Fountain of Youth
-	'PROMOTION_ALTITUDE_TRAINING', -- Mt. Kilimanjaro
-	'PROMOTION_SACRED_STEPS', -- Sri Pada
-	'PROMOTION_FASTER_WORKER', -- Organization
-	'PROMOTION_NATIONALISM', -- Patriotic War
-	'PROMOTION_LIGHTNING_WARFARE_GUNPOWDER', -- Lightning Warfare
-	'PROMOTION_LIGHTNING_WARFARE_ARMORED', -- Lightning Warfare
-	'PROMOTION_MARE_NOSTRUM', -- Mare Nostrum
-	'PROMOTION_ENGINEERING_CORP', -- Ballistics
-	'PROMOTION_FALLOUT_RESISTANCE', -- Penicilin
-	'PROMOTION_FALLOUT_IMMUNITY', -- Nanotechnology
-	'PROMOTION_FERVOR', -- Event
 	-- Barbarians
 	'PROMOTION_MARSH_WALKER',
 	'PROMOTION_WHITE_WALKER',
@@ -589,11 +600,36 @@ OR Type IN (
 	'PROMOTION_HILL_WALKER'
 );
 
--- Trait_FreePromotions promotions currently shouldn't be pickable 
--- (this might not be true for all cases, in the future)
-UPDATE UnitPromotions 
-SET CannotBeChosen = 1
+----------------------------------------------
+-- LostOnGifting
+----------------------------------------------
+
+UPDATE UnitPromotions
+SET LostOnGifting = 1
 WHERE Type IN (
-	'PROMOTION_CHASQUI_TRAINING',
-	'PROMOTION_GOODY_HUT_PICKER'
+	-- Non-generic promotions granted by leader traits are lost on gifting
+	'PROMOTION_ATTACK_BONUS_SWEDEN',
+	'PROMOTION_BENEVOLENCE',
+	'PROMOTION_BUSHIDO',
+	'PROMOTION_COERCION',
+	'PROMOTION_COURAGE',
+	'PROMOTION_LONGBOAT',
+	'PROMOTION_LOYALTY',
+	'PROMOTION_HONOR',
+	'PROMOTION_RESPECT',
+	'PROMOTION_RIGHTEOUSNESS',
+	'PROMOTION_SELF_CONTROL',
+	'PROMOTION_SEWN_CANOES',
+	'PROMOTION_SINCERITY',
+	'PROMOTION_SUN_NEVER_SETS',
+	'PROMOTION_VIKING'
+)
+-- Building, Natural Wonder, Policy, Tech, and Event promotions are lost on gifting
+OR Type IN (SELECT Type FROM Helper)
+OR RankList IN (
+	'EMBARKATION',
+	'AUTHORITY',
+	'IMPERIALISM'
 );
+
+DROP TABLE Helper;

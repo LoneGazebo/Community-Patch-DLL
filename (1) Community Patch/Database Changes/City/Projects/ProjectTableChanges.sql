@@ -46,3 +46,6 @@ ALTER TABLE Projects ADD CityEventToStart text REFERENCES CityEvents (Type);
 
 -- Requires this Policy to be unlocked in order to build
 ALTER TABLE Projects ADD PolicyType text REFERENCES Policies (Type);
+
+-- Provides x free citizens that dont count towards pop
+ALTER TABLE Projects ADD CityAutomatonWorkersChange integer DEFAULT 0;

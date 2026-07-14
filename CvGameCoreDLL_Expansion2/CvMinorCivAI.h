@@ -72,6 +72,8 @@ enum CLOSED_ENUM MinorCivQuestTypes
 	MINOR_CIV_QUEST_FIND_CITY_STATE,
 	MINOR_CIV_QUEST_INFLUENCE,
 	MINOR_CIV_QUEST_CONTEST_TOURISM,
+	MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS,
+	MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS,
 	MINOR_CIV_QUEST_ARCHAEOLOGY,
 	MINOR_CIV_QUEST_CIRCUMNAVIGATION,
 	MINOR_CIV_QUEST_LIBERATION,
@@ -79,6 +81,7 @@ enum CLOSED_ENUM MinorCivQuestTypes
 	MINOR_CIV_QUEST_REBELLION,
 	MINOR_CIV_QUEST_EXPLORE_AREA,
 	MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
+	MINOR_CIV_QUEST_SPY_MISSION,
 	MINOR_CIV_QUEST_SPY_ON_MAJOR,
 	MINOR_CIV_QUEST_COUP,
 	MINOR_CIV_QUEST_ACQUIRE_CITY,
@@ -178,13 +181,14 @@ public:
 	void DisableInfluence(PlayerTypes ePlayer);
 
 	// Contest helper functions
+	bool IsContestQuest() const;
 	int GetContestValueForPlayer(PlayerTypes ePlayer) const;
 	int GetContestValueForLeader();
 	CivsList GetContestLeaders();
+	bool IsContestLeader(PlayerTypes ePlayer = NO_PLAYER);
 
 	// Quest status for assigned player
-	bool IsContestLeader(PlayerTypes ePlayer = NO_PLAYER);
-	bool IsComplete();
+	bool IsComplete(CityEventChoiceTypes eSpyMission = NO_EVENT_CHOICE_CITY);
 	bool IsRevoked(bool bWar = false, bool bHeavyTribute = false);
 	bool IsExpiredGlobal();
 	bool IsExpired();
@@ -288,7 +292,7 @@ public:
 
 	bool hasIncomingUnit() const;
 
-	void applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const;
+	void applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit, bool bReturn) const;
 	void reset();
 
 private:
@@ -437,10 +441,10 @@ public:
 	void DoTestQuestsOnFirstContact(PlayerTypes eMajor);
 
 	void DoTestActiveQuests(bool bTestComplete, bool bTestObsolete);
-	void DoTestActiveQuestsForPlayer(PlayerTypes ePlayer, bool bTestComplete, bool bTestObsolete, MinorCivQuestTypes eQuest = NO_MINOR_CIV_QUEST_TYPE);
+	void DoTestActiveQuestsForPlayer(PlayerTypes ePlayer, bool bTestComplete, bool bTestObsolete, MinorCivQuestTypes eQuest = NO_MINOR_CIV_QUEST_TYPE, CityEventChoiceTypes eSpyMission = NO_EVENT_CHOICE_CITY);
 	void DoCompletedQuests();
 	WeightedCivsList CalculateFriendshipFromQuests();
-	void DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
+	void DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE, CityEventChoiceTypes eSpyMission = NO_EVENT_CHOICE_CITY);
 	void DoObsoleteQuests();
 	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE, bool bWar = false);
 	void DoQuestsCleanup();
@@ -448,14 +452,14 @@ public:
 
 	bool IsTargetQuest(MinorCivQuestTypes eQuest);
 	bool PlayerHasTarget(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
-	bool IsEnabledQuest(MinorCivQuestTypes eQuest);
+	bool IsEnabledQuest(MinorCivQuestTypes eQuest, EraTypes eEra, bool bCheckPriorEras = true);
 	bool IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTypes eQuest, int iData1 = -1, int iData2 = -1);
-	bool IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
+	bool IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest, EraTypes eEra);
 	bool IsValidQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* pQuest);
 	bool IsGlobalQuest(MinorCivQuestTypes eQuest) const;
 	bool IsPersonalQuest(MinorCivQuestTypes eQuest) const;
 	int GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const;
-	int GetNumQuestCopies(MinorCivQuestTypes eQuest) const;
+	int GetQuestWeight(MinorCivQuestTypes eQuest, EraTypes eEra) const;
 
 	int GetNumActiveGlobalQuests() const;
 	int GetNumActiveQuestsForAllPlayers() const;
@@ -533,6 +537,7 @@ public:
 	CvPlot* GetTargetPlot(PlayerTypes ePlayer);
 	int GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
 	BuildingTypes GetBestBuildingForQuest(PlayerTypes ePlayer, int iDuration);
+	CityEventChoiceTypes GetBestSpyMission(PlayerTypes ePlayer, CityEventChoiceTypes eCurrentMission = NO_EVENT_CHOICE_CITY);
 	CvCity* GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor);
 	UnitTypes GetBestUnitGiftFromPlayer(PlayerTypes ePlayer);
 	int GetExperienceForUnitGiftQuest(PlayerTypes ePlayer, UnitTypes eUnitType);
@@ -547,7 +552,9 @@ public:
 	int GetNumTurnsSincePtPWarning(PlayerTypes ePlayer);
 	void ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
 
-	PlayerTypes GetMostRecentBullyForQuest() const;
+	PlayerTypes GetMostRecentAttackerForQuest(bool bExcludeCurrentWars);
+	PlayerTypes GetMostRecentBullyForQuest();
+	PlayerTypes GetDenounceOrWarMajorTarget(PlayerTypes ePlayer, bool bWar);
 	bool IsWantsMinorDead(PlayerTypes eMinor);
 	PlayerTypes GetBestPlayerToFind(PlayerTypes ePlayer);
 	CvCity* GetBestCityToFind(PlayerTypes ePlayer);
@@ -815,6 +822,7 @@ public:
 	int GetNumResourcesMajorLacks(PlayerTypes eMajor);
 
 	bool IsSameReligionAsMajor(PlayerTypes eMajor);
+	bool IsSameStateReligionAsMajor(PlayerTypes eMajor);
 
 	//horrible API but too lazy to fix
 	CvString GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies);
@@ -958,6 +966,8 @@ public:
 	int getAllyCityYieldBonuses(YieldTypes eYield, EraTypes eEra, bool bCapital) const;
 	bool hasAllyCityYieldBonuses(YieldTypes eYield) const;
 
+	int GetQuestWeight(MinorCivPersonalityTypes ePersonality, EraTypes eEra, MinorCivQuestTypes eQuest) const;
+
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
@@ -996,6 +1006,8 @@ protected:
 	bool* m_pbHasAllyByYield;
 	std::map<YieldTypes, std::map<std::pair<EraTypes, bool>, int>> m_miAllyCityYieldBonuses;
 	bool* m_pbHasAllyCityByYield;
+
+	int* m_pppiQuestWeights;
 };
 
 #endif //CIV5_MINOR_CIV_AI_H

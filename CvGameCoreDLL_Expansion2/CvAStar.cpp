@@ -262,8 +262,10 @@ void CvAStar::Reset()
 
 	//will be set multiple times but who cares
 	g_bPathFinderLogging = false;
+#if defined(MOD_CORE_DEBUGGING)
 	g_svPathLog.clear();
 	g_svPathLog.reserve(10000);
+#endif
 }
 
 
@@ -1390,7 +1392,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 
 	//this is quite tricky with passable ice plots which can be either water or land
 	bool bToPlotIsWater = kToNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
-	bool bFromPlotIsWater = kFromNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pToPlot->isWater());
+	bool bFromPlotIsWater = kFromNodeCacheData.bIsNonNativeDomain || (eUnitDomain==DOMAIN_SEA && pFromPlot->isWater());
 
 	if (iStartMoves==0)
 	{

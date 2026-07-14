@@ -3978,6 +3978,24 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_GOLDEN_AGE_START", table.concat(tGABoosts, " "), table.concat(tGABoostCaps, " "));
 		end
 
+		for row in GameInfo.Building_YieldModifiersFromDistanceToCapital{BuildingType = kBuildingInfo.Type} do
+			local yieldInfo = GameInfo.Yields[row.YieldType];
+			if row.YieldFalloff > 0 then
+				if row.YieldBase ~= 0 then
+					AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_DISTANCE_TO_CAPITAL_INCREASING_WITH_BASE_VALUE", GetYieldModifierString(yieldInfo, row.YieldBase), row.YieldFalloff, row.YieldLimit)
+				else
+					AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_DISTANCE_TO_CAPITAL_INCREASING", GetYieldModifierString(yieldInfo, row.YieldFalloff), row.YieldLimit)
+				end
+			elseif row.YieldFalloff < 0 then
+				if row.YieldBase ~= 0 then
+					AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_DISTANCE_TO_CAPITAL_DECREASING_WITH_BASE_VALUE", GetYieldModifierString(yieldInfo, row.YieldBase), -row.YieldFalloff, row.YieldLimit) -- the minus here is intentional
+
+				else
+					AddTooltip(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_MODIFIER_FROM_DISTANCE_TO_CAPITAL_DECREASING", GetYieldModifierString(yieldInfo, row.YieldFalloff),  row.YieldLimit)
+				end
+			end
+		end
+
 		local tBoostsFromResource = {};
 		for row in GameInfo.Building_ResourceCultureChanges{BuildingType = kBuildingInfo.Type} do
 			tBoostsFromResource[row.ResourceType] = tBoostsFromResource[row.ResourceType] or {};
