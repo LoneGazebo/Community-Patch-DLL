@@ -71,6 +71,7 @@ public:
 	int GetCitySupplyFlat() const;
 	EventTypes GetEventToStart() const;
 	CityEventTypes GetCityEventToStart() const;
+	int GetCityAutomatonWorkersChange() const;
 
 	const char* GetMovieArtDef() const;
 
@@ -129,6 +130,7 @@ protected:
 	int m_iCitySupplyFlat;
 	EventTypes m_eEventToStart;
 	CityEventTypes m_eCityEventToStart;
+	int m_iCityAutomatonWorkersChange;
 
 	CvString m_strCreateSound;
 	CvString m_strMovieArtDef;

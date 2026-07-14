@@ -30354,6 +30354,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
 		changeCitySupplyFlat(pProject->GetCitySupplyFlat());
+		changeCityAutomatonWorkersChange(pProject->GetCityAutomatonWorkersChange());
 		GET_PLAYER(getOwner()).ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
 		
 		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
