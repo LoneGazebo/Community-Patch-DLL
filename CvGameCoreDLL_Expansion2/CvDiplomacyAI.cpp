@@ -30379,19 +30379,20 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 	if (SkipForTeammates())
 		return;
 
-	if (MOD_BALANCE_VP)
-	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
-			return;
-	}
-
 	if (MOD_DIPLOAI_SHUT_UP_HELP_REQUESTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// If we just sent out a generous offer, don't ask for a request until some time has passed
 	if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_GENEROUS_OFFER) < 25)
 		return;
+
+	// Don't request help from sanctioned players
+	if (MOD_BALANCE_VP)
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
+			return;
+	}
 
 	// If a request was accepted or rejected, wait 60 turns. If we rolled for rand and failed, wait 15 turns before we try again
 	if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_REQUEST) >= 60 &&
@@ -30896,8 +30897,16 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 	if (IsAvoidDeals())
 		return;
 
-	if (MOD_DIPLOAI_SHUT_UP_TRADE_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
+	if (MOD_DIPLOAI_SHUT_UP_GIFT_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
+
+	// Don't give help to sanctioned players
+	if (MOD_BALANCE_VP)
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
+			return;
+	}
 
 	// Check if we have a bonus on exporting luxuries
 	bool bWantExport = false;
@@ -36900,50 +36909,6 @@ void CvDiplomacyAI::DoMakeDemand(PlayerTypes ePlayer)
 
 	// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
 	pDeal->ClearItems();
-}
-
-/// Possible Contact Statement - Gift
-void CvDiplomacyAI::DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
-{
-	PRECONDITION(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.");
-	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.");
-
-	if (IsAvoidDeals())
-		return;
-
-	if (MOD_DIPLOAI_SHUT_UP_GIFT_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
-		return;
-
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
-	{
-		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_GIFT;
-
-		// If a request was accepted or rejected, wait 60 turns. If we rolled for rand and failed, wait 15 turns before we try again
-		if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 60 &&
-		        GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_GIFT_RANDFAILED) >= 15)
-		{
-			bool bRandPassed = false;	// This is used to see if we WOULD have made a gift, but the rand roll failed (so add an entry to the log)
-			bool bMakeGift = false;//IsMakeGift(ePlayer, pDeal, bRandPassed);
-
-			// Want to make a request of ePlayer? Pass pDeal in to see if there's actually anything we want
-			if(bMakeGift)
-			{
-				eStatement = eTempStatement;
-				pDeal->SetRequestingPlayer(GetID());
-			}
-
-			// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-			else
-				pDeal->ClearItems();
-
-			// Add this statement to the log so we don't evaluate it again until 15 turns has come back around
-			if(!bRandPassed)
-			{
-				SetTurnStatementLastSent(ePlayer, DIPLO_STATEMENT_GIFT_RANDFAILED, GC.getGame().getGameTurn());
-				pDeal->ClearItems();
-			}
-		}
-	}
 }
 
 /////////////////////////////////////////////////////////
@@ -56420,7 +56385,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 		if (!GET_PLAYER(eLoopPlayer).isAlive() || !IsHasMet(eLoopPlayer))
 			continue;
 
-		if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam() || GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
+		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePlayer).getTeam())
 			continue;
 
 		if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetSurfaceApproach(GetID()) > CIV_APPROACH_GUARDED)

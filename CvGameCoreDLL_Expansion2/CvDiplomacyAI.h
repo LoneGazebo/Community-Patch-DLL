@@ -1449,8 +1449,6 @@ public:
 
 	void DoMakeDemand(PlayerTypes ePlayer);
 
-	void DoGift(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-
 	/////////////////////////////////////////////////////////
 	// Diplo stuff relating to UI
 	/////////////////////////////////////////////////////////

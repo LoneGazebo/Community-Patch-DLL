@@ -1798,8 +1798,8 @@ function ResetDisplay()
     ----------------------------------------------------------------------------------
 
 	if (Controls.UsPocketDoF ~= nil and Controls.ThemPocketDoF ~= nil) then
-		if (g_bPVPTrade and g_iUsTeam ~= g_iThemTeam) then	-- Only PvP trade, with the AI there is a dedicated interface for this trade.
-		
+		if (g_bPVPTrade and not bTeammates) then	-- Only PvP trade, with the AI there is a dedicated interface for this trade.
+
 			strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DISCUSS_MESSAGE_DEC_FRIENDSHIP_TT");
 			bTradeAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, g_iDealDuration);
 
@@ -1808,12 +1808,7 @@ function ResetDisplay()
 				Controls.UsPocketDoF:GetTextControl():SetColorByName("Gray_Black");
 				Controls.ThemPocketDoF:SetDisabled(true);
 				Controls.ThemPocketDoF:GetTextControl():SetColorByName("Gray_Black");
-
-				if (g_pUsTeam:IsAtWar(g_iThemTeam)) then
-					strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP_AT_WAR") .. "[ENDCOLOR]";
-				else
-					strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP_ALREADY_EXISTS") .. "[ENDCOLOR]";
-				end
+				strTooltip = strTooltip .. "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP_ALREADY_EXISTS") .. "[ENDCOLOR]";
 			else
 				Controls.UsPocketDoF:SetDisabled(false);
 				Controls.UsPocketDoF:GetTextControl():SetColorByName("Beige_Black");

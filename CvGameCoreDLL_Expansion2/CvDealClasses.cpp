@@ -478,7 +478,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Declaration of Friendship (human only)
 	case TRADE_ITEM_DECLARATION_OF_FRIENDSHIP:
 		{
-			if (!bHumanToHuman || bPeaceDeal) // Recursive: Would be nice to allow this to be tradeable in a peace treaty, but unsure if this breaks functionality
+			if (!bHumanToHuman || bSameTeam)
 				return false;
 
 			// Already have a DoF?
