@@ -1254,9 +1254,28 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	if(DeleteFileW(wstrDatabasePath.c_str()) == FALSE)
 	{
-		if(GetLastError() != ERROR_FILE_NOT_FOUND)
+		DWORD dwDeleteError = GetLastError();
+		if(dwDeleteError != ERROR_FILE_NOT_FOUND)
 		{
-			ASSERT(false, CvString::format("Warning! Cannot delete existing Civ5SavedGameDatabase at '%s'! Does something have it opened?", strUTF8DatabasePath.c_str()).c_str());
+			const char* szReason;
+			switch(dwDeleteError)
+			{
+			case ERROR_SHARING_VIOLATION:
+			case ERROR_LOCK_VIOLATION:
+				szReason = "the file is currently open in another process (another game instance, antivirus, or a backup/sync tool)";
+				break;
+			case ERROR_ACCESS_DENIED:
+				szReason = "access was denied (the file may be read-only or the cache folder permissions are restrictive)";
+				break;
+			case ERROR_PATH_NOT_FOUND:
+				szReason = "the containing cache folder does not exist";
+				break;
+			default:
+				szReason = "of an unrecognized error";
+				break;
+			}
+
+			ASSERT(false, CvString::format("Warning! Cannot delete existing Civ5SavedGameDatabase at '%s' because %s (Win32 error %lu).", strUTF8DatabasePath.c_str(), szReason, dwDeleteError).c_str());
 		}
 	}
 
