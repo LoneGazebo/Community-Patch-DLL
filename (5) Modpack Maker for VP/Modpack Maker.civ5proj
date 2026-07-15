@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Deploy" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
+    <ProjectGuid>{ac0d66d6-bdb8-4d31-97bd-b8f04cb9f805}</ProjectGuid>
+    <Name>(5) Modpack Maker for VP</Name>
+    <Guid>eb8f6ed3-109d-4f2f-a81d-516c8d2f91c1</Guid>
+    <ModVersion>1</ModVersion>
+    <Stability>Stable</Stability>
+    <Teaser>(5.3.3) Modpack Maker for VP</Teaser>
+    <Description>The definitive modpack maker mod for VP, replacing Multiplayer Mods Workaround and fixing all incompatibilities.
+Usage: Enable this mod, start/load a game, then call CreateMP() in the Lua console in FireTuner.
+You may even continue playing the existing game until you next launch the game.</Description>
+    <Authors>azum4roll</Authors>
+    <SpecialThanks>Gedemon, for making the original version, and cicero225, for making the improved version</SpecialThanks>
+    <AffectsSavedGames>false</AffectsSavedGames>
+    <MinCompatibleSaveVersion>0</MinCompatibleSaveVersion>
+    <SupportsSinglePlayer>true</SupportsSinglePlayer>
+    <SupportsMultiplayer>true</SupportsMultiplayer>
+    <SupportsHotSeat>true</SupportsHotSeat>
+    <SupportsMac>true</SupportsMac>
+    <ModDependencies>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(1) Community Patch</Name>
+        <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
+        <MinVersion>150</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModDependencies>
+    <ModBlockers>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Multiplayer Mods Workaround</Name>
+        <Id>c70dee73-8179-4a19-a3e5-1d931908ff43</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModBlockers>
+    <ModContent>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Modpack Maker</Name>
+        <Description>Modpack Maker for VP</Description>
+        <FileName>ModpackMaker.lua</FileName>
+      </Content>
+    </ModContent>
+    <ModReferences />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
+    <OutputPath>.</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Package Only' ">
+    <PackageMod>true</PackageMod>
+    <DeployMod>false</DeployMod>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Deploy Only' ">
+    <PackageMod>false</PackageMod>
+    <DeployMod>true</DeployMod>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="ModpackMaker.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
+</Project>

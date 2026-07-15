@@ -58,6 +58,7 @@ A. Change the displayed version number on the teasers for the following mods:
 - (3a) VP - EUI Compatibility Files
 - (3b) 43 Civs Community Patch
 - (4a) Squads for VP
+- (5) Modpack Maker for VP
 
 
 B. Change the current version number of bug_report_v5 in .github/ISSUE_TEMPLATE to match the new version number.
@@ -156,6 +157,7 @@ A. Build the following mods in ModBuddy:
 - (3a) VP - EUI Compatibility Files
 - (3b) 43 Civs Community Patch
 - (4a) Squads for VP
+- (5) Modpack Maker for VP
 
 NOTE: The autoinstaller will use the versions from the Build folder in the main directory. ModBuddy will also create a copy in your MODS folder, which you can delete.
 
@@ -168,6 +170,7 @@ Copy the newly compiled .modinfo files for the following mods from Build to the 
 - (3a) VP - EUI Compatibility Files
 - (3b) 43 Civs Community Patch
 - (4a) Squads for VP
+- (5) Modpack Maker for VP
 
 
 

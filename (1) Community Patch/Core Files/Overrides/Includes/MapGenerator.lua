@@ -9,6 +9,9 @@
 
 include("AssignStartingPlots");
 
+-- Modpacks can insert files to this table to have them be included
+local g_uiAddins = {};
+
 function GetCoreMapOptions()
 	--[[ All options have a default SortPriority of 0. Lower values will be shown above
 	higher values. Negative integers are valid. So the Core Map Options, which should 
@@ -748,6 +751,10 @@ function GenerateMap()
 	-- Usage: Put the override functions in a uniquely-named Lua file (VFS=true), then set an EntryPoint of type PreMapGenScript to the file.
 	for entryPoint in Modding.GetActivatedModEntryPoints("PreMapGenScript") do
 		local file = string.match(entryPoint.File, "[^/]+$");
+		table.insert(g_uiAddins, file);
+	end
+
+	for _, file in ipairs(g_uiAddins) do
 		include(file);
 	end
 
@@ -788,3 +795,5 @@ function GenerateMap()
 	-- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
 	DetermineContinents();
 end
+
+-- Modpacks will add "g_uiAddins[#g_uiAddins + 1] = fileName" lines below

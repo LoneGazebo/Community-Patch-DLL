@@ -535,14 +535,25 @@ Events.WarStateChanged.Add( WarStateChangedHandler );
 ---------------------------------------------------------------------------------------
 -- Support for Modded Add-in UI's
 ---------------------------------------------------------------------------------------
-g_uiAddins = {};
+local g_uiAddins = {};
+
+-- Done this way so that modpacks can insert files to the table to have them be loaded
+setmetatable(g_uiAddins, {
+	__newindex = function(_, _, value)
+		ContextPtr:LoadNewContext(value);
+		-- Intentionally not calling rawset here
+	end
+});
+
 for addin in Modding.GetActivatedModEntryPoints("DiplomacyUIAddin") do
 	local addinFile = Modding.GetEvaluatedFilePath(addin.ModID, addin.Version, addin.File);
 	local addinPath = addinFile.EvaluatedPath;
-	
+
 	-- Get the absolute path and filename without extension.
 	local extension = Path.GetExtension(addinPath);
 	local path = string.sub(addinPath, 1, #addinPath - #extension);
-	
-	table.insert(g_uiAddins, ContextPtr:LoadNewContext(path));
+
+	g_uiAddins[#g_uiAddins + 1] = path;
 end
+
+-- Modpacks will add "g_uiAddins[#g_uiAddins + 1] = fileName" lines below

@@ -1837,19 +1837,6 @@ Controls.AvoidGrowthButton:RegisterCallback(Mouse.eLClick, function ()
 end);
 
 ---------------------------------------------------------------
--- Support for add-in Lua
-for addin in Modding.GetActivatedModEntryPoints("CityViewUIAddin") do
-	local addinFile = Modding.GetEvaluatedFilePath(addin.ModID, addin.Version, addin.File);
-	local strPath = addinFile.EvaluatedPath;
-
-	-- Get the absolute path and filename without extension
-	local strExtension = Path.GetExtension(strPath);
-	local strPathWithoutExtension = string.sub(strPath, 1, #strPath - #strExtension);
-
-	ContextPtr:LoadNewContext(strPathWithoutExtension);
-end
-
----------------------------------------------------------------
 --- Custom event called by ProductionPopup.lua
 --- @param bIsHide boolean
 LuaEvents.ProductionPopup.Add(function (bIsHide)
@@ -1940,3 +1927,28 @@ Events.GameplaySetActivePlayer.Add(function ()
 		Events.SerialEventExitCityScreen();
 	end
 end);
+
+---------------------------------------------------------------
+-- Support for add-in Lua
+local g_uiAddins = {};
+
+-- Done this way so that modpacks can insert files to the table to have them be loaded
+setmetatable(g_uiAddins, {
+	__newindex = function(t, key, value)
+		ContextPtr:LoadNewContext(value);
+		-- Intentionally not calling rawset here
+	end
+});
+
+for addin in Modding.GetActivatedModEntryPoints("CityViewUIAddin") do
+	local addinFile = Modding.GetEvaluatedFilePath(addin.ModID, addin.Version, addin.File);
+	local strPath = addinFile.EvaluatedPath;
+
+	-- Get the absolute path and filename without extension.
+	local strExtension = Path.GetExtension(strPath);
+	local strPathWithoutExtension = string.sub(strPath, 1, #strPath - #strExtension);
+
+	g_uiAddins[#g_uiAddins + 1] = strPathWithoutExtension;
+end
+
+-- Modpacks will add "g_uiAddins[#g_uiAddins + 1] = fileName" lines below

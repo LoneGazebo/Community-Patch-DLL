@@ -799,7 +799,7 @@ public:
 	bool DeleteMPMP();
 	bool CreateMPMP();
 	bool WriteMPMP(const char* szFileName, const char* szDataBase, bool bInitialize);
-	bool CopyModDataToMPMP(const char* szModFolder, const char* szId, const char* szVersion);
+	bool CopyModDataToMPMP(const char* szModName, const char* szId, const char* szVersion);
 	int DeleteDirectory(const string& refcstrRootDirectory, bool bDeleteSubdirectories);
 	int OverrideGamePlayFiles(const string& refcstrRootDirectory);
 	int CopyModFiles(const string& strModDirectory, const string& strDLCDirectory, const string& strRootModSource);
