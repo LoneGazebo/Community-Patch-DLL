@@ -4596,7 +4596,7 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 				}
 			}
 
-			if (eReligion > RELIGION_PANTHEON && kPlayer.GetReligions()->GetStateReligion() == eReligion)
+			if (kPlayer.isMajorCiv() && eReligion > RELIGION_PANTHEON && kPlayer.GetReligions()->GetStateReligion() == eReligion)
 			{
 				CvPlayerEspionage* pEspionage = kPlayer.GetEspionage();
 				if (pEspionage && pEspionage->GetSpyIndexInCity(m_pCity) != -1)
