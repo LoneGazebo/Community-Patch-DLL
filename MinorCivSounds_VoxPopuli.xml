@@ -68,6 +68,10 @@
 		<AudioScript>AS2D_MINOR_CIV_ZURICH</AudioScript>
 	</MinorCivSound>
 	<MinorCivSound>
+		<ID>MINOR_CIV_KUMASI</ID>
+		<AudioScript>AS2D_MINOR_CIV_BORNU</AudioScript>
+	</MinorCivSound>
+	<MinorCivSound>
 		<ID>MINOR_CIV_NOVGOROD</ID>
 		<AudioScript>AS2D_MINOR_CIV_VILNIUS</AudioScript>
 	</MinorCivSound>
@@ -101,6 +105,10 @@
 		<AudioScript>AS2D_MINOR_CIV_BELGRADE</AudioScript>
 	</MinorCivSound>
 	<MinorCivSound>
+		<ID>MINOR_CIV_GHULJA</ID>
+		<AudioScript>AS2D_MINOR_CIV_ALMATY</AudioScript>
+	</MinorCivSound>
+	<MinorCivSound>
 		<ID>MINOR_CIV_KWA_BULAWAYO</ID>
 		<AudioScript>AS2D_MINOR_CIV_SOKOTO</AudioScript>
 	</MinorCivSound>
@@ -123,10 +131,6 @@
 	<MinorCivSound>
 		<ID>MINOR_CIV_WINCHESTER</ID>
 		<AudioScript>AS2D_MINOR_CIV_EDINBURGH</AudioScript>
-	</MinorCivSound>
-	<MinorCivSound>
-		<ID>MINOR_CIV_ZUUNMOD</ID>
-		<AudioScript>AS2D_MINOR_CIV_ALMATY</AudioScript>
 	</MinorCivSound>
 	<!-- New Religious City-States -->
 	<MinorCivSound>

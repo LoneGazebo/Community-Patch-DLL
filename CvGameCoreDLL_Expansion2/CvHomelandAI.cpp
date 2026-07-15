@@ -6052,7 +6052,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	m_pPlayer->GetTradeAI()->GetPrioritizedTradeRoutes(aTradeConnections, true, iMaxCaravans > 0, iMaxCargoShips > 0);
 
 	// Is the restriction of one Gold Trade Route per destination city active?
-	bool bEnforceTargetingRestriction = MOD_BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION && !m_pPlayer->GetPlayerTraits()->IsNoAnnexing();
+	bool bEnforceTargetingRestriction = MOD_BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION && !m_pPlayer->GetPlayerTraits()->IsNoTradeRouteDestinationRestriction();
 	std::set<int> siTargetingRestrictionCities;
 
 	// First plan which Trade Routes we want, in global score order.

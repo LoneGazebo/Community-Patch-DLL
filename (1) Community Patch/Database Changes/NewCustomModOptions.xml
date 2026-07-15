@@ -463,7 +463,7 @@
 		<Row Class="5" Name="BALANCE_TRADE_ROUTE_PROXIMITY_PENALTY" Value="0"/>
 
 		<!-- Players cannot send more than one Gold Trade Route to the same destination city -->
-		<!-- Traits.NoAnnexing removes this restriction if the player with the trait owns the origin or destination city -->
+		<!-- Traits.NoTradeRouteDestinationRestriction removes this restriction if the player with the trait owns the origin or destination city -->
 		<Row Class="5" Name="BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION" Value="0"/>
 
 		<!-- Allows for various consolation prizes when someone else beats a player to a World Wonder, instead of always converting to Gold -->

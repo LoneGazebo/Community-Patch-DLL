@@ -189,7 +189,7 @@
 		<!-- Add back in City-States from scenarios that still exist in the game files -->
 		<!-- Scramble for Africa scenario -->
 		<Row>
-			<Type>MINOR_CIV_BORNU</Type>
+			<Type>MINOR_CIV_BORNU</Type> <!-- Replaced with Ngazargamu (the Bornu capital) ingame -->
 			<Description>TXT_KEY_CITYSTATE_BORNU</Description>
 			<ShortDescription>TXT_KEY_CITYSTATE_BORNU</ShortDescription>
 			<Adjective>TXT_KEY_CITYSTATE_BORNU_ADJ</Adjective>
@@ -215,7 +215,7 @@
 			<MinorCivTrait>MINOR_TRAIT_MILITARISTIC</MinorCivTrait>
 		</Row>
 		<Row>
-			<Type>MINOR_CIV_LUBA</Type>
+			<Type>MINOR_CIV_LUBA</Type> <!-- Replaced with Lealui (a nearby city) ingame -->
 			<Description>TXT_KEY_CITYSTATE_LUBA</Description>
 			<ShortDescription>TXT_KEY_CITYSTATE_LUBA</ShortDescription>
 			<Adjective>TXT_KEY_CITYSTATE_LUBA_ADJ</Adjective>
@@ -228,7 +228,7 @@
 			<MinorCivTrait>MINOR_TRAIT_MILITARISTIC</MinorCivTrait>
 		</Row>
 		<Row>
-			<Type>MINOR_CIV_OUAGADOUGOU</Type>
+			<Type>MINOR_CIV_OUGADOUGOU</Type> <!-- Ouagadougou is proper form, but the typo is preserved internally so it matches up with the MinorCivsSounds entry -->
 			<Description>TXT_KEY_CITYSTATE_OUGADOUGOU</Description>
 			<ShortDescription>TXT_KEY_CITYSTATE_OUGADOUGOU</ShortDescription>
 			<Adjective>TXT_KEY_CITYSTATE_OUGADOUGOU_ADJ</Adjective>
@@ -424,6 +424,19 @@
 			<MinorCivTrait>MINOR_TRAIT_MARITIME</MinorCivTrait>
 		</Row>
 		<Row>
+			<Type>MINOR_CIV_GHULJA</Type>
+			<Description>TXT_KEY_CITYSTATE_GHULJA</Description>
+			<ShortDescription>TXT_KEY_CITYSTATE_GHULJA</ShortDescription>
+			<Adjective>TXT_KEY_CITYSTATE_GHULJA_ADJ</Adjective>
+			<Civilopedia>TXT_KEY_CITYSTATE_GHULJA_PEDIA</Civilopedia>
+			<DefaultPlayerColor>PLAYERCOLOR_MINOR_MONGOL</DefaultPlayerColor>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_MINOR</ArtDefineTag>
+			<ArtStyleType>ARTSTYLE_ASIAN</ArtStyleType>
+			<ArtStylePrefix>ASIAN</ArtStylePrefix>
+			<ArtStyleSuffix>_MED</ArtStyleSuffix>
+			<MinorCivTrait>MINOR_TRAIT_MILITARISTIC</MinorCivTrait>
+		</Row>
+		<Row>
 			<Type>MINOR_CIV_HARAPPA</Type>
 			<Description>TXT_KEY_CITYSTATE_HARAPPA</Description>
 			<ShortDescription>TXT_KEY_CITYSTATE_HARAPPA</ShortDescription>
@@ -474,6 +487,19 @@
 			<ArtStylePrefix>AMERICAN</ArtStylePrefix>
 			<ArtStyleSuffix>_AMER</ArtStyleSuffix>
 			<MinorCivTrait>MINOR_TRAIT_RELIGIOUS</MinorCivTrait>
+		</Row>
+		<Row>
+			<Type>MINOR_CIV_KUMASI</Type>
+			<Description>TXT_KEY_CITYSTATE_KUMASI</Description>
+			<ShortDescription>TXT_KEY_CITYSTATE_KUMASI</ShortDescription>
+			<Adjective>TXT_KEY_CITYSTATE_KUMASI_ADJ</Adjective>
+			<Civilopedia>TXT_KEY_CITYSTATE_KUMASI_PEDIA</Civilopedia>
+			<DefaultPlayerColor>PLAYERCOLOR_MINOR_LIGHT_GREEN</DefaultPlayerColor>
+			<ArtDefineTag>ART_DEF_CIVILIZATION_MINOR</ArtDefineTag>
+			<ArtStyleType>ARTSTYLE_MIDDLE_EAST</ArtStyleType>
+			<ArtStylePrefix>AFRICAN</ArtStylePrefix>
+			<ArtStyleSuffix>_AFRI</ArtStyleSuffix>
+			<MinorCivTrait>MINOR_TRAIT_MERCANTILE</MinorCivTrait>
 		</Row>
 		<Row>
 			<Type>MINOR_CIV_KWA_BULAWAYO</Type>
@@ -786,19 +812,6 @@
 			<ArtStylePrefix>ASIAN</ArtStylePrefix>
 			<ArtStyleSuffix>_ASIA</ArtStyleSuffix>
 			<MinorCivTrait>MINOR_TRAIT_CULTURED</MinorCivTrait>
-		</Row>
-		<Row>
-			<Type>MINOR_CIV_ZUUNMOD</Type>
-			<Description>TXT_KEY_CITYSTATE_ZUUNMOD</Description>
-			<ShortDescription>TXT_KEY_CITYSTATE_ZUUNMOD</ShortDescription>
-			<Adjective>TXT_KEY_CITYSTATE_ZUUNMOD_ADJ</Adjective>
-			<Civilopedia>TXT_KEY_CITYSTATE_ZUUNMOD_PEDIA</Civilopedia>
-			<DefaultPlayerColor>PLAYERCOLOR_MINOR_MONGOL</DefaultPlayerColor>
-			<ArtDefineTag>ART_DEF_CIVILIZATION_MINOR</ArtDefineTag>
-			<ArtStyleType>ARTSTYLE_ASIAN</ArtStyleType>
-			<ArtStylePrefix>ASIAN</ArtStylePrefix>
-			<ArtStyleSuffix>_MED</ArtStyleSuffix>
-			<MinorCivTrait>MINOR_TRAIT_MILITARISTIC</MinorCivTrait>
 		</Row>
 	</MinorCivilizations>
 </GameData>
