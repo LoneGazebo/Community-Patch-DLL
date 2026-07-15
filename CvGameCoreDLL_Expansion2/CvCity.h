@@ -70,6 +70,19 @@ struct SPlotStats
 	int iCityConnectionCount;
 };
 
+struct SActiveCityBeliefs
+{
+    BeliefTypes eMajorityPantheon; // If majority religion is a pantheon
+    BeliefTypes eSecondaryPantheon;
+    BeliefTypes ePantheonPermanent;
+    
+    // We also store pointers to the actual belief structures for quick iteration
+    int iCount;
+    BeliefTypes eBeliefs[4]; // Max possible active beliefs impacting a single stat slot simultaneously
+
+    SActiveCityBeliefs(ReligionTypes eMajority) : eMajorityPantheon(NO_BELIEF), eSecondaryPantheon(NO_BELIEF), ePantheonPermanent(NO_BELIEF), iCount(0) {}
+};
+
 class CvCity
 {
 
