@@ -121,6 +121,16 @@
 			<Text>Originally founded as Heraclea in the 6th century AD, Eraclea was established by Venetian settlers fleeing the Lombard invasions of northern Italy. Located in the Venetian Lagoon, it became an important early center of administration for the emerging Republic of Venice.[NEWLINE][NEWLINE]During the early medieval period, Eraclea played a crucial role in the region's political landscape. It was the site of power struggles among noble Venetian families, including the Partecipazio dynasty, which helped shape the republic's governance. However, as Rialto (modern Venice) gained prominence, Eraclea gradually lost its political significance.[NEWLINE][NEWLINE]Today, Eraclea is a small town known for its proximity to the Adriatic Sea and its historical remnants, including ancient ruins and the legacy of its Venetian past. It remains a reminder of the Republic of Venice's formative years and the resilience of its early settlers.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_CITYSTATE_GHULJA">
+			<Text>Ghulja</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_GHULJA_ADJ">
+			<Text>Ghuljan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_GHULJA_PEDIA">
+			<Text>Ghulja, known today as Yining, lies in the fertile Ili Valley of present-day Xinjiang. The region became the political and economic heart of the Dzungar Khanate during the early 18th century under Tsewang Rabdan, whose royal camp contained Oirat and Central Asian quarters, markets and surrounding agricultural settlements. Under his successor Galdan Tseren, Ghulja gained the great Golden Roof monastery and became one of the principal religious and administrative centers of the Oirat state.[NEWLINE][NEWLINE]From the Ili Valley, the Dzungar rulers directed campaigns against the Kazakhs, Khalkha Mongols and Qing Empire. Their armies combined mounted warriors with musketeers and artillery, supported by mines, smelters, workshops, taxation and irrigated agriculture. Merchants, craftsmen, farmers and captives from across Central Asia were drawn into the region, allowing the Dzungars to maintain one of the most organized and heavily armed steppe empires of the early modern period.[NEWLINE][NEWLINE]The Qing conquered the Dzungar Khanate in 1755 and subsequently destroyed or dispersed most of its population. In 1762, they established the fortified settlement of Ningyuan at modern Yining, while nearby Huiyuan became the principal military headquarters of Qing Xinjiang. Ghulja developed into the commercial center of the Ili Valley and was occupied by Russia from 1871 until its return to Qing rule in 1881. It remains the largest city of the Ili region and a modern successor to the former Dzungar heartland.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_CITYSTATE_HARAPPA">
 			<Text>Harappa</Text>
 		</Row>
@@ -159,6 +169,16 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITYSTATE_HUARI_PEDIA">
 			<Text>Huari was the capital of the Wari civilization, a powerful Andean empire that flourished between the 6th and 10th centuries AD in present-day Peru. Situated in the Ayacucho Valley, Huari was one of the first large urban centers in the Andes, covering an area of several square kilometers and supporting a population of tens of thousands at its peak.[NEWLINE][NEWLINE]The Wari civilization pioneered many advancements, including extensive road networks, terraced agriculture, and large-scale urban planning. Huari served as the administrative and religious heart of the empire, with well-organized infrastructure and monumental architecture that reflected the state's centralized control.[NEWLINE][NEWLINE]By the 10th century, the Wari civilization declined due to environmental changes and possible internal conflicts. Huari was gradually abandoned, though its influence persisted in later Andean cultures, including the Inca. Today, its ruins remain a crucial archaeological site, offering insight into the pre-Incan societies that shaped Andean history.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITYSTATE_KUMASI">
+			<Text>Kumasi</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_KUMASI_ADJ">
+			<Text>Kumasian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYSTATE_KUMASI_PEDIA">
+			<Text>Kumasi rose to prominence during the late 17th century under Osei Tutu and the priest Okomfo Anokye, who made it the capital of the emerging Asante union. According to Asante tradition, Anokye called the Golden Stool down from the heavens at Kumasi, creating a sacred symbol of unity shared by the Asante people. After Asante forces defeated the neighboring Denkyira kingdom in 1701, Kumasi became the political and spiritual center of a rapidly expanding empire.[NEWLINE][NEWLINE]The city prospered through its position between the forest goldfields, the northern savannas and the trading towns of the Atlantic coast. Gold, kola nuts, textiles, firearms and enslaved captives passed through its markets, while artisans in Kumasi and the surrounding region produced elaborate metalwork, woven cloth, carved stools and ceremonial regalia. From Kumasi, the Asantehene governed through councils, provincial rulers, messengers and an extensive network of roads, making the city both an imperial capital and one of West Africa's foremost centers of courtly art and craftsmanship.[NEWLINE][NEWLINE]British forces captured, looted and burned Kumasi in 1874 but withdrew soon afterward, allowing the Asante to rebuild their capital. Britain occupied the city again in 1896 and exiled Asantehene Prempeh I. In 1900, a British demand for the sacred Golden Stool provoked an uprising led in large part by Yaa Asantewaa, during which Asante forces besieged the British fort at Kumasi. The rebellion was defeated and Asante was annexed to the Gold Coast, though the Asante Confederacy and office of the Asantehene were restored in 1935. Kumasi remains the seat of the Asantehene and an important political, commercial and cultural center of modern Ghana.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITYSTATE_KWA_BULAWAYO">
@@ -399,16 +419,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITYSTATE_YAMATAI_PEDIA">
 			<Text>Yamatai was an ancient kingdom in Japan, believed to have flourished during the late Yayoi period (c. 1st-3rd centuries AD). Ruled by the enigmatic Queen Himiko, Yamatai is described in Chinese historical records as a highly organized society with advanced political and religious structures. Himiko was recognized for uniting warring clans and maintaining peace through spiritual leadership, earning recognition from the Chinese Wei dynasty.[NEWLINE][NEWLINE]The exact location of Yamatai remains a topic of debate among historians, with theories placing it either in northern Kyushu or the Kinki region. Archaeological evidence, such as artifacts linked to early state formation, has fueled ongoing research into its whereabouts. Despite the mystery, Yamatai is seen as a precursor to Japan's classical-era Yamato state.[NEWLINE][NEWLINE]Today, the legend of Queen Himiko and the lost kingdom of Yamatai continues to capture public imagination. Historical and archaeological studies into its origins contribute to a broader understanding of Japan's early political and social development.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_CITYSTATE_ZUUNMOD">
-			<Text>Zuunmod</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYSTATE_ZUUNMOD_ADJ">
-			<Text>Zuunmodan</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITYSTATE_ZUUNMOD_PEDIA">
-			<Text>Nestled at the foot of the Bogd Khan mountain range in central Mongolia, Zuunmod has long stood as a strategic gateway to the capital heartland. Though the town itself emerged more recently, the surrounding area was the site of significant military conflict in the 17th century, most notably the Battle of Jao Modo in 1649. This clash saw the Khalkha Mongols, with the backing of the Qing dynasty, decisively defeat the westward-advancing Dzungar Khanate, halting their bid for dominance over eastern Mongolia.[NEWLINE][NEWLINE]The victory at Jao Modo proved pivotal in reshaping the political landscape of the region. It marked the beginning of Qing influence over Khalkha Mongolia and set the stage for the eventual incorporation of much of the Mongol steppe into the Qing Empire. The battle is remembered for its scale, coordination between cavalry and infantry, and its long-term impact on regional power dynamics.[NEWLINE][NEWLINE]In the centuries that followed, the area around Zuunmod retained military importance as a southern defense zone and supply route to Ikh Khüree (modern Ulaanbaatar). During the 20th century, Zuunmod developed into a modest administrative and garrison town. Today, it is a popular waypoint for tourists exploring the nearby ruins of Manzushir Monastery, or taking trails into the Bogd Khan holy mountain and UNESCO biosphere reserve.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

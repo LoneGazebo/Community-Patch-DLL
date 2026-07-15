@@ -586,9 +586,9 @@ bool CvGameTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Do
 		}
 
 		// VP targeting restriction: cannot send more than one Gold trade route to the same destination city, unless either player is Venice
-		if (MOD_BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION && !GET_PLAYER(pOriginCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+		if (MOD_BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION && !GET_PLAYER(pOriginCity->getOwner()).GetPlayerTraits()->IsNoTradeRouteDestinationRestriction())
 		{
-			if ((eConnectionType == TRADE_CONNECTION_INTERNATIONAL && !GET_PLAYER(pDestCity->getOwner()).GetPlayerTraits()->IsNoAnnexing()) || eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL)
+			if ((eConnectionType == TRADE_CONNECTION_INTERNATIONAL || eConnectionType == TRADE_CONNECTION_GOLD_INTERNAL) && !GET_PLAYER(pDestCity->getOwner()).GetPlayerTraits()->IsNoTradeRouteDestinationRestriction())
 			{
 				// Check for duplicate routes from the owner
 				for (uint i = 0; i < m_aTradeConnections.size(); i++)

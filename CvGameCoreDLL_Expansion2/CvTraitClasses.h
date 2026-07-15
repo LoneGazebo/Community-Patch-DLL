@@ -283,6 +283,7 @@ public:
 	bool IsAnyBelief() const;
 	bool IsAlwaysReligion() const;
 	bool IsNoTradeRouteProximityPenalty() const;
+	bool IsNoTradeRouteDestinationRestriction() const;
 	bool IsCanPlunderWithoutWar() const;
 	bool IsBonusReligiousBelief() const;
 	bool IsAbleToAnnexCityStates() const;
@@ -634,6 +635,7 @@ protected:
 	bool m_bAnyBelief;
 	bool m_bAlwaysReligion;
 	bool m_bNoTradeRouteProximityPenalty;
+	bool m_bNoTradeRouteDestinationRestriction;
 	bool m_bCanPlunderWithoutWar;
 	bool m_bBonusReligiousBelief;
 	bool m_bAbleToAnnexCityStates;
@@ -1549,6 +1551,10 @@ public:
 	{
 		return m_bNoTradeRouteProximityPenalty;
 	};
+	bool IsNoTradeRouteDestinationRestriction() const
+	{
+		return m_bNoTradeRouteDestinationRestriction;
+	};
 	bool IsCanPlunderWithoutWar() const
 	{
 		return m_bCanPlunderWithoutWar;
@@ -2241,6 +2247,7 @@ private:
 	bool m_bAnyBelief;
 	bool m_bAlwaysReligion;
 	bool m_bNoTradeRouteProximityPenalty;
+	bool m_bNoTradeRouteDestinationRestriction;
 	bool m_bCanPlunderWithoutWar;
 	bool m_bBonusReligiousBelief;
 	bool m_bAbleToAnnexCityStates;

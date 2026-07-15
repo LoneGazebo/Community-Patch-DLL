@@ -21,7 +21,8 @@ VALUES
 UPDATE Traits
 SET
 	FreeUnitPrereqTech = 'TECH_HORSEBACK_RIDING', -- Trade
-	PuppetYieldAndSupplyModifierChange = 20
+	PuppetYieldAndSupplyModifierChange = 20,
+	NoTradeRouteDestinationRestriction = 1
 WHERE Type = 'TRAIT_SUPER_CITY_STATE';
 
 INSERT INTO Trait_NoTrain

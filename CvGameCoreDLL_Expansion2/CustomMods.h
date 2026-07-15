@@ -391,7 +391,7 @@
 #define MOD_BALANCE_TRADE_ROUTE_PROXIMITY_PENALTY					gCustomMods.isBALANCE_TRADE_ROUTE_PROXIMITY_PENALTY()
 
 // Players cannot send more than one Gold Trade Route to the same destination city
-// Traits.NoAnnexing removes this restriction if the player with the trait owns the origin or destination city
+// Traits.NoTradeRouteDestinationRestriction removes this restriction if the player with the trait owns the origin or destination city
 #define MOD_BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION				gCustomMods.isBALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION()
 
 // Allows for various consolation prizes when someone else beats a player to a World Wonder, instead of always converting to Gold

@@ -204,6 +204,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bAnyBelief(false),
 	m_bAlwaysReligion(false),
 	m_bNoTradeRouteProximityPenalty(false),
+	m_bNoTradeRouteDestinationRestriction(false),
 	m_bCanPlunderWithoutWar(false),
 	m_bBonusReligiousBelief(false),
 	m_bAbleToAnnexCityStates(false),
@@ -1293,6 +1294,10 @@ bool CvTraitEntry::IsAlwaysReligion() const
 bool CvTraitEntry::IsNoTradeRouteProximityPenalty() const
 {
 	return m_bNoTradeRouteProximityPenalty;
+}
+bool CvTraitEntry::IsNoTradeRouteDestinationRestriction() const
+{
+	return m_bNoTradeRouteDestinationRestriction;
 }
 bool CvTraitEntry::IsCanPlunderWithoutWar() const
 {
@@ -2611,6 +2616,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bAlwaysReligion = kResults.GetBool("AlwaysReligion");
 
 	m_bNoTradeRouteProximityPenalty = kResults.GetBool("NoTradeRouteProximityPenalty");
+	m_bNoTradeRouteDestinationRestriction = kResults.GetBool("NoTradeRouteDestinationRestriction");
 	m_bCanPlunderWithoutWar = kResults.GetBool("CanPlunderWithoutWar");
 	m_bBonusReligiousBelief = kResults.GetBool("BonusReligiousBelief");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
@@ -4724,6 +4730,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bNoTradeRouteProximityPenalty = true;
 			}
+			if (trait->IsNoTradeRouteDestinationRestriction())
+			{
+				m_bNoTradeRouteDestinationRestriction = true;
+			}
 			if (trait->IsCanPlunderWithoutWar())
 			{
 				m_bCanPlunderWithoutWar = true;
@@ -5500,6 +5510,7 @@ void CvPlayerTraits::Reset()
 	m_bAnyBelief = false;
 	m_bAlwaysReligion = false;
 	m_bNoTradeRouteProximityPenalty = false;
+	m_bNoTradeRouteDestinationRestriction = false;
 	m_bCanPlunderWithoutWar = false;
 	m_bBonusReligiousBelief = false;
 	m_bAbleToAnnexCityStates = false;
@@ -7717,6 +7728,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bAnyBelief);
 	visitor(playerTraits.m_bAlwaysReligion);
 	visitor(playerTraits.m_bNoTradeRouteProximityPenalty);
+	visitor(playerTraits.m_bNoTradeRouteDestinationRestriction);
 	visitor(playerTraits.m_bCanPlunderWithoutWar);
 	visitor(playerTraits.m_bBonusReligiousBelief);
 	visitor(playerTraits.m_bAbleToAnnexCityStates);

@@ -10,6 +10,10 @@ ALTER TABLE Traits ADD PurchasedUnitsBonusXP integer DEFAULT 0;
 -- Only does anything if BALANCE_TRADE_ROUTE_PROXIMITY_PENALTY=1
 ALTER TABLE Traits ADD NoTradeRouteProximityPenalty boolean DEFAULT 0;
 
+-- Negates the one Gold Trade Route per destination city limit for this civ
+-- Only does anything if BALANCE_TRADE_ROUTE_DESTINATION_RESTRICTION=1
+ALTER TABLE Traits ADD NoTradeRouteDestinationRestriction boolean DEFAULT 0;
+
 -- Trade Routes can be plundered without being at war
 ALTER TABLE Traits ADD CanPlunderWithoutWar boolean DEFAULT 0;
 
