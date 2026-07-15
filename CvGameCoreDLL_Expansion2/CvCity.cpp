@@ -26152,7 +26152,7 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 
 	// Double-Cross Foreign Agents
 	CvCityEspionage* pCityEspionage = GetCityEspionage();
-	if (pCityEspionage->HasCounterSpy())
+	if (pCityEspionage->HasCounterSpy() && pCityEspionage->GetCounterSpyFocus() != NO_EVENT_CHOICE_CITY)
 	{
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
 		iTempMod = pkEventChoiceInfo->getSpySecurityModifier();
