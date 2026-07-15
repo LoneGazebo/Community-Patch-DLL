@@ -1147,7 +1147,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					}
 
 					// level up the defending spy
-					int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[eCityOwner];
+					int iDefendingSpy = pCityEspionage->GetSpyAssignment(eCityOwner);
 					if (pDefendingPlayerEspionage)
 					{
 						ASSERT(iDefendingSpy >= 0, "No defending spy. This is ok if debugging and killing a spy without having a defending spy present, but should not occur when playing the game normally.");
@@ -2651,7 +2651,7 @@ int CvPlayerEspionage::GetSpyIndexInCity(CvCity* pCity)
 		return -1;
 	}
 
-	return pCity->GetCityEspionage()->m_aiSpyAssignment[m_pPlayer->GetID()];
+	return pCity->GetCityEspionage()->GetSpyAssignment(m_pPlayer->GetID());
 }
 
 
@@ -2745,7 +2745,7 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 	}
 
 	PlayerTypes ePlayerID = m_pPlayer->GetID();
-	if(pCityEspionage->m_aiSpyAssignment[ePlayerID] != -1)
+	if(pCityEspionage->GetSpyAssignment(ePlayerID) != -1)
 	{
 		return false;
 	}
@@ -2814,7 +2814,7 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 
 		m_aSpyList[uiSpyIndex].m_iCityX = pCity->getX();
 		m_aSpyList[uiSpyIndex].m_iCityY = pCity->getY();
-		pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] = uiSpyIndex;
+		pCityEspionage->SetSpyAssignment(m_pPlayer->GetID(), uiSpyIndex);
 		m_aSpyList[uiSpyIndex].SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_TRAVELLING);
 		m_aSpyList[uiSpyIndex].m_bIsDiplomat = bAsDiplomat;
 		int iRate = CalcPerTurn(SPY_STATE_TRAVELLING, pCity, uiSpyIndex);
@@ -2912,7 +2912,7 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-	pCityEspionage->m_aiSpyAssignment[ePlayer] = -1;
+	pCityEspionage->SetSpyAssignment(ePlayer, -1);
 	pCityEspionage->ResetProgress(ePlayer);
 	pCityEspionage->ResetPassiveBonuses(ePlayer);
 
@@ -3712,10 +3712,10 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank,
 	PlayerTypes eAllyPlayer = pMinorCivAI->GetAlly();
 	int iAllySpyRank = 0;
 	bool bNoAllySpy = true;
-	if (!bIgnoreEnemySpies && eAllyPlayer != NO_PLAYER && pCityEspionage->m_aiSpyAssignment[eAllyPlayer] != -1)
+	if (!bIgnoreEnemySpies && eAllyPlayer != NO_PLAYER && pCityEspionage->GetSpyAssignment(eAllyPlayer) != -1)
 	{
 		bNoAllySpy = false;
-		int iAllySpyIndex = pCityEspionage->m_aiSpyAssignment[eAllyPlayer];
+		int iAllySpyIndex = pCityEspionage->GetSpyAssignment(eAllyPlayer);
 		iAllySpyRank = GET_PLAYER(eAllyPlayer).GetEspionage()->m_aSpyList[iAllySpyIndex].GetSpyRank(eAllyPlayer);
 	}
 
@@ -4598,7 +4598,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_DETECTED_WO_TECH_S"));
 					Localization::String strNotification;
 
-					if (pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] == -1)
+					if (pCityEspionage->GetSpyAssignment(m_pPlayer->GetID()) == -1)
 					{
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_DETECTED_WO_TECH_W_TIP");
 					}
@@ -4617,7 +4617,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					strSummary << GET_PLAYER(m_aSpyNotificationMessages[ui].m_eAttackingPlayer).getCivilizationInfo().getShortDescriptionKey();
 					Localization::String strNotification;
 
-					if (pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] == -1)
+					if (pCityEspionage->GetSpyAssignment(m_pPlayer->GetID()) == -1)
 					{
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED_WO_TECH_W_TIP");
 					}
@@ -4633,7 +4633,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				case SPY_RESULT_KILLED:
 					// notify defending player that they killed a spy
 				{
-					int iDefendingSpy = pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()];
+					int iDefendingSpy = pCityEspionage->GetSpyAssignment(m_pPlayer->GetID());
 					PRECONDITION(iDefendingSpy >= 0, "iDefendingSpy value is out of bounds");
 					if (iDefendingSpy >= 0)
 					{
@@ -4676,7 +4676,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					strSummary << pTechEntry->GetDescriptionKey();
 
 					Localization::String strNotification;
-					if (pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] == -1)  // no defensive spy
+					if (pCityEspionage->GetSpyAssignment(m_pPlayer->GetID()) == -1)  // no defensive spy
 					{
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_DETECTED_W_TIP");
 					}
@@ -4696,7 +4696,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					strSummary << pTechEntry->GetDescriptionKey();
 
 					Localization::String strNotification;
-					if (pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] == -1)  // no defensive spy
+					if (pCityEspionage->GetSpyAssignment(m_pPlayer->GetID()) == -1)  // no defensive spy
 					{
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED_W_TIP");
 					}
@@ -7273,10 +7273,23 @@ int CvCityEspionage::GetPendingEvents(PlayerTypes ePlayer) const
 {
 	return m_aiPendingEventsForPlayer[ePlayer];
 }
+
+int CvCityEspionage::GetSpyAssignment(PlayerTypes ePlayer) const
+{
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "ePlayer is out of bounds");
+	return m_aiSpyAssignment[ePlayer];
+}
+
+void CvCityEspionage::SetSpyAssignment(PlayerTypes ePlayer, int iSpyID)
+{
+	PRECONDITION(ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS, "ePlayer is out of bounds");
+	m_aiSpyAssignment[ePlayer] = iSpyID;
+}
+
 /// HasCounterSpy - if this city is occupied
 bool CvCityEspionage::HasCounterSpy() const
 {
-	int iSpyID = m_aiSpyAssignment[m_pCity->getOwner()];
+	int iSpyID = GetSpyAssignment(m_pCity->getOwner());
 	if (iSpyID == -1)
 		return false;
 
@@ -7285,7 +7298,7 @@ bool CvCityEspionage::HasCounterSpy() const
 }
 int CvCityEspionage::GetCounterSpyID() const
 {
-	return m_aiSpyAssignment[m_pCity->getOwner()];
+	return GetSpyAssignment(m_pCity->getOwner());
 }
 CityEventChoiceTypes CvCityEspionage::GetCounterSpyFocus() const
 {
@@ -9166,7 +9179,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes)iLoopPlayer;
 			iNumCityRobbed += pCityEspionage->m_aiNumTimesCityRobbed[eLoopPlayer];
-			if (pCityEspionage->m_aiSpyAssignment[eLoopPlayer] != -1)
+			if (pCityEspionage->GetSpyAssignment(eLoopPlayer) != -1)
 				iNumSpiesInCity++;
 		}
 		if (pCityEspionage->HasCounterSpy())

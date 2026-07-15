@@ -504,6 +504,9 @@ public:
 	void ChangePendingEvents(PlayerTypes ePlayer, int iChange);
 	int GetPendingEvents(PlayerTypes ePlayer) const;
 
+	int GetSpyAssignment(PlayerTypes ePlayer) const;
+	void SetSpyAssignment(PlayerTypes ePlayer, int iSpyID);
+
 	bool HasCounterSpy() const;
 	int GetCounterSpyID() const;
 	CityEventChoiceTypes GetCounterSpyFocus() const;

@@ -6107,7 +6107,7 @@ int CvLuaCity::lHasDiplomat(lua_State* L)
 	const PlayerTypes iPlayer = toValue<PlayerTypes>(L, 2);
 	if(iPlayer != NO_PLAYER && pkCity->isCapital())
 	{
-		int iSpyIndex = pkCity->GetCityEspionage()->m_aiSpyAssignment[iPlayer];
+		int iSpyIndex = pkCity->GetCityEspionage()->GetSpyAssignment(iPlayer);
 		bResult = (iSpyIndex != -1 && GET_PLAYER(iPlayer).GetEspionage()->IsDiplomat(iSpyIndex));
 	}
 	lua_pushboolean(L, bResult);
@@ -6121,7 +6121,7 @@ int CvLuaCity::lHasSpy(lua_State* L)
 	const PlayerTypes iPlayer = toValue<PlayerTypes>(L, 2);
 	if(iPlayer != NO_PLAYER)
 	{
-		int iSpyIndex = pkCity->GetCityEspionage()->m_aiSpyAssignment[iPlayer];
+		int iSpyIndex = pkCity->GetCityEspionage()->GetSpyAssignment(iPlayer);
 		bResult = (iSpyIndex != -1 && !GET_PLAYER(iPlayer).GetEspionage()->IsDiplomat(iSpyIndex));
 	}
 	lua_pushboolean(L, bResult);
@@ -6132,7 +6132,7 @@ int CvLuaCity::lHasCounterSpy(lua_State* L)
 {
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
-	bResult = (pkCity->GetCityEspionage()->m_aiSpyAssignment[pkCity->getOwner()] != -1);
+	bResult = (pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner()) != -1);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -6140,7 +6140,7 @@ int CvLuaCity::lHasCounterSpy(lua_State* L)
 int CvLuaCity::lGetCounterSpy(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->GetCityEspionage()->m_aiSpyAssignment[pkCity->getOwner()]);
+	lua_pushinteger(L, pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner()));
 	return 1;
 }
 
