@@ -2209,7 +2209,7 @@ void CvCity::kill()
 	{
 		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 		{
-			int iAssignedSpy = pCityEspionage->m_aiSpyAssignment[i];
+			int iAssignedSpy = pCityEspionage->GetSpyAssignment((PlayerTypes)i);
 			// if there is a spy in the city
 			if (iAssignedSpy != -1)
 			{

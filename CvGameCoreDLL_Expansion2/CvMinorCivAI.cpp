@@ -15159,7 +15159,7 @@ void CvMinorCivAI::DoElection()
 		for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 		{
 			CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-			int iSpyID = pCityEspionage->m_aiSpyAssignment[eEspionagePlayer];
+			int iSpyID = pCityEspionage->GetSpyAssignment(eEspionagePlayer);
 			// if no spies are assigned here, continue
 			if(iSpyID == -1)
 			{
@@ -15239,7 +15239,7 @@ void CvMinorCivAI::DoElection()
 				for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 				{
 					CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-					iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+					iSpyID = pCityEspionage->GetSpyAssignment(ePlayer);
 					if (iSpyID != -1)
 					{
 						break;
@@ -15357,7 +15357,7 @@ void CvMinorCivAI::DoElection()
 					for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 					{
 						CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-						iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+						iSpyID = pCityEspionage->GetSpyAssignment(ePlayer);
 						if (iSpyID != -1)
 						{
 							break;

@@ -3719,7 +3719,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			if (!pEspionage)
 				continue;
 
-			int iAssignedSpy = pCityEspionage->m_aiSpyAssignment[iPlayerLoop];
+			int iAssignedSpy = pCityEspionage->GetSpyAssignment(eLoopPlayer);
 			if (iAssignedSpy == -1)
 				continue;
 
