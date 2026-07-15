@@ -6212,7 +6212,16 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 
 		UnitProcessed(pBestUnit->GetID());
 		vpTradeUnits.erase(itBestUnit);
-		kPlan.m_bExecuted = true;
+
+		// mark kPlan as executed, and also block all other trade route plans between these two cities (different domains) as those are now no longer available
+		for (uint ui2 = 0; ui2 < vTradeRoutePlans.size(); ui2++)
+		{
+			HomelandTradeRoutePlan& kPlan2 = vTradeRoutePlans[ui2];
+			if (kPlan.m_pOriginCity == kPlan2.m_pOriginCity && kPlan.m_pDestCity == kPlan2.m_pDestCity)
+			{
+				kPlan2.m_bExecuted = true;
+			}
+		}
 	}
 
 	// Then rebase units for planned routes that could not be established immediately.
