@@ -310,7 +310,7 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 	}
 
 	// Loop through all the players
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if (kPlayer.isAlive())
