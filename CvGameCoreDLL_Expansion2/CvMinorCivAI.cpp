@@ -13614,8 +13614,8 @@ PlayerTypes CvMinorCivAI::GetMajorBoughtOutBy() const
 
 void CvMinorCivAI::SetMajorBoughtOutBy(PlayerTypes eMajor)
 {
-	ASSERT(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	ASSERT(eMajor < MAX_MAJOR_CIVS, "Invalid eMajor index");
+	if (eMajor >= MAX_MAJOR_CIVS)
 		return;
 	m_eMajorBoughtOutBy = eMajor;
 }
