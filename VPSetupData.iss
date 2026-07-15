@@ -50,6 +50,7 @@ Source: "Build\(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).m
 Source: "Build\(3b) 43 Civs Community Patch\AdvancedSetup.lua"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "AdvancedSetup.lua"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "Build\(3b) 43 Civs Community Patch\CvGameCore_Expansion2.dll"; DestDir: "{app}\MODS\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "Build\(4a) Squads for VP\*"; Excludes: "*.civ5proj,*.civ5sln,*.civ5suo"; DestDir: "{app}\MODS\(4a) Squads for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
+Source: "Build\(5) Modpack Maker for VP\*"; Excludes: "*.civ5proj,*.civ5sln,*.civ5suo"; DestDir: "{app}\MODS\(5) Modpack Maker for VP"; Flags: ignoreversion; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI Core Civ43CPOnly
 Source: "Build\(1) Community Patch\LUA\*"; DestDir: "{app}\MODS\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly FullNoEUI Civ43NoEUI
 Source: "Build\(2) Vox Populi\LUA\*"; DestDir: "{app}\MODS\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
 Source: "UI_bc1\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\UI_bc1"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
@@ -93,6 +94,7 @@ Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3a) VP - EUI Compatibility Files"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3b) 43 Civs Community Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(4a) Squads for VP"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(5) Modpack Maker for VP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Community Balance Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Community Balance Overhaul"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3) CSD for VP"

@@ -56,6 +56,7 @@ MODS = {
     "(3a) VP - EUI Compatibility Files": "VP EUI Compatibility.civ5proj",
     "(3b) 43 Civs Community Patch": "43 Civs Community Patch.civ5proj",
     "(4a) Squads for VP": "Squads.civ5proj",
+    "(5) Modpack Maker for VP": "Modpack Maker.civ5proj",
 }
 
 # Files to update
@@ -253,6 +254,7 @@ def update_dependency_min_versions(old_mod_version: int, new_mod_version: int):
         "(3a) VP - EUI Compatibility Files",
         "(3b) 43 Civs Community Patch",
         "(4a) Squads for VP",
+        "(5) Modpack Maker for VP",
     ]
 
     for mod_folder in dependent_mods:

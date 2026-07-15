@@ -78,16 +78,6 @@ function OnMiniMapOverlayAddin(tab)
 end
 LuaEvents.MiniMapOverlayAddin.Add(OnMiniMapOverlayAddin)
 
-minmapAddins = {}
--- handle MiniMapOverlayAddins
-for addin in Modding.GetActivatedModEntryPoints("MiniMapOverlayAddin") do
-	local addinFile = addin.File;
-	local extension = Path.GetExtension(addinFile);
-	local path = string.sub(addinFile, 1, #addinFile - #extension);
-	ptr = ContextPtr:LoadNewContext(path)
-	table.insert(minmapAddins, ptr)
-end
-
 ----------------------------------------------------------------        
 ----- MODS END (more below)
 ----------------------------------------------------------------        
@@ -689,3 +679,28 @@ PopulateIconPulldown( Controls.IconDropDown );
 UpdateOptionsPanel();
 UpdateStrategicViewToggleTT();
 
+---------------------------------------------------------------------------------------
+-- Support for Modded Add-in UI's
+---------------------------------------------------------------------------------------
+local g_uiAddins = {};
+
+-- Done this way so that modpacks can insert files to the table to have them be loaded
+setmetatable(g_uiAddins, {
+	__newindex = function(_, _, value)
+		ContextPtr:LoadNewContext(value);
+		-- Intentionally not calling rawset here
+	end
+});
+
+for addin in Modding.GetActivatedModEntryPoints("MiniMapOverlayAddin") do
+	local addinFile = Modding.GetEvaluatedFilePath(addin.ModID, addin.Version, addin.File);
+	local addinPath = addinFile.EvaluatedPath;
+
+	-- Get the absolute path and filename without extension.
+	local extension = Path.GetExtension(addinPath);
+	local path = string.sub(addinPath, 1, #addinPath - #extension);
+
+	g_uiAddins[#g_uiAddins + 1] = path;
+end
+
+-- Modpacks will add "g_uiAddins[#g_uiAddins + 1] = fileName" lines below
