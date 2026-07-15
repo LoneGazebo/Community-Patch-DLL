@@ -8428,7 +8428,12 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 
 						int iEraNeeded = pkTechInfo->GetEra();
 						int iCurrentEra = m_pPlayer->GetCurrentEra();
-						iAvailabilityModifier = max(0, 3 - (iEraNeeded - iCurrentEra));  // lose remaining value if we have to wait
+						iAvailabilityModifier = 3 - (iEraNeeded - iCurrentEra);  // lose remaining value if we have to wait
+						if (!pCity)
+						{
+							iAvailabilityModifier--;
+						}
+						iAvailabilityModifier = max(0, iAvailabilityModifier);
 					}
 				}
 			}
@@ -8487,11 +8492,16 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 			iTempValue += 2 * min(iCap, iExpectedGrowth / pEntry->GetFollowerRequiredPerYield(iI));
 		}
 
-		// caps at half number of followers. assume we are at cap.
+		// caps at half number of followers.
 		if (pEntry->GetYieldPerGPT(iI) > 0)
 		{
-			iTempValue += 10 * (iCurrentCityPop / 2) ;
-			iTempValue += 5 * (iExpectedGrowth / 2);
+			if (pCity)
+			{
+				iTempValue += 10 * min((iCurrentCityPop / 2), (pCity->getYieldRateTimes100((YieldTypes)iI, false) / (pEntry->GetYieldPerGPT(iI) * 100)));
+				int iNewPop = iCurrentCityPop + iExpectedGrowth;
+				// assume yields will increase proportionally to pop
+				iTempValue += 5 * min(iNewPop / 2, (iNewPop * pCity->getYieldRateTimes100((YieldTypes)iI, false) / (pEntry->GetYieldPerGPT(iI) * 100 * iCurrentCityPop)));
+			}
 		}
 
 		// yield per birth
@@ -8733,11 +8743,12 @@ int CvReligionAI::ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity
 
 							int iEraNeeded = pkTechInfo->GetEra();
 							int iCurrentEra = m_pPlayer->GetCurrentEra();
-							iAvailabilityModifier = max(0, 3 - (iEraNeeded - iCurrentEra));  // lose remaining value if we have to wait
-						}
-						if (!pCity)
-						{
-							iAvailabilityModifier--;
+							iAvailabilityModifier = 3 - (iEraNeeded - iCurrentEra);  // lose remaining value if we have to wait
+							if (!pCity)
+							{
+								iAvailabilityModifier--;
+							}
+							iAvailabilityModifier = max(0, iAvailabilityModifier);
 						}
 					}
 				}
