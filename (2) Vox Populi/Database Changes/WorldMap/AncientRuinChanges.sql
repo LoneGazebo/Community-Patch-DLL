@@ -12,3 +12,4 @@ UPDATE GoodyHuts SET Culture = 15 WHERE Type = 'GOODY_CULTURE';
 UPDATE GoodyHuts SET PantheonFaith = 0, PantheonPercent = 60 WHERE Type = 'GOODY_PANTHEON_FAITH';
 UPDATE GoodyHuts SET ProphetPercent = 25 WHERE Type = 'GOODY_PROPHET_FAITH';
 UPDATE GoodyHuts SET Experience = 20 WHERE Type = 'GOODY_EXPERIENCE';
+UPDATE GoodyHuts SET Promotion = 'PROMOTION_LOST_PROTOTYPE' WHERE Type = 'GOODY_LOST_PROTOTYPE';

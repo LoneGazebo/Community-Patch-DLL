@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<GoodyHuts>
+		<!-- All of these are unused in Community Patch because they're not included in HandicapInfo_Goodies -->
 		<Row>
 			<Type>GOODY_PRODUCTION</Type>
 			<Description>TXT_KEY_GOODY_PRODUCTION</Description>
@@ -29,7 +30,7 @@
 			<Type>GOODY_LOST_PROTOTYPE</Type>
 			<Description>TXT_KEY_GOODY_LOST_PROTOTYPE</Description>
 			<ChooseDescription>TXT_KEY_GOODY_CHOOSE_LOST_PROTOTYPE</ChooseDescription>
-			<Promotion>PROMOTION_LOST_PROTOTYPE</Promotion>
+			<!-- Promotion will be set in Vox Populi -->
 		</Row>
 	</GoodyHuts>
 </GameData>
