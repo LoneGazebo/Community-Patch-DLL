@@ -13794,7 +13794,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 		visitor(plot.m_aeHumanPlannedRouteState[i]);
 	}
 
-	visitor(plot.m_bfRevealed.m_bits);
+	visitor(plot.m_bfRevealed);
 	visitor(plot.m_cRiverCrossing);
 
 	// Script data

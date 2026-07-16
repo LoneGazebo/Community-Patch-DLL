@@ -29,6 +29,7 @@
 #include "CvEnums.h"
 #include "CvSerialize.h"
 #include "CvHomelandAI.h"
+#include "CvBitfield.h"
 
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
@@ -862,62 +863,6 @@ public:
 	CvSeeder GetPseudoRandomSeed() const;
 
 protected:
-	class PlotBoolField
-	{
-	public:
-		enum
-		{
-			eSize = 32,
-			eCount = (MAX_PLAYERS / eSize) + (MAX_PLAYERS % eSize == 0 ? 0 : 1),
-			eTotalBits = eCount * eSize
-		};
-		uint32 m_bits[eTotalBits];
-
-		bool GetBit(const uint uiEntry) const
-		{
-			const uint uiOffset = uiEntry/eSize;
-			return (m_bits[uiOffset] & 1u<<(uiEntry-(eSize*uiOffset))) != 0;
-		}
-		void SetBit(const uint uiEntry)
-		{
-			const uint uiOffset = uiEntry/eSize;
-			m_bits[uiOffset] |= 1u<<(uiEntry-(eSize*uiOffset));
-		}
-		void ClearBit(const uint uiEntry)
-		{
-			const uint uiOffset = uiEntry/eSize;
-			m_bits[uiOffset] &= ~(1u<<(uiEntry-(eSize*uiOffset)));
-		}
-		void ToggleBit(const uint uiEntry)
-		{
-			const uint uiOffset = uiEntry/eSize;
-			m_bits[uiOffset] ^= 1u<<(uiEntry-(eSize*uiOffset));
-		}
-		void ClearAll()
-		{
-			for(uint i = 0; i <eCount; ++i)
-			{
-				m_bits[i] = 0;
-			}
-		}
-
-		bool ValidateFromBoolArray(const bool* pBools, uint uiCount) const
-		{
-			for(uint i = 0; i < uiCount; ++i)
-				if(GetBit(i) != pBools[i])
-					return false;
-
-			return true;
-		}
-
-		void InitFromBoolArray(bool* pBools, uint uiCount)
-		{
-			for(uint i = 0; i < uiCount; ++i)
-				if(GetBit(i) != pBools[i])
-					ToggleBit(i);
-		}
-	};
-
 	short m_iX;
 	short m_iY;
 	int m_iPlotIndex;
@@ -930,7 +875,7 @@ protected:
 	short m_sSpawnedResourceX;
 	short m_sSpawnedResourceY;
 
-	PlotBoolField m_bfRevealed;
+	CvPlayerBitfield m_bfRevealed;
 
 	FFastSmallFixedList<IDInfo, 4, true, c_eCiv5GameplayDLL > m_units;
 
