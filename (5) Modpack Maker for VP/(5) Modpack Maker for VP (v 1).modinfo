@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mod id="eb8f6ed3-109d-4f2f-a81d-516c8d2f91c1" version="1">
+  <Properties>
+    <Name>(5) Modpack Maker for VP</Name>
+    <Teaser>(5.3.3) Modpack Maker for VP</Teaser>
+    <Description>Modpack maker mod for VP, replacing Multiplayer Mods Workaround and fixing incompatibilities.
+[NEWLINE]
+[NEWLINE]Use this mod to create a modpack (a collection of mods packaged as a DLC). Modpacks allow you to play modded games without having to go through the MODS menu. In particular, they can be used to play modded games in multiplayer.
+[NEWLINE]
+[NEWLINE]How to create a modpack:
+[NEWLINE]      - Enable this mod and all mods to include in the modpack, then start/load a game.
+[NEWLINE]      - Press Ctrl-Shift-M to create the modpack.
+[NEWLINE]      - After the modpack has been generated, verify there are no errors in the lua log (Documents\My Games\Sid Meier's Civilization 5\Logs\Lua.log).
+[NEWLINE]      - Exit the game and delete the folder 'Documents\My Games\Sid Meier's Civilization 5\cache'.
+[NEWLINE]      - When launching the game again, all mods included in the modpack will automatically be loaded.
+[NEWLINE]      - Start/load games through the Singleplayer and Multiplayer menus. DO NOT use the MODS menu to activate additional mods.
+[NEWLINE]
+[NEWLINE]How to uninstall a modpack:
+[NEWLINE]      - Delete the folder 'Sid Meier's Civilization V\Assets\DLC\VP_MODPACK' (default location: 'C:\Program Files (x86)\Steam\steamapps\common'), then delete 'Documents\My Games\Sid Meier's Civilization 5\cache'.
+[NEWLINE]
+[NEWLINE]Usage notes on modpacks:
+[NEWLINE]      - Modpacks cannot be combined with mods that are activated through the MODS menu.
+[NEWLINE]      - Do not make manual changes to the files in DLC\VP_MODPACK. If you want to add more mods to a modpack or modify the existing ones, recreate the modpack.
+[NEWLINE]      - In multiplayer, all players have to use exactly the same modpack.
+[NEWLINE]      - In multiplayer, all players MUST delete the folder 'Documents\My Games\Sid Meier's Civilization 5\cache' EVERY TIME before launching the game. Otherwise, the game will most likely crash after the first turn.
+</Description>
+    <Authors>azum4roll</Authors>
+    <SpecialThanks>Gedemon, for making the original version, and cicero225, for making the improved version</SpecialThanks>
+    <HideSetupGame>0</HideSetupGame>
+    <AffectsSavedGames>0</AffectsSavedGames>
+    <SupportsSinglePlayer>1</SupportsSinglePlayer>
+    <SupportsMultiplayer>1</SupportsMultiplayer>
+    <SupportsHotSeat>1</SupportsHotSeat>
+    <SupportsMac>1</SupportsMac>
+    <ReloadAudioSystem>0</ReloadAudioSystem>
+    <ReloadLandmarkSystem>0</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>0</ReloadStrategicViewSystem>
+    <ReloadUnitSystem>0</ReloadUnitSystem>
+  </Properties>
+  <Dependencies>
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="150" maxversion="999" title="(1) Community Patch" />
+  </Dependencies>
+  <References />
+  <Blocks>
+    <Mod id="c70dee73-8179-4a19-a3e5-1d931908ff43" minversion="0" maxversion="999" title="Multiplayer Mods Workaround" />
+  </Blocks>
+  <Files>
+    <File md5="870776CF26B131E8F0917498F3D6926A" import="0">ModpackMaker.lua</File>
+  </Files>
+  <EntryPoints>
+    <EntryPoint type="InGameUIAddin" file="ModpackMaker.lua">
+      <Name>Modpack Maker</Name>
+      <Description>Modpack Maker for VP</Description>
+    </EntryPoint>
+  </EntryPoints>
+</Mod>
