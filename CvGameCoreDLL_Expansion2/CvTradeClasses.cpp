@@ -4353,7 +4353,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pDestCity, TradeConnectionType e
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (CanCreateTradeRoute(pLoopCity, pDestCity, eDomain, eConnectionType, bIgnoreExisting))
+			if (CanCreateTradeRoute(pLoopCity, pDestCity, eLoopDomain, eConnectionType, bIgnoreExisting))
 				return true;
 		}
 	}
