@@ -3,16 +3,21 @@
 Generate .modinfo file from a .civ5proj file.
 
 Usage:
-    python generate_modinfo.py <path_or_subpath_to_civ5proj_or_directory>
+    python generate_modinfo.py [path_or_subpath_to_civ5proj_or_directory]
     python generate_modinfo.py "(1) Community Patch/Community Patch.civ5proj"
     python generate_modinfo.py "(1) Community Patch"
     python generate_modinfo.py "(1)"
     python generate_modinfo.py "(2) Vox Populi" --output-dir ./output
+    python generate_modinfo.py
 
 The argument can be:
   - A path to a .civ5proj file
   - A directory containing a single .civ5proj file
   - A prefix that uniquely matches a directory name in the repository
+
+If the argument is omitted, .modinfo files are generated for every
+directory in the current directory whose name starts with '(' followed
+by a number (e.g. "(1) Community Patch", "(2) Vox Populi").
 """
 
 import argparse
@@ -264,17 +269,8 @@ def generate_modinfo_xml(data: dict, mod_dir: Path) -> str:
     return '\n'.join(lines), missing
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate a .modinfo file from a .civ5proj file.")
-    parser.add_argument('civ5proj', type=Path, help="Path to the .civ5proj file")
-    parser.add_argument(
-        '--output-dir', type=Path, default=None,
-        help="Directory to write the .modinfo file (default: same directory as .civ5proj)"
-    )
-    args = parser.parse_args()
-
-    civ5proj_path = args.civ5proj
-
+def resolve_civ5proj_path(civ5proj_path: Path) -> Path:
+    """Resolve a .civ5proj file, a directory, or a name prefix to a concrete .civ5proj path."""
     # If path doesn't exist, try to find a unique match by prefix in the current directory
     if not civ5proj_path.exists():
         prefix = str(civ5proj_path)
@@ -309,8 +305,12 @@ def main():
         print(f"Error: File not found: {civ5proj_path}")
         sys.exit(1)
 
+    return civ5proj_path
+
+
+def generate_modinfo_for(civ5proj_path: Path, output_dir_arg: Optional[Path]) -> None:
     mod_dir = civ5proj_path.parent
-    output_dir = args.output_dir.resolve() if args.output_dir else mod_dir
+    output_dir = output_dir_arg.resolve() if output_dir_arg else mod_dir
 
     print(f"Parsing: {civ5proj_path}")
     data = parse_civ5proj(civ5proj_path)
@@ -329,6 +329,42 @@ def main():
         f.write(xml_content)
 
     print(f"Written: {modinfo_path}")
+
+
+def find_default_mod_directories() -> list:
+    """Directories in the current directory whose name starts with '(' followed by a number."""
+    pattern = re.compile(r'^\(\d')
+    return sorted(
+        (p for p in Path('.').iterdir() if p.is_dir() and pattern.match(p.name)),
+        key=lambda p: p.name,
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate a .modinfo file from a .civ5proj file.")
+    parser.add_argument(
+        'civ5proj', type=Path, nargs='?', default=None,
+        help="Path to the .civ5proj file. If omitted, generates .modinfo files for all "
+             "directories in the current directory whose name starts with '(' followed by a number."
+    )
+    parser.add_argument(
+        '--output-dir', type=Path, default=None,
+        help="Directory to write the .modinfo file (default: same directory as .civ5proj)"
+    )
+    args = parser.parse_args()
+
+    if args.civ5proj is None:
+        mod_dirs = find_default_mod_directories()
+        if not mod_dirs:
+            print("Error: No directories matching '(<number>...' found in the current directory")
+            sys.exit(1)
+        for mod_dir in mod_dirs:
+            civ5proj_path = resolve_civ5proj_path(mod_dir)
+            generate_modinfo_for(civ5proj_path, args.output_dir)
+        return
+
+    civ5proj_path = resolve_civ5proj_path(args.civ5proj)
+    generate_modinfo_for(civ5proj_path, args.output_dir)
 
 
 if __name__ == '__main__':
