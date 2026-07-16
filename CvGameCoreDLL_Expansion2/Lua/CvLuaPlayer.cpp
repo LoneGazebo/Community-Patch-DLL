@@ -7516,7 +7516,7 @@ int CvLuaPlayer::lGetNextPolicyCostBreakdown(lua_State* L)
 	const int iNextCityDelta = pPolicies->GetNextPolicyCost(/*bIgnoreCities*/ false, /*iCityOffset*/ 1) - iTotalCost;
 	const int iCurrentModifierTimes100 = pPolicies->GetPolicyCityModifierTimes100();
 	const int iNextCityModifierTimes100 = pPolicies->GetPolicyOneMoreCityModifierTimes100();
-	const int iCityCountUsed = (pkPlayer->getNumCities() > 0) ? pkPlayer->GetNumEffectiveCities() : 0;
+	const int iCityCountUsed = max((pkPlayer->getNumCities() > 0) ? (MOD_BALANCE_VP ? pkPlayer->GetNumEffectiveCities() : pkPlayer->GetNumEffectiveCities() - 1) : 0, 0);
 	int iBaseTimes100 = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostModTimes100();
 	const int iPolicyModDiscount = pkPlayer->GetNumCitiesPolicyCostDiscount();
 	if(iPolicyModDiscount != 0)

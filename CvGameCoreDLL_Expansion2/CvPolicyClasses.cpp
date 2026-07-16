@@ -4739,6 +4739,11 @@ int CvPlayerPolicies::GetPolicyCityModifierTimes100(int iCityOffset) const
 	int iScalingTimes100 = GD_INT_GET(NUM_CITIES_COST_MOD_SCALING) * (100 + iPolicyModDiscount) / 100; //  20 in VP (0.2%/city penalty scaling), 0 in CP
 	int iNumCities = (m_pPlayer->getNumCities() > 0) ? m_pPlayer->GetNumEffectiveCities() : 0;
 	iNumCities += iCityOffset;
+	if (!MOD_BALANCE_VP)
+	{
+		// the first city is excluded in Community Patch
+		iNumCities--;
+	}
 	int iPolicyCities = max(0, iNumCities);
 	// Formula: flat_penalty * N + scaling_penalty * C(N,2)
 	// Where C(N,2) = N*(N-1)/2 is the number of city pairs ("N choose 2")
@@ -4820,7 +4825,7 @@ int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset, int
 	if (!bIgnoreCities)
 	{
 		// Unified city cost formula: cost *= (10000 + iTotalTimes100) / 10000
-		// Tech and policy now both use all effective cities (including the first one).
+		// Tech and policy now both use all effective cities in VP, including the first one. CP behavior unchanged (first city included in tech cost calculations, but excluded in policy cost calculations)
 		int iTotalTimes100 = GetPolicyCityModifierTimes100(iCityOffset);
 		iCost = iCost * (10000 + iTotalTimes100) / 10000;
 	}
@@ -4884,6 +4889,13 @@ int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset, int
 			iCost /= 100;
 		}
 	}
+
+
+	// Make the number nice and even
+	int iDivisor = /*5 in CP, 1 in VP*/ GD_INT_GET(POLICY_COST_VISIBLE_DIVISOR);
+	iCost /= iDivisor;
+	iCost *= iDivisor;
+
 
 	return iCost;
 }
