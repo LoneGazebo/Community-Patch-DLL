@@ -141,4 +141,75 @@ inline FDataStream& operator>>(FDataStream& loadFrom, CvBitfield& writeTo)
 	return loadFrom;
 }
 
+template <uint N>
+class CvFixedBitfield
+{
+public:
+	enum
+	{
+		SIZE = 32,
+		COUNT = (N / SIZE) + (N % SIZE == 0 ? 0 : 1)
+	};
+
+	CvFixedBitfield()
+	{
+		ClearAll();
+	}
+
+	inline bool GetBit(const uint uiEntry) const
+	{
+		const uint uiOffset = uiEntry / SIZE;
+		return (m_bits[uiOffset] & (1u << (uiEntry - (SIZE * uiOffset)))) != 0;
+	}
+
+	inline void SetBit(const uint uiEntry)
+	{
+		const uint uiOffset = uiEntry / SIZE;
+		m_bits[uiOffset] |= (1u << (uiEntry - (SIZE * uiOffset)));
+	}
+
+	inline void ClearBit(const uint uiEntry)
+	{
+		const uint uiOffset = uiEntry / SIZE;
+		m_bits[uiOffset] &= ~(1u << (uiEntry - (SIZE * uiOffset)));
+	}
+
+	inline void ToggleBit(const uint uiEntry)
+	{
+		const uint uiOffset = uiEntry / SIZE;
+		m_bits[uiOffset] ^= (1u << (uiEntry - (SIZE * uiOffset)));
+	}
+
+	inline void ClearAll()
+	{
+		for (uint i = 0; i < COUNT; ++i)
+		{
+			m_bits[i] = 0;
+		}
+	}
+
+	friend FDataStream &operator<<(FDataStream &saveTo, const CvFixedBitfield<N> &readFrom)
+	{
+		uint uiBitSize = N;
+		saveTo << uiBitSize;
+		saveTo.WriteIt(sizeof(readFrom.m_bits), (void*) readFrom.m_bits);
+		return saveTo;
+	}
+
+	friend FDataStream &operator>>(FDataStream &loadFrom, CvFixedBitfield<N> &writeTo)
+	{
+		uint uiSavedBitSize = 0;
+		loadFrom >> uiSavedBitSize;
+		PRECONDITION(uiSavedBitSize == N, "Savegame bitfield size mismatch!");
+
+		loadFrom.ReadIt(sizeof(writeTo.m_bits), (void*) writeTo.m_bits);
+		return loadFrom;
+	}
+
+private:
+	uint32 m_bits[COUNT];
+};
+
+typedef CvFixedBitfield<MAX_PLAYERS> CvPlayerBitfield;
+
 #endif // CVBITFIELD_H
