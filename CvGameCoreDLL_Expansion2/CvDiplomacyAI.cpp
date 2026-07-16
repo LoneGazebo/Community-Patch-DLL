@@ -30379,20 +30379,15 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 	if (SkipForTeammates())
 		return;
 
+	if (IsAvoidDeals())
+		return;
+
 	if (MOD_DIPLOAI_SHUT_UP_HELP_REQUESTS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
 
 	// If we just sent out a generous offer, don't ask for a request until some time has passed
 	if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_GENEROUS_OFFER) < 25)
 		return;
-
-	// Don't request help from sanctioned players
-	if (MOD_BALANCE_VP)
-	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
-			return;
-	}
 
 	// If a request was accepted or rejected, wait 60 turns. If we rolled for rand and failed, wait 15 turns before we try again
 	if (GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_REQUEST) >= 60 &&
@@ -30899,14 +30894,6 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 
 	if (MOD_DIPLOAI_SHUT_UP_GIFT_OFFERS && GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_DIPLOMACY))
 		return;
-
-	// Don't give help to sanctioned players
-	if (MOD_BALANCE_VP)
-	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), ePlayer))
-			return;
-	}
 
 	// Check if we have a bonus on exporting luxuries
 	bool bWantExport = false;
