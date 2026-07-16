@@ -28789,13 +28789,6 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 			}
 		}
 	}
-
-	// spy points
-	int iExtraSpies = kGreatPersonUnitInfo.GetExtraSpies();
-	if (iExtraSpies > 0)
-	{
-		CreateSpies(iExtraSpies);
-	}
 	
 	// add yields to capital based on the tile the GP was expended on
 	if (kGreatPersonUnitInfo.IsCopyYieldsFromExpendTile())
