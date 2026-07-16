@@ -3084,6 +3084,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_SPY_MISSION");
 		strMessage << strMissionName;
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SPY_MISSION");
+		break;
 	}
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 	{
