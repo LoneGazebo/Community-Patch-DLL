@@ -8,9 +8,27 @@
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
     <Teaser>(5.3.3) Modpack Maker for VP</Teaser>
-    <Description>The definitive modpack maker mod for VP, replacing Multiplayer Mods Workaround and fixing all incompatibilities.
-Usage: Enable this mod, start/load a game, then call CreateMP() in the Lua console in FireTuner.
-You may even continue playing the existing game until you next launch the game.</Description>
+    <Description>Modpack maker mod for VP, replacing Multiplayer Mods Workaround and fixing incompatibilities.
+[NEWLINE]
+[NEWLINE]Use this mod to create a modpack (a collection of mods packaged as a DLC). Modpacks allow you to play modded games without having to go through the MODS menu. In particular, they can be used to play modded games in multiplayer.
+[NEWLINE]
+[NEWLINE]How to create a modpack:
+[NEWLINE]      - Enable this mod and all mods to include in the modpack, then start/load a game.
+[NEWLINE]      - Press Ctrl-Shift-M to create the modpack.
+[NEWLINE]      - After the modpack has been generated, verify there are no errors in the lua log (Documents\My Games\Sid Meier's Civilization 5\Logs\Lua.log).
+[NEWLINE]      - Exit the game and delete the folder 'Documents\My Games\Sid Meier's Civilization 5\cache'.
+[NEWLINE]      - When launching the game again, all mods included in the modpack will automatically be loaded.
+[NEWLINE]      - Start/load games through the Singleplayer and Multiplayer menus. DO NOT use the MODS menu to activate additional mods.
+[NEWLINE]
+[NEWLINE]How to uninstall a modpack:
+[NEWLINE]      - Delete the folder 'Sid Meier's Civilization V\Assets\DLC\VP_MODPACK' (default location: 'C:\Program Files (x86)\Steam\steamapps\common'), then delete 'Documents\My Games\Sid Meier's Civilization 5\cache'.
+[NEWLINE]
+[NEWLINE]Usage notes on modpacks:
+[NEWLINE]      - Modpacks cannot be combined with mods that are activated through the MODS menu.
+[NEWLINE]      - Do not make manual changes to the files in DLC\VP_MODPACK. If you want to add more mods to a modpack or modify the existing ones, recreate the modpack.
+[NEWLINE]      - In multiplayer, all players have to use exactly the same modpack.
+[NEWLINE]      - In multiplayer, all players MUST delete the folder 'Documents\My Games\Sid Meier's Civilization 5\cache' EVERY TIME before launching the game. Otherwise, the game will most likely crash after the first turn.
+</Description>
     <Authors>azum4roll</Authors>
     <SpecialThanks>Gedemon, for making the original version, and cicero225, for making the improved version</SpecialThanks>
     <AffectsSavedGames>false</AffectsSavedGames>

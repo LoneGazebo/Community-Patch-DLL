@@ -331,6 +331,9 @@ ContextPtr:SetInputHandler(function (uiMsg, wParam)
 	if uiMsg == KeyEvents.KeyDown then
 		if wParam == Keys.M and UI.CtrlKeyDown() and UI.ShiftKeyDown() then
 			CreateMP();
+			local iActivePlayer = Game.GetActivePlayer();
+			local pPlayer = Players[iActivePlayer];
+			pPlayer:AddMessage("Modpack generation complete. Verify there are no error in Lua.log.");
 			return true;
 		end
 	end
