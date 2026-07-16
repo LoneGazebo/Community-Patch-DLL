@@ -57,6 +57,9 @@
 // Enables Squads for VP support
 #define MOD_SQUADS													gCustomMods.isSQUADS()
 
+// Enables writing gameplay statistics to a local SQLite database (stats.db) via SqliteLogger
+#define MOD_SQLITE_LOGGING											gCustomMods.isSQLITE_LOGGING()
+
 // Comment out this line to remove minidumps - see http://forums.civfanatics.com/showthread.php?t=498919
 // If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
 #define MOD_DEBUG_MINIDUMP
@@ -1539,6 +1542,7 @@ public:
 	MOD_OPT_DECL(DIPLO_DEBUG_MODE);
 	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(SQUADS);
+	MOD_OPT_DECL(SQLITE_LOGGING);
 
 	// Core Balance Changes
 	MOD_OPT_DECL(CORE_DELAYED_VISIBILITY);

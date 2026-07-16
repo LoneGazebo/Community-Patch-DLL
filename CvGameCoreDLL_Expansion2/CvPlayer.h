@@ -2406,6 +2406,9 @@ public:
 	void changeInstantYieldValue(YieldTypes eYield, int iValue);
 
 	void LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType eInstantYield, CvCity* pCity);
+	void LogBuildingInstantYields(InstantYieldType iType, CvCity* pLoopCity, YieldTypes eYield, int iEra, int iPassYield, bool bEraScale, PlayerTypes ePlayer, YieldTypes ePassYield, BuildingTypes ePassBuilding, CvCity* pCity, bool bInternational, CvUnit* pUnit, GreatPersonTypes eGreatPerson);
+	void LogReligionBeliefInstantYields(InstantYieldType iType, CvCity* pLoopCity, YieldTypes eYield, int iEra, int iPassYield, bool bEraScale, YieldTypes ePassYield, GreatPersonTypes eGreatPerson, CvUnit* pUnit, CvPlot* pPlot, PlayerTypes eSpreadPlayer, const CvReligion* pReligion, ReligionTypes eReligion, int iNumFollowerCities, int iNumFollowers);
+	void LogHandicapYields(CvHandicapInfo* pHandicapInfo, HistoricEventTypes eHistoricEvent, int iEra, int iDifficultyBonusPercent, bool bSeparateYieldTypes, int iCommonAmount, const std::vector<YieldTypes>& vYields);
 
 	CvString getInstantYieldHistoryTooltip(int iGameTurn, int iNumPreviousTurnsToCount);
 

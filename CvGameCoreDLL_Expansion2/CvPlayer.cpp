@@ -38,6 +38,7 @@
 #include "CvBarbarians.h"
 #include "CvGoodyHuts.h"
 #include "CvCityConnections.h"
+#include "SqliteLoggerRegistrations.h"
 #include "CvNotifications.h"
 #include "CvEventLog.h"
 #include "CvDiplomacyRequests.h"
@@ -50,7 +51,6 @@
 #include "FStlContainerSerialization.h"
 #include <sstream>
 #include <iomanip>
-
 #include "CvInternalGameCoreUtils.h"
 #include "CvAchievementUnlocker.h"
 #include "CvInfosSerializationHelper.h"
@@ -3778,7 +3778,21 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 
 	// If Holy City, update religion status
 	if (bHolyCity)
+	{
+		// If the conquering player has no religion, record the acquisition of a religion by force in the SQLite stats database
+		if (MOD_SQLITE_LOGGING && bConquest && GetReligions()->GetStateReligion(false) == NO_RELIGION)
+		{
+			RegisterReligionChoicesTable();
+			CvString strCiv = getCivilizationShortDescription();
+			GET_SQLITE_LOGGER().BeginLogRow("ReligionChoices")
+				.bind(strCiv.c_str())
+				.bind("RELIGION_CONQUERED")
+				.bind("")
+				.bind("")
+				.execute();
+		}
 		UpdateReligion();
+	}
 
 	// Remove any Corporations from this city if it is acquired by another player
 	GetCorporations()->ClearAllCorporationsFromCity(pCity);
@@ -19807,8 +19821,104 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 				pLog->Msg(strBaseString);
 			}
+
+			if (MOD_SQLITE_LOGGING)
+			{
+				LogHandicapYields(pHandicapInfo, eHistoricEvent, iEra, iDifficultyBonusPercent, bSeparateYieldTypes, iCommonAmount, vYields);
+			}
 		}
 	}
+}
+
+// Independent SQLite logger for the AI difficulty-bonus yields (long format, one row per granted yield)
+void CvPlayer::LogHandicapYields(CvHandicapInfo* pHandicapInfo, HistoricEventTypes eHistoricEvent, int iEra, int iDifficultyBonusPercent, bool bSeparateYieldTypes, int iCommonAmount, const std::vector<YieldTypes>& vYields)
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+	if (pHandicapInfo == NULL || vYields.empty())
+		return;
+
+	// Title-case trigger label (independent copy of the CSV switch in DoDifficultyBonus).
+	const char* szTrigger = NULL;
+	switch (eHistoricEvent)
+	{
+	case HISTORIC_EVENT_ERA_CHANGE:               szTrigger = "Era"; break;
+	case HISTORIC_EVENT_WORLD_WONDER:             szTrigger = "World Wonder"; break;
+	case HISTORIC_EVENT_GREAT_PERSON:             szTrigger = "Great Person"; break;
+	case HISTORIC_EVENT_WON_WAR:                  szTrigger = "War"; break;
+	case HISTORIC_EVENT_GOLDEN_AGE:               szTrigger = "Golden Age"; break;
+	case HISTORIC_EVENT_DIG:                      szTrigger = "Dig"; break;
+	case HISTORIC_EVENT_TRADE_LAND:               szTrigger = "Trade Route (Land)"; break;
+	case HISTORIC_EVENT_TRADE_SEA:                szTrigger = "Trade Route (Sea)"; break;
+	case HISTORIC_EVENT_TRADE_CS:                 szTrigger = "Trade Route (City-State)"; break;
+	case HISTORIC_EVENT_RELIGION_SPREAD:          szTrigger = "Religion Spread"; break;
+	case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:     szTrigger = "Capital Founding"; break;
+	case DIFFICULTY_BONUS_CITY_FOUND:             szTrigger = "City Founding"; break;
+	case DIFFICULTY_BONUS_CITY_CONQUEST:          szTrigger = "City Conquest"; break;
+	case DIFFICULTY_BONUS_RESEARCHED_TECH:        szTrigger = "Researching Tech"; break;
+	case DIFFICULTY_BONUS_ADOPTED_POLICY:         szTrigger = "Adopting Policy"; break;
+	case DIFFICULTY_BONUS_COMPLETED_POLICY_TREE:  szTrigger = "Completing Policy Tree"; break;
+	case DIFFICULTY_BONUS_KILLED_MAJOR_UNIT:      szTrigger = "Killing Major Civ Unit"; break;
+	case DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT: szTrigger = "Killing City-State Unit"; break;
+	case DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT:  szTrigger = "Killing Barbarian Unit"; break;
+	case DIFFICULTY_BONUS_PLAYER_TURNS_PASSED:    szTrigger = "Turns Passed"; break;
+	case DIFFICULTY_BONUS_AI_TURNS_PASSED:        szTrigger = "Turns Passed"; break;
+	default:
+		return;
+	}
+
+	// CityCount is a per-event value: if the event grants any per-city yield (Food/Production/Border
+	// Growth) count the valid cities the yield is divided across and stamp that count on every row of
+	// the event; otherwise the event is not per-city, so store -1. Uses the same city filter as the
+	// per-city branches in DoDifficultyBonus (skip puppet-annexable, resistance and razing cities).
+	const bool bHasPerCityYield = (std::find(vYields.begin(), vYields.end(), YIELD_FOOD) != vYields.end())
+		|| (std::find(vYields.begin(), vYields.end(), YIELD_PRODUCTION) != vYields.end())
+		|| (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE_LOCAL) != vYields.end());
+	int iCityCount = -1;
+	if (bHasPerCityYield)
+	{
+		int iValidCities = 0;
+		int iLoop = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			// Skip puppets, unless Venice.
+			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+				continue;
+			// Skip resistance or razing cities.
+			if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+				continue;
+			iValidCities++;
+		}
+		iCityCount = iValidCities;
+	}
+
+	RegisterHandicapYieldsTable();
+
+	const char* szCiv = getCivilizationShortDescription();
+
+	SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("HandicapYields");
+	for (std::vector<YieldTypes>::const_iterator it = vYields.begin(); it != vYields.end(); ++it)
+	{
+		const YieldTypes eYield = *it;
+		const int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, eYield) : iCommonAmount;
+		if (iAmount <= 0)
+			continue;
+
+		const int iYieldTimes100 = (eYield == YIELD_POPULATION) ? (iAmount * 100) : (iAmount * iDifficultyBonusPercent);
+
+		const CvYieldInfo* pYieldInfo = GC.getYieldInfo(eYield);
+		const char* szYield = pYieldInfo ? pYieldInfo->GetDescription() : "";
+
+		kBatch.BeginLogRow()
+			.bind(szCiv)
+			.bind(iEra)
+			.bind(iCityCount)
+			.bind(szTrigger)
+			.bind(szYield)
+			.bind(iYieldTimes100)
+			.addRowToBatch();
+	}
+	kBatch.flush();
 }
 
 void CvPlayer::DoHealGlobal(int iHealPercent)
@@ -25592,6 +25702,79 @@ void CvPlayer::DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlaye
 		LuaSupport::CallHook(pkScriptSystem, "UnitKilledInCombat", args.get(), bResult);
 	}
 }
+
+static const char* GetInstantYieldSqliteLabel(InstantYieldType eInstantYield)
+{
+	switch (eInstantYield)
+	{
+	case INSTANT_YIELD_TYPE_BIRTH:                  return "Birth";
+	case INSTANT_YIELD_TYPE_DEATH:                  return "Death";
+	case INSTANT_YIELD_TYPE_PROPOSAL:               return "WC Proposal";
+	case INSTANT_YIELD_TYPE_ERA_UNLOCK:             return "New Era";
+	case INSTANT_YIELD_TYPE_POLICY_UNLOCK:          return "Policy Unlock";
+	case INSTANT_YIELD_TYPE_INSTANT:                return "Instant";
+	case INSTANT_YIELD_TYPE_TECH:                   return "Tech";
+	case INSTANT_YIELD_TYPE_CONSTRUCTION:           return "Construction";
+	case INSTANT_YIELD_TYPE_BORDERS:                return "Border Growth";
+	case INSTANT_YIELD_TYPE_GP_USE:                 return "GP Use";
+	case INSTANT_YIELD_TYPE_GP_BORN:                return "GP Born";
+	case INSTANT_YIELD_TYPE_F_SPREAD:               return "Spread Foreign";
+	case INSTANT_YIELD_TYPE_F_CONQUEST:             return "Conquest";
+	case INSTANT_YIELD_TYPE_VICTORY:                return "Won Battle";
+	case INSTANT_YIELD_TYPE_U_PROD:                 return "Produced Unit";
+	case INSTANT_YIELD_TYPE_PURCHASE:               return "Bought Something";
+	case INSTANT_YIELD_TYPE_TILE_PURCHASE:          return "Tile Purchase";
+	case INSTANT_YIELD_TYPE_FOUND:                  return "Founded City";
+	case INSTANT_YIELD_TYPE_TR_END:                 return "End TR";
+	case INSTANT_YIELD_TYPE_CONVERSION:             return "Converted City";
+	case INSTANT_YIELD_TYPE_SPREAD:                 return "Spread Religion";
+	case INSTANT_YIELD_TYPE_BULLY:                  return "Bully CS";
+	case INSTANT_YIELD_TYPE_TR_MOVEMENT:            return "TR Moved";
+	case INSTANT_YIELD_TYPE_SCOUTING:               return "Scouting";
+	case INSTANT_YIELD_TYPE_LEVEL_UP:               return "Unit Leveled";
+	case INSTANT_YIELD_TYPE_PILLAGE:                return "Pillaging";
+	case INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE:      return "Birth Retro";
+	case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:       return "Tech Retro";
+	case INSTANT_YIELD_TYPE_SPY_ATTACK:             return "Spy Attack";
+	case INSTANT_YIELD_TYPE_SPY_DEFENSE:            return "Spy Defense (Capture/Killed)";
+	case INSTANT_YIELD_TYPE_SPY_IDENTIFY:           return "Spy Identify";
+	case INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID:      return "Spy Defense or ID";
+	case INSTANT_YIELD_TYPE_SPY_RIG_ELECTION:       return "Spy Rig Election";
+	case INSTANT_YIELD_TYPE_DELEGATES:              return "WC Delegates";
+	case INSTANT_YIELD_TYPE_CONSTRUCTION_WONDER:    return "Wonder Const";
+	case INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD:     return "Quest Minor";
+	case INSTANT_YIELD_TYPE_CULTURE_BOMB:           return "Culture Bomb";
+	case INSTANT_YIELD_TYPE_REMOVE_HERESY:          return "Remove Heresy";
+	case INSTANT_YIELD_TYPE_FAITH_PURCHASE:         return "Faith Purchase";
+	case INSTANT_YIELD_TYPE_VICTORY_GLOBAL:         return "Unit Won Battle (Anywhere)";
+	case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:         return "Pillage (Anywhere)";
+	case INSTANT_YIELD_TYPE_CONVERSION_EXPO:        return "Conversion Expo.";
+	case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:     return "Promotion";
+	case INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED: return "Barb Camp";
+	case INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON:   return "Siphon";
+	case INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN: return "TR Foreign";
+	case INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD:      return "Build Improvement";
+	case INSTANT_YIELD_TYPE_LUA:                    return "LUA";
+	case INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT:     return "RA";
+	case INSTANT_YIELD_TYPE_REFUND:                 return "Refund";
+	case INSTANT_YIELD_TYPE_FAITH_REFUND:           return "Faith Refund";
+	case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:        return "Holy City Birth";
+	case INSTANT_YIELD_TYPE_PILLAGE_UNIT:           return "Pillage (Unit)";
+	case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:      return "Unit Combat";
+	case INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE:       return "Scrap or Upgrade";
+	case INSTANT_YIELD_TYPE_HEALING:                return "Healing";
+	case INSTANT_YIELD_TYPE_CITY_DAMAGE:            return "City Damage";
+	case INSTANT_YIELD_TYPE_LUXURY_RESOURCE_GAIN:   return "Luxury Resource Gain";
+	case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:       return "Start Golden Age";
+	case INSTANT_YIELD_TYPE_UNIT_GIFT:              return "Unit Gift";
+	case INSTANT_YIELD_TYPE_BAKTUN_END:             return "Maya Baktun End";
+	case INSTANT_YIELD_TYPE_WLTKD_START:            return "WLTKD Start";
+	case INSTANT_YIELD_TYPE_ANCIENT_RUIN:           return "Ancient Ruin";
+	case INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE:    return "Plunder Trade Route";
+	default:                                        return "";
+	}
+}
+
 void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPersonTypes eGreatPerson, BuildingTypes ePassBuilding, int iPassYield, bool bEraScale, PlayerTypes ePlayer, CvPlot* pPlot, bool bSuppress, CvCity* pCity, bool bDomainSea, bool bInternational, bool bEvent, YieldTypes ePassYield, CvUnit* pUnit, TerrainTypes ePassTerrain, CvMinorCivQuest* pQuestData, CvCity* pOtherCity, CvUnit* pAttackingUnit)
 {
 	//No minors or barbs here, please!
@@ -25603,6 +25786,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 	CvString totalyieldString = "";
 	//Let's loop through all cities for this.
+
+	// InstantYields SQLite logging (long format, one row per granted yield). Batched across
+	// the whole city loop below and flushed once after it.
+	if (MOD_SQLITE_LOGGING)
+		RegisterInstantYieldsTable();
+	SqliteLogger::BatchWriter kInstantYieldsBatch = GET_SQLITE_LOGGER().BeginLogBatch("InstantYields");
+
 	int iLoop = 0;
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
@@ -27099,6 +27289,19 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					LogInstantYield(eYield, iValue, iType, pLoopCity);
 				}
+				if (MOD_SQLITE_LOGGING)
+				{
+					LogBuildingInstantYields(iType, pLoopCity, eYield, iEra, iPassYield, bEraScale, ePlayer, ePassYield, ePassBuilding, pCity, bInternational, pUnit, eGreatPerson);
+					LogReligionBeliefInstantYields(iType, pLoopCity, eYield, iEra, iPassYield, bEraScale, ePassYield, eGreatPerson, pUnit, pPlot, ePlayer, pReligion, eReligion, iNumFollowerCities, iNumFollowers);
+
+					kInstantYieldsBatch.BeginLogRow()
+						.bind(getCivilizationShortDescription())
+						.bind(iEra)
+						.bind(GetInstantYieldSqliteLabel(iType))
+						.bind(pYieldInfo->GetDescription())
+						.bind(iValue * 100)
+						.addRowToBatch();
+				}
 			}
 		}
 		if(!citynameString.empty() && !cityyieldString.empty())
@@ -27111,6 +27314,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		}
 		totalyieldString += citynameString;
 	}
+
+	// Flush the InstantYields batch after the city loop has finished.
+	if (MOD_SQLITE_LOGGING)
+		kInstantYieldsBatch.flush();
+
 	CvNotifications* pNotifications = GetNotifications();
 	if(!bSuppress && pNotifications && !totalyieldString.empty())
 	{
@@ -42758,6 +42966,564 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	strOutBuf.Format("Instant Yield Type: %s, Yield Type: %s, Value: %d", instantYieldName.c_str(), GC.getYieldInfo(eYield)->GetDescription(), iValue);
 	strBaseString += strOutBuf;
 	pLog->Msg(strBaseString);
+}
+
+void CvPlayer::LogReligionBeliefInstantYields(InstantYieldType iType, CvCity* pLoopCity, YieldTypes eYield, int iEra, int iPassYield, bool bEraScale, YieldTypes ePassYield, GreatPersonTypes eGreatPerson, CvUnit* pUnit, CvPlot* pPlot, PlayerTypes eSpreadPlayer, const CvReligion* pReligion, ReligionTypes eReligion, int iNumFollowerCities, int iNumFollowers)
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+	if (pReligion == NULL || pLoopCity == NULL || isMinorCiv())
+		return;
+
+	// Map the instant-yield type to a source label and the holy-city gate the matching case uses. Bail
+	// for instant-yield types that carry no belief-sourced yield.
+	const char* szSource = NULL;
+	bool bHolyGate = true;
+	switch (iType)
+	{
+	case INSTANT_YIELD_TYPE_BIRTH:           szSource = "Birth";          bHolyGate = false; break;
+	case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY: szSource = "HolyCityBirth";  bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_ERA_UNLOCK:      szSource = "EraUnlock";      bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_POLICY_UNLOCK:   szSource = "PolicyUnlock";   bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_TECH:            szSource = "TechUnlock";     bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_CONSTRUCTION:    szSource = "Construction";   bHolyGate = false; break;
+	case INSTANT_YIELD_TYPE_BORDERS:         szSource = "BorderGrowth";   bHolyGate = false; break;
+	case INSTANT_YIELD_TYPE_GP_USE:          szSource = "GPUse";          bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_GP_BORN:         szSource = "GPBorn";         bHolyGate = false; break;
+	case INSTANT_YIELD_TYPE_CONVERSION:      szSource = "Conversion";     bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_CONVERSION_EXPO: szSource = "ConversionExpo"; bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_SPREAD:          szSource = "Spread";         bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_F_SPREAD:        szSource = "ForeignSpread";  bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:  szSource = "Pillage";        bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_REMOVE_HERESY:   szSource = "RemoveHeresy";   bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_PROPOSAL:        szSource = "Proposal";       bHolyGate = true;  break;
+	case INSTANT_YIELD_TYPE_FAITH_PURCHASE:  szSource = "FaithPurchase";  bHolyGate = false; break;
+	default:
+		return; // no belief-sourced instant yield for this type
+	}
+
+	// Per-type guards that mirror the conditions in the matching doInstantYield case.
+	if ((iType == INSTANT_YIELD_TYPE_BIRTH) && !bEraScale)
+		return; // belief birth yields are only granted on the era-scaling path
+	if ((iType == INSTANT_YIELD_TYPE_GP_BORN) && (bEraScale || eGreatPerson == NO_GREATPERSON))
+		return; // belief GP-born yields are only granted on the non-era-scaling path
+	if ((iType == INSTANT_YIELD_TYPE_GP_USE) && eGreatPerson == NO_GREATPERSON)
+		return;
+	if (iType == INSTANT_YIELD_TYPE_SPREAD)
+	{
+		if (pPlot == NULL || (pPlot->getPlotCity() == NULL && pPlot->GetAdjacentCity() == NULL))
+			return;
+	}
+	if (iType == INSTANT_YIELD_TYPE_F_SPREAD)
+	{
+		if (eSpreadPlayer == NO_PLAYER || eSpreadPlayer == GetID())
+			return;
+		if (!GET_PLAYER(eSpreadPlayer).isMajorCiv() && eYield == YIELD_TOURISM)
+			return;
+	}
+	if ((iType == INSTANT_YIELD_TYPE_PILLAGE_GLOBAL) && !MOD_RELIGION_EXTENSIONS)
+		return;
+	if ((iType == INSTANT_YIELD_TYPE_FAITH_PURCHASE) && pUnit != NULL && eYield == ePassYield)
+		return; // that path is the unit faith-cost refund, not a belief yield
+
+	// Religion-wide multipliers (identical for every belief), resolved once.
+	const int iCityScaler = pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+	const int iFollowerScaler = pReligion->m_Beliefs.GetFollowerScalerLimiter(iNumFollowers);
+	const bool bGPAttr = MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES;
+
+	// IsReligionOwner: does this player control the religion's holy city (eligible for founder benefits)?
+	bool bOwner = false;
+	{
+		// Pass GetID() (not NO_PLAYER): pantheons are per-player, so NO_PLAYER would not resolve to this
+		// player's own pantheon and would wrongly report owner=false for their pantheon beliefs.
+		const CvReligion* pBaseReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
+		if (pBaseReligion)
+		{
+			CvPlot* pHolyCityPlot = GC.getMap().plot(pBaseReligion->m_iHolyCityX, pBaseReligion->m_iHolyCityY);
+			if (pBaseReligion->m_bPantheon && pHolyCityPlot == NULL)
+				bOwner = (pBaseReligion->m_eFounder == GetID());
+			else
+				bOwner = (pHolyCityPlot != NULL && pHolyCityPlot->getOwner() == GetID());
+		}
+	}
+
+	RegisterReligionBeliefYieldsTable();
+
+	const int iEraRow = (int)GetCurrentEra();
+	const char* szCiv = getCivilizationShortDescription();
+	const CvYieldInfo* pYieldInfo = GC.getYieldInfo(eYield);
+	const char* szYield = pYieldInfo ? pYieldInfo->GetDescription() : "";
+
+	const int iNumBeliefs = pReligion->m_Beliefs.GetNumBeliefs();
+	for (int i = 0; i < iNumBeliefs; i++)
+	{
+		const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(i);
+		if (!pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, GetID(), pLoopCity, bHolyGate))
+			continue;
+		const CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+		if (pkBelief == NULL)
+			continue;
+
+		long long iValue = 0; // raw yield (not x100)
+		switch (iType)
+		{
+		case INSTANT_YIELD_TYPE_BIRTH:
+			iValue = (long long)pkBelief->GetYieldPerBirth(eYield) * max(1, iPassYield);
+			if (bGPAttr)
+				iValue *= iEra;
+			break;
+		case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:
+			iValue = (long long)pkBelief->GetYieldPerHolyCityBirth(eYield) * iNumFollowerCities;
+			break;
+		case INSTANT_YIELD_TYPE_ERA_UNLOCK:
+			iValue = (long long)pkBelief->GetYieldFromEraUnlock(eYield) * iCityScaler;
+			break;
+		case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
+			iValue = (long long)pkBelief->GetYieldFromPolicyUnlock(eYield) * iFollowerScaler;
+			break;
+		case INSTANT_YIELD_TYPE_TECH:
+			iValue = (long long)pkBelief->GetYieldFromTechUnlock(eYield, bEraScale) * iFollowerScaler;
+			break;
+		case INSTANT_YIELD_TYPE_CONSTRUCTION:
+			iValue = pkBelief->GetYieldPerConstruction(eYield);
+			break;
+		case INSTANT_YIELD_TYPE_BORDERS:
+			iValue = (long long)pkBelief->GetYieldPerBorderGrowth(eYield, true) * iEra + pkBelief->GetYieldPerBorderGrowth(eYield, false);
+			break;
+		case INSTANT_YIELD_TYPE_GP_USE:
+		{
+			long long iChange = (long long)pkBelief->GetYieldFromGPUse(eYield) * iCityScaler;
+			if (bEraScale)
+				iChange *= iEra;
+			iValue = iChange;
+			iValue += (long long)pkBelief->GetGreatPersonExpendedYield((int)eGreatPerson, (int)eYield) * iCityScaler;
+			break;
+		}
+		case INSTANT_YIELD_TYPE_GP_BORN:
+			iValue = (long long)pkBelief->GetGreatPersonBornYield((int)eGreatPerson, (int)eYield) * iNumFollowerCities;
+			break;
+		case INSTANT_YIELD_TYPE_CONVERSION:
+		{
+			long long iBase = pkBelief->GetYieldFromConversion(eYield);
+			if (iBase != 0)
+				iBase = iBase * (100 + iCityScaler * iCityScaler) / 100;
+			iValue = iBase;
+			break;
+		}
+		case INSTANT_YIELD_TYPE_CONVERSION_EXPO:
+			iValue = (long long)pkBelief->GetYieldFromConversionExpo(eYield) * iNumFollowerCities;
+			break;
+		case INSTANT_YIELD_TYPE_SPREAD:
+			iValue = (long long)pkBelief->GetYieldFromSpread(eYield) * max(1, iPassYield + 1);
+			break;
+		case INSTANT_YIELD_TYPE_F_SPREAD:
+			iValue = (long long)pkBelief->GetYieldFromForeignSpread(eYield) * max(1, iPassYield + 1);
+			break;
+		case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:
+			iValue = pkBelief->GetYieldFromPillageGlobal(eYield, bEraScale);
+			break;
+		case INSTANT_YIELD_TYPE_REMOVE_HERESY:
+			iValue = (long long)pkBelief->GetYieldFromRemoveHeresy(eYield) * iPassYield;
+			break;
+		case INSTANT_YIELD_TYPE_PROPOSAL:
+			iValue = pkBelief->GetYieldFromProposal(eYield);
+			break;
+		case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
+			iValue = (long long)pkBelief->GetYieldFromFaithPurchase(eYield) * iPassYield / 100;
+			break;
+		default:
+			continue;
+		}
+
+		if (iValue == 0)
+			continue;
+
+		const char* szBeliefType = "";
+		if (pkBelief->IsPantheonBelief())         szBeliefType = "Pantheon";
+		else if (pkBelief->IsFounderBelief())     szBeliefType = "Founder";
+		else if (pkBelief->IsFollowerBelief())    szBeliefType = "Follower";
+		else if (pkBelief->IsEnhancerBelief())    szBeliefType = "Enhancer";
+		else if (pkBelief->IsReformationBelief()) szBeliefType = "Reformation";
+
+		const CvString strBelief = GetLocalizedText(pkBelief->getShortDescription());
+
+		GET_SQLITE_LOGGER().BeginLogRow("ReligionBeliefYields")
+			.bind(iEraRow)
+			.bind(szCiv)
+			.bind(strBelief.c_str())
+			.bind(szBeliefType)
+			.bind(bOwner)
+			.bind(szSource)
+			.bind(szYield)
+			.bind((int)(iValue * 100))
+			.execute();
+	}
+}
+
+void CvPlayer::LogBuildingInstantYields(InstantYieldType iType, CvCity* pLoopCity, YieldTypes eYield, int iEra, int iPassYield, bool bEraScale, PlayerTypes ePlayer, YieldTypes ePassYield, BuildingTypes ePassBuilding, CvCity* pCity, bool bInternational, CvUnit* pUnit, GreatPersonTypes eGreatPerson)
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	if (pLoopCity == NULL)
+		return;
+
+	RegisterBuildingInstantYieldsTable();
+
+	// Short label for the source; also gates which instant-yield types carry a building contribution.
+	const char* szEvent = NULL;
+	switch (iType)
+	{
+	case INSTANT_YIELD_TYPE_BIRTH:             szEvent = "Birth"; break;
+	case INSTANT_YIELD_TYPE_POLICY_UNLOCK:     szEvent = "PolicyUnlock"; break;
+	case INSTANT_YIELD_TYPE_INSTANT:           szEvent = "Instant"; break;
+	case INSTANT_YIELD_TYPE_TECH:              szEvent = "Tech"; break;
+	case INSTANT_YIELD_TYPE_CONSTRUCTION:      szEvent = "Construction"; break;
+	case INSTANT_YIELD_TYPE_BORDERS:           szEvent = "Borders"; break;
+	case INSTANT_YIELD_TYPE_GP_USE:            szEvent = "GPExpend"; break;
+	case INSTANT_YIELD_TYPE_GP_BORN:           szEvent = "GPBorn"; break;
+	case INSTANT_YIELD_TYPE_VICTORY:           szEvent = "Victory"; break;
+	case INSTANT_YIELD_TYPE_U_PROD:            szEvent = "UnitProduction"; break;
+	case INSTANT_YIELD_TYPE_PURCHASE:          szEvent = "Purchase"; break;
+	case INSTANT_YIELD_TYPE_TR_END:            szEvent = bInternational ? "InternationalTREnd" : "InternalTREnd"; break;
+	case INSTANT_YIELD_TYPE_LEVEL_UP:          szEvent = "LevelUp"; break;
+	case INSTANT_YIELD_TYPE_PILLAGE:           szEvent = "Pillage"; break;
+	case INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE: szEvent = "BirthRetroactive"; break;
+	case INSTANT_YIELD_TYPE_SPY_ATTACK:        szEvent = "SpyAttack"; break;
+	case INSTANT_YIELD_TYPE_SPY_DEFENSE:       szEvent = "SpyDefense"; break;
+	case INSTANT_YIELD_TYPE_SPY_IDENTIFY:      szEvent = "SpyIdentify"; break;
+	case INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID: szEvent = "SpyDefenseOrID"; break;
+	case INSTANT_YIELD_TYPE_SPY_RIG_ELECTION:  szEvent = "SpyRigElection"; break;
+	case INSTANT_YIELD_TYPE_FAITH_PURCHASE:    szEvent = "FaithPurchase"; break;
+	case INSTANT_YIELD_TYPE_VICTORY_GLOBAL:    szEvent = "VictoryGlobal"; break;
+	case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:    szEvent = "PillageGlobal"; break;
+	case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE: szEvent = "CombatExperience"; break;
+	case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:  szEvent = "GoldenAgeStart"; break;
+	case INSTANT_YIELD_TYPE_UNIT_GIFT:         szEvent = "UnitGift"; break;
+	case INSTANT_YIELD_TYPE_BAKTUN_END:        szEvent = "BaktunEnd"; break;
+	case INSTANT_YIELD_TYPE_WLTKD_START:       szEvent = "WLTKDStart"; break;
+	default:
+		return; // no building-sourced instant yield for this type
+	}
+
+	// Which cities' buildings feed this yield. GP-expend yields are player-wide but only granted in
+	// the capital, so attribute them to every building in every city; everything else is local to the
+	// city doInstantYield is currently processing. The common (non-GP_USE) path is a single city, so
+	// keep it on the stack and only allocate the list vector for GP_USE.
+	CvCity* pSingleSourceCity = pLoopCity;
+	CvCity** ppSourceCities = &pSingleSourceCity;
+	size_t nSourceCities = 1;
+	std::vector<CvCity*> vGpUseCities;
+	if (iType == INSTANT_YIELD_TYPE_GP_USE)
+	{
+		if (!pLoopCity->isCapital())
+			return;
+		int iCityLoop = 0;
+		for (CvCity* pCityIter = firstCity(&iCityLoop); pCityIter != NULL; pCityIter = nextCity(&iCityLoop))
+			vGpUseCities.push_back(pCityIter);
+		if (vGpUseCities.empty())
+			return;
+		ppSourceCities = &vGpUseCities[0];
+		nSourceCities = vGpUseCities.size();
+	}
+
+	// Replicate the tail scaling doInstantYield applies to the aggregate value before it is granted.
+	bool bApplyGameSpeed = false;
+	bool bApplyEra = false;
+	if (eYield != YIELD_POPULATION)
+	{
+		bApplyGameSpeed = (iType != INSTANT_YIELD_TYPE_TR_MOVEMENT && iType != INSTANT_YIELD_TYPE_BARBARIAN_CAMP_CLEARED && iType != INSTANT_YIELD_TYPE_PURCHASE && iType != INSTANT_YIELD_TYPE_FAITH_PURCHASE && iType != INSTANT_YIELD_TYPE_U_PROD && iType != INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD && iType != INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN && iType != INSTANT_YIELD_TYPE_BULLY && iType != INSTANT_YIELD_TYPE_FAITH_REFUND && iType != INSTANT_YIELD_TYPE_REFUND && iType != INSTANT_YIELD_TYPE_RESEARCH_AGREEMENT);
+		if (ePlayer == NO_PLAYER && eYield == YIELD_TOURISM)
+			bApplyGameSpeed = false;
+
+		bApplyEra = (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK && iType != INSTANT_YIELD_TYPE_BORDERS && iType != INSTANT_YIELD_TYPE_REMOVE_HERESY && iType != INSTANT_YIELD_TYPE_VICTORY && iType != INSTANT_YIELD_TYPE_VICTORY_GLOBAL);
+	}
+	const int iGameSpeedPercent = GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+	const bool bGreatPersonAttr = MOD_BALANCE_NEW_GREAT_PERSON_ATTRIBUTES;
+	const bool bGoldenAge = isGoldenAge();
+
+	// getCivilizationShortDescription() already returns a const char* that outlives this call; avoid
+	// the per-call CvString heap copy and bind the pointer directly.
+	const char* szCiv = getCivilizationShortDescription();
+
+	// INSTANT and BIRTH_RETROACTIVE attribute to a single passed-in building, so there is no need to
+	// scan the whole building list to find it.
+	const bool bSingleBuilding = (iType == INSTANT_YIELD_TYPE_INSTANT || iType == INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE);
+	if (bSingleBuilding && ePassBuilding == NO_BUILDING)
+		return;
+
+	// Empire-wide yield rates used by GP_BORN per-turn-yield scaling are independent of the building,
+	// so compute them at most once per call (lazily, only if a building actually needs them).
+	int aEmpireRateT100[NUM_YIELD_TYPES];
+	bool bEmpireRatesReady = false;
+
+	for (size_t iCityIdx = 0; iCityIdx < nSourceCities; iCityIdx++)
+	{
+		CvCity* pSrcCity = ppSourceCities[iCityIdx];
+		if (pSrcCity == NULL)
+			continue;
+
+		// City name is invariant per source city; compute it lazily on first emitted row.
+		CvString strCity;
+		bool bCityNameReady = false;
+
+		const std::vector<BuildingTypes>& allBuildings = pSrcCity->GetCityBuildings()->GetAllBuildingsHere();
+		const size_t nBuildings = bSingleBuilding ? 1 : allBuildings.size();
+		for (size_t iB = 0; iB < nBuildings; iB++)
+		{
+			BuildingTypes eBuilding = bSingleBuilding ? ePassBuilding : allBuildings[iB];
+			CvBuildingEntry* pInfo = GC.getBuildingInfo(eBuilding);
+			if (pInfo == NULL)
+				continue;
+
+			int iCount = pSrcCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+			if (iCount <= 0)
+				continue;
+
+			// Building's attributed contribution, multiplied by 100 to preserve fractional sources.
+			long long iBaseT100 = 0;
+
+			switch (iType)
+			{
+			case INSTANT_YIELD_TYPE_BIRTH:
+				if (bEraScale)
+				{
+					long long iNum = (long long)pInfo->GetYieldFromBirthEraScaling(eYield) * iCount * max(1, iPassYield);
+					if (bGreatPersonAttr)
+						iNum *= iEra;
+					iBaseT100 = iNum * 100;
+				}
+				else
+				{
+					iBaseT100 = (long long)pInfo->GetYieldFromBirth(eYield) * iCount * 100;
+				}
+				break;
+
+			case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
+			{
+				long long iNum = (long long)pInfo->GetYieldFromPolicyUnlock(eYield) * iCount;
+				if (bGreatPersonAttr)
+					iNum *= iEra;
+				iBaseT100 = iNum * 100;
+				break;
+			}
+
+			case INSTANT_YIELD_TYPE_INSTANT:
+				if (ePassBuilding == NO_BUILDING || eBuilding != ePassBuilding)
+					continue;
+				iBaseT100 = (long long)pInfo->GetInstantYield(eYield) * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_TECH:
+				if (!bEraScale)
+					continue;
+				iBaseT100 = (long long)pInfo->GetYieldFromTech(eYield) * iCount * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_CONSTRUCTION:
+				iBaseT100 = (long long)pInfo->GetYieldFromConstruction(eYield) * iCount * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_BORDERS:
+				iBaseT100 = (long long)pInfo->GetYieldFromBorderGrowth(eYield) * iCount * iEra * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_GP_USE:
+			{
+				long long iNum = (long long)pInfo->GetYieldFromGPExpend(eYield) * iCount;
+				if (bEraScale)
+					iNum *= iEra;
+				iBaseT100 = iNum * 100;
+				break;
+			}
+
+			case INSTANT_YIELD_TYPE_GP_BORN:
+			{
+				if (bEraScale || pUnit == NULL)
+					continue;
+				long long iT100 = 0;
+				if (pUnit->GetCultureBlastStrength() > 0)
+					iT100 += (long long)pUnit->GetCultureBlastStrength() * pInfo->GetYieldFromGPBirthScaledWithWriterBulb(eYield) * iCount;
+				if (pUnit->GetGAPBlastStrength() > 0)
+					iT100 += (long long)pUnit->GetGAPBlastStrength() * pInfo->GetYieldFromGPBirthScaledWithArtistBulb(eYield) * iCount;
+				if (!pInfo->GetYieldFromGPBirthScaledWithPerTurnYieldMap().empty())
+				{
+					if (!bEmpireRatesReady)
+					{
+						for (int iY = 0; iY < NUM_YIELD_TYPES; iY++)
+							aEmpireRateT100[iY] = GetEmpireYieldRateTimes100((YieldTypes)iY, false);
+						bEmpireRatesReady = true;
+					}
+					long long iPerTurn = 0;
+					for (int iY = 0; iY < NUM_YIELD_TYPES; iY++)
+					{
+						int iPer = pInfo->GetYieldFromGPBirthScaledWithPerTurnYield(eGreatPerson, (YieldTypes)iY, eYield);
+						if (iPer > 0)
+							iPerTurn += (long long)iPer * aEmpireRateT100[iY] * iCount;
+					}
+					iT100 += iPerTurn / 100;
+				}
+				iBaseT100 = iT100;
+				break;
+			}
+
+			case INSTANT_YIELD_TYPE_VICTORY:
+				iBaseT100 = ((long long)pInfo->GetYieldFromVictory(eYield) + (long long)pInfo->GetYieldFromVictoryEraScaling(eYield) * iEra) * iCount * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_VICTORY_GLOBAL:
+			{
+				long long iNum = (long long)pInfo->GetYieldFromVictoryGlobal(eYield) + (long long)pInfo->GetYieldFromVictoryGlobalEraScaling(eYield) * iEra;
+				if (bGoldenAge)
+					iNum += (long long)pInfo->GetYieldFromVictoryGlobalInGoldenAge(eYield) + (long long)pInfo->GetYieldFromVictoryGlobalInGoldenAgeEraScaling(eYield) * iEra;
+				iBaseT100 = iNum * iCount * 100;
+				break;
+			}
+
+			case INSTANT_YIELD_TYPE_PILLAGE:
+				iBaseT100 = (long long)pInfo->GetYieldFromPillage(eYield) * iCount * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:
+				if (!bEraScale)
+					continue;
+				iBaseT100 = (long long)pInfo->GetYieldFromPillageGlobal(eYield) * iCount * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_U_PROD:
+				// engine: iPassYield * cityAggregate / 100, so *100 cancels the /100
+				iBaseT100 = (long long)iPassYield * pInfo->GetYieldFromUnitProduction(eYield) * iCount;
+				break;
+
+			case INSTANT_YIELD_TYPE_PURCHASE:
+				if (iPassYield == 0)
+					continue;
+				if (pUnit && eYield == ePassYield)
+					continue; // unit-sourced, not a building
+				if (pCity)
+					iBaseT100 = (long long)iPassYield * pInfo->GetYieldFromPurchase(eYield) * iCount;
+				else
+					iBaseT100 = (long long)iPassYield * pInfo->GetYieldFromPurchaseGlobal(eYield) * iCount;
+				break;
+
+			case INSTANT_YIELD_TYPE_TR_END:
+				if (bInternational)
+					iBaseT100 = (long long)pInfo->GetYieldFromInternationalTREnd(eYield) * iCount * 100;
+				else
+					iBaseT100 = (long long)pInfo->GetYieldFromInternalTREnd(eYield) * iCount * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_LEVEL_UP:
+				if (pCity == NULL)
+				{
+					iBaseT100 = (long long)pInfo->GetYieldFromUnitLevelUpGlobal(eYield) * iCount * iPassYield * 100;
+				}
+				else
+				{
+					long long iNum = (long long)pInfo->GetYieldFromUnitLevelUp(eYield) * iCount;
+					if (iPassYield != 0 && iNum > 0)
+						iNum *= ((long long)iPassYield * iPassYield - 2 * iPassYield + 1);
+					iBaseT100 = iNum * 100;
+				}
+				break;
+
+			case INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE:
+				// value precomputed for ePassBuilding; only the matching yield carries it
+				if (ePassBuilding == NO_BUILDING || eBuilding != ePassBuilding || eYield != ePassYield)
+					continue;
+				iBaseT100 = (long long)iPassYield * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_SPY_ATTACK:
+				if (iPassYield != 0)
+					continue;
+				iBaseT100 = (long long)pInfo->GetYieldFromSpyAttack(eYield) * iCount * 100;
+				break;
+			case INSTANT_YIELD_TYPE_SPY_DEFENSE:
+				if (iPassYield != 0)
+					continue;
+				iBaseT100 = (long long)pInfo->GetYieldFromSpyDefense(eYield) * iCount * 100;
+				break;
+			case INSTANT_YIELD_TYPE_SPY_IDENTIFY:
+				if (iPassYield != 0)
+					continue;
+				iBaseT100 = (long long)pInfo->GetYieldFromSpyIdentify(eYield) * iCount * 100;
+				break;
+			case INSTANT_YIELD_TYPE_SPY_DEFENSE_OR_ID:
+				if (iPassYield != 0)
+					continue;
+				iBaseT100 = (long long)pInfo->GetYieldFromSpyDefenseOrID(eYield) * iCount * 100;
+				break;
+			case INSTANT_YIELD_TYPE_SPY_RIG_ELECTION:
+				if (iPassYield != 0)
+					continue;
+				iBaseT100 = (long long)pInfo->GetYieldFromSpyRigElection(eYield) * iCount * 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
+				if (pUnit && eYield == ePassYield)
+					continue;
+				// engine: cityAggregate * iPassYield / 100, so *100 cancels the /100
+				iBaseT100 = (long long)pInfo->GetYieldFromFaithPurchase(eYield) * iCount * iPassYield;
+				break;
+
+			case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+				if (iPassYield <= 0)
+					continue;
+				// engine: iPassYield * cityAggregateTimes100 / 10000, so *100 leaves /100
+				iBaseT100 = (long long)iPassYield * pInfo->GetYieldFromCombatExperienceTimes100(eYield) * iCount / 100;
+				break;
+
+			case INSTANT_YIELD_TYPE_GOLDEN_AGE_START:
+				iBaseT100 = (long long)pInfo->GetYieldFromGoldenAgeStart(eYield) * iCount * 100;
+				break;
+			case INSTANT_YIELD_TYPE_UNIT_GIFT:
+				iBaseT100 = (long long)pInfo->GetYieldFromUnitGiftGlobal(eYield) * iCount * 100;
+				break;
+			case INSTANT_YIELD_TYPE_BAKTUN_END:
+				iBaseT100 = (long long)pInfo->GetYieldFromLongCount(eYield) * iCount * 100;
+				break;
+			case INSTANT_YIELD_TYPE_WLTKD_START:
+				iBaseT100 = (long long)pInfo->GetInstantYieldFromWLTKDStart(eYield) * iCount * 100;
+				break;
+
+			default:
+				continue;
+			}
+
+			if (iBaseT100 == 0)
+				continue;
+
+			if (bApplyGameSpeed)
+			{
+				iBaseT100 *= iGameSpeedPercent;
+				iBaseT100 /= 100;
+			}
+			if (bApplyEra)
+			{
+				iBaseT100 *= iEra;
+			}
+
+			if (iBaseT100 == 0)
+				continue;
+
+			if (!bCityNameReady)
+			{
+				strCity = pSrcCity->getName();
+				bCityNameReady = true;
+			}
+
+			GET_SQLITE_LOGGER().BeginLogRow("BuildingInstantYields")
+				.bind((int)GetCurrentEra())
+				.bind(szCiv)
+				.bind(strCity.c_str())
+				.bind(pInfo->GetDescription())
+				.bind(szEvent)
+				.bind(GC.getYieldInfo(eYield)->GetDescription())
+				.bind((int)iBaseT100)
+				.execute();
+		}
+	}
 }
 
 void CvPlayer::changeInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iValue)

@@ -19,8 +19,65 @@
 #include "CvTacticalAI.h"
 #include "CvTacticalAnalysisMap.h"
 #include "CvInternalGameCoreUtils.h"
+#include "SqliteLoggerRegistrations.h"
 
 #include "LintFree.h"
+
+// Helpers for logging religion choices to the SQLite stats database
+
+static const char* GetReligionChoiceBeliefType(BeliefTypes eBelief)
+{
+	if (eBelief == NO_BELIEF)
+		return "";
+
+	CvBeliefEntry* pBelief = GC.getBeliefInfo(eBelief);
+	if (!pBelief)
+		return "";
+
+	if (pBelief->IsPantheonBelief())
+		return "Pantheon";
+	if (pBelief->IsFounderBelief())
+		return "Founder";
+	if (pBelief->IsFollowerBelief())
+		return "Follower";
+	if (pBelief->IsEnhancerBelief())
+		return "Enhancer";
+	if (pBelief->IsReformationBelief())
+		return "Reformation";
+
+	return "";
+}
+
+static void LogReligionChoice(PlayerTypes ePlayer, const char* szAction, BeliefTypes eBelief, const char* szBeliefTypeOverride = NULL)
+{
+	if (!MOD_SQLITE_LOGGING || ePlayer == NO_PLAYER)
+		return;
+
+	RegisterReligionChoicesTable();
+
+	CvString strCiv = GET_PLAYER(ePlayer).getCivilizationShortDescription();
+	CvString strBelief = "";
+	CvString strBeliefType = "";
+
+	if (eBelief != NO_BELIEF)
+	{
+		CvBeliefEntry* pBelief = GC.getBeliefInfo(eBelief);
+		if (pBelief)
+			strBelief = GetLocalizedText(pBelief->getShortDescription());
+
+		if (szBeliefTypeOverride && szBeliefTypeOverride[0] != '\0')
+			strBeliefType = szBeliefTypeOverride;
+		else
+			strBeliefType = GetReligionChoiceBeliefType(eBelief);
+	}
+
+	GET_SQLITE_LOGGER().BeginLogRow("ReligionChoices")
+		.bind(strCiv.c_str())
+		.bind(szAction)
+		.bind(strBelief.c_str())
+		.bind(strBeliefType.c_str())
+		.execute();
+}
  
 //======================================================================================================
 //					CvReligionEntry
@@ -1171,6 +1228,11 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 			LogReligionMessage(strLogMsg);
 		}
 
+		if (MOD_SQLITE_LOGGING)
+		{
+			LogReligionChoice(ePlayer, "PANTHEON_FOUNDED", eBelief, "Pantheon");
+		}
+
 		//Achievements!
 		if (MOD_ENABLE_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_10);
@@ -1258,6 +1320,18 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	// Update game systems
 	kPlayer.UpdateReligion();
 	kPlayer.GetReligions()->SetFoundingReligion(false);
+
+	if (MOD_SQLITE_LOGGING)
+	{
+		if (eBelief1 != NO_BELIEF)
+			LogReligionChoice(ePlayer, "RELIGION_FOUNDED", eBelief1);
+		if (eBelief2 != NO_BELIEF)
+			LogReligionChoice(ePlayer, "RELIGION_FOUNDED", eBelief2);
+		if (eBelief3 != NO_BELIEF)
+			LogReligionChoice(ePlayer, "RELIGION_FOUNDED", eBelief3);
+		if (eBelief4 != NO_BELIEF)
+			LogReligionChoice(ePlayer, "RELIGION_FOUNDED", eBelief4);
+	}
 
 	// In case we have another prophet sitting around, make sure he's set to this religion and is at full strength
 	int iLoopUnit = 0;
@@ -1617,6 +1691,14 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 		LogReligionMessage(strLogMsg);
 	}
 
+	if (MOD_SQLITE_LOGGING)
+	{
+		if (eBelief1 != NO_BELIEF)
+			LogReligionChoice(ePlayer, "RELIGION_ENHANCED", eBelief1);
+		if (eBelief2 != NO_BELIEF)
+			LogReligionChoice(ePlayer, "RELIGION_ENHANCED", eBelief2);
+	}
+
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
@@ -1744,6 +1826,11 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 		strLogMsg = kPlayer.getCivilizationShortDescription();
 		strLogMsg += ", REFORMATION BELIEF ADDED";
 		LogReligionMessage(strLogMsg);
+	}
+
+	if (MOD_SQLITE_LOGGING)
+	{
+		LogReligionChoice(ePlayer, "RELIGION_REFORMED", eBelief1, "Reformation");
 	}
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }

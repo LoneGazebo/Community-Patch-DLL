@@ -12,6 +12,7 @@
 #include "CvInfosSerializationHelper.h"
 #include "CvTypes.h"
 #include "CvEconomicAI.h"
+#include "SqliteLoggerRegistrations.h"
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -5360,6 +5361,34 @@ void CvPolicyAI::LogPolicyChoice(PolicyTypes ePolicy)
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
 	}
+
+	// Log policy choices to the SQLite stats database
+	if (MOD_SQLITE_LOGGING)
+	{
+		RegisterPolicyChoicesTable();
+		CvPlayer* pPlayer = m_pCurrentPolicies->GetPlayer();
+		CvString strPlayerName = pPlayer->getCivilizationShortDescription();
+		const int iEra = static_cast<int>(pPlayer->GetCurrentEra());
+
+		CvString strBranchName = "Unknown";
+		CvPolicyEntry* pPolicyEntry = GC.getPolicyInfo(ePolicy);
+		if (pPolicyEntry != NULL)
+		{
+			CvPolicyBranchEntry* pBranchEntry = GC.getPolicyBranchInfo((PolicyBranchTypes)pPolicyEntry->GetPolicyBranchType());
+			if (pBranchEntry != NULL)
+			{
+				strBranchName = pBranchEntry->GetDescription();
+			}
+		}
+
+		const char* szPolicyName = (pPolicyEntry != NULL) ? pPolicyEntry->GetDescription() : "Unknown";
+		GET_SQLITE_LOGGER().BeginLogRow("PolicyChoices")
+			.bind(strPlayerName.c_str())
+			.bind(iEra)
+			.bind(strBranchName.c_str())
+			.bind(szPolicyName)
+			.execute();
+	}
 }
 
 /// Log chosen policy
@@ -5387,6 +5416,24 @@ void CvPolicyAI::LogBranchChoice(PolicyBranchTypes eBranch)
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
+	}
+
+	// Log Branch choices to the SQLite stats database
+	if (MOD_SQLITE_LOGGING)
+	{
+		RegisterPolicyChoicesTable();
+		CvPlayer* pPlayer = m_pCurrentPolicies->GetPlayer();
+		CvString strPlayerName = pPlayer->getCivilizationShortDescription();
+		const int iEra = static_cast<int>(pPlayer->GetCurrentEra());
+
+		CvPolicyBranchEntry* pBranchEntry = GC.getPolicyBranchInfo(eBranch);
+		const char* szBranchName = (pBranchEntry != NULL) ? pBranchEntry->GetDescription() : "Unknown";
+		GET_SQLITE_LOGGER().BeginLogRow("PolicyChoices")
+			.bind(strPlayerName.c_str())
+			.bind(iEra)
+			.bind(szBranchName)
+			.bind("")
+			.execute();
 	}
 }
 

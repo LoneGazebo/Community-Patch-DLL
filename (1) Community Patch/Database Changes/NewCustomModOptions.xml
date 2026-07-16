@@ -50,6 +50,9 @@
 		<!-- Enables Squads for VP support -->
 		<Row Class="6" Name="SQUADS" Value="0"/>
 
+		<!-- Enables writing gameplay statistics to a local SQLite database (stats.db) via SqliteLogger -->
+		<Row Class="6" Name="SQLITE_LOGGING" Value="0"/>
+
 
 		<!-- ********************************************************** -->
 		<!-- 				CORE BALANCE CHANGES						-->

@@ -16,6 +16,7 @@
 #include "CvCitySpecializationAI.h"
 #include "cvStopWatch.h"
 #include "CvSpanSerialization.h"
+#include "SqliteLoggerRegistrations.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -3035,6 +3036,67 @@ void CvMilitaryAI::LogMilitaryStatus()
 		}
 
 		pLog->Msg(strOutBuf);
+	}
+
+	// Mirror MilitarySummary into the SQLite stats database
+	if (MOD_SQLITE_LOGGING)
+	{
+		RegisterMilitarySummaryTable();
+
+		// Duplicate the two lookups from the CSV block above so this path is self-contained.
+		CvString playerName = GetPlayer()->getCivilizationShortDescription();
+
+		CvCity* pCity = NULL;
+		vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
+		pCity = threatCities.empty() ? NULL : threatCities.front();
+
+		// Use an empty string for the city name and zero danger when no threatened city exists.
+		CvString strEndangeredCity = "";
+		int iDanger = 0;
+		if (pCity != NULL)
+		{
+			strEndangeredCity = pCity->getNameNoSpace();
+			iDanger = pCity->getThreatValue();
+		}
+
+		GET_SQLITE_LOGGER().BeginLogRow("MilitarySummary")
+			.bind(playerName.c_str())
+			.bind((int)m_pPlayer->GetCurrentEra())
+			.bind(m_pPlayer->getNumCities())
+			.bind(m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true))
+			.bind(m_iNumLandUnits)
+			.bind(m_iNumLandUnitsInArmies)
+			.bind(m_iRecLandUnits)
+			.bind(m_iNumNavalUnits)
+			.bind(m_iNumNavalUnitsInArmies)
+			.bind(m_iRecNavalUnits)
+			.bind(m_iNumMeleeLandUnits)
+			.bind(m_iNumMobileLandUnits)
+			.bind(m_iNumReconLandUnits)
+			.bind(m_iNumArcherLandUnits)
+			.bind(m_iNumSiegeLandUnits)
+			.bind(m_iNumSkirmisherLandUnits)
+			.bind(m_iNumRangedLandUnits)
+			.bind(m_iNumAntiAirUnits)
+			.bind(m_iNumMeleeNavalUnits)
+			.bind(m_iNumRangedNavalUnits)
+			.bind(m_iNumSubmarineNavalUnits)
+			.bind(m_iNumCarrierNavalUnits)
+			.bind(m_iNumAirUnits)
+			.bind(m_iNumBomberAirUnits)
+			.bind(m_iNumFighterAirUnits)
+			.bind(m_pPlayer->getNumNukeUnits())
+			.bind(m_iNumMissileUnits)
+			.bind(GetRecommendedMilitarySize())
+			.bind(m_pPlayer->getNumMilitaryUnits())
+			.bind(m_pPlayer->GetNumUnitsSupplied())
+			.bind(m_pPlayer->GetNumUnitsOutOfSupply())
+			.bind(m_pPlayer->GetNumUnitsOutOfSupply(false) - m_pPlayer->GetNumUnitsOutOfSupply())
+			.bind(m_pPlayer->getNumUnitsSupplyFree())
+			.bind(GetNumberCivsAtWarWith(false))
+			.bind(strEndangeredCity.c_str())
+			.bind(iDanger)
+			.execute();
 	}
 }
 

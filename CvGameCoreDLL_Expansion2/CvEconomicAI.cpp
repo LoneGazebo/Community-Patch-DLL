@@ -14,6 +14,7 @@
 #include "CvGrandStrategyAI.h"
 #include "CvMilitaryAI.h"
 #include "CvImprovementClasses.h"
+#include "CvGreatPersonInfo.h"
 #include "CvAStar.h"
 #include "CvCitySpecializationAI.h"
 #include "CvTypes.h"
@@ -21,6 +22,7 @@
 #include "CvSpanSerialization.h"
 #include "CvGameCoreEnumSerialization.h"
 #include "CvInternalGameCoreUtils.h"
+#include "SqliteLoggerRegistrations.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -491,6 +493,8 @@ void CvEconomicAI::DoTurn()
 {
 	LogMonitor();
 	LogCityMonitor();
+	LogBuildingYields();
+	LogReligionBeliefYields();
 
 	// Functions that need to run before we look at strategies
 	DoReconState();
@@ -1762,6 +1766,1181 @@ void CvEconomicAI::LogCityMonitor()
 		}
 		pLog->Msg(strLog);
 	}
+}
+
+//	--------------------------------------------------------------------------------
+// Helpers backing the BuildingYields SQLite table (see RegisterBuildingYieldsTable).
+//
+// GetBuildingFlatYieldSplitTimes100 mirrors CvLuaCity::lGetBuildingYieldRateTimes100, but rather than
+// returning a single total it separates the per-turn flat yield (x100) into two buckets:
+//
+//   BASE  - the building's own intrinsic flat yield and the self-scalers that belong to the building
+//           itself: the raw YieldChange, per-population and per-empire-population, era scaling,
+//           per-building, per-tile, per-religion, per-local-theme, monopoly, city-state friend/ally
+//           and strategic-resource scalers, the passing-trade-route bonus, and the YieldPerX
+//           terrain/feature/improvement families (which already aggregate this city's worked tiles).
+//   BONUS - the extra flat yield layered on top of the base by EXTERNAL sources: the culture-building
+//           trait bonus, tech-enhanced yields, accomplishment yields, every religion/belief yield
+//           (majority-belief building-class yields, world-wonder yields, faith-building tourism, the
+//           secondary pantheon and permanent pantheon), league and trait world-wonder yields, policy
+//           building-class yields, player and trait building-class yields, the city-local
+//           building-class yield, corporation-franchise yields and event building-class yields.
+//
+// Percentage-based modifiers (CvLuaCity::lGetBuildingYieldModifier) and instant/event yields are
+// intentionally excluded here, because those are applied at the city level or tracked separately.
+//
+// All yields are computed in a single pass: the expensive per-domain loops (terrains, features,
+// improvements, policies) and the by-value map copies are walked once for the whole building, with an
+// inner yield loop accumulating into the caller's [NUM_YIELD_TYPES] arrays.
+static void GetBuildingFlatYieldSplitTimes100(const CvCity* pCity, BuildingTypes eBuilding, int aiBaseTimes100[NUM_YIELD_TYPES], int aiBonusTimes100[NUM_YIELD_TYPES])
+{
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		aiBaseTimes100[iYield] = 0;
+		aiBonusTimes100[iYield] = 0;
+	}
+
+	const PlayerTypes ePlayer = pCity->getOwner();
+	const CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+	const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if (pkBuildingInfo == NULL)
+		return;
+
+	const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
+	const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+	const bool bWorldWonder = ::isWorldWonderClass(*pkBuildingClassInfo);
+
+	// City/player scalars that are constant across yields, fetched once for the whole building.
+	const int iPopulation = pCity->getPopulation();
+	const int iEmpirePopulation = kPlayer.getTotalPopulation();
+	const int iNumBuildings = pCity->GetCityBuildings()->GetNumBuildings();
+	const int iNumPlots = static_cast<int>(pCity->GetPlotList().size());
+	const bool bPassingTradeRoute = pCity->plot()->IsTradeUnitRoute();
+	const int iStrategicResourcesFromMinors = kPlayer.GetNumStrategicResourcesFromMinors();
+	const int iEraScale = max(1, static_cast<int>(kPlayer.GetCurrentEra()));
+	const int iNumCSFriends = kPlayer.GetNumCSFriends();
+	const int iNumCSAllies = kPlayer.GetNumCSAllies();
+	const int iNumGlobalMonopolies = kPlayer.GetNumGlobalMonopolies();
+	const int iNumReligionsWithFollowers = pCity->GetCityReligions()->GetNumReligionsWithFollowers();
+	const int iNumThemedBuildings = pCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+
+	// Religion / belief context, resolved once for the whole building.
+	const ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+	const BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, ePlayer);
+	const int iMajorityFollowers = pReligion ? pCity->GetCityReligions()->GetNumFollowers(eMajority) : 0;
+
+	// Secondary pantheon belief (only if it is actually active in this city).
+	const CvBeliefEntry* pkSecondaryPantheonBelief = NULL;
+	if (pReligion && eSecondaryPantheon != NO_BELIEF)
+	{
+		const CvBeliefEntry* pkBeliefInfo = GC.getBeliefInfo(eSecondaryPantheon);
+		const int iSecondaryFollowers = pCity->GetCityReligions()->GetNumFollowers(pCity->GetCityReligions()->GetReligionByAccumulatedPressure(1));
+		if (iSecondaryFollowers >= pkBeliefInfo->GetMinFollowers())
+			pkSecondaryPantheonBelief = pkBeliefInfo;
+	}
+
+	// Permanent pantheon belief, for civs that keep their pantheon belief forever (resolved once).
+	const CvBeliefEntry* pkPermanentPantheonBelief = NULL;
+	if (MOD_BALANCE_PERMANENT_PANTHEONS && GC.getGame().GetGameReligions()->HasCreatedPantheon(ePlayer))
+	{
+		const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, ePlayer);
+		const BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(ePlayer);
+		if (pPantheon && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+		{
+			// Check that our religion does not have our belief, to prevent double counting.
+			if (!pReligion || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, ePlayer))
+				pkPermanentPantheonBelief = GC.getBeliefInfo(ePantheonBelief);
+		}
+	}
+
+	// BONUS: tech-enhanced yields. The accessor returns a std::map by value, so copy it once and walk
+	// every entry, accumulating directly into the per-yield array.
+	if (!pkBuildingInfo->GetTechEnhancedYields().empty())
+	{
+		const map<int, map<int, int>> mTechEnhancedYields = pkBuildingInfo->GetTechEnhancedYields();
+		for (map<int, map<int, int>>::const_iterator it = mTechEnhancedYields.begin(); it != mTechEnhancedYields.end(); ++it)
+		{
+			if (kPlayer.HasTech(static_cast<TechTypes>(it->first)))
+			{
+				for (map<int, int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+				{
+					if (it2->first >= 0 && it2->first < NUM_YIELD_TYPES)
+						aiBonusTimes100[it2->first] += it2->second * 100;
+				}
+			}
+		}
+	}
+
+	// BONUS: accomplishment yields (copy the by-value map once, then walk it).
+	if (!pkBuildingInfo->GetYieldChangesFromAccomplishments().empty())
+	{
+		const map<int, map<int, int>> mYieldsFromAccomplishments = pkBuildingInfo->GetYieldChangesFromAccomplishments();
+		for (map<int, map<int, int>>::const_iterator it = mYieldsFromAccomplishments.begin(); it != mYieldsFromAccomplishments.end(); ++it)
+		{
+			const int iAccomplishment = kPlayer.GetNumTimesAccomplishmentCompleted(static_cast<AccomplishmentTypes>(it->first));
+			if (iAccomplishment > 0)
+			{
+				for (map<int, int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+				{
+					if (it2->first >= 0 && it2->first < NUM_YIELD_TYPES)
+						aiBonusTimes100[it2->first] += it2->second * iAccomplishment * 100;
+				}
+			}
+		}
+	}
+
+	// BONUS: policy building-class yields. Walk the policies once; for the active ones add their
+	// per-yield contributions.
+	for (int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+	{
+		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
+		if (kPlayer.GetPlayerPolicies()->HasPolicy(ePolicy) && !kPlayer.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
+		{
+			CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
+			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+			{
+				const YieldTypes eYield = static_cast<YieldTypes>(iYield);
+				aiBonusTimes100[iYield] += pkPolicyInfo->GetBuildingClassYieldChanges(eBuildingClass, eYield) * 100;
+				if (bWorldWonder)
+					aiBonusTimes100[iYield] += pkPolicyInfo->GetYieldChangeWorldWonder(eYield) * 100;
+			}
+		}
+	}
+
+	// BASE: yields per worked terrain. The worked count is per terrain (constant across yields), so
+	// compute it once and apply it to every yield.
+	for (int i = 0; i < GC.getNumTerrainInfos(); i++)
+	{
+		const TerrainTypes eTerrain = static_cast<TerrainTypes>(i);
+		int iTerrainCount = 0;
+		switch (eTerrain)
+		{
+			case TERRAIN_SNOW:
+				iTerrainCount = pCity->CountTerrain(TERRAIN_SNOW);
+				break;
+			case TERRAIN_MOUNTAIN:
+				iTerrainCount = pCity->GetNearbyMountains();
+				break;
+			default:
+				iTerrainCount = pCity->GetNumTerrainWorked(eTerrain);
+				break;
+		}
+		if (iTerrainCount == 0)
+			continue;
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+			aiBaseTimes100[iYield] += pkBuildingInfo->GetYieldPerXTerrain(i, static_cast<YieldTypes>(iYield)) * iTerrainCount;
+	}
+
+	// BASE: yields per worked feature (worked count per feature is constant across yields).
+	for (int i = 0; i < GC.getNumFeatureInfos(); i++)
+	{
+		const int iFeatureCount = pCity->GetNumFeatureWorked(static_cast<FeatureTypes>(i));
+		if (iFeatureCount == 0)
+			continue;
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+			aiBaseTimes100[iYield] += pkBuildingInfo->GetYieldPerXFeature(i, static_cast<YieldTypes>(iYield)) * iFeatureCount;
+	}
+
+	// BASE: yields per local/global improvement count (counts per improvement are constant across yields).
+	fraction afYieldFromImprovementCount[NUM_YIELD_TYPES];
+	for (int i = 0; i < GC.getNumImprovementInfos(); i++)
+	{
+		const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(i);
+		const int iLocalCount = pCity->GetImprovementCount(eImprovement);
+		const int iGlobalCount = kPlayer.getImprovementCount(eImprovement);
+		if (iLocalCount == 0 && iGlobalCount == 0)
+			continue;
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			const YieldTypes eYield = static_cast<YieldTypes>(iYield);
+			afYieldFromImprovementCount[iYield] += pkBuildingInfo->GetYieldPerXImprovementLocal(eImprovement, eYield) * iLocalCount;
+			afYieldFromImprovementCount[iYield] += pkBuildingInfo->GetYieldPerXImprovementGlobal(eImprovement, eYield) * iGlobalCount;
+		}
+	}
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		aiBaseTimes100[iYield] += (afYieldFromImprovementCount[iYield] * 100).Truncate();
+
+	// Per-yield scalar contributions (raw yield, culture trait, religion/belief, league/trait world
+	// wonders, player/trait/city-local/corporation/event building-class yields and the self-scalers).
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		const YieldTypes eYield = static_cast<YieldTypes>(iYield);
+
+		// BASE: the building's own flat yield from XML.
+		const int iRawYield = pkBuildingInfo->GetYieldChange(eYield);
+		aiBaseTimes100[iYield] += iRawYield * 100;
+
+		// BONUS: culture-building trait bonus (only when the building itself produces culture).
+		if (eYield == YIELD_CULTURE && iRawYield != 0)
+			aiBonusTimes100[iYield] += kPlayer.GetPlayerTraits()->GetCultureBuildingYieldChange() * 100;
+
+		// BONUS: religion / belief yields.
+		if (pReligion)
+		{
+			if (eYield == YIELD_TOURISM && pkBuildingInfo->IsFaithPurchaseOnly())
+				aiBonusTimes100[iYield] += pReligion->m_Beliefs.GetFaithBuildingTourism(ePlayer, pCity) * 100;
+
+			aiBonusTimes100[iYield] += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYield, iMajorityFollowers, ePlayer, pCity) * 100;
+
+			if (bWorldWonder)
+				aiBonusTimes100[iYield] += pReligion->m_Beliefs.GetYieldChangeWorldWonder(eYield, ePlayer, pCity) * 100;
+
+			if (pkSecondaryPantheonBelief)
+				aiBonusTimes100[iYield] += pkSecondaryPantheonBelief->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+		}
+
+		// BONUS: civs that keep their pantheon belief forever.
+		if (pkPermanentPantheonBelief)
+			aiBonusTimes100[iYield] += pkPermanentPantheonBelief->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+
+		// BONUS: league and trait world-wonder yields.
+		if (bWorldWonder)
+		{
+			aiBonusTimes100[iYield] += GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(ePlayer, eYield) * 100;
+			aiBonusTimes100[iYield] += kPlayer.GetPlayerTraits()->GetYieldChangeWorldWonder(eYield) * 100;
+		}
+
+		// BONUS: player, trait, city-local, corporation and event building-class yields.
+		aiBonusTimes100[iYield] += kPlayer.GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+		aiBonusTimes100[iYield] += kPlayer.GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYield) * 100;
+		aiBonusTimes100[iYield] += pCity->getLocalBuildingClassYield(eBuildingClass, eYield) * 100;
+		aiBonusTimes100[iYield] += pCity->GetBuildingYieldChangeFromCorporationFranchises(eBuildingClass, eYield) * 100;
+		aiBonusTimes100[iYield] += pCity->GetEventBuildingClassCityYield(eBuildingClass, eYield) * 100;
+
+		// BASE: building self-scalers (population, era, per-building/tile, monopoly, city-state, etc.).
+		aiBaseTimes100[iYield] += pkBuildingInfo->GetYieldChangePerPop(eYield) * iPopulation;
+		aiBaseTimes100[iYield] += pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) * iEmpirePopulation;
+		aiBaseTimes100[iYield] += (pkBuildingInfo->GetYieldChangePerBuilding(eYield) * iNumBuildings * 100).Truncate();
+		aiBaseTimes100[iYield] += (pkBuildingInfo->GetYieldChangePerTile(eYield) * iNumPlots * 100).Truncate();
+		aiBaseTimes100[iYield] += bPassingTradeRoute ? pkBuildingInfo->GetYieldChangeFromPassingTR(eYield) * 100 : 0;
+		aiBaseTimes100[iYield] += (pkBuildingInfo->GetYieldChangePerCityStateStrategicResource(eYield) * iStrategicResourcesFromMinors * 100).Truncate();
+		aiBaseTimes100[iYield] += pkBuildingInfo->GetYieldChangeEraScalingTimes100(eYield) * iEraScale;
+		aiBaseTimes100[iYield] += pkBuildingInfo->GetYieldPerFriendTimes100(eYield) * iNumCSFriends;
+		aiBaseTimes100[iYield] += pkBuildingInfo->GetYieldPerAllyTimes100(eYield) * iNumCSAllies;
+		aiBaseTimes100[iYield] += pkBuildingInfo->GetYieldChangePerMonopoly(eYield) * iNumGlobalMonopolies * 100;
+
+		const int iYieldPerReligion = pkBuildingInfo->GetYieldChangePerReligion(eYield);
+		if (iYieldPerReligion != 0)
+			aiBaseTimes100[iYield] += iYieldPerReligion * iNumReligionsWithFollowers;
+
+		const int iYieldPerLocalTheme = pkBuildingInfo->GetYieldChangesPerLocalTheme(eYield);
+		if (iYieldPerLocalTheme > 0)
+			aiBaseTimes100[iYield] += iYieldPerLocalTheme * iNumThemedBuildings * 100;
+	}
+}
+
+static void GetBuildingWorkedPlotYieldTimes100(const CvCity* pCity, BuildingTypes eBuilding, int aiYieldTimes100[NUM_YIELD_TYPES])
+{
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		aiYieldTimes100[iYield] = 0;
+
+	const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if (pkBuildingInfo == NULL)
+		return;
+
+	const TeamTypes eTeam = pCity->getTeam();
+
+	for (int targetPlotIdx = 0; targetPlotIdx < RING_PLOTS[pCity->getWorkPlotDistance()]; targetPlotIdx++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pCity->plot(), targetPlotIdx);
+		if (!pLoopPlot)
+			continue;
+
+		// The city-center tile is always worked; for every other tile, only count those being worked.
+		const bool bCityCenter = (pLoopPlot == pCity->plot());
+		if (!bCityCenter && !pCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
+			continue;
+
+		// Classify the plot once, then apply the building's per-plot yields to every yield.
+		const ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
+		bool bLuxuryResource = false;
+		if (eResource != NO_RESOURCE)
+		{
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			bLuxuryResource = (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY);
+		}
+
+		const TerrainTypes eTerrain = pLoopPlot->getTerrainType();
+		const FeatureTypes eFeature = pLoopPlot->getFeatureType();
+		const ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+		const bool bWater = pLoopPlot->isWater();
+		const bool bLake = bWater && pLoopPlot->isLake();
+		const bool bRiver = pLoopPlot->IsFeatureRiver();
+		const bool bCityConnection = pLoopPlot->IsCityConnection();
+
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			const YieldTypes eYield = static_cast<YieldTypes>(iYield);
+			int iYield100 = 0;
+
+			// Resource yields (plus the generic luxury-resource yield bonus).
+			if (eResource != NO_RESOURCE)
+			{
+				iYield100 += pkBuildingInfo->GetResourceYieldChange(eResource, eYield);
+				if (bLuxuryResource)
+					iYield100 += pkBuildingInfo->GetLuxuryYieldChanges(eYield);
+			}
+
+			// Terrain yields.
+			if (eTerrain != NO_TERRAIN)
+				iYield100 += pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield);
+
+			// Feature yields.
+			if (eFeature != NO_FEATURE)
+				iYield100 += pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield);
+
+			// Improvement yields.
+			if (eImprovement != NO_IMPROVEMENT)
+				iYield100 += pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield);
+
+			// Water (sea / lake) and the sea-resource bonus.
+			if (bWater)
+			{
+				if (!bLake)
+					iYield100 += pkBuildingInfo->GetSeaPlotYieldChange(eYield);
+				else
+					iYield100 += pkBuildingInfo->GetLakePlotYieldChange(eYield) + pkBuildingInfo->GetLakePlotYieldChangeGlobal(eYield);
+
+				if (eResource != NO_RESOURCE)
+					iYield100 += pkBuildingInfo->GetSeaResourceYieldChange(eYield);
+			}
+
+			// River plot yields.
+			if (bRiver)
+				iYield100 += pkBuildingInfo->GetRiverPlotYieldChange(eYield);
+
+			// City-connection plot yields.
+			if (bCityConnection)
+				iYield100 += pkBuildingInfo->GetCityConnectionPlotYieldChange(eYield) + pkBuildingInfo->GetCityConnectionPlotYieldChangeGlobal(eYield);
+
+			aiYieldTimes100[iYield] += iYield100;
+		}
+	}
+
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		aiYieldTimes100[iYield] *= 100;
+}
+
+
+// Helpers backing the ReligionBeliefYields SQLite table (see RegisterReligionBeliefYieldsTable).
+namespace
+{
+
+// Mechanic/source label for each accumulated row. Passive per-turn mechanics plus the
+// religious-building special case. Instant/event yields are logged separately (CvPlayer).
+enum BeliefYieldSource
+{
+	BYS_CITY_YIELD,
+	BYS_PER_POP,
+	BYS_FOLLOWER_LOCAL,
+	BYS_CAPITAL,
+	BYS_COASTAL,
+	BYS_NEARBY_TERRAIN,
+	BYS_TRADE_ROUTE,
+	BYS_ANY_SPECIALIST,
+	BYS_BUILDING_CLASS,
+	BYS_WORLD_WONDER,
+	BYS_PLOT_NATURE,
+	BYS_PLOT_IMPROVEMENT,
+	BYS_TERRAIN_PER_X,
+	BYS_FEATURE_PER_X,
+	BYS_SPECIALIST,
+	BYS_GREAT_WORK,
+	BYS_HOLY_CITY,
+	BYS_KNOWN_PANTHEONS,
+	BYS_PER_FOREIGN_CITY,
+	BYS_PER_X_FOREIGN_FOLLOWERS,
+	BYS_PER_X_CS_FOLLOWERS,
+	BYS_PER_OTHER_RELIGION_FOLLOWER,
+	BYS_PER_FOLLOWING_CITY,
+	BYS_PER_LUX,
+	BYS_PER_X_FOLLOWERS,
+	BYS_PER_SCIENCE,
+	BYS_PER_GPT,
+	BYS_PER_ACTIVE_TR,
+	BYS_GREAT_PERSON_POINTS,
+	BYS_RELIGIOUS_BUILDING,
+};
+
+const char* GetBeliefYieldSourceName(int eSource)
+{
+	switch (eSource)
+	{
+	case BYS_CITY_YIELD:                 return "CityYield";
+	case BYS_PER_POP:                    return "PerPop";
+	case BYS_FOLLOWER_LOCAL:             return "FollowerLocal";
+	case BYS_CAPITAL:                    return "Capital";
+	case BYS_COASTAL:                    return "Coastal";
+	case BYS_NEARBY_TERRAIN:             return "NearbyTerrain";
+	case BYS_TRADE_ROUTE:                return "TradeRoute";
+	case BYS_ANY_SPECIALIST:            return "AnySpecialist";
+	case BYS_BUILDING_CLASS:             return "BuildingClass";
+	case BYS_WORLD_WONDER:               return "WorldWonder";
+	case BYS_PLOT_NATURE:                return "PlotNature";
+	case BYS_PLOT_IMPROVEMENT:           return "PlotImprovement";
+	case BYS_TERRAIN_PER_X:              return "TerrainPerX";
+	case BYS_FEATURE_PER_X:              return "FeaturePerX";
+	case BYS_SPECIALIST:                 return "Specialist";
+	case BYS_GREAT_WORK:                 return "GreatWork";
+	case BYS_HOLY_CITY:                  return "HolyCity";
+	case BYS_KNOWN_PANTHEONS:            return "KnownPantheons";
+	case BYS_PER_FOREIGN_CITY:           return "PerForeignCity";
+	case BYS_PER_X_FOREIGN_FOLLOWERS:    return "PerXForeignFollowers";
+	case BYS_PER_X_CS_FOLLOWERS:         return "PerXCityStateFollowers";
+	case BYS_PER_OTHER_RELIGION_FOLLOWER:return "PerOtherReligionFollower";
+	case BYS_PER_FOLLOWING_CITY:         return "PerFollowingCity";
+	case BYS_PER_LUX:                    return "PerLux";
+	case BYS_PER_X_FOLLOWERS:            return "PerXFollowers";
+	case BYS_PER_SCIENCE:                return "PerScience";
+	case BYS_PER_GPT:                    return "PerGPT";
+	case BYS_PER_ACTIVE_TR:              return "PerActiveTR";
+	case BYS_GREAT_PERSON_POINTS:        return "GreatPersonPoints";
+	case BYS_RELIGIOUS_BUILDING:         return "ReligiousBuilding";
+	default:                             return "";
+	}
+}
+
+// Accumulation key: (belief, source, dimension). Dimension is a YieldTypes for normal rows, or a
+// GreatPersonTypes for BYS_GREAT_PERSON_POINTS rows.
+struct SBeliefYieldKey
+{
+	int iBelief;
+	int iSource;
+	int iDim;
+	bool operator<(const SBeliefYieldKey& o) const
+	{
+		if (iBelief != o.iBelief) return iBelief < o.iBelief;
+		if (iSource != o.iSource) return iSource < o.iSource;
+		return iDim < o.iDim;
+	}
+};
+
+typedef std::map<SBeliefYieldKey, int> BeliefYieldMap;
+
+void AddBeliefYield(BeliefYieldMap& kMap, BeliefTypes eBelief, BeliefYieldSource eSource, int iDim, int iValueTimes100)
+{
+	if (iValueTimes100 == 0)
+		return;
+	SBeliefYieldKey kKey;
+	kKey.iBelief = (int)eBelief;
+	kKey.iSource = (int)eSource;
+	kKey.iDim = iDim;
+	kMap[kKey] += iValueTimes100;
+}
+
+const char* GetBeliefTypeLabel(const CvBeliefEntry* pkBelief)
+{
+	if (pkBelief->IsPantheonBelief())    return "Pantheon";
+	if (pkBelief->IsFounderBelief())     return "Founder";
+	if (pkBelief->IsFollowerBelief())    return "Follower";
+	if (pkBelief->IsEnhancerBelief())    return "Enhancer";
+	if (pkBelief->IsReformationBelief()) return "Reformation";
+	return "";
+}
+
+// Mirrors the holy-city-owner check inside CvReligionBeliefs::IsBeliefValid: the player who controls
+// the religion's holy city (or, for an unfounded pantheon, its creator) is eligible for founder
+// benefits. This is exactly the IsReligionOwner flag.
+bool PlayerOwnsReligion(ReligionTypes eReligion, PlayerTypes ePlayer)
+{
+	// Pass ePlayer (not NO_PLAYER): pantheons are per-player, so NO_PLAYER would not resolve to this
+	// player's own pantheon and would wrongly report owner=false for their pantheon beliefs. For full
+	// religions the religion is global, so the holy-city ownership check below is unaffected.
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
+	if (!pReligion)
+		return false;
+	CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+	if (pReligion->m_bPantheon && pHolyCityPlot == NULL)
+		return pReligion->m_eFounder == ePlayer;
+	return pHolyCityPlot != NULL && pHolyCityPlot->getOwner() == ePlayer;
+}
+
+// "Pure" religious building: unlocked by a belief and cheap enough to be a dedicated religious
+// building rather than an ordinary building merely made faith-purchasable
+bool IsBuildingPureReligious(const CvBuildingEntry* pkBuildingInfo)
+{
+	return pkBuildingInfo != NULL && pkBuildingInfo->IsUnlockedByBelief() && pkBuildingInfo->GetFaithCost() <= 250;
+}
+
+// Per-belief equivalent of CvPlot::calculateReligionNatureYield (terrain / plot-type / lake /
+// (unimproved) feature / natural-wonder / resource). The RequiresXXX flags are passed in: for the
+// majority religion they are the religion-wide flags the game applies to the summed value (applying
+// them per belief with the same flags reproduces the per-belief contribution); for a pantheon belief
+// they are that belief's own flags. Returns a raw (not x100) yield.
+int GetBeliefPlotNatureYield(const CvPlot* pPlot, YieldTypes eYield, const CvBeliefEntry* pkBelief,
+	ImprovementTypes eImprovement, FeatureTypes eFeature, ResourceTypes eResource,
+	bool bReqImp, bool bReqNoImp, bool bReqRes, bool bReqNoFeat)
+{
+	int iYield = 0;
+
+	// Terrain yield, gated by the requires-conditions exactly as calculateReligionNatureYield does.
+	const int iTerrainValue = pkBelief->GetTerrainYieldChange(pPlot->getTerrainType(), eYield);
+	if (bReqImp || bReqRes || bReqNoImp)
+	{
+		int iReligionChange = 0;
+		const bool bRequiresEmptyTile = (bReqRes && bReqNoFeat);
+		const bool bRequiresBoth = (bReqImp && bReqRes);
+		if (bRequiresBoth)
+		{
+			if (eImprovement != NO_IMPROVEMENT && eResource != NO_RESOURCE && GC.getImprovementInfo(eImprovement)->IsConnectsResource(eResource))
+				iReligionChange += iTerrainValue;
+		}
+		else if (bReqImp)
+		{
+			if (eImprovement != NO_IMPROVEMENT)
+				iReligionChange += iTerrainValue;
+		}
+		else if (bReqRes)
+		{
+			if (eResource != NO_RESOURCE)
+				iReligionChange += iTerrainValue;
+		}
+		else if (bRequiresEmptyTile)
+		{
+			if (eImprovement == NO_IMPROVEMENT && eFeature == NO_FEATURE)
+				iReligionChange += iTerrainValue;
+		}
+		else if (bReqNoImp)
+		{
+			if (eImprovement == NO_IMPROVEMENT)
+				iReligionChange += iTerrainValue;
+		}
+		else if (bReqNoFeat)
+		{
+			if (eFeature == NO_FEATURE)
+				iReligionChange += iTerrainValue;
+		}
+		if (iReligionChange > iTerrainValue)
+			iReligionChange = iTerrainValue;
+		iYield += iReligionChange;
+	}
+	else
+	{
+		iYield += iTerrainValue;
+	}
+
+	iYield += pkBelief->GetPlotYieldChange(pPlot->getPlotType(), eYield);
+
+	if (pPlot->isLake())
+		iYield += pkBelief->GetLakePlotYieldChange(eYield);
+
+	if (eFeature != NO_FEATURE)
+	{
+		if (eImprovement == NO_IMPROVEMENT)
+			iYield += pkBelief->GetUnimprovedFeatureYieldChange(eFeature, eYield);
+
+		// In calculateReligionNatureYield every branch adds the same feature yield, so add it directly.
+		iYield += pkBelief->GetFeatureYieldChange(eFeature, eYield);
+
+		if (pPlot->IsNaturalWonder())
+			iYield += pkBelief->GetYieldChangeNaturalWonder(eYield);
+	}
+
+	if (eResource != NO_RESOURCE)
+		iYield += pkBelief->GetResourceYieldChange(eResource, eYield);
+
+	return iYield;
+}
+
+// Per-belief equivalent of CvPlot::calculateReligionImprovementYield. bReqRes is the religion-wide
+// (or pantheon-belief) RequiresResource flag. Returns a raw (not x100) yield.
+int GetBeliefPlotImprovementYield(YieldTypes eYield, const CvBeliefEntry* pkBelief,
+	ImprovementTypes eImprovement, ResourceTypes eResource, bool bReqRes)
+{
+	if (eImprovement == NO_IMPROVEMENT)
+		return 0;
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	if (!pkImprovementInfo)
+		return 0;
+
+	bool bRequiresResource = bReqRes;
+	if (pkImprovementInfo->IsCreatedByGreatPerson() || pkImprovementInfo->IsAdjacentCity() || pkImprovementInfo->IsIgnoreOwnership())
+		bRequiresResource = false;
+
+	if (bRequiresResource)
+	{
+		if (eResource != NO_RESOURCE && (pkImprovementInfo->IsImprovementResourceMakesValid(eResource) || pkImprovementInfo->GetResourceFromImprovement() == eResource))
+			return pkBelief->GetImprovementYieldChange(eImprovement, eYield);
+		return 0;
+	}
+	return pkBelief->GetImprovementYieldChange(eImprovement, eYield);
+}
+
+// City-local scalar contributions shared by the majority religion, a secondary pantheon and a
+// permanent pantheon: city yield, per-pop, capital, coastal, nearby-terrain, trade-route-to-capital,
+// per-building-class yields and (optionally) world-wonder yields. bIncludeWorldWonder/bFollowerGate
+// match how the game applies each path (see CvCity::UpdateReligion and the building yield logger).
+void AccumulateCityLocalScalars(BeliefYieldMap& kMap, const CvCity* pCity, const CvBeliefEntry* pkBelief, BeliefTypes eBelief,
+	int iPopulation, int iFollowers, const std::vector<bool>& abTerrainMatch,
+	bool bIncludeWorldWonder, bool bFollowerGate)
+{
+	const bool bCapital = pCity->isCapital();
+	const bool bCoastal = pCity->isCoastal();
+	const bool bRouteToCapital = pCity->IsRouteToCapitalConnected();
+	const int iNumTerrains = GC.getNumTerrainInfos();
+
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+	{
+		const YieldTypes eYield = (YieldTypes)iYield;
+
+		if (iPopulation >= pkBelief->GetMinPopulation())
+			AddBeliefYield(kMap, eBelief, BYS_CITY_YIELD, iYield, pkBelief->GetCityYieldChange(eYield) * 100);
+
+		const int iPerPop = pkBelief->GetYieldPerPop(eYield);
+		if (iPopulation > 0 && iPerPop > 0)
+			AddBeliefYield(kMap, eBelief, BYS_PER_POP, iYield, (iPopulation / iPerPop) * 100);
+
+		if (bCapital)
+			AddBeliefYield(kMap, eBelief, BYS_CAPITAL, iYield, pkBelief->GetCapitalYieldChange(eYield) * 100);
+
+		if (bCoastal && iPopulation >= pkBelief->GetMinPopulation())
+			AddBeliefYield(kMap, eBelief, BYS_COASTAL, iYield, pkBelief->GetCoastalCityYieldChange(eYield) * 100);
+
+		if (iPopulation >= pkBelief->GetMinPopulation())
+		{
+			int iNearbyTerrainYield = 0;
+			for (int iTerrain = 0; iTerrain < iNumTerrains; iTerrain++)
+			{
+				if (abTerrainMatch[iTerrain])
+					iNearbyTerrainYield = max(iNearbyTerrainYield, pkBelief->GetNearbyTerrainYieldChange(iTerrain, iYield));
+			}
+			AddBeliefYield(kMap, eBelief, BYS_NEARBY_TERRAIN, iYield, iNearbyTerrainYield * 100);
+		}
+
+		if (bRouteToCapital)
+			AddBeliefYield(kMap, eBelief, BYS_TRADE_ROUTE, iYield, pkBelief->GetYieldChangeTradeRoute(eYield) * 100);
+	}
+
+	// Per-building-class (and world-wonder) yields: walk the city's buildings once.
+	const std::vector<BuildingTypes>& vBuildings = pCity->GetCityBuildings()->GetAllBuildingsHere();
+	for (size_t iB = 0; iB < vBuildings.size(); iB++)
+	{
+		const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(vBuildings[iB]);
+		if (!pkBuildingInfo)
+			continue;
+		const BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
+		const int iNumBuilding = pCity->GetCityBuildings()->GetNumBuilding(vBuildings[iB]);
+		if (iNumBuilding <= 0)
+			continue;
+		const bool bWorldWonder = ::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass));
+
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			const YieldTypes eYield = (YieldTypes)iYield;
+			const int iClassYield = pkBelief->GetBuildingClassYieldChange((int)eBuildingClass, iYield);
+			if (iClassYield != 0 && (!bFollowerGate || iFollowers >= pkBelief->GetMinFollowers()))
+				AddBeliefYield(kMap, eBelief, BYS_BUILDING_CLASS, iYield, iClassYield * iNumBuilding * 100);
+
+			if (bIncludeWorldWonder && bWorldWonder)
+				AddBeliefYield(kMap, eBelief, BYS_WORLD_WONDER, iYield, pkBelief->GetYieldChangeWorldWonder(eYield) * 100);
+		}
+	}
+}
+
+} // anonymous namespace
+
+/// Per-turn snapshot of how many raw yields each active religious belief generates for this player,
+/// aggregated across all of the player's cities (one row per belief / source / yield), written in a
+/// single batched SQLite transaction. Mirrors the game's own belief yield application paths but
+/// attributes each belief's contribution individually. See RegisterReligionBeliefYieldsTable.
+void CvEconomicAI::LogReligionBeliefYields()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	// Mirror the CSV monitors and the building yield logger: skip minor civs.
+	if (m_pPlayer->isMinorCiv())
+		return;
+
+	RegisterReligionBeliefYieldsTable();
+
+	const PlayerTypes ePlayer = m_pPlayer->GetID();
+	const TeamTypes eTeam = m_pPlayer->getTeam();
+	const int iEra = (int)m_pPlayer->GetCurrentEra();
+	const int iNumTerrains = GC.getNumTerrainInfos();
+	const int iNumFeatures = GC.getNumFeatureInfos();
+	const int iNumSpecialists = GC.getNumSpecialistInfos();
+
+	BeliefYieldMap kMap;
+	std::map<int, bool> kOwner; // belief -> IsReligionOwner
+
+	int iLoopCity = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+	{
+		const int iPopulation = pLoopCity->getPopulation();
+		const ReligionTypes eMajority = pLoopCity->GetCityReligions()->GetReligiousMajority();
+		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, ePlayer) : NULL;
+		const int iFollowers = pReligion ? pLoopCity->GetCityReligions()->GetNumFollowers(eMajority) : 0;
+
+		// Terrains matching this city (own plot terrain or adjacent) - reused for nearby-terrain yields.
+		std::vector<bool> abTerrainMatch(iNumTerrains, false);
+		for (int iTerrain = 0; iTerrain < iNumTerrains; iTerrain++)
+			abTerrainMatch[iTerrain] = (pLoopCity->plot()->getTerrainType() == (TerrainTypes)iTerrain || pLoopCity->IsAdjacentToTerrain((TerrainTypes)iTerrain));
+
+		if (pReligion)
+		{
+			const bool bOwner = PlayerOwnsReligion(eMajority, ePlayer);
+
+			// Religion-wide requires flags (used by the per-plot nature/improvement yields).
+			const bool bReqImp = pReligion->m_Beliefs.RequiresImprovement(ePlayer);
+			const bool bReqNoImp = pReligion->m_Beliefs.RequiresNoImprovement(ePlayer);
+			const bool bReqRes = pReligion->m_Beliefs.RequiresResource(ePlayer);
+			const bool bReqNoFeat = pReligion->m_Beliefs.RequiresNoFeature(ePlayer);
+
+			// Build the set of beliefs active in this city (city-local gate) and the holy-city subset.
+			std::vector<BeliefTypes> vCityLocal;
+			std::vector<BeliefTypes> vHoly;
+			const int iNumBeliefs = pReligion->m_Beliefs.GetNumBeliefs();
+			for (int i = 0; i < iNumBeliefs; i++)
+			{
+				const BeliefTypes eBelief = pReligion->m_Beliefs.GetBelief(i);
+				if (pReligion->m_Beliefs.IsBeliefValid(eBelief, eMajority, ePlayer, pLoopCity, false))
+				{
+					vCityLocal.push_back(eBelief);
+					kOwner[(int)eBelief] = bOwner;
+				}
+				if (pReligion->m_Beliefs.IsBeliefValid(eBelief, eMajority, ePlayer, pLoopCity, true))
+				{
+					vHoly.push_back(eBelief);
+					kOwner[(int)eBelief] = bOwner;
+				}
+			}
+
+			// --- A1: city-local scalar yields (+ A2 specialist / great-work / terrain-per-x) ---
+			const int iTotalSpecialists = pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
+			const int iNumGreatWorks = pLoopCity->GetCityBuildings()->GetNumGreatWorks();
+			const int iNumTRsCity = m_pPlayer->GetTrade()->GetNumberOfTradeRoutesCity(pLoopCity);
+			const int iNetGoldTimes100 = pLoopCity->getYieldRateTimes100(YIELD_GOLD, false);
+			const int iNetScienceTimes100 = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+			for (size_t i = 0; i < vCityLocal.size(); i++)
+			{
+				const BeliefTypes eBelief = vCityLocal[i];
+				const CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+				if (!pkBelief)
+					continue;
+
+				AccumulateCityLocalScalars(kMap, pLoopCity, pkBelief, eBelief, iPopulation, iFollowers, abTerrainMatch, true, true);
+
+				for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+				{
+					const YieldTypes eYield = (YieldTypes)iYield;
+
+					// Per-X-followers-local (followers / divisor, capped).
+					const int iDivisor = pkBelief->GetFollowerRequiredPerYield(eYield);
+					if (iDivisor > 0)
+					{
+						int iValue = iFollowers / iDivisor;
+						const int iCap = pkBelief->GetMaxYieldPerFollower(eYield);
+						if (iCap > 0)
+							iValue = min(iCap, iValue);
+						AddBeliefYield(kMap, eBelief, BYS_FOLLOWER_LOCAL, iYield, iValue * 100);
+					}
+
+					// Yield from any specialist present.
+					if (iTotalSpecialists > 0)
+						AddBeliefYield(kMap, eBelief, BYS_ANY_SPECIALIST, iYield, pkBelief->GetYieldChangeAnySpecialist(eYield) * 100);
+
+					// Great-work yields (per great work in the city, gated by min population).
+					if (iNumGreatWorks > 0 && iPopulation >= pkBelief->GetMinPopulation())
+						AddBeliefYield(kMap, eBelief, BYS_GREAT_WORK, iYield, pkBelief->GetGreatWorkYieldChange(eYield) * iNumGreatWorks * 100);
+
+					// Per-specialist yields (per assigned specialist of each type).
+					for (int iSpec = 0; iSpec < iNumSpecialists; iSpec++)
+					{
+						const int iSpecValue = pkBelief->GetSpecialistYieldChange(iSpec, iYield);
+						if (iSpecValue != 0)
+						{
+							const int iSpecCount = pLoopCity->GetCityCitizens()->GetSpecialistCount((SpecialistTypes)iSpec);
+							if (iSpecCount > 0)
+								AddBeliefYield(kMap, eBelief, BYS_SPECIALIST, iYield, iSpecValue * iSpecCount * 100);
+						}
+					}
+
+					// Per-X worked-terrain yields (value already x100; special mountain/snow counts + cap).
+					for (int iTerrain = 0; iTerrain < iNumTerrains; iTerrain++)
+					{
+						const int iBase = pkBelief->GetYieldPerXTerrainTimes100(iTerrain, iYield);
+						if (iBase <= 0)
+							continue;
+						int iCount = 0;
+						if ((TerrainTypes)iTerrain == TERRAIN_MOUNTAIN)
+							iCount = pLoopCity->GetNearbyMountains();
+						else if ((TerrainTypes)iTerrain == TERRAIN_SNOW)
+							iCount = pLoopCity->CountTerrain(TERRAIN_SNOW);
+						else if (bReqNoFeat)
+							iCount = pLoopCity->GetNumFeaturelessTerrainWorked((TerrainTypes)iTerrain);
+						else
+							iCount = pLoopCity->GetNumTerrainWorked((TerrainTypes)iTerrain);
+						int iValueTimes100 = iCount * iBase;
+						if (((TerrainTypes)iTerrain == TERRAIN_MOUNTAIN || (TerrainTypes)iTerrain == TERRAIN_SNOW) && iValueTimes100 > iPopulation * 100)
+							iValueTimes100 = iPopulation * 100;
+						AddBeliefYield(kMap, eBelief, BYS_TERRAIN_PER_X, iYield, iValueTimes100);
+					}
+
+					// Per-X worked-feature yields (value already x100).
+					for (int iFeature = 0; iFeature < iNumFeatures; iFeature++)
+					{
+						const int iBase = pkBelief->GetYieldPerXFeatureTimes100(iFeature, iYield);
+						if (iBase <= 0)
+							continue;
+						const int iCount = pLoopCity->GetNumFeatureWorked((FeatureTypes)iFeature);
+						if (iCount > 0)
+							AddBeliefYield(kMap, eBelief, BYS_FEATURE_PER_X, iYield, iCount * iBase);
+					}
+
+					// Per following city (added flat in each majority city, holy-city gate off).
+					const int iPerFollowingCity = pkBelief->GetYieldPerFollowingCity(eYield);
+					if (iPerFollowingCity > 0)
+						AddBeliefYield(kMap, eBelief, BYS_PER_FOLLOWING_CITY, iYield, iPerFollowingCity * 100);
+
+					// Per active trade route from this city.
+					if (iNumTRsCity > 0)
+						AddBeliefYield(kMap, eBelief, BYS_PER_ACTIVE_TR, iYield, pkBelief->GetYieldPerActiveTR(eYield) * iNumTRsCity * 100);
+
+					// Per gold-per-turn / science-per-turn produced by this city (capped at 100 * followers / 2).
+					const int iDivGold = pkBelief->GetYieldPerGPT(eYield);
+					if (iDivGold > 0 && iNetGoldTimes100 > 0)
+						AddBeliefYield(kMap, eBelief, BYS_PER_GPT, iYield, min((100 * iFollowers / 2), (iNetGoldTimes100 / iDivGold)));
+
+					const int iDivScience = pkBelief->GetYieldPerScience(eYield);
+					if (iDivScience > 0 && iNetScienceTimes100 > 0)
+						AddBeliefYield(kMap, eBelief, BYS_PER_SCIENCE, iYield, min((100 * iFollowers / 2), (iNetScienceTimes100 / iDivScience)));
+				}
+			}
+
+			// --- A2: per-worked-plot nature & improvement yields (majority beliefs + secondary pantheon) ---
+			const BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			const CvBeliefEntry* pkSecondary = (eSecondaryPantheon != NO_BELIEF) ? GC.getBeliefInfo(eSecondaryPantheon) : NULL;
+			bool bSecReqImp = false, bSecReqNoImp = false, bSecReqRes = false, bSecReqNoFeat = false;
+			if (pkSecondary)
+			{
+				bSecReqImp = pkSecondary->RequiresImprovement();
+				bSecReqNoImp = pkSecondary->RequiresNoImprovement();
+				bSecReqRes = pkSecondary->RequiresResource();
+				bSecReqNoFeat = pkSecondary->RequiresNoFeature();
+				kOwner[(int)eSecondaryPantheon] = false; // secondary pantheon is a foreign religion's belief
+			}
+
+			for (int targetPlotIdx = 0; targetPlotIdx < RING_PLOTS[pLoopCity->getWorkPlotDistance()]; targetPlotIdx++)
+			{
+				CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->plot(), targetPlotIdx);
+				if (!pLoopPlot)
+					continue;
+				const bool bCityCenter = (pLoopPlot == pLoopCity->plot());
+				if (!bCityCenter && !pLoopCity->GetCityCitizens()->IsWorkingPlot(pLoopPlot))
+					continue;
+
+				const ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+				const FeatureTypes eFeature = pLoopPlot->getFeatureType();
+				const ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
+
+				for (size_t i = 0; i < vCityLocal.size(); i++)
+				{
+					const BeliefTypes eBelief = vCityLocal[i];
+					const CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+					if (!pkBelief)
+						continue;
+					for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+					{
+						const YieldTypes eYield = (YieldTypes)iYield;
+						AddBeliefYield(kMap, eBelief, BYS_PLOT_NATURE, iYield,
+							GetBeliefPlotNatureYield(pLoopPlot, eYield, pkBelief, eImprovement, eFeature, eResource, bReqImp, bReqNoImp, bReqRes, bReqNoFeat) * 100);
+						AddBeliefYield(kMap, eBelief, BYS_PLOT_IMPROVEMENT, iYield,
+							GetBeliefPlotImprovementYield(eYield, pkBelief, eImprovement, eResource, bReqRes) * 100);
+					}
+				}
+
+				if (pkSecondary)
+				{
+					for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+					{
+						const YieldTypes eYield = (YieldTypes)iYield;
+						AddBeliefYield(kMap, eSecondaryPantheon, BYS_PLOT_NATURE, iYield,
+							GetBeliefPlotNatureYield(pLoopPlot, eYield, pkSecondary, eImprovement, eFeature, eResource, bSecReqImp, bSecReqNoImp, bSecReqRes, bSecReqNoFeat) * 100);
+						AddBeliefYield(kMap, eSecondaryPantheon, BYS_PLOT_IMPROVEMENT, iYield,
+							GetBeliefPlotImprovementYield(eYield, pkSecondary, eImprovement, eResource, bSecReqRes) * 100);
+					}
+				}
+			}
+
+			// Secondary pantheon city-local scalars (no follower gate, no world-wonder, like the game).
+			if (pkSecondary && iPopulation >= pkSecondary->GetMinPopulation())
+				AccumulateCityLocalScalars(kMap, pLoopCity, pkSecondary, eSecondaryPantheon, iPopulation, iFollowers, abTerrainMatch, false, false);
+
+			// --- A3: player-global yields evaluated with the holy-city gate. Most are founder beliefs that
+			// IsBeliefValid restricts to the holy city; any follower beliefs match the game by being
+			// evaluated in each majority city. Counts are player-wide for the city's majority religion. ---
+			if (!vHoly.empty())
+			{
+				const bool bIsHolyCity = pLoopCity->GetCityReligions()->IsHolyCityForReligion(eMajority);
+				const int iPantheonsCreated = min(8, GC.getGame().GetGameReligions()->GetNumPantheonsCreated());
+				const int iForeignCities = m_pPlayer->GetReligions()->GetNumForeignCitiesFollowing(eMajority);
+				const int iForeignFollowers = m_pPlayer->GetReligions()->GetNumForeignFollowers(false, eMajority);
+				const int iCityStateFollowers = m_pPlayer->GetReligions()->GetNumCityStateFollowers(eMajority);
+				const int iGlobalFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eMajority, ePlayer);
+
+				int iTotalOtherFollowers = 0;
+				int iOtherLoop = 0;
+				for (const CvCity* pOtherCity = m_pPlayer->firstCity(&iOtherLoop); pOtherCity != NULL; pOtherCity = m_pPlayer->nextCity(&iOtherLoop))
+					iTotalOtherFollowers += pOtherCity->GetCityReligions()->GetFollowersOtherReligions(eMajority);
+
+				int iNumLux = 0;
+				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					const ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+					if (m_pPlayer->GetHappinessFromLuxury(eResource) > 0 && (m_pPlayer->getNumResourceTotal(eResource, true) + m_pPlayer->getResourceExport(eResource)) > 0)
+						iNumLux++;
+				}
+
+				for (size_t i = 0; i < vHoly.size(); i++)
+				{
+					const BeliefTypes eBelief = vHoly[i];
+					const CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+					if (!pkBelief)
+						continue;
+
+					for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+					{
+						const YieldTypes eYield = (YieldTypes)iYield;
+
+						if (bIsHolyCity)
+							AddBeliefYield(kMap, eBelief, BYS_HOLY_CITY, iYield, pkBelief->GetHolyCityYieldChange(eYield) * 100);
+
+						if (iPantheonsCreated > 0)
+							AddBeliefYield(kMap, eBelief, BYS_KNOWN_PANTHEONS, iYield, pkBelief->GetYieldFromKnownPantheons(eYield) * iPantheonsCreated);
+
+						if (iForeignCities > 0)
+							AddBeliefYield(kMap, eBelief, BYS_PER_FOREIGN_CITY, iYield, pkBelief->GetYieldChangePerForeignCity(eYield) * iForeignCities * 100);
+
+						const int iPerXForeign = pkBelief->GetYieldChangePerXForeignFollowers(eYield);
+						if (iPerXForeign > 0 && iForeignFollowers > 0)
+							AddBeliefYield(kMap, eBelief, BYS_PER_X_FOREIGN_FOLLOWERS, iYield, (100 * iForeignFollowers) / iPerXForeign);
+
+						const int iPerXCS = pkBelief->GetYieldChangePerXCityStateFollowers(eYield);
+						if (iPerXCS > 0 && iCityStateFollowers > 0)
+							AddBeliefYield(kMap, eBelief, BYS_PER_X_CS_FOLLOWERS, iYield, (100 * iCityStateFollowers) / iPerXCS);
+
+						const int iPerXOther = pkBelief->GetYieldPerOtherReligionFollower(eYield);
+						if (iPerXOther > 0 && iTotalOtherFollowers > 0)
+							AddBeliefYield(kMap, eBelief, BYS_PER_OTHER_RELIGION_FOLLOWER, iYield, (100 * iTotalOtherFollowers) / iPerXOther);
+
+						const int iPerXFollow = pkBelief->GetYieldPerXFollowers(eYield);
+						if (iPerXFollow > 0 && iGlobalFollowers > 0)
+							AddBeliefYield(kMap, eBelief, BYS_PER_X_FOLLOWERS, iYield, (100 * iGlobalFollowers) / iPerXFollow);
+
+						if (iNumLux > 0)
+							AddBeliefYield(kMap, eBelief, BYS_PER_LUX, iYield, pkBelief->GetYieldPerLux(eYield) * iNumLux * 100);
+					}
+
+					// Great-person points per turn (holy-city gated). Dimension is the Great Person type.
+					for (int iGP = 0; iGP < GC.getNumGreatPersonInfos(); iGP++)
+					{
+						const int iGPP = pkBelief->GetGreatPersonPoints((GreatPersonTypes)iGP);
+						if (iGPP != 0)
+							AddBeliefYield(kMap, eBelief, BYS_GREAT_PERSON_POINTS, iGP, iGPP * 100);
+					}
+				}
+			}
+
+			// --- Religious-building special case: attribute the intrinsic yields of pure religious
+			// buildings to the belief that unlocks their building class. ---
+			for (size_t i = 0; i < vCityLocal.size(); i++)
+			{
+				const BeliefTypes eBelief = vCityLocal[i];
+				const CvBeliefEntry* pkBelief = GC.getBeliefInfo(eBelief);
+				if (!pkBelief)
+					continue;
+
+				const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+				for (size_t iB = 0; iB < vBuildings.size(); iB++)
+				{
+					const BuildingTypes eBuilding = vBuildings[iB];
+					const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (!IsBuildingPureReligious(pkBuildingInfo))
+						continue;
+					if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) <= 0)
+						continue;
+					if (!pkBelief->IsBuildingClassEnabled((int)pkBuildingInfo->GetBuildingClassType()))
+						continue;
+
+					int aiBaseTimes100[NUM_YIELD_TYPES];
+					int aiBonusTimes100[NUM_YIELD_TYPES];
+					GetBuildingFlatYieldSplitTimes100(pLoopCity, eBuilding, aiBaseTimes100, aiBonusTimes100);
+					int aiWorkedPlotTimes100[NUM_YIELD_TYPES];
+					GetBuildingWorkedPlotYieldTimes100(pLoopCity, eBuilding, aiWorkedPlotTimes100);
+
+					for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+						AddBeliefYield(kMap, eBelief, BYS_RELIGIOUS_BUILDING, iYield, aiBaseTimes100[iYield] + aiWorkedPlotTimes100[iYield]);
+				}
+			}
+		}
+
+		// --- Permanent pantheon (civs that keep their pantheon belief forever) city-local scalars ---
+		if (MOD_BALANCE_PERMANENT_PANTHEONS && GC.getGame().GetGameReligions()->HasCreatedPantheon(ePlayer))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, ePlayer);
+			const BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(ePlayer);
+			const BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, ePlayer))
+				{
+					const CvBeliefEntry* pkPantheon = GC.getBeliefInfo(ePantheonBelief);
+					if (pkPantheon)
+					{
+						kOwner[(int)ePantheonBelief] = true;
+						AccumulateCityLocalScalars(kMap, pLoopCity, pkPantheon, ePantheonBelief, iPopulation, iFollowers, abTerrainMatch, true, false);
+					}
+				}
+			}
+		}
+	}
+
+	// --- Emit one row per (belief, source, yield/GP) with a non-zero accumulated value ---
+	if (kMap.empty())
+		return;
+
+	const char* szCiv = m_pPlayer->getCivilizationShortDescription();
+	SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("ReligionBeliefYields");
+	for (BeliefYieldMap::const_iterator it = kMap.begin(); it != kMap.end(); ++it)
+	{
+		if (it->second == 0)
+			continue;
+		const CvBeliefEntry* pkBelief = GC.getBeliefInfo((BeliefTypes)it->first.iBelief);
+		if (!pkBelief)
+			continue;
+
+		const CvString strBelief = GetLocalizedText(pkBelief->getShortDescription());
+		const char* szBeliefType = GetBeliefTypeLabel(pkBelief);
+		const bool bOwner = kOwner.count(it->first.iBelief) ? kOwner[it->first.iBelief] : false;
+		const char* szSource = GetBeliefYieldSourceName(it->first.iSource);
+
+		const char* szYield = "";
+		if (it->first.iSource == BYS_GREAT_PERSON_POINTS)
+		{
+			const CvGreatPersonInfo* pkGP = GC.getGreatPersonInfo((GreatPersonTypes)it->first.iDim);
+			szYield = pkGP ? pkGP->GetDescription() : "";
+		}
+		else
+		{
+			const CvYieldInfo* pkYieldInfo = GC.getYieldInfo((YieldTypes)it->first.iDim);
+			szYield = pkYieldInfo ? pkYieldInfo->GetDescription() : "";
+		}
+
+		kBatch.BeginLogRow()
+			.bind(iEra)
+			.bind(szCiv)
+			.bind(strBelief.c_str())
+			.bind(szBeliefType)
+			.bind(bOwner)
+			.bind(szSource)
+			.bind(szYield)
+			.bind(it->second)
+			.addRowToBatch();
+	}
+	kBatch.flush();
+}
+
+/// Per-turn snapshot of every constructed building's base and externally-buffed flat yields (one row
+/// per city / building / yield), written in a single batched SQLite transaction.
+void CvEconomicAI::LogBuildingYields()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	// Mirror the CSV monitors: skip minor civs.
+	if (m_pPlayer->isMinorCiv())
+		return;
+
+	RegisterBuildingYieldsTable();
+	RegisterBuildingsOverviewTable();
+
+	const CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
+	const int iEra = static_cast<int>(m_pPlayer->GetCurrentEra());
+
+	SqliteLogger::BatchWriter kBatch = GET_SQLITE_LOGGER().BeginLogBatch("BuildingYields");
+	SqliteLogger::BatchWriter kOverviewBatch = GET_SQLITE_LOGGER().BeginLogBatch("BuildingsOverview");
+	std::vector<int> aiBuildingCounts(GC.getNumBuildingInfos(), 0);
+
+	int iLoopCity = 0;
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+	{
+		const CvString strCityName = pLoopCity->getName();
+
+		const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+		for (std::vector<BuildingTypes>::const_iterator it = vBuildings.begin(); it != vBuildings.end(); ++it)
+		{
+			const BuildingTypes eBuilding = *it;
+			const int iNumControlledInCity = pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+			if (iNumControlledInCity > 0)
+				aiBuildingCounts[eBuilding] += iNumControlledInCity;
+
+			// Constructed buildings only (GetNumRealBuilding excludes free buildings).
+			if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) <= 0)
+				continue;
+
+			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if (pkBuildingInfo == NULL)
+				continue;
+
+			const char* szBuildingName = pkBuildingInfo->GetDescription();
+
+			// Compute every yield's split in a single pass over the building's contributing sources.
+			int aiBaseTimes100[NUM_YIELD_TYPES];
+			int aiBonusTimes100[NUM_YIELD_TYPES];
+			GetBuildingFlatYieldSplitTimes100(pLoopCity, eBuilding, aiBaseTimes100, aiBonusTimes100);
+
+			int aiWorkedPlotTimes100[NUM_YIELD_TYPES];
+			GetBuildingWorkedPlotYieldTimes100(pLoopCity, eBuilding, aiWorkedPlotTimes100);
+
+			for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+			{
+				const YieldTypes eYield = static_cast<YieldTypes>(iYield);
+
+				const int iBaseTimes100 = aiBaseTimes100[iYield] + aiWorkedPlotTimes100[iYield];
+				const int iBonusTimes100 = aiBonusTimes100[iYield];
+
+				// Skip rows where this building contributes nothing of this yield.
+				if (iBaseTimes100 == 0 && iBonusTimes100 == 0)
+					continue;
+
+				const CvYieldInfo* pkYieldInfo = GC.getYieldInfo(eYield);
+				const char* szYieldName = pkYieldInfo ? pkYieldInfo->GetDescription() : "";
+
+				kBatch.BeginLogRow()
+					.bind(iEra)
+					.bind(strPlayerName.c_str())
+					.bind(strCityName.c_str())
+					.bind(szBuildingName)
+					.bind(szYieldName)
+					.bind(iBaseTimes100)
+					.bind(iBonusTimes100)
+					.addRowToBatch();
+			}
+		}
+	}
+
+	for (int iBuilding = 0; iBuilding < GC.getNumBuildingInfos(); ++iBuilding)
+	{
+		if (aiBuildingCounts[iBuilding] <= 0)
+			continue;
+
+		const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(static_cast<BuildingTypes>(iBuilding));
+		if (!pkBuildingInfo)
+			continue;
+
+		const char* szBuildingName = pkBuildingInfo->GetDescription();
+		kOverviewBatch.BeginLogRow()
+			.bind(iEra)
+			.bind(strPlayerName.c_str())
+			.bind(szBuildingName)
+			.bind(aiBuildingCounts[iBuilding])
+			.addRowToBatch();
+	}
+
+	kBatch.flush();
+	kOverviewBatch.flush();
 }
 
 // PRIVATE METHODS
