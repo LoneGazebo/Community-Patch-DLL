@@ -10,15 +10,5 @@
 		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP_DISABLED">
 			<Text>Unit must be in owned territory to use this ability.</Text>
 		</Row>
-		
-		<Row Tag="TXT_KEY_MISSION_SEALIFT">
-			<Text>Transportation</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISSION_SEALIFT_HELP">
-			<Text>Transportation allows Land Units to move great distances over Water in a single turn.[NEWLINE][NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Transportation rules:[ENDCOLOR] Transportation requires the entire [ICON_MOVES] Movement of a Land Unit, so you can't activate it if a unit has already used some [ICON_MOVES] Movement that turn. The unit must also be in the same tile as, or a tile adjacent to, the city with Transportation enabled. Since Transporation consumes all of the Unit's [ICON_MOVES] Movement, you'll have to wait until next turn to move it any farther.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Allowed targets:[ENDCOLOR] Transporation can target the above-mentioned tiles in the destination City (i.e., the City tile and adjacent tiles), but only passable Land tiles that don't contain another Land Unit. Although this isn't obvious, the rule essentially puts a limit on the number of Units you can Transport in a single turn from and to any single City. Only Cities that are directly [ICON_CONNECTED] Connected to the Origin City by Water tiles are eligible destinations for Transporation.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_MISSION_SEALIFT_HELP_DISABLED">
-			<Text>No valid targets for Transportation.</Text>
-		</Row>
 	</Language_en_US>
 </GameData>
