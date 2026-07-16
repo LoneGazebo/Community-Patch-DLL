@@ -183,7 +183,8 @@ CREATE TABLE GoodyHuts_FIX (
 	`Science` integer DEFAULT 0,
 	`PantheonPercent` integer DEFAULT 0,
 	`Food` integer DEFAULT 0,
-	`BorderGrowth` integer DEFAULT 0
+	`BorderGrowth` integer DEFAULT 0,
+	`Promotion` text REFERENCES UnitPromotions (Type)
 );
 
 INSERT INTO GoodyHuts_FIX
