@@ -6480,9 +6480,11 @@ bool TacticalAIHelpers::KillLoneEnemyIfPossible(CvUnit* pOurUnit, CvUnit* pEnemy
 				{
 					if (pOurUnit->TurnsToReachTarget(*it, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) == 0 && pOurUnit->canEverRangeStrikeAt(pEnemyUnit->getX(), pEnemyUnit->getY(), *it, false))
 					{
-						pOurUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
+						// PushMission might invalidate the iterator because of the shared buffer used in GetPlotsAtRangeX
+						CvPlot* pPlot = *it;
+						pOurUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pPlot->getX(), pPlot->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
 						//sometimes the unit takes an unexpected path
-						if (pOurUnit->atPlot(**it))
+						if (pOurUnit->atPlot(*pPlot))
 							pOurUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pEnemyUnit->getX(), pEnemyUnit->getY());
 						else
 							OutputDebugString("pathfinding issue ...\n");
