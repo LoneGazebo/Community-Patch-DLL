@@ -7289,6 +7289,9 @@ void CvCityEspionage::SetSpyAssignment(PlayerTypes ePlayer, int iSpyID)
 /// HasCounterSpy - if this city is occupied
 bool CvCityEspionage::HasCounterSpy() const
 {
+	if (!GET_PLAYER(m_pCity->getOwner()).isMajorCiv())
+		return false;
+
 	int iSpyID = GetSpyAssignment(m_pCity->getOwner());
 	if (iSpyID == -1)
 		return false;
