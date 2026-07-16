@@ -11,7 +11,7 @@
 
 #include "SqliteLogger.h"
 
-static void RegisterTechChoicesTable()
+inline void RegisterTechChoicesTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -28,7 +28,7 @@ static void RegisterTechChoicesTable()
 	}
 }
 
-static void RegisterReligionChoicesTable()
+inline void RegisterReligionChoicesTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -46,7 +46,7 @@ static void RegisterReligionChoicesTable()
 	}
 }
 
-static void RegisterPolicyChoicesTable()
+inline void RegisterPolicyChoicesTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -64,7 +64,7 @@ static void RegisterPolicyChoicesTable()
 	}
 }
 
-static void RegisterMilitarySummaryTable()
+inline void RegisterMilitarySummaryTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -114,7 +114,7 @@ static void RegisterMilitarySummaryTable()
 	}
 }
 
-static void RegisterWorldStateLogTable()
+inline void RegisterWorldStateLogTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -154,7 +154,7 @@ static void RegisterWorldStateLogTable()
 	}
 }
 
-static void RegisterGameResultTable()
+inline void RegisterGameResultTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -172,7 +172,7 @@ static void RegisterGameResultTable()
 }
 
 // Per-turn snapshot of which era each civ is in, one row per civ per turn.
-static void RegisterCivTurnEraTable()
+inline void RegisterCivTurnEraTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -188,7 +188,7 @@ static void RegisterCivTurnEraTable()
 	}
 }
 
-static void RegisterMapPlotsStateTable()
+inline void RegisterMapPlotsStateTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -208,7 +208,7 @@ static void RegisterMapPlotsStateTable()
 }
 
 // Per-turn snapshot of every unit owned by each major civ, one row per unit.
-static void RegisterMapUnitsStateTable()
+inline void RegisterMapUnitsStateTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -237,7 +237,7 @@ static void RegisterMapUnitsStateTable()
 // BonusYieldTimes100  = the extra flat yield layered on top of the base by external sources such as
 //                       beliefs, policies, traits, corporations, leagues, events and other buildings.
 // Percentage-based modifiers and instant/event yields are intentionally excluded (tracked elsewhere).
-static void RegisterBuildingYieldsTable()
+inline void RegisterBuildingYieldsTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -259,7 +259,7 @@ static void RegisterBuildingYieldsTable()
 }
 
 // Long-format per-belief yield breakdown, one row per (civ, belief, source, yield) per turn.
-static void RegisterReligionBeliefYieldsTable()
+inline void RegisterReligionBeliefYieldsTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -282,7 +282,7 @@ static void RegisterReligionBeliefYieldsTable()
 }
 
 // Per-turn overview of each civ's controlled building inventory (one row per building type).
-static void RegisterBuildingsOverviewTable()
+inline void RegisterBuildingsOverviewTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -305,7 +305,7 @@ static void RegisterBuildingsOverviewTable()
 // EventType is a short label derived from the instant-yield source table (Birth, PolicyUnlock,
 // Pillage, ...). YieldTimes100 is the building's attributed share of the granted yield, multiplied
 // by 100 so that fractional per-building contributions are preserved.
-static void RegisterBuildingInstantYieldsTable()
+inline void RegisterBuildingInstantYieldsTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -327,7 +327,7 @@ static void RegisterBuildingInstantYieldsTable()
 }
 
 // Long-format difficulty-bonus yield breakdown, one row per (civ, trigger, yield) each time an AI player receives an AI difficulty bonus
-static void RegisterHandicapYieldsTable()
+inline void RegisterHandicapYieldsTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
@@ -348,7 +348,7 @@ static void RegisterHandicapYieldsTable()
 }
 
 // Long-format instant-yield breakdown, one row per (civ, instant-yield type, yield) at the moment an instant yield fires.
-static void RegisterInstantYieldsTable()
+inline void RegisterInstantYieldsTable()
 {
 	if (!MOD_SQLITE_LOGGING)
 		return;
