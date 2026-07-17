@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="150">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="151">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.3.3) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.4.0) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>150</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>151</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -511,7 +511,8 @@
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
     <File md5="378E8FD9F9C8B97F2ED26FC2FDDDB5C6" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="73F5DC678120BF7E4A01858B53144689" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="70566A825DDFBEF7B611078903C92077" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Changes/AddTableIndexes.sql</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
     <File md5="E5C280A2AC65C19D051F27EE7AAE11B4" import="0">Database Changes/CoreGameSpeedChanges.sql</File>
@@ -522,10 +523,11 @@
     <File md5="1361AC0F0C844D9A3B90004AC0B8541F" import="0">Database Changes/CoreNewReplayDataSets.xml</File>
     <File md5="824B56B85CF6F7B2907EEC1D5E7EDF56" import="0">Database Changes/CoreTriggers.sql</File>
     <File md5="27432A0952039A7F7E86638ECB6C25DB" import="0">Database Changes/CoreWorldChanges.sql</File>
+    <File md5="DE13F1774FC3E61870E26444E20535B8" import="0">Database Changes/FixTypeConstraints.sql</File>
     <File md5="4015E9DD57528B6EE414D51C9130EFF3" import="0">Database Changes/GameSpeedTableChanges.sql</File>
     <File md5="48C20B3BC16D3C6749CA45B17EE66CF3" import="0">Database Changes/Misc/MissionsChanges.sql</File>
     <File md5="6E6FF873C999780077863FAC3765E435" import="0">Database Changes/Misc/NewInterfaceModes.xml</File>
-    <File md5="2123A61434FC880E07972AA8077E6301" import="0">Database Changes/Misc/NewMissions.xml</File>
+    <File md5="2123A61434FC880E07972AA8077E6301" import="0">Database Changes/Misc/CoreNewMissions.xml</File>
     <File md5="75A911EA2AB0220A51F47C09260FC716" import="0">Database Changes/NewCustomModOptions.xml</File>
     <File md5="FAA2ADBA9E1F39D09806DC631A6DAB22" import="0">Database Changes/NewEnums.xml</File>
     <File md5="476D91532E8B5E9B97198D943F101FFD" import="0">Database Changes/NewEnumTables.xml</File>
@@ -627,10 +629,10 @@
     <File md5="93390AF59DEF5A0380A5313CE5CF181E" import="0">Database Changes/Text/en_US/Notifications/CoreNotificationTextChanges.sql</File>
     <File md5="CBDA3E182DB9F43339500E8357BE1E41" import="0">Database Changes/Text/en_US/Policies/CorePolicyTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
+    <File md5="C59382A66201DBBA16DAA331DED9BF29" import="0">Database Changes/Text/en_US/UI/CoreNewMissionText.xml</File>
     <File md5="534BEA26E74A54CBBAB29D08781327E3" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
     <File md5="8F135C2AC60D586EFD0394158E70A7D8" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="49B45936BE5C915CC1F42453CB03AF7B" import="0">Database Changes/Text/en_US/UI/NewInterfaceModeText.xml</File>
-    <File md5="C59382A66201DBBA16DAA331DED9BF29" import="0">Database Changes/Text/en_US/UI/NewMissionText.xml</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
     <File md5="8BDA888FE05533BBDA015FDA10D7DA2B" import="0">Database Changes/Text/en_US/UnitPromotions/CorePromotionTextChanges.sql</File>
     <File md5="C0C038A53F42B3910523E39C54AEA5BA" import="0">Database Changes/Text/en_US/Units/CoreMissionTextChanges.sql</File>
@@ -661,7 +663,6 @@
     <File md5="5BC644094D416A7CBBEAECC9A373F1C4" import="0">Database Changes/WorldCongress/ProjectTableChanges.sql</File>
     <File md5="56CD49F1E1EA6F05F8675E4F6E82630F" import="0">Database Changes/WorldCongress/ResolutionTableChanges.sql</File>
     <File md5="559D317FE1C13235C39015E2B9A2C3BE" import="0">Database Changes/WorldMap/AncientRuinTableChanges.sql</File>
-    <File md5="D6297F60C6B7F1C4AD577850C7DC64FE" import="0">Database Changes/WorldMap/NewAncientRuins.xml</File>
     <File md5="3C8B7C377EA65FB69CCD813B5826BFD3" import="0">Database Changes/WorldMap/Features/CoreFeatureChanges.sql</File>
     <File md5="7FB57C72341D42999850BAE5637C6302" import="0">Database Changes/WorldMap/Features/FeatureTableChanges.sql</File>
     <File md5="DCB85FD3942FB43868F798CADBA2F4DF" import="0">Database Changes/WorldMap/Features/NewFeatureTables.xml</File>
@@ -683,8 +684,6 @@
     <File md5="30D0A7739D2A4AA59F560E4D816E616A" import="0">Database Changes/WorldMap/Yields/CoreNewYields.xml</File>
     <File md5="4ADFA14E7687951852BAA7B3B121AF83" import="0">Database Changes/WorldMap/Yields/CoreYieldChanges.sql</File>
     <File md5="F33370F877B756332373AB93250A44DE" import="0">Database Changes/WorldMap/Yields/YieldTableChanges.sql</File>
-    <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Migrations/2025_01_27_AddTableIndexes.sql</File>
-    <File md5="163B78378AE015A80D45E1B8EE93B3A5" import="0">Database Migrations/2026_01_17_FixTypeConstraints.sql</File>
     <File md5="546695CE536AE2E13ECCC0A538852C21" import="1">Kit/Args/CPK.Args.Each.lua</File>
     <File md5="6819884D2C1FDD48E64EACC18061EE7C" import="1">Kit/Args/CPK.Args.Empty.lua</File>
     <File md5="7699F864C526C5A55BC01B75758933A4" import="1">Kit/Args/CPK.Args.Pack.lua</File>
@@ -802,6 +801,7 @@
       <SetDllPath>CvGameCore_Expansion2.dll</SetDllPath>
     </OnGetDLLPath>
     <OnModActivated>
+      <UpdateDatabase>Database Changes\FixTypeConstraints.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\CommunityTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\NewEnumTables.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\RemapperTables.xml</UpdateDatabase>
@@ -888,7 +888,6 @@
       <UpdateDatabase>Database Changes\UnitPromotions\CoreNewPromotions.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Units\CoreNewUnitFormations.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Units\GreatPeople\CoreNewGreatPeople.xml</UpdateDatabase>
-      <UpdateDatabase>Database Changes\WorldMap\NewAncientRuins.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\WorldMap\Plots\CoreNewPlots.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\WorldMap\Yields\CoreNewYields.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\CoreGameOptionChanges.sql</UpdateDatabase>
@@ -930,7 +929,7 @@
       <UpdateDatabase>Database Changes\Units\CoreUnitSweeps.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Misc\MissionsChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Misc\NewInterfaceModes.xml</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Misc\NewMissions.xml</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Misc\CoreNewMissions.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\WorldMap\Improvements\CoreBuildSweeps.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\WorldMap\Improvements\CoreImprovementSweeps.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewAutomateText.xml</UpdateDatabase>
@@ -960,10 +959,10 @@
       <UpdateDatabase>Database Changes\Text\en_US\Notifications\CoreNotificationTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Policies\CorePolicyTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Religions\CoreReligionTextChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Text\en_US\UI\CoreNewMissionText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\UI\CoreNewUIText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\UI\CoreUITextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\UI\NewInterfaceModeText.xml</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Text\en_US\UI\NewMissionText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\UnitPromotions\CorePromotionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Units\CoreMissionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\Units\CoreSpecialUnitTextChanges.sql</UpdateDatabase>
@@ -973,8 +972,7 @@
       <UpdateDatabase>Database Changes\Text\en_US\WorldMap\CoreImprovementTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\CoreTriggers.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Remapper.sql</UpdateDatabase>
-      <UpdateDatabase>Database Migrations/2025_01_27_AddTableIndexes.sql</UpdateDatabase>
-      <UpdateDatabase>Database Migrations/2026_01_17_FixTypeConstraints.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\AddTableIndexes.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>
