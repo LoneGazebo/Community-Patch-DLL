@@ -14162,7 +14162,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible, CvS
 		}
 
 		// Player must have enough Gold
-		if (kOwner.GetTreasury()->GetGold() < upgradePrice(eUpgradeUnitType) && !kOwner.isMinorCiv())
+		if ((upgradePrice(eUpgradeUnitType) != 0 && kOwner.GetTreasury()->GetGold() < upgradePrice(eUpgradeUnitType)) && !kOwner.isMinorCiv())
 		{
 			if (toolTipSink == NULL)
 				return false;
@@ -14340,6 +14340,10 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	VALIDATE_OBJECT();
 	ASSERT(eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos(), "eUnit is not a valid unit type");
 
+	// does the discount make the unit upgrade free?
+	if (getUpgradeDiscount() == 100)
+		return 0;
+
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
 	// Player-specific upgrade cost
@@ -14354,6 +14358,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	iPrice /= iDivisor;
 	iPrice *= iDivisor;
 
+	// regular unit upgrade prices must be non-zero
 	return max(iDivisor, iPrice);
 }
 
