@@ -176,15 +176,7 @@ CREATE TABLE GoodyHuts_FIX (
 	`UnitClass` text REFERENCES UnitClasses (Type),
 	`BarbarianUnitClass` text REFERENCES UnitClasses (Type),
 	`BarbarianUnitProb` integer DEFAULT 0,
-	`MinBarbarians` integer DEFAULT 0,
-	`Production` integer DEFAULT 0,
-	`GoldenAge` integer DEFAULT 0,
-	`FreeTiles` integer DEFAULT 0,
-	`Science` integer DEFAULT 0,
-	`PantheonPercent` integer DEFAULT 0,
-	`Food` integer DEFAULT 0,
-	`BorderGrowth` integer DEFAULT 0,
-	`Promotion` text REFERENCES UnitPromotions (Type)
+	`MinBarbarians` integer DEFAULT 0
 );
 
 INSERT INTO GoodyHuts_FIX
