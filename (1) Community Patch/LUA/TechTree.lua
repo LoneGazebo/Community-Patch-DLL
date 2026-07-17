@@ -636,7 +636,7 @@ function RefreshDisplayOfSpecificTech(tech)
 		Hide(thisTechButton.CurrentlyResearching);
 		Hide(thisTechButton.Unavailable);
 		Hide(thisTechButton.Locked);
-		-- deal with free 		
+		-- deal with free
 		if isAllowedToGetTechFree or (stealingTechTargetPlayerID ~= -1 and isAllowedToStealTech) then
 			Show(thisTechButton.FreeTech);
 			Hide(thisTechButton.Available);

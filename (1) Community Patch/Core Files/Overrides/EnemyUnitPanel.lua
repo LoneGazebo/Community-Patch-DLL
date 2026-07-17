@@ -403,7 +403,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 				iTheirStrength = pTheirUnit:GetMaxDefenseStrength(pToPlot, pMyUnit, pFromPlot, false, iMyRangedSupportDamageInflicted);
 
 				iWithdrawChance = pTheirUnit:GetWithdrawChance(pMyUnit);
-				
+
 				if (iMyRangedSupportDamageInflicted > pTheirUnit:GetCurrHitPoints()) then
 					-- defender killed by RangedSupportFire, no melee combat necessary
 					iMyDamageInflicted = iMyRangedSupportDamageInflicted

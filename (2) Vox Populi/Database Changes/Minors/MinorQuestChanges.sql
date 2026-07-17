@@ -289,7 +289,6 @@ UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_ACQUIRE_CITY' A
 UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_ACQUIRE_CITY' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_NEUTRAL';
 UPDATE Helper SET Weight = 0 WHERE QuestType = 'MINOR_CIV_QUEST_ACQUIRE_CITY' AND MinorCivTraitType <> 'MINOR_CIV_TRAIT_MILITARISTIC';
 
-
 -- GLOBAL QUESTS
 -- Kill Camp
 UPDATE Helper SET Weight = 20 WHERE QuestType = 'MINOR_CIV_QUEST_KILL_CAMP' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
@@ -330,7 +329,6 @@ UPDATE Helper SET Weight = 60 WHERE QuestType = 'MINOR_CIV_QUEST_HORDE' AND Mino
 UPDATE Helper SET Weight = 50 WHERE QuestType = 'MINOR_CIV_QUEST_REBELLION';
 UPDATE Helper SET Weight = 80 WHERE QuestType = 'MINOR_CIV_QUEST_REBELLION' AND MinorCivTraitType = 'MINOR_CIV_TRAIT_MARITIME' AND MinorCivPersonalityType = 'MINOR_CIV_PERSONALITY_HOSTILE';
 
-
 -- Now move this data to the table where it is used!
 -- Different quest weights by era are supported, but are currently only used to gatekeep certain quests
 INSERT INTO MinorCivilizations_QuestWeights
@@ -341,21 +339,26 @@ FROM Helper a, Eras b;
 
 DROP TABLE Helper;
 
-
 -- Block contest and Influence boost quests prior to the Medieval Era
 UPDATE MinorCivilizations_QuestWeights
 SET Weight = 0
-WHERE QuestType IN ('MINOR_CIV_QUEST_CONTEST_FAITH', 'MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS', 'MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS', 'MINOR_CIV_QUEST_CONTEST_TECHS', 'MINOR_CIV_QUEST_INFLUENCE')
-AND EraType IN (SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_MEDIEVAL'));
+WHERE QuestType IN (
+	'MINOR_CIV_QUEST_CONTEST_FAITH',
+	'MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS',
+	'MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS',
+	'MINOR_CIV_QUEST_CONTEST_TECHS',
+	'MINOR_CIV_QUEST_INFLUENCE'
+)
+AND EraType IN (SELECT a.Type FROM Eras a WHERE a.ID < (SELECT ID FROM Eras WHERE Type = 'ERA_MEDIEVAL'));
 
 -- Block the Find-City-State quest prior to the Renaissance Era
 UPDATE MinorCivilizations_QuestWeights
 SET Weight = 0
 WHERE QuestType = 'MINOR_CIV_QUEST_FIND_CITY_STATE'
-AND EraType IN (SELECT Type FROM Eras WHERE ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE'));
+AND EraType IN (SELECT a.Type FROM Eras a WHERE a.ID < (SELECT ID FROM Eras WHERE Type = 'ERA_RENAISSANCE'));
 
 -- Block the Spread Religion quest beginning in the Industrial Era
 UPDATE MinorCivilizations_QuestWeights
 SET Weight = 0
 WHERE QuestType = 'MINOR_CIV_QUEST_SPREAD_RELIGION'
-AND EraType IN (SELECT Type FROM Eras WHERE ID >= (SELECT ID FROM Eras WHERE Type = 'ERA_INDUSTRIAL'));
+AND EraType IN (SELECT a.Type FROM Eras a WHERE a.ID >= (SELECT ID FROM Eras WHERE Type = 'ERA_INDUSTRIAL'));

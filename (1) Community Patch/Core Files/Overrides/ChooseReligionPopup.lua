@@ -531,7 +531,7 @@ local function SetupExistingBeliefButtons(tSlotBeliefs)
 	for eSlot, eBelief in ipairs(tSlotBeliefs) do
 		local kBeliefInfo = GameInfo.Beliefs[eBelief];
 		assert(kBeliefInfo, "Savegame or database could be corrupt. If this issue persists, consider reinstalling the mod.");
-		if kBeliefInfo.Reformation then 
+		if kBeliefInfo.Reformation then
 			assert( eSlot == #tSlotBeliefs , "Did you reform before founding?!" );
 			break;
 		end
