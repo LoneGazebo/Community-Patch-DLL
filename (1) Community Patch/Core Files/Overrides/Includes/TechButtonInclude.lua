@@ -644,7 +644,7 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		GenerateNextButtonCustom(L(kTechInfo.MiscButtonText));
 		if iButtonIndex > iButtonCount then return iButtonCount end
 	end
-	
+
 	-- Yield-related
 	local tSpecialistBoosts = {};
 	local tTerrainBoosts = {};

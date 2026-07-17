@@ -1225,7 +1225,6 @@
 			<DefaultUnitAI>UNITAI_DIPLOMAT</DefaultUnitAI>
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<NumInfPerEra>15</NumInfPerEra>
-			<RestingPointChange>30</RestingPointChange>
 			<ExtraSpies>50</ExtraSpies>
 			<WorkRate>1</WorkRate>
 			<MoveRate>GREAT_PERSON</MoveRate>

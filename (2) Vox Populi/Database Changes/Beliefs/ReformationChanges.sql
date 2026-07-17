@@ -181,7 +181,7 @@ WHERE Type = 'BELIEF_UNITY_OF_PROPHETS';
 
 CREATE TEMP TABLE Helper3 (
 	YieldType TEXT,
-	Yield integer
+	Yield INTEGER
 );
 
 INSERT INTO Helper3

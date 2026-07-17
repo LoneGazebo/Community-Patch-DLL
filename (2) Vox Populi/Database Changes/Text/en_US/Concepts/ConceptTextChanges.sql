@@ -293,15 +293,15 @@ UPDATE Language_en_US
 SET Text = 'If there is a road between your Capital and another of your cities, those cities have a City Connection. City Connections give your civilization gold bonuses each turn, the amount depending upon the size of the cities involved. ([COLOR_YELLOW]Lighthouses[ENDCOLOR] can also create city connections between coastal cities.) See the section on City Connections for details.'
 WHERE Tag = 'TXT_KEY_WORKERS_TRADEROUTES_HEADING3_BODY';
 
--- espionage section w/ old names in comment
-UPDATE Language_en_US 
+-- Espionage section w/ old names in comment
+UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Spies and Diplomats[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_SPIES_TOPIC';
 UPDATE Language_en_US
 SET Text = 'Spies are gained by accumulating [ICON_SPY_POINT] Spy Points, and may be assigned in four different ways: as domestic Counterspies in your own Cities, as Diplomats in foreign [ICON_CAPITAL] Capitals, and as Agents in Foreign Cities to conduct Missions or in [ICON_CITY_STATE] City-States to Rig their Elections.[NEWLINE][NEWLINE]Counterspies[NEWLINE][ICON_BULLET] Generate yields when foreign Spies are Identified or Killed in the City.[NEWLINE][ICON_BULLET] Can choose a Focus that provides passive effects, such as decreased [ICON_HAPPINESS_3] Needs in exchange for reduced [ICON_TOURISM] Tourism output.[NEWLINE][ICON_BULLET] Blocks certain foreign Spy Missions from happening based on their Focus.[NEWLINE][NEWLINE]Diplomats[NEWLINE][ICON_BULLET] +20% [ICON_TOURISM] Tourism with the Civilization.[NEWLINE][ICON_BULLET] The ability to Purchase Votes from that Player at the World Congress.[NEWLINE][ICON_BULLET] Intrigue, which informs on domestic and military planning and can be shared with third parties for a Diplomatic boost.[NEWLINE][ICON_BULLET] Access to various screens of the Player, such as the Military Display which reveals the number (and type) of Units.[NEWLINE][NEWLINE]Agents in Major Cities[NEWLINE][ICON_BULLET] Gain Network Points to perform Spy Missions[NEWLINE]Siphon [ICON_RESEARCH] Science from the City, which gives you Yields equal to a percent of the City''s (does not reduce those gained by the owner) each turn.[NEWLINE][ICON_BULLET] Vision over the City Screen and nearby Tiles.[NEWLINE][NEWLINE]Agents in City-States[NEWLINE][ICON_BULLET] The ability to Rig the repeating Election event, increasing your [ICON_INFLUENCE] Influence in the City-State and decreasing that of all other Players.'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_SPIES_SUMMARY';
 
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = 'Moving Spies'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_MOVING_SPIES_TOPIC';
 UPDATE Language_en_US
@@ -309,21 +309,21 @@ SET Text = Text || '[NEWLINE][NEWLINE]The time it takes for Spies to move to For
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_MOVING_SPIES_SUMMARY';
 
 -- Less Advanced Civilizations
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Network Points[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_ADVISOR_ESPIONAGE_CANT_STEAL_ANYMORE_TOPIC';
 UPDATE Language_en_US
 SET Text = 'Network Points are passively gained every turn by Spies in the Cities of Major Civilizations. The amount of Network Points gained can be increased by attaining higher ranks of [ICON_TOURISM] Cultural Influence over the relevant Civilization, and by adopting certain Policies and building certain Wonders. The amount of Network Points is lowered by the [ICON_CITY_SECURITY] Security level of the City, which the owner can increase with certain Buildings, Wonders, and Policies. Security is lowered for every [ICON_CITIZEN] Citizen in the City, and each [ICON_INTERNATIONAL_TRADE] Trade Route sent to the City.'
 WHERE Tag = 'TXT_KEY_ADVISOR_ESPIONAGE_CANT_STEAL_ANYMORE_SUMMARY';
 
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Residency Bonuses[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_SURVEILLANCE_TOPIC';
 UPDATE Language_en_US
 SET Text = 'When a Spy stationed in the City of a Major Civilization reaches certain thresholds of Network Points for the first time, they achieve a permanent bonus that lasts until they leave the City or are Killed:[NEWLINE][ICON_BULLET] For Agents this bonus includes a Siphon of [ICON_RESEARCH] Science, and vision over the City and its Tiles.[NEWLINE][ICON_BULLET] For Diplomats this bonus allows the trading of increasing numbers of Votes at the World Congress, and viewing various Civilization screens such as the Tech Tree and Policy Screen of the other Player. At higher levels the [ICON_GOLD] Gold from [ICON_INTERNATIONAL_TRADE] Trade Routes is increased by 20%, a large boost.'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_SURVEILLANCE_SUMMARY';
 
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Spy Missions[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_ADVISOR_ESPIONAGE_TECH_STOLEN_TOPIC';
 UPDATE Language_en_US
@@ -331,15 +331,15 @@ SET Text = 'Agents stationed in the Cities of Major Civilizations can spend Netw
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_STEALING_TECHS_SUMMARY';
 
 UPDATE Language_en_US
-SET Text = Text || '[NEWLINE][NEWLINE]' || 'The list of [ICON_SPY] Spy Missions: ' || '[NEWLINE][NEWLINE]' || 
-    (
-        SELECT group_concat(
-            '{' || Description || '} ([COLOR_POSITIVE_TEXT]' || NetworkPointsNeeded || ' NP[ENDCOLOR])' || '[NEWLINE]' || '{' || Pedia || '} ',
-            '[NEWLINE][NEWLINE]'
-        )
-        FROM CityEventChoices
-   	WHERE IsEspionageMission = 1
-    )
+SET Text = Text || '[NEWLINE][NEWLINE]' || 'The list of [ICON_SPY] Spy Missions: ' || '[NEWLINE][NEWLINE]' ||
+(
+	SELECT GROUP_CONCAT(
+		'{' || Description || '} ([COLOR_POSITIVE_TEXT]' || NetworkPointsNeeded || ' NP[ENDCOLOR])' || '[NEWLINE]' || '{' || Pedia || '} ',
+		'[NEWLINE][NEWLINE]'
+	)
+	FROM CityEventChoices
+	WHERE IsEspionageMission = 1
+)
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_STEALING_TECHS_SUMMARY';
 
 UPDATE Language_en_US
@@ -349,14 +349,14 @@ UPDATE Language_en_US
 SET Text = 'Spies can be used to increase your influence with [ICON_CITY_STATE] City-States by [ICON_PUPPET] "Rigging Elections". Rigging an election, a passive ability, occurs every 15 turns while your Spy is located within a City-State. If you are the only Spy in the City-State, your [ICON_INFLUENCE] Influence will increase while everyone else''s will drop.[NEWLINE][NEWLINE]The presence of an enemy Spy can cause this mission to fail, as only one Civilization can succeed in Rigging the Election; the chance is higher the more turns of the Election cycle a Spy is present for. No worries if you do not succeed though, as failure is not dangerous to your Spy. Finally, if you Rig the Election consecutive times, the bonus is increased.'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_RIG_ELECTION_SUMMARY';
 
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Identifying and Killing Spies[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_GETTING_CAUGHT_TOPIC';
 UPDATE Language_en_US
 SET Text = 'Spy Missions, unlike Rigging Elections, always succeed. However there are two negative outcomes that can occur:[NEWLINE][ICON_BULLET]The Spy may be [COLOR_YELLOW]Identified[ENDCOLOR]. In which case the opponent will be able to diplomatically adjust to your actions. If you use Spy Missions with a high chance to be Identified, you should expect the target to become more hostile. Missions which have a negative effect on their target have a higher chance of leading to Identification.[NEWLINE][ICON_BULLET]The Spy may be [COLOR_NEGATIVE_TEXT]Killed[ENDCOLOR]. In this event, not only will you lose all accumulated bonuses, but you will have to wait a number of turns to recruit a replacement. Missions which have a positive effect for you have a higher chance of resulting in a fatality.[NEWLINE]Note: A Spy may be both Identified and Killed in the same mission. The independent probabilities for these events are shown on each Spy Mission.[NEWLINE][NEWLINE]When Spies are Identified or Killed, the defending player may receive yields in compensation. These are determined by factors such as Buildings, Wonders, Policies, and finally the presence of a Counterspy.'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_GETTING_CAUGHT_SUMMARY';
 
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Counter-Intelligence[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_COUNTER_INTEL_TOPIC';
 UPDATE Language_en_US
@@ -364,20 +364,19 @@ SET Text = 'By default there are 5 Counterspy Focus options. Each grants Yields 
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_COUNTER_INTEL_SUMMARY';
 
 UPDATE Language_en_US
-SET Text = Text || '[NEWLINE][NEWLINE]' || 'The following is the list of [ICON_SPY] Counterspy Focuses: ' || '[NEWLINE][NEWLINE]' || 
-    (
-        SELECT group_concat(
-            '{' || c.Description || '} ([COLOR_CYAN]{' || t.Description || '}[ENDCOLOR])' || '[NEWLINE]' || '{' || c.Help || '} ',
-            '[NEWLINE][NEWLINE]'
-        )
-        FROM CityEventChoices c, Technologies t
-   	    WHERE IsCounterSpyMission = 1
-	      AND t.Type = c.PrereqTech
-    )
+SET Text = Text || '[NEWLINE][NEWLINE]' || 'The following is the list of [ICON_SPY] Counterspy Focuses: ' || '[NEWLINE][NEWLINE]' ||
+(
+	SELECT GROUP_CONCAT(
+		'{' || c.Description || '} ([COLOR_CYAN]{' || t.Description || '}[ENDCOLOR])' || '[NEWLINE]' || '{' || c.Help || '} ',
+		'[NEWLINE][NEWLINE]'
+	)
+	FROM CityEventChoices c, Technologies t
+	WHERE IsCounterSpyMission = 1 AND t.Type = c.PrereqTech
+)
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_COUNTER_INTEL_SUMMARY';
 
 -- Constabularies and Police
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]City Security[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_POLICE_STATION_TOPIC';
 UPDATE Language_en_US
@@ -385,7 +384,7 @@ SET Text = 'Concerned you are too soft a target for other Civilizations'' Espion
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_POLICE_STATION_SUMMARY';
 
 -- National Intelligence Agency
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]National Wonders[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_NATIONAL_INTELLIGENCE_TOPIC';
 UPDATE Language_en_US
@@ -393,14 +392,14 @@ SET Text = 'An important concept in Espionage are National Wonders. Starting wit
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_NATIONAL_INTELLIGENCE_SUMMARY';
 
 -- The Great Firewall
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]World Wonders[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_GREAT_FIREWALL_TOPIC';
 UPDATE Language_en_US
 SET Text = 'Some [ICON_WONDER] World Wonders boost [ICON_SPY_POINT] Spy Points and may also provide other relevant bonuses, such as Yields when you Conduct Spy Missions. Since only one Player can construct these, they represent a way to increase your Espionage ability whilst deny such bonuses to your enemies. Are there shady characters on your map, coveting your technological advances? Deprive them of these key sources of power by any means open to you, including perhaps the Assassination of their Governors?'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_GREAT_FIREWALL_SUMMARY';
 
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Statecraft[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_MORE_TOPIC';
 UPDATE Language_en_US
@@ -408,14 +407,14 @@ SET Text = 'An Empire that wants to make use of the Espionage system to its full
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_MORE_SUMMARY';
 
 -- Spy Experience
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Ideologies[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_PROMOTIONS_TOPIC';
 UPDATE Language_en_US
 SET Text = 'Further to Statecraft, the various Ideologies on offer in the later part of the game all offer Tenets that interact with the Espionage system. Different bonuses are on offer, so if you are strongly invested in Espionage it may be worth taking this into account when you make your choice. For example in Freedom there is a powerful boost to Rigging City-State Elections, whereas Order has a focus on Research, siphoning more Science passively and generating Science from Identifying foreign Agents.'
 WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_PROMOTIONS_SUMMARY';
 
--- end of espionage section
+-- End of espionage section
 
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Purchasing an Item[ENDCOLOR]'

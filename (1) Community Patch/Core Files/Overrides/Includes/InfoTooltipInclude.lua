@@ -971,7 +971,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_EXTRA_PLUNDER_GOLD", kUnitInfo.HighSeaRaider);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_EXPEND_COPY_TILE_YIELD", kUnitInfo.CopyYieldsFromExpendTile);
 	AddTooltipIfTrue(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_MOVE_AFTER_UPGRADE", kUnitInfo.MoveAfterUpgrade);
-	
+
 	AddTooltipPositive(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE", kUnitInfo.CulExpOnDisbandUpgrade);
 
 	-- Block/weaken active spread
@@ -2692,7 +2692,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	else
 		AddTooltipPositive(tGlobalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_FREE_SPIES", kBuildingInfo.ExtraSpies);
 	end
-	
+
 	for row in GameInfo.Building_BonusFromAccomplishments{BuildingType = kBuildingInfo.Type} do
 		local kAccomplishmentInfo = GameInfo.Accomplishments[row.AccomplishmentType];
 		if MOD_BALANCE_SPY_POINTS then
@@ -3752,7 +3752,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 					tAccomplishmentBoosts[eAccomplishment][eYield] = tAccomplishmentBoosts[eAccomplishment][eYield] + row.Yield;
 				end
 			end
-			
+
 			for row in GameInfo.Building_YieldModifiersFromAccomplishments{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
 				local kAccomplishmentInfo = GameInfo.Accomplishments[row.AccomplishmentType];
 				local eAccomplishment = kAccomplishmentInfo.ID;
@@ -3848,11 +3848,11 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 			for row in GameInfo.Building_YieldPerFriendTimes100{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
 				tCSFriendBoosts[eYield] = row.Yield / 100;
 			end
-			
+
 			for row in GameInfo.Building_YieldPerAllyTimes100{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
 				tCSAllyBoosts[eYield] = row.Yield / 100;
 			end
-			
+
 			local iGAYield = 0;
 			local iGAYieldCap = 0;
 			for row in GameInfo.Building_YieldChangesPerGoldenAge{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
