@@ -9190,9 +9190,10 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		
 		if (iNumSpiesInCity > 0)
 		{
-			int iTurnsOfEspionage = max(1, GC.getGame().getGameTurn() - m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted);
+			int iTurnsOfEspionage = GC.getGame().getGameTurn() - m_pPlayer->GetEspionageAI()->m_iTurnEspionageStarted;
 			iTurnsOfEspionage *= 100;
 			iTurnsOfEspionage /= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iTurnsOfEspionage = max(1, iTurnsOfEspionage);
 			//TODO: actually evaluate yields from counterspy ID/Kill.
 			// scale by how much of the time the city has been under a spy cooldown (multiple players' spies can exceed 100%)
 			iScore += iMaxScore * (100 + 100 * iEspionageCooldown * iNumCityRobbed / iTurnsOfEspionage) / 100;
