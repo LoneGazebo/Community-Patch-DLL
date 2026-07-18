@@ -12217,6 +12217,9 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	{
 		if (!pUnit)
 			return false;
+
+		if (pUnit->HasPromotion((PromotionTypes)kGoodyInfo.getPromotionType()))
+			return false;
 	}
 
 	///////////////////////////////////////
