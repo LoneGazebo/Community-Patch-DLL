@@ -3913,15 +3913,15 @@ bool CvMinorCivQuest::DoCancelQuest()
 	}
 	case MINOR_CIV_QUEST_CONTEST_ARTSY_UNITS:
 	{
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_ARTSY_UNITS");
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONTEST_ARTSY_UNITS");
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_ARTSY_UNITS");
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_ARTSY_UNITS");
 		veNamesToShow = GetContestLeaders();
 		break;
 	}
 	case MINOR_CIV_QUEST_CONTEST_SCIENCEY_UNITS:
 	{
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_CONTEST_SCIENCEY_UNITS");
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_CONTEST_SCIENCEY_UNITS");
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_SCIENCEY_UNITS");
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_SCIENCEY_UNITS");
 		veNamesToShow = GetContestLeaders();
 		break;
 	}
