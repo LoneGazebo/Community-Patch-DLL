@@ -274,7 +274,7 @@ public:
 	bool IsHealIfDefeatExcludeBarbarians() const;
 	bool IsEmbarkedAllWater() const;
 	bool IsEmbarkedDeepWater() const;
-	bool IsCityAttackSupport() const;
+	bool IsCityAttackOnly() const;
 	bool IsCaptureDefeatedEnemy() const;
 	bool IsIgnoreGreatGeneralBenefit() const;
 	bool IsIgnoreZOC() const;
@@ -312,6 +312,7 @@ public:
 	int GetNearbyHealNeutralTerritory() const;
 	int GetNearbyHealFriendlyTerritory() const;
 	int GetPassiveAoEHeal() const;
+	int GetJammingRadius() const;
 	int GetAdjacentEnemySapMovement() const;
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -637,6 +638,7 @@ protected:
 	int m_iAdjacentEnemySapMovement;
 	bool m_bCanHeavyCharge;
 	int m_iPassiveAoEHeal;
+	int m_iJammingRadius;
 
 	CvString m_strSound;
 
@@ -788,9 +790,6 @@ FDataStream& operator<<(FDataStream&, const CvUnitPromotions&);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 namespace PromotionArrayHelpers
 {
-void ReadV3(FDataStream& kStream, CvBitfield& kPromotions);
-void Read(FDataStream& kStream, CvBitfield& kPromotions);
-void Write(FDataStream& kStream, const CvBitfield& kPromotions, int iArraySize);
 }
 
 #endif //CIV5_PROMOTION_CLASSES_H

@@ -316,6 +316,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAdjacentEnemySapMovement(0),
 	m_bCanHeavyCharge(false),
 	m_iPassiveAoEHeal(0),
+	m_iJammingRadius(0),
 	m_piTerrainAttackPercent(NULL),
 	m_piTerrainDefensePercent(NULL),
 	m_piFeatureAttackPercent(NULL),
@@ -334,7 +335,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piFortificationYield(NULL),
 	m_piUnitCombatModifierPercent(NULL),
 	m_piUnitCombatModifierPercentAttack(NULL),
-		m_piUnitCombatModifierPercentDefense(NULL),
+	m_piUnitCombatModifierPercentDefense(NULL),
 	m_piUnitClassModifierPercent(NULL),
 	m_piUnitClassAttackModifier(NULL),
 	m_piUnitClassDefenseModifier(NULL),
@@ -577,6 +578,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyHealNeutralTerritory = kResults.GetInt("NearbyHealNeutralTerritory");
 	m_iNearbyHealFriendlyTerritory = kResults.GetInt("NearbyHealFriendlyTerritory");
 	m_iPassiveAoEHeal = kResults.GetInt("PassiveAoEHeal");
+	m_iJammingRadius = kResults.GetInt("JammingRadius");
 
 	m_iAdjacentEnemySapMovement = kResults.GetInt("AdjacentEnemySapMovement");
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
@@ -2706,7 +2708,7 @@ bool CvPromotionEntry::IsEmbarkedDeepWater() const
 }
 
 /// Accessor: Does this unit only attack cities
-bool CvPromotionEntry::IsCityAttackSupport() const
+bool CvPromotionEntry::IsCityAttackOnly() const
 {
 	return m_bCityAttackOnly;
 }
@@ -2867,6 +2869,11 @@ int CvPromotionEntry::GetNearbyHealFriendlyTerritory() const
 int CvPromotionEntry::GetPassiveAoEHeal() const
 {
 	return m_iPassiveAoEHeal;
+}
+
+int CvPromotionEntry::GetJammingRadius() const
+{
+	return m_iJammingRadius;
 }
 
 int CvPromotionEntry::GetAdjacentEnemySapMovement() const
@@ -3997,119 +4004,4 @@ bool CvUnitPromotions::IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlaye
 	}
 
 	return false;
-}
-
-// Read the saved promotions.  Entries are saved as string values, all entries are saved.
-void PromotionArrayHelpers::ReadV3(FDataStream& kStream, CvBitfield& kPromotions)
-{
-	int iNumEntries = 0;
-	CvString sTemp;
-	int iType = 0;
-
-	kStream >> iNumEntries;
-
-	kPromotions.SetSize( iNumEntries );
-
-	for(int iI = 0; iI < iNumEntries; iI++)
-	{
-		kStream >> sTemp;
-		if(sTemp == "PROMOTION_OLIGARCHY")
-		{
-			bool bTemp = false;
-			kStream >> bTemp;
-		}
-		else
-		{
-			iType = GC.getInfoTypeForString(sTemp);
-			if(iType != -1)
-			{
-				bool bValue = false;
-				kStream >> bValue;
-				kPromotions.SetBit(iType, bValue);
-			}
-			else
-			{
-				CvString szError;
-				szError.Format("LOAD ERROR: Promotion Type not found: %s", sTemp.c_str());
-				GC.LogMessage(szError.GetCString());
-				ASSERT(false, szError);
-				bool bDummy = false;
-				kStream >> bDummy;
-			}
-		}
-	}
-}
-
-// Read the saved promotions.  Entries are saved as hash values
-void PromotionArrayHelpers::Read(FDataStream& kStream, CvBitfield& kPromotions)
-{
-	int iNumEntries = 0;
-	int iType = 0;
-
-	kStream >> iNumEntries;
-
-	kPromotions.SetSize( iNumEntries );
-
-	uint uiHashTemp = 0;
-	uint uiOligarchyHash = FStringHash("PROMOTION_OLIGARCHY");
-	for(int iI = 0; iI < iNumEntries; iI++)
-	{
-		kStream >> uiHashTemp;
-		if(uiHashTemp == uiOligarchyHash)
-		{
-			bool bTemp = false;
-			kStream >> bTemp;
-		}
-		else
-		{
-			iType = GC.getInfoTypeForHash(uiHashTemp);
-			if(iType != -1)
-			{
-				bool bValue = false;
-				kStream >> bValue;
-				kPromotions.SetBit(iType, bValue);
-			}
-			else
-			{
-				CvString szError;
-				szError.Format("LOAD ERROR: Promotion Type not found for hash: %u", uiHashTemp);
-				GC.LogMessage(szError.GetCString());
-				ASSERT(false, szError);
-				bool bDummy = false;
-				kStream >> bDummy;
-			}
-		}
-	}
-}
-
-// Save the promotions.  Entries are saved as hash values and only the entries that are 'on' are saved
-void PromotionArrayHelpers::Write(FDataStream& kStream, const CvBitfield& kPromotions, int iArraySize)
-{
-	// We are only going to save the 'on' bit, so we have to count them
-	int iCount = 0;
-
-	for(int iI = 0; iI < iArraySize; iI++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-		if (kPromotions.GetBit(ePromotion) && GC.getPromotionInfo(ePromotion) != NULL)
-			++iCount;
-	}
-
-	kStream << iCount;
-
-	for(int iI = 0; iI < iArraySize; iI++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-		bool bValue = kPromotions.GetBit(ePromotion);
-		if (bValue)
-		{
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkPromotionInfo)
-			{
-				uint uiHash = FStringHash( pkPromotionInfo->GetType() );		// Save just the hash
-				kStream << uiHash;
-				kStream << bValue;
-			}
-		}
-	}
 }

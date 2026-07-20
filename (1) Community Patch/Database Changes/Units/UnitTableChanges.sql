@@ -117,6 +117,9 @@ ALTER TABLE Units ADD CopyYieldsFromExpendTile boolean DEFAULT 0;
 -- When unit is expended, all owned units on the same tile gain XP
 ALTER TABLE Units ADD TileXPOnExpend integer DEFAULT 0;
 
+-- Unit (existing and new) gains (% of map explored * X) XP
+ALTER TABLE Units ADD XPFromExploration integer DEFAULT 0;
+
 -- EVENTS_CAN_MOVE_INTO
 ALTER TABLE Units ADD SendCanMoveIntoEvent boolean DEFAULT 0;
 

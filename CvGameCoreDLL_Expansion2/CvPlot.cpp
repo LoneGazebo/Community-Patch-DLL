@@ -3684,23 +3684,40 @@ bool CvPlot::HasAirCover(PlayerTypes eDefendingPlayer) const
 	if (eDefendingPlayer == NO_PLAYER)
 		return false;
 
-	CvPlayerAI& kPlayer = GET_PLAYER(eDefendingPlayer);
-	const std::vector<std::pair<int, int>>& possibleUnits = kPlayer.GetPossibleInterceptors();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	int iX = getX();
+	int iY = getY();
+	CvPlayer& kPlayer = GET_PLAYER(eDefendingPlayer);
+	const vector<PlayerTypes>& vEnemies = kPlayer.GetPlayersAtWarWith();
+	const vector<SAreaEffectUnitInfo>& vAreaEffectUnits = kPlayer.GetAreaEffectUnits();
+	for (vector<SAreaEffectUnitInfo>::const_iterator it = vAreaEffectUnits.begin(); it != vAreaEffectUnits.end(); ++it)
 	{
-		CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		CvUnit* pInterceptorUnit = kPlayer.getUnit(it->first);
-
-		if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
+		// Distance check
+		int iPlotDistance = plotDistance(iX, iY, it->iX, it->iY);
+		if (iPlotDistance > it->iInterceptRange)
 			continue;
 
-		// Must not have already intercepted this turn
-		if (!pInterceptorUnit->canInterceptNow())
-			continue;
+		// Is this unit jammed?
+		if (it->eDomain == DOMAIN_LAND)
+		{
+			CvPlot* pInterceptorPlot = GC.getMap().plotUnchecked(it->iX, it->iY);
 
-		// Test range
-		int iDistance = plotDistance(*pInterceptorPlot, *this);
-		if (iDistance <= pInterceptorUnit->GetAirInterceptRange())
+			bool bJammed = false;
+			for (CivsList::const_iterator it2 = vEnemies.begin(); it2 != vEnemies.end(); ++it2)
+			{
+				if (pInterceptorPlot->IsJammingActive(*it2))
+				{
+					bJammed = true;
+					break;
+				}
+			}
+
+			if (bJammed)
+				continue;
+		}
+
+		// Can this unit intercept right now?
+		CvUnit* pInterceptorUnit = kPlayer.getUnit(it->iUnitID);
+		if (pInterceptorUnit->canInterceptNow())
 			return true;
 	}
 
@@ -3720,73 +3737,91 @@ int CvPlot::GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttacking
 CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* pAttackingUnit /* = NULL */, 
 	bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/, int* piNumPossibleInterceptors) const
 {
-	if (eAttackingPlayer == NO_PLAYER)
-		return NULL;
-
+	PRECONDITION(eAttackingPlayer != NO_PLAYER, "eAttackingPlayer is not assigned a valid value");
 	VALIDATE_OBJECT();
-	CvUnit* pBestUnit = 0;
+
+	if (piNumPossibleInterceptors)
+		*piNumPossibleInterceptors = 0;
+
+	CvPlayer& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+	CvTeam& kAttackingTeam = GET_TEAM(kAttackingPlayer.getTeam());
+	const CivsList& vTeammates = kAttackingTeam.getPlayers();
+
+	int iX = getX();
+	int iY = getY();
+	CvUnit* pBestUnit = NULL;
 	int iBestValue = 0;
 	int iBestDistance = INT_MAX;
 
 	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	// Note that the barbarians are not included here, to they can never intercept
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(eAttackingPlayer).GetPlayersAtWarWith();
-
-	for(size_t iI = 0; iI < vEnemies.size(); iI++)
+	// Note that the barbarians are not included here, so they can never intercept
+	const std::vector<PlayerTypes>& vEnemies = kAttackingPlayer.GetPlayersAtWarWith();
+	for (CivsList::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
 	{
-		CvPlayerAI& kLoopPlayer = GET_PLAYER(vEnemies[iI]);
-		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
+		CvPlayer& kLoopPlayer = GET_PLAYER(*it);
 
-		//stealth unit? no intercept
-		if(pAttackingUnit && pAttackingUnit->isInvisible(eLoopTeam, false, false))
+		// Stealth unit? no intercept
+		if (pAttackingUnit && pAttackingUnit->isInvisible(kLoopPlayer.getTeam(), false, false))
+			continue;
+			
+		// Do not violate neutral players' airspace
+		if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(*it))
 			continue;
 
-		const std::vector<std::pair<int, int>>& possibleUnits = kLoopPlayer.GetPossibleInterceptors();
-		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+		const vector<SAreaEffectUnitInfo>& vAreaEffectUnits = kLoopPlayer.GetAreaEffectUnits();
+		for (vector<SAreaEffectUnitInfo>::const_iterator it2 = vAreaEffectUnits.begin(); it2 != vAreaEffectUnits.end(); ++it2)
 		{
-			CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(GET_PLAYER(eAttackingPlayer).getTeam()))
+			// Doing the easy checks first
+			int iValue = it2->iInterceptValue;
+			if (!piNumPossibleInterceptors && iValue < iBestValue)
 				continue;
 
-			//first a very rough distance check to avoid expensive unit lookup
-			int iDistance = plotDistance(*pInterceptorPlot, *this);
-			if (iDistance > 11)
+			if (bLandInterceptorsOnly && it2->eDomain != DOMAIN_LAND)
 				continue;
 
-			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it->first);
-			if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
+			int iPlotDistance = plotDistance(iX, iY, it2->iX, it2->iY);
+			if (iPlotDistance > it2->iInterceptRange)
 				continue;
 
-			// Must not have already intercepted this turn
+			if (!piNumPossibleInterceptors && iValue == iBestValue && iPlotDistance > iBestDistance)
+				continue;
+
+			/* The slower checks are below */
+
+			// Is the plot visible?
+			CvPlot* pInterceptorPlot = GC.getMap().plotUnchecked(it2->iX, it2->iY);
+			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(kAttackingPlayer.getTeam()))
+				continue;
+
+			// Is the plot jammed by us?
+			if (it2->eDomain == DOMAIN_LAND)
+			{
+				bool bJammed = false;
+				for (CivsList::const_iterator it3 = vTeammates.begin(); it3 != vTeammates.end(); ++it3)
+				{
+					if (pInterceptorPlot->IsJammingActive(*it3))
+					{
+						bJammed = true;
+						break;
+					}
+				}
+
+				if (bJammed)
+					continue;
+			}
+
+			// Can this unit intercept right now?
+			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it2->iUnitID);
 			if (!pInterceptorUnit->canInterceptNow())
 				continue;
 
-			// Check conditions
-			if (bLandInterceptorsOnly && pInterceptorUnit->getDomainType() != DOMAIN_LAND)
-				continue;
-			if (iDistance > pInterceptorUnit->GetAirInterceptRange())
-				continue;
-			
-			//do not violate neutral players' airspace
-			if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
-				continue;
-
-			// we're fine with truncation here; take promotions boosting intercept strength into account
-			int attackStrength = (pInterceptorUnit->GetBestAttackStrength() * (100 + pInterceptorUnit->GetInterceptionCombatModifier())) / 100;
-			
-			// interceptionProbability contains product of actual intercept chance and health percentage; lets be careful with air units at low health in case of air sweeps
-			int healthFactor = pInterceptorUnit->interceptionProbability();
-			if (pInterceptorUnit->getDomainType() == DOMAIN_AIR)
-				healthFactor = (healthFactor * (pInterceptorUnit->GetCurrHitPoints() * 100) / pInterceptorUnit->GetMaxHitPoints()) / 100;
-			
-			int iValue = attackStrength * healthFactor;
-
-			if (iValue>0 && piNumPossibleInterceptors)
+			// All checks passed, increment the interceptor count and save the best score
+			if (piNumPossibleInterceptors)
 				(*piNumPossibleInterceptors)++;
 
-			if( iValue>iBestValue || (iValue==iBestValue && iDistance<iBestDistance) )
+			if (iValue > iBestValue || (iValue == iBestValue && iPlotDistance < iBestDistance))
 			{
-				iBestDistance = iDistance;
+				iBestDistance = iPlotDistance;
 				iBestValue = iValue;
 				pBestUnit = pInterceptorUnit;
 			}
@@ -12009,6 +12044,20 @@ void CvPlot::SetTeamImpassable(TeamTypes eTeam, bool bValue)
 	PRECONDITION(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abIsImpassable[eTeam] = bValue;
 }
+
+bool CvPlot::IsJammingActive(PlayerTypes ePlayer) const
+{
+	return m_bfJammingActive.GetBit(ePlayer);
+}
+
+void CvPlot::SetJammingActive(PlayerTypes ePlayer, bool bValue)
+{
+	if (bValue)
+		m_bfJammingActive.SetBit(ePlayer);
+	else
+		m_bfJammingActive.ClearBit(ePlayer);
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bTerrainOnly, TeamTypes eFromTeam)
 {
@@ -12025,12 +12074,15 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 
 	bool bVisibilityUpdated = false;
 	bool bRevealed = isRevealed(eTeam) != bNewValue;
+	CvTeam& kTeam = GET_TEAM(eTeam);
 
 	if (bRevealed)
 	{
 		bVisibilityUpdated = true;
 		m_bfRevealed.ToggleBit(eTeam);
 		bool bEligibleForAchievement = MOD_ENABLE_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() : false;
+
+		kTeam.ChangeNumRevealedPlots(bNewValue ? 1 : -1);
 
 		if (area())
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
@@ -12404,8 +12456,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 			bVisibilityUpdated = true;
 		}
 	}
-
-	CvTeam& kTeam = GET_TEAM(eTeam);
 	
 	if (MOD_EVENTS_TILE_REVEALED && bNewValue && bRevealed)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileRevealed, getX(), getY(), eTeam, eFromTeam, (kTeam.isMajorCiv() && iRevealedMajors == 0), (pUnit ? pUnit->getOwner() : NO_PLAYER), (pUnit ? pUnit->GetID() : -1));

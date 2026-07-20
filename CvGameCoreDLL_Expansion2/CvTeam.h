@@ -46,6 +46,8 @@ public:
 	void DoBarbarianTech();
 	void DoMinorCivTech();
 
+	void UpdateXPFromExploration();
+
 	void updateYield();
 
 	bool canChangeWarPeace(TeamTypes eTeam) const;
@@ -380,6 +382,9 @@ public:
 	
 	int GetBuildingDefenseModifier() const;
 	void ChangeBuildingDefenseModifier(int iChange);
+	
+	int GetNumRevealedPlots() const;
+	void ChangeNumRevealedPlots(int iChange);
 
 	void DoTestSmallAwards();
 	bool IsSmallAwardAchieved(SmallAwardTypes eAward) const;
@@ -523,6 +528,9 @@ protected:
 	int m_iBestPossibleRoute;
 	int m_iNumMinorCivsAttacked;
 	int m_iBuildingDefenseModifier;
+
+	int m_iNumRevealedPlots;
+	int m_iMaxNumRevealedPlots;
 
 	bool m_bMapCentering;
 	bool m_bHasTechForWorldCongress;

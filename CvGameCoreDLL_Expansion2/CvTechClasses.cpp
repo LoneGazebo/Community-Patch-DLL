@@ -1865,7 +1865,7 @@ void CvPlayerTechs::CheckHasUUTech()
 							continue;
 
 						// Must be a combat or combat support unit
-						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() > 0)
+						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->GetNukeDamageLevel() > 0)
 						{
 							int iTech = pkUnitEntry->GetPrereqAndTech();
 							int iObsoleteTech = pkUnitEntry->GetObsoleteTech();
@@ -1933,7 +1933,7 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 							continue;
 
 						// Must be a combat or combat support unit
-						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() > 0)
+						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->GetNukeDamageLevel() > 0)
 						{
 							int iTech = pkUnitEntry->GetPrereqAndTech();
 							if (iTech != NO_TECH && !m_pPlayer->HasTech((TechTypes)iTech))
