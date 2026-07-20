@@ -151,6 +151,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bRangeAttackOnlyInDomain(false),
 	m_bTrade(false),
 	m_iNumExoticGoods(0),
+	m_iXPFromExploration(0),
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_iNumberStackingUnits(0),
 #endif
@@ -321,6 +322,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bRangeAttackOnlyInDomain = kResults.GetBool("RangeAttackOnlyInDomain");
 	m_bTrade = kResults.GetBool("Trade");
 	m_iNumExoticGoods = kResults.GetInt("NumExoticGoods");
+	m_iXPFromExploration = kResults.GetInt("XPFromExploration");
 
 	m_strUnitArtInfoTag = kResults.GetText("UnitArtInfo");
 	m_bUnitArtInfoCulturalVariation = kResults.GetBool("UnitArtInfoCulturalVariation");
@@ -1210,7 +1212,7 @@ int CvUnitEntry::GetNumColonyFound() const
 }
 
 /// City Attack Only?
-bool CvUnitEntry::IsCityAttackSupport() const
+bool CvUnitEntry::IsCityAttackOnly() const
 {
 	return m_bIsCityAttackSupport;
 }
@@ -1308,6 +1310,12 @@ bool CvUnitEntry::IsTrade() const
 int CvUnitEntry::GetNumExoticGoods() const
 {
 	return m_iNumExoticGoods;
+}
+
+// Gain this amount of XP if whole map is explored
+int CvUnitEntry::GetXPFromExploration() const
+{
+	return m_iXPFromExploration;
 }
 
 /// Return unit's current command

@@ -198,6 +198,8 @@ void CvTeam::uninit()
 	m_iBestPossibleRoute = NO_ROUTE;
 	m_iNumMinorCivsAttacked = 0;
 	m_iBuildingDefenseModifier = 0;
+	m_iNumRevealedPlots = 0;
+	m_iMaxNumRevealedPlots = 0;
 
 	m_bMapCentering = false;
 	m_bHasTechForWorldCongress = false;
@@ -844,6 +846,7 @@ void CvTeam::doTurn()
 		GetTeamTechs()->SetNoTradeTech(((TechTypes)iI), false);
 	}
 
+	UpdateXPFromExploration();
 	testCircumnavigated();
 
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -985,6 +988,43 @@ void CvTeam::DoMinorCivTech()
 			}
 		}
 	}
+}
+
+void CvTeam::UpdateXPFromExploration()
+{
+	// Nothing to be done
+	if (m_iNumRevealedPlots <= m_iMaxNumRevealedPlots)
+		return;
+
+	// Add XP to all units of this team
+	int iTotalPlots = GC.getMap().numPlots();
+	const CivsList& veMembers = getPlayers();
+	for (CivsList::const_iterator it = veMembers.begin(); it != veMembers.end(); ++it)
+	{
+		PlayerTypes eLoopPlayer = *it;
+		CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (!kLoopPlayer.isAlive())
+			continue;
+
+		int iLoop = 0;
+		for (CvUnit* pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
+		{
+			int iXPFromExploration = pLoopUnit->getUnitInfo().GetXPFromExploration();
+			if (iXPFromExploration == 0)
+				continue;
+
+			int iCurrentXPTimes100 = iXPFromExploration * m_iMaxNumRevealedPlots / iTotalPlots;
+			int iNewXPTimes100 = iXPFromExploration * m_iNumRevealedPlots / iTotalPlots;
+			int iXPChange = iNewXPTimes100 - iCurrentXPTimes100;
+			if (iXPChange != 0)
+			{
+				pLoopUnit->changeExperienceTimes100(iXPChange);
+			}
+		}
+	}
+
+	// Save the new max number
+	m_iMaxNumRevealedPlots = m_iNumRevealedPlots;
 }
 
 //	--------------------------------------------------------------------------------
@@ -5975,6 +6015,17 @@ void CvTeam::ChangeBuildingDefenseModifier(int iChange)
 	}
 }
 
+int CvTeam::GetNumRevealedPlots() const
+{
+	return m_iNumRevealedPlots;
+}
+
+void CvTeam::ChangeNumRevealedPlots(int iChange)
+{
+	m_iNumRevealedPlots += iChange;
+	ASSERT(m_iNumRevealedPlots >= 0 && m_iNumRevealedPlots <= GC.getMap().numPlots());
+}
+
 //	--------------------------------------------------------------------------------
 /// See if there are any Small Awards we've just accomplished
 void CvTeam::DoTestSmallAwards()
@@ -9209,6 +9260,8 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(team.m_iBestPossibleRoute);
 	visitor(team.m_iNumMinorCivsAttacked);
 	visitor(team.m_iBuildingDefenseModifier);
+	visitor(team.m_iNumRevealedPlots);
+	visitor(team.m_iMaxNumRevealedPlots);
 
 	visitor(team.m_bMapCentering);
 	visitor(team.m_bHasTechForWorldCongress);

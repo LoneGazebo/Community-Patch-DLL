@@ -397,7 +397,6 @@ enum AreaEffectType
 {
 	AE_GREAT_GENERAL,
 	AE_SAPPER,
-	AE_SIEGETOWER,
 	AE_PASSIVE_HEAL
 };
 
@@ -593,7 +592,7 @@ public:
 	bool isSetUpForRangedAttack() const; //no longer used
 	void setSetUpForRangedAttack(bool bValue); //no longer used
 
-	bool IsCityAttackSupport() const;
+	bool IsCityAttackOnly() const;
 	void ChangeCityAttackOnlyCount(int iChange);
 
 	bool IsCaptureDefeatedEnemy() const;
@@ -1071,6 +1070,8 @@ public:
 	void ChangeNearbyHealFriendlyTerritory(int iValue);
 	int GetPassiveAoEHeal() const;
 	void ChangePassiveAoEHeal(int iValue);
+	int GetJammingRadius() const;
+	void ChangeJammingRadius(int iChange);
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
@@ -1638,7 +1639,6 @@ public:
 	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 
 	// Great General Stuff
-	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 
 	bool IsStackedGreatGeneral(const CvPlot* pLoopPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
@@ -2273,6 +2273,11 @@ public:
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 
+	void UpdateAreaEffect(bool bUpdateCityStrength = true);
+	int GetAreaEffectCacheIndex() const;
+	void SetAreaEffectCacheIndex(int iIndex);
+	void UpdateJammingCacheForPlot(const CvPlot* pPlot, bool bIncrease);
+
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iTargetTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
 	bool CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns);
@@ -2503,6 +2508,7 @@ protected:
 	int m_iNearbyHealNeutralTerritory;
 	int m_iNearbyHealFriendlyTerritory;
 	int m_iPassiveAoEHeal;
+	int m_iJammingRadius;
 	int m_iCanCrossMountainsCount;
 	int m_iCanCrossOceansCount;
 	int m_iCanCrossIceCount;
@@ -2705,6 +2711,8 @@ protected:
 	int m_iCultureBlastStrength;
 	int m_iGAPBlastStrength;
 	std::vector<bool> m_abPromotionEverObtained;
+
+	int m_iAreaEffectCacheIndex;
 
 	CvString m_strUnitName;
 	CvString m_strName;
@@ -2941,6 +2949,7 @@ SYNC_ARCHIVE_VAR(int, m_iNearbyHealEnemyTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealNeutralTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealFriendlyTerritory)
 SYNC_ARCHIVE_VAR(int, m_iPassiveAoEHeal)
+SYNC_ARCHIVE_VAR(int, m_iJammingRadius)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossMountainsCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossOceansCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossIceCount)
@@ -3106,6 +3115,7 @@ SYNC_ARCHIVE_VAR(int, m_iScienceBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iCultureBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iGAPBlastStrength)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abPromotionEverObtained)
+SYNC_ARCHIVE_VAR(int, m_iAreaEffectCacheIndex)
 SYNC_ARCHIVE_VAR(AITacticalMove, m_eTacticalMove)
 SYNC_ARCHIVE_VAR(int, m_iTacticalMoveSetTurn)
 SYNC_ARCHIVE_VAR(AIHomelandMove, m_eHomelandMove)
