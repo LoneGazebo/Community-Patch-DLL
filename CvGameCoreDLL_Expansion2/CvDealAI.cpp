@@ -4523,7 +4523,7 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	//if raw gold in deal, remove so we can refresh.
 	if (iNumGoldAlreadyInTrade > 0)
 	{
-		DoRemoveGoldFromThem(pDeal, eThem, iTotalValue);
+		pDeal->RemoveByType(TRADE_ITEM_GOLD);
 		iNumGoldAlreadyInTrade = 0;
 		iTotalValue = GetDealValue(pDeal);
 	}
@@ -4574,7 +4574,7 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	//if raw gold in deal, remove so we can refresh.
 	if (iNumGoldAlreadyInTrade > 0)
 	{
-		DoRemoveGoldFromUs(pDeal, iTotalValue);
+		pDeal->RemoveByType(TRADE_ITEM_GOLD);
 		iNumGoldAlreadyInTrade = 0;
 		iTotalValue = GetDealValue(pDeal);
 	}
@@ -4624,7 +4624,7 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 	//if they already have GPT in this trade, remove it so we can refresh the value.
 	if (iNumGPTAlreadyInTrade > 0)
 	{
-		DoRemoveGPTFromThem(pDeal, eThem, iNumGPTAlreadyInTrade);
+		pDeal->RemoveByType(TRADE_ITEM_GOLD_PER_TURN);
 		iNumGPTAlreadyInTrade = 0;
 		iTotalValue = GetDealValue(pDeal);
 	}
@@ -4680,7 +4680,7 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	//if we already have GPT in this trade, remove it so we can refresh the value.
 	if (iNumGPTAlreadyInTrade > 0)
 	{
-		DoRemoveGPTFromUs(pDeal, iNumGPTAlreadyInTrade);
+		pDeal->RemoveByType(TRADE_ITEM_GOLD_PER_TURN);
 		iNumGPTAlreadyInTrade = 0;
 		iTotalValue = GetDealValue(pDeal);
 	}
@@ -4888,126 +4888,6 @@ void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTot
 
 	if (!bBlockPermanentItems && !bPrioritizePermanentItems)
 		DoAddGoldToUs(pDeal, eOtherPlayer, iTotalValue);
-}
-
-/// See if removing Gold Per Turn from their side of the deal helps even out pDeal
-void CvDealAI::DoRemoveGPTFromThem(CvDeal* pDeal, PlayerTypes eThem, int iToRemove)
-{
-	PRECONDITION(eThem >= 0);
-	PRECONDITION(eThem < MAX_MAJOR_CIVS);
-	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to remove GPT from Them, but them is us.");
-
-	int iDealDuration = pDeal->GetDuration();
-	int iNumGoldPerTurnInThisDeal = pDeal->GetGoldPerTurnTrade(eThem);
-	if (iNumGoldPerTurnInThisDeal > 0)
-	{
-		// Found some GoldPerTurn to remove
-		int iNumGoldPerTurnToRemove = min(iToRemove, iNumGoldPerTurnInThisDeal);
-		iNumGoldPerTurnInThisDeal -= iNumGoldPerTurnToRemove;
-
-		// Removing ALL GoldPerTurn, so just erase the item from the deal
-		if (iNumGoldPerTurnInThisDeal == 0)
-		{
-			pDeal->RemoveByType(TRADE_ITEM_GOLD_PER_TURN);
-		}
-		// Remove some of the GoldPerTurn from the deal
-		else
-		{
-			if (!pDeal->ChangeGoldPerTurnTrade(eThem, iNumGoldPerTurnInThisDeal, iDealDuration))
-			{
-				ASSERT(false, "DEAL_AI: DealAI is trying to remove GoldPerTurn from a deal but couldn't find the item for some reason.");
-			}
-		}
-	}
-}
-
-/// See if removing Gold Per Turn from our side of the deal helps even out pDeal
-void CvDealAI::DoRemoveGPTFromUs(CvDeal* pDeal, int iToRemove)
-{
-	int iDealDuration = pDeal->GetDuration();
-	
-	PlayerTypes eMyPlayer = GetPlayer()->GetID();
-
-	int iNumGoldPerTurnInThisDeal = pDeal->GetGoldPerTurnTrade(eMyPlayer);
-	if(iNumGoldPerTurnInThisDeal > 0)
-	{
-		// Found some GoldPerTurn to remove
-		int iNumGoldPerTurnToRemove = min(iToRemove, iNumGoldPerTurnInThisDeal);
-		iNumGoldPerTurnInThisDeal -= iNumGoldPerTurnToRemove;
-
-		// Removing ALL GoldPerTurn, so just erase the item from the deal
-		if(iNumGoldPerTurnInThisDeal == 0)
-		{
-			pDeal->RemoveByType(TRADE_ITEM_GOLD_PER_TURN);
-		}
-		// Remove some of the GoldPerTurn from the deal
-		else
-		{
-			if(!pDeal->ChangeGoldPerTurnTrade(eMyPlayer, iNumGoldPerTurnInThisDeal, iDealDuration))
-			{
-				ASSERT(false, "DEAL_AI: DealAI is trying to remove GoldPerTurn from a deal but couldn't find the item for some reason.");
-			}
-		}
-	}
-}
-
-/// See if removing Gold from their side of the deal helps even out pDeal
-void CvDealAI::DoRemoveGoldFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iGold)
-{
-	PRECONDITION(eThem >= 0);
-	PRECONDITION(eThem < MAX_MAJOR_CIVS);
-	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to remove Gold from Them, but them is us.");
-
-	int iNumGoldInThisDeal = pDeal->GetGoldTrade(eThem);
-	if(iNumGoldInThisDeal > 0)
-	{
-		// Found some Gold to remove
-		int iNumGoldToRemove = max(0, min(iNumGoldInThisDeal, iGold));
-		iNumGoldInThisDeal -= iNumGoldToRemove;
-
-		// Removing ALL Gold, so just erase the item from the deal
-		if(iNumGoldInThisDeal == 0)
-		{
-			pDeal->RemoveByType(TRADE_ITEM_GOLD);
-		}
-		// Remove some of the Gold from the deal
-		else
-		{
-			if(!pDeal->ChangeGoldTrade(eThem, iNumGoldInThisDeal))
-			{
-				ASSERT(false, "DEAL_AI: DealAI is trying to remove Gold from a deal but couldn't find the item for some reason.");
-			}
-		}
-	}
-}
-
-/// See if removing Gold from our side of the deal helps even out pDeal
-void CvDealAI::DoRemoveGoldFromUs(CvDeal* pDeal, int& iGold)
-{
-	PlayerTypes eMyPlayer = GetPlayer()->GetID();
-
-	int iNumGoldInThisDeal = pDeal->GetGoldTrade(eMyPlayer);
-	if (iNumGoldInThisDeal > 0)
-	{
-		
-		// Found some Gold to remove
-		int iNumGoldToRemove = min(iNumGoldInThisDeal, iGold);
-		iNumGoldInThisDeal -= iNumGoldToRemove;
-
-		// Removing ALL Gold, so just erase the item from the deal
-		if (iNumGoldInThisDeal == 0)
-		{
-			pDeal->RemoveByType(TRADE_ITEM_GOLD);
-		}
-		// Remove some of the Gold from the deal
-		else
-		{
-			if (!pDeal->ChangeGoldTrade(eMyPlayer, iNumGoldInThisDeal))
-			{
-				ASSERT(false, "DEAL_AI: DealAI is trying to remove Gold from a deal but couldn't find the item for some reason.");
-			}
-		}
-	}
 }
 
 /// Offer peace

@@ -109,12 +109,6 @@ public:
 	void DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iDemandValue = 0);
 	void DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
-	void DoRemoveGPTFromThem(CvDeal* pDeal, PlayerTypes eThem, int iToRemove);
-	void DoRemoveGPTFromUs(CvDeal* pDeal, int iToRemove);
-
-	void DoRemoveGoldFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iGold);
-	void DoRemoveGoldFromUs(CvDeal* pDeal, int& iGold);
-
 	void DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValue, int iThresholdValue, bool bGoldOnly, bool bHumanRequestedEqualization);
 	void DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValue, int iThresholdValue, bool bGoldOnly, bool bHumanRequestedEqualization);
 
