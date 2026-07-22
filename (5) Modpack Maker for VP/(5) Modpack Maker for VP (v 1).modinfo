@@ -2,7 +2,7 @@
 <Mod id="eb8f6ed3-109d-4f2f-a81d-516c8d2f91c1" version="1">
   <Properties>
     <Name>(5) Modpack Maker for VP</Name>
-    <Teaser>(5.4.0) Modpack Maker for VP</Teaser>
+    <Teaser>(5.4.1) Modpack Maker for VP</Teaser>
     <Description>Modpack maker mod for VP, replacing Multiplayer Mods Workaround and fixing incompatibilities.
 [NEWLINE]
 [NEWLINE]Use this mod to create a modpack (a collection of mods packaged as a DLC). Modpacks allow you to play modded games without having to go through the MODS menu. In particular, they can be used to play modded games in multiplayer.

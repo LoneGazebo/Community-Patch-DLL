@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="151">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.4.0) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.4.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -444,7 +444,7 @@
     <File md5="F17E95C158547BC159A0F8027F3A00FA" import="1">Core Files/Overrides/ActionInfoPanel.lua</File>
     <File md5="5DF39EDCFB6CB0EE7C69AC07461DFE5A" import="1">Core Files/Overrides/ChoosePantheonPopup.lua</File>
     <File md5="4F974C77D09B75A2FC35D43BEAE186AA" import="1">Core Files/Overrides/ChoosePantheonPopup.xml</File>
-    <File md5="BD25A607C525B92906D1AA4D64AF1301" import="1">Core Files/Overrides/ChooseReligionPopup.lua</File>
+    <File md5="486153EDE3549547E33D7D2A36ACE24E" import="1">Core Files/Overrides/ChooseReligionPopup.lua</File>
     <File md5="34BB77BABB7A3A27FFF37AEAADD97547" import="1">Core Files/Overrides/CultureOverview.lua</File>
     <File md5="23B05ACDA5EEE055EACDD2FC103757DF" import="1">Core Files/Overrides/CultureOverview.xml</File>
     <File md5="B02EA79C1F74248456A842BD53106153" import="1">Core Files/Overrides/DeclareWarPopup.lua</File>
@@ -456,7 +456,7 @@
     <File md5="B6548BC0A0910B210BC181F1A960E392" import="1">Core Files/Overrides/DiscussionDialog.lua</File>
     <File md5="D708ADD4055DD571EDBDC2588DF0DC0E" import="1">Core Files/Overrides/DiscussionDialog.xml</File>
     <File md5="84BFB770105BC337EDA75283091F39C5" import="1">Core Files/Overrides/EconomicGeneralInfo.lua</File>
-    <File md5="FBDE04F75DF042BEC0BDC5305E41E3DA" import="1">Core Files/Overrides/EnemyUnitPanel.lua</File>
+    <File md5="B4BA6BDBBF884DCBA10866F8CB25073C" import="1">Core Files/Overrides/EnemyUnitPanel.lua</File>
     <File md5="77C539014E863414A8F59B62E2CFB7BB" import="1">Core Files/Overrides/EnemyUnitPanel.xml</File>
     <File md5="F24584C3F7D166B5E799DDCEFEBBD6B5" import="1">Core Files/Overrides/EnemyUnitPanel_small.xml</File>
     <File md5="FC931E4734EB600194E5E14890E37E28" import="1">Core Files/Overrides/EspionageOverview.lua</File>
@@ -490,7 +490,7 @@
     <File md5="89551DF7CE0B41B8EC45796281BED2E3" import="1">Core Files/Overrides/TechAwardPopup.lua</File>
     <File md5="C0AE8C8702CC0692E89FE3F6194691B5" import="1">Core Files/Overrides/TechAwardPopup.xml</File>
     <File md5="2E864F44562CA1721134CE33FC7AFBA9" import="1">Core Files/Overrides/TechPanel_small.xml</File>
-    <File md5="361A1CDA7D4BD10ED77EEDCE08F796D3" import="1">Core Files/Overrides/TechPanel.lua</File>
+    <File md5="D94ED5EC0343E1318610279609131BB7" import="1">Core Files/Overrides/TechPanel.lua</File>
     <File md5="F95F5B373DB01636427DAA7C40343462" import="1">Core Files/Overrides/TechPanel.xml</File>
     <File md5="1B08CA6F85DC650A6872FC71BD259FC7" import="1">Core Files/Overrides/WonderPopup.lua</File>
     <File md5="F5AB9BBAD63869CA12E11710D48CD064" import="1">Core Files/Overrides/WonderPopup.xml</File>
@@ -500,18 +500,18 @@
     <File md5="8024171C92685B855E0AD88CEE1C8296" import="1">Core Files/Overrides/YieldIconManager.xml</File>
     <File md5="AA9CB9B8678EFAD4FEBB780B24385C24" import="1">Core Files/Overrides/Includes/AssignStartingPlots.lua</File>
     <File md5="78F3451AFA990C8CDC71994444A4247A" import="1">Core Files/Overrides/Includes/Bombardment.lua</File>
-    <File md5="7A52085741E970965EF3847767058E72" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
+    <File md5="CF3478B341986D5FA03FDB058DF60138" import="1">Core Files/Overrides/Includes/InfoTooltipInclude.lua</File>
     <File md5="58E27DDA88005F499B37149DA81C59D6" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
     <File md5="9A55C83178BE5720BA16E8852FDC30AB" import="1">Core Files/Overrides/Includes/MapmakerUtilities.lua</File>
-    <File md5="7564631D7C435DC357F0BC26290E7F39" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
+    <File md5="A0A14D2E6B8FD237DE1147997DEA193D" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
     <File md5="26FEF5BB17225CFD769717234B1DC468" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
     <File md5="5ADF9FC8A47C84B9A2D3A80A3B7002B1" import="1">Core Files/Overrides/Includes/TradeLogic.lua</File>
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/Includes/TradeRouteHelpers.lua</File>
     <File md5="F61707422D4D58CC960B62B9AF1EF312" import="1">Core Files/VPUI/VPUI_common_small.xml</File>
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
-    <File md5="378E8FD9F9C8B97F2ED26FC2FDDDB5C6" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="70566A825DDFBEF7B611078903C92077" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="9B2473A02E44E30D7015F8EEF582D2F2" import="1">Core Files/VPUI/VPUI_core.lua</File>
+    <File md5="BDF13E5110C0112487B6E045E90E0CB0" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Changes/AddTableIndexes.sql</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
@@ -787,7 +787,7 @@
     <File md5="B525703839C50B1E9ECDA8E2FF1E833C" import="1">LUA/TechPopup.lua</File>
     <File md5="3AAA908EF0F872EE6C75586CF74E1AEB" import="1">LUA/TechPopup.xml</File>
     <File md5="D0F637BEE0FF19A9971DF0631B7F133E" import="1">LUA/TechPopup_small.xml</File>
-    <File md5="E266EB0D9FE694DA4A1AA3A610DBDF2C" import="1">LUA/TechTree.lua</File>
+    <File md5="09F48361B9384916FE92B558BF89584A" import="1">LUA/TechTree.lua</File>
     <File md5="6F466E73E0A73EC3C95ACFCADC826D81" import="1">LUA/TechTree.xml</File>
     <File md5="DC9C5C842B4AC6FFD5329D10B11E7681" import="1">LUA/TopPanel.lua</File>
     <File md5="1B7657384F730D1D73AD05D9F46CEEDF" import="1">LUA/UnitPanel.lua</File>
