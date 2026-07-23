@@ -1682,33 +1682,15 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_extraUnitClassAttackMod.clear();
 		m_extraUnitClassDefenseMod.clear();
 
-		m_yieldFromKills.clear();
-		m_yieldFromBarbarianKills.clear();
-		m_aiNumTimesAttackedThisTurn.clear();
-		m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
-		m_yieldFromScoutingTimes100.clear();
-		m_piYieldFromAncientRuins.clear();
-		m_piYieldFromTRPlunder.clear();
-		
-		m_yieldFromKills.resize(NUM_YIELD_TYPES);
-		m_yieldFromBarbarianKills.resize(NUM_YIELD_TYPES);
-		m_yieldFromScoutingTimes100.resize(NUM_YIELD_TYPES);
-		m_piYieldFromAncientRuins.resize(NUM_YIELD_TYPES);
-		m_piYieldFromTRPlunder.resize(NUM_YIELD_TYPES);
+		m_aiNumTimesAttackedThisTurn.assign(REALLY_MAX_PLAYERS, 0);
 
-		for(int i = 0; i < NUM_YIELD_TYPES; i++)
-		{
-			m_yieldFromKills[i] = 0;
-			m_yieldFromBarbarianKills[i] = 0;
-			m_yieldFromScoutingTimes100[i] = 0;
-			m_piYieldFromAncientRuins[i] = 0;
-			m_piYieldFromTRPlunder[i] = 0;
-		}
+		m_yieldFromKills.assign(NUM_YIELD_TYPES, 0);
+		m_yieldFromBarbarianKills.assign(NUM_YIELD_TYPES, 0);
+		m_yieldFromScoutingTimes100.assign(NUM_YIELD_TYPES, 0);
+		m_piYieldFromAncientRuins.assign(NUM_YIELD_TYPES, 0);
+		m_piYieldFromTRPlunder.assign(NUM_YIELD_TYPES, 0);
 
-		for (int iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
-		{
-			m_aiNumTimesAttackedThisTurn[iI] =  0;
-		}
+		m_viTerrainHeal.assign(GC.getNumTerrainInfos(), 0);
 
 		PRECONDITION((0 < GC.getNumUnitCombatClassInfos()), "GC.getNumUnitCombatClassInfos() is not greater than zero but an array is being allocated in CvUnit::reset");
 		m_extraUnitCombatModifier.clear();
@@ -1834,6 +1816,7 @@ void CvUnit::uninitInfos()
 	m_vTerrainModifierDefense.clear();
 	m_extraFeatureAttackPercent.clear();
 	m_extraFeatureDefensePercent.clear();
+	m_viTerrainHeal.clear();
 
 	m_extraUnitClassAttackMod.clear();
 	m_extraUnitClassDefenseMod.clear();
@@ -7895,16 +7878,28 @@ bool CvUnit::canSentry(const CvPlot* pPlot, bool bTestVisibility) const
 int CvUnit::ActualHealRate(const CvPlot* pPlot, bool bCheckMovement) const
 {
 	ASSERT(!bCheckMovement || pPlot == plot(), "bCheckMovement should only be set when checking our current tile");
+
+	DomainTypes eDomain = getDomainType();
+
+	int iHeal = GetFlatHealRate();
+	iHeal += GetTerrainHeal(pPlot->getTerrainType());
+	iHeal += GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_PASSIVE_HEAL, eDomain, pPlot);
+
+	// City owner check omitted as combat units cannot be on a foreign city tile
+	if (IsCombatUnit() && eDomain == DOMAIN_LAND && pPlot->isCity())
+	{
+		iHeal += pPlot->getPlotCity()->GetAlwaysHeal();
+	}
+
+	// We may need to check if the unit has moved for this
 	if (canHeal(pPlot, bCheckMovement))
-		return max(healRate(pPlot), 0);
+		iHeal += max(healRate(pPlot), 0);
 
-	// canHeal returns false even if GetFlatHealRate() > 0, since we can't do normal
-	// healing. If we have moved we need to check if we could heal if we hadn't
-	// moved. If so we get the flat heal amount from promotions.
-	if (bCheckMovement && hasMoved() && canHeal(pPlot, false))
-		return GetFlatHealRate();
+	// Cannot heal, but can be damaged
+	if (IsCannotHeal(true))
+		return min(0, iHeal);
 
-	return 0;
+	return iHeal;
 }
 
 //	--------------------------------------------------------------------------------
@@ -7927,8 +7922,6 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	int iExtraFriendlyHeal = getExtraFriendlyHeal();
 	int iExtraNeutralHeal = getExtraNeutralHeal();
 	int iExtraEnemyHeal = getExtraEnemyHeal();
-
-	iExtraHeal += GetFlatHealRate();
 
 	if (MOD_API_AREA_EFFECT_PROMOTIONS)
 	{
@@ -8183,10 +8176,6 @@ void CvUnit::doHeal()
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
 		int iHealRate = ActualHealRate(plot());
-
-		if (!IsCannotHeal(true))
-			iHealRate += kPlayer.GetAreaEffectModifier(AE_PASSIVE_HEAL, getDomainType(), plot());
-
 		if (iHealRate==0)
 			return;
 
@@ -27179,6 +27168,20 @@ void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 	m_extraFeatureDefensePercent.push_back(make_pair(eIndex, iChange));
 }
 
+int CvUnit::GetTerrainHeal(TerrainTypes eTerrain) const
+{
+	PRECONDITION(eTerrain > NO_TERRAIN, "eTerrain is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	return m_viTerrainHeal[eTerrain];
+}
+
+void CvUnit::ChangeTerrainHeal(TerrainTypes eTerrain, int iChange)
+{
+	PRECONDITION(eTerrain > NO_TERRAIN, "eTerrain is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTerrain < GC.getNumTerrainInfos(), "eTerrain is expected to be within maximum bounds (invalid Index)");
+	m_viTerrainHeal[eTerrain] += iChange;
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getUnitClassAttackMod(UnitClassTypes eIndex) const
 {
@@ -28388,23 +28391,24 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	if (thisPromotion.IsUnitNaming(getUnitType()))
 		thisPromotion.GetUnitName(getUnitType(), m_strUnitName);
 
-	int iI = 0;
-	for (iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 	{
-		changeExtraTerrainAttackPercent(((TerrainTypes)iI), (thisPromotion.GetTerrainAttackPercent(iI) * iChange));
-		changeExtraTerrainDefensePercent(((TerrainTypes)iI), (thisPromotion.GetTerrainDefensePercent(iI) * iChange));
-		ChangeTerrainModifierAttack(((TerrainTypes)iI), (thisPromotion.GetTerrainModifierAttack(iI) * iChange));
-		ChangeTerrainModifierDefense(((TerrainTypes)iI), (thisPromotion.GetTerrainModifierDefense(iI) * iChange));
-		changeIgnoreTerrainCostInCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostIn(iI)) ? iChange : 0));
-		changeIgnoreTerrainCostFromCount(((TerrainTypes)iI), ((thisPromotion.GetIgnoreTerrainCostFrom(iI)) ? iChange : 0));
-		changeTerrainDoubleMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleMove(iI)) ? iChange : 0));
-		changeTerrainHalfMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainHalfMove(iI)) ? iChange : 0));
-		changeTerrainExtraMoveCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainExtraMove(iI)) ? iChange : 0));
-		changeTerrainDoubleHeal(((TerrainTypes)iI), ((thisPromotion.GetTerrainDoubleHeal(iI)) ? iChange : 0));
-		changeTerrainImpassableCount(((TerrainTypes)iI), ((thisPromotion.GetTerrainImpassable(iI)) ? iChange : 0));
+		TerrainTypes eTerrain = static_cast<TerrainTypes>(iI);
+		changeExtraTerrainAttackPercent(eTerrain, thisPromotion.GetTerrainAttackPercent(iI) * iChange);
+		changeExtraTerrainDefensePercent(eTerrain, thisPromotion.GetTerrainDefensePercent(iI) * iChange);
+		ChangeTerrainModifierAttack(eTerrain, thisPromotion.GetTerrainModifierAttack(iI) * iChange);
+		ChangeTerrainModifierDefense(eTerrain, thisPromotion.GetTerrainModifierDefense(iI) * iChange);
+		changeIgnoreTerrainCostInCount(eTerrain, thisPromotion.GetIgnoreTerrainCostIn(iI) * iChange);
+		changeIgnoreTerrainCostFromCount(eTerrain, thisPromotion.GetIgnoreTerrainCostFrom(iI) * iChange);
+		changeTerrainDoubleMoveCount(eTerrain, thisPromotion.GetTerrainDoubleMove(iI) * iChange);
+		changeTerrainHalfMoveCount(eTerrain, thisPromotion.GetTerrainHalfMove(iI) * iChange);
+		changeTerrainExtraMoveCount(eTerrain, thisPromotion.GetTerrainExtraMove(iI) * iChange);
+		changeTerrainDoubleHeal(eTerrain, thisPromotion.GetTerrainDoubleHeal(iI) * iChange);
+		changeTerrainImpassableCount(eTerrain, thisPromotion.GetTerrainImpassable(iI) * iChange);
+		ChangeTerrainHeal(eTerrain, thisPromotion.GetTerrainHeal(iI) * iChange);
 	}
 
-	for (iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 	{
 		changeExtraFeatureAttackPercent(((FeatureTypes)iI), (thisPromotion.GetFeatureAttackPercent(iI) * iChange));
 		changeExtraFeatureDefensePercent(((FeatureTypes)iI), (thisPromotion.GetFeatureDefensePercent(iI) * iChange));
@@ -28418,7 +28422,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	}
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
 		SetYieldModifier(eYield, (thisPromotion.GetYieldModifier(iI) * iChange));
@@ -28450,7 +28454,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 		}
 	}
 
-	for (iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 	{
 		changeExtraUnitCombatModifier(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercent(iI) * iChange));
 		changeExtraUnitCombatModifierAttack(((UnitCombatTypes)iI), (thisPromotion.GetUnitCombatModifierPercentAttack(iI) * iChange));
@@ -28460,20 +28464,15 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 		changeCombatModPerAdjacentUnitCombatDefenseMod(((UnitCombatTypes)iI), (thisPromotion.GetCombatModPerAdjacentUnitCombatDefenseModifier(iI) * iChange));
 	}
 
-	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iI);
-		if (!pkUnitClassInfo)
-		{
-			continue;
-		}
-
 		changeUnitClassModifier(((UnitClassTypes)iI), (thisPromotion.GetUnitClassModifierPercent(iI) * iChange));
 		changeUnitClassAttackMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassAttackModifier(iI) * iChange));
 		changeUnitClassDefenseMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassDefenseModifier(iI) * iChange));
 	}
 
-	for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
 		changeExtraDomainAttack(((DomainTypes)iI), (thisPromotion.GetDomainAttackPercent(iI) * iChange));
@@ -29052,6 +29051,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_vTerrainModifierDefense);
 	visitor(unit.m_extraFeatureAttackPercent);
 	visitor(unit.m_extraFeatureDefensePercent);
+	visitor(unit.m_viTerrainHeal);
 	visitor(unit.m_extraUnitClassAttackMod);
 	visitor(unit.m_extraUnitClassDefenseMod);
 	visitor(unit.m_aiNumTimesAttackedThisTurn);

@@ -838,6 +838,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 	}
 
+	// UnitPromotions_TerrainHeal
+	kUtility.PopulateVectorByValue(m_viTerrainHeal, "Terrains", "UnitPromotions_TerrainHeal", "TerrainType", "PromotionType", szPromotionType, "Amount", iNumTerrains);
+
 	//UnitPromotions_Features
 	{
 		kUtility.InitializeArray(m_piFeatureAttackPercent, iNumFeatures, 0);
@@ -2979,6 +2982,14 @@ int CvPromotionEntry::GetTerrainModifierDefense(int i) const
 	}
 
 	return 0;
+}
+
+// Heal amount when ending turn on given terrain
+int CvPromotionEntry::GetTerrainHeal(int i) const
+{
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_viTerrainHeal[i];
 }
 
 /// Percentage bonus when when attacking a tile with a given feature

@@ -1994,6 +1994,8 @@ public:
 	void changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange);
 	int getExtraFeatureDefensePercent(FeatureTypes eIndex) const;
 	void changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange);
+	int GetTerrainHeal(TerrainTypes eTerrain) const;
+	void ChangeTerrainHeal(TerrainTypes eTerrain, int iChange);
 
 	int getUnitClassAttackMod(UnitClassTypes eIndex) const;
 	void changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange);
@@ -2659,6 +2661,8 @@ protected:
 	FeatureTypeCounter m_extraFeatureAttackPercent;
 	FeatureTypeCounter m_extraFeatureDefensePercent;
 
+	vector<int> m_viTerrainHeal;
+
 	UnitClassCounter m_extraUnitClassAttackMod;
 	UnitClassCounter m_extraUnitClassDefenseMod;
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
@@ -3068,6 +3072,7 @@ SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierAttack)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierDefense)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureAttackPercent)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureDefensePercent)
+SYNC_ARCHIVE_VAR(vector<int>, m_viTerrainHeal)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassAttackMod)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassDefenseMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)

@@ -327,6 +327,7 @@ public:
 	int GetTerrainDefensePercent(int i) const;
 	int GetTerrainModifierAttack(int i) const;
 	int GetTerrainModifierDefense(int i) const;
+	int GetTerrainHeal(int i) const;
 	int GetFeatureAttackPercent(int i) const;
 	int GetFeatureDefensePercent(int i) const;
 	int GetYieldFromAncientRuins(int i) const;
@@ -695,9 +696,11 @@ protected:
 	bool* m_pbCivilianUnitType;
 	bool* m_pbUnitName;
 	bool* m_pbPostCombatRandomPromotion;
+
 	std::map<int, std::pair<int, int>> m_yieldFromPillage;
 	std::set<int> m_siBlockedPromotions;
 	std::vector<PlagueInfo> m_vsPlagues;
+	vector<int> m_viTerrainHeal;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
