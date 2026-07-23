@@ -24425,7 +24425,7 @@ int CvUnit::GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClass
 					for (int iK = 0; iK < pLoopPlot->getNumUnits(); iK++)
 					{
 						CvUnit*	pLoopUnit = pLoopPlot->getUnitByIndex(iK);
-						if (pLoopUnit != NULL)
+						if (pLoopUnit != NULL && pLoopUnit != this)
 						{
 							if (pLoopUnit->getUnitClassType() == eUnitClass)
 							{
