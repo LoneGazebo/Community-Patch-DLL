@@ -2934,6 +2934,8 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 /// bConquest is true if the city was directly captured by this player's units, and false otherwise.
 /// bGift is true if the city was gifted to the player (can be from a trade or from the Austria/Venice UAs; liberation does NOT count in this)
 /// bOriginally treats the city as if it was always owned by the acquiring player (can't be liberated later). However, this still counts as killing the old owner if they die.
+/// Cities ceded in a peace treaty have both bConquest=true and bGift=true. They count for warmongering/resistance because it's still threatening to the other players and forcible, but they do not grant yield bonuses since the player didn't put in the work.
+/// However, they also don't trigger population loss or building destruction. That's the tradeoff!
 CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bOriginally)
 {
 	if (!pCity)
@@ -3031,7 +3033,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	}
 
 	// Did this player trade us back our capital/Holy City? Diplo bonus!
-	if (bGift)
+	if (!bConquest && bGift)
 	{
 		// I've traded for this city? I don't want to trade it again.
 		pCity->SetTraded(GetID(), true);
@@ -3316,7 +3318,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		}
 
 		// Process plunder rewards
-		if (isMajorCiv())
+		if (isMajorCiv() && !bGift)
 		{
 			iCaptureGold = /*20*/ GD_INT_GET(BASE_CAPTURE_GOLD) + (iPopulation * /*10*/ GD_INT_GET(CAPTURE_GOLD_PER_POPULATION));
 			iCaptureGold += /*0 to 40*/ GC.getGame().randRangeInclusive(0, GD_INT_GET(CAPTURE_GOLD_RAND1), pCity->plot()->GetPseudoRandomSeed()) * 2;
@@ -3378,7 +3380,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		}
 
 		// Trigger most "first conquest" bonuses now.
-		if (!pCity->isEverOwned(GetID()))
+		if (!pCity->isEverOwned(GetID()) && !bGift)
 		{
 			bFirstConquest = true; // remember this for later checks
 
@@ -4458,7 +4460,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			pNewCity->SetOccupied(true);
 
 			// Determine resistance turns.
-			if (bConquest && !bGift)
+			if (bConquest)
 			{
 				int iReductionFromTourism = (isMajorCiv() && GET_PLAYER(eOldOwner).isMajorCiv()) ? GetCulture()->GetInfluenceCityConquestReduction(eOldOwner) : 0;
 				int iResistanceTurns = MOD_BALANCE_VP ? (pNewCity->getPopulation() * 2) / 3 : pNewCity->getPopulation();
@@ -4520,7 +4522,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 			// AI decides what to do with a City
 			else if (!isHuman(ISHUMAN_AI_CITY_MANAGEMENT))
 			{
-				AI_conquerCity(pNewCity, bGift, bAllowSphereRemoval); // Calling this could delete the pointer...
+				AI_conquerCity(pNewCity, !bConquest && bGift, bAllowSphereRemoval); // Calling this could delete the pointer...
 
 				// So we will check to see if the plot still contains the city.
 				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
