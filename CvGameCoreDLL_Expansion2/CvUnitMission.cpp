@@ -1438,7 +1438,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 		{
 			hUnit->SetActivityType(ACTIVITY_INTERCEPT);
 			//make sure it's immediately included in the list of interceptors!
-			GET_PLAYER(hUnit->getOwner()).UpdateAreaEffectUnit(hUnit);
+			hUnit->UpdateAreaEffect();
 			bDelete = true;
 		}
 

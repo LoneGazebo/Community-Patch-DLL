@@ -2429,30 +2429,6 @@ void CvCity::doTurn()
 	updateEconomicValue();
 	UpdateGrowthFromTourism();
 
-	if (plot() != NULL)
-	{
-		for (int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
-		{
-			CvUnit* pLoopUnit = plot()->getUnitByIndex(iUnitLoop);
-
-			//Only get land combat units
-			if (pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->IsCannotHeal(true))
-			{
-				if (pLoopUnit->getDamage() > 0)
-				{
-					if ((pLoopUnit->getDamage() - GetAlwaysHeal()) <= 0)
-					{
-						pLoopUnit->setDamage(0);
-					}
-					else
-					{
-						pLoopUnit->changeDamage(-GetAlwaysHeal());
-					}
-				}
-			}
-		}
-	}
-
 	DoEvents();
 
 	setDrafted(false);

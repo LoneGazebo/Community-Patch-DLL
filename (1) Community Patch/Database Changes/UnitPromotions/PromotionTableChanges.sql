@@ -305,6 +305,9 @@ ALTER TABLE UnitPromotions ADD FlatHealRate integer DEFAULT 0;
 -- Heals friendly units of the same domain within aura range for +X at the end of every turn. Default aura range is 2, and is increased/decreased by AuraRangeChange.
 ALTER TABLE UnitPromotions ADD PassiveAoEHeal integer DEFAULT 0;
 
+-- Disable enemy land interceptors within range. Works for teammates but does NOT help enemies of enemies (too computational heavy).
+ALTER TABLE UnitPromotions ADD JammingRadius integer DEFAULT 0;
+
 -- PROMOTIONS_DEEP_WATER_EMBARKATION
 ALTER TABLE UnitPromotions ADD EmbarkedDeepWater boolean DEFAULT 0;
 

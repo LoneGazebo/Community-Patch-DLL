@@ -2334,7 +2334,7 @@ void CvHomelandAI::PlotGeneralMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-			if(pUnit->IsGreatGeneral() || pUnit->IsCityAttackSupport())
+			if(pUnit->IsGreatGeneral())
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
