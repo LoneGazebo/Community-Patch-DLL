@@ -3309,9 +3309,6 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 // Should only be called once.
 bool CvMinorCivQuest::DoFinishQuest()
 {
-	if (!IsComplete())
-		return false;
-
 	if (IsHandled())
 		return false;
 
