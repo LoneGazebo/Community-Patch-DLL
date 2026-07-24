@@ -102,6 +102,9 @@ UPDATE Defines SET Value = 2 WHERE Name = 'BASE_CITY_AIR_STACKING';
 -- Multiplier of aircraft range for rebase x100
 UPDATE Defines SET Value = 500 WHERE Name = 'AIR_UNIT_REBASE_RANGE_MULTIPLIER';
 
+-- Maximum chance of evasion (this also affects whether evasion promotions can be picked)
+UPDATE Defines SET Value = 100 WHERE Name = 'MAX_EVASION_PROBABILITY';
+
 -- % population retained if city is captured. Modified by cultural influence.
 UPDATE Defines SET Value = 75 WHERE Name = 'CITY_CAPTURE_POPULATION_PERCENT';
 

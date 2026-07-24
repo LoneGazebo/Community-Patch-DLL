@@ -28,6 +28,8 @@ ALTER TABLE UnitPromotions ADD AttackBelowEqual50HealthMod integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD RangedFlankAttack boolean DEFAULT 0;
 -- counts as extra units when supporting a flank
 ALTER TABLE UnitPromotions ADD ExtraFlankPower integer DEFAULT 0;
+-- Provides flat combat strength% when supporting a positive flank. Only works for own team.
+ALTER TABLE UnitPromotions ADD FlankSupportModifier integer DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD SplashDamage integer DEFAULT 0;
 

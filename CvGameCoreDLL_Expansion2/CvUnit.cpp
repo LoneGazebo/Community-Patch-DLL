@@ -260,6 +260,7 @@ CvUnit::CvUnit() :
 	, m_iRangedFlankAttack()
 	, m_iFlankPower()
 	, m_iFlankAttackModifier()
+	, m_iFlankSupportModifier()
 	, m_iExtraOpenDefensePercent()
 	, m_iExtraRoughDefensePercent()
 	, m_iExtraOpenFromPercent()
@@ -1405,6 +1406,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iRangedFlankAttack = 0;
 	m_iFlankPower = 1;
 	m_iFlankAttackModifier = 0;
+	m_iFlankSupportModifier = 0;
 	m_iExtraOpenDefensePercent = 0;
 	m_iExtraRoughDefensePercent = 0;
 	m_iExtraOpenFromPercent = 0;
@@ -23690,6 +23692,22 @@ void CvUnit::ChangeFlankAttackModifier(int iChange)
 }
 
 
+int CvUnit::GetFlankSupportModifier() const
+{
+	VALIDATE_OBJECT();
+	return m_iFlankSupportModifier;
+}
+
+void CvUnit::ChangeFlankSupportModifier(int iChange)
+{
+	VALIDATE_OBJECT();
+	if (iChange != 0)
+	{
+		m_iFlankSupportModifier += iChange;
+		setInfoBarDirty(true);
+	}
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraOpenDefensePercent() const
 {
@@ -27808,7 +27826,7 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
 	// Max evasion
 	if(promotionInfo->GetEvasionChange() > 0)
 	{
-		if(promotionInfo->GetEvasionChange() + evasionProbability() > /*90*/ GD_INT_GET(MAX_EVASION_PROBABILITY))
+		if(promotionInfo->GetEvasionChange() + evasionProbability() > /*90 in CP, 100 in VP*/ GD_INT_GET(MAX_EVASION_PROBABILITY))
 			return false;
 	}
 
@@ -28466,7 +28484,6 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 
 	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iI);
 		changeUnitClassModifier(((UnitClassTypes)iI), (thisPromotion.GetUnitClassModifierPercent(iI) * iChange));
 		changeUnitClassAttackMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassAttackModifier(iI) * iChange));
 		changeUnitClassDefenseMod(((UnitClassTypes)iI), (thisPromotion.GetUnitClassDefenseModifier(iI) * iChange));
@@ -28870,6 +28887,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iRangedFlankAttack);
 	visitor(unit.m_iFlankPower);
 	visitor(unit.m_iFlankAttackModifier);
+	visitor(unit.m_iFlankSupportModifier);
 	visitor(unit.m_iExtraOpenDefensePercent);
 	visitor(unit.m_iExtraRoughDefensePercent);
 	visitor(unit.m_iExtraOpenFromPercent);

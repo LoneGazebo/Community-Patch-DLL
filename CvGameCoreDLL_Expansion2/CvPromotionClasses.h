@@ -112,6 +112,7 @@ public:
 	bool IsRangedFlankAttack() const;
 	int  GetExtraFlankPower() const;
 	int  GetFlankAttackModifier() const;
+	int  GetFlankSupportModifier() const;
 	int  GetNearbyEnemyCombatMod() const;
 	int  GetNearbyEnemyCombatRange() const;
 	int  GetOpenDefensePercent() const;
@@ -439,6 +440,7 @@ protected:
 	bool m_bRangedFlankAttack;
 	int m_iExtraFlankPower;
 	int m_iFlankAttackModifier;
+	int m_iFlankSupportModifier;
 	int m_iNearbyEnemyCombatMod;
 	int m_iNearbyEnemyCombatRange;
 	int m_iOpenDefensePercent;

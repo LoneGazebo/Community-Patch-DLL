@@ -3911,11 +3911,12 @@ int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherU
 	const CvPlot* pOtherPlot = pOtherUnitPlot ? pOtherUnitPlot : pOtherUnit->plot();
 
 	//our units are the enemy's enemies ...
-	int iNumUnitsAdjacentToOther = pOtherPlot->GetNumEnemyUnitsAdjacent( pOtherUnit->getTeam(), pOtherUnit->getDomainType(), pUnit, true);
-	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit, true);
+	int iFlankModifier = 0;
+	int iNumUnitsAdjacentToOther = pOtherPlot->GetNumEnemyUnitsAdjacent(pOtherUnit->getTeam(), pOtherUnit->getDomainType(), pUnit, true, pUnit->getTeam(), false, &iFlankModifier);
+	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit, true);
 
 	if (iNumUnitsAdjacentToOther > iNumUnitsAdjacentToHere)
-		return (pUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere);
+		return (pUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere) + iFlankModifier;
 
 	return 0;
 }
@@ -3928,9 +3929,10 @@ int CvPlot::GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const
 		return 0;
 
 	// ranged units can't get flanked when they attack, but their target can be
-	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pDefendingUnit->getTeam(), pDefendingUnit->getDomainType(), pAttackingUnit, true);
+	int iFlankModifier = 0;
+	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent(pDefendingUnit->getTeam(), pDefendingUnit->getDomainType(), pAttackingUnit, true, pAttackingUnit->getTeam(), false, &iFlankModifier);
 
-	return (pAttackingUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToHere);
+	return (pAttackingUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * iNumUnitsAdjacentToHere + iFlankModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -15861,91 +15863,88 @@ pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bS
 	return make_pair(iFriendlyPower,iEnemyPower);
 }
 
-// iterator needs same structure as the next function, where it is used as a helper
 int CvPlot::GetNumThisTeamUnitsAdjacent(TeamTypes eMyTeam, TeamTypes eSpecificTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, bool bIncludeEmbarked) const
 {
-	int iNumEnemiesAdjacent = 0;
-
+	int iNumThisTeamUnitsAdjacent = 0;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for (int iCount=0; iCount < NUM_DIRECTION_TYPES; iCount++)
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
 	{
-		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-		if (pLoopPlot != NULL && pLoopPlot->isVisible(eMyTeam))
+		CvPlot* pLoopPlot = aPlotsToCheck[i];
+		if (pLoopPlot && pLoopPlot->isVisible(eMyTeam))
 		{
-			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-
-			// Loop through all units on this plot
-			while (pUnitNode != NULL)
+			for (int j = 0; j < pLoopPlot->getNumUnits(); j++)
 			{
-				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(j);
+				if (pLoopUnit == pUnitToExclude)
+					continue;
 
-				// No NULL, and no unit we want to exclude
-				if (pLoopUnit && pLoopUnit != pUnitToExclude)
+				// This team which this unit belongs to must be the passed team
+				if (pLoopUnit->getTeam() != eSpecificTeam)
+					continue;
+
+				if (pLoopUnit->isDelayedDeath())
+					continue;
+
+				// Must be combat units; planes/missiles/nukes don't count
+				if (!pLoopUnit->IsCombatUnit())
+					continue;
+
+				if (pLoopUnit->isEmbarked() && !bIncludeEmbarked)
+					continue;
+
+				// Must be the provided domain or DOMAIN_HOVER
+				DomainTypes eTheirDomain = pLoopUnit->getDomainType();
+				if (eDomain == NO_DOMAIN || eTheirDomain == eDomain || eTheirDomain == DOMAIN_HOVER)
 				{
-					// Must be a combat Unit
-					if (pLoopUnit->IsCombatUnit() && (!pLoopUnit->isEmbarked() || bIncludeEmbarked))
-					{
-						TeamTypes eTheirTeam = pLoopUnit->getTeam();
-
-						// This team which this unit belongs to must be the passed team
-						if (eTheirTeam == eSpecificTeam)
-						{
-							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
-							{
-								iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
-							}
-						}
-					}
+					iNumThisTeamUnitsAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
 				}
 			}
 		}
 	}
 
-	return iNumEnemiesAdjacent;
+	return iNumThisTeamUnitsAdjacent;
 }
 
-int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, TeamTypes eSpecificTeam, bool bIncludeEmbarked) const
+int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, TeamTypes eSpecificTeam, bool bIncludeEmbarked, int* piExtraFlankModifier) const
 {
+	if (piExtraFlankModifier)
+		*piExtraFlankModifier = 0;
+
+	CvTeam& kTeam = GET_TEAM(eMyTeam);
 	int iNumEnemiesAdjacent = 0;
-
-	if (eSpecificTeam != NO_TEAM && !GET_TEAM(eSpecificTeam).isAtWar(eMyTeam))
-	{
-		iNumEnemiesAdjacent += GetNumThisTeamUnitsAdjacent(eMyTeam, eSpecificTeam, eDomain, pUnitToExclude, bConsiderFlanking, bIncludeEmbarked);
-	}
-
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
 	{
-		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-		if(pLoopPlot != NULL && pLoopPlot->isVisible(eMyTeam))
+		CvPlot* pLoopPlot = aPlotsToCheck[i];
+		if (pLoopPlot && pLoopPlot->isVisible(eMyTeam))
 		{
-			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-
-			// Loop through all units on this plot
-			while(pUnitNode != NULL)
+			for (int j = 0; j < pLoopPlot->getNumUnits(); j++)
 			{
-				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(j);
+				if (pLoopUnit == pUnitToExclude)
+					continue;
 
-				// No NULL, and no unit we want to exclude
-				if(pLoopUnit && pLoopUnit != pUnitToExclude)
+				if (pLoopUnit->isDelayedDeath())
+					continue;
+
+				// Must be combat units; planes/missiles/nukes don't count
+				if (!pLoopUnit->IsCombatUnit())
+					continue;
+
+				if (pLoopUnit->isEmbarked() && !bIncludeEmbarked)
+					continue;
+
+				// Must be the provided domain or DOMAIN_HOVER
+				DomainTypes eTheirDomain = pLoopUnit->getDomainType();
+				if (eDomain == NO_DOMAIN || eTheirDomain == eDomain || eTheirDomain == DOMAIN_HOVER)
 				{
-					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && (!pLoopUnit->isEmbarked() || bIncludeEmbarked))
+					// This team which this unit belongs to must be at war with us
+					TeamTypes eTheirTeam = pLoopUnit->getTeam();
+					if (kTeam.isAtWar(eTheirTeam) || eTheirTeam == eSpecificTeam)
 					{
-						TeamTypes eTheirTeam = pLoopUnit->getTeam();
-
-						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
-						{
-							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
-							{
-								iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
-							}
-						}
+						iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
+						if (piExtraFlankModifier && eTheirTeam == eSpecificTeam)
+							*piExtraFlankModifier += pLoopUnit->GetFlankSupportModifier();
 					}
 				}
 			}
