@@ -6089,7 +6089,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 		CvPlot* pOriginPlot = GC.getMap().plot(aTradeConnections[ui].m_iOriginX, aTradeConnections[ui].m_iOriginY);
 
 		// Don't plan two Trade Routes between the same origin/destination city pair
-		// It's possible for a Land and Sea Trade Route to both point to the same city, but they are mutually exclusive, so we only want the highest-scoring one (which will come first in the list...)
+		// Both a Land and Sea Trade Route can simultaneously be possible choices between a pair of cities, but they are mutually exclusive, so we only want the highest-scoring one (which will come first in the list...)
 		std::pair<int, int> kCityPair(pOriginPlot->GetPlotIndex(), pDestCity->plot()->GetPlotIndex());
 		if (siPlannedTradeRouteCityPairs.find(kCityPair) != siPlannedTradeRouteCityPairs.end())
 			continue;

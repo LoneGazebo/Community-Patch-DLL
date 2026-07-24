@@ -367,80 +367,78 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 	}
 
 	// Loop through all the players
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if (kPlayer.isAlive())
+		if (!kPlayer.isAlive())
+			continue;
+
+		// Loop through each of their cities
+		int iLoop = 0;
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
-			// do they have a spy that spreads pressure?
-			CvPlayerEspionage* pEspionage = kPlayer.GetEspionage();
-			if (pEspionage && pEspionage->GetSpyIndexInCity(pCity) != -1)
-			{
-				ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
-				if (eStateReligion != NO_PLAYER)
-				{
-					int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
-					int iSpyPressureErosion = kPlayer.GetReligions()->GetSpyPressureErosion((PlayerTypes)iI);
-					if (iSpyPressure > 0)
-						pCity->GetCityReligions()->AddSpyPressure(eStateReligion, iSpyPressure);
-					if (iSpyPressureErosion > 0)
-						pCity->GetCityReligions()->DoSpyPressureErosion(eStateReligion, iSpyPressureErosion, (PlayerTypes)iI);
-				}
-			}
+			// Ignore the same city
+			if (pCity == pLoopCity)
+				continue;
 
-			// do we have their franchise that spreads pressure?
-			int iFranchisePressure = kPlayer.GetFranchisePressure();
-			if (iFranchisePressure > 0)
+			for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
 			{
-				CorporationTypes eCorporation = kPlayer.GetCorporations()->GetFoundedCorporation();
-				if (eCorporation != NO_CORPORATION && pCity->IsHasFranchise(eCorporation))
-				{
-					ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetStateReligion();
-					if (eReligionFounded != NO_RELIGION)
-					{
-						pCity->GetCityReligions()->AddFranchisePressure(eReligionFounded, iFranchisePressure);
-					}
-				}
-			}
+				ReligionTypes eReligion = (ReligionTypes)iI;
 
-			// Loop through each of their cities
-			int iLoop = 0;
-			CvCity* pLoopCity = NULL;
-			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-			{
-				// Ignore the same city
-				if (pCity == pLoopCity)
-				{
+				if (!IsValidTarget(eReligion, pLoopCity, pCity))
 					continue;
-				}
 
-				for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
+				if (pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) > 0)
 				{
-					ReligionTypes eReligion = (ReligionTypes)iI;
-
-					if (!IsValidTarget(eReligion, pLoopCity, pCity))
+					bool bConnectedWithTrade = false;
+					int iRelativeDistancePercent = 0;
+					if (!IsCityConnectedToCity(eReligion, pLoopCity, pCity, bConnectedWithTrade, iRelativeDistancePercent))
 						continue;
 
-					if (pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) > 0)
+					int iNumTradeRoutes = 0;
+					int iPressure = GetAdjacentCityReligiousPressure(eReligion, pLoopCity, pCity, iNumTradeRoutes, true, false, bConnectedWithTrade, iRelativeDistancePercent);
+					if (iPressure > 0)
 					{
-						bool bConnectedWithTrade = false;
-						int iRelativeDistancePercent = 0;
-						if (!IsCityConnectedToCity(eReligion, pLoopCity, pCity, bConnectedWithTrade, iRelativeDistancePercent))
-							continue;
-
-						int iNumTradeRoutes = 0;
-						int iPressure = GetAdjacentCityReligiousPressure(eReligion, pLoopCity, pCity, iNumTradeRoutes, true, false, bConnectedWithTrade, iRelativeDistancePercent);
-						if (iPressure > 0)
+						pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_ADJACENT_PRESSURE, eReligion, iPressure);
+						pCity->GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_ADJACENT_PRESSURE);
+						if (iNumTradeRoutes != 0)
 						{
-							pCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_ADJACENT_PRESSURE, eReligion, iPressure);
-							pCity->GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_ADJACENT_PRESSURE);
-							if (iNumTradeRoutes != 0)
-							{
-								pCity->GetCityReligions()->IncrementNumTradeRouteConnections(eReligion, iNumTradeRoutes);
-							}
+							pCity->GetCityReligions()->IncrementNumTradeRouteConnections(eReligion, iNumTradeRoutes);
 						}
 					}
 				}
+			}
+		}
+
+		if (iI >= MAX_MAJOR_CIVS)
+			continue;
+
+		ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion(false);
+		if (eStateReligion == NO_RELIGION)
+			continue;
+
+		// do we have their franchise that spreads pressure?
+		int iFranchisePressure = kPlayer.GetFranchisePressure();
+		if (iFranchisePressure > 0)
+		{
+			CorporationTypes eCorporation = kPlayer.GetCorporations()->GetFoundedCorporation();
+			if (eCorporation != NO_CORPORATION && pCity->IsHasFranchise(eCorporation))
+				pCity->GetCityReligions()->AddFranchisePressure(eStateReligion, iFranchisePressure);
+		}
+
+		// do they have a spy that spreads pressure?
+		CvPlayerEspionage* pEspionage = kPlayer.GetEspionage();
+		if (pEspionage && pEspionage->GetSpyIndexInCity(pCity) != -1)
+		{
+			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(pEspionage->GetSpyIndexInCity(pCity));
+			if (pSpy->GetSpyState() != SPY_STATE_TRAVELLING)
+			{
+				int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
+				int iSpyPressureErosion = kPlayer.GetReligions()->GetSpyPressureErosion((PlayerTypes)iI);
+				if (iSpyPressure > 0)
+					pCity->GetCityReligions()->AddSpyPressure(eStateReligion, iSpyPressure);
+				if (iSpyPressureErosion > 0)
+					pCity->GetCityReligions()->DoSpyPressureErosion(eStateReligion, iSpyPressureErosion, (PlayerTypes)iI);
 			}
 		}
 	}
@@ -4646,80 +4644,81 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 	int iCount = 0;
 	
 	// Loop through all the players
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive())
+		if (!kPlayer.isAlive())
+			continue;
+
+		// Loop through each of their cities
+		int iLoop = 0;
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
-			// Loop through each of their cities
-			int iLoop = 0;
-			CvCity* pLoopCity = NULL;
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			// Ignore the same city
+			if (m_pCity == pLoopCity)
+				continue;
+
+			if (pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) <= 0)
+				continue;
+
+			if (!GC.getGame().GetGameReligions()->IsValidTarget(eReligion, pLoopCity, m_pCity))
+				continue;
+
+			//it would be nice to use CvGameTrade::GetAllPotentialTradeRoutesFromCity() for each of our cities
+			//to save the loop over all players, but unfortunately we also need to check incoming trade routes
+			bool bConnectedWithTrade = false;
+			int iRelativeDistancePercent = 0;
+			if (!GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, pLoopCity, m_pCity, bConnectedWithTrade, iRelativeDistancePercent))
+				continue;
+
+			int iNumTradeRoutes = 0;
+			int iNewPressure = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, pLoopCity, m_pCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
+
+			if (iNewPressure > 0)
 			{
-				// Ignore the same city
-				if (m_pCity == pLoopCity)
-					continue;
-
-				if (pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) <= 0)
-					continue;
-
-				if (!GC.getGame().GetGameReligions()->IsValidTarget(eReligion, pLoopCity, m_pCity))
-					continue;
-
-				//it would be nice to use CvGameTrade::GetAllPotentialTradeRoutesFromCity() for each of our cities
-				//to save the loop over all players, but unfortunately we also need to check incoming trade routes
-				bool bConnectedWithTrade = false;
-				int iRelativeDistancePercent = 0;
-				if (!GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, pLoopCity, m_pCity, bConnectedWithTrade, iRelativeDistancePercent))
-					continue;
-
-				int iNumTradeRoutes = 0;
-				int iNewPressure = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, pLoopCity, m_pCity, iNumTradeRoutes, false, false, bConnectedWithTrade, iRelativeDistancePercent);
-
-				if (iNewPressure > 0)
-				{
-					iPressure += iNewPressure;
-					iCount++;
-				}
+				iPressure += iNewPressure;
+				iCount++;
 			}
+		}
 
-			if (kPlayer.isMajorCiv() && eReligion > RELIGION_PANTHEON && kPlayer.GetReligions()->GetStateReligion() == eReligion)
+		if (iI >= MAX_MAJOR_CIVS)
+			continue;
+
+		ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion(false);
+		if (eStateReligion == NO_RELIGION)
+			continue;
+
+		// Include any pressure from Franchises
+		if (eStateReligion == eReligion)
+		{
+			int iFranchisePressure = kPlayer.GetFranchisePressure();
+			if (iFranchisePressure > 0)
 			{
-				CvPlayerEspionage* pEspionage = kPlayer.GetEspionage();
-				if (pEspionage && pEspionage->GetSpyIndexInCity(m_pCity) != -1)
-				{
-					ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
-					if (eStateReligion != NO_RELIGION)
-					{
-						// Do they have a spy that applies pressure to this religion?
-						if (kPlayer.GetReligions()->GetStateReligion() == eReligion)
-						{
-							int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
-							if (iSpyPressure > 0)
-								iPressure += iSpyPressure * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
-						}
-						// Do they have a spy that erodes pressure from other religions?
-						else
-						{
-							int iSpyPressureErosion = kPlayer.GetReligions()->GetSpyPressureErosion((PlayerTypes)iI);
-							if (iSpyPressureErosion > 0)
-								iPressure -= iSpyPressureErosion * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
-						}
-					}
-				}
+				CorporationTypes eCorporation = kPlayer.GetCorporations()->GetFoundedCorporation();
+				if (eCorporation != NO_CORPORATION && m_pCity->IsHasFranchise(eCorporation))
+					iPressure += iFranchisePressure * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
 			}
-			
-			// Include any pressure from Franchises
-			if (eReligion > RELIGION_PANTHEON && kPlayer.GetReligions()->GetStateReligion() == eReligion)
+		}
+
+		CvPlayerEspionage* pEspionage = kPlayer.GetEspionage();
+		if (pEspionage && pEspionage->GetSpyIndexInCity(m_pCity) != -1)
+		{
+			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(pEspionage->GetSpyIndexInCity(m_pCity));
+			if (pSpy->GetSpyState() != SPY_STATE_TRAVELLING)
 			{
-				int iFranchisePressure = kPlayer.GetFranchisePressure();
-				if (iFranchisePressure > 0)
+				// Do they have a spy that applies pressure to this religion?
+				if (eStateReligion == eReligion)
 				{
-					CorporationTypes eCorporation = kPlayer.GetCorporations()->GetFoundedCorporation();
-					if (eCorporation != NO_CORPORATION && m_pCity->IsHasFranchise(eCorporation))
-					{
-						iPressure += iFranchisePressure * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
-					}
+					int iSpyPressure = kPlayer.GetReligions()->GetSpyPressure((PlayerTypes)iI);
+					if (iSpyPressure > 0)
+						iPressure += iSpyPressure * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
+				}
+				// Do they have a spy that erodes pressure from other religions?
+				else
+				{
+					int iSpyPressureErosion = kPlayer.GetReligions()->GetSpyPressureErosion((PlayerTypes)iI);
+					if (iSpyPressureErosion > 0)
+						iPressure -= iSpyPressureErosion * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
 				}
 			}
 		}
@@ -4731,6 +4730,7 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 		int iHolyCityPressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 		iHolyCityPressure *=  /*5*/ GD_INT_GET(RELIGION_PER_TURN_FOUNDING_CITY_PRESSURE);
 		iPressure += iHolyCityPressure;
+		iCount++;
 	}
 	
 	if (piNumSourceCities)

@@ -2934,8 +2934,9 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 /// bConquest is true if the city was directly captured by this player's units, and false otherwise.
 /// bGift is true if the city was gifted to the player (can be from a trade or from the Austria/Venice UAs; liberation does NOT count in this)
 /// bOriginally treats the city as if it was always owned by the acquiring player (can't be liberated later). However, this still counts as killing the old owner if they die.
-/// Cities ceded in a peace treaty have both bConquest=true and bGift=true. They count for warmongering/resistance because it's still threatening to the other players and forcible, but they do not grant yield bonuses since the player didn't put in the work.
-/// However, they also don't trigger population loss or building destruction. That's the tradeoff!
+/// Cities ceded in a peace treaty have both bConquest=true and bGift=true. They count for warmongering/resistance because it's still threatening to the other players and forcible, but they do not grant conquest bonuses since the player didn't put in the work.
+/// However, they also don't trigger population loss or building destruction. That's the tradeoff! This also applies to forcibly making a city surrender (instead of conquering it) via unique abilities.
+/// Cities traded during peacetime or via Merchant of Venice / vanilla Austria UA have bConquest=false and bGift=true, so they retain buildings/population but don't count for warmongering, resistance, or conquest bonuses.
 CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bOriginally)
 {
 	if (!pCity)

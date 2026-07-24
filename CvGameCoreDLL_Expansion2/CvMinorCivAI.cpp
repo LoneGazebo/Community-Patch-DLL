@@ -7152,7 +7152,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, GetPlayer()->GetID()))
 			return false;
 
-		// This player must have > 0 Trade Routes available to send out
+		// This player must have > 0 Trade Routes
 		if (GET_PLAYER(ePlayer).GetTrade()->GetNumTradeRoutesPossible() <= 0)
 			return false;
 

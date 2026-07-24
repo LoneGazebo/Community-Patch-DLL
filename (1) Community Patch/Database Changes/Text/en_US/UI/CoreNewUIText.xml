@@ -2221,7 +2221,7 @@
 			<Text>({1_Pressure} Pressure, +{2_PressurePerTurn} per Turn)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RELIGION_TOOLTIP_EXTENDED">
-			<Text>{1_ReligionIcon} {2_NumFollowers} {2_NumFollowers: plural 1?Follower; other?Followers;} ({3_TotalPressure} + {4_PressurePerTurn} Pressure from {5_Num} {5_Num:plural 1?Source City; other?Source Cities;})</Text>
+			<Text>{1_ReligionIcon} {2_NumFollowers} {2_NumFollowers: plural 1?Follower; other?Followers;} ({3_TotalPressure} + {4_PressurePerTurn} Pressure; {5_Num} {5_Num:plural 1?Source City; other?Source Cities;})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
 			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are at your maximum Supply cap!</Text>
