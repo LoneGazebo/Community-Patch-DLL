@@ -486,7 +486,7 @@ public:
 
 	ResourceTypes getResourceType(TeamTypes eTeam = NO_TEAM, bool bIgnoreTechPrereq = false) const;
 	ResourceTypes getNonObsoleteResourceType(TeamTypes eTeam = NO_TEAM) const;
-	void setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bForMinorCivPlot = false);
+	void setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bIgnoreMinorCivRestrictions = false);
 	int getNumResource() const;
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);

@@ -1082,7 +1082,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 			if(iResourceAmount <= 0)
 				iResourceAmount = 1;
 
-			pkPlot->setResourceType((ResourceTypes)kPlotData.GetResourceType(), iResourceAmount);
+			pkPlot->setResourceType((ResourceTypes)kPlotData.GetResourceType(), iResourceAmount, true);
 		}
 
 		if(kPlotData.GetFeatureType() != CvWorldBuilderMap::PlotMapData::InvalidFeature)
