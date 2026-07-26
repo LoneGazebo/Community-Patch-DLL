@@ -7753,7 +7753,7 @@ ResourceTypes CvPlot::getNonObsoleteResourceType(TeamTypes eTeam) const
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bForMinorCivPlot)
+void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bIgnoreMinorCivRestrictions)
 {
 	if (eNewValue < NO_RESOURCE)
 		return;
@@ -7770,7 +7770,7 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 			{
 				if (pkResourceInfo->isOnlyMinorCivs())
 				{
-					if (!bForMinorCivPlot)
+					if (!bIgnoreMinorCivRestrictions)
 					{
 						ASSERT(false, "Tried to place a city-state unique luxury when not allowed.");
 						return;
