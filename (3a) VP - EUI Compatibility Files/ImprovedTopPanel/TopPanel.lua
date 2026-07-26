@@ -1215,10 +1215,10 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 						tips:insert( L( "TXT_KEY_TP_TECH_ALLIES_DISCOUNT", iAlliesPct, iMinorAllies ) )
 					end
 
-					if iLeagueModPct ~= 0 then
-						tips:insert( L( "TXT_KEY_TP_TECH_DISCOUNT_FORMULA_WITH_LEAGUE", iBaseTeamCost, 100 + iPreLeagueModPct, 100 + iLeagueModPct, iFinalResearchModPct, baseCost ) )
+					if iScholarModPct ~= 0 then
+						tips:insert( L( "TXT_KEY_TP_TECH_DISCOUNT_FORMULA_WITH_SCHOLAR", iBaseTeamCost, 100 + iPreScholarModPct, 100 + iScholarModPct, iFinalResearchModPct, baseCost ) )
 					else
-						tips:insert( L( "TXT_KEY_TP_TECH_DISCOUNT_FORMULA_NO_LEAGUE", iBaseTeamCost, iPreLeagueModPct, iFinalResearchModPct, baseCost ) )
+						tips:insert( L( "TXT_KEY_TP_TECH_DISCOUNT_FORMULA_NO_SCHOLAR", iBaseTeamCost, iPreScholarModPct, iFinalResearchModPct, baseCost ) )
 					end
 					
 					tips:insert( "" )
