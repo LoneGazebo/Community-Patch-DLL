@@ -604,6 +604,7 @@ public:
 	int getBaseGreatPeopleRate() const;
 	int getGreatPeopleRate() const;
 	int getTotalGreatPeopleRateModifier() const;
+	int getTotalSpecialistRateModifier(SpecialistTypes eSpecialist, CvString* tooltip = NULL) const;
 	void changeBaseGreatPeopleRate(int iChange);
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
