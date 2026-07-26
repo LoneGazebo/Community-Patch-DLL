@@ -16850,15 +16850,14 @@ int CvCity::getBaseGreatPeopleRate() const
 int CvCity::getGreatPeopleRate() const
 {
 	VALIDATE_OBJECT();
-	return ((getBaseGreatPeopleRate() * getTotalGreatPeopleRateModifier()) / 100);
+	return getBaseGreatPeopleRate() * (100 + GET_PLAYER(getOwner()).getGreatPeopleRateModifier() + getTotalGreatPeopleRateModifier()) / 100;
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvCity::getTotalGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT();
-	int iModifier = getGreatPeopleRateModifier() + GET_PLAYER(getOwner()).getGreatPeopleRateModifier();
+	int iModifier = getGreatPeopleRateModifier();
 	
 	int iNumMarried = GET_PLAYER(getOwner()).GetNumMarriedCityStatesNotAtWar();
 	if (iNumMarried > 0)
@@ -16866,7 +16865,7 @@ int CvCity::getTotalGreatPeopleRateModifier() const
 		iModifier += (iNumMarried * getGPRateModifierPerMarriage());
 		if (isCapital())
 		{
-			iModifier += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE));
+			iModifier += (iNumMarried * /*0*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE));
 		}
 	}
 
@@ -16895,9 +16894,76 @@ int CvCity::getTotalGreatPeopleRateModifier() const
 		iModifier += /*0*/ GD_INT_GET(GOLDEN_AGE_GREAT_PEOPLE_MODIFIER);
 	}
 
-	return std::max(0, (iModifier + 100));
+	return std::max(-100, iModifier);
 }
 
+
+
+int CvCity::getTotalSpecialistRateModifier(SpecialistTypes eSpecialist, CvString* tooltip) const
+{
+	const GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
+	if (eGreatPerson == NO_GREATPERSON)
+		return 0;
+
+	int iPlayerMod = GetPlayer()->getGreatPeopleRateModifier() + GetPlayer()->GetGreatPersonRateModifier(eGreatPerson);
+	int iNumPuppets = GetPlayer()->GetNumPuppetCities();
+	if (iNumPuppets > 0)
+	{
+		iPlayerMod += iNumPuppets * GetPlayer()->GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson);
+	}
+
+	int iMonopolyMod = GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
+
+	int iCityMod = getTotalGreatPeopleRateModifier() + GetSpecialistRateModifierFromBuildings(eSpecialist);
+
+	int iGoldenAgePolicyMod = 0;
+	int iGoldenAgeTraitMod = 0;
+	int iGoldenAgeReligionMod = GetReligionGreatPersonRateModifier(eGreatPerson);
+	if (GetPlayer()->isGoldenAge())
+	{
+		iGoldenAgePolicyMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
+		iGoldenAgeTraitMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+	}
+
+	int iTotalMod = iPlayerMod + iMonopolyMod + iCityMod + iGoldenAgeTraitMod + iGoldenAgePolicyMod + iGoldenAgeReligionMod;
+	if (tooltip && iTotalMod > 0)
+	{
+		// Player mod already includes league mod, so we separate them
+		// Unfortunately, this is still hardcoded
+		const GreatPersonTypes eEngineer = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ENGINEER"));
+		const GreatPersonTypes eScientist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_SCIENTIST"));
+		const GreatPersonTypes eMerchant = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MERCHANT"));
+		const GreatPersonTypes eArtist = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_ARTIST"));
+		const GreatPersonTypes eMusician = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_MUSICIAN"));
+		const GreatPersonTypes eWriter = static_cast<GreatPersonTypes>(GC.getInfoTypeForString("GREATPERSON_WRITER"));
+
+		int iLeagueMod = 0;
+		if (eGreatPerson == eEngineer || eGreatPerson == eScientist || eGreatPerson == eMerchant)
+		{
+			iLeagueMod += GC.getGame().GetGameLeagues()->GetScienceyGreatPersonRateModifier(getOwner());
+		}
+		else if (eGreatPerson == eArtist || eGreatPerson == eMusician || eGreatPerson == eWriter)
+		{
+			iLeagueMod += GC.getGame().GetGameLeagues()->GetArtsyGreatPersonRateModifier(getOwner());
+		}
+
+		// City mod can be further divided into buildings and others
+		int iImprovementMod = GetImprovementGreatPersonRateModifier();
+		int iCapitalMod = isCapital() ? (GetPlayer()->GetNumMarriedCityStatesNotAtWar() * /*0*/ GD_INT_GET(BALANCE_GPP_RATE_IN_CAPITAL_PER_MARRIAGE)) : 0;
+
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_PLAYER", iPlayerMod - iLeagueMod);
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_MONOPOLY", iMonopolyMod);
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_CAPITAL", iCapitalMod);
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_BUILDINGS", iCityMod - iImprovementMod - iCapitalMod);
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_TRAIT", iGoldenAgeTraitMod);
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_POLICY", iGoldenAgePolicyMod);
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_BELIEF", iGoldenAgeReligionMod);
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_IMPROVEMENT", iImprovementMod);
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_LEAGUE", iLeagueMod);
+	}
+
+	return iTotalMod;
+}
 
 //	--------------------------------------------------------------------------------
 void CvCity::changeBaseGreatPeopleRate(int iChange)

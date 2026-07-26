@@ -8551,7 +8551,7 @@ int CvEspionageAI::GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eO
 	{
 		int iCapSpecialists = pCity->GetCityCitizens()->GetTotalSpecialistCount();
 		// if you had to focus a yield you would want to work all one specialist, set a midgame value for that of 3 as the minimum
-		int iGPP = /* base GPP from a specialist */ 3 * min(3, iCapSpecialists) * pCity->getTotalGreatPeopleRateModifier() / 100;
+		int iGPP = /* base GPP from a specialist */ 3 * min(3, iCapSpecialists) * (100 + GET_PLAYER(eOwner).getGreatPeopleRateModifier() + pCity->getTotalGreatPeopleRateModifier()) / 100;
 		iGPP *= pkMissionInfo->getEventDuration();
 		// GPP are less of a great person as the game goes on
 		iGPP /= max(1, (int)GET_PLAYER(eOwner).GetCurrentEra());
@@ -8985,7 +8985,7 @@ int CvEspionageAI::GetMissionScoreOffensiveBenefits(CvCity* pCity, PlayerTypes e
 	{
 		int iCapSpecialists = m_pPlayer->getCapitalCity() ? m_pPlayer->getCapitalCity()->GetCityCitizens()->GetTotalSpecialistCount() : 0;
 		// if it became profitable, you could always work around 2 merchant, scientist, engineer, wam/cs = 8
-		int iGPP = /* base GPP from a specialist */ 3 * min(8, iCapSpecialists) * pCity->getTotalGreatPeopleRateModifier() / 100;
+		int iGPP = /* base GPP from a specialist */ 3 * min(8, iCapSpecialists) * (100 + GET_PLAYER(eTargetPlayer).getGreatPeopleRateModifier() + pCity->getTotalGreatPeopleRateModifier()) / 100;
 		iGPP *= pkMissionInfo->getEventDuration();
 		// GPP are less of a great person as the game goes on
 		iGPP /= max(1, (int)GET_PLAYER(eTargetPlayer).GetCurrentEra());
