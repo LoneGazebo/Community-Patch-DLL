@@ -852,7 +852,7 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL", GameInfo.Buildings[iQuestData1].Description, pMinor:GetXQuestBuildingRemaining(iMajor, eType, iQuestData1));
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_MISSION) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPY_MISSION_FORMAL" , Players[iQuestData1]:GetNameKey(), pMinor:GetQuestSpyMissionString(iMajor, eType) );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPY_MISSION_FORMAL" , pMinor:GetQuestSpyMissionString(iMajor, eType) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL" , Players[iQuestData1]:GetNameKey(), pMinor:QuestSpyActionsRemaining(iMajor, eType) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_COUP) then
