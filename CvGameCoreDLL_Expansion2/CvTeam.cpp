@@ -6181,6 +6181,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		return;
 	}
 
+	int iChange = (bNewValue) ? 1 : -1;
 	if(GetTeamTechs()->HasTech(eIndex) != bNewValue)
 	{
 		if (MOD_ENABLE_ACHIEVEMENTS)
@@ -6198,7 +6199,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 		if(pkTechInfo->IsRepeat())
 		{
-			processTech(eIndex, 1);
+			processTech(eIndex, iChange, bNoBonus);
 			GetTeamTechs()->IncrementTechCount(eIndex);
 
 			GetTeamTechs()->SetResearchProgress(eIndex, 0, ePlayer);
@@ -6512,11 +6513,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 		}
 
-		processTech(eIndex, ((bNewValue) ? 1 : -1), bNoBonus);
-
-		// process resources that are now improved
 		if (!pkTechInfo->IsRepeat())
 		{
+			processTech(eIndex, iChange, bNoBonus);
+
+			// process resources that are now improved
 			const int iNumPlots = GC.getMap().numPlots();
 			for (int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
 			{
@@ -7385,6 +7386,18 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			{
 				GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateNetHappiness();
 			}
+		}
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args(3);
+			args->Push(GetID());
+			args->Push(eIndex);
+			args->Push(iChange);
+
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "TeamTechResearched", args.get(), bResult);
 		}
 
 		if (GC.getGame().isFinalInitialized())
@@ -8361,18 +8374,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 				}
 			}
 		}
-	}
-
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
-	{
-		CvLuaArgsHandle args(3);
-		args->Push(GetID());
-		args->Push(eTech);
-		args->Push(iChange);
-
-		bool bResult = false;
-		LuaSupport::CallHook(pkScriptSystem, "TeamTechResearched", args.get(), bResult);
 	}
 
 	// End game!
