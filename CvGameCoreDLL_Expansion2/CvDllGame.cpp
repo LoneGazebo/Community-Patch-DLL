@@ -633,9 +633,13 @@ void CvDllGame::InitExeStuff()
 #ifdef WIN32
 	if (binType == BIN_DX11 || binType == BIN_DX9 || binType == BIN_TABLET)
 	{
+		// The hardcoded addresses below are from the EXE's preferred image base
+		// (0x400000). The EXE can be rebased anywhere - including BELOW the
+		// preferred base (observed at 0x000E0000) - so convert to an RVA first
+		// and add it to the actual base. This avoids the transient wraparound
+		// of computing (baseAddr - 0x400000) when baseAddr < 0x400000.
 		DWORD baseAddr = (DWORD) GetModuleHandleA(NULL);
 		DWORD headersOffset = 0x400000;
-		DWORD totalOffset = baseAddr - headersOffset;
 
 		DWORD wantForceResyncAddr = 0;
 		if (binType == BIN_DX11)
@@ -653,7 +657,8 @@ void CvDllGame::InitExeStuff()
 
 		if (wantForceResyncAddr != 0)
 		{
-			int* s_wantForceResync = reinterpret_cast<int*>(wantForceResyncAddr + totalOffset);
+			DWORD wantForceResyncRVA = wantForceResyncAddr - headersOffset;
+			int* s_wantForceResync = reinterpret_cast<int*>(baseAddr + wantForceResyncRVA);
 			m_pGame->SetExeWantForceResyncPointer(s_wantForceResync);
 		}
 	}
