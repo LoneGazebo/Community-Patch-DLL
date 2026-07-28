@@ -347,7 +347,12 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive)
 		int iNewWeight = 0;
 		if (bNeedExpensiveTechs)
 		{
-			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor);
+			// the product can exceed INT_MAX (or be infinity when iTurnsLeft is the
+			// INT_MAX "cannot research" sentinel): saturate in the double domain,
+			// since an out-of-range double-to-int cast is undefined behavior and
+			// would invert the intent by turning a huge weight into INT_MIN
+			double fNewWeight = double(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor;
+			iNewWeight = fNewWeight >= double(INT_MAX) ? INT_MAX : int(fNewWeight);
 		}
 		else
 		{
