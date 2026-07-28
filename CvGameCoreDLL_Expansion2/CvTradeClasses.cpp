@@ -5417,7 +5417,8 @@ int CvPlayerTrade::GetNumTradeUnits(bool bIncludeBeingBuilt) const
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetNumTradeUnitsRemaining (bool bIncludeBeingBuilt)
 {
-	return (GetNumTradeRoutesPossible() - GetNumTradeUnits(bIncludeBeingBuilt));
+	//result may be negative - make sure the subtraction happens in signed arithmetic
+	return ((int)GetNumTradeRoutesPossible() - GetNumTradeUnits(bIncludeBeingBuilt));
 }
 
 //	--------------------------------------------------------------------------------
