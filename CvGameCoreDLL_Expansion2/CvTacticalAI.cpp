@@ -11326,7 +11326,9 @@ void CvSupportPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, i
 		{
 			// Try to move towards the target
 			int iNewPlotDistanceToTarget = TacticalAIHelpers::GetPlotDistanceToTarget(it->iPlotIndex, pUnit->getDomainType());
-			iMoveTowardsTargetScore = iOldPlotDistanceToTarget - iNewPlotDistanceToTarget;
+			// INT_MAX means unreachable - can't meaningfully compare distances then
+			if (iOldPlotDistanceToTarget != INT_MAX && iNewPlotDistanceToTarget != INT_MAX)
+				iMoveTowardsTargetScore = iOldPlotDistanceToTarget - iNewPlotDistanceToTarget;
 		}
 
 		STacticalAssignment* moveToPlot = ScorePlotForSupportMove(unit, pTestPlot, it->iMovesLeft, *this, EM_INTERMEDIATE, bLastPosition);
