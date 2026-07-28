@@ -6118,6 +6118,9 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 
 	// Move all Trade Routes into a single vector in order to sort them by score
 	std::vector<TRSortElement> aTotalList;
+	// reserve the exact final size - repeated geometric growth needs old and new buffer simultaneously,
+	// which can fail when the address space is nearly exhausted in the late game
+	aTotalList.reserve(aProductionSortedTR.size() + aFoodSortedTR.size() + aWonderSortedTR.size() + aGoldSortedTR.size() + aGoldInternalSortedTR.size());
 
 	for (uint ui = 0; ui < aProductionSortedTR.size(); ui++)
 	{
