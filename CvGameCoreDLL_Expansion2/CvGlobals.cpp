@@ -2514,7 +2514,8 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		minAddress = (byte*)si.lpMinimumApplicationAddress;
 		maxAddress = (byte*)si.lpMaximumApplicationAddress;
 
-		maxMemory = maxAddress - minAddress + 1;
+		//the full address range exceeds ptrdiff_t on 32 bit - compute in unsigned arithmetic
+		maxMemory = (size_t)maxAddress - (size_t)minAddress + 1;
 
 		byte* currentAddress = minAddress;
 
