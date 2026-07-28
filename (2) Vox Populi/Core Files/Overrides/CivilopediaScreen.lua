@@ -969,12 +969,14 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 			-- If it comes from a policy, prepend that information
 			if building.PolicyType ~= nil then
 				local policy = GameInfo.Policies[building.PolicyType]
-				local ppbranch = policy.PolicyBranchType
-				if ppbranch then
-				    name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[ppbranch].Description ) .. ")[ENDCOLOR] " .. name;
-				-- if not, its an opener or finisher, so the policy name is the branch name
-				else
-					name = "[COLOR_MAGENTA](" .. Locale.Lookup( policy.Description ) .. ")[ENDCOLOR] " .. name;
+				if not policy.IsDummy then
+					local ppbranch = policy.PolicyBranchType
+					if ppbranch then
+					    name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[ppbranch].Description ) .. ")[ENDCOLOR] " .. name;
+					-- if not, its an opener or finisher, so the policy name is the branch name
+					else
+						name = "[COLOR_MAGENTA](" .. Locale.Lookup( policy.Description ) .. ")[ENDCOLOR] " .. name;
+					end
 				end
 			elseif building.PolicyBranchType ~= nil then
 				name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[building.PolicyBranchType].Description ) .. ")[ENDCOLOR] " .. name;
@@ -1037,12 +1039,14 @@ CivilopediaCategory[CategoryWonders].PopulateList = function()
 			-- If it comes from a policy, prepend that information
 			if building.PolicyType ~= nil then
 				local policy = GameInfo.Policies[building.PolicyType]
-				local ppbranch = policy.PolicyBranchType
-				if ppbranch then
-				    name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[ppbranch].Description ) .. ")[ENDCOLOR] " .. name;
-				-- if not, its an opener or finisher, so the policy name is the branch name
-				else
-					name = "[COLOR_MAGENTA](" .. Locale.Lookup( policy.Description ) .. ")[ENDCOLOR] " .. name;
+				if not policy.IsDummy then
+					local ppbranch = policy.PolicyBranchType
+					if ppbranch then
+					    name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[ppbranch].Description ) .. ")[ENDCOLOR] " .. name;
+					-- if not, its an opener or finisher, so the policy name is the branch name
+					else
+						name = "[COLOR_MAGENTA](" .. Locale.Lookup( policy.Description ) .. ")[ENDCOLOR] " .. name;
+					end
 				end
 			elseif building.PolicyBranchType ~= nil then
 				name = "[COLOR_MAGENTA](" .. Locale.Lookup(GameInfo.PolicyBranchTypes[building.PolicyBranchType].Description ) .. ")[ENDCOLOR] " .. name;
