@@ -1817,8 +1817,9 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	// If we have more explorers than we need, don't build more units above the force limit anyway
 	iMaxPossibleUnits -= max(iExplorersNeeded, iNumExplorers);
 	
-	m_iRecLandUnits = static_cast<int>((iMaxPossibleUnits * (100 * iLandDefenseWeight + iTotalOffenseWeight * (100 - iNavalPercent)) / (100.0f * iTotalWeight)) + 0.5f);
-	m_iRecNavalUnits = static_cast<int>((iMaxPossibleUnits * (100 * iNavalDefenseWeight + iTotalOffenseWeight * iNavalPercent)) / (100.0f * iTotalWeight) + 0.5f);
+	// 64 bit math for the numerator - the modifier-scaled weights times the unit cap exceed INT_MAX for large late-game empires
+	m_iRecLandUnits = static_cast<int>(((long long)iMaxPossibleUnits * (100LL * iLandDefenseWeight + (long long)iTotalOffenseWeight * (100 - iNavalPercent)) / (100.0f * iTotalWeight)) + 0.5f);
+	m_iRecNavalUnits = static_cast<int>(((long long)iMaxPossibleUnits * (100LL * iNavalDefenseWeight + (long long)iTotalOffenseWeight * iNavalPercent)) / (100.0f * iTotalWeight) + 0.5f);
 
 	int iNumLandUnits = m_pPlayer->GetNumUnitsWithDomain(DOMAIN_LAND, true) - iNumExplorers;
 	int iNumNavalUnits = m_pPlayer->GetNumUnitsWithDomain(DOMAIN_SEA, true);
