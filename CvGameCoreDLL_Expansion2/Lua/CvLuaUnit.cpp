@@ -2767,7 +2767,7 @@ int CvLuaUnit::lGetImprovementBuildType(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const BuildTypes eBuild = pkUnit->getBuildType();
-	const CvBuildInfo* pBuild = GC.getBuildInfo(eBuild);
+	const CvBuildInfo* pBuild = (eBuild != NO_BUILD) ? GC.getBuildInfo(eBuild) : NULL;
 	int iImprovement = (int)NO_IMPROVEMENT;
 	if (pBuild)
 	{
