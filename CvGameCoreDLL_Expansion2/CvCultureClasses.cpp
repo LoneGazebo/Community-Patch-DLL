@@ -3886,7 +3886,7 @@ int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstantTimes100(Player
 {
 	int iBase = GET_PLAYER(eOtherPlayer).GetTotalJONSCulturePerTurnTimes100();
 	int iEndTurn = GC.getGame().getGameTurn();
-	int iStartTurn = GC.getGame().getGameTurn() - INSTANT_YIELD_HISTORY_LENGTH;
+	int iStartTurn = GC.getGame().getGameTurn() - (int)INSTANT_YIELD_HISTORY_LENGTH;
 
 	return iBase + GET_PLAYER(eOtherPlayer).getInstantYieldAvg(YIELD_CULTURE, iStartTurn, iEndTurn) * 100;
 }
@@ -3899,7 +3899,7 @@ int CvPlayerCulture::GetTourismPerTurnIncludingInstantTimes100(PlayerTypes ePlay
 		iBase = GetInfluencePerTurnTimes100(ePlayer);
 
 	int iEndTurn = GC.getGame().getGameTurn();
-	int iStartTurn = GC.getGame().getGameTurn() - INSTANT_YIELD_HISTORY_LENGTH;
+	int iStartTurn = GC.getGame().getGameTurn() - (int)INSTANT_YIELD_HISTORY_LENGTH;
 
 	int iAvgGlobal = m_pPlayer->getInstantYieldAvg(YIELD_TOURISM, iStartTurn, iEndTurn) * 100;
 	int iAvgIndividual = m_pPlayer->getInstantTourismPerPlayerAvg(ePlayer, iStartTurn, iEndTurn) * 100;
