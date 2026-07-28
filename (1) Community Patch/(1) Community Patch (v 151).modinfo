@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="151">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.4.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.4.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -511,7 +511,7 @@
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
     <File md5="9B2473A02E44E30D7015F8EEF582D2F2" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="BDF13E5110C0112487B6E045E90E0CB0" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="FF8A580E65E1432AB43DD6F0187FFE02" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Changes/AddTableIndexes.sql</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
@@ -630,7 +630,7 @@
     <File md5="CBDA3E182DB9F43339500E8357BE1E41" import="0">Database Changes/Text/en_US/Policies/CorePolicyTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
     <File md5="C59382A66201DBBA16DAA331DED9BF29" import="0">Database Changes/Text/en_US/UI/CoreNewMissionText.xml</File>
-    <File md5="534BEA26E74A54CBBAB29D08781327E3" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
+    <File md5="9D4684246BE83C7D473A98A031F4FFE8" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
     <File md5="8F135C2AC60D586EFD0394158E70A7D8" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="49B45936BE5C915CC1F42453CB03AF7B" import="0">Database Changes/Text/en_US/UI/NewInterfaceModeText.xml</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>
@@ -789,7 +789,7 @@
     <File md5="D0F637BEE0FF19A9971DF0631B7F133E" import="1">LUA/TechPopup_small.xml</File>
     <File md5="09F48361B9384916FE92B558BF89584A" import="1">LUA/TechTree.lua</File>
     <File md5="6F466E73E0A73EC3C95ACFCADC826D81" import="1">LUA/TechTree.xml</File>
-    <File md5="DC9C5C842B4AC6FFD5329D10B11E7681" import="1">LUA/TopPanel.lua</File>
+    <File md5="AF724D108FDE6940B5E55AECAC9A0DAF" import="1">LUA/TopPanel.lua</File>
     <File md5="1B7657384F730D1D73AD05D9F46CEEDF" import="1">LUA/UnitPanel.lua</File>
     <File md5="B3F04071E64112CAE79DBF97340A6A9A" import="1">LUA/Includes/CityStateStatusHelper.lua</File>
     <File md5="3EEC34EC93897595AABD4367C8B4B1A9" import="1">Mapscripts/Boreal.lua</File>
