@@ -984,30 +984,31 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 
 int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldTypes eYield, int iInitialValue)
 {
-	int iRtnValue = iInitialValue;
+	// 64 bit math - the input may already be saturated at INT_MAX by AdjustValueBasedOnBuildings
+	long long iRtnValue = iInitialValue;
 
 	if (eYield == YIELD_GOLD)
 	{
 		int iMod = pCity->GetPoverty(false) * 20;
 		int iGPT = (GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateBaseNetGoldTimes100());
 		if (iGPT < 0)
-			iMod -= iGPT;
+			iMod -= iGPT / 100; //iGPT is scaled x100, the modifier is a percentage
 
-		iRtnValue = iInitialValue * (100 + iMod) / 100;
+		iRtnValue = (long long)iInitialValue * (100 + iMod) / 100;
 	}
 	else if (eYield == YIELD_FOOD)
 	{
 		int iBonus = pCity->GetUnhappinessFromFamine() * 20;
 		int iMalus = pCity->getGrowthMods(); //if we're unhappy don't grow further
 
-		iRtnValue = iInitialValue * (100 + iBonus + iMalus) / 100;
+		iRtnValue = (long long)iInitialValue * (100 + iBonus + iMalus) / 100;
 	}
 	else if (eYield == YIELD_CULTURE)
 	{
 		int iValue = pCity->GetBoredom(false) * 20;
 		if (iValue > 0)
 		{
-			iRtnValue = iInitialValue * (100 + iValue) / 100;
+			iRtnValue = (long long)iInitialValue * (100 + iValue) / 100;
 		}
 	}
 	else if (eYield == YIELD_SCIENCE)
@@ -1015,7 +1016,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 		int iValue = pCity->GetIlliteracy(false) * 20;
 		if (iValue > 0)
 		{
-			iRtnValue = iInitialValue * (100 + iValue) / 100;
+			iRtnValue = (long long)iInitialValue * (100 + iValue) / 100;
 		}
 	}
 	else if (eYield == YIELD_FAITH)
@@ -1025,10 +1026,11 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 		int iValue = pCity->GetUnhappinessFromReligiousUnrest() * 10;
 		if (iValue > 0)
 		{
-			iRtnValue = iInitialValue * (100 + iValue) / 100;
+			iRtnValue = (long long)iInitialValue * (100 + iValue) / 100;
 		}
 	}
-	return iRtnValue;
+	//clamp both sides - the food multiplier can go negative via getGrowthMods, and the caller discards negative values anyway
+	return (int)max(min(iRtnValue, (long long)INT_MAX), (long long)INT_MIN);
 }
 
 /// Multiply city value for a yield based on buildings present
