@@ -4636,6 +4636,15 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 	int iValueNeeded = -iTotalValue + iDemandValue;
 	{
 		int iGoldRate = GET_PLAYER(eThem).calculateGoldRate();
+		// apply the same renewal adjustment as IsPossibleToTradeItem, otherwise the
+		// clamp below can exceed the effective rate and AddGoldPerTurnTrade will
+		// reject the item (asserting "Trying to add an invalid GPT amount")
+		CvDeal* pRenewDeal = GC.getGame().GetGameDeals().GetRenewDeal(eThem, eMyPlayer);
+		if (pRenewDeal)
+		{
+			iGoldRate += pRenewDeal->GetGoldPerTurnTrade(eThem);
+			iGoldRate -= pRenewDeal->GetGoldPerTurnTrade(eMyPlayer);
+		}
 		if (!GET_PLAYER(eThem).isHuman(ISHUMAN_HANDICAP))
 		{
 			iGoldRate -= 2;
@@ -4692,6 +4701,15 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	if (iTotalValue > 0)
 	{	
 		int iGoldRate = GET_PLAYER(eMyPlayer).calculateGoldRate();
+		// apply the same renewal adjustment as IsPossibleToTradeItem, otherwise the
+		// clamp below can exceed the effective rate and AddGoldPerTurnTrade will
+		// reject the item (asserting "Trying to add an invalid GPT amount")
+		CvDeal* pRenewDeal = GC.getGame().GetGameDeals().GetRenewDeal(eMyPlayer, eThem);
+		if (pRenewDeal)
+		{
+			iGoldRate += pRenewDeal->GetGoldPerTurnTrade(eMyPlayer);
+			iGoldRate -= pRenewDeal->GetGoldPerTurnTrade(eThem);
+		}
 		if (!GET_PLAYER(eMyPlayer).isHuman(ISHUMAN_HANDICAP))
 		{
 			iGoldRate -= 2;
