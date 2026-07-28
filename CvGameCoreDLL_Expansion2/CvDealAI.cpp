@@ -2227,7 +2227,11 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 	else if (pCity->getOwner() != eAssumedOwner)
 	{
 		// reduce value of a city we're buying if we won't have an internal border with it based on distance to our closest city, up to half of the value
-		iItemValue -= min(iItemValue / 2, goldPerPlot * 5 * iMinDistance);
+		if (iMinDistance == INT_MAX)
+			// the buyer has no other city - apply the maximum reduction
+			iItemValue -= iItemValue / 2;
+		else
+			iItemValue -= min(iItemValue / 2, goldPerPlot * 5 * iMinDistance);
 	}
 
 	//unhappy cities are worth less
@@ -2279,7 +2283,8 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 				if (bOnlyCitiesAboutToBeConquered)
 					return INT_MAX;
 
-				if (iNewInternalBorderCount == 0 && iMinDistance > iMinDistanceOldOwner * 3 / 2)
+				// iMinDistanceOldOwner is INT_MAX if the seller has no other city - the reference distance is effectively infinite, so don't reject
+				if (iNewInternalBorderCount == 0 && iMinDistanceOldOwner != INT_MAX && iMinDistance > iMinDistanceOldOwner * 3 / 2)
 					return INT_MAX;
 			}
 		}
