@@ -2089,6 +2089,31 @@ static char g_szDbgHelpPath[MAX_PATH] = {0};
 // Store the last minidump path for display in crash dialogs
 static char g_szLastMiniDumpPath[MAX_PATH] = {0};
 
+// Diagnostics for crashes.log when minidump creation fails
+static DWORD g_dwLastMiniDumpError = 0;
+
+// Reserved address space released on crash so dbghelp can allocate its
+// working buffers even when the crash was caused by VA exhaustion
+// (observed: MiniDumpWriteDump left a 0-byte dump with 308 KB largest
+// free block). 16 MB is enough for dbghelp internals plus a comfortable
+// margin; the dump data itself is streamed to the file handle.
+static void* g_pMiniDumpEmergencyReserve = NULL;
+
+static void ReserveMiniDumpMemory()
+{
+	if (!g_pMiniDumpEmergencyReserve)
+		g_pMiniDumpEmergencyReserve = VirtualAlloc(NULL, 16 * 1024 * 1024, MEM_RESERVE, PAGE_READWRITE);
+}
+
+static void ReleaseMiniDumpEmergencyReserve()
+{
+	if (g_pMiniDumpEmergencyReserve)
+	{
+		VirtualFree(g_pMiniDumpEmergencyReserve, 0, MEM_RELEASE);
+		g_pMiniDumpEmergencyReserve = NULL;
+	}
+}
+
 // Get the last minidump path (for use in assert/precondition dialogs)
 const char* GetLastMiniDumpPath()
 {
@@ -2180,9 +2205,14 @@ static bool LoadBestDbgHelp()
 
 void CreateMiniDump(EXCEPTION_POINTERS* pep)
 {
+	// If the crash was caused by address space exhaustion, dbghelp cannot
+	// allocate its working buffers - give it back our emergency reserve.
+	ReleaseMiniDumpEmergencyReserve();
+
 	// Load the best available dbghelp.dll
 	if (!LoadBestDbgHelp())
 	{
+		g_dwLastMiniDumpError = GetLastError();
 		OutputDebugString(_T("Cannot create minidump: dbghelp.dll not available\n"));
 		return;
 	}
@@ -2271,6 +2301,7 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if ((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {
+		g_dwLastMiniDumpError = GetLastError();
 		g_szLastMiniDumpPath[0] = '\0';
 		return;
 	}
@@ -2366,6 +2397,27 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		&additional_streams,
 		NULL);
 
+	if (!bSuccess)
+	{
+		g_dwLastMiniDumpError = GetLastError();
+
+		// The rich dump types need large dbghelp working buffers; under
+		// address space exhaustion (the most common crash cause on 32-bit)
+		// the call fails and leaves a 0-byte file. Retry with MiniDumpNormal,
+		// which only needs stacks/modules/threads - a truncated dump beats
+		// no dump.
+		SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+		SetEndOfFile(hFile);
+		bSuccess = g_pfnMiniDumpWriteDump(
+			GetCurrentProcess(),
+			GetCurrentProcessId(),
+			hFile,
+			MiniDumpNormal,
+			(pep != NULL) ? &mdei : NULL,
+			&additional_streams,
+			NULL);
+	}
+
 	CloseHandle(hFile);
 
 	if (bSuccess)
@@ -2374,9 +2426,14 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	}
 	else
 	{
+		// Don't leave a misleading 0-byte dump behind, and don't report a
+		// path to a dump that doesn't exist.
+		DeleteFile(szDumpFilename);
+		g_szLastMiniDumpPath[0] = '\0';
+
 		TCHAR szError[128];
 		_stprintf_s(szError, sizeof(szError) / sizeof(TCHAR),
-			_T("MiniDumpWriteDump failed with error: %d\n"), GetLastError());
+			_T("MiniDumpWriteDump failed with error: %d\n"), g_dwLastMiniDumpError);
 		OutputDebugString(szError);
 	}
 }
@@ -2562,6 +2619,14 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 	char szExeName[MAX_PATH] = "???" ;
 	GetModuleFileNameA( NULL, szExeName, MAX_PATH) ;
 
+#if defined(MOD_DEBUG_MINIDUMP)
+	char szMiniDumpStatus[MAX_PATH + 64];
+	if (g_szLastMiniDumpPath[0] != '\0')
+		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "%s", GetOnlyFilename(g_szLastMiniDumpPath));
+	else
+		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Creation failed (error %u)", g_dwLastMiniDumpError);
+#endif
+
 	char szCrashInfo[2048];
 	_snprintf_s(szCrashInfo, _countof(szCrashInfo), _TRUNCATE, 
 		"--Crash details--\n"
@@ -2593,7 +2658,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		exceptionAddress,exceptionAddressAdjusted,
 		szTimestamp,
 #if defined(MOD_DEBUG_MINIDUMP)
-		((g_szLastMiniDumpPath[0] != '\0') ? GetOnlyFilename(g_szLastMiniDumpPath) : "Minidump creation failed?") ,
+		szMiniDumpStatus,
 #else
 		"DLL was built without minidump support!",
 #endif
@@ -2666,6 +2731,7 @@ void CvGlobals::init()
 #ifdef WIN32
 	SetUnhandledExceptionFilter(CustomFilter);
 #if defined(MOD_DEBUG_MINIDUMP)
+	ReserveMiniDumpMemory();
 #ifdef VPDEBUG
 	OutputDebugString(_T("Debug MiniDump handler installed\n"));
 #else
