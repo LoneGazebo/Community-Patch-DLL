@@ -641,6 +641,15 @@ void CvDllGame::InitExeStuff()
 		DWORD baseAddr = (DWORD) GetModuleHandleA(NULL);
 		DWORD headersOffset = 0x400000;
 
+		// The force-resync flag - a byte flag polled and cleared by the RNG sync
+		// check handler, which broadcasts the force-resync network message.
+		// Verified per binary variant by its distinctive usage pattern:
+		// set at 4 network message-handler sites plus the force-resync queue
+		// function, cleared in the net-reset function, poll-and-clear at the
+		// sync check. The three bytes above the flag are unused (next variable
+		// is at +4), so writing through int* is safe.
+		// NOTE: the flag + 0x10 is the sibling IsResyncing state flag
+		// (tiny setter / getter / one clear) - do not confuse them.
 		DWORD wantForceResyncAddr = 0;
 		if (binType == BIN_DX11)
 		{
@@ -648,11 +657,11 @@ void CvDllGame::InitExeStuff()
 		}
 		else if (binType == BIN_DX9)
 		{
-			wantForceResyncAddr = 0x02dc2d78;
+			wantForceResyncAddr = 0x02dc2d68;
 		}
 		else if (binType == BIN_TABLET)
 		{
-			wantForceResyncAddr = 0x02dd4f60;
+			wantForceResyncAddr = 0x02dd4f50;
 		}
 
 		if (wantForceResyncAddr != 0)
