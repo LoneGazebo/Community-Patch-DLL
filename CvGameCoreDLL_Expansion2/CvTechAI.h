@@ -56,6 +56,7 @@ private:
 
 	// Recompute weights taking into account tech cost
 	void ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive = false);
+	int GetResearchLeftTimes100(TechTypes eTech) const;
 
 	// Logging functions
 	void LogPossibleResearch();
