@@ -322,40 +322,74 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 	}
 }
 
+/// How much research is left to complete this tech, in hundredths of beakers (always finite, unlike turns-left)
+int CvTechAI::GetResearchLeftTimes100(TechTypes eTech) const
+{
+	int iCostTimes100 = m_pCurrentTechs->GetResearchCost(eTech) * 100;
+	int iProgressTimes100 = m_pCurrentTechs->GetResearchProgressTimes100(eTech);
+	return std::max(0, iCostTimes100 - iProgressTimes100);
+}
+
 /// Recompute weights taking into account tech cost
 void CvTechAI::ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive)
 {
-	TechTypes eTech;
+	// consumers multiply the top weight by up to 100 (ChooseAbovePercentThreshold),
+	// so this is the largest weight that cannot overflow downstream
+	const int iMaxWeight = INT_MAX / 100;
 
-	// April 2014 Balance Patch: if lots of science overflow, want to pick an expensive tech
-	bool bNeedExpensiveTechs = pPlayer->getOverflowResearchTimes100() > (pPlayer->GetScienceTimes100() * 2);
-
+	// Favor expensive techs only for a free tech pick (bWantsExpensive): the full
+	// cost is granted instantly, so we want the most expensive tech that also
+	// provides good benefit. Science overflow is NOT a reason - unlike production
+	// overflow it carries over in full when a cheap tech completes, so banked
+	// overflow is never wasted by picking a cheap tech.
 	if (bWantsExpensive)
 	{
-		bNeedExpensiveTechs = true;
+		// scale each tech's flavor weight by its remaining cost relative to the
+		// cheapest option, so both the benefit (flavor weight) and the size of
+		// the windfall (cost) shape the ranking instead of all expensive techs
+		// saturating at a common cap. integer math: deterministic, and remaining
+		// cost is always finite, unlike the INT_MAX turns-left sentinel that the
+		// old pow() formula could feed into an undefined double-to-int cast.
+		int iCheapestResearchLeftTimes100 = INT_MAX;
+		for (int iI = 0; iI < m_ResearchableTechs.size(); iI++)
+		{
+			TechTypes eTech = (TechTypes)m_ResearchableTechs.GetElement(iI);
+			iCheapestResearchLeftTimes100 = std::min(iCheapestResearchLeftTimes100, GetResearchLeftTimes100(eTech));
+		}
+		iCheapestResearchLeftTimes100 = std::max(100, iCheapestResearchLeftTimes100);
+
+		for (int iI = 0; iI < m_ResearchableTechs.size(); iI++)
+		{
+			TechTypes eTech = (TechTypes)m_ResearchableTechs.GetElement(iI);
+			int iResearchLeftTimes100 = std::max(100, GetResearchLeftTimes100(eTech));
+
+			long long llNewWeight = (long long)m_ResearchableTechs.GetWeight(iI) * iResearchLeftTimes100 / iCheapestResearchLeftTimes100;
+
+			if (pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra() && GC.getTechInfo(eTech)->GetEra() > pPlayer->GetCurrentEra())
+				llNewWeight /= 2;
+
+			int iNewWeight = llNewWeight > iMaxWeight ? iMaxWeight : (int)llNewWeight;
+			m_ResearchableTechs.SetWeight(iI, std::max(1, iNewWeight));
+		}
+		return;
 	}
 
 	for (int iI = 0; iI < m_ResearchableTechs.size(); iI++)
 	{
-		eTech = (TechTypes)m_ResearchableTechs.GetElement(iI);
+		TechTypes eTech = (TechTypes)m_ResearchableTechs.GetElement(iI);
 		int iTurnsLeft = m_pCurrentTechs->GetResearchTurnsLeft(eTech, true);
 
-		//reweight by turns left
-		double fTotalCostFactor = /*0.2f*/ GD_FLOAT_GET(AI_RESEARCH_WEIGHT_BASE_MOD) + (iTurnsLeft * /*0.035f*/ GD_FLOAT_GET(AI_RESEARCH_WEIGHT_MOD_PER_TURN_LEFT));
-		double fWeightDivisor = pow((double)iTurnsLeft, fTotalCostFactor);
-
 		int iNewWeight = 0;
-		if (bNeedExpensiveTechs)
+		if (iTurnsLeft == INT_MAX)
 		{
-			// the product can exceed INT_MAX (or be infinity when iTurnsLeft is the
-			// INT_MAX "cannot research" sentinel): saturate in the double domain,
-			// since an out-of-range double-to-int cast is undefined behavior and
-			// would invert the intent by turning a huge weight into INT_MIN
-			double fNewWeight = double(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor;
-			iNewWeight = fNewWeight >= double(INT_MAX) ? INT_MAX : int(fNewWeight);
+			// zero science rate - turns-left cannot order the techs, keep the flavor weight
+			iNewWeight = m_ResearchableTechs.GetWeight(iI);
 		}
 		else
 		{
+			//reweight by turns left
+			double fTotalCostFactor = /*0.2f*/ GD_FLOAT_GET(AI_RESEARCH_WEIGHT_BASE_MOD) + (iTurnsLeft * /*0.035f*/ GD_FLOAT_GET(AI_RESEARCH_WEIGHT_MOD_PER_TURN_LEFT));
+			double fWeightDivisor = pow((double)iTurnsLeft, fTotalCostFactor);
 			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) / fWeightDivisor);
 		}
 
@@ -367,8 +401,8 @@ void CvTechAI::ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive)
 			}
 		}
 
-		if (iNewWeight > 10000)
-			iNewWeight = 10000;
+		if (iNewWeight > iMaxWeight)
+			iNewWeight = iMaxWeight;
 
 		if (iNewWeight < 1)
 			iNewWeight = 1;
