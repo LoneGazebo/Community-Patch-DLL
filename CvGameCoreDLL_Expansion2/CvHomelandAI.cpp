@@ -3651,19 +3651,15 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					int iLoop = 0;
 					for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvPlot* pPlot = pLoopCity->plot();
-						if (pPlot)
+						int iDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+
+						if (iDistance < iBestCityDistance)
 						{
-							int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+							// If we can't work the tile, we don't care
+							if (pLoopCity->IsWithinWorkRange(pDirectivePlot))
+								pOwningCity = pLoopCity;
 
-							if (iDistance < iBestCityDistance)
-							{
-								// If we can't work the tile, we don't care
-								if (pLoopCity->IsWithinWorkRange(pPlot))
-									pOwningCity = pLoopCity;
-
-								iBestCityDistance = iDistance;
-							}
+							iBestCityDistance = iDistance;
 						}
 					}
 				}
