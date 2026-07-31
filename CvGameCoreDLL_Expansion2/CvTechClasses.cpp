@@ -2724,29 +2724,6 @@ int CvTeamTechs::ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, P
 	return iBeakers / 100;
 }
 
-// PRIVATE FUNCTIONS
-
-int CvTeamTechs::GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const
-{
-	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
-
-	// 5 turns of science is a reasonable allowance of overflow (about equal to a standard research agreement award)
-	int iReturnValue = kPlayer.GetScienceTimes100() * 5;   
-
-	// Alternatively let it be the raw cost of the tech (times 100)
-	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-	if(pkTechInfo == NULL)
-	{
-		return 0;
-	}
-
-	int iCost = pkTechInfo->GetResearchCost() * 100;
-
-	iReturnValue = max(iCost, iReturnValue);
-
-	return iReturnValue;
-}
-
 int CvTeamTechs::GetEurekaCounter(TechTypes eTech) const
 {
 	return eTech != NO_TECH ? m_paiEurekaCounter[eTech] : 0;
