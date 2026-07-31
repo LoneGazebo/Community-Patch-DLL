@@ -1183,6 +1183,10 @@ public:
 	void changeFreePillageMoveCount(int iValue);
 	int getFreePillageMoveCount() const;
 
+	bool HasHalfPillageMove() const;
+	void ChangeHalfPillageMoveCount(int iValue);
+	int GetHalfPillageMoveCount() const;
+
 	bool hasHealOnPillage() const;
 	void changeHealOnPillageCount(int iValue);
 	int getHealOnPillageCount() const;
@@ -2551,6 +2555,7 @@ protected:
 	int m_iCanMoveAllTerrainCount;
 	int m_iCanMoveAfterAttackingCount;
 	int m_iFreePillageMoveCount;
+	int m_iHalfPillageMoveCount;
 	int m_iHealOnPillageCount;
 	int m_iHPHealedIfDefeatEnemy;
 	int m_iGoldenAgeValueFromKills;
@@ -2993,6 +2998,7 @@ SYNC_ARCHIVE_VAR(int, m_iNoRevealMapCount)
 SYNC_ARCHIVE_VAR(int, m_iCanMoveAllTerrainCount)
 SYNC_ARCHIVE_VAR(int, m_iCanMoveAfterAttackingCount)
 SYNC_ARCHIVE_VAR(int, m_iFreePillageMoveCount)
+SYNC_ARCHIVE_VAR(int, m_iHalfPillageMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iHealOnPillageCount)
 SYNC_ARCHIVE_VAR(int, m_iHPHealedIfDefeatEnemy)
 SYNC_ARCHIVE_VAR(int, m_iGoldenAgeValueFromKills)

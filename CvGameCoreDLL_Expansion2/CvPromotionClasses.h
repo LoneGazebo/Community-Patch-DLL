@@ -271,6 +271,7 @@ public:
 	bool IsRangeAttackIgnoreLOS() const;
     int GetSeeThrough() const;
 	bool IsFreePillageMoves() const;
+	bool IsHalfPillageMoves() const;
 	bool IsHealOnPillage() const;
 	bool IsHealIfDefeatExcludeBarbarians() const;
 	bool IsEmbarkedAllWater() const;
@@ -594,6 +595,7 @@ protected:
 	bool m_bRangeAttackIgnoreLOS;
     int  m_iSeeThrough;
 	bool m_bFreePillageMoves;
+	bool m_bHalfPillageMoves;
 	bool m_bHealOnPillage;
 	bool m_bHealIfDefeatExcludesBarbarians;
 	bool m_bEmbarkedAllWater;

@@ -10812,6 +10812,14 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, UnitCreationR
 			pUnit->changeExperienceTimes100(iBonusXP * iEra * 100, -1, false, false, false, false, true);
 		}
 
+		// XP from exploration
+		int iExplorationXPTimes100 = pUnit->getUnitInfo().GetXPFromExploration() * 100 * GET_TEAM(pUnit->getTeam()).GetMaxNumRevealedPlots() / GC.getMap().numPlots();
+		if (iExplorationXPTimes100 != 0)
+		{
+			iExplorationXPTimes100 /= (bHalveXP ? 2 : 1);
+			pUnit->changeExperienceTimes100(iExplorationXPTimes100, -1, false, false, false, false, true);
+		}
+
 		// XP2 Achievement
 		if (MOD_ENABLE_ACHIEVEMENTS && getOwner() != NO_PLAYER)
 		{

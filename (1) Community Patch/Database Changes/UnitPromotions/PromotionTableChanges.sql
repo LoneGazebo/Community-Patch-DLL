@@ -12,6 +12,7 @@ ALTER TABLE UnitPromotions ADD MaxHitPointsChange integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MaxHitPointsModifier integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD PartialHealOnPillage integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD AOEDamageOnPillage integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD HalfPillageMoves boolean DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD MinimumRangeRequired integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MaximumRangeRequired integer DEFAULT 0;

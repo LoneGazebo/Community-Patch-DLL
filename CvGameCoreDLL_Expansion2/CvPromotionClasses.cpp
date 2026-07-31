@@ -271,6 +271,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bRangeAttackIgnoreLOS(false),
 	m_iSeeThrough(0),
 	m_bFreePillageMoves(false),
+	m_bHalfPillageMoves(false),
 	m_bHealOnPillage(false),
 	m_bHealIfDefeatExcludesBarbarians(false),
 	m_bEmbarkedAllWater(false),
@@ -531,6 +532,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bRangeAttackIgnoreLOS = kResults.GetBool("RangeAttackIgnoreLOS");
 	m_iSeeThrough = kResults.GetInt("SeeThrough");
 	m_bFreePillageMoves = kResults.GetBool("FreePillageMoves");
+	m_bHalfPillageMoves = kResults.GetBool("HalfPillageMoves");
 	m_bHealOnPillage = kResults.GetBool("HealOnPillage");
 	m_bHealIfDefeatExcludesBarbarians = kResults.GetBool("HealIfDestroyExcludesBarbarians");
 	m_bEmbarkedAllWater = kResults.GetBool("EmbarkedAllWater");
@@ -2692,6 +2694,12 @@ int CvPromotionEntry::GetSeeThrough() const
 bool CvPromotionEntry::IsFreePillageMoves() const
 {
 	return m_bFreePillageMoves;
+}
+
+/// Accessor: Use only half moves when pillaging?
+bool CvPromotionEntry::IsHalfPillageMoves() const
+{
+	return m_bHalfPillageMoves;
 }
 
 /// Accessor: When pillaging, does the unit heal?

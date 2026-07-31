@@ -385,6 +385,7 @@ public:
 	
 	int GetNumRevealedPlots() const;
 	void ChangeNumRevealedPlots(int iChange);
+	int GetMaxNumRevealedPlots() const;
 
 	void DoTestSmallAwards();
 	bool IsSmallAwardAchieved(SmallAwardTypes eAward) const;

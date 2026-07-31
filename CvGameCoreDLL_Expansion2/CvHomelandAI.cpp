@@ -2964,9 +2964,8 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			}
 
 			//if there is an unguarded improvement to plunder and we can flee
-			if (tile->iMovesLeft > (pUnit->hasFreePillageMove() ? 0 : GD_INT_GET(MOVE_DENOMINATOR)) &&
-				pUnit->canPillage(pEvalPlot) &&
-				!pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false))
+			int iPillageCost = pUnit->hasFreePillageMove() ? 0 : pUnit->HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
+			if (tile->iMovesLeft > iPillageCost && pUnit->canPillage(pEvalPlot) && !pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false))
 			{
 				// do we heal when pillaging this tile?
 				int iHealAmount = pUnit->getPillageHealAmount(pEvalPlot);
@@ -4070,27 +4069,23 @@ void CvHomelandAI::ExecuteHeals()
 				break;
 			}
 
-			int iUsedMoves = 0;
+			int iPillageCost = pUnit->hasFreePillageMove() ? 0 : pUnit->HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
 
 			// Check if we can pillage this tile for free
-			if (pUnit->hasFreePillageMove() || pBestPlot.second > GD_INT_GET(MOVE_DENOMINATOR))
+			if (pBestPlot.second > iPillageCost)
 			{
 				if (pUnit->shouldPillage(pUnit->plot(), true))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-					if (!pUnit->hasFreePillageMove())
-						iUsedMoves++;
-				}
-			}
 
-			// if possible, pillage both improvement and road
-			if (pUnit->hasFreePillageMove() || pBestPlot.second > (1 + iUsedMoves) * GD_INT_GET(MOVE_DENOMINATOR))
-			{
-				if (pUnit->shouldPillage(pUnit->plot(), true))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-					if (!pUnit->hasFreePillageMove())
-						iUsedMoves++;
+					// If possible, pillage both improvement and road
+					if (pBestPlot.second > iPillageCost * 2)
+					{
+						if (pUnit->shouldPillage(pUnit->plot(), true))
+						{
+							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+						}
+					}
 				}
 			}
 

@@ -10424,7 +10424,6 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, bool bIgnore
 	if (hasFreePillageMove() && (pPlot->IsAdjacentCity() || (pPlot->getOwner() != NO_PLAYER && pPlot->getRouteType() != NO_ROUTE)))
 		return true;
 
-
 	// Citadel here?
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT)
@@ -10442,7 +10441,8 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative, bool bIgnore
 	if (!bIgnoreMovement)
 	{
 		//be careful "wasting" movement for slow units
-		if (GetDanger() > GetCurrHitPoints() + iPillageHeal && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 3 && !hasFreePillageMove())
+		int iPillageCost = hasFreePillageMove() ? 0 : HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
+		if (GetDanger() > GetCurrHitPoints() + iPillageHeal && getMoves() < GD_INT_GET(MOVE_DENOMINATOR) * 2 + iPillageCost && !hasFreePillageMove())
 			return false;
 	}
 
@@ -10494,8 +10494,6 @@ bool CvUnit::pillage()
 	VALIDATE_OBJECT();
 	CvString strBuffer;
 
-	ImprovementTypes eTempImprovement = NO_IMPROVEMENT;
-
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	CvPlot* pPlot = plot();
 
@@ -10507,7 +10505,8 @@ bool CvUnit::pillage()
 	bool bImprovement = false;
 
 	// Has an Improvement
-	if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+	ImprovementTypes eImprovement = pPlot->getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT)
 	{
 		if(!pPlot->IsImprovementPillaged())
 		{
@@ -10520,220 +10519,216 @@ bool CvUnit::pillage()
 	int iPotentialHealFromPillage = 0;
 	if(bImprovement)
 	{
-		eTempImprovement = pPlot->getImprovementType();
-		CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eTempImprovement);
-		if(pkImprovement)
+		CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
+		if(pPlot->getTeam() != getTeam())
 		{
-			if(pPlot->getTeam() != getTeam())
+			CvCity* pOriginCity = getOriginCity();
+			if (pOriginCity == NULL)
+				pOriginCity = kPlayer.getCapitalCity();
+
+			if (pPlot->getOwner() != NO_PLAYER)
 			{
-				CvCity* pOriginCity = getOriginCity();
-				if (pOriginCity == NULL)
-					pOriginCity = kPlayer.getCapitalCity();
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater());
+				// call one for era scaling, and another for non-era scaling
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
+				// and another for unit provided yields since it handles era scaling specially
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_UNIT, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater(), true, false, NO_YIELD, this);
+			}
 
-				if (pPlot->getOwner() != NO_PLAYER)
+			if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
+			{
+				// Notify Diplo AI that damage has been done
+				int iTileValue = /*40*/ GD_INT_GET(PILLAGED_TILE_BASE_WAR_VALUE);
+				int iValueMultiplier = 0;
+				bool bPillagedHighValueTile = false;
+
+				if (pPlot->getResourceType(GET_PLAYER(pPlot->getOwner()).getTeam()) != NO_RESOURCE)
 				{
-					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_PILLAGE, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater());
-					// call one for era scaling, and another for non-era scaling
-					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
-					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
-					// and another for unit provided yields since it handles era scaling specially
-					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_UNIT, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater(), true, false, NO_YIELD, this);
-				}
-
-				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
-				{
-					// Notify Diplo AI that damage has been done
-					int iTileValue = /*40*/ GD_INT_GET(PILLAGED_TILE_BASE_WAR_VALUE);
-					int iValueMultiplier = 0;
-					bool bPillagedHighValueTile = false;
-
-					if (pPlot->getResourceType(GET_PLAYER(pPlot->getOwner()).getTeam()) != NO_RESOURCE)
+					CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(GET_PLAYER(pPlot->getOwner()).getTeam()));
+					if (pInfo)
 					{
-						CvResourceInfo* pInfo = GC.getResourceInfo(pPlot->getResourceType(GET_PLAYER(pPlot->getOwner()).getTeam()));
-						if (pInfo)
+						switch (pInfo->getResourceUsage())
 						{
-							switch (pInfo->getResourceUsage())
-							{
-							case RESOURCEUSAGE_STRATEGIC:
-								iValueMultiplier += 100;
-								bPillagedHighValueTile = true;
-								break;
-							case RESOURCEUSAGE_LUXURY:
-								iValueMultiplier += 50;
-								bPillagedHighValueTile = true;
-								break;
-							case RESOURCEUSAGE_BONUS:
-								iValueMultiplier += 20;
-								break;
-							}
-						}
-					}
-
-					if (pkImprovement->GetDefenseModifier() > 0)
-					{
-						iValueMultiplier += pkImprovement->GetDefenseModifier();
-						if (pPlot->IsChokePoint())
-						{
+						case RESOURCEUSAGE_STRATEGIC:
+							iValueMultiplier += 100;
 							bPillagedHighValueTile = true;
-							if (pkImprovement->IsNoFollowUp())
-								iValueMultiplier += 20;
+							break;
+						case RESOURCEUSAGE_LUXURY:
+							iValueMultiplier += 50;
+							bPillagedHighValueTile = true;
+							break;
+						case RESOURCEUSAGE_BONUS:
+							iValueMultiplier += 20;
+							break;
 						}
 					}
+				}
 
-					if (pkImprovement->IsCreatedByGreatPerson())
+				if (pkImprovement->GetDefenseModifier() > 0)
+				{
+					iValueMultiplier += pkImprovement->GetDefenseModifier();
+					if (pPlot->IsChokePoint())
 					{
-						iValueMultiplier += 100;
 						bPillagedHighValueTile = true;
-					}
-
-					iTileValue *= (100 + iValueMultiplier);
-					iTileValue /= 100;
-
-					// Did the plot owner's master fail to protect their territory?
-					if (GET_PLAYER(pPlot->getOwner()).isMajorCiv() && GET_PLAYER(pPlot->getOwner()).IsVassalOfSomeone())
-					{
-						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-						{
-							PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsVassal(eLoopPlayer))
-							{
-								GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeVassalProtectValue(eLoopPlayer, -iTileValue);
-							}
-						}
-					}
-
-					kPlayer.ApplyWarDamage(pPlot->getOwner(), iTileValue);
-
-					if (kPlayer.isMajorCiv())
-					{
-						int iWarProgressValue = /*10*/ GD_INT_GET(WAR_PROGRESS_PILLAGED_IMPROVEMENT);
-						if (bPillagedHighValueTile)
-						{
-							iWarProgressValue *= /*200*/ GD_INT_GET(WAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER);
-							iWarProgressValue /= 100;
-						}
-						kPlayer.GetDiplomacyAI()->ChangeWarProgressScore(pPlot->getOwner(), iWarProgressValue);
-					}
-					if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
-					{
-						int iWarProgressValue = /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_IMPROVEMENT);
-						if (bPillagedHighValueTile)
-						{
-							iWarProgressValue *= /*200*/ GD_INT_GET(WAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER);
-							iWarProgressValue /= 100;
-						}
-						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgressValue);
+						if (pkImprovement->IsNoFollowUp())
+							iValueMultiplier += 20;
 					}
 				}
 
-				int iPillageGold = 0;
-
-				// TODO: add scripting support for "doPillageGold"
-
-				if (MOD_EVENTS_UNIT_ACTIONS)
+				if (pkImprovement->IsCreatedByGreatPerson())
 				{
-					int iValue = 0;
-					if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitPillageGold, getOwner(), GetID(), eTempImprovement, pkImprovement->GetPillageGold()) == GAMEEVENTRETURN_VALUE)
+					iValueMultiplier += 100;
+					bPillagedHighValueTile = true;
+				}
+
+				iTileValue *= (100 + iValueMultiplier);
+				iTileValue /= 100;
+
+				// Did the plot owner's master fail to protect their territory?
+				if (GET_PLAYER(pPlot->getOwner()).isMajorCiv() && GET_PLAYER(pPlot->getOwner()).IsVassalOfSomeone())
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
-						iPillageGold = iValue;
-						CUSTOMLOG("Pillage gold is %i", iPillageGold);
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->IsVassal(eLoopPlayer))
+						{
+							GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeVassalProtectValue(eLoopPlayer, -iTileValue);
+						}
 					}
 				}
-				if (MOD_BALANCE_VP)
-				{
-					int iEra = kPlayer.GetCurrentEra();
-					if (iEra <= 0)
-						iEra = 1;
 
-					iPillageGold += pkImprovement->GetPillageGold() * iEra * GC.getGame().randRangeInclusive(85, 100, CvSeeder(plot()->GetPseudoRandomSeed())) / 100;
-					iPillageGold += getPillageChange() * iPillageGold / 100;
+				kPlayer.ApplyWarDamage(pPlot->getOwner(), iTileValue);
+
+				if (kPlayer.isMajorCiv())
+				{
+					int iWarProgressValue = /*10*/ GD_INT_GET(WAR_PROGRESS_PILLAGED_IMPROVEMENT);
+					if (bPillagedHighValueTile)
+					{
+						iWarProgressValue *= /*200*/ GD_INT_GET(WAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER);
+						iWarProgressValue /= 100;
+					}
+					kPlayer.GetDiplomacyAI()->ChangeWarProgressScore(pPlot->getOwner(), iWarProgressValue);
+				}
+				if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
+				{
+					int iWarProgressValue = /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_IMPROVEMENT);
+					if (bPillagedHighValueTile)
+					{
+						iWarProgressValue *= /*200*/ GD_INT_GET(WAR_PROGRESS_HIGH_VALUE_PILLAGE_MULTIPLIER);
+						iWarProgressValue /= 100;
+					}
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgressValue);
+				}
+			}
+
+			int iPillageGold = 0;
+
+			// TODO: add scripting support for "doPillageGold"
+
+			if (MOD_EVENTS_UNIT_ACTIONS)
+			{
+				int iValue = 0;
+				if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitPillageGold, getOwner(), GetID(), eImprovement, pkImprovement->GetPillageGold()) == GAMEEVENTRETURN_VALUE)
+				{
+					iPillageGold = iValue;
+					CUSTOMLOG("Pillage gold is %i", iPillageGold);
+				}
+			}
+			if (MOD_BALANCE_VP)
+			{
+				int iEra = kPlayer.GetCurrentEra();
+				if (iEra <= 0)
+					iEra = 1;
+
+				iPillageGold += pkImprovement->GetPillageGold() * iEra * GC.getGame().randRangeInclusive(85, 100, CvSeeder(plot()->GetPseudoRandomSeed())) / 100;
+				iPillageGold += getPillageChange() * iPillageGold / 100;
+			}
+			else
+			{
+				iPillageGold += GC.getGame().randRangeInclusive(0, pkImprovement->GetPillageGold(), CvSeeder(plot()->GetPseudoRandomSeed()));
+				iPillageGold += getPillageChange() * iPillageGold / 100;
+			}
+
+			if (pPlot->getOwner() != NO_PLAYER)
+			{
+				if (GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage())
+				{
+					iPillageGold = 0;
 				}
 				else
 				{
-					iPillageGold += GC.getGame().randRangeInclusive(0, pkImprovement->GetPillageGold(), CvSeeder(plot()->GetPseudoRandomSeed()));
-					iPillageGold += getPillageChange() * iPillageGold / 100;
-				}
-
-				if (pPlot->getOwner() != NO_PLAYER)
-				{
-					if (GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage())
+					CvCity* pCityOfThisOtherTeamsPlot = pPlot->getEffectiveOwningCity();
+					if (pCityOfThisOtherTeamsPlot != NULL && pCityOfThisOtherTeamsPlot->IsLocalGainlessPillage())
 					{
 						iPillageGold = 0;
 					}
-					else
-					{
-						CvCity* pCityOfThisOtherTeamsPlot = pPlot->getEffectiveOwningCity();
-						if (pCityOfThisOtherTeamsPlot != NULL && pCityOfThisOtherTeamsPlot->IsLocalGainlessPillage())
-						{
-							iPillageGold = 0;
-						}
-					}
 				}
+			}
 
-				if (iPillageGold > 0)
+			if (iPillageGold > 0)
+			{
+				iPillageGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+				iPillageGold /= 100;
+				kPlayer.GetTreasury()->ChangeGold(iPillageGold);
+
+				if(getOwner() == GC.getGame().getActivePlayer())
 				{
-					iPillageGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-					iPillageGold /= 100;
-					kPlayer.GetTreasury()->ChangeGold(iPillageGold);
+					strBuffer = GetLocalizedText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP", iPillageGold, pkImprovement->GetTextKey());
+					DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_PILLAGE", MESSAGE_TYPE_INFO, m_pUnitInfo->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX(), pPlot->getY()*/);
+					if (MOD_WH_MILITARY_LOG)
+						MILITARYLOG(getOwner(), strBuffer.c_str(), plot(), plot()->getOwner());
+				}
 
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						strBuffer = GetLocalizedText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP", iPillageGold, pkImprovement->GetTextKey());
-						DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_PILLAGE", MESSAGE_TYPE_INFO, m_pUnitInfo->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pPlot->getX(), pPlot->getY()*/);
-						if (MOD_WH_MILITARY_LOG)
-							MILITARYLOG(getOwner(), strBuffer.c_str(), plot(), plot()->getOwner());
-					}
-
-					if(pPlot->isOwned() && pPlot->getOwner() == GC.getGame().getActivePlayer())
-					{
-						strBuffer = GetLocalizedText("TXT_KEY_MISC_IMP_DESTROYED", pkImprovement->GetTextKey(), getNameKey(), getVisualCivAdjective(pPlot->getTeam()));
-						DLLUI->AddPlotMessage(0, pPlot->GetPlotIndex(), pPlot->getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_PILLAGED", MESSAGE_TYPE_INFO, m_pUnitInfo->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX(), pPlot->getY(), true, true*/);
-						if (MOD_WH_MILITARY_LOG)
-							MILITARYLOG(pPlot->getOwner(), strBuffer.c_str(), pPlot, plot()->getOwner());
-					}
+				if(pPlot->isOwned() && pPlot->getOwner() == GC.getGame().getActivePlayer())
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_MISC_IMP_DESTROYED", pkImprovement->GetTextKey(), getNameKey(), getVisualCivAdjective(pPlot->getTeam()));
+					DLLUI->AddPlotMessage(0, pPlot->GetPlotIndex(), pPlot->getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_PILLAGED", MESSAGE_TYPE_INFO, m_pUnitInfo->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pPlot->getX(), pPlot->getY(), true, true*/);
+					if (MOD_WH_MILITARY_LOG)
+						MILITARYLOG(pPlot->getOwner(), strBuffer.c_str(), pPlot, plot()->getOwner());
 				}
 			}
+		}
 
-			//Unlock any possible achievements.
-			if (MOD_ENABLE_ACHIEVEMENTS && getOwner() == GC.getGame().getActivePlayer() && strcmp(pkImprovement->GetType(), "IMPROVEMENT_FARM") == 0)
-				CvAchievementUnlocker::FarmImprovementPillaged();
+		//Unlock any possible achievements.
+		if (MOD_ENABLE_ACHIEVEMENTS && getOwner() == GC.getGame().getActivePlayer() && strcmp(pkImprovement->GetType(), "IMPROVEMENT_FARM") == 0)
+			CvAchievementUnlocker::FarmImprovementPillaged();
 
-			// Improvement that's destroyed?
-			bSuccessfulNonRoadPillage = true;
-			iPotentialHealFromPillage = getPillageHealAmount(plot(), true);
-			if(pkImprovement->IsDestroyedWhenPillaged())
-			{
-				// If this improvement auto-added a route, we also need to remove the route
-				ImprovementTypes eOldImprovement = pPlot->getImprovementType();
+		// Improvement that's destroyed?
+		bSuccessfulNonRoadPillage = true;
+		iPotentialHealFromPillage = getPillageHealAmount(plot(), true);
+		if(pkImprovement->IsDestroyedWhenPillaged())
+		{
+			// If this improvement auto-added a route, we also need to remove the route
+			ImprovementTypes eOldImprovement = pPlot->getImprovementType();
+			
+			// Find the build for this improvement
+			for (int i = 0; i < GC.getNumBuildInfos(); i++) {
+				CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
 				
-				// Find the build for this improvement
-				for (int i = 0; i < GC.getNumBuildInfos(); i++) {
-					CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
-					
-					if (pkBuild && ((ImprovementTypes)pkBuild->getImprovement()) == eOldImprovement) {
-						// Found it, but did it auto-add a route?
-						if (pkBuild->getRoute() != NO_ROUTE) {
-							// Yes, so remove the route as well
-							pPlot->setRouteType(NO_ROUTE);
-						}
-						
-						// Our work here is done
-						break;
+				if (pkBuild && ((ImprovementTypes)pkBuild->getImprovement()) == eOldImprovement) {
+					// Found it, but did it auto-add a route?
+					if (pkBuild->getRoute() != NO_ROUTE) {
+						// Yes, so remove the route as well
+						pPlot->setRouteType(NO_ROUTE);
 					}
+					
+					// Our work here is done
+					break;
 				}
-
-				pPlot->setImprovementType(NO_IMPROVEMENT);
-			}
-			// Improvement that's pillaged?
-			else
-			{
-				pPlot->SetImprovementPillaged(true);
 			}
 
-			if (pkImprovement->IsDisplacePillager())
-			{
-				jumpToNearestValidPlot();
-			}
+			pPlot->setImprovementType(NO_IMPROVEMENT);
+		}
+		// Improvement that's pillaged?
+		else
+		{
+			pPlot->SetImprovementPillaged(true);
+		}
+
+		if (pkImprovement->IsDisplacePillager())
+		{
+			jumpToNearestValidPlot();
 		}
 	}
 	else if(pPlot->isRoute())
@@ -10741,11 +10736,8 @@ bool CvUnit::pillage()
 		pPlot->SetRoutePillaged(true);
 	}
 
-	if(!hasFreePillageMove())
-	{
-		changeMoves(-GD_INT_GET(MOVE_DENOMINATOR));
-	}
-
+	int iPillageCost = hasFreePillageMove() ? 0 : HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
+	changeMoves(-iPillageCost);
 
 	if(bSuccessfulNonRoadPillage)
 	{
@@ -10768,6 +10760,8 @@ bool CvUnit::pillage()
 		}
 	}
 
+	// Even if the pillage is free, the unit still moved
+	m_bMovedThisTurn = true;
 	return true;
 }
 
@@ -19334,6 +19328,25 @@ int CvUnit::getFreePillageMoveCount() const
 {
 	VALIDATE_OBJECT();
 	return m_iFreePillageMoveCount;
+}
+
+bool CvUnit::HasHalfPillageMove() const
+{
+	VALIDATE_OBJECT();
+	return (GetHalfPillageMoveCount() > 0);
+}
+
+void CvUnit::ChangeHalfPillageMoveCount(int iValue)
+{
+	VALIDATE_OBJECT();
+	m_iHalfPillageMoveCount += iValue;
+	ASSERT(GetHalfPillageMoveCount() >= 0);
+}
+
+int CvUnit::GetHalfPillageMoveCount() const
+{
+	VALIDATE_OBJECT();
+	return m_iHalfPillageMoveCount;
 }
 
 //	--------------------------------------------------------------------------------
@@ -28233,6 +28246,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	ChangeHealIfDefeatExcludeBarbariansCount((thisPromotion.IsHealIfDefeatExcludeBarbarians()) ? iChange : 0);
 	changeHealOnPillageCount((thisPromotion.IsHealOnPillage()) ? iChange : 0);
 	changeFreePillageMoveCount((thisPromotion.IsFreePillageMoves()) ? iChange : 0);
+	ChangeHalfPillageMoveCount(thisPromotion.IsHalfPillageMoves() * iChange);
 	ChangeEmbarkAllWaterCount((thisPromotion.IsEmbarkedAllWater()) ? iChange : 0);
 	if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
 	{
@@ -28985,6 +28999,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iCanMoveAllTerrainCount);
 	visitor(unit.m_iCanMoveAfterAttackingCount);
 	visitor(unit.m_iFreePillageMoveCount);
+	visitor(unit.m_iHalfPillageMoveCount);
 	visitor(unit.m_iHealOnPillageCount);
 	visitor(unit.m_iHPHealedIfDefeatEnemy);
 	visitor(unit.m_iGoldenAgeValueFromKills);
@@ -32154,9 +32169,6 @@ void CvUnit::AI_promote()
 
 		CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePromotion);
 
-		if (pkPromotionEntry == NULL)
-			continue;
-
 		if(canPromote(ePromotion, -1))
 		{
 			int iValue = AI_promotionValue(ePromotion);
@@ -32271,14 +32283,9 @@ void CvUnit::AI_promote()
 int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 {
 	VALIDATE_OBJECT();
+	PRECONDITION(ePromotion > NO_PROMOTION && ePromotion < GC.getNumPromotionInfos(), "Invalid promotion index");
 
 	CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-	if(pkPromotionInfo == NULL)
-	{
-		//This function really really really should not be called with an invalid promotion type.
-		ASSERT(pkPromotionInfo);
-		return 0;
-	}
 
 	double iValue = 0;
 
@@ -32350,10 +32357,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-			
-	
 	// General Offense
-
 
 	iTemp = pkPromotionInfo->GetAttackMod();
 	// Sub: +30 Wolfpack 1 - 3.
@@ -32655,14 +32659,29 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetExtraFlankPower();
-	// Screening: Only recon units can use it now however, so it's not that high of a value.
-	// If you have access to flanking bonuses however.. always choose this over other flanking promotions!
+	// ExtraFlankPower: best for mobile and recon units (support role)
+	// Extra combo score with FlankSupportModifier and IgnoreZOC
 	if (iTemp > 0)
 	{
-		iExtra = (iTemp) * (iFlavorOffense + iFlavorMobile + iFlavorRecon);
-		iExtra *= 100 + GetFlankAttackModifier();
+		iExtra = iTemp * (iFlavorMobile + iFlavorRecon) * 10;
+		iExtra *= 100 + GetFlankSupportModifier() * 2;
 		iExtra /= 100;
-		iExtra *= (2 + baseMoves(false)) / 2;    		// gives max moves, false = not embarked	
+		iExtra *= IsIgnoreZOC() ? 2 : 1;
+		iExtra *= 100 + 50 * (baseMoves(false) - 2);
+		iExtra /= 100;
+		iValue += iExtra;
+	}
+
+	iTemp = pkPromotionInfo->GetFlankSupportModifier();
+	// FlankSupportModifier: best for mobile and recon units (support role)
+	// Extra combo score with ExtraFlankPower and IgnoreZOC
+	if (iTemp > 0)
+	{
+		iExtra = iTemp * (iFlavorMobile + iFlavorRecon) * 3 / 2;
+		iExtra *= GetFlankPower();
+		iExtra *= IsIgnoreZOC() ? 2 : 1;
+		iExtra *= 100 + 50 * (baseMoves(false) - 2);
+		iExtra /= 100;
 		iValue += iExtra;
 	}
 
@@ -33066,8 +33085,20 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0 && !hasFreePillageMove())
 	{	
 		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorMobile);
+		iExtra /= (HasHalfPillageMove() ? 2 : 1);
 		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
 		iExtra *= 8;
+		if (bWarTimePromotion)
+			iExtra *= 2;
+		iValue += iExtra;
+	}
+
+	iTemp = (pkPromotionInfo->IsHalfPillageMoves() && !pkPromotionInfo->IsFreePillageMoves());
+	if (iTemp != 0 && !HasHalfPillageMove() && !hasFreePillageMove())
+	{
+		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorMobile);
+		iExtra *= 0.7 + 0.3 * getDamage() / max(1, GetMaxHitPoints());
+		iExtra *= 4;
 		if (bWarTimePromotion)
 			iExtra *= 2;
 		iValue += iExtra;
@@ -33079,7 +33110,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = iTemp * (2 * iFlavorOffense + iFlavorMobile);
 		iExtra *= 0.2 + 0.8 * getDamage() / max(1,GetMaxHitPoints());
-		iExtra *= 25;		
+		iExtra *= 25;
 		if (bWarTimePromotion)
 			iExtra *= 2;
 		iValue += iExtra;
@@ -33657,7 +33688,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorMobile);
 		iExtra *= baseMoves(false);
 		if (hasFreePillageMove())
-			iExtra *= 2;
+			iExtra *= 3;
+		else if (HasHalfPillageMove())
+			iExtra *= 1.5;
 		iValue += iExtra;
 	}
 

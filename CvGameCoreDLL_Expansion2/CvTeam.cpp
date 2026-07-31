@@ -1013,8 +1013,8 @@ void CvTeam::UpdateXPFromExploration()
 			if (iXPFromExploration == 0)
 				continue;
 
-			int iCurrentXPTimes100 = iXPFromExploration * m_iMaxNumRevealedPlots / iTotalPlots;
-			int iNewXPTimes100 = iXPFromExploration * m_iNumRevealedPlots / iTotalPlots;
+			int iCurrentXPTimes100 = iXPFromExploration * 100 * m_iMaxNumRevealedPlots / iTotalPlots;
+			int iNewXPTimes100 = iXPFromExploration * 100 * m_iNumRevealedPlots / iTotalPlots;
 			int iXPChange = iNewXPTimes100 - iCurrentXPTimes100;
 			if (iXPChange != 0)
 			{
@@ -6024,6 +6024,11 @@ void CvTeam::ChangeNumRevealedPlots(int iChange)
 {
 	m_iNumRevealedPlots += iChange;
 	ASSERT(m_iNumRevealedPlots >= 0 && m_iNumRevealedPlots <= GC.getMap().numPlots());
+}
+
+int CvTeam::GetMaxNumRevealedPlots() const
+{
+	return m_iMaxNumRevealedPlots;
 }
 
 //	--------------------------------------------------------------------------------
