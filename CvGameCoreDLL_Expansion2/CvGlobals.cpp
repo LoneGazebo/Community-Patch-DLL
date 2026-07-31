@@ -2670,7 +2670,14 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 
 	char szMiniDumpStatus[MAX_PATH + 64];
 	if (g_szLastMiniDumpPath[0] != '\0')
-		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "%s", GetOnlyFilename(g_szLastMiniDumpPath));
+	{
+		if (g_dwLastMiniDumpError != 0)
+			// Succeeded via the MiniDumpNormal retry - record why the
+			// requested dump type failed, so degraded dumps are explained.
+			_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "%s (full dump failed, error %u)", GetOnlyFilename(g_szLastMiniDumpPath), g_dwLastMiniDumpError);
+		else
+			_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "%s", GetOnlyFilename(g_szLastMiniDumpPath));
+	}
 	else if (g_dwLastMiniDumpRetryError != 0)
 		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Creation failed (error %u, retry %u)", g_dwLastMiniDumpError, g_dwLastMiniDumpRetryError);
 	else

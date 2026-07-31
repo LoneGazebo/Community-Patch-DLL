@@ -396,8 +396,36 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 		MB_OK | MB_ICONERROR | MB_SYSTEMMODAL | MB_SETFOREGROUND);
 
 #else // VPRELEASE_ERRORMSG
-	bool bIgnoreAlways = false;
-	CvAssertDlg(expr, ShortenFilePath(szFile), uiLine, bIgnoreAlways, msg);
+	// Do NOT reuse CvAssertDlg here: its "No - Continue" / "Cancel - Ignore"
+	// options are lies for a precondition - PRECONDITION executes
+	// BUILTIN_TRAP() unconditionally after this function returns.
+	bool bMsg = msg && msg[0] != '\0';
+	char szBuffer[4096];
+#if defined(MOD_DEBUG_MINIDUMP)
+	const TCHAR* dumpPath = GetLastMiniDumpPath();
+#else
+	const TCHAR* dumpPath = NULL;
+#endif
+	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
+		"Precondition Failed!\n"
+		"==================\n"
+		"Expression: %s\n"
+		"File: %s\n"
+		"Line: %u\n"
+		"%s%s%s"
+		"%s%s\n"
+		"\nPreconditions are fatal: the game will crash when you close this dialog.\n"
+		"A minidump will be written to the crashlogs folder.\n"
+		"\nAttach a debugger now if you want to inspect the live process.",
+		expr, ShortenFilePath(szFile), uiLine,
+		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
+		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : ""
+	);
+
+	SetPreconditionFired();
+
+	MessageBoxA(NULL, szBuffer, "Precondition Failed",
+		MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_SETFOREGROUND);
 #endif
 #endif // WIN32
 #endif // CVASSERT_ENABLE
