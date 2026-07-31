@@ -2067,11 +2067,6 @@ typedef BOOL (WINAPI *PFN_MiniDumpWriteDump)(
 	PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
 	PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
 
-typedef BOOL (WINAPI *PFN_SymInitialize)(
-	HANDLE hProcess,
-	PCSTR UserSearchPath,
-	BOOL fInvadeProcess);
-
 // Define newer minidump flags if not present in older SDK headers
 #ifndef MiniDumpIgnoreInaccessibleMemory
 #define MiniDumpIgnoreInaccessibleMemory ((MINIDUMP_TYPE)0x00020000)
@@ -2083,7 +2078,6 @@ typedef BOOL (WINAPI *PFN_SymInitialize)(
 // Global handles and function pointers
 static HMODULE g_hDbgHelp = NULL;
 static PFN_MiniDumpWriteDump g_pfnMiniDumpWriteDump = NULL;
-static PFN_SymInitialize g_pfnSymInitialize = NULL;
 static char g_szDbgHelpPath[MAX_PATH] = {0};
 
 // Store the last minidump path for display in crash dialogs
@@ -2091,18 +2085,27 @@ static char g_szLastMiniDumpPath[MAX_PATH] = {0};
 
 // Diagnostics for crashes.log when minidump creation fails
 static DWORD g_dwLastMiniDumpError = 0;
+static DWORD g_dwLastMiniDumpRetryError = 0;
 
 // Reserved address space released on crash so dbghelp can allocate its
 // working buffers even when the crash was caused by VA exhaustion
 // (observed: MiniDumpWriteDump left a 0-byte dump with 308 KB largest
-// free block). 16 MB is enough for dbghelp internals plus a comfortable
-// margin; the dump data itself is streamed to the file handle.
+// free block). The dump data itself is streamed to the file handle, so
+// only dbghelp's internals need this. Debug builds get a larger reserve:
+// their image and heap footprint are much bigger, and a crashed Debug
+// process was observed to burn >100 MB between handler entry and the
+// dump write (field data 2026-07-30: 16 MB was not enough).
+#ifdef VPDEBUG
+#define MINIDUMP_EMERGENCY_RESERVE_BYTES (64 * 1024 * 1024)
+#else
+#define MINIDUMP_EMERGENCY_RESERVE_BYTES (16 * 1024 * 1024)
+#endif
 static void* g_pMiniDumpEmergencyReserve = NULL;
 
 static void ReserveMiniDumpMemory()
 {
 	if (!g_pMiniDumpEmergencyReserve)
-		g_pMiniDumpEmergencyReserve = VirtualAlloc(NULL, 16 * 1024 * 1024, MEM_RESERVE, PAGE_READWRITE);
+		g_pMiniDumpEmergencyReserve = VirtualAlloc(NULL, MINIDUMP_EMERGENCY_RESERVE_BYTES, MEM_RESERVE, PAGE_READWRITE);
 }
 
 static void ReleaseMiniDumpEmergencyReserve()
@@ -2182,7 +2185,6 @@ static bool LoadBestDbgHelp()
 
 	// Get function pointers
 	g_pfnMiniDumpWriteDump = (PFN_MiniDumpWriteDump)GetProcAddress(g_hDbgHelp, "MiniDumpWriteDump");
-	g_pfnSymInitialize = (PFN_SymInitialize)GetProcAddress(g_hDbgHelp, "SymInitialize");
 
 	if (!g_pfnMiniDumpWriteDump)
 	{
@@ -2203,25 +2205,34 @@ static bool LoadBestDbgHelp()
 	return true;
 }
 
+#ifdef VPDEBUG
+// Probe for address space exhaustion: can the process still satisfy a
+// modest contiguous allocation? Under exhaustion the full-detail dump
+// types are hopeless (dbghelp needs large working buffers), so the
+// probe decides whether to even attempt them. 24 MB approximates
+// dbghelp's peak transient need for a full-memory dump of a ~4 GB
+// process; MEM_RESERVE costs address space only.
+static bool IsAddressSpaceExhausted()
+{
+	void* pProbe = VirtualAlloc(NULL, 24 * 1024 * 1024, MEM_RESERVE, PAGE_READWRITE);
+	if (pProbe)
+	{
+		VirtualFree(pProbe, 0, MEM_RELEASE);
+		return false;
+	}
+	return true;
+}
+#endif // VPDEBUG
+
 void CreateMiniDump(EXCEPTION_POINTERS* pep)
 {
-	// If the crash was caused by address space exhaustion, dbghelp cannot
-	// allocate its working buffers - give it back our emergency reserve.
-	ReleaseMiniDumpEmergencyReserve();
-
-	// Load the best available dbghelp.dll
+	// Load the best available dbghelp.dll. Normally pre-loaded at
+	// CvGlobals::init when memory is plentiful; this call is then a no-op.
 	if (!LoadBestDbgHelp())
 	{
 		g_dwLastMiniDumpError = GetLastError();
 		OutputDebugString(_T("Cannot create minidump: dbghelp.dll not available\n"));
 		return;
-	}
-
-	// Initialize debug symbols
-	HANDLE hProcess = GetCurrentProcess();
-	if (g_pfnSymInitialize)
-	{
-		g_pfnSymInitialize(hProcess, NULL, TRUE);
 	}
 
 	// Get timestamp
@@ -2317,27 +2328,52 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	// Configure dump type based on build
 	MINIDUMP_TYPE mdt;
 #ifdef VPDEBUG
-	OutputDebugString(_T("Creating Debug minidump\n"));
-	// Debug build: Maximum detail for debugging
-	// All flags are SDK 7.0A compatible
-	mdt = (MINIDUMP_TYPE)(
-		MiniDumpWithFullMemory |               // 0x00000002 Complete memory snapshot
-		MiniDumpWithFullMemoryInfo |           // 0x00000800 Memory state information
-		MiniDumpWithHandleData |               // 0x00000004 Handle usage
-		MiniDumpWithUnloadedModules |          // 0x00000020 Track unloaded DLLs
-		MiniDumpWithThreadInfo |               // 0x00001000 Extended thread information
-		MiniDumpWithProcessThreadData |        // 0x00000100 Process thread data
-		MiniDumpWithPrivateReadWriteMemory |   // 0x00000200 Private memory
-		MiniDumpWithIndirectlyReferencedMemory | // 0x00000040 Memory referenced by locals
-		MiniDumpWithFullAuxiliaryState |       // 0x00008000 Auxiliary state (handles, GDI objects)
-		MiniDumpWithTokenInformation |         // 0x00040000 Security token info
-		MiniDumpIgnoreInaccessibleMemory       // 0x00020000 Skip inaccessible memory
-		// Note: MiniDumpWithCodeSegs and MiniDumpWithDataSegs are redundant with FullMemory
-		);
+	// Probe BEFORE releasing the emergency reserve: it answers "is there
+	// free address space beyond what we are holding ourselves?"
+	if (IsAddressSpaceExhausted())
+	{
+		// The rich dump types below need large dbghelp working buffers.
+		// When the crash itself is address space exhaustion (the most
+		// common crash cause on 32-bit) they are guaranteed to fail with
+		// ERROR_NOT_ENOUGH_MEMORY - and the failed attempt fragments the
+		// released reserve, dooming the retry too (field data 2026-07-30).
+		// Request only the modest stream set from the start so the
+		// reserve is spent on an attempt that can succeed.
+		OutputDebugString(_T("Creating Debug minidump (address space exhausted - reduced detail)\n"));
+		mdt = (MINIDUMP_TYPE)(
+			MiniDumpNormal |                       // 0x00000000 Basic info (stacks, modules, threads)
+			MiniDumpWithThreadInfo |               // 0x00001000 Extended thread information
+			MiniDumpWithUnloadedModules |          // 0x00000020 Track unloaded DLLs
+			MiniDumpWithProcessThreadData |        // 0x00000100 Process thread data
+			MiniDumpWithHandleData |               // 0x00000004 Handle usage
+			MiniDumpIgnoreInaccessibleMemory       // 0x00020000 Skip inaccessible memory
+			);
+	}
+	else
+	{
+		OutputDebugString(_T("Creating Debug minidump\n"));
+		// Debug build: Maximum detail for debugging
+		// All flags are SDK 7.0A compatible
+		mdt = (MINIDUMP_TYPE)(
+			MiniDumpWithFullMemory |               // 0x00000002 Complete memory snapshot
+			MiniDumpWithFullMemoryInfo |           // 0x00000800 Memory state information
+			MiniDumpWithHandleData |               // 0x00000004 Handle usage
+			MiniDumpWithUnloadedModules |          // 0x00000020 Track unloaded DLLs
+			MiniDumpWithThreadInfo |               // 0x00001000 Extended thread information
+			MiniDumpWithProcessThreadData |        // 0x00000100 Process thread data
+			MiniDumpWithPrivateReadWriteMemory |   // 0x00000200 Private memory
+			MiniDumpWithIndirectlyReferencedMemory | // 0x00000040 Memory referenced by locals
+			MiniDumpWithFullAuxiliaryState |       // 0x00008000 Auxiliary state (handles, GDI objects)
+			MiniDumpWithTokenInformation |         // 0x00040000 Security token info
+			MiniDumpIgnoreInaccessibleMemory       // 0x00020000 Skip inaccessible memory
+			// Note: MiniDumpWithCodeSegs and MiniDumpWithDataSegs are redundant with FullMemory
+			);
+	}
 #else
 	OutputDebugString(_T("Creating Release minidump\n"));
 	// Release build: Maximum diagnostic info without full memory dump
 	// Optimized for crash analysis while keeping dump size reasonable
+	// (this stream set is already the cheap one; no exhaustion demotion needed)
 	mdt = (MINIDUMP_TYPE)(
 		MiniDumpNormal |                       // 0x00000000 Basic info (stacks, modules, threads)
 		MiniDumpWithThreadInfo |               // 0x00001000 Extended thread information
@@ -2387,6 +2423,14 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	additional_streams.UserStreamCount = 1;
 	additional_streams.UserStreamArray = user_streams;
 
+	// Release the emergency reserve as late as possible - everything above
+	// (dbghelp load, file creation, stream setup) is either pre-done at
+	// init or cheap; dbghelp's working buffers during the write are the
+	// one allocation that must succeed. Releasing earlier lets other
+	// still-running threads and our own preparation steps consume it
+	// before the write (field data 2026-07-30).
+	ReleaseMiniDumpEmergencyReserve();
+
 	// Write the dump using function pointer
 	BOOL bSuccess = g_pfnMiniDumpWriteDump(
 		GetCurrentProcess(),
@@ -2401,11 +2445,9 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	{
 		g_dwLastMiniDumpError = GetLastError();
 
-		// The rich dump types need large dbghelp working buffers; under
-		// address space exhaustion (the most common crash cause on 32-bit)
-		// the call fails and leaves a 0-byte file. Retry with MiniDumpNormal,
-		// which only needs stacks/modules/threads - a truncated dump beats
-		// no dump.
+		// The rich dump types need large dbghelp working buffers; if the
+		// first attempt still failed, fall back to plain MiniDumpNormal
+		// (stacks/modules/threads only) - a minimal dump beats none.
 		SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
 		SetEndOfFile(hFile);
 		bSuccess = g_pfnMiniDumpWriteDump(
@@ -2416,6 +2458,8 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 			(pep != NULL) ? &mdei : NULL,
 			&additional_streams,
 			NULL);
+		if (!bSuccess)
+			g_dwLastMiniDumpRetryError = GetLastError();
 	}
 
 	CloseHandle(hFile);
@@ -2431,9 +2475,10 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 		DeleteFile(szDumpFilename);
 		g_szLastMiniDumpPath[0] = '\0';
 
-		TCHAR szError[128];
+		TCHAR szError[160];
 		_stprintf_s(szError, sizeof(szError) / sizeof(TCHAR),
-			_T("MiniDumpWriteDump failed with error: %d\n"), g_dwLastMiniDumpError);
+			_T("MiniDumpWriteDump failed with error: %u (retry: %u)\n"),
+			g_dwLastMiniDumpError, g_dwLastMiniDumpRetryError);
 		OutputDebugString(szError);
 	}
 }
@@ -2515,9 +2560,6 @@ static const char* GetOnlyFilename( const char* in )
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
 	CreateDirectory(_T("crashlogs"),NULL);
-#if defined(MOD_DEBUG_MINIDUMP)
-	CreateMiniDump(ExceptionInfo);
-#endif
 
 	DWORD exceptionCode = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionCode : 0;
 	void* exceptionAddress = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionAddress : NULL;
@@ -2620,9 +2662,17 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 	GetModuleFileNameA( NULL, szExeName, MAX_PATH) ;
 
 #if defined(MOD_DEBUG_MINIDUMP)
+	// Write the dump only AFTER the memory statistics above are gathered
+	// (the scan uses stack memory only): the numbers in crashes.log must
+	// describe the crash-time state, not the state after dump creation
+	// released the emergency reserve and dbghelp consumed it.
+	CreateMiniDump(ExceptionInfo);
+
 	char szMiniDumpStatus[MAX_PATH + 64];
 	if (g_szLastMiniDumpPath[0] != '\0')
 		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "%s", GetOnlyFilename(g_szLastMiniDumpPath));
+	else if (g_dwLastMiniDumpRetryError != 0)
+		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Creation failed (error %u, retry %u)", g_dwLastMiniDumpError, g_dwLastMiniDumpRetryError);
 	else
 		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Creation failed (error %u)", g_dwLastMiniDumpError);
 #endif
@@ -2732,6 +2782,10 @@ void CvGlobals::init()
 	SetUnhandledExceptionFilter(CustomFilter);
 #if defined(MOD_DEBUG_MINIDUMP)
 	ReserveMiniDumpMemory();
+	// Pre-load dbghelp.dll and resolve MiniDumpWriteDump now, while memory
+	// is plentiful - LoadLibrary at crash time would compete with dbghelp's
+	// working buffers for whatever address space is left.
+	LoadBestDbgHelp();
 #ifdef VPDEBUG
 	OutputDebugString(_T("Debug MiniDump handler installed\n"));
 #else
