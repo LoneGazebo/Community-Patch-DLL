@@ -340,8 +340,6 @@ public:
 	void SetEurekaCounter(TechTypes eTech, int newEurekaCount);
 
 private:
-	int GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const;
-
 	TechTypes m_eLastTechAcquired;
 	int m_iNumTechs;
 
