@@ -6060,6 +6060,11 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	// First plan which Trade Routes we want, in global score order.
 	// Do not bind specific units yet; trade units of the same domain are interchangeable.
 	std::vector<HomelandTradeRoutePlan> vTradeRoutePlans;
+	// The planning loop never plans more routes per domain than there are unassigned units,
+	// so this reserve is an exact upper bound. Growth reallocation of the fat
+	// HomelandTradeRoutePlan elements can fail when the 32-bit address space is nearly
+	// exhausted in the late game.
+	vTradeRoutePlans.reserve(iMaxCaravans + iMaxCargoShips);
 	int iPlannedCaravans = 0;
 	int iPlannedCargoShips = 0;
 
