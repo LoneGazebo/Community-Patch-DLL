@@ -3651,19 +3651,15 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					int iLoop = 0;
 					for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvPlot* pPlot = pLoopCity->plot();
-						if (pPlot)
+						int iDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+
+						if (iDistance < iBestCityDistance)
 						{
-							int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+							// If we can't work the tile, we don't care
+							if (pLoopCity->IsWithinWorkRange(pDirectivePlot))
+								pOwningCity = pLoopCity;
 
-							if (iDistance < iBestCityDistance)
-							{
-								// If we can't work the tile, we don't care
-								if (pLoopCity->IsWithinWorkRange(pPlot))
-									pOwningCity = pLoopCity;
-
-								iBestCityDistance = iDistance;
-							}
+							iBestCityDistance = iDistance;
 						}
 					}
 				}
@@ -6064,6 +6060,11 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 	// First plan which Trade Routes we want, in global score order.
 	// Do not bind specific units yet; trade units of the same domain are interchangeable.
 	std::vector<HomelandTradeRoutePlan> vTradeRoutePlans;
+	// The planning loop never plans more routes per domain than there are unassigned units,
+	// so this reserve is an exact upper bound. Growth reallocation of the fat
+	// HomelandTradeRoutePlan elements can fail when the 32-bit address space is nearly
+	// exhausted in the late game.
+	vTradeRoutePlans.reserve(iMaxCaravans + iMaxCargoShips);
 	int iPlannedCaravans = 0;
 	int iPlannedCargoShips = 0;
 

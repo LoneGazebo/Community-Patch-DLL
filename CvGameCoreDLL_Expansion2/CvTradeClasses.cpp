@@ -5417,7 +5417,8 @@ int CvPlayerTrade::GetNumTradeUnits(bool bIncludeBeingBuilt) const
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetNumTradeUnitsRemaining (bool bIncludeBeingBuilt)
 {
-	return (GetNumTradeRoutesPossible() - GetNumTradeUnits(bIncludeBeingBuilt));
+	//result may be negative - make sure the subtraction happens in signed arithmetic
+	return ((int)GetNumTradeRoutesPossible() - GetNumTradeUnits(bIncludeBeingBuilt));
 }
 
 //	--------------------------------------------------------------------------------
@@ -5913,6 +5914,42 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	std::vector<TRSortElement> aGoldSortedTR;
 	std::vector<TRSortElement> aGoldInternalSortedTR;
 
+	// Reserve upper bounds up front - growth reallocation of the fat TRSortElement vectors can fail
+	// when the 32-bit address space is nearly exhausted in the late game.
+	// ScoreProductionTR/ScoreFoodTR/ScoreWonderTR/ScoreGoldInternalTR reject all other connection
+	// types, so a per-type count bounds those lists exactly.
+	// ScoreInternationalTR has no connection type filter (e.g. the poverty bonus can score internal
+	// routes too), so its only exact bound is the full list.
+	uint uiProductionRoutes = 0;
+	uint uiFoodRoutes = 0;
+	uint uiWonderRoutes = 0;
+	uint uiGoldInternalRoutes = 0;
+	for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
+	{
+		switch (aTradeConnectionList[ui].m_eConnectionType)
+		{
+		case TRADE_CONNECTION_PRODUCTION:
+			uiProductionRoutes++;
+			break;
+		case TRADE_CONNECTION_FOOD:
+			uiFoodRoutes++;
+			break;
+		case TRADE_CONNECTION_WONDER_RESOURCE:
+			uiWonderRoutes++;
+			break;
+		case TRADE_CONNECTION_GOLD_INTERNAL:
+			uiGoldInternalRoutes++;
+			break;
+		default:
+			break;
+		}
+	}
+	aProductionSortedTR.reserve(uiProductionRoutes);
+	aFoodSortedTR.reserve(uiFoodRoutes);
+	aWonderSortedTR.reserve(uiWonderRoutes);
+	aGoldSortedTR.reserve(aTradeConnectionList.size());
+	aGoldInternalSortedTR.reserve(uiGoldInternalRoutes);
+
 	// PRODUCTION PRODUCTION PRODUCTION PRODUCTION
 	// - Search for wonder city
 	// - Search for Utopia Project city
@@ -6117,6 +6154,9 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 
 	// Move all Trade Routes into a single vector in order to sort them by score
 	std::vector<TRSortElement> aTotalList;
+	// reserve the exact final size - repeated geometric growth needs old and new buffer simultaneously,
+	// which can fail when the address space is nearly exhausted in the late game
+	aTotalList.reserve(aProductionSortedTR.size() + aFoodSortedTR.size() + aWonderSortedTR.size() + aGoldSortedTR.size() + aGoldInternalSortedTR.size());
 
 	for (uint ui = 0; ui < aProductionSortedTR.size(); ui++)
 	{
@@ -6149,7 +6189,13 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	// Sort the overall list from highest to lowest score
 	std::stable_sort(aTotalList.begin(), aTotalList.end(), SortTR());
 
-	// Now add the Trade Routes in the sorted order (without scores) to the return vector
+	// Now add the Trade Routes in the sorted order (without scores) to the return vector.
+	// A route can appear in several category lists (e.g. gold and production), so the merged
+	// list can be LARGER than the incoming route list's capacity. Release the old buffer and
+	// reserve the exact final size up front - growth needs old and new buffer simultaneously,
+	// which can fail when the address space is nearly exhausted in the late game.
+	std::vector<TradeConnection>().swap(aTradeConnectionList);
+	aTradeConnectionList.reserve(aTotalList.size());
 	for (uint ui = 0; ui < aTotalList.size(); ui++)
 	{
 		aTradeConnectionList.push_back(aTotalList[ui].m_kTradeConnection);
@@ -6306,65 +6352,85 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 	//important. see which trade paths are still valid
 	GC.getGame().GetGameTrade()->UpdateTradePathCache(m_pPlayer->GetID());
 
-	// Reserve capacity to reduce reallocations - estimate based on cities and players
-	int iEstimatedRoutes = m_pPlayer->getNumCities() * GC.getGame().countCivPlayersAlive() * 8;
-	aTradeConnectionList.reserve(min(iEstimatedRoutes, 2000));
-
-	// build trade route list
+	// Two passes over the same loops: the first only counts the routes, the second fills the list.
+	// This way we can reserve the exact final size, avoiding vector growth reallocation of the fat
+	// TradeConnection elements, which can fail when the 32-bit address space is nearly exhausted
+	// in the late game. Both passes only read cached data, so the count is exact.
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
-	int iOriginCityLoop = 0;
-	for (CvCity* pOriginCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = m_pPlayer->nextCity(&iOriginCityLoop))
+	int iRoutesToAdd = 0;
+	for (int iPass = 0; iPass < 2; iPass++)
 	{
-		for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
+		if (iPass == 1)
+			aTradeConnectionList.reserve(iRoutesToAdd);
+
+		int iOriginCityLoop = 0;
+		for (CvCity* pOriginCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = m_pPlayer->nextCity(&iOriginCityLoop))
 		{
-			PlayerTypes eOtherPlayer = (PlayerTypes)ui;
-
-			if (!GET_PLAYER(eOtherPlayer).isAlive())
-				continue;
-
-			if (GET_PLAYER(eOtherPlayer).isBarbarian())
-				continue;
-
-			if (m_pPlayer->IsAtWarWith(eOtherPlayer))
-				continue;
-
-			int iDestCityLoop = 0;
-			for (CvCity* pDestCity = GET_PLAYER(eOtherPlayer).firstCity(&iDestCityLoop); pDestCity != NULL; pDestCity = GET_PLAYER(eOtherPlayer).nextCity(&iDestCityLoop))
+			for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
 			{
-				// if this is the same city
-				if (pOriginCity == pDestCity)
+				PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+
+				if (!GET_PLAYER(eOtherPlayer).isAlive())
 					continue;
 
-				// Are there valid land and sea paths? Just check validity, don't copy path data.
-				bool bLandTradeAvailable = bHaveCaravans && pGameTrade->IsValidTradeRoutePath(pOriginCity, pDestCity, DOMAIN_LAND, NULL);
-				bool bSeaTradeAvailable = bHaveCargoShips && pGameTrade->IsValidTradeRoutePath(pOriginCity, pDestCity, DOMAIN_SEA, NULL);
-
-				// If there is no path, just skip the rest of the connection tests.
-				if (!bLandTradeAvailable && !bSeaTradeAvailable)
+				if (GET_PLAYER(eOtherPlayer).isBarbarian())
 					continue;
 
-				for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
+				if (m_pPlayer->IsAtWarWith(eOtherPlayer))
+					continue;
+
+				int iDestCityLoop = 0;
+				for (CvCity* pDestCity = GET_PLAYER(eOtherPlayer).firstCity(&iDestCityLoop); pDestCity != NULL; pDestCity = GET_PLAYER(eOtherPlayer).nextCity(&iDestCityLoop))
 				{
-					TradeConnectionType eConnection = (TradeConnectionType)uiConnectionTypes;
+					// if this is the same city
+					if (pOriginCity == pDestCity)
+						continue;
 
-					// Check the land trade route for this connection type, ignoring the path
-					if (bLandTradeAvailable && pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, DOMAIN_LAND, eConnection, !bSkipExisting, false))
+					// Are there valid land and sea paths? Just check validity, don't copy path data.
+					bool bLandTradeAvailable = bHaveCaravans && pGameTrade->IsValidTradeRoutePath(pOriginCity, pDestCity, DOMAIN_LAND, NULL);
+					bool bSeaTradeAvailable = bHaveCargoShips && pGameTrade->IsValidTradeRoutePath(pOriginCity, pDestCity, DOMAIN_SEA, NULL);
+
+					// If there is no path, just skip the rest of the connection tests.
+					if (!bLandTradeAvailable && !bSeaTradeAvailable)
+						continue;
+
+					for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
 					{
-						TradeConnection kConnection;
-						kConnection.SetCities(pOriginCity, pDestCity);
-						kConnection.m_eConnectionType = eConnection;
-						kConnection.m_eDomain = DOMAIN_LAND;
-						aTradeConnectionList.push_back(kConnection);
-					}
-					// Check the sea trade route for this connection type, ignoring the path
-					if (bSeaTradeAvailable && pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, DOMAIN_SEA, eConnection, !bSkipExisting, false))
-					{
-						TradeConnection kConnection;
-						kConnection.SetCities(pOriginCity, pDestCity);
-						kConnection.m_eConnectionType = eConnection;
-						kConnection.m_eDomain = DOMAIN_SEA;
-						aTradeConnectionList.push_back(kConnection);
+						TradeConnectionType eConnection = (TradeConnectionType)uiConnectionTypes;
+
+						// Check the land trade route for this connection type, ignoring the path
+						if (bLandTradeAvailable && pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, DOMAIN_LAND, eConnection, !bSkipExisting, false))
+						{
+							if (iPass == 0)
+							{
+								iRoutesToAdd++;
+							}
+							else
+							{
+								TradeConnection kConnection;
+								kConnection.SetCities(pOriginCity, pDestCity);
+								kConnection.m_eConnectionType = eConnection;
+								kConnection.m_eDomain = DOMAIN_LAND;
+								aTradeConnectionList.push_back(kConnection);
+							}
+						}
+						// Check the sea trade route for this connection type, ignoring the path
+						if (bSeaTradeAvailable && pPlayerTrade->CanCreateTradeRoute(pOriginCity, pDestCity, DOMAIN_SEA, eConnection, !bSkipExisting, false))
+						{
+							if (iPass == 0)
+							{
+								iRoutesToAdd++;
+							}
+							else
+							{
+								TradeConnection kConnection;
+								kConnection.SetCities(pOriginCity, pDestCity);
+								kConnection.m_eConnectionType = eConnection;
+								kConnection.m_eDomain = DOMAIN_SEA;
+								aTradeConnectionList.push_back(kConnection);
+							}
+						}
 					}
 				}
 			}

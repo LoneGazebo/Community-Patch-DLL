@@ -11981,8 +11981,13 @@ void CvPlot::IncreaseKnownVisibilityCount(TeamTypes eTeam, TeamTypes eTeam2)
 {
 	PRECONDITION(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	m_aiKnownVisibilityCount[eTeam]++;
-	if (eTeam2 != NO_TEAM)
+	// Saturate instead of wrapping. The counts accumulate between the periodic resets in
+	// CvTacticalAI::UpdateVisibility (mass reveals during CvGame::doTurn can push a plot/team
+	// pair past 255), and a wrap to 0 would make a heavily-observed plot look invisible.
+	// All consumers only test > 0 or > 1, so saturation preserves their semantics.
+	if (m_aiKnownVisibilityCount[eTeam] < 255)
+		m_aiKnownVisibilityCount[eTeam]++;
+	if (eTeam2 != NO_TEAM && m_aiKnownVisibilityCount[eTeam2] < 255)
 		m_aiKnownVisibilityCount[eTeam2]++;
 }
 

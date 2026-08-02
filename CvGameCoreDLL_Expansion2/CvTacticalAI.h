@@ -125,7 +125,7 @@ private:
 	void UpdatePriority() { m_iAttackPriority = m_iAttackStrength * m_iHealthPercent; }
 
 	int m_iID;
-	short m_iAttackStrength;
+	int m_iAttackStrength; //combat strength values are scaled x100 and exceed SHRT_MAX
 	short m_iHealthPercent;
 	short m_iMovesToTarget;
 	short m_iExpectedTargetDamage;

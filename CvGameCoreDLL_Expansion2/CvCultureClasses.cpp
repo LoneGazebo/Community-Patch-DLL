@@ -126,14 +126,14 @@ int CvGameCulture::CreateGreatWork(GreatWorkType eType, GreatWorkClass eClass, P
 
 GreatWorkType CvGameCulture::GetGreatWorkType(int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	const CvGreatWork* pWork = &m_CurrentGreatWorks[iIndex];
 	return pWork->m_eType;
 }
 
 GreatWorkClass CvGameCulture::GetGreatWorkClass(int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	const CvGreatWork* pWork = &m_CurrentGreatWorks[iIndex];
 	return pWork->m_eClassType;
 }
@@ -141,7 +141,7 @@ GreatWorkClass CvGameCulture::GetGreatWorkClass(int iIndex) const
 /// Returns UI tooltip for this Great Work
 CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	PRECONDITION(pWork->m_eClassType != NO_GREAT_WORK_CLASS, "Invalid Great Work Class");
@@ -318,7 +318,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 /// Returns name of this Great Work
 CvString CvGameCulture::GetGreatWorkName(int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	const CvGreatWork* pWork = &m_CurrentGreatWorks[iIndex];
 
 	return CultureHelpers::GetGreatWorkName(pWork->m_eType);
@@ -327,7 +327,7 @@ CvString CvGameCulture::GetGreatWorkName(int iIndex) const
 /// Returns artist of this Great Work
 CvString CvGameCulture::GetGreatWorkArtist(int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	CvString szArtist = pWork->m_szGreatPersonName;
@@ -338,7 +338,7 @@ CvString CvGameCulture::GetGreatWorkArtist(int iIndex) const
 /// Returns era of this Great Work
 CvString CvGameCulture::GetGreatWorkEra(int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	CvString szEra = "";
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
@@ -361,7 +361,7 @@ CvString CvGameCulture::GetGreatWorkEra(int iIndex) const
 
 CvString CvGameCulture::GetGreatWorkEraAbbreviation(int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	CvString szEra = GC.getEraInfo(pWork->m_eEra)->getAbbreviation();
@@ -371,7 +371,7 @@ CvString CvGameCulture::GetGreatWorkEraAbbreviation(int iIndex) const
 
 CvString CvGameCulture::GetGreatWorkEraShort(int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	CvString szEra = GC.getEraInfo(pWork->m_eEra)->getShortDesc();
@@ -381,14 +381,14 @@ CvString CvGameCulture::GetGreatWorkEraShort(int iIndex) const
 
 PlayerTypes CvGameCulture::GetGreatWorkCreator (int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	const CvGreatWork *pWork = &m_CurrentGreatWorks[iIndex];
 	return pWork->m_ePlayer;
 }
 
 PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	
 	// for each player
 	//   for each building
@@ -448,7 +448,7 @@ bool CvGameCulture::IsGreatWorkCreated(GreatWorkType eType) const
 
 CvCity* CvGameCulture::GetGreatWorkCity(int iIndex, BuildingTypes& eBuilding) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	
 	// for each player
 	//   for each building
@@ -492,7 +492,7 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex, BuildingTypes& eBuilding) co
 
 int CvGameCulture::GetGreatWorkCurrentThemingBonus(int iIndex) const
 {
-	PRECONDITION(iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	PRECONDITION(iIndex >= 0 && iIndex < GetNumGreatWorks(), "Bad Great Work index");
 
 	// for each player
 	//   for each building
@@ -2408,6 +2408,12 @@ bool CvPlayerCulture::MoveWorkIntoSlot(int iWorkID, int iToCityID, BuildingTypes
 			}
 		}
 
+		//no swappable work of our own found - the swap cannot happen, bail out
+		//before the bookkeeping below assumes it did (and before the -1 index
+		//reaches SendArtSwapNotification -> GetGreatWorkName)
+		if (iOurSwapWorkIndex == -1)
+			return false;
+
 		CvGreatWorkAvailableForUse kWorkToSwapAway;
 		for (vector<CvGreatWorkAvailableForUse>::iterator it = works1.begin(); it != works1.end(); ++it)
 		{
@@ -3886,7 +3892,7 @@ int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstantTimes100(Player
 {
 	int iBase = GET_PLAYER(eOtherPlayer).GetTotalJONSCulturePerTurnTimes100();
 	int iEndTurn = GC.getGame().getGameTurn();
-	int iStartTurn = GC.getGame().getGameTurn() - INSTANT_YIELD_HISTORY_LENGTH;
+	int iStartTurn = GC.getGame().getGameTurn() - (int)INSTANT_YIELD_HISTORY_LENGTH;
 
 	return iBase + GET_PLAYER(eOtherPlayer).getInstantYieldAvg(YIELD_CULTURE, iStartTurn, iEndTurn) * 100;
 }
@@ -3899,7 +3905,7 @@ int CvPlayerCulture::GetTourismPerTurnIncludingInstantTimes100(PlayerTypes ePlay
 		iBase = GetInfluencePerTurnTimes100(ePlayer);
 
 	int iEndTurn = GC.getGame().getGameTurn();
-	int iStartTurn = GC.getGame().getGameTurn() - INSTANT_YIELD_HISTORY_LENGTH;
+	int iStartTurn = GC.getGame().getGameTurn() - (int)INSTANT_YIELD_HISTORY_LENGTH;
 
 	int iAvgGlobal = m_pPlayer->getInstantYieldAvg(YIELD_TOURISM, iStartTurn, iEndTurn) * 100;
 	int iAvgIndividual = m_pPlayer->getInstantTourismPerPlayerAvg(ePlayer, iStartTurn, iEndTurn) * 100;

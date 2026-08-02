@@ -11801,27 +11801,37 @@ void CvMinorCivAI::DoDefection()
 			GetPlayer()->GetMinorCivAI()->ChangeFriendshipWithMajor(eMajorLoop, (GetPlayer()->GetMinorCivAI()->GetAlliesThreshold(eMajorLoop) + 5), true);
 		}
 	}
+	// The capital can be gone while the rebellion flag is still set
+	// (e.g. captured or razed by another player mid-rebellion).
+	// This state should not exist: SetRebellion(false) is only ever done
+	// here, and no capital-transition path (capture/raze/liberation)
+	// clears the flag. The assert is a tripwire for that missing cleanup;
+	// if it keeps firing, fix the transition paths instead.
 	CvCity* pCity = GetPlayer()->getCapitalCity();
-	CvCityCitizens* pCitizens = pCity->GetCityCitizens();
-	//Let's kill off any barbs remaining.
-
-	for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
+	ASSERT(pCity, "Minor civ is in rebellion but has no capital - rebellion flag was not cleared when the capital changed hands.");
+	if (pCity)
 	{
-		CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
+		CvCityCitizens* pCitizens = pCity->GetCityCitizens();
+		//Let's kill off any barbs remaining.
 
-		if(pPlot && pPlot->getNumUnits() > 0)
+		for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
 		{
-			// Get the current list of units because we will possibly be moving them out of the plot's list
-			IDInfoVector currentUnits;
-			if (pPlot->getUnits(&currentUnits) > 0)
-			{
-				for(IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
-				{
-					CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+			CvPlot* pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 
-					if(pLoopUnit && pLoopUnit->isBarbarian())
+			if(pPlot && pPlot->getNumUnits() > 0)
+			{
+				// Get the current list of units because we will possibly be moving them out of the plot's list
+				IDInfoVector currentUnits;
+				if (pPlot->getUnits(&currentUnits) > 0)
+				{
+					for(IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
 					{
-						pLoopUnit->kill(false);
+						CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+						if(pLoopUnit && pLoopUnit->isBarbarian())
+						{
+							pLoopUnit->kill(false);
+						}
 					}
 				}
 			}
@@ -11832,8 +11842,8 @@ void CvMinorCivAI::DoDefection()
 	SetRebellion(false);
 
 	//Resistance, for flavor.
-	GetPlayer()->getCapitalCity()->ChangeResistanceTurns(5);
-
+	if (pCity)
+		pCity->ChangeResistanceTurns(5);
 }
 
 /// Is a player allowed to be inside someone else's borders?
