@@ -512,6 +512,12 @@ int CvTreasury::CalculateUnitCost(int iUnits)
 		}
 	}
 
+	// The discounts above are based on the ACTUAL unit counts, but iUnits may be a smaller
+	// hypothetical count (GetSoftSupplyCap probes with increasing unit numbers), which can
+	// drive the total negative. Maintenance can never be negative, and a negative base fed
+	// into pow() below yields NaN (undefined float-to-int cast, an MP determinism hazard).
+	iBaseUnitCost = max(0, iBaseUnitCost);
+
 	// Game progress factor ranges from 0 to 100 based on how far into the game we are
 	int iGameProgressFactor = (GC.getGame().getElapsedGameTurns() * 100) / GC.getGame().getDefaultEstimateEndTurn();
 	// in VP: game progress is calculated based on tech progress, not on elapsed game turns
