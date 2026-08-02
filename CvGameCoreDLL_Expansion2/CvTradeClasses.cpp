@@ -6189,7 +6189,13 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	// Sort the overall list from highest to lowest score
 	std::stable_sort(aTotalList.begin(), aTotalList.end(), SortTR());
 
-	// Now add the Trade Routes in the sorted order (without scores) to the return vector
+	// Now add the Trade Routes in the sorted order (without scores) to the return vector.
+	// A route can appear in several category lists (e.g. gold and production), so the merged
+	// list can be LARGER than the incoming route list's capacity. Release the old buffer and
+	// reserve the exact final size up front - growth needs old and new buffer simultaneously,
+	// which can fail when the address space is nearly exhausted in the late game.
+	std::vector<TradeConnection>().swap(aTradeConnectionList);
+	aTradeConnectionList.reserve(aTotalList.size());
 	for (uint ui = 0; ui < aTotalList.size(); ui++)
 	{
 		aTradeConnectionList.push_back(aTotalList[ui].m_kTradeConnection);
