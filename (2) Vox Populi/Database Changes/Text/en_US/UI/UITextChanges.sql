@@ -720,6 +720,10 @@ SET Text = 'In the next World Congress session, [COLOR_POSITIVE_TEXT]{1_NumVotes
 WHERE Tag = 'TXT_KEY_DIPLO_VOTE_TRADE_REPEAL_TT';
 
 UPDATE Language_en_US
+SET Text = 'Neither player yet has the Technology to trade this item (Philosophy).'
+WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_NO_TECH';
+
+UPDATE Language_en_US
 SET Text = 'Allows the other player''s military or civilian Units to pass through one''s territory (lasts {1_Num} turns).[NEWLINE][NEWLINE]Allowing another civilization to pass through one''s own territory increases the [ICON_TOURISM] Tourism modifier towards that civilization.[NEWLINE][NEWLINE]Note: Military Units belonging to different players may never stack.'
 WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_TT';
 
