@@ -3684,23 +3684,40 @@ bool CvPlot::HasAirCover(PlayerTypes eDefendingPlayer) const
 	if (eDefendingPlayer == NO_PLAYER)
 		return false;
 
-	CvPlayerAI& kPlayer = GET_PLAYER(eDefendingPlayer);
-	const std::vector<std::pair<int, int>>& possibleUnits = kPlayer.GetPossibleInterceptors();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	int iX = getX();
+	int iY = getY();
+	CvPlayer& kPlayer = GET_PLAYER(eDefendingPlayer);
+	const vector<PlayerTypes>& vEnemies = kPlayer.GetPlayersAtWarWith();
+	const vector<SAreaEffectUnitInfo>& vAreaEffectUnits = kPlayer.GetAreaEffectUnits();
+	for (vector<SAreaEffectUnitInfo>::const_iterator it = vAreaEffectUnits.begin(); it != vAreaEffectUnits.end(); ++it)
 	{
-		CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		CvUnit* pInterceptorUnit = kPlayer.getUnit(it->first);
-
-		if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
+		// Distance check
+		int iPlotDistance = plotDistance(iX, iY, it->iX, it->iY);
+		if (iPlotDistance > it->iInterceptRange)
 			continue;
 
-		// Must not have already intercepted this turn
-		if (!pInterceptorUnit->canInterceptNow())
-			continue;
+		// Is this unit jammed?
+		if (it->eDomain == DOMAIN_LAND)
+		{
+			CvPlot* pInterceptorPlot = GC.getMap().plotUnchecked(it->iX, it->iY);
 
-		// Test range
-		int iDistance = plotDistance(*pInterceptorPlot, *this);
-		if (iDistance <= pInterceptorUnit->GetAirInterceptRange())
+			bool bJammed = false;
+			for (CivsList::const_iterator it2 = vEnemies.begin(); it2 != vEnemies.end(); ++it2)
+			{
+				if (pInterceptorPlot->IsJammingActive(*it2))
+				{
+					bJammed = true;
+					break;
+				}
+			}
+
+			if (bJammed)
+				continue;
+		}
+
+		// Can this unit intercept right now?
+		CvUnit* pInterceptorUnit = kPlayer.getUnit(it->iUnitID);
+		if (pInterceptorUnit->canInterceptNow())
 			return true;
 	}
 
@@ -3720,73 +3737,91 @@ int CvPlot::GetInterceptorCount(PlayerTypes eAttackingPlayer, CvUnit* pAttacking
 CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* pAttackingUnit /* = NULL */, 
 	bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/, int* piNumPossibleInterceptors) const
 {
-	if (eAttackingPlayer == NO_PLAYER)
-		return NULL;
-
+	PRECONDITION(eAttackingPlayer != NO_PLAYER, "eAttackingPlayer is not assigned a valid value");
 	VALIDATE_OBJECT();
-	CvUnit* pBestUnit = 0;
+
+	if (piNumPossibleInterceptors)
+		*piNumPossibleInterceptors = 0;
+
+	CvPlayer& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+	CvTeam& kAttackingTeam = GET_TEAM(kAttackingPlayer.getTeam());
+	const CivsList& vTeammates = kAttackingTeam.getPlayers();
+
+	int iX = getX();
+	int iY = getY();
+	CvUnit* pBestUnit = NULL;
 	int iBestValue = 0;
 	int iBestDistance = INT_MAX;
 
 	// Loop through all players' Units (that we're at war with) to see if they can intercept
-	// Note that the barbarians are not included here, to they can never intercept
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(eAttackingPlayer).GetPlayersAtWarWith();
-
-	for(size_t iI = 0; iI < vEnemies.size(); iI++)
+	// Note that the barbarians are not included here, so they can never intercept
+	const std::vector<PlayerTypes>& vEnemies = kAttackingPlayer.GetPlayersAtWarWith();
+	for (CivsList::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
 	{
-		CvPlayerAI& kLoopPlayer = GET_PLAYER(vEnemies[iI]);
-		TeamTypes eLoopTeam = kLoopPlayer.getTeam();
+		CvPlayer& kLoopPlayer = GET_PLAYER(*it);
 
-		//stealth unit? no intercept
-		if(pAttackingUnit && pAttackingUnit->isInvisible(eLoopTeam, false, false))
+		// Stealth unit? no intercept
+		if (pAttackingUnit && pAttackingUnit->isInvisible(kLoopPlayer.getTeam(), false, false))
+			continue;
+			
+		// Do not violate neutral players' airspace
+		if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(*it))
 			continue;
 
-		const std::vector<std::pair<int, int>>& possibleUnits = kLoopPlayer.GetPossibleInterceptors();
-		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+		const vector<SAreaEffectUnitInfo>& vAreaEffectUnits = kLoopPlayer.GetAreaEffectUnits();
+		for (vector<SAreaEffectUnitInfo>::const_iterator it2 = vAreaEffectUnits.begin(); it2 != vAreaEffectUnits.end(); ++it2)
 		{
-			CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(GET_PLAYER(eAttackingPlayer).getTeam()))
+			// Doing the easy checks first
+			int iValue = it2->iInterceptValue;
+			if (!piNumPossibleInterceptors && iValue < iBestValue)
 				continue;
 
-			//first a very rough distance check to avoid expensive unit lookup
-			int iDistance = plotDistance(*pInterceptorPlot, *this);
-			if (iDistance > 11)
+			if (bLandInterceptorsOnly && it2->eDomain != DOMAIN_LAND)
 				continue;
 
-			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it->first);
-			if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
+			int iPlotDistance = plotDistance(iX, iY, it2->iX, it2->iY);
+			if (iPlotDistance > it2->iInterceptRange)
 				continue;
 
-			// Must not have already intercepted this turn
+			if (!piNumPossibleInterceptors && iValue == iBestValue && iPlotDistance > iBestDistance)
+				continue;
+
+			/* The slower checks are below */
+
+			// Is the plot visible?
+			CvPlot* pInterceptorPlot = GC.getMap().plotUnchecked(it2->iX, it2->iY);
+			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(kAttackingPlayer.getTeam()))
+				continue;
+
+			// Is the plot jammed by us?
+			if (it2->eDomain == DOMAIN_LAND)
+			{
+				bool bJammed = false;
+				for (CivsList::const_iterator it3 = vTeammates.begin(); it3 != vTeammates.end(); ++it3)
+				{
+					if (pInterceptorPlot->IsJammingActive(*it3))
+					{
+						bJammed = true;
+						break;
+					}
+				}
+
+				if (bJammed)
+					continue;
+			}
+
+			// Can this unit intercept right now?
+			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it2->iUnitID);
 			if (!pInterceptorUnit->canInterceptNow())
 				continue;
 
-			// Check conditions
-			if (bLandInterceptorsOnly && pInterceptorUnit->getDomainType() != DOMAIN_LAND)
-				continue;
-			if (iDistance > pInterceptorUnit->GetAirInterceptRange())
-				continue;
-			
-			//do not violate neutral players' airspace
-			if (isOwned() && !kLoopPlayer.IsAtWarWith(getOwner()) && !IsFriendlyTerritory(kLoopPlayer.GetID()))
-				continue;
-
-			// we're fine with truncation here; take promotions boosting intercept strength into account
-			int attackStrength = (pInterceptorUnit->GetBestAttackStrength() * (100 + pInterceptorUnit->GetInterceptionCombatModifier())) / 100;
-			
-			// interceptionProbability contains product of actual intercept chance and health percentage; lets be careful with air units at low health in case of air sweeps
-			int healthFactor = pInterceptorUnit->interceptionProbability();
-			if (pInterceptorUnit->getDomainType() == DOMAIN_AIR)
-				healthFactor = (healthFactor * (pInterceptorUnit->GetCurrHitPoints() * 100) / pInterceptorUnit->GetMaxHitPoints()) / 100;
-			
-			int iValue = attackStrength * healthFactor;
-
-			if (iValue>0 && piNumPossibleInterceptors)
+			// All checks passed, increment the interceptor count and save the best score
+			if (piNumPossibleInterceptors)
 				(*piNumPossibleInterceptors)++;
 
-			if( iValue>iBestValue || (iValue==iBestValue && iDistance<iBestDistance) )
+			if (iValue > iBestValue || (iValue == iBestValue && iPlotDistance < iBestDistance))
 			{
-				iBestDistance = iDistance;
+				iBestDistance = iPlotDistance;
 				iBestValue = iValue;
 				pBestUnit = pInterceptorUnit;
 			}
@@ -3876,11 +3911,12 @@ int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherU
 	const CvPlot* pOtherPlot = pOtherUnitPlot ? pOtherUnitPlot : pOtherUnit->plot();
 
 	//our units are the enemy's enemies ...
-	int iNumUnitsAdjacentToOther = pOtherPlot->GetNumEnemyUnitsAdjacent( pOtherUnit->getTeam(), pOtherUnit->getDomainType(), pUnit, true);
-	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit, true);
+	int iFlankModifier = 0;
+	int iNumUnitsAdjacentToOther = pOtherPlot->GetNumEnemyUnitsAdjacent(pOtherUnit->getTeam(), pOtherUnit->getDomainType(), pUnit, true, pUnit->getTeam(), false, &iFlankModifier);
+	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit, true);
 
 	if (iNumUnitsAdjacentToOther > iNumUnitsAdjacentToHere)
-		return (pUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere);
+		return (pUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere) + iFlankModifier;
 
 	return 0;
 }
@@ -3893,9 +3929,10 @@ int CvPlot::GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const
 		return 0;
 
 	// ranged units can't get flanked when they attack, but their target can be
-	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pDefendingUnit->getTeam(), pDefendingUnit->getDomainType(), pAttackingUnit, true);
+	int iFlankModifier = 0;
+	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent(pDefendingUnit->getTeam(), pDefendingUnit->getDomainType(), pAttackingUnit, true, pAttackingUnit->getTeam(), false, &iFlankModifier);
 
-	return (pAttackingUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToHere);
+	return (pAttackingUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * iNumUnitsAdjacentToHere + iFlankModifier;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6800,6 +6837,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					GET_PLAYER(eOldOwner).removeResourcesOnPlotFromUnimproved(this, false, bIgnoreTechPrereq);
 				}
 			}
+
+			GET_PLAYER(eOldOwner).RemoveAPlot(this);
 		}
 
 		// This plot is ABOUT TO BE owned. Pop Goody Huts/remove barb camps, etc. Otherwise it will try to increase/reduce the # of Improvements we have in our borders, and these guys shouldn't apply to that count
@@ -7245,7 +7284,26 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 	if (MOD_EVENTS_TERRAFORMING)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_PLOT, m_iX, m_iY, 0, eNewValue, m_ePlotType, -1, -1);
 
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	if (isHills())
+	{
+		kOwner.ChangeTerrainPlotCount(TERRAIN_HILL, -1);
+	}
+	else if (isMountain())
+	{
+		kOwner.ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, -1);
+	}
+
 	m_ePlotType = eNewValue;
+
+	if (isHills())
+	{
+		kOwner.ChangeTerrainPlotCount(TERRAIN_HILL, 1);
+	}
+	else if (isMountain())
+	{
+		kOwner.ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, 1);
+	}
 
 	updateYield();
 	updateImpassable();
@@ -7539,6 +7597,11 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 				}
 			}
 		}
+
+		// Update the plot owner's terrain counts
+		CvPlayer& kOwner = GET_PLAYER(getOwner());
+		kOwner.ChangeTerrainPlotCount(eOldValue, -1);
+		kOwner.ChangeTerrainPlotCount(eNewValue, 1);
 	}
 }
 
@@ -12009,6 +12072,20 @@ void CvPlot::SetTeamImpassable(TeamTypes eTeam, bool bValue)
 	PRECONDITION(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abIsImpassable[eTeam] = bValue;
 }
+
+bool CvPlot::IsJammingActive(PlayerTypes ePlayer) const
+{
+	return m_bfJammingActive.GetBit(ePlayer);
+}
+
+void CvPlot::SetJammingActive(PlayerTypes ePlayer, bool bValue)
+{
+	if (bValue)
+		m_bfJammingActive.SetBit(ePlayer);
+	else
+		m_bfJammingActive.ClearBit(ePlayer);
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bTerrainOnly, TeamTypes eFromTeam)
 {
@@ -12025,12 +12102,15 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 
 	bool bVisibilityUpdated = false;
 	bool bRevealed = isRevealed(eTeam) != bNewValue;
+	CvTeam& kTeam = GET_TEAM(eTeam);
 
 	if (bRevealed)
 	{
 		bVisibilityUpdated = true;
 		m_bfRevealed.ToggleBit(eTeam);
 		bool bEligibleForAchievement = MOD_ENABLE_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman(ISHUMAN_ACHIEVEMENTS) && !GC.getGame().isGameMultiPlayer() : false;
+
+		kTeam.ChangeNumRevealedPlots(bNewValue ? 1 : -1);
 
 		if (area())
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
@@ -12404,8 +12484,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 			bVisibilityUpdated = true;
 		}
 	}
-
-	CvTeam& kTeam = GET_TEAM(eTeam);
 	
 	if (MOD_EVENTS_TILE_REVEALED && bNewValue && bRevealed)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileRevealed, getX(), getY(), eTeam, eFromTeam, (kTeam.isMajorCiv() && iRevealedMajors == 0), (pUnit ? pUnit->getOwner() : NO_PLAYER), (pUnit ? pUnit->GetID() : -1));
@@ -15811,91 +15889,88 @@ pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bS
 	return make_pair(iFriendlyPower,iEnemyPower);
 }
 
-// iterator needs same structure as the next function, where it is used as a helper
 int CvPlot::GetNumThisTeamUnitsAdjacent(TeamTypes eMyTeam, TeamTypes eSpecificTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, bool bIncludeEmbarked) const
 {
-	int iNumEnemiesAdjacent = 0;
-
+	int iNumThisTeamUnitsAdjacent = 0;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for (int iCount=0; iCount < NUM_DIRECTION_TYPES; iCount++)
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
 	{
-		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-		if (pLoopPlot != NULL && pLoopPlot->isVisible(eMyTeam))
+		CvPlot* pLoopPlot = aPlotsToCheck[i];
+		if (pLoopPlot && pLoopPlot->isVisible(eMyTeam))
 		{
-			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-
-			// Loop through all units on this plot
-			while (pUnitNode != NULL)
+			for (int j = 0; j < pLoopPlot->getNumUnits(); j++)
 			{
-				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(j);
+				if (pLoopUnit == pUnitToExclude)
+					continue;
 
-				// No NULL, and no unit we want to exclude
-				if (pLoopUnit && pLoopUnit != pUnitToExclude)
+				// This team which this unit belongs to must be the passed team
+				if (pLoopUnit->getTeam() != eSpecificTeam)
+					continue;
+
+				if (pLoopUnit->isDelayedDeath())
+					continue;
+
+				// Must be combat units; planes/missiles/nukes don't count
+				if (!pLoopUnit->IsCombatUnit())
+					continue;
+
+				if (pLoopUnit->isEmbarked() && !bIncludeEmbarked)
+					continue;
+
+				// Must be the provided domain or DOMAIN_HOVER
+				DomainTypes eTheirDomain = pLoopUnit->getDomainType();
+				if (eDomain == NO_DOMAIN || eTheirDomain == eDomain || eTheirDomain == DOMAIN_HOVER)
 				{
-					// Must be a combat Unit
-					if (pLoopUnit->IsCombatUnit() && (!pLoopUnit->isEmbarked() || bIncludeEmbarked))
-					{
-						TeamTypes eTheirTeam = pLoopUnit->getTeam();
-
-						// This team which this unit belongs to must be the passed team
-						if (eTheirTeam == eSpecificTeam)
-						{
-							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
-							{
-								iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
-							}
-						}
-					}
+					iNumThisTeamUnitsAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
 				}
 			}
 		}
 	}
 
-	return iNumEnemiesAdjacent;
+	return iNumThisTeamUnitsAdjacent;
 }
 
-int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, TeamTypes eSpecificTeam, bool bIncludeEmbarked) const
+int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, TeamTypes eSpecificTeam, bool bIncludeEmbarked, int* piExtraFlankModifier) const
 {
+	if (piExtraFlankModifier)
+		*piExtraFlankModifier = 0;
+
+	CvTeam& kTeam = GET_TEAM(eMyTeam);
 	int iNumEnemiesAdjacent = 0;
-
-	if (eSpecificTeam != NO_TEAM && !GET_TEAM(eSpecificTeam).isAtWar(eMyTeam))
-	{
-		iNumEnemiesAdjacent += GetNumThisTeamUnitsAdjacent(eMyTeam, eSpecificTeam, eDomain, pUnitToExclude, bConsiderFlanking, bIncludeEmbarked);
-	}
-
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
 	{
-		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-		if(pLoopPlot != NULL && pLoopPlot->isVisible(eMyTeam))
+		CvPlot* pLoopPlot = aPlotsToCheck[i];
+		if (pLoopPlot && pLoopPlot->isVisible(eMyTeam))
 		{
-			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-
-			// Loop through all units on this plot
-			while(pUnitNode != NULL)
+			for (int j = 0; j < pLoopPlot->getNumUnits(); j++)
 			{
-				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
-				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(j);
+				if (pLoopUnit == pUnitToExclude)
+					continue;
 
-				// No NULL, and no unit we want to exclude
-				if(pLoopUnit && pLoopUnit != pUnitToExclude)
+				if (pLoopUnit->isDelayedDeath())
+					continue;
+
+				// Must be combat units; planes/missiles/nukes don't count
+				if (!pLoopUnit->IsCombatUnit())
+					continue;
+
+				if (pLoopUnit->isEmbarked() && !bIncludeEmbarked)
+					continue;
+
+				// Must be the provided domain or DOMAIN_HOVER
+				DomainTypes eTheirDomain = pLoopUnit->getDomainType();
+				if (eDomain == NO_DOMAIN || eTheirDomain == eDomain || eTheirDomain == DOMAIN_HOVER)
 				{
-					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && (!pLoopUnit->isEmbarked() || bIncludeEmbarked))
+					// This team which this unit belongs to must be at war with us
+					TeamTypes eTheirTeam = pLoopUnit->getTeam();
+					if (kTeam.isAtWar(eTheirTeam) || eTheirTeam == eSpecificTeam)
 					{
-						TeamTypes eTheirTeam = pLoopUnit->getTeam();
-
-						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
-						{
-							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
-							{
-								iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
-							}
-						}
+						iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
+						if (piExtraFlankModifier && eTheirTeam == eSpecificTeam)
+							*piExtraFlankModifier += pLoopUnit->GetFlankSupportModifier();
 					}
 				}
 			}

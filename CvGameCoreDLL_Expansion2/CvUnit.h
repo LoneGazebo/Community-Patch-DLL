@@ -397,7 +397,6 @@ enum AreaEffectType
 {
 	AE_GREAT_GENERAL,
 	AE_SAPPER,
-	AE_SIEGETOWER,
 	AE_PASSIVE_HEAL
 };
 
@@ -593,7 +592,7 @@ public:
 	bool isSetUpForRangedAttack() const; //no longer used
 	void setSetUpForRangedAttack(bool bValue); //no longer used
 
-	bool IsCityAttackSupport() const;
+	bool IsCityAttackOnly() const;
 	void ChangeCityAttackOnlyCount(int iChange);
 
 	bool IsCaptureDefeatedEnemy() const;
@@ -1071,6 +1070,8 @@ public:
 	void ChangeNearbyHealFriendlyTerritory(int iValue);
 	int GetPassiveAoEHeal() const;
 	void ChangePassiveAoEHeal(int iValue);
+	int GetJammingRadius() const;
+	void ChangeJammingRadius(int iChange);
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
@@ -1181,6 +1182,10 @@ public:
 	bool hasFreePillageMove() const;
 	void changeFreePillageMoveCount(int iValue);
 	int getFreePillageMoveCount() const;
+
+	bool HasHalfPillageMove() const;
+	void ChangeHalfPillageMoveCount(int iValue);
+	int GetHalfPillageMoveCount() const;
 
 	bool hasHealOnPillage() const;
 	void changeHealOnPillageCount(int iValue);
@@ -1607,6 +1612,9 @@ public:
 	int GetFlankAttackModifier() const;
 	void ChangeFlankAttackModifier(int iChange);
 
+	int GetFlankSupportModifier() const;
+	void ChangeFlankSupportModifier(int iChange);
+
 	int getExtraOpenDefensePercent() const;
 	void changeExtraOpenDefensePercent(int iChange);
 
@@ -1638,7 +1646,6 @@ public:
 	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 
 	// Great General Stuff
-	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 
 	bool IsStackedGreatGeneral(const CvPlot* pLoopPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
@@ -1994,6 +2001,8 @@ public:
 	void changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange);
 	int getExtraFeatureDefensePercent(FeatureTypes eIndex) const;
 	void changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange);
+	int GetTerrainHeal(TerrainTypes eTerrain) const;
+	void ChangeTerrainHeal(TerrainTypes eTerrain, int iChange);
 
 	int getUnitClassAttackMod(UnitClassTypes eIndex) const;
 	void changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange);
@@ -2273,6 +2282,11 @@ public:
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 
+	void UpdateAreaEffect(bool bUpdateCityStrength = true);
+	int GetAreaEffectCacheIndex() const;
+	void SetAreaEffectCacheIndex(int iIndex);
+	void UpdateJammingCacheForPlot(const CvPlot* pPlot, bool bIncrease);
+
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iTargetTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
 	bool CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns);
@@ -2443,6 +2457,7 @@ protected:
 	int m_iRangedFlankAttack;
 	int m_iFlankPower;
 	int m_iFlankAttackModifier;
+	int m_iFlankSupportModifier;
 	int m_iExtraOpenDefensePercent;
 	int m_iExtraRoughDefensePercent;
 	int m_iExtraOpenFromPercent;
@@ -2503,6 +2518,7 @@ protected:
 	int m_iNearbyHealNeutralTerritory;
 	int m_iNearbyHealFriendlyTerritory;
 	int m_iPassiveAoEHeal;
+	int m_iJammingRadius;
 	int m_iCanCrossMountainsCount;
 	int m_iCanCrossOceansCount;
 	int m_iCanCrossIceCount;
@@ -2539,6 +2555,7 @@ protected:
 	int m_iCanMoveAllTerrainCount;
 	int m_iCanMoveAfterAttackingCount;
 	int m_iFreePillageMoveCount;
+	int m_iHalfPillageMoveCount;
 	int m_iHealOnPillageCount;
 	int m_iHPHealedIfDefeatEnemy;
 	int m_iGoldenAgeValueFromKills;
@@ -2653,6 +2670,8 @@ protected:
 	FeatureTypeCounter m_extraFeatureAttackPercent;
 	FeatureTypeCounter m_extraFeatureDefensePercent;
 
+	vector<int> m_viTerrainHeal;
+
 	UnitClassCounter m_extraUnitClassAttackMod;
 	UnitClassCounter m_extraUnitClassDefenseMod;
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
@@ -2705,6 +2724,8 @@ protected:
 	int m_iCultureBlastStrength;
 	int m_iGAPBlastStrength;
 	std::vector<bool> m_abPromotionEverObtained;
+
+	int m_iAreaEffectCacheIndex;
 
 	CvString m_strUnitName;
 	CvString m_strName;
@@ -2881,6 +2902,7 @@ SYNC_ARCHIVE_VAR(int, m_iExtraAttackBelowHealthMod)
 SYNC_ARCHIVE_VAR(int, m_iRangedFlankAttack)
 SYNC_ARCHIVE_VAR(int, m_iFlankPower)
 SYNC_ARCHIVE_VAR(int, m_iFlankAttackModifier)
+SYNC_ARCHIVE_VAR(int, m_iFlankSupportModifier)
 SYNC_ARCHIVE_VAR(int, m_iExtraOpenDefensePercent)
 SYNC_ARCHIVE_VAR(int, m_iExtraRoughDefensePercent)
 SYNC_ARCHIVE_VAR(int, m_iExtraOpenFromPercent)
@@ -2941,6 +2963,7 @@ SYNC_ARCHIVE_VAR(int, m_iNearbyHealEnemyTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealNeutralTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealFriendlyTerritory)
 SYNC_ARCHIVE_VAR(int, m_iPassiveAoEHeal)
+SYNC_ARCHIVE_VAR(int, m_iJammingRadius)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossMountainsCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossOceansCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossIceCount)
@@ -2975,6 +2998,7 @@ SYNC_ARCHIVE_VAR(int, m_iNoRevealMapCount)
 SYNC_ARCHIVE_VAR(int, m_iCanMoveAllTerrainCount)
 SYNC_ARCHIVE_VAR(int, m_iCanMoveAfterAttackingCount)
 SYNC_ARCHIVE_VAR(int, m_iFreePillageMoveCount)
+SYNC_ARCHIVE_VAR(int, m_iHalfPillageMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iHealOnPillageCount)
 SYNC_ARCHIVE_VAR(int, m_iHPHealedIfDefeatEnemy)
 SYNC_ARCHIVE_VAR(int, m_iGoldenAgeValueFromKills)
@@ -3059,6 +3083,7 @@ SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierAttack)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierDefense)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureAttackPercent)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureDefensePercent)
+SYNC_ARCHIVE_VAR(vector<int>, m_viTerrainHeal)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassAttackMod)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassDefenseMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
@@ -3106,6 +3131,7 @@ SYNC_ARCHIVE_VAR(int, m_iScienceBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iCultureBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iGAPBlastStrength)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abPromotionEverObtained)
+SYNC_ARCHIVE_VAR(int, m_iAreaEffectCacheIndex)
 SYNC_ARCHIVE_VAR(AITacticalMove, m_eTacticalMove)
 SYNC_ARCHIVE_VAR(int, m_iTacticalMoveSetTurn)
 SYNC_ARCHIVE_VAR(AIHomelandMove, m_eHomelandMove)
