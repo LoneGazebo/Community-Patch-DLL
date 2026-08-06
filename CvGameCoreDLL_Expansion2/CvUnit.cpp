@@ -32293,8 +32293,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	int iTemp = 0;
 	int iI = 0;
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	CvPlayer& kPlotOwner = GET_PLAYER(plot()->getOwner());
 
-	bool bWarTimePromotion = plot()->getOwner() != NO_PLAYER && GET_PLAYER(plot()->getOwner()).IsAtWarWith(getOwner());
+	bool bWarTimePromotion = plot()->getOwner() != NO_PLAYER && kPlotOwner.IsAtWarWith(getOwner());
 
 	// Get flavor info we can use
 	CvFlavorManager* pFlavorMgr = GET_PLAYER(m_eOwner).GetFlavorManager();
@@ -33286,93 +33287,96 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 	{
 		const TerrainTypes eTerrain = static_cast<TerrainTypes>(iI);
+
+		// Rough estimate of how prevalent this terrain is in the relevant regions
+		int iTerrainCount = bWarTimePromotion ? kPlayer.GetTerrainPlotCount(eTerrain) + kPlotOwner.GetTerrainPlotCount(eTerrain) : kPlayer.GetTerrainPlotCount(eTerrain);
+		int iPlotCount = bWarTimePromotion ? kPlayer.GetNumPlots() + kPlotOwner.GetNumPlots() : kPlayer.GetNumPlots();
+		const double dTerrainRatio = static_cast<double>(iTerrainCount) / iPlotCount;
+
 		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
-		if(pkTerrainInfo)
+
+		iTemp = pkPromotionInfo->GetTerrainAttackPercent(iI) + pkPromotionInfo->GetTerrainModifierAttack(iI);
+		if (iTemp != 0)
 		{
-			iTemp = pkPromotionInfo->GetTerrainAttackPercent(iI) + pkPromotionInfo->GetTerrainModifierAttack(iI);
-			if(iTemp != 0)
-			{
-				iExtra = getExtraTerrainAttackPercent(eTerrain);
-				iExtra = (iTemp + iExtra) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
-				iExtra *= 0.2;
-				iValue += iExtra;
-			}
+			iExtra = 0.5 * (getExtraTerrainAttackPercent(eTerrain) + GetTerrainModifierAttack(eTerrain));
+			iExtra = (iTemp + iExtra) * (2 * iFlavorOffense + iFlavorDefense);
+			iExtra *= dTerrainRatio;
+			iValue += iExtra;
+		}
 
-			iTemp = pkPromotionInfo->GetTerrainDefensePercent(iI) + pkPromotionInfo->GetTerrainModifierDefense(iI);
-			if(iTemp != 0)
-			{
-				iExtra = getExtraTerrainDefensePercent(eTerrain);
-				iExtra = (iTemp + iExtra) * (2 * iFlavorOffense + iFlavorDefense);
-				iExtra *= 0.2;
-				iValue += iExtra;
-				
-			}
+		iTemp = pkPromotionInfo->GetTerrainDefensePercent(iI) + pkPromotionInfo->GetTerrainModifierDefense(iI);
+		if (iTemp != 0)
+		{
+			iExtra = 0.5 * (getExtraTerrainDefensePercent(eTerrain) + GetTerrainModifierDefense(eTerrain));
+			iExtra = (iTemp + iExtra) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
+			iExtra *= dTerrainRatio;
+			iValue += iExtra;
+		}
 
-			iTemp = pkPromotionInfo->GetTerrainDoubleHeal(iI);
-			if (iTemp != 0)
-			{
-				iExtra = 10 + getSameTileHeal();
-				iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
-				iExtra *= iFlavorOffense + 2 * iFlavorDefense;
-				iExtra *= 0.5;
-				iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
-				if (isAlwaysHeal())
-					iExtra *= 5;
-				iValue += iExtra;
-			}
+		iTemp = pkPromotionInfo->GetTerrainDoubleHeal(iI);
+		if (iTemp != 0)
+		{
+			iExtra = 10 + getSameTileHeal();
+			iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
+			iExtra *= iFlavorOffense + 2 * iFlavorDefense;
+			iExtra *= 0.5;
+			iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+			if (isAlwaysHeal())
+				iExtra *= 5;
+			iValue += iExtra;
+		}
 
-			if (pkTerrainInfo->getMovementCost() > 1 && !isIgnoreTerrainCostIn(eTerrain) && !ignoreTerrainCost())
-			{
-				if (pkPromotionInfo->GetIgnoreTerrainCostIn(eTerrain))
-					// Scout: Hill Woodland Trailblazer 1, Snow/Desert Woodland Trailblazer 2.
-				{
-					iExtra = (iFlavorMobile * 2 + iFlavorRecon);
-					iExtra *= 8;
-					if (IsGainsXPFromScouting())
-						iExtra *= 3;
-					if (isIgnoreTerrainCostFrom(eTerrain))
-						iExtra *= 0.5;
-					iValue += iExtra;
-				}
-
-				if (pkPromotionInfo->GetIgnoreTerrainCostFrom(eTerrain))
-				{
-					iExtra = (iFlavorMobile * 2 + iFlavorRecon);
-					iExtra *= 4;
-					if (IsGainsXPFromScouting())
-						iExtra *= 3;
-					iValue += iExtra;
-				}
-			}
-
-			if(pkPromotionInfo->GetTerrainDoubleMove(iI) && !isTerrainDoubleMove(eTerrain))
+		if (pkTerrainInfo->getMovementCost() > 1 && !isIgnoreTerrainCostIn(eTerrain) && !ignoreTerrainCost())
+		{
+			if (pkPromotionInfo->GetIgnoreTerrainCostIn(eTerrain))
+				// Scout: Hill Woodland Trailblazer 1, Snow/Desert Woodland Trailblazer 2.
 			{
 				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
 				iExtra *= 8;
 				if (IsGainsXPFromScouting())
 					iExtra *= 3;
-				if (ignoreTerrainCost())
+				if (isIgnoreTerrainCostFrom(eTerrain))
 					iExtra *= 0.5;
 				iValue += iExtra;
 			}
 
-			if(pkPromotionInfo->GetTerrainHalfMove(iI) && !isTerrainHalfMove(eTerrain))
+			if (pkPromotionInfo->GetIgnoreTerrainCostFrom(eTerrain))
 			{
-				iExtra = (iFlavorMobile * 3);
-				iExtra *= -8;
+				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+				iExtra *= 4;
 				if (IsGainsXPFromScouting())
-					iExtra *= 2;
+					iExtra *= 3;
 				iValue += iExtra;
 			}
+		}
 
-			if (pkPromotionInfo->GetTerrainExtraMove(iI) && !isTerrainExtraMove(eTerrain))
-			{
-				iExtra = (iFlavorMobile * 3);
-				iExtra *= -5;
-				if (IsGainsXPFromScouting())
-					iExtra *= 1.8;
-				iValue += iExtra;
-			}
+		if(pkPromotionInfo->GetTerrainDoubleMove(iI) && !isTerrainDoubleMove(eTerrain))
+		{
+			iExtra = (iFlavorMobile * 2 + iFlavorRecon);
+			iExtra *= 8;
+			if (IsGainsXPFromScouting())
+				iExtra *= 3;
+			if (ignoreTerrainCost())
+				iExtra *= 0.5;
+			iValue += iExtra;
+		}
+
+		if(pkPromotionInfo->GetTerrainHalfMove(iI) && !isTerrainHalfMove(eTerrain))
+		{
+			iExtra = (iFlavorMobile * 3);
+			iExtra *= -8;
+			if (IsGainsXPFromScouting())
+				iExtra *= 2;
+			iValue += iExtra;
+		}
+
+		if (pkPromotionInfo->GetTerrainExtraMove(iI) && !isTerrainExtraMove(eTerrain))
+		{
+			iExtra = (iFlavorMobile * 3);
+			iExtra *= -5;
+			if (IsGainsXPFromScouting())
+				iExtra *= 1.8;
+			iValue += iExtra;
 		}
 	}
 

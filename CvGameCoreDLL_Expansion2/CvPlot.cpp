@@ -6837,6 +6837,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					GET_PLAYER(eOldOwner).removeResourcesOnPlotFromUnimproved(this, false, bIgnoreTechPrereq);
 				}
 			}
+
+			GET_PLAYER(eOldOwner).RemoveAPlot(this);
 		}
 
 		// This plot is ABOUT TO BE owned. Pop Goody Huts/remove barb camps, etc. Otherwise it will try to increase/reduce the # of Improvements we have in our borders, and these guys shouldn't apply to that count
@@ -7282,7 +7284,26 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 	if (MOD_EVENTS_TERRAFORMING)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingPlot, TERRAFORMINGEVENT_PLOT, m_iX, m_iY, 0, eNewValue, m_ePlotType, -1, -1);
 
+	CvPlayer& kOwner = GET_PLAYER(getOwner());
+	if (isHills())
+	{
+		kOwner.ChangeTerrainPlotCount(TERRAIN_HILL, -1);
+	}
+	else if (isMountain())
+	{
+		kOwner.ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, -1);
+	}
+
 	m_ePlotType = eNewValue;
+
+	if (isHills())
+	{
+		kOwner.ChangeTerrainPlotCount(TERRAIN_HILL, 1);
+	}
+	else if (isMountain())
+	{
+		kOwner.ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, 1);
+	}
 
 	updateYield();
 	updateImpassable();
@@ -7576,6 +7597,11 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 				}
 			}
 		}
+
+		// Update the plot owner's terrain counts
+		CvPlayer& kOwner = GET_PLAYER(getOwner());
+		kOwner.ChangeTerrainPlotCount(eOldValue, -1);
+		kOwner.ChangeTerrainPlotCount(eNewValue, 1);
 	}
 }
 

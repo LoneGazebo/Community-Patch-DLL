@@ -2492,10 +2492,13 @@ public:
 	void SetCapitalGrowthMod(int iValue);
 	void ChangeCapitalGrowthMod(int iChange);
 
-	void UpdatePlots();  // Refreshes the list of plots and sets which ones the player owns
+	void UpdatePlots(); // Refreshes the list of plots and sets which ones the player owns
 	void AddAPlot(CvPlot* pPlot); // adds an owned plot
-	const PlotIndexContainer& GetPlots() const;  // gets the list of plots the player owns
+	void RemoveAPlot(CvPlot* pPlot); // removes an owned plot
+	const PlotIndexContainer& GetPlots() const; // gets the list of plots the player owns
 	int GetNumPlots() const;
+	int GetTerrainPlotCount(TerrainTypes eTerrain) const;
+	void ChangeTerrainPlotCount(TerrainTypes eTerrain, int iChange);
 
 	int GetNumPlotsBought() const;
 	void SetNumPlotsBought(int iValue);
@@ -3760,6 +3763,7 @@ protected:
 	CvDiplomacyRequests* m_pDiplomacyRequests;
 
 	PlotIndexContainer m_aiPlots;
+	vector<int> m_viTerrainPlotCounts;
 
 	// Treasury
 	CvTreasury* m_pTreasury;
@@ -3876,6 +3880,7 @@ SYNC_ARCHIVE_VAR(int, m_iCenterOfMassX)
 SYNC_ARCHIVE_VAR(int, m_iCenterOfMassY)
 SYNC_ARCHIVE_VAR(int, m_iReformationFollowerReduction)
 SYNC_ARCHIVE_VAR(bool, m_bIsReformation)
+SYNC_ARCHIVE_VAR(vector<int>, m_viTerrainPlotCounts)
 SYNC_ARCHIVE_VAR(vector<int>, m_viInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(vector<int>, m_viLocalInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(vector<vector<int>>), m_vviYieldHistory)

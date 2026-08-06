@@ -1918,6 +1918,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_viYieldFromLandCityConnectionsTimes100.clear();
 	m_viYieldFromLandCityConnectionsTimes100.resize(NUM_YIELD_TYPES, 0);
 
+	m_viTerrainPlotCounts.assign(NUM_TERRAIN_TYPES, 0);
+
 	m_aOptions.clear();
 
 	m_strReligionKey = "";
@@ -45592,6 +45594,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iMilitaryAirMight);
 	visitor(player.m_iMilitaryLandMight);
 	visitor(player.m_viYieldFromLandCityConnectionsTimes100);
+	visitor(player.m_viTerrainPlotCounts);
 
 	visitor(*player.m_pPlayerPolicies);
 	visitor(*player.m_pEconomicAI);
@@ -46421,6 +46424,7 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 void CvPlayer::UpdatePlots(void)
 {
 	m_aiPlots.clear();
+	m_viTerrainPlotCounts.assign(NUM_TERRAIN_TYPES, 0);
 
 	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
 	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
@@ -46433,16 +46437,68 @@ void CvPlayer::UpdatePlots(void)
 		pLoopPlot->updateWaterFlags();
 
 		m_aiPlots.push_back(iI);
+
+		if (pLoopPlot->getTerrainType() != NO_TERRAIN)
+		{
+			ChangeTerrainPlotCount(pLoopPlot->getTerrainType(), 1);
+		}
+
+		if (pLoopPlot->isHills())
+		{
+			ChangeTerrainPlotCount(TERRAIN_HILL, 1);
+		}
+		else if (pLoopPlot->isMountain())
+		{
+			ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, 1);
+		}
 	}
 }
 
-/// Adds a plot at the end of the list
+// Adds a plot to the end of the player's plot list (O(1))
+// Caller is expected to ensure that the plot is not already in the list (i.e. no duplicates)
 void CvPlayer::AddAPlot(CvPlot* pPlot)
 {
-	if(!pPlot)
-		return;
-
+	PRECONDITION(pPlot, "pPlot is not expected to be NULL");
 	m_aiPlots.push_back(pPlot->GetPlotIndex());
+
+	if (pPlot->getTerrainType() != NO_TERRAIN)
+	{
+		ChangeTerrainPlotCount(pPlot->getTerrainType(), 1);
+	}
+
+	if (pPlot->isHills())
+	{
+		ChangeTerrainPlotCount(TERRAIN_HILL, 1);
+	}
+	else if (pPlot->isMountain())
+	{
+		ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, 1);
+	}
+}
+
+// Removes a plot from the player's plot list (O(N))
+void CvPlayer::RemoveAPlot(CvPlot *pPlot)
+{
+	PRECONDITION(pPlot, "pPlot is not expected to be NULL");
+	PlotIndexContainer::iterator it = std::find(m_aiPlots.begin(), m_aiPlots.end(), pPlot->GetPlotIndex());
+	if (it != m_aiPlots.end())
+	{
+		m_aiPlots.erase(it);
+	}
+
+	if (pPlot->getTerrainType() != NO_TERRAIN)
+	{
+		ChangeTerrainPlotCount(pPlot->getTerrainType(), -1);
+	}
+
+	if (pPlot->isHills())
+	{
+		ChangeTerrainPlotCount(TERRAIN_HILL, -1);
+	}
+	else if (pPlot->isMountain())
+	{
+		ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, -1);
+	}
 }
 
 /// Returns the list of the plots the player owns
@@ -46455,6 +46511,21 @@ const PlotIndexContainer& CvPlayer::GetPlots(void) const
 int CvPlayer::GetNumPlots() const
 {
 	return m_aiPlots.size();
+}
+
+int CvPlayer::GetTerrainPlotCount(TerrainTypes eTerrain) const
+{
+	PRECONDITION(eTerrain > NO_TERRAIN, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTerrain < NUM_TERRAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_viTerrainPlotCounts[eTerrain];
+}
+
+void CvPlayer::ChangeTerrainPlotCount(TerrainTypes eTerrain, int iChange)
+{
+	PRECONDITION(eTerrain > NO_TERRAIN, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTerrain < NUM_TERRAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_viTerrainPlotCounts[eTerrain] += iChange;
+	ASSERT(m_viTerrainPlotCounts[eTerrain] >= 0);
 }
 
 /// City strength mod (i.e. 100 = strength doubled)
