@@ -2562,6 +2562,7 @@ CvVictoryInfo::CvVictoryInfo() :
 	m_iNumCultureCities(0),
 	m_iTotalCultureRatio(0),
 	m_iVictoryDelayTurns(0),
+	m_iPreferredGrandStrategy(0),
 	m_bWinsGame(false),
 	m_bTargetScore(false),
 	m_bEndScore(false),
@@ -2613,6 +2614,11 @@ int CvVictoryInfo::getTotalCultureRatio() const
 int CvVictoryInfo::getVictoryDelayTurns() const
 {
 	return m_iVictoryDelayTurns;
+}
+//------------------------------------------------------------------------------
+int CvVictoryInfo::getPreferredGrandStrategy() const
+{
+	return m_iPreferredGrandStrategy;
 }
 //------------------------------------------------------------------------------
 bool CvVictoryInfo::IsWinsGame() const
@@ -2697,10 +2703,12 @@ bool CvVictoryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	const char* szCityCulture = kResults.GetText("CityCulture");
 	m_iCityCulture = GC.getInfoTypeForString(szCityCulture, true);
 
+	const char* szPreferredGrandStrategy = kResults.GetText("PreferredGrandStrategy");
+	m_iPreferredGrandStrategy = GC.getInfoTypeForString(szPreferredGrandStrategy, true);
+	
 	//VictoryPointAwards
 	{
 		const char* szVictoryType = GetType();
-
 		const int iNumVictoryPoints = /*5*/ GD_INT_GET(NUM_VICTORY_POINT_AWARDS);
 		kUtility.InitializeArray(m_piVictoryPointAwards, iNumVictoryPoints);
 
@@ -2722,6 +2730,7 @@ bool CvVictoryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 		pVictoryPointResults->Reset();
 	}
+
 
 	return true;
 }

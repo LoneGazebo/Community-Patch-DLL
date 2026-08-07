@@ -903,6 +903,7 @@ public:
 
 	// Accessor Functions (Arrays)
 	int GetPolicyBranchDisables(int i) const;
+	bool IsVictorySupported(int i) const;
 
 private:
 	int m_iEraPrereq;
@@ -921,6 +922,7 @@ private:
 	CvString m_wstrIdeologyIcon;
 	// Arrays
 	int* m_piPolicyBranchDisables;
+	bool* m_pbVictories;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

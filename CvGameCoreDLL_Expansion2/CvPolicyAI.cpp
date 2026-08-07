@@ -273,18 +273,41 @@ bool CvPolicyAI::CanContinuePolicyBranch(PolicyBranchTypes ePolicyBranch)
 
 void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 {
-	int iFreedomPriority = 0;
-	int iAutocracyPriority = 0;
-	int iOrderPriority = 0;
-	int iFreedomMultiplier = 1;
-	int iAutocracyMultiplier = 1;
-	int iOrderMultiplier = 1;
-	PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
-	PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
-	PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
-	PolicyBranchTypes eHeritageBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_HERITAGE);
-	if (eFreedomBranch == NO_POLICY_BRANCH_TYPE || eAutocracyBranch == NO_POLICY_BRANCH_TYPE || eOrderBranch == NO_POLICY_BRANCH_TYPE)
+	// Find all the PolicyBranchTypes that are Ideologies
+	std::vector<PolicyBranchTypes> vIdeologyBranches;
+
+	for (int i = 0; i < GC.getNumPolicyBranchInfos(); i++)
+	{
+	    PolicyBranchTypes eBranch = (PolicyBranchTypes)i;
+	
+	    CvPolicyBranchEntry* pkBranch = GC.getPolicyBranchInfo(eBranch);
+	    if (pkBranch && pkBranch->IsPurchaseByLevel())
+	    {
+	        vIdeologyBranches.push_back(eBranch);
+	    }
+	}
+	
+	// if no ideologies are in the game, return
+	if (vIdeologyBranches.size() == 0)
 		return;
+
+	// we'll need to know if this is the first ideology ever being adopted
+	bool bFirstIdeology = true;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+		{
+			CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
+			PolicyBranchTypes eOtherPlayerIdeology;
+			eOtherPlayerIdeology = kOtherPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
+			if(eOtherPlayerIdeology != NO_POLICY_BRANCH_TYPE)
+			{
+				bFirstIdeology = false;
+				break;
+			}
+		}
+	}
 
 	// Vassals are forced to choose the master's ideology
 	TeamTypes eMasterTeam = GET_TEAM(pPlayer->getTeam()).GetMaster();
@@ -365,10 +388,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 
 	// == Grand Strategy ==
-	int iDiploInterest = 0;
-	int iConquestInterest = 0;
-	int iScienceInterest = 0;
-	int iCultureInterest = 0;
+	std::vector<int> vGrandStrategyPriorities(GC.GetGameAIGrandStrategies()->GetNumAIGrandStrategies(), 0);
 
 	//Grand Strategy Considerations - if valid, it doubles our initial weighting.
 	// == Grand Strategy ==
@@ -384,333 +404,192 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		pGrandStrategy = GC.GetGameAIGrandStrategies()->GetEntry(iGrandStrategiesLoop);
 		strGrandStrategyName = (CvString)pGrandStrategy->GetType();
 
-		if (strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")
-		{
-			iConquestInterest += pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
-		}
-		else if (strGrandStrategyName == "AIGRANDSTRATEGY_CULTURE")
-		{
-			iCultureInterest += pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
-		}
-		else if (strGrandStrategyName == "AIGRANDSTRATEGY_UNITED_NATIONS")
-		{
-			iDiploInterest += pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
-		}
-		else if (strGrandStrategyName == "AIGRANDSTRATEGY_SPACESHIP")
-		{
-			iScienceInterest += pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
-		}
+		vGrandStrategyPriorities[iGrandStrategiesLoop] += pPlayer->GetGrandStrategyAI()->GetGrandStrategyPriority(eGrandStrategy);
 	}
-
-	// First consideration is our victory type
-	int iConquestPriority = iConquestInterest;
-	int iDiploPriority = iDiploInterest;
-	int iTechPriority = iScienceInterest;
-	int iCulturePriority = iCultureInterest;
-
-	if (MOD_EVENTS_IDEOLOGIES)
+	
+	// We will score each ideology in this vector
+	std::vector<int> vIdeologyPriorities(vIdeologyBranches.size(), 1);
+	int iGrandTotal = 0;
+	int iPriorityToDivide = /*1000*/ GD_INT_GET(IDEOLOGY_SCORE_GRAND_STRATS);
+	int iHappinessModifier = /*10*/ GD_INT_GET(IDEOLOGY_SCORE_HAPPINESS);
+	
+	for (int i = 0; i < vIdeologyPriorities.size(); i++)
 	{
-		CvPlayerPolicies* pPolicies = pPlayer->GetPlayerPolicies();
+		PolicyBranchTypes eBranch = vIdeologyBranches[i];
+		CvPolicyBranchEntry* pBranch = GC.getPolicyBranchInfo(eBranch);
 
-		// Just jump on the band-wagon and hard code for three ideologies!!!
-		if (!pPolicies->CanAdoptIdeology(eFreedomBranch))
-			iFreedomMultiplier = 0;
+		// score each ideology based on grand strategy values we've calculated above
+		int iMaxSupported = 0;
+		int iMaxUnsupported = 0;
+	
+		for (int iVictoriesLoop = 0; iVictoriesLoop < GC.getNumVictoryInfos(); iVictoriesLoop++)
+		{
+			VictoryTypes eVictory = (VictoryTypes)iVictoriesLoop;
+			CvVictoryInfo* pVictory = getVictoryInfo(eVictory);
+			if (pVictory)
+			{
+				AIGrandStrategyTypes ePrefGrandStrategy = pVictory->getPreferredGrandStrategy();
+				
+				if (pBranch->IsVictorySupported(eVictory))
+				{
+					vIdeologyPriorities[i] += vGrandStrategyPriorities[ePrefGrandStrategy];
+					
+					if (vGrandStrategyPriorities[ePrefGrandStrategy] > iMaxSupported)
+					{
+						iMaxSupported = vGrandStrategyPriorities[ePrefGrandStrategy];
+					}
+				}
+				else if (vGrandStrategyPriorities[ePrefGrandStrategy] > iMaxUnsupported)
+				{
+					iMaxUnsupported = vGrandStrategyPriorities[ePrefGrandStrategy];
+				}
+			}
+		}
+		
+		iGrandTotal += vIdeologyPriorities[i];
 
-		if (!pPolicies->CanAdoptIdeology(eAutocracyBranch))
-			iAutocracyMultiplier = 0;
-
-		if (!pPolicies->CanAdoptIdeology(eOrderBranch))
-			iOrderMultiplier = 0;
+		// can we discard this Branch in the next loop?
+		{
+			if (MOD_EVENTS_IDEOLOGIES)
+			{
+				CvPlayerPolicies* pPolicies = pPlayer->GetPlayerPolicies();
+				if (!pPolicies->CanAdoptIdeology(eBranch))
+					vIdeologyPriorities[i] = 0;
+			}
+			
+			// Rule out one ideology if we are clearly (at least X% more priority) going for the victory this ideology doesn't support
+			int iClearPrefPercent = /*25*/ GD_INT_GET(IDEOLOGY_PERCENT_CLEAR_VICTORY_PREF);
+			if (iMaxUnsupported > (iMaxSupported * (100 + iClearPrefPercent) / 100))
+				vIdeologyPriorities[i] = 0;
+		}
 	}
 
-	if (iFreedomMultiplier != 0 && iAutocracyMultiplier != 0 && iOrderMultiplier != 0)
-	{
-		// Rule out one ideology if we are clearly (at least 25% more priority) going for the victory this ideology doesn't support
-		int iClearPrefPercent = /*25*/ GD_INT_GET(IDEOLOGY_PERCENT_CLEAR_VICTORY_PREF);
-		if (iConquestPriority > (iDiploPriority   * (100 + iClearPrefPercent) / 100) &&
-			iConquestPriority > (iTechPriority    * (100 + iClearPrefPercent) / 100) &&
-			iConquestPriority > (iCulturePriority * (100 + iClearPrefPercent) / 100))
-		{
-			iFreedomMultiplier = 0;
-		}
-		else if (iDiploPriority > (iConquestPriority * (100 + iClearPrefPercent) / 100) &&
-			iDiploPriority > (iTechPriority     * (100 + iClearPrefPercent) / 100) &&
-			iDiploPriority > (iCulturePriority  * (100 + iClearPrefPercent) / 100))
-		{
-			iOrderMultiplier = 0;
-		}
-		else if (iTechPriority > (iConquestPriority * (100 + iClearPrefPercent) / 100) &&
-			iTechPriority > (iDiploPriority    * (100 + iClearPrefPercent) / 100) &&
-			iTechPriority > (iCulturePriority  * (100 + iClearPrefPercent) / 100))
-		{
-			iAutocracyMultiplier = 0;
-		}
-	}
-
-	int iFreedomTotal = iDiploPriority + iTechPriority + iCulturePriority;
-	int iAutocracyTotal = iDiploPriority + iConquestPriority + iCulturePriority;
-	int iOrderTotal = iTechPriority + iConquestPriority + iCulturePriority;
-	int iGrandTotal = iFreedomTotal + iAutocracyTotal + iOrderTotal;
-
-	if (iGrandTotal > 0)
-	{
-		int iPriorityToDivide = /*1000*/ GD_INT_GET(IDEOLOGY_SCORE_GRAND_STRATS);
-		iFreedomPriority = (iFreedomTotal * iPriorityToDivide) / iGrandTotal;
-		iAutocracyPriority = (iAutocracyTotal * iPriorityToDivide) / iGrandTotal;
-		iOrderPriority = (iOrderTotal * iPriorityToDivide) / iGrandTotal;
-	}
-
+	// now we will have the grand total to normalize by. 
 	CvString stage = "After Grand Strategies";
-	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
-
-	// Next look at free policies we can get
-	iFreedomPriority += PolicyHelpers::GetNumFreePolicies(eFreedomBranch) * /*45*/ GD_INT_GET(IDEOLOGY_SCORE_PER_FREE_TENET);
-	iAutocracyPriority += PolicyHelpers::GetNumFreePolicies(eAutocracyBranch) * /*45*/ GD_INT_GET(IDEOLOGY_SCORE_PER_FREE_TENET);
-	iOrderPriority += PolicyHelpers::GetNumFreePolicies(eOrderBranch) * /*45*/ GD_INT_GET(IDEOLOGY_SCORE_PER_FREE_TENET);
-
-	stage = "After Free Policies";
-	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
-
-	// Finally see what our friends (and enemies) have already chosen
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	// TODO: rewrite this logging function
+	LogIdeologyChoice(stage, vIdeologyPriorities[0], vIdeologyPriorities[1], vIdeologyPriorities[2]);
+	
+	// start the loop again
+	for (int i = 0; i < vIdeologyPriorities.size(); i++)
 	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-		if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+		// if we've ruled it out, move on to the next item in the loop
+		if (vIdeologyPriorities[i] == 0)
+			continue;
+
+		// normalize
+		vIdeologyPriorities[i] *= iPriorityToDivide;
+		vIdeologyPriorities[i] /= iGrandTotal;
+		
+		PolicyBranchTypes eBranch = vIdeologyBranches[i];
+		
+		// Next look at free policies we can get
+		vIdeologyPriorities[i] += PolicyHelpers::GetNumFreePolicies(eBranch) * /*45*/ GD_INT_GET(IDEOLOGY_SCORE_PER_FREE_TENET);
+
+		
+		// See what our friends (and enemies) have already chosen
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
-			PolicyBranchTypes eOtherPlayerIdeology;
-			eOtherPlayerIdeology = kOtherPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-
-			if (pPlayer->GetDiplomacyAI()->GetBiggestCompetitor() == eLoopPlayer)
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 			{
-				if (eOtherPlayerIdeology == eFreedomBranch)
+				CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
+				PolicyBranchTypes eOtherPlayerIdeology;
+				eOtherPlayerIdeology = kOtherPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
+	
+				if (pPlayer->GetDiplomacyAI()->GetBiggestCompetitor() == eLoopPlayer)
 				{
-					iAutocracyPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
-					iOrderPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					if (eOtherPlayerIdeology == eBranch)
+					{
+						vIdeologyPriorities[i] -= /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					}
 				}
-				else if (eOtherPlayerIdeology == eAutocracyBranch)
+				else if (pPlayer->GetDiplomacyAI()->GetMostValuableAlly() == eLoopPlayer || pPlayer->GetDiplomacyAI()->GetMostValuableFriend() == eLoopPlayer)
 				{
-					iFreedomPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
-					iOrderPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					if (eOtherPlayerIdeology == eBranch)
+					{
+						vIdeologyPriorities[i] += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
+					}
 				}
-				else if (eOtherPlayerIdeology == eOrderBranch)
+	
+				switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer))
 				{
-					iAutocracyPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
-					iFreedomPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+				case CIV_APPROACH_HOSTILE:
+					if (eOtherPlayerIdeology == eBranch)
+					{
+						vIdeologyPriorities[i] -= /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
+					}
+					break;
+				case CIV_APPROACH_GUARDED:
+					if (eOtherPlayerIdeology == eBranch)
+					{
+						vIdeologyPriorities[i] -= /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
+					}
+					break;
+				case CIV_APPROACH_AFRAID:
+					if (eOtherPlayerIdeology == eBranch)
+					{
+						vIdeologyPriorities[i] += /*150*/ GD_INT_GET(IDEOLOGY_SCORE_AFRAID);
+					}
+					break;
+				case CIV_APPROACH_FRIENDLY:
+					if (eOtherPlayerIdeology == eBranch)
+					{
+						vIdeologyPriorities[i] += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
+					}
+					break;
+				default:
+					// No changes
+					break;
 				}
-			}
-			else if (pPlayer->GetDiplomacyAI()->GetMostValuableAlly() == eLoopPlayer || pPlayer->GetDiplomacyAI()->GetMostValuableFriend() == eLoopPlayer)
-			{
-				if (eOtherPlayerIdeology == eFreedomBranch)
-				{
-					iFreedomPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
-				}
-				else if (eOtherPlayerIdeology == eAutocracyBranch)
-				{
-					iAutocracyPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
-				}
-				else if (eOtherPlayerIdeology == eOrderBranch)
-				{
-					iOrderPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
-				}
-			}
-
-			switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer))
-			{
-			case CIV_APPROACH_HOSTILE:
-				if (eOtherPlayerIdeology == eFreedomBranch)
-				{
-					iAutocracyPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
-					iOrderPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
-				}
-				else if (eOtherPlayerIdeology == eAutocracyBranch)
-				{
-					iFreedomPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
-					iOrderPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
-				}
-				else if (eOtherPlayerIdeology == eOrderBranch)
-				{
-					iAutocracyPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
-					iFreedomPriority += /*500*/ GD_INT_GET(IDEOLOGY_SCORE_HOSTILE);
-				}
-				break;
-			case CIV_APPROACH_GUARDED:
-				if (eOtherPlayerIdeology == eFreedomBranch)
-				{
-					iAutocracyPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
-					iOrderPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
-				}
-				else if (eOtherPlayerIdeology == eAutocracyBranch)
-				{
-					iFreedomPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
-					iOrderPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
-				}
-				else if (eOtherPlayerIdeology == eOrderBranch)
-				{
-					iAutocracyPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
-					iFreedomPriority += /*250*/ GD_INT_GET(IDEOLOGY_SCORE_GUARDED);
-				}
-				break;
-			case CIV_APPROACH_AFRAID:
-				if (eOtherPlayerIdeology == eFreedomBranch)
-				{
-					iFreedomPriority += /*150*/ GD_INT_GET(IDEOLOGY_SCORE_AFRAID);
-				}
-				else if (eOtherPlayerIdeology == eAutocracyBranch)
-				{
-					iAutocracyPriority += /*150*/ GD_INT_GET(IDEOLOGY_SCORE_AFRAID);
-				}
-				else if (eOtherPlayerIdeology == eOrderBranch)
-				{
-					iOrderPriority += /*150*/ GD_INT_GET(IDEOLOGY_SCORE_AFRAID);
-				}
-				break;
-			case CIV_APPROACH_FRIENDLY:
-				if (eOtherPlayerIdeology == eFreedomBranch)
-				{
-					iFreedomPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
-				}
-				else if (eOtherPlayerIdeology == eAutocracyBranch)
-				{
-					iAutocracyPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
-				}
-				else if (eOtherPlayerIdeology == eOrderBranch)
-				{
-					iOrderPriority += /*25*/ GD_INT_GET(IDEOLOGY_SCORE_FRIENDLY);
-				}
-				break;
-			default:
-				// No changes
-				break;
 			}
 		}
 	}
 
 	stage = "After Relations";
-	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
+	LogIdeologyChoice(stage, vIdeologyPriorities[0], vIdeologyPriorities[1], vIdeologyPriorities[2]);
 
-	// Look at Happiness impacts
-	int iHappinessModifier = /*10*/ GD_INT_GET(IDEOLOGY_SCORE_HAPPINESS);
 
-	// -- Happiness we could add through tenets
-	int iHappinessDelta = 0;
-
-	// Loop through adding the adoptable policies
-	for (int iPolicyBranchLoop = 0; iPolicyBranchLoop < GC.getNumPolicyBranchInfos(); iPolicyBranchLoop++)
+	// start the loop again
+	for (int i = 0; i < vIdeologyPriorities.size(); i++)
 	{
-		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo((PolicyBranchTypes)iPolicyBranchLoop);
-		if (pkPolicyBranchInfo && pkPolicyBranchInfo->IsPurchaseByLevel())
+		// if we've ruled it out, move on to the next item in the loop
+		if (vIdeologyPriorities[i] == 0)
+			continue;
+
+		PolicyBranchTypes eBranch = vIdeologyBranches[i];
+		
+		// adopting an ideology can make us unhappy, be careful if we're struggling!
+		int iHappinessDelta = 0;
+		if (!bFirstIdeology && pPlayer->IsEmpireUnhappy())
 		{
-			int iWeight = WeighBranch(pPlayer, (PolicyBranchTypes)iPolicyBranchLoop) / 25;
-			if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
-				iFreedomPriority += iWeight;
-			else if ((PolicyBranchTypes)iPolicyBranchLoop == eAutocracyBranch)
-				iAutocracyPriority += iWeight;
-			else if ((PolicyBranchTypes)iPolicyBranchLoop == eOrderBranch)
-				iOrderPriority += iWeight;
+			// -- Happiness we'd lose through Public Opinion
+			// Recursive: Due to unhappiness being capped by population and Public Works existing, only consider this if already unhappy
+			iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eBranch));
+			vIdeologyPriorities[i]  += iHappinessDelta * iHappinessModifier;
 		}
 	}
+
+	stage = "After Public Opinion Happiness (Empire Unhappy)";
+	LogIdeologyChoice(stage, vIdeologyPriorities[0], vIdeologyPriorities[1], vIdeologyPriorities[2]);
+
+	// start the loop again
+	for (int i = 0; i < vIdeologyPriorities.size(); i++)
+	{
+		// if we've ruled it out, move on to the next item in the loop
+		if (vIdeologyPriorities[i] == 0)
+			continue;
+
+		// now actually look at the policies in the branch and see how much we like them!
+		vIdeologyPriorities[i] += WeighBranch(pPlayer, vIdeologyBranches[i]) / 25; 
+	}
+
 	stage = "After Tenet Weights and Flavors";
-	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
-
-	//This was a dumb reason to weigh an ideology branch.
-
-	int iHappinessPoliciesInBranch = 0;
-	iHappinessDelta = GetBranchBuildingHappiness(pPlayer, eFreedomBranch);
-	iHappinessPoliciesInBranch = GetNumHappinessPolicies(pPlayer, eFreedomBranch);
-	if (iHappinessPoliciesInBranch > 0)
-	{
-		iFreedomPriority += iHappinessDelta * iHappinessModifier / iHappinessPoliciesInBranch;		
-	}
-	iHappinessDelta = GetBranchBuildingHappiness(pPlayer, eAutocracyBranch);
-	iHappinessPoliciesInBranch = GetNumHappinessPolicies(pPlayer, eAutocracyBranch);
-	if (iHappinessPoliciesInBranch > 0)
-	{
-		iAutocracyPriority += iHappinessDelta * iHappinessModifier / iHappinessPoliciesInBranch;		
-	}
-	iHappinessDelta = GetBranchBuildingHappiness(pPlayer, eOrderBranch);
-	iHappinessPoliciesInBranch = GetNumHappinessPolicies(pPlayer, eOrderBranch);
-	if (iHappinessPoliciesInBranch > 0)
-	{
-		iOrderPriority += iHappinessDelta * iHappinessModifier / iHappinessPoliciesInBranch;		
-	}
-
-	stage = "After Tenet Happiness Boosts";
-	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
-
-	bool bFirstIdeology = true;
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if (eLoopPlayer != pPlayer->GetID() && pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
-		{
-			CvPlayer &kOtherPlayer = GET_PLAYER(eLoopPlayer);
-			PolicyBranchTypes eOtherPlayerIdeology;
-			eOtherPlayerIdeology = kOtherPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-			if(eOtherPlayerIdeology != NO_POLICY_BRANCH_TYPE)
-			{
-				bFirstIdeology = false;
-				break;
-			}
-		}
-	}
-
-	if (!bFirstIdeology && pPlayer->IsEmpireUnhappy())
-	{
-		// -- Happiness we'd lose through Public Opinion
-		// Recursive: Due to unhappiness being capped by population and Public Works existing, only consider this if already unhappy
-		iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eFreedomBranch));
-		iFreedomPriority += iHappinessDelta * iHappinessModifier;
-		iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eAutocracyBranch));
-		iAutocracyPriority += iHappinessDelta * iHappinessModifier;
-		iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eOrderBranch));
-		iOrderPriority += iHappinessDelta * iHappinessModifier;
-
-		stage = "After Public Opinion Happiness (Empire Unhappy)";
-		LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
-	}
-
-	// Rule out any branches that are totally out of consideration
-	iFreedomPriority = iFreedomPriority * iFreedomMultiplier;
-	iAutocracyPriority = iAutocracyPriority * iAutocracyMultiplier;
-	iOrderPriority = iOrderPriority * iOrderMultiplier;
-
-	stage = "Final (after Clear Victory Preference)";
-	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
+	LogIdeologyChoice(stage, vIdeologyPriorities[0], vIdeologyPriorities[1], vIdeologyPriorities[2]);
 
 	// Pick the ideology
-	PolicyBranchTypes eChosenBranch;
-	if (iFreedomPriority >= iAutocracyPriority && iFreedomPriority >= iOrderPriority)
-	{
-		eChosenBranch = eFreedomBranch;
-	}
-	else if (iAutocracyPriority >= iFreedomPriority && iAutocracyPriority >= iOrderPriority)
-	{
-		eChosenBranch = eAutocracyBranch;
-	}
-	else
-	{
-		eChosenBranch = eOrderBranch;
-	}
-
-	ReligionTypes ePlayerReligion = pPlayer->GetReligions()->GetOwnedReligion();
-	if (MOD_ISKA_HERITAGE && pPlayer->GetReligions()->HasReligionInMostCities(ePlayerReligion) && ePlayerReligion > RELIGION_PANTHEON)
-	{
-		eChosenBranch = eHeritageBranch;
-		if (iAutocracyPriority >= (iFreedomPriority + iOrderPriority) * 2)
-		{
-			eChosenBranch = eAutocracyBranch;
-		}
-		else if (iOrderPriority >= (iFreedomPriority + iAutocracyPriority) * 2)
-		{
-			eChosenBranch = eOrderBranch;
-		}
-		else if (iFreedomPriority >= (iOrderPriority + iAutocracyPriority) * 2)
-		{
-			eChosenBranch = eFreedomBranch;
-		}
-	}
-
+	int iBestBranchIdx = vIdeologyPriorities.max();
+	PolicyBranchTypes eChosenBranch = vIdeologyBranches[iBestBranchIdx];
+	
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
 	LogBranchChoice(eChosenBranch);
 

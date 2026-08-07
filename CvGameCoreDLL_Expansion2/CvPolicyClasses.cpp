@@ -3752,7 +3752,8 @@ CvPolicyBranchEntry::CvPolicyBranchEntry(void):
 	m_iFirstAdopterFreePolicies(0),
 	m_iSecondAdopterFreePolicies(0),
 	m_iNumPolicyRequirement(0),
-	m_piPolicyBranchDisables(NULL)
+	m_piPolicyBranchDisables(NULL),
+	m_pbVictories(NULL)
 {
 }
 
@@ -3760,6 +3761,7 @@ CvPolicyBranchEntry::CvPolicyBranchEntry(void):
 CvPolicyBranchEntry::~CvPolicyBranchEntry(void)
 {
 	SAFE_DELETE_ARRAY(m_piPolicyBranchDisables);
+	SAFE_DELETE_ARRAY(m_pbVictories);
 }
 
 /// Read from XML file (pass 1)
@@ -3818,6 +3820,30 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 		pResults->Reset();
 	}
 
+	//PolicyBranch_Victories
+	{
+		kUtility.InitializeArray(m_pbVictories, "Victories", (int)NO_VICTORY);
+
+		std::string sqlKey = "m_pbVictories";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select VictoryType.ID from PolicyBranch_Victories inner join Victories on Victories.Type = VictoryType where PolicyBranchType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szPolicyBranchType, false);
+
+		int iID = 0;
+		while(pResults->Step())
+		{
+			iID = pResults->GetInt(0);
+			m_pbVictories[iID] = true;
+		}
+
+		pResults->Reset();
+	}
+
 	return true;
 }
 
@@ -3855,6 +3881,12 @@ int CvPolicyBranchEntry::GetSecondAdopterFreePolicies() const
 int CvPolicyBranchEntry::GetPolicyBranchDisables(int i) const
 {
 	return m_piPolicyBranchDisables ? m_piPolicyBranchDisables[i] : -1;
+}
+
+/// Victory types that this branch is focussed on (AI eval)
+bool CvPolicyBranchEntry::IsVictorySupported(int i) const
+{
+	return m_pbVictories ? m_pbVictories[i] : false;
 }
 
 /// Are policies in this branch unlocked by buying lower-level prereq policies?

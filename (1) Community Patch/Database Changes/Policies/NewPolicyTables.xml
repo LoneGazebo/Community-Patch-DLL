@@ -412,4 +412,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+
+	<!---------------------------------Policy Branch Tables------------------------------------------------->
+	<!-- POLICY BRANCH: A table that tells the DLL which Victory types a Policy Branch pursues. Used for AI Ideology picking. -->
+	<Table name="PolicyBranch_Victories">
+		<Column name="PolicyBranchType" type="text" reference="PolicyBranchTypes(Type)"/>
+		<Column name="VictoryType" type="text" reference="Victories(Type)"/>
+	</Table>
+	
 </GameData>
