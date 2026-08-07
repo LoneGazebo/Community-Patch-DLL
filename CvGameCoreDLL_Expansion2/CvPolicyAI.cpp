@@ -418,14 +418,13 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		PolicyBranchTypes eBranch = vIdeologyBranches[i];
 		CvPolicyBranchEntry* pBranch = GC.getPolicyBranchInfo(eBranch);
 
-		// which grand strategy does this Branch prefer?
-		std::vector<AIGrandStrategies> vGrandStrategyPreference(vGrandStrategyPriorities.size(), 0);
+		// score each ideology based on grand strategy values we've calculated above
 		int iMaxSupported = 0;
 		int iMaxUnsupported = 0;
 	
-		for (int iVictoriesLoop = 0; iVictoriesLoop < GC.GetNumVictories; iVictoriesLoop++)
+		for (int iVictoriesLoop = 0; iVictoriesLoop < GC.getNumVictoryInfos(); iVictoriesLoop++)
 		{
-			VictoryType eVictory = (VictoryType)iVictoriesLoop;
+			VictoryTypes eVictory = (VictoryTypes)iVictoriesLoop;
 			CvVictoryInfo* pVictory = getVictoryInfo(eVictory);
 			if (pVictory)
 			{
@@ -433,8 +432,6 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 				
 				if (pBranch->IsVictorySupported(eVictory))
 				{
-					vGrandStrategyPreference[ePrefGrandStrategy] = 1;
-
 					vIdeologyPriorities[i] += vGrandStrategyPriorities[ePrefGrandStrategy];
 					
 					if (vGrandStrategyPriorities[ePrefGrandStrategy] > iMaxSupported)
