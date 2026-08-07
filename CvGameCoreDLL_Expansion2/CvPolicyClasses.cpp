@@ -3861,6 +3861,12 @@ int CvPolicyBranchEntry::GetPolicyBranchDisables(int i) const
 	return m_piPolicyBranchDisables ? m_piPolicyBranchDisables[i] : -1;
 }
 
+/// Victory types that this branch is focussed on (AI eval)
+bool CvPolicyBranchEntry::IsVictorySupported(int i) const
+{
+	return m_pbVictories ? m_pbVictories[i] : false;
+}
+
 /// Are policies in this branch unlocked by buying lower-level prereq policies?
 bool CvPolicyBranchEntry::IsPurchaseByLevel() const
 {
