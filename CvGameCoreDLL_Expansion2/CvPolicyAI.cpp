@@ -415,8 +415,8 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	
 	for (int i = 0; i < vIdeologyPriorities.size(); i++)
 	{
-		PolicyBranchTypes eBranch = (PolicyBranchTypes)i;
-		CvPolicyBranchEntry* pBranchInfo = GC.getPolicyBranchInfo(eBranch)
+		PolicyBranchTypes eBranch = vIdeologyBranches[i];
+		CvPolicyBranchEntry* pBranch = GC.getPolicyBranchInfo(eBranch);
 
 		// which grand strategy does this Branch prefer?
 		std::vector<AIGrandStrategies> vGrandStrategyPreference(vGrandStrategyPriorities.size(), 0);
@@ -483,7 +483,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		vIdeologyPriorities[i] *= iPriorityToDivide;
 		vIdeologyPriorities[i] /= iGrandTotal;
 		
-		PolicyBranchTypes eBranch = (PolicyBranchTypes)i;
+		PolicyBranchTypes eBranch = vIdeologyBranches[i];
 		
 		// Next look at free policies we can get
 		vIdeologyPriorities[i] += PolicyHelpers::GetNumFreePolicies(eBranch) * /*45*/ GD_INT_GET(IDEOLOGY_SCORE_PER_FREE_TENET);
@@ -559,6 +559,8 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		if (vIdeologyPriorities[i] == 0)
 			continue;
 
+		PolicyBranchTypes eBranch = vIdeologyBranches[i];
+		
 		// adopting an ideology can make us unhappy, be careful if we're struggling!
 		int iHappinessDelta = 0;
 		if (!bFirstIdeology && pPlayer->IsEmpireUnhappy())
