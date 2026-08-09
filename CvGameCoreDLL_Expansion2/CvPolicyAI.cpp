@@ -413,7 +413,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	int iPriorityToDivide = /*1000*/ GD_INT_GET(IDEOLOGY_SCORE_GRAND_STRATS);
 	int iHappinessModifier = /*10*/ GD_INT_GET(IDEOLOGY_SCORE_HAPPINESS);
 	
-	for (int i = 0; i < vIdeologyPriorities.size(); i++)
+	for (int i = 0; i < (int)vIdeologyPriorities.size(); i++)
 	{
 		PolicyBranchTypes eBranch = vIdeologyBranches[i];
 		CvPolicyBranchEntry* pBranch = GC.getPolicyBranchInfo(eBranch);
@@ -470,7 +470,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	LogIdeologyChoice(stage, vIdeologyPriorities[0], vIdeologyPriorities[1], vIdeologyPriorities[2]);
 	
 	// start the loop again
-	for (int i = 0; i < vIdeologyPriorities.size(); i++)
+	for (int i = 0; i < (int)vIdeologyPriorities.size(); i++)
 	{
 		// if we've ruled it out, move on to the next item in the loop
 		if (vIdeologyPriorities[i] == 0)
@@ -550,7 +550,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 
 
 	// start the loop again
-	for (int i = 0; i < vIdeologyPriorities.size(); i++)
+	for (int i = 0; i < (int)vIdeologyPriorities.size(); i++)
 	{
 		// if we've ruled it out, move on to the next item in the loop
 		if (vIdeologyPriorities[i] == 0)
@@ -573,7 +573,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	LogIdeologyChoice(stage, vIdeologyPriorities[0], vIdeologyPriorities[1], vIdeologyPriorities[2]);
 
 	// start the loop again
-	for (int i = 0; i < vIdeologyPriorities.size(); i++)
+	for (int i = 0; i < (int)vIdeologyPriorities.size(); i++)
 	{
 		// if we've ruled it out, move on to the next item in the loop
 		if (vIdeologyPriorities[i] == 0)
