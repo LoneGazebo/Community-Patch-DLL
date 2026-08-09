@@ -591,7 +591,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	
 	for (int i = 1; i < (int)vIdeologyPriorities.size(); ++i)
 	{
-	    if (vIdeologyPriorities[i] > vIdeologyPriorities[maxIndex])
+	    if (vIdeologyPriorities[i] > vIdeologyPriorities[iBestBranchIdx])
 	        iBestBranchIdx = i;
 	}
 	PolicyBranchTypes eChosenBranch = vIdeologyBranches[iBestBranchIdx];
