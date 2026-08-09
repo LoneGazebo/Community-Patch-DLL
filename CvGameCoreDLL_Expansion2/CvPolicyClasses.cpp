@@ -3796,6 +3796,8 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 	m_iNumPolicyRequirement = kResults.GetInt("NumPolicyRequirement");
 	m_wstrIdeologyIcon = kResults.GetText("FontIcon");
 
+	kUtility.PopulateArrayByExistence(m_pbVictories, "Victories", "PolicyBranch_Victories", "VictoryType", "PolicyBranchType", szPolicyBranchType);
+
 	//PolicyBranch_Disables
 	{
 		kUtility.InitializeArray(m_piPolicyBranchDisables, "PolicyBranchTypes", (int)NO_POLICY_BRANCH_TYPE);
@@ -3819,31 +3821,7 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 
 		pResults->Reset();
 	}
-
-	//PolicyBranch_Victories
-	{
-		kUtility.InitializeArray(m_pbVictories, "Victories", (int)NO_VICTORY);
-
-		std::string sqlKey = "m_pbVictories";
-		Database::Results* pResults = kUtility.GetResults(sqlKey);
-		if(pResults == NULL)
-		{
-			const char* szSQL = "select VictoryType.ID from PolicyBranch_Victories inner join Victories on Victories.Type = VictoryType where PolicyBranchType = ?";
-			pResults = kUtility.PrepareResults(sqlKey, szSQL);
-		}
-
-		pResults->Bind(1, szPolicyBranchType, false);
-
-		int iID = 0;
-		while(pResults->Step())
-		{
-			iID = pResults->GetInt(0);
-			m_pbVictories[iID] = true;
-		}
-
-		pResults->Reset();
-	}
-
+	
 	return true;
 }
 
