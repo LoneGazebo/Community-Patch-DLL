@@ -425,23 +425,23 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 		for (int iVictoriesLoop = 0; iVictoriesLoop < GC.getNumVictoryInfos(); iVictoriesLoop++)
 		{
 			VictoryTypes eVictory = (VictoryTypes)iVictoriesLoop;
-			CvVictoryInfo* pVictory = getVictoryInfo(eVictory);
+			CvVictoryInfo* pVictory = GC.getVictoryInfo(eVictory);
 			if (pVictory)
 			{
-				AIGrandStrategyTypes ePrefGrandStrategy = pVictory->getPreferredGrandStrategy();
+				int iPrefGrandStrategy = pVictory->getPreferredGrandStrategy();
 				
 				if (pBranch->IsVictorySupported(eVictory))
 				{
-					vIdeologyPriorities[i] += vGrandStrategyPriorities[ePrefGrandStrategy];
+					vIdeologyPriorities[i] += vGrandStrategyPriorities[iPrefGrandStrategy];
 					
-					if (vGrandStrategyPriorities[ePrefGrandStrategy] > iMaxSupported)
+					if (vGrandStrategyPriorities[iPrefGrandStrategy] > iMaxSupported)
 					{
-						iMaxSupported = vGrandStrategyPriorities[ePrefGrandStrategy];
+						iMaxSupported = vGrandStrategyPriorities[iPrefGrandStrategy];
 					}
 				}
-				else if (vGrandStrategyPriorities[ePrefGrandStrategy] > iMaxUnsupported)
+				else if (vGrandStrategyPriorities[iPrefGrandStrategy] > iMaxUnsupported)
 				{
-					iMaxUnsupported = vGrandStrategyPriorities[ePrefGrandStrategy];
+					iMaxUnsupported = vGrandStrategyPriorities[iPrefGrandStrategy];
 				}
 			}
 		}
@@ -587,7 +587,13 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	LogIdeologyChoice(stage, vIdeologyPriorities[0], vIdeologyPriorities[1], vIdeologyPriorities[2]);
 
 	// Pick the ideology
-	int iBestBranchIdx = vIdeologyPriorities.max();
+	int iBestBranchIdx = 0;
+	
+	for (int i = 1; i < (int)vIdeologyPriorities.size(); ++i)
+	{
+	    if (vIdeologyPriorities[i] > vIdeologyPriorities[maxIndex])
+	        iBestBranchIdx = i;
+	}
 	PolicyBranchTypes eChosenBranch = vIdeologyBranches[iBestBranchIdx];
 	
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
