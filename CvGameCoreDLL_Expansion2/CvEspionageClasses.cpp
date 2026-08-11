@@ -850,7 +850,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						// activate passive bonuses of the 0 NP threshold
 						pCityEspionage->AddNetworkPoints(m_pPlayer->GetID(), pSpy, 0, /*bInit*/ true);
 						// notify if counterspy present
-						if (pCityEspionage->HasCounterSpy())
+						if (pCityEspionage->HasCounterSpy() && pCityEspionage->GetCounterSpyFocus() != NO_EVENT_CHOICE_CITY)
 						{
 							CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
 							if (pkEventChoiceInfo)
