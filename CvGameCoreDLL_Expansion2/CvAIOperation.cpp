@@ -1838,7 +1838,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 		}
 	case ARMYAISTATE_MOVING_TO_DESTINATION:
 		{
-			if(pCivilian && pCivilian->plot() == GetTargetPlot())
+			if(pCivilian && (pCivilian->plot() == GetTargetPlot() || ((GetCivilianType() == UNITAI_DIPLOMAT || GetCivilianType() == UNITAI_MUSICIAN || GetCivilianType() == UNITAI_MERCHANT) && pCivilian->plot()->getOwner() == GetTargetPlot()->getOwner())))
 			{
 				pThisArmy->SetArmyAIState(ARMYAISTATE_AT_DESTINATION);
 				m_eCurrentState = AI_OPERATION_STATE_AT_TARGET;
@@ -2065,9 +2065,8 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit)
 /// If at target, cash in; if at muster point, merge merchant and escort and move out
 bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 {
-	//we don't actually have to be exactly at the target plot
-	//in fact we cannot go there if it's a city
-	if (!pMerchant || plotDistance(*pMerchant->plot(), *GetTargetPlot()) > 1 || !pMerchant->canMove())
+	// we can perform this mission on any plot of the target city-state
+	if (!pMerchant || pMerchant->plot()->getOwner() != GetTargetPlot()->getOwner() || !pMerchant->canMove())
 		return false;
 
 	//venetian merchant sometimes wants to buy the whole shop
@@ -2141,9 +2140,8 @@ CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* p
 
 bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 {
-	//we don't actually have to be exactly at the target plot
-	//in fact we cannot go there if it's a city
-	if (!pDiplomat || plotDistance(*pDiplomat->plot(), *GetTargetPlot()) > 1 || !pDiplomat->canMove())
+	// we can perform this mission on any plot of the target city-state
+	if (!pDiplomat || pDiplomat->plot()->getOwner() != GetTargetPlot()->getOwner() || !pDiplomat->canMove())
 		return false;
 
 	if(pDiplomat->canTrade(pDiplomat->plot()))
@@ -2182,7 +2180,7 @@ bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 // CvAIOperationCivilianConcertTour
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Find the plot where we want to settler
+/// Find the plot where we want to settle
 CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit)
 {
 	if(!pUnit)
@@ -2193,9 +2191,8 @@ CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit)
 
 bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 {
-	//we don't actually have to be exactly at the target plot
-	//in fact we cannot go there if it's a city
-	if (!pMusician || plotDistance(*pMusician->plot(), *GetTargetPlot()) > 1 || !pMusician->canMove())
+	// we can perform this mission on any plot of the target player
+	if (!pMusician || pMusician->plot()->getOwner() != GetTargetPlot()->getOwner() || !pMusician->canMove())
 		return false;
 
 	if(pMusician->canBlastTourism(pMusician->plot()))

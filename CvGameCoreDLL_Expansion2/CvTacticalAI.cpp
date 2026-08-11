@@ -2303,6 +2303,9 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION ||
 		pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION)
 	{
+		if (pOperation->CheckTransitionToNextStage() && pOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+			return;
+
 		int iMoveFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 		//if necessary and possible, avoid plots where our escort cannot follow
 		if (pEscort)
