@@ -23221,7 +23221,7 @@ int CvPlayer::GetSpyIdentificationChance(int iBaseChance)
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity; pLoopCity = nextCity(&iLoop))
 	{
 		CvCityEspionage* pCityEspionage = pLoopCity->GetCityEspionage();
-		if (pCityEspionage->HasCounterSpy())
+		if (pCityEspionage->HasCounterSpy() && pCityEspionage->GetCounterSpyFocus() != NO_EVENT_CHOICE_CITY)
 		{
 			CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
 			iIdentificationChanceReductionGlobal += pkEventChoiceInfo->getSpyIdentificationChanceReductionGlobal();
