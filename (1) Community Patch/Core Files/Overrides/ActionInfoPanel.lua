@@ -478,7 +478,7 @@ do -- Actions
 			if playerId ~= activePlayerId then
 				local player = Players[playerId]
 
-				if player ~= nil and player:IsHuman() and not player:HasReceivedNetTurnComplete() then
+				if player ~= nil and player:IsHuman() and not player:IsObserver() and not player:HasReceivedNetTurnComplete() then
 					local playerCivKey = txtUnmetPlayer
 
 					if activePlayerTeam:IsHasMet(player:GetTeam()) then
