@@ -1709,8 +1709,13 @@ CvArea* CvMap::getAreaByIndex(int iIndex)
 CvArea* CvMap::addArea()
 {
 	//do not use TContainer::Add here, it uses the global ID counter which we don't need here
+	//we can't use m_areas.GetCount() for the new area ID here: After deleting an area area IDs might no longer be contiguous, so m_areas.GetCount() might return an existing ID
+	int iNewAreaID = 0;
+	for (int iI = 0; iI < m_areas.GetCount(); iI++)
+		iNewAreaID = max(iNewAreaID, m_areas.GetAt(iI)->GetID()+1);
+
 	CvArea* pNew = new CvArea();
-	pNew->SetID( m_areas.GetCount() );
+	pNew->SetID(iNewAreaID);
 	m_areas.Load(pNew);
 	return pNew;
 }
@@ -1987,12 +1992,17 @@ void CvMap::calculateAreas()
 	{
 		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
 
-		cp[pLoopPlot->getArea()][pLoopPlot->getX()] = true;
-		rp[pLoopPlot->getArea()][pLoopPlot->getY()] = true;
-	
+		//area ids are not necessarily identical to their index (see CvMap::addArea()), so look up the index
+		int iAreaIndex = m_areas.GetIndexForID(pLoopPlot->getArea());
+		if (iAreaIndex == -1)
+			continue;
+
+		cp[iAreaIndex][pLoopPlot->getX()] = true;
+		rp[iAreaIndex][pLoopPlot->getY()] = true;
+
 		pLoopPlot->area()->UpdateBadPlotsCount(pLoopPlot);
 	}
-	//important assumption: area ids are identical to their index!
+
 	for (int iI = 0; iI < m_areas.GetCount(); iI++)
 	{
 		m_areas.GetAt(iI)->FindBoundaries(cp[iI],rp[iI]);
@@ -2543,8 +2553,13 @@ CvLandmass* CvMap::getLandmassByIndex(int iIndex)
 CvLandmass* CvMap::addLandmass()
 {
 	//do not use TContainer::Add here, it uses the global ID counter which we don't need here
+	//we can't use m_landmasses.GetCount() for the new landmass ID here: After deleting a landmass landmass IDs might no longer be contiguous, so m_landmasses.GetCount() might return an existing ID
+	int iNewLandmassID = 0;
+	for (int iI = 0; iI < m_landmasses.GetCount(); iI++)
+		iNewLandmassID = max(iNewLandmassID, m_landmasses.GetAt(iI)->GetID()+1);
+
 	CvLandmass* pNew = new CvLandmass();
-	pNew->SetID( m_landmasses.GetCount()+1 );
+	pNew->SetID(iNewLandmassID);
 	m_landmasses.Load(pNew);
 	return pNew;
 }
@@ -2648,8 +2663,13 @@ CvContinent* CvMap::getContinentById(int iID)
 CvContinent* CvMap::addContinent()
 {
 	//do not use TContainer::Add here, it uses the global ID counter which we don't need here
+	//here it would also be fine to just use m_continents.GetCount() for the new id, but for consistency with areas and landmasses which can have non-contiguous IDs (see CvMap::addArea() and deleteArea()) we calculate the new id instead
+	int iNewContinentID = 0;
+	for (int iI = 0; iI < m_continents.GetCount(); iI++)
+		iNewContinentID = max(iNewContinentID, m_continents.GetAt(iI)->GetID() + 1);
+
 	CvContinent* pNew = new CvContinent();
-	pNew->SetID(m_continents.GetCount() + 1);
+	pNew->SetID(iNewContinentID);
 	m_continents.Load(pNew);
 	return pNew;
 }
@@ -2715,8 +2735,12 @@ CvRiver* CvMap::GetRiverByIndex(int iIndex)
 CvRiver* CvMap::AddRiver()
 {
 	//do not use TContainer::Add here, it uses the global ID counter which we don't need here
+	//we can't use m_rivers.GetCount() for the new river ID here: After deleting a river river IDs might no longer be contiguous, so m_rivers.GetCount() might return an existing ID
+	int iNewRiverID = 0;
+	for (int iI = 0; iI < m_rivers.GetCount(); iI++)
+		iNewRiverID = max(iNewRiverID, m_rivers.GetAt(iI)->GetID() + 1);
 	CvRiver* pNew = new CvRiver();
-	pNew->SetID(m_rivers.GetCount() + 1);
+	pNew->SetID(iNewRiverID);
 	m_rivers.Load(pNew);
 	return pNew;
 }
