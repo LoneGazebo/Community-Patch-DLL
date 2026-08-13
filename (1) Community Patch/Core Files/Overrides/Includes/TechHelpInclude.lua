@@ -176,7 +176,7 @@ local WriteProjects = PrepareSection(
 	[[
 		SELECT Description
 		FROM Projects
-		WHERE TechPrereq = ?
+		WHERE ShowInTechTree = 1 AND TechPrereq = ?
 		ORDER BY Description
 	]],
 	BulletLoc
