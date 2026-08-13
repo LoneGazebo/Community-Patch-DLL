@@ -2654,6 +2654,9 @@
 		<Row Tag="TXT_KEY_ALLY_CBP_SPY">
 			<Text>Allied with the {1_Player}.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_SPY_ALREADY_IN_CITY">
+			<Text>Your spy {2_SpyName} is already present in {1_CityName}.</Text>
+		</Row>
 		<!-- Intrigue list -->
 		<Row Tag="TXT_KEY_INTRIGUE_BRIBE_WAR_US">
 			<Text>{1_PlayerName} bribed {2_PlayerName} to go to war against you.</Text>

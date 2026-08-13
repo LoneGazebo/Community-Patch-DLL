@@ -1195,7 +1195,10 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			if (pPlayer ~= nil) then
 				local pCity = pPlayer:GetCityByID(cityInfo.CityID);
 				if(pCity) then
-					if(not Players[Game.GetActivePlayer()]:CanMoveSpyTo(pCity, selectedAgentIndex)) then
+					if (agent ~= nil) then
+						strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_SPY_ALREADY_IN_CITY", cityInfo.Name, agent.Name);
+						strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_SPY_ALREADY_IN_CITY", cityInfo.Name, agent.Name);
+					elseif(not Players[Game.GetActivePlayer()]:CanMoveSpyTo(pCity, selectedAgentIndex)) then
 						strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_NO_ACTIONS_POSSIBLE");
 						strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_NO_ACTIONS_POSSIBLE");
 					end
@@ -1204,15 +1207,20 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 		end
 
 		if (bIsCityState) then
-			local strTraitText = GetCityStateTraitText(cityInfo.PlayerID);
-			local strTraitTT = GetCityStateTraitToolTip(cityInfo.PlayerID);
+			if (selectedAgentIndex ~= nil and agent ~= nil) then
+				strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_SPY_ALREADY_IN_CITY", cityInfo.Name, agent.Name);
+				strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_SPY_ALREADY_IN_CITY", cityInfo.Name, agent.Name);
+			else
+				local strTraitText = GetCityStateTraitText(cityInfo.PlayerID);
+				local strTraitTT = GetCityStateTraitToolTip(cityInfo.PlayerID);
 
-			strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_CITY_NAME_CITY_STATE_TT", cityInfo.Name, strTraitText);
-			strCityNameToolTip = strCityNameToolTip .. "[NEWLINE][NEWLINE]";
-			strCityNameToolTip = strCityNameToolTip .. strTraitTT;
-			strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_CITY_CIV_CITY_STATE_TT", cityInfo.Name, strTraitText);
-			strCityCivToolTip = strCityCivToolTip .. "[NEWLINE][NEWLINE]";
-			strCityCivToolTip = strCityCivToolTip .. strTraitTT;
+				strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_CITY_NAME_CITY_STATE_TT", cityInfo.Name, strTraitText);
+				strCityNameToolTip = strCityNameToolTip .. "[NEWLINE][NEWLINE]";
+				strCityNameToolTip = strCityNameToolTip .. strTraitTT;
+				strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_CITY_CIV_CITY_STATE_TT", cityInfo.Name, strTraitText);
+				strCityCivToolTip = strCityCivToolTip .. "[NEWLINE][NEWLINE]";
+				strCityCivToolTip = strCityCivToolTip .. strTraitTT;
+			end
 
 			local strCityStateTT = Locale.Lookup("TXT_KEY_EO_CITY_STATE_POTENTIAL_TT");
 			strCityStateTT = strCityStateTT .. "[NEWLINE][NEWLINE]";
