@@ -15145,39 +15145,39 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 		// Human Promises
 		iValue = pDiplo->GetNumTurnsMilitaryPromise(ePlayer); // This is a mutual promise and the turn counter will always be the same on both sides
-		if (iValue > 0)
+		if (iValue >= 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS", iValue);
+			kOpinion.m_str = (iValue > 0) ? GetLocalizedText("TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS", iValue) : GetLocalizedText("TXT_KEY_DIPLO_MILITARY_PROMISE_EXPIRING");
 			aOpinions.push_back(kOpinion);
 		}
 
 		iValue = pDiplo->GetNumTurnsExpansionPromise(ePlayer);
-		if (iValue > 0)
+		if (iValue >= 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS", iValue);
+			kOpinion.m_str = (iValue > 0) ? GetLocalizedText("TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS", iValue) : GetLocalizedText("TXT_KEY_DIPLO_EXPANSION_PROMISE_EXPIRING");
 			aOpinions.push_back(kOpinion);
 		}
 
 		iValue = pDiplo->GetNumTurnsBorderPromise(ePlayer);
-		if (iValue > 0)
+		if (iValue >= 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_BORDER_PROMISE_TURNS", iValue);
+			kOpinion.m_str = (iValue > 0) ? GetLocalizedText("TXT_KEY_DIPLO_BORDER_PROMISE_TURNS", iValue) : GetLocalizedText("TXT_KEY_DIPLO_BORDER_PROMISE_EXPIRING");
 			aOpinions.push_back(kOpinion);
 		}
-		
+
 		// AI Promises
 		iValue = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumTurnsExpansionPromise(pkPlayer->GetID());
-		if (iValue > 0)
+		if (iValue >= 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = 0;
-			kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS", iValue);
+			kOpinion.m_str = (iValue > 0) ? GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS", iValue) : GetLocalizedText("TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_EXPIRING");
 			aOpinions.push_back(kOpinion);
 		}
 
