@@ -389,15 +389,20 @@ function InitMajorCivList()
 				end
 				
 				-- Promises (Vox Populi)
-				local function ShowPromiseTurns(iNumTurns, sDiploText)
-					if iNumTurns <= 0 then return end -- do not display "0 turns"
+				local function ShowPromiseTurns(iNumTurns, sDiploText, sExpiringText)
+					if iNumTurns < 0 then return end -- no promise active
 					local textControls = {};
 					ContextPtr:BuildInstanceForControl("TextEntryLong", textControls, controlTable.PactStack);
-					textControls.Text:LocalizeAndSetText(sDiploText, iNumTurns);
+					if iNumTurns == 0 then
+						-- promise expires after this turn
+						textControls.Text:LocalizeAndSetText(sExpiringText);
+					else
+						textControls.Text:LocalizeAndSetText(sDiploText, iNumTurns);
+					end
 				end
-				ShowPromiseTurns(pOtherPlayer:GetNumTurnsMilitaryPromise(g_iUs),  "TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS");
-				ShowPromiseTurns(pOtherPlayer:GetNumTurnsExpansionPromise(g_iUs), "TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS");
-				ShowPromiseTurns(pOtherPlayer:GetNumTurnsBorderPromise(g_iUs),    "TXT_KEY_DIPLO_BORDER_PROMISE_TURNS");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsMilitaryPromise(g_iUs),  "TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS",  "TXT_KEY_DIPLO_MILITARY_PROMISE_EXPIRING");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsExpansionPromise(g_iUs), "TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS", "TXT_KEY_DIPLO_EXPANSION_PROMISE_EXPIRING");
+				ShowPromiseTurns(pOtherPlayer:GetNumTurnsBorderPromise(g_iUs),    "TXT_KEY_DIPLO_BORDER_PROMISE_TURNS",    "TXT_KEY_DIPLO_BORDER_PROMISE_EXPIRING");
 				-- Promises END
 				
 				--controlTable.NothingLabel:SetHide(bHasEntry);
