@@ -974,7 +974,10 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 			if (pPlayer ~= nil) then
 				local pCity = pPlayer:GetCityByID(cityInfo.CityID);
 				if(pCity) then
-					if(not Players[Game.GetActivePlayer()]:CanMoveSpyTo(pCity, selectedAgentIndex)) then
+					if (agent ~= nil) then
+						strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_SPY_ALREADY_IN_CITY", cityInfo.Name, agent.Name);
+						strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_SPY_ALREADY_IN_CITY", cityInfo.Name, agent.Name);
+					elseif(not Players[Game.GetActivePlayer()]:CanMoveSpyTo(pCity, selectedAgentIndex)) then
 						strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_NO_ACTIONS_POSSIBLE");
 						strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_NO_ACTIONS_POSSIBLE");
 					end
