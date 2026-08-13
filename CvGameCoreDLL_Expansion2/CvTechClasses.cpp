@@ -1778,7 +1778,8 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech, bool bIgnoreCities, int iCit
 		// Unified city cost formula: cost *= (10000 + iTotalTimes100) / 10000
 		// With iScaling=0 (CP), this becomes linear. With iScaling>0 (VP), progressive.
 		int iTotalTimes100 = GetResearchCityModifierTimes100(iCityOffset);
-		iResearchCost = iResearchCost * (10000 + iTotalTimes100) / 10000;
+		long long iScaledCost = ((long long)iResearchCost * (10000 + iTotalTimes100)) / 10000;
+		iResearchCost = (int)std::min<long long>(std::max<long long>(iScaledCost, INT_MIN), INT_MAX);
 	}
 
 	return iResearchCost;

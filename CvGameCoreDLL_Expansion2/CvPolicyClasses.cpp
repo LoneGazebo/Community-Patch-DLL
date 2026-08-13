@@ -4835,7 +4835,8 @@ int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset, int
 		// Unified city cost formula: cost *= (10000 + iTotalTimes100) / 10000
 		// Tech and policy now both use all effective cities in VP, including the first one. CP behavior unchanged (first city included in tech cost calculations, but excluded in policy cost calculations)
 		int iTotalTimes100 = GetPolicyCityModifierTimes100(iCityOffset);
-		iCost = iCost * (10000 + iTotalTimes100) / 10000;
+		long long iScaledCost = ((long long)iCost * (10000 + iTotalTimes100)) / 10000;
+		iCost = (int)std::min<long long>(std::max<long long>(iScaledCost, INT_MIN), INT_MAX);
 	}
 
 	if (pCostBeforePolicyDiscount != NULL)
