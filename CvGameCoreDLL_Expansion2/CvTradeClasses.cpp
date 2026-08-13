@@ -5916,13 +5916,10 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 
 	// Reserve upper bounds up front - growth reallocation of the fat TRSortElement vectors can fail
 	// when the 32-bit address space is nearly exhausted in the late game.
-	// ScoreProductionTR/ScoreFoodTR/ScoreWonderTR/ScoreGoldInternalTR reject all other connection
-	// types, so a per-type count bounds those lists exactly.
-	// ScoreInternationalTR has no connection type filter (e.g. the poverty bonus can score internal
-	// routes too), so its only exact bound is the full list.
 	uint uiProductionRoutes = 0;
 	uint uiFoodRoutes = 0;
 	uint uiWonderRoutes = 0;
+	uint uiInternationalRoutes = 0;
 	uint uiGoldInternalRoutes = 0;
 	for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 	{
@@ -5937,6 +5934,9 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		case TRADE_CONNECTION_WONDER_RESOURCE:
 			uiWonderRoutes++;
 			break;
+		case TRADE_CONNECTION_INTERNATIONAL:
+			uiInternationalRoutes++;
+			break;
 		case TRADE_CONNECTION_GOLD_INTERNAL:
 			uiGoldInternalRoutes++;
 			break;
@@ -5947,7 +5947,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	aProductionSortedTR.reserve(uiProductionRoutes);
 	aFoodSortedTR.reserve(uiFoodRoutes);
 	aWonderSortedTR.reserve(uiWonderRoutes);
-	aGoldSortedTR.reserve(aTradeConnectionList.size());
+	aGoldSortedTR.reserve(uiInternationalRoutes);
 	aGoldInternalSortedTR.reserve(uiGoldInternalRoutes);
 
 	// PRODUCTION PRODUCTION PRODUCTION PRODUCTION
@@ -6443,6 +6443,9 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 {
 	TRSortElement ret;
 	ret.m_kTradeConnection = kTradeConnection;
+
+	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
+		return ret;
 
 	// don't send trade routes if we're about to declare war!
 	if (m_pPlayer->getFirstOffensiveAIOperation(kTradeConnection.m_eDestOwner) != NULL)

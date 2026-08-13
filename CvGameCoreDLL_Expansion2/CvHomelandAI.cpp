@@ -6116,18 +6116,15 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 					}
 				}
 			}
-			else
+			else if (iMaxCargoShips > 1)
 			{
-				if (iMaxCargoShips > 1)
+				for (std::vector<CvUnit*>::iterator it = vpCargoShips.begin() + 1; it != vpCargoShips.end(); ++it)
 				{
-					for (std::vector<CvUnit*>::iterator it = vpCargoShips.begin() + 1; it != vpCargoShips.end(); ++it)
+					CvUnit* pUnit = *it;
+					if (pUnit->canMakeTradeRouteAt(pOriginPlot, aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY, eConnectionType))
 					{
-						CvUnit* pUnit = *it;
-						if (pUnit->canMakeTradeRouteAt(pOriginPlot, aTradeConnections[ui].m_iDestX, aTradeConnections[ui].m_iDestY, eConnectionType))
-						{
-							bAnyUnitCanMakeRoute = true;
-							break;
-						}
+						bAnyUnitCanMakeRoute = true;
+						break;
 					}
 				}
 			}
@@ -6140,7 +6137,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 			continue;
 
 		// We're going with this route - do any targeting restriction bookkeeping first
-		if (bDoTargetRestrictionCheck && !GET_PLAYER(pDestCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+		if (bDoTargetRestrictionCheck && !GET_PLAYER(pDestCity->getOwner()).GetPlayerTraits()->IsNoTradeRouteDestinationRestriction())
 			siTargetingRestrictionCities.insert(pDestCity->GetID());
 
 		// Also reserve this city pair so we don't plan a land/sea duplicate
@@ -6206,17 +6203,17 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 			CvString strLogString;
 			switch (kPlan.m_eConnectionType)
 			{
-			case TRADE_CONNECTION_FOOD:
-				strLogString.Format("Establishing food trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
-				break;
-			case TRADE_CONNECTION_INTERNATIONAL:
-				strLogString.Format("Establishing gold trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
-				break;
 			case TRADE_CONNECTION_PRODUCTION:
 				strLogString.Format("Establishing production trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
 				break;
+			case TRADE_CONNECTION_FOOD:
+				strLogString.Format("Establishing food trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
+				break;
 			case TRADE_CONNECTION_WONDER_RESOURCE:
 				strLogString.Format("Establishing wonder trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
+				break;
+			case TRADE_CONNECTION_INTERNATIONAL:
+				strLogString.Format("Establishing gold trade route from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
 				break;
 			case TRADE_CONNECTION_GOLD_INTERNAL:
 				strLogString.Format("Establishing gold trade route (internal) from %s to %s", kPlan.m_pOriginCity->getName().c_str(), kPlan.m_pDestCity->getName().c_str());
