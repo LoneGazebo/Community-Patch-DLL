@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(5.4.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.4.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -1085,7 +1085,7 @@
     <File md5="63036BCCAF2955F36009341BBC01DEAD" import="1">Core Files/Overrides/DeclareWarPopup.lua</File>
     <File md5="86D353FD71335DE6C35F3F049187FC36" import="1">Core Files/Overrides/DeclareWarPopup.xml</File>
     <File md5="39254AD35391E09158C0CA312BCABA11" import="1">Core Files/Overrides/Demographics.lua</File>
-    <File md5="51B2C38F2F8BB05D60C64E670DD0E159" import="1">Core Files/Overrides/DiploGlobalRelationships.lua</File>
+    <File md5="9BB3DE9762718BC2911493B265DEF24B" import="1">Core Files/Overrides/DiploGlobalRelationships.lua</File>
     <File md5="96E1610DF1E21361B521C0F9C3DB0EA0" import="1">Core Files/Overrides/DiploGlobalRelationships.xml</File>
     <File md5="E39E93CD1F55DCB32C7829AE87F45EA4" import="1">Core Files/Overrides/DiploRelationships.lua</File>
     <File md5="D773117CAB28D8ECCFED0DA6567132D7" import="1">Core Files/Overrides/DiscussionDialog.lua</File>
@@ -1093,7 +1093,7 @@
     <File md5="D83B6F1C668EDCECDC098619036928B8" import="1">Core Files/Overrides/EconomicGeneralInfo.lua</File>
     <File md5="3A73B221D228BD6508038FCA62239692" import="1">Core Files/Overrides/EconomicGeneralInfo.xml</File>
     <File md5="16B07AAA25EB4AA80C4FAEAD0AC32D02" import="1">Core Files/Overrides/EconomicOverview.lua</File>
-    <File md5="7B3A8D384768F29065D24BEA48D464F7" import="1">Core Files/Overrides/EspionageOverview.lua</File>
+    <File md5="AA0C0BC49E7E59D77D2BF875D5A146B2" import="1">Core Files/Overrides/EspionageOverview.lua</File>
     <File md5="40E602CD054FCEC15E0D9ECB716B6F13" import="1">Core Files/Overrides/EspionageOverview.xml</File>
     <File md5="C00FE91207AA52FD54CD0B1E273A2BB1" import="1">Core Files/Overrides/FeatureGenerator.lua</File>
     <File md5="01E57106E3DF3EB96388222C9BA34D1A" import="1">Core Files/Overrides/GameSetupScreen.lua</File>
@@ -1277,7 +1277,7 @@
     <File md5="B98B12751887ADF4F191AAB5D9248321" import="0">Database Changes/Text/en_US/City/SpecialistTextChanges.sql</File>
     <File md5="72B6E45FAD524E212A0760BDD8555E98" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
     <File md5="E87182AA4D8D49623106F840DA2B464B" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
-    <File md5="4780A5F722772C3C1B2BD78D60FDCC4E" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
+    <File md5="CF358B636198F9AB18B5F4BA6B88EBE6" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
     <File md5="EF6D8AE8F4143A7FC9ABEE0269827241" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
     <File md5="E49407D79E4BA9F1F3255A30296ABAB2" import="0">Database Changes/Text/en_US/Corporations/NewCorporationText.xml</File>
     <File md5="D0A442F7DEB463CDCCA45E6503687C87" import="0">Database Changes/Text/en_US/Difficulty/DifficultyTextChanges.sql</File>
@@ -1294,14 +1294,14 @@
     <File md5="E5CB0AB92FAA1B2128EE557C30451B66" import="0">Database Changes/Text/en_US/UI/InterfaceModeTextChanges.sql</File>
     <File md5="B5C60FD5DF02295B68C1FEE0052EFD88" import="0">Database Changes/Text/en_US/UI/NewUIText.sql</File>
     <File md5="2ADA6A036BB27B61833287DFAF421130" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
-    <File md5="C45E87C6E38CE48039060E4225861D9F" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
+    <File md5="A8EC5C40DB0FA8433EA36B6BEE0C4575" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
     <File md5="453974FD7CFE0BDFB53F560C44F0A930" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
     <File md5="0F7FA7A5B4A7208E6D443ADB8E3C1D5D" import="0">Database Changes/Text/en_US/UnitPromotions/PromotionTextChanges.sql</File>
     <File md5="DDA7CA65AFBAC78647BE27D28C01203E" import="0">Database Changes/Text/en_US/Units/PreUnitTextChanges.sql</File>
     <File md5="615A8F84B28E30BEEF1C9624EE9BC68B" import="0">Database Changes/Text/en_US/Units/MissionTextChanges.sql</File>
     <File md5="E44B069F8ED6698D11B89240DCAC6F38" import="0">Database Changes/Text/en_US/Units/NewMissionText.xml</File>
     <File md5="D2EFE53DFE4412953E6A1B9F8C72DFD6" import="0">Database Changes/Text/en_US/Units/NewUnitText.xml</File>
-    <File md5="5F5365B414102019603A6992893F3966" import="0">Database Changes/Text/en_US/Units/UnitTextChanges.sql</File>
+    <File md5="7F6897296013D2AEFC1246A55590B077" import="0">Database Changes/Text/en_US/Units/UnitTextChanges.sql</File>
     <File md5="A257CBAE5C12FB43054F8FAAE36B384B" import="0">Database Changes/Text/en_US/WorldCongress/NewProjectText.xml</File>
     <File md5="D94CF49040D777C987C655EC7EA34AFC" import="0">Database Changes/Text/en_US/WorldCongress/NewResolutionText.xml</File>
     <File md5="1DB9390906CDF9F5B075CB6BE4BD6167" import="0">Database Changes/Text/en_US/WorldCongress/ProjectTextChanges.sql</File>
