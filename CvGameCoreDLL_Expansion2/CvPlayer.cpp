@@ -11985,6 +11985,10 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if (getNumCities() == 0)
 			return false;
 
+		// No tile goodies if the ruin is claimed by a city, can cause bugs with tile ownership
+		if (!pUnit)
+			return false;
+
 		// Check whether player has traits that benefit from buying tiles
 		CvPlayerTraits* pTraits = GetPlayerTraits();
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
