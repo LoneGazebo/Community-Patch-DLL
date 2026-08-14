@@ -119,18 +119,16 @@ struct STradePathInfo
 	int iTotalTurns;
 	int iPathLength;  // Number of nodes in path - NOT the path itself
 	int iDangerScore;
-	int iDangerScoreInternal;
 	int iScoreFromPassingTR;
 	int iScoreFromTerrain;
 
-	STradePathInfo() : iTotalCost(-1), iNormalizedDistanceRaw(-1), iTotalTurns(-1), iPathLength(0), iDangerScore(0), iDangerScoreInternal(0), iScoreFromPassingTR(0), iScoreFromTerrain(0) {}
-	STradePathInfo(const SPath& path, int iDangerScore, int iDangerScoreInternal, int iScoreFromPassingTR, int iScoreFromTerrain) 
+	STradePathInfo() : iTotalCost(-1), iNormalizedDistanceRaw(-1), iTotalTurns(-1), iPathLength(0), iDangerScore(0), iScoreFromPassingTR(0), iScoreFromTerrain(0) {}
+	STradePathInfo(const SPath& path, int iDangerScore, int iScoreFromPassingTR, int iScoreFromTerrain) 
 		: iTotalCost(path.iTotalCost)
 		, iNormalizedDistanceRaw(path.iNormalizedDistanceRaw)
 		, iTotalTurns(path.iTotalTurns)
 		, iPathLength(path.length())
 		, iDangerScore(iDangerScore)
-		, iDangerScoreInternal(iDangerScoreInternal)
 		, iScoreFromPassingTR(iScoreFromPassingTR)
 		, iScoreFromTerrain(iScoreFromTerrain)
 	{}
@@ -461,6 +459,10 @@ public:
 	int ScoreProductionTR(const TradeConnection& kTradeConnection, const std::set<int>& siTargetCityIDs);
 	int ScoreFoodTR(const TradeConnection& kTradeConnection, const std::set<int>& siTargetCityIDs);
 	int ScoreWonderTR(const TradeConnection& kTradeConnection, const std::set<int>& siTargetCityIDs);
+
+	// helper functions
+	int ApplyTradeRouteModifier(int iValue, int iModifier, bool bDanger) const;
+	long long ApplyTradeRouteModifier(long long iValue, int iModifier, bool bDanger) const;
 
 	CvPlayer* m_pPlayer;
 	int m_iRemovableValue;
