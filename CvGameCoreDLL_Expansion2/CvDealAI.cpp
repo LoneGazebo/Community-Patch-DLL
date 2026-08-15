@@ -104,10 +104,19 @@ TeamTypes CvDealAI::GetTeam() const
 
 bool CvDealAI::WithinAcceptableRange(int iNetValue) const
 {
+	// GetDealValue returns INT_MAX when the deal contains an untradeable item, so the net value is
+	// not a number we can reason about - such a deal is never balanced. Callers that equalize deals
+	// must reject the sentinel themselves; they cannot rely on this returning true for it.
+	if (iNetValue == INT_MAX)
+		return false;
+
 	int iGPTValue = GetOneGPTValue(false);
 
 	// a deal value of less than or equal to half the value of 1 GPT should always be acceptable, to avoid deals that can't be equalized with GPT
-	return 2*abs(iNetValue) < iGPTValue || 2*iNetValue == iGPTValue;
+	// 64 bit math - doubling a deal value near INT_MAX overflows
+	long long iValue = iNetValue;
+	long long iAbsValue = iValue < 0 ? -iValue : iValue;
+	return 2*iAbsValue < iGPTValue || 2*iValue == iGPTValue;
 }
 
 bool CvDealAI::BothSidesIncluded(CvDeal* pDeal) const
@@ -4517,6 +4526,10 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Gold to Them, but them is us.");
 
+	// an untradeable item in the deal makes the value meaningless, and it cannot be equalized away
+	if (iTotalValue == INT_MAX)
+		return;
+
 	if (WithinAcceptableRange(iTotalValue))
 		return;
 
@@ -4567,6 +4580,10 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Gold to Us, but them is us.");
 
+	// an untradeable item in the deal makes the value meaningless, and it cannot be equalized away
+	if (iTotalValue == INT_MAX)
+		return;
+
 	if (WithinAcceptableRange(iTotalValue))
 		return;
 
@@ -4616,6 +4633,10 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 	PRECONDITION(eThem >= 0);
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add GPT to Them, but them is us.");
+
+	// an untradeable item in the deal makes the value meaningless, and it cannot be equalized away
+	if (iTotalValue == INT_MAX)
+		return;
 
 	if (WithinAcceptableRange(iTotalValue))
 		return;
@@ -4680,6 +4701,10 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	PRECONDITION(eThem >= 0);
 	PRECONDITION(eThem < MAX_MAJOR_CIVS);
 	ASSERT(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add GPT to Us, but them is us.");
+
+	// an untradeable item in the deal makes the value meaningless, and it cannot be equalized away
+	if (iTotalValue == INT_MAX)
+		return;
 
 	if (WithinAcceptableRange(iTotalValue))
 		return;
