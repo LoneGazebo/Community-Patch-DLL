@@ -10382,13 +10382,22 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, con
 	//If this is a plot-related message, search for any previously created messages that match this one and just add the plot.
 	if(iPlotX != -1 || iPlotY != -1)
 	{
+		// Both searches below only ever match messages from the current turn. Messages are only ever
+		// appended and the game turn never goes backwards, so those form a contiguous block at the end
+		// of the list - find where it starts and search only that, instead of walking every message
+		// recorded since the game began. Plot ownership changes are frequent, so scanning the whole
+		// history made this cost grow with the length of the game.
+		size_t iFirstThisTurn = m_listReplayMessages.size();
+		while (iFirstThisTurn > 0 && m_listReplayMessages[iFirstThisTurn - 1].getTurn() == iGameTurn)
+			iFirstThisTurn--;
+
 		// the replay map can only display one plot owner change per plot and turn, if there were any previous ownership changes of this plot in this turn, delete them
 		if (eType == REPLAY_MESSAGE_PLOT_OWNER_CHANGE)
 		{
-			for (ReplayMessageList::iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
+			for (size_t i = iFirstThisTurn; i < m_listReplayMessages.size(); i++)
 			{
-				CvReplayMessage& msg = (*it);
-				if (msg.getType() == eType && msg.getTurn() == iGameTurn && msg.getText() == pszText)
+				CvReplayMessage& msg = m_listReplayMessages[i];
+				if (msg.getType() == eType && msg.getText() == pszText)
 				{
 					for (uint ui = 0; ui < msg.getNumPlots(); ui++)
 					{
@@ -10404,17 +10413,17 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, con
 					}
 					if (msg.getNumPlots() == 0)
 					{
-						m_listReplayMessages.erase(it);
+						m_listReplayMessages.erase(m_listReplayMessages.begin() + (ptrdiff_t)i);
 						break;
 					}
 				}
 			}
 		}
 
-		for(ReplayMessageList::iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
+		for (size_t i = iFirstThisTurn; i < m_listReplayMessages.size(); i++)
 		{
-			CvReplayMessage& msg = (*it);
-			if(msg.getType() == eType && msg.getTurn() == iGameTurn && msg.getPlayer() == ePlayer && msg.getText() == pszText)
+			CvReplayMessage& msg = m_listReplayMessages[i];
+			if(msg.getType() == eType && msg.getPlayer() == ePlayer && msg.getText() == pszText)
 			{
 				msg.addPlot(iPlotX, iPlotY);
 				return;
