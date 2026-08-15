@@ -45346,6 +45346,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iVotesPerGPT);
 	visitor(player.m_iTRVisionBoost);
 	visitor(player.m_iEventTourism);
+	visitor(player.m_iReligionSpreadTourism);
 	visitor(player.m_aiGlobalTourismAlreadyReceived);
 	visitor(player.m_iEventTourismCS);
 	visitor(player.m_iNumHistoricEvent);
