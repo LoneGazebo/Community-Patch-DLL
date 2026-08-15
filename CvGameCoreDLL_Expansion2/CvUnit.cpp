@@ -28895,6 +28895,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iMadeInterceptionCount);
 	visitor(unit.m_iEverSelectedCount);
 	visitor(unit.m_iSapperCount);
+	visitor(unit.m_iRequiresLeadershipCount);
 	visitor(unit.m_iCanHeavyCharge);
 	visitor(unit.m_iStrongerDamaged);
 	visitor(unit.m_iDiplomaticMissionAccomplishment);
