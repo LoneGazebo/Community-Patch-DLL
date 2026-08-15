@@ -10416,10 +10416,23 @@ void CvPlayer::doTurnPostDiplomacy()
 		// AI spaceship production and building Citizen Earth Protocol is planned on player level, overriding the normal AI city production selection
 		AI_doSpaceshipAndUtopiaProduction();
 
+		// a city that finishes razing disbands itself inside doTurn(), which removes it from the city
+		// list and shifts the cities after it down one index. nextCity() only increments the index, so
+		// iterating live would skip the city that moved into the freed slot and it would lose its turn.
+		vector<int> viCityIDs;
 		int iLoop = 0;
 		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			pLoopCity->doTurn();
+			viCityIDs.push_back(pLoopCity->GetID());
+		}
+
+		for(size_t i = 0; i < viCityIDs.size(); i++)
+		{
+			CvCity* pLoopCity = getCity(viCityIDs[i]);
+			if (pLoopCity)
+			{
+				pLoopCity->doTurn();
+			}
 		}
 	}
 
