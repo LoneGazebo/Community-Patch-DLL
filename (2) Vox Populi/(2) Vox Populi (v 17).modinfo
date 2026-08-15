@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(5.4.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.4.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -1234,7 +1234,7 @@
     <File md5="61BE887C8E1DF4717AB3E352A3E5203D" import="0">Database Changes/Events/NewEvents.xml</File>
     <File md5="34E3C1987E0DF17F769A4C27D8FFE048" import="0">Database Changes/Minors/MinorCivilizationChanges.sql</File>
     <File md5="CEB0D4C88257899484D831A201A9CA9F" import="0">Database Changes/Minors/MinorClassOverrideSweeps.sql</File>
-    <File md5="97B5126E8CA9EE9189F30BB38FAE1404" import="0">Database Changes/Minors/MinorQuestChanges.sql</File>
+    <File md5="1FA98677B2D39B796CD45C6EEABEE963" import="0">Database Changes/Minors/MinorQuestChanges.sql</File>
     <File md5="1591022C93D310BEEE47F301929E3897" import="0">Database Changes/Minors/MinorYieldChanges.sql</File>
     <File md5="DEA9E61339537DC6D69B352A9B302BDA" import="0">Database Changes/Minors/NewMinorCivilizations.xml</File>
     <File md5="01308FC9C5569A2119C89C56A8F5248A" import="0">Database Changes/Policies/Artistry.sql</File>
@@ -1277,7 +1277,7 @@
     <File md5="B98B12751887ADF4F191AAB5D9248321" import="0">Database Changes/Text/en_US/City/SpecialistTextChanges.sql</File>
     <File md5="72B6E45FAD524E212A0760BDD8555E98" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
     <File md5="E87182AA4D8D49623106F840DA2B464B" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
-    <File md5="CF358B636198F9AB18B5F4BA6B88EBE6" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
+    <File md5="DAD9A87C3D3A0C8053EED6EECF9B6D91" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
     <File md5="EF6D8AE8F4143A7FC9ABEE0269827241" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
     <File md5="E49407D79E4BA9F1F3255A30296ABAB2" import="0">Database Changes/Text/en_US/Corporations/NewCorporationText.xml</File>
     <File md5="D0A442F7DEB463CDCCA45E6503687C87" import="0">Database Changes/Text/en_US/Difficulty/DifficultyTextChanges.sql</File>
