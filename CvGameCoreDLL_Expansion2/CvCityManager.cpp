@@ -61,6 +61,12 @@ static void AddToSortedList(CvCityManager::CityList &kCityList, int iFromX, int 
 //	---------------------------------------------------------------------------
 void CvCityManager::OnCityCreated(CvCity* pkAddCity)
 {
+	// Registering the same city twice would append it to every other city's list a second time, and
+	// OnCityDestroyed only removes one occurrence per list - the leftover copy would be left dangling
+	// once the city is freed. The lists are already correct from the first call, so do nothing.
+	if (ms_kCityMap.find(pkAddCity) != ms_kCityMap.end())
+		return;
+
 	// First add it to all the other city lists
 	for (CityMap::iterator itr = ms_kCityMap.begin(); itr != ms_kCityMap.end(); ++itr)
 	{
@@ -101,15 +107,9 @@ void CvCityManager::OnCityDestroyed(CvCity* pkCity)
 	{
 		if ((*itr).first != pkCity)
 		{
+			// erase every occurrence - the city is about to be freed, so a copy left behind here would dangle
 			CityList &kCityList = (*itr).second;
-			for (CityList::iterator itrNearby = kCityList.begin(); itrNearby != kCityList.end(); ++itrNearby)
-			{
-				if ((*itrNearby) == pkCity)
-				{
-					kCityList.erase(itrNearby);
-					break;
-				}
-			}
+			kCityList.erase(std::remove(kCityList.begin(), kCityList.end(), pkCity), kCityList.end());
 		}
 	}
 
