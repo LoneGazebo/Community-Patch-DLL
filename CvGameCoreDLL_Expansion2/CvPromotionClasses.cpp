@@ -118,6 +118,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bRangedFlankAttack(false),
 	m_iExtraFlankPower(0),
 	m_iFlankAttackModifier(0),
+	m_iFlankSupportModifier(0),
 	m_iNearbyEnemyCombatMod(0),
 	m_iNearbyEnemyCombatRange(0),
 	m_iOpenDefensePercent(0),
@@ -270,6 +271,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bRangeAttackIgnoreLOS(false),
 	m_iSeeThrough(0),
 	m_bFreePillageMoves(false),
+	m_bHalfPillageMoves(false),
 	m_bHealOnPillage(false),
 	m_bHealIfDefeatExcludesBarbarians(false),
 	m_bEmbarkedAllWater(false),
@@ -316,6 +318,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAdjacentEnemySapMovement(0),
 	m_bCanHeavyCharge(false),
 	m_iPassiveAoEHeal(0),
+	m_iJammingRadius(0),
 	m_piTerrainAttackPercent(NULL),
 	m_piTerrainDefensePercent(NULL),
 	m_piFeatureAttackPercent(NULL),
@@ -334,7 +337,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piFortificationYield(NULL),
 	m_piUnitCombatModifierPercent(NULL),
 	m_piUnitCombatModifierPercentAttack(NULL),
-		m_piUnitCombatModifierPercentDefense(NULL),
+	m_piUnitCombatModifierPercentDefense(NULL),
 	m_piUnitClassModifierPercent(NULL),
 	m_piUnitClassAttackModifier(NULL),
 	m_piUnitClassDefenseModifier(NULL),
@@ -529,6 +532,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bRangeAttackIgnoreLOS = kResults.GetBool("RangeAttackIgnoreLOS");
 	m_iSeeThrough = kResults.GetInt("SeeThrough");
 	m_bFreePillageMoves = kResults.GetBool("FreePillageMoves");
+	m_bHalfPillageMoves = kResults.GetBool("HalfPillageMoves");
 	m_bHealOnPillage = kResults.GetBool("HealOnPillage");
 	m_bHealIfDefeatExcludesBarbarians = kResults.GetBool("HealIfDestroyExcludesBarbarians");
 	m_bEmbarkedAllWater = kResults.GetBool("EmbarkedAllWater");
@@ -577,6 +581,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNearbyHealNeutralTerritory = kResults.GetInt("NearbyHealNeutralTerritory");
 	m_iNearbyHealFriendlyTerritory = kResults.GetInt("NearbyHealFriendlyTerritory");
 	m_iPassiveAoEHeal = kResults.GetInt("PassiveAoEHeal");
+	m_iJammingRadius = kResults.GetInt("JammingRadius");
 
 	m_iAdjacentEnemySapMovement = kResults.GetInt("AdjacentEnemySapMovement");
 	m_bCanHeavyCharge = kResults.GetBool("HeavyCharge");
@@ -624,6 +629,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bRangedFlankAttack = kResults.GetBool("RangedFlankAttack");
 	m_iExtraFlankPower = kResults.GetInt("ExtraFlankPower");
 	m_iFlankAttackModifier = kResults.GetInt("FlankAttackModifier");
+	m_iFlankSupportModifier = kResults.GetInt("FlankSupportModifier");
 	m_iNearbyEnemyCombatMod = kResults.GetInt("NearbyEnemyCombatMod");
 	m_iNearbyEnemyCombatRange = kResults.GetInt("NearbyEnemyCombatRange");
 	m_iOpenDefensePercent = kResults.GetInt("OpenDefense");
@@ -835,6 +841,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			m_piTerrainModifierDefense[iTerrainID] = iTerrainDefense;
 		}
 	}
+
+	// UnitPromotions_TerrainHeal
+	kUtility.PopulateVectorByValue(m_viTerrainHeal, "Terrains", "UnitPromotions_TerrainHeal", "TerrainType", "PromotionType", szPromotionType, "Amount", iNumTerrains);
 
 	//UnitPromotions_Features
 	{
@@ -1843,6 +1852,12 @@ int CvPromotionEntry::GetFlankAttackModifier() const
 	return m_iFlankAttackModifier;
 }
 
+/// Accessor: Bonus when assisting a flank attack
+int CvPromotionEntry::GetFlankSupportModifier() const
+{
+	return m_iFlankSupportModifier;
+}
+
 /// Accessor: Modifier on nearby enemy combat units
 int CvPromotionEntry::GetNearbyEnemyCombatMod() const
 {
@@ -2681,6 +2696,12 @@ bool CvPromotionEntry::IsFreePillageMoves() const
 	return m_bFreePillageMoves;
 }
 
+/// Accessor: Use only half moves when pillaging?
+bool CvPromotionEntry::IsHalfPillageMoves() const
+{
+	return m_bHalfPillageMoves;
+}
+
 /// Accessor: When pillaging, does the unit heal?
 bool CvPromotionEntry::IsHealOnPillage() const
 {
@@ -2706,7 +2727,7 @@ bool CvPromotionEntry::IsEmbarkedDeepWater() const
 }
 
 /// Accessor: Does this unit only attack cities
-bool CvPromotionEntry::IsCityAttackSupport() const
+bool CvPromotionEntry::IsCityAttackOnly() const
 {
 	return m_bCityAttackOnly;
 }
@@ -2869,6 +2890,11 @@ int CvPromotionEntry::GetPassiveAoEHeal() const
 	return m_iPassiveAoEHeal;
 }
 
+int CvPromotionEntry::GetJammingRadius() const
+{
+	return m_iJammingRadius;
+}
+
 int CvPromotionEntry::GetAdjacentEnemySapMovement() const
 {
 	return m_iAdjacentEnemySapMovement;
@@ -2972,6 +2998,14 @@ int CvPromotionEntry::GetTerrainModifierDefense(int i) const
 	}
 
 	return 0;
+}
+
+// Heal amount when ending turn on given terrain
+int CvPromotionEntry::GetTerrainHeal(int i) const
+{
+	PRECONDITION(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_viTerrainHeal[i];
 }
 
 /// Percentage bonus when when attacking a tile with a given feature
@@ -3997,119 +4031,4 @@ bool CvUnitPromotions::IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlaye
 	}
 
 	return false;
-}
-
-// Read the saved promotions.  Entries are saved as string values, all entries are saved.
-void PromotionArrayHelpers::ReadV3(FDataStream& kStream, CvBitfield& kPromotions)
-{
-	int iNumEntries = 0;
-	CvString sTemp;
-	int iType = 0;
-
-	kStream >> iNumEntries;
-
-	kPromotions.SetSize( iNumEntries );
-
-	for(int iI = 0; iI < iNumEntries; iI++)
-	{
-		kStream >> sTemp;
-		if(sTemp == "PROMOTION_OLIGARCHY")
-		{
-			bool bTemp = false;
-			kStream >> bTemp;
-		}
-		else
-		{
-			iType = GC.getInfoTypeForString(sTemp);
-			if(iType != -1)
-			{
-				bool bValue = false;
-				kStream >> bValue;
-				kPromotions.SetBit(iType, bValue);
-			}
-			else
-			{
-				CvString szError;
-				szError.Format("LOAD ERROR: Promotion Type not found: %s", sTemp.c_str());
-				GC.LogMessage(szError.GetCString());
-				ASSERT(false, szError);
-				bool bDummy = false;
-				kStream >> bDummy;
-			}
-		}
-	}
-}
-
-// Read the saved promotions.  Entries are saved as hash values
-void PromotionArrayHelpers::Read(FDataStream& kStream, CvBitfield& kPromotions)
-{
-	int iNumEntries = 0;
-	int iType = 0;
-
-	kStream >> iNumEntries;
-
-	kPromotions.SetSize( iNumEntries );
-
-	uint uiHashTemp = 0;
-	uint uiOligarchyHash = FStringHash("PROMOTION_OLIGARCHY");
-	for(int iI = 0; iI < iNumEntries; iI++)
-	{
-		kStream >> uiHashTemp;
-		if(uiHashTemp == uiOligarchyHash)
-		{
-			bool bTemp = false;
-			kStream >> bTemp;
-		}
-		else
-		{
-			iType = GC.getInfoTypeForHash(uiHashTemp);
-			if(iType != -1)
-			{
-				bool bValue = false;
-				kStream >> bValue;
-				kPromotions.SetBit(iType, bValue);
-			}
-			else
-			{
-				CvString szError;
-				szError.Format("LOAD ERROR: Promotion Type not found for hash: %u", uiHashTemp);
-				GC.LogMessage(szError.GetCString());
-				ASSERT(false, szError);
-				bool bDummy = false;
-				kStream >> bDummy;
-			}
-		}
-	}
-}
-
-// Save the promotions.  Entries are saved as hash values and only the entries that are 'on' are saved
-void PromotionArrayHelpers::Write(FDataStream& kStream, const CvBitfield& kPromotions, int iArraySize)
-{
-	// We are only going to save the 'on' bit, so we have to count them
-	int iCount = 0;
-
-	for(int iI = 0; iI < iArraySize; iI++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-		if (kPromotions.GetBit(ePromotion) && GC.getPromotionInfo(ePromotion) != NULL)
-			++iCount;
-	}
-
-	kStream << iCount;
-
-	for(int iI = 0; iI < iArraySize; iI++)
-	{
-		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-		bool bValue = kPromotions.GetBit(ePromotion);
-		if (bValue)
-		{
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkPromotionInfo)
-			{
-				uint uiHash = FStringHash( pkPromotionInfo->GetType() );		// Save just the hash
-				kStream << uiHash;
-				kStream << bValue;
-			}
-		}
-	}
 }

@@ -3389,6 +3389,7 @@ CivilopediaCategory[CategoryUnits].SelectArticle = function( unitID, shouldAddTo
 			AnalyzeUnit("NumberOfCultureBombs");
 			--AnalyzeUnit("MaxHitPoints"); -- internal
 			AnalyzeUnit("CargoCombat");
+			AnalyzeUnit("XPFromExploration");
 			--AnalyzeUnit("ObsoleteTech");
 			if thisUnit.ObsoleteTech ~= nil then sText = sText.."[NEWLINE][ICON_BULLET]Obsoletes with [COLOR_NEGATIVE_TEXT]"..Locale.Lookup(GameInfo.Technologies[thisUnit.ObsoleteTech].Description).."[ENDCOLOR]"; end
 			--------------------
@@ -3560,6 +3561,7 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("Recon");
 		AnalyzePromotion("CanMoveAllTerrain");
 		AnalyzePromotion("FreePillageMoves");
+		AnalyzePromotion("HalfPillageMoves");
 		AnalyzePromotion("AirSweepCapable");
 		AnalyzePromotion("AllowsEmbarkation");
 		AnalyzePromotion("EmbarkedAllWater");
@@ -3611,6 +3613,7 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("AttackFortifiedMod");
 		AnalyzePromotion("AttackWoundedMod");
 		AnalyzePromotion("FlankAttackModifier");
+		AnalyzePromotion("FlankSupportModifier");
 		AnalyzePromotion("NearbyEnemyCombatMod");
 		AnalyzePromotion("NearbyEnemyCombatRange", "");
 		AnalyzePromotion("UpgradeDiscount");

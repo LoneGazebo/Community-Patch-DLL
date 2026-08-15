@@ -1918,6 +1918,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_viYieldFromLandCityConnectionsTimes100.clear();
 	m_viYieldFromLandCityConnectionsTimes100.resize(NUM_YIELD_TYPES, 0);
 
+	m_viTerrainPlotCounts.assign(NUM_TERRAIN_TYPES, 0);
+
 	m_aOptions.clear();
 
 	m_strReligionKey = "";
@@ -45596,6 +45598,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iMilitaryAirMight);
 	visitor(player.m_iMilitaryLandMight);
 	visitor(player.m_viYieldFromLandCityConnectionsTimes100);
+	visitor(player.m_viTerrainPlotCounts);
 
 	visitor(*player.m_pPlayerPolicies);
 	visitor(*player.m_pEconomicAI);
@@ -46425,6 +46428,7 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 void CvPlayer::UpdatePlots(void)
 {
 	m_aiPlots.clear();
+	m_viTerrainPlotCounts.assign(NUM_TERRAIN_TYPES, 0);
 
 	int iNumPlotsInEntireWorld = GC.getMap().numPlots();
 	for(int iI = 0; iI < iNumPlotsInEntireWorld; iI++)
@@ -46437,16 +46441,68 @@ void CvPlayer::UpdatePlots(void)
 		pLoopPlot->updateWaterFlags();
 
 		m_aiPlots.push_back(iI);
+
+		if (pLoopPlot->getTerrainType() != NO_TERRAIN)
+		{
+			ChangeTerrainPlotCount(pLoopPlot->getTerrainType(), 1);
+		}
+
+		if (pLoopPlot->isHills())
+		{
+			ChangeTerrainPlotCount(TERRAIN_HILL, 1);
+		}
+		else if (pLoopPlot->isMountain())
+		{
+			ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, 1);
+		}
 	}
 }
 
-/// Adds a plot at the end of the list
+// Adds a plot to the end of the player's plot list (O(1))
+// Caller is expected to ensure that the plot is not already in the list (i.e. no duplicates)
 void CvPlayer::AddAPlot(CvPlot* pPlot)
 {
-	if(!pPlot)
-		return;
-
+	PRECONDITION(pPlot, "pPlot is not expected to be NULL");
 	m_aiPlots.push_back(pPlot->GetPlotIndex());
+
+	if (pPlot->getTerrainType() != NO_TERRAIN)
+	{
+		ChangeTerrainPlotCount(pPlot->getTerrainType(), 1);
+	}
+
+	if (pPlot->isHills())
+	{
+		ChangeTerrainPlotCount(TERRAIN_HILL, 1);
+	}
+	else if (pPlot->isMountain())
+	{
+		ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, 1);
+	}
+}
+
+// Removes a plot from the player's plot list (O(N))
+void CvPlayer::RemoveAPlot(CvPlot *pPlot)
+{
+	PRECONDITION(pPlot, "pPlot is not expected to be NULL");
+	PlotIndexContainer::iterator it = std::find(m_aiPlots.begin(), m_aiPlots.end(), pPlot->GetPlotIndex());
+	if (it != m_aiPlots.end())
+	{
+		m_aiPlots.erase(it);
+	}
+
+	if (pPlot->getTerrainType() != NO_TERRAIN)
+	{
+		ChangeTerrainPlotCount(pPlot->getTerrainType(), -1);
+	}
+
+	if (pPlot->isHills())
+	{
+		ChangeTerrainPlotCount(TERRAIN_HILL, -1);
+	}
+	else if (pPlot->isMountain())
+	{
+		ChangeTerrainPlotCount(TERRAIN_MOUNTAIN, -1);
+	}
 }
 
 /// Returns the list of the plots the player owns
@@ -46459,6 +46515,21 @@ const PlotIndexContainer& CvPlayer::GetPlots(void) const
 int CvPlayer::GetNumPlots() const
 {
 	return m_aiPlots.size();
+}
+
+int CvPlayer::GetTerrainPlotCount(TerrainTypes eTerrain) const
+{
+	PRECONDITION(eTerrain > NO_TERRAIN, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTerrain < NUM_TERRAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_viTerrainPlotCounts[eTerrain];
+}
+
+void CvPlayer::ChangeTerrainPlotCount(TerrainTypes eTerrain, int iChange)
+{
+	PRECONDITION(eTerrain > NO_TERRAIN, "eIndex is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTerrain < NUM_TERRAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_viTerrainPlotCounts[eTerrain] += iChange;
+	ASSERT(m_viTerrainPlotCounts[eTerrain] >= 0);
 }
 
 /// City strength mod (i.e. 100 = strength doubled)
@@ -46903,129 +46974,19 @@ void CvPlayer::UpdateMilitaryStats()
 	m_iAvgUnitExp100 = iExpSum / max(1,iExpCount);
 }
 
-void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
-{
-	if (!pUnit || pUnit->isDelayedDeath())
-		return;
-
-	CvPlot* pPlot = pUnit->plot();
-
-	if (!pPlot)
-		return;
-
-	if (pUnit->IsCombatSupportUnit())
-	{
-		bool bFound = false;
-		for ( size_t i=0; i<m_unitsAreaEffectPositive.size(); i++ )
-		{
-			if ( m_unitsAreaEffectPositive[i].first == pUnit->GetID() )
-			{
-				m_unitsAreaEffectPositive[i].second = pPlot->GetPlotIndex();
-				bFound = true;
-				break;
-			}
-		}
-
-		if (!bFound)
-			m_unitsAreaEffectPositive.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
-	}
-
-	if (pUnit->getNearbyEnemyCombatMod() < 0)
-	{
-		bool bFound = false;
-		for ( size_t i=0; i<m_unitsAreaEffectNegative.size(); i++ )
-		{
-			if ( m_unitsAreaEffectNegative[i].first == pUnit->GetID() )
-			{
-				m_unitsAreaEffectNegative[i].second = pPlot->GetPlotIndex();
-				bFound = true;
-				break;
-			}
-		}
-
-		if (!bFound)
-			m_unitsAreaEffectNegative.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
-	}
-
-	//do not include medics here, it kills performance
-	//medics are range 1, they can easily be found by iterating the 6 neighbor plots
-	if (pUnit->isNearbyPromotion())
-	{
-		bool bFound = false;
-		for (size_t i = 0; i<m_unitsAreaEffectPromotion.size(); i++)
-		{
-			if (m_unitsAreaEffectPromotion[i].first == pUnit->GetID())
-			{
-				m_unitsAreaEffectPromotion[i].second = pPlot->GetPlotIndex();
-				bFound = true;
-				break;
-			}
-		}
-
-		if (!bFound)
-			m_unitsAreaEffectPromotion.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
-	}
-
-	// Must be able to intercept
-	if (pUnit->canIntercept())
-	{
-		bool bFound = false;
-		for (size_t i = 0; i < m_unitsWhichCanIntercept.size(); i++)
-		{
-			if (m_unitsWhichCanIntercept[i].first == pUnit->GetID())
-			{
-				m_unitsWhichCanIntercept[i].second = pPlot->GetPlotIndex();
-				bFound = true;
-				break;
-			}
-		}
-
-		if (!bFound)
-			m_unitsWhichCanIntercept.push_back(std::make_pair(pUnit->GetID(), pPlot->GetPlotIndex()));
-	}
-
-	//might need to update the UI
-	UpdateCityStrength();
-}
-
 void CvPlayer::UpdateAreaEffectUnits()
 {
-	//great generals/admirals
-	m_unitsAreaEffectPositive.clear();
-	//maori warrior et al
-	m_unitsAreaEffectNegative.clear();
-	//interceptors
-	m_unitsWhichCanIntercept.clear();
-	//special promotions
+	m_areaEffectUnitInfos.clear();
 	m_unitsAreaEffectPromotion.clear();
 
 	// Loop through our units
 	int iLoop = 0;
-	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		CvPlot* pPlot = pLoopUnit->plot();
-
-		if (!pPlot)
-		{
-			continue;
-		}
-
-		if (pLoopUnit->IsCombatSupportUnit())
-			m_unitsAreaEffectPositive.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
-
-		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
-			m_unitsAreaEffectNegative.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
-
-		//do not include medics here, it kills performance
-		//medics are range 1, they can easily be found by iterating the 6 neighbor plots
-		if (pLoopUnit->isNearbyPromotion())
-			m_unitsAreaEffectPromotion.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
-
-		if (pLoopUnit->canIntercept())
-			m_unitsWhichCanIntercept.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
+		pLoopUnit->UpdateAreaEffect(false);
 	}
 
-	//might need to update the UI
+	// Update city strength only once
 	UpdateCityStrength();
 }
 
@@ -47057,23 +47018,15 @@ void CvPlayer::UpdateAreaEffectPlots()
 		}
 	}
 }
+
 const std::vector<std::pair<int, int>>& CvPlayer::GetAreaEffectPromotionUnits() const
 {
 	return m_unitsAreaEffectPromotion;
 }
-const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectPositiveUnits() const
-{
-	return m_unitsAreaEffectPositive;
-}
 
-const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectNegativeUnits() const
+vector<pair<int, int>>& CvPlayer::GetAreaEffectPromotionUnits()
 {
-	return m_unitsAreaEffectNegative;
-}
-
-const std::vector<std::pair<int, int>>& CvPlayer::GetPossibleInterceptors() const
-{
-	return m_unitsWhichCanIntercept;
+	return m_unitsAreaEffectPromotion;
 }
 
 const std::vector<int>& CvPlayer::GetAreaEffectPositiveFromTraitsPlots() const
@@ -47081,77 +47034,99 @@ const std::vector<int>& CvPlayer::GetAreaEffectPositiveFromTraitsPlots() const
 	return m_plotsAreaEffectPositiveFromTraits;
 }
 
+const vector<SAreaEffectUnitInfo>& CvPlayer::GetAreaEffectUnits() const
+{
+	return m_areaEffectUnitInfos;
+}
+
+// Make sure this isn't called while looping through the vector
+// Returns the index of the unit in the area effect vector
+int CvPlayer::AddOrReplaceAreaEffectUnit(const SAreaEffectUnitInfo& info)
+{
+	for (size_t i = 0; i < m_areaEffectUnitInfos.size(); i++)
+	{
+		// Existing entry
+		if (m_areaEffectUnitInfos[i].iUnitID == info.iUnitID)
+		{
+			m_areaEffectUnitInfos[i] = info;
+			return static_cast<int>(i);
+		}
+	}
+
+	// New entry
+	m_areaEffectUnitInfos.push_back(info);
+	return static_cast<int>(m_areaEffectUnitInfos.size() - 1);
+}
+
+// Make sure this isn't called while looping through the vector
+void CvPlayer::RemoveAreaEffectUnit(int iIndex)
+{
+	int iLastIndex = static_cast<int>(m_areaEffectUnitInfos.size() - 1);
+	if (iIndex != iLastIndex)
+	{
+		// Move the last element into the new vacant spot
+		m_areaEffectUnitInfos[iIndex] = m_areaEffectUnitInfos.back();
+		
+		// Update the index on the unit that we just moved
+		CvUnit* pMovedUnit = getUnit(m_areaEffectUnitInfos[iIndex].iUnitID);
+		ASSERT(pMovedUnit, "Area effect vector somehow contains invalid unit ID");
+		pMovedUnit->SetAreaEffectCacheIndex(iIndex);
+	}
+	m_areaEffectUnitInfos.pop_back();
+}
+
 int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, const CvPlot* pTestPlot, const CvUnit* pIgnoreThisUnit) const
 {
-	int iResult = 0;
-	if (pTestPlot == NULL)
+	if (!pTestPlot)
 		return 0;
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GetAreaEffectPositiveUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	int iResult = MIN_SHORT; // negative values are possible!
+	int iX = pTestPlot->getX();
+	int iY = pTestPlot->getY();
+	int iIgnoredID = pIgnoreThisUnit ? pIgnoreThisUnit->GetID() : -1;
+
+	const vector<SAreaEffectUnitInfo>& vAreaEffectUnits = GetAreaEffectUnits();
+	for (vector<SAreaEffectUnitInfo>::const_iterator it = vAreaEffectUnits.begin(); it != vAreaEffectUnits.end(); ++it)
 	{
-		//performance: very rough distance check first without looking up the unit pointer ...
-		//do not reuse the plot below
-		{
-			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			if (plotDistance(*pUnitPlot, *pTestPlot) > 8)
-				continue;
-		}
-
-		CvUnit* pUnit = getUnit(it->first);
-		//catch all sorts of weird problems (this may be called while a general is being killed!)
-		if (pUnit == NULL || pUnit->isDelayedDeath() || pUnit->plot()==NULL || pUnit == pIgnoreThisUnit)
+		// Domain check
+		if (eDomain != NO_DOMAIN && it->eDomain != eDomain)
 			continue;
 
-		//domain check
-		if (eDomain != NO_DOMAIN && pUnit->getDomainType() != eDomain)
+		// Ignored unit check
+		if (iIgnoredID == it->iUnitID)
 			continue;
 
-		int iEffectRange = pUnit->GetAuraRangeChange() + /*2*/ GD_INT_GET(GREAT_GENERAL_RANGE);
-
-		//actual distance check
-		int iDistance = plotDistance(*pUnit->plot(),*pTestPlot);
-		if (iDistance > iEffectRange)
-			continue;
-
+		int iPlotDistance = plotDistance(iX, iY, it->iX, it->iY);
 		switch (eType)
 		{
 			case AE_GREAT_GENERAL:
-			{
-				if (pUnit->getUnitInfo().GetUnitAIType(UNITAI_GENERAL) || pUnit->GetGreatGeneralCount() > 0 || pUnit->getUnitInfo().GetUnitAIType(UNITAI_ADMIRAL) || pUnit->GetGreatAdmiralCount() > 0)
-					iResult = max(iResult, GetGreatGeneralCombatBonus() + GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
-				break;
-			}
-			case AE_SAPPER:
-			{
-				if (pUnit->IsSapper() && IsAtWarWith(pTestPlot->getOwner()))
+				if (iPlotDistance <= it->iLeadershipRange)
 				{
-					if (iDistance < iEffectRange)
-					{
-						iResult = max(iResult, /*50 in CP, 40 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
-					}
-					else if (iDistance == iEffectRange)
-					{
-						iResult = max(iResult, /*25 in CP, 20 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER)/2);
-					}
+					iResult = max<int>(iResult, it->iLeadershipModifier);
 				}
 				break;
-			}
-			case AE_SIEGETOWER:
-			{
-				if (pUnit->IsCityAttackSupport())
-					return 1; //just used as a boolean flag
+
+			case AE_SAPPER:
+				if (iPlotDistance == it->iSapperRange)
+				{
+					iResult = max<int>(iResult, it->iSapperModifier);
+				}
+				else if (iPlotDistance < it->iSapperRange)
+				{
+					iResult = max<int>(iResult, it->iSapperModifier / 2);
+				}
 				break;
-			}
+
 			case AE_PASSIVE_HEAL:
-				int iPassiveAoEHeal = pUnit->GetPassiveAoEHeal();
-				if (iPassiveAoEHeal > 0)
-					iResult = max(iResult, iPassiveAoEHeal);
+				if (iPlotDistance <= it->iHealRange)
+				{
+					iResult = max<int>(iResult, it->iHealValue);
+				}
 				break;
 		}
 	}
 
-	return iResult;
+	return (iResult == MIN_SHORT ? 0 : iResult);
 }
 
 void CvPlayer::UpdateCityStrength()
@@ -50615,7 +50590,7 @@ void CvPlayer::SetHasUUPeriod()
 							continue;
 
 						// Must be a combat or combat support unit
-						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() > 0)
+						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->GetNukeDamageLevel() > 0)
 						{
 							//obsolete? This no longer applies.
 							if (pkUnitEntry->GetObsoleteTech() != NO_TECH && HasTech((TechTypes)pkUnitEntry->GetObsoleteTech()))
