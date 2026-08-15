@@ -32651,6 +32651,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_miTechEnhancedYields);
 	visitor(city.m_miGreatPersonPointFromConstruction);
 	visitor(city.m_iUnhappinessFromBuildings);
+	visitor(city.m_unitBeingBuiltForOperation);
 }
 
 //	--------------------------------------------------------------------------------
