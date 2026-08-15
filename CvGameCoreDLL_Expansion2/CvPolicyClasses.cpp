@@ -4928,7 +4928,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	// Has enough culture to spend?
 	if((!bIgnoreCost) && m_pPlayer->getNextPolicyCost() > 0)
 	{
-		if(m_pPlayer->getJONSCultureTimes100() < m_pPlayer->getNextPolicyCost() * 100)
+		if(m_pPlayer->getJONSCultureTimes100() < m_pPlayer->getNextPolicyCostTimes100())
 		{
 			bool bTenet = pkPolicyEntry->GetLevel() > 0;
 			if (m_pPlayer->GetNumFreePolicies() == 0)
@@ -5171,7 +5171,7 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 {
 	// Must have enough culture to spend a buy opening a new branch
-	if(GetPlayer()->getJONSCultureTimes100() < GetPlayer()->getNextPolicyCost() * 100)
+	if(GetPlayer()->getJONSCultureTimes100() < GetPlayer()->getNextPolicyCostTimes100())
 	{
 		if(GetPlayer()->GetNumFreePolicies() == 0)
 			return false;
@@ -6227,7 +6227,7 @@ void CvPlayerPolicies::DoPolicyAI()
 	if (m_pPlayer->getNextPolicyCost() > 0 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
 	{
 		// Adopt new policies until we run out of freebies and culture (usually only one per turn)
-		while(m_pPlayer->getJONSCultureTimes100() >= m_pPlayer->getNextPolicyCost() * 100 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
+		while(m_pPlayer->getJONSCultureTimes100() >= m_pPlayer->getNextPolicyCostTimes100() || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
 		{
 			// Choose the policy we want next (or a branch)
 			int iNextPolicy = m_pPolicyAI->ChooseNextPolicy(m_pPlayer);

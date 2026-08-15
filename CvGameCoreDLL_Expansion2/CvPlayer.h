@@ -876,6 +876,7 @@ public:
 	bool swapPolicy(PolicyTypes iNewPolicy, PolicyTypes iOldPolicy);
 	void setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree=false);
 	int getNextPolicyCost() const;
+	long long getNextPolicyCostTimes100() const;
 	void DoUpdateNextPolicyCost();
 	bool canAdoptPolicy(PolicyTypes eIndex) const;
 	void doAdoptPolicy(PolicyTypes ePolicy);

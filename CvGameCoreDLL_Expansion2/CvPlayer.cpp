@@ -10436,7 +10436,7 @@ void CvPlayer::doTurnPostDiplomacy()
 	GetCulture()->SetLastTurnLifetimeCultureTimes100(GetJONSCultureEverGeneratedTimes100());
 	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
-		if (getJONSCultureTimes100() < getNextPolicyCost() * 100)
+		if (getJONSCultureTimes100() < getNextPolicyCostTimes100())
 			changeJONSCultureTimes100(GetTotalJONSCulturePerTurnTimes100());
 	}
 	else
@@ -10480,7 +10480,7 @@ void CvPlayer::doTurnPostDiplomacy()
 		{
 			if (!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
 			{
-				if (getNextPolicyCost() * 100 <= getJONSCultureTimes100() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+				if (getNextPolicyCostTimes100() <= getJONSCultureTimes100() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
 				{
 					CvNotifications* pNotifications = GetNotifications();
 					if (pNotifications)
@@ -24188,6 +24188,13 @@ void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 int CvPlayer::getNextPolicyCost() const
 {
 	return m_iCostNextPolicy;
+}
+
+/// Policy cost scaled to match culture stored times 100. GetNextPolicyCost() clamps to INT_MAX,
+/// so this must be evaluated in 64-bit or the scaling wraps negative.
+long long CvPlayer::getNextPolicyCostTimes100() const
+{
+	return (long long)m_iCostNextPolicy * 100;
 }
 
 void CvPlayer::DoUpdateNextPolicyCost()

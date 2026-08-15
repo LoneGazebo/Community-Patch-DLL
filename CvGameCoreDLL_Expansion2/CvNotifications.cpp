@@ -1593,7 +1593,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		}
 		else
 		{
-			if((GET_PLAYER(m_ePlayer).getJONSCultureTimes100() < GET_PLAYER(m_ePlayer).getNextPolicyCost() * 100 && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0))
+			if((GET_PLAYER(m_ePlayer).getJONSCultureTimes100() < GET_PLAYER(m_ePlayer).getNextPolicyCostTimes100() && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0))
 				return true;
 		}
 	}
@@ -1628,7 +1628,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 
 	case NOTIFICATION_POLICY:
 	{
-		if(GET_PLAYER(m_ePlayer).getJONSCultureTimes100() < GET_PLAYER(m_ePlayer).getNextPolicyCost() * 100 && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0)
+		if(GET_PLAYER(m_ePlayer).getJONSCultureTimes100() < GET_PLAYER(m_ePlayer).getNextPolicyCostTimes100() && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0)
 		{
 			return true;
 		}
