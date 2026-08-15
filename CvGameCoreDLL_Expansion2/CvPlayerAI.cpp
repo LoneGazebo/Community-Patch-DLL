@@ -1274,8 +1274,11 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 				continue;
 
 			CvArmyAI* pThisArmy = GET_PLAYER(pCity->getOwner()).getArmyAI(thisSlot.m_iArmyID);
+			if (!pThisArmy)
+				continue;
 
-			if (!pThisArmy || !pThisArmy->GetSlotStatus(thisSlot.m_iSlotID)->IsFree())
+			CvArmyFormationSlot* pThisSlot = pThisArmy->GetSlotStatus(thisSlot.m_iSlotID);
+			if (!pThisSlot || !pThisSlot->IsFree())
 				continue;
 
 			if (OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))

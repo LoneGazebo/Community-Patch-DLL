@@ -1385,6 +1385,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 bool CvPlayerEspionage::DoStealTechnology(CvCity* pPlayerCity, PlayerTypes eTargetPlayer)
 {
 	PlayerTypes eDefendingPlayer = pPlayerCity->getOwner();
+
+	// the list only has entries for major civs, unlike GetNumTechsToSteal this is indexed without a check by the callers
+	if ((uint)eTargetPlayer >= m_aaPlayerStealableTechList.size())
+		return false;
+
 	if (m_aaPlayerStealableTechList[eTargetPlayer].size() <= 0)
 		return false;
 
@@ -4383,7 +4388,7 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 /// BuildStealableTechList - Go through opponents list and see what techs you can steal from them.
 void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 {
-	if (ePlayer > MAX_MAJOR_CIVS)
+	if (ePlayer >= MAX_MAJOR_CIVS)
 		return;
 
 	PRECONDITION((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");

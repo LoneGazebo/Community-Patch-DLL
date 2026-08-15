@@ -1794,8 +1794,13 @@ void CvAIOperationCivilian::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 	pArmy->AddUnit(pOurCivilian->GetID(),0,true);
 
 	//a little hack - set the escort slot to not required if we can reach the target this turn
+	//the escort slot only exists if the formation defines one
 	if (pOurCivilian->TurnsToReachTarget(pTargetSite, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) < 1)
-		pArmy->GetSlotStatus(1)->Clear();
+	{
+		CvArmyFormationSlot* pEscortSlot = pArmy->GetSlotStatus(1);
+		if (pEscortSlot)
+			pEscortSlot->Clear();
+	}
 
 	SetUpArmy(pArmy,pMusterPlot,pTargetSite,NULL);
 }
