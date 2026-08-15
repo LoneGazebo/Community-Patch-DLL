@@ -1281,7 +1281,7 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 		else
 		{
 			int iStartFaith = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
-			int iEndFaith = GET_PLAYER(ePlayer).GetFaithEverGeneratedTimes100();
+			int iEndFaith = (int)GET_PLAYER(ePlayer).GetFaithEverGeneratedTimes100();
 			iValue = iEndFaith - iStartFaith;
 		}
 		break;
@@ -2682,7 +2682,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		}
 		else
 		{
-			m_iData1 = pAssignedPlayer->GetFaithEverGeneratedTimes100();
+			m_iData1 = (int)pAssignedPlayer->GetFaithEverGeneratedTimes100();
 		}
 
 		int iTurnsRemaining = GetEndTurn() - GC.getGame().getGameTurn();

@@ -144,7 +144,7 @@ CvPlayer::CvPlayer() :
 	, m_iCultureWonderMultiplier()
 	, m_iCulturePerTechResearched()
 	, m_iFaithTimes100()
-	, m_iFaithEverGeneratedTimes100()
+	, m_lFaithEverGeneratedTimes100()
 	, m_iHappiness()
 	, m_iUnhappiness()
 	, m_iHappinessTotal()
@@ -1183,7 +1183,7 @@ void CvPlayer::uninit()
 	m_iCultureWonderMultiplier = 0;
 	m_iCulturePerTechResearched = 0;
 	m_iFaithTimes100 = 0;
-	m_iFaithEverGeneratedTimes100 = 0;
+	m_lFaithEverGeneratedTimes100 = 0;
 	m_iHappiness = 0;
 	m_iUnhappiness = 0;
 	m_iHappinessTotal = 0;
@@ -20093,7 +20093,7 @@ void CvPlayer::SetFaithTimes100(int iNewValue)
 		// Add to the total we've ever had
 		if(iNewValue > m_iFaithTimes100)
 		{
-			ChangeFaithEverGeneratedTimes100(iNewValue - m_iFaithTimes100);
+			ChangeFaithEverGeneratedTimes100((long long)iNewValue - m_iFaithTimes100);
 		}
 
 		m_iFaithTimes100 = max(0,iNewValue);
@@ -20120,19 +20120,19 @@ void CvPlayer::ChangeFaith(int iChange)
 	ChangeFaithTimes100(iChange * 100);
 }
 
-int CvPlayer::GetFaithEverGeneratedTimes100() const
+long long CvPlayer::GetFaithEverGeneratedTimes100() const
 {
-	return m_iFaithEverGeneratedTimes100;
+	return m_lFaithEverGeneratedTimes100;
 }
 
-void CvPlayer::SetFaithEverGeneratedTimes100(int iNewValue)
+void CvPlayer::SetFaithEverGeneratedTimes100(long long lNewValue)
 {
-	m_iFaithEverGeneratedTimes100 = iNewValue;
+	m_lFaithEverGeneratedTimes100 = lNewValue;
 }
 
-void CvPlayer::ChangeFaithEverGeneratedTimes100(int iChange)
+void CvPlayer::ChangeFaithEverGeneratedTimes100(long long lChange)
 {
-	SetFaithEverGeneratedTimes100(GetFaithEverGeneratedTimes100() + iChange);
+	SetFaithEverGeneratedTimes100(GetFaithEverGeneratedTimes100() + lChange);
 }
 
 /// Updates how much Happiness we have
@@ -45033,7 +45033,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCultureWonderMultiplier);
 	visitor(player.m_iCulturePerTechResearched);
 	visitor(player.m_iFaithTimes100);
-	visitor(player.m_iFaithEverGeneratedTimes100);
+	visitor(player.m_lFaithEverGeneratedTimes100);
 	visitor(player.m_iHappiness);
 	visitor(player.m_iUnhappiness);
 	visitor(player.m_iHappinessTotal);
