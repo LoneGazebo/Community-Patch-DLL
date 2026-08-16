@@ -9144,7 +9144,9 @@ bool CvTeam::isTurnActive() const
 void CvTeam::PushIgnoreWarning (TeamTypes eTeam)
 {
 	ASSERT(eTeam != NO_TEAM, "PushIgnoreWarning got NO_TEAM passed to it");
-	if (eTeam == NO_TEAM)
+	// The only caller is CvDllNetMessageHandler::ResponseIgnoreWarning, which passes the team
+	// straight from the message without validating it, and the subscript below is a write
+	if (eTeam < 0 || eTeam >= MAX_TEAMS)
 	{
 		return;
 	}
@@ -9156,7 +9158,7 @@ void CvTeam::PushIgnoreWarning (TeamTypes eTeam)
 void CvTeam::PopIgnoreWarning (TeamTypes eTeam)
 {
 	ASSERT(eTeam != NO_TEAM, "PopIgnoreWarning got NO_TEAM passed to it");
-	if (eTeam == NO_TEAM)
+	if (eTeam < 0 || eTeam >= MAX_TEAMS)
 	{
 		return;
 	}
@@ -9172,7 +9174,7 @@ void CvTeam::PopIgnoreWarning (TeamTypes eTeam)
 int CvTeam::GetIgnoreWarningCount (TeamTypes eTeam)
 {
 	ASSERT(eTeam != NO_TEAM, "GetIgnoreWarningCount got NO_TEAM passed to it");
-	if (eTeam == NO_TEAM)
+	if (eTeam < 0 || eTeam >= MAX_TEAMS)
 	{
 		return -1;
 	}
