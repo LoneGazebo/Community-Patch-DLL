@@ -29491,7 +29491,17 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 	if (bFinish && pOrderNode->bSave)
 	{
+		int iOrderIndex = iCount;
 		pushOrder(pOrderNode->eOrderType, pOrderNode->iData1, pOrderNode->iData2, true, false, true);
+
+		// m_orderQueue is a vector, not a linked list - the append above can reallocate its
+		// buffer and free the old one, which leaves pOrderNode dangling for the reads and the
+		// deleteNode() below. Re-derive the node from the position we found it at.
+		pOrderNode = getOrderFromQueue(iOrderIndex);
+		if (pOrderNode == NULL)
+		{
+			return;
+		}
 	}
 	bool bUpdateStrength = false;
 
