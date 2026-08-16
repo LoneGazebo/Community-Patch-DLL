@@ -8328,9 +8328,13 @@ int CvLuaPlayer::lGetNextGreatPersonCost(lua_State* L)
 	int iResult = -1;
 	if (pCity)
 	{
+		// The index comes straight from Lua, and getGreatPersonInfo traps on an invalid one
 		const GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(lua_tointeger(L, 2));
-		const UnitClassTypes eUnitClassType = static_cast<UnitClassTypes>(GC.getGreatPersonInfo(eGreatPerson)->GetUnitClassType());
-		iResult = pCity->GetCityCitizens()->GetSpecialistUpgradeThreshold(eUnitClassType);
+		if (eGreatPerson >= 0 && eGreatPerson < GC.getNumGreatPersonInfos())
+		{
+			const UnitClassTypes eUnitClassType = static_cast<UnitClassTypes>(GC.getGreatPersonInfo(eGreatPerson)->GetUnitClassType());
+			iResult = pCity->GetCityCitizens()->GetSpecialistUpgradeThreshold(eUnitClassType);
+		}
 	}
 	lua_pushinteger(L, iResult);
 	return 1;

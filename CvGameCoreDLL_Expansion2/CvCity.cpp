@@ -5311,7 +5311,9 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 					localizedSpecialistText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_SPECIALIST");
 				}
 
-				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+				// A specialist need not have a great person unit class, and the accessor traps on -1
+				const UnitClassTypes eGPUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
+				CvUnitClassInfo* pkUnitClassInfo = eGPUnitClass != NO_UNITCLASS ? GC.getUnitClassInfo(eGPUnitClass) : NULL;
 				if (pkUnitClassInfo)
 				{
 					localizedSpecialistText << pkUnitClassInfo->GetDescription();

@@ -8157,7 +8157,10 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 				{
 					UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
 					UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-					if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == ePikemanClass && kPlayer.canTrainUnit(eZuluImpi, false, false, true))
+					// Both are -1 if the database does not have the row. -1 would match any unit
+					// whose class is also unset, and canTrainUnit(-1) traps in getUnitInfo.
+					if(ePikemanClass != NO_UNITCLASS && eZuluImpi != NO_UNIT &&
+						pLoopUnit != NULL && pLoopUnit->getUnitClassType() == ePikemanClass && kPlayer.canTrainUnit(eZuluImpi, false, false, true))
 					{
 						CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
 						if(pkcUnitEntry)

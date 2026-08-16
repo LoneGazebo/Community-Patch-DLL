@@ -4827,7 +4827,8 @@ int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
 
 		if (MOD_BALANCE_VP)
 		{
-			const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(pProjectInfo->GetProcess());
+			// The process is optional in the database, and the accessor traps on -1
+			const CvProcessInfo* pkProcessInfo = pProjectInfo->GetProcess() != NO_PROCESS ? GC.getProcessInfo(pProjectInfo->GetProcess()) : NULL;
 			if (pkProcessInfo)
 			{
 				TechTypes eTech = ((TechTypes)pkProcessInfo->getTechPrereq());
@@ -6595,14 +6596,18 @@ CvString CvLeague::GetProjectRewardTierDetails(int iTier, LeagueProjectTypes ePr
 	CvString sContribution = "";
 	if (iTier == 3)
 	{
-		pRewardInfo = GC.getLeagueProjectRewardInfo(pInfo->GetRewardTier3());
+		// The reward tier is optional in the database, and the accessor traps on -1
+		if (pInfo->GetRewardTier3() != NO_LEAGUE_PROJECT_REWARD)
+			pRewardInfo = GC.getLeagueProjectRewardInfo(pInfo->GetRewardTier3());
 		sRewardIcon = "[ICON_TROPHY_GOLD]";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_REWARD_TIER_3");
 		sContribution = sTemp.toUTF8();
 	}
 	else if (iTier == 2)
 	{
-		pRewardInfo = GC.getLeagueProjectRewardInfo(pInfo->GetRewardTier2());
+		// The reward tier is optional in the database, and the accessor traps on -1
+		if (pInfo->GetRewardTier2() != NO_LEAGUE_PROJECT_REWARD)
+			pRewardInfo = GC.getLeagueProjectRewardInfo(pInfo->GetRewardTier2());
 		sRewardIcon = "[ICON_TROPHY_SILVER]";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_REWARD_TIER_2");
 		sTemp << GetContributionTierThreshold(CONTRIBUTION_TIER_2, eProject) / 100;
@@ -6610,7 +6615,9 @@ CvString CvLeague::GetProjectRewardTierDetails(int iTier, LeagueProjectTypes ePr
 	}
 	else if (iTier == 1)
 	{
-		pRewardInfo = GC.getLeagueProjectRewardInfo(pInfo->GetRewardTier1());
+		// The reward tier is optional in the database, and the accessor traps on -1
+		if (pInfo->GetRewardTier1() != NO_LEAGUE_PROJECT_REWARD)
+			pRewardInfo = GC.getLeagueProjectRewardInfo(pInfo->GetRewardTier1());
 		sRewardIcon = "[ICON_TROPHY_BRONZE]";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_REWARD_TIER_1");
 		sTemp << GetContributionTierThreshold(CONTRIBUTION_TIER_1, eProject) / 100;

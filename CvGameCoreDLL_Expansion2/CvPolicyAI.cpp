@@ -5374,7 +5374,9 @@ void CvPolicyAI::LogPolicyChoice(PolicyTypes ePolicy)
 		CvPolicyEntry* pPolicyEntry = GC.getPolicyInfo(ePolicy);
 		if (pPolicyEntry != NULL)
 		{
-			CvPolicyBranchEntry* pBranchEntry = GC.getPolicyBranchInfo((PolicyBranchTypes)pPolicyEntry->GetPolicyBranchType());
+			// A policy need not belong to a branch, and the accessor traps on -1
+			const PolicyBranchTypes eBranch = (PolicyBranchTypes)pPolicyEntry->GetPolicyBranchType();
+			CvPolicyBranchEntry* pBranchEntry = eBranch != NO_POLICY_BRANCH_TYPE ? GC.getPolicyBranchInfo(eBranch) : NULL;
 			if (pBranchEntry != NULL)
 			{
 				strBranchName = pBranchEntry->GetDescription();
