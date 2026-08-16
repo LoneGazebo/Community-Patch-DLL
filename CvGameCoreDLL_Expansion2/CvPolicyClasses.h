@@ -1146,6 +1146,7 @@ public:
 	// Functions to process AI each turn
 	void DoPolicyAI();
 	void DoChooseIdeology();
+	void DoMasterIdeology();
 
 	//for UI
 	int ScorePolicy(PolicyTypes ePolicy) const;
