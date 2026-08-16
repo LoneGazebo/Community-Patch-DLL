@@ -253,6 +253,9 @@ public:
 	bool hasBusyUnitOrCity() const;
 	const CvCity* getBusyCity() const;
 	void chooseTech(int iDiscover = 0, const char* strText=0, TechTypes iTechJustDiscovered=NO_TECH);
+	void ChoosePolicy(int iDiscover = 0, const char* strText = 0);
+	void ChooseIdeology();
+	void CheckPolicy();
 
 	// Civ 5 Score
 	int GetScore(bool bFinal = false, bool bWinner = false) const;
@@ -2820,6 +2823,7 @@ public:
 	virtual void AI_chooseFreeGreatPerson() = 0;
 	virtual void AI_chooseFreeTech() = 0;
 	virtual void AI_chooseResearch() = 0;
+	virtual void AI_ChoosePolicy() = 0;
 	virtual void AI_launch(VictoryTypes eVictory) = 0;
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster) = 0;
 	virtual void CityCommitToBuildUnitForOperationSlot(OperationSlot slot) = 0;

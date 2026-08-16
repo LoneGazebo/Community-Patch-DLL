@@ -7348,12 +7348,16 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			{
 				if (GC.getGame().isFinalInitialized())
 				{
-					if(GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_TECH_CHOICE))
+					if(GET_PLAYER(ePlayer).GetPlayerTechs()->IsResearch() && (GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch() == NO_TECH))
 					{
-						if(GET_PLAYER(ePlayer).GetPlayerTechs()->IsResearch() && (GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch() == NO_TECH))
+						if (GET_PLAYER(ePlayer).isHuman(ISHUMAN_AI_TECH_CHOICE))
 						{
 							strBuffer = GetLocalizedText("TXT_KEY_MISC_WHAT_TO_RESEARCH_NEXT");
 							GET_PLAYER(ePlayer).chooseTech(0, strBuffer, eIndex);
+						}
+						else
+						{
+							GET_PLAYER(ePlayer).AI_chooseResearch();
 						}
 					}
 				}
