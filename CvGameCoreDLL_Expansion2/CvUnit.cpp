@@ -3203,7 +3203,10 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_SLEEP);
 	}
 
-	doDelayedDeath();
+	// this deletes the unit, so nothing below may reference it
+	if (doDelayedDeath())
+		return;
+
 	DoImprovementExperience(plot());
 	DoStackedGreatGeneralExperience(plot());
 	DoConvertOnDamageThreshold(plot());
