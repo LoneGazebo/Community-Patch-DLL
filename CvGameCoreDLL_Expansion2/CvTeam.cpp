@@ -43,8 +43,8 @@ CvTeam* CvTeam::m_aTeams = NULL;
 
 CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 {
-	PRECONDITION(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
-	PRECONDITION(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
+	ASSERT(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
+	ASSERT(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
 
 	if (eTeam == NO_TEAM || eTeam >= MAX_TEAMS)
 		eTeam = BARBARIAN_TEAM;

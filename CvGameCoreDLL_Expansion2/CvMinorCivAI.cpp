@@ -16307,8 +16307,8 @@ void CvMinorCivAI::SetNoAlly(bool bValue)
 }
 bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
 {
-	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	ASSERT(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
 	{
 		return false;  // as defined in Reset()

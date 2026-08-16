@@ -2405,13 +2405,13 @@ void CvTeamTechs::SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTyp
 /// Accessor: set research done on one tech (in hundredths)
 void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-
-	//Crash failsafe.
-	if(ePlayer == NO_PLAYER || eIndex == -1)
+	//Crash failsafe. CvTeam::getLeaderID returns NO_PLAYER for a team with no members, and the
+	//Lua binding passes both arguments through unvalidated, so neither is guaranteed to be in range.
+	if(eIndex < 0 || eIndex >= GC.getNumTechInfos())
+	{
+		return;
+	}
+	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS)
 	{
 		return;
 	}

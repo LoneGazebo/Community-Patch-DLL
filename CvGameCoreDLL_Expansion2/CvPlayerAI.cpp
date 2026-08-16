@@ -45,8 +45,8 @@ static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;
 
 CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
-	PRECONDITION(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
-	PRECONDITION(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
+	ASSERT(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
+	ASSERT(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
 
 	if (ePlayer <= NO_PLAYER || ePlayer >= MAX_PLAYERS)
 		ePlayer = BARBARIAN_PLAYER;

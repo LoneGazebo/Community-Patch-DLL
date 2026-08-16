@@ -5516,7 +5516,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 		UNREACHABLE(); // Only YIELD_FOOD & YIELD_PRODUCTION supported.
 	}
 
-	PRECONDITION(eCityStrategy != NO_AICITYSTRATEGY, "No strategy found. What?");
+	ASSERT(eCityStrategy != NO_AICITYSTRATEGY, "No strategy found. What?");
 	if(eCityStrategy == NO_AICITYSTRATEGY)
 	{
 		return false;

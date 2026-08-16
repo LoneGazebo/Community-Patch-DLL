@@ -2601,7 +2601,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 /// IsSpyInCity - Checks to see if spy is in a city
 bool CvPlayerEspionage::IsSpyInCity(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -2612,7 +2612,7 @@ bool CvPlayerEspionage::IsSpyInCity(uint uiSpyIndex)
 
 CvCity* CvPlayerEspionage::GetCityWithSpy(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return NULL;
@@ -2637,7 +2637,7 @@ CvCity* CvPlayerEspionage::GetCityWithSpy(uint uiSpyIndex)
 
 CvEspionageSpy* CvPlayerEspionage::GetSpyByID(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return NULL;
@@ -2699,7 +2699,7 @@ bool CvPlayerEspionage::CanEverMoveSpyTo(CvCity* pCity)
 /// CanMoveSpyTo - May a spy move into this city
 bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bForce)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -2778,7 +2778,7 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 /// MoveSpyTo - Move a spy into this city
 bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat, bool bForce)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -2833,7 +2833,7 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 ///  GetNumTurnsSpyMovementBlocked - Get number of remaining turns for which the spy can't move or change missions
 int CvPlayerEspionage::GetNumTurnsSpyMovementBlocked(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -1;
@@ -2848,7 +2848,7 @@ int CvPlayerEspionage::GetNumTurnsSpyMovementBlocked(uint uiSpyIndex)
 ///  GetNumTurnsSpyActiveMissionsBlocked - Get number of remaining turns for which the spy can't perform active missions
 int CvPlayerEspionage::GetNumTurnsSpyActiveMissionsBlocked(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -1;
@@ -2863,7 +2863,7 @@ int CvPlayerEspionage::GetNumTurnsSpyActiveMissionsBlocked(uint uiSpyIndex)
 /// RemoveSpyFromCity - Remove a spy from this city
 bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -3406,7 +3406,7 @@ const char* CvPlayerEspionage::GetSpyRankName(int iRank) const
 /// HasEstablishedSurveillance - Has the spy established surveillance in their city
 bool CvPlayerEspionage::HasEstablishedSurveillance(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -3542,7 +3542,7 @@ int CvPlayerEspionage::GetSpyReceivingIntrigues(PlayerTypes eTargetPlayer)
 
 bool CvPlayerEspionage::IsDiplomat (uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -3553,7 +3553,7 @@ bool CvPlayerEspionage::IsDiplomat (uint uiSpyIndex)
 
 bool CvPlayerEspionage::IsSchmoozing (uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return false;
@@ -4068,7 +4068,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 /// GetTurnsUntilStateComplete - How many turns until this spy's current state is resolved?
 int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -4130,7 +4130,7 @@ int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 /// GetNetworkPointsStored - How many network points have been collected by the spy on his current mission?
 int CvPlayerEspionage::GetNetworkPointsStored(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -4156,7 +4156,7 @@ int CvPlayerEspionage::GetNetworkPointsStored(uint uiSpyIndex)
 /// GetMaxNetworkPointsStored - What is the highest amount of network points the spy has ever had collected during his current stay?
 int CvPlayerEspionage::GetMaxNetworkPointsStored(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -4183,7 +4183,7 @@ int CvPlayerEspionage::GetMaxNetworkPointsStored(uint uiSpyIndex)
 /// GetNetworkPointsPerTurn - How many network points have been collected by the spy on its current mission?
 int CvPlayerEspionage::GetNetworkPointsPerTurn(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if (uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -4210,7 +4210,7 @@ int CvPlayerEspionage::GetNetworkPointsPerTurn(uint uiSpyIndex)
 /// GetPercentOfStateComplete - What percentage of this spy's current state is complete?
 int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 {
-	PRECONDITION(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
+	ASSERT(uiSpyIndex < m_aSpyList.size(), "iSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
 		return -2;
@@ -5806,7 +5806,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 /// GetIntrigueMessage - Getting the intrigue message in another text format for the intrigue message display
 Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 {
-	PRECONDITION(uiIndex < m_aIntrigueNotificationMessages.size(), "uiIndex out of bounds");
+	ASSERT(uiIndex < m_aIntrigueNotificationMessages.size(), "uiIndex out of bounds");
 	if(uiIndex >= m_aIntrigueNotificationMessages.size())
 	{
 		return "";
