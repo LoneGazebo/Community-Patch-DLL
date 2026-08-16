@@ -11793,10 +11793,10 @@ void CvGame::endTurnTimerReset()
 /// Called when a major changes its protection status towards a minor
 void CvGame::DoMinorPledgeProtection(PlayerTypes eMajor, PlayerTypes eMinor, bool bProtect, bool bPledgeNowBroken)
 {
-	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	if (bProtect)
 	{
@@ -11810,8 +11810,8 @@ void CvGame::DoMinorPledgeProtection(PlayerTypes eMajor, PlayerTypes eMinor, boo
 /// Amount of Gold being gifted to the Minor by the active player
 void CvGame::DoMinorGiftGold(PlayerTypes eMinor, int iNumGold)
 {
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	gDLL->sendMinorGiftGold(eMinor, iNumGold);
 }
@@ -11820,10 +11820,10 @@ void CvGame::DoMinorGiftGold(PlayerTypes eMinor, int iNumGold)
 /// Do the action of a major gifting a tile improvement to a minor's plot, to improve its resource
 void CvGame::DoMinorGiftTileImprovement(PlayerTypes eMajor, PlayerTypes eMinor, int iPlotX, int iPlotY)
 {
-	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	gDLL->sendMinorGiftTileImprovement(eMajor, eMinor, iPlotX, iPlotY);
 }
@@ -11833,10 +11833,10 @@ void CvGame::DoMinorGiftTileImprovement(PlayerTypes eMajor, PlayerTypes eMinor, 
 /// Demanded gold and a calculated bully metric are not provided (ex. from Lua, Player UI), so calculate them here
 void CvGame::DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor)
 {
-	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
-	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	int iGold = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(eBully);
 	if (iGold <= 0)
@@ -11849,10 +11849,10 @@ void CvGame::DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor)
 /// Do the action of a major bullying a unit from a minor
 void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 {
-	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
-	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	UnitClassTypes eUnitClassType = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyUnit();
 	UnitTypes eUnitType = GET_PLAYER(eBully).GetSpecificUnitType(eUnitClassType);
