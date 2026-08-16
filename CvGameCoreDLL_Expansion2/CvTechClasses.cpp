@@ -2387,12 +2387,20 @@ bool CvTeamTechs::IsNoTradeTech(TechTypes eIndex) const
 /// Accessor: increment count of times this has been researched
 void CvTeamTechs::IncrementTechCount(TechTypes eIndex)
 {
+	// Reachable from Lua with an unvalidated index, and m_paiTechCount is a raw heap array
+	if(eIndex < 0 || eIndex >= GC.getNumTechInfos())
+		return;
+
 	m_paiTechCount[eIndex]++;
 }
 
 /// Accessor: get count of times this has been researched
 int CvTeamTechs::GetTechCount(TechTypes eIndex)const
 {
+	// Reachable from Lua with an unvalidated index, and m_paiTechCount is a raw heap array
+	if(eIndex < 0 || eIndex >= GC.getNumTechInfos())
+		return 0;
+
 	return m_paiTechCount[eIndex];
 }
 

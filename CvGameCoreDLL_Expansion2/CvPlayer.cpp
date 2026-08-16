@@ -30666,10 +30666,17 @@ void CvPlayer::SetLegislatureName(const char* strKey)
 
 int CvPlayer::GetPoliticPercent(int iID) const
 {
+	// Both accessors are exposed to Lua with no validation on the index
+	if (iID < 0 || iID >= (int)m_paiJFDPoliticPercent.size())
+		return 0;
+
 	return m_paiJFDPoliticPercent[iID];
 }
 void CvPlayer::SetPoliticPercent(int iID, int iValue)
 {
+	if (iID < 0 || iID >= (int)m_paiJFDPoliticPercent.size())
+		return;
+
 	m_paiJFDPoliticPercent[iID] = iValue;
 }
 
