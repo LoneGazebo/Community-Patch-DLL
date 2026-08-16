@@ -14525,8 +14525,10 @@ UnitTypes CvUnit::getCaptureUnitType(PlayerTypes eCapturingPlayer) const
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitCaptureType, eCapturingPlayer, GetID(), getUnitType(), eCivilization) == GAMEEVENTRETURN_VALUE)
 		{
 			// Defend against modder stupidity!
+			// The range test has to come first: getUnitInfo() traps on an out-of-range index
+			// rather than returning NULL, so it cannot be used to test one.
 			UnitTypes eUnit = static_cast<UnitTypes>(iValue);
-			if (eUnit != NO_UNIT && GC.getUnitInfo(eUnit) != NULL)
+			if (eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos() && GC.getUnitInfo(eUnit) != NULL)
 			{
 				return eUnit;
 			}
