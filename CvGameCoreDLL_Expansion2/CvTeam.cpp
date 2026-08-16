@@ -3318,6 +3318,11 @@ void CvTeam::changeNukeInterception(int iChange)
 //	--------------------------------------------------------------------------------
 int CvTeam::getForceTeamVoteEligibilityCount(VoteSourceTypes eVoteSource) const
 {
+	// Reachable from Lua with an unvalidated vote source, and the array is only
+	// GC.getNumVoteSourceInfos() long
+	if(eVoteSource < 0 || eVoteSource >= GC.getNumVoteSourceInfos())
+		return 0;
+
 	return m_aiForceTeamVoteEligibilityCount[eVoteSource];
 }
 
@@ -3332,6 +3337,10 @@ bool CvTeam::isForceTeamVoteEligible(VoteSourceTypes eVoteSource) const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeForceTeamVoteEligibilityCount(VoteSourceTypes eVoteSource, int iChange)
 {
+	// Reachable from Lua with an unvalidated vote source, and the subscript below is a write
+	if(eVoteSource < 0 || eVoteSource >= GC.getNumVoteSourceInfos())
+		return;
+
 	m_aiForceTeamVoteEligibilityCount[eVoteSource] += iChange;
 	ASSERT(getForceTeamVoteEligibilityCount(eVoteSource) >= 0);
 }
@@ -4678,6 +4687,11 @@ void CvTeam::CloseEmbassyAtTeam(TeamTypes eIndex)
 //	--------------------------------------------------------------------------------
 bool CvTeam::HasEmbassyAtTeam(TeamTypes eIndex) const
 {
+	// SetHasEmbassyAtTeam checks this range, this one is reached from Lua unvalidated.
+	// Same shape as IsAllowsOpenBordersToTeam below.
+	if (eIndex < 0 || eIndex >= MAX_TEAMS)
+		return false;
+
 	if ((GetLiberatedByTeam() == eIndex || GET_TEAM(eIndex).GetLiberatedByTeam() == m_eID) && !isAtWar(eIndex))
 	{
 		return true;
@@ -5856,6 +5870,11 @@ void CvTeam::setCanLaunch(VictoryTypes eVictory, bool bCan)
 //	--------------------------------------------------------------------------------
 bool CvTeam::canLaunch(VictoryTypes eVictory) const
 {
+	// Reachable from Lua with an unvalidated victory type, and the array is only
+	// GC.getNumVictoryInfos() long
+	if(eVictory < 0 || eVictory >= GC.getNumVictoryInfos())
+		return false;
+
 	return m_abCanLaunch[eVictory];
 }
 

@@ -11303,6 +11303,11 @@ void CvGame::changeMinorPlayer(PlayerTypes ePlayer, MinorCivTypes m)
 //	--------------------------------------------------------------------------------
 int CvGame::getPlotExtraYield(int iX, int iY, YieldTypes eYield) const
 {
+	// Reachable from Lua with an unvalidated yield, and m_aeExtraYield is exactly
+	// NUM_YIELD_TYPES long - see the entry built below in setPlotExtraYield
+	if(eYield < 0 || eYield >= NUM_YIELD_TYPES)
+		return 0;
+
 	for(std::vector<PlotExtraYield>::const_iterator it = m_aPlotExtraYields.begin(); it != m_aPlotExtraYields.end(); ++it)
 	{
 		if((*it).m_iX == iX && (*it).m_iY == iY)
@@ -11317,6 +11322,10 @@ int CvGame::getPlotExtraYield(int iX, int iY, YieldTypes eYield) const
 //	--------------------------------------------------------------------------------
 void CvGame::setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iExtraYield)
 {
+	// Reachable from Lua with an unvalidated yield, and the subscript below is a write
+	if(eYield < 0 || eYield >= NUM_YIELD_TYPES)
+		return;
+
 	bool bFound = false;
 
 	for(std::vector<PlotExtraYield>::iterator it = m_aPlotExtraYields.begin(); it != m_aPlotExtraYields.end(); ++it)

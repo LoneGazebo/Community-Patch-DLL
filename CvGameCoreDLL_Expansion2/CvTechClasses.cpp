@@ -2735,11 +2735,16 @@ int CvTeamTechs::ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, P
 
 int CvTeamTechs::GetEurekaCounter(TechTypes eTech) const
 {
-	return eTech != NO_TECH ? m_paiEurekaCounter[eTech] : 0;
+	// The NO_TECH test was the only guard here, and the Lua binding passes the index through
+	// unvalidated, so an out-of-range positive index read past m_paiEurekaCounter
+	if (eTech < 0 || eTech >= GC.getNumTechInfos())
+		return 0;
+
+	return m_paiEurekaCounter[eTech];
 }
 void CvTeamTechs::SetEurekaCounter(TechTypes eTech, int newEurekaCount)
 {
-	if (eTech == NO_TECH)
+	if (eTech < 0 || eTech >= GC.getNumTechInfos())
 		return;
 
 	m_paiEurekaCounter[eTech] = newEurekaCount;
