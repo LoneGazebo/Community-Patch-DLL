@@ -10836,9 +10836,18 @@ void CvPlayer::DoUnitAttrition()
 
 void CvPlayer::RepositionInvalidUnits()
 {
+	//two step approach because deleting a unit invalidates the iterator
+	std::vector<int> vUnitIDs;
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		vUnitIDs.push_back(pLoopUnit->GetID());
+
+	for (size_t i = 0; i < vUnitIDs.size(); i++)
 	{
+		CvUnit* pLoopUnit = getUnit(vUnitIDs[i]);
+		if (pLoopUnit == NULL)
+			continue;
+
 		if (!pLoopUnit->canEndTurnAtPlot(pLoopUnit->plot()))
 		{
 			if (!pLoopUnit->jumpToNearestValidPlot())
