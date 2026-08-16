@@ -7794,6 +7794,8 @@ static STacticalAssignment* ScorePlotForPillageMove(const SUnitStats& unit, cons
 {
 	//default action is do nothing and invalid score (not -INT_MAX, to prevent overflows!)
 	STacticalAssignment* result = gAssignmentStorage.peekNext();
+	if (!result)
+		return NULL; //assignment pool exhausted
 	result->init(unit.iPlotIndex,testPlot->getPlotIndex(), unit.iUnitID, iAssumedMovesLeft, unit.eMoveStrategy, A_PILLAGE, GetPrevPlotScore(unit.iUnitID, assumedPosition));
 
 	//the plot we're checking right now
@@ -8003,6 +8005,8 @@ static STacticalAssignment* ScorePlotForCombatUnitMove(const SUnitStats& unit, c
 {
 	//default action is do nothing and invalid score (not -INT_MAX, to prevent overflows!)
 	STacticalAssignment* result = gAssignmentStorage.peekNext();
+	if (!result)
+		return NULL; //assignment pool exhausted
 	result->init(unit.iPlotIndex,testPlot->getPlotIndex(), unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, A_MOVE, GetPrevPlotScore(unit.iUnitID, assumedPosition));
 
 	//the plot we're checking right now
@@ -8287,6 +8291,8 @@ static STacticalAssignment* ScorePlotForNonFightingUnitMove(const SUnitStats& un
 {
 	//default action is do nothing and invalid score (not -INT_MAX, to prevent overflows!)
 	STacticalAssignment* result = gAssignmentStorage.peekNext();
+	if (!result)
+		return NULL; //assignment pool exhausted
 	result->init(unit.iPlotIndex,testPlot->getPlotIndex(), unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, A_MOVE, GetPrevPlotScore(unit.iUnitID, assumedPosition));
 	int iScore = 0;
 		
@@ -8356,6 +8362,8 @@ static STacticalAssignment* ScorePlotForNonFightingUnitMove(const SUnitStats& un
 static STacticalAssignment* ScorePlotForRangedAttack(const SUnitStats& unit, const CvTacticalPlot* assumedUnitPlot, const CvTacticalPlot* enemyPlot, const CvTacticalPosition& assumedPosition)
 {
 	STacticalAssignment* result = gAssignmentStorage.peekNext();
+	if (!result)
+		return NULL; //assignment pool exhausted
 	result->init(unit.iPlotIndex, enemyPlot->getPlotIndex(), unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, A_RANGEATTACK, GetPrevPlotScore(unit.iUnitID, assumedPosition));
 
 	int iBonusScore = 0;
@@ -8392,6 +8400,8 @@ static STacticalAssignment* ScorePlotForMeleeAttack(const SUnitStats& unit, cons
 {
 	//default action is invalid
 	STacticalAssignment* result = gAssignmentStorage.peekNext();
+	if (!result)
+		return NULL; //assignment pool exhausted
 	result->init(unit.iPlotIndex, enemyPlot->getPlotIndex(), unit.iUnitID, 0, unit.eMoveStrategy, A_MELEEATTACK, GetPrevPlotScore(unit.iUnitID, assumedPosition));
 
 	int iBonusScore = 0;
@@ -8474,6 +8484,8 @@ static STacticalAssignment* ScorePlotForMeleeAttack(const SUnitStats& unit, cons
 static STacticalAssignment* ScorePlotForAdmiralHeal(const SUnitStats& unit, const CvTacticalPlot* assumedUnitPlot, int iAssumedMovesLeft, const CvTacticalPosition& assumedPosition)
 {
 	STacticalAssignment* result = gAssignmentStorage.peekNext();
+	if (!result)
+		return NULL; //assignment pool exhausted
 	result->init(unit.iPlotIndex, assumedUnitPlot->getPlotIndex(), unit.iUnitID, 0, unit.eMoveStrategy, A_USE_POWER, GetPrevPlotScore(unit.iUnitID, assumedPosition));
 
 	if (iAssumedMovesLeft == 0)
@@ -9043,6 +9055,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			//does the attack make sense
 			STacticalAssignment* attack = ScorePlotForMeleeAttack(unit,assumedUnitPlot,testPlot,it->iMovesLeft,*this);
+			if (!attack)
+				return; //assignment pool exhausted
 			if (!attack->IsAcceptable())
 				continue;
 
@@ -9058,6 +9072,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			//also consider which plot we end up in
 			STacticalAssignment* moveToPlot = ScorePlotForMove(tempUnit, newPlot, tempPosition, EM_INTERMEDIATE);
+			if (!moveToPlot)
+				return; //assignment pool exhausted
 			attack->AddScore(moveToPlot);
 
 			gPossibleMoves.push_back(OptionWithScore<STacticalAssignment*>(attack, attack->Score()));
@@ -9070,6 +9086,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		{
 			//try pillaging as an intermediate step
 			STacticalAssignment* pillaging = ScorePlotForPillageMove(unit, testPlot, it->iMovesLeft, *this);
+			if (!pillaging)
+				return; //assignment pool exhausted
 			if (pillaging->Score() > 0 && pillaging->IsAcceptable())
 			{
 				GetNextPosition(*this, pillaging, tempPosition);
@@ -9079,6 +9097,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				{
 					gAssignmentStorage.consumeOne();
 					STacticalAssignment* stayAfterPillage = ScorePlotForMove(tempUnit, testPlot, tempPosition, EM_INTERMEDIATE);
+					if (!stayAfterPillage)
+						return; //assignment pool exhausted
 
 					pillaging->AddScore(stayAfterPillage);
 					//continue with the same plot, maybe in the final analysis we will skip the pillage because we need the movement points
@@ -9099,6 +9119,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 					if (enemyPlot && enemyPlot->isEnemy())
 					{
 						STacticalAssignment* rangedAttack = ScorePlotForRangedAttack(unit, assumedUnitPlot, enemyPlot, *this);
+						if (!rangedAttack)
+							return; //assignment pool exhausted
 						if (rangedAttack->Score() <= 0 || !rangedAttack->IsAcceptable())
 							continue;
 
@@ -9119,6 +9141,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 						gAssignmentStorage.consumeOne();
 						STacticalAssignment* stayAfterAttack = ScorePlotForMove(tempUnit, testPlot, tempPosition, EM_INTERMEDIATE);
+						if (!stayAfterAttack)
+							return; //assignment pool exhausted
 
 						rangedAttack->AddScore(stayAfterAttack);
 						gPossibleRangedAttacks.push_back(OptionWithScore<STacticalAssignment*>(rangedAttack, rangedAttack->Score()));
@@ -9130,6 +9154,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			if (pUnit->IsGreatAdmiral() && pUnit->canRepairFleet(testPlot->getPlot()))
 			{
 				STacticalAssignment* repairFleet = ScorePlotForAdmiralHeal(unit, testPlot, it->iMovesLeft, *this);
+				if (!repairFleet)
+					return; //assignment pool exhausted
 				if (repairFleet->Score() >= 2000)
 				{
 					gPossibleMoves.push_back(OptionWithScore<STacticalAssignment*>(repairFleet, repairFleet->Score()));
@@ -9142,6 +9168,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				//what is the score for simply staying put and not attacking anybody?
 				//use EM_INTERMEDIATE so we're less strict concerning danger, enemies might be killed in the course of the sim
 				STacticalAssignment* moveToPlot = ScorePlotForMove(unit, testPlot, *this, EM_INTERMEDIATE);
+				if (!moveToPlot)
+					return; //assignment pool exhausted
 
 				GetNextPosition(*this, moveToPlot, tempPosition);
 				SUnitStats tempUnit = GetNextUnit(unit, moveToPlot);
@@ -9187,6 +9215,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			tempUnit.iMovesLeft = it->iMovesLeft;
 
 			STacticalAssignment* moveToPlot = ScorePlotForMove(tempUnit, testPlot, *this, EM_INTERMEDIATE);
+			if (!moveToPlot)
+				return; //assignment pool exhausted
 			tempUnit = GetNextUnit(tempUnit, moveToPlot);
 
 			//if the last assignment was a move, we should only do another move if another unit wants to swap us out
@@ -9245,6 +9275,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	//also cannot check for the existamce of good moves here because we don't know yet if we can actually execute the good-looking moves
 	//could also sort the moves by a secondary criterion, but best solution seems to be the "bad unit' mechanism to restart the sim
 	STacticalAssignment* blocked = gAssignmentStorage.peekNext();
+	if (!blocked)
+		return; //assignment pool exhausted
 	blocked->init(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, A_BLOCKED, GetPrevPlotScore(unit.iUnitID, *this));
 	blocked->SetScore(-10, 0, 0);
 	gPossibleMoves.push_back(OptionWithScore<STacticalAssignment*>(blocked, blocked->Score()));
@@ -9271,9 +9303,10 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	//get the best move for each unit
 	for (size_t i = 0; i < availableUnits_w.size() && iMaxUnitsToKeep>0; i++)
 	{
-		//this always returns at least one move
+		//this returns at least one move unless the assignment pool ran out
 		getPreferredAssignmentsForUnit(availableUnits_w[i], 1);
-		availableUnits_w[i].iImportanceScore = gPossibleMoves.front().score;
+		if (!gPossibleMoves.empty())
+			availableUnits_w[i].iImportanceScore = gPossibleMoves.front().score;
 		gAssignmentStorage.reset(false);
 	}
 
@@ -9313,7 +9346,10 @@ void CvTacticalPosition::addInitialAssignments()
 			tmp.iMovesLeft = 0;
 			//we pretend the unit has zero moves, this means we do not score any possible attacks
 			//this is important for symmetry with canStayInPlot()
-			STacticalAssignment eInitialAssignmentNoMoves = *ScorePlotForMove(tmp, tactPlot, *this, EM_INITIAL);
+			const STacticalAssignment* pScored = ScorePlotForMove(tmp, tactPlot, *this, EM_INITIAL);
+			if (!pScored)
+				continue; //assignment pool exhausted
+			STacticalAssignment eInitialAssignmentNoMoves = *pScored;
 			eInitialAssignmentNoMoves.iRemainingMoves = itUnit->iMovesLeft;
 			eInitialAssignmentNoMoves.eAssignmentType = A_INITIAL;
 			addAssignment(eInitialAssignmentNoMoves);
@@ -9328,7 +9364,10 @@ void CvTacticalPosition::addInitialAssignments()
 		{
 			SUnitStats tmp = *itUnit;
 			tmp.iMovesLeft = 0;
-			STacticalAssignment eInitialAssignmentNoMoves = *ScorePlotForMove(tmp, tactPlot, *this, EM_INITIAL);
+			const STacticalAssignment* pScored = ScorePlotForMove(tmp, tactPlot, *this, EM_INITIAL);
+			if (!pScored)
+				continue; //assignment pool exhausted
+			STacticalAssignment eInitialAssignmentNoMoves = *pScored;
 			STacticalAssignment* pInitial = getInitialAssignmentMutable(itUnit->iUnitID);
 			if (pInitial)
 			{
@@ -9675,6 +9714,8 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBad
 		SUnitStats tmp = unit;
 		tmp.iMovesLeft = 0;
 		STacticalAssignment* nextAssignment = ScorePlotForMove(unit, tactPlot, *this, EM_FINAL);
+		if (!nextAssignment)
+			return false; //assignment pool exhausted
 
 		if (bReturnToStartPositions && unit.pUnit->plot()->GetPlotIndex() != tactPlot->getPlotIndex())
 			return false;
@@ -10949,6 +10990,8 @@ static bool IsAttackMove(eUnitAssignmentType eAssignmentType)
 static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, const CvPlot* pPlot, int iAssumedMovesLeft, const CvSupportPosition& assumedPosition, eUnitMoveEvalMode evalMode, bool bLastPosition)
 {
 	STacticalAssignment* result = gAssignmentStorage.peekNext();
+	if (!result)
+		return NULL; //assignment pool exhausted
 	result->init(unit.iPlotIndex, pPlot->GetPlotIndex(), unit.iUnitID, iAssumedMovesLeft, unit.eMoveStrategy, A_MOVE, GetPrevPlotScore(unit.iUnitID, assumedPosition));
 
 	int iPlotScore = 0;
@@ -11335,6 +11378,8 @@ void CvSupportPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, i
 		}
 
 		STacticalAssignment* moveToPlot = ScorePlotForSupportMove(unit, pTestPlot, it->iMovesLeft, *this, EM_INTERMEDIATE, bLastPosition);
+		if (!moveToPlot)
+			return; //assignment pool exhausted
 
 		if (moveToPlot->IsAcceptable())
 		{
@@ -11364,7 +11409,10 @@ bool CvSupportPosition::addInitialAssignments()
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(itUnit->iPlotIndex);
 		// Check if there's a valid move
-		STacticalAssignment eInitialAssignmentNoMoves = *ScorePlotForSupportMove(*itUnit, pPlot, 0, *this, EM_INITIAL, false);
+		const STacticalAssignment* pScored = ScorePlotForSupportMove(*itUnit, pPlot, 0, *this, EM_INITIAL, false);
+		if (!pScored)
+			continue; //assignment pool exhausted
+		STacticalAssignment eInitialAssignmentNoMoves = *pScored;
 		eInitialAssignmentNoMoves.iRemainingMoves = itUnit->iMovesLeft;
 		eInitialAssignmentNoMoves.eAssignmentType = A_INITIAL;
 		addAssignment(eInitialAssignmentNoMoves);
@@ -11513,6 +11561,8 @@ bool CvSupportPosition::addFinishMovesIfAcceptable()
 		//make sure we don't leave a unit in an impossible position
 		const CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(unit.iPlotIndex);
 		STacticalAssignment* nextAssignment = ScorePlotForSupportMove(unit, pPlot, 0, *this, EM_FINAL, true);
+		if (!nextAssignment)
+			return false; //assignment pool exhausted
 
 		if (nextAssignment->IsAcceptable())
 		{
@@ -12392,7 +12442,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 		//did we run out of resources?
 		//this typically happens if there are only invalid positions to be found ...
-		if (gTactPosStorage.peekNext() == NULL)
+		//the assignment pool is reset per generation but a single generation can exhaust it as well:
+		//makeNextAssignments() resets once and then scores every available unit against every reachable plot
+		if (gTactPosStorage.peekNext() == NULL || gAssignmentStorage.peekNext() == NULL)
 		{
 			timer.EndPerfTest();
 			int iStartingUnits = initialPosition->GetNumAvailableUnits();
