@@ -6132,7 +6132,11 @@ int CvLuaCity::lHasCounterSpy(lua_State* L)
 {
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
-	bResult = (pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner()) != -1);
+	// Only major civs have a spy assignment slot in this city
+	if (GET_PLAYER(pkCity->getOwner()).isMajorCiv())
+	{
+		bResult = (pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner()) != -1);
+	}
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -6140,7 +6144,13 @@ int CvLuaCity::lHasCounterSpy(lua_State* L)
 int CvLuaCity::lGetCounterSpy(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner()));
+	// Only major civs have a spy assignment slot in this city
+	int iResult = -1;
+	if (GET_PLAYER(pkCity->getOwner()).isMajorCiv())
+	{
+		iResult = pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner());
+	}
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 

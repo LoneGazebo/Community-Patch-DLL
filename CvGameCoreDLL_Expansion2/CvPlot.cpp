@@ -7995,7 +7995,7 @@ ImprovementTypes CvPlot::getImprovementType() const
 ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer, bool bTestPlotOwner, bool bIgnoreSpecialImprovements)
 {
 	PRECONDITION(ePlayer == NO_PLAYER || ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer == NO_PLAYER || ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer == NO_PLAYER || ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	ResourceTypes eResource = NO_RESOURCE;
 	if(ePlayer != NO_PLAYER)
