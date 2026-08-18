@@ -1151,6 +1151,7 @@
     <Folder Include="Kit\Assert" />
     <Folder Include="Kit\FP" />
     <Folder Include="Kit\Cache" />
+    <Folder Include="Kit\Math" />
     <Folder Include="Kit\Text" />
     <Folder Include="Kit\String" />
     <Folder Include="Kit\Table" />
@@ -3859,6 +3860,18 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Kit\FP\CPK.FP.Void.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Math\CPK.Math.Clamp.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Math\CPK.Math.Lerp.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Kit\Math\CPK.Math.Round.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
