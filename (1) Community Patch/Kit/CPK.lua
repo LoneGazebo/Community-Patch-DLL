@@ -413,7 +413,8 @@
 	kit.UI = M()
 	kit.UI.Control = M()
 	kit.UI.Control.Instance = M()
-	kit.Util = M() -- General Purpose Utilities	
+	kit.Util = M() -- General Purpose Utilities
+	kit.Math = M() -- Math utilities
 
 	if global then
 		global.CPK = kit
