@@ -4311,7 +4311,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 
 	// How many idle workers do we have?
 	int iIdleWorkers = 0;
-	static const UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
+	const UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
 
 	int iLoopUnit = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
