@@ -21248,7 +21248,7 @@ void CvPlayer::DoCityRevolt()
 			else
 			{
 				const CvString strCityName = pMostUnhappyCity->getName();
-				const char* charCityName = pMostUnhappyCity->getName().GetCString();
+				const char* charCityName = strCityName.GetCString();
 				if (GC.getGame().CreateFreeCityPlayer(pMostUnhappyCity, false, false))
 				{
 					CvPlayer &kRecipient = GET_PLAYER(eRecipient);
