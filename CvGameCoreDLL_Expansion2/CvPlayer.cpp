@@ -842,6 +842,7 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pTrade);
 	SAFE_DELETE(m_pTradeAI);
 	SAFE_DELETE(m_pLeagueAI);
+	SAFE_DELETE(m_pCulture);
 	SAFE_DELETE(m_pCorporations);
 	SAFE_DELETE(m_pContracts);
 }
