@@ -2140,7 +2140,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, Playe
 	{
 		owningPlayer.disassembleSpaceship(pPlot);
 		owningPlayer.findNewCapital();
-		owningPlayer.SetHasLostCapital(true, getOwner());
+		owningPlayer.SetHasLostCapital(true, eOwner);
 		GET_TEAM(owningPlayer.getTeam()).resetVictoryProgress();
 	}
 
