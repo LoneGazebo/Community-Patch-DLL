@@ -9385,7 +9385,6 @@ void CvPlayer::disbandUnit(bool)
 				break;
 
 			default:
-				UNREACHABLE();
 				break;
 			}
 
