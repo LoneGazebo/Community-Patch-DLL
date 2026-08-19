@@ -40080,6 +40080,9 @@ int CvPlayer::GetFreePromotionCount(PromotionTypes ePromotion) const
 /// Is ePromotion a free promotion?
 bool CvPlayer::IsFreePromotion(PromotionTypes ePromotion) const
 {
+	if (ePromotion < 0 || ePromotion >= GC.getNumPromotionInfos())
+		return false;
+
 	return (m_paiFreePromotionCount[ePromotion] > 0);
 }
 
