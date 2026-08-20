@@ -2606,10 +2606,8 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 
 	if (pkImprovementInfo->IsMountainsMakesValid() && isMountain())
 	{
-		return true;
+		bValid = true;
 	}
-	
-	bValid = false;
 
 	if(isCity())
 	{
