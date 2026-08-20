@@ -475,7 +475,7 @@ local function GetYieldChangesSql()
 
 	local template = [[
 		SELECT
-			'%s' as TxtKey,
+			'%s' as Suffix,
 			t.Yield as Yield,
 			y.IconString as YieldIconString,
 			y.Description as YieldDescription,
@@ -490,55 +490,91 @@ local function GetYieldChangesSql()
 
 	local selects = {
 		{
-			tag = 'TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_YIELDCHANGES',
-			src = 'Improvement_TechYieldChanges'
+			src = 'Improvement_TechYieldChanges',
+			suffix = '',
 		},
 		{
-			tag = 'TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES',
+			src = 'Improvement_TechFreshWaterYieldChanges',
+			suffix = L('TXT_KEY_ABLTY_FRESH_WATER_STRING'),
+		},
+		{
 			src = 'Improvement_TechNoFreshWaterYieldChanges',
+			suffix = L('TXT_KEY_ABLTY_NO_FRESH_WATER_STRING')
 		},
-		{
-			tag = 'TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_FRESHWATERYIELDCHANGES',
-			src = 'Improvement_TechFreshWaterYieldChanges'
-		}
 	}
 
 	for i = 1, #selects do
 		local select = selects[i]
-		local tag = select.tag
-		local src = select.src
-
-		sql:Append(lua_string_format(template, tag, src))
+		sql:Append(lua_string_format(template, select.suffix, select.src))
 	end
 
+	-- Description added to ORDER BY so rows for the same improvement land in a
+	-- stable, predictable relative order once grouped below.
 	return 'SELECT * FROM (' .. sql:Concat(' UNION ALL ') .. [[
 		) ORDER BY
 			Adjective IS NOT NULL,
-			Adjective
+			Adjective,
+			Description
 	]]
 end
 
-local WriteYieldChanges = PrepareSection(
-	'TXT_KEY_TECH_HELP_YIELDS_UNLOCKED',
-	GetYieldChangesSql(),
-	function(row)
-		local str = L(
-			row.TxtKey,
-			row.Description,
-			row.YieldDescription,
-			row.Yield,
-			row.YieldIconString
-		)
+local WriteYieldChanges = (function()
+	local query = civ_db_create_query(GetYieldChangesSql())
+	local name = Cyan(L('TXT_KEY_TECH_HELP_YIELDS_UNLOCKED'))
 
-		local adj = row.Adjective
+	--- @param text StringBuilder
+	--- @param type string
+	return function(text, type)
+		local group_by_hash = {}
+		local group_ordered = {}
 
-		if adj then
-			return ICON_BULLET .. Yellow(L(adj)) .. ' ' .. str
+		for row in query(type) do
+			local hash = row.Suffix
+					.. '|' .. row.Description
+					.. '|' .. (row.Adjective or '')
+
+			local group = group_by_hash[hash]
+
+			if not group then
+				group = {
+					description = row.Description,
+					adjective = row.Adjective,
+					fragments = StringBuilder.New(),
+					suffix = row.Suffix,
+				}
+
+				group_by_hash[hash] = group
+				group_ordered[#group_ordered + 1] = group
+			end
+
+			local sign = row.Yield < 0 and '' or '+'
+			group.fragments:Append(sign .. row.Yield .. row.YieldIconString)
 		end
 
-		return ICON_BULLET .. str
+		if #group_ordered == 0 then
+			return
+		end
+
+		text:Append(name)
+
+		for i = 1, #group_ordered do
+			local group = group_ordered[i]
+			local str = L(group.description) .. ': ' .. group.fragments:Concat(' ')
+
+			if group.suffix ~= '' then
+				str = str .. ' ' .. group.suffix
+			end
+
+			if group.adjective then
+				str = ICON_BULLET .. Yellow(L(group.adjective)) .. ' ' .. str
+			else
+				str = ICON_BULLET .. str
+			end
+
+			text:Append(str)
+		end
 	end
-)
+end)()
 
 local NL = '[NEWLINE]'
 

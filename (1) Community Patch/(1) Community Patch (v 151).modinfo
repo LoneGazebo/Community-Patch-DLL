@@ -733,6 +733,8 @@
     <File md5="D212FDBA9CB28872D35887722908CC44" import="1">Kit/Text/CPK.Text.FormatDecimalTimes100.lua</File>
     <File md5="591A1EB2FD28B104F9BAE3550B5E0345" import="1">Kit/Text/CPK.Text.FormatInteger.lua</File>
     <File md5="15CDC8540CBDF530859E502E509E8F65" import="1">Kit/Text/CPK.Text.FormatIntegerTimes100.lua</File>
+    <File md5="8FCB0D07F3BE9C760162AB1A36344B0C" import="1">Kit/Text/CPK.Text.Trim.lua</File>
+    <File md5="F9076E5CB4B89D47AC2CF576938F2DA8" import="1">Kit/Text/CPK.Text.TrimDirection.lua</File>
     <File md5="BADC18B5FC8C5494033FAE1BAE1D3D59" import="1">Kit/Type/CPK.Type.IsBoolean.lua</File>
     <File md5="49903870AC6D001A8628CB2E951100E6" import="1">Kit/Type/CPK.Type.IsCallable.lua</File>
     <File md5="AEEDF84854A7E46ABA32D821D2EB496A" import="1">Kit/Type/CPK.Type.IsFunction.lua</File>
