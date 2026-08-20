@@ -2625,7 +2625,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					}
 
 					PlayerTypes eAlly = GET_PLAYER(vMembers[i]).GetMinorCivAI()->GetAlly();
-					if (GET_PLAYER(eAlly).getTeam() != eToTeam)
+					if (eAlly == NO_PLAYER || GET_PLAYER(eAlly).getTeam() != eToTeam)
 					{
 						return GetLocalizedText("TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT");
 					}
