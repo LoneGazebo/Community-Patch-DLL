@@ -3,21 +3,25 @@
 -------------------------------------------------
 include("TechButtonInclude");
 include("TechHelpInclude");
+include("CPK.lua");
+
+local L = Locale.Lookup;
+
+local Trim = CPK.Text.Trim;
+local Show = CPK.UI.Control.Show
+local Hide = CPK.UI.Control.Hide
+local Refresh = CPK.UI.Control.Refresh
 
 local NUM_SMALL_BUTTONS = 5;
 
 local g_popupInfo = {};
 
-local L = Locale.Lookup;
-
 -------------------------------------------------------------------------------
 -- On display
-Events.SerialEventGameMessagePopup.Add(function (popupInfo)
-	if popupInfo.Type ~= ButtonPopupTypes.BUTTONPOPUP_TECH_AWARD then
-		return;
-	end
-
-	if popupInfo.Data3 == -1 then
+Events.SerialEventGameMessagePopup.Add(function(popupInfo)
+	if popupInfo.Type ~= ButtonPopupTypes.BUTTONPOPUP_TECH_AWARD
+			or popupInfo.Data3 == -1
+	then
 		return;
 	end
 
@@ -27,22 +31,19 @@ Events.SerialEventGameMessagePopup.Add(function (popupInfo)
 	assert(kTechInfo, "Invalid tech ID from popupInfo");
 
 	Controls.TechName:SetText(L(kTechInfo.Description));
-	Controls.TechQuote:SetText(L(kTechInfo.Quote));
-	Controls.TechHelp:SetText(string.format("[NEWLINE]%s[NEWLINE]", GetShortHelpTextForTech(kTechInfo.ID)));
+	Controls.TechQuote:SetText(Trim(L(kTechInfo.Quote)));
+	Controls.TechHelp:SetText(GetShortHelpTextForTech(kTechInfo.ID));
 
 	-- Update the tech icon
 	if IconHookup(kTechInfo.PortraitIndex, 128, kTechInfo.IconAtlas, Controls.TechIcon) then
-		Controls.TechIcon:SetHide(false);
+		Show(Controls.TechIcon)
 	else
-		Controls.TechIcon:SetHide(true);
+		Hide(Controls.TechIcon)
 	end
 
 	-- Update the small buttons
 	AddSmallButtonsToTechButton(Controls, kTechInfo, NUM_SMALL_BUTTONS, 64);
-	Controls.BonusStack:CalculateSize();
-	Controls.BonusStack:ReprocessAnchoring();
-
-	Controls.OuterGrid:DoAutoSize();
+	Refresh(Controls.BonusStack, Controls.OuterGrid)
 
 	UIManager:QueuePopup(ContextPtr, PopupPriority.TechAward);
 end);
@@ -62,7 +63,7 @@ Controls.ContinueButton:RegisterCallback(Mouse.eLClick, Close);
 --- @param uiMsg integer
 --- @param wParam any
 --- @return true?
-ContextPtr:SetInputHandler(function (uiMsg, wParam)
+ContextPtr:SetInputHandler(function(uiMsg, wParam)
 	if uiMsg == KeyEvents.KeyDown then
 		if wParam == Keys.VK_ESCAPE or wParam == Keys.VK_RETURN then
 			Close();
@@ -74,7 +75,7 @@ end);
 -------------------------------------------------------------------------------
 --- @param bIsHide boolean
 --- @param bInitState boolean
-ContextPtr:SetShowHideHandler(function (bIsHide, bInitState)
+ContextPtr:SetShowHideHandler(function(bIsHide, bInitState)
 	if not bInitState then
 		if not bIsHide then
 			UI.incTurnTimerSemaphore();

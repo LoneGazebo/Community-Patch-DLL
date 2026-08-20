@@ -7,6 +7,9 @@ local ControlKind = CPK.UI.Control.Kind
 --- controls that need explicit updates.
 --- @type table<ControlKind, fun(control: Control): nil>
 local Refresh = {
+	GridControl = function(c)
+		c:DoAutoSize()
+	end,
 	StackControl = function(c)
 		c:CalculateSize()
 		c:ReprocessAnchoring()

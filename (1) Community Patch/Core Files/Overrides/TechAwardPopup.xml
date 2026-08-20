@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Context>
 	<Box Style="BGBlock_ClearTopBar"/>
 
@@ -11,32 +12,28 @@
 		<Box Style="MenuLeftSideTreatment"/>
 		<Box Style="MenuRightSideTreatment"/>
 
-		<!-- Continue button -->
-		<Box Anchor="C,B" AnchorSide="I,I" Offset="0,54" Size="520,56" Color="255,255,255,0">
-			<GridButton Anchor="L,B" Style="SmallButton" Size="150,32" Offset="14,0" StateOffsetIncrement="0,0" ID="ContinueButton">
-				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_TECH_AWARD_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-			</GridButton>
-		</Box>
-
 		<!-- Header -->
 		<Label Anchor="C,T" Offset="0,19" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_TECH_AWARD_TITLE"/>
 
 		<!-- Title, tech quote, small buttons, tech help -->
-		<Stack Anchor="C,T" Offset="0,64" Size="0,0" StackGrowth="Bottom" Padding="0">
-			<Label Anchor="C,C" Offset="0,0" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Technology Name" ID="TechName"/>
-			<Box Anchor="C,C" Offset="0,0" Size="500,18" Color="White,0"/>
-			<Image Anchor="C,C" Offset="0,0" Texture="bar500x2.dds" Size="500,1"/>
-			<Box Anchor="C,C" Offset="0,0" Size="500,14" Color="White,0"/>
-			<Label Anchor="C,C" Offset="0,0" WrapWidth="500" Font="TwCenMT20" LeadingOffset="-4" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="." ID="TechQuote"/>
-			<Stack Anchor="C,C" Offset="0,0" Size="0,0" StackGrowth="Right" Padding="-12" ID="BonusStack">
+		<Stack Anchor="C,T" Offset="0,48" StackGrowth="Bottom">
+			<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Technology Name" ID="TechName"/>
+			<Image Anchor="C,C" Offset="0,10" Texture="bar500x2.dds" Size="500,1"/>
+			<Label Anchor="C,C" Offset="0,10" WrapWidth="500" Font="TwCenMT20" LeadingOffset="-4" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="." ID="TechQuote"/>
+			<Stack Anchor="C,C" Offset="0,6" StackGrowth="Right" Padding="-12" ID="BonusStack">
 				<Button NoStateChange="1" Anchor="C,C" Size="64,64" Texture="TechnologyAtlas512.dds" ID="B1" ToolTipType="TechTreeTooltip"/>
 				<Button NoStateChange="1" Anchor="C,C" Size="64,64" Texture="TechnologyAtlas512.dds" ID="B2" ToolTipType="TechTreeTooltip"/>
 				<Button NoStateChange="1" Anchor="C,C" Size="64,64" Texture="TechnologyAtlas512.dds" ID="B3" ToolTipType="TechTreeTooltip"/>
 				<Button NoStateChange="1" Anchor="C,C" Size="64,64" Texture="TechnologyAtlas512.dds" ID="B4" ToolTipType="TechTreeTooltip"/>
 				<Button NoStateChange="1" Anchor="C,C" Size="64,64" Texture="TechnologyAtlas512.dds" ID="B5" ToolTipType="TechTreeTooltip"/>
 			</Stack>
-			<Image Anchor="C,C" Offset="0,0" Texture="bar500x2.dds" Size="500,1"/>
-			<Label Anchor="C,C" Offset="0,0" WrapWidth="500" Font="TwCenMT18" LeadingOffset="-4" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="." ID="TechHelp"/>
+			<Image Anchor="C,C" Texture="bar500x2.dds" Size="500,1"/>
+			<Label Anchor="C,C" Offset="0,12" WrapWidth="500" Font="TwCenMT18" LeadingOffset="-4" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="." ID="TechHelp"/>
 		</Stack>
+
+		<!-- Continue Button -->
+		<GridButton Anchor="L,B" Offset="28,50" Style="SmallButton" Size="150,32" StateOffsetIncrement="0,0" ID="ContinueButton">
+			<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_TECH_AWARD_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+		</GridButton>
 	</Grid>
 </Context>
