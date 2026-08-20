@@ -4556,8 +4556,12 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				if (itemIterNewDeal->m_eItemType == itemIterOldDeal->m_eItemType &&
 					itemIterNewDeal->m_eFromPlayer == itemIterOldDeal->m_eFromPlayer)
 				{
-					bItemRenewed = true;
-					break;
+					// for resource items make sure the resources match
+					if (itemIterNewDeal->m_eItemType != TRADE_ITEM_RESOURCES || itemIterNewDeal->m_iData1 == itemIterOldDeal->m_iData1)
+					{
+						bItemRenewed = true;
+						break;
+					}
 				}
 			}
 			if (bItemRenewed)
