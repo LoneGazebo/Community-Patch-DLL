@@ -36,7 +36,7 @@ function OnPopup( popupInfo )
 		-- Event Audio
 		local pEventAudio = pEventInfo.CityEventAudio
 		if pEventAudio then
-			Events.AudioPlay2DSound(pEventAudio)
+			pcall(Events.AudioPlay2DSound, pEventAudio)
 		end
 	end
 	if(IsSpy)then

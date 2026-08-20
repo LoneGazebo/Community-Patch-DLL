@@ -47,7 +47,7 @@ PopulateItems["EventChoices"] = function(stackControl, playerID)
 			-- Event Audio
 			local pEventAudio = pEventInfo.EventAudio
 			if pEventAudio then
-				Events.AudioPlay2DSound(pEventAudio)
+				pcall(Events.AudioPlay2DSound, pEventAudio)
 			end
 		
 			-- Top Text
@@ -173,14 +173,14 @@ CommitItems["EventChoices"] = function(selection, playerID)
 	if(activePlayer ~= nil) then
 		for i,v in ipairs(selection) do
 			local eventChoiceType = v[1];
-			print("Making Choice" .. eventChoiceType);
+			print("Making Choice " .. eventChoiceType);
 			local eventChoice = GameInfo.EventChoices[eventChoiceType];
 			if(eventChoice ~= nil) then
 				activePlayer:DoEventChoice(eventChoice.ID, m_PopupInfo.Data2);
 				-- Event Choice Audio
 				local eventChoiceAudio = eventChoice.EventChoiceAudio
 				if eventChoiceAudio then
-					Events.AudioPlay2DSound(eventChoiceAudio)
+					pcall(Events.AudioPlay2DSound, eventChoiceAudio)
 				end
 			end
 		end
