@@ -35,7 +35,7 @@ function OnPopup( popupInfo )
 			-- Event Audio
 			local pEventAudio = pEventInfo.EventAudio
 			if pEventAudio then
-				Events.AudioPlay2DSound(pEventAudio)
+				pcall(Events.AudioPlay2DSound, pEventAudio)
 			end
 
 			local szTitleString;

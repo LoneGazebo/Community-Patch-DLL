@@ -46,7 +46,7 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, cityID)
 			-- Event Audio
 			local pEventAudio = pEventInfo.CityEventAudio
 			if pEventAudio then
-				Events.AudioPlay2DSound(pEventAudio)
+				pcall(Events.AudioPlay2DSound, pEventAudio)
 			end
 		
 			-- Top Text
@@ -185,7 +185,7 @@ CommitItems["CityEventChoices"] = function(selection, playerID, cityID)
 				-- Event Choice Audio
 				local eventChoiceAudio = eventChoice.EventChoiceAudio
 				if eventChoiceAudio then
-					Events.AudioPlay2DSound(eventChoiceAudio)
+					pcall(Events.AudioPlay2DSound, eventChoiceAudio)
 				end
 			end
 		end

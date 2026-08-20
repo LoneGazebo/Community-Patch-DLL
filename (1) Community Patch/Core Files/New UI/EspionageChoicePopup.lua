@@ -52,7 +52,7 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, plotID, spy
 			-- Event Audio
 			local pEventAudio = pEventInfo.CityEventAudio
 			if pEventAudio then
-				Events.AudioPlay2DSound(pEventAudio)
+				pcall(Events.AudioPlay2DSound, pEventAudio)
 			end
 		
 			-- Top Text
