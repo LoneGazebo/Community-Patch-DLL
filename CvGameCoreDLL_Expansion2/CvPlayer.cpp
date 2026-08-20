@@ -8942,6 +8942,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		{
 			pNewCity->SpawnPlayerUnitsNearby(ePlayer, 1, false, false, false);
 		}
+
+		kPlayer.GetMinorCivAI()->DoAddStartingResources(pPlot);
 	}
 
 	// Bonuses for first liberation only (remove sphere doesn't count)
