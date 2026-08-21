@@ -23098,9 +23098,9 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 	int iModifiedYield = iBaseYield * getBaseYieldRateModifier(eYield, eYield == YIELD_PRODUCTION ? iAssumeExtraModifier : 0, bBuildTooltip ? &tooltipYieldModifiers : NULL);
 	iModifiedYield /= 100;
 
-	// additional yields that are unaffected by modifiers: trade routes, yield from processes, yields from other yields, food consumption, food->prod conversion
+	// additional yields that are unaffected by modifiers: yield from processes, yields from other yields, food consumption, food->prod conversion
 	CvString tooltipPostModifierYields;
-	int iPostModifierYield = GetPostModifierYieldRateTimes100(eYield, bIgnoreTrade, bIgnoreProcess, bIgnoreFoodConsumption, bAssumeFoodProduction, bBuildTooltip ? &tooltipPostModifierYields : NULL);
+	int iPostModifierYield = GetPostModifierYieldRateTimes100(eYield, bIgnoreProcess, bIgnoreFoodConsumption, bAssumeFoodProduction, bBuildTooltip ? &tooltipPostModifierYields : NULL);
 
 	int iTotalYieldBeforeGrowth = iModifiedYield + iPostModifierYield;
 	int iTotalYield = iTotalYieldBeforeGrowth;
@@ -23130,6 +23130,14 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 	int iMultiplicativeModifier = getYieldModifierMultiplicative(eYield);
 	int iTotalYieldBeforeMultiplicative = iTotalYield;
 	iTotalYield = iTotalYield * iMultiplicativeModifier / 100;
+
+	// now add trade routes
+	int iTradeYield = 0;
+	if (!bIgnoreTrade)
+	{
+		iTradeYield += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, eYield);
+	}
+	iTotalYield += iTradeYield;
 
 	if (bBuildTooltip)
 	{
@@ -23175,6 +23183,11 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 			(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_SUBTOTAL", (float)iTotalYieldBeforeMultiplicative / 100, szIconString) + strNewLine;
 			(*tooltipSink) += strLineDivision;
 			(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_PUPPET_MODIFIER_MULTIPLICATIVE", iMultiplicativeModifier - 100, szIconString) + strNewLine;
+		}
+		if (iTradeYield != 0)
+		{
+			// no line
+			(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_FROM_TRADE_ROUTES", (float)iTradeYield / 100, szIconString) + strNewLine;
 		}
 		(*tooltipSink) += strLineDivision;
 		(*tooltipSink) += GetLocalizedText("TXT_KEY_YIELD_TOTAL", (float)iTotalYield / 100, szIconString);
@@ -23523,7 +23536,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 	return iYield;
 }
 
-int CvCity::GetPostModifierYieldRateTimes100(const YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, bool bIgnoreFoodConsumption, bool bAssumeFoodProduction, CvString* tooltipSink) const
+int CvCity::GetPostModifierYieldRateTimes100(const YieldTypes eYield, bool bIgnoreProcess, bool bIgnoreFoodConsumption, bool bAssumeFoodProduction, CvString* tooltipSink) const
 {
 	VALIDATE_OBJECT();
 	PRECONDITION(eYield >= 0, "eYield expected to be >= 0");
@@ -23548,13 +23561,6 @@ int CvCity::GetPostModifierYieldRateTimes100(const YieldTypes eYield, bool bIgno
 			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_PROCESS", iTempYield, szIconString);
 	}
 
-	if (!bIgnoreTrade)
-	{
-		iTempYield = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, eYield);
-		iYield += iTempYield;
-		if (tooltipSink)
-			GC.getGame().BuildYieldTimes100HelpText(tooltipSink, "TXT_KEY_YIELD_FROM_TRADE_ROUTES", iTempYield, szIconString);
-	}
 	// subtract food consumption
 	if (!bIgnoreFoodConsumption && eYield == YIELD_FOOD)
 	{

@@ -1023,7 +1023,7 @@ public:
 	int getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipSink = NULL) const;
 	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
 
-	int GetPostModifierYieldRateTimes100(const YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, bool bIgnoreFoodConsumption, bool bAssumeFoodProduction, CvString* tooltipSink = NULL) const;
+	int GetPostModifierYieldRateTimes100(const YieldTypes eYield, bool bIgnoreProcess, bool bIgnoreFoodConsumption, bool bAssumeFoodProduction, CvString* tooltipSink = NULL) const;
 
 	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, int iAssumeExtraModifier, bool bAssumeFoodProduction, bool bIgnoreFoodConsumption, bool bIgnoreGrowthMods, CvString* tooltipSink = NULL) const;
 	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade = false, bool bIgnoreProcess = false, bool bUseCachedValue = true, CvString* tooltipSink = NULL) const;
