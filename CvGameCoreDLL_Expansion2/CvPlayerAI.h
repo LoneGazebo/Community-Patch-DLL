@@ -48,6 +48,8 @@ public:
 	void AI_chooseFreeTech();
 	void AI_chooseResearch();
 
+	void AI_ChoosePolicy();
+
 	void AI_considerAnnex();
 	void AI_considerRaze();
 	int AI_computeHappinessFromRazing(CvCity* pCity, int iCurrentHappy, int iCurrentUnhappy);
@@ -109,6 +111,12 @@ protected:
 	//cache these
 	vector<CvPlot*> m_vCurrentCitadelTargets;
 	int m_iCurrentCitadelTargetsTurn;
+
+	// Re-entrancy guard for AI_ChoosePolicy(). Adopting a policy can grant instant yields which loop back
+	// into the policy chooser (culture directly, or science -> tech -> culture) while the adoption is still
+	// only half applied. Not serialized.
+	bool m_bInPolicyChoice;
+	bool m_bPolicyChoicePending;
 };
 
 // helper for accessing static functions

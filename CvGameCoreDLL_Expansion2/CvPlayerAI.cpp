@@ -95,6 +95,8 @@ void CvPlayerAI::AI_uninit()
 void CvPlayerAI::AI_reset()
 {
 	m_iCurrentCitadelTargetsTurn = -1;
+	m_bInPolicyChoice = false;
+	m_bPolicyChoicePending = false;
 	AI_uninit();
 }
 
@@ -630,6 +632,43 @@ void CvPlayerAI::AI_chooseResearch()
 			pushResearch(eBestTech);
 		}
 	}
+}
+
+void CvPlayerAI::AI_ChoosePolicy()
+{
+	AI_PERF("AI-perf.csv", "AI_ChoosePolicy");
+
+	// Adopting a policy or opening a branch can grant instant yields that end up back here (culture
+	// directly, or science completing a tech which then grants culture) while the adoption that triggered
+	// them is only half applied. Rather than recursing into a half-updated state, note that another pass is
+	// wanted and let the outermost call make it once it is done.
+	if (m_bInPolicyChoice)
+	{
+		m_bPolicyChoicePending = true;
+		return;
+	}
+
+	m_bInPolicyChoice = true;
+
+	do
+	{
+		m_bPolicyChoicePending = false;
+
+		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+		{
+			if (GetPlayerTraits()->IsAdoptionFreeTech())
+			{
+				AI_chooseFreeTech();
+			}
+
+			GetPlayerPolicies()->DoChooseIdeology();
+		}
+
+		GetPlayerPolicies()->DoPolicyAI();
+	}
+	while (m_bPolicyChoicePending);
+
+	m_bInPolicyChoice = false;
 }
 
 void CvPlayerAI::AI_considerAnnex()

@@ -4264,6 +4264,9 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 		GetPlayer()->ChangeNumPolicies(iChange);
 		UpdateModifierCache();
 
+		// The cost of the next policy scales with how many we own, so refresh it here rather than at the call sites
+		GetPlayer()->DoUpdateNextPolicyCost();
+
 		if (bNewValue)
 		{
 			if (GC.getGame().isFinalInitialized() && !pkPolicyInfo->IsDummy())
@@ -4316,8 +4319,9 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 			{
 				if (bBranchFinished)
 				{
-					GetPlayer()->setHasPolicy(eFinisher, true);
+					// Counts towards the next policy cost, so must be booked before the finisher is applied
 					GetPlayer()->ChangeNumFreePoliciesEver(1);
+					GetPlayer()->setHasPolicy(eFinisher, true);
 
 					if (GC.getGame().isFinalInitialized())
 					{
@@ -5111,14 +5115,8 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 		return;
 	}
 
-	// Set that we now have it
-	SetPolicyBranchUnlocked(eBranchType, true, false);
-
-	// Are we blocked? If so, unblock us
-	DoSwitchToPolicyBranch(eBranchType);
-
 	// Pay Culture cost - if applicable
-	if(GetPlayer()->GetNumFreePolicies() == 0)
+	if (GetPlayer()->GetNumFreePolicies() == 0)
 	{
 		GetPlayer()->changeJONSCulture(-GetPlayer()->getNextPolicyCost());
 	}
@@ -5129,6 +5127,12 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 
 	// Update cost if trying to buy another policy this turn
 	GetPlayer()->DoUpdateNextPolicyCost();
+
+	// Set that we now have it
+	SetPolicyBranchUnlocked(eBranchType, true, false);
+
+	// Are we blocked? If so, unblock us
+	DoSwitchToPolicyBranch(eBranchType);
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
@@ -5270,20 +5274,30 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 	{
 		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
 
+		// Must be worked out before the branch is flagged as unlocked below, otherwise this player counts
+		// as one of the previous adopters and loses the first/second adopter bonus
+		int iFreePolicies = 0;
+		if (bNewValue && pkPolicyBranchInfo != NULL)
+		{
+			iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType);
+
+			if (pkPolicyBranchInfo->IsPurchaseByLevel() && iFreePolicies > 0 && m_pPlayer->GetCulture()->GetTurnIdeologyAdopted() == -1)
+			{
+				iFreePolicies += m_pPlayer->GetPlayerTraits()->GetExtraTenetsFirstAdoption();
+			}
+		}
+
+		// Need to set this before instant yields etc. since those can trigger new policy unlocks which check this flag
+		m_pabPolicyBranchUnlocked[eBranchType] = bNewValue;
+
 		// Unlocked?
 		if (bNewValue)
 		{
-			int iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType);
-
 			// Late-game tree so want to issue notification?
 			if (pkPolicyBranchInfo != NULL)
 			{
 				if (pkPolicyBranchInfo->IsPurchaseByLevel())
 				{
-					if (iFreePolicies > 0 && m_pPlayer->GetCulture()->GetTurnIdeologyAdopted() == -1)
-					{
-						iFreePolicies += m_pPlayer->GetPlayerTraits()->GetExtraTenetsFirstAdoption();
-					}
 					m_pPlayer->ChangeNumFreeTenets(iFreePolicies, !bRevolution);
 
 					for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop) {
@@ -5342,8 +5356,6 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 				GetPlayer()->setHasPolicy(eFreePolicy, bNewValue, pkPolicyBranchInfo->IsPurchaseByLevel());
 			}
 		}
-
-		m_pabPolicyBranchUnlocked[eBranchType] = bNewValue;
 
 		if (!bRevolution)
 		{
@@ -6218,11 +6230,6 @@ void CvPlayerPolicies::DoPolicyAI()
 {
 	CvString strBuffer;
 
-	// Force an ideology update for human vassals, if applicable
-	m_pPolicyAI->DoConsiderIdeologySwitch(m_pPlayer);
-	if (m_pPlayer->isHuman(ISHUMAN_AI_POLICY_CHOICE))
-		return;
-
 	// Do we have enough points to buy a new policy?
 	if (m_pPlayer->getNextPolicyCost() > 0 || m_pPlayer->GetNumFreePolicies() > 0 || m_pPlayer->GetNumFreeTenets() > 0)
 	{
@@ -6245,6 +6252,11 @@ void CvPlayerPolicies::DoPolicyAI()
 			}
 		}
 	}
+}
+
+void CvPlayerPolicies::DoMasterIdeology()
+{
+	m_pPolicyAI->DoConsiderIdeologySwitch(m_pPlayer);
 }
 
 /// Get the policy AI to pick an ideology
