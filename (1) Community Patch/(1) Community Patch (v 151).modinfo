@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="151">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.4.4) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.4.5) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -421,21 +421,21 @@
     <File md5="9E9413423E76DAA8D884CC45D0516E72" import="0">Core Files/New Lua/GlobalCityBombardRange.lua</File>
     <File md5="537D623D706E211308873BC810D24382" import="0">Core Files/New UI/CameraView.lua</File>
     <File md5="EC9F55158D08EF43FA8D3190C7E36AEA" import="0">Core Files/New UI/CameraView.xml</File>
-    <File md5="29FC5A961FBDB9E4E38744DBAE80DB3F" import="0">Core Files/New UI/CityEventPopup.lua</File>
+    <File md5="8DB02794585A5628766B14DFBAACC708" import="0">Core Files/New UI/CityEventPopup.lua</File>
     <File md5="DB148EB48CB0FC537C7B3ED852F8ED14" import="0">Core Files/New UI/CityEventPopup.xml</File>
     <File md5="464FF5291A70846BA602CF2367E84695" import="1">Core Files/New UI/CityEventsInfo.lua</File>
     <File md5="716E665A7374FEC615837C8A85AF18F8" import="1">Core Files/New UI/CityEventsInfo.xml</File>
     <File md5="AFC9BD9DA3C2699D77FDCEB759EDD1AF" import="1">Core Files/New UI/CityRecentEventsInfo.lua</File>
     <File md5="F101066874ED5BEDE778EE71E4BB4D4A" import="1">Core Files/New UI/CityRecentEventsInfo.xml</File>
-    <File md5="0D0EAC41A4E81EBB07D11CD9267EDD58" import="0">Core Files/New UI/EspionageChoicePopup.lua</File>
+    <File md5="3925832BDF1015736431A0022E7B2552" import="0">Core Files/New UI/EspionageChoicePopup.lua</File>
     <File md5="459052EFF1886D5169FD8FEE6DDACD12" import="0">Core Files/New UI/EspionageChoicePopup.xml</File>
-    <File md5="72D4B7847940DFC5F85FB76C4248BDA2" import="0">Core Files/New UI/EventChoicePopup.lua</File>
+    <File md5="B4F6B45043447D5AE7223FAD5A44309B" import="0">Core Files/New UI/EventChoicePopup.lua</File>
     <File md5="213DD9B4CD1DB151EC26DBD1F996E4A7" import="0">Core Files/New UI/EventChoicePopup.xml</File>
-    <File md5="C52150B6258A39219B526BA1601E9153" import="0">Core Files/New UI/EventChoicePopupCity.lua</File>
+    <File md5="23C8D1AAF07E263084BF10768EC98377" import="0">Core Files/New UI/EventChoicePopupCity.lua</File>
     <File md5="2FBF778B6AF3317CA4105412226E02DE" import="0">Core Files/New UI/EventChoicePopupCity.xml</File>
     <File md5="351182F9ACEBCFEBBCEF726B40AA9499" import="0">Core Files/New UI/EventOverview.lua</File>
     <File md5="7CC44079C17A550A92E808DF9D781B61" import="0">Core Files/New UI/EventOverview.xml</File>
-    <File md5="120F241EE2607B93C29BA839663EFF38" import="0">Core Files/New UI/EventPopup.lua</File>
+    <File md5="B9E31FD137375C598DAECCA41DFA4F82" import="0">Core Files/New UI/EventPopup.lua</File>
     <File md5="695FACA1BA4A5C15D3595EF99B6B658C" import="0">Core Files/New UI/EventPopup.xml</File>
     <File md5="A5F8A30B9629E6251072B6A406124856" import="1">Core Files/New UI/PlayerEventsInfo.lua</File>
     <File md5="47D9492129F0335754825A2AFCDE425F" import="1">Core Files/New UI/PlayerEventsInfo.xml</File>
@@ -487,8 +487,8 @@
     <File md5="FB5ADB053B50EFAC805CCB9EE0425137" import="1">Core Files/Overrides/SaveMenu.xml</File>
     <File md5="6699DAE4A114249CCE9297C2AE4D5282" import="1">Core Files/Overrides/SimpleDiploTrade.xml</File>
     <File md5="F4BD8D98536B2532C02E1CA4EC1732CF" import="1">Core Files/Overrides/StagingRoom.lua</File>
-    <File md5="89551DF7CE0B41B8EC45796281BED2E3" import="1">Core Files/Overrides/TechAwardPopup.lua</File>
-    <File md5="C0AE8C8702CC0692E89FE3F6194691B5" import="1">Core Files/Overrides/TechAwardPopup.xml</File>
+    <File md5="3AAD78445CA7D46248F9F64CFDB77922" import="1">Core Files/Overrides/TechAwardPopup.lua</File>
+    <File md5="CAFF104B0A7820E99C6AC4A9B1E50C94" import="1">Core Files/Overrides/TechAwardPopup.xml</File>
     <File md5="2E864F44562CA1721134CE33FC7AFBA9" import="1">Core Files/Overrides/TechPanel_small.xml</File>
     <File md5="D94ED5EC0343E1318610279609131BB7" import="1">Core Files/Overrides/TechPanel.lua</File>
     <File md5="F95F5B373DB01636427DAA7C40343462" import="1">Core Files/Overrides/TechPanel.xml</File>
@@ -504,14 +504,14 @@
     <File md5="58E27DDA88005F499B37149DA81C59D6" import="1">Core Files/Overrides/Includes/MapGenerator.lua</File>
     <File md5="9A55C83178BE5720BA16E8852FDC30AB" import="1">Core Files/Overrides/Includes/MapmakerUtilities.lua</File>
     <File md5="A0A14D2E6B8FD237DE1147997DEA193D" import="1">Core Files/Overrides/Includes/TechButtonInclude.lua</File>
-    <File md5="E7DED319010B284D7EC5DAAE8F4B19B6" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
+    <File md5="E2FEF1DD5320F9908F3BB222DBFC7297" import="1">Core Files/Overrides/Includes/TechHelpInclude.lua</File>
     <File md5="5ADF9FC8A47C84B9A2D3A80A3B7002B1" import="1">Core Files/Overrides/Includes/TradeLogic.lua</File>
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">Core Files/Overrides/Includes/TradeRouteHelpers.lua</File>
     <File md5="F61707422D4D58CC960B62B9AF1EF312" import="1">Core Files/VPUI/VPUI_common_small.xml</File>
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
     <File md5="9B2473A02E44E30D7015F8EEF582D2F2" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="32D5B17FA3E67B70E0DDA1D50BD12D70" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="1B82A864CABF73D1D0402A9064F18628" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Changes/AddTableIndexes.sql</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
@@ -706,7 +706,7 @@
     <File md5="2B59A735059AA04F9853AE11C6196344" import="1">Kit/Cache/CPK.Cache.Memoize0.lua</File>
     <File md5="33EE74A483A7FA9C6F9C0C953E465AB0" import="1">Kit/Cache/CPK.Cache.Memoize1.lua</File>
     <File md5="041DEB4563D87D735102D4A4C45FC4E2" import="0">Kit/CPK.d.lua</File>
-    <File md5="397876AC8E4E60DE26B4046465B4CA19" import="1">Kit/CPK.lua</File>
+    <File md5="D98398F22F31C79262123F580DA404FC" import="1">Kit/CPK.lua</File>
     <File md5="03AE8C715AA8F929F361B92E505A7D4C" import="1">Kit/FP/CPK.FP.Always.lua</File>
     <File md5="622E0C8868037FFF6D7F19D0E60C6D38" import="1">Kit/FP/CPK.FP.Compose.lua</File>
     <File md5="4DD366000B03CB5D909F8837CC19CD88" import="1">Kit/FP/CPK.FP.Curry.lua</File>
@@ -714,6 +714,9 @@
     <File md5="D2FF9C07FC17EFBA71592C74AFDA57DC" import="1">Kit/FP/CPK.FP.Inverse.lua</File>
     <File md5="08C4969B45B5454861DFD910285D9268" import="1">Kit/FP/CPK.FP.Pipe.lua</File>
     <File md5="3993322327728B69B44A59FEEC05ABC9" import="1">Kit/FP/CPK.FP.Void.lua</File>
+    <File md5="175F2EBB8FA726D7924EB24F863BA70A" import="1">Kit/Math/CPK.Math.Clamp.lua</File>
+    <File md5="31585A9C176BCC617AB796689D96362E" import="1">Kit/Math/CPK.Math.Lerp.lua</File>
+    <File md5="3459D0B19E016946254A12B5CE5944C1" import="1">Kit/Math/CPK.Math.Round.lua</File>
     <File md5="13253AD667D284FD59AF9D74A72A065A" import="1">Kit/Misc/CPK.Misc.AsPercentage.lua</File>
     <File md5="C160ED0BE82CEF1B8D3A6248FFE0169A" import="1">Kit/Misc/CPK.Misc.CustomModOptionEnabled.lua</File>
     <File md5="EFD0A3C437C29656737E74F2542DF3E3" import="1">Kit/String/CPK.String.Distance.lua</File>
@@ -733,8 +736,8 @@
     <File md5="D212FDBA9CB28872D35887722908CC44" import="1">Kit/Text/CPK.Text.FormatDecimalTimes100.lua</File>
     <File md5="591A1EB2FD28B104F9BAE3550B5E0345" import="1">Kit/Text/CPK.Text.FormatInteger.lua</File>
     <File md5="15CDC8540CBDF530859E502E509E8F65" import="1">Kit/Text/CPK.Text.FormatIntegerTimes100.lua</File>
-    <File md5="8FCB0D07F3BE9C760162AB1A36344B0C" import="1">Kit/Text/CPK.Text.Trim.lua</File>
-    <File md5="F9076E5CB4B89D47AC2CF576938F2DA8" import="1">Kit/Text/CPK.Text.TrimDirection.lua</File>
+    <File md5="A854961D337E2AF50551162F030EB03A" import="1">Kit/Text/CPK.Text.Trim.lua</File>
+    <File md5="9014D788397C7754FC08FF3179ED57D4" import="1">Kit/Text/CPK.Text.TrimDirection.lua</File>
     <File md5="BADC18B5FC8C5494033FAE1BAE1D3D59" import="1">Kit/Type/CPK.Type.IsBoolean.lua</File>
     <File md5="49903870AC6D001A8628CB2E951100E6" import="1">Kit/Type/CPK.Type.IsCallable.lua</File>
     <File md5="AEEDF84854A7E46ABA32D821D2EB496A" import="1">Kit/Type/CPK.Type.IsFunction.lua</File>
@@ -752,7 +755,7 @@
     <File md5="E6DE6D2E4297C9F1A28768865109C081" import="1">Kit/UI/Control/CPK.UI.Control.Inspect.lua</File>
     <File md5="6FFD2FE3B35D21307B8AB08D5151C786" import="1">Kit/UI/Control/CPK.UI.Control.IsKind.lua</File>
     <File md5="4593582247F76EABE54BCD7E6F36BEAC" import="1">Kit/UI/Control/CPK.UI.Control.Kind.lua</File>
-    <File md5="CBD6F4B09A1911E92E83A50864E6E3D4" import="1">Kit/UI/Control/CPK.UI.Control.Refresh.lua</File>
+    <File md5="11F1D17AE385C03FA408F1729A15DD28" import="1">Kit/UI/Control/CPK.UI.Control.Refresh.lua</File>
     <File md5="8D350C608DD3018681CE4661FABD0E2B" import="1">Kit/UI/Control/CPK.UI.Control.Resize.lua</File>
     <File md5="C2A710715927F17DECD9958B038FFB36" import="1">Kit/UI/Control/CPK.UI.Control.Show.lua</File>
     <File md5="140717D938A4801DFC7D721DAB5B6D1C" import="1">Kit/UI/Control/Instance/CPK.UI.Control.Instance.Error.lua</File>
@@ -776,7 +779,7 @@
     <File md5="C17B724D01DF1DCFF71B5ACD743A81DF" import="1">LUA/CityView_small.xml</File>
     <File md5="18ECDCF0C0564D7AD1AC1CB6E301E558" import="1">LUA/CityView.lua</File>
     <File md5="163BED38D266239B5FF3BF79697F3828" import="1">LUA/CityView.xml</File>
-    <File md5="AFCAE663DDDF35FBCDA10419BBCCE39B" import="1">LUA/DiploCorner.lua</File>
+    <File md5="C152C4E8EDE108C168E3AB39686975C5" import="1">LUA/DiploCorner.lua</File>
     <File md5="7B7789E13EC6018565BBEC5092F4C10E" import="1">LUA/DiploCorner.xml</File>
     <File md5="6AA9DB940EBEEDE516278F42EACF4F5E" import="1">LUA/DiploList.lua</File>
     <File md5="116434E9D679618C75F98E0926619FD9" import="1">LUA/LeaderHeadRoot.lua</File>
