@@ -975,7 +975,9 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						pkAttacker->isHuman(ISHUMAN_HANDICAP));
 				}
 
-				pkDefender->setCombatUnit(NULL);
+				if (pkDefender->getCombatUnit() != NULL)
+					pkDefender->setCombatUnit(NULL);
+
 				if(!CvUnitMission::IsHeadMission(pkDefender, CvTypes::getMISSION_WAIT_FOR()))		// If the top mission was not a 'wait for', then clear it.
 					pkDefender->ClearMissionQueue();
 			}

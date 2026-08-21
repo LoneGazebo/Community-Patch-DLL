@@ -31988,7 +31988,11 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 
 	// Actually do the withdrawal if this unit isn't captured
 	if (!bCaptured)
+	{
+		if (getCombatUnit() != NULL)
+			setCombatUnit(NULL);
 		setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+	}
 
 	if (aEscortedUnits.size() > 0)
 	{
@@ -31998,6 +32002,8 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 			// Need to check whether the unit can enter the plot again, because it might have changed (stacking rules)
 			if (aEscortedUnits[i]->canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION))
 			{
+				if (aEscortedUnits[i]->getCombatUnit() != NULL)
+					aEscortedUnits[i]->setCombatUnit(NULL);
 				aEscortedUnits[i]->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 				aEscortedUnits[i]->PublishQueuedVisualizationMoves(); // Display the civilians retreating before the escort does
 			}
