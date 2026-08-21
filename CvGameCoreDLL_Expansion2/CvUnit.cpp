@@ -1904,15 +1904,6 @@ int CvUnit::CalcExperienceTimes100ForConvert(PlayerTypes eFromPlayer, PlayerType
 	}
 }
 
-//	--------------------------------------------------------------------------------
-void CvUnit::grantExperienceFromLostPromotions(int iNumLost)
-{
-	// 20 xp per lost 'good' promotion (plus level).
-	if (iNumLost > 0)
-	{
-		changeExperienceTimes100(20 * iNumLost * std::max(1, getLevel()) * 100);
-	}
-}
 
 //	--------------------------------------------------------------------------------
 void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bIsGift)
@@ -1979,8 +1970,8 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bIsGift)
 				{
 					bMelee = true;
 				}
-				//If we're losing standard promotions because of a combatclass change, let's replace with some experience.
-				if (!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && bRanged && !bFree && !::IsPromotionValidForUnitCombatType(ePromotion, pUnit->getUnitType()))
+				//If we're losing standard promotions because of a combatclass change, we remove them and allow the player to pick replacement promotions
+				if (!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && bRanged && !bFree && !::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()))
 				{
 					iLostPromotions++;
 					bGivePromotion = false;
@@ -2065,16 +2056,9 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bIsGift)
 	{
 		setNumExoticGoods(pUnit->getNumExoticGoods());
 	}
-	if (pUnit->getUnitCombatType() != getUnitCombatType() && (iLostPromotions > 0))
-	{
-		setLevel(1);
-	}
-	else
-	{
-		setLevel(pUnit->getLevel());
-	}
+	// remove one level for each lost promotion so the player can pick new promotions
+	setLevel(max(0, pUnit->getLevel() - iLostPromotions));
 	setExperienceTimes100(CalcExperienceTimes100ForConvert(pUnit->getOwner(), getOwner(), pUnit->getExperienceTimes100()), -1, true);
-	grantExperienceFromLostPromotions(iLostPromotions);
 
 	setName(pUnit->getNameNoDesc());
 	setLeaderUnitType(pUnit->getLeaderUnitType());
