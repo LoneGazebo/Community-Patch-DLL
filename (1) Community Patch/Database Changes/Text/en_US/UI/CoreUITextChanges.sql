@@ -649,7 +649,7 @@ WHERE Tag = 'TXT_KEY_TP_ANARCHY';
 
 -- Science
 UPDATE Language_en_US
-SET Text = 'Each City adds +{1_Str}% of base [ICON_RESEARCH] Technology cost.'
+SET Text = 'Each City adds +{1_Str}% to the [ICON_RESEARCH] Technology cost.'
 WHERE Tag = 'TXT_KEY_TP_TECH_CITY_COST';
 
 -- Culture
@@ -658,7 +658,7 @@ SET Text = 'Next Policy: {1_Num} {1_Num: plural 1?Turn; other?Turns;}'
 WHERE Tag = 'TXT_KEY_NEXT_POLICY_TURN_LABEL';
 
 UPDATE Language_en_US
-SET Text = 'Each [ICON_PUPPET] non-Puppet City other than the Capital adds +{1_Str}% of base [ICON_CULTURE] Policy cost. Policy costs are always rounded down to the nearest multiple of 5.'
+SET Text = 'Each [ICON_PUPPET] non-Puppet City other than the Capital adds +{1_Str}% to the [ICON_CULTURE] Policy cost.'
 WHERE Tag = 'TXT_KEY_TP_CULTURE_CITY_COST';
 
 -- Faith

@@ -7504,14 +7504,15 @@ int CvLuaPlayer::lGetNextPolicyCost(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::getNextPolicyCost);
 }
 //------------------------------------------------------------------------------
-//int getNextPolicyCostBreakdown(); returns totalCost, baseCost, cityCost, nextCityDelta, currentModifierTimes100, nextCityModifierTimes100, cityCountUsed, basePerCityTimes100, scalingPerCityTimes100, baseCostBeforePolicyDiscount, policyCostMultiplierPct, tenetPenaltyPct, tenetsAdopted, tenetTier1PenaltyPct, tenetTier2PenaltyPct, tenetTier3PenaltyPct
+//int getNextPolicyCostBreakdown(); returns totalCost, baseCost, cityCost, nextCityDelta, currentModifierTimes100, nextCityModifierTimes100, cityCountUsed, basePerCityTimes100, scalingPerCityTimes100, baseCostBeforePolicyDiscount, policyCostMultiplierPct, tenetPenaltyPct, tenetsAdopted, tenetTier1PenaltyPct, tenetTier2PenaltyPct, tenetTier3PenaltyPct, difficultyPct
 int CvLuaPlayer::lGetNextPolicyCostBreakdown(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvPlayerPolicies* pPolicies = pkPlayer->GetPlayerPolicies();
 	const int iTotalCost = pPolicies->GetNextPolicyCost();
 	int iBaseCostBeforePolicyDiscount = 0;
-	const int iBaseCost = pPolicies->GetNextPolicyCost(/*bIgnoreCities*/ true, /*iCityOffset*/ 0, &iBaseCostBeforePolicyDiscount);
+	int iDifficultyPct = 100;
+	const int iBaseCost = pPolicies->GetNextPolicyCost(/*bIgnoreCities*/ true, /*iCityOffset*/ 0, &iBaseCostBeforePolicyDiscount, &iDifficultyPct);
 	const int iCityCost = iTotalCost - iBaseCost;
 	const int iNextCityDelta = pPolicies->GetNextPolicyCost(/*bIgnoreCities*/ false, /*iCityOffset*/ 1) - iTotalCost;
 	const int iCurrentModifierTimes100 = pPolicies->GetPolicyCityModifierTimes100();
@@ -7548,7 +7549,8 @@ int CvLuaPlayer::lGetNextPolicyCostBreakdown(lua_State* L)
 	lua_pushinteger(L, iTenetTier1PenaltyPct);
 	lua_pushinteger(L, iTenetTier2PenaltyPct);
 	lua_pushinteger(L, iTenetTier3PenaltyPct);
-	return 16;
+	lua_pushinteger(L, iDifficultyPct);
+	return 17;
 }
 //------------------------------------------------------------------------------
 //int GetPolicyCostModifierBreakdown(); returns totalModPctApplied, policiesModPct, buildingsModPct, minorCivsModPct, traitsModPct, uncappedTotalModPct, discountCapPct

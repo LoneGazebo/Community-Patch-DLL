@@ -4814,7 +4814,7 @@ int CvPlayerPolicies::GetIdeologyTenetPolicyCostPenalty(int* pTenetsAdopted) con
 }
 
 /// How much will the next policy cost?
-int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset, int* pCostBeforePolicyDiscount)
+int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset, int* pCostBeforePolicyDiscount, int* pDifficultyPct)
 {
 	int iActualNumPolicies = GetNumPoliciesOwned(false, true);
 
@@ -4839,6 +4839,10 @@ int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset, int
 		iCost = (int)std::min<long long>(std::max<long long>(iScaledCost, INT_MIN), INT_MAX);
 	}
 
+	// Game Speed Mod. Before pCostBeforePolicyDiscount, so the UI base includes it
+	iCost *= GC.getGame().getGameSpeedInfo().getCulturePercent();
+	iCost /= 100;
+
 	if (pCostBeforePolicyDiscount != NULL)
 	{
 		*pCostBeforePolicyDiscount = iCost;
@@ -4848,14 +4852,13 @@ int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset, int
 	iCost *= (100 + m_pPlayer->getPolicyCostModifier());
 	iCost /= 100;
 
-	// Game Speed Mod
-	iCost *= GC.getGame().getGameSpeedInfo().getCulturePercent();
-	iCost /= 100;
-
 	// Adopting ideology tenets increases the cost of future policies/tenets.
 	const int iTenetPenaltyPct = GetIdeologyTenetPolicyCostPenalty();
 	iCost *= (100 + iTenetPenaltyPct);
 	iCost /= 100;
+
+	// what the difficulty steps below did to the cost, for the UI
+	const int iCostBeforeDifficulty = iCost;
 
 	if (GetPlayer()->isMajorCiv())
 	{
@@ -4898,6 +4901,9 @@ int CvPlayerPolicies::GetNextPolicyCost(bool bIgnoreCities, int iCityOffset, int
 			iCost /= 100;
 		}
 	}
+
+	if (pDifficultyPct != NULL)
+		*pDifficultyPct = iCostBeforeDifficulty > 0 ? (int)(((long long)iCost * 100) / iCostBeforeDifficulty) : 100;
 
 
 	// Make the number nice and even
