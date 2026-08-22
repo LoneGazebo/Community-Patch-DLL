@@ -1087,7 +1087,7 @@ public:
 	int GetPolicyOneMoreCityModifierTimes100(int iCityOffset = 0) const;
 	int GetIdeologyTenetPolicyCostPenaltyByLevel(int iLevel) const;
 	int GetIdeologyTenetPolicyCostPenalty(int* pTenetsAdopted = NULL) const;
-	int GetNextPolicyCost(bool bIgnoreCities = false, int iCityOffset = 0, int* pCostBeforePolicyDiscount = NULL);
+	int GetNextPolicyCost(bool bIgnoreCities = false, int iCityOffset = 0, int* pCostBeforePolicyDiscount = NULL, int* pDifficultyPct = NULL);
 	bool CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost = false) const;
 	int GetNumPoliciesCanBeAdopted();
 

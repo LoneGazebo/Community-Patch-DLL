@@ -233,14 +233,26 @@
 		<Row Tag="TXT_KEY_TP_CULTURE_PER_TURN">
 			<Text>+{1_Num} [ICON_CULTURE] Culture Per Turn.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_COST_BASE_LABEL">
+			<Text>base cost</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_COST_ADJUSTED_LABEL">
+			<Text>adjusted cost</Text>
+		</Row>
 		<Row Tag="TXT_KEY_TP_CULTURE_CITY_COST_DETAIL">
-			<Text>[ICON_BULLET]Next Policy cost: {1_Num} [ICON_CULTURE] Culture = {2_Num} [ICON_CULTURE] base + {3_Num} [ICON_CULTURE] (+{5_Str}% from {7_Num} non-Capital {7_Num: plural 1?city; other?cities;}).[NEWLINE][ICON_BULLET]Gaining a new City will add [COLOR_NEGATIVE_TEXT]+{4_Num}[ENDCOLOR] [ICON_CULTURE] (+{6_Str}% of base).</Text>	
+			<Text>[ICON_BULLET]Next Policy cost: {1_Num} [ICON_CULTURE] Culture = {2_Num} [ICON_CULTURE] {8_Str} + {3_Num} [ICON_CULTURE] (+{5_Str}% from {7_Num} non-Capital {7_Num: plural 1?city; other?cities;}).[NEWLINE][ICON_BULLET]Gaining a new City will add [COLOR_NEGATIVE_TEXT]+{4_Num}[ENDCOLOR] [ICON_CULTURE] (+{6_Str}% of the {8_Str}).</Text>	
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_TENET_PENALTY_EXPLAINER">
 			<Text>Each Tenet increases future Policy costs: Tier 1 [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR], Tier 2 [COLOR_NEGATIVE_TEXT]+{2_Num}%[ENDCOLOR], Tier 3 [COLOR_NEGATIVE_TEXT]+{3_Num}%[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_POLICY_COST_BASE">
+			<Text>Base Policy cost: {1_Num} [ICON_CULTURE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_CAPPED">
+			<Text>(capped at {1_Num}%)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_HEADER">
-			<Text>Policy cost changes:</Text>
+			<Text>[ICON_BULLET]x {1_Str} from Policy cost changes{2_Str}:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FROM_POLICIES">
 			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from adopted Policies and Tenets.</Text>
@@ -255,20 +267,29 @@
 			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from Civilization Traits.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_TENET_PENALTY">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR] from {2_Num} adopted {2_Num: plural 1?Tenet; other?Tenets;}.</Text>
+			<Text>[ICON_BULLET]x [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR] from {2_Num} adopted {2_Num: plural 1?Tenet; other?Tenets;}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FORMULA">
-			<Text>adjust base [ICON_CULTURE] Policy cost: {1_Num} [ICON_CULTURE]{2_Str}{3_Str}{4_Str} = {5_Num} [ICON_CULTURE].</Text>
+		<Row Tag="TXT_KEY_TP_POLICY_DIFFICULTY">
+			<Text>[ICON_BULLET]x {1_Str} from difficulty and era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_POLICY_COST_TOTAL">
+			<Text>[ICON_BULLET]= {1_Num} [ICON_CULTURE] adjusted Policy cost.</Text>
 		</Row>
 		<!-- Science -->
 		<Row Tag="TXT_KEY_TP_SCIENCE_PER_TURN">
 			<Text>+{1_Num} [ICON_RESEARCH] Science Per Turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_CITY_COST_DETAIL">
-			<Text>[ICON_BULLET]Current Technology cost: {1_Num} [ICON_RESEARCH] Science = {2_Num} [ICON_RESEARCH] base + {3_Num} [ICON_RESEARCH] (+{5_Str}% from {7_Num} {7_Num: plural 1?city; other?cities;}).[NEWLINE][ICON_BULLET]Gaining a new City will add [COLOR_NEGATIVE_TEXT]+{4_Num}[ENDCOLOR] [ICON_RESEARCH] (+{6_Str}% of base).</Text>
+			<Text>[ICON_BULLET]Current Technology cost: {1_Num} [ICON_RESEARCH] Science = {2_Num} [ICON_RESEARCH] {8_Str} + {3_Num} [ICON_RESEARCH] (+{5_Str}% from {7_Num} {7_Num: plural 1?city; other?cities;}).[NEWLINE][ICON_BULLET]Gaining a new City will add [COLOR_NEGATIVE_TEXT]+{4_Num}[ENDCOLOR] [ICON_RESEARCH] (+{6_Str}% of the {8_Str}).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_TECH_COST_BASE">
+			<Text>Base Technology cost: {1_Num} [ICON_RESEARCH]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_DISCOUNT_HEADER">
-			<Text>Technology cost divisors:</Text>
+			<Text>[ICON_BULLET]/ {1_Str}{2_Str} from Technology cost discounts:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_TECH_DISCOUNT_SCHOLAR_SPLIT">
+			<Text>([COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] x [COLOR_POSITIVE_TEXT]{2_Num}%[ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_CATCHUP_DISCOUNT">
 			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Str}%[ENDCOLOR] from {2_Num}/{3_Num} known Civilizations having this technology.</Text>
@@ -276,11 +297,8 @@
 		<Row Tag="TXT_KEY_TP_TECH_PREREQ_DISCOUNT">
 			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Str}%[ENDCOLOR] from known optional prerequisite technologies.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_TP_TECH_DISCOUNT_FORMULA_NO_SCHOLAR">
-			<Text>reduce base [ICON_RESEARCH] Technology cost: {1_Num} [ICON_RESEARCH] / [COLOR_POSITIVE_TEXT]{3_Num}%[ENDCOLOR] = {4_Num} [ICON_RESEARCH].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_TP_TECH_DISCOUNT_FORMULA_WITH_SCHOLAR">
-			<Text>reduce base [ICON_RESEARCH] Technology cost: {1_Num} [ICON_RESEARCH] / ([COLOR_POSITIVE_TEXT]{2_Num}%[ENDCOLOR] x [COLOR_POSITIVE_TEXT]{3_Num}%[ENDCOLOR]) = {5_Num} [ICON_RESEARCH].</Text>
+		<Row Tag="TXT_KEY_TP_TECH_COST_TOTAL">
+			<Text>[ICON_BULLET]= {1_Num} [ICON_RESEARCH] adjusted Technology cost.</Text>
 		</Row>
 		<!-- Tourism -->
 		<Row Tag="TXT_KEY_TP_TOURISM_PER_TURN">
