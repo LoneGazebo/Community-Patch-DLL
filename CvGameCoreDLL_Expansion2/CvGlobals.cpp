@@ -2711,7 +2711,11 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		"Installation directory and .exe: %s\n\n",
 
 		exceptionCode, GetExceptionDescription(exceptionCode),
-		GetOnlyFilename(szCrashModule),exceptionAddressAdjusted-0xC00,
+		//file offset = module RVA - 0xC00 (.text raw/virtual delta); only valid
+		//when the address resolved to a module RVA at least that large. A NULL or
+		//pre-.text crash (e.g. a null-pointer access violation) leaves the value
+		//below 0xC00, where the unsigned subtraction would wrap to a bogus offset.
+		GetOnlyFilename(szCrashModule),exceptionAddressAdjusted >= 0xC00 ? exceptionAddressAdjusted-0xC00 : 0,
 		exceptionAddress,exceptionAddressAdjusted,
 		szTimestamp,
 #if defined(MOD_DEBUG_MINIDUMP)
