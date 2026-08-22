@@ -16880,98 +16880,159 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 	if (m_iNumUnitsSuppliedCached == -1 || (bCheckWarWeariness && m_iNumUnitsSuppliedCachedWarWeariness == -1))
 	{
 		// update m_iNumUnitsSuppliedCached and m_iNumUnitsSuppliedCachedWarWeariness
-		int iUnitSupply = GetNumUnitsSuppliedByHandicap();
-		iUnitSupply += GetNumUnitsSuppliedByCities();
-		iUnitSupply += GetNumUnitsSuppliedByPopulation();
-		iUnitSupply += GetUnitSupplyFromExpendedGreatPeople();
+		UnitSupplyBreakdown kBreakdown;
+		GetUnitSupplyBreakdown(kBreakdown);
+		if (!kBreakdown.bValid)
+			return 0;
 
-		int iCityCountReduction = getNumCities() > 0 ? max(GetNumEffectiveCities(false) * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0) : 0;
-		iUnitSupply *= 100;
-		iUnitSupply /= (100 + iCityCountReduction);
-
-		if (isMajorCiv())
-		{
-			if (isHuman(ISHUMAN_HANDICAP))
-			{
-				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyBonusPercent() + getHandicapInfo().getUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
-				iUnitSupply /= 100;
-			}
-			else
-			{
-				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyBonusPercent() + GC.getGame().getHandicapInfo().getAIUnitSupplyBonusPercent() + (getHandicapInfo().getUnitSupplyPerEraModifier() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraModifier()) * GC.getGame().getCurrentEra();
-				iUnitSupply /= 100;
-			}
-		}
-		else if (isMinorCiv())
-		{
-			iUnitSupply *= 100 + GC.getGame().getHandicapInfo().getCityStateUnitSupplyBonusPercent() + GC.getGame().getHandicapInfo().getCityStateUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
-			iUnitSupply /= 100;
-
-			int iModifier = 0;
-			switch (GetMinorCivAI()->GetTrait())
-			{
-			case MINOR_CIV_TRAIT_CULTURED:
-				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED);
-				break;
-			case MINOR_CIV_TRAIT_MILITARISTIC:
-				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC);
-				break;
-			case MINOR_CIV_TRAIT_MARITIME:
-				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MARITIME);
-				break;
-			case MINOR_CIV_TRAIT_MERCANTILE:
-				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MERCANTILE);
-				break;
-			case MINOR_CIV_TRAIT_RELIGIOUS:
-				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_RELIGIOUS);
-				break;
-			default:
-				return 0; // Might trigger if a new City-State hasn't picked its trait yet.
-			}
-
-			switch (GetMinorCivAI()->GetPersonality())
-			{
-			case MINOR_CIV_PERSONALITY_FRIENDLY:
-				iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_FRIENDLY);
-				break;
-			case MINOR_CIV_PERSONALITY_NEUTRAL:
-				iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_NEUTRAL);
-				break;
-			case MINOR_CIV_PERSONALITY_HOSTILE:
-				iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_HOSTILE);
-				break;
-			case MINOR_CIV_PERSONALITY_IRRATIONAL:
-				iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_IRRATIONAL);
-				break;
-			default:
-				return 0; // Might trigger if a new City-State hasn't picked its personality yet.
-			}
-
-			iUnitSupply *= 100 + iModifier;
-			iUnitSupply /= 100;
-
-			int iExtraCities = getNumCities() - 1;
-			if (iExtraCities > 0)
-			{
-				iUnitSupply *= 100 + iExtraCities * /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MULTIPLIER_PER_EXTRA_CITY);
-				iUnitSupply /= 100;
-			}
-		}
-
-		m_iNumUnitsSuppliedCached = max(0, iUnitSupply);
-
-		int iNumUnitsSuppliedWarWeariness = m_iNumUnitsSuppliedCached;
-		if (MOD_BALANCE_VP && isMajorCiv())
-		{
-			int iReductionPercent = GetSupplyReductionFromWarWeariness();
-			iNumUnitsSuppliedWarWeariness *= 100 - iReductionPercent;
-			iNumUnitsSuppliedWarWeariness /= 100;
-		}
-
-		m_iNumUnitsSuppliedCachedWarWeariness = max(0, iNumUnitsSuppliedWarWeariness);
+		m_iNumUnitsSuppliedCached = kBreakdown.iBeforeWarWeariness;
+		m_iNumUnitsSuppliedCachedWarWeariness = kBreakdown.iTotal;
 	}
 
 	return bCheckWarWeariness ? m_iNumUnitsSuppliedCachedWarWeariness : m_iNumUnitsSuppliedCached;
+}
+
+/// Share of all technologies this team knows, 0-100
+int CvPlayer::GetUnitSupplyTechProgress() const
+{
+	return range((GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos(), 0, 100);
+}
+
+/// What City and Population supply get divided by as technologies pile up
+int CvPlayer::GetUnitSupplyTechDivisorPct(int iMultiplierPct) const
+{
+	return max(100 + GetUnitSupplyTechProgress() * iMultiplierPct / 100, 1);
+}
+
+/// Where the supply cap is computed; GetNumUnitsSupplied() only caches the result
+void CvPlayer::GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown) const
+{
+	kBreakdown = UnitSupplyBreakdown();
+
+	if (isBarbarian())
+	{
+		kBreakdown.iBeforeWarWeariness = kBreakdown.iTotal = INT_MAX;
+		return;
+	}
+
+	if (!isAlive())
+		return;
+
+	kBreakdown.iTechProgressPct = GetUnitSupplyTechProgress();
+	kBreakdown.iCitiesTechDivisorPct = GetUnitSupplyTechDivisorPct(GD_INT_GET(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER));
+	kBreakdown.iPopulationTechDivisorPct = GetUnitSupplyTechDivisorPct(GD_INT_GET(UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER));
+
+	kBreakdown.iDifficultyGross = GetNumUnitsSuppliedByHandicap(true);
+	kBreakdown.iDifficultyNet = GetNumUnitsSuppliedByHandicap();
+	kBreakdown.iCitiesGross = GetNumUnitsSuppliedByCities(true);
+	kBreakdown.iCitiesNet = GetNumUnitsSuppliedByCities();
+	kBreakdown.iPopulationGross = GetNumUnitsSuppliedByPopulation(true);
+	kBreakdown.iPopulationNet = GetNumUnitsSuppliedByPopulation();
+	kBreakdown.iGreatPeople = GetUnitSupplyFromExpendedGreatPeople();
+
+	kBreakdown.iSubtotal = kBreakdown.iDifficultyNet + kBreakdown.iCitiesNet + kBreakdown.iPopulationNet + kBreakdown.iGreatPeople;
+	int iUnitSupply = kBreakdown.iSubtotal;
+
+	kBreakdown.iPerCityPenaltyPct = /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod();
+	kBreakdown.iEffectiveCities = getNumCities() > 0 ? GetNumEffectiveCities(false) : 0;
+	kBreakdown.iEmpireSizeDivisorPct = 100 + max(kBreakdown.iEffectiveCities * kBreakdown.iPerCityPenaltyPct, 0);
+	iUnitSupply *= 100;
+	iUnitSupply /= kBreakdown.iEmpireSizeDivisorPct;
+	kBreakdown.iAfterEmpireSize = iUnitSupply;
+
+	if (isMajorCiv())
+	{
+		if (isHuman(ISHUMAN_HANDICAP))
+		{
+			kBreakdown.iDifficultyModifierPct = 100 + getHandicapInfo().getUnitSupplyBonusPercent() + getHandicapInfo().getUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
+		}
+		else
+		{
+			kBreakdown.iDifficultyModifierPct = 100 + getHandicapInfo().getUnitSupplyBonusPercent() + GC.getGame().getHandicapInfo().getAIUnitSupplyBonusPercent() + (getHandicapInfo().getUnitSupplyPerEraModifier() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraModifier()) * GC.getGame().getCurrentEra();
+		}
+
+		iUnitSupply *= kBreakdown.iDifficultyModifierPct;
+		iUnitSupply /= 100;
+	}
+	else if (isMinorCiv())
+	{
+		// reported as one combined percentage
+		int iCityStatePct = 100 + GC.getGame().getHandicapInfo().getCityStateUnitSupplyBonusPercent() + GC.getGame().getHandicapInfo().getCityStateUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
+		iUnitSupply *= iCityStatePct;
+		iUnitSupply /= 100;
+
+		int iModifier = 0;
+		switch (GetMinorCivAI()->GetTrait())
+		{
+		case MINOR_CIV_TRAIT_CULTURED:
+			iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED);
+			break;
+		case MINOR_CIV_TRAIT_MILITARISTIC:
+			iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC);
+			break;
+		case MINOR_CIV_TRAIT_MARITIME:
+			iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MARITIME);
+			break;
+		case MINOR_CIV_TRAIT_MERCANTILE:
+			iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MERCANTILE);
+			break;
+		case MINOR_CIV_TRAIT_RELIGIOUS:
+			iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_RELIGIOUS);
+			break;
+		default:
+			// Might trigger if a new City-State hasn't picked its trait yet.
+			kBreakdown.bValid = false;
+			return;
+		}
+
+		switch (GetMinorCivAI()->GetPersonality())
+		{
+		case MINOR_CIV_PERSONALITY_FRIENDLY:
+			iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_FRIENDLY);
+			break;
+		case MINOR_CIV_PERSONALITY_NEUTRAL:
+			iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_NEUTRAL);
+			break;
+		case MINOR_CIV_PERSONALITY_HOSTILE:
+			iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_HOSTILE);
+			break;
+		case MINOR_CIV_PERSONALITY_IRRATIONAL:
+			iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_IRRATIONAL);
+			break;
+		default:
+			// Might trigger if a new City-State hasn't picked its personality yet.
+			kBreakdown.bValid = false;
+			return;
+		}
+
+		iUnitSupply *= 100 + iModifier;
+		iUnitSupply /= 100;
+
+		int iCombinedPct = iCityStatePct * (100 + iModifier) / 100;
+
+		int iExtraCities = getNumCities() - 1;
+		if (iExtraCities > 0)
+		{
+			int iExtraCityPct = 100 + iExtraCities * /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MULTIPLIER_PER_EXTRA_CITY);
+			iUnitSupply *= iExtraCityPct;
+			iUnitSupply /= 100;
+			iCombinedPct = iCombinedPct * iExtraCityPct / 100;
+		}
+
+		kBreakdown.iDifficultyModifierPct = iCombinedPct;
+	}
+
+	kBreakdown.iBeforeWarWeariness = max(0, iUnitSupply);
+
+	int iWithWarWeariness = kBreakdown.iBeforeWarWeariness;
+	if (MOD_BALANCE_VP && isMajorCiv())
+	{
+		kBreakdown.iWarWearinessPct = GetSupplyReductionFromWarWeariness();
+		iWithWarWeariness *= 100 - kBreakdown.iWarWearinessPct;
+		iWithWarWeariness /= 100;
+	}
+
+	kBreakdown.iTotal = max(0, iWithWarWeariness);
 }
 
 /// Units supplied from Difficulty Level
@@ -17055,13 +17116,8 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 
 	if (!bIgnoreReduction && (!MOD_BALANCE_MINOR_UNIT_SUPPLY_HANDICAP || isMajorCiv()))
 	{
-		int iTechProgress = range((GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos(), 0, 100);
-
-		iTechProgress *= /*0 in CP, 83 in VP*/ GD_INT_GET(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER);
-		iTechProgress /= 100;
-
 		iSupply *= 100;
-		iSupply /= max(100 + iTechProgress, 1);
+		iSupply /= GetUnitSupplyTechDivisorPct(/*0 in CP, 100 in VP*/ GD_INT_GET(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER));
 	}
 
 	return max(iSupply, 0);
@@ -17124,12 +17180,8 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 
 	if (!bIgnoreReduction && (!MOD_BALANCE_MINOR_UNIT_SUPPLY_HANDICAP || isMajorCiv()))
 	{
-		int iTechProgress = range((GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos(), 0, 100);
-		iTechProgress *= /*0 in CP, 700 in VP*/ GD_INT_GET(UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER);
-		iTechProgress /= 100;
-
 		iSupply *= 100;
-		iSupply /= max(100 + iTechProgress, 1);
+		iSupply /= GetUnitSupplyTechDivisorPct(/*0 in CP, 100 in VP*/ GD_INT_GET(UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER));
 	}
 
 	return max(iSupply/100, 0);
@@ -28787,7 +28839,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatP
 		{
 			char text[256] = { 0 };
 
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_WAR]", iSupply);
+			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_SILVER_FIST]", iSupply);
 			SHOW_PLOT_POPUP( pGreatPersonUnit->plot(), GetID(), text);
 
 			CvNotifications* pNotification = GetNotifications();

@@ -418,12 +418,9 @@ protected:
 	LUAAPIEXTN(GetWarWearinessPercent, int);
 	LUAAPIEXTN(GetHighestWarWearinessPercent, int);
 	LUAAPIEXTN(GetHighestWarWearinessPlayer, int);
-	LUAAPIEXTN(GetSupplyReductionPercentFromWarWeariness, int);
-	LUAAPIEXTN(GetSupplyReductionFromWarWeariness, int);
 	LUAAPIEXTN(GetUnitCostIncreaseFromWarWeariness, int);
 	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
-	LUAAPIEXTN(GetTechSupplyReduction, int);
-	LUAAPIEXTN(GetCityCountSupplyReduction, int);
+	LUAAPIEXTN(GetUnitSupplyBreakdown, table);
 
 	LUAAPIEXTN(GetWarDuration, int);
 	LUAAPIEXTN(GetLongestWarDuration, int);

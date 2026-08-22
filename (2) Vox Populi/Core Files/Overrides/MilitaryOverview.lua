@@ -132,31 +132,25 @@ function UpdateScreen()
     
 	--------------------------------------------------------
 	-- Supply Details
+	local kSupply = pPlayer:GetUnitSupplyBreakdown();
 	local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
-	local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
 	local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
-	local iUnitsTotalMilitary = pPlayer:GetNumMilitaryUnits();
-	local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
-	local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
-	local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
 	local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
-	local iTechReduction = pPlayer:GetTechSupplyReduction();
-	local iCityCountReduction = pPlayer:GetCityCountSupplyReduction();
-	local iWarWearinessReduction = pPlayer:GetSupplyReductionFromWarWeariness();
-	local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
-	-- Bonuses from unlisted sources are added to the handicap value
-	local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople - iTechReduction - iCityCountReduction - iWarWearinessReduction);
-	iPerHandicap = iPerHandicap + iExtra;
+	-- every row is a difference between two values the DLL reported, so they add up
+	local iTechReduction = (kSupply.CitiesGross - kSupply.CitiesNet) + (kSupply.PopulationGross - kSupply.PopulationNet) + (kSupply.DifficultyGross - kSupply.DifficultyNet);
+	local iDifficultyModifier = kSupply.BeforeWarWeariness - kSupply.AfterEmpireSize;
 
-	Controls.HandicapSupplyValue:SetText(iPerHandicap);
-	Controls.CitiesSupplyValue:SetText(iPerCity);
-	Controls.PopulationSupplyValue:SetText(iPercentPerPop);
-	Controls.GreatPeopleSupplyValue:SetText(iSupplyFromGreatPeople);
-	Controls.WarWearinessReductionValue:SetText(-iWarWearinessReduction);
+	Controls.HandicapSupplyValue:SetText(kSupply.DifficultyGross);
+	Controls.CitiesSupplyValue:SetText(kSupply.CitiesGross);
+	Controls.PopulationSupplyValue:SetText(kSupply.PopulationGross);
+	Controls.GreatPeopleSupplyValue:SetText(kSupply.GreatPeople);
+	Controls.WarWearinessReductionValue:SetText(kSupply.Total - kSupply.BeforeWarWeariness);
 	Controls.TechReductionValue:SetText(-iTechReduction);
-	Controls.CityCountReductionValue:SetText(-iCityCountReduction);
-	Controls.SupplyCapValue:SetText(iUnitsSupplied);
+	Controls.CityCountReductionValue:SetText(kSupply.AfterEmpireSize - kSupply.Subtotal);
+	Controls.DifficultyModifier:SetHide(iDifficultyModifier == 0);
+	Controls.DifficultyModifierValue:SetText(iDifficultyModifier > 0 and ("+" .. iDifficultyModifier) or iDifficultyModifier);
+	Controls.SupplyCapValue:SetText(kSupply.Total);
 	Controls.SupplyUseValue:SetText(iUnitsTotal);
 
 	if (iUnitsOver ~= 0) then
@@ -169,7 +163,7 @@ function UpdateScreen()
 		Controls.SupplyDeficit:SetHide(true);
 		Controls.DeficitPenalty:SetHide(true);
 		Controls.SupplyRemaining:SetHide(false);
-		Controls.SupplyRemainingValue:SetText(iUnitsSupplied - iUnitsTotal);
+		Controls.SupplyRemainingValue:SetText(kSupply.Total - iUnitsTotal);
 	end
 
     --------------------------------------------------------

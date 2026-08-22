@@ -208,7 +208,7 @@ SET Text = 'Dominance'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_CASTE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Dominance[ENDCOLOR][NEWLINE][ICON_BULLET]All Melee Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ENDURANCE}[ENDCOLOR] Promotion (Heal 15 HP after defeating an Enemy Unit).[NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production and +2 [ICON_CULTURE_LOCAL] Border Growth Points from Strategic Resources.[NEWLINE][ICON_BULLET]+5 [ICON_WAR] Military Supply.'
+SET Text = '[COLOR_POSITIVE_TEXT]Dominance[ENDCOLOR][NEWLINE][ICON_BULLET]All Melee Units gain the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_ENDURANCE}[ENDCOLOR] Promotion (Heal 15 HP after defeating an Enemy Unit).[NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production and +2 [ICON_CULTURE_LOCAL] Border Growth Points from Strategic Resources.[NEWLINE][ICON_BULLET]+5 [ICON_SILVER_FIST] Military Supply.'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_CASTE_HELP';
 
 UPDATE Language_en_US

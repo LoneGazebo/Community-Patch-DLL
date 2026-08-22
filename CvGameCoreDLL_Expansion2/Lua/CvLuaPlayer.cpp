@@ -438,12 +438,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarWearinessPercent);
 	Method(GetHighestWarWearinessPercent);
 	Method(GetHighestWarWearinessPlayer);
-	Method(GetSupplyReductionPercentFromWarWeariness);
-	Method(GetSupplyReductionFromWarWeariness);
 	Method(GetUnitCostIncreaseFromWarWeariness);
 	Method(GetUnhappinessFromWarWeariness);
-	Method(GetTechSupplyReduction);
-	Method(GetCityCountSupplyReduction);
+	Method(GetUnitSupplyBreakdown);
 	Method(GetUnitSupplyFromExpendedGreatPeople);
 	Method(ChangeUnitSupplyFromExpendedGreatPeople);
 
@@ -5038,20 +5035,6 @@ int CvLuaPlayer::lGetHighestWarWearinessPlayer(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-int CvLuaPlayer::lGetSupplyReductionPercentFromWarWeariness(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetSupplyReductionFromWarWeariness();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-int CvLuaPlayer::lGetSupplyReductionFromWarWeariness(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetNumUnitsSupplied(false) - pkPlayer->GetNumUnitsSupplied(true);
-	lua_pushinteger(L, iResult);
-	return 1;
-}
 int CvLuaPlayer::lGetUnitCostIncreaseFromWarWeariness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -5098,43 +5081,42 @@ int CvLuaPlayer::lGetLongestWarDuration(lua_State* L)
 	return 1;
 }
 
-int CvLuaPlayer::lGetTechSupplyReduction(lua_State* L)
+// Named fields rather than a positional list: the tooltip reads a dozen of these
+int CvLuaPlayer::lGetUnitSupplyBreakdown(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iTotalSupplyWithoutReduction = pkPlayer->GetNumUnitsSuppliedByHandicap(true);
-	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByCities(true);
-	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByPopulation(true);
+	UnitSupplyBreakdown kBreakdown;
+	pkPlayer->GetUnitSupplyBreakdown(kBreakdown);
 
-	int iTotalSupplyWithReduction = pkPlayer->GetNumUnitsSuppliedByHandicap();
-	iTotalSupplyWithReduction += pkPlayer->GetNumUnitsSuppliedByCities();
-	iTotalSupplyWithReduction += pkPlayer->GetNumUnitsSuppliedByPopulation();
+	lua_newtable(L);
 
-	int iTotalSupply = (iTotalSupplyWithoutReduction - iTotalSupplyWithReduction);
+#define PUSH_SUPPLY_FIELD(name, value) \
+	lua_pushstring(L, name); \
+	lua_pushinteger(L, value); \
+	lua_settable(L, -3);
 
-	lua_pushinteger(L, iTotalSupply);
-	return 1;
-}
+	PUSH_SUPPLY_FIELD("CitiesGross", kBreakdown.iCitiesGross)
+	PUSH_SUPPLY_FIELD("CitiesNet", kBreakdown.iCitiesNet)
+	PUSH_SUPPLY_FIELD("CitiesTechDivisorPct", kBreakdown.iCitiesTechDivisorPct)
+	PUSH_SUPPLY_FIELD("PopulationGross", kBreakdown.iPopulationGross)
+	PUSH_SUPPLY_FIELD("PopulationNet", kBreakdown.iPopulationNet)
+	PUSH_SUPPLY_FIELD("PopulationTechDivisorPct", kBreakdown.iPopulationTechDivisorPct)
+	PUSH_SUPPLY_FIELD("DifficultyGross", kBreakdown.iDifficultyGross)
+	PUSH_SUPPLY_FIELD("DifficultyNet", kBreakdown.iDifficultyNet)
+	PUSH_SUPPLY_FIELD("GreatPeople", kBreakdown.iGreatPeople)
+	PUSH_SUPPLY_FIELD("Subtotal", kBreakdown.iSubtotal)
+	PUSH_SUPPLY_FIELD("TechProgressPct", kBreakdown.iTechProgressPct)
+	PUSH_SUPPLY_FIELD("EffectiveCities", kBreakdown.iEffectiveCities)
+	PUSH_SUPPLY_FIELD("PerCityPenaltyPct", kBreakdown.iPerCityPenaltyPct)
+	PUSH_SUPPLY_FIELD("EmpireSizeDivisorPct", kBreakdown.iEmpireSizeDivisorPct)
+	PUSH_SUPPLY_FIELD("AfterEmpireSize", kBreakdown.iAfterEmpireSize)
+	PUSH_SUPPLY_FIELD("DifficultyModifierPct", kBreakdown.iDifficultyModifierPct)
+	PUSH_SUPPLY_FIELD("BeforeWarWeariness", kBreakdown.iBeforeWarWeariness)
+	PUSH_SUPPLY_FIELD("WarWearinessPct", kBreakdown.iWarWearinessPct)
+	PUSH_SUPPLY_FIELD("Total", kBreakdown.iTotal)
 
-int CvLuaPlayer::lGetCityCountSupplyReduction(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iReductionPercent = pkPlayer->getNumCities() > 0 ? max(pkPlayer->GetNumEffectiveCities(false) * /*0 in CP, 5 in VP*/ GC.getMap().getWorldInfo().GetNumCitiesUnitSupplyMod(), 0) : 0;
-	if (iReductionPercent == 0)
-	{
-		lua_pushinteger(L, 0);
-		return 1;
-	}
+#undef PUSH_SUPPLY_FIELD
 
-	int iTotalSupplyWithoutReduction = pkPlayer->GetNumUnitsSuppliedByHandicap();
-	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByCities();
-	iTotalSupplyWithoutReduction += pkPlayer->GetNumUnitsSuppliedByPopulation();
-	iTotalSupplyWithoutReduction += pkPlayer->GetUnitSupplyFromExpendedGreatPeople();
-
-	int iTotalSupplyWithReduction = iTotalSupplyWithoutReduction * 100 / (100 + iReductionPercent);
-
-	int iTotalSupply = (iTotalSupplyWithoutReduction - iTotalSupplyWithReduction);
-
-	lua_pushinteger(L, iTotalSupply);
 	return 1;
 }
 

@@ -67,6 +67,55 @@ typedef std::vector< std::pair<CivilizationTypes, LeaderHeadTypes> > CivLeaderAr
 const size_t INSTANT_YIELD_HISTORY_LENGTH = 30u;
 
 
+// Every step GetNumUnitsSupplied() took, for the UI. Percentages are out of 100.
+struct UnitSupplyBreakdown
+{
+	UnitSupplyBreakdown() :
+		bValid(true),
+		iCitiesGross(0),
+		iCitiesNet(0),
+		iCitiesTechDivisorPct(100),
+		iPopulationGross(0),
+		iPopulationNet(0),
+		iPopulationTechDivisorPct(100),
+		iDifficultyGross(0),
+		iDifficultyNet(0),
+		iGreatPeople(0),
+		iSubtotal(0),
+		iTechProgressPct(0),
+		iEffectiveCities(0),
+		iPerCityPenaltyPct(0),
+		iEmpireSizeDivisorPct(100),
+		iAfterEmpireSize(0),
+		iDifficultyModifierPct(100),
+		iBeforeWarWeariness(0),
+		iWarWearinessPct(0),
+		iTotal(0)
+	{
+	}
+
+	bool bValid;                  // false while a City-State lacks a trait/personality
+	int iCitiesGross;             // before the tech divisor
+	int iCitiesNet;               // after it
+	int iCitiesTechDivisorPct;
+	int iPopulationGross;
+	int iPopulationNet;
+	int iPopulationTechDivisorPct;
+	int iDifficultyGross;         // before the per-era subtraction
+	int iDifficultyNet;           // after it
+	int iGreatPeople;
+	int iSubtotal;                // net sources added up
+	int iTechProgressPct;
+	int iEffectiveCities;
+	int iPerCityPenaltyPct;       // Worlds.NumCitiesUnitSupplyMod
+	int iEmpireSizeDivisorPct;
+	int iAfterEmpireSize;         // subtotal once the City Count penalty is applied
+	int iDifficultyModifierPct;
+	int iBeforeWarWeariness;
+	int iWarWearinessPct;
+	int iTotal;
+};
+
 struct SPlayerActiveEspionageEvent
 {
 	PlayerTypes eOtherPlayer;
@@ -376,9 +425,12 @@ public:
 	int calculateUnitGrowthMaintenanceMod() const;
 
 	int GetNumUnitsSupplied(bool bCheckWarWeariness = true) const;
+	void GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown) const;
 	int GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction = false) const;
 	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false) const;
 	int GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction = false) const;
+	int GetUnitSupplyTechProgress() const;
+	int GetUnitSupplyTechDivisorPct(int iMultiplierPct) const;
 
 	int GetNumUnitsOutOfSupply(bool bCheckWarWeariness = true) const;
 
