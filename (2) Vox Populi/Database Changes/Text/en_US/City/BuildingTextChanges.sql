@@ -67,7 +67,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_STONE_WORKS_STRATEGY';
 
 -- Stable
 UPDATE Language_en_US
-SET Text = 'Stable can only be constructed in a City near an improved [ICON_RES_HORSE] Horse, [ICON_RES_SHEEP] Sheep, or [ICON_RES_COW] Cattle resource. It boosts the yields of the above resources and provides [ICON_WAR] Military Supply.'
+SET Text = 'Stable can only be constructed in a City near an improved [ICON_RES_HORSE] Horse, [ICON_RES_SHEEP] Sheep, or [ICON_RES_COW] Cattle resource. It boosts the yields of the above resources and provides [ICON_SILVER_FIST] Military Supply.'
 WHERE Tag = 'TXT_KEY_BUILDING_STABLE_STRATEGY';
 
 -- Lighthouse

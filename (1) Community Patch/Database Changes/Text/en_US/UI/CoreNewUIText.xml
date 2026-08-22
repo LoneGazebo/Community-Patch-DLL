@@ -457,7 +457,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]No Maintenance Cost[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_NO_SUPPLY">
-			<Text>[COLOR_POSITIVE_TEXT]Does not consume [ICON_WAR] Unit Supply[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Does not consume [ICON_SILVER_FIST] Unit Supply[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_UNHAPPINESS">
 			<Text>[ICON_HAPPINESS_3] [COLOR_NEGATIVE_TEXT]Unhappiness: {1_Num}</Text>
@@ -586,7 +586,7 @@
 			<Text>When Expended: +{1_Num} {2_ResIcon} {3_Res:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_EXPEND_SUPPLY">
-			<Text>When Expended: +{1_Num} [ICON_WAR] Military Supply</Text>
+			<Text>When Expended: +{1_Num} [ICON_SILVER_FIST] Military Supply</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_EXPEND_COPY_TILE_YIELD">
 			<Text>When Expended: Adds Tile Yield to [ICON_CAPITAL] Capital</Text>
@@ -965,7 +965,7 @@
 			<Text>{2_Sign}{1_Num} Air Unit {1: plural 1?Slot; other?Slots;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SUPPLY_FLAT">
-			<Text>{2_Sign}{1_Num} [ICON_WAR] Military Supply</Text>
+			<Text>{2_Sign}{1_Num} [ICON_SILVER_FIST] Military Supply</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_SUPPLY_MODIFIER">
 			<Text>{2_Sign}{1_Num}% [ICON_SILVER_FIST] Military Supply from Population</Text>

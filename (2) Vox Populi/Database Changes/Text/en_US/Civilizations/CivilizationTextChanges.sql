@@ -252,7 +252,7 @@ SET Text = 'La Grande Armée'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Melee and Gunpowder Units may enlist defeated enemies, which do not consume [ICON_WAR] Military Supply. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism in every City for every 10 Military Units. +15% [ICON_SILVER_FIST] Military Supply from Population.'
+SET Text = 'Melee and Gunpowder Units may enlist defeated enemies, which do not consume [ICON_SILVER_FIST] Military Supply. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism in every City for every 10 Military Units. +15% [ICON_SILVER_FIST] Military Supply from Population.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE';
 
 UPDATE Language_en_US
@@ -837,7 +837,7 @@ SET Text = '-50% [ICON_GOLD] Gold maintenance for Melee and Gunpowder Units. All
 WHERE Tag = 'TXT_KEY_TRAIT_BUFFALO_HORNS';
 
 UPDATE Language_en_US
-SET Text = 'Unique Zulu replacement for the {TXT_KEY_BUILDING_BARRACKS}. In addition to the {TXT_KEY_BUILDING_BARRACKS}'' bonuses, the {TXT_KEY_BUILDING_IKANDA_DESC} provides more [ICON_WAR] Military Supply and grants the {TXT_KEY_PROMOTION_IKLWA} promotion to all melee and gunpowder units, which unlocks a unique promotion line that offers extra HP, extra [ICON_MOVES] movement, and a flank bonus. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_BRONZE_WORKING_TITLE}[ENDCOLOR] instead of [COLOR_CYAN]{TXT_KEY_TECH_ARCHERY_TITLE}[ENDCOLOR].'
+SET Text = 'Unique Zulu replacement for the {TXT_KEY_BUILDING_BARRACKS}. In addition to the {TXT_KEY_BUILDING_BARRACKS}'' bonuses, the {TXT_KEY_BUILDING_IKANDA_DESC} provides more [ICON_SILVER_FIST] Military Supply and grants the {TXT_KEY_PROMOTION_IKLWA} promotion to all melee and gunpowder units, which unlocks a unique promotion line that offers extra HP, extra [ICON_MOVES] movement, and a flank bonus. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_BRONZE_WORKING_TITLE}[ENDCOLOR] instead of [COLOR_CYAN]{TXT_KEY_TECH_ARCHERY_TITLE}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_STRATEGY';
 
 UPDATE Language_en_US

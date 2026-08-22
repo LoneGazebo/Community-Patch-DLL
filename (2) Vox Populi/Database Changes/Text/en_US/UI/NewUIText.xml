@@ -718,17 +718,62 @@
 		<Row Tag="TXT_KEY_TECH_SUPPLY">
 			<Text>Tech Reduction</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIFFICULTY_MODIFIER_SUPPLY_TT">
+			<Text>Changed by difficulty level</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIFFICULTY_MODIFIER_SUPPLY">
+			<Text>Difficulty Modifier</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_COUNT_SUPPLY_TT">
 			<Text>Reduced from number of Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_COUNT_SUPPLY">
 			<Text>City Count Reduction</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY">
-			<Text>Number of Military Units: {12_Num} ({2_Num} Military Supply Used)[NEWLINE]Total Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from [ICON_CITY_STATE] Cities ([ICON_WAR] {13_Num} - {14_Num} from [ICON_RESEARCH] Tech Maintenance)[NEWLINE]  [ICON_BULLET]+{3_Num} from [ICON_CITIZEN] Population ([ICON_SILVER_FIST] {15_Num} - {16_Num} from [ICON_RESEARCH] Tech Maintenance)[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level ([ICON_CAPITAL] {17_Num} - {18_Num} from [ICON_RESEARCH] Era Level)[NEWLINE]  [ICON_BULLET]+{11_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People[NEWLINE][NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Total Tech Level[NEWLINE]  [ICON_BULLET] -{9_Num} from [ICON_CITY_STATE] City Count[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Each ([ICON_PUPPET] non-Puppet) City you own: +5% [ICON_CITY_STATE] City Count penalty.[NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {10_Num}% due to [ICON_WAR] War Weariness.</Text>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_HEADER">
+			<Text>Military Units: {1_Num} ({2_Num} [ICON_SILVER_FIST] Military Supply Used)[NEWLINE]Total [ICON_SILVER_FIST] Military Supply: {3_Num}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
-			<Text>{TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY}[NEWLINE]Highest War Weariness: {19_CivName} {20_Num}%</Text>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_CITIES">
+			<Text>[ICON_BULLET]+{1_Num} from [ICON_CITY_STATE] Cities{2_Str}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_POPULATION">
+			<Text>[ICON_BULLET]+{1_Num} from [ICON_CITIZEN] Population{2_Str}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_DIFFICULTY">
+			<Text>[ICON_BULLET]+{1_Num} from [ICON_CHECKBOX] Difficulty{2_Str}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_GREAT_PEOPLE">
+			<Text>[ICON_BULLET]+{1_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TECH_DIVISOR">
+			<Text>({1_Num} / [COLOR_NEGATIVE_TEXT]{2_Num}%[ENDCOLOR] [ICON_RESEARCH] Tech Progress)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_ERA_PENALTY">
+			<Text>({1_Num} - [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] from [ICON_RESEARCH] Era progress)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SUBTOTAL">
+			<Text>[ICON_BULLET]= {1_Num} before modifiers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_EMPIRE_SIZE">
+			<Text>[ICON_BULLET]/ [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR] City Count penalty from {2_Num} [ICON_CITY_STATE] {2_Num: plural 1?City; other?Cities;} (+{3_Num}% each)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_DIFFICULTY_MODIFIER">
+			<Text>[ICON_BULLET]x {1_Str} from [ICON_CHECKBOX] Difficulty</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_WAR_WEARINESS">
+			<Text>[ICON_BULLET]x [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR] from [ICON_WAR] War Weariness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TOTAL">
+			<Text>[ICON_BULLET]= {1_Num} [ICON_SILVER_FIST] Military Supply</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TECH_EXPLAINER">
+			<Text>[ICON_RESEARCH] Tech Progress: {1_Num}% of all Technologies known.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_HIGHEST_WEARINESS">
+			<Text>Highest [ICON_WAR] War Weariness: {1_CivName} {2_Num}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_BREAKDOWN_UNIT_COST">
+			<Text>Military Unit [ICON_GOLD]/[ICON_PEACE] costs increased by [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR] from [ICON_WAR] War Weariness.</Text>
 		</Row>
 
 		<!-- Conquest picker -->

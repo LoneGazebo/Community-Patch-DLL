@@ -774,15 +774,15 @@ local function UpdateTopPanelNow()
 
 		if ( iUnitsTotal > iUnitsSupplied ) then
 			if NoParentheses then
-				Controls.UnitSupplyString:SetText( S("  [ICON_WAR] [COLOR_NEGATIVE_TEXT]%i/%i[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
+				Controls.UnitSupplyString:SetText( S("  [ICON_SILVER_FIST] [COLOR_NEGATIVE_TEXT]%i/%i[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
 			else
-				Controls.UnitSupplyString:SetText( S("  [ICON_WAR] [COLOR_NEGATIVE_TEXT]%i/%i[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
+				Controls.UnitSupplyString:SetText( S("  [ICON_SILVER_FIST] [COLOR_NEGATIVE_TEXT]%i/%i[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
 			end
 		else
 			if NoParentheses then
-				Controls.UnitSupplyString:SetText( S("  [ICON_WAR] %i/%i", iUnitsTotal, iUnitsSupplied ) )
+				Controls.UnitSupplyString:SetText( S("  [ICON_SILVER_FIST] %i/%i", iUnitsTotal, iUnitsSupplied ) )
 			else
-				Controls.UnitSupplyString:SetText( S("  [ICON_WAR] (%i/%i)", iUnitsTotal, iUnitsSupplied ) )
+				Controls.UnitSupplyString:SetText( S("  [ICON_SILVER_FIST] (%i/%i)", iUnitsTotal, iUnitsSupplied ) )
 			end
 		end
 
@@ -2412,51 +2412,79 @@ if civ5_mode and gk_mode then
 		local iPlayerID = g_activePlayerID;
 		local pPlayer = Players[iPlayerID];
 
-		local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
-		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+		local kSupply = pPlayer:GetUnitSupplyBreakdown();
 		local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
 		local iUnitsTotalMilitary = pPlayer:GetNumMilitaryUnits();
-		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
-		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
-		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
-		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
 		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
-		local iTechReduction = pPlayer:GetTechSupplyReduction();
-		local iCityCountReduction = pPlayer:GetCityCountSupplyReduction();
-		local iWarWearinessPercentReduction = pPlayer:GetSupplyReductionPercentFromWarWeariness();
-		local iWarWearinessReduction = pPlayer:GetSupplyReductionFromWarWeariness();
+		local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
 		local iWarWearinessCostIncrease = pPlayer:GetUnitCostIncreaseFromWarWeariness();
 		local iHighestWarWearyPlayer = pPlayer:GetHighestWarWearinessPlayer();
-		local iPerCityGross = pPlayer:GetNumUnitsSuppliedByCities(true);
-		local iTechReductionPerCity = iPerCityGross - iPerCity;
-		local iPercentPerPopGross = pPlayer:GetNumUnitsSuppliedByPopulation(true);
-		local iTechReductionPerPop = iPercentPerPopGross - iPercentPerPop;
-		local iPerHandicapGross = pPlayer:GetNumUnitsSuppliedByHandicap(true);
-		-- Bonuses from unlisted sources are added to the handicap value
-		local iExtra = iUnitsSupplied - (iPerHandicapGross + iPerCityGross + iPercentPerPopGross + iSupplyFromGreatPeople - iTechReduction - iCityCountReduction - iWarWearinessReduction);
-		iPerHandicap = iPerHandicap + iExtra;
-		iPerHandicapGross = iPerHandicapGross + iExtra;
-		local iTechReductionPerEra = iPerHandicapGross - iPerHandicap;
 
-		local strUnitSupplyToolTip = "";
+		local strText = "";
 		if (iUnitsOver > 0) then
-			strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
-			strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
-			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
+			strText = "[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", kSupply.Total, iUnitsOver, -iUnitSupplyMod) .. "[ENDCOLOR][NEWLINE][NEWLINE]";
 		end
 
-		local strUnitSupplyToolUnderTip = "";
-		if (iHighestWarWearyPlayer == -1) then
-			strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessPercentReduction, iWarWearinessReduction, iTechReduction, iCityCountReduction, iWarWearinessCostIncrease, iSupplyFromGreatPeople, iUnitsTotalMilitary, iPerCityGross, iTechReductionPerCity, iPercentPerPopGross, iTechReductionPerPop, iPerHandicapGross, iTechReductionPerEra);
-		else
-			local iWarWearyTargetPercent = pPlayer:GetWarWearinessPercent(iHighestWarWearyPlayer);
-			strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessPercentReduction, iWarWearinessReduction, iTechReduction, iCityCountReduction, iWarWearinessCostIncrease, iSupplyFromGreatPeople, iUnitsTotalMilitary, iPerCityGross, iTechReductionPerCity, iPercentPerPopGross, iTechReductionPerPop, iPerHandicapGross, iTechReductionPerEra, Players[iHighestWarWearyPlayer]:GetCivilizationShortDescription(), iWarWearyTargetPercent);
+		strText = strText .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_HEADER", iUnitsTotalMilitary, iUnitsTotal, kSupply.Total) .. "[NEWLINE]";
+
+		-- Sources first, each with its own reduction; the steps after the subtotal are
+		-- the empire-wide ones. Lines are skipped when their value is neutral, so CP
+		-- (no tech or city count effect) drops them without a mod check here.
+		local sCitiesDetail = "";
+		if (kSupply.CitiesTechDivisorPct ~= 100) then
+			sCitiesDetail = " " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TECH_DIVISOR", kSupply.CitiesGross, kSupply.CitiesTechDivisorPct);
 		end
-		if (strUnitSupplyToolTip ~= "") then
-			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
-		else
-			strUnitSupplyToolTip = strUnitSupplyToolUnderTip;
+		strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_CITIES", kSupply.CitiesNet, sCitiesDetail);
+
+		local sPopulationDetail = "";
+		if (kSupply.PopulationTechDivisorPct ~= 100) then
+			sPopulationDetail = " " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TECH_DIVISOR", kSupply.PopulationGross, kSupply.PopulationTechDivisorPct);
 		end
+		strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_POPULATION", kSupply.PopulationNet, sPopulationDetail);
+
+		local sDifficultyDetail = "";
+		if (kSupply.DifficultyGross ~= kSupply.DifficultyNet) then
+			sDifficultyDetail = " " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_ERA_PENALTY", kSupply.DifficultyGross, kSupply.DifficultyGross - kSupply.DifficultyNet);
+		end
+		strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_DIFFICULTY", kSupply.DifficultyNet, sDifficultyDetail);
+
+		if (kSupply.GreatPeople ~= 0) then
+			strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_GREAT_PEOPLE", kSupply.GreatPeople);
+		end
+
+		local bAnyEmpireWide = (kSupply.EmpireSizeDivisorPct ~= 100) or (kSupply.DifficultyModifierPct ~= 100) or (kSupply.WarWearinessPct ~= 0);
+		if (bAnyEmpireWide) then
+			strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SUBTOTAL", kSupply.Subtotal);
+
+			if (kSupply.EmpireSizeDivisorPct ~= 100) then
+				strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_EMPIRE_SIZE", kSupply.EmpireSizeDivisorPct, kSupply.EffectiveCities, kSupply.PerCityPenaltyPct);
+			end
+
+			if (kSupply.DifficultyModifierPct ~= 100) then
+		local sDifficultyFactor = (kSupply.DifficultyModifierPct > 100 and "[COLOR_POSITIVE_TEXT]" or "[COLOR_NEGATIVE_TEXT]") .. kSupply.DifficultyModifierPct .. "%[ENDCOLOR]";
+				strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_DIFFICULTY_MODIFIER", sDifficultyFactor);
+			end
+
+			if (kSupply.WarWearinessPct ~= 0) then
+				strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_WAR_WEARINESS", 100 - kSupply.WarWearinessPct);
+			end
+		end
+
+		strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TOTAL", kSupply.Total);
+
+		if (kSupply.CitiesTechDivisorPct ~= 100 or kSupply.PopulationTechDivisorPct ~= 100) then
+			strText = strText .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TECH_EXPLAINER", kSupply.TechProgressPct);
+		end
+
+		if (iHighestWarWearyPlayer ~= -1) then
+			strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_HIGHEST_WEARINESS", Players[iHighestWarWearyPlayer]:GetCivilizationShortDescription(), pPlayer:GetWarWearinessPercent(iHighestWarWearyPlayer));
+		end
+
+		if (iWarWearinessCostIncrease > 0) then
+			strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_UNIT_COST", iWarWearinessCostIncrease);
+		end
+
+		local strUnitSupplyToolTip = strText;
 
 		local tips = table()
 		tips:insert(strUnitSupplyToolTip)

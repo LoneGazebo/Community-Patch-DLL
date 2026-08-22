@@ -47,7 +47,7 @@ WHERE Tag = 'TXT_KEY_MISSION_HURRY_PRODUCTION_HELP';
 
 -- Repair Fleet
 UPDATE Language_en_US
-SET Text = 'This order will consume the Great Admiral and heal all of your Naval Units and Embarked Units in this tile and all adjacent tiles. It also increases your [ICON_WAR] Military Supply by 1.'
+SET Text = 'This order will consume the Great Admiral and heal all of your Naval Units and Embarked Units in this tile and all adjacent tiles. It also increases your [ICON_SILVER_FIST] Military Supply by 1.'
 WHERE Tag = 'TXT_KEY_MISSION_REPAIR_FLEET_HELP';
 
 -- Remove Heresy

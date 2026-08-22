@@ -892,7 +892,7 @@
 			<Text>Military Tradition</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MILITARY_TRADITION_HELP">
-			<Text>+1 [ICON_WAR] Military Supply when this Unit is expended.</Text>
+			<Text>+1 [ICON_SILVER_FIST] Military Supply when this Unit is expended.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_GREAT_DIPLOMAT">
@@ -1567,7 +1567,7 @@
 			<Text>Conscript</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_CONSCRIPT_HELP">
-			<Text>This Unit does not consume [ICON_WAR] Unit Supply.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>This Unit does not consume [ICON_SILVER_FIST] Unit Supply.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_JUGGERNAUT">
