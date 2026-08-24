@@ -786,10 +786,6 @@ bool CvTraitEntry::IsMountainPass() const
 {
 	return m_bMountainPass;
 }
-bool CvTraitEntry::IsWorkersMountainPass() const
-{
-	return m_bWorkersMountainPass;
-}
 int CvTraitEntry::GetWLTKDGPImprovementModifier() const
 {
 	return m_iWLTKDGPImprovementModifier;
@@ -5195,26 +5191,8 @@ void CvPlayerTraits::InitPlayerTraits()
 				{
 					m_aibUnitCombatProductionCostModifier.insert(std::make_pair(jJ, trait->GetUnitCombatProductionCostModifier(jJ)));
 				}
-				// cache if any added promos will allow WorkersMountainPass
-				if (jJ == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_WORKER", true))
-				{
-					for (int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
-	           		{
-		                PromotionTypes ePromotion = (PromotionTypes)iPromotion;
-		
-		                // Check if this trait grants this promotion to workers
-		                if (trait->IsFreePromotionUnitCombat(ePromotion, jJ))
-		                {
-		                    const CvPromotionEntry* pPromotion = GC.getPromotionInfo(ePromotion);
-		                    if (pPromotion && pPromotion->CanCrossMountains())
-		                    {
-		                        m_bWorkersMountainPass = true;
-		                        break; // found one, no need to continue
-		                    }
-		                }
-	           		}
-				}
 			}
+
 			int iNumUnitClasses = GC.getNumUnitClassInfos();
 			for(int jJ= 0; jJ < iNumUnitClasses; jJ++)
 			{
@@ -6930,6 +6908,20 @@ int CvPlayerTraits::GetNextFreeUnit()
 	}
 
 	return NO_UNITCLASS;
+}
+
+bool CvPlayerTraits::IsWorkersMountainPass() const
+{
+	const set<PromotionTypes>& seFreePromotions = GetFreePromotions();
+	for (set<PromotionTypes>::const_iterator it = seFreePromotions.begin(); it != seFreePromotions.end(); ++it)
+	{
+		if (GC.getPromotionInfo(*it)->CanCrossMountains())
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /// Does this trait provide free resources in the first X cities?

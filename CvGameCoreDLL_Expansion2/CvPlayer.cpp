@@ -1013,8 +1013,8 @@ void CvPlayer::init(PlayerTypes eID)
 		}
 
 		// Free promotions from traits
-		set<PromotionTypes> seFreePromotions = GetPlayerTraits()->GetFreePromotions();
-		for (set<PromotionTypes>::iterator it = seFreePromotions.begin(); it != seFreePromotions.end(); ++it)
+		const set<PromotionTypes>& seFreePromotions = GetPlayerTraits()->GetFreePromotions();
+		for (set<PromotionTypes>::const_iterator it = seFreePromotions.begin(); it != seFreePromotions.end(); ++it)
 		{
 			ChangeFreePromotionCount(*it, 1);
 		}
