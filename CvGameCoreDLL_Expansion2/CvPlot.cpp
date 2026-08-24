@@ -2614,7 +2614,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
-	if(!isValidMovePlot(ePlayer))
+	if(!isValidMovePlot(ePlayer) && !(isMountain() && GET_PLAYER(ePlayer).WorkersMountainPass()))
 	{
 		return false;
 	}
