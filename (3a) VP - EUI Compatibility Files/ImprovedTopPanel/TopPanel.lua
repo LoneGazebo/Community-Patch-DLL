@@ -3010,11 +3010,23 @@ local tStrategicResources = {}
 
 for resource in GameInfo.Resources() do
 	local resourceID = resource.ID
-	
+
 	if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
-		table.insert(tStrategicResources, resource.StrategicPriority, resource)
+		table.insert(tStrategicResources, resource)
 	end
 end
+
+-- Resources are iterated in ID order, which doesn't match StrategicPriority order,
+-- so sort explicitly. Inserting at the StrategicPriority index instead would rely on
+-- out-of-bounds table.insert positions, which behave differently on LuaJIT vs Lua 5.1
+-- and can leave holes that silently truncate the ipairs() below.
+table.sort(tStrategicResources, function(a, b)
+	if a.StrategicPriority == b.StrategicPriority then
+		return a.ID < b.ID
+	end
+
+	return a.StrategicPriority < b.StrategicPriority
+end)
 
 for i, resource in ipairs(tStrategicResources) do
 	local resourceID = resource.ID
