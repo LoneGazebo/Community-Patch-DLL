@@ -38915,12 +38915,24 @@ void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 
 int CvPlayer::GetPercentGlobalMonopolies() const
 {
-	int iGlobalsOnMap = GetNumGlobalMonopolies();
+	int iGlobalsOnMap = 0;
+
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo && pkResourceInfo->isMonopoly())
+		{
+			int iTotalNumResource = GC.getMap().getNumResources(eResource);
+			if (iTotalNumResource > 0)
+				iGlobalsOnMap += 1;
+		}
+	}
 	
 	if (iGlobalsOnMap == 0)
 		return 0;
 	
-	int iNumMonopolies = GetGlobalMonopolies().size();
+	int iNumMonopolies = GetNumGlobalMonopolies();
 			
 	return 100 * iNumMonopolies / iGlobalsOnMap;
 }
