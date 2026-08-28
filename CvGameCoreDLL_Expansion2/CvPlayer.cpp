@@ -38921,7 +38921,7 @@ int CvPlayer::GetPercentGlobalMonopolies() const
 	{
 		ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (pkResourceInfo && pkResourceInfo->isMonopoly())
+		if (pkResourceInfo->isMonopoly())
 		{
 			int iTotalNumResource = GC.getMap().getNumResources(eResource);
 			if (iTotalNumResource > 0)
