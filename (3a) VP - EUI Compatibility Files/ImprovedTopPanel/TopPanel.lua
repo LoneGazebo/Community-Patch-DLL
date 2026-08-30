@@ -175,6 +175,16 @@ local function FormatCityCostPercentHundredths( iHundredths )
 	return string.format( "%.2f", iHundredths / 100 )
 end
 
+-- One factor of a cost chain, e.g. "116%". bDivisor flips the colour: a cost
+-- divided by the factor gets cheaper as it grows.
+local function FormatCostFactor( iPct, bDivisor )
+	if iPct == 100 then
+		return iPct .. "%"
+	end
+	local bCheaper = bDivisor and (iPct > 100) or ((not bDivisor) and (iPct < 100))
+	return (bCheaper and "[COLOR_POSITIVE_TEXT]" or "[COLOR_NEGATIVE_TEXT]") .. iPct .. "%[ENDCOLOR]"
+end
+
 local g_options = Modding.OpenUserData( "Enhanced User Interface Options", 1)
 local g_clockFormats = { "%H:%M", "%I:%M %p", "%X", "%c" }
 local g_clockFormat, g_alarmTime
@@ -1183,43 +1193,45 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			
 			-- Display Technology cost modifier effects like dll does.
 			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths = g_activePlayer:GetResearchCityCostBreakdown( iTech )
+			local bHasDiscounts = false
 			
 			if iTech >= 0 then
 				local iKnownWithTech, iTotalKnown, iCatchupModTimes100, iScholarDiscountTimes100, iAlliesDiscountTimes100, iBaseTeamCost, iPrereqModTimes100, iPreScholarModPct, iScholarModPct, iFinalResearchModPct = g_activePlayer:GetResearchTechDiscountBreakdown( iTech )
-				local bHasDiscounts = (iCatchupModTimes100 > 0) or (iPrereqModTimes100 > 0) or (iScholarDiscountTimes100 > 0) or (iAlliesDiscountTimes100 > 0)
+				bHasDiscounts = (iCatchupModTimes100 > 0) or (iPrereqModTimes100 > 0) or (iScholarDiscountTimes100 > 0) or (iAlliesDiscountTimes100 > 0)
 				
+				-- As above, but the discounts sum into one divisor: a single division
 				if bHasDiscounts then
-					tips:insert( L( "TXT_KEY_TP_TECH_DISCOUNT_HEADER", iBaseTeamCost, baseCost ) )
-					
+					tips:insert( L( "TXT_KEY_TP_TECH_COST_BASE", iBaseTeamCost ) )
+
+					-- the divisor is one number, but Scholars in Residence splits it in two
+					local sScholarSplit = (iScholarModPct ~= 0) and ( " " .. L( "TXT_KEY_TP_TECH_DISCOUNT_SCHOLAR_SPLIT", 100 + iPreScholarModPct, 100 + iScholarModPct ) ) or ""
+					tips:insert( L( "TXT_KEY_TP_TECH_DISCOUNT_HEADER", FormatCostFactor( iFinalResearchModPct, true ), sScholarSplit ) )
+
 					-- Catch-up: always-on when known civs have this tech (30% max in CP, 10% in VP)
 					if iCatchupModTimes100 > 0 then
 						local sCatchupPct = FormatCityCostPercentHundredths( iCatchupModTimes100 )
-						tips:insert( L( "TXT_KEY_TP_TECH_CATCHUP_DISCOUNT", sCatchupPct, iKnownWithTech, iTotalKnown ) )
+						tips:insert( "   " .. L( "TXT_KEY_TP_TECH_CATCHUP_DISCOUNT", sCatchupPct, iKnownWithTech, iTotalKnown ) )
 					end
 
 					if iPrereqModTimes100 > 0 then
 						local sPrereqPct = FormatCityCostPercentHundredths( iPrereqModTimes100 )
-						tips:insert( L( "TXT_KEY_TP_TECH_PREREQ_DISCOUNT", sPrereqPct ) )
+						tips:insert( "   " .. L( "TXT_KEY_TP_TECH_PREREQ_DISCOUNT", sPrereqPct ) )
 					end
 					
 					-- Scholars in Residence base discount (VP only)
 					if iScholarDiscountTimes100 > 0 then
 						local iScholarPct = math.floor( iScholarDiscountTimes100 / 100 )
-						tips:insert( L( "TXT_KEY_TP_TECH_SCHOLAR_DISCOUNT", iScholarPct ) )
+						tips:insert( "   " .. L( "TXT_KEY_TP_TECH_SCHOLAR_DISCOUNT", iScholarPct ) )
 					end
 					
 					-- Allies discount (VP only, requires Scholars in Residence + allies)
 					if iAlliesDiscountTimes100 > 0 then
 						local iAlliesPct = math.floor( iAlliesDiscountTimes100 / 100 )
 						local iMinorAllies = g_activePlayer:GetNumCSAllies()
-						tips:insert( L( "TXT_KEY_TP_TECH_ALLIES_DISCOUNT", iAlliesPct, iMinorAllies ) )
+						tips:insert( "   " .. L( "TXT_KEY_TP_TECH_ALLIES_DISCOUNT", iAlliesPct, iMinorAllies ) )
 					end
 
-					if iScholarModPct ~= 0 then
-						tips:insert( L( "TXT_KEY_TP_TECH_DISCOUNT_FORMULA_WITH_SCHOLAR", iBaseTeamCost, 100 + iPreScholarModPct, 100 + iScholarModPct, iFinalResearchModPct, baseCost ) )
-					else
-						tips:insert( L( "TXT_KEY_TP_TECH_DISCOUNT_FORMULA_NO_SCHOLAR", iBaseTeamCost, iPreScholarModPct, iFinalResearchModPct, baseCost ) )
-					end
+					tips:insert( L( "TXT_KEY_TP_TECH_COST_TOTAL", baseCost ) )
 					
 					tips:insert( "" )
 				end
@@ -1231,7 +1243,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			local eStr = FormatCityCostPercentHundredths( eHundredths )
 			tips:insert( L( "TXT_KEY_TP_TECH_CITY_COST", baseFormulaStr, N_actual, scalingFormulaStr ) )
 			if totalCost >= 0 then
-				tips:insert( L( "TXT_KEY_TP_TECH_CITY_COST_DETAIL", totalCost, baseCost, cityCost, nextCityDelta, cStr, eStr, N_actual ) )
+				tips:insert( L( "TXT_KEY_TP_TECH_CITY_COST_DETAIL", totalCost, baseCost, cityCost, nextCityDelta, cStr, eStr, N_actual, L( bHasDiscounts and "TXT_KEY_TP_COST_ADJUSTED_LABEL" or "TXT_KEY_TP_COST_BASE_LABEL" ) ) )
 			end
 		end
 	end
@@ -1931,49 +1943,52 @@ g_toolTipHandler.CultureString = function()-- control )
 		-- Let people know that building more cities makes policies harder to get
 
 		if g_isBasicHelp then
-			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths, iBasePolicyCostBeforeDiscount, iPolicyMultiplierPct, iTenetPenaltyPct, iTenetsAdopted, iTenetTier1PenaltyPct, iTenetTier2PenaltyPct, iTenetTier3PenaltyPct = g_activePlayer:GetNextPolicyCostBreakdown()
-			local iPolicyModPct, iPoliciesModPct, iBuildingsModPct, iMinorCivsModPct, iTraitsModPct, iUncappedPolicyModPct, iPolicyDiscountCapPct = g_activePlayer:GetPolicyCostModifierBreakdown()
+			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths, iBasePolicyCostBeforeDiscount, iPolicyMultiplierPct, iTenetPenaltyPct, iTenetsAdopted, iTenetTier1PenaltyPct, iTenetTier2PenaltyPct, iTenetTier3PenaltyPct, iDifficultyPct = g_activePlayer:GetNextPolicyCostBreakdown()
+			local iPoliciesModPct, iBuildingsModPct, iMinorCivsModPct, iTraitsModPct, iUncappedPolicyModPct, iPolicyDiscountCapPct = g_activePlayer:GetPolicyCostModifierBreakdown()
 			if g_activePlayer:GetNumPolicies(true, false) >= 17 then
 				tips:insert( "" )
 				tips:insert( L( "TXT_KEY_TP_POLICY_TENET_PENALTY_EXPLAINER", iTenetTier1PenaltyPct, iTenetTier2PenaltyPct, iTenetTier3PenaltyPct ) )
 			end
-			local iPolicyDiscountPct = math.max( 0, -iPolicyModPct )
-			if iPolicyDiscountPct > 0 or iTenetPenaltyPct > 0 then
-				if iPolicyDiscountPct ~= 0 then
-					tips:insert( L( "TXT_KEY_TP_POLICY_DISCOUNT_HEADER" ) )
-				end
+			-- Base (game speed included), one line per multiplication, then the result.
+			-- Discount sources are sub-lines: they sum into one multiplier.
+			local bAdjusted = (iPolicyMultiplierPct ~= 100) or (iTenetPenaltyPct > 0 and iTenetsAdopted > 0) or (iDifficultyPct ~= 100)
+			if bAdjusted then
+				tips:insert( L( "TXT_KEY_TP_POLICY_COST_BASE", iBasePolicyCostBeforeDiscount ) )
 
-				local iPoliciesDiscountPct = math.max( 0, -iPoliciesModPct )
-				if iPoliciesDiscountPct > 0 then
-					tips:insert( L( "TXT_KEY_TP_POLICY_DISCOUNT_FROM_POLICIES", iPoliciesDiscountPct ) )
-				end
+				if iPolicyMultiplierPct ~= 100 then
+					local sCappedNote = (iUncappedPolicyModPct < iPolicyDiscountCapPct) and ( " " .. L( "TXT_KEY_TP_POLICY_DISCOUNT_CAPPED", iPolicyDiscountCapPct ) ) or ""
+					tips:insert( L( "TXT_KEY_TP_POLICY_DISCOUNT_HEADER", FormatCostFactor( iPolicyMultiplierPct, false ), sCappedNote ) )
 
-				local iBuildingsDiscountPct = math.max( 0, -iBuildingsModPct )
-				if iBuildingsDiscountPct > 0 then
-					tips:insert( L( "TXT_KEY_TP_POLICY_DISCOUNT_FROM_BUILDINGS", iBuildingsDiscountPct ) )
-				end
+					local iPoliciesDiscountPct = math.max( 0, -iPoliciesModPct )
+					if iPoliciesDiscountPct > 0 then
+						tips:insert( "   " .. L( "TXT_KEY_TP_POLICY_DISCOUNT_FROM_POLICIES", iPoliciesDiscountPct ) )
+					end
 
-				local iMinorCivsDiscountPct = math.max( 0, -iMinorCivsModPct )
-				if iMinorCivsDiscountPct > 0 then
-					tips:insert( L( "TXT_KEY_TP_POLICY_DISCOUNT_FROM_MINOR_CIVS", iMinorCivsDiscountPct ) )
-				end
+					local iBuildingsDiscountPct = math.max( 0, -iBuildingsModPct )
+					if iBuildingsDiscountPct > 0 then
+						tips:insert( "   " .. L( "TXT_KEY_TP_POLICY_DISCOUNT_FROM_BUILDINGS", iBuildingsDiscountPct ) )
+					end
 
-				local iTraitsDiscountPct = math.max( 0, -iTraitsModPct )
-				if iTraitsDiscountPct > 0 then
-					tips:insert( L( "TXT_KEY_TP_POLICY_DISCOUNT_FROM_TRAITS", iTraitsDiscountPct ) )
+					local iMinorCivsDiscountPct = math.max( 0, -iMinorCivsModPct )
+					if iMinorCivsDiscountPct > 0 then
+						tips:insert( "   " .. L( "TXT_KEY_TP_POLICY_DISCOUNT_FROM_MINOR_CIVS", iMinorCivsDiscountPct ) )
+					end
+
+					local iTraitsDiscountPct = math.max( 0, -iTraitsModPct )
+					if iTraitsDiscountPct > 0 then
+						tips:insert( "   " .. L( "TXT_KEY_TP_POLICY_DISCOUNT_FROM_TRAITS", iTraitsDiscountPct ) )
+					end
 				end
 
 				if iTenetPenaltyPct > 0 and iTenetsAdopted > 0 then
-					tips:insert( L( "TXT_KEY_TP_POLICY_TENET_PENALTY", iTenetPenaltyPct, iTenetsAdopted ) )
+					tips:insert( L( "TXT_KEY_TP_POLICY_TENET_PENALTY", 100 + iTenetPenaltyPct, iTenetsAdopted ) )
 				end
 
-				local sCappedNote = (iUncappedPolicyModPct < iPolicyDiscountCapPct) and "(capped)" or ""
-				local sPositiveFactor = (iPolicyMultiplierPct ~= 100) and (" x [COLOR_POSITIVE_TEXT]" .. iPolicyMultiplierPct .. "%[ENDCOLOR]") or ""
-				if sPositiveFactor == "" then
-					sCappedNote = ""
+				if iDifficultyPct ~= 100 then
+					tips:insert( L( "TXT_KEY_TP_POLICY_DIFFICULTY", FormatCostFactor( iDifficultyPct, false ) ) )
 				end
-				local sNegativeFactor = (iTenetPenaltyPct > 0 and iTenetsAdopted > 0) and (" x [COLOR_NEGATIVE_TEXT]" .. (100 + iTenetPenaltyPct) .. "%[ENDCOLOR]") or ""
-				tips:insert( L( "TXT_KEY_TP_POLICY_DISCOUNT_FORMULA", iBasePolicyCostBeforeDiscount, sPositiveFactor, sCappedNote, sNegativeFactor, baseCost ) )
+
+				tips:insert( L( "TXT_KEY_TP_POLICY_COST_TOTAL", baseCost ) )
 			end
 
 			tips:insert( "" )
@@ -1982,7 +1997,7 @@ g_toolTipHandler.CultureString = function()-- control )
 			local cStr = FormatCityCostPercentHundredths( cHundredths )
 			local eStr = FormatCityCostPercentHundredths( eHundredths )
 			tips:insert( L( "TXT_KEY_TP_CULTURE_CITY_COST", baseFormulaStr, N_actual, scalingFormulaStr ) )
-			tips:insert( L("TXT_KEY_TP_CULTURE_CITY_COST_DETAIL", totalCost, baseCost, cityCost, nextCityDelta, cStr, eStr, N_actual ) )
+			tips:insert( L( "TXT_KEY_TP_CULTURE_CITY_COST_DETAIL", totalCost, baseCost, cityCost, nextCityDelta, cStr, eStr, N_actual, L( bAdjusted and "TXT_KEY_TP_COST_ADJUSTED_LABEL" or "TXT_KEY_TP_COST_BASE_LABEL" ) ) )
 		end
 	end
 
@@ -3010,11 +3025,23 @@ local tStrategicResources = {}
 
 for resource in GameInfo.Resources() do
 	local resourceID = resource.ID
-	
+
 	if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
-		table.insert(tStrategicResources, resource.StrategicPriority, resource)
+		table.insert(tStrategicResources, resource)
 	end
 end
+
+-- Resources are iterated in ID order, which doesn't match StrategicPriority order,
+-- so sort explicitly. Inserting at the StrategicPriority index instead would rely on
+-- out-of-bounds table.insert positions, which behave differently on LuaJIT vs Lua 5.1
+-- and can leave holes that silently truncate the ipairs() below.
+table.sort(tStrategicResources, function(a, b)
+	if a.StrategicPriority == b.StrategicPriority then
+		return a.ID < b.ID
+	end
+
+	return a.StrategicPriority < b.StrategicPriority
+end)
 
 for i, resource in ipairs(tStrategicResources) do
 	local resourceID = resource.ID

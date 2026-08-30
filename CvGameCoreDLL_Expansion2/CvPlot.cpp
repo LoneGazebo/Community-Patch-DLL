@@ -2614,7 +2614,6 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
-	// ePlayer is NO_PLAYER for the default-argument callers, and GET_PLAYER does not tolerate it
 	if(!isValidMovePlot(ePlayer) && !(isMountain() && ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).WorkersMountainPass()))
 	{
 		return false;
