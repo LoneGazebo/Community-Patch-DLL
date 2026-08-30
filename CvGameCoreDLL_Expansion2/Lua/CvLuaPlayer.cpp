@@ -11153,9 +11153,6 @@ int CvLuaPlayer::lGetReasonActionDisabled(lua_State* L)
 		}
 		else if (strcmp(szActionType, "MISSION_PLUNDER_TRADE_ROUTE") == 0)
 		{
-			// this should only be called if we can't plunder any trade route and if a tooltip should be shown explaining why
-			ASSERT(!pUnit->canPlunderTradeRoute(pPlot, false) && pUnit->canPlunderTradeRoute(pPlot, true));
-
 			// First check: Is there a trade route here that we can't plunder because we're not at war with the civ?
 			bool bReasonFound = false;
 
