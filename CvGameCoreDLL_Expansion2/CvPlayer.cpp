@@ -11115,21 +11115,21 @@ void CvPlayer::chooseTech(int iDiscover, const char* strText, TechTypes iTechJus
 	}
 }
 
-void CvPlayer::ChoosePolicy(int iDiscover, const char* strText)
+void CvPlayer::ChoosePolicy(const char* strText)
 {
 	if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
 	{
 		return;
 	}
 
-	if (iDiscover > 0)
+	if (GetNumFreePolicies() > 0)
 	{
 		CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY");
 		CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FREE_POLICY_SUMMARY");
 		CvNotifications* pNotifications = GetNotifications();
 		if (pNotifications)
 		{
-			pNotifications->Add(NOTIFICATION_FREE_POLICY, strText, strSummary, -1, -1, -1);
+			pNotifications->Add(NOTIFICATION_FREE_POLICY, strBuffer, strSummary, -1, -1, -1);
 		}
 	}
 	else if (strText == 0 || strText[0] == 0)
@@ -11186,8 +11186,15 @@ void CvPlayer::ChooseIdeology()
 
 	if (GetPlayerTraits()->IsAdoptionFreeTech())
 	{
-		CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_IDEOLOGY_UA_CHOOSE_TECH");
-		chooseTech(1, strBuffer.GetCString());
+		if (isHuman(ISHUMAN_AI_TECH_CHOICE))
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_IDEOLOGY_UA_CHOOSE_TECH");
+			chooseTech(1, strBuffer.GetCString());
+		}
+		else
+		{
+			AI_chooseFreeTech();
+		}
 	}
 
 	if (bForcedIdeology)
@@ -48719,7 +48726,7 @@ void CvPlayer::ChangeNumFreePolicies(int iChange)
 	{
 		if (isHuman(ISHUMAN_AI_POLICY_CHOICE))
 		{
-			ChoosePolicy(1);
+			ChoosePolicy();
 		}
 		else
 		{

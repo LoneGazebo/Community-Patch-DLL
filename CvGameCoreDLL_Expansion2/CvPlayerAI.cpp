@@ -658,7 +658,15 @@ void CvPlayerAI::AI_ChoosePolicy()
 		{
 			if (GetPlayerTraits()->IsAdoptionFreeTech())
 			{
-				AI_chooseFreeTech();
+				if (isHuman(ISHUMAN_AI_TECH_CHOICE))
+				{
+					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_IDEOLOGY_UA_CHOOSE_TECH");
+					chooseTech(1, strBuffer.GetCString());
+				}
+				else
+				{
+					AI_chooseFreeTech();
+				}
 			}
 
 			GetPlayerPolicies()->DoChooseIdeology();
