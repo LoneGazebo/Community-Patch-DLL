@@ -45,8 +45,8 @@ static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;
 
 CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
-	PRECONDITION(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
-	PRECONDITION(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
+	ASSERT(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
+	ASSERT(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
 
 	if (ePlayer <= NO_PLAYER || ePlayer >= MAX_PLAYERS)
 		ePlayer = BARBARIAN_PLAYER;
@@ -1274,8 +1274,11 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 				continue;
 
 			CvArmyAI* pThisArmy = GET_PLAYER(pCity->getOwner()).getArmyAI(thisSlot.m_iArmyID);
+			if (!pThisArmy)
+				continue;
 
-			if (!pThisArmy || !pThisArmy->GetSlotStatus(thisSlot.m_iSlotID)->IsFree())
+			CvArmyFormationSlot* pThisSlot = pThisArmy->GetSlotStatus(thisSlot.m_iSlotID);
+			if (!pThisSlot || !pThisSlot->IsFree())
 				continue;
 
 			if (OperationalAIHelpers::IsSlotRequired(GetID(), thisSlot))

@@ -73,7 +73,7 @@ namespace CvEnumsUtil
 	template<> struct Traits<CivilizationTypes>
 	{
 		enum { IsFixed = false };
-		static inline std::size_t Count() { return GC.getFeatureInfo().size(); }
+		static inline std::size_t Count() { return GC.getCivilizationInfo().size(); }
 	};
 	template<> struct Traits<MinorCivTypes>
 	{
@@ -223,7 +223,7 @@ namespace CvEnumsUtil
 	template<> struct Traits<SpecialistTypes>
 	{
 		enum { IsFixed = false };
-		static inline std::size_t Count() { return GC.getPromotionInfo().size(); }
+		static inline std::size_t Count() { return GC.getSpecialistInfo().size(); }
 	};
 	template<> struct Traits<EconomicAIStrategyTypes>
 	{

@@ -5795,6 +5795,9 @@ bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 		ASSERT((m_pPlayer->getLeaderType() >= 0), "getLeaderType() is less than zero");
 		ASSERT((eTrait >= 0), "eTrait is less than zero");
 
+		if (eTrait < 0 || eTrait >= GC.getNumTraitInfos())
+			return false;
+
 		TeamTypes eTeam = m_pPlayer->getTeam();
 		PlayerTypes ePlayer = m_pPlayer->GetID();
 		CvTraitEntry* pTrait = m_pTraits->GetEntry(eTrait);

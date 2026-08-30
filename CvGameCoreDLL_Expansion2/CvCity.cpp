@@ -2140,7 +2140,7 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, Playe
 	{
 		owningPlayer.disassembleSpaceship(pPlot);
 		owningPlayer.findNewCapital();
-		owningPlayer.SetHasLostCapital(true, getOwner());
+		owningPlayer.SetHasLostCapital(true, eOwner);
 		GET_TEAM(owningPlayer.getTeam()).resetVictoryProgress();
 	}
 
@@ -5311,7 +5311,9 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 					localizedSpecialistText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED_SPECIALIST");
 				}
 
-				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
+				// A specialist need not have a great person unit class, and the accessor traps on -1
+				const UnitClassTypes eGPUnitClass = (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass();
+				CvUnitClassInfo* pkUnitClassInfo = eGPUnitClass != NO_UNITCLASS ? GC.getUnitClassInfo(eGPUnitClass) : NULL;
 				if (pkUnitClassInfo)
 				{
 					localizedSpecialistText << pkUnitClassInfo->GetDescription();
@@ -29489,7 +29491,17 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 
 	if (bFinish && pOrderNode->bSave)
 	{
+		int iOrderIndex = iCount;
 		pushOrder(pOrderNode->eOrderType, pOrderNode->iData1, pOrderNode->iData2, true, false, true);
+
+		// m_orderQueue is a vector, not a linked list - the append above can reallocate its
+		// buffer and free the old one, which leaves pOrderNode dangling for the reads and the
+		// deleteNode() below. Re-derive the node from the position we found it at.
+		pOrderNode = getOrderFromQueue(iOrderIndex);
+		if (pOrderNode == NULL)
+		{
+			return;
+		}
 	}
 	bool bUpdateStrength = false;
 
@@ -32651,6 +32663,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_miTechEnhancedYields);
 	visitor(city.m_miGreatPersonPointFromConstruction);
 	visitor(city.m_iUnhappinessFromBuildings);
+	visitor(city.m_unitBeingBuiltForOperation);
 }
 
 //	--------------------------------------------------------------------------------

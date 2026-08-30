@@ -2633,7 +2633,9 @@ void onGameStarted()
 				iReligious++;
 				break;
 			default:
-				UNREACHABLE();
+				// A City-State whose MinorCivTrait is unset or unrecognised counts towards no
+				// category. It stays in the game, it just does not affect the trait balance.
+				break;
 			}
 		}
 	}
@@ -2908,7 +2910,10 @@ vector<MinorCivTypes> GetAvailableMinorCivTypes(vector<MinorCivTypes>& vCultured
 			vReligious.push_back(eAvailability);
 			break;
 		default:
-			UNREACHABLE();
+			// A City-State whose MinorCivTrait is unset or unrecognised belongs to no category, so
+			// the trait-balanced path cannot pick it. It stays in vAvailable, which is what the
+			// unbalanced path draws from and which does not look at traits at all.
+			break;
 		}
 	}
 	return vAvailable;

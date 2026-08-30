@@ -1187,6 +1187,12 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 	// Policy Update
 	if(bNOTPolicyBranch)
 	{
+		// iPolicyID arrives unvalidated. doAdoptPolicy() below reads as though getPolicyInfo()
+		// returned NULL for a bad id, but that accessor traps instead, so its graceful path
+		// cannot run; setHasPolicy() traps outright.
+		if(iPolicyID < 0 || iPolicyID >= GC.getNumPolicyInfos())
+			return;
+
 		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyID);
 		if(bValue)
 		{
@@ -1202,6 +1208,11 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 	// Policy Branch Update
 	else
 	{
+		// Same value, different enum on this path - IsPolicyBranchBlocked and
+		// IsPolicyBranchUnlocked both trap outside [0, GetNumPolicyBranches())
+		if(iPolicyID < 0 || iPolicyID >= GC.getNumPolicyBranchInfos())
+			return;
+
 		const PolicyBranchTypes eBranch = static_cast<PolicyBranchTypes>(iPolicyID);
 		CvPlayerPolicies* pPlayerPolicies = kPlayer.GetPlayerPolicies();
 

@@ -686,14 +686,31 @@ int CvNotifications::GetNumNotifications(void) const
 	return iValue;
 }
 
+// These accessors are called from Lua with an unvalidated index. A negative index makes the
+// modulo below negative too, so it must be rejected before it reaches the array.
+bool CvNotifications::IsValidZeroBasedIndex(int iZeroBasedIndex) const
+{
+	return iZeroBasedIndex >= 0 && iZeroBasedIndex < int(MaxNotifications);
+}
+
 CvString CvNotifications::GetNotificationStr(int iZeroBasedIndex)  // ignores the begin/end values
 {
+	if(!IsValidZeroBasedIndex(iZeroBasedIndex))
+	{
+		return "";
+	}
+
 	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_strMessage;
 }
 
 CvString CvNotifications::GetNotificationSummary(int iZeroBasedIndex)
 {
+	if(!IsValidZeroBasedIndex(iZeroBasedIndex))
+	{
+		return "";
+	}
+
 	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_strSummary;
 }
@@ -701,18 +718,33 @@ CvString CvNotifications::GetNotificationSummary(int iZeroBasedIndex)
 
 int CvNotifications::GetNotificationID(int iZeroBasedIndex)  // ignores begin/end values
 {
+	if(!IsValidZeroBasedIndex(iZeroBasedIndex))
+	{
+		return -1;
+	}
+
 	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_iLookupIndex;
 }
 
 int CvNotifications::GetNotificationTurn(int iZeroBasedIndex)
 {
+	if(!IsValidZeroBasedIndex(iZeroBasedIndex))
+	{
+		return -1;
+	}
+
 	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_iTurn;
 }
 
 bool CvNotifications::IsNotificationDismissed(int iZeroBasedIndex)
 {
+	if(!IsValidZeroBasedIndex(iZeroBasedIndex))
+	{
+		return false;
+	}
+
 	int iRealIndex = (m_iNotificationsBeginIndex + iZeroBasedIndex) % int(MaxNotifications);
 	return m_aNotifications[iRealIndex].m_bDismissed;
 }
@@ -1593,7 +1625,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		}
 		else
 		{
-			if((GET_PLAYER(m_ePlayer).getJONSCultureTimes100() < GET_PLAYER(m_ePlayer).getNextPolicyCost() * 100 && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0))
+			if((GET_PLAYER(m_ePlayer).getJONSCultureTimes100() < GET_PLAYER(m_ePlayer).getNextPolicyCostTimes100() && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0))
 				return true;
 		}
 	}
@@ -1628,7 +1660,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 
 	case NOTIFICATION_POLICY:
 	{
-		if(GET_PLAYER(m_ePlayer).getJONSCultureTimes100() < GET_PLAYER(m_ePlayer).getNextPolicyCost() * 100 && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0)
+		if(GET_PLAYER(m_ePlayer).getJONSCultureTimes100() < GET_PLAYER(m_ePlayer).getNextPolicyCostTimes100() && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0)
 		{
 			return true;
 		}

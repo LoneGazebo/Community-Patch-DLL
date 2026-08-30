@@ -144,7 +144,7 @@ CvPlayer::CvPlayer() :
 	, m_iCultureWonderMultiplier()
 	, m_iCulturePerTechResearched()
 	, m_iFaithTimes100()
-	, m_iFaithEverGeneratedTimes100()
+	, m_lFaithEverGeneratedTimes100()
 	, m_iHappiness()
 	, m_iUnhappiness()
 	, m_iHappinessTotal()
@@ -842,6 +842,7 @@ CvPlayer::~CvPlayer()
 	SAFE_DELETE(m_pTrade);
 	SAFE_DELETE(m_pTradeAI);
 	SAFE_DELETE(m_pLeagueAI);
+	SAFE_DELETE(m_pCulture);
 	SAFE_DELETE(m_pCorporations);
 	SAFE_DELETE(m_pContracts);
 }
@@ -1183,7 +1184,7 @@ void CvPlayer::uninit()
 	m_iCultureWonderMultiplier = 0;
 	m_iCulturePerTechResearched = 0;
 	m_iFaithTimes100 = 0;
-	m_iFaithEverGeneratedTimes100 = 0;
+	m_lFaithEverGeneratedTimes100 = 0;
 	m_iHappiness = 0;
 	m_iUnhappiness = 0;
 	m_iHappinessTotal = 0;
@@ -9385,7 +9386,6 @@ void CvPlayer::disbandUnit(bool)
 				break;
 
 			default:
-				UNREACHABLE();
 				break;
 			}
 
@@ -10416,10 +10416,23 @@ void CvPlayer::doTurnPostDiplomacy()
 		// AI spaceship production and building Citizen Earth Protocol is planned on player level, overriding the normal AI city production selection
 		AI_doSpaceshipAndUtopiaProduction();
 
+		// a city that finishes razing disbands itself inside doTurn(), which removes it from the city
+		// list and shifts the cities after it down one index. nextCity() only increments the index, so
+		// iterating live would skip the city that moved into the freed slot and it would lose its turn.
+		vector<int> viCityIDs;
 		int iLoop = 0;
 		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			pLoopCity->doTurn();
+			viCityIDs.push_back(pLoopCity->GetID());
+		}
+
+		for(size_t i = 0; i < viCityIDs.size(); i++)
+		{
+			CvCity* pLoopCity = getCity(viCityIDs[i]);
+			if (pLoopCity)
+			{
+				pLoopCity->doTurn();
+			}
 		}
 	}
 
@@ -10436,7 +10449,7 @@ void CvPlayer::doTurnPostDiplomacy()
 	GetCulture()->SetLastTurnLifetimeCultureTimes100(GetJONSCultureEverGeneratedTimes100());
 	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
-		if (getJONSCultureTimes100() < getNextPolicyCost() * 100)
+		if (getJONSCultureTimes100() < getNextPolicyCostTimes100())
 			changeJONSCultureTimes100(GetTotalJONSCulturePerTurnTimes100());
 	}
 	else
@@ -10480,7 +10493,7 @@ void CvPlayer::doTurnPostDiplomacy()
 		{
 			if (!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
 			{
-				if (getNextPolicyCost() * 100 <= getJONSCultureTimes100() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
+				if (getNextPolicyCostTimes100() <= getJONSCultureTimes100() && GetPlayerPolicies()->GetNumPoliciesCanBeAdopted() > 0)
 				{
 					CvNotifications* pNotifications = GetNotifications();
 					if (pNotifications)
@@ -10823,9 +10836,18 @@ void CvPlayer::DoUnitAttrition()
 
 void CvPlayer::RepositionInvalidUnits()
 {
+	//two step approach because deleting a unit invalidates the iterator
+	std::vector<int> vUnitIDs;
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+		vUnitIDs.push_back(pLoopUnit->GetID());
+
+	for (size_t i = 0; i < vUnitIDs.size(); i++)
 	{
+		CvUnit* pLoopUnit = getUnit(vUnitIDs[i]);
+		if (pLoopUnit == NULL)
+			continue;
+
 		if (!pLoopUnit->canEndTurnAtPlot(pLoopUnit->plot()))
 		{
 			if (!pLoopUnit->jumpToNearestValidPlot())
@@ -20093,7 +20115,7 @@ void CvPlayer::SetFaithTimes100(int iNewValue)
 		// Add to the total we've ever had
 		if(iNewValue > m_iFaithTimes100)
 		{
-			ChangeFaithEverGeneratedTimes100(iNewValue - m_iFaithTimes100);
+			ChangeFaithEverGeneratedTimes100((long long)iNewValue - m_iFaithTimes100);
 		}
 
 		m_iFaithTimes100 = max(0,iNewValue);
@@ -20120,19 +20142,19 @@ void CvPlayer::ChangeFaith(int iChange)
 	ChangeFaithTimes100(iChange * 100);
 }
 
-int CvPlayer::GetFaithEverGeneratedTimes100() const
+long long CvPlayer::GetFaithEverGeneratedTimes100() const
 {
-	return m_iFaithEverGeneratedTimes100;
+	return m_lFaithEverGeneratedTimes100;
 }
 
-void CvPlayer::SetFaithEverGeneratedTimes100(int iNewValue)
+void CvPlayer::SetFaithEverGeneratedTimes100(long long lNewValue)
 {
-	m_iFaithEverGeneratedTimes100 = iNewValue;
+	m_lFaithEverGeneratedTimes100 = lNewValue;
 }
 
-void CvPlayer::ChangeFaithEverGeneratedTimes100(int iChange)
+void CvPlayer::ChangeFaithEverGeneratedTimes100(long long lChange)
 {
-	SetFaithEverGeneratedTimes100(GetFaithEverGeneratedTimes100() + iChange);
+	SetFaithEverGeneratedTimes100(GetFaithEverGeneratedTimes100() + lChange);
 }
 
 /// Updates how much Happiness we have
@@ -21226,7 +21248,7 @@ void CvPlayer::DoCityRevolt()
 			else
 			{
 				const CvString strCityName = pMostUnhappyCity->getName();
-				const char* charCityName = pMostUnhappyCity->getName().GetCString();
+				const char* charCityName = strCityName.GetCString();
 				if (GC.getGame().CreateFreeCityPlayer(pMostUnhappyCity, false, false))
 				{
 					CvPlayer &kRecipient = GET_PLAYER(eRecipient);
@@ -24188,6 +24210,13 @@ void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 int CvPlayer::getNextPolicyCost() const
 {
 	return m_iCostNextPolicy;
+}
+
+/// Policy cost scaled to match culture stored times 100. GetNextPolicyCost() clamps to INT_MAX,
+/// so this must be evaluated in 64-bit or the scaling wraps negative.
+long long CvPlayer::getNextPolicyCostTimes100() const
+{
+	return (long long)m_iCostNextPolicy * 100;
 }
 
 void CvPlayer::DoUpdateNextPolicyCost()
@@ -30637,10 +30666,17 @@ void CvPlayer::SetLegislatureName(const char* strKey)
 
 int CvPlayer::GetPoliticPercent(int iID) const
 {
+	// Both accessors are exposed to Lua with no validation on the index
+	if (iID < 0 || iID >= (int)m_paiJFDPoliticPercent.size())
+		return 0;
+
 	return m_paiJFDPoliticPercent[iID];
 }
 void CvPlayer::SetPoliticPercent(int iID, int iValue)
 {
+	if (iID < 0 || iID >= (int)m_paiJFDPoliticPercent.size())
+		return;
+
 	m_paiJFDPoliticPercent[iID] = iValue;
 }
 
@@ -40056,6 +40092,9 @@ int CvPlayer::GetFreePromotionCount(PromotionTypes ePromotion) const
 /// Is ePromotion a free promotion?
 bool CvPlayer::IsFreePromotion(PromotionTypes ePromotion) const
 {
+	if (ePromotion < 0 || ePromotion >= GC.getNumPromotionInfos())
+		return false;
+
 	return (m_paiFreePromotionCount[ePromotion] > 0);
 }
 
@@ -45045,7 +45084,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCultureWonderMultiplier);
 	visitor(player.m_iCulturePerTechResearched);
 	visitor(player.m_iFaithTimes100);
-	visitor(player.m_iFaithEverGeneratedTimes100);
+	visitor(player.m_lFaithEverGeneratedTimes100);
 	visitor(player.m_iHappiness);
 	visitor(player.m_iUnhappiness);
 	visitor(player.m_iHappinessTotal);
@@ -45351,6 +45390,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iVotesPerGPT);
 	visitor(player.m_iTRVisionBoost);
 	visitor(player.m_iEventTourism);
+	visitor(player.m_iReligionSpreadTourism);
 	visitor(player.m_aiGlobalTourismAlreadyReceived);
 	visitor(player.m_iEventTourismCS);
 	visitor(player.m_iNumHistoricEvent);

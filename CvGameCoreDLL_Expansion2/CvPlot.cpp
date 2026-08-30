@@ -2614,7 +2614,8 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
-	if(!isValidMovePlot(ePlayer) && !(isMountain() && GET_PLAYER(ePlayer).WorkersMountainPass()))
+	// ePlayer is NO_PLAYER for the default-argument callers, and GET_PLAYER does not tolerate it
+	if(!isValidMovePlot(ePlayer) && !(isMountain() && ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).WorkersMountainPass()))
 	{
 		return false;
 	}
@@ -5825,6 +5826,11 @@ CvContinent* CvPlot::continent() const
 //	--------------------------------------------------------------------------------
 int CvPlot::GetRiverID(DirectionTypes eDirection) const
 {
+	// Reachable from Lua with an unvalidated direction; m_vRivers holds exactly
+	// NUM_DIRECTION_TYPES entries and -1 is the "no river here" value the callers test for
+	if(eDirection < 0 || eDirection >= NUM_DIRECTION_TYPES)
+		return -1;
+
 	return m_vRivers[eDirection];
 }
 
@@ -7995,7 +8001,7 @@ ImprovementTypes CvPlot::getImprovementType() const
 ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer, bool bTestPlotOwner, bool bIgnoreSpecialImprovements)
 {
 	PRECONDITION(ePlayer == NO_PLAYER || ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer == NO_PLAYER || ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	PRECONDITION(ePlayer == NO_PLAYER || ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	ResourceTypes eResource = NO_RESOURCE;
 	if(ePlayer != NO_PLAYER)
@@ -11929,6 +11935,11 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 
 RoutePlanTypes CvPlot::GetPlannedRouteState(PlayerTypes ePlayer) const
 {
+	// The setter below checks this range; this one is reached from Lua unvalidated, and the
+	// per-plot slabs are contiguous (CvMap.cpp:658), so a bad index reads another plot's state
+	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return NO_PLANNED_ROUTE;
+
 	return (RoutePlanTypes)m_aeHumanPlannedRouteState[ePlayer];
 }
 

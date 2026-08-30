@@ -865,7 +865,11 @@ int CvLuaTeam::lSetForcePeace(lua_State* L)
 	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
 	const bool bValue = luaL_optbool(L, 3, false);
 
-	pkTeam->setForcePeace(eTeam, bValue);
+	// The index comes straight from Lua and setForcePeace traps on an out-of-range one
+	if(eTeam >= 0 && eTeam < MAX_TEAMS)
+	{
+		pkTeam->setForcePeace(eTeam, bValue);
+	}
 	return 0;
 }
 
@@ -874,7 +878,8 @@ int CvLuaTeam::lGetNumTurnsAtWar(lua_State* L)
 	CvTeam* pkTeam = GetInstance(L);
 	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
 	int iValue = 0;
-	if(eTeam != NO_TEAM)
+	// GetNumTurnsAtWar traps above MAX_TEAMS as well, not just on NO_TEAM
+	if(eTeam >= 0 && eTeam < MAX_TEAMS)
 	{
 		iValue = pkTeam->GetNumTurnsAtWar(eTeam);
 		if (iValue == INT_MAX)

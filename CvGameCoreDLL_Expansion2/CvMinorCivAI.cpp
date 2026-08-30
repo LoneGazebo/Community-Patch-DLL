@@ -1281,7 +1281,7 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 		else
 		{
 			int iStartFaith = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
-			int iEndFaith = GET_PLAYER(ePlayer).GetFaithEverGeneratedTimes100();
+			int iEndFaith = (int)GET_PLAYER(ePlayer).GetFaithEverGeneratedTimes100();
 			iValue = iEndFaith - iStartFaith;
 		}
 		break;
@@ -2682,7 +2682,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		}
 		else
 		{
-			m_iData1 = pAssignedPlayer->GetFaithEverGeneratedTimes100();
+			m_iData1 = (int)pAssignedPlayer->GetFaithEverGeneratedTimes100();
 		}
 
 		int iTurnsRemaining = GetEndTurn() - GC.getGame().getGameTurn();
@@ -5178,7 +5178,10 @@ void CvMinorCivAI::DoFirstContactWithMajor(PlayerTypes eMeetingPlayer, bool bSup
 				szTxtKeySuffix = "UNIT";
 				break;
 			default:
-				UNREACHABLE();
+				// A City-State whose MinorCivTrait is unset or unrecognised gets the friendship
+				// boost but no trait-specific gift. This is the same state as bNoGifts above, which
+				// also leaves every gift at zero and the suffix at "UNKNOWN".
+				break;
 			}
 
 			// Personality modifiers - friendly = x1.5, hostile = x0.5
@@ -9047,7 +9050,9 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes ePlayer, bool bKill
 			break;
 		}
 		default:
-			UNREACHABLE();
+			// Unset or unrecognised trait: leave the weight at zero, as the personality switch
+			// below already does for a personality it does not recognise.
+			break;
 		}
 
 		switch (GET_PLAYER(eTarget).GetMinorCivAI()->GetPersonality())
@@ -16302,8 +16307,8 @@ void CvMinorCivAI::SetNoAlly(bool bValue)
 }
 bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
 {
-	PRECONDITION(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	ASSERT(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	ASSERT(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
 	{
 		return false;  // as defined in Reset()
@@ -17335,6 +17340,12 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	szTextVal = kResults.GetText("MinorCivTrait");
 	CvString strMinorCivTraitType = szTextVal;
 	m_iMinorCivTrait = GC.getInfoTypeForString(szTextVal, true);
+	// getInfoTypeForString looks the string up in a single map shared by every info table, so an
+	// unset or misspelled MinorCivTrait yields -1 and a string belonging to some other table yields
+	// that table's row id. Normalise both to NO_MINOR_CIV_TRAIT_TYPE so the trait switches see a
+	// value they recognise as "no trait" rather than a foreign id that reads as a valid trait.
+	if (m_iMinorCivTrait < 0 || m_iMinorCivTrait >= NUM_MINOR_CIV_TRAIT_TYPES)
+		m_iMinorCivTrait = NO_MINOR_CIV_TRAIT_TYPE;
 
 	szTextVal = kResults.GetText("FixedPersonality");
 	m_eFixedPersonality = MinorCivPersonalityFromString(szTextVal);

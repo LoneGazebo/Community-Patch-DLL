@@ -39091,8 +39091,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		// **** NOTE **** - iArg1 is BUTTON ID,  iArg2 is MINOR ID from DiscussionDialog.lua
 		PlayerTypes eMinor = (PlayerTypes) iArg2;
-		PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
-		PRECONDITION(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index. ");
+		ASSERT(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
+		ASSERT(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index. ");
 		if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
 		{
 			// Fail gracefully, allow UI to continue
@@ -39263,8 +39263,8 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		// **** NOTE **** - iArg1 is BUTTON ID,  iArg2 is MINOR ID from DiscussionDialog.lua
 		PlayerTypes eMinor = (PlayerTypes) iArg2;
-		PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
-		PRECONDITION(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index. ");
+		ASSERT(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index. ");
+		ASSERT(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index. ");
 		if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
 		{
 			// Fail gracefully, allow UI to continue

@@ -135,7 +135,8 @@ public:
 	void SetFormation(MultiunitFormationTypes eFormation);
 	size_t GetNumFormationEntries() const;
 	size_t GetNumSlotsFilled() const;
-	CvArmyFormationSlot* GetSlotStatus(size_t iSlotID) { return &m_FormationEntries[iSlotID]; }
+	// returns NULL for an out of range slot; callers checking for that rely on this
+	CvArmyFormationSlot* GetSlotStatus(size_t iSlotID) { return iSlotID < m_FormationEntries.size() ? &m_FormationEntries[iSlotID] : NULL; }
 	const vector<CvArmyFormationSlot>& GetSlotStatus() const { return m_FormationEntries; }
 	CvFormationSlotEntry GetSlotInfo(size_t iSlotID) const;
 	vector<size_t> GetOpenSlots(bool bRequiredOnly) const;

@@ -4311,7 +4311,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 
 	// How many idle workers do we have?
 	int iIdleWorkers = 0;
-	static const UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
+	const UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
 
 	int iLoopUnit = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
@@ -5516,7 +5516,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 		UNREACHABLE(); // Only YIELD_FOOD & YIELD_PRODUCTION supported.
 	}
 
-	PRECONDITION(eCityStrategy != NO_AICITYSTRATEGY, "No strategy found. What?");
+	ASSERT(eCityStrategy != NO_AICITYSTRATEGY, "No strategy found. What?");
 	if(eCityStrategy == NO_AICITYSTRATEGY)
 	{
 		return false;

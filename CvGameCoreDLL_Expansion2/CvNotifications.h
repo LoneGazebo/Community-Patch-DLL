@@ -64,6 +64,7 @@ public:
 	bool GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType, int& iNotificationIndex);  // gets the type of blocking and the lookup index
 
 	// access by the lua script
+	bool IsValidZeroBasedIndex(int iZeroBasedIndex) const;
 	int GetNumNotifications(void) const;
 	CvString GetNotificationStr(int iZeroBasedIndex);      // ignores begin/end values
 	CvString GetNotificationSummary(int iZeroBasedIndex);  // ignores begin/end values

@@ -6105,7 +6105,8 @@ int CvLuaCity::lHasDiplomat(lua_State* L)
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
 	const PlayerTypes iPlayer = toValue<PlayerTypes>(L, 2);
-	if(iPlayer != NO_PLAYER && pkCity->isCapital())
+	// Only major civs have a spy assignment slot in this city
+	if(iPlayer >= 0 && iPlayer < MAX_MAJOR_CIVS && pkCity->isCapital())
 	{
 		int iSpyIndex = pkCity->GetCityEspionage()->GetSpyAssignment(iPlayer);
 		bResult = (iSpyIndex != -1 && GET_PLAYER(iPlayer).GetEspionage()->IsDiplomat(iSpyIndex));
@@ -6119,7 +6120,8 @@ int CvLuaCity::lHasSpy(lua_State* L)
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
 	const PlayerTypes iPlayer = toValue<PlayerTypes>(L, 2);
-	if(iPlayer != NO_PLAYER)
+	// Only major civs have a spy assignment slot in this city
+	if(iPlayer >= 0 && iPlayer < MAX_MAJOR_CIVS)
 	{
 		int iSpyIndex = pkCity->GetCityEspionage()->GetSpyAssignment(iPlayer);
 		bResult = (iSpyIndex != -1 && !GET_PLAYER(iPlayer).GetEspionage()->IsDiplomat(iSpyIndex));
@@ -6132,7 +6134,11 @@ int CvLuaCity::lHasCounterSpy(lua_State* L)
 {
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
-	bResult = (pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner()) != -1);
+	// Only major civs have a spy assignment slot in this city
+	if (GET_PLAYER(pkCity->getOwner()).isMajorCiv())
+	{
+		bResult = (pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner()) != -1);
+	}
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -6140,7 +6146,13 @@ int CvLuaCity::lHasCounterSpy(lua_State* L)
 int CvLuaCity::lGetCounterSpy(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner()));
+	// Only major civs have a spy assignment slot in this city
+	int iResult = -1;
+	if (GET_PLAYER(pkCity->getOwner()).isMajorCiv())
+	{
+		iResult = pkCity->GetCityEspionage()->GetSpyAssignment(pkCity->getOwner());
+	}
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 

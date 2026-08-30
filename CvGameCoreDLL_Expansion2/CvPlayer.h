@@ -553,9 +553,9 @@ public:
 	void SetFaithTimes100(int iNewValue);
 	void ChangeFaithTimes100(int iChange);
 	void ChangeFaith(int iChange);
-	int GetFaithEverGeneratedTimes100() const;
-	void SetFaithEverGeneratedTimes100(int iNewValue);
-	void ChangeFaithEverGeneratedTimes100(int iChange);
+	long long GetFaithEverGeneratedTimes100() const;
+	void SetFaithEverGeneratedTimes100(long long lNewValue);
+	void ChangeFaithEverGeneratedTimes100(long long lChange);
 
 	// Happiness
 	int DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL);
@@ -876,6 +876,7 @@ public:
 	bool swapPolicy(PolicyTypes iNewPolicy, PolicyTypes iOldPolicy);
 	void setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree=false);
 	int getNextPolicyCost() const;
+	long long getNextPolicyCostTimes100() const;
 	void DoUpdateNextPolicyCost();
 	bool canAdoptPolicy(PolicyTypes eIndex) const;
 	void doAdoptPolicy(PolicyTypes ePolicy);
@@ -2985,7 +2986,7 @@ protected:
 	int m_iCultureWonderMultiplier;
 	int m_iCulturePerTechResearched;
 	int m_iFaithTimes100;
-	int m_iFaithEverGeneratedTimes100;
+	long long m_lFaithEverGeneratedTimes100;
 	int m_iHappiness;
 	int m_iUnhappiness;
 	int m_iHappinessTotal;
@@ -3812,7 +3813,7 @@ SYNC_ARCHIVE_VAR(int, m_iCulturePerWonder)
 SYNC_ARCHIVE_VAR(int, m_iCultureWonderMultiplier)
 SYNC_ARCHIVE_VAR(int, m_iCulturePerTechResearched)
 SYNC_ARCHIVE_VAR(int, m_iFaithTimes100)
-SYNC_ARCHIVE_VAR(int, m_iFaithEverGeneratedTimes100)
+SYNC_ARCHIVE_VAR(long long, m_lFaithEverGeneratedTimes100)
 SYNC_ARCHIVE_VAR(int, m_iHappiness)
 SYNC_ARCHIVE_VAR(int, m_iUnhappiness)
 SYNC_ARCHIVE_VAR(int, m_iHappinessTotal)

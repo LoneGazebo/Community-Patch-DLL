@@ -3203,7 +3203,10 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_SLEEP);
 	}
 
-	doDelayedDeath();
+	// this deletes the unit, so nothing below may reference it
+	if (doDelayedDeath())
+		return;
+
 	DoImprovementExperience(plot());
 	DoStackedGreatGeneralExperience(plot());
 	DoConvertOnDamageThreshold(plot());
@@ -14522,8 +14525,10 @@ UnitTypes CvUnit::getCaptureUnitType(PlayerTypes eCapturingPlayer) const
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitCaptureType, eCapturingPlayer, GetID(), getUnitType(), eCivilization) == GAMEEVENTRETURN_VALUE)
 		{
 			// Defend against modder stupidity!
+			// The range test has to come first: getUnitInfo() traps on an out-of-range index
+			// rather than returning NULL, so it cannot be used to test one.
 			UnitTypes eUnit = static_cast<UnitTypes>(iValue);
-			if (eUnit != NO_UNIT && GC.getUnitInfo(eUnit) != NULL)
+			if (eUnit > NO_UNIT && eUnit < GC.getNumUnitInfos() && GC.getUnitInfo(eUnit) != NULL)
 			{
 				return eUnit;
 			}
@@ -28895,6 +28900,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iMadeInterceptionCount);
 	visitor(unit.m_iEverSelectedCount);
 	visitor(unit.m_iSapperCount);
+	visitor(unit.m_iRequiresLeadershipCount);
 	visitor(unit.m_iCanHeavyCharge);
 	visitor(unit.m_iStrongerDamaged);
 	visitor(unit.m_iDiplomaticMissionAccomplishment);

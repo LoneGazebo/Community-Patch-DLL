@@ -10382,13 +10382,22 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, con
 	//If this is a plot-related message, search for any previously created messages that match this one and just add the plot.
 	if(iPlotX != -1 || iPlotY != -1)
 	{
+		// Both searches below only ever match messages from the current turn. Messages are only ever
+		// appended and the game turn never goes backwards, so those form a contiguous block at the end
+		// of the list - find where it starts and search only that, instead of walking every message
+		// recorded since the game began. Plot ownership changes are frequent, so scanning the whole
+		// history made this cost grow with the length of the game.
+		size_t iFirstThisTurn = m_listReplayMessages.size();
+		while (iFirstThisTurn > 0 && m_listReplayMessages[iFirstThisTurn - 1].getTurn() == iGameTurn)
+			iFirstThisTurn--;
+
 		// the replay map can only display one plot owner change per plot and turn, if there were any previous ownership changes of this plot in this turn, delete them
 		if (eType == REPLAY_MESSAGE_PLOT_OWNER_CHANGE)
 		{
-			for (ReplayMessageList::iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
+			for (size_t i = iFirstThisTurn; i < m_listReplayMessages.size(); i++)
 			{
-				CvReplayMessage& msg = (*it);
-				if (msg.getType() == eType && msg.getTurn() == iGameTurn && msg.getText() == pszText)
+				CvReplayMessage& msg = m_listReplayMessages[i];
+				if (msg.getType() == eType && msg.getText() == pszText)
 				{
 					for (uint ui = 0; ui < msg.getNumPlots(); ui++)
 					{
@@ -10404,17 +10413,17 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, con
 					}
 					if (msg.getNumPlots() == 0)
 					{
-						m_listReplayMessages.erase(it);
+						m_listReplayMessages.erase(m_listReplayMessages.begin() + (ptrdiff_t)i);
 						break;
 					}
 				}
 			}
 		}
 
-		for(ReplayMessageList::iterator it = m_listReplayMessages.begin(); it != m_listReplayMessages.end(); ++it)
+		for (size_t i = iFirstThisTurn; i < m_listReplayMessages.size(); i++)
 		{
-			CvReplayMessage& msg = (*it);
-			if(msg.getType() == eType && msg.getTurn() == iGameTurn && msg.getPlayer() == ePlayer && msg.getText() == pszText)
+			CvReplayMessage& msg = m_listReplayMessages[i];
+			if(msg.getType() == eType && msg.getPlayer() == ePlayer && msg.getText() == pszText)
 			{
 				msg.addPlot(iPlotX, iPlotY);
 				return;
@@ -11294,6 +11303,11 @@ void CvGame::changeMinorPlayer(PlayerTypes ePlayer, MinorCivTypes m)
 //	--------------------------------------------------------------------------------
 int CvGame::getPlotExtraYield(int iX, int iY, YieldTypes eYield) const
 {
+	// Reachable from Lua with an unvalidated yield, and m_aeExtraYield is exactly
+	// NUM_YIELD_TYPES long - see the entry built below in setPlotExtraYield
+	if(eYield < 0 || eYield >= NUM_YIELD_TYPES)
+		return 0;
+
 	for(std::vector<PlotExtraYield>::const_iterator it = m_aPlotExtraYields.begin(); it != m_aPlotExtraYields.end(); ++it)
 	{
 		if((*it).m_iX == iX && (*it).m_iY == iY)
@@ -11308,6 +11322,10 @@ int CvGame::getPlotExtraYield(int iX, int iY, YieldTypes eYield) const
 //	--------------------------------------------------------------------------------
 void CvGame::setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iExtraYield)
 {
+	// Reachable from Lua with an unvalidated yield, and the subscript below is a write
+	if(eYield < 0 || eYield >= NUM_YIELD_TYPES)
+		return;
+
 	bool bFound = false;
 
 	for(std::vector<PlotExtraYield>::iterator it = m_aPlotExtraYields.begin(); it != m_aPlotExtraYields.end(); ++it)
@@ -11784,10 +11802,10 @@ void CvGame::endTurnTimerReset()
 /// Called when a major changes its protection status towards a minor
 void CvGame::DoMinorPledgeProtection(PlayerTypes eMajor, PlayerTypes eMinor, bool bProtect, bool bPledgeNowBroken)
 {
-	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	if (bProtect)
 	{
@@ -11801,8 +11819,8 @@ void CvGame::DoMinorPledgeProtection(PlayerTypes eMajor, PlayerTypes eMinor, boo
 /// Amount of Gold being gifted to the Minor by the active player
 void CvGame::DoMinorGiftGold(PlayerTypes eMinor, int iNumGold)
 {
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	gDLL->sendMinorGiftGold(eMinor, iNumGold);
 }
@@ -11811,10 +11829,10 @@ void CvGame::DoMinorGiftGold(PlayerTypes eMinor, int iNumGold)
 /// Do the action of a major gifting a tile improvement to a minor's plot, to improve its resource
 void CvGame::DoMinorGiftTileImprovement(PlayerTypes eMajor, PlayerTypes eMinor, int iPlotX, int iPlotY)
 {
-	PRECONDITION(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	PRECONDITION(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	gDLL->sendMinorGiftTileImprovement(eMajor, eMinor, iPlotX, iPlotY);
 }
@@ -11824,10 +11842,10 @@ void CvGame::DoMinorGiftTileImprovement(PlayerTypes eMajor, PlayerTypes eMinor, 
 /// Demanded gold and a calculated bully metric are not provided (ex. from Lua, Player UI), so calculate them here
 void CvGame::DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor)
 {
-	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
-	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	int iGold = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(eBully);
 	if (iGold <= 0)
@@ -11840,10 +11858,10 @@ void CvGame::DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor)
 /// Do the action of a major bullying a unit from a minor
 void CvGame::DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor)
 {
-	PRECONDITION(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
-	PRECONDITION(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
-	PRECONDITION(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
+	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS)
+		return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
+		return;
 
 	UnitClassTypes eUnitClassType = GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyUnit();
 	UnitTypes eUnitType = GET_PLAYER(eBully).GetSpecificUnitType(eUnitClassType);

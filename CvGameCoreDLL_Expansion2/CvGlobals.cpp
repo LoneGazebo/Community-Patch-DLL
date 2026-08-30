@@ -2009,6 +2009,10 @@ CvGlobals::CvGlobals() :
 	m_pPolicies(NULL),
 	m_pTechs(NULL),
 	m_pBuildings(NULL),
+	m_pUnits(NULL),
+	m_pProjects(NULL),
+	m_pPromotions(NULL),
+	m_pImprovements(NULL),
 	m_pEmphases(NULL),
 	m_pTraits(NULL),
 	m_pReligions(NULL),
@@ -2020,6 +2024,7 @@ CvGlobals::CvGlobals() :
 	m_pLeagueProjects(NULL),
 	m_pLeagueProjectRewards(NULL),
 	m_pResolutions(NULL),
+	m_pNotifications(NULL),
 	m_pAchievements(NULL),
 	m_pCorporations(NULL),
 	m_pContracts(NULL),
@@ -4366,6 +4371,10 @@ void CvGlobals::calcGameDataHash()
 	HashGameDataCombine(m_gameDataHash, writeWord, m_pAIGrandStrategies->GetAIGrandStrategyEntries());
 	HashGameDataCombine(m_gameDataHash, writeWord, m_pAICityStrategies->GetAICityStrategyEntries());
 	HashGameDataCombine(m_gameDataHash, writeWord, m_pPolicies->GetPolicyEntries());
+	// CvPlayerPolicies::Serialize writes three spans of GetNumPolicyBranches() bools with no
+	// length prefix, so a change to the branch table shifts every later field in the save.
+	// Without this line that change produces no hash mismatch and therefore no warning.
+	HashGameDataCombine(m_gameDataHash, writeWord, m_pPolicies->GetPolicyBranchEntries());
 	HashGameDataCombine(m_gameDataHash, writeWord, m_pTechs->GetTechEntries());
 	HashGameDataCombine(m_gameDataHash, writeWord, m_pBuildings->GetBuildingEntries());
 	HashGameDataCombine(m_gameDataHash, writeWord, m_pUnits->GetUnitEntries());

@@ -2387,12 +2387,20 @@ bool CvTeamTechs::IsNoTradeTech(TechTypes eIndex) const
 /// Accessor: increment count of times this has been researched
 void CvTeamTechs::IncrementTechCount(TechTypes eIndex)
 {
+	// Reachable from Lua with an unvalidated index, and m_paiTechCount is a raw heap array
+	if(eIndex < 0 || eIndex >= GC.getNumTechInfos())
+		return;
+
 	m_paiTechCount[eIndex]++;
 }
 
 /// Accessor: get count of times this has been researched
 int CvTeamTechs::GetTechCount(TechTypes eIndex)const
 {
+	// Reachable from Lua with an unvalidated index, and m_paiTechCount is a raw heap array
+	if(eIndex < 0 || eIndex >= GC.getNumTechInfos())
+		return 0;
+
 	return m_paiTechCount[eIndex];
 }
 
@@ -2405,13 +2413,13 @@ void CvTeamTechs::SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTyp
 /// Accessor: set research done on one tech (in hundredths)
 void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
 {
-	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	PRECONDITION(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	PRECONDITION(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-
-	//Crash failsafe.
-	if(ePlayer == NO_PLAYER || eIndex == -1)
+	//Crash failsafe. CvTeam::getLeaderID returns NO_PLAYER for a team with no members, and the
+	//Lua binding passes both arguments through unvalidated, so neither is guaranteed to be in range.
+	if(eIndex < 0 || eIndex >= GC.getNumTechInfos())
+	{
+		return;
+	}
+	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS)
 	{
 		return;
 	}
@@ -2727,11 +2735,16 @@ int CvTeamTechs::ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, P
 
 int CvTeamTechs::GetEurekaCounter(TechTypes eTech) const
 {
-	return eTech != NO_TECH ? m_paiEurekaCounter[eTech] : 0;
+	// The NO_TECH test was the only guard here, and the Lua binding passes the index through
+	// unvalidated, so an out-of-range positive index read past m_paiEurekaCounter
+	if (eTech < 0 || eTech >= GC.getNumTechInfos())
+		return 0;
+
+	return m_paiEurekaCounter[eTech];
 }
 void CvTeamTechs::SetEurekaCounter(TechTypes eTech, int newEurekaCount)
 {
-	if (eTech == NO_TECH)
+	if (eTech < 0 || eTech >= GC.getNumTechInfos())
 		return;
 
 	m_paiEurekaCounter[eTech] = newEurekaCount;

@@ -8328,9 +8328,13 @@ int CvLuaPlayer::lGetNextGreatPersonCost(lua_State* L)
 	int iResult = -1;
 	if (pCity)
 	{
+		// The index comes straight from Lua, and getGreatPersonInfo traps on an invalid one
 		const GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(lua_tointeger(L, 2));
-		const UnitClassTypes eUnitClassType = static_cast<UnitClassTypes>(GC.getGreatPersonInfo(eGreatPerson)->GetUnitClassType());
-		iResult = pCity->GetCityCitizens()->GetSpecialistUpgradeThreshold(eUnitClassType);
+		if (eGreatPerson >= 0 && eGreatPerson < GC.getNumGreatPersonInfos())
+		{
+			const UnitClassTypes eUnitClassType = static_cast<UnitClassTypes>(GC.getGreatPersonInfo(eGreatPerson)->GetUnitClassType());
+			iResult = pCity->GetCityCitizens()->GetSpecialistUpgradeThreshold(eUnitClassType);
+		}
 	}
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -9072,6 +9076,12 @@ int CvLuaPlayer::lGetMinorCivFriendshipAnchorWithMajor(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetFriendshipAnchorWithMajor(eMajor);
 	lua_pushinteger(L, iResult);
@@ -9182,6 +9192,12 @@ int CvLuaPlayer::lGetRestingPointChange(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetRestingPointChange(ePlayer);
 	lua_pushinteger(L, iResult);
@@ -9192,6 +9208,11 @@ int CvLuaPlayer::lChangeRestingPointChange(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		return 1;
+	}
 	int iChange = lua_tointeger(L, 3);
 
 	pkPlayer->GetMinorCivAI()->ChangeRestingPointChange(ePlayer, iChange);
@@ -9202,6 +9223,11 @@ int CvLuaPlayer::lSetRestingPointChange(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		return 1;
+	}
 	int iValue = lua_tointeger(L, 3);
 
 	pkPlayer->GetMinorCivAI()->SetRestingPointChange(ePlayer, iValue);
@@ -9218,6 +9244,12 @@ int CvLuaPlayer::lIsMinorCivActiveQuestForPlayer(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 
 	const int bResult = pkPlayer->GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, eType);
@@ -9243,6 +9275,12 @@ int CvLuaPlayer::lGetMinorCivNumActiveQuestsForPlayer(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetNumActiveQuestsForPlayer(ePlayer);
 	lua_pushinteger(L, iResult);
@@ -9253,6 +9291,12 @@ int CvLuaPlayer::lIsMinorCivDisplayedQuestForPlayer(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 
 	const int bResult = pkPlayer->GetMinorCivAI()->IsDisplayedQuestForPlayer(ePlayer, eType);
@@ -9264,6 +9308,12 @@ int CvLuaPlayer::lGetMinorCivNumDisplayedQuestsForPlayer(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetNumDisplayedQuestsForPlayer(ePlayer);
 	lua_pushinteger(L, iResult);
@@ -9274,6 +9324,12 @@ int CvLuaPlayer::lGetQuestData1(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
@@ -9285,6 +9341,12 @@ int CvLuaPlayer::lGetQuestData2(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
@@ -9296,6 +9358,12 @@ int CvLuaPlayer::lGetQuestData3(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetQuestData3(ePlayer, eType);
@@ -9307,6 +9375,12 @@ int CvLuaPlayer::lGetQuestTurnsRemaining(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 	const int iGameTurn = lua_tointeger(L, 4);
 
@@ -9319,6 +9393,12 @@ int CvLuaPlayer::lGetRewardString(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 
 	CvString sResult = pkPlayer->GetMinorCivAI()->GetRewardString(ePlayer, eType);
@@ -9339,6 +9419,12 @@ int CvLuaPlayer::lGetExplorePercent(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetExplorePercent(ePlayer, eType);
@@ -9349,6 +9435,12 @@ int CvLuaPlayer::lGetXQuestBuildingRemaining(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 4);
 	int iNeeded = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
@@ -9372,8 +9464,21 @@ int CvLuaPlayer::lGetQuestSpyMissionString(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 	const CityEventChoiceTypes eSpyMission = (CityEventChoiceTypes)pkPlayer->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
+	// GetQuestData1 returns NO_QUEST_DATA when this player has no quest of this type, and
+	// getCityEventChoiceInfo traps on it
+	if (eSpyMission == (CityEventChoiceTypes)CvMinorCivQuest::NO_QUEST_DATA)
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
 	CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eSpyMission);
 	const char* strMissionName = pkMissionInfo->getEventDescription();
 	lua_pushstring(L, strMissionName);
@@ -9383,8 +9488,21 @@ int CvLuaPlayer::lQuestSpyActionsRemaining(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 	const PlayerTypes eTargetPlayer = (PlayerTypes)pkPlayer->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
+	// GetQuestData1 returns NO_QUEST_DATA when this player has no quest of this type, and
+	// GetNumSpyActionsDone traps on it
+	if (eTargetPlayer == (PlayerTypes)CvMinorCivQuest::NO_QUEST_DATA)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	int iNeeded = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
 	int iDone = GET_PLAYER(ePlayer).GetEspionage()->GetNumSpyActionsDone(eTargetPlayer);
 
@@ -9397,6 +9515,12 @@ int CvLuaPlayer::lIsMinorCivContestLeader(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 	
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsContestLeader(ePlayer, eType);
@@ -9418,6 +9542,12 @@ int CvLuaPlayer::lGetMinorCivContestValueForPlayer(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetContestValueForPlayer(ePlayer, eType);
@@ -9429,6 +9559,12 @@ int CvLuaPlayer::lIsMinorCivUnitSpawningDisabled(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsUnitSpawningDisabled(ePlayer);
 	lua_pushboolean(L, bResult);
@@ -9469,6 +9605,12 @@ int CvLuaPlayer::lIsMinorCivRouteEstablishedWithMajor(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsRouteConnectionEstablished(ePlayer);
 	lua_pushboolean(L, bResult);
@@ -9730,6 +9872,12 @@ int CvLuaPlayer::lGetTurnLastPledgedProtectionByMajor(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 
 	const int iValue = pkPlayer->GetMinorCivAI()->GetTurnLastPledgedProtectionByMajor(eMajor);
 	lua_pushinteger(L, iValue);
@@ -9741,6 +9889,12 @@ int CvLuaPlayer::lGetTurnLastPledgeBrokenByMajor(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 
 	const int iValue = pkPlayer->GetMinorCivAI()->GetTurnLastPledgeBrokenByMajor(eMajor);
 	lua_pushinteger(L, iValue);
@@ -9809,6 +9963,12 @@ int CvLuaPlayer::lCanMajorBullyGold(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 	const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorBullyGold(eMajor);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -9819,6 +9979,12 @@ int CvLuaPlayer::lGetMajorBullyGoldDetails(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
 
 	const CvString sResult = pkPlayer->GetMinorCivAI()->GetMajorBullyGoldDetails(eMajor);
 	lua_pushstring(L, sResult);
@@ -9830,6 +9996,12 @@ int CvLuaPlayer::lCanMajorBullyUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 	int iTargetVal = (PlayerTypes)luaL_optint(L, 3, 0);
 
 	if (iTargetVal > 0)
@@ -9852,6 +10024,12 @@ int CvLuaPlayer::lGetMajorBullyUnitDetails(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
 
 	const CvString sResult = pkPlayer->GetMinorCivAI()->GetMajorBullyUnitDetails(eMajor);
 	lua_pushstring(L, sResult);
@@ -9864,6 +10042,12 @@ int CvLuaPlayer::lGetMajorBullyAnnexDetails(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes)lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushstring(L, "");
+		return 1;
+	}
 
 	const CvString sResult = pkPlayer->GetMinorCivAI()->GetMajorBullyAnnexDetails(eMajor);
 	lua_pushstring(L, sResult);
@@ -9889,6 +10073,12 @@ int CvLuaPlayer::lGetUnitSpawnCounter(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushinteger(L, -1);
+		return 1;
+	}
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetUnitSpawnCounter(eMajor);
 	lua_pushinteger(L, iResult);
@@ -9899,6 +10089,11 @@ int CvLuaPlayer::lSetUnitSpawnCounter(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		return 0;
+	}
 	const int iValue = lua_tointeger(L, 3);
 
 	pkPlayer->GetMinorCivAI()->SetUnitSpawnCounter(eMajor, iValue);
@@ -9975,6 +10170,12 @@ int CvLuaPlayer::lCanMajorGiftTileImprovement(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	// The index comes straight from Lua; the minor-civ accessors below trap on a non-major
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorGiftTileImprovement(eMajor);
 	lua_pushboolean(L, bResult);
@@ -17571,7 +17772,7 @@ int CvLuaPlayer::lGetCoupChanceOfSuccess(lua_State* L)
 	bool bIgnoreEnemySpies = luaL_optbool(L, 3, false);
 
 	int iSpyIndex = pkPlayerEspionage->GetSpyIndexInCity(pkCity);
-	PRECONDITION(iSpyIndex >= 0, "iSpyIndex out of bounds");
+	ASSERT(iSpyIndex >= 0, "iSpyIndex out of bounds");
 	if(iSpyIndex < 0)
 	{
 		lua_pushinteger(L, 0);

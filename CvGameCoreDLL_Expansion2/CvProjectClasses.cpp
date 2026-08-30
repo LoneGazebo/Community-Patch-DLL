@@ -152,6 +152,12 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 				const char* szVictoryType = kDBResults.GetText("VictoryType");
 				const int idx = GC.getInfoTypeForString(szVictoryType, true);
 
+				// getInfoTypeForString returns -1 for a string it does not know, and the row id of
+				// some other info table for a string that is not a victory type at all. Both index
+				// outside these arrays, which are only iNumVictories long.
+				if (idx < 0 || idx >= iNumVictories)
+					continue;
+
 				const int iThreshold = kDBResults.GetInt("Threshold");
 				const int iMinThreshold = kDBResults.GetInt("MinThreshold");
 
