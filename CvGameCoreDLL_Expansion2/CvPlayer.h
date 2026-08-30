@@ -253,7 +253,7 @@ public:
 	bool hasBusyUnitOrCity() const;
 	const CvCity* getBusyCity() const;
 	void chooseTech(int iDiscover = 0, const char* strText=0, TechTypes iTechJustDiscovered=NO_TECH);
-	void ChoosePolicy(int iDiscover = 0, const char* strText = 0);
+	void ChoosePolicy(const char* strText = 0);
 	void ChooseIdeology();
 	void CheckPolicy();
 
