@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(5.4.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(5.4.6) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -1078,7 +1078,7 @@
     <File md5="BD9B995CADF4C24C8DB41AD7FE7CB22F" import="1">Core Files/Overrides/ChooseTradeUnitNewHome.xml</File>
     <File md5="615A39DB4592928D3D0F33EBA4C4A985" import="1">Core Files/Overrides/CityList.lua</File>
     <File md5="46FF699BA0B84969AF9316F8781E6F69" import="1">Core Files/Overrides/CityList.xml</File>
-    <File md5="7FEAC29C2682BF1A9488C4DAB47FC0E6" import="1">Core Files/Overrides/CivilopediaScreen.lua</File>
+    <File md5="F0726D4447A1BA38B0CD9FC4D12EE192" import="1">Core Files/Overrides/CivilopediaScreen.lua</File>
     <File md5="860DB8685590019698366F30596845D6" import="1">Core Files/Overrides/CivilopediaScreen.xml</File>
     <File md5="B793E4ED49133410C47634F8B92B7A5A" import="1">Core Files/Overrides/CultureOverview.lua</File>
     <File md5="4C4B2BE722402BEAEC13E8262DE8F54D" import="1">Core Files/Overrides/CultureOverview.xml</File>
@@ -1103,8 +1103,8 @@
     <File md5="252CF7B30C29EDDB13DE924B209CA71F" import="1">Core Files/Overrides/GPList.xml</File>
     <File md5="6D5F67979B18C4C6B38CA4B305C30F4E" import="1">Core Files/Overrides/LeagueOverview.lua</File>
     <File md5="D1B2B6362725A779E49BAD0C8366DE6A" import="1">Core Files/Overrides/LeagueOverview.xml</File>
-    <File md5="E1D019500FD04EBB79E3CC5D7355354F" import="1">Core Files/Overrides/MilitaryOverview.lua</File>
-    <File md5="7511B482099F9BDF658DB37E389BFD79" import="1">Core Files/Overrides/MilitaryOverview.xml</File>
+    <File md5="41B419AEC098239C22DA17AC56B70952" import="1">Core Files/Overrides/MilitaryOverview.lua</File>
+    <File md5="A6967D1B10962A1A2F425DF9ADE2FEBC" import="1">Core Files/Overrides/MilitaryOverview.xml</File>
     <File md5="A9FEDE41B8D28348DDD9FD51E905C096" import="1">Core Files/Overrides/NaturalWonderPopup.lua</File>
     <File md5="37A831378B37D512F4A0234BEEE438E7" import="1">Core Files/Overrides/NaturalWondersCustomMethods.lua</File>
     <File md5="02F8E3F66317AC17A9CD02B2C9CAF1AA" import="1">Core Files/Overrides/PlotMouseoverInclude.lua</File>
@@ -1264,9 +1264,9 @@
     <File md5="726494AE19D2C3A3132A4B710AFCD498" import="0">Database Changes/Text/en_US/AI/DiplomacyResponseTextChanges.sql</File>
     <File md5="701584AAECE6149996D3FABF93F9DCFA" import="0">Database Changes/Text/en_US/AI/NewDiplomacyResponseText.xml</File>
     <File md5="2D42E990457416F8137E88B754C788DE" import="0">Database Changes/Text/en_US/Beliefs/BeliefTextChanges.sql</File>
-    <File md5="E358BC0645C4DA31EBF2E16BCE74AA28" import="0">Database Changes/Text/en_US/Beliefs/NewBeliefText.xml</File>
+    <File md5="4F7C710703C9A7AEAF835ECCE1075FAD" import="0">Database Changes/Text/en_US/Beliefs/NewBeliefText.xml</File>
     <File md5="AA64216AE091FCB37C934575BE8D08C6" import="0">Database Changes/Text/en_US/City/PreBuildingTextChanges.sql</File>
-    <File md5="D88D5D0028B7E5CCB5DD16769990660F" import="0">Database Changes/Text/en_US/City/BuildingTextChanges.sql</File>
+    <File md5="E1FDB322E053D284711350043CB058AA" import="0">Database Changes/Text/en_US/City/BuildingTextChanges.sql</File>
     <File md5="016A12986E64507253B5CE5202A624FC" import="0">Database Changes/Text/en_US/City/NewBuildingText.xml</File>
     <File md5="9ABA8ABD3DABC418751EE479C1EB43B5" import="0">Database Changes/Text/en_US/City/NewGreatWorkText.xml</File>
     <File md5="0FB16728782FC50FBCCCD35A4908B759" import="0">Database Changes/Text/en_US/City/NewProcessText.xml</File>
@@ -1275,10 +1275,10 @@
     <File md5="1C7DE8D3EFB10BFAFDCF7E3804E3CECB" import="0">Database Changes/Text/en_US/City/ProcessTextChanges.sql</File>
     <File md5="0238F4CE191069DD34CA219B95347542" import="0">Database Changes/Text/en_US/City/ProjectTextChanges.sql</File>
     <File md5="B98B12751887ADF4F191AAB5D9248321" import="0">Database Changes/Text/en_US/City/SpecialistTextChanges.sql</File>
-    <File md5="72B6E45FAD524E212A0760BDD8555E98" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
-    <File md5="E87182AA4D8D49623106F840DA2B464B" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
+    <File md5="91078D80660F14F348D92D5CC7F248D6" import="0">Database Changes/Text/en_US/Civilizations/CivilizationTextChanges.sql</File>
+    <File md5="E41DBA82D8C5E2A0AECDC835771BF9F7" import="0">Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</File>
     <File md5="DAD9A87C3D3A0C8053EED6EECF9B6D91" import="0">Database Changes/Text/en_US/Concepts/ConceptTextChanges.sql</File>
-    <File md5="EF6D8AE8F4143A7FC9ABEE0269827241" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
+    <File md5="30E079C9170DEF69CEDF497E92F83A7D" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
     <File md5="E49407D79E4BA9F1F3255A30296ABAB2" import="0">Database Changes/Text/en_US/Corporations/NewCorporationText.xml</File>
     <File md5="D0A442F7DEB463CDCCA45E6503687C87" import="0">Database Changes/Text/en_US/Difficulty/DifficultyTextChanges.sql</File>
     <File md5="38CF020F44DB78BF0C56FCF2ED65C7EC" import="0">Database Changes/Text/en_US/Espionage/NewEspionageText.xml</File>
@@ -1288,18 +1288,18 @@
     <File md5="4BCE030CFA5C116B559528CE44E12FB4" import="0">Database Changes/Text/en_US/Notifications/NewNotificationText.xml</File>
     <File md5="252849B36715C586506F5F2FA71BA51B" import="0">Database Changes/Text/en_US/Notifications/NotificationTextChanges.sql</File>
     <File md5="176DCF60BE27FF018192A5F83B461E22" import="0">Database Changes/Text/en_US/Policies/NewPolicyText.xml</File>
-    <File md5="29BFE64DEADA747DB52D16AAC276F9E2" import="0">Database Changes/Text/en_US/Policies/PolicyTextChanges.sql</File>
+    <File md5="72F34A409DA69AE1A2D7D6757932855B" import="0">Database Changes/Text/en_US/Policies/PolicyTextChanges.sql</File>
     <File md5="1014DA2D499FEB7220ABB967FF57ABAB" import="0">Database Changes/Text/en_US/Tech/NewTechText.xml</File>
     <File md5="128D729700548362CF38EE0678399279" import="0">Database Changes/Text/en_US/Tech/TechTextChanges.sql</File>
     <File md5="E5CB0AB92FAA1B2128EE557C30451B66" import="0">Database Changes/Text/en_US/UI/InterfaceModeTextChanges.sql</File>
     <File md5="B5C60FD5DF02295B68C1FEE0052EFD88" import="0">Database Changes/Text/en_US/UI/NewUIText.sql</File>
-    <File md5="2ADA6A036BB27B61833287DFAF421130" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
-    <File md5="A8EC5C40DB0FA8433EA36B6BEE0C4575" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
-    <File md5="453974FD7CFE0BDFB53F560C44F0A930" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
+    <File md5="227D280419D91D316E98BED6DF6C48C7" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
+    <File md5="90202E4BF20591BA63CDE39C0FB75E24" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
+    <File md5="2593B8D19F03C2748F570B1AD0B1F9B4" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
     <File md5="0F7FA7A5B4A7208E6D443ADB8E3C1D5D" import="0">Database Changes/Text/en_US/UnitPromotions/PromotionTextChanges.sql</File>
     <File md5="DDA7CA65AFBAC78647BE27D28C01203E" import="0">Database Changes/Text/en_US/Units/PreUnitTextChanges.sql</File>
-    <File md5="615A8F84B28E30BEEF1C9624EE9BC68B" import="0">Database Changes/Text/en_US/Units/MissionTextChanges.sql</File>
-    <File md5="E44B069F8ED6698D11B89240DCAC6F38" import="0">Database Changes/Text/en_US/Units/NewMissionText.xml</File>
+    <File md5="AF719FC045F45D377CCB5C09EBC6AEED" import="0">Database Changes/Text/en_US/Units/MissionTextChanges.sql</File>
+    <File md5="1833808BD4854A65C0D083DF8475BC54" import="0">Database Changes/Text/en_US/Units/NewMissionText.xml</File>
     <File md5="D2EFE53DFE4412953E6A1B9F8C72DFD6" import="0">Database Changes/Text/en_US/Units/NewUnitText.xml</File>
     <File md5="7F6897296013D2AEFC1246A55590B077" import="0">Database Changes/Text/en_US/Units/UnitTextChanges.sql</File>
     <File md5="A257CBAE5C12FB43054F8FAAE36B384B" import="0">Database Changes/Text/en_US/WorldCongress/NewProjectText.xml</File>
@@ -1308,7 +1308,7 @@
     <File md5="AC86F2F6C08F0D98ED78F739584DC243" import="0">Database Changes/Text/en_US/WorldCongress/ResolutionTextChanges.sql</File>
     <File md5="2798405A9BB9C4318FCBC7EBA6627380" import="0">Database Changes/Text/en_US/WorldCongress/SpecialSessionTextChanges.sql</File>
     <File md5="F6852FE4D958F61B4692463A3A9E3F8E" import="0">Database Changes/Text/en_US/WorldMap/FeatureTextChanges.sql</File>
-    <File md5="4CE120EE7BF5CB11EE70499F7E8D1E76" import="0">Database Changes/Text/en_US/WorldMap/ImprovementTextChanges.sql</File>
+    <File md5="E12D942DD7747813BD30832C94F6E99D" import="0">Database Changes/Text/en_US/WorldMap/ImprovementTextChanges.sql</File>
     <File md5="A6E3D9E659BFAFBD0FCA7B4F03B0E1CE" import="0">Database Changes/Text/en_US/WorldMap/NewFeatureText.xml</File>
     <File md5="1B8FBFFC6BFD36CBD902F7FC98D16608" import="0">Database Changes/Text/en_US/WorldMap/NewImprovementText.xml</File>
     <File md5="CDD50C9C90AE390C627F54D739B98DF8" import="0">Database Changes/Text/en_US/WorldMap/NewResourceText.xml</File>
@@ -1378,7 +1378,7 @@
     <File md5="F19F8CBF1D8F8A6825ECDE6773DF63E3" import="1">LUA/NotificationPanel.xml</File>
     <File md5="7EB5C786177B0495265EE05252DF70CE" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="832EDED992BD95DCFA1A062AD4FBD8A5" import="1">LUA/SocialPolicyPopup.xml</File>
-    <File md5="25D16E4FC4792B496F43AAEE1D18A1E7" import="1">LUA/TopPanel.lua</File>
+    <File md5="53C285C7FD66F28B466AD40E15C67B2D" import="1">LUA/TopPanel.lua</File>
     <File md5="8F5C4A097A6F53AF68A73609B5EBD0FB" import="1">LUA/TopPanel.xml</File>
     <File md5="3DA0ECD74812B794EDF21FE68A96AFD1" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
