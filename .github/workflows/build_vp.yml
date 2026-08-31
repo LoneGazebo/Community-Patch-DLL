@@ -133,8 +133,8 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           echo "Downloading SDKs..."
-          wget -O ./sdk7.iso https://web.archive.org/web/20161230154527/http://download.microsoft.com/download/2/E/9/2E911956-F90F-4BFB-8231-E292A7B6F287/GRMSDK_EN_DVD.iso
-          wget -O ./sdk71.iso http://download.microsoft.com/download/F/1/0/F10113F5-B750-4969-A255-274341AC6BCE/GRMSDK_EN_DVD.iso
+          wget -O ./sdk7.iso --tries=1 --timeout=120 https://web.archive.org/web/20161230154527/http://download.microsoft.com/download/2/E/9/2E911956-F90F-4BFB-8231-E292A7B6F287/GRMSDK_EN_DVD.iso
+          wget -O ./sdk71.iso --tries=1 --timeout=120 http://download.microsoft.com/download/F/1/0/F10113F5-B750-4969-A255-274341AC6BCE/GRMSDK_EN_DVD.iso
           7z x ./sdk7.iso -y -o"./SDK7"
           7z x ./sdk71.iso -y -o"./SDK7.1"
           echo "SDKs downloaded and extracted."
