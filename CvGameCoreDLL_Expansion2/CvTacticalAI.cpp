@@ -2601,7 +2601,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 		//who can attack us?
 		vector<CvUnit*> vEnemyAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot(), m_pPlayer->getTeam());
 
-		if (targets.empty() && vEnemyAttackers.empty())
+		if (targets.empty() && vEnemyAttackers.empty() && !pUnit->IsCivilianUnit())
 		{
 			pUnit = pArmy->GetNextUnit(pUnit);
 			continue;
@@ -4669,9 +4669,14 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 				}
 			}
 		}
-		else //melee. enough if we can get adjacent to the target
+		else if (pLoopUnit->IsCombatUnit()) //melee. enough if we can get adjacent to the target
 		{
 			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF;
+			bCanReach = (pLoopUnit->TurnsToReachTarget(pTarget, iFlags, 0) <= 0);
+		}
+		else //civilian unit, general or similar, needs to be able to support the attack
+		{
+			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_DANGER;
 			bCanReach = (pLoopUnit->TurnsToReachTarget(pTarget, iFlags, 0) <= 0);
 		}
 
@@ -4701,12 +4706,20 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 					bAirUnitsAdded = true;
 			}
 		}
-		else //melee
+		else if (pLoopUnit->IsCombatUnit())  //melee
 		{
 			int iAttackStrength = pLoopUnit->GetMaxAttackStrength(NULL, pTarget, bIsCityTarget ? NULL : pDefender, true, true);
 
 			CvTacticalUnit unit(pLoopUnit->GetID());
 			unit.SetAttackStrength(iAttackStrength);
+			unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
+			m_CurrentMoveUnits.push_back(unit);
+			rtnValue = true;
+		}
+		else //civilian
+		{
+			CvTacticalUnit unit(pLoopUnit->GetID());
+			unit.SetAttackStrength(0);
 			unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
 			m_CurrentMoveUnits.push_back(unit);
 			rtnValue = true;
@@ -11001,6 +11014,7 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 		}
 		else
 		{
+			// unit may not move twice in a row (if we are in a new position, there was a "wait" assignment before this)
 			if (unit.eLastAssignment == A_MOVE)
 				return result;
 		}
@@ -11017,7 +11031,7 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 
 				if (bWillGiveBonus)
 					iBonusScore += (kPlayer.GetGreatGeneralCombatBonus() + kPlayer.GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
-				else if (!bLastPosition)
+				else if (!bLastPosition && result->eAssignmentType != A_WAIT)
 					return result;
 			}
 			else if (pUnit->IsSapper())
@@ -11038,7 +11052,7 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 
 				if (iBonusDelta > 0)
 					iBonusScore += (/*50 in CP, 40 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER) * iBonusDelta) / 2;
-				else if (!bLastPosition)
+				else if (!bLastPosition && result->eAssignmentType != A_WAIT)
 					return result;
 			}
 		}
@@ -11123,9 +11137,13 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 				else
 				{
 					int iDefenderDamageTotal = iDanger + iDefenderDamage + pDefender->getDamage();
-					if (iDanger == 0)
-						iDefenderDamageTotal /= 3;
-					iDangerScore -= iDefenderDamageTotal * pUnit->GetMaxHitPoints() / (pDefender->GetMaxHitPoints() * 3);
+					// if the unit is not close to dying, consider it safe
+					if (iDefenderDamageTotal * 3 > pDefender->GetMaxHitPoints() * 2)
+					{
+						if (iDanger == 0)
+							iDefenderDamageTotal /= 3;
+						iDangerScore -= iDefenderDamageTotal * pUnit->GetMaxHitPoints() / (pDefender->GetMaxHitPoints() * 3);
+					}
 				}
 			}
 
@@ -11367,7 +11385,7 @@ bool CvSupportPosition::addInitialAssignments()
 		STacticalAssignment eInitialAssignmentNoMoves = *ScorePlotForSupportMove(*itUnit, pPlot, 0, *this, EM_INITIAL, false);
 		eInitialAssignmentNoMoves.iRemainingMoves = itUnit->iMovesLeft;
 		eInitialAssignmentNoMoves.eAssignmentType = A_INITIAL;
-		addAssignment(eInitialAssignmentNoMoves);
+		addAssignment(eInitialAssignmentNoMoves, NULL);
 	}
 	return true;
 }
@@ -11418,10 +11436,7 @@ bool CvSupportPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPer
 
 		pNewChild->initFromParent(*this);
 
-		AddAssignmentResult assignmentResult = pNewChild->addAssignment(*gOverAllChoices[i].option);
-
-		if (gOverAllChoices[i].option->eAssignmentType == A_WAIT)
-			pNewChild->UpdateTacticalPosition(*nextPosIt->second);
+		AddAssignmentResult assignmentResult = pNewChild->addAssignment(*gOverAllChoices[i].option, nextPosIt->second);
 
 		//cannot add a RESTART in the middle of a combo move for consistency, so add afterwards
 		if (assignmentResult == RESULT_ADDED_W_VIS_CHANGE)
@@ -11552,6 +11567,7 @@ CvSupportPosition::CvSupportPosition()
 	iID = 1; //zero doesn't work here
 	movePlotUpdateFlagA = 0;
 	movePlotUpdateFlagB = 0;
+	iWaitingUnits = 0;
 
 	iLastFromAttackPlotIndex = -1;
 	iLastToAttackPlotIndex = -1;
@@ -11708,6 +11724,7 @@ void CvSupportPosition::initFromParent(const CvSupportPosition& parent)
 	iLastToAttackPlotIndex = parent.iLastToAttackPlotIndex;
 	iGeneration = parent.iGeneration + 1;
 	pCenterOfMass = parent.pCenterOfMass;
+	iWaitingUnits = parent.iWaitingUnits;
 
 	//clever scheme to encode the tree structure into IDs
 	//works only if the tree is not too wide or too deep
@@ -11812,7 +11829,7 @@ static bool supportPositionIsEquivalentToAnyChild(const CvSupportPosition* ref, 
 			return bMatch;
 	}
 
-	return positionIsEquivalent(ref, current);
+	return positionIsEquivalent(ref->GetTacticalPosition(), current->GetTacticalPosition()) && positionIsEquivalent(ref, current);
 }
 
 bool CvSupportPosition::isUnique(int levels) const
@@ -11829,7 +11846,7 @@ bool CvSupportPosition::isUnique(int levels) const
 	return !supportPositionIsEquivalentToAnyChild(this, start);
 }
 
-CvSupportPosition::AddAssignmentResult CvSupportPosition::addAssignment(const STacticalAssignment& newAssignment)
+CvSupportPosition::AddAssignmentResult CvSupportPosition::addAssignment(const STacticalAssignment& newAssignment, const CvTacticalPosition* nextTacticalPosition)
 {
 	vector<SUnitStats>& availableUnits_w = availableUnits.write();
 	vector<SUnitStats>::iterator itUnit = find_if(availableUnits_w.begin(), availableUnits_w.end(), PrMatchingUnit(newAssignment.iUnitID));
@@ -11875,6 +11892,13 @@ CvSupportPosition::AddAssignmentResult CvSupportPosition::addAssignment(const ST
 	case A_WAIT:
 		bNoMove = true;
 		bAffectsScore = false;
+		iWaitingUnits++;
+		if (iWaitingUnits == GetNumAvailableUnits())
+		{
+			iWaitingUnits = 0;
+			if (nextTacticalPosition)
+				UpdateTacticalPosition(*nextTacticalPosition);
+		}
 		break;
 	default:
 		UNREACHABLE();
@@ -12760,7 +12784,7 @@ bool TacticalAIHelpers::AddSupportMoves(CvTacticalPosition& positionAfterCombatM
 
 		initialPosition->updateMovePlotsIfRequired();
 
-		for (size_t i = 0; i < initialPosition->getAvailableUnits().size(); i++)
+		for (size_t i = 0; i < initialPosition->GetNumAvailableUnits(); i++)
 		{
 			initialPosition->getPreferredAssignmentsForUnit(initialPosition->getAvailableUnits()[i], iMaxChoicesPerUnit, true);
 			if (gPossibleMoves.empty())
@@ -12830,21 +12854,30 @@ bool TacticalAIHelpers::AddSupportMoves(CvTacticalPosition& positionAfterCombatM
 		vector<STacticalAssignment>::const_iterator combatIt = positionAfterCombatMoves.getAssignments().begin();
 		vector<STacticalAssignment>::const_iterator supportIt = completedPositions.front()->getAssignments().begin();
 
+		int iAvailableUnits = initialPosition->GetNumAvailableUnits();
+
 		while (combatIt != positionAfterCombatMoves.getAssignments().end())
 		{
 			if (IsAttackMove(combatIt->eAssignmentType) || combatIt == positionAfterCombatMoves.getAssignments().end() - 1)
 			{
+				int iWaitingUnits = 0;
 				while (supportIt != completedPositions.front()->getAssignments().end())
 				{
 					if (supportIt->eAssignmentType == A_WAIT)
 					{
 						supportIt++;
-						break;
+						iWaitingUnits++;
+						if (iWaitingUnits == iAvailableUnits)
+							break;
 					}
-
-					result.push_back(*supportIt);
-					positionAfterCombatMoves.UpdateScore(*supportIt);
-					++supportIt;
+					else
+					{
+						if (supportIt->eAssignmentType == A_FINISH)
+							iAvailableUnits--;
+						result.push_back(*supportIt);
+						positionAfterCombatMoves.UpdateScore(*supportIt);
+						++supportIt;
+					}
 				}
 			}
 

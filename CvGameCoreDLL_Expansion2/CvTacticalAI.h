@@ -1407,6 +1407,7 @@ protected:
 	const CvPlot* pCenterOfMass;
 	int iLastFromAttackPlotIndex;
 	int iLastToAttackPlotIndex;
+	int iWaitingUnits;
 
 	//dummy to avoid returning temporaries
 	CvPlot dummyPlot;
@@ -1425,7 +1426,7 @@ public:
 	void initFromTacticalPosition(const CvTacticalPosition& tactPos, const CvTacticalPosition& finalTactPos, const vector<const CvUnit*>& ourUnits);
 	void initFromParent(const CvSupportPosition& parent);
 
-	AddAssignmentResult addAssignment(const STacticalAssignment& newAssignment);
+	AddAssignmentResult addAssignment(const STacticalAssignment& newAssignment, const CvTacticalPosition* nextTacticalPosition);
 	bool isUnique(int levelsToCheck = 2) const;
 	void updateMovePlotsForUnit(SUnitStats unit);
 	void updateMovePlotsIfRequired();
@@ -1452,6 +1453,7 @@ public:
 	const CvPlot* GetCenterOfMass() const { return pCenterOfMass; }
 	int GetLastFromAttackPlotIndex() const { return iLastFromAttackPlotIndex; }
 	int GetLastToAttackPlotIndex() const { return iLastToAttackPlotIndex; }
+	int GetNumWaitingUnits() const { return iWaitingUnits; }
 };
 
 class CvTactPosStorage
