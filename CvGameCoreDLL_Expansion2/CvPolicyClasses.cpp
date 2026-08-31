@@ -3752,7 +3752,8 @@ CvPolicyBranchEntry::CvPolicyBranchEntry(void):
 	m_iFirstAdopterFreePolicies(0),
 	m_iSecondAdopterFreePolicies(0),
 	m_iNumPolicyRequirement(0),
-	m_piPolicyBranchDisables(NULL)
+	m_piPolicyBranchDisables(NULL),
+	m_pbVictories(NULL)
 {
 }
 
@@ -3760,6 +3761,7 @@ CvPolicyBranchEntry::CvPolicyBranchEntry(void):
 CvPolicyBranchEntry::~CvPolicyBranchEntry(void)
 {
 	SAFE_DELETE_ARRAY(m_piPolicyBranchDisables);
+	SAFE_DELETE_ARRAY(m_pbVictories);
 }
 
 /// Read from XML file (pass 1)
@@ -3794,6 +3796,8 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 	m_iNumPolicyRequirement = kResults.GetInt("NumPolicyRequirement");
 	m_wstrIdeologyIcon = kResults.GetText("FontIcon");
 
+	kUtility.PopulateArrayByExistence(m_pbVictories, "Victories", "PolicyBranch_Victories", "VictoryType", "PolicyBranchType", szPolicyBranchType);
+
 	//PolicyBranch_Disables
 	{
 		kUtility.InitializeArray(m_piPolicyBranchDisables, "PolicyBranchTypes", (int)NO_POLICY_BRANCH_TYPE);
@@ -3817,7 +3821,7 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 
 		pResults->Reset();
 	}
-
+	
 	return true;
 }
 
@@ -3855,6 +3859,12 @@ int CvPolicyBranchEntry::GetSecondAdopterFreePolicies() const
 int CvPolicyBranchEntry::GetPolicyBranchDisables(int i) const
 {
 	return m_piPolicyBranchDisables ? m_piPolicyBranchDisables[i] : -1;
+}
+
+/// Victory types that this branch is focussed on (AI eval)
+bool CvPolicyBranchEntry::IsVictorySupported(int i) const
+{
+	return m_pbVictories ? m_pbVictories[i] : false;
 }
 
 /// Are policies in this branch unlocked by buying lower-level prereq policies?
