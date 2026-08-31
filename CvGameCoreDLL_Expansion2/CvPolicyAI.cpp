@@ -429,19 +429,21 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 			if (pVictory)
 			{
 				int iPrefGrandStrategy = pVictory->getPreferredGrandStrategy();
-				
-				if (pBranch->IsVictorySupported(eVictory))
+				if (iPrefGrandStrategy != NO_AIGRANDSTRATEGY)  // time victory has no strategy assigned
 				{
-					vIdeologyPriorities[i] += vGrandStrategyPriorities[iPrefGrandStrategy];
-					
-					if (vGrandStrategyPriorities[iPrefGrandStrategy] > iMaxSupported)
+					if (pBranch->IsVictorySupported(eVictory))
 					{
-						iMaxSupported = vGrandStrategyPriorities[iPrefGrandStrategy];
+						vIdeologyPriorities[i] += vGrandStrategyPriorities[iPrefGrandStrategy];
+						
+						if (vGrandStrategyPriorities[iPrefGrandStrategy] > iMaxSupported)
+						{
+							iMaxSupported = vGrandStrategyPriorities[iPrefGrandStrategy];
+						}
 					}
-				}
-				else if (vGrandStrategyPriorities[iPrefGrandStrategy] > iMaxUnsupported)
-				{
-					iMaxUnsupported = vGrandStrategyPriorities[iPrefGrandStrategy];
+					else if (vGrandStrategyPriorities[iPrefGrandStrategy] > iMaxUnsupported)
+					{
+						iMaxUnsupported = vGrandStrategyPriorities[iPrefGrandStrategy];
+					}
 				}
 			}
 		}
@@ -457,7 +459,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 					vIdeologyPriorities[i] = 0;
 			}
 			
-			// Rule out one ideology if we are clearly (at least X% more priority) going for the victory this ideology doesn't support
+			// Rule out one ideology if we are clearly (at least X% more priority) going for a victory this ideology doesn't support
 			int iClearPrefPercent = /*25*/ GD_INT_GET(IDEOLOGY_PERCENT_CLEAR_VICTORY_PREF);
 			if (iMaxUnsupported > (iMaxSupported * (100 + iClearPrefPercent) / 100))
 				vIdeologyPriorities[i] = 0;
