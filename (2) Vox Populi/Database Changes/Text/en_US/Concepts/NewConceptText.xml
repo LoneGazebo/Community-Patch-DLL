@@ -395,5 +395,29 @@
 		<Row Tag="TXT_KEY_CORPORATION_SPREADING_QUESTION">
 			<Text>How do I spread my Corporation?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TOPIC_RELIGION_HOLY_CITY">
+			<Text>Holy Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RELIGION_HOLY_CITY_TITLE">
+			<Text>[COLOR_YELLOW]{TXT_KEY_TOPIC_RELIGION_HOLY_CITY}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RELIGION_HOLY_CITY_BODY">
+			<Text>When your Great Prophet founds a religion, the City in which it occurs becomes a Holy City of your new religion. Holy Cities exert extra pressure for their religion on themselves, even without any followers.[NEWLINE][NEWLINE]You can only benefit from Founder, Enhancer, and Reformation Beliefs of your religion if you own its Holy City. [COLOR_YELLOW]If you do not control a religion, you can gain control of one by conquering its Holy City. This will cause you to benefit from all its beliefs as if you founded it, but all your [ICON_PEACE] Faith will be converted to [ICON_GOLDEN_AGE] Golden Age Points as your [ICON_RELIGION] Primary Religion changes.[ENDCOLOR][NEWLINE][NEWLINE]You can remove a Holy City status from a City by conquering it and having another religion's Inquisitor perform the Remove Heresy action on it (A Great Prophet will not work!).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RELIGION_HOLY_CITY_ADV_QUEST">
+			<Text>What are Holy Cities?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOPIC_RELIGION_REFORMATION">
+			<Text>Reforming a religion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RELIGION_REFORMATION_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_RELIGION_REFORMATION}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RELIGION_REFORMATION_BODY">
+			<Text>Founder beliefs allow construction of a National Wonder in that religion's Holy City. Construting those wonders requires your religion to be followed by a percentage of a global population (scaling with map size). Completing the wonder will allow you to pick a Reformation Belief. Reformation Beliefs grant powerful bonuses that help in pursuing specific victory conditions and may allow you to purchase different types of buildings and units with [ICON_PEACE] Faith.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RELIGION_REFORMATION_ADV_QUEST">
+			<Text>How do I reform my religion?</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

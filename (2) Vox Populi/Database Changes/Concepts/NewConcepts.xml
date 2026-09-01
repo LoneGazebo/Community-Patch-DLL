@@ -320,6 +320,25 @@
 			<Advisor>FOREIGN</Advisor>
 			<CivilopediaHeaderType>HEADER_ESPIONAGE</CivilopediaHeaderType>
 		</Row>
+		<!-- Religion -->
+		<Row>
+			<Type>CONCEPT_RELIGION_HOLY_CITY</Type>
+			<Topic>TXT_KEY_TOPIC_RELIGION_HOLY_CITY</Topic>
+			<Description>TXT_KEY_CONCEPT_RELIGION_HOLY_CITY_TITLE</Description>
+			<Summary>TXT_KEY_CONCEPT_RELIGION_HOLY_CITY_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_RELIGION_HOLY_CITY_ADV_QUEST</AdvisorQuestion>
+			<Advisor>FOREIGN</Advisor>
+			<CivilopediaHeaderType>HEADER_RELIGION</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_RELIGION_REFORMATION</Type>
+			<Topic>TXT_KEY_TOPIC_RELIGION_REFORMATION</Topic>
+			<Description>TXT_KEY_CONCEPT_RELIGION_REFORMATION_TITLE</Description>
+			<Summary>TXT_KEY_CONCEPT_RELIGION_REFORMATION_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_RELIGION_REFORMATION_ADV_QUEST</AdvisorQuestion>
+			<Advisor>FOREIGN</Advisor>
+			<CivilopediaHeaderType>HEADER_RELIGION</CivilopediaHeaderType>
+		</Row>
 	</Concepts>
 	<Concepts_RelatedConcept>
 		<Row>
