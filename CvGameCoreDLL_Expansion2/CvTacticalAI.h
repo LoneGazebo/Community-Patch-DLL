@@ -1244,7 +1244,7 @@ public:
 
 	bool isExhausted() const;
 	const vector<SUnitStats>& getAvailableUnits() const { return availableUnits.read(); }
-	int GetNumAvailableUnits() const { return availableUnits.read().size(); }
+	size_t GetNumAvailableUnits() const { return availableUnits.read().size(); }
 	const vector<SUnitStats>& getFinishedUnits() const { return notQuiteFinishedUnits.read(); }
 	bool lastAssignmentIsAfterRestart(int iUnitID) const;
 	const SUnitStats* getAvailableUnitStats(int iUnitID) const;
