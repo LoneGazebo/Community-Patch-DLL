@@ -25,7 +25,6 @@
 #include "CvCitySpecializationAI.h"
 #include "CvWonderProductionAI.h"
 #include "CvGrandStrategyAI.h"
-#include "CvDiplomacyAI.h"
 #include "CvTechAI.h"
 #include "CvFlavorManager.h"
 #include "CvHomelandAI.h"
@@ -57,7 +56,6 @@
 
 #include "CvDllCity.h"
 #include "CvDllPlot.h"
-#include "CvGoodyHuts.h"
 
 #include "CvDllNetMessageExt.h"
 // Include this after all other headers.
@@ -42201,7 +42199,7 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 	}
 
 	//because of stupidity, we need to enable CvPlayer::getOperation() before initializing the operation
-	m_AIOperations.push_back(std::make_pair(pNewOperation->GetID(), pNewOperation));
+	addAIOperation(pNewOperation);
 
 	//check if initialization works out
 	pNewOperation->Init(pTarget, pMuster);
@@ -42219,6 +42217,11 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 	}
 
 	return pNewOperation;
+}
+
+void CvPlayer::addAIOperation(CvAIOperation* pOperation)
+{
+	m_AIOperations.push_back(std::make_pair(pOperation->GetID(), pOperation));
 }
 
 void CvPlayer::deleteAIOperation(int iID)
