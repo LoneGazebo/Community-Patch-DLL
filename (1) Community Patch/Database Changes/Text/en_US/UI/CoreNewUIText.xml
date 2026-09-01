@@ -645,6 +645,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FREE_LUXURY">
 			<Text>{TXT_KEY_MISSION_FREE_LUXURY}: +{1_Num} Random Luxury {1: plural 1? Resource; other?Resources;}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_XP_FROM_EXPLORATION">
+			<Text>{1_Num} XP at 100% map exploration, scaling linearly upon creation and as the map is revealed</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_BUILDINGS_PURCHASE">
 			<Text>Required Buildings for Purchase: [COLOR_YIELD_FOOD]{1_Buildings}[ENDCOLOR]</Text>
 		</Row>

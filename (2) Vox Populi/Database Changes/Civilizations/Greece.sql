@@ -45,6 +45,7 @@ SET
 		)
 	),
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_COMMANDO') + 2,
+	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_COMMANDO') + 1,
 	DefaultUnitAI = 'UNITAI_FAST_ATTACK'
 WHERE Type = 'UNIT_KLEPHT';
 

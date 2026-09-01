@@ -50,7 +50,7 @@ WHERE Type = 'UNIT_HOLKAN';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_HOLKAN', 'PROMOTION_TRAILBLAZER_1'),
+	('UNIT_HOLKAN', 'PROMOTION_WOODSMAN'),
 	('UNIT_HOLKAN', 'PROMOTION_LOST_CODEX');
 
 ----------------------------------------------------------

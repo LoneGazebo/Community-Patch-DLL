@@ -3656,11 +3656,11 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		int iMovesRemaining = pBestPlotMove.second;
 
 		//pillage before retreat, if we have movement points to spare
-		if ((pUnit->hasFreePillageMove() || iMovesRemaining > GD_INT_GET(MOVE_DENOMINATOR)) && pUnit->shouldPillage(pUnitPlot))
+		int iPillageCost = pUnit->hasFreePillageMove() ? 0 : pUnit->HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
+		if (iMovesRemaining > iPillageCost && pUnit->shouldPillage(pUnitPlot))
 		{
 			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-			if (!pUnit->hasFreePillageMove())
-				iMovesRemaining -= GD_INT_GET(MOVE_DENOMINATOR);
+			iMovesRemaining -= iPillageCost;
 		}
 
 		//typical citadel case
@@ -3969,7 +3969,8 @@ int CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPro
 		if (pUnit->GeneratePath(pTarget,iFlags,INT_MAX,&iTurns))
 		{
 			//pillage if it makes sense and we have movement points to spare
-			if (pUnit->shouldPillage(pUnit->plot(), true, true) && (pUnit->hasFreePillageMove() || pUnit->GetMovementPointsAtCachedTarget()>=GD_INT_GET(MOVE_DENOMINATOR)))
+			int iPillageCost = pUnit->hasFreePillageMove() ? 0 : pUnit->HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
+			if (pUnit->shouldPillage(pUnit->plot(), true, true) && pUnit->GetMovementPointsAtCachedTarget() >= iPillageCost)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 				
@@ -4458,8 +4459,6 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 
 CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget, int iNumTurnsAway /* = -1 if any distance okay */)
 {
-	static UnitCombatTypes eReconType = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
-
 	m_CurrentMoveUnits.clear();
 	std::vector<OptionWithScore<CvUnit*>> possibleUnits;
 
@@ -4469,15 +4468,10 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
 		if(pLoopUnit && pLoopUnit->getDomainType() != DOMAIN_AIR && pLoopUnit->IsCombatUnit() && !pLoopUnit->TurnProcessed())
 		{
-			// Mod option: only recon units can claim ruins
-			// Leaving this code here because A) this option can be turned off (is by default in Community Patch Only), and
-			// B) even though most explorers aren't available to tactical AI, some secondary explorer units with the Reconnaissance promotion, like Conquistadors, can make use of it
+			// Some units may not be able to claim goody huts
 			// Economic AI still places a high value on goody huts for AI explorers, so they'll still be prioritized; see EconomicAIHelpers::ScoreExplorePlot()
-			if (MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS && eMove == AI_TACTICAL_GOODY && pTarget->isRevealedGoody(m_pPlayer->getTeam()))
-			{
-				if (pLoopUnit->getUnitCombatType() != eReconType && !pLoopUnit->IsGainsXPFromScouting())
-					continue;
-			}
+			if (eMove == AI_TACTICAL_GOODY && pTarget->isRevealedGoody(m_pPlayer->getTeam()) && !pLoopUnit->CanClaimGoody())
+				continue;
 
 			//note that garrisons are not recruited into m_CurrentTurnUnits in the first place
 			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || !pLoopUnit->canMoveInto(*pTarget,CvUnit::MOVEFLAG_DESTINATION))
@@ -6192,7 +6186,7 @@ bool TacticalAIHelpers::IsCloseToContestedBorder(CvPlayer* pPlayer, CvPlot* pPlo
 
 pair<CvPlot*, int> TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit, bool bConservative)
 {
-	if (!pUnit)
+	if (!pUnit || pUnit->IsCannotHeal(true))
 		return make_pair(static_cast<CvPlot*>(NULL), 0);
 
 	//first see if the current plot is good
@@ -6260,10 +6254,11 @@ pair<CvPlot*, int> TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUni
 		//sometimes we want to ignore pillage health, it's a one-time effect and may lead into dead ends
 		if (bPillage && !bConservative)
 		{
-			if (!pUnit->hasFreePillageMove())
-				iHealRate = max(iHealRate, /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
+			int iPillageHeal = pUnit->getPillageHealAmount(pPlot, true);
+			if (pUnit->hasFreePillageMove())
+				iHealRate += iPillageHeal;
 			else
-				iHealRate += /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
+				iHealRate = max(iHealRate, iPillageHeal);
 		}
 
 		//make up a score function
@@ -7822,8 +7817,8 @@ static STacticalAssignment* ScorePlotForPillageMove(const SUnitStats& unit, cons
 
 	if (pUnit->canPillage(pTestPlot) && !assumedPosition.plotHasAssignmentOfType(testPlot->getPlotIndex(), A_PILLAGE))
 	{
-		if (!unit.pUnit->hasFreePillageMove())
-			result->iRemainingMoves -= min((int)result->iRemainingMoves, GD_INT_GET(MOVE_DENOMINATOR));
+		int iPillageCost = pUnit->hasFreePillageMove() ? 0 : pUnit->HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
+		result->iRemainingMoves -= min((int)result->iRemainingMoves, iPillageCost);
 
 		int iImprovementDamage = TacticalAIHelpers::GetOtherPlayerImprovementDamage(pTestPlot, assumedPosition.getPlayer(), true);
 		if (iImprovementDamage > 0)
@@ -7836,9 +7831,9 @@ static STacticalAssignment* ScorePlotForPillageMove(const SUnitStats& unit, cons
 			iBonusScore += 10;
 		}
 		
-		if (pUnit->getPillageHealAmount(pTestPlot) > 0)
+		int iHealAmount = pUnit->getPillageHealAmount(pTestPlot);
+		if (iHealAmount > 0)
 		{
-			int iHealAmount = pUnit->getPillageHealAmount(pTestPlot);
 			if (iHealAmount > pUnit->getDamage() + unit.iSelfDamage)
 				iHealAmount = pUnit->getDamage() + unit.iSelfDamage;
 
