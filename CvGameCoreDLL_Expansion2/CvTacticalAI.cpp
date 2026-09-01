@@ -7902,8 +7902,8 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 	int iMaxHitPoints = pUnit->GetMaxHitPoints();
 	int iCurrHitPoints = iMaxHitPoints - pUnit->getDamage() - iSelfDamage;
 
-	//unseen enemies might be hiding behind the edge, so assume danger there
-	if (testPlot->isEdgePlot())
+	//unseen enemies might be hiding behind the edge, so assume danger there (unless it is a city)
+	if (testPlot->isEdgePlot() && !pTestPlot->isCity())
 	{
 		//siege units (with limited visibility) should not move there unless covered (the -1 is important)
 		if (pUnit->visibilityRange() < 2 && testPlot->getNumAdjacentFriendlies(DomainForUnit(pUnit), -1) < 2)
