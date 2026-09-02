@@ -7417,12 +7417,12 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 				setArea(-1);
 				setLandmass(-1);
 
-				if (pCurrArea->getNumTiles() == 0)
+				if (pCurrArea && pCurrArea->getNumTiles() == 0)
 				{
 					GC.getMap().deleteArea(pCurrArea->GetID());
 				}
 
-				if (pCurrLandmass->getNumTiles() == 0)
+				if (pCurrLandmass && pCurrLandmass->getNumTiles() == 0)
 				{
 					GC.getMap().deleteLandmass(pCurrLandmass->GetID());
 				}
