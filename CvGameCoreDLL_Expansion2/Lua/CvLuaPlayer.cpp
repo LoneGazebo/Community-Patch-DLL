@@ -1660,11 +1660,26 @@ int CvLuaPlayer::lIsCityNameValid(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+// Mods routinely pass the result of a failed GameInfo lookup (-1/nil) straight
+// into these bindings; without this check the invalid ID reaches the
+// PRECONDITION in CvPlayer::initUnit and aborts the whole game (#13327, #13338).
+// luaL_error longjmps out of the binding, so the mod gets a scriptable Lua
+// error (visible in Lua.log with a traceback) instead of a game crash.
+static UnitTypes luaCheckUnitType(lua_State* L, int idx)
+{
+	const int iUnit = lua_tointeger(L, idx);
+	if (iUnit <= NO_UNIT || iUnit >= GC.getNumUnitInfos())
+	{
+		luaL_error(L, "invalid unit type ID %d (valid range 0..%d); the calling mod likely used a GameInfo lookup that returned nil", iUnit, GC.getNumUnitInfos() - 1);
+	}
+	return (UnitTypes)iUnit;
+}
+//------------------------------------------------------------------------------
 //CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bHistoric = true);
 int CvLuaPlayer::lInitUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	const UnitTypes eUnit = luaCheckUnitType(L, 2);
 	const int x = lua_tointeger(L, 3);
 	const int y = lua_tointeger(L, 4);
 	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 5, NO_UNITAI);
@@ -1684,7 +1699,7 @@ int CvLuaPlayer::lInitUnit(lua_State* L)
 int CvLuaPlayer::lInitUnitWithNameOffset(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	const UnitTypes eUnit = luaCheckUnitType(L, 2);
 	const int iNameOffset = lua_tointeger(L, 3);
 	const int x = lua_tointeger(L, 4);
 	const int y = lua_tointeger(L, 5);
@@ -1704,7 +1719,7 @@ int CvLuaPlayer::lInitUnitWithNameOffset(lua_State* L)
 int CvLuaPlayer::lInitNamedUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	const UnitTypes eUnit = luaCheckUnitType(L, 2);
 	const char* strKey = lua_tostring(L, 3);
 	const int x = lua_tointeger(L, 4);
 	const int y = lua_tointeger(L, 5);

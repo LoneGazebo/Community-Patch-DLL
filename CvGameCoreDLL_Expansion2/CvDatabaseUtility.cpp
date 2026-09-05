@@ -69,10 +69,15 @@ Database::Results* CvDatabaseUtility::PrepareResults(const std::string& strKey, 
 		m_storedResults[strKey] = pResults;
 		return pResults;
 	}
-	else
-	{
-		delete pResults;
-	}
+
+	delete pResults;
+
+	// A failed prepare here means the gameplay database is missing tables or
+	// columns (corrupted install or broken mod). Most callers dereference the
+	// result unchecked, so without this we crash with an unexplained
+	// NULL-deref in Bind/Step (#13313). Fail with a diagnostic naming the
+	// query instead; "Verify integrity of game files" usually fixes it.
+	PRECONDITION(false, "Failed to prepare database query '%s' [%s]: %s -- the game database is corrupted or a mod is broken; try verifying game files", strKey.c_str(), szStmt, GetErrorMessage());
 
 	return NULL;
 }
