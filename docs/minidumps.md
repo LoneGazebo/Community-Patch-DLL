@@ -273,20 +273,25 @@ When reporting a crash:
 
 ## Disabling Minidumps
 
-If you need to disable minidump generation (not recommended for debugging):
+Minidumps are always ON by default. If you need to disable them (not recommended for debugging), there are two ways:
 
-1. Open `CvGameCoreDLL_Expansion2/CustomMods.h`
-2. Find the line:
-   ```cpp
-   #define MOD_DEBUG_MINIDUMP
-   ```
-3. Comment it out:
-   ```cpp
-   // #define MOD_DEBUG_MINIDUMP
-   ```
-4. Rebuild the DLL
+**At runtime (players, no rebuild needed):**
 
-**Note:** If you disable minidumps, also set `GenerateDebugInfo=No` in the linker settings to reduce DLL size.
+Create an empty file named `nodumps.please` inside the `crashlogs` folder in the Civilization V installation directory (next to `CivilizationV.exe`):
+
+```
+<Civ5 install dir>\crashlogs\nodumps.please
+```
+
+The marker is read once at game start. While present, no dumps are written, the emergency memory reserve is not held, and `crashes.log` records `Minidump: Disabled by user (crashlogs\nodumps.please)` for any crash. Delete the file to re-enable minidumps.
+
+There is also `crashlogs\nopopups.please`, which suppresses all error dialogs (asserts are auto-ignored, crash and precondition popups are skipped) for unattended or autoplay sessions. Logging (`CvAssert.log`, `crashes.log`) and minidump creation are unaffected by this marker.
+
+**At build time (developers):**
+
+Define `DISABLE_MINIDUMP` in the project's preprocessor definitions (mirrors `DISABLE_CVASSERT`) and rebuild the DLL. This compiles out the minidump machinery entirely; `crashes.log` is still written on crashes and reports `DLL was built without minidump support!`.
+
+**Note:** If you disable minidumps at build time, also set `GenerateDebugInfo=No` in the linker settings to reduce DLL size.
 
 **Build-Time Version Generation:**
 

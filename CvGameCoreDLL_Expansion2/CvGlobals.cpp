@@ -43,12 +43,14 @@
 #include "CvDllRandom.h"
 #include "CvDllUnit.h"
 
-#if defined(MOD_DEBUG_MINIDUMP)
 #ifdef WIN32
+// CURRENT_GAMECORE_VERSION is needed by CustomFilter's crashes.log report even
+// in builds without minidump support (DISABLE_MINIDUMP).
 #include "../commit_id.inc"
+#if defined(MOD_DEBUG_MINIDUMP)
 #include <dbghelp.h>
-#endif // WIN32
 #endif // defined(MOD_DEBUG_MINIDUMP)
+#endif // WIN32
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -2132,6 +2134,31 @@ void SetPreconditionFired()
 	g_bPreconditionFired = true;
 }
 
+// Runtime opt-outs via marker files next to the game executable, read ONCE at
+// CvGlobals::init (crash-time file probes are wasted work and the crash handler
+// must stay lean under address space exhaustion). Both default to OFF: with no
+// marker files present, behavior is identical to before.
+//   crashlogs\nodumps.please  - skip minidump creation (and its memory reserve)
+//   crashlogs\nopopups.please - suppress all error dialogs (for autoplay/unattended
+//                               sessions); logging and minidumps are unaffected
+static bool g_bMiniDumpDisabledByUser = false;
+static bool g_bPopupsDisabledByUser = false;
+
+static bool MarkerFileExists(const char* szPath)
+{
+	return GetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES;
+}
+
+bool IsMiniDumpDisabledByUser()
+{
+	return g_bMiniDumpDisabledByUser;
+}
+
+bool AreErrorPopupsSuppressed()
+{
+	return g_bPopupsDisabledByUser;
+}
+
 // MessageBox constants (not included in minimal Windows headers)
 #ifndef MB_OK
 #define MB_OK           0x00000000L
@@ -2226,6 +2253,11 @@ static bool IsAddressSpaceExhausted()
 
 void CreateMiniDump(EXCEPTION_POINTERS* pep)
 {
+	// Runtime opt-out (crashlogs\nodumps.please, cached at init). The reserve
+	// and dbghelp preload were already skipped at init in this case.
+	if (g_bMiniDumpDisabledByUser)
+		return;
+
 	// Load the best available dbghelp.dll. Normally pre-loaded at
 	// CvGlobals::init when memory is plentiful; this call is then a no-op.
 	if (!LoadBestDbgHelp())
@@ -2669,7 +2701,9 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 	CreateMiniDump(ExceptionInfo);
 
 	char szMiniDumpStatus[MAX_PATH + 64];
-	if (g_szLastMiniDumpPath[0] != '\0')
+	if (g_bMiniDumpDisabledByUser)
+		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Disabled by user (crashlogs\\nodumps.please)");
+	else if (g_szLastMiniDumpPath[0] != '\0')
 	{
 		if (g_dwLastMiniDumpError != 0)
 			// Succeeded via the MiniDumpNormal retry - record why the
@@ -2684,11 +2718,68 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Creation failed (error %u)", g_dwLastMiniDumpError);
 #endif
 
-	char szCrashInfo[2048];
+	//file offset = module RVA - 0xC00 (.text raw/virtual delta); only valid
+	//when the address resolved to a module RVA at least that large. A NULL or
+	//pre-.text crash (e.g. a null-pointer access violation) leaves the value
+	//below 0xC00, where the unsigned subtraction would wrap to a bogus offset.
+	char szLocationFile[MAX_PATH + 32];
+	if (exceptionAddressAdjusted >= 0xC00)
+		_snprintf_s(szLocationFile, _countof(szLocationFile), _TRUNCATE, "%s+0x%08x", GetOnlyFilename(szCrashModule), exceptionAddressAdjusted - 0xC00);
+	else
+		_snprintf_s(szLocationFile, _countof(szLocationFile), _TRUNCATE, "n/a (address 0x%08x is not a module code offset)", exceptionAddressAdjusted);
+
+	// Automated first-pass classification so the log itself answers the most
+	// common triage questions. Access violations carry the access kind and
+	// target in ExceptionInformation[0..1]: 0=read, 1=write, 8=execute (DEP).
+	// An execute of address 0 is a call through a NULL function pointer -
+	// on 32-bit almost always downstream of memory exhaustion (an allocation
+	// returned NULL and a vtable/callback was never written).
+	bool bAddressSpaceLow = (largestFreeBlockLowSize < (16u * 1024 * 1024));
+	char szCrashClass[512];
+	if (g_bPreconditionFired)
+	{
+		_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+			"Deliberate stop: a failed ASSERT/PRECONDITION ended the game (see CvAssert.log for the failed check)");
+	}
+	else if (exceptionCode == EXCEPTION_ACCESS_VIOLATION && ExceptionInfo && ExceptionInfo->ExceptionRecord->NumberParameters >= 2)
+	{
+		ULONG_PTR uAccessKind = ExceptionInfo->ExceptionRecord->ExceptionInformation[0];
+		ULONG_PTR uTargetAddr = ExceptionInfo->ExceptionRecord->ExceptionInformation[1];
+		const char* szKind = (uAccessKind == 0) ? "read of" : (uAccessKind == 1) ? "write to" : "execute at";
+		if (uAccessKind == 8 && uTargetAddr == 0)
+			_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+				"Call through a NULL function pointer%s",
+				bAddressSpaceLow ? " - likely 32-bit address space exhaustion (see largest free block below)" : "");
+		else if (uTargetAddr < 0x10000)
+			_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+				"Access violation: %s 0x%08x (NULL or near-NULL object%s)",
+				szKind, (DWORD)uTargetAddr,
+				bAddressSpaceLow ? "; low address space may have failed an allocation" : "");
+		else
+			_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+				"Access violation: %s 0x%08x", szKind, (DWORD)uTargetAddr);
+	}
+	else if (exceptionCode == 0xE06D7363)
+	{
+		// MSVC C++ exception (RaiseException magic) - thrown by the engine or
+		// CRT; under exhaustion this is commonly std::bad_alloc.
+		_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+			"Unhandled C++ exception%s",
+			bAddressSpaceLow ? " - likely allocation failure (32-bit address space exhausted, see largest free block below)" : "");
+	}
+	else
+	{
+		_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE, "%s%s",
+			GetExceptionDescription(exceptionCode),
+			bAddressSpaceLow ? " (note: address space nearly exhausted, see largest free block below)" : "");
+	}
+
+	char szCrashInfo[3072];
 	_snprintf_s(szCrashInfo, _countof(szCrashInfo), _TRUNCATE, 
 		"--Crash details--\n"
 		"Exception: 0x%08x (%s)\n"
-		"Location (in file): %s+0x%08x\n"
+		"Crash class: %s\n"
+		"Location (in file): %s\n"
 		"Location (live memory): 0x%08x+0x%08x\n"
 		"Time: %s\n"
 		"Minidump: %s\n"
@@ -2711,11 +2802,8 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		"Installation directory and .exe: %s\n\n",
 
 		exceptionCode, GetExceptionDescription(exceptionCode),
-		//file offset = module RVA - 0xC00 (.text raw/virtual delta); only valid
-		//when the address resolved to a module RVA at least that large. A NULL or
-		//pre-.text crash (e.g. a null-pointer access violation) leaves the value
-		//below 0xC00, where the unsigned subtraction would wrap to a bogus offset.
-		GetOnlyFilename(szCrashModule),exceptionAddressAdjusted >= 0xC00 ? exceptionAddressAdjusted-0xC00 : 0,
+		szCrashClass,
+		szLocationFile,
 		exceptionAddress,exceptionAddressAdjusted,
 		szTimestamp,
 #if defined(MOD_DEBUG_MINIDUMP)
@@ -2777,7 +2865,10 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 
 	_snprintf_s( szMessage, _countof(szMessage), _TRUNCATE, szBaseMsg, szCrashInfo);
 
-	if (!g_bPreconditionFired)
+	// No dialog if a PRECONDITION already showed one, or if the user opted out
+	// of popups (crashlogs\nopopups.please) - crashes.log and the minidump were
+	// already written above either way.
+	if (!g_bPreconditionFired && !g_bPopupsDisabledByUser)
 		MessageBoxA(NULL, szMessage, "Game Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 
 	return EXCEPTION_EXECUTE_HANDLER;
@@ -2791,17 +2882,32 @@ void CvGlobals::init()
 {
 #ifdef WIN32
 	SetUnhandledExceptionFilter(CustomFilter);
+
+	// Read the runtime opt-out markers once; crash-time code only checks the
+	// cached flags. Missing files = default behavior (dumps and popups on).
+	g_bMiniDumpDisabledByUser = MarkerFileExists("crashlogs\\nodumps.please");
+	g_bPopupsDisabledByUser = MarkerFileExists("crashlogs\\nopopups.please");
+
 #if defined(MOD_DEBUG_MINIDUMP)
-	ReserveMiniDumpMemory();
-	// Pre-load dbghelp.dll and resolve MiniDumpWriteDump now, while memory
-	// is plentiful - LoadLibrary at crash time would compete with dbghelp's
-	// working buffers for whatever address space is left.
-	LoadBestDbgHelp();
+	if (g_bMiniDumpDisabledByUser)
+	{
+		// No dump will be attempted, so don't hold the emergency reserve or
+		// pre-load dbghelp - give the address space back to the game.
+		OutputDebugString(_T("MiniDump creation disabled by user (crashlogs\\nodumps.please)\n"));
+	}
+	else
+	{
+		ReserveMiniDumpMemory();
+		// Pre-load dbghelp.dll and resolve MiniDumpWriteDump now, while memory
+		// is plentiful - LoadLibrary at crash time would compete with dbghelp's
+		// working buffers for whatever address space is left.
+		LoadBestDbgHelp();
 #ifdef VPDEBUG
-	OutputDebugString(_T("Debug MiniDump handler installed\n"));
+		OutputDebugString(_T("Debug MiniDump handler installed\n"));
 #else
-	OutputDebugString(_T("Release MiniDump handler installed\n"));
+		OutputDebugString(_T("Release MiniDump handler installed\n"));
 #endif
+	}
 #endif // defined(MOD_DEBUG_MINIDUMP)
 #endif // WIN32
 

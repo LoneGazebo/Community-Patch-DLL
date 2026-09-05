@@ -60,9 +60,15 @@
 // Enables writing gameplay statistics to a local SQLite database (stats.db) via SqliteLogger
 #define MOD_SQLITE_LOGGING											gCustomMods.isSQLITE_LOGGING()
 
-// Comment out this line to remove minidumps - see http://forums.civfanatics.com/showthread.php?t=498919
+// Minidumps are ON by default. Define DISABLE_MINIDUMP in the project settings to build
+// without them (mirrors DISABLE_CVASSERT); users can also opt out at runtime by creating
+// an empty file "crashlogs\nodumps.please" next to the game executable.
+// Minidumps only work on Windows for now.
+// See http://forums.civfanatics.com/showthread.php?t=498919
 // If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
+#if !defined(DISABLE_MINIDUMP) && defined(_WIN32)
 #define MOD_DEBUG_MINIDUMP
+#endif
 
 
 /////////////////////////////////////////
