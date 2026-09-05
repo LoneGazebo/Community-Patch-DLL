@@ -43,12 +43,14 @@
 #include "CvDllRandom.h"
 #include "CvDllUnit.h"
 
-#if defined(MOD_DEBUG_MINIDUMP)
 #ifdef WIN32
+// CURRENT_GAMECORE_VERSION is needed by CustomFilter's crashes.log report even
+// in builds without minidump support (DISABLE_MINIDUMP).
 #include "../commit_id.inc"
+#if defined(MOD_DEBUG_MINIDUMP)
 #include <dbghelp.h>
-#endif // WIN32
 #endif // defined(MOD_DEBUG_MINIDUMP)
+#endif // WIN32
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -2132,6 +2134,31 @@ void SetPreconditionFired()
 	g_bPreconditionFired = true;
 }
 
+// Runtime opt-outs via marker files next to the game executable, read ONCE at
+// CvGlobals::init (crash-time file probes are wasted work and the crash handler
+// must stay lean under address space exhaustion). Both default to OFF: with no
+// marker files present, behavior is identical to before.
+//   crashlogs\nodumps.please  - skip minidump creation (and its memory reserve)
+//   crashlogs\nopopups.please - suppress all error dialogs (for autoplay/unattended
+//                               sessions); logging and minidumps are unaffected
+static bool g_bMiniDumpDisabledByUser = false;
+static bool g_bPopupsDisabledByUser = false;
+
+static bool MarkerFileExists(const char* szPath)
+{
+	return GetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES;
+}
+
+bool IsMiniDumpDisabledByUser()
+{
+	return g_bMiniDumpDisabledByUser;
+}
+
+bool AreErrorPopupsSuppressed()
+{
+	return g_bPopupsDisabledByUser;
+}
+
 // MessageBox constants (not included in minimal Windows headers)
 #ifndef MB_OK
 #define MB_OK           0x00000000L
@@ -2226,6 +2253,11 @@ static bool IsAddressSpaceExhausted()
 
 void CreateMiniDump(EXCEPTION_POINTERS* pep)
 {
+	// Runtime opt-out (crashlogs\nodumps.please, cached at init). The reserve
+	// and dbghelp preload were already skipped at init in this case.
+	if (g_bMiniDumpDisabledByUser)
+		return;
+
 	// Load the best available dbghelp.dll. Normally pre-loaded at
 	// CvGlobals::init when memory is plentiful; this call is then a no-op.
 	if (!LoadBestDbgHelp())
@@ -2557,6 +2589,97 @@ static const char* GetOnlyFilename( const char* in )
 	return ret == NULL ? in : ( ret + 1 ) ;
 }
 
+// --- Call-site-verified raw stack scan -------------------------------------
+// Why not dbghelp StackWalk64/SymInitialize: the dominant field crash class
+// is 32-bit address-space exhaustion (largest free Sub2G block under 1 MB;
+// issues 13262/13270/13344). Under that condition LoadLibrary(dbghelp) and
+// its working-buffer allocations fail (verified under exhaustion in a test
+// harness), and for the frequent eip=0 execute-AV signature StackWalk64 has
+// no valid starting frame at all. The raw scan allocates NOTHING (stack
+// buffers only), needs no PDBs at runtime, and recovers caller candidates
+// even from eip=0. False-positive risk (stale values that pass the
+// preceded-by-call test) is acceptable for a first-pass triage line and is
+// filtered offline against the official PDB, exactly like the dumps are.
+
+// Does the byte sequence immediately before 'addr' decode as an x86 CALL?
+// Covers E8 rel32 (5 bytes), FF /2 r/m32 (2..7 bytes), 9A ptr16:32 (7 bytes).
+static bool IsPrecededByCall(const unsigned char* addr)
+{
+	if (addr[-5] == 0xE8) return true;                       // call rel32
+	if (addr[-7] == 0x9A) return true;                       // call far
+	for (int len = 2; len <= 7; ++len)
+	{
+		const unsigned char* p = addr - len;
+		if (p[0] == 0xFF && ((p[1] >> 3) & 7) == 2) return true; // call r/m32
+		if (len >= 3 && p[0] == 0x66 && p[1] == 0xFF && ((p[2] >> 3) & 7) == 2) return true;
+	}
+	return false;
+}
+
+// Committed, non-guard readable range check via VirtualQuery (no allocation).
+static bool IsRangeReadable(const void* p, SIZE_T n)
+{
+	MEMORY_BASIC_INFORMATION mi = {};
+	if (!VirtualQuery(p, &mi, sizeof(mi))) return false;
+	if (mi.State != MEM_COMMIT) return false;
+	if (mi.Protect & (PAGE_NOACCESS | PAGE_GUARD)) return false;
+	return ((const unsigned char*)p + n) <= ((const unsigned char*)mi.BaseAddress + mi.RegionSize);
+}
+
+// Appends up to nMax call-site-verified return-address candidates from the
+// crash-time stack as "module+0xRVA" lines. Zero heap allocation; safe under
+// address-space exhaustion. Returns the number of frames appended.
+static int AppendStackScan(char* szOut, size_t cchOut, const CONTEXT* pCtx, int nMax)
+{
+	size_t used = strlen(szOut);
+	int nFound = 0;
+
+	// Crash-time stack bounds: ESP from the exception context, stack top from
+	// the TEB (NT_TIB::StackBase) - the filter runs on the faulting thread.
+	NT_TIB* pTib = (NT_TIB*)NtCurrentTeb();
+	DWORD* pStack = (DWORD*)(pCtx->Esp & ~(DWORD)3);
+	DWORD* pStackTop = (DWORD*)pTib->StackBase;
+
+	// Hard caps so a corrupt ESP cannot spin the filter: 16k DWORDs = 64 KB.
+	int iScanBudget = 16384;
+
+	for (DWORD* p = pStack; p < pStackTop && iScanBudget-- > 0 && nFound < nMax; ++p)
+	{
+		if (!IsRangeReadable(p, sizeof(DWORD)))
+			break; // walked off the committed stack
+
+		DWORD dwVal = *p;
+		if (dwVal < 0x10000)
+			continue; // below any module
+
+		HMODULE hMod = NULL;
+		if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+		                        (LPCSTR)(UINT_PTR)dwVal, &hMod))
+			continue; // not inside any loaded module
+
+		DWORD dwRva = dwVal - (DWORD)(UINT_PTR)hMod;
+		if (dwRva < 0x1000)
+			continue; // inside the PE headers, not code
+
+		if (!IsRangeReadable((const unsigned char*)(UINT_PTR)dwVal - 8, 8))
+			continue;
+		if (!IsPrecededByCall((const unsigned char*)(UINT_PTR)dwVal))
+			continue; // not a plausible return address
+
+		char szMod[MAX_PATH] = "???";
+		GetModuleFileNameA(hMod, szMod, MAX_PATH);
+
+		int n = _snprintf_s(szOut + used, cchOut - used, _TRUNCATE, "  %s+0x%08x\n",
+		                    GetOnlyFilename(szMod), dwRva);
+		if (n < 0)
+			break; // output buffer full
+		used += n;
+		++nFound;
+	}
+	szOut[used] = '\0';
+	return nFound;
+}
+
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
 	CreateDirectory(_T("crashlogs"),NULL);
@@ -2669,7 +2792,9 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 	CreateMiniDump(ExceptionInfo);
 
 	char szMiniDumpStatus[MAX_PATH + 64];
-	if (g_szLastMiniDumpPath[0] != '\0')
+	if (g_bMiniDumpDisabledByUser)
+		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Disabled by user (crashlogs\\nodumps.please)");
+	else if (g_szLastMiniDumpPath[0] != '\0')
 	{
 		if (g_dwLastMiniDumpError != 0)
 			// Succeeded via the MiniDumpNormal retry - record why the
@@ -2684,11 +2809,82 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Creation failed (error %u)", g_dwLastMiniDumpError);
 #endif
 
-	char szCrashInfo[2048];
+	//file offset = module RVA - 0xC00 (.text raw/virtual delta); only valid
+	//when the address resolved to a module RVA at least that large. A NULL or
+	//pre-.text crash (e.g. a null-pointer access violation) leaves the value
+	//below 0xC00, where the unsigned subtraction would wrap to a bogus offset.
+	char szLocationFile[MAX_PATH + 32];
+	if (exceptionAddressAdjusted >= 0xC00)
+		_snprintf_s(szLocationFile, _countof(szLocationFile), _TRUNCATE, "%s+0x%08x", GetOnlyFilename(szCrashModule), exceptionAddressAdjusted - 0xC00);
+	else
+		_snprintf_s(szLocationFile, _countof(szLocationFile), _TRUNCATE, "n/a (address 0x%08x is not a module code offset)", exceptionAddressAdjusted);
+
+	// Automated first-pass classification so the log itself answers the most
+	// common triage questions. Access violations carry the access kind and
+	// target in ExceptionInformation[0..1]: 0=read, 1=write, 8=execute (DEP).
+	// An execute of address 0 is a call through a NULL function pointer -
+	// on 32-bit almost always downstream of memory exhaustion (an allocation
+	// returned NULL and a vtable/callback was never written).
+	bool bAddressSpaceLow = (largestFreeBlockLowSize < (16u * 1024 * 1024));
+	char szCrashClass[512];
+	if (g_bPreconditionFired)
+	{
+		_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+			"Deliberate stop: a failed ASSERT/PRECONDITION ended the game (see CvAssert.log for the failed check)");
+	}
+	else if (exceptionCode == EXCEPTION_ACCESS_VIOLATION && ExceptionInfo && ExceptionInfo->ExceptionRecord->NumberParameters >= 2)
+	{
+		ULONG_PTR uAccessKind = ExceptionInfo->ExceptionRecord->ExceptionInformation[0];
+		ULONG_PTR uTargetAddr = ExceptionInfo->ExceptionRecord->ExceptionInformation[1];
+		const char* szKind = (uAccessKind == 0) ? "read of" : (uAccessKind == 1) ? "write to" : "execute at";
+		if (uAccessKind == 8 && uTargetAddr == 0)
+			_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+				"Call through a NULL function pointer%s",
+				bAddressSpaceLow ? " - likely 32-bit address space exhaustion (see largest free block below)" : "");
+		else if (uTargetAddr < 0x10000)
+			_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+				"Access violation: %s 0x%08x (NULL or near-NULL object%s)",
+				szKind, (DWORD)uTargetAddr,
+				bAddressSpaceLow ? "; low address space may have failed an allocation" : "");
+		else
+			_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+				"Access violation: %s 0x%08x", szKind, (DWORD)uTargetAddr);
+	}
+	else if (exceptionCode == 0xE06D7363)
+	{
+		// MSVC C++ exception (RaiseException magic) - thrown by the engine or
+		// CRT; under exhaustion this is commonly std::bad_alloc.
+		_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE,
+			"Unhandled C++ exception%s",
+			bAddressSpaceLow ? " - likely allocation failure (32-bit address space exhausted, see largest free block below)" : "");
+	}
+	else
+	{
+		_snprintf_s(szCrashClass, _countof(szCrashClass), _TRUNCATE, "%s%s",
+			GetExceptionDescription(exceptionCode),
+			bAddressSpaceLow ? " (note: address space nearly exhausted, see largest free block below)" : "");
+	}
+
+	// Call-site-verified stack scan: full list into crashes.log; the popup
+	// later shows only the first frames so its height stays bounded. Uses
+	// only stack memory - works under address-space exhaustion and for the
+	// eip=0 signature where a real unwinder has no starting frame.
+	char szStackTrace[2048];
+	_snprintf_s(szStackTrace, _countof(szStackTrace), _TRUNCATE,
+		"Stack (return-address candidates, module+RVA, innermost first):\n");
+	int iStackFrames = 0;
+	if (ExceptionInfo && ExceptionInfo->ContextRecord)
+		iStackFrames = AppendStackScan(szStackTrace, _countof(szStackTrace), ExceptionInfo->ContextRecord, 24);
+	if (iStackFrames == 0)
+		_snprintf_s(szStackTrace, _countof(szStackTrace), _TRUNCATE,
+			"Stack (return-address candidates): none found\n");
+
+	char szCrashInfo[3072];
 	_snprintf_s(szCrashInfo, _countof(szCrashInfo), _TRUNCATE, 
 		"--Crash details--\n"
 		"Exception: 0x%08x (%s)\n"
-		"Location (in file): %s+0x%08x\n"
+		"Crash class: %s\n"
+		"Location (in file): %s\n"
 		"Location (live memory): 0x%08x+0x%08x\n"
 		"Time: %s\n"
 		"Minidump: %s\n"
@@ -2711,7 +2907,8 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		"Installation directory and .exe: %s\n\n",
 
 		exceptionCode, GetExceptionDescription(exceptionCode),
-		GetOnlyFilename(szCrashModule),exceptionAddressAdjusted-0xC00,
+		szCrashClass,
+		szLocationFile,
 		exceptionAddress,exceptionAddressAdjusted,
 		szTimestamp,
 #if defined(MOD_DEBUG_MINIDUMP)
@@ -2733,7 +2930,34 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 	if( hCrashlogs != INVALID_HANDLE_VALUE )
 	{
 		WriteFile(hCrashlogs, szCrashInfo, strlen(szCrashInfo), NULL, NULL);
+		// full stack scan goes to the log only - the popup gets a capped
+		// excerpt below so its height stays bounded on small screens
+		WriteFile(hCrashlogs, szStackTrace, strlen(szStackTrace), NULL, NULL);
+		WriteFile(hCrashlogs, "\n", 1, NULL, NULL);
 		CloseHandle(hCrashlogs);
+	}
+
+	// Popup excerpt: first frames only. MessageBox auto-sizes to its text and
+	// clips without scrollbars once it exceeds the screen, so the popup body
+	// must stay bounded; the full candidate list is in crashes.log.
+	char szStackExcerpt[640];
+	szStackExcerpt[0] = '\0';
+	{
+		const int MAX_POPUP_FRAMES = 6;
+		int iLines = 0;
+		size_t i = 0;
+		size_t len = strlen(szStackTrace);
+		while (i < len && iLines <= MAX_POPUP_FRAMES) // header + frames
+		{
+			if (szStackTrace[i] == '\n')
+				++iLines;
+			++i;
+		}
+		size_t nCopy = (i < sizeof(szStackExcerpt) - 64) ? i : sizeof(szStackExcerpt) - 64;
+		memcpy(szStackExcerpt, szStackTrace, nCopy);
+		szStackExcerpt[nCopy] = '\0';
+		if (iStackFrames > MAX_POPUP_FRAMES)
+			strcat_s(szStackExcerpt, _countof(szStackExcerpt), "  ... (full list in crashes.log)\n");
 	}
 
 	// Show crash dialog to user
@@ -2759,21 +2983,33 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 			"When creating a report, please provide the VP version number, the list of other mods in use, any minidumps created, crashes.log, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
 			"Minidumps and crashes.log are located in the folder 'crashlogs' in the civ5 installation directory\n"
 			"\n"
-			"Civ5 is a 32bit program. This puts a hard limit on the amount of memory the process can use independently of your hardware. Exhaustion of memory address space may cause crashes. Common strategies to reduce memory consumption are:\n"
-			"- Disable yield icons\n"
-			"- Reduce Leader Screen Quality to Minimum\n"
-			"- Avoid zooming out too far\n"
-			"- Switch to Strategic View\n"
-			"- Disable memory-heavy mods such as InfoAddict\n"
-			"- Enable Single-Unit Graphics using the mod 'Unit Scaling and Formation for VP'\n"
-			"- If playing with EUI: Use the Non-EUI Version of Vox Populi (Reinstallation necessary, save games are compatible)\n"
-			"\n"
 			"%s";
 	}
 
-	_snprintf_s( szMessage, _countof(szMessage), _TRUNCATE, szBaseMsg, szCrashInfo);
+	// Memory-reduction tips only when the classifier actually detected
+	// address-space pressure: showing them unconditionally trained users to
+	// report every crash as out-of-memory (PR #13348 review). Keying them to
+	// bAddressSpaceLow keeps them exactly where they help and frees popup
+	// space for the stack excerpt everywhere else.
+	const char* szMemoryTips = bAddressSpaceLow ?
+		"This crash happened with the 32-bit address space nearly exhausted (see Crash class above). Common strategies to reduce memory consumption are:\n"
+		"- Disable yield icons\n"
+		"- Reduce Leader Screen Quality to Minimum\n"
+		"- Avoid zooming out too far\n"
+		"- Switch to Strategic View\n"
+		"- Disable memory-heavy mods such as InfoAddict\n"
+		"- Enable Single-Unit Graphics using the mod 'Unit Scaling and Formation for VP'\n"
+		"- If playing with EUI: Use the Non-EUI Version of Vox Populi (Reinstallation necessary, save games are compatible)\n"
+		"\n" : "";
 
-	if (!g_bPreconditionFired)
+	char szBody[4096];
+	_snprintf_s( szBody, _countof(szBody), _TRUNCATE, szBaseMsg, szCrashInfo);
+	_snprintf_s( szMessage, _countof(szMessage), _TRUNCATE, "%s%s%s", szBody, szMemoryTips, szStackExcerpt);
+
+	// No dialog if a PRECONDITION already showed one, or if the user opted out
+	// of popups (crashlogs\nopopups.please) - crashes.log and the minidump were
+	// already written above either way.
+	if (!g_bPreconditionFired && !g_bPopupsDisabledByUser)
 		MessageBoxA(NULL, szMessage, "Game Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 
 	return EXCEPTION_EXECUTE_HANDLER;
@@ -2787,17 +3023,32 @@ void CvGlobals::init()
 {
 #ifdef WIN32
 	SetUnhandledExceptionFilter(CustomFilter);
+
+	// Read the runtime opt-out markers once; crash-time code only checks the
+	// cached flags. Missing files = default behavior (dumps and popups on).
+	g_bMiniDumpDisabledByUser = MarkerFileExists("crashlogs\\nodumps.please");
+	g_bPopupsDisabledByUser = MarkerFileExists("crashlogs\\nopopups.please");
+
 #if defined(MOD_DEBUG_MINIDUMP)
-	ReserveMiniDumpMemory();
-	// Pre-load dbghelp.dll and resolve MiniDumpWriteDump now, while memory
-	// is plentiful - LoadLibrary at crash time would compete with dbghelp's
-	// working buffers for whatever address space is left.
-	LoadBestDbgHelp();
+	if (g_bMiniDumpDisabledByUser)
+	{
+		// No dump will be attempted, so don't hold the emergency reserve or
+		// pre-load dbghelp - give the address space back to the game.
+		OutputDebugString(_T("MiniDump creation disabled by user (crashlogs\\nodumps.please)\n"));
+	}
+	else
+	{
+		ReserveMiniDumpMemory();
+		// Pre-load dbghelp.dll and resolve MiniDumpWriteDump now, while memory
+		// is plentiful - LoadLibrary at crash time would compete with dbghelp's
+		// working buffers for whatever address space is left.
+		LoadBestDbgHelp();
 #ifdef VPDEBUG
-	OutputDebugString(_T("Debug MiniDump handler installed\n"));
+		OutputDebugString(_T("Debug MiniDump handler installed\n"));
 #else
-	OutputDebugString(_T("Release MiniDump handler installed\n"));
+		OutputDebugString(_T("Release MiniDump handler installed\n"));
 #endif
+	}
 #endif // defined(MOD_DEBUG_MINIDUMP)
 #endif // WIN32
 

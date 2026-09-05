@@ -148,12 +148,54 @@ static struct AssertTracker {
 
 } g_AssertTracker;
 
+// Formats the shared "Detailed information" block used by every error dialog:
+// Expression/File/Line, the optional message, and the minidump path when one
+// exists (GetLastMiniDumpPath() is a NULL-returning stub in builds without
+// minidump support, so no preprocessor fork is needed here).
+static void FormatErrorDetail(char* szOut, size_t cchOut, const char* expr, const char* szFile, unsigned int uiLine, const char* msg)
+{
+	bool bMsg = msg && msg[0] != '\0';
+	const char* dumpPath = GetLastMiniDumpPath();
+	_snprintf_s(szOut, cchOut, _TRUNCATE,
+		"Expression: %s\n"
+		"File: %s\n"
+		"Line: %u\n"
+		"%s%s%s"
+		"%s%s%s",
+		expr, ShortenFilePath(szFile), uiLine,
+		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
+		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : "", dumpPath ? "\n" : ""
+	);
+}
+
+// Sends the error report to all players via network chat instead of showing a
+// dialog: a modal MessageBox on one machine would stall the whole session.
+// Returns false if the network interface is not available (caller falls back).
+static bool TrySendErrorChat(const char* szKind, const char* expr, const char* szFile, unsigned int uiLine, const char* msg)
+{
+	if (!GC.getDLLIFace())
+		return false;
+
+	bool bMsg = msg && msg[0] != '\0';
+	char szBuffer[4096];
+	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
+		"%s, please report it on github. "
+		"%s%s%s"
+		"Expression: %s, "
+		"File: %s, "
+		"Line: %u",
+		szKind,
+		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? ", " : "",
+		expr, ShortenFilePath(szFile), uiLine
+	);
+	GC.getDLLIFace()->sendChat(CvString(szBuffer), CHATTARGET_ALL, NO_PLAYER);
+	return true;
+}
+
 bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool& bIgnoreAlways, const char* msg)
 {
 	if (!expr)
 		return false;
-
-	bool bMsg = msg && msg[0] != '\0';
 
 	// Get unique key for this assert
 	std::string assertKey = g_AssertTracker.GetAssertKey(szFile, uiLine, expr);
@@ -174,20 +216,22 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 	// Update statistics
 	g_AssertTracker.UpdateStats(assertKey);
 
+	// Runtime popup opt-out (crashlogs\nopopups.please): the assert is logged
+	// above; auto-ignore it so unattended sessions keep running.
+	if (AreErrorPopupsSuppressed())
+	{
+		g_AssertTracker.asserts[assertKey].isPermanentlyIgnored = true;
+		bIgnoreAlways = true;
+		return false;
+	}
+
+	char szDetail[2048];
+	FormatErrorDetail(szDetail, _countof(szDetail), expr, szFile, uiLine, msg);
+
 #if defined(VPRELEASE_ERRORMSG)
 	if (GC.getGame().isReallyNetworkMultiPlayer())
 	{
-		char szBuffer[4096];
-		_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
-			"A code error has occurred, please report it on github. "
-			"%s%s%s"
-			"Expression: %s, "
-			"File: %s, "
-			"Line: %u",
-			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? ", " : "",
-			expr, ShortenFilePath(szFile), uiLine
-		);
-		GC.getDLLIFace()->sendChat(CvString(szBuffer), CHATTARGET_ALL, NO_PLAYER);
+		TrySendErrorChat("A code error has occurred", expr, szFile, uiLine, msg);
 		g_AssertTracker.asserts[assertKey].isPermanentlyIgnored = true;
 		bIgnoreAlways = true;
 		return false;
@@ -195,44 +239,18 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 	else
 	{
 		char szBuffer[4096];
-#if defined(MOD_DEBUG_MINIDUMP)
-		const TCHAR* dumpPath = GetLastMiniDumpPath();
 		_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
 			"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
 			"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
 			"You may continue playing, but unexpected behavior might occur. It is recommended to wait until a hotfix has been released that resolves the issue.\n\n"
 			"==================\n"
 			"Detailed information:\n"
-			"%s%s%s"
-			"Expression: %s\n"
-			"File: %s\n"
-			"Line: %u\n"
-			"%s%s\n"
+			"%s"
 			"==================\n"
 			"Cancel - Exit the game. \n"
 			"OK - Continue playing. This warning will not be shown again in the current session.",
-			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-			expr, ShortenFilePath(szFile), uiLine,
-			dumpPath ? "\nMinidump: " : "", dumpPath ? dumpPath : ""
+			szDetail
 		);
-#else
-		_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
-			"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
-			"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
-			"You may continue playing, but unexpected behavior might occur. It is recommended to wait until a hotfix has been released that resolves the issue.\n\n"
-			"==================\n"
-			"Detailed information:\n"
-			"%s%s%s"
-			"Expression: %s\n"
-			"File: %s\n"
-			"Line: %u\n\n"
-			"==================\n"
-			"Cancel - Exit the game. \n"
-			"OK - Continue playing. This warning will not be shown again in the current session.",
-			bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-			expr, ShortenFilePath(szFile), uiLine
-		);
-#endif
 
 		// Show dialog
 		int nResult = MessageBoxA(NULL, szBuffer, "Assertion Failed",
@@ -264,16 +282,10 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 
 	// Format the message
 	char szBuffer[4096];
-#if defined(MOD_DEBUG_MINIDUMP)
-	const TCHAR* dumpPath = GetLastMiniDumpPath();
 	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
 		"Assert Failed!\n"
 		"==================\n"
-		"Expression: %s\n"
-		"File: %s\n"
-		"Line: %u\n"
-		"%s%s%s"
-		"%s%s\n"
+		"%s"
 		"\nStatistics:\n"
 		"==================\n"
 		"This assert has fired %u time(s)\n"
@@ -286,42 +298,12 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		"Yes - Break into debugger\n"
 		"No - Continue execution\n"
 		"Cancel - Ignore this assert",
-		expr, ShortenFilePath(szFile), uiLine,
-		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : "",
+		szDetail,
 		info.count,
 		timeSinceFirst / 1000.0f,
 		timeSinceLast / 1000.0f,
 		g_AssertTracker.totalAsserts,
 		sessionTime / 1000.0f);
-#else
-	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
-		"Assert Failed!\n"
-		"==================\n"
-		"Expression: %s\n"
-		"File: %s\n"
-		"Line: %u\n"
-		"%s%s%s\n"
-		"\nStatistics:\n"
-		"==================\n"
-		"This assert has fired %u time(s)\n"
-		"First occurrence: %.2f seconds ago\n"
-		"Last occurrence: %.2f seconds ago\n"
-		"Total asserts this session: %u\n"
-		"Session duration: %.2f seconds\n"
-		"\nOptions:\n"
-		"==================\n"
-		"Yes - Break into debugger\n"
-		"No - Continue execution\n"
-		"Cancel - Ignore this assert",
-		expr, ShortenFilePath(szFile), uiLine,
-		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-		info.count,
-		timeSinceFirst / 1000.0f,
-		timeSinceLast / 1000.0f,
-		g_AssertTracker.totalAsserts,
-		sessionTime / 1000.0f);
-#endif
 
 	// Show dialog
 	int nResult = MessageBoxA(NULL, szBuffer, "Assertion Failed",
@@ -353,43 +335,37 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 		return;
 #ifdef CVASSERT_ENABLE
 #ifdef WIN32
-#if defined(VPRELEASE_ERRORMSG)
-	bool bMsg = msg && msg[0] != '\0';
-	char szBuffer[4096];
-#if defined(MOD_DEBUG_MINIDUMP)
-	const TCHAR* dumpPath = GetLastMiniDumpPath();
-	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
-		"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
-		"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
-		"To prevent undefined or gamebreaking behavior, the game will now crash.\n\n"
-		"==================\n"
-		"Detailed information:\n"
-		"Expression: %s\n"
-		"File: %s\n"
-		"Line: %u\n"
-		"%s%s%s"
-		"%s%s\n",
-		expr, ShortenFilePath(szFile), uiLine,
-		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : ""
-	);
-#else
-	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
-		"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
-		"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
-		"To prevent undefined or gamebreaking behavior, the game will now crash.\n\n"
-		"==================\n"
-		"Detailed information:\n"
-		"Expression: %s\n"
-		"File: %s\n"
-		"Line: %u\n"
-		"%s%s%s\n",
-		expr, ShortenFilePath(szFile), uiLine,
-		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : ""
-	);
-#endif
-
 	SetPreconditionFired();
+
+	// A modal dialog on one machine would stall the whole network session while
+	// this client is about to trap anyway - report via chat like the assert
+	// path does (preconditions can fire before the game exists, hence the
+	// pointer check inside TrySendErrorChat/getGamePointer).
+	if (GC.getGamePointer() && GC.getGame().isReallyNetworkMultiPlayer())
+	{
+		TrySendErrorChat("A fatal code error has occurred (the game will close)", expr, szFile, uiLine, msg);
+		return;
+	}
+
+	// Runtime popup opt-out (crashlogs\nopopups.please): the failure is in
+	// CvAssert.log and the crash handler will still write crashes.log + dump.
+	if (AreErrorPopupsSuppressed())
+		return;
+
+	char szDetail[2048];
+	FormatErrorDetail(szDetail, _countof(szDetail), expr, szFile, uiLine, msg);
+
+	char szBuffer[4096];
+#if defined(VPRELEASE_ERRORMSG)
+	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
+		"An error in the code has occurred. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n\n"
+		"Please provide the VP version number, the list of other mods in use, and a screenshot of this message. If possible, attach a savegame from immediately before the bug occurs.\n\n"
+		"To prevent undefined or gamebreaking behavior, the game will now crash.\n\n"
+		"==================\n"
+		"Detailed information:\n"
+		"%s",
+		szDetail
+	);
 
 	// Show dialog
 	MessageBoxA(NULL, szBuffer, "Error",
@@ -399,34 +375,19 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 	// Do NOT reuse CvAssertDlg here: its "No - Continue" / "Cancel - Ignore"
 	// options are lies for a precondition - PRECONDITION executes
 	// BUILTIN_TRAP() unconditionally after this function returns.
-	bool bMsg = msg && msg[0] != '\0';
-	char szBuffer[4096];
-#if defined(MOD_DEBUG_MINIDUMP)
-	const TCHAR* dumpPath = GetLastMiniDumpPath();
-#else
-	const TCHAR* dumpPath = NULL;
-#endif
 	_snprintf_s(szBuffer, _countof(szBuffer), _TRUNCATE,
 		"Precondition Failed!\n"
 		"==================\n"
-		"Expression: %s\n"
-		"File: %s\n"
-		"Line: %u\n"
-		"%s%s%s"
-		"%s%s\n"
+		"%s"
 		"\nPreconditions are fatal: the game will crash when you close this dialog.\n"
 		"A minidump will be written to the crashlogs folder.\n"
 		"\nAttach a debugger now if you want to inspect the live process.",
-		expr, ShortenFilePath(szFile), uiLine,
-		bMsg ? "Message: " : "", bMsg ? msg : "", bMsg ? "\n" : "",
-		dumpPath ? "Minidump: " : "", dumpPath ? dumpPath : ""
+		szDetail
 	);
-
-	SetPreconditionFired();
 
 	MessageBoxA(NULL, szBuffer, "Precondition Failed",
 		MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_SETFOREGROUND);
-#endif
+#endif // VPRELEASE_ERRORMSG
 #endif // WIN32
 #endif // CVASSERT_ENABLE
 }

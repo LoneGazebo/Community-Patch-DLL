@@ -1329,10 +1329,25 @@ protected:
 
 public:
 
+	//hard cap on the number of tactical plots stored per position (see
+	//addTacticalPlot); the lookup packs the storage index into unsigned char
+	enum { MAX_TACT_PLOTS = 255 };
+
 	CvTacticalPosition();
 
 	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget, bool bTargetDistanceRelevant, bool bReturnToStartPositions, int iSaveMovement);
 	void initFromParent(const CvTacticalPosition& parent);
+
+	//pre-allocate the plot storage up to the hard cap. only the initial
+	//position needs this: it absorbs every addTacticalPlot during setup, so
+	//reserving up front avoids the geometric-growth reallocation whose copy
+	//fails under 32-bit address-space exhaustion (issue #13254). child
+	//positions copy exact-size on first write and stay lean.
+	void reservePlotStorage()
+	{
+		tactPlots.write().reserve(MAX_TACT_PLOTS);
+		tactPlotLookup.write().reserve(MAX_TACT_PLOTS);
+	}
 
 	bool isEarlyFinish(bool bExtraKill = false) const;
 	bool haveEnemies() const;
