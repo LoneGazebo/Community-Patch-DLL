@@ -21,9 +21,19 @@ const char* ShortenFilePath(const char* szFile);
 // Get the last minidump path (returns NULL if no dump has been created)
 #if defined(MOD_DEBUG_MINIDUMP)
 const char* GetLastMiniDumpPath();
+#else
+// Stub so dialog code can format the detail block without forking on the macro
+inline const char* GetLastMiniDumpPath() { return NULL; }
 #endif
 
 void SetPreconditionFired();
+
+#ifdef WIN32
+// Runtime opt-outs via marker files (crashlogs\nodumps.please and
+// crashlogs\nopopups.please), read once at CvGlobals::init. Defaults: OFF.
+bool IsMiniDumpDisabledByUser();
+bool AreErrorPopupsSuppressed();
+#endif
 
 inline int sqrti(int input)
 {
