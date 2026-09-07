@@ -22030,7 +22030,8 @@ bool CvCity::IsBlockaded(DomainTypes eDomain) const
 			bHostilePresence = true;
 
 		const bool bPassable = !pAdjacentPlot->isImpassable(getTeam())
-			|| (pAdjacentPlot->isRoute() && !pAdjacentPlot->IsRoutePillaged());
+			|| (pAdjacentPlot->isRoute() && !pAdjacentPlot->IsRoutePillaged()
+				&& pAdjacentPlot->IsCityConnection(getOwner()));
 		if (!bPassable)
 			continue;
 
