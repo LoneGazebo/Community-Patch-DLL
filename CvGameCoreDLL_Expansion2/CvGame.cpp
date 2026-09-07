@@ -10339,6 +10339,11 @@ void CvGame::debugSyncChecksum()
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), (pLoopUnit->getExperienceTimes100() / 100), pLoopUnit->getLevel() ).c_str() );
 		}
 	}
+
+	pLog->Close();
+	//the turn number is part of the filename, so this log is never requested again.
+	//without this the manager keeps it - and its grown write buffer - until shutdown.
+	LOGFILEMGR.DeleteLog( pLog );
 }
 
 
@@ -13767,6 +13772,11 @@ void CvGame::SetClosestCityMapDirty()
 
 				pLog->Msg(dump.c_str());
 			}
+
+			pLog->Close();
+			//the turn number is part of the filename, so this log is never requested again.
+			//without this the manager keeps it - and its grown write buffer - until shutdown.
+			LOGFILEMGR.DeleteLog( pLog );
 		}
 	}
 }
