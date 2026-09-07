@@ -22013,6 +22013,9 @@ bool CvCity::IsBlockaded(DomainTypes eDomain) const
 	if (GetSappedTurns() > 0)
 		return true;
 
+	bool bHostilePresence = false;
+	bool bOpenExit = false;
+
 	for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iLoop));
@@ -22022,16 +22025,20 @@ bool CvCity::IsBlockaded(DomainTypes eDomain) const
 		if (eDomain != NO_DOMAIN && pAdjacentPlot->getDomain() != eDomain)
 			continue;
 
-		if (pAdjacentPlot->isImpassable(getTeam()))
+		const bool bPlotBlockaded = pAdjacentPlot->isBlockaded(getOwner());
+		if (bPlotBlockaded)
+			bHostilePresence = true;
+
+		const bool bPassable = !pAdjacentPlot->isImpassable(getTeam())
+			|| (pAdjacentPlot->isRoute() && !pAdjacentPlot->IsRoutePillaged());
+		if (!bPassable)
 			continue;
 
-		//finally, one unblocked plot breaks the whole thing
-		if (!pAdjacentPlot->isBlockaded(getOwner()))
-			return false;
+		if (!bPlotBlockaded)
+			bOpenExit = true;
 	}
 
-	//note: if a city is landlocked, it is permanently blockaded from sea side by definition
-	return true;
+	return bHostilePresence && !bOpenExit;
 }
 
 //	--------------------------------------------------------------------------------
