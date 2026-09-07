@@ -31123,6 +31123,9 @@ void CvUnit::DumpDangerInNeighborhood()
 	}
 
 	pLog->Close();
+	//the turn number is part of the filename, so this log is never requested again.
+	//without this the manager keeps it - and its grown write buffer - until shutdown.
+	LOGFILEMGR.DeleteLog( pLog );
 }
 
 //	--------------------------------------------------------------------------------
