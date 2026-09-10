@@ -1,5 +1,10 @@
 -- TODO: Documentation
 
+-- Replaces this promotion's Civilopedia article with another promotion's article
+-- This creates a combined article and should only be used when that makes logical sense for the promotions and the UI code supports it
+-- Only currently used by certain Skirmisher-only promotion variants in VP
+ALTER TABLE UnitPromotions ADD PediaReplacement text REFERENCES UnitPromotions (Type);
+
 ALTER TABLE UnitPromotions ADD CombatChange integer DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD DiplomaticMissionAccomplishment boolean DEFAULT 0;

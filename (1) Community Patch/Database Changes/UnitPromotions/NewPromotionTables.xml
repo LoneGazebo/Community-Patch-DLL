@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
+	<!-- Civilopedia categories a promotion is displayed under; the reworked Civilopedia allows for the same promotion to appear in multiple categories. -->
+	<!-- The PediaType column still works as well for backwards compatibility, if not NULL it is added to the entries in this table. -->
+	<!-- Regarding backwards compatibility, PEDIA_MELEE, PEDIA_RANGED, PEDIA_SCOUTING and PEDIA_ATTRIBUTES transfer directly. -->
+	<!-- Promotions with PEDIA_AIR, PEDIA_NAVAL, PEDIA_SHARED and PEDIA_HEAL are sorted into appropriate new categories by triggers. -->
+	<Table name="UnitPromotions_PediaTypes">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="PediaType" type="text" notnull="true"/>
+	</Table>
+
 	<!-- Instant yields to the origin city of the unit when it defeats a barbarian unit, scaling with the combat strength of the defeated unit -->
 	<Table name="UnitPromotions_YieldFromBarbarianKills">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
