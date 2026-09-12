@@ -542,7 +542,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bSapper = kResults.GetBool("Sapper");
 	m_iNearbyCityCombatMod = kResults.GetInt("NearbyCityCombatMod");
 	m_iNearbyFriendlyCityCombatMod = kResults.GetInt("NearbyFriendlyCityCombatMod");
-	m_iNearbyEnemyCityCombatMod = kResults.GetBool("NearbyEnemyCityCombatMod");
+	m_iNearbyEnemyCityCombatMod = kResults.GetInt("NearbyEnemyCityCombatMod");
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
