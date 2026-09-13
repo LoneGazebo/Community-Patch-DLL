@@ -659,7 +659,7 @@ void CvGame::InitPlayers()
 		const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
 		PlayerColorTypes ePlayerColor = NO_PLAYERCOLOR;
 		SlotStatus eStatus = CvPreGame::slotStatus(eLoopPlayer);
-		// Fix Really Advanced Startup mod setting major slots to closed
+		// Fix Really Advanced Setup mod setting unused slots to closed slots without any civilization assigned
 		if (eStatus == SS_CLOSED)
 		{
 			CvPreGame::setTeamType(eLoopPlayer, OBSERVER_TEAM);
@@ -796,6 +796,12 @@ void CvGame::InitPlayers()
 			// Make sure the AI has the proper handicap.
 			if (CvPreGame::slotStatus(eLoopPlayer) == SS_COMPUTER)
 				CvPreGame::setHandicap(eLoopPlayer, eAIHandicap);
+
+			// Fix slot claims not being set to unassigned when a player is removed in Advanced Setup
+			if (CvPreGame::slotStatus(eLoopPlayer) == SS_OBSERVER && CvPreGame::slotClaim(eLoopPlayer) == SLOTCLAIM_ASSIGNED)
+			{
+				CvPreGame::setSlotClaim(eLoopPlayer, SLOTCLAIM_UNASSIGNED);
+			}
 		}
 		// Minor civs
 		else if (iI < MAX_CIV_PLAYERS)
