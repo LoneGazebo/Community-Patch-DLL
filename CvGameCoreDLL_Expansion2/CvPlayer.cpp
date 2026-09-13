@@ -34478,7 +34478,7 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 		if (bMajorVictim)
 		{
 			// Leader pops up and whines
-			if (isMajorCiv() && !CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman(ISHUMAN_AI_DIPLOMACY)) // Not humans or in MP
+			if (isMajorCiv() && !CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman(ISHUMAN_AI_DIPLOMACY) && GC.getGame().getAIAutoPlay() == 0) // Not humans, in MP, or during autoplay
 			{
 				kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 			}

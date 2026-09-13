@@ -1132,7 +1132,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			end
 
 			local iOurWarWeariness = g_activePlayer:GetWarWearinessPercent(playerID);
-			local iWarDuration = g_activePlayer:GetWarDuration(g_iAIPlayer);
+			local iWarDuration = g_activePlayer:GetWarDuration(playerID);
 			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey("TXT_KEY_WAR_WEARINESS_US_PERCENT", iOurWarWeariness, iWarDuration);
 
 			tips:insert(strWarInfo);
