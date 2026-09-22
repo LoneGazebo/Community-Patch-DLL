@@ -10,6 +10,7 @@
 #include "ICvDLLUserInterface.h"
 #include "Win32/FDebugHelper.h"
 #include "CvDllContext.h"
+#include "EngineQueueGuard.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -17,6 +18,10 @@
 //------------------------------------------------------------------------------
 extern "C" ICvGameContext1* DllGetGameContext()
 {
+	// The engine's first call into this DLL, outside the loader lock (Install reads the EXE image),
+	// and well before any save is loaded, which is when the EXE's UI message queue can overrun.
+	EngineQueueGuard::Install();
+
 	return CvDllGameContext::GetSingleton();
 }
 //------------------------------------------------------------------------------

@@ -255,6 +255,7 @@
     <ClCompile Include="CvWonderProductionAI.cpp" />
     <ClCompile Include="CvWorldBuilderMapLoader.cpp" />
     <ClCompile Include="SqliteLogger.cpp" />
+    <ClCompile Include="EngineQueueGuard.cpp" />
     <ClCompile Include="CvDllBuildInfo.cpp" />
     <ClCompile Include="CvDllBuildingInfo.cpp" />
     <ClCompile Include="CvDllCity.cpp" />
@@ -436,6 +437,7 @@
     <ClInclude Include="CvWonderProductionAI.h" />
     <ClInclude Include="CvWorldBuilderMapLoader.h" />
     <ClInclude Include="SqliteLogger.h" />
+    <ClInclude Include="EngineQueueGuard.h" />
     <ClInclude Include="SqliteLoggerRegistrations.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="CvDllBuildInfo.h" />

@@ -258,6 +258,7 @@ CPP = [
     'CvGameCoreDLL_Expansion2\\CvWonderProductionAI.cpp',
     'CvGameCoreDLL_Expansion2\\CvWorldBuilderMapLoader.cpp',
     'CvGameCoreDLL_Expansion2\\SqliteLogger.cpp',
+    'CvGameCoreDLL_Expansion2\\EngineQueueGuard.cpp',
 ]
 
 class TaskResult:

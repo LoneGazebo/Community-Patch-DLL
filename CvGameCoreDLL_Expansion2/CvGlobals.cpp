@@ -42,6 +42,7 @@
 #include "CvDllPlot.h"
 #include "CvDllRandom.h"
 #include "CvDllUnit.h"
+#include "EngineQueueGuard.h"
 
 #if defined(MOD_DEBUG_MINIDUMP)
 #ifdef WIN32
@@ -2684,8 +2685,11 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Creation failed (error %u)", g_dwLastMiniDumpError);
 #endif
 
+	char szQueueGuard[256];
+	EngineQueueGuard::FormatCrashLine(szQueueGuard, sizeof(szQueueGuard));
+
 	char szCrashInfo[2048];
-	_snprintf_s(szCrashInfo, _countof(szCrashInfo), _TRUNCATE, 
+	_snprintf_s(szCrashInfo, _countof(szCrashInfo), _TRUNCATE,
 		"--Crash details--\n"
 		"Exception: 0x%08x (%s)\n"
 		"Location (in file): %s+0x%08x\n"
@@ -2703,6 +2707,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		"Sub2G: 0x%p / %u\n"
 		"Total: 0x%p / %u\n"
 		"DLL-Version: %s\n"
+		"%s"
 #ifdef VPDEBUG
 		"Configuration: DEBUG\n"
 #else
@@ -2726,6 +2731,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		largestFreeBlockLowBase, largestFreeBlockLowSize >> 10,
 		largestFreeBlockBase, largestFreeBlockSize >> 10,
 		CURRENT_GAMECORE_VERSION,
+		szQueueGuard,
 		szExeName
 	);
 
