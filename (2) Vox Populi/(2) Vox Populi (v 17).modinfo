@@ -126,17 +126,17 @@
     <File md5="FFE8A204503B0DCE81553A7D0DABB28B" import="1">Assets/Atlases/Technologies/VPTechAtlas_128.dds</File>
     <File md5="06EDFBEB19F8920BD233F9C5FF993F6D" import="1">Assets/Atlases/Technologies/VPTechAtlas_214.dds</File>
     <File md5="B2A1E5C0CD49D621BA2A741E0A9FCEB1" import="1">Assets/Atlases/Technologies/VPTechAtlas_256.dds</File>
-    <File md5="0173498B00B03967E029577B9D8728F7" import="1">Assets/Atlases/Units/VPUnitAtlas1_045.dds</File>
-    <File md5="1079E344211FEE5FD1B25E6C4519FFBB" import="1">Assets/Atlases/Units/VPUnitAtlas1_064.dds</File>
-    <File md5="B8FC9885C346882BF55F7DD9EC15C317" import="1">Assets/Atlases/Units/VPUnitAtlas1_080.dds</File>
-    <File md5="334B3374BE87A188BCC0A2EB07CFB54D" import="1">Assets/Atlases/Units/VPUnitAtlas1_128.dds</File>
-    <File md5="DF69336540F386EF6DCA724AC42584AD" import="1">Assets/Atlases/Units/VPUnitAtlas1_256.dds</File>
+    <File md5="A5BD870F0343E5893F4C9B536B50A038" import="1">Assets/Atlases/Units/VPUnitAtlas1_045.dds</File>
+    <File md5="4AB79E2DFA0F5C90F6A1051F5498C226" import="1">Assets/Atlases/Units/VPUnitAtlas1_064.dds</File>
+    <File md5="EAEFEAC6EFD87008F63B4551FBF1EECB" import="1">Assets/Atlases/Units/VPUnitAtlas1_080.dds</File>
+    <File md5="F0E12D069B005EE8525561E83EE40EB2" import="1">Assets/Atlases/Units/VPUnitAtlas1_128.dds</File>
+    <File md5="9D63D04DD103220D35EE31C2052376EB" import="1">Assets/Atlases/Units/VPUnitAtlas1_256.dds</File>
     <File md5="578AEE584FC9B9B837420C1F4185A9B1" import="1">Assets/Atlases/Units/VPUnitAtlas2_045.dds</File>
     <File md5="8A4A856650B8AB400D5C2DEB1AC2DAC4" import="1">Assets/Atlases/Units/VPUnitAtlas2_064.dds</File>
     <File md5="F5DA741175A33EB4EB90D0B65F1109B3" import="1">Assets/Atlases/Units/VPUnitAtlas2_080.dds</File>
     <File md5="BF075312CA8EF5CB77E77DB893CFD32A" import="1">Assets/Atlases/Units/VPUnitAtlas2_128.dds</File>
     <File md5="F86361313B8FBBE347DFD3822F36AAF3" import="1">Assets/Atlases/Units/VPUnitAtlas2_256.dds</File>
-    <File md5="3B633F633E8695E9A0EC582DB4D6CD36" import="1">Assets/Atlases/Units/VPUnitFlagAtlas1_032.dds</File>
+    <File md5="1E65514685A1AC3C7DCB6F5E8D4CD90A" import="1">Assets/Atlases/Units/VPUnitFlagAtlas1_032.dds</File>
     <File md5="9881220F340DDA68369D4333345A72AD" import="1">Assets/Atlases/Units/VPUnitFlagAtlas2_032.dds</File>
     <File md5="24A2F27062E12BCBEC37C9E8F3AA257E" import="1">Assets/Graphics/GreatWorks_Artifact_HL_34.dds</File>
     <File md5="2CD21E4B3FB567CE3A70B7569CC21AA5" import="1">Assets/Graphics/Buttons/civilopediatopbuttonscorporations.dds</File>
@@ -947,8 +947,9 @@
     <File md5="4AF69E81EDD5B9FE57F31422A0D46EA8" import="1">Assets/Models/Units/TreasureShip/RedJunk.gr2</File>
     <File md5="9A577F17DB33D8E0B4DA34C5DBB82F7C" import="1">Assets/Models/Units/TreasureShip/RedJunk_diff.dds</File>
     <File md5="A0259BA1FB1B544F89BBD5A07BE8B90F" import="1">Assets/Models/Units/TreasureShip/RedJunk_sref.dds</File>
+    <File md5="A9EEDE309A0C546CCBF3E3ED1D8BBF2A" import="1">Assets/Models/Units/Yamato/Edited_FX_Triggers_Battleship.ftsxml</File>
     <File md5="4C5C099F0A4FD21C8E3CE9B0775AEBD4" import="1">Assets/Models/Units/Yamato/Yamato_Class.dds</File>
-    <File md5="0D4D76E4C089C2A54982CB4CD4B53F83" import="1">Assets/Models/Units/Yamato/Yamato_Class.fxsxml</File>
+    <File md5="A896A994C11F0539F840DE7C3AC45E7F" import="1">Assets/Models/Units/Yamato/Yamato_Class.fxsxml</File>
     <File md5="800A6760332BFB63E5F61651040918F2" import="1">Assets/Models/Units/Yamato/Yamato_Class.gr2</File>
     <File md5="A08BD3AA9B8EE4494A2A218F6656B3D8" import="1">Assets/Models/Units/Yamato/Yamato_Class_gloss.dds</File>
     <File md5="E6947EFBD10E4749602835CD0AF6FDE7" import="1">Assets/Models/Units/YellowBrow/civ5_iropi1.fxsxml</File>
@@ -1055,7 +1056,7 @@
     <File md5="D2AC8A9ED3C8177823BA24ED262A60F8" import="1">Assets/StrategicView/Units/tercio_flag2.dds</File>
     <File md5="DA7BB009BA43F43A043623D24AE6A6D4" import="1">Assets/StrategicView/Units/VakaNuiFlag_128.dds</File>
     <File md5="005497AF9827E748D3A544E456B97D82" import="1">Assets/StrategicView/Units/XiafanGuanjunFlag_128.dds</File>
-    <File md5="4435B3549B3D8EC689FAA31E80D8B637" import="1">Assets/StrategicView/Units/YamatoFlag_128.dds</File>
+    <File md5="0E328A45D468E78E22C270D3D046636C" import="1">Assets/StrategicView/Units/YamatoFlag_128.dds</File>
     <File md5="E60AAB6BEDA93409DB74E7B2D37874D0" import="1">Assets/StrategicView/Units/YellowBrowFlag_128.dds</File>
     <File md5="EBC507153D12C389B3838E94502A16EF" import="1">Assets/WTC_Quote.mp3</File>
     <File md5="63B3FC73D1D8FFBF6CAEC7AA481AD2DA" import="1">Core Files/Core Changes/farm_types.xml</File>
@@ -1150,7 +1151,7 @@
     <File md5="BD53919A67BE2E1CFE8CF95233F613E9" import="0">Database Changes/Art/NewImprovementArts.xml</File>
     <File md5="24F8CDC7D88D6A3A299A6CE8ECBD0741" import="0">Database Changes/Art/NewFeatureArts.xml</File>
     <File md5="158C96082A894DB5FADA7F8E9C85F5A3" import="0">Database Changes/Art/NewResourceArts.xml</File>
-    <File md5="AAB569937F1B2EB5867EAED11CFDE5AE" import="0">Database Changes/Art/NewUnitArts.xml</File>
+    <File md5="567F4952C79417CF6856FB0D62FA4C86" import="0">Database Changes/Art/NewUnitArts.xml</File>
     <File md5="B3845C7481F51EB6365441268184946B" import="0">Database Changes/Art/ResourceArtChanges.sql</File>
     <File md5="8AFB7AE54D0CBF9D8B5C4F25FEE6AA1F" import="0">Database Changes/Art/UnitArtChanges.sql</File>
     <File md5="E5E47269747A1FA12B609986983A9598" import="0">Database Changes/Barbarians/BarbarianSweeps.sql</File>

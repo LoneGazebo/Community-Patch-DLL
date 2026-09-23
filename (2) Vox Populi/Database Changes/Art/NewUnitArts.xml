@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
+	<!-- Yamato broadside sound uses a mod-registered script. -->
+	<Audio_3DSounds>
+		<Row>
+			<ScriptID>AS3D_UNIT_YAMATO_CANNON</ScriptID>
+			<SoundID>SND_UNIT_MDRN_ARMR_CANNON</SoundID>
+			<SoundType>GAME_SFX</SoundType>
+			<MinVolume>100</MinVolume>
+			<MaxVolume>110</MaxVolume>
+			<PitchChangeDown>-8</PitchChangeDown>
+			<PitchChangeUp>-4</PitchChangeUp>
+		</Row>
+	</Audio_3DSounds>
 	<ArtDefine_UnitInfos>
 		<Row>
 			<Type>ART_DEF_UNIT_OTOMI</Type>
