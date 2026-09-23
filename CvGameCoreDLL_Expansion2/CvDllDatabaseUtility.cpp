@@ -18,6 +18,7 @@
 #include "CvDllDatabaseUtility.h"
 #include "CvDllContext.h"
 #include "CvGlobals.h"
+#include "EngineQueueGuard.h"
 #include "CvGrandStrategyAI.h"
 #include "CvEconomicAI.h"
 #include "CvMilitaryAI.h"
@@ -128,6 +129,10 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 	// Load up the CustomModOptions configuration
 	gCustomMods.preloadCache();
+
+	// The EXE's UI message queue guard patches the EXE, so like the DLL's other binary hooks it is
+	// opt-in through BIN_HOOKS. This runs before any save can be loaded, which is when it is needed.
+	EngineQueueGuard::Install(MOD_BIN_HOOKS);
 
 	//HACK Legacy 'FindInfoByType' support.
 	//In order to support the legacy code still using the old infos system,

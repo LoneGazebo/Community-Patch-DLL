@@ -9,16 +9,34 @@ namespace
 {
 
 //	----------------------------------------------------------------------------------------------
-//	The queue, as laid out in CivilizationV_DX11.exe with TimeDateStamp 0x546CD0A8 (Steam). All
-//	offsets are RVAs; the EXE is relocated at run time, so absolute addresses are read back from its
-//	code and compared, never assumed.
+//	The queue, as laid out in the three Steam EXEs (the DX9, DX11 and Tablet builds of November 2014).
+//	The code is the same in all three; only the addresses differ. All offsets are RVAs; the EXE is
+//	relocated at run time, so absolute addresses are read back from its code and compared, never
+//	assumed. The RVAs come from a pattern search of each EXE file (110 writer prologues, 97 reserve
+//	functions, one swap and one dispatcher per EXE, every reserve calling the same import slot), and
+//	the import slot was cross-checked against each EXE's import table.
 //	----------------------------------------------------------------------------------------------
 
-const DWORD EXE_TIMESTAMP = 0x546CD0A8;
+struct KnownBuild
+{
+	const char* szName;
+	DWORD dwTimestamp;           //!< IMAGE_FILE_HEADER::TimeDateStamp
+	DWORD dwRvaChannelIndex;     //!< int: which channel the writers use (0 in every run seen)
+	DWORD dwRvaChannels;         //!< channel 0; channel c is at + c * CHANNEL_STRIDE
+	DWORD dwRvaIatExchangeAdd;   //!< the EXE's import slot for kernel32!InterlockedExchangeAdd
+	DWORD dwRvaWriter;           //!< one of the inlined writer prologues (PATTERN_WRITER)
+	DWORD dwRvaReserve;          //!< one of the reserve functions (PATTERN_RESERVE)
+	DWORD dwRvaSwap;             //!< the buffer swap (PATTERN_SWAP)
+	DWORD dwRvaDispatch;         //!< the dispatcher (PATTERN_DISPATCH)
+};
 
-const DWORD RVA_CHANNEL_INDEX = 0x160E400;   //!< int: which channel the writers use (0 in every run seen)
-const DWORD RVA_CHANNELS = 0x160F080;        //!< channel 0; channel c is at + c * CHANNEL_STRIDE
-const DWORD RVA_IAT_EXCHANGEADD = 0x5D647C;  //!< the EXE's import slot for kernel32!InterlockedExchangeAdd
+const KnownBuild KNOWN_BUILDS[] =
+{
+	//  name      timestamp   index      channels   IAT slot  writer   reserve  swap      dispatch
+	{ "DX11",   0x546CD0A8, 0x160E400, 0x160F080, 0x5D647C, 0x11347, 0x404C0, 0x90DF0,  0x2A5970 },   // CivilizationV_DX11.exe
+	{ "DX9",    0x546CCB59, 0x15FE200, 0x15FEE80, 0x5C9488, 0x15BC5, 0x10070, 0x385420, 0x20F40 },    // CivilizationV.exe
+	{ "Tablet", 0x546CD5F8, 0x160FE80, 0x1610B00, 0x5D847C, 0x14748, 0xC380,  0xACE00,  0x3980E0 },   // CivilizationV_Tablet.exe
+};
 
 const DWORD NUM_CHANNELS = 2;                //!< handler tables at this+8+c*0x600 leave room for two
 const DWORD CHANNEL_STRIDE = 0x800180;       //!< two buffers, then the flip counter and high-water mark
@@ -26,40 +44,22 @@ const DWORD BUFFER_STRIDE = 0x400080;        //!< size field and header, then th
 const DWORD HEADER_BYTES = 0x80;             //!< record = buffer + HEADER_BYTES + reserved offset
 const DWORD BUFFER_CAPACITY = BUFFER_STRIDE - HEADER_BYTES;
 
-//! Code that must be byte-identical before anything is patched. "??" marks an absolute address,
-//! which relocation changes; those are checked separately against the expected RVAs.
-struct CodePattern
-{
-	DWORD dwRva;
-	const char* szName;
-	const char* szBytes;
-};
+//! Code that must be byte-identical, at the build's RVA for that role, before anything is patched.
+//! "??" marks an absolute address, which relocation changes; those are checked separately against
+//! the build's RVAs.
+// mov ecx,[index]; imul ecx,ecx,800180h; add ecx,channels - one of the inlined writer prologues
+const char* const PATTERN_WRITER = "8b 0d ?? ?? ?? ?? 69 c9 80 01 80 00 81 c1 ?? ?? ?? ??";
+// buffer = channel + (flip & 1) * 400080h; push 80h; push buffer; call [InterlockedExchangeAdd]
+const char* const PATTERN_RESERVE = "56 8b b1 00 01 80 00 83 e6 01 69 f6 80 00 40 00 03 f1 68 80 00 00 00 56 ff 15 ?? ?? ?? ??";
+// inc [flip]; buffer = channel + (flip & 1) * 400080h - the swap
+const char* const PATTERN_SWAP = "ff 81 00 01 80 00 8b 81 00 01 80 00 83 e0 01 69 c0 80 00 40 00";
+// the dispatcher: p = buffer + 80h, end = p + size, walk while p != end
+const char* const PATTERN_DISPATCH = "8b 44 24 04 8b 08 85 c9 74 37 56 57 8d b0 80 00 00 00 8d bc 01 80 00 00 00 3b f7 74 22";
 
-const CodePattern CODE_PATTERNS[] =
-{
-	// mov ecx,[index]; imul ecx,ecx,800180h; add ecx,channels - one of the 325 inlined writer prologues
-	{ 0x68951, "writer", "8b 0d ?? ?? ?? ?? 69 c9 80 01 80 00 81 c1 ?? ?? ?? ??" },
-	// buffer = channel + (flip & 1) * 400080h; push 80h; push buffer; call [InterlockedExchangeAdd]
-	{ 0x1CA5E0, "reserve", "56 8b b1 00 01 80 00 83 e6 01 69 f6 80 00 40 00 03 f1 68 80 00 00 00 56 ff 15 ?? ?? ?? ??" },
-	// inc [flip]; buffer = channel + (flip & 1) * 400080h - the swap
-	{ 0x90DF0, "swap", "ff 81 00 01 80 00 8b 81 00 01 80 00 83 e0 01 69 c0 80 00 40 00" },
-	// the dispatcher: p = buffer + 80h, end = p + size, walk while p != end
-	{ 0x2A5970, "dispatch", "8b 44 24 04 8b 08 85 c9 74 37 56 57 8d b0 80 00 00 00 8d bc 01 80 00 00 00 3b f7 74 22" },
-};
-
-//! Relocated dwords inside the patterns above, and the RVA each must point at.
-struct AddressCheck
-{
-	DWORD dwRva;
-	DWORD dwExpectedRva;
-};
-
-const AddressCheck ADDRESS_CHECKS[] =
-{
-	{ 0x68951 + 2, RVA_CHANNEL_INDEX },
-	{ 0x68951 + 14, RVA_CHANNELS },
-	{ 0x1CA5E0 + 26, RVA_IAT_EXCHANGEADD },
-};
+//! Where the relocated dwords sit inside the writer and reserve patterns.
+const DWORD WRITER_INDEX_OPERAND = 2;
+const DWORD WRITER_CHANNELS_OPERAND = 14;
+const DWORD RESERVE_IAT_OPERAND = 26;
 
 //! Records are 128 to 2,304 bytes (235 reserve sites checked). Anything larger passes through unguarded.
 const LONG SCRATCH_BYTES = 64 * 1024;
@@ -75,6 +75,7 @@ DWORD g_dwChannels = 0;
 char* g_pScratch = NULL;
 bool g_bInstalled = false;
 const char* g_szStatus = "not installed";
+char g_szActiveStatus[64] = { 0 };     //!< "active (<build> build)" once installed
 
 volatile LONG g_lDroppedRecords = 0;
 volatile LONG g_lDroppedBytes = 0;
@@ -211,7 +212,7 @@ DWORD* FindImportSlot(HMODULE hExe, const IMAGE_NT_HEADERS* pNt)
 }
 
 //! Checks everything the thunk relies on. Returns NULL if the guard may be installed, or the reason not.
-const char* VerifyExe(HMODULE hExe, DWORD** ppSlot)
+const char* VerifyExe(HMODULE hExe, DWORD** ppSlot, const KnownBuild** ppBuild)
 {
 	const IMAGE_DOS_HEADER* pDos = reinterpret_cast<const IMAGE_DOS_HEADER*>(hExe);
 	if (pDos == NULL || pDos->e_magic != IMAGE_DOS_SIGNATURE)
@@ -219,36 +220,56 @@ const char* VerifyExe(HMODULE hExe, DWORD** ppSlot)
 	const IMAGE_NT_HEADERS* pNt = reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(hExe) + pDos->e_lfanew);
 	if (pNt->Signature != IMAGE_NT_SIGNATURE)
 		return "off: no EXE image";
-	if (pNt->FileHeader.TimeDateStamp != EXE_TIMESTAMP)
-		return "off: not the EXE build this was written for (timestamp)";
+	const KnownBuild* pBuild = NULL;
+	for (size_t i = 0; i < sizeof(KNOWN_BUILDS) / sizeof(KNOWN_BUILDS[0]); i++)
+	{
+		if (KNOWN_BUILDS[i].dwTimestamp == pNt->FileHeader.TimeDateStamp)
+			pBuild = &KNOWN_BUILDS[i];
+	}
+	if (pBuild == NULL)
+		return "off: not an EXE build this was written for (timestamp)";
 
 	const DWORD dwBase = reinterpret_cast<DWORD>(hExe);
 	const DWORD dwImageSize = pNt->OptionalHeader.SizeOfImage;
-	if (RVA_CHANNELS + NUM_CHANNELS * CHANNEL_STRIDE > dwImageSize)
+	if (pBuild->dwRvaChannels + NUM_CHANNELS * CHANNEL_STRIDE > dwImageSize)
 		return "off: image smaller than the queue";
 
-	for (size_t i = 0; i < sizeof(CODE_PATTERNS) / sizeof(CODE_PATTERNS[0]); i++)
+	const struct { DWORD dwRva; const char* szBytes; } aCode[] =
 	{
-		if (CODE_PATTERNS[i].dwRva + 64 > dwImageSize ||
-			!MatchesPattern(reinterpret_cast<const unsigned char*>(dwBase + CODE_PATTERNS[i].dwRva), CODE_PATTERNS[i].szBytes))
+		{ pBuild->dwRvaWriter, PATTERN_WRITER },
+		{ pBuild->dwRvaReserve, PATTERN_RESERVE },
+		{ pBuild->dwRvaSwap, PATTERN_SWAP },
+		{ pBuild->dwRvaDispatch, PATTERN_DISPATCH },
+	};
+	for (size_t i = 0; i < sizeof(aCode) / sizeof(aCode[0]); i++)
+	{
+		if (aCode[i].dwRva + 64 > dwImageSize ||
+			!MatchesPattern(reinterpret_cast<const unsigned char*>(dwBase + aCode[i].dwRva), aCode[i].szBytes))
 			return "off: EXE code differs from the known layout";
 	}
-	for (size_t i = 0; i < sizeof(ADDRESS_CHECKS) / sizeof(ADDRESS_CHECKS[0]); i++)
+	const struct { DWORD dwRva; DWORD dwExpectedRva; } aAddresses[] =
 	{
-		const DWORD dwTarget = *reinterpret_cast<const DWORD*>(dwBase + ADDRESS_CHECKS[i].dwRva);
-		if (dwTarget != dwBase + ADDRESS_CHECKS[i].dwExpectedRva)
+		{ pBuild->dwRvaWriter + WRITER_INDEX_OPERAND, pBuild->dwRvaChannelIndex },
+		{ pBuild->dwRvaWriter + WRITER_CHANNELS_OPERAND, pBuild->dwRvaChannels },
+		{ pBuild->dwRvaReserve + RESERVE_IAT_OPERAND, pBuild->dwRvaIatExchangeAdd },
+	};
+	for (size_t i = 0; i < sizeof(aAddresses) / sizeof(aAddresses[0]); i++)
+	{
+		const DWORD dwTarget = *reinterpret_cast<const DWORD*>(dwBase + aAddresses[i].dwRva);
+		if (dwTarget != dwBase + aAddresses[i].dwExpectedRva)
 			return "off: EXE addresses differ from the known layout";
 	}
 
 	DWORD* pSlot = FindImportSlot(hExe, pNt);
-	if (pSlot == NULL || reinterpret_cast<DWORD>(pSlot) != dwBase + RVA_IAT_EXCHANGEADD)
+	if (pSlot == NULL || reinterpret_cast<DWORD>(pSlot) != dwBase + pBuild->dwRvaIatExchangeAdd)
 		return "off: InterlockedExchangeAdd import slot not where the reserve code calls it";
 
-	const LONG lIndex = *reinterpret_cast<const LONG*>(dwBase + RVA_CHANNEL_INDEX);
+	const LONG lIndex = *reinterpret_cast<const LONG*>(dwBase + pBuild->dwRvaChannelIndex);
 	if (lIndex < 0 || lIndex >= static_cast<LONG>(NUM_CHANNELS))
 		return "off: unexpected channel index";
 
 	*ppSlot = pSlot;
+	*ppBuild = pBuild;
 	return NULL;
 }
 
@@ -286,16 +307,29 @@ Stats::Stats()
 {
 }
 
-void Install()
+void Install(bool bEnabled)
 {
 	static bool s_bTried = false;
 	if (s_bTried)
 		return;
-	s_bTried = true;
 
 	char szTime[32];
 	FormatTimestamp(szTime, sizeof(szTime));
 	char szLine[256];
+
+	if (!bEnabled)
+	{
+		// Not final: the option cache is rebuilt whenever the database is, and a later call may enable it.
+		static const char* const szOff = "off: BIN_HOOKS custom mod option is 0";
+		if (g_szStatus != szOff)
+		{
+			g_szStatus = szOff;
+			_snprintf_s(szLine, sizeof(szLine), _TRUNCATE, "%s  UI message queue guard %s\r\n", szTime, g_szStatus);
+			AppendToLog(szLine);
+		}
+		return;
+	}
+	s_bTried = true;
 
 	char szDisable[8] = { 0 };
 	if (GetEnvironmentVariableA("VP_QUEUEGUARD", szDisable, sizeof(szDisable)) != 0 && szDisable[0] == '0')
@@ -308,7 +342,8 @@ void Install()
 
 	HMODULE hExe = GetModuleHandleA(NULL);
 	DWORD* pSlot = NULL;
-	const char* szProblem = VerifyExe(hExe, &pSlot);
+	const KnownBuild* pBuild = NULL;
+	const char* szProblem = VerifyExe(hExe, &pSlot, &pBuild);
 	if (szProblem == NULL)
 	{
 		g_pScratch = static_cast<char*>(VirtualAlloc(NULL, SCRATCH_BYTES, MEM_RESERVE | MEM_COMMIT | MEM_TOP_DOWN, PAGE_READWRITE));
@@ -324,7 +359,7 @@ void Install()
 		{
 			// Everything the thunk reads is in place before the first call can reach it; the exchange is
 			// a full barrier, and a caller already past the slot still holds the original, which works.
-			g_dwChannels = reinterpret_cast<DWORD>(hExe) + RVA_CHANNELS;
+			g_dwChannels = reinterpret_cast<DWORD>(hExe) + pBuild->dwRvaChannels;
 			g_pfnOriginal = reinterpret_cast<ExchangeAddFn>(*pSlot);
 			InterlockedExchange(reinterpret_cast<LONG volatile*>(pSlot), reinterpret_cast<LONG>(&GuardedExchangeAdd));
 			DWORD dwIgnored = 0;
@@ -333,7 +368,13 @@ void Install()
 		}
 	}
 
-	g_szStatus = g_bInstalled ? "active" : szProblem;
+	if (g_bInstalled)
+	{
+		_snprintf_s(g_szActiveStatus, sizeof(g_szActiveStatus), _TRUNCATE, "active (%s build)", pBuild->szName);
+		g_szStatus = g_szActiveStatus;
+	}
+	else
+		g_szStatus = szProblem;
 	_snprintf_s(szLine, sizeof(szLine), _TRUNCATE, "%s  UI message queue guard %s\r\n", szTime, g_szStatus);
 	AppendToLog(szLine);
 }
