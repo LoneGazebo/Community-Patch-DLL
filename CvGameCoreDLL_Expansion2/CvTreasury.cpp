@@ -92,7 +92,7 @@ void CvTreasury::DoGold()
 	{
 		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
 			m_GoldChangeForTurnTimes100.push_back(iGoldChange);
-		else
+		else if (!m_GoldChangeForTurnTimes100.empty()) // empty on turn 0: back() would write in front of the buffer
 			m_GoldChangeForTurnTimes100.back() += iGoldChange;
 	}
 
@@ -186,7 +186,7 @@ void CvTreasury::ChangeGoldTimes100(int iChange)
 	{
 		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
 			m_GoldChangeForTurnTimes100.push_back(iChange);
-		else
+		else if (!m_GoldChangeForTurnTimes100.empty()) // empty on turn 0: back() would write in front of the buffer
 			m_GoldChangeForTurnTimes100.back() += iChange;
 	}
 }
