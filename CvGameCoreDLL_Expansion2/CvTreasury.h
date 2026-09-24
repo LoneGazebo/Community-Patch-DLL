@@ -115,6 +115,7 @@ public:
 	void SetExpensePerTurnFromVassalTaxesTimes100(int iValue);
 
 	int GetContractGoldMaintenance();
+	void RecordGoldChangeForTurn(int iChangeTimes100);
 
 protected:
 	CvPlayer* m_pPlayer;

@@ -72,6 +72,7 @@ void CvTreasury::DoGold()
 {
 	int iGoldChange = CalculateBaseNetGoldTimes100();
 	int iGoldAfterThisTurn = iGoldChange + GetGoldTimes100();
+	bool bGoldChangeForTurnUpdated = false;
 
 	if (iGoldAfterThisTurn < 0 || m_pPlayer->isMinorCiv())
 	{
@@ -84,17 +85,12 @@ void CvTreasury::DoGold()
 	else
 	{
 		ChangeGoldTimes100(iGoldChange);
+		bGoldChangeForTurnUpdated = iGoldChange > 0; // did ChangeGoldTimes100 update the gold change history?
 	}
 
-	//instant yields are tracked in ChangeGoldTimes100. we ignore expenses (negative values) there.
-	//but here we have to consider a negative gold rate, so fix it after the fact
-	if (iGoldChange < 0)
-	{
-		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
-			m_GoldChangeForTurnTimes100.push_back(iGoldChange);
-		else
-			m_GoldChangeForTurnTimes100.back() += iGoldChange;
-	}
+	// if ChangeGoldTimes100 above didn't update the gold change history we need to do it here to avoid a missing entry for this turn
+	if (!bGoldChangeForTurnUpdated)
+		RecordGoldChangeForTurn(iGoldChange);
 
 	// Update the amount of gold grossed across lifetime of game
 	int iGrossGoldChange = CalculateGrossGold();
@@ -103,7 +99,7 @@ void CvTreasury::DoGold()
 		m_iLifetimeGrossGoldIncome += iGrossGoldChange;
 	}
 
-	if(m_GoldBalanceForTurnTimes100.size() < (unsigned int) GC.getGame().getGameTurn())
+	if(m_GoldBalanceForTurnTimes100.size() < (size_t)GC.getGame().getElapsedGameTurns()+1)
 	{
 		m_GoldBalanceForTurnTimes100.push_back(GetGoldTimes100());
 	}
@@ -183,12 +179,16 @@ void CvTreasury::ChangeGoldTimes100(int iChange)
 
 	//track the income for each turn (instant yields and regular)
 	if (iChange > 0)
-	{
-		if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getGameTurn())
-			m_GoldChangeForTurnTimes100.push_back(iChange);
-		else
-			m_GoldChangeForTurnTimes100.back() += iChange;
-	}
+		RecordGoldChangeForTurn(iChange);
+}
+
+/// Modifies the gold change history entry of the current turn, or creates it if necessary
+void CvTreasury::RecordGoldChangeForTurn(int iChangeTimes100)
+{
+	if (m_GoldChangeForTurnTimes100.size() < (size_t)GC.getGame().getElapsedGameTurns()+1)
+		m_GoldChangeForTurnTimes100.push_back(iChangeTimes100);
+	else
+		m_GoldChangeForTurnTimes100.back() += iChangeTimes100;
 }
 
 // Gold from Cities
