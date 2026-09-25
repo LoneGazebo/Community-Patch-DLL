@@ -974,6 +974,9 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 	AddTooltipPositive(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_CULTURE_ON_DISBAND_UPGRADE", kUnitInfo.CulExpOnDisbandUpgrade);
 
+	-- Exploration XP
+	AddTooltipNonZeroSigned(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_XP_FROM_EXPLORATION", kUnitInfo.XPFromExploration);
+
 	-- Block/weaken active spread
 	if kUnitInfo.ProhibitsSpread then
 		if MOD_BALANCE_INQUISITOR_NERF then

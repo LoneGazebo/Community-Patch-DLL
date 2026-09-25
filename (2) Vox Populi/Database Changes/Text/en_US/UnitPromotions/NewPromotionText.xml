@@ -173,25 +173,6 @@
 			<Text>+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking Units in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_TRAILBLAZER_1">
-			<Text>Trailblazer I</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_TRAILBLAZER_1_HELP">
-			<Text>+1 [ICON_VISION] Sight and Embarked Sight.[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Forest[ENDCOLOR], [COLOR_POSITIVE_TEXT]Jungle[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_TRAILBLAZER_2">
-			<Text>Trailblazer II</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_TRAILBLAZER_2_HELP">
-			<Text>+1 [ICON_MOVES] Movement and Embarked Movement.[NEWLINE]Ignore Terrain Cost in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR], [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Marsh[ENDCOLOR].[NEWLINE]Eliminate combat penalties for attacking over a river.[NEWLINE]Crossing a river costs only 1 [ICON_MOVES] Movement.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_TRAILBLAZER_3">
-			<Text>Trailblazer III</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_TRAILBLAZER_3_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Can Embark, cross Mountains, and use Enemy Roads/Railroads.[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_ARTILLERY">
 			<Text>Coastal Artillery</Text>
 		</Row>
@@ -286,6 +267,111 @@
 			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength if not adjacent to any [COLOR_NEGATIVE_TEXT]Owned Unit[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_PARTHIAN_TACTICS">
+			<Text>Parthian Tactics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PARTHIAN_TACTICS_HELP">
+			<Text>+1 [ICON_MOVES] Movement.[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_COUP_DE_GRACE">
+			<Text>Coup de Grace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COUP_DE_GRACE_HELP">
+			<Text>+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_ENVELOPMENT">
+			<Text>Envelopment</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENVELOPMENT_HELP">
+			<Text>+10% [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR].[NEWLINE]Benefit from [COLOR_POSITIVE_TEXT]Flanking[ENDCOLOR] when ranged attacking Units (does not factor in Adjacent Enemy Units).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_VERDANT_TREKKER">
+			<Text>Verdant Trekker</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_VERDANT_TREKKER_HELP">
+			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Grassland[ENDCOLOR].[NEWLINE]Heal 5 HP if the Unit ends its turn in [COLOR_POSITIVE_TEXT]Grassland[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_RUNNER">
+			<Text>Field Runner</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_RUNNER_HELP">
+			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Plains[ENDCOLOR].[NEWLINE]Heal 5 HP if the Unit ends its turn in [COLOR_POSITIVE_TEXT]Plains[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_DESERT_DWELLER">
+			<Text>Desert Dweller</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DESERT_DWELLER_HELP">
+			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR].[NEWLINE]Heal 5 HP if the Unit ends its turn in [COLOR_POSITIVE_TEXT]Desert[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FROST_WALKER">
+			<Text>Frost Walker</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FROST_WALKER_HELP">
+			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Tundra[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR].[NEWLINE]Heal 5 HP if the Unit ends its turn in [COLOR_POSITIVE_TEXT]Tundra[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Snow[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_MOUNTAINEER">
+			<Text>Mountaineer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MOUNTAINEER_HELP">
+			<Text>Double [ICON_MOVES] Movement in [COLOR_POSITIVE_TEXT]Hill[ENDCOLOR].[NEWLINE]Can cross Mountains.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_WATERBORNE">
+			<Text>Waterborne</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_WATERBORNE_HELP">
+			<Text>Double [ICON_MOVES] Movement when moving along Rivers.[NEWLINE]Embarking and Disembarking cost only 1 [ICON_MOVES] Movement.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FORAGER">
+			<Text>Forager</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FORAGER_HELP">
+			<Text>Pillaging costs half [ICON_MOVES] Movement and heals an extra [COLOR_POSITIVE_TEXT]10 HP[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SURVIVALISM">
+			<Text>Survivalism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SURVIVALISM_HELP">
+			<Text>Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING_1">
+			<Text>Screening I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING_1_HELP">
+			<Text>Provide +8% [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] against adjacent Enemy Units.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING_2">
+			<Text>Screening II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING_2_HELP">
+			<Text>Provide +10% [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] against adjacent Enemy Units.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING_3">
+			<Text>Screening III</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING_3_HELP">
+			<Text>Provide +12% [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] against adjacent Enemy Units.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_HALO_JUMPER">
+			<Text>Halo Jumper</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HALO_JUMPER_HELP">
+			<Text>+100% Chance to [COLOR_POSITIVE_TEXT]Evade Air Interception[ENDCOLOR].</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_INDOMITABLE">
 			<Text>Indomitable</Text>
 		</Row>
@@ -333,20 +419,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PIRACY_HELP">
 			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLD] Gold.[NEWLINE]Steal [ICON_GOLD] Gold equal to 100% of Damage inflicted when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR], capped at 10x [ICON_STRENGTH] City Strength.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_PARTHIAN_TACTICS">
-			<Text>Parthian Tactics</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_PARTHIAN_TACTICS_HELP">
-			<Text>+1 [ICON_MOVES] Movement.[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_COUP_DE_GRACE">
-			<Text>Coup de Grace</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_COUP_DE_GRACE_HELP">
-			<Text>+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SHRAPNEL_ROUNDS_1">
@@ -403,27 +475,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK_HELP">
 			<Text>+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_FROGMAN">
-			<Text>Frogman</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_FROGMAN_HELP">
-			<Text>No combat penalties for attacking from the sea.[NEWLINE]Embarking and Disembarking cost only 1 [ICON_MOVES] Movement.[NEWLINE]+50% [ICON_STRENGTH] Defense when Embarked.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_SCREENING">
-			<Text>Screening</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SCREENING_HELP">
-			<Text>+10% [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR].[NEWLINE]Count as 2 Units for Flanking in combat not involving this Unit.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_ENVELOPMENT">
-			<Text>Envelopment</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_ENVELOPMENT_HELP">
-			<Text>+10% [COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR].[NEWLINE]Benefit from [COLOR_POSITIVE_TEXT]Flanking[ENDCOLOR] when ranged attacking Units (does not factor in Adjacent Enemy Units).</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HUNTER_KILLER">
@@ -605,7 +656,7 @@
 			<Text>Animist</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANIMISM_HELP">
-			<Text>Ignore Terrain Costs.</Text>
+			<Text>Ignore Terrain Cost.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ROYAL_SIGNET">
@@ -794,7 +845,7 @@
 			<Text>Reconnaissance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RECONNAISSANCE_HELP">
-			<Text>Gain 0.1 XP when revealing a tile.[NEWLINE]This value is multiplied by 12 for Natural Wonders, 4 for {TXT_KEY_IMPROVEMENT_GOODY_HUT}, and 3 for Resources.[NEWLINE]Can claim [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_GOODY_HUT}[ENDCOLOR].</Text>
+			<Text>+30% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Ignore Terrain Cost.[NEWLINE]Can claim [COLOR_POSITIVE_TEXT]{TXT_KEY_IMPROVEMENT_GOODY_HUT}[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_OCEAN_EXPLORER">
@@ -808,14 +859,21 @@
 			<Text>Scavenger</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCAVENGER_HELP">
-			<Text>Gain 5 XP when [ICON_RAZING] Pillaging Improvements.</Text>
+			<Text>Gain 3 XP when [ICON_RAZING] Pillaging Improvements.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_COMMANDO">
-			<Text>Commando</Text>
+		<Row Tag="TXT_KEY_PROMOTION_VOYAGER">
+			<Text>Voyager</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_COMMANDO_HELP">
-			<Text>Withdraw from Melee Attack if there is an open tile behind this Unit, once per turn.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_PROMOTION_VOYAGER_HELP">
+			<Text>+50% [ICON_STRENGTH] Combat Strength when defending while Embarked.[NEWLINE]+1 [ICON_MOVES] Embarked Movement.[NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_JAMMER">
+			<Text>Jammer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_JAMMER_HELP">
+			<Text>Enemy [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR] within 2 tiles of this Unit cannot Intercept [COLOR_POSITIVE_TEXT]Owned Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_INACCURACY">
@@ -1298,7 +1356,7 @@
 			<Text>Fighting Cock</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FIGHTING_COCK_HELP">
-			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].</Text>
+			<Text>+1% [ICON_STRENGTH] Combat Strength for every 3 HP below maximum health.[NEWLINE]Eliminate combat penalties for attacking or defending against Melee Attacks while [COLOR_POSITIVE_TEXT]Wounded[ENDCOLOR].[NEWLINE]Can move after attacking.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LEGATUS_LEGIONIS">

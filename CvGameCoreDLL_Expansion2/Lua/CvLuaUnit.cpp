@@ -1966,8 +1966,7 @@ int CvLuaUnit::lIsRangeAttackOnlyInDomain(lua_State* L)
 int CvLuaUnit::lIsCityAttackOnly(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	//for historical reasons, we keep the lua name, but in the dll we use a better one
-	const bool bResult = pkUnit->IsCityAttackSupport();
+	const bool bResult = pkUnit->IsCityAttackOnly();
 	lua_pushboolean(L, bResult);
 	return 1;
 }
