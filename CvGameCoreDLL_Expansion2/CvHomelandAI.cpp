@@ -2334,7 +2334,7 @@ void CvHomelandAI::PlotGeneralMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-			if(pUnit->IsGreatGeneral() || pUnit->IsCityAttackSupport())
+			if(pUnit->IsGreatGeneral())
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -2882,7 +2882,9 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	}
 
 	//step 2: check if this unit is outdated and should go home to upgrade
-	if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && pUnit->getDomainType() == DOMAIN_LAND && !pUnit->CanStayInOcean() && pUnit->IsGainsXPFromScouting() && GET_TEAM(m_pPlayer->getTeam()).CanBuildOceanCrossingUnit())
+	if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && pUnit->getDomainType() == DOMAIN_LAND && !pUnit->CanStayInOcean() &&
+		(pUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_RECON", true)) || pUnit->IsGainsXPFromScouting()) &&
+		GET_TEAM(m_pPlayer->getTeam()).CanBuildOceanCrossingUnit())
 	{
 		if (pUnit->plot()->getOwner() == m_pPlayer->GetID())
 			return true;
@@ -2964,9 +2966,8 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			}
 
 			//if there is an unguarded improvement to plunder and we can flee
-			if (tile->iMovesLeft > (pUnit->hasFreePillageMove() ? 0 : GD_INT_GET(MOVE_DENOMINATOR)) &&
-				pUnit->canPillage(pEvalPlot) &&
-				!pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false))
+			int iPillageCost = pUnit->hasFreePillageMove() ? 0 : pUnit->HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
+			if (tile->iMovesLeft > iPillageCost && pUnit->canPillage(pEvalPlot) && !pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false))
 			{
 				// do we heal when pillaging this tile?
 				int iHealAmount = pUnit->getPillageHealAmount(pEvalPlot);
@@ -4066,27 +4067,23 @@ void CvHomelandAI::ExecuteHeals()
 				break;
 			}
 
-			int iUsedMoves = 0;
+			int iPillageCost = pUnit->hasFreePillageMove() ? 0 : pUnit->HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
 
 			// Check if we can pillage this tile for free
-			if (pUnit->hasFreePillageMove() || pBestPlot.second > GD_INT_GET(MOVE_DENOMINATOR))
+			if (pBestPlot.second > iPillageCost)
 			{
 				if (pUnit->shouldPillage(pUnit->plot(), true))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-					if (!pUnit->hasFreePillageMove())
-						iUsedMoves++;
-				}
-			}
 
-			// if possible, pillage both improvement and road
-			if (pUnit->hasFreePillageMove() || pBestPlot.second > (1 + iUsedMoves) * GD_INT_GET(MOVE_DENOMINATOR))
-			{
-				if (pUnit->shouldPillage(pUnit->plot(), true))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-					if (!pUnit->hasFreePillageMove())
-						iUsedMoves++;
+					// If possible, pillage both improvement and road
+					if (pBestPlot.second > iPillageCost * 2)
+					{
+						if (pUnit->shouldPillage(pUnit->plot(), true))
+						{
+							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+						}
+					}
 				}
 			}
 
@@ -6832,10 +6829,9 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 	}
 
 	//don't target goody huts if we can't claim them with this unit
-	if (MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS && pPlot->isRevealedGoody(pUnit->getTeam()))
+	if (pPlot->isRevealedGoody(pUnit->getTeam()) && !pUnit->CanClaimGoody())
 	{
-		if (pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
-			return false;
+		return false;
 	}
 
 	//AI controlled non-explorers should not explore too far

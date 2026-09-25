@@ -418,7 +418,7 @@
 		<!-- Land COMBAT units blockade undefended adjacent tiles -->
 		<Row Class="6" Name="BALANCE_LAND_UNITS_ADJACENT_BLOCKADE" Value="0"/>
 
-		<!-- Only units with UNITCOMBAT_RECON or UnitPromotions.GainsXPFromScouting (as well as city border growth) can claim Ancient Ruins -->
+		<!-- Only units with UNITCOMBAT_RECON or UnitPromotions.CanClaimGoody (as well as city border growth) can claim Ancient Ruins -->
 		<Row Class="6" Name="BALANCE_RECON_ONLY_ANCIENT_RUINS" Value="0"/>
 
 		<!-- Inquisitors don't block spread but instead reduce its effectiveness by 50% -->
