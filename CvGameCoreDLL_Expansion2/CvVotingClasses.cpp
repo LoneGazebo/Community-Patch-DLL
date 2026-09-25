@@ -5874,7 +5874,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		}
 	}
 
-	bool bYesNo = true;
+	bool bYesNo = eDecision == RESOLUTION_DECISION_YES_OR_NO || eDecision == RESOLUTION_DECISION_REPEAL;
 	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceCommitments;
 	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceLeanings;
 	for (uint iChoiceIndex = 0; iChoiceIndex < vChoices.size(); iChoiceIndex++)
@@ -5884,9 +5884,6 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		int iNumCivsLeaning = 0;
 		int iNumDelegatesCommitted = 0;
 		int iNumDelegatesLeaning = 0;
-
-		if (iChoice != LeagueHelpers::CHOICE_YES && iChoice != LeagueHelpers::CHOICE_NO && iChoice != LeagueHelpers::CHOICE_NONE)
-			bYesNo = false;
 
 		for (uint iMemberIndex = 0; iMemberIndex < vMemberOpinions.size(); iMemberIndex++)
 		{
