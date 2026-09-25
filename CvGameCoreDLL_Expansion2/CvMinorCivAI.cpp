@@ -9975,6 +9975,9 @@ PlayerTypes CvMinorCivAI::GetDenounceOrWarMajorTarget(PlayerTypes ePlayer, bool 
 		if (eLoopPlayer == ePlayer)
 			continue;
 
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+			continue;
+
 		// Community Patch Only: Must be most recent bully
 		if (!bWar && !MOD_BALANCE_QUEST_CHANGES && eLoopPlayer != eMostRecentBully)
 			continue;
