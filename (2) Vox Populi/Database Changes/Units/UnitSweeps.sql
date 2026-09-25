@@ -24,11 +24,9 @@ SET
 	Conscription = 0;
 
 -----------------------------------------------------------------
--- Ancient Ruin upgrade class (Recon only)
+-- XP from % map explored (Recon only)
 -----------------------------------------------------------------
-UPDATE Units
-SET GoodyHutUpgradeUnitClass = (SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = Type)
-WHERE CombatClass = 'UNITCOMBAT_RECON';
+UPDATE Units SET XPFromExploration = 150 WHERE CombatClass = 'UNITCOMBAT_RECON';
 
 -----------------------------------------------------------------
 -- Does this unit cost supply, and can benefit from military

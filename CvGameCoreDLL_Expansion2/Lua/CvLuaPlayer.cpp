@@ -11216,7 +11216,7 @@ int CvLuaPlayer::lGetReasonActionDisabled(lua_State* L)
 		}
 		else if (strcmp(szActionType, "MISSION_HEAL") == 0)
 		{
-			pUnit->canHeal(pPlot, false, &toolTip);
+			pUnit->canHeal(pPlot, &toolTip);
 		}
 		else if (strcmp(szActionType, "COMMAND_UPGRADE") == 0)
 		{

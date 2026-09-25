@@ -58,7 +58,6 @@ WHERE Type = 'UNIT_CACADOR';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_CACADOR', 'PROMOTION_SCOUTING_2'),
 	('UNIT_CACADOR', 'PROMOTION_FIGHTING_COCK');
 
 ----------------------------------------------------------

@@ -668,6 +668,9 @@ public:
 	bool IsTeamImpassable(TeamTypes eTeam) const;
 	void SetTeamImpassable(TeamTypes eTeam, bool bValue);
 
+	bool IsJammingActive(PlayerTypes ePlayer) const;
+	void SetJammingActive(PlayerTypes ePlayer, bool bValue);
+
 	ImprovementTypes getRevealedImprovementType(TeamTypes eTeam, bool bDebug) const;
 	ImprovementTypes getRevealedImprovementType(TeamTypes eTeam) const;
 	bool setRevealedImprovementType(TeamTypes eTeam, ImprovementTypes eNewValue);
@@ -842,7 +845,7 @@ public:
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	bool IsEnemyUnitAdjacent(TeamTypes eMyTeam) const;
 	int GetNumThisTeamUnitsAdjacent(TeamTypes eMyTeam, TeamTypes eSpecificTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, bool bIncludeEmbarked = false) const;
-	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, TeamTypes eSpecificTeam = NO_TEAM, bool bIncludeEmbarked = false) const;
+	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, TeamTypes eSpecificTeam = NO_TEAM, bool bIncludeEmbarked = false, int* piExtraFlankModifier = NULL) const;
 	vector<CvUnit*> GetAdjacentFriendlyCombatUnits(TeamTypes eMyTeam, int iRange, DomainTypes eDomain) const;
 	pair<int, int> GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const;
 
@@ -876,6 +879,7 @@ protected:
 	short m_sSpawnedResourceY;
 
 	CvPlayerBitfield m_bfRevealed;
+	CvPlayerBitfield m_bfJammingActive;
 
 	FFastSmallFixedList<IDInfo, 4, true, c_eCiv5GameplayDLL > m_units;
 

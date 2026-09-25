@@ -126,6 +126,46 @@ struct SPlayerActiveEspionageEvent
 	int iAmount;
 };
 
+struct SAreaEffectUnitInfo
+{
+	int iUnitID;
+	short iX;
+	short iY;
+	DomainTypes eDomain;
+
+	int iInterceptValue;
+	short iLeadershipModifier;
+	short iNegativeModifier;
+	short iSapperModifier;
+	short iHealValue;
+
+	uint8 iNegativeRange;
+	uint8 iLeadershipRange;
+	uint8 iSapperRange;
+	uint8 iHealRange;
+	uint8 iJammingRange;
+	uint8 iInterceptRange;
+
+	SAreaEffectUnitInfo()
+		: iUnitID(0)
+		, iX(-1)
+		, iY(-1)
+		, eDomain(NO_DOMAIN)
+		, iInterceptValue(0)
+		, iLeadershipModifier(0)
+		, iNegativeModifier(0)
+		, iSapperModifier(0)
+		, iHealValue(0)
+		, iNegativeRange(0)
+		, iLeadershipRange(0)
+		, iSapperRange(0)
+		, iHealRange(0)
+		, iJammingRange(0)
+		, iInterceptRange(0)
+	{
+	}
+};
+
 class CvPlayer
 {
 	friend class CvPlayerPolicies;
@@ -2507,10 +2547,13 @@ public:
 	void SetCapitalGrowthMod(int iValue);
 	void ChangeCapitalGrowthMod(int iChange);
 
-	void UpdatePlots();  // Refreshes the list of plots and sets which ones the player owns
+	void UpdatePlots(); // Refreshes the list of plots and sets which ones the player owns
 	void AddAPlot(CvPlot* pPlot); // adds an owned plot
-	const PlotIndexContainer& GetPlots() const;  // gets the list of plots the player owns
+	void RemoveAPlot(CvPlot* pPlot); // removes an owned plot
+	const PlotIndexContainer& GetPlots() const; // gets the list of plots the player owns
 	int GetNumPlots() const;
+	int GetTerrainPlotCount(TerrainTypes eTerrain) const;
+	void ChangeTerrainPlotCount(TerrainTypes eTerrain, int iChange);
 
 	int GetNumPlotsBought() const;
 	void SetNumPlotsBought(int iValue);
@@ -2573,14 +2616,14 @@ public:
 	void DoMilitaryRatingDecay();
 	void UpdateMilitaryStats();
 	void UpdateAreaEffectUnits();
-	void UpdateAreaEffectUnit(CvUnit* pUnit);
 	void UpdateAreaEffectPlots();
 	int GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, const CvPlot* pTestPlot, const CvUnit* pIgnoreThisUnit=NULL) const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPromotionUnits() const;
-	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
-	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
-	const std::vector< std::pair<int,int> >& GetPossibleInterceptors() const;
+	vector<pair<int, int>>& GetAreaEffectPromotionUnits();
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
+	const vector<SAreaEffectUnitInfo>& GetAreaEffectUnits() const;
+	int AddOrReplaceAreaEffectUnit(const SAreaEffectUnitInfo& info);
+	void RemoveAreaEffectUnit(int iIndex);
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
@@ -3776,6 +3819,7 @@ protected:
 	CvDiplomacyRequests* m_pDiplomacyRequests;
 
 	PlotIndexContainer m_aiPlots;
+	vector<int> m_viTerrainPlotCounts;
 
 	// Treasury
 	CvTreasury* m_pTreasury;
@@ -3809,10 +3853,8 @@ protected:
 	//percent
 	int m_iFractionOriginalCapitalsUnderControl;
 	int m_iAvgUnitExp100;
-	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
-	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
 	std::vector< std::pair<int,int> > m_unitsAreaEffectPromotion; //unit / plot
-	std::vector< std::pair<int,int> > m_unitsWhichCanIntercept; //unit / plot
+	std::vector<SAreaEffectUnitInfo> m_areaEffectUnitInfos;
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
@@ -3894,6 +3936,7 @@ SYNC_ARCHIVE_VAR(int, m_iCenterOfMassX)
 SYNC_ARCHIVE_VAR(int, m_iCenterOfMassY)
 SYNC_ARCHIVE_VAR(int, m_iReformationFollowerReduction)
 SYNC_ARCHIVE_VAR(bool, m_bIsReformation)
+SYNC_ARCHIVE_VAR(vector<int>, m_viTerrainPlotCounts)
 SYNC_ARCHIVE_VAR(vector<int>, m_viInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(vector<int>, m_viLocalInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(vector<vector<int>>), m_vviYieldHistory)

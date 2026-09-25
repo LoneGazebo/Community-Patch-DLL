@@ -251,6 +251,53 @@ bool CvDatabaseUtility::PopulateVector(std::vector<int>& pVector, const char* sz
 
 	return true;
 }
+
+bool CvDatabaseUtility::PopulateVectorByValue(vector<int>& pVector, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue, const char* szValueColumn, int iVectorSize, int iDefaultValue, const char* szAdditionalCondition)
+{
+	int iSize = (iVectorSize > 0) ? iVectorSize : MaxRows(szTypeTableName);
+	pVector.resize(iSize, iDefaultValue);
+
+	string strKey = "_PVBV_";
+	strKey.append(szTypeTableName);
+	strKey.append(szDataTableName);
+	strKey.append(szFilterColumn);
+	strKey.append(szValueColumn);
+	strKey.append(szAdditionalCondition);
+
+	Database::Results* pResults = GetResults(strKey);
+	if (!pResults)
+	{
+		string strAddedClause = "";
+		if (szAdditionalCondition && szAdditionalCondition[0] != '\0')
+		{
+			strAddedClause.append(" and ");
+			strAddedClause.append(szAdditionalCondition);
+		}
+		char szSQL[512];
+		sprintf_s(szSQL, "select %s.ID, %s from %s inner join %s on %s = %s.Type where %s = ?%s",
+			szTypeTableName, szValueColumn, szDataTableName, szTypeTableName, szTypeColumn, szTypeTableName, szFilterColumn, strAddedClause.c_str());
+		pResults = PrepareResults(strKey, szSQL);
+		if (!pResults)
+			return false;
+	}
+
+	if (!pResults->Bind(1, szFilterValue, false))
+	{
+		ASSERT(false, GetErrorMessage());
+		return false;
+	}
+
+	while (pResults->Step())
+	{
+		const int idx = pResults->GetInt(0);
+		const int value = pResults->GetInt(1);
+		pVector[idx] = value;
+	}
+
+	pResults->Reset();
+
+	return true;
+}
 //------------------------------------------------------------------------------
 bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue, const char* szValueColumn, int iDefaultValue /* = 0 */, int iMinArraySize /* = 0 */, const char* szAdditionalCondition /* = "" */)
 {
