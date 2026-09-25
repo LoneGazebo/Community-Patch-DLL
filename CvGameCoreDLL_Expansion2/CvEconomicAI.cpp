@@ -1059,9 +1059,7 @@ bool EconomicAIHelpers::IsPotentialNavalExplorer(UnitAITypes eType)
 
 bool EconomicAIHelpers::IsHighValueExploreTarget(const CvPlot* pPlot, const CvPlayer* pPlayer, const CvUnit* pUnit)
 {
-	bool bCanPopGoody = !MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS || pUnit->GetGainsXPFromScouting() || pUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
-
-	if (bCanPopGoody && pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
+	if (pUnit->CanClaimGoody() && pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
 		return true;
 	else if (pPlot->getRevealedImprovementType(pPlayer->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && pPlot->isVisible(pPlayer->getTeam()) && pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)
 		return true;
