@@ -150,6 +150,15 @@
     <ClCompile Include="CvDllGame.cpp">
       <Filter>interface</Filter>
     </ClCompile>
+    <ClCompile Include="Exe\CvExeApi.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Exe\CvExeBuild.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Exe\CvExeSymbols.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
     <ClCompile Include="CvDllGameAsynch.cpp">
       <Filter>interface</Filter>
     </ClCompile>
@@ -476,6 +485,18 @@
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="CvDllGame.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Exe\CvExeAddresses.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Exe\CvExeApi.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Exe\CvExeBuild.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Exe\CvExeSymbols.h">
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="CvDllGameAsynch.h">
