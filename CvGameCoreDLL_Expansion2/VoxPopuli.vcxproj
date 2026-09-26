@@ -308,6 +308,15 @@
     <ClCompile Include="CvDllGame.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Exe\CvExeApi.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="Exe\CvExeBuild.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="Exe\CvExeSymbols.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="CvDllGameAsynch.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -806,6 +815,10 @@
     <ClInclude Include="CvDLLFAStarIFaceBase.h" />
     <ClInclude Include="CvDllFeatureInfo.h" />
     <ClInclude Include="CvDllGame.h" />
+    <ClInclude Include="Exe\CvExeAddresses.h" />
+    <ClInclude Include="Exe\CvExeApi.h" />
+    <ClInclude Include="Exe\CvExeBuild.h" />
+    <ClInclude Include="Exe\CvExeSymbols.h" />
     <ClInclude Include="CvDllGameAsynch.h" />
     <ClInclude Include="CvDllGameDeals.h" />
     <ClInclude Include="CvDllGameOptionInfo.h" />
