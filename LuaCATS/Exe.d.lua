@@ -15,6 +15,7 @@ Exe = {}
 --- | "unsupported_exe"  # unknown EXE, or an address did not verify
 --- | "not_network_game" # only in network multiplayer
 --- | "not_host"         # only on the host
+--- | "unavailable"      # supported, but the engine object is not there now
 
 --- The running EXE.
 --- @return "DX11"|"DX9"|"Tablet"|"Unknown"
@@ -30,3 +31,15 @@ function Exe.CanScheduleResync() end
 --- @return boolean ok
 --- @return ExeRefusal? reason
 function Exe.TryScheduleResync() end
+
+--- Whether TryDisableEngineYieldIconManager would work now.
+--- @return boolean ok
+--- @return ExeRefusal? reason
+function Exe.CanDisableEngineYieldIconManager() end
+
+--- Unsubscribes the engine's C++ YieldIconManager from its events, so it
+--- stops tracking the camera and emitting Events.ShowHexYield. Safe to call
+--- more than once.
+--- @return boolean ok
+--- @return ExeRefusal? reason
+function Exe.TryDisableEngineYieldIconManager() end
