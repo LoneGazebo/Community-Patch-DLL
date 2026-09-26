@@ -17,12 +17,22 @@ const char* const REASON_NAMES[Exe::NUM_REASONS] =
 	"unsupported_exe",
 	"not_network_game",
 	"not_host",
+	"unavailable",
 };
 
 // The symbols each feature uses
 const ExeSymbol RESYNC_SYMBOLS[] =
 {
 	EXE_NetMessage_WantForceResync,
+};
+
+const ExeSymbol YIELD_ICON_MANAGER_SYMBOLS[] =
+{
+	EXE_InterfaceBuddy_UserInterface,
+	EXE_InterfaceBuddy_vftable,
+	EXE_InterfaceBuddy_UserInterface_vftable,
+	EXE_InterfaceBuddy_YieldIconManager,
+	EXE_YieldIconManager_UnregisterForEvents,
 };
 
 bool HasSymbols(const ExeSymbol* aSymbols, unsigned int uiCount)
@@ -47,6 +57,45 @@ Exe::Reason Refuse(const char* szWhat, Exe::Reason eReason)
 	);
 
 	return eReason;
+}
+
+DWORD ReadVftable(DWORD dwObject)
+{
+	const DWORD* p = reinterpret_cast<const DWORD*>(dwObject);
+
+	return !IsBadReadPtr(p, sizeof(DWORD)) ? *p : 0;
+}
+
+//! Engine's InterfaceBuddy, found from GC.GetEngineUserInterface(), or
+//! NULL if the memory there does not match one.
+void* FindInterfaceBuddy()
+{
+	const DWORD dwUI = reinterpret_cast<DWORD>(GC.GetEngineUserInterface());
+
+	if (dwUI == 0)
+	{
+		return NULL;
+	}
+
+	const DWORD dwBuddy = dwUI - ExeApi::InterfaceBuddy_UserInterface();
+	const DWORD dwVftable = ReadVftable(dwBuddy);
+	const DWORD dwUIVftable = ReadVftable(dwUI);
+
+	if (
+		dwVftable != ExeApi::InterfaceBuddy_vftable()
+		|| dwUIVftable != ExeApi::InterfaceBuddy_UserInterface_vftable()
+	)
+	{
+		CUSTOMLOG(
+			"Exe: %08X is not an InterfaceBuddy (vftables %08X / %08X)",
+			(unsigned int)dwUI,
+			(unsigned int)dwVftable,
+			(unsigned int)dwUIVftable
+		);
+		return NULL;
+	}
+
+	return reinterpret_cast<void*>(dwBuddy);
 }
 } // namespace
 
@@ -113,6 +162,60 @@ Exe::Reason Exe::TryScheduleResync()
 		GetLocalizedText("TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED"),
 		CHATTARGET_ALL,
 		NO_PLAYER
+	);
+
+	return REASON_OK;
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanDisableEngineYieldIconManager()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (
+		!HasSymbols(
+			YIELD_ICON_MANAGER_SYMBOLS,
+			_countof(YIELD_ICON_MANAGER_SYMBOLS)
+		)
+	)
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	if (GC.GetEngineUserInterface() == NULL)
+	{
+		return REASON_UNAVAILABLE;
+	}
+
+	return REASON_OK;
+}
+
+Exe::Reason Exe::TryDisableEngineYieldIconManager()
+{
+	const Reason eReason = CanDisableEngineYieldIconManager();
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryDisableEngineYieldIconManager", eReason);
+	}
+
+	void* pBuddy = FindInterfaceBuddy();
+
+	if (pBuddy == NULL)
+	{
+		return Refuse("TryDisableEngineYieldIconManager", REASON_UNAVAILABLE);
+	}
+
+	void* pManager = static_cast<BYTE*>(pBuddy)
+		+ ExeApi::InterfaceBuddy_YieldIconManager();
+
+	ExeApi::YieldIconManager_UnregisterForEvents(pManager);
+
+	CUSTOMLOG("Exe: YieldIconManager_UnregisterForEvents done for %08X",
+		(unsigned int)reinterpret_cast<DWORD>(pManager)
 	);
 
 	return REASON_OK;
