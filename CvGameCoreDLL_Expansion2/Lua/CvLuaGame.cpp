@@ -500,9 +500,6 @@ void CvLuaGame::CreateFunctable(lua_State* L)
 	Method(IsHost);
 	Method(GetTimeStringForYear);
 
-	Method(SetExeWantForceResyncValue);
-	Method(IsExeWantForceResyncAvailable);
-
 	Method(GetNumYieldTypes);
 	Method(GetBaseUnitUpgradeCost);
 
@@ -4201,16 +4198,6 @@ int CvLuaGame::lGetTimeStringForYear(lua_State* L)
 
 	lua_pushstring(L, timeString.GetCString());
 	return 1;
-}
-int CvLuaGame::lSetExeWantForceResyncValue(lua_State* L)
-{
-	int value = lua_tointeger(L, 1);
-	GC.getGame().SetExeWantForceResyncValue(value);
-	return 0;
-}
-int CvLuaGame::lIsExeWantForceResyncAvailable(lua_State* L) 
-{
-	return BasicLuaMethod(L, &CvGame::IsExeWantForceResyncAvailable);
 }
 
 int CvLuaGame::lGetNumYieldTypes(lua_State* L) 
