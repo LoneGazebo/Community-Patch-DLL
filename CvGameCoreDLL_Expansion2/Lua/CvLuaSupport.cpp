@@ -30,6 +30,7 @@
 #include "CvLuaDeal.h"
 #include "CvLuaArea.h"
 #include "CvLuaLeague.h"
+#include "CvLuaExe.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
@@ -59,6 +60,7 @@ void LuaSupport::RegisterScriptData(lua_State* L)
 	CvLuaFractal::Register(L);
 	CvLuaMap::Register(L);
 	CvLuaGame::Register(L);
+	CvLuaExe::Register(L);
 
 	//Register Players and Teams - those instances already exist
 	CvLuaPlayer::Register(L);

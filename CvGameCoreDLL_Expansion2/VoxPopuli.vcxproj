@@ -308,6 +308,9 @@
     <ClCompile Include="CvDllGame.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Exe\CvExe.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="Exe\CvExeApi.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -717,6 +720,9 @@
     <ClCompile Include="Lua\CvLuaEnums.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Lua\CvLuaExe.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="Lua\CvLuaFractal.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -815,6 +821,7 @@
     <ClInclude Include="CvDLLFAStarIFaceBase.h" />
     <ClInclude Include="CvDllFeatureInfo.h" />
     <ClInclude Include="CvDllGame.h" />
+    <ClInclude Include="Exe\CvExe.h" />
     <ClInclude Include="Exe\CvExeAddresses.h" />
     <ClInclude Include="Exe\CvExeApi.h" />
     <ClInclude Include="Exe\CvExeBuild.h" />
@@ -944,6 +951,7 @@
     <ClInclude Include="Lua\CvLuaCity.h" />
     <ClInclude Include="Lua\CvLuaDeal.h" />
     <ClInclude Include="Lua\CvLuaEnums.h" />
+    <ClInclude Include="Lua\CvLuaExe.h" />
     <ClInclude Include="Lua\CvLuaFractal.h" />
     <ClInclude Include="Lua\CvLuaGame.h" />
     <ClInclude Include="Lua\CvLuaGameInfo.h" />
