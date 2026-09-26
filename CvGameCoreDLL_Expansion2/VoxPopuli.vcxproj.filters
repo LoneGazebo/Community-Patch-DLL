@@ -150,6 +150,9 @@
     <ClCompile Include="CvDllGame.cpp">
       <Filter>interface</Filter>
     </ClCompile>
+    <ClCompile Include="Exe\CvExe.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
     <ClCompile Include="Exe\CvExeApi.cpp">
       <Filter>interface</Filter>
     </ClCompile>
@@ -283,6 +286,9 @@
       <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="Lua\CvLuaEnums.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\CvLuaExe.cpp">
       <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="Lua\CvLuaFractal.cpp">
@@ -487,6 +493,9 @@
     <ClInclude Include="CvDllGame.h">
       <Filter>interface</Filter>
     </ClInclude>
+    <ClInclude Include="Exe\CvExe.h">
+      <Filter>interface</Filter>
+    </ClInclude>
     <ClInclude Include="Exe\CvExeAddresses.h">
       <Filter>interface</Filter>
     </ClInclude>
@@ -629,6 +638,9 @@
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="Lua\CvLuaEnums.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Lua\CvLuaExe.h">
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="Lua\CvLuaFractal.h">

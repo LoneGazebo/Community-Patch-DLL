@@ -20,6 +20,7 @@
 #include "CvLuaEnums.h"
 #include "CvLuaFractal.h"
 #include "CvLuaGameInfo.h"
+#include "CvLuaExe.h"
 #include "!CvLuaApiExec.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
@@ -222,6 +223,9 @@ namespace {
 		//Register statics - Game and Map
 		RegisterInterface<CvGame>(L);
 		RegisterInterface<CvMap>(L);
+		
+		//Register the Exe table for features that go through the game EXE
+		CvLuaExe::RegisterGlobals(L);
 		
 		//Register dynamic interface types
 		RegisterInterface<CvArea>(L);
