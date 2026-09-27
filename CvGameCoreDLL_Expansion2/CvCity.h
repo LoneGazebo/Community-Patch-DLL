@@ -442,7 +442,7 @@ public:
 	int GetPurchaseCost(UnitTypes eUnit);
 	int GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts);
 	int GetPurchaseCost(BuildingTypes eBuilding);
-	int GetFaithPurchaseCost(BuildingTypes eBuilding);
+	int GetFaithPurchaseCost(BuildingTypes eBuilding, bool bIgnoreDifficulty = false);
 	int GetPurchaseCost(ProjectTypes eProject);
 	int GetPurchaseCostFromProduction(int iProduction);
 
@@ -630,7 +630,7 @@ public:
 	void SetJONSCultureLevel(int iValue);
 	void ChangeJONSCultureLevel(int iChange);
 	void DoJONSCultureLevelIncrease();
-	int GetJONSCultureThreshold() const;
+	int GetJONSCultureThreshold(int iAssumeExtraLevel = 0) const;
 
 	int GetBaseYieldRateFromPolicies(YieldTypes eYield) const;
 	void ChangeBaseYieldRateFromPolicies(YieldTypes eYield, int iChange);
@@ -1025,8 +1025,8 @@ public:
 
 	int GetPostModifierYieldRateTimes100(const YieldTypes eYield, bool bIgnoreProcess, bool bIgnoreFoodConsumption, bool bAssumeFoodProduction, CvString* tooltipSink = NULL) const;
 
-	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, int iAssumeExtraModifier, bool bAssumeFoodProduction, bool bIgnoreFoodConsumption, bool bIgnoreGrowthMods, CvString* tooltipSink = NULL) const;
-	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade = false, bool bIgnoreProcess = false, bool bUseCachedValue = true, CvString* tooltipSink = NULL) const;
+	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreCurrentProduction, int iAssumeExtraModifier, bool bAssumeFoodProduction, bool bIgnoreFoodConsumption, bool bIgnoreGrowthMods, CvString* tooltipSink = NULL) const;
+	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade = false, bool bIgnoreCurrentProduction = false, bool bUseCachedValue = true, CvString* tooltipSink = NULL) const;
 
 	int getFoodPerTurnBeforeConsumptionTimes100(bool bIgnoreProcess = false) const;
 

@@ -410,7 +410,7 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RELIGION");
 					pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, iCityX, iCityY, eReligion, pkCity->GetID());
 				}
-				kPlayer.GetReligions()->SetFoundingReligion(true);
+				kPlayer.GetReligions()->SetFoundingReligionCityID(pkCity->GetID());
 			}
 		}
 	}
@@ -443,7 +443,7 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
 				pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, iCityX, iCityY, eReligion, pkCity->GetID());
 			}
-			kPlayer.GetReligions()->SetFoundingReligion(true);
+			kPlayer.GetReligions()->SetFoundingReligionCityID(pkCity->GetID());
 		}
 	}
 }
