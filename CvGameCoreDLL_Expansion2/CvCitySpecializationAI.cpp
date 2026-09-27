@@ -1119,7 +1119,8 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 	switch(eYield)
 	{
 	case YIELD_FOOD:
-		iRtnValue *= 100 / (100 - min(99, pCity->getMaxFoodKeptPercent()));
+		iRtnValue *= 100;
+		iRtnValue /= (100 - min(99, pCity->getMaxFoodKeptPercent()));
 		break;
 
 	case YIELD_PRODUCTION:
