@@ -6513,22 +6513,18 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 				if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
 					continue;
 
+				// Ignore capitals we already have
 				PlayerTypes eCapitalOwner = pCapitalPlot->getPlotCity()->GetOwnerForDominationVictory();
+				if (GET_PLAYER(ePlayer).getTeam() == GET_PLAYER(eCapitalOwner).getTeam())
+					continue;
 
 				// Not already at war?
 				if (!GET_PLAYER(eCapitalOwner).IsAtWarWith(ePlayer))
-				{
 					return false;
-				}
 
 				// Already at war, but making peace with this player would block us from achieving Domination Victory?
-				if (eMakePeacePlayer != NO_PLAYER)
-				{
-					if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
-					{
-						return false;
-					}
-				}
+				if (eMakePeacePlayer != NO_PLAYER && GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+					return false;
 			}
 		}
 	}
@@ -6567,7 +6563,10 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 				if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
 					continue;
 
+				// Ignore capitals we already have
 				PlayerTypes eCapitalOwner = pCapitalPlot->getPlotCity()->GetOwnerForDominationVictory();
+				if (GET_PLAYER(ePlayer).getTeam() == GET_PLAYER(eCapitalOwner).getTeam())
+					continue;
 
 				// It's only humans we can't make peace with ...
 				if (!GET_PLAYER(eCapitalOwner).isHuman(ISHUMAN_MECHANICS))
@@ -6575,18 +6574,11 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 
 				// Not already at war?
 				if (!GET_PLAYER(eCapitalOwner).IsAtWarWith(ePlayer))
-				{
 					return false;
-				}
 
 				// Already at war, but making peace with this player would block us from achieving Domination Victory?
-				if (eMakePeacePlayer != NO_PLAYER)
-				{
-					if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
-					{
-						return false;
-					}
-				}
+				if (eMakePeacePlayer != NO_PLAYER && GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+					return false;
 			}
 		}
 	}
