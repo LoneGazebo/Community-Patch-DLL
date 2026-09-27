@@ -68,14 +68,14 @@
 	<Table name="Trait_FeatureYieldChanges">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="FeatureType" type="text" reference="Features(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Yields on specified resources -->
 	<Table name="Trait_ResourceYieldChanges">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Yield change on specified resources when empire enters a golden age. Increased yields cap at YieldCap if not NULL. -->
@@ -83,14 +83,14 @@
 	<Table name="Trait_ResourceYieldChangesFromGoldenAge">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 		<Column name="YieldCap" type="integer"/>
 	</Table>
 	<!-- Yields on all luxury resources -->
 	<Table name="Trait_LuxuryYieldChanges">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Yields on capital tile -->
@@ -122,13 +122,13 @@
 	<Table name="Trait_BuildingClassYieldChanges">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="YieldChange" type="integer" notnull="true"/>
 	</Table>
 	<!-- Yields to world wonders -->
 	<Table name="Trait_YieldChangeWorldWonder">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
@@ -168,7 +168,7 @@
 	<Table name="Trait_TradeRouteYieldChange">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="DomainType" type="text" reference="Domains(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
@@ -188,7 +188,7 @@
 	<!-- Yields in cities connected to capital, and in capital after second city is founded, scaling with era -->
 	<Table name="Trait_YieldChangeTradeRoute">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Yields in capital per CS ally (not friends) -->
@@ -228,7 +228,7 @@
 	<Table name="Trait_CityYieldFromUnimprovedFeature">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
 		<Column name="FeatureType" type="text" reference="Features(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Yields per unique exported luxury -->
@@ -247,7 +247,7 @@
 	<!-- Yield modifier in every city during golden ages, or an ALWAYS ON GROWTH modifier if YIELD_FOOD is specified -->
 	<Table name="Trait_GoldenAgeYieldModifiers">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
@@ -386,13 +386,13 @@
 	<!-- Instant yields to capital on bullying CS, scaling with the amount of gold tributed -->
 	<Table name="Trait_YieldFromMinorDemand">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 	<!-- Instant yields to capital on connecting a luxury resource for the first time -->
 	<Table name="Trait_YieldFromLuxuryResourceGain">
 		<Column name="TraitType" type="text" reference="Traits(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
