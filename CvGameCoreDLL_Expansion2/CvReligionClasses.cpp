@@ -79,6 +79,20 @@ static void LogReligionChoice(PlayerTypes ePlayer, const char* szAction, BeliefT
 		.execute();
 }
  
+static CvString GetBeliefNotificationText(BeliefTypes eBelief)
+{
+	if (eBelief == NO_BELIEF)
+		return "";
+
+	CvBeliefEntry* pBelief = GC.getBeliefInfo(eBelief);
+	if (!pBelief)
+		return "";
+
+	Localization::String beliefText = Localization::Lookup("TXT_KEY_RELIGION_BELIEF_DESCRIPTION");
+	beliefText << pBelief->getShortDescription() << pBelief->GetDescriptionKey();
+	return beliefText.toUTF8();
+}
+ 
 //======================================================================================================
 //					CvReligionEntry
 //======================================================================================================
@@ -1181,7 +1195,8 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 		//Add replay message.
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_S");
 		Localization::String replayText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED");
-		replayText << kPlayer.getCivilizationShortDescriptionKey() << pBelief->getShortDescription() << pBelief->GetDescriptionKey();
+		CvString strBelief = GetBeliefNotificationText(eBelief);
+		replayText << kPlayer.getCivilizationShortDescriptionKey() << strBelief;
 
 		kGame.addReplayMessage(REPLAY_MESSAGE_PANTHEON_FOUNDED, newReligion.m_eFounder, replayText.toUTF8());
 
@@ -1195,7 +1210,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 				if(newReligion.m_eFounder == eNotifyPlayer)
 				{
 					Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER");
-					localizedText << pBelief->getShortDescription() << pBelief->GetDescriptionKey();
+					localizedText << strBelief;
 					pNotifications->Add(NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, RELIGION_PANTHEON, -1);
 				}
 				else
@@ -1209,7 +1224,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 					else
 					{
 						Localization::String unknownFoundedText = Localization::Lookup("TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_UNKNOWN");
-						unknownFoundedText << pBelief->getShortDescription() << pBelief->GetDescriptionKey();
+						unknownFoundedText << strBelief;
 						pNotifications->Add(NOTIFICATION_PANTHEON_FOUNDED, unknownFoundedText.toUTF8(), strSummary.toUTF8(), -1, -1, RELIGION_PANTHEON, -1);
 					}
 				}
@@ -1283,6 +1298,12 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	{
 		kReligion.m_Beliefs.AddBelief(eBelief4, ePlayer);
 	}
+
+	CvString strBeliefs;
+	strBeliefs += GetBeliefNotificationText(eBelief1);
+	strBeliefs += GetBeliefNotificationText(eBelief2);
+	strBeliefs += GetBeliefNotificationText(eBelief3);
+	strBeliefs += GetBeliefNotificationText(eBelief4);
 
 	if(szCustomName != NULL && strlen(szCustomName) <= sizeof(kReligion.m_szCustomName))
 	{
@@ -1388,7 +1409,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 		CvString szReligionName = kReligion.GetName();
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_S");
 		Localization::String replayText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED");
-		replayText << kPlayer.getCivilizationShortDescriptionKey() << szReligionName << pkHolyCity->getNameKey();
+		replayText << kPlayer.getCivilizationShortDescriptionKey() << szReligionName << pkHolyCity->getNameKey() << strBeliefs;
 
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_RELIGION_FOUNDED, kReligion.m_eFounder, replayText.toUTF8(), kReligion.m_iHolyCityX, kReligion.m_iHolyCityY);
 
@@ -1408,7 +1429,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 					if(kReligion.m_eFounder == eNotifyPlayer)
 					{
 						Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER");
-						localizedText << szReligionName << pkHolyCity->getNameKey();
+						localizedText << szReligionName << pkHolyCity->getNameKey() << strBeliefs;
 						pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
 					}
 					else
@@ -1422,7 +1443,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 						else
 						{
 							Localization::String unknownCivText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_UNKNOWN");
-							unknownCivText << szReligionName;
+							unknownCivText << szReligionName << strBeliefs;
 							pNotifications->Add(NOTIFICATION_RELIGION_FOUNDED, unknownCivText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
 						}
 					}
@@ -1583,6 +1604,9 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 	if (eBelief2 != NO_BELIEF)
 		it->m_Beliefs.AddBelief(eBelief2, ePlayer);
 
+	CvString strBeliefs = GetBeliefNotificationText(eBelief1);
+	strBeliefs += GetBeliefNotificationText(eBelief2);
+
 	if (eReligion != RELIGION_PANTHEON && bSetAsEnhanced)
 		it->m_bEnhanced = true;
 
@@ -1634,7 +1658,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 				{
 					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_S");
 					notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED");
-					notificationText << kPlayer.getCivilizationShortDescriptionKey() << it->GetName();
+					notificationText << kPlayer.getCivilizationShortDescriptionKey() << it->GetName() << strBeliefs;
 				}
 
 				// Message slightly different for enhancing player
@@ -1648,7 +1672,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 					else
 					{
 						localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER");
-						localizedText << it->GetName();
+						localizedText << it->GetName() << strBeliefs;
 					}
 
 					pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
@@ -1670,7 +1694,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 						else
 						{
 							unknownText = Localization::Lookup("TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_UNKNOWN");
-							unknownText << it->GetName();
+							unknownText << it->GetName() << strBeliefs;
 						}
 
 						pNotifications->Add(NOTIFICATION_RELIGION_ENHANCED, unknownText.toUTF8(), strSummary.toUTF8(), -1, -1, eReligion, -1);
@@ -1770,6 +1794,8 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 	it->m_Beliefs.AddBelief(eBelief1, ePlayer);
 	kPlayer.GetPlayerTraits()->InitPlayerTraits();
 
+	CvString strBelief = GetBeliefNotificationText(eBelief1);
+
 	it->m_bReformed = true;
 
 	// Update game systems
@@ -1789,13 +1815,13 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 		{
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED_S");
 			Localization::String notificationText = Localization::Lookup("TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED");
-			notificationText << kPlayer.getCivilizationShortDescriptionKey() << it->GetName();
+			notificationText << kPlayer.getCivilizationShortDescriptionKey() << it->GetName() << strBelief;
 
 			// Message slightly different for reformation player
 			if (ePlayer == eNotifyPlayer)
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED_ACTIVE_PLAYER");
-				localizedText << it->GetName();
+				localizedText << it->GetName() << strBelief;
 
 				pNotifications->Add(NOTIFICATION_REFORMATION_BELIEF_ADDED_ACTIVE_PLAYER, localizedText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
@@ -1809,7 +1835,7 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 				else
 				{
 					Localization::String unknownText = Localization::Lookup("TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED_UNKNOWN");
-					unknownText << it->GetName();
+					unknownText << it->GetName() << strBelief;
 
 					pNotifications->Add(NOTIFICATION_REFORMATION_BELIEF_ADDED, unknownText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 				}
