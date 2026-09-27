@@ -356,8 +356,16 @@ struct PrNodeIsBetter
 	//greater than is intended! the lowest cost should be first
 	bool operator()(const CvAStarNode* lhs, const CvAStarNode* rhs) const
 	{ 
-		//apparently there's a rule, when total cost is equal, prefer lower h (heuristic cost)
-		return lhs->m_iTotalCost > rhs->m_iTotalCost || (lhs->m_iTotalCost == rhs->m_iTotalCost && lhs->m_iHeuristicCost > rhs->m_iHeuristicCost); 
+		if (lhs->m_iTotalCost != rhs->m_iTotalCost)
+			return lhs->m_iTotalCost > rhs->m_iTotalCost;
+		if (lhs->m_iHeuristicCost != rhs->m_iHeuristicCost)
+			return lhs->m_iHeuristicCost > rhs->m_iHeuristicCost;
+		// Break cost ties by plot order, then prefer the normal layer to a stop node.
+		if (lhs->m_iY != rhs->m_iY)
+			return lhs->m_iY > rhs->m_iY;
+		if (lhs->m_iX != rhs->m_iX)
+			return lhs->m_iX > rhs->m_iX;
+		return lhs->m_bIsStopNode > rhs->m_bIsStopNode;
 	}
 };
 
