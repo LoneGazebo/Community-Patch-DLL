@@ -40,7 +40,7 @@ void CvLuaExe::RegisterGlobals(lua_State* L)
 	if (lua_isnil(L, -1))
 	{
 		lua_pop(L, 1);
-		lua_createtable(L, 0, 5);
+		lua_createtable(L, 0, 7);
 		lua_pushvalue(L, -1);
 		lua_setglobal(L, "Exe");
 	}
@@ -59,6 +59,12 @@ void CvLuaExe::RegisterGlobals(lua_State* L)
 
 	lua_pushcclosure(L, lTryDisableEngineYieldIconManager, 0);
 	lua_setfield(L, -2, "TryDisableEngineYieldIconManager");
+
+	lua_pushcclosure(L, lCanEnableTunerInMultiplayer, 0);
+	lua_setfield(L, -2, "CanEnableTunerInMultiplayer");
+
+	lua_pushcclosure(L, lTryEnableTunerInMultiplayer, 0);
+	lua_setfield(L, -2, "TryEnableTunerInMultiplayer");
 
 	lua_pop(L, 1);
 }
@@ -88,4 +94,14 @@ int CvLuaExe::lCanDisableEngineYieldIconManager(lua_State* L)
 int CvLuaExe::lTryDisableEngineYieldIconManager(lua_State* L)
 {
 	return PushResultFromUIThread(L, Exe::TryDisableEngineYieldIconManager);
+}
+
+int CvLuaExe::lCanEnableTunerInMultiplayer(lua_State* L)
+{
+	return PushResultFromUIThread(L, Exe::CanEnableTunerInMultiplayer);
+}
+
+int CvLuaExe::lTryEnableTunerInMultiplayer(lua_State* L)
+{
+	return PushResultFromUIThread(L, Exe::TryEnableTunerInMultiplayer);
 }
