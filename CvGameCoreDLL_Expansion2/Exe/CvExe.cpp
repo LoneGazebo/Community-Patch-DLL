@@ -22,6 +22,9 @@ const char* const REASON_NAMES[Exe::NUM_REASONS] =
 	"unavailable",
 	"not_ui_thread",
 	"wrong_event_channel",
+	"not_multiplayer",
+	"tuner_off",
+	"already_enabled",
 };
 
 // The symbols each feature uses
@@ -38,6 +41,15 @@ const ExeSymbol YIELD_ICON_MANAGER_SYMBOLS[] =
 	EXE_InterfaceBuddy_YieldIconManager,
 	EXE_YieldIconManager_UnregisterForEvents,
 	EXE_g_EventSystemLocalMachine,
+};
+
+const ExeSymbol TUNER_SYMBOLS[] =
+{
+	EXE_cvLuaScriptSystem_ms_apSingletonInstance,
+	EXE_cvLuaScriptSystem_TunerListener,
+	EXE_cvTunerListener_ExitingMultiplayerStagingRoom,
+	EXE_cvTunerListener_ListenSocket,
+	EXE_g_bEnableTuner,
 };
 
 bool HasSymbols(const ExeSymbol* aSymbols, unsigned int uiCount)
@@ -138,6 +150,42 @@ void* FindInterfaceBuddy()
 	}
 
 	return reinterpret_cast<void*>(dwBuddy);
+}
+
+//! The engine's cvTunerListener, or NULL before the engine creates it.
+BYTE* FindTunerListener()
+{
+	void* pSingleton = *ExeApi::cvLuaScriptSystem_ms_apSingletonInstance();
+
+	if (pSingleton == NULL)
+	{
+		return NULL;
+	}
+
+	return static_cast<BYTE*>(pSingleton)
+		+ ExeApi::cvLuaScriptSystem_TunerListener();
+}
+
+bool IsTunerListening(const BYTE* pListener)
+{
+	const DWORD dwSocket = *reinterpret_cast<const DWORD*>(
+		pListener + ExeApi::cvTunerListener_ListenSocket()
+	);
+
+	return dwSocket != 0;
+}
+
+bool s_bTunerAnnouncePending = false;
+
+void AnnounceTuner()
+{
+	s_bTunerAnnouncePending = false;
+
+	GC.getDLLIFace()->sendChat(
+		GetLocalizedText("TXT_KEY_VP_MP_WARNING_FIRETUNER_ENABLED"),
+		CHATTARGET_ALL,
+		NO_PLAYER
+	);
 }
 } // namespace
 
@@ -268,4 +316,94 @@ Exe::Reason Exe::TryDisableEngineYieldIconManager()
 	);
 
 	return REASON_OK;
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanEnableTunerInMultiplayer()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(TUNER_SYMBOLS, _countof(TUNER_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	if (!GC.getGame().isGameMultiPlayer())
+	{
+		return REASON_NOT_MULTIPLAYER;
+	}
+
+	if (*ExeApi::g_bEnableTuner() == 0)
+	{
+		return REASON_TUNER_OFF;
+	}
+
+	const BYTE* pListener = FindTunerListener();
+
+	if (pListener == NULL)
+	{
+		return REASON_UNAVAILABLE;
+	}
+
+	if (IsTunerListening(pListener))
+	{
+		return REASON_ALREADY_ENABLED;
+	}
+
+	return REASON_OK;
+}
+
+Exe::Reason Exe::TryEnableTunerInMultiplayer()
+{
+	const Reason eReason = CanEnableTunerInMultiplayer();
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryEnableTunerInMultiplayer", eReason);
+	}
+
+	BYTE* pListener = FindTunerListener();
+
+	if (!ExeApi::cvTunerListener_ExitingMultiplayerStagingRoom(pListener))
+	{
+		CUSTOMLOG("Exe: the tuner could not bind or listen on its port");
+
+		return Refuse("TryEnableTunerInMultiplayer", REASON_UNAVAILABLE);
+	}
+
+	if (!IsTunerListening(pListener))
+	{
+		return Refuse("TryEnableTunerInMultiplayer", REASON_UNAVAILABLE);
+	}
+
+	CUSTOMLOG("Exe: tuner listener %08X reopened",
+		(unsigned int)reinterpret_cast<DWORD>(pListener)
+	);
+
+	AnnounceTuner();
+
+	return REASON_OK;
+}
+
+void Exe::OnGameLoaded()
+{
+	s_bTunerAnnouncePending = true;
+}
+
+void Exe::AnnounceTunerAfterLoad()
+{
+	if (!s_bTunerAnnouncePending)
+	{
+		return;
+	}
+
+	s_bTunerAnnouncePending = false;
+
+	if (CanEnableTunerInMultiplayer() == REASON_ALREADY_ENABLED)
+	{
+		AnnounceTuner();
+	}
 }
