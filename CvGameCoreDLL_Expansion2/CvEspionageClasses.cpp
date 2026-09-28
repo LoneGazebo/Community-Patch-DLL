@@ -2917,7 +2917,6 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	pCityEspionage->ResetPassiveBonuses(ePlayer);
 
 	pSpy->SetTurnCounterspyMissionChanged(0);
-	pSpy->SetTurnActiveMissionConducted(0);
 
 	if (bHadSurveillance)
 	{
