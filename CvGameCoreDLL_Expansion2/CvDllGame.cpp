@@ -17,6 +17,7 @@
 #include "CvDllCity.h"
 
 #include "CvGameTextMgr.h"
+#include "Exe/CvExe.h"
 
 CvDllGame::CvDllGame(CvGame* pGame)
 	: m_uiRefCount(1)
@@ -491,6 +492,7 @@ void CvDllGame::UnitIsMoving()
 //------------------------------------------------------------------------------
 void CvDllGame::Update()
 {
+	Exe::AnnounceTunerAfterLoad();
 	m_pGame->update();
 }
 //------------------------------------------------------------------------------
@@ -507,6 +509,7 @@ void CvDllGame::UpdateTestEndTurn()
 void CvDllGame::Read(FDataStream& kStream)
 {
 	m_pGame->Read(kStream);
+	Exe::OnGameLoaded();
 }
 //------------------------------------------------------------------------------
 void CvDllGame::Write(FDataStream& kStream) const

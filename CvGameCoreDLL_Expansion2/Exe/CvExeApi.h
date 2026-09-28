@@ -24,6 +24,18 @@ namespace ExeApi
 	// ---- NetMessage: the RNG sync check polls and clears this, then
 	// broadcasts a force-resync
 	volatile BYTE* NetMessage_WantForceResync();
+
+	// ---- Singleton: holds the cvTunerListener at +Singleton_TunerListener
+	void** Singleton_Instance();
+	DWORD Singleton_TunerListener();
+
+	// ---- TunerListener: the FireTuner server. Entering a multiplayer game
+	// drops its listen socket; ExitingMultiplayerStagingRoom reopens it on
+	// port 4318 if Tuner_Enabled is set and no socket is open. False if the
+	// port could not be opened.
+	bool TunerListener_ExitingMultiplayerStagingRoom(void* pThis);
+	DWORD TunerListener_ListenSocket();
+	const volatile BYTE* Tuner_Enabled();
 }
 
 #endif // CV_EXE_API_H

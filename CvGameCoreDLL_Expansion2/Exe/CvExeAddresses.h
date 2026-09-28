@@ -102,6 +102,48 @@ EXE_SYMBOL(
 	"A1 ?? ?? ?? ?? 89 2D ?? ?? ?? ?? 89 1D ?? ?? ?? ?? 88 1D"
 )
 
+// ms_apSingletonInstance: the object holding the cvTunerListener
+EXE_SYMBOL(
+	Singleton_Instance,
+	EXE_DATA, 0x02dd207c, 0x02dc1e7c, 0x02dd4064,
+	NULL
+)
+
+EXE_SYMBOL(
+	Singleton_TunerListener,
+	EXE_OFFSET, 0x00000004, 0x00000004, 0x00000004,
+	NULL
+)
+
+// A Lua Matchmaking host function disabling the tuner on entry
+EXE_SYMBOL(
+	LuaMatchmaking_Host_DisableTuner,
+	EXE_CODE, 0x007933f3, 0x004b2d63, 0x0051f4a3,
+	"8B 0D ?? ?? ?? ?? 53 55 56 57 83 C1 04 E8"
+)
+
+// Signature covers the whole function
+EXE_SYMBOL(
+	TunerListener_ExitingMultiplayerStagingRoom,
+	EXE_FUNCTION, 0x00700650, 0x006622b0, 0x00622240,
+	"83 EC 10 80 3D ?? ?? ?? ?? 00 56 ?? ?? 74 2C 83 7E 20 00 75 26"
+	" ?? ?? 50 8D 4C 24 08 E8 ?? ?? ?? ?? 68 DE 10 00 00 8D 44 24 08 50"
+	" ?? ?? E8 ?? ?? ?? ?? 8D 4C 24 04 E8 ?? ?? ?? ?? 5E 83 C4 10 C3"
+)
+
+EXE_SYMBOL(
+	TunerListener_ListenSocket,
+	EXE_OFFSET, 0x00000020, 0x00000020, 0x00000020,
+	NULL
+)
+
+// g_bEnableTuner, config.ini EnableTuner
+EXE_SYMBOL(
+	Tuner_Enabled,
+	EXE_DATA, 0x00cc8e7a, 0x00cb8cfa, 0x00cca8f6,
+	NULL
+)
+
 #endif
 
 #ifdef EXE_CHECK
@@ -147,6 +189,34 @@ EXE_CHECK(
 	ResetNetMessageStatics_ClearWantForceResync,
 	0x13,
 	NetMessage_WantForceResync
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	LuaMatchmaking_Host_DisableTuner,
+	0x02,
+	Singleton_Instance
+)
+
+EXE_CHECK(
+	EXE_VAL8,
+	LuaMatchmaking_Host_DisableTuner,
+	0x0C,
+	Singleton_TunerListener
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	TunerListener_ExitingMultiplayerStagingRoom,
+	0x05,
+	Tuner_Enabled
+)
+
+EXE_CHECK(
+	EXE_VAL8,
+	TunerListener_ExitingMultiplayerStagingRoom,
+	0x11,
+	TunerListener_ListenSocket
 )
 
 #endif

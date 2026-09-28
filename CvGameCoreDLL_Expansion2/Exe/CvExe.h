@@ -14,6 +14,9 @@ namespace Exe
 		REASON_NOT_NETWORK_GAME,
 		REASON_NOT_HOST,
 		REASON_UNAVAILABLE,
+		REASON_NOT_MULTIPLAYER,
+		REASON_TUNER_OFF,
+		REASON_ALREADY_ENABLED,
 		NUM_REASONS
 	};
 
@@ -27,6 +30,14 @@ namespace Exe
 
 	Reason CanDisableEngineYieldIconManager();
 	Reason TryDisableEngineYieldIconManager();
+
+	Reason CanEnableTunerInMultiplayer();
+	Reason TryEnableTunerInMultiplayer();
+
+	//! A resync reloads the game but keeps the tuner open: after a load,
+	//! the next AnnounceTunerAfterLoad repeats the chat announcement.
+	void OnGameLoaded();
+	void AnnounceTunerAfterLoad();
 }
 
 #endif // CV_EXE_H

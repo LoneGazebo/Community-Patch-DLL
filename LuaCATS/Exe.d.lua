@@ -16,6 +16,9 @@ Exe = {}
 --- | "not_network_game" # only in network multiplayer
 --- | "not_host"         # only on the host
 --- | "unavailable"      # supported, but the engine object is not there now
+--- | "not_multiplayer"  # only in multiplayer (network or hot seat)
+--- | "tuner_off"        # config.ini has EnableTuner = 0
+--- | "already_enabled"  # already done
 
 --- The running EXE.
 --- @return "DX11"|"DX9"|"Tablet"|"Unknown"
@@ -43,3 +46,18 @@ function Exe.CanDisableEngineYieldIconManager() end
 --- @return boolean ok
 --- @return ExeRefusal? reason
 function Exe.TryDisableEngineYieldIconManager() end
+
+--- Whether TryEnableTunerInMultiplayer would work now. Needs
+--- EnableTuner = 1 in config.ini.
+--- @return boolean ok
+--- @return ExeRefusal? reason
+function Exe.CanEnableTunerInMultiplayer() end
+
+--- Reopens the FireTuner listener (port 4318), which the engine closes in
+--- multiplayer games, and announces it in chat, again after each resync.
+--- Call from UI Lua.
+--- Tuner Lua runs only on this machine: changing game state from it
+--- desyncs the game.
+--- @return boolean ok
+--- @return ExeRefusal? reason
+function Exe.TryEnableTunerInMultiplayer() end

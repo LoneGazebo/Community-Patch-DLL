@@ -2526,6 +2526,14 @@
 			<Text>Schedule a forced resync</Text>
 		</Row>
 
+		<!-- Enable FireTuner button -->
+		<Row Tag="TXT_KEY_MP_ENABLE_FIRETUNER_TITLE">
+			<Text>Enable FireTuner for this game on your machine.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MP_FIRETUNER_ALREADY_ENABLED">
+			<Text>FireTuner is already enabled on this machine.</Text>
+		</Row>
+
 		<!-- Economic overview -->
 		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
 			<Text>Buildings ({1_Num})</Text>

@@ -57,3 +57,50 @@ volatile BYTE* ExeApi::NetMessage_WantForceResync()
 		ExeSymbols::Get(EXE_NetMessage_WantForceResync)
 	);
 }
+
+//------------------------------------------------------------------------------
+void** ExeApi::Singleton_Instance()
+{
+	return reinterpret_cast<void**>(ExeSymbols::Get(EXE_Singleton_Instance));
+}
+
+DWORD ExeApi::Singleton_TunerListener()
+{
+	return ExeSymbols::Get(EXE_Singleton_TunerListener);
+}
+
+//------------------------------------------------------------------------------
+bool ExeApi::TunerListener_ExitingMultiplayerStagingRoom(void* pThis)
+{
+	const ExeSymbol eFunction = EXE_TunerListener_ExitingMultiplayerStagingRoom;
+
+	if (!ExeSymbols::IsResolved(eFunction))
+	{
+		return false;
+	}
+
+	// The EXE throws an int when the port cannot be bound or listened on;
+	// the listener is left without a listen socket then.
+	try
+	{
+		ThisCall<void>(eFunction, pThis);
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+DWORD ExeApi::TunerListener_ListenSocket()
+{
+	return ExeSymbols::Get(EXE_TunerListener_ListenSocket);
+}
+
+const volatile BYTE* ExeApi::Tuner_Enabled()
+{
+	return reinterpret_cast<const volatile BYTE*>(
+		ExeSymbols::Get(EXE_Tuner_Enabled)
+	);
+}
