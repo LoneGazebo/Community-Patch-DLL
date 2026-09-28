@@ -2924,13 +2924,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if (pOurDiploAI->IsUntrustworthy(eOtherPlayer))
 		return INT_MAX;
 
-	// Friendly towards Minor Civ?
 	CvDiplomacyAI* pDiploAI = kPlayerDeclaringWar.GetDiplomacyAI();
 	CivApproachTypes eMajorApproachTowardsWarPlayer = pDiploAI->GetCivApproach(eWithPlayer);
+	// There's no value in paying someone to declare on a minor
 	if (GET_PLAYER(eWithPlayer).isMinorCiv())
 	{
-		if (eMajorApproachTowardsWarPlayer == CIV_APPROACH_FRIENDLY)
-			return INT_MAX;
+		return INT_MAX;
 	}
 	// Afraid of Major Civ?
 	else if (GET_PLAYER(eWithPlayer).isMajorCiv())
