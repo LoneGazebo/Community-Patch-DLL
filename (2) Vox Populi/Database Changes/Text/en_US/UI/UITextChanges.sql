@@ -443,11 +443,11 @@ WHERE Tag = 'TXT_KEY_AT_WAR_WITH';
 -- City-State screen/tooltip
 ------------------------------------------------
 UPDATE Language_en_US
-SET Text = 'Diplomatic Missions'
+SET Text = 'Diplomatic Actions'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_GIFT_GOLD';
 
 UPDATE Language_en_US
-SET Text = 'You may initiate a Diplomatic Mission that can improve your [ICON_INFLUENCE] Influence with this City-State.'
+SET Text = 'You may initiate a Diplomatic Action, some of which can improve your [ICON_INFLUENCE] Influence with this City-State.'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_GIFT_GOLD_TT';
 
 UPDATE Language_en_US
