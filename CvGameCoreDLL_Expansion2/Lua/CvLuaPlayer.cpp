@@ -11256,7 +11256,7 @@ int CvLuaPlayer::lGetReplayData(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const map<CvString, CvPlayer::TurnData> replayData = pkPlayer->getReplayData();
+	const map<CvString, CvPlayer::TurnData>& replayData = pkPlayer->getReplayData();
 
 	lua_createtable(L, 0, replayData.size());
 	for(map<CvString, CvPlayer::TurnData>::const_iterator it=replayData.begin(); it!=replayData.end(); ++it)
