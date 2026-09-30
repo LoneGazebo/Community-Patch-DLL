@@ -52,7 +52,7 @@ void CvDangerPlots::Uninit()
 	m_ePlayer = NO_PLAYER;
 	m_bDirty = false;
 	m_iTurnBuilt = -1;
-	m_DangerPlots.clear();
+	vector<CvDangerPlotContents>().swap(m_DangerPlots);
 	m_knownUnits.clear();
 	m_vanishedUnits.clear();
 }

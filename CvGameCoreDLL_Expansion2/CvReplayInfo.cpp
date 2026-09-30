@@ -136,7 +136,7 @@ void CvReplayInfo::createInfo()
 
 			TurnDataSets dataSet(m_dataSetMap.size());
 
-			const map<CvString, CvPlayer::TurnData> replayData = player.getReplayData();
+			const map<CvString, CvPlayer::TurnData>& replayData = player.getReplayData();
 			for(map<CvString, CvPlayer::TurnData>::const_iterator it=replayData.begin(); it!=replayData.end(); ++it)
 			{
 				// First, Locate the index of the dataset

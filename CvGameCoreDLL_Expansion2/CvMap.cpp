@@ -805,6 +805,9 @@ void CvMap::uninit()
 	SAFE_DELETE_ARRAY(m_pYields);
 	SAFE_DELETE_ARRAY(m_pPlayerCityRadiusCount);
 	SAFE_DELETE_ARRAY(m_pVisibilityCount);
+	SAFE_DELETE_ARRAY(m_pVisibilityCountThisTurnMax);
+	SAFE_DELETE_ARRAY(m_pKnownVisibilityCount);
+	SAFE_DELETE_ARRAY(m_pHumanPlannedRouteState);
 	SAFE_DELETE_ARRAY(m_pRevealedOwner);
 	SAFE_DELETE_ARRAY(m_pRevealed);
 	SAFE_DELETE_ARRAY(m_pRevealedImprovementType);
