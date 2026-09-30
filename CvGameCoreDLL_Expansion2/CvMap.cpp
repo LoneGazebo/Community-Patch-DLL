@@ -3202,7 +3202,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 			if (m_vPlotsAtRange2[pPlot->GetPlotIndex()].empty())
 			{
 				//not found? update cache
-				for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
+				for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
 				{
 					CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
 					if (pLoopPlot)
