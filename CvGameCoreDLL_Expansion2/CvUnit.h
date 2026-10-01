@@ -1379,6 +1379,7 @@ public:
 	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false, bool bFromHuman = false, bool bStartingXP = false);
 
 	int getStartingExperienceTimes100() const;
+	void setStartingExperienceTimes100(int iValue);
 
 	int getLevel() const;
 	void setLevel(int iNewValue);
