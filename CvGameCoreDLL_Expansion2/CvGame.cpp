@@ -34,6 +34,7 @@
 #include "CvWorldBuilderMapLoader.h"
 #include "CvTypes.h"
 #include "SqliteLoggerRegistrations.h"
+#include "EngineQueueGuard.h"
 #include "CvDllNetMessageExt.h"
 
 #include "cvStopWatch.h"
@@ -1619,6 +1620,9 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
+	// One log line after a load that overfilled the EXE's UI message queue (see EngineQueueGuard.h).
+	EngineQueueGuard::ReportDrops();
+
 	if(IsWaitingForBlockingInput())
 	{
 		if(!GC.GetEngineUserInterface()->isDiploActive())
