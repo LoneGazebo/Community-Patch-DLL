@@ -940,7 +940,7 @@
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewAutomateText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewChatMessageText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewEnumText.xml</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Text\en_US\CoreGameOptionTextChanges.xml</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Text\en_US\CoreGameOptionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewGameOptionText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewReplayDataSetText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\AI\CoreNewDiplomacyResponseText.xml</UpdateDatabase>
