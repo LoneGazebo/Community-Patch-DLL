@@ -1644,7 +1644,7 @@ PopulateSelectionList = function(stackControl, playerID, city, spy)
 			-- Disable invalid choices
 			if(not city:IsCityEventChoiceValidEspionage(info.ID, iEventID, spy.AgentID, playerID)) then
 				local szDisabledString = "";
-				if (playerID == city:GetOwner()) then
+				if (playerID == city:GetOwner() and info.ID == spy.SpyFocus) then
 					szDisabledString = Locale.Lookup("TXT_KEY_EO_COUNTERSPY_CANNOT_CHANGE_ACTIVE_FOCUS_TT");
 				else
 					szDisabledString = city:GetDisabledTooltip(info.ID, spy.AgentID, playerID );
