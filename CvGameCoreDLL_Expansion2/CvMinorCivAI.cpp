@@ -15364,18 +15364,22 @@ void CvMinorCivAI::DoElection()
 
 				if (MOD_EVENTS_ESPIONAGE)
 				{
-					int iLoop = 0;
+					// Without a spy in the city, the influence loss is reported with spy ID -1
 					int iSpyID = -1;
-					for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+					if (apSpy[ui] != NULL)
 					{
-						CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-						iSpyID = pCityEspionage->GetSpyAssignment(ePlayer);
-						if (iSpyID != -1)
+						int iLoop = 0;
+						for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 						{
-							break;
+							CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+							iSpyID = pCityEspionage->GetSpyAssignment(ePlayer);
+							if (iSpyID != -1)
+							{
+								break;
+							}
 						}
+						ASSERT(iSpyID != -1, "Couldn't find a spy in any of the cities of the Minor Civ");
 					}
-					ASSERT(iSpyID != -1, "Couldn't find a spy in any of the cities of the Minor Civ");
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultFailure, (int)ePlayer, iSpyID, iDiminishAmount, pCapital->getX(), pCapital->getY());
 				}
 			}
