@@ -182,6 +182,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iQuestYieldModifier(0),
 
 	m_eFreeUnitPrereqTech(NO_TECH),
+	m_eCombatBonusImprovement(NO_IMPROVEMENT),
 	m_eFreeBuilding(NO_BUILDING),
 	m_eFreeCapitalBuilding(NO_BUILDING),
 	m_eFreeBuildingPrereqTech(NO_TECH),
@@ -5180,7 +5181,8 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_aFreeTraitUnits.push_back(traitUnit);
 			}
 
-			m_eCombatBonusImprovement = trait->GetCombatBonusImprovement();
+			if (trait->GetCombatBonusImprovement() != NO_IMPROVEMENT)
+				m_eCombatBonusImprovement = trait->GetCombatBonusImprovement();
 
 			int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
 			for(int jJ= 0; jJ < iNumUnitCombatClassInfos; jJ++)
