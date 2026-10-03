@@ -510,18 +510,44 @@ if( Game.IsGameMultiPlayer() ) then
 end
 
 function OnForceResyncButton()
-	Game.SetExeWantForceResyncValue(1);
+	local bOk, sReason = Exe.TryScheduleResync();
+	if not bOk then
+		print("Force resync refused: " .. tostring(sReason));
+	end
 	Controls.ForceResyncButton:SetDisabled(true);
 end
 Controls.ForceResyncButton:RegisterCallback(Mouse.eLClick, OnForceResyncButton);
 
 function UpdateForceResyncButton()
-	local bShowForceResync = Game.IsExeWantForceResyncAvailable();
+	local bShowForceResync = Exe.CanScheduleResync();
 	Controls.ForceResyncButton:SetHide( not bShowForceResync );
 	Controls.ForceResyncButton:SetDisabled(false);
 end
 GameEvents.PlayerDoTurn.Add(UpdateForceResyncButton);
 Events.MultiplayerGamePlayerUpdated.Add(UpdateForceResyncButton);
+
+function OnEnableTunerButton()
+	local bOk, sReason = Exe.TryEnableTunerInMultiplayer();
+	if not bOk then
+		print("Enable FireTuner refused: " .. tostring(sReason));
+	end
+	UpdateEnableTunerButton();
+end
+Controls.EnableTunerButton:RegisterCallback(Mouse.eLClick, OnEnableTunerButton);
+
+-- The engine closes the tuner while the game launches, so check again later
+function UpdateEnableTunerButton()
+	local bOk, sReason = Exe.CanEnableTunerInMultiplayer();
+	local bEnabled = sReason == "already_enabled";
+	local sToolTip = bEnabled
+		and "TXT_KEY_MP_FIRETUNER_ALREADY_ENABLED"
+		or "TXT_KEY_MP_ENABLE_FIRETUNER_TITLE";
+	Controls.EnableTunerButton:SetHide( not bOk and not bEnabled );
+	Controls.EnableTunerButton:SetDisabled( bEnabled );
+	Controls.EnableTunerButton:SetToolTipString( Locale.ConvertTextKey( sToolTip ) );
+end
+UpdateEnableTunerButton();
+Events.LoadScreenClose.Add(UpdateEnableTunerButton);
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

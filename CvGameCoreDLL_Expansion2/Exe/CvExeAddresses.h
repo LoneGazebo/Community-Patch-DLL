@@ -1,0 +1,222 @@
+/*	--------------------------------------------------------------------------
+	EXE addresses: everything the DLL uses in the game EXE, one column per
+	build. X-macro list, no include guard: only CvExeSymbols.h/.cpp include
+	it.
+
+	ExeBuild picks the column by the EXE's PE timestamp. On first use,
+	ExeSymbols moves each address to where the EXE is actually loaded,
+	compares its signature, runs the checks, and writes the result to
+	CustomMods.log. ExeApi must have one accessor per entry, with the same
+	name.
+
+	EXE_SYMBOL(name, kind, dx11, dx9, tablet, signature)
+	  kind       EXE_FUNCTION, EXE_CODE, EXE_DATA, EXE_VTABLE, or EXE_OFFSET
+	             (the columns then hold the offset)
+	  dx11..     VA at the preferred base 0x400000
+	  signature  bytes at the address ("83 EC ?? 56", ?? = any) or NULL.
+	             Wildcard relocated addresses and register-to-register
+	             instructions (mov esi,ecx is 8B F1 or 89 CE).
+
+	EXE_CHECK(kind, from, offset, to)
+	  EXE_ABS32  the dword at from+offset is the address of `to`
+	  EXE_REL32  the call/jmp at from+offset targets `to`
+	  EXE_VAL8   the byte at from+offset equals the offset `to`
+
+	An entry is used only if its signature matches, every check naming it
+	passes, and, without a signature, some verified entry vouches for it.
+
+	DRM: Steam CEG checks parts of .text and .rdata and may crash the game
+	if they change. Do not write to either unless it is proven that the DRM
+	does not rely on that part.
+	------------------------------------------------------------------------- */
+
+#ifdef EXE_SYMBOL
+// EXE_SYMBOL(name, kind, DX11, DX9, Tablet, signature)
+
+EXE_SYMBOL(
+	LoadCvGameCoreDLL_SetEngineUserInterface,
+	EXE_CODE, 0x0047ba70, 0x0072b7f0, 0x004cb690,
+	"8B 0D ?? ?? ?? ?? 8B 81 D0 00 00 00 ?? ?? 74 05 83"
+	" C0 04 EB 02 ?? ?? 8B 16 50 8B 82 34 02 00 00 56 FF D0"
+)
+
+EXE_SYMBOL(
+	InterfaceBuddy_UserInterface,
+	EXE_OFFSET, 0x00000004, 0x00000004, 0x00000004,
+	NULL
+)
+
+EXE_SYMBOL(
+	InterfaceBuddy_dtor,
+	EXE_FUNCTION, 0x006b74d0, 0x00472fc0, 0x0054d990,
+	"83 EC 10 53 55 56 ?? ?? C7 06 ?? ?? ?? ?? C7 46 04"
+)
+
+EXE_SYMBOL(
+	InterfaceBuddy_vftable,
+	EXE_VTABLE, 0x00a3fe78, 0x00a35198, 0x00a42f00,
+	NULL
+)
+
+EXE_SYMBOL(
+	InterfaceBuddy_UserInterface_vftable,
+	EXE_VTABLE, 0x00a04240, 0x00a00928, 0x009f3738,
+	NULL
+)
+
+EXE_SYMBOL(
+	InterfaceBuddy_dtor_UnregisterYieldIcons,
+	EXE_CODE, 0x006b76cb, 0x004731bb, 0x0054db8b,
+	"8D 4E 10 E8"
+)
+
+EXE_SYMBOL(
+	InterfaceBuddy_YieldIconManager,
+	EXE_OFFSET, 0x00000010, 0x00000010, 0x00000010,
+	NULL
+)
+
+// Signature covers the whole function
+EXE_SYMBOL(
+	YieldIconManager_UnregisterForEvents,
+	EXE_FUNCTION, 0x00711dc0, 0x0069dde0, 0x006bc7b0,
+	"83 EC 0C 56 8D 44 24 04 ?? ?? 50"
+	" C7 44 24 10 ?? ?? ?? ?? 89 74 24 0C E8 ?? ?? ?? ??"
+	" 8D 4C 24 08 51 C7 44 24 14 ?? ?? ?? ?? 89 74 24 10 E8 ?? ?? ?? ??"
+	" 8D 54 24 0C 52 C7 44 24 18 ?? ?? ?? ?? 89 74 24 14 E8 ?? ?? ?? ??"
+	" 8D 44 24 10 50 C7 44 24 1C ?? ?? ?? ?? 89 74 24 18 E8 ?? ?? ?? ??"
+	" 8D 4C 24 14 51 C7 44 24 20 ?? ?? ?? ?? 89 74 24 1C E8 ?? ?? ?? ??"
+	" 8D 54 24 18 52 C7 44 24 24 ?? ?? ?? ?? 89 74 24 20 E8 ?? ?? ?? ??"
+	" 83 C4 18 5E 83 C4 0C C3"
+)
+
+EXE_SYMBOL(
+	NetMessage_WantForceResync,
+	EXE_DATA, 0x02dd2f68, 0x02dc2d68, 0x02dd4f50,
+	NULL
+)
+
+EXE_SYMBOL(
+	ResetNetMessageStatics_ClearWantForceResync,
+	EXE_CODE, 0x00525bd3, 0x004e1193, 0x00781b73,
+	"A1 ?? ?? ?? ?? 89 2D ?? ?? ?? ?? 89 1D ?? ?? ?? ?? 88 1D"
+)
+
+// ms_apSingletonInstance: the object holding the cvTunerListener
+EXE_SYMBOL(
+	Singleton_Instance,
+	EXE_DATA, 0x02dd207c, 0x02dc1e7c, 0x02dd4064,
+	NULL
+)
+
+EXE_SYMBOL(
+	Singleton_TunerListener,
+	EXE_OFFSET, 0x00000004, 0x00000004, 0x00000004,
+	NULL
+)
+
+// A Lua Matchmaking host function disabling the tuner on entry
+EXE_SYMBOL(
+	LuaMatchmaking_Host_DisableTuner,
+	EXE_CODE, 0x007933f3, 0x004b2d63, 0x0051f4a3,
+	"8B 0D ?? ?? ?? ?? 53 55 56 57 83 C1 04 E8"
+)
+
+// Signature covers the whole function
+EXE_SYMBOL(
+	TunerListener_ExitingMultiplayerStagingRoom,
+	EXE_FUNCTION, 0x00700650, 0x006622b0, 0x00622240,
+	"83 EC 10 80 3D ?? ?? ?? ?? 00 56 ?? ?? 74 2C 83 7E 20 00 75 26"
+	" ?? ?? 50 8D 4C 24 08 E8 ?? ?? ?? ?? 68 DE 10 00 00 8D 44 24 08 50"
+	" ?? ?? E8 ?? ?? ?? ?? 8D 4C 24 04 E8 ?? ?? ?? ?? 5E 83 C4 10 C3"
+)
+
+EXE_SYMBOL(
+	TunerListener_ListenSocket,
+	EXE_OFFSET, 0x00000020, 0x00000020, 0x00000020,
+	NULL
+)
+
+// g_bEnableTuner, config.ini EnableTuner
+EXE_SYMBOL(
+	Tuner_Enabled,
+	EXE_DATA, 0x00cc8e7a, 0x00cb8cfa, 0x00cca8f6,
+	NULL
+)
+
+#endif
+
+#ifdef EXE_CHECK
+// EXE_CHECK(kind, from, offset, to)
+
+EXE_CHECK(
+	EXE_VAL8,
+	LoadCvGameCoreDLL_SetEngineUserInterface,
+	0x12,
+	InterfaceBuddy_UserInterface
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	InterfaceBuddy_dtor,
+	0x0A,
+	InterfaceBuddy_vftable
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	InterfaceBuddy_dtor,
+	0x11,
+	InterfaceBuddy_UserInterface_vftable
+)
+
+EXE_CHECK(
+	EXE_VAL8,
+	InterfaceBuddy_dtor_UnregisterYieldIcons,
+	0x02,
+	InterfaceBuddy_YieldIconManager
+)
+
+EXE_CHECK(
+	EXE_REL32,
+	InterfaceBuddy_dtor_UnregisterYieldIcons,
+	0x03,
+	YieldIconManager_UnregisterForEvents
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	ResetNetMessageStatics_ClearWantForceResync,
+	0x13,
+	NetMessage_WantForceResync
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	LuaMatchmaking_Host_DisableTuner,
+	0x02,
+	Singleton_Instance
+)
+
+EXE_CHECK(
+	EXE_VAL8,
+	LuaMatchmaking_Host_DisableTuner,
+	0x0C,
+	Singleton_TunerListener
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	TunerListener_ExitingMultiplayerStagingRoom,
+	0x05,
+	Tuner_Enabled
+)
+
+EXE_CHECK(
+	EXE_VAL8,
+	TunerListener_ExitingMultiplayerStagingRoom,
+	0x11,
+	TunerListener_ListenSocket
+)
+
+#endif
