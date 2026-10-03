@@ -48,6 +48,21 @@ namespace Exe
 		unsigned int& uiCapacity
 	);
 
+	//! "LocalMachineEventStream" in the engine's debug info. The low bit of
+	//! the swap counter picks the buffer being written.
+	struct LocalMachineEventStreamStats
+	{
+		DWORD dwSwapCounter;
+		DWORD adwPublishedSize[2];
+		DWORD dwBufferCapacity;
+		DWORD dwMaxPublishedSize;
+	};
+
+	//! Reads only, and does not log a refusal: it is called every frame.
+	Reason TryReadLocalMachineEventStreamStats(
+		LocalMachineEventStreamStats& kStats
+	);
+
 	Reason CanEnableTunerInMultiplayer();
 	Reason TryEnableTunerInMultiplayer();
 
