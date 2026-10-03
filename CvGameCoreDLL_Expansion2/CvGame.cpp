@@ -1623,6 +1623,8 @@ bool ExternalPause()
 void CvGame::update()
 {
 	g_ulTContainerCacheThread = GetCurrentThreadId(); // see TContainer::Get
+	UpdateDeferredLayout();
+
 	if(IsWaitingForBlockingInput())
 	{
 		if(!GC.GetEngineUserInterface()->isDiploActive())

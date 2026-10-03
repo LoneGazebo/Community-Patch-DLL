@@ -125,6 +125,68 @@ EXE_SYMBOL(
 	"A1 ?? ?? ?? ?? 89 2D ?? ?? ?? ?? 89 1D ?? ?? ?? ?? 88 1D"
 )
 
+// After g_EventSystemLocalMachine's handler tables comes one
+// LocalMachineContainer per channel. A container is a double buffer: each
+// buffer starts with a header whose first dword is the buffer's published
+// size, and records follow it. The low bit of the swap counter picks the
+// buffer being written. No writer checks the buffer size.
+EXE_SYMBOL(
+	g_EventSystemLocalMachine_Containers,
+	EXE_DATA, 0x01a0f080, 0x019fee80, 0x01a10b00,
+	NULL
+)
+
+// The first container's max published size
+EXE_SYMBOL(
+	g_EventSystemLocalMachine_MaxPublishedSize,
+	EXE_DATA, 0x0220f184, 0x021fef84, 0x02210c04,
+	NULL
+)
+
+EXE_SYMBOL(
+	LocalMachineContainer_Size,
+	EXE_OFFSET, 0x00800180, 0x00800180, 0x00800180,
+	NULL
+)
+
+EXE_SYMBOL(
+	LocalMachineContainer_BufferSize,
+	EXE_OFFSET, 0x00400080, 0x00400080, 0x00400080,
+	NULL
+)
+
+EXE_SYMBOL(
+	LocalMachineContainer_SwapCounter,
+	EXE_OFFSET, 0x00800100, 0x00800100, 0x00800100,
+	NULL
+)
+
+EXE_SYMBOL(
+	LocalMachineContainer_BufferHeaderSize,
+	EXE_OFFSET, 0x00000080, 0x00000080, 0x00000080,
+	NULL
+)
+
+// No symbol: EventTemplate<Event_Int2Type<171>, EndTurnTimerUpdateData, ...>
+// reserving a record in the current container. Its only caller is
+// InterfaceBuddy::updateEndTurnTimer, which inlines it on Linux.
+EXE_SYMBOL(
+	updateEndTurnTimer_Reserve,
+	EXE_FUNCTION, 0x00870760, 0x00896310, 0x00872200,
+	"A1 ?? ?? ?? ?? 69 C0 ?? ?? ?? ?? 56 05 ?? ?? ?? ?? 8B B0 ?? ?? ?? ??"
+	" 83 E6 01 69 F6 ?? ?? ?? ?? ?? ?? 68 80 00 00 00 56 FF 15 ?? ?? ?? ??"
+	" 8D 84 30 ?? ?? ?? ?? ?? ?? 5E ?? ?? 74 13 C7 00 80 00 00 00"
+	" C7 40 04 AB 00 00 00"
+)
+
+// Reads the current container's max published size for the debug info
+// ("LocalMachineEventStream : %d k Max Published Size")
+EXE_SYMBOL(
+	GameViewState_PrintDebugInfo_noAlloc_ReadMaxPublishedSize,
+	EXE_CODE, 0x006a60e9, 0x007a2bb9, 0x00550409,
+	"8B 0D ?? ?? ?? ?? 69 C9 ?? ?? ?? ?? 8B 91 ?? ?? ?? ?? C1 EA 0A 42 52"
+)
+
 #endif
 
 #ifdef EXE_CHECK
@@ -184,6 +246,69 @@ EXE_CHECK(
 	ResetNetMessageStatics_ClearWantForceResync,
 	0x13,
 	Civ5NetMessage_s_wantForceResync
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	updateEndTurnTimer_Reserve,
+	0x01,
+	g_EventSystemLocalMachine
+)
+
+EXE_CHECK(
+	EXE_VAL32,
+	updateEndTurnTimer_Reserve,
+	0x07,
+	LocalMachineContainer_Size
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	updateEndTurnTimer_Reserve,
+	0x0D,
+	g_EventSystemLocalMachine_Containers
+)
+
+EXE_CHECK(
+	EXE_VAL32,
+	updateEndTurnTimer_Reserve,
+	0x13,
+	LocalMachineContainer_SwapCounter
+)
+
+EXE_CHECK(
+	EXE_VAL32,
+	updateEndTurnTimer_Reserve,
+	0x1C,
+	LocalMachineContainer_BufferSize
+)
+
+EXE_CHECK(
+	EXE_VAL32,
+	updateEndTurnTimer_Reserve,
+	0x31,
+	LocalMachineContainer_BufferHeaderSize
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	GameViewState_PrintDebugInfo_noAlloc_ReadMaxPublishedSize,
+	0x02,
+	g_EventSystemLocalMachine
+)
+
+EXE_CHECK(
+	EXE_VAL32,
+	GameViewState_PrintDebugInfo_noAlloc_ReadMaxPublishedSize,
+	0x08,
+	LocalMachineContainer_Size
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	GameViewState_PrintDebugInfo_noAlloc_ReadMaxPublishedSize,
+	0x0E,
+	g_EventSystemLocalMachine_MaxPublishedSize
 )
 
 #endif
