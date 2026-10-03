@@ -7291,7 +7291,7 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 		//first try the cache
 		if (!cache.findAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemyCity->GetID(), pEnemyUnit ? pEnemyUnit->GetID() : -1, iSelfDamage, iPrevUnitDamage, iPrevCityDamage, iGarrisonDamage, iCityDamageDealt, iDamageReceived))
 		{
-			iCityDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pEnemyCity, pUnit, pUnitPlot, iDamageReceived, iGarrisonDamage, true, iSelfDamage, iPrevUnitDamage, iPrevUnitDamage, true, true, pEnemyUnit);
+			iCityDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pEnemyCity, pUnit, pUnitPlot, iDamageReceived, iGarrisonDamage, true, iSelfDamage, iPrevCityDamage, iPrevUnitDamage, true, true, pEnemyUnit);
 			cache.storeAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemyCity->GetID(), pEnemyUnit ? pEnemyUnit->GetID() : -1, iSelfDamage, iPrevUnitDamage, iPrevCityDamage, iGarrisonDamage, iCityDamageDealt, iDamageReceived);
 		}
 
@@ -9245,7 +9245,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	//don't return more than requested unless there is a tie
 	if (gPossibleMoves.size() > (size_t)nMaxCount)
 	{
-		while (gPossibleMoves[nMaxCount].score == gPossibleMoves[nMaxCount - 1].score && (size_t)nMaxCount < gPossibleMoves.size())
+		while ((size_t)nMaxCount < gPossibleMoves.size() && gPossibleMoves[nMaxCount].score == gPossibleMoves[nMaxCount - 1].score)
 			nMaxCount++;
 
 		gPossibleMoves.erase(gPossibleMoves.begin() + nMaxCount, gPossibleMoves.end());
@@ -11368,7 +11368,7 @@ void CvSupportPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, i
 	//don't return more than requested unless there is a tie
 	if (gPossibleMoves.size() > (size_t)nMaxCount)
 	{
-		while (gPossibleMoves[nMaxCount].score == gPossibleMoves[nMaxCount - 1].score && (size_t)nMaxCount < gPossibleMoves.size())
+		while ((size_t)nMaxCount < gPossibleMoves.size() && gPossibleMoves[nMaxCount].score == gPossibleMoves[nMaxCount - 1].score)
 			nMaxCount++;
 
 		gPossibleMoves.erase(gPossibleMoves.begin() + nMaxCount, gPossibleMoves.end());
