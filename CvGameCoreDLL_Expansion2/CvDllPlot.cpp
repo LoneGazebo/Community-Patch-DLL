@@ -304,7 +304,7 @@ bool CvDllPlot::GetAnyBuildProgress() const
 //------------------------------------------------------------------------------
 void CvDllPlot::UpdateLayout(bool bDebug)
 {
-	m_pPlot->updateLayout(bDebug);
+	UpdatePlotLayoutBatched(*m_pPlot, bDebug);
 }
 //------------------------------------------------------------------------------
 ICvUnit1* CvDllPlot::GetCenterUnit()
