@@ -26,11 +26,18 @@
 
 #include <unordered_map>
 #include <vector>
+#include <intrin.h>
 
 //helper function to generate unique IDs
 int GetNextGlobalID();
 //helper function to generate a pseudorandom number
 int GetJonRand(int iRange);
+
+//thread id of the gamecore thread (set by CvGame::update); 0 until known.
+//Get() keeps a small direct-mapped lookup cache for that thread only, because
+//the UI thread can call into the game concurrently.
+extern unsigned long g_ulTContainerCacheThread;
+inline bool TContainerUseCache() { return g_ulTContainerCacheThread != 0 && __readfsdword(0x24) == g_ulTContainerCacheThread; }
 
 //the ordered container
 template <class T>
@@ -78,18 +85,30 @@ private:
             // Copy the contents
             m_items = rhs.m_items;
             m_order = rhs.m_order;
+            ClearCache();
         }
         return *this;
     }
 
+	enum { CACHE_SLOTS = 64 };
+	struct CacheSlot { int iID; T* pItem; };
+	void ClearCache() const { for (int i = 0; i < CACHE_SLOTS; i++) m_cache[i].pItem = NULL; }
+	void ForgetCached(int iID) const { CacheSlot& slot = m_cache[iID & (CACHE_SLOTS-1)]; if (slot.iID == iID) slot.pItem = NULL; }
+
 protected:
 	std::tr1::unordered_map<int,T*> m_items; //for lookup by id
 	std::vector<T*> m_order; //for iteration
+	mutable CacheSlot m_cache[CACHE_SLOTS]; //id -> item, gamecore thread only
 };
 
 template <class T>
 TContainer<T>::TContainer()
 {
+	for (int i = 0; i < CACHE_SLOTS; i++)
+	{
+		m_cache[i].iID = 0;
+		m_cache[i].pItem = NULL;
+	}
 }
 
 template <class T>
@@ -103,10 +122,26 @@ TContainer<T>::~TContainer()
 template <class T>
 T* TContainer<T>::Get(int iID) const
 {
+	const bool bCache = TContainerUseCache();
+	if (bCache)
+	{
+		const CacheSlot& slot = m_cache[iID & (CACHE_SLOTS-1)];
+		if (slot.pItem && slot.iID == iID)
+			return slot.pItem;
+	}
+
 	typename std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find(iID);
 
 	if (it!=m_items.end())
+	{
+		if (bCache)
+		{
+			CacheSlot& slot = m_cache[iID & (CACHE_SLOTS-1)];
+			slot.iID = iID;
+			slot.pItem = it->second;
+		}
 		return it->second;
+	}
 
 	return NULL;
 }
@@ -127,6 +162,7 @@ bool TContainer<T>::Remove(int iID)
 
 	if (it!=m_items.end())
 	{
+		ForgetCached(it->first);
 		m_order.erase( std::remove(m_order.begin(), m_order.end(), it->second), m_order.end() );
 		delete m_items[it->first];
 		m_items.erase(it->first);
@@ -142,6 +178,7 @@ bool TContainer<T>::RemoveAt(int iIndex)
 	if (iIndex>=0 && iIndex < (int)m_order.size())
 	{
 		std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find( m_order[iIndex]->GetID() );
+		ForgetCached(it->first);
 		delete m_items[ it->first ];
 		m_items.erase( it->first );
 
@@ -161,6 +198,7 @@ void TContainer<T>::RemoveAll()
 
 	m_items.clear();
 	m_order.clear();
+	ClearCache();
 }
 
 template <class T>
@@ -186,6 +224,7 @@ T* TContainer<T>::Add()
 
 	m_order.push_back( pNewItem );
 	m_items[iNewID] = pNewItem;
+	ForgetCached(iNewID);
 	return pNewItem;
 }
 
@@ -196,6 +235,7 @@ void TContainer<T>::Load(T* pExistingItem)
 	{
 		m_order.push_back( pExistingItem );
 		m_items[pExistingItem->GetID()] = pExistingItem;
+		ForgetCached(pExistingItem->GetID());
 	}
 }
 
