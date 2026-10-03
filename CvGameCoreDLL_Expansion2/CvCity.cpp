@@ -9571,7 +9571,7 @@ void CvCity::AddToAccomplishmentsWithBonuses(AccomplishmentTypes eAccomplishment
 	m_siAccomplishmentsWithBonuses.insert((int)eAccomplishment);
 }
 
-std::set<int> CvCity::GetPlotList() const
+const std::set<int>& CvCity::GetPlotList() const
 {
 	VALIDATE_OBJECT();
 	return m_siPlots;
@@ -22536,7 +22536,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 		if (HasBuilding(*it))
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(*it);
-			std::map<int, std::map<int, int>> m_BuildingModifiersFromAccomplishments = pkBuildingInfo->GetYieldModifiersFromAccomplishments();
+			const std::map<int, std::map<int, int>>& m_BuildingModifiersFromAccomplishments = pkBuildingInfo->GetYieldModifiersFromAccomplishments();
 			for (std::map<int, std::map<int, int>>::const_iterator it2 = m_BuildingModifiersFromAccomplishments.begin(); it2 != m_BuildingModifiersFromAccomplishments.end(); ++it2)
 			{
 				int iNumTimesAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)(*it2).first);
@@ -23334,7 +23334,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 		if (HasBuilding(*it))
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(*it);
-			std::map<int, std::map<int, int>> m_BuildingYieldsFromAccomplishments = pkBuildingInfo->GetYieldChangesFromAccomplishments();
+			const std::map<int, std::map<int, int>>& m_BuildingYieldsFromAccomplishments = pkBuildingInfo->GetYieldChangesFromAccomplishments();
 			for (std::map<int, std::map<int, int>>::const_iterator it2 = m_BuildingYieldsFromAccomplishments.begin(); it2 != m_BuildingYieldsFromAccomplishments.end(); ++it2)
 			{
 				int iNumTimesAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)(*it2).first);
