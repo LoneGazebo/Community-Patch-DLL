@@ -227,7 +227,8 @@ struct SUnitIDValueContainer
 			}
 			else
 			{
-				// promote to vector
+				// promote to vector; one allocation covers the common small cases
+				m_aExtraStorage.reserve(4);
 				m_aExtraStorage.push_back(std::make_pair(m_iUnitID, m_iValue));
 				m_aExtraStorage.push_back(std::make_pair(iUnitID, iChange));
 			}
@@ -268,7 +269,8 @@ struct SUnitIDValueContainer
 			}
 			else
 			{
-				// promote to vector
+				// promote to vector; one allocation covers the common small cases
+				m_aExtraStorage.reserve(4);
 				m_aExtraStorage.push_back(std::make_pair(m_iUnitID, m_iValue));
 				m_aExtraStorage.push_back(std::make_pair(iUnitID, iValue));
 			}
@@ -916,8 +918,21 @@ public:
 	bool isDefending() const;
 	bool isInCombat() const;
 
-	int GetMaxHitPoints() const;
-	int GetCurrHitPoints() const;
+	// Inline: called very often from other translation units.
+	int GetMaxHitPoints() const
+	{
+		VALIDATE_OBJECT();
+		int iMaxHP = m_iMaxHitPointsBase;
+		iMaxHP *= (100 + m_iMaxHitPointsModifier);
+		iMaxHP /= 100;
+		iMaxHP += m_iMaxHitPointsChange;
+		return iMaxHP;
+	}
+	int GetCurrHitPoints() const
+	{
+		VALIDATE_OBJECT();
+		return (GetMaxHitPoints() - getDamage());
+	}
 	bool IsHurt() const;
 	bool IsDead() const;
 
@@ -1345,7 +1360,11 @@ public:
 	int getTurnSliceCreated() const;
 	void setTurnSliceCreated(int iNewValue);
 
-	int getDamage() const;
+	int getDamage() const
+	{
+		VALIDATE_OBJECT();
+		return m_iDamage;
+	}
 	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL, bool bDontShow = false);
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 

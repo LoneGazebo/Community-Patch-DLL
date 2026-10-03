@@ -393,6 +393,58 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 }
 
 
+
+// Cold failure paths retain the message through the original handler/break or
+// fatal trap. Keep /GS on these helpers; successful callers hold no CvString.
+#if defined(_MSC_VER)
+#define CV_FAILURE_NOINLINE __declspec(noinline)
+#elif defined(__clang__)
+#define CV_FAILURE_NOINLINE __attribute__((noinline))
+#else
+#define CV_FAILURE_NOINLINE
+#endif
+
+#ifdef CVASSERT_ENABLE
+CV_FAILURE_NOINLINE void CvAssertFailedFormat(const char* expr, const char* file, unsigned int line, bool& ignore)
+{
+    CvString message;
+    // A no-message ASSERT formerly called format(message) through CvString's
+    // implicit const char* conversion, producing a discarded empty result.
+    CvString::format(message);
+    if (CvAssertDlg(expr, file, line, ignore, message.c_str()))
+        { CVASSERT_BREAKPOINT; }
+}
+CV_FAILURE_NOINLINE void CvAssertFailedFormat(const char* expr, const char* file, unsigned int line, bool& ignore, const char* format, ...)
+{
+    CvString message;
+    va_list args;
+    va_start(args, format);
+    CvString::formatv(message, format, args);
+    va_end(args);
+    if (CvAssertDlg(expr, file, line, ignore, message.c_str()))
+        { CVASSERT_BREAKPOINT; }
+}
+#endif
+
+CV_FAILURE_NOINLINE void CvPreconditionFailedFormat(const char* expr, const char* file, unsigned int line)
+{
+    CvString message;
+    CvString::format(message);
+    CvPreconditionDlg(expr, file, line, message.c_str());
+    BUILTIN_TRAP();
+}
+CV_FAILURE_NOINLINE void CvPreconditionFailedFormat(const char* expr, const char* file, unsigned int line, const char* format, ...)
+{
+    CvString message;
+    va_list args;
+    va_start(args, format);
+    CvString::formatv(message, format, args);
+    va_end(args);
+    CvPreconditionDlg(expr, file, line, message.c_str());
+    BUILTIN_TRAP();
+}
+#undef CV_FAILURE_NOINLINE
+
 int RING_PLOTS[6] = {RING0_PLOTS,RING1_PLOTS,RING2_PLOTS,RING3_PLOTS,RING4_PLOTS,RING5_PLOTS};
 
 int dxWrap(int iDX)

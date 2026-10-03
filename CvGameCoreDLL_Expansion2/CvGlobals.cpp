@@ -2005,6 +2005,7 @@ CvGlobals::CvGlobals() :
 
 	////////////// END DEFINES //////////////////
 
+	m_eUnitCombatMountedType(NO_UNITCOMBAT),
 	m_pCitySpecializations(NULL),
 	m_pMilitaryAIStrategies(NULL),
 	m_pAIGrandStrategies(NULL),
@@ -4489,6 +4490,19 @@ void CvGlobals::GameDataPostCache()
 			m_vBuildingsWithSealift.push_back(eOuter);
 		}
 	}
+
+	// Resources each unit needs for CvPlayer::HasResourceForNewUnit
+	for (int iI = 0; iI < getNumUnitInfos(); iI++)
+	{
+		CvUnitEntry* pUnitInfo = getUnitInfo(static_cast<UnitTypes>(iI));
+		if (pUnitInfo == NULL)
+			continue;
+
+		pUnitInfo->CacheResourceQuantityCheckIDs();
+	}
+
+	// Mounted units can have a secondary combat class, checked in the combat strength code
+	m_eUnitCombatMountedType = static_cast<UnitCombatTypes>(getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
 
 	// Cache Great Person lookups
 	for (int iI = 0; iI < getNumGreatPersonInfos(); ++iI)

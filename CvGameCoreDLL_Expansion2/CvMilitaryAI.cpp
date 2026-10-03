@@ -730,7 +730,7 @@ bool CvMilitaryAI::IsPossibleAttackTarget(const CvCity* pCity, ArmyType eArmyTyp
 
 bool CvMilitaryAI::IsPossibleMusterCity(const CvCity* pCity, ArmyType eArmyType) const
 {
-	if (!pCity || pCity->getOwner() == m_pPlayer->GetID())
+	if (!pCity || pCity->getOwner() != m_pPlayer->GetID())
 		return false;
 
 	//cities may be listed multiple times!
