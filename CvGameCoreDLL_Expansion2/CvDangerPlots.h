@@ -47,7 +47,7 @@ struct CvDangerPlotContents
 		m_iFogCount = 0;
 
 		//make sure the allocated size doesn't grow too much over time
-		m_apUnits.clear(); if (m_apUnits.capacity() > 5) { m_apUnits = DangerUnitVector(); m_apUnits.reserve(5); }
+		m_apUnits.clear(); if (m_apUnits.capacity() > 5) { DangerUnitVector().swap(m_apUnits); m_apUnits.reserve(5); }
 		m_apCities.clear(); //cities are fairly static so don't care to prune
 		m_apCaptureUnits.clear(); if (m_apCaptureUnits.capacity() > 5) { DangerUnitVector().swap(m_apCaptureUnits); }
 	};

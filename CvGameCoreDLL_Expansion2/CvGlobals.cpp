@@ -4490,6 +4490,16 @@ void CvGlobals::GameDataPostCache()
 		}
 	}
 
+	// Resources each unit needs for CvPlayer::HasResourceForNewUnit
+	for (int iI = 0; iI < getNumUnitInfos(); iI++)
+	{
+		CvUnitEntry* pUnitInfo = getUnitInfo(static_cast<UnitTypes>(iI));
+		if (pUnitInfo == NULL)
+			continue;
+
+		pUnitInfo->CacheResourceQuantityCheckIDs();
+	}
+
 	// Cache Great Person lookups
 	for (int iI = 0; iI < getNumGreatPersonInfos(); ++iI)
 	{

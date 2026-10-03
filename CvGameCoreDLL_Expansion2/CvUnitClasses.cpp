@@ -1583,6 +1583,23 @@ int CvUnitEntry::GetResourceQuantityTotal(int i) const
 	return 0;
 }
 
+/// Resources with a positive quantity requirement or total, in ascending order (called from CvGlobals::GameDataPostCache)
+void CvUnitEntry::CacheResourceQuantityCheckIDs()
+{
+	m_viResourceQuantityCheckIDs.clear();
+	for (int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
+	{
+		if (GetResourceQuantityRequirement(iResource) > 0 || GetResourceQuantityTotal(iResource) > 0)
+			m_viResourceQuantityCheckIDs.push_back(iResource);
+	}
+}
+
+/// The only resources CvPlayer::HasResourceForNewUnit needs to check for this unit
+const std::vector<int>& CvUnitEntry::GetResourceQuantityCheckIDs() const
+{
+	return m_viResourceQuantityCheckIDs;
+}
+
 /// Initial set of promotions for this unit
 bool CvUnitEntry::GetFreePromotions(int i) const
 {

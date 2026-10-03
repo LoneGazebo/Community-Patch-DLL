@@ -5593,12 +5593,16 @@ vector<int> TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit
 	return resultSet;
 }
 
-std::set<int> TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, bool bOnlyWithEnemy, bool bIgnoreVisibility)
+vector<int> TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, bool bOnlyWithEnemy, bool bIgnoreVisibility)
 {
-	std::set<int> resultSet;
+	vector<int> resultSet;
 
-	if (!pUnit || !pUnit->IsCanAttackRanged())
+	if (!pUnit || !pUnit->IsCanAttackRanged() || basePlots.empty())
 		return resultSet;
+
+	// Ascending and unique, like the std::set this replaced, without one tree node per
+	// attackable plot. The bitmap answers the "already attackable" test.
+	vector<bool> attackable(GC.getMap().numPlots(), false);
 
 	int iRange = min(5,max(1,pUnit->GetRange()));
 	for (ReachablePlots::const_iterator base=basePlots.begin(); base!=basePlots.end(); ++base)
@@ -5620,15 +5624,19 @@ std::set<int> TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(const CvUnit* pUn
 
 			//if the plot is already know to be attackable, don't check again
 			//the reverse is not true: from another base plot the attack might work!
-			if (!pLoopPlot || resultSet.find(pLoopPlot->GetPlotIndex())!=resultSet.end())
+			if (!pLoopPlot || attackable[pLoopPlot->GetPlotIndex()])
 				continue;
 
 			if (!bOnlyWithEnemy || pLoopPlot->isEnemyCity(*pUnit) || pLoopPlot->isEnemyUnit(pUnit->getOwner(),true,!bIgnoreVisibility))
 				if (pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY(), pBasePlot, bIgnoreVisibility))
-					resultSet.insert(pLoopPlot->GetPlotIndex());
+				{
+					attackable[pLoopPlot->GetPlotIndex()] = true;
+					resultSet.push_back(pLoopPlot->GetPlotIndex());
+				}
 		}
 	}
 
+	std::sort(resultSet.begin(), resultSet.end());
 	return resultSet;
 }
 
@@ -6644,8 +6652,8 @@ vector<pair<CvPlot*, bool>> TacticalAIHelpers::GetTargetsInRange(const CvUnit * 
 	if (pUnit->IsCanAttackRanged())
 	{
 		//for ranged every tile we can enter with movement left is a base for attack
-		std::set<int> attackableTiles = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,reachablePlots,true,false);
-		for (std::set<int>::const_iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
+		const vector<int> attackableTiles = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,reachablePlots,true,false);
+		for (vector<int>::const_iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
 		{
 			CvPlot* pAttackTile = GC.getMap().plotByIndexUnchecked(*attackTile);
 			bool bCanKill = CanKillTarget(pUnit,pAttackTile);
@@ -8149,7 +8157,7 @@ static STacticalAssignment* ScorePlotForCombatUnitMove(const SUnitStats& unit, c
 	{
 		if (unit.iMovesLeft == unit.iMaxMoves)
 		{
-			if (pUnit->getDamage() + unit.iSelfDamage > 0 && !pUnit->IsCannotHeal(/*bConsiderResourceShortage*/ true) && !pUnit->isEmbarked())
+			if (pUnit->getDamage() + unit.iSelfDamage > 0 && !pUnit->IsCannotHeal(/*bConsiderResourceShortage*/ false) && !pUnit->isEmbarked())
 			{
 				int iHealRate = pUnit->ActualHealRate(pTestPlot, false);
 
@@ -10261,7 +10269,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 	CvPlot* pStartPlot = GC.getMap().plotByIndexUnchecked(unit.iPlotIndex);
 	const PlotIndexContainer& freedPlots_r = freedPlots.read();
 
-	TCachedMovePlots::const_iterator itP = gReachablePlotsLookup.find(SPathFinderStartPos(unit, freedPlots_r));
+	TCachedMovePlots::const_iterator itP = gReachablePlotsLookup.find(SPathFinderStartPos(unit, freedPlots_r, SPathFinderStartPos::LookupOnly()));
 	if (itP != gReachablePlotsLookup.end())
 	{
 		gMovePlotsCacheHit++;
@@ -11773,7 +11781,7 @@ void CvSupportPosition::updateMovePlotsForUnit(SUnitStats unit)
 
 	const PlotIndexContainer& freedPlots_r = freedPlots.read();
 
-	TCachedMovePlots::const_iterator itP = gReachablePlotsLookup.find(SPathFinderStartPos(unit, freedPlots_r));
+	TCachedMovePlots::const_iterator itP = gReachablePlotsLookup.find(SPathFinderStartPos(unit, freedPlots_r, SPathFinderStartPos::LookupOnly()));
 	if (itP != gReachablePlotsLookup.end())
 	{
 		gMovePlotsCacheHit++;
