@@ -1858,17 +1858,7 @@ do
 		return player and ((player.IsObserver and player:IsObserver()) or
 			(Game.GetAIAutoPlay and Game.GetAIAutoPlay() > 0))
 	end
-	local function ExpireObserverNotifications(force)
-		local owner = Game.GetActivePlayer()
-		local player = Players[owner]
-		if lifetime == 0 or not ObserverMode(player) then
-			lastTurn, lastPlayer = nil, nil
-			return
-		end
-		local turn = Game.GetGameTurn()
-		if sweeping or (not force and lastTurn == turn and lastPlayer == owner) then return end
-		lastTurn, lastPlayer = turn, owner
-		sweeping = true
+	local function Sweep(player, owner, turn)
 		-- Snapshot lookup IDs before removal events mutate the displayed bundles.
 		local expired = {}
 		for index = 0, player:GetNumNotifications() - 1 do
@@ -1887,7 +1877,24 @@ do
 				UI.RemoveNotification(id)
 			end
 		end
+	end
+	local function ExpireObserverNotifications(force)
+		local owner = Game.GetActivePlayer()
+		local player = Players[owner]
+		if lifetime == 0 or not ObserverMode(player) then
+			lastTurn, lastPlayer = nil, nil
+			return
+		end
+		local turn = Game.GetGameTurn()
+		if sweeping or (not force and lastTurn == turn and lastPlayer == owner) then return end
+		lastTurn, lastPlayer = turn, owner
+		sweeping = true
+		-- An error must not leave the flag set, or aging would stop for the rest of the session.
+		local ok, err = pcall(Sweep, player, owner, turn)
 		sweeping = false
+		if not ok then
+			print("Observer notification aging failed: " .. tostring(err))
+		end
 	end
 	Events.SerialEventGameDataDirty.Add(function() ExpireObserverNotifications(false) end)
 	Events.AIProcessingStartedForPlayer.Add(function() ExpireObserverNotifications(false) end)
