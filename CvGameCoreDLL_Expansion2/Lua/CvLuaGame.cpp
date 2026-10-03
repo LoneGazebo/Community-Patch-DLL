@@ -191,6 +191,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(IsFinalInitialized);
 
 	Method(GetActivePlayer);
+	Method(ContinueDeferredLayout);
+	Method(GetDeferredLayoutProgress);
 	Method(SetActivePlayer);
 	Method(GetObserverUIOverridePlayer);
 	Method(SetObserverUIOverridePlayer);
@@ -1341,6 +1343,24 @@ int CvLuaGame::lIsSimultaneousTeamTurns(lua_State* L)
 int CvLuaGame::lIsFinalInitialized(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::isFinalInitialized);
+}
+//------------------------------------------------------------------------------
+//bool ContinueDeferredLayout();
+int CvLuaGame::lContinueDeferredLayout(lua_State* L)
+{
+	lua_pushboolean(L, ContinueDeferredLayout());
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int, int GetDeferredLayoutProgress();
+int CvLuaGame::lGetDeferredLayoutProgress(lua_State* L)
+{
+	int iDone = 0;
+	int iTotal = 0;
+	GetDeferredLayoutProgress(iDone, iTotal);
+	lua_pushinteger(L, iDone);
+	lua_pushinteger(L, iTotal);
+	return 2;
 }
 //------------------------------------------------------------------------------
 //PlayerTypes getActivePlayer();

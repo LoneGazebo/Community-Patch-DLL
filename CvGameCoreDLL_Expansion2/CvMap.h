@@ -510,4 +510,10 @@ protected:
 	UnitKillCount killCount;
 };
 
+void UpdatePlotLayoutBatched(CvPlot& kPlot, bool bDebug);
+void UpdateDeferredLayout();
+bool IsMapLayoutHeld(bool bDebug);
+bool ContinueDeferredLayout();
+void GetDeferredLayoutProgress(int& iDone, int& iTotal);
+
 #endif
