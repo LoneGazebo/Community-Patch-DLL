@@ -10980,7 +10980,8 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	if(kPlayer.GetReligions()->IsFoundingReligion())
+	// already founding a religion
+	if(kPlayer.GetReligions()->GetFoundingReligionCityID() != -1)
 	{
 		return false;
 	}
@@ -11069,6 +11070,7 @@ bool CvUnit::DoFoundReligion()
 				finishMoves();
 			}
 
+			kOwner.GetReligions()->SetFoundingReligionCityID(pkCity->GetID());
 			if(kOwner.isHuman(ISHUMAN_AI_RELIGION_CHOICE))
 			{
 				ASSERT(pkCity != NULL, "No City??");
@@ -11080,7 +11082,6 @@ bool CvUnit::DoFoundReligion()
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RELIGION");
 					pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
 				}
-				kOwner.GetReligions()->SetFoundingReligion(true);
 
 				if (!bIndiaException)
 				{
@@ -11093,26 +11094,21 @@ bool CvUnit::DoFoundReligion()
 				ReligionTypes eReligion = pReligions->GetReligionToFound(getOwner());
 				if(eReligion != NO_RELIGION)
 				{
-					// Pick beliefs for this religion
+					// Pick beliefs for this religion (the best combination of pantheon, founder, follower and bonus belief)
 					BeliefTypes eBeliefs[4];
+					eBeliefs[0] = NO_BELIEF;
+					eBeliefs[1] = NO_BELIEF;
 					eBeliefs[2] = NO_BELIEF;
 					eBeliefs[3] = NO_BELIEF;
+					vector<BeliefTypes> vChosenBeliefs = kOwner.GetReligionAI()->ChooseFoundingBeliefs(kOwner.GetID(), eReligion);
 					int iIndex = 0;
-					if(!kOwner.GetReligions()->HasCreatedPantheon())
+					for (size_t i = 0; i < vChosenBeliefs.size() && iIndex < 4; i++)
 					{
-						eBeliefs[iIndex] = kOwner.GetReligionAI()->ChoosePantheonBelief(kOwner.GetID());
-						iIndex++;
-					}
-
-					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFounderBelief(kOwner.GetID(), eReligion);
-					iIndex++;
-
-					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief(kOwner.GetID(), eReligion);
-					iIndex++;
-
-					if(kOwner.GetPlayerTraits()->IsBonusReligiousBelief())
-					{
-						eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseBonusBelief(kOwner.GetID(), eReligion, eBeliefs[0], eBeliefs[1], eBeliefs[2]);
+						if (vChosenBeliefs[i] != NO_BELIEF)
+						{
+							eBeliefs[iIndex] = vChosenBeliefs[i];
+							iIndex++;
+						}
 					}
 
 					if (MOD_EVENTS_FOUND_RELIGION) 
@@ -11250,11 +11246,10 @@ bool CvUnit::DoEnhanceReligion()
 				ReligionTypes eReligion = kOwner.GetReligions()->GetOwnedReligion();
 				if (eReligion != NO_RELIGION)
 				{
-					// Pick a belief for this religion
-					BeliefTypes eBelief1 = kOwner.GetReligionAI()->ChooseFollowerBelief(kOwner.GetID(), eReligion); // temporary
-					BeliefTypes eBelief2 = kOwner.GetReligionAI()->ChooseEnhancerBelief(kOwner.GetID(), eReligion); // temporary
+					// Pick beliefs for this religion (the best combination of follower and enhancer belief)
+					vector<BeliefTypes> vChosenBeliefs = kOwner.GetReligionAI()->ChooseEnhancingBeliefs(kOwner.GetID(), eReligion);
 
-					pReligions->EnhanceReligion(getOwner(), eReligion, eBelief1, eBelief2);
+					pReligions->EnhanceReligion(getOwner(), eReligion, vChosenBeliefs[0], vChosenBeliefs[1]);
 
 					if (!bIndiaException)
 					{
