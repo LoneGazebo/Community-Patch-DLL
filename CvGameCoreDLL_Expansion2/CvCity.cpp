@@ -2220,6 +2220,10 @@ void CvCity::kill()
 		}
 	}
 
+	// The dying city is inconsistent until it is deleted; Lua hooks would
+	// release the game core lock and let UI scripts read it (see
+	// LuaSupport::DeferredHookScope). They run after the deletion instead.
+	LuaSupport::DeferredHookScope kDeferHooks;
 	PreKill();
 
 	// Delete the city's information here!!!
@@ -2234,6 +2238,7 @@ void CvCity::kill()
 
 	GET_PLAYER(getOwner()).deleteCity(m_iID);
 	GET_PLAYER(eOwner).GetCityConnections()->SetDirty();
+	kDeferHooks.Flush();
 
 	// clean up
 	PostKill(bCapital, pPlot, iWorkPlotDistance, eOwner);
