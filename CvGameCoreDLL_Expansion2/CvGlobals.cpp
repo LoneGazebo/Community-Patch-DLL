@@ -2005,6 +2005,7 @@ CvGlobals::CvGlobals() :
 
 	////////////// END DEFINES //////////////////
 
+	m_eUnitCombatMountedType(NO_UNITCOMBAT),
 	m_pCitySpecializations(NULL),
 	m_pMilitaryAIStrategies(NULL),
 	m_pAIGrandStrategies(NULL),
@@ -4499,6 +4500,9 @@ void CvGlobals::GameDataPostCache()
 
 		pUnitInfo->CacheResourceQuantityCheckIDs();
 	}
+
+	// Mounted units can have a secondary combat class, checked in the combat strength code
+	m_eUnitCombatMountedType = static_cast<UnitCombatTypes>(getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
 
 	// Cache Great Person lookups
 	for (int iI = 0; iI < getNumGreatPersonInfos(); ++iI)

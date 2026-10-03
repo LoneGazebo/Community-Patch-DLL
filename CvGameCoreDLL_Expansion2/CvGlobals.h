@@ -410,6 +410,7 @@ public:
 	int getNumUnitCombatClassInfos();
 	std::vector<CvBaseInfo*>& getUnitCombatClassInfo();
 	_Ret_maybenull_ CvBaseInfo* getUnitCombatClassInfo(UnitCombatTypes e);
+	inline UnitCombatTypes getUnitCombatMountedType() const { return m_eUnitCombatMountedType; }
 
 	std::vector<CvBaseInfo*>& getUnitAIInfo();
 	_Ret_maybenull_ CvBaseInfo* getUnitAIInfo(UnitAITypes eUnitAINum);
@@ -2728,6 +2729,7 @@ protected:
 	std::vector<CvCityEventChoiceLinkingInfo*> m_paCityEventChoiceLinkingInfo;
 	std::vector<CvContractEntry*> m_paContractInfo;
 	std::vector<CvBaseInfo*> m_paUnitCombatClassInfo;
+	UnitCombatTypes m_eUnitCombatMountedType;
 	std::vector<CvBaseInfo*> m_paUnitAIInfos;
 	std::vector<CvGameOptionInfo*> m_paGameOptionInfos;
 	std::vector<CvMPOptionInfo*> m_paMPOptionInfos;
