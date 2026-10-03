@@ -57,3 +57,41 @@ volatile BYTE* ExeApi::NetMessage_WantForceResync()
 		ExeSymbols::Get(EXE_NetMessage_WantForceResync)
 	);
 }
+
+//------------------------------------------------------------------------------
+const volatile DWORD* ExeApi::g_EventSystemLocalMachine()
+{
+	return reinterpret_cast<const volatile DWORD*>(
+		ExeSymbols::Get(EXE_g_EventSystemLocalMachine)
+	);
+}
+
+DWORD ExeApi::g_EventSystemLocalMachine_Containers()
+{
+	return ExeSymbols::Get(EXE_g_EventSystemLocalMachine_Containers);
+}
+
+DWORD ExeApi::g_EventSystemLocalMachine_MaxPublishedSize()
+{
+	return ExeSymbols::Get(EXE_g_EventSystemLocalMachine_MaxPublishedSize);
+}
+
+DWORD ExeApi::LocalMachineContainer_Size()
+{
+	return ExeSymbols::Get(EXE_LocalMachineContainer_Size);
+}
+
+DWORD ExeApi::LocalMachineContainer_BufferSize()
+{
+	return ExeSymbols::Get(EXE_LocalMachineContainer_BufferSize);
+}
+
+DWORD ExeApi::LocalMachineContainer_SwapCounter()
+{
+	return ExeSymbols::Get(EXE_LocalMachineContainer_SwapCounter);
+}
+
+DWORD ExeApi::LocalMachineContainer_BufferHeaderSize()
+{
+	return ExeSymbols::Get(EXE_LocalMachineContainer_BufferHeaderSize);
+}

@@ -99,6 +99,39 @@ end );
 -------------
 -- Start Game
 -------------
+local function ShowDeferredLayoutProgress()
+	local iDone, iTotal = Game.GetDeferredLayoutProgress()
+	local fDone = iTotal > 0 and math.min(iDone / iTotal, 1) or 1
+
+	Controls.ProgressBar:SetPercent(fDone)
+	Controls.LoadingLabel:LocalizeAndSetText(
+		"TXT_KEY_VP_LOADSCREEN_PREPARING_MAP",
+		math.floor(fDone * 100)
+	)
+end
+
+local function WhenDeferredLayoutDone(fnComplete)
+	if not Game.ContinueDeferredLayout() then
+		fnComplete()
+
+		return
+	end
+
+	ShowDeferredLayoutProgress()
+	ContextPtr:SetUpdate(function()
+		if Game.ContinueDeferredLayout() then
+			ShowDeferredLayoutProgress()
+
+			return
+		end
+
+		ContextPtr:ClearUpdate()
+		Controls.ProgressBar:SetPercent(1)
+		Controls.LoadingLabel:LocalizeAndSetText("TXT_KEY_GAME_LOADING")
+		fnComplete()
+	end)
+end
+
 local function OnActivateButtonClicked ()
 	--print("Activate button clicked!");
 	Events.LoadScreenClose();
@@ -130,8 +163,7 @@ end );
 ---------------------
 -- Game Init complete
 ---------------------
-Events.SequenceGameInitComplete.Add(
-function()
+local function CompleteGameInit()
 	g_isLoadComplete = true;
 
 	if PreGame.IsMultiplayerGame() or PreGame.IsHotSeatGame() then
@@ -144,4 +176,13 @@ function()
 --		Controls.SlideAnim:Play();
 		UIManager:SetUICursor( 0 );
 	end
+end
+
+Events.SequenceGameInitComplete.Add(
+function()
+	if not PreGame.IsMultiplayerGame() and not PreGame.IsHotSeatGame() then
+		Game.SetPausePlayer( Game.GetActivePlayer() );
+	end
+
+	WhenDeferredLayoutDone(CompleteGameInit);
 end );

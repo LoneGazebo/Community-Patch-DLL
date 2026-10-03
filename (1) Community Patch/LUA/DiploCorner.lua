@@ -145,11 +145,26 @@ function OnChatToggle()
 end
 Controls.ChatToggle:RegisterCallback( Mouse.eLClick, OnChatToggle );
 
+-- Single player and hotseat hide the chat, but engine warnings are sent there.
+local function ForceOpenChat()
+	if Controls.ChatToggle:IsHidden() then
+		PopulateChatPull()
+		Controls.ChatToggle:SetHide(false)
+	end
+
+	if not m_bChatOpen then
+		OnChatToggle()
+	end
+end
+LuaEvents.ForceOpenChat.Add(ForceOpenChat)
 
 -------------------------------------------------
 -------------------------------------------------
 local bFlipper = false;
 function OnChat( fromPlayer, toPlayer, text, eTargetType )
+	if not Game.IsNetworkMultiPlayer() then
+		ForceOpenChat()
+	end
 
     local controlTable = {};
     ContextPtr:BuildInstanceForControl( "ChatEntry", controlTable, Controls.ChatStack );

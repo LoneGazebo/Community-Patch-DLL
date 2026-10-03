@@ -17,7 +17,7 @@ enum Kind
 	EXE_VTABLE,
 	EXE_OFFSET
 };
-enum CheckKind { EXE_ABS32, EXE_REL32, EXE_VAL8 };
+enum CheckKind { EXE_ABS32, EXE_REL32, EXE_VAL8, EXE_VAL32 };
 
 const char* const KIND_NAMES[] =
 {
@@ -272,6 +272,9 @@ bool RunCheck(const CheckDef& kCheck, const SymbolDef& kFrom,
 			break;
 		case EXE_VAL8:
 			bOk = CheckValue(dwFromVA, 1, kTo, szWhat);
+			break;
+		case EXE_VAL32:
+			bOk = CheckValue(dwFromVA, 4, kTo, szWhat);
 			break;
 	}
 

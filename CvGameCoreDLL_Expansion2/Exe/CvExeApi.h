@@ -24,6 +24,16 @@ namespace ExeApi
 	// ---- NetMessage: the RNG sync check polls and clears this, then
 	// broadcasts a force-resync
 	volatile BYTE* NetMessage_WantForceResync();
+
+	// ---- g_EventSystemLocalMachine: the LocalMachine event system; see
+	// CvExeAddresses.h for the layout
+	const volatile DWORD* g_EventSystemLocalMachine();
+	DWORD g_EventSystemLocalMachine_Containers();
+	DWORD g_EventSystemLocalMachine_MaxPublishedSize();
+	DWORD LocalMachineContainer_Size();
+	DWORD LocalMachineContainer_BufferSize();
+	DWORD LocalMachineContainer_SwapCounter();
+	DWORD LocalMachineContainer_BufferHeaderSize();
 }
 
 #endif // CV_EXE_API_H

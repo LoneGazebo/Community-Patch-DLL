@@ -25,6 +25,7 @@
 #include "CvInfos.h"
 #include "CvInfosSerializationHelper.h"
 #include "CvEnumMapSerialization.h"
+#include "Exe/CvExe.h"
 // for GUIDs
 typedef struct tagMSG* LPMSG;
 #include <objbase.h>
@@ -32,6 +33,381 @@ typedef struct tagMSG* LPMSG;
 
 // must be included after all other headers
 #include "LintFree.h"
+
+namespace
+{
+
+const DWORD STREAM_WARNING_PERCENT = 75;
+
+// The chat warnings need the in-game UI, which is loaded before the game view
+// and the loading screen's SequenceGameInitComplete call us.
+bool g_bInGameUiLoaded = false;
+
+bool ReadSwapCounter(DWORD& dwSwapCounter)
+{
+	Exe::LocalMachineEventStreamStats kStats;
+
+	if (Exe::TryReadLocalMachineEventStreamStats(kStats) != Exe::REASON_OK)
+	{
+		return false;
+	}
+
+	dwSwapCounter = kStats.dwSwapCounter;
+
+	return true;
+}
+
+// The engine cuts a chat message at 255 characters, markup included, so each
+// line is sent as a message of its own.
+void SendChatLines(const CvString& strText)
+{
+	const std::string strNewline = "[NEWLINE]";
+	std::string::size_type uiStart = 0;
+
+	while (true)
+	{
+		const std::string::size_type uiEnd = strText.find(strNewline, uiStart);
+		GC.getDLLIFace()->sendChat(
+			CvString(strText.substr(uiStart, uiEnd - uiStart)),
+			CHATTARGET_ALL,
+			NO_PLAYER
+		);
+
+		if (uiEnd == std::string::npos)
+		{
+			return;
+		}
+
+		uiStart = uiEnd + strNewline.size();
+	}
+}
+
+// No engine code checks the stream's capacity: an overflow corrupts the
+// memory past it.
+void WarnIfEventStreamFull()
+{
+	static bool s_bNearFullReported = false;
+	static bool s_bOverflowReported = false;
+
+	Exe::LocalMachineEventStreamStats kStats;
+
+	if (
+		!g_bInGameUiLoaded
+		|| s_bOverflowReported
+		|| Exe::TryReadLocalMachineEventStreamStats(kStats) != Exe::REASON_OK
+		|| kStats.dwBufferCapacity < 100
+	)
+	{
+		return;
+	}
+
+	const DWORD dwPeak = std::max(
+		kStats.dwMaxPublishedSize,
+		std::max(kStats.adwPublishedSize[0], kStats.adwPublishedSize[1])
+	);
+
+	if (dwPeak > kStats.dwBufferCapacity)
+	{
+		s_bOverflowReported = true;
+		SendChatLines(
+			GetLocalizedText(
+				"TXT_KEY_VP_EVENT_STREAM_OVERFLOW",
+				static_cast<int>(dwPeak / 1024),
+				static_cast<int>(kStats.dwBufferCapacity / 1024)
+			)
+		);
+
+		return;
+	}
+
+	const DWORD dwPercent = dwPeak / (kStats.dwBufferCapacity / 100);
+
+	if (!s_bNearFullReported && dwPercent >= STREAM_WARNING_PERCENT)
+	{
+		s_bNearFullReported = true;
+		SendChatLines(
+			GetLocalizedText(
+				"TXT_KEY_VP_EVENT_STREAM_NEAR_FULL",
+				static_cast<int>(dwPercent)
+			)
+		);
+	}
+}
+
+// The engine lays out farm fields for any improvement drawn with the farm
+// art, whatever its type.
+bool HasFarm(const CvPlot& kPlot, TeamTypes eTeam, bool bDebug)
+{
+	const ImprovementTypes eImprovement =
+		kPlot.getRevealedImprovementType(eTeam, bDebug);
+
+	if (eImprovement == NO_IMPROVEMENT)
+	{
+		return false;
+	}
+
+	const CvImprovementEntry* pInfo = GC.getImprovementInfo(eImprovement);
+	const char* szTag = pInfo ? pInfo->GetArtDefineTag() : NULL;
+
+	return szTag && strcmp(szTag, "ART_DEF_IMPROVEMENT_FARM") == 0;
+}
+
+bool HasRoute(const CvPlot& kPlot, TeamTypes eTeam, bool bDebug)
+{
+	return kPlot.getRevealedRouteType(eTeam, bDebug) != NO_ROUTE;
+}
+
+// Event stream bytes one plot's layout publishes, measured on DX11: a farm
+// ~4.5 KB in its batch's frame plus ~4 KB of stencils in the next one, a
+// route ~2 KB. Other improvements and resources are rough estimates.
+const DWORD FARM_LAYOUT_BYTES = 4608 + 4096;
+const DWORD ROUTE_LAYOUT_BYTES = 2048;
+const DWORD IMPROVEMENT_LAYOUT_BYTES = 256;
+const DWORD RESOURCE_LAYOUT_BYTES = 128;
+// Plots past it wait for later batches, so a whole-map layout cannot
+// overflow the stream. Without the stream's addresses, nothing is deferred.
+const DWORD LAYOUT_BATCH_BYTES = 256 * 1024;
+// The next batch waits for this many buffer swaps, so a stream buffer holds
+// at most one batch and the previous batch's stencils.
+const DWORD BATCH_GAP_SWAPS = 1;
+// If the loading screen stops calling in, the EXE path takes over again.
+const DWORD LOAD_SCREEN_STALE_MS = 30000;
+const DWORD MAX_LOAD_SCREEN_WAIT_MS = 600000;
+
+DWORD EstimateLayoutBytes(const CvPlot& kPlot, bool bDebug)
+{
+	const TeamTypes eTeam = GC.getGame().getActiveTeam();
+
+	if (eTeam == NO_TEAM)
+	{
+		return 0;
+	}
+
+	DWORD dwBytes = 0;
+
+	if (HasFarm(kPlot, eTeam, bDebug))
+	{
+		dwBytes += FARM_LAYOUT_BYTES;
+	}
+	else if (kPlot.getRevealedImprovementType(eTeam, bDebug) != NO_IMPROVEMENT)
+	{
+		dwBytes += IMPROVEMENT_LAYOUT_BYTES;
+	}
+
+	if (HasRoute(kPlot, eTeam, bDebug))
+	{
+		dwBytes += ROUTE_LAYOUT_BYTES;
+	}
+
+	if (!kPlot.isCity() && kPlot.getResourceType(eTeam) != NO_RESOURCE)
+	{
+		dwBytes += RESOURCE_LAYOUT_BYTES;
+	}
+
+	return dwBytes;
+}
+
+bool OverBudget(DWORD dwSpent, DWORD dwCost)
+{
+	return dwSpent > 0 && dwCost > 0 && dwSpent + dwCost > LAYOUT_BATCH_BYTES;
+}
+
+bool g_bLayoutDeferred = false;
+// The flag the EXE lays out with (debug view reveals everything)
+bool g_bLayoutDebug = false;
+
+bool g_bLoadScreenLayout = false;
+DWORD g_dwLoadScreenLayoutStart = 0;
+DWORD g_dwLoadScreenLastCall = 0;
+DWORD g_dwLayoutTotal = 0;
+DWORD g_dwLayoutDone = 0;
+
+bool g_bBatchSwapCounterValid = false;
+DWORD g_dwBatchSwapCounter = 0;
+
+DWORD DeferredLayoutBytes()
+{
+	CvMap& kMap = GC.getMap();
+	DWORD dwBytes = 0;
+
+	for (int iI = 0; iI < kMap.numPlots(); iI++)
+	{
+		const CvPlot* pPlot = kMap.plotByIndexUnchecked(iI);
+
+		if (pPlot && pPlot->isLayoutDirty())
+		{
+			dwBytes += EstimateLayoutBytes(*pPlot, g_bLayoutDebug);
+		}
+	}
+
+	return dwBytes;
+}
+
+void StartLoadScreenLayout()
+{
+	if (g_bLoadScreenLayout)
+	{
+		return;
+	}
+
+	g_bLoadScreenLayout = true;
+	g_dwLoadScreenLayoutStart = GetTickCount();
+	g_dwLayoutTotal = DeferredLayoutBytes();
+	g_dwLayoutDone = 0;
+}
+
+void NoteBatchPublished()
+{
+	g_bBatchSwapCounterValid = ReadSwapCounter(g_dwBatchSwapCounter);
+}
+
+bool LastBatchDispatched()
+{
+	DWORD dwSwapCounter = 0;
+
+	if (!g_bBatchSwapCounterValid || !ReadSwapCounter(dwSwapCounter))
+	{
+		return true;
+	}
+
+	return dwSwapCounter - g_dwBatchSwapCounter >= BATCH_GAP_SWAPS;
+}
+
+}
+
+// The EXE clears PlotData_DIRTY_BIT after it calls UpdateLayout, so while
+// plots are deferred it is set again here.
+void UpdateDeferredLayout()
+{
+	WarnIfEventStreamFull();
+
+	if (g_bLayoutDeferred && !g_bLoadScreenLayout)
+	{
+		DLLUI->setDirty(PlotData_DIRTY_BIT, true);
+	}
+}
+
+// Whether the EXE's map layout call waits: while the loading screen lays out,
+// and until the last batch has been dispatched.
+bool IsMapLayoutHeld(bool bDebug)
+{
+	g_bInGameUiLoaded = true;
+	g_bLayoutDebug = bDebug;
+	WarnIfEventStreamFull();
+
+	if (
+		g_bLoadScreenLayout
+		&& GetTickCount() - g_dwLoadScreenLastCall > LOAD_SCREEN_STALE_MS
+	)
+	{
+		g_bLoadScreenLayout = false;
+	}
+
+	if (g_bLoadScreenLayout || (g_bLayoutDeferred && !LastBatchDispatched()))
+	{
+		// The EXE clears PlotData_DIRTY_BIT after this call, so the plots it
+		// asked for count as deferred.
+		g_bLayoutDeferred = true;
+
+		return true;
+	}
+
+	return false;
+}
+
+// Returns whether the loading screen should keep waiting.
+bool ContinueDeferredLayout()
+{
+	g_bInGameUiLoaded = true;
+	WarnIfEventStreamFull();
+	g_dwLoadScreenLastCall = GetTickCount();
+
+	if (!g_bLayoutDeferred)
+	{
+		// Hold the screen until the last batch has been dispatched too.
+		g_bLoadScreenLayout = g_bLoadScreenLayout && !LastBatchDispatched();
+
+		return g_bLoadScreenLayout;
+	}
+
+	if (gDLL->IsGameCoreThread())
+	{
+		return true;
+	}
+
+	StartLoadScreenLayout();
+
+	if (GetTickCount() - g_dwLoadScreenLayoutStart > MAX_LOAD_SCREEN_WAIT_MS)
+	{
+		g_bLoadScreenLayout = false;
+
+		return false;
+	}
+
+	if (gDLL->IsGameCoreExecuting() || !LastBatchDispatched())
+	{
+		return true;
+	}
+
+	GC.getMap().updateLayout(g_bLayoutDebug);
+	const DWORD dwRemaining = DeferredLayoutBytes();
+
+	if (g_dwLayoutDone + dwRemaining > g_dwLayoutTotal)
+	{
+		g_dwLayoutTotal = g_dwLayoutDone + dwRemaining;
+	}
+
+	g_dwLayoutDone = g_dwLayoutTotal - dwRemaining;
+
+	return true;
+}
+
+void GetDeferredLayoutProgress(int& iDone, int& iTotal)
+{
+	iDone = static_cast<int>(g_dwLayoutDone / 1024);
+	iTotal = static_cast<int>(g_dwLayoutTotal / 1024);
+}
+
+// The EXE's per-plot layout pass on load.
+void UpdatePlotLayoutBatched(CvPlot& kPlot, bool bDebug)
+{
+	static DWORD s_dwSpent = 0;
+	static DWORD s_dwBatchSwapCounter = 0;
+
+	g_bLayoutDebug = bDebug;
+	DWORD dwSwapCounter = 0;
+
+	if (!ReadSwapCounter(dwSwapCounter))
+	{
+		kPlot.updateLayout(bDebug);
+
+		return;
+	}
+
+	if (dwSwapCounter != s_dwBatchSwapCounter)
+	{
+		s_dwSpent = 0;
+		s_dwBatchSwapCounter = dwSwapCounter;
+	}
+
+	const DWORD dwCost = EstimateLayoutBytes(kPlot, bDebug);
+
+	if (OverBudget(s_dwSpent, dwCost))
+	{
+		kPlot.setLayoutDirty(true);
+		g_bLayoutDeferred = true;
+
+		return;
+	}
+
+	kPlot.updateLayout(bDebug);
+	s_dwSpent += dwCost;
+
+	if (dwCost > 0)
+	{
+		NoteBatchPublished();
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // CvLandmass
@@ -1001,16 +1377,38 @@ void CvMap::updateVisibility()
 //	--------------------------------------------------------------------------------
 void CvMap::updateLayout(bool bDebug)
 {
+	DWORD dwSwapCounter = 0;
+	const bool bBatch = ReadSwapCounter(dwSwapCounter);
+	DWORD dwSpent = 0;
+	bool bLeft = false;
+
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		CvPlot* pThisPlot = plotByIndexUnchecked(iI);
 		if(pThisPlot && pThisPlot->isLayoutDirty())
 		{
+			const DWORD dwCost = bBatch
+				? EstimateLayoutBytes(*pThisPlot, bDebug)
+				: 0;
+
+			if (OverBudget(dwSpent, dwCost))
+			{
+				bLeft = true;
+				continue;
+			}
+
 			pThisPlot->updateLayout(bDebug);
 			pThisPlot->setLayoutDirty(false);
+			dwSpent += dwCost;
 		}
 	}
-	DLLUI->setDirty(PlotData_DIRTY_BIT,false);
+	DLLUI->setDirty(PlotData_DIRTY_BIT, bLeft);
+	g_bLayoutDeferred = bLeft;
+
+	if (dwSpent > 0)
+	{
+		NoteBatchPublished();
+	}
 }
 
 //	--------------------------------------------------------------------------------

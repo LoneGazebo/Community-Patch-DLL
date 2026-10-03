@@ -173,6 +173,8 @@ protected:
 	static int lIsFinalInitialized(lua_State* L);
 
 	static int lGetActivePlayer(lua_State* L);
+	static int lContinueDeferredLayout(lua_State* L);
+	static int lGetDeferredLayoutProgress(lua_State* L);
 	static int lSetActivePlayer(lua_State* L);
 	static int lGetObserverUIOverridePlayer(lua_State* L);
 	static int lSetObserverUIOverridePlayer(lua_State* L);
