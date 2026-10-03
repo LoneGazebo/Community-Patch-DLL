@@ -629,9 +629,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 
-	// this is a list of plot that are owned by the player
-	kOwner.UpdatePlots();
-
 	static BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
 	static BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
 	bool bClearedForest = false;
@@ -2428,30 +2425,6 @@ void CvCity::doTurn()
 
 	updateEconomicValue();
 	UpdateGrowthFromTourism();
-
-	if (plot() != NULL)
-	{
-		for (int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
-		{
-			CvUnit* pLoopUnit = plot()->getUnitByIndex(iUnitLoop);
-
-			//Only get land combat units
-			if (pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->IsCannotHeal(true))
-			{
-				if (pLoopUnit->getDamage() > 0)
-				{
-					if ((pLoopUnit->getDamage() - GetAlwaysHeal()) <= 0)
-					{
-						pLoopUnit->setDamage(0);
-					}
-					else
-					{
-						pLoopUnit->changeDamage(-GetAlwaysHeal());
-					}
-				}
-			}
-		}
-	}
 
 	DoEvents();
 
@@ -10834,6 +10807,14 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, UnitCreationR
 				iEra = 1;
 
 			pUnit->changeExperienceTimes100(iBonusXP * iEra * 100, -1, false, false, false, false, true);
+		}
+
+		// XP from exploration
+		int iExplorationXPTimes100 = pUnit->getUnitInfo().GetXPFromExploration() * 100 * GET_TEAM(pUnit->getTeam()).GetMaxNumRevealedPlots() / GC.getMap().numPlots();
+		if (iExplorationXPTimes100 != 0)
+		{
+			iExplorationXPTimes100 /= (bHalveXP ? 2 : 1);
+			pUnit->changeExperienceTimes100(iExplorationXPTimes100, -1, false, false, false, false, true);
 		}
 
 		// XP2 Achievement
