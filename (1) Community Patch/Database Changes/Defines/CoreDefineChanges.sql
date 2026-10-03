@@ -1107,3 +1107,6 @@ UPDATE Defines
 SET Value = 5
 WHERE Name = 'MINOR_CIV_FIRST_CONTACT_BONUS_FAITH'
 AND EXISTS (SELECT 1 FROM CustomModOptions WHERE Name = 'GLOBAL_CS_GIFTS' AND Value = 1);
+
+-- UI only: in observer/autoplay mode, dismiss notifications this many turns after they were created (0 = never dismiss automatically)
+INSERT INTO Defines (Name, Value) VALUES ('OBSERVER_NOTIFICATION_LIFETIME_TURNS', 3);
