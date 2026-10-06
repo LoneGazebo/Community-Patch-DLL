@@ -49504,7 +49504,7 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 
 	if (MOD_BALANCE_VP)
 	{
-		iAmount = (GET_PLAYER(ePlayer).GetHappinessFromCitizenNeeds() - GET_PLAYER(ePlayer).GetUnhappinessFromCitizenNeeds()) * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalYieldBonusModifier());
+		iAmount = (GET_PLAYER(ePlayer).GetHappinessFromCitizenNeeds() - GET_PLAYER(ePlayer).GetUnhappinessFromCitizenNeeds()) * (/*0*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalYieldBonusModifier());
 		iAmount /= 100;
 	}
 	else
