@@ -1999,6 +1999,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bIsGift)
 	setEmbarked(pUnit->isEmbarked());
 	setFacingDirection(pUnit->getFacingDirection(false));
 	SetBeenPromotedFromGoody(pUnit->IsHasBeenPromotedFromGoody());
+	setStartingExperienceTimes100(pUnit->getStartingExperienceTimes100());
 	if (pUnit->hasMoved())
 	{
 		finishMoves();
@@ -13808,25 +13809,29 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	{
 		setHasPromotion(ePromotion, true);
 
-		if (MOD_BALANCE_VP && !IsCannotHeal(true) && getStartingExperienceTimes100() <= experienceNeeded(getLevel() - 1) * 100)
+		if (MOD_BALANCE_VP && getStartingExperienceTimes100() <= experienceNeeded(getLevel() - 1) * 100)
 		{
 			//Insta-heal removed, gain health with each promotion not obtained from starting XP instead.
-			changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
-		}
-		if (getOriginCity() != NULL)
-		{
-			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType()==DOMAIN_SEA, true, false, NO_YIELD, this);
-		}
-		else if (getOriginCity() == NULL)
-		{
-			CvCity* pCapital = kPlayer.getCapitalCity();
-			if (pCapital)
+			if (!IsCannotHeal(true))
+				changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
+
+			// Yields from level up aren't triggered by promotions obtained from starting XP
+			if (!getOriginCity())
 			{
-				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCapital, getDomainType()==DOMAIN_SEA, true, false, NO_YIELD, this);
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 			}
+			else
+			{
+				CvCity* pCapital = kPlayer.getCapitalCity();
+				if (pCapital)
+				{
+					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCapital, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
+				}
+			}
+
+			// Global yields
+			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, NULL, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 		}
-		// global yields
-		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, NULL, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 
 		if (MOD_EVENTS_UNIT_UPGRADES)
 		{
@@ -21978,7 +21983,7 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontSh
 		ASSERT(getExperienceTimes100() >= 0);
 
 		if (bStartingXP)
-			m_iStartingExperienceTimes100 = m_iExperienceTimes100;
+			setStartingExperienceTimes100(m_iExperienceTimes100);
 
 		if(getOwner() == GC.getGame().getActivePlayer() && !bDontShow && iExperienceChange > 0)
 		{
@@ -22228,6 +22233,13 @@ int CvUnit::getStartingExperienceTimes100() const
 {
 	VALIDATE_OBJECT();
 	return m_iStartingExperienceTimes100;
+}
+
+void CvUnit::setStartingExperienceTimes100(int iValue)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(iValue >= 0, "Starting experience must be non-negative");
+	m_iStartingExperienceTimes100 = iValue;
 }
 
 //	--------------------------------------------------------------------------------
