@@ -20,6 +20,10 @@ protected:
 	static int lTryDisableEngineYieldIconManager(lua_State* L);
 	static int lCanEnableTunerInMultiplayer(lua_State* L);
 	static int lTryEnableTunerInMultiplayer(lua_State* L);
+	static int lCanGrowUICommandStream(lua_State* L);
+	static int lTryGrowUICommandStream(lua_State* L);
+	static int lCanGetUICommandStreamUsage(lua_State* L);
+	static int lTryGetUICommandStreamUsage(lua_State* L);
 };
 
 #endif // CV_LUA_EXE_H

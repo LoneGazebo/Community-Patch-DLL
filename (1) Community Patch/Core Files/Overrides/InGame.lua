@@ -23,6 +23,8 @@ end
 local alertTable = {};
 local mustRefreshAlerts = false;
 
+local g_IsGrowingUICommandStream = true
+
 local bHideDebug = true;
 local g_ShowWorkerRecommendation = not Game.IsNetworkMultiPlayer();
 local lastCityEntered = nil;
@@ -1071,6 +1073,14 @@ Events.SerialEventUnitDestroyed.Add( OnUnitDestroyed );
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function OnUpdate(fDTime)
+
+	if g_IsGrowingUICommandStream then
+		local ok, reason = Exe.TryGrowUICommandStream()
+
+		if ok or reason ~= "pending" then
+			g_IsGrowingUICommandStream = false
+		end
+	end
 
 	if #alertTable > 0 then
 		for i, v in ipairs( alertTable ) do

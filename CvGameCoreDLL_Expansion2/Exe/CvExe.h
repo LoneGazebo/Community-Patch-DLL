@@ -21,6 +21,8 @@ namespace Exe
 		REASON_NOT_MULTIPLAYER,
 		REASON_TUNER_OFF,
 		REASON_ALREADY_ENABLED,
+		REASON_PENDING,
+		REASON_NOT_IMPLEMENTED,
 		REASON_BUSY,
 		NUM_REASONS
 	};
@@ -35,6 +37,16 @@ namespace Exe
 
 	Reason CanDisableEngineYieldIconManager();
 	Reason TryDisableEngineYieldIconManager();
+
+	//! UI thread only
+	Reason CanGrowUICommandStream();
+	Reason TryGrowUICommandStream();
+
+	Reason CanGetUICommandStreamUsage();
+	Reason TryGetUICommandStreamUsage(
+		unsigned int& uiUsed,
+		unsigned int& uiCapacity
+	);
 
 	Reason CanEnableTunerInMultiplayer();
 	Reason TryEnableTunerInMultiplayer();
