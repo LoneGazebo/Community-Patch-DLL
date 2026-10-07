@@ -33,7 +33,7 @@ int CvLuaExe::pRegister(lua_State* L)
 	if (lua_isnil(L, -1))
 	{
 		lua_pop(L, 1);
-		lua_createtable(L, 0, 5);
+		lua_createtable(L, 0, 9);
 		lua_pushvalue(L, -1);
 		lua_setglobal(L, "Exe");
 	}
@@ -52,6 +52,18 @@ int CvLuaExe::pRegister(lua_State* L)
 
 	lua_pushcclosure(L, lTryDisableEngineYieldIconManager, 0);
 	lua_setfield(L, -2, "TryDisableEngineYieldIconManager");
+
+	lua_pushcclosure(L, lCanGrowUICommandStream, 0);
+	lua_setfield(L, -2, "CanGrowUICommandStream");
+
+	lua_pushcclosure(L, lTryGrowUICommandStream, 0);
+	lua_setfield(L, -2, "TryGrowUICommandStream");
+
+	lua_pushcclosure(L, lCanGetUICommandStreamUsage, 0);
+	lua_setfield(L, -2, "CanGetUICommandStreamUsage");
+
+	lua_pushcclosure(L, lTryGetUICommandStreamUsage, 0);
+	lua_setfield(L, -2, "TryGetUICommandStreamUsage");
 
 	lua_pop(L, 1);
 
@@ -83,4 +95,41 @@ int CvLuaExe::lCanDisableEngineYieldIconManager(lua_State* L)
 int CvLuaExe::lTryDisableEngineYieldIconManager(lua_State* L)
 {
 	return PushResult(L, Exe::TryDisableEngineYieldIconManager());
+}
+
+int CvLuaExe::lCanGrowUICommandStream(lua_State* L)
+{
+	return PushResult(L, Exe::CanGrowUICommandStream());
+}
+
+int CvLuaExe::lTryGrowUICommandStream(lua_State* L)
+{
+	return PushResult(L, Exe::TryGrowUICommandStream());
+}
+
+int CvLuaExe::lCanGetUICommandStreamUsage(lua_State* L)
+{
+	return PushResult(L, Exe::CanGetUICommandStreamUsage());
+}
+
+int CvLuaExe::lTryGetUICommandStreamUsage(lua_State* L)
+{
+	unsigned int uiUsed = 0;
+	unsigned int uiCapacity = 0;
+	const Exe::Reason eReason =
+		Exe::TryGetUICommandStreamUsage(uiUsed, uiCapacity);
+
+	if (eReason != Exe::REASON_OK)
+	{
+		return PushResult(L, eReason);
+	}
+
+	lua_pushboolean(L, true);
+	lua_createtable(L, 0, 2);
+	lua_pushinteger(L, uiUsed);
+	lua_setfield(L, -2, "used");
+	lua_pushinteger(L, uiCapacity);
+	lua_setfield(L, -2, "capacity");
+
+	return 2;
 }

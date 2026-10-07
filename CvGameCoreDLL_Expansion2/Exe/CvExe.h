@@ -14,6 +14,8 @@ namespace Exe
 		REASON_NOT_NETWORK_GAME,
 		REASON_NOT_HOST,
 		REASON_UNAVAILABLE,
+		REASON_PENDING,
+		REASON_NOT_IMPLEMENTED,
 		NUM_REASONS
 	};
 
@@ -27,6 +29,16 @@ namespace Exe
 
 	Reason CanDisableEngineYieldIconManager();
 	Reason TryDisableEngineYieldIconManager();
+
+	//! UI thread only
+	Reason CanGrowUICommandStream();
+	Reason TryGrowUICommandStream();
+
+	Reason CanGetUICommandStreamUsage();
+	Reason TryGetUICommandStreamUsage(
+		unsigned int& uiUsed,
+		unsigned int& uiCapacity
+	);
 }
 
 #endif // CV_EXE_H

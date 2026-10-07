@@ -24,6 +24,10 @@ namespace ExeSymbols
 	//! Resolves on first use.
 	bool IsResolved(ExeSymbol eSymbol);
 
+	//! Whether the running build has it at all (its column isn't EXE_NONE),
+	//! resolved or not.
+	bool IsInBuild(ExeSymbol eSymbol);
+
 	//! Runtime address (or, for EXE_OFFSET, the offset). 0 if the symbol is
 	//! not resolved.
 	DWORD Get(ExeSymbol eSymbol);
