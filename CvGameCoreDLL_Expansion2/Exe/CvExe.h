@@ -18,6 +18,8 @@ namespace Exe
 		REASON_UNAVAILABLE,
 		REASON_NOT_UI_THREAD,
 		REASON_WRONG_EVENT_CHANNEL,
+		REASON_PENDING,
+		REASON_NOT_IMPLEMENTED,
 		REASON_BUSY,
 		NUM_REASONS
 	};
@@ -32,6 +34,16 @@ namespace Exe
 
 	Reason CanDisableEngineYieldIconManager();
 	Reason TryDisableEngineYieldIconManager();
+
+	//! UI thread only
+	Reason CanGrowUICommandStream();
+	Reason TryGrowUICommandStream();
+
+	Reason CanGetUICommandStreamUsage();
+	Reason TryGetUICommandStreamUsage(
+		unsigned int& uiUsed,
+		unsigned int& uiCapacity
+	);
 
 	//! The engine keeps a removed Palace in a city's art (its Palace branch
 	//! clears the wrong field), so a captured capital kept its Palace model
