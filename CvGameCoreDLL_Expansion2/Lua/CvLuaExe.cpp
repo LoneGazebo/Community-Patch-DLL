@@ -40,7 +40,7 @@ void CvLuaExe::RegisterGlobals(lua_State* L)
 	if (lua_isnil(L, -1))
 	{
 		lua_pop(L, 1);
-		lua_createtable(L, 0, 7);
+		lua_createtable(L, 0, 11);
 		lua_pushvalue(L, -1);
 		lua_setglobal(L, "Exe");
 	}
@@ -65,6 +65,18 @@ void CvLuaExe::RegisterGlobals(lua_State* L)
 
 	lua_pushcclosure(L, lTryEnableTunerInMultiplayer, 0);
 	lua_setfield(L, -2, "TryEnableTunerInMultiplayer");
+
+	lua_pushcclosure(L, lCanGrowUICommandStream, 0);
+	lua_setfield(L, -2, "CanGrowUICommandStream");
+
+	lua_pushcclosure(L, lTryGrowUICommandStream, 0);
+	lua_setfield(L, -2, "TryGrowUICommandStream");
+
+	lua_pushcclosure(L, lCanGetUICommandStreamUsage, 0);
+	lua_setfield(L, -2, "CanGetUICommandStreamUsage");
+
+	lua_pushcclosure(L, lTryGetUICommandStreamUsage, 0);
+	lua_setfield(L, -2, "TryGetUICommandStreamUsage");
 
 	lua_pop(L, 1);
 }
@@ -104,4 +116,46 @@ int CvLuaExe::lCanEnableTunerInMultiplayer(lua_State* L)
 int CvLuaExe::lTryEnableTunerInMultiplayer(lua_State* L)
 {
 	return PushResultFromUIThread(L, Exe::TryEnableTunerInMultiplayer);
+}
+
+int CvLuaExe::lCanGrowUICommandStream(lua_State* L)
+{
+	return PushResultFromUIThread(L, Exe::CanGrowUICommandStream);
+}
+
+int CvLuaExe::lTryGrowUICommandStream(lua_State* L)
+{
+	return PushResultFromUIThread(L, Exe::TryGrowUICommandStream);
+}
+
+int CvLuaExe::lCanGetUICommandStreamUsage(lua_State* L)
+{
+	return PushResultFromUIThread(L, Exe::CanGetUICommandStreamUsage);
+}
+
+int CvLuaExe::lTryGetUICommandStreamUsage(lua_State* L)
+{
+	if (gDLL->IsGameCoreThread())
+	{
+		return PushResult(L, Exe::REASON_NOT_UI_THREAD);
+	}
+
+	unsigned int uiUsed = 0;
+	unsigned int uiCapacity = 0;
+	const Exe::Reason eReason =
+		Exe::TryGetUICommandStreamUsage(uiUsed, uiCapacity);
+
+	if (eReason != Exe::REASON_OK)
+	{
+		return PushResult(L, eReason);
+	}
+
+	lua_pushboolean(L, true);
+	lua_createtable(L, 0, 2);
+	lua_pushinteger(L, uiUsed);
+	lua_setfield(L, -2, "used");
+	lua_pushinteger(L, uiCapacity);
+	lua_setfield(L, -2, "capacity");
+
+	return 2;
 }
