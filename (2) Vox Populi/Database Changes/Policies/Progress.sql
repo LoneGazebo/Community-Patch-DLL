@@ -30,7 +30,7 @@ VALUES
 INSERT INTO Policy_InstantYield
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_LIBERTY', 'YIELD_SCIENCE', 75);
+	('POLICY_LIBERTY', 'YIELD_SCIENCE', 50);
 
 INSERT INTO Policy_YieldFromTech
 	(PolicyType, YieldType, Yield)
