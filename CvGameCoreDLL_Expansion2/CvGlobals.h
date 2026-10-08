@@ -410,7 +410,6 @@ public:
 	int getNumUnitCombatClassInfos();
 	std::vector<CvBaseInfo*>& getUnitCombatClassInfo();
 	_Ret_maybenull_ CvBaseInfo* getUnitCombatClassInfo(UnitCombatTypes e);
-	inline UnitCombatTypes getUnitCombatMountedType() const { return m_eUnitCombatMountedType; }
 
 	std::vector<CvBaseInfo*>& getUnitAIInfo();
 	_Ret_maybenull_ CvBaseInfo* getUnitAIInfo(UnitAITypes eUnitAINum);
@@ -2569,6 +2568,7 @@ public:
 	GD_INT_MEMBER(MARCH_SKIRMISHER_PROMOTION); // VP
 	GD_INT_MEMBER(PRISONERS_OF_WAR_PROMOTION); // VP
 	GD_INT_MEMBER(MORALE_PROMOTION); // VP
+	GD_INT_MEMBER(UNITCOMBAT_MOUNTED); // VP
 
 	////////////// END DEFINES //////////////////
 
@@ -2729,7 +2729,6 @@ protected:
 	std::vector<CvCityEventChoiceLinkingInfo*> m_paCityEventChoiceLinkingInfo;
 	std::vector<CvContractEntry*> m_paContractInfo;
 	std::vector<CvBaseInfo*> m_paUnitCombatClassInfo;
-	UnitCombatTypes m_eUnitCombatMountedType;
 	std::vector<CvBaseInfo*> m_paUnitAIInfos;
 	std::vector<CvGameOptionInfo*> m_paGameOptionInfos;
 	std::vector<CvMPOptionInfo*> m_paMPOptionInfos;
