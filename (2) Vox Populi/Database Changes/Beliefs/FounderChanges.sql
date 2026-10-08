@@ -5,11 +5,12 @@ SET
 	CityScalerLimiter = 25
 WHERE Type = 'BELIEF_CEREMONIAL_BURIAL';
 
-INSERT INTO Belief_YieldFromGPUse
-	(BeliefType, YieldType, Yield)
-VALUES
-	('BELIEF_CEREMONIAL_BURIAL', 'YIELD_CULTURE', 10),
-	('BELIEF_CEREMONIAL_BURIAL', 'YIELD_FAITH', 10);
+INSERT INTO Belief_GreatPersonExpendedYield
+	(BeliefType, GreatPersonType, YieldType, Yield)
+SELECT
+	'BELIEF_CEREMONIAL_BURIAL', gp.Type, y.Type, 25
+FROM GreatPersons gp, Yields y
+WHERE y.Type IN ('YIELD_CULTURE', 'YIELD_FAITH');
 
 -- Papal Primacy (now Council of Elders)
 UPDATE Beliefs
