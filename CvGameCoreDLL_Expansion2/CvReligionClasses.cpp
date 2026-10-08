@@ -8398,14 +8398,9 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, CvWeightedVector<int> viPlo
 					{
 						for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 						{
-							if (pkBeliefInfo->GetYieldFromGPUse(iI) > 0)
-							{
-								bReligionGPFocus = true;
-								break;
-							}
 							for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 							{
-								if (pkBeliefInfo->GetGreatPersonExpendedYield(iJ, iI) > 0 || pkBeliefInfo->GetGreatPersonBornYield(iJ, iI) > 0)
+								if (pkBeliefInfo->GetGreatPersonExpendedYield(iJ, iI, true) > 0 || pkBeliefInfo->GetGreatPersonExpendedYield(iJ, iI, false) > 0 || pkBeliefInfo->GetGreatPersonBornYield(iJ, iI) > 0)
 								{
 									bReligionGPFocus = true;
 									break;
@@ -9373,23 +9368,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, ReligionTypes eFor
 		}
 	}
 
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		if (pEntry->GetYieldFromGPUse(iI) > 0)
-		{
-			int iScorePerGP = 10 * min(pEntry->GetCityScalerLimiter(), iNumCitiesWithReligionTotal + iNumNearbyCitiesToSpreadTo) * pEntry->GetYieldFromGPUse(iI) * vYieldScores[iI] * iEraScaleFactorTimes100 / 10000;
-
-			for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
-			{
-				GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-				if (eGP == NO_GREATPERSON)
-					continue;
-
-				iGPTemp += iScorePerGP / m_pPlayer->EstimateGreatPersonRate(eGP) * (100 + pEntry->GetGreatPersonRateModifier(eGP)) / 100;
-			}
-		}
-	}
-
 	for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 	{
 		GreatPersonTypes eGP = (GreatPersonTypes)iJ;
@@ -9398,9 +9376,13 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, ReligionTypes eFor
 
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			if (pEntry->GetGreatPersonExpendedYield(iJ, iI) > 0)
+			if (pEntry->GetGreatPersonExpendedYield(iJ, iI, true) > 0)
 			{
-				iGPTemp += 10 * min(pEntry->GetCityScalerLimiter(), iNumCitiesWithReligionTotal + iNumNearbyCitiesToSpreadTo) * pEntry->GetGreatPersonExpendedYield(iJ, iI) * vYieldScores[iI] / 100 / m_pPlayer->EstimateGreatPersonRate(eGP) * (100 + pEntry->GetGreatPersonRateModifier(eGP)) / 100;
+				iGPTemp += 10 * min(pEntry->GetCityScalerLimiter(), iNumCitiesWithReligionTotal + iNumNearbyCitiesToSpreadTo) * pEntry->GetGreatPersonExpendedYield(iJ, iI, true) * vYieldScores[iI] / 100 / m_pPlayer->EstimateGreatPersonRate(eGP) * (100 + pEntry->GetGreatPersonRateModifier(eGP)) / 100;
+			}
+			if (pEntry->GetGreatPersonExpendedYield(iJ, iI, false) > 0)
+			{
+				iGPTemp += 5 * min(pEntry->GetCityScalerLimiter(), iNumCitiesWithReligionTotal + iNumNearbyCitiesToSpreadTo) * pEntry->GetGreatPersonExpendedYield(iJ, iI, false) * vYieldScores[iI] / 100 / m_pPlayer->EstimateGreatPersonRate(eGP) * (100 + pEntry->GetGreatPersonRateModifier(eGP)) / 100;
 			}
 			if (pEntry->GetGreatPersonBornYield(eGP, iI) > 0)
 			{
