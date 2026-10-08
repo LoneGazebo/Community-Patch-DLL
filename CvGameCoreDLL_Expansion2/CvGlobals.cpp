@@ -1972,6 +1972,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(JUGGERNAUT_PROMOTION, -1),
 	GD_INT_INIT(MARCH_PROMOTION, -1),
 	GD_INT_INIT(MARCH_SKIRMISHER_PROMOTION, -1),
+	GD_INT_INIT(UNITCOMBAT_MOUNTED, -1),
 	GD_INT_INIT(PRISONERS_OF_WAR_PROMOTION, -1),
 	GD_INT_INIT(MORALE_PROMOTION, -1),
 	m_bGraphicsInitialized(false),
@@ -2005,7 +2006,6 @@ CvGlobals::CvGlobals() :
 
 	////////////// END DEFINES //////////////////
 
-	m_eUnitCombatMountedType(NO_UNITCOMBAT),
 	m_pCitySpecializations(NULL),
 	m_pMilitaryAIStrategies(NULL),
 	m_pAIGrandStrategies(NULL),
@@ -4500,9 +4500,6 @@ void CvGlobals::GameDataPostCache()
 
 		pUnitInfo->CacheResourceQuantityCheckIDs();
 	}
-
-	// Mounted units can have a secondary combat class, checked in the combat strength code
-	m_eUnitCombatMountedType = static_cast<UnitCombatTypes>(getInfoTypeForString("UNITCOMBAT_MOUNTED", true));
 
 	// Cache Great Person lookups
 	for (int iI = 0; iI < getNumGreatPersonInfos(); ++iI)
@@ -7436,6 +7433,7 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(JUGGERNAUT_PROMOTION);
 	GD_INT_CACHE(MARCH_PROMOTION);
 	GD_INT_CACHE(MARCH_SKIRMISHER_PROMOTION);
+	GD_INT_CACHE(UNITCOMBAT_MOUNTED);
 	GD_INT_CACHE(PRISONERS_OF_WAR_PROMOTION);
 	GD_INT_CACHE(MORALE_PROMOTION);
 
