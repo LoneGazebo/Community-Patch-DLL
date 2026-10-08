@@ -101,7 +101,6 @@ public:
 	int GetYieldPerBirth(int i) const;
 	int GetYieldPerHolyCityBirth(int i) const;
 	int GetYieldPerScience(int i) const;
-	int GetYieldFromGPUse(int i) const;
 	int GetYieldBonusGoldenAge(int i) const;
 	int GetYieldFromSpread(int i) const;
 	int GetYieldFromForeignSpread(int i) const;
@@ -169,7 +168,7 @@ public:
 	int GetTerrainYieldChange(int i, int j) const;
 	int GetTradeRouteYieldChange(int i, int j) const;
 	int GetSpecialistYieldChange(int i, int j) const;
-	int GetGreatPersonExpendedYield(int i, int j) const;
+	int GetGreatPersonExpendedYield(int i, int j, bool bEraScaling) const;
 	int GetGreatPersonBornYield(int i, int j) const;
 	int GetGreatPersonRateModifier(int i) const;
 	int GetGoldenAgeGreatPersonRateModifier(int i) const;
@@ -293,6 +292,7 @@ protected:
 	int** m_ppiTradeRouteYieldChange;
 	int** m_ppiSpecialistYieldChange;
 	int** m_ppiGreatPersonExpendedYield;
+	int** m_ppiGreatPersonExpendedYieldEraScaling;
 	int** m_ppiGreatPersonBornYield;
 	int* m_piGreatPersonRateModifier;
 	int* m_piGoldenAgeGreatPersonRateModifier;
@@ -335,7 +335,6 @@ protected:
 	int* m_piYieldPerBirth;
 	int* m_piYieldPerHolyCityBirth;
 	int* m_piYieldPerScience;
-	int* m_piYieldFromGPUse;
 	int* m_piYieldBonusGoldenAge;
 	int* m_piYieldFromSpread;
 	int* m_piYieldFromForeignSpread;
@@ -507,8 +506,8 @@ public:
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, int iNumFollowerCities = 1) const;
+	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType, bool bEraScaling, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, int iNumFollowerCities = 1) const;
+	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, int iNumFollowerCities = 1) const;
 	int GetGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
@@ -561,7 +560,6 @@ public:
 	int GetYieldPerBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerHolyCityBirth(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false, int iNumFollowerCities = 1) const;
 	int GetYieldPerScience(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetYieldFromGPUse(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldBonusGoldenAge(YieldTypes eYieldType, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromSpread(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldFromForeignSpread(YieldTypes eYieldType , PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

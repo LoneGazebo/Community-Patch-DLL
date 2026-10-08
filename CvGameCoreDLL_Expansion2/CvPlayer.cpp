@@ -26304,15 +26304,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					if (pReligion)
 					{
 						int iChange = 0;
-						// GetYieldFromGPUse (does scale with era + city limiter)
-						iChange = pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
-						if (bEraScale)
-						{
-							iChange *= iEra;
-						}
+						iChange = pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, true, GetID(), pLoopCity, true, iNumFollowerCities) * iEra;
 						iValue += iChange;
-						// GetGreatPersonExpendedYield (does not scale with era but with city)
-						iChange = pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+						iChange = pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, false, GetID(), pLoopCity, true, iNumFollowerCities);
 						iValue += iChange;
 					}
 
@@ -43231,11 +43225,7 @@ void CvPlayer::LogReligionBeliefInstantYields(InstantYieldType iType, CvCity* pL
 			break;
 		case INSTANT_YIELD_TYPE_GP_USE:
 		{
-			long long iChange = (long long)pkBelief->GetYieldFromGPUse(eYield) * iCityScaler;
-			if (bEraScale)
-				iChange *= iEra;
-			iValue = iChange;
-			iValue += (long long)pkBelief->GetGreatPersonExpendedYield((int)eGreatPerson, (int)eYield) * iCityScaler;
+			iValue = ((long long)pkBelief->GetGreatPersonExpendedYield((int)eGreatPerson, (int)eYield, true) * iEra + (long long)pkBelief->GetGreatPersonExpendedYield((int)eGreatPerson, (int)eYield, false)) * iNumFollowerCities;
 			break;
 		}
 		case INSTANT_YIELD_TYPE_GP_BORN:
