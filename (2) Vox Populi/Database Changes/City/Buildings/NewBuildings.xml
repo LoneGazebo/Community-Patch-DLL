@@ -184,6 +184,13 @@
 			<Description>TXT_KEY_BUILDING_SCRIVENERS_OFFICE</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
+		<!-- Master Shipwright -->
+		<Row>
+			<Type>BUILDINGCLASS_MASTER_SHIPWRIGHT</Type>
+			<DefaultBuilding>BUILDING_MASTER_SHIPWRIGHT</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
 		<!-- Ministerial District -->
 		<Row>
 			<Type>BUILDINGCLASS_MINISTERIAL_DISTRICT</Type>
@@ -1551,6 +1558,23 @@
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>54</PortraitIndex>
 		</Row>
+		<!-- Master Shipwright -->
+		<Row>
+			<Type>BUILDING_MASTER_SHIPWRIGHT</Type>
+			<BuildingClass>BUILDINGCLASS_MASTER_SHIPWRIGHT</BuildingClass>
+			<Description>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT</Description>
+			<Civilopedia>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT_STRATEGY</Strategy>
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
+			<Water>true</Water>
+			<MinAreaSize>10</MinAreaSize>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>39</PortraitIndex>
+		</Row>
 		<!-- Ministerial District -->
 		<Row>
 			<Type>BUILDING_MINISTERIAL_DISTRICT</Type>
@@ -1725,15 +1749,17 @@
 		<!-- Great Cothon -->
 		<Row>
 			<Type>BUILDING_GREAT_COTHON</Type>
-			<BuildingClass>BUILDINGCLASS_NATIONAL_TREASURY</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_MASTER_SHIPWRIGHT</BuildingClass>
 			<Description>TXT_KEY_BUILDING_GREAT_COTHON</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GREAT_COTHON_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_GREAT_COTHON_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_GREAT_COTHON_STRATEGY</Strategy>
-			<PrereqTech>TECH_GUILDS</PrereqTech>
-			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
-			<TradeRouteRecipientBonus>4</TradeRouteRecipientBonus>
-			<TradeRouteTargetBonus>2</TradeRouteTargetBonus>
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
+			<Water>true</Water>
+			<MinAreaSize>10</MinAreaSize>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>14</PortraitIndex>
 		</Row>
@@ -1994,6 +2020,7 @@
 			<Quote>TXT_KEY_WONDER_PORT_ROYAL_QUOTE</Quote>
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<Water>true</Water>
+			<MinAreaSize>10</MinAreaSize>
 			<ExtraSpies>100</ExtraSpies>
 			<FreeBuildingThisCity>BUILDINGCLASS_HARBOR</FreeBuildingThisCity>
 			<FreePromotion>PROMOTION_PIRACY</FreePromotion>
