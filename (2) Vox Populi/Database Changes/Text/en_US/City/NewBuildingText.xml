@@ -326,7 +326,7 @@
 			<Text>Though taken for granted today, the establishment of regional, national and eventually international news agencies (or wire services) was a major boon to the economic, political and cultural interconnectivity of the world. By standardizing the speed, quality and stability of communication on a global scale, modern news agencies are not only useful for spreading popular and intellectual knowledge, but also the acceleration of discourse between governments. Eventually, most countries would create national wire services that focused on foreign affairs and diplomacy. Many of these organizations were under the control of a nation's foreign bureau.</Text>
 		</Row>
 		
-		<!-- CSD National Wonders -->
+		<!-- National Wonders -->
 		<Row Tag="TXT_KEY_BUILDING_SCRIVENERS_OFFICE">
 			<Text>Scrivener's Office</Text>
 		</Row>
@@ -338,6 +338,19 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SCRIVENERS_OFFICE_TEXT">
 			<Text>The position of royal scrivener, and the office therein, is one of the oldest and most important positions within a civil service. Though the modern state has hundreds of civil servants that write, edit and issue government documentation, in the ancient world these tasks were usually given to one individual, the scrivener. Scrivener's wielded immense power, as they had control over the wording, translations and interpretations of the laws of the land. Because of this great power, a good, loyal scrivener was an invaluable resource.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MASTER_SHIPWRIGHTE">
+			<Text>Master Shipwright</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MASTER_SHIPWRIGHT_STRATEGY">
+			<Text>The Master Shipwright is a good long term investment for a Coastal City that will be producing the rump of your Naval forces. It however has a dual role, providing an additional Engineer Specialist Slot and boosting the value of Engineers in the City by providing additional Great Person Points. This means whichever City you put this in will be encouraged to focus on Engineers, possibly at the expense of other Specialists, so pick carefully!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MASTER_SHIPWRIGHT_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MASTER_SHIPWRIGHT_TEXT">
+			<Text>A master shipwright was the highest-ranking carpenter responsible for building and repairing ships, a role that has evolved over time from a position of command in historic dockyards to a modern role in contemporary shipbuilding projects. Until recently, with the development of complex non-maritime technologies, a ship has often represented the most advanced structure that the society building it could produce. Owing to the critical importance of a strong navy to imperial power, over much of history the most skilled shipwrights were under the employ of the state.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MINISTERIAL_DISTRICT">
