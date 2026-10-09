@@ -1546,7 +1546,7 @@
 			<PrereqTech>TECH_WRITING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
 			<ExtraSpies>50</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>54</PortraitIndex>
@@ -1562,7 +1562,6 @@
 			<PrereqTech>TECH_BANKING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<ExtraSpies>100</ExtraSpies>
 			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>NEW_BLDG_ATLAS_DLC</IconAtlas>
