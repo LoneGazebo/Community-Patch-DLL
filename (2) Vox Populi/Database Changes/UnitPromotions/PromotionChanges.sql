@@ -649,7 +649,7 @@ UPDATE UnitPromotions SET CombatPercent = 10, MovesChange = 1 WHERE Type = 'PROM
 
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_MORALE';
 
-UPDATE UnitPromotions SET CombatPercent = 15 WHERE Type = 'PROMOTION_TRIUMPH';
+UPDATE UnitPromotions SET CombatPercent = 5 WHERE Type = 'PROMOTION_TRIUMPH';
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)
 VALUES
