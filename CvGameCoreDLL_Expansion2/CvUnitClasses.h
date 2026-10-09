@@ -220,6 +220,8 @@ public:
 	int* GetUnitNewEraPromotionsChangesArray(int i);
 
 	int GetResourceQuantityTotal(int i) const;
+	void CacheResourceQuantityCheckIDs();
+	const std::vector<int>& GetResourceQuantityCheckIDs() const;
 
 	bool GetFreePromotions(int i) const;
 
@@ -417,6 +419,7 @@ private:
 	int** m_ppiEraUnitPromotions;
 
 	std::map<int, int> m_piResourceQuantityTotals;
+	std::vector<int> m_viResourceQuantityCheckIDs;
 
 	bool* m_pbFreePromotions;
 

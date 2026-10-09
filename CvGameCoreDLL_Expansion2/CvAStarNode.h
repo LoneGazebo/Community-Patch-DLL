@@ -103,6 +103,11 @@ struct CvPathNodeCacheData
 	//tell us when to update the cache ...
 	unsigned short iGenerationID;
 
+	//end turn danger for the current search, computed on first use
+	//mutable because the cost functions get this struct as const
+	mutable int iEndTurnDanger;
+	mutable bool bEndTurnDangerKnown;
+
 	//housekeeping
 	CvPathNodeCacheData() { clear(); }
 	void clear() { memset(this,0,sizeof(CvPathNodeCacheData)); }

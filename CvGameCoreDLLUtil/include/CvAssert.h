@@ -14,6 +14,21 @@
 
 bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool& bIgnoreAlways, const char* msg);
 
+// Failure-only formatting stays out of successful checked accessor frames.
+// The per-callsite ignore flag and expression evaluation remain in ASSERT.
+void CvAssertFailedFormat(const char* expr, const char* file, unsigned int line, bool& ignore);
+void CvAssertFailedFormat(const char* expr, const char* file, unsigned int line, bool& ignore, const char* format, ...);
+#if defined(_MSC_VER)
+#define CV_PRECONDITION_NORETURN __declspec(noreturn)
+#elif defined(__clang__)
+#define CV_PRECONDITION_NORETURN __attribute__((noreturn))
+#else
+#define CV_PRECONDITION_NORETURN
+#endif
+CV_PRECONDITION_NORETURN void CvPreconditionFailedFormat(const char* expr, const char* file, unsigned int line);
+CV_PRECONDITION_NORETURN void CvPreconditionFailedFormat(const char* expr, const char* file, unsigned int line, const char* format, ...);
+#undef CV_PRECONDITION_NORETURN
+
 // Set breakpoint creation macros
 #if defined (_WIN32)
 #define CVASSERT_BREAKPOINT __debugbreak()
@@ -38,10 +53,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 	static bool bIgnoreAlways = false;														\
 	if( !bIgnoreAlways && !(expr) )								                			\
 	{																						\
-		CvString str;																		\
-		CvString::format(str, __VA_ARGS__);													\
-		if(CvAssertDlg(#expr, __FILE__, __LINE__, bIgnoreAlways, str.c_str()))				\
-			{ CVASSERT_BREAKPOINT; }														\
+		CvAssertFailedFormat(#expr, __FILE__, __LINE__, bIgnoreAlways, __VA_ARGS__);\
 	}																						\
 }
 

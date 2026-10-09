@@ -1972,6 +1972,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(JUGGERNAUT_PROMOTION, -1),
 	GD_INT_INIT(MARCH_PROMOTION, -1),
 	GD_INT_INIT(MARCH_SKIRMISHER_PROMOTION, -1),
+	GD_INT_INIT(UNITCOMBAT_MOUNTED, -1),
 	GD_INT_INIT(PRISONERS_OF_WAR_PROMOTION, -1),
 	GD_INT_INIT(MORALE_PROMOTION, -1),
 	m_bGraphicsInitialized(false),
@@ -4488,6 +4489,16 @@ void CvGlobals::GameDataPostCache()
 		{
 			m_vBuildingsWithSealift.push_back(eOuter);
 		}
+	}
+
+	// Resources each unit needs for CvPlayer::HasResourceForNewUnit
+	for (int iI = 0; iI < getNumUnitInfos(); iI++)
+	{
+		CvUnitEntry* pUnitInfo = getUnitInfo(static_cast<UnitTypes>(iI));
+		if (pUnitInfo == NULL)
+			continue;
+
+		pUnitInfo->CacheResourceQuantityCheckIDs();
 	}
 
 	// Cache Great Person lookups
@@ -7422,6 +7433,7 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(JUGGERNAUT_PROMOTION);
 	GD_INT_CACHE(MARCH_PROMOTION);
 	GD_INT_CACHE(MARCH_SKIRMISHER_PROMOTION);
+	GD_INT_CACHE(UNITCOMBAT_MOUNTED);
 	GD_INT_CACHE(PRISONERS_OF_WAR_PROMOTION);
 	GD_INT_CACHE(MORALE_PROMOTION);
 

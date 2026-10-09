@@ -80,7 +80,7 @@
 /// Similar to `ASSERT`, calling PRECONDITION with an expression that is `false` will cause the game to crash.
 // Depending on the project settings (see `CVASSERT_ENABLE` in CvAssert.h) a message dialog may be shown in both debug and release configurations.
 
-#define PRECONDITION(expr, ...) if (!(expr)) {CvString str; CvString::format(str, __VA_ARGS__); CvPreconditionDlg(#expr, __FILE__, __LINE__, str.c_str()); BUILTIN_TRAP();}
+#define PRECONDITION(expr, ...) if (!(expr)) {CvPreconditionFailedFormat(#expr, __FILE__, __LINE__, __VA_ARGS__);}
 /// Indicates that some location is unreachable.
 ///
 /// Reaching this location during execution will result in the program trapping.
