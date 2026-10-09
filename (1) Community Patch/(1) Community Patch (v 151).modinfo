@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="151">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.4.6) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.4.7) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -511,7 +511,7 @@
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
     <File md5="9B2473A02E44E30D7015F8EEF582D2F2" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="4556AC94FC156B5EF5A09EF1B66BE666" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="9D117BE356D6085B78267C200AEAC512" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Changes/AddTableIndexes.sql</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
@@ -573,7 +573,7 @@
     <File md5="37E48ED89CFEBAC31E1DFFCA1087CF4D" import="0">Database Changes/Concepts/CoreConceptChanges.sql</File>
     <File md5="5AFB377345571BA35644B7880D3CF0BC" import="0">Database Changes/Concepts/CoreNewConcepts.xml</File>
     <File md5="38862270A17CC8A2A8339A404BBA242B" import="0">Database Changes/Corporations/NewCorporationTables.xml</File>
-    <File md5="F169A9A60FA2588D1779A2B7D43FAF99" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
+    <File md5="1E9FEC172DDAB4CB7E194D3BEDA953FA" import="0">Database Changes/Defines/CoreDefineChanges.sql</File>
     <File md5="38423CA4E92012D35A08858ABD75C49F" import="0">Database Changes/Defines/DiploApproachWeights.sql</File>
     <File md5="8D106B4818727BDA9923E99D5FF2BCEF" import="0">Database Changes/Defines/DiploOpinionWeights.sql</File>
     <File md5="90ED5D6EE6AE8620EA764EB0531CA72E" import="0">Database Changes/Difficulty/CoreDifficultyChanges.sql</File>
