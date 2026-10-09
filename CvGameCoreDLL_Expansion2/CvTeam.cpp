@@ -2415,19 +2415,19 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
 						locString << strTheirTeamName.GetCString();
-						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
 					}
 					else if (IsAllowsOpenBordersToTeam(eTeam))
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
 						locString << strTheirTeamName.GetCString();
-						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
 					}
 					else
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
 						locString << strTheirTeamName.GetCString();
-						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
 					}
 					locString << strFirstPlayerAllyInformation;
 					locString << strSecondPlayerAllyInformation;
@@ -2458,19 +2458,19 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
 						locString << strOurTeamName.GetCString();
-						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
 					}
 					else if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
 						locString << strOurTeamName.GetCString();
-						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
 					}
 					else
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
 						locString << strOurTeamName.GetCString();
-						locString << /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
 					}
 					locString << strFirstPlayerAllyInformation;
 					locString << strSecondPlayerAllyInformation;
@@ -4912,7 +4912,7 @@ int CvTeam::GetRemainingDisengagementTurns(TeamTypes eIndex) const
 		return -1;
 
 	// Disengagement turns > 0?
-	int iDisengagementTurns = /*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+	int iDisengagementTurns = /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
 	if (iDisengagementTurns <= 0)
 		return -1;
 
