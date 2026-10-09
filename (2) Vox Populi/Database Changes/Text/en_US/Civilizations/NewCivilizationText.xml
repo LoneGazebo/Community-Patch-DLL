@@ -1080,16 +1080,16 @@
 
 		<!-- Netherlands -->
 		<Row Tag="TXT_KEY_BUILD_POLDER_HELP">
-			<Text>Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 3 land tiles.</Text>
+			<Text>Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 2 land tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_POLDER_REC">
-			<Text>It will increase [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold.</Text>
+			<Text>It will increase [ICON_FOOD] Food and [ICON_PRODUCTION] Production, with additional [ICON_GOLD] Gold at [COLOR_CYAN]Economics[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_POLDER_WATER_HELP">
-			<Text>Allows land units to traverse this tile without embarkation. Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 3 land tiles.</Text>
+			<Text>Allows land units to traverse this tile without embarkation. Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 2 land tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_POLDER_WATER_REC">
-			<Text>It will increase [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold.[NEWLINE]Allows land units to traverse this tile without embarkation.</Text>
+			<Text>It will increase [ICON_FOOD] Food and [ICON_PRODUCTION] Production, with additional [ICON_GOLD] Gold at [COLOR_CYAN]Economics[ENDCOLOR].[NEWLINE]Allows land units to traverse this tile without embarkation.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_DOELEN">
