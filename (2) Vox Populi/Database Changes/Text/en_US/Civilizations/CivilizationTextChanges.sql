@@ -575,7 +575,7 @@ SET Text = 'The {TXT_KEY_UNIT_SEA_BEGGAR} is the Dutch unique unit, replacing th
 WHERE Tag = 'TXT_KEY_UNIT_SEA_BEGGAR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 3 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.'
+SET Text = 'Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 2 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP';
 
 UPDATE Language_en_US
