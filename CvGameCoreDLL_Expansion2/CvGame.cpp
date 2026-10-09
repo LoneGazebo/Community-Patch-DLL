@@ -8517,7 +8517,7 @@ void CvGame::doTurn()
 
 	// After disengagement ends, bump any units out of tiles where they shouldn't be
 	// Don't iterate through all tiles *and* all players, that's expensive - only check any teams where disengagement just ended
-	if (/*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) > 0)
+	if (/*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) > 0)
 	{
 		vector<TeamTypes> vTeams;
 		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
