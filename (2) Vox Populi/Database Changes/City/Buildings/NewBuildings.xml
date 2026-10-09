@@ -1546,7 +1546,7 @@
 			<PrereqTech>TECH_WRITING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
 			<ExtraSpies>50</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>54</PortraitIndex>
@@ -1562,7 +1562,6 @@
 			<PrereqTech>TECH_BANKING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<ExtraSpies>100</ExtraSpies>
 			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>NEW_BLDG_ATLAS_DLC</IconAtlas>
@@ -1687,7 +1686,6 @@
 			<PrereqTech>TECH_BANKING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<ExtraSpies>100</ExtraSpies>
 			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
@@ -1749,7 +1747,6 @@
 			<PrereqTech>TECH_BANKING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<ExtraSpies>100</ExtraSpies>
 			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
@@ -1827,8 +1824,8 @@
 			<Help>TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_STRATEGY</Strategy>
 			<PrereqTech>TECH_DRAMA</PrereqTech>
-			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
 			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
+			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
 			<GreatWorkCount>1</GreatWorkCount>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>47</PortraitIndex>
