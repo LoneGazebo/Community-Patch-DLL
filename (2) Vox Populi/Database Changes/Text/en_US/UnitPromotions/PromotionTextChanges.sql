@@ -164,6 +164,11 @@ UPDATE Language_en_US
 SET Text = '+1 [ICON_RANGE_STRENGTH] Range.[NEWLINE]-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.'
 WHERE Tag = 'TXT_KEY_PROMOTION_RANGE_HELP';
 
+-- Range (air)
+UPDATE Language_en_US
+SET Text = 'Air Range'
+WHERE Tag = 'TXT_KEY_PROMOTION_AIR_RANGE';
+
 -- Mobility, Mobility I, Mobility II
 UPDATE Language_en_US
 SET Text = '+1 [ICON_MOVES] Movement.'
