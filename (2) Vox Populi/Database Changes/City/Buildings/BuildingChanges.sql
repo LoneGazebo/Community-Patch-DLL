@@ -1405,7 +1405,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 INSERT INTO Building_YieldPerFriendTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_GOLD', 25
+	Type, 'YIELD_GOLD', 50
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_HOUSE';
 
