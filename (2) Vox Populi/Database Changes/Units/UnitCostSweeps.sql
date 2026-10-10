@@ -40,24 +40,24 @@ CREATE TEMP TABLE TechTier_UnitCosts (
 
 INSERT INTO TechTier_UnitCosts
 VALUES
-	(0, 40, 45, 100),
+	(0, 40, 45, 100), -- ancient
 	(1, 50, 55, 100),
 	(2, 70, 90, 150),
-	(3, 90, 100, 200),
+	(3, 90, 100, 200), -- classical
 	(4, 110, 130, 250),
-	(5, 135, 175, 300),
-	(6, 160, 200, 350),
-	(7, 300, 350, 500),
-	(8, 325, 350, 600),
-	(9, 625, 900, 800),
-	(10, 700, 800, 900),
-	(11, 900, 1000, 1100),
-	(12, 950, 1300, 1200),
-	(13, 1300, 1800, 1400),
+	(5, 135, 185, 300), -- medieval
+	(6, 180, 240, 350),
+	(7, 300, 360, 500), -- renaissance
+	(8, 400, 450, 600),
+	(9, 600, 700, 800), -- industrial
+	(10, 800, 850, 900),
+	(11, 900, 1100, 1100), -- modern
+	(12, 1100, 1400, 1200),
+	(13, 1300, 1800, 1400), -- atomic
 	(14, 1500, 2000, 1500),
-	(15, 1800, 2250, 1700),
-	(16, 2600, 3000, 1800),
-	(17, 2600, 3000, 1800);
+	(15, 1800, 2500, 1700), -- information
+	(16, 2600, 4000, 1800),
+	(17, 2600, 4000, 1800);
 
 -- Melee, Ranged, Recon
 UPDATE Units
@@ -168,10 +168,10 @@ UPDATE Units SET Cost = 40, FaithCost = 100 WHERE Class IN ('UNITCLASS_WARRIOR',
 
 -- Outliers
 UPDATE Units SET Cost = 100 WHERE Class = 'UNITCLASS_SWORDSMAN';
-UPDATE Units SET Cost = 160 WHERE Class = 'UNITCLASS_LONGSWORDSMAN';
-UPDATE Units SET Cost = 125 WHERE Class = 'UNITCLASS_FREE_COMPANY';
+UPDATE Units SET Cost = 170 WHERE Class = 'UNITCLASS_LONGSWORDSMAN';
+UPDATE Units SET Cost = 135 WHERE Class = 'UNITCLASS_FREE_COMPANY';
 UPDATE Units SET Cost = 550 WHERE Class = 'UNITCLASS_FOREIGNLEGION';
-UPDATE Units SET Cost = 2500 WHERE Class = 'UNITCLASS_MODERN_ARMOR';
+UPDATE Units SET Cost = 3000 WHERE Class = 'UNITCLASS_MODERN_ARMOR';
 
 -- Unique Units
 UPDATE Units SET Cost = 70, FaithCost = 150 WHERE Type = 'UNIT_CELT_PICTISH_WARRIOR'; -- earlier but same cost

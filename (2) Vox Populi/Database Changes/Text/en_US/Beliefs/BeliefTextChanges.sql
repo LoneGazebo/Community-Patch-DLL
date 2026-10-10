@@ -151,7 +151,7 @@ SET Text = 'Goddess of Wisdom'
 WHERE Tag = 'TXT_KEY_BELIEF_FORMAL_LITURGY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_GREAT_SCIENTIST] Great Scientist Points in your Capital/Holy City. +1 [ICON_PEACE] Faith and [ICON_RESEARCH] Science in the City, and an additional +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science if the City has a Specialist.'
+SET Text = '+2 [ICON_GREAT_SCIENTIST] Great Scientist Points in your [ICON_CAPITAL] Capital/Holy City. +1 [ICON_PEACE] Faith and [ICON_RESEARCH] Science in the City, and an additional +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science if the City has a Specialist.'
 WHERE Tag = 'TXT_KEY_BELIEF_FORMAL_LITURGY';
 
 UPDATE Language_en_US
@@ -178,12 +178,12 @@ SET Text = 'Evangelism'
 WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you spread your [ICON_RELIGION] Religion, gain +15 [ICON_FOOD] Food in Holy City, scaling with the number of new Followers of your [ICON_RELIGION] Religion, and if the City is foreign 15 [ICON_TOURISM] Tourism, scaling with the number of Followers of other [ICON_RELIGION] Religions in the City.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Apostolic Palace National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +4 [ICON_GOLDEN_AGE] Golden Age Points; +25 [ICON_TOURISM] Tourism when [ICON_PUPPET] Rigging a City-State Election, scaling with Era; +5 [ICON_TOURISM] Tourism from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When you spread your [ICON_RELIGION] Religion, gain +15 [ICON_FOOD] Food in Holy City, scaling with the number of new Followers of your [ICON_RELIGION] Religion, and if the City is foreign 15 [ICON_TOURISM] Tourism, scaling with the number of Followers of other [ICON_RELIGION] Religions in the City. Unlocks building the [COLOR_POSITIVE_TEXT]Apostolic Palace[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE';
 
 -- Ceremonial Burial
 UPDATE Language_en_US
-SET Text = 'When a [ICON_GREAT_PEOPLE] Great Person is expended, gain 10 [ICON_PEACE] Faith and [ICON_CULTURE] Culture for every City following your [ICON_RELIGION] Religion (max 25 Cities), scaling with Era.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Mausoleum National Wonder[ENDCOLOR] (+5 [ICON_PEACE] Faith; gain [ICON_PEACE] Faith when an owned unit is killed in battle; +5 [ICON_PEACE] Faith from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When a [ICON_GREAT_PEOPLE] Great Person is expended, gain 25 [ICON_PEACE] Faith and [ICON_CULTURE] Culture for every City following your [ICON_RELIGION] Religion (max 25 Cities). Unlocks building the [COLOR_POSITIVE_TEXT]Mausoleum[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_CEREMONIAL_BURIAL';
 
 UPDATE Language_en_US
@@ -191,7 +191,7 @@ SET Text = 'Council of Elders'
 WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When a City adopts your [ICON_RELIGION] Religion for the first time, gain 10 [ICON_PEACE] Faith, 20 [ICON_PRODUCTION] Production and 20 [ICON_RESEARCH] Science in your Holy City, scaling gradually based on the number of Cities following your [ICON_RELIGION] Religion (bonus caps at 25 Cities).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Holy Council National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +5 [ICON_FOOD] Food; +10 [ICON_CITY_SECURITY] City Security in all Cities; +5 [ICON_RESEARCH] Science from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When a City adopts your [ICON_RELIGION] Religion for the first time, gain 10 [ICON_PEACE] Faith, 20 [ICON_PRODUCTION] Production and 20 [ICON_RESEARCH] Science in your Holy City, scaling gradually based on the number of Cities following your [ICON_RELIGION] Religion (bonus caps at 25 Cities). Unlocks building the [COLOR_POSITIVE_TEXT]Holy Council[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_PAPAL_PRIMACY';
 
 UPDATE Language_en_US
@@ -199,7 +199,7 @@ SET Text = 'Divine Inheritance'
 WHERE Tag = 'TXT_KEY_BELIEF_PEACE_LOVING_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Holy City produces +20% of its Yields when your Empire is in a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Celestial Throne National Wonder[ENDCOLOR] (+2 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_FOOD] Food, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production; +80 [ICON_SPY_POINT] Spy Points; +5 [ICON_GOLDEN_AGE] Golden Age Points from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'Holy City produces +20% of its Yields when your Empire is in a [ICON_GOLDEN_AGE] Golden Age. Unlocks building the [COLOR_POSITIVE_TEXT]Celestial Throne[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_PEACE_LOVING';
 
 UPDATE Language_en_US
@@ -207,7 +207,7 @@ SET Text = 'Hero Worship'
 WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Earn 33% more [ICON_GREAT_GENERAL] Great General and [ICON_GREAT_ADMIRAL] Great Admiral Points. When a [ICON_GREAT_GENERAL] Great General or [ICON_GREAT_ADMIRAL] Great Admiral is born, receive 75 [ICON_GOLD] Gold and [ICON_PEACE] Faith for every City following your [ICON_RELIGION] Religion (max 25 Cities).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Great Altar National Wonder[ENDCOLOR] (+5 [ICON_PEACE] Faith, +15% Military Unit [ICON_PRODUCTION] Production; +5 [ICON_PRODUCTION] Production from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'Earn 33% more [ICON_GREAT_GENERAL] Great General and [ICON_GREAT_ADMIRAL] Great Admiral Points. When a [ICON_GREAT_GENERAL] Great General or [ICON_GREAT_ADMIRAL] Great Admiral is born, receive 40 [ICON_GOLD] Gold and [ICON_PEACE] Faith for every City following your [ICON_RELIGION] Religion (max 25 Cities). Unlocks building the [COLOR_POSITIVE_TEXT]Great Altar[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE';
 
 UPDATE Language_en_US
@@ -215,7 +215,7 @@ SET Text = 'Holy Law'
 WHERE Tag = 'TXT_KEY_BELIEF_CHURCH_PROPERTY_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you unlock a Policy, gain 6 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for every Follower of your [ICON_RELIGION] Religion (max 250 Followers).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Divine Court National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +6 [ICON_GOLD] Gold; +50 [ICON_SPY_POINT] Spy Points; +5 [ICON_CULTURE] Culture from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When you unlock a Policy, gain 6 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for every Follower of your [ICON_RELIGION] Religion (max 250 Followers). Unlocks building the [COLOR_POSITIVE_TEXT]Divine Court[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_CHURCH_PROPERTY';
 
 UPDATE Language_en_US
@@ -223,7 +223,7 @@ SET Text = 'Theocratic Rule'
 WHERE Tag = 'TXT_KEY_BELIEF_WORLD_CHURCH_SHORT';
 
 UPDATE Language_en_US
-SET Text = '"We Love the King Day" boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold output of a City by 15%.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Grand Ossuary National Wonder[ENDCOLOR] (+10 [ICON_PEACE] Faith; gain 100 [ICON_CULTURE] Culture and [ICON_PEACE] Faith when a [ICON_SPY] Spy is Killed in the Empire, scaling with Era; +5 [ICON_GOLD] Gold from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = '"We Love the King Day" boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold output of a City by 15%. Unlocks building the [COLOR_POSITIVE_TEXT]Grand Ossuary[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_WORLD_CHURCH';
 
 UPDATE Language_en_US
@@ -231,7 +231,7 @@ SET Text = 'Transcendent Thoughts'
 WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you enter a new Era, Holy City gains 15 of every Yield for each City following your [ICON_RELIGION] Religion (max 25 Cities), scaling with Era.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Heavenly Grotto National Wonder[ENDCOLOR] (+3 [ICON_PEACE] Faith, +5 [ICON_CULTURE] Culture; gain 20 of every Yield when a [ICON_SPY] Spy is Identified or Killed in the Empire, scaling with Era; +5 [ICON_FOOD] Food from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When you enter a new Era, Holy City gains 15 of every Yield for each City following your [ICON_RELIGION] Religion (max 25 Cities), scaling with Era. Unlocks building the [COLOR_POSITIVE_TEXT]Heavenly Grotto[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES';
 
 UPDATE Language_en_US
@@ -239,7 +239,7 @@ SET Text = 'Revelation'
 WHERE Tag = 'TXT_KEY_BELIEF_TITHE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you research a Technology, gain +2 [ICON_GOLDEN_AGE] Golden Age Points, [ICON_PEACE] Faith, and [ICON_CULTURE] Culture for every Follower of your [ICON_RELIGION] Religion (max 250 Followers).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Chartarium National Wonder[ENDCOLOR] (3 [ICON_GREAT_WORK] Great Work of Writing Slots; +1 [ICON_CITY_SECURITY] City Security per 2 [ICON_CITIZEN] Citizens in the City; +5 [ICON_RESEARCH] Science from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When you research a Technology, gain +2 [ICON_GOLDEN_AGE] Golden Age Points, [ICON_PEACE] Faith, and [ICON_CULTURE] Culture for every Follower of your [ICON_RELIGION] Religion (max 250 Followers). Unlocks building the [COLOR_POSITIVE_TEXT]Chartarium[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BELIEF_TITHE';
 
 ----------------------------------------------
@@ -410,7 +410,7 @@ SET Text = 'Sacred Calendar'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+33% [ICON_GREAT_PEOPLE] Great Person Rate in Holy City during [ICON_GOLDEN_AGE] Golden Ages. +3 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_GOLD] Gold in [ICON_RELIGION] Holy City for every Foreign City following this Religion. [ICON_MISSIONARY] Missionaries of this Religion are 25% stronger.'
+SET Text = '+33% [ICON_GREAT_PEOPLE] Great Person Rate in Holy City during [ICON_GOLDEN_AGE] Golden Ages. +3 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_GOLD] Gold in Holy City for every Foreign City following this Religion. [ICON_MISSIONARY] Missionaries of this Religion are 25% stronger.'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL';
 
 UPDATE Language_en_US
@@ -426,7 +426,7 @@ SET Text = 'Universalism'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production in Holy City for every 5 followers of other Religions in owned Cities. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities.'
+SET Text = '+1 [ICON_HAPPINESS_1] Happiness. +1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science in Holy City for every 4 followers of other Religions in owned Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY';
 
 UPDATE Language_en_US

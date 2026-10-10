@@ -161,11 +161,9 @@ UPDATE UnitPromotions SET MovesChange = 1 WHERE RankList = 'HELI_MOBILITY';
 ----------------------------------------------------------------------------------------------------------------------------
 UPDATE UnitPromotions SET RangedAttackModifier = 10, CityAttack = 15 WHERE RankList = 'SIEGE';
 
-UPDATE UnitPromotions SET RangedAttackModifier = 10, OpenRangedAttackMod = 10 WHERE RankList = 'FIELD';
+UPDATE UnitPromotions SET RangedAttackModifier = 10, SplashDamage = 5 WHERE RankList = 'FIELD';
 
 UPDATE UnitPromotions SET CityAttack = 50, AttackFortifiedMod = 50 WHERE Type = 'PROMOTION_VOLLEY';
-
-UPDATE UnitPromotions SET SplashDamage = 5 WHERE RankList = 'SPLASH';
 
 INSERT INTO UnitPromotions_UnitCombatMods
 	(PromotionType, UnitCombatType, Modifier)
@@ -364,6 +362,8 @@ INSERT INTO UnitPromotions_Domains
 VALUES
 	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 50),
 	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 50);
+
+UPDATE UnitPromotions SET SplashDamage = 5 WHERE RankList = 'SPLASH';
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Submarine promotion tree drawn using ASCIIFlow
@@ -649,7 +649,7 @@ UPDATE UnitPromotions SET CombatPercent = 10, MovesChange = 1 WHERE Type = 'PROM
 
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_MORALE';
 
-UPDATE UnitPromotions SET CombatPercent = 15 WHERE Type = 'PROMOTION_TRIUMPH';
+UPDATE UnitPromotions SET CombatPercent = 5 WHERE Type = 'PROMOTION_TRIUMPH';
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)
 VALUES
@@ -734,9 +734,11 @@ UPDATE UnitPromotions SET CityAttack = 100 WHERE Type = 'PROMOTION_CITY_SIEGE';
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_SIEGE_INACCURACY', 'DOMAIN_LAND', -33);
+	('PROMOTION_SIEGE_INACCURACY', 'DOMAIN_LAND', -50);
 
-UPDATE UnitPromotions SET RangeAttackIgnoreLOS = 1, RangedAttackModifier = -10 WHERE Type = 'PROMOTION_INDIRECT_FIRE';
+UPDATE UnitPromotions SET SeeThrough = 1 WHERE Type = 'PROMOTION_PARABOLIC_PAYLOAD';
+
+UPDATE UnitPromotions SET RangeAttackIgnoreLOS = 1 WHERE Type = 'PROMOTION_INDIRECT_FIRE';
 
 UPDATE UnitPromotions SET GainsXPFromScouting = 1 WHERE Type = 'PROMOTION_RECONNAISSANCE';
 

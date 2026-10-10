@@ -770,7 +770,7 @@ VALUES
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_ALAMUT_FORTRESS', 'YIELD_FAITH', 100);
+	('BUILDING_ALAMUT_FORTRESS', 'YIELD_FAITH', 200);
 
 -- Notre Dame
 UPDATE Buildings
@@ -969,8 +969,8 @@ VALUES
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_PORT_ROYAL', 'YIELD_GOLD', 150),
-	('BUILDING_PORT_ROYAL', 'YIELD_CULTURE', 150);
+	('BUILDING_PORT_ROYAL', 'YIELD_GOLD', 250),
+	('BUILDING_PORT_ROYAL', 'YIELD_CULTURE', 250);
 
 -- Red Fort
 UPDATE Buildings

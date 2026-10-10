@@ -1064,16 +1064,17 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>10</EventDuration>
+			<EventDuration>5</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>800</NetworkPointsNeeded>
 			<SpyIDChance>25</SpyIDChance>
 			<SpyKillChance>5</SpyKillChance>
 			<Expires>true</Expires>
 			<RandomBarbarianSpawn>2</RandomBarbarianSpawn>
-			<NoTourismTurns>10</NoTourismTurns>
+			<NoTourismTurns>5</NoTourismTurns>
 			<HasTradeConnection>1</HasTradeConnection>
 			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
+			<CannotHaveBuildingClass>BUILDINGCLASS_NATIONAL_TREASURY</CannotHaveBuildingClass>
 		</Row>
 		<!-- Infiltrate governors office -->
 		<Row>
@@ -1123,11 +1124,11 @@
 			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
-			<SpyIDChance>75</SpyIDChance>
-			<SpyKillChance>5</SpyKillChance>
-			<BlockBuildingTurns>10</BlockBuildingTurns>
-			<SapCityTurns>2</SapCityTurns>
-			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<SpyIDChance>50</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
+			<BlockBuildingTurns>5</BlockBuildingTurns>
+			<NoTourismTurns>10</NoTourismTurns>
+			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Kidnap Specialists in the City -->
 		<Row>
@@ -1147,6 +1148,22 @@
 			<RequiresNotPuppet>true</RequiresNotPuppet>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</TriggerPlayerEventChoice>
 			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
+		</Row>
+		<!-- Arson in the Dockyards -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>10</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
+			<SapCityTurns>5</SapCityTurns>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
+			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Radicalize the rural citizenry -->
 		<Row>
@@ -1193,12 +1210,12 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>5</EventDuration>
+			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
 			<SpyIDChance>75</SpyIDChance>
 			<SpyKillChance>75</SpyKillChance>
-			<SapCityTurns>5</SapCityTurns>
+			<SapCityTurns>10</SapCityTurns>
 			<PillageFortificationsChance>100</PillageFortificationsChance>
 			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
 		</Row>

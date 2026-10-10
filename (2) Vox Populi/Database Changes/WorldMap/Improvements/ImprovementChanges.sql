@@ -82,15 +82,6 @@ INSERT INTO Improvement_Yields
 VALUES
 	('IMPROVEMENT_FORT', 'YIELD_CULTURE_LOCAL', 2);
 
-INSERT INTO Improvement_ResourceExtractionIncrease
-	(ImprovementType, ResourceType, Num)
-SELECT
-	'IMPROVEMENT_MANUFACTORY',
-	Type,
-	1
-FROM Resources
-WHERE ResourceUsage IN (1, 2);
-
 UPDATE Improvements
 SET
 	NoTwoAdjacent = 1,
@@ -99,104 +90,7 @@ SET
 	DestroyedWhenPillaged = 0
 WHERE Type = 'IMPROVEMENT_FORT';
 
--- Citadel
-
--- can no longer be built in foreign territory by default
-UPDATE Improvements
-SET InEnemyTerritory = 0
-WHERE Type = 'IMPROVEMENT_CITADEL';
-
-INSERT INTO Improvement_Yields
-	(ImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_CITADEL', 'YIELD_PRODUCTION', 1),
-	('IMPROVEMENT_CITADEL', 'YIELD_SCIENCE', 1);
-
-UPDATE Improvements
-SET NoTwoAdjacent = 1
-WHERE Type = 'IMPROVEMENT_CITADEL';
-
--- Other GPTIs
-
-UPDATE Improvement_Yields
-SET Yield = 6
-WHERE ImprovementType = 'IMPROVEMENT_ACADEMY' AND YieldType = 'YIELD_SCIENCE';
-
-UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_ACADEMY_HELP' WHERE Type = 'IMPROVEMENT_ACADEMY';
-
-UPDATE Improvement_Yields
-SET Yield = 6
-WHERE ImprovementType = 'IMPROVEMENT_CUSTOMS_HOUSE' AND YieldType = 'YIELD_GOLD';
-
-UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_CUSTOMS_HOUSE_HELP' WHERE Type = 'IMPROVEMENT_CUSTOMS_HOUSE';
-
-UPDATE Improvement_Yields
-SET Yield = 6
-WHERE ImprovementType = 'IMPROVEMENT_MANUFACTORY' AND YieldType = 'YIELD_PRODUCTION';
-
-UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_HELP' WHERE Type = 'IMPROVEMENT_MANUFACTORY';
-
-UPDATE Improvement_Yields
-SET Yield = 4
-WHERE ImprovementType = 'IMPROVEMENT_HOLY_SITE' AND YieldType = 'YIELD_FAITH';
-
-UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_HOLY_SITE_HELP' WHERE Type = 'IMPROVEMENT_HOLY_SITE';
-
-INSERT INTO Improvement_YieldPerXAdjacentTerrain
-	(ImprovementType, TerrainType, YieldType, Yield, NumRequired)
-VALUES
-	('IMPROVEMENT_HOLY_SITE', 'TERRAIN_MOUNTAIN', 'YIELD_FAITH', 1, 1);
-
-INSERT INTO Improvement_Yields
-	(ImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_FOOD', 2),
-	('IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_CULTURE', 1),
-	('IMPROVEMENT_HOLY_SITE', 'YIELD_CULTURE', 5),
-	('IMPROVEMENT_HOLY_SITE', 'YIELD_TOURISM', 3),
-	('IMPROVEMENT_EMBASSY', 'YIELD_GOLD', 2),
-	('IMPROVEMENT_EMBASSY', 'YIELD_CULTURE', 2),
-	('IMPROVEMENT_EMBASSY', 'YIELD_SCIENCE', 2);
-
--- +Prod/Gold when built on trade route/city connection
-INSERT INTO Improvement_RouteYieldChanges
-	(ImprovementType, RouteType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_ROAD', 'YIELD_GOLD', 2),
-	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_ROAD', 'YIELD_PRODUCTION', 2),
-	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_RAILROAD', 'YIELD_GOLD', 4),
-	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_RAILROAD', 'YIELD_PRODUCTION', 4);
-
--- Embassy can be built anywhere
--- This is needed because it doesn't have a MakesValid criteria otherwise
-INSERT INTO Improvement_ValidTerrains
-	(ImprovementType, TerrainType)
-VALUES
-	('IMPROVEMENT_EMBASSY', 'TERRAIN_GRASS'),
-	('IMPROVEMENT_EMBASSY', 'TERRAIN_PLAINS'),
-	('IMPROVEMENT_EMBASSY', 'TERRAIN_DESERT'),
-	('IMPROVEMENT_EMBASSY', 'TERRAIN_TUNDRA'),
-	('IMPROVEMENT_EMBASSY', 'TERRAIN_SNOW');
-
--- Landmark
-INSERT INTO Improvement_Yields
-	(ImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_LANDMARK', 'YIELD_CULTURE', 3),
-	('IMPROVEMENT_LANDMARK', 'YIELD_GOLD', 3);
-
--- Happiness on built
-UPDATE Improvements
-SET HappinessOnConstruction = 3
-WHERE Type = 'IMPROVEMENT_LANDMARK';
-
--- +1 Culture/Gold per era
-INSERT INTO Improvement_YieldPerEra
-	(ImprovementType, YieldType, Yield)
-VALUES
-	-- ('IMPROVEMENT_LANDMARK', 'YIELD_CULTURE', 1),
-	('IMPROVEMENT_LANDMARK', 'YIELD_GOLD', 1);
-
+-- Other
 -- Oil Well and Offshore Platform
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
@@ -209,6 +103,113 @@ UPDATE Improvements
 SET DefenseModifier = 25
 WHERE Type = 'IMPROVEMENT_BARBARIAN_CAMP';
 
+-- Landmark
+INSERT INTO Improvement_Yields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_LANDMARK', 'YIELD_CULTURE', 3),
+	('IMPROVEMENT_LANDMARK', 'YIELD_GOLD', 3);
+
+UPDATE Improvements
+SET HappinessOnConstruction = 3
+WHERE Type = 'IMPROVEMENT_LANDMARK';
+
+INSERT INTO Improvement_YieldPerEra
+	(ImprovementType, YieldType, Yield)
+VALUES
+	-- ('IMPROVEMENT_LANDMARK', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_LANDMARK', 'YIELD_GOLD', 1);
+
+-- GPTIs
+-- Yields. Note: some already have yields set, and those are updated below
+INSERT INTO Improvement_Yields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_FOOD', 2),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_HOLY_SITE', 'YIELD_CULTURE', 5),
+	('IMPROVEMENT_HOLY_SITE', 'YIELD_TOURISM', 3),
+	('IMPROVEMENT_EMBASSY', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_EMBASSY', 'YIELD_CULTURE', 2),
+	('IMPROVEMENT_EMBASSY', 'YIELD_SCIENCE', 2),
+	('IMPROVEMENT_CITADEL', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_CITADEL', 'YIELD_SCIENCE', 1);
+
+-- Citadel
+UPDATE Improvements
+SET 
+	InEnemyTerritory = 0,  -- can no longer be built in foreign territory by default
+	NoTwoAdjacent = 1
+WHERE Type = 'IMPROVEMENT_CITADEL';
+
+-- Academy
+UPDATE Improvement_Yields
+SET Yield = 6
+WHERE ImprovementType = 'IMPROVEMENT_ACADEMY' AND YieldType = 'YIELD_SCIENCE';
+
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_ACADEMY_HELP' WHERE Type = 'IMPROVEMENT_ACADEMY';
+
+-- Town
+UPDATE Improvement_Yields
+SET Yield = 6
+WHERE ImprovementType = 'IMPROVEMENT_CUSTOMS_HOUSE' AND YieldType = 'YIELD_GOLD';
+
+-- +Prod/Gold when built on trade route/city connection
+INSERT INTO Improvement_RouteYieldChanges
+	(ImprovementType, RouteType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_ROAD', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_ROAD', 'YIELD_PRODUCTION', 2),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_RAILROAD', 'YIELD_GOLD', 4),
+	('IMPROVEMENT_CUSTOMS_HOUSE', 'ROUTE_RAILROAD', 'YIELD_PRODUCTION', 4);
+
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_CUSTOMS_HOUSE_HELP' WHERE Type = 'IMPROVEMENT_CUSTOMS_HOUSE';
+
+-- Manufactory
+UPDATE Improvement_Yields
+SET Yield = 6
+WHERE ImprovementType = 'IMPROVEMENT_MANUFACTORY' AND YieldType = 'YIELD_PRODUCTION';
+
+INSERT INTO Improvement_ResourceExtractionIncrease
+	(ImprovementType, ResourceType, Num)
+SELECT
+	'IMPROVEMENT_MANUFACTORY', Type, 1
+FROM Resources
+WHERE ResourceUsage = 2;  -- luxuries
+
+INSERT INTO Improvement_ResourceExtractionMod
+	(ImprovementType, ResourceType, Modifier)
+SELECT
+	'IMPROVEMENT_MANUFACTORY', Type, 50
+FROM Resources
+WHERE ResourceUsage = 1;  -- strategics
+
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_HELP' WHERE Type = 'IMPROVEMENT_MANUFACTORY';
+
+-- Holy Site
+UPDATE Improvement_Yields
+SET Yield = 4
+WHERE ImprovementType = 'IMPROVEMENT_HOLY_SITE' AND YieldType = 'YIELD_FAITH';
+
+UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_HOLY_SITE_HELP' WHERE Type = 'IMPROVEMENT_HOLY_SITE';
+
+INSERT INTO Improvement_YieldPerXAdjacentTerrain
+	(ImprovementType, TerrainType, YieldType, Yield, NumRequired)
+VALUES
+	('IMPROVEMENT_HOLY_SITE', 'TERRAIN_MOUNTAIN', 'YIELD_FAITH', 1, 1);
+
+-- Embassy 
+INSERT INTO Improvement_ValidTerrains
+	(ImprovementType, TerrainType)
+VALUES
+	('IMPROVEMENT_EMBASSY', 'TERRAIN_GRASS'),
+	('IMPROVEMENT_EMBASSY', 'TERRAIN_PLAINS'),
+	('IMPROVEMENT_EMBASSY', 'TERRAIN_DESERT'),
+	('IMPROVEMENT_EMBASSY', 'TERRAIN_TUNDRA'),
+	('IMPROVEMENT_EMBASSY', 'TERRAIN_SNOW');
+-- This is needed because it doesn't have a MakesValid criteria otherwise
+
+-- Tech increases
 INSERT INTO Improvement_TechYieldChanges
 	(ImprovementType, TechType, YieldType, Yield)
 VALUES
@@ -232,9 +233,10 @@ VALUES
 	('IMPROVEMENT_PASTURE', 'TECH_CIVIL_SERVICE', 'YIELD_FOOD', 2),
 	('IMPROVEMENT_PASTURE', 'TECH_FERTILIZER', 'YIELD_GOLD', 2),
 	('IMPROVEMENT_PASTURE', 'TECH_ROBOTICS', 'YIELD_FOOD', 3),
-	('IMPROVEMENT_PLANTATION', 'TECH_CHEMISTRY', 'YIELD_GOLD', 1),
-	('IMPROVEMENT_PLANTATION', 'TECH_PLASTIC', 'YIELD_GOLD', 1),
-	('IMPROVEMENT_PLANTATION', 'TECH_ECONOMICS', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'TECH_PHILOSOPHY', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_PLANTATION', 'TECH_CHEMISTRY', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_PLANTATION', 'TECH_ECONOMICS', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_PLANTATION', 'TECH_PLASTIC', 'YIELD_GOLD', 2),
 	('IMPROVEMENT_FISHING_BOATS', 'TECH_COMPASS', 'YIELD_FOOD', 1),
 	('IMPROVEMENT_FISHING_BOATS', 'TECH_NAVIGATION', 'YIELD_FOOD', 1),
 	('IMPROVEMENT_FISHING_BOATS', 'TECH_REFRIGERATION', 'YIELD_FOOD', 2),

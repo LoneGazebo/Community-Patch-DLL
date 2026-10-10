@@ -1241,7 +1241,7 @@ VALUES
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 50
+	a.Type, b.YieldType, 75
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_CASINO';
 
@@ -1287,7 +1287,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_CULTURE_LOCAL', 25
+	Type, 'YIELD_CULTURE_LOCAL', 50
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
 
@@ -1303,7 +1303,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 50
+	Type, 'YIELD_GOLD', 100
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 
@@ -1331,7 +1331,7 @@ VALUES
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 50
+	a.Type, b.YieldType, 100
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_PENITENTIARY';
 
@@ -1408,7 +1408,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_CHANCERY';
 INSERT INTO Building_YieldPerFriendTimes100
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_GOLD', 25
+	Type, 'YIELD_GOLD', 50
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_PRINTING_HOUSE';
 
@@ -1691,7 +1691,7 @@ INSERT INTO Helper
 	(YieldType, Yield)
 VALUES
 	('YIELD_FOOD', 1),
-	('YIELD_PRODUCTION', 2);
+	('YIELD_PRODUCTION', 1);
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -2094,32 +2094,6 @@ WHERE BuildingClass = 'BUILDINGCLASS_COURTHOUSE';
 -- National Wonders
 ----------------------------------------------------------------------------
 
--- National Monument
-UPDATE Buildings
-SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
-WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
-
-INSERT INTO Building_YieldChanges
-	(BuildingType, YieldType, Yield)
-SELECT
-	Type, 'YIELD_CULTURE', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
-
-INSERT INTO Building_YieldFromBirth
-	(BuildingType, YieldType, Yield, IsEraScaling)
-SELECT
-	Type, 'YIELD_CULTURE', 15, 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
-
-INSERT INTO Building_YieldFromPolicyUnlock
-	(BuildingType, YieldType, Yield)
-SELECT
-	Type, 'YIELD_GOLDEN_AGE_POINTS', 50
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
-
 -- Scrivener's Office
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -2182,12 +2156,79 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_HEROIC_EPIC';
 
+-- Master Shipwright
+INSERT INTO Helper
+	(YieldType, Yield)
+VALUES
+	('YIELD_PRODUCTION', 3),
+	('YIELD_CULTURE', 1);
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, b.Yield
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_MASTER_SHIPWRIGHT';
+
+DELETE FROM Helper;
+
+INSERT INTO Building_ImprovementYieldChanges
+	(BuildingType, ImprovementType, YieldType, Yield)
+SELECT
+	Type, 'IMPROVEMENT_FISHING_BOATS', 'YIELD_PRODUCTION', 1
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_MASTER_SHIPWRIGHT';
+
+INSERT INTO Building_DomainProductionModifiers
+	(BuildingType, DomainType, Modifier)
+SELECT
+	Type, 'DOMAIN_SEA', 15
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_MASTER_SHIPWRIGHT';
+
+-- National Monument
+UPDATE Buildings
+SET 
+	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
+    GreatPeopleRateModifier = 0		
+WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
+
+INSERT INTO Building_YieldChanges
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_CULTURE', 1
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
+
+INSERT INTO Building_YieldFromBirth
+	(BuildingType, YieldType, Yield, IsEraScaling)
+SELECT
+	Type, 'YIELD_CULTURE', 15, 1
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
+
+INSERT INTO Building_YieldFromPolicyUnlock
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_GOLDEN_AGE_POINTS', 50
+FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
+
+INSERT INTO Building_SpecificGreatPersonRateModifier
+	(BuildingType, SpecialistType, Modifier)
+SELECT
+	b.Type, s.Type, 25
+FROM Buildings b, Specialists s
+WHERE b.BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC' 
+AND s.Type IN ('SPECIALIST_WRITER', 'SPECIALIST_ARTIST', 'SPECIALIST_MUSICIAN');
+
 -- School of Philosophy
 UPDATE Buildings
 SET
 	GreatWorkSlotType = 'GREAT_WORK_SLOT_LITERATURE',
 	GreatWorkCount = 1,
 	SpecialistType = 'SPECIALIST_SCIENTIST',
+	SpecialistCount = 1,
 	GreatPeopleRateChange = 2,
 	NoUnhappfromXSpecialists = 1,
 	IlliteracyFlatReductionGlobal = 1
@@ -2221,6 +2262,9 @@ SET
 	PrereqTech = 'TECH_METAL_CASTING',
 	UnmoddedHappiness = 0,
 	Happiness = 2,
+	SpecialistType = 'SPECIALIST_MERCHANT',
+	SpecialistCount = 1,
+	GreatPeopleRateChange = 2,
 	BoredomFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
 
@@ -2238,20 +2282,12 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
 
-INSERT INTO Helper
-	(YieldType)
-VALUES
-	('YIELD_GOLD'),
-	('YIELD_CULTURE');
-
 INSERT INTO Building_WLTKDYieldMod
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 10
-FROM Buildings a, Helper b
-WHERE a.BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
-
-DELETE FROM Helper;
+	Type, 'YIELD_GOLD', 10
+FROM Buildings 
+WHERE BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
 
 INSERT INTO Helper
 	(YieldType)
@@ -2304,6 +2340,13 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_OXFORD_UNIVERSITY';
 
+INSERT INTO Building_SpecificGreatPersonRateModifier
+	(BuildingType, SpecialistType, Modifier)
+SELECT
+	Type, 'SPECIALIST_SCIENTIST', 25
+FROM Buildings 
+WHERE BuildingClass = 'BUILDINGCLASS_OXFORD_UNIVERSITY';
+
 -- Grand Temple
 UPDATE Buildings
 SET
@@ -2337,6 +2380,13 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_GRAND_TEMPLE';
 
 DELETE FROM Helper;
 
+INSERT INTO Building_WLTKDYieldMod
+	(BuildingType, YieldType, Yield)
+SELECT
+	Type, 'YIELD_CULTURE', 10
+FROM Buildings 
+WHERE BuildingClass = 'BUILDINGCLASS_GRAND_TEMPLE';
+
 -- East India Company
 UPDATE Buildings
 SET
@@ -2350,6 +2400,13 @@ INSERT INTO Building_YieldChanges
 SELECT
 	Type, 'YIELD_GOLD', 4
 FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_TREASURY';
+
+INSERT INTO Building_SpecificGreatPersonRateModifier
+	(BuildingType, SpecialistType, Modifier)
+SELECT
+	Type, 'SPECIALIST_MERCHANT', 25
+FROM Buildings 
 WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_TREASURY';
 
 -- Ironworks
@@ -2372,6 +2429,13 @@ INSERT INTO Building_YieldFromConstruction
 SELECT
 	Type, 'YIELD_SCIENCE', 25
 FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_IRONWORKS';
+
+INSERT INTO Building_SpecificGreatPersonRateModifier
+	(BuildingType, SpecialistType, Modifier)
+SELECT
+	Type, 'SPECIALIST_ENGINEER', 25
+FROM Buildings 
 WHERE BuildingClass = 'BUILDINGCLASS_IRONWORKS';
 
 -- Ministerial District
@@ -2410,6 +2474,13 @@ INSERT INTO Building_YieldFromSpyRigElection
 SELECT
 	Type, 'YIELD_GOLD', 40
 FROM Buildings
+WHERE BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
+
+INSERT INTO Building_SpecificGreatPersonRateModifier
+	(BuildingType, SpecialistType, Modifier)
+SELECT
+	Type, 'SPECIALIST_CIVIL_SERVANT', 25
+FROM Buildings 
 WHERE BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
 
 -- Royal Collection
@@ -2536,7 +2607,7 @@ VALUES
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 100
+	a.Type, b.YieldType, 200
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
 
@@ -2640,6 +2711,7 @@ VALUES
 	-- National Wonders
 	('BUILDINGCLASS_NATIONAL_EPIC', 'BUILDINGCLASS_MONUMENT'),
 	('BUILDINGCLASS_HEROIC_EPIC', 'BUILDINGCLASS_BARRACKS'),
+	('BUILDINGCLASS_MASTER_SHIPWRIGHT', 'BUILDINGCLASS_LIGHTHOUSE'),
 	('BUILDINGCLASS_NATIONAL_COLLEGE', 'BUILDINGCLASS_LIBRARY'),
 	('BUILDINGCLASS_IRONWORKS', 'BUILDINGCLASS_FORGE'),
 	('BUILDINGCLASS_CIRCUS_MAXIMUS', 'BUILDINGCLASS_COLOSSEUM'),

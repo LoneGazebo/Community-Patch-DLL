@@ -91,24 +91,18 @@ WHERE Type NOT IN (
 );
 
 -- Religious Unity (now Universalism)
-UPDATE Beliefs SET FriendlyCityStateSpreadModifier = 0 WHERE Type = 'BELIEF_RELIGIOUS_UNITY';
+UPDATE Beliefs 
+SET 
+	FriendlyCityStateSpreadModifier = 0,
+	HappinessPerCity = 1
+WHERE Type = 'BELIEF_RELIGIOUS_UNITY';
 
 INSERT INTO Belief_YieldPerOtherReligionFollower
 	(BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_RELIGIOUS_UNITY', 'YIELD_PRODUCTION', 5),
-	('BELIEF_RELIGIOUS_UNITY', 'YIELD_SCIENCE', 5);
-
-INSERT INTO Belief_YieldChangePerXForeignFollowers
-	(BeliefType, YieldType, ForeignFollowers)
-VALUES
-	('BELIEF_RELIGIOUS_UNITY', 'YIELD_GOLD', 10),
-	('BELIEF_RELIGIOUS_UNITY', 'YIELD_FAITH', 10);
-
-INSERT INTO Belief_YieldPerScience
-	(BeliefType, YieldType, Yield)
-VALUES
-	('BELIEF_RELIGIOUS_UNITY', 'YIELD_FAITH', 15);
+	('BELIEF_RELIGIOUS_UNITY', 'YIELD_FAITH', 4),
+	('BELIEF_RELIGIOUS_UNITY', 'YIELD_PRODUCTION', 4),
+	('BELIEF_RELIGIOUS_UNITY', 'YIELD_SCIENCE', 4);
 
 -- Heathen Conversion (now Zealotry)
 UPDATE Beliefs
