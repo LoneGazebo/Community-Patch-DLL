@@ -1064,16 +1064,17 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>10</EventDuration>
+			<EventDuration>5</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>800</NetworkPointsNeeded>
 			<SpyIDChance>25</SpyIDChance>
 			<SpyKillChance>5</SpyKillChance>
 			<Expires>true</Expires>
 			<RandomBarbarianSpawn>2</RandomBarbarianSpawn>
-			<NoTourismTurns>10</NoTourismTurns>
+			<NoTourismTurns>5</NoTourismTurns>
 			<HasTradeConnection>1</HasTradeConnection>
 			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
+			<CannotHaveBuildingClass>BUILDINGCLASS_NATIONAL_TREASURY</CannotHaveBuildingClass>
 		</Row>
 		<!-- Infiltrate governors office -->
 		<Row>
@@ -1123,11 +1124,11 @@
 			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
-			<SpyIDChance>75</SpyIDChance>
-			<SpyKillChance>5</SpyKillChance>
-			<BlockBuildingTurns>10</BlockBuildingTurns>
-			<SapCityTurns>2</SapCityTurns>
-			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<SpyIDChance>50</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
+			<BlockBuildingTurns>5</BlockBuildingTurns>
+			<NoTourismTurns>10</NoTourismTurns>
+			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
 		</Row>
 		<!-- Kidnap Specialists in the City -->
 		<Row>
