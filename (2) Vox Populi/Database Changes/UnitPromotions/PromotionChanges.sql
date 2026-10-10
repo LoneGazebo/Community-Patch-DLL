@@ -161,11 +161,9 @@ UPDATE UnitPromotions SET MovesChange = 1 WHERE RankList = 'HELI_MOBILITY';
 ----------------------------------------------------------------------------------------------------------------------------
 UPDATE UnitPromotions SET RangedAttackModifier = 10, CityAttack = 15 WHERE RankList = 'SIEGE';
 
-UPDATE UnitPromotions SET RangedAttackModifier = 10, OpenRangedAttackMod = 10 WHERE RankList = 'FIELD';
+UPDATE UnitPromotions SET RangedAttackModifier = 10, SplashDamage = 5 WHERE RankList = 'FIELD';
 
 UPDATE UnitPromotions SET CityAttack = 50, AttackFortifiedMod = 50 WHERE Type = 'PROMOTION_VOLLEY';
-
-UPDATE UnitPromotions SET SplashDamage = 5 WHERE RankList = 'SPLASH';
 
 INSERT INTO UnitPromotions_UnitCombatMods
 	(PromotionType, UnitCombatType, Modifier)
@@ -364,6 +362,8 @@ INSERT INTO UnitPromotions_Domains
 VALUES
 	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 50),
 	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 50);
+
+UPDATE UnitPromotions SET SplashDamage = 5 WHERE RankList = 'SPLASH';
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Submarine promotion tree drawn using ASCIIFlow

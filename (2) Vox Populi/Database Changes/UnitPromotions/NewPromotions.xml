@@ -84,8 +84,7 @@
 			<Type>PROMOTION_SPLASH_1</Type>
 			<Description>TXT_KEY_PROMOTION_SPLASH_1</Description>
 			<Help>TXT_KEY_PROMOTION_SPLASH_1_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_FIELD_2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_TARGETING_3</PromotionPrereqOr2>
+			<PromotionPrereqOr1>PROMOTION_TARGETING_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SPLASH_1</PediaEntry>
 		</Row>
