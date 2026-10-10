@@ -6815,23 +6815,10 @@ void CAttackCache::storeAttack(int iAttackerId, int iAttackerPlot, int iDefender
 	key.iPrevUnitDamage = iPrevUnitDamage;
 	key.iPrevCityDamage = iPrevCityDamage;
 
-	std::tr1::unordered_map<AttackKey, vector<int>, AttackKeyHash>::iterator it =
-		attackStats.find(key);
-
-	if (it != attackStats.end())
-	{
-		it->second[0] = iUnitDamageDealt;
-		it->second[1] = iCityDamageDealt;
-		it->second[2] = iDamageTaken;
-	}
-	else
-	{
-		vector<int> newValue(3);
-		newValue[0] = iUnitDamageDealt;
-		newValue[1] = iCityDamageDealt;
-		newValue[2] = iDamageTaken;
-		attackStats[key] = newValue;
-	}
+	AttackResult& result = attackStats[key];
+	result.iUnitDamageDealt = iUnitDamageDealt;
+	result.iCityDamageDealt = iCityDamageDealt;
+	result.iDamageTaken = iDamageTaken;
 }
 
 bool CAttackCache::findAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iGarrisonId, int iPrevSelfDamage, int iPrevUnitDamage, int iPrevCityDamage, int& iUnitDamageDealt, int& iCityDamageDealt, int& iDamageTaken) const
@@ -6845,15 +6832,15 @@ bool CAttackCache::findAttack(int iAttackerId, int iAttackerPlot, int iDefenderI
 	key.iPrevUnitDamage = iPrevUnitDamage;
 	key.iPrevCityDamage = iPrevCityDamage;
 
-	std::tr1::unordered_map<AttackKey, vector<int>, AttackKeyHash>::const_iterator it =
+	std::tr1::unordered_map<AttackKey, AttackResult, AttackKeyHash>::const_iterator it =
 		attackStats.find(key);
 
 	if (it != attackStats.end())
 	{
-		iUnitDamageDealt = it->second[0];
-		iCityDamageDealt = it->second[1];
-		iDamageTaken = it->second[2];
-		gAttackCacheMiss++;
+		iUnitDamageDealt = it->second.iUnitDamageDealt;
+		iCityDamageDealt = it->second.iCityDamageDealt;
+		iDamageTaken = it->second.iDamageTaken;
+		gAttackCacheHit++;
 		return true;
 	}
 
@@ -10011,14 +9998,14 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 				it->setNumAdjacentEnemies(CvTacticalPlot::TD_BOTH, it->getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH) + 1);
 				it->setNumAdjacentEnemies(CvTacticalPlot::TD_LAND, it->getNumAdjacentEnemies(CvTacticalPlot::TD_LAND) + 1);
 			}
-			if (iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_BOTH))
+			//line of sight does not depend on the domain, so check it at most once per plot pair
+			bool bCloserBoth = iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_BOTH);
+			bool bCloserLand = iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_LAND);
+			if ((bCloserBoth || bCloserLand) && pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
 			{
-				if (pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
+				if (bCloserBoth)
 					it->setRangedAttackEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
-			}
-			if (iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_LAND))
-			{
-				if (pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
+				if (bCloserLand)
 					it->setRangedAttackEnemyDistance(CvTacticalPlot::TD_LAND, iDistance);
 			}
 		}
@@ -10037,14 +10024,14 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 				it->setNumAdjacentEnemies(CvTacticalPlot::TD_BOTH, it->getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH) + 1);
 				it->setNumAdjacentEnemies(CvTacticalPlot::TD_SEA, it->getNumAdjacentEnemies(CvTacticalPlot::TD_SEA) + 1);
 			}
-			if (iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_BOTH))
+			//line of sight does not depend on the domain, so check it at most once per plot pair
+			bool bCloserBoth = iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_BOTH);
+			bool bCloserSea = iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_SEA);
+			if ((bCloserBoth || bCloserSea) && pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
 			{
-				if (pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
+				if (bCloserBoth)
 					it->setRangedAttackEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
-			}
-			if (iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_SEA))
-			{
-				if (pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
+				if (bCloserSea)
 					it->setRangedAttackEnemyDistance(CvTacticalPlot::TD_SEA, iDistance);
 			}
 		}
@@ -10066,19 +10053,17 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 				it->setNumAdjacentEnemies(CvTacticalPlot::TD_LAND, it->getNumAdjacentEnemies(CvTacticalPlot::TD_LAND) + 1);
 				it->setNumAdjacentEnemies(CvTacticalPlot::TD_SEA, it->getNumAdjacentEnemies(CvTacticalPlot::TD_SEA) + 1);
 			}
-			if (iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_BOTH))
+			//line of sight does not depend on the domain, so check it at most once per plot pair
+			bool bCloserBoth = iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_BOTH);
+			bool bCloserLand = iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_LAND);
+			bool bCloserSea = iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_SEA);
+			if ((bCloserBoth || bCloserLand || bCloserSea) && pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
 			{
-				if (pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
+				if (bCloserBoth)
 					it->setRangedAttackEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
-			}
-			if (iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_LAND))
-			{
-				if (pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
+				if (bCloserLand)
 					it->setRangedAttackEnemyDistance(CvTacticalPlot::TD_LAND, iDistance);
-			}
-			if (iDistance < it->getRangedAttackEnemyDistance(CvTacticalPlot::TD_SEA))
-			{
-				if (pSourcePlot->canSeePlot(pTargetPlot, eTeam, iDistance, NO_DIRECTION))
+				if (bCloserSea)
 					it->setRangedAttackEnemyDistance(CvTacticalPlot::TD_SEA, iDistance);
 			}
 		}
@@ -10286,21 +10271,27 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 		bool bTargetIsEnemy = pTargetPlot->isEnemyUnit(ePlayer, true, true) || pTargetPlot->isEnemyCity(*pUnit);
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
+		//this is a performance fix / logic simplification
+		//all open positions share just one instance of gSafePlotCount
+		//we only update the count once at the start of the sim
+		//if there is no safe plot then, there will never be one!
+		//callers only check whether the count is zero, so we can stop looking after the first safe plot
+		bool bNeedSafePlot = !parentPosition && gSafePlotCount[unit.iUnitID] == 0;
+
 		//try to save some memory here
 		ReachablePlots reachablePlotsPruned;
 		for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-			//this is a performance fix / logic simplification
-			//all open positions share just one instance of gSafePlotCount
-			//we only update the count once at the start of the sim
-			//if there is no safe plot then, there will never be one!
-			if (!parentPosition)
+			if (bNeedSafePlot)
 			{
 				bool bIsSafe = GET_PLAYER(ePlayer).GetPlotDanger(*pPlot, pUnit, GetUnitDamageDealt(), 0) < pUnit->GetCurrHitPoints();
 				if (bIsSafe && pUnit->canEndTurnAtPlot(pPlot))
+				{
 					gSafePlotCount[unit.iUnitID]++;
+					bNeedSafePlot = false;
+				}
 			}
 
 			//note that if the unit is far away, it won't have any good plots and will be considered blocked
@@ -10436,9 +10427,9 @@ CvTacticalPosition::AddAssignmentResult CvTacticalPosition::addAssignment(const 
 	//a unit may also start out on an invalid plot (eg. too far away)
 	if (newAssignment.eAssignmentType != A_BLOCKED && itUnit->eLastAssignment != A_INITIAL)
 	{
-		if (!getTactPlotMutable(newAssignment.iToPlotIndex))
+		if (!getTactPlot(newAssignment.iToPlotIndex))
 			return RESULT_NOT_ADDED;
-		if (!getTactPlotMutable(newAssignment.iFromPlotIndex))
+		if (!getTactPlot(newAssignment.iFromPlotIndex))
 			return RESULT_NOT_ADDED;
 	}
 
@@ -11400,7 +11391,7 @@ bool CvSupportPosition::addInitialAssignments()
 
 bool CvSupportPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvSupportPosStorage& storage,
 	vector<CvSupportPosition*>& openPositionsHeap, vector<CvSupportPosition*>& completedPositions, const PrPositionSortHeapGeneration& heapSort,
-	const map<const CvTacticalPosition*, const CvTacticalPosition*> nextAttackPosition)
+	const map<const CvTacticalPosition*, const CvTacticalPosition*>& nextAttackPosition)
 {
 	/*
 	abstract:
@@ -11438,11 +11429,9 @@ bool CvSupportPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPer
 		if (!pNewChild)
 			break;
 
-		//important, hook it up to the parent so we can access the history
+		//important, hook it up to the parent so we can access the history (this also initializes the child)
 		addChild(pNewChild);
 		gCheckedPositions++;
-
-		pNewChild->initFromParent(*this);
 
 		AddAssignmentResult assignmentResult = pNewChild->addAssignment(*gOverAllChoices[i].option, nextPosIt->second);
 
@@ -11794,6 +11783,13 @@ void CvSupportPosition::updateMovePlotsForUnit(SUnitStats unit)
 		int iMoveFlags = CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_DANGER;
 		ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pStartPlot, iMoveFlags, 0, unit.iMovesLeft, freedPlots_r);
 
+		//this is a performance fix / logic simplification
+		//all open positions share just one instance of gSafePlotCount
+		//we only update the count once at the start of the sim
+		//if there is no safe plot then, there will never be one!
+		//callers only check whether the count is zero, so we can stop looking after the first safe plot
+		bool bNeedSafePlot = !parentPosition && gSafePlotCount[unit.iUnitID] == 0;
+
 		//try to save some memory here
 		ReachablePlots reachablePlotsPruned;
 		for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
@@ -11806,15 +11802,14 @@ void CvSupportPosition::updateMovePlotsForUnit(SUnitStats unit)
 			if (TacticalAIHelpers::GetPlotDistanceToTarget(it->iPlotIndex, pUnit->getDomainType()) > TACTICAL_COMBAT_MAX_TARGET_DISTANCE + 2)
 				continue;
 
-			//this is a performance fix / logic simplification
-			//all open positions share just one instance of gSafePlotCount
-			//we only update the count once at the start of the sim
-			//if there is no safe plot then, there will never be one!
-			if (!parentPosition)
+			if (bNeedSafePlot)
 			{
 				bool bIsSafe = GET_PLAYER(ePlayer).GetPlotDanger(*pPlot, pUnit, SUnitIDValueContainer(), 0) < pUnit->GetCurrHitPoints();
 				if (bIsSafe && pUnit->canEndTurnAtPlot(pPlot))
+				{
 					gSafePlotCount[unit.iUnitID]++;
+					bNeedSafePlot = false;
+				}
 			}
 
 			//last (expensive) check, need to have a tact plot for each reachable plot
@@ -12460,12 +12455,13 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	else
 	{
 		//good case, pick the best one
-		//need the predicate, else we sort the pointers by address!
-		std::stable_sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
+		//need the predicate, else we compare the pointers by address!
+		//min_element returns the first of several equally good positions, same as the front after a stable sort
+		CvTacticalPosition* pBestPosition = *std::min_element(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 
-		if (completedPositions.front()->HasSupport(DOMAIN_LAND) || completedPositions.front()->HasSupport(DOMAIN_SEA) || completedPositions.front()->HasCitySupport())
-			TacticalAIHelpers::AddSupportMoves(*completedPositions.front(), ourUnits);
-		result = completedPositions.front()->getAssignments();
+		if (pBestPosition->HasSupport(DOMAIN_LAND) || pBestPosition->HasSupport(DOMAIN_SEA) || pBestPosition->HasCitySupport())
+			TacticalAIHelpers::AddSupportMoves(*pBestPosition, ourUnits);
+		result = pBestPosition->getAssignments();
 	}
 
 	if(GC.getLogging() && GC.getAILogging())
@@ -12745,6 +12741,34 @@ bool TacticalAIHelpers::AddSupportMoves(CvTacticalPosition& positionAfterCombatM
 	int iMaxChoicesPerUnit = range(GC.getGame().getHandicapInfo().getTacticalSimMaxChoicesPerUnit(), 2, 9);
 	int iMaxCompletedPositions = range(GC.getGame().getHandicapInfo().getTacticalSimMaxCompletedPositions(), 1, 4000);
 
+	CvSupportPosition* initialPosition = gSupportPosStorage.peekNext(); gSupportPosStorage.consumeOne();
+	if (!initialPosition)
+	{
+		return true;
+	}
+
+	// breadth first
+	CvTacticalPosition::PrPositionSortHeapGeneration heapSort(false);
+
+	if (bEarlyExit)
+	{
+		initialPosition->initFromTacticalPosition(positionAfterCombatMoves, positionAfterCombatMoves, ourUnits);
+		initialPosition->addInitialAssignments();
+		initialPosition->setFirstInterestingAssignment(initialPosition->getAssignments().size());
+
+		initialPosition->updateMovePlotsIfRequired();
+
+		for (size_t i = 0; i < initialPosition->GetNumAvailableUnits(); i++)
+		{
+			initialPosition->getPreferredAssignmentsForUnit(initialPosition->getAvailableUnits()[i], iMaxChoicesPerUnit, true);
+			if (gPossibleMoves.empty())
+				return false;
+		}
+
+		return true;
+	}
+
+	//the feasibility check above does not need the attack checkpoints, so only collect them for the full search
 	vector<const CvTacticalPosition*> allCombatPositions;
 	map<const CvTacticalPosition*, const CvTacticalPosition*> nextAttackPosition;
 	const CvTacticalPosition* tactPos = &positionAfterCombatMoves;
@@ -12779,33 +12803,6 @@ bool TacticalAIHelpers::AddSupportMoves(CvTacticalPosition& positionAfterCombatM
 
 			nextAttackPosition[tactPos] = NULL;
 		}
-	}
-
-	CvSupportPosition* initialPosition = gSupportPosStorage.peekNext(); gSupportPosStorage.consumeOne();
-	if (!initialPosition)
-	{
-		return true;
-	}
-
-	// breadth first
-	CvTacticalPosition::PrPositionSortHeapGeneration heapSort(false);
-
-	if (bEarlyExit)
-	{
-		initialPosition->initFromTacticalPosition(positionAfterCombatMoves, positionAfterCombatMoves, ourUnits);
-		initialPosition->addInitialAssignments();
-		initialPosition->setFirstInterestingAssignment(initialPosition->getAssignments().size());
-
-		initialPosition->updateMovePlotsIfRequired();
-
-		for (size_t i = 0; i < initialPosition->GetNumAvailableUnits(); i++)
-		{
-			initialPosition->getPreferredAssignmentsForUnit(initialPosition->getAvailableUnits()[i], iMaxChoicesPerUnit, true);
-			if (gPossibleMoves.empty())
-				return false;
-		}
-
-		return true;
 	}
 
 	initialPosition->initFromTacticalPosition(*nextAttackPosition.begin()->first, positionAfterCombatMoves, ourUnits);
@@ -12862,11 +12859,12 @@ bool TacticalAIHelpers::AddSupportMoves(CvTacticalPosition& positionAfterCombatM
 	if (!completedPositions.empty())
 	{
 		//good case, pick the best one
-		//need the predicate, else we sort the pointers by address!
-		std::stable_sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
+		//need the predicate, else we compare the pointers by address!
+		//min_element returns the first of several equally good positions, same as the front after a stable sort
+		const CvSupportPosition* pBestPosition = *std::min_element(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 
 		vector<STacticalAssignment>::const_iterator combatIt = positionAfterCombatMoves.getAssignments().begin();
-		vector<STacticalAssignment>::const_iterator supportIt = completedPositions.front()->getAssignments().begin();
+		vector<STacticalAssignment>::const_iterator supportIt = pBestPosition->getAssignments().begin();
 
 		int iAvailableUnits = initialPosition->GetNumAvailableUnits();
 
@@ -12875,7 +12873,7 @@ bool TacticalAIHelpers::AddSupportMoves(CvTacticalPosition& positionAfterCombatM
 			if (IsAttackMove(combatIt->eAssignmentType) || combatIt == positionAfterCombatMoves.getAssignments().end() - 1)
 			{
 				int iWaitingUnits = 0;
-				while (supportIt != completedPositions.front()->getAssignments().end())
+				while (supportIt != pBestPosition->getAssignments().end())
 				{
 					if (supportIt->eAssignmentType == A_WAIT)
 					{
