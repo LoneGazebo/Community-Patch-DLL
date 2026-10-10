@@ -797,14 +797,6 @@ public:
 	void NewCapitalFounded(int iFoundValue);
 	int GetCityQualityReference() const;
 	
-	// exe things
-	void SetExeBinType(CvBinType eBinType);
-	CvBinType GetExeBinType() const;
-
-	bool IsExeWantForceResyncAvailable();
-	void SetExeWantForceResyncValue(int value);
-	void SetExeWantForceResyncPointer(int* pointer);
-
 	// Modpack
 	bool DeleteMPMP();
 	bool CreateMPMP();
@@ -820,10 +812,6 @@ protected:
 
 	// Resolves m_intGameId from m_strGameId via the local stats.db uuid_dictionary. No-op when logging is off.
 	void resolveGameDatabaseId();
-
-	// exe things
-	CvBinType m_eExeBinType;
-	int* s_iExeWantForceResync;
 
 	bool m_firstActivationOfPlayersAfterLoad;
 

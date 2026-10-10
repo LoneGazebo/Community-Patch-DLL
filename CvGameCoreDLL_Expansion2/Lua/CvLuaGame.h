@@ -500,9 +500,6 @@ protected:
 	static int lIsHost(lua_State* L);
 	static int lGetTimeStringForYear(lua_State* L);
 
-	static int lIsExeWantForceResyncAvailable(lua_State* L);
-	static int lSetExeWantForceResyncValue(lua_State* L);
-
 	LUAAPIEXTN(GetNumYieldTypes, int);
 
 	LUAAPIEXTN(GetBaseUnitUpgradeCost, int, iCurrentUnit, iNewUnit);
