@@ -151,7 +151,7 @@ SET Text = 'Goddess of Wisdom'
 WHERE Tag = 'TXT_KEY_BELIEF_FORMAL_LITURGY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_GREAT_SCIENTIST] Great Scientist Points in your Capital/Holy City. +1 [ICON_PEACE] Faith and [ICON_RESEARCH] Science in the City, and an additional +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science if the City has a Specialist.'
+SET Text = '+2 [ICON_GREAT_SCIENTIST] Great Scientist Points in your [ICON_CAPITAL] Capital/Holy City. +1 [ICON_PEACE] Faith and [ICON_RESEARCH] Science in the City, and an additional +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science if the City has a Specialist.'
 WHERE Tag = 'TXT_KEY_BELIEF_FORMAL_LITURGY';
 
 UPDATE Language_en_US
@@ -410,7 +410,7 @@ SET Text = 'Sacred Calendar'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+33% [ICON_GREAT_PEOPLE] Great Person Rate in Holy City during [ICON_GOLDEN_AGE] Golden Ages. +3 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_GOLD] Gold in [ICON_RELIGION] Holy City for every Foreign City following this Religion. [ICON_MISSIONARY] Missionaries of this Religion are 25% stronger.'
+SET Text = '+33% [ICON_GREAT_PEOPLE] Great Person Rate in Holy City during [ICON_GOLDEN_AGE] Golden Ages. +3 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_GOLD] Gold in Holy City for every Foreign City following this Religion. [ICON_MISSIONARY] Missionaries of this Religion are 25% stronger.'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL';
 
 UPDATE Language_en_US
@@ -426,7 +426,7 @@ SET Text = 'Universalism'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production in Holy City for every 5 followers of other Religions in owned Cities. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities.'
+SET Text = '+1 [ICON_HAPPINESS_1] Happiness. +1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science in Holy City for every 4 followers of other Religions in owned Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY';
 
 UPDATE Language_en_US
