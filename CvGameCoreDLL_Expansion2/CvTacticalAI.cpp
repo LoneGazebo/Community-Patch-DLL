@@ -12928,6 +12928,10 @@ void CvTactPosStorage::reset(bool bHard)
 		for (int i = 0; i < iSize; i++)
 			aPositions[i].wipe();
 
+		// free the recycled buffers too, keeping the lists' reserved capacity
+		spareTactPlots.clear();
+		spareUnitLists.clear();
+
 		//for some reason the memory usage is not affected immediately ... but the wiping works
 		//PrintMemoryInfo("after hard reset");
 	}
@@ -12946,10 +12950,6 @@ void CvSupportPosStorage::reset(bool bHard)
 
 		for (int i = 0; i < iSize; i++)
 			aPositions[i].wipe();
-
-		// free the recycled buffers too, keeping the lists' reserved capacity
-		spareTactPlots.clear();
-		spareUnitLists.clear();
 
 		//for some reason the memory usage is not affected immediately ... but the wiping works
 		//PrintMemoryInfo("after hard reset");
