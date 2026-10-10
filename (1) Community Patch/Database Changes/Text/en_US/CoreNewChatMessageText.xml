@@ -8,7 +8,15 @@
 		</Row>
 		<!-- Desync warning -->
 		<Row Tag="TXT_KEY_VP_MP_WARNING_DESYNC">
-			<Text>My client has desynced, undefined behavior may occur. Please open a bug report on GitHub: https://github.com/LoneGazebo/Community-Patch-DLL/issues</Text>
+			<Text>My client has desynced, undefined behavior may occur. Please open a bug report on GitHub: [COLOR_CYAN]https://github.com/LoneGazebo/Community-Patch-DLL/issues[ENDCOLOR]</Text>
+		</Row>
+		<!-- The engine's LocalMachine event buffer is close to full -->
+		<Row Tag="TXT_KEY_VP_EVENT_STREAM_NEAR_FULL">
+			<Text>[COLOR_YELLOW]Engine's event buffer reached {1_Num}% of its capacity. If it overflows, expect undefined behavior, a crash, or both.[ENDCOLOR][NEWLINE]Not a bug by itself, but unusual.[NEWLINE]You can report it on GitHub: [COLOR_CYAN]https://github.com/LoneGazebo/Community-Patch-DLL/issues[ENDCOLOR]</Text>
+		</Row>
+		<!-- The engine's LocalMachine event buffer overflowed and corrupted memory -->
+		<Row Tag="TXT_KEY_VP_EVENT_STREAM_OVERFLOW">
+			<Text>[COLOR_RED]Engine's event buffer overflowed ({1_Num} KB of {2_Num} KB) and corrupted memory.[ENDCOLOR] [COLOR_MAGENTA]UNDEFINED BEHAVIOR, A CRASH, OR BOTH ARE IMMINENT UNTIL THE GAME IS EXITED![ENDCOLOR][NEWLINE]Loading a save won't help: save, exit to desktop, restart the game and open a bug report on GitHub: [COLOR_CYAN]https://github.com/LoneGazebo/Community-Patch-DLL/issues[ENDCOLOR]</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

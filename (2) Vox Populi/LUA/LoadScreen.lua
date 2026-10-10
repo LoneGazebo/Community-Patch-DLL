@@ -1,4 +1,4 @@
-MapModData = nil ; --Prevents includes like CPK or VPUI to save themselves there and have their global environment invalidated later...
+MapModData = nil; -- Prevents includes like CPK or VPUI to save themselves there and have their global environment invalidated later...
 include( "IconSupport" );
 include( "UniqueBonuses" );
 
@@ -118,6 +118,39 @@ function OnInitScreen()
 	
 end      
 
+local function ShowDeferredLayoutProgress()
+	local iDone, iTotal = Game.GetDeferredLayoutProgress()
+	local fDone = iTotal > 0 and math.min(iDone / iTotal, 1) or 1
+
+	Controls.ProgressBar:SetPercent(fDone)
+	Controls.LoadingLabel:LocalizeAndSetText(
+		"TXT_KEY_VP_LOADSCREEN_PREPARING_MAP",
+		math.floor(fDone * 100)
+	)
+end
+
+local function WhenDeferredLayoutDone(fnComplete)
+	if not Game.ContinueDeferredLayout() then
+		fnComplete()
+
+		return
+	end
+
+	ShowDeferredLayoutProgress()
+	ContextPtr:SetUpdate(function()
+		if Game.ContinueDeferredLayout() then
+			ShowDeferredLayoutProgress()
+
+			return
+		end
+
+		ContextPtr:ClearUpdate()
+		Controls.ProgressBar:SetPercent(1)
+		Controls.LoadingLabel:LocalizeAndSetText("TXT_KEY_GAME_LOADING")
+		fnComplete()
+	end)
+end
+
 function OnActivateButtonClicked ()
 	--print("Activate button clicked!");
 	Events.LoadScreenClose();
@@ -154,6 +187,14 @@ function HideBackgrounds ()
 end
 
 function OnSequenceGameInitComplete ()
+	if (not PreGame.IsMultiplayerGame() and not PreGame.IsHotSeatGame()) then
+		Game.SetPausePlayer(Game.GetActivePlayer());
+	end
+
+	WhenDeferredLayoutDone(CompleteGameInit);
+end
+
+function CompleteGameInit ()
 	
 	g_bLoadComplete = true;	
 	
