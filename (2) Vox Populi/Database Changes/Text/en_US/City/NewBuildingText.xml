@@ -459,16 +459,16 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_ROMAN_FORUM">
-			<Text>Roman Forum</Text>
+			<Text>Forum Magnum</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ROMAN_FORUM_STRATEGY">
-			<Text>Build this world wonder to receive a permanent boost to your relations with city-states through better-trained Diplomatic Units. Provides a free Great Diplomat to send to nearby city-states.</Text>
+			<Text>Build this World Wonder to receive a permanent boost to your relations with City-States through better-trained Diplomatic Units. Provides a free Great Diplomat to send to nearby City-States; an early Diplomatic Mission will allow you to secure one of the earliest possible Spies.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ROMAN_FORUM_HELP">
 			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ROMAN_FORUM_TEXT">
-			<Text>The Roman Forum (Latin: Forum Romanum) is a rectangular forum (plaza) surrounded by the ruins of several important ancient government buildings at the center of the city of Rome. It was for centuries the center of Roman public life: the site of triumphal processions and elections, venue for public speeches, criminal trials, gladiatorial matches, and commercial affairs. The teeming heart of ancient Rome, it has been called the most celebrated meeting place in the world, and in all history.</Text>
+			<Text>The Roman Forum (Latin: Forum Romanum) is a rectangular forum (plaza) surrounded by the ruins of several important ancient government buildings at the center of the city of Rome. Citizens of the ancient city referred to this space, originally a marketplace, as the Forum Magnum, or simply the Forum. It was for centuries the center of Roman public life: the site of triumphal processions and elections, venue for public speeches, criminal trials, gladiatorial matches, and commercial affairs. The teeming heart of ancient Rome, it has been called the most celebrated meeting place in the world, and in all history.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_ROMAN_FORUM_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"I found Rome a city of bricks and left it a city of marble."[NEWLINE][TAB][TAB] - Augustus Caesar[NEWLINE][TAB]</Text>
