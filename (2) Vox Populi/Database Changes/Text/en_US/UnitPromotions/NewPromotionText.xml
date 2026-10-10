@@ -787,7 +787,14 @@
 			<Text>Siege Inaccuracy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY_HELP">
-			<Text>-33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>-50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_PARABOLIC_PAYLOAD">
+			<Text>Parabolic Payload</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PARABOLIC_PAYLOAD_HELP">
+			<Text>Can perform Ranged Attacks over [COLOR_POSITIVE_TEXT]one additional level[ENDCOLOR] of obstacles.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RECONNAISSANCE">
