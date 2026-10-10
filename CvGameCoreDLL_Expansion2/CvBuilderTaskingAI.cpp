@@ -296,8 +296,9 @@ int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPl
 	}
 }
 
-static int GetYieldBaseModifierTimes100(YieldTypes eYield)
+static int GetYieldBaseModifierTimes100(YieldTypes eYield, PlayerTypes ePlayer)
 {
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	switch (eYield)
 	{
 	case NO_YIELD:
@@ -313,7 +314,7 @@ static int GetYieldBaseModifierTimes100(YieldTypes eYield)
 	case YIELD_CULTURE:
 		return /*240*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
 	case YIELD_FAITH:
-		return /*240*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
+		return ((GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(true) > 0 && !kPlayer.GetPlayerTraits()->IsAlwaysReligion()) ? 3 : 1) * /*240*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
 	case YIELD_TOURISM:
 		return /*240*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_TOURISM);
 	case YIELD_CULTURE_LOCAL:
@@ -454,7 +455,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
 				{
 					// Use base modifier to avoid heavy computations
-					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+					int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ, m_pPlayer->GetID());
 
 					if (iVillageYieldBonus != 0)
 					{
@@ -468,7 +469,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 			for (int j = 0; j < GC.getNUM_YIELD_TYPES(); j++)
 			{
 				YieldTypes eYield = static_cast<YieldTypes>(j);
-				int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+				int iYieldModifier = GetYieldBaseModifierTimes100(eYield, kPlayer.GetID());
 				iPlotBonusesIfCityConnected += pPlot->getEffectiveOwningCity()->GetCityConnectionPlotYield(eYield) * iYieldModifier;
 				iPlotBonusesIfCityConnected += kPlayer.GetCityConnectionPlotYield(eYield) * iYieldModifier;
 			}
@@ -513,7 +514,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
 				{
 					// Use base modifier to avoid heavy computations
-					iVillageYieldBonus += pkImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+					iVillageYieldBonus += pkImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ, m_pPlayer->GetID());
 				}
 
 				if (iVillageYieldBonus != 0 && m_pPlayer->canBuild(pPlot, eBuild))
@@ -733,7 +734,7 @@ static int GetCapitalConnectionValue(CvPlayer* pPlayer, CvCity* pCity, RouteType
 
 	int iCityConnectionFlatValueTimes100 = pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pCity);
 	iConnectionValue += iCityConnectionFlatValueTimes100;
-	int iGoldYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_GOLD);
+	int iGoldYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_GOLD, pPlayer->GetID());
 
 	int iEra = max(1, static_cast<int>(pPlayer->GetCurrentEra()));
 
@@ -743,14 +744,14 @@ static int GetCapitalConnectionValue(CvPlayer* pPlayer, CvCity* pCity, RouteType
 		if (eYield > YIELD_CULTURE_LOCAL)
 			break;
 
-		int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+		int iYieldModifier = GetYieldBaseModifierTimes100(eYield, pPlayer->GetID());
 		iConnectionValue += (100 * pPlayer->GetYieldChangeTradeRoute(eYield) * iYieldModifier) / iGoldYieldBaseModifierTimes100;
 		iConnectionValue += (100 * pPlayer->GetPlayerTraits()->GetYieldChangeTradeRoute(eYield) * iEra * iYieldModifier) / iGoldYieldBaseModifierTimes100;
 	}
 
 	if (GC.getGame().GetIndustrialRoute() == eRoute)
 	{
-		int iProductionYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_PRODUCTION);
+		int iProductionYieldBaseModifierTimes100 = GetYieldBaseModifierTimes100(YIELD_PRODUCTION, pPlayer->GetID());
 		int iBaseProductionYieldTimes100 = pCity->getBaseYieldRateTimes100(YIELD_PRODUCTION);
 		int iProductionYieldRateModifierTimes100 = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
 
@@ -1045,7 +1046,7 @@ void CvBuilderTaskingAI::ConnectForeignCitiesForYields(CvCity* pOwnedCity, CvCit
 
 	// Loop the trait table in descending order of radius
 	int iConnectionValue = 0;
-	int iGoldYieldBaseModifier = GetYieldBaseModifierTimes100(YIELD_GOLD);
+	int iGoldYieldBaseModifier = GetYieldBaseModifierTimes100(YIELD_GOLD, m_pPlayer->GetID());
 	for (map<int, vector<int>>::const_reverse_iterator it = mviYieldChangePerLandConnectedCity.rbegin(); it != mviYieldChangePerLandConnectedCity.rend(); ++it)
 	{
 		if (it->first < iPlotDistance)
@@ -1054,7 +1055,7 @@ void CvBuilderTaskingAI::ConnectForeignCitiesForYields(CvCity* pOwnedCity, CvCit
 		for (int i = 0; i < GC.getNUM_YIELD_TYPES(); i++)
 		{
 			YieldTypes eYield = static_cast<YieldTypes>(i);
-			iConnectionValue += it->second[i] * GetYieldBaseModifierTimes100(eYield) / iGoldYieldBaseModifier;
+			iConnectionValue += it->second[i] * GetYieldBaseModifierTimes100(eYield, m_pPlayer->GetID()) / iGoldYieldBaseModifier;
 		}
 	}
 
@@ -3490,7 +3491,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 	{
 		int iProductionFromChop = pPlot->getFeatureProduction(eBuild, m_pPlayer->GetID(), NULL);
 		if (iProductionFromChop > 0)
-			iSecondaryScore += iProductionFromChop * GetYieldBaseModifierTimes100(YIELD_PRODUCTION) / 50;
+			iSecondaryScore += iProductionFromChop * GetYieldBaseModifierTimes100(YIELD_PRODUCTION, m_pPlayer->GetID()) / 50;
 	}
 
 	// Bonuses to domain (give simple linear bonuses for now, should be fine)
@@ -3606,7 +3607,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 					if (eYield > YIELD_CULTURE_LOCAL)
 						break;
 
-					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+					int iYieldModifier = GetYieldBaseModifierTimes100(eYield, m_pPlayer->GetID());
 					iYieldModifier *= pAdjacentOwningCity ? GetYieldCityModifierTimes100(pAdjacentOwningCity, eYield) : 100;
 
 					if (pkImprovementInfo->GetYieldPerXAdjacentImprovement(eYield, eOtherImprovement) != 0)
@@ -3636,7 +3637,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 		const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
 		int iGoldenAgeYieldThresholdTimes100 = kYield.getGoldenAgeYieldThreshold() * 100;
 
-		int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+		int iYieldModifier = GetYieldBaseModifierTimes100(eYield, m_pPlayer->GetID());
 		int iNewYieldTimes100 = 0;
 		int iFutureYieldTimes100 = 0;
 		int iProjectedNewYieldsTimes100 = bIsBuild ? 100 * m_aiProjectedPlotYields[ui] : 100 * m_aiCurrentPlotYields[ui];
@@ -3815,7 +3816,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 
 					if (iAdjacentForests == 3 || (iAdjacentForests == 2 && MOD_BALANCE_ALTERNATE_CELTS_TRAIT) || iAdjacentForests == 1)
 					{
-						iNewYieldTimes100 -= (100 * GetYieldBaseModifierTimes100(eYield)) / GetYieldBaseModifierTimes100(YIELD_GOLD);
+						iNewYieldTimes100 -= (100 * GetYieldBaseModifierTimes100(eYield, m_pPlayer->GetID())) / GetYieldBaseModifierTimes100(YIELD_GOLD, m_pPlayer->GetID());
 					}
 				}
 			}
@@ -4431,7 +4432,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementType
 
 				if (iYieldChange != 0)
 				{
-					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+					int iYieldModifier = GetYieldBaseModifierTimes100(eYield, m_pPlayer->GetID());
 					int iCityYieldModifier = pOwningCity ? GetYieldCityModifierTimes100(pOwningCity, eYield) : 100;
 					iYieldScore += (iYieldChange * iTileWorkableChance * iYieldModifier * iCityYieldModifier) / 10000;
 				}
@@ -4531,7 +4532,7 @@ int CvBuilderTaskingAI::GetPlotYieldValueSimplified(const CvPlot* pPlot, BuildTy
 
 		int iYield = eBuild == NO_BUILD ? m_aiCurrentPlotYields[ui] : m_aiProjectedPlotYields[ui];
 
-		iValue += GetYieldBaseModifierTimes100(eYield) * iYield;
+		iValue += GetYieldBaseModifierTimes100(eYield, m_pPlayer->GetID()) * iYield;
 	}
 
 	return iValue;

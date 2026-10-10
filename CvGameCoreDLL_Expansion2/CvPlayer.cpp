@@ -11079,6 +11079,284 @@ const CvUnit* CvPlayer::getBusyUnit() const
 	return result;
 }
 
+
+// AI helper function: estimate how often we'll have WLTKD in our cities. values range from 0 to 10
+int CvPlayer::EstimateWLTKDAvailability() const
+{
+	int iResult = 0;
+	CvPlayerTraits* pPlayerTraits = GetPlayerTraits();
+	// how often do we expect to have WLKTD in our cities? (see also the 
+	if (pPlayerTraits->IsGreatWorkWLTKD() || pPlayerTraits->IsExpansionWLTKD())
+		iResult = 10;
+	else
+	{
+		// base value
+		iResult = 2;
+
+		// in VP WLTKD are much more frequent because luxuries that are already connected are valid
+		if (MOD_BALANCE_VP)
+		{
+			// compare number of valid resources and number of connected resources
+			int iNumValidResources = 0;
+			int iNumValidResourcesAlreadyOwned = 0;
+
+			// VP: Only resources on plots revealed by this player are valid
+			set<ResourceTypes> DiscoveredLuxuryResources;
+			// Go through the map and see which resources have been discovered by this player
+			CvMap& theMap = GC.getMap();
+			int iNumPlots = theMap.numPlots();
+			TeamTypes eTeam = getTeam();
+			for (int iI = 0; iI < iNumPlots; iI++)
+			{
+				CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
+				ResourceTypes eResource = pLoopPlot->getResourceType(eTeam); // This check will ignore resources that haven't been discovered by this player (tech)
+				if (eResource != NO_RESOURCE)
+				{
+					CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+					if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY
+						&& DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
+					{
+						if (pLoopPlot->isRevealed(eTeam, false))
+							DiscoveredLuxuryResources.insert(eResource);
+					}
+				}
+			}
+
+			// count valid luxuries
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResource = (ResourceTypes)iResourceLoop;
+
+				// Is this a Luxury Resource?
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+
+					// VP: No unknown tech resources
+					if (!GET_TEAM(getTeam()).IsResourceRevealed(eResource))
+						continue;
+
+					// Is the Resource actually on the map?
+					if (GC.getMap().getNumResources(eResource) <= 0)
+						continue;
+
+					if (pkResource->isOnlyMinorCivs())
+						continue;
+
+					if (pLeague && pLeague->IsLuxuryHappinessBanned(eResource))
+						continue;
+
+					if (DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
+						continue;
+
+					iNumValidResources++;
+
+					if (getNumResourceAvailable(eResource) > 0)
+					{
+						iNumValidResourcesAlreadyOwned++;
+					}
+				}
+			}
+
+			// Is there actually anything in our vector? - 0 can be valid if we already have everything, for example
+			if (iNumValidResources > 0)
+			{
+				iResult += 10 * iNumValidResourcesAlreadyOwned / iNumValidResources;
+			}
+		}
+
+		// more if we're a warmonger or a diplomat
+		if (GetDiplomacyAI()->IsGoingForWorldConquest() || GetDiplomacyAI()->IsGoingForDiploVictory())
+		{
+			iResult += 2;
+		}
+		if (pPlayerTraits->GetWLTKDGATimer() > 0)
+			iResult++;
+		if (pPlayerTraits->IsGPWLTKD())
+			iResult += 2;
+	}
+
+	return max(1, min(iResult, 10));
+}
+
+// AI helper functions: Estimate how often a great person is born (number of turns per birth)
+int CvPlayer::EstimateGreatPersonRate(GreatPersonTypes eGreatPerson) const
+{
+	int iRate = 0;
+	if (eGreatPerson == (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_GENERAL"))
+	{
+		iRate = GetDiplomacyAI()->IsGoingForWorldConquest() ? 75 : 150;
+
+		iRate *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+		iRate /= 100;
+
+		iRate *= 100;
+		iRate /= 100 + GetGreatPersonRateModifier(eGreatPerson);
+
+		iRate *= getNumMilitaryUnits();
+		iRate /= max(1, getNumMilitaryLandUnits());
+
+		int iPerTurnYield = GetGreatGeneralRateTimes100() / 100;
+		if (GetPlayerTraits()->GetYieldFromRouteMovement(YIELD_GREAT_GENERAL_POINTS) > 0)
+		{
+			iPerTurnYield += GetPlayerTraits()->GetYieldFromRouteMovement(YIELD_GREAT_GENERAL_POINTS) * GetTrade()->GetNumTradeUnits(true);
+		}
+
+		// modify rate by the per turn yield
+		if (iPerTurnYield > 0)
+		{
+			iRate = greatGeneralThreshold() / (greatGeneralThreshold() / iRate + iPerTurnYield);
+		}
+	}
+	else if (eGreatPerson == (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_ADMIRAL"))
+	{
+		iRate = GetDiplomacyAI()->IsGoingForWorldConquest() ? 50 : 100;
+
+		iRate *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+		iRate /= 100;
+
+		iRate *= 100;
+		iRate /= 100 + GetGreatPersonRateModifier(eGreatPerson);
+
+		iRate *= getNumMilitaryUnits();
+		iRate /= max(1, getNumMilitarySeaUnits());
+
+		int iPerTurnYield = GetGreatAdmiralRateTimes100() / 100;
+		if (GetPlayerTraits()->GetYieldFromRouteMovement(YIELD_GREAT_ADMIRAL_POINTS) > 0)
+		{
+			iPerTurnYield += GetPlayerTraits()->GetYieldFromRouteMovement(YIELD_GREAT_ADMIRAL_POINTS) * GetTrade()->GetNumTradeUnits(true);
+		}
+
+		// modify rate by the per turn yield
+		if (iPerTurnYield > 0)
+		{
+			iRate = greatAdmiralThreshold() / (greatAdmiralThreshold() / iRate + iPerTurnYield);
+		}
+	}
+	else
+	{
+		// is this great person generated by a specialist?
+		SpecialistTypes eSpecialist = (SpecialistTypes)GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType();
+		UnitClassTypes eGreatPersonType = static_cast<UnitClassTypes>(GC.getGreatPersonInfo(eGreatPerson)->GetUnitClassType());
+		if (eSpecialist != NO_SPECIALIST)
+		{
+			iRate = 150; // low base rate
+
+			iRate *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+			iRate /= 100;
+
+			// check the current GP generation rate in every city
+			int iLoop = 0;
+			for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				int iThisCityRate = 150;
+
+				int iThisCityGPPPerTurnTimes100 = pLoopCity->GetCityCitizens()->GetSpecialistRate(eSpecialist);
+				if (iThisCityGPPPerTurnTimes100 > 0)
+				{
+					int iFutureRateModifier = 0;
+					// Future modifier from policies? Only check policies from the branches we have unlocked
+					for (int iPoliciesLoop = 0; iPoliciesLoop < GC.getNumPolicyInfos(); iPoliciesLoop++)
+					{
+						PolicyTypes ePolicy = (PolicyTypes)iPoliciesLoop;
+						if (GetPlayerPolicies()->HasPolicy(ePolicy))
+							continue;
+
+						CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(ePolicy);
+						if (pkPolicyEntry == NULL)
+							continue;
+
+						PolicyBranchTypes eBranch = (PolicyBranchTypes)pkPolicyEntry->GetPolicyBranchType();
+						if (eBranch != NO_POLICY_BRANCH_TYPE && GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch))
+						{
+							iFutureRateModifier += pkPolicyEntry->GetGreatPeopleRateModifier();
+							for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+							{
+								if (pkPolicyEntry->GetFreeChosenBuilding(iBuildingClassLoop) > 0)
+								{
+									BuildingTypes eBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(iBuildingClassLoop);
+									if (eBuilding != NO_BUILDING)
+									{
+										if (!GC.getBuildingInfo(eBuilding)->IsCapitalOnly() || pLoopCity->isCapital())
+										{
+											iFutureRateModifier += GC.getBuildingInfo(eBuilding)->GetGreatPeopleRateModifier();
+										}
+									}
+								}
+							}
+						}
+					}
+
+					iThisCityGPPPerTurnTimes100 *= (100 + iFutureRateModifier);
+					iThisCityGPPPerTurnTimes100 /= 100;
+
+					iThisCityRate = 100 * pLoopCity->GetCityCitizens()->GetSpecialistUpgradeThreshold(eGreatPersonType, /*iAssumeExtraNumCreated*/ 1) / iThisCityGPPPerTurnTimes100;
+				}
+
+				if (iThisCityRate < iRate)
+				{
+					iRate = iThisCityRate;
+				}
+			}
+
+			// more GPs if we're going for a culture victory
+			if (GetDiplomacyAI()->IsGoingForCultureVictory())
+			{
+				iRate *= 85;
+				iRate /= 100;
+			}
+
+			int iGPExtraProgressFromTraitsPerTurnPercentTimes100 = 0;
+
+			// GP progress when getting a historic event
+			if (GetPlayerTraits()->GetEventGP() > 0)
+			{
+				// assume one event every 20 turns. the type of GP is random, but Great Generals, Admirals and Prophets are excluded
+				iGPExtraProgressFromTraitsPerTurnPercentTimes100 += 100 * GetPlayerTraits()->GetEventGP() / 20 / (GC.getNumGreatPersonInfos() - 3);
+			}
+
+			// extra great musicians, artists, or writers?
+			if (eGreatPerson == (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_WRITER") || eGreatPerson == (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_ARTIST") || eGreatPerson == (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_MUSICIAN"))
+			{
+				GreatPersonTypes eGreatGeneral = (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_GENERAL");
+				if (GetPlayerTraits()->GetGreatPersonGWAM(eGreatGeneral) > 0)
+				{
+					iGPExtraProgressFromTraitsPerTurnPercentTimes100 += 100 * GetPlayerTraits()->GetGreatPersonGWAM(eGreatGeneral) / EstimateGreatPersonRate(eGreatGeneral) / 3;
+				}
+				GreatPersonTypes eGreatAdmiral = (GreatPersonTypes)GC.getInfoTypeForString("GREATPERSON_ADMIRAL");
+				if (GetPlayerTraits()->GetGreatPersonGWAM(eGreatAdmiral) > 0)
+				{
+					iGPExtraProgressFromTraitsPerTurnPercentTimes100 += 100 * GetPlayerTraits()->GetGreatPersonGWAM(eGreatAdmiral) / EstimateGreatPersonRate(eGreatAdmiral) / 3;
+				}
+				if (GetPlayerTraits()->GetCityConquestGWAM() > 0)
+				{
+					// assume one conquered city every 50 turns
+					iGPExtraProgressFromTraitsPerTurnPercentTimes100 += 100 * GetPlayerTraits()->GetCityConquestGWAM() / 50 / 3;
+				}
+			}
+
+			if (iGPExtraProgressFromTraitsPerTurnPercentTimes100 > 0)
+			{
+				int iExtraTraitRate = 10000 / iGPExtraProgressFromTraitsPerTurnPercentTimes100;
+				if (iExtraTraitRate > 0)
+				{
+					// combine the rates. if we get GPP from multiple sources, the values of the progress towards the GP per turn (= 1/Rate) are added up, so the combined rate is 1/(1/Rate1 + 1/Rate2) = (Rate1 * Rate2) / (Rate1 + Rate2)
+					iRate = (iRate * iExtraTraitRate) / (iRate + iExtraTraitRate);
+				}
+			}
+
+		}
+		else
+		{
+			// prophets and other GPs that aren't generated by specialists, we just use a base rate for now
+			iRate = GC.getGame().getGameSpeedInfo().getTrainPercent();
+		}
+
+	}
+	return max(iRate, 1);
+}
+
 void CvPlayer::chooseTech(int iDiscover, const char* strText, TechTypes iTechJustDiscovered)
 {
 	if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
@@ -15317,7 +15595,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreTraitsDifficulty,
 	return std::max(1, iProductionNeeded);
 }
 
-int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
+int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding, bool bIgnoreDifficulty) const
 {
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eTheBuilding);
 	if (pkBuildingInfo == NULL)
@@ -15456,13 +15734,13 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 			iProductionNeeded *= getHandicapInfo().getWorldConstructPercent();
 			iProductionNeeded /= 100;
 
-			if (!isHuman(ISHUMAN_HANDICAP))
+			if (!isHuman(ISHUMAN_HANDICAP) && !bIgnoreDifficulty)
 			{
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getAIWorldConstructPercent();
 				iProductionNeeded /= 100;
 			}
 		}
-		else
+		else if (!bIgnoreDifficulty)
 		{
 			iProductionNeeded *= getHandicapInfo().getConstructPercent();
 			iProductionNeeded /= 100;
@@ -20927,6 +21205,17 @@ int CvPlayer::GetUnhappinessCombatStrengthPenalty() const
 	return max(iPenalty, /*-40*/ GD_INT_GET(VERY_UNHAPPY_MAX_COMBAT_PENALTY));
 }
 
+/// Not an official definition, only used for internal AI evaluations
+bool CvPlayer::IsEmpireVeryHappy() const
+{
+	if (MOD_BALANCE_VP)
+	{
+		return GetExcessHappiness() >= 75 && GetHappinessFromCitizenNeeds() - GetUnhappinessFromCitizenNeeds() >= 10;
+	}
+
+	return GetExcessHappiness() >= 10;
+}
+
 /// Has the player passed the Happiness limit?
 bool CvPlayer::IsEmpireUnhappy() const
 {
@@ -20958,6 +21247,53 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 	}
 
 	return GetExcessHappiness() <= /*-20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD);
+}
+
+// value of one additional happiness, on a scale up to 1000
+int CvPlayer::GetHappinessValueTimes100() const
+{
+	int iBaseHappinessValue = MOD_BALANCE_VP ? 100 : 200;
+
+	if (IsEmpireVeryHappy())
+		return iBaseHappinessValue / 2;
+	else if (IsEmpireSuperUnhappy())
+		return min(1000, 6 * iBaseHappinessValue);
+	else if (IsEmpireVeryUnhappy())
+		return 4 * iBaseHappinessValue;
+	else if (IsEmpireUnhappy())
+		return 2 * iBaseHappinessValue;
+	else
+		return iBaseHappinessValue;
+}
+
+// estimate how often we'll be in a golden age
+int CvPlayer::EstimateGoldenAgePercentage() const
+{
+	// estimated percentage of turns we'll be in a golden age
+
+	int iGAPPerTurnTimes100 = GetHappinessForGAP() * 100 + GetGoldenAgePointsFromEmpireTimes100();
+	// how many turns to reach a golden age?
+	int iTurnsToReachGoldenAge = (iGAPPerTurnTimes100 <= 0) ? 999 : (100 * GetGoldenAgeProgressThreshold() / iGAPPerTurnTimes100);
+	int iGoldenAgePercent = max(1, min(100, 100 * getGoldenAgeLength() / iTurnsToReachGoldenAge));
+
+	if (GetDiplomacyAI()->IsGoingForCultureVictory())
+	{
+		iGoldenAgePercent *= 3;
+		iGoldenAgePercent /= 2;
+	}
+
+	// in future eras, it will be more likely to get a golden age
+	iGoldenAgePercent *= 100 + 5 * (GC.getNumEraInfos() - GetCurrentEra() - 1);
+	iGoldenAgePercent /= 100;
+
+	// player traits
+	// winning a war. assume one war won every 50 turns
+	iGoldenAgePercent += 100 * GetPlayerTraits()->GetGoldenAgeFromVictory() / 50;
+	// conquering a city
+	iGoldenAgePercent += 100 * (GetPlayerTraits()->IsConquestOfTheWorld() ? 5 : 0) / 20;
+
+
+	return max(1, min(100, iGoldenAgePercent));
 }
 
 /// Uprisings pop up if the empire is Very Unhappy
@@ -24598,7 +24934,7 @@ void CvPlayer::DoProcessVotes()
 	}
 }
 
-void CvPlayer::DoChangeGreatGeneralRate()
+int CvPlayer::GetGreatGeneralRateTimes100() const
 {
 	//Check for buildings and beliefs that add Great General points.
 	int iLoop = 0;
@@ -24606,16 +24942,16 @@ void CvPlayer::DoChangeGreatGeneralRate()
 
 	UnitClassTypes eUnitClassGeneral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL");
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(eUnitClassGeneral);
-	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iGreatGeneralPointsTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GREAT_GENERAL_POINTS);
 
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
 		BeliefTypes eSecondaryPantheon = NO_BELIEF;
-		if(pReligion)
+		if (pReligion)
 		{
 			int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity);
-			if(iReligionYieldChange > 0)
+			if (iReligionYieldChange > 0)
 			{
 				iGreatGeneralPointsTimes100 += iReligionYieldChange * 100;
 			}
@@ -24623,7 +24959,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 			if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
 			{
 				iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS);
-				if(iReligionYieldChange > 0)
+				if (iReligionYieldChange > 0)
 				{
 					iGreatGeneralPointsTimes100 += iReligionYieldChange * 100;
 				}
@@ -24669,7 +25005,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 		{
 			if (pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS) > 0)
 			{
-				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					iGreatGeneralPointsTimes100 += pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS) * 100;
 				}
@@ -24680,10 +25016,15 @@ void CvPlayer::DoChangeGreatGeneralRate()
 	iGreatGeneralPointsTimes100 += GetYieldPerTurnFromMinorCivsTimes100(YIELD_GREAT_GENERAL_POINTS);
 	iGreatGeneralPointsTimes100 += GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_GREAT_GENERAL_POINTS);
 
-	changeCombatExperienceTimes100(iGreatGeneralPointsTimes100);
+	return iGreatGeneralPointsTimes100;
 }
 
-void CvPlayer::DoChangeGreatAdmiralRate()
+void CvPlayer::DoChangeGreatGeneralRate()
+{
+	changeCombatExperienceTimes100(GetGreatGeneralRateTimes100());
+}
+
+int CvPlayer::GetGreatAdmiralRateTimes100() const
 {
 	//Check for buildings and beliefs that add Great General points.
 	int iLoop = 0;
@@ -24692,7 +25033,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 	UnitClassTypes eUnitClassAdmiral = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL");
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass(eUnitClassAdmiral);
 
-	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iGreatAdmiralPointsTimes100 += pLoopCity->getYieldRateTimes100(YIELD_GREAT_ADMIRAL_POINTS);
 
@@ -24755,7 +25096,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 		{
 			if (pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS) > 0)
 			{
-				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					iGreatAdmiralPointsTimes100 += pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS) * 100;
 				}
@@ -24766,7 +25107,12 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 	iGreatAdmiralPointsTimes100 += GetYieldPerTurnFromMinorCivsTimes100(YIELD_GREAT_ADMIRAL_POINTS);
 	iGreatAdmiralPointsTimes100 += GetYieldPerTurnFromAnnexedMinorsTimes100(YIELD_GREAT_ADMIRAL_POINTS);
 
-	changeNavalCombatExperienceTimes100(iGreatAdmiralPointsTimes100);
+	return iGreatAdmiralPointsTimes100;
+}
+
+void CvPlayer::DoChangeGreatAdmiralRate()
+{
+	changeNavalCombatExperienceTimes100(GetGreatAdmiralRateTimes100());
 }
 
 /// Update all Golden-Age related stuff
@@ -24820,7 +25166,7 @@ void CvPlayer::DoProcessGoldenAge()
 	}
 }
 
-int CvPlayer::GetGoldenAgePointsFromEmpireTimes100()
+int CvPlayer::GetGoldenAgePointsFromEmpireTimes100() const
 {
 	int iGAPoints = 0;
 
@@ -24844,14 +25190,14 @@ int CvPlayer::GetGoldenAgePointsFromEmpireTimes100()
 	return iGAPoints;
 }
 
-int CvPlayer::GetGoldenAgePointsFromCitiesTimes100()
+int CvPlayer::GetGoldenAgePointsFromCitiesTimes100() const
 {
 	int iGAPoints = 0;
 
 	// Add in all the GA points from city yields
 	int iLoop = 0;
 	int iTourismFromCities = 0;
-	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iGAPoints += pLoopCity->getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS);
 		if (GetPlayerTraits()->GetTourismToGAP() > 0)
@@ -38439,9 +38785,16 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 
 	return iTotalNumResource;
 }
+int CvPlayer::getNumResourceFromTiles(ResourceTypes eIndex) const
+{
+	PRECONDITION(eIndex >= 0);
+	PRECONDITION(eIndex < GC.getNumResourceInfos());
+	return m_paiNumResourceFromTiles[eIndex];
+}
+
 void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding, bool bCheckForMonopoly, bool bFromEvent)
 {
-	ASSERT(eIndex >= 0);
+	PRECONDITION(eIndex >= 0);
 	PRECONDITION(eIndex < GC.getNumResourceInfos());
 
 	if(iChange != 0)

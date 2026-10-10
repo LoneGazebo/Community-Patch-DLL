@@ -2236,15 +2236,8 @@ void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const vector<int>& vGra
 			CvAIGrandStrategyXMLEntry* pEntry = GC.getAIGrandStrategyInfo(eGrandStrategy);
 			const char* szGrandStrategyType = (pEntry != NULL)? pEntry->GetType() : "Unknown Strategy";
 
-			// GrandStrategy Info
-			if(GetActiveGrandStrategy() == eGrandStrategy)
-			{
-				strTemp.Format("*** %s, %d", szGrandStrategyType, iPriority);
-			}
-			else
-			{
-				strTemp.Format("%s, %d", szGrandStrategyType, iPriority);
-			}
+			
+			strTemp.Format("%s, %d", szGrandStrategyType, iPriority);
 			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 			strOutBuf = strBaseString + otherPlayerName + ", " + strTemp;
 
