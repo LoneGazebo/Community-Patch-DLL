@@ -779,6 +779,7 @@
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_SPAD</Type>
 			<Scale>0.09</Scale>
+			<ZOffset>76</ZOffset>
 			<Domain>Air</Domain>
 			<Model>Nieuport_17.fxsxml</Model>
 			<MaterialTypeTag>METAL</MaterialTypeTag>
@@ -787,6 +788,7 @@
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_ROCKET_MISSILE</Type>
 			<Scale>0.11</Scale>
+			<ZOffset>76</ZOffset>
 			<Domain>Air</Domain>
 			<Model>GuidedMissile.fxsxml</Model>
 			<MaterialTypeTag>METAL</MaterialTypeTag>
