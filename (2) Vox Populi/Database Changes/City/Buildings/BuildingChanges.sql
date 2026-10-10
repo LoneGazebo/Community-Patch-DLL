@@ -1241,7 +1241,7 @@ VALUES
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 50
+	a.Type, b.YieldType, 75
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_CASINO';
 
@@ -1287,7 +1287,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_CULTURE_LOCAL', 25
+	Type, 'YIELD_CULTURE_LOCAL', 50
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_JAIL';
 
@@ -1303,7 +1303,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	Type, 'YIELD_PRODUCTION', 50
+	Type, 'YIELD_GOLD', 100
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 
@@ -1331,7 +1331,7 @@ VALUES
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 50
+	a.Type, b.YieldType, 100
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_PENITENTIARY';
 
@@ -2607,7 +2607,7 @@ VALUES
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 100
+	a.Type, b.YieldType, 200
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
 
