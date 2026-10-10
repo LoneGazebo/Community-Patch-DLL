@@ -1323,10 +1323,10 @@
 			<Text>The City does not generate any [ICON_TOURISM] Tourism. Lasts 10 turns (Standard Speed). During the first 5 turns the City is unable to construct or invest in Buildings, Wonders and Projects.[NEWLINE]50% ID Chance / 25% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP">
-			<Text>The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns, and for half that time is unable to construct or invest in Buildings, Wonders and Projects.</Text>
+			<Text>The City does not generate any [ICON_TOURISM] Tourism for {5_Duration} turns, and for half that time is unable to construct or invest in Buildings, Wonders and Projects.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT">
-			<Text>The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns. For the first half of the City Event, the City is unable to construct or invest in Buildings, Wonders and Projects.</Text>
+			<Text>The City does not generate any [ICON_TOURISM] Tourism for {5_Duration} turns. For the first half of the City Event, the City is unable to construct or invest in Buildings, Wonders and Projects.</Text>
 		</Row>
 		<!-- Pilfer Relics -->
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH">
@@ -1365,10 +1365,10 @@
 			<Text>2 [ICON_TEAM_2] Rebel Units appear near the City. The City does not generate any [ICON_TOURISM] Tourism. Lasts 5 turns (Standard Speed).[NEWLINE]The City must have a [ICON_INTERNATIONAL_TRADE] Trade Route connection and no {TXT_KEY_BUILDING_EAST_INDIA}.[NEWLINE]25% ID Chance / 5% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP">
-			<Text>2 [ICON_TEAM_2] Rebel Units appear in the area and the City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+			<Text>2 [ICON_TEAM_2] Rebel Units appear in the area and the City does not generate any [ICON_TOURISM] Tourism for {5_Duration} turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_EFFECT">
-			<Text>2 [ICON_TEAM_2] Rebel Units have appeared in the area. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+			<Text>2 [ICON_TEAM_2] Rebel Units have appeared in the area. The City does not generate any [ICON_TOURISM] Tourism for {5_Duration} turns.</Text>
 		</Row>
 		<!-- Infiltrate the Governor's Office -->
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_INFILTRATE">
@@ -1429,10 +1429,10 @@
 			<Text> The City produces -20% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold. Lasts for 10 turns (Standard Speed). During the first 5 turns the City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.[NEWLINE]Requires a Harbor in the City.[NEWLINE]ID Chance 75% / Kill Chance 50%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS_HELP">
-			<Text>The City produces -20% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for {8_Num} turns, and for half that time is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
+			<Text>The City produces -20% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for {5_Duration} turns, and for half that time is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS_EFFECT">
-			<Text>The City is producing -20% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for {8_Num} turns. During the first half of the City Event, the City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
+			<Text>The City is producing -20% [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for {5_Duration} turns. During the first half of the City Event, the City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
 		</Row>
 		<!-- Radicalize the Rural Citizenry -->
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
@@ -1455,10 +1455,10 @@
 			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism. Lasts 10 turns (Standard Speed).[NEWLINE]75% ID Chance / 25% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP">
-			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {5_Duration} turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_EFFECT">
-			<Text>The City has entered [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
+			<Text>The City has entered [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {5_Duration} turns.</Text>
 		</Row>
 		<!-- Sabotage Defences -->
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES">
@@ -1468,10 +1468,10 @@
 			<Text>All [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] owned by this City are [ICON_RAZING] Pillaged. The City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes. Lasts 10 turns (Standard Speed).[NEWLINE]75% ID Chance / 75% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_HELP">
-			<Text>All [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] owned by this City are [ICON_RAZING] Pillaged. The City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes for {8_Num} turns.</Text>
+			<Text>All [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] owned by this City are [ICON_RAZING] Pillaged. The City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes for {5_Duration} turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_EFFECT">
-			<Text>[COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] around the City have been [ICON_RAZING] Pillaged. The City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes for {8_Num} turns.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] around the City have been [ICON_RAZING] Pillaged. The City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes for {5_Duration} turns.</Text>
 		</Row>
 		<!-- Steal a GW -->
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
