@@ -1691,7 +1691,7 @@ INSERT INTO Helper
 	(YieldType, Yield)
 VALUES
 	('YIELD_FOOD', 1),
-	('YIELD_PRODUCTION', 2);
+	('YIELD_PRODUCTION', 1);
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
