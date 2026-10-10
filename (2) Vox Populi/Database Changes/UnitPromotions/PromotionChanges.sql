@@ -734,9 +734,11 @@ UPDATE UnitPromotions SET CityAttack = 100 WHERE Type = 'PROMOTION_CITY_SIEGE';
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_SIEGE_INACCURACY', 'DOMAIN_LAND', -33);
+	('PROMOTION_SIEGE_INACCURACY', 'DOMAIN_LAND', -50);
 
-UPDATE UnitPromotions SET RangeAttackIgnoreLOS = 1, RangedAttackModifier = -10 WHERE Type = 'PROMOTION_INDIRECT_FIRE';
+UPDATE UnitPromotions SET SeeThrough = 1 WHERE Type = 'PROMOTION_PARABOLIC_PAYLOAD';
+
+UPDATE UnitPromotions SET RangeAttackIgnoreLOS = 1 WHERE Type = 'PROMOTION_INDIRECT_FIRE';
 
 UPDATE UnitPromotions SET GainsXPFromScouting = 1 WHERE Type = 'PROMOTION_RECONNAISSANCE';
 
