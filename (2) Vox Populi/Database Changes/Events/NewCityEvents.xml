@@ -1149,6 +1149,22 @@
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</TriggerPlayerEventChoice>
 			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 		</Row>
+		<!-- Arson in the Dockyards -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS</Description>
+			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS_PEDIA</Pedia>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS_HELP</Help>
+			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ARSON_DOCKS_EFFECT</SpyMissionEffect>
+			<IsEspionageMission>true</IsEspionageMission>
+			<EventDuration>10</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
+			<SapCityTurns>5</SapCityTurns>
+			<SpyIDChance>75</SpyIDChance>
+			<SpyKillChance>25</SpyKillChance>
+			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+		</Row>
 		<!-- Radicalize the rural citizenry -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</Type>
@@ -1194,12 +1210,12 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_HELP</Help>
 			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_EFFECT</SpyMissionEffect>
 			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>5</EventDuration>
+			<EventDuration>10</EventDuration>
 			<EventDurationScaling>false</EventDurationScaling>
 			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
 			<SpyIDChance>75</SpyIDChance>
 			<SpyKillChance>75</SpyKillChance>
-			<SapCityTurns>5</SapCityTurns>
+			<SapCityTurns>10</SapCityTurns>
 			<PillageFortificationsChance>100</PillageFortificationsChance>
 			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
 		</Row>
