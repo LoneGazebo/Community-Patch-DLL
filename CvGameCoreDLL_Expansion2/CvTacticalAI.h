@@ -1134,9 +1134,10 @@ struct SCoWField {
 
 	SCoWField() : parentData(NULL), dirty(false) {}
 
+	// leaves the old contents in place. Nothing reads them while the field is clean, and the
+	// first write assigns over them, reusing their buffers (including each plot's unit list).
 	void inheritFrom(const T& parent) {
 		parentData = &parent;
-		localData.clear();
 		dirty = false;
 	}
 
@@ -1161,9 +1162,9 @@ struct SCoWField {
 		dirty = false;
 	}
 
+	// clears a clean field too, because inheritFrom leaves old contents behind
 	void clear() {
-		if (dirty)
-			localData.clear();  // reuse allocated memory
+		localData.clear();  // reuse allocated memory
 
 		parentData = NULL;
 		dirty = false;
@@ -1427,6 +1428,9 @@ protected:
 		unitDamageDealt.wipe();
 	}
 
+	// the pool releases expanded positions' state and recycles their buffers
+	friend class CvTactPosStorage;
+
 public:
 
 	//hard cap on the number of tactical plots stored per position (see
@@ -1598,16 +1602,55 @@ public:
 class CvTactPosStorage
 {
 public:
-	CvTactPosStorage(int iPreallocationSize) : iSize(iPreallocationSize), iCount(0), aPositions(new CvTacticalPosition[iPreallocationSize]), attackCache() {}
+	// reserves the spare lists up front so they never reallocate. Every buffer sits in
+	// a slot or a spare list, and new ones are made only when the list is empty, so a list never
+	// holds more buffers than the slots have fields of its type: one plot table and three unit lists.
+	CvTactPosStorage(int iPreallocationSize) : iSize(iPreallocationSize), iCount(0), aPositions(new CvTacticalPosition[iPreallocationSize]), attackCache()
+	{
+		spareTactPlots.reserve(iPreallocationSize);
+		spareUnitLists.reserve(3 * iPreallocationSize);
+	}
 	~CvTactPosStorage() { delete[] aPositions; }
 	void reset(bool bHard);
 	int getSizeLimit() const { return iSize; }
 	int getSize() const { return iCount; }
 	CvTacticalPosition* first() { return aPositions; }
-	CvTacticalPosition* peekNext() { return (iCount < iSize) ? aPositions + iCount : NULL; }
+	// hands a slot that lost its buffers the spare ones before it is used
+	CvTacticalPosition* peekNext()
+	{
+		if (iCount >= iSize)
+			return NULL;
+
+		CvTacticalPosition* pNext = aPositions + iCount;
+		adoptSpare(pNext->tactPlots.localData, spareTactPlots);
+		adoptSpare(pNext->availableUnits.localData, spareUnitLists);
+		adoptSpare(pNext->notQuiteFinishedUnits.localData, spareUnitLists);
+		adoptSpare(pNext->finishedUnits.localData, spareUnitLists);
+		return pNext;
+	}
 	int consumeOne() { return iCount++; }
 	CAttackCache& getAttackCache() { return attackCache; }
 	CDangerCache& getDangerCache() { return dangerCache; }
+
+	// frees the state only an open position needs, once its children exist. Later
+	// steps read just the assignments and freed plots of a non-root ancestor, so its plots, units,
+	// plot scores and damage go. Most of the pool is expanded positions, so this cuts search
+	// memory, and the plot and unit buffers return to the spare lists for new children.
+	void releaseScratch(CvTacticalPosition* pPos)
+	{
+		recycleUnlessBorrowed(pPos, &CvTacticalPosition::tactPlots, spareTactPlots);
+		recycleUnlessBorrowed(pPos, &CvTacticalPosition::availableUnits, spareUnitLists);
+		recycleUnlessBorrowed(pPos, &CvTacticalPosition::notQuiteFinishedUnits, spareUnitLists);
+		recycleUnlessBorrowed(pPos, &CvTacticalPosition::finishedUnits, spareUnitLists);
+		if (!isBorrowed(pPos, &CvTacticalPosition::tactPlotLookup))
+			pPos->tactPlotLookup.wipe();
+		if (!isBorrowed(pPos, &CvTacticalPosition::enemyPlots))
+			pPos->enemyPlots.wipe();
+		if (!isBorrowed(pPos, &CvTacticalPosition::unitDamageDealt))
+			pPos->unitDamageDealt.wipe();
+		if (!isBorrowed(pPos, &CvTacticalPosition::plotScores))
+			pPos->plotScores.wipe();
+	}
 
 protected:
 	int iSize; //how many do we have
@@ -1615,6 +1658,51 @@ protected:
 	CvTacticalPosition* aPositions; //preallocated block of N positions
 	CAttackCache attackCache; //performance optimization, unit strength calculation takes too long
 	CDangerCache dangerCache; //performance optimization, unit strength calculation takes too long
+	// buffers released by expanded positions, waiting for a new child to take them
+	vector<vector<CvTacticalPlot>> spareTactPlots;
+	vector<vector<SUnitStats>> spareUnitLists;
+
+	// true when a child has not written this field yet and still reads the position's
+	// copy. Grandchildren inherit through their parent's read, so checking children covers all readers.
+	template<typename T, typename C>
+	static bool isBorrowed(const CvTacticalPosition* pPos, SCoWField<T> C::* field)
+	{
+		const T* pLocal = &(pPos->*field).localData;
+		for (size_t i = 0; i < pPos->childPositions.size(); i++)
+		{
+			const SCoWField<T>& childField = pPos->childPositions[i]->*field;
+			if (!childField.dirty && childField.parentData == pLocal)
+				return true;
+		}
+		return false;
+	}
+
+	// moves a field's buffer onto a spare list and empties the field, unless a child still reads it
+	template<typename T, typename C>
+	static void recycleUnlessBorrowed(CvTacticalPosition* pPos, SCoWField<T> C::* field, vector<T>& spares)
+	{
+		if (isBorrowed(pPos, field))
+			return;
+
+		SCoWField<T>& f = pPos->*field;
+		if (f.localData.capacity() > 0)
+		{
+			spares.push_back(T());
+			spares.back().swap(f.localData);
+		}
+		f.wipe();
+	}
+
+	// gives an empty buffer the last spare, whose old contents the next write assigns over
+	template<typename T>
+	static void adoptSpare(T& localData, vector<T>& spares)
+	{
+		if (localData.capacity() == 0 && !spares.empty())
+		{
+			localData.swap(spares.back());
+			spares.pop_back();
+		}
+	}
 
 private:
 	//hide copy constructor and assignment operator

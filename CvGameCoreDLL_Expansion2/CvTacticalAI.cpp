@@ -13013,6 +13013,11 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				CUSTOMLOG(ss.str().c_str());
 			break;
 		}
+
+		// an expanded position keeps only what its descendants and the support search
+		// read. The root stays whole because later steps look up the start state there.
+		if (current != initialPosition)
+			gTactPosStorage.releaseScratch(current);
 	}
 	timer.EndPerfTest();
 	int durationMs = int(timer.GetDeltaInSeconds() * 1000);
@@ -13482,7 +13487,7 @@ void CvTactPosStorage::reset(bool bHard)
 { 
 	//this is normally enough
 	iCount = 0; 
-	attackCache.clear(); 
+	attackCache.clear();
 	dangerCache.clear();
 
 	//in a hard reset we recreate all stl containers from scratch
@@ -13493,6 +13498,10 @@ void CvTactPosStorage::reset(bool bHard)
 
 		for (int i = 0; i < iSize; i++)
 			aPositions[i].wipe();
+
+		// free the recycled buffers too, keeping the lists' reserved capacity
+		spareTactPlots.clear();
+		spareUnitLists.clear();
 
 		//for some reason the memory usage is not affected immediately ... but the wiping works
 		//PrintMemoryInfo("after hard reset");
