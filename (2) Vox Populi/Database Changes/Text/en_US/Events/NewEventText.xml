@@ -1312,19 +1312,19 @@
 			<Text>The City produces -50% [ICON_FOOD] Food for {5_Duration}, and for half that time the City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER_EFFECT">
-			<Text>The water has been poisoned, the City produces -50% [ICON_FOOD] Food for {5_Duration}, and for half that time is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
+			<Text>The water has been poisoned, the City produces -50% [ICON_FOOD] Food for {5_Duration}. For the first half of the City Event, the City is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION">
 			<Text>[ICON_STAR] Assassinate the City Governor</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_PEDIA">
-			<Text>The City is unable to construct or invest in Buildings, Wonders and Projects. Lasts 10 turns (Standard Speed). During the first 2 turns it enters [ICON_RESISTANCE] Resistance and is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.[NEWLINE]75% ID Chance / 5% Kill Chance</Text>
+			<Text>The City does not generate any [ICON_TOURISM] Tourism. Lasts 10 turns (Standard Speed). During the first 5 turns the City is unable to construct or invest in Buildings, Wonders and Projects.[NEWLINE]50% ID Chance / 25% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP">
-			<Text>The City is unable to construct or invest in Buildings, Wonders and Projects for {8_Num} turns. During the first 2 turns it enters [ICON_RESISTANCE] Resistance and is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes.</Text>
+			<Text>The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns, and for half that time is unable to construct or invest in Buildings, Wonders and Projects.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT">
-			<Text>The City enters [ICON_RESISTANCE] Resistance and is [ICON_BLOCKADED] Blockaded and cannot perform [ICON_RANGE_STRENGTH] Ranged Strikes for 2 turns. The City is unable to construct or invest in Buildings, Wonders and Projects for a total {8_Num} turns.</Text>
+			<Text>The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns. For the first half of the City Event, the City is unable to construct or invest in Buildings, Wonders and Projects.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH">
 			<Text>[ICON_PEACE] Pilfer Religious Relics</Text>
@@ -1357,7 +1357,7 @@
 			<Text>[ICON_PIRATE] Hijack a Trade Convoy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_PEDIA">
-			<Text>2 [ICON_TEAM_2] Rebel Units appear near the City. The City does not generate any [ICON_TOURISM] Tourism. Lasts 10 turns (Standard Speed).[NEWLINE]The City must have a [ICON_INTERNATIONAL_TRADE] Trade Route connection.[NEWLINE]25% ID Chance / 5% Kill Chance</Text>
+			<Text>2 [ICON_TEAM_2] Rebel Units appear near the City. The City does not generate any [ICON_TOURISM] Tourism. Lasts 5 turns (Standard Speed).[NEWLINE]The City must have a [ICON_INTERNATIONAL_TRADE] Trade Route connection and no {TXT_KEY_BUILDING_EAST_INDIA}.[NEWLINE]25% ID Chance / 5% Kill Chance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK_HELP">
 			<Text>2 [ICON_TEAM_2] Rebel Units appear in the area and the City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
@@ -1494,7 +1494,7 @@
 			<Text>[ICON_STRENGTH] Inspect City Defenses</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP">
-			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. +2 [ICON_PRODUCTION] Production and [ICON_CULTURE_LOCAL] Border Growth Points from [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR].[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Sabotage City Defenses", "Poison the Water Supply", and "Assassinate the City Governor" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture when you kill a foreign Spy, scaling with Era.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 30% stronger. +2 [ICON_PRODUCTION] Production and [ICON_CULTURE_LOCAL] Border Growth Points from [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR].[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Poison the Water Supply" or "Sabotage City Defenses" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture when you kill a foreign Spy, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION">
 			<Text>Strengthen Defenses</Text>
@@ -1512,7 +1512,7 @@
 			<Text>[ICON_OCCUPIED] Deploy Checkpoints</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_HELP">
-			<Text>-25% [ICON_HAPPINESS_3] Needs Modifier in the City, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_TOURISM] Tourism by 15%.[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Hijack Trade Convoy" or "Arm the Local Populace" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism when you kill a foreign Spy, scaling with Era.</Text>
+			<Text>-25% [ICON_HAPPINESS_3] Needs Modifier in the City, but [COLOR_NEGATIVE_TEXT]reduces[ENDCOLOR] [ICON_TOURISM] Tourism by 15%.[NEWLINE][NEWLINE]Foreign Spies are unable to perform the "Hijack Trade Convoy", "Assassinate the City Governor", or "Arm the Local Populace" Missions.[NEWLINE][NEWLINE]Gain 50 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism when you kill a foreign Spy, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_TOURISM_MISSION">
 			<Text>Deploy Checkpoints</Text>
