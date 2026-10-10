@@ -264,7 +264,8 @@ UPDATE Buildings SET FaithCost = 600, UnlockedByBelief = 1 WHERE BuildingClass =
 UPDATE Buildings
 SET
 	Cost = -1,
-	FaithCost = 200
+	FaithCost = 200,
+	PuppetPurchaseOverride = 1
 WHERE BuildingClass IN (
 	'BUILDINGCLASS_MONASTERY',
 	'BUILDINGCLASS_CATHEDRAL',
@@ -285,7 +286,8 @@ UPDATE Buildings
 SET
 	Cost = -1,
 	FaithCost = 300,
-	GoldMaintenance = 0
+	GoldMaintenance = 0,
+	PuppetPurchaseOverride = 1
 WHERE BuildingClass = 'BUILDINGCLASS_WAT';
 
 -- Reformation buildings
