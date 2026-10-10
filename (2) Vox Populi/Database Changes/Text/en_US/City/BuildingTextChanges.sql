@@ -282,7 +282,11 @@ SET Text = 'Chartered Company'
 WHERE Tag = 'TXT_KEY_BUILDING_EAST_INDIA';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_BUILDING_EAST_INDIA} increases the amount of [ICON_GOLD] Gold a City generates and reduces [ICON_HAPPINESS_3] Poverty. Resource Diversity Modifiers for Trade Routes from this City increase by 25% if positive, and decrease by 25% if negative. You also receive a free copy of all Luxury Resources around the City.[NEWLINE][NEWLINE]Trade routes other players make to a City with a {TXT_KEY_BUILDING_EAST_INDIA} will generate an extra 4 [ICON_GOLD] Gold for the City owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route.'
+SET Text = 'Blocks the {TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK} [ICON_SPY] Spy Mission in this City.'
+WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_HELP';
+
+UPDATE Language_en_US
+SET Text = 'The {TXT_KEY_BUILDING_EAST_INDIA} increases the amount of [ICON_GOLD] Gold a City generates and makes it much more lucrative as a target for Trade Routes. It does this by increasing the amount of Gold added to the calculation directly, and also indirectly by affecting the Resource Diversity Modifier. Being a nexus for Trade Routes makes a City vulnerable to effects that spawn hostile Units near the City. Fortunately, the {TXT_KEY_BUILDING_EAST_INDIA} blocks hostile actors from {TXT_KEY_ESPIONAGE_EVENT_CHOICE_HIJACK}, insulating you somewhat.[NEWLINE][NEWLINE]You also receive a free copy of all Luxury Resources around the City. Cities with many Luxuries have high Resource Diversity, so the two effects go hand-in-hand. However, sometimes you may wish to place the {TXT_KEY_BUILDING_EAST_INDIA} in an otherwise suboptimal location in order to secure a particular [ICON_MONOPOLY] Monopoly.'
 WHERE Tag = 'TXT_KEY_BUILDING_EAST_INDIA_STRATEGY';
 
 UPDATE Language_en_US
