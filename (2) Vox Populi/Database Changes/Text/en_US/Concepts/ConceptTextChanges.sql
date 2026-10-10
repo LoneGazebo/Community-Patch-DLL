@@ -61,7 +61,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Great Musician[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMUSICIAN_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Musician can create a [ICON_GW_MUSIC] Great Work of Music that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower). The Great Musician is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_ONE_SHOT_TOURISM}[ENDCOLOR][NEWLINE]A Great Musician can travel to another civilization and perform a Concert Tour, [COLOR_YELLOW]which will increase Tourism with the target Civilization by 100%, and all other Civilizations by 50%, for ' || (SELECT TourismBonusTurns FROM Units WHERE Type = 'UNIT_MUSICIAN') || ' turns (plus 1 additional turn for every owned [ICON_GW_MUSIC] Great Work of Music). You also receive 1 [ICON_HAPPINESS_1] Happiness in every City. You cannot perform this action if at [ICON_WAR] War with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [ENDCOLOR][COLOR_MAGENTA]Influential[ENDCOLOR][COLOR_YELLOW] or greater.[ENDCOLOR] This action consumes the Great Musician.'
+SET Text = '[COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_CREATE_GREAT_WORK}[ENDCOLOR][NEWLINE]A Great Musician can create a [ICON_GW_MUSIC] Great Work of Music that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower). The Great Musician is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: {TXT_KEY_MISSION_ONE_SHOT_TOURISM}[ENDCOLOR][NEWLINE]A Great Musician can travel to another civilization and perform a Concert Tour, [COLOR_YELLOW]which will increase Tourism with the target Civilization by 50%, and all other Civilizations by 25%, for ' || (SELECT TourismBonusTurns FROM Units WHERE Type = 'UNIT_MUSICIAN') || ' turns (plus 1 additional turn for every owned [ICON_GW_MUSIC] Great Work of Music). You also receive 1 [ICON_HAPPINESS_1] Happiness in every City. You cannot perform this action if at [ICON_WAR] War with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [ENDCOLOR][COLOR_MAGENTA]Influential[ENDCOLOR][COLOR_YELLOW] or greater.[ENDCOLOR] This action consumes the Great Musician.'
 WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMUSICIAN_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -180,13 +180,13 @@ SET Text = '[ICON_TOURISM] Tourism is the primary yield you will use to spread y
 
 [NEWLINE][NEWLINE]Your [ICON_TOURISM] Tourism is multiplied with each player in the following ways [COLOR_YELLOW](minimum [COLOR_NEGATIVE_TEXT]-100%[COLOR_YELLOW])[ENDCOLOR]:
 [NEWLINE][ICON_BULLET]Any Trade Route connecting your City with their City [COLOR_YELLOW]([COLOR_POSITIVE_TEXT]+10%[COLOR_YELLOW])[ENDCOLOR].
-[NEWLINE][ICON_BULLET][COLOR_YELLOW]Trade Open Borders to the player ([COLOR_POSITIVE_TEXT]+15%[COLOR_YELLOW]).[ENDCOLOR]
-[NEWLINE][ICON_BULLET]Share your Religion with the player [COLOR_YELLOW]([COLOR_POSITIVE_TEXT]+X%[COLOR_YELLOW], the percent of its followers in their empire, maximum [COLOR_POSITIVE_TEXT]+50%[COLOR_YELLOW])[ENDCOLOR].
+[NEWLINE][ICON_BULLET][COLOR_YELLOW]Trade Open Borders to the player ([COLOR_POSITIVE_TEXT]+10%[COLOR_YELLOW]).[ENDCOLOR]
+[NEWLINE][ICON_BULLET]Share your Religion with the player [COLOR_YELLOW]([COLOR_POSITIVE_TEXT]+X%[COLOR_YELLOW], the percent of its followers in their empire, maximum [COLOR_POSITIVE_TEXT]+40%[COLOR_YELLOW])[ENDCOLOR].
 [NEWLINE][ICON_BULLET][COLOR_YELLOW]Have a Diplomat in their Capital City ([COLOR_POSITIVE_TEXT]+20%[COLOR_YELLOW]).[ENDCOLOR]
 [NEWLINE][ICON_BULLET][COLOR_YELLOW]Have less Boredom in your Empire ([COLOR_POSITIVE_TEXT]+X%[COLOR_YELLOW], the difference in Boredom between your two Empires).[ENDCOLOR]
-[NEWLINE][ICON_BULLET][COLOR_YELLOW]Expend a Great Musician inside their borders ([COLOR_POSITIVE_TEXT]+100%[COLOR_YELLOW], and [COLOR_POSITIVE_TEXT]+50%[COLOR_YELLOW] with everyone else).[ENDCOLOR]
+[NEWLINE][ICON_BULLET][COLOR_YELLOW]Expend a Great Musician inside their borders ([COLOR_POSITIVE_TEXT]+50%[COLOR_YELLOW], and [COLOR_POSITIVE_TEXT]+25%[COLOR_YELLOW] with everyone else).[ENDCOLOR]
 [NEWLINE][ICON_BULLET][COLOR_YELLOW]Gain the player as a Vassal ([COLOR_POSITIVE_TEXT]+33%[COLOR_YELLOW]).[ENDCOLOR]
-[NEWLINE][ICON_BULLET]Have a different Ideology than the player [COLOR_YELLOW]([COLOR_NEGATIVE_TEXT]-10%[COLOR_YELLOW])[ENDCOLOR].
+[NEWLINE][ICON_BULLET]Have a different Ideology than the player [COLOR_YELLOW]([COLOR_NEGATIVE_TEXT]-20%[COLOR_YELLOW])[ENDCOLOR].
 [NEWLINE][ICON_BULLET][COLOR_YELLOW]Own more non-Puppet Cities than the player ([COLOR_NEGATIVE_TEXT]-5% per additional City[COLOR_YELLOW]).[ENDCOLOR]
 
 [NEWLINE][NEWLINE][COLOR_YELLOW]Additionally, certain player Abilities, Policies, Tenets, Corporations, and World Congress proposals can change this modifier.[ENDCOLOR] Other Abilities instead directly multiply the tourism generated in a city.'
