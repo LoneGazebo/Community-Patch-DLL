@@ -338,7 +338,7 @@ SET Text = 'Shadow Networks'
 WHERE Tag = 'TXT_KEY_POLICY_SCHOLASTICISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Shadow Networks[ENDCOLOR][NEWLINE][ICON_BULLET]+3% [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every 100 [ICON_SPY_POINT] Spy Points ever accumulated (up to 30%).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Chanceries and Constabularies.[NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science from Specialists.'
+SET Text = '[COLOR_POSITIVE_TEXT]Shadow Networks[ENDCOLOR][NEWLINE][ICON_BULLET]+3% [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every 100 [ICON_SPY_POINT] Spy Points ever accumulated (up to 30%).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Chanceries, Printing Houses, and Constabularies.[NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science from Specialists.'
 WHERE Tag = 'TXT_KEY_POLICY_SCHOLASTICISM_HELP';
 
 UPDATE Language_en_US
