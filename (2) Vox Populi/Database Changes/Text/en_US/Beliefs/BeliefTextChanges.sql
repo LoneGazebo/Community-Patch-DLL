@@ -12,7 +12,7 @@ SET Text = 'God of Fire'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture from Mines on improved Resources. +2 [ICON_PEACE] Faith from Forges.'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_CULTURE] Culture from Mines on improved Resources. +2 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Forges.'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER';
 
 UPDATE Language_en_US
