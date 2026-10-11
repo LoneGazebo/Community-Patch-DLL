@@ -30177,13 +30177,19 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		pDestPlot = m_kLastPath.GetFinalPlot();
 	}
 
+	// the squad check below may already find the final path, no need to search again
+	bool bHavePath = false;
+
 	// If no path exists but continue to closest plot flag is set try to move to an adjacent plot
 	if (MOD_SQUADS && GetSquadNumber() > -1)
 	{
 		newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
+		bHavePath = true;
 
 		if ((iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot)))
 		{
+			// the reroute search below overwrites newPath
+			bHavePath = false;
 			const CvPlot* pTargetPlot = pToPlot;
 
 			// We want to find a new plot relative to the squads destination, not this move missions destination
@@ -30235,7 +30241,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		}
 	}
 
-	if (pDestPlot)
+	if (pDestPlot && !bHavePath)
 		newPath = GC.GetPathFinder().GetPath(getX(), getY(), pDestPlot->getX(), pDestPlot->getY(), data);
 
 	//now copy the new path
