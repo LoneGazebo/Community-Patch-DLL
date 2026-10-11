@@ -3356,7 +3356,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_5", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
-		else if (iPercent >= /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent >= /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_4", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
@@ -3383,7 +3383,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_5_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
-		else if (iPercent < /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn >= GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent < /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn >= GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_4_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
@@ -3459,7 +3459,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_5", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
-		else if (iPercent >= /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent >= /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_4", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
@@ -3485,7 +3485,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_5_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
-		else if (iPercent < /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn >= GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent < /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn >= GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_4_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
@@ -3829,7 +3829,7 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 		{
 			eRtnValue = INFLUENCE_LEVEL_DOMINANT;
 		}
-		else if (iPercent >= /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent >= /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			eRtnValue = INFLUENCE_LEVEL_INFLUENTIAL;
 		}
