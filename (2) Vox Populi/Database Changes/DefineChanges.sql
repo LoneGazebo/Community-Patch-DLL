@@ -320,6 +320,7 @@ UPDATE Defines SET Value = 3 WHERE Name = 'SWITCH_POLICY_BRANCHES_ANARCHY_TURNS'
 UPDATE Defines SET Value = 5 WHERE Name = 'CULTURE_LEVEL_EXOTIC';
 UPDATE Defines SET Value = 25 WHERE Name = 'CULTURE_LEVEL_FAMILIAR';
 UPDATE Defines SET Value = 50 WHERE Name = 'CULTURE_LEVEL_POPULAR';
+UPDATE Defines SET Value = 120 WHERE Name = 'CULTURE_LEVEL_INFLUENTIAL';  -- CultureOverview.xml has a variable that needs to match this (/100)
 
 UPDATE Defines SET Value = 3 WHERE Name = 'BASE_CULTURE_PER_GREAT_WORK';
 UPDATE Defines SET Value = 2 WHERE Name = 'BASE_TOURISM_PER_GREAT_WORK';
