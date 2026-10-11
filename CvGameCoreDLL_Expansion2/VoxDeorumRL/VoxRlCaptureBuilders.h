@@ -16,6 +16,7 @@
 #include <vector>
 
 class CvUnitEntry;
+class FILogFile;
 
 // One owner-qualified city identity with its stable (owner, id) ordering.
 typedef std::pair<int, int> VoxRlCityKey;
@@ -216,6 +217,13 @@ struct VoxRlZoneSnapshot
 	std::vector<i32> plotZones;
 };
 
+// Returns a high-resolution monotonic timestamp in nanoseconds for the
+// opt-in capture timings.
+unsigned __int64 VoxRlTimingNanoseconds();
+
+// Returns the shared capture log, or null when logging is unavailable.
+FILogFile* VoxRlCaptureLog();
+
 // Optional WORLD construction timings and row volumes. A null pointer at the
 // builder boundary skips every clock read and counter update.
 struct VoxRlWorldBuildTimings
@@ -279,6 +287,14 @@ struct VoxRlPlayerMapRows
 
 // Collects one player's current map rows.
 bool VoxRlCollectPlayerMapRows(PlayerTypes player, VoxRlPlayerMapRows& rows);
+
+// Compares two portable row tables byte for byte.
+template <typename Row>
+inline bool VoxRlSameRows(const std::vector<Row>& left, const std::vector<Row>& right)
+{
+	return left.size() == right.size() &&
+		(left.empty() || std::memcmp(&left[0], &right[0], left.size() * sizeof(Row)) == 0);
+}
 
 // Reports whether two player maps hold the same rows.
 bool VoxRlPlayerMapRowsEqual(const VoxRlPlayerMapRows& left, const VoxRlPlayerMapRows& right);

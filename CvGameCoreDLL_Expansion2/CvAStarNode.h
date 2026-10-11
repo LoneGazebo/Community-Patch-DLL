@@ -137,6 +137,7 @@ public:
 
 	bool m_bIsOpen;								// Is this node on the open or closed list?
 	bool m_bIsStopNode;
+	int m_iOpenListIndex;						// Vox Deorum: position in the open list heap, -1 if not open
 	CvAStarNode* m_pParent;						// Parent in current path
 
 	CvAStarNode** m_apNeighbors; 				// For faster neighbor lookup (potential children) - always 6 - not affected by clear()

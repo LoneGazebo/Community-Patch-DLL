@@ -110,7 +110,6 @@ CvAStar::CvAStar()
       m_iDestHitCount(0),
       m_bWrapX(false),
       m_bWrapY(false),
-      m_bHeapDirty(false),
       m_pBest(NULL),
       m_iProcessedNodes(0),
       m_iTestedNodes(0),
@@ -145,6 +144,10 @@ void CvAStar::DeInit()
 	{
 		for(int iI = 0; iI < m_iColumns; iI++)
 		{
+			// Vox Deorum: nodes were created with placement new, so run the destructors to free the child vectors
+			for(int iJ = 0; iJ < m_iRows; iJ++)
+				m_ppaaNodes[iI][iJ].~CvAStarNode();
+
 			FFREEALIGNED(m_ppaaNodes[iI]);
 		}
 
@@ -176,7 +179,6 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 
 	m_bWrapX = bWrapX;
 	m_bWrapY = bWrapY;
-	m_bHeapDirty = false;
 
 	m_pBest = NULL;
 
@@ -488,20 +490,81 @@ CvAStarNode* CvAStar::GetBest()
 	if (m_openNodes.empty())
 		return NULL;
 
-	//make sure heap order is valid after all the updates in the previous round
-	if (m_bHeapDirty)
+	// Vox Deorum: indexed heap instead of make_heap rebuilds. take the best node from the top of the heap and fill the gap with the last node
+	CvAStarNode* temp = m_openNodes.front();
+	CvAStarNode* last = m_openNodes.back();
+	m_openNodes.pop_back();
+	if (!m_openNodes.empty())
 	{
-		std::make_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
-		m_bHeapDirty = false;
+		m_openNodes[0] = last;
+		last->m_iOpenListIndex = 0;
+		SiftDownOpenNode(0);
 	}
-
-	std::pop_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
-	CvAStarNode* temp = m_openNodes.back();	m_openNodes.pop_back();
 
 	//move the node to the closed list
 	temp->m_bIsOpen = false;
+	temp->m_iOpenListIndex = -1;
 	m_closedNodes.push_back(temp);
 	return temp;
+}
+
+//	--------------------------------------------------------------------------------
+/// Vox Deorum: restore heap order after the cost of an open node has changed
+void CvAStar::UpdateOpenNode(CvAStarNode* node)
+{
+	int iIndex = node->m_iOpenListIndex;
+	SiftUpOpenNode(iIndex);
+	if (node->m_iOpenListIndex == iIndex)
+		SiftDownOpenNode(iIndex);
+}
+
+//	--------------------------------------------------------------------------------
+/// Vox Deorum: move an open node towards the top of the heap while it is better than its parent
+void CvAStar::SiftUpOpenNode(int iIndex)
+{
+	PrNodeIsBetter isWorse; //sorts the best node first, so it returns true if lhs is worse than rhs
+	CvAStarNode* node = m_openNodes[iIndex];
+	while (iIndex > 0)
+	{
+		int iParent = (iIndex - 1) / 2;
+		CvAStarNode* parent = m_openNodes[iParent];
+		if (!isWorse(parent, node))
+			break;
+
+		m_openNodes[iIndex] = parent;
+		parent->m_iOpenListIndex = iIndex;
+		iIndex = iParent;
+	}
+	m_openNodes[iIndex] = node;
+	node->m_iOpenListIndex = iIndex;
+}
+
+//	--------------------------------------------------------------------------------
+/// Vox Deorum: move an open node towards the bottom of the heap while one of its children is better
+void CvAStar::SiftDownOpenNode(int iIndex)
+{
+	PrNodeIsBetter isWorse; //sorts the best node first, so it returns true if lhs is worse than rhs
+	int iSize = (int)m_openNodes.size();
+	CvAStarNode* node = m_openNodes[iIndex];
+	while (true)
+	{
+		int iChild = 2 * iIndex + 1;
+		if (iChild >= iSize)
+			break;
+
+		//pick the better child
+		if (iChild + 1 < iSize && isWorse(m_openNodes[iChild], m_openNodes[iChild + 1]))
+			iChild++;
+
+		if (!isWorse(node, m_openNodes[iChild]))
+			break;
+
+		m_openNodes[iIndex] = m_openNodes[iChild];
+		m_openNodes[iIndex]->m_iOpenListIndex = iIndex;
+		iIndex = iChild;
+	}
+	m_openNodes[iIndex] = node;
+	node->m_iOpenListIndex = iIndex;
 }
 
 // --------------------
@@ -658,9 +721,8 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	{
 		if(iKnownCost < check->m_iKnownCost)
 		{
-			//heap order will be restored when calling getBest
-			m_bHeapDirty = true;
 			NodeAddedToPath(node, check, iKnownCost, ASNC_OPENADD_UP);
+			UpdateOpenNode(check); // Vox Deorum: fix this node's heap position right away
 		}
 	}
 	//is the new node on the closed list?
@@ -699,7 +761,7 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 {
 	addnode->m_bIsOpen = true;
 	m_openNodes.push_back(addnode);
-	std::push_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
+	SiftUpOpenNode((int)m_openNodes.size() - 1); // Vox Deorum: indexed open list heap
 }
 
 const CvAStarNode * CvAStar::GetNode(int iCol, int iRow) const
@@ -730,12 +792,12 @@ void CvAStar::UpdateDownstreamNodes(CvAStarNode* node)
 
 			if(iKnownCost < kid->m_iKnownCost)
 			{
-				//heap order will be restored when calling getBest()
-				if (kid->m_bIsOpen)
-					m_bHeapDirty = true;
-
 				//also need to check closed nodes, they might have open children!
 				NodeAddedToPath(parent, kid, iKnownCost, ASNC_PARENTADD_UP);
+
+				// Vox Deorum: fix this node's heap position right away
+				if (kid->m_bIsOpen)
+					UpdateOpenNode(kid);
 
 				if (std::find(storedNodes.begin(),storedNodes.end(),kid) == storedNodes.end())
 					storedNodes.push_back(kid);
@@ -1044,18 +1106,19 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 	if (iToX==-1 || iToY==-1)
 		return false;
 
-	int iDistance = ::plotDistance(iToX, iToY, GetDestX(), GetDestY());
 	if ( HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING2) )
 	{
+		// Vox Deorum: distance is only needed for approximate targets, and it is the cheapest check
+		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
+		int iDistance = ::plotDistance(iToX, iToY, GetDestX(), GetDestY());
+		if (iDistance > 2 || iDistance < 1)
+			return false;
+
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN))
 			if (GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
 				return false;
 
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
-			return false;
-
-		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
-		if (iDistance > 2 || iDistance < 1)
 			return false;
 
 		//need to make sure there are no mountains/ice plots in between
@@ -1063,15 +1126,16 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 	}
 	else if ( HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1) )
 	{
+		// Vox Deorum: check distance first, it is the cheapest check
+		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
+		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) != 1)
+			return false;
+
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN))
 			if (GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
 				return false;
 
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
-			return false;
-
-		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
-		if (iDistance != 1)
 			return false;
 
 		return true;
@@ -2979,7 +3043,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 			return false;
 
 		CvAStarNode* pStopNode = GetPartialMoveNode(current->m_iX, current->m_iY);
-		UpdateNodeCacheData( pStopNode,pUnitDataCache->pUnit,this );
+		// Vox Deorum: no UpdateNodeCacheData here, the cache is copied from current below
 
 		//assume a stop here
 		//cost is the same plus a little bit to encourage going the full distance when in doubt

@@ -56,10 +56,16 @@ bool VoxRlAssignTradeConnection(Row& row, const TradeConnection& native)
 	return true;
 }
 
+// Returns the shared capture log, or null when logging is unavailable.
+FILogFile* VoxRlCaptureLog()
+{
+	return LOGFILEMGR.GetLog("VoxRlCapture.log", FILogFile::kDontTimeStamp);
+}
+
 // Records a rejected route path without discarding other captured routes.
 void VoxRlNoteTradePathFailure(const TradeConnection& native, const char* reason, size_t pathIndex)
 {
-	FILogFile* log = LOGFILEMGR.GetLog("VoxRlCapture.log", FILogFile::kDontTimeStamp);
+	FILogFile* log = VoxRlCaptureLog();
 	if (log != NULL)
 		log->Msg("Skipping trade route %d: %s at path index %u.\n",
 			native.m_iID, reason, static_cast<unsigned int>(pathIndex));
@@ -139,32 +145,35 @@ bool VoxRlCollectRequestTrade(VoxRlRequestData& data)
 	return true;
 }
 
+// Returns a high-resolution monotonic timestamp in nanoseconds for the
+// opt-in capture timings.
+unsigned __int64 VoxRlTimingNanoseconds()
+{
+	static LONGLONG frequency = 0;
+	if (frequency == 0)
+	{
+		LARGE_INTEGER period;
+		if (!QueryPerformanceFrequency(&period)) return 0;
+		frequency = period.QuadPart;
+	}
+	LARGE_INTEGER now;
+	if (!QueryPerformanceCounter(&now)) return 0;
+	// Seconds and remainder are converted separately so the multiply cannot
+	// overflow the 64-bit total at any uptime.
+	return static_cast<unsigned __int64>(now.QuadPart / frequency) * 1000000000ULL +
+		(static_cast<unsigned __int64>(now.QuadPart % frequency) * 1000000000ULL) /
+		static_cast<unsigned __int64>(frequency);
+}
+
 namespace
 {
-	// Returns one monotonic timestamp for opt-in WORLD phase measurements.
-	unsigned __int64 WorldTimingNanoseconds()
-	{
-		static LONGLONG frequency = 0;
-		if (frequency == 0)
-		{
-			LARGE_INTEGER period;
-			if (!QueryPerformanceFrequency(&period)) return 0;
-			frequency = period.QuadPart;
-		}
-		LARGE_INTEGER now;
-		if (!QueryPerformanceCounter(&now)) return 0;
-		return static_cast<unsigned __int64>(now.QuadPart / frequency) * 1000000000ULL +
-			(static_cast<unsigned __int64>(now.QuadPart % frequency) * 1000000000ULL) /
-			static_cast<unsigned __int64>(frequency);
-	}
-
 	// Adds one WORLD builder phase only when the caller requested timings.
 	class ScopedWorldTiming
 	{
 	public:
 		// Starts a phase only when the caller supplied an accumulator.
 		ScopedWorldTiming(unsigned __int64* total)
-			: m_total(total), m_start(total != NULL ? WorldTimingNanoseconds() : 0)
+			: m_total(total), m_start(total != NULL ? VoxRlTimingNanoseconds() : 0)
 		{
 		}
 		// Adds the completed interval to the selected phase.
@@ -177,7 +186,7 @@ namespace
 		{
 			if (m_total != NULL)
 			{
-				*m_total += WorldTimingNanoseconds() - m_start;
+				*m_total += VoxRlTimingNanoseconds() - m_start;
 				m_total = NULL;
 			}
 		}
@@ -393,7 +402,7 @@ namespace
 // interval.
 void VoxRlNoteCaptureRangeFailure(const char* reason, const char* record, const char* field, i32 value, i32 minValue, i32 maxValue)
 {
-	FILogFile* log = LOGFILEMGR.GetLog("VoxRlCapture.log", FILogFile::kDontTimeStamp);
+	FILogFile* log = VoxRlCaptureLog();
 	if (log != NULL)
 	{
 		log->Msg("Capture rejected a value: reason=%s record=%s field=%s value=%d allowed=%d..%d.\n",
@@ -1806,14 +1815,6 @@ bool VoxRlCollectPlayerMapRows(PlayerTypes eIndex, VoxRlPlayerMapRows& rows)
 	return valid;
 }
 
-// Compares two row tables byte for byte.
-template <typename Row>
-static bool VoxRlSameRows(const std::vector<Row>& left, const std::vector<Row>& right)
-{
-	return left.size() == right.size() &&
-		(left.empty() || std::memcmp(&left[0], &right[0], left.size() * sizeof(Row)) == 0);
-}
-
 // Reports whether two player maps hold the same rows.
 bool VoxRlPlayerMapRowsEqual(const VoxRlPlayerMapRows& left, const VoxRlPlayerMapRows& right)
 {
@@ -2972,7 +2973,7 @@ static bool NoteRequestBuildFailure(const VoxRlBlockIdentity& identity,
 	const VoxRlRequestData& data, const char* stage, const char* section,
 	const char* check, size_t rowIndex, u32 requiredBytes = 0)
 {
-	FILogFile* log = LOGFILEMGR.GetLog("VoxRlCapture.log", FILogFile::kDontTimeStamp);
+	FILogFile* log = VoxRlCaptureLog();
 	if (log != NULL)
 	{
 		log->Msg("Capture REQUEST build failed: stage=%s player=%d turn=%d delta=%u decision=%u phase=%u section=%s check=%s row=%d requiredBytes=%u operations=%u operationVersions=%u armyVersions=%u formationVersions=%u interceptorReplacements=%u interceptorEntries=%u.\n",

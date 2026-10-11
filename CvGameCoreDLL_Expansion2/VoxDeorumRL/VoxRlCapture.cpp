@@ -136,14 +136,6 @@ namespace
 		return enabled != NULL && enabled[0] == '1';
 	}
 
-	// Compares zero-initialized portable rows before emitting replacements.
-	template <typename Record>
-	bool SameRows(const std::vector<Record>& left, const std::vector<Record>& right)
-	{
-		return left.size() == right.size() && (left.empty() ||
-			std::memcmp(&left[0], &right[0], left.size() * sizeof(Record)) == 0);
-	}
-
 	// Checks paired trade row sizes in the DLL's C++03 build.
 	typedef char VoxRlAssertTradeConnectionMirror[
 		(sizeof(TradeConnectionRecord) == sizeof(RequestTradeConnectionRecord)) ? 1 : -1];
@@ -159,7 +151,7 @@ namespace
 		std::vector<TradePathPlotRecord> paths(current.requestTradePathPlots.size());
 		if (!routes.empty()) std::memcpy(&routes[0], &current.requestTradeConnections[0], routes.size() * sizeof(TradeConnectionRecord));
 		if (!paths.empty()) std::memcpy(&paths[0], &current.requestTradePathPlots[0], paths.size() * sizeof(TradePathPlotRecord));
-		if (SameRows(routes, lastRoutes) && SameRows(paths, lastPaths)) return false;
+		if (VoxRlSameRows(routes, lastRoutes) && VoxRlSameRows(paths, lastPaths)) return false;
 		data.requestTradeRoster.swap(current.requestTradeRoster);
 		data.requestTradeConnections.swap(current.requestTradeConnections);
 		data.requestTradePathPlots.swap(current.requestTradePathPlots);
@@ -180,7 +172,7 @@ namespace
 			lastResources.find(key);
 		if (lastCity != lastCities.end() &&
 			std::memcmp(&lastCity->second, &city, sizeof(city)) == 0 &&
-			lastResource != lastResources.end() && SameRows(lastResource->second, resources)) return false;
+			lastResource != lastResources.end() && VoxRlSameRows(lastResource->second, resources)) return false;
 		lastCities[key] = city;
 		lastResources[key] = resources;
 		data.requestDeltaCities.push_back(city);
@@ -213,37 +205,17 @@ namespace
 		}
 	}
 
-	// Returns a high-resolution monotonic timestamp in nanoseconds for the
-	// opt-in producer timings.
-	unsigned __int64 TimingNanoseconds()
-	{
-		static LONGLONG frequency = 0;
-		if (frequency == 0)
-		{
-			LARGE_INTEGER period;
-			if (!QueryPerformanceFrequency(&period)) return 0;
-			frequency = period.QuadPart;
-		}
-		LARGE_INTEGER now;
-		if (!QueryPerformanceCounter(&now)) return 0;
-		// Seconds and remainder are converted separately so the multiply cannot
-		// overflow the 64-bit total at any uptime.
-		return static_cast<unsigned __int64>(now.QuadPart / frequency) * 1000000000ULL +
-			(static_cast<unsigned __int64>(now.QuadPart % frequency) * 1000000000ULL) /
-			static_cast<unsigned __int64>(frequency);
-	}
-
 	// Adds one scoped interval to a nanosecond total while timings are enabled.
 	class ScopedTiming
 	{
 	public:
 		ScopedTiming(bool enabled, unsigned __int64& total)
-			: m_enabled(enabled), m_total(total), m_start(enabled ? TimingNanoseconds() : 0)
+			: m_enabled(enabled), m_total(total), m_start(enabled ? VoxRlTimingNanoseconds() : 0)
 		{
 		}
 		~ScopedTiming()
 		{
-			if (m_enabled) m_total += TimingNanoseconds() - m_start;
+			if (m_enabled) m_total += VoxRlTimingNanoseconds() - m_start;
 		}
 	private:
 		bool m_enabled;
@@ -1591,7 +1563,7 @@ void VoxRlCapture::FailSegment(const char* closureReason)
 		return;
 	}
 	m_segment->failed = true;
-	FILogFile* log = LOGFILEMGR.GetLog("VoxRlCapture.log", FILogFile::kDontTimeStamp);
+	FILogFile* log = VoxRlCaptureLog();
 	if (log != NULL)
 	{
 		log->Msg("Capture segment failed: stage=%s player=%d turn=%d.\n", closureReason,
@@ -2076,7 +2048,7 @@ void VoxRlCapture::OnPreDangerCheckpoint(PlayerTypes ePlayer)
 			m_identityPendingLogged = true;
 			if (GC.getLogging())
 			{
-				FILogFile* log = LOGFILEMGR.GetLog("VoxRlCapture.log", FILogFile::kDontTimeStamp);
+				FILogFile* log = VoxRlCaptureLog();
 				if (log != NULL)
 				{
 					log->Msg("Capture waits for the game identity; the next checkpoint retries.\n");
@@ -2199,7 +2171,7 @@ void VoxRlCapture::AppendSuppressedLine(const char* closureReason)
 	{
 		if (GC.getLogging())
 		{
-			FILogFile* log = LOGFILEMGR.GetLog("VoxRlCapture.log", FILogFile::kDontTimeStamp);
+			FILogFile* log = VoxRlCaptureLog();
 			if (log != NULL)
 			{
 				log->Msg("Could not append the suppressed-segment line for player=%d turn=%d.\n",
@@ -2348,9 +2320,9 @@ void VoxRlCapture::PublishPendingFrames(bool allowWithoutDecision)
 
 std::string VoxRlCapture::NumberText(unsigned __int64 value)
 {
-	char buffer[24];
-	sprintf_s(buffer, 24, "%I64u", value);
-	return std::string(buffer);
+	std::string text;
+	AppendNumber(text, value);
+	return text;
 }
 
 void VoxRlCapture::CommitBatch(bool closureOnly, const char* closureReason)
@@ -2659,7 +2631,7 @@ bool VoxRlCapture::CollectDelta(VoxRlRequestData& data)
 	// Reject unsupported roster changes before advancing any REQUEST baseline.
 	if (!HasCheckpointPlayerRoster(segment.lastPlayerRows))
 	{
-		FILogFile* log = LOGFILEMGR.GetLog("VoxRlCapture.log", FILogFile::kDontTimeStamp);
+		FILogFile* log = VoxRlCaptureLog();
 		if (log != NULL) log->Msg("Capture REQUEST rejected: player roster changed; a fresh WORLD is required.\n");
 		return false;
 	}
@@ -2838,8 +2810,8 @@ bool VoxRlCapture::CollectDelta(VoxRlRequestData& data)
 		else
 		{
 			if (zones.plotZones.size() != segment.zoneSnapshot.plotZones.size()) return false;
-			if (!SameRows(zones.zones, segment.zoneSnapshot.zones) ||
-				!SameRows(zones.neighbors, segment.zoneSnapshot.neighbors))
+			if (!VoxRlSameRows(zones.zones, segment.zoneSnapshot.zones) ||
+				!VoxRlSameRows(zones.neighbors, segment.zoneSnapshot.neighbors))
 			{
 				data.requestHeader.hasZoneReplacement = 1;
 				VoxRlMirrorSparseRows(zones.zones, data.requestZoneReplacements);
@@ -3366,14 +3338,12 @@ bool VoxRlCapture::CollectDelta(VoxRlRequestData& data)
 	return valid;
 }
 
-bool VoxRlCapture::EmitStagedRequest()
+// Builds one REQUEST block, enqueues it, and commits the producer state the
+// staged and synchronization emitters share. recordTimings selects the staged
+// path's build timing and request counters.
+bool VoxRlCapture::EnqueueRequestBlock(VoxRlRequestData& data, const char* buildFailureReason, bool recordTimings)
 {
 	Segment& segment = *m_segment;
-	if (segment.failed)
-	{
-		return false;
-	}
-	VoxRlRequestData& data = segment.staged;
 	InitializeRequestHeader(data);
 	VoxRlBlockIdentity identity;
 	identity.session = m_gameUuid;
@@ -3388,16 +3358,21 @@ bool VoxRlCapture::EmitStagedRequest()
 	VoxRlOwnedBlockStorage storage;
 	unsigned int length = 0;
 	bool built = false;
+	if (recordTimings)
 	{
 		ScopedTiming timing(m_config.timings, segment.timings.requestBuildNs);
 		built = VoxRlBuildRequestBlock(identity, data, storage, length);
 	}
+	else
+	{
+		built = VoxRlBuildRequestBlock(identity, data, storage, length);
+	}
 	if (!built)
 	{
-		FailSegment("stagedRequestBuild");
+		FailSegment(buildFailureReason);
 		return false;
 	}
-	if (m_config.timings)
+	if (recordTimings && m_config.timings)
 	{
 		segment.timings.requestCount += 1;
 		segment.timings.requestBytes += length;
@@ -3418,6 +3393,20 @@ bool VoxRlCapture::EmitStagedRequest()
 	CommitBufferedRelations();
 	CommitOperationalRows();
 	ClearDirtyState();
+	return true;
+}
+
+bool VoxRlCapture::EmitStagedRequest()
+{
+	Segment& segment = *m_segment;
+	if (segment.failed)
+	{
+		return false;
+	}
+	if (!EnqueueRequestBlock(segment.staged, "stagedRequestBuild", true))
+	{
+		return false;
+	}
 	segment.staged = VoxRlRequestData();
 	segment.stagingRequest = false;
 	if (!segment.published && segment.campaignSeamReached)
@@ -3469,39 +3458,10 @@ bool VoxRlCapture::EmitSynchronizationRequest()
 		FailSegment("synchronizationDeltaCollect");
 		return false;
 	}
-	InitializeRequestHeader(data);
-	VoxRlBlockIdentity identity;
-	identity.session = m_gameUuid;
-	identity.turn = segment.turn;
-	identity.player = static_cast<int>(segment.player);
-	identity.staticGeneration = segment.staticGeneration;
-	identity.worldGeneration = segment.worldGeneration;
-	identity.campaignGeneration = segment.campaignGeneration;
-	identity.deltaSequence = segment.nextDeltaSequence;
-	identity.decisionId = kVoxRlSyncOnlyDecisionId;
-	VoxRlOwnedBlockStorage storage;
-	unsigned int length = 0;
-	if (!VoxRlBuildRequestBlock(identity, data, storage, length))
-	{
-		FailSegment("synchronizationRequestBuild");
-		return false;
-	}
-	if (!EnqueueFrame(storage.Bytes(), length, VOX_RL_BLOCK_REQUEST,
-		segment.nextDeltaSequence, kVoxRlSyncOnlyDecisionId, -1))
+	if (!EnqueueRequestBlock(data, "synchronizationRequestBuild", false))
 	{
 		return false;
 	}
-	if (!segment.hasRequests)
-	{
-		segment.hasRequests = true;
-		segment.firstRequestSequence = segment.nextDeltaSequence;
-	}
-	segment.lastRequestSequence = segment.nextDeltaSequence;
-	segment.nextDeltaSequence += 1;
-	VoxRlCommitMilitaryEvents(segment.player);
-	CommitBufferedRelations();
-	CommitOperationalRows();
-	ClearDirtyState();
 	if (!segment.published && segment.campaignSeamReached)
 	{
 		PublishPendingFrames(true);

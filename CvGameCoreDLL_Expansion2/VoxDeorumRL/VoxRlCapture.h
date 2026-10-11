@@ -347,6 +347,10 @@ private:
 	bool EmitStagedRequest();
 	// Emits one synchronization request from all pending producer state.
 	bool EmitSynchronizationRequest();
+	// Builds one REQUEST block from staged rows, enqueues it, and commits the
+	// accepted producer state shared by both emitters. recordTimings selects
+	// the staged path's build timing and request counters.
+	bool EnqueueRequestBlock(VoxRlRequestData& data, const char* buildFailureReason, bool recordTimings);
 	// Initializes common request header context and consumes one actor-turn order.
 	void InitializeRequestHeader(VoxRlRequestData& data);
 	// Finds the nearest active cause for one owner, optionally requiring an operation identity.

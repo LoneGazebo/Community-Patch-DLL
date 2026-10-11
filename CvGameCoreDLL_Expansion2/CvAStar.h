@@ -206,6 +206,10 @@ protected:
 	void Reset();
 
 	CvAStarNode* GetBest();
+	// Vox Deorum: indexed open list heap
+	void UpdateOpenNode(CvAStarNode* node);
+	void SiftUpOpenNode(int iIndex);
+	void SiftDownOpenNode(int iIndex);
 
 	void CreateChildren(CvAStarNode* node);
 	NodeState LinkChild(CvAStarNode* node, CvAStarNode* check);
@@ -243,9 +247,8 @@ protected:
 
 	bool m_bWrapX;
 	bool m_bWrapY;
-	bool m_bHeapDirty;
 
-	//vector performance is better than lists!
+	//vector performance is better than lists! Vox Deorum: open nodes form a binary heap with the best node first
 	std::vector<CvAStarNode*> m_openNodes;
 	std::vector<CvAStarNode*> m_closedNodes;
 
