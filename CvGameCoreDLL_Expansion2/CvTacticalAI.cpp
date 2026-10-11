@@ -6868,8 +6868,7 @@ const ReachablePlots& CvBasePosition::getReachablePlotsForUnit(const SUnitStats&
 {
 	static ReachablePlots emptyResult;
 
-	SPathFinderStartPos key(unit, freedPlots.read());
-	TCachedMovePlots::const_iterator result = gReachablePlotsLookup.find(key);
+	TCachedMovePlots::const_iterator result = gReachablePlotsLookup.find(SPathFinderStartPos(unit, freedPlots.read(), SPathFinderStartPos::LookupOnly()));
 	if (result != gReachablePlotsLookup.end())
 		return result->second;
 
@@ -10346,18 +10345,23 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 		}
 
 		reachablePlotsPruned.createIndex();
-		gReachablePlotsLookup[SPathFinderStartPos(unit, freedPlots_r)] = reachablePlotsPruned;
+		//swap instead of copy, the pruned plots are not needed anymore
+		gReachablePlotsLookup[SPathFinderStartPos(unit, freedPlots_r)].swap(reachablePlotsPruned);
 	}
 
-	//simply ignore visibility here, later there's a check if there is a valid tactical plot for the targets
-	TCachedRangeAttackPlots::const_iterator itA = gRangeAttackPlotsLookup.find(make_pair(unit.iUnitID, unit.iPlotIndex));
-	if (itA != gRangeAttackPlotsLookup.end())
-		gAttackPlotsCacheHit++;
-	else
+	//only ranged units ever read the range attack cache
+	if (pUnit->IsCanAttackRanged())
 	{
-		gAttackPlotsCacheMiss++;
-		vector<int> rangeAttackPlots = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit, pStartPlot, true, true);
-		gRangeAttackPlotsLookup[make_pair(unit.iUnitID, unit.iPlotIndex)] = rangeAttackPlots;
+		//simply ignore visibility here, later there's a check if there is a valid tactical plot for the targets
+		TCachedRangeAttackPlots::const_iterator itA = gRangeAttackPlotsLookup.find(make_pair(unit.iUnitID, unit.iPlotIndex));
+		if (itA != gRangeAttackPlotsLookup.end())
+			gAttackPlotsCacheHit++;
+		else
+		{
+			gAttackPlotsCacheMiss++;
+			vector<int> rangeAttackPlots = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit, pStartPlot, true, true);
+			gRangeAttackPlotsLookup[make_pair(unit.iUnitID, unit.iPlotIndex)] = rangeAttackPlots;
+		}
 	}
 }
 
@@ -11822,7 +11826,8 @@ void CvSupportPosition::updateMovePlotsForUnit(SUnitStats unit)
 		}
 
 		reachablePlotsPruned.createIndex();
-		gReachablePlotsLookup[SPathFinderStartPos(unit, freedPlots_r)] = reachablePlotsPruned;
+		//swap instead of copy, the pruned plots are not needed anymore
+		gReachablePlotsLookup[SPathFinderStartPos(unit, freedPlots_r)].swap(reachablePlotsPruned);
 	}
 }
 

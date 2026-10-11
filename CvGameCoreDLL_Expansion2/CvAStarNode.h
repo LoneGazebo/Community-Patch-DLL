@@ -290,6 +290,7 @@ public:
 	size_t size() const { return storage.size(); }
 	bool empty() const { return storage.empty(); }
 	void clear() { storage.clear(); lookup.clear(); }
+	void swap(ReachablePlots& other) { storage.swap(other.storage); lookup.swap(other.lookup); }
 
 	iterator find(int iPlotIndex);
 	const_iterator find(int iPlotIndex) const;
