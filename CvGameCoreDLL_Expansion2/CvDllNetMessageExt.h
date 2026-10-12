@@ -20,6 +20,10 @@ namespace NetMessageExt
 		void DoApplyVassalTax(TeamTypes eMaster, PlayerTypes eVassal, int iPercent);
 		void DoLiberateVassal(TeamTypes eMaster, TeamTypes eVassal);
 		void DoClearDealRenewalID(PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+		void SetWorkerPlan(PlayerTypes ePlayer, int iX, int iY, ImprovementTypes eImprovement, int iPriority, bool bLock);
+		void ClearWorkerPlans(PlayerTypes ePlayer);
+		void RefreshWorkerPlans(PlayerTypes ePlayer);
+		void SetPlannedRouteState(PlayerTypes ePlayer, int iX, int iY, RoutePlanTypes eRoutePlan); // iX = -1 for all plots
 		//void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 
@@ -34,6 +38,10 @@ namespace NetMessageExt
 		void DoApplyVassalTax(TeamTypes eMaster, PlayerTypes eVassal, int iPercent);
 		void DoLiberateVassal(TeamTypes eMaster, TeamTypes eVassal);
 		void DoClearDealRenewalID(PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+		void SetWorkerPlan(PlayerTypes ePlayer, int iX, int iY, ImprovementTypes eImprovement, int iPriority, bool bLock);
+		void ClearWorkerPlans(PlayerTypes ePlayer);
+		void RefreshWorkerPlans(PlayerTypes ePlayer);
+		void SetPlannedRouteState(PlayerTypes ePlayer, int iX, int iY, RoutePlanTypes eRoutePlan);
 		//void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 }

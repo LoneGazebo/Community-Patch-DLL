@@ -22,6 +22,7 @@
 #include "CvLuaUnit.h"
 #include "CvLuaPlayer.h"
 #include "../CvGameCoreUtils.h"
+#include "../CvDllNetMessageExt.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
@@ -2400,9 +2401,15 @@ int CvLuaPlot::lGetPlannedRouteState(lua_State* L)
 
 //------------------------------------------------------------------------------
 //void SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlanType);
+// Sent as a network message to stay in sync in multiplayer, takes effect shortly after the call
 int CvLuaPlot::lSetPlannedRouteState(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::SetPlannedRouteState);
+	CvPlot* pkPlot = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const RoutePlanTypes eRoutePlan = (RoutePlanTypes)lua_tointeger(L, 3);
+
+	NetMessageExt::Send::SetPlannedRouteState(ePlayer, pkPlot->getX(), pkPlot->getY(), eRoutePlan);
+	return 0;
 }
 
 //------------------------------------------------------------------------------

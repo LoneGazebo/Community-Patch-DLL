@@ -1233,6 +1233,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Triggers.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/WorkerPlanner.sql</FileName>
+      </Action>
     </ModActions>
     <ModReferences />
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
@@ -1378,6 +1383,12 @@
         <Name>Vassalage Overview</Name>
         <Description>Vassalage Overview</Description>
         <FileName>Core Files/New UI/VassalageOverview.xml</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Worker Planner</Name>
+        <Description>Worker Planner</Description>
+        <FileName>Core Files/New UI/WorkerPlanner.xml</FileName>
       </Content>
       <Content>
         <Type>MapScript</Type>
@@ -5857,6 +5868,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\New UI\WorkerPlanner.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\New UI\WorkerPlanner.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Overrides\AssignStartingPlots.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -6086,6 +6105,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\Triggers.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\WorkerPlanner.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

@@ -3794,6 +3794,20 @@ enum CLOSED_ENUM RoutePlanTypes
 	ROAD_PLANNING_PRIORITY_CONSTRUCTION
 };
 
+enum CLOSED_ENUM WorkerPlanStatusTypes
+{
+	WORKER_PLAN_STATUS_NONE,
+	WORKER_PLAN_STATUS_BUILT,		// target improvement is in place
+	WORKER_PLAN_STATUS_IN_PROGRESS,	// construction has started
+	WORKER_PLAN_STATUS_ASSIGNED,	// a builder is assigned to it
+	WORKER_PLAN_STATUS_QUEUED,		// can be built, waiting for a builder
+	WORKER_PLAN_STATUS_NOT_YET,		// can't be built yet
+	WORKER_PLAN_STATUS_BLOCKED,		// planned, but builders won't consider it (invalid plot, tech too far away...)
+	WORKER_PLAN_STATUS_LOCKED,		// plot is locked, nothing will be built
+	WORKER_PLAN_STATUS_SUGGESTED,	// suggested to a builder the player controls
+	WORKER_PLAN_STATUS_OUTSIDE_BORDERS	// planned outside our borders, can't be built there
+};
+
 enum CLOSED_ENUM Likelyhood
 {
 	LIKELYHOOD_IMPOSSIBLE = 0,

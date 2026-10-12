@@ -94,6 +94,26 @@ namespace NetMessageExt
 					Response::DoClearDealRenewalID(ePlayer1, ePlayer2);
 					break;
 				}
+				case 1007:
+				{
+					Response::SetWorkerPlan(ePlayer, iArg1, iArg2, static_cast<ImprovementTypes>(iArg3), iArg4, iArg5 == 1);
+					break;
+				}
+				case 1008:
+				{
+					Response::ClearWorkerPlans(ePlayer);
+					break;
+				}
+				case 1009:
+				{
+					Response::RefreshWorkerPlans(ePlayer);
+					break;
+				}
+				case 1010:
+				{
+					Response::SetPlannedRouteState(ePlayer, iArg1, iArg2, static_cast<RoutePlanTypes>(iArg3));
+					break;
+				}
 			}
 			return true;
 		}
@@ -142,6 +162,22 @@ namespace NetMessageExt
 		void DoClearDealRenewalID(PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 		{
 			gDLL->sendMoveGreatWorks(ePlayer1, static_cast<int>(ePlayer1), static_cast<int>(ePlayer2), -1, -1, -1, 1006);
+		}
+		void SetWorkerPlan(PlayerTypes ePlayer, int iX, int iY, ImprovementTypes eImprovement, int iPriority, bool bLock)
+		{
+			gDLL->sendMoveGreatWorks(ePlayer, iX, iY, static_cast<int>(eImprovement), iPriority, bLock ? 1 : 0, 1007);
+		}
+		void ClearWorkerPlans(PlayerTypes ePlayer)
+		{
+			gDLL->sendMoveGreatWorks(ePlayer, -1, -1, -1, -1, -1, 1008);
+		}
+		void RefreshWorkerPlans(PlayerTypes ePlayer)
+		{
+			gDLL->sendMoveGreatWorks(ePlayer, -1, -1, -1, -1, -1, 1009);
+		}
+		void SetPlannedRouteState(PlayerTypes ePlayer, int iX, int iY, RoutePlanTypes eRoutePlan)
+		{
+			gDLL->sendMoveGreatWorks(ePlayer, iX, iY, static_cast<int>(eRoutePlan), -1, -1, 1010);
 		}
 	}
 
@@ -307,6 +343,67 @@ namespace NetMessageExt
 		void DoClearDealRenewalID(PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 		{
 			GC.getGame().GetGameDeals().SetRenewDealID(ePlayer1, ePlayer2, -1);
+		}
+
+		void SetWorkerPlan(PlayerTypes ePlayer, int iX, int iY, ImprovementTypes eImprovement, int iPriority, bool bLock)
+		{
+			ASSERT(!IsPlayerInvalid(ePlayer), "SetWorkerPlan: invalid ePlayer from network");
+			if (IsPlayerInvalid(ePlayer) || !GET_PLAYER(ePlayer).isAlive())
+				return;
+
+			CvPlot* pPlot = GC.getMap().plot(iX, iY);
+			if (!pPlot)
+				return;
+
+			if (eImprovement < NO_IMPROVEMENT || eImprovement >= GC.getNumImprovementInfos())
+				return;
+
+			GET_PLAYER(ePlayer).GetBuilderTaskingAI()->SetWorkerPlan(pPlot, eImprovement, iPriority, bLock);
+		}
+
+		void ClearWorkerPlans(PlayerTypes ePlayer)
+		{
+			ASSERT(!IsPlayerInvalid(ePlayer), "ClearWorkerPlans: invalid ePlayer from network");
+			if (IsPlayerInvalid(ePlayer) || !GET_PLAYER(ePlayer).isAlive())
+				return;
+
+			GET_PLAYER(ePlayer).GetBuilderTaskingAI()->ClearWorkerPlans();
+		}
+
+		void RefreshWorkerPlans(PlayerTypes ePlayer)
+		{
+			ASSERT(!IsPlayerInvalid(ePlayer), "RefreshWorkerPlans: invalid ePlayer from network");
+			if (IsPlayerInvalid(ePlayer) || !GET_PLAYER(ePlayer).isAlive())
+				return;
+
+			// Re-plan so changed plans take effect this turn
+			GET_PLAYER(ePlayer).GetBuilderTaskingAI()->RefreshPlans();
+		}
+
+		void SetPlannedRouteState(PlayerTypes ePlayer, int iX, int iY, RoutePlanTypes eRoutePlan)
+		{
+			ASSERT(!IsPlayerInvalid(ePlayer), "SetPlannedRouteState: invalid ePlayer from network");
+			if (IsPlayerInvalid(ePlayer) || !GET_PLAYER(ePlayer).isAlive())
+				return;
+
+			if (eRoutePlan < NO_PLANNED_ROUTE || eRoutePlan > ROAD_PLANNING_PRIORITY_CONSTRUCTION)
+				return;
+
+			if (iX == -1)
+			{
+				// All plots
+				for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+					GC.getMap().plotByIndexUnchecked(iI)->SetPlannedRouteState(ePlayer, eRoutePlan);
+			}
+			else
+			{
+				CvPlot* pPlot = GC.getMap().plot(iX, iY);
+				if (!pPlot)
+					return;
+				pPlot->SetPlannedRouteState(ePlayer, eRoutePlan);
+			}
+
+			GET_PLAYER(ePlayer).GetBuilderTaskingAI()->InvalidateWorkerPlanUI();
 		}
 	}
 }

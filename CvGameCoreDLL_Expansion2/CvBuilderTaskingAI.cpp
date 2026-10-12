@@ -91,6 +91,8 @@ void CvBuilderTaskingAI::Uninit(void)
 	m_eFalloutRemove = NO_BUILD;
 
 	m_uniqueImprovements.clear();
+	m_workerPlans.clear();
+	m_iWorkerPlanRevision = 0;
 }
 
 template<typename BuilderTaskingAI, typename Visitor>
@@ -101,6 +103,7 @@ void CvBuilderTaskingAI::Serialize(BuilderTaskingAI& builderTaskingAI, Visitor& 
 	visitor(builderTaskingAI.m_anyRoutePlanned);
 	visitor(builderTaskingAI.m_canalWantedPlots);
 	visitor(builderTaskingAI.m_uniqueImprovements);
+	visitor(builderTaskingAI.m_workerPlans);
 }
 
 /// Serialization read
@@ -124,6 +127,23 @@ FDataStream& operator>>(FDataStream& loadFrom, RoutePurpose& writeTo)
 FDataStream& operator<<(FDataStream& saveTo, const RoutePurpose& readFrom)
 {
 	return WriteBasicEnum<int>(saveTo, readFrom);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SWorkerPlan& readFrom)
+{
+	saveTo << static_cast<int>(readFrom.m_eImprovement);
+	saveTo << readFrom.m_iPriority;
+	saveTo << readFrom.m_bLock;
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SWorkerPlan& writeTo)
+{
+	int iImprovement = NO_IMPROVEMENT;
+	loadFrom >> iImprovement;
+	writeTo.m_eImprovement = static_cast<ImprovementTypes>(iImprovement);
+	loadFrom >> writeTo.m_iPriority;
+	loadFrom >> writeTo.m_bLock;
+	return loadFrom;
 }
 
 FDataStream& operator>>(FDataStream& stream, CvBuilderTaskingAI& builderTaskingAI)
@@ -1714,12 +1734,15 @@ void CvBuilderTaskingAI::UpdateImprovementPlots()
 	allDirectives.insert(allDirectives.end(), improvementDirectives.begin(), improvementDirectives.end());
 
 	std::stable_sort(allDirectives.begin(), allDirectives.end());
+	SortDirectivesByPlanPriority(allDirectives);
 	LogDirectives(allDirectives);
 
 	m_directives.clear();
 	m_assignedDirectives.clear();
 	for (vector<OptionWithScore<BuilderDirective>>::iterator it = allDirectives.begin(); it != allDirectives.end(); ++it)
 		m_directives.push_back(it->option);
+
+	m_iWorkerPlanRevision++;
 }
 
 vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives()
@@ -2037,6 +2060,11 @@ static vector<OptionWithScore<BuilderDirective>> FilterNoTwoAdjacentDirectives(c
 
 		int iNewScore = eDirective.m_plotBuildScore.GetPriorityScore() - iNeighboringSameScore;
 
+		// Player planned improvements take precedence over adjacent ones
+		const SWorkerPlan* pPlan = GET_PLAYER(ePlayer).GetBuilderTaskingAI()->GetWorkerPlan(pPlot);
+		if (pPlan && pPlan->m_eImprovement == eImprovement)
+			iNewScore = INT_MAX;
+
 		aNoTwoAdjacentDirectives.push_back(OptionWithScore<BuilderDirective>(eDirective, iNewScore));
 	}
 
@@ -2155,6 +2183,12 @@ void CvBuilderTaskingAI::UpdateGreatPersonDirectives(vector<OptionWithScore<Buil
 
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 		if (!pkImprovementInfo->IsCreatedByGreatPerson())
+			continue;
+
+		// Player planned this, don't penalize
+		CvPlot* pPlot = GC.getMap().plot(it->option.m_sX, it->option.m_sY);
+		const SWorkerPlan* pPlan = GetWorkerPlan(pPlot);
+		if (pPlan && pPlan->m_eImprovement == eImprovement)
 			continue;
 
 		it->option.m_plotBuildScore.m_iScorePenalty = GetBestNonGPDirectiveScoreInPlot(GC.getMap().plot(it->option.m_sX, it->option.m_sY), aDirectives);
@@ -2297,7 +2331,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 		// Evaluate the improvement currently on the tile
 		if (pPlot->getOwner() == ePlayer)
 		{
-			if (pPlot->getImprovementType() != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
+			if (pPlot->getImprovementType() != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged() && IsImprovementAllowedByPlan(pPlot, pPlot->getImprovementType()))
 			{
 				PlotBuildScore pScore = ScorePlotBuild(pPlot, pPlot->getImprovementType(), NO_BUILD);
 				aDirectives.push_back(OptionWithScore<BuilderDirective>(BuilderDirective(BuilderDirective::KEEP_IMPROVEMENT, NO_BUILD, NO_RESOURCE, false, true, pPlot->getX(), pPlot->getY(), pScore), pScore.GetPriorityScore()));
@@ -2326,7 +2360,11 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetImprovementDire
 
 		if (pPlot->GetPlannedRouteState(m_pPlayer->GetID()) == ROAD_PLANNING_PRIORITY_CONSTRUCTION)
 		{
+			size_t iNumDirectives = aDirectives.size();
 			AddRouteOrRepairDirective(aDirectives, pPlot, eBestRoute, 1000, PURPOSE_MANUAL);
+			// Player wants these first
+			for (size_t i = iNumDirectives; i < aDirectives.size(); i++)
+				aDirectives[i].option.m_iPlanPriority = MANUAL_ROUTE_PLAN_PRIORITY;
 		}
 		else if (pPlot->GetPlayerResponsibleForRoute() == m_pPlayer->GetID())
 		{
@@ -2507,10 +2545,26 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 {
 	ImprovementTypes eExistingImprovement = pPlot->getImprovementType();
 
+	// Player made plan for this plot?
+	const SWorkerPlan* pPlan = GetWorkerPlan(pPlot);
+	ImprovementTypes ePlannedImprovement = pPlan ? pPlan->m_eImprovement : NO_IMPROVEMENT;
+
+	// Locked as is
+	if (pPlan && ePlannedImprovement == NO_IMPROVEMENT)
+		return;
+
+	// Only consider the planned improvement if we normally wouldn't touch this plot
+	bool bOnlyPlannedImprovement = false;
+
 	if (eExistingImprovement != NO_IMPROVEMENT)
 	{
 		// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
-		if (PlotHasSpecialImprovement(pPlot) || (m_pPlayer->isOption(PLAYEROPTION_SAFE_AUTOMATION) && m_pPlayer->isHuman(ISHUMAN_AI_UNITS)))
+		bool bProtected = PlotHasSpecialImprovement(pPlot) || (m_pPlayer->isOption(PLAYEROPTION_SAFE_AUTOMATION) && m_pPlayer->isHuman(ISHUMAN_AI_UNITS));
+
+		// Unless the player explicitly asked for something else here
+		if (bProtected && ePlannedImprovement != NO_IMPROVEMENT && ePlannedImprovement != eExistingImprovement)
+			bOnlyPlannedImprovement = true;
+		else if (bProtected)
 		{
 			if (m_bLogging)
 			{
@@ -2546,6 +2600,13 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		if (eImprovement == eExistingImprovement)
 			continue;
 
+		const bool bPlanned = eImprovement == ePlannedImprovement;
+		if (bOnlyPlannedImprovement && !bPlanned)
+			continue;
+
+		if (!IsImprovementAllowedByPlan(pPlot, eImprovement))
+			continue;
+
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 		if (pkImprovementInfo == NULL)
 			continue;
@@ -2573,7 +2634,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		FeatureTypes eFeature = pPlot->getFeatureType();
 		bool bWillRemoveFeature = eFeature != NO_FEATURE && pkBuild->isFeatureRemove(eFeature);
 
-		if (!bWillConnectResource && bWillRemoveFeature)
+		if (!bWillConnectResource && bWillRemoveFeature && !bPlanned)
 		{
 			if (m_pPlayer->isOption(PLAYEROPTION_LEAVE_FORESTS) && m_pPlayer->isHuman(ISHUMAN_AI_UNITS))
 			{
@@ -2631,7 +2692,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 				bCanChop = false;
 		}
 
-		BuilderDirective directive(eDirectiveType, eBuild, eConnectedResource, pkImprovementInfo->IsCreatedByGreatPerson(), bCanBuild && bCanChop, pPlot->getX(), pPlot->getY(), pScore);
+		const int iPlanPriority = bPlanned ? pPlan->m_iPriority : 0;
+		BuilderDirective directive(eDirectiveType, eBuild, eConnectedResource, pkImprovementInfo->IsCreatedByGreatPerson(), bCanBuild && bCanChop, pPlot->getX(), pPlot->getY(), pScore, iPlanPriority);
 
 		if (m_bLogging)
 		{
@@ -2652,7 +2714,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		if (!bCanBuild && bCanChop)
 		{
 			PlotBuildScore chopScore = PlotBuildScore(pScore.m_iScore / 3, pScore.m_iPotentialScore + pScore.m_iScore * 2 / 3 - 1, pScore.m_iUnusedYieldScore, pScore.m_iScorePenalty);
-			BuilderDirective chopDirective(BuilderDirective::REMOVE_FEATURE, eChopBuild, NO_RESOURCE, false, true, pPlot->getX(), pPlot->getY(), chopScore);
+			BuilderDirective chopDirective(BuilderDirective::REMOVE_FEATURE, eChopBuild, NO_RESOURCE, false, true, pPlot->getX(), pPlot->getY(), chopScore, iPlanPriority);
 			aDirectives.push_back(OptionWithScore<BuilderDirective>(chopDirective, chopScore.GetPriorityScore()));
 		}
 	}
@@ -3001,6 +3063,10 @@ void CvBuilderTaskingAI::AddRepairImprovementDirective(vector<OptionWithScore<Bu
 		return;
 
 	if (pWorkingCity && pWorkingCity->IsRazing())
+		return;
+
+	// Don't repair something the player wants replaced
+	if (!IsImprovementAllowedByPlan(pPlot, pPlot->getImprovementType()))
 		return;
 
 	PlotBuildScore pScore = ScorePlotBuild(pPlot, pPlot->getImprovementType(), m_eRepairBuild);
@@ -3359,6 +3425,23 @@ static Likelyhood GetPlotTheftLikelyhood(const CvPlayer* pPlayer, const CvPlot* 
 }
 
 PlotBuildScore CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState)
+{
+	PlotBuildScore score = ScorePlotBuildBase(pPlot, eImprovement, eBuild, sState);
+
+	// Player planned improvements must never be discarded for having a low score
+	const SWorkerPlan* pPlan = GetWorkerPlan(pPlot);
+	if (pPlan && eImprovement != NO_IMPROVEMENT && eImprovement == pPlan->m_eImprovement)
+	{
+		const int iMinScore = 100;
+		int iPriorityScore = score.GetPriorityScore();
+		if (iPriorityScore < iMinScore)
+			score.m_iScore += iMinScore - iPriorityScore;
+	}
+
+	return score;
+}
+
+PlotBuildScore CvBuilderTaskingAI::ScorePlotBuildBase(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState)
 {
 	const CvBuildInfo* pkBuildInfo = eBuild != NO_BUILD ? GC.getBuildInfo(eBuild) : NULL;
 
@@ -5102,4 +5185,557 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(const CvPlot* pPlot, BuildTyp
 				m_aiProjectedPlotYields[ui] = 0;
 		}
 	}
+}
+
+//	---------------------------------------------------------------------------
+//	Player made worker plans
+//	---------------------------------------------------------------------------
+
+static bool DirectiveHasHigherPlanPriority(const OptionWithScore<BuilderDirective>& lhs, const OptionWithScore<BuilderDirective>& rhs)
+{
+	return lhs.option.m_iPlanPriority > rhs.option.m_iPlanPriority;
+}
+
+/// Moves directives with higher player priority to the front, keeps the order otherwise
+void CvBuilderTaskingAI::SortDirectivesByPlanPriority(vector<OptionWithScore<BuilderDirective>>& aDirectives)
+{
+	std::stable_sort(aDirectives.begin(), aDirectives.end(), DirectiveHasHigherPlanPriority);
+}
+
+const SWorkerPlan* CvBuilderTaskingAI::GetWorkerPlan(const CvPlot* pPlot) const
+{
+	if (!pPlot || m_workerPlans.empty())
+		return NULL;
+
+	map<int, SWorkerPlan>::const_iterator it = m_workerPlans.find(pPlot->GetPlotIndex());
+	return it != m_workerPlans.end() ? &it->second : NULL;
+}
+
+void CvBuilderTaskingAI::SetWorkerPlan(const CvPlot* pPlot, ImprovementTypes eImprovement, int iPriority, bool bLock)
+{
+	if (!pPlot)
+		return;
+
+	if (eImprovement != NO_IMPROVEMENT && !GC.getImprovementInfo(eImprovement))
+		eImprovement = NO_IMPROVEMENT;
+
+	// Reject new plans we can't make, changing priority or lock is always fine
+	const SWorkerPlan* pOldPlan = GetWorkerPlan(pPlot);
+	bool bSameImprovement = pOldPlan && pOldPlan->m_eImprovement == eImprovement;
+	if (eImprovement != NO_IMPROVEMENT && !bSameImprovement && !CanPlanImprovement(pPlot, eImprovement))
+		return;
+
+	if (eImprovement == NO_IMPROVEMENT && !bLock)
+		m_workerPlans.erase(pPlot->GetPlotIndex());
+	else
+	{
+		// Priority means nothing if we don't build anything
+		iPriority = eImprovement == NO_IMPROVEMENT ? 0 : std::max(0, std::min(iPriority, MAX_WORKER_PLAN_PRIORITY));
+		m_workerPlans[pPlot->GetPlotIndex()] = SWorkerPlan(eImprovement, iPriority, bLock);
+	}
+
+	m_iWorkerPlanRevision++;
+}
+
+/// Re-plan mid-turn after the player changed plans. Keeps builder assignments that are still valid,
+/// they are normally only made at the start of the turn.
+void CvBuilderTaskingAI::RefreshPlans()
+{
+	map<int, BuilderDirective> oldAssignedDirectives = m_assignedDirectives;
+
+	Update();
+
+	for (map<int, BuilderDirective>::const_iterator it = oldAssignedDirectives.begin(); it != oldAssignedDirectives.end(); ++it)
+	{
+		vector<BuilderDirective>::const_iterator itNew = find(m_directives.begin(), m_directives.end(), it->second);
+		if (itNew != m_directives.end())
+			m_assignedDirectives[it->first] = *itNew;
+	}
+
+	// Builders that haven't acted yet get new directives
+	m_pPlayer->GetHomelandAI()->RefreshWorkerAssignments();
+	m_iWorkerPlanRevision++;
+}
+
+void CvBuilderTaskingAI::ClearWorkerPlans()
+{
+	m_workerPlans.clear();
+	m_iWorkerPlanRevision++;
+}
+
+int CvBuilderTaskingAI::GetWorkerPlanRevision() const
+{
+	return m_iWorkerPlanRevision;
+}
+
+/// Tell the UI that something it shows has changed (e.g. route plans)
+void CvBuilderTaskingAI::InvalidateWorkerPlanUI()
+{
+	m_iWorkerPlanRevision++;
+}
+
+/// A build for this improvement that we can do right now, if any
+BuildTypes CvBuilderTaskingAI::GetBuildForImprovement(const CvPlot* pPlot, ImprovementTypes eImprovement) const
+{
+	if (eImprovement == NO_IMPROVEMENT)
+		return NO_BUILD;
+
+	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+	{
+		BuildTypes eBuild = (BuildTypes)iI;
+		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+		if (!pkBuild || pkBuild->getImprovement() != eImprovement)
+			continue;
+
+		if (m_pPlayer->canBuild(pPlot, eBuild))
+			return eBuild;
+	}
+
+	return NO_BUILD;
+}
+
+/// Is the plan strict enough that nothing else may be built in the plot?
+bool CvBuilderTaskingAI::IsWorkerPlanEnforced(const CvPlot* pPlot, const SWorkerPlan& plan) const
+{
+	if (plan.m_bLock || plan.m_eImprovement == NO_IMPROVEMENT)
+		return true;
+
+	if (pPlot->getImprovementType() == plan.m_eImprovement)
+		return true;
+
+	// If we can't build it yet, the AI may build something else meanwhile
+	return GetBuildForImprovement(pPlot, plan.m_eImprovement) != NO_BUILD;
+}
+
+bool CvBuilderTaskingAI::IsImprovementAllowedByPlan(const CvPlot* pPlot, ImprovementTypes eImprovement) const
+{
+	const SWorkerPlan* pPlan = GetWorkerPlan(pPlot);
+	if (!pPlan)
+		return true;
+
+	if (eImprovement != NO_IMPROVEMENT && eImprovement == pPlan->m_eImprovement)
+		return true;
+
+	return !IsWorkerPlanEnforced(pPlot, *pPlan);
+}
+
+/// Could any unit we can get do this build? Covers unique units and traits.
+bool CvBuilderTaskingAI::HasUnitForBuild(BuildTypes eBuild) const
+{
+	CvPlayerTraits* pTraits = m_pPlayer->GetPlayerTraits();
+	bool bNoBuild = pTraits->IsNoBuild(eBuild);
+	const CvCivilizationInfo& kCiv = m_pPlayer->getCivilizationInfo();
+	for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	{
+		if (pTraits->HasUnitClassCanBuild(eBuild, iI))
+			return true;
+
+		if (bNoBuild)
+			continue;
+
+		UnitTypes eUnit = (UnitTypes)kCiv.getCivilizationUnits(iI);
+		CvUnitEntry* pkUnit = eUnit != NO_UNIT ? GC.getUnitInfo(eUnit) : NULL;
+		if (pkUnit && pkUnit->GetBuilds(eBuild))
+			return true;
+	}
+
+	if (bNoBuild)
+		return false;
+
+	// Units we got some other way, e.g. gifts
+	int iLoop = 0;
+	for (const CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
+	{
+		if (pUnit->getUnitInfo().GetBuilds(eBuild))
+			return true;
+	}
+
+	return false;
+}
+
+/// Could we ever do this build here? Ignores techs, borders and adjacency.
+bool CvBuilderTaskingAI::IsBuildPlannable(const CvPlot* pPlot, BuildTypes eBuild) const
+{
+	CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+	if (!pkBuild || pkBuild->getImprovement() == NO_IMPROVEMENT)
+		return false;
+
+	CvImprovementEntry* pkImprovement = GC.getImprovementInfo((ImprovementTypes)pkBuild->getImprovement());
+	if (!pkImprovement)
+		return false;
+
+	if (pkImprovement->IsSpecificCivRequired() && pkImprovement->GetRequiredCivilization() != m_pPlayer->getCivilizationType())
+		return false;
+
+	TechTypes eObsoleteTech = (TechTypes)pkBuild->getTechObsolete();
+	if (eObsoleteTech != NO_TECH && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eObsoleteTech))
+		return false;
+
+	if (!HasUnitForBuild(eBuild))
+		return false;
+
+	return pPlot->canBuild(eBuild, m_pPlayer->GetID(), true, false, true);
+}
+
+/// What the player expects to end up in the plot
+ImprovementTypes CvBuilderTaskingAI::GetPlannedImprovement(const CvPlot* pPlot) const
+{
+	const SWorkerPlan* pPlan = GetWorkerPlan(pPlot);
+	if (pPlan && pPlan->m_eImprovement != NO_IMPROVEMENT)
+		return pPlan->m_eImprovement;
+
+	return pPlot->getImprovementType();
+}
+
+enum PlanBlocker
+{
+	PLAN_OK,
+	PLAN_INVALID,
+	PLAN_NO_TWO_ADJACENT,
+	PLAN_NEEDS_ADJACENT,
+};
+
+/// Why this improvement can't be planned here, counting planned neighbors as built
+int CvBuilderTaskingAI::GetPlanBlocker(const CvPlot* pPlot, ImprovementTypes eImprovement) const
+{
+	CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
+	if (!pPlot || !pkImprovement)
+		return PLAN_INVALID;
+
+	// Keeping what's there
+	if (pPlot->getImprovementType() == eImprovement)
+		return PLAN_OK;
+
+	int iXSameAdjacent = pkImprovement->GetXSameAdjacentMakesValid();
+	bool bFound = false;
+	bool bNeedsAdjacent = true;
+	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+	{
+		BuildTypes eBuild = (BuildTypes)iI;
+		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+		if (!pkBuild || pkBuild->getImprovement() != eImprovement || !IsBuildPlannable(pPlot, eBuild))
+			continue;
+
+		bFound = true;
+		if (iXSameAdjacent == 0 || pPlot->canBuild(eBuild, m_pPlayer->GetID(), true, false, false))
+			bNeedsAdjacent = false;
+	}
+	if (!bFound)
+		return PLAN_INVALID;
+
+	if (!pkImprovement->IsNoTwoAdjacent() && !bNeedsAdjacent)
+		return PLAN_OK;
+
+	int iSameAdjacent = 0;
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), (DirectionTypes)iI);
+		if (pAdjacentPlot && GetPlannedImprovement(pAdjacentPlot) == eImprovement)
+			iSameAdjacent++;
+	}
+
+	if (pkImprovement->IsNoTwoAdjacent() && iSameAdjacent > 0)
+		return PLAN_NO_TWO_ADJACENT;
+
+	if (bNeedsAdjacent && iSameAdjacent < iXSameAdjacent)
+		return PLAN_NEEDS_ADJACENT;
+
+	return PLAN_OK;
+}
+
+bool CvBuilderTaskingAI::CanPlanImprovement(const CvPlot* pPlot, ImprovementTypes eImprovement, CvString* pReason) const
+{
+	int iBlocker = GetPlanBlocker(pPlot, eImprovement);
+	if (pReason && iBlocker == PLAN_NO_TWO_ADJACENT)
+	{
+		Localization::String locText = Localization::Lookup("TXT_KEY_WP_REASON_NO_TWO_ADJACENT");
+		locText << GC.getImprovementInfo(eImprovement)->GetDescription();
+		*pReason = locText.toUTF8();
+	}
+	return iBlocker == PLAN_OK;
+}
+
+static ImprovementTypes GetDirectiveImprovement(const BuilderDirective& directive, const CvPlot* pPlot)
+{
+	if (directive.m_eDirectiveType == BuilderDirective::KEEP_IMPROVEMENT || directive.m_eDirectiveType == BuilderDirective::REPAIR_IMPROVEMENT)
+		return pPlot->getImprovementType();
+
+	CvBuildInfo* pkBuild = directive.m_eBuild != NO_BUILD ? GC.getBuildInfo(directive.m_eBuild) : NULL;
+	return pkBuild ? (ImprovementTypes)pkBuild->getImprovement() : NO_IMPROVEMENT;
+}
+
+static bool IsImprovementDirective(const BuilderDirective& directive)
+{
+	switch (directive.m_eDirectiveType)
+	{
+	case BuilderDirective::BUILD_IMPROVEMENT:
+	case BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE:
+	case BuilderDirective::REPAIR_IMPROVEMENT:
+	case BuilderDirective::KEEP_IMPROVEMENT:
+		return true;
+	default:
+		return false;
+	}
+}
+
+/// What will happen in each relevant plot, for the UI
+vector<SWorkerPlanOverview> CvBuilderTaskingAI::GetWorkerPlanOverview() const
+{
+	map<int, SWorkerPlanOverview> overviews;
+	map<int, vector<const BuilderDirective*>> plotDirectives;
+
+	// Directives with an assigned builder
+	// Automated builders will do it, others only get it as a suggestion
+	vector<BuilderDirective> assignedDirectives;
+	vector<BuilderDirective> automatedDirectives;
+	for (map<int, BuilderDirective>::const_iterator it = m_assignedDirectives.begin(); it != m_assignedDirectives.end(); ++it)
+	{
+		if (!IsImprovementDirective(it->second))
+			continue;
+
+		assignedDirectives.push_back(it->second);
+
+		const CvUnit* pUnit = m_pPlayer->getUnit(it->first);
+		if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || (pUnit && pUnit->IsAutomated()))
+			automatedDirectives.push_back(it->second);
+	}
+
+	// AI choices, directives are in build order
+	int iRank = 0;
+	for (vector<BuilderDirective>::const_iterator it = m_directives.begin(); it != m_directives.end(); ++it)
+	{
+		if (!IsImprovementDirective(*it))
+			continue;
+
+		CvPlot* pPlot = GC.getMap().plot(it->m_sX, it->m_sY);
+		if (!pPlot)
+			continue;
+
+		ImprovementTypes eImprovement = GetDirectiveImprovement(*it, pPlot);
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		plotDirectives[pPlot->GetPlotIndex()].push_back(&(*it));
+
+		// A great person could build its improvement in many plots, only show it where one is actually headed
+		if (it->m_bIsGreatPerson && find(assignedDirectives.begin(), assignedDirectives.end(), *it) == assignedDirectives.end())
+			continue;
+
+		SWorkerPlanOverview& overview = overviews[pPlot->GetPlotIndex()];
+		overview.m_iPlotIndex = pPlot->GetPlotIndex();
+
+		int iScore = it->m_plotBuildScore.GetMaxScore();
+		if (overview.m_eAIImprovement == NO_IMPROVEMENT || iScore > overview.m_iAIScore)
+		{
+			overview.m_eAIImprovement = eImprovement;
+			overview.m_iAIScore = iScore;
+		}
+
+		if (it->m_bCanBuild && it->m_eDirectiveType != BuilderDirective::KEEP_IMPROVEMENT)
+		{
+			if (overview.m_iRank == -1)
+			{
+				overview.m_eAIInterimImprovement = eImprovement;
+				overview.m_iRank = iRank;
+			}
+			iRank++;
+		}
+	}
+
+	// Player plans
+	for (map<int, SWorkerPlan>::const_iterator it = m_workerPlans.begin(); it != m_workerPlans.end(); ++it)
+	{
+		SWorkerPlanOverview& overview = overviews[it->first];
+		overview.m_iPlotIndex = it->first;
+		overview.m_bHasPlan = true;
+		overview.m_plan = it->second;
+	}
+
+	vector<SWorkerPlanOverview> aResult;
+	aResult.reserve(overviews.size());
+	for (map<int, SWorkerPlanOverview>::iterator it = overviews.begin(); it != overviews.end(); ++it)
+	{
+		SWorkerPlanOverview& overview = it->second;
+		CvPlot* pPlot = GC.getMap().plotByIndex(overview.m_iPlotIndex);
+		if (!pPlot)
+			continue;
+
+		if (overview.m_eAIInterimImprovement == overview.m_eAIImprovement)
+			overview.m_eAIInterimImprovement = NO_IMPROVEMENT;
+
+		ImprovementTypes eTarget = overview.m_bHasPlan ? overview.m_plan.m_eImprovement : overview.m_eAIImprovement;
+
+		if (overview.m_bHasPlan && eTarget == NO_IMPROVEMENT)
+			overview.m_eStatus = WORKER_PLAN_STATUS_LOCKED;
+		else if (eTarget == NO_IMPROVEMENT)
+			overview.m_eStatus = WORKER_PLAN_STATUS_NONE;
+		else if (pPlot->getImprovementType() == eTarget && !pPlot->IsImprovementPillaged())
+			overview.m_eStatus = WORKER_PLAN_STATUS_BUILT;
+		else
+		{
+			// Find the directive building the target
+			const BuilderDirective* pDirective = NULL;
+			const vector<const BuilderDirective*>& aDirectives = plotDirectives[overview.m_iPlotIndex];
+			for (vector<const BuilderDirective*>::const_iterator itD = aDirectives.begin(); itD != aDirectives.end(); ++itD)
+			{
+				if ((*itD)->m_eDirectiveType == BuilderDirective::KEEP_IMPROVEMENT)
+					continue;
+				if (GetDirectiveImprovement(**itD, pPlot) != eTarget)
+					continue;
+
+				pDirective = *itD;
+				break;
+			}
+
+			const CvImprovementEntry* pkTarget = GC.getImprovementInfo(eTarget);
+			if (!pDirective && pPlot->getOwner() != m_pPlayer->GetID() && pkTarget && !pkTarget->IsOutsideBorders())
+			{
+				// Planned outside our borders, may become buildable when they grow
+				overview.m_eStatus = WORKER_PLAN_STATUS_OUTSIDE_BORDERS;
+			}
+			else if (!pDirective)
+			{
+				// Planned, but builders don't consider it. Is it waiting for a tech?
+				overview.m_eStatus = WORKER_PLAN_STATUS_BLOCKED;
+				for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+				{
+					CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)iI);
+					if (!pkBuild || pkBuild->getImprovement() != eTarget)
+						continue;
+
+					TechTypes eTech = (TechTypes)pkBuild->getTechPrereq();
+					if (eTech != NO_TECH && !GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTech))
+					{
+						overview.m_eStatus = WORKER_PLAN_STATUS_NOT_YET;
+						break;
+					}
+				}
+			}
+			else if (!pDirective->m_bCanBuild)
+				overview.m_eStatus = WORKER_PLAN_STATUS_NOT_YET;
+			else if (pDirective->m_eBuild != NO_BUILD && pPlot->getBuildProgress(pDirective->m_eBuild) > 0)
+				overview.m_eStatus = WORKER_PLAN_STATUS_IN_PROGRESS;
+			else if (find(automatedDirectives.begin(), automatedDirectives.end(), *pDirective) != automatedDirectives.end())
+				overview.m_eStatus = WORKER_PLAN_STATUS_ASSIGNED;
+			else if (find(assignedDirectives.begin(), assignedDirectives.end(), *pDirective) != assignedDirectives.end())
+				overview.m_eStatus = WORKER_PLAN_STATUS_SUGGESTED;
+			else
+				overview.m_eStatus = WORKER_PLAN_STATUS_QUEUED;
+		}
+
+		aResult.push_back(overview);
+	}
+
+	return aResult;
+}
+
+/// All improvements that could ever be built in this plot, for the UI
+vector<SImprovementOption> CvBuilderTaskingAI::GetImprovementOptions(CvPlot* pPlot)
+{
+	vector<SImprovementOption> aOptions;
+	if (!pPlot)
+		return aOptions;
+
+	// ScorePlotBuild overwrites cached yields. Restore them afterwards so UI calls can't affect the AI (MP safety).
+	int aiCurrentPlotYields[NUM_YIELD_TYPES];
+	int aiProjectedPlotYields[NUM_YIELD_TYPES];
+	memcpy(aiCurrentPlotYields, m_aiCurrentPlotYields, sizeof(aiCurrentPlotYields));
+	memcpy(aiProjectedPlotYields, m_aiProjectedPlotYields, sizeof(aiProjectedPlotYields));
+
+	const CvTeamTechs* pTeamTechs = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs();
+
+	// Existing improvement can be kept
+	ImprovementTypes eExisting = pPlot->getImprovementType();
+	if (eExisting != NO_IMPROVEMENT && pPlot->getOwner() == m_pPlayer->GetID())
+	{
+		SImprovementOption option;
+		option.m_eImprovement = eExisting;
+		option.m_bCanBuildNow = true;
+		option.m_iScore = ScorePlotBuildBase(pPlot, eExisting, NO_BUILD, SBuilderState::DefaultInstance()).GetMaxScore();
+		aOptions.push_back(option);
+	}
+
+	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
+	{
+		BuildTypes eBuild = (BuildTypes)iI;
+		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+		if (!pkBuild)
+			continue;
+
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		// Ignores techs and adjacency requirements
+		if (!IsBuildPlannable(pPlot, eBuild))
+			continue;
+
+		bool bCanBuildNow = m_pPlayer->canBuild(pPlot, eBuild);
+
+		// One option per improvement, prefer a build we can do now
+		bool bFound = false;
+		for (vector<SImprovementOption>::iterator it = aOptions.begin(); it != aOptions.end(); ++it)
+		{
+			if (it->m_eImprovement != eImprovement)
+				continue;
+
+			bFound = true;
+			if (bCanBuildNow && !it->m_bCanBuildNow)
+			{
+				it->m_eBuild = eBuild;
+				it->m_bCanBuildNow = true;
+				it->m_eTechPrereq = NO_TECH;
+			}
+			break;
+		}
+		if (bFound)
+			continue;
+
+		// Needs more of the same nearby, even counting plans
+		int iBlocker = GetPlanBlocker(pPlot, eImprovement);
+		if (iBlocker == PLAN_NEEDS_ADJACENT || iBlocker == PLAN_INVALID)
+			continue;
+
+		SImprovementOption option;
+		option.m_eImprovement = eImprovement;
+		option.m_eBuild = eBuild;
+		option.m_bCanPlan = iBlocker == PLAN_OK;
+		option.m_bCanBuildNow = bCanBuildNow;
+		TechTypes eTech = (TechTypes)pkBuild->getTechPrereq();
+		option.m_eTechPrereq = eTech != NO_TECH && !pTeamTechs->HasTech(eTech) ? eTech : NO_TECH;
+		option.m_iScore = ScorePlotBuildBase(pPlot, eImprovement, eBuild, SBuilderState::DefaultInstance()).GetMaxScore();
+		aOptions.push_back(option);
+	}
+
+	memcpy(m_aiCurrentPlotYields, aiCurrentPlotYields, sizeof(aiCurrentPlotYields));
+	memcpy(m_aiProjectedPlotYields, aiProjectedPlotYields, sizeof(aiProjectedPlotYields));
+
+	// Explain why options can't be planned or built now (missing tech, feature can't be removed yet, adjacency...)
+	for (vector<SImprovementOption>::iterator it = aOptions.begin(); it != aOptions.end(); ++it)
+	{
+		if (!it->m_bCanPlan)
+		{
+			CanPlanImprovement(pPlot, it->m_eImprovement, &it->m_strReason);
+			continue;
+		}
+
+		if (it->m_bCanBuildNow || it->m_eBuild == NO_BUILD)
+			continue;
+
+		m_pPlayer->canBuild(pPlot, it->m_eBuild, false, false, true, true, NULL, &it->m_strReason);
+
+		// Only valid thanks to planned neighbors
+		CvImprovementEntry* pkImprovement = GC.getImprovementInfo(it->m_eImprovement);
+		int iXSameAdjacent = pkImprovement->GetXSameAdjacentMakesValid();
+		if (iXSameAdjacent > 0 && !pPlot->canBuild(it->m_eBuild, m_pPlayer->GetID(), true, false, false))
+		{
+			Localization::String locText = Localization::Lookup("TXT_KEY_WP_REASON_X_ADJACENT");
+			locText << iXSameAdjacent << pkImprovement->GetDescription();
+			if (!it->m_strReason.empty())
+				it->m_strReason += "[NEWLINE]";
+			it->m_strReason += locText.toUTF8();
+		}
+	}
+
+	return aOptions;
 }

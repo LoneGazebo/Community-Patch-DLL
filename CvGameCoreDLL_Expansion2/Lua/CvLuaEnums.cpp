@@ -1283,6 +1283,19 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(ROAD_PLANNING_PRIORITY_CONSTRUCTION);
 	EnumEnd(L);
 
+	EnumStart(L, "WorkerPlanStatusTypes");
+	RegisterEnum(WORKER_PLAN_STATUS_NONE);
+	RegisterEnum(WORKER_PLAN_STATUS_BUILT);
+	RegisterEnum(WORKER_PLAN_STATUS_IN_PROGRESS);
+	RegisterEnum(WORKER_PLAN_STATUS_ASSIGNED);
+	RegisterEnum(WORKER_PLAN_STATUS_QUEUED);
+	RegisterEnum(WORKER_PLAN_STATUS_NOT_YET);
+	RegisterEnum(WORKER_PLAN_STATUS_BLOCKED);
+	RegisterEnum(WORKER_PLAN_STATUS_LOCKED);
+	RegisterEnum(WORKER_PLAN_STATUS_SUGGESTED);
+	RegisterEnum(WORKER_PLAN_STATUS_OUTSIDE_BORDERS);
+	EnumEnd(L);
+
 	return 0;
 }
 //------------------------------------------------------------------------------
