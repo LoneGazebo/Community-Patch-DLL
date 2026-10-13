@@ -1283,10 +1283,15 @@ void CvPlot::updateWaterFlags() const
 
 		if(pLoopPlot != NULL)
 		{
-			if(pLoopPlot->isLake())
+			// Don't use the neighbor's cached lake flag, it may not be updated yet when looping over all plots
+			if(pLoopPlot->isWater())
 			{
-				m_bIsFreshwater = true;
-				return;
+				CvLandmass* pLandmass = GC.getMap().getLandmassById(pLoopPlot->getLandmass());
+				if(pLandmass && pLandmass->isLake())
+				{
+					m_bIsFreshwater = true;
+					return;
+				}
 			}
 
 			FeatureTypes feature_type = pLoopPlot->getFeatureType();
