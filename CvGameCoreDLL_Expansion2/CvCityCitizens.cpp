@@ -2432,10 +2432,6 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 			{
 				CvCity* pOC = pPlot->getOwningCity();
 
-				// Can't take away plots from puppet cities by force unless venice (mainly because the AI doesn't have logic to do that)
-				if (pOC->IsPuppet() && pOC->IsWithinWorkRange(pPlot) && !GET_PLAYER(GetOwner()).GetPlayerTraits()->IsNoAnnexing() )
-					return;
-
 				// Can't take away plots from cities which were just conquered
 				if (pOC->IsResistance() || pOC->IsIgnoreCityForHappiness())
 					return;

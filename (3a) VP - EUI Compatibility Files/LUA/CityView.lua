@@ -1732,10 +1732,21 @@ end
 -------------------------------------------------
 -- City Hex Clicking & Mousing
 -------------------------------------------------
+-- Allow shared-tile transfers into puppets without enabling other citizen controls.
+local function CanSwapPuppetPlot(city, plot)
+	return city and plot
+		and city:IsPuppet()
+		and city:GetOwner() == Game.GetActivePlayer()
+		and not city:IsIgnoreCityForHappiness()
+		and plot:GetOwner() == city:GetOwner()
+		and not plot:IsCity()
+		and plot:GetWorkingCity() ~= city
+end
+
 local function PlotButtonClicked( plotIndex )
-	local city = GetSelectedModifiableCity()
+	local city = GetSelectedCity()
 	local plot = city and city:GetCityIndexPlot( plotIndex )
-	if plot then
+	if plot and (not g_isViewingMode or CanSwapPuppetPlot(city, plot)) then
 		local outside = city ~= plot:GetWorkingCity()
 		-- calling this with the city center (0 in the third param) causes it to reset all forced tiles
 		Network.SendDoTask( city:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, plotIndex, -1, false )
@@ -1812,7 +1823,9 @@ local function UpdateWorkingHexesNow()
 		local cityOwnerID = city:GetOwner()
 		local notInStrategicView = not InStrategicView()
 		local bAnnex = g_activePlayer:MayNotAnnex()
-		local showButtons = g_workerHeadingOpen and (not g_isViewingMode or bAnnex)
+		local showButtons = g_workerHeadingOpen
+			and cityOwnerID == g_activePlayerID
+			and not city:IsIgnoreCityForHappiness()
 
 		for cityPlotIndex = 0, cityArea do
 			local plot = city:GetCityIndexPlot( cityPlotIndex )
@@ -1886,9 +1899,7 @@ local function UpdateWorkingHexesNow()
 					instance.PlotButtonImage:LocalizeAndSetToolTip( tipKey )
 					IconHookup( iconID, 45, "CITIZEN_ATLAS", instance.PlotButtonImage )
 					local button = instance.PlotButtonImage
-					if not cityPlotIndex or (g_isViewingMode and not bAnnex) then 
-						button:ClearCallback( Mouse.eLClick )
-					elseif (bAnnex and city:IsPuppet() and iconID ~= 12) then --Another Venice exception huh...
+					if not cityPlotIndex or (g_isViewingMode and not CanSwapPuppetPlot(city, plot)) then
 						button:ClearCallback( Mouse.eLClick )
 					else
 						button:SetVoid1( cityPlotIndex )
