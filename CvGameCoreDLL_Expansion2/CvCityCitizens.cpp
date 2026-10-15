@@ -2603,9 +2603,19 @@ bool CvCityCitizens::IsCanWorkWithOverride(CvPlot* pPlot) const
 
 		//we do not want to steal plots which are currently being worked or in the innermost ring
 		//humans can still re-assign plots manually (see DoAlterWorkingPlot)
-		if (pEffectiveOwner->GetCityCitizens()->IsWorkingPlot(pPlot) || plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)
+		if (plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)
 		{
 			return false;
+		}
+
+		//exception: regular cities may take worked plots from puppets, unless the puppet was just conquered
+		if (pEffectiveOwner->GetCityCitizens()->IsWorkingPlot(pPlot))
+		{
+			bool bTakeFromPuppet = pEffectiveOwner->IsPuppet() && !m_pCity->IsPuppet() && !pEffectiveOwner->IsResistance() && !pEffectiveOwner->IsIgnoreCityForHappiness();
+			if (!bTakeFromPuppet)
+			{
+				return false;
+			}
 		}
 	}
 
