@@ -184,7 +184,7 @@ SET Text = 'Imperium'
 WHERE Tag = 'TXT_KEY_POLICY_DISCIPLINE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Imperium[ENDCOLOR][NEWLINE][ICON_BULLET]Cities gain 20 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold when their borders expand, scaling with Era ([COLOR_YELLOW]40 if all {TXT_KEY_POLICY_BRANCH_HONOR} policies are adopted[ENDCOLOR]).[NEWLINE][ICON_BULLET]Receive 40 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you found or conquer Cities, scaling with Era. Conquest bonus also scales based on City [ICON_CITIZEN] population.'
+SET Text = '[COLOR_POSITIVE_TEXT]Imperium[ENDCOLOR][NEWLINE][ICON_BULLET]Cities gain 20 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold when their borders expand ([COLOR_YELLOW]40 if all {TXT_KEY_POLICY_BRANCH_HONOR} policies are adopted[ENDCOLOR]).[NEWLINE][ICON_BULLET]Receive 40 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you found or conquer Cities, scaling with Era. Conquest bonus also scales based on City [ICON_CITIZEN] population.'
 WHERE Tag = 'TXT_KEY_POLICY_DISCIPLINE_HELP';
 
 UPDATE Language_en_US
@@ -900,7 +900,7 @@ SET Text = 'Lebensraum'
 WHERE Tag = 'TXT_KEY_POLICY_INDUSTRIAL_ESPIONAGE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Lebensraum[ENDCOLOR]: Receive 10 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points when your borders expand, scaling with Era. Citadels may also be built in foreign territory adjacent to your borders. Retain tiles after razing Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Lebensraum[ENDCOLOR]: Receive 60 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points when your borders expand. Citadels may also be built in foreign territory adjacent to your borders. Retain tiles after razing Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_INDUSTRIAL_ESPIONAGE_HELP';
 
 UPDATE Language_en_US
