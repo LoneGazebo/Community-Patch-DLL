@@ -2743,7 +2743,7 @@
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_TADODAHO</StrategicViewType>
 			<TileType>Unit</TileType>
-			<Asset>OnondagaUnitSV.dds</Asset>
+			<Asset>TadodahoUnitSV.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_FCOMPANY</StrategicViewType>
