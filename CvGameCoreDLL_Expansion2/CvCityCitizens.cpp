@@ -2432,10 +2432,6 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 			{
 				CvCity* pOC = pPlot->getOwningCity();
 
-				// Can't take away plots from puppet cities by force unless venice (mainly because the AI doesn't have logic to do that)
-				if (pOC->IsPuppet() && pOC->IsWithinWorkRange(pPlot) && !GET_PLAYER(GetOwner()).GetPlayerTraits()->IsNoAnnexing() )
-					return;
-
 				// Can't take away plots from cities which were just conquered
 				if (pOC->IsResistance() || pOC->IsIgnoreCityForHappiness())
 					return;
@@ -2607,9 +2603,19 @@ bool CvCityCitizens::IsCanWorkWithOverride(CvPlot* pPlot) const
 
 		//we do not want to steal plots which are currently being worked or in the innermost ring
 		//humans can still re-assign plots manually (see DoAlterWorkingPlot)
-		if (pEffectiveOwner->GetCityCitizens()->IsWorkingPlot(pPlot) || plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)
+		if (plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)
 		{
 			return false;
+		}
+
+		//exception: regular cities may take worked plots from puppets, unless the puppet was just conquered
+		if (pEffectiveOwner->GetCityCitizens()->IsWorkingPlot(pPlot))
+		{
+			bool bTakeFromPuppet = pEffectiveOwner->IsPuppet() && !m_pCity->IsPuppet() && !pEffectiveOwner->IsResistance() && !pEffectiveOwner->IsIgnoreCityForHappiness();
+			if (!bTakeFromPuppet)
+			{
+				return false;
+			}
 		}
 	}
 
