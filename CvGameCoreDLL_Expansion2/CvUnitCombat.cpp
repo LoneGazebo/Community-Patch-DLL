@@ -2991,10 +2991,14 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot)
 		uint uiParentEventID = 0;
 		int iInterceptionDamage = 0;
 
-		// Is the interception successful?
-		if(GC.getGame().randRangeExclusive(0, 100, CvSeeder(dropPlot.GetPseudoRandomSeed()).mix(paraUnit.GetID()).mix(paraUnit.getDamage())) < pInterceptor->interceptionProbability())
+		// Evasion check
+		if (paraUnit.evasionProbability() == 0 || GC.getGame().randRangeInclusive(1, 100, CvSeeder(dropPlot.GetPseudoRandomSeed()).mix(paraUnit.GetID())) > paraUnit.evasionProbability())
 		{
-			iInterceptionDamage = pInterceptor->GetInterceptionDamage(&paraUnit, true, &dropPlot);
+			// Is the interception successful?
+			if (GC.getGame().randRangeExclusive(0, 100, CvSeeder(dropPlot.GetPseudoRandomSeed()).mix(paraUnit.GetID()).mix(paraUnit.getDamage())) < pInterceptor->interceptionProbability())
+			{
+				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&paraUnit, true, &dropPlot);
+			}
 		}
 	
 		if (iInterceptionDamage > 0)

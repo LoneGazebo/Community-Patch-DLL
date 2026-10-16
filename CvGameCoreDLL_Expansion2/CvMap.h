@@ -400,6 +400,10 @@ public:
 	void CalculateRivers();
 	void CreateRiverFrom(CvPlot* pPlot, DirectionTypes eDirection, CvRiver* pRiver);
 
+	// Terrain counts
+	int GetTerrainPlotCount(TerrainTypes eTerrain) const;
+	void ChangeTerrainPlotCount(TerrainTypes eTerrain, int iChange);
+
 	/// this is the default "continent stamper" a given lua map script can use it or not
 	void DefaultContinentStamper();
 
@@ -483,6 +487,8 @@ protected:
 	TContainer<CvLandmass> m_landmasses;
 	TContainer<CvContinent> m_continents;
 	TContainer<CvRiver> m_rivers;
+
+	vector<int> m_viTerrainPlotCounts;
 
 	//store non-zero values outside of CvPlot because it will be zero almost all the time
 	typedef map<int, vector<unsigned char>> PlotInvisibleVisibilityLookup;

@@ -31,7 +31,7 @@
 			<Text>Commando</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COMMANDO_STRATEGY">
-			<Text>Commandos are scouts and attack units, specializing in striking vulnerable targets through difficult terrain and quickly withdrawing. Use these units to outflank and disrupt enemies on their back lines.</Text>
+			<Text>The Commando is a better Explorer, gaining a [ICON_STRENGTH] Combat Strength close to the Era's infantry Unit (Fusilier), unlike the previous recon Units. It specializes in striking vulnerable targets through difficult terrain and quickly withdrawing. Use these units to outflank and disrupt enemies on their back lines.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COMMANDO_HELP">
 			<Text></Text>
