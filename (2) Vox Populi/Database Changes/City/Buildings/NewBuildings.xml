@@ -1263,14 +1263,14 @@
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>25</PortraitIndex>
 		</Row>
-		<!-- Harappan Reservoir -->
+		<!-- Stepwell -->
 		<Row>
-			<Type>BUILDING_HARAPPAN_RESERVOIR</Type>
+			<Type>BUILDING_STEPWELL</Type>
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
-			<Description>TXT_KEY_BUILDING_HARAPPAN_RESERVOIR</Description>
-			<Civilopedia>TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_STEPWELL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_STEPWELL_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_STEPWELL_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_STEPWELL_STRATEGY</Strategy>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<FoodKept>40</FoodKept>
 			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
