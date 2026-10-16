@@ -123,7 +123,7 @@ VALUES
 	('HELP_REQUEST_TURN_LIMIT_MIN', 20), -- Base turns before Help Request can be accepted again.
 	('HELP_REQUEST_TURN_LIMIT_RAND', 10), -- Randomized number of turns before Help Request can be accepted again. Added to base turns.
 -- Vassalage
-	('VASSAL_HAPPINESS_PERCENT', 20), -- What % of the vassal's Happiness does the master get? (NOTE: Halved in VP)
+	('VASSAL_HAPPINESS_PERCENT', 20), -- What % of the vassal's Happiness does the master get?
 	('VASSAL_PRESSURE_PERCENT', 100), -- What % of the master's majority pressure is applied to Vassal's cities?
 	('VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT', 20), -- What % of the vassal's Science/Culture/Faith does the master get?
 	('VASSAL_TOURISM_MODIFIER', 33), -- What % bonus does the master get to Tourism against the vassal?
@@ -131,7 +131,7 @@ VALUES
 	('VASSALAGE_VASSAL_TAX_PERCENT_MINIMUM', 0), -- Minimum percent we can tax a vassal's income. Negative values may cause undefined behavior.
 	('VASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM', 25), -- Maximum percent we can tax a vassal's income. Values greater than 100% will do nothing. Make sure this is a multiple of 5 please!
 	('VASSALAGE_VASSAL_CITY_POP_EXPONENT', 0.8), -- How much does each vassal citizen affect the master's maintenance costs?
-	('VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT', 10), -- How much does the master pay for the vassal's units?
+	('VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT', 25), -- How much does the master pay for the vassal's units?
 	('VASSALAGE_VASSAL_LOST_CITIES_THRESHOLD', 75), -- Percentage of vassal cities that must be lost before Vassalage can be ended.
 	('VASSALAGE_VASSAL_POPULATION_THRESHOLD', 300), -- Percentage of population over what the vassal started with before Vassalage can be ended.
 	('VASSALAGE_VASSAL_MASTER_CITY_PERCENT_THRESHOLD', 60),
@@ -849,18 +849,18 @@ VALUES
 	('MILITARY_AGGRESSIVE_POSTURE_THRESHOLD_LOW', 2),
 
 -- Dispute levels
-	('LAND_DISPUTE_FIERCE_THRESHOLD', 8),
-	('LAND_DISPUTE_STRONG_THRESHOLD', 4),
-	('LAND_DISPUTE_WEAK_THRESHOLD', 1),
+	('LAND_DISPUTE_FIERCE_THRESHOLD', 18),
+	('LAND_DISPUTE_STRONG_THRESHOLD', 10),
+	('LAND_DISPUTE_WEAK_THRESHOLD', 4),
 	('LAND_DISPUTE_CRAMPED_MULTIPLIER', 50),
 
 	('WONDER_DISPUTE_FIERCE_THRESHOLD', 24),
 	('WONDER_DISPUTE_STRONG_THRESHOLD', 12),
 	('WONDER_DISPUTE_WEAK_THRESHOLD', 1),
 
-	('MINOR_CIV_DISPUTE_FIERCE_THRESHOLD', 1400),
-	('MINOR_CIV_DISPUTE_STRONG_THRESHOLD', 1000),
-	('MINOR_CIV_DISPUTE_WEAK_THRESHOLD', 700),
+	('MINOR_CIV_DISPUTE_FIERCE_THRESHOLD', 2000),
+	('MINOR_CIV_DISPUTE_STRONG_THRESHOLD', 1400),
+	('MINOR_CIV_DISPUTE_WEAK_THRESHOLD', 1000),
 
 	('VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_POSITIVE', 25),
 	('VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_LIKELY', 15),
