@@ -71,6 +71,7 @@ public:
 	int GetSpySecurityModifier() const;
 	int GetCitySupplyFlat() const;
 	int GetExtraLuxuries() const;
+	int GetMaxAirUnitsChange() const;
 
 	EventTypes GetEventToStart() const;
 	CityEventTypes GetCityEventToStart() const;
@@ -134,6 +135,7 @@ protected:
 	int m_iSpySecurityModifier;
 	int m_iCitySupplyFlat;
 	int m_iExtraLuxuries;
+	int m_iMaxAirUnitsChange;
 
 	EventTypes m_eEventToStart;
 	CityEventTypes m_eCityEventToStart;
