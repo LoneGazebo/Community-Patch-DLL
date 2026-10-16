@@ -395,6 +395,9 @@
 		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_BUILDINGS">
 			<Text>Required Buildings: [COLOR_YIELD_FOOD]{1_Buildings}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_CIV">
+			<Text>Required Civilization: [COLOR_POSITIVE_TEXT]{1_Civ}[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_POLICY">
 			<Text>Required Policy: [COLOR_MAGENTA]{1_Policy:textkey}[ENDCOLOR]</Text>
 		</Row>
@@ -665,6 +668,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIQUE_UNIT_NO_DEFAULT">
 			<Text>{1_CivAdj} Unique Unit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_EXCLUSIVE_UNIT">
+			<Text>{1_CivAdj} Exclusive Unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIQUE_UNIT_CITY_STATE">
 			<Text>[ICON_CITY_STATE] City-State Unique Unit</Text>
