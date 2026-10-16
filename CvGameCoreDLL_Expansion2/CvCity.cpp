@@ -30394,6 +30394,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		changeCitySupplyFlat(pProject->GetCitySupplyFlat());
 		changeCityAutomatonWorkersChange(pProject->GetCityAutomatonWorkersChange());
 		thisPlayer.ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
+		ChangeMaxAirUnits(pProject->GetMaxAirUnitsChange());
 		
 		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{
