@@ -32,6 +32,9 @@ ALTER TABLE Units ADD ResourceType text REFERENCES Resources (Type);
 -- Assigns a unit to a belief type. If you lack this belief in the city where you wish to buy a unit, you won't be able to buy it with faith.
 ALTER TABLE Units ADD BeliefRequired text REFERENCES Beliefs (Type);
 
+-- Civ-specific Unit (but not necessarily a UU!)
+ALTER TABLE Units ADD CivilizationRequired text REFERENCES Civilizations (Type);
+
 -- Allows for Unit to be purchased in puppet city
 ALTER TABLE Units ADD PuppetPurchaseOverride boolean DEFAULT 0;
 
