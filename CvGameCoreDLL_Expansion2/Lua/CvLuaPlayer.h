@@ -1144,6 +1144,14 @@ protected:
 	LUAAPIEXTN(GetMilitaryLog, table);
 
 	static int lGetRecommendedWorkerPlots(lua_State* L);
+	static int lGetWorkerPlan(lua_State* L);
+	static int lSendWorkerPlan(lua_State* L);
+	static int lSendClearWorkerPlans(lua_State* L);
+	static int lSendRefreshWorkerPlans(lua_State* L);
+	static int lSendAllPlannedRouteStates(lua_State* L);
+	static int lGetWorkerPlanRevision(lua_State* L);
+	static int lGetWorkerPlanOverview(lua_State* L);
+	static int lGetImprovementOptions(lua_State* L);
 	static int lGetRecommendedFoundCityPlots(lua_State* L);
 
 	static int lGetUnimprovedAvailableLuxuryResource(lua_State* L);

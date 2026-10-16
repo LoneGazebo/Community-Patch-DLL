@@ -93,8 +93,8 @@ struct BuilderDirective
 		NUM_DIRECTIVES ENUM_META_VALUE
 	};
 
-	BuilderDirective() : m_eDirectiveType(NUM_DIRECTIVES), m_eBuild(NO_BUILD), m_eResource(NO_RESOURCE), m_bIsGreatPerson(false), m_bCanBuild(false), m_sX(-1), m_sY(-1), m_plotBuildScore(0) {}
-	BuilderDirective(BuilderDirectiveType eDirective, BuildTypes eBuild, ResourceTypes eResource, bool bIsGreatPerson, bool bCanBuild, short sX, short sY, PlotBuildScore plotBuildScore)
+	BuilderDirective() : m_eDirectiveType(NUM_DIRECTIVES), m_eBuild(NO_BUILD), m_eResource(NO_RESOURCE), m_bIsGreatPerson(false), m_bCanBuild(false), m_sX(-1), m_sY(-1), m_plotBuildScore(0), m_iPlanPriority(0) {}
+	BuilderDirective(BuilderDirectiveType eDirective, BuildTypes eBuild, ResourceTypes eResource, bool bIsGreatPerson, bool bCanBuild, short sX, short sY, PlotBuildScore plotBuildScore, int iPlanPriority = 0)
 	{
 		m_eDirectiveType = eDirective;
 		m_eBuild = eBuild;
@@ -104,6 +104,7 @@ struct BuilderDirective
 		m_sX = sX;
 		m_sY = sY;
 		m_plotBuildScore = plotBuildScore;
+		m_iPlanPriority = iPlanPriority;
 	}
 
 	BuilderDirectiveType m_eDirectiveType;
@@ -115,6 +116,7 @@ struct BuilderDirective
 	short m_sX;
 	short m_sY;
 	PlotBuildScore m_plotBuildScore;
+	int m_iPlanPriority; // player set priority, directives with higher priority are always assigned first
 
 	bool operator==(const BuilderDirective& rhs) const
 	{
@@ -137,6 +139,51 @@ struct BuilderDirective
 };
 FDataStream& operator<<(FDataStream&, const BuilderDirective&);
 FDataStream& operator>>(FDataStream&, BuilderDirective&);
+
+const int MAX_WORKER_PLAN_PRIORITY = 3;
+const int MANUAL_ROUTE_PLAN_PRIORITY = 1; // priority construction routes from the route planner
+
+// Player made plan for a plot
+struct SWorkerPlan
+{
+	SWorkerPlan() : m_eImprovement(NO_IMPROVEMENT), m_iPriority(0), m_bLock(false) {}
+	SWorkerPlan(ImprovementTypes eImprovement, int iPriority, bool bLock) : m_eImprovement(eImprovement), m_iPriority(iPriority), m_bLock(bLock) {}
+
+	ImprovementTypes m_eImprovement; // NO_IMPROVEMENT with lock means "leave this plot as it is"
+	int m_iPriority; // 0 = built side by side with AI choices, higher = built before any AI choices
+	bool m_bLock; // don't build anything else here while waiting for the planned improvement
+};
+FDataStream& operator<<(FDataStream&, const SWorkerPlan&);
+FDataStream& operator>>(FDataStream&, SWorkerPlan&);
+
+// Summary of what will happen in a plot, for the UI
+struct SWorkerPlanOverview
+{
+	SWorkerPlanOverview() : m_iPlotIndex(-1), m_eAIImprovement(NO_IMPROVEMENT), m_eAIInterimImprovement(NO_IMPROVEMENT), m_iAIScore(0), m_iRank(-1), m_bHasPlan(false), m_eStatus(WORKER_PLAN_STATUS_NONE) {}
+
+	int m_iPlotIndex;
+	ImprovementTypes m_eAIImprovement; // best improvement according to the AI, may not be buildable yet
+	ImprovementTypes m_eAIInterimImprovement; // what the AI builds meanwhile, if anything
+	int m_iAIScore;
+	int m_iRank; // position in the build queue, -1 if not queued
+	bool m_bHasPlan;
+	SWorkerPlan m_plan;
+	WorkerPlanStatusTypes m_eStatus; // status of the player plan if any, else of the AI choice
+};
+
+// An improvement that could be planned in a plot, for the UI
+struct SImprovementOption
+{
+	SImprovementOption() : m_eImprovement(NO_IMPROVEMENT), m_eBuild(NO_BUILD), m_bCanPlan(true), m_bCanBuildNow(false), m_eTechPrereq(NO_TECH), m_iScore(0) {}
+
+	ImprovementTypes m_eImprovement;
+	BuildTypes m_eBuild;
+	bool m_bCanPlan;
+	bool m_bCanBuildNow;
+	TechTypes m_eTechPrereq;
+	int m_iScore;
+	CvString m_strReason; // why it can't be planned or built now, localized
+};
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvBuilderTaskingAI
@@ -214,6 +261,18 @@ public:
 
 	void UpdateGreatPersonDirectives(vector<OptionWithScore<BuilderDirective>>& aDirectives) const;
 
+	// Player made plans
+	const SWorkerPlan* GetWorkerPlan(const CvPlot* pPlot) const;
+	void SetWorkerPlan(const CvPlot* pPlot, ImprovementTypes eImprovement, int iPriority, bool bLock);
+	void ClearWorkerPlans();
+	void RefreshPlans();
+	int GetWorkerPlanRevision() const;
+	void InvalidateWorkerPlanUI();
+	vector<SWorkerPlanOverview> GetWorkerPlanOverview() const;
+	vector<SImprovementOption> GetImprovementOptions(CvPlot* pPlot);
+	bool CanPlanImprovement(const CvPlot* pPlot, ImprovementTypes eImprovement, CvString* pReason = NULL) const;
+	static void SortDirectivesByPlanPriority(vector<OptionWithScore<BuilderDirective>>& aDirectives);
+
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
@@ -260,6 +319,15 @@ protected:
 
 	bool PlotHasSpecialImprovement(const CvPlot* pPlot) const;
 
+	PlotBuildScore ScorePlotBuildBase(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, const SBuilderState& sState);
+	BuildTypes GetBuildForImprovement(const CvPlot* pPlot, ImprovementTypes eImprovement) const;
+	bool IsWorkerPlanEnforced(const CvPlot* pPlot, const SWorkerPlan& plan) const;
+	bool IsImprovementAllowedByPlan(const CvPlot* pPlot, ImprovementTypes eImprovement) const;
+	bool HasUnitForBuild(BuildTypes eBuild) const;
+	bool IsBuildPlannable(const CvPlot* pPlot, BuildTypes eBuild) const;
+	ImprovementTypes GetPlannedImprovement(const CvPlot* pPlot) const;
+	int GetPlanBlocker(const CvPlot* pPlot, ImprovementTypes eImprovement) const;
+
 	PlotPair GetPlotPair(int iPlotId1, int iPlotId2);
 
 	CvPlayer* m_pPlayer;
@@ -293,6 +361,9 @@ protected:
 	vector<ImprovementTypes> m_uniqueImprovements; // serialized
 
 	std::tr1::unordered_map<ImprovementTypes, std::tr1::unordered_set<const CvPlot*>> m_extraPlotsForXAdjacentImprovements;
+
+	map<int, SWorkerPlan> m_workerPlans; // serialized, plot index -> plan
+	int m_iWorkerPlanRevision; // bumped when plans or directives change, lets the UI know when to refresh
 };
 
 FDataStream& operator>>(FDataStream&, CvBuilderTaskingAI&);

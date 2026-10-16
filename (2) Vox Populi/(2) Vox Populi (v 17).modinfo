@@ -1071,6 +1071,8 @@
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="0">Core Files/New UI/RandomVCPopup.xml</File>
     <File md5="5931374F09F2627F11BECB1EB69351DE" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
+    <File md5="E7107B49A892AB3BCA5D23A6426B5B88" import="0">Core Files/New UI/WorkerPlanner.lua</File>
+    <File md5="7E17A9103E1DD3F858F467B434B7BE76" import="0">Core Files/New UI/WorkerPlanner.xml</File>
     <File md5="F69C0A8AF513C718E474170B29AC68A3" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
     <File md5="FFE3EACD6A5F007D90AF95EC7E7E7DF0" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.lua</File>
     <File md5="2DB0554E1E472DCB81904C7B0050BD7A" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.xml</File>
@@ -1120,7 +1122,7 @@
     <File md5="FCFC1D78C16242F2FACFDE27FF45976A" import="1">Core Files/Overrides/VictoryProgress.lua</File>
     <File md5="1789009F209A70B6EBE6CB940152CCF4" import="1">Core Files/Overrides/VictoryProgress.xml</File>
     <File md5="BC174D7E8CBD73F3B962BC1409BD0A67" import="1">Core Files/Overrides/WhosWinningPopup.lua</File>
-    <File md5="7BE13F5850CCAE290717C9717AA8C0D2" import="1">Core Files/Overrides/WorldView.lua</File>
+    <File md5="B781BBE05C872551264D97D947D5797A" import="1">Core Files/Overrides/WorldView.lua</File>
     <File md5="CF4B84581BC67E37768641715D43499B" import="0">Database Changes/CustomModOptionChanges.sql</File>
     <File md5="DDE5DBD184A7031F4CAEF269C2E7C89C" import="0">Database Changes/DefineChanges.sql</File>
     <File md5="A322479D143AD2C3204DA3103B7AEB72" import="0">Database Changes/GameOptionChanges.sql</File>
@@ -1129,6 +1131,7 @@
     <File md5="4605F9A820F1AB13259B1031D3394DC2" import="0">Database Changes/NewColors.xml</File>
     <File md5="153894975B67F637D334EB7EE43DFF28" import="0">Database Changes/NewGameOptions.xml</File>
     <File md5="900EF02D4E1218E36D7F040B442011E6" import="0">Database Changes/Triggers.sql</File>
+    <File md5="247584A07D7773F41AD988D1B68CD1DF" import="0">Database Changes/WorkerPlanner.sql</File>
     <File md5="D347E336800F8F8C84079091E0DDDAB2" import="0">Database Changes/WorldChanges.sql</File>
     <File md5="5235F5B803C4FAF35DC73E32F5135A03" import="0">Database Changes/AI/BuildingFlavorSweeps.sql</File>
     <File md5="1967AE95666F2B86FAE52D127C1E3921" import="0">Database Changes/AI/CityEventFlavorChanges.sql</File>
@@ -1654,6 +1657,7 @@
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/RouteTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/WorldMap/TerrainTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Triggers.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes/WorkerPlanner.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>
@@ -1684,6 +1688,10 @@
     <EntryPoint type="InGameUIAddin" file="Core Files/New UI/VassalageOverview.xml">
       <Name>Vassalage Overview</Name>
       <Description>Vassalage Overview</Description>
+    </EntryPoint>
+    <EntryPoint type="InGameUIAddin" file="Core Files/New UI/WorkerPlanner.xml">
+      <Name>Worker Planner</Name>
+      <Description>Worker Planner</Description>
     </EntryPoint>
     <EntryPoint type="MapScript" file="Mapscripts/Communitu_79a.lua">
       <Name>Communitu_79a</Name>
