@@ -58,3 +58,6 @@ ALTER TABLE Projects ADD ExtraLuxuries integer DEFAULT 0;
 ALTER TABLE Projects ADD CityAutomatonWorkersChange integer DEFAULT 0;
 
 ALTER TABLE Projects ADD ShowInTechTree boolean DEFAULT 1;
+
+-- Changes the number of air units that can be stationed in the city
+ALTER TABLE Projects ADD MaxAirUnitsChange integer DEFAULT 0;
