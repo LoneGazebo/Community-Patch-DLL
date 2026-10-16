@@ -3959,6 +3959,12 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	// needed for Rome's UA
 	bool bOriginalMinorCapital = GET_PLAYER(eOriginalOwner).isMinorCiv() && pCity->IsOriginalCapitalForPlayer(eOriginalOwner);
 
+	// From here until the new city is complete, the plot's city is inconsistent:
+	// population 0, then deleted, then rebuilt. Lua hooks release the game core
+	// lock and let UI scripts read it (crash in CvCity::GetStaticYield), so
+	// they are queued and run just before CityCaptureComplete.
+	LuaSupport::DeferredHookScope kDeferHooks;
+
 	// Prepare the city to be destroyed
 	pCity->PreKill();
 	CvInterfacePtr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
@@ -4321,6 +4327,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 	}
 
 	// Update events
+	kDeferHooks.Flush();
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem)
 	{
