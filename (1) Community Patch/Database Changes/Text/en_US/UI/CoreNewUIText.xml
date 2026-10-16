@@ -631,7 +631,7 @@
 			<Text>{TXT_KEY_PRODUCTION_UNIT_ONE_SHOT_TOURISM &lt;&lt; {1_Tourism}}, and {2_Percent}% of that towards other Players</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_CONCERT_TOUR">
-			<Text>{TXT_KEY_MISSION_ONE_SHOT_TOURISM}: +{1_NumTurn} {1: plural 1?Turn; other?Turns;} of +100% [ICON_TOURISM] Tourism towards Target Player, +50% towards other Players</Text>
+			<Text>{TXT_KEY_MISSION_ONE_SHOT_TOURISM}: +{1_NumTurn} {1: plural 1?Turn; other?Turns;} of +50% [ICON_TOURISM] Tourism towards Target Player, +25% towards other Players</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_GOLD">
 			<Text>{1_Num} [ICON_GOLD] Gold</Text>
@@ -2589,10 +2589,10 @@
 			<Text>{1: number "'+'##;'-'##"}% from their Buildings[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
-			<Text>+100% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
+			<Text>+50% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
-			<Text>+50% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
+			<Text>+25% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_EXOTIC_THEY">
 			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Exotic[ENDCOLOR]</Text>
