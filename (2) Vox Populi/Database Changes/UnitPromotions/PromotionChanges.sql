@@ -1065,7 +1065,7 @@ VALUES
 UPDATE UnitPromotions SET OpenAttack = 20, OpenDefense = 20 WHERE Type = 'PROMOTION_SHOCK_CAVALRY';
 
 -- Grenzer: Frontiersman
-UPDATE UnitPromotions SET BorderMod = 40 WHERE Type = 'PROMOTION_FRONTIERSMAN';
+UPDATE UnitPromotions SET BorderMod = 60 WHERE Type = 'PROMOTION_FRONTIERSMAN';
 
 -- Otomi: Brute Strength
 UPDATE UnitPromotions SET BarbarianCombatBonus = 40 WHERE Type = 'PROMOTION_BRUTE_STRENGTH';
