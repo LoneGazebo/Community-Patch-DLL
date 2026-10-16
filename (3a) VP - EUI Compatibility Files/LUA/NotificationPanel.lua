@@ -1846,6 +1846,64 @@ OnOptionsChanged()
 OnSetActivePlayer()
 Events.GameOptionsChanged.Add( OnOptionsChanged )
 Events.GameplaySetActivePlayer.Add( OnSetActivePlayer )
+
+-- Observer/autoplay notification aging
+-- Use saved creation turns: rebroadcasting/loading a notification must not renew it.
+do
+	-- Define OBSERVER_NOTIFICATION_LIFETIME_TURNS; 0 disables automatic dismissal.
+	local lifetime = tonumber(GameDefines.OBSERVER_NOTIFICATION_LIFETIME_TURNS) or 0
+	lifetime = math.max(0, math.min(10000, math.floor(lifetime)))
+	local lastTurn, lastPlayer, sweeping
+	local function ObserverMode(player)
+		return player and ((player.IsObserver and player:IsObserver()) or
+			(Game.GetAIAutoPlay and Game.GetAIAutoPlay() > 0))
+	end
+	local function Sweep(player, owner, turn)
+		-- Snapshot lookup IDs before removal events mutate the displayed bundles.
+		local expired = {}
+		for index = 0, player:GetNumNotifications() - 1 do
+			local id = player:GetNotificationIndex(index)
+			local created = player:GetNotificationTurn(index)
+			if g_ActiveNotifications[id] ~= nil and not player:GetNotificationDismissed(index)
+				and created >= 0 and turn - created >= lifetime then
+				expired[#expired + 1] = id
+			end
+		end
+		for _, id in ipairs(expired) do
+			-- Do not dismiss another player's messages after a nested view change.
+			if Game.GetActivePlayer() ~= owner or not ObserverMode(player) then break end
+			if g_ActiveNotifications[id] ~= nil then
+				-- Same path as right-click; native mandatory-choice restrictions still apply.
+				UI.RemoveNotification(id)
+			end
+		end
+	end
+	local function ExpireObserverNotifications(force)
+		local owner = Game.GetActivePlayer()
+		local player = Players[owner]
+		if lifetime == 0 or not ObserverMode(player) then
+			lastTurn, lastPlayer = nil, nil
+			return
+		end
+		local turn = Game.GetGameTurn()
+		if sweeping or (not force and lastTurn == turn and lastPlayer == owner) then return end
+		lastTurn, lastPlayer = turn, owner
+		sweeping = true
+		-- An error must not leave the flag set, or aging would stop for the rest of the session.
+		local ok, err = pcall(Sweep, player, owner, turn)
+		sweeping = false
+		if not ok then
+			print("Observer notification aging failed: " .. tostring(err))
+		end
+	end
+	Events.SerialEventGameDataDirty.Add(function() ExpireObserverNotifications(false) end)
+	Events.AIProcessingStartedForPlayer.Add(function() ExpireObserverNotifications(false) end)
+	Events.ActivePlayerTurnStart.Add(function() ExpireObserverNotifications(false) end)
+	Events.GameplaySetActivePlayer.Add(function() ExpireObserverNotifications(true) end)
+	Events.NotificationAdded.Add(function() ExpireObserverNotifications(true) end)
+	ExpireObserverNotifications(true)
+end
+
 LuaEvents.ChatShow.Add( OnChatToggle )
 Events.SerialEventGameDataDirty.Add( UpdateCivList )
 Events.SerialEventScoreDirty.Add( UpdateCivList )
