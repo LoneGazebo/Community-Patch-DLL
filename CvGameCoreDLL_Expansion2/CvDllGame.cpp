@@ -17,6 +17,7 @@
 #include "CvDllCity.h"
 
 #include "CvGameTextMgr.h"
+#include "Exe/CvExe.h"
 
 CvDllGame::CvDllGame(CvGame* pGame)
 	: m_uiRefCount(1)
@@ -143,9 +144,6 @@ void CvDllGame::CycleUnits(bool bClear, bool bForward, bool bWorkers)
 void CvDllGame::DoGameStarted()
 {
 	m_pGame->DoGameStarted();
-
-	if (MOD_BIN_HOOKS)
-		InitExeStuff();
 }
 //------------------------------------------------------------------------------
 void CvDllGame::EndTurnTimerReset()
@@ -494,6 +492,7 @@ void CvDllGame::UnitIsMoving()
 //------------------------------------------------------------------------------
 void CvDllGame::Update()
 {
+	Exe::AnnounceTunerAfterLoad();
 	m_pGame->update();
 }
 //------------------------------------------------------------------------------
@@ -510,6 +509,7 @@ void CvDllGame::UpdateTestEndTurn()
 void CvDllGame::Read(FDataStream& kStream)
 {
 	m_pGame->Read(kStream);
+	Exe::OnGameLoaded();
 }
 //------------------------------------------------------------------------------
 void CvDllGame::Write(FDataStream& kStream) const
@@ -584,119 +584,4 @@ bool CvDllGame::GetGreatWorkAudio(int GreatWorkIndex, char* strSound, int length
 void CvDllGame::SetLastTurnAICivsProcessed()
 {
 	m_pGame->SetLastTurnAICivsProcessed();
-}
-//------------------------------------------------------------------------------
-bool endsWith(const char* str, const char* ending)
-{
-	size_t str_len = strlen(str);
-	size_t ending_len = strlen(ending);
-	return str_len >= ending_len && !strcmp(str + str_len - ending_len, ending);
-}
-void CvDllGame::InitExeStuff()
-{
-	// Runtime interoperability layer for multiplayer synchronization features
-	// 
-	// This function establishes communication with the host application to enable
-	// enhanced multiplayer functionality through standard Windows API calls.
-	// Implementation varies by binary variant to ensure compatibility across
-	// different game configurations and platforms.
-	//
-	// The system provides access to internal game state variables that are
-	// necessary for advanced multiplayer coordination features, particularly
-	// for host-controlled synchronization operations.
-	//
-	// todo: support additional binary variants (dx9, tablet)
-	// todo: enhanced error handling and logging
-	// todo: optimize memory usage patterns
-	CvBinType binType;
-
-	char moduleName[1024];
-	if (!GetModuleFileName(NULL, moduleName, sizeof(moduleName)))
-	{
-		// todo: log error (GetLastError)
-		binType = BIN_UNKNOWN;
-	}
-	else if (endsWith(moduleName, "CivilizationV.exe"))
-		binType = BIN_DX9;
-	else if (endsWith(moduleName, "CivilizationV_DX11.exe"))
-		binType = BIN_DX11;
-	else if (endsWith(moduleName, "CivilizationV_Tablet.exe"))
-		binType = BIN_TABLET;
-	else
-	{
-		// todo: log moduleName
-		binType = BIN_UNKNOWN;
-	}
-
-	m_pGame->SetExeBinType(binType);
-
-#ifdef WIN32
-	if (binType == BIN_DX11 || binType == BIN_DX9 || binType == BIN_TABLET)
-	{
-		// The hardcoded addresses below are from the EXE's preferred image base
-		// (0x400000). The EXE can be rebased anywhere - including BELOW the
-		// preferred base (observed at 0x000E0000) - so convert to an RVA first
-		// and add it to the actual base. This avoids the transient wraparound
-		// of computing (baseAddr - 0x400000) when baseAddr < 0x400000.
-		DWORD baseAddr = (DWORD) GetModuleHandleA(NULL);
-		DWORD headersOffset = 0x400000;
-
-		// The force-resync flag - a byte flag polled and cleared by the RNG sync
-		// check handler, which broadcasts the force-resync network message.
-		// Verified per binary variant by its distinctive usage pattern:
-		// set at 4 network message-handler sites plus the force-resync queue
-		// function, cleared in the net-reset function, poll-and-clear at the
-		// sync check. The three bytes above the flag are unused (next variable
-		// is at +4), so writing through int* is safe.
-		// NOTE: the flag + 0x10 is the sibling IsResyncing state flag
-		// (tiny setter / getter / one clear) - do not confuse them.
-		DWORD wantForceResyncAddr = 0;
-		if (binType == BIN_DX11)
-		{
-			wantForceResyncAddr = 0x02dd2f68;
-		}
-		else if (binType == BIN_DX9)
-		{
-			wantForceResyncAddr = 0x02dc2d68;
-		}
-		else if (binType == BIN_TABLET)
-		{
-			wantForceResyncAddr = 0x02dd4f50;
-		}
-
-		if (wantForceResyncAddr != 0)
-		{
-			DWORD wantForceResyncRVA = wantForceResyncAddr - headersOffset;
-			int* s_wantForceResync = reinterpret_cast<int*>(baseAddr + wantForceResyncRVA);
-			m_pGame->SetExeWantForceResyncPointer(s_wantForceResync);
-		}
-	}
-#endif
-
-	/*{
-	    // the very basic example of how to fill something with NOPs
-		DWORD old_protect;
-		DWORD hookLocation = 0x51e031;
-		DWORD hookResultAddress = hookLocation + totalOffset;
-		if (VirtualProtect((void*)(hookResultAddress), 16, PAGE_EXECUTE_READWRITE, &old_protect))
-		{
-			*(unsigned char*)(hookResultAddress) = 0x90;
-			*(unsigned char*)(hookResultAddress + 1) = 0x90;
-			*(unsigned char*)(hookResultAddress + 2) = 0x90;
-			*(unsigned char*)(hookResultAddress + 3) = 0x90;
-			*(unsigned char*)(hookResultAddress + 4) = 0x90;
-			*(unsigned char*)(hookResultAddress + 5) = 0x90;
-			*(unsigned char*)(hookResultAddress + 6) = 0x90;
-			*(unsigned char*)(hookResultAddress + 7) = 0x90;
-			*(unsigned char*)(hookResultAddress + 8) = 0x90;
-			*(unsigned char*)(hookResultAddress + 9) = 0x90;
-			*(unsigned char*)(hookResultAddress + 10) = 0x90;
-			*(unsigned char*)(hookResultAddress + 11) = 0x90;
-			*(unsigned char*)(hookResultAddress + 12) = 0x90;
-			*(unsigned char*)(hookResultAddress + 13) = 0x90;
-			*(unsigned char*)(hookResultAddress + 14) = 0x90;
-			*(unsigned char*)(hookResultAddress + 15) = 0x90;
-			VirtualProtect((void*)(hookResultAddress), 16, old_protect, &old_protect);
-		}
-	}*/
 }
