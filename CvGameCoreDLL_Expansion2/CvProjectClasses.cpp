@@ -85,6 +85,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
 	m_iCityAutomatonWorkersChange = kResults.GetInt("CityAutomatonWorkersChange");
 	m_iExtraLuxuries = kResults.GetInt("ExtraLuxuries");
+	m_iMaxAirUnitsChange = kResults.GetInt("MaxAirUnitsChange");
 	
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
@@ -390,6 +391,10 @@ int CvProjectEntry::GetCitySupplyFlat() const
 int CvProjectEntry::GetExtraLuxuries() const
 {
 	return m_iExtraLuxuries;
+}
+int CvProjectEntry::GetMaxAirUnitsChange() const
+{
+	return m_iMaxAirUnitsChange;
 }
 
 EventTypes CvProjectEntry::GetEventToStart() const
