@@ -177,6 +177,7 @@ public:
 	int GetCaptureDefeatedEnemyChance() const;
 	int GetBarbarianCombatBonus() const;
 	int GetGoodyHutYieldBonus() const;
+	bool IsGlobalUpgrade() const;
 	bool IsGainsXPFromScouting() const;
 	int GetXPFromPillaging() const;
 	int GetExtraXPOnKill() const;
@@ -497,6 +498,7 @@ protected:
 	int m_iCaptureDefeatedEnemyChance;
 	int m_iBarbarianCombatBonus;
 	int m_iGoodyHutYieldBonus;
+	bool m_bGlobalUpgrade;
 	int m_iDiploMissionInfluence;
 	bool m_bGainsXPFromScouting;
 	int m_iXPFromPillaging;
