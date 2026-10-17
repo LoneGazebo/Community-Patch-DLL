@@ -1786,6 +1786,9 @@ public:
 	int getUpgradeDiscount() const;
 	void changeUpgradeDiscount(int iChange);
 
+	bool isGlobalUpgrade() const;
+	void setGlobalUpgrade(bool bNewValue);
+
 	int getExperiencePercent() const;
 	void changeExperiencePercent(int iChange);
 
