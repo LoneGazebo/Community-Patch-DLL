@@ -641,6 +641,14 @@
 			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_VAKA_NUI</Type>
+			<Scale>0.09</Scale>
+			<Domain>Sea</Domain>
+			<Model>U_Polynesian_War_Canoe.fxsxml</Model>
+			<MaterialTypeTag>WOOD</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_LONGSHIP</Type>
 			<Scale>0.08</Scale>
 			<Domain>Sea</Domain>
