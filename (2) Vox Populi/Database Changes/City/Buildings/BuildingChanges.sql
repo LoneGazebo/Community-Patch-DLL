@@ -860,15 +860,12 @@ WHERE Type = 'BUILDING_WALLS';
 UPDATE Buildings
 SET
 	CityRangedStrikeRange = 1,
-	CitySupplyModifier = 5,
 	EmpireSizeModifierReduction = -5
 WHERE BuildingClass = 'BUILDINGCLASS_WALLS';
 
 -- Castle
 UPDATE Buildings
-SET
-	CitySupplyModifier = 5,
-	EmpireSizeModifierReduction = -5
+SET EmpireSizeModifierReduction = -5
 WHERE BuildingClass = 'BUILDINGCLASS_CASTLE';
 
 INSERT INTO Helper
@@ -893,7 +890,6 @@ UPDATE Buildings
 SET
 	PrereqTech = 'TECH_COMBUSTION',
 	CityRangedStrikeRange = 1,
-	CitySupplyModifier = 5,
 	HealRateChange = 5,
 	EmpireSizeModifierReduction = -5
 WHERE BuildingClass = 'BUILDINGCLASS_ARSENAL';
@@ -902,7 +898,6 @@ WHERE BuildingClass = 'BUILDINGCLASS_ARSENAL';
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_RADAR',
-	CitySupplyModifier = 5,
 	HealRateChange = 20,
 	DistressFlatReduction = 1,
 	EmpireSizeModifierReduction = -5,
@@ -1024,7 +1019,9 @@ WHERE BuildingClass = 'BUILDINGCLASS_SPACESHIP_FACTORY';
 
 -- Lighthouse
 UPDATE Buildings
-SET AllowsWaterRoutes = 1
+SET 
+	AllowsWaterRoutes = 1,
+	CitySupplyFlat = 1
 WHERE BuildingClass = 'BUILDINGCLASS_LIGHTHOUSE';
 
 -- Already has +1 food from vanilla
@@ -1076,7 +1073,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_HARBOR';
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_STEAM_POWER',
-	CitySupplyModifier = 10,
+	CitySupplyFlat = 1,
 	AllowsIndustrialWaterRoutes = 1
 WHERE BuildingClass = 'BUILDINGCLASS_SEAPORT';
 
@@ -2165,7 +2162,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 
 -- Heroic Epic
 UPDATE Buildings
-SET CitySupplyModifier = 10
+SET 	CitySupplyFlat = 3
 WHERE BuildingClass = 'BUILDINGCLASS_HEROIC_EPIC';
 
 INSERT INTO Building_YieldChanges

@@ -121,7 +121,7 @@ VALUES
 UPDATE Buildings
 SET
 	RangedStrikeModifier = 10,
-	CitySupplyModifier = (SELECT CitySupplyModifier FROM Buildings WHERE Type = 'BUILDING_WALLS') + 5
+	CitySupplyFlat = 1
 WHERE Type = 'BUILDING_LAMASSU_GATE';
 
 INSERT INTO Building_YieldChanges
