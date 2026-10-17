@@ -473,6 +473,11 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 			for (size_t i = 0; i < g_svPathLog.size(); i++)
 				pLog->Msg(CvString::format("%d,%d,%d,%d,%d,%d,%d,%d\n", g_svPathLog[i].round, g_svPathLog[i].type, g_svPathLog[i].x, g_svPathLog[i].y,
 					g_svPathLog[i].kc, g_svPathLog[i].hc, g_svPathLog[i].t, g_svPathLog[i].m).c_str());
+
+			pLog->Close();
+			//the run id is part of the filename, so this log is never requested again.
+			//without this the manager keeps it - and its grown write buffer - until shutdown.
+			LOGFILEMGR.DeleteLog( pLog );
 		}
 	}
 #endif
