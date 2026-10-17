@@ -14127,6 +14127,16 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		}
 	}
 
+	// Civilization Requirement
+	CivilizationTypes eCiv = (CivilizationTypes)pUnitInfo.GetCivType();
+	if (eCiv != NO_CIVILIZATION)
+	{
+		if (getCivilizationType() != eCiv)
+		{
+			return false;
+		}
+	}
+
 	if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 	{
 		if (pUnitInfo.IsFoundReligion() || pUnitInfo.IsSpreadReligion() || pUnitInfo.IsRemoveHeresy())
