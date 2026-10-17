@@ -34,7 +34,7 @@
 				<AlphaAnim Anchor="C,C" Pause="0" Cycle="Bounce" Speed=".5" AlphaStart="1" AlphaEnd=".3">
 					<TextureBar ID="ProgressBar" Anchor="C,C" Size="277.36" Texture="Assets/UI/Art/Civilopedia/LoadingMeterHL.dds" Direction="Right" Hidden="0"/>
 				</AlphaAnim>
-				<Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_GAME_LOADING" Color0="255.255.200.255" Color1="5.10.10.255" Color2="5.10.10.255" Font="TwCenMT20" FontStyle="SoftShadow"/>
+				<Label ID="LoadingLabel" Anchor="C,C" Offset="0,-1" String="TXT_KEY_GAME_LOADING" Color0="255.255.200.255" Color1="5.10.10.255" Color2="5.10.10.255" Font="TwCenMT20" FontStyle="SoftShadow"/>
 				<GridButton ID="ActivateButton" Style="SmallButton2" Anchor="C,C" Size="300,32" Hidden="1">
 					<Label ID="ActivateButtonText" Anchor="C,C" String="TXT_KEY_BEGIN_GAME_BUTTON" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</GridButton>

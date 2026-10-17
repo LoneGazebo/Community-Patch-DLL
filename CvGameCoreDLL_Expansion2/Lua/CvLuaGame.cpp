@@ -191,6 +191,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(IsFinalInitialized);
 
 	Method(GetActivePlayer);
+	Method(ContinueDeferredLayout);
+	Method(GetDeferredLayoutProgress);
 	Method(SetActivePlayer);
 	Method(GetObserverUIOverridePlayer);
 	Method(SetObserverUIOverridePlayer);
@@ -512,9 +514,6 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(IsPitbossHost);
 	Method(IsHost);
 	Method(GetTimeStringForYear);
-
-	Method(SetExeWantForceResyncValue);
-	Method(IsExeWantForceResyncAvailable);
 
 	Method(GetNumYieldTypes);
 	Method(GetBaseUnitUpgradeCost);
@@ -1344,6 +1343,24 @@ int CvLuaGame::lIsSimultaneousTeamTurns(lua_State* L)
 int CvLuaGame::lIsFinalInitialized(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::isFinalInitialized);
+}
+//------------------------------------------------------------------------------
+//bool ContinueDeferredLayout();
+int CvLuaGame::lContinueDeferredLayout(lua_State* L)
+{
+	lua_pushboolean(L, ContinueDeferredLayout());
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int, int GetDeferredLayoutProgress();
+int CvLuaGame::lGetDeferredLayoutProgress(lua_State* L)
+{
+	int iDone = 0;
+	int iTotal = 0;
+	GetDeferredLayoutProgress(iDone, iTotal);
+	lua_pushinteger(L, iDone);
+	lua_pushinteger(L, iTotal);
+	return 2;
 }
 //------------------------------------------------------------------------------
 //PlayerTypes getActivePlayer();
@@ -4225,16 +4242,6 @@ int CvLuaGame::lGetTimeStringForYear(lua_State* L)
 
 	lua_pushstring(L, timeString.GetCString());
 	return 1;
-}
-int CvLuaGame::lSetExeWantForceResyncValue(lua_State* L)
-{
-	int value = lua_tointeger(L, 1);
-	GC.getGame().SetExeWantForceResyncValue(value);
-	return 0;
-}
-int CvLuaGame::lIsExeWantForceResyncAvailable(lua_State* L) 
-{
-	return BasicLuaMethod(L, &CvGame::IsExeWantForceResyncAvailable);
 }
 
 int CvLuaGame::lGetNumYieldTypes(lua_State* L) 

@@ -96,6 +96,11 @@ void CvDllMap::UpdateSymbolVisibility()
 //------------------------------------------------------------------------------
 void CvDllMap::UpdateLayout(bool bDebug)
 {
+	if (IsMapLayoutHeld(bDebug))
+	{
+		return;
+	}
+
 	m_pMap->updateLayout(bDebug);
 }
 //------------------------------------------------------------------------------

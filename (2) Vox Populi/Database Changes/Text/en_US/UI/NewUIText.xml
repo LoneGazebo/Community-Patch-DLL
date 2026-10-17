@@ -3128,5 +3128,9 @@
 		<Row Tag="TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_CORPORATION_HELP">
 			<Text>Can't plunder trade routes protected by the trade route owner's corporation.</Text>
 		</Row>
+		<!-- Load screen, while deferred map graphics are laid out -->
+		<Row Tag="TXT_KEY_VP_LOADSCREEN_PREPARING_MAP">
+			<Text>Preparing map: {1_Percent}%</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
