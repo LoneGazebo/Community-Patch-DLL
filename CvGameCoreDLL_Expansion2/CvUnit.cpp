@@ -14222,6 +14222,9 @@ bool CvUnit::CanUpgradeInTerritory(bool bOnlyTestVisible) const
 	// Show the upgrade, but don't actually allow it
 	if (!bOnlyTestVisible)
 	{
+		if (isGlobalUpgrade())
+			return true;
+		
 		CvPlot* pPlot = plot();
 		const PlayerTypes ePlotOwner = pPlot->getOwner();
 		if (ePlotOwner == NO_PLAYER)
