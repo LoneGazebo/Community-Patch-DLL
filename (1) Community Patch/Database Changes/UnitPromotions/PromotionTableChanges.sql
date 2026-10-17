@@ -177,10 +177,11 @@ ALTER TABLE UnitPromotions ADD NoSupply boolean DEFAULT 0;
 -- Promotion grants a unit with XP if stacked with a Great General (or great admiral if a boat)
 ALTER TABLE UnitPromotions ADD StackedGreatGeneralXP integer DEFAULT 0;
 
--- Promotions
+-- Promotions for scouting
 ALTER TABLE UnitPromotions ADD GoodyHutYieldBonus integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD GainsXPFromScouting boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD GainsXPFromSpotting boolean DEFAULT 0;
+ALTER TABLE UnitPromotions ADD GlobalUpgrade boolean DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD MultiAttackBonus integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD DamageReductionCityAssault integer DEFAULT 0;

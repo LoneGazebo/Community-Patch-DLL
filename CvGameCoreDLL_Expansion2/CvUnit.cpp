@@ -266,6 +266,7 @@ CvUnit::CvUnit() :
 	, m_iExtraRoughFromPercent()
 	, m_iPillageChange()
 	, m_iUpgradeDiscount()
+	, m_bGlobalUpgrade()
 	, m_iExperiencePercent()
 	, m_iDropRange()
 	, m_iAirSweepCapableCount()
@@ -1408,6 +1409,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraRoughFromPercent = 0;
 	m_iPillageChange = 0;
 	m_iUpgradeDiscount = 0;
+	m_bGlobalUpgrade = false;
 	m_iExperiencePercent = 0;
 	m_iDropRange = 0;
 	m_iAirSweepCapableCount = 0;
@@ -14222,6 +14224,9 @@ bool CvUnit::CanUpgradeInTerritory(bool bOnlyTestVisible) const
 	// Show the upgrade, but don't actually allow it
 	if (!bOnlyTestVisible)
 	{
+		if (isGlobalUpgrade())
+			return true;
+		
 		CvPlot* pPlot = plot();
 		const PlayerTypes ePlotOwner = pPlot->getOwner();
 		if (ePlotOwner == NO_PLAYER)
@@ -25300,6 +25305,20 @@ void CvUnit::changeUpgradeDiscount(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+bool CvUnit::isGlobalUpgrade() const
+{
+	VALIDATE_OBJECT();
+	return m_bGlobalUpgrade;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::setGlobalUpgrade(bool bNewValue)
+{
+	VALIDATE_OBJECT();
+	m_bGlobalUpgrade = bNewValue;
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getExperiencePercent() const
 {
 	VALIDATE_OBJECT();
@@ -28255,6 +28274,7 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	changeCombatStrengthModifierPerMarriage(thisPromotion.GetMarriageMod() * iChange);
 	changeCombatStrengthModifierPerMarriageCap(thisPromotion.GetMarriageModCap() * iChange);
 	changeUpgradeDiscount(thisPromotion.GetUpgradeDiscount() * iChange);
+	setGlobalUpgrade(thisPromotion.IsGlobalUpgrade() ? iChange : 0);
 	changeExperiencePercent(thisPromotion.GetExperiencePercent() * iChange);
 	changeCargoSpace(thisPromotion.GetCargoChange() * iChange);
 
@@ -28750,6 +28770,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iExtraRoughFromPercent);
 	visitor(unit.m_iPillageChange);
 	visitor(unit.m_iUpgradeDiscount);
+	visitor(unit.m_bGlobalUpgrade);
 	visitor(unit.m_iExperiencePercent);
 	visitor(unit.m_iDropRange);
 	visitor(unit.m_iAirSweepCapableCount);
