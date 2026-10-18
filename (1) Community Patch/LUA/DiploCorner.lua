@@ -512,13 +512,16 @@ if( Game.IsGameMultiPlayer() ) then
 end
 
 function OnForceResyncButton()
-	Game.SetExeWantForceResyncValue(1);
+	local bOk, sReason = Exe.TryScheduleResync();
+	if not bOk then
+		print("Force resync refused: " .. tostring(sReason));
+	end
 	Controls.ForceResyncButton:SetDisabled(true);
 end
 Controls.ForceResyncButton:RegisterCallback(Mouse.eLClick, OnForceResyncButton);
 
 function UpdateForceResyncButton()
-	local bShowForceResync = Game.IsExeWantForceResyncAvailable();
+	local bShowForceResync = Exe.CanScheduleResync();
 	Controls.ForceResyncButton:SetHide( not bShowForceResync );
 	Controls.ForceResyncButton:SetDisabled(false);
 end
