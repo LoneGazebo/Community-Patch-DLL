@@ -21,7 +21,7 @@
 	<!-- Instant yields to the origin city of the unit when this promotion is acquired -->
 	<Table name="UnitPromotions_InstantYields">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
