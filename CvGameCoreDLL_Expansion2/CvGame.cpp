@@ -14503,38 +14503,6 @@ TeamTypes CvGame::GetCurrentVisibilityTeam() const
 	return m_eCurrentVisibilityTeam;
 }
 
-//	--------------------------------------------------------------------------------
-// exe things
-
-void CvGame::SetExeBinType(CvBinType eBinType)
-{
-	m_eExeBinType = eBinType;
-}
-CvBinType CvGame::GetExeBinType() const
-{
-	return m_eExeBinType;
-}
-bool CvGame::IsExeWantForceResyncAvailable() 
-{
-	return MOD_BIN_HOOKS && (m_eExeBinType == BIN_DX11 || m_eExeBinType == BIN_DX9 || m_eExeBinType == BIN_TABLET) && isNetworkMultiPlayer() && gDLL->IsHost();
-}
-void CvGame::SetExeWantForceResyncValue(int value) 
-{
-	if (IsExeWantForceResyncAvailable())
-	{
-		*s_iExeWantForceResync = value;
-		if (value == 1)
-		{
-			CvString strWarningText = GetLocalizedText("TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED");
-			GC.getDLLIFace()->sendChat(strWarningText, CHATTARGET_ALL, NO_PLAYER);
-		}
-	}
-}
-void CvGame::SetExeWantForceResyncPointer(int* pointer)
-{
-	s_iExeWantForceResync = pointer;
-}
-
 // Modpack making functions by Gedemon/cicero225
 bool CvGame::DeleteMPMP()
 {
