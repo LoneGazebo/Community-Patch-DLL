@@ -2812,7 +2812,7 @@
 			<Text>Gandhi's words are backed with NUCLEAR WEAPONS!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_COOP_WAR_AGAINST_TURNS">
-			<Text>We will declare war on them in {1_Num} {1_Num: plural 1?turn; other?turns;}.</Text>
+			<Text>We will declare war on them together with {1_Name} in {2_Num} {2_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_PREVIOUSLY_FRIENDS">
 			<Text>We were previously friends with their civilization.</Text>

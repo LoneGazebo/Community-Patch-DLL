@@ -13911,6 +13911,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 				int iGameTurn = GC.getGame().getGameTurn();
 				int iHighestTurnDifference = 0;
+				CvString strPartners;
 
 				for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)
 				{
@@ -13928,6 +13929,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCoopWarState(eThirdParty, pkPlayer->GetID()) != COOP_WAR_STATE_PREPARING)
 						continue;
 
+					if (!strPartners.empty())
+						strPartners += ", ";
+					strPartners += GET_PLAYER(eThirdParty).getCivilizationShortDescription();
+
 					int iTurnDifference = iGameTurn - GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCoopWarStateChangeTurn(eThirdParty, pkPlayer->GetID());
 					if (iTurnDifference > iHighestTurnDifference)
 					{
@@ -13935,7 +13940,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 					}
 				}
 
-				kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_COOP_WAR_AGAINST_TURNS", /*10*/ GD_INT_GET(COOP_WAR_SOON_COUNTER) - iHighestTurnDifference);
+				kOpinion.m_str = GetLocalizedText("TXT_KEY_DIPLO_COOP_WAR_AGAINST_TURNS", strPartners, /*10*/ GD_INT_GET(COOP_WAR_SOON_COUNTER) - iHighestTurnDifference);
 				aOpinions.push_back(kOpinion);
 			}
 
