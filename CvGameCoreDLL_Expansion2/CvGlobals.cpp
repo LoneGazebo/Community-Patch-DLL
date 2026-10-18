@@ -2135,19 +2135,141 @@ void SetPreconditionFired()
 	g_bPreconditionFired = true;
 }
 
-// Runtime opt-outs via marker files next to the game executable, read ONCE at
-// CvGlobals::init (crash-time file probes are wasted work and the crash handler
-// must stay lean under address space exhaustion). Both default to OFF: with no
-// marker files present, behavior is identical to before.
-//   crashlogs\nodumps.please  - skip minidump creation (and its memory reserve)
-//   crashlogs\nopopups.please - suppress all error dialogs (for autoplay/unattended
-//                               sessions); logging and minidumps are unaffected
+// Runtime opt-outs, read ONCE at CvGlobals::init (crash-time file probes are
+// wasted work and the crash handler must stay lean under address space
+// exhaustion). Both default to OFF: with none of the sources below set,
+// behavior is identical to before. Any one source disables the feature:
+//
+//   minidumps (and their memory reserve):
+//     crashlogs\nodumps.please next to the game executable (per install)
+//     [Vox Populi] CrashMiniDumps = 0 in the user's My Games config.ini (per user)
+//     environment variable VP_CRASH_MINIDUMPS=0 (per process, for CI)
+//   error dialogs (for autoplay/unattended sessions; logging and minidumps
+//   are unaffected):
+//     crashlogs\nopopups.please
+//     [Vox Populi] ErrorPopups = 0
+//     VP_ERROR_POPUPS=0
+//
+// The DLL only READS config.ini. The EXE keeps foreign sections when it saves
+// the file, but rewrites it from its own in-memory copy, so a value written
+// by the DLL at runtime would be lost.
 static bool g_bMiniDumpDisabledByUser = false;
 static bool g_bPopupsDisabledByUser = false;
+// Which source disabled each feature, for crashes.log and the debug output.
+static char g_szMiniDumpOptOutSource[96] = "";
+static char g_szPopupsOptOutSource[96] = "";
+
+static const wchar_t* const OPT_OUT_INI_SECTION = L"Vox Populi";
 
 static bool MarkerFileExists(const char* szPath)
 {
 	return GetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES;
+}
+
+static bool IsAbsoluteWidePath(const wchar_t* wszPath)
+{
+	// "C:\..." or a UNC path "\\server\...". A relative path would make the
+	// profile API look in the Windows directory instead.
+	return (wszPath[0] != L'\0' && wszPath[1] == L':' && (wszPath[2] == L'\\' || wszPath[2] == L'/'))
+		|| (wszPath[0] == L'\\' && wszPath[1] == L'\\');
+}
+
+// Full path of the user's config.ini (My Games\Sid Meier's Civilization 5\config.ini).
+// The EXE resolves My Games through the shell's Documents folder, so this follows
+// per-user profiles and USERPROFILE overrides.
+static bool GetUserConfigIniPath(wchar_t* wszPath, size_t cchPath)
+{
+	// The cache folder is "<My Games>\Sid Meier's Civilization 5\cache\" in UTF-8
+	// (CvGame appends Civ5SavedGameDatabase.db to it directly); config.ini sits in
+	// its parent. The EXE sets the path before it hands gDLL to CvGlobals::init.
+	const char* szCacheFolder = gDLL ? gDLL->GetCacheFolderPath() : NULL;
+	if (szCacheFolder && szCacheFolder[0] != '\0' && MultiByteToWideChar(CP_UTF8, 0, szCacheFolder, -1, wszPath, (int)cchPath) > 0)
+	{
+		size_t iLen = wcslen(wszPath);
+		// Drop the trailing separator, then the "cache" component.
+		while (iLen > 0 && (wszPath[iLen - 1] == L'\\' || wszPath[iLen - 1] == L'/'))
+			iLen--;
+		while (iLen > 0 && wszPath[iLen - 1] != L'\\' && wszPath[iLen - 1] != L'/')
+			iLen--;
+		if (iLen > 0)
+		{
+			wszPath[iLen] = L'\0';
+			if (wcscat_s(wszPath, cchPath, L"config.ini") == 0 && IsAbsoluteWidePath(wszPath) && GetFileAttributesW(wszPath) != INVALID_FILE_ATTRIBUTES)
+				return true;
+		}
+	}
+
+	// Fallback: Documents\My Games\... (where the EXE looks), resolved at runtime so
+	// the DLL needs no shell headers (the EXE has shell32 loaded already).
+	typedef HRESULT (WINAPI *SHGetFolderPathWFn)(HWND, int, HANDLE, DWORD, LPWSTR);
+	const int iCSIDL_PERSONAL = 0x0005;
+	bool bFound = false;
+	HMODULE hShell32 = LoadLibraryA("shell32.dll");
+	if (hShell32)
+	{
+		SHGetFolderPathWFn pfnSHGetFolderPathW = (SHGetFolderPathWFn)GetProcAddress(hShell32, "SHGetFolderPathW");
+		wchar_t wszDocuments[MAX_PATH];
+		bFound = pfnSHGetFolderPathW && SUCCEEDED(pfnSHGetFolderPathW(NULL, iCSIDL_PERSONAL, NULL, 0, wszDocuments))
+			&& _snwprintf_s(wszPath, cchPath, _TRUNCATE, L"%s\\My Games\\Sid Meier's Civilization 5\\config.ini", wszDocuments) > 0
+			&& IsAbsoluteWidePath(wszPath);
+		FreeLibrary(hShell32);
+	}
+
+	if (!bFound)
+		wszPath[0] = L'\0';
+	return bFound;
+}
+
+// Checks one opt-out's three sources in order. On a hit, writes a description
+// of the source to szSource and returns true.
+static bool FindOptOutSource(const char* szMarker, const char* szEnvVar, const char* szIniKey, const wchar_t* wszIniPath, char* szSource, size_t cchSource)
+{
+	if (MarkerFileExists(szMarker))
+	{
+		_snprintf_s(szSource, cchSource, _TRUNCATE, "%s", szMarker);
+		return true;
+	}
+
+	char szEnvValue[16];
+	DWORD dwEnvLen = GetEnvironmentVariableA(szEnvVar, szEnvValue, _countof(szEnvValue));
+	if (dwEnvLen > 0 && dwEnvLen < _countof(szEnvValue) && strcmp(szEnvValue, "0") == 0)
+	{
+		_snprintf_s(szSource, cchSource, _TRUNCATE, "environment %s=0", szEnvVar);
+		return true;
+	}
+
+	if (wszIniPath[0] != L'\0')
+	{
+		wchar_t wszIniKey[64];
+		// Missing file, section or key returns the default (1 = enabled).
+		if (MultiByteToWideChar(CP_ACP, 0, szIniKey, -1, wszIniKey, _countof(wszIniKey)) > 0
+			&& GetPrivateProfileIntW(OPT_OUT_INI_SECTION, wszIniKey, 1, wszIniPath) == 0)
+		{
+			_snprintf_s(szSource, cchSource, _TRUNCATE, "config.ini [Vox Populi] %s = 0", szIniKey);
+			return true;
+		}
+	}
+
+	szSource[0] = '\0';
+	return false;
+}
+
+static void ReadCrashOptOuts()
+{
+	wchar_t wszIniPath[MAX_PATH * 2];
+	GetUserConfigIniPath(wszIniPath, _countof(wszIniPath));
+
+	g_bMiniDumpDisabledByUser = FindOptOutSource("crashlogs\\nodumps.please", "VP_CRASH_MINIDUMPS", "CrashMiniDumps", wszIniPath,
+		g_szMiniDumpOptOutSource, _countof(g_szMiniDumpOptOutSource));
+	g_bPopupsDisabledByUser = FindOptOutSource("crashlogs\\nopopups.please", "VP_ERROR_POPUPS", "ErrorPopups", wszIniPath,
+		g_szPopupsOptOutSource, _countof(g_szPopupsOptOutSource));
+
+	if (g_bPopupsDisabledByUser)
+	{
+		char szMsg[160];
+		_snprintf_s(szMsg, _countof(szMsg), _TRUNCATE, "Error popups disabled by user (%s)\n", g_szPopupsOptOutSource);
+		OutputDebugStringA(szMsg);
+	}
 }
 
 bool IsMiniDumpDisabledByUser()
@@ -2254,7 +2376,7 @@ static bool IsAddressSpaceExhausted()
 
 void CreateMiniDump(EXCEPTION_POINTERS* pep)
 {
-	// Runtime opt-out (crashlogs\nodumps.please, cached at init). The reserve
+	// Runtime opt-out (marker file / config.ini / environment, cached at init). The reserve
 	// and dbghelp preload were already skipped at init in this case.
 	if (g_bMiniDumpDisabledByUser)
 		return;
@@ -2794,7 +2916,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 
 	char szMiniDumpStatus[MAX_PATH + 64];
 	if (g_bMiniDumpDisabledByUser)
-		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Disabled by user (crashlogs\\nodumps.please)");
+		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Disabled by user (%s)", g_szMiniDumpOptOutSource);
 	else if (g_szLastMiniDumpPath[0] != '\0')
 	{
 		if (g_dwLastMiniDumpError != 0)
@@ -3008,7 +3130,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 	_snprintf_s( szMessage, _countof(szMessage), _TRUNCATE, "%s%s%s", szBody, szMemoryTips, szStackExcerpt);
 
 	// No dialog if a PRECONDITION already showed one, or if the user opted out
-	// of popups (crashlogs\nopopups.please) - crashes.log and the minidump were
+	// of popups (see ReadCrashOptOuts) - crashes.log and the minidump were
 	// already written above either way.
 	if (!g_bPreconditionFired && !g_bPopupsDisabledByUser)
 		MessageBoxA(NULL, szMessage, "Game Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
@@ -3025,17 +3147,19 @@ void CvGlobals::init()
 #ifdef WIN32
 	SetUnhandledExceptionFilter(CustomFilter);
 
-	// Read the runtime opt-out markers once; crash-time code only checks the
-	// cached flags. Missing files = default behavior (dumps and popups on).
-	g_bMiniDumpDisabledByUser = MarkerFileExists("crashlogs\\nodumps.please");
-	g_bPopupsDisabledByUser = MarkerFileExists("crashlogs\\nopopups.please");
+	// Read the runtime opt-outs (marker files, environment, config.ini) once;
+	// crash-time code only checks the cached flags. Nothing set = default
+	// behavior (dumps and popups on).
+	ReadCrashOptOuts();
 
 #if defined(MOD_DEBUG_MINIDUMP)
 	if (g_bMiniDumpDisabledByUser)
 	{
 		// No dump will be attempted, so don't hold the emergency reserve or
 		// pre-load dbghelp - give the address space back to the game.
-		OutputDebugString(_T("MiniDump creation disabled by user (crashlogs\\nodumps.please)\n"));
+		char szMsg[160];
+		_snprintf_s(szMsg, _countof(szMsg), _TRUNCATE, "MiniDump creation disabled by user (%s)\n", g_szMiniDumpOptOutSource);
+		OutputDebugStringA(szMsg);
 	}
 	else
 	{

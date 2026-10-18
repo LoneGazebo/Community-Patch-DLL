@@ -216,7 +216,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 	// Update statistics
 	g_AssertTracker.UpdateStats(assertKey);
 
-	// Runtime popup opt-out (crashlogs\nopopups.please): the assert is logged
+	// Runtime popup opt-out (see ReadCrashOptOuts): the assert is logged
 	// above; auto-ignore it so unattended sessions keep running.
 	if (AreErrorPopupsSuppressed())
 	{
@@ -347,7 +347,7 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 		return;
 	}
 
-	// Runtime popup opt-out (crashlogs\nopopups.please): the failure is in
+	// Runtime popup opt-out (see ReadCrashOptOuts): the failure is in
 	// CvAssert.log and the crash handler will still write crashes.log + dump.
 	if (AreErrorPopupsSuppressed())
 		return;

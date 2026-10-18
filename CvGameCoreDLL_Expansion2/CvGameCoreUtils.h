@@ -30,7 +30,10 @@ void SetPreconditionFired();
 
 #ifdef WIN32
 // Runtime opt-outs via marker files (crashlogs\nodumps.please and
-// crashlogs\nopopups.please), read once at CvGlobals::init. Defaults: OFF.
+// crashlogs\nopopups.please), the user's config.ini ([Vox Populi]
+// CrashMiniDumps = 0 / ErrorPopups = 0) or the environment
+// (VP_CRASH_MINIDUMPS=0 / VP_ERROR_POPUPS=0), read once at CvGlobals::init.
+// Defaults: OFF.
 bool IsMiniDumpDisabledByUser();
 bool AreErrorPopupsSuppressed();
 #endif

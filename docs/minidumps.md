@@ -287,6 +287,18 @@ The marker is read once at game start. While present, no dumps are written, the 
 
 There is also `crashlogs\nopopups.please`, which suppresses all error dialogs (asserts are auto-ignored, crash and precondition popups are skipped) for unattended or autoplay sessions. Logging (`CvAssert.log`, `crashes.log`) and minidump creation are unaffected by this marker.
 
+The marker files apply to one installation. To opt out per user instead, add a section to your `config.ini` in `Documents\My Games\Sid Meier's Civilization 5\`:
+
+```ini
+[Vox Populi]
+; Set to 0 to skip minidump creation on crashes
+CrashMiniDumps = 0
+; Set to 0 to suppress error dialogs (asserts, crash and precondition popups)
+ErrorPopups = 0
+```
+
+Both keys default to 1. The game keeps this section when it saves `config.ini`. The DLL only reads the file, so edit it while the game is closed. For scripted runs, the environment variables `VP_CRASH_MINIDUMPS=0` and `VP_ERROR_POPUPS=0` do the same. Any one source (marker file, `config.ini` key or environment variable) disables the feature, and `crashes.log` names the source, e.g. `Minidump: Disabled by user (config.ini [Vox Populi] CrashMiniDumps = 0)`.
+
 **At build time (developers):**
 
 Define `DISABLE_MINIDUMP` in the project's preprocessor definitions (mirrors `DISABLE_CVASSERT`) and rebuild the DLL. This compiles out the minidump machinery entirely; `crashes.log` is still written on crashes and reports `DLL was built without minidump support!`.
