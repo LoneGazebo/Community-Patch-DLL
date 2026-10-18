@@ -2282,6 +2282,17 @@ bool AreErrorPopupsSuppressed()
 	return g_bPopupsDisabledByUser;
 }
 
+// Folder for all crash output - crashes.log, CvMiniDump_*.dmp and CvAssert.log -
+// so that zipping this one folder gives a complete report. Relative, so it
+// resolves against the game's working directory (the installation directory)
+// like before, whatever characters the installation path contains.
+static char g_szCrashLogDir[MAX_PATH] = "crashlogs";
+
+const char* GetCrashLogDir()
+{
+	return g_szCrashLogDir;
+}
+
 // MessageBox constants (not included in minimal Windows headers)
 #ifndef MB_OK
 #define MB_OK           0x00000000L
@@ -2453,7 +2464,8 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 
 	// Generate dump filename with version, commit hash and build type
 	TCHAR szDumpFilename[MAX_PATH];
-	_stprintf_s(szDumpFilename, MAX_PATH, _T("crashlogs\\CvMiniDump_%s_%hs_%s.dmp"),
+	_stprintf_s(szDumpFilename, MAX_PATH, _T("%hs\\CvMiniDump_%s_%hs_%s.dmp"),
+		g_szCrashLogDir,
 		szTimestamp,
 		shortVersion,
 #ifdef VPDEBUG
@@ -2805,7 +2817,7 @@ static int AppendStackScan(char* szOut, size_t cchOut, const CONTEXT* pCtx, int 
 
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
-	CreateDirectory(_T("crashlogs"),NULL);
+	CreateDirectoryA(g_szCrashLogDir, NULL);
 
 	DWORD exceptionCode = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionCode : 0;
 	void* exceptionAddress = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionAddress : NULL;
@@ -3049,7 +3061,9 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		szExeName
 	);
 
-	HANDLE hCrashlogs = CreateFile(_T("crashlogs\\crashes.log"), FILE_APPEND_DATA, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	char szCrashesLogPath[MAX_PATH];
+	_snprintf_s(szCrashesLogPath, _countof(szCrashesLogPath), _TRUNCATE, "%s\\crashes.log", g_szCrashLogDir);
+	HANDLE hCrashlogs = CreateFileA(szCrashesLogPath, FILE_APPEND_DATA, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if( hCrashlogs != INVALID_HANDLE_VALUE )
 	{
 		WriteFile(hCrashlogs, szCrashInfo, strlen(szCrashInfo), NULL, NULL);
@@ -3093,8 +3107,8 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		szBaseMsg = ""
 			"The game has crashed due to a code error in the gamecore dll. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n"
 			"\n"
-			"Please provide the VP version number, the list of other mods in use, the minidump if one one was created, crashes.log, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
-			"Minidumps and crashes.log are located in the folder 'crashlogs' in the civ5 installation directory\n"
+			"Please provide the VP version number, the list of other mods in use, the minidump if one was created, crashes.log, CvAssert.log if present, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
+			"Minidumps, crashes.log and CvAssert.log are located in %s\n"
 			"\n"
 			"%s" ;
 	}
@@ -3103,8 +3117,8 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		szBaseMsg = ""
 			"The game has crashed for an unknown reason. If you see this popup repeatedly please create a report at https://github.com/LoneGazebo/Community-Patch-DLL/issues.\n"
 			"\n"
-			"When creating a report, please provide the VP version number, the list of other mods in use, any minidumps created, crashes.log, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
-			"Minidumps and crashes.log are located in the folder 'crashlogs' in the civ5 installation directory\n"
+			"When creating a report, please provide the VP version number, the list of other mods in use, any minidumps created, crashes.log, CvAssert.log if present, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
+			"Minidumps, crashes.log and CvAssert.log are located in %s\n"
 			"\n"
 			"%s";
 	}
@@ -3125,8 +3139,14 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		"- If playing with EUI: Use the Non-EUI Version of Vox Populi (Reinstallation necessary, save games are compatible)\n"
 		"\n" : "";
 
+	char szCrashLogDirHint[MAX_PATH + 32];
+	if (strcmp(g_szCrashLogDir, "crashlogs") == 0)
+		_snprintf_s(szCrashLogDirHint, _countof(szCrashLogDirHint), _TRUNCATE, "the folder 'crashlogs' in the civ5 installation directory");
+	else
+		_snprintf_s(szCrashLogDirHint, _countof(szCrashLogDirHint), _TRUNCATE, "the folder '%s'", g_szCrashLogDir);
+
 	char szBody[4096];
-	_snprintf_s( szBody, _countof(szBody), _TRUNCATE, szBaseMsg, szCrashInfo);
+	_snprintf_s( szBody, _countof(szBody), _TRUNCATE, szBaseMsg, szCrashLogDirHint, szCrashInfo);
 	_snprintf_s( szMessage, _countof(szMessage), _TRUNCATE, "%s%s%s", szBody, szMemoryTips, szStackExcerpt);
 
 	// No dialog if a PRECONDITION already showed one, or if the user opted out

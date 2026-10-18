@@ -36,6 +36,11 @@ void SetPreconditionFired();
 // Defaults: OFF.
 bool IsMiniDumpDisabledByUser();
 bool AreErrorPopupsSuppressed();
+
+// Folder for crashes.log, the minidumps and CvAssert.log, without a trailing
+// separator: "crashlogs" in the game's working directory (the installation
+// directory).
+const char* GetCrashLogDir();
 #endif
 
 inline int sqrti(int input)

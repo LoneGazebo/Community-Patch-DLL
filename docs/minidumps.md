@@ -41,14 +41,17 @@ Minidumps are automatically generated when the game encounters an unhandled exce
 
 ## Locating Minidump Files
 
-Minidump files are saved in the **same directory as the game executable** when a crash occurs.
+Everything a crash report needs is written to one folder, `crashlogs`, inside the game's installation directory (next to `CivilizationV.exe`):
+
+- `CvMiniDump_*.dmp` - the minidumps
+- `crashes.log` - one entry per crash: exception, crash class, memory state and a stack excerpt
+- `CvAssert.log` - every failed ASSERT and PRECONDITION; it only exists once one has fired. A crash classed as "Deliberate stop: a failed ASSERT/PRECONDITION" names the failed check here.
 
 **Typical locations:**
-- **Steam:** `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\`
-- **Non-Steam:** `C:\Program Files (x86)\2K Games\Sid Meier's Civilization V\`
-- **Mod testing with ModBuddy:** The folder where you placed the compiled DLL
+- **Steam:** `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\crashlogs\`
+- **Non-Steam:** `C:\Program Files (x86)\2K Games\Sid Meier's Civilization V\crashlogs\`
 
-Look for files matching the pattern `CvMiniDump_*.dmp`.
+Zip the whole `crashlogs` folder for a bug report. `CvAssert.log` is opened only while an entry is written, so the folder can be copied while the game is still running.
 
 ## Filename Format
 
@@ -258,8 +261,8 @@ This shows an access violation trying to read from a null pointer at `CvPlayer::
 
 When reporting a crash:
 
-1. **Locate the minidump file** in your game directory
-2. **Zip the minidump file** - minidumps compress very well (use `.zip` format for GitHub compatibility)
+1. **Locate the `crashlogs` folder** (see [Locating Minidump Files](#locating-minidump-files))
+2. **Zip the folder** - the minidump, `crashes.log` and `CvAssert.log` together; minidumps compress very well (use `.zip` format for GitHub compatibility)
 3. **Note the exact version** you were running
 4. **Describe what you were doing** when the crash occurred
 5. **Attach to your bug report** on the forum or GitHub
