@@ -2254,10 +2254,139 @@ static bool FindOptOutSource(const char* szMarker, const char* szEnvVar, const c
 	return false;
 }
 
+// Folder for all crash output - crashes.log, CvMiniDump_*.dmp and CvAssert.log -
+// so that zipping this one folder gives a complete report. The default is
+// relative, so it resolves against the game's working directory (the
+// installation directory) like before, whatever characters that path contains.
+// ReadCrashLogDir may replace it at init; crash-time code only reads it.
+static char g_szCrashLogDir[MAX_PATH] = "crashlogs";
+// Where an override came from, or why it was ignored; empty for the default.
+static char g_szCrashLogDirNote[192] = "";
+
+// Longest accepted override: the crash handler appends at most
+// "\CvMiniDump_<timestamp>_<63-char version>_Release.dmp" (104 chars with the
+// terminator) and must stay within MAX_PATH.
+static const size_t MAX_CRASHLOG_DIR_CHARS = 150;
+
+// Checks an override and creates the folder. Returns NULL and the ANSI path
+// in szDir on success, else a reason (and dwError if the system gave one).
+static const char* PrepareCrashLogDir(const wchar_t* wszValue, char* szDir, size_t cchDir, DWORD& dwError)
+{
+	dwError = 0;
+	if (!IsAbsoluteWidePath(wszValue))
+		return "not an absolute path";
+
+	// Normalizes "/" to "\" and resolves "." and "..".
+	wchar_t wszFull[MAX_PATH];
+	DWORD dwFull = GetFullPathNameW(wszValue, _countof(wszFull), wszFull, NULL);
+	if (dwFull == 0 || dwFull >= _countof(wszFull))
+		return "too long";
+	size_t iLen = wcslen(wszFull);
+	while (iLen > 0 && wszFull[iLen - 1] == L'\\')
+		wszFull[--iLen] = L'\0';
+
+	// The dump and crash-log code uses ANSI file names (char buffers that
+	// GetFullPathNameA and the dialogs also use), so the path must survive a
+	// round trip through the system code page unchanged.
+	wchar_t wszRoundTrip[MAX_PATH];
+	if (WideCharToMultiByte(CP_ACP, 0, wszFull, -1, szDir, (int)cchDir, NULL, NULL) == 0
+		|| MultiByteToWideChar(CP_ACP, 0, szDir, -1, wszRoundTrip, _countof(wszRoundTrip)) == 0
+		|| wcscmp(wszFull, wszRoundTrip) != 0)
+		return "contains characters outside the system code page";
+	if (strlen(szDir) > MAX_CRASHLOG_DIR_CHARS)
+		return "too long (more than 150 characters)";
+
+	// Create the folder and any missing parents. Walks the wide string: a
+	// '\' byte can be the trail byte of a double-byte character in ANSI.
+	for (size_t i = 1; i <= iLen; ++i)
+	{
+		if (wszFull[i] == L'\\' || wszFull[i] == L'\0')
+		{
+			wchar_t cSaved = wszFull[i];
+			wszFull[i] = L'\0';
+			CreateDirectoryW(wszFull, NULL); // existing levels fail harmlessly
+			wszFull[i] = cSaved;
+		}
+	}
+
+	DWORD dwAttributes = GetFileAttributesA(szDir);
+	if (dwAttributes == INVALID_FILE_ATTRIBUTES || !(dwAttributes & FILE_ATTRIBUTE_DIRECTORY))
+	{
+		dwError = GetLastError();
+		return "cannot create the folder";
+	}
+
+	// Prove the crash handler will be able to write there, through the same
+	// ANSI path it will use.
+	char szProbe[MAX_PATH];
+	_snprintf_s(szProbe, _countof(szProbe), _TRUNCATE, "%s\\CvCrashLogDirTest.tmp", szDir);
+	HANDLE hProbe = CreateFileA(szProbe, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE, NULL);
+	if (hProbe == INVALID_HANDLE_VALUE)
+	{
+		dwError = GetLastError();
+		return "folder is not writable";
+	}
+	CloseHandle(hProbe);
+	return NULL;
+}
+
+// Optional override of the crash log folder, read once at init:
+//   environment variable VP_CRASHLOG_PATH (per process, for test harnesses), else
+//   [Vox Populi] CrashLogPath in the user's My Games config.ini (per user).
+// It must be an absolute path. The folder is created now, so the crash handler
+// only formats file names. On ANY problem the default folder stays in use - a
+// bad setting must never cost a crash report - and crashes.log says why.
+// The opt-out marker files stay in the installation's crashlogs folder.
+static void ReadCrashLogDir(const wchar_t* wszIniPath)
+{
+	wchar_t wszValue[MAX_PATH];
+	const char* szSource = NULL;
+	const char* szProblem = NULL;
+
+	DWORD dwEnvLen = GetEnvironmentVariableW(L"VP_CRASHLOG_PATH", wszValue, _countof(wszValue));
+	if (dwEnvLen > 0)
+	{
+		szSource = "environment VP_CRASHLOG_PATH";
+		if (dwEnvLen >= _countof(wszValue))
+			szProblem = "too long";
+	}
+	else if (wszIniPath[0] != L'\0' && GetPrivateProfileStringW(OPT_OUT_INI_SECTION, L"CrashLogPath", L"", wszValue, _countof(wszValue), wszIniPath) > 0)
+	{
+		szSource = "config.ini [Vox Populi] CrashLogPath";
+	}
+	else
+		return; // not set: default folder
+
+	char szDir[MAX_PATH];
+	DWORD dwError = 0;
+	if (!szProblem)
+		szProblem = PrepareCrashLogDir(wszValue, szDir, _countof(szDir), dwError);
+
+	if (szProblem)
+	{
+		if (dwError != 0)
+			_snprintf_s(g_szCrashLogDirNote, _countof(g_szCrashLogDirNote), _TRUNCATE, "%s ignored: %s (error %u)", szSource, szProblem, dwError);
+		else
+			_snprintf_s(g_szCrashLogDirNote, _countof(g_szCrashLogDirNote), _TRUNCATE, "%s ignored: %s", szSource, szProblem);
+	}
+	else
+	{
+		strcpy_s(g_szCrashLogDir, _countof(g_szCrashLogDir), szDir);
+		_snprintf_s(g_szCrashLogDirNote, _countof(g_szCrashLogDirNote), _TRUNCATE, "from %s", szSource);
+	}
+
+	char szMsg[MAX_PATH + 256];
+	_snprintf_s(szMsg, _countof(szMsg), _TRUNCATE, "Crash log folder: %s (%s)\n", g_szCrashLogDir, g_szCrashLogDirNote);
+	OutputDebugStringA(szMsg);
+}
+
 static void ReadCrashOptOuts()
 {
 	wchar_t wszIniPath[MAX_PATH * 2];
 	GetUserConfigIniPath(wszIniPath, _countof(wszIniPath));
+
+	// The crash log folder is resolved here too, from the same config.ini.
+	ReadCrashLogDir(wszIniPath);
 
 	g_bMiniDumpDisabledByUser = FindOptOutSource("crashlogs\\nodumps.please", "VP_CRASH_MINIDUMPS", "CrashMiniDumps", wszIniPath,
 		g_szMiniDumpOptOutSource, _countof(g_szMiniDumpOptOutSource));
@@ -2281,12 +2410,6 @@ bool AreErrorPopupsSuppressed()
 {
 	return g_bPopupsDisabledByUser;
 }
-
-// Folder for all crash output - crashes.log, CvMiniDump_*.dmp and CvAssert.log -
-// so that zipping this one folder gives a complete report. Relative, so it
-// resolves against the game's working directory (the installation directory)
-// like before, whatever characters the installation path contains.
-static char g_szCrashLogDir[MAX_PATH] = "crashlogs";
 
 const char* GetCrashLogDir()
 {
@@ -3014,6 +3137,13 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		_snprintf_s(szStackTrace, _countof(szStackTrace), _TRUNCATE,
 			"Stack (return-address candidates): none found\n");
 
+	// Only when CrashLogPath / VP_CRASHLOG_PATH is set: where the output went,
+	// or why the setting was ignored. The default output is unchanged.
+	char szCrashLogDirLine[MAX_PATH + 256];
+	szCrashLogDirLine[0] = '\0';
+	if (g_szCrashLogDirNote[0] != '\0')
+		_snprintf_s(szCrashLogDirLine, _countof(szCrashLogDirLine), _TRUNCATE, "Crash log folder: %s (%s)\n", g_szCrashLogDir, g_szCrashLogDirNote);
+
 	char szCrashInfo[3072];
 	_snprintf_s(szCrashInfo, _countof(szCrashInfo), _TRUNCATE, 
 		"--Crash details--\n"
@@ -3023,6 +3153,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		"Location (live memory): 0x%08x+0x%08x\n"
 		"Time: %s\n"
 		"Minidump: %s\n"
+		"%s"
 		"OS Info: %s\n"
 		"Memory markers\n"
 		"minAddress / maxAddress / maxMemory(k)\n"
@@ -3051,6 +3182,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 #else
 		"DLL was built without minidump support!",
 #endif
+		szCrashLogDirLine,
 		szOsInfo,
 		minAddress, maxAddress, maxMemory>>10,
 		committedMemoryLow >> 10, reservedMemoryLow >> 10, freeMemoryLow >> 10,

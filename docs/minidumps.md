@@ -6,6 +6,7 @@ A minidump (crash dump) is a diagnostic file that captures the state of the game
 - [What are Minidumps?](#what-are-minidumps)
 - [When are Minidumps Generated?](#when-are-minidumps-generated)
 - [Locating Minidump Files](#locating-minidump-files)
+  - [Choosing a Different Folder](#choosing-a-different-folder)
 - [Filename Format](#filename-format)
 - [Version String Format](#version-string-format)
 - [Obtaining Symbol Files (PDB)](#obtaining-symbol-files-pdb)
@@ -52,6 +53,22 @@ Everything a crash report needs is written to one folder, `crashlogs`, inside th
 - **Non-Steam:** `C:\Program Files (x86)\2K Games\Sid Meier's Civilization V\crashlogs\`
 
 Zip the whole `crashlogs` folder for a bug report. `CvAssert.log` is opened only while an entry is written, so the folder can be copied while the game is still running.
+
+### Choosing a Different Folder
+
+If the installation directory is not writable (for example under `Program Files` without administrator rights), or to keep the reports of several profiles apart, move all three files together with a `CrashLogPath` entry in your `config.ini` in `Documents\My Games\Sid Meier's Civilization 5\`:
+
+```ini
+[Vox Populi]
+CrashLogPath = D:\Civ5 crash reports
+```
+
+For scripted runs, the environment variable `VP_CRASHLOG_PATH` does the same and takes precedence over `config.ini`. The setting is read once at game start:
+
+- It must be an absolute path (`D:\...` or `\\server\share\...`) of at most 150 characters. Missing folders are created at game start.
+- It may only use characters of the Windows system code page (the "language for non-Unicode programs"), because the crash handler writes with ANSI file names. Most Latin-alphabet paths are fine; use a plain path if yours contains other scripts.
+- If the value is unusable (relative, too long, unrepresentable, or the folder cannot be created or written to), the default `crashlogs` folder is used instead, so a bad setting never costs a crash report. `crashes.log` then explains it, e.g. `Crash log folder: crashlogs (config.ini [Vox Populi] CrashLogPath ignored: not an absolute path)`. A working override is recorded the same way: `Crash log folder: D:\Civ5 crash reports (from config.ini [Vox Populi] CrashLogPath)`.
+- The `nodumps.please` / `nopopups.please` markers below always stay in the installation's `crashlogs` folder.
 
 ## Filename Format
 
@@ -290,7 +307,7 @@ The marker is read once at game start. While present, no dumps are written, the 
 
 There is also `crashlogs\nopopups.please`, which suppresses all error dialogs (asserts are auto-ignored, crash and precondition popups are skipped) for unattended or autoplay sessions. Logging (`CvAssert.log`, `crashes.log`) and minidump creation are unaffected by this marker.
 
-The marker files apply to one installation. To opt out per user instead, add a section to your `config.ini` in `Documents\My Games\Sid Meier's Civilization 5\`:
+The marker files apply to one installation (they are not moved by `CrashLogPath`). To opt out per user instead, add a section to your `config.ini` in `Documents\My Games\Sid Meier's Civilization 5\`:
 
 ```ini
 [Vox Populi]
