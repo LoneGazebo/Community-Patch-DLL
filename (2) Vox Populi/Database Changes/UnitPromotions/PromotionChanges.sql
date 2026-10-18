@@ -151,7 +151,7 @@ UPDATE UnitPromotions SET MovesChange = 1 WHERE RankList = 'HELI_MOBILITY';
 --
 --                                       ┌──────► Volley
 --                                       │                        Infiltrators
--- Siege I ─────────► Siege II ──────────┴──────► Siege III ────► Range
+-- Siege I ─────────► Siege II ──────────┴──────► Siege III ────► March
 --
 -- Cover I ─────────► Cover II
 --                                                                Firing Doctrine
