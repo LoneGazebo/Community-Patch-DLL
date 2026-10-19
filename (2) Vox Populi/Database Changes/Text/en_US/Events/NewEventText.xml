@@ -1425,18 +1425,6 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_EFFECT">
 			<Text>All improved Resourced Tiles and some Roads/Railroads around the City have been pillaged.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST">
-			<Text>[ICON_RESISTANCE] Arm Local Rebels</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_PEDIA">
-			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism. Lasts 10 turns (Standard Speed).[NEWLINE]75% ID Chance / 25% Kill Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP">
-			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_EFFECT">
-			<Text>The City has entered [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES">
 			<Text>[ICON_STRENGTH] Sabotage City Defenses</Text>
 		</Row>
