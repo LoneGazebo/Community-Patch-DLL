@@ -200,6 +200,16 @@ private:
 	ValueType m_prevValue;
 };
 
+// These are intentionally outside of CvSyncVar so that they are compiled once, not once per sync var.
+// Every line of code in a CvSyncVar member is instantiated for each of the ~1300 sync vars in the
+// precompiled header, and MSVC v90 limits the precompiled header size (/Zm). Keep CvSyncVar members
+// thin and move code that does not depend on the value type here.
+
+// Logs a sync var mismatch to net_message_debug.log and marks the game as desynced.
+void CvSyncVarLogDesync(const ICvSyncVar& var, const std::string& remoteValue, const std::string& containerContext);
+// Builds the CvSyncVar::debugDump() text. remoteValue is NULL when the remote value is not tracked.
+std::string CvSyncVarDebugDump(const ICvSyncVar& var, const std::vector<std::pair<std::string, std::string> >& callStacks, const std::string& containerContext, const std::string* remoteValue);
+
 template<typename VarTraits>
 class CvSyncVar : public CvSyncVarBase<typename VarTraits::ValueType>
 {
@@ -286,76 +296,9 @@ public:
 		m_remoteValue = other;
 #endif
 		const bool result = other == currentValue();
-
-		if (!result) {
-			// Deduplication and cascade detection
-			static std::map<std::string, int> s_desyncCountThisTurn;
-			static std::map<int, std::pair<std::string, int> > s_firstDesyncPerTurn;
-			static int s_lastLoggedTurn = -1;
-			
-			int currentTurn = GC.getGame().getGameTurn();
-			
-			// Clear tracking on new turn
-			if (currentTurn != s_lastLoggedTurn)
-			{
-				s_desyncCountThisTurn.clear();
-				s_lastLoggedTurn = currentTurn;
-			}
-			
-			std::string logKey = this->name();
-			int desyncCount = s_desyncCountThisTurn[logKey]++;
-			
-			// Only log first occurrence and a summary after that
-			if (desyncCount == 0)
-			{
-				// Desync logging with available context
-				std::ostringstream logMsg;
-				logMsg << "[DESYNC_DETECTED";
-				
-				// Cascade detection - mark first desync
-				if (s_firstDesyncPerTurn.find(currentTurn) == s_firstDesyncPerTurn.end())
-				{
-					logMsg << " - FIRST";
-					s_firstDesyncPerTurn[currentTurn] = std::make_pair(this->name(), currentTurn);
-				}
-				else
-				{
-					logMsg << " - CASCADE";
-				}
-				
-				logMsg << "] Variable=" << this->name()
-				       << " | Turn=" << currentTurn
-				       << " | Player=" << GC.getGame().getActivePlayer()
-				       << " | Host=" << (gDLL->IsHost() ? "YES" : "NO")
-				       << " | Local=" << FSerialization::toString(currentValue())
-				       << " | Remote=" << FSerialization::toString(other);
-				
-				// Add container-specific context
-				std::string containerContext = getContainer().debugDump(*this);
-				if (!containerContext.empty()) {
-					logMsg << " | Context=" << containerContext;
-				}
-				
-				// Show what first desync was if this is cascading
-				if (s_firstDesyncPerTurn.find(currentTurn) != s_firstDesyncPerTurn.end() &&
-				    s_firstDesyncPerTurn[currentTurn].first != this->name())
-				{
-					logMsg << " | First desync: " << s_firstDesyncPerTurn[currentTurn].first;
-				}
-				
-				gGlobals.getDLLIFace()->netMessageDebugLog(logMsg.str());
-				gGlobals.getGame().setDesynced(true);
-			}
-			else if (desyncCount == 1)
-			{
-				// Log suppression notice once
-				std::ostringstream logMsg;
-				logMsg << "[DESYNC_REPEATED] Variable=" << this->name()
-				       << " | Turn=" << currentTurn
-				       << " (suppressing further duplicates this turn)";
-				gGlobals.getDLLIFace()->netMessageDebugLog(logMsg.str());
-			}
-			// After 2nd occurrence, suppress completely
+		if (!result)
+		{
+			CvSyncVarLogDesync(*this, FSerialization::toString(other), getContainer().debugDump(*this));
 		}
 
 		return result; // Place a conditional breakpoint here to help debug sync errors.
@@ -373,13 +316,12 @@ public:
 	}
 	virtual std::string debugDump(const std::vector<std::pair<std::string, std::string> >& callStacks) const
 	{
-		std::string result = FAutoVariableBase::debugDump(callStacks);
-		result += std::string("\n") + getContainer().debugDump(*this) + std::string("\n");
 #if !defined(FINAL_RELEASE) || defined(VPDEBUG)
-		result += std::string("local value=") + FSerialization::toString(currentValue()) + "\n";
-		result += std::string("remote value=") + FSerialization::toString(m_remoteValue) + "\n";
+		const std::string remoteValue = FSerialization::toString(m_remoteValue);
+		return CvSyncVarDebugDump(*this, callStacks, getContainer().debugDump(*this), &remoteValue);
+#else
+		return CvSyncVarDebugDump(*this, callStacks, getContainer().debugDump(*this), NULL);
 #endif
-		return result;
 	}
 	virtual std::string toString() const
 	{
