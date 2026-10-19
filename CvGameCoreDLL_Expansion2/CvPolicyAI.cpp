@@ -2935,11 +2935,22 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromDistress() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetDistressFlatReduction() * 100;
+			yield[MODMOD_HAPPINESS_OVERFLOW ? YIELD_PRODUCTION : YIELD_FOOD] += PolicyInfo->GetDistressFlatReduction() * 100;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetDistressFlatReduction() * 50;
+			yield[MODMOD_HAPPINESS_OVERFLOW ? YIELD_PRODUCTION : YIELD_FOOD] += PolicyInfo->GetDistressFlatReduction() * 50;
+		}
+	}
+	if (MODMOD_HAPPINESS_OVERFLOW && PolicyInfo->GetScarcityFlatReduction() != 0)
+	{
+		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromScarcity() > 0)
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetScarcityFlatReduction() * 100;
+		}
+		else
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetScarcityFlatReduction() * 50;
 		}
 	}
 	if (PolicyInfo->GetPovertyFlatReduction() != 0)
@@ -2990,11 +3001,22 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromDistress() > 0)
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifier() * -10;
+			yield[MODMOD_HAPPINESS_OVERFLOW ? YIELD_PRODUCTION : YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifier() * -10;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifier() * -5;
+			yield[MODMOD_HAPPINESS_OVERFLOW ? YIELD_PRODUCTION : YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifier() * -5;
+		}
+	}
+	if (MODMOD_HAPPINESS_OVERFLOW && PolicyInfo->GetScarcityMedianModifier() != 0)
+	{
+		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromScarcity() > 0)
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetScarcityMedianModifier() * -10;
+		}
+		else
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetScarcityMedianModifier() * -5;
 		}
 	}
 	if (PolicyInfo->GetGoldMedianModifier() != 0)
@@ -3045,11 +3067,22 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsSmaller())
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifierCapital() * -4;
+			yield[MODMOD_HAPPINESS_OVERFLOW ? YIELD_PRODUCTION : YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifierCapital() * -4;
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifierCapital() * -2;
+			yield[MODMOD_HAPPINESS_OVERFLOW ? YIELD_PRODUCTION : YIELD_FOOD] += PolicyInfo->GetBasicNeedsMedianModifierCapital() * -2;
+		}
+	}
+	if (MODMOD_HAPPINESS_OVERFLOW && PolicyInfo->GetScarcityMedianModifierCapital() != 0)
+	{
+		if (pPlayerTraits->IsSmaller())
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetScarcityMedianModifierCapital() * -4;
+		}
+		else
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetScarcityMedianModifierCapital() * -2;
 		}
 	}
 	if (PolicyInfo->GetGoldMedianModifierCapital() != 0)

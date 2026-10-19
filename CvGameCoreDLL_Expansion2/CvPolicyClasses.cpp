@@ -203,16 +203,19 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bOneShot(false),
 	m_bIncludesOneShotFreeUnits(false),
 	m_iDistressFlatReduction(0),
+	m_iScarcityFlatReduction(0),
 	m_iPovertyFlatReduction(0),
 	m_iIlliteracyFlatReduction(0),
 	m_iBoredomFlatReduction(0),
 	m_iReligiousUnrestFlatReduction(0),
 	m_iBasicNeedsMedianModifier(0),
+	m_iScarcityMedianModifier(0),
 	m_iGoldMedianModifier(0),
 	m_iScienceMedianModifier(0),
 	m_iCultureMedianModifier(0),
 	m_iReligiousUnrestModifier(0),
 	m_iBasicNeedsMedianModifierCapital(0),
+	m_iScarcityMedianModifierCapital(0),
 	m_iGoldMedianModifierCapital(0),
 	m_iScienceMedianModifierCapital(0),
 	m_iCultureMedianModifierCapital(0),
@@ -698,16 +701,22 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bIsOnlyTradeSameIdeology = kResults.GetBool("IsOnlyTradeSameIdeology");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
 	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityFlatReduction = kResults.GetInt("ScarcityFlatReduction");
 	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
 	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
 	m_iBoredomFlatReduction = kResults.GetInt("BoredomFlatReduction");
 	m_iReligiousUnrestFlatReduction = kResults.GetInt("ReligiousUnrestFlatReduction");
 	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityMedianModifier = kResults.GetInt("ScarcityMedianModifier");
 	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
 	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
 	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
 	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_iBasicNeedsMedianModifierCapital = kResults.GetInt("BasicNeedsMedianModifierCapital");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityMedianModifierCapital = kResults.GetInt("ScarcityMedianModifierCapital");
 	m_iGoldMedianModifierCapital = kResults.GetInt("GoldMedianModifierCapital");
 	m_iScienceMedianModifierCapital = kResults.GetInt("ScienceMedianModifierCapital");
 	m_iCultureMedianModifierCapital = kResults.GetInt("CultureMedianModifierCapital");
@@ -2507,6 +2516,11 @@ int CvPolicyEntry::GetDistressFlatReduction() const
 {
 	return m_iDistressFlatReduction;
 }
+
+int CvPolicyEntry::GetScarcityFlatReduction() const
+{
+	return m_iScarcityFlatReduction;
+}
 int CvPolicyEntry::GetPovertyFlatReduction() const
 {
 	return m_iPovertyFlatReduction;
@@ -2528,6 +2542,11 @@ int CvPolicyEntry::GetBasicNeedsMedianModifier() const
 {
 	return m_iBasicNeedsMedianModifier;
 }
+
+int CvPolicyEntry::GetScarcityMedianModifier() const
+{
+	return m_iScarcityMedianModifier;
+}
 int CvPolicyEntry::GetGoldMedianModifier() const
 {
 	return m_iGoldMedianModifier;
@@ -2548,6 +2567,11 @@ int CvPolicyEntry::GetReligiousUnrestModifier() const
 int CvPolicyEntry::GetBasicNeedsMedianModifierCapital() const
 {
 	return m_iBasicNeedsMedianModifierCapital;
+}
+
+int CvPolicyEntry::GetScarcityMedianModifierCapital() const
+{
+	return m_iScarcityMedianModifierCapital;
 }
 int CvPolicyEntry::GetGoldMedianModifierCapital() const
 {

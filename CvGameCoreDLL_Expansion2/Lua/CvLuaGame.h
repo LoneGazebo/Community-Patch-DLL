@@ -315,11 +315,13 @@ protected:
 	static int lGetBuildingYieldChange(lua_State* L);
 	static int lGetBuildingYieldModifier(lua_State* L);
 	static int lGetBasicNeedsMedianModifierBuilding(lua_State* L);
+	static int lGetScarcityMedianModifierBuilding(lua_State* L);
 	static int lGetGoldMedianModifierBuilding(lua_State* L);
 	static int lGetScienceMedianModifierBuilding(lua_State* L);
 	static int lGetCultureMedianModifierBuilding(lua_State* L);
 	static int lGetReligiousUnrestModifierBuilding(lua_State* L);
 	static int lGetBasicNeedsMedianModifierBuildingGlobal(lua_State* L);
+	static int lGetScarcityMedianModifierBuildingGlobal(lua_State* L);
 	static int lGetGoldMedianModifierBuildingGlobal(lua_State* L);
 	static int lGetScienceMedianModifierBuildingGlobal(lua_State* L);
 	static int lGetCultureMedianModifierBuildingGlobal(lua_State* L);

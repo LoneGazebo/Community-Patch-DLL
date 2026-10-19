@@ -338,11 +338,19 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetRemainingFreeSpecialists);
 	Method(GetBasicNeedsMedian);
+	Method(GetScarcityMedian);
+	Method(GetScarcity);
+	Method(GetScarcityRaw);
+	Method(GetScarcityFlatReduction);
+	Method(GetScarcityMedianModifier);
+	Method(GetProductionNeedsMedian);
+	Method(GetOverflowReceivedFromYield);
 	Method(GetGoldMedian);
 	Method(GetScienceMedian);
 	Method(GetCultureMedian);
 	Method(GetReligiousUnrestPerMinorityFollower);
 	Method(GetTheoreticalNewBasicNeedsMedian);
+	Method(GetTheoreticalNewScarcityMedian);
 	Method(GetTheoreticalNewGoldMedian);
 	Method(GetTheoreticalNewScienceMedian);
 	Method(GetTheoreticalNewCultureMedian);
@@ -2383,7 +2391,9 @@ int CvLuaCity::lGetCurrentProductionDifferenceTimes100(lua_State* L)
 //int GetRawProductionDifferenceTimes100(bool bIgnoreFood, bool bOverflow);
 int CvLuaCity::lGetRawProductionDifferenceTimes100(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::getRawProductionPerTurnTimes100);
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getRawProductionPerTurnTimes100());
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getUnitProductionModifier(UnitTypes iUnit);
@@ -3942,6 +3952,63 @@ int CvLuaCity::lGetBasicNeedsMedian(lua_State* L)
 	lua_pushinteger(L, iMedian);
 	return 1;
 }
+
+int CvLuaCity::lGetScarcity(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetScarcity(false));
+	return 1;
+}
+
+int CvLuaCity::lGetScarcityRaw(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetScarcityRaw(false));
+	return 1;
+}
+
+int CvLuaCity::lGetScarcityFlatReduction(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, MODMOD_HAPPINESS_OVERFLOW ? pkCity->GetScarcityFlatReduction() : 0);
+	return 1;
+}
+
+int CvLuaCity::lGetScarcityMedianModifier(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, MODMOD_HAPPINESS_OVERFLOW ? pkCity->GetScarcityMedianModifier() : 0);
+	return 1;
+}
+
+int CvLuaCity::lGetProductionNeedsMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushnumber(L, pkCity->GetProductionNeedsMedian(false, 0));
+	return 1;
+}
+
+int CvLuaCity::lGetOverflowReceivedFromYield(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)luaL_checkint(L, 2);
+	const YieldTypes yields[NUM_HAPPINESS_OVERFLOW_NEEDS] = { YIELD_FOOD, YIELD_PRODUCTION, YIELD_GOLD, YIELD_SCIENCE, YIELD_CULTURE };
+	SHappinessOverflowResult result = pkCity->GetHappinessOverflowNeeds();
+	double fReceived = 0;
+	for (int i = 0; i < NUM_HAPPINESS_OVERFLOW_NEEDS; i++)
+		if (yields[i] == eYield)
+			fReceived = result.needs[i].fOverflowReceived;
+	lua_pushnumber(L, fReceived);
+	return 1;
+}
+
+int CvLuaCity::lGetScarcityMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iMedian = (int)pkCity->GetScarcityMedian(false, 0);
+	lua_pushinteger(L, iMedian);
+	return 1;
+}
 int CvLuaCity::lGetGoldMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
@@ -3991,6 +4058,24 @@ int CvLuaCity::lGetTheoreticalNewBasicNeedsMedian(lua_State* L)
 		{
 			int iModifier = pkBuildingInfo->GetBasicNeedsMedianModifier() + pkBuildingInfo->GetBasicNeedsMedianModifierGlobal();
 			iNewMedian = (int)pkCity->GetBasicNeedsMedian(false, iModifier);
+		}
+	}
+	lua_pushinteger(L, iNewMedian);
+	return 1;
+}
+
+int CvLuaCity::lGetTheoreticalNewScarcityMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iNewMedian = 0;
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			int iModifier = pkBuildingInfo->GetScarcityMedianModifier() + pkBuildingInfo->GetScarcityMedianModifierGlobal();
+			iNewMedian = (int)pkCity->GetScarcityMedian(false, iModifier);
 		}
 	}
 	lua_pushinteger(L, iNewMedian);
@@ -4117,7 +4202,9 @@ int CvLuaCity::lGetUnhappinessFromYield(lua_State* L)
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
 
 	int iValue = 0;
-	if (eIndex == YIELD_FOOD || eIndex == YIELD_PRODUCTION)
+	if (MODMOD_HAPPINESS_OVERFLOW && eIndex == YIELD_FOOD)
+		iValue = pkCity->GetScarcity(false);
+	else if (eIndex == YIELD_FOOD || eIndex == YIELD_PRODUCTION)
 		iValue = pkCity->GetDistress(false);
 	else if (eIndex == YIELD_GOLD)
 		iValue = pkCity->GetPoverty(false);

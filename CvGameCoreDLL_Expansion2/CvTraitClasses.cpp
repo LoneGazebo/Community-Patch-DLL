@@ -216,6 +216,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bNoAnnexing(false),
 	m_bTechFromCityConquer(false),
 	m_bUniqueLuxuryRequiresNewArea(false),
+	m_iScarcityMedianModifier(0),
 
 	m_paiExtraYieldThreshold(NULL),
 	m_paiYieldChange(NULL),
@@ -1383,6 +1384,11 @@ void CvTraitEntry::setShortDescription(const char* szVal)
 int CvTraitEntry::GetBasicNeedsMedianModifier() const
 {
 	return m_iBasicNeedsMedianModifier;
+}
+
+int CvTraitEntry::GetScarcityMedianModifier() const
+{
+	return m_iScarcityMedianModifier;
 }
 int CvTraitEntry::GetGoldMedianModifier() const
 {
@@ -2627,6 +2633,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bRiverTradeRoad = kResults.GetBool("RiverTradeRoad");
 	m_bAngerFreeIntrusionOfCityStates = kResults.GetBool("AngerFreeIntrusionOfCityStates");
 	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityMedianModifier = kResults.GetInt("ScarcityMedianModifier");
 	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
 	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
 	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
@@ -4781,6 +4789,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 
 			m_iBasicNeedsMedianModifier += trait->GetBasicNeedsMedianModifier();
+			m_iScarcityMedianModifier += trait->GetScarcityMedianModifier();
 			m_iGoldMedianModifier += trait->GetGoldMedianModifier();
 			m_iScienceMedianModifier += trait->GetScienceMedianModifier();
 			m_iCultureMedianModifier += trait->GetCultureMedianModifier();
@@ -5504,6 +5513,7 @@ void CvPlayerTraits::Reset()
 	m_bRiverTradeRoad = false;
 	m_bAngerFreeIntrusionOfCityStates = false;
 	m_iBasicNeedsMedianModifier = 0;
+	m_iScarcityMedianModifier = 0;
 	m_iGoldMedianModifier = 0;
 	m_iScienceMedianModifier = 0;
 	m_iCultureMedianModifier = 0;
@@ -7738,6 +7748,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bRiverTradeRoad);
 	visitor(playerTraits.m_bAngerFreeIntrusionOfCityStates);
 	visitor(playerTraits.m_iBasicNeedsMedianModifier);
+	visitor(playerTraits.m_iScarcityMedianModifier);
 	visitor(playerTraits.m_iGoldMedianModifier);
 	visitor(playerTraits.m_iScienceMedianModifier);
 	visitor(playerTraits.m_iCultureMedianModifier);

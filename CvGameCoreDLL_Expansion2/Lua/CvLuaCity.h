@@ -336,11 +336,19 @@ protected:
 
 	LUAAPIEXTN(GetRemainingFreeSpecialists, int);
 	LUAAPIEXTN(GetBasicNeedsMedian, int);
+	LUAAPIEXTN(GetScarcityMedian, int);
+	static int lGetScarcity(lua_State* L);
+	static int lGetScarcityRaw(lua_State* L);
+	static int lGetScarcityFlatReduction(lua_State* L);
+	static int lGetScarcityMedianModifier(lua_State* L);
+	static int lGetProductionNeedsMedian(lua_State* L);
+	static int lGetOverflowReceivedFromYield(lua_State* L);
 	LUAAPIEXTN(GetGoldMedian, int);
 	LUAAPIEXTN(GetScienceMedian, int);
 	LUAAPIEXTN(GetCultureMedian, int);
 	LUAAPIEXTN(GetReligiousUnrestPerMinorityFollower, int);
 	LUAAPIEXTN(GetTheoreticalNewBasicNeedsMedian, int);
+	LUAAPIEXTN(GetTheoreticalNewScarcityMedian, int);
 	LUAAPIEXTN(GetTheoreticalNewGoldMedian, int);
 	LUAAPIEXTN(GetTheoreticalNewScienceMedian, int);
 	LUAAPIEXTN(GetTheoreticalNewCultureMedian, int);

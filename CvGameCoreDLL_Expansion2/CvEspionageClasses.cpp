@@ -8423,6 +8423,8 @@ int CvEspionageAI::GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eO
 	
 	if (pkMissionInfo->getBasicNeedsMedianModifier() < 0 && pCity->GetDistress(false) > 0)
 		iScore -= -1 * pkMissionInfo->getEventDuration() * iEmpireUnhappy * pkMissionInfo->getBasicNeedsMedianModifier() / 75;
+	if (MODMOD_HAPPINESS_OVERFLOW && pkMissionInfo->getScarcityMedianModifier() < 0 && pCity->GetScarcity(false) > 0)
+		iScore -= -1 * pkMissionInfo->getEventDuration() * iEmpireUnhappy * pkMissionInfo->getScarcityMedianModifier() / 75;
 	
 	if (pkMissionInfo->getGoldMedianModifier() < 0 && pCity->GetPoverty(false) > 0)
 		iScore -= -1 * pkMissionInfo->getEventDuration() * iEmpireUnhappy * pkMissionInfo->getGoldMedianModifier() / 75;
@@ -8761,6 +8763,8 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 		
 		if (pkMissionInfo->getBasicNeedsMedianModifier() < 0 && pCity->GetDistress(false) > 0)
 			iScore += -1 * iEmpireUnhappy * pkMissionInfo->getBasicNeedsMedianModifier() / 5;
+		if (MODMOD_HAPPINESS_OVERFLOW && pkMissionInfo->getScarcityMedianModifier() < 0 && pCity->GetScarcity(false) > 0)
+			iScore += -1 * iEmpireUnhappy * pkMissionInfo->getScarcityMedianModifier() / 5;
 		
 		if (pkMissionInfo->getGoldMedianModifier() < 0 && pCity->GetPoverty(false) > 0)
 			iScore += -1 * iEmpireUnhappy * pkMissionInfo->getGoldMedianModifier() / 5;

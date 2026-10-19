@@ -644,6 +644,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				iBonus += (iUnhappyEmpire * iEmpire * 10);
 			}
 		}
+		if (MODMOD_HAPPINESS_OVERFLOW)
+		{
+			int iScarcityMod = pkBuildingInfo->GetScarcityMedianModifier() + pkBuildingInfo->GetScarcityMedianModifierGlobal();
+			if (iScarcityMod < 0)
+				iBonus -= m_pCity->GetScarcity(false) * iScarcityMod;
+		}
 		if (iDistress < 0)
 		{
 			int iUnhappyBasicNeeds = m_pCity->GetDistress(false);
@@ -1169,6 +1175,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		switch (eYield)
 		{
 		case YIELD_FOOD:
+			if (MODMOD_HAPPINESS_OVERFLOW)
+			{
+				iHappinessReduction = pkBuildingInfo->GetScarcityFlatReduction() + pkBuildingInfo->GetScarcityFlatReductionGlobal() * kPlayer.getNumCities();
+				break;
+			}
 		case YIELD_PRODUCTION:
 			iHappinessReduction = pkBuildingInfo->GetDistressFlatReduction() + (pkBuildingInfo->GetDistressFlatReductionGlobal() * kPlayer.getNumCities());
 			break;

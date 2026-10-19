@@ -640,7 +640,7 @@ static int GetPotentialHappinessFromConnection(CvPlayer* pPlayer, CvCity* pCity)
 		return 0;
 	}
 
-	if (MOD_BALANCE_UNCAPPED_UNHAPPINESS)
+	if (MODMOD_HAPPINESS_OVERFLOW || MOD_BALANCE_UNCAPPED_UNHAPPINESS)
 		return pCity->GetUnhappinessFromIsolation();
 
 	int iUnhappiness = 0;

@@ -300,6 +300,7 @@ public:
 	void setShortDescription(const char* szVal);
 
 	int GetBasicNeedsMedianModifier() const;
+	int GetScarcityMedianModifier() const;
 	int GetGoldMedianModifier() const;
 	int GetScienceMedianModifier() const;
 	int GetCultureMedianModifier() const;
@@ -648,6 +649,7 @@ protected:
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
 	int m_iBasicNeedsMedianModifier;
+	int m_iScarcityMedianModifier;
 	int m_iGoldMedianModifier;
 	int m_iScienceMedianModifier;
 	int m_iCultureMedianModifier;
@@ -1605,6 +1607,10 @@ public:
 	{
 		return m_iBasicNeedsMedianModifier;
 	}
+	int GetScarcityMedianModifier() const
+	{
+		return m_iScarcityMedianModifier;
+	}
 	int GetGoldMedianModifier() const
 	{
 		return m_iGoldMedianModifier;
@@ -2257,6 +2263,7 @@ private:
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
 	int m_iBasicNeedsMedianModifier;
+	int m_iScarcityMedianModifier;
 	int m_iGoldMedianModifier;
 	int m_iScienceMedianModifier;
 	int m_iCultureMedianModifier;

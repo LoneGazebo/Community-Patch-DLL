@@ -22,6 +22,7 @@ struct SPrecomputedExpensiveNumbers
 	int iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100;
 	int iFoodCorpMod;
 	int iFamine;
+	int iScarcity;
 	int iDistress;
 	int iPoverty;
 	int iIlliteracy;

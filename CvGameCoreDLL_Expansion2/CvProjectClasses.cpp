@@ -17,6 +17,8 @@ CvProjectEntry::CvProjectEntry(void):
 	m_eFreePolicy(NO_POLICY),
 	m_ePolicyType(NO_POLICY),
 	m_eCivType(NO_CIVILIZATION),
+	m_iScarcityFlatReduction(0),
+	m_iScarcityMedianModifier(0),
 	m_eEventToStart(NO_EVENT),
 	m_eCityEventToStart(NO_EVENT_CITY),
 	m_piResourceQuantityRequirements(NULL),
@@ -72,11 +74,15 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	const char* szSpecificCivilizationType = kResults.GetText("CivilizationType");
 	m_eCivType = (CivilizationTypes)GC.getInfoTypeForString(szSpecificCivilizationType, true);
 	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityFlatReduction = kResults.GetInt("ScarcityFlatReduction");
 	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
 	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
 	m_iBoredomFlatReduction = kResults.GetInt("BoredomFlatReduction");
 	m_iReligiousUnrestFlatReduction = kResults.GetInt("ReligiousUnrestFlatReduction");
 	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityMedianModifier = kResults.GetInt("ScarcityMedianModifier");
 	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
 	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
 	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
@@ -343,6 +349,11 @@ int CvProjectEntry::GetDistressFlatReduction() const
 {
 	return m_iDistressFlatReduction;
 }
+
+int CvProjectEntry::GetScarcityFlatReduction() const
+{
+	return m_iScarcityFlatReduction;
+}
 int CvProjectEntry::GetPovertyFlatReduction() const
 {
 	return m_iPovertyFlatReduction;
@@ -362,6 +373,11 @@ int CvProjectEntry::GetReligiousUnrestFlatReduction() const
 int CvProjectEntry::GetBasicNeedsMedianModifier() const
 {
 	return m_iBasicNeedsMedianModifier;
+}
+
+int CvProjectEntry::GetScarcityMedianModifier() const
+{
+	return m_iScarcityMedianModifier;
 }
 int CvProjectEntry::GetGoldMedianModifier() const
 {

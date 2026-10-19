@@ -185,21 +185,25 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iEmpireSizeModifierReduction(0),
 	m_iEmpireSizeModifierReductionGlobal(0),
 	m_iBasicNeedsMedianModifier(0),
+	m_iScarcityMedianModifier(0),
 	m_iGoldMedianModifier(0),
 	m_iScienceMedianModifier(0),
 	m_iCultureMedianModifier(0),
 	m_iReligiousUnrestModifier(0),
 	m_iBasicNeedsMedianModifierGlobal(0),
+	m_iScarcityMedianModifierGlobal(0),
 	m_iGoldMedianModifierGlobal(0),
 	m_iScienceMedianModifierGlobal(0),
 	m_iCultureMedianModifierGlobal(0),
 	m_iReligiousUnrestModifierGlobal(0),
 	m_iDistressFlatReduction(0),
+	m_iScarcityFlatReduction(0),
 	m_iPovertyFlatReduction(0),
 	m_iIlliteracyFlatReduction(0),
 	m_iBoredomFlatReduction(0),
 	m_iReligiousUnrestFlatReduction(0),
 	m_iDistressFlatReductionGlobal(0),
+	m_iScarcityFlatReductionGlobal(0),
 	m_iPovertyFlatReductionGlobal(0),
 	m_iIlliteracyFlatReductionGlobal(0),
 	m_iBoredomFlatReductionGlobal(0),
@@ -808,11 +812,15 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iEmpireSizeModifierReduction = kResults.GetInt("EmpireSizeModifierReduction");
 	m_iEmpireSizeModifierReductionGlobal = kResults.GetInt("EmpireSizeModifierReductionGlobal");
 	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityMedianModifier = kResults.GetInt("ScarcityMedianModifier");
 	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
 	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
 	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
 	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_iBasicNeedsMedianModifierGlobal = kResults.GetInt("BasicNeedsMedianModifierGlobal");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityMedianModifierGlobal = kResults.GetInt("ScarcityMedianModifierGlobal");
 	m_iGoldMedianModifierGlobal = kResults.GetInt("GoldMedianModifierGlobal");
 	m_iScienceMedianModifierGlobal = kResults.GetInt("ScienceMedianModifierGlobal");
 	m_iCultureMedianModifierGlobal = kResults.GetInt("CultureMedianModifierGlobal");
@@ -943,12 +951,16 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_eFreeGreatWork = (GreatWorkType)GC.getInfoTypeForString(szTextVal, true);
 
 	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityFlatReduction = kResults.GetInt("ScarcityFlatReduction");
 	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
 	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
 	m_iBoredomFlatReduction = kResults.GetInt("BoredomFlatReduction");
 	m_iReligiousUnrestFlatReduction = kResults.GetInt("ReligiousUnrestFlatReduction");
 
 	m_iDistressFlatReductionGlobal = kResults.GetInt("DistressFlatReductionGlobal");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityFlatReductionGlobal = kResults.GetInt("ScarcityFlatReductionGlobal");
 	m_iPovertyFlatReductionGlobal = kResults.GetInt("PovertyFlatReductionGlobal");
 	m_iIlliteracyFlatReductionGlobal = kResults.GetInt("IlliteracyFlatReductionGlobal");
 	m_iBoredomFlatReductionGlobal = kResults.GetInt("BoredomFlatReductionGlobal");
@@ -2950,6 +2962,11 @@ int CvBuildingEntry::GetBasicNeedsMedianModifier() const
 {
 	return m_iBasicNeedsMedianModifier;
 }
+
+int CvBuildingEntry::GetScarcityMedianModifier() const
+{
+	return m_iScarcityMedianModifier;
+}
 int CvBuildingEntry::GetGoldMedianModifier() const
 {
 	return m_iGoldMedianModifier;
@@ -2969,6 +2986,11 @@ int CvBuildingEntry::GetReligiousUnrestModifier() const
 int CvBuildingEntry::GetBasicNeedsMedianModifierGlobal() const
 {
 	return m_iBasicNeedsMedianModifierGlobal;
+}
+
+int CvBuildingEntry::GetScarcityMedianModifierGlobal() const
+{
+	return m_iScarcityMedianModifierGlobal;
 }
 int CvBuildingEntry::GetGoldMedianModifierGlobal() const
 {
@@ -3376,6 +3398,11 @@ int CvBuildingEntry::GetDistressFlatReduction() const
 	return m_iDistressFlatReduction;
 }
 
+int CvBuildingEntry::GetScarcityFlatReduction() const
+{
+	return m_iScarcityFlatReduction;
+}
+
 int CvBuildingEntry::GetPovertyFlatReduction() const
 {
 	return m_iPovertyFlatReduction;
@@ -3399,6 +3426,11 @@ int CvBuildingEntry::GetReligiousUnrestFlatReduction() const
 int CvBuildingEntry::GetDistressFlatReductionGlobal() const
 {
 	return m_iDistressFlatReductionGlobal;
+}
+
+int CvBuildingEntry::GetScarcityFlatReductionGlobal() const
+{
+	return m_iScarcityFlatReductionGlobal;
 }
 
 int CvBuildingEntry::GetPovertyFlatReductionGlobal() const

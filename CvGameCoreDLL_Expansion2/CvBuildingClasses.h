@@ -327,11 +327,13 @@ public:
 	int GetEmpireSizeModifierReduction() const;
 	int GetEmpireSizeModifierReductionGlobal() const;
 	int GetBasicNeedsMedianModifier() const;
+	int GetScarcityMedianModifier() const;
 	int GetGoldMedianModifier() const;
 	int GetScienceMedianModifier() const;
 	int GetCultureMedianModifier() const;
 	int GetReligiousUnrestModifier() const;
 	int GetBasicNeedsMedianModifierGlobal() const;
+	int GetScarcityMedianModifierGlobal() const;
 	int GetGoldMedianModifierGlobal() const;
 	int GetScienceMedianModifierGlobal() const;
 	int GetCultureMedianModifierGlobal() const;
@@ -405,12 +407,14 @@ public:
 	CvString GetThemingBonusHelp() const;
 
 	int GetDistressFlatReduction() const;
+	int GetScarcityFlatReduction() const;
 	int GetPovertyFlatReduction() const;
 	int GetIlliteracyFlatReduction() const;
 	int GetBoredomFlatReduction() const;
 	int GetReligiousUnrestFlatReduction() const;
 
 	int GetDistressFlatReductionGlobal() const;
+	int GetScarcityFlatReductionGlobal() const;
 	int GetPovertyFlatReductionGlobal() const;
 	int GetIlliteracyFlatReductionGlobal() const;
 	int GetBoredomFlatReductionGlobal() const;
@@ -901,21 +905,25 @@ private:
 	int m_iEmpireSizeModifierReduction;
 	int m_iEmpireSizeModifierReductionGlobal;
 	int m_iBasicNeedsMedianModifier;
+	int m_iScarcityMedianModifier;
 	int m_iGoldMedianModifier;
 	int m_iScienceMedianModifier;
 	int m_iCultureMedianModifier;
 	int m_iReligiousUnrestModifier;
 	int m_iBasicNeedsMedianModifierGlobal;
+	int m_iScarcityMedianModifierGlobal;
 	int m_iGoldMedianModifierGlobal;
 	int m_iScienceMedianModifierGlobal;
 	int m_iCultureMedianModifierGlobal;
 	int m_iReligiousUnrestModifierGlobal;
 	int m_iDistressFlatReduction;
+	int m_iScarcityFlatReduction;
 	int m_iPovertyFlatReduction;
 	int m_iIlliteracyFlatReduction;
 	int m_iBoredomFlatReduction;
 	int m_iReligiousUnrestFlatReduction;
 	int m_iDistressFlatReductionGlobal;
+	int m_iScarcityFlatReductionGlobal;
 	int m_iPovertyFlatReductionGlobal;
 	int m_iIlliteracyFlatReductionGlobal;
 	int m_iBoredomFlatReductionGlobal;

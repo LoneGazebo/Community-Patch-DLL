@@ -1084,35 +1084,55 @@ int CvCityCitizens::ScoreYieldChange(YieldAndGPPList yieldChanges, SPrecomputedE
 	}
 	if (MOD_BALANCE_VP)
 	{
-		// unhappiness from needs:
-		int iUnhappinessNeedsNow = cache.iDistress + cache.iPoverty + cache.iIlliteracy + cache.iBoredom + cache.iOtherUnhappiness;
-		int iUnhappinessNeedsThen = iUnhappinessNeedsNow;
-
-		// we have precalculated how yield rates must change in order to have an effect on the current unhappiness level from needs
-		if (yieldChanges.yield[YIELD_FOOD] + yieldChanges.yield[YIELD_PRODUCTION] <= cache.iBasicNeedsRateChangeForIncreasedDistress ||
-			yieldChanges.yield[YIELD_FOOD] + yieldChanges.yield[YIELD_PRODUCTION] >= cache.iBasicNeedsRateChangeForReducedDistress)
+		if (MODMOD_HAPPINESS_OVERFLOW)
 		{
-			// the change in yield rate would cause change the distress value. calculate the difference between the new value and the current one
-			iUnhappinessNeedsThen += m_pCity->GetDistress(false, yieldChanges.yield[YIELD_FOOD] + yieldChanges.yield[YIELD_PRODUCTION]) - cache.iDistress;
+			// All yield deltas must be evaluated together: any one can change overflow to another Need.
+			// Like VP, evaluate Needs before later specialist/process scoring adjustments.
+			// Food-production conversion below must not enter raw Production Distress.
+			int aiChanges[NUM_YIELD_TYPES] = {0};
+			for (size_t i = 0; i < yieldChanges.yield.size() && i < (size_t)NUM_YIELD_TYPES; i++)
+				aiChanges[i] = yieldChanges.yield[i];
+			int iNow = cache.iScarcity + cache.iDistress + cache.iPoverty + cache.iIlliteracy + cache.iBoredom;
+			int iThen = m_pCity->GetHappinessOverflowNeeds(false, aiChanges).GetNeedSubtotal();
+			if (!MOD_BALANCE_UNCAPPED_UNHAPPINESS)
+			{
+				iNow = min(iNow, m_pCity->getPopulation());
+				iThen = min(iThen, m_pCity->getPopulation());
+			}
+			iUnhappinessChange += iThen - iNow;
 		}
-
-		if (yieldChanges.yield[YIELD_GOLD] <= cache.iGoldRateChangeForIncreasedPoverty || yieldChanges.yield[YIELD_GOLD] >= cache.iGoldRateChangeForReducedPoverty)
+		else
 		{
-			iUnhappinessNeedsThen += m_pCity->GetPoverty(false, yieldChanges.yield[YIELD_GOLD]) - cache.iPoverty;
-		}
-		if (yieldChanges.yield[YIELD_SCIENCE] <= cache.iScienceRateChangeForIncreasedIlliteracy || yieldChanges.yield[YIELD_SCIENCE] >= cache.iScienceRateChangeForReducedIlliteracy)
-		{
-			iUnhappinessNeedsThen += m_pCity->GetIlliteracy(false, yieldChanges.yield[YIELD_SCIENCE]) - cache.iIlliteracy;
-		}
-		if (yieldChanges.yield[YIELD_CULTURE] <= cache.iCultureRateChangeForIncreasedBoredom || yieldChanges.yield[YIELD_CULTURE] >= cache.iCultureRateChangeForReducedBoredom)
-		{
-			iUnhappinessNeedsThen += m_pCity->GetBoredom(false, yieldChanges.yield[YIELD_CULTURE]) - cache.iBoredom;
-		}
+			// unhappiness from needs:
+			int iUnhappinessNeedsNow = cache.iDistress + cache.iPoverty + cache.iIlliteracy + cache.iBoredom + cache.iOtherUnhappiness;
+			int iUnhappinessNeedsThen = iUnhappinessNeedsNow;
+
+			// we have precalculated how yield rates must change in order to have an effect on the current unhappiness level from needs
+			if (yieldChanges.yield[YIELD_FOOD] + yieldChanges.yield[YIELD_PRODUCTION] <= cache.iBasicNeedsRateChangeForIncreasedDistress ||
+				yieldChanges.yield[YIELD_FOOD] + yieldChanges.yield[YIELD_PRODUCTION] >= cache.iBasicNeedsRateChangeForReducedDistress)
+			{
+				// the change in yield rate would cause change the distress value. calculate the difference between the new value and the current one
+				iUnhappinessNeedsThen += m_pCity->GetDistress(false, yieldChanges.yield[YIELD_FOOD] + yieldChanges.yield[YIELD_PRODUCTION]) - cache.iDistress;
+			}
+
+			if (yieldChanges.yield[YIELD_GOLD] <= cache.iGoldRateChangeForIncreasedPoverty || yieldChanges.yield[YIELD_GOLD] >= cache.iGoldRateChangeForReducedPoverty)
+			{
+				iUnhappinessNeedsThen += m_pCity->GetPoverty(false, yieldChanges.yield[YIELD_GOLD]) - cache.iPoverty;
+			}
+			if (yieldChanges.yield[YIELD_SCIENCE] <= cache.iScienceRateChangeForIncreasedIlliteracy || yieldChanges.yield[YIELD_SCIENCE] >= cache.iScienceRateChangeForReducedIlliteracy)
+			{
+				iUnhappinessNeedsThen += m_pCity->GetIlliteracy(false, yieldChanges.yield[YIELD_SCIENCE]) - cache.iIlliteracy;
+			}
+			if (yieldChanges.yield[YIELD_CULTURE] <= cache.iCultureRateChangeForIncreasedBoredom || yieldChanges.yield[YIELD_CULTURE] >= cache.iCultureRateChangeForReducedBoredom)
+			{
+				iUnhappinessNeedsThen += m_pCity->GetBoredom(false, yieldChanges.yield[YIELD_CULTURE]) - cache.iBoredom;
+			}
 
 
-		iUnhappinessNeedsThen = min(iUnhappinessNeedsThen, m_pCity->getPopulation());
-		iUnhappinessNeedsNow = min(iUnhappinessNeedsNow, m_pCity->getPopulation());
-		iUnhappinessChange += iUnhappinessNeedsThen - iUnhappinessNeedsNow;
+			iUnhappinessNeedsThen = min(iUnhappinessNeedsThen, m_pCity->getPopulation());
+			iUnhappinessNeedsNow = min(iUnhappinessNeedsNow, m_pCity->getPopulation());
+			iUnhappinessChange += iUnhappinessNeedsThen - iUnhappinessNeedsNow;
+		}
 
 		// unhappiness from specialists:
 		if (iNumSpecialistsAdded != 0)
@@ -3536,6 +3556,7 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 	iFoodConsumptionTimes100(0),
 	iFoodConsumptionAssumeNoReductionNonSpecialistsTimes100(0),
 	iFoodCorpMod(0),
+	iScarcity(0),
 	iDistress(0),
 	iPoverty(0),
 	iIlliteracy(0),
@@ -3582,10 +3603,22 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 	if (MOD_BALANCE_VP)
 	{
 		iFamine = pCity->GetUnhappinessFromFamine();
-		iDistress = pCity->GetDistress(false);
-		iPoverty = pCity->GetPoverty(false);
-		iIlliteracy = pCity->GetIlliteracy(false);
-		iBoredom = pCity->GetBoredom(false);
+		if (MODMOD_HAPPINESS_OVERFLOW)
+		{
+			SHappinessOverflowResult needs = pCity->GetHappinessOverflowNeeds();
+			iScarcity = needs.needs[HAPPINESS_NEED_SCARCITY].iUnhappiness;
+			iDistress = needs.needs[HAPPINESS_NEED_DISTRESS].iUnhappiness;
+			iPoverty = needs.needs[HAPPINESS_NEED_POVERTY].iUnhappiness;
+			iIlliteracy = needs.needs[HAPPINESS_NEED_ILLITERACY].iUnhappiness;
+			iBoredom = needs.needs[HAPPINESS_NEED_BOREDOM].iUnhappiness;
+		}
+		else
+		{
+			iDistress = pCity->GetDistress(false);
+			iPoverty = pCity->GetPoverty(false);
+			iIlliteracy = pCity->GetIlliteracy(false);
+			iBoredom = pCity->GetBoredom(false);
+		}
 		iUrbanization = pCity->getUnhappinessFromSpecialists(pCity->GetCityCitizens()->GetTotalSpecialistCount());
 	}
 	iLocalUnhappiness = pCity->GetUnhappinessAggregated();
@@ -3671,7 +3704,7 @@ void SPrecomputedExpensiveNumbers::update(CvCity* pCity, bool bInsideLoop)
 		}
 	}
 
-	if (pCity->IsPuppet() || pCity->IsResistance() || pCity->IsRazing() || !MOD_BALANCE_VP)
+	if (MODMOD_HAPPINESS_OVERFLOW || pCity->IsPuppet() || pCity->IsResistance() || pCity->IsRazing() || !MOD_BALANCE_VP)
 	{
 		iBasicNeedsRateChangeForReducedDistress = 0;
 		iGoldRateChangeForReducedPoverty = 0;

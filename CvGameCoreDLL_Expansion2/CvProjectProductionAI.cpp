@@ -328,6 +328,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iF
 		if (iDistress > 0)
 			iHappinessWeight += 25 * pkProjectInfo->GetDistressFlatReduction() * iDistress;
 	}
+	if (MODMOD_HAPPINESS_OVERFLOW && pkProjectInfo->GetScarcityFlatReduction() > 0)
+	{
+		int iScarcity = m_pCity->GetScarcity(false);
+		if (iScarcity > 0)
+			iHappinessWeight += 25 * pkProjectInfo->GetScarcityFlatReduction() * iScarcity;
+	}
 
 	if (pkProjectInfo->GetPovertyFlatReduction() > 0)
 	{
@@ -362,6 +368,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iF
 		int iDistress = m_pCity->GetDistress(false);
 		if (iDistress > 0)
 			iHappinessWeight += -1 * pkProjectInfo->GetBasicNeedsMedianModifier() * iDistress;
+	}
+	if (MODMOD_HAPPINESS_OVERFLOW && pkProjectInfo->GetScarcityMedianModifier() < 0)
+	{
+		int iScarcity = m_pCity->GetScarcity(false);
+		if (iScarcity > 0)
+			iHappinessWeight += -1 * pkProjectInfo->GetScarcityMedianModifier() * iScarcity;
 	}
 
 	if (pkProjectInfo->GetGoldMedianModifier() < 0)

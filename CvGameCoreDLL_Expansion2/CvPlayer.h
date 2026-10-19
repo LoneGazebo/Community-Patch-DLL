@@ -631,7 +631,9 @@ public:
 	int GetEmpireYieldRateTimes100(YieldTypes eYield, bool bStatic) const;
 
 	int GetDistressFlatReductionGlobal() const;
+	int GetScarcityFlatReductionGlobal() const;
 	void ChangeDistressFlatReductionGlobal(int iChange);
+	void ChangeScarcityFlatReductionGlobal(int iChange);
 
 	int GetPovertyFlatReductionGlobal() const;
 	void ChangePovertyFlatReductionGlobal(int iChange);
@@ -646,7 +648,9 @@ public:
 	void ChangeReligiousUnrestFlatReductionGlobal(int iChange);
 
 	int GetBasicNeedsMedianModifierGlobal() const;
+	int GetScarcityMedianModifierGlobal() const;
 	void ChangeBasicNeedsMedianModifierGlobal(int iChange);
+	void ChangeScarcityMedianModifierGlobal(int iChange);
 
 	int GetGoldMedianModifierGlobal() const;
 	void ChangeGoldMedianModifierGlobal(int iChange);
@@ -661,7 +665,9 @@ public:
 	void ChangeReligiousUnrestModifierGlobal(int iChange);
 
 	int GetBasicNeedsMedianModifierCapital() const;
+	int GetScarcityMedianModifierCapital() const;
 	void ChangeBasicNeedsMedianModifierCapital(int iChange);
+	void ChangeScarcityMedianModifierCapital(int iChange);
 
 	int GetGoldMedianModifierCapital() const;
 	void ChangeGoldMedianModifierCapital(int iChange);
@@ -769,6 +775,7 @@ public:
 	int GetUnhappinessFromBoredom() const;
 	int GetUnhappinessFromIlliteracy() const;
 	int GetUnhappinessFromDistress() const;
+	int GetUnhappinessFromScarcity() const;
 	int GetUnhappinessFromPoverty() const;
 	int GetUnhappinessFromIsolation() const;
 	int GetUnhappinessFromPillagedTiles() const;
@@ -2655,6 +2662,8 @@ public:
 	PromotionTypes GetEmbarkationPromotion() const;
 	PromotionTypes GetDeepWaterEmbarkationPromotion() const;
 
+	void LogHappinessOverflowCities();
+
 	// spaceship planning
 	void LogSpaceshipPlanMessage(const CvString& strMsg) const;
 	void DoUpdateCoreCitiesForSpaceshipProduction();
@@ -3047,16 +3056,19 @@ protected:
 	int m_iHappinessTotal;
 	int m_iEmpireSizeModifierReductionGlobal;
 	int m_iDistressFlatReductionGlobal;
+	int m_iScarcityFlatReductionGlobal;
 	int m_iPovertyFlatReductionGlobal;
 	int m_iIlliteracyFlatReductionGlobal;
 	int m_iBoredomFlatReductionGlobal;
 	int m_iReligiousUnrestFlatReductionGlobal;
 	int m_iBasicNeedsMedianModifierGlobal;
+	int m_iScarcityMedianModifierGlobal;
 	int m_iGoldMedianModifierGlobal;
 	int m_iScienceMedianModifierGlobal;
 	int m_iCultureMedianModifierGlobal;
 	int m_iReligiousUnrestModifierGlobal;
 	int m_iBasicNeedsMedianModifierCapital;
+	int m_iScarcityMedianModifierCapital;
 	int m_iGoldMedianModifierCapital;
 	int m_iScienceMedianModifierCapital;
 	int m_iCultureMedianModifierCapital;
@@ -4431,6 +4443,9 @@ SYNC_ARCHIVE_VAR(bool, m_refuseDefensivePactTrade)
 SYNC_ARCHIVE_VAR(bool, m_refuseBrokeredWarTrade)
 SYNC_ARCHIVE_VAR(bool, m_refuseBrokeredPeaceTrade)
 SYNC_ARCHIVE_VAR(bool, m_refuseResearchAgreementTrade)
+SYNC_ARCHIVE_VAR(int, m_iScarcityFlatReductionGlobal)
+SYNC_ARCHIVE_VAR(int, m_iScarcityMedianModifierGlobal)
+SYNC_ARCHIVE_VAR(int, m_iScarcityMedianModifierCapital)
 SYNC_ARCHIVE_END()
 
 

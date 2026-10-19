@@ -36,6 +36,44 @@ class CvCityEspionage;
 class CvCityCulture;
 class CvPlayer;
 
+enum HappinessOverflowNeedTypes
+{
+	HAPPINESS_NEED_SCARCITY,
+	HAPPINESS_NEED_DISTRESS,
+	HAPPINESS_NEED_POVERTY,
+	HAPPINESS_NEED_ILLITERACY,
+	HAPPINESS_NEED_BOREDOM,
+	NUM_HAPPINESS_OVERFLOW_NEEDS
+};
+
+enum HappinessOverflowModes
+{
+	HAPPINESS_OVERFLOW_FULL = 0,
+	HAPPINESS_OVERFLOW_PROTECT_ONE = 1,
+	HAPPINESS_OVERFLOW_HALF = 2
+};
+
+struct SHappinessOverflowNeed
+{
+	double fYieldTimes100;
+	double fThresholdTimes100;
+	double fDeficit;
+	double fExcess;
+	double fMaxCover;
+	double fOverflowReceived;
+	double fRemainingDeficit;
+	int iRawUnhappiness;
+	int iUnhappiness;
+};
+
+struct SHappinessOverflowResult
+{
+	SHappinessOverflowResult();
+	SHappinessOverflowNeed needs[NUM_HAPPINESS_OVERFLOW_NEEDS];
+	double fOverflowPool;
+	int GetNeedSubtotal() const;
+};
+
 struct SCityExtraYields
 {
 	vector<pair<TerrainTypes, int>> forTerrain, forXTerrain, forTerrainFromBuildings, forTerrainFromReligion;
@@ -128,6 +166,8 @@ public:
 
 	void UpdateCachedYieldMedians();
 	void SetCachedBasicNeedsMedian(int iValue);
+	void SetCachedScarcityMedian(int iValue);
+	void SetCachedProductionNeedsMedian(int iValue);
 	void SetCachedGoldMedian(int iValue);
 	void SetCachedScienceMedian(int iValue);
 	void SetCachedCultureMedian(int iValue);
@@ -135,6 +175,8 @@ public:
 	void SetCachedEmpireSizeModifier(int iValue);
 	void SetYieldMediansCachedTurn(int iTurn);
 	int GetCachedBasicNeedsMedian() const;
+	int GetCachedScarcityMedian() const;
+	int GetCachedProductionNeedsMedian() const;
 	int GetCachedGoldMedian() const;
 	int GetCachedScienceMedian() const;
 	int GetCachedCultureMedian() const;
@@ -831,6 +873,12 @@ public:
 	int GetDistress(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
 	int GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
 	float GetBasicNeedsMedian(bool bForceRecalc, int iAdditionalModifier) const;
+	float GetScarcityMedian(bool bForceRecalc, int iAdditionalModifier) const;
+	float GetProductionNeedsMedian(bool bForceRecalc, int iAdditionalModifier) const;
+	int GetScarcity(bool bForceRecalc = false, int iAssumedExtraYieldRate = 0) const;
+	int GetScarcityRaw(bool bForceRecalc = false, int iAssumedExtraYieldRate = 0) const;
+	// Optional deltas are indexed by YieldTypes, in hundredths. All categories see the same snapshot.
+	SHappinessOverflowResult GetHappinessOverflowNeeds(bool bForceRecalc = false, const int* aiYieldChanges = NULL) const;
 	int GetPoverty(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
 	int GetPovertyRaw(bool bForceRecalc, int iAssumedExtraYieldRate = 0) const;
 	float GetGoldMedian(bool bForceRecalc, int iAdditionalModifier) const;
@@ -1034,7 +1082,7 @@ public:
 	int getProductionPerTurnForBuildingTimes100(BuildingTypes eBuilding) const;
 	int getProductionPerTurnForProjectTimes100(ProjectTypes eProject) const;
 	int getProductionPerTurnForProcessTimes100(ProcessTypes eProcess) const;
-	int getRawProductionPerTurnTimes100() const;
+	int getRawProductionPerTurnTimes100(bool bIgnoreTrade = false) const;
 
 
 	void UpdateCityYieldFromYield();
@@ -1232,7 +1280,9 @@ public:
 	void ChangeEmpireSizeModifierReduction(int iChange);
 
 	int GetDistressFlatReduction() const;
+	int GetScarcityFlatReduction() const;
 	void ChangeDistressFlatReduction(int iChange);
+	void ChangeScarcityFlatReduction(int iChange);
 
 	int GetPovertyFlatReduction() const;
 	void ChangePovertyFlatReduction(int iChange);
@@ -1247,7 +1297,9 @@ public:
 	void ChangeReligiousUnrestFlatReduction(int iChange);
 
 	int GetBasicNeedsMedianModifier() const;
+	int GetScarcityMedianModifier() const;
 	void ChangeBasicNeedsMedianModifier(int iChange);
+	void ChangeScarcityMedianModifier(int iChange);
 
 	int GetGoldMedianModifier() const;
 	void ChangeGoldMedianModifier(int iChange);
@@ -1990,6 +2042,8 @@ protected:
 	int m_iHappinessFromEmpire;
 	int m_iUnhappinessFromEmpire;
 	int m_iCachedBasicNeedsMedian;
+	int m_iCachedScarcityMedian;
+	int m_iCachedProductionNeedsMedian;
 	int m_iCachedGoldMedian;
 	int m_iCachedScienceMedian;
 	int m_iCachedCultureMedian;
@@ -2077,11 +2131,13 @@ protected:
 	int m_iMinimumFood;
 	int m_iEmpireSizeModifierReduction;
 	int m_iDistressFlatReduction;
+	int m_iScarcityFlatReduction;
 	int m_iPovertyFlatReduction;
 	int m_iIlliteracyFlatReduction;
 	int m_iBoredomFlatReduction;
 	int m_iReligiousUnrestFlatReduction;
 	int m_iBasicNeedsMedianModifier;
+	int m_iScarcityMedianModifier;
 	int m_iGoldMedianModifier;
 	int m_iScienceMedianModifier;
 	int m_iCultureMedianModifier;
@@ -2632,6 +2688,10 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiUnitCostInvestmentReduction)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abBuildingConstructed)
 SYNC_ARCHIVE_VAR(int, m_iVassalLevyEra)
 SYNC_ARCHIVE_VAR(int, m_iLocalFranchiseChance)
+SYNC_ARCHIVE_VAR(int, m_iCachedScarcityMedian)
+SYNC_ARCHIVE_VAR(int, m_iCachedProductionNeedsMedian)
+SYNC_ARCHIVE_VAR(int, m_iScarcityFlatReduction)
+SYNC_ARCHIVE_VAR(int, m_iScarcityMedianModifier)
 SYNC_ARCHIVE_END()
 
 //just a guard class so we never forget to unset the garrison override

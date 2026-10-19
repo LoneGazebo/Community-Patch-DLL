@@ -571,6 +571,8 @@ public:
 	void updateGlobalMedians();
 	void SetMedianTechsResearched(int iValue);
 	void SetBasicNeedsMedian(int iValue);
+	void SetScarcityMedian(int iValue);
+	void SetProductionNeedsMedian(int iValue);
 	void SetGoldMedian(int iValue);
 	void SetScienceMedian(int iValue);
 	void SetCultureMedian(int iValue);
@@ -578,6 +580,8 @@ public:
 
 	int GetMedianTechsResearched() const;
 	int GetBasicNeedsMedian() const;
+	int GetScarcityMedian() const;
+	int GetProductionNeedsMedian() const;
 	int GetGoldMedian() const;
 	int GetScienceMedian() const;
 	int GetCultureMedian() const;
@@ -920,6 +924,8 @@ protected:
 
 	int m_iMedianTechsResearched;
 	int m_iBasicNeedsMedian;
+	int m_iScarcityMedian;
+	int m_iProductionNeedsMedian;
 	int m_iGoldMedian;
 	int m_iScienceMedian;
 	int m_iCultureMedian;

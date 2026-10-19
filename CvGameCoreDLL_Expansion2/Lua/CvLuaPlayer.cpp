@@ -800,6 +800,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromBoredom);
 	Method(GetUnhappinessFromIlliteracy);
 	Method(GetUnhappinessFromDistress);
+	Method(GetUnhappinessFromScarcity);
+	Method(GetScarcityFlatReductionGlobal);
+	Method(GetScarcityMedianModifierGlobal);
+	Method(GetScarcityMedianModifierCapital);
 	Method(GetUnhappinessFromPoverty);
 	Method(GetUnhappinessFromIsolation);
 	Method(GetUnhappinessFromPillagedTiles);
@@ -10093,6 +10097,37 @@ int CvLuaPlayer::lGetUnhappinessFromDistress(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+int CvLuaPlayer::lGetUnhappinessFromScarcity(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetUnhappinessFromScarcity();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetScarcityFlatReductionGlobal(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, MODMOD_HAPPINESS_OVERFLOW ? pkPlayer->GetScarcityFlatReductionGlobal() : 0);
+	return 1;
+}
+
+int CvLuaPlayer::lGetScarcityMedianModifierGlobal(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, MODMOD_HAPPINESS_OVERFLOW ? pkPlayer->GetScarcityMedianModifierGlobal() : 0);
+	return 1;
+}
+
+int CvLuaPlayer::lGetScarcityMedianModifierCapital(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, MODMOD_HAPPINESS_OVERFLOW ? pkPlayer->GetScarcityMedianModifierCapital() : 0);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromPoverty();
 int CvLuaPlayer::lGetUnhappinessFromPoverty(lua_State* L)

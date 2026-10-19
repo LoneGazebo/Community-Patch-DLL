@@ -59,11 +59,13 @@ public:
 	int GetEmpireSizeModifierPerCityMod() const;
 	CivilizationTypes GetCivilizationType() const;
 	int GetDistressFlatReduction() const;
+	int GetScarcityFlatReduction() const;
 	int GetPovertyFlatReduction() const;
 	int GetIlliteracyFlatReduction() const;
 	int GetBoredomFlatReduction() const;
 	int GetReligiousUnrestFlatReduction() const;
 	int GetBasicNeedsMedianModifier() const;
+	int GetScarcityMedianModifier() const;
 	int GetGoldMedianModifier() const;
 	int GetScienceMedianModifier() const;
 	int GetCultureMedianModifier() const;
@@ -122,11 +124,13 @@ protected:
 	int m_iEmpireSizeModifierPerCityMod;
 	CivilizationTypes m_eCivType;
 	int m_iDistressFlatReduction;
+	int m_iScarcityFlatReduction;
 	int m_iPovertyFlatReduction;
 	int m_iIlliteracyFlatReduction;
 	int m_iBoredomFlatReduction;
 	int m_iReligiousUnrestFlatReduction;
 	int m_iBasicNeedsMedianModifier;
+	int m_iScarcityMedianModifier;
 	int m_iGoldMedianModifier;
 	int m_iScienceMedianModifier;
 	int m_iCultureMedianModifier;

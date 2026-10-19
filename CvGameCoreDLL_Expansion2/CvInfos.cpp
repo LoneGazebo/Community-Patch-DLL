@@ -9788,6 +9788,7 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_ppiImprovementYield(NULL),
 	 m_ppiResourceYield(NULL),
 	 m_iBasicNeedsMedianModifierGlobal(0),
+	 m_iScarcityMedianModifierGlobal(0),
 	 m_iGoldMedianModifierGlobal(0),
 	 m_iScienceMedianModifierGlobal(0),
 	 m_iCultureMedianModifierGlobal(0),
@@ -10024,6 +10025,11 @@ int CvModEventChoiceInfo::getCityHappinessGlobal() const
 int CvModEventChoiceInfo::getBasicNeedsMedianModifierGlobal() const
 {
 	return m_iBasicNeedsMedianModifierGlobal;
+}
+
+int CvModEventChoiceInfo::getScarcityMedianModifierGlobal() const
+{
+	return m_iScarcityMedianModifierGlobal;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getGoldMedianModifierGlobal() const
@@ -10720,6 +10726,8 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	kUtility.PopulateArrayByValue(m_piRequiredFeature, "Features", "EventChoice_MinimumFeatureRequired", "FeatureType", "EventChoiceType", szEventType, "Quantity");
 
 	m_iBasicNeedsMedianModifierGlobal = kResults.GetInt("BasicNeedsMedianModifierGlobal");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityMedianModifierGlobal = kResults.GetInt("ScarcityMedianModifierGlobal");
 	m_iGoldMedianModifierGlobal = kResults.GetInt("GoldMedianModifierGlobal");
 	m_iScienceMedianModifierGlobal = kResults.GetInt("ScienceMedianModifierGlobal");
 	m_iCultureMedianModifierGlobal = kResults.GetInt("CultureMedianModifierGlobal");
@@ -11339,6 +11347,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iCityHappiness(0),
 	 m_iReligiousPressureModifier(0),
 	 m_iBasicNeedsMedianModifier(0),
+	 m_iScarcityMedianModifier(0),
 	 m_iGoldMedianModifier(0),
 	 m_iScienceMedianModifier(0),
 	 m_iCultureMedianModifier(0),
@@ -11668,6 +11677,11 @@ int CvModEventCityChoiceInfo::getReligiousPressureModifier() const
 int CvModEventCityChoiceInfo::getBasicNeedsMedianModifier() const
 {
 	return m_iBasicNeedsMedianModifier;
+}
+
+int CvModEventCityChoiceInfo::getScarcityMedianModifier() const
+{
+	return m_iScarcityMedianModifier;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getGoldMedianModifier() const
@@ -12628,6 +12642,8 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bNearNaturalWonder = kResults.GetBool("RequiresNearbyNaturalWonder");
 
 	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		m_iScarcityMedianModifier = kResults.GetInt("ScarcityMedianModifier");
 	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
 	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
 	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");

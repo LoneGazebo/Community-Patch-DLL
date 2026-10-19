@@ -786,6 +786,10 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromBoredom, int);
 	LUAAPIEXTN(GetUnhappinessFromIlliteracy, int);
 	LUAAPIEXTN(GetUnhappinessFromDistress, int);
+	LUAAPIEXTN(GetUnhappinessFromScarcity, int);
+	static int lGetScarcityFlatReductionGlobal(lua_State* L);
+	static int lGetScarcityMedianModifierGlobal(lua_State* L);
+	static int lGetScarcityMedianModifierCapital(lua_State* L);
 	LUAAPIEXTN(GetUnhappinessFromPoverty, int);
 	LUAAPIEXTN(GetUnhappinessFromIsolation, int);
 	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);

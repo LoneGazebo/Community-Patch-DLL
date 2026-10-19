@@ -331,11 +331,13 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetBuildingYieldModifier);
 	Method(GetBuildingCorporateGPChange);
 	Method(GetBasicNeedsMedianModifierBuilding);
+	Method(GetScarcityMedianModifierBuilding);
 	Method(GetGoldMedianModifierBuilding);
 	Method(GetScienceMedianModifierBuilding);
 	Method(GetCultureMedianModifierBuilding);
 	Method(GetReligiousUnrestModifierBuilding);
 	Method(GetBasicNeedsMedianModifierBuildingGlobal);
+	Method(GetScarcityMedianModifierBuildingGlobal);
 	Method(GetGoldMedianModifierBuildingGlobal);
 	Method(GetScienceMedianModifierBuildingGlobal);
 	Method(GetCultureMedianModifierBuildingGlobal);
@@ -2377,6 +2379,24 @@ int CvLuaGame::lGetBasicNeedsMedianModifierBuilding(lua_State* L)
 
 	return 1;
 }
+
+int CvLuaGame::lGetScarcityMedianModifierBuilding(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if (pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetScarcityMedianModifier());
+	}
+	else
+	{
+		lua_pushinteger(L, 0);
+	}
+
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetGoldMedianModifierBuilding(lua_State* L)
 {
@@ -2459,6 +2479,24 @@ int CvLuaGame::lGetBasicNeedsMedianModifierBuildingGlobal(lua_State* L)
 	if (pkBuildingInfo)
 	{
 		lua_pushinteger(L, pkBuildingInfo->GetBasicNeedsMedianModifierGlobal());
+	}
+	else
+	{
+		lua_pushinteger(L, 0);
+	}
+
+	return 1;
+}
+
+int CvLuaGame::lGetScarcityMedianModifierBuildingGlobal(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if (pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetScarcityMedianModifierGlobal());
 	}
 	else
 	{

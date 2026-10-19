@@ -355,6 +355,8 @@ CvCity::CvCity() :
 	, m_iHappinessFromEmpire()
 	, m_iUnhappinessFromEmpire()
 	, m_iCachedBasicNeedsMedian()
+	, m_iCachedScarcityMedian()
+	, m_iCachedProductionNeedsMedian()
 	, m_iCachedGoldMedian()
 	, m_iCachedScienceMedian()
 	, m_iCachedCultureMedian()
@@ -441,11 +443,13 @@ CvCity::CvCity() :
 	, m_iNoStarvationNonSpecialist()
 	, m_iEmpireSizeModifierReduction()
 	, m_iDistressFlatReduction()
+	, m_iScarcityFlatReduction()
 	, m_iPovertyFlatReduction()
 	, m_iIlliteracyFlatReduction()
 	, m_iBoredomFlatReduction()
 	, m_iReligiousUnrestFlatReduction()
 	, m_iBasicNeedsMedianModifier()
+	, m_iScarcityMedianModifier()
 	, m_iGoldMedianModifier()
 	, m_iScienceMedianModifier()
 	, m_iCultureMedianModifier()
@@ -1282,6 +1286,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iHappinessFromEmpire = 0;
 	m_iUnhappinessFromEmpire = 0;
 	m_iCachedBasicNeedsMedian = 0;
+	m_iCachedScarcityMedian = 0;
+	m_iCachedProductionNeedsMedian = 0;
 	m_iCachedGoldMedian = 0;
 	m_iCachedScienceMedian = 0;
 	m_iCachedCultureMedian = 0;
@@ -1290,11 +1296,13 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iYieldMediansCachedTurn = GC.getGame().getGameTurn();
 	m_iEmpireSizeModifierReduction = 0;
 	m_iDistressFlatReduction = 0;
+	m_iScarcityFlatReduction = 0;
 	m_iPovertyFlatReduction = 0;
 	m_iIlliteracyFlatReduction = 0;
 	m_iBoredomFlatReduction = 0;
 	m_iReligiousUnrestFlatReduction = 0;
 	m_iBasicNeedsMedianModifier = 0;
+	m_iScarcityMedianModifier = 0;
 	m_iGoldMedianModifier = 0;
 	m_iScienceMedianModifier = 0;
 	m_iCultureMedianModifier = 0;
@@ -2878,6 +2886,11 @@ bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
 void CvCity::UpdateCachedYieldMedians()
 {
 	SetCachedBasicNeedsMedian(GC.getGame().GetBasicNeedsMedian());
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		SetCachedScarcityMedian(GC.getGame().GetScarcityMedian());
+		SetCachedProductionNeedsMedian(GC.getGame().GetProductionNeedsMedian());
+	}
 	SetCachedGoldMedian(GC.getGame().GetGoldMedian());
 	SetCachedScienceMedian(GC.getGame().GetScienceMedian());
 	SetCachedCultureMedian(GC.getGame().GetCultureMedian());
@@ -2891,6 +2904,16 @@ void CvCity::UpdateCachedYieldMedians()
 void CvCity::SetCachedBasicNeedsMedian(int iValue)
 {
 	m_iCachedBasicNeedsMedian = iValue;
+}
+
+void CvCity::SetCachedScarcityMedian(int iValue)
+{
+	m_iCachedScarcityMedian = iValue;
+}
+
+void CvCity::SetCachedProductionNeedsMedian(int iValue)
+{
+	m_iCachedProductionNeedsMedian = iValue;
 }
 void CvCity::SetCachedGoldMedian(int iValue)
 {
@@ -2920,6 +2943,16 @@ void CvCity::SetYieldMediansCachedTurn(int iTurn)
 int CvCity::GetCachedBasicNeedsMedian() const
 {
 	return m_iCachedBasicNeedsMedian;
+}
+
+int CvCity::GetCachedScarcityMedian() const
+{
+	return m_iCachedScarcityMedian;
+}
+
+int CvCity::GetCachedProductionNeedsMedian() const
+{
+	return m_iCachedProductionNeedsMedian;
 }
 int CvCity::GetCachedGoldMedian() const
 {
@@ -4955,6 +4988,12 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 			{
 				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
 				ChangeBasicNeedsMedianModifier((pkEventChoiceInfo->getBasicNeedsMedianModifier() - iSpyRank * 5) * -1);
+				bChanged = true;
+			}
+			if (MODMOD_HAPPINESS_OVERFLOW && pkEventChoiceInfo->getScarcityMedianModifier() != 0)
+			{
+				int iSpyRank = getEventCounterspyRank(eChosenEventChoice);
+				ChangeScarcityMedianModifier((pkEventChoiceInfo->getScarcityMedianModifier() - iSpyRank * 5) * -1);
 				bChanged = true;
 			}
 			if (pkEventChoiceInfo->getGoldMedianModifier() != 0)
@@ -7234,6 +7273,11 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				int iSpyRank = getEventCounterspyRank(eEventChoice);
 				ChangeBasicNeedsMedianModifier(pkEventChoiceInfo->getBasicNeedsMedianModifier() - 5 * iSpyRank);
+			}
+			if (MODMOD_HAPPINESS_OVERFLOW && pkEventChoiceInfo->getScarcityMedianModifier() != 0)
+			{
+				int iSpyRank = getEventCounterspyRank(eEventChoice);
+				ChangeScarcityMedianModifier(pkEventChoiceInfo->getScarcityMedianModifier() - 5 * iSpyRank);
 			}
 			if (pkEventChoiceInfo->getGoldMedianModifier() != 0)
 			{
@@ -13791,12 +13835,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		ChangeEmpireSizeModifierReduction(pBuildingInfo->GetEmpireSizeModifierReduction() * iChange);
 		ChangeDistressFlatReduction(pBuildingInfo->GetDistressFlatReduction() * iChange);
+		if (MODMOD_HAPPINESS_OVERFLOW)
+			ChangeScarcityFlatReduction(pBuildingInfo->GetScarcityFlatReduction() * iChange);
 		ChangePovertyFlatReduction(pBuildingInfo->GetPovertyFlatReduction() * iChange);
 		ChangeIlliteracyFlatReduction(pBuildingInfo->GetIlliteracyFlatReduction() * iChange);
 		ChangeBoredomFlatReduction(pBuildingInfo->GetBoredomFlatReduction() * iChange);
 		ChangeReligiousUnrestFlatReduction(pBuildingInfo->GetReligiousUnrestFlatReduction() * iChange);
 
 		ChangeBasicNeedsMedianModifier(pBuildingInfo->GetBasicNeedsMedianModifier() * iChange);
+		if (MODMOD_HAPPINESS_OVERFLOW)
+			ChangeScarcityMedianModifier(pBuildingInfo->GetScarcityMedianModifier() * iChange);
 		ChangeGoldMedianModifier(pBuildingInfo->GetGoldMedianModifier() * iChange);
 		ChangeScienceMedianModifier(pBuildingInfo->GetScienceMedianModifier() * iChange);
 		ChangeCultureMedianModifier(pBuildingInfo->GetCultureMedianModifier() * iChange);
@@ -20079,6 +20127,19 @@ int CvCity::GetUnhappinessAggregated() const
 		return 0;
 	}
 
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		int iNeeds = GetHappinessOverflowNeeds().GetNeedSubtotal();
+		if (!MOD_BALANCE_UNCAPPED_UNHAPPINESS)
+			iNeeds = min(iNeeds, iPopulation);
+		// Only yield Needs are population capped. All other sources remain separate.
+		return iNeeds + max(0, GetUnhappinessFromOccupation()) + max(0, GetUnhappinessFromBuildings())
+			+ max(0, GetUnhappinessFromEmpire()) + max(0, GetUnhappinessFromIsolation())
+			+ max(0, GetUnhappinessFromReligiousUnrest()) + max(0, GetUnhappinessFromPillagedTiles())
+			+ max(0, GetUnhappinessFromFamine())
+			+ max(0, getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount()));
+	}
+
 	if (MOD_BALANCE_UNCAPPED_UNHAPPINESS)
 		iPopulation = INT_MAX;
 
@@ -20171,6 +20232,23 @@ int CvCity::GetUnhappinessAggregated() const
 
 CvString CvCity::getPotentialUnhappinessWithGrowth()
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		SHappinessOverflowResult before = GetHappinessOverflowNeeds(false);
+		SHappinessOverflowResult after = GetHappinessOverflowNeeds(true);
+		CvString strChanges;
+		const char* keys[NUM_HAPPINESS_OVERFLOW_NEEDS] = { "TXT_KEY_HO_SCARCITY", "TXT_KEY_HO_DISTRESS", "TXT_KEY_HO_POVERTY", "TXT_KEY_HO_ILLITERACY", "TXT_KEY_HO_BOREDOM" };
+		for (int i = 0; i < NUM_HAPPINESS_OVERFLOW_NEEDS; i++)
+		{
+			int iChange = after.needs[i].iUnhappiness - before.needs[i].iUnhappiness;
+			if (iChange != 0)
+				strChanges += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HO_GROWTH", GetLocalizedText(keys[i]), iChange);
+		}
+		if (strChanges.empty())
+			return "";
+		return GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH") + strChanges;
+	}
+
 	int Distress = GetDistress(true) - GetDistress(false);
 	int Poverty = GetPoverty(true) - GetPoverty(false);
 	int Illiteracy = GetIlliteracy(true) - GetIlliteracy(false);
@@ -20203,6 +20281,9 @@ CvString CvCity::getPotentialUnhappinessWithGrowth()
 
 int CvCity::getPotentialUnhappinessWithGrowthVal() const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		return GetHappinessOverflowNeeds(true).GetNeedSubtotal() - GetHappinessOverflowNeeds(false).GetNeedSubtotal();
+
 	int Distress = GetDistress(true) - GetDistress(false);
 	int Poverty = GetPoverty(true) - GetPoverty(false);
 	int Illiteracy = GetIlliteracy(true) - GetIlliteracy(false);
@@ -20446,12 +20527,20 @@ int CvCity::GetNeedModifierForYield(YieldTypes eYield) const
 	int iModifier = 0;
 
 	// Distress = Production + Food, but because Food has a process (Farming), change eYield here for compatibility below
-	if (eYield == YIELD_PRODUCTION)
+	if (!MODMOD_HAPPINESS_OVERFLOW && eYield == YIELD_PRODUCTION)
 		eYield = YIELD_FOOD;
 
 	switch (eYield)
 	{
 	case YIELD_FOOD:
+		if (MODMOD_HAPPINESS_OVERFLOW)
+		{
+			iModifier += GetScarcityMedianModifier();
+			iModifier += kPlayer.GetScarcityMedianModifierGlobal();
+			break;
+		}
+		// Legacy Food aliases the combined Basic Needs category.
+	case YIELD_PRODUCTION:
 	{
 		iModifier += GetBasicNeedsMedianModifier(); // Local modifier to the median
 		iModifier += kPlayer.GetBasicNeedsMedianModifierGlobal(); // Global modifier to the median
@@ -20526,12 +20615,18 @@ int CvCity::GetCityNeedModifierForYield(YieldTypes eYield) const
 		iModifier += plot()->countNumAirUnits(getTeam(), true) * kPlayer.GetNeedsModifierFromAirUnits() * -1;
 
 	// Distress = Production + Food, but because Food has a process (Farming), change eYield here for compatibility below
-	if (eYield == YIELD_PRODUCTION)
+	if (!MODMOD_HAPPINESS_OVERFLOW && eYield == YIELD_PRODUCTION)
 		eYield = YIELD_FOOD;
 
 	switch (eYield) // Get the local modifier for this yield
 	{
 	case YIELD_FOOD:
+		if (MODMOD_HAPPINESS_OVERFLOW)
+		{
+			iModifier += GetScarcityMedianModifier();
+			break;
+		}
+	case YIELD_PRODUCTION:
 		iModifier += GetBasicNeedsMedianModifier();
 		break;
 	case YIELD_GOLD:
@@ -20599,6 +20694,37 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		}
 
 		return strTooltip;
+	}
+
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		SHappinessOverflowResult needs = GetHappinessOverflowNeeds();
+		CvString strTooltip = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", GetUnhappinessAggregated(), GetYieldMediansCachedTurn());
+		const char* keys[NUM_HAPPINESS_OVERFLOW_NEEDS] = { "TXT_KEY_HO_SCARCITY", "TXT_KEY_HO_DISTRESS", "TXT_KEY_HO_POVERTY", "TXT_KEY_HO_ILLITERACY", "TXT_KEY_HO_BOREDOM" };
+		for (int i = 0; i < NUM_HAPPINESS_OVERFLOW_NEEDS; i++)
+		{
+			const SHappinessOverflowNeed& need = needs.needs[i];
+			if (bCityBanner)
+			{
+				if (need.iUnhappiness > 0)
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HO_NEED", GetLocalizedText(keys[i]), need.iUnhappiness);
+			}
+			else
+			{
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HO_NEED_DETAIL", GetLocalizedText(keys[i]), need.iUnhappiness, (float)need.fDeficit, (float)need.fOverflowReceived);
+				if (bIncludeMedian)
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HO_THRESHOLD", (float)(need.fYieldTimes100 / 100), (float)(need.fThresholdTimes100 / 100));
+			}
+		}
+		int iNeedSubtotal = needs.GetNeedSubtotal();
+		if (!bCityBanner && !MOD_BALANCE_UNCAPPED_UNHAPPINESS && iNeedSubtotal > getPopulation())
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HO_NEED_CAP", iNeedSubtotal, getPopulation());
+		const int sources[] = { GetUnhappinessFromOccupation(), GetUnhappinessFromBuildings(), GetUnhappinessFromEmpire(), GetUnhappinessFromIsolation(), GetUnhappinessFromReligiousUnrest(), GetUnhappinessFromPillagedTiles(), GetUnhappinessFromFamine(), getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount()) };
+		const char* sourceKeys[] = { "TXT_KEY_OCCUPATION_UNHAPPINESS", "TXT_KEY_BUILDINGS_UNHAPPINESS", "TXT_KEY_EMPIRE_WIDE_UNHAPPINESS", "TXT_KEY_ISOLATION_UNHAPPINESS", "TXT_KEY_HO_RELIGION", "TXT_KEY_PILLAGED_UNHAPPINESS", "TXT_KEY_STARVING_UNHAPPINESS", "TXT_KEY_SPECIALIST_UNHAPPINESS" };
+		for (int i = 0; i < (int)(sizeof(sources) / sizeof(sources[0])); i++)
+			if (sources[i] > 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText(sourceKeys[i], sources[i]);
+		return strTooltip + getPotentialUnhappinessWithGrowth();
 	}
 
 	CvWeightedVector<UnhappyReasons> vReasons;
@@ -20708,6 +20834,8 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 
 			switch (eReason)
 			{
+			case UNHAPPY_REASON_SCARCITY:
+				UNREACHABLE(); // Scarcity is handled by the Overflow tooltip above.
 			case UNHAPPY_REASON_RESISTANCE:
 				UNREACHABLE(); // Resistance is handled at the start of the function.
 			case UNHAPPY_REASON_OCCUPIED:
@@ -20939,6 +21067,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		{
 		case UNHAPPY_REASON_RESISTANCE:
 			UNREACHABLE(); // Resistance is handled at the start of the function.
+		case UNHAPPY_REASON_SCARCITY:
 		case UNHAPPY_REASON_DISTRESS:
 		case UNHAPPY_REASON_POVERTY:
 		case UNHAPPY_REASON_ILLITERACY:
@@ -21162,8 +21291,169 @@ int CvCity::getUnhappyCitizenCount() const
 //	--------------------------------------------------------------------------------
 /// How much Unhappiness is this city generating from Distress?
 /// bForceRecalc computes the amount of Distress generated after this city's next growth
+SHappinessOverflowResult::SHappinessOverflowResult() : fOverflowPool(0)
+{
+	for (int i = 0; i < NUM_HAPPINESS_OVERFLOW_NEEDS; i++)
+	{
+		SHappinessOverflowNeed& need = needs[i];
+		need.fYieldTimes100 = need.fThresholdTimes100 = 0;
+		need.fDeficit = need.fExcess = need.fMaxCover = 0;
+		need.fOverflowReceived = need.fRemainingDeficit = 0;
+		need.iRawUnhappiness = need.iUnhappiness = 0;
+	}
+}
+
+int SHappinessOverflowResult::GetNeedSubtotal() const
+{
+	// Avoid integer overflow when the uncapped option is used.
+	int iTotal = 0;
+	for (int i = 0; i < NUM_HAPPINESS_OVERFLOW_NEEDS; i++)
+		iTotal += min(needs[i].iUnhappiness, INT_MAX - iTotal);
+	return iTotal;
+}
+
+float CvCity::GetScarcityMedian(bool bForceRecalc, int iAdditionalModifier) const
+{
+	if (!MODMOD_HAPPINESS_OVERFLOW)
+		return 0;
+	float fMedian = (float)(bForceRecalc ? GC.getGame().GetScarcityMedian() : GetCachedScarcityMedian());
+	fMedian *= (100 + GetTotalNeedModifierForYield(YIELD_FOOD, bForceRecalc) + iAdditionalModifier);
+	fMedian /= 100;
+	fMedian *= max(GD_INT_GET(SCARCITY_MEDIAN_BASE_MODIFIER), 0);
+	fMedian /= 100;
+	return max(fMedian, 0.0f);
+}
+
+float CvCity::GetProductionNeedsMedian(bool bForceRecalc, int iAdditionalModifier) const
+{
+	if (!MODMOD_HAPPINESS_OVERFLOW)
+		return GetBasicNeedsMedian(bForceRecalc, iAdditionalModifier);
+	float fMedian = (float)(bForceRecalc ? GC.getGame().GetProductionNeedsMedian() : GetCachedProductionNeedsMedian());
+	fMedian *= (100 + GetTotalNeedModifierForYield(YIELD_PRODUCTION, bForceRecalc) + iAdditionalModifier);
+	fMedian /= 100;
+	fMedian *= max(GD_INT_GET(DISTRESS_MEDIAN_BASE_MODIFIER), 0);
+	fMedian /= 100;
+	return max(fMedian, 0.0f);
+}
+
+int CvCity::GetScarcity(bool bForceRecalc, int iAssumedExtraYieldRate) const
+{
+	int aiChanges[NUM_YIELD_TYPES] = {0};
+	aiChanges[YIELD_FOOD] = iAssumedExtraYieldRate;
+	return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_SCARCITY].iUnhappiness;
+}
+
+int CvCity::GetScarcityRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
+{
+	int aiChanges[NUM_YIELD_TYPES] = {0};
+	aiChanges[YIELD_FOOD] = iAssumedExtraYieldRate;
+	return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_SCARCITY].iRawUnhappiness;
+}
+
+SHappinessOverflowResult CvCity::GetHappinessOverflowNeeds(bool bForceRecalc, const int* aiYieldChanges) const
+{
+	SHappinessOverflowResult result;
+	if (!MODMOD_HAPPINESS_OVERFLOW || IsPuppet() || IsResistance() || IsRazing())
+		return result;
+
+	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	const int iPopulation = getPopulation() + (bForceRecalc ? 1 : 0);
+	const int iLimit = MOD_BALANCE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	const YieldTypes aeYields[NUM_HAPPINESS_OVERFLOW_NEEDS] = { YIELD_FOOD, YIELD_PRODUCTION, YIELD_GOLD, YIELD_SCIENCE, YIELD_CULTURE };
+	const float afThresholds[NUM_HAPPINESS_OVERFLOW_NEEDS] = {
+		GetScarcityMedian(bForceRecalc, 0), GetProductionNeedsMedian(bForceRecalc, 0),
+		GetGoldMedian(bForceRecalc, 0), GetScienceMedian(bForceRecalc, 0), GetCultureMedian(bForceRecalc, 0)
+	};
+	const int aiReductions[NUM_HAPPINESS_OVERFLOW_NEEDS] = {
+		GetScarcityFlatReduction() + kPlayer.GetScarcityFlatReductionGlobal(),
+		GetDistressFlatReduction() + kPlayer.GetDistressFlatReductionGlobal(),
+		GetPovertyFlatReduction() + kPlayer.GetPovertyFlatReductionGlobal(),
+		GetIlliteracyFlatReduction() + kPlayer.GetIlliteracyFlatReductionGlobal(),
+		GetBoredomFlatReduction() + kPlayer.GetBoredomFlatReductionGlobal()
+	};
+	int iMode = GD_INT_GET(HAPPINESS_OVERFLOW_MODE);
+	if (iMode < HAPPINESS_OVERFLOW_FULL || iMode > HAPPINESS_OVERFLOW_HALF)
+		iMode = HAPPINESS_OVERFLOW_FULL;
+
+	std::vector<double> capacities;
+	for (int i = 0; i < NUM_HAPPINESS_OVERFLOW_NEEDS; i++)
+	{
+		SHappinessOverflowNeed& need = result.needs[i];
+		YieldTypes eYield = aeYields[i];
+		// Gross Food is unchanged. Production excludes item modifiers and Food conversion, but includes trade.
+		if (eYield == YIELD_FOOD)
+			need.fYieldTimes100 = getFoodPerTurnBeforeConsumptionTimes100();
+		else if (eYield == YIELD_PRODUCTION)
+			need.fYieldTimes100 = getRawProductionPerTurnTimes100();
+		else
+			need.fYieldTimes100 = getYieldRateTimes100(eYield, false, false, !bForceRecalc);
+		if (aiYieldChanges)
+			need.fYieldTimes100 += aiYieldChanges[eYield];
+		need.fThresholdTimes100 = afThresholds[i];
+		// Like legacy VP, a nonpositive threshold produces no Need. It also produces no excess.
+		if (need.fThresholdTimes100 <= 0)
+			continue;
+		double fBalance = need.fYieldTimes100 / need.fThresholdTimes100 - iPopulation;
+		need.fDeficit = max(0.0, -fBalance);
+		need.fExcess = max(0.0, fBalance);
+		result.fOverflowPool += need.fExcess;
+		switch (iMode)
+		{
+		case HAPPINESS_OVERFLOW_PROTECT_ONE:
+			need.fMaxCover = max(0.0, need.fDeficit - 1.0);
+			break;
+		case HAPPINESS_OVERFLOW_HALF:
+			need.fMaxCover = need.fDeficit * 0.5;
+			break;
+		default:
+			need.fMaxCover = need.fDeficit;
+			break;
+		}
+		if (need.fMaxCover > 0)
+			capacities.push_back(need.fMaxCover);
+	}
+
+	// Water filling: find one common level after saturating smaller capacities.
+	// Sorting capacities makes allocation independent of recipient traversal order.
+	std::sort(capacities.begin(), capacities.end());
+	double fPool = result.fOverflowPool;
+	double fLevel = 0;
+	for (size_t i = 0; i < capacities.size(); i++)
+	{
+		fLevel = fPool / (capacities.size() - i);
+		if (fLevel <= capacities[i])
+			break;
+		fLevel = capacities[i];
+		fPool = max(0.0, fPool - capacities[i]);
+	}
+
+	for (int i = 0; i < NUM_HAPPINESS_OVERFLOW_NEEDS; i++)
+	{
+		SHappinessOverflowNeed& need = result.needs[i];
+		need.fOverflowReceived = min(need.fMaxCover, fLevel);
+		// Saturated capacities must not leave binary roundoff that ceil() turns into one UH.
+		// This relative tolerance only snaps allocation to its existing mode-specific cap.
+		const double fRelativeAllocationTolerance = 1e-12;
+		if (need.fMaxCover - need.fOverflowReceived <= need.fMaxCover * fRelativeAllocationTolerance)
+			need.fOverflowReceived = need.fMaxCover;
+		need.fRemainingDeficit = max(0.0, need.fDeficit - need.fOverflowReceived);
+		// Flat reductions never affect the pool, capacities or allocation.
+		need.iRawUnhappiness = (int)min((double)INT_MAX, ceil(need.fRemainingDeficit));
+		double fFinal = (double)need.iRawUnhappiness - aiReductions[i];
+		need.iUnhappiness = (int)max(0.0, min((double)iLimit, fFinal));
+	}
+	return result;
+}
+
 int CvCity::GetDistress(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		int aiChanges[NUM_YIELD_TYPES] = {0};
+		aiChanges[YIELD_PRODUCTION] = iAssumedExtraYieldRate;
+		return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_DISTRESS].iUnhappiness;
+	}
+
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
@@ -21175,6 +21465,13 @@ int CvCity::GetDistress(bool bForceRecalc, int iAssumedExtraYieldRate) const
 
 int CvCity::GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		int aiChanges[NUM_YIELD_TYPES] = {0};
+		aiChanges[YIELD_PRODUCTION] = iAssumedExtraYieldRate;
+		return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_DISTRESS].iRawUnhappiness;
+	}
+
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
 	int iTotalYield = getFoodPerTurnBeforeConsumptionTimes100() + getYieldRateTimes100(YIELD_PRODUCTION, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
@@ -21196,6 +21493,9 @@ int CvCity::GetDistressRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 
 float CvCity::GetBasicNeedsMedian(bool bForceRecalc, int iAdditionalModifier) const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+		return GetProductionNeedsMedian(bForceRecalc, iAdditionalModifier);
+
 	float fMedianYieldPerPop = 0.00f;
 	fMedianYieldPerPop += bForceRecalc ? (float)GC.getGame().GetBasicNeedsMedian() : (float)GetCachedBasicNeedsMedian();
 	fMedianYieldPerPop *= (100 + GetTotalNeedModifierForYield(YIELD_PRODUCTION, bForceRecalc) + iAdditionalModifier);
@@ -21214,6 +21514,13 @@ float CvCity::GetBasicNeedsMedian(bool bForceRecalc, int iAdditionalModifier) co
 /// bForceRecalc computes the amount of Poverty generated after this city's next growth
 int CvCity::GetPoverty(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		int aiChanges[NUM_YIELD_TYPES] = {0};
+		aiChanges[YIELD_GOLD] = iAssumedExtraYieldRate;
+		return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_POVERTY].iUnhappiness;
+	}
+
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
@@ -21225,6 +21532,13 @@ int CvCity::GetPoverty(bool bForceRecalc, int iAssumedExtraYieldRate) const
 
 int CvCity::GetPovertyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		int aiChanges[NUM_YIELD_TYPES] = {0};
+		aiChanges[YIELD_GOLD] = iAssumedExtraYieldRate;
+		return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_POVERTY].iRawUnhappiness;
+	}
+
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
 	int iTotalYield = getYieldRateTimes100(YIELD_GOLD, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
@@ -21264,6 +21578,13 @@ float CvCity::GetGoldMedian(bool bForceRecalc, int iAdditionalModifier) const
 /// bForceRecalc computes the amount of Illiteracy generated after this city's next growth
 int CvCity::GetIlliteracy(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		int aiChanges[NUM_YIELD_TYPES] = {0};
+		aiChanges[YIELD_SCIENCE] = iAssumedExtraYieldRate;
+		return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_ILLITERACY].iUnhappiness;
+	}
+
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
@@ -21275,6 +21596,13 @@ int CvCity::GetIlliteracy(bool bForceRecalc, int iAssumedExtraYieldRate) const
 
 int CvCity::GetIlliteracyRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		int aiChanges[NUM_YIELD_TYPES] = {0};
+		aiChanges[YIELD_SCIENCE] = iAssumedExtraYieldRate;
+		return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_ILLITERACY].iRawUnhappiness;
+	}
+
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
 	int iTotalYield = getYieldRateTimes100(YIELD_SCIENCE, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
@@ -21314,6 +21642,13 @@ float CvCity::GetScienceMedian(bool bForceRecalc, int iAdditionalModifier) const
 /// bForceRecalc computes the amount of Boredom generated after this city's next growth
 int CvCity::GetBoredom(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		int aiChanges[NUM_YIELD_TYPES] = {0};
+		aiChanges[YIELD_CULTURE] = iAssumedExtraYieldRate;
+		return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_BOREDOM].iUnhappiness;
+	}
+
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
@@ -21325,6 +21660,13 @@ int CvCity::GetBoredom(bool bForceRecalc, int iAssumedExtraYieldRate) const
 
 int CvCity::GetBoredomRaw(bool bForceRecalc, int iAssumedExtraYieldRate) const
 {
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		int aiChanges[NUM_YIELD_TYPES] = {0};
+		aiChanges[YIELD_CULTURE] = iAssumedExtraYieldRate;
+		return GetHappinessOverflowNeeds(bForceRecalc, aiChanges).needs[HAPPINESS_NEED_BOREDOM].iRawUnhappiness;
+	}
+
 	// First, calculate the total yield
 	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
 	int iTotalYield = getYieldRateTimes100(YIELD_CULTURE, false, false, !bForceRecalc) + iAssumedExtraYieldRate;
@@ -23257,12 +23599,12 @@ int CvCity::getProductionPerTurnForProjectTimes100(ProjectTypes eProject) const
 }
 
 /// calculate production per turn in the city, ignoring modifiers specific to what's being produced
-int CvCity::getRawProductionPerTurnTimes100() const
+int CvCity::getRawProductionPerTurnTimes100(bool bIgnoreTrade) const
 {
 	// don't assume a modifier specific to what's being produced
 	int iExtraModifier = 0 - getCurrentProductionModifier();
 	bool bAssumeFoodProduction = false;
-	return getYieldRateTimes100(YIELD_PRODUCTION, false, true, iExtraModifier, bAssumeFoodProduction, false, false);
+	return getYieldRateTimes100(YIELD_PRODUCTION, bIgnoreTrade, true, iExtraModifier, bAssumeFoodProduction, false, false);
 }
 
 
@@ -25314,9 +25656,19 @@ int CvCity::GetDistressFlatReduction() const
 {
 	return m_iDistressFlatReduction;
 }
+
+int CvCity::GetScarcityFlatReduction() const
+{
+	return m_iScarcityFlatReduction;
+}
 void CvCity::ChangeDistressFlatReduction(int iChange)
 {
 	m_iDistressFlatReduction += iChange;
+}
+
+void CvCity::ChangeScarcityFlatReduction(int iChange)
+{
+	m_iScarcityFlatReduction += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -25367,9 +25719,22 @@ int CvCity::GetBasicNeedsMedianModifier() const
 
 	return m_iBasicNeedsMedianModifier;
 }
+
+int CvCity::GetScarcityMedianModifier() const
+{
+	if (isCapital())
+		return m_iScarcityMedianModifier + GET_PLAYER(getOwner()).GetScarcityMedianModifierCapital();
+
+	return m_iScarcityMedianModifier;
+}
 void CvCity::ChangeBasicNeedsMedianModifier(int iChange)
 {
 	m_iBasicNeedsMedianModifier += iChange;
+}
+
+void CvCity::ChangeScarcityMedianModifier(int iChange)
+{
+	m_iScarcityMedianModifier += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -30381,11 +30746,15 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeUnmoddedHappinessFromBuildings(pProject->GetHappiness());
 		ChangeEmpireSizeModifierReduction(pProject->GetEmpireSizeModifierReduction());
 		ChangeDistressFlatReduction(pProject->GetDistressFlatReduction());
+		if (MODMOD_HAPPINESS_OVERFLOW)
+			ChangeScarcityFlatReduction(pProject->GetScarcityFlatReduction());
 		ChangePovertyFlatReduction(pProject->GetPovertyFlatReduction());
 		ChangeIlliteracyFlatReduction(pProject->GetIlliteracyFlatReduction());
 		ChangeBoredomFlatReduction(pProject->GetBoredomFlatReduction());
 		ChangeReligiousUnrestFlatReduction(pProject->GetReligiousUnrestFlatReduction());
 		ChangeBasicNeedsMedianModifier(pProject->GetBasicNeedsMedianModifier());
+		if (MODMOD_HAPPINESS_OVERFLOW)
+			ChangeScarcityMedianModifier(pProject->GetScarcityMedianModifier());
 		ChangeGoldMedianModifier(pProject->GetGoldMedianModifier());
 		ChangeScienceMedianModifier(pProject->GetScienceMedianModifier());
 		ChangeCultureMedianModifier(pProject->GetCultureMedianModifier());
@@ -32322,6 +32691,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iHappinessFromEmpire);
 	visitor(city.m_iUnhappinessFromEmpire);
 	visitor(city.m_iCachedBasicNeedsMedian);
+	visitor(city.m_iCachedScarcityMedian);
+	visitor(city.m_iCachedProductionNeedsMedian);
 	visitor(city.m_iCachedGoldMedian);
 	visitor(city.m_iCachedScienceMedian);
 	visitor(city.m_iCachedCultureMedian);
@@ -32409,11 +32780,13 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iNoStarvationNonSpecialist);
 	visitor(city.m_iMinimumFood);
 	visitor(city.m_iDistressFlatReduction);
+	visitor(city.m_iScarcityFlatReduction);
 	visitor(city.m_iPovertyFlatReduction);
 	visitor(city.m_iIlliteracyFlatReduction);
 	visitor(city.m_iBoredomFlatReduction);
 	visitor(city.m_iReligiousUnrestFlatReduction);
 	visitor(city.m_iBasicNeedsMedianModifier);
+	visitor(city.m_iScarcityMedianModifier);
 	visitor(city.m_iGoldMedianModifier);
 	visitor(city.m_iScienceMedianModifier);
 	visitor(city.m_iCultureMedianModifier);

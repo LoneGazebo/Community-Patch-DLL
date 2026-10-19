@@ -1251,6 +1251,8 @@ void CvGame::uninit()
 
 	m_iMedianTechsResearched = 0;
 	m_iBasicNeedsMedian = 0;
+	m_iScarcityMedian = 0;
+	m_iProductionNeedsMedian = 0;
 	m_iGoldMedian = 0;
 	m_iScienceMedian = 0;
 	m_iCultureMedian = 0;
@@ -10564,6 +10566,8 @@ void CvGame::updateGlobalMedians()
 		return;
 
 	std::vector<float> vfBasicNeedsYield;
+	std::vector<float> vfFoodYield;
+	std::vector<float> vfProductionYield;
 	std::vector<float> vfGoldYield;
 	std::vector<float> vfScienceYield;
 	std::vector<float> vfCultureYield;
@@ -10594,6 +10598,12 @@ void CvGame::updateGlobalMedians()
 			int iBasicNeedsYield = pLoopCity->getFoodPerTurnBeforeConsumptionTimes100() + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true);
 			float fBasicNeedsAvg = iBasicNeedsYield / fPopulation;
 			vfBasicNeedsYield.push_back(fBasicNeedsAvg);
+			if (MODMOD_HAPPINESS_OVERFLOW)
+			{
+				// Gross Food includes trade; the raw Production benchmark excludes trade.
+				vfFoodYield.push_back(pLoopCity->getFoodPerTurnBeforeConsumptionTimes100() / fPopulation);
+				vfProductionYield.push_back(pLoopCity->getRawProductionPerTurnTimes100(true) / fPopulation);
+			}
 
 			// Poverty
 			int iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true);
@@ -10634,6 +10644,14 @@ void CvGame::updateGlobalMedians()
 	float fAlpha = /*0.65f*/ GD_FLOAT_GET(DISTRESS_MEDIAN_RATE_CHANGE);
 	int iNewMedian = int(0.5f + ((int)vfBasicNeedsYield[n] * fAlpha) + (GetBasicNeedsMedian() * (1 - fAlpha)));
 	SetBasicNeedsMedian(iNewMedian);
+	if (MODMOD_HAPPINESS_OVERFLOW)
+	{
+		std::nth_element(vfFoodYield.begin(), vfFoodYield.begin() + n, vfFoodYield.end());
+		std::nth_element(vfProductionYield.begin(), vfProductionYield.begin() + n, vfProductionYield.end());
+		float fFoodAlpha = GD_FLOAT_GET(SCARCITY_MEDIAN_RATE_CHANGE);
+		SetScarcityMedian(int(0.5f + (int)vfFoodYield[n] * fFoodAlpha + GetScarcityMedian() * (1 - fFoodAlpha)));
+		SetProductionNeedsMedian(int(0.5f + (int)vfProductionYield[n] * fAlpha + GetProductionNeedsMedian() * (1 - fAlpha)));
+	}
 
 	fAlpha = /*0.65f*/ GD_FLOAT_GET(POVERTY_MEDIAN_RATE_CHANGE);
 	iNewMedian = int(0.5f + ((int)vfGoldYield[n] * fAlpha) + (GetGoldMedian() * (1 - fAlpha)));
@@ -10657,6 +10675,16 @@ void CvGame::SetMedianTechsResearched(int iValue)
 void CvGame::SetBasicNeedsMedian(int iValue)
 {
 	m_iBasicNeedsMedian = iValue;
+}
+
+void CvGame::SetScarcityMedian(int iValue)
+{
+	m_iScarcityMedian = iValue;
+}
+
+void CvGame::SetProductionNeedsMedian(int iValue)
+{
+	m_iProductionNeedsMedian = iValue;
 }
 void CvGame::SetGoldMedian(int iValue)
 {
@@ -10684,6 +10712,11 @@ void CvGame::DoGlobalMedianLogging() const
 		strOutput.Format("Turn: %03d", GC.getGame().getElapsedGameTurns());
 		strTemp.Format("Food/Production: %d", GetBasicNeedsMedian());
 		strOutput += ", " + strTemp;
+		if (MODMOD_HAPPINESS_OVERFLOW)
+		{
+			strTemp.Format("Scarcity: %d, Production Distress: %d", GetScarcityMedian(), GetProductionNeedsMedian());
+			strOutput += ", " + strTemp;
+		}
 
 		strTemp.Format("Gold: %d", GetGoldMedian());
 		strOutput += ", " + strTemp;
@@ -10705,6 +10738,16 @@ int CvGame::GetMedianTechsResearched() const
 int CvGame::GetBasicNeedsMedian() const
 {
 	return m_iBasicNeedsMedian;
+}
+
+int CvGame::GetScarcityMedian() const
+{
+	return m_iScarcityMedian;
+}
+
+int CvGame::GetProductionNeedsMedian() const
+{
+	return m_iProductionNeedsMedian;
 }
 int CvGame::GetGoldMedian() const
 {
@@ -10907,6 +10950,8 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 
 	visitor(game.m_iMedianTechsResearched);
 	visitor(game.m_iBasicNeedsMedian);
+	visitor(game.m_iScarcityMedian);
+	visitor(game.m_iProductionNeedsMedian);
 	visitor(game.m_iGoldMedian);
 	visitor(game.m_iScienceMedian);
 	visitor(game.m_iCultureMedian);

@@ -3146,6 +3146,7 @@ public:
 	int getPlayerHappiness() const;
 	int getCityHappinessGlobal() const;
 	int getBasicNeedsMedianModifierGlobal() const;
+	int getScarcityMedianModifierGlobal() const;
 	int getGoldMedianModifierGlobal() const;
 	int getScienceMedianModifierGlobal() const;
 	int getCultureMedianModifierGlobal() const;
@@ -3241,6 +3242,7 @@ protected:
 	int** m_ppiResourceYield;
 	int** m_ppiSpecialistYield;
 	int m_iBasicNeedsMedianModifierGlobal;
+	int m_iScarcityMedianModifierGlobal;
 	int m_iGoldMedianModifierGlobal;
 	int m_iScienceMedianModifierGlobal;
 	int m_iCultureMedianModifierGlobal;
@@ -3597,6 +3599,7 @@ public:
 	int getCityHappiness() const;
 	int getReligiousPressureModifier() const;
 	int getBasicNeedsMedianModifier() const;
+	int getScarcityMedianModifier() const;
 	int getGoldMedianModifier() const;
 	int getScienceMedianModifier() const;
 	int getCultureMedianModifier() const;
@@ -3760,6 +3763,7 @@ protected:
 	int m_iCityHappiness;
 	int m_iReligiousPressureModifier;
 	int m_iBasicNeedsMedianModifier;
+	int m_iScarcityMedianModifier;
 	int m_iGoldMedianModifier;
 	int m_iScienceMedianModifier;
 	int m_iCultureMedianModifier;
