@@ -21859,12 +21859,8 @@ int CvPlayer::GetHappinessFromReligion()
 
 			float iHappinessPerFollowingCity = pReligion->m_Beliefs.GetHappinessPerFollowingCity(GetID(), pHolyCity, true);
 			iHappinessFromReligion += (int)((float)pReligions->GetNumCitiesFollowing(eStateReligion) * iHappinessPerFollowingCity);
-
-			int iHappinessPerXPeacefulForeignFollowers = pReligion->m_Beliefs.GetHappinessPerXPeacefulForeignFollowers(GetID(), pHolyCity, true);
-			if (iHappinessPerXPeacefulForeignFollowers > 0)
-			{
-				iHappinessFromReligion += GetReligions()->GetNumForeignFollowers(/*bAtPeace*/ true, eStateReligion) / iHappinessPerXPeacefulForeignFollowers;
-			}
+			
+			iHappinessFromReligion += pReligion->m_Beliefs.GetHappinessPerXForeignFollowers(GetID(), pHolyCity, true);
 
 			int iPantheon = 0;
 			if (pHolyCity == NULL)
