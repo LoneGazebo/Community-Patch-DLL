@@ -1483,8 +1483,7 @@ function OnMouseOverHex(hexX, hexY)
 		local pHeadCity = UI.GetHeadSelectedCity();
 
 		-- Air units are not combat units; need to check combat strength explicitly
-		-- Also suppress the popup if the unit can be promoted to avoid overlap
-		if pHeadUnit and (pHeadUnit:GetBaseCombatStrength() > 0 or pHeadUnit:GetBaseRangedCombatStrength() > 0) and not pHeadUnit:IsPromotionReady() then
+		if pHeadUnit and (pHeadUnit:GetBaseCombatStrength() > 0 or pHeadUnit:GetBaseRangedCombatStrength() > 0) then
 			if not pHeadUnit:IsRanged() then
 				-- Melee attacks and air strikes
 				local eTeam = Game.GetActiveTeam();
