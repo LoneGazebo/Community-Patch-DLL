@@ -9022,17 +9022,9 @@ void CvGame::updateMoves()
 
 		if(player.isAlive())
 		{
-			if (player.isHuman())
-			{
-				if (GC.getGame().getActivePlayer() == player.GetID())
-				{
-					GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
-				}
-			}
-			else
-			{
-				GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
-			}
+			// Set on every machine, humans included: CvPlot uses this player for the tactical AI's
+			// incremental visibility updates while units move, which danger and tactical moves read.
+			GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
 
 			bool bAutomatedUnitNeedsUpdate = player.hasUnitsThatNeedAIUpdate();
 			bool bHomelandAINeedsUpdate = player.GetHomelandAI()->NeedsUpdate();
