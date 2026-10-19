@@ -36,6 +36,7 @@ public:
 	int GetRiverHappiness() const;
 	int GetHappinessPerCity() const;
 	int GetHappinessPerXPeacefulForeignFollowers() const;
+	int GetHappinessPerXForeignFollowers() const;
 	int GetBorderGrowthRateIncreaseGlobal() const;
 	int GetPlotCultureCostModifier() const;
 	int GetCityRangeStrikeModifier() const;
@@ -210,6 +211,7 @@ protected:
 	int m_iRiverHappiness;
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPeacefulForeignFollowers;
+	int m_iHappinessPerXForeignFollowers;
 	int m_iBorderGrowthRateIncreaseGlobal;
 	int m_iPlotCultureCostModifier;
 	int m_iCityRangeStrikeModifier;
@@ -473,7 +475,7 @@ public:
 
 	int GetFaithFromKills(int iDistance, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetHappinessPerCity(int iPopulation, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
-	int GetHappinessPerXPeacefulForeignFollowers(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetHappinessPerXForeignFollowers(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetWonderProductionModifier(EraTypes eWonderEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetUnitProductionModifier(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetPlayerHappiness(bool bAtPeace, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
