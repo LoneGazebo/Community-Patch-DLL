@@ -10872,8 +10872,10 @@ void CvPlayer::updateTimers()
 
 	if (MOD_CORE_DELAYED_VISIBILITY)
 	{
-		// Force explicit visibility update for killed units (but not if the player is currently active)
-		if (!unitsToDelete.empty() && GetID()!=GC.getGame().getActivePlayer())
+		// Force explicit visibility update for killed units (but not during a human's turn).
+		// Not getActivePlayer: the local player differs per machine in MP, so testing it left
+		// a human team's visibility different between copies until its turn ended.
+		if (!unitsToDelete.empty() && (!isHuman() || !isTurnActive()))
 			for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 				GC.getMap().plotByIndexUnchecked(iI)->flipVisibility(getTeam());
 	}
