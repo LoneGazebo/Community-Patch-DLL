@@ -246,7 +246,10 @@ WHERE Tag = 'TXT_KEY_BELIEF_TITHE';
 -- Followers
 ----------------------------------------------
 
--- Asceticism
+UPDATE Language_en_US
+SET Text = 'Fasting'
+WHERE Tag = 'TXT_KEY_BELIEF_ASCETISM_SHORT';
+
 UPDATE Language_en_US
 SET Text = '+1 [ICON_FOOD] Food for every 2 followers in the City. +4 [ICON_FOOD] Food if the City has a Specialist.'
 WHERE Tag = 'TXT_KEY_BELIEF_ASCETISM';
@@ -297,7 +300,7 @@ SET Text = 'Use [ICON_PEACE] Faith to purchase Mandirs.'
 WHERE Tag = 'TXT_KEY_BELIEF_GURUSHIP';
 
 UPDATE Language_en_US
-SET Text = 'Mastery'
+SET Text = 'Abstinence'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_ART_SHORT';
 
 UPDATE Language_en_US
