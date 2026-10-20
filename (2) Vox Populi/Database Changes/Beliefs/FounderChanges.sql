@@ -127,6 +127,31 @@ VALUES
 	('BELIEF_CITY_OF_GOD', 'YIELD_CULTURE', 15),
 	('BELIEF_CITY_OF_GOD', 'YIELD_FAITH', 15);
 
+-- Eternal Glory
+INSERT INTO Belief_YieldPerFollowingCity
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_ETERNAL_GLORY', 'YIELD_PRODUCTION', 1),
+	('BELIEF_ETERNAL_GLORY', 'YIELD_FAITH', 1),
+	('BELIEF_ETERNAL_GLORY', 'YIELD_CULTURE_LOCAL', 1);
+
+INSERT INTO Belief_YieldChangePerForeignCity
+	(BeliefType, YieldType, Yield)
+VALUES
+	('BELIEF_ETERNAL_GLORY', 'YIELD_PRODUCTION', 3),
+	('BELIEF_ETERNAL_GLORY', 'YIELD_FAITH', 3),
+	('BELIEF_ETERNAL_GLORY', 'YIELD_CULTURE_LOCAL', 3);
+
+-- Mastery
+-- TODO: Add DLL support to replace this with ALL foreign followers instead of only PEACEFUL
+UPDATE Beliefs SET HappinessPerXPeacefulForeignFollowers = 10 WHERE Type = 'BELIEF_MASTERY';
+
+INSERT INTO Belief_YieldChangePerXCityStateFollowers
+	(BeliefType, YieldType, PerXFollowers)
+VALUES
+	('BELIEF_MASTERY', 'YIELD_SCIENCE', 2),
+	('BELIEF_MASTERY', 'YIELD_CULTURE', 2);
+
 -- Common, use this table to determine which reformation building can be built
 INSERT INTO Belief_BuildingClassFaithPurchase
 	(BeliefType, BuildingClassType)
@@ -140,4 +165,6 @@ VALUES
 	('BELIEF_PAPAL_PRIMACY', 'BUILDINGCLASS_HOLY_COUNCIL'),
 	('BELIEF_PILGRIMAGE', 'BUILDINGCLASS_APOSTOLIC_PALACE'),
 	('BELIEF_WORLD_CHURCH', 'BUILDINGCLASS_GRAND_OSSUARY'),
-	('BELIEF_CITY_OF_GOD', 'BUILDINGCLASS_SACRED_GARDEN');
+	('BELIEF_CITY_OF_GOD', 'BUILDINGCLASS_SACRED_GARDEN'),
+	('BELIEF_ETERNAL_GLORY', 'BUILDINGCLASS_HEAVENLY_STAIR'),
+	('BELIEF_MASTERY', 'BUILDINGCLASS_MARTIAL_SANCTUM');

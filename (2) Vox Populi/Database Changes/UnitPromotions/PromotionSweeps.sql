@@ -257,6 +257,13 @@ SELECT
 FROM UnitCombatInfos
 WHERE IsMilitary = 1 AND IsNaval = 0 AND IsAerial = 0;
 
+INSERT INTO UnitPromotions_UnitCombats
+	(PromotionType, UnitCombatType)
+SELECT
+	'PROMOTION_STRATEGIC_STUDY', Type
+FROM UnitCombatInfos
+WHERE IsMilitary = 1;
+
 -- Grand Canal
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)
@@ -563,6 +570,7 @@ VALUES
 	('PROMOTION_AGE_OF_DISCOVERY'), -- University of Coimbra
 	('PROMOTION_TRIUMPH'), -- Fornix
 	('PROMOTION_TREASURE_FLEET'), -- Grand Canal
+	('PROMOTION_STRATEGIC_STUDY'), -- Martial Sanctum
 	('PROMOTION_EVERLASTING_YOUTH'), -- Fountain of Youth
 	('PROMOTION_ALTITUDE_TRAINING'), -- Mt. Kilimanjaro
 	('PROMOTION_SACRED_STEPS'), -- Sri Pada

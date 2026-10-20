@@ -1183,6 +1183,32 @@
 		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN_TEXT">
 			<Text>Religion has been an important influence on garden design. Temple gardens were made in Mesopotamia and Ancient Egypt. Sacred groves were made in ancient India, Greece, Rome, China and Japan. Sacred trees were important in Celtic and Germanic Europe and still are important in India. Many groves or forests were sacred in ancient India and continue to be so in modern Hindu worship. Buddhism had a significant influence on garden design, with the Zen gardens of China and Japan as famous examples. In Christianity, particularly Catholicism and Anglicanism, Mary gardens are common among churches and institutions. The practise of creating sacred gardens is re-invigorated and adapted for modern times in the Ringing Cedars Series of books by Russian author Vladimir Megre.</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_STAIR">
+			<Text>Heavenly Stair</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_STAIR_STRATEGY">
+			<Text>Eternal Glory is a Founder Belief geared to war. It provides bonus yields to Walls and converting Foreign Cities will likely lead to conflict. In this, the Heavenly Stair directs you in bringing Faith and expanding the Borders of your Empire as you cut through both believer and non-believer alike in your search for Valhalla, or whatever afterlife awaits your religion. The widest, most warlike Empires will reap the greatest reward in the annals of history, and the eyes of (the) God(s)!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_STAIR_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_STAIR_TEXT">
+			<Text>The idea that heaven, or the realm of Gods, can be reached by climbing up into the skies is a commonly held belief amongst world religions. In Greek myth, Gods dwell atop Mount Olympus, Mesopotamian Ziggurats were built to mimic mountains and so keep their Gods comfortable when they resided there, Norse belief speaks of the Bifrost, a bridge made of the rainbow, and in Christianity Jesus ascended into heaven. In all these cases, mere mortals cannot just find the path to heaven, but it must be revealed. Therefore shrines and temples have been constructed to mark or venerate where the route to heaven (or other worlds) might have once been sighted. The Chapel of the Ascension located on the Mount of Olives in Jerusalem is located on the site believed to be the earthly spot where Jesus ascended into Heaven after his Resurrection, and houses a slab of stone believed to contain one of his footprints.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_BUILDING_MARTIAL_SANCTUM">
+			<Text>Martial Sanctum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MARTIAL_SANCTUM_STRATEGY">
+			<Text>Unlike other Religious bonuses, which focus on gaining yields for being successful in war, the Martial Sanctum actually improves your capabilities, by allowing you to train a more highly promoted cadre of soldiers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MARTIAL_SANCTUM_HELP">
+			<Text></Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MARTIAL_SANCTUM_TEXT">
+			<Text>Many religions have blended religious and military doctrine to create castes or societies dedicate to martial prowess. In the west, the idea existed in the crusading templar orders. In Hinduism, Akhara was a place of lodging and training in the context of Indian martial artists who also practice a lifestyle of purity or renunciation. But perhaps the most famous stronghold of warrior-monks is the Shaolin Temple, the birthplace of Chan Buddhism and the cradle of Shaolin kung fu, which is located at the foot of Wuru Peak of the Songshan mountain range in Henan province, China.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HOLY_COUNCIL">
 			<Text>Holy Council</Text>

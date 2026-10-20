@@ -705,6 +705,13 @@
 		<Row Tag="TXT_KEY_PROMOTION_TRIUMPH_HELP">
 			<Text>+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Gain 50% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Land Units as [ICON_GREAT_GENERAL] Great General Points.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_STRATEGIC_STUDY">
+			<Text>Strategic Study</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_STRATEGIC_STUDY_HELP">
+			<Text>+3% [ICON_STRENGTH] Combat Strength per Level beyond 1.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BRUTE_FORCE">
 			<Text>Brute Force</Text>
