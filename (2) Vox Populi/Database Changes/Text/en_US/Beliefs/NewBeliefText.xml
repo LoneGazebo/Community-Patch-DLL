@@ -76,14 +76,14 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_BELIEF_ETERNAL_GLORY">
-			<Text>+3 [ICON_PRODUCTION] Production, [ICON_PEACE] Faith, and [ICON_CULTURE_LOCAL] Border Growth Points in the Holy City for every Foreign City following your [ICON_RELIGION] Religion.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Heavenly Stair National Wonder[ENDCOLOR] (+5 [ICON_PEACE] Faith, +10 [ICON_CULTURE_LOCAL] Border Growth Points; +2 [ICON_PRODUCTION] Production, [ICON_PEACE] Faith, and [ICON_CULTURE_LOCAL] Border Growth Points from Walls; +10 [ICON_CULTURE_LOCAL] Border Growth Points from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).</Text>
+			<Text>+3 [ICON_PRODUCTION] Production, [ICON_PEACE] Faith, and [ICON_CULTURE_LOCAL] Border Growth Points in the Holy City for every Foreign City following your [ICON_RELIGION] Religion. Unlocks building the [COLOR_POSITIVE_TEXT]Heavenly Stair[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_ETERNAL_GLORY_SHORT">
 			<Text>Eternal Glory</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_BELIEF_MASTERY">
-			<Text>+1 [ICON_HAPPINESS_1] for every 10 Followers of your [ICON_RELIGION] Religion in Foreign Cities, and +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture for every 2 Followers in [ICON_CITY_STATE] City-States.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Martial Sanctum National Wonder[ENDCOLOR] (+3 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith; All Units gain the [COLOR_POSITIVE_TEXT]Strategic Study[ENDCOLOR] Promotion; +5 [ICON_GREAT_GENERAL] Great General Points from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).</Text>
+			<Text>+1 [ICON_HAPPINESS_1] for every 10 Followers of your [ICON_RELIGION] Religion in Foreign Cities, and +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture for every 2 Followers in [ICON_CITY_STATE] City-States. Unlocks building the [COLOR_POSITIVE_TEXT]Martial Sanctum[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MASTERY_SHORT">
 			<Text>Mastery</Text>

@@ -49,12 +49,12 @@ SET Text = 'It will increase the yields of this Sea Resource.'
 WHERE Tag = 'TXT_KEY_BUILD_FISHING_BOAT_REC';
 
 UPDATE Language_en_US
-SET Text = 'Fishing boats allow a civilization to harvest the valuable [ICON_RES_CRAB] Crab, [ICON_RES_WHALE] Whale, [ICON_RES_CORAL] Coral, and [ICON_RES_PEARLS] Pearls Luxury Resources, as well as improve sources of [ICON_RES_FISH] Fish. To construct a fishing boat you must have researched Fishing, which allows your workers to embark.  It is [COLOR_NEGATIVE_TEXT]Destroyed when Pillaged[ENDCOLOR].'
+SET Text = 'Fishing boats allow a civilization to harvest the valuable [ICON_RES_CRAB] Crab, [ICON_RES_WHALE] Whale, [ICON_RES_CORAL] Coral, and [ICON_RES_PEARLS] Pearls Luxury Resources, as well as improve sources of [ICON_RES_FISH] Fish. To construct a fishing boat you must have researched Fishing, which allows your workers to embark. It is [COLOR_NEGATIVE_TEXT]Destroyed when Pillaged[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FISHINGBOATS_TEXT';
 
 -- Offshore Platform
 UPDATE Language_en_US
-SET Text = 'Constructs an Offshore Platform, which improves the Oil Strategic Resource when it appears on Sea Tiles. Generates a large increase in [ICON_GOLD] Gold and [ICON_PRODUCTION] Production.'
+SET Text = 'Constructs an Offshore Platform, which improves the Oil Strategic Resource when it appears on Sea Tiles. Generates a large increase in [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILD_OFFSHORE_PLATFORMS_HELP';
 
 UPDATE Language_en_US
