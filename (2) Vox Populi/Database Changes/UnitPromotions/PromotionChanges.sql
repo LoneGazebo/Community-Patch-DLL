@@ -447,8 +447,8 @@ UPDATE UnitPromotions SET InterceptChanceChange = 15 WHERE RankList = 'INTERCEPT
 -- Ace Pilot
 UPDATE UnitPromotions SET InterceptChanceChange = 33 WHERE Type = 'PROMOTION_INTERCEPTION_1';
 UPDATE UnitPromotions SET InterceptChanceChange = 33, InterceptionCombatModifier = 33 WHERE Type = 'PROMOTION_INTERCEPTION_2';
-UPDATE UnitPromotions SET InterceptChanceChange = 34, InterceptionCombatModifier = 33, RangeChange = 1 WHERE Type = 'PROMOTION_INTERCEPTION_3';
-UPDATE UnitPromotions SET NumInterceptionChange = 1, InterceptionCombatModifier = 34, RangeChange = 1 WHERE Type = 'PROMOTION_SORTIE';
+UPDATE UnitPromotions SET InterceptChanceChange = 34, InterceptionCombatModifier = 33, RangeChange = 1, AirInterceptRangeChange = 1 WHERE Type = 'PROMOTION_INTERCEPTION_3';
+UPDATE UnitPromotions SET NumInterceptionChange = 1, InterceptionCombatModifier = 34, RangeChange = 1, AirInterceptRangeChange = 1 WHERE Type = 'PROMOTION_SORTIE';
 
 UPDATE UnitPromotions SET AirSweepCombatModifier = 33 WHERE Type = 'PROMOTION_DOGFIGHTING_1';
 UPDATE UnitPromotions SET AirSweepCombatModifier = 33, GetGroundAttackDamage = 5 WHERE Type = 'PROMOTION_DOGFIGHTING_2';
