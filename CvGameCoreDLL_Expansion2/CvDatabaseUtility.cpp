@@ -12,6 +12,268 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+#if defined(_WIN32)
+namespace
+{
+// The EXE registers every *.Civ5Pkg below its Assets folder (cvContentPackageManager::FindPackages
+// searches it recursively) without checking its version. A registered package's folder joins the
+// file catalog, so an XML file there with the name of a base game database file replaces that file
+// at every start, whatever the Mods menu says; the last package listing a game DLL also supplies
+// the DLL used without mods. That is how a modpack (Modpack Maker: VP_MODPACK\Override) brings its
+// database, so an old Vox Populi or modpack left there sets up its own version of the tables this
+// DLL reads (#13451), and verifying the game files does not remove it. A Firaxis package that is
+// on disk but not owned by the current Steam account (installed by another account on the same PC)
+// is rejected by the ownership test, yet its folder still broke loading saves in #13247.
+const char* const s_aszFiraxisPackageIDs[] =
+{
+	"293C1EE3-1176-44f6-AC1F-59663826DE74", // DLC_01
+	"B685D5DE-7CCA-4e75-81B4-2F60754E6330", // DLC_02
+	"ECF7C605-BA11-4CAC-8D80-D71306AAC471", // DLC_03
+	"B3030D39-C0D8-4bc7-91B1-7AD1CAF585AB", // DLC_04
+	"112C22B2-5308-42b6-B734-171CCAB3037B", // DLC_05
+	"BBB0D085-A0B1-4475-B007-3E549CF3ADC3", // DLC_06
+	"EA67AED5-5859-4875-BF3A-360FE9E55D1B", // DLC_07
+	"7459BA32-5764-44ae-8E95-01AD0E0EFD48", // DLC_Deluxe
+	"3F49DF54-68B6-44d1-A930-A168628FAA59", // DLC_SP_Maps
+	"46EAEFFC-7B1D-443d-BFC8-F825DFEFB094", // DLC_SP_Maps_2
+	"4255F5F7-D3AB-4e55-ACEE-4670082040ED", // DLC_SP_Maps_3
+	"0E3751A1-F840-4e1b-9706-519BF484E59D", // Expansion
+	"6DA07636-4123-4018-B643-6575B4EC336B", // Expansion2
+	"8871E748-29A4-4910-8C57-8C99E32D0167", // Shared
+	"CBE91AF6-0683-4326-BC77-58BB489E509F", // Tablet
+};
+
+struct CvContentPackage
+{
+	std::string strFile; // relative to the game folder
+	std::string strName;
+	bool bFiraxis;
+	bool bAccepted; // registered and owned, as the EXE decides (IsDLCValid)
+	bool bChangesGameplay; // lists a game DLL or holds database files
+	std::string strGameplayFile; // first database file found, relative to the package folder
+
+	// worth naming when the database does not match this DLL
+	bool IsSuspect() const { return bFiraxis ? !bAccepted : bChangesGameplay; }
+};
+
+std::string WideToUtf8(const std::wstring& strWide)
+{
+	const int iBytes = WideCharToMultiByte(CP_UTF8, 0, strWide.c_str(), -1, NULL, 0, NULL, NULL);
+	if (iBytes <= 1)
+		return std::string();
+	std::vector<char> vBuffer(iBytes);
+	WideCharToMultiByte(CP_UTF8, 0, strWide.c_str(), -1, &vBuffer[0], iBytes, NULL, NULL);
+	return std::string(&vBuffer[0]);
+}
+
+// Text of the first <szTag ...>text< at or after uiFrom (package files are small and flat).
+std::string GetTagText(const std::string& strXml, const char* szTag, size_t uiFrom)
+{
+	const size_t uiTag = strXml.find(std::string("<") + szTag, uiFrom);
+	if (uiTag == std::string::npos)
+		return std::string();
+	const size_t uiStart = strXml.find('>', uiTag);
+	if (uiStart == std::string::npos)
+		return std::string();
+	const size_t uiEnd = strXml.find('<', uiStart + 1);
+	if (uiEnd == std::string::npos)
+		return std::string();
+	return strXml.substr(uiStart + 1, uiEnd - uiStart - 1);
+}
+
+bool ReadPackageFile(const std::wstring& strPath, std::string& strXml)
+{
+	HANDLE hFile = CreateFileW(strPath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return false;
+	bool bRead = false;
+	const DWORD dwSize = GetFileSize(hFile, NULL);
+	if (dwSize != INVALID_FILE_SIZE && dwSize > 0 && dwSize < 1024 * 1024)
+	{
+		strXml.resize(dwSize);
+		DWORD dwRead = 0;
+		bRead = ReadFile(hFile, &strXml[0], dwSize, &dwRead, NULL) && dwRead == dwSize;
+	}
+	CloseHandle(hFile);
+	return bRead;
+}
+
+bool IsFiraxisPackage(const std::string& strGUID)
+{
+	const size_t uiFirst = strGUID.find_first_not_of(" \t\r\n{");
+	const size_t uiLast = strGUID.find_last_not_of(" \t\r\n}");
+	if (uiFirst == std::string::npos || uiLast < uiFirst)
+		return false;
+	const std::string strID = strGUID.substr(uiFirst, uiLast - uiFirst + 1);
+	for (size_t i = 0; i < _countof(s_aszFiraxisPackageIDs); i++)
+	{
+		if (_stricmp(strID.c_str(), s_aszFiraxisPackageIDs[i]) == 0)
+			return true;
+	}
+	return false;
+}
+
+// First XML file below strDir that is database data (<GameData> near its start, the test the
+// Modpack Maker uses too), relative to strDir; empty if there is none.
+std::wstring FindGameDataFile(const std::wstring& strDir, const std::wstring& strRelative, int iDepth)
+{
+	WIN32_FIND_DATAW kFindData;
+	HANDLE hFind = FindFirstFileW((strDir + L"\\*").c_str(), &kFindData);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return std::wstring();
+	std::wstring strFound;
+	do
+	{
+		const std::wstring strEntry = kFindData.cFileName;
+		if (strEntry == L"." || strEntry == L"..")
+			continue;
+		const std::wstring strEntryRelative = strRelative.empty() ? strEntry : strRelative + L"\\" + strEntry;
+		if (kFindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (iDepth < 16)
+				strFound = FindGameDataFile(strDir + L"\\" + strEntry, strEntryRelative, iDepth + 1);
+		}
+		else if (strEntry.size() > 4 && _wcsicmp(strEntry.c_str() + strEntry.size() - 4, L".xml") == 0)
+		{
+			HANDLE hFile = CreateFileW((strDir + L"\\" + strEntry).c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			if (hFile != INVALID_HANDLE_VALUE)
+			{
+				char szHead[4096];
+				DWORD dwRead = 0;
+				if (ReadFile(hFile, szHead, sizeof(szHead) - 1, &dwRead, NULL))
+				{
+					szHead[dwRead] = '\0';
+					if (strstr(szHead, "<GameData") != NULL)
+						strFound = strEntryRelative;
+				}
+				CloseHandle(hFile);
+			}
+		}
+	}
+	while (strFound.empty() && FindNextFileW(hFind, &kFindData));
+	FindClose(hFind);
+	return strFound;
+}
+
+void FindContentPackages(const std::wstring& strDir, size_t uiGameDirLength, int iDepth, std::vector<CvContentPackage>& vPackages)
+{
+	WIN32_FIND_DATAW kFindData;
+	HANDLE hFind = FindFirstFileW((strDir + L"\\*").c_str(), &kFindData);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return;
+	do
+	{
+		const std::wstring strEntry = kFindData.cFileName;
+		if (strEntry == L"." || strEntry == L"..")
+			continue;
+		const std::wstring strPath = strDir + L"\\" + strEntry;
+		if (kFindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			// bounded so that a junction loop cannot hang the game
+			if (iDepth < 16)
+				FindContentPackages(strPath, uiGameDirLength, iDepth + 1, vPackages);
+		}
+		else if (strEntry.size() > 8 && _wcsicmp(strEntry.c_str() + strEntry.size() - 8, L".civ5pkg") == 0)
+		{
+			std::string strXml;
+			if (!ReadPackageFile(strPath, strXml))
+				continue;
+			const std::string strGUID = GetTagText(strXml, "GUID", 0);
+			GUID kGUID;
+			CvContentPackage kPackage;
+			kPackage.bFiraxis = IsFiraxisPackage(strGUID);
+			kPackage.bAccepted = gDLL && ExtractGUID(strGUID.c_str(), kGUID) && gDLL->IsDLCValid(kGUID);
+			kPackage.strFile = WideToUtf8(strPath.substr(uiGameDirLength));
+			const size_t uiName = strXml.find("<Name");
+			if (uiName != std::string::npos)
+				kPackage.strName = GetTagText(strXml, "Value", uiName);
+			// Firaxis folders are not searched: theirs is the reference data
+			if (!kPackage.bFiraxis)
+				kPackage.strGameplayFile = WideToUtf8(FindGameDataFile(strDir, std::wstring(), 0));
+			kPackage.bChangesGameplay = !kPackage.strGameplayFile.empty() || strXml.find("<GameCore") != std::string::npos;
+			vPackages.push_back(kPackage);
+		}
+	}
+	while (FindNextFileW(hFind, &kFindData));
+	FindClose(hFind);
+}
+
+// Scanned once per DLL load: the packages cannot change while the game runs.
+const std::vector<CvContentPackage>& GetContentPackages()
+{
+	static std::vector<CvContentPackage> s_vPackages;
+	static bool s_bScanned = false;
+	if (!s_bScanned)
+	{
+		s_bScanned = true;
+		wchar_t wszExePath[MAX_PATH];
+		const DWORD dwLength = GetModuleFileNameW(NULL, wszExePath, MAX_PATH);
+		const std::wstring strExePath(wszExePath, dwLength < MAX_PATH ? dwLength : 0);
+		const size_t uiSlash = strExePath.find_last_of(L"\\/");
+		if (uiSlash != std::wstring::npos)
+			FindContentPackages(strExePath.substr(0, uiSlash) + L"\\Assets", uiSlash + 1, 0, s_vPackages);
+	}
+	return s_vPackages;
+}
+
+std::string DescribeSuspectContentPackages()
+{
+	std::string strList;
+	const std::vector<CvContentPackage>& vPackages = GetContentPackages();
+	for (std::vector<CvContentPackage>::const_iterator it = vPackages.begin(); it != vPackages.end(); ++it)
+	{
+		if (!it->IsSuspect())
+			continue;
+		if (!strList.empty())
+			strList += ", ";
+		strList += it->strFile;
+		if (!it->strName.empty())
+			strList += " (" + it->strName + ")";
+		if (!it->strGameplayFile.empty())
+			strList += " with " + it->strGameplayFile;
+	}
+	return strList;
+}
+}
+
+void CvDatabaseUtility::LogContentPackages()
+{
+	const std::vector<CvContentPackage>& vPackages = GetContentPackages();
+	CUSTOMLOG("Content packages below Assets: %u", static_cast<unsigned int>(vPackages.size()));
+	for (std::vector<CvContentPackage>::const_iterator it = vPackages.begin(); it != vPackages.end(); ++it)
+	{
+		if (it->bFiraxis && it->bAccepted)
+			continue;
+		// CUSTOMLOG is a block, so the branches need braces
+		if (it->bFiraxis)
+		{
+			CUSTOMLOG("  %s - %s: Firaxis, on disk but not accepted by the game (not owned by this account?)", it->strFile.c_str(), it->strName.c_str());
+		}
+		else if (!it->strGameplayFile.empty())
+		{
+			CUSTOMLOG("  %s - %s: not made by Firaxis, replaces game database files (%s)", it->strFile.c_str(), it->strName.c_str(), it->strGameplayFile.c_str());
+		}
+		else
+		{
+			CUSTOMLOG("  %s - %s: not made by Firaxis, %s", it->strFile.c_str(), it->strName.c_str(), it->bChangesGameplay ? "lists a game DLL" : "no database files");
+		}
+	}
+}
+#else
+// The scan uses the Win32 file API; elsewhere no package is named.
+namespace
+{
+std::string DescribeSuspectContentPackages()
+{
+	return std::string();
+}
+}
+
+void CvDatabaseUtility::LogContentPackages()
+{
+}
+#endif
+
 CvDatabaseUtility::CvDatabaseUtility()
 {
 
@@ -73,10 +335,18 @@ Database::Results* CvDatabaseUtility::PrepareResults(const std::string& strKey, 
 	delete pResults;
 
 	// A failed prepare here means the gameplay database is missing tables or
-	// columns (corrupted install or broken mod). Most callers dereference the
+	// columns (corrupted install, broken mod, or a package below Assets that
+	// sets up an older version of the tables). Most callers dereference the
 	// result unchecked, so without this we crash with an unexplained
 	// NULL-deref in Bind/Step (#13313). Fail with a diagnostic naming the
-	// query instead; "Verify integrity of game files" usually fixes it.
+	// query instead. Verifying the game files fixes a corrupted install but
+	// leaves extra packages in place, so name those first; the query text goes
+	// last because the dialog truncates long messages.
+	const std::string strPackages = DescribeSuspectContentPackages();
+	if (!strPackages.empty())
+	{
+		PRECONDITION(false, "Failed to prepare database query '%s': %s -- these packages in the game's Assets folder can replace the game data whatever the Mods menu says: %s. Remove an old Vox Populi, a modpack for another version, or a DLC folder this Steam account does not own, then delete the cache folder in My Games\\Sid Meier's Civilization 5. Query: %s", strKey.c_str(), GetErrorMessage(), strPackages.c_str(), szStmt);
+	}
 	PRECONDITION(false, "Failed to prepare database query '%s' [%s]: %s -- the game database is corrupted or a mod is broken; try verifying game files", strKey.c_str(), szStmt, GetErrorMessage());
 
 	return NULL;
