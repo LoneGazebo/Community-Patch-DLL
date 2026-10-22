@@ -132,6 +132,23 @@ if not VP and not (MapModData and MapModData.VP) then
 		imageControl:SetTextureOffsetVal(iX * iIconSize, iY * iIconSize);
 	end
 
+	-- A context without DB (no mods are activated, as in a modpack game) can't build GameInfoTypes itself.
+	-- It gets this stand-in, which reads the GameInfoTypes that a context having one shares (see ShareGameInfoTypes).
+	local tSharedGameInfoTypes;
+	local tGameInfoTypesStandIn = setmetatable({}, {
+		__index = function (_, key)
+			return tSharedGameInfoTypes and tSharedGameInfoTypes[key];
+		end,
+	});
+
+	--- Share a context's GameInfoTypes with the contexts that have neither it nor DB
+	--- @param tGameInfoTypes table<string, integer>
+	local function ShareGameInfoTypes(tGameInfoTypes)
+		if not tSharedGameInfoTypes and tGameInfoTypes ~= tGameInfoTypesStandIn then
+			tSharedGameInfoTypes = tGameInfoTypes;
+		end
+	end
+
 	--- @class VPUI
 	--- @field GameInfoTypes table<string, integer>
 	local _VP = setmetatable({}, {
@@ -141,6 +158,16 @@ if not VP and not (MapModData and MapModData.VP) then
 				if GameInfoTypes then
 					t[key] = GameInfoTypes;
 					return GameInfoTypes;
+				end
+
+				if not DB then
+					if tSharedGameInfoTypes then
+						t[key] = tSharedGameInfoTypes;
+						return tSharedGameInfoTypes;
+					end
+					-- Not cached, so contexts asking after the table is shared get the table itself
+					print("Neither GameInfoTypes nor DB exists in this context. Using a stand-in until another context shares its table...");
+					return tGameInfoTypesStandIn;
 				end
 
 				print("GameInfoTypes doesn't exist in this context. Creating the table...");
@@ -178,6 +205,7 @@ if not VP and not (MapModData and MapModData.VP) then
 	_VP.GetCivsFromTrait = GetCivsFromTrait;
 	_VP.GetGreatPersonInfoFromSpecialist = GetGreatPersonInfoFromSpecialist;
 	_VP.IconHookupOrDefault = IconHookupOrDefault;
+	_VP.ShareGameInfoTypes = ShareGameInfoTypes;
 
 	-- MapModData may not always exist. While it doesn't, we have no choice but to save the VP object under the context global.
 	if MapModData then
@@ -185,6 +213,11 @@ if not VP and not (MapModData and MapModData.VP) then
 	else
 		VP = _VP;
 	end
+end
+
+-- Every context that has GameInfoTypes but no DB shares it, for the contexts that have neither
+if GameInfoTypes and not DB then
+	(MapModData and MapModData.VP or VP).ShareGameInfoTypes(GameInfoTypes);
 end
 
 -- Include the custom tooltips here
