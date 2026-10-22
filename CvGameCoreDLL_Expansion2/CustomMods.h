@@ -62,7 +62,8 @@
 
 // Minidumps are ON by default. Define DISABLE_MINIDUMP in the project settings to build
 // without them (mirrors DISABLE_CVASSERT); users can also opt out at runtime by creating
-// an empty file "crashlogs\nodumps.please" next to the game executable.
+// an empty file "crashlogs\nodumps.please" next to the game executable, or per user
+// with "CrashMiniDumps = 0" under [Vox Populi] in My Games\...\config.ini.
 // Minidumps only work on Windows for now.
 // See http://forums.civfanatics.com/showthread.php?t=498919
 // If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
