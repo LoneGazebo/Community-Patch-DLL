@@ -125,6 +125,7 @@ CvGame::CvGame() :
 	, m_bIsDesynced(false)
 	, m_bHumanAIPath(true)
 	, m_eObserverUIOverridePlayer(NO_PLAYER)
+	, m_bObserverExitPending(false)
 	, m_eCurrentVisibilityPlayer(NO_PLAYER)
 	, m_eCurrentVisibilityTeam(NO_TEAM)
 	, m_bFOW(true)
@@ -1231,6 +1232,7 @@ void CvGame::uninit()
 	m_bIsDesynced = false;
 	m_bHumanAIPath = true;
 	m_eObserverUIOverridePlayer = NO_PLAYER;
+	m_bObserverExitPending = false;
 	m_eCurrentVisibilityPlayer = NO_PLAYER;
 	m_eCurrentVisibilityTeam = NO_TEAM;
 
@@ -1631,6 +1633,10 @@ void CvGame::update()
 			return;
 		}
 	}
+
+	// Exiting observer mode was requested between turns
+	if (m_bObserverExitPending && (!GET_PLAYER(getActivePlayer()).isObserver() || ExitObserverModeAsActivePlayer()))
+		m_bObserverExitPending = false;
 
 	// Send a Lua event at the start of the update
 	{
@@ -3880,22 +3886,11 @@ void CvGame::doControl(ControlTypes eControl)
 				// already in observer mode? exit it
 				if (GET_PLAYER(eActivePlayer).isObserver())
 				{
-					PlayerTypes eReturnPlayer = NO_PLAYER;
-
-					// return as the currently active player
-					for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
+					// Between turns, wait for a major civ's turn (see update)
+					if (!ExitObserverModeAsActivePlayer())
 					{
-						CvPlayer& kCurrentPlayer = GET_PLAYER((PlayerTypes)i);
-						if (kCurrentPlayer.isAlive() && kCurrentPlayer.isTurnActive())
-						{
-							eReturnPlayer = (PlayerTypes)i;
-							break;
-						}
-					}
-
-					if (eReturnPlayer != NO_PLAYER)
-					{
-						setAIAutoPlay(0, eReturnPlayer);
+						m_bObserverExitPending = true;
+						DLLUI->AddMessage(0, eActivePlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), GetLocalizedText("TXT_KEY_MISC_OBSERVER_MODE_EXIT_PENDING"));
 					}
 				}
 				else
@@ -6361,6 +6356,22 @@ PlayerTypes CvGame::getObserverUIOverridePlayer() const
 void CvGame::setObserverUIOverridePlayer(PlayerTypes ePlayer)
 {
 	m_eObserverUIOverridePlayer = ePlayer;
+}
+
+//	--------------------------------------------------------------------------------
+/// Leave observer mode as the major civ whose turn is active, if any
+bool CvGame::ExitObserverModeAsActivePlayer()
+{
+	for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
+	{
+		CvPlayer& kCurrentPlayer = GET_PLAYER((PlayerTypes)i);
+		if (kCurrentPlayer.isAlive() && kCurrentPlayer.isTurnActive())
+		{
+			setAIAutoPlay(0, (PlayerTypes)i);
+			return true;
+		}
+	}
+	return false;
 }
 
 //	--------------------------------------------------------------------------------

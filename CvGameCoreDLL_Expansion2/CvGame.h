@@ -334,6 +334,7 @@ public:
 	void setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat = false, bool bAutoplaySwitch = false);
 	PlayerTypes getObserverUIOverridePlayer() const;
 	void setObserverUIOverridePlayer(PlayerTypes ePlayer);
+	bool ExitObserverModeAsActivePlayer();
 
 	const CvHandicapInfo& getHandicapInfo() const;
 	HandicapTypes getHandicapType() const;
@@ -880,6 +881,7 @@ protected:
 	bool m_bIsDesynced; // whether the game was desynced or not as a result of the very last sync
 	bool m_bHumanAIPath; // debug/experimental: allow stop nodes in pathfinding for human players
 	PlayerTypes m_eObserverUIOverridePlayer;
+	bool m_bObserverExitPending; // leave observer mode once a major civ's turn is active, not saved
 	PlayerTypes m_eWaitDiploPlayer;
 	TechTypes m_eTechAstronomy;
 	PlayerTypes m_eCurrentVisibilityPlayer;
