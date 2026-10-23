@@ -3076,6 +3076,28 @@ void CvTacticalAI::ExecuteAirAttack(CvPlot* pTargetPlot)
 	}
 }
 
+// Weight an air strike and its retaliation by the chance that a visible interceptor aborts it.
+static void AdjustAirAttackDamageForInterception(const CvUnit* pAttacker, const CvPlot* pTargetPlot, int& iDamage, int& iAttackerDamage, int& iGarrisonDamage, int iExtraSelfDamage = 0)
+{
+	// Cap each possible loss before averaging, including damage assumed by the tactical simulation.
+	int iRemainingHitPoints = max(0, pAttacker->GetCurrHitPoints() - iExtraSelfDamage);
+	iAttackerDamage = min(iAttackerDamage, iRemainingHitPoints);
+	CvUnit* pInterceptor = pTargetPlot->GetBestInterceptor(pAttacker->getOwner(), pAttacker, false, true);
+	if (!pInterceptor)
+		return;
+
+	int iInterceptionDamage = min(pInterceptor->GetInterceptionDamage(pAttacker, false, pTargetPlot), iRemainingHitPoints);
+	// Execution continues the strike when an interception does no damage.
+	if (iInterceptionDamage <= 0)
+		return;
+
+	int iInterceptionChance = range(pInterceptor->interceptionProbability(), 0, 100) * (100 - range(pAttacker->evasionProbability(), 0, 100));
+	int iStrikeChance = 10000 - iInterceptionChance;
+	iDamage = (iDamage * iStrikeChance) / 10000;
+	iGarrisonDamage = (iGarrisonDamage * iStrikeChance) / 10000;
+	iAttackerDamage = (iInterceptionDamage * iInterceptionChance + iAttackerDamage * iStrikeChance) / 10000;
+}
+
 /// Queues up attacks on enemy units on or adjacent to army's desired center
 CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximateTargetPlot)
 {
@@ -3115,6 +3137,7 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximat
 					continue;
 
 				int iValue = 0;
+				int iDamageReceived = 0;
 				int iUnusedReferenceVariable = 0;
 				if (pUnit->AI_getUnitAIType() == UNITAI_MISSILE_AIR)
 				{
@@ -3145,19 +3168,21 @@ CvPlot* CvTacticalAI::FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximat
 						iDamage = (pDefender && MOD_CORE_GARRISON_DAMAGE_ABSORPTION) ? (iDamage * 2 * pDefender->GetMaxHitPoints()) / (pCity->GetMaxHitPoints() + 2 * pDefender->GetMaxHitPoints()) : 0;
 					}
 
-					//use distance as tiebreaker
-					iValue += iDamage - iDistance * 3;
+					iValue += iDamage;
 
 					if (pCity != NULL)
 					{
-						iValue -= pCity->GetAirStrikeDefenseDamage(pUnit, false);
+						iDamageReceived = pCity->GetAirStrikeDefenseDamage(pUnit, false);
 					}
 					else
-						iValue -= pDefender->GetAirStrikeDefenseDamage(pUnit, false);
-
-					if (pTestPlot->GetBestInterceptor(pUnit->getOwner(),NULL,false,true) != NULL)
-						iValue /= 2;
+						iDamageReceived = pDefender->GetAirStrikeDefenseDamage(pUnit, false);
 				}
+
+				// Weight strike bonuses too; they are only earned when the attack gets through.
+				AdjustAirAttackDamageForInterception(pUnit, pTestPlot, iValue, iDamageReceived, iUnusedReferenceVariable);
+				// Use distance as a tiebreaker and ignore the loss of expendable missiles.
+				if (pUnit->AI_getUnitAIType() != UNITAI_MISSILE_AIR)
+					iValue -= iDamageReceived + iDistance * 3;
 
 				if (iValue > iBestValue)
 				{
@@ -6373,6 +6398,16 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, c
 {
 	if (!pAttacker || !pCity || pAttacker->isDelayedDeath() || pAttacker->IsDead())
 		return 0;
+
+	// Missiles hit a unit even on a city plot and never damage the city, so report the hit as garrison damage.
+	if (pAttacker->getDomainType() == DOMAIN_AIR && pAttacker->AI_getUnitAIType() == UNITAI_MISSILE_AIR)
+	{
+		const CvUnit* pTarget = bOverrideGarrison ? pGarrisonOverride : pAttacker->rangeStrikeTarget(*pCity->plot(), true);
+		iAttackerDamage = 0;
+		iGarrisonDamage = GetSimulatedDamageFromAttackOnUnit(pTarget, pAttacker, pCity->plot(), pAttackerPlot, iAttackerDamage,
+			bIgnoreUnitAdjacencyBoni, iExtraSelfDamage, iExtraGarrisonDamage, bQuickAndDirty);
+		return 0;
+	}
 		
 	int iDamage = 0;
 	const CvUnit* pGarrison = bOverrideGarrison ? pGarrisonOverride : pCity->GetGarrisonedUnit();
@@ -6380,11 +6415,17 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, c
 	if (pAttacker->IsCanAttackRanged())
 	{
 		if (pAttacker->getDomainType() == DOMAIN_AIR)
+		{
 			iDamage = pAttacker->GetAirCombatDamage(NULL, pCity, iGarrisonMaxHP, iGarrisonDamage, false, iExtraSelfDamage, iExtraCityDamage);
+			iAttackerDamage = pCity->GetAirStrikeDefenseDamage(pAttacker, false);
+			if (!bQuickAndDirty)
+				AdjustAirAttackDamageForInterception(pAttacker, pCity->plot(), iDamage, iAttackerDamage, iGarrisonDamage, iExtraSelfDamage);
+		}
 		else
+		{
 			iDamage = pAttacker->GetRangeCombatDamage(NULL, pCity, iGarrisonMaxHP, iGarrisonDamage, false, iExtraSelfDamage, iExtraCityDamage, NULL, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
-
-		iAttackerDamage = 0; //what about interceptions?
+			iAttackerDamage = 0;
+		}
 	}
 	else
 	{
@@ -6412,16 +6453,11 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 	{
 		if (pAttacker->getDomainType() == DOMAIN_AIR)
 		{
-			// ignore interception for quick and dirty mode ...
-			CvUnit* pInterceptor = bQuickAndDirty ? NULL : pDefenderPlot->GetBestInterceptor(pAttacker->getOwner(), pAttacker, false, true);
-			// assume interception is successful - do this before the actual attack
-			iAttackerDamage = pInterceptor ? pInterceptor->GetInterceptionDamage(pAttacker, false, pDefenderPlot) : 0;
-
-			if (pAttacker->GetCurrHitPoints() - iAttackerDamage > 0)
-			{
-				iDamage += pAttacker->GetAirCombatDamage(pDefender, NULL, 0, iUnusedReferenceVariable, false, iExtraSelfDamage, iExtraDefenderDamage, pDefenderPlot, pAttackerPlot, bQuickAndDirty);
-				iAttackerDamage += pDefender->GetAirStrikeDefenseDamage(pAttacker, false, pDefenderPlot);
-			}
+			iDamage = pAttacker->GetAirCombatDamage(pDefender, NULL, 0, iUnusedReferenceVariable, false, iExtraSelfDamage, iExtraDefenderDamage, pDefenderPlot, pAttackerPlot, bQuickAndDirty);
+			iAttackerDamage = pDefender->GetAirStrikeDefenseDamage(pAttacker, false, pDefenderPlot);
+			// Keep the quick estimate free of interceptor searches.
+			if (!bQuickAndDirty)
+				AdjustAirAttackDamageForInterception(pAttacker, pDefenderPlot, iDamage, iAttackerDamage, iUnusedReferenceVariable, iExtraSelfDamage);
 		}
 		else
 		{
