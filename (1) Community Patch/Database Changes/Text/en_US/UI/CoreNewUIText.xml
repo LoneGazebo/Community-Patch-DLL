@@ -3840,6 +3840,9 @@
 		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_ENABLED">
 			<Text>Debug: Pathfinding stop nodes for humans enabled</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MISC_OBSERVER_MODE_EXIT_PENDING">
+			<Text>Leaving observer mode at the next civilization's turn.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PARADROP_AA_DAMAGED">
 			<Text>Your {1_Unit} was intercepted by an enemy {2_EnUName} ({3_Num} damage)!</Text>
 		</Row>

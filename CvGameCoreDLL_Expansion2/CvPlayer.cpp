@@ -33926,6 +33926,10 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 			setEndTurn(false);
 
+			// Leaving observer mode was requested, take over this civ before it plays its turn
+			if (isMajorCiv() && kGame.IsObserverExitPending())
+				kGame.ExitPendingObserverMode(GetID());
+
 			if (GET_PLAYER(GC.getGame().getActivePlayer()).isObserver() && !CvPreGame::quickMovement())
 			{
 				// in observer mode without quick movement, move the camera to the plot of the the capital on turn start
