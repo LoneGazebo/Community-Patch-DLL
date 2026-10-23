@@ -833,13 +833,13 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	//OutputDebugString(CvString::format("created TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iNewTradeRouteIndex).c_str());
 
+	//reset both players' route counts before anything below reads them
 	GET_PLAYER(eOriginPlayer).GetTrade()->ResetTradeStats();
+	if (eDestPlayer != eOriginPlayer)
+		GET_PLAYER(eDestPlayer).GetTrade()->ResetTradeStats();
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	if (eDestPlayer != eOriginPlayer)
-	{
-		GET_PLAYER(eDestPlayer).GetTrade()->ResetTradeStats();
 		GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
-	}
 
 	pOriginCity->GetCityReligions()->UpdateNumTradeRouteConnections(pDestCity);
 	pDestCity->GetCityReligions()->UpdateNumTradeRouteConnections(pOriginCity);
@@ -1362,6 +1362,9 @@ bool CvGameTrade::ClearTradeRoute(int iIndex)
 	//reset to default
 	kTradeConnection = TradeConnection();
 
+	//the cached route counts still include this route (same as in CreateTradeRoute)
+	GET_PLAYER(eOriginPlayer).GetTrade()->ResetTradeStats();
+	GET_PLAYER(eDestPlayer).GetTrade()->ResetTradeStats();
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 
