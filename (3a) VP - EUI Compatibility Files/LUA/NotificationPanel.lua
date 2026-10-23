@@ -1737,7 +1737,9 @@ for playerID = 0, GameDefines.MAX_CIV_PLAYERS-1 do
 	end
 end
 
+local g_isChatOpen = false
 local function OnChatToggle( isChatOpen )
+	g_isChatOpen = isChatOpen
 	g_civPanelOffsetY = g_diploButtonsHeight + (isChatOpen and g_chatPanelHeight or 0)
 	g_maxTotalStackHeight = g_screenHeight - Controls.OuterStack:GetOffsetY() - g_civPanelOffsetY
 	if not g_leaderMode then
@@ -1827,19 +1829,22 @@ function( diploButtonEntries )
 			print("Error: could not find DiploCorner lua context, probably a mod conflict")
 		end
 		g_diploButtonsHeight = 28 + diploButtonStack:GetSizeY()
+		-- The refresh happens after startup (in DiploCorner's update), so lay out again
+		OnChatToggle( g_isChatOpen )
 	else
 		print("Error: could not find DiploCorner button stack, probably a mod conflict")
 	end
 end)
 LuaEvents.RequestRefreshAdditionalInformationDropdownEntries()
 
-if g_alertButton and g_alertButton.SetToolTipString then
-	Events.GameplayAlertMessage.Add(
-	function( messageText )
+-- The alert button is set when DiploCorner refreshes its entries, which happens after startup
+Events.GameplayAlertMessage.Add(
+function( messageText )
+	if g_alertButton and g_alertButton.SetToolTipString then
 		table_insert( g_alertMessages, messageText )
 		g_alertButton:SetToolTipString( table_concat(g_alertMessages,"[NEWLINE]") )
-	end)
-end
+	end
+end)
 
 OnChatToggle( PreGame.IsMultiplayerGame() )
 OnOptionsChanged()
