@@ -135,6 +135,13 @@ local function ClearOverlays()
 	end
 end
 
+-- Other UIs (e.g. the worker planner) may replace the tooltip
+local function GetPlotTipOverride( plot )
+	local override = {}
+	LuaEvents.PlotHelpOverride( plot, override )
+	return override.text
+end
+
 local function ShowPlotTips( tip )
 	if #(tip or "") > 0 then
 		if g_lastTip ~= tip then
@@ -1223,6 +1230,12 @@ function( timeChange )
 		end
 	end
 	local plot = Map_GetPlot( UI_GetMouseOverHex() )
+	local override = plot and GetPlotTipOverride( plot )
+	if override then
+		ClearOverlays()
+		g_lastPlot = false
+		return ShowPlotTips( override )
+	end
 	local plotTips
 	if plot == g_lastPlot then
 		plotTips = g_lastTips[ g_tipLevel ]
