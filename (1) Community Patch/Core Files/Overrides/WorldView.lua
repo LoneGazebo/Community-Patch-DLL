@@ -786,6 +786,15 @@ end
 ----------------------------------------------------------------
 -- Input handling 
 ----------------------------------------------------------------
+-- Worker planner, see WorkerPlanner.lua
+if GameInfoTypes.INTERFACEMODE_WORKER_PLANNER then
+	InterfaceModeMessageHandler[GameInfoTypes.INTERFACEMODE_WORKER_PLANNER] = {
+		[MouseEvents.LButtonUp] = function() LuaEvents.WorkerPlannerLButtonUp(); return true; end,
+		[MouseEvents.RButtonDown] = function() LuaEvents.WorkerPlannerRButtonDown(); return true; end,
+		[MouseEvents.RButtonUp] = function() LuaEvents.WorkerPlannerRButtonUp(); return true; end,
+	}
+end
+
 function InputHandler( uiMsg, wParam, lParam )
 	if uiMsg == MouseEvents.RButtonDown then
 		rButtonDown = true;

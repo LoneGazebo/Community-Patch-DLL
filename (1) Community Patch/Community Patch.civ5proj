@@ -1009,6 +1009,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes\AddTableIndexes.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes\WorkerPlanner.sql</FileName>
+      </Action>
     </ModActions>
     <ModContent>
       <Content>
@@ -1064,6 +1069,12 @@
         <Name>CameraView</Name>
         <Description>CameraView</Description>
         <FileName>Core Files/New UI/CameraView.xml</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>Worker Planner</Name>
+        <Description>Worker Planner</Description>
+        <FileName>Core Files/New UI/WorkerPlanner.xml</FileName>
       </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -2691,6 +2702,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\New UI\WorkerPlanner.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\New UI\WorkerPlanner.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\New UI\CityEventPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -3136,6 +3155,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\RemapperTables.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\WorkerPlanner.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

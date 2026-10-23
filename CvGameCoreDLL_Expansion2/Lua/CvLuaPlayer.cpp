@@ -1069,6 +1069,16 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMilitaryLog);
 
 	Method(GetRecommendedWorkerPlots);
+	Method(GetWorkerPlan);
+	Method(SendWorkerPlan);
+	Method(SendClearWorkerPlans);
+	Method(SendRefreshWorkerPlans);
+	Method(SendAllPlannedRouteStates);
+	Method(SendWorkerPlanSetting);
+	Method(IsWorkerPlanSetting);
+	Method(GetWorkerPlanRevision);
+	Method(GetWorkerPlanOverview);
+	Method(GetImprovementOptions);
 	Method(GetRecommendedFoundCityPlots);
 	Method(GetUnimprovedAvailableLuxuryResource);
 	Method(IsAnyPlotImproved);
@@ -12573,6 +12583,235 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	}
 
 	return 0;
+}
+
+//------------------------------------------------------------------------------
+//ImprovementTypes, int, bool GetWorkerPlan(int iX, int iY);
+// Returns -1, 0, false if there is no plan. Improvement -1 with lock means "leave as is".
+int CvLuaPlayer::lGetWorkerPlan(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iX = lua_tointeger(L, 2);
+	const int iY = lua_tointeger(L, 3);
+
+	const SWorkerPlan* pPlan = pkPlayer->GetBuilderTaskingAI()->GetWorkerPlan(GC.getMap().plot(iX, iY));
+	lua_pushinteger(L, pPlan ? pPlan->m_eImprovement : NO_IMPROVEMENT);
+	lua_pushinteger(L, pPlan ? pPlan->m_iPriority : 0);
+	lua_pushboolean(L, pPlan ? pPlan->m_bLock : false);
+	return 3;
+}
+
+//------------------------------------------------------------------------------
+//void SendWorkerPlan(int iX, int iY, ImprovementTypes eImprovement, int iPriority, bool bLock);
+// Improvement -1 without lock removes the plan
+int CvLuaPlayer::lSendWorkerPlan(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iX = lua_tointeger(L, 2);
+	const int iY = lua_tointeger(L, 3);
+	const ImprovementTypes eImprovement = (ImprovementTypes)luaL_optint(L, 4, NO_IMPROVEMENT);
+	const int iPriority = luaL_optint(L, 5, 0);
+	const bool bLock = lua_toboolean(L, 6);
+
+	NetMessageExt::Send::SetWorkerPlan(pkPlayer->GetID(), iX, iY, eImprovement, iPriority, bLock);
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//void SendClearWorkerPlans();
+int CvLuaPlayer::lSendClearWorkerPlans(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	NetMessageExt::Send::ClearWorkerPlans(pkPlayer->GetID());
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//void SendRefreshWorkerPlans();
+// Re-plans builder tasks so plan changes take effect this turn
+int CvLuaPlayer::lSendRefreshWorkerPlans(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	NetMessageExt::Send::RefreshWorkerPlans(pkPlayer->GetID());
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//void SendAllPlannedRouteStates(RoutePlanTypes eRoutePlan);
+int CvLuaPlayer::lSendAllPlannedRouteStates(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const RoutePlanTypes eRoutePlan = (RoutePlanTypes)lua_tointeger(L, 2);
+	NetMessageExt::Send::SetPlannedRouteState(pkPlayer->GetID(), -1, -1, eRoutePlan);
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//void SendWorkerPlanSetting(WorkerPlanSettingTypes eSetting, bool bValue);
+int CvLuaPlayer::lSendWorkerPlanSetting(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iSetting = lua_tointeger(L, 2);
+	const bool bValue = lua_toboolean(L, 3);
+	if (CvBuilderTaskingAI::IsValidWorkerPlanSetting(iSetting))
+		NetMessageExt::Send::SetWorkerPlanSetting(pkPlayer->GetID(), static_cast<WorkerPlanSettingTypes>(iSetting), bValue);
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+//bool IsWorkerPlanSetting(WorkerPlanSettingTypes eSetting);
+int CvLuaPlayer::lIsWorkerPlanSetting(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iSetting = lua_tointeger(L, 2);
+	lua_pushboolean(L, CvBuilderTaskingAI::IsValidWorkerPlanSetting(iSetting) && pkPlayer->GetBuilderTaskingAI()->IsWorkerPlanSetting(static_cast<WorkerPlanSettingTypes>(iSetting)));
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//int GetWorkerPlanRevision();
+// Changes whenever plans or builder directives change
+int CvLuaPlayer::lGetWorkerPlanRevision(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetBuilderTaskingAI()->GetWorkerPlanRevision());
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//table GetWorkerPlanOverview();
+// The builder AI is updated on the game core thread, don't read it from the UI meanwhile
+static bool IsBuilderAIBusy()
+{
+	return gDLL->IsGameCoreExecuting() && !gDLL->IsGameCoreThread();
+}
+
+int CvLuaPlayer::lGetWorkerPlanOverview(lua_State* L)
+{
+	if (IsBuilderAIBusy())
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	vector<SWorkerPlanOverview> aOverview = pkPlayer->GetBuilderTaskingAI()->GetWorkerPlanOverview();
+
+	lua_createtable(L, (int)aOverview.size(), 0);
+	int iIndex = 1;
+	for (vector<SWorkerPlanOverview>::const_iterator it = aOverview.begin(); it != aOverview.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndex(it->m_iPlotIndex);
+		if (!pPlot)
+			continue;
+
+		lua_createtable(L, 0, 12);
+		const int t = lua_gettop(L);
+		lua_pushinteger(L, it->m_iPlotIndex);
+		lua_setfield(L, t, "PlotIndex");
+		lua_pushinteger(L, pPlot->getX());
+		lua_setfield(L, t, "X");
+		lua_pushinteger(L, pPlot->getY());
+		lua_setfield(L, t, "Y");
+		lua_pushinteger(L, it->m_eAIImprovement);
+		lua_setfield(L, t, "AIImprovement");
+		lua_pushinteger(L, it->m_eAIInterimImprovement);
+		lua_setfield(L, t, "AIInterimImprovement");
+		lua_pushinteger(L, it->m_iAIScore);
+		lua_setfield(L, t, "AIScore");
+		lua_pushinteger(L, it->m_iRank);
+		lua_setfield(L, t, "Rank");
+		lua_pushboolean(L, it->m_bHasPlan);
+		lua_setfield(L, t, "HasPlan");
+		lua_pushinteger(L, it->m_plan.m_eImprovement);
+		lua_setfield(L, t, "PlanImprovement");
+		lua_pushinteger(L, it->m_plan.m_iPriority);
+		lua_setfield(L, t, "PlanPriority");
+		lua_pushboolean(L, it->m_plan.m_bLock);
+		lua_setfield(L, t, "PlanLock");
+		lua_pushinteger(L, it->m_eStatus);
+		lua_setfield(L, t, "Status");
+		lua_rawseti(L, -2, iIndex++);
+	}
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+//table GetImprovementOptions(int iX, int iY);
+int CvLuaPlayer::lGetImprovementOptions(lua_State* L)
+{
+	if (IsBuilderAIBusy())
+	{
+		lua_pushnil(L);
+		return 1;
+	}
+
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iX = lua_tointeger(L, 2);
+	const int iY = lua_tointeger(L, 3);
+
+	vector<SImprovementOption> aOptions = pkPlayer->GetBuilderTaskingAI()->GetImprovementOptions(GC.getMap().plot(iX, iY));
+
+	lua_createtable(L, (int)aOptions.size(), 0);
+	int iIndex = 1;
+	for (vector<SImprovementOption>::const_iterator it = aOptions.begin(); it != aOptions.end(); ++it)
+	{
+		lua_createtable(L, 0, 14);
+		const int t = lua_gettop(L);
+		lua_pushinteger(L, it->m_eImprovement);
+		lua_setfield(L, t, "Improvement");
+		lua_pushinteger(L, it->m_eBuild);
+		lua_setfield(L, t, "Build");
+		lua_pushboolean(L, it->m_bCanPlan);
+		lua_setfield(L, t, "CanPlan");
+		lua_pushboolean(L, it->m_bCanBuildNow);
+		lua_setfield(L, t, "CanBuildNow");
+		lua_pushinteger(L, it->m_eTechPrereq);
+		lua_setfield(L, t, "TechPrereq");
+		lua_pushinteger(L, it->m_iScore);
+		lua_setfield(L, t, "Score");
+		lua_pushinteger(L, it->m_iRankScore);
+		lua_setfield(L, t, "RankScore");
+		lua_pushinteger(L, it->m_iPlotLocalScore);
+		lua_setfield(L, t, "ScorePlotLocal");
+		lua_pushinteger(L, it->m_iYieldGainBonus);
+		lua_setfield(L, t, "ScoreYieldGain");
+		// Nonzero parts in order, as { Key, Value }
+		lua_createtable(L, 0, 0);
+		int iPart = 1;
+		for (int i = 0; i < NUM_SCORE_PARTS; i++)
+		{
+			if (it->m_aiScoreParts[i] == 0 && !(i == SCORE_PART_YIELDS && it->m_bYieldsUnused))
+				continue;
+			lua_createtable(L, 0, 2);
+			lua_pushstring(L, CvBuilderTaskingAI::GetScorePartKey((ImprovementScorePart)i));
+			lua_setfield(L, -2, "Key");
+			lua_pushinteger(L, it->m_aiScoreParts[i]);
+			lua_setfield(L, -2, "Value");
+			lua_rawseti(L, -2, iPart++);
+		}
+		lua_setfield(L, t, "ScoreParts");
+		// Yield type -> yield times 100
+		lua_createtable(L, 0, 0);
+		for (int i = 0; i < NUM_YIELD_TYPES; i++)
+		{
+			if (it->m_aiYieldTimes100[i] == 0)
+				continue;
+			lua_pushinteger(L, it->m_aiYieldTimes100[i]);
+			lua_rawseti(L, -2, i);
+		}
+		lua_setfield(L, t, "Yields");
+		lua_pushboolean(L, it->m_bYieldsUnused);
+		lua_setfield(L, t, "YieldsUnused");
+		lua_pushinteger(L, it->m_iGreatPersonPenalty);
+		lua_setfield(L, t, "ScoreGreatPersonPenalty");
+		lua_pushstring(L, it->m_strReason.c_str());
+		lua_setfield(L, t, "Reason");
+		lua_rawseti(L, -2, iIndex++);
+	}
+
+	return 1;
 }
 
 typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
