@@ -8710,9 +8710,13 @@ function ASP:IsModActive(strModName)
 	end
 
 	if not bCPActive then -- fallback method for modpack mode
+		-- Step the query to the end: the query is kept, so returning from inside the loop
+		-- leaves its statement on a row, and an open statement blocks database rebuilds.
+		local bFound = false;
 		for _ in tModIdentifier[strModName].Query() do
-			return true;
+			bFound = true;
 		end
+		return bFound;
 	end
 	return false;
 end
