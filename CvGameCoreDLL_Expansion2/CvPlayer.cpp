@@ -42534,7 +42534,7 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgn
 		iNumHistory = iNumTurns;
 
 	const vector<int>& viYieldHistory = m_vviYieldHistory[eYield];
-	for (int i = viYieldHistory.size()-1; i >= 0; i--)
+	for (int i = static_cast<int>(viYieldHistory.size())-1; i >= 0; i--)
 	{
 		iYield += viYieldHistory[i];
 		if (++iLoop >= iNumHistory)

@@ -21566,7 +21566,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 			int iPrimeScore = 0;
 			veVotingHistoryScores.StableSortItems();
 
-			for (int iVotingScoreIndex = veVotingHistoryScores.size() - 1; iVotingScoreIndex >= 0; iVotingScoreIndex--)
+			for (int iVotingScoreIndex = static_cast<int>(veVotingHistoryScores.size()) - 1; iVotingScoreIndex >= 0; iVotingScoreIndex--)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) veVotingHistoryScores.GetElement(iVotingScoreIndex);
 				int iScore = GetVotingHistoryScore(eLoopPlayer);
