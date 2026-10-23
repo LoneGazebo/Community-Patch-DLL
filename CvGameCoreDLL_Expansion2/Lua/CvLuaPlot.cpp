@@ -16,6 +16,7 @@
 #include "../CvGameCoreDLLPCH.h"
 #include "CvLuaPlot.h"
 #include "../CvGameCoreUtils.h"
+#include "../CvDllNetMessageExt.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
@@ -2383,9 +2384,15 @@ int CvLuaPlot::lGetPlannedRouteState(lua_State* L)
 
 //------------------------------------------------------------------------------
 //void SetPlannedRouteState(PlayerTypes ePlayer, RoutePlanTypes eRoutePlanType);
+// Sent as a network message to stay in sync in multiplayer, takes effect shortly after the call
 int CvLuaPlot::lSetPlannedRouteState(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::SetPlannedRouteState);
+	CvPlot* pkPlot = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const RoutePlanTypes eRoutePlan = (RoutePlanTypes)lua_tointeger(L, 3);
+
+	NetMessageExt::Send::SetPlannedRouteState(ePlayer, pkPlot->getX(), pkPlot->getY(), eRoutePlan);
+	return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -2395,7 +2402,8 @@ int CvLuaPlot::lIsMainRoutePlan(lua_State* L)
 	CvPlot* pPlot = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
 
-	bool bResult = GET_PLAYER(ePlayer).GetBuilderTaskingAI()->IsMainRoutePlot(pPlot);
+	// The builder AI is updated on the game core thread, don't read it from the UI meanwhile
+	bool bResult = !(gDLL->IsGameCoreExecuting() && !gDLL->IsGameCoreThread()) && GET_PLAYER(ePlayer).GetBuilderTaskingAI()->IsMainRoutePlot(pPlot);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -2407,7 +2415,8 @@ int CvLuaPlot::lIsShortcutRoutePlan(lua_State* L)
 	CvPlot* pPlot = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
 
-	bool bResult = GET_PLAYER(ePlayer).GetBuilderTaskingAI()->IsShortcutRoutePlot(pPlot);
+	// The builder AI is updated on the game core thread, don't read it from the UI meanwhile
+	bool bResult = !(gDLL->IsGameCoreExecuting() && !gDLL->IsGameCoreThread()) && GET_PLAYER(ePlayer).GetBuilderTaskingAI()->IsShortcutRoutePlot(pPlot);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -2419,7 +2428,8 @@ int CvLuaPlot::lIsStrategicRoutePlan(lua_State* L)
 	CvPlot* pPlot = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
 
-	bool bResult = GET_PLAYER(ePlayer).GetBuilderTaskingAI()->IsStrategicRoutePlot(pPlot);
+	// The builder AI is updated on the game core thread, don't read it from the UI meanwhile
+	bool bResult = !(gDLL->IsGameCoreExecuting() && !gDLL->IsGameCoreThread()) && GET_PLAYER(ePlayer).GetBuilderTaskingAI()->IsStrategicRoutePlot(pPlot);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

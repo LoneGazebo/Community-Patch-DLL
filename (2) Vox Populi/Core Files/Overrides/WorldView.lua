@@ -233,6 +233,15 @@ if g_isRoutePlannerModEnabled then
 	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_ROUTE_PLANNER_DRAW.ID][MouseEvents.RButtonDown] = LuaEvents.ROUTE_PLANNER_RButtonDown
 end
 
+-- Worker planner, see WorkerPlanner.lua
+if GameInfoTypes.INTERFACEMODE_WORKER_PLANNER then
+	InterfaceModeMessageHandler[GameInfoTypes.INTERFACEMODE_WORKER_PLANNER] = {
+		[MouseEvents.LButtonUp] = function() LuaEvents.WorkerPlannerLButtonUp(); return true; end,
+		[MouseEvents.RButtonDown] = function() LuaEvents.WorkerPlannerRButtonDown(); return true; end,
+		[MouseEvents.RButtonUp] = function() LuaEvents.WorkerPlannerRButtonUp(); return true; end,
+	}
+end
+
 if g_isSquadsModEnabled then
 	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID][MouseEvents.RButtonDown] = LuaEvents.SQUADS_MANAGE_UNITS_MODE_RIGHT_CLICK_DOWN;
 	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID][MouseEvents.LButtonUp] = LuaEvents.SQUADS_MANAGE_UNITS_MODE_LEFT_CLICK_UP;
