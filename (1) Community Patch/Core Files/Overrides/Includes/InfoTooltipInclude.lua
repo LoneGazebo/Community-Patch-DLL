@@ -4,14 +4,22 @@ include("VPUI_core");
 include("CPK.lua");
 
 -- GameDefines is not available in PreGame, so this will have to do
-local CITY_RESOURCE_WLTKD_TURNS = GameInfo.Defines{Name = "CITY_RESOURCE_WLTKD_TURNS"}().Value;
-local GOLDEN_AGE_LENGTH = GameInfo.Defines{Name = "GOLDEN_AGE_LENGTH"}().Value;
-local PILLAGE_HEAL_AMOUNT = GameInfo.Defines{Name = "PILLAGE_HEAL_AMOUNT"}().Value;
-local ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = GameInfo.Defines{Name = "ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER"}().Value;
-local ESPIONAGE_SPY_POINT_UNIT = GameInfo.Defines{Name = "ESPIONAGE_SPY_POINT_UNIT"}().Value;
-local MIN_WATER_SIZE_FOR_OCEAN = GameInfo.Defines{Name = "MIN_WATER_SIZE_FOR_OCEAN"}().Value;
-local BALANCE_BUILDING_INVESTMENT_BASELINE = GameInfo.Defines{Name = "BALANCE_BUILDING_INVESTMENT_BASELINE"}().Value;
-local INQUISITION_EFFECTIVENESS = GameInfo.Defines{Name = "INQUISITION_EFFECTIVENESS"}().Value;
+-- Step each query to the end so the statement closes; an open one blocks database rebuilds.
+local function GetDefineValue(strName)
+	local value;
+	for row in GameInfo.Defines{Name = strName} do
+		value = row.Value;
+	end
+	return value;
+end
+local CITY_RESOURCE_WLTKD_TURNS = GetDefineValue("CITY_RESOURCE_WLTKD_TURNS");
+local GOLDEN_AGE_LENGTH = GetDefineValue("GOLDEN_AGE_LENGTH");
+local PILLAGE_HEAL_AMOUNT = GetDefineValue("PILLAGE_HEAL_AMOUNT");
+local ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER = GetDefineValue("ESPIONAGE_SECURITY_PER_POPULATION_BUILDING_SCALER");
+local ESPIONAGE_SPY_POINT_UNIT = GetDefineValue("ESPIONAGE_SPY_POINT_UNIT");
+local MIN_WATER_SIZE_FOR_OCEAN = GetDefineValue("MIN_WATER_SIZE_FOR_OCEAN");
+local BALANCE_BUILDING_INVESTMENT_BASELINE = GetDefineValue("BALANCE_BUILDING_INVESTMENT_BASELINE");
+local INQUISITION_EFFECTIVENESS = GetDefineValue("INQUISITION_EFFECTIVENESS");
 
 -- Cache these values
 local eMerchantOfVeniceUnit;
