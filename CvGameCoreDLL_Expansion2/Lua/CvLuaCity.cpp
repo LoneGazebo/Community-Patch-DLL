@@ -3067,7 +3067,15 @@ int CvLuaCity::lGetReligionGreatPersonRateModifier(lua_State* L)
 
 	if (eGreatPerson != NO_GREATPERSON)
 	{
-		iResult += pkCity->GetReligionGreatPersonRateModifier(eGreatPerson);
+		const PlayerTypes ePlayer = pkCity->getOwner();
+		if (GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
+		{
+			iResult += pkCity->GetReligionGreatPersonRateModifier(eGreatPerson, true);
+		}
+		else
+		{
+			iResult += pkCity->GetReligionGreatPersonRateModifier(eGreatPerson, false);
+		}
 	}
 
 	lua_pushinteger(L, iResult);
@@ -5141,15 +5149,23 @@ int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
 
 	if (eGreatPerson != NO_GREATPERSON)
 	{
+		const PlayerTypes ePlayer = pkCity->getOwner();
 
-		int iNumPuppets = GET_PLAYER(pkCity->getOwner()).GetNumPuppetCities();
+		int iNumPuppets = GET_PLAYER(ePlayer).GetNumPuppetCities();
 		if (iNumPuppets > 0)
 		{
 
-			iResult += (iNumPuppets * GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
+			iResult += (iNumPuppets * GET_PLAYER(ePlayer).GetPlayerTraits()->GetPerPuppetGreatPersonRateModifier(eGreatPerson));
 		}
-
-		iResult += pkCity->GetReligionGreatPersonRateModifier(eGreatPerson);
+		
+		if (GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
+		{
+			iResult += pkCity->GetReligionGreatPersonRateModifier(eGreatPerson, true);
+		}
+		else
+		{
+			iResult += pkCity->GetReligionGreatPersonRateModifier(eGreatPerson, false);
+		}
 	}
 
 	lua_pushinteger(L, iResult);

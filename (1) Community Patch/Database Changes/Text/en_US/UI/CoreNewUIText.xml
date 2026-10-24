@@ -2084,6 +2084,9 @@
 		<Row Tag="TXT_KEY_GPP_MOD_CAPITAL">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% for [ICON_CAPITAL] Capital from [ICON_RES_MARRIAGE] Diplomatic Marriages</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_BELIEF">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Religious Beliefs</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GPP_MOD_GA_BELIEF">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_GOLDEN_AGE] Golden Age (Religious Beliefs)</Text>
 		</Row>
