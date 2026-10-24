@@ -1252,6 +1252,10 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 	AddTooltipNonZeroSigned(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_RESTING_INFLUENCE", kUnitInfo.RestingPointChange);
 
+	if MOD_BALANCE_SPY_POINTS then
+		AddTooltipPositive(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_FREE_SPY_POINTS", kUnitInfo.ExtraSpies * ESPIONAGE_SPY_POINT_UNIT);
+	end
+
 	AddTooltipPositive(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_FREE_LUXURY", kUnitInfo.NumFreeLux);
 
 	-- Bad abilities (placed at the end)
