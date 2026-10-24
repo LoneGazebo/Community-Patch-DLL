@@ -815,11 +815,11 @@ SET
 	PuppetPurchaseOverride = 1
 WHERE Class = 'UNITCLASS_WORKER';
 
--- Work Boat
+-- Work Boat (removed)
 UPDATE Units
 SET
-	CombatClass = 'UNITCOMBAT_WORKBOAT',
-	PuppetPurchaseOverride = 1
+	PrereqTech = NULL,
+	Cost = -1
 WHERE Class = 'UNITCLASS_WORKBOAT';
 
 -- Missionary

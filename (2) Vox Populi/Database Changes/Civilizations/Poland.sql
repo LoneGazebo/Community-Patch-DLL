@@ -46,7 +46,7 @@ SET
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_HEAVY_SKIRMISHER') + 2,
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_HEAVY_SKIRMISHER') + 3,
 	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_HEAVY_SKIRMISHER') + 1
 WHERE Type = 'UNIT_PANCERNY';
 

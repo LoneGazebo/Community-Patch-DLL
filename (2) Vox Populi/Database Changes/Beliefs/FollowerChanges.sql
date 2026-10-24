@@ -32,7 +32,7 @@ VALUES
 	('BELIEF_PEACE_GARDENS', 'YIELD_GOLD', 10),
 	('BELIEF_PEACE_GARDENS', 'YIELD_PRODUCTION', 10);
 
--- Religious Art (now Mastery)
+-- Religious Art (now Abstinence)
 INSERT INTO Belief_SpecialistYieldChanges
 	(BeliefType, SpecialistType, YieldType, Yield)
 VALUES
@@ -51,7 +51,7 @@ SELECT
 FROM Specialists
 WHERE GreatPeopleUnitClass IS NOT NULL;
 
--- Asceticism
+-- Asceticism (now Fasting)
 UPDATE Beliefs SET MinFollowers = 0 WHERE Type = 'BELIEF_ASCETISM';
 
 INSERT INTO Belief_YieldPerXFollowersLocal

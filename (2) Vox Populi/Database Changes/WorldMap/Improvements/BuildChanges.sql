@@ -19,6 +19,26 @@ UPDATE Builds
 SET PrereqTech = 'TECH_DYNAMITE'
 WHERE Type = 'BUILD_WELL';
 
+INSERT INTO Unit_Builds	
+		(UnitType, 	BuildType)
+SELECT Type, 'BUILD_FISHING_BOATS_NO_KILL' FROM Units WHERE Class = 'UNITCLASS_WORKER';
+
+UPDATE Builds
+SET Time = 400, ShowInPedia = 1, ShowInTechTree = 1, Help = 'TXT_KEY_BUILD_FISHING_BOAT_HELP', Recommendation = 'TXT_KEY_BUILD_FISHING_BOAT_REC'
+WHERE Type = 'BUILD_FISHING_BOATS_NO_KILL';
+
+UPDATE Builds 
+SET ShowInPedia = 0, ShowInTechTree = 0
+WHERE Type = 'BUILD_FISHING_BOATS';
+
+INSERT INTO Unit_Builds	
+		(UnitType, 	BuildType)
+SELECT Type, 'BUILD_OFFSHORE_PLATFORM' FROM Units WHERE Class = 'UNITCLASS_WORKER';
+
+UPDATE Builds 
+SET Time = 800, CanBeEmbarked = 1, Kill = 0, Help = 'TXT_KEY_BUILD_OFFSHORE_PLATFORMS_HELP', Recommendation = 'TXT_KEY_BUILD_OFFSHORE_PLATFORMS_REC'
+WHERE Type = 'BUILD_OFFSHORE_PLATFORM';
+
 -- Worker repair actions
 UPDATE Builds
 SET
