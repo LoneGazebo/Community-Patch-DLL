@@ -56,6 +56,9 @@ g_Tabs = {
 	},
 }
 
+g_fInfluentialLimit = GameInfo.Defines{Name = "CULTURE_LEVEL_INFLUENTIAL"}().Value;
+g_fInfluentialLimit /= 100;
+
 -------------------------------------------------
 -- Global Variables
 -------------------------------------------------
@@ -2549,7 +2552,7 @@ function SortAndDisplayPlayerInfluence()
 		instance.IconDark:SetTextureSizeVal(width, newHeight);
 		instance.IconDark:NormalizeTexture();
 	
-		instance.IconFrameGlow:SetHide(influencePercent < 1);
+		instance.IconFrameGlow:SetHide(influencePercent < g_fInfluentialLimit);
 		instance.IconFrame:SetToolTipString(playerInfluence.InfluenceToolTip);
         
         instance.PlayerName:LocalizeAndSetText(playerInfluence.PlayerName); 
@@ -2586,7 +2589,7 @@ function SortAndDisplayPlayerInfluence()
 		instance.TourismBar:SetHide(playerInfluence.Influence == 0);
 		instance.TourismIcon:SetHide(playerInfluence.Influence == 0);
 		
-		local influenceWidth = (playerInfluence.Influence/maxCultureInfluence) * maxBarWidth;
+		local influenceWidth = (playerInfluence.Influence/ (maxCultureInfluence * g_fInfluentialLimit)) * maxBarWidth;
 		
 		instance.MyTourism:SetSizeVal(influenceWidth, 8);
 		instance.MyTourism:SetToolTipString("[ICON_TOURISM] " .. playerInfluence.Influence);

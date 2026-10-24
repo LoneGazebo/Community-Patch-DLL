@@ -164,6 +164,11 @@ UPDATE Language_en_US
 SET Text = '+1 [ICON_RANGE_STRENGTH] Range.[NEWLINE]-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.'
 WHERE Tag = 'TXT_KEY_PROMOTION_RANGE_HELP';
 
+-- Range (air)
+UPDATE Language_en_US
+SET Text = 'Air Range'
+WHERE Tag = 'TXT_KEY_PROMOTION_AIR_RANGE';
+
 -- Mobility, Mobility I, Mobility II
 UPDATE Language_en_US
 SET Text = '+1 [ICON_MOVES] Movement.'
@@ -507,7 +512,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE_HELP';
 
 -- Indirect Fire
 UPDATE Language_en_US
-SET Text = 'Can perform Ranged Attacks over obstacles.[NEWLINE]-10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.'
+SET Text = 'Can perform Ranged Attacks over [COLOR_POSITIVE_TEXT]all[ENDCOLOR] obstacles.'
 WHERE Tag = 'TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP';
 
 -- Extra Sight While Embarked

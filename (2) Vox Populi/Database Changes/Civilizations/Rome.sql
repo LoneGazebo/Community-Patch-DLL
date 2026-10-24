@@ -142,7 +142,7 @@ VALUES
 UPDATE Buildings
 SET
 	WLTKDTurns = 10,
-	TrainedFreePromotion = 'PROMOTION_TRIUMPH'
+	FreePromotion = 'PROMOTION_TRIUMPH'
 WHERE Type = 'BUILDING_FORNIX';
 
 UPDATE Building_YieldChanges

@@ -38,7 +38,7 @@
 			<Type>SPY_PASSIVE_5</Type>
 			<Description>TXT_KEY_SPY_PASSIVE_5</Description>
 			<Help>TXT_KEY_SPY_PASSIVE_5_HELP</Help>
-			<NetworkPointsNeeded>1800</NetworkPointsNeeded>
+			<NetworkPointsNeeded>2000</NetworkPointsNeeded>
 			<TilesRevealed>2</TilesRevealed>
 		</Row>
 	</SpyPassiveBonuses>
