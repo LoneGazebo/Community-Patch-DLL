@@ -421,6 +421,8 @@
     <File md5="9E9413423E76DAA8D884CC45D0516E72" import="0">Core Files/New Lua/GlobalCityBombardRange.lua</File>
     <File md5="537D623D706E211308873BC810D24382" import="0">Core Files/New UI/CameraView.lua</File>
     <File md5="EC9F55158D08EF43FA8D3190C7E36AEA" import="0">Core Files/New UI/CameraView.xml</File>
+    <File md5="4615707557436A282F35509EFF36FA50" import="0">Core Files/New UI/WorkerPlanner.lua</File>
+    <File md5="2E2D64E8C7BDF6F7A2DAA4011C6BC1B0" import="0">Core Files/New UI/WorkerPlanner.xml</File>
     <File md5="8DB02794585A5628766B14DFBAACC708" import="0">Core Files/New UI/CityEventPopup.lua</File>
     <File md5="DB148EB48CB0FC537C7B3ED852F8ED14" import="0">Core Files/New UI/CityEventPopup.xml</File>
     <File md5="464FF5291A70846BA602CF2367E84695" import="1">Core Files/New UI/CityEventsInfo.lua</File>
@@ -533,6 +535,7 @@
     <File md5="476D91532E8B5E9B97198D943F101FFD" import="0">Database Changes/NewEnumTables.xml</File>
     <File md5="BCC74E7904D5D9C19BF78E0933481F0E" import="0">Database Changes/Remapper.sql</File>
     <File md5="0658A832A2527DE5F698F2DD24586551" import="0">Database Changes/RemapperTables.xml</File>
+    <File md5="009E0D0A0DC5FC4793F19CD9A9FAD540" import="0">Database Changes/WorkerPlanner.sql</File>
     <File md5="1BE27C020C7D596C776573887630B71E" import="0">Database Changes/WorldTableChanges.sql</File>
     <File md5="9F3B7F95C6766857AE2362B6C6E5A202" import="0">Database Changes/Achievements/CoreNewAchievements.xml</File>
     <File md5="2AFD3DBF43DEB9AC1D801786266A9D84" import="0">Database Changes/Achievements/NewAchievementTables.xml</File>
@@ -978,6 +981,7 @@
       <UpdateDatabase>Database Changes\CoreTriggers.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Remapper.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\AddTableIndexes.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\WorkerPlanner.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>
@@ -1016,6 +1020,10 @@
     <EntryPoint type="InGameUIAddin" file="Core Files/New UI/CameraView.xml">
       <Name>CameraView</Name>
       <Description>CameraView</Description>
+    </EntryPoint>
+    <EntryPoint type="InGameUIAddin" file="Core Files/New UI/WorkerPlanner.xml">
+      <Name>Worker Planner</Name>
+      <Description>Worker Planner</Description>
     </EntryPoint>
   </EntryPoints>
 </Mod>

@@ -2627,11 +2627,8 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 		}
 	}
 
-	if (eBuilderTaskingAi->WillNeverBuildVillageOnPlot(pPlot, eRouteType, false/*bIgnoreUnowned*/))
-		return 0;
-
-	// Villages and towns can be built pretty much anywhere
-	return 2;
+	// Scaled by how much a village would beat the alternatives here, below existing villages and planned routes
+	return 60 * eBuilderTaskingAi->GetRouteImprovementGainPercent(pPlot) / 100;
 }
 
 //	--------------------------------------------------------------------------------
