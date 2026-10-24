@@ -25,6 +25,68 @@ All rights reserved.
 // global state ... it's a hack
 SPrecomputedExpensiveNumbers gCachedNumbers;
 
+// another city working plots we would like to take
+struct SWorkingCity
+{
+	CvCity* pCity;
+	SPrecomputedExpensiveNumbers cache;
+	YieldAndGPPList nextBestOption; // where its citizen would go instead
+	TileChange bestTakeOver; // the plot we would most like to take from it
+	int iBestTakeOverValue;
+
+	SWorkingCity() : pCity(NULL), iBestTakeOverValue(-INT_MAX) {}
+};
+
+// what does it cost us to take over a plot that another city is working? that city's citizen moves to its next best option.
+// the other city values its loss of food and production itself. its loss of gold, science, culture and faith counts with whichever of the
+// two cities values that yield more, so that neither city's focus makes the other city's yields look cheap. we value our own gain as always.
+// the loss counts 10% extra, so that two cities never pass a plot back and forth.
+// returns the index of the working city in vWorkingCities, or -1 if no other city is working the plot
+static int GetTakeOverCost(CvPlot* pPlot, CvCityCitizens* pTaker, SPrecomputedExpensiveNumbers& takerCache, vector<SWorkingCity>& vWorkingCities, int& iCost)
+{
+	iCost = 0;
+	CvCity* pWorkingCity = pPlot->getEffectiveOwningCity();
+	if (!pWorkingCity || !pWorkingCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+		return -1;
+
+	CvCityCitizens* pCitizens = pWorkingCity->GetCityCitizens();
+
+	// the next best option doesn't depend on the plot, so look it up only once per city
+	size_t iIndex = 0;
+	while (iIndex < vWorkingCities.size() && vWorkingCities[iIndex].pCity != pWorkingCity)
+		iIndex++;
+
+	if (iIndex == vWorkingCities.size())
+	{
+		vWorkingCities.push_back(SWorkingCity());
+		SWorkingCity& kNew = vWorkingCities[iIndex];
+		kNew.pCity = pWorkingCity;
+		kNew.cache.update(pWorkingCity);
+		BuildingTypes eSpecialistBuilding = NO_BUILDING;
+		TileChange nextBest = pCitizens->GetBestOptionForUnassigned(kNew.cache, eSpecialistBuilding);
+		kNew.nextBestOption = nextBest.plot ? pCitizens->GetPlotYields(nextBest.plot, kNew.cache) : pCitizens->GetSpecialistYields(nextBest.specialist);
+	}
+	SWorkingCity& kWorkingCity = vWorkingCities[iIndex];
+
+	YieldAndGPPList lossYields = pCitizens->GetPlotYields(pPlot, kWorkingCity.cache).negative() + kWorkingCity.nextBestOption;
+	int iScore = pCitizens->ScoreYieldChange(lossYields, kWorkingCity.cache);
+
+	// gold, science, culture and faith go to the whole empire, food and production stay in the city
+	for (int iYield = 0; iYield < YIELD_TOURISM; iYield++)
+	{
+		if (iYield == YIELD_FOOD || iYield == YIELD_PRODUCTION || lossYields.yield[iYield] == 0)
+			continue;
+
+		int iWorkingCityWeight = max(1, pCitizens->GetBaseValuePerYield((YieldTypes)iYield, kWorkingCity.cache, false, false, kWorkingCity.cache.iNetGold < 0));
+		int iTakerWeight = max(1, pTaker->GetBaseValuePerYield((YieldTypes)iYield, takerCache, false, false, takerCache.iNetGold < 0));
+		if (iTakerWeight > iWorkingCityWeight)
+			iScore += lossYields.yield[iYield] * (iTakerWeight - iWorkingCityWeight);
+	}
+
+	iCost = max(0, -iScore) * 110 / 100;
+	return (int)iIndex;
+}
+
 
 //=====================================
 // CvCityCitizens
@@ -477,6 +539,9 @@ YieldAndGPPList CvCityCitizens::GetPlotYields(CvPlot* pPlot, SPrecomputedExpensi
 		// modifiers 
 		iYield100 *= 100 + m_pCity->getYieldRateModifier(eYield);
 		iYield100 /= 100;
+		// puppets keep only part of some yields
+		iYield100 *= m_pCity->getYieldModifierMultiplicative(eYield);
+		iYield100 /= 100;
 		yieldList.yield[iI] = iYield100;
 	}
 	return yieldList;
@@ -795,6 +860,9 @@ YieldAndGPPList CvCityCitizens::GetSpecialistYields(SpecialistTypes eSpecialist)
 		// modifiers 
 		iYield100 *= 100 + m_pCity->getYieldRateModifier(eYield);
 		iYield100 /= 100;
+		// puppets keep only part of some yields
+		iYield100 *= m_pCity->getYieldModifierMultiplicative(eYield);
+		iYield100 /= 100;
 		yieldList.yield[iI] = iYield100;
 	}
 
@@ -804,6 +872,7 @@ YieldAndGPPList CvCityCitizens::GetSpecialistYields(SpecialistTypes eSpecialist)
 
 	return yieldList;
 }
+
 
 int CvCityCitizens::GetPlotValueQuick(CvPlot* pPlot, bool bAdd, SPrecomputedExpensiveNumbers& cache, bool bAssumeStarving, bool bAssumeBelowGrowthThreshold, bool bAssumeInDebt)
 {
@@ -1402,8 +1471,14 @@ vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAd
 	// score all possible options
 	vector<OptionWithScore<TileChange>> vScoredOptions;
 
+	SpecialistTypes eLaborer = (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST);
+	int iLaborerValue = bIncludePlots ? GetSpecialistValueQuick(eLaborer, /*bAdd*/ bAdd, gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, bAssumeInDebt) : 0;
+
 	if (bIncludePlots)
 	{
+		// other cities working plots we could take over
+		vector<SWorkingCity> vWorkingCities;
+
 		// loop through all unworked plots
 		for (int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
 		{
@@ -1417,8 +1492,40 @@ vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAd
 
 			if ((bAdd && (bAllowOverride ? IsCanWorkWithOverride(pLoopPlot) : IsCanWork(pLoopPlot)) && !IsWorkingPlot(iPlotLoop)) || (!bAdd && IsWorkingPlot(pLoopPlot) && !IsForcedWorkingPlot(iPlotLoop)))
 			{
-				vScoredOptions.push_back(OptionWithScore<TileChange>(TileChange(pLoopPlot), GetPlotValueQuick(pLoopPlot, bAdd, gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, bAssumeInDebt)));
+				TileChange option(pLoopPlot);
+				int iValue = GetPlotValueQuick(pLoopPlot, bAdd, gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, bAssumeInDebt);
+
+				// taking over a plot another city is working: only worth it if we gain more than that city loses
+				if (bAdd && !pLoopPlot->isEffectiveOwner(m_pCity))
+				{
+					int iWorkingCity = GetTakeOverCost(pLoopPlot, this, gCachedNumbers, vWorkingCities, option.iTakeOverCost);
+					if (iWorkingCity >= 0)
+					{
+						iValue -= option.iTakeOverCost;
+
+						// if a laborer would do better, leave the plot alone
+						if (iValue <= iLaborerValue)
+							continue;
+
+						// take at most one plot from each city at a time. its cost assumes the other city only has to replace one citizen
+						SWorkingCity& kWorkingCity = vWorkingCities[iWorkingCity];
+						if (iValue > kWorkingCity.iBestTakeOverValue)
+						{
+							kWorkingCity.bestTakeOver = option;
+							kWorkingCity.iBestTakeOverValue = iValue;
+						}
+						continue;
+					}
+				}
+
+				vScoredOptions.push_back(OptionWithScore<TileChange>(option, iValue));
 			}
+		}
+
+		for (size_t i = 0; i < vWorkingCities.size(); i++)
+		{
+			if (vWorkingCities[i].bestTakeOver.plot)
+				vScoredOptions.push_back(OptionWithScore<TileChange>(vWorkingCities[i].bestTakeOver, vWorkingCities[i].iBestTakeOverValue));
 		}
 	}
 
@@ -1483,8 +1590,6 @@ vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAd
 
 	if (bIncludePlots)
 	{
-		SpecialistTypes eLaborer = (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST);
-		int iValue = GetSpecialistValueQuick(eLaborer, /*bAdd*/ bAdd, gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, bAssumeInDebt);
 		int iNumLaborers = 0;
 		if (bAdd)
 		{
@@ -1498,7 +1603,7 @@ vector<TileChange> CvCityCitizens::GetBestOptionsQuick(int iNumOptions, bool bAd
 
 		for (int i = 0; i < iNumLaborers; i++)
 		{
-			vScoredOptions.push_back(OptionWithScore<TileChange>(TileChange(eLaborer), iValue));
+			vScoredOptions.push_back(OptionWithScore<TileChange>(TileChange(eLaborer), iLaborerValue));
 		}
 	}
 
@@ -1549,6 +1654,10 @@ void CvCityCitizens::DoApplyTileChange(TileChange tileChange, bool bAdd, bool bL
 			// trying to add a plot we're already working? or to remove one we're not working?
 			UNREACHABLE();
 		}
+
+		CvCity* pOtherCity = (bLogging && bAdd && !tileChange.plot->isEffectiveOwner(m_pCity)) ? tileChange.plot->getEffectiveOwningCity() : NULL;
+		if (pOtherCity && pOtherCity->GetCityCitizens()->IsWorkingPlot(tileChange.plot))
+			LogMsg(CvString::format("taking over plot %d:%d from %s, cost %d", tileChange.plot->getX(), tileChange.plot->getY(), pOtherCity->getName().GetCString(), tileChange.iTakeOverCost));
 
 		SetWorkingPlot(tileChange.plot, bAdd, CvCity::YIELD_UPDATE_LOCAL);
 		if (bLogging)
@@ -1672,6 +1781,36 @@ void CvCityCitizens::DoInitialAssigment(bool bAssumeStarving, bool bAssumeBelowG
 	}
 }
 
+/// Where should an unassigned citizen go: the best unworked plot, the best specialist building, or a laborer?
+TileChange CvCityCitizens::GetBestOptionForUnassigned(SPrecomputedExpensiveNumbers& cache, BuildingTypes& eSpecialistBuilding, bool bLogging, bool bNoSpecialists)
+{
+	eSpecialistBuilding = NO_BUILDING;
+	SpecialistTypes eLaborer = (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST);
+	int iLaborerValue = GetSpecialistValue(eLaborer, /*bAdd*/ true, cache);
+
+	int iBestPlotValue = -1;
+	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, eBEST_UNWORKED_NO_OVERRIDE, cache, bLogging);
+
+	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT) && ( IsNoAutoAssignSpecialists() || bNoSpecialists );
+	int iSpecialistValue = -1;
+	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
+
+	if (!bSpecialistForbidden)
+		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, cache, bLogging);
+
+	if (iBestPlotValue > iSpecialistValue && iBestPlotValue > iLaborerValue)
+		return TileChange(pBestPlot);
+
+	if (iSpecialistValue >= iBestPlotValue && iSpecialistValue > 0 && eBestSpecialistBuilding != NO_BUILDING) // does not include laborers
+	{
+		eSpecialistBuilding = eBestSpecialistBuilding;
+		return TileChange((SpecialistTypes)GC.getBuildingInfo(eBestSpecialistBuilding)->GetSpecialistType());
+	}
+
+	// Laborer if we can't do anything else or if they're better than both plots and specialists
+	return TileChange(eLaborer);
+}
+
 /// Pick the best Plot to work from one of our unassigned pool
 bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging, bool NoSpecialists)
 {
@@ -1682,29 +1821,20 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	//inside a loop, don't drop the global happiness!
 	gCachedNumbers.update(m_pCity, updateMode==CvCity::YIELD_UPDATE_LOCAL);
 
-	int iLaborerValue = GetSpecialistValue((SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST), /*bAdd*/ true, gCachedNumbers);
-
-	int iBestPlotValue = -1;
-	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, eBEST_UNWORKED_NO_OVERRIDE, gCachedNumbers, bLogging);
-
-	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT) && ( IsNoAutoAssignSpecialists() || NoSpecialists );
-	int iSpecialistValue = -1;
 	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
+	TileChange bestOption = GetBestOptionForUnassigned(gCachedNumbers, eBestSpecialistBuilding, bLogging, NoSpecialists);
 
-	if (!bSpecialistForbidden)
-		eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue, gCachedNumbers, bLogging);
-
-	if (iBestPlotValue > iSpecialistValue && iBestPlotValue > iLaborerValue)
+	if (bestOption.plot)
 	{
 		// Plot is best
-		SetWorkingPlot(pBestPlot, true, updateMode);
+		SetWorkingPlot(bestOption.plot, true, updateMode);
 
 		if (bLogging)
-			LogMsg(CvString::format("now working plot %d:%d, current net food %d", pBestPlot->getX(), pBestPlot->getY(), m_pCity->getYieldRateTimes100(YIELD_FOOD)));
+			LogMsg(CvString::format("now working plot %d:%d, current net food %d", bestOption.plot->getX(), bestOption.plot->getY(), m_pCity->getYieldRateTimes100(YIELD_FOOD)));
 
 		return true;
 	}
-	else if (iSpecialistValue >= iBestPlotValue && iSpecialistValue > 0) // does not include laborers
+	else if (eBestSpecialistBuilding != NO_BUILDING) // does not include laborers
 	{
 		DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, updateMode);
 
@@ -2011,7 +2141,8 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 					// obviously a bad option
 					continue;
 
-				int iScore = ScoreYieldChange(thisOptionYields, gCachedNumbers);
+				// taking over a plot another city is working: count what that city loses
+				int iScore = ScoreYieldChange(thisOptionYields, gCachedNumbers) - vAddOptions[j].iTakeOverCost;
 				if (iScore > iBestScore)
 				{
 					// the initial value for iBestScore is 0: we accept only options with a positive score
@@ -2044,8 +2175,12 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		}
 
 		// did we find anything?
+		bool bTookPlotFromOtherCity = false;
 		if (iBestOptionAddIndex >= 0)
 		{
+			CvPlot* pAddedPlot = vAddOptions[iBestOptionAddIndex].plot;
+			bTookPlotFromOtherCity = pAddedPlot && !pAddedPlot->isEffectiveOwner(m_pCity);
+
 			DoApplyTileChange(vRemoveOptions[iBestOptionRemoveIndex], /*bRemove*/ false, true);
 			DoApplyTileChange(vAddOptions[iBestOptionAddIndex], /*bRemove*/ true, true);
 		}
@@ -2056,7 +2191,8 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		}
 
 		//inside a loop, update only the cached values affected by city tile selection
-		gCachedNumbers.update(m_pCity, true);
+		//unless we took a plot from another city: it reassigned its citizen and that overwrote the cache
+		gCachedNumbers.update(m_pCity, !bTookPlotFromOtherCity);
 
 		iCount++;
 	}
@@ -2432,10 +2568,6 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 			{
 				CvCity* pOC = pPlot->getOwningCity();
 
-				// Can't take away plots from puppet cities by force unless venice (mainly because the AI doesn't have logic to do that)
-				if (pOC->IsPuppet() && pOC->IsWithinWorkRange(pPlot) && !GET_PLAYER(GetOwner()).GetPlayerTraits()->IsNoAnnexing() )
-					return;
-
 				// Can't take away plots from cities which were just conquered
 				if (pOC->IsResistance() || pOC->IsIgnoreCityForHappiness())
 					return;
@@ -2605,11 +2737,23 @@ bool CvCityCitizens::IsCanWorkWithOverride(CvPlot* pPlot) const
 			return false;
 		}
 
-		//we do not want to steal plots which are currently being worked or in the innermost ring
+		//we do not want to steal plots in the innermost ring, or worked plots (with the exception below)
 		//humans can still re-assign plots manually (see DoAlterWorkingPlot)
-		if (pEffectiveOwner->GetCityCitizens()->IsWorkingPlot(pPlot) || plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)
+		if (plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)
 		{
 			return false;
+		}
+
+		//exception: puppets may take worked plots from any city, and regular cities from puppets, unless either city was just conquered
+		//whether it's worth it depends on what the other city loses (see GetTakeOverCost)
+		if (pEffectiveOwner->GetCityCitizens()->IsWorkingPlot(pPlot))
+		{
+			bool bPuppetInvolved = pEffectiveOwner->IsPuppet() || m_pCity->IsPuppet();
+			bool bJustConquered = pEffectiveOwner->IsResistance() || pEffectiveOwner->IsIgnoreCityForHappiness() || m_pCity->IsResistance() || m_pCity->IsIgnoreCityForHappiness();
+			if (!bPuppetInvolved || bJustConquered)
+			{
+				return false;
+			}
 		}
 	}
 
@@ -3779,18 +3923,21 @@ YieldAndGPPList operator+(const YieldAndGPPList& lhs, const YieldAndGPPList& rhs
 
 TileChange::TileChange() :
 	plot(NULL),
-	specialist(NO_SPECIALIST)
+	specialist(NO_SPECIALIST),
+	iTakeOverCost(0)
 {
 }
 
 TileChange::TileChange(CvPlot* plot) :
 	plot(plot),
-	specialist(NO_SPECIALIST)
+	specialist(NO_SPECIALIST),
+	iTakeOverCost(0)
 {
 }
 
 TileChange::TileChange(SpecialistTypes eSpecialist) :
 	plot(NULL),
-	specialist(eSpecialist)
+	specialist(eSpecialist),
+	iTakeOverCost(0)
 {
 }

@@ -82,6 +82,7 @@ struct TileChange
 {
 	CvPlot* plot;
 	SpecialistTypes specialist;
+	int iTakeOverCost; // plot worked by another city: the cost of taking it over, to subtract from our own valuation
 
 	TileChange();
 	TileChange(CvPlot* pPlot);
@@ -170,6 +171,7 @@ public:
 	void ChangeNumCitizensWorkingPlots(int iChange);
 
 	void DoInitialAssigment(bool bAssumeStarving, bool bAssumeBelowGrowthThreshold, bool bLogging);
+	TileChange GetBestOptionForUnassigned(SPrecomputedExpensiveNumbers& cache, BuildingTypes& eSpecialistBuilding, bool bLogging = false, bool bNoSpecialists = false);
 	bool DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging = false, bool NoSpecialists = false);
 	bool DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST);
 	void DoApplyTileChange(TileChange tileChange, bool bAdd, bool bLogging = false);
