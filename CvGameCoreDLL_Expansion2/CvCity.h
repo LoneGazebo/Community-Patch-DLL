@@ -615,7 +615,7 @@ public:
 	void changeGPRateModifierPerLocalTheme(int iChange);
 
 	int GetImprovementGreatPersonRateModifier() const;
-	int GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson, bool bGoldenAge) const;
 
 	int GetGPPOnCitizenBirth() const;
 	void ChangeGPPOnCitizenBirth(int iChange);
