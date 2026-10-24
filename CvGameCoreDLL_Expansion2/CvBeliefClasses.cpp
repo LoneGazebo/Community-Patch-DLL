@@ -28,6 +28,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iRiverHappiness(0),
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPeacefulForeignFollowers(0),
+	m_iHappinessPerXForeignFollowers(0),
 	m_iBorderGrowthRateIncreaseGlobal(0),
 	m_iPlotCultureCostModifier(0),
 	m_iCityRangeStrikeModifier(0),
@@ -328,10 +329,16 @@ int CvBeliefEntry::GetHappinessPerCity() const
 	return m_iHappinessPerCity;
 }
 
-/// Accessor:: Happiness per every X population in a foreign city
+/// Accessor:: Happiness per every X population in a foreign city you are at peace with
 int CvBeliefEntry::GetHappinessPerXPeacefulForeignFollowers() const
 {
 	return m_iHappinessPerXPeacefulForeignFollowers;
+}
+
+/// Accessor:: Happiness per every X population in a foreign city
+int CvBeliefEntry::GetHappinessPerXForeignFollowers() const
+{
+	return m_iHappinessPerXForeignFollowers;
 }
 
 /// Accessor:: Boost in speed of acquiring tiles through culture (rate increase)
@@ -1373,6 +1380,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iRiverHappiness				  = kResults.GetInt("RiverHappiness");
 	m_iHappinessPerCity				  = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPeacefulForeignFollowers  = kResults.GetInt("HappinessPerXPeacefulForeignFollowers");
+	m_iHappinessPerXForeignFollowers  = kResults.GetInt("HappinessPerXForeignFollowers");
 	m_iBorderGrowthRateIncreaseGlobal = kResults.GetInt("BorderGrowthRateIncreaseGlobal");
 	m_iPlotCultureCostModifier	      = kResults.GetInt("PlotCultureCostModifier");
 	m_iCityRangeStrikeModifier	      = kResults.GetInt("CityRangeStrikeModifier");
@@ -3052,21 +3060,33 @@ int CvReligionBeliefs::GetHappinessPerCity(int iPopulation, PlayerTypes ePlayer,
 	return rtnValue;
 }
 
-/// Happiness per X followers in foreign cities of powers you are not at war with
-int CvReligionBeliefs::GetHappinessPerXPeacefulForeignFollowers(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+/// Happiness per X followers in foreign cities
+int CvReligionBeliefs::GetHappinessPerXForeignFollowers(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
+	int iValue = 0;
+	
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetHappinessPerXPeacefulForeignFollowers();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		int iDenominator = pBeliefs->GetEntry(*it)->GetHappinessPerXForeignFollowers();
+		if (iDenominator != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
-			return iValue;
+			bool bPeaceful = pBeliefs->GetEntry(*it)->RequiresPeace();
+			ReligionTypes eStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
+			iValue = GET_PLAYER(ePlayer).GetReligions()->GetNumForeignFollowers(/*bAtPeace*/ bPeaceful, eStateReligion) / iDenominator;
+			
+		}
+		// old column reverse compatibility
+		iDenominator = pBeliefs->GetEntry(*it)->GetHappinessPerXPeacefulForeignFollowers();
+		if (iDenominator != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			ReligionTypes eStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
+			iValue += GET_PLAYER(ePlayer).GetReligions()->GetNumForeignFollowers(/*bAtPeace*/ true, eStateReligion) / iDenominator;
 		}
 	}
 
-	return 0;
+	return iValue;
 }
 
 /// Wonder production boost

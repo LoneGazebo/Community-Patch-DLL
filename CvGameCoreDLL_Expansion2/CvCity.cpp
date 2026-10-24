@@ -16894,17 +16894,20 @@ int CvCity::getTotalSpecialistRateModifier(SpecialistTypes eSpecialist, CvString
 	int iMonopolyMod = GetPlayer()->getSpecificGreatPersonRateModifierFromMonopoly(eGreatPerson);
 
 	int iCityMod = getTotalGreatPeopleRateModifier() + GetSpecialistRateModifierFromBuildings(eSpecialist);
+	
+	int iReligionMod = GetReligionGreatPersonRateModifier(eGreatPerson, false);
 
 	int iGoldenAgePolicyMod = 0;
 	int iGoldenAgeTraitMod = 0;
-	int iGoldenAgeReligionMod = GetReligionGreatPersonRateModifier(eGreatPerson);
+	int iGoldenAgeReligionMod = 0;
 	if (GetPlayer()->isGoldenAge())
 	{
 		iGoldenAgePolicyMod += GetPlayer()->getGoldenAgeGreatPersonRateModifier(eGreatPerson);
 		iGoldenAgeTraitMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+		iGoldenAgeReligionMod = GetReligionGreatPersonRateModifier(eGreatPerson, true) - iReligionMod;
 	}
 
-	int iTotalMod = iPlayerMod + iMonopolyMod + iCityMod + iGoldenAgeTraitMod + iGoldenAgePolicyMod + iGoldenAgeReligionMod;
+	int iTotalMod = iPlayerMod + iMonopolyMod + iCityMod + iReligionMod + iGoldenAgeTraitMod + iGoldenAgePolicyMod + iGoldenAgeReligionMod;
 	if (tooltip && iTotalMod > 0)
 	{
 		// Player mod already includes league mod, so we separate them
@@ -16934,6 +16937,7 @@ int CvCity::getTotalSpecialistRateModifier(SpecialistTypes eSpecialist, CvString
 		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_MONOPOLY", iMonopolyMod);
 		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_CAPITAL", iCapitalMod);
 		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_BUILDINGS", iCityMod - iImprovementMod - iCapitalMod);
+		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_BELIEF", iReligionMod);
 		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_TRAIT", iGoldenAgeTraitMod);
 		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_POLICY", iGoldenAgePolicyMod);
 		GC.getGame().BuildProdModHelpText(tooltip, "TXT_KEY_GPP_MOD_GA_BELIEF", iGoldenAgeReligionMod);
@@ -16995,7 +16999,7 @@ int CvCity::GetImprovementGreatPersonRateModifier() const
 	return iGPPRateFromImprovements;
 }
 
-int CvCity::GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
+int CvCity::GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson, bool bGoldenAge) const
 {
 	int iResult = 0;
 
@@ -17010,14 +17014,14 @@ int CvCity::GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) co
 			if (pReligion)
 			{
 				iResult += pReligion->m_Beliefs.GetGreatPersonRateModifier(eGreatPerson, getOwner(), this);
-				if (GET_PLAYER(getOwner()).getGoldenAgeTurns() > 0)
+				if (bGoldenAge)
 					iResult += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, getOwner(), this);
 			
 				eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 					iResult += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatPersonRateModifier(eGreatPerson);
-					if (GET_PLAYER(getOwner()).getGoldenAgeTurns() > 0)
+					if (bGoldenAge)
 						iResult += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 				}
 			}
@@ -17036,7 +17040,7 @@ int CvCity::GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) co
 					if (pReligion == NULL || !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())) // check that the our religion does not have our belief, to prevent double counting
 					{
 						iResult += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatPersonRateModifier(eGreatPerson);
-						if (GET_PLAYER(getOwner()).getGoldenAgeTurns() > 0)
+						if (bGoldenAge)
 							iResult += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
 					}
 				}

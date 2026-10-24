@@ -6664,7 +6664,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 							iScore *= 2;
 						}
 					}
-					if (pkReligion->m_Beliefs.GetHappinessPerXPeacefulForeignFollowers(m_pPlayer->GetID(), pHolyCity) > 0)
+					if (pkReligion->m_Beliefs.GetHappinessPerXForeignFollowers(m_pPlayer->GetID(), pHolyCity) > 0)
 					{
 						iScore *= 2;
 					}
@@ -9943,9 +9943,16 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			}
 		}
 
-		if (m_pPlayer->GetDiplomacyAI()->GetMeanness() <= 6)
+		if (pEntry->RequiresPeace())
 		{
-			iSpreadTemp += (pEntry->GetHappinessPerXPeacefulForeignFollowers()) * 5;
+			if (m_pPlayer->GetDiplomacyAI()->GetMeanness() <= 6)
+			{
+				iSpreadTemp += (pEntry->GetHappinessPerXForeignFollowers()) * 5;
+			}
+		}
+		else
+		{
+			iSpreadTemp += (pEntry->GetHappinessPerXForeignFollowers()) * 5;
 		}
 
 		iSpreadTemp += (pEntry->GetSciencePerOtherReligionFollower()) * 2;
