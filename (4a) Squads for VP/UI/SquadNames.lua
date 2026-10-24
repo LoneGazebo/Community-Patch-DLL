@@ -131,3 +131,14 @@ function RegisterOnSaveCallback()
     SaveCtrlButton:RegisterCallback( Mouse.eLClick, PazyrykOnSaveClicked )
     debug( ("SaveGame Buttons callbacks registered..."))
 end
+
+-- The game menu destroys its buttons after this context is gone when loading a game.
+-- Release our callbacks on them first, releasing them later crashes the game.
+ContextPtr:SetShutdown(function()
+    for _, path in ipairs({ "/InGame/GameMenu/QuickSaveButton", "/InGame/GameMenu/SaveGameButton" }) do
+        local button = ContextPtr:LookUpControl(path)
+        if button then
+            button:ClearCallback(Mouse.eLClick)
+        end
+    end
+end)
