@@ -19282,46 +19282,8 @@ bool CvCity::DoRazingTurn()
 			CvPlot* pkPlot = plot();
 			pkPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_RAZED_CITY(), getOwner(), getOriginalOwner());
 
-			// If this player retains land after razing cities, remember the list of plots
-			std::set<int> siPlots;
-			if (kPlayer.IsRetainRazedTerritory())
-				siPlots = GetPlotList();
-
 			kPlayer.disband(this);
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_DESTROYED, kPlayer.GetID(), "", pkPlot->getX(), pkPlot->getY());
-
-			// ... and reassign the plots to the nearest city, if possible
-			if (siPlots.size() > 0)
-			{
-				for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
-				{
-					CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
-					CvCity* pBestCity = NULL;
-					int iBestCityDistance = -1;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-					{
-						CvPlot* pPlot = pLoopCity->plot();
-						if (pPlot)
-						{
-							int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
-							if (pBestCity != NULL && !pBestCity->IsWithinWorkRange(pLoopPlot) && pLoopCity->IsWithinWorkRange(pLoopPlot))
-							{
-								// Catch the Tradition capital edge case where two cities are equidistant
-								pBestCity = pLoopCity;
-								iBestCityDistance = iDistance;
-							}
-							else if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
-							{
-								pBestCity = pLoopCity;
-								iBestCityDistance = iDistance;
-							}
-						}
-					}
-					if (pBestCity)
-						pLoopPlot->setOwner(kPlayer.GetID(), pBestCity->GetID());
-				}
-			}
 			return true;
 		}
 
