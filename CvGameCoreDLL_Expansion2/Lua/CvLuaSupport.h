@@ -48,6 +48,25 @@ bool CallTestAny(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char*
 bool CallAccumulator(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* szName, _In_opt_ ICvEngineScriptSystemArgs1* args, int& value);
 bool CallAccumulator(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* szName, _In_opt_ ICvEngineScriptSystemArgs1* args, float& value);
 
+//! Every hook releases the game core lock, which lets the UI thread run Lua.
+//! While a city changes hands it is briefly inconsistent (population 0, then
+//! deleted, then a new half-built city), and UI scripts reading it crash.
+//! Inside this scope, fire-and-forget hooks raised on the creating thread are
+//! queued with copies of their arguments and run in order when the outermost
+//! scope ends. Test and accumulator hooks return values and still run at once.
+class DeferredHookScope
+{
+public:
+	DeferredHookScope();
+	~DeferredHookScope();
+	//! Run the queued hooks now (outermost scope only); later hooks run at once.
+	void Flush();
+private:
+	DeferredHookScope(const DeferredHookScope&);
+	DeferredHookScope& operator=(const DeferredHookScope&);
+	bool m_bActive;
+};
+
 }
 
 extern bool luaL_optbool(lua_State* L, int idx, bool bdefault);
