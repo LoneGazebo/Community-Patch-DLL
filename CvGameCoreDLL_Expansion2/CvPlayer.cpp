@@ -494,6 +494,7 @@ CvPlayer::CvPlayer() :
 	, m_iPlayerEventCooldown()
 	, m_ownedNaturalWonders()
 	, m_paiUnitClassProductionModifiers()
+	, m_paiProjectProductionModifiers()
 	, m_iExtraSupplyPerPopulation()
 	, m_iExtraSupplyFlat()
 	, m_iCitySupplyFlatGlobal()
@@ -1826,6 +1827,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_paiUnitClassProductionModifiers.clear();
 	m_paiUnitClassProductionModifiers.resize(GC.getNumUnitClassInfos(), 0);
+	
+	m_paiProjectProductionModifiers.clear();
+	m_paiProjectProductionModifiers.resize(GC.getNumProjectInfos(), 0);
 
 	m_aiCityYieldModFromMonopoly.clear();
 	m_aiCityYieldModFromMonopoly.resize(NUM_YIELD_TYPES, 0);
@@ -22000,9 +22004,25 @@ void CvPlayer::ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int 
 int CvPlayer::GetUnitClassProductionModifier(UnitClassTypes eUnitClass) const
 {
 	VALIDATE_OBJECT();
-		PRECONDITION(eUnitClass >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eUnitClass >= 0, "eIndex expected to be >= 0");
 	PRECONDITION(eUnitClass < GC.getNumUnitClassInfos(), "eUnitClass expected to be < GC.getNumUnitClassInfos()");
 	return m_paiUnitClassProductionModifiers[eUnitClass];
+}
+
+void CvPlayer::ChangeProjectProductionModifier(ProjectTypes eProject, int iValue)
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eProject >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eProject < GC.getNumProjectInfos(), "eProject expected to be < GC.getNumProjectInfos()");
+	m_paiProjectProductionModifiers[eProject] = m_paiProjectProductionModifiers[eProject] + iValue;
+}
+
+int CvPlayer::GetProjectProductionModifier(ProjectTypes eProject) const
+{
+	VALIDATE_OBJECT();
+	PRECONDITION(eProject >= 0, "eIndex expected to be >= 0");
+	PRECONDITION(eProject < GC.getNumUnitClassInfos(), "eProject expected to be < GC.getNumProjectInfos()");
+	return m_paiProjectProductionModifiers[eProject];
 }
 
 /// Extra Happiness from every connected Luxury
@@ -44142,6 +44162,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
 		ChangeFreePromotionCount(ePromotion, pkPolicyInfo->IsFreePromotion(ePromotion) * iChange);
 	}
+	
+	// Projects
+	for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
+	{
+		const ProjectTypes eProject = static_cast<ProjectTypes>(iI);
+		ChangeProjectProductionModifier(eProject, pkPolicyInfo->GetProjectProductionModifiers(iI) * iChange);
+	}
 
 	// Other players
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -45507,6 +45534,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iPlayerEventCooldown);
 	visitor(player.m_ownedNaturalWonders);
 	visitor(player.m_paiUnitClassProductionModifiers);
+	visitor(player.m_paiProjectProductionModifiers);
 	visitor(player.m_iExtraSupplyPerPopulation);
 	visitor(player.m_iExtraSupplyFlat);
 	visitor(player.m_iCitySupplyFlatGlobal);

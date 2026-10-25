@@ -13103,6 +13103,14 @@ int CvCity::getProductionModifier(ProjectTypes eProject, CvString* toolTipSink) 
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPACE", iTempMod);
 	}
 
+	// Player bonus
+	if (GET_PLAYER(getOwner()).GetProjectProductionModifier(eProject) != 0)
+	{
+		iTempMod = GET_PLAYER(getOwner()).GetProjectProductionModifier(eProject);
+		iMultiplier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PROJECT", iTempMod);
+	}
+
 	return iMultiplier;
 }
 
