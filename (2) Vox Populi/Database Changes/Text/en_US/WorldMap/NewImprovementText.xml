@@ -21,7 +21,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_CUSTOMS_HOUSE">
-			<Text>Unit will be consumed. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if built over a Road that connects two Cities, doubled if built over a Railroad instead. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if a Trade Route passes over this Village, doubled in post-Industrial era.[NEWLINE][NEWLINE]Great Tile Improvements will connect Strategic Resources on this tile to the trade network. Towns will improve a Great Merchant's Diplomatic Mission Gold Generation and WLTKD Turns by [COLOR_POSITIVE_TEXT]25%[ENDCOLOR].</Text>
+			<Text>Unit will be consumed. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if built over a Road that connects two Cities, doubled if built over a Railroad instead. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if a Trade Route passes over this Town, doubled in post-Industrial era.[NEWLINE][NEWLINE]Great Tile Improvements will connect Strategic Resources on this tile to the trade network. Towns will improve a Great Merchant's Diplomatic Mission Gold Generation and WLTKD Turns by [COLOR_POSITIVE_TEXT]25%[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_HELP">
