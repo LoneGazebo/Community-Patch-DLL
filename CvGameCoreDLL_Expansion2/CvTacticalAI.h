@@ -1616,6 +1616,7 @@ namespace TacticalAIHelpers
 	vector<STacticalAssignment> FindBestUnitAssignments(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl,
 		set<int>& unuseableUnits, bool bTargetDistanceRelevant, bool bReturnToStartPositions = false, int iSaveMovement = 0);
 	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
+	bool LaterRowsDependOnPlot(const vector<STacticalAssignment>& vAssignments, size_t iIndex, int iPlotIndex);
 	bool AddSupportMoves(CvTacticalPosition& positionAfterCombatMoves, const vector<const CvUnit*>& ourUnits, bool bEarlyExit = false);
 }
 
