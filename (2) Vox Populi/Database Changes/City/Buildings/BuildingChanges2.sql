@@ -980,7 +980,7 @@ SET
 	FreeBuildingThisCity = 'BUILDINGCLASS_ARSENAL',
 	RangedStrikeModifier = 10,
 	CityRangedStrikeRange = 1,
-	CitySupplyModifierGlobal = 5
+	CitySupplyFlat = 5
 WHERE Type = 'BUILDING_RED_FORT';
 
 INSERT INTO Building_YieldChanges
@@ -1225,7 +1225,7 @@ UPDATE Buildings
 SET
 	PolicyType = 'POLICY_EXPLORATION_FINISHER',
 	UnitUpgradeCostMod = 0,
-	CitySupplyFlatGlobal = 1,
+	CitySupplyFlat = 10,
 	AirModifierGlobal = 2
 WHERE Type = 'BUILDING_PENTAGON';
 

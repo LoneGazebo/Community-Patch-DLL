@@ -840,7 +840,6 @@
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<CityIndirectFire>true</CityIndirectFire>
 			<RangedStrikeModifier>10</RangedStrikeModifier>
-			<CitySupplyModifier>5</CitySupplyModifier>
 			<HealRateChange>5</HealRateChange>
 			<EmpireSizeModifierReduction>-5</EmpireSizeModifierReduction>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
@@ -910,7 +909,6 @@
 			<Help>TXT_KEY_BUILDING_PENITENTIARY_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_PENITENTIARY_STRATEGY</Strategy>
 			<PrereqTech>TECH_RIFLING</PrereqTech>
-			<CitySupplyModifier>5</CitySupplyModifier>
 			<SpySecurityModifier>15</SpySecurityModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>21</PortraitIndex>
@@ -1845,8 +1843,7 @@
 			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
 			<Defense>300</Defense>
-			<CitySupplyModifier>5</CitySupplyModifier>
-			<CitySupplyModifierGlobal>10</CitySupplyModifierGlobal>
+			<CitySupplyFlat>10</CitySupplyFlat>
 			<BuildingDefenseModifier>5</BuildingDefenseModifier>
 			<GlobalDefenseMod>10</GlobalDefenseMod>
 			<FreePromotion>PROMOTION_VENETIAN_CRAFTSMANSHIP</FreePromotion>
@@ -2048,7 +2045,7 @@
 			<Help>TXT_KEY_BUILDING_MOTHERLAND_CALLS_HELP</Help>
 			<Quote>TXT_KEY_WONDER_MOTHERLAND_CALLS_QUOTE</Quote>
 			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
-			<CitySupplyModifier>100</CitySupplyModifier>
+			<CitySupplyModifier>50</CitySupplyModifier>
 			<PlayerBorderGainlessPillage>1</PlayerBorderGainlessPillage>
 			<GlobalBuildingGoldMaintenanceMod>-10</GlobalBuildingGoldMaintenanceMod>
 			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>
@@ -2349,7 +2346,7 @@
 			<Description>TXT_KEY_BUILDING_ROYAL_GUARDHOUSE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ROYAL_GUARDHOUSE_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_ROYAL_GUARDHOUSE_HELP</Help>
-			<CitySupplyModifierGlobal>10</CitySupplyModifierGlobal>
+			<CitySupplyModifier>25</CitySupplyModifier>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>

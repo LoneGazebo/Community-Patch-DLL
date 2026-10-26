@@ -79,7 +79,8 @@ UPDATE Buildings
 SET
 	Defense = (SELECT Defense FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT') + 200,
 	DamageReductionFlat = (SELECT DamageReductionFlat FROM Buildings WHERE Type = 'BUILDING_BASTION_FORT') + 2,
-	BorderObstacleCity = 1
+	BorderObstacleCity = 1,
+	CitySupplyFlat = 1
 WHERE Type = 'BUILDING_KREPOST';
 
 INSERT INTO Building_YieldChanges

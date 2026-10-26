@@ -1564,7 +1564,7 @@
 			<Text>The Venetian Arsenal is a complex of former shipyards and armories clustered together in the city of Venice in northern Italy. Owned by the state, the Arsenal was responsible for the bulk of the Venetian republic's naval power during the middle part of the second millennium AD. It was one of the earliest large-scale industrial enterprises in history.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA_STRATEGY">
-			<Text>One of three mutually exclusive buildings that Venice can build in its capital after it has completed {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO}. This building boosts [ICON_PRODUCTION] Production and Internal [ICON_INTERNATIONAL_TRADE] Trade Routes; increases [ICON_STRENGTH] City Strength and [ICON_SILVER_FIST] Military Supply from population; and buffs the [ICON_STRENGTH] Combat Strength and [ICON_MOVES] Movement of all naval units.</Text>
+			<Text>One of three mutually exclusive buildings that Venice can build in its capital after it has completed {TXT_KEY_BUILDING_PIAZZA_SAN_MARCO}. This building boosts [ICON_PRODUCTION] Production and Internal [ICON_INTERNATIONAL_TRADE] Trade Routes; increases [ICON_STRENGTH] City Strength and [ICON_SILVER_FIST] Military Supply; and buffs the [ICON_STRENGTH] Combat Strength and [ICON_MOVES] Movement of all naval units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ARSENALE_DI_VENEZIA_HELP">
 			<Text></Text>
