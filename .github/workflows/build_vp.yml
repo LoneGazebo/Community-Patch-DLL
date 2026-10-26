@@ -125,7 +125,7 @@ jobs:
         run: |
           echo "Installing wget..."
           mkdir wget
-          Invoke-WebRequest -Uri https://eternallybored.org/misc/wget/1.21.3/64/wget.exe -OutFile "wget\wget.exe"
+          Invoke-WebRequest -Uri https://eternallybored.org/misc/wget/1.25.0/64/wget.exe -OutFile "wget\wget.exe"
           Add-Content $env:GITHUB_PATH "$env:GITHUB_WORKSPACE\wget"
           echo "wget installation complete."
 
