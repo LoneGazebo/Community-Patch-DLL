@@ -3750,24 +3750,16 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 	// Project related
 	ProjectTypes eProject;
-	int iSingleEntry = 0;  // account for possibly large number of entries by treating them as just 1 project
 	for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
 	{
 		eProject = (ProjectTypes)iI;
 	
 		int iProductionModifier = PolicyInfo->GetProjectProductionModifiers(eProject);
-
-		if (iProductionModifier != 0)
+		if (iProductionModifier > 0)
 		{
-			if (iProductionModifier > iSingleEntry)
-			{
-				iSingleEntry = iProductionModifier;
-			}
+			yield[YIELD_PRODUCTION] += iProductionModifier;
+			break; 	// account for possibly large number of entries by treating them as just 1 project
 		}
-	}
-	if (iSingleEntry > 0)
-	{
-		yield[YIELD_PRODUCTION] += iSingleEntry;
 	}
 
 	// Unit related
