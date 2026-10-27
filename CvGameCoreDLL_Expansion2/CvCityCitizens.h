@@ -250,7 +250,7 @@ public:
 
 	int GetNumSpecialistsAllowedByBuilding(const CvBuildingEntry& kBuilding);
 
-	int GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass) const;
+	int GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass, int iAssumeExtraNumCreated = 0) const;
 
 	void DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, bool bCountAsProphet, bool bIsFree);
 

@@ -105,11 +105,6 @@ VALUES
 	('BELIEF_RELIGIOUS_UNITY', 'YIELD_GOLD', 10),
 	('BELIEF_RELIGIOUS_UNITY', 'YIELD_FAITH', 10);
 
-INSERT INTO Belief_YieldPerScience
-	(BeliefType, YieldType, Yield)
-VALUES
-	('BELIEF_RELIGIOUS_UNITY', 'YIELD_FAITH', 15);
-
 -- Heathen Conversion (now Zealotry)
 UPDATE Beliefs
 SET

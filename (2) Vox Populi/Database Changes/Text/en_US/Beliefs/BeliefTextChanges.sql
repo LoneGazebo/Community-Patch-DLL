@@ -28,7 +28,7 @@ SET Text = 'God of Commerce'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold in Cities with a [ICON_CONNECTED] City Connection and per active Trade Route to or from the City. Your [ICON_CAPITAL] Capital/Holy City gains +2 [ICON_GREAT_MERCHANT] Great Merchant Points, and an additional +2 [ICON_PEACE] Faith and [ICON_GOLD] Gold after your second City is founded.'
+SET Text = '+2 [ICON_PEACE] Faith and [ICON_GOLD] Gold in your [ICON_CAPITAL] Capital, in Cities with a [ICON_CONNECTED] City Connection, and per active Trade Route to or from the City. Your [ICON_CAPITAL] Capital/Holy City gains +2 [ICON_GREAT_MERCHANT] Great Merchant Points.'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS';
 
 UPDATE Language_en_US

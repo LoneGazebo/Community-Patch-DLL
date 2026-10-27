@@ -3324,7 +3324,7 @@ void CvCityCitizens::DoClearForcedSpecialists()
 
 /// What upgrade progress does a Specialist need to level up?
 // TODO: move this to CvPlayer and take GreatPersonTypes as the parameter - this has nothing to do with the city and only a bit with unit class
-int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass) const
+int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass, int iAssumeExtraNumCreated) const
 {
 	int iThreshold = /*100 in CP, 150 in VP*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_BASE);
 	int iNumCreated = 0;
@@ -3407,6 +3407,8 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass) con
 		iThreshold *= (100 + iMod);
 		iThreshold /= 100;
 	}
+
+	iNumCreated += iAssumeExtraNumCreated;
 
 	// Increase threshold based on how many GP have already been spawned
 	iThreshold += (/*100 in CP, 250 in VP*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_INCREASE) * iNumCreated);

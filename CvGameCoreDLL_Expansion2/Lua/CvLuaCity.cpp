@@ -4797,8 +4797,8 @@ int CvLuaCity::lGetYieldRateTimes100(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
 	const bool bIgnoreTrade = luaL_optbool(L, 3, false);
-	const bool bIgnoreProcess = luaL_optbool(L, 4, false);
-	const int iResult = pkCity->getYieldRateTimes100(eIndex, bIgnoreTrade, bIgnoreProcess);
+	const bool bIgnoreCurrentProduction = luaL_optbool(L, 4, false);
+	const int iResult = pkCity->getYieldRateTimes100(eIndex, bIgnoreTrade, bIgnoreCurrentProduction);
 
 	lua_pushinteger(L, iResult);
 	return 1;

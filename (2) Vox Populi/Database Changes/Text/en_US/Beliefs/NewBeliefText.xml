@@ -2,7 +2,7 @@
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN">
-			<Text>Gain [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points from killing enemy units equal to 200% of its [ICON_STRENGTH] Strength.Gain 20 [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points when you pillage an improvement, scaling with Era. +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall.</Text>
+			<Text>Gain [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points from killing enemy units equal to 200% of its [ICON_STRENGTH] Strength. Gain 20 [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points when you pillage an improvement, scaling with Era. +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN_SHORT">
 			<Text>Morrigan, the Harbinger</Text>
