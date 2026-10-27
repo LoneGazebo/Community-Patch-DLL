@@ -821,18 +821,34 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 		AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_UNIQUE_UNIT_CITY_STATE");
 	else
 		local tCivAdjectives = {};
+		local bExclusive = false; -- If only one civ can build it but it is not an override of any unit class, it is an exclusive unit
+		if kUnitInfo.CivilizationRequired then
+			bExclusive = true;
+			tCivAdjectives = {L(GameInfo.Civilizations[kUnitInfo.CivilizationRequired].Adjective)};
+		end
+
 		for row in GameInfo.Civilization_UnitClassOverrides{UnitType = kUnitInfo.Type} do
+			if row.CivilizationType == kUnitInfo.CivilizationRequired then
+				-- Only this civ is allowed to build this unit, regardless of overrides
+				tCivAdjectives = {L(GameInfo.Civilizations[row.CivilizationType].Adjective)};
+				bExclusive = false;
+				break;
+			end
 			table.insert(tCivAdjectives, L(GameInfo.Civilizations[row.CivilizationType].Adjective));
 		end
 		if next(tCivAdjectives) then
-			-- Get the unit it is replacing
-			local kDefaultUnitInfo = GameInfo.Units[kUnitClassInfo.DefaultUnit];
-			local strCivAdj = table.concat(tCivAdjectives, "/");
-			if kDefaultUnitInfo then
-				AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_UNIQUE_UNIT", strCivAdj, kDefaultUnitInfo.Description);
+			if bExclusive then
+				AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_EXCLUSIVE_UNIT", tCivAdjectives[1]);
 			else
-				-- This unit isn't replacing anything
-				AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_UNIQUE_UNIT_NO_DEFAULT", strCivAdj);
+				-- Get the unit it is replacing
+				local kDefaultUnitInfo = GameInfo.Units[kUnitClassInfo.DefaultUnit];
+				local strCivAdj = table.concat(tCivAdjectives, "/");
+				if kDefaultUnitInfo then
+					AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_UNIQUE_UNIT", strCivAdj, kDefaultUnitInfo.Description);
+				else
+					-- This unit isn't replacing anything
+					AddTooltip(tHeaderLines, "TXT_KEY_PRODUCTION_UNIQUE_UNIT_NO_DEFAULT", strCivAdj);
+				end
 			end
 		end
 	end
@@ -1324,6 +1340,11 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 	AddTooltipIfTrue(tReqLines, strTextKey, kUnitInfo.PuppetPurchaseOverride);
 
 	if not pCity then
+		-- Civ requirement
+		if kUnitInfo.CivilizationRequired then
+			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_CIV", GameInfo.Civilizations[kUnitInfo.CivilizationRequired].Description);
+		end
+		
 		-- Project requirement
 		if kUnitInfo.ProjectPrereq then
 			AddTooltip(tReqLines, "TXT_KEY_PRODUCTION_REQUIRED_PROJECT", GameInfo.Projects[kUnitInfo.ProjectPrereq].Description);
