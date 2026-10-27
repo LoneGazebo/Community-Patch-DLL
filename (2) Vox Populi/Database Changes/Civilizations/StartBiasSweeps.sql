@@ -56,7 +56,7 @@ VALUES
 	('CIVILIZATION_SHOSHONE', 'REGION_HILLS'),  -- UI needs flat land (historical)
 	('CIVILIZATION_POLAND', 'REGION_JUNGLE'),   -- Medieval UB wants Sheep/Cattle/Horses
 	('CIVILIZATION_POLAND', 'REGION_FOREST'),
-	('CIVILIZATION_JAPAN', 'REGION_JUNGLE');    -- UB wants Iron, can't spawn Iron in Jungle tiles
+	('CIVILIZATION_JAPAN', 'REGION_JUNGLE');    -- UB wants Iron
 
 INSERT INTO Civilization_Start_Prefer_Mountain
 	(CivilizationType, StartPreferMountain)
