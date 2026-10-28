@@ -1255,6 +1255,10 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 
 	AddTooltipNonZeroSigned(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_RESTING_INFLUENCE", kUnitInfo.RestingPointChange);
 
+	if MOD_BALANCE_SPY_POINTS then
+		AddTooltipPositive(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_FREE_SPY_POINTS", kUnitInfo.ExtraSpies * ESPIONAGE_SPY_POINT_UNIT);
+	end
+
 	AddTooltipPositive(tAbilityLines, "TXT_KEY_PRODUCTION_UNIT_FREE_LUXURY", kUnitInfo.NumFreeLux);
 
 	-- Bad abilities (placed at the end)
@@ -3099,6 +3103,7 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL_GLOBAL", tUnitKillYieldsGlobal);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL_GLOBAL_GOLDEN_AGE", tUnitKillYieldsGlobalGoldenAge);
 		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_GIFT", tUnitGiftYields);
+		AddTooltipSimpleYieldBoostTable(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_SPY_MISSION", tSpyMissionYields);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_WLTKD", tWLTKDYields);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_GROWTH", tGrowthYieldsEraScaling);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_BORDER_GROWTH", tBorderGrowthYields);
@@ -3113,7 +3118,6 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_KILL_GLOBAL_GOLDEN_AGE", tUnitKillYieldsGlobalGoldenAgeEraScaling);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_PILLAGE", tPillageYields);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_PILLAGE_GLOBAL", tPillageYieldsGlobal);
-		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_SPY_MISSION", tSpyMissionYields);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_SPY_KILL", tSpyKillYields);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_SPY_IDENTIFICATION", tSpyIdentifyYields);
 		AddTooltipSimpleYieldBoostTableEraScaling(tLocalAbilityLines, "TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_SPY_KILL_OR_IDENTIFICATION", tSpyKillOrIdentifyYields);

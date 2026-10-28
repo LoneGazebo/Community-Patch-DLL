@@ -4519,7 +4519,7 @@ bool CvDiplomacyAI::IsRecentDemandAccepted(PlayerTypes ePlayer) const
 /// Returns the value of recent trades
 int CvDiplomacyAI::GetMaxRecentTradeValue() const
 {
-	/*200 on Standard, 134 on Quick, 300 on Epic, 600 on Marathon*/
+	/*300 on Standard, 200 on Quick, 450 on Epic, 900 on Marathon*/
 	return range(((GD_INT_GET(DEAL_VALUE_PER_OPINION_WEIGHT) * -GD_INT_GET(OPINION_WEIGHT_TRADE_MAX) * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100), 0, USHRT_MAX);
 }
 
@@ -12774,11 +12774,11 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 
 			// Now see what our new Dispute Level should be
 			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
-			if (iContestedScore >= /*8*/ GD_INT_GET(LAND_DISPUTE_FIERCE_THRESHOLD))
+			if (iContestedScore >= /*18*/ GD_INT_GET(LAND_DISPUTE_FIERCE_THRESHOLD))
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-			else if (iContestedScore >= /*4*/ GD_INT_GET(LAND_DISPUTE_STRONG_THRESHOLD))
+			else if (iContestedScore >= /*10*/ GD_INT_GET(LAND_DISPUTE_STRONG_THRESHOLD))
 				eDisputeLevel = DISPUTE_LEVEL_STRONG;
-			else if (iContestedScore >= /*1*/ GD_INT_GET(LAND_DISPUTE_WEAK_THRESHOLD))
+			else if (iContestedScore >= /*4*/ GD_INT_GET(LAND_DISPUTE_WEAK_THRESHOLD))
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 			// Did this player steal "our" favorite city settling spot? We should get mad!
@@ -13114,11 +13114,11 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 		}
 
 		// Now see what our new Dispute Level should be
-		if (iDisputeWeight >= /*1400*/ GD_INT_GET(MINOR_CIV_DISPUTE_FIERCE_THRESHOLD))
+		if (iDisputeWeight >= /*2000*/ GD_INT_GET(MINOR_CIV_DISPUTE_FIERCE_THRESHOLD))
 			eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-		else if (iDisputeWeight >= /*1000*/ GD_INT_GET(MINOR_CIV_DISPUTE_STRONG_THRESHOLD))
+		else if (iDisputeWeight >= /*1400*/ GD_INT_GET(MINOR_CIV_DISPUTE_STRONG_THRESHOLD))
 			eDisputeLevel = DISPUTE_LEVEL_STRONG;
-		else if (iDisputeWeight >= /*700*/ GD_INT_GET(MINOR_CIV_DISPUTE_WEAK_THRESHOLD))
+		else if (iDisputeWeight >= /*1000*/ GD_INT_GET(MINOR_CIV_DISPUTE_WEAK_THRESHOLD))
 			eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 		SetMinorCivDisputeLevel(ePlayer, eDisputeLevel);
@@ -46830,7 +46830,7 @@ int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer) const
 
 		if (iCurrentValuePercent > 0)
 		{
-			iOpinionWeight = /*-40*/ GD_INT_GET(OPINION_WEIGHT_TRADE_MAX) * iCurrentValuePercent / 100;
+			iOpinionWeight = /*-60*/ GD_INT_GET(OPINION_WEIGHT_TRADE_MAX) * iCurrentValuePercent / 100;
 		}
 
 		if (IsStrategicTradePartner(ePlayer))
@@ -48568,7 +48568,7 @@ int CvDiplomacyAI::GetResearchAgreementScore(PlayerTypes ePlayer)
 
 	if (IsHasResearchAgreement(ePlayer))
 	{
-		iOpinionWeight += /*-10*/ GD_INT_GET(OPINION_WEIGHT_RA);
+		iOpinionWeight += /*-15*/ GD_INT_GET(OPINION_WEIGHT_RA);
 
 		if (IsScientist() || IsSecondaryScientist() || GetPlayer()->GetPlayerTraits()->IsNerd())
 		{
