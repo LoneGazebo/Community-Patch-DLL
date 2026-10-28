@@ -5557,7 +5557,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 					bool bActive = (kPlayer2.GetEventCooldown(eLinkerEvent) > 0 || kPlayer2.IsEventFired(eLinkerEvent));
 					if (bActive != pLinkerInfo->CheckForActive())
 					{
-						if (bActive)
+						if (!bActive)  // it's not active, but it should be
 						{
 							if (pLinkerInfo->CheckOtherPlayers())
 							{
@@ -5568,7 +5568,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT");
 							}
 						}
-						else
+						else  // it's active, but it shouldn't be
 						{
 							if (pLinkerInfo->CheckOtherPlayers())
 							{
@@ -5591,7 +5591,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 					bool bActive = (kPlayer2.GetEventChoiceDuration(eLinkerEventChoice) > 0 || kPlayer2.IsEventChoiceFired(eLinkerEventChoice));
 					if (bActive != pLinkerInfo->CheckForActive())
 					{
-						if (bActive)
+						if (!bActive)
 						{
 							if (pLinkerInfo->CheckOtherPlayers())
 							{
@@ -5635,7 +5635,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 							bool bActive = (pLoopCity->GetEventCooldown(eLinkerCityEvent) > 0 || pLoopCity->IsEventFired(eLinkerCityEvent));
 							if (bActive != pLinkerInfo->CheckForActive())
 							{
-								if (bActive)
+								if (!bActive)
 								{
 									if (pLinkerInfo->CheckOtherPlayers())
 									{
@@ -5669,7 +5669,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 							bool bActive = (pLoopCity->GetEventChoiceDuration(eLinkerCityEventChoice) > 0 || pLoopCity->IsEventChoiceFired(eLinkerCityEventChoice));
 							if (bActive != pLinkerInfo->CheckForActive())
 							{
-								if (bActive)
+								if (!bActive)
 								{
 									if (pLinkerInfo->CheckOtherPlayers())
 									{
