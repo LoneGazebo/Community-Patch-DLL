@@ -6579,7 +6579,26 @@ CvUnit* CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns, i
 				// The path finder will do a similar check near the beginning, but it is best to get this out of the way before then
 				if (pLoopUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION))
 				{
-					int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iMaxTurns);
+					int iTurns = INT_MAX;
+
+					if (iBestTurns == INT_MAX)
+						iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iMaxTurns);
+					else if (iBestTurns > 0)
+					{
+						// The finder limit is exclusive. Query it directly so a tighter distance estimate
+						// cannot reject fast routes, then confirm possible winners with the original query.
+						iTurns = pLoopUnit->GetTurnsToReachTargetEstimate(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iMaxTurns);
+						if (iTurns < 0)
+						{
+							iTurns = INT_MAX;
+							SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, min(iMaxTurns, iBestTurns));
+							SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), pTarget, data);
+							if (!!path && path.vPlots.back().turns < iBestTurns)
+								iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iMaxTurns);
+						}
+					}
+
+					// Candidates rejected by the bounded probe record INT_MAX rather than their own turn count.
 					it->SetMovesToTarget(iTurns);
 
 					if (iTurns < iBestTurns)
