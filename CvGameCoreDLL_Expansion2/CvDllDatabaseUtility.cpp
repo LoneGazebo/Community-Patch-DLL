@@ -186,10 +186,11 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	ASSERT(bSuccess, "Failed to load Gameplay Database Data! Not Good!");
 
 	GC.GameDataPostCache();
-	LuaSupport::InitLuaFramework();
 
 	if(bSuccess)
 		m_bGameDatabaseNeedsCaching = false;
+
+	LuaSupport::NotifyDatabaseCached();
 
 	return bSuccess;
 }

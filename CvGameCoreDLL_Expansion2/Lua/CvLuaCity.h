@@ -10,19 +10,12 @@
 #ifndef CVLUACITY_H
 #define CVLUACITY_H
 
-#include "CvLuaScopedInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
 
-class CvLuaCity : public CvLuaScopedInstance<CvLuaCity, CvCity>
+class CvLuaCity : public CvLuaDynamicInstance<CvLuaCity, CvCity>
 {
 public:
-	//! Push CvCity methods into table t
-	static void PushMethods(lua_State* L, int t);
-
-	//! Required by CvLuaScopedInstance.
-	static void HandleMissingInstance(lua_State* L);
-
-	//! Required by CvLuaScopedInstance.
-	static const char* GetTypeName();
+	static void CreateFunctable(lua_State* L);
 
 protected:
 
@@ -774,34 +767,5 @@ protected:
 
 	LUAAPIEXTN(GetCompetitiveSpawnUnitType, int, bIncludeRanged, bIncludeShips, bIncludeRecon, bIncludeUUs, bNoResource, bMinorCivGift, bRandom, tUnitCombatIDs);
 };
-
-namespace CvLuaArgs
-{
-	template<> inline const CvCity* toValue(lua_State* L, int idx)
-	{
-		return CvLuaCity::GetInstance(L, idx);
-	}
-	template<> inline CvCity* toValue(lua_State* L, int idx)
-	{
-		return CvLuaCity::GetInstance(L, idx);
-	}
-	template<> inline const CvCity& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaCity::GetInstance(L, idx);
-	}
-	template<> inline CvCity& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaCity::GetInstance(L, idx);
-	}
-
-	template<> inline void pushValue(lua_State* L, CvCity* p)
-	{
-		CvLuaCity::Push(L, p);
-	}
-	template<> inline void pushValue(lua_State* L, CvCity& r)
-	{
-		CvLuaCity::Push(L, &r);
-	}
-}
 
 #endif //CVLUACITY_H

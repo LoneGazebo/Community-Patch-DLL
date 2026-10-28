@@ -7,6 +7,7 @@
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
 #include "CvWorldBuilderMapLoader.h"
+#include "Lua/!CvLuaApi.h"
 #include "CvGameCoreUtils.h"
 #include "CvMinorCivAI.h"
 #include "CvDiplomacyAI.h"

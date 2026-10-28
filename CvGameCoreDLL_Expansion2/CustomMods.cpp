@@ -1,5 +1,6 @@
 // CustomMods.cpp
 #include "CvGameCoreDLLPCH.h"
+#include "Lua/CvLuaSupport.h"
 
 // must be included after all other headers
 #include "LintFree.h"

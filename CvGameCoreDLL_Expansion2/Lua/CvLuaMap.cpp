@@ -14,11 +14,7 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
-#include "../CustomMods.h"
-#include "CvLuaSupport.h"
-#include "CvLuaArea.h"
 #include "CvLuaMap.h"
-#include "CvLuaPlot.h"
 
 #include "../CvFractal.h"
 #include "../CvMap.h"
@@ -26,21 +22,15 @@
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
-#define Method(func) RegisterMethod(L, l##func, #func);
+#define Method(func) lua_pushcclosure(L, l##func, 0); lua_setfield(L, 1, #func)
 
 //------------------------------------------------------------------------------
-const char* CvLuaMap::GetInstanceName()
-{
-	return "Map";
-}
+CvMap* CvLuaMap::GetStaticInstance() { return &GC.getMap(); }
 //------------------------------------------------------------------------------
-CvMap* CvLuaMap::GetInstance(lua_State* /*L*/, int /*idx*/)
+void CvLuaMap::CreateFunctable(lua_State* L)
 {
-	return &GC.getMap();
-}
-//------------------------------------------------------------------------------
-void CvLuaMap::RegisterMembers(lua_State* L)
-{
+	lua_createtable(L,0,40);
+	
 	Method(Areas);
 	Method(FindBiggestArea);
 	Method(FindBiggestLandmassID);
@@ -105,7 +95,7 @@ int CvLuaMap::lAreasAux(lua_State* L)
 	if(pkArea)
 	{
 		lua_pushinteger(L, it);
-		CvLuaArea::Push(L, pkArea);
+		luaEx_pushArea(L, pkArea);
 		return 2;
 	}
 
@@ -117,13 +107,9 @@ int CvLuaMap::lFindBiggestArea(lua_State* L)
 	const bool bWater = lua_toboolean(L, 1);
 
 	CvArea* pkArea = GC.getMap().findBiggestArea(bWater);
-	if(pkArea)
-	{
-		CvLuaArea::Push(L, pkArea);
-		return 1;
-	}
-
-	return 0;
+	luaEx_pushArea(L,pkArea);
+	
+	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaMap::lFindBiggestLandmassID(lua_State* L)
@@ -143,7 +129,7 @@ int CvLuaMap::lFindBiggestLandmassID(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaMap::lFindWater(lua_State* L)
 {
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 1);
+	CvPlot* pkPlot = luaEx_toPlot(L, 1);
 	const int iRange = luaL_checkint(L, 2);
 	const bool bFreshWater = lua_toboolean(L, 3);
 	const bool bResult = GC.getMap().findWater(pkPlot, iRange, bFreshWater);
@@ -218,12 +204,9 @@ int CvLuaMap::lGetPlot(lua_State* L)
 	const int y = lua_tointeger(L, 2);
 
 	CvPlot* pPlot = GC.getMap().plot(x, y);
-	if(pPlot)
-	{
-		CvLuaPlot::Push(L, pPlot);
-		return 1;
-	}
-	return 0;
+	luaEx_pushPlot(L,pPlot);
+	
+	return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -232,12 +215,9 @@ int CvLuaMap::lGetPlotByIndex(lua_State* L)
 	const int iIndex = lua_tointeger(L, 1);
 
 	CvPlot* pPlot = GC.getMap().plotByIndex(iIndex);
-	if(pPlot)
-	{
-		CvLuaPlot::Push(L, pPlot);
-		return 1;
-	}
-	return 0;
+	luaEx_pushPlot(L,pPlot);
+	
+	return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -263,7 +243,7 @@ int CvLuaMap::lGetPlotXY(lua_State* L)
 	}
 
 	CvPlot* pkPlot = plotXY(x, y, dx, dy);
-	CvLuaPlot::Push(L, pkPlot);
+	luaEx_pushPlot(L, pkPlot);
 	return 1;
 }
 
@@ -273,12 +253,9 @@ int CvLuaMap::lGetArea(lua_State* L)
 	const int iID = lua_tointeger(L, 1);
 
 	CvArea* pArea = GC.getMap().getAreaById(iID);
-	if(pArea)
-	{
-		CvLuaArea::Push(L, pArea);
-		return 1;
-	}
-	return 0;
+	luaEx_pushArea(L, pArea);
+	
+	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaMap::lGetIndexAfterLastArea(lua_State* L)
@@ -404,7 +381,7 @@ int CvLuaMap::lPlotXYWithRangeCheck(lua_State* L)
 	int iDeltaHexY = lua_tointeger(L, 4);
 	int iRange = lua_tointeger(L, 5);
 	CvPlot* pkPlot = plotXYWithRangeCheck(iX, iY, iDeltaHexX, iDeltaHexY, iRange);
-	CvLuaPlot::Push(L, pkPlot);
+	luaEx_pushPlot(L, pkPlot);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -426,7 +403,7 @@ int CvLuaMap::lPlotDirection(lua_State* L)
 
 	CvPlot* pkPlot = plotDirection(iMapX, iMapY, eDirection);
 
-	CvLuaPlot::Push(L, pkPlot);
+	luaEx_pushPlot(L, pkPlot);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -483,3 +460,5 @@ int CvLuaMap::lGetNumTilesOfLandmass(lua_State* L)
 	lua_pushinteger(L, GC.getMap().getLandmassById(iLandmass)->getNumTiles());
 	return 1;
 }
+
+LuaTypes_DefineStatic( CvMap, CvLuaMap );

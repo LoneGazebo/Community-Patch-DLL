@@ -10,20 +10,13 @@
 #ifndef CVLUAUNIT_H
 #define CVLUAUNIT_H
 
-#include "CvLuaScopedInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
 
-class CvLuaUnit : public CvLuaScopedInstance<CvLuaUnit, CvUnit>
+class CvLuaUnit : public CvLuaDynamicInstance<CvLuaUnit, CvUnit>
 {
 public:
-	//! Push CvUnit methods into table t
-	static void PushMethods(lua_State* L, int t);
-
-	//! Error handle for missing instances
-	static void HandleMissingInstance(lua_State* L);
-
-	//! Gets the type name
-	static const char* GetTypeName();
-
+	//! Push CvUnit methods
+	static void CreateFunctable(lua_State* L);
 protected:
 
 	static int lIsNone(lua_State* L);
@@ -649,34 +642,5 @@ protected:
 	LUAAPIEXTN(IsAdjacentToTerrain, bool, iTerrainType);
 	LUAAPIEXTN(IsWithinDistanceOfTerrain, bool, iTerrainType, iDistance);
 };
-
-namespace CvLuaArgs
-{
-	template<> inline const CvUnit* toValue(lua_State* L, int idx)
-	{
-		return CvLuaUnit::GetInstance(L, idx);
-	}
-	template<> inline CvUnit* toValue(lua_State* L, int idx)
-	{
-		return CvLuaUnit::GetInstance(L, idx);
-	}
-	template<> inline const CvUnit& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaUnit::GetInstance(L, idx);
-	}
-	template<> inline CvUnit& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaUnit::GetInstance(L, idx);
-	}
-
-	template<> inline void pushValue(lua_State* L, CvUnit* p)
-	{
-		CvLuaUnit::Push(L, p);
-	}
-	template<> inline void pushValue(lua_State* L, CvUnit& r)
-	{
-		CvLuaUnit::Push(L, &r);
-	}
-}
 
 #endif //CVLUAUNIT_H
