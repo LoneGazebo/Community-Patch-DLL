@@ -14,32 +14,18 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
-#include "../CustomMods.h"
-#include "CvLuaSupport.h"
 #include "CvLuaTeam.h"
-#include "CvLuaTeamTech.h"
-#include "CvLuaArea.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
 //Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
+#define Method(Name) lua_pushcclosure(L, l##Name, 0); lua_setfield(L, 1, #Name);
 
 //------------------------------------------------------------------------------
-void CvLuaTeam::Register(lua_State* L)
+void CvLuaTeam::CreateFunctable(lua_State* L)
 {
-	FLua::Details::CCallWithErrorHandling(L, pRegister);
-}
-//------------------------------------------------------------------------------
-void CvLuaTeam::HandleMissingInstance(lua_State* L)
-{
-	DefaultHandleMissingInstance(L);
-}
-//------------------------------------------------------------------------------
-void CvLuaTeam::PushMethods(lua_State* L, int t)
-{
+	lua_createtable(L,0,200);
+	
 	Method(IsNone);
 
 	Method(AddTeam);
@@ -257,38 +243,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(IsCorporationsEnabled);
 }
 //------------------------------------------------------------------------------
-const char* CvLuaTeam::GetTypeName()
-{
-	return "Team";
-}
-//------------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
 // Lua Methods
-//------------------------------------------------------------------------------
-int CvLuaTeam::pRegister(lua_State* L)
-{
-	lua_getglobal(L, "Teams");
-	if(lua_isnil(L, -1))
-	{
-		lua_pop(L, 1);
-		lua_newtable(L);
-		lua_pushvalue(L, -1);
-		lua_setglobal(L, "Teams");
-	}
-
-	for(int i = 0; i < MAX_TEAMS; ++i)
-	{
-		CvTeam* pkTeam = &(GET_TEAM((TeamTypes)i));
-		CvLuaTeam::Push(L, pkTeam);
-		lua_rawseti(L, -2, i);
-	}
-
-	return 0;
-}
-
-
 //------------------------------------------------------------------------------
 //bool isNone();
 int CvLuaTeam::lIsNone(lua_State* L)
@@ -1354,7 +1309,7 @@ int CvLuaTeam::lGetTeamTechs(lua_State* L)
 	CvTeam* pkTeam = GetInstance(L);
 	CvTeamTechs* pkTeamTechs = pkTeam->GetTeamTechs();
 
-	CvLuaTeamTech::Push(L, pkTeamTechs);
+	luaEx_pushTeamTechs(L, pkTeamTechs);
 	return 1;
 }
 
@@ -1588,3 +1543,5 @@ int CvLuaTeam::lIsCorporationsEnabled(lua_State *L)
 {
 	return BasicLuaMethod(L, &CvTeam::IsCorporationsEnabled);
 }
+
+LuaTypes_DefineInstanced( CvTeam, CvLuaTeam );

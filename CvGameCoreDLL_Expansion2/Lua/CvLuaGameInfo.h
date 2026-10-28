@@ -20,7 +20,7 @@ class CvLuaGameInfo
 {
 public:
 	//! Register all game infos data in Lua.
-	static void Register(lua_State* L);
+	static void RegisterGlobals(lua_State* L);
 
 private:
 

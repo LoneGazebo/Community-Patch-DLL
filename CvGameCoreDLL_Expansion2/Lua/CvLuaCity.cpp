@@ -8,27 +8,22 @@
 
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
-#include "../CustomMods.h"
-#include "CvLuaSupport.h"
-#include "CvLuaArea.h"
 #include "CvLuaCity.h"
-#include "CvLuaPlot.h"
-#include "CvLuaUnit.h"
 #include "../CvInternalGameCoreUtils.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
 //Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
+#define Method(Name) lua_pushcclosure(L, l##Name, 0); lua_setfield(L, 1, #Name);
 
 
-using namespace CvLuaArgs;
+//using namespace CvLuaArgs;
 
 //------------------------------------------------------------------------------
-void CvLuaCity::PushMethods(lua_State* L, int t)
+void CvLuaCity::CreateFunctable(lua_State* L)
 {
+	lua_createtable(L,0,750);
+	
 	Method(IsNone);
 	Method(Kill);
 
@@ -765,17 +760,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetCompetitiveSpawnUnitType);
 }
-//------------------------------------------------------------------------------
-void CvLuaCity::HandleMissingInstance(lua_State* L)
-{
-	DefaultHandleMissingInstance(L);
-}
-//------------------------------------------------------------------------------
-const char* CvLuaCity::GetTypeName()
-{
-	return "City";
-}
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Lua Methods
@@ -836,7 +820,7 @@ int CvLuaCity::lChooseProduction(lua_State* L)
 int CvLuaCity::lGetCityPlotIndex(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pkPlot = luaEx_toPlot(L, 2);
 	const int iResult = pkCity->GetCityCitizens()->GetCityIndexFromPlot(pkPlot);
 
 	lua_pushinteger(L, iResult);
@@ -850,7 +834,7 @@ int CvLuaCity::lGetCityIndexPlot(lua_State* L)
 	const int iIndex = lua_tointeger(L, 2);
 
 	CvPlot* pkPlot = pkCity->GetCityCitizens()->GetCityPlotFromIndex(iIndex);
-	CvLuaPlot::Push(L, pkPlot);
+	luaEx_pushPlot(L, pkPlot);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -858,7 +842,7 @@ int CvLuaCity::lGetCityIndexPlot(lua_State* L)
 int CvLuaCity::lCanWork(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pkPlot = luaEx_toPlot(L, 2);
 	const bool bResult = pkCity->GetCityCitizens()->IsCanWork(pkPlot);
 
 	lua_pushboolean(L, bResult);
@@ -869,7 +853,7 @@ int CvLuaCity::lCanWork(lua_State* L)
 int CvLuaCity::lIsPlotBlockaded(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pkPlot = luaEx_toPlot(L, 2);
 	const bool bResult = pkPlot->isBlockaded(pkCity->getOwner());
 
 	lua_pushboolean(L, bResult);
@@ -1715,7 +1699,7 @@ int CvLuaCity::lGetPlotsBoostedByBuilding(lua_State* L)
 		if (aiPlotList[ui] >= 0)
 		{
 			CvPlot* pkPlot = GC.getMap().plotByIndex(aiPlotList[ui]);
-			CvLuaPlot::Push(L, pkPlot);
+			luaEx_pushPlot(L, pkPlot);
 			iReturnValues++;
 		}
 		else
@@ -1831,7 +1815,7 @@ int CvLuaCity::lGetProductionExperience(lua_State* L)
 int CvLuaCity::lAddProductionExperience(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+	CvUnit* pkUnit = luaEx_toUnit(L, 2);
 	const bool bHalveXP = luaL_optint(L, 3, 0);
 	pkCity->addProductionExperience(pkUnit, bHalveXP);
 
@@ -1899,7 +1883,7 @@ int CvLuaCity::lGetGeneralProductionTurnsLeft(lua_State* L)
 //bool isFoodProduction();
 int CvLuaCity::lIsFoodProduction(lua_State* L)
 {
-	return BasicLuaMethod<bool>(L, &CvCity::isFoodProduction);
+	return luaEx_exec(L, &CvCity::isFoodProduction);
 }
 //------------------------------------------------------------------------------
 //int getFirstUnitOrder(UnitTypes eUnit);
@@ -2208,25 +2192,25 @@ int CvLuaCity::lGetProductionTurnsLeft(lua_State* L)
 //int getUnitProductionTurnsLeft(UnitTypes iUnit, int iNum);
 int CvLuaCity::lGetUnitProductionTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod<int, UnitTypes>(L, &CvCity::getProductionTurnsLeft);
+	return luaEx_exec<UnitTypes>(L, &CvCity::getProductionTurnsLeft);
 }
 //------------------------------------------------------------------------------
 //int getBuildingProductionTurnsLeft(BuildingTypes iBuilding, int iNum);
 int CvLuaCity::lGetBuildingProductionTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod<int, BuildingTypes>(L, &CvCity::getProductionTurnsLeft);
+	return luaEx_exec<BuildingTypes>(L, &CvCity::getProductionTurnsLeft);
 }
 //------------------------------------------------------------------------------
 //int getProjectProductionTurnsLeft(ProjectTypes eProject, int iNum);
 int CvLuaCity::lGetProjectProductionTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod<int, ProjectTypes>(L, &CvCity::getProductionTurnsLeft);
+	return luaEx_exec<ProjectTypes>(L, &CvCity::getProductionTurnsLeft);
 }
 //------------------------------------------------------------------------------
 //int getProcessProductionTurnsLeft(ProcessTypes eProcess, int iNum);
 int CvLuaCity::lGetProcessProductionTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod<int, ProcessTypes>(L, &CvCity::getProductionTurnsLeft);
+	return luaEx_exec<ProcessTypes>(L, &CvCity::getProductionTurnsLeft);
 }
 //------------------------------------------------------------------------------
 // int IsCanPurchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
@@ -2267,31 +2251,31 @@ int CvLuaCity::lPurchase(lua_State* L)
 // int GetPurchaseCost(UnitTypes eUnit);
 int CvLuaCity::lGetUnitPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<int, UnitTypes>(L, &CvCity::GetPurchaseCost);
+	return luaEx_exec<UnitTypes>(L, &CvCity::GetPurchaseCost);
 }
 //------------------------------------------------------------------------------
 // int GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts);
 int CvLuaCity::lGetUnitFaithPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<int, UnitTypes>(L, &CvCity::GetFaithPurchaseCost);
+	return luaEx_exec<UnitTypes>(L, &CvCity::GetFaithPurchaseCost);
 }
 //------------------------------------------------------------------------------
 //int GetPurchaseCost(BuildingTypes eBuilding);
 int CvLuaCity::lGetBuildingPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<int, BuildingTypes>(L, &CvCity::GetPurchaseCost);
+	return luaEx_exec<BuildingTypes>(L, &CvCity::GetPurchaseCost);
 }
 //------------------------------------------------------------------------------
 //int GetFaithPurchaseCost(BuildingTypes eBuilding);
 int CvLuaCity::lGetBuildingFaithPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<int, BuildingTypes>(L, &CvCity::GetFaithPurchaseCost);
+	return luaEx_exec<BuildingTypes>(L, &CvCity::GetFaithPurchaseCost);
 }
 //------------------------------------------------------------------------------
 //int GetPurchaseCost(ProjectTypes eProject);
 int CvLuaCity::lGetProjectPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<int, ProjectTypes>(L, &CvCity::GetPurchaseCost);
+	return luaEx_exec<ProjectTypes>(L, &CvCity::GetPurchaseCost);
 }
 //------------------------------------------------------------------------------
 //void setProduction(int iNewValue);
@@ -2428,7 +2412,7 @@ int CvLuaCity::lGetProjectProductionModifier(lua_State* L)
 //int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource);
 int CvLuaCity::lGetResourceYieldRateModifier(lua_State* L)
 {
-	return BasicLuaMethod<int, YieldTypes, ResourceTypes>(L, &CvCity::getResourceYieldRateModifier);
+	return luaEx_exec<YieldTypes, ResourceTypes>(L, &CvCity::getResourceYieldRateModifier);
 }
 //------------------------------------------------------------------------------
 //HandicapTypes getHandicapType();
@@ -2757,7 +2741,7 @@ int CvLuaCity::lAt(lua_State* L)
 int CvLuaCity::lAtPlot(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pkPlot = luaEx_toPlot(L, 2);
 	const bool bResult = pkCity->at(pkPlot);
 
 	lua_pushboolean(L, bResult);
@@ -2769,7 +2753,7 @@ int CvLuaCity::lPlot(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	CvPlot* pkPlot = pkCity->plot();
-	CvLuaPlot::Push(L, pkPlot);
+	luaEx_pushPlot(L, pkPlot);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -2779,7 +2763,7 @@ int CvLuaCity::lArea(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	//there might be other areas adjacent to the city ...
 	CvArea* pkArea = pkCity->plot()->area();
-	CvLuaArea::Push(L, pkArea);
+	luaEx_pushArea(L, pkArea);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -2795,12 +2779,12 @@ int CvLuaCity::lWaterArea(lua_State* L)
 		CvArea* pkArea = GC.getMap().getAreaById(*it);
 		if (pkArea->isWater())
 		{
-			CvLuaArea::Push(L, pkArea);
+			luaEx_pushArea(L, pkArea);
 			return 1;
 		}
 	}
 
-	CvLuaArea::Push(L, NULL);
+	luaEx_pushArea(L, NULL);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -2809,7 +2793,7 @@ int CvLuaCity::lGetRallyPlot(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	CvPlot* pkPlot = pkCity->getRallyPlot();
-	CvLuaPlot::Push(L, pkPlot);
+	luaEx_pushPlot(L, pkPlot);
 	return 1;
 }
 
@@ -2850,7 +2834,7 @@ int CvLuaCity::lGetNextBuyablePlot(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const bool bPurchase = lua_toboolean(L, 2);
 	CvPlot* pkPlot = pkCity->GetNextBuyablePlot(bPurchase);
-	CvLuaPlot::Push(L, pkPlot);
+	luaEx_pushPlot(L, pkPlot);
 	return 1;
 }
 
@@ -2870,7 +2854,7 @@ int CvLuaCity::lGetBuyablePlotList(lua_State* L)
 		if(aiPlotList[ui] >= 0)
 		{
 			CvPlot* pkPlot = GC.getMap().plotByIndex(aiPlotList[ui]);
-			CvLuaPlot::Push(L, pkPlot);
+			luaEx_pushPlot(L, pkPlot);
 			iReturnValues++;
 		}
 		else
@@ -2899,7 +2883,7 @@ int CvLuaCity::lGetGarrisonedUnit(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	CvUnit* pkUnit = pkCity->GetGarrisonedUnit();
-	CvLuaUnit::Push(L, pkUnit);
+	luaEx_pushUnit(L, pkUnit);
 	return 1;
 }
 
@@ -3017,7 +3001,7 @@ int CvLuaCity::lGetEventGPPFromSpecialists(lua_State* L)
 int CvLuaCity::lGetSpecialistRate(lua_State* L)
 {
 	CvCity* pCity = GetInstance(L);
-	const SpecialistTypes eSpecialist = toValue<SpecialistTypes>(L, 2);
+	const SpecialistTypes eSpecialist = luaEx_to<SpecialistTypes>(L, 2);
 	if (eSpecialist <= NO_SPECIALIST || eSpecialist >= GC.getNumSpecialistInfos())
 		return luaL_error(L, "Invalid specialist ID %d", eSpecialist);
 
@@ -3063,7 +3047,7 @@ int CvLuaCity::lGetReligionGreatPersonRateModifier(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	int iResult = 0;
 
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist((SpecialistTypes)toValue<SpecialistTypes>(L, 2));
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist((SpecialistTypes)luaEx_to<SpecialistTypes>(L, 2));
 
 	if (eGreatPerson != NO_GREATPERSON)
 	{
@@ -3473,7 +3457,7 @@ int CvLuaCity::lGetBuildingClassTourism(lua_State* L)
 {
 	int iRtnValue = 0;
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
 	if (pReligion)
@@ -3490,7 +3474,7 @@ int CvLuaCity::lIsThemingBonusPossible(lua_State* L)
 {
 	bool bPossible;
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
 	bPossible = pkCity->GetCityCulture()->IsThemingBonusPossible(iIndex);
 	lua_pushboolean(L, bPossible);
 	return 1;
@@ -3501,7 +3485,7 @@ int CvLuaCity::lGetThemingBonus(lua_State* L)
 {
 	int iBonus;
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
 	iBonus = pkCity->GetCityCulture()->GetThemingBonus(iIndex);
 	lua_pushinteger(L, iBonus);
 	return 1;
@@ -3512,7 +3496,7 @@ int CvLuaCity::lGetThemingTooltip(lua_State* L)
 {
 	CvString toolTip;
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
 	toolTip = pkCity->GetCityCulture()->GetThemingTooltip(iIndex);
 	lua_pushstring(L, toolTip.c_str());
 	return 1;
@@ -4830,7 +4814,7 @@ int CvLuaCity::lGetExtraSpecialistYield(lua_State* L)
 //int getExtraSpecialistYieldOfType(YieldTypes eIndex, SpecialistTypes eSpecialist);
 int CvLuaCity::lGetExtraSpecialistYieldOfType(lua_State* L)
 {
-	return BasicLuaMethod<int, YieldTypes, SpecialistTypes>(L, &CvCity::getExtraSpecialistYield);
+	return luaEx_exec<YieldTypes, SpecialistTypes>(L, &CvCity::getExtraSpecialistYield);
 }
 
 //------------------------------------------------------------------------------
@@ -4993,10 +4977,10 @@ int CvLuaCity::lSetBuildingProductionTime(lua_State* L)
 int CvLuaCity::lChangeBuildingProductionTime(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iIndex = toValue<BuildingTypes>(L, 2);
+	const int iIndex = luaEx_to<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
-		pkCity->GetCityBuildings()->ChangeBuildingProductionTime((BuildingTypes)iIndex, toValue<int>(L, 3));
+		pkCity->GetCityBuildings()->ChangeBuildingProductionTime((BuildingTypes)iIndex, luaEx_to<int>(L, 3));
 	}
 
 	return 1;
@@ -5006,7 +4990,7 @@ int CvLuaCity::lChangeBuildingProductionTime(lua_State* L)
 int CvLuaCity::lGetBuildingOriginalOwner(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iIndex = toValue<BuildingTypes>(L, 2);
+	const int iIndex = luaEx_to<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
 		const int iResult = pkCity->GetCityBuildings()->GetBuildingOriginalOwner((BuildingTypes)iIndex);
@@ -5023,7 +5007,7 @@ int CvLuaCity::lGetBuildingOriginalOwner(lua_State* L)
 int CvLuaCity::lGetBuildingOriginalTime(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iIndex = toValue<BuildingTypes>(L, 2);
+	const int iIndex = luaEx_to<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
 		const int iResult = pkCity->GetCityBuildings()->GetBuildingOriginalTime((BuildingTypes)iIndex);
@@ -5040,7 +5024,7 @@ int CvLuaCity::lGetBuildingOriginalTime(lua_State* L)
 int CvLuaCity::lGetUnitProduction(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->getUnitProduction(toValue<UnitTypes>(L, 2));
+	const int iResult = pkCity->getUnitProduction(luaEx_to<UnitTypes>(L, 2));
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5050,7 +5034,7 @@ int CvLuaCity::lGetUnitProduction(lua_State* L)
 int CvLuaCity::lSetUnitProduction(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	pkCity->setUnitProduction(toValue<UnitTypes>(L, 2), toValue<int>(L, 3));
+	pkCity->setUnitProduction(luaEx_to<UnitTypes>(L, 2), luaEx_to<int>(L, 3));
 
 	return 1;
 }
@@ -5059,7 +5043,7 @@ int CvLuaCity::lSetUnitProduction(lua_State* L)
 int CvLuaCity::lChangeUnitProduction(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	pkCity->changeUnitProduction(toValue<UnitTypes>(L, 2), toValue<int>(L, 3));
+	pkCity->changeUnitProduction(luaEx_to<UnitTypes>(L, 2), luaEx_to<int>(L, 3));
 
 	return 1;
 }
@@ -5068,7 +5052,7 @@ int CvLuaCity::lChangeUnitProduction(lua_State* L)
 int CvLuaCity::lIsCanAddSpecialistToBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	BuildingTypes bt = toValue<BuildingTypes>(L, 2);
+	BuildingTypes bt = luaEx_to<BuildingTypes>(L, 2);
 	if(bt != NO_BUILDING)
 	{
 		const bool bResult = pkCity->GetCityCitizens()->IsCanAddSpecialistToBuilding(bt);
@@ -5085,7 +5069,7 @@ int CvLuaCity::lIsCanAddSpecialistToBuilding(lua_State* L)
 int CvLuaCity::lGetSpecialistUpgradeThreshold(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const UnitClassTypes eUnitClassType = toValue<UnitClassTypes>(L, 2);
+	const UnitClassTypes eUnitClassType = luaEx_to<UnitClassTypes>(L, 2);
 	const int iResult = pkCity->GetCityCitizens()->GetSpecialistUpgradeThreshold(eUnitClassType);
 
 	lua_pushinteger(L, iResult);
@@ -5097,7 +5081,7 @@ int CvLuaCity::lGetNumSpecialistsAllowedByBuilding(lua_State* L)
 {
 	int iResult = 0;
 	CvCity* pkCity = GetInstance(L);
-	BuildingTypes bt = toValue<BuildingTypes>(L, 2);
+	BuildingTypes bt = luaEx_to<BuildingTypes>(L, 2);
 	if(bt != NO_BUILDING)
 	{
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(bt);
@@ -5115,7 +5099,7 @@ int CvLuaCity::lGetNumSpecialistsAllowedByBuilding(lua_State* L)
 int CvLuaCity::lGetSpecialistCount(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->GetCityCitizens()->GetSpecialistCount(toValue<SpecialistTypes>(L, 2));
+	const int iResult = pkCity->GetCityCitizens()->GetSpecialistCount(luaEx_to<SpecialistTypes>(L, 2));
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5135,9 +5119,9 @@ int CvLuaCity::lGetTotalSpecialistCount(lua_State* L)
 int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iResult = pkCity->GetSpecialistRateModifierFromBuildings(toValue<SpecialistTypes>(L, 2));
+	int iResult = pkCity->GetSpecialistRateModifierFromBuildings(luaEx_to<SpecialistTypes>(L, 2));
 
-	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist((SpecialistTypes)toValue<SpecialistTypes>(L, 2));
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist((SpecialistTypes)luaEx_to<SpecialistTypes>(L, 2));
 
 	if (eGreatPerson != NO_GREATPERSON)
 	{
@@ -5160,7 +5144,7 @@ int CvLuaCity::lGetSpecialistCityModifier(lua_State* L)
 int CvLuaCity::lGetSpecialistGreatPersonProgress(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->GetCityCitizens()->GetSpecialistGreatPersonProgress(toValue<SpecialistTypes>(L, 2));
+	const int iResult = pkCity->GetCityCitizens()->GetSpecialistGreatPersonProgress(luaEx_to<SpecialistTypes>(L, 2));
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -5170,7 +5154,7 @@ int CvLuaCity::lGetSpecialistGreatPersonProgress(lua_State* L)
 int CvLuaCity::lGetSpecialistGreatPersonProgressTimes100(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(toValue<SpecialistTypes>(L, 2));
+	const int iResult = pkCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(luaEx_to<SpecialistTypes>(L, 2));
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -5181,7 +5165,7 @@ int CvLuaCity::lChangeSpecialistGreatPersonProgressTimes100(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iChange = lua_tointeger(L, 3);
-	pkCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(toValue<SpecialistTypes>(L, 2), iChange, true);
+	pkCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(luaEx_to<SpecialistTypes>(L, 2), iChange, true);
 	return 1;
 }
 
@@ -5212,7 +5196,7 @@ int CvLuaCity::lGetExtraSpecialistPoints(lua_State* L)
 int CvLuaCity::lGetNumSpecialistsInBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->GetCityCitizens()->GetNumSpecialistsInBuilding(toValue<BuildingTypes>(L, 2));
+	const int iResult = pkCity->GetCityCitizens()->GetNumSpecialistsInBuilding(luaEx_to<BuildingTypes>(L, 2));
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -5221,7 +5205,7 @@ int CvLuaCity::lGetNumSpecialistsInBuilding(lua_State* L)
 int CvLuaCity::lGetNumForcedSpecialistsInBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->GetCityCitizens()->GetNumForcedSpecialistsInBuilding(toValue<BuildingTypes>(L, 2));
+	const int iResult = pkCity->GetCityCitizens()->GetNumForcedSpecialistsInBuilding(luaEx_to<BuildingTypes>(L, 2));
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -5313,7 +5297,7 @@ int CvLuaCity::lGetFreePromotionCount(lua_State* L)
 int CvLuaCity::lIsFreePromotion(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	PromotionTypes promo = CvLuaArgs::toValue<PromotionTypes>(L, 2);
+	PromotionTypes promo = luaEx_to<PromotionTypes>(L, 2);
 
 	bool bFound = false;
 	vector<PromotionTypes> freePromotions = pkCity->getFreePromotions();
@@ -5355,7 +5339,7 @@ int CvLuaCity::lGetStrengthValue(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	bool bForRangeStrike = luaL_optbool(L, 2, false);
 	bool bIgnoreBuildingDefense = luaL_optbool(L, 3, false);
-	CvUnit* pkOther = CvLuaUnit::GetInstance(L, 4, false);
+	CvUnit* pkOther = luaEx_toUnit(L, 4, false);
 	const int iResult = pkCity->getStrengthValue(bForRangeStrike, bIgnoreBuildingDefense, pkOther);
 
 	lua_pushinteger(L, iResult);
@@ -5439,7 +5423,7 @@ int CvLuaCity::lHasPerformedRangedStrikeThisTurn(lua_State* L)
 int CvLuaCity::lRangeCombatUnitDefense(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvUnit* pkDefender = CvLuaUnit::GetInstance(L, 2);
+	CvUnit* pkDefender = luaEx_toUnit(L, 2);
 
 	const int iDefenseStr = pkCity->rangeCombatUnitDefense(pkDefender);
 	lua_pushinteger(L, iDefenseStr);
@@ -5449,7 +5433,7 @@ int CvLuaCity::lRangeCombatUnitDefense(lua_State* L)
 int CvLuaCity::lRangeCombatDamage(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvUnit* pkDefendingUnit = CvLuaUnit::GetInstance(L, 2, false);
+	CvUnit* pkDefendingUnit = luaEx_toUnit(L, 2, false);
 	//ignored
 	//CvCity* pkDefendingCity = GetInstance(L, 3, false);
 	bool bIncludeRand = luaL_optbool(L, 4, false);
@@ -5462,7 +5446,7 @@ int CvLuaCity::lRangeCombatDamage(lua_State* L)
 int CvLuaCity::lGetAirStrikeDefenseDamage(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvUnit* pkAttackingUnit = CvLuaUnit::GetInstance(L, 2, false);
+	CvUnit* pkAttackingUnit = luaEx_toUnit(L, 2, false);
 	bool bIncludeRand = luaL_optbool(L, 3, false);
 
 	const int iRangedDamage = pkCity->GetAirStrikeDefenseDamage(pkAttackingUnit, bIncludeRand);
@@ -5473,7 +5457,7 @@ int CvLuaCity::lGetAirStrikeDefenseDamage(lua_State* L)
 int CvLuaCity::lGetMultiAttackBonusCity(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+	CvUnit* pkUnit = luaEx_toUnit(L, 2);
 
 	if (pkUnit == NULL || pkCity == NULL)
 		return 0;
@@ -5523,7 +5507,7 @@ int CvLuaCity::lGetRangeStrikeModifierFromEspionage(lua_State* L)
 int CvLuaCity::lIsWorkingPlot(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pkPlot = luaEx_toPlot(L, 2);
 	const bool bResult = pkCity->GetCityCitizens()->IsWorkingPlot(pkPlot);
 
 	lua_pushboolean(L, bResult);
@@ -5545,7 +5529,7 @@ int CvLuaCity::lAlterWorkingPlot(lua_State* L)
 int CvLuaCity::lIsForcedWorkingPlot(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pkPlot = luaEx_toPlot(L, 2);
 	const bool bResult = pkCity->GetCityCitizens()->IsForcedWorkingPlot(pkPlot);
 
 	lua_pushboolean(L, bResult);
@@ -5566,7 +5550,7 @@ int CvLuaCity::lGetNumForcedWorkingPlots(lua_State* L)
 int CvLuaCity::lGetNumRealBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes iIndex = toValue<BuildingTypes>(L, 2);
+	const BuildingTypes iIndex = luaEx_to<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
 		const int iResult = pkCity->GetCityBuildings()->GetNumRealBuilding(iIndex);
@@ -5583,7 +5567,7 @@ int CvLuaCity::lGetNumRealBuilding(lua_State* L)
 int CvLuaCity::lSetNumRealBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes iIndex = toValue<BuildingTypes>(L, 2);
+	const BuildingTypes iIndex = luaEx_to<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
 		const int iNewValue = lua_tointeger(L, 3);
@@ -5598,7 +5582,7 @@ int CvLuaCity::lSetNumRealBuilding(lua_State* L)
 int CvLuaCity::lGetNumFreeBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes iIndex = toValue<BuildingTypes>(L, 2);
+	const BuildingTypes iIndex = luaEx_to<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
 		const int iResult = pkCity->GetCityBuildings()->GetNumFreeBuilding(iIndex);
@@ -5615,7 +5599,7 @@ int CvLuaCity::lGetNumFreeBuilding(lua_State* L)
 int CvLuaCity::lSetNumFreeBuilding(lua_State* L)
 {
 	CvCity* pCity = GetInstance(L);
-	const BuildingTypes eBuilding = toValue<BuildingTypes>(L, 2);
+	const BuildingTypes eBuilding = luaEx_to<BuildingTypes>(L, 2);
 	bool bResult = false;
 
 	if (eBuilding != NO_BUILDING)
@@ -5635,7 +5619,7 @@ int CvLuaCity::lIsBuildingSellable(lua_State* L)
 {
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes iIndex = toValue<BuildingTypes>(L, 2);
+	const BuildingTypes iIndex = luaEx_to<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(iIndex);
@@ -5654,7 +5638,7 @@ int CvLuaCity::lIsBuildingSellable(lua_State* L)
 int CvLuaCity::lGetSellBuildingRefund(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingTypes iIndex = toValue<BuildingTypes>(L, 2);
+	const BuildingTypes iIndex = luaEx_to<BuildingTypes>(L, 2);
 	if(iIndex != NO_BUILDING)
 	{
 		const int iResult = pkCity->GetCityBuildings()->GetSellBuildingRefund(iIndex);
@@ -5681,7 +5665,7 @@ int CvLuaCity::lGetTotalBaseBuildingMaintenance(lua_State* L)
 int CvLuaCity::lGetBuildingGreatWork(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
 	const int iSlot = lua_tointeger(L, 3);
 	const int iResult = pkCity->GetCityBuildings()->GetBuildingGreatWork(iIndex, iSlot);
 	lua_pushinteger(L, iResult);
@@ -5692,7 +5676,7 @@ int CvLuaCity::lGetBuildingGreatWork(lua_State* L)
 int CvLuaCity::lSetBuildingGreatWork(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
 	const int iSlot = lua_tointeger(L, 3);
 	const int iGreatWorkIndex = lua_tointeger(L, 4);
 	if(iIndex != NO_BUILDINGCLASS)
@@ -5707,7 +5691,7 @@ int CvLuaCity::lIsHoldingGreatWork(lua_State* L)
 {
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
 	if(iIndex != NO_BUILDINGCLASS)
 	{
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(iIndex);
@@ -5724,7 +5708,7 @@ int CvLuaCity::lIsHoldingGreatWork(lua_State* L)
 int CvLuaCity::lGetNumGreatWorksInBuilding(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
 	const int iResult = pkCity->GetCityBuildings()->GetNumGreatWorksInBuilding(iIndex);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -6104,7 +6088,7 @@ int CvLuaCity::lHasDiplomat(lua_State* L)
 {
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
-	const PlayerTypes iPlayer = toValue<PlayerTypes>(L, 2);
+	const PlayerTypes iPlayer = luaEx_to<PlayerTypes>(L, 2);
 	if(iPlayer != NO_PLAYER && pkCity->isCapital())
 	{
 		int iSpyIndex = pkCity->GetCityEspionage()->GetSpyAssignment(iPlayer);
@@ -6118,7 +6102,7 @@ int CvLuaCity::lHasSpy(lua_State* L)
 {
 	bool bResult = false;
 	CvCity* pkCity = GetInstance(L);
-	const PlayerTypes iPlayer = toValue<PlayerTypes>(L, 2);
+	const PlayerTypes iPlayer = luaEx_to<PlayerTypes>(L, 2);
 	if(iPlayer != NO_PLAYER)
 	{
 		int iSpyIndex = pkCity->GetCityEspionage()->GetSpyAssignment(iPlayer);
@@ -7023,3 +7007,5 @@ int CvLuaCity::lGetCompetitiveSpawnUnitType(lua_State* L)
 	lua_pushinteger(L, eUnit);
 	return 1;
 }
+
+LuaTypes_DefineInstanced( CvCity, CvLuaCity );

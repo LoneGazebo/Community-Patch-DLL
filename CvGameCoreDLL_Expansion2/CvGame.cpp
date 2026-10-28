@@ -547,9 +547,9 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 				lua_State* L = pkScriptSystem->CreateLuaThread("WorldBuilderMapLoader");
 				if(L != NULL)
 				{
-					lua_cpcall(L, &WorldBuilderMapLoaderAddRandomItems, 0);
-					lua_cpcall(L, &WorldBuilderMapLoaderLoadModData, 0);
-					lua_cpcall(L, &WorldBuilderMapLoaderRunPostProcessScript, 0);
+					LuaSupport::LuaPCall(L, &WorldBuilderMapLoaderAddRandomItems);
+					LuaSupport::LuaPCall(L, &WorldBuilderMapLoaderLoadModData);
+					LuaSupport::LuaPCall(L, &WorldBuilderMapLoaderRunPostProcessScript);
 
 					pkScriptSystem->FreeLuaThread(L);
 				}

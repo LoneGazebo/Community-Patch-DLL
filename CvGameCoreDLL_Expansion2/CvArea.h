@@ -10,6 +10,8 @@
 #ifndef CIV5_AREA_H
 #define CIV5_AREA_H
 
+#include "CvStructs.h"
+
 class CvCity;
 class CvPlot;
 
@@ -161,6 +163,8 @@ protected:
 
 	bool m_bWater;
 	bool m_bMountains;
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 FDataStream& operator<<(FDataStream&, const CvArea&);

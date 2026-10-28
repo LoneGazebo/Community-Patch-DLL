@@ -10,20 +10,13 @@
 #ifndef CVLUADEAL_H
 #define CVLUADEAL_H
 
-#include "CvLuaScopedInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
+#include "CvDealClasses.h"
 
-class CvLuaDeal : public CvLuaScopedInstance<CvLuaDeal, CvDeal>
+class CvLuaDeal : public CvLuaDynamicInstance<CvLuaDeal, CvDeal>
 {
 public:
-	//! Push CvCity methods into table t
-	static void PushMethods(lua_State* L, int t);
-
-	//! Required by CvLuaScopedInstance.
-	static void HandleMissingInstance(lua_State* L);
-
-	//! Required by CvLuaScopedInstance.
-	static const char* GetTypeName();
-
+	static void CreateFunctable(lua_State* L);
 protected:
 	static int lResetIterator(lua_State* L);
 	static int lGetNextItem(lua_State* L);
@@ -181,34 +174,5 @@ protected:
 	static int lRemoveThirdPartyEmbargo(lua_State* L);
 	static int lChangeThirdPartyEmbargoDuration(lua_State* L);
 };
-
-namespace CvLuaArgs
-{
-	template<> inline const CvDeal* toValue(lua_State* L, int idx)
-	{
-		return CvLuaDeal::GetInstance(L, idx);
-	}
-	template<> inline CvDeal* toValue(lua_State* L, int idx)
-	{
-		return CvLuaDeal::GetInstance(L, idx);
-	}
-	template<> inline const CvDeal& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaDeal::GetInstance(L, idx);
-	}
-	template<> inline CvDeal& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaDeal::GetInstance(L, idx);
-	}
-
-	template<> inline void pushValue(lua_State* L, CvDeal* p)
-	{
-		CvLuaDeal::Push(L, p);
-	}
-	template<> inline void pushValue(lua_State* L, CvDeal& r)
-	{
-		CvLuaDeal::Push(L, &r);
-	}
-}
 
 #endif //CVLUADEAL_H
