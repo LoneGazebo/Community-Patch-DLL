@@ -54,6 +54,9 @@ vector<SComboMove> gMovesToAdd;
 map<int, int> gBadUnitsCount;
 SUnitIDValueContainer gEnemyDamageDealt;
 TUnitFlagLookup gSafePlotCount;
+// unit ID -> lowest danger on a plot outside a city where the unit can end the turn, or -1 without one. Only for
+// land units that can reach one of their own cities, filled once per search at the root position.
+tr1::unordered_map<int, int> gOpenPlotDanger;
 int gDefaultUnitLossThreshold;
 int gMedianUnitXP;
 int gMinHpForTactsim;
@@ -769,6 +772,9 @@ void CvTacticalAI::ProcessDominanceZones()
 				break;
 			}
 		}
+
+		//garrisons the zone searches did not use hold their city before reinforcements can pull them away
+		PlotDeferredGarrisonMoves();
 
 		//second pass: bring in reinforcements
 		for (int iI = 0; iI < GetTacticalAnalysisMap()->GetNumZones(); iI++)
@@ -1502,7 +1508,7 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			}
 		}
 
-		//note that garrisons do not need to be "recruited" into tactical AI
+		//note that garrisons are recruited into m_CurrentTurnUnits like any other unit
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 
 		// Allow valid land or naval garrisons, but don't use recon units as garrisons
@@ -1549,14 +1555,26 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				}
 			}
 
-			//note: ranged garrisons are also used in ExecuteDestroyUnit etc if they can hit a target without moving
-			//here we have more advanced logic and allow some movement if it's safe (and it's not our last stand)
-			TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2 && m_pPlayer->getNumCities() > 1 );
+			//a land garrison facing 2 or more enemies, or in a city that falls even with it inside, stays unprocessed,
+			//so the zone searches can fit it into the zone's plan; PlotDeferredGarrisonMoves takes the rest
+			if (pGarrison->getDomainType() == DOMAIN_LAND && (iEnemyCount >= 2 || TacticalAIHelpers::IsCityFallingWithGarrison(pGarrison)))
+			{
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Garrison %d in %s left to zone work, %d enemies close", pGarrison->GetID(), pCity->getNameNoSpace().c_str(), iEnemyCount);
+					LogTacticalMessage(strLogString);
+				}
+			}
+			else
+			{
+				//here we have more advanced logic and allow some movement if it's safe (and it's not our last stand)
+				TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2 && m_pPlayer->getNumCities() > 1 );
 
-			//no need to call SetProcessed() because the unit was never in currentTurnUnits
-			//do not call finishMoves() else the garrison will not heal!
-			pGarrison->PushMission(CvTypes::getMISSION_SKIP());
-			pGarrison->SetTurnProcessed(true);
+				//do not call finishMoves() else the garrison will not heal!
+				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
+				pGarrison->SetTurnProcessed(true);
+			}
 
 			//don't try to find a better garrison while under siege
 			if (pCity->isUnderSiege())
@@ -1627,6 +1645,44 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 
 		if (!bUpgraded)
 			TacticalAIHelpers::PerformOpportunityAttack(pUnit, true);
+	}
+}
+
+/// Holds the land garrisons that PlotGarrisonMoves left to the zone searches and the searches did not finish.
+/// A search that leaves a garrison without a shot has its reasons (healing, for example), so the garrison only skips its turn.
+void CvTacticalAI::PlotDeferredGarrisonMoves()
+{
+	ClearCurrentMoveUnits(AI_TACTICAL_GARRISON);
+
+	int iLoop = 0;
+	for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity; pCity = m_pPlayer->nextCity(&iLoop))
+	{
+		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+		if (!pGarrison || pGarrison->getDomainType() != DOMAIN_LAND || !pGarrison->CanGarrison() || pGarrison->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE)
+			continue;
+		if (pGarrison->AI_getUnitAIType() == UNITAI_EXPLORE || pGarrison->isDelayedDeath() || pGarrison->TurnProcessed() || pGarrison->getArmyID() != -1)
+			continue;
+
+		// the same cities as in PlotGarrisonMoves: friendly city targets need a border score (see FindTacticalTargets)
+		CvTacticalDominanceZone* pLandZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
+		CvTacticalDominanceZone* pWaterZone = GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
+		if ((pLandZone ? pLandZone->GetBorderScore(DOMAIN_LAND) : 0) + (pWaterZone ? pWaterZone->GetBorderScore(DOMAIN_SEA) : 0) <= 0)
+			continue;
+
+		// and the same frontline filter, checked last because it is the costly part
+		if (!pCity->isBorderCity() && !pCity->GetCityCitizens()->AnyPlotBlockaded() && !m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity,NO_PLAYER))
+			continue;
+
+		//do not call finishMoves() else the garrison will not heal!
+		pGarrison->PushMission(CvTypes::getMISSION_SKIP());
+		UnitProcessed(pGarrison->GetID());
+
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("Garrison %d in %s unused by zone work, holds", pGarrison->GetID(), pCity->getNameNoSpace().c_str());
+			LogTacticalMessage(strLogString);
+		}
 	}
 }
 
@@ -1935,6 +1991,10 @@ void CvTacticalAI::PlotWithdrawMoves(CvTacticalDominanceZone* pZone)
 			// Units in other dominance zones need to fend for themselves, depending on their own posture
 			CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
 			if (pUnitZone != pZone)
+				continue;
+
+			// A garrison the garrison pass left to zone work keeps holding its city, unless the city falls anyway
+			if (TacticalAIHelpers::IsHeldGarrison(pUnit) && !TacticalAIHelpers::IsCityFallingWithGarrison(pUnit))
 				continue;
 
 			// However, zones might overlap borders, so double check that we don't give up our border forts
@@ -4473,7 +4533,6 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			if (eMove == AI_TACTICAL_GOODY && pTarget->isRevealedGoody(m_pPlayer->getTeam()) && !pLoopUnit->CanClaimGoody())
 				continue;
 
-			//note that garrisons are not recruited into m_CurrentTurnUnits in the first place
 			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || !pLoopUnit->canMoveInto(*pTarget,CvUnit::MOVEFLAG_DESTINATION))
 				continue;
 
@@ -4493,6 +4552,10 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				// Do not pull units out of important citadels
 				CvPlot* pUnitPlot = pLoopUnit->plot();
 				if (TacticalAIHelpers::IsPlayerCitadel(pUnitPlot, m_pPlayer->GetID()) && pUnitPlot->IsBorderLand(m_pPlayer->GetID()) && pLoopUnit->getDomainType() == DOMAIN_LAND)
+					continue;
+
+				// nor garrisons out of cities that need them
+				if (TacticalAIHelpers::IsHeldGarrison(pLoopUnit))
 					continue;
 
 				CvCity* pTargetCity = pTarget->getPlotCity();
@@ -4520,20 +4583,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 					iExtraScore -= 50;
 
 				// Score candidate by effective city-strength contribution relative to city strength without garrison.
-				int iCityStrengthNoGarrison = pTargetCity->getStrengthValue();
-
-				CvUnit* pCurrentGarrison = pTargetCity->GetGarrisonedUnit();
-				if (pCurrentGarrison)
-					iCityStrengthNoGarrison -= (max(pCurrentGarrison->GetBaseCombatStrength(), pCurrentGarrison->GetBaseRangedCombatStrength()) * 10000) /
-						max(1, pCurrentGarrison->getDomainType() == DOMAIN_LAND ? GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
-
-				iCityStrengthNoGarrison = max(1, iCityStrengthNoGarrison);
-
-				const int iCandidateRawStrength = max(pLoopUnit->GetBaseCombatStrength(), pLoopUnit->GetBaseRangedCombatStrength());
-				const int iCandidateDivisor = (pLoopUnit->getDomainType() == DOMAIN_LAND) ? GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR);
-				const int iCandidateContributionTimes100 = (iCandidateRawStrength * 10000) / max(1, iCandidateDivisor);
-
-				iExtraScore += (120 * iCandidateContributionTimes100) / iCityStrengthNoGarrison;
+				iExtraScore += TacticalAIHelpers::GetGarrisonStrengthScore(pLoopUnit, pTargetCity);
 
 				// Naval garrisons cannot attack, so they're much worse
 				if (pLoopUnit->getDomainType() == DOMAIN_SEA && MOD_CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES && !pLoopUnit->isNativeDomain(pTarget))
@@ -4638,8 +4688,8 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 		if (pLoopUnit->IsCoveringFriendlyCivilian())
 			continue;
 
-		//note that garrisoned units are *not* recruited into m_CurrentTurnUnits!
-		//also note that units in citadels are recruited, but the combat sim knows about their importance
+		//garrisons are recruited too, but the garrison pass processes them unless the city is under real threat
+		//note that units in cities and citadels are recruited, but the combat sim knows about their importance
 
 		bool bCanReach = false;
 		if ( pLoopUnit->IsCanAttackRanged() )
@@ -5924,7 +5974,9 @@ pair<CvPlot*, int> TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit,
 
 	//special behavior for cities and citadels - don't run even if there is a "safe" plot somewhere else
 	CvPlot* pCurrentPlot = pUnit->plot();
-	bool bIsInCityOrCitadelNow = (pCurrentPlot->isFriendlyCity(*pUnit) && !pCurrentPlot->getPlotCity()->isInDangerOfFalling()) || 
+	//nor stay in a city that takes lethal damage and can be captured, even with this unit inside
+	bool bIsInCityOrCitadelNow = (pCurrentPlot->isFriendlyCity(*pUnit) && !pCurrentPlot->getPlotCity()->isInDangerOfFalling() &&
+									!(pUnit->GetDanger(pCurrentPlot) == INT_MAX && CanEnemyCaptureCity(pUnit->getOwner(), pCurrentPlot, SUnitIDValueContainer()))) ||
 								(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pCurrentPlot, pUnit->getOwner()) && pUnit->getDomainType() == DOMAIN_LAND);
 	if (bIsInCityOrCitadelNow && !pUnit->isProjectedToDieNextTurn() && pUnit->canEndTurnAtPlot(pCurrentPlot))
 		if (pUnit->AI_getUnitAIType()!=UNITAI_CITY_BOMBARD || pUnit->GetDanger(pCurrentPlot)<pUnit->GetCurrHitPoints())
@@ -5976,7 +6028,9 @@ pair<CvPlot*, int> TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit,
 		bool bIsZeroDanger = (iDanger <= 0);
 		bool bIsInTerritory = (pPlot->getTeam() == kPlayer.getTeam());
 		// citadels have low danger but not zero. so we need to make sure we're not abandoning them too easily
-		bool bIsInCityOrCitadel = (pPlot->isFriendlyCity(*pUnit) && !pPlot->getPlotCity()->isInDangerOfFalling()) ||
+		//a city that takes lethal damage and can be captured, even with this unit inside, is no shelter
+		bool bIsInCityOrCitadel = (pPlot->isFriendlyCity(*pUnit) && !pPlot->getPlotCity()->isInDangerOfFalling() &&
+			!(iDanger == INT_MAX && CanEnemyCaptureCity(pUnit->getOwner(), pPlot, SUnitIDValueContainer()))) ||
 			(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pPlot, pUnit->getOwner()) && pUnit->getDomainType() == DOMAIN_LAND);
 
 		//civilians and embarked units want cover
@@ -6105,6 +6159,61 @@ pair<CvPlot*, int> TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit,
 		return aDangerList.back().option;
 
 	return make_pair(static_cast<CvPlot*>(NULL), 0);
+}
+
+/// Whether a known enemy that can attack the city on this plot next turn could also take it: a melee unit that
+/// captures, and that the given damage does not kill. Ranged and air units can only bring the city down to zero.
+bool TacticalAIHelpers::CanEnemyCaptureCity(PlayerTypes ePlayer, const CvPlot* pCityPlot, const SUnitIDValueContainer& unitDamageDealt)
+{
+	vector<CvUnit*> vAttackers = GET_PLAYER(ePlayer).GetPossibleAttackers(*pCityPlot, NO_TEAM);
+	for (size_t i = 0; i < vAttackers.size(); i++)
+	{
+		CvUnit* pAttacker = vAttackers[i];
+		if (pAttacker->IsCombatUnit() && !pAttacker->IsCanAttackRanged() && !pAttacker->isNoCapture() &&
+			unitDamageDealt.GetValue(pAttacker->GetID()) < pAttacker->GetCurrHitPoints())
+			return true;
+	}
+	return false;
+}
+
+/// Whether a land unit in its owner's city stands in a city that falls even with it inside
+bool TacticalAIHelpers::IsCityFallingWithGarrison(const CvUnit* pUnit)
+{
+	if (!pUnit || pUnit->getDomainType() != DOMAIN_LAND || !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner())
+		return false;
+
+	//in a friendly city the danger is the unit's share of the city's damage, or INT_MAX when the city takes lethal damage anyway;
+	//it only falls if an enemy can also capture it
+	return pUnit->GetDanger() == INT_MAX && CanEnemyCaptureCity(pUnit->getOwner(), pUnit->plot(), SUnitIDValueContainer());
+}
+
+/// Whether a land unit is the garrison of one of its owner's cities that needs a garrison
+bool TacticalAIHelpers::IsHeldGarrison(const CvUnit* pUnit)
+{
+	if (!pUnit || pUnit->getDomainType() != DOMAIN_LAND)
+		return false;
+
+	CvCity* pCity = pUnit->plot()->getPlotCity();
+	return pCity && pCity->getOwner() == pUnit->getOwner() && pCity->GetGarrisonedUnit() == pUnit && pCity->NeedsGarrison();
+}
+
+/// What a unit adds to a city's strength as its garrison, relative to the city's strength without a garrison
+int TacticalAIHelpers::GetGarrisonStrengthScore(const CvUnit* pUnit, const CvCity* pCity)
+{
+	int iCityStrengthNoGarrison = pCity->getStrengthValue();
+
+	CvUnit* pCurrentGarrison = pCity->GetGarrisonedUnit();
+	if (pCurrentGarrison)
+		iCityStrengthNoGarrison -= (max(pCurrentGarrison->GetBaseCombatStrength(), pCurrentGarrison->GetBaseRangedCombatStrength()) * 10000) /
+			max(1, pCurrentGarrison->getDomainType() == DOMAIN_LAND ? GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR));
+
+	iCityStrengthNoGarrison = max(1, iCityStrengthNoGarrison);
+
+	const int iCandidateRawStrength = max(pUnit->GetBaseCombatStrength(), pUnit->GetBaseRangedCombatStrength());
+	const int iCandidateDivisor = (pUnit->getDomainType() == DOMAIN_LAND) ? GD_INT_GET(CITY_STRENGTH_LAND_UNIT_DIVISOR) : GD_INT_GET(CITY_STRENGTH_NAVAL_UNIT_DIVISOR);
+	const int iCandidateContributionTimes100 = (iCandidateRawStrength * 10000) / max(1, iCandidateDivisor);
+
+	return (120 * iCandidateContributionTimes100) / iCityStrengthNoGarrison;
 }
 
 void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
@@ -7880,12 +7989,40 @@ bool isKillAssignment(eUnitAssignmentType eAssignmentType)
 		eAssignmentType == A_RANGEKILL;
 }
 
+// the turn end danger penalty before its adjustments: danger relative to current hit points, flattened above 225
+static int ScaleTurnEndDanger(int iDanger, int iCurrHitPoints)
+{
+	//make it relative to current hitpoints
+	int iScaledDanger = (iDanger * /*100*/ GD_INT_GET(COMBAT_AI_OFFENSE_DANGERWEIGHT)) / max(1, iCurrHitPoints);
+
+	//danger values can get very high if there are many enemy units around, so try to normalize this a bit
+	//this maps 225 to 225, higher values get flattened
+	if (iScaledDanger > 225)
+		iScaledDanger = 15 * sqrti(iScaledDanger);
+
+	return iScaledDanger;
+}
+
+// whether a land unit on a plot of its own team's city would see the city fall even with it inside. The city then
+// takes lethal damage, and an enemy the search has not killed can capture it. Lethal damage makes the danger INT_MAX, which
+// GetUnitDangerForPlot maps to 10 times max hit points; a survivable share of city damage stays far below.
+static bool IsCityFallingInSearch(const CvUnit* pUnit, const CvPlot* pPlot, int iSelfDamage, const CvTacticalPosition& assumedPosition)
+{
+	if (pUnit->getDomainType() != DOMAIN_LAND || !pPlot->isCity() || pPlot->getTeam() != pUnit->getTeam())
+		return false;
+
+	return GetUnitDangerForPlot(pUnit, pPlot, iSelfDamage, assumedPosition) >= 10 * pUnit->GetMaxHitPoints() &&
+		TacticalAIHelpers::CanEnemyCaptureCity(pUnit->getOwner(), pPlot, assumedPosition.GetUnitDamageDealt());
+}
+
 int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const CvTacticalPlot* testPlot, int iDanger,
 							CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage,
 							const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode, bool bRelaxedCheck, bool bOnlyCheckImpossible)
 {
 	int iResult = 0;
 	const CvPlot* pTestPlot = testPlot->getPlot();
+	//the danger before cover, for the danger a city spares the unit
+	const int iPlotDanger = iDanger;
 
 	//the danger value reflects any defensive terrain bonuses
 	//but unfortunately danger is not very useful here
@@ -7895,6 +8032,9 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 	if (bRelaxedCheck) //assume we have friends which might catch up to us later
 		iNumAdjFriendlies++;
 	bool bIsFrontlineCitadelOrCity = (TacticalAIHelpers::IsPlayerCitadel(pTestPlot, assumedPosition.getPlayer()) || pTestPlot->isCity()) && pUnit->getDomainType() == DOMAIN_LAND && testPlot->getEnemyDistance() < 3;
+	//a city that falls even with this unit inside gets neither the bonus nor the exemptions
+	if (bIsFrontlineCitadelOrCity && IsCityFallingInSearch(pUnit, pTestPlot, iSelfDamage, assumedPosition))
+		bIsFrontlineCitadelOrCity = false;
 
 	//don't do it if it's a death trap (unless there is no other choice ...)
 	int iNumAdjEnemies = testPlot->getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH);
@@ -7949,13 +8089,7 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 
 		if (!bOnlyCheckImpossible)
 		{
-			//make it relative to current hitpoints
-			int iScaledDanger = (iDanger * /*100*/ GD_INT_GET(COMBAT_AI_OFFENSE_DANGERWEIGHT)) / max(1, iCurrHitPoints);
-
-			//danger values can get very high if there are many enemy units around, so try to normalize this a bit
-			//this maps 225 to 225, higher values get flattened
-			if (iScaledDanger > 225)
-				iScaledDanger = 15 * sqrti(iScaledDanger);
+			int iScaledDanger = ScaleTurnEndDanger(iDanger, iCurrHitPoints);
 
 			//try to be more careful with highly promoted units
 			iScaledDanger += (pUnit->getExperienceTimes100() - GET_PLAYER(assumedPosition.getPlayer()).GetAvgUnitExp100()) / 200;
@@ -7996,10 +8130,20 @@ int ScoreCombatUnitTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignm
 	//also occupy our own citadels
 	if (bIsFrontlineCitadelOrCity)
 	{
-		if (pUnit->GetRange() > 1 || testPlot->getNumAdjacentFriendlies(CvTacticalPlot::TD_LAND, -1)==0 || testPlot->getNumAdjacentEnemies(CvTacticalPlot::TD_LAND)>0)
-			iResult += TACTICAL_COMBAT_CITADEL_BONUS;
-		else
-			iResult += TACTICAL_COMBAT_CITADEL_BONUS/2;
+		int iHoldBonus = TACTICAL_COMBAT_CITADEL_BONUS;
+		if (pUnit->GetRange() <= 1 && testPlot->getNumAdjacentFriendlies(CvTacticalPlot::TD_LAND, -1) > 0 && testPlot->getNumAdjacentEnemies(CvTacticalPlot::TD_LAND) == 0)
+			iHoldBonus = TACTICAL_COMBAT_CITADEL_BONUS/2;
+
+		//in our own city the bonus also counts what the unit adds to the city's strength,
+		//and the danger the city spares it compared with its safest plot outside a city
+		if (pTestPlot->isCity() && pTestPlot->getTeam() == pUnit->getTeam())
+		{
+			iHoldBonus += TacticalAIHelpers::GetGarrisonStrengthScore(pUnit, pTestPlot->getPlotCity());
+			tr1::unordered_map<int, int>::const_iterator itOpenDanger = gOpenPlotDanger.find(pUnit->GetID());
+			if (itOpenDanger != gOpenPlotDanger.end() && itOpenDanger->second >= 0)
+				iHoldBonus += max(0, ScaleTurnEndDanger(itOpenDanger->second, iCurrHitPoints) - ScaleTurnEndDanger(iPlotDanger, iCurrHitPoints));
+		}
+		iResult += iHoldBonus;
 	}
 
 	//try not to be a sitting duck (faster than isNativeDomain but not entirely accurate)
@@ -8257,6 +8401,9 @@ static STacticalAssignment* ScorePlotForCombatUnitMove(const SUnitStats& unit, c
 		//but we want our units to take turns soaking damage, so we have to incentivise moving in.
 		//bonus should be larger than 60 to override the difference between firstline/secondline base score.
 		bool bIsFrontlineCitadelOrCity = (TacticalAIHelpers::IsPlayerCitadel(pTestPlot, assumedPosition.getPlayer()) || pTestPlot->isCity()) && pUnit->getDomainType() == DOMAIN_LAND && testPlot->getEnemyDistance() < 3;
+		//but not into a city that falls even with this unit inside
+		if (bIsFrontlineCitadelOrCity && IsCityFallingInSearch(pUnit, pTestPlot, unit.iSelfDamage + iSelfDamage, assumedPosition))
+			bIsFrontlineCitadelOrCity = false;
 		if (bIsFrontlineCitadelOrCity)
 		{
 			if (pUnit->GetRange()>1 || testPlot->getNumAdjacentFriendlies(CvTacticalPlot::TD_LAND, unit.iPlotIndex) == 0 || testPlot->getNumAdjacentEnemies(CvTacticalPlot::TD_LAND) > 0)
@@ -10258,6 +10405,37 @@ void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment
 	}
 }
 
+// records in gOpenPlotDanger, once per search, the lowest danger a land unit can end its turn with outside a city,
+// when it can also reach one of its own cities. The hold bonus credits that city with the danger it spares the unit.
+static void UpdateOpenPlotDanger(const CvUnit* pUnit, const ReachablePlots& reachablePlots, const SUnitIDValueContainer& unitDamageDealt)
+{
+	if (pUnit->getDomainType() != DOMAIN_LAND || gOpenPlotDanger.find(pUnit->GetID()) != gOpenPlotDanger.end())
+		return;
+
+	bool bReachesOwnCity = false;
+	for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end() && !bReachesOwnCity; ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		bReachesOwnCity = pPlot->isCity() && pPlot->getTeam() == pUnit->getTeam();
+	}
+	if (!bReachesOwnCity)
+		return;
+
+	int iLowestDanger = -1;
+	for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+		if (pPlot->isCity() || pPlot->needsEmbarkation(pUnit) || !pUnit->canEndTurnAtPlot(pPlot))
+			continue;
+
+		//same clamp as GetUnitDangerForPlot
+		int iDanger = min(GET_PLAYER(pUnit->getOwner()).GetPlotDanger(*pPlot, pUnit, unitDamageDealt, 0), 10 * pUnit->GetMaxHitPoints());
+		if (iLowestDanger < 0 || iDanger < iLowestDanger)
+			iLowestDanger = iDanger;
+	}
+	gOpenPlotDanger[pUnit->GetID()] = iLowestDanger;
+}
+
 void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 {
 	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(unit.iUnitID);
@@ -10280,6 +10458,10 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 		//need to know this if we're doing defensive positioning
 		bool bTargetIsEnemy = pTargetPlot->isEnemyUnit(ePlayer, true, true) || pTargetPlot->isEnemyCity(*pUnit);
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+
+		//the danger outside a city, for the hold bonus
+		if (!parentPosition)
+			UpdateOpenPlotDanger(pUnit, reachablePlots, GetUnitDamageDealt());
 
 		//try to save some memory here
 		ReachablePlots reachablePlotsPruned;
@@ -12250,6 +12432,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	gReachablePlotsLookup.clear();
 	gRangeAttackPlotsLookup.clear();
 	gSafePlotCount.clear();
+	gOpenPlotDanger.clear();
 	gBadUnitsCount.clear();
 	unuseableUnits.clear();
 
