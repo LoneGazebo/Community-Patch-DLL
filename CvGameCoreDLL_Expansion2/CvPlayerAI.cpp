@@ -333,6 +333,8 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 	}
 
 	// What is our happiness situation?
+	// Recalculate it first: it was last calculated before the city was made occupied and put into resistance, so it doesn't count the city's unhappiness yet.
+	CalculateNetHappiness();
 	bool bUnhappy = false;
 
 	if (MOD_BALANCE_VP)
@@ -393,6 +395,13 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		if (!bCanAnnex)
 		{
 			pCity->DoCreatePuppet();
+			return;
+		}
+
+		// No occupation unhappiness (e.g. a courthouse granted by a trait or policy)? Annex it; puppeting would remove that courthouse.
+		if (pCity->IsNoOccupiedUnhappiness())
+		{
+			pCity->DoAnnex();
 			return;
 		}
 
@@ -483,10 +492,15 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		}
 
 		// Insufficient value or too unhappy? Burn, baby, burn!
+		// (A city of some value only gets here because we're unhappy. If it's developed, puppet it instead, unless revolt is close.)
 		if (bCanRaze)
 		{
-			pCity->doTask(TASK_RAZE);
-			return;
+			CvCity* pRevoltCity = MOD_BALANCE_VP && IsEmpireVeryUnhappy() ? GetMostUnhappyCity() : NULL;
+			if (iCityValue < /*40*/ GD_INT_GET(AI_CITY_SOME_VALUE_THRESHOLD) || !AI_isTooDevelopedToRaze(pCity, pRevoltCity))
+			{
+				pCity->doTask(TASK_RAZE);
+				return;
+			}
 		}
 	}
 
@@ -875,6 +889,7 @@ void CvPlayerAI::AI_considerRaze()
 	vector<CvCity*> EndangeredCities;
 	vector<CvCity*> ValidCities;
 	vector<PlayerTypes> vPlayersAtWarWith = GetPlayersAtWarWith();
+	CvCity* pRevoltCity = MOD_BALANCE_VP ? GetMostUnhappyCity() : NULL;
 	int iLoop = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
@@ -898,6 +913,12 @@ void CvPlayerAI::AI_considerRaze()
 		// City is in danger of being captured? Raze with higher priority to deny our opponents the ability to capture it.
 		if (pLoopCity->IsInDangerFromPlayers(vPlayersAtWarWith))
 			EndangeredCities.push_back(pLoopCity);
+		// Developed city? Keep it unless revolt is close, and invest in its courthouse to end its occupation unhappiness sooner.
+		else if (AI_isTooDevelopedToRaze(pLoopCity, pRevoltCity))
+		{
+			AI_buyCourthouse(pLoopCity);
+			continue;
+		}
 
 		ValidCities.push_back(pLoopCity);
 	}
@@ -1090,6 +1111,41 @@ int CvPlayerAI::AI_computeHappinessFromRazing(CvCity* pCity, int iCurrentHappy, 
 	}
 
 	return iFutureHappiness - iCurrentHappiness;
+}
+
+/// Should we keep this developed city rather than burn it down for unhappiness?
+/// A city being razed keeps counting its remaining population as unhappiness, so razing relieves us by only one citizen per turn, and the city is lost.
+/// Not if revolt is close, though: when super unhappy, or when it is the city that would revolt (pRevoltCity, from GetMostUnhappyCity()).
+bool CvPlayerAI::AI_isTooDevelopedToRaze(const CvCity* pCity, const CvCity* pRevoltCity) const
+{
+	if (!MOD_BALANCE_VP || IsEmpireSuperUnhappy() || pCity == pRevoltCity)
+		return false;
+
+	int iMinPopulation = /*6*/ GD_INT_GET(AI_CITY_NO_RAZE_POPULATION_THRESHOLD);
+	return iMinPopulation > 0 && pCity->getPopulation() >= iMinPopulation;
+}
+
+/// Invest gold in the courthouse of an occupied city to end its occupation unhappiness sooner
+void CvPlayerAI::AI_buyCourthouse(CvCity* pCity)
+{
+	if (!pCity->IsOccupied() || pCity->IsNoOccupiedUnhappiness() || pCity->IsResistance())
+		return;
+
+	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (!pkBuildingInfo || !pkBuildingInfo->IsNoOccupiedUnhappiness() || !pCity->canConstruct(eBuilding))
+			continue;
+
+		if (pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, eBuilding, NO_PROJECT, YIELD_GOLD))
+		{
+			int iGoldCost = pCity->GetPurchaseCost(eBuilding);
+			if (GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
+				pCity->PurchaseBuilding(eBuilding, YIELD_GOLD);
+		}
+		return;
+	}
 }
 
 void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
