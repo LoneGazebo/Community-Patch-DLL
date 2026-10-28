@@ -880,24 +880,47 @@ const CvExplorationPlotSet& CvEconomicAI::GetExplorationPlots(ExplorationDomainT
 	}
 }
 
+// Reports whether the unit includes this domain in its exploration set.
+bool EconomicAIHelpers::CanExploreDomain(const CvUnit* pUnit, ExplorationDomainTypes ePlotType)
+{
+	switch (ePlotType)
+	{
+	case EXPLORATION_LAND:
+		return pUnit->getDomainType() == DOMAIN_LAND;
+	case EXPLORATION_COAST:
+		return pUnit->getDomainType() != DOMAIN_LAND || pUnit->IsHasEmbarkAbility();
+	case EXPLORATION_OCEAN:
+		return pUnit->CanStayInOcean();
+	default:
+		return false;
+	}
+}
+
+// Combines eligible domains with land-first insertion precedence.
 const CvExplorationPlotSet CvEconomicAI::GetExplorationPlots(const CvUnit* pUnit)
 {
 	CvExplorationPlotSet ret;
 
-	DomainTypes eDomain = pUnit->getDomainType();
-
-	if (eDomain == DOMAIN_LAND)
+	if (EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_LAND))
 		ret.append(m_vPlotsToExploreLand);
 
-	if (eDomain != DOMAIN_LAND || pUnit->IsHasEmbarkAbility())
+	if (EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_COAST))
 		ret.append(m_vPlotsToExploreCoast);
 
-	if (pUnit->CanStayInOcean())
+	if (EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_OCEAN))
 	{
 		ret.append(m_vPlotsToExploreOcean);
 	}
 
 	return ret;
+}
+
+// Checks the same eligible domains without allocating merged map entries.
+bool CvEconomicAI::HasExplorationPlots(const CvUnit* pUnit)
+{
+	return (EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_LAND) && !m_vPlotsToExploreLand.empty()) ||
+		(EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_COAST) && !m_vPlotsToExploreCoast.empty()) ||
+		(EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_OCEAN) && !m_vPlotsToExploreOcean.empty());
 }
 
 void CvEconomicAI::SetExplorersNeeded(int iValue)
@@ -4442,7 +4465,8 @@ void CvEconomicAI::UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, co
 
 	for (int iRange = 1; iRange <= 3; iRange++)
 	{
-		const std::vector<CvPlot*> pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, false, true);
+		// This reference is valid only until the next GetPlotsAtRangeX query, so consume it before the loop advances.
+		const std::vector<CvPlot*>& pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, false, true);
 		for (std::vector<CvPlot*>::const_iterator it = pPlotsToCheck.begin(); it != pPlotsToCheck.end(); ++it)
 		{
 			pNearbyPlot = *it;
@@ -4466,13 +4490,13 @@ void CvEconomicAI::UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, co
 void CvEconomicAI::InitiateExplorePlot(const CvPlot* pPlot)
 {
 	CvPlot* pNearbyPlot;
-	std::vector<CvPlot*> pPlotsToCheck;
 
 	int iPlotIndex = pPlot->GetPlotIndex();
 
 	for (int iRange = 1; iRange <= 3; iRange++)
 	{
-		pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, true, true);
+		// This reference is valid only until the next GetPlotsAtRangeX query, so consume it before the loop advances.
+		const std::vector<CvPlot*>& pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, true, true);
 		for (std::vector<CvPlot*>::const_iterator it = pPlotsToCheck.begin(); it != pPlotsToCheck.end(); ++it)
 		{
 			pNearbyPlot = *it;
