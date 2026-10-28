@@ -8389,7 +8389,10 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
 				owningPlayer.changeImprovementCount(eOldImprovement, -1, eOldBuilder == owningPlayerID);
-				pOwningCity->ChangeImprovementCount(eOldImprovement, -1);
+				// An owned plot can have no owning city: Lua SetOwner or SetCityPurchaseID with no city, or a plot claimed for a builder without cities.
+				// Its improvement is then in no city's count; setOwningCity() adds it once the plot gets a city.
+				if (pOwningCity)
+					pOwningCity->ChangeImprovementCount(eOldImprovement, -1);
 
 				// Siphon resource changes
 				if (oldImprovementEntry.GetLuxuryCopiesSiphonedFromMinor() > 0 && eOldBuilder != NO_PLAYER)
@@ -8837,7 +8840,9 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			{
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
 				owningPlayer.changeImprovementCount(eNewValue, 1, eBuilder == owningPlayerID);
-				pOwningCity->ChangeImprovementCount(eNewValue, 1);
+				// no owning city: see above
+				if (pOwningCity)
+					pOwningCity->ChangeImprovementCount(eNewValue, 1);
 
 				//DLC_04 Achievement
 				if (MOD_ENABLE_ACHIEVEMENTS)
