@@ -2317,17 +2317,29 @@ static const char* PrepareCrashLogDir(const wchar_t* wszValue, char* szDir, size
 	}
 
 	// Prove the crash handler will be able to write there, through the same
-	// ANSI path it will use.
-	char szProbe[MAX_PATH];
-	_snprintf_s(szProbe, _countof(szProbe), _TRUNCATE, "%s\\CvCrashLogDirTest.tmp", szDir);
-	HANDLE hProbe = CreateFileA(szProbe, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE, NULL);
-	if (hProbe == INVALID_HANDLE_VALUE)
+	// ANSI path it will use. The probe file gets a name of its own (process id,
+	// tick count, attempt) and CREATE_NEW, so it never truncates or deletes an
+	// existing file, and two games starting with the same folder don't collide.
+	// A name that is taken moves on to the next one; any other error means the
+	// folder is not writable.
+	const DWORD dwProcessId = GetCurrentProcessId();
+	const DWORD dwTick = GetTickCount();
+	for (int iAttempt = 0; iAttempt < 8; ++iAttempt)
 	{
+		char szProbe[MAX_PATH];
+		_snprintf_s(szProbe, _countof(szProbe), _TRUNCATE, "%s\\CvCrashLogDirTest_%lu_%lu_%d.tmp", szDir, dwProcessId, dwTick, iAttempt);
+		HANDLE hProbe = CreateFileA(szProbe, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE, NULL);
+		if (hProbe != INVALID_HANDLE_VALUE)
+		{
+			CloseHandle(hProbe);
+			dwError = 0;
+			return NULL;
+		}
 		dwError = GetLastError();
-		return "folder is not writable";
+		if (dwError != ERROR_FILE_EXISTS && dwError != ERROR_ALREADY_EXISTS && dwError != ERROR_SHARING_VIOLATION)
+			break;
 	}
-	CloseHandle(hProbe);
-	return NULL;
+	return "folder is not writable";
 }
 
 // Optional override of the crash log folder, read once at init:
