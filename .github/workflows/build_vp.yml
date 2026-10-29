@@ -120,7 +120,7 @@ jobs:
 
       - name: Set up VC9 SP1 (v90)
         id: vc9
-        uses: JohnsterID/vc9-toolset@15fff9d1a87bb9a79a1db28c6dd23bfe1b35b59b # github-action branch, until v1 is tagged
+        uses: JohnsterID/vc9-toolset@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
 
       - name: Clang version check
         run: clang --version
@@ -141,7 +141,7 @@ jobs:
 
       - name: Analyze Clang build warnings and errors
         if: always()
-        uses: JohnsterID/vc9-toolset/analyze-build-log@15fff9d1a87bb9a79a1db28c6dd23bfe1b35b59b # github-action branch, until v1 is tagged
+        uses: JohnsterID/vc9-toolset/analyze-build-log@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
         with:
           logs: |
             Clang Debug=clang-output/Debug/build.log
@@ -183,7 +183,7 @@ jobs:
 
       - name: Set up VC9 SP1 (v90)
         id: vc9
-        uses: JohnsterID/vc9-toolset@15fff9d1a87bb9a79a1db28c6dd23bfe1b35b59b # github-action branch, until v1 is tagged
+        uses: JohnsterID/vc9-toolset@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
 
       # The action's v90 toolset files set the VC9 and SDK 7.0 paths, so no vcvars32.bat
       - name: Build msvc debug
@@ -194,7 +194,7 @@ jobs:
 
       - name: Analyze build warnings and errors
         if: always()
-        uses: JohnsterID/vc9-toolset/analyze-build-log@15fff9d1a87bb9a79a1db28c6dd23bfe1b35b59b # github-action branch, until v1 is tagged
+        uses: JohnsterID/vc9-toolset/analyze-build-log@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
         with:
           logs: |
             MSVC Debug=msvc_debug_msbuild.log
