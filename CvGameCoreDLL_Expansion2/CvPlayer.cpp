@@ -47132,6 +47132,9 @@ void CvPlayer::UpdateAreaEffectUnits()
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
+		// The vector was just cleared, so the unit's old index is stale (it is also restored from savegames)
+		// Without this, a unit that lost its effect since its last update would remove a wrong entry, or read past the end
+		pLoopUnit->SetAreaEffectCacheIndex(-1);
 		pLoopUnit->UpdateAreaEffect(false);
 	}
 
