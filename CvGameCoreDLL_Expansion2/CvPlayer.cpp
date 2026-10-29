@@ -26257,11 +26257,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BORDERS:
 				{
-					int iScaleValue = pLoopCity->GetYieldFromBorderGrowth(eYield) + getYieldFromBorderGrowth(eYield) + GetPlayerTraits()->GetYieldFromTileEarn(eYield);
+					int iScaleValue = pLoopCity->GetYieldFromBorderGrowth(eYield) + GetPlayerTraits()->GetYieldFromTileEarn(eYield);
 
 					iScaleValue *= iEra;
 
 					iValue += iScaleValue;
+
+					// Policy yields from border growth don't scale with Era
+					iValue += getYieldFromBorderGrowth(eYield);
 
 					if(pReligion)
 					{
