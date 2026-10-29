@@ -1798,6 +1798,9 @@ public:
 	int getUpgradeDiscount() const;
 	void changeUpgradeDiscount(int iChange);
 
+	bool isGlobalUpgrade() const;
+	void setGlobalUpgrade(bool bNewValue);
+
 	int getExperiencePercent() const;
 	void changeExperiencePercent(int iChange);
 
@@ -2623,6 +2626,7 @@ protected:
 	int m_iWorkRateMod;
 	int m_iDamageReductionCityAssault;
 	int m_iGoodyHutYieldBonus;
+	bool m_bGlobalUpgrade;
 	int m_iReligiousPressureModifier;
 	int m_iNumExoticGoods;
 	bool m_bPromotionReady;
@@ -3065,6 +3069,7 @@ SYNC_ARCHIVE_VAR(int, m_iDamageAoEFortified)
 SYNC_ARCHIVE_VAR(int, m_iWorkRateMod)
 SYNC_ARCHIVE_VAR(int, m_iDamageReductionCityAssault)
 SYNC_ARCHIVE_VAR(int, m_iGoodyHutYieldBonus)
+SYNC_ARCHIVE_VAR(bool, m_bGlobalUpgrade)
 SYNC_ARCHIVE_VAR(int, m_iReligiousPressureModifier)
 SYNC_ARCHIVE_VAR(int, m_iNumExoticGoods)
 SYNC_ARCHIVE_VAR(bool, m_bPromotionReady)
