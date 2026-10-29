@@ -623,14 +623,12 @@ INSERT INTO Helper
 	(TerrainType, YieldType)
 VALUES
 	('TERRAIN_DESERT', 'YIELD_FOOD'),
-	('TERRAIN_DESERT', 'YIELD_GOLD'),
-	('TERRAIN_TUNDRA', 'YIELD_FOOD'),
-	('TERRAIN_TUNDRA', 'YIELD_GOLD');
+	('TERRAIN_TUNDRA', 'YIELD_FOOD');
 
-INSERT INTO Building_YieldPerXTerrainTimes100
+INSERT INTO Building_TerrainYieldChanges
 	(BuildingType, TerrainType, YieldType, Yield)
 SELECT
-	a.Type, b.TerrainType, b.YieldType, 50
+	a.Type, b.TerrainType, b.YieldType, 1
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_CARAVANSARY';
 
