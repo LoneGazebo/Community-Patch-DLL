@@ -12268,7 +12268,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//the initial position absorbs all the tactical plots (up to the hard cap)
 	//in the passes below; reserve up front so the setup never reallocates.
 	//under address-space exhaustion the reallocation copy is exactly what
-	//fails (see issue #13254). child positions copy exact-size and stay lean.
+	//fails (see issue #13254). child positions inherit the same capacity.
 	initialPosition->reservePlotStorage();
 
 	//first pass: make sure there are no duplicates and other invalid inputs
