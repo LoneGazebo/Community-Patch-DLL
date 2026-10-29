@@ -2446,28 +2446,28 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				}
 				else
 				{
-					if ((IsAllowsOpenBordersToTeam(eTeam) && GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID())) || GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) <= 0)
+					int iDisengagementTurns = /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					if ((IsAllowsOpenBordersToTeam(eTeam) && GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID())) || iDisengagementTurns <= 0)
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_NO_DISENGAGEMENT");
 						locString << strTheirTeamName.GetCString();
 					}
-					else if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
-					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
-						locString << strTheirTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
-					}
-					else if (IsAllowsOpenBordersToTeam(eTeam))
-					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
-						locString << strTheirTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
-					}
 					else
 					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
+						}
+						else if (IsAllowsOpenBordersToTeam(eTeam))
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
+						}
+						else
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						}
 						locString << strTheirTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << iDisengagementTurns;
 					}
 					locString << strFirstPlayerAllyInformation;
 					locString << strSecondPlayerAllyInformation;
@@ -2489,28 +2489,28 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				}
 				else
 				{
-					if ((GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()) && IsAllowsOpenBordersToTeam(eTeam)) || GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) <= 0)
+					int iDisengagementTurns = /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					if ((GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()) && IsAllowsOpenBordersToTeam(eTeam)) || iDisengagementTurns <= 0)
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_NO_DISENGAGEMENT");
 						locString << strOurTeamName.GetCString();
 					}
-					else if (IsAllowsOpenBordersToTeam(eTeam))
-					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
-						locString << strOurTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
-					}
-					else if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
-					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
-						locString << strOurTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
-					}
 					else
 					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						if (IsAllowsOpenBordersToTeam(eTeam))
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
+						}
+						else if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
+						}
+						else
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						}
 						locString << strOurTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << iDisengagementTurns;
 					}
 					locString << strFirstPlayerAllyInformation;
 					locString << strSecondPlayerAllyInformation;

@@ -3030,7 +3030,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 	}
 	else
 	{
-		return 0;	
+		return 0;
 	}
 
 	return 0;

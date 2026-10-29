@@ -620,15 +620,15 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CARAVANSARY';
 
 INSERT INTO Helper
-	(TerrainType, YieldType)
+	(TerrainType)
 VALUES
-	('TERRAIN_DESERT', 'YIELD_FOOD'),
-	('TERRAIN_TUNDRA', 'YIELD_FOOD');
+	('TERRAIN_DESERT'),
+	('TERRAIN_TUNDRA');
 
 INSERT INTO Building_TerrainYieldChanges
 	(BuildingType, TerrainType, YieldType, Yield)
 SELECT
-	a.Type, b.TerrainType, b.YieldType, 1
+	a.Type, b.TerrainType, 'YIELD_FOOD', 1
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_CARAVANSARY';
 
@@ -1017,7 +1017,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_SPACESHIP_FACTORY';
 
 -- Lighthouse
 UPDATE Buildings
-SET 
+SET
 	AllowsWaterRoutes = 1,
 	CitySupplyFlat = 1
 WHERE BuildingClass = 'BUILDINGCLASS_LIGHTHOUSE';
@@ -2160,7 +2160,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 
 -- Heroic Epic
 UPDATE Buildings
-SET 	CitySupplyFlat = 3
+SET CitySupplyFlat = 3
 WHERE BuildingClass = 'BUILDINGCLASS_HEROIC_EPIC';
 
 INSERT INTO Building_YieldChanges
