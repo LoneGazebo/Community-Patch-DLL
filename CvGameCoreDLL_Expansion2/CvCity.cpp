@@ -33333,9 +33333,9 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	if (bIncludeRand)
 	{
 		if (pAttacker)
-			return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
-		else
 			return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()).mix(pAttacker->GetID()));
+		else
+			return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
 	}
 	else
 		return iBaseValue;
