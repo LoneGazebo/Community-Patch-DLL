@@ -3794,6 +3794,33 @@ enum CLOSED_ENUM RoutePlanTypes
 	ROAD_PLANNING_PRIORITY_CONSTRUCTION
 };
 
+enum CLOSED_ENUM WorkerPlanStatusTypes
+{
+	WORKER_PLAN_STATUS_NONE,
+	WORKER_PLAN_STATUS_BUILT,		// target improvement is in place
+	WORKER_PLAN_STATUS_IN_PROGRESS,	// construction has started
+	WORKER_PLAN_STATUS_ASSIGNED,	// a builder is assigned to it
+	WORKER_PLAN_STATUS_QUEUED,		// can be built, waiting for a builder
+	WORKER_PLAN_STATUS_NOT_YET,		// can't be built yet
+	WORKER_PLAN_STATUS_BLOCKED,		// planned, but builders won't consider it (invalid plot, tech too far away...)
+	WORKER_PLAN_STATUS_LOCKED,		// plot is locked, nothing will be built
+	WORKER_PLAN_STATUS_SUGGESTED,	// suggested to a builder the player controls
+	WORKER_PLAN_STATUS_OUTSIDE_BORDERS,	// planned outside our borders, can't be built there
+	WORKER_PLAN_STATUS_DISABLED		// the player's settings keep builders from building it
+};
+
+// Player settings for automated builders, stored as player options
+enum CLOSED_ENUM WorkerPlanSettingTypes
+{
+	WORKER_PLAN_SETTING_SAFE_AUTOMATION = PLAYEROPTION_SAFE_AUTOMATION,	// don't replace improvements or remove roads unless planned
+	WORKER_PLAN_SETTING_LEAVE_FORESTS = PLAYEROPTION_LEAVE_FORESTS,		// don't remove forests and jungles unless planned
+	// Not built-in player options, ids chosen so they don't clash with them
+	WORKER_PLAN_SETTING_PLANS_ONLY = 0x57500001,				// only build plans, routes and repairs
+	WORKER_PLAN_SETTING_COMMIT_GREAT_PERSONS = 0x57500002,		// plan around great person suggestions
+	WORKER_PLAN_SETTING_LUXURIES_FIRST = 0x57500003,			// connect luxuries before anything else
+	WORKER_PLAN_SETTING_STRATEGICS_FIRST = 0x57500004,			// connect strategic resources before anything else
+};
+
 enum CLOSED_ENUM Likelyhood
 {
 	LIKELYHOOD_IMPOSSIBLE = 0,
