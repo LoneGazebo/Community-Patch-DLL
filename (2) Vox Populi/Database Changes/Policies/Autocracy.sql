@@ -101,7 +101,6 @@ SET
 	Description = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A',
 	Help = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP',
 	Civilopedia = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_A',
-	VassalsNoRebel = 1,
 	CSYieldBonusModifier = 25,
 	VassalYieldBonusModifier = 25,
 	WorkerSpeedModifier = 50
@@ -119,6 +118,10 @@ VALUES
 	('POLICY_LIGHTNING_WARFARE', 'PROMOTION_LIGHTNING_WARFARE_ARMORED');
 
 -- Police State
+UPDATE Policies
+SET VassalsNoRebel = 1
+WHERE Type = 'POLICY_POLICE_STATE';
+
 INSERT INTO Policy_BuildingClassProductionModifiers
 	(PolicyType, BuildingClassType, ProductionModifier)
 VALUES
