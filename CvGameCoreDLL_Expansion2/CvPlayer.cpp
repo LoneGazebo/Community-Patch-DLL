@@ -11838,6 +11838,12 @@ void CvPlayer::disband(CvCity* pCity)
 	CvPlot* pPlot = pCity->plot();
 	bool bIsBarbarian = pPlot && pPlot->getOwner() == BARBARIAN_PLAYER;
 
+	// If this player retains land after razing cities, remember the list of plots
+	// (covers both razing to 0 pop and destroying a captured city in One City Challenge)
+	std::set<int> siPlots;
+	if (IsRetainRazedTerritory())
+		siPlots = pCity->GetPlotList();
+
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityRazed, GetID(), pPlot->getX(), pPlot->getY());
 
 	GC.getGame().addDestroyedCityName(pCity->getName());
@@ -11906,6 +11912,36 @@ void CvPlayer::disband(CvCity* pCity)
 				}
 			}
 		}
+	}
+
+	// ... and reassign the plots to the nearest city, if possible
+	for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
+		CvCity* pBestCity = NULL;
+		int iBestCityDistance = -1;
+		int iLoop = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			CvPlot* pCityPlot = pLoopCity->plot();
+			if (pCityPlot)
+			{
+				int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCityPlot->getX(), pCityPlot->getY());
+				if (pBestCity != NULL && !pBestCity->IsWithinWorkRange(pLoopPlot) && pLoopCity->IsWithinWorkRange(pLoopPlot))
+				{
+					// Catch the Tradition capital edge case where two cities are equidistant
+					pBestCity = pLoopCity;
+					iBestCityDistance = iDistance;
+				}
+				else if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
+				{
+					pBestCity = pLoopCity;
+					iBestCityDistance = iDistance;
+				}
+			}
+		}
+		if (pBestCity)
+			pLoopPlot->setOwner(GetID(), pBestCity->GetID());
 	}
 }
 
