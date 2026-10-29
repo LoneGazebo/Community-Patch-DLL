@@ -760,6 +760,8 @@ private:
 	// Accessors
 	Member* GetMember(PlayerTypes ePlayer);
 	Project* GetProject(LeagueProjectTypes eLeagueProject);
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 FDataStream& operator>>(FDataStream&, CvLeague::Project&);

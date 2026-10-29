@@ -17,23 +17,30 @@
 #ifndef CVLUAPLAYER_H
 #define CVLUAPLAYER_H
 
-#include "CvLuaScopedInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
 
-class CvLuaPlayer : public CvLuaScopedInstance<CvLuaPlayer, CvPlayerAI>
+class CvLuaPlayer : public CvLuaDynamicInstance<CvLuaPlayer, CvPlayerAI>
 {
 public:
-	//! Push all player instances to Lua
-	static void Register(lua_State* L);
-
 	//! Push CvPlayerAI methods into table t
-	static void PushMethods(lua_State* L, int t);
+	static void CreateFunctable(lua_State* L);
+	//! Push all player instances to Lua
+	static void CustomRegister(lua_State* L) {
+		
+		lua_newtable(L);
+		lua_pushvalue(L, -1);
+		lua_setglobal(L, "Players");
 
-	//! Required by CvLuaScopedInstance.
-	static void HandleMissingInstance(lua_State* L);
-
-	//! Required by CvLuaScopedInstance.
-	static const char* GetTypeName();
-
+		for(int i = 0; i < MAX_PLAYERS; ++i)
+		{
+			CvPlayerAI* pkPlayer = &(GET_PLAYER((PlayerTypes)i));
+			CvLuaPlayer::Push(L, pkPlayer);
+			lua_rawseti(L, -2, i);
+		}
+		
+		lua_pop(L, 1);
+	}
+	static void Push(lua_State* L,CvPlayer* inst);
 protected:
 
 	//! Protected Lua call to register all player instances.
@@ -1528,6 +1535,8 @@ protected:
 	static int lSetMilitaryStrategies(lua_State* L);
 };
 
+/*
+
 namespace CvLuaArgs
 {
 	template<> inline const CvPlayerAI* toValue(lua_State* L, int idx)
@@ -1582,5 +1591,8 @@ namespace CvLuaArgs
 		CvLuaPlayer::Push(L, static_cast<CvPlayerAI*>(&r));
 	}
 }
+
+*/
+
 
 #endif //CVLUAPLAYER_H

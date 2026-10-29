@@ -3,7 +3,8 @@
 #ifndef ICVDLLSCRIPTSYSTEM_H
 #define ICVDLLSCRIPTSYSTEM_H
 
-struct lua_State;
+typedef struct lua_State lua_State;
+typedef int(*lua_CFunction)(lua_State*);
 
 class ICvEngineScriptSystemArgs1
 {

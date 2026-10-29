@@ -1165,6 +1165,7 @@
     <Folder Include="LUA\Includes" />
     <Folder Include="Mapscripts" />
     <Folder Include="Kit" />
+    <Folder Include="Gamecore" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\DoMImages\dom_catherine.dds">
@@ -3742,6 +3743,14 @@
     <Content Include="Database Changes\WorldMap\Yields\YieldTableChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Gamecore\GamecoreInit.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Gamecore\GamecorePostProcess.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Kit\Args\CPK.Args.Each.lua">
       <SubType>Lua</SubType>

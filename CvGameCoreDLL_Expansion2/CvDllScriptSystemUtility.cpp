@@ -15,11 +15,7 @@
 #include "CvDllUnit.h"
 
 #include "Lua/CvLuaSupport.h"
-#include "Lua/CvLuaCity.h"
-#include "Lua/CvLuaDeal.h"
-#include "Lua/CvLuaPlot.h"
-#include "Lua/CvLuaUnit.h"
-#include "Lua/CvLuaLeague.h"
+#include "Lua/!CvLuaApi.h"
 
 #include "CvReplayInfo.h"
 #include "CvReplayMessage.h"
@@ -68,7 +64,7 @@ void CvDllScriptSystemUtility::PushCvCityInstance(lua_State* L, ICvCity1* pkCity
 	if(NULL != L && NULL != pkCity)
 	{
 		CvDllCity* pkDllCity = static_cast<CvDllCity*>(pkCity);
-		CvLuaCity::Push(L, pkDllCity->GetInstance());
+		luaEx_pushCity(L, pkDllCity->GetInstance());
 	}
 	else
 	{
@@ -78,7 +74,7 @@ void CvDllScriptSystemUtility::PushCvCityInstance(lua_State* L, ICvCity1* pkCity
 //------------------------------------------------------------------------------
 ICvCity1* CvDllScriptSystemUtility::GetCvCityInstance(lua_State* L, int index, bool bErrorOnFail)
 {
-	CvCity* pkCity = CvLuaCity::GetInstance(L, index, bErrorOnFail);
+	CvCity* pkCity = luaEx_toCity(L, index, bErrorOnFail);
 	return (NULL != pkCity)? new CvDllCity(pkCity) : NULL;
 }
 //------------------------------------------------------------------------------
@@ -87,7 +83,7 @@ void CvDllScriptSystemUtility::PushCvDealInstance(lua_State* L, ICvDeal1* pkDeal
 	if(NULL != L && NULL != pkDeal)
 	{
 		CvDllDeal* pkDllDeal = static_cast<CvDllDeal*>(pkDeal);
-		CvLuaDeal::Push(L, pkDllDeal->GetInstance());
+		luaEx_pushDeal(L, pkDllDeal->GetInstance());
 	}
 	else
 	{
@@ -97,7 +93,7 @@ void CvDllScriptSystemUtility::PushCvDealInstance(lua_State* L, ICvDeal1* pkDeal
 //------------------------------------------------------------------------------
 ICvDeal1* CvDllScriptSystemUtility::GetCvDealInstance(lua_State* L, int index, bool bErrorOnFail)
 {
-	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, index, bErrorOnFail);
+	CvDeal* pkDeal = luaEx_toDeal(L, index, bErrorOnFail);
 	return (NULL != pkDeal)? new CvDllDeal(pkDeal) : NULL;
 }
 //------------------------------------------------------------------------------
@@ -106,7 +102,7 @@ void CvDllScriptSystemUtility::PushCvPlotInstance(lua_State* L, ICvPlot1* pkPlot
 	if(NULL != L && NULL != pkPlot)
 	{
 		CvDllPlot* pkDllPlot = static_cast<CvDllPlot*>(pkPlot);
-		CvLuaPlot::Push(L, pkDllPlot->GetInstance());
+		luaEx_pushPlot(L, pkDllPlot->GetInstance());
 	}
 	else
 	{
@@ -116,7 +112,7 @@ void CvDllScriptSystemUtility::PushCvPlotInstance(lua_State* L, ICvPlot1* pkPlot
 //------------------------------------------------------------------------------
 ICvPlot1* CvDllScriptSystemUtility::GetCvPlotInstance(lua_State* L, int index, bool bErrorOnFail)
 {
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, index, bErrorOnFail);
+	CvPlot* pkPlot = luaEx_toPlot(L, index, bErrorOnFail);
 	return (NULL != pkPlot)? new CvDllPlot(pkPlot) : NULL;
 }
 //------------------------------------------------------------------------------
@@ -125,7 +121,7 @@ void CvDllScriptSystemUtility::PushCvUnitInstance(lua_State* L, ICvUnit1* pkUnit
 	if(NULL != L && NULL != pkUnit)
 	{
 		CvDllUnit* pkDllUnit = static_cast<CvDllUnit*>(pkUnit);
-		CvLuaUnit::Push(L, pkDllUnit->GetInstance());
+		luaEx_pushUnit(L, pkDllUnit->GetInstance());
 	}
 	else
 	{
@@ -135,7 +131,7 @@ void CvDllScriptSystemUtility::PushCvUnitInstance(lua_State* L, ICvUnit1* pkUnit
 //------------------------------------------------------------------------------
 ICvUnit1* CvDllScriptSystemUtility::GetCvUnitInstance(lua_State* L, int index, bool bErrorOnFail)
 {
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, index, bErrorOnFail);
+	CvUnit* pkUnit = luaEx_toUnit(L, index, bErrorOnFail);
 	return (NULL != pkUnit)? new CvDllUnit(pkUnit) : NULL;
 }
 //------------------------------------------------------------------------------

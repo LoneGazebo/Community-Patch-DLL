@@ -2399,7 +2399,7 @@ protected:
 	int m_iRivalTerritoryCount;
 	int m_iIsSlowInEnemyLandCount;
 	int m_iRangeAttackIgnoreLOSCount;
-    int m_iSeeThrough;
+	int m_iSeeThrough;
 	int m_iCityAttackOnlyCount;
 	int m_iCaptureDefeatedEnemyCount;
 	int m_iOriginCity;
@@ -2789,6 +2789,8 @@ private:
 	int m_iHomelandMoveSetTurn;
 
 	friend class CvLuaUnit;
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 FDataStream& operator<<(FDataStream&, const CvUnit&);

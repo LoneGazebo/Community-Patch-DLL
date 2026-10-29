@@ -14,28 +14,22 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
-#include "../CustomMods.h"
-#include "CvLuaSupport.h"
-#include "CvLuaArea.h"
-#include "CvLuaCity.h"
 #include "CvLuaPlot.h"
-#include "CvLuaUnit.h"
-#include "CvLuaPlayer.h"
 #include "../CvGameCoreUtils.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
 //Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
+#define Method(Name) lua_pushcclosure(L, l##Name, 0); lua_setfield(L, 1, #Name)
 
 //safety measure against illegal pointers passed from lua
 #define CHECK_PLOT_VALID(p) if (!p || !GC.getMap().isPlot(p->getX(), p->getY()) || (p < GC.getMap().plotByIndexUnchecked(0)) || (p > GC.getMap().plotByIndexUnchecked(GC.getMap().numPlots() - 1))) return 0;
 
 //------------------------------------------------------------------------------
-void CvLuaPlot::PushMethods(lua_State* L, int t)
+void CvLuaPlot::CreateFunctable(lua_State* L)
 {
+	lua_createtable(L,0,350);
+	
 	Method(CanHaveFeature);
 	Method(GetFeatureType);
 	Method(GetTerrainType);
@@ -146,7 +140,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 
 	Method(IsRoute);
 	Method(IsTradeRoute);
-	Method(IsCityConnection)
+	Method(IsCityConnection);
 	Method(IsImpassable);
 
 	Method(GetX);
@@ -237,7 +231,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetReconCount);
 	Method(GetRiverCrossingCount);
 	Method(GetYield);
-    Method(ChangeYield);
+	Method(ChangeYield);
 	Method(CalculateNatureYield);
 	Method(CalculateBestNatureYield);
 	Method(CalculateTotalBestNatureYield);
@@ -374,16 +368,6 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsWithinDistanceOfTerrain);
 	Method(GetEffectiveFlankingBonus);
 	Method(GetEffectiveFlankingBonusAtRange);
-}
-//------------------------------------------------------------------------------
-void CvLuaPlot::HandleMissingInstance(lua_State* L)
-{
-	DefaultHandleMissingInstance(L);
-}
-//------------------------------------------------------------------------------
-const char* CvLuaPlot::GetTypeName()
-{
-	return "Plot";
 }
 //------------------------------------------------------------------------------
 
@@ -539,7 +523,7 @@ int CvLuaPlot::lUpdateVisibility(lua_State* L)
 int CvLuaPlot::lIsAdjacentToArea(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvArea* pkArea = CvLuaArea::GetInstance(L, 2);
+	CvArea* pkArea = luaEx_toArea(L, 2);
 
 	const bool bResult = pkPlot->isAdjacentToArea(pkArea);
 	lua_pushboolean(L, bResult);
@@ -780,12 +764,12 @@ int CvLuaPlot::lGetBestDefender(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const PlayerTypes eOwner = (PlayerTypes)lua_tointeger(L, 2);
 	const PlayerTypes eAttackingPlayer = (PlayerTypes)lua_tointeger(L, 3);
-	CvUnit* pkAttacker = CvLuaUnit::GetInstance(L, 4, false);
+	CvUnit* pkAttacker = luaEx_toUnit(L, 4, false);
 	const bool bTestAtWar = luaL_optint(L, 5, 0);
 	const bool bIgnoreVisibility = luaL_optint(L, 6, 0);
 	const bool bTestCanMove = luaL_optint(L, 7, 0);
 	CvUnit* pkUnit = pkPlot->getBestDefender(eOwner, eAttackingPlayer, pkAttacker, bTestAtWar, bIgnoreVisibility, bTestCanMove);
-	CvLuaUnit::Push(L, pkUnit);
+	luaEx_pushUnit(L, pkUnit);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -794,7 +778,7 @@ int CvLuaPlot::lGetSelectedUnit(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvUnit* pkUnit = pkPlot->getSelectedUnit();
-	CvLuaUnit::Push(L, pkUnit);
+	luaEx_pushUnit(L, pkUnit);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -808,7 +792,7 @@ int CvLuaPlot::lGetUnitPower(lua_State* L)
 //int defenseModifier(TeamTypes iDefendTeam, bool bIgnoreBuilding, bool bHelp);
 int CvLuaPlot::lDefenseModifier(lua_State* L)
 {
-	return BasicLuaMethod<int,TeamTypes,bool,bool,bool>(L, &CvPlot::defenseModifier);
+	return luaEx_exec<TeamTypes,bool,bool,bool>(L, &CvPlot::defenseModifier);
 }
 //------------------------------------------------------------------------------
 //int movementCost(CyUnit* pUnit, CyPlot* pFromPlot);
@@ -822,8 +806,8 @@ int CvLuaPlot::lMovementCost(lua_State* L)
 int CvLuaPlot::lGetEffectiveFlankingBonus(lua_State* L)
 {
 	CvPlot* pkPlot =  GetInstance(L);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L,2);
-	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 3);
+	CvUnit* pkUnit = luaEx_toUnit(L,2);
+	CvUnit* pkOtherUnit = luaEx_toUnit(L, 3);
 	CvPlot* pkOtherPlot =  GetInstance(L, 4);
 
 	int iResult = pkPlot->GetEffectiveFlankingBonus(pkUnit, pkOtherUnit, pkOtherPlot);
@@ -838,8 +822,8 @@ int CvLuaPlot::lGetEffectiveFlankingBonus(lua_State* L)
 int CvLuaPlot::lGetEffectiveFlankingBonusAtRange(lua_State* L)
 {
 	CvPlot* pkTargetPlot = GetInstance(L);
-	CvUnit* pkAttackingUnit = CvLuaUnit::GetInstance(L,2);
-	CvUnit* pkDefendingUnit = CvLuaUnit::GetInstance(L,3);
+	CvUnit* pkAttackingUnit = luaEx_toUnit(L,2);
+	CvUnit* pkDefendingUnit = luaEx_toUnit(L,3);
 	
 	int iResult = pkTargetPlot->GetEffectiveFlankingBonusAtRange(pkAttackingUnit, pkDefendingUnit);
 
@@ -1020,7 +1004,7 @@ int CvLuaPlot::lIsCity(lua_State* L)
 int CvLuaPlot::lIsFriendlyCity(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+	CvUnit* pkUnit = luaEx_toUnit(L, 2);
 
 	//ignored
 	//const bool bCheckImprovement = lua_toboolean(L, 3);
@@ -1033,7 +1017,7 @@ int CvLuaPlot::lIsFriendlyCity(lua_State* L)
 int CvLuaPlot::lisFriendlyCityOrPassableImprovement(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+	CvUnit* pkUnit = luaEx_toUnit(L, 2);
 	
 	//unused, only for backward compatibility
 	//const bool bCheckImprovement = lua_toboolean(L, 3);
@@ -1047,7 +1031,7 @@ int CvLuaPlot::lisFriendlyCityOrPassableImprovement(lua_State* L)
 int CvLuaPlot::lIsEnemyCity(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+	CvUnit* pkUnit = luaEx_toUnit(L, 2);
 	const bool bResult = pkPlot->isEnemyCity(*pkUnit);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -1070,7 +1054,7 @@ int CvLuaPlot::lIsUnit(lua_State* L)
 int CvLuaPlot::lIsVisibleEnemyDefender(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+	CvUnit* pkUnit = luaEx_toUnit(L, 2);
 	const bool bResult = pkPlot->isVisibleEnemyDefender(pkUnit);
 	lua_pushboolean(L, bResult);
 
@@ -1117,7 +1101,7 @@ int CvLuaPlot::lIsVisibleOtherUnit(lua_State* L)
 int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+	CvUnit* pkUnit = luaEx_toUnit(L, 2);
 
 	int iResult = pkUnit->CountStackingUnitsAtPlot(pkPlot);
 
@@ -1130,7 +1114,7 @@ int CvLuaPlot::lGetNumFriendlyUnitsOfType(lua_State* L)
 int CvLuaPlot::lgetNumFriendlyUnitsOfType(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2);
+	CvUnit* pkUnit = luaEx_toUnit(L, 2);
 
 	int iResult = pkUnit->CountStackingUnitsAtPlot(pkPlot);
 
@@ -1233,7 +1217,7 @@ int CvLuaPlot::lArea(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvArea* pkArea = pkPlot->area();
-	CvLuaArea::Push(L, pkArea);
+	luaEx_pushArea(L, pkArea);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -1241,7 +1225,7 @@ int CvLuaPlot::lArea(lua_State* L)
 int CvLuaPlot::lWaterArea(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	CvLuaArea::Push(L, pkPlot->GetLargestAdjacentWaterArea());
+	luaEx_pushArea(L, pkPlot->GetLargestAdjacentWaterArea());
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -1681,7 +1665,7 @@ int CvLuaPlot::lGetPlotCity(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvCity* pkCity = pkPlot->getPlotCity();
-	CvLuaCity::Push(L, pkCity);
+	luaEx_pushCity(L, pkCity);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -1690,7 +1674,7 @@ int CvLuaPlot::lGetWorkingCity(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	CvCity* pkCity = pkPlot->getEffectiveOwningCity();
-	CvLuaCity::Push(L, pkCity);
+	luaEx_pushCity(L, pkCity);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -1701,7 +1685,7 @@ int CvLuaPlot::lGetWorkingCityOverride(lua_State* L)
 	//CvCity* pkCity = pkPlot->getOwningCityOverride();
 
 	//working city already considers override
-	CvLuaCity::Push(L, NULL);
+	luaEx_pushCity(L, NULL);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -1783,7 +1767,7 @@ int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 int CvLuaPlot::lCalculateYield(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	const YieldTypes eYield = CvLuaArgs::toValue<YieldTypes>(L, 2);
+	const YieldTypes eYield = luaEx_to<YieldTypes>(L, 2);
 	const bool bDisplay = luaL_optbool(L, 3, false);
 	const int iResult = pkPlot->calculateYield(eYield, bDisplay);
 	lua_pushinteger(L, iResult);
@@ -1892,7 +1876,7 @@ int CvLuaPlot::lChangeVisibilityCount(lua_State* L)
 
 	if(lua_gettop(L) >= 7)
 	{
-		CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 7);
+		CvUnit* pkUnit = luaEx_toUnit(L, 7);
 		pkPlot->changeVisibilityCount(eTeam, iChange, static_cast<InvisibleTypes>(eSeeInvisible), bInformExplorationTracking, bAlwaysSeeInvisible, pkUnit);
 	}
 	else
@@ -1980,7 +1964,7 @@ int CvLuaPlot::lSetRevealed(lua_State* L)
 	const TeamTypes eFromTeam = (TeamTypes)luaL_optint(L, 5, NO_TEAM);
 	if(lua_gettop(L) >= 6)
 	{
-		CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 6);
+		CvUnit* pkUnit = luaEx_toUnit(L, 6);
 		pkPlot->setRevealed(eTeam, bNewValue, pkUnit, bTerrainOnly, eFromTeam);
 	}
 	else
@@ -2064,7 +2048,7 @@ int CvLuaPlot::lGetUnit(lua_State* L)
 	const int iIndex = lua_tointeger(L, 2);
 
 	CvUnit* pkUnit = pkPlot->getUnitByIndex(iIndex);
-	CvLuaUnit::Push(L, pkUnit);
+	luaEx_pushUnit(L, pkUnit);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -2086,7 +2070,7 @@ int CvLuaPlot::lGetLayerUnit(lua_State* L)
 	const int iLayerID = luaL_optinteger(L, 3, -1);
 
 	CvUnit* pkUnit = pkPlot->getLayerUnit(iIndex, iLayerID);
-	CvLuaUnit::Push(L, pkUnit);
+	luaEx_pushUnit(L, pkUnit);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -2235,9 +2219,9 @@ int CvLuaPlot::lIsBuildRemovesFeature(lua_State* L)
 int CvLuaPlot::lSetArchaeologicalRecord(lua_State* L)
 {
 	CvPlot* pPlot = GetInstance(L);
-	GreatWorkArtifactClass eType = CvLuaArgs::toValue<GreatWorkArtifactClass>(L, 2);
-	EraTypes eEra = CvLuaArgs::toValue<EraTypes>(L, 3);
-	PlayerTypes ePlayer1 = CvLuaArgs::toValue<PlayerTypes>(L, 4);
+	GreatWorkArtifactClass eType = luaEx_to<GreatWorkArtifactClass>(L, 2);
+	EraTypes eEra = luaEx_to<EraTypes>(L, 3);
+	PlayerTypes ePlayer1 = luaEx_to<PlayerTypes>(L, 4);
 	PlayerTypes ePlayer2 = (PlayerTypes) luaL_optinteger(L, 5, NO_PLAYER);
 	const bool bIgnoreNormalRestrictions = luaL_optbool(L, 6, true);
 	
@@ -2248,9 +2232,9 @@ int CvLuaPlot::lSetArchaeologicalRecord(lua_State* L)
 int CvLuaPlot::lAddArchaeologicalRecord(lua_State* L)
 {
 	CvPlot* pPlot = GetInstance(L);
-	GreatWorkArtifactClass eType = CvLuaArgs::toValue<GreatWorkArtifactClass>(L, 2);
-	EraTypes eEra = CvLuaArgs::toValue<EraTypes>(L, 3);
-	PlayerTypes ePlayer1 = CvLuaArgs::toValue<PlayerTypes>(L, 4);
+	GreatWorkArtifactClass eType = luaEx_to<GreatWorkArtifactClass>(L, 2);
+	EraTypes eEra = luaEx_to<EraTypes>(L, 3);
+	PlayerTypes ePlayer1 = luaEx_to<PlayerTypes>(L, 4);
 	PlayerTypes ePlayer2 = (PlayerTypes) luaL_optinteger(L, 5, NO_PLAYER);
 	const bool bIgnoreNormalRestrictions = luaL_optbool(L, 6, false);
 	
@@ -2341,9 +2325,8 @@ int CvLuaPlot::lGetCityPurchaseID(lua_State* L)
 //void SetCityPurchaseID(int ID);
 int CvLuaPlot::lSetCityPurchaseID(lua_State* L)
 {
-	const int idx = GetStartingArgIndex();
 	CvPlot* kPlot = GetInstance(L);
-	const int iID = lua_tointeger(L, idx);
+	const int iID = lua_tointeger(L, 2);
 	//we assume the plot owner and the city owner are the same!
 	kPlot->setOwningCity(kPlot->getOwner(), iID);
 	return 0;
@@ -2511,3 +2494,5 @@ LUAAPIIMPL(Plot, IsAdjacentToResource)
 LUAAPIIMPL(Plot, IsWithinDistanceOfResource)
 LUAAPIIMPL(Plot, IsAdjacentToTerrain)
 LUAAPIIMPL(Plot, IsWithinDistanceOfTerrain)
+
+LuaTypes_DefineInstanced( CvPlot, CvLuaPlot );

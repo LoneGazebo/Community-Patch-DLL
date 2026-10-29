@@ -16,12 +16,8 @@
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
 #include "../CustomMods.h"
-#include "CvLuaSupport.h"
-#include "CvLuaCity.h"
 #include "CvLuaGame.h"
-#include "CvLuaPlot.h"
-#include "CvLuaUnit.h"
-#include "CvLuaLeague.h"
+#include "CvLuaArgsHandle.h"
 
 #include "../CvGame.h"
 #include "../CvGameCoreUtils.h"
@@ -34,24 +30,15 @@
 
 #include "../CvLoggerCSV.h"
 
-#define Method(func) RegisterMethod(L, l##func, #func);
-
-using namespace CvLuaArgs;
+#define Method(func) lua_pushcclosure(L, l##func, 0); lua_setfield(L, 1, #func)
 
 //------------------------------------------------------------------------------
-const char* CvLuaGame::GetInstanceName()
-{
-	return "Game";
-}
+CvGame* CvLuaGame::GetStaticInstance(){ return &GC.getGame(); }
 //------------------------------------------------------------------------------
-CvGame* CvLuaGame::GetInstance(lua_State* L, int idx)
+void CvLuaGame::CreateFunctable(lua_State* L)
 {
-	(void)L; // Suppress unused parameter warning
-	return &GC.getGame();
-}
-//------------------------------------------------------------------------------
-void CvLuaGame::RegisterMembers(lua_State* L)
-{
+	lua_createtable(L,0,500);
+	
 	Method(CanHandleAction);
 	Method(HandleAction);
 	Method(UpdateScore);
@@ -534,7 +521,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 int CvLuaGame::lCanHandleAction(lua_State* L)
 {
 	const int iAction = lua_tointeger(L, 1);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2, false);
+	CvPlot* pkPlot = luaEx_toPlot(L, 2, false);
 	const bool bTestVisible = luaL_optbool(L, 3, 0);
 	const bool bResult = GetInstance()->canHandleAction(iAction, pkPlot, bTestVisible);
 	lua_pushboolean(L, bResult);
@@ -570,7 +557,7 @@ int CvLuaGame::lCycleUnits(lua_State* L)
 // bool cyclePlotUnits(CyPlot* pPlot, bool bForward, bool bAuto, int iCount);
 int CvLuaGame::lCyclePlotUnits(lua_State* L)
 {
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 1);
+	CvPlot* pkPlot = luaEx_toPlot(L, 1);
 	const bool bForward = lua_toboolean(L, 2);
 	const bool bAuto = lua_toboolean(L, 3);
 	const int iCount = lua_tointeger(L, 4);
@@ -583,7 +570,7 @@ int CvLuaGame::lCyclePlotUnits(lua_State* L)
 // void selectionListMove(CyPlot* pPlot, bool bAlt, bool bShift, bool bCtrl);
 int CvLuaGame::lSelectionListMove(lua_State* L)
 {
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 1);
+	CvPlot* pkPlot = luaEx_toPlot(L, 1);
 	const bool bShift = lua_toboolean(L, 3);
 
 	GetInstance()->selectionListMove(pkPlot, bShift);
@@ -623,7 +610,7 @@ int CvLuaGame::lSelectedCitiesGameNetMessage(lua_State* L)
 // void cityPushOrder(CyCity* pCity, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl);
 int CvLuaGame::lCityPushOrder(lua_State* L)
 {
-	CvCity* pkCity			= CvLuaCity::GetInstance(L, 1);
+	CvCity* pkCity			= luaEx_toCity(L, 1);
 	const OrderTypes eOrder	= (OrderTypes)lua_tointeger(L, 2);
 	const int iData			= lua_tointeger(L, 3);
 	const bool bAlt			= luaL_optbool(L, 4, 0);
@@ -640,7 +627,7 @@ int CvLuaGame::lCityPushOrder(lua_State* L)
 // void cityPurchase(CyCity* pCity, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectTypes);
 int CvLuaGame::lCityPurchaseUnit(lua_State* L)
 {
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
+	CvCity* pkCity = luaEx_toCity(L, 1);
 	const UnitTypes eUnitType = (UnitTypes)lua_tointeger(L, 2);
 	const YieldTypes ePurchaseYield = (YieldTypes)lua_tointeger(L, 3);
 
@@ -651,7 +638,7 @@ int CvLuaGame::lCityPurchaseUnit(lua_State* L)
 // void cityPurchase(CyCity* pCity, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectTypes);
 int CvLuaGame::lCityPurchaseBuilding(lua_State* L)
 {
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
+	CvCity* pkCity = luaEx_toCity(L, 1);
 	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
 	const YieldTypes ePurchaseYield = (YieldTypes)lua_tointeger(L, 3);
 
@@ -662,7 +649,7 @@ int CvLuaGame::lCityPurchaseBuilding(lua_State* L)
 // void cityPurchase(CyCity* pCity, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectTypes);
 int CvLuaGame::lCityPurchaseProject(lua_State* L)
 {
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
+	CvCity* pkCity = luaEx_toCity(L, 1);
 	const ProjectTypes eProjectType = (ProjectTypes)lua_tointeger(L, 2);
 	const YieldTypes ePurchaseYield = (YieldTypes)lua_tointeger(L, 3);
 
@@ -1207,7 +1194,7 @@ int CvLuaGame::lGetNumWorldWonders(lua_State* L)
 int CvLuaGame::lIsWorldWonderClass(lua_State* L)
 {
 	bool bResult = false;
-	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
 	if(iIndex != NO_BUILDINGCLASS)
 	{
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(iIndex);
@@ -1233,7 +1220,7 @@ int CvLuaGame::lSetAIAutoPlay(lua_State* L)
 }
 int CvLuaGame::lChangeActivePlayer(lua_State* L)
 {
-	const PlayerTypes eNewPlayer = toValue<PlayerTypes>(L, 2);
+	const PlayerTypes eNewPlayer = luaEx_to<PlayerTypes>(L, 2);
 	PlayerTypes eActivePlayer = CvPreGame::activePlayer();
 	if (eNewPlayer != eActivePlayer)
 	{
@@ -2199,7 +2186,7 @@ int CvLuaGame::lGetAdvisorCounsel(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lSetAdvisorRecommenderCity(lua_State* L)
 {
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
+	CvCity* pkCity = luaEx_toCity(L, 1);
 	GC.getGame().GetAdvisorRecommender()->UpdateCityRecommendations(pkCity);
 	return 1;
 }
@@ -2602,7 +2589,7 @@ int CvLuaGame::lGetCorporationHeadquarters(lua_State* L)
 		}
 	}
 
-	CvLuaCity::Push(L, pkCity);
+	luaEx_pushCity(L, pkCity);
 	return 1;
 }
 
@@ -2721,8 +2708,8 @@ int CvLuaGame::lGetUnitUpgradesTo(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetCombatPrediction(lua_State* L)
 {
-	const CvUnit* pAttackingUnit = CvLuaUnit::GetInstance(L, 1);
-	const CvUnit* pDefendingUnit = CvLuaUnit::GetInstance(L, 2);
+	const CvUnit* pAttackingUnit = luaEx_toUnit(L, 1);
+	const CvUnit* pDefendingUnit = luaEx_toUnit(L, 2);
 	CombatPredictionTypes ePrediction = GC.getGame().GetCombatPrediction(pAttackingUnit, pDefendingUnit);
 	lua_pushinteger(L, ePrediction);
 	return 1;
@@ -2976,7 +2963,7 @@ int CvLuaGame::lGetHolyCityForReligion(lua_State* L)
 
 	if(pkHolyCity)
 	{
-		CvLuaCity::Push(L, pkHolyCity);
+		luaEx_pushCity(L, pkHolyCity);
 	}
 	else
 	{
@@ -3058,7 +3045,7 @@ int CvLuaGame::lFoundReligion(lua_State* L)
 	const BeliefTypes eBelief2 = static_cast<BeliefTypes>(luaL_checkint(L, 5));
 	const BeliefTypes eBelief3 = static_cast<BeliefTypes>(luaL_checkint(L, 6));
 	const BeliefTypes eBelief4 = static_cast<BeliefTypes>(luaL_checkint(L, 7));
-	CvCity* pkHolyCity	= CvLuaCity::GetInstance(L, 8);
+	CvCity* pkHolyCity	= luaEx_toCity(L, 8);
 
 	GC.getGame().GetGameReligions()->FoundReligion(ePlayer, eReligion, szCustomName, eBelief1, eBelief2, eBelief3, eBelief4, pkHolyCity);
 
@@ -3096,7 +3083,7 @@ int CvLuaGame::lAddReformation(lua_State* L)
 int CvLuaGame::lSetHolyCity(lua_State* L)
 {
 	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 1));
-	CvCity* pkHolyCity	= CvLuaCity::GetInstance(L, 2);
+	CvCity* pkHolyCity	= luaEx_toCity(L, 2);
 
 	GC.getGame().GetGameReligions()->SetHolyCity(eReligion, pkHolyCity);
 
@@ -3189,28 +3176,14 @@ int CvLuaGame::lGetLeague(lua_State* L)
 	const LeagueTypes eLeague = (LeagueTypes) lua_tointeger(L, 1);
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-	if (pLeague != NULL)
-	{
-		CvLuaLeague::Push(L, pLeague);
-	}
-	else
-	{
-		lua_pushnil(L);
-	}
+	luaEx_pushLeague(L,pLeague);
 	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetActiveLeague(lua_State* L)
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague != NULL)
-	{
-		CvLuaLeague::Push(L, pLeague);
-	}
-	else
-	{
-		lua_pushnil(L);
-	}
+	luaEx_pushLeague(L,pLeague);
 	return 1;
 }
 
@@ -3251,7 +3224,7 @@ int CvLuaGame::lIsBeliefValid(lua_State* L)
 {
 	const ReligionTypes iReligionType = static_cast<ReligionTypes>(luaL_checkint(L, 1));
 	const BeliefTypes iBeliefType = static_cast<BeliefTypes>(luaL_checkint(L, 2));
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	CvCity* pkCity = luaEx_toCity(L, 3);
 	bool bHolyCityOnly = lua_toboolean(L, 4);
 
 	bool bResult = false;
@@ -3469,7 +3442,7 @@ int CvLuaGame::lGetGreatWorkCurrentThemingBonus(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetArtifactName(lua_State* L)
 {
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 1, false);
+	CvPlot* pkPlot = luaEx_toPlot(L, 1, false);
 	GreatWorkType eGreatWork = CultureHelpers::GetArtifact(pkPlot);
 	CvString szName = CultureHelpers::GetGreatWorkName(eGreatWork);
 	lua_pushstring(L, szName);
@@ -3529,8 +3502,8 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 		}
 	}
 
-	CvLuaPlot::Push(L, pPlot1);
-	CvLuaPlot::Push(L, pPlot2);
+	luaEx_pushPlot(L, pPlot1);
+	luaEx_pushPlot(L, pPlot2);
 	return 2;
 }
 
@@ -3561,7 +3534,7 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 		lua_setfield(L, t, "FromID");
 		lua_pushstring(L, pFromCity->getName());
 		lua_setfield(L, t, "FromCityName");
-		CvLuaCity::Push(L, pFromCity);
+		luaEx_pushCity(L, pFromCity);
 		lua_setfield(L, t, "FromCity");
 		lua_pushinteger(L, GET_PLAYER(pConnection->m_eDestOwner).getCivilizationType());
 		lua_setfield(L, t, "ToCivilizationType");
@@ -3569,7 +3542,7 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 		lua_setfield(L, t, "ToID");
 		lua_pushstring(L, pToCity->getName());
 		lua_setfield(L, t, "ToCityName");
-		CvLuaCity::Push(L, pToCity);
+		luaEx_pushCity(L, pToCity);
 		lua_setfield(L, t, "ToCity");
 		lua_pushinteger(L, pFromPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
 		lua_setfield(L, t, "FromGPT");
@@ -3622,7 +3595,7 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 		lua_setfield(L, t, "CircuitsCompleted");
 		lua_pushinteger(L, pConnection->m_iCircuitsToComplete);
 		lua_setfield(L, t, "CircuitsToComplete");
-	    lua_pushboolean(L, pConnection->m_bTradeUnitMovingForward);
+		lua_pushboolean(L, pConnection->m_bTradeUnitMovingForward);
 		lua_setfield(L, t, "MovingForward");
 
 
@@ -3665,7 +3638,7 @@ int CvLuaGame::lMouseoverUnit(lua_State* L)
 	CvUnit* pUnit;
 	bool bEnter;
 
-	pUnit = CvLuaUnit::GetInstance(L, 1);
+	pUnit = luaEx_toUnit(L, 1);
 	bEnter = lua_toboolean(L, 2);
 
 	GC.getGame().mouseoverUnit(pUnit, bEnter);
@@ -3984,7 +3957,7 @@ int CvLuaGame::lFoundCorporation(lua_State* L)
 {
 	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
 	const CorporationTypes eCorporation = static_cast<CorporationTypes>(luaL_checkint(L, 2));
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
+	CvCity* pkCity = luaEx_toCity(L, 3);
 	GC.getGame().GetGameCorporations()->FoundCorporation(ePlayer, eCorporation, pkCity);
 	return 1;
 }
@@ -4176,7 +4149,7 @@ int CvLuaGame::lGetActiveContractUnitList(lua_State* L)
 
 int CvLuaGame::lDoSpawnFreeCity(lua_State* L)
 {
-	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
+	CvCity* pkCity = luaEx_toCity(L, 1);
 	const bool bMajorFoundingCityState = luaL_optbool(L, 2, false);
 	//CvString strCustomName = luaL_optstring(L, "NO_NAME", 3);
 	GC.getGame().CreateFreeCityPlayer(pkCity, false, bMajorFoundingCityState);
@@ -4263,3 +4236,5 @@ LUAAPIIMPL(Game, CreateMPMP)
 LUAAPIIMPL(Game, WriteMPMP)
 LUAAPIIMPL(Game, CopyModDataToMPMP)
 LUAAPIIMPL(Game, AddUIAddinToMPMP)
+
+LuaTypes_DefineStatic( CvGame, CvLuaGame );

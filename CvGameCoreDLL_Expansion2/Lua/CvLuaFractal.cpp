@@ -66,12 +66,7 @@ int GetFractalFlags(lua_State* L, int idx)
 }
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void CvLuaFractal::Register(lua_State* L)
-{
-	FLua::Details::CCallWithErrorHandling(L, pRegister);
-}
-//-----------------------------------------------------------------------------------
-int CvLuaFractal::pRegister(lua_State* L)
+void CvLuaFractal::RegisterGlobals(lua_State* L)
 {
 	lua_getglobal(L, "Fractal");
 	if(lua_isnil(L, -1))
@@ -87,8 +82,6 @@ int CvLuaFractal::pRegister(lua_State* L)
 
 	lua_pushcclosure(L, lCreateRifts, 0);
 	lua_setfield(L, -2, "CreateRifts");
-
-	return 0;
 }
 //------------------------------------------------------------------------------
 int CvLuaFractal::lBuildRidges(lua_State* L)

@@ -12,6 +12,7 @@
 
 #include "CvDiplomacyAIEnums.h"
 #include "CvWeightedVector.h"
+#include "CvStructs.h"
 
 enum CLOSED_ENUM TradeableItems
 {
@@ -122,6 +123,8 @@ public:
 	bool m_bIsGift;
 
 	TradedItemList m_TradedItems;
+
+	AutoInvalidatedPointerList m_PointerList;
 
 	void ClearItems();
 	int GetNumItems();

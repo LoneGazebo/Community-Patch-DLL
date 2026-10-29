@@ -10,6 +10,7 @@
 #include "ICvDLLUserInterface.h"
 #include "Win32/FDebugHelper.h"
 #include "CvDllContext.h"
+#include "Lua/CvLuaSupport.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -47,6 +48,7 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 	case DLL_PROCESS_DETACH:
 		OutputDebugString("DLL_PROCESS_DETACH\n");
 		timeEndPeriod(1);
+		LuaSupport::NotifyDllUnload();
 		CvDllGameContext::DestroySingleton();
 		GC.setDLLIFace(NULL);
 		break;
