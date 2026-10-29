@@ -15,6 +15,7 @@
 #include "CvGlobals.h"
 #include "CvGame.h"
 #include "CvGameCoreUtils.h"
+#include "CvBuilderTaskingAI.h"
 
 class CvArmyAI;
 struct CvAttackTarget;
@@ -44,6 +45,8 @@ enum CLOSED_ENUM AIOperationTypes
 	AI_OPERATION_MUSICIAN_CONCERT_TOUR,
     AI_OPERATION_MERCHANT_DELEGATION,
 	AI_OPERATION_DIPLOMAT_DELEGATION,
+
+	AI_OPERATION_ESCORTED_IMPROVEMENT_BUILD,
 
 	NUM_AI_OPERATIONS ENUM_META_VALUE,
 };
@@ -575,6 +578,60 @@ private:
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit);
 };
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  CLASS:      CvAIOperationBuildImprovementEscorted
+//!  \brief		Build an improvement with a military escort
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvAIOperationBuildImprovementEscorted : public CvAIOperation
+{
+public:
+
+	//note we store the builder by ID, not by pointer - units are pooled and recycled, so a pointer can go stale
+	CvAIOperationBuildImprovementEscorted(int iID, PlayerTypes eOwner, int iBuilderID, SBuilderDirective eDirective, bool bInstantBuild, bool bIsKill) :
+		CvAIOperation(iID, eOwner, NO_PLAYER, AI_OPERATION_ESCORTED_IMPROVEMENT_BUILD, ARMY_TYPE_ESCORT_LAND), m_iBuilderID(iBuilderID),
+		m_eDirective(eDirective), m_bInstantBuild(bInstantBuild), m_bIsKill(bIsKill)
+	{}
+	virtual ~CvAIOperationBuildImprovementEscorted() {}
+
+	virtual void Init(CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+
+	virtual int GetDeployRange() const { return 1; }
+	virtual bool CheckTransitionToNextStage();
+
+	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
+
+	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
+	virtual bool IsEscorted() const;
+	virtual bool IsOffensive() const { return false; }
+
+	//we have arrived. subclass needs to decide what happens
+	virtual bool PerformMission(CvUnit* pUnit);
+	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
+	virtual bool IsNavalOperation() const { return GetFormationType() == MUFORMATION_BUILDER_ESCORT_NAVAL; }
+
+	CvPlot* GetBuilderTargetPlot() const;
+	//may return NULL if the builder died or the operation was deserialized without it
+	CvUnit* GetBuilder() const;
+
+	bool IsMovingToBuildTarget() const { return m_eDirective.m_eBuild != NO_BUILD; }
+	bool IsInstantBuild() const { return m_bInstantBuild; }
+	bool IsKill() const { return m_bIsKill; }
+
+	SBuilderDirective GetDirective() const { return m_eDirective; }
+	void SetDirective(SBuilderDirective eDirective) { m_eDirective = eDirective; }
+
+	virtual void Read(FDataStream& kStream);
+	virtual void Write(FDataStream& kStream) const;
+
+protected:
+	MultiunitFormationTypes GetFormationType() const;
+
+	int m_iBuilderID;
+	SBuilderDirective m_eDirective;
+	bool m_bInstantBuild;
+	bool m_bIsKill;
+};
+
 
 namespace OperationalAIHelpers
 {
@@ -585,6 +642,8 @@ namespace OperationalAIHelpers
 	int IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, CvPlot* pTarget,	bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<size_t,CvFormationSlotEntry>>& availableSlots);
 	CvCity* GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, const CvPlot* pRefPlot, int iMinWaterSize);
 	pair<CvCity*, CvCity*> GetClosestCoastalCityPair(PlayerTypes ePlayerA, PlayerTypes ePlayerB);
+	//returns the builder escort operation the given unit belongs to, or NULL if it is not in one
+	CvAIOperationBuildImprovementEscorted* GetBuilderEscortOperation(PlayerTypes ePlayer, const CvUnit* pUnit);
 }
 
 #endif
