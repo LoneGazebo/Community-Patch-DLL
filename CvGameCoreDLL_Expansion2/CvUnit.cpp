@@ -13815,8 +13815,8 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 		if (MOD_BALANCE_VP && !bFromStartingXP && !IsCannotHeal(true))
 			changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
 
-		// Yields from level up aren't triggered by promotions obtained from starting XP
-		if (!bFromStartingXP)
+		// Yields from level up aren't triggered by promotions obtained from the starting XP of units that gain XP from exploration
+		if (!bFromStartingXP || getUnitInfo().GetXPFromExploration() == 0)
 		{
 			// Local yields go to the origin city, or the capital if there is none
 			CvCity* pYieldCity = getOriginCity() ? getOriginCity() : kPlayer.getCapitalCity();
