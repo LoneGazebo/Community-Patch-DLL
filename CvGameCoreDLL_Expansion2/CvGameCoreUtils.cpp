@@ -512,10 +512,27 @@ int plotDistance(int iX1, int iY1, int iX2, int iY2)
 	int iZ1H = -iX1H-iY1;
 	int iZ2H = -iX2H-iY2;
 
-	//todo: fixme. wrapping does not work correctly for large distances
-	int iDX = dxWrap(iX2H - iX1H);
+	int iDX = iX2H - iX1H;
 	int iDY = dyWrap(iY2 - iY1);
-	int iDZ = dxWrap(iZ2H - iZ1H); //x and z have same range
+	int iDZ = iZ2H - iZ1H;
+
+	//x and z must wrap together, or the result is no real path and comes out too short.
+	//decide by the east-west offset, which is iDX - iDZ in half tiles
+	const CvMap& kMap = GC.getMap();
+	if (kMap.isWrapX())
+	{
+		int iWidth = kMap.getGridWidth();
+		if (iDX - iDZ > iWidth)
+		{
+			iDX -= iWidth;
+			iDZ += iWidth;
+		}
+		else if (iDX - iDZ < -iWidth)
+		{
+			iDX += iWidth;
+			iDZ -= iWidth;
+		}
+	}
 
 	return (abs(iDX) + abs(iDY) + abs(iDZ)) / 2;
 }
