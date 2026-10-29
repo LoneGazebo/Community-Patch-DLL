@@ -6,6 +6,7 @@ A minidump (crash dump) is a diagnostic file that captures the state of the game
 - [What are Minidumps?](#what-are-minidumps)
 - [When are Minidumps Generated?](#when-are-minidumps-generated)
 - [Locating Minidump Files](#locating-minidump-files)
+  - [Choosing a Different Folder](#choosing-a-different-folder)
 - [Filename Format](#filename-format)
 - [Version String Format](#version-string-format)
 - [Obtaining Symbol Files (PDB)](#obtaining-symbol-files-pdb)
@@ -41,14 +42,33 @@ Minidumps are automatically generated when the game encounters an unhandled exce
 
 ## Locating Minidump Files
 
-Minidump files are saved in the **same directory as the game executable** when a crash occurs.
+Everything a crash report needs is written to one folder, `crashlogs`, inside the game's installation directory (next to `CivilizationV.exe`):
+
+- `CvMiniDump_*.dmp` - the minidumps
+- `crashes.log` - one entry per crash: exception, crash class, memory state and a stack excerpt
+- `CvAssert.log` - every failed ASSERT and PRECONDITION; it only exists once one has fired. A crash classed as "Deliberate stop: a failed ASSERT/PRECONDITION" names the failed check here.
 
 **Typical locations:**
-- **Steam:** `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\`
-- **Non-Steam:** `C:\Program Files (x86)\2K Games\Sid Meier's Civilization V\`
-- **Mod testing with ModBuddy:** The folder where you placed the compiled DLL
+- **Steam:** `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\crashlogs\`
+- **Non-Steam:** `C:\Program Files (x86)\2K Games\Sid Meier's Civilization V\crashlogs\`
 
-Look for files matching the pattern `CvMiniDump_*.dmp`.
+Zip the whole `crashlogs` folder for a bug report. `CvAssert.log` is opened only while an entry is written, so the folder can be copied while the game is still running.
+
+### Choosing a Different Folder
+
+If the installation directory is not writable (for example under `Program Files` without administrator rights), or to keep the reports of several profiles apart, move all three files together with a `CrashLogPath` entry in your `config.ini` in `Documents\My Games\Sid Meier's Civilization 5\`:
+
+```ini
+[Vox Populi]
+CrashLogPath = D:\Civ5 crash reports
+```
+
+For scripted runs, the environment variable `VP_CRASHLOG_PATH` does the same and takes precedence over `config.ini`. The setting is read once at game start:
+
+- It must be an absolute path (`D:\...` or `\\server\share\...`) of at most 150 characters. Missing folders are created at game start.
+- It may only use characters of the Windows system code page (the "language for non-Unicode programs"), because the crash handler writes with ANSI file names. Most Latin-alphabet paths are fine; use a plain path if yours contains other scripts.
+- If the value is unusable (relative, too long, unrepresentable, or the folder cannot be created or written to), the default `crashlogs` folder is used instead, so a bad setting never costs a crash report. `crashes.log` then explains it, e.g. `Crash log folder: crashlogs (config.ini [Vox Populi] CrashLogPath ignored: not an absolute path)`. A working override is recorded the same way: `Crash log folder: D:\Civ5 crash reports (from config.ini [Vox Populi] CrashLogPath)`.
+- The `nodumps.please` / `nopopups.please` markers below always stay in the installation's `crashlogs` folder.
 
 ## Filename Format
 
@@ -258,8 +278,8 @@ This shows an access violation trying to read from a null pointer at `CvPlayer::
 
 When reporting a crash:
 
-1. **Locate the minidump file** in your game directory
-2. **Zip the minidump file** - minidumps compress very well (use `.zip` format for GitHub compatibility)
+1. **Locate the `crashlogs` folder** (see [Locating Minidump Files](#locating-minidump-files))
+2. **Zip the folder** - the minidump, `crashes.log` and `CvAssert.log` together; minidumps compress very well (use `.zip` format for GitHub compatibility)
 3. **Note the exact version** you were running
 4. **Describe what you were doing** when the crash occurred
 5. **Attach to your bug report** on the forum or GitHub
@@ -286,6 +306,18 @@ Create an empty file named `nodumps.please` inside the `crashlogs` folder in the
 The marker is read once at game start. While present, no dumps are written, the emergency memory reserve is not held, and `crashes.log` records `Minidump: Disabled by user (crashlogs\nodumps.please)` for any crash. Delete the file to re-enable minidumps.
 
 There is also `crashlogs\nopopups.please`, which suppresses all error dialogs (asserts are auto-ignored, crash and precondition popups are skipped) for unattended or autoplay sessions. Logging (`CvAssert.log`, `crashes.log`) and minidump creation are unaffected by this marker.
+
+The marker files apply to one installation (they are not moved by `CrashLogPath`). To opt out per user instead, add a section to your `config.ini` in `Documents\My Games\Sid Meier's Civilization 5\`:
+
+```ini
+[Vox Populi]
+; Set to 0 to skip minidump creation on crashes
+CrashMiniDumps = 0
+; Set to 0 to suppress error dialogs (asserts, crash and precondition popups)
+ErrorPopups = 0
+```
+
+Both keys default to 1. The game keeps this section when it saves `config.ini`. The DLL only reads the file, so edit it while the game is closed. For scripted runs, the environment variables `VP_CRASH_MINIDUMPS=0` and `VP_ERROR_POPUPS=0` do the same. Any one source (marker file, `config.ini` key or environment variable) disables the feature, and `crashes.log` names the source, e.g. `Minidump: Disabled by user (config.ini [Vox Populi] CrashMiniDumps = 0)`.
 
 **At build time (developers):**
 
