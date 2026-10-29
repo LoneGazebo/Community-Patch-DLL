@@ -2318,7 +2318,6 @@
 			<Help>TXT_KEY_BUILDING_THRONE_ROOM_HELP</Help>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<CultureRateModifier>15</CultureRateModifier>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<CityWorkingChange>1</CityWorkingChange>
