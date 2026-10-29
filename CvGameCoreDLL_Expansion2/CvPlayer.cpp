@@ -10185,6 +10185,15 @@ void CvPlayer::doTurn()
 	{
 		DoWarValueLostDecay();
 		DoUpdateWarDamageAndWeariness(false);
+
+		// Refresh our enemies' war damage against us too, so both sides of each war are measured at the start of our turn
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (eLoopPlayer != GetID() && GET_PLAYER(eLoopPlayer).isAlive() && IsAtWarWith(eLoopPlayer))
+				GET_PLAYER(eLoopPlayer).DoUpdateWarDamageAndWeariness(/*bDamageOnly*/ true, GetID());
+		}
+
 		cacheAvgGoldRate();
 
 		//Reset for reevaluation of citystrategy AI
@@ -37263,8 +37272,8 @@ void CvPlayer::CacheCurrentWarValue(int iValue)
 	m_iCachedCurrentWarValue = max(iValue, 0);
 }
 
-/// Updates how much damage we have taken in wars against all players, how weary we are of our wars, and our cached current war value
-void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
+/// Updates how much damage we have taken in wars against all players (or only eOnlyPlayer), how weary we are of our wars, and our cached current war value
+void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly, PlayerTypes eOnlyPlayer)
 {
 	// Calculate the value of what we have currently - this is invariant so we will just do it once
 	int iCurrentValue = 0;
@@ -37369,6 +37378,9 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+		if (eOnlyPlayer != NO_PLAYER && eLoopPlayer != eOnlyPlayer)
+			continue;
 
 		if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam))
 			continue;

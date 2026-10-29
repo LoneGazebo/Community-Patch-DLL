@@ -2115,7 +2115,7 @@ public:
 	void ChangeWarWeariness(PlayerTypes ePlayer, int iChange);
 	int GetCachedCurrentWarValue() const;
 	void CacheCurrentWarValue(int iValue);
-	void DoUpdateWarDamageAndWeariness(bool bDamageOnly);
+	void DoUpdateWarDamageAndWeariness(bool bDamageOnly, PlayerTypes eOnlyPlayer = NO_PLAYER);
 	int GetWarWearinessPercent(PlayerTypes ePlayer) const;
 	int GetHighestWarWearinessPercent() const;
 	PlayerTypes GetHighestWarWearinessPlayer(bool bConsiderHappinessOnly = false) const;
