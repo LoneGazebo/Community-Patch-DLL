@@ -118,7 +118,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 
 	bValid = true;
 
-	for (int i = static_cast<int>(UnitClassesVector.size()) - 1; i >= 0; i--)
+	for (int i = UnitClassesVector.size() - 1; i >= 0; i--)
 	{
 		const UnitClassTypes eUnitClass = (UnitClassTypes) UnitClassesVector.GetElement(i);
 
