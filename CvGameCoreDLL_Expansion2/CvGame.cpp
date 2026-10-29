@@ -12413,6 +12413,9 @@ void CvGame::LogMapState() const
 	CvString strLogName;
 	strLogName = strLogName.format("mapStateLog_Turn%03d.json", GC.getGame().getElapsedGameTurns());
 	FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+	if (!pLog)
+		return;
+
 	CvString outputJson = "{\"MapData\": {";
 	CvString strTemp;
 
@@ -12559,6 +12562,11 @@ void CvGame::LogMapState() const
 	// File format seems to want this weird CityOwnerIndexMap thing so ok
 	outputJson += "\"CityOwnerIndexMap\":{}}}";
 	pLog->Msg(outputJson);
+
+	pLog->Close();
+	//the turn number is part of the filename, so this log is never requested again.
+	//without this the manager keeps it - and its grown write buffer - until shutdown.
+	LOGFILEMGR.DeleteLog( pLog );
 }
 
 void CvGame::LogMapPlotsState() const
