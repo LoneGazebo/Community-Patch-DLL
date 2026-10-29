@@ -126,19 +126,15 @@ UPDATE Buildings
 SET FreshWater = 0
 WHERE Type = 'BUILDING_BASTU';
 
-UPDATE Building_YieldChanges
-SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_BATH' AND YieldType = 'YIELD_CULTURE') + 1
-WHERE BuildingType = 'BUILDING_BASTU' AND YieldType = 'YIELD_CULTURE';
-
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_BASTU', 'YIELD_FOOD', 3);
+	('BUILDING_BASTU', 'YIELD_FOOD', 2);
 
-INSERT INTO Building_YieldPerXTerrainTimes100
+INSERT INTO Building_TerrainYieldChanges
 	(BuildingType, TerrainType, YieldType, Yield)
 VALUES
-	('BUILDING_BASTU', 'TERRAIN_TUNDRA', 'YIELD_SCIENCE', 50);
+	('BUILDING_BASTU', 'TERRAIN_TUNDRA', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Building_YieldFromGPExpend
 	(BuildingType, YieldType, Yield)
