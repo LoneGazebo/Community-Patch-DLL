@@ -1989,6 +1989,22 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		m_ppaiSpecialistYieldChange[iI][YIELD_CULTURE] += m_iSpecialistExtraCulture;
 	}
 
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiResourceYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiFeatureYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiImprovementYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiImprovementYieldChangeGlobal);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiYieldPerXTerrain);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiYieldPerXFeature);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiTerrainYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiPlotYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiSpecialistYieldChangeLocal);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiSpecialistYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiResourceYieldModifier);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYieldModifiers);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassLocalYieldChanges);
+
 	return true;
 }
 

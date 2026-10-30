@@ -857,6 +857,17 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	}
 
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiAdjacentResourceYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiAdjacentTerrainYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiAdjacentFeatureYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiFeatureYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTechYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTechNoFreshWaterYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTechFreshWaterYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiRouteYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiAccomplishmentYieldChanges);
+
 	return true;
 }
 

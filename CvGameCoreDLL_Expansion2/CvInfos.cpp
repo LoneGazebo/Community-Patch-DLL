@@ -7191,6 +7191,9 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	// Determine of this feature is clearable - set each time the game is started
 	m_bClearable = false;
 
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTechYieldChanges);
+
 	return true;
 }
 
@@ -7628,6 +7631,9 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");
+
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTechYieldChanges);
 
 	return true;
 }
@@ -10725,6 +10731,15 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	m_iCultureMedianModifierGlobal = kResults.GetInt("CultureMedianModifierGlobal");
 	m_iReligiousUnrestModifierGlobal = kResults.GetInt("ReligiousUnrestModifierGlobal");
 
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYieldModifier);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTerrainYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiImprovementYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiResourceYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiFeatureYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiSpecialistYield);
+
 	return true;
 }
 //======================================================================================================
@@ -12632,6 +12647,15 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
 	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
 	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
+
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYieldModifier);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTerrainYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiImprovementYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiResourceYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiFeatureYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiSpecialistYield);
 
 	return true;
 }

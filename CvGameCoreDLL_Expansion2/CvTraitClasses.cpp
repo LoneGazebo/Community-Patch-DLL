@@ -3804,6 +3804,27 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_ARTIST")] += m_iGoldenAgeGreatArtistRateModifier;
 	m_piGoldenAgeGreatPersonRateModifier[GC.getInfoTypeForString("GREATPERSON_MUSICIAN")] += m_iGoldenAgeGreatMusicianRateModifier;
 
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiYieldFromTileEarnTerrainType);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiYieldFromTilePurchaseTerrainType);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiYieldFromTileConquest);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiYieldFromTileCultureBomb);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiYieldFromTileStealCultureBomb);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiYieldFromTileSettle);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiYieldChangePerImprovementBuilt);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiImprovementYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiPlotYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiFeatureYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiResourceYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTerrainYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTradeRouteYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiSpecialistYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiGreatPersonExpendedYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiGreatPersonBornYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiCityYieldFromUnimprovedFeature);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiUnimprovedFeatureYieldChanges);
+
 	return true;
 }
 

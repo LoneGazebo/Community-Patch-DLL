@@ -233,6 +233,9 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 			m_ppiTechYieldChanges[SpecialistID][YieldID] = yield;
 		}
 	}
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTechYieldChanges);
+
 	return true;
 }
 

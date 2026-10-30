@@ -45,6 +45,17 @@ void InitializeArray(T*& pArray, const char* szTableName, T default_ = (T)0);
 	bool Initialize2DArray(int**& pArray, const char* szTable1Name, const char* szTable2Name, int iDefault = 0);
 	static void SafeDelete2DArray(int**& pArray);
 
+	//! Call when every value of a table made by Initialize2DArray has been written (the end of CacheResults).
+	//! If every value is 0, the table's own block is freed and ppArray points at one shared, all-zero block of the
+	//! same shape instead. Most entries have no rows in most yield tables, and with a large mod set the dense copies
+	//! of those empty tables take hundreds of MB of the 32-bit address space.
+	//! Reads are unchanged: the shared block has the same layout (row pointers, then the rows), so ppArray[i] and
+	//! ppArray[i][j] read the same values as before. The shared block is never written: its pages are read-only,
+	//! so a write through ppArray faults at once instead of changing the values of every entry that shares it.
+	//! SafeDelete2DArray recognizes the shared block, releases one reference and clears the pointer.
+	static void Share2DArrayIfZero(int**& ppArray);
+	static bool IsShared2DArray(const int* const* ppArray);
+
 
 	//!Allocates an array to Count(szTypeTableName) and initializes to false.
 	//!Then assigns pArray[Type.ID] = true for all resulting rows.
@@ -112,6 +123,8 @@ void InitializeArray(T*& pArray, const char* szTableName, T default_ = (T)0);
 	const char* GetErrorMessage() const;
 
 private:
+	static bool ReleaseShared2DArray(const int* const* ppArray);
+
 	typedef stdext::hash_map<std::string, Database::Results*> ResultsMap;
 	ResultsMap m_storedResults;
 };
