@@ -20747,6 +20747,11 @@ void CvPlayer::DistributeHappinessToCities()
 	if (CitiesSortedByPopulation.empty())
 		return;
 
+	// Nothing to hand out. Both loops below stop only when the count reaches exactly 0, so from 0 or less
+	// they would run until the int wraps around (about 2^32 steps) and leave wrapped values in the cities.
+	if (iHappiness <= 0)
+		return;
+
 	CitiesSortedByNeed.StableSortItems();
 	CitiesSortedByPopulation.StableSortItems();
 
