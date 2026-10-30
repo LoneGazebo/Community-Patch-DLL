@@ -40965,8 +40965,6 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	TeamTypes eHumanTeam = pHuman->getTeam();
 	CvTeam* pHumanTeam = &GET_TEAM(eHumanTeam);
 
-	GetPlayer()->DoUpdateWarDamageAndWeariness(/*bDamageOnly*/ true);
-
 	CivApproachTypes eVisibleApproach = GetSurfaceApproach(eHuman);
 	WarStateTypes eWarState = GetWarState(eHuman);
 	DisputeLevelTypes eLandDispute = GetLandDisputeLevel(eHuman);
