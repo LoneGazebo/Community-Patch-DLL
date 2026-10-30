@@ -342,12 +342,89 @@ int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvA
 }
 
 //	--------------------------------------------------------------------------------
+// Per-search memo of the build route callbacks (PT_BUILD_ROUTE, PT_BUILD_ROUTE_MIXED).
+// BuildRouteCost and BuildRouteValid are called once per edge, and the river extra children of a route search hand each
+// fresh-water node every plot of each river it touches, so the same plot is evaluated many times in one search. Within
+// one search, BuildRouteCost depends only on the plot and the search's user data, and so does BuildRouteValid except for
+// IsPlotSafeForRoute of the parent plot (itself a function of that plot and the search's player). The memo keeps these
+// per plot, tagged with the stamp of the search that computed them. A search takes a new stamp when it starts and when it
+// resumes after a nested route search, and CvCityConnections::Update (the one routine reachable from the callbacks that
+// changes their inputs, through the lazy refresh in GetDirectConnectionsFromCity) gives the open search a new stamp too.
+// Nothing is kept across searches, and the callbacks return the same values in the same order.
+struct CvRouteSearchMemo
+{
+	CvRouteSearchMemo() : iStamp(0), iCounter(0) {}
+
+	void Resize(int iNumPlots)
+	{
+		if (aCostStamp.size() == (size_t)iNumPlots)
+			return;
+		aCostStamp.assign(iNumPlots, 0);
+		aValidStamp.assign(iNumPlots, 0);
+		aSafeStamp.assign(iNumPlots, 0);
+		aCost.assign(iNumPlots, 0);
+		aValid.assign(iNumPlots, 0);
+		aSafe.assign(iNumPlots, 0);
+	}
+	unsigned int NextStamp()
+	{
+		if (++iCounter == 0)
+		{
+			//wrapped: no old entry may match a new stamp
+			std::fill(aCostStamp.begin(), aCostStamp.end(), 0u);
+			std::fill(aValidStamp.begin(), aValidStamp.end(), 0u);
+			std::fill(aSafeStamp.begin(), aSafeStamp.end(), 0u);
+			iCounter = 1;
+		}
+		return iCounter;
+	}
+
+	unsigned int iStamp; //stamp of the open route search, 0 = none
+	unsigned int iCounter;
+	vector<unsigned int> aCostStamp, aValidStamp, aSafeStamp;
+	vector<int> aCost;
+	vector<unsigned char> aValid; //0 = invalid, 1 = valid, 2 = valid exactly if the parent plot is safe for a route
+	vector<unsigned char> aSafe;
+};
+static CvRouteSearchMemo gRouteSearchMemo;
+
+// Gives a route search its own memo stamp for its lifetime; the search it interrupted (if any) resumes with a new stamp.
+class CvRouteSearchMemoScope
+{
+public:
+	explicit CvRouteSearchMemoScope(bool bRouteSearch) : m_bActive(bRouteSearch), m_iPrevStamp(gRouteSearchMemo.iStamp)
+	{
+		if (!m_bActive)
+			return;
+		gRouteSearchMemo.Resize(GC.getMap().numPlots());
+		gRouteSearchMemo.iStamp = gRouteSearchMemo.NextStamp();
+	}
+	~CvRouteSearchMemoScope()
+	{
+		if (m_bActive)
+			gRouteSearchMemo.iStamp = (m_iPrevStamp != 0) ? gRouteSearchMemo.NextStamp() : 0;
+	}
+private:
+	bool m_bActive;
+	unsigned int m_iPrevStamp;
+};
+
+// Drops the memo entries of an open route search (see CvRouteSearchMemo)
+void InvalidateRouteSearchMemo()
+{
+	if (gRouteSearchMemo.iStamp != 0)
+		gRouteSearchMemo.iStamp = gRouteSearchMemo.NextStamp();
+}
+
+//	--------------------------------------------------------------------------------
 // Generates a path from iXstart,iYstart to iXdest,iYdest
 // private method - not threadsafe!
 bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXdest, int iYdest)
 {
 	if (!IsInitialized(iXstart, iYstart, iXdest, iYdest))
 		return false;
+
+	CvRouteSearchMemoScope routeMemoScope(m_sData.ePath == PT_BUILD_ROUTE || m_sData.ePath == PT_BUILD_ROUTE_MIXED);
 
 	//this is the version number for the node cache
 	m_iCurrentGenerationID++;
@@ -2635,8 +2712,8 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 }
 
 //	--------------------------------------------------------------------------------
-/// Build route cost
-int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar*)
+/// Build route cost of a plot, without the per-search memo
+static int BuildRouteCostUncached(const CvAStarNode* node, const SPathFinderUserData& data)
 {
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvPlayer* pPlayer = &GET_PLAYER(data.ePlayer);
@@ -2727,12 +2804,54 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 }
 
 //	--------------------------------------------------------------------------------
-/// Build Route path finder - check validity of a coordinate
-int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+/// Build route cost (memoized per search, see CvRouteSearchMemo)
+int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar*)
 {
-	if(parent == NULL || data.ePlayer == NO_PLAYER)
-		return TRUE;
+	CvRouteSearchMemo& memo = gRouteSearchMemo;
+	if (memo.iStamp == 0)
+		return BuildRouteCostUncached(node, data);
 
+	const size_t iIndex = (size_t)GC.getMap().plotNum(node->m_iX, node->m_iY);
+	if (iIndex >= memo.aCostStamp.size())
+		return BuildRouteCostUncached(node, data);
+
+	if (memo.aCostStamp[iIndex] == memo.iStamp)
+		return memo.aCost[iIndex];
+
+	//keep the value only if the memo was not invalidated while computing it
+	const unsigned int iStamp = memo.iStamp;
+	int iCost = BuildRouteCostUncached(node, data);
+	if (memo.iStamp == iStamp)
+	{
+		memo.aCost[iIndex] = iCost;
+		memo.aCostStamp[iIndex] = iStamp;
+	}
+	return iCost;
+}
+
+/// IsPlotSafeForRoute(plot, true) of the search's player (memoized during a route search)
+static bool IsPlotSafeForRouteMemo(const CvPlayer& kPlayer, int iX, int iY)
+{
+	CvRouteSearchMemo& memo = gRouteSearchMemo;
+	const unsigned int iStamp = memo.iStamp;
+	const size_t iIndex = (size_t)GC.getMap().plotNum(iX, iY);
+	const bool bUseMemo = (iStamp != 0 && iIndex < memo.aSafeStamp.size());
+	if (bUseMemo && memo.aSafeStamp[iIndex] == iStamp)
+		return memo.aSafe[iIndex] != 0;
+
+	bool bSafe = kPlayer.IsPlotSafeForRoute(GC.getMap().plotUnchecked(iX, iY), true /*bIncludeAdjacent*/);
+	if (bUseMemo && memo.iStamp == iStamp)
+	{
+		memo.aSafe[iIndex] = bSafe ? 1 : 0;
+		memo.aSafeStamp[iIndex] = iStamp;
+	}
+	return bSafe;
+}
+
+/// The tests of BuildRouteValid that do not read the parent plot, in the same order:
+/// 0 = invalid, 1 = valid, 2 = valid exactly if the parent plot is safe for a route
+static int BuildRouteValidPlotTerms(const CvAStarNode* node, const SPathFinderUserData& data)
+{
 	PlayerTypes ePlayer = data.ePlayer;
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	bool bThisPlayerIsMinor = kPlayer.isMinorCiv();
@@ -2741,20 +2860,20 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	//can we build it?
 	RouteTypes eRoute = data.eRoute;
 	if (eRoute != ROUTE_ANY && eRoute > kPlayer.getBestRoute())
-		return FALSE;
+		return 0;
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	if(!bThisPlayerIsMinor && !(pNewPlot->isRevealed(kPlayer.getTeam())))
-		return FALSE;
+		return 0;
 
 	if(pNewPlot->isWater())
-		return FALSE;
+		return 0;
 
 	if(!pNewPlot->isValidMovePlot(ePlayer) && !(pNewPlot->isMountain() && kPlayer.WorkersMountainPass()))
-		return FALSE;
+		return 0;
 
 	if (!bIsManual && pNewPlot->GetPlannedRouteState(ePlayer) == ROAD_PLANNING_EXCLUDE && !pNewPlot->isCity())
-		return FALSE;
+		return 0;
 
 	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
 	if(ePlotOwnerPlayer != NO_PLAYER && pNewPlot->getTeam() != kPlayer.getTeam() && !GET_TEAM(pNewPlot->getTeam()).IsVassal(kPlayer.getTeam()))
@@ -2762,25 +2881,51 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 		bool bPlotOwnerIsMinor = GET_PLAYER(ePlotOwnerPlayer).isMinorCiv();
 		if ((bThisPlayerIsMinor && bPlotOwnerIsMinor) || (!bThisPlayerIsMinor && !bPlotOwnerIsMinor))
 		{
-			return FALSE;
+			return 0;
 		}
 	}
 
 	if ((ePlotOwnerPlayer == NO_PLAYER || ePlotOwnerPlayer == ePlayer) && kPlayer.GetSameRouteBenefitFromTrait(pNewPlot, eRoute))
-		return TRUE;
+		return 1;
 
 	//if the plot and its parent are both too far from our borders, don't build here
 	if (!bIsManual)
 	{
-		if (!kPlayer.IsPlotSafeForRoute(pNewPlot, true /*bIncludeAdjacent*/))
+		if (!IsPlotSafeForRouteMemo(kPlayer, node->m_iX, node->m_iY))
+			return 2;
+	}
+
+	return 1;
+}
+
+//	--------------------------------------------------------------------------------
+/// Build Route path finder - check validity of a coordinate (the plot's own tests memoized per search)
+int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
+{
+	if(parent == NULL || data.ePlayer == NO_PLAYER)
+		return TRUE;
+
+	CvRouteSearchMemo& memo = gRouteSearchMemo;
+	const unsigned int iStamp = memo.iStamp;
+	const size_t iIndex = (size_t)GC.getMap().plotNum(node->m_iX, node->m_iY);
+	int iPlotTerms = 0;
+	if (iStamp != 0 && iIndex < memo.aValidStamp.size() && memo.aValidStamp[iIndex] == iStamp)
+		iPlotTerms = memo.aValid[iIndex];
+	else
+	{
+		iPlotTerms = BuildRouteValidPlotTerms(node, data);
+		//keep the result only if the memo was not invalidated while computing it
+		if (iStamp != 0 && iIndex < memo.aValidStamp.size() && memo.iStamp == iStamp)
 		{
-			CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
-			if (!kPlayer.IsPlotSafeForRoute(pFromPlot, true /*bIncludeAdjacent*/))
-				return FALSE;
+			memo.aValid[iIndex] = (unsigned char)iPlotTerms;
+			memo.aValidStamp[iIndex] = iStamp;
 		}
 	}
 
-	return TRUE;
+	if (iPlotTerms == 2)
+		return IsPlotSafeForRouteMemo(GET_PLAYER(data.ePlayer), parent->m_iX, parent->m_iY) ? TRUE : FALSE;
+
+	return iPlotTerms == 1 ? TRUE : FALSE;
 }
 
 bool BothHaveSamePassabilityAndDomain(const CvPlot* pA, const CvPlot* pB)
