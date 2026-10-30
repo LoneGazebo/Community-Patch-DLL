@@ -11610,6 +11610,36 @@ int CvPlot::getVisiblityCount(TeamTypes eTeam)
 {
 	return m_aiVisibilityCount[eTeam];
 }
+
+//	--------------------------------------------------------------------------------
+/// Is there a unit on this plot that the unit loop in changeVisibilityCount would react to?
+/// That loop only acts on a unit whose team eTeam is at war with, or (if eTeam is human) has not met yet.
+/// Read-only test over the same unit list, so it can run first and spare the loop on every other plot.
+static bool HasUnitToReactToOnSight(const CvPlot& kPlot, TeamTypes eTeam)
+{
+	const CvTeam& kTeam = GET_TEAM(eTeam);
+	int iIsHuman = -1; //evaluated lazily, only for a team we have not met
+	for (const IDInfo* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
+	{
+		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		if (!pLoopUnit)
+			continue;
+
+		TeamTypes eUnitTeam = pLoopUnit->getTeam();
+		if (kTeam.isAtWar(eUnitTeam))
+			return true;
+
+		if (!kTeam.isHasMet(eUnitTeam))
+		{
+			if (iIsHuman < 0)
+				iIsHuman = kTeam.isHuman() ? 1 : 0;
+			if (iIsHuman == 1)
+				return true;
+		}
+	}
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit)
 {
@@ -11721,7 +11751,8 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 	}
 
 	// Check units. Does not matter if we could see the plot before, invisible units might have turned visible!
-	if (iChange > 0)
+	// Skip the loop when no unit here can trigger a reaction (in network MP always run it, getUnitByIndex reports desyncs there)
+	if (iChange > 0 && (GC.getGame().isNetworkMultiPlayer() || HasUnitToReactToOnSight(*this, eTeam)))
 	{
 		for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
 		{
