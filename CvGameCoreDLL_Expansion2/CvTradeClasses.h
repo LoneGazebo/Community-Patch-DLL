@@ -416,7 +416,8 @@ public:
 
 	//some precomputed numbers for performance
 	SPlayerTradeStats m_tradeStats;
-	void UpdateTradeStats();
+	SPlayerTradeStats m_tradeStatsUi; //the UI thread's own copy, so it never rebuilds the one the game core reads
+	SPlayerTradeStats& UpdateTradeStats();
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerTrade&);
