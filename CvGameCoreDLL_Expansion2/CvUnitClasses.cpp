@@ -665,6 +665,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	// Calculate military Power and cache it
 	DoUpdatePower();
 
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiEraUnitCombatType);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiEraUnitPromotions);
+
 	return true;
 }
 

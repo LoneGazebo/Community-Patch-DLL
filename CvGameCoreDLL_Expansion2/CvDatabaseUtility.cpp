@@ -142,8 +142,148 @@ void CvDatabaseUtility::Initialize2DArray(int**& ppArray, const size_t iCount1, 
 //------------------------------------------------------------------------------
 void CvDatabaseUtility::SafeDelete2DArray(int**& pArray)
 {
+	if(pArray != NULL && ReleaseShared2DArray(pArray))
+	{
+		pArray = NULL;
+		return;
+	}
 	delete[] pArray;
 	pArray = NULL;
+}
+//------------------------------------------------------------------------------
+// Shared all-zero 2D tables (Share2DArrayIfZero): one per table shape, reference counted, on read-only pages.
+// Loading the database runs on one thread, as do the frees (CvGlobals::deleteInfoArrays).
+namespace
+{
+struct Shared2DArray
+{
+	size_t iCount1;
+	size_t iCount2;
+	size_t iRefs;
+	int** ppArray;
+};
+const size_t MAX_SHARED_2D_ARRAYS = 64;
+Shared2DArray s_aShared2DArrays[MAX_SHARED_2D_ARRAYS];
+size_t s_iNumShared2DArrays = 0;
+
+size_t Size2DArray(size_t iCount1, size_t iCount2)
+{
+	return iCount1 * sizeof(int*) + iCount1 * iCount2 * sizeof(int);
+}
+
+int** CreateShared2DArray(size_t iCount1, size_t iCount2)
+{
+	// Same layout as Initialize2DArray. VirtualAlloc returns zeroed pages; only the row pointers are written.
+	const size_t iNumBytes = Size2DArray(iCount1, iCount2);
+	unsigned char* pData = (unsigned char*)VirtualAlloc(NULL, iNumBytes, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	if(pData == NULL)
+		return NULL;
+	int** ppArray = (int**)pData;
+	int* pRows = (int*)(pData + iCount1 * sizeof(int*));
+	for(size_t i = 0; i < iCount1; ++i)
+		ppArray[i] = pRows + i * iCount2;
+	DWORD dwOldProtect = 0;
+	if(!VirtualProtect(pData, iNumBytes, PAGE_READONLY, &dwOldProtect))
+	{
+		VirtualFree(pData, 0, MEM_RELEASE);
+		return NULL;
+	}
+	return ppArray;
+}
+}
+//------------------------------------------------------------------------------
+bool CvDatabaseUtility::IsShared2DArray(const int* const* ppArray)
+{
+	for(size_t i = 0; i < s_iNumShared2DArrays; ++i)
+	{
+		if(s_aShared2DArrays[i].ppArray == ppArray)
+			return true;
+	}
+	return false;
+}
+//------------------------------------------------------------------------------
+bool CvDatabaseUtility::ReleaseShared2DArray(const int* const* ppArray)
+{
+	for(size_t i = 0; i < s_iNumShared2DArrays; ++i)
+	{
+		Shared2DArray& kShared = s_aShared2DArrays[i];
+		if(kShared.ppArray != ppArray)
+			continue;
+
+		ASSERT(kShared.iRefs > 0, "Shared 2D array released more often than shared.");
+#if defined(VPDEBUG)
+		const int* pRows = kShared.ppArray[0];
+		for(size_t j = 0; j < kShared.iCount1 * kShared.iCount2; ++j)
+		{
+			ASSERT(pRows[j] == 0, "Shared 2D array was written.");
+		}
+#endif
+		if(--kShared.iRefs == 0)
+		{
+			VirtualFree(kShared.ppArray, 0, MEM_RELEASE);
+			s_aShared2DArrays[i] = s_aShared2DArrays[--s_iNumShared2DArrays];
+		}
+		return true;
+	}
+	return false;
+}
+//------------------------------------------------------------------------------
+void CvDatabaseUtility::Share2DArrayIfZero(int**& ppArray)
+{
+	if(ppArray == NULL || IsShared2DArray(ppArray))
+		return;
+
+	// Read the shape back from the Initialize2DArray layout: iCount1 row pointers, then iCount1 rows of iCount2 ints,
+	// row i at ppArray[0] + i * iCount2. Anything else is left alone.
+	const unsigned char* pBlock = (const unsigned char*)ppArray;
+	const unsigned char* pFirstRow = (const unsigned char*)ppArray[0];
+	if(pFirstRow <= pBlock || (size_t)(pFirstRow - pBlock) % sizeof(int*) != 0)
+		return;
+	const size_t iCount1 = (size_t)(pFirstRow - pBlock) / sizeof(int*);
+	if(iCount1 < 2)
+		return; // the row length cannot be read back from one row; such tables are tiny anyway
+	if(ppArray[1] <= ppArray[0])
+		return;
+	const size_t iCount2 = (size_t)(ppArray[1] - ppArray[0]);
+	for(size_t i = 2; i < iCount1; ++i)
+	{
+		if(ppArray[i] != ppArray[0] + i * iCount2)
+			return;
+	}
+
+	const int* pRows = ppArray[0];
+	for(size_t i = 0; i < iCount1 * iCount2; ++i)
+	{
+		if(pRows[i] != 0)
+			return;
+	}
+
+	Shared2DArray* pShared = NULL;
+	for(size_t i = 0; i < s_iNumShared2DArrays; ++i)
+	{
+		if(s_aShared2DArrays[i].iCount1 == iCount1 && s_aShared2DArrays[i].iCount2 == iCount2)
+		{
+			pShared = &s_aShared2DArrays[i];
+			break;
+		}
+	}
+	if(pShared == NULL)
+	{
+		if(s_iNumShared2DArrays == MAX_SHARED_2D_ARRAYS)
+			return; // keep the table's own block
+		int** ppNew = CreateShared2DArray(iCount1, iCount2);
+		if(ppNew == NULL)
+			return; // keep the table's own block
+		pShared = &s_aShared2DArrays[s_iNumShared2DArrays++];
+		pShared->iCount1 = iCount1;
+		pShared->iCount2 = iCount2;
+		pShared->iRefs = 0;
+		pShared->ppArray = ppNew;
+	}
+
+	delete[] ppArray;
+	ppArray = pShared->ppArray;
+	pShared->iRefs++;
 }
 
 //------------------------------------------------------------------------------

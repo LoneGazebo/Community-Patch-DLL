@@ -2001,6 +2001,23 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		}
 	}
 
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiImprovementYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiFeatureYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiYieldPerXTerrain);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiYieldPerXFeature);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiCityYieldFromUnimprovedFeature);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiUnimprovedFeatureYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiResourceYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiTerrainYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTradeRouteYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiSpecialistYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiGreatPersonExpendedYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiGreatPersonBornYield);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiNearbyTerrainYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiPlotYieldChange);
+
 	return true;
 }
 
