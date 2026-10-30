@@ -4652,9 +4652,20 @@ const TradeConnection* CvPlayerTrade::GetTradeConnection(CvCity* pOriginCity, Cv
 
 CvPlayerTrade::SPlayerTradeStats& CvPlayerTrade::UpdateTradeStats()
 {
-	SPlayerTradeStats& stats = gDLL->IsGameCoreThread() ? m_tradeStats : m_tradeStatsUi;
+	bool bGameCoreThread = gDLL->IsGameCoreThread();
+	SPlayerTradeStats& stats = bGameCoreThread ? m_tradeStats : m_tradeStatsUi;
 	if (stats.iTurnSliceBuilt == GC.getGame().getTurnSlice())
 		return stats;
+
+	//the UI thread rebuilds under the game core lock, which route changes (ResetTradeStats) run under, so none can
+	//land in the middle. If the game core holds it right now, keep the old counts and rebuild on a later call
+	bool bTookLock = false;
+	if (!bGameCoreThread && !gDLL->HasGameCoreLock())
+	{
+		if (!gDLL->TryGameCoreLock())
+			return stats;
+		bTookLock = true;
+	}
 
 	stats.reset();
 
@@ -4687,6 +4698,8 @@ CvPlayerTrade::SPlayerTradeStats& CvPlayerTrade::UpdateTradeStats()
 	}
 
 	stats.iTurnSliceBuilt = GC.getGame().getTurnSlice();
+	if (bTookLock)
+		gDLL->ReleaseGameCoreLock();
 	return stats;
 }
 
