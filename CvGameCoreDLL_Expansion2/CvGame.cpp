@@ -8438,6 +8438,9 @@ void CvGame::doTurn()
 	resetTurnTimer(true);
 
 	m_processPlayerAutoMoves = false; // Starts out as false and gets set to true in updateMoves but was never getting set back to false if MP simultaneous turns with no AI.
+	// Shift+Enter (CONTROL_FORCEENDTURN) applies to the turn it was pressed in. updateMoves clears it only when it skips a
+	// unit that needs orders; without such a unit it would carry over and skip the next one in a later turn.
+	SetForceEndingTurn(false);
 
 	// If player unit cycling has been canceled for this turn, set it back to normal for the next
 	GC.GetEngineUserInterface()->setNoSelectionListCycle(false);
