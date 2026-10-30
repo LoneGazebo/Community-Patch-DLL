@@ -88,3 +88,6 @@ ALTER TABLE Beliefs ADD InquisitorCostModifier integer DEFAULT 0;
 
 -- Increases civilian work rate by x%
 ALTER TABLE Beliefs ADD CivilianWorkRate integer DEFAULT 0;
+
+-- Happiness based on Foreign followers. Admits RequiresPeace column to replace deprecated HappinessPerXPeacefulForeignFollowers
+ALTER TABLE Beliefs ADD HappinessPerXForeignFollowers integer DEFAULT 0;
