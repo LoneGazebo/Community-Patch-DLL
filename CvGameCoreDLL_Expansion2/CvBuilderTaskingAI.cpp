@@ -1901,9 +1901,71 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 	return aDirectives;
 }
 
+// Groups a directive list by plot, so a filter can visit only the directives on the same plot as a given one.
+// GetSamePlot(i, iFirst, iEnd): the directives on the plot of directive i are aDirectives[GetIndex(k)] for
+// iFirst <= k < iEnd, in their original order (i itself included).
+class SamePlotDirectiveIndex
+{
+public:
+	explicit SamePlotDirectiveIndex(const vector<OptionWithScore<BuilderDirective>>& aDirectives)
+	{
+		const int iNum = (int)aDirectives.size();
+		m_aOrder.resize(iNum);
+		for (int i = 0; i < iNum; i++)
+			m_aOrder[i] = i;
+		// stable: the directives of one plot stay in their original order
+		PlotLess plotLess(aDirectives);
+		std::stable_sort(m_aOrder.begin(), m_aOrder.end(), plotLess);
+
+		m_aFirst.resize(iNum);
+		m_aEnd.resize(iNum);
+		int iStart = 0;
+		while (iStart < iNum)
+		{
+			int iStop = iStart + 1;
+			while (iStop < iNum && !plotLess(m_aOrder[iStart], m_aOrder[iStop]))
+				iStop++;
+			for (int k = iStart; k < iStop; k++)
+			{
+				m_aFirst[m_aOrder[k]] = iStart;
+				m_aEnd[m_aOrder[k]] = iStop;
+			}
+			iStart = iStop;
+		}
+	}
+
+	void GetSamePlot(int i, int& iFirst, int& iEnd) const
+	{
+		iFirst = m_aFirst[i];
+		iEnd = m_aEnd[i];
+	}
+	int GetIndex(int k) const { return m_aOrder[k]; }
+
+private:
+	// orders directive indices by plot
+	struct PlotLess
+	{
+		explicit PlotLess(const vector<OptionWithScore<BuilderDirective>>& aDirectives) : m_pDirectives(&aDirectives) {}
+		bool operator()(int iLeft, int iRight) const
+		{
+			const BuilderDirective& left = (*m_pDirectives)[iLeft].option;
+			const BuilderDirective& right = (*m_pDirectives)[iRight].option;
+			if (left.m_sX != right.m_sX)
+				return left.m_sX < right.m_sX;
+			return left.m_sY < right.m_sY;
+		}
+		const vector<OptionWithScore<BuilderDirective>>* m_pDirectives;
+	};
+
+	vector<int> m_aOrder;
+	vector<int> m_aFirst;
+	vector<int> m_aEnd;
+};
+
 static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentImprovements(const vector<OptionWithScore<BuilderDirective>>& aDirectives, bool bIgnoreNoTwoAdjacent)
 {
 	vector<OptionWithScore<BuilderDirective>> aNewDirectives;
+	SamePlotDirectiveIndex samePlot(aDirectives);
 
 	for (vector<OptionWithScore<BuilderDirective>>::const_iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
@@ -1931,15 +1993,16 @@ static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentIm
 
 		int iPotentialScore = eDirective.m_plotBuildScore.GetPriorityScore();
 
+		// only directives on the same plot can exclude this one; visit them in their original order
+		int iFirst, iEnd;
+		samePlot.GetSamePlot((int)(it - aDirectives.begin()), iFirst, iEnd);
+
 		bool bInclude = true;
-		for (vector<OptionWithScore<BuilderDirective>>::const_iterator it2 = aDirectives.begin(); it2 != aDirectives.end(); ++it2)
+		for (int k = iFirst; k < iEnd; k++)
 		{
-			BuilderDirective eOtherDirective = it2->option;
+			const BuilderDirective& eOtherDirective = aDirectives[samePlot.GetIndex(k)].option;
 
 			if (eDirective == eOtherDirective)
-				continue;
-
-			if (eDirective.m_sX != eOtherDirective.m_sX || eDirective.m_sY != eOtherDirective.m_sY)
 				continue;
 
 			int iPotentialOtherScore = eOtherDirective.m_plotBuildScore.GetPriorityScore();
@@ -2078,6 +2141,7 @@ static vector<OptionWithScore<BuilderDirective>> FilterNoTwoAdjacentDirectives(c
 static vector<OptionWithScore<BuilderDirective>> FilterOnlyBestImprovements(const vector<OptionWithScore<BuilderDirective>>& aDirectives)
 {
 	vector<OptionWithScore<BuilderDirective>> aNewDirectives;
+	SamePlotDirectiveIndex samePlot(aDirectives);
 
 	for (vector<OptionWithScore<BuilderDirective>>::const_iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
@@ -2099,15 +2163,16 @@ static vector<OptionWithScore<BuilderDirective>> FilterOnlyBestImprovements(cons
 
 		int iMaxScore = eDirective.m_plotBuildScore.GetMaxScore();
 
+		// only directives on the same plot can exclude this one; visit them in their original order
+		int iFirst, iEnd;
+		samePlot.GetSamePlot((int)(it - aDirectives.begin()), iFirst, iEnd);
+
 		bool bInclude = true;
-		for (vector<OptionWithScore<BuilderDirective>>::const_iterator it2 = aDirectives.begin(); it2 != aDirectives.end(); ++it2)
+		for (int k = iFirst; k < iEnd; k++)
 		{
-			BuilderDirective eOtherDirective = it2->option;
+			const BuilderDirective& eOtherDirective = aDirectives[samePlot.GetIndex(k)].option;
 
 			if (eDirective == eOtherDirective)
-				continue;
-
-			if (eDirective.m_sX != eOtherDirective.m_sX || eDirective.m_sY != eOtherDirective.m_sY)
 				continue;
 
 			int iOtherMaxScore = eOtherDirective.m_plotBuildScore.GetMaxScore();
