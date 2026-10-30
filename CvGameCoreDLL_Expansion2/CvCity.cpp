@@ -33060,6 +33060,11 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 	if (!pTargetPlot)
 		return false;
 
+	// Most callers scan the rings around the city, and most of those plots are empty. A plot without units has no
+	// ranged strike target (getBestDefender returns NULL), so answer before the expensive line-of-sight test.
+	if (pTargetPlot->headUnitNode() == NULL)
+		return false;
+
 	if (!pTargetPlot->isVisible(getTeam()))
 		return false;
 
