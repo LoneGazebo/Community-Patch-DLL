@@ -14,6 +14,7 @@
 #define UPGRADE_IN_TERRITORY_PRIORITY_BOOST 2000
 
 struct BuilderDirective;
+struct CvExplorationPlotSet;
 
 enum AIHomelandTargetType
 {
@@ -313,6 +314,8 @@ private:
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
 	bool ExecuteExplorerMoves(CvUnit* pUnit);
+	// Scores targets against the exploration snapshot for this selection attempt.
+	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns, const CvExplorationPlotSet& vExplorePlots) const;
 	bool ExecuteOpportunisticSettlementMoves(CvUnit* pUnit);
 
 	void ExecuteWorkerMoves();
