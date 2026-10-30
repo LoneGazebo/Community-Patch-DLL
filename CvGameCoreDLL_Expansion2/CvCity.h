@@ -596,7 +596,7 @@ public:
 	void setAutomatons(int iNewValue, bool bReassignPop = true);
 	void changeAutomatons(int iChange, bool bReassignPop = true);
 
-	long getRealPopulation() const;
+	long long getRealPopulation() const;
 
 	int getHighestPopulation() const;
 	void setHighestPopulation(int iNewValue);

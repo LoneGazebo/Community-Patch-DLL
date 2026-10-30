@@ -2954,10 +2954,12 @@ int CvLuaCity::lChangePopulation(lua_State* L)
 //	return BasicLuaMethod(L, &CvCity::changePopulation);
 }
 //------------------------------------------------------------------------------
-//int getRealPopulation();
+//long long getRealPopulation();
 int CvLuaCity::lGetRealPopulation(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::getRealPopulation);
+	// as a Lua number (a double, exact to 2^53): lua_pushinteger would cut it to 32 bits
+	lua_pushnumber(L, static_cast<lua_Number>(GetInstance(L)->getRealPopulation()));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getHighestPopulation();
