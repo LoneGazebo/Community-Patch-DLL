@@ -366,3 +366,128 @@ inline void RegisterInstantYieldsTable()
 		GET_SQLITE_LOGGER().RegisterTable("InstantYields", kColumns);
 	}
 }
+
+// -------------------------------------------------------------------------------------------------
+// DiplomacyLog: one row per diplomatic event between two civs, written at the moment the event
+// happens (an event log, not a per-turn snapshot). Civ1 is the acting civ and Civ2 the civ it acts
+// on, so a row reads "Civ1 <Action> Civ2": "Rome DECLARED_WAR Greece", "Rome BECAME_VASSAL Greece".
+// Team-level events (war, peace, vassalage, pacts, embassies, open borders, first contact) produce
+// one row per (member of team 1, member of team 2) pair; with the usual one-civ teams that is exactly
+// one row per event. Wars with the barbarians are never logged.
+//
+//   Civ1 / Civ2   short civ names, the same strings the other stats.db tables use for "Civ"
+//   Action        uppercase event tag, see the list below
+//   Detail        qualifier for the Action ("" when there is none)
+//   ThirdCiv      a third civ involved in the event ("" when there is none): the coop-war target, the
+//                 pact partner / master / ally that dragged Civ1 into a war, the originator of a peace
+//                 that Civ1 followed, or the ally a City-State replaced / was replaced by
+//   Civ1Minor /   true when that civ is a City-State; filter on these for major-civ-only analyses
+//   Civ2Minor
+//
+// Actions (Civ1 -> Civ2) and their Detail values:
+//   MET                     first contact
+//   DECLARED_WAR            AGGRESSION | BACKSTAB (Civ1 had a Declaration of Friendship with Civ2) |
+//                           DEFENSIVE_PACT (ThirdCiv = pact partner being defended) |
+//                           VASSAL_OBLIGATION (ThirdCiv = master whose war Civ1 joined) |
+//                           MINOR_ALLY (City-State Civ1 joining its ally's war; ThirdCiv = the ally)
+//   MADE_PEACE              TREATY | FOLLOWED_ALLY (vassal or City-State ally following a peace made
+//                           above it; ThirdCiv = who made the original peace)
+//   DECLARED_FRIENDSHIP     FRIENDS (first DoF between these two civs)
+//   RENEWED_FRIENDSHIP      ALLIES | BATTLE_BROTHERS (a new DoF between civs that were friends before;
+//                           the level counts how many DoFs they have had)
+//   ENDED_FRIENDSHIP        EXPIRED (ran its full duration) | BROKEN (denounce, war, or explicitly ended)
+//   DENOUNCED               "" | BACKSTAB (Civ1 denounced a civ it had a DoF with)
+//   DENOUNCEMENT_EXPIRED
+//   BECAME_VASSAL           VOLUNTARY | CAPITULATED                    (Civ1 = new vassal, Civ2 = master)
+//   ENDED_VASSALAGE         PEACEFUL | REBELLION (independence by war)  (Civ1 = ex-vassal, Civ2 = ex-master)
+//   LIBERATED_VASSAL        master Civ1 granted vassal Civ2 its independence
+//   DEFENSIVE_PACT / ENDED_DEFENSIVE_PACT
+//   RESEARCH_AGREEMENT / ENDED_RESEARCH_AGREEMENT    Detail on end: "" (expired) | CANCELLED (war etc.)
+//   OPENED_BORDERS / CLOSED_BORDERS                  Civ1 lets Civ2's units into its territory
+//   OPENED_EMBASSY / CLOSED_EMBASSY                  Civ1 has an embassy with Civ2
+//   COOP_WAR                AGREED | STARTED | CANCELLED | REJECTED | WARNED_TARGET; ThirdCiv = target
+//   MINOR_ALLY_GAINED / MINOR_ALLY_LOST              major Civ1 became / stopped being City-State Civ2's ally
+//   PLEDGED_PROTECTION / REVOKED_PROTECTION          Detail on revoke: "" | PLEDGE_BROKEN
+//   BULLIED_MINOR           GOLD | UNIT | ANNEX (successful tribute demands only)
+//   LIBERATED_CIV           RESURRECTION (Civ2 was dead) | CITY (a city returned to living Civ2) | SPHERE_REMOVAL
+inline void RegisterDiplomacyLogTable()
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	static bool bRegistered = false;
+	if (!bRegistered)
+	{
+		bRegistered = true;
+		TableDef kColumns;
+		kColumns.push_back(ColumnDef("Civ1", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Civ2", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Action", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Detail", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("ThirdCiv", Database::COLTYPE_TEXT));
+		kColumns.push_back(ColumnDef("Civ1Minor", Database::COLTYPE_BOOL));
+		kColumns.push_back(ColumnDef("Civ2Minor", Database::COLTYPE_BOOL));
+		GET_SQLITE_LOGGER().RegisterTable("DiplomacyLog", kColumns);
+	}
+}
+
+// Writes one DiplomacyLog row for "eCiv1 <szAction> eCiv2". Safe to call unconditionally: it is a
+// no-op when SQLite logging is disabled, and rows involving an invalid player, the barbarians, an
+// observer slot (which "meets" everyone), or a civ acting on itself are skipped. Relies on the
+// precompiled header for GET_PLAYER, like the rest of this header relies on it for MOD_SQLITE_LOGGING.
+inline void LogDiplomacyEvent(PlayerTypes eCiv1, PlayerTypes eCiv2, const char* szAction, const char* szDetail = "", PlayerTypes eThirdCiv = NO_PLAYER)
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	if (eCiv1 <= NO_PLAYER || eCiv1 >= MAX_CIV_PLAYERS || eCiv2 <= NO_PLAYER || eCiv2 >= MAX_CIV_PLAYERS || eCiv1 == eCiv2)
+		return;
+
+	const CvPlayer& kCiv1 = GET_PLAYER(eCiv1);
+	const CvPlayer& kCiv2 = GET_PLAYER(eCiv2);
+	if (kCiv1.isBarbarian() || kCiv2.isBarbarian() || kCiv1.isObserver() || kCiv2.isObserver())
+		return;
+
+	const char* szThirdCiv = "";
+	if (eThirdCiv > NO_PLAYER && eThirdCiv < MAX_CIV_PLAYERS && eThirdCiv != eCiv1 && eThirdCiv != eCiv2)
+		szThirdCiv = GET_PLAYER(eThirdCiv).getCivilizationShortDescription();
+
+	RegisterDiplomacyLogTable();
+	GET_SQLITE_LOGGER().BeginLogRow("DiplomacyLog")
+		.bind(kCiv1.getCivilizationShortDescription())   // Civ1
+		.bind(kCiv2.getCivilizationShortDescription())   // Civ2
+		.bind(szAction)                                  // Action
+		.bind(szDetail != NULL ? szDetail : "")          // Detail
+		.bind(szThirdCiv)                                // ThirdCiv
+		.bind(kCiv1.isMinorCiv())                        // Civ1Minor
+		.bind(kCiv2.isMinorCiv())                        // Civ2Minor
+		.execute();
+}
+
+// Team-level variant of LogDiplomacyEvent: one row for every pair of living members, one from each
+// team, with eTeam1's member as Civ1. Used for events the game tracks per team (war, peace, vassalage,
+// pacts, embassies, open borders, first contact).
+inline void LogDiplomacyEventTeams(TeamTypes eTeam1, TeamTypes eTeam2, const char* szAction, const char* szDetail = "", PlayerTypes eThirdCiv = NO_PLAYER)
+{
+	if (!MOD_SQLITE_LOGGING)
+		return;
+
+	if (eTeam1 <= NO_TEAM || eTeam1 >= MAX_TEAMS || eTeam2 <= NO_TEAM || eTeam2 >= MAX_TEAMS || eTeam1 == eTeam2)
+		return;
+
+	const std::vector<PlayerTypes>& vTeam1 = GET_TEAM(eTeam1).getPlayers();
+	const std::vector<PlayerTypes>& vTeam2 = GET_TEAM(eTeam2).getPlayers();
+	for (size_t i = 0; i < vTeam1.size(); i++)
+	{
+		if (!GET_PLAYER(vTeam1[i]).isAlive())
+			continue;
+
+		for (size_t j = 0; j < vTeam2.size(); j++)
+		{
+			if (!GET_PLAYER(vTeam2[j]).isAlive())
+				continue;
+
+			LogDiplomacyEvent(vTeam1[i], vTeam2[j], szAction, szDetail, eThirdCiv);
+		}
+	}
+}

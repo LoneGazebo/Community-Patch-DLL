@@ -14,6 +14,7 @@
 #include "CvNotifications.h"
 #include "CvDiplomacyAI.h"
 #include "CvDllInterfaces.h"
+#include "SqliteLoggerRegistrations.h"
 #include "CvDllPlot.h"
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
@@ -10897,17 +10898,21 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly, bool bSuppressNotification)
 		{
 			DoSetBonus(eNewAlly, true, false, true);
 			ProcessAllyChangeNotifications(NO_PLAYER, eNewAlly, bSuppressNotification);
+			LogDiplomacyEvent(eNewAlly, GetPlayer()->GetID(), "MINOR_ALLY_GAINED");
 		}
 		else if (bLostAlly)
 		{
 			DoSetBonus(eOldAlly, false, false, true);
 			ProcessAllyChangeNotifications(eOldAlly, NO_PLAYER, bSuppressNotification);
+			LogDiplomacyEvent(eOldAlly, GetPlayer()->GetID(), "MINOR_ALLY_LOST");
 		}
 		else if (bSwitchedAlly)
 		{
 			DoSetBonus(eOldAlly, false, false, true);
 			DoSetBonus(eNewAlly, true, false, true);
 			ProcessAllyChangeNotifications(eOldAlly, eNewAlly, bSuppressNotification);
+			LogDiplomacyEvent(eOldAlly, GetPlayer()->GetID(), "MINOR_ALLY_LOST", "", eNewAlly);
+			LogDiplomacyEvent(eNewAlly, GetPlayer()->GetID(), "MINOR_ALLY_GAINED", "", eOldAlly);
 		}
 	}
 
@@ -12303,6 +12308,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 			return;
 
 		SetTurnLastPledgedProtectionByMajor(eMajor, GC.getGame().getGameTurn());
+		LogDiplomacyEvent(eMajor, GetPlayer()->GetID(), "PLEDGED_PROTECTION");
 
 		if (MOD_EVENTS_MINORS_INTERACTION) 
 		{
@@ -12311,6 +12317,8 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 	}
 	else
 	{
+		LogDiplomacyEvent(eMajor, GetPlayer()->GetID(), "REVOKED_PROTECTION", bPledgeNowBroken ? "PLEDGE_BROKEN" : "");
+
 		if (bPledgeNowBroken)
 		{
 			SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
@@ -14624,6 +14632,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	if (bSuccess)
 	{
 		PRECONDITION(iGold >= 0, "iGold is expected to be non-negative.");
+		LogDiplomacyEvent(eBully, GetPlayer()->GetID(), "BULLIED_MINOR", "GOLD");
 
 		if (GC.getGame().getActivePlayer() == eBully)
 		{
@@ -14758,6 +14767,8 @@ void CvMinorCivAI::DoMajorBullyAnnex(PlayerTypes eBully)
 	bool bSuccess = CanMajorBullyUnit(eBully, iBullyMetric);
 	if (bSuccess)
 	{
+		LogDiplomacyEvent(eBully, GetPlayer()->GetID(), "BULLIED_MINOR", "ANNEX");
+
 		if (GetPlayer()->getCapitalCity() != NULL)
 		{
 			PlayerTypes ePlayer;
@@ -14835,6 +14846,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 	if (bSuccess)
 	{
+		LogDiplomacyEvent(eBully, GetPlayer()->GetID(), "BULLIED_MINOR", "UNIT");
 		int iEra = GET_PLAYER(eBully).GetCurrentEra();
 		if (iEra <= 0)
 			iEra = 1;
