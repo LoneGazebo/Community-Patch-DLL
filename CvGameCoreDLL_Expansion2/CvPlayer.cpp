@@ -58,6 +58,7 @@
 #include "CvDllCity.h"
 #include "CvDllPlot.h"
 #include "CvGoodyHuts.h"
+#include "SqliteLoggerRegistrations.h"
 
 #include "CvDllNetMessageExt.h"
 // Include this after all other headers.
@@ -8621,6 +8622,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 	CvDiplomacyAI* pDiploAI = kPlayer.GetDiplomacyAI();
 	bool bAlive = kPlayer.isAlive();
+
+	LogDiplomacyEvent(GetID(), ePlayer, "LIBERATED_CIV", bSphereRemoval ? "SPHERE_REMOVAL" : (bAlive ? "CITY" : "RESURRECTION"));
 
 	// Mark the liberators
 	if (!bAlive && !bForced && !bSphereRemoval)
