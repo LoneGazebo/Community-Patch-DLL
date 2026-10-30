@@ -1293,7 +1293,7 @@
 			<Text>[ICON_BULLET] [ICON_CULTURE] Other: {1: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] {1_Icon} Other: {1: number "'+'##;'-'##"}%</Text>
+			<Text>[ICON_BULLET] {1_Icon} Other: {2: number "'+'##;'-'##"}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYCOUNT_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Number of Cities.</Text>

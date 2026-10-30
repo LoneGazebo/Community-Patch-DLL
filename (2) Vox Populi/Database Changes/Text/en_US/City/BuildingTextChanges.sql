@@ -14,7 +14,7 @@ SET Text = 'The Medical Lab is a late-game building which decreases the amount o
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Blocks the {TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_POISON} [ICON_SPY] Spy Mission in this City.'
+SET Text = 'Blocks the {TXT_KEY_ESPIONAGE_EVENT_CHOICE_POISON_WATER} [ICON_SPY] Spy Mission in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP';
 
 -- Garden
