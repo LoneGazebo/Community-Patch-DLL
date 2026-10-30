@@ -131,7 +131,12 @@ local GetColorByType = (function()
 
 	--- @param type string | integer
 	return function(type)
-		return query(type)()
+		-- Step to the end so the statement closes; an open one blocks database rebuilds.
+		local row
+		for color in query(type) do
+			row = color
+		end
+		return row
 	end
 end)()
 
