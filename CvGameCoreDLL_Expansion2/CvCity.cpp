@@ -16062,8 +16062,6 @@ int CvCity::getGrowthMods(CvString* toolTipSink, int iAssumedLocalHappinessChang
 			iHappiness += GET_PLAYER(getOwner()).GetUnhappinessGrowthPenalty();
 		}
 
-		iHappiness = range(iHappiness, -100, 100);
-
 		iTotalMod += iHappiness;
 
 		if (iHappiness > 0)
