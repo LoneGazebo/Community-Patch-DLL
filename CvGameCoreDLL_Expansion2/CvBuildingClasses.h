@@ -709,6 +709,8 @@ public:
 	int GetSpecificGreatPersonRateModifier(int) const;
 	int GetResourceHappiness(int i) const;
 	int GetBuildingClassHappiness(int i) const;
+	bool HasBuildingClassHappiness() const;
+	bool HasBuildingClassLocalHappiness() const;
 
 	std::multimap<int, std::pair<int, int>> GetGreatPersonProgressFromConstructionArray() const;
 
@@ -1000,6 +1002,10 @@ private:
 	bool m_bArtInfoCulturalVariation;
 	bool m_bArtInfoEraVariation;
 	bool m_bArtInfoRandomVariation;
+
+	// Set at the end of CacheResults: does GetBuildingClassHappiness / GetBuildingClassLocalHappiness answer non-zero for any class?
+	bool m_bHasBuildingClassHappiness;
+	bool m_bHasBuildingClassLocalHappiness;
 
 	int m_iInstantReligionPressure;
 	int m_iBasePressureModGlobal;

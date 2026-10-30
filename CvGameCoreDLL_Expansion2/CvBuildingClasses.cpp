@@ -284,6 +284,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bArtInfoCulturalVariation(false),
 	m_bArtInfoEraVariation(false),
 	m_bArtInfoRandomVariation(false),
+	m_bHasBuildingClassHappiness(true), // until CacheResults has checked
+	m_bHasBuildingClassLocalHappiness(true),
 	m_iInstantReligionPressure(0),
 	m_iBasePressureModGlobal(0),
 	m_iDefensePerXWonder(0),
@@ -1114,6 +1116,21 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	//kUtility.PopulateArrayByExistence(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Building_BuildingClassHappiness", "BuildingClassType", "BuildingType", szBuildingType, "Happiness");
+
+	// Most buildings have no Building_BuildingClassHappiness / Building_BuildingClassLocalHappiness row at all; remember
+	// whether any class answers non-zero (read as the accessors read it) so UpdateHappinessFromBuildingClasses can skip them
+	{
+		int iNumBuildingClasses = kUtility.MaxRows("BuildingClasses");
+		m_bHasBuildingClassHappiness = (m_paiBuildingClassHappiness == NULL);
+		m_bHasBuildingClassLocalHappiness = (m_paiBuildingClassLocalHappiness == NULL);
+		for (int iI = 0; iI < iNumBuildingClasses; iI++)
+		{
+			if (m_paiBuildingClassHappiness && m_paiBuildingClassHappiness[iI] != 0)
+				m_bHasBuildingClassHappiness = true;
+			if (m_paiBuildingClassLocalHappiness && m_paiBuildingClassLocalHappiness[iI] != 0)
+				m_bHasBuildingClassLocalHappiness = true;
+		}
+	}
 
 	kUtility.PopulateArrayByExistence(m_piLockedBuildingClasses, "BuildingClasses", "Building_LockedBuildingClasses", "BuildingClassType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piPrereqAndTechs, "Technologies", "Building_TechAndPrereqs", "TechType", "BuildingType", szBuildingType);
@@ -5110,6 +5127,16 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 	PRECONDITION(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
+}
+/// Does GetBuildingClassHappiness answer non-zero for any building class?
+bool CvBuildingEntry::HasBuildingClassHappiness() const
+{
+	return m_bHasBuildingClassHappiness;
+}
+/// Does GetBuildingClassLocalHappiness answer non-zero for any building class?
+bool CvBuildingEntry::HasBuildingClassLocalHappiness() const
+{
+	return m_bHasBuildingClassLocalHappiness;
 }
 std::multimap<int, std::pair<int, int>> CvBuildingEntry::GetGreatPersonProgressFromConstructionArray() const
 {
