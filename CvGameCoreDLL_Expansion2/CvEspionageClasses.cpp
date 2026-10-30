@@ -10512,62 +10512,36 @@ void CvEspionageAI::EvaluateMinorCivSpies(void)
 }
 
 // serialization read
+// Reads a per-major-civ vector into the slots Reset() has already filled (CvPlayer::Read resets the player
+// first), instead of appending after them. Older saves written after a load hold the live values first and
+// stale copies after them: keep the first MAX_MAJOR_CIVS and skip the rest.
+static void ReadEspionageAIVector(FDataStream& loadFrom, std::vector<int>& aiValues, int iDefault)
+{
+	aiValues.assign(MAX_MAJOR_CIVS, iDefault);
+	uint uiCount = 0;
+	loadFrom >> uiCount;
+	for (uint ui = 0; ui < uiCount; ui++)
+	{
+		int iValue = 0;
+		loadFrom >> iValue;
+		if (ui < aiValues.size())
+			aiValues[ui] = iValue;
+	}
+}
+
 FDataStream& operator>>(FDataStream& loadFrom, CvEspionageAI& writeTo)
 {
 	uint uiVersion = 0;
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
-	uint uiCount = 0;
-	loadFrom >> uiCount;
-	int iValue = 0;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiCivOutOfTechTurn.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiNumSpiesCaught.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiNumSpiesKilled.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiNumSpiesDied.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiTurnLastSpyCaught.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiTurnLastSpyKilled.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiTurnLastSpyDied.push_back(iValue);
-	}
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiCivOutOfTechTurn, -1);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiNumSpiesCaught, 0);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiNumSpiesKilled, 0);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiNumSpiesDied, 0);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiTurnLastSpyCaught, -1);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiTurnLastSpyKilled, -1);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiTurnLastSpyDied, -1);
 
 	loadFrom >> writeTo.m_bUNCountdownStarted;
 	loadFrom >> writeTo.m_iTurnEspionageStarted;
