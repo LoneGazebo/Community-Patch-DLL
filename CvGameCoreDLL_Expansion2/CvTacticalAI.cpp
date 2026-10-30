@@ -54,6 +54,7 @@ vector<SComboMove> gMovesToAdd;
 map<int, int> gBadUnitsCount;
 SUnitIDValueContainer gEnemyDamageDealt;
 TUnitFlagLookup gSafePlotCount;
+tr1::unordered_map<int, int> gSafePlotTestBound; //per unit: plots offered to the safe plot count this sim (caps the count)
 int gDefaultUnitLossThreshold;
 int gMedianUnitXP;
 int gMinHpForTactsim;
@@ -10258,6 +10259,23 @@ void CvTacticalPosition::getPlotsWithChangedVisibility(const STacticalAssignment
 	}
 }
 
+//gSafePlotCount is only ever tested for > 0 or == 0, so once a unit has a safe plot, counting more of them changes nothing.
+//Returns true if the root prunes may stop testing plots for this unit once its count is positive (the caller checks that).
+//The tests themselves (GetPlotDanger, canEndTurnAtPlot) only read game state, with two exceptions that keep the full
+//count: canMoveInto calls a Lua hook with MOD_EVENTS_CAN_MOVE_INTO, and getUnitByIndex reports stale unit entries in
+//network games. The count is an unsigned short: while the plots offered to it stay below 65536 it cannot wrap to zero,
+//so the shortcut is only taken below that bound.
+static bool CanStopCountingSafePlots(int iUnitID, size_t nPlotsOffered)
+{
+	if (MOD_EVENTS_CAN_MOVE_INTO || GC.getGame().isNetworkMultiPlayer())
+		return false;
+
+	int& iBound = gSafePlotTestBound[iUnitID];
+	if (iBound < 65536)
+		iBound += (int)nPlotsOffered;
+	return iBound < 65536;
+}
+
 void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 {
 	CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(unit.iUnitID);
@@ -10283,6 +10301,13 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 
 		//try to save some memory here
 		ReachablePlots reachablePlotsPruned;
+		bool bCanStopCounting = !parentPosition && CanStopCountingSafePlots(unit.iUnitID, reachablePlots.size());
+		bool bHaveSafePlot = false;
+		if (bCanStopCounting)
+		{
+			TUnitFlagLookup::const_iterator itSafe = gSafePlotCount.find(unit.iUnitID);
+			bHaveSafePlot = (itSafe != gSafePlotCount.end() && itSafe->second > 0);
+		}
 		for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -10291,11 +10316,14 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			//all open positions share just one instance of gSafePlotCount
 			//we only update the count once at the start of the sim
 			//if there is no safe plot then, there will never be one!
-			if (!parentPosition)
+			if (!parentPosition && !bHaveSafePlot)
 			{
 				bool bIsSafe = GET_PLAYER(ePlayer).GetPlotDanger(*pPlot, pUnit, GetUnitDamageDealt(), 0) < pUnit->GetCurrHitPoints();
 				if (bIsSafe && pUnit->canEndTurnAtPlot(pPlot))
+				{
 					gSafePlotCount[unit.iUnitID]++;
+					bHaveSafePlot = bCanStopCounting;
+				}
 			}
 
 			//note that if the unit is far away, it won't have any good plots and will be considered blocked
@@ -11791,6 +11819,13 @@ void CvSupportPosition::updateMovePlotsForUnit(SUnitStats unit)
 
 		//try to save some memory here
 		ReachablePlots reachablePlotsPruned;
+		bool bCanStopCounting = !parentPosition && CanStopCountingSafePlots(unit.iUnitID, reachablePlots.size());
+		bool bHaveSafePlot = false;
+		if (bCanStopCounting)
+		{
+			TUnitFlagLookup::const_iterator itSafe = gSafePlotCount.find(unit.iUnitID);
+			bHaveSafePlot = (itSafe != gSafePlotCount.end() && itSafe->second > 0);
+		}
 		for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
@@ -11805,11 +11840,14 @@ void CvSupportPosition::updateMovePlotsForUnit(SUnitStats unit)
 			//all open positions share just one instance of gSafePlotCount
 			//we only update the count once at the start of the sim
 			//if there is no safe plot then, there will never be one!
-			if (!parentPosition)
+			if (!parentPosition && !bHaveSafePlot)
 			{
 				bool bIsSafe = GET_PLAYER(ePlayer).GetPlotDanger(*pPlot, pUnit, SUnitIDValueContainer(), 0) < pUnit->GetCurrHitPoints();
 				if (bIsSafe && pUnit->canEndTurnAtPlot(pPlot))
+				{
 					gSafePlotCount[unit.iUnitID]++;
+					bHaveSafePlot = bCanStopCounting;
+				}
 			}
 
 			//last (expensive) check, need to have a tact plot for each reachable plot
@@ -12250,6 +12288,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	gReachablePlotsLookup.clear();
 	gRangeAttackPlotsLookup.clear();
 	gSafePlotCount.clear();
+	gSafePlotTestBound.clear();
 	gBadUnitsCount.clear();
 	unuseableUnits.clear();
 
