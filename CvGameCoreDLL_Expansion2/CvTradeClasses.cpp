@@ -2340,6 +2340,50 @@ void CvGameTrade::HideTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConn
 }
 
 //	----------------------------------------------------------------------------
+/// Send a route to the EXE's trade route overlay, but only if the active player owns it.
+/// The EXE keeps at most 256 route visuals for the whole game and draws only the active player's,
+/// so the other players' routes would fill its table and the active player's new routes would not be drawn.
+void CvGameTrade::SendTradeRouteVisual(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aTradeConnections.size())
+		return;
+
+	const TradeConnection& kConnection = m_aTradeConnections[iIndex];
+	if (kConnection.m_eOriginOwner != GC.getGame().getActivePlayer())
+		return;
+
+	int nPlots = std::min(MAX_PLOTS_TO_DISPLAY, (int)kConnection.m_aPlotList.size());
+	if (nPlots <= 0)
+		return;
+
+	int plotsX[MAX_PLOTS_TO_DISPLAY];
+	int plotsY[MAX_PLOTS_TO_DISPLAY];
+	for (int i = 0; i < nPlots; i++)
+	{
+		plotsX[i] = kConnection.m_aPlotList[i].m_iX;
+		plotsY[i] = kConnection.m_aPlotList[i].m_iY;
+	}
+
+	gDLL->TradeVisuals_NewRoute(iIndex, kConnection.m_eOriginOwner, kConnection.m_eConnectionType, nPlots, plotsX, plotsY);
+	gDLL->TradeVisuals_UpdateRouteDirection(iIndex, kConnection.m_bTradeUnitMovingForward);
+}
+
+//	----------------------------------------------------------------------------
+/// After the active player changed (hotseat, observer): drop the old route visuals and send the new active player's
+void CvGameTrade::RefreshTradeRouteVisuals() const
+{
+	for (int i = 0; i < (int)m_aTradeConnections.size(); i++)
+	{
+		if (m_aTradeConnections[i].m_aPlotList.size() > 0)
+		{
+			// a route that was never sent is not in the EXE's table, and destroying it there does nothing
+			gDLL->TradeVisuals_DestroyRoute(i, m_aTradeConnections[i].m_eOriginOwner);
+			SendTradeRouteVisual(i);
+		}
+	}
+}
+
+//	----------------------------------------------------------------------------
 CvString CvGameTrade::GetLogFileName() const
 {
 	CvString strLogName;
@@ -2418,22 +2462,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameTrade& writeTo)
 	CvStreamLoadVisitor serialVisitor(loadFrom);
 	CvGameTrade::Serialize(writeTo, serialVisitor);
 
-	int plotsX[MAX_PLOTS_TO_DISPLAY];
-	int plotsY[MAX_PLOTS_TO_DISPLAY];
 	for (int i = 0; i < int(writeTo.m_aTradeConnections.size()); ++i)
 	{
-		int nPlots = std::min(MAX_PLOTS_TO_DISPLAY, int(writeTo.m_aTradeConnections[i].m_aPlotList.size()));
-		if (nPlots > 0)
-		{
-			for (int i2=0; i2<nPlots; i2++)
-			{
-				plotsX[i2] = writeTo.m_aTradeConnections[i].m_aPlotList[i2].m_iX;
-				plotsY[i2] = writeTo.m_aTradeConnections[i].m_aPlotList[i2].m_iY;
-			}
-
-			gDLL->TradeVisuals_NewRoute(i,writeTo.m_aTradeConnections[i].m_eOriginOwner,writeTo.m_aTradeConnections[i].m_eConnectionType,nPlots,plotsX,plotsY);
-			gDLL->TradeVisuals_UpdateRouteDirection(i, writeTo.m_aTradeConnections[i].m_bTradeUnitMovingForward);
-		}
+		writeTo.SendTradeRouteVisual(i);
 	}
 
 	return loadFrom;
@@ -4526,9 +4557,6 @@ bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain) const
 //	--------------------------------------------------------------------------------
 bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType) const
 {
-	int plotsX[MAX_PLOTS_TO_DISPLAY];
-	int plotsY[MAX_PLOTS_TO_DISPLAY];
-
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iRouteID = -1;
 	bool bResult = pTrade->CreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, iRouteID);
@@ -4543,15 +4571,7 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 		int nPlots = pTrade->GetTradeConnection(iRouteIndex).m_aPlotList.size();
 		if (nPlots > 0)
 		{
-			if (nPlots > MAX_PLOTS_TO_DISPLAY)
-				nPlots = MAX_PLOTS_TO_DISPLAY;
-			for (uint ui = 0; ui < (uint)nPlots; ui++) 
-			{
-				plotsX[ui] = pTrade->GetTradeConnection(iRouteIndex).m_aPlotList[ui].m_iX;
-				plotsY[ui] = pTrade->GetTradeConnection(iRouteIndex).m_aPlotList[ui].m_iY;
-			}
-			gDLL->TradeVisuals_NewRoute(iRouteIndex, m_pPlayer->GetID(),pTrade->GetTradeConnection(iRouteIndex).m_eConnectionType, nPlots, plotsX, plotsY);
-			gDLL->TradeVisuals_UpdateRouteDirection(iRouteIndex, pTrade->GetTradeConnection(iRouteIndex).m_bTradeUnitMovingForward);
+			pTrade->SendTradeRouteVisual(iRouteIndex);
 			if(eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
 			{
 				m_pPlayer->GetTreasury()->DoInternalTradeRouteGoldBonus();

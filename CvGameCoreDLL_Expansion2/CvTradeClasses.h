@@ -222,6 +222,8 @@ public:
 
 	void DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeConnectionType type, DomainTypes eDomain);
 	void HideTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConnectionType type) const;
+	void SendTradeRouteVisual(int iIndex) const;
+	void RefreshTradeRouteVisuals() const;
 
 	CvString GetLogFileName() const;
 	void LogTradeMsg(CvString& strMsg) const;
