@@ -2410,7 +2410,7 @@ bool CvBuildingEntry::IsSealift() const
 	return m_bSealift;
 }
 
-/// Modifier to city air defense
+/// Change number of air units allowed in the city
 int CvBuildingEntry::GetAirModifier() const
 {
 	return m_iAirModifier;

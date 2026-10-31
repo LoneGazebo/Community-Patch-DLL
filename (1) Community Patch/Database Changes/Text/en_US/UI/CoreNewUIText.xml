@@ -2175,6 +2175,9 @@
 		<Row Tag="TXT_KEY_RELIGIONS_GP_MOD">
 			<Text>[ICON_BULLET] Religion Bonus: +{1_num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_PROJECT">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for Project: {1_Num}%</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_UNIT_CLASS">
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Class: {1_Num}%</Text>
 		</Row>

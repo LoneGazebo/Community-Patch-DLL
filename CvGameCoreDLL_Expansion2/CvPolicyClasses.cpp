@@ -245,6 +245,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiBuildingClassSecurityChanges(NULL),
 	m_paiBuildingClassProductionModifiers(NULL),
 	m_paiUnitClassProductionModifiers(NULL),
+	m_paiProjectProductionModifiers(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paiFreeUnitClasses(NULL),
 	m_paiTourismOnUnitCreation(NULL),
@@ -415,6 +416,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiBuildingClassSecurityChanges);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiUnitClassProductionModifiers);
+	SAFE_DELETE_ARRAY(m_paiProjectProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paiFreeUnitClasses);
 	SAFE_DELETE_ARRAY(m_paiTourismOnUnitCreation);
@@ -850,6 +852,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_paiBuildingClassSecurityChanges, "BuildingClasses", "Policy_BuildingClassSecurityChanges", "BuildingClassType", "PolicyType", szPolicyType, "SecurityChange");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassProductionModifiers, "BuildingClasses", "Policy_BuildingClassProductionModifiers", "BuildingClassType", "PolicyType", szPolicyType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_paiUnitClassProductionModifiers, "UnitClasses", "Policy_UnitClassProductionModifiers", "UnitClassType", "PolicyType", szPolicyType, "ProductionModifier");
+	kUtility.PopulateArrayByValue(m_paiProjectProductionModifiers, "Projects", "Policy_ProjectProductionModifiers", "ProjectType", "PolicyType", szPolicyType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Policy_BuildingClassHappiness", "BuildingClassType", "PolicyType", szPolicyType, "Happiness");
 
 	kUtility.PopulateArrayByValue(m_paiFreeUnitClasses, "UnitClasses", "Policy_FreeUnitClasses", "UnitClassType", "PolicyType", szPolicyType, "Count");
@@ -3656,6 +3659,13 @@ int CvPolicyEntry::GetUnitClassProductionModifiers(int i) const
 	PRECONDITION(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_paiUnitClassProductionModifiers[i];
+}
+/// Production modifier for a specific Project
+int CvPolicyEntry::GetProjectProductionModifiers(int i) const
+{
+	PRECONDITION(i < GC.getNumProjectInfos(), "Index out of bounds");
+	PRECONDITION(i > -1, "Index out of bounds");
+	return m_paiProjectProductionModifiers[i];
 }
 
 /// Find value of flavors associated with this policy

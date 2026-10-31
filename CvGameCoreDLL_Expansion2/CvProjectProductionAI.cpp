@@ -276,6 +276,12 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iF
 		iTempWeight += 30 * pkProjectInfo->GetCitySupplyFlat();
 	}
 
+	if (pkProjectInfo->GetMaxAirUnitsChange() > 0)
+	{
+		int iBorderFactor = m_pCity->isBorderCity() ? 1 : 5;
+		iTempWeight += iBorderFactor * 20 * pkProjectInfo->GetMaxAirUnitsChange();
+	}
+
 	if (pkProjectInfo->GetSpySecurityModifier() > 0)
 	{
 		int iEsp = pkProjectInfo->GetSpySecurityModifier() * /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
