@@ -190,7 +190,7 @@ SET Text = 'Ace Pilot III'
 WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3';
 
 UPDATE Language_en_US
-SET Text = '+34% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] Enemy Air Units.[NEWLINE]+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 operational range.'
+SET Text = '+34% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] Enemy Air Units.[NEWLINE]+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 Operational range.[NEWLINE]+1 Interception range.'
 WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3_HELP';
 
 UPDATE Language_en_US
@@ -198,7 +198,7 @@ SET Text = 'Ace Pilot IV'
 WHERE Tag = 'TXT_KEY_PROMOTION_SORTIE';
 
 UPDATE Language_en_US
-SET Text = '+34% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 operational range.[NEWLINE]+1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR].'
+SET Text = '+34% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 Operational range.[NEWLINE]+1 Interception range.[NEWLINE]+1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_SORTIE_HELP';
 
 -- Dogfighting
