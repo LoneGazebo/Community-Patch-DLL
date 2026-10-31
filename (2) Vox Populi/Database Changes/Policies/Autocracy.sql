@@ -54,7 +54,7 @@ VALUES
 INSERT INTO Policy_ConquerorYield
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_FUTURISM', 'YIELD_TOURISM', 50);
+	('POLICY_FUTURISM', 'YIELD_TOURISM', 200);
 
 -- Industrial Espionage (now Lebensraum)
 UPDATE Policies

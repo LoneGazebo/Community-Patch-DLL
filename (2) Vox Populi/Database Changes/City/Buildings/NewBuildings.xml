@@ -545,6 +545,20 @@
 			<Description>TXT_KEY_BUILDING_SACRED_GARDEN</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
+		<!-- Heavenly Stair -->
+		<Row>
+			<Type>BUILDINGCLASS_HEAVENLY_STAIR</Type>
+			<DefaultBuilding>BUILDING_HEAVENLY_STAIR</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_HEAVENLY_STAIR</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!-- Martial Sanctum -->
+		<Row>
+			<Type>BUILDINGCLASS_MARTIAL_SANCTUM</Type>
+			<DefaultBuilding>BUILDING_MARTIAL_SANCTUM</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_MARTIAL_SANCTUM</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
 		<!-- Holy Council -->
 		<Row>
 			<Type>BUILDINGCLASS_HOLY_COUNCIL</Type>
@@ -2601,6 +2615,30 @@
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>53</PortraitIndex>
 			<Happiness>2</Happiness>
+		</Row>
+		<!-- Heavenly Stair -->
+		<Row>
+			<Type>BUILDING_HEAVENLY_STAIR</Type>
+			<BuildingClass>BUILDINGCLASS_HEAVENLY_STAIR</BuildingClass>
+			<Description>TXT_KEY_BUILDING_HEAVENLY_STAIR</Description>
+			<Civilopedia>TXT_KEY_BUILDING_HEAVENLY_STAIR_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_HEAVENLY_STAIR_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_HEAVENLY_STAIR_STRATEGY</Strategy>
+			<IsReformation>true</IsReformation>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>38</PortraitIndex>
+		</Row>
+		<!-- Martial Sanctum -->
+		<Row>
+			<Type>BUILDING_MARTIAL_SANCTUM</Type>
+			<BuildingClass>BUILDINGCLASS_MARTIAL_SANCTUM</BuildingClass>
+			<Description>TXT_KEY_BUILDING_MARTIAL_SANCTUM</Description>
+			<Civilopedia>TXT_KEY_BUILDING_MARTIAL_SANCTUM_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_MARTIAL_SANCTUM_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_MARTIAL_SANCTUM_STRATEGY</Strategy>
+			<IsReformation>true</IsReformation>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>37</PortraitIndex>
 		</Row>
 		<!-- Heavenly Grotto -->
 		<Row>

@@ -274,6 +274,7 @@
 			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_SIEGE_3</PromotionPrereqOr3>
 			<PediaType>PEDIA_HEAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MARCH</PediaEntry>
 		</Replace>
@@ -313,7 +314,6 @@
 			<Description>TXT_KEY_PROMOTION_RANGE</Description>
 			<Help>TXT_KEY_PROMOTION_RANGE_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_SIEGE_3</PromotionPrereqOr2>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_RANGE</PediaEntry>
 		</Replace>
