@@ -211,7 +211,7 @@ function IsListModeAllowed(iMode)
 		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
 			pLoopPlayer = Players[iPlayerLoop];
 			if (pLoopPlayer:IsAlive()) then
-				if (pLoopPlayer:GetNumPolicies() < 2) then
+				if (pLoopPlayer:GetNumPolicies(true, false, true) < 2) then
 					print("Progress Screen: Can't display Culture Mode because at least 1 player has fewer than 2 Policies!");
 					return false;
 				end
@@ -373,7 +373,7 @@ function GetScoreFromMode(iPlayer, iMode)
 		
 	-- Culture Mode
 	elseif (iMode == g_ListMode_Culture) then
-		return pPlayer:GetNumPolicies();
+		return pPlayer:GetNumPolicies(true, false, true);
 		
 	-- Happiness Mode
 	elseif (iMode == g_ListMode_Happiness) then

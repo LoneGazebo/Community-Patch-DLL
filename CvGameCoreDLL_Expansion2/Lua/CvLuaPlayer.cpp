@@ -7440,16 +7440,18 @@ int CvLuaPlayer::lGetNumPolicyBranchesUnlocked(lua_State* L)
 //int GetNumPolicies();
 int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	bool bIgnoreFinishers = luaL_optbool(L, 2, false);
-	bool bIgnoreDummy = luaL_optbool(L, 3, false);
-	if(pkPlayer->GetPlayerPolicies())
-	{
-		const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(bIgnoreFinishers, bIgnoreDummy);
-		lua_pushinteger(L, iResult);
-		return 1;
-	}
-	return 0;
+    CvPlayerAI* pkPlayer = GetInstance(L);
+    bool bIgnoreFinishers = luaL_optbool(L, 2, false);
+    bool bIgnoreDummy = luaL_optbool(L, 3, false);
+    bool bIncludeOpeners = luaL_optbool(L, 4, false);
+
+    if(pkPlayer->GetPlayerPolicies())
+    {
+        const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(bIgnoreFinishers, bIgnoreDummy, bIncludeOpeners);
+        lua_pushinteger(L, iResult);
+        return 1;
+    }
+    return 0;
 }
 
 //------------------------------------------------------------------------------

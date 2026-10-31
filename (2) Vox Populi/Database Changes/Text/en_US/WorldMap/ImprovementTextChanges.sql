@@ -17,6 +17,11 @@ UPDATE Language_en_US
 SET Text = 'It will increase the amount of [ICON_PRODUCTION] Production (Forest) or [ICON_GOLD] Gold (Jungle) provided by this tile, while keeping the Forest/Jungle intact. A Lumber Mill adjacent to two other Lumber Mills gains +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILD_LUMBERMILL_REC';
 
+-- Remove Jungle (now grants Production like Forests)
+UPDATE Language_en_US 
+SET Text = 'Chop Down a Jungle' 
+WHERE Tag = 'TXT_KEY_BUILD_REMOVE_JUNGLE';
+
 -- Village
 UPDATE Language_en_US
 SET Text = 'Village'

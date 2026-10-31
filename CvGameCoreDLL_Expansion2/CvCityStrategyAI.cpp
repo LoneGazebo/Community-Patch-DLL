@@ -5019,9 +5019,13 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 						if(yield == NO_YIELD)
 							continue;
 						
-						if (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, kPlayer.GetID(), pCity, true) > 0)
+						if (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, true, kPlayer.GetID(), pCity, true) > 0)
 						{
-							iValue += (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, kPlayer.GetID(), pCity, true) / 5);
+							iValue += (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, true, kPlayer.GetID(), pCity, true) / 2);
+						}
+						if (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, false, kPlayer.GetID(), pCity, true) > 0)
+						{
+							iValue += (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, false, kPlayer.GetID(), pCity, true) / 5);
 						}
 					}
 				}

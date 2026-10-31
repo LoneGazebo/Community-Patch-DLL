@@ -10113,9 +10113,13 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			if (pEntry->GetGreatPersonExpendedYield(eGP, iI) > 0)
+			if (pEntry->GetGreatPersonExpendedYield(eGP, iI, true) > 0)
 			{
-				iGPTemp += pEntry->GetGreatPersonExpendedYield(eGP, iI) * 2;
+				iGPTemp += pEntry->GetGreatPersonExpendedYield(eGP, iI, true) * 5;
+			}
+			if (pEntry->GetGreatPersonExpendedYield(eGP, iI, false) > 0)
+			{
+				iGPTemp += pEntry->GetGreatPersonExpendedYield(eGP, iI, false) * 2;
 			}
 			if (pEntry->GetGreatPersonBornYield(eGP, iI) > 0)
 			{
@@ -10125,11 +10129,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	}
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		if (pEntry->GetYieldFromGPUse(iI) > 0)
-		{
-			iGPTemp += pEntry->GetYieldFromGPUse(iI) * 2;
-		}
-
 		for (int iJ = 0; iJ < GC.getNumSpecialistInfos(); iJ++)
 		{
 			if (pEntry->GetSpecialistYieldChange((SpecialistTypes)iJ, iI) > 0)
@@ -10197,9 +10196,13 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 					if (yield == NO_YIELD)
 						continue;
 
-					if (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, m_pPlayer->GetID(), pHolyCity) > 0)
+					if (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, true, m_pPlayer->GetID(), pHolyCity) > 0)
 					{
-						iGPTemp += (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, m_pPlayer->GetID(), pHolyCity) / 2);
+						iGPTemp += (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, true, m_pPlayer->GetID(), pHolyCity) / 2);
+					}
+					if (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, false, m_pPlayer->GetID(), pHolyCity) > 0)
+					{
+						iGPTemp += (pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGP, yield, false, m_pPlayer->GetID(), pHolyCity) / 5);
 					}
 				}
 			}

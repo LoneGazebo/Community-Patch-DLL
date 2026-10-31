@@ -136,6 +136,22 @@ VALUES
 	('ART_DEF_UNIT_MERC', 'ART_DEF_UNIT_MERC_GUERILLA', 14);
 
 -------------------------------------------
+-- ZOffset (flying planes)
+-------------------------------------------
+UPDATE ArtDefine_UnitMemberInfos SET
+ZOffset = 76
+WHERE Type IN ('ART_DEF_UNIT_GUIDED_MISSILE', -- missiles
+	'ART_DEF_UNIT_MEMBER_WW1_FIGHTER', 'ART_DEF_UNIT_MEMBER_FIGHTER', 'ART_DEF_UNIT_MEMBER_JETFIGHTER', 'ART_DEF_UNIT_MEMBER_U_JAPANESE_ZERO');  -- fighters
+
+UPDATE ArtDefine_UnitMemberInfos SET
+ZOffset = 78
+WHERE Type IN ('ART_DEF_UNIT_MEMBER_BOMBER', 'ART_DEF_UNIT_MEMBER_U_AMERICAN_B17');  -- bombers
+
+UPDATE ArtDefine_UnitMemberInfos SET
+ZOffset = 80  -- these midpoints seem a bit lower in the model
+WHERE Type IN ('ART_DEF_UNIT_MEMBER_WW1_BOMBER', 'ART_DEF_UNIT_MEMBER_STEALTHBOMBER', 'ART_DEF_UNIT_MEMBER_ATOMICBOMB');
+
+-------------------------------------------
 -- Other changes
 -------------------------------------------
 UPDATE ArtDefine_UnitInfos SET Formation = 'DefaultMelee' WHERE Type = 'ART_DEF_UNIT_U_AZTEC_JAGUAR';

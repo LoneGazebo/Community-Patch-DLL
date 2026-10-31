@@ -280,6 +280,14 @@ SET Text = '[ICON_RES_HIDDEN_ARTIFACTS] Hidden Sites Left: {1_Num}'
 WHERE Tag = 'TXT_KEY_HIDDEN_SITES_TO_EXCAVATE';
 
 UPDATE Language_en_US
+SET Text = '{1_Civ}''s [ICON_TOURISM] Tourism to {3_Civ} is {2_Num: number #.#}% of their total [ICON_CULTURE] Culture.'
+WHERE Tag = 'TXT_KEY_CO_THIRD_PARTY_CULTURE_INFLUENCE';
+
+UPDATE Language_en_US
+SET Text = '{1_Civ}''s [ICON_TOURISM] Tourism to an unmet civilization is {2_Num: number #.#}% of their total [ICON_CULTURE] Culture.'
+WHERE Tag = 'TXT_KEY_CO_THIRD_PARTY_CULTURE_INFLUENCE_UNMET';
+
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CO_PUBLIC_OPINION_HAPPINESS';
 

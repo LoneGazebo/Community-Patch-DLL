@@ -237,11 +237,11 @@ SET Text = 'Solomonic Wisdom'
 WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you complete a Policy Branch, adopt new Beliefs, or choose your first Ideology, receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology. +1 [ICON_PEACE] Faith from Strategic Resources.'
+SET Text = 'When you complete a Policy Branch, adopt new Beliefs, or choose your first Ideology, receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology. +1 [ICON_PEACE] Faith from Strategic Resources. Cities produce +25% [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH';
 
 UPDATE Language_en_US
-SET Text = 'Unique Ethiopian replacement for the {TXT_KEY_BUILDING_MONUMENT_DESC}. In addition to the {TXT_KEY_BUILDING_MONUMENT_DESC}''s bonuses, {TXT_KEY_BUILDING_STELE} generates [ICON_PEACE] Faith as well as a {TXT_KEY_BUILDING_SHRINE}, and produces extra [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = 'Unique Ethiopian replacement for the {TXT_KEY_BUILDING_MONUMENT_DESC}. In addition to the {TXT_KEY_BUILDING_MONUMENT_DESC}''s bonuses, the {TXT_KEY_BUILDING_STELE} generates [ICON_PEACE] Faith as well as a {TXT_KEY_BUILDING_SHRINE}. It also accelerates the pace of [ICON_GOLDEN_AGE] Golden Ages as you discover new Techs, fueling a virtuous cycle with your Unique Ability.'
 WHERE Tag = 'TXT_KEY_BUILDING_STELE_STRATEGY';
 
 --------------------
@@ -495,7 +495,7 @@ WHERE Tag = 'TXT_KEY_UNIT_JAPANESE_SAMURAI_STRATEGY';
 -- Korea
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Medieval, Industrial, and Atomic Eras. +20% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages, and +50 [ICON_GOLDEN_AGE] Golden Age Points when a [ICON_GREAT_PEOPLE] Great Person is born, scaling with Era.'
+SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Medieval, Industrial, and Atomic Eras. Cities produce +20% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages. Gain 50 [ICON_GOLDEN_AGE] Golden Age Points when a [ICON_GREAT_PEOPLE] Great Person is born, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_SCHOLARS_JADE_HALL';
 
 UPDATE Language_en_US
@@ -575,7 +575,7 @@ SET Text = 'The {TXT_KEY_UNIT_SEA_BEGGAR} is the Dutch unique unit, replacing th
 WHERE Tag = 'TXT_KEY_UNIT_SEA_BEGGAR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 3 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.'
+SET Text = 'Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 2 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP';
 
 UPDATE Language_en_US

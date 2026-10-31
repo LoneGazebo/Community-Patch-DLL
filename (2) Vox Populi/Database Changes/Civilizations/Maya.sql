@@ -25,7 +25,7 @@ WHERE Type = 'UNIT_MAYAN_ATLATLIST';
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_MAYAN_ATLATLIST', 'PROMOTION_INDIRECT_FIRE');
+	('UNIT_MAYAN_ATLATLIST', 'PROMOTION_PARABOLIC_PAYLOAD');
 
 ----------------------------------------------------------
 -- Unique Unit: Holkan (Pathfinder)

@@ -1231,7 +1231,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							pNotifications->Add(NOTIFICATION_SPY_STOLE_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eCityOwner);
 						}
 						m_aiNumSpyActionsDone[eCityOwner]++;
-						m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
+						m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1, false);
 					}
 					else
 					{
@@ -1634,7 +1634,7 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 
 	m_aiNumSpyActionsDone[eCityOwner]++;
 	pCityEspionage->m_aiNumTimesCityRobbed[eSpyOwner]++;
-	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING);
+	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 
 	for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 	{
