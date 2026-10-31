@@ -8134,7 +8134,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					CvCity* pCity = getCapitalCity();
 					if(pCity != NULL)
 					{
-						doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, pCity, false, true, true, eYield);
+						doInstantYield(INSTANT_YIELD_TYPE_PLAYER_EVENT_COST, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, pCity, false, true, true, eYield);
 					}
 				}
 			}
@@ -8253,7 +8253,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						if(!pkEventChoiceInfo->isInstantYieldAllCities() && !pLoopCity->isCapital())
 							continue;
 
-						doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, pLoopCity, false, true, true, eYield);
+						doInstantYield(INSTANT_YIELD_TYPE_PLAYER_EVENT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, pLoopCity, false, true, true, eYield);
 					}
 				}
 			}
@@ -8984,7 +8984,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 				YieldTypes eYield = (YieldTypes)iI;
 				int iLiberationYield = getYieldForLiberation(eYield);
 				if (iLiberationYield > 0)
-					doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+					doInstantYield(INSTANT_YIELD_TYPE_LIBERATION, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
 			}
 
 			//liberator gets influence with all City-States?
@@ -9012,7 +9012,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			int iNumXP = getExperienceForLiberation();
 			if (iNumXP > 0)
 			{
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iNumXP, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_JFD_SOVEREIGNTY);
+				doInstantYield(INSTANT_YIELD_TYPE_LIBERATION, false, NO_GREATPERSON, NO_BUILDING, iNumXP, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_JFD_SOVEREIGNTY);
 				int iLoop = 0;
 				for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 				{
@@ -25120,7 +25120,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 		CvCity* pCapitalCity = getCapitalCity();
 		if (pCapitalCity)
 		{
-			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iThreshold, false, NO_PLAYER, NULL, false, pCapitalCity);
+			doInstantYield(INSTANT_YIELD_TYPE_GAP_TO_YIELD, false, NO_GREATPERSON, NO_BUILDING, iThreshold, false, NO_PLAYER, NULL, false, pCapitalCity);
 		}
 		doInstantYield(INSTANT_YIELD_TYPE_GOLDEN_AGE_START, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 
@@ -25836,6 +25836,36 @@ void CvPlayer::DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlaye
 	}
 }
 
+// True for INSTANT_YIELD_TYPE_INSTANT and for each of its logging-only refinements (see CvEnums.h).
+static bool IsInstantCatchAllType(InstantYieldType eInstantYield)
+{
+	switch (eInstantYield)
+	{
+	case INSTANT_YIELD_TYPE_INSTANT:
+	case INSTANT_YIELD_TYPE_BUILDING_COMPLETED:
+	case INSTANT_YIELD_TYPE_POLICY_ADOPTED:
+	case INSTANT_YIELD_TYPE_PLAYER_EVENT:
+	case INSTANT_YIELD_TYPE_PLAYER_EVENT_COST:
+	case INSTANT_YIELD_TYPE_CITY_EVENT:
+	case INSTANT_YIELD_TYPE_CITY_EVENT_COST:
+	case INSTANT_YIELD_TYPE_LIBERATION:
+	case INSTANT_YIELD_TYPE_GAP_TO_YIELD:
+	case INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST:
+	case INSTANT_YIELD_TYPE_GP_GOLDEN_AGE:
+		return true;
+	default:
+		return false;
+	}
+}
+
+// Maps a logging-only refinement of INSTANT_YIELD_TYPE_INSTANT back to INSTANT_YIELD_TYPE_INSTANT, which
+// is the type all gameplay logic (yield computation, notifications, notification mute flags) switches on.
+// Every other type is returned unchanged.
+static InstantYieldType GetGameplayInstantYieldType(InstantYieldType eInstantYield)
+{
+	return IsInstantCatchAllType(eInstantYield) ? INSTANT_YIELD_TYPE_INSTANT : eInstantYield;
+}
+
 static const char* GetInstantYieldSqliteLabel(InstantYieldType eInstantYield)
 {
 	switch (eInstantYield)
@@ -25846,6 +25876,16 @@ static const char* GetInstantYieldSqliteLabel(InstantYieldType eInstantYield)
 	case INSTANT_YIELD_TYPE_ERA_UNLOCK:             return "New Era";
 	case INSTANT_YIELD_TYPE_POLICY_UNLOCK:          return "Policy Unlock";
 	case INSTANT_YIELD_TYPE_INSTANT:                return "Instant";
+	case INSTANT_YIELD_TYPE_BUILDING_COMPLETED:     return "Building Completed";
+	case INSTANT_YIELD_TYPE_POLICY_ADOPTED:         return "Policy Adopted";
+	case INSTANT_YIELD_TYPE_PLAYER_EVENT:           return "Player Event";
+	case INSTANT_YIELD_TYPE_PLAYER_EVENT_COST:      return "Player Event Cost";
+	case INSTANT_YIELD_TYPE_CITY_EVENT:             return "City Event";
+	case INSTANT_YIELD_TYPE_CITY_EVENT_COST:        return "City Event Cost";
+	case INSTANT_YIELD_TYPE_LIBERATION:             return "Liberation";
+	case INSTANT_YIELD_TYPE_GAP_TO_YIELD:           return "GAP to Yield (UA)";
+	case INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST: return "Science Building Boost (UA)";
+	case INSTANT_YIELD_TYPE_GP_GOLDEN_AGE:          return "GP Golden Age";
 	case INSTANT_YIELD_TYPE_TECH:                   return "Tech";
 	case INSTANT_YIELD_TYPE_CONSTRUCTION:           return "Construction";
 	case INSTANT_YIELD_TYPE_BORDERS:                return "Border Growth";
@@ -25913,6 +25953,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 	//No minors or barbs here, please!
 	if(isMinorCiv() || isBarbarian())
 		return;
+
+	// The caller's type is what the statistics logs record. The logging-only refinements of
+	// INSTANT_YIELD_TYPE_INSTANT (see CvEnums.h) are folded back into it here, so every gameplay
+	// decision below is made on exactly the same type as before they existed.
+	const InstantYieldType eLoggedType = iType;
+	iType = GetGameplayInstantYieldType(iType);
 
 	ReligionTypes eStateReligion = GetReligions()->GetStateReligion();
 	int iEra = max<int>(1, GetCurrentEra());
@@ -26099,6 +26145,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					break;
 				}
 				case INSTANT_YIELD_TYPE_INSTANT:
+				// Never reached: folded into INSTANT at the top of doInstantYield. Listed so -Wswitch stays exhaustive.
+				case INSTANT_YIELD_TYPE_BUILDING_COMPLETED:
+				case INSTANT_YIELD_TYPE_POLICY_ADOPTED:
+				case INSTANT_YIELD_TYPE_PLAYER_EVENT:
+				case INSTANT_YIELD_TYPE_PLAYER_EVENT_COST:
+				case INSTANT_YIELD_TYPE_CITY_EVENT:
+				case INSTANT_YIELD_TYPE_CITY_EVENT_COST:
+				case INSTANT_YIELD_TYPE_LIBERATION:
+				case INSTANT_YIELD_TYPE_GAP_TO_YIELD:
+				case INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST:
+				case INSTANT_YIELD_TYPE_GP_GOLDEN_AGE:
 				{
 					if (ePassBuilding != NO_BUILDING)
 					{
@@ -27420,17 +27477,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				if (GC.getLogging())
 				{
-					LogInstantYield(eYield, iValue, iType, pLoopCity);
+					LogInstantYield(eYield, iValue, eLoggedType, pLoopCity);
 				}
 				if (MOD_SQLITE_LOGGING)
 				{
-					LogBuildingInstantYields(iType, pLoopCity, eYield, iEra, iPassYield, bEraScale, ePlayer, ePassYield, ePassBuilding, pCity, bInternational, pUnit, eGreatPerson);
+					LogBuildingInstantYields(eLoggedType, pLoopCity, eYield, iEra, iPassYield, bEraScale, ePlayer, ePassYield, ePassBuilding, pCity, bInternational, pUnit, eGreatPerson);
 					LogReligionBeliefInstantYields(iType, pLoopCity, eYield, iEra, iPassYield, bEraScale, ePassYield, eGreatPerson, pUnit, pPlot, ePlayer, pReligion, eReligion, iNumFollowerCities, iNumFollowers);
 
 					kInstantYieldsBatch.BeginLogRow()
 						.bind(getCivilizationShortDescription())
 						.bind(iEra)
-						.bind(GetInstantYieldSqliteLabel(iType))
+						.bind(GetInstantYieldSqliteLabel(eLoggedType))
 						.bind(pYieldInfo->GetDescription())
 						.bind(iValue * 100)
 						.addRowToBatch();
@@ -27737,6 +27794,17 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				break;
 			}
 			case INSTANT_YIELD_TYPE_INSTANT:
+			// Never reached: folded into INSTANT at the top of doInstantYield. Listed so -Wswitch stays exhaustive.
+			case INSTANT_YIELD_TYPE_BUILDING_COMPLETED:
+			case INSTANT_YIELD_TYPE_POLICY_ADOPTED:
+			case INSTANT_YIELD_TYPE_PLAYER_EVENT:
+			case INSTANT_YIELD_TYPE_PLAYER_EVENT_COST:
+			case INSTANT_YIELD_TYPE_CITY_EVENT:
+			case INSTANT_YIELD_TYPE_CITY_EVENT_COST:
+			case INSTANT_YIELD_TYPE_LIBERATION:
+			case INSTANT_YIELD_TYPE_GAP_TO_YIELD:
+			case INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST:
+			case INSTANT_YIELD_TYPE_GP_GOLDEN_AGE:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_INSTANT");
 				localizedText << totalyieldString;
@@ -42811,6 +42879,56 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 				instantYieldName = "Instant";
 				break;
 			}
+	case INSTANT_YIELD_TYPE_BUILDING_COMPLETED:
+			{
+				instantYieldName = "Building Completed";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_POLICY_ADOPTED:
+			{
+				instantYieldName = "Policy Adopted";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PLAYER_EVENT:
+			{
+				instantYieldName = "Player Event";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PLAYER_EVENT_COST:
+			{
+				instantYieldName = "Player Event Cost";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_CITY_EVENT:
+			{
+				instantYieldName = "City Event";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_CITY_EVENT_COST:
+			{
+				instantYieldName = "City Event Cost";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_LIBERATION:
+			{
+				instantYieldName = "Liberation";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_GAP_TO_YIELD:
+			{
+				instantYieldName = "GAP to Yield (UA)";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST:
+			{
+				instantYieldName = "Science Building Boost (UA)";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_GP_GOLDEN_AGE:
+			{
+				instantYieldName = "GP Golden Age";
+				break;
+			}
 	case INSTANT_YIELD_TYPE_TECH:
 			{
 				instantYieldName = "Tech";
@@ -43322,6 +43440,18 @@ void CvPlayer::LogBuildingInstantYields(InstantYieldType iType, CvCity* pLoopCit
 	case INSTANT_YIELD_TYPE_BIRTH:             szEvent = "Birth"; break;
 	case INSTANT_YIELD_TYPE_POLICY_UNLOCK:     szEvent = "PolicyUnlock"; break;
 	case INSTANT_YIELD_TYPE_INSTANT:           szEvent = "Instant"; break;
+	// Logging-only refinements of INSTANT (CvEnums.h). Only the two building-sourced ones ever arrive
+	// with a building; the rest fall out below at the single-building guard, exactly as INSTANT did.
+	case INSTANT_YIELD_TYPE_BUILDING_COMPLETED:     szEvent = "BuildingCompleted"; break;
+	case INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST: szEvent = "ScienceBuildingBoost"; break;
+	case INSTANT_YIELD_TYPE_POLICY_ADOPTED:         szEvent = "PolicyAdopted"; break;
+	case INSTANT_YIELD_TYPE_PLAYER_EVENT:           szEvent = "PlayerEvent"; break;
+	case INSTANT_YIELD_TYPE_PLAYER_EVENT_COST:      szEvent = "PlayerEventCost"; break;
+	case INSTANT_YIELD_TYPE_CITY_EVENT:             szEvent = "CityEvent"; break;
+	case INSTANT_YIELD_TYPE_CITY_EVENT_COST:        szEvent = "CityEventCost"; break;
+	case INSTANT_YIELD_TYPE_LIBERATION:             szEvent = "Liberation"; break;
+	case INSTANT_YIELD_TYPE_GAP_TO_YIELD:           szEvent = "GAPToYield"; break;
+	case INSTANT_YIELD_TYPE_GP_GOLDEN_AGE:          szEvent = "GPGoldenAge"; break;
 	case INSTANT_YIELD_TYPE_TECH:              szEvent = "Tech"; break;
 	case INSTANT_YIELD_TYPE_CONSTRUCTION:      szEvent = "Construction"; break;
 	case INSTANT_YIELD_TYPE_BORDERS:           szEvent = "Borders"; break;
@@ -43391,9 +43521,9 @@ void CvPlayer::LogBuildingInstantYields(InstantYieldType iType, CvCity* pLoopCit
 	// the per-call CvString heap copy and bind the pointer directly.
 	const char* szCiv = getCivilizationShortDescription();
 
-	// INSTANT and BIRTH_RETROACTIVE attribute to a single passed-in building, so there is no need to
-	// scan the whole building list to find it.
-	const bool bSingleBuilding = (iType == INSTANT_YIELD_TYPE_INSTANT || iType == INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE);
+	// INSTANT (and its logging-only refinements) and BIRTH_RETROACTIVE attribute to a single passed-in
+	// building, so there is no need to scan the whole building list to find it.
+	const bool bSingleBuilding = (IsInstantCatchAllType(iType) || iType == INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE);
 	if (bSingleBuilding && ePassBuilding == NO_BUILDING)
 		return;
 
@@ -43454,6 +43584,16 @@ void CvPlayer::LogBuildingInstantYields(InstantYieldType iType, CvCity* pLoopCit
 			}
 
 			case INSTANT_YIELD_TYPE_INSTANT:
+			case INSTANT_YIELD_TYPE_BUILDING_COMPLETED:
+			case INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST:
+			case INSTANT_YIELD_TYPE_POLICY_ADOPTED:
+			case INSTANT_YIELD_TYPE_PLAYER_EVENT:
+			case INSTANT_YIELD_TYPE_PLAYER_EVENT_COST:
+			case INSTANT_YIELD_TYPE_CITY_EVENT:
+			case INSTANT_YIELD_TYPE_CITY_EVENT_COST:
+			case INSTANT_YIELD_TYPE_LIBERATION:
+			case INSTANT_YIELD_TYPE_GAP_TO_YIELD:
+			case INSTANT_YIELD_TYPE_GP_GOLDEN_AGE:
 				if (ePassBuilding == NO_BUILDING || eBuilding != ePassBuilding)
 					continue;
 				iBaseT100 = (long long)pInfo->GetInstantYield(eYield) * 100;
@@ -44492,7 +44632,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 			if (pkPolicyInfo->GetInstantYield(iI) != 0)
 			{
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, pkPolicyInfo->GetInstantYield(iI), false, NO_PLAYER, NULL, false, pCapital, false, true, true, eYield);
+				doInstantYield(INSTANT_YIELD_TYPE_POLICY_ADOPTED, false, NO_GREATPERSON, NO_BUILDING, pkPolicyInfo->GetInstantYield(iI), false, NO_PLAYER, NULL, false, pCapital, false, true, true, eYield);
 			}
 		}
 

@@ -6541,7 +6541,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 				if (iPassYield != 0)
 				{
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CITY_EVENT_COST, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
 				}
 			}
 
@@ -6790,7 +6790,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				int iPassYield = pkEventChoiceInfo->getEventYield(eYield);
 				if (iPassYield != 0)
 				{
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CITY_EVENT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
 				}
 				int iSiphonYield = pkEventChoiceInfo->getYieldSiphon(eYield);
 				if (iSiphonYield > 0)
@@ -13388,7 +13388,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						int iMedianTechResearch = owningPlayer.GetPlayerTechs()->GetMedianTechResearch();
 						iMedianTechResearch = (iMedianTechResearch * owningPlayer.GetMedianTechPercentage()) / 100;
-						owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, iMedianTechResearch, false, NO_PLAYER, NULL, false, this);
+						owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST, false, NO_GREATPERSON, eBuilding, iMedianTechResearch, false, NO_PLAYER, NULL, false, this);
 					}
 				}
 			}
@@ -13608,7 +13608,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if (!IsBuildingConstructed(eBuildingClass))
 			{
 				SetBuildingConstructed(eBuildingClass, true);
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BUILDING_COMPLETED, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
 				
 				if (pBuildingInfo->GetInstantReligionPressure() > 0) 
 				{
