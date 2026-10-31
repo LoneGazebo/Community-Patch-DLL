@@ -217,6 +217,7 @@ void CvPlot::reset()
 	m_iUnitPlotGAExperience = 0;
 	m_iPlotChangeMoves = 0;
 	m_iRestoreMoves = 0;
+	m_iFreeMoveAcross = 0;
 	m_eLandmarkCreditMinor = NO_PLAYER;
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
 	m_ePlayerThatDestroyedCityHere = NO_PLAYER;

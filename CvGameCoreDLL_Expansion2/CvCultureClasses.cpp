@@ -920,7 +920,12 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 
 	m_lLastTurnLifetimeCultureTimes100 = 0;
 	m_iLastTurnCPT = 0;
+	m_eOpinion = NO_PUBLIC_OPINION;
+	m_ePreferredIdeology = NO_POLICY_BRANCH_TYPE;
 	m_iOpinionUnhappiness = 0;
+	m_strOpinionTooltip = "";
+	m_strOpinionUnhappinessTooltip = "";
+	m_eOpinionBiggestInfluence = NO_PLAYER;
 	m_iLastUpdate = 0;
 	m_iLastThemUpdate = 0;
 	m_iBoredomCache = 0;
