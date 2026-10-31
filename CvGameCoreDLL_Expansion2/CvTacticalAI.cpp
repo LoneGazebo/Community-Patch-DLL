@@ -7643,7 +7643,8 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 	{
 		int iPrevUnitHitPoints = pEnemyUnit ? prevUnitHitPoints.GetValue(pEnemyUnit->GetID()) : 0;
 		int iHpAfterAttack = iPrevUnitHitPoints > 0 ? iPrevUnitHitPoints - actualDamageDealt.GetValue(pEnemyUnit->GetID()) : -1;
-		if (iHpAfterAttack == -1 || iHpAfterAttack > iPrevCityHitPoints - iActualCityDamageDealt)
+		//the city value only applies when the target is a city (for a unit target it is 0 - 0)
+		if (iHpAfterAttack == -1 || (pEnemyCity && iHpAfterAttack > iPrevCityHitPoints - iActualCityDamageDealt))
 			iHpAfterAttack = iPrevCityHitPoints - iActualCityDamageDealt;
 		iBonusScore += min(max(30 - iHpAfterAttack, 0), iTotalActualDamageDealt);
 	}
