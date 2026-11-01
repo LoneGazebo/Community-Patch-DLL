@@ -5474,7 +5474,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			}
 		}
 
-		if (GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex) > 0)
+		if (GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex) > 0 && !pkEventInfo->isCounterspyMission())
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_RECENT_SPY_MISSION");
 			localizedDurationText << GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex);
