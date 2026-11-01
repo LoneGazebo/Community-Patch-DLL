@@ -4356,7 +4356,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgn
 		{
 			if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eTargetPlayer, m_pPlayer->GetID(), true))
 			{
-				iMultiplier += /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
+				iMultiplier += /*-34 in CP, -20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
 			}
 		}
 	}
@@ -4365,7 +4365,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgn
 	{
 		if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
 		{
-			iMultiplier += /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
+			iMultiplier += /*-34 in CP, -20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
 		}
 	}
 	if (!bIgnorePolicies)
@@ -4432,11 +4432,11 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgn
 
 	if (m_pPlayer->getTourismBonusTurnsPlayer(eTargetPlayer) > 0)
 	{
-		iMultiplier += /*200 in CP, 100 in VP*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD) * 2;
+		iMultiplier += /*200 in CP, 50 in VP*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD) * 2;
 	}
 	else if (m_pPlayer->GetTourismBonusTurns() > 0)
 	{
-		iMultiplier += /*100 in CP, 50 in VP*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD);
+		iMultiplier += /*100 in CP, 25 in VP*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD);
 	}
 
 
@@ -4657,7 +4657,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 		{
 			szRtnValue += "[COLOR_GREY]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_PROPAGANDA", 0) + "[ENDCOLOR]";
 		}
-		szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_DIFFERENT_IDEOLOGIES", /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
+		szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_DIFFERENT_IDEOLOGIES", /*-34 in CP, -20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
 	}
 	
 	// City difference - do we have more than them?
@@ -4685,7 +4685,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 	{
 		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eTargetPlayer, m_pPlayer->GetID(), true))
 		{
-			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA", /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
+			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA", /*-34 in CP, -20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
 		}
 	}
 
@@ -4706,7 +4706,7 @@ int CvPlayerCulture::GetTourismModifierSharedReligion(PlayerTypes eTargetPlayer)
 		return 0;
 	
 	int iModifier = /*25 in CP, 1 in VP*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION);
-	int iModifierMax = /*0 in CP, 50 in VP*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION_MAX);
+	int iModifierMax = /*0 in CP, 40 in VP*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION_MAX);
 	int iMultiplier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER) + m_pPlayer->GetPlayerTraits()->GetSharedReligionTourismModifier();
 	
 	switch (/*0 in CP, 2 in VP*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION_TYPE))
