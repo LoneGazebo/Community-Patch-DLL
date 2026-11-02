@@ -12,7 +12,8 @@
 	EXE_SYMBOL(name, kind, dx11, dx9, tablet, signature)
 	  kind       EXE_FUNCTION, EXE_CODE, EXE_DATA, EXE_VTABLE, or EXE_OFFSET
 	             (the columns then hold the offset)
-	  dx11..     VA at the preferred base 0x400000
+	  dx11..     VA at the preferred base 0x400000, or EXE_NONE where the
+	             build doesn't have it. Map every build that has it.
 	  signature  bytes at the address ("83 EC ?? 56", ?? = any) or NULL.
 	             Wildcard relocated addresses and register-to-register
 	             instructions (mov esi,ecx is 8B F1 or 89 CE).
@@ -21,6 +22,7 @@
 	  EXE_ABS32  the dword at from+offset is the address of `to`
 	  EXE_REL32  the call/jmp at from+offset targets `to`
 	  EXE_VAL8   the byte at from+offset equals the offset `to`
+	  EXE_VAL32  the dword at from+offset equals the offset `to`
 
 	An entry is used only if its signature matches, every check naming it
 	passes, and, without a signature, some verified entry vouches for it.
