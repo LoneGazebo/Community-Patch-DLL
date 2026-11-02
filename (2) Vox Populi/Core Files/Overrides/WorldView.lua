@@ -92,7 +92,7 @@ function UpdatePathFromSelectedUnitToMouse()
 end
 
 function UpdatePathFromWaypointToMouse()
-    Events.ClearHexHighlights()
+    Events.ClearHexHighlightStyle("")
 	local pUnit = UI.GetHeadSelectedUnit()
 	local pPlot = Map.GetPlot( UI.GetMouseOverHex() )
 
