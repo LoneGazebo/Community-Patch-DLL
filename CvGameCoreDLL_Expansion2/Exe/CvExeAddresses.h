@@ -93,7 +93,7 @@ EXE_SYMBOL(
 )
 
 EXE_SYMBOL(
-	NetMessage_WantForceResync,
+	Civ5NetMessage_s_wantForceResync,
 	EXE_DATA, 0x02dd2f68, 0x02dc2d68, 0x02dd4f50,
 	NULL
 )
@@ -148,7 +148,7 @@ EXE_CHECK(
 	EXE_ABS32,
 	ResetNetMessageStatics_ClearWantForceResync,
 	0x13,
-	NetMessage_WantForceResync
+	Civ5NetMessage_s_wantForceResync
 )
 
 #endif

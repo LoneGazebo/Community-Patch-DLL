@@ -24,7 +24,7 @@ const char* const REASON_NAMES[Exe::NUM_REASONS] =
 // The symbols each feature uses
 const ExeSymbol RESYNC_SYMBOLS[] =
 {
-	EXE_NetMessage_WantForceResync,
+	EXE_Civ5NetMessage_s_wantForceResync,
 };
 
 const ExeSymbol YIELD_ICON_MANAGER_SYMBOLS[] =
@@ -152,10 +152,10 @@ Exe::Reason Exe::TryScheduleResync()
 	}
 
 	// A byte: the next 3 bytes are not ours
-	volatile BYTE* pFlag = ExeApi::NetMessage_WantForceResync();
+	volatile BYTE* pFlag = ExeApi::Civ5NetMessage_s_wantForceResync();
 	*pFlag = 1;
 
-	CUSTOMLOG("Exe: NetMessage_WantForceResync set at %08X",
+	CUSTOMLOG("Exe: Civ5NetMessage_s_wantForceResync set at %08X",
 		(unsigned int)reinterpret_cast<DWORD>(pFlag)
 	);
 

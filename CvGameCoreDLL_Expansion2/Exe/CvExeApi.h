@@ -21,9 +21,9 @@ namespace ExeApi
 	// ---- YieldIconManager: tracks the camera and posts Events.ShowHexYield
 	bool YieldIconManager_UnregisterForEvents(void* pThis);
 
-	// ---- NetMessage: the RNG sync check polls and clears this, then
+	// ---- Civ5NetMessage: the RNG sync check polls and clears this, then
 	// broadcasts a force-resync
-	volatile BYTE* NetMessage_WantForceResync();
+	volatile BYTE* Civ5NetMessage_s_wantForceResync();
 }
 
 #endif // CV_EXE_API_H

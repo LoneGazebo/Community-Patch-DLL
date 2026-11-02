@@ -51,9 +51,9 @@ bool ExeApi::YieldIconManager_UnregisterForEvents(void* pThis)
 }
 
 //------------------------------------------------------------------------------
-volatile BYTE* ExeApi::NetMessage_WantForceResync()
+volatile BYTE* ExeApi::Civ5NetMessage_s_wantForceResync()
 {
 	return reinterpret_cast<volatile BYTE*>(
-		ExeSymbols::Get(EXE_NetMessage_WantForceResync)
+		ExeSymbols::Get(EXE_Civ5NetMessage_s_wantForceResync)
 	);
 }
