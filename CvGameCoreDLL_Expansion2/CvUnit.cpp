@@ -13809,24 +13809,20 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	{
 		setHasPromotion(ePromotion, true);
 
-		if (MOD_BALANCE_VP && getStartingExperienceTimes100() <= experienceNeeded(getLevel() - 1) * 100)
-		{
-			//Insta-heal removed, gain health with each promotion not obtained from starting XP instead.
-			if (!IsCannotHeal(true))
-				changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
+		bool bFromStartingXP = MOD_BALANCE_VP && getStartingExperienceTimes100() > experienceNeeded(getLevel() - 1) * 100;
 
-			// Yields from level up aren't triggered by promotions obtained from starting XP
-			if (!getOriginCity())
+		//Insta-heal removed, gain health with each promotion not obtained from starting XP instead.
+		if (MOD_BALANCE_VP && !bFromStartingXP && !IsCannotHeal(true))
+			changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
+
+		// Yields from level up aren't triggered by promotions obtained from the starting XP of units that gain XP from exploration
+		if (!bFromStartingXP || getUnitInfo().GetXPFromExploration() == 0)
+		{
+			// Local yields go to the origin city, or the capital if there is none
+			CvCity* pYieldCity = getOriginCity() ? getOriginCity() : kPlayer.getCapitalCity();
+			if (pYieldCity)
 			{
-				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
-			}
-			else
-			{
-				CvCity* pCapital = kPlayer.getCapitalCity();
-				if (pCapital)
-				{
-					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCapital, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
-				}
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pYieldCity, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 			}
 
 			// Global yields
