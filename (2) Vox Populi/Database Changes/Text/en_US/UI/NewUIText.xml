@@ -1724,6 +1724,27 @@
 		<Row Tag="TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING_TT">
 			<Text>An unmet player controls {1_num} original [ICON_CAPITAL] Capitals/Vassals.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_NEEDED">
+			<Text>Needs {1_Population}% of the [ICON_CITIZEN] Population and {2_Land}% of the land</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_NEEDED_TT">
+			<Text>A team wins when it holds both shares on the same turn, or when no one else has any cities left.[NEWLINE][NEWLINE][ICON_CITIZEN] Population: the second-largest team's share plus {1_Lead}%.[NEWLINE]Land: {2_Land}% of all land tiles, less 2% for each major civilization, but at least {3_MinLand}%.[NEWLINE][NEWLINE]A Vassal counts only half of its own Population and land; its master gets the other half.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_POPULATION_SHARE">
+			<Text>Population {1_Share}% / {2_Needed}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_LAND_SHARE">
+			<Text>Land {1_Share}% / {2_Needed}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_TT">
+			<Text>[ICON_CITIZEN] Population: {1_Num} of {2_Total} ({3_Share}%, needs {4_Needed}%)[NEWLINE]Land: {5_Num} of {6_Total} land tiles ({7_Share}%, needs {8_Needed}%)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_VASSAL_TT">
+			<Text>[NEWLINE][NEWLINE]As a Vassal, counts only half of its own Population and land.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_MASTER_TT">
+			<Text>[NEWLINE][NEWLINE]Includes half of the Population and land of its Vassals.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_VP_DIPLO_TT_MINOR_PLAYER_CONTROLS_CAPITAL_ALLY">
 			<Text>The City-State of {1_Name} controls {2_Num}. They contribute the City to their Ally. Break their alliance or take the [ICON_CAPITAL] Capital from them![NEWLINE][NEWLINE]</Text>
 		</Row>

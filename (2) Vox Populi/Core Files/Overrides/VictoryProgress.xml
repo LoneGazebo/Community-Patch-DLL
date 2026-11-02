@@ -21,6 +21,22 @@
       <Label Anchor="C,B" Offset="0,10" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Stroke" String="Team 1" ID="TeamID"/>
     </Image>
   </Instance>
+  <!-- Domination Victory by Population and Land Share: Team Row Instance -->
+  <Instance Name="DominationShareRow">
+    <Box ID="Row" Size="590,30" Color="255,255,255,0">
+      <Box Anchor="L,C" Offset="2,0" Size="32,32" Color="255,255,255,0">
+        <Image ID="CivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+        <Image ID="CivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+        <Image ID="Icon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
+      </Box>
+      <Label ID="Name" Anchor="L,C" Offset="40,0" Font="TwCenMT16" ColorSet="Beige_Black" FontStyle="Shadow"/>
+      <Label ID="PopulationLabel" Anchor="L,T" Offset="240,2" Font="TwCenMT14" ColorSet="Beige_Black" FontStyle="Shadow"/>
+      <Bar ID="PopulationBar" Anchor="L,T" Offset="240,21" Size="160,5" Direction="Right" FGColor="255,224,128,255" BGColor="0,0,0,160"/>
+      <Label ID="LandLabel" Anchor="L,T" Offset="415,2" Font="TwCenMT14" ColorSet="Beige_Black" FontStyle="Shadow"/>
+      <Bar ID="LandBar" Anchor="L,T" Offset="415,21" Size="160,5" Direction="Right" FGColor="128,208,128,255" BGColor="0,0,0,160"/>
+      <Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1"/>
+    </Box>
+  </Instance>
   <!-- Tech Details Item Instance -->
   <Instance Name="TechCiv">
     <Box ID="Civ" Size="618,110" Offset="0,0" Color="255,255,255,0">
@@ -275,6 +291,13 @@
             <UpButton Anchor="R,T" AnchorSide="O,I" Style="ScrollBarUp"/>
             <DownButton Anchor="R,B" AnchorSide="O,I" Style="ScrollBarDown"/>
             <Stack ID="DominationStack" Padding="-9" StackGrowth="Bottom"/>
+          </ScrollPanel>
+          <!-- Domination Victory by Population and Land Share -->
+          <ScrollPanel Anchor="L,T" Offset="0,26" Size="596,108" Vertical="1" ID="DominationShareScrollPanel" Hidden="1">
+            <ScrollBar Offset="0.0" Style="VertSlider" Anchor="R,C" AnchorSide="O,I" Length="73"/>
+            <UpButton Anchor="R,T" AnchorSide="O,I" Style="ScrollBarUp"/>
+            <DownButton Anchor="R,B" AnchorSide="O,I" Style="ScrollBarDown"/>
+            <Stack ID="DominationShareStack" Padding="0" StackGrowth="Bottom"/>
           </ScrollPanel>
         </Box>
         <Label ID="DominationDisabledLabel" Offset="5,5" Anchor="C,C" Font="TwCenMT16" String="TXT_KEY_VP_DOMINATION_VICTORY_DISABLED"/>

@@ -4150,7 +4150,7 @@ int CvGame::getAdjustedPopulationPercent(VictoryTypes eVictory) const
 	{
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
-			iPopulation = GET_TEAM((TeamTypes)iI).getTotalPopulation();
+			iPopulation = GET_TEAM((TeamTypes)iI).getTotalPopulation(/*bCheckVassals*/ true);
 
 			if(iPopulation > iBestPopulation)
 			{
@@ -4181,7 +4181,15 @@ int CvGame::getAdjustedLandPercent(VictoryTypes eVictory) const
 
 	int iPercent = pkVictoryInfo->getLandPercent();
 
-	iPercent -= (countCivTeamsEverAlive() * 2);
+	// 2% less per team in the game, as in Civ4, which had no City-States: count only the major civ teams
+	int iMajorTeamsEverAlive = 0;
+	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	{
+		const CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeamLoop);
+		if (kLoopTeam.isEverAlive() && !kLoopTeam.isMinorCiv())
+			iMajorTeamsEverAlive++;
+	}
+	iPercent -= (iMajorTeamsEverAlive * 2);
 
 	return std::max(iPercent, pkVictoryInfo->getMinLandPercent());
 }
@@ -6505,6 +6513,17 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 	if (!bDominationVictoryEnabled && !bCheckEliminationPossible)
 		return false;
 
+	// Population and land share: no particular capital is needed, only enough of the world within reach
+	if (!bCheckEliminationPossible && IsDominationVictoryByLandAndPopulation())
+	{
+		bool bOnlyCurrentWars = (!GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE);
+		bool bNoWarOnHumans = !GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIPassiveTowardsHumans();
+		if (bOnlyCurrentWars || bNoWarOnHumans)
+			return CanPlayerReachDominationShares(ePlayer, eMakePeacePlayer, bOnlyCurrentWars);
+
+		return true;
+	}
+
 	if ((!GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		// Loop through all major civs
@@ -6607,6 +6626,42 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 	}
 
 	return true;
+}
+
+/// Domination Victory by population and land share: could ePlayer's team reach both shares by taking everything held by the teams it can fight?
+/// bOnlyCurrentWars: no war can be declared, so only the teams already at war count; otherwise only humans not already at war are out of reach
+bool CvGame::CanPlayerReachDominationShares(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer, bool bOnlyCurrentWars) const
+{
+	VictoryTypes eDominationVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DOMINATION", true);
+	if (eDominationVictory == NO_VICTORY)
+		return false;
+
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	TeamTypes eMakePeaceTeam = eMakePeacePlayer != NO_PLAYER ? GET_PLAYER(eMakePeacePlayer).getTeam() : NO_TEAM;
+	const CvTeam& kTeam = GET_TEAM(eTeam);
+
+	int iPopulation = kTeam.getTotalPopulation(/*bCheckVassals*/ true);
+	int iLand = kTeam.getTotalLand(/*bCheckVassals*/ true);
+	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iTeamLoop;
+		const CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
+		if (eLoopTeam == eTeam || eLoopTeam == eMakePeaceTeam || !kLoopTeam.isAlive())
+			continue;
+
+		// Our vassals already count, and we can't take the rest from them by force
+		if (kLoopTeam.IsVassal(eTeam))
+			continue;
+
+		if (!kTeam.isAtWar(eLoopTeam) && (bOnlyCurrentWars || kLoopTeam.isHuman(ISHUMAN_MECHANICS)))
+			continue;
+
+		iPopulation += kLoopTeam.getTotalPopulation();
+		iLand += kLoopTeam.getTotalLand();
+	}
+
+	return 100 * iPopulation >= getTotalPopulation() * getAdjustedPopulationPercent(eDominationVictory)
+		&& 100 * iLand >= GC.getMap().getLandPlots() * getAdjustedLandPercent(eDominationVictory);
 }
 
 /// Would making peace with this player prevent us from achieving a Domination Victory?
@@ -9431,6 +9486,7 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 	}
 
 	// Conquest
+	bool bConqueredEveryone = false;
 	if(bValid)
 	{
 		if(pkVictoryInfo->isConquest())
@@ -9460,7 +9516,15 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 
 				if(bFound)
 				{
-					bValid = false;
+					// A Domination Victory by population and land share (Civ4 rules) doesn't need everyone else gone; the checks below decide it
+					if(pkVictoryInfo->getPopulationPercentLead() == 0 && pkVictoryInfo->getLandPercent() == 0)
+					{
+						bValid = false;
+					}
+				}
+				else
+				{
+					bConqueredEveryone = true;
 				}
 			}
 		}
@@ -9590,11 +9654,11 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 	}
 
 	// Population Percent
-	if(bValid)
+	if(bValid && !bConqueredEveryone)
 	{
 		if(getAdjustedPopulationPercent(eVictory) > 0)
 		{
-			if(100 * GET_TEAM(eTeam).getTotalPopulation() < getTotalPopulation() * getAdjustedPopulationPercent(eVictory))
+			if(100 * GET_TEAM(eTeam).getTotalPopulation(/*bCheckVassals*/ true) < getTotalPopulation() * getAdjustedPopulationPercent(eVictory))
 			{
 				bValid = false;
 			}
@@ -9602,11 +9666,11 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 	}
 
 	// Land Percent
-	if(bValid)
+	if(bValid && !bConqueredEveryone)
 	{
 		if(getAdjustedLandPercent(eVictory) > 0)
 		{
-			if(100 * GET_TEAM(eTeam).getTotalLand() < GC.getMap().getLandPlots() * getAdjustedLandPercent(eVictory))
+			if(100 * GET_TEAM(eTeam).getTotalLand(/*bCheckVassals*/ true) < GC.getMap().getLandPlots() * getAdjustedLandPercent(eVictory))
 			{
 				bValid = false;
 			}
@@ -12027,6 +12091,10 @@ void CvGame::DoTestConquestVictory()
 		}
 	}
 
+	// Domination Victory goes by population and land share instead (testVictory() checks it every turn)
+	if (IsDominationVictoryByLandAndPopulation())
+		return;
+
 	// Find out how many original capitals there are
 	std::vector<CvCity*> originalCapitals;
 	CvMap& kMap = GC.getMap();
@@ -12076,6 +12144,20 @@ void CvGame::DoTestConquestVictory()
 			return;
 		}
 	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Is Domination Victory won by holding enough of the world's population and land (Civ4 rules) instead of the original capitals?
+bool CvGame::IsDominationVictoryByLandAndPopulation() const
+{
+	for (int iVictoryLoop = 0; iVictoryLoop < GC.getNumVictoryInfos(); iVictoryLoop++)
+	{
+		CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(static_cast<VictoryTypes>(iVictoryLoop));
+		if (pkVictoryInfo && pkVictoryInfo->isConquest())
+			return pkVictoryInfo->getPopulationPercentLead() > 0 || pkVictoryInfo->getLandPercent() > 0;
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------

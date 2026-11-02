@@ -31868,10 +31868,12 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 
 	// Calculate who owns the most original capitals by iterating through all civs
 	// and finding out who owns their original capital.
+	// Skipped when Domination Victory goes by population and land share, since capitals don't decide it then.
 	std::vector<CvCity*> OriginalCapitals;
 	CvMap& kMap = GC.getMap();
+	const bool bCapitalsDecideDomination = !GC.getGame().IsDominationVictoryByLandAndPopulation();
 
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; bCapitalsDecideDomination && iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
 

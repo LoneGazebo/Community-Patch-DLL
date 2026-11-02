@@ -27,6 +27,12 @@ UPDATE Defines SET Value = 0.75 WHERE Name = 'DIPLO_VICTORY_CIV_DELEGATES_ELIMIN
 UPDATE Defines SET Value = 1.34 WHERE Name = 'DIPLO_VICTORY_CS_DELEGATES_ALIVE';
 UPDATE Defines SET Value = 0.75 WHERE Name = 'DIPLO_VICTORY_CS_DELEGATES_ELIMINATED';
 
+-- Domination Victory by population and land share (Civ4 rules) instead of holding the original capitals:
+-- the second-largest team's share of the world's population + PopulationPercentLead,
+-- and LandPercent of the land tiles, less 2% per major civ team, but at least MinLandPercent.
+-- Vassals keep half of their population and land, and their master gets the other half.
+UPDATE Victories SET PopulationPercentLead = 25, LandPercent = 78, MinLandPercent = 51 WHERE Type = 'VICTORY_DOMINATION';
+
 -------------------------------------------------------------------------------------------------------------------
 -- Defensive Pact
 -------------------------------------------------------------------------------------------------------------------

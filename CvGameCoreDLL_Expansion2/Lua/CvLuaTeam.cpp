@@ -627,17 +627,25 @@ int CvLuaTeam::lGetNumCities(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//int getTotalPopulation();
+//int getTotalPopulation(bool bCheckVassals = false);
 int CvLuaTeam::lGetTotalPopulation(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvTeam::getTotalPopulation);
+	CvTeam* pkTeam = GetInstance(L);
+	const bool bCheckVassals = luaL_optbool(L, 2, false);
+
+	lua_pushinteger(L, pkTeam->getTotalPopulation(bCheckVassals));
+	return 1;
 }
 
 //------------------------------------------------------------------------------
-//int getTotalLand();
+//int getTotalLand(bool bCheckVassals = false);
 int CvLuaTeam::lGetTotalLand(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvTeam::getTotalLand);
+	CvTeam* pkTeam = GetInstance(L);
+	const bool bCheckVassals = luaL_optbool(L, 2, false);
+
+	lua_pushinteger(L, pkTeam->getTotalLand(bCheckVassals));
+	return 1;
 }
 
 //------------------------------------------------------------------------------

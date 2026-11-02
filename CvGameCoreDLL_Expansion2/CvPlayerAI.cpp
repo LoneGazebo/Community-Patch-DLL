@@ -386,6 +386,12 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		bKeepCity = true;
 	}
 
+	// By population and land share, every city counts: razing or giving one away loses its population and land
+	if (!bKeepCity && GC.getGame().IsDominationVictoryByLandAndPopulation() && !IsEmpireVeryUnhappy() && (GetDiplomacyAI()->IsGoingForWorldConquest() || GetDiplomacyAI()->IsCloseToWorldConquest()))
+	{
+		bKeepCity = true;
+	}
+
 	// Want to keep city - will puppet/annex
 	if (bKeepCity || (!bCanLiberate && !bCanRaze && !bAllowSphereRemoval))
 	{

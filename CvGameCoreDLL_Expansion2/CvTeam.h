@@ -127,10 +127,10 @@ public:
 	int getNumCities() const;
 	void changeNumCities(int iChange);
 
-	int getTotalPopulation() const;
+	int getTotalPopulation(bool bCheckVassals = false) const;
 	void changeTotalPopulation(int iChange);
 
-	int getTotalLand() const;
+	int getTotalLand(bool bCheckVassals = false) const;
 	void changeTotalLand(int iChange);
 
 	int getNukeInterception() const;

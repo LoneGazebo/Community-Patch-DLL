@@ -173,6 +173,13 @@ SET Text = 'To win a Cultural Victory, you must become the dominant cultural inf
 WHERE Tag = 'TXT_KEY_VICTORY_CULTURAL_HEADING3_BODY';
 
 UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Domination Victory[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_VICTORY_DOMINATION_HEADING3_TITLE';
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]To win a Domination Victory, your team must hold enough of the world at the same time: a share of the world''s [ICON_CITIZEN] Population at least 25 percentage points larger than the second-largest team''s share, and 78% of all land tiles, less 2% for each major civilization in the game, but never less than 51%.[ENDCOLOR][NEWLINE][NEWLINE][COLOR_YELLOW]A Vassal counts only half of its own [ICON_CITIZEN] Population and land, and its master gets the other half. City-States add to the world''s [ICON_CITIZEN] Population and land, but cannot win.[ENDCOLOR][NEWLINE][NEWLINE]Eliminating every other civilization and City-State also wins a Domination Victory. [COLOR_YELLOW]The Victory Progress screen shows how close each team is.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_VICTORY_DOMINATION_HEADING3_BODY';
+
+UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Tourism[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CULTURE_TOURISM_HEADING2_TITLE';
 UPDATE Language_en_US

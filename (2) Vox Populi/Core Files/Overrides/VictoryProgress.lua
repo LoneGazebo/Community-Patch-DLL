@@ -13,6 +13,9 @@ local g_DominationItemList = {};
 
 MAX_DOMINATION_ICONS_PER_ROW = 8;
 
+-- Domination Victory by population and land share
+local g_DominationShareIM = InstanceManager:new( "DominationShareRow", "Row", Controls.DominationShareStack );
+
 -- Tech Variables
 local g_TechPreReqList = {};
 local g_PreReqsAcquired = 0;
@@ -263,8 +266,17 @@ end
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function PopulateDomination()
-		
-	if(PreGame.IsVictory(GameInfo.Victories["VICTORY_DOMINATION"].ID))then		
+
+	-- Population and land share (Civ4 rules) instead of the original capitals?
+	local dominationVictory = GameInfo.Victories["VICTORY_DOMINATION"];
+	if (PreGame.IsVictory(dominationVictory.ID) and (dominationVictory.PopulationPercentLead > 0 or dominationVictory.LandPercent > 0)) then
+		PopulateDominationShares(dominationVictory);
+		Controls.DominationVictoryProgress:SetHide(false);
+		Controls.DominationDisabledLabel:SetHide(true);
+		return;
+	end
+
+	if(PreGame.IsVictory(GameInfo.Victories["VICTORY_DOMINATION"].ID))then
 		for i, v in pairs(g_DominationItemIMList) do
 			v:ResetInstances();
 		end
@@ -466,6 +478,83 @@ function PopulateDomination()
 		Controls.DominationVictoryProgress:SetHide(true);
 		Controls.DominationDisabledLabel:SetHide(false);
 	end
+end
+
+----------------------------------------------------------------
+-- Domination Victory by population and land share: one row per team, closest to winning first
+----------------------------------------------------------------
+function PopulateDominationShares(victoryInfo)
+	g_DominationShareIM:ResetInstances();
+
+	local iTotalPopulation = Game.GetTotalPopulation();
+	local iTotalLand = Map.GetLandPlots();
+	local iPopulationNeeded = Game.GetAdjustedPopulationPercent(victoryInfo.ID);
+	local iLandNeeded = Game.GetAdjustedLandPercent(victoryInfo.ID);
+
+	-- How far a team is towards one requirement, from 0 to 1
+	local function Progress(iAmount, iTotal, iNeeded)
+		if (iNeeded <= 0) then
+			return 1;
+		end
+		return math.min(1, 100 * iAmount / math.max(1, iTotal * iNeeded));
+	end
+
+	local teams = {};
+	for iTeam = 0, GameDefines.MAX_CIV_TEAMS - 1, 1 do
+		local pTeam = Teams[iTeam];
+		if (pTeam:IsAlive() and not pTeam:IsMinorCiv()) then
+			-- Vassals keep half of their population and land, and their master gets the other half
+			local team = { ID = iTeam, Population = pTeam:GetTotalPopulation(true), Land = pTeam:GetTotalLand(true) };
+			team.PopulationProgress = Progress(team.Population, iTotalPopulation, iPopulationNeeded);
+			team.LandProgress = Progress(team.Land, iTotalLand, iLandNeeded);
+			team.Progress = math.min(team.PopulationProgress, team.LandProgress);
+			table.insert(teams, team);
+		end
+	end
+	table.sort(teams, function(a, b)
+		if (a.Progress ~= b.Progress) then
+			return a.Progress > b.Progress;
+		end
+		return a.ID < b.ID;
+	end);
+
+	for i, team in ipairs(teams) do
+		local pTeam = Teams[team.ID];
+		local pLeader = Players[pTeam:GetLeaderID()];
+		local row = g_DominationShareIM:GetInstance();
+
+		SetCivIcon(pLeader, 32, row.Icon, nil, nil, false, row.CivIconBG, row.CivIconShadow);
+		if (pTeam:GetNumMembers() > 1) then
+			row.Name:SetText(Locale.ConvertTextKey("TXT_KEY_NUMBERING_FORMAT", i) .. " " .. Locale.ConvertTextKey("TXT_KEY_MULTIPLAYER_DEFAULT_TEAM_NAME", team.ID + 1));
+		else
+			SetCivName(pLeader, i, row.Name, true, 190);
+		end
+
+		local iPopulationShare = math.floor(100 * team.Population / math.max(1, iTotalPopulation));
+		local iLandShare = math.floor(100 * team.Land / math.max(1, iTotalLand));
+		row.PopulationLabel:LocalizeAndSetText("TXT_KEY_VP_DOMINATION_POPULATION_SHARE", iPopulationShare, iPopulationNeeded);
+		row.PopulationBar:SetPercent(team.PopulationProgress);
+		row.LandLabel:LocalizeAndSetText("TXT_KEY_VP_DOMINATION_LAND_SHARE", iLandShare, iLandNeeded);
+		row.LandBar:SetPercent(team.LandProgress);
+
+		local strToolTip = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_TT", team.Population, iTotalPopulation, iPopulationShare, iPopulationNeeded, team.Land, iTotalLand, iLandShare, iLandNeeded);
+		if (pTeam:IsVassalOfSomeone()) then
+			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_VASSAL_TT");
+		elseif (pTeam:GetNumVassals() > 0) then
+			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_MASTER_TT");
+		end
+		row.Row:SetToolTipString(strToolTip);
+	end
+
+	Controls.DominationLabel:LocalizeAndSetText("TXT_KEY_VP_DOMINATION_SHARES_NEEDED", iPopulationNeeded, iLandNeeded);
+	Controls.DominationLabel:LocalizeAndSetToolTip("TXT_KEY_VP_DOMINATION_SHARES_NEEDED_TT", victoryInfo.PopulationPercentLead, victoryInfo.LandPercent, victoryInfo.MinLandPercent);
+	Controls.DominationLabel:SetHide(false);
+
+	Controls.DominationShareStack:CalculateSize();
+	Controls.DominationShareStack:ReprocessAnchoring();
+	Controls.DominationShareScrollPanel:CalculateInternalSize();
+	Controls.DominationShareScrollPanel:SetHide(false);
+	Controls.DominationScrollPanel:SetHide(true);
 end
 
 ----------------------------------------------------------------
