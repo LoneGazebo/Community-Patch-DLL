@@ -18,6 +18,7 @@ const char* const REASON_NAMES[Exe::NUM_REASONS] =
 	"not_network_game",
 	"not_host",
 	"unavailable",
+	"not_ui_thread",
 };
 
 // The symbols each feature uses
