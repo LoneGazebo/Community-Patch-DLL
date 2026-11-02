@@ -19,6 +19,7 @@ const char* const REASON_NAMES[Exe::NUM_REASONS] =
 	"not_host",
 	"unavailable",
 	"not_ui_thread",
+	"wrong_event_channel",
 };
 
 // The symbols each feature uses
@@ -34,6 +35,7 @@ const ExeSymbol YIELD_ICON_MANAGER_SYMBOLS[] =
 	EXE_InterfaceBuddy_UserInterface_vftable,
 	EXE_InterfaceBuddy_YieldIconManager,
 	EXE_YieldIconManager_UnregisterForEvents,
+	EXE_g_EventSystemLocalMachine,
 };
 
 bool HasSymbols(const ExeSymbol* aSymbols, unsigned int uiCount)
@@ -189,6 +191,13 @@ Exe::Reason Exe::CanDisableEngineYieldIconManager()
 	if (GC.GetEngineUserInterface() == NULL)
 	{
 		return REASON_UNAVAILABLE;
+	}
+
+	// Handlers are registered per channel; the engine registered these on
+	// channel 0, so on another channel the unregister would find nothing
+	if (*ExeApi::g_EventSystemLocalMachine() != 0)
+	{
+		return REASON_WRONG_EVENT_CHANNEL;
 	}
 
 	return REASON_OK;

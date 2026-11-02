@@ -11,12 +11,13 @@
 Exe = {}
 
 --- @alias ExeRefusal
---- | "bin_hooks_off"    # the BIN_HOOKS option is off
---- | "unsupported_exe"  # unknown EXE, or an address did not verify
---- | "not_network_game" # only in network multiplayer
---- | "not_host"         # only on the host
---- | "unavailable"      # supported, but the engine object is not there now
---- | "not_ui_thread"    # only from UI code, not GameEvents hooks
+--- | "bin_hooks_off"       # the BIN_HOOKS option is off
+--- | "unsupported_exe"     # unknown EXE, or an address did not verify
+--- | "not_network_game"    # only in network multiplayer
+--- | "not_host"            # only on the host
+--- | "unavailable"         # supported, but the engine object is not there now
+--- | "not_ui_thread"       # only from UI code, not GameEvents hooks
+--- | "wrong_event_channel" # the engine is on another event channel now
 
 --- The running EXE.
 --- @return "DX11"|"DX9"|"Tablet"|"Unknown"
