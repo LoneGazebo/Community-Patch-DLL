@@ -78,7 +78,8 @@ EXE_SYMBOL(
 	NULL
 )
 
-// Signature covers the whole function
+// Signature covers the whole function. thiscall, no stack arguments, plain
+// ret.
 EXE_SYMBOL(
 	YieldIconManager_UnregisterForEvents,
 	EXE_FUNCTION, 0x00711dc0, 0x0069dde0, 0x006bc7b0,
