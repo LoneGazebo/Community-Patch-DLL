@@ -18,7 +18,7 @@ enum ExeSymbol
 
 namespace ExeSymbols
 {
-	//! Once per DLL load.
+	//! Once per DLL load. Other threads wait for the first to finish.
 	void Resolve();
 
 	//! Resolves on first use.

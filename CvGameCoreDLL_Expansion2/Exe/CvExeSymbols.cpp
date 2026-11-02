@@ -68,7 +68,15 @@ struct SymbolState
 	int iVouched;    // passing checks from trusted symbols pointing here
 };
 
-bool s_bResolved = false;
+enum ResolveState
+{
+	RESOLVE_NOT_STARTED,
+	RESOLVE_RUNNING,
+	RESOLVE_DONE
+};
+
+// The table is read only after RESOLVE_DONE
+volatile LONG s_lResolveState = RESOLVE_NOT_STARTED;
 ExeBuild::Type s_eResolvedFor = ExeBuild::UNKNOWN;
 SymbolState s_aState[NUM_EXE_SYMBOLS];
 
@@ -464,18 +472,10 @@ void LogResults()
 	CUSTOMLOG("ExeSymbols: %d of %d symbols resolved", iResolved,
 		(int)NUM_EXE_SYMBOLS);
 }
-} // namespace
 
 //------------------------------------------------------------------------------
-void ExeSymbols::Resolve()
+void ResolveTable()
 {
-	if (s_bResolved)
-	{
-		return;
-	}
-
-	s_bResolved = true;
-
 	for (int i = 0; i < NUM_EXE_SYMBOLS; ++i)
 	{
 		s_aState[i].dwRuntime = 0;
@@ -500,6 +500,35 @@ void ExeSymbols::Resolve()
 	RunChecks(aPassed);
 	PropagateTrust(aPassed);
 	LogResults();
+}
+} // namespace
+
+//------------------------------------------------------------------------------
+void ExeSymbols::Resolve()
+{
+	if (s_lResolveState == RESOLVE_DONE)
+	{
+		return;
+	}
+
+	const LONG lPrevious = InterlockedCompareExchange(
+		&s_lResolveState,
+		RESOLVE_RUNNING,
+		RESOLVE_NOT_STARTED
+	);
+
+	if (lPrevious != RESOLVE_NOT_STARTED)
+	{
+		while (s_lResolveState != RESOLVE_DONE)
+		{
+			Sleep(0);
+		}
+
+		return;
+	}
+
+	ResolveTable();
+	InterlockedExchange(&s_lResolveState, RESOLVE_DONE);
 }
 
 //------------------------------------------------------------------------------
