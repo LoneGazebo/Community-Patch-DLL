@@ -57,3 +57,11 @@ volatile BYTE* ExeApi::Civ5NetMessage_s_wantForceResync()
 		ExeSymbols::Get(EXE_Civ5NetMessage_s_wantForceResync)
 	);
 }
+
+//------------------------------------------------------------------------------
+const volatile DWORD* ExeApi::g_EventSystemLocalMachine()
+{
+	return reinterpret_cast<const volatile DWORD*>(
+		ExeSymbols::Get(EXE_g_EventSystemLocalMachine)
+	);
+}

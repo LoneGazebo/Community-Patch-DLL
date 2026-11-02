@@ -92,6 +92,23 @@ EXE_SYMBOL(
 	" 83 C4 18 5E 83 C4 0C C3"
 )
 
+// No symbol: the first call in UnregisterForEvents. It removes one handler
+// from the table of g_EventSystemLocalMachine's current channel; it starts by
+// reading that channel.
+EXE_SYMBOL(
+	YieldIconManager_UnregisterForEvents_unk17,
+	EXE_FUNCTION, 0x00874eb0, 0x0089aa50, 0x00876940,
+	"A1 ?? ?? ?? ?? 83 EC 34 69 C0 00 06 00 00 F6 05"
+)
+
+// The LocalMachine event system. Its first dword is the current event
+// channel.
+EXE_SYMBOL(
+	g_EventSystemLocalMachine,
+	EXE_DATA, 0x01a0e400, 0x019fe200, 0x01a0fe80,
+	NULL
+)
+
 EXE_SYMBOL(
 	Civ5NetMessage_s_wantForceResync,
 	EXE_DATA, 0x02dd2f68, 0x02dc2d68, 0x02dd4f50,
@@ -142,6 +159,20 @@ EXE_CHECK(
 	InterfaceBuddy_dtor_UnregisterYieldIcons,
 	0x03,
 	YieldIconManager_UnregisterForEvents
+)
+
+EXE_CHECK(
+	EXE_REL32,
+	YieldIconManager_UnregisterForEvents,
+	0x17,
+	YieldIconManager_UnregisterForEvents_unk17
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	YieldIconManager_UnregisterForEvents_unk17,
+	0x01,
+	g_EventSystemLocalMachine
 )
 
 EXE_CHECK(

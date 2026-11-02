@@ -24,6 +24,10 @@ namespace ExeApi
 	// ---- Civ5NetMessage: the RNG sync check polls and clears this, then
 	// broadcasts a force-resync
 	volatile BYTE* Civ5NetMessage_s_wantForceResync();
+
+	// ---- g_EventSystemLocalMachine: the LocalMachine event system; see
+	// CvExeAddresses.h for the layout
+	const volatile DWORD* g_EventSystemLocalMachine();
 }
 
 #endif // CV_EXE_API_H
