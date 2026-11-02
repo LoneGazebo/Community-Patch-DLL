@@ -27,9 +27,12 @@
 	An entry is used only if its signature matches, every check naming it
 	passes, and, without a signature, some verified entry vouches for it.
 
-	DRM: Steam CEG checks parts of .text and .rdata and may crash the game
-	if they change. Do not write to either unless it is proven that the DRM
-	does not rely on that part.
+	DRM: the DLL never writes the EXE's .text or .rdata, only .data and
+	heap objects. Steam CEG hashes about 80% of .text and two thirds of
+	.rdata in the loaded image, with different coverage per build. A
+	mismatch crashes the game later and far from the changed bytes. Do not
+	write to either unless it is proven that CEG does not hash those bytes
+	in any build.
 	------------------------------------------------------------------------- */
 
 #ifdef EXE_SYMBOL
