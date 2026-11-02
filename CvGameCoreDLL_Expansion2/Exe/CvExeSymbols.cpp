@@ -17,12 +17,14 @@ enum Kind
 	EXE_VTABLE,
 	EXE_OFFSET
 };
-enum CheckKind { EXE_ABS32, EXE_REL32, EXE_VAL8 };
+enum CheckKind { EXE_ABS32, EXE_REL32, EXE_VAL8, EXE_VAL32 };
 
 const char* const KIND_NAMES[] =
 {
 	"function", "code", "data", "vtable", "offset"
 };
+
+const DWORD EXE_NONE = 0xFFFFFFFF;
 
 struct SymbolDef
 {
@@ -273,6 +275,9 @@ bool RunCheck(const CheckDef& kCheck, const SymbolDef& kFrom,
 		case EXE_VAL8:
 			bOk = CheckValue(dwFromVA, 1, kTo, szWhat);
 			break;
+		case EXE_VAL32:
+			bOk = CheckValue(dwFromVA, 4, kTo, szWhat);
+			break;
 	}
 
 	if (!bOk)
@@ -291,6 +296,11 @@ void ResolveAddresses()
 	{
 		const SymbolDef& kDef = SYMBOLS[i];
 		const DWORD dwValue = kDef.aValue[s_eResolvedFor];
+
+		if (dwValue == EXE_NONE)
+		{
+			continue;
+		}
 
 		if (kDef.eKind == EXE_OFFSET)
 		{
@@ -332,6 +342,17 @@ void RunChecks(bool* aPassed)
 		const CheckDef& kCheck = CHECKS[c];
 		const SymbolDef& kFrom = SYMBOLS[kCheck.eFrom];
 		const SymbolDef& kTo = SYMBOLS[kCheck.eTo];
+
+		// Naming a symbol this build doesn't have: the check doesn't apply
+		if (
+			kFrom.aValue[s_eResolvedFor] == EXE_NONE
+			|| kTo.aValue[s_eResolvedFor] == EXE_NONE
+		)
+		{
+			aPassed[c] = false;
+			continue;
+		}
+
 		aPassed[c] = RunCheck(kCheck, kFrom, kTo);
 
 		if (!aPassed[c])
@@ -408,7 +429,16 @@ void LogResults()
 		if (!kState.bOk)
 		{
 			kState.dwRuntime = 0;
-			CUSTOMLOG("ExeSymbols: %s: NOT resolved (see above)", kDef.szName);
+
+			if (kDef.aValue[s_eResolvedFor] == EXE_NONE)
+			{
+				CUSTOMLOG("ExeSymbols: %s: not in this build", kDef.szName);
+			}
+			else
+			{
+				CUSTOMLOG("ExeSymbols: %s: NOT resolved (see above)",
+					kDef.szName);
+			}
 
 			continue;
 		}
@@ -483,6 +513,22 @@ bool ExeSymbols::IsResolved(ExeSymbol eSymbol)
 	}
 
 	return s_aState[eSymbol].bOk;
+}
+
+bool ExeSymbols::IsInBuild(ExeSymbol eSymbol)
+{
+	Resolve();
+
+	if (
+		s_eResolvedFor == ExeBuild::UNKNOWN
+		|| eSymbol < 0
+		|| eSymbol >= NUM_EXE_SYMBOLS
+	)
+	{
+		return false;
+	}
+
+	return SYMBOLS[eSymbol].aValue[s_eResolvedFor] != EXE_NONE;
 }
 
 DWORD ExeSymbols::Get(ExeSymbol eSymbol)
