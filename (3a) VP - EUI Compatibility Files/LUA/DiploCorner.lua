@@ -264,6 +264,14 @@ function InputHandler( uiMsg, wParam, lParam )
         Controls.ChatEntry:TakeFocus();
         return true;
     end
+
+    -- Ctrl+Shift+T: enable FireTuner in a multiplayer game
+    if( uiMsg == KeyEvents.KeyDown
+        and wParam == Keys.T
+        and UIManager:GetControl()
+        and UIManager:GetShift() ) then
+        return OnEnableTunerKey();
+    end
 end
 ContextPtr:SetInputHandler( InputHandler );
 
@@ -510,18 +518,42 @@ if( Game.IsGameMultiPlayer() ) then
 end
 
 function OnForceResyncButton()
-	Game.SetExeWantForceResyncValue(1);
+	local bOk, sReason = Exe.TryScheduleResync();
+	if not bOk then
+		print("Force resync refused: " .. tostring(sReason));
+	end
 	Controls.ForceResyncButton:SetDisabled(true);
 end
 Controls.ForceResyncButton:RegisterCallback(Mouse.eLClick, OnForceResyncButton);
 
 function UpdateForceResyncButton()
-	local bShowForceResync = Game.IsExeWantForceResyncAvailable();
+	local bShowForceResync = Exe.CanScheduleResync();
 	Controls.ForceResyncButton:SetHide( not bShowForceResync );
 	Controls.ForceResyncButton:SetDisabled(false);
 end
 GameEvents.PlayerDoTurn.Add(UpdateForceResyncButton);
 Events.MultiplayerGamePlayerUpdated.Add(UpdateForceResyncButton);
+
+-- Outside multiplayer the key is left to others. A refusal is shown only
+-- on this machine; success is announced in chat by the DLL.
+function OnEnableTunerKey()
+	if not Game.IsGameMultiPlayer() then
+		return false;
+	end
+
+	local bOk, sReason = Exe.TryEnableTunerInMultiplayer();
+
+	if not bOk then
+		local sKey = sReason == "already_enabled"
+			and "TXT_KEY_MP_FIRETUNER_ALREADY_ENABLED"
+			or "TXT_KEY_MP_FIRETUNER_REFUSED";
+		Events.GameplayAlertMessage(
+			Locale.ConvertTextKey( sKey, tostring(sReason) )
+		);
+	end
+
+	return true;
+end
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

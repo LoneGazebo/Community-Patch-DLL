@@ -2547,6 +2547,14 @@
 			<Text>Schedule a forced resync</Text>
 		</Row>
 
+		<!-- Enable FireTuner shortcut -->
+		<Row Tag="TXT_KEY_MP_FIRETUNER_ALREADY_ENABLED">
+			<Text>[COLOR_WARNING_TEXT]FireTuner is already enabled on this machine.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MP_FIRETUNER_REFUSED">
+			<Text>[COLOR_NEGATIVE_TEXT]FireTuner could not be enabled ({1_Reason}).[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- Economic overview -->
 		<Row Tag="TXT_KEY_BUILDINGS_UNHAPPINESS">
 			<Text>Buildings ({1_Num})</Text>
