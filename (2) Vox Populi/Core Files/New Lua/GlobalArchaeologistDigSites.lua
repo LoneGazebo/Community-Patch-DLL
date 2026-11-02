@@ -12,7 +12,7 @@ local bDigSites = false
 
 function ClearDigSites()
   if (bDigSites) then
-    Events.ClearHexHighlights()
+    Events.ClearHexHighlightStyle("")
     bDigSites = false
   end
 end
