@@ -18,6 +18,18 @@ int PushResult(lua_State* L, Exe::Reason eReason)
 
 	return 2;
 }
+
+//! Exe is in every Lua state, but GameEvents hooks run on the game-core
+//! thread and the EXE features are for the UI thread.
+int PushResultFromUIThread(lua_State* L, Exe::Reason (*pfnCall)())
+{
+	if (gDLL->IsGameCoreThread())
+	{
+		return PushResult(L, Exe::REASON_NOT_UI_THREAD);
+	}
+
+	return PushResult(L, pfnCall());
+}
 } // namespace
 
 //------------------------------------------------------------------------------
@@ -67,20 +79,20 @@ int CvLuaExe::lGetBuildName(lua_State* L)
 
 int CvLuaExe::lCanScheduleResync(lua_State* L)
 {
-	return PushResult(L, Exe::CanScheduleResync());
+	return PushResultFromUIThread(L, Exe::CanScheduleResync);
 }
 
 int CvLuaExe::lTryScheduleResync(lua_State* L)
 {
-	return PushResult(L, Exe::TryScheduleResync());
+	return PushResultFromUIThread(L, Exe::TryScheduleResync);
 }
 
 int CvLuaExe::lCanDisableEngineYieldIconManager(lua_State* L)
 {
-	return PushResult(L, Exe::CanDisableEngineYieldIconManager());
+	return PushResultFromUIThread(L, Exe::CanDisableEngineYieldIconManager);
 }
 
 int CvLuaExe::lTryDisableEngineYieldIconManager(lua_State* L)
 {
-	return PushResult(L, Exe::TryDisableEngineYieldIconManager());
+	return PushResultFromUIThread(L, Exe::TryDisableEngineYieldIconManager);
 }
