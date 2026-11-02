@@ -6,7 +6,9 @@
 namespace
 {
 // __thiscall as __fastcall with an unused EDX: same layout, and VC9 cannot
-// declare __thiscall function pointers.
+// declare __thiscall function pointers. Only for methods with no stack
+// arguments that end in a plain ret: __fastcall would pass a second argument
+// in EDX, not on the stack.
 template<typename R>
 R ThisCall(ExeSymbol e, void* pThis)
 {
