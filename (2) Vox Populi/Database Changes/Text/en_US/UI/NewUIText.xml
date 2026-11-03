@@ -1728,7 +1728,7 @@
 			<Text>Needs {1_Population}% of the [ICON_CITIZEN] Population and {2_Land}% of the land</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_NEEDED_TT">
-			<Text>A team wins when it holds both shares on the same turn, or when no one else has any cities left.[NEWLINE][NEWLINE][ICON_CITIZEN] Population: the second-largest team's share plus {1_Lead}%.[NEWLINE]Land: {2_Land}% of all land tiles, less 2% for each major civilization, but at least {3_MinLand}%.[NEWLINE][NEWLINE]A Vassal counts only half of its own Population and land; its master gets the other half.</Text>
+			<Text>A team wins when it holds both shares on the same turn, or when it is the last independent civilization: every other civilization is eliminated or has become its Vassal.[NEWLINE][NEWLINE][ICON_CITIZEN] Population: the second-largest team's share plus {1_Lead}%.[NEWLINE]Land: {2_Land}% of all land tiles, less 2% for each major civilization, but at least {3_MinLand}%.[NEWLINE][NEWLINE]City-States count for only {4_Weight}% of their Population and land, so the more of the world they hold, the lower both shares needed. They now hold {5_Population}% of the [ICON_CITIZEN] Population and {6_Land}% of the land.[NEWLINE][NEWLINE]A Vassal counts only half of its own Population and land; its master gets the other half.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VP_DOMINATION_POPULATION_SHARE">
 			<Text>Population {1_Share}% / {2_Needed}%</Text>
@@ -1736,8 +1736,17 @@
 		<Row Tag="TXT_KEY_VP_DOMINATION_LAND_SHARE">
 			<Text>Land {1_Share}% / {2_Needed}%</Text>
 		</Row>
-		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_TT">
-			<Text>[ICON_CITIZEN] Population: {1_Num} of {2_Total} ({3_Share}%, needs {4_Needed}%)[NEWLINE]Land: {5_Num} of {6_Total} land tiles ({7_Share}%, needs {8_Needed}%)</Text>
+		<Row Tag="TXT_KEY_VP_DOMINATION_POPULATION_MORE_TT">
+			<Text>[ICON_CITIZEN] Population: {1_Num} of {2_Total}. [COLOR_NEGATIVE_TEXT]{3_More}[ENDCOLOR] more needed for {4_Needed}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_POPULATION_REACHED_TT">
+			<Text>[ICON_CITIZEN] Population: {1_Num} of {2_Total}. [COLOR_POSITIVE_TEXT]{3_Needed}% reached.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_LAND_MORE_TT">
+			<Text>Land: {1_Num} of {2_Total} land tiles. [COLOR_NEGATIVE_TEXT]{3_More}[ENDCOLOR] more needed for {4_Needed}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_LAND_REACHED_TT">
+			<Text>Land: {1_Num} of {2_Total} land tiles. [COLOR_POSITIVE_TEXT]{3_Needed}% reached.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_VASSAL_TT">
 			<Text>[NEWLINE][NEWLINE]As a Vassal, counts only half of its own Population and land.</Text>

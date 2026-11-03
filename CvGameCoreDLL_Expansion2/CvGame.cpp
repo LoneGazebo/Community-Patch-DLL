@@ -4146,11 +4146,20 @@ int CvGame::getAdjustedPopulationPercent(VictoryTypes eVictory) const
 	iBestPopulation = 0;
 	iNextBestPopulation = 0;
 
+	// City-States count for only part of their population, in the world total and as the second-largest team
+	const int iCityStateWeight = range(GD_INT_GET(DOMINATION_VICTORY_CITY_STATE_WEIGHT), 0, 100);
+	int iCityStatePopulation = 0;
+
 	for(iI = 0; iI < MAX_CIV_TEAMS; iI++)
 	{
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			iPopulation = GET_TEAM((TeamTypes)iI).getTotalPopulation(/*bCheckVassals*/ true);
+			if(GET_TEAM((TeamTypes)iI).isMinorCiv())
+			{
+				iCityStatePopulation += iPopulation;
+				iPopulation = iPopulation * iCityStateWeight / 100;
+			}
 
 			if(iPopulation > iBestPopulation)
 			{
@@ -4164,7 +4173,11 @@ int CvGame::getAdjustedPopulationPercent(VictoryTypes eVictory) const
 		}
 	}
 
-	return std::min(100, (((iNextBestPopulation * 100) / getTotalPopulation()) + pkVictoryInfo->getPopulationPercentLead()));
+	// The second-largest team's share plus the lead, both of the population that counts, as a share of the whole world:
+	// the second-largest team's population over the world's, plus the lead scaled down by the part that doesn't count
+	const int iCountedPopulationTimes100 = 100 * getTotalPopulation() - (100 - iCityStateWeight) * iCityStatePopulation;
+	const int iLead = pkVictoryInfo->getPopulationPercentLead() * iCountedPopulationTimes100 / (100 * getTotalPopulation());
+	return std::min(100, (((iNextBestPopulation * 100) / getTotalPopulation()) + iLead));
 }
 
 //	--------------------------------------------------------------------------------
@@ -4183,15 +4196,25 @@ int CvGame::getAdjustedLandPercent(VictoryTypes eVictory) const
 
 	// 2% less per team in the game, as in Civ4, which had no City-States: count only the major civ teams
 	int iMajorTeamsEverAlive = 0;
+	int iCityStateLand = 0;
 	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 	{
 		const CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeamLoop);
 		if (kLoopTeam.isEverAlive() && !kLoopTeam.isMinorCiv())
 			iMajorTeamsEverAlive++;
+		else if (kLoopTeam.isAlive() && kLoopTeam.isMinorCiv())
+			iCityStateLand += kLoopTeam.getTotalLand();
 	}
 	iPercent -= (iMajorTeamsEverAlive * 2);
+	iPercent = std::max(iPercent, pkVictoryInfo->getMinLandPercent());
 
-	return std::max(iPercent, pkVictoryInfo->getMinLandPercent());
+	// City-States count for only part of their land, so the more of it they hold, the lower the share needed
+	const int iCityStateWeight = range(GD_INT_GET(DOMINATION_VICTORY_CITY_STATE_WEIGHT), 0, 100);
+	const int iLandPlots = GC.getMap().getLandPlots();
+	if (iLandPlots > 0)
+		iPercent = iPercent * (100 * iLandPlots - (100 - iCityStateWeight) * iCityStateLand) / (100 * iLandPlots);
+
+	return iPercent;
 }
 
 //	--------------------------------------------------------------------------------
@@ -9491,15 +9514,19 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 	{
 		if(pkVictoryInfo->isConquest())
 		{
+			// Domination Victory by population and land share (Civ4 rules): the last independent civilization also wins,
+			// so City-States and our own Vassals don't count as anyone left (a Vassal of an eliminated master does)
+			const bool bByShares = pkVictoryInfo->getPopulationPercentLead() > 0 || pkVictoryInfo->getLandPercent() > 0;
+
 			if(GET_TEAM(eTeam).getNumCities() == 0)
 			{
 				bValid = false;
 			}
 			else
 			{
-				bool bFound = false;
+				bool bFound = bByShares && GET_TEAM(eTeam).IsVassalOfSomeone();
 
-				for(int iK = 0; iK < MAX_CIV_TEAMS; iK++)
+				for(int iK = 0; iK < MAX_CIV_TEAMS && !bFound; iK++)
 				{
 					if(GET_TEAM((TeamTypes)iK).isAlive())
 					{
@@ -9507,6 +9534,9 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 						{
 							if(GET_TEAM((TeamTypes)iK).getNumCities() > 0)
 							{
+								if(bByShares && (GET_TEAM((TeamTypes)iK).isMinorCiv() || GET_TEAM((TeamTypes)iK).IsVassal(eTeam)))
+									continue;
+
 								bFound = true;
 								break;
 							}
@@ -9516,8 +9546,8 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 
 				if(bFound)
 				{
-					// A Domination Victory by population and land share (Civ4 rules) doesn't need everyone else gone; the checks below decide it
-					if(pkVictoryInfo->getPopulationPercentLead() == 0 && pkVictoryInfo->getLandPercent() == 0)
+					// Others are left: under the share rule, the population and land checks below decide it
+					if(!bByShares)
 					{
 						bValid = false;
 					}

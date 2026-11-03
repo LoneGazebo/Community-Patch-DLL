@@ -50,6 +50,9 @@ VALUES
 	('VICTORY_PURSUIT_FEW_CITY_STATES_PENALTY', -20),
 	('VICTORY_PURSUIT_MAX_RANDOMNESS', 18),
 	('VICTORY_PURSUIT_DIFFERENTIAL_DIVISOR', 200),
+-- Domination Victory by population and land share (VP): percent of City-States' population and land that counts in the world totals;
+-- the rest lowers both shares needed (100: City-States count fully, 0: they are left out)
+	('DOMINATION_VICTORY_CITY_STATE_WEIGHT', 50),
 -- Minimum war score for third party peace requests
 	('THIRD_PARTY_PEACE_MIN_WAR_SCORE', 75),
 -- Minimum number of turns before War Weariness starts accumulating each turn, even if no damage is inflicted

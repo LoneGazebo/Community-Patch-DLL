@@ -31,7 +31,9 @@ UPDATE Defines SET Value = 0.75 WHERE Name = 'DIPLO_VICTORY_CS_DELEGATES_ELIMINA
 -- the second-largest team's share of the world's population + PopulationPercentLead,
 -- and LandPercent of the land tiles, less 2% per major civ team, but at least MinLandPercent.
 -- Vassals keep half of their population and land, and their master gets the other half.
-UPDATE Victories SET PopulationPercentLead = 25, LandPercent = 78, MinLandPercent = 51 WHERE Type = 'VICTORY_DOMINATION';
+-- City-States count for DOMINATION_VICTORY_CITY_STATE_WEIGHT percent of their population and land (half), which lowers both shares.
+-- Being the last independent civilization (everyone else eliminated or a Vassal) also wins.
+UPDATE Victories SET PopulationPercentLead = 25, LandPercent = 66, MinLandPercent = 40 WHERE Type = 'VICTORY_DOMINATION';
 
 -------------------------------------------------------------------------------------------------------------------
 -- Defensive Pact

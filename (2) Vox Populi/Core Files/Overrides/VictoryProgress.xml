@@ -31,9 +31,17 @@
       </Box>
       <Label ID="Name" Anchor="L,C" Offset="40,0" Font="TwCenMT16" ColorSet="Beige_Black" FontStyle="Shadow"/>
       <Label ID="PopulationLabel" Anchor="L,T" Offset="240,2" Font="TwCenMT14" ColorSet="Beige_Black" FontStyle="Shadow"/>
-      <Bar ID="PopulationBar" Anchor="L,T" Offset="240,21" Size="160,5" Direction="Right" FGColor="255,224,128,255" BGColor="0,0,0,160"/>
+      <!-- Share of the world, with a mark at the share needed; the Lua turns the bar green once it is reached -->
+      <Box Anchor="L,T" Offset="240,21" Size="160,5" Color="0,0,0,0">
+        <Bar ID="PopulationBar" Anchor="L,T" Offset="0,0" Size="160,5" Direction="Right" FGColor="220,200,150,255" BGColor="0,0,0,160"/>
+        <Box ID="PopulationNeeded" Anchor="L,C" Offset="0,0" Size="2,9" Color="255,255,255,230"/>
+      </Box>
       <Label ID="LandLabel" Anchor="L,T" Offset="415,2" Font="TwCenMT14" ColorSet="Beige_Black" FontStyle="Shadow"/>
-      <Bar ID="LandBar" Anchor="L,T" Offset="415,21" Size="160,5" Direction="Right" FGColor="128,208,128,255" BGColor="0,0,0,160"/>
+      <!-- Share of the world, with a mark at the share needed; the Lua turns the bar green once it is reached -->
+      <Box Anchor="L,T" Offset="415,21" Size="160,5" Color="0,0,0,0">
+        <Bar ID="LandBar" Anchor="L,T" Offset="0,0" Size="160,5" Direction="Right" FGColor="220,200,150,255" BGColor="0,0,0,160"/>
+        <Box ID="LandNeeded" Anchor="L,C" Offset="0,0" Size="2,9" Color="255,255,255,230"/>
+      </Box>
       <Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1"/>
     </Box>
   </Instance>

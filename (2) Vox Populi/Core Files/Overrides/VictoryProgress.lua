@@ -499,6 +499,28 @@ function PopulateDominationShares(victoryInfo)
 		return math.min(1, 100 * iAmount / math.max(1, iTotal * iNeeded));
 	end
 
+	-- How much a team has, and how much more it needs for the share (the least amount that passes CvGame::testVictory's
+	-- 100 * amount >= total * needed), or that it has reached it
+	local function ShareToolTip(strKey, iAmount, iTotal, iNeeded)
+		local iMore = math.max(0, math.ceil(iTotal * iNeeded / 100) - iAmount);
+		if (iMore > 0) then
+			return Locale.ConvertTextKey(strKey .. "_MORE_TT", iAmount, iTotal, iMore, iNeeded);
+		end
+		return Locale.ConvertTextKey(strKey .. "_REACHED_TT", iAmount, iTotal, iNeeded);
+	end
+
+	-- A bar shows the team's share of the world, with a mark at the share needed; it turns green once that is reached
+	local function SetShareBar(bar, neededMark, fShare, iNeeded, fProgress)
+		bar:SetPercent(fShare);
+		if (iNeeded > 0 and fProgress >= 1) then
+			bar:SetFGColor({ x = 0.43, y = 0.82, z = 0.43, w = 1 });
+		else
+			bar:SetFGColor({ x = 0.86, y = 0.78, z = 0.59, w = 1 });
+		end
+		neededMark:SetOffsetVal(math.floor(bar:GetSizeX() * iNeeded / 100 + 0.5) - 1, 0);
+		neededMark:SetHide(iNeeded <= 0);
+	end
+
 	local teams = {};
 	for iTeam = 0, GameDefines.MAX_CIV_TEAMS - 1, 1 do
 		local pTeam = Teams[iTeam];
@@ -533,11 +555,12 @@ function PopulateDominationShares(victoryInfo)
 		local iPopulationShare = math.floor(100 * team.Population / math.max(1, iTotalPopulation));
 		local iLandShare = math.floor(100 * team.Land / math.max(1, iTotalLand));
 		row.PopulationLabel:LocalizeAndSetText("TXT_KEY_VP_DOMINATION_POPULATION_SHARE", iPopulationShare, iPopulationNeeded);
-		row.PopulationBar:SetPercent(team.PopulationProgress);
+		SetShareBar(row.PopulationBar, row.PopulationNeeded, team.Population / math.max(1, iTotalPopulation), iPopulationNeeded, team.PopulationProgress);
 		row.LandLabel:LocalizeAndSetText("TXT_KEY_VP_DOMINATION_LAND_SHARE", iLandShare, iLandNeeded);
-		row.LandBar:SetPercent(team.LandProgress);
+		SetShareBar(row.LandBar, row.LandNeeded, team.Land / math.max(1, iTotalLand), iLandNeeded, team.LandProgress);
 
-		local strToolTip = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_TT", team.Population, iTotalPopulation, iPopulationShare, iPopulationNeeded, team.Land, iTotalLand, iLandShare, iLandNeeded);
+		local strToolTip = ShareToolTip("TXT_KEY_VP_DOMINATION_POPULATION", team.Population, iTotalPopulation, iPopulationNeeded)
+			.. "[NEWLINE]" .. ShareToolTip("TXT_KEY_VP_DOMINATION_LAND", team.Land, iTotalLand, iLandNeeded);
 		if (pTeam:IsVassalOfSomeone()) then
 			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_VASSAL_TT");
 		elseif (pTeam:GetNumVassals() > 0) then
@@ -546,8 +569,22 @@ function PopulateDominationShares(victoryInfo)
 		row.Row:SetToolTipString(strToolTip);
 	end
 
+	-- City-States count for only part of their population and land, which lowers both shares needed
+	local iCityStatePopulation, iCityStateLand = 0, 0;
+	for iTeam = 0, GameDefines.MAX_CIV_TEAMS - 1, 1 do
+		local pTeam = Teams[iTeam];
+		if (pTeam:IsAlive() and pTeam:IsMinorCiv()) then
+			iCityStatePopulation = iCityStatePopulation + pTeam:GetTotalPopulation();
+			iCityStateLand = iCityStateLand + pTeam:GetTotalLand();
+		end
+	end
+	local iCityStateWeight = GameDefines.DOMINATION_VICTORY_CITY_STATE_WEIGHT or 50;
+	local iCityStatePopulationShare = math.floor(100 * iCityStatePopulation / math.max(1, iTotalPopulation));
+	local iCityStateLandShare = math.floor(100 * iCityStateLand / math.max(1, iTotalLand));
+
 	Controls.DominationLabel:LocalizeAndSetText("TXT_KEY_VP_DOMINATION_SHARES_NEEDED", iPopulationNeeded, iLandNeeded);
-	Controls.DominationLabel:LocalizeAndSetToolTip("TXT_KEY_VP_DOMINATION_SHARES_NEEDED_TT", victoryInfo.PopulationPercentLead, victoryInfo.LandPercent, victoryInfo.MinLandPercent);
+	Controls.DominationLabel:LocalizeAndSetToolTip("TXT_KEY_VP_DOMINATION_SHARES_NEEDED_TT", victoryInfo.PopulationPercentLead, victoryInfo.LandPercent, victoryInfo.MinLandPercent,
+		iCityStateWeight, iCityStatePopulationShare, iCityStateLandShare);
 	Controls.DominationLabel:SetHide(false);
 
 	Controls.DominationShareStack:CalculateSize();
