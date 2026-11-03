@@ -5,6 +5,8 @@
 #include "CvExeSymbols.h"
 #include "CvGameCoreUtils.h"
 
+#include <string.h>
+
 // must be included after all other headers
 #include "LintFree.h"
 
@@ -62,11 +64,48 @@ Exe::Reason Refuse(const char* szWhat, Exe::Reason eReason)
 	return eReason;
 }
 
+//! True if [p, p + uiSize) is committed, readable memory in one region.
+//! Asks the memory manager instead of touching the memory, so unlike
+//! IsBadReadPtr it cannot trip a guard page.
+bool IsReadable(const void* p, size_t uiSize)
+{
+	MEMORY_BASIC_INFORMATION kInfo;
+
+	if (VirtualQuery(p, &kInfo, sizeof(kInfo)) != sizeof(kInfo))
+	{
+		return false;
+	}
+
+	const DWORD dwReadable = PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY
+		| PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
+
+	if (
+		kInfo.State != MEM_COMMIT
+		|| (kInfo.Protect & (PAGE_GUARD | PAGE_NOACCESS)) != 0
+		|| (kInfo.Protect & dwReadable) == 0
+	)
+	{
+		return false;
+	}
+
+	const BYTE* pEnd =
+		static_cast<const BYTE*>(kInfo.BaseAddress) + kInfo.RegionSize;
+
+	return static_cast<const BYTE*>(p) + uiSize <= pEnd;
+}
+
 DWORD ReadVftable(DWORD dwObject)
 {
-	const DWORD* p = reinterpret_cast<const DWORD*>(dwObject);
+	const void* p = reinterpret_cast<const void*>(dwObject);
+	DWORD dwVftable = 0;
 
-	return !IsBadReadPtr(p, sizeof(DWORD)) ? *p : 0;
+	// memcpy: the address is computed and not known to be aligned
+	if (IsReadable(p, sizeof(dwVftable)))
+	{
+		memcpy(&dwVftable, p, sizeof(dwVftable));
+	}
+
+	return dwVftable;
 }
 
 //! Engine's InterfaceBuddy, found from GC.GetEngineUserInterface(), or
