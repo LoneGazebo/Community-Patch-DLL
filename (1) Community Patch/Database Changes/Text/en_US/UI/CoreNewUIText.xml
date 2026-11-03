@@ -245,6 +245,12 @@
 		<Row Tag="TXT_KEY_TP_POLICY_TENET_PENALTY_EXPLAINER">
 			<Text>Each Tenet increases future Policy costs: Tier 1 [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR], Tier 2 [COLOR_NEGATIVE_TEXT]+{2_Num}%[ENDCOLOR], Tier 3 [COLOR_NEGATIVE_TEXT]+{3_Num}%[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_COST_FACTOR_TIMES">
+			<Text>×{1_Str}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_COST_FACTOR_DIVIDED">
+			<Text>÷{1_Str}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_COST_BASE">
 			<Text>Base Policy cost: {1_Num} [ICON_CULTURE]</Text>
 		</Row>
@@ -252,28 +258,28 @@
 			<Text>(capped at {1_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_HEADER">
-			<Text>[ICON_BULLET]x {1_Str} from Policy cost changes{2_Str}:</Text>
+			<Text>{1_Str} from Policy cost changes{2_Str}:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FROM_POLICIES">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from adopted Policies and Tenets.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from adopted Policies and Tenets</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FROM_BUILDINGS">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from Buildings.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from Buildings</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FROM_MINOR_CIVS">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from City-State modifiers.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from City-State modifiers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FROM_TRAITS">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from Civilization Traits.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from Civilization Traits</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_TENET_PENALTY">
-			<Text>[ICON_BULLET]x [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR] from {2_Num} adopted {2_Num: plural 1?Tenet; other?Tenets;}.</Text>
+			<Text>{1_Str} from {2_Num} adopted {2_Num: plural 1?Tenet; other?Tenets;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DIFFICULTY">
-			<Text>[ICON_BULLET]x {1_Str} from difficulty and era.</Text>
+			<Text>{1_Str} from Difficulty and Era</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_COST_TOTAL">
-			<Text>[ICON_BULLET]= {1_Num} [ICON_CULTURE] adjusted Policy cost.</Text>
+			<Text>= {1_Num} [ICON_CULTURE] adjusted Policy cost</Text>
 		</Row>
 		<!-- Science -->
 		<Row Tag="TXT_KEY_TP_SCIENCE_PER_TURN">
@@ -286,19 +292,19 @@
 			<Text>Base Technology cost: {1_Num} [ICON_RESEARCH]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_DISCOUNT_HEADER">
-			<Text>[ICON_BULLET]/ {1_Str}{2_Str} from Technology cost discounts:</Text>
+			<Text>{1_Str}{2_Str} from Technology cost discounts:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_DISCOUNT_SCHOLAR_SPLIT">
-			<Text>([COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] x [COLOR_POSITIVE_TEXT]{2_Num}%[ENDCOLOR])</Text>
+			<Text>([COLOR_POSITIVE_TEXT]{1_Str}[ENDCOLOR] × [COLOR_POSITIVE_TEXT]{2_Str}[ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_CATCHUP_DISCOUNT">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Str}%[ENDCOLOR] from {2_Num}/{3_Num} known Civilizations having this technology.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+{1_Str}%[ENDCOLOR] from {2_Num}/{3_Num} known Civilizations having this technology</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_PREREQ_DISCOUNT">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Str}%[ENDCOLOR] from known optional prerequisite technologies.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+{1_Str}%[ENDCOLOR] from known optional prerequisite technologies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_COST_TOTAL">
-			<Text>[ICON_BULLET]= {1_Num} [ICON_RESEARCH] adjusted Technology cost.</Text>
+			<Text>= {1_Num} [ICON_RESEARCH] adjusted Technology cost</Text>
 		</Row>
 		<!-- Tourism -->
 		<Row Tag="TXT_KEY_TP_TOURISM_PER_TURN">
