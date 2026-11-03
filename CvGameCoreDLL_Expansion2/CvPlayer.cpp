@@ -47134,6 +47134,8 @@ void CvPlayer::UpdateAreaEffectUnits()
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
+		// The vector was just cleared, so the unit's old index into it is stale
+		pLoopUnit->SetAreaEffectCacheIndex(-1);
 		pLoopUnit->UpdateAreaEffect(false);
 	}
 
@@ -47212,7 +47214,12 @@ int CvPlayer::AddOrReplaceAreaEffectUnit(const SAreaEffectUnitInfo& info)
 // Make sure this isn't called while looping through the vector
 void CvPlayer::RemoveAreaEffectUnit(int iIndex)
 {
-	int iLastIndex = static_cast<int>(m_areaEffectUnitInfos.size() - 1);
+	int iLastIndex = static_cast<int>(m_areaEffectUnitInfos.size()) - 1;
+	if (iIndex < 0 || iIndex > iLastIndex)
+	{
+		ASSERT(false, "Area effect index out of range");
+		return;
+	}
 
 	// Clear the index on the unit that is being removed
 	CvUnit* pRemovedUnit = getUnit(m_areaEffectUnitInfos[iIndex].iUnitID);
@@ -47229,7 +47236,8 @@ void CvPlayer::RemoveAreaEffectUnit(int iIndex)
 		// Update the index on the unit that we just moved
 		CvUnit* pMovedUnit = getUnit(m_areaEffectUnitInfos[iIndex].iUnitID);
 		ASSERT(pMovedUnit, "Area effect vector somehow contains invalid unit ID");
-		pMovedUnit->SetAreaEffectCacheIndex(iIndex);
+		if (pMovedUnit)
+			pMovedUnit->SetAreaEffectCacheIndex(iIndex);
 	}
 	m_areaEffectUnitInfos.pop_back();
 }
