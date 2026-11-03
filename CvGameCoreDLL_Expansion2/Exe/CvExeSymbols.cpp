@@ -189,7 +189,9 @@ bool CheckAbs32(DWORD dwFromVA, const SymbolDef& kTo, const char* szWhat)
 		return false;
 	}
 
-	const DWORD dwValue = *reinterpret_cast<const DWORD*>(dwAddr);
+	// The operand sits inside an instruction, so it need not be aligned
+	DWORD dwValue;
+	memcpy(&dwValue, reinterpret_cast<const void*>(dwAddr), sizeof(dwValue));
 
 	if (dwValue != dwTarget)
 	{
