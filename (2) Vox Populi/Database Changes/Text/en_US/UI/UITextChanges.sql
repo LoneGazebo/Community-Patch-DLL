@@ -63,7 +63,7 @@ WHERE Tag = 'TXT_KEY_MAYA_DATE_TOOLTIP';
 
 -- Science
 UPDATE Language_en_US
-SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% x current non-Puppet Cities) to the [ICON_RESEARCH] Technology cost.'
+SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% × current non-Puppet Cities) to the [ICON_RESEARCH] Technology cost.'
 WHERE Tag = 'TXT_KEY_TP_TECH_CITY_COST';
 
 UPDATE Language_en_US
@@ -76,7 +76,7 @@ WHERE Tag = 'TXT_KEY_TP_SCIENCE_FROM_MINORS';
 
 -- Culture
 UPDATE Language_en_US
-SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% x current non-Puppet Cities) to the [ICON_CULTURE] Policy cost.'
+SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% × current non-Puppet Cities) to the [ICON_CULTURE] Policy cost.'
 WHERE Tag = 'TXT_KEY_TP_CULTURE_CITY_COST';
 
 UPDATE Language_en_US
