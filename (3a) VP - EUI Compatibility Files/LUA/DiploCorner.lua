@@ -150,11 +150,26 @@ function OnChatToggle()
 end
 Controls.ChatToggle:RegisterCallback( Mouse.eLClick, OnChatToggle );
 
+-- Single player and hotseat hide the chat, but engine warnings are sent there.
+local function ForceOpenChat()
+	if Controls.ChatToggle:IsHidden() then
+		PopulateChatPull()
+		Controls.ChatToggle:SetHide(false)
+	end
+
+	if not m_bChatOpen then
+		OnChatToggle()
+	end
+end
+LuaEvents.ForceOpenChat.Add(ForceOpenChat)
 
 -------------------------------------------------
 -------------------------------------------------
 local bFlipper = false;
 function OnChat( fromPlayer, toPlayer, text, eTargetType )
+	if not Game.IsNetworkMultiPlayer() then
+		ForceOpenChat()
+	end
 
     local controlTable = {};
     ContextPtr:BuildInstanceForControl( "ChatEntry", controlTable, Controls.ChatStack );
@@ -510,13 +525,16 @@ if( Game.IsGameMultiPlayer() ) then
 end
 
 function OnForceResyncButton()
-	Game.SetExeWantForceResyncValue(1);
+	local bOk, sReason = Exe.TryScheduleResync();
+	if not bOk then
+		print("Force resync refused: " .. tostring(sReason));
+	end
 	Controls.ForceResyncButton:SetDisabled(true);
 end
 Controls.ForceResyncButton:RegisterCallback(Mouse.eLClick, OnForceResyncButton);
 
 function UpdateForceResyncButton()
-	local bShowForceResync = Game.IsExeWantForceResyncAvailable();
+	local bShowForceResync = Exe.CanScheduleResync();
 	Controls.ForceResyncButton:SetHide( not bShowForceResync );
 	Controls.ForceResyncButton:SetDisabled(false);
 end
