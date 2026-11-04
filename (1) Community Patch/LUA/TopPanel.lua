@@ -40,14 +40,14 @@ local function FormatCityCostPercentHundredths(iHundredths)
 	return string.format("%.2f", iHundredths / 100);
 end
 
--- One factor of a cost chain, e.g. "116%". bDivisor flips the colour: a cost
+-- One factor of a cost chain, e.g. "1.16". bDivisor flips the colour: a cost
 -- divided by the factor gets cheaper as it grows.
 local function FormatCostFactor(iPct, bDivisor)
 	if (iPct == 100) then
-		return iPct .. "%";
+		return FormatCityCostPercentHundredths(iPct);
 	end
 	local bCheaper = bDivisor and (iPct > 100) or ((not bDivisor) and (iPct < 100));
-	return (bCheaper and "[COLOR_POSITIVE_TEXT]" or "[COLOR_NEGATIVE_TEXT]") .. iPct .. "%[ENDCOLOR]";
+	return (bCheaper and "[COLOR_POSITIVE_TEXT]" or "[COLOR_NEGATIVE_TEXT]") .. FormatCityCostPercentHundredths(iPct) .. "[ENDCOLOR]";
 end
 
 function UpdateData()
@@ -562,7 +562,7 @@ function ScienceTipHandler( control )
 					strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_COST_BASE", iBaseTeamCost);
 
 					-- the divisor is one number, but Scholars in Residence splits it in two
-					local sScholarSplit = (iScholarModPct ~= 0) and (" " .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_DISCOUNT_SCHOLAR_SPLIT", 100 + iPreScholarModPct, 100 + iScholarModPct)) or "";
+					local sScholarSplit = (iScholarModPct ~= 0 and iPreScholarModPct ~= 0) and (" " .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_DISCOUNT_SCHOLAR_SPLIT", FormatCityCostPercentHundredths(100 + iPreScholarModPct), FormatCityCostPercentHundredths(100 + iScholarModPct))) or "";
 					strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_TECH_DISCOUNT_HEADER", FormatCostFactor(iFinalResearchModPct, true), sScholarSplit);
 
 					-- Catch-up: always-on when known civs have this tech (30% max in CP, 10% in VP)
@@ -1040,15 +1040,21 @@ function CultureTipHandler( control )
 		-- Let people know that building more cities makes policies harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
 			local totalCost, baseCost, cityCost, nextCityDelta, cHundredths, eHundredths, N_actual, baseFormulaHundredths, scalingFormulaHundredths, iBasePolicyCostBeforeDiscount, iPolicyMultiplierPct, iTenetPenaltyPct, iTenetsAdopted, iTenetTier1PenaltyPct, iTenetTier2PenaltyPct, iTenetTier3PenaltyPct, iDifficultyPct = pPlayer:GetNextPolicyCostBreakdown();
-			local iPoliciesModPct, iBuildingsModPct, iMinorCivsModPct, iTraitsModPct, iUncappedPolicyModPct, iPolicyDiscountCapPct = pPlayer:GetPolicyCostModifierBreakdown();
-			if (pPlayer:GetNumPolicies(true, false) >= 17) then
+			local _, iPoliciesModPct, iBuildingsModPct, iMinorCivsModPct, iTraitsModPct, iUncappedPolicyModPct, iPolicyDiscountCapPct = pPlayer:GetPolicyCostModifierBreakdown();
+			local bTenetExplainer = (pPlayer:GetNumPolicies(true, false) >= 17) or (iTenetsAdopted > 0);
+			if (bTenetExplainer) then
 				strText = strText .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_TENET_PENALTY_EXPLAINER", iTenetTier1PenaltyPct, iTenetTier2PenaltyPct, iTenetTier3PenaltyPct);
 			end
 			-- Base (game speed included), one line per multiplication, then the result.
 			-- Discount sources are sub-lines: they sum into one multiplier.
+			-- Tenets first, under the explainer
 			local bAdjusted = (iPolicyMultiplierPct ~= 100) or (iTenetPenaltyPct > 0 and iTenetsAdopted > 0) or (iDifficultyPct ~= 100);
 			if (bAdjusted) then
-				strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_COST_BASE", iBasePolicyCostBeforeDiscount);
+				strText = strText .. (bTenetExplainer and "[NEWLINE]" or "[NEWLINE][NEWLINE]") .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_COST_BASE", iBasePolicyCostBeforeDiscount);
+
+				if (iTenetPenaltyPct > 0 and iTenetsAdopted > 0) then
+					strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_TENET_PENALTY", FormatCityCostPercentHundredths(100 + iTenetPenaltyPct), iTenetsAdopted);
+				end
 
 				if (iPolicyMultiplierPct ~= 100) then
 					local sCappedNote = (iUncappedPolicyModPct < iPolicyDiscountCapPct) and (" " .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_DISCOUNT_CAPPED", iPolicyDiscountCapPct)) or "";
@@ -1073,10 +1079,6 @@ function CultureTipHandler( control )
 					if (iTraitsDiscountPct > 0) then
 						strText = strText .. "[NEWLINE]   " .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_DISCOUNT_FROM_TRAITS", iTraitsDiscountPct);
 					end
-				end
-
-				if (iTenetPenaltyPct > 0 and iTenetsAdopted > 0) then
-					strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_TP_POLICY_TENET_PENALTY", 100 + iTenetPenaltyPct, iTenetsAdopted);
 				end
 
 				if (iDifficultyPct ~= 100) then
