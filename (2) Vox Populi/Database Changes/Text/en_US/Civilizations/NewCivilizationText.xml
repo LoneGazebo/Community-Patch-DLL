@@ -792,17 +792,17 @@
 		</Row>
 
 		<!-- India -->
-		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR">
-			<Text>Harappan Reservoir</Text>
+		<Row Tag="TXT_KEY_BUILDING_STEPWELL">
+			<Text>Stepwell</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_TEXT">
-			<Text>The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.</Text>
+		<Row Tag="TXT_KEY_BUILDING_STEPWELL_TEXT">
+			<Text>In India a stepwell (also called baori, baoli, vav, or vaav) is a traditional water structure designed to provide access to groundwater throughout the year. Unlike ordinary wells, stepwells are built with a long series of steps leading down to the water level, often surrounded by covered passages, pillars, galleries, and small chambers. Their architecture combines practical water management with artistic and social purposes. Many stepwells were built from sandstone or other durable local stone and decorated with carvings of flowers, animals, deities, and geometric patterns. In addition to collecting and storing water, they served as cool gathering places where people could rest, meet, and perform religious or community activities.[NEWLINE][NEWLINE]The earliest forms of stepwells can be traced to ancient Indian water-management traditions, with stepped water structures known from the 3rd millennium BCE. However, the distinctive structural stepwell, with a well accessed by a long flight of steps, developed more clearly in western India around the 6th century CE and later spreading across Rajasthan, Gujarat, Delhi, Madhya Pradesh, and other regions. They became especially important in areas with hot, dry climates and seasonal rainfall, where storing water was essential for agriculture and daily life. During the medieval period, rulers, wealthy merchants, and religious patrons commissioned increasingly elaborate stepwells, some of which became remarkable examples of Indian architecture. Famous examples include Rani ki Vav in Gujarat, Chand Baori in Rajasthan, and Agrasen ki Baoli in Delhi.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_HELP">
+		<Row Tag="TXT_KEY_BUILDING_STEPWELL_HELP">
 			<Text></Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_STRATEGY">
-			<Text>Unique Indian replacement for the {TXT_KEY_BUILDING_AQUEDUCT}. In addition to the {TXT_KEY_BUILDING_AQUEDUCT}'s bonuses, {TXT_KEY_BUILDING_HARAPPAN_RESERVOIR} keeps more [ICON_FOOD] Food on [ICON_CITIZEN] population growth; boosts Farms; and increases the city's [ICON_FOOD] Food generation depending on the number of followers of this city's majority [ICON_RELIGION] religion.</Text>
+		<Row Tag="TXT_KEY_BUILDING_STEPWELL_STRATEGY">
+			<Text>Unique Indian replacement for the {TXT_KEY_BUILDING_AQUEDUCT}. In addition to the {TXT_KEY_BUILDING_AQUEDUCT}'s bonuses, {TXT_KEY_BUILDING_STEPWELL} keeps more [ICON_FOOD] Food on [ICON_CITIZEN] population growth; boosts Farms; and increases the city's [ICON_FOOD] Food generation depending on the number of followers of this city's majority [ICON_RELIGION] religion.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_DHANURDHARA">

@@ -53,6 +53,7 @@ SET
 			)
 		)
 	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_MUSKETMAN'),
 	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_MUSKETMAN') + 2
 WHERE Type = 'UNIT_PROWLER';
 
