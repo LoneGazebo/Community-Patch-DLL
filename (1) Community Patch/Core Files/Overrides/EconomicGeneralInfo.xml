@@ -21,7 +21,7 @@
 						<Grid Anchor="C,C" Size="270,30" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				</ShowOnMouseOver>
-				<Label Anchor="L,C" Offset="3,-1" Font="TwCenMT20" String="TXT_KEY_CITY"/>
+				<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT20" String="TXT_KEY_CITY"/>
 			</Button>
 			<Button ID="SortReligion" Anchor="L,C" Size="84,24" Style="BoxButton" ToolTip="TXT_KEY_RELIGION">
 				<ShowOnMouseOver>
@@ -191,7 +191,7 @@
 				</Box>
 			</Stack>
 		</ScrollPanel>
-		<ScrollPanel Anchor="L,T" Offset="230,28" Size="878,440" Vertical="1" AutoScrollBar="1" ID="MainScroll">
+		<ScrollPanel Anchor="L,T" Offset="230,32" Size="878,436" Vertical="1" AutoScrollBar="1" ID="MainScroll">
 			<ScrollBar Offset="0,18" Style="VertSlider" Anchor="R,T" Length="402" ID="ScrollBar"/>
 			<UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" ID="UpButton"/>
 			<DownButton Offset="0,420" Style="ScrollBarDown" Anchor="R,T" ID="DownButton"/>
@@ -239,36 +239,36 @@
 				<Box ID="FocusBox" Anchor="L,C" Size="36,34" Color="White,0">
 					<Label ID="CityFocus" Anchor="C,C" Font="TwCenMT20" FontStyle="Shadow"/>
 				</Box>
-				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="FoodBox">
-					<Label ID="Food" Anchor="C,C" Font="TwCenMT20" FontStyle="Stroke" Color0="Food.255" Color1="Black.255"/>
+				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="FoodBox" ToolTipType="CityViewTooltip">
+					<Label ID="Food" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="Food.255" Color1="Black.255"/>
 				</Box>
-				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="GoldBox">
-					<Label ID="Gold" Anchor="C,C" Font="TwCenMT20" FontStyle="Stroke" Color0="Gold.255" Color1="Black.255"/>
+				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="GoldBox" ToolTipType="CityViewTooltip">
+					<Label ID="Gold" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="Gold.255" Color1="Black.255"/>
 				</Box>
-				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="ScienceBox">
-					<Label ID="Science" Anchor="C,C" Font="TwCenMT20" FontStyle="Stroke" Color0="Science.255" Color1="Black.255"/>
+				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="ScienceBox" ToolTipType="CityViewTooltip">
+					<Label ID="Science" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="Science.255" Color1="Black.255"/>
 				</Box>
-				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="CultureBox">
-					<Label ID="Culture" Anchor="C,C" Font="TwCenMT20" FontStyle="Stroke" Color0="Culture.255" Color1="Black.255"/>
+				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="CultureBox" ToolTipType="CityViewTooltip">
+					<Label ID="Culture" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="Culture.255" Color1="Black.255"/>
 				</Box>
-				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="FaithBox">
-					<Label ID="Faith" Anchor="C,C" Font="TwCenMT20" FontStyle="Stroke" Color0="White.255" Color1="Black.255"/>
+				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="FaithBox" ToolTipType="CityViewTooltip">
+					<Label ID="Faith" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="White.255" Color1="Black.255"/>
 				</Box>
 				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="DefenseBox">
 					<Label ID="Defense" Anchor="C,C" Font="TwCenMT20" FontStyle="Stroke" Color0="Beige.255" Color1="Black.255"/>
 				</Box>
-				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="ProductionBox">
-					<Label ID="Production" Anchor="C,C" Font="TwCenMT20" FontStyle="Stroke" Color0="Production.255" Color1="Black.255"/>
+				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="ProductionBox" ToolTipType="CityViewTooltip">
+					<Label ID="Production" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="Production.255" Color1="Black.255"/>
 				</Box>
 				<Button ID="ProdButton" Anchor="L,C" Size="94,34" Color="White,0">
-					<Stack ID="ProductionContents" Anchor="L,C" StackGrowth="Right" Padding="2">
+					<Box ID="ProductionContents" Anchor="L,C" Size="94,34" Color="White,0">
 						<Box Anchor="L,C" Size="6,34" Color="0,0,0,255">
 							<Bar ID="ProductionBarShadow" Anchor="C,B" Offset="0,2" Size="4,29" FGColor="Production,128" Direction="Up"/>
 							<Bar ID="ProductionBar" Anchor="C,B" Offset="0,2" Size="4,29" FGColor="Production,255" Direction="Up"/>
 						</Box>
-						<Label ID="BuildGrowth" Anchor="L,C" Offset="0,8" Font="TwCenMT14" FontStyle="Stroke" Color0="Production.255" Color1="0,0,0,200"/>
-						<Image ID="ProdImage" Anchor="L,C" Offset="4,0" Size="45,45" Texture="WonderAtlas360.dds"/>
-					</Stack>
+						<Label ID="BuildGrowth" Anchor="L,B" Offset="8,2" Size="16,20" Font="TwCenMT14" FontStyle="Stroke" Color0="Production.255" Color1="0,0,0,200"/>
+						<Image ID="ProdImage" Anchor="L,C" Offset="30,0" Size="45,45" Texture="WonderAtlas360.dds"/>
+					</Box>
 				</Button>
 			</Stack>
 			<Image ID="RowDivider" Anchor="C,B" Texture="bar900x2.dds" Size="824,1"/>

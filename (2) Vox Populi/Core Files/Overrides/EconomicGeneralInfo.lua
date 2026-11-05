@@ -3,6 +3,7 @@ print("This is the modded EconomicGeneralInfo from CBP")
 -- Economic
 -------------------------------------------------
 include( "IconSupport" );
+include( "InfoTooltipInclude" );
 include( "InstanceManager" );
 include( "SupportFunctions" );
 include( "CPK.lua" )
@@ -139,26 +140,31 @@ local function UpdateCityIndicators(pCity, instance)
         instance.ReligionFollowers:SetText("");
         instance.ReligionIcon:SetHide(true);
     end
+    -- Reuse the CityBanner religion breakdown (followers and pressure only).
+    local religionTooltip = GetReligionTooltip(pCity);
+    instance.ReligionBox:SetToolTipString(religionTooltip);
+    instance.ReligionFollowers:SetToolTipString(religionTooltip);
+    instance.ReligionIcon:SetToolTipString(religionTooltip);
     instance.ReligionContents:CalculateSize();
     instance.ReligionContents:ReprocessAnchoring();
     return followers;
 end
 
 
--- Build city yield breakdowns only when a yield value is hovered.
+-- Use the CityView tooltip template, not the shared TopPanel happiness tooltip.
+-- The DLL yield breakdown is generated only when a city yield is hovered.
 local g_YieldTooltipControls = {};
-TTManager:GetTypeControlTable("TooltipTypeTopPanel", g_YieldTooltipControls);
+TTManager:GetTypeControlTable("CityViewTooltip", g_YieldTooltipControls);
 
-local function SetCityYieldTooltip(control, playerID, cityID, yieldType)
-    control:SetToolTipType("TooltipTypeTopPanel");
-    control:SetToolTipCallback(function()
+local function SetCityYieldTooltip(instance, field, playerID, cityID, yieldType)
+    local function ShowTooltip()
         local pCity = Players[playerID]:GetCityByID(cityID);
-        if (pCity) then
-            g_YieldTooltipControls.TooltipLabel:SetText(pCity:GetYieldRateTooltip(yieldType));
-            g_YieldTooltipControls.TopPanelMouseover:SetHide(false);
-            g_YieldTooltipControls.TopPanelMouseover:DoAutoSize();
-        end
-    end);
+        g_YieldTooltipControls.CityViewTooltipText:SetText(
+            pCity and pCity:GetYieldRateTooltip(yieldType) or "");
+        g_YieldTooltipControls.CityViewTooltipGrid:DoAutoSize();
+    end
+    instance[field .. "Box"]:SetToolTipCallback(ShowTooltip);
+    instance[field]:SetToolTipCallback(ShowTooltip);
 end
 
 local g_EconomicColumns = {
@@ -317,12 +323,12 @@ function UpdateDisplay()
         end
         -- Generate the native yield breakdown on hover, not on every overview refresh.
         local playerID, cityID = pCity:GetOwner(), pCity:GetID();
-        SetCityYieldTooltip(instance.Food, playerID, cityID, YieldTypes.YIELD_FOOD);
-        SetCityYieldTooltip(instance.Production, playerID, cityID, YieldTypes.YIELD_PRODUCTION);
-        SetCityYieldTooltip(instance.Gold, playerID, cityID, YieldTypes.YIELD_GOLD);
-        SetCityYieldTooltip(instance.Science, playerID, cityID, YieldTypes.YIELD_SCIENCE);
-        SetCityYieldTooltip(instance.Culture, playerID, cityID, YieldTypes.YIELD_CULTURE);
-        SetCityYieldTooltip(instance.Faith, playerID, cityID, YieldTypes.YIELD_FAITH);
+        SetCityYieldTooltip(instance, "Food", playerID, cityID, YieldTypes.YIELD_FOOD);
+        SetCityYieldTooltip(instance, "Production", playerID, cityID, YieldTypes.YIELD_PRODUCTION);
+        SetCityYieldTooltip(instance, "Gold", playerID, cityID, YieldTypes.YIELD_GOLD);
+        SetCityYieldTooltip(instance, "Science", playerID, cityID, YieldTypes.YIELD_SCIENCE);
+        SetCityYieldTooltip(instance, "Culture", playerID, cityID, YieldTypes.YIELD_CULTURE);
+        SetCityYieldTooltip(instance, "Faith", playerID, cityID, YieldTypes.YIELD_FAITH);
 
         cityRows[#cityRows + 1] = { instance = instance, values = sortEntry };
     end
@@ -807,7 +813,10 @@ function ProductionDetails( city, instance )
 		end
 		
 		instance.BuildGrowth:SetText(buildGrowth);
-        instance.BuildGrowth:SetSizeX(math.max(10, #tostring(buildGrowth) * 9));
+        local turnWidth = math.max(8, #tostring(buildGrowth) * 8);
+        instance.BuildGrowth:SetSizeX(turnWidth);
+        -- Six pixels separate the turn number from the build portrait.
+        instance.ProdImage:SetOffsetX(8 + turnWidth + 6);
 
 	end
 	
@@ -862,9 +871,6 @@ function ProductionDetails( city, instance )
 		end
 	end
 	
-    instance.ProductionContents:CalculateSize();
-    instance.ProductionContents:ReprocessAnchoring();
-
 	-- hookup pedia and production popup to production button
 	instance.ProdButton:RegisterCallback( Mouse.eLClick, OnProdClick );
 	pediaSearchStrings[tostring(instance.ProdButton)] = Locale.ConvertTextKey(cityProductionName);
