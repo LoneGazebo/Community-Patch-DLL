@@ -5101,7 +5101,46 @@ int CvLuaPlayer::lGetUnitSupplyBreakdown(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	UnitSupplyBreakdown kBreakdown;
-	pkPlayer->GetUnitSupplyBreakdown(kBreakdown);
+	pkPlayer->GetUnitSupplyBreakdown(kBreakdown, true);
+
+	int iFlatFromPolicies = 0;
+	int iFlatRounding = 0;
+	int iPopulationBase = 0;
+	int iPopulationTraits = 0;
+	int iPopulationPolicies = 0;
+	int iPopulationBuildings = 0;
+	int iPopulationRounding = 0;
+	if (pkPlayer->isMajorCiv())
+	{
+		iFlatFromPolicies = pkPlayer->GetExtraSupplyFlat();
+		iFlatRounding = kBreakdown.iCitiesGross - kBreakdown.iFlatFromCityCount
+			- kBreakdown.iFlatFromTraits - kBreakdown.iFlatFromBuildings
+			- kBreakdown.iFlatFromPuppets - iFlatFromPolicies;
+
+		int iPopulationPolicyModifier = 0;
+		for (int iPolicy = 0; iPolicy < GC.getNumPolicyInfos(); ++iPolicy)
+		{
+			const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicy);
+			const CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
+			if (pkPolicyInfo && pkPlayer->GetPlayerPolicies()->HasPolicy(ePolicy) && !pkPlayer->GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
+			{
+				iPopulationPolicyModifier += pkPolicyInfo->GetExtraSupplyPerPopulation();
+			}
+		}
+		// The player aggregate minus active policy bonuses gives global Building/Wonder bonuses.
+		const int iPopulationBuildingModifier = pkPlayer->GetExtraSupplyPerPopulation() - iPopulationPolicyModifier;
+		const int iPopulation = kBreakdown.iPopulationNonPuppetPopulation;
+		const int iBasePopulationPercent = pkPlayer->getHandicapInfo().getUnitSupplyPopulationPercent()
+			+ (pkPlayer->isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPopulationPercent());
+		iPopulationBase = iPopulation * iBasePopulationPercent / 100;
+		iPopulationTraits = iPopulation * pkPlayer->GetPlayerTraits()->GetExtraSupplyPerPopulation() / 100;
+		iPopulationPolicies = iPopulation * iPopulationPolicyModifier / 100;
+		iPopulationBuildings = (iPopulation * iPopulationBuildingModifier
+			+ kBreakdown.iPopulationLocalBuildingsTimes100) / 100;
+		// Display-only reconciliation accounts for integer truncation and clamping.
+		iPopulationRounding = kBreakdown.iPopulationGross - iPopulationBase - iPopulationTraits
+			- iPopulationPolicies - iPopulationBuildings - kBreakdown.iPopulationFromPuppets;
+	}
 
 	lua_newtable(L);
 
@@ -5129,6 +5168,25 @@ int CvLuaPlayer::lGetUnitSupplyBreakdown(lua_State* L)
 	PUSH_SUPPLY_FIELD("BeforeWarWeariness", kBreakdown.iBeforeWarWeariness)
 	PUSH_SUPPLY_FIELD("WarWearinessPct", kBreakdown.iWarWearinessPct)
 	PUSH_SUPPLY_FIELD("Total", kBreakdown.iTotal)
+
+	// All source values are display-only whole Supply, before bucket Tech Progress.
+	lua_newtable(L);
+	PUSH_SUPPLY_FIELD("CityCount", kBreakdown.iFlatFromCityCount)
+	PUSH_SUPPLY_FIELD("Traits", kBreakdown.iFlatFromTraits)
+	PUSH_SUPPLY_FIELD("Buildings", kBreakdown.iFlatFromBuildings)
+	PUSH_SUPPLY_FIELD("Policies", iFlatFromPolicies)
+	PUSH_SUPPLY_FIELD("Puppets", kBreakdown.iFlatFromPuppets)
+	PUSH_SUPPLY_FIELD("Rounding", iFlatRounding)
+	lua_setfield(L, -2, "FlatSources");
+
+	lua_newtable(L);
+	PUSH_SUPPLY_FIELD("Base", iPopulationBase)
+	PUSH_SUPPLY_FIELD("Traits", iPopulationTraits)
+	PUSH_SUPPLY_FIELD("Policies", iPopulationPolicies)
+	PUSH_SUPPLY_FIELD("Buildings", iPopulationBuildings)
+	PUSH_SUPPLY_FIELD("Puppets", kBreakdown.iPopulationFromPuppets)
+	PUSH_SUPPLY_FIELD("Rounding", iPopulationRounding)
+	lua_setfield(L, -2, "PopulationSources");
 
 #undef PUSH_SUPPLY_FIELD
 
