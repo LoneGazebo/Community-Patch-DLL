@@ -3,6 +3,7 @@
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
+include( "SupportFunctions" );
 include ("CPK.lua")
 
 local defaultErrorTextureSheet = "CityBannerProductionImage.dds";
@@ -19,6 +20,8 @@ local eResearch = 6;
 local eGold = 7;
 local eCulture = 8;
 local eFaith = 9;
+local eReligion = 11;
+local eFocus = 12;
 
 local m_SortMode = ePopulation;
 local m_bSortReverse = false;
@@ -64,6 +67,102 @@ end
 	
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
+
+-- Display city-banner status indicators beside the city name.
+local g_CityFocus = {
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD] = { "[ICON_FOOD]", "TXT_KEY_CITYVIEW_FOCUS_FOOD_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION] = { "[ICON_PRODUCTION]", "TXT_KEY_CITYVIEW_FOCUS_PROD_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD] = { "[ICON_GOLD]", "TXT_KEY_CITYVIEW_FOCUS_GOLD_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE] = { "[ICON_RESEARCH]", "TXT_KEY_CITYVIEW_FOCUS_RESEARCH_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE] = { "[ICON_CULTURE]", "TXT_KEY_CITYVIEW_FOCUS_CULTURE_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE] = { "[ICON_GREAT_PEOPLE]", "TXT_KEY_CITYVIEW_FOCUS_GREAT_PERSON_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH] = { "[ICON_PEACE]", "TXT_KEY_CITYVIEW_FOCUS_FAITH_TEXT" };
+};
+
+local function UpdateCityIndicators(pCity, instance)
+    local icons = {};
+    local descriptions = {};
+    local function Add(icon, description)
+        table.insert(icons, icon);
+        table.insert(descriptions, description);
+    end
+
+    if (pCity:IsForcedAvoidGrowth()) then
+        Add("[ICON_LOCKED]", Locale.ConvertTextKey("TXT_KEY_CITYVIEW_FOCUS_AVOID_GROWTH_TEXT"));
+    end
+    if (pCity:IsResistance()) then
+        Add("[ICON_RESISTANCE]", Locale.ConvertTextKey("TXT_KEY_CITY_RESISTANCE", pCity:GetResistanceTurns()));
+    end
+    if (pCity:IsRazing()) then
+        Add("[ICON_RAZING]", Locale.ConvertTextKey("TXT_KEY_CITY_BURNING", pCity:GetRazingTurns()));
+    end
+    if (pCity:IsBlockaded()) then
+        Add("[ICON_BLOCKADED]", Locale.ConvertTextKey("TXT_KEY_CITY_BLOCKADED"));
+    end
+    if (pCity:GetWeLoveTheKingDayCounter() > 0) then
+        Add("[ICON_HAPPINESS_1]", Locale.ConvertTextKey("TXT_KEY_CITYVIEW_WLTKD_COUNTER", pCity:GetWeLoveTheKingDayCounter()));
+    else
+        local resource = GameInfo.Resources[pCity:GetResourceDemanded(true)];
+        if (resource) then
+            Add(resource.IconString, Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", Locale.ConvertTextKey(resource.Description)));
+        end
+    end
+
+    instance.CityStatus:SetText(table.concat(icons, ""));
+    instance.CityStatus:SetSizeX(math.min(90, #icons * 18));
+    instance.CityStatus:SetToolTipString(table.concat(descriptions, "[NEWLINE]"));
+
+    local focus = g_CityFocus[pCity:GetFocusType()];
+    instance.CityFocus:SetText(focus and focus[1] or "[ICON_RANGE_STRENGTH]");
+    instance.CityFocus:SetToolTipString(focus and Locale.ConvertTextKey(focus[2]) or Locale.ConvertTextKey("TXT_KEY_CITYVIEW_FOCUS_BALANCED_TEXT"));
+
+    local majority = pCity:GetReligiousMajority();
+    local religion = GameInfo.Religions[majority];
+    local followers = 0;
+    if (religion) then
+        followers = pCity:GetNumFollowers(majority);
+        local name = Locale.ConvertTextKey(religion.Description);
+        instance.ReligionFollowers:SetText(followers);
+        instance.ReligionFollowers:SetToolTipString(name);
+        IconHookup(religion.PortraitIndex, 32, religion.IconAtlas, instance.ReligionIcon);
+        instance.ReligionIcon:SetToolTipString(name);
+        instance.ReligionIcon:SetHide(false);
+    else
+        instance.ReligionFollowers:SetText("");
+        instance.ReligionIcon:SetHide(true);
+    end
+    instance.ReligionContents:CalculateSize();
+    instance.ReligionContents:ReprocessAnchoring();
+    return followers;
+end
+
+
+-- Build city yield breakdowns only when a yield value is hovered.
+local g_YieldTooltipControls = {};
+TTManager:GetTypeControlTable("TooltipTypeTopPanel", g_YieldTooltipControls);
+
+local function SetCityYieldTooltip(control, playerID, cityID, yieldType)
+    control:SetToolTipType("TooltipTypeTopPanel");
+    control:SetToolTipCallback(function()
+        local pCity = Players[playerID]:GetCityByID(cityID);
+        if (pCity) then
+            g_YieldTooltipControls.TooltipLabel:SetText(pCity:GetYieldRateTooltip(yieldType));
+            g_YieldTooltipControls.TopPanelMouseover:SetHide(false);
+            g_YieldTooltipControls.TopPanelMouseover:DoAutoSize();
+        end
+    end);
+end
+
+local g_EconomicColumns = {
+    { "Food", "SortFood" },
+    { "Gold", "SortGold" },
+    { "Science", "SortResearch" },
+    { "Culture", "SortCulture" },
+    { "Faith", "SortFaith" },
+    { "Defense", "SortStrength", "Strength" },
+    { "Production", "SortProduction" },
+};
+
 function UpdateDisplay()
     UpdateGPT();
     
@@ -75,6 +174,7 @@ function UpdateDisplay()
     
     m_SortTable = {};
 	pediaSearchStrings = {};
+    local cityRows = {};
 
     Controls.MainStack:DestroyAllChildren();
       
@@ -92,7 +192,8 @@ function UpdateDisplay()
         ProductionDetails( pCity, instance );
 
 		sortEntry.CityName = pCity:GetName();
-        instance.CityName:SetText( sortEntry.CityName );
+        TruncateString(instance.CityName, 132, sortEntry.CityName);
+        instance.CityName:SetToolTipString(sortEntry.CityName);
         
         if(pCity:IsCapital())then
 			instance.IconCapital:SetText("[ICON_CAPITAL]");
@@ -107,7 +208,12 @@ function UpdateDisplay()
 			instance.IconCapital:SetHide(true);
 		end
         
-    	local pct = 1 - (pCity:GetDamage() / pCity:GetMaxHitPoints());
+        sortEntry.ReligionFollowers = UpdateCityIndicators(pCity, instance);
+        sortEntry.Focus = pCity:GetFocusType();
+        instance.CityInfoStack:CalculateSize();
+        instance.CityInfoStack:ReprocessAnchoring();
+
+        local pct = 1 - (pCity:GetDamage() / pCity:GetMaxHitPoints());
     	if( pct ~= 1 ) then
     	
             if pct > 0.66 then
@@ -163,35 +269,75 @@ function UpdateDisplay()
 		end
 		
 		sortEntry.Food = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100;
-        instance.Food:SetText( sortEntry.Food );
+        instance.Food:SetText( math.floor(sortEntry.Food) );
        
 		sortEntry.Production = pCity:GetYieldRateTimes100( YieldTypes.YIELD_PRODUCTION ) / 100;
-        instance.Production:SetText( sortEntry.Production );
+        instance.Production:SetText( math.floor(sortEntry.Production) );
         
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
-			instance.ScienceBox:SetHide(true);
+			instance.Science:SetText("-");
+            instance.ScienceBox:SetHide(false);
         else
 			sortEntry.Science = pCity:GetYieldRateTimes100( YieldTypes.YIELD_SCIENCE ) / 100;
-			instance.Science:SetText( sortEntry.Science );
+			instance.Science:SetText( math.floor(sortEntry.Science) );
 			instance.ScienceBox:SetHide(false);
         end
         
         sortEntry.Gold = pCity:GetYieldRateTimes100( YieldTypes.YIELD_GOLD ) / 100;
-        instance.Gold:SetText( sortEntry.Gold );
+        instance.Gold:SetText( math.floor(sortEntry.Gold) );
         
         sortEntry.Culture = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100;
-        instance.Culture:SetText( sortEntry.Culture );
+        instance.Culture:SetText( math.floor(sortEntry.Culture) );
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
-			instance.FaithBox:SetHide(true);
+			instance.Faith:SetText("-");
+            instance.FaithBox:SetHide(false);
         else
 			sortEntry.Faith = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100;
-			instance.Faith:SetText(sortEntry.Faith);
+			instance.Faith:SetText( math.floor(sortEntry.Faith) );
 			instance.FaithBox:SetHide(false);   
         end
+        -- Generate the native yield breakdown on hover, not on every overview refresh.
+        local playerID, cityID = pCity:GetOwner(), pCity:GetID();
+        SetCityYieldTooltip(instance.Food, playerID, cityID, YieldTypes.YIELD_FOOD);
+        SetCityYieldTooltip(instance.Production, playerID, cityID, YieldTypes.YIELD_PRODUCTION);
+        SetCityYieldTooltip(instance.Gold, playerID, cityID, YieldTypes.YIELD_GOLD);
+        SetCityYieldTooltip(instance.Science, playerID, cityID, YieldTypes.YIELD_SCIENCE);
+        SetCityYieldTooltip(instance.Culture, playerID, cityID, YieldTypes.YIELD_CULTURE);
+        SetCityYieldTooltip(instance.Faith, playerID, cityID, YieldTypes.YIELD_FAITH);
+
+        cityRows[#cityRows + 1] = { instance = instance, values = sortEntry };
     end
     
+    -- Keep 12 pixels beyond the widest displayed number in each yield column.
+    local totalWidth = 76 + 270 + 84 + 36 + 106;
+    for _, column in ipairs(g_EconomicColumns) do
+        local field, header = column[1], column[2];
+        local maxChars = 1;
+        for _, row in ipairs(cityRows) do
+            local value = row.values[column[3] or field];
+            if (value) then
+                maxChars = math.max(maxChars, #tostring(math.floor(value)));
+            end
+        end
+        local width = math.max(32, maxChars * 10 + 12);
+        totalWidth = totalWidth + width;
+        Controls[header]:SetSizeX(width);
+        for _, row in ipairs(cityRows) do
+            row.instance[field .. "Box"]:SetSizeX(width);
+        end
+    end
+
+    for _, row in ipairs(cityRows) do
+        row.instance.Root:SetSizeX(totalWidth);
+        row.instance.RowDivider:SetSizeX(totalWidth);
+        row.instance.CityRowStack:CalculateSize();
+        row.instance.CityRowStack:ReprocessAnchoring();
+    end
+    Controls.ColumnHeaderStack:CalculateSize();
+    Controls.ColumnHeaderStack:ReprocessAnchoring();
+
     Controls.MainStack:CalculateSize();
     Controls.MainStack:ReprocessAnchoring();
     Controls.MainScroll:CalculateInternalSize();
@@ -209,7 +355,8 @@ function UpdateGPT()
     Controls.TotalGoldValue:SetText( FormatDecimalTimes100( pPlayer:GetGoldTimes100()) );
     
     local netGPT = pPlayer:CalculateGoldRateTimes100()
-    Controls.NetGoldValue:SetText( FormatDecimalTimes100( netGPT, "#.##" ) );
+    local netText = FormatDecimalTimes100(netGPT, "#.##");
+    Controls.NetGoldValue:SetText((netGPT >= 0 and "[COLOR_POSITIVE_TEXT]" or "[COLOR_NEGATIVE_TEXT]") .. netText .. "[ENDCOLOR]");
     
     if( netGPT < 0 ) then
         Controls.ScienceLost:SetHide( false );
@@ -218,7 +365,7 @@ function UpdateGPT()
         Controls.ScienceLost:SetHide( true );
     end
     
-    Controls.GrossGoldValue:SetText( "[COLOR_POSITIVE_TEXT]" .. FormatDecimalTimes100( pPlayer:CalculateGrossGoldTimes100() ) .. "[ENDCOLOR]" );
+    Controls.GrossGoldValue:SetText( FormatDecimalTimes100( pPlayer:CalculateGrossGoldTimes100() ) );
     
     Controls.TotalExpenseValue:SetText( "[COLOR_NEGATIVE_TEXT]" .. FormatDecimal( pPlayer:CalculateInflatedCosts() ) .. "[ENDCOLOR]" );
 
@@ -510,6 +657,12 @@ function SortFunction( a, b )
 		elseif( m_SortMode == eFaith ) then
 			valueA = entryA.Faith;
 			valueB = entryB.Faith;
+		elseif( m_SortMode == eReligion ) then
+			valueA = entryA.ReligionFollowers;
+			valueB = entryB.ReligionFollowers;
+		elseif( m_SortMode == eFocus ) then
+			valueA = entryA.Focus;
+			valueB = entryB.Focus;
 		else -- SortProduction
 			valueA = entryA.Production;
 			valueB = entryB.Production;
@@ -543,6 +696,8 @@ function OnSort( type )
 end
 Controls.SortPopulation:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortCityName:RegisterCallback( Mouse.eLClick, OnSort );
+Controls.SortReligion:RegisterCallback( Mouse.eLClick, OnSort );
+Controls.SortFocus:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortStrength:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortProduction:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortFood:RegisterCallback( Mouse.eLClick, OnSort );
@@ -551,6 +706,8 @@ Controls.SortCulture:RegisterCallback( Mouse.eLClick, OnSort );
 
 Controls.SortPopulation:SetVoid1( ePopulation );
 Controls.SortCityName:SetVoid1( eName );
+Controls.SortReligion:SetVoid1( eReligion );
+Controls.SortFocus:SetVoid1( eFocus );
 Controls.SortStrength:SetVoid1( eStrength );
 Controls.SortProduction:SetVoid1( eProduction );
 Controls.SortFood:SetVoid1( eFood );
@@ -558,7 +715,8 @@ Controls.SortGold:SetVoid1( eGold );
 Controls.SortCulture:SetVoid1( eCulture );
 
 if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
-	Controls.SortResearch:SetHide(true);
+	Controls.SortResearch:SetDisabled(true);
+	Controls.SortResearch:SetHide(false);
 	Controls.ScienceLost:SetHide(true);
 else
 	Controls.SortResearch:RegisterCallback(Mouse.eLClick, OnSort);
@@ -568,13 +726,12 @@ else
 end
 
 if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
-	Controls.SortFaith:SetHide(true);
-	Controls.ReligionIncome:SetHide(true);
+	Controls.SortFaith:SetDisabled(true);
+	Controls.SortFaith:SetHide(false);
 else
 	Controls.SortFaith:RegisterCallback(Mouse.eLClick, OnSort);
 	Controls.SortFaith:SetVoid1(eFaith);
 	Controls.SortFaith:SetHide(false);
-	Controls.ReligionIncome:SetHide(false);
 end
 
 -------------------------------------------------------------------------------
@@ -611,6 +768,7 @@ function ProductionDetails( city, instance )
 		end
 		
 		instance.BuildGrowth:SetText(buildGrowth);
+        instance.BuildGrowth:SetSizeX(math.max(10, #tostring(buildGrowth) * 9));
 
 	end
 	
@@ -665,6 +823,9 @@ function ProductionDetails( city, instance )
 		end
 	end
 	
+    instance.ProductionContents:CalculateSize();
+    instance.ProductionContents:ReprocessAnchoring();
+
 	-- hookup pedia and production popup to production button
 	instance.ProdButton:RegisterCallback( Mouse.eLClick, OnProdClick );
 	pediaSearchStrings[tostring(instance.ProdButton)] = Locale.ConvertTextKey(cityProductionName);
