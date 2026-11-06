@@ -1,4 +1,6 @@
-#pragma once 
+#pragma once
+#ifndef INCLUDED_CV_STRUCTS
+#define INCLUDED_CV_STRUCTS
 
 struct CvColorA 
 {
@@ -237,3 +239,34 @@ struct UnitMoveRate
 	int   m_iPathSubdivision;
 };
 
+
+//Helper struct that holds a pointer to an object that is auto invalidated if the object is destroyed
+//Created to stop deleted(=killed) Units and Cities from crashing the game if pointers linger in lua
+//Could also be used at other places if desired. 
+
+struct AutoInvalidatedPointerBase {
+	void destroy() { prev->next=next; next->prev=prev; construct(); }
+	void construct() { obj=NULL; prev=this; next=this; }
+	void* get() { return obj; }
+	AutoInvalidatedPointerBase() { construct(); }
+	~AutoInvalidatedPointerBase() { destroy(); }
+protected:
+	void* obj;
+	AutoInvalidatedPointerBase* prev;
+	AutoInvalidatedPointerBase* next;
+	void init_now( void* inst, AutoInvalidatedPointerBase* head ) { obj=inst; if(inst) { prev=head; next=head->next; head->next=this; next->prev=this; } }
+};
+
+template<class T>
+struct AutoInvalidatedPointer : AutoInvalidatedPointerBase {
+	AutoInvalidatedPointer(T* inst) { init_now(inst,&inst->m_PointerList); }
+	void construct( T* inst ) { init_now(inst,&inst->m_PointerList); }
+	T* get() { return (T*)obj; }
+};
+
+struct AutoInvalidatedPointerList : AutoInvalidatedPointerBase {
+	AutoInvalidatedPointerList() {}
+	~AutoInvalidatedPointerList() { while(next!=this) { next->destroy(); } }
+};
+
+#endif

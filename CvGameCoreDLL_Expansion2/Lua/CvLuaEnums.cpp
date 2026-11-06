@@ -15,7 +15,7 @@
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
 #include "../CustomMods.h"
-#include "CvLuaSupport.h"
+#include "!CvLuaApi.h"
 #include "CvLuaEnums.h"
 #include <CvEnums.h>
 #include "../CvDiplomacyAI.h"
@@ -24,12 +24,7 @@
 #define RegisterEnum(e) pRegisterEnum(L, #e, e)
 #define RegisterEnumUInt(e) pRegisterEnumUInt(L, #e, e)
 
-void CvLuaEnums::Register(lua_State* L)
-{
-	FLua::Details::CCallWithErrorHandling(L, pRegister);
-}
-//------------------------------------------------------------------------------
-int CvLuaEnums::pRegister(lua_State* L)
+void CvLuaEnums::RegisterGlobals(lua_State* L)
 {
 	// Things from CvDefines.h
 	// Interface Dirty Bits
@@ -1283,7 +1278,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(ROAD_PLANNING_PRIORITY_CONSTRUCTION);
 	EnumEnd(L);
 
-	return 0;
 }
 //------------------------------------------------------------------------------
 void CvLuaEnums::pRegisterEnum(lua_State* L, const char* enumName, const int enumVal)

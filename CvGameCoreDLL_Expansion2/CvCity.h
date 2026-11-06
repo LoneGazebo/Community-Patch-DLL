@@ -20,6 +20,7 @@
 #include "FAutoVariable.h"
 #include "CvPreGame.h"
 #include "CvSerialize.h"
+#include "CvStructs.h"
 
 // 0 = center of city, 1-6 = the edge of city on points, 7-12 = one tile out
 #define NUM_CITY_BUILDING_DISPLAY_SLOTS (13)
@@ -2278,6 +2279,8 @@ private:
 	// Prevent copying due to dynamic memory allocation
 	CvCity(const CvCity&);
 	CvCity& operator=(const CvCity&);
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 namespace FSerialization
