@@ -6330,6 +6330,10 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat, bool bAu
 			// the player the update is for, so listeners will want to get the player change message first
 			gDLL->PublishActivePlayer(eNewValue, eOldActivePlayer);
 
+			// the EXE's trade route overlay holds only the active player's routes
+			if (m_pGameTrade != NULL)
+				m_pGameTrade->RefreshTradeRouteVisuals();
+
 			CvMap& theMap = GC.getMap();
 			theMap.updateFog();
 			theMap.updateVisibility();
