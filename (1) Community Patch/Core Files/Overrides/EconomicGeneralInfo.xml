@@ -21,17 +21,17 @@
 						<Grid Anchor="C,C" Size="270,30" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				</ShowOnMouseOver>
-				<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT20" String="TXT_KEY_CITY"/>
+				<Label Anchor="L,C" Offset="6,-1" Font="TwCenMT20" String="TXT_KEY_CITY"/>
 			</Button>
-			<Button ID="SortReligion" Anchor="L,C" Size="84,24" Style="BoxButton" ToolTip="TXT_KEY_RELIGION">
+			<Button ID="SortReligion" Anchor="L,C" Size="64,24" Style="BoxButton" ToolTip="TXT_KEY_RELIGION">
 				<ShowOnMouseOver>
-					<AlphaAnim Anchor="C,C" Size="84,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
-						<Grid Anchor="C,C" Size="84,30" Style="Grid9FrameTurnsHL"/>
+					<AlphaAnim Anchor="C,C" Size="64,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid Anchor="C,C" Size="64,30" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				</ShowOnMouseOver>
 				<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT18" String="[ICON_RELIGION]"/>
 			</Button>
-			<Button ID="SortFocus" Anchor="L,C" Size="36,24" Style="BoxButton" ToolTip="TXT_KEY_CITYVIEW_FOCUS_BALANCED_TEXT">
+			<Button ID="SortFocus" Anchor="L,C" Size="36,24" Style="BoxButton" ToolTip="TXT_KEY_EO_SORT_CITY_FOCUS">
 				<ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 						<Grid Anchor="C,C" Size="36,30" Style="Grid9FrameTurnsHL"/>
@@ -39,6 +39,7 @@
 				</ShowOnMouseOver>
 				<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT18" String="[ICON_RANGE_STRENGTH]"/>
 			</Button>
+			<Box Anchor="L,C" Size="16,24" Color="White,0"/>
 			<Button ID="SortFood" Anchor="L,C" Size="40,24" Style="BoxButton" ToolTip="TXT_KEY_EO_SORT_FOOD">
 				<ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Size="40,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
@@ -195,7 +196,7 @@
 			<ScrollBar Offset="0,18" Style="VertSlider" Anchor="R,T" Length="402" ID="ScrollBar"/>
 			<UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" ID="UpButton"/>
 			<DownButton Offset="0,420" Style="ScrollBarDown" Anchor="R,T" ID="DownButton"/>
-			<Stack Anchor="L,T" Size="824,440" StackGrowth="Bottom" Padding="0" ID="MainStack">
+			<Stack Anchor="L,T" Size="820,440" StackGrowth="Bottom" Padding="0" ID="MainStack">
 			</Stack>
 		</ScrollPanel>
 	</Box>
@@ -210,7 +211,7 @@
 	<!--=======================================================================================================================-->
 	<!--=======================================================================================================================-->
 		<Instance Name="CityInstance">
-		<Box ID="Root" Anchor="L,T" Size="824,34" Color="255,255,255,0">
+		<Box ID="Root" Anchor="L,T" Size="820,34" Color="255,255,255,0">
 			<Stack ID="CityRowStack" Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="0">
 				<Box Anchor="L,C" Size="60,34" Color="White,0">
 					<Label ID="Population" Anchor="L,C" Offset="2,0" Size="28,24" Font="TwCenMT20" FontStyle="Stroke" Color0="Beige.255" Color1="Black.255"/>
@@ -220,7 +221,7 @@
 					</Box>
 					<Label ID="CityGrowth" Anchor="L,B" Offset="36,2" Size="23,20" Font="TwCenMT14" FontStyle="Stroke" Color0="Food.255" Color1="0,0,0,200"/>
 				</Box>
-				<Box Anchor="L,C" Size="270,34" Color="White,0">
+				<Button ID="CityButton" Anchor="L,C" Size="270,34" Color="White,0">
 					<Box ID="HealthBarBox" Anchor="C,B" Offset="-50,2" Size="130,5" Color="Black,256" Hidden="1">
 						<Bar ID="HealthBar" Anchor="C,C" Size="128,3" Direction="Right" FGColor="Green,255"/>
 					</Box>
@@ -229,8 +230,8 @@
 						<Label ID="IconCapital" Anchor="L,C" Font="TwCenMT18" String="[ICON_CAPITAL]" Hidden="1"/>
 						<Label ID="CityStatus" Anchor="L,C" Font="TwCenMT18" FontStyle="Shadow"/>
 					</Stack>
-				</Box>
-				<Box ID="ReligionBox" Anchor="L,C" Size="84,34" Color="White,0">
+				</Button>
+				<Box ID="ReligionBox" Anchor="L,C" Size="64,34" Color="White,0">
 					<Stack ID="ReligionContents" Anchor="C,C" StackGrowth="Right" Padding="0">
 						<Label ID="ReligionFollowers" Anchor="L,C" Font="TwCenMT18" FontStyle="Stroke" Color0="Beige.255" Color1="Black.255"/>
 						<Image ID="ReligionIcon" Anchor="L,C" Size="32,32" Hidden="1"/>
@@ -239,6 +240,7 @@
 				<Box ID="FocusBox" Anchor="L,C" Size="36,34" Color="White,0">
 					<Label ID="CityFocus" Anchor="C,C" Font="TwCenMT20" FontStyle="Shadow"/>
 				</Box>
+				<Box Anchor="L,C" Size="16,34" Color="White,0"/>
 				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="FoodBox" ToolTipType="CityViewTooltip">
 					<Label ID="Food" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="Food.255" Color1="Black.255"/>
 				</Box>
@@ -271,7 +273,7 @@
 					</Box>
 				</Button>
 			</Stack>
-			<Image ID="RowDivider" Anchor="C,B" Texture="bar900x2.dds" Size="824,1"/>
+			<Image ID="RowDivider" Anchor="C,B" Texture="bar900x2.dds" Size="820,1"/>
 		</Box>
 	</Instance>
 </Context>

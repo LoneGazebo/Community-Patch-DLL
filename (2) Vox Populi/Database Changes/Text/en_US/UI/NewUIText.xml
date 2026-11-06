@@ -1406,6 +1406,9 @@
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS_EXPLANATION">
 			<Text>[NEWLINE](These 'Needs' are averages of yields based on the number of [ICON_CITIZEN] Citizens in the City, as well as temporary situations, such as starvation or blockades. Averages increase as the game progresses, and yields per citizen decrease as a city grows. The bigger the divide between your city's yields and your empire-wide average, the higher your city's unhappiness!)</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_SORT_CITY_FOCUS">
+			<Text>City Focus</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_SORT_LOCAL_HAPPINESS">
 			<Text>Local Happiness</Text>
 		</Row>

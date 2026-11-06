@@ -46,17 +46,20 @@ end
 
 -------------------------------------------------
 -------------------------------------------------
-function OnProdClick( cityID, prodName )
-	local popupInfo = {
-			Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION,
-			Data1 = cityID,
-			Data2 = -1,
-			Data3 = -1,
-			Option1 = false,
-			Option2 = false;
-		}
-	Events.SerialEventGameMessagePopup(popupInfo);
-    -- send production popup message
+-- Close the overview before selecting a city, so CityView opens in front.
+local function OpenCityFromOverview(x, y)
+    local plot = Map.GetPlot(x, y);
+    if (plot) then
+        Events.SerialEventGameMessagePopup({
+            Type = ButtonPopupTypes.BUTTONPOPUP_ECONOMIC_OVERVIEW,
+            Data1 = 1
+        });
+        UI.DoSelectCityAtPlot(plot);
+    end
+end
+
+function OnProdClick(x, y)
+    OpenCityFromOverview(x, y);
 end
 
 -------------------------------------------------
@@ -80,13 +83,15 @@ local g_CityFocus = {
     [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH] = { "[ICON_PEACE]", "TXT_KEY_CITYVIEW_FOCUS_FAITH_TEXT" };
 };
 
-local function UpdateCityIndicators(pCity, instance)
+local function UpdateCityIndicators(pCity, instance, spiesByCity)
     local icons = {};
     local descriptions = {};
     local function Add(icon, description)
         table.insert(icons, icon);
         table.insert(descriptions, description);
     end
+
+    local pPlayer = Players[pCity:GetOwner()];
 
     if (pCity:IsForcedAvoidGrowth()) then
         Add("[ICON_LOCKED]", Locale.ConvertTextKey("TXT_KEY_CITYVIEW_FOCUS_AVOID_GROWTH_TEXT"));
@@ -100,6 +105,14 @@ local function UpdateCityIndicators(pCity, instance)
     if (pCity:IsBlockaded()) then
         Add("[ICON_BLOCKADED]", Locale.ConvertTextKey("TXT_KEY_CITY_BLOCKADED"));
     end
+
+    -- Keep city connections in sync with the CityBannerManager rules.
+    if (not pCity:IsCapital() and not pCity:IsBlockaded()) then
+        if (pPlayer:IsCapitalConnectedToCity(pCity)) then
+            Add("[ICON_CONNECTED]", Locale.ConvertTextKey("TXT_KEY_CITY_CONNECTED"));
+        end
+    end
+
     if (pCity:GetWeLoveTheKingDayCounter() > 0) then
         Add("[ICON_HAPPINESS_1]", Locale.ConvertTextKey("TXT_KEY_CITYVIEW_WLTKD_COUNTER", pCity:GetWeLoveTheKingDayCounter()));
     else
@@ -109,8 +122,23 @@ local function UpdateCityIndicators(pCity, instance)
         end
     end
 
+    local spy = spiesByCity[pCity:GetX() .. "," .. pCity:GetY()];
+    if (spy) then
+        local spyName = Locale.Lookup(spy.Name);
+        local spyRank = Locale.Lookup(spy.Rank);
+        if (spy.IsDiplomat) then
+            Add("[ICON_DIPLOMAT]", Locale.ConvertTextKey("TXT_KEY_CITY_DIPLOMAT_OTHER_CIV_TT", spyRank, spyName, pCity:GetName(), spyRank, spyName, spyRank, spyName));
+        else
+            Add("[ICON_SPY]", Locale.ConvertTextKey("TXT_KEY_CITY_SPY_YOUR_CITY_TT", spyRank, spyName, pCity:GetName(), spyRank, spyName));
+        end
+    end
+
     instance.CityStatus:SetText(table.concat(icons, ""));
-    instance.CityStatus:SetSizeX(math.min(90, #icons * 18));
+    -- Do not truncate extra status icons at the old 90px cap.
+    instance.CityStatus:SetSizeX(#icons * 18);
+    local capitalWidth = (pCity:IsCapital() or pCity:IsPuppet() or
+        (pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness())) and 18 or 0;
+    TruncateString(instance.CityName, math.min(132, math.max(64, 260 - #icons * 18 - capitalWidth)), pCity:GetName());
     instance.CityStatus:SetToolTipString(table.concat(descriptions, "[NEWLINE]"));
 
     local focus = g_CityFocus[pCity:GetFocusType()];
@@ -132,7 +160,7 @@ local function UpdateCityIndicators(pCity, instance)
         instance.ReligionFollowers:SetText("");
         instance.ReligionIcon:SetHide(true);
     end
-    -- Reuse the CityBanner religion breakdown (followers and pressure only).
+    -- CityBannerManager uses the same followers/pressure-only helper.
     local religionTooltip = GetReligionTooltip(pCity);
     instance.ReligionBox:SetToolTipString(religionTooltip);
     instance.ReligionFollowers:SetToolTipString(religionTooltip);
@@ -141,7 +169,6 @@ local function UpdateCityIndicators(pCity, instance)
     instance.ReligionContents:ReprocessAnchoring();
     return followers;
 end
-
 
 -- Use the CityView tooltip template, not the shared TopPanel happiness tooltip.
 -- The DLL yield breakdown is generated only when a city yield is hovered.
@@ -181,6 +208,12 @@ function UpdateDisplay()
     m_SortTable = {};
 	pediaSearchStrings = {};
     local cityRows = {};
+    local spiesByCity = {};
+    for _, spy in ipairs(pPlayer:GetEspionageSpies() or {}) do
+        if (spy.CityX and spy.CityY and spy.CityX >= 0 and spy.CityY >= 0) then
+            spiesByCity[spy.CityX .. "," .. spy.CityY] = spy;
+        end
+    end
 
     Controls.MainStack:DestroyAllChildren();
       
@@ -200,6 +233,8 @@ function UpdateDisplay()
 		sortEntry.CityName = pCity:GetName();
         TruncateString(instance.CityName, 132, sortEntry.CityName);
         instance.CityName:SetToolTipString(sortEntry.CityName);
+        instance.CityButton:SetVoids(pCity:GetX(), pCity:GetY());
+        instance.CityButton:RegisterCallback(Mouse.eLClick, OpenCityFromOverview);
         
         if(pCity:IsCapital())then
 			instance.IconCapital:SetText("[ICON_CAPITAL]");
@@ -214,7 +249,7 @@ function UpdateDisplay()
 			instance.IconCapital:SetHide(true);
 		end
         
-        sortEntry.ReligionFollowers = UpdateCityIndicators(pCity, instance);
+        sortEntry.ReligionFollowers = UpdateCityIndicators(pCity, instance, spiesByCity);
         sortEntry.Focus = pCity:GetFocusType();
         instance.CityInfoStack:CalculateSize();
         instance.CityInfoStack:ReprocessAnchoring();
@@ -317,7 +352,7 @@ function UpdateDisplay()
     end
     
     -- Keep 12 pixels beyond the widest displayed number in each yield column.
-    local totalWidth = 76 + 270 + 84 + 36 + 106;
+    local totalWidth = 60 + 270 + 64 + 36 + 16 + 94;
     for _, column in ipairs(g_EconomicColumns) do
         local field, header = column[1], column[2];
         local maxChars = 1;
@@ -776,8 +811,8 @@ function ProductionDetails( city, instance )
 		instance.BuildGrowth:SetText(buildGrowth);
         local turnWidth = math.max(8, #tostring(buildGrowth) * 8);
         instance.BuildGrowth:SetSizeX(turnWidth);
-        -- Six pixels separate the turn number from the build portrait.
-        instance.ProdImage:SetOffsetX(8 + turnWidth + 6);
+        -- The portrait artwork has inner padding; shift its control 9px left.
+        instance.ProdImage:SetOffsetX(8 + turnWidth - 3);
 
 	end
 	
@@ -836,7 +871,7 @@ function ProductionDetails( city, instance )
 	instance.ProdButton:RegisterCallback( Mouse.eLClick, OnProdClick );
 	pediaSearchStrings[tostring(instance.ProdButton)] = Locale.ConvertTextKey(cityProductionName);
 	instance.ProdButton:RegisterCallback( Mouse.eRClick, OnProdRClick );
-	instance.ProdButton:SetVoids( city:GetID(), nil );
+	instance.ProdButton:SetVoids( city:GetX(), city:GetY() );
 
 end
 

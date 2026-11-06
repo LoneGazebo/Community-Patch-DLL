@@ -10,7 +10,7 @@
 		</Image>
 		<Image Anchor="L,C" AnchorSide="O.I" Offset="-17,0" Texture="Dec32x64Left.dds" Size="32,64"/>
 		<Image Anchor="R,C" AnchorSide="O.I" Offset="-17,0" Texture="Dec32x64Right.dds" Size="32,64"/>
-		<Label ID="Title" Anchor="C,T" Offset="0,19" String="TXT_KEY_ECONOMIC_OVERVIEW" Font="TwCenMT20" Color0="30.50.80.255" Color1="133.184.186.255" Color2="133.184.186.255" FontStyle="SoftShadow"/>
+		<Label ID="Title" Anchor="C,T" Offset="0,19" String="TXT_KEY_ECONOMIC_OVERVIEW" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 		<!-- Top Panel -->
 		<Box Anchor="C,T" Offset="0,44" Size="1171,32" Color="0.0.0.128">
 			<Stack Anchor="C,T" Size="1171,32" StackGrowth="Right" Padding="0">
