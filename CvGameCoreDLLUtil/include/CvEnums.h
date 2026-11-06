@@ -3640,6 +3640,21 @@ enum CLOSED_ENUM InstantYieldType
 	INSTANT_YIELD_TYPE_HEALING					= 62,
 	INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE			= 63,
 
+	// Logging-only refinements of INSTANT_YIELD_TYPE_INSTANT. CvPlayer::doInstantYield folds every one of
+	// these back into INSTANT_YIELD_TYPE_INSTANT before any gameplay logic runs, so yields, notifications
+	// and Lua-visible behavior are identical to passing INSTANT_YIELD_TYPE_INSTANT; only the statistics
+	// logs (InstantYields / BuildingInstantYields in stats.db, InstantYields.csv) tell them apart.
+	INSTANT_YIELD_TYPE_BUILDING_COMPLETED		= 64, // Building_InstantYield, granted when a building class is first constructed
+	INSTANT_YIELD_TYPE_POLICY_ADOPTED			= 65, // Policy_InstantYield, granted when the policy is adopted
+	INSTANT_YIELD_TYPE_PLAYER_EVENT				= 66, // player event choice yields (EventChoice_EventYields)
+	INSTANT_YIELD_TYPE_PLAYER_EVENT_COST		= 67, // player event choice pre-check cost (negative yields)
+	INSTANT_YIELD_TYPE_CITY_EVENT				= 68, // city event choice yields (CityEventChoice_EventYields)
+	INSTANT_YIELD_TYPE_CITY_EVENT_COST			= 69, // city event choice pre-check cost (negative yields)
+	INSTANT_YIELD_TYPE_LIBERATION				= 70, // liberating a city: Policy_YieldForLiberation yields and liberation unit XP
+	INSTANT_YIELD_TYPE_GAP_TO_YIELD				= 71, // UA: Trait_GAPToYield converts the Golden Age threshold into yields
+	INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST	= 72, // UA: TechBoostFromCapitalScienceBuildings on a capital science building
+	INSTANT_YIELD_TYPE_GP_GOLDEN_AGE			= 73, // Great Person Golden Age ability: GAPBlastStrength golden age points
+
 	NUM_INSTANT_YIELD_TYPES ENUM_META_VALUE
 };
 
