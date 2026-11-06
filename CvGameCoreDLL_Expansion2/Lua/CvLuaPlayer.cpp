@@ -3412,10 +3412,12 @@ int CvLuaPlayer::lGetAveragePopulation100(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//long getRealPopulation();
+//long long getRealPopulation();
 int CvLuaPlayer::lGetRealPopulation(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getRealPopulation);
+	// as a Lua number (a double, exact to 2^53): lua_pushinteger would cut it to 32 bits
+	lua_pushnumber(L, static_cast<lua_Number>(GetInstance(L)->getRealPopulation()));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNewCityExtraPopulation() const;
