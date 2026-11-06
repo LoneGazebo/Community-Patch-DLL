@@ -129,6 +129,9 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	// Load up the CustomModOptions configuration
 	gCustomMods.preloadCache();
 
+	// Packages that can replace this mod's tables, for the database error report
+	CvDatabaseUtility::LogContentPackages();
+
 	//HACK Legacy 'FindInfoByType' support.
 	//In order to support the legacy code still using the old infos system,
 	//all of the id/type pairs must be added to gc.m_infosMap
