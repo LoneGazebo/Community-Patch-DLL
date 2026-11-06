@@ -833,13 +833,13 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	//OutputDebugString(CvString::format("created TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iNewTradeRouteIndex).c_str());
 
+	//reset both players' route counts before anything below reads them
 	GET_PLAYER(eOriginPlayer).GetTrade()->ResetTradeStats();
+	if (eDestPlayer != eOriginPlayer)
+		GET_PLAYER(eDestPlayer).GetTrade()->ResetTradeStats();
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	if (eDestPlayer != eOriginPlayer)
-	{
-		GET_PLAYER(eDestPlayer).GetTrade()->ResetTradeStats();
 		GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
-	}
 
 	pOriginCity->GetCityReligions()->UpdateNumTradeRouteConnections(pDestCity);
 	pDestCity->GetCityReligions()->UpdateNumTradeRouteConnections(pOriginCity);
@@ -1362,6 +1362,9 @@ bool CvGameTrade::ClearTradeRoute(int iIndex)
 	//reset to default
 	kTradeConnection = TradeConnection();
 
+	//the cached route counts still include this route (same as in CreateTradeRoute)
+	GET_PLAYER(eOriginPlayer).GetTrade()->ResetTradeStats();
+	GET_PLAYER(eDestPlayer).GetTrade()->ResetTradeStats();
 	GET_PLAYER(eOriginPlayer).GetTrade()->UpdateTradeConnectionValues();
 	GET_PLAYER(eDestPlayer).GetTrade()->UpdateTradeConnectionValues();
 
@@ -2541,6 +2544,8 @@ void CvPlayerTrade::Reset(void)
 	m_pPlayer = NULL;
 	m_aRecentlyExpiredConnections.clear();
 	m_aTradeConnectionWasPlundered.clear();
+	m_tradeStats.reset();
+	m_tradeStatsUi.reset();
 }
 
 //	--------------------------------------------------------------------------------
@@ -4249,6 +4254,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 void CvPlayerTrade::ResetTradeStats()
 {
 	m_tradeStats.reset();
+	//only mark the UI copy stale: the UI thread may be reading its maps right now
+	m_tradeStatsUi.iTurnSliceBuilt = -1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4643,12 +4650,24 @@ const TradeConnection* CvPlayerTrade::GetTradeConnection(CvCity* pOriginCity, Cv
 	return NULL;
 }
 
-void CvPlayerTrade::UpdateTradeStats()
+CvPlayerTrade::SPlayerTradeStats& CvPlayerTrade::UpdateTradeStats()
 {
-	if (m_tradeStats.iTurnSliceBuilt == GC.getGame().getTurnSlice())
-		return;
+	bool bGameCoreThread = gDLL->IsGameCoreThread();
+	SPlayerTradeStats& stats = bGameCoreThread ? m_tradeStats : m_tradeStatsUi;
+	if (stats.iTurnSliceBuilt == GC.getGame().getTurnSlice())
+		return stats;
 
-	ResetTradeStats();
+	//the UI thread rebuilds under the game core lock, which route changes (ResetTradeStats) run under, so none can
+	//land in the middle. If the game core holds it right now, keep the old counts and rebuild on a later call
+	bool bTookLock = false;
+	if (!bGameCoreThread && !gDLL->HasGameCoreLock())
+	{
+		if (!gDLL->TryGameCoreLock())
+			return stats;
+		bTookLock = true;
+	}
+
+	stats.reset();
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
@@ -4660,32 +4679,35 @@ void CvPlayerTrade::UpdateTradeStats()
 		CvPlayer& kDestinationPlayer = GET_PLAYER(connection.m_eDestOwner);
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID() && kDestinationPlayer.GetID() != NO_PLAYER && kDestinationPlayer.isMinorCiv())
-			m_tradeStats.iMinorTRs++;
+			stats.iMinorTRs++;
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID() && connection.m_eDestOwner == m_pPlayer->GetID())
-			m_tradeStats.iInternalTRs++;
+			stats.iInternalTRs++;
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID() && connection.m_eDestOwner != m_pPlayer->GetID())
-			m_tradeStats.iInternationalTRsOut++;
+			stats.iInternationalTRsOut++;
 
 		if (connection.m_eOriginOwner != m_pPlayer->GetID() && connection.m_eDestOwner == m_pPlayer->GetID())
-			m_tradeStats.iInternationalTRsIn++;
+			stats.iInternationalTRsIn++;
 
 		if (connection.m_eOriginOwner == m_pPlayer->GetID())
-			m_tradeStats.nRoutesFromCity[connection.m_iOriginID]++;
+			stats.nRoutesFromCity[connection.m_iOriginID]++;
 
 		if (connection.m_eDestOwner == m_pPlayer->GetID())
-			m_tradeStats.nRoutesToCity[connection.m_iDestID]++;
+			stats.nRoutesToCity[connection.m_iDestID]++;
 	}
 
-	m_tradeStats.iTurnSliceBuilt = GC.getGame().getTurnSlice();
-	}
+	stats.iTurnSliceBuilt = GC.getGame().getTurnSlice();
+	if (bTookLock)
+		gDLL->ReleaseGameCoreLock();
+	return stats;
+}
 
 //Returns the number of city state trade routes connected to a city
 int CvPlayerTrade::GetNumberOfCityStateTradeRoutes()
 {
-	UpdateTradeStats();
-	return m_tradeStats.iMinorTRs;
+	SPlayerTradeStats& stats = UpdateTradeStats();
+	return stats.iMinorTRs;
 }
 
 int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity) const
@@ -4716,8 +4738,8 @@ int CvPlayerTrade::GetNumberOfTradeRoutesFromCity(const CvCity* pCity)
 	if (!pCity)
 		return 0;
 
-	UpdateTradeStats();
-	return m_tradeStats.nRoutesFromCity[pCity->GetID()];
+	SPlayerTradeStats& stats = UpdateTradeStats();
+	return stats.nRoutesFromCity[pCity->GetID()];
 }
 
 int CvPlayerTrade::GetNumberOfTradeRoutesCity(const CvCity* pCity)
@@ -4725,8 +4747,8 @@ int CvPlayerTrade::GetNumberOfTradeRoutesCity(const CvCity* pCity)
 	if (!pCity)
 		return 0;
 
-	UpdateTradeStats();
-	return m_tradeStats.nRoutesToCity[pCity->GetID()] + m_tradeStats.nRoutesFromCity[pCity->GetID()];
+	SPlayerTradeStats& stats = UpdateTradeStats();
+	return stats.nRoutesToCity[pCity->GetID()] + stats.nRoutesFromCity[pCity->GetID()];
 }
 
 bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity) const
@@ -4752,22 +4774,22 @@ bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity) const
 //Returns the number of internal trade routes in your empire
 int CvPlayerTrade::GetNumberOfInternalTradeRoutes()
 {
-	UpdateTradeStats();
-	return m_tradeStats.iInternalTRs;
+	SPlayerTradeStats& stats = UpdateTradeStats();
+	return stats.iInternalTRs;
 }
 
 //Returns the number of international trade routes to other empires
 int CvPlayerTrade::GetNumberOfInternationalTradeRoutes(bool bOutgoing)
 {
-	UpdateTradeStats();
-	return bOutgoing ? m_tradeStats.iInternationalTRsOut : m_tradeStats.iInternationalTRsIn;
+	SPlayerTradeStats& stats = UpdateTradeStats();
+	return bOutgoing ? stats.iInternationalTRsOut : stats.iInternationalTRsIn;
 }
 
 //Returns the number of trade routes in your empire
 int CvPlayerTrade::GetNumberOfTradeRoutes()
 {
-	UpdateTradeStats();
-	return m_tradeStats.iInternalTRs + m_tradeStats.iInternationalTRsOut;
+	SPlayerTradeStats& stats = UpdateTradeStats();
+	return stats.iInternalTRs + stats.iInternationalTRsOut;
 }
 
 //	--------------------------------------------------------------------------------
