@@ -1091,8 +1091,9 @@
     <File md5="E39E93CD1F55DCB32C7829AE87F45EA4" import="1">Core Files/Overrides/DiploRelationships.lua</File>
     <File md5="D773117CAB28D8ECCFED0DA6567132D7" import="1">Core Files/Overrides/DiscussionDialog.lua</File>
     <File md5="D708ADD4055DD571EDBDC2588DF0DC0E" import="1">Core Files/Overrides/DiscussionDialog.xml</File>
-    <File md5="D83B6F1C668EDCECDC098619036928B8" import="1">Core Files/Overrides/EconomicGeneralInfo.lua</File>
-    <File md5="3A73B221D228BD6508038FCA62239692" import="1">Core Files/Overrides/EconomicGeneralInfo.xml</File>
+    <File md5="2F8BC5103BDAB62088D3FAB37D3BDE68" import="1">Core Files/Overrides/EconomicGeneralInfo.lua</File>
+    <File md5="DDC5CDBEE7DEB08176616C29052DBC5A" import="1">Core Files/Overrides/EconomicGeneralInfo.xml</File>
+    <File md5="CC7D190F8289510BE95FE58A9FFB9226" import="1">Core Files/Overrides/EconomicOverview.xml</File>
     <File md5="16B07AAA25EB4AA80C4FAEAD0AC32D02" import="1">Core Files/Overrides/EconomicOverview.lua</File>
     <File md5="18D992FD54449C8825F7024F60426C92" import="1">Core Files/Overrides/EspionageOverview.lua</File>
     <File md5="40E602CD054FCEC15E0D9ECB716B6F13" import="1">Core Files/Overrides/EspionageOverview.xml</File>
@@ -1294,7 +1295,7 @@
     <File md5="128D729700548362CF38EE0678399279" import="0">Database Changes/Text/en_US/Tech/TechTextChanges.sql</File>
     <File md5="E5CB0AB92FAA1B2128EE557C30451B66" import="0">Database Changes/Text/en_US/UI/InterfaceModeTextChanges.sql</File>
     <File md5="B5C60FD5DF02295B68C1FEE0052EFD88" import="0">Database Changes/Text/en_US/UI/NewUIText.sql</File>
-    <File md5="227D280419D91D316E98BED6DF6C48C7" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
+    <File md5="C4B76ACB97C420CBCC580E26C037DB3E" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
     <File md5="B11E079B2A03DCA304B42C9071572CF6" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
     <File md5="2593B8D19F03C2748F570B1AD0B1F9B4" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
     <File md5="0F7FA7A5B4A7208E6D443ADB8E3C1D5D" import="0">Database Changes/Text/en_US/UnitPromotions/PromotionTextChanges.sql</File>

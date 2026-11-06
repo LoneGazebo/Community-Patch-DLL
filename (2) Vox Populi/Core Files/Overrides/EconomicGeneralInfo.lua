@@ -3,7 +3,9 @@ print("This is the modded EconomicGeneralInfo from CBP")
 -- Economic
 -------------------------------------------------
 include( "IconSupport" );
+include( "InfoTooltipInclude" );
 include( "InstanceManager" );
+include( "SupportFunctions" );
 include( "CPK.lua" )
 
 local FormatDecimal = CPK.Text.FormatDecimal
@@ -16,13 +18,16 @@ local g_iPortraitSize = 45;
 local m_SortTable;
 local ePopulation     = 0;
 local eName   = 1;
-local eStrength = 2;
+local eUnhappiness = 2;
+local eLocalHappiness = 10;
 local eProduction = 3;
 local eFood = 5;
 local eResearch = 6;
 local eGold = 7;
 local eCulture = 8;
 local eFaith = 9;
+local eReligion = 11;
+local eFocus = 12;
 
 local m_SortMode = ePopulation;
 local m_bSortReverse = false;
@@ -42,17 +47,20 @@ end
 
 -------------------------------------------------
 -------------------------------------------------
-function OnProdClick( cityID, prodName )
-	local popupInfo = {
-			Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSEPRODUCTION,
-			Data1 = cityID,
-			Data2 = -1,
-			Data3 = -1,
-			Option1 = false,
-			Option2 = false;
-		}
-	Events.SerialEventGameMessagePopup(popupInfo);
-    -- send production popup message
+-- Close the overview before selecting a city, so CityView opens in front.
+local function OpenCityFromOverview(x, y)
+    local plot = Map.GetPlot(x, y);
+    if (plot) then
+        Events.SerialEventGameMessagePopup({
+            Type = ButtonPopupTypes.BUTTONPOPUP_ECONOMIC_OVERVIEW,
+            Data1 = 1
+        });
+        UI.DoSelectCityAtPlot(plot);
+    end
+end
+
+function OnProdClick(x, y)
+    OpenCityFromOverview(x, y);
 end
 
 -------------------------------------------------
@@ -64,6 +72,193 @@ end
 	
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
+
+-- Display city-banner status indicators beside the city name.
+local g_CityFocus = {
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FOOD] = { "[ICON_FOOD]", "TXT_KEY_CITYVIEW_FOCUS_FOOD_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_PRODUCTION] = { "[ICON_PRODUCTION]", "TXT_KEY_CITYVIEW_FOCUS_PROD_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD] = { "[ICON_GOLD]", "TXT_KEY_CITYVIEW_FOCUS_GOLD_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_SCIENCE] = { "[ICON_RESEARCH]", "TXT_KEY_CITYVIEW_FOCUS_RESEARCH_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_CULTURE] = { "[ICON_CULTURE]", "TXT_KEY_CITYVIEW_FOCUS_CULTURE_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GREAT_PEOPLE] = { "[ICON_GREAT_PEOPLE]", "TXT_KEY_CITYVIEW_FOCUS_GREAT_PERSON_TEXT" };
+    [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH] = { "[ICON_PEACE]", "TXT_KEY_CITYVIEW_FOCUS_FAITH_TEXT" };
+};
+
+local function UpdateCityIndicators(pCity, instance, spiesByCity)
+    local icons = {};
+    local descriptions = {};
+    local function Add(icon, description)
+        table.insert(icons, icon);
+        table.insert(descriptions, description);
+    end
+
+    local pPlayer = Players[pCity:GetOwner()];
+
+    if (pCity:IsForcedAvoidGrowth()) then
+        Add("[ICON_LOCKED]", Locale.ConvertTextKey("TXT_KEY_CITYVIEW_FOCUS_AVOID_GROWTH_TEXT"));
+    end
+    if (pCity:IsResistance()) then
+        Add("[ICON_RESISTANCE]", Locale.ConvertTextKey("TXT_KEY_CITY_RESISTANCE", pCity:GetResistanceTurns()));
+    end
+    if (pCity:IsRazing()) then
+        Add("[ICON_RAZING]", Locale.ConvertTextKey("TXT_KEY_CITY_BURNING", pCity:GetRazingTurns()));
+    end
+    if (pCity:IsBlockaded()) then
+        if (pCity:GetSappedTurns() > 0) then
+            Add("[ICON_SAPPED]", Locale.ConvertTextKey("TXT_KEY_CITY_SAPPED", pCity:GetSappedTurns()));
+        else
+            Add("[ICON_BLOCKADED]", Locale.ConvertTextKey("TXT_KEY_CITY_BLOCKADED"));
+        end
+    end
+
+    -- Keep city connections in sync with the CityBannerManager rules.
+    if (not pCity:IsCapital() and not pCity:IsBlockaded()) then
+        if (pCity:IsIndustrialConnectedToCapital()) then
+            Add("[ICON_INDUSTRIAL_CONNECTED]", Locale.ConvertTextKey("TXT_KEY_CITY_INDUSTRIAL_CONNECTED"));
+        elseif (pCity:IsConnectedToCapital()) then
+            Add("[ICON_CONNECTED]", Locale.ConvertTextKey("TXT_KEY_CITY_CONNECTED"));
+        end
+    end
+
+    if (pCity:GetWeLoveTheKingDayCounter() > 0) then
+        Add("[ICON_HAPPINESS_1]", Locale.ConvertTextKey("TXT_KEY_CITYVIEW_WLTKD_COUNTER", pCity:GetWeLoveTheKingDayCounter()));
+    else
+        local resource = GameInfo.Resources[pCity:GetResourceDemanded(true)];
+        if (resource) then
+            Add(resource.IconString, Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", Locale.ConvertTextKey(resource.Description)));
+        end
+    end
+    if (pCity:IsMined()) then
+        Add("[ICON_MINEFIELD]", Locale.ConvertTextKey("TXT_KEY_CITY_MINED"));
+    end
+
+    local spy = spiesByCity[pCity:GetX() .. "," .. pCity:GetY()];
+    if (spy) then
+        local spyName = Locale.Lookup(spy.Name);
+        local spyRank = Locale.Lookup(spy.Rank);
+        if (spy.IsDiplomat) then
+            Add("[ICON_DIPLOMAT]", Locale.ConvertTextKey("TXT_KEY_CITY_DIPLOMAT_OTHER_CIV_TT", spyRank, spyName, pCity:GetName(), spyRank, spyName, spyRank, spyName));
+        else
+            Add("[ICON_SPY]", Locale.ConvertTextKey("TXT_KEY_CITY_SPY_YOUR_CITY_TT", spyRank, spyName, pCity:GetName(), spyRank, spyName));
+        end
+    end
+    -- The following status icons are supplied by VP's CityBannerManager.
+    if (pCity:HasOffice()) then
+        local corporation = GameInfo.Corporations[pPlayer:GetCorporation()];
+        if (corporation) then
+            local tooltipKey = Game.GetCorporationHeadquarters(corporation.ID) == pCity
+                and "TXT_KEY_CORPORATION_OFFICEHQ_TT" or "TXT_KEY_CORPORATION_OFFICE_TT";
+            Add("[ICON_OFFICE]", Locale.ConvertTextKey(tooltipKey, corporation.Description));
+        end
+    end
+    if (Game.GetNumCorporationsFounded() > 0) then
+        local franchises = {};
+        for corporation in GameInfo.Corporations() do
+            local founder = Game.GetCorporationFounder(corporation.ID);
+            if (founder ~= -1 and pCity:IsFranchised(founder)) then
+                local building = Players[founder]:GetSpecificBuildingType(corporation.FranchiseBuildingClass);
+                if (building ~= -1 and GameInfo.Buildings[building]) then
+                    table.insert(franchises, "[ICON_BULLET][COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Buildings[building].Description) .. "[ENDCOLOR]: " .. Locale.ConvertTextKey(GameInfo.Buildings[building].Help));
+                end
+            end
+        end
+        if (#franchises > 0) then
+            Add("[ICON_FRANCHISE]", table.concat(franchises, "[NEWLINE]"));
+        end
+    end
+    if (pCity:CanAirlift()) then
+        Add("[ICON_AIRPORT]", Locale.ConvertTextKey("TXT_KEY_CITY_HAS_AIRLIFT"));
+    end
+    if (pCity:CanSealift()) then
+        Add("[ICON_CARGO_SHIP]", Locale.ConvertTextKey("TXT_KEY_CITY_HAS_SEALIFT"));
+    end
+    if (pCity:IsBorderObstacleLand()) then
+        Add("[ICON_BORDER_OBSTRUCTION]", Locale.ConvertTextKey("TXT_KEY_CITY_HAS_OBSTACLE"));
+    end
+    if (pCity:IsProductionAutomated() and not pCity:IsPuppet()) then
+        Add("[ICON_AUTOMATED]", Locale.ConvertTextKey("TXT_KEY_CITY_PRODUCTION_AUTOMATED"));
+    end
+    if (pCity:getHappinessDelta() < 0) then
+        local unhappy = -pCity:getHappinessDelta();
+        Add("[ICON_HAPPINESS_3]", Locale.ConvertTextKey("TXT_KEY_CITY_UNHAPPY", unhappy));
+    end
+    -- VP can grant yields from annexed city-state traits.
+    if (Players[pCity:GetOriginalOwner()]:IsMinorCiv() and pPlayer:IsAnnexedCityStatesGiveYields()) then
+        local traitKeys = {
+            [MinorCivTraitTypes.MINOR_CIV_TRAIT_CULTURED] = "TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED",
+            [MinorCivTraitTypes.MINOR_CIV_TRAIT_MILITARISTIC] = "TXT_KEY_CITY_STATE_MILITARISTIC_NO_UU_TT_ANNEXED",
+            [MinorCivTraitTypes.MINOR_CIV_TRAIT_MARITIME] = "TXT_KEY_CITY_STATE_MARITIME_TT_ANNEXED",
+            [MinorCivTraitTypes.MINOR_CIV_TRAIT_MERCANTILE] = "TXT_KEY_CITY_STATE_MERCANTILE_TT_ANNEXED",
+            [MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS] = "TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED"
+        };
+        local tooltipKey = traitKeys[Players[pCity:GetOriginalOwner()]:GetMinorCivTrait()];
+        Add("[ICON_CITY_STATE]", tooltipKey and Locale.ConvertTextKey(tooltipKey) or "");
+    end
+
+    instance.CityStatus:SetText(table.concat(icons, ""));
+    -- Do not truncate extra status icons at the old 90px cap.
+    instance.CityStatus:SetSizeX(#icons * 18);
+    local capitalWidth = (pCity:IsCapital() or pCity:IsPuppet() or
+        (pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness())) and 18 or 0;
+    TruncateString(instance.CityName, math.min(132, math.max(64, 260 - #icons * 18 - capitalWidth)), pCity:GetName());
+    instance.CityStatus:SetToolTipString(table.concat(descriptions, "[NEWLINE]"));
+
+    local focus = g_CityFocus[pCity:GetFocusType()];
+    instance.CityFocus:SetText(focus and focus[1] or "[ICON_RANGE_STRENGTH]");
+    instance.CityFocus:SetToolTipString(focus and Locale.ConvertTextKey(focus[2]) or Locale.ConvertTextKey("TXT_KEY_CITYVIEW_FOCUS_BALANCED_TEXT"));
+
+    local majority = pCity:GetReligiousMajority();
+    local religion = GameInfo.Religions[majority];
+    local followers = 0;
+    if (religion) then
+        followers = pCity:GetNumFollowers(majority);
+        local name = Locale.ConvertTextKey(religion.Description);
+        instance.ReligionFollowers:SetText(followers);
+        instance.ReligionFollowers:SetToolTipString(name);
+        IconHookup(religion.PortraitIndex, 32, religion.IconAtlas, instance.ReligionIcon);
+        instance.ReligionIcon:SetToolTipString(name);
+        instance.ReligionIcon:SetHide(false);
+    else
+        instance.ReligionFollowers:SetText("");
+        instance.ReligionIcon:SetHide(true);
+    end
+    -- CityBannerManager uses the same followers/pressure-only helper.
+    local religionTooltip = GetReligionTooltip(pCity);
+    instance.ReligionBox:SetToolTipString(religionTooltip);
+    instance.ReligionFollowers:SetToolTipString(religionTooltip);
+    instance.ReligionIcon:SetToolTipString(religionTooltip);
+    instance.ReligionContents:CalculateSize();
+    instance.ReligionContents:ReprocessAnchoring();
+    return followers;
+end
+
+-- Use the CityView tooltip template, not the shared TopPanel happiness tooltip.
+-- The DLL yield breakdown is generated only when a city yield is hovered.
+local g_YieldTooltipControls = {};
+TTManager:GetTypeControlTable("CityViewTooltip", g_YieldTooltipControls);
+
+local function SetCityYieldTooltip(instance, field, playerID, cityID, yieldType)
+    local function ShowTooltip()
+        local pCity = Players[playerID]:GetCityByID(cityID);
+        g_YieldTooltipControls.CityViewTooltipText:SetText(
+            pCity and pCity:GetYieldRateTooltip(yieldType) or "");
+        g_YieldTooltipControls.CityViewTooltipGrid:DoAutoSize();
+    end
+    instance[field .. "Box"]:SetToolTipCallback(ShowTooltip);
+    instance[field]:SetToolTipCallback(ShowTooltip);
+end
+
+local g_EconomicColumns = {
+    { "Food", "SortFood" },
+    { "Gold", "SortGold" },
+    { "Science", "SortResearch" },
+    { "Culture", "SortCulture" },
+    { "Faith", "SortFaith" },
+    { "LocalHappiness", "SortLocalHappiness", "Happiness" },
+    { "Unhappiness", "SortUnhappiness" },
+    { "Production", "SortProduction" },
+};
+
 function UpdateDisplay()
     UpdateGPT();
     
@@ -75,6 +270,13 @@ function UpdateDisplay()
     
     m_SortTable = {};
 	pediaSearchStrings = {};
+    local cityRows = {};
+    local spiesByCity = {};
+    for _, spy in ipairs(pPlayer:GetEspionageSpies() or {}) do
+        if (spy.CityX and spy.CityY and spy.CityX >= 0 and spy.CityY >= 0) then
+            spiesByCity[spy.CityX .. "," .. spy.CityY] = spy;
+        end
+    end
 
     Controls.MainStack:DestroyAllChildren();
       
@@ -85,22 +287,24 @@ function UpdateDisplay()
         local sortEntry = {};
 		m_SortTable[ tostring( instance.Root ) ] = sortEntry;
 
--- COMMUNITY PATCH
-		local iTotalUnhappiness = pCity:GetUnhappinessAggregated();
+        sortEntry.Happiness = pCity:GetLocalHappiness();
+        instance.LocalHappiness:SetText(sortEntry.Happiness);
+        instance.LocalHappiness:SetToolTipString(pCity:GetCityHappinessBreakdown());
 
-		sortEntry.Strength = math.floor(iTotalUnhappiness);
-        instance.Defense:SetText( sortEntry.Strength );
--- END					
---		sortEntry.Strength = math.floor( pCity:GetStrengthValue() / 100 );
- --       instance.Defense:SetText( sortEntry.Strength );
-        
+        sortEntry.Unhappiness = pCity:GetUnhappinessAggregated();
+        instance.Unhappiness:SetText(sortEntry.Unhappiness);
+        instance.Unhappiness:SetToolTipString(pCity:GetCityUnhappinessBreakdown(false));
+
         sortEntry.Production = pCity:GetProductionNameKey();
         ProductionDetails( pCity, instance );
 
 		sortEntry.CityName = pCity:GetName();
-        instance.CityName:SetText( sortEntry.CityName );
+        TruncateString(instance.CityName, 132, sortEntry.CityName);
+        instance.CityName:SetToolTipString(sortEntry.CityName);
+        instance.CityButton:SetVoids(pCity:GetX(), pCity:GetY());
+        instance.CityButton:RegisterCallback(Mouse.eLClick, OpenCityFromOverview);
 
-		instance.CityName:SetToolTipString(pCity:GetCityUnhappinessBreakdown(false));
+		-- Unhappiness breakdown now belongs to its dedicated column.
 -- END  
         
         if(pCity:IsCapital())then
@@ -116,7 +320,12 @@ function UpdateDisplay()
 			instance.IconCapital:SetHide(true);
 		end
         
-    	local pct = 1 - (pCity:GetDamage() / pCity:GetMaxHitPoints());
+        sortEntry.ReligionFollowers = UpdateCityIndicators(pCity, instance, spiesByCity);
+        sortEntry.Focus = pCity:GetFocusType();
+        instance.CityInfoStack:CalculateSize();
+        instance.CityInfoStack:ReprocessAnchoring();
+
+        local pct = 1 - (pCity:GetDamage() / pCity:GetMaxHitPoints());
     	if( pct ~= 1 ) then
     	
             if pct > 0.66 then
@@ -172,35 +381,75 @@ function UpdateDisplay()
 		end
 		
 		sortEntry.Food = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100;
-        instance.Food:SetText( sortEntry.Food );
+        instance.Food:SetText( math.floor(sortEntry.Food) );
         
 		sortEntry.Production =pCity:GetYieldRateTimes100( YieldTypes.YIELD_PRODUCTION ) / 100;
-        instance.Production:SetText( sortEntry.Production );
+        instance.Production:SetText( math.floor(sortEntry.Production) );
         
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
-			instance.ScienceBox:SetHide(true);
+			instance.Science:SetText("-");
+            instance.ScienceBox:SetHide(false);
         else
 			sortEntry.Science = pCity:GetYieldRateTimes100( YieldTypes.YIELD_SCIENCE ) / 100;
-			instance.Science:SetText( sortEntry.Science );
+			instance.Science:SetText( math.floor(sortEntry.Science) );
 			instance.ScienceBox:SetHide(false);
         end
         
         sortEntry.Gold = pCity:GetYieldRateTimes100( YieldTypes.YIELD_GOLD ) / 100;
-        instance.Gold:SetText( sortEntry.Gold );
+        instance.Gold:SetText( math.floor(sortEntry.Gold) );
         
         sortEntry.Culture = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100;
-        instance.Culture:SetText( sortEntry.Culture );
+        instance.Culture:SetText( math.floor(sortEntry.Culture) );
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
-			instance.FaithBox:SetHide(true);
+			instance.Faith:SetText("-");
+            instance.FaithBox:SetHide(false);
         else
 			sortEntry.Faith = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100;
-			instance.Faith:SetText(sortEntry.Faith);
+			instance.Faith:SetText( math.floor(sortEntry.Faith) );
 			instance.FaithBox:SetHide(false);   
         end
+        -- Generate the native yield breakdown on hover, not on every overview refresh.
+        local playerID, cityID = pCity:GetOwner(), pCity:GetID();
+        SetCityYieldTooltip(instance, "Food", playerID, cityID, YieldTypes.YIELD_FOOD);
+        SetCityYieldTooltip(instance, "Production", playerID, cityID, YieldTypes.YIELD_PRODUCTION);
+        SetCityYieldTooltip(instance, "Gold", playerID, cityID, YieldTypes.YIELD_GOLD);
+        SetCityYieldTooltip(instance, "Science", playerID, cityID, YieldTypes.YIELD_SCIENCE);
+        SetCityYieldTooltip(instance, "Culture", playerID, cityID, YieldTypes.YIELD_CULTURE);
+        SetCityYieldTooltip(instance, "Faith", playerID, cityID, YieldTypes.YIELD_FAITH);
+
+        cityRows[#cityRows + 1] = { instance = instance, values = sortEntry };
     end
     
+    -- Keep 12 pixels beyond the widest displayed number in each yield column.
+    local totalWidth = 60 + 270 + 64 + 36 + 16 + 94;
+    for _, column in ipairs(g_EconomicColumns) do
+        local field, header = column[1], column[2];
+        local maxChars = 1;
+        for _, row in ipairs(cityRows) do
+            local value = row.values[column[3] or field];
+            if (value) then
+                maxChars = math.max(maxChars, #tostring(math.floor(value)));
+            end
+        end
+        local width = math.max(32, maxChars * 10 + 12);
+        totalWidth = totalWidth + width;
+        Controls[header]:SetSizeX(width);
+        for _, row in ipairs(cityRows) do
+            row.instance[field .. "Box"]:SetSizeX(width);
+        end
+    end
+
+    for _, row in ipairs(cityRows) do
+        row.instance.Root:SetSizeX(totalWidth);
+        row.instance.RowDivider:SetSizeX(totalWidth);
+        row.instance.CityRowStack:CalculateSize();
+        row.instance.CityRowStack:ReprocessAnchoring();
+    end
+    Controls.ColumnHeaderStack:CalculateSize();
+    Controls.ColumnHeaderStack:ReprocessAnchoring();
+
     Controls.MainStack:CalculateSize();
     Controls.MainStack:ReprocessAnchoring();
     Controls.MainScroll:CalculateInternalSize();
@@ -218,7 +467,8 @@ function UpdateGPT()
     Controls.TotalGoldValue:SetText( FormatDecimalTimes100( pPlayer:GetGoldTimes100() ) );
     
     local netGPT = pPlayer:CalculateGoldRateTimes100() / 100;
-    Controls.NetGoldValue:SetText( FormatDecimal( netGPT ) );
+    local netText = FormatDecimal(netGPT);
+    Controls.NetGoldValue:SetText((netGPT >= 0 and "[COLOR_POSITIVE_TEXT]" or "[COLOR_NEGATIVE_TEXT]") .. netText .. "[ENDCOLOR]");
     
     if( netGPT < 0 ) then
         Controls.ScienceLost:SetHide( false );
@@ -227,9 +477,9 @@ function UpdateGPT()
         Controls.ScienceLost:SetHide( true );
     end
     
-    Controls.GrossGoldValue:SetText( "[COLOR_POSITIVE_TEXT]" .. FormatDecimalTimes100( pPlayer:CalculateGrossGoldTimes100()) .. "[ENDCOLOR]" );
+    Controls.GrossGoldValue:SetText( FormatDecimalTimes100( pPlayer:CalculateGrossGoldTimes100() ) );
     
-    Controls.TotalExpenseValue:SetText( "[COLOR_NEGATIVE_TEXT]" .. FormatDecimalTimes100( pPlayer:CalculateInflatedCosts()) .. "[ENDCOLOR]" );
+    Controls.TotalExpenseValue:SetText( "[COLOR_NEGATIVE_TEXT]" .. FormatDecimal( pPlayer:CalculateInflatedCosts() ) .. "[ENDCOLOR]" );
 
 	-- Cities
     Controls.CityIncomeValue:SetText( FormatDecimalTimes100( pPlayer:GetGoldFromCitiesTimes100()) );
@@ -517,9 +767,12 @@ function SortFunction( a, b )
 		elseif( m_SortMode == eName ) then
 			valueA = entryA.CityName;
 			valueB = entryB.CityName;
-		elseif( m_SortMode == eStrength ) then
-			valueA = entryA.Strength;
-			valueB = entryB.Strength;
+		elseif( m_SortMode == eUnhappiness ) then
+			valueA = entryA.Unhappiness;
+			valueB = entryB.Unhappiness;
+		elseif( m_SortMode == eLocalHappiness ) then
+			valueA = entryA.Happiness;
+			valueB = entryB.Happiness;
 		elseif( m_SortMode == eFood ) then
 			valueA = entryA.Food;
 			valueB = entryB.Food;
@@ -535,6 +788,12 @@ function SortFunction( a, b )
 		elseif( m_SortMode == eFaith ) then
 			valueA = entryA.Faith;
 			valueB = entryB.Faith;
+		elseif( m_SortMode == eReligion ) then
+			valueA = entryA.ReligionFollowers;
+			valueB = entryB.ReligionFollowers;
+		elseif( m_SortMode == eFocus ) then
+			valueA = entryA.Focus;
+			valueB = entryB.Focus;
 		else -- SortProduction
 			valueA = entryA.Production;
 			valueB = entryB.Production;
@@ -568,7 +827,10 @@ function OnSort( type )
 end
 Controls.SortPopulation:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortCityName:RegisterCallback( Mouse.eLClick, OnSort );
-Controls.SortStrength:RegisterCallback( Mouse.eLClick, OnSort );
+Controls.SortReligion:RegisterCallback( Mouse.eLClick, OnSort );
+Controls.SortFocus:RegisterCallback( Mouse.eLClick, OnSort );
+Controls.SortUnhappiness:RegisterCallback( Mouse.eLClick, OnSort );
+Controls.SortLocalHappiness:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortProduction:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortFood:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortGold:RegisterCallback( Mouse.eLClick, OnSort );
@@ -576,14 +838,18 @@ Controls.SortCulture:RegisterCallback( Mouse.eLClick, OnSort );
 
 Controls.SortPopulation:SetVoid1( ePopulation );
 Controls.SortCityName:SetVoid1( eName );
-Controls.SortStrength:SetVoid1( eStrength );
+Controls.SortReligion:SetVoid1( eReligion );
+Controls.SortFocus:SetVoid1( eFocus );
+Controls.SortUnhappiness:SetVoid1( eUnhappiness );
+Controls.SortLocalHappiness:SetVoid1( eLocalHappiness );
 Controls.SortProduction:SetVoid1( eProduction );
 Controls.SortFood:SetVoid1( eFood );
 Controls.SortGold:SetVoid1( eGold );
 Controls.SortCulture:SetVoid1( eCulture );
 
 if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
-	Controls.SortResearch:SetHide(true);
+	Controls.SortResearch:SetDisabled(true);
+	Controls.SortResearch:SetHide(false);
 	Controls.ScienceLost:SetHide(true);
 else
 	Controls.SortResearch:RegisterCallback(Mouse.eLClick, OnSort);
@@ -593,7 +859,8 @@ else
 end
 
 if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
-	Controls.SortFaith:SetHide(true);
+	Controls.SortFaith:SetDisabled(true);
+	Controls.SortFaith:SetHide(false);
 	Controls.ReligionIncome:SetHide(true);
 else
 	Controls.SortFaith:RegisterCallback(Mouse.eLClick, OnSort);
@@ -635,6 +902,10 @@ function ProductionDetails( city, instance )
 		end
 		
 		instance.BuildGrowth:SetText(buildGrowth);
+        local turnWidth = math.max(8, #tostring(buildGrowth) * 8);
+        instance.BuildGrowth:SetSizeX(turnWidth);
+        -- The portrait artwork has inner padding; shift its control 9px left.
+        instance.ProdImage:SetOffsetX(8 + turnWidth - 3);
 
 	end
 	
@@ -693,7 +964,7 @@ function ProductionDetails( city, instance )
 	instance.ProdButton:RegisterCallback( Mouse.eLClick, OnProdClick );
 	pediaSearchStrings[tostring(instance.ProdButton)] = Locale.ConvertTextKey(cityProductionName);
 	instance.ProdButton:RegisterCallback( Mouse.eRClick, OnProdRClick );
-	instance.ProdButton:SetVoids( city:GetID(), nil );
+	instance.ProdButton:SetVoids( city:GetX(), city:GetY() );
 
 end
 
