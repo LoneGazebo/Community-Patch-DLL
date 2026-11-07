@@ -150,8 +150,7 @@ void CvPlot::init(int iX, int iY)
 //	--------------------------------------------------------------------------------
 void CvPlot::uninit()
 {
-	free(m_szScriptData); // allocated with _strdup in setScriptData
-	m_szScriptData = NULL;
+	SAFE_FREE(&m_szScriptData); // allocated with _strdup in setScriptData
 
 	m_pCenterUnit = NULL;
 
@@ -13635,7 +13634,7 @@ CvString CvPlot::getScriptData() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setScriptData(const char* szNewValue)
 {
-	free(m_szScriptData);
+	SAFE_FREE(&m_szScriptData);
 	m_szScriptData = _strdup(szNewValue);
 }
 
