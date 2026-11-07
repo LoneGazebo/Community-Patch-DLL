@@ -10581,6 +10581,8 @@ CvTacticalPosition::AddAssignmentResult CvTacticalPosition::addAssignment(const 
 	}
 	case A_PILLAGE:
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
+		//heal from pillaging (negative self damage)
+		itUnit->iSelfDamage += newAssignment.iSelfDamage;
 		if (TacticalAIHelpers::GetOtherPlayerImprovementDamage( GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex), getPlayer(), true) > 0)
 			refreshVolatilePlotProperties();
 		//aoe damage on pillage
