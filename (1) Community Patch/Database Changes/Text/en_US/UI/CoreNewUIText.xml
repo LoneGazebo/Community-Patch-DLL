@@ -146,6 +146,11 @@
 		<Row Tag="TXT_KEY_ALLOWS_EXTRA_LUXURIES">
 			<Text>Unlocks Projects that increase local Luxury copies</Text>
 		</Row>
+		
+		<!-- Religion Belief Description -->
+		<Row Tag="TXT_KEY_RELIGION_BELIEF_DESCRIPTION">
+			<Text>[NEWLINE][COLOR_POSITIVE_TEXT]{1_BeliefName}[ENDCOLOR] ({@2_BeliefDesc})</Text>
+		</Row>
 
 		<!-- Theming bonus -->
 		<Row Tag="TXT_KEY_CO_TOURISM_THEME_BONUS">

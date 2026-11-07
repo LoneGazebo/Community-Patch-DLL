@@ -10380,8 +10380,10 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 	bool bRequiresNoFeature = pMajorityReligion->m_Beliefs.RequiresNoFeature(ePlayer);
 	bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
 	bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
+	if (eFeature == NO_FEATURE || !GC.getFeatureInfo(eFeature)->isYieldNotAdditive())
+	{
 	int iValue = pMajorityReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, ePlayer, pOwningCity);
-	if (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement)
+		if (iValue > 0 && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 	{
 		if (bRequiresBoth)
 		{
@@ -10451,7 +10453,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
 		bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
 		int iValue = pSecondaryPantheon->GetTerrainYieldChange(getTerrainType(), eYield);
-		if (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement)
+			if (iValue > 0 && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 		{
 			if (bRequiresBoth)
 			{
@@ -10512,6 +10514,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		}
 
 		iYield += iReligionChange;
+	}
 	}
 
 	iYield += pMajorityReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, ePlayer, pOwningCity);

@@ -117,16 +117,58 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_REBELS';
 
 -- Pantheon Founded
 UPDATE Language_en_US
-SET Text = 'Your people have started worshipping a pantheon of gods. They have chosen the belief: [COLOR_POSITIVE_TEXT]{1_BeliefName}[ENDCOLOR] ({@2_BeliefDesc})'
+SET Text = 'Your people have started worshipping a pantheon of gods. They have chosen the belief: {@1_Belief}'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER';
 
 UPDATE Language_en_US
-SET Text = '{@1_CivName} {@1: plural 1?has; 2?have;} started worshipping a pantheon of gods. They have chosen the belief: [COLOR_POSITIVE_TEXT]{2_BeliefName}[ENDCOLOR] ({@3_BeliefDesc})'
+SET Text = '{@1_CivName} {@1: plural 1?has; 2?have;} started worshipping a pantheon of gods. They have chosen the belief: {@2_Belief}'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED';
 
 UPDATE Language_en_US
-SET Text = 'An unknown civilization has started worshipping a pantheon of gods. They have chosen the belief: [COLOR_POSITIVE_TEXT]{1_BeliefName}[ENDCOLOR] ({@2_BeliefDesc})'
+SET Text = 'An unknown civilization has started worshipping a pantheon of gods. They have chosen the belief: {@1_Belief}'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_PANTHEON_FOUNDED_UNKNOWN';
+
+
+-- Religion Founded
+UPDATE Language_en_US
+SET Text = 'You have founded the new religion {@1_ReligionName} in the holy city of {@2_CityName}. You have chosen the beliefs: {@3_Beliefs}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER';
+
+UPDATE Language_en_US
+SET Text = '{1_CivName} {1: plural 1?has; 2?have;} founded the new religion {@2_ReligionName} in the holy city of {@3_CityName}. They have chosen the beliefs: {@4_Beliefs}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_RELIGION_FOUNDED';
+
+UPDATE Language_en_US
+SET Text = 'An unknown civilization has founded the new religion {@1_ReligionName} in one of their cities. They have chosen the beliefs: {@2_Beliefs}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_RELIGION_FOUNDED_UNKNOWN';
+
+-- Religion Enhanced
+UPDATE Language_en_US
+SET Text = 'You have enhanced the religion {@1_ReligionName} by adding new beliefs. You have chosen the beliefs: {@2_Beliefs}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER';
+
+UPDATE Language_en_US
+SET Text = '{1_CivName} {1: plural 1?has; 2?have;} enhanced their religion {@2_ReligionName} by adding new beliefs. They have chosen the beliefs: {@3_Beliefs}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_RELIGION_ENHANCED';
+
+UPDATE Language_en_US
+SET Text = 'An unknown civilization has enhanced their religion {@1_ReligionName} by adding new beliefs. They have chosen the beliefs: {@2_Beliefs}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_RELIGION_ENHANCED_UNKNOWN';
+
+
+-- Reformation Belief added
+UPDATE Language_en_US
+SET Text = 'You have added a Reformation belief to your religion {@1_ReligionName}. You have chosen the belief: {@2_Belief}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED_ACTIVE_PLAYER';
+
+UPDATE Language_en_US
+SET Text = '{1_CivName} {1: plural 1?has; 2?have;} added a Reformation belief to their religion {@2_ReligionName}. They have chosen the belief: {@3_Belief}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED';
+
+UPDATE Language_en_US
+SET Text = 'An unknown civilization has added a Reformation belief to their religion {@1_ReligionName}. They have chosen the belief: {@2_Belief}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_REFORMATION_BELIEF_ADDED_UNKNOWN';
+
 
 -- BALANCE_RESOURCE_SHORTAGE_UNIT_HEALING
 UPDATE Language_en_US

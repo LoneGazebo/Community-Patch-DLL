@@ -5370,25 +5370,32 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
     {
 		iValue += kPlayer.GetPlayerTraits()->GetWonderProductionToBuildingDiscount(eBuilding);
     }
-	if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionarySpreads() > 0)
+
+	if (kPlayer.GetReligions()->GetStateReligion(false) != NO_RELIGION)
 	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetStateReligion());
+		if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionarySpreads() > 0)
+		{
+			int iUnusedReferenceVariable = 0;
+			int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesToSpreadReligionTo(kPlayer.GetReligions()->GetStateReligion(false), iUnusedReferenceVariable, false, false);
 
-		iValue += (iNumNearbyCities / 25);
-	}
+			iValue += (iNumNearbyCities / 25);
+		}
 
-	if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
-	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetStateReligion());
+		if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0)
+		{
+			int iUnusedReferenceVariable = 0;
+			int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesToSpreadReligionTo(kPlayer.GetReligions()->GetStateReligion(false), iUnusedReferenceVariable, false, false);
 
-		iValue += (iNumNearbyCities / 10);
-	}
+			iValue += (iNumNearbyCities / 10);
+		}
 
-	if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionaryStrength() > 0)
-	{
-		int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesWithReligionCalculator(kPlayer.GetReligions()->GetStateReligion());
+		if (kPlayer.isMajorCiv() && pkBuildingInfo->GetExtraMissionaryStrength() > 0)
+		{
+			int iUnusedReferenceVariable = 0;
+			int iNumNearbyCities = kPlayer.GetReligionAI()->GetNumCitiesToSpreadReligionTo(kPlayer.GetReligions()->GetStateReligion(false), iUnusedReferenceVariable, false, false);
 
-		iValue += (iNumNearbyCities / 25);
+			iValue += (iNumNearbyCities / 25);
+		}
 	}
 
 	//Is this a prereq for another building we can build right now? 

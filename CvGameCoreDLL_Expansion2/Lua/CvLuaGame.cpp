@@ -3273,6 +3273,9 @@ int CvLuaGame::lScoreBelief(lua_State* L)
 {
 	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
 	const BeliefTypes eBeliefType = static_cast<BeliefTypes>(luaL_checkint(L, 2));
+	const BeliefTypes eSelectedBelief1 = static_cast<BeliefTypes>(luaL_optint(L, 3, -1));
+	const BeliefTypes eSelectedBelief2 = static_cast<BeliefTypes>(luaL_optint(L, 4, -1));
+	const BeliefTypes eSelectedBelief3 = static_cast<BeliefTypes>(luaL_optint(L, 5, -1));
 	int iScore = 0;
 
 	if (ePlayer != NO_PLAYER && eBeliefType != NO_BELIEF)
@@ -3280,8 +3283,8 @@ int CvLuaGame::lScoreBelief(lua_State* L)
 		CvBeliefEntry* pBelief = GC.GetGameBeliefs()->GetEntry(eBeliefType);
 		if (pBelief)
 		{
-			CvWeightedVector<int> viPlotWeights = GET_PLAYER(ePlayer).GetReligionAI()->CalculatePlotWeightsForBeliefSelection(/*bConsiderExpansion*/ pBelief->IsPantheonBelief());
-			iScore = GET_PLAYER(ePlayer).GetReligionAI()->ScoreBelief(pBelief, viPlotWeights);
+			CvWeightedVector<int> viPlotWeights = GET_PLAYER(ePlayer).GetReligionAI()->CalculatePlotWeightsForBeliefSelection();
+			iScore = GET_PLAYER(ePlayer).GetReligionAI()->ScoreBelief(pBelief, viPlotWeights, true, NO_RELIGION, eSelectedBelief1, eSelectedBelief2, eSelectedBelief3);
 		}
 	}
 
