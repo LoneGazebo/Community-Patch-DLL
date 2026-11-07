@@ -2522,24 +2522,60 @@ static int SeaWorkerUnitSafeValid(const CvAStarNode* parent, const CvAStarNode* 
 	return TRUE;
 }
 
-int LandUnitSimpleValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
+//the plot test of LandUnitSimpleValid, shared with GetPlotsInReachSimple
+static int LandUnitSimplePlotValid(CvPlot* pToPlot, const SPathFinderUserData& data, bool bNoEmbark)
 {
-	if (parent == NULL)
-		return TRUE;
-
-	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY); 
-
 	//can't go into the dark
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
 	if (!pToPlot->isRevealed(kPlayer.getTeam()))
 		return FALSE;
 
 	//check terrain
-	if (pToPlot->isWater() && finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK))
+	if (pToPlot->isWater() && bNoEmbark)
 		return FALSE;
 	if (pToPlot->isDeepWater() && !kPlayer.CanCrossOcean())
 		return FALSE;
 	if (pToPlot->isMountain() && !kPlayer.CanCrossMountain())
+		return FALSE;
+	if (pToPlot->isIce() && !kPlayer.CanCrossIce())
+		return FALSE;
+
+	//check ownership
+	PlayerTypes ePlotOwner = pToPlot->getOwner();
+	if (ePlotOwner == NO_PLAYER || pToPlot->IsFriendlyTerritory(data.ePlayer))
+		return TRUE;
+
+	if (kPlayer.IsAtWarWith(ePlotOwner))
+		return TRUE;
+
+	if (!GET_PLAYER(ePlotOwner).isMajorCiv())
+		return TRUE;
+
+	return FALSE;
+}
+
+int LandUnitSimpleValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
+{
+	if (parent == NULL)
+		return TRUE;
+
+	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+
+	return LandUnitSimplePlotValid(pToPlot, data, finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK));
+}
+
+//the plot test of NavalUnitSimpleValid, shared with GetPlotsInReachSimple
+static int NavalUnitSimplePlotValid(CvPlot* pToPlot, const SPathFinderUserData& data, bool bNoOcean)
+{
+	//can't go into the dark
+	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+	if (!pToPlot->isRevealed(kPlayer.getTeam()))
+		return FALSE;
+
+	//check terrain
+	if (!pToPlot->isWater() && !pToPlot->isCoastalCityOrPassableImprovement(data.ePlayer, false, true))
+		return FALSE;
+	if (pToPlot->isDeepWater() && bNoOcean)
 		return FALSE;
 	if (pToPlot->isIce() && !kPlayer.CanCrossIce())
 		return FALSE;
@@ -2565,31 +2601,76 @@ int NavalUnitSimpleValid(const CvAStarNode* parent, const CvAStarNode* node, con
 
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
-	//can't go into the dark
-	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
-	if (!pToPlot->isRevealed(kPlayer.getTeam()))
-		return FALSE;
+	return NavalUnitSimplePlotValid(pToPlot, data, finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN));
+}
 
-	//check terrain
-	if (!pToPlot->isWater() && !pToPlot->isCoastalCityOrPassableImprovement(data.ePlayer, false, true))
-		return FALSE;
-	if (pToPlot->isDeepWater() && finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN))
-		return FALSE;
-	if (pToPlot->isIce() && !kPlayer.CanCrossIce())
-		return FALSE;
+//	--------------------------------------------------------------------------------
+/// The same plots and records as GC.GetStepFinder().GetPlotsInReach(pStartPlot, data) for PT_LAND_UNIT_SIMPLE and
+/// PT_NAVAL_UNIT_SIMPLE without limits, found by a breadth-first search instead of the A* machinery.
+/// In the step finder these searches have no destination, so the heuristic is 0; the step cost is the constant
+/// PATH_BASE_COST (no cost function); the validity test reads only the plot (the parent is only tested for NULL);
+/// there are no extra children and every node can end the turn. Nodes are therefore expanded in order of their step
+/// count, a node's first link is already its shortest one, and each reached node ends with m_iTurns = its step count
+/// from the start over plots that pass the test, m_iMoves = 0 and m_iKnownCost = steps * PATH_BASE_COST. Here each
+/// plot is tested once, the records are the ones GetPlotsInReach builds from those values. Only the storage order
+/// differs (breadth-first instead of the closed-list order); lookups go through the index.
+ReachablePlots GetPlotsInReachSimple(const CvPlot* pStartPlot, const SPathFinderUserData& data)
+{
+	if (!pStartPlot)
+		return ReachablePlots();
 
-	//check ownership
-	PlayerTypes ePlotOwner = pToPlot->getOwner();
-	if (ePlotOwner == NO_PLAYER || pToPlot->IsFriendlyTerritory(data.ePlayer))
-		return TRUE;
+	//anything else is left to the step finder
+	if ((data.ePath != PT_LAND_UNIT_SIMPLE && data.ePath != PT_NAVAL_UNIT_SIMPLE) ||
+		data.iMaxTurns != INT_MAX || data.iMaxNormalizedDistance != INT_MAX || data.iMinMovesLeft > 0)
+		return GC.GetStepFinder().GetPlotsInReach(pStartPlot, data);
 
-	if (kPlayer.IsAtWarWith(ePlotOwner))
-		return TRUE;
+	bool bNaval = (data.ePath == PT_NAVAL_UNIT_SIMPLE);
+	int iFlag = bNaval ? CvUnit::MOVEFLAG_NO_OCEAN : CvUnit::MOVEFLAG_NO_EMBARK;
+	bool bFlag = ((data.iFlags & iFlag) == iFlag); //CvAStar::HaveFlag on the configured data
+	int iNormalizedDistanceBase = SPath::getNormalizedDistanceBase();
 
-	if (!GET_PLAYER(ePlotOwner).isMajorCiv())
-		return TRUE;
+	CvMap& kMap = GC.getMap();
+	int iNumPlots = kMap.numPlots();
+	vector<unsigned char> vTouched(iNumPlots, 0);
+	vector<int> vSteps(iNumPlots, 0);
+	vector<int> vQueue;
+	vQueue.reserve(iNumPlots);
 
-	return FALSE;
+	ReachablePlots plots;
+	int iStart = pStartPlot->GetPlotIndex();
+	vTouched[iStart] = 1;
+	vQueue.push_back(iStart);
+	for (size_t iHead = 0; iHead < vQueue.size(); iHead++)
+	{
+		int iPlot = vQueue[iHead];
+		int iSteps = vSteps[iPlot];
+		int iKnownCost = iSteps * PATH_BASE_COST;
+		plots.insertNoIndex(SMovePlot(iPlot, iSteps, 0, (iKnownCost * iNormalizedDistanceBase) / PATH_BASE_COST + 1));
+
+		CvPlot** aNeighbors = kMap.getNeighborsUnchecked(iPlot);
+		for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+		{
+			CvPlot* pNeighbor = aNeighbors[i];
+			if (!pNeighbor)
+				continue;
+
+			int iNeighbor = pNeighbor->GetPlotIndex();
+			if (vTouched[iNeighbor])
+				continue;
+
+			//the test depends on the plot only, so one evaluation decides
+			vTouched[iNeighbor] = 1;
+			int bValid = bNaval ? NavalUnitSimplePlotValid(pNeighbor, data, bFlag) : LandUnitSimplePlotValid(pNeighbor, data, bFlag);
+			if (bValid)
+			{
+				vSteps[iNeighbor] = iSteps + 1;
+				vQueue.push_back(iNeighbor);
+			}
+		}
+	}
+
+	plots.createIndex();
+	return plots;
 }
 
 //	--------------------------------------------------------------------------------

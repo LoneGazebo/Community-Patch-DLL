@@ -5642,14 +5642,15 @@ void TacticalAIHelpers::UpdatePlotDistanceToTarget(PlayerTypes ePlayer, CvPlot* 
 	if (!GET_PLAYER(ePlayer).CanEmbark())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
-	ReachablePlots eReachablePlots = GC.GetStepFinder().GetPlotsInReach(pTargetPlot, data);
+	//same result as GC.GetStepFinder().GetPlotsInReach(pTargetPlot, data), see GetPlotsInReachSimple
+	ReachablePlots eReachablePlots = GetPlotsInReachSimple(pTargetPlot, data);
 	gDistanceToTargetPlots[DOMAIN_LAND] = eReachablePlots;
 
 	data.ePath = PT_NAVAL_UNIT_SIMPLE;
 	if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).CanBuildOceanCrossingUnit())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
-	eReachablePlots = GC.GetStepFinder().GetPlotsInReach(pTargetPlot, data);
+	eReachablePlots = GetPlotsInReachSimple(pTargetPlot, data);
 	gDistanceToTargetPlots[DOMAIN_SEA] = eReachablePlots;
 	gTargetPlot = pTargetPlot;
 }
