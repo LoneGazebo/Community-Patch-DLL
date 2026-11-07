@@ -2625,24 +2625,28 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	if (ourUnitsInitial.empty())
 		return false;
 
-	//now that we have a set of units find the center of mass
+	// Unwrap the contact group around its first unit before averaging.
+	const int iReferenceX = (*ourUnitsInitial.begin())->getX();
+	const int iReferenceY = (*ourUnitsInitial.begin())->getY();
 	int x = 0;
 	int y = 0;
 	set<CvPlot*, PrSortByPlotIndex> allEnemyPlots;
 	for (set<CvUnit*, PrSortByUnitId>::const_iterator it = ourUnitsInitial.begin(); it != ourUnitsInitial.end(); ++it)
 	{
-		x += (*it)->getX();
-		y += (*it)->getY();
+		x += dxWrap((*it)->getX() - iReferenceX);
+		y += dyWrap((*it)->getY() - iReferenceY);
 
 		vector<CvUnit*> vEnemyAttackers = m_pPlayer->GetPossibleAttackers(*(*it)->plot(), m_pPlayer->getTeam());
 		for (size_t i = 0; i < vEnemyAttackers.size(); i++)
 			allEnemyPlots.insert(vEnemyAttackers[i]->plot());
 	}
-	x = (x * 100) / ourUnitsInitial.size();
-	y = (y * 100) / ourUnitsInitial.size();
+	// Round before wrapping the center back onto the map, including negative coordinates.
+	const double unitCount = static_cast<double>(ourUnitsInitial.size());
+	x = static_cast<int>(std::floor(iReferenceX + x / unitCount + 0.5));
+	y = static_cast<int>(std::floor(iReferenceY + y / unitCount + 0.5));
 
 	//now find the closest enemy plot to our center of mass
-	CvPlot* pCoM = GC.getMap().plot((x + 50) / 100, (y + 50) / 100);
+	CvPlot* pCoM = GC.getMap().plot(x, y);
 	CvPlot* pClosestEnemyPlot = NULL;
 	int iMinDist = INT_MAX;
 	for (set<CvPlot*, PrSortByPlotIndex>::const_iterator it = allEnemyPlots.begin(); it != allEnemyPlots.end(); ++it)
