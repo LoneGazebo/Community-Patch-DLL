@@ -30136,7 +30136,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		{
 			CvString strCiv = kOwner.getCivilizationAdjective();
 			CvString strLogString;
-			strLogString.Format("TRADE UNIT MADE: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
+			strLogString.Format("TRADE UNIT MADE: %s %s at %d,%d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
 			kOwner.GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 	}
@@ -31050,7 +31050,7 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 				{
 					CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
 					CvString strLogString;
-					strLogString.Format("TRADE UNIT BOUGHT: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("TRADE UNIT BOUGHT: %s %s at %d,%d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
 					GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 			}
@@ -35722,7 +35722,7 @@ void CvCity::SpawnFreeUnit(UnitTypes eUnit)
 		{
 			CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
 			CvString strLogString;
-			strLogString.Format("FREE TRADE UNIT CREATED: %s %s at %d,d", strCiv.c_str(), pFreeUnit->getName().c_str(), pFreeUnit->getX(), pFreeUnit->getY());
+			strLogString.Format("FREE TRADE UNIT CREATED: %s %s at %d,%d", strCiv.c_str(), pFreeUnit->getName().c_str(), pFreeUnit->getX(), pFreeUnit->getY());
 			GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 	}

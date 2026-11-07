@@ -976,7 +976,7 @@ void CvBarbarians::DoCamps()
 		int iNewCampY = pPlot->getY();
 		for (unsigned int iI = 0; iI < vPotentialPlots.size(); iI++)
 		{
-			CvPlot* pLoopPlot = vValidPlots[iI];
+			CvPlot* pLoopPlot = vPotentialPlots[iI];
 
 			// Don't use the same plot again!
 			if (pLoopPlot == pPlot)
