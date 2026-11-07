@@ -13,7 +13,8 @@
 #define UPGRADE_THIS_TURN_PRIORITY_BOOST 5000
 #define UPGRADE_IN_TERRITORY_PRIORITY_BOOST 2000
 
-struct BuilderDirective;
+struct SBuilderDirective;
+class CvAIOperationBuildImprovementEscorted;
 
 enum AIHomelandTargetType
 {
@@ -24,7 +25,6 @@ enum AIHomelandTargetType
     AI_HOMELAND_TARGET_FORT,
     AI_HOMELAND_TARGET_NAVAL_RESOURCE,
 	AI_HOMELAND_TARGET_WORKER,
-	AI_HOMELAND_TARGET_ANTIQUITY_SITE,
 };
 
 // Object stored in the list of current move units (m_CurrentMoveUnits)
@@ -186,7 +186,7 @@ struct SWorkerRegion {
 	CitySet m_aCities;
 	int m_iImprovementNeed;
 	std::vector<int> m_aCurrentWorkers;
-	int m_iWantedWorkers;
+	size_t m_iWantedWorkers;
 
 	SWorkerRegion();
 	SWorkerRegion(CitySet aCities, int iImprovementNeed, int iCapitalX, int iCapitalY);
@@ -206,6 +206,26 @@ struct SWorkerRegion {
 
 private:
 	static int iIDCounter;
+};
+
+struct SWorkerTransferCandidate
+{
+	SWorkerRegion* m_pSourceRegion; // NULL = unassigned
+	int m_iUnitID;
+	int m_iScore;
+
+	SWorkerTransferCandidate(SWorkerRegion* pRegion, int iWorker, int iValue)
+		: m_pSourceRegion(pRegion), m_iUnitID(iWorker), m_iScore(iValue) {}
+};
+
+struct PRWorkerTransferSort
+{
+	bool operator()(
+		const SWorkerTransferCandidate& lhs,
+		const SWorkerTransferCandidate& rhs) const
+	{
+		return lhs.m_iScore > rhs.m_iScore;
+	}
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -250,6 +270,11 @@ public:
 	bool MoveCivilianToSafety(CvUnit* pUnit);
 
 	set<int> GetWorkedPlots();
+
+	CvAIOperationBuildImprovementEscorted* AddBuildOperation(CvUnit* pBuilder, SBuilderDirective eDirective, bool bInstantBuild, bool bIsKill);
+	void AddCurrentTurnUnit(CvUnit* pUnit);
+	bool IsWorkerAtAssignedRegion(const CvUnit* pUnit, const CvPlot* pTargetPlot) const;
+	CvPlot* GetAssignedWorkerRegionCapitalPlot(const CvUnit* pUnit) const;
 
 private:
 	// Internal turn update routines - commandeered unit processing
@@ -307,7 +332,6 @@ private:
 	void PlotSSPartMoves();
 	void PlotTreasureMoves();
 	void PlotTradeUnitMoves();
-	void PlotArchaeologistMoves();
 	void ReviewUnassignedUnits();
 
 	// Routines to execute homeland moves
@@ -337,23 +361,21 @@ private:
 	void ExecuteSSPartMoves();
 	void ExecuteTreasureMoves();
 	void ExecuteTradeUnitMoves();
-	void ExecuteArchaeologistMoves();
 
 	bool FindUnitsForThisMove(AIHomelandMove eMove);
 	CvUnit* GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns, int iMinStrengthTimes100 = 0);
 	bool MoveToTargetButDontEndTurn(CvUnit* pUnit, CvPlot* pTargetPlot, int iFlags);
 
-	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
-	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirectives(
-		const vector<BuilderDirective> aDirectives, 
-		const set<BuilderDirective> ignoredDirectives, 
+	vector<OptionWithScore<pair<CvUnit*, SBuilderDirective>>> GetWeightedDirectives(
+		const vector<SBuilderDirective> aDirectives, 
+		const set<SBuilderDirective> ignoredDirectives, 
 		const list<int> allWorkers, 
 		const set<int> ignoredWorkers, 
 		const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots,
 		bool bConsiderRegions) const;
 	int GetBuilderNumTurnsAway(
 		CvUnit* pUnit, 
-		BuilderDirective eDirective, 
+		SBuilderDirective eDirective, 
 		const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots) const;
 
 	void UnitProcessed(int iID);
@@ -361,8 +383,9 @@ private:
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;
 	void ClearCurrentMoveUnits(AIHomelandMove eNextMove);
-	bool IsWorkerAtAllocatedRegion(const CvUnit* pUnit, const CvPlot* pPlot = NULL) const;
-	CvPlot* GetWorkerRegionTargetPlot(const CvUnit* pUnit) const;
+
+	bool AddAndExecuteEscortedBuildOperation(CvUnit* pUnit, SBuilderDirective eDirective);
+	bool AddAndExecuteEscortOperation(CvUnit* pUnit, CvPlot* pPlot);
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;
@@ -380,7 +403,6 @@ private:
 
 	// Lists of targets for the turn
 	std::vector<CvHomelandTarget> m_TargetedCities;
-	std::vector<CvHomelandTarget> m_TargetedAntiquitySites;
 };
 
 FDataStream& operator>>(FDataStream&, CvHomelandAI&);
@@ -401,15 +423,11 @@ struct SPatrolTarget {
 };
 
 struct SBuilderState {
-	map<ResourceTypes, int> mExtraResources;
-	map<int, FeatureTypes> mChangedPlotFeatures;
-	map<int, pair<BuildTypes, ImprovementTypes>> mChangedPlotImprovements;
+	std::tr1::unordered_map<ResourceTypes, int> m_ExtraResources;
+	std::tr1::unordered_map<int, FeatureTypes> m_ChangedPlotFeatures;
+	std::tr1::unordered_map<int, pair<BuildTypes, ImprovementTypes>> m_ChangedPlotImprovements;
 
 	SBuilderState(){};
-	static const SBuilderState& DefaultInstance() {
-		static SBuilderState defaultInstance;
-		return defaultInstance;
-	}
 };
 
 namespace HomelandAIHelpers

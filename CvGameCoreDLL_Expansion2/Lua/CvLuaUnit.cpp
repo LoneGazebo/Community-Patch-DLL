@@ -6642,7 +6642,7 @@ int CvLuaUnit::lGetAIOperationInfo(lua_State* L)
 		CvArmyAI* pArmy = CvPlayerAI::getPlayer(ePlayer).getArmyAI(iArmyID);
 		if (pArmy)
 		{
-			CvAIOperation* pAIOp = CvPlayerAI::getPlayer(ePlayer).getAIOperation(pArmy->GetOperationID());
+			CvAIOperation* pAIOp = pArmy->GetOperation();
 			if (pAIOp)
 			{
 				lua_pushstring(L, pAIOp->GetInfoString());
