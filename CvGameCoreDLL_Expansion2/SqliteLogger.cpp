@@ -83,6 +83,16 @@ bool SqliteLogger::EnsureOpen()
 	if (m_kConnection.Open(strDatabasePath.c_str(), Database::OPEN_CREATE | Database::OPEN_READWRITE | Database::OPEN_FULLMUTEX))
 	{
 		m_bOpen = true;
+		// Unless SQLITE_LOGGING_DURABLE_WRITES is set, don't wait for the disk on every commit. SQLite's defaults flush
+		// stats.db and its journal to disk at each commit and create and delete the journal file every time, which
+		// stalls the game thread for tens of milliseconds per commit when many games share one disk. Without the
+		// flushes a crashed or killed game still leaves a consistent database; only an OS crash or power loss can
+		// lose or corrupt the latest rows.
+		if (!MOD_SQLITE_LOGGING_DURABLE_WRITES)
+		{
+			m_kConnection.Execute("PRAGMA synchronous = OFF");
+			m_kConnection.Execute("PRAGMA journal_mode = PERSIST");
+		}
 		EnsureDictionaryTable();
 	}
 	else

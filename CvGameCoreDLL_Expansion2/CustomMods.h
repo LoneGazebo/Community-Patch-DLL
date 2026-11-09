@@ -60,6 +60,9 @@
 // Enables writing gameplay statistics to a local SQLite database (stats.db) via SqliteLogger
 #define MOD_SQLITE_LOGGING											gCustomMods.isSQLITE_LOGGING()
 
+// Makes the SQLite logger flush stats.db to disk on every commit (SQLite's default behavior). Slower, but the latest rows survive an OS crash or power loss
+#define MOD_SQLITE_LOGGING_DURABLE_WRITES							gCustomMods.isSQLITE_LOGGING_DURABLE_WRITES()
+
 // Minidumps are ON by default. Define DISABLE_MINIDUMP in the project settings to build
 // without them (mirrors DISABLE_CVASSERT); users can also opt out at runtime by creating
 // an empty file "crashlogs\nodumps.please" next to the game executable.
@@ -1549,6 +1552,7 @@ public:
 	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(SQUADS);
 	MOD_OPT_DECL(SQLITE_LOGGING);
+	MOD_OPT_DECL(SQLITE_LOGGING_DURABLE_WRITES);
 
 	// Core Balance Changes
 	MOD_OPT_DECL(CORE_DELAYED_VISIBILITY);

@@ -53,6 +53,11 @@
 		<!-- Enables writing gameplay statistics to a local SQLite database (stats.db) via SqliteLogger -->
 		<Row Class="6" Name="SQLITE_LOGGING" Value="0"/>
 
+		<!-- By default the SQLite logger does not wait for the disk after each commit to stats.db, which makes logging much faster (most noticeable with many games running at once) -->
+		<!-- A crashed or killed game still leaves stats.db intact, but an OS crash or power loss can lose or corrupt the most recent rows -->
+		<!-- Enable this if you need stats.db to be fully consistent at the moment of such a crash; it restores SQLite's default flush-on-every-commit behavior -->
+		<Row Class="6" Name="SQLITE_LOGGING_DURABLE_WRITES" Value="0"/>
+
 
 		<!-- ********************************************************** -->
 		<!-- 				CORE BALANCE CHANGES						-->
