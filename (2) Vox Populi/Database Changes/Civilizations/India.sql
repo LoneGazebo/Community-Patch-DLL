@@ -112,6 +112,7 @@ VALUES
 UPDATE Buildings
 SET
 	DefensePerXWonder = 2,
+	CitySupplyFlat = 1,
 	DamageReductionFlat = (SELECT DamageReductionFlat FROM Buildings WHERE Type = 'BUILDING_CASTLE') + 2
 WHERE Type = 'BUILDING_MUGHAL_FORT';
 

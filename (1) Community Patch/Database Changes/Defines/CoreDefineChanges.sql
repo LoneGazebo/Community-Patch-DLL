@@ -13,7 +13,7 @@ VALUES
 -- Can units that ignore SPECIFIC terrain costs via UnitPromotions_Features or UnitPromotions_Terrains cross rivers without expending additional movement? Doesn't affect trait abilities.
 	('IGNORE_SPECIFIC_TERRAIN_COSTS_INCLUDES_RIVERS', 0),
 -- Num turns of disengagement after a war ends
-	('PEACE_DISENGAGEMENT_TURNS', 5),
+	('PEACE_DISENGAGEMENT_TURNS', 2),
 -- If > -1, a player with no cities but who is still alive (Complete Kills) will be granted a free Settler after this many turns
 	('COMPLETE_KILLS_TURN_TIMER', -1),
 -- Number of unique components displayed in the civ selection and loading screens
@@ -1099,6 +1099,7 @@ VALUES
 	('PROMOTION_DEEPWATER_EMBARKATION', 'PROMOTION_DEEPWATER_EMBARKATION', 'UnitPromotions'),
 	('PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION', 'PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION', 'UnitPromotions'),
 	('PROMOTION_FLAGSHIP', 'PROMOTION_FLAGSHIP', 'UnitPromotions'),
+	('UNITCOMBAT_MOUNTED', 'UNITCOMBAT_MOUNTED', 'UnitCombatInfos'),
 	('GANDHI_LEADER', 'LEADER_GANDHI', 'Leaders'),
 	('NUKE_TRIGGER_PROJECT', 'PROJECT_MANHATTAN_PROJECT', 'Projects');
 
@@ -1107,3 +1108,6 @@ UPDATE Defines
 SET Value = 5
 WHERE Name = 'MINOR_CIV_FIRST_CONTACT_BONUS_FAITH'
 AND EXISTS (SELECT 1 FROM CustomModOptions WHERE Name = 'GLOBAL_CS_GIFTS' AND Value = 1);
+
+-- UI only: in observer/autoplay mode, dismiss notifications this many turns after they were created (0 = never dismiss automatically)
+INSERT INTO Defines (Name, Value) VALUES ('OBSERVER_NOTIFICATION_LIFETIME_TURNS', 3);

@@ -130,7 +130,7 @@ public:
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
 	int GetNumColonyFound() const;
-	bool IsCityAttackSupport() const;
+	bool IsCityAttackOnly() const;
 	int IsGPExtra() const;
 	int GetGoodyModifier() const;
 	int GetSupplyCapBoost() const;
@@ -148,9 +148,7 @@ public:
 	bool IsRangeAttackOnlyInDomain() const;
 	bool IsTrade() const;
 	int GetNumExoticGoods() const;
-
-	float GetUnitMaxSpeed() const;
-	float GetUnitPadTime() const;
+	int GetXPFromExploration() const;
 
 	int GetProjectPrereq() const;
 	int GetSpaceshipProject() const;
@@ -220,6 +218,8 @@ public:
 	int* GetUnitNewEraPromotionsChangesArray(int i);
 
 	int GetResourceQuantityTotal(int i) const;
+	void CacheResourceQuantityCheckIDs();
+	const std::vector<int>& GetResourceQuantityCheckIDs() const;
 
 	bool GetFreePromotions(int i) const;
 
@@ -375,6 +375,7 @@ private:
 	int m_iLeaderPromotion;
 	bool m_bTrade;
 	int m_iNumExoticGoods;
+	int m_iXPFromExploration;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int m_iNumberStackingUnits;
@@ -417,6 +418,7 @@ private:
 	int** m_ppiEraUnitPromotions;
 
 	std::map<int, int> m_piResourceQuantityTotals;
+	std::vector<int> m_viResourceQuantityCheckIDs;
 
 	bool* m_pbFreePromotions;
 

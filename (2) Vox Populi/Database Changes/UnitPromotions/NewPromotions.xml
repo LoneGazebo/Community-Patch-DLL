@@ -49,29 +49,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FIELD_3</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_TRAILBLAZER_1</Type>
-			<Description>TXT_KEY_PROMOTION_TRAILBLAZER_1</Description>
-			<Help>TXT_KEY_PROMOTION_TRAILBLAZER_1_HELP</Help>
-			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_TRAILBLAZER_1</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_TRAILBLAZER_2</Type>
-			<Description>TXT_KEY_PROMOTION_TRAILBLAZER_2</Description>
-			<Help>TXT_KEY_PROMOTION_TRAILBLAZER_2_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_TRAILBLAZER_1</PromotionPrereqOr1>
-			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_TRAILBLAZER_2</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_TRAILBLAZER_3</Type>
-			<Description>TXT_KEY_PROMOTION_TRAILBLAZER_3</Description>
-			<Help>TXT_KEY_PROMOTION_TRAILBLAZER_3_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_TRAILBLAZER_2</PromotionPrereqOr1>
-			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_TRAILBLAZER_3</PediaEntry>
-		</Row>
-		<Row>
 			<Type>PROMOTION_COASTAL_ARTILLERY</Type>
 			<Description>TXT_KEY_PROMOTION_COASTAL_ARTILLERY</Description>
 			<Help>TXT_KEY_PROMOTION_COASTAL_ARTILLERY_HELP</Help>
@@ -202,6 +179,134 @@
 			<PediaEntry>TXT_KEY_PROMOTION_INFILTRATORS</PediaEntry>
 		</Row>
 		<Row>
+			<Type>PROMOTION_PARTHIAN_TACTICS</Type>
+			<Description>TXT_KEY_PROMOTION_PARTHIAN_TACTICS</Description>
+			<Help>TXT_KEY_PROMOTION_PARTHIAN_TACTICS_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_PARTHIAN_TACTICS</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_COUP_DE_GRACE</Type>
+			<Description>TXT_KEY_PROMOTION_COUP_DE_GRACE</Description>
+			<Help>TXT_KEY_PROMOTION_COUP_DE_GRACE_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_COUP_DE_GRACE</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SKIRMISHER_MARCH</Type>
+			<Description>TXT_KEY_PROMOTION_MARCH</Description>
+			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MARCH</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SKIRMISHER_SENTRY</Type>
+			<Description>TXT_KEY_PROMOTION_SENTRY</Description>
+			<Help>TXT_KEY_PROMOTION_SENTRY_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SENTRY</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ENVELOPMENT</Type>
+			<Description>TXT_KEY_PROMOTION_ENVELOPMENT</Description>
+			<Help>TXT_KEY_PROMOTION_ENVELOPMENT_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_ACCURACY_2</PromotionPrereqOr2>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ENVELOPMENT</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_VERDANT_TREKKER</Type>
+			<Description>TXT_KEY_PROMOTION_VERDANT_TREKKER</Description>
+			<Help>TXT_KEY_PROMOTION_VERDANT_TREKKER_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_VERDANT_TREKKER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FIELD_RUNNER</Type>
+			<Description>TXT_KEY_PROMOTION_FIELD_RUNNER</Description>
+			<Help>TXT_KEY_PROMOTION_FIELD_RUNNER_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FIELD_RUNNER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_DESERT_DWELLER</Type>
+			<Description>TXT_KEY_PROMOTION_DESERT_DWELLER</Description>
+			<Help>TXT_KEY_PROMOTION_DESERT_DWELLER_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_DESERT_DWELLER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FROST_WALKER</Type>
+			<Description>TXT_KEY_PROMOTION_FROST_WALKER</Description>
+			<Help>TXT_KEY_PROMOTION_FROST_WALKER_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FROST_WALKER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_MOUNTAINEER</Type>
+			<Description>TXT_KEY_PROMOTION_MOUNTAINEER</Description>
+			<Help>TXT_KEY_PROMOTION_MOUNTAINEER_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MOUNTAINEER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_WATERBORNE</Type>
+			<Description>TXT_KEY_PROMOTION_WATERBORNE</Description>
+			<Help>TXT_KEY_PROMOTION_WATERBORNE_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_WATERBORNE</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FORAGER</Type>
+			<Description>TXT_KEY_PROMOTION_FORAGER</Description>
+			<Help>TXT_KEY_PROMOTION_FORAGER_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FORAGER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SURVIVALISM</Type>
+			<Description>TXT_KEY_PROMOTION_SURVIVALISM</Description>
+			<Help>TXT_KEY_PROMOTION_SURVIVALISM_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SURVIVALISM</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SCREENING_1</Type>
+			<Description>TXT_KEY_PROMOTION_SCREENING_1</Description>
+			<Help>TXT_KEY_PROMOTION_SCREENING_1_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SCREENING_1</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SCREENING_2</Type>
+			<Description>TXT_KEY_PROMOTION_SCREENING_2</Description>
+			<Help>TXT_KEY_PROMOTION_SCREENING_2_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_SCREENING_1</PromotionPrereqOr1>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SCREENING_2</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SCREENING_3</Type>
+			<Description>TXT_KEY_PROMOTION_SCREENING_3</Description>
+			<Help>TXT_KEY_PROMOTION_SCREENING_3_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_SCREENING_2</PromotionPrereqOr1>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SCREENING_3</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_HALO_JUMPER</Type>
+			<Description>TXT_KEY_PROMOTION_HALO_JUMPER</Description>
+			<Help>TXT_KEY_PROMOTION_HALO_JUMPER_HELP</Help>
+			<TechPrereq>TECH_FLIGHT</TechPrereq>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_HALO_JUMPER</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_INDOMITABLE</Type>
 			<Description>TXT_KEY_PROMOTION_INDOMITABLE</Description>
 			<Help>TXT_KEY_PROMOTION_INDOMITABLE_HELP</Help>
@@ -258,38 +363,6 @@
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_PIRACY</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_PARTHIAN_TACTICS</Type>
-			<Description>TXT_KEY_PROMOTION_PARTHIAN_TACTICS</Description>
-			<Help>TXT_KEY_PROMOTION_PARTHIAN_TACTICS_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_PARTHIAN_TACTICS</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_COUP_DE_GRACE</Type>
-			<Description>TXT_KEY_PROMOTION_COUP_DE_GRACE</Description>
-			<Help>TXT_KEY_PROMOTION_COUP_DE_GRACE_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_COUP_DE_GRACE</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_SKIRMISHER_MARCH</Type>
-			<Description>TXT_KEY_PROMOTION_MARCH</Description>
-			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_MARCH</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_SKIRMISHER_SENTRY</Type>
-			<Description>TXT_KEY_PROMOTION_SENTRY</Description>
-			<Help>TXT_KEY_PROMOTION_SENTRY_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SENTRY</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SHRAPNEL_ROUNDS_1</Type>
@@ -354,34 +427,6 @@
 			<PromotionPrereqOr1>PROMOTION_DOGFIGHTING_3</PromotionPrereqOr1>
 			<PediaType>PEDIA_AIR</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOMB_RACK</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_FROGMAN</Type>
-			<Description>TXT_KEY_PROMOTION_FROGMAN</Description>
-			<Help>TXT_KEY_PROMOTION_FROGMAN_HELP</Help>
-			<TechPrereq>TECH_RAILROAD</TechPrereq>
-			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_TRAILBLAZER_3</PromotionPrereqOr2>
-			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_FROGMAN</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_SCREENING</Type>
-			<Description>TXT_KEY_PROMOTION_SCREENING</Description>
-			<Help>TXT_KEY_PROMOTION_SCREENING_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_TRAILBLAZER_3</PromotionPrereqOr2>
-			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SCREENING</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_ENVELOPMENT</Type>
-			<Description>TXT_KEY_PROMOTION_ENVELOPMENT</Description>
-			<Help>TXT_KEY_PROMOTION_ENVELOPMENT_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_ACCURACY_2</PromotionPrereqOr2>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ENVELOPMENT</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_HUNTER_KILLER</Type>
@@ -798,11 +843,18 @@
 			<PediaEntry>TXT_KEY_PROMOTION_SCAVENGER</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_COMMANDO</Type>
-			<Description>TXT_KEY_PROMOTION_COMMANDO</Description>
-			<Help>TXT_KEY_PROMOTION_COMMANDO_HELP</Help>
-			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_COMMANDO</PediaEntry>
+			<Type>PROMOTION_VOYAGER</Type>
+			<Description>TXT_KEY_PROMOTION_VOYAGER</Description>
+			<Help>TXT_KEY_PROMOTION_VOYAGER_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_VOYAGER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_JAMMER</Type>
+			<Description>TXT_KEY_PROMOTION_JAMMER</Description>
+			<Help>TXT_KEY_PROMOTION_JAMMER_HELP</Help>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_JAMMER</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_NAVAL_INACCURACY</Type>
@@ -930,6 +982,13 @@
 			<Help>TXT_KEY_PROMOTION_ASSIZE_OF_ARMS_HELP</Help>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ASSIZE_OF_ARMS</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_AGINCOURT</Type>
+			<Description>TXT_KEY_PROMOTION_AGINCOURT</Description>
+			<Help>TXT_KEY_PROMOTION_AGINCOURT_HELP</Help>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_AGINCOURT</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_HAKKAA_PAALLE</Type>
@@ -1329,13 +1388,6 @@
 			<Help>TXT_KEY_PROMOTION_INVINCIBLE_HELP</Help>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_INVINCIBLE</PediaEntry>
-		</Row>
-		<Row>
-			<Type>PROMOTION_AGINCOURT</Type>
-			<Description>TXT_KEY_PROMOTION_AGINCOURT</Description>
-			<Help>TXT_KEY_PROMOTION_AGINCOURT_HELP</Help>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_AGINCOURT</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_TAIKAN_KYOHO</Type>

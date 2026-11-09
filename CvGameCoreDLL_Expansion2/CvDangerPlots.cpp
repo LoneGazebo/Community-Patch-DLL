@@ -75,9 +75,9 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 	if (pLoopUnit->IsCanAttackRanged())
 	{
 		//for ranged every tile we can enter with movement left is a base for attack
-		std::set<int> attackableTiles = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachablePlots,false,false);
+		const vector<int> attackableTiles = TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachablePlots,false,false);
 
-		for (std::set<int>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
+		for (vector<int>::const_iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
 		{
 			CvPlot* pAttackTile = GC.getMap().plotByIndexUnchecked(*attackTile);
 			AssignUnitDangerValue(pLoopUnit, pAttackTile);
@@ -797,7 +797,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const SUnitIDValueConta
 			if ( pAttacker && !pAttacker->isDelayedDeath() && !pAttacker->IsDead() )
 			{
 				int iDummy = 0;
-				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
+				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, 0, true);
 				if (!m_pPlot->IsKnownVisibleToTeam(pAttacker->getTeam()))
 					iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
 				iPlotDamage += iDamage;

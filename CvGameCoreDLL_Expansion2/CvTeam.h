@@ -46,6 +46,8 @@ public:
 	void DoBarbarianTech();
 	void DoMinorCivTech();
 
+	void UpdateXPFromExploration();
+
 	void updateYield();
 
 	bool canChangeWarPeace(TeamTypes eTeam) const;
@@ -380,6 +382,10 @@ public:
 	
 	int GetBuildingDefenseModifier() const;
 	void ChangeBuildingDefenseModifier(int iChange);
+	
+	int GetNumRevealedPlots() const;
+	void ChangeNumRevealedPlots(int iChange);
+	int GetMaxNumRevealedPlots() const;
 
 	void DoTestSmallAwards();
 	bool IsSmallAwardAchieved(SmallAwardTypes eAward) const;
@@ -524,6 +530,9 @@ protected:
 	int m_iNumMinorCivsAttacked;
 	int m_iBuildingDefenseModifier;
 
+	int m_iNumRevealedPlots;
+	int m_iMaxNumRevealedPlots;
+
 	bool m_bMapCentering;
 	bool m_bHasTechForWorldCongress;
 
@@ -641,6 +650,8 @@ protected:
 
 	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, TeamTypes eDefensivePactTeam = NO_TEAM, bool bMinorAllyPact = false);
 	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false, bool bIgnoreVassalsAndAllies = false, vector<pair<PlayerTypes, TeamTypes>>* pvMinorCivsDeferredPeaceUpdate = NULL);
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 // helper for accessing static functions

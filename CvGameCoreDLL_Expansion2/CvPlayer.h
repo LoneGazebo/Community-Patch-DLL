@@ -126,6 +126,46 @@ struct SPlayerActiveEspionageEvent
 	int iAmount;
 };
 
+struct SAreaEffectUnitInfo
+{
+	int iUnitID;
+	short iX;
+	short iY;
+	DomainTypes eDomain;
+
+	int iInterceptValue;
+	short iLeadershipModifier;
+	short iNegativeModifier;
+	short iSapperModifier;
+	short iHealValue;
+
+	uint8 iNegativeRange;
+	uint8 iLeadershipRange;
+	uint8 iSapperRange;
+	uint8 iHealRange;
+	uint8 iJammingRange;
+	uint8 iInterceptRange;
+
+	SAreaEffectUnitInfo()
+		: iUnitID(0)
+		, iX(-1)
+		, iY(-1)
+		, eDomain(NO_DOMAIN)
+		, iInterceptValue(0)
+		, iLeadershipModifier(0)
+		, iNegativeModifier(0)
+		, iSapperModifier(0)
+		, iHealValue(0)
+		, iNegativeRange(0)
+		, iLeadershipRange(0)
+		, iSapperRange(0)
+		, iHealRange(0)
+		, iJammingRange(0)
+		, iInterceptRange(0)
+	{
+	}
+};
+
 class CvPlayer
 {
 	friend class CvPlayerPolicies;
@@ -301,6 +341,9 @@ public:
 	bool hasBusyCity() const;
 	bool hasBusyUnitOrCity() const;
 	const CvCity* getBusyCity() const;
+
+	int EstimateWLTKDAvailability() const;
+	int EstimateGreatPersonRate(GreatPersonTypes eGreatPerson) const;
 	void chooseTech(int iDiscover = 0, const char* strText=0, TechTypes iTechJustDiscovered=NO_TECH);
 	void ChoosePolicy(const char* strText = 0);
 	void ChooseIdeology();
@@ -382,7 +425,7 @@ public:
 	bool isProductionMaxedBuilding(BuildingTypes eBuilding, bool bAcquireCity = false) const;
 	bool isProductionMaxedProject(ProjectTypes eProject) const;
 	int getProductionNeeded(UnitTypes eUnit, bool bIgnoreTraitsDifficulty = false, bool bIgnoreExistingCopies = false) const;
-	int getProductionNeeded(BuildingTypes eBuilding) const;
+	int getProductionNeeded(BuildingTypes eBuilding, bool bIgnoreDifficulty = false) const;
 	int getProductionNeeded(ProjectTypes eProject) const;
 
 	int GetUpgradeCost(const UnitTypes eCurrentUnit, const UnitTypes eNewUnit) const;
@@ -692,9 +735,14 @@ public:
 	int GetUnhappinessGrowthPenalty() const;
 	int GetUnhappinessSettlerCostPenalty() const;
 	int GetUnhappinessCombatStrengthPenalty() const;
+	bool IsEmpireVeryHappy() const;
 	bool IsEmpireUnhappy() const;
 	bool IsEmpireVeryUnhappy() const;
 	bool IsEmpireSuperUnhappy() const;
+
+	int GetHappinessValueTimes100() const;
+
+	int EstimateGoldenAgePercentage() const;
 
 	void DoUpdateUprisings();
 	int GetUprisingCounter() const;
@@ -967,10 +1015,12 @@ public:
 	// Golden Age Stuff
 
 	void DoProcessVotes();
+	int GetGreatGeneralRateTimes100() const;
 	void DoChangeGreatGeneralRate();
+	int GetGreatAdmiralRateTimes100() const;
 	void DoChangeGreatAdmiralRate();
-	int GetGoldenAgePointsFromEmpireTimes100();
-	int GetGoldenAgePointsFromCitiesTimes100();
+	int GetGoldenAgePointsFromEmpireTimes100() const;
+	int GetGoldenAgePointsFromCitiesTimes100() const;
 	void DoProcessGoldenAge();
 
 	int GetGoldenAgeProgressThreshold() const;
@@ -2120,6 +2170,7 @@ public:
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
 	int getNumResourceFromBuildings(ResourceTypes eIndex) const;
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
+	int getNumResourceFromTiles(ResourceTypes iIndex) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bFromEvent = false);
 
@@ -2507,10 +2558,13 @@ public:
 	void SetCapitalGrowthMod(int iValue);
 	void ChangeCapitalGrowthMod(int iChange);
 
-	void UpdatePlots();  // Refreshes the list of plots and sets which ones the player owns
+	void UpdatePlots(); // Refreshes the list of plots and sets which ones the player owns
 	void AddAPlot(CvPlot* pPlot); // adds an owned plot
-	const PlotIndexContainer& GetPlots() const;  // gets the list of plots the player owns
+	void RemoveAPlot(CvPlot* pPlot); // removes an owned plot
+	const PlotIndexContainer& GetPlots() const; // gets the list of plots the player owns
 	int GetNumPlots() const;
+	int GetTerrainPlotCount(TerrainTypes eTerrain) const;
+	void ChangeTerrainPlotCount(TerrainTypes eTerrain, int iChange);
 
 	int GetNumPlotsBought() const;
 	void SetNumPlotsBought(int iValue);
@@ -2573,14 +2627,14 @@ public:
 	void DoMilitaryRatingDecay();
 	void UpdateMilitaryStats();
 	void UpdateAreaEffectUnits();
-	void UpdateAreaEffectUnit(CvUnit* pUnit);
 	void UpdateAreaEffectPlots();
 	int GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, const CvPlot* pTestPlot, const CvUnit* pIgnoreThisUnit=NULL) const;
 	const std::vector< std::pair<int,int> >& GetAreaEffectPromotionUnits() const;
-	const std::vector< std::pair<int,int> >& GetAreaEffectPositiveUnits() const;
-	const std::vector< std::pair<int,int> >& GetAreaEffectNegativeUnits() const;
-	const std::vector< std::pair<int,int> >& GetPossibleInterceptors() const;
+	vector<pair<int, int>>& GetAreaEffectPromotionUnits();
 	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
+	const vector<SAreaEffectUnitInfo>& GetAreaEffectUnits() const;
+	int AddOrReplaceAreaEffectUnit(const SAreaEffectUnitInfo& info);
+	void RemoveAreaEffectUnit(int iIndex);
 	//this ignores the barbarians
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 	const std::vector<PlayerTypes>& GetPlayersAtWarWithInFuture() const { return m_playersAtWarWithInFuture; }
@@ -3776,6 +3830,7 @@ protected:
 	CvDiplomacyRequests* m_pDiplomacyRequests;
 
 	PlotIndexContainer m_aiPlots;
+	vector<int> m_viTerrainPlotCounts;
 
 	// Treasury
 	CvTreasury* m_pTreasury;
@@ -3809,10 +3864,8 @@ protected:
 	//percent
 	int m_iFractionOriginalCapitalsUnderControl;
 	int m_iAvgUnitExp100;
-	std::vector< std::pair<int,int> > m_unitsAreaEffectPositive; //unit / plot
-	std::vector< std::pair<int,int> > m_unitsAreaEffectNegative; //unit / plot
 	std::vector< std::pair<int,int> > m_unitsAreaEffectPromotion; //unit / plot
-	std::vector< std::pair<int,int> > m_unitsWhichCanIntercept; //unit / plot
+	std::vector<SAreaEffectUnitInfo> m_areaEffectUnitInfos;
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 	std::vector<PlayerTypes> m_playersAtWarWithInFuture;
@@ -3830,6 +3883,8 @@ protected:
 
 	friend FDataStream& operator>>(FDataStream&, CvPlayer::ConqueredByBoolField&);
 	friend FDataStream& operator<<(FDataStream&, const CvPlayer::ConqueredByBoolField&);
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 inline FDataStream& operator>>(FDataStream& stream, CvPlayer::ConqueredByBoolField& bfEverConqueredBy)
@@ -3894,6 +3949,7 @@ SYNC_ARCHIVE_VAR(int, m_iCenterOfMassX)
 SYNC_ARCHIVE_VAR(int, m_iCenterOfMassY)
 SYNC_ARCHIVE_VAR(int, m_iReformationFollowerReduction)
 SYNC_ARCHIVE_VAR(bool, m_bIsReformation)
+SYNC_ARCHIVE_VAR(vector<int>, m_viTerrainPlotCounts)
 SYNC_ARCHIVE_VAR(vector<int>, m_viInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(vector<int>, m_viLocalInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(vector<vector<int>>), m_vviYieldHistory)

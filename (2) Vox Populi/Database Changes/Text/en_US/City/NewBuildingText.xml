@@ -159,7 +159,7 @@
 			<Text>Bastion Fort</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASTION_FORT_STRATEGY">
-			<Text>The Bastion Fort is a Renaissance-era military building that increases Defense Strength and reduces all incoming damage by 2, making the City more difficult to capture. It allows the City to Ranged Strike indirectly, ignoring Line of Sight. Garrisoned units receive an additional 5 Health when healing in this City. Increases Military Units supplied by this City's population by 10%. Also helps with managing the Empire Size Modifier in this City. The City must possess a Castle before a Bastion Fort can be constructed.</Text>
+			<Text>The Bastion Fort is a Renaissance-era military building that increases Defense Strength and reduces all incoming damage by 2, making the City more difficult to capture. It allows the City to Ranged Strike indirectly, ignoring Line of Sight. Garrisoned units receive an additional 5 Health when healing in this City. Also helps with managing the Empire Size Modifier in this City. The City must possess a Castle before a Bastion Fort can be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASTION_FORT_HELP">
 			<Text></Text>
@@ -211,7 +211,7 @@
 			<Text>Penitentiary</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY_STRATEGY">
-			<Text>Penitentiaries support the development of new Cities by allowing you to use Spy Missions to generate [ICON_FOOD] Food and [ICON_CULTURE_LOCAL] Border Growth. They also benefit large, established Cities by making them less susceptible to Spies, while providing a boost to Military Supply. Furthermore, the Penitentiary adds [ICON_PRODUCTION] Production to Tundra tiles to transform frozen terrain into productive zones that can match or even outperform Grassland and Plains.</Text>
+			<Text>Penitentiaries support the development of new Cities by allowing you to use Spy Missions to generate [ICON_FOOD] Food and [ICON_CULTURE_LOCAL] Border Growth. They also benefit large, established Cities by making them less susceptible to Spies. Furthermore, the Penitentiary adds [ICON_PRODUCTION] Production to Tundra tiles to transform frozen terrain into productive zones that can match or even outperform Grassland and Plains.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PENITENTIARY_HELP">
 			<Text></Text>

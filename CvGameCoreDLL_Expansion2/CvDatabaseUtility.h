@@ -31,6 +31,9 @@ public:
 	//! Prepares a cached result given an arbitrary string key
 	Database::Results* PrepareResults(const std::string& strKey, const char* szStmt);
 
+	//! Logs the content packages below the game's Assets folder that can replace this mod's tables
+	static void LogContentPackages();
+
 	//!Allocates an array to count and zero's memory.
 	void InitializeArray(int*& pArray, const size_t count, int iDefault = 0);
 	void InitializeArray(fraction*& pArray, const size_t count, fraction fDefault = 0);
@@ -65,6 +68,8 @@ void InitializeArray(T*& pArray, const char* szTableName, T default_ = (T)0);
 	                              const char* szFilterValue);
 
 	bool PopulateVector(std::vector<int>& pVector, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue);
+
+	bool PopulateVectorByValue(vector<int>& pVector, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue, const char* szValueColumn, int iVectorSize = 0, int iDefaultValue = 0, const char* szAdditionalCondition = "");
 
 	//!Allocates an array to Count(szTypeTableName) and initializes to 0
 	//!Then assigns pArray[Type.ID] = value for all resulting rows.

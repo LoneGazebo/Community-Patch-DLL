@@ -82,7 +82,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_HARBOR_STRATEGY';
 
 -- Seaport
 UPDATE Language_en_US
-SET Text = 'The Seaport is an Industrial-era building, requiring a Harbor. It increases the [ICON_PRODUCTION] Production and [ICON_GOLD] Gold output of water tiles and increases Military Units supplied by this City''s population by 10%. Also allows for Industrial City Connections over Water (see Concepts for more details).'
+SET Text = 'The Seaport is an Industrial-era building, requiring a Harbor. It increases the [ICON_PRODUCTION] Production and [ICON_GOLD] Gold output of water tiles. Also provides [ICON_SILVER_FIST] Military Supply and allows for Industrial City Connections over Water (see Concepts for more details).'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_STRATEGY';
 
 -- Market
@@ -154,22 +154,22 @@ WHERE Tag = 'TXT_KEY_BUILDING_SOLAR_PLANT_STRATEGY';
 
 -- Walls
 UPDATE Language_en_US
-SET Text = 'Walls increase City Strength and Hit Points, making the City more difficult to capture. Increases Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. Also helps with managing the Empire Size Modifier in this City. Walls are quite useful for cities located along a frontier.'
+SET Text = 'Walls increase City Strength and Hit Points, making the City more difficult to capture. Increases the City''s Ranged Strike range by 1 and also helps with managing the Empire Size Modifier in this City. Walls are quite useful for cities located along a frontier.'
 WHERE Tag = 'TXT_KEY_BUILDING_WALLS_STRATEGY';
 
 -- Castle
 UPDATE Language_en_US
-SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength and reduces all incoming damage by 2. Increases Military Units supplied by this City''s population by 5%, and provides Tourism to Jail and Constabulary in this City. Also helps with managing the Empire Size Modifier in this City. The City must already possess Walls before a Castle can be constructed.'
+SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength and reduces all incoming damage by 2. Provides Tourism to Jail and Constabulary, and also helps with managing the Empire Size Modifier in this City. The City must already possess Walls before a Castle can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_STRATEGY';
 
 -- Arsenal
 UPDATE Language_en_US
-SET Text = 'The Arsenal is a Modern-era military building that increases Defense Strength and Hit Points, making the City more difficult to capture. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Garrisoned units receive an additional 5 Health when healing in this City. Increases Military Units supplied by this City''s population by 5%. Also helps with managing the Empire Size Modifier in this City. The City must already possess a Bastion Fort before an Arsenal can be constructed.'
+SET Text = 'The Arsenal is a Modern-era military building that increases Defense Strength and Hit Points, making the City more difficult to capture. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Garrisoned units receive an additional 5 Health when healing in this City. Also helps with managing the Empire Size Modifier in this City. The City must already possess a Bastion Fort before an Arsenal can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_STRATEGY';
 
 -- Military Base
 UPDATE Language_en_US
-SET Text = 'The Military Base is a late-game building which increases Defensive Strength and Hit Points, and improves defense against air units. Garrisoned units receive an additional 20 Health when healing in this City. Increases Military Units supplied by this City''s population by 5%. Also helps with managing the Empire Size Modifier in this City. The City must already possess an Arsenal before a Military Base can be constructed.'
+SET Text = 'The Military Base is a late-game building which increases Defensive Strength and Hit Points, and improves defense against air units. Garrisoned units receive an additional 20 Health when healing in this City. Also helps with managing the Empire Size Modifier in this City. The City must already possess an Arsenal before a Military Base can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_STRATEGY';
 
 UPDATE Language_en_US
@@ -269,7 +269,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_PEDIA';
 
 -- Heroic Epic
 UPDATE Language_en_US
-SET Text = 'This National Wonder gives all land units built in this City (past and future) the "Morale" promotion, increasing their combat strength by +10%. +1 [ICON_PRODUCTION] Production in the City for every 5 [ICON_CITIZEN] Citizens. Increases Military Units supplied by this City''s population by 10%. Also creates a free Great Writer upon completion. The City must have a Barracks before it can construct the Heroic Epic.'
+SET Text = 'This National Wonder gives all land units built in this City (past and future) the "Morale" promotion, increasing their combat strength by +10%. +1 [ICON_PRODUCTION] Production in the City for every 5 [ICON_CITIZEN] Citizens. Provides +3 [ICON_SILVER_FIST] Military Supply and creates a free Great Writer upon completion. The City must have a Barracks before it can construct the Heroic Epic.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_STRATEGY';
 
 -- Circus Maximus

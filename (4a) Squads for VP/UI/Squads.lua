@@ -61,8 +61,6 @@ function SetSquadsMode(mode)
     local iPlayer = Game.GetActivePlayer();
     local pPlayer = Players[ iPlayer ];
 
-    Events.SerialEventMouseOverHex.Remove(OnMouseMoveOverHex);
-
     if mode == SQUADS_MODE_NONE then 
         -- Display window again
         UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
@@ -72,14 +70,12 @@ function SetSquadsMode(mode)
         if UI.GetInterfaceMode() ~= GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID then
             UI.SetInterfaceMode(GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID);
         end
-        Events.SerialEventMouseOverHex.Add(OnMouseMoveOverHex);
         UpdateMouse();
 
     elseif mode == SQUADS_MODE_MOVE then
         if UI.GetInterfaceMode() ~= GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID then
             UI.SetInterfaceMode(GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID);
         end
-        Events.SerialEventMouseOverHex.Add(OnMouseMoveOverHex);
         UpdateMouse();
     end  
 end
@@ -163,8 +159,12 @@ function UpdateMouse(gridX, gridY)
 end
 
 function OnMouseMoveOverHex(hexX, hexY)
+    if currentMode == SQUADS_MODE_NONE then return end
     UpdateMouse(nil, hexX, hexY);
 end
+-- Added once here, SetSquadsMode can run from WorldView's events. Handlers added then belong to WorldView's Lua,
+-- and crash the game when released after WorldView is gone (e.g. loading a game).
+Events.SerialEventMouseOverHex.Add(OnMouseMoveOverHex);
 
 -- ========== Squads Panel Handlers ==========
 function HandlePressAddToSquadButton ()

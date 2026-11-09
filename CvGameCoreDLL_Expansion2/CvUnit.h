@@ -227,7 +227,8 @@ struct SUnitIDValueContainer
 			}
 			else
 			{
-				// promote to vector
+				// promote to vector; one allocation covers the common small cases
+				m_aExtraStorage.reserve(4);
 				m_aExtraStorage.push_back(std::make_pair(m_iUnitID, m_iValue));
 				m_aExtraStorage.push_back(std::make_pair(iUnitID, iChange));
 			}
@@ -268,7 +269,8 @@ struct SUnitIDValueContainer
 			}
 			else
 			{
-				// promote to vector
+				// promote to vector; one allocation covers the common small cases
+				m_aExtraStorage.reserve(4);
 				m_aExtraStorage.push_back(std::make_pair(m_iUnitID, m_iValue));
 				m_aExtraStorage.push_back(std::make_pair(iUnitID, iValue));
 			}
@@ -397,7 +399,6 @@ enum AreaEffectType
 {
 	AE_GREAT_GENERAL,
 	AE_SAPPER,
-	AE_SIEGETOWER,
 	AE_PASSIVE_HEAL
 };
 
@@ -592,7 +593,7 @@ public:
 	bool isSetUpForRangedAttack() const; //no longer used
 	void setSetUpForRangedAttack(bool bValue); //no longer used
 
-	bool IsCityAttackSupport() const;
+	bool IsCityAttackOnly() const;
 	void ChangeCityAttackOnlyCount(int iChange);
 
 	bool IsCaptureDefeatedEnemy() const;
@@ -641,7 +642,7 @@ public:
 	int GetEmbarkAbilityCount() const;
 	void ChangeEmbarkAbilityCount(int iChange);
 
-	bool canHeal(const CvPlot* pPlot, bool bCheckMovement = true, CvString* toolTipSink = NULL) const;
+	bool canHeal(const CvPlot* pPlot, CvString* toolTipSink = NULL) const;
 	bool canSentry(const CvPlot* pPlot, bool bTestVisibility = false) const;
 
 	int healRate(const CvPlot* pPlot) const;
@@ -916,8 +917,21 @@ public:
 	bool isDefending() const;
 	bool isInCombat() const;
 
-	int GetMaxHitPoints() const;
-	int GetCurrHitPoints() const;
+	// Inline: called very often from other translation units.
+	int GetMaxHitPoints() const
+	{
+		VALIDATE_OBJECT();
+		int iMaxHP = m_iMaxHitPointsBase;
+		iMaxHP *= (100 + m_iMaxHitPointsModifier);
+		iMaxHP /= 100;
+		iMaxHP += m_iMaxHitPointsChange;
+		return iMaxHP;
+	}
+	int GetCurrHitPoints() const
+	{
+		VALIDATE_OBJECT();
+		return (GetMaxHitPoints() - getDamage());
+	}
 	bool IsHurt() const;
 	bool IsDead() const;
 
@@ -998,7 +1012,7 @@ public:
 	int getExtraFeatureDamageCount() const;
 	void changeExtraFeatureDamageCount(int iValue);
 
-	bool IsCannotHeal(bool bConsiderResourceShortage) const;
+	bool IsCannotHeal(bool bConsiderResourceShortage, CvString* toolTipSink = NULL) const;
 	int getCannotHealCount() const;
 	void changeCannotHealCount(int iValue);
 
@@ -1070,6 +1084,8 @@ public:
 	void ChangeNearbyHealFriendlyTerritory(int iValue);
 	int GetPassiveAoEHeal() const;
 	void ChangePassiveAoEHeal(int iValue);
+	int GetJammingRadius() const;
+	void ChangeJammingRadius(int iChange);
 	void ChangeIsGiveInvisibility(int iValue);
 	int GetIsGiveInvisibility() const;
 	bool isGiveInvisibility() const;
@@ -1123,6 +1139,10 @@ public:
 	bool IsGainsXPFromScouting() const;
 	int GetGainsXPFromScouting() const;
 	void ChangeGainsXPFromScouting(int iValue);
+
+	bool CanClaimGoody() const;
+	int GetCanClaimGoodyCount() const;
+	void ChangeCanClaimGoodyCount(int iValue);
 
 	bool IsGainsXPFromSpotting() const;
 	int GetGainsXPFromSpotting() const;
@@ -1180,6 +1200,10 @@ public:
 	bool hasFreePillageMove() const;
 	void changeFreePillageMoveCount(int iValue);
 	int getFreePillageMoveCount() const;
+
+	bool HasHalfPillageMove() const;
+	void ChangeHalfPillageMoveCount(int iValue);
+	int GetHalfPillageMoveCount() const;
 
 	bool hasHealOnPillage() const;
 	void changeHealOnPillageCount(int iValue);
@@ -1345,7 +1369,11 @@ public:
 	int getTurnSliceCreated() const;
 	void setTurnSliceCreated(int iNewValue);
 
-	int getDamage() const;
+	int getDamage() const
+	{
+		VALIDATE_OBJECT();
+		return m_iDamage;
+	}
 	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL, bool bDontShow = false);
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 
@@ -1370,6 +1398,7 @@ public:
 	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false, bool bFromHuman = false, bool bStartingXP = false);
 
 	int getStartingExperienceTimes100() const;
+	void setStartingExperienceTimes100(int iValue);
 
 	int getLevel() const;
 	void setLevel(int iNewValue);
@@ -1606,6 +1635,9 @@ public:
 	int GetFlankAttackModifier() const;
 	void ChangeFlankAttackModifier(int iChange);
 
+	int GetFlankSupportModifier() const;
+	void ChangeFlankSupportModifier(int iChange);
+
 	int getExtraOpenDefensePercent() const;
 	void changeExtraOpenDefensePercent(int iChange);
 
@@ -1637,7 +1669,6 @@ public:
 	bool IsHiddenByNearbyUnit(const CvPlot * pAtPlot = NULL) const;
 
 	// Great General Stuff
-	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 
 	bool IsStackedGreatGeneral(const CvPlot* pLoopPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
@@ -1993,6 +2024,8 @@ public:
 	void changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange);
 	int getExtraFeatureDefensePercent(FeatureTypes eIndex) const;
 	void changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange);
+	int GetTerrainHeal(TerrainTypes eTerrain) const;
+	void ChangeTerrainHeal(TerrainTypes eTerrain, int iChange);
 
 	int getUnitClassAttackMod(UnitClassTypes eIndex) const;
 	void changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange);
@@ -2272,6 +2305,11 @@ public:
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 
+	void UpdateAreaEffect(bool bUpdateCityStrength = true);
+	int GetAreaEffectCacheIndex() const;
+	void SetAreaEffectCacheIndex(int iIndex);
+	void UpdateJammingCacheForPlot(const CvPlot* pPlot, bool bIncrease);
+
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iTargetTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
 	bool CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns);
@@ -2361,7 +2399,7 @@ protected:
 	int m_iRivalTerritoryCount;
 	int m_iIsSlowInEnemyLandCount;
 	int m_iRangeAttackIgnoreLOSCount;
-    int m_iSeeThrough;
+	int m_iSeeThrough;
 	int m_iCityAttackOnlyCount;
 	int m_iCaptureDefeatedEnemyCount;
 	int m_iOriginCity;
@@ -2442,6 +2480,7 @@ protected:
 	int m_iRangedFlankAttack;
 	int m_iFlankPower;
 	int m_iFlankAttackModifier;
+	int m_iFlankSupportModifier;
 	int m_iExtraOpenDefensePercent;
 	int m_iExtraRoughDefensePercent;
 	int m_iExtraOpenFromPercent;
@@ -2502,6 +2541,7 @@ protected:
 	int m_iNearbyHealNeutralTerritory;
 	int m_iNearbyHealFriendlyTerritory;
 	int m_iPassiveAoEHeal;
+	int m_iJammingRadius;
 	int m_iCanCrossMountainsCount;
 	int m_iCanCrossOceansCount;
 	int m_iCanCrossIceCount;
@@ -2510,6 +2550,7 @@ protected:
 	bool m_bSpottedRuin;
 	bool m_bRevealedPlot;
 	int m_iGainsXPFromScouting;
+	int m_iCanClaimGoodyCount;
 	int m_iXPFromPillaging;
 	int m_iExtraXPOnKill;
 	int m_iGainsXPFromSpotting;
@@ -2538,6 +2579,7 @@ protected:
 	int m_iCanMoveAllTerrainCount;
 	int m_iCanMoveAfterAttackingCount;
 	int m_iFreePillageMoveCount;
+	int m_iHalfPillageMoveCount;
 	int m_iHealOnPillageCount;
 	int m_iHPHealedIfDefeatEnemy;
 	int m_iGoldenAgeValueFromKills;
@@ -2652,6 +2694,8 @@ protected:
 	FeatureTypeCounter m_extraFeatureAttackPercent;
 	FeatureTypeCounter m_extraFeatureDefensePercent;
 
+	vector<int> m_viTerrainHeal;
+
 	UnitClassCounter m_extraUnitClassAttackMod;
 	UnitClassCounter m_extraUnitClassDefenseMod;
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
@@ -2705,6 +2749,8 @@ protected:
 	int m_iGAPBlastStrength;
 	std::vector<bool> m_abPromotionEverObtained;
 
+	int m_iAreaEffectCacheIndex;
+
 	CvString m_strUnitName;
 	CvString m_strName;
 	CvString m_strGreatName;
@@ -2743,6 +2789,8 @@ private:
 	int m_iHomelandMoveSetTurn;
 
 	friend class CvLuaUnit;
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 FDataStream& operator<<(FDataStream&, const CvUnit&);
@@ -2880,6 +2928,7 @@ SYNC_ARCHIVE_VAR(int, m_iExtraAttackBelowHealthMod)
 SYNC_ARCHIVE_VAR(int, m_iRangedFlankAttack)
 SYNC_ARCHIVE_VAR(int, m_iFlankPower)
 SYNC_ARCHIVE_VAR(int, m_iFlankAttackModifier)
+SYNC_ARCHIVE_VAR(int, m_iFlankSupportModifier)
 SYNC_ARCHIVE_VAR(int, m_iExtraOpenDefensePercent)
 SYNC_ARCHIVE_VAR(int, m_iExtraRoughDefensePercent)
 SYNC_ARCHIVE_VAR(int, m_iExtraOpenFromPercent)
@@ -2940,12 +2989,14 @@ SYNC_ARCHIVE_VAR(int, m_iNearbyHealEnemyTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealNeutralTerritory)
 SYNC_ARCHIVE_VAR(int, m_iNearbyHealFriendlyTerritory)
 SYNC_ARCHIVE_VAR(int, m_iPassiveAoEHeal)
+SYNC_ARCHIVE_VAR(int, m_iJammingRadius)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossMountainsCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossOceansCount)
 SYNC_ARCHIVE_VAR(int, m_iCanCrossIceCount)
 SYNC_ARCHIVE_VAR(int, m_iNumTilesRevealedThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bSpottedEnemy)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromScouting)
+SYNC_ARCHIVE_VAR(int, m_iCanClaimGoodyCount)
 SYNC_ARCHIVE_VAR(int, m_iXPFromPillaging)
 SYNC_ARCHIVE_VAR(int, m_iExtraXPOnKill)
 SYNC_ARCHIVE_VAR(int, m_iGainsXPFromSpotting)
@@ -2974,6 +3025,7 @@ SYNC_ARCHIVE_VAR(int, m_iNoRevealMapCount)
 SYNC_ARCHIVE_VAR(int, m_iCanMoveAllTerrainCount)
 SYNC_ARCHIVE_VAR(int, m_iCanMoveAfterAttackingCount)
 SYNC_ARCHIVE_VAR(int, m_iFreePillageMoveCount)
+SYNC_ARCHIVE_VAR(int, m_iHalfPillageMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iHealOnPillageCount)
 SYNC_ARCHIVE_VAR(int, m_iHPHealedIfDefeatEnemy)
 SYNC_ARCHIVE_VAR(int, m_iGoldenAgeValueFromKills)
@@ -3058,6 +3110,7 @@ SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierAttack)
 SYNC_ARCHIVE_VAR(TerrainTypeCounter, m_vTerrainModifierDefense)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureAttackPercent)
 SYNC_ARCHIVE_VAR(FeatureTypeCounter, m_extraFeatureDefensePercent)
+SYNC_ARCHIVE_VAR(vector<int>, m_viTerrainHeal)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassAttackMod)
 SYNC_ARCHIVE_VAR(UnitClassCounter, m_extraUnitClassDefenseMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
@@ -3105,6 +3158,7 @@ SYNC_ARCHIVE_VAR(int, m_iScienceBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iCultureBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iGAPBlastStrength)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abPromotionEverObtained)
+SYNC_ARCHIVE_VAR(int, m_iAreaEffectCacheIndex)
 SYNC_ARCHIVE_VAR(AITacticalMove, m_eTacticalMove)
 SYNC_ARCHIVE_VAR(int, m_iTacticalMoveSetTurn)
 SYNC_ARCHIVE_VAR(AIHomelandMove, m_eHomelandMove)

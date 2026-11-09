@@ -4826,12 +4826,12 @@ const std::map<int, std::vector<AccomplishmentBonusInfo>>& CvBuildingEntry::GetB
     return m_miBonusFromAccomplishments;
 }
 
-std::map<int, std::map<int, int>> CvBuildingEntry::GetYieldChangesFromAccomplishments() const
+const std::map<int, std::map<int, int>>& CvBuildingEntry::GetYieldChangesFromAccomplishments() const
 {
 	return m_miYieldChangesFromAccomplishments;
 }
 
-std::map<int, std::map<int, int>> CvBuildingEntry::GetYieldModifiersFromAccomplishments() const
+const std::map<int, std::map<int, int>>& CvBuildingEntry::GetYieldModifiersFromAccomplishments() const
 {
 	return m_miYieldModifiersFromAccomplishments;
 }

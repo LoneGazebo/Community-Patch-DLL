@@ -1165,26 +1165,6 @@
 			<PillageRoadsChance>50</PillageRoadsChance>
 			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 		</Row>
-		<!-- Arm the local populace -->
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</Description>
-			<Pedia>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_PEDIA</Pedia>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP</Help>
-			<SpyMissionEffect>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_EFFECT</SpyMissionEffect>
-			<IsEspionageMission>true</IsEspionageMission>
-			<EventDuration>10</EventDuration>
-			<EventDurationScaling>false</EventDurationScaling>
-			<NetworkPointsNeeded>1500</NetworkPointsNeeded>
-			<SpyIDChance>75</SpyIDChance>
-			<SpyKillChance>25</SpyKillChance>
-			<IsEnemyUnhappy>true</IsEnemyUnhappy>
-			<ResistanceTurns>2</ResistanceTurns>
-			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
-			<RandomBarbarianSpawnPerEra>1</RandomBarbarianSpawnPerEra>
-			<NoTourismTurns>10</NoTourismTurns>
-			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
-		</Row>
 		<!-- Sabotage City Defenses -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES</Type>

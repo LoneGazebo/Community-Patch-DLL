@@ -1076,7 +1076,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 			{
 				return true;
 			}
-			else if (bTestVisible && !hUnit->canHeal(pPlot, false))
+			else if (bTestVisible && !hUnit->canHeal(pPlot))
 			{
 				return true; // show a tooltip explaining why we can't heal
 			}
@@ -1438,7 +1438,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 		{
 			hUnit->SetActivityType(ACTIVITY_INTERCEPT);
 			//make sure it's immediately included in the list of interceptors!
-			GET_PLAYER(hUnit->getOwner()).UpdateAreaEffectUnit(hUnit);
+			hUnit->UpdateAreaEffect();
 			bDelete = true;
 		}
 

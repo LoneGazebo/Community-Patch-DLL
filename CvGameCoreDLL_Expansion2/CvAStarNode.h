@@ -103,6 +103,11 @@ struct CvPathNodeCacheData
 	//tell us when to update the cache ...
 	unsigned short iGenerationID;
 
+	//end turn danger for the current search, computed on first use
+	//mutable because the cost functions get this struct as const
+	mutable int iEndTurnDanger;
+	mutable bool bEndTurnDangerKnown;
+
 	//housekeeping
 	CvPathNodeCacheData() { clear(); }
 	void clear() { memset(this,0,sizeof(CvPathNodeCacheData)); }
@@ -133,6 +138,7 @@ public:
 
 	bool m_bIsOpen;								// Is this node on the open or closed list?
 	bool m_bIsStopNode;
+	int m_iOpenListIndex;						// Position in the open list heap, -1 if not open
 	CvAStarNode* m_pParent;						// Parent in current path
 
 	CvAStarNode** m_apNeighbors; 				// For faster neighbor lookup (potential children) - always 6 - not affected by clear()

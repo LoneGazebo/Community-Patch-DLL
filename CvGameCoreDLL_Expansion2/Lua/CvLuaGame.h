@@ -17,19 +17,16 @@
 #ifndef CVLUAGAME_H
 #define CVLUAGAME_H
 
-#include "CvLuaStaticInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
 
 class CvLuaGame : public CvLuaStaticInstance<CvLuaGame, CvGame>
 {
 public:
-	//! Returns the name of the static instance.
-	static const char* GetInstanceName();
-
 	//! Returns the static instance
-	static CvGame* GetInstance(lua_State* L = NULL, int idx = 0);
+	static CvGame* GetStaticInstance();
 
 	//! Registers member methods with instance.
-	static void RegisterMembers(lua_State* L);
+	static void CreateFunctable(lua_State* L);
 
 protected:
 

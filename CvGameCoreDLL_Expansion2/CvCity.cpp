@@ -629,9 +629,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 
-	// this is a list of plot that are owned by the player
-	kOwner.UpdatePlots();
-
 	static BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
 	static BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
 	bool bClearedForest = false;
@@ -2428,30 +2425,6 @@ void CvCity::doTurn()
 
 	updateEconomicValue();
 	UpdateGrowthFromTourism();
-
-	if (plot() != NULL)
-	{
-		for (int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
-		{
-			CvUnit* pLoopUnit = plot()->getUnitByIndex(iUnitLoop);
-
-			//Only get land combat units
-			if (pLoopUnit != NULL && getOwner() == pLoopUnit->getOwner() && pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->IsCannotHeal(true))
-			{
-				if (pLoopUnit->getDamage() > 0)
-				{
-					if ((pLoopUnit->getDamage() - GetAlwaysHeal()) <= 0)
-					{
-						pLoopUnit->setDamage(0);
-					}
-					else
-					{
-						pLoopUnit->changeDamage(-GetAlwaysHeal());
-					}
-				}
-			}
-		}
-	}
 
 	DoEvents();
 
@@ -4615,7 +4588,7 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	if (pSpy && pkEventInfo->GetSpyLevelRequired() > pSpy->GetSpyRank(eSpyOwner))
 		return false;
 
-	if (!bIgnoreActive && GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(uiSpyIndex) > 0)
+	if (!bIgnoreActive && !pkEventInfo->isCounterspyMission() && GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(uiSpyIndex) > 0)
 		return false;
 
 	if (!bIgnoreNetworkPoints && pkEventInfo->GetNetworkPointsNeededScaled() > 0 && GET_PLAYER(eSpyOwner).GetEspionage()->GetNetworkPointsStored(uiSpyIndex) < pkEventInfo->GetNetworkPointsNeededScaled())
@@ -5474,7 +5447,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			}
 		}
 
-		if (GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex) > 0)
+		if (GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex) > 0 && !pkEventInfo->isCounterspyMission())
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_RECENT_SPY_MISSION");
 			localizedDurationText << GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex);
@@ -5584,7 +5557,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 					bool bActive = (kPlayer2.GetEventCooldown(eLinkerEvent) > 0 || kPlayer2.IsEventFired(eLinkerEvent));
 					if (bActive != pLinkerInfo->CheckForActive())
 					{
-						if (bActive)
+						if (!bActive)  // it's not active, but it should be
 						{
 							if (pLinkerInfo->CheckOtherPlayers())
 							{
@@ -5595,7 +5568,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 								localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ACTIVE_EVENT");
 							}
 						}
-						else
+						else  // it's active, but it shouldn't be
 						{
 							if (pLinkerInfo->CheckOtherPlayers())
 							{
@@ -5618,7 +5591,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 					bool bActive = (kPlayer2.GetEventChoiceDuration(eLinkerEventChoice) > 0 || kPlayer2.IsEventChoiceFired(eLinkerEventChoice));
 					if (bActive != pLinkerInfo->CheckForActive())
 					{
-						if (bActive)
+						if (!bActive)
 						{
 							if (pLinkerInfo->CheckOtherPlayers())
 							{
@@ -5662,7 +5635,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 							bool bActive = (pLoopCity->GetEventCooldown(eLinkerCityEvent) > 0 || pLoopCity->IsEventFired(eLinkerCityEvent));
 							if (bActive != pLinkerInfo->CheckForActive())
 							{
-								if (bActive)
+								if (!bActive)
 								{
 									if (pLinkerInfo->CheckOtherPlayers())
 									{
@@ -5696,7 +5669,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 							bool bActive = (pLoopCity->GetEventChoiceDuration(eLinkerCityEventChoice) > 0 || pLoopCity->IsEventChoiceFired(eLinkerCityEventChoice));
 							if (bActive != pLinkerInfo->CheckForActive())
 							{
-								if (bActive)
+								if (!bActive)
 								{
 									if (pLinkerInfo->CheckOtherPlayers())
 									{
@@ -6568,7 +6541,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 				if (iPassYield != 0)
 				{
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CITY_EVENT_COST, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
 				}
 			}
 
@@ -6817,7 +6790,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				int iPassYield = pkEventChoiceInfo->getEventYield(eYield);
 				if (iPassYield != 0)
 				{
-					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_CITY_EVENT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
 				}
 				int iSiphonYield = pkEventChoiceInfo->getYieldSiphon(eYield);
 				if (iSiphonYield > 0)
@@ -9571,7 +9544,7 @@ void CvCity::AddToAccomplishmentsWithBonuses(AccomplishmentTypes eAccomplishment
 	m_siAccomplishmentsWithBonuses.insert((int)eAccomplishment);
 }
 
-std::set<int> CvCity::GetPlotList() const
+const std::set<int>& CvCity::GetPlotList() const
 {
 	VALIDATE_OBJECT();
 	return m_siPlots;
@@ -10834,6 +10807,14 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bHalveXP, UnitCreationR
 				iEra = 1;
 
 			pUnit->changeExperienceTimes100(iBonusXP * iEra * 100, -1, false, false, false, false, true);
+		}
+
+		// XP from exploration
+		int iExplorationXPTimes100 = pUnit->getUnitInfo().GetXPFromExploration() * 100 * GET_TEAM(pUnit->getTeam()).GetMaxNumRevealedPlots() / GC.getMap().numPlots();
+		if (iExplorationXPTimes100 != 0)
+		{
+			iExplorationXPTimes100 /= (bHalveXP ? 2 : 1);
+			pUnit->changeExperienceTimes100(iExplorationXPTimes100, -1, false, false, false, false, true);
 		}
 
 		// XP2 Achievement
@@ -12274,7 +12255,7 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
+int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding, bool bIgnoreDifficulty)
 {
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo == NULL)
@@ -12302,7 +12283,7 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 	iCost /= 100;
 
 	// Adjust for difficulty
-	if (!isBarbarian())
+	if (!isBarbarian() && !bIgnoreDifficulty)
 	{
 		iCost *= getHandicapInfo().getConstructPercent();
 		iCost /= 100;
@@ -13407,7 +13388,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						int iMedianTechResearch = owningPlayer.GetPlayerTechs()->GetMedianTechResearch();
 						iMedianTechResearch = (iMedianTechResearch * owningPlayer.GetMedianTechPercentage()) / 100;
-						owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, iMedianTechResearch, false, NO_PLAYER, NULL, false, this);
+						owningPlayer.doInstantYield(INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST, false, NO_GREATPERSON, eBuilding, iMedianTechResearch, false, NO_PLAYER, NULL, false, this);
 					}
 				}
 			}
@@ -13627,7 +13608,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if (!IsBuildingConstructed(eBuildingClass))
 			{
 				SetBuildingConstructed(eBuildingClass, true);
-				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BUILDING_COMPLETED, false, NO_GREATPERSON, eBuilding, 0, false, NO_PLAYER, NULL, false, this);
 				
 				if (pBuildingInfo->GetInstantReligionPressure() > 0) 
 				{
@@ -17307,7 +17288,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 
 //	--------------------------------------------------------------------------------
 /// Amount of Culture needed in this City to acquire a new Plot
-int CvCity::GetJONSCultureThreshold() const
+int CvCity::GetJONSCultureThreshold(int iAssumeExtraLevel) const
 {
 	VALIDATE_OBJECT();
 	int iCultureThreshold = /*15 in CP, 20 in VP*/ GD_INT_GET(CULTURE_COST_FIRST_PLOT);
@@ -17321,7 +17302,7 @@ int CvCity::GetJONSCultureThreshold() const
 		fExponent /= 100.0f;
 	}
 
-	int iAdditionalCost = GetJONSCultureLevel() * /*10 in CP, 15 in VP*/ GD_INT_GET(CULTURE_COST_LATER_PLOT_MULTIPLIER);
+	int iAdditionalCost = (GetJONSCultureLevel() + iAssumeExtraLevel) * /*10 in CP, 15 in VP*/ GD_INT_GET(CULTURE_COST_LATER_PLOT_MULTIPLIER);
 	double dAdditionalCost = pow((double)iAdditionalCost, (double)fExponent);
 
 	//watch out for overflow ...
@@ -19301,46 +19282,8 @@ bool CvCity::DoRazingTurn()
 			CvPlot* pkPlot = plot();
 			pkPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_RAZED_CITY(), getOwner(), getOriginalOwner());
 
-			// If this player retains land after razing cities, remember the list of plots
-			std::set<int> siPlots;
-			if (kPlayer.IsRetainRazedTerritory())
-				siPlots = GetPlotList();
-
 			kPlayer.disband(this);
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_CITY_DESTROYED, kPlayer.GetID(), "", pkPlot->getX(), pkPlot->getY());
-
-			// ... and reassign the plots to the nearest city, if possible
-			if (siPlots.size() > 0)
-			{
-				for (std::set<int>::const_iterator it = siPlots.begin(); it != siPlots.end(); ++it)
-				{
-					CvPlot* pLoopPlot = GC.getMap().plotByIndex(*it);
-					CvCity* pBestCity = NULL;
-					int iBestCityDistance = -1;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-					{
-						CvPlot* pPlot = pLoopCity->plot();
-						if (pPlot)
-						{
-							int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
-							if (pBestCity != NULL && !pBestCity->IsWithinWorkRange(pLoopPlot) && pLoopCity->IsWithinWorkRange(pLoopPlot))
-							{
-								// Catch the Tradition capital edge case where two cities are equidistant
-								pBestCity = pLoopCity;
-								iBestCityDistance = iDistance;
-							}
-							else if (iBestCityDistance == -1 || iDistance < iBestCityDistance)
-							{
-								pBestCity = pLoopCity;
-								iBestCityDistance = iDistance;
-							}
-						}
-					}
-					if (pBestCity)
-						pLoopPlot->setOwner(kPlayer.GetID(), pBestCity->GetID());
-				}
-			}
 			return true;
 		}
 
@@ -22536,7 +22479,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iAssumedExtraModifie
 		if (HasBuilding(*it))
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(*it);
-			std::map<int, std::map<int, int>> m_BuildingModifiersFromAccomplishments = pkBuildingInfo->GetYieldModifiersFromAccomplishments();
+			const std::map<int, std::map<int, int>>& m_BuildingModifiersFromAccomplishments = pkBuildingInfo->GetYieldModifiersFromAccomplishments();
 			for (std::map<int, std::map<int, int>>::const_iterator it2 = m_BuildingModifiersFromAccomplishments.begin(); it2 != m_BuildingModifiersFromAccomplishments.end(); ++it2)
 			{
 				int iNumTimesAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)(*it2).first);
@@ -23202,18 +23145,18 @@ int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgn
 /// </summary>
 /// <param name="eYield"> - The yield type</param>
 /// <param name="bIgnoreTrade"> - Ignore yields from trade routes</param>
-/// <param name="bProcess"> - Ignore yields generated by working a process</param>
+/// <param name="bIgnoreCurrentProduction"> - Ignore yields generated by working a process or by building a settler</param>
 /// <param name="iAssumeExtraModifier"> - Assume a production modifier </param>
-int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, bool bUseCachedValue, CvString* tooltipSink) const
+int CvCity::getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreCurrentProduction, bool bUseCachedValue, CvString* tooltipSink) const
 {
 	VALIDATE_OBJECT();
 
-	if (bUseCachedValue && !bIgnoreTrade && !bIgnoreProcess && !tooltipSink)
+	if (bUseCachedValue && !bIgnoreTrade && !bIgnoreCurrentProduction && !tooltipSink)
 	{
 		return GetStaticYield(eYield);
 	}
 
-	return getYieldRateTimes100(eYield, bIgnoreTrade, bIgnoreProcess, 0, isFoodProduction(), false, false, tooltipSink);
+	return getYieldRateTimes100(eYield, bIgnoreTrade, bIgnoreCurrentProduction, 0, isFoodProduction() && !bIgnoreCurrentProduction, false, false, tooltipSink);
 }
 
 /// calculate food production in the city before consumption and before growth mods
@@ -23334,7 +23277,7 @@ int CvCity::getBaseYieldRateTimes100(const YieldTypes eYield, CvString* tooltipS
 		if (HasBuilding(*it))
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(*it);
-			std::map<int, std::map<int, int>> m_BuildingYieldsFromAccomplishments = pkBuildingInfo->GetYieldChangesFromAccomplishments();
+			const std::map<int, std::map<int, int>>& m_BuildingYieldsFromAccomplishments = pkBuildingInfo->GetYieldChangesFromAccomplishments();
 			for (std::map<int, std::map<int, int>>::const_iterator it2 = m_BuildingYieldsFromAccomplishments.begin(); it2 != m_BuildingYieldsFromAccomplishments.end(); ++it2)
 			{
 				int iNumTimesAccomplishmentCompleted = GET_PLAYER(getOwner()).GetNumTimesAccomplishmentCompleted((AccomplishmentTypes)(*it2).first);
@@ -29490,7 +29433,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	if (bFinish && pOrderNode->bSave)
 	{
 		pushOrder(pOrderNode->eOrderType, pOrderNode->iData1, pOrderNode->iData2, true, false, true);
+		pOrderNode = getOrderFromQueue(iNum); // appending can move the queue's storage
 	}
+	const OrderData order = *pOrderNode;
 	bool bUpdateStrength = false;
 
 	eTrainUnit = NO_UNIT;
@@ -29565,17 +29510,25 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		m_unitBeingBuiltForOperation.Invalidate();
 	}
 
-	if (pOrderNode == headOrderQueueNode())
+	// Finishing the order runs code (instant yields, AI policy choice, Lua hooks) that can change this queue. If the order is no
+	// longer where it was, something else already removed it: deleting the old node would remove another order or underflow the queue.
+	pOrderNode = getOrderFromQueue(iNum);
+	const bool bStillQueued = pOrderNode != NULL && pOrderNode->eOrderType == order.eOrderType && pOrderNode->iData1 == order.iData1 && pOrderNode->iData2 == order.iData2;
+	ASSERT(bStillQueued, "The order was removed from the queue while it was being finished");
+	if (bStillQueued)
 	{
-		bStart = true;
-		stopHeadOrder();
-	}
-	else
-	{
-		bStart = false;
-	}
+		if (pOrderNode == headOrderQueueNode())
+		{
+			bStart = true;
+			stopHeadOrder();
+		}
+		else
+		{
+			bStart = false;
+		}
 
-	m_orderQueue.deleteNode(pOrderNode);
+		m_orderQueue.deleteNode(pOrderNode);
+	}
 	pOrderNode = NULL;
 	if (bFinish)
 	{
@@ -30155,7 +30108,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		{
 			CvString strCiv = kOwner.getCivilizationAdjective();
 			CvString strLogString;
-			strLogString.Format("TRADE UNIT MADE: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
+			strLogString.Format("TRADE UNIT MADE: %s %s at %d,%d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
 			kOwner.GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 	}
@@ -31069,7 +31022,7 @@ CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 				{
 					CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
 					CvString strLogString;
-					strLogString.Format("TRADE UNIT BOUGHT: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
+					strLogString.Format("TRADE UNIT BOUGHT: %s %s at %d,%d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
 					GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 			}
@@ -33352,9 +33305,9 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	if (bIncludeRand)
 	{
 		if (pAttacker)
-			return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
-		else
 			return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()).mix(pAttacker->GetID()));
+		else
+			return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
 	}
 	else
 		return iBaseValue;
@@ -35741,7 +35694,7 @@ void CvCity::SpawnFreeUnit(UnitTypes eUnit)
 		{
 			CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
 			CvString strLogString;
-			strLogString.Format("FREE TRADE UNIT CREATED: %s %s at %d,d", strCiv.c_str(), pFreeUnit->getName().c_str(), pFreeUnit->getX(), pFreeUnit->getY());
+			strLogString.Format("FREE TRADE UNIT CREATED: %s %s at %d,%d", strCiv.c_str(), pFreeUnit->getName().c_str(), pFreeUnit->getX(), pFreeUnit->getY());
 			GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 	}
@@ -35941,7 +35894,10 @@ bool CvCity::SetNumFreeBuilding(const BuildingTypes eBuilding, const int iValue,
 			}
 		}
 
-		if (getFirstBuildingOrder(eBuilding) == 0)
+		// If the city already had the building, an order for it at the head of the queue is the one being finished right now
+		// (popOrder -> produce -> e.g. the construction yield lets the AI adopt a policy granting this building), and popOrder
+		// removes it itself. Clearing the queue here popped that order twice and left popOrder deleting from an empty queue.
+		if (iNumRealBuilding == 0 && getFirstBuildingOrder(eBuilding) == 0)
 		{
 			clearOrderQueue();
 			chooseProduction(); // Send a notification to the user that what they were building was given to them, and they need to produce something else.

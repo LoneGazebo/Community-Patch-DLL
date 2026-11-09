@@ -1425,18 +1425,6 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_EFFECT">
 			<Text>All improved Resourced Tiles and some Roads/Railroads around the City have been pillaged.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST">
-			<Text>[ICON_RESISTANCE] Arm Local Rebels</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_PEDIA">
-			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism. Lasts 10 turns (Standard Speed).[NEWLINE]75% ID Chance / 25% Kill Chance</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP">
-			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_EFFECT">
-			<Text>The City has entered [ICON_RESISTANCE] Resistance for 2 turns. 5 [ICON_TEAM_2] Rebel Units appear in the area, plus one for every Era elapsed. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES">
 			<Text>[ICON_STRENGTH] Sabotage City Defenses</Text>
 		</Row>
@@ -1524,7 +1512,7 @@
 			<Text>Reduces your chance to be Identified when performing a Spy Mission in any foreign City by 20%, but also reduces [ICON_CITY_SECURITY] City Security in the [ICON_CAPITAL] Capital by 30.[NEWLINE][NEWLINE]Gain 100 [ICON_GOLD] Gold when you identify a foreign [ICON_SPY] Spy, and 150 [ICON_GOLD] Gold when you kill a foreign Spy, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DOUBLE_CROSS_MISSION">
-			<Text>Double-Cross Foreign Agents</Text>
+			<Text>Double-Cross</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
