@@ -12973,7 +12973,7 @@ bool CvUnit::goldenAge()
 
 	if (GetGAPBlastStrength() > 0)
 	{
-		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, GetGAPBlastStrength(), false, NO_PLAYER, plot(), false, getOriginCity(), false, true, true, YIELD_GOLDEN_AGE_POINTS);
+		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_GP_GOLDEN_AGE, false, NO_GREATPERSON, NO_BUILDING, GetGAPBlastStrength(), false, NO_PLAYER, plot(), false, getOriginCity(), false, true, true, YIELD_GOLDEN_AGE_POINTS);
 	}
 
 
