@@ -317,10 +317,14 @@ Envoy, Emissary, Diplomat, Ambassador, and Great Diplomat model reskins by Hokat
 Chartarium icon from Israel (Solomon) custom civ by Lastsword
 Jail icon by Janboruta
 Casino icon by AsterixRage
-Penitentiary, Sorting Office, Alamut Fortress, Port Royal, Chateau d'If, and Alcatraz icons by Hokath
+Stepwell icon by Jarcast
+Penitentiary, Sorting Office, Alamut Fortress, Chateau d'If, Murano Glassworks, and Alcatraz icons by Hokath
+Port Royal and Order icons by Hokath and Jarcast
 Heavenly Grotto icon by Pineappledan
 Grand Canal icon by Sukritact in JFD's Rise to Power
 Daoguan icon by Sukritact
-Order icon by Hokath and Jarcast
 Saltworks model by Gwennog
 Lake Fish icon by Gwennog
+Tophet icon by Pineappledan, edits by Hokath
+
+
