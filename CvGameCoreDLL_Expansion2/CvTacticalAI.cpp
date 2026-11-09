@@ -11004,6 +11004,18 @@ static bool IsAttackMove(eUnitAssignmentType eAssignmentType)
 		|| eAssignmentType == A_RANGEATTACK || eAssignmentType == A_RANGEKILL;
 }
 
+// Trailing finish, bundled stay-put, and restart rows do not hide this position's attack.
+const STacticalAssignment* CvTacticalPosition::getSupportCheckpointAttack() const
+{
+	const vector<STacticalAssignment>& assignments = getAssignments();
+	size_t iFirstNewAssignment = getParent() ? getParent()->getAssignments().size() : 0;
+	for (size_t i = assignments.size(); i > iFirstNewAssignment; --i)
+		if (IsAttackMove(assignments[i - 1].eAssignmentType))
+			return &assignments[i - 1];
+
+	return NULL;
+}
+
 static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, const CvPlot* pPlot, int iAssumedMovesLeft, const CvSupportPosition& assumedPosition, eUnitMoveEvalMode evalMode, bool bLastPosition)
 {
 	STacticalAssignment* result = gAssignmentStorage.peekNext();
@@ -11013,19 +11025,15 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 	int iBonusScore = 0;
 	int iDangerScore = 0;
 
-	const STacticalAssignment& lastTacticalAssignment = assumedPosition.GetTacticalPosition()->getAssignments().back();
-
-	int iLastAttackFromPlotIndex = lastTacticalAssignment.iFromPlotIndex;
-	int iLastAttackToPlotIndex = lastTacticalAssignment.iToPlotIndex;
-
-	bool bAttackMove = !bLastPosition || IsAttackMove(lastTacticalAssignment.eAssignmentType);
+	int iLastAttackFromPlotIndex = assumedPosition.GetLastFromAttackPlotIndex();
+	int iLastAttackToPlotIndex = assumedPosition.GetLastToAttackPlotIndex();
+	DomainTypes eAttackerDomain = assumedPosition.GetLastAttackerDomain();
+	bool bAttackMove = eAttackerDomain != NO_DOMAIN;
 
 	CvPlayer& kPlayer = GET_PLAYER(assumedPosition.getPlayer());
 
 	CvUnit* pUnit = kPlayer.getUnit(unit.iUnitID);
 	int iEffectRange = pUnit->GetAuraRangeChange() + /*2*/ GD_INT_GET(GREAT_GENERAL_RANGE);
-	CvUnit* pAttackingUnit = kPlayer.getUnit(lastTacticalAssignment.iUnitID);
-	DomainTypes eAttackerDomain = pAttackingUnit->getDomainType();
 
 	const CvUnit* pDefender = NULL;
 	int iDefenderDamage = 0;
@@ -11616,6 +11624,7 @@ CvSupportPosition::CvSupportPosition()
 
 	iLastFromAttackPlotIndex = -1;
 	iLastToAttackPlotIndex = -1;
+	eLastAttackerDomain = NO_DOMAIN;
 
 	childPositions.clear();
 	assignedMoves.clear();
@@ -11702,7 +11711,7 @@ void CvSupportPosition::initFromTacticalPosition(const CvTacticalPosition& tactP
 	iDamageDelta = 0;
 	iScoreOverParent = 0;
 	parentPosition = NULL;
-	tacticalPosition = &tactPos;
+	UpdateTacticalPosition(tactPos);
 	finalTacticalPosition = &finalTactPos;
 	iGeneration = 0;
 	iID = 1; //zero doesn't work here
@@ -11711,9 +11720,6 @@ void CvSupportPosition::initFromTacticalPosition(const CvTacticalPosition& tactP
 	bHasGeneral = false;
 	bHasAdmiral = false;
 	bHasSiegetower = false;
-
-	iLastFromAttackPlotIndex = tactPos.getAssignments().back().iFromPlotIndex;
-	iLastToAttackPlotIndex = tactPos.getAssignments().back().iToPlotIndex;
 
 	childPositions.clear();
 	assignedMoves.clear();
@@ -11743,11 +11749,14 @@ void CvSupportPosition::initFromTacticalPosition(const CvTacticalPosition& tactP
 	pCenterOfMass = CalculateCenterOfMass(finalCombatPositionUnits_w);
 }
 
+// Keep attack metadata separate from the last row of the combat position.
 void CvSupportPosition::UpdateTacticalPosition(const CvTacticalPosition& tactPos)
 {
 	tacticalPosition = &tactPos;
-	iLastFromAttackPlotIndex = tactPos.getAssignments().back().iFromPlotIndex;
-	iLastToAttackPlotIndex = tactPos.getAssignments().back().iToPlotIndex;
+	const STacticalAssignment* attack = tactPos.getSupportCheckpointAttack();
+	iLastFromAttackPlotIndex = attack ? attack->iFromPlotIndex : -1;
+	iLastToAttackPlotIndex = attack ? attack->iToPlotIndex : -1;
+	eLastAttackerDomain = attack ? GET_PLAYER(ePlayer).getUnit(attack->iUnitID)->getDomainType() : NO_DOMAIN;
 }
 
 void CvSupportPosition::initFromParent(const CvSupportPosition& parent)
@@ -11767,6 +11776,7 @@ void CvSupportPosition::initFromParent(const CvSupportPosition& parent)
 	bHasSiegetower = parent.bHasSiegetower;
 	iLastFromAttackPlotIndex = parent.iLastFromAttackPlotIndex;
 	iLastToAttackPlotIndex = parent.iLastToAttackPlotIndex;
+	eLastAttackerDomain = parent.eLastAttackerDomain;
 	iGeneration = parent.iGeneration + 1;
 	pCenterOfMass = parent.pCenterOfMass;
 	iWaitingUnits = parent.iWaitingUnits;
@@ -12809,7 +12819,7 @@ bool TacticalAIHelpers::AddSupportMoves(CvTacticalPosition& positionAfterCombatM
 	{
 		tactPos = *it;
 
-		bool bAttackMove = IsAttackMove(tactPos->getAssignments().back().eAssignmentType);
+		bool bAttackMove = tactPos->getSupportCheckpointAttack() != NULL;
 
 		if (bAttackMove)
 		{

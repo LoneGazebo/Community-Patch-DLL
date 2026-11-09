@@ -1418,6 +1418,8 @@ public:
 	bool isAttackablePlot(int iPlotIndex) const;
 	AddAssignmentResult addAssignment(const STacticalAssignment& newAssignment);
 	bool isUnique(int levelsToCheck=2) const;
+	// Return the last attack added by this position, including before trailing bookkeeping rows.
+	const STacticalAssignment* getSupportCheckpointAttack() const;
 
 	const CvTacticalPlot* getTactPlot(int plotindex) const; //get a reference to a local tact plot or higher up in the tree if we didn't modify it
 	CvTacticalPlot* getTactPlotMutable(int plotindex); //this is dangerous! the reference returned by one call may become invalid when calling this a second time
@@ -1468,6 +1470,7 @@ protected:
 	const CvPlot* pCenterOfMass;
 	int iLastFromAttackPlotIndex;
 	int iLastToAttackPlotIndex;
+	DomainTypes eLastAttackerDomain;
 	int iWaitingUnits;
 
 	//dummy to avoid returning temporaries
@@ -1514,6 +1517,8 @@ public:
 	const CvPlot* GetCenterOfMass() const { return pCenterOfMass; }
 	int GetLastFromAttackPlotIndex() const { return iLastFromAttackPlotIndex; }
 	int GetLastToAttackPlotIndex() const { return iLastToAttackPlotIndex; }
+	// NO_DOMAIN marks a checkpoint used only for final positioning.
+	DomainTypes GetLastAttackerDomain() const { return eLastAttackerDomain; }
 	int GetNumWaitingUnits() const { return iWaitingUnits; }
 };
 
