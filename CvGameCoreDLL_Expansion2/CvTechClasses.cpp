@@ -1644,7 +1644,8 @@ int CvPlayerTechs::GetResearchTurnsLeft(TechTypes eTech, bool bOverflow, int iAs
 		return INT_MAX;
 	}
 
-	iTurnsLeft = (iTurnsLeft + 99) / 100; // round up
+	// round up (not (x + 99) / 100, which wraps for values near INT_MAX)
+	iTurnsLeft = iTurnsLeft / 100 + (iTurnsLeft % 100 > 0 ? 1 : 0);
 
 	return std::max(1, iTurnsLeft);
 }
@@ -1654,7 +1655,6 @@ int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow,
 {
 	int iResearchRate = 0;
 	int iOverflow = 0;
-	int iTurnsLeft = 0;
 	int iI = 0;
 
 	if (iAssumedResearchRate>0)
@@ -1701,16 +1701,19 @@ int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow,
 		iResearchLeft -= iOverflow;
 	}
 
-	iResearchLeft *= 100;
+	// Turns x 100 = hundredths left x 100 / rate. In 64 bits: more than 21,474,836 hundredths (214,748 beakers) left,
+	// or that much overflow beyond the cost, would wrap an int when multiplied by 100.
+	// Overflow beyond the cost means the tech is done next turn, as before.
+	long long iResearchLeftTimes100 = static_cast<long long>(std::max(0, iResearchLeft)) * 100;
+	long long iTurnsLeftTimes100 = iResearchLeftTimes100 / iResearchRate;
 
-	iTurnsLeft = (iResearchLeft / iResearchRate);
-
-	if(iTurnsLeft * iResearchRate < iResearchLeft)
+	if(iTurnsLeftTimes100 * iResearchRate < iResearchLeftTimes100)
 	{
-		++iTurnsLeft;
+		++iTurnsLeftTimes100;
 	}
 
-	return std::max(1, iTurnsLeft);
+	// INT_MAX stays "never" (no research rate, above)
+	return static_cast<int>(std::max<long long>(1, std::min<long long>(iTurnsLeftTimes100, INT_MAX - 1)));
 }
 
 /// How many techs can we research at present?
