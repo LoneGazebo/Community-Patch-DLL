@@ -1916,6 +1916,8 @@ bool CvMinorCivQuest::IsExpired()
 		PlayerTypes eMostRecentBully = pMinor->GetMinorCivAI()->GetMostRecentBullyForQuest();
 		if (eMostRecentBully != NO_PLAYER && GET_PLAYER(eMostRecentBully).getTeam() == pAssignedPlayer->getTeam())
 			return true;
+
+		break;
 	}
 	case MINOR_CIV_QUEST_PLEDGE_TO_PROTECT:
 	{
@@ -1927,6 +1929,8 @@ bool CvMinorCivQuest::IsExpired()
 		PlayerTypes eMostRecentBully = pMinor->GetMinorCivAI()->GetMostRecentBullyForQuest();
 		if (eMostRecentBully != NO_PLAYER && GET_PLAYER(eMostRecentBully).getTeam() == pAssignedPlayer->getTeam())
 			return true;
+
+		break;
 	}
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
