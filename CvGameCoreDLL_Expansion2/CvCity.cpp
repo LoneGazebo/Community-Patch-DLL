@@ -29471,7 +29471,9 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	if (bFinish && pOrderNode->bSave)
 	{
 		pushOrder(pOrderNode->eOrderType, pOrderNode->iData1, pOrderNode->iData2, true, false, true);
+		pOrderNode = getOrderFromQueue(iNum); // appending can move the queue's storage
 	}
+	const OrderData order = *pOrderNode;
 	bool bUpdateStrength = false;
 
 	eTrainUnit = NO_UNIT;
@@ -29546,17 +29548,25 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 		m_unitBeingBuiltForOperation.Invalidate();
 	}
 
-	if (pOrderNode == headOrderQueueNode())
+	// Finishing the order runs code (instant yields, AI policy choice, Lua hooks) that can change this queue. If the order is no
+	// longer where it was, something else already removed it: deleting the old node would remove another order or underflow the queue.
+	pOrderNode = getOrderFromQueue(iNum);
+	const bool bStillQueued = pOrderNode != NULL && pOrderNode->eOrderType == order.eOrderType && pOrderNode->iData1 == order.iData1 && pOrderNode->iData2 == order.iData2;
+	ASSERT(bStillQueued, "The order was removed from the queue while it was being finished");
+	if (bStillQueued)
 	{
-		bStart = true;
-		stopHeadOrder();
-	}
-	else
-	{
-		bStart = false;
-	}
+		if (pOrderNode == headOrderQueueNode())
+		{
+			bStart = true;
+			stopHeadOrder();
+		}
+		else
+		{
+			bStart = false;
+		}
 
-	m_orderQueue.deleteNode(pOrderNode);
+		m_orderQueue.deleteNode(pOrderNode);
+	}
 	pOrderNode = NULL;
 	if (bFinish)
 	{
@@ -35922,7 +35932,10 @@ bool CvCity::SetNumFreeBuilding(const BuildingTypes eBuilding, const int iValue,
 			}
 		}
 
-		if (getFirstBuildingOrder(eBuilding) == 0)
+		// If the city already had the building, an order for it at the head of the queue is the one being finished right now
+		// (popOrder -> produce -> e.g. the construction yield lets the AI adopt a policy granting this building), and popOrder
+		// removes it itself. Clearing the queue here popped that order twice and left popOrder deleting from an empty queue.
+		if (iNumRealBuilding == 0 && getFirstBuildingOrder(eBuilding) == 0)
 		{
 			clearOrderQueue();
 			chooseProduction(); // Send a notification to the user that what they were building was given to them, and they need to produce something else.
