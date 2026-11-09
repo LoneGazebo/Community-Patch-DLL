@@ -4588,7 +4588,7 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	if (pSpy && pkEventInfo->GetSpyLevelRequired() > pSpy->GetSpyRank(eSpyOwner))
 		return false;
 
-	if (!bIgnoreActive && GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(uiSpyIndex) > 0)
+	if (!bIgnoreActive && !pkEventInfo->isCounterspyMission() && GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(uiSpyIndex) > 0)
 		return false;
 
 	if (!bIgnoreNetworkPoints && pkEventInfo->GetNetworkPointsNeededScaled() > 0 && GET_PLAYER(eSpyOwner).GetEspionage()->GetNetworkPointsStored(uiSpyIndex) < pkEventInfo->GetNetworkPointsNeededScaled())
@@ -5447,7 +5447,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			}
 		}
 
-		if (GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex) > 0)
+		if (GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex) > 0 && !pkEventInfo->isCounterspyMission())
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_RECENT_SPY_MISSION");
 			localizedDurationText << GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTurnsSpyActiveMissionsBlocked(iSpyIndex);
