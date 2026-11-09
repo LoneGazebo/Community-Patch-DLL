@@ -2252,10 +2252,11 @@ void CvCity::AcquireWaywardPlots()
 			continue;
 
 		// Check whether the plot is within working radius of its owning city. If yes, leave it be.
+		// (An owned plot can have no owning city, see CvPlot::setImprovementType.)
 		CvCity* pOwningCity = pLoopPlot->getOwningCity();
 		if (pOwningCity == this)
 			continue;
-		if (pOwningCity->IsWithinWorkRange(pLoopPlot))
+		if (pOwningCity && pOwningCity->IsWithinWorkRange(pLoopPlot))
 			continue;
 
 		// Is it within working range of this city? Acquire it.

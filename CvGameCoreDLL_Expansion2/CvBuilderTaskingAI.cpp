@@ -444,8 +444,9 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 			continue;
 
 		// Bonus if there is a village on the plot
+		CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
 		if (pPlot->getOwner() == m_pPlayer->GetID()
-			&& pPlot->getEffectiveOwningCity()->IsWithinWorkRange(pPlot))
+			&& pOwningCity && pOwningCity->IsWithinWorkRange(pPlot))
 		{
 			ImprovementTypes ePlotImprovement = pPlot->getImprovementType();
 			if (ePlotImprovement != NO_IMPROVEMENT)
@@ -469,7 +470,7 @@ void CvBuilderTaskingAI::GetPathValues(const SPath& path, RouteTypes eRoute, int
 			{
 				YieldTypes eYield = static_cast<YieldTypes>(j);
 				int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
-				iPlotBonusesIfCityConnected += pPlot->getEffectiveOwningCity()->GetCityConnectionPlotYield(eYield) * iYieldModifier;
+				iPlotBonusesIfCityConnected += pOwningCity->GetCityConnectionPlotYield(eYield) * iYieldModifier;
 				iPlotBonusesIfCityConnected += kPlayer.GetCityConnectionPlotYield(eYield) * iYieldModifier;
 			}
 		}
@@ -1208,8 +1209,13 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 	if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
 		return true;
 
-	if (bIgnoreUnowned && !pPlot->getEffectiveOwningCity()->IsWithinWorkRange(pPlot))
-		return true;
+	// an owned plot can have no owning city (see CvPlot::setImprovementType); no city can work it then
+	if (bIgnoreUnowned)
+	{
+		CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+		if (!pOwningCity || !pOwningCity->IsWithinWorkRange(pPlot))
+			return true;
+	}
 
 	if ((pPlot->getPlotType() == PLOT_MOUNTAIN) && !m_pPlayer->HasMountainImprovement())
 		return true;
