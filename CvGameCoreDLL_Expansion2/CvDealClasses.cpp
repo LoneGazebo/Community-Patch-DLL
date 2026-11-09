@@ -4204,8 +4204,8 @@ void CvDeal::RemoveTechTrade(TechTypes eTech)
 
 /// Constructor
 CvGameDeals::CvGameDeals()
-	: m_uiDealCounter(0)
-	, m_iNextDealID(0)
+	: m_iNextDealID(0)
+	, m_uiDealCounter(0)
 {
 	Init();
 }
