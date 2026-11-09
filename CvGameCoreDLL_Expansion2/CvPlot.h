@@ -991,6 +991,8 @@ protected:
 
 	// added so under cheat mode we can access protected stuff
 	friend class CvGameTextMgr;
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 FDataStream& operator<<(FDataStream&, const CvPlot* const&);
 FDataStream& operator<<(FDataStream&, CvPlot* const&);

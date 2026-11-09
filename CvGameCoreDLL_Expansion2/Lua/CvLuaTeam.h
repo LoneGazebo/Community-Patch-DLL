@@ -16,23 +16,26 @@
 #ifndef CVLUATEAM_H
 #define CVLUATEAM_H
 
-#include "CvLuaScopedInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
 
-class CvLuaTeam : public CvLuaScopedInstance<CvLuaTeam, CvTeam>
+class CvLuaTeam : public CvLuaDynamicInstance<CvLuaTeam, CvTeam>
 {
 public:
 	//! Push all player instances to Lua
-	static void Register(lua_State* L);
-
+	static void CustomRegister(lua_State* L) {
+		lua_newtable(L);
+		lua_pushvalue(L, -1);
+		lua_setglobal(L, "Teams");
+		for(int i = 0; i < MAX_TEAMS; ++i)
+		{
+			CvTeam* pkTeam = &(GET_TEAM((TeamTypes)i));
+			CvLuaTeam::Push(L, pkTeam);
+			lua_rawseti(L, -2, i);
+		}
+		lua_pop(L, 1);
+	}
 	//! Push CvTeam methods into table t
-	static void PushMethods(lua_State* L, int t);
-
-	//! Required by CvLuaScopedInstance.
-	static void HandleMissingInstance(lua_State* L);
-
-	//! Required by CvLuaScopedInstance.
-	static const char* GetTypeName();
-
+	static void CreateFunctable(lua_State* L);
 protected:
 
 	//! Protected Lua call to register all team instances.
@@ -255,34 +258,5 @@ protected:
 	LUAAPIEXTN(GetNumTurnsSinceVassalTaxSet, int, iPlayer);
 	LUAAPIEXTN(GetNumVassals, int);
 };
-
-namespace CvLuaArgs
-{
-	template<> inline const CvTeam* toValue(lua_State* L, int idx)
-	{
-		return CvLuaTeam::GetInstance(L, idx);
-	}
-	template<> inline CvTeam* toValue(lua_State* L, int idx)
-	{
-		return CvLuaTeam::GetInstance(L, idx);
-	}
-	template<> inline const CvTeam& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaTeam::GetInstance(L, idx);
-	}
-	template<> inline CvTeam& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaTeam::GetInstance(L, idx);
-	}
-
-	template<> inline void pushValue(lua_State* L, CvTeam* p)
-	{
-		CvLuaTeam::Push(L, p);
-	}
-	template<> inline void pushValue(lua_State* L, CvTeam& r)
-	{
-		CvLuaTeam::Push(L, &r);
-	}
-}
 
 #endif //CVLUATEAM_H

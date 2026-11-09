@@ -3872,6 +3872,8 @@ protected:
 
 	friend FDataStream& operator>>(FDataStream&, CvPlayer::ConqueredByBoolField&);
 	friend FDataStream& operator<<(FDataStream&, const CvPlayer::ConqueredByBoolField&);
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 inline FDataStream& operator>>(FDataStream& stream, CvPlayer::ConqueredByBoolField& bfEverConqueredBy)

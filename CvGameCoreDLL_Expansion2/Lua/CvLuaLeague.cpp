@@ -8,29 +8,21 @@
 
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
-#include "../CustomMods.h"
-#include "CvLuaSupport.h"
 #include "CvLuaLeague.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
 //Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
-
+#define Method(Name) lua_pushcclosure(L, l##Name, 0); lua_setfield(L, 1, #Name)
 
 // ================================================================================
 //			CvLuaLeague
 // ================================================================================
 //------------------------------------------------------------------------------
-void CvLuaLeague::HandleMissingInstance(lua_State* L)
+void CvLuaLeague::CreateFunctable(lua_State* L)
 {
-	luaL_error(L, "Instance no longer exists.");
-}
-//------------------------------------------------------------------------------
-void CvLuaLeague::PushMethods(lua_State* L, int t)
-{
+	lua_createtable(L,0,70);
+	
 	Method(IsNone);
 	
 	Method(GetID);
@@ -100,11 +92,6 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 	Method(GetLeagueSplashThisEraDetails);
 	Method(GetLeagueSplashNextEraDetails);
 	Method(GetGreatPersonRateModifierDetails);
-}
-//------------------------------------------------------------------------------
-const char* CvLuaLeague::GetTypeName()
-{
-	return "League";
 }
 //------------------------------------------------------------------------------
 // Lua member methods
@@ -920,3 +907,5 @@ int CvLuaLeague::lProposalTableHelper(lua_State* L, const int iTop, CvProposal &
 	
 	return 0;
 }
+
+LuaTypes_DefineInstanced( CvLeague, CvLuaLeague );

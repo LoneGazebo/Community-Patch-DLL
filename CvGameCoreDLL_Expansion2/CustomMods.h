@@ -1517,6 +1517,7 @@ void CheckSentinel(uint);
 
 
 // Class used to cache the database control settings and provide utility functions
+class CvLuaArgsHandle;
 class CustomMods {
 public:
 	CustomMods();
