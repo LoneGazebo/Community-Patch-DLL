@@ -9865,6 +9865,10 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 			continue;
 		}
 
+		// The temp tooltip is only ever read when the caller passed a sink; don't build it otherwise
+		if (!toolTipSink)
+			continue;
+
 		// Otherwise, prepare the temp tooltip
 		CvResourceInfo* pOrResource = GC.getResourceInfo(eOrResource);
 		GC.getGame().BuildCannotPerformActionHelpText(&tempTooltip, "TXT_KEY_NO_ACTION_BUILDING_LOCAL_RESOURCE", pOrResource->GetTextKey(), pOrResource->GetIconString());
