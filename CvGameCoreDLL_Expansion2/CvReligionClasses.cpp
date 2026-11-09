@@ -7248,7 +7248,7 @@ bool CvReligionAI::DoFaithPurchases()
 						CvString strLogMsg = strPlayer + ", Waiting to buy a Great Person b/c Industrial age, ";
 						strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
 						CvString strFaith;
-						strFaith.Format(", Faith: %d, Turns left: %.2f", (float)m_pPlayer->GetFaithTimes100() / 100, iTurnsRemaining);
+						strFaith.Format(", Faith: %.2f, Turns left: %d", (float)m_pPlayer->GetFaithTimes100() / 100, iTurnsRemaining);
 						strLogMsg += strFaith;
 						GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 					}

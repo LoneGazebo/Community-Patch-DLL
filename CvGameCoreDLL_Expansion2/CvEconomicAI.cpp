@@ -3940,11 +3940,12 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 			{
 				CvUnit* pDisbandUnit = m_pPlayer->getUnit(vUnitsDisband.GetElement(i));
 				int iNumUnitResources = GC.getUnitInfo(pDisbandUnit->getUnitType())->GetResourceQuantityRequirement(eAluminum);
+				const CvString strDisbandName = pDisbandUnit->getName(); // scrap(false) deletes the unit
 				pDisbandUnit->scrap(false);
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Disbanding %s to get aluminum for spaceship. Aluminum available after disbanding: %d", pDisbandUnit->getName().GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
+					strLogString.Format("Disbanding %s to get aluminum for spaceship. Aluminum available after disbanding: %d", strDisbandName.GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
 					m_pPlayer->LogSpaceshipPlanMessage(strLogString);
 				}
 
