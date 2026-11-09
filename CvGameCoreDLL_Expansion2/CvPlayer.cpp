@@ -3016,8 +3016,11 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		{
 			if (pLoopUnit->IsImmobile() && !pLoopUnit->isCargo())
 			{
+				// kill(false) deletes the unit: read what DoUnitKilledCombat needs first
+				const PlayerTypes eLoopOwner = pLoopUnit->getOwner();
+				const UnitTypes eLoopType = pLoopUnit->getUnitType();
 				pLoopUnit->kill(false, GetID());
-				DoUnitKilledCombat(NULL, pLoopUnit->getOwner(), pLoopUnit->getUnitType());
+				DoUnitKilledCombat(NULL, eLoopOwner, eLoopType);
 			}
 		}
 	}
