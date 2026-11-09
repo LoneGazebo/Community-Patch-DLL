@@ -1112,6 +1112,14 @@ protected:
 	std::tr1::unordered_map<AttackKey, vector<int>, AttackKeyHash> attackStats;
 };
 
+//copy a parent's field into a copy-on-write child. vectors keep the parent's
+//capacity so all copies share one heap size class; exact-size copies strand
+//freed memory in many size classes (Wine's heap) and exhaust address space.
+template<typename T>
+inline void CopyFromCoWParent(T& dst, const T& src) { dst = src; }
+template<typename T, typename A>
+inline void CopyFromCoWParent(vector<T, A>& dst, const vector<T, A>& src) { dst.reserve(src.capacity()); dst = src; }
+
 //copy-on-write for often reused seldom updated fields in tactical positions
 template<typename T>
 struct SCoWField {
@@ -1136,7 +1144,7 @@ struct SCoWField {
 	T& write() {
 		if (!dirty) {
 			if (parentData)
-				localData = *parentData;
+				CopyFromCoWParent(localData, *parentData);
 			dirty = true;
 		}
 		return localData;
@@ -1375,7 +1383,8 @@ public:
 	//position needs this: it absorbs every addTacticalPlot during setup, so
 	//reserving up front avoids the geometric-growth reallocation whose copy
 	//fails under 32-bit address-space exhaustion (issue #13254). child
-	//positions copy exact-size on first write and stay lean.
+	//positions inherit this capacity on first write (CopyFromCoWParent), so
+	//every plot copy has the same size and freed copies are reused.
 	void reservePlotStorage()
 	{
 		tactPlots.write().reserve(MAX_TACT_PLOTS);
