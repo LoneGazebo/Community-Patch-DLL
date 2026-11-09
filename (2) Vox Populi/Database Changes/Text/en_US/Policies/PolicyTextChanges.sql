@@ -948,7 +948,7 @@ SET Text = 'Mare Nostrum, meaning "Our Sea", refers to the Roman Empire''s contr
 WHERE Tag = 'TXT_KEY_POLICY_NATIONALISM_TEXT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Police State[ENDCOLOR]: +3 [ICON_HAPPINESS_1] Local Happiness from every Courthouse, and +10 City Security from Police Stations. +100% [ICON_PRODUCTION] Production towards Courthouses and Police Stations.'
+SET Text = '[COLOR_POSITIVE_TEXT]Police State[ENDCOLOR]: Vassals can no longer be liberated by other Civilizations or the World Congress, and capitulated vassals can no longer rebel. +3 [ICON_HAPPINESS_1] Local Happiness from every Courthouse, and +10 City Security from Police Stations. +100% [ICON_PRODUCTION] Production towards Courthouses and Police Stations.'
 WHERE Tag = 'TXT_KEY_POLICY_POLICE_STATE_HELP';
 
 UPDATE Language_en_US
