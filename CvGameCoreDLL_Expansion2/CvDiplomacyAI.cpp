@@ -4617,7 +4617,7 @@ void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bo
 	if (!bDecay)
 	{
 		// Don't care if we're at war.
-		if (iChange < 0 && IsAtWar(ePlayer))
+		if (iChange > 0 && IsAtWar(ePlayer))
 			return;
 
 		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
