@@ -79,53 +79,70 @@ extern "C" {
 	__declspec(dllimport) unsigned long __stdcall GetTickCount(void);
 }
 
+// The game core and UI threads can both assert, so the tracker's map and the
+// log file are guarded. A spin lock needs no construction or teardown; it is
+// never held while a dialog is shown, so contention is a few microseconds.
+static volatile LONG s_lAssertTrackerLock = 0;
+
+struct AssertTrackerLock {
+	AssertTrackerLock() {
+		while (InterlockedCompareExchange(&s_lAssertTrackerLock, 1, 0) != 0)
+			Sleep(0);
+	}
+	~AssertTrackerLock() {
+		InterlockedExchange(&s_lAssertTrackerLock, 0);
+	}
+};
+
+// Appends one entry to CvAssert.log in the crash log folder (GetCrashLogDir),
+// next to crashes.log and the minidumps, so that zipping that one folder gives
+// a complete report. The file is opened per entry rather than held open for
+// the session: failures are rare, the file only appears once one happens, and
+// it can be copied while the game runs. The caller holds AssertTrackerLock.
+static void AppendToAssertLog(const char* szKind, const char* expr, const char* file, unsigned int line, const char* msg)
+{
+	const char* szDir = GetCrashLogDir();
+	char szPath[MAX_PATH];
+	if (_snprintf_s(szPath, _countof(szPath), _TRUNCATE, "%s\\CvAssert.log", szDir) < 0)
+		return;
+
+	// The default folder is otherwise only created by the first crash.
+	CreateDirectoryA(szDir, NULL);
+
+	FILE* pLog = NULL;
+	if (fopen_s(&pLog, szPath, "a") != 0 || !pLog)
+		return;
+
+	time_t rawtime;
+	time(&rawtime);
+	char timeBuffer[26];
+	ctime_s(timeBuffer, sizeof(timeBuffer), &rawtime);
+	timeBuffer[24] = '\0'; // Remove newline
+
+	fprintf(pLog, "\n[%s] %s in %s:%u\n", timeBuffer, szKind, file, line);
+	fprintf(pLog, "Expression: %s\n", expr);
+	if (msg && *msg) {
+		fprintf(pLog, "Message: %s\n", msg);
+	}
+	fclose(pLog);
+}
+
 // Assert tracking
 struct AssertInfo {
 	unsigned int count;
 	unsigned int firstTime;
 	unsigned int lastTime;
-	unsigned int totalMemUsage;
-	bool isPermanentlyIgnored;
+	bool isIgnoredThisSession; // "ignore" in a dialog; resets on the next launch
 
-	AssertInfo() : count(0), firstTime(0), lastTime(0), totalMemUsage(0), isPermanentlyIgnored(false) {}
+	AssertInfo() : count(0), firstTime(0), lastTime(0), isIgnoredThisSession(false) {}
 };
 
 static struct AssertTracker {
 	std::map<std::string, AssertInfo> asserts;
 	unsigned int sessionStart;
 	unsigned int totalAsserts;
-	FILE* logFile;
 
-	AssertTracker() {
-		sessionStart = GetTickCount();
-		totalAsserts = 0;
-		logFile = NULL;
-		fopen_s(&logFile, "CvAssert.log", "a");
-	}
-
-	~AssertTracker() {
-		if (logFile) {
-			fclose(logFile);
-		}
-	}
-
-	void LogAssert(const char* expr, const char* file, unsigned int line, const char* msg) {
-		if (!logFile)
-			return;
-
-		time_t rawtime;
-		time(&rawtime);
-		char timeBuffer[26];
-		ctime_s(timeBuffer, sizeof(timeBuffer), &rawtime);
-		timeBuffer[24] = '\0'; // Remove newline
-
-		fprintf(logFile, "\n[%s] Assert in %s:%u\n", timeBuffer, file, line);
-		fprintf(logFile, "Expression: %s\n", expr);
-		if (msg && *msg) {
-			fprintf(logFile, "Message: %s\n", msg);
-		}
-		fflush(logFile);
-	}
+	AssertTracker() : sessionStart(GetTickCount()), totalAsserts(0) {}
 
 	std::string GetAssertKey(const char* file, unsigned int line, const char* expr) {
 		char key[512];
@@ -133,17 +150,38 @@ static struct AssertTracker {
 		return std::string(key);
 	}
 
-	void UpdateStats(const std::string& key) {
+	// Returns false if this assert was ignored earlier in the session.
+	// Otherwise logs it, updates its statistics and copies them out for the
+	// dialog; rInfo.lastTime is the PREVIOUS occurrence (the current one is now).
+	bool Record(const std::string& key, const char* expr, const char* file, unsigned int line, const char* msg, AssertInfo& rInfo, unsigned int& rTotalAsserts) {
+		AssertTrackerLock guard;
 		AssertInfo& info = asserts[key];
-		unsigned int currentTime = GetTickCount();
+		if (info.isIgnoredThisSession)
+			return false;
 
+		AppendToAssertLog("Assert", expr, file, line, msg);
+
+		unsigned int currentTime = GetTickCount();
+		unsigned int previousTime = currentTime;
 		if (info.count == 0) {
 			info.firstTime = currentTime;
+		} else {
+			previousTime = info.lastTime;
 		}
 
 		info.count++;
 		info.lastTime = currentTime;
 		totalAsserts++;
+
+		rInfo = info;
+		rInfo.lastTime = previousTime;
+		rTotalAsserts = totalAsserts;
+		return true;
+	}
+
+	void IgnoreForSession(const std::string& key) {
+		AssertTrackerLock guard;
+		asserts[key].isIgnoredThisSession = true;
 	}
 
 } g_AssertTracker;
@@ -197,30 +235,26 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 	if (!expr)
 		return false;
 
-	// Get unique key for this assert
-	std::string assertKey = g_AssertTracker.GetAssertKey(szFile, uiLine, expr);
-
-	// Check if permanently ignored
-	if (g_AssertTracker.asserts[assertKey].isPermanentlyIgnored) {
-		return false;
-	}
-
-	// Check if ignored for this session
+	// Check if this call site was ignored for this session
 	if (bIgnoreAlways) {
 		return false;
 	}
 
-	// Log the assert
-	g_AssertTracker.LogAssert(expr, szFile, uiLine, msg);
+	// Get unique key for this assert
+	std::string assertKey = g_AssertTracker.GetAssertKey(szFile, uiLine, expr);
 
-	// Update statistics
-	g_AssertTracker.UpdateStats(assertKey);
+	// Log the assert and update its statistics, unless it was ignored for this session
+	AssertInfo info;
+	unsigned int totalAsserts = 0;
+	if (!g_AssertTracker.Record(assertKey, expr, szFile, uiLine, msg, info, totalAsserts)) {
+		return false;
+	}
 
-	// Runtime popup opt-out (crashlogs\nopopups.please): the assert is logged
+	// Runtime popup opt-out (see ReadCrashOptOuts): the assert is logged
 	// above; auto-ignore it so unattended sessions keep running.
 	if (AreErrorPopupsSuppressed())
 	{
-		g_AssertTracker.asserts[assertKey].isPermanentlyIgnored = true;
+		g_AssertTracker.IgnoreForSession(assertKey);
 		bIgnoreAlways = true;
 		return false;
 	}
@@ -232,7 +266,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 	if (GC.getGame().isReallyNetworkMultiPlayer())
 	{
 		TrySendErrorChat("A code error has occurred", expr, szFile, uiLine, msg);
-		g_AssertTracker.asserts[assertKey].isPermanentlyIgnored = true;
+		g_AssertTracker.IgnoreForSession(assertKey);
 		bIgnoreAlways = true;
 		return false;
 	}
@@ -260,7 +294,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		switch (nResult)
 		{
 		case IDOK:      // Continue execution and ignore this error
-			g_AssertTracker.asserts[assertKey].isPermanentlyIgnored = true;
+			g_AssertTracker.IgnoreForSession(assertKey);
 			bIgnoreAlways = true;
 			return false;
 
@@ -271,9 +305,6 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 	}
 
 #else // VPRELEASE_ERRORMSG
-
-	// Get assert info
-	const AssertInfo& info = g_AssertTracker.asserts[assertKey];
 
 	// Calculate timing information
 	unsigned int timeSinceFirst = GetTickCount() - info.firstTime;
@@ -302,7 +333,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		info.count,
 		timeSinceFirst / 1000.0f,
 		timeSinceLast / 1000.0f,
-		g_AssertTracker.totalAsserts,
+		totalAsserts,
 		sessionTime / 1000.0f);
 
 	// Show dialog
@@ -319,7 +350,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 		return false;
 
 	default:         // Ignore always
-		g_AssertTracker.asserts[assertKey].isPermanentlyIgnored = true;
+		g_AssertTracker.IgnoreForSession(assertKey);
 		bIgnoreAlways = true;
 		return false;
 	}
@@ -337,6 +368,13 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 #ifdef WIN32
 	SetPreconditionFired();
 
+	// Log first, whatever is shown below: crashes.log sends the reader to
+	// CvAssert.log for the failed check.
+	{
+		AssertTrackerLock guard;
+		AppendToAssertLog("Precondition failed", expr, szFile, uiLine, msg);
+	}
+
 	// A modal dialog on one machine would stall the whole network session while
 	// this client is about to trap anyway - report via chat like the assert
 	// path does (preconditions can fire before the game exists, hence the
@@ -347,7 +385,7 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 		return;
 	}
 
-	// Runtime popup opt-out (crashlogs\nopopups.please): the failure is in
+	// Runtime popup opt-out (see ReadCrashOptOuts): the failure is in
 	// CvAssert.log and the crash handler will still write crashes.log + dump.
 	if (AreErrorPopupsSuppressed())
 		return;
@@ -380,9 +418,10 @@ void CvPreconditionDlg(const char* expr, const char* szFile, unsigned int uiLine
 		"==================\n"
 		"%s"
 		"\nPreconditions are fatal: the game will crash when you close this dialog.\n"
-		"A minidump will be written to the crashlogs folder.\n"
+		"CvAssert.log, crashes.log and a minidump will be in the folder '%s'.\n"
 		"\nAttach a debugger now if you want to inspect the live process.",
-		szDetail
+		szDetail,
+		GetCrashLogDir()
 	);
 
 	MessageBoxA(NULL, szBuffer, "Precondition Failed",

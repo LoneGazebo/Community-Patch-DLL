@@ -2135,19 +2135,282 @@ void SetPreconditionFired()
 	g_bPreconditionFired = true;
 }
 
-// Runtime opt-outs via marker files next to the game executable, read ONCE at
-// CvGlobals::init (crash-time file probes are wasted work and the crash handler
-// must stay lean under address space exhaustion). Both default to OFF: with no
-// marker files present, behavior is identical to before.
-//   crashlogs\nodumps.please  - skip minidump creation (and its memory reserve)
-//   crashlogs\nopopups.please - suppress all error dialogs (for autoplay/unattended
-//                               sessions); logging and minidumps are unaffected
+// Runtime opt-outs, read ONCE at CvGlobals::init (crash-time file probes are
+// wasted work and the crash handler must stay lean under address space
+// exhaustion). Both default to OFF: with none of the sources below set,
+// behavior is identical to before. Any one source disables the feature:
+//
+//   minidumps (and their memory reserve):
+//     crashlogs\nodumps.please next to the game executable (per install)
+//     [Vox Populi] CrashMiniDumps = 0 in the user's My Games config.ini (per user)
+//     environment variable VP_CRASH_MINIDUMPS=0 (per process, for CI)
+//   error dialogs (for autoplay/unattended sessions; logging and minidumps
+//   are unaffected):
+//     crashlogs\nopopups.please
+//     [Vox Populi] ErrorPopups = 0
+//     VP_ERROR_POPUPS=0
+//
+// The DLL only READS config.ini. The EXE keeps foreign sections when it saves
+// the file, but rewrites it from its own in-memory copy, so a value written
+// by the DLL at runtime would be lost.
 static bool g_bMiniDumpDisabledByUser = false;
 static bool g_bPopupsDisabledByUser = false;
+// Which source disabled each feature, for crashes.log and the debug output.
+static char g_szMiniDumpOptOutSource[96] = "";
+static char g_szPopupsOptOutSource[96] = "";
+
+static const wchar_t* const OPT_OUT_INI_SECTION = L"Vox Populi";
 
 static bool MarkerFileExists(const char* szPath)
 {
 	return GetFileAttributesA(szPath) != INVALID_FILE_ATTRIBUTES;
+}
+
+static bool IsAbsoluteWidePath(const wchar_t* wszPath)
+{
+	// "C:\..." or a UNC path "\\server\...". A relative path would make the
+	// profile API look in the Windows directory instead.
+	return (wszPath[0] != L'\0' && wszPath[1] == L':' && (wszPath[2] == L'\\' || wszPath[2] == L'/'))
+		|| (wszPath[0] == L'\\' && wszPath[1] == L'\\');
+}
+
+// Full path of the user's config.ini (My Games\Sid Meier's Civilization 5\config.ini).
+// The EXE resolves My Games through the shell's Documents folder, so this follows
+// per-user profiles and USERPROFILE overrides.
+static bool GetUserConfigIniPath(wchar_t* wszPath, size_t cchPath)
+{
+	// The cache folder is "<My Games>\Sid Meier's Civilization 5\cache\" in UTF-8
+	// (CvGame appends Civ5SavedGameDatabase.db to it directly); config.ini sits in
+	// its parent. The EXE sets the path before it hands gDLL to CvGlobals::init.
+	const char* szCacheFolder = gDLL ? gDLL->GetCacheFolderPath() : NULL;
+	if (szCacheFolder && szCacheFolder[0] != '\0' && MultiByteToWideChar(CP_UTF8, 0, szCacheFolder, -1, wszPath, (int)cchPath) > 0)
+	{
+		size_t iLen = wcslen(wszPath);
+		// Drop the trailing separator, then the "cache" component.
+		while (iLen > 0 && (wszPath[iLen - 1] == L'\\' || wszPath[iLen - 1] == L'/'))
+			iLen--;
+		while (iLen > 0 && wszPath[iLen - 1] != L'\\' && wszPath[iLen - 1] != L'/')
+			iLen--;
+		if (iLen > 0)
+		{
+			wszPath[iLen] = L'\0';
+			if (wcscat_s(wszPath, cchPath, L"config.ini") == 0 && IsAbsoluteWidePath(wszPath) && GetFileAttributesW(wszPath) != INVALID_FILE_ATTRIBUTES)
+				return true;
+		}
+	}
+
+	// Fallback: Documents\My Games\... (where the EXE looks), resolved at runtime so
+	// the DLL needs no shell headers (the EXE has shell32 loaded already).
+	typedef HRESULT (WINAPI *SHGetFolderPathWFn)(HWND, int, HANDLE, DWORD, LPWSTR);
+	const int iCSIDL_PERSONAL = 0x0005;
+	bool bFound = false;
+	HMODULE hShell32 = LoadLibraryA("shell32.dll");
+	if (hShell32)
+	{
+		SHGetFolderPathWFn pfnSHGetFolderPathW = (SHGetFolderPathWFn)GetProcAddress(hShell32, "SHGetFolderPathW");
+		wchar_t wszDocuments[MAX_PATH];
+		bFound = pfnSHGetFolderPathW && SUCCEEDED(pfnSHGetFolderPathW(NULL, iCSIDL_PERSONAL, NULL, 0, wszDocuments))
+			&& _snwprintf_s(wszPath, cchPath, _TRUNCATE, L"%s\\My Games\\Sid Meier's Civilization 5\\config.ini", wszDocuments) > 0
+			&& IsAbsoluteWidePath(wszPath);
+		FreeLibrary(hShell32);
+	}
+
+	if (!bFound)
+		wszPath[0] = L'\0';
+	return bFound;
+}
+
+// Checks one opt-out's three sources in order. On a hit, writes a description
+// of the source to szSource and returns true.
+static bool FindOptOutSource(const char* szMarker, const char* szEnvVar, const char* szIniKey, const wchar_t* wszIniPath, char* szSource, size_t cchSource)
+{
+	if (MarkerFileExists(szMarker))
+	{
+		_snprintf_s(szSource, cchSource, _TRUNCATE, "%s", szMarker);
+		return true;
+	}
+
+	char szEnvValue[16];
+	DWORD dwEnvLen = GetEnvironmentVariableA(szEnvVar, szEnvValue, _countof(szEnvValue));
+	if (dwEnvLen > 0 && dwEnvLen < _countof(szEnvValue) && strcmp(szEnvValue, "0") == 0)
+	{
+		_snprintf_s(szSource, cchSource, _TRUNCATE, "environment %s=0", szEnvVar);
+		return true;
+	}
+
+	if (wszIniPath[0] != L'\0')
+	{
+		wchar_t wszIniKey[64];
+		// Missing file, section or key returns the default (1 = enabled).
+		if (MultiByteToWideChar(CP_ACP, 0, szIniKey, -1, wszIniKey, _countof(wszIniKey)) > 0
+			&& GetPrivateProfileIntW(OPT_OUT_INI_SECTION, wszIniKey, 1, wszIniPath) == 0)
+		{
+			_snprintf_s(szSource, cchSource, _TRUNCATE, "config.ini [Vox Populi] %s = 0", szIniKey);
+			return true;
+		}
+	}
+
+	szSource[0] = '\0';
+	return false;
+}
+
+// Folder for all crash output - crashes.log, CvMiniDump_*.dmp and CvAssert.log -
+// so that zipping this one folder gives a complete report. The default is
+// relative, so it resolves against the game's working directory (the
+// installation directory) like before, whatever characters that path contains.
+// ReadCrashLogDir may replace it at init; crash-time code only reads it.
+static char g_szCrashLogDir[MAX_PATH] = "crashlogs";
+// Where an override came from, or why it was ignored; empty for the default.
+static char g_szCrashLogDirNote[192] = "";
+
+// Longest accepted override: the crash handler appends at most
+// "\CvMiniDump_<timestamp>_<63-char version>_Release.dmp" (104 chars with the
+// terminator) and must stay within MAX_PATH.
+static const size_t MAX_CRASHLOG_DIR_CHARS = 150;
+
+// Checks an override and creates the folder. Returns NULL and the ANSI path
+// in szDir on success, else a reason (and dwError if the system gave one).
+static const char* PrepareCrashLogDir(const wchar_t* wszValue, char* szDir, size_t cchDir, DWORD& dwError)
+{
+	dwError = 0;
+	if (!IsAbsoluteWidePath(wszValue))
+		return "not an absolute path";
+
+	// Normalizes "/" to "\" and resolves "." and "..".
+	wchar_t wszFull[MAX_PATH];
+	DWORD dwFull = GetFullPathNameW(wszValue, _countof(wszFull), wszFull, NULL);
+	if (dwFull == 0 || dwFull >= _countof(wszFull))
+		return "too long";
+	size_t iLen = wcslen(wszFull);
+	while (iLen > 0 && wszFull[iLen - 1] == L'\\')
+		wszFull[--iLen] = L'\0';
+
+	// The dump and crash-log code uses ANSI file names (char buffers that
+	// GetFullPathNameA and the dialogs also use), so the path must survive a
+	// round trip through the system code page unchanged.
+	wchar_t wszRoundTrip[MAX_PATH];
+	if (WideCharToMultiByte(CP_ACP, 0, wszFull, -1, szDir, (int)cchDir, NULL, NULL) == 0
+		|| MultiByteToWideChar(CP_ACP, 0, szDir, -1, wszRoundTrip, _countof(wszRoundTrip)) == 0
+		|| wcscmp(wszFull, wszRoundTrip) != 0)
+		return "contains characters outside the system code page";
+	if (strlen(szDir) > MAX_CRASHLOG_DIR_CHARS)
+		return "too long (more than 150 characters)";
+
+	// Create the folder and any missing parents. Walks the wide string: a
+	// '\' byte can be the trail byte of a double-byte character in ANSI.
+	for (size_t i = 1; i <= iLen; ++i)
+	{
+		if (wszFull[i] == L'\\' || wszFull[i] == L'\0')
+		{
+			wchar_t cSaved = wszFull[i];
+			wszFull[i] = L'\0';
+			CreateDirectoryW(wszFull, NULL); // existing levels fail harmlessly
+			wszFull[i] = cSaved;
+		}
+	}
+
+	DWORD dwAttributes = GetFileAttributesA(szDir);
+	if (dwAttributes == INVALID_FILE_ATTRIBUTES || !(dwAttributes & FILE_ATTRIBUTE_DIRECTORY))
+	{
+		dwError = GetLastError();
+		return "cannot create the folder";
+	}
+
+	// Prove the crash handler will be able to write there, through the same
+	// ANSI path it will use. The probe file gets a name of its own (process id,
+	// tick count, attempt) and CREATE_NEW, so it never truncates or deletes an
+	// existing file, and two games starting with the same folder don't collide.
+	// A name that is taken moves on to the next one; any other error means the
+	// folder is not writable.
+	const DWORD dwProcessId = GetCurrentProcessId();
+	const DWORD dwTick = GetTickCount();
+	for (int iAttempt = 0; iAttempt < 8; ++iAttempt)
+	{
+		char szProbe[MAX_PATH];
+		_snprintf_s(szProbe, _countof(szProbe), _TRUNCATE, "%s\\CvCrashLogDirTest_%lu_%lu_%d.tmp", szDir, dwProcessId, dwTick, iAttempt);
+		HANDLE hProbe = CreateFileA(szProbe, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE, NULL);
+		if (hProbe != INVALID_HANDLE_VALUE)
+		{
+			CloseHandle(hProbe);
+			dwError = 0;
+			return NULL;
+		}
+		dwError = GetLastError();
+		if (dwError != ERROR_FILE_EXISTS && dwError != ERROR_ALREADY_EXISTS && dwError != ERROR_SHARING_VIOLATION)
+			break;
+	}
+	return "folder is not writable";
+}
+
+// Optional override of the crash log folder, read once at init:
+//   environment variable VP_CRASHLOG_PATH (per process, for test harnesses), else
+//   [Vox Populi] CrashLogPath in the user's My Games config.ini (per user).
+// It must be an absolute path. The folder is created now, so the crash handler
+// only formats file names. On ANY problem the default folder stays in use - a
+// bad setting must never cost a crash report - and crashes.log says why.
+// The opt-out marker files stay in the installation's crashlogs folder.
+static void ReadCrashLogDir(const wchar_t* wszIniPath)
+{
+	wchar_t wszValue[MAX_PATH];
+	const char* szSource = NULL;
+	const char* szProblem = NULL;
+
+	DWORD dwEnvLen = GetEnvironmentVariableW(L"VP_CRASHLOG_PATH", wszValue, _countof(wszValue));
+	if (dwEnvLen > 0)
+	{
+		szSource = "environment VP_CRASHLOG_PATH";
+		if (dwEnvLen >= _countof(wszValue))
+			szProblem = "too long";
+	}
+	else if (wszIniPath[0] != L'\0' && GetPrivateProfileStringW(OPT_OUT_INI_SECTION, L"CrashLogPath", L"", wszValue, _countof(wszValue), wszIniPath) > 0)
+	{
+		szSource = "config.ini [Vox Populi] CrashLogPath";
+	}
+	else
+		return; // not set: default folder
+
+	char szDir[MAX_PATH];
+	DWORD dwError = 0;
+	if (!szProblem)
+		szProblem = PrepareCrashLogDir(wszValue, szDir, _countof(szDir), dwError);
+
+	if (szProblem)
+	{
+		if (dwError != 0)
+			_snprintf_s(g_szCrashLogDirNote, _countof(g_szCrashLogDirNote), _TRUNCATE, "%s ignored: %s (error %u)", szSource, szProblem, dwError);
+		else
+			_snprintf_s(g_szCrashLogDirNote, _countof(g_szCrashLogDirNote), _TRUNCATE, "%s ignored: %s", szSource, szProblem);
+	}
+	else
+	{
+		strcpy_s(g_szCrashLogDir, _countof(g_szCrashLogDir), szDir);
+		_snprintf_s(g_szCrashLogDirNote, _countof(g_szCrashLogDirNote), _TRUNCATE, "from %s", szSource);
+	}
+
+	char szMsg[MAX_PATH + 256];
+	_snprintf_s(szMsg, _countof(szMsg), _TRUNCATE, "Crash log folder: %s (%s)\n", g_szCrashLogDir, g_szCrashLogDirNote);
+	OutputDebugStringA(szMsg);
+}
+
+static void ReadCrashOptOuts()
+{
+	wchar_t wszIniPath[MAX_PATH * 2];
+	GetUserConfigIniPath(wszIniPath, _countof(wszIniPath));
+
+	// The crash log folder is resolved here too, from the same config.ini.
+	ReadCrashLogDir(wszIniPath);
+
+	g_bMiniDumpDisabledByUser = FindOptOutSource("crashlogs\\nodumps.please", "VP_CRASH_MINIDUMPS", "CrashMiniDumps", wszIniPath,
+		g_szMiniDumpOptOutSource, _countof(g_szMiniDumpOptOutSource));
+	g_bPopupsDisabledByUser = FindOptOutSource("crashlogs\\nopopups.please", "VP_ERROR_POPUPS", "ErrorPopups", wszIniPath,
+		g_szPopupsOptOutSource, _countof(g_szPopupsOptOutSource));
+
+	if (g_bPopupsDisabledByUser)
+	{
+		char szMsg[160];
+		_snprintf_s(szMsg, _countof(szMsg), _TRUNCATE, "Error popups disabled by user (%s)\n", g_szPopupsOptOutSource);
+		OutputDebugStringA(szMsg);
+	}
 }
 
 bool IsMiniDumpDisabledByUser()
@@ -2158,6 +2421,11 @@ bool IsMiniDumpDisabledByUser()
 bool AreErrorPopupsSuppressed()
 {
 	return g_bPopupsDisabledByUser;
+}
+
+const char* GetCrashLogDir()
+{
+	return g_szCrashLogDir;
 }
 
 // MessageBox constants (not included in minimal Windows headers)
@@ -2254,7 +2522,7 @@ static bool IsAddressSpaceExhausted()
 
 void CreateMiniDump(EXCEPTION_POINTERS* pep)
 {
-	// Runtime opt-out (crashlogs\nodumps.please, cached at init). The reserve
+	// Runtime opt-out (marker file / config.ini / environment, cached at init). The reserve
 	// and dbghelp preload were already skipped at init in this case.
 	if (g_bMiniDumpDisabledByUser)
 		return;
@@ -2331,7 +2599,8 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 
 	// Generate dump filename with version, commit hash and build type
 	TCHAR szDumpFilename[MAX_PATH];
-	_stprintf_s(szDumpFilename, MAX_PATH, _T("crashlogs\\CvMiniDump_%s_%hs_%s.dmp"),
+	_stprintf_s(szDumpFilename, MAX_PATH, _T("%hs\\CvMiniDump_%s_%hs_%s.dmp"),
+		g_szCrashLogDir,
 		szTimestamp,
 		shortVersion,
 #ifdef VPDEBUG
@@ -2683,7 +2952,7 @@ static int AppendStackScan(char* szOut, size_t cchOut, const CONTEXT* pCtx, int 
 
 LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 {
-	CreateDirectory(_T("crashlogs"),NULL);
+	CreateDirectoryA(g_szCrashLogDir, NULL);
 
 	DWORD exceptionCode = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionCode : 0;
 	void* exceptionAddress = ExceptionInfo ? ExceptionInfo->ExceptionRecord->ExceptionAddress : NULL;
@@ -2794,7 +3063,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 
 	char szMiniDumpStatus[MAX_PATH + 64];
 	if (g_bMiniDumpDisabledByUser)
-		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Disabled by user (crashlogs\\nodumps.please)");
+		_snprintf_s(szMiniDumpStatus, _countof(szMiniDumpStatus), _TRUNCATE, "Disabled by user (%s)", g_szMiniDumpOptOutSource);
 	else if (g_szLastMiniDumpPath[0] != '\0')
 	{
 		if (g_dwLastMiniDumpError != 0)
@@ -2880,6 +3149,13 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		_snprintf_s(szStackTrace, _countof(szStackTrace), _TRUNCATE,
 			"Stack (return-address candidates): none found\n");
 
+	// Only when CrashLogPath / VP_CRASHLOG_PATH is set: where the output went,
+	// or why the setting was ignored. The default output is unchanged.
+	char szCrashLogDirLine[MAX_PATH + 256];
+	szCrashLogDirLine[0] = '\0';
+	if (g_szCrashLogDirNote[0] != '\0')
+		_snprintf_s(szCrashLogDirLine, _countof(szCrashLogDirLine), _TRUNCATE, "Crash log folder: %s (%s)\n", g_szCrashLogDir, g_szCrashLogDirNote);
+
 	char szCrashInfo[3072];
 	_snprintf_s(szCrashInfo, _countof(szCrashInfo), _TRUNCATE, 
 		"--Crash details--\n"
@@ -2889,6 +3165,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		"Location (live memory): 0x%08x+0x%08x\n"
 		"Time: %s\n"
 		"Minidump: %s\n"
+		"%s"
 		"OS Info: %s\n"
 		"Memory markers\n"
 		"minAddress / maxAddress / maxMemory(k)\n"
@@ -2917,6 +3194,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 #else
 		"DLL was built without minidump support!",
 #endif
+		szCrashLogDirLine,
 		szOsInfo,
 		minAddress, maxAddress, maxMemory>>10,
 		committedMemoryLow >> 10, reservedMemoryLow >> 10, freeMemoryLow >> 10,
@@ -2927,7 +3205,9 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		szExeName
 	);
 
-	HANDLE hCrashlogs = CreateFile(_T("crashlogs\\crashes.log"), FILE_APPEND_DATA, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	char szCrashesLogPath[MAX_PATH];
+	_snprintf_s(szCrashesLogPath, _countof(szCrashesLogPath), _TRUNCATE, "%s\\crashes.log", g_szCrashLogDir);
+	HANDLE hCrashlogs = CreateFileA(szCrashesLogPath, FILE_APPEND_DATA, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if( hCrashlogs != INVALID_HANDLE_VALUE )
 	{
 		WriteFile(hCrashlogs, szCrashInfo, strlen(szCrashInfo), NULL, NULL);
@@ -2971,8 +3251,8 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		szBaseMsg = ""
 			"The game has crashed due to a code error in the gamecore dll. Please report the issue at https://github.com/LoneGazebo/Community-Patch-DLL/issues so it can be fixed.\n"
 			"\n"
-			"Please provide the VP version number, the list of other mods in use, the minidump if one one was created, crashes.log, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
-			"Minidumps and crashes.log are located in the folder 'crashlogs' in the civ5 installation directory\n"
+			"Please provide the VP version number, the list of other mods in use, the minidump if one was created, crashes.log, CvAssert.log if present, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
+			"Minidumps, crashes.log and CvAssert.log are located in %s\n"
 			"\n"
 			"%s" ;
 	}
@@ -2981,8 +3261,8 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		szBaseMsg = ""
 			"The game has crashed for an unknown reason. If you see this popup repeatedly please create a report at https://github.com/LoneGazebo/Community-Patch-DLL/issues.\n"
 			"\n"
-			"When creating a report, please provide the VP version number, the list of other mods in use, any minidumps created, crashes.log, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
-			"Minidumps and crashes.log are located in the folder 'crashlogs' in the civ5 installation directory\n"
+			"When creating a report, please provide the VP version number, the list of other mods in use, any minidumps created, crashes.log, CvAssert.log if present, and a screenshot of this message. If possible, attach a savegame from immediately before the crash.\n"
+			"Minidumps, crashes.log and CvAssert.log are located in %s\n"
 			"\n"
 			"%s";
 	}
@@ -3003,12 +3283,18 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 		"- If playing with EUI: Use the Non-EUI Version of Vox Populi (Reinstallation necessary, save games are compatible)\n"
 		"\n" : "";
 
+	char szCrashLogDirHint[MAX_PATH + 32];
+	if (strcmp(g_szCrashLogDir, "crashlogs") == 0)
+		_snprintf_s(szCrashLogDirHint, _countof(szCrashLogDirHint), _TRUNCATE, "the folder 'crashlogs' in the civ5 installation directory");
+	else
+		_snprintf_s(szCrashLogDirHint, _countof(szCrashLogDirHint), _TRUNCATE, "the folder '%s'", g_szCrashLogDir);
+
 	char szBody[4096];
-	_snprintf_s( szBody, _countof(szBody), _TRUNCATE, szBaseMsg, szCrashInfo);
+	_snprintf_s( szBody, _countof(szBody), _TRUNCATE, szBaseMsg, szCrashLogDirHint, szCrashInfo);
 	_snprintf_s( szMessage, _countof(szMessage), _TRUNCATE, "%s%s%s", szBody, szMemoryTips, szStackExcerpt);
 
 	// No dialog if a PRECONDITION already showed one, or if the user opted out
-	// of popups (crashlogs\nopopups.please) - crashes.log and the minidump were
+	// of popups (see ReadCrashOptOuts) - crashes.log and the minidump were
 	// already written above either way.
 	if (!g_bPreconditionFired && !g_bPopupsDisabledByUser)
 		MessageBoxA(NULL, szMessage, "Game Crash", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
@@ -3025,17 +3311,19 @@ void CvGlobals::init()
 #ifdef WIN32
 	SetUnhandledExceptionFilter(CustomFilter);
 
-	// Read the runtime opt-out markers once; crash-time code only checks the
-	// cached flags. Missing files = default behavior (dumps and popups on).
-	g_bMiniDumpDisabledByUser = MarkerFileExists("crashlogs\\nodumps.please");
-	g_bPopupsDisabledByUser = MarkerFileExists("crashlogs\\nopopups.please");
+	// Read the runtime opt-outs (marker files, environment, config.ini) once;
+	// crash-time code only checks the cached flags. Nothing set = default
+	// behavior (dumps and popups on).
+	ReadCrashOptOuts();
 
 #if defined(MOD_DEBUG_MINIDUMP)
 	if (g_bMiniDumpDisabledByUser)
 	{
 		// No dump will be attempted, so don't hold the emergency reserve or
 		// pre-load dbghelp - give the address space back to the game.
-		OutputDebugString(_T("MiniDump creation disabled by user (crashlogs\\nodumps.please)\n"));
+		char szMsg[160];
+		_snprintf_s(szMsg, _countof(szMsg), _TRUNCATE, "MiniDump creation disabled by user (%s)\n", g_szMiniDumpOptOutSource);
+		OutputDebugStringA(szMsg);
 	}
 	else
 	{
