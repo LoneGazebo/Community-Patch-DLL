@@ -31,6 +31,9 @@ public:
 	//! Prepares a cached result given an arbitrary string key
 	Database::Results* PrepareResults(const std::string& strKey, const char* szStmt);
 
+	//! Logs the content packages below the game's Assets folder that can replace this mod's tables
+	static void LogContentPackages();
+
 	//!Allocates an array to count and zero's memory.
 	void InitializeArray(int*& pArray, const size_t count, int iDefault = 0);
 	void InitializeArray(fraction*& pArray, const size_t count, fraction fDefault = 0);
