@@ -81,7 +81,18 @@ function RefreshAdditionalInformationEntries()
 	dropDown:GetGrid():SetSizeVal(width, height+100);
 
 end
-LuaEvents.RequestRefreshAdditionalInformationDropdownEntries.Add(RefreshAdditionalInformationEntries);
+-- Requested by other contexts. Refresh in our own update, so the callbacks belong to this context:
+-- callbacks registered while another context's Lua runs crash the game when released after that context is gone (e.g. loading a game)
+local g_bRefreshPending = false;
+LuaEvents.RequestRefreshAdditionalInformationDropdownEntries.Add(function()
+	g_bRefreshPending = true;
+end);
+ContextPtr:SetUpdate(function()
+	if (g_bRefreshPending) then
+		g_bRefreshPending = false;
+		RefreshAdditionalInformationEntries();
+	end
+end);
 
 function SortAdditionalInformationDropdownEntries(entries)
 	table.sort(entries, function(a,b)
