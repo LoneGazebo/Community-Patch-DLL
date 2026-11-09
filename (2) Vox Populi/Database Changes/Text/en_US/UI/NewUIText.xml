@@ -539,10 +539,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_TP_TECH_SCHOLAR_DISCOUNT">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] from Scholars in Residence.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR] from Scholars in Residence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_ALLIES_DISCOUNT">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] from {2_Num} allied City-States.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR] from {2_Num} allied {2_Num: plural 1?City-State; other?City-States;}</Text>
 		</Row>
 		<!-- Culture -->
 		<Row Tag="TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS">
