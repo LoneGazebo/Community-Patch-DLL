@@ -5324,6 +5324,10 @@ void CvPlayerTraits::Reset()
 	m_bIsSmaller = false;
 	m_bIsReligious = false;
 
+	m_bHasYieldFromTileCultureBomb = false;
+	m_bHasYieldFromTileEarn = false;
+	m_bHasYieldFromTilePurchase = false;
+
 	m_iGreatPeopleRateModifier = 0;
 	m_iGreatScientistRateModifier = 0;
 	m_iGreatGeneralRateModifier = 0;
