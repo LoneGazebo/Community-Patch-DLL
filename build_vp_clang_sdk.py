@@ -337,7 +337,10 @@ def build_cl_config_args(config: Config) -> list[str]:
     for include_dir in INCLUDE_DIRS:
         args.append(f'/I"{os.path.join(PROJECT_DIR, include_dir)}"')
     for include_path in INCLUDE_PATHS:
-        args.append(f'-external:I"{include_path}"')
+        # /imsvc, not -external:I: that one puts VC9's headers ahead of clang's own
+        # vadefs.h, whose va_start fix is what keeps inlined sprintf_s and
+        # CvString::format working. Without it the Release DLL crashes on mod load.
+        args.append(f'/imsvc"{include_path}"')
     for suppress in CL_SUPPRESS:
         args.append(f'-Wno-{suppress}')
     return args

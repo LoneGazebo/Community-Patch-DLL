@@ -122,8 +122,13 @@ jobs:
         id: vc9
         uses: JohnsterID/vc9-toolset@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
 
-      - name: Clang version check
-        run: clang --version
+      # Pinned, so a runner image update can't change the compiler under us.
+      - name: Install LLVM 20.1.8
+        run: |
+          choco install llvm --version=20.1.8 --allow-downgrade -y --no-progress
+          $version = clang-cl --version | Out-String
+          echo $version
+          if ($version -notmatch 'clang version 20\.1\.8') { echo "::error::Expected clang 20.1.8"; exit 1 }
 
       - name: Run debug build
         run: python build_vp_clang_sdk.py --config debug
@@ -138,6 +143,23 @@ jobs:
       - name: Display release build log
         if: always() && hashFiles('clang-output/Release/build.log') != ''
         run: cat clang-output/Release/build.log
+
+      # Civ 5 only ships the VC9 runtime. A DLL linked against a newer MSVC runtime builds
+      # fine and then fails to load in the game. The list is what the gamecore imports today.
+      - name: Check DLL imports
+        run: |
+          $allowed = 'ADVAPI32.dll', 'CvGameDatabaseWin32Final Release.dll', 'CvLocalizationWin32Final Release.dll',
+                     'dbghelp.dll', 'KERNEL32.dll', 'lua51_Win32.dll', 'MSVCP90.dll', 'MSVCR90.dll',
+                     'ole32.dll', 'PSAPI.DLL', 'USER32.dll', 'WINMM.dll'
+          $failed = $false
+          foreach ($dll in 'clang-output\Debug\CvGameCore_Expansion2.dll', 'clang-output\Release\CvGameCore_Expansion2.dll') {
+            $imports = llvm-readobj --coff-imports $dll | Select-String '^\s*Name: (.+)$' | ForEach-Object { $_.Matches[0].Groups[1].Value.Trim() }
+            echo "${dll}: $($imports -join ', ')"
+            foreach ($name in $imports) {
+              if ($allowed -notcontains $name) { echo "::error::$dll imports $name"; $failed = $true }
+            }
+          }
+          if ($failed) { exit 1 }
 
       - name: Analyze Clang build warnings and errors
         if: always()
