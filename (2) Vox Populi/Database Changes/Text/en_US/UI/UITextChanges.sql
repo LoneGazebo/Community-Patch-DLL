@@ -169,6 +169,10 @@ UPDATE Language_en_US
 SET Text = '+{1_Num} [ICON_DIPLOMAT] Delegate in the World Congress for every active Defensive Pact with your Empire and every Vassal you currently have'
 WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_EXTRA_VOTES_FROM_DP';
 
+UPDATE Language_en_US
+SET Text = 'When an owned Unit is promoted: {1_InstantYield}, scaling with Unit''s original Level. [COLOR_POSITIVE_TEXT]{TXT_KEY_UNITCOMBAT_RECON}[ENDCOLOR] Units don''t trigger this for Promotions earned with the XP they start with'
+WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_PROMOTION_GLOBAL';
+
 ------------------------------------------------
 -- City screen/banner
 ------------------------------------------------
