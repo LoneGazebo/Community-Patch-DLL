@@ -7516,10 +7516,11 @@ void CvCity::ApplyPlayerEventChoice(const EventChoiceTypes eEventChoice)
 			BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iJ);
 			int iYieldChange = pkEventChoiceInfo->getBuildingClassYield(iJ, iI);
 			int iYieldModifier = pkEventChoiceInfo->getBuildingClassYieldModifier(iJ, iI);
-			// The count only multiplies the two values below: no need to count when both are 0
-			int iNumBuilding = (iYieldChange != 0 || iYieldModifier != 0) ? GetCityBuildings()->GetNumBuildingClass(eBuildingClass) : 0;
 			ChangeEventBuildingClassYield(eBuildingClass, eYield, iYieldChange);
 			ChangeEventBuildingClassYieldModifier(eBuildingClass, eYield, iYieldModifier);
+
+			// Performance: The count only multiplies the two values below; no need to count when both are 0 as it is very expensive
+			int iNumBuilding = (iYieldChange != 0 || iYieldModifier != 0) ? GetCityBuildings()->GetNumBuildingClass(eBuildingClass) : 0;
 			ChangeBaseYieldRateFromBuildings(eYield, iYieldChange * iNumBuilding);
 			changeYieldRateModifier(eYield, iYieldModifier * iNumBuilding);
 		}
