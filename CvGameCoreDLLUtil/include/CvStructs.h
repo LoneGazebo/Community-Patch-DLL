@@ -249,6 +249,9 @@ struct AutoInvalidatedPointerBase {
 	void construct() { obj=NULL; prev=this; next=this; }
 	void* get() { return obj; }
 	AutoInvalidatedPointerBase() { construct(); }
+	// A copy starts unlinked; the links belong to the source object
+	AutoInvalidatedPointerBase(const AutoInvalidatedPointerBase&) { construct(); }
+	AutoInvalidatedPointerBase& operator=(const AutoInvalidatedPointerBase&) { return *this; }
 	~AutoInvalidatedPointerBase() { destroy(); }
 protected:
 	void* obj;
