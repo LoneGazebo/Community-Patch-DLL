@@ -539,7 +539,7 @@ public:
 	int getTotalPopulation() const;
 	float getAveragePopulation() const;
 	void changeTotalPopulation(int iChange);
-	long getRealPopulation() const;
+	long long getRealPopulation() const;
 
 	int getHighestPopulation() const;
 	void setHighestPopulation(int iValue);
