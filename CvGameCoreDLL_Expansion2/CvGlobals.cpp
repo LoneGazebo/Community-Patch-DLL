@@ -4727,19 +4727,26 @@ CvBuildingXMLEntries* CvGlobals::GetGameBuildings() const
 
 void CvGlobals::GameDataPostCache()
 {
+	// Clear derived caches, as the database may be reloaded without unloading the DLL
+	m_buildingInteractionLookup.clear();
+	m_vBuildingsWithYieldsFromAccomplishments.clear();
+	m_vBuildingsWithModifiersFromAccomplishments.clear();
+	m_vBuildingsWithClassHappiness.clear();
+	m_vBuildingsWithLocalClassHappiness.clear();
+	m_vBuildingsWithAirlift.clear();
+	m_vBuildingsWithSealift.clear();
+	m_specialistToGreatPersonCache.clear();
+	m_unitClassToGreatPersonCache.clear();
+
 	for (int iI = 0; iI < getNumBuildingInfos(); iI++)
 	{
 		const BuildingTypes eOuter = static_cast<BuildingTypes>(iI);
 		CvBuildingEntry* pOuter = GC.getBuildingInfo(eOuter);
-		if (pOuter==NULL)
-			continue;
 
 		for (int iJ = 0; iJ < getNumBuildingInfos(); iJ++)
 		{
 			const BuildingTypes eInner = static_cast<BuildingTypes>(iJ);
 			CvBuildingEntry* pInner = GC.getBuildingInfo(eInner);
-			if (pInner==NULL)
-				continue;
 
 			bool bHasInteraction = false;
 			for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
@@ -4768,24 +4775,41 @@ void CvGlobals::GameDataPostCache()
 			m_vBuildingsWithModifiersFromAccomplishments.push_back(eOuter);
 		}
 
-		if (pOuter->IsAirlift())
+		// Building Class Happiness
+		bool bHasClassHappiness = false;
+		bool bHasLocalClassHappiness = false;
+
+		for (int iJ = 0; iJ < getNumBuildingClassInfos(); iJ++)
 		{
-			m_vBuildingsWithAirlift.push_back(eOuter);
+			BuildingClassTypes eClass = static_cast<BuildingClassTypes>(iJ);
+
+			if (pOuter->GetBuildingClassHappiness(eClass) != 0)
+				bHasClassHappiness = true;
+
+			if (pOuter->GetBuildingClassLocalHappiness(eClass) != 0)
+				bHasLocalClassHappiness = true;
+
+			if (bHasClassHappiness && bHasLocalClassHappiness)
+				break;
 		}
+
+		if (bHasClassHappiness)
+			m_vBuildingsWithClassHappiness.push_back(eOuter);
+
+		if (bHasLocalClassHappiness)
+			m_vBuildingsWithLocalClassHappiness.push_back(eOuter);
+
+		if (pOuter->IsAirlift())
+			m_vBuildingsWithAirlift.push_back(eOuter);
 		
 		if (pOuter->IsSealift())
-		{
 			m_vBuildingsWithSealift.push_back(eOuter);
-		}
 	}
 
 	// Resources each unit needs for CvPlayer::HasResourceForNewUnit
 	for (int iI = 0; iI < getNumUnitInfos(); iI++)
 	{
 		CvUnitEntry* pUnitInfo = getUnitInfo(static_cast<UnitTypes>(iI));
-		if (pUnitInfo == NULL)
-			continue;
-
 		pUnitInfo->CacheResourceQuantityCheckIDs();
 	}
 
@@ -4794,8 +4818,6 @@ void CvGlobals::GameDataPostCache()
 	{
 		GreatPersonTypes eGreatPerson = static_cast<GreatPersonTypes>(iI);
 		CvGreatPersonInfo* pGreatPersonInfo = getGreatPersonInfo(eGreatPerson);
-		if (pGreatPersonInfo == NULL)
-			continue;
 
 		SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(pGreatPersonInfo->GetSpecialistType());
 		if (eSpecialist != NO_SPECIALIST)
@@ -4954,9 +4976,20 @@ const vector<BuildingTypes>& CvGlobals::getBuildingsWithYieldsFromAccomplishment
 {
 	return m_vBuildingsWithYieldsFromAccomplishments;
 }
+
 const vector<BuildingTypes>& CvGlobals::getBuildingsWithModifiersFromAccomplishments() const
 {
 	return m_vBuildingsWithModifiersFromAccomplishments;
+}
+
+const vector<BuildingTypes>& CvGlobals::getBuildingsWithClassHappiness() const
+{
+	return m_vBuildingsWithClassHappiness;
+}
+
+const vector<BuildingTypes>& CvGlobals::getBuildingsWithLocalClassHappiness() const
+{
+	return m_vBuildingsWithLocalClassHappiness;
 }
 
 const vector<BuildingTypes>& CvGlobals::getBuildingsWithAirlift() const

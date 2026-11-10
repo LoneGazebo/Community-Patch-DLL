@@ -44,6 +44,9 @@
 #include "CvBarbarians.h"
 
 #include "CvDllNetMessageExt.h"
+
+#include <algorithm>
+
 // include after all other headers
 #include "LintFree.h"
 
@@ -19785,13 +19788,13 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	int iTotalHappiness = 0;
 
+	const std::vector<BuildingTypes>& veClassHappinessBuildings = GC.getBuildingsWithClassHappiness();
+	const std::vector<BuildingTypes>& veLocalClassHappinessBuildings = GC.getBuildingsWithLocalClassHappiness();
 	const std::vector<BuildingTypes>& veBuildings = GetCityBuildings()->GetAllBuildingsHere();
+
 	for (vector<BuildingTypes>::const_iterator it = veBuildings.begin(); it != veBuildings.end(); ++it)
 	{
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(*it);
-		if (!pkBuildingInfo)
-			continue;
-
 		BuildingClassTypes eBuildingClass = pkBuildingInfo->GetBuildingClassType();
 		int iNumBuilding = GetCityBuildings()->GetNumBuilding(*it);
 
@@ -19799,25 +19802,22 @@ void CvCity::UpdateHappinessFromBuildingClasses()
 		iTotalHappiness += kPlayer.GetPlayerPolicies()->GetBuildingClassHappinessModifier(eBuildingClass) * iNumBuilding;
 
 		// Happiness from local buildings
-		for (vector<BuildingTypes>::const_iterator it2 = veBuildings.begin(); it2 != veBuildings.end(); ++it2)
+		if (binary_search(veLocalClassHappinessBuildings.begin(), veLocalClassHappinessBuildings.end(), *it))
 		{
-			CvBuildingEntry* pkOtherBuildingInfo = GC.getBuildingInfo(*it2);
-			if (!pkOtherBuildingInfo)
-				continue;
-
-			BuildingClassTypes eOtherBuildingClass = pkOtherBuildingInfo->GetBuildingClassType();
-			int iNumOtherBuilding = GetCityBuildings()->GetNumBuilding(*it2);
-			iTotalHappiness += pkBuildingInfo->GetBuildingClassLocalHappiness(eOtherBuildingClass) * iNumBuilding * iNumOtherBuilding;
+			for (vector<BuildingTypes>::const_iterator it2 = veBuildings.begin(); it2 != veBuildings.end(); ++it2)
+			{
+				CvBuildingEntry* pkOtherBuildingInfo = GC.getBuildingInfo(*it2);
+				BuildingClassTypes eOtherBuildingClass = pkOtherBuildingInfo->GetBuildingClassType();
+				int iNumOtherBuilding = GetCityBuildings()->GetNumBuilding(*it2);
+				iTotalHappiness += pkBuildingInfo->GetBuildingClassLocalHappiness(eOtherBuildingClass) * iNumBuilding * iNumOtherBuilding;
+			}
 		}
 
 		// Happiness from buildings in all owned cities
-		for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+		for (vector<BuildingTypes>::const_iterator it3 = veClassHappinessBuildings.begin(); it3 != veClassHappinessBuildings.end(); ++it3)
 		{
-			BuildingTypes eBuildingGlobal = static_cast<BuildingTypes>(iI);
+			BuildingTypes eBuildingGlobal = *it3;
 			CvBuildingEntry* pkBuildingInfoGlobal = GC.getBuildingInfo(eBuildingGlobal);
-			if (!pkBuildingInfoGlobal)
-				continue;
-
 			int iNumBuildingGlobal = kPlayer.getNumBuildings(eBuildingGlobal);
 
 			// Buildings in non-Venice puppets don't provide happiness
