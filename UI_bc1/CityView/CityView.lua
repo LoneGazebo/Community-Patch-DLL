@@ -1538,23 +1538,27 @@ end
 -------------------------------------------------
 -- City Hexes Update
 -------------------------------------------------
+local function ClearCityHexHighlights()
+	Events_ClearHexHighlightStyle( "Culture" )
+	Events_ClearHexHighlightStyle( "WorkedFill" )
+	Events_ClearHexHighlightStyle( "WorkedOutline" )
+	Events_ClearHexHighlightStyle( "OverlapFill" )
+	Events_ClearHexHighlightStyle( "OverlapOutline" )
+	Events_ClearHexHighlightStyle( "VacantFill" )
+	Events_ClearHexHighlightStyle( "VacantOutline" )
+	Events_ClearHexHighlightStyle( "EnemyFill" )
+	Events_ClearHexHighlightStyle( "EnemyOutline" )
+	Events_ClearHexHighlightStyle( "BuyFill" )
+	Events_ClearHexHighlightStyle( "BuyOutline" )
+end
+
 local function UpdateWorkingHexesNow()
 
 	g_isCityHexesDirty = false
 	local city = UI_GetHeadSelectedCity()
 	if city and UI.IsCityScreenUp() then
 
-		Events_ClearHexHighlightStyle( "Culture" )
-		Events_ClearHexHighlightStyle( "WorkedFill" )
-		Events_ClearHexHighlightStyle( "WorkedOutline" )
-		Events_ClearHexHighlightStyle( "OverlapFill" )
-		Events_ClearHexHighlightStyle( "OverlapOutline" )
-		Events_ClearHexHighlightStyle( "VacantFill" )
-		Events_ClearHexHighlightStyle( "VacantOutline" )
-		Events_ClearHexHighlightStyle( "EnemyFill" )
-		Events_ClearHexHighlightStyle( "EnemyOutline" )
-		Events_ClearHexHighlightStyle( "BuyFill" )
-		Events_ClearHexHighlightStyle( "BuyOutline" )
+		ClearCityHexHighlights()
 
 		g_PlotButtonIM.ResetInstances()
 		g_BuyPlotButtonIM.ResetInstances()
@@ -2496,7 +2500,7 @@ end)
 -- Exit City Screen Event
 Events.SerialEventExitCityScreen.Add(
 function()
-	Events.ClearHexHighlights()
+	ClearCityHexHighlights()
 
 	-- We may get here after a player change, clear the UI if this is not the active player's city
 	local city = UI_GetHeadSelectedCity()
