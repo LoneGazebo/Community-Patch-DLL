@@ -38,7 +38,11 @@ local MakeDescGetter = function(table_name)
 		local str = cache[id]
 
 		if str == nil then
-			local row = query(id)()
+			-- Step to the end so the statement closes; an open one blocks database rebuilds.
+			local row
+			for desc in query(id) do
+				row = desc
+			end
 
 			str = (row and row.Description and L(row.Description)) or -1
 			cache[id] = str
