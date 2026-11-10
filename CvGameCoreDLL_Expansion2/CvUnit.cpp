@@ -16268,12 +16268,15 @@ int CvUnit::GetCombatModifierFromCapitalDistance(const CvPlot* pBattlePlot) cons
 //	--------------------------------------------------------------------------------
 /// What are the generic strength modifiers for this Unit?
 int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bAttacking,
-				bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty) const
+				bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot, bool bQuickAndDirty, const SCombatNeighborhood* pNeighborhood) const
 {
 	VALIDATE_OBJECT();
 
 	if (pFromPlot == NULL)
 		pFromPlot = plot();
+
+	// this unit's side of the neighborhood record, if one is given
+	const SCombatNeighborhood::Side* pSide = pNeighborhood ? &pNeighborhood->sides[bAttacking ? SCombatNeighborhood::ATTACKER : SCombatNeighborhood::DEFENDER] : NULL;
 
 	// Generic combat bonus
 	int iModifier = getExtraCombatPercent() + GetStrategicResourceCombatPenalty();
@@ -16331,8 +16334,25 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += GetCombatModPerLevel() * (getLevel() - 1);
 	}
 
+	// a neighborhood record supplies every term that depends on other units, whatever the flags say, and
+	// the fixed board terms run as in full rules. The Great General is left to the caller.
+	if (pSide)
+	{
+		const CvPlot* pMyPlot = bAttacking ? pFromPlot : pBattlePlot;
+		iModifier += pSide->iReverseGeneral;
+		iModifier += GetNearbyImprovementModifier(pMyPlot);
+		if (pSide->bNearbyClass)
+			iModifier += getNearbyUnitClassBonus();
+		iModifier += GetNearbyCityBonusCombatMod(pMyPlot);
+		if (MOD_API_AREA_EFFECT_PROMOTIONS)
+			iModifier += pSide->iGiveCombat;
+		if (pSide->bFriendAdjacent)
+			iModifier += GetAdjacentModifier() + pSide->iClassGeneric;
+		else
+			iModifier += GetNoAdjacentUnitModifier();
+	}
 	//sometimes we ignore the finer points
-	if (!bQuickAndDirty)
+	else if (!bQuickAndDirty)
 	{
 		const CvPlot* pMyPlot = bAttacking ? pFromPlot : pBattlePlot;
 
@@ -16420,7 +16440,8 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 			iModifier += getFriendlyLandsModifier();
 
 			// Founder Belief bonus
-			CvCity* pPlotCity = bQuickAndDirty ? NULL : pBattlePlot->getOwningCity();
+			// a neighborhood record turns fixed board terms on
+			CvCity* pPlotCity = (bQuickAndDirty && !pNeighborhood) ? NULL : pBattlePlot->getOwningCity();
 			if(pPlotCity)
 			{
 				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
@@ -16438,7 +16459,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		// Bonuses outside one's lands
 		else
 		{
-			iModifier += getOutsideFriendlyLandsModifier();
+			iModifier += getOutsideFriendlyLandsModifier(pSide);
 
 			// Bonus against city states?
 			if(pBattlePlot->isCity() && pBattlePlot->getOwner()!=NO_PLAYER && GET_PLAYER(pBattlePlot->getOwner()).isMinorCiv())
@@ -16455,7 +16476,8 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 				}
 			}
 			// Founder Belief bonus
-			CvCity* pPlotCity = bQuickAndDirty ? NULL : pBattlePlot->getOwningCity();
+			// a neighborhood record turns fixed board terms on
+			CvCity* pPlotCity = (bQuickAndDirty && !pNeighborhood) ? NULL : pBattlePlot->getOwningCity();
 			if(pPlotCity)
 			{
 				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
@@ -16598,7 +16620,8 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 //	--------------------------------------------------------------------------------
 /// What is the max strength of this Unit when attacking?
 int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
-								bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, int iAssumeExtraDamage, int iAssumeExtraOtherDamage) const
+								bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, int iAssumeExtraDamage, int iAssumeExtraOtherDamage,
+								const SCombatNeighborhood* pNeighborhood) const
 {
 	VALIDATE_OBJECT();
 	if(GetBaseCombatStrength() == 0)
@@ -16606,7 +16629,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	int iModifier = GetGenericMeleeStrengthModifier(pDefender, pToPlot, true, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty);
+	int iModifier = GetGenericMeleeStrengthModifier(pDefender, pToPlot, true, bIgnoreUnitAdjacencyBoni, pFromPlot, bQuickAndDirty, pNeighborhood);
 
 	// Generic Attack bonus
 	iModifier += getAttackModifier();
@@ -16623,7 +16646,13 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	iModifier += GetStrengthThisTurnFromPreviousSamePromotionAttacks();
 
 	// Adjacent Friendly military Unit? (attack mod only)
-	if (pFromPlot != NULL && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+	// from the neighborhood record if one is given
+	if (pNeighborhood)
+	{
+		if (pFromPlot != NULL)
+			iModifier += pNeighborhood->sides[SCombatNeighborhood::ATTACKER].iClassAttack;
+	}
+	else if (pFromPlot != NULL && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 	{
 		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
 		{
@@ -16651,11 +16680,12 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += cityAttackModifier();
 
 			// City is blockaded
-			if (!bQuickAndDirty && pToPlot->getPlotCity()->IsBlockadedWaterAndLand())
+			// a caller with a neighborhood record applies blockade and sappers itself
+			if (!bQuickAndDirty && !pNeighborhood && pToPlot->getPlotCity()->IsBlockadedWaterAndLand())
 				iModifier += max(0, /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER));
 
 			// Nearby unit sapping this city
-			iModifier += bQuickAndDirty ? 0 : kPlayer.GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pToPlot);
+			iModifier += (bQuickAndDirty || pNeighborhood) ? 0 : kPlayer.GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pToPlot);
 
 			//bonus for attacking same unit over and over in a turn?
 			int iTempModifier = getMultiAttackBonus() + kPlayer.GetPlayerTraits()->GetMultipleAttackBonus();
@@ -16724,7 +16754,13 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			}
 
 			// Flanking
-			if(!bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
+			// from the neighborhood record if one is given
+			if (pNeighborhood)
+			{
+				iModifier += CvPlot::GetFlankingBonusFromCounts(this, pDefender, pNeighborhood->sides[SCombatNeighborhood::ATTACKER].iFlankCount,
+					pNeighborhood->sides[SCombatNeighborhood::DEFENDER].iFlankCount, pNeighborhood->sides[SCombatNeighborhood::ATTACKER].iFlankSupport);
+			}
+			else if(!bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
 			{
 				iModifier += pFromPlot->GetEffectiveFlankingBonus(this, pDefender, pToPlot);
 			}
@@ -16780,7 +16816,8 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackBelow50HealthModifier();
 
 		//Heavy charge without escape
-		if (IsCanHeavyCharge() && pDefender->GetNumFallBackPlotsAvailable(*this)==0)
+		// the neighborhood record knows the retreat tiles of the planned board
+		if (IsCanHeavyCharge() && (pNeighborhood ? pNeighborhood->bDefenderTrapped : pDefender->GetNumFallBackPlotsAvailable(*this) == 0))
 		{
 			if (MOD_ATTRITION)
 				iModifier += 25;
@@ -16808,7 +16845,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 //	--------------------------------------------------------------------------------
 /// What is the max strength of this Unit when defending?
 int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, const CvPlot* pFromPlot,
-								bool bFromRangedAttack, bool bQuickAndDirty, int iAssumeExtraDamage) const
+								bool bFromRangedAttack, bool bQuickAndDirty, int iAssumeExtraDamage, const SCombatNeighborhood* pNeighborhood) const
 {
 	VALIDATE_OBJECT();
 
@@ -16820,10 +16857,11 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if (iCombat==0)
 		return 0;
 
-	int iModifier = GetGenericMeleeStrengthModifier(pAttacker, pInPlot, false, false, pFromPlot, bQuickAndDirty);
+	int iModifier = GetGenericMeleeStrengthModifier(pAttacker, pInPlot, false, false, pFromPlot, bQuickAndDirty, pNeighborhood);
 
 	// Generic Defense Bonus
-	iModifier += getDefenseModifier(bQuickAndDirty);
+	// the defense aura comes from the neighborhood record if one is given
+	iModifier += getDefenseModifier(bQuickAndDirty, pNeighborhood ? &pNeighborhood->sides[SCombatNeighborhood::DEFENDER] : NULL);
 
 	// Fortification
 	iModifier += fortifyModifier();
@@ -16839,7 +16877,13 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	iModifier += GET_PLAYER(getOwner()).GetCombatDefenseBonusFromMonopolies(getDomainType());
 
 	// Adjacent Friendly military Unit? (defense mod only)
-	if (pInPlot != NULL && !bQuickAndDirty && pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+	// from the neighborhood record if one is given
+	if (pNeighborhood)
+	{
+		if (pInPlot != NULL)
+			iModifier += pNeighborhood->sides[SCombatNeighborhood::DEFENDER].iClassDefense;
+	}
+	else if (pInPlot != NULL && !bQuickAndDirty && pInPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 	{
 		for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
 		{
@@ -16907,7 +16951,11 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 			iModifier += GetTerrainModifierDefense(TERRAIN_HILL);
 
 		// Flanking
-		if (pFromPlot && !bFromRangedAttack && !bQuickAndDirty)
+		// from the neighborhood record if one is given
+		if (pFromPlot && !bFromRangedAttack && pNeighborhood)
+			iModifier += CvPlot::GetFlankingBonusFromCounts(this, pAttacker, pNeighborhood->sides[SCombatNeighborhood::DEFENDER].iFlankCount,
+				pNeighborhood->sides[SCombatNeighborhood::ATTACKER].iFlankCount, pNeighborhood->sides[SCombatNeighborhood::DEFENDER].iFlankSupport);
+		else if (pFromPlot && !bFromRangedAttack && !bQuickAndDirty)
 			iModifier += pInPlot->GetEffectiveFlankingBonus(this, pAttacker, pFromPlot);
 	}
 
@@ -17039,12 +17087,16 @@ void CvUnit::SetBaseRangedCombatStrength(int iStrength)
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking,
-	const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, int iAssumeExtraDamage, int iAssumeExtraOtherDamage) const
+	const CvPlot* pMyPlot, const CvPlot* pOtherPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, int iAssumeExtraDamage, int iAssumeExtraOtherDamage,
+	const SCombatNeighborhood* pNeighborhood) const
 {
 	VALIDATE_OBJECT();
 
 	if (pMyPlot == NULL)
 		pMyPlot = plot();
+
+	// this unit's side of the neighborhood record, if one is given
+	const SCombatNeighborhood::Side* pSide = pNeighborhood ? &pNeighborhood->sides[bAttacking ? SCombatNeighborhood::ATTACKER : SCombatNeighborhood::DEFENDER] : NULL;
 
 	if (pOtherPlot == NULL)
 	{
@@ -17085,8 +17137,24 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
+	// a neighborhood record supplies every term that depends on other units, whatever the flags say, and
+	// the fixed board terms run as in full rules. The Great General is left to the caller.
+	if (pSide)
+	{
+		if (pSide->bFriendAdjacent)
+			iModifier += GetAdjacentModifier() + pSide->iClassGeneric + (bAttacking ? pSide->iClassAttack : pSide->iClassDefense);
+		else
+			iModifier += GetNoAdjacentUnitModifier();
+		iModifier += pSide->iReverseGeneral;
+		if (MOD_API_AREA_EFFECT_PROMOTIONS)
+			iModifier += pSide->iGiveCombat;
+		iModifier += GetNearbyImprovementModifier(pMyPlot);
+		if (pSide->bNearbyClass)
+			iModifier += getNearbyUnitClassBonus();
+		iModifier += GetNearbyCityBonusCombatMod(pMyPlot);
+	}
 	// sometimes we want to ignore the finer points
-	if (!bQuickAndDirty)
+	else if (!bQuickAndDirty)
 	{
 		if (!bIgnoreUnitAdjacencyBoni)
 		{
@@ -17208,7 +17276,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 
 			// Flanking
-			if(IsRangedFlankAttack() && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
+			// from the neighborhood record if one is given
+			if (IsRangedFlankAttack() && pNeighborhood)
+			{
+				iModifier += CvPlot::GetFlankingBonusAtRangeFromCount(this, pOtherUnit, pNeighborhood->sides[SCombatNeighborhood::ATTACKER].iFlankCount, pNeighborhood->sides[SCombatNeighborhood::ATTACKER].iFlankSupport);
+			}
+			else if(IsRangedFlankAttack() && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
 			{
 				iModifier += pTargetPlot->GetEffectiveFlankingBonusAtRange(this, pOtherUnit);
 			}
@@ -17295,7 +17368,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				iModifier += getFriendlyLandsAttackModifier();
 
 			// Founder Belief bonus
-			CvCity* pPlotCity = bQuickAndDirty ? NULL : pTargetPlot->getOwningCity();
+			// a neighborhood record turns fixed board terms on
+			CvCity* pPlotCity = (bQuickAndDirty && !pNeighborhood) ? NULL : pTargetPlot->getOwningCity();
 			if (pPlotCity)
 			{
 				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
@@ -17314,10 +17388,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Bonus for fighting outside one's lands
 		else
 		{
-			iModifier += getOutsideFriendlyLandsModifier();
+			iModifier += getOutsideFriendlyLandsModifier(pSide);
 
 			// Founder Belief bonus (this must be a city controlled by an enemy)
-			CvCity* pPlotCity = bQuickAndDirty ? NULL : pTargetPlot->getOwningCity();
+			// a neighborhood record turns fixed board terms on
+			CvCity* pPlotCity = (bQuickAndDirty && !pNeighborhood) ? NULL : pTargetPlot->getOwningCity();
 			if (pPlotCity)
 			{
 				if (atWar(getTeam(), pPlotCity->getTeam()))
@@ -17336,7 +17411,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			}
 		}
 
-		if (pOtherUnit != NULL && getDomainType() == DOMAIN_LAND && !bQuickAndDirty)
+		if (pOtherUnit != NULL && getDomainType() == DOMAIN_LAND && !bQuickAndDirty && !pNeighborhood)
 		{
 			if (!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
@@ -17555,11 +17630,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			iModifier += cityAttackModifier();
 
 			// City is blockaded?
-			if (pCity->IsBlockadedWaterAndLand())
+			// a caller with a neighborhood record applies blockade and sappers itself
+			if (!pNeighborhood && pCity->IsBlockadedWaterAndLand())
 				iModifier += max(0, /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER));
 
 			// Nearby unit sapping this city
-			iModifier += kPlayer.GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pOtherPlot);
+			if (!pNeighborhood)
+				iModifier += kPlayer.GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pOtherPlot);
 
 			//bonus for attacking same unit over and over in a turn?
 			int iTempModifier = getMultiAttackBonus() + kPlayer.GetPlayerTraits()->GetMultipleAttackBonus();
@@ -17600,7 +17677,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	else
 	{
 		// Regular defense modifier
-		iModifier += getDefenseModifier(bQuickAndDirty);
+		iModifier += getDefenseModifier(bQuickAndDirty, pSide);
 
 		// Ranged Defense Mod
 		iModifier += rangedDefenseModifier();
@@ -17668,7 +17745,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand, int iAssumeExtraSelfDamage, int iAssumeExtraDefenderDamage,
-	const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty) const
+	const CvPlot* pTargetPlot, const CvPlot* pFromPlot, bool bIgnoreUnitAdjacencyBoni, bool bQuickAndDirty, const SCombatNeighborhood* pNeighborhood) const
 {
 	VALIDATE_OBJECT();
 	iGarrisonDamage = 0;
@@ -17690,7 +17767,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 	}
 
 	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, 
-								pFromPlot, pTargetPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty, iAssumeExtraSelfDamage, iAssumeExtraDefenderDamage);
+								pFromPlot, pTargetPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty, iAssumeExtraSelfDamage, iAssumeExtraDefenderDamage, pNeighborhood);
 	if (iAttackerStrength==0)
 		return 0;
 
@@ -17736,13 +17813,13 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 				iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 			else
 			{
-				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, pTargetPlot, pFromPlot, false, bQuickAndDirty, iAssumeExtraDefenderDamage, iAssumeExtraSelfDamage);
+				iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, pTargetPlot, pFromPlot, false, bQuickAndDirty, iAssumeExtraDefenderDamage, iAssumeExtraSelfDamage, pNeighborhood);
 			}
 		}
 		else
 		{
 			//this considers embarkation implicitly
-			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, pFromPlot, /*bFromRangedAttack*/ true, bQuickAndDirty, iAssumeExtraDefenderDamage);
+			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, pFromPlot, /*bFromRangedAttack*/ true, bQuickAndDirty, iAssumeExtraDefenderDamage, pNeighborhood);
 		}
 	}
 	else
@@ -17787,7 +17864,8 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, i
 	else if (pDefender)
 	{
 		//extra damage with special promotion
-		if (GetMoraleBreakChance() != 0 && pDefender->GetNumFallBackPlotsAvailable(*this) == 0)
+		// the neighborhood record knows the retreat tiles of the planned board
+		if (GetMoraleBreakChance() != 0 && (pNeighborhood ? pNeighborhood->bDefenderTrapped : pDefender->GetNumFallBackPlotsAvailable(*this) == 0))
 			iDamage = (iDamage * 150) / 100;
 
 		iDamage *= 100 + pDefender->GetDamageTakenMod();
@@ -19867,9 +19945,12 @@ void CvUnit::changeAttackModifier(int iValue)
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getDefenseModifier(bool bQuick) const
+int CvUnit::getDefenseModifier(bool bQuick, const SCombatNeighborhood::Side* pSide) const
 {
 	VALIDATE_OBJECT();
+	// the side's defense aura in place of the board
+	if (pSide)
+		return MOD_API_AREA_EFFECT_PROMOTIONS ? m_iDefenseModifier + pSide->iGiveDefense : m_iDefenseModifier;
 	if (!bQuick && MOD_API_AREA_EFFECT_PROMOTIONS)
 		return m_iDefenseModifier + GetGiveDefenseModToUnit();
 	else
@@ -23964,8 +24045,6 @@ int CvUnit::GetGiveExperiencePercentToUnit() const
 int CvUnit::GetGiveCombatModToUnit(const CvPlot* pAtPlot) const
 {
 	VALIDATE_OBJECT();
-	int iRange = 0;
-	int iMod = 0;
 	if (pAtPlot == NULL)
 	{
 		pAtPlot = plot();
@@ -23973,69 +24052,81 @@ int CvUnit::GetGiveCombatModToUnit(const CvPlot* pAtPlot) const
 			return 0;
 	}
 
+	// the eligibility rules live in ResolveGiveAuras, shared with neighborhood records
+	SGiveAuras auras;
+	ResolveGiveAuras(pAtPlot, auras);
+	return auras.iCombat;
+}
+
+// takes one eligible provider's auras. Called in list order, so each nonzero value replaces the one before.
+void SGiveAuras::add(const CvUnit* pProvider)
+{
+	if (pProvider->getGiveCombatMod() != 0)
+		iCombat = pProvider->getGiveCombatMod();
+	if (pProvider->getGiveDefenseMod() != 0)
+		iDefense = pProvider->getGiveDefenseMod();
+	if (pProvider->getGiveOutsideFriendlyLandsModifier() != 0)
+		iOutsideLands = pProvider->getGiveOutsideFriendlyLandsModifier();
+}
+
+// Resolves friendly promotion auras in provider order, using planned positions when supplied.
+void CvUnit::ResolveGiveAuras(const CvPlot* pAtPlot, SGiveAuras& auras, const CvCombatPlacement* pPlacement, std::vector<const CvUnit*>* pProviders) const
+{
+	VALIDATE_OBJECT();
+	CvCombatPlacement board;
+	const CvCombatPlacement& placement = pPlacement ? *pPlacement : board;
+
+	auras = SGiveAuras();
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 	const std::vector<std::pair<int, int>>& possibleUnits = kPlayer.GetAreaEffectPromotionUnits();
 	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
-		//first quick check with a large, fixed distance
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
-			continue;
+		//first quick check with a large, fixed distance (the stored plots are where units stand now)
+		if (!pPlacement)
+		{
+			CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
+			if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
+				continue;
+		}
 
 		CvUnit* pUnit = kPlayer.getUnit(it->first);
-		if (pUnit && pUnit->getGiveCombatMod() != 0 && pUnit != this)
+		if (!pUnit || pUnit == this)
+			continue;
+
+		if (pUnit->getGiveCombatMod() == 0 && pUnit->getGiveDefenseMod() == 0 && pUnit->getGiveOutsideFriendlyLandsModifier() == 0)
+			continue;
+
+		SPlacedUnit placed;
+		if (!placement.locate(pUnit, placed))
+			continue;
+
+		int iRange = pUnit->GetNearbyUnitPromotionsRange();
+		if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), placed.pPlot->getX(), placed.pPlot->getY()) <= iRange)
 		{
-			iRange = pUnit->GetNearbyUnitPromotionsRange();
-			if (plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+			if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
 			{
-				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
+				if (!pUnit->isGiveOnlyOnStartingTurn() || (placed.iMoves >= pUnit->maxMoves()))
 				{
-					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
-					{
-						iMod = pUnit->getGiveCombatMod();
-					}
+					if (pProviders)
+						pProviders->push_back(pUnit);
+					auras.add(pUnit);
 				}
 			}
 		}
 	}
-	return iMod;
 }
 int CvUnit::GetGiveDefenseModToUnit() const
 {
 	VALIDATE_OBJECT();
-	int iRange = 0;
-	int iMod = 0;
 	if (plot() == NULL)
 	{
 		return 0;
 	}
 
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	const std::vector<std::pair<int, int>>& possibleUnits = kPlayer.GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
-	{
-		//first quick check with a large, fixed distance
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
-			continue;
-
-		CvUnit* pUnit = kPlayer.getUnit(it->first);
-		if (pUnit && pUnit->getGiveDefenseMod() != 0 && pUnit != this)
-		{
-			iRange = pUnit->GetNearbyUnitPromotionsRange();
-			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
-			{
-				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
-				{
-					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
-					{
-						iMod = pUnit->getGiveDefenseMod();
-					}
-				}
-			}
-		}
-	}
-	return iMod;
+	// the eligibility rules live in ResolveGiveAuras, shared with neighborhood records
+	SGiveAuras auras;
+	ResolveGiveAuras(plot(), auras);
+	return auras.iDefense;
 }
 int CvUnit::GetHealEnemyTerritoryFromNearbyUnit() const
 {
@@ -24182,40 +24273,15 @@ bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 int CvUnit::GetGiveOutsideFriendlyLandsModifierToUnit() const
 {
 	VALIDATE_OBJECT();
-	int iRange = 0;
-	int iMod = 0;
 	if (plot() == NULL)
 	{
 		return 0;
 	}
 
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	const std::vector<std::pair<int, int>>& possibleUnits = kPlayer.GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
-	{
-		//first quick check with a large, fixed distance
-		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
-		if (plotDistance(pUnitPlot->getX(), pUnitPlot->getY(), getX(), getY()) > 4)
-			continue;
-
-		CvUnit* pUnit = kPlayer.getUnit(it->first);
-		if (pUnit && pUnit->getGiveOutsideFriendlyLandsModifier() != 0 && pUnit != this)
-		{
-			iRange = pUnit->GetNearbyUnitPromotionsRange();
-			if (plotDistance(getX(), getY(), pUnit->getX(), pUnit->getY()) <= iRange)
-			{
-				// Only Giving it out to a specific domain?
-				if (pUnit->getGiveDomain() != NO_DOMAIN && (pUnit->getGiveDomain() == getDomainType()))
-				{
-					if (!pUnit->isGiveOnlyOnStartingTurn() || (pUnit->getMoves() >= pUnit->maxMoves()))
-					{
-						iMod = pUnit->getGiveOutsideFriendlyLandsModifier();
-					}
-				}
-			}
-		}
-	}
-	return iMod;
+	// the eligibility rules live in ResolveGiveAuras, shared with neighborhood records
+	SGiveAuras auras;
+	ResolveGiveAuras(plot(), auras);
+	return auras.iOutsideLands;
 }
 int CvUnit::GetGiveExtraAttacksToUnit() const
 {
@@ -24421,6 +24487,49 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 	return (iMinModifier == MAX_SHORT ? 0 : iMinModifier);
 }
 
+// Checks whether an enemy aura reaches the plot under the placement.
+static bool IsReverseGeneralInRange(const CvUnit* pProvider, DomainTypes eDomain, int iModifier, int iRange,
+	const CvCombatPlacement& placement, const CvPlot* pPlot)
+{
+	DomainTypes eProviderDomain = pProvider->getDomainType();
+	if (iModifier == 0 || (eDomain != NO_DOMAIN && eProviderDomain != eDomain))
+		return false;
+	SPlacedUnit placed;
+	return placement.locate(pProvider, placed) && (placed.bEmbarked ? NO_DOMAIN : eProviderDomain) == eDomain &&
+		plotDistance(*pPlot, *placed.pPlot) <= iRange;
+}
+
+// Finds the strongest nonzero enemy aura using upstream's cached area-effect values.
+int CvUnit::ResolveReverseGeneral(const CvPlot* pAtPlot, const CvCombatPlacement* pPlacement, std::vector<std::pair<const CvUnit*, int> >* pProviders) const
+{
+	if (!pPlacement)
+		return GetReverseGreatGeneralModifier(pAtPlot);
+	const CvCombatPlacement& placement = *pPlacement;
+	int iMinModifier = MAX_SHORT;
+	DomainTypes eDomain = getDomainType();
+	const vector<PlayerTypes>& enemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
+	for (vector<PlayerTypes>::const_iterator it = enemies.begin(); it != enemies.end(); ++it)
+	{
+		const CvPlayer& player = GET_PLAYER(*it);
+		const vector<SAreaEffectUnitInfo>& providers = player.GetAreaEffectUnits();
+		for (vector<SAreaEffectUnitInfo>::const_iterator itP = providers.begin(); itP != providers.end(); ++itP)
+		{
+			if (itP->iNegativeModifier == 0)
+				continue;
+
+			const CvUnit* pProvider = player.getUnit(itP->iUnitID);
+			if (!pProvider)
+				continue;
+			if (!IsReverseGeneralInRange(pProvider, eDomain, itP->iNegativeModifier, itP->iNegativeRange, placement, pAtPlot))
+				continue;
+			if (pProviders)
+				pProviders->push_back(std::make_pair(pProvider, itP->iNegativeModifier));
+			iMinModifier = min<int>(iMinModifier, itP->iNegativeModifier);
+		}
+	}
+	return iMinModifier == MAX_SHORT ? 0 : iMinModifier;
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetNearbyImprovementModifier(const CvPlot* pAtPlot) const
 {
@@ -24519,35 +24628,51 @@ int CvUnit::GetNearbyUnitClassModifier(UnitClassTypes eUnitClass, int iUnitClass
 				return false;
 		}
 
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-		CvPlot* pLoopPlot = NULL;
-		// Look around this Unit to see if there's a nearby UnitClass that will give us the modifier
-		for(int iX = -iUnitClassRange; iX <= iUnitClassRange; iX++)
+		// the search lives in IsNearbyUnitClassPresent, shared with neighborhood records
+		if (IsNearbyUnitClassPresent(eUnitClass, iUnitClassRange, pAtPlot))
+			return iUnitClassModifier;
+	}
+	return 0;
+}
+
+// Finds a nearby same-team unit of the class, reading the live board or placement without copying units.
+bool CvUnit::IsNearbyUnitClassPresent(UnitClassTypes eUnitClass, int iUnitClassRange, const CvPlot* pAtPlot, const CvCombatPlacement* pPlacement) const
+{
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	CvPlot* pLoopPlot = NULL;
+	// Look around this Unit to see if there's a nearby UnitClass that will give us the modifier
+	for(int iX = -iUnitClassRange; iX <= iUnitClassRange; iX++)
+	{
+		for(int iY = -iUnitClassRange; iY <= iUnitClassRange; iY++)
 		{
-			for(int iY = -iUnitClassRange; iY <= iUnitClassRange; iY++)
+			pLoopPlot = plotXYWithRangeCheck(pAtPlot->getX(), pAtPlot->getY(), iX, iY, iUnitClassRange);
+			if (pLoopPlot == NULL)
+				continue;
+
+			if (pPlacement)
 			{
-				pLoopPlot = plotXYWithRangeCheck(pAtPlot->getX(), pAtPlot->getY(), iX, iY, iUnitClassRange);
-				if (pLoopPlot != NULL && pLoopPlot->getNumUnits() != 0)
+				if (pPlacement->hasUnitClassAt(pLoopPlot, eUnitClass, this))
+					return true;
+				continue;
+			}
+
+			for (int iK = 0; iK < pLoopPlot->getNumUnits(); iK++)
+			{
+				const CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iK);
+				if (pLoopUnit != NULL && pLoopUnit != this)
 				{
-					for (int iK = 0; iK < pLoopPlot->getNumUnits(); iK++)
+					if (pLoopUnit->getUnitClassType() == eUnitClass)
 					{
-						CvUnit*	pLoopUnit = pLoopPlot->getUnitByIndex(iK);
-						if (pLoopUnit != NULL && pLoopUnit != this)
+						if(GET_PLAYER(pLoopUnit->getOwner()).getTeam() == kPlayer.getTeam())
 						{
-							if (pLoopUnit->getUnitClassType() == eUnitClass)
-							{
-								if(GET_PLAYER(pLoopUnit->getOwner()).getTeam() == kPlayer.getTeam())
-								{
-									return iUnitClassModifier;
-								}
-							}
+							return true;
 						}
 					}
 				}
 			}
 		}
 	}
-	return 0;
+	return false;
 }
 
 void CvUnit::DoNearbyUnitPromotion(const CvPlot* pPlot)
@@ -25352,9 +25477,12 @@ void CvUnit::changeFriendlyLandsAttackModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::getOutsideFriendlyLandsModifier() const
+int CvUnit::getOutsideFriendlyLandsModifier(const SCombatNeighborhood::Side* pSide) const
 {
 	VALIDATE_OBJECT();
+	// the side's outside-friendly-lands aura in place of the board
+	if (pSide)
+		return MOD_API_AREA_EFFECT_PROMOTIONS ? m_iOutsideFriendlyLandsModifier + pSide->iGiveOutsideLands : m_iOutsideFriendlyLandsModifier;
 	if (MOD_API_AREA_EFFECT_PROMOTIONS)
 		return m_iOutsideFriendlyLandsModifier + GetGiveOutsideFriendlyLandsModifierToUnit();
 	else
@@ -29332,55 +29460,55 @@ int CvUnit::CountStackingUnitsAtPlot(const CvPlot* pPlot) const
 
 	int iNumUnitsOfSameType = 0;
 
-	CvTeam& kUnitTeam = GET_TEAM(getTeam());
 	const IDInfo* pUnitNode = pPlot->headUnitNode();
 	while (pUnitNode != NULL)
 	{
 		const CvUnit*  pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
-		if (pLoopUnit != NULL && !pLoopUnit->isDelayedDeath())
-		{
-			// Ignore the unit itself if it's already in the plot
-			if (pLoopUnit == this)
-				continue;
-
-			// Ignore units with special abilities
-			if (pLoopUnit->IsStackingUnit())
-				continue;
-
-			// Don't include an enemy unit, or else it won't let us attack it :)
-			if (kUnitTeam.isAtWar(pLoopUnit->getTeam()))
-				continue;
-
-			// Ignore cargo
-			if (pLoopUnit->isCargo())
-				continue;
-
-			// Combat units are in conflict
-			if (pLoopUnit->IsCombatUnit())
-			{
-				//inside of cities mixing domains is ok
-				if (pPlot->isCoastalCityOrPassableImprovement(getOwner(),true,true))
-				{
-					if (getDomainType()==pLoopUnit->getDomainType())
-						iNumUnitsOfSameType++;
-				}
-				//special rule for land units at sea
-				else if (pPlot->isWater())
-				{
-					//we can embark under naval units, but not other land units!
-					if (getDomainType() == pLoopUnit->getDomainType())
-						iNumUnitsOfSameType++;
-				}
-				else
-					//outside of cities domain doesn't matter
-					iNumUnitsOfSameType++;
-			}
-		}
+		// the per-unit rule lives in IsStackingConflict, shared with neighborhood records
+		if (IsStackingConflict(pLoopUnit, pPlot))
+			iNumUnitsOfSameType++;
 	}
 
 	return iNumUnitsOfSameType;
+}
+
+// whether pLoopUnit on pPlot takes up a stacking slot this unit would need there
+bool CvUnit::IsStackingConflict(const CvUnit* pLoopUnit, const CvPlot* pPlot) const
+{
+	if (pLoopUnit == NULL || pLoopUnit->isDelayedDeath())
+		return false;
+
+	// Ignore the unit itself if it's already in the plot
+	if (pLoopUnit == this)
+		return false;
+
+	// Ignore units with special abilities
+	if (pLoopUnit->IsStackingUnit())
+		return false;
+
+	// Don't include an enemy unit, or else it won't let us attack it :)
+	if (GET_TEAM(getTeam()).isAtWar(pLoopUnit->getTeam()))
+		return false;
+
+	// Ignore cargo
+	if (pLoopUnit->isCargo())
+		return false;
+
+	// Combat units are in conflict
+	if (!pLoopUnit->IsCombatUnit())
+		return false;
+
+	//inside of cities mixing domains is ok
+	if (pPlot->isCoastalCityOrPassableImprovement(getOwner(),true,true))
+		return getDomainType()==pLoopUnit->getDomainType();
+	//special rule for land units at sea
+	//we can embark under naval units, but not other land units!
+	if (pPlot->isWater())
+		return getDomainType() == pLoopUnit->getDomainType();
+	//outside of cities domain doesn't matter
+	return true;
 }
 
 bool CvUnit::CanStackUnitAtPlot(const CvPlot* pPlot) const
@@ -34800,4 +34928,395 @@ void CvUnit::DoGreatPersonSpawnBonus(CvCity* pSpawnCity)
 			pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 		}
 	}
+}
+
+// neighborhood records for combat estimates. See SCombatNeighborhood in CvUnit.h.
+
+// Forgets all search facts and held attacker sides for a new search.
+void SNeighborhoodCache::clear()
+{
+	m_classMods.clear();
+	m_defenderGiveAuras.clear();
+	m_attackerReverseGeneral.clear();
+	m_defenderReverseGeneral.clear();
+	m_boardUnits.clear();
+	m_moveBlocked.clear();
+	forgetHeldAttackerSides();
+}
+
+// The real units on a plot as the board lists them. The search never moves real units, so the list made on first use
+// holds for the whole search.
+const std::vector<SPlacedUnit>& SNeighborhoodCache::getBoardUnits(const CvPlot* pPlot)
+{
+	std::map<int, std::vector<SPlacedUnit> >::iterator it = m_boardUnits.find(pPlot->GetPlotIndex());
+	if (it == m_boardUnits.end())
+	{
+		it = m_boardUnits.insert(std::make_pair(pPlot->GetPlotIndex(), std::vector<SPlacedUnit>())).first;
+		CvCombatPlacement().getUnitsAt(pPlot, it->second);
+	}
+	return it->second;
+}
+
+// Whether the live move check keeps a defender out of a plot. It reads only the defender and the real board, which the
+// search doesn't change, so the answer made on first use holds for the whole search.
+bool SNeighborhoodCache::isMoveBlocked(const CvUnit* pDefender, const CvPlot* pDestPlot, bool bUnitChecks)
+{
+	std::pair<const CvUnit*, int> key(pDefender, pDestPlot->GetPlotIndex() * 2 + (bUnitChecks ? 1 : 0));
+	std::map<std::pair<const CvUnit*, int>, bool>::iterator it = m_moveBlocked.find(key);
+	if (it != m_moveBlocked.end())
+		return it->second;
+
+	int iFlags = CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_NO_EMBARK;
+	if (!bUnitChecks)
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_ENEMIES;
+	bool bBlocked = !pDefender->canMoveInto(*pDestPlot, iFlags);
+	m_moveBlocked[key] = bBlocked;
+	return bBlocked;
+}
+
+// The nonzero per-adjacent-class modifiers of a unit, listed on first use. A class without class info gives only the
+// generic modifier, as in the strength functions.
+const std::vector<SNeighborhoodCache::SClassMod>& SNeighborhoodCache::getClassMods(const CvUnit* pUnit)
+{
+	std::map<const CvUnit*, std::vector<SClassMod> >::iterator it = m_classMods.find(pUnit);
+	if (it != m_classMods.end())
+		return it->second;
+
+	std::vector<SClassMod>& mods = m_classMods[pUnit];
+	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	{
+		SClassMod mod;
+		mod.eCombat = (UnitCombatTypes)iI;
+		mod.iGeneric = pUnit->getCombatModPerAdjacentUnitCombatModifier(mod.eCombat);
+		bool bInfo = GC.getUnitCombatClassInfo(mod.eCombat) != NULL;
+		mod.iAttack = bInfo ? pUnit->getCombatModPerAdjacentUnitCombatAttackMod(mod.eCombat) : 0;
+		mod.iDefense = bInfo ? pUnit->getCombatModPerAdjacentUnitCombatDefenseMod(mod.eCombat) : 0;
+		if (mod.iGeneric != 0 || mod.iAttack != 0 || mod.iDefense != 0)
+			mods.push_back(mod);
+	}
+	return mods;
+}
+
+// The give auras a defender's own side lends it at a plot. The search never moves those providers, so the ones that
+// reach the plot on the real board are listed once per search; the placement then drops the ones the plan has killed,
+// and the last surviving provider with a nonzero value wins each aura, as in CvUnit::ResolveGiveAuras.
+void SNeighborhoodCache::getDefenderGiveAuras(const CvCombatPlacement& placement, const CvUnit* pDefender, const CvPlot* pPlot, SGiveAuras& auras)
+{
+	std::pair<const CvUnit*, int> key(pDefender, pPlot->GetPlotIndex());
+	std::map<std::pair<const CvUnit*, int>, Providers>::iterator it = m_defenderGiveAuras.find(key);
+	if (it == m_defenderGiveAuras.end())
+	{
+		CvCombatPlacement board;
+		SGiveAuras ignored;
+		it = m_defenderGiveAuras.insert(std::make_pair(key, Providers())).first;
+		pDefender->ResolveGiveAuras(pPlot, ignored, &board, &it->second);
+	}
+
+	auras = SGiveAuras();
+	for (Providers::const_iterator itP = it->second.begin(); itP != it->second.end(); ++itP)
+	{
+		SPlacedUnit placed;
+		if (placement.locate(*itP, placed))
+			auras.add(*itP);
+	}
+}
+
+// The reverse-general aura the attacker's enemies put on it at a plot. The search never moves those providers, so the
+// ones that reach the plot on the real board are listed once per search for each plot, owner and domain; the placement
+// then drops the ones the plan has killed, and the lowest cached modifier wins, as in CvUnit::ResolveReverseGeneral.
+int SNeighborhoodCache::getAttackerReverseGeneral(const CvCombatPlacement& placement, const CvUnit* pAttacker, const CvPlot* pPlot)
+{
+	long long iKey = ((long long)pPlot->GetPlotIndex() << 16) | ((long long)pAttacker->getOwner() << 8) | (long long)(pAttacker->getDomainType() & 0xff);
+	std::map<long long, ReverseGeneralProviders>::iterator it = m_attackerReverseGeneral.find(iKey);
+	if (it == m_attackerReverseGeneral.end())
+	{
+		CvCombatPlacement board;
+		it = m_attackerReverseGeneral.insert(std::make_pair(iKey, ReverseGeneralProviders())).first;
+		pAttacker->ResolveReverseGeneral(pPlot, &board, &it->second);
+	}
+
+	int iMinModifier = MAX_SHORT;
+	for (ReverseGeneralProviders::const_iterator itP = it->second.begin(); itP != it->second.end(); ++itP)
+	{
+		SPlacedUnit placed;
+		if (placement.locate(itP->first, placed))
+			iMinModifier = min<int>(iMinModifier, itP->second);
+	}
+	return iMinModifier == MAX_SHORT ? 0 : iMinModifier;
+}
+
+// Lists the defender's enemy providers once per search, owner and domain. No placement or range filter is
+// cached: the attacker can be a provider at a different origin in each record. Each record checks survival,
+// embarkation and range, then takes the lowest cached modifier, as in CvUnit::ResolveReverseGeneral.
+int SNeighborhoodCache::getDefenderReverseGeneral(const CvCombatPlacement& placement, const CvUnit* pDefender, const CvPlot* pPlot)
+{
+	DomainTypes eDomain = pDefender->getDomainType();
+	std::pair<PlayerTypes, DomainTypes> key(pDefender->getOwner(), eDomain);
+	std::map<std::pair<PlayerTypes, DomainTypes>, ReverseGeneralCandidates>::iterator it = m_defenderReverseGeneral.find(key);
+	if (it == m_defenderReverseGeneral.end())
+	{
+		it = m_defenderReverseGeneral.insert(std::make_pair(key, ReverseGeneralCandidates())).first;
+		const vector<PlayerTypes>& enemies = GET_PLAYER(pDefender->getOwner()).GetPlayersAtWarWith();
+		for (vector<PlayerTypes>::const_iterator itEnemy = enemies.begin(); itEnemy != enemies.end(); ++itEnemy)
+		{
+			const CvPlayer& player = GET_PLAYER(*itEnemy);
+			const vector<SAreaEffectUnitInfo>& providers = player.GetAreaEffectUnits();
+			for (vector<SAreaEffectUnitInfo>::const_iterator itP = providers.begin(); itP != providers.end(); ++itP)
+			{
+				if (itP->iNegativeModifier == 0)
+					continue;
+				const CvUnit* pProvider = player.getUnit(itP->iUnitID);
+				if (!pProvider || (eDomain != NO_DOMAIN && pProvider->getDomainType() != eDomain))
+					continue;
+				SReverseGeneralCandidate candidate;
+				candidate.pUnit = pProvider;
+				candidate.iModifier = itP->iNegativeModifier;
+				candidate.iRange = itP->iNegativeRange;
+				it->second.push_back(candidate);
+			}
+		}
+	}
+
+	int iMinModifier = MAX_SHORT;
+	for (ReverseGeneralCandidates::const_iterator itP = it->second.begin(); itP != it->second.end(); ++itP)
+	{
+		if (!IsReverseGeneralInRange(itP->pUnit, eDomain, itP->iModifier, itP->iRange, placement, pPlot))
+			continue;
+		iMinModifier = min<int>(iMinModifier, itP->iModifier);
+	}
+	return iMinModifier == MAX_SHORT ? 0 : iMinModifier;
+}
+
+// One pass over the units next to a combatant's plot. It fills the combatant's adjacency terms (as
+// CvPlot::IsFriendlyUnitAdjacent, and CvPlot::GetNumSpecificFriendlyUnitCombatsAdjacent times its per-class modifiers)
+// when its unit has any adjacency modifier. With bFlank it returns the flank power of units at war with the combatant,
+// which is the other side's flank count (as CvPlot::GetNumEnemyUnitsAdjacent, pOther excluded).
+int SCombatNeighborhood::scanNeighbors(const CvCombatPlacement& placement, SNeighborhoodCache& cache, const CvUnit* pUnit, const CvPlot* pPlot,
+	const CvUnit* pOther, bool bAttacking, bool bFlank, Side& side, int& iFlankSupport)
+{
+	iFlankSupport = 0;
+	const std::vector<SNeighborhoodCache::SClassMod>& mods = cache.getClassMods(pUnit);
+	bool bAdjacentMods = pUnit->GetAdjacentModifier() != 0 || pUnit->GetNoAdjacentUnitModifier() != 0;
+	bool bAdjacency = bAdjacentMods || !mods.empty();
+	if (!bAdjacency && !bFlank)
+		return 0;
+
+	std::vector<SPlacedUnit>& units = cache.scratch;
+	TeamTypes eTeam = pUnit->getTeam();
+	DomainTypes eDomain = pUnit->getDomainType();
+	bool bFriend = false;
+	int iFlank = 0, iGeneric = 0, iClass = 0;
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pPlot);
+	for (int iDir = 0; iDir < NUM_DIRECTION_TYPES; iDir++)
+	{
+		const CvPlot* pLoopPlot = aNeighbors[iDir];
+		if (!pLoopPlot)
+			continue;
+
+		bool bCountFlank = bFlank && pLoopPlot->isVisible(eTeam);
+		if (!bAdjacency && !bCountFlank)
+			continue;
+
+		placement.getUnitsAt(pLoopPlot, units);
+		for (size_t i = 0; i < units.size(); i++)
+		{
+			const CvUnit* pLoopUnit = units[i].pUnit;
+			if (!pLoopUnit->IsCombatUnit())
+				continue;
+
+			TeamTypes eLoopTeam = pLoopUnit->getTeam();
+			if (eLoopTeam == eTeam)
+			{
+				if (!bAdjacency)
+					continue;
+
+				bFriend = true;
+				UnitCombatTypes eCombat = pLoopUnit->getUnitCombatType();
+				if (units[i].bEmbarked || eCombat == NO_UNITCOMBAT)
+					continue;
+
+				for (size_t k = 0; k < mods.size(); k++)
+				{
+					if (mods[k].eCombat == eCombat)
+					{
+						iGeneric += mods[k].iGeneric;
+						iClass += bAttacking ? mods[k].iAttack : mods[k].iDefense;
+					}
+				}
+			}
+			else if (bCountFlank && pLoopUnit != pOther && !units[i].bEmbarked && (GET_TEAM(eLoopTeam).isAtWar(eTeam) || (pOther && eLoopTeam == pOther->getTeam())))
+			{
+				DomainTypes eLoopDomain = pLoopUnit->getDomainType();
+				if (eLoopDomain == eDomain || eLoopDomain == DOMAIN_HOVER || eDomain == NO_DOMAIN)
+				{
+					iFlank += pLoopUnit->GetFlankPower();
+					if (pOther && eLoopTeam == pOther->getTeam())
+						iFlankSupport += pLoopUnit->GetFlankSupportModifier();
+				}
+			}
+		}
+	}
+
+	side.iClassGeneric = static_cast<short>(iGeneric);
+	if (bAttacking)
+		side.iClassAttack = static_cast<short>(iClass);
+	else
+		side.iClassDefense = static_cast<short>(iClass);
+
+	// without adjacency modifiers a friend matters only through the class sums, which are nonzero only with a friend
+	side.bFriendAdjacent = bAdjacentMods ? bFriend : (iGeneric != 0 || iClass != 0);
+	return iFlank;
+}
+
+// Fills a side's aura and nearby-class terms. The attacker's own auras come from the placement. The defender's reverse
+// general uses cached candidates with placement and range checked per record. The defender's own auras and the reverse
+// general on the attacker use cached providers the search doesn't move, with survival checked per record.
+void SCombatNeighborhood::fillAuras(const CvCombatPlacement& placement, SNeighborhoodCache& cache, const CvUnit* pUnit, const CvPlot* pPlot, bool bAttacking,
+	Side& side)
+{
+	side.bNearbyClass = pUnit->getNearbyUnitClassBonus() != 0 &&
+		pUnit->IsNearbyUnitClassPresent(pUnit->getCombatBonusFromNearbyUnitClass(), pUnit->getNearbyUnitClassBonusRange(), pPlot, &placement);
+
+	if (bAttacking)
+	{
+		// the attacker never defends in this record, so its defense aura is left out
+		SGiveAuras auras;
+		pUnit->ResolveGiveAuras(pPlot, auras, &placement);
+		side.iGiveCombat = static_cast<short>(auras.iCombat);
+		side.iGiveOutsideLands = static_cast<short>(auras.iOutsideLands);
+		side.iReverseGeneral = static_cast<short>(cache.getAttackerReverseGeneral(placement, pUnit, pPlot));
+	}
+	else
+	{
+		SGiveAuras auras;
+		cache.getDefenderGiveAuras(placement, pUnit, pPlot, auras);
+		side.iGiveCombat = static_cast<short>(auras.iCombat);
+		side.iGiveDefense = static_cast<short>(auras.iDefense);
+		side.iGiveOutsideLands = static_cast<short>(auras.iOutsideLands);
+		side.iReverseGeneral = static_cast<short>(cache.getDefenderReverseGeneral(placement, pUnit, pPlot));
+	}
+}
+
+// Whether the defender has no retreat tile away from the attacker, as CvUnit::GetNumFallBackPlotsAvailable returning 0,
+// with the units on each tile taken from the placement. Terrain and territory still come from the real board.
+bool SCombatNeighborhood::isDefenderTrapped(const CvCombatPlacement& placement, SNeighborhoodCache& cache, const CvUnit* pDefender, const CvPlot* pDefenderPlot,
+	const CvPlot* pAttackerPlot)
+{
+	SPlacedUnit defender;
+	if (!placement.locate(pDefender, defender) || (defender.bEmbarked && pDefender->getDomainType() == DOMAIN_LAND))
+		return true;
+
+	std::vector<SPlacedUnit>& units = cache.scratch;
+	TeamTypes eTeam = pDefender->getTeam();
+
+	DirectionTypes eAttackDirection = directionXY(pAttackerPlot, pDefenderPlot);
+	int iBiases[3] = { 0,-1,1 };
+	for (int i = 0; i < 3; i++)
+	{
+		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + iBiases[i]) % NUM_DIRECTION_TYPES;
+		const CvPlot* pDestPlot = plotDirection(pDefenderPlot->getX(), pDefenderPlot->getY(), (DirectionTypes)iMovementDirection);
+		if (!pDestPlot)
+			return false;
+
+		placement.getUnitsAt(pDestPlot, units);
+		const std::vector<SPlacedUnit>& realUnits = cache.getBoardUnits(pDestPlot);
+		bool bSameUnits = units.size() == realUnits.size();
+		for (size_t j = 0; j < units.size() && bSameUnits; j++)
+		{
+			bool bFound = false;
+			for (size_t k = 0; k < realUnits.size() && !bFound; k++)
+				bFound = realUnits[k].pUnit == units[j].pUnit;
+			bSameUnits = bFound;
+		}
+
+		bool bBlocked = false;
+		if (bSameUnits)
+		{
+			// the plan left this tile as it is, so the live check applies unchanged
+			bBlocked = cache.isMoveBlocked(pDefender, pDestPlot, true);
+		}
+		else
+		{
+			// terrain, territory and cities come from the live check with unit checks off; the planned units on the
+			// tile then go through the live per-unit rules for stacking and for enemies the defender can see
+			bBlocked = cache.isMoveBlocked(pDefender, pDestPlot, false);
+
+			bool bSeesUnits = !pDefender->isHuman(ISHUMAN_AI_UNITS) || pDestPlot->isVisible(eTeam);
+			if (!bBlocked && bSeesUnits && pDestPlot->isEnemyCity(*pDefender))
+				bBlocked = true;
+
+			int iStacked = 0;
+			for (size_t j = 0; j < units.size() && !bBlocked; j++)
+			{
+				const CvUnit* pLoopUnit = units[j].pUnit;
+				if (bSeesUnits && pDestPlot->isVisible(eTeam) && CvPlot::IsEnemyUnitFor(pLoopUnit, eTeam, /*bCombatOnly*/ true))
+					bBlocked = true;
+				else if (pDefender->IsCombatUnit() && !pDefender->IsStackingUnit() && pDefender->IsStackingConflict(pLoopUnit, pDestPlot))
+					iStacked++;
+			}
+			if (!bBlocked && !pDefender->IsCivilianUnit() && iStacked >= pDestPlot->getUnitLimit())
+				bBlocked = true;
+		}
+
+		if (!bBlocked)
+			return false;
+	}
+	return true;
+}
+
+// Fills the record for an attack under a placement. The attacker stands on its attack plot whatever the placement says.
+// Only the terms the strength functions read for this pair of units are worked out (see the struct comment). The
+// attacker's side doesn't depend on the target, apart from the melee flank count, so the supplied cache reuses it.
+void SCombatNeighborhood::build(const CvCombatPlacement& placement, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, const CvUnit* pDefender,
+	const CvPlot* pDefenderPlot, SNeighborhoodCache& cache)
+{
+	*this = SCombatNeighborhood();
+	if (!pAttacker || !pAttackerPlot || !pDefenderPlot)
+		return;
+
+	// a melee attack weighs both flank counts; a ranged attack reads the attacker's count only with the ranged-flank
+	// promotion, and the defender's count never, since a target can't flank back against a ranged attack
+	bool bRanged = pAttacker->IsCanAttackRanged();
+	bool bRangedFlank = pAttacker->IsRangedFlankAttack();
+	bool bAttackerFlank = pDefender && (!bRanged || bRangedFlank);
+	bool bDefenderFlank = pDefender && !bRanged;
+
+	// a remembered side already has the adjacency and aura terms; the scan runs again only for the defender's flank count
+	int iDefenderFlank = 0;
+	int iDefenderSupport = 0, iAttackerSupport = 0;
+	const Side* pHeldSide = cache.findHeldAttackerSide(pAttacker, pAttackerPlot->GetPlotIndex());
+	if (pHeldSide)
+	{
+		sides[ATTACKER] = *pHeldSide;
+		if (bDefenderFlank)
+			iDefenderFlank = scanNeighbors(placement, cache, pAttacker, pAttackerPlot, pDefender, true, true, sides[ATTACKER], iDefenderSupport);
+	}
+	else
+	{
+		iDefenderFlank = scanNeighbors(placement, cache, pAttacker, pAttackerPlot, pDefender, true, bDefenderFlank, sides[ATTACKER], iDefenderSupport);
+		fillAuras(placement, cache, pAttacker, pAttackerPlot, true, sides[ATTACKER]);
+		cache.rememberHeldAttackerSide(pAttacker, pAttackerPlot->GetPlotIndex(), sides[ATTACKER]);
+	}
+	if (!pDefender)
+		return;
+
+	int iAttackerFlank = scanNeighbors(placement, cache, pDefender, pDefenderPlot, pAttacker, false, bAttackerFlank, sides[DEFENDER], iAttackerSupport);
+	fillAuras(placement, cache, pDefender, pDefenderPlot, false, sides[DEFENDER]);
+
+	// the melee bonus goes to the side with more flank power, by the difference, so only the difference is kept. Ranged
+	// support fire with the ranged-flank promotion also reads the attacker's count alone, so that case keeps both.
+	if (!bRanged && !(bRangedFlank && pAttacker->isRangedSupportFire()))
+	{
+		int iNet = iAttackerFlank - iDefenderFlank;
+		iAttackerFlank = std::max(iNet, 0);
+		iDefenderFlank = std::max(-iNet, 0);
+	}
+	sides[ATTACKER].iFlankCount = static_cast<short>(iAttackerFlank);
+	sides[DEFENDER].iFlankCount = static_cast<short>(iDefenderFlank);
+	sides[ATTACKER].iFlankSupport = static_cast<short>(iAttackerSupport);
+	sides[DEFENDER].iFlankSupport = static_cast<short>(iDefenderSupport);
+
+	// only heavy charge and morale break read the retreat tiles
+	if (pAttacker->IsCanHeavyCharge() || pAttacker->GetMoraleBreakChance() != 0)
+		bDefenderTrapped = isDefenderTrapped(placement, cache, pDefender, pDefenderPlot, pAttackerPlot);
 }
