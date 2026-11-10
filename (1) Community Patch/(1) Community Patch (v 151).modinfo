@@ -394,6 +394,12 @@
     <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Assets/UI/citizenmusician.dds</File>
     <File md5="82F6ACBCF25EDD8D7143484547FBBD88" import="1">Assets/UI/citizenwriter.dds</File>
     <File md5="B3C1FBD5E66301B400B63040C7B42503" import="1">Assets/UI/corp80_base.dds</File>
+    <File md5="DBF11A74C1726535978CD236FEE94824" import="1">Assets/UI/256x256Frame.dds</File>
+    <File md5="97D27E0A3877628929B763B8B500E723" import="1">Assets/UI/45x45FrameButton.dds</File>
+    <File md5="04D3DAA7D0A78BD3BB6B4B6259BBEF63" import="1">Assets/UI/64x64FrameButtons.dds</File>
+    <File md5="55D64F4E210D594A6DB2B9EA90BD2CFD" import="1">Assets/UI/CitizenFrame128.dds</File>
+    <File md5="81A7FFD36334DF739A446074A48E90C2" import="1">Assets/UI/IconFrame64.dds</File>
+    <File md5="7CC2024EB4E4AC059433FCE51EC4A84B" import="1">Assets/UI/IconFrameGold64.dds</File>
     <File md5="D49B7AA0DAFF3621D9F72A36D22FB43B" import="1">Assets/UI/corp80_hl.dds</File>
     <File md5="1D94F6DC259A5A1FE149BC83BC7C80E4" import="1">Assets/UI/DC45_Corporations.dds</File>
     <File md5="316984B4370EA1B11E3759F01CE9A36D" import="1">Assets/UI/DC45_Generic.dds</File>
