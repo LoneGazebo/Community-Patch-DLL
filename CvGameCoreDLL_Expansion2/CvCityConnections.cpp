@@ -127,6 +127,8 @@ void CvCityConnections::Update(void)
 {
 	//important, do this first to avoid endless recursion!
 	m_bDirty = false;
+	//a route search may be open (this update can run from its callbacks); its memo must not outlive the update
+	InvalidateRouteSearchMemo();
 
 	if(m_pPlayer->isBarbarian())
 		return;
