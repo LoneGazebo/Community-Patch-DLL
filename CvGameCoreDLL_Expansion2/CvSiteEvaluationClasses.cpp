@@ -579,7 +579,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			++iMountainsCount;
 
 			// this is inca UI hard coding
-			if (pPlayer && pPlayer->GetPlayerTraits()->IsMountainPass() || pPlayer->GetPlayerTraits()->IsWorkersMountainPass())
+			if (pPlayer && (pPlayer->GetPlayerTraits()->IsMountainPass() || pPlayer->GetPlayerTraits()->IsWorkersMountainPass()))
 			{
 				if (MOD_BALANCE_VP || pLoopPlot->isHills())
 				{
