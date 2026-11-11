@@ -6936,7 +6936,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 							iScore *= 2;
 						}
 					}
-					if (pkReligion->m_Beliefs.GetHappinessPerXPeacefulForeignFollowers(m_pPlayer->GetID(), pHolyCity) > 0)
+					if (pkReligion->m_Beliefs.GetHappinessPerXForeignFollowers(m_pPlayer->GetID(), pHolyCity) > 0)
 					{
 						iScore *= 2;
 					}
@@ -8365,7 +8365,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, CvWeightedVector<int> viPlo
 					CvBeliefEntry* pkBeliefInfo = GC.getBeliefInfo((BeliefTypes)*it);
 					if (pkBeliefInfo)
 					{
-						if (pkBeliefInfo->GetHappinessPerXPeacefulForeignFollowers() > 0 || pkBeliefInfo->GetGoldWhenCityAdopts() > 0)
+						if (pkBeliefInfo->GetHappinessPerXForeignFollowers() > 0 || pkBeliefInfo->GetGoldWhenCityAdopts() > 0)
 						{
 							bReligionSpreadFocus = true;
 							break;
@@ -9129,9 +9129,16 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, ReligionTypes eFor
 		{
 			iForeignCityYields += (int)(pEntry->GetHappinessPerFollowingCity() * (10 * m_pPlayer->GetReligions()->GetNumForeignCitiesFollowing(eReligion) + iAvailability * iNumForeignCitiesToSpreadTo) * iHappinessValueTimes100 / 100);
 		}
-		if (pEntry->GetHappinessPerXPeacefulForeignFollowers() > 0 && !bIsWarmonger)
+		if (pEntry->GetHappinessPerXForeignFollowers())
 		{
-			iForeignCityYields += (10 * m_pPlayer->GetReligions()->GetNumForeignFollowers(false, eReligion) + 5 * iAvailability * iNumForeignCitiesToSpreadTo) * iHappinessValueTimes100 / pEntry->GetHappinessPerXPeacefulForeignFollowers() / max(iNeighborWarmongerThreat / 2, 1) / 100;
+			if (!pEntry->RequiresPeace())
+			{
+				iForeignCityYields += (10 * m_pPlayer->GetReligions()->GetNumForeignFollowers(false, eReligion) + 5 * iAvailability * iNumForeignCitiesToSpreadTo) * iHappinessValueTimes100 / pEntry->GetHappinessPerXForeignFollowers() / 100;
+			}
+			else if (!bIsWarmonger)
+			{
+				iForeignCityYields += (10 * m_pPlayer->GetReligions()->GetNumForeignFollowers(false, eReligion) + 5 * iAvailability * iNumForeignCitiesToSpreadTo) * iHappinessValueTimes100 / pEntry->GetHappinessPerXForeignFollowers() / max(iNeighborWarmongerThreat / 2, 1) / 100;
+			}
 		}
 	}
 	iScorePlayer += iForeignCityYields;
