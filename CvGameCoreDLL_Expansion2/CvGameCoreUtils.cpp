@@ -1449,10 +1449,10 @@ int GetBaseUnitUpgradeCost(const UnitTypes eCurrentUnit, const UnitTypes eNewUni
 		if (eTech != NO_TECH)
 		{
 			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-			const EraTypes eUpgradeEra = static_cast<EraTypes>(pkTechInfo->GetEra());
+			const int iUpgradeEra = pkTechInfo->GetEra();
 
 			float fMultiplier = 1.0f;
-			fMultiplier += eUpgradeEra * /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA);
+			fMultiplier += iUpgradeEra * /*0.0f*/ GD_FLOAT_GET(UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA);
 
 			iPrice = static_cast<int>(iPrice * fMultiplier);
 		}
