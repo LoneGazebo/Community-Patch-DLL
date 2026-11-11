@@ -785,6 +785,8 @@ public:
 
 	void ChangeUnitClassProductionModifier(UnitClassTypes eUnitClass, int iValue);
 	int GetUnitClassProductionModifier(UnitClassTypes eUnitClass) const;
+	void ChangeProjectProductionModifier(ProjectTypes eProject, int iValue);
+	int GetProjectProductionModifier(ProjectTypes eProject) const;
 
 	int GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImport = true) const;
 	int GetExtraHappinessPerLuxury() const;
@@ -3448,6 +3450,7 @@ protected:
 	int m_iPlayerEventCooldown;
 	std::vector<FeatureTypes> m_ownedNaturalWonders;
 	std::vector<int> m_paiUnitClassProductionModifiers;
+	std::vector<int> m_paiProjectProductionModifiers;
 	int m_iExtraSupplyPerPopulation;
 	int m_iExtraSupplyFlat;
 	int m_iCitySupplyFlatGlobal;
@@ -4254,6 +4257,7 @@ SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventFired)
 SYNC_ARCHIVE_VAR(int, m_iPlayerEventCooldown)
 SYNC_ARCHIVE_VAR(std::vector<FeatureTypes>, m_ownedNaturalWonders)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassProductionModifiers)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiProjectProductionModifiers)
 SYNC_ARCHIVE_VAR(int, m_iExtraSupplyPerPopulation)
 SYNC_ARCHIVE_VAR(int, m_iExtraSupplyFlat)
 SYNC_ARCHIVE_VAR(int, m_iCitySupplyFlatGlobal)
