@@ -359,7 +359,7 @@
 // Land COMBAT units blockade undefended adjacent tiles
 #define MOD_BALANCE_LAND_UNITS_ADJACENT_BLOCKADE					gCustomMods.isBALANCE_LAND_UNITS_ADJACENT_BLOCKADE()
 
-// Only units with UNITCOMBAT_RECON or UnitPromotions.GainsXPFromScouting (as well as city border growth) can claim Ancient Ruins
+// Only units with UnitPromotions.CanClaimGoody (as well as city border growth) can claim Ancient Ruins
 #define MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS						gCustomMods.isBALANCE_RECON_ONLY_ANCIENT_RUINS()
 
 // Inquisitors don't block spread but instead reduce its effectiveness by 50%
