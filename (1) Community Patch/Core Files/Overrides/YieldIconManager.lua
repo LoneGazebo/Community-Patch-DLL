@@ -595,6 +595,11 @@ do
 end
 
 
+-- The engine's C++ YieldIconManager only emits Events.ShowHexYield. This
+-- file reimplements it with proper culling, so the engine's version is just
+-- double work: stop it. Nothing emits ShowHexYield after this!
+Exe.TryDisableEngineYieldIconManager()
+
 CivEvents.GameplaySetActivePlayer.Add(function()
 	is_global_on = false
 	is_listening = false

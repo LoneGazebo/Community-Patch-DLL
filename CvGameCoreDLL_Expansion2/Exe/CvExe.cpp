@@ -1,0 +1,271 @@
+#include "CvGameCoreDLLPCH.h"
+#include "CvExe.h"
+#include "CvExeApi.h"
+#include "CvExeBuild.h"
+#include "CvExeSymbols.h"
+#include "CvGameCoreUtils.h"
+
+#include <string.h>
+
+// must be included after all other headers
+#include "LintFree.h"
+
+namespace
+{
+const char* const REASON_NAMES[Exe::NUM_REASONS] =
+{
+	"ok",
+	"bin_hooks_off",
+	"unsupported_exe",
+	"not_network_game",
+	"not_host",
+	"unavailable",
+	"not_ui_thread",
+	"wrong_event_channel",
+};
+
+// The symbols each feature uses
+const ExeSymbol RESYNC_SYMBOLS[] =
+{
+	EXE_Civ5NetMessage_s_wantForceResync,
+};
+
+const ExeSymbol YIELD_ICON_MANAGER_SYMBOLS[] =
+{
+	EXE_InterfaceBuddy_UserInterface,
+	EXE_InterfaceBuddy_vftable,
+	EXE_InterfaceBuddy_UserInterface_vftable,
+	EXE_InterfaceBuddy_YieldIconManager,
+	EXE_YieldIconManager_UnregisterForEvents,
+	EXE_g_EventSystemLocalMachine,
+};
+
+bool HasSymbols(const ExeSymbol* aSymbols, unsigned int uiCount)
+{
+	for (unsigned int i = 0; i < uiCount; ++i)
+	{
+		if (!ExeSymbols::IsResolved(aSymbols[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+Exe::Reason Refuse(const char* szWhat, Exe::Reason eReason)
+{
+	CUSTOMLOG("Exe: %s refused: %s (%s EXE)",
+		szWhat,
+		Exe::GetReasonName(eReason),
+		Exe::GetBuildName()
+	);
+
+	return eReason;
+}
+
+//! True if [p, p + uiSize) is committed, readable memory in one region.
+//! Asks the memory manager instead of touching the memory, so unlike
+//! IsBadReadPtr it cannot trip a guard page.
+bool IsReadable(const void* p, size_t uiSize)
+{
+	MEMORY_BASIC_INFORMATION kInfo;
+
+	if (VirtualQuery(p, &kInfo, sizeof(kInfo)) != sizeof(kInfo))
+	{
+		return false;
+	}
+
+	const DWORD dwReadable = PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY
+		| PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
+
+	if (
+		kInfo.State != MEM_COMMIT
+		|| (kInfo.Protect & (PAGE_GUARD | PAGE_NOACCESS)) != 0
+		|| (kInfo.Protect & dwReadable) == 0
+	)
+	{
+		return false;
+	}
+
+	const BYTE* pEnd =
+		static_cast<const BYTE*>(kInfo.BaseAddress) + kInfo.RegionSize;
+
+	return static_cast<const BYTE*>(p) + uiSize <= pEnd;
+}
+
+DWORD ReadVftable(DWORD dwObject)
+{
+	const void* p = reinterpret_cast<const void*>(dwObject);
+	DWORD dwVftable = 0;
+
+	// memcpy: the address is computed and not known to be aligned
+	if (IsReadable(p, sizeof(dwVftable)))
+	{
+		memcpy(&dwVftable, p, sizeof(dwVftable));
+	}
+
+	return dwVftable;
+}
+
+//! Engine's InterfaceBuddy, found from GC.GetEngineUserInterface(), or
+//! NULL if the memory there does not match one.
+void* FindInterfaceBuddy()
+{
+	const DWORD dwUI = reinterpret_cast<DWORD>(GC.GetEngineUserInterface());
+
+	if (dwUI == 0)
+	{
+		return NULL;
+	}
+
+	const DWORD dwBuddy = dwUI - ExeApi::InterfaceBuddy_UserInterface();
+	const DWORD dwVftable = ReadVftable(dwBuddy);
+	const DWORD dwUIVftable = ReadVftable(dwUI);
+
+	if (
+		dwVftable != ExeApi::InterfaceBuddy_vftable()
+		|| dwUIVftable != ExeApi::InterfaceBuddy_UserInterface_vftable()
+	)
+	{
+		CUSTOMLOG(
+			"Exe: %08X is not an InterfaceBuddy (vftables %08X / %08X)",
+			(unsigned int)dwUI,
+			(unsigned int)dwVftable,
+			(unsigned int)dwUIVftable
+		);
+		return NULL;
+	}
+
+	return reinterpret_cast<void*>(dwBuddy);
+}
+} // namespace
+
+//------------------------------------------------------------------------------
+const char* Exe::GetReasonName(Reason eReason)
+{
+	if (eReason < 0 || eReason >= NUM_REASONS)
+	{
+		return "?";
+	}
+
+	return REASON_NAMES[eReason];
+}
+
+const char* Exe::GetBuildName()
+{
+	return ExeBuild::GetName(ExeBuild::GetType());
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanScheduleResync()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(RESYNC_SYMBOLS, _countof(RESYNC_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	if (!GC.getGame().isNetworkMultiPlayer())
+	{
+		return REASON_NOT_NETWORK_GAME;
+	}
+
+	if (!gDLL->IsHost())
+	{
+		return REASON_NOT_HOST;
+	}
+
+	return REASON_OK;
+}
+
+Exe::Reason Exe::TryScheduleResync()
+{
+	const Reason eReason = CanScheduleResync();
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryScheduleResync", eReason);
+	}
+
+	// A byte: the next 3 bytes are not ours
+	volatile BYTE* pFlag = ExeApi::Civ5NetMessage_s_wantForceResync();
+	*pFlag = 1;
+
+	CUSTOMLOG("Exe: Civ5NetMessage_s_wantForceResync set at %08X",
+		(unsigned int)reinterpret_cast<DWORD>(pFlag)
+	);
+
+	GC.getDLLIFace()->sendChat(
+		GetLocalizedText("TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED"),
+		CHATTARGET_ALL,
+		NO_PLAYER
+	);
+
+	return REASON_OK;
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanDisableEngineYieldIconManager()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (
+		!HasSymbols(
+			YIELD_ICON_MANAGER_SYMBOLS,
+			_countof(YIELD_ICON_MANAGER_SYMBOLS)
+		)
+	)
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	if (GC.GetEngineUserInterface() == NULL)
+	{
+		return REASON_UNAVAILABLE;
+	}
+
+	// Handlers are registered per channel; the engine registered these on
+	// channel 0, so on another channel the unregister would find nothing
+	if (*ExeApi::g_EventSystemLocalMachine() != 0)
+	{
+		return REASON_WRONG_EVENT_CHANNEL;
+	}
+
+	return REASON_OK;
+}
+
+Exe::Reason Exe::TryDisableEngineYieldIconManager()
+{
+	const Reason eReason = CanDisableEngineYieldIconManager();
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryDisableEngineYieldIconManager", eReason);
+	}
+
+	void* pBuddy = FindInterfaceBuddy();
+
+	if (pBuddy == NULL)
+	{
+		return Refuse("TryDisableEngineYieldIconManager", REASON_UNAVAILABLE);
+	}
+
+	void* pManager = static_cast<BYTE*>(pBuddy)
+		+ ExeApi::InterfaceBuddy_YieldIconManager();
+
+	ExeApi::YieldIconManager_UnregisterForEvents(pManager);
+
+	CUSTOMLOG("Exe: YieldIconManager_UnregisterForEvents done for %08X",
+		(unsigned int)reinterpret_cast<DWORD>(pManager)
+	);
+
+	return REASON_OK;
+}
