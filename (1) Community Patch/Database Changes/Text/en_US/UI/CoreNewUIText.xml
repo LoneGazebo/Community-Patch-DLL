@@ -146,6 +146,11 @@
 		<Row Tag="TXT_KEY_ALLOWS_EXTRA_LUXURIES">
 			<Text>Unlocks Projects that increase local Luxury copies</Text>
 		</Row>
+		
+		<!-- Religion Belief Description -->
+		<Row Tag="TXT_KEY_RELIGION_BELIEF_DESCRIPTION">
+			<Text>[NEWLINE][COLOR_POSITIVE_TEXT]{1_BeliefName}[ENDCOLOR] ({@2_BeliefDesc})</Text>
+		</Row>
 
 		<!-- Theming bonus -->
 		<Row Tag="TXT_KEY_CO_TOURISM_THEME_BONUS">
@@ -245,6 +250,12 @@
 		<Row Tag="TXT_KEY_TP_POLICY_TENET_PENALTY_EXPLAINER">
 			<Text>Each Tenet increases future Policy costs: Tier 1 [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR], Tier 2 [COLOR_NEGATIVE_TEXT]+{2_Num}%[ENDCOLOR], Tier 3 [COLOR_NEGATIVE_TEXT]+{3_Num}%[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_COST_FACTOR_TIMES">
+			<Text>×{1_Str}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_COST_FACTOR_DIVIDED">
+			<Text>÷{1_Str}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_COST_BASE">
 			<Text>Base Policy cost: {1_Num} [ICON_CULTURE]</Text>
 		</Row>
@@ -252,28 +263,28 @@
 			<Text>(capped at {1_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_HEADER">
-			<Text>[ICON_BULLET]x {1_Str} from Policy cost changes{2_Str}:</Text>
+			<Text>{1_Str} from Policy cost changes{2_Str}:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FROM_POLICIES">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from adopted Policies and Tenets.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from adopted Policies and Tenets</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FROM_BUILDINGS">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from Buildings.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from Buildings</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FROM_MINOR_CIVS">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from City-State modifiers.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from City-State modifiers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DISCOUNT_FROM_TRAITS">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from Civilization Traits.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] from Civilization Traits</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_TENET_PENALTY">
-			<Text>[ICON_BULLET]x [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR] from {2_Num} adopted {2_Num: plural 1?Tenet; other?Tenets;}.</Text>
+			<Text>{1_Str} from {2_Num} adopted {2_Num: plural 1?Tenet; other?Tenets;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_DIFFICULTY">
-			<Text>[ICON_BULLET]x {1_Str} from difficulty and era.</Text>
+			<Text>{1_Str} from Difficulty and Era</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_POLICY_COST_TOTAL">
-			<Text>[ICON_BULLET]= {1_Num} [ICON_CULTURE] adjusted Policy cost.</Text>
+			<Text>= {1_Num} [ICON_CULTURE] adjusted Policy cost</Text>
 		</Row>
 		<!-- Science -->
 		<Row Tag="TXT_KEY_TP_SCIENCE_PER_TURN">
@@ -286,19 +297,19 @@
 			<Text>Base Technology cost: {1_Num} [ICON_RESEARCH]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_DISCOUNT_HEADER">
-			<Text>[ICON_BULLET]/ {1_Str}{2_Str} from Technology cost discounts:</Text>
+			<Text>{1_Str}{2_Str} from Technology cost discounts:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_DISCOUNT_SCHOLAR_SPLIT">
-			<Text>([COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] x [COLOR_POSITIVE_TEXT]{2_Num}%[ENDCOLOR])</Text>
+			<Text>([COLOR_POSITIVE_TEXT]{1_Str}[ENDCOLOR] × [COLOR_POSITIVE_TEXT]{2_Str}[ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_CATCHUP_DISCOUNT">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Str}%[ENDCOLOR] from {2_Num}/{3_Num} known Civilizations having this technology.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+{1_Str}%[ENDCOLOR] from {2_Num}/{3_Num} known Civilizations having this technology</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_PREREQ_DISCOUNT">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Str}%[ENDCOLOR] from known optional prerequisite technologies.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+{1_Str}%[ENDCOLOR] from known optional prerequisite technologies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TECH_COST_TOTAL">
-			<Text>[ICON_BULLET]= {1_Num} [ICON_RESEARCH] adjusted Technology cost.</Text>
+			<Text>= {1_Num} [ICON_RESEARCH] adjusted Technology cost</Text>
 		</Row>
 		<!-- Tourism -->
 		<Row Tag="TXT_KEY_TP_TOURISM_PER_TURN">
@@ -631,7 +642,7 @@
 			<Text>{TXT_KEY_PRODUCTION_UNIT_ONE_SHOT_TOURISM &lt;&lt; {1_Tourism}}, and {2_Percent}% of that towards other Players</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_CONCERT_TOUR">
-			<Text>{TXT_KEY_MISSION_ONE_SHOT_TOURISM}: +{1_NumTurn} {1: plural 1?Turn; other?Turns;} of +100% [ICON_TOURISM] Tourism towards Target Player, +50% towards other Players</Text>
+			<Text>{TXT_KEY_MISSION_ONE_SHOT_TOURISM}: +{1_NumTurn} {1: plural 1?Turn; other?Turns;} of +50% [ICON_TOURISM] Tourism towards Target Player, +25% towards other Players</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_GOLD">
 			<Text>{1_Num} [ICON_GOLD] Gold</Text>
@@ -642,8 +653,17 @@
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_RESTING_INFLUENCE">
 			<Text>{TXT_KEY_MISSION_CONDUCT_TRADE_MISSION}: {2_Sign}{1_Num} Resting [ICON_INFLUENCE] Influence with Target [ICON_CITY_STATE] City-State</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_FREE_SPY_POINTS">
+			<Text>{TXT_KEY_MISSION_CONDUCT_TRADE_MISSION}: Gain {1_Num} [ICON_SPY_POINT] Spy {1: plural 1?Point; other?Points;}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_TRADE_MISSION_FREE_SPIES">
+			<Text>{TXT_KEY_MISSION_CONDUCT_TRADE_MISSION}: Gain {1_Num} [ICON_SPY] {1: plural 1?Spy; other?Spies;}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_UNIT_FREE_LUXURY">
 			<Text>{TXT_KEY_MISSION_FREE_LUXURY}: +{1_Num} Random Luxury {1: plural 1? Resource; other?Resources;}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_UNIT_XP_FROM_EXPLORATION">
+			<Text>{1_Num} XP at 100% map exploration, scaling linearly upon creation and as the map is revealed</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_REQUIRED_BUILDINGS_PURCHASE">
 			<Text>Required Buildings for Purchase: [COLOR_YIELD_FOOD]{1_Buildings}[ENDCOLOR]</Text>
@@ -2084,6 +2104,9 @@
 		<Row Tag="TXT_KEY_GPP_MOD_CAPITAL">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% for [ICON_CAPITAL] Capital from [ICON_RES_MARRIAGE] Diplomatic Marriages</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GPP_MOD_BELIEF">
+			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from Religious Beliefs</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GPP_MOD_GA_BELIEF">
 			<Text>[NEWLINE][ICON_BULLET]{1: number "'+'##;'-'##"}% from [ICON_GOLDEN_AGE] Golden Age (Religious Beliefs)</Text>
 		</Row>
@@ -2589,10 +2612,10 @@
 			<Text>{1: number "'+'##;'-'##"}% from their Buildings[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
-			<Text>+100% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
+			<Text>+50% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
-			<Text>+50% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
+			<Text>+25% from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_EXOTIC_THEY">
 			<Text>[NEWLINE][NEWLINE]Their [ICON_TOURISM] Tourism Influence over {1_Civ}: [COLOR_CYAN]Exotic[ENDCOLOR]</Text>
@@ -3836,6 +3859,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_MISC_HUMAN_AI_PATH_ENABLED">
 			<Text>Debug: Pathfinding stop nodes for humans enabled</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_OBSERVER_MODE_EXIT_PENDING">
+			<Text>Leaving observer mode at the next civilization's turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PARADROP_AA_DAMAGED">
 			<Text>Your {1_Unit} was intercepted by an enemy {2_EnUName} ({3_Num} damage)!</Text>

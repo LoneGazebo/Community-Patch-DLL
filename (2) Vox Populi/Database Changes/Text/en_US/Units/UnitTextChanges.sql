@@ -10,7 +10,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREAT_ARTIST_STRATEGY';
 
 -- Great Musician
 UPDATE Language_en_US
-SET Text = 'A Great Musician can create a [ICON_GW_MUSIC] Great Work of Music (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower).[NEWLINE][NEWLINE]A Great Musician can also travel to another civilization and perform a [COLOR_POSITIVE_TEXT]Concert Tour[ENDCOLOR], increasing your [ICON_TOURISM] Tourism with the target Civilization by 100%, and all other Civilizations by 50%, for 10 Turns plus 1 additional Turn for every owned [ICON_GW_MUSIC] Great Work of Music. You also receive 1 [ICON_HAPPINESS_1] Happiness in every City. This action consumes the unit.[NEWLINE][NEWLINE]You cannot perform a Concert Tour if at war with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [COLOR_MAGENTA]Influential[ENDCOLOR] or greater.'
+SET Text = 'A Great Musician can create a [ICON_GW_MUSIC] Great Work of Music (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower).[NEWLINE][NEWLINE]A Great Musician can also travel to another civilization and perform a [COLOR_POSITIVE_TEXT]Concert Tour[ENDCOLOR], increasing your [ICON_TOURISM] Tourism with the target Civilization by 50%, and all other Civilizations by 25%, for 10 Turns plus 1 additional Turn for every owned [ICON_GW_MUSIC] Great Work of Music. You also receive 1 [ICON_HAPPINESS_1] Happiness in every City. This action consumes the unit.[NEWLINE][NEWLINE]You cannot perform a Concert Tour if at war with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [COLOR_MAGENTA]Influential[ENDCOLOR] or greater.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_MUSICIAN_STRATEGY';
 
 -- Great Scientist
@@ -141,8 +141,13 @@ WHERE Tag = 'TXT_KEY_UNIT_INFANTRY_STRATEGY';
 
 -- Pathfinder
 UPDATE Language_en_US
-SET Text = 'The Pathfinder is the game''s first reconnaissance unit. It fights poorly compared to a Warrior, but has better movement and vision.'
+SET Text = 'The Pathfinder is the game''s first reconnaissance unit. It fights poorly compared to a Warrior, but has better movement.'
 WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_PATHFINDER_STRATEGY';
+
+-- Scout
+UPDATE Language_en_US
+SET Text = 'The Scout upgrades from the Pathfinder, gaining a better sight. It has a pretty weak attack, but has access to a wide range of mobility, survival, and military support promotions, making it one of the best Units for exploration, enemy disruption, and flanking support.'
+WHERE Tag = 'TXT_KEY_UNIT_SCOUT_STRATEGY';
 
 -- Explorer
 UPDATE Language_en_US
@@ -159,21 +164,26 @@ SET Text = 'Special Forces'
 WHERE Tag = 'TXT_KEY_UNIT_MARINE';
 
 UPDATE Language_en_US
-SET Text = 'The Special Forces unit possesses promotions that enhance its Sight and attack strength when embarked at sea. It is also stronger versus Gunpowder Units, and can paradrop up to 9 tiles away from friendly territory.'
+SET Text = 'The Special Forces Unit possesses a special promotion that makes all land-based interceptor within 2 tiles stop working. Paradrop one near the bulk of enemy Units, then blast them off with your air force! Do be careful of enemy Fighters though.'
 WHERE Tag = 'TXT_KEY_UNIT_MARINE_STRATEGY';
 
 UPDATE Language_en_US
 SET Text = 'Special forces and special operations forces are military units trained to perform unconventional missions. Special forces, as they would now be recognised, emerged in the early 20th century, with a significant growth in the field during the Second World War. Depending on the country, special forces may perform some of the following functions: airborne operations, counter-insurgency, "counter-terrorism", covert ops, direct action, hostage rescue, high-value targets/manhunting, intelligence operations, mobility operations, and unconventional warfare.'
 WHERE Tag = 'TXT_KEY_CIV5_MARINE_TEXT';
 
+-- XCOM Squad
+UPDATE Language_en_US
+SET Text = 'The XCOM Squad is an elite team of soldiers based on the technology pioneered by the XCOM Initiative. It possesses the same promotion as Special Forces that makes all land-based interceptor within 2 tiles stop working. It also has an paradrop range of 40 tiles, which allows them to be deployed from almost anywhere.'
+WHERE Tag = 'TXT_KEY_UNIT_XCOM_SQUAD_STRATEGY';
+
 -- Anti-Aircraft Gun
 UPDATE Language_en_US
-SET Text = 'These specialized artillery units will automatically attack any air unit bombing a target within 3 tiles. (They can only intercept one unit per turn.) They are quite weak in combat against other ground units and should be defended by stronger units when under threat of ground attack.'
+SET Text = 'These specialized artillery Units will automatically attack any air Unit bombing a target within 3 tiles. (They can only intercept one unit per turn.) They are very weak in combat against other ground Units and should be defended by stronger Units when under threat of ground attacks. They will also stop working if a Special Forces Unit or XCOM Squad is within 2 tiles of them, so beware!'
 WHERE Tag = 'TXT_KEY_UNIT_ANTI_AIRCRAFT_STRATEGY';
 
 -- Mobile SAM
 UPDATE Language_en_US
-SET Text = 'Mobile SAM (surface-to-air) units provide an advancing army with anti-air defense. Mobile SAM units can intercept and shoot at enemy aircraft bombing targets within 4 hexes (but only one unit per turn). These units are fairly vulnerable to non-air attack and should be accompanied by infantry or armor.'
+SET Text = 'Mobile SAM (surface-to-air) Units provide an advancing army with anti-air defense. Mobile SAM Units can intercept and shoot at enemy aircraft bombing targets within 4 tiles (but only one unit per turn). These units are fairly vulnerable to non-air attack and should be accompanied by Gunpowder or Armored Units. As with the Anti-Aircraft Gun, they will stop working if a Special Forces Unit or XCOM Squad is within 2 tiles of them.'
 WHERE Tag = 'TXT_KEY_UNIT_MOBILE_SAM_STRATEGY';
 
 -- Galley
@@ -317,7 +327,7 @@ WHERE Tag = 'TXT_KEY_UNIT_AMERICAN_B17_STRATEGY';
 
 -- Pracinha
 UPDATE Language_en_US
-SET Text = 'This Atomic Era melee unit can use its Survivalism I promotion to help it survive on the front line. When the opportunity presents itself, it can defeat a weakened enemy to earn points toward starting another [ICON_GOLDEN_AGE] Golden Age.'
+SET Text = 'This Atomic Era melee unit can use its Stalwart promotion to help it survive on the front line. When the opportunity presents itself, it can defeat a weakened enemy to earn points toward starting another [ICON_GOLDEN_AGE] Golden Age.'
 WHERE Tag = 'TXT_KEY_UNIT_BRAZILIAN_PRACINHA_STRATEGY';
 
 -- Norwegian Ski Infantry

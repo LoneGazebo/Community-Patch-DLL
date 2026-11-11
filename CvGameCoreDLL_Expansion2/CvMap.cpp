@@ -554,6 +554,7 @@ CvMap::CvMap()
 	, m_pPlayerCityRadiusCount(NULL)
 	, m_pVisibilityCount(NULL)
 	, m_pVisibilityCountThisTurnMax(NULL)
+	, m_pKnownVisibilityCount(NULL)
 	, m_pRevealedOwner(NULL)
 	, m_pIsImpassable(NULL)
 	, m_pIsStrategic(NULL)
@@ -561,6 +562,7 @@ CvMap::CvMap()
 	, m_pRevealedImprovementType(NULL)
 	, m_pRevealedRouteType(NULL)
 	, m_pResourceForceReveal(NULL)
+	, m_pHumanPlannedRouteState(NULL)
 	, m_areas()
 	, m_landmasses()
 	, m_continents()
@@ -894,6 +896,8 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 	m_landmasses.RemoveAll();
 	m_continents.RemoveAll();
 	m_rivers.RemoveAll();
+
+	m_viTerrainPlotCounts.assign(NUM_TERRAIN_TYPES, 0);
 
 	m_vDeferredFogPlots.clear();
 
@@ -1815,6 +1819,7 @@ void CvMap::Serialize(Map& map, Visitor& visitor)
 	visitor(map.m_landmasses);
 	visitor(map.m_continents);
 	visitor(map.m_rivers);
+	visitor(map.m_viTerrainPlotCounts);
 	visitor(map.m_iAIMapHints);
 }
 
@@ -2886,6 +2891,21 @@ void CvMap::CreateRiverFrom(CvPlot* pPlot, DirectionTypes eDirection, CvRiver* p
 		DirectionTypes eOppositeDirection = static_cast<DirectionTypes>((eDirection + 3) % 6);
 		CreateRiverFrom(pOppositePlot, eOppositeDirection, pRiver);
 	}
+}
+
+int CvMap::GetTerrainPlotCount(TerrainTypes eTerrain) const
+{
+	PRECONDITION(eTerrain > NO_TERRAIN, "eTerrain is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTerrain < NUM_TERRAIN_TYPES, "eTerrain is expected to be within maximum bounds (invalid Index)");
+	return m_viTerrainPlotCounts[eTerrain];
+}
+
+void CvMap::ChangeTerrainPlotCount(TerrainTypes eTerrain, int iChange)
+{
+	PRECONDITION(eTerrain > NO_TERRAIN, "eTerrain is expected to be non-negative (invalid Index)");
+	PRECONDITION(eTerrain < NUM_TERRAIN_TYPES, "eTerrain is expected to be within maximum bounds (invalid Index)");
+	m_viTerrainPlotCounts[eTerrain] += iChange;
+	ASSERT(m_viTerrainPlotCounts[eTerrain] >= 0);
 }
 
 //	---------------------------------------------------------------------------

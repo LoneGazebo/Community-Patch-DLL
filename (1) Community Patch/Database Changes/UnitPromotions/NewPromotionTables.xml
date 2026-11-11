@@ -21,7 +21,7 @@
 	<!-- Instant yields to the origin city of the unit when this promotion is acquired -->
 	<Table name="UnitPromotions_InstantYields">
 		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
-		<Column name="YieldType" type="integer" reference="Yields(Type)" notnull="true"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)" notnull="true"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
@@ -95,6 +95,12 @@
 		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
 		<Column name="Attack" type="integer" default="0"/>
 		<Column name="Defense" type="integer" default="0"/>
+	</Table>
+	<!-- Unit gains the specified amount of HP when ending its turn in the specified terrain -->
+	<Table name="UnitPromotions_TerrainHeal">
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)" notnull="true"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)" notnull="true"/>
+		<Column name="Amount" type="integer" notnull="true"/>
 	</Table>
 
 	<!-- Unit inflicts PlaguePromotionType on enemy units of DomainType (all domains if NULL) with ApplyChance% chance on attack or defense depending on ApplyOnAttack and ApplyOnDefense -->

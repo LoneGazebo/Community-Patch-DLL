@@ -143,13 +143,7 @@ SET
 	AllowsProductionTradeRoutes = 1
 WHERE Type = 'BUILDING_QULLQA';
 
-INSERT INTO Building_YieldChanges
-	(BuildingType, YieldType, Yield)
+INSERT INTO Building_PlotYieldChanges
+	(BuildingType, PlotType, YieldType, Yield)
 VALUES
---	('BUILDING_QULLQA', 'YIELD_FOOD', 1),
-	('BUILDING_QULLQA', 'YIELD_PRODUCTION', 2);
-
-INSERT INTO Building_YieldPerXTerrainTimes100
-	(BuildingType, TerrainType, YieldType, Yield)
-VALUES
-	('BUILDING_QULLQA', 'TERRAIN_HILL', 'YIELD_FOOD', 50);
+	('BUILDING_QULLQA', 'PLOT_HILLS', 'YIELD_FOOD', 1);

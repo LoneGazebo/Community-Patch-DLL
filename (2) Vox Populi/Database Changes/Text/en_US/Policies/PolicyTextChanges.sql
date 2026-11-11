@@ -8,7 +8,7 @@ SET Text = '{1_PlayerName:textkey} the Great of {2_CivName:textkey}'
 WHERE Tag = 'TXT_KEY_TRADITION_TITLE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tradition[ENDCOLOR] concentrates in the [COLOR_CYAN]early game[ENDCOLOR] on [ICON_FOOD] to grow a core set of Cities with improved yields from Buildings and an impressive [ICON_CAPITAL] Capital. Supports and rewards generating [ICON_GREAT_PEOPLE] Great People [COLOR_CYAN]throughout the game[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Tradition grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_FOOD] Food, +2 [ICON_CITIZEN] Population, and +2 [ICON_HAPPINESS_1] Happiness in the [ICON_CAPITAL] Capital.[NEWLINE][ICON_BULLET]+1 [ICON_CULTURE] Culture in the [ICON_CAPITAL] Capital for every 2 [ICON_CITIZEN] Citizens.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Tradition policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_FOOD] Food in every City, and +1 [ICON_RESEARCH] Science in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Tradition grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]University of Sankore[ENDCOLOR].[NEWLINE][ICON_BULLET]+1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production from all Great Person Improvements and [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_THRONE_ROOM}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+10% to all Yields, +1 City tile working range, 1 [ICON_GW_MUSIC] Great Work of Music slot, 1 [ICON_MUSICIAN] Musician Slot).[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_ENGINEER] Great Engineers with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Tradition[ENDCOLOR] concentrates in the [COLOR_CYAN]early game[ENDCOLOR] on [ICON_FOOD] to grow a core set of Cities with improved yields from Buildings and an impressive [ICON_CAPITAL] Capital. Supports and rewards generating [ICON_GREAT_PEOPLE] Great People [COLOR_CYAN]throughout the game[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Tradition grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_FOOD] Food, +2 [ICON_CITIZEN] Population, and +2 [ICON_HAPPINESS_1] Happiness in the [ICON_CAPITAL] Capital.[NEWLINE][ICON_BULLET]+1 [ICON_CULTURE] Culture in the [ICON_CAPITAL] Capital for every 2 [ICON_CITIZEN] Citizens.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Tradition policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_FOOD] Food in every City.[NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science and +1 [ICON_CITIZEN] Population in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Tradition grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]University of Sankore[ENDCOLOR].[NEWLINE][ICON_BULLET]+1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production from all Great Person Improvements and [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_THRONE_ROOM}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+15% to all Yields, +1 City tile working range, 1 [ICON_GW_MUSIC] Great Work of Music slot, 1 [ICON_MUSICIAN] Musician Slot).[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_ENGINEER] Great Engineers with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_TRADITION_HELP';
 
 UPDATE Language_en_US
@@ -16,7 +16,7 @@ SET Text = 'Justice'
 WHERE Tag = 'TXT_KEY_POLICY_ARISTOCRACY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Justice[ENDCOLOR][NEWLINE][ICON_BULLET]Cities with a garrison gain +25% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_ROYAL_GUARDHOUSE}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_PRODUCTION] Production, +2 [ICON_STRENGTH] Defense, +50 Hit Points, +10% [ICON_SILVER_FIST] Military Supply from [ICON_CITIZEN] Population in all Cities, +1 [ICON_PRODUCTION] Production to all Councils and Forges, 1 [ICON_ENGINEER] Engineer Slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Justice[ENDCOLOR][NEWLINE][ICON_BULLET]Cities with a garrison gain +25% [ICON_RANGE_STRENGTH] Ranged Combat Strength.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_ROYAL_GUARDHOUSE}[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_PRODUCTION] Production, +2 [ICON_STRENGTH] Defense, +50 Hit Points, +25% [ICON_SILVER_FIST] Military Supply from [ICON_CITIZEN] Population in the Capital, +1 [ICON_PRODUCTION] Production to all Councils and Forges, 1 [ICON_ENGINEER] Engineer Slot).'
 WHERE Tag = 'TXT_KEY_POLICY_ARISTOCRACY_HELP';
 
 UPDATE Language_en_US
@@ -79,7 +79,7 @@ SET Text = 'Progress'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Progress[ENDCOLOR] plans to found a sprawl of self-sufficient Cities in the [COLOR_CYAN]early game[ENDCOLOR] with free starting yields and faster [ICON_WORKER] rate of tile improvement. Constructing Buildings and birthing [ICON_CITIZEN] Citizens supports the economy [COLOR_CYAN]throughout the game[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Progress grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Receive an instant boost of 75 [ICON_RESEARCH] Science.[NEWLINE][ICON_BULLET]Receive 8 [ICON_RESEARCH] Science when a [ICON_CITIZEN] Citizen is born, scaling with Era.[NEWLINE][ICON_BULLET]Receive 15 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era, and for every Technology already unlocked (not scaling with Era).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Progress policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Gain an additional 15 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Progress grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Forbidden Palace[ENDCOLOR].[NEWLINE][ICON_BULLET]Receive 25 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, scaling with Era.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Progress[ENDCOLOR] plans to found a sprawl of self-sufficient Cities in the [COLOR_CYAN]early game[ENDCOLOR] with free starting yields and faster [ICON_WORKER] rate of tile improvement. Constructing Buildings and birthing [ICON_CITIZEN] Citizens supports the economy [COLOR_CYAN]throughout the game[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Progress grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Receive an instant boost of 50 [ICON_RESEARCH] Science.[NEWLINE][ICON_BULLET]Receive 8 [ICON_RESEARCH] Science when a [ICON_CITIZEN] Citizen is born, scaling with Era.[NEWLINE][ICON_BULLET]Receive 15 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era, and for every Technology already unlocked (not scaling with Era).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Progress policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Gain an additional 15 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Progress grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Forbidden Palace[ENDCOLOR].[NEWLINE][ICON_BULLET]Receive 25 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, scaling with Era.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY_HELP';
 
 UPDATE Language_en_US
@@ -338,7 +338,7 @@ SET Text = 'Shadow Networks'
 WHERE Tag = 'TXT_KEY_POLICY_SCHOLASTICISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Shadow Networks[ENDCOLOR][NEWLINE][ICON_BULLET]+3% [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every 100 [ICON_SPY_POINT] Spy Points ever accumulated (up to 30%).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Chanceries and Constabularies.[NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science from Specialists.'
+SET Text = '[COLOR_POSITIVE_TEXT]Shadow Networks[ENDCOLOR][NEWLINE][ICON_BULLET]+3% [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every 100 [ICON_SPY_POINT] Spy Points ever accumulated (up to 30%).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Chanceries, Printing Houses, and Constabularies.[NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science from Specialists.'
 WHERE Tag = 'TXT_KEY_POLICY_SCHOLASTICISM_HELP';
 
 UPDATE Language_en_US
@@ -383,7 +383,7 @@ SET Text = 'Artistry'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_AESTHETICS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Artistry[ENDCOLOR] generates extra yields from [ICON_GREAT_WORK] Great Works and [ICON_WONDER] Wonders. It accelerates the generation of cultural [ICON_GREAT_PEOPLE] Great People and longer, stronger [ICON_GOLDEN_AGE] Golden Ages. It also unlocks new [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] to attain higher tiers of [ICON_TOURISM] Cultural Influence.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Earn Great [ICON_GREAT_WRITER] Writers, [ICON_GREAT_ARTIST] Artists, and [ICON_GREAT_MUSICIAN] Musicians 25% faster.[NEWLINE][ICON_BULLET]+10% [ICON_CULTURE] Culture during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] Production towards all Guilds.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Artistry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science in every City.[NEWLINE][ICON_BULLET]20% of Excess [ICON_HAPPINESS_1] Happiness produced in each City is added as progress toward a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Louvre[ENDCOLOR].[NEWLINE][ICON_BULLET]Completing an [ICON_RES_ARTIFACTS] Archaeological Dig or starting a [ICON_GOLDEN_AGE] Golden Age triggers (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][ICON_BULLET]Allows you to see [ICON_RES_HIDDEN_ARTIFACTS] Hidden Antiquity Sites.[NEWLINE][ICON_BULLET]+3 [ICON_RESEARCH] Science from [ICON_ARTIFACT] Artifacts and [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MUSICIAN] Great Musicians with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Artistry[ENDCOLOR] generates extra yields from [ICON_GREAT_WORK] Great Works. It accelerates the generation of cultural [ICON_GREAT_PEOPLE] Great People and longer, stronger [ICON_GOLDEN_AGE] Golden Ages. It also unlocks new [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] to attain higher tiers of [ICON_TOURISM] Cultural Influence.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Earn Great [ICON_GREAT_WRITER] Writers, [ICON_GREAT_ARTIST] Artists, and [ICON_GREAT_MUSICIAN] Musicians 25% faster.[NEWLINE][ICON_BULLET]+10% [ICON_CULTURE] Culture during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] Production towards [COLOR_POSITIVE_TEXT]Guilds[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Artistry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science from [COLOR_POSITIVE_TEXT]Guilds[ENDCOLOR].[NEWLINE][ICON_BULLET]20% of Excess [ICON_HAPPINESS_1] Happiness produced in each City is added as progress toward a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Louvre[ENDCOLOR].[NEWLINE][ICON_BULLET]Completing an [ICON_RES_ARTIFACTS] Archaeological Dig or starting a [ICON_GOLDEN_AGE] Golden Age triggers (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][ICON_BULLET]Allows you to see [ICON_RES_HIDDEN_ARTIFACTS] Hidden Antiquity Sites.[NEWLINE][ICON_BULLET]+4 [ICON_GOLD] Gold, +2 [ICON_RESEARCH] Science, and +2 [ICON_CULTURE] Culture from [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MUSICIAN] Great Musicians with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_AESTHETICS_HELP';
 
 UPDATE Language_en_US
@@ -399,7 +399,7 @@ SET Text = 'Humanism'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_CENTERS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Humanism[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_PEACE] Faith from [ICON_GW_WRITING] Great Works of Writing.[NEWLINE][ICON_BULLET]-25% [ICON_GOLDEN_AGE] Golden Age Points needed to trigger a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from all Guilds.'
+SET Text = '[COLOR_POSITIVE_TEXT]Humanism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works.[NEWLINE][ICON_BULLET]-25% [ICON_GOLDEN_AGE] Golden Age Points needed to trigger a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][ICON_BULLET]+2 [ICON_HAPPINESS_1] Happiness from all [COLOR_POSITIVE_TEXT]Guilds[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_CENTERS_HELP';
 
 UPDATE Language_en_US
@@ -411,7 +411,7 @@ SET Text = 'Refinement'
 WHERE Tag = 'TXT_KEY_POLICY_FINE_ARTS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Refinement[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_CULTURE] Culture from [ICON_GW_ART] Great Works of Art.[NEWLINE][ICON_BULLET]1 Specialist in all Cities does not produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][ICON_BULLET]+1 [ICON_CULTURE] Culture from Specialists.'
+SET Text = '[COLOR_POSITIVE_TEXT]Refinement[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from [ICON_GREAT_WORK] Great Works.[NEWLINE][ICON_BULLET]1 Specialist in all Cities does not produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][ICON_BULLET]+1 [ICON_CULTURE] Culture from Specialists.'
 WHERE Tag = 'TXT_KEY_POLICY_FINE_ARTS_HELP';
 
 UPDATE Language_en_US
@@ -423,7 +423,7 @@ SET Text = 'Heritage'
 WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Heritage[ENDCOLOR][NEWLINE][ICON_BULLET]+4 [ICON_GOLD] Gold from [ICON_GW_MUSIC] Great Works of Music.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture from Theaters, Galleries, and Opera Houses.[NEWLINE][ICON_BULLET]25% of the [ICON_CULTURE] Culture from [ICON_WONDER] World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output of the City.'
+SET Text = '[COLOR_POSITIVE_TEXT]Heritage[ENDCOLOR][NEWLINE][ICON_BULLET]+4 [ICON_GOLD] Gold from [ICON_GREAT_WORK] Great Works.[NEWLINE][ICON_BULLET]+3 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture from Theaters, Galleries, and Opera Houses.'
 WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS_HELP';
 
 UPDATE Language_en_US
@@ -435,7 +435,7 @@ SET Text = 'National Treasure'
 WHERE Tag = 'TXT_KEY_POLICY_ARTISTIC_GENIUS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]National Treasure[ENDCOLOR][NEWLINE][ICON_BULLET]A [ICON_GREAT_PEOPLE] Great Person of your choice appears near your [ICON_CAPITAL] Capital.[NEWLINE][ICON_BULLET]Expending a [ICON_GREAT_PEOPLE] Great Person grants 50 [ICON_GOLD] Gold, scaling with Era.[NEWLINE][ICON_BULLET]Gain 250 [ICON_GOLD] Gold when you construct [ICON_WONDER] World Wonders, scaling with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]National Treasure[ENDCOLOR][NEWLINE][ICON_BULLET]A [ICON_GREAT_PEOPLE] Great Person of your choice appears near your [ICON_CAPITAL] Capital.[NEWLINE][ICON_BULLET]Expending a [ICON_GREAT_WRITER] Great Writer, [ICON_GREAT_ARTIST] Great Artist, or [ICON_GREAT_MUSICIAN] Great Musician grants 150 [ICON_GOLD] Gold, scaling with Era.[NEWLINE][ICON_BULLET]Gain 250 [ICON_GOLD] Gold when you construct [ICON_WONDER] World Wonders, scaling with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_ARTISTIC_GENIUS_HELP';
 
 UPDATE Language_en_US
@@ -443,7 +443,7 @@ SET Text = 'The idea of national treasure, like national epics and national anth
 WHERE Tag = 'TXT_KEY_POLICY_ARTISTIC_GENIUS_TEXT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Cultural Exchange[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness for every 3 [ICON_GREAT_WORK] Great Works in a City.[NEWLINE][ICON_BULLET]+50% to all [ICON_TOURISM]/[ICON_CULTURE] Theming Bonuses on Empire.[NEWLINE][ICON_BULLET]+10% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] with other Civilizations.'
+SET Text = '[COLOR_POSITIVE_TEXT]Cultural Exchange[ENDCOLOR][NEWLINE][ICON_BULLET]-2 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities.[NEWLINE][ICON_BULLET]+50% to all [ICON_TOURISM]/[ICON_CULTURE] Theming Bonuses on Empire.[NEWLINE][ICON_BULLET]+10% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] with other Civilizations.'
 WHERE Tag = 'TXT_KEY_POLICY_ETHICS_HELP';
 
 --------------------
@@ -460,7 +460,7 @@ SET Text = 'Industry'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_COMMERCE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Industry[ENDCOLOR] augments yields from common Improvements, Buildings, and Resources. It increases the value of [ICON_INVEST] Investments and Purchases, accrues additional, stronger [ICON_INTERNATIONAL_TRADE] Trade Routes, and enhances [ICON_GREAT_MERCHANT] Great Merchants.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] Production towards Coaling Stations.[NEWLINE][ICON_BULLET]Earn [ICON_GREAT_MERCHANT] Great Merchants 50% faster.[NEWLINE][ICON_BULLET]-10% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Industry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]-5% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building [COLOR_POSITIVE_TEXT]Broadway[ENDCOLOR].[NEWLINE][ICON_BULLET]+3 [ICON_HAPPINESS_1] Happiness per unique owned Luxury Resource.[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and +1 [ICON_PRODUCTION] Production from Bonus Resources.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MERCHANT] Great Merchants with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Industry[ENDCOLOR] augments yields from common Improvements, Buildings, and Resources. It increases the value of [ICON_INVEST] Investments and Purchases, accrues additional, stronger [ICON_INTERNATIONAL_TRADE] Trade Routes, and enhances [ICON_GREAT_MERCHANT] Great Merchants.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] Production towards Coaling Stations.[NEWLINE][ICON_BULLET]Earn [ICON_GREAT_MERCHANT] Great Merchants 50% faster.[NEWLINE][ICON_BULLET]-10% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Industry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]-4% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building [COLOR_POSITIVE_TEXT]Broadway[ENDCOLOR].[NEWLINE][ICON_BULLET]+3 [ICON_HAPPINESS_1] Happiness per unique owned Luxury Resource.[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and +1 [ICON_PRODUCTION] Production from Bonus Resources.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MERCHANT] Great Merchants with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_COMMERCE_HELP';
 
 UPDATE Language_en_US
@@ -569,7 +569,7 @@ SET Text = 'Colonialism'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Colonialism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture from Forts, and from Armories, Bastion Forts, and Military Academies.[NEWLINE][ICON_BULLET] +4 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture from Citadels.[NEWLINE][ICON_BULLET]Each [ICON_MONOPOLY] Global Monopoly Bonus is increased by an additional 5% if it''s percentage-based, or by +5 otherwise.'
+SET Text = '[COLOR_POSITIVE_TEXT]Colonialism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture from Forts, and from Armories, Bastion Forts, and Military Academies.[NEWLINE][ICON_BULLET]+4 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture from Citadels.[NEWLINE][ICON_BULLET]Each [ICON_MONOPOLY] Global Monopoly Bonus is increased by an additional 5% if it''s percentage-based, or by +5 otherwise.'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION_HELP';
 
 UPDATE Language_en_US
@@ -581,7 +581,7 @@ SET Text = 'Civilizing Mission'
 WHERE Tag = 'TXT_KEY_POLICY_TREASURE_FLEETS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Civilizing Mission[ENDCOLOR][NEWLINE][ICON_BULLET]Retain all buildings from conquered Cities.[NEWLINE][ICON_BULLET]Receive 75 [ICON_GOLD] Gold when you conquer a city, scaling with Era and City [ICON_CITIZEN] Population.[NEWLINE][ICON_BULLET]+10% [ICON_PRODUCTION] Production towards Buildings for each Era older than your current Era in all Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Civilizing Mission[ENDCOLOR][NEWLINE][ICON_BULLET]Retain all buildings from conquered Cities.[NEWLINE][ICON_BULLET]Receive 150 [ICON_GOLD] Gold when you conquer a city, scaling with Era.[NEWLINE][ICON_BULLET]+10% [ICON_PRODUCTION] Production towards Buildings for each Era older than your current Era in all Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_TREASURE_FLEETS_HELP';
 
 UPDATE Language_en_US
@@ -634,7 +634,7 @@ SET Text = 'Emancipation'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Emancipation[ENDCOLOR][NEWLINE][ICON_BULLET]Receive an [COLOR_POSITIVE_TEXT]Instant Boost[ENDCOLOR] of 5 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points for every [ICON_CITIZEN] Citizen in the Empire, scaling with Era.[NEWLINE][ICON_BULLET]+10% [ICON_FOOD] Food during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from every Zoo, Hotel, and Museum.'
+SET Text = '[COLOR_POSITIVE_TEXT]Emancipation[ENDCOLOR][NEWLINE][ICON_BULLET]Receive an [COLOR_POSITIVE_TEXT]Instant Boost[ENDCOLOR] of 5 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points for every [ICON_CITIZEN] Citizen in the Empire, scaling with Era.[NEWLINE][ICON_BULLET]+10% [ICON_FOOD] Food during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+2 [ICON_HAPPINESS_1] Happiness from every Zoo, Hotel, and Museum.'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_HELP';
 
 UPDATE Language_en_US
@@ -892,7 +892,7 @@ WHERE Tag = 'TXT_KEY_POLICY_FORTIFIED_BORDERS_HELP';
 -- MISSING an updated _TEXT to define New World Order
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR]: Strengthens [ICON_TOURISM] Tourism of [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] generated by the Palace. +2 [ICON_CULTURE] Culture from Great Works. Earn 50 [ICON_TOURISM] Tourism when you conquer a City for the first time, scaling with Era and City size.'
+SET Text = '[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR]: Strengthens [ICON_TOURISM] Tourism of [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] generated by the Palace. +2 [ICON_CULTURE] Culture from Great Works. Earn 200 [ICON_TOURISM] Tourism when you conquer a City for the first time, scaling with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_FUTURISM_HELP';
 
 UPDATE Language_en_US
@@ -948,7 +948,7 @@ SET Text = 'Mare Nostrum, meaning "Our Sea", refers to the Roman Empire''s contr
 WHERE Tag = 'TXT_KEY_POLICY_NATIONALISM_TEXT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Police State[ENDCOLOR]: +3 [ICON_HAPPINESS_1] Local Happiness from every Courthouse, and +10 City Security from Police Stations. +100% [ICON_PRODUCTION] Production towards Courthouses and Police Stations.'
+SET Text = '[COLOR_POSITIVE_TEXT]Police State[ENDCOLOR]: Vassals can no longer be liberated by other Civilizations or the World Congress, and capitulated vassals can no longer rebel. +3 [ICON_HAPPINESS_1] Local Happiness from every Courthouse, and +10 City Security from Police Stations. +100% [ICON_PRODUCTION] Production towards Courthouses and Police Stations.'
 WHERE Tag = 'TXT_KEY_POLICY_POLICE_STATE_HELP';
 
 UPDATE Language_en_US
@@ -972,5 +972,5 @@ SET Text = 'The Greater East Asia Co-Prosperity Sphere was an economic bloc cons
 WHERE Tag = 'TXT_KEY_POLICY_GUNBOAT_DIPLOMACY_TEXT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]United Front[ENDCOLOR]: Military Supply generated by [ICON_CITIZEN] Population increased by 25%. While at war, your resting point for [ICON_INFLUENCE] Influence with allied City-States is increased by 100, and Militaristic City-State unit gift rates triple.'
+SET Text = '[COLOR_POSITIVE_TEXT]United Front[ENDCOLOR]: +10 [ICON_SILVER_FIST] Military Supply. While at war, your resting point for [ICON_INFLUENCE] Influence with allied City-States is increased by 100, and Militaristic City-State unit gift rates triple.'
 WHERE Tag = 'TXT_KEY_POLICY_UNITED_FRONT_HELP';

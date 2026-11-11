@@ -236,6 +236,7 @@ public:
 	void FindAutomatedUnits();
 	void Update(bool bUpdateImprovements);
 	void Invalidate();
+	void RefreshWorkerAssignments();
 	bool NeedsUpdate();
 
 	// Public exploration routines
@@ -315,7 +316,7 @@ private:
 	bool ExecuteExplorerMoves(CvUnit* pUnit);
 	bool ExecuteOpportunisticSettlementMoves(CvUnit* pUnit);
 
-	void ExecuteWorkerMoves();
+	void ExecuteWorkerMoves(bool bAssignOnly = false);
 	void ExecuteMovesToSafestPlot(CvUnit* pUnit);
 	bool ExecuteMoveUnitAwayFromBorder(CvUnit* pUnit);
 	bool ExecuteMoveToTarget(CvUnit* pUnit, CvPlot* pTarget, int iFlags, bool bEndTurn = false);

@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="151">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(5.4.7) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(5.4.8) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -394,6 +394,15 @@
     <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Assets/UI/citizenmusician.dds</File>
     <File md5="82F6ACBCF25EDD8D7143484547FBBD88" import="1">Assets/UI/citizenwriter.dds</File>
     <File md5="B3C1FBD5E66301B400B63040C7B42503" import="1">Assets/UI/corp80_base.dds</File>
+    <File md5="DBF11A74C1726535978CD236FEE94824" import="1">Assets/UI/256x256Frame.dds</File>
+    <File md5="97D27E0A3877628929B763B8B500E723" import="1">Assets/UI/45x45FrameButton.dds</File>
+    <File md5="04D3DAA7D0A78BD3BB6B4B6259BBEF63" import="1">Assets/UI/64x64FrameButtons.dds</File>
+    <File md5="55D64F4E210D594A6DB2B9EA90BD2CFD" import="1">Assets/UI/CitizenFrame128.dds</File>
+    <File md5="A352BCFDE1CB466579719A38F05C9FA3" import="1">Assets/UI/LeaderPortraits1024Frame.dds</File>
+    <File md5="DABE614A7D4D68E9D5CE55160F121F26" import="1">Assets/UI/TechGold1024Frame.dds</File>
+    <File md5="B8760225FCF96E2D8CD257A968DE8207" import="1">Assets/UI/IconFrame_32.dds</File>
+    <File md5="81A7FFD36334DF739A446074A48E90C2" import="1">Assets/UI/IconFrame64.dds</File>
+    <File md5="7CC2024EB4E4AC059433FCE51EC4A84B" import="1">Assets/UI/IconFrameGold64.dds</File>
     <File md5="D49B7AA0DAFF3621D9F72A36D22FB43B" import="1">Assets/UI/corp80_hl.dds</File>
     <File md5="1D94F6DC259A5A1FE149BC83BC7C80E4" import="1">Assets/UI/DC45_Corporations.dds</File>
     <File md5="316984B4370EA1B11E3759F01CE9A36D" import="1">Assets/UI/DC45_Generic.dds</File>
@@ -421,6 +430,8 @@
     <File md5="9E9413423E76DAA8D884CC45D0516E72" import="0">Core Files/New Lua/GlobalCityBombardRange.lua</File>
     <File md5="537D623D706E211308873BC810D24382" import="0">Core Files/New UI/CameraView.lua</File>
     <File md5="EC9F55158D08EF43FA8D3190C7E36AEA" import="0">Core Files/New UI/CameraView.xml</File>
+    <File md5="4615707557436A282F35509EFF36FA50" import="0">Core Files/New UI/WorkerPlanner.lua</File>
+    <File md5="2E2D64E8C7BDF6F7A2DAA4011C6BC1B0" import="0">Core Files/New UI/WorkerPlanner.xml</File>
     <File md5="8DB02794585A5628766B14DFBAACC708" import="0">Core Files/New UI/CityEventPopup.lua</File>
     <File md5="DB148EB48CB0FC537C7B3ED852F8ED14" import="0">Core Files/New UI/CityEventPopup.xml</File>
     <File md5="464FF5291A70846BA602CF2367E84695" import="1">Core Files/New UI/CityEventsInfo.lua</File>
@@ -511,7 +522,7 @@
     <File md5="6D2C03A7BDCE9042DE2845DCBCF5BBC6" import="1">Core Files/VPUI/VPUI_common.lua</File>
     <File md5="5679D1B7085D138381A8F646BC8366F2" import="1">Core Files/VPUI/VPUI_common.xml</File>
     <File md5="9B2473A02E44E30D7015F8EEF582D2F2" import="1">Core Files/VPUI/VPUI_core.lua</File>
-    <File md5="9D117BE356D6085B78267C200AEAC512" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="0B2CB5060D31B308672FFCB1320C7A39" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="D0BFB3F71AFB183457D538EE3B0D771F" import="0">Database Changes/AddTableIndexes.sql</File>
     <File md5="CF1628DC6A82C749A951A27DF13D0BF0" import="0">Database Changes/CommunityTables.xml</File>
     <File md5="F724C999F084DBC0A88B654D521314EB" import="0">Database Changes/CoreGameOptionChanges.sql</File>
@@ -533,6 +544,7 @@
     <File md5="476D91532E8B5E9B97198D943F101FFD" import="0">Database Changes/NewEnumTables.xml</File>
     <File md5="BCC74E7904D5D9C19BF78E0933481F0E" import="0">Database Changes/Remapper.sql</File>
     <File md5="0658A832A2527DE5F698F2DD24586551" import="0">Database Changes/RemapperTables.xml</File>
+    <File md5="009E0D0A0DC5FC4793F19CD9A9FAD540" import="0">Database Changes/WorkerPlanner.sql</File>
     <File md5="1BE27C020C7D596C776573887630B71E" import="0">Database Changes/WorldTableChanges.sql</File>
     <File md5="9F3B7F95C6766857AE2362B6C6E5A202" import="0">Database Changes/Achievements/CoreNewAchievements.xml</File>
     <File md5="2AFD3DBF43DEB9AC1D801786266A9D84" import="0">Database Changes/Achievements/NewAchievementTables.xml</File>
@@ -940,7 +952,7 @@
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewAutomateText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewChatMessageText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewEnumText.xml</UpdateDatabase>
-      <UpdateDatabase>Database Changes\Text\en_US\CoreGameOptionTextChanges.xml</UpdateDatabase>
+      <UpdateDatabase>Database Changes\Text\en_US\CoreGameOptionTextChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewGameOptionText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\CoreNewReplayDataSetText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes\Text\en_US\AI\CoreNewDiplomacyResponseText.xml</UpdateDatabase>
@@ -978,6 +990,7 @@
       <UpdateDatabase>Database Changes\CoreTriggers.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Remapper.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\AddTableIndexes.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\WorkerPlanner.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>
@@ -1016,6 +1029,10 @@
     <EntryPoint type="InGameUIAddin" file="Core Files/New UI/CameraView.xml">
       <Name>CameraView</Name>
       <Description>CameraView</Description>
+    </EntryPoint>
+    <EntryPoint type="InGameUIAddin" file="Core Files/New UI/WorkerPlanner.xml">
+      <Name>Worker Planner</Name>
+      <Description>Worker Planner</Description>
     </EntryPoint>
   </EntryPoints>
 </Mod>

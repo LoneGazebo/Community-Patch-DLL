@@ -354,7 +354,7 @@ function OnModularOverlay(id)
   SetStrategicViewOverlay(1)
 
   -- Clear any existing highlights
-  Events.ClearHexHighlights()
+  Events.ClearHexHighlightStyle("")
 
   -- Hide the legend options space
   Controls.LegendOptions:SetHide(true)

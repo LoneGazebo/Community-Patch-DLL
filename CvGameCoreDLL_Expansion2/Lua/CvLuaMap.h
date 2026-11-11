@@ -19,19 +19,15 @@
 #ifndef CVLUAMAP_H
 #define CVLUAMAP_H
 
-#include "CvLuaStaticInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
 
 class CvLuaMap : public CvLuaStaticInstance<CvLuaMap, CvMap>
 {
 public:
-	//! Returns the name of the static instance.
-	static const char* GetInstanceName();
-
 	//! Returns the static instance.
-	static CvMap* GetInstance(lua_State* L, int idx);
-
+	static CvMap* GetStaticInstance();
 	//! Registers member methods with instance.
-	static void RegisterMembers(lua_State* L);
+	static void CreateFunctable(lua_State* L);
 
 protected:
 

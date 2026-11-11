@@ -33,7 +33,7 @@ WHERE SpecificCivRequired = 1 OR Type IN (
 -- United Front
 UPDATE Policies
 SET
-	ExtraSupplyPerPopulation = 25,
+	ExtraSupplyFlat = 10,
 	MinimumAllyInfluenceIncreaseAtWar = 100,
 	CityStateUnitFrequencyModifier = 300
 WHERE Type = 'POLICY_UNITED_FRONT';
@@ -54,7 +54,7 @@ VALUES
 INSERT INTO Policy_ConquerorYield
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_FUTURISM', 'YIELD_TOURISM', 50);
+	('POLICY_FUTURISM', 'YIELD_TOURISM', 200);
 
 -- Industrial Espionage (now Lebensraum)
 UPDATE Policies
@@ -101,7 +101,6 @@ SET
 	Description = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A',
 	Help = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP',
 	Civilopedia = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_A',
-	VassalsNoRebel = 1,
 	CSYieldBonusModifier = 25,
 	VassalYieldBonusModifier = 25,
 	WorkerSpeedModifier = 50
@@ -119,6 +118,10 @@ VALUES
 	('POLICY_LIGHTNING_WARFARE', 'PROMOTION_LIGHTNING_WARFARE_ARMORED');
 
 -- Police State
+UPDATE Policies
+SET VassalsNoRebel = 1
+WHERE Type = 'POLICY_POLICE_STATE';
+
 INSERT INTO Policy_BuildingClassProductionModifiers
 	(PolicyType, BuildingClassType, ProductionModifier)
 VALUES

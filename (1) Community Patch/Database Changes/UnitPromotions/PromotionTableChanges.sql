@@ -12,6 +12,7 @@ ALTER TABLE UnitPromotions ADD MaxHitPointsChange integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MaxHitPointsModifier integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD PartialHealOnPillage integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD AOEDamageOnPillage integer DEFAULT 0;
+ALTER TABLE UnitPromotions ADD HalfPillageMoves boolean DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD MinimumRangeRequired integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MaximumRangeRequired integer DEFAULT 0;
@@ -28,6 +29,8 @@ ALTER TABLE UnitPromotions ADD AttackBelowEqual50HealthMod integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD RangedFlankAttack boolean DEFAULT 0;
 -- counts as extra units when supporting a flank
 ALTER TABLE UnitPromotions ADD ExtraFlankPower integer DEFAULT 0;
+-- Provides flat combat strength% when supporting a positive flank. Only works for own team.
+ALTER TABLE UnitPromotions ADD FlankSupportModifier integer DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD SplashDamage integer DEFAULT 0;
 
@@ -182,6 +185,9 @@ ALTER TABLE UnitPromotions ADD GoodyHutYieldBonus integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD GainsXPFromScouting boolean DEFAULT 0;
 ALTER TABLE UnitPromotions ADD GainsXPFromSpotting boolean DEFAULT 0;
 
+-- Split from GainsXPFromScouting, only matters if BALANCE_RECON_ONLY_ANCIENT_RUINS = 1
+ALTER TABLE UnitPromotions ADD CanClaimGoody boolean DEFAULT 0;
+
 ALTER TABLE UnitPromotions ADD MultiAttackBonus integer DEFAULT 0;
 ALTER TABLE UnitPromotions ADD DamageReductionCityAssault integer DEFAULT 0;
 
@@ -304,6 +310,9 @@ ALTER TABLE UnitPromotions ADD FlatHealRate integer DEFAULT 0;
 
 -- Heals friendly units of the same domain within aura range for +X at the end of every turn. Default aura range is 2, and is increased/decreased by AuraRangeChange.
 ALTER TABLE UnitPromotions ADD PassiveAoEHeal integer DEFAULT 0;
+
+-- Disable enemy land interceptors within range. Only works for the unit owner (too computational heavy otherwise).
+ALTER TABLE UnitPromotions ADD JammingRadius integer DEFAULT 0;
 
 -- PROMOTIONS_DEEP_WATER_EMBARKATION
 ALTER TABLE UnitPromotions ADD EmbarkedDeepWater boolean DEFAULT 0;

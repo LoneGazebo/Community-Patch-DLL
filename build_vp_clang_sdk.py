@@ -100,6 +100,7 @@ CPP = [
     'CvGameCoreDLL_Expansion2\\Lua\\CvLuaCity.cpp',
     'CvGameCoreDLL_Expansion2\\Lua\\CvLuaDeal.cpp',
     'CvGameCoreDLL_Expansion2\\Lua\\CvLuaEnums.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaExe.cpp',
     'CvGameCoreDLL_Expansion2\\Lua\\CvLuaFractal.cpp',
     'CvGameCoreDLL_Expansion2\\Lua\\CvLuaGame.cpp',
     'CvGameCoreDLL_Expansion2\\Lua\\CvLuaGameInfo.cpp',
@@ -158,6 +159,10 @@ CPP = [
     'CvGameCoreDLL_Expansion2\\CvDllEraInfo.cpp',
     'CvGameCoreDLL_Expansion2\\CvDllFeatureInfo.cpp',
     'CvGameCoreDLL_Expansion2\\CvDllGame.cpp',
+    'CvGameCoreDLL_Expansion2\\Exe\\CvExe.cpp',
+    'CvGameCoreDLL_Expansion2\\Exe\\CvExeApi.cpp',
+    'CvGameCoreDLL_Expansion2\\Exe\\CvExeBuild.cpp',
+    'CvGameCoreDLL_Expansion2\\Exe\\CvExeSymbols.cpp',
     'CvGameCoreDLL_Expansion2\\CvDllGameAsynch.cpp',
     'CvGameCoreDLL_Expansion2\\CvDllGameDeals.cpp',
     'CvGameCoreDLL_Expansion2\\CvDllGameOptionInfo.cpp',
@@ -337,7 +342,10 @@ def build_cl_config_args(config: Config) -> list[str]:
     for include_dir in INCLUDE_DIRS:
         args.append(f'/I"{os.path.join(PROJECT_DIR, include_dir)}"')
     for include_path in INCLUDE_PATHS:
-        args.append(f'-external:I"{include_path}"')
+        # /imsvc, not -external:I: that one puts VC9's headers ahead of clang's own
+        # vadefs.h, whose va_start fix is what keeps inlined sprintf_s and
+        # CvString::format working. Without it the Release DLL crashes on mod load.
+        args.append(f'/imsvc"{include_path}"')
     for suppress in CL_SUPPRESS:
         args.append(f'-Wno-{suppress}')
     return args

@@ -237,11 +237,11 @@ SET Text = 'Solomonic Wisdom'
 WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'When you complete a Policy Branch, adopt new Beliefs, or choose your first Ideology, receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology. +1 [ICON_PEACE] Faith from Strategic Resources.'
+SET Text = 'When you complete a Policy Branch, adopt new Beliefs, or choose your first Ideology, receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology. +1 [ICON_PEACE] Faith from Strategic Resources. Cities produce +25% [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH';
 
 UPDATE Language_en_US
-SET Text = 'Unique Ethiopian replacement for the {TXT_KEY_BUILDING_MONUMENT_DESC}. In addition to the {TXT_KEY_BUILDING_MONUMENT_DESC}''s bonuses, {TXT_KEY_BUILDING_STELE} generates [ICON_PEACE] Faith as well as a {TXT_KEY_BUILDING_SHRINE}, and produces extra [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = 'Unique Ethiopian replacement for the {TXT_KEY_BUILDING_MONUMENT_DESC}. In addition to the {TXT_KEY_BUILDING_MONUMENT_DESC}''s bonuses, the {TXT_KEY_BUILDING_STELE} generates [ICON_PEACE] Faith as well as a {TXT_KEY_BUILDING_SHRINE}. It also accelerates the pace of [ICON_GOLDEN_AGE] Golden Ages as you discover new Techs, fueling a virtuous cycle with your Unique Ability.'
 WHERE Tag = 'TXT_KEY_BUILDING_STELE_STRATEGY';
 
 --------------------
@@ -495,7 +495,7 @@ WHERE Tag = 'TXT_KEY_UNIT_JAPANESE_SAMURAI_STRATEGY';
 -- Korea
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Medieval, Industrial, and Atomic Eras. +20% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages, and +50 [ICON_GOLDEN_AGE] Golden Age Points when a [ICON_GREAT_PEOPLE] Great Person is born, scaling with Era.'
+SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Medieval, Industrial, and Atomic Eras. Cities produce +20% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages. Gain 50 [ICON_GOLDEN_AGE] Golden Age Points when a [ICON_GREAT_PEOPLE] Great Person is born, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_SCHOLARS_JADE_HALL';
 
 UPDATE Language_en_US
@@ -575,7 +575,7 @@ SET Text = 'The {TXT_KEY_UNIT_SEA_BEGGAR} is the Dutch unique unit, replacing th
 WHERE Tag = 'TXT_KEY_UNIT_SEA_BEGGAR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 3 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.'
+SET Text = 'Can only be built on Marsh tiles or on featureless Lake/Coast tiles adjacent to at least 2 land tiles. Polders built on water can be traversed by land units without embarkation, as if they are land tiles.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP';
 
 UPDATE Language_en_US
@@ -739,7 +739,7 @@ SET Text = '+10 [ICON_GOLD] Gold and +4 [ICON_PEACE] Faith from gaining tiles, s
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is the Spanish unique unit, replacing the {TXT_KEY_UNIT_EXPLORER}. It is much stronger and has large bonuses to flanking and attacking cities. Combined with its great mobility, the {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} is a formidable unit, able to augment or replace your existing Medieval military.[NEWLINE][NEWLINE]It also has the ability to found new cities. A city founded by {TXT_KEY_UNIT_SPANISH_CONQUISTADOR} starts with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COLOSSEUM}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_ARMORY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_BARRACKS}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_COUNCIL}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_FORGE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_GRANARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_HERBALIST}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIBRARY}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_LIGHTHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MARKET}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_MONUMENT_DESC}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SHRINE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_SMOKEHOUSE}[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WATERMILL} (if applicable)[NEWLINE][ICON_BULLET] {TXT_KEY_BUILDING_WELL} (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!'
+SET Text = 'The Conquistador is much stronger than the Explorer and has large bonuses to flanking and attacking cities. Combined with the recon line''s innate experience and promotion choices, it has both great mobility and strength, able to augment or replace your existing Medieval military.[NEWLINE][NEWLINE]It also has the ability to found new Cities. A City founded by Conquistador starts with 3 [ICON_CITIZEN] Citizens, claims 3 additional tiles, and immediately receives a large amount of buildings, even surpassing one founded by Pioneer.[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings automatically constructed on founding!'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
 
 --------------------

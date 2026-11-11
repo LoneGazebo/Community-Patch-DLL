@@ -60,9 +60,13 @@
 // Enables writing gameplay statistics to a local SQLite database (stats.db) via SqliteLogger
 #define MOD_SQLITE_LOGGING											gCustomMods.isSQLITE_LOGGING()
 
+// Makes the SQLite logger flush stats.db to disk on every commit (SQLite's default behavior). Slower, but the latest rows survive an OS crash or power loss
+#define MOD_SQLITE_LOGGING_DURABLE_WRITES							gCustomMods.isSQLITE_LOGGING_DURABLE_WRITES()
+
 // Minidumps are ON by default. Define DISABLE_MINIDUMP in the project settings to build
 // without them (mirrors DISABLE_CVASSERT); users can also opt out at runtime by creating
-// an empty file "crashlogs\nodumps.please" next to the game executable.
+// an empty file "crashlogs\nodumps.please" next to the game executable, or per user
+// with "CrashMiniDumps = 0" under [Vox Populi] in My Games\...\config.ini.
 // Minidumps only work on Windows for now.
 // See http://forums.civfanatics.com/showthread.php?t=498919
 // If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
@@ -1513,6 +1517,7 @@ void CheckSentinel(uint);
 
 
 // Class used to cache the database control settings and provide utility functions
+class CvLuaArgsHandle;
 class CustomMods {
 public:
 	CustomMods();
@@ -1549,6 +1554,7 @@ public:
 	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(SQUADS);
 	MOD_OPT_DECL(SQLITE_LOGGING);
+	MOD_OPT_DECL(SQLITE_LOGGING_DURABLE_WRITES);
 
 	// Core Balance Changes
 	MOD_OPT_DECL(CORE_DELAYED_VISIBILITY);

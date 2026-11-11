@@ -28,6 +28,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iRiverHappiness(0),
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPeacefulForeignFollowers(0),
+	m_iHappinessPerXForeignFollowers(0),
 	m_iBorderGrowthRateIncreaseGlobal(0),
 	m_iPlotCultureCostModifier(0),
 	m_iCityRangeStrikeModifier(0),
@@ -148,7 +149,6 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_piYieldPerBirth(NULL),
 	m_piYieldPerHolyCityBirth(NULL),
 	m_piYieldPerScience(NULL),
-	m_piYieldFromGPUse(NULL),
 	m_piYieldBonusGoldenAge(NULL),
 	m_piYieldFromSpread(NULL),
 	m_piYieldFromForeignSpread(NULL),
@@ -236,7 +236,6 @@ CvBeliefEntry::~CvBeliefEntry()
 	SAFE_DELETE_ARRAY(m_piYieldPerBirth);
 	SAFE_DELETE_ARRAY(m_piYieldPerHolyCityBirth);
 	SAFE_DELETE_ARRAY(m_piYieldPerScience);
-	SAFE_DELETE_ARRAY(m_piYieldFromGPUse);
 	SAFE_DELETE_ARRAY(m_piYieldBonusGoldenAge);
 	SAFE_DELETE_ARRAY(m_piYieldFromSpread);
 	SAFE_DELETE_ARRAY(m_piYieldFromForeignSpread);
@@ -269,6 +268,7 @@ CvBeliefEntry::~CvBeliefEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiTradeRouteYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonExpendedYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonExpendedYieldEraScaling);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonBornYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChange);
 
@@ -328,10 +328,16 @@ int CvBeliefEntry::GetHappinessPerCity() const
 	return m_iHappinessPerCity;
 }
 
-/// Accessor:: Happiness per every X population in a foreign city
+/// Accessor:: Happiness per every X population in a foreign city you are at peace with
 int CvBeliefEntry::GetHappinessPerXPeacefulForeignFollowers() const
 {
 	return m_iHappinessPerXPeacefulForeignFollowers;
+}
+
+/// Accessor:: Happiness per every X population in a foreign city
+int CvBeliefEntry::GetHappinessPerXForeignFollowers() const
+{
+	return m_iHappinessPerXForeignFollowers;
 }
 
 /// Accessor:: Boost in speed of acquiring tiles through culture (rate increase)
@@ -705,13 +711,6 @@ int CvBeliefEntry::GetYieldPerScience(int i) const
 	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	return m_piYieldPerScience ? m_piYieldPerScience[i] : -1;
-}
-/// Accessor:: Yield Per GP Use
-int CvBeliefEntry::GetYieldFromGPUse(int i) const
-{
-	PRECONDITION(i < NUM_YIELD_TYPES, "Index out of bounds");
-	PRECONDITION(i > -1, "Index out of bounds");
-	return m_piYieldFromGPUse ? m_piYieldFromGPUse[i] : -1;
 }
 /// Accessor:: Yield Bonus GA
 int CvBeliefEntry::GetYieldBonusGoldenAge(int i) const
@@ -1136,13 +1135,20 @@ int CvBeliefEntry::GetSpecialistYieldChange(int i, int j) const
 	return m_ppiSpecialistYieldChange ? m_ppiSpecialistYieldChange[i][j] : 0;
 }
 
-int CvBeliefEntry::GetGreatPersonExpendedYield(int i, int j) const
+int CvBeliefEntry::GetGreatPersonExpendedYield(int i, int j, bool bEraScaling) const
 {
 	PRECONDITION(i < GC.getNumGreatPersonInfos(), "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 	PRECONDITION(j < NUM_YIELD_TYPES, "Index out of bounds");
 	PRECONDITION(j > -1, "Index out of bounds");
-	return m_ppiGreatPersonExpendedYield ? m_ppiGreatPersonExpendedYield[i][j] : 0;
+	if (bEraScaling)
+	{
+		return m_ppiGreatPersonExpendedYieldEraScaling ? m_ppiGreatPersonExpendedYieldEraScaling[i][j] : 0;
+	}
+	else
+	{
+		return m_ppiGreatPersonExpendedYield ? m_ppiGreatPersonExpendedYield[i][j] : 0;
+	}
 }
 
 int CvBeliefEntry::GetGreatPersonBornYield(int i, int j) const
@@ -1373,6 +1379,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iRiverHappiness				  = kResults.GetInt("RiverHappiness");
 	m_iHappinessPerCity				  = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPeacefulForeignFollowers  = kResults.GetInt("HappinessPerXPeacefulForeignFollowers");
+	m_iHappinessPerXForeignFollowers  = kResults.GetInt("HappinessPerXForeignFollowers");
 	m_iBorderGrowthRateIncreaseGlobal = kResults.GetInt("BorderGrowthRateIncreaseGlobal");
 	m_iPlotCultureCostModifier	      = kResults.GetInt("PlotCultureCostModifier");
 	m_iCityRangeStrikeModifier	      = kResults.GetInt("CityRangeStrikeModifier");
@@ -1471,7 +1478,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldPerBirth, "Belief_YieldPerBirth", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerHolyCityBirth, "Belief_YieldPerHolyCityBirth", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldPerScience, "Belief_YieldPerScience", "BeliefType", szBeliefType);
-	kUtility.SetYields(m_piYieldFromGPUse, "Belief_YieldFromGPUse", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldBonusGoldenAge, "Belief_YieldBonusGoldenAge", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromSpread, "Belief_YieldFromSpread", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldFromForeignSpread, "Belief_YieldFromForeignSpread", "BeliefType", szBeliefType);
@@ -1836,7 +1842,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if(pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Yields.ID as YieldID, Yield from Belief_GreatPersonExpendedYield inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Yields.ID as YieldID, Yield, IsEraScaling from Belief_GreatPersonExpendedYield inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
 		}
 
 		pResults->Bind(1, szBeliefType);
@@ -1846,8 +1852,16 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			const int GreatPersonID = pResults->GetInt(0);
 			const int YieldID = pResults->GetInt(1);
 			const int yield = pResults->GetInt(2);
+			const bool bEraScaling = pResults->GetBool(3);
 
-			m_ppiGreatPersonExpendedYield[GreatPersonID][YieldID] = yield;
+		    if(bEraScaling)
+		    {
+		        m_ppiGreatPersonExpendedYieldEraScaling[GreatPersonID][YieldID] += yield;
+		    }
+		    else
+		    {
+		        m_ppiGreatPersonExpendedYield[GreatPersonID][YieldID] += yield;
+		    }
 		}
 	}
 	//GreatPersonBornYield
@@ -3052,21 +3066,33 @@ int CvReligionBeliefs::GetHappinessPerCity(int iPopulation, PlayerTypes ePlayer,
 	return rtnValue;
 }
 
-/// Happiness per X followers in foreign cities of powers you are not at war with
-int CvReligionBeliefs::GetHappinessPerXPeacefulForeignFollowers(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+/// Happiness per X followers in foreign cities
+int CvReligionBeliefs::GetHappinessPerXForeignFollowers(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
+	int iValue = 0;
+	
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetHappinessPerXPeacefulForeignFollowers();
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		int iDenominator = pBeliefs->GetEntry(*it)->GetHappinessPerXForeignFollowers();
+		if (iDenominator != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
-			return iValue;
+			bool bPeaceful = pBeliefs->GetEntry(*it)->RequiresPeace();
+			ReligionTypes eStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
+			iValue = GET_PLAYER(ePlayer).GetReligions()->GetNumForeignFollowers(/*bAtPeace*/ bPeaceful, eStateReligion) / iDenominator;
+			
+		}
+		// old column reverse compatibility
+		iDenominator = pBeliefs->GetEntry(*it)->GetHappinessPerXPeacefulForeignFollowers();
+		if (iDenominator != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			ReligionTypes eStateReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
+			iValue += GET_PLAYER(ePlayer).GetReligions()->GetNumForeignFollowers(/*bAtPeace*/ true, eStateReligion) / iDenominator;
 		}
 	}
 
-	return 0;
+	return iValue;
 }
 
 /// Wonder production boost
@@ -3657,16 +3683,18 @@ int CvReligionBeliefs::GetSpecialistYieldChange(SpecialistTypes eSpecialist, Yie
 	return rtnValue;
 }
 
-int CvReligionBeliefs::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+int CvReligionBeliefs::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType, bool bEraScaling, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly, int iNumFollowerCities) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
-		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonExpendedYield(eGreatPerson, eYieldType);
+		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonExpendedYield(eGreatPerson, eYieldType, bEraScaling);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
+			int iMaxCities = pBeliefs->GetEntry(*it)->GetCityScalerLimiter();
+			iValue *= min(iMaxCities, iNumFollowerCities);
 			rtnValue += iValue;
 		}
 	}
@@ -3683,7 +3711,7 @@ int CvReligionBeliefs::GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, Yi
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetGreatPersonBornYield(eGreatPerson, eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
-		{		
+		{
 			int iMaxCities = pBeliefs->GetEntry(*it)->GetCityScalerLimiter();
 			iValue *= min(iMaxCities, iNumFollowerCities);
 			rtnValue += iValue;
@@ -4606,23 +4634,6 @@ int CvReligionBeliefs::GetYieldPerScience(YieldTypes eYieldType, PlayerTypes ePl
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetYieldPerScience(eYieldType);
-		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
-		{
-			rtnValue += iValue;
-		}
-	}
-
-	return rtnValue;
-}
-/// Get yield modifier from beliefs from GP Use
-int CvReligionBeliefs::GetYieldFromGPUse(YieldTypes eYieldType, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
-{
-	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-	int rtnValue = 0;
-
-	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
-	{
-		int iValue = pBeliefs->GetEntry(*it)->GetYieldFromGPUse(eYieldType);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

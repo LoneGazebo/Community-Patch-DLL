@@ -20,6 +20,7 @@ void CvAStarNode::clear()
 
 	m_bIsOpen = false;
 	m_bIsStopNode = false;
+	m_iOpenListIndex = -1;
 	m_pParent = NULL;
 
 	m_apChildren.clear();

@@ -81,6 +81,7 @@ extern "C" __declspec(dllimport) long __stdcall CoCreateGuid(GUID* pguid);
 #include "LintFree.h"
 
 int GetNextGlobalID() { return GC.getGame().GetNextGlobalID(); }
+unsigned long g_ulTContainerCacheThread = 0;
 int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
 
 struct stringHash
@@ -125,6 +126,7 @@ CvGame::CvGame() :
 	, m_bIsDesynced(false)
 	, m_bHumanAIPath(true)
 	, m_eObserverUIOverridePlayer(NO_PLAYER)
+	, m_bObserverExitPending(false)
 	, m_eCurrentVisibilityPlayer(NO_PLAYER)
 	, m_eCurrentVisibilityTeam(NO_TEAM)
 	, m_bFOW(true)
@@ -547,9 +549,9 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 				lua_State* L = pkScriptSystem->CreateLuaThread("WorldBuilderMapLoader");
 				if(L != NULL)
 				{
-					lua_cpcall(L, &WorldBuilderMapLoaderAddRandomItems, 0);
-					lua_cpcall(L, &WorldBuilderMapLoaderLoadModData, 0);
-					lua_cpcall(L, &WorldBuilderMapLoaderRunPostProcessScript, 0);
+					LuaSupport::LuaPCall(L, &WorldBuilderMapLoaderAddRandomItems);
+					LuaSupport::LuaPCall(L, &WorldBuilderMapLoaderLoadModData);
+					LuaSupport::LuaPCall(L, &WorldBuilderMapLoaderRunPostProcessScript);
 
 					pkScriptSystem->FreeLuaThread(L);
 				}
@@ -1231,6 +1233,7 @@ void CvGame::uninit()
 	m_bIsDesynced = false;
 	m_bHumanAIPath = true;
 	m_eObserverUIOverridePlayer = NO_PLAYER;
+	m_bObserverExitPending = false;
 	m_eCurrentVisibilityPlayer = NO_PLAYER;
 	m_eCurrentVisibilityTeam = NO_TEAM;
 
@@ -1619,6 +1622,7 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
+	g_ulTContainerCacheThread = GetCurrentThreadId(); // see TContainer::Get
 	if(IsWaitingForBlockingInput())
 	{
 		if(!GC.GetEngineUserInterface()->isDiploActive())
@@ -3880,22 +3884,20 @@ void CvGame::doControl(ControlTypes eControl)
 				// already in observer mode? exit it
 				if (GET_PLAYER(eActivePlayer).isObserver())
 				{
-					PlayerTypes eReturnPlayer = NO_PLAYER;
-
-					// return as the currently active player
-					for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
+					// Return as the major civ whose turn is active, otherwise as the next one whose turn starts (see CvPlayer::setTurnActive)
+					PlayerTypes eTurnPlayer = NO_PLAYER;
+					for (int i = 0; i < MAX_MAJOR_CIVS && eTurnPlayer == NO_PLAYER; ++i)
 					{
-						CvPlayer& kCurrentPlayer = GET_PLAYER((PlayerTypes)i);
-						if (kCurrentPlayer.isAlive() && kCurrentPlayer.isTurnActive())
-						{
-							eReturnPlayer = (PlayerTypes)i;
-							break;
-						}
+						if (GET_PLAYER((PlayerTypes)i).isAlive() && GET_PLAYER((PlayerTypes)i).isTurnActive())
+							eTurnPlayer = (PlayerTypes)i;
 					}
 
-					if (eReturnPlayer != NO_PLAYER)
+					if (eTurnPlayer != NO_PLAYER)
+						setAIAutoPlay(0, eTurnPlayer);
+					else
 					{
-						setAIAutoPlay(0, eReturnPlayer);
+						m_bObserverExitPending = true;
+						DLLUI->AddMessage(0, eActivePlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), GetLocalizedText("TXT_KEY_MISC_OBSERVER_MODE_EXIT_PENDING"));
 					}
 				}
 				else
@@ -6330,6 +6332,10 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat, bool bAu
 			// the player the update is for, so listeners will want to get the player change message first
 			gDLL->PublishActivePlayer(eNewValue, eOldActivePlayer);
 
+			// the EXE's trade route overlay holds only the active player's routes
+			if (m_pGameTrade != NULL)
+				m_pGameTrade->RefreshTradeRouteVisuals();
+
 			CvMap& theMap = GC.getMap();
 			theMap.updateFog();
 			theMap.updateVisibility();
@@ -6361,6 +6367,21 @@ PlayerTypes CvGame::getObserverUIOverridePlayer() const
 void CvGame::setObserverUIOverridePlayer(PlayerTypes ePlayer)
 {
 	m_eObserverUIOverridePlayer = ePlayer;
+}
+
+//	--------------------------------------------------------------------------------
+/// Leave observer mode as the major civ whose turn is active, if any
+bool CvGame::IsObserverExitPending() const
+{
+	return m_bObserverExitPending;
+}
+
+/// Leave observer mode as ePlayer, called when their turn starts
+void CvGame::ExitPendingObserverMode(PlayerTypes ePlayer)
+{
+	m_bObserverExitPending = false;
+	if (GET_PLAYER(getActivePlayer()).isObserver())
+		setAIAutoPlay(0, ePlayer);
 }
 
 //	--------------------------------------------------------------------------------
@@ -8517,7 +8538,7 @@ void CvGame::doTurn()
 
 	// After disengagement ends, bump any units out of tiles where they shouldn't be
 	// Don't iterate through all tiles *and* all players, that's expensive - only check any teams where disengagement just ended
-	if (/*5*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) > 0)
+	if (/*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) > 0)
 	{
 		vector<TeamTypes> vTeams;
 		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
@@ -9022,17 +9043,9 @@ void CvGame::updateMoves()
 
 		if(player.isAlive())
 		{
-			if (player.isHuman())
-			{
-				if (GC.getGame().getActivePlayer() == player.GetID())
-				{
-					GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
-				}
-			}
-			else
-			{
-				GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
-			}
+			// Set on every machine, humans included: CvPlot uses this player for the tactical AI's
+			// incremental visibility updates while units move, which danger and tactical moves read.
+			GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
 
 			bool bAutomatedUnitNeedsUpdate = player.hasUnitsThatNeedAIUpdate();
 			bool bHomelandAINeedsUpdate = player.GetHomelandAI()->NeedsUpdate();
@@ -12413,6 +12426,9 @@ void CvGame::LogMapState() const
 	CvString strLogName;
 	strLogName = strLogName.format("mapStateLog_Turn%03d.json", GC.getGame().getElapsedGameTurns());
 	FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+	if (!pLog)
+		return;
+
 	CvString outputJson = "{\"MapData\": {";
 	CvString strTemp;
 
@@ -12559,6 +12575,11 @@ void CvGame::LogMapState() const
 	// File format seems to want this weird CityOwnerIndexMap thing so ok
 	outputJson += "\"CityOwnerIndexMap\":{}}}";
 	pLog->Msg(outputJson);
+
+	pLog->Close();
+	//the turn number is part of the filename, so this log is never requested again.
+	//without this the manager keeps it - and its grown write buffer - until shutdown.
+	LOGFILEMGR.DeleteLog( pLog );
 }
 
 void CvGame::LogMapPlotsState() const
@@ -14501,38 +14522,6 @@ PlayerTypes CvGame::GetCurrentVisibilityPlayer() const
 TeamTypes CvGame::GetCurrentVisibilityTeam() const
 {
 	return m_eCurrentVisibilityTeam;
-}
-
-//	--------------------------------------------------------------------------------
-// exe things
-
-void CvGame::SetExeBinType(CvBinType eBinType)
-{
-	m_eExeBinType = eBinType;
-}
-CvBinType CvGame::GetExeBinType() const
-{
-	return m_eExeBinType;
-}
-bool CvGame::IsExeWantForceResyncAvailable() 
-{
-	return MOD_BIN_HOOKS && (m_eExeBinType == BIN_DX11 || m_eExeBinType == BIN_DX9 || m_eExeBinType == BIN_TABLET) && isNetworkMultiPlayer() && gDLL->IsHost();
-}
-void CvGame::SetExeWantForceResyncValue(int value) 
-{
-	if (IsExeWantForceResyncAvailable())
-	{
-		*s_iExeWantForceResync = value;
-		if (value == 1)
-		{
-			CvString strWarningText = GetLocalizedText("TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED");
-			GC.getDLLIFace()->sendChat(strWarningText, CHATTARGET_ALL, NO_PLAYER);
-		}
-	}
-}
-void CvGame::SetExeWantForceResyncPointer(int* pointer)
-{
-	s_iExeWantForceResync = pointer;
 }
 
 // Modpack making functions by Gedemon/cicero225

@@ -64,6 +64,7 @@ SET
 			)
 		)
 	),
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_MONGOLIAN_KESHIK') + 1,
 	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_MONGOLIAN_KESHIK') + 4,
 	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_MONGOLIAN_KESHIK') - 1
 WHERE Type = 'UNIT_SCYTHED_CHARIOT';

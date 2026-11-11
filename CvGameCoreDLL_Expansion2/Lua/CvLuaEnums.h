@@ -20,12 +20,9 @@ class CvLuaEnums
 {
 public:
 	//! Registers all game enums in Lua.
-	static void Register(lua_State* L);
+	static void RegisterGlobals(lua_State* L);
 
 protected:
-
-	//! Protected call to assist registration.
-	static int pRegister(lua_State* L);
 
 	//! Registers a single enum (Must be called between EnumStart and EnumEnd).
 	static void pRegisterEnum(lua_State* L, const char* enumName, const int enumVal);

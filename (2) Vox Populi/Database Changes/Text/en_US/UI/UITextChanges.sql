@@ -63,7 +63,7 @@ WHERE Tag = 'TXT_KEY_MAYA_DATE_TOOLTIP';
 
 -- Science
 UPDATE Language_en_US
-SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% x current non-Puppet Cities) to the [ICON_RESEARCH] Technology cost.'
+SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% × current non-Puppet Cities) to the [ICON_RESEARCH] Technology cost.'
 WHERE Tag = 'TXT_KEY_TP_TECH_CITY_COST';
 
 UPDATE Language_en_US
@@ -76,7 +76,7 @@ WHERE Tag = 'TXT_KEY_TP_SCIENCE_FROM_MINORS';
 
 -- Culture
 UPDATE Language_en_US
-SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% x current non-Puppet Cities) to the [ICON_CULTURE] Policy cost.'
+SET Text = 'Each [ICON_PUPPET] non-Puppet City adds +({1_Str}% + {3_Str}% × current non-Puppet Cities) to the [ICON_CULTURE] Policy cost.'
 WHERE Tag = 'TXT_KEY_TP_CULTURE_CITY_COST';
 
 UPDATE Language_en_US
@@ -168,6 +168,10 @@ WHERE Tag = 'TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP';
 UPDATE Language_en_US
 SET Text = '+{1_Num} [ICON_DIPLOMAT] Delegate in the World Congress for every active Defensive Pact with your Empire and every Vassal you currently have'
 WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_EXTRA_VOTES_FROM_DP';
+
+UPDATE Language_en_US
+SET Text = 'When an owned Unit is promoted: {1_InstantYield}, scaling with Unit''s original Level. [COLOR_POSITIVE_TEXT]{TXT_KEY_UNITCOMBAT_RECON}[ENDCOLOR] Units don''t trigger this for Promotions earned with the XP they start with'
+WHERE Tag = 'TXT_KEY_PRODUCTION_BUILDING_INSTANT_YIELD_ON_UNIT_PROMOTION_GLOBAL';
 
 ------------------------------------------------
 -- City screen/banner
@@ -278,6 +282,14 @@ WHERE Tag = 'TXT_KEY_ANTIQUITY_SITES_TO_EXCAVATE';
 UPDATE Language_en_US
 SET Text = '[ICON_RES_HIDDEN_ARTIFACTS] Hidden Sites Left: {1_Num}'
 WHERE Tag = 'TXT_KEY_HIDDEN_SITES_TO_EXCAVATE';
+
+UPDATE Language_en_US
+SET Text = '{1_Civ}''s [ICON_TOURISM] Tourism to {3_Civ} is {2_Num: number #.#}% of their total [ICON_CULTURE] Culture.'
+WHERE Tag = 'TXT_KEY_CO_THIRD_PARTY_CULTURE_INFLUENCE';
+
+UPDATE Language_en_US
+SET Text = '{1_Civ}''s [ICON_TOURISM] Tourism to an unmet civilization is {2_Num: number #.#}% of their total [ICON_CULTURE] Culture.'
+WHERE Tag = 'TXT_KEY_CO_THIRD_PARTY_CULTURE_INFLUENCE_UNMET';
 
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]'

@@ -222,6 +222,8 @@ public:
 
 	void DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeConnectionType type, DomainTypes eDomain);
 	void HideTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConnectionType type) const;
+	void SendTradeRouteVisual(int iIndex) const;
+	void RefreshTradeRouteVisuals() const;
 
 	CvString GetLogFileName() const;
 	void LogTradeMsg(CvString& strMsg) const;
@@ -416,7 +418,8 @@ public:
 
 	//some precomputed numbers for performance
 	SPlayerTradeStats m_tradeStats;
-	void UpdateTradeStats();
+	SPlayerTradeStats m_tradeStatsUi; //the UI thread's own copy, so it never rebuilds the one the game core reads
+	SPlayerTradeStats& UpdateTradeStats();
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerTrade&);

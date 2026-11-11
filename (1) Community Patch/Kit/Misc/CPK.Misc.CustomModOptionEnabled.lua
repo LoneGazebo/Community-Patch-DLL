@@ -23,7 +23,13 @@ local function CustomModOptionEnabled(name)
 	-- The GameInfo call creates more intermediate tables for both
 	-- the query and the results and do not leverage cache
 	-- because of the table structure.
-	return query(name)() ~= nil
+	-- Step the query to the end: a statement left on its first row stays open and
+	-- makes the next database rebuild fail with "database table is locked".
+	local bEnabled = false
+	for _ in query(name) do
+		bEnabled = true
+	end
+	return bEnabled
 end
 
 CPK.Misc.CustomModOptionEnabled = CustomModOptionEnabled

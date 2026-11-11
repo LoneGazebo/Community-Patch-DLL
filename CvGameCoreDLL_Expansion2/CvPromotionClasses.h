@@ -112,6 +112,7 @@ public:
 	bool IsRangedFlankAttack() const;
 	int  GetExtraFlankPower() const;
 	int  GetFlankAttackModifier() const;
+	int  GetFlankSupportModifier() const;
 	int  GetNearbyEnemyCombatMod() const;
 	int  GetNearbyEnemyCombatRange() const;
 	int  GetOpenDefensePercent() const;
@@ -178,6 +179,7 @@ public:
 	int GetBarbarianCombatBonus() const;
 	int GetGoodyHutYieldBonus() const;
 	bool IsGainsXPFromScouting() const;
+	bool IsCanClaimGoody() const;
 	int GetXPFromPillaging() const;
 	int GetExtraXPOnKill() const;
 	bool IsGainsXPFromSpotting() const;
@@ -270,11 +272,12 @@ public:
 	bool IsRangeAttackIgnoreLOS() const;
     int GetSeeThrough() const;
 	bool IsFreePillageMoves() const;
+	bool IsHalfPillageMoves() const;
 	bool IsHealOnPillage() const;
 	bool IsHealIfDefeatExcludeBarbarians() const;
 	bool IsEmbarkedAllWater() const;
 	bool IsEmbarkedDeepWater() const;
-	bool IsCityAttackSupport() const;
+	bool IsCityAttackOnly() const;
 	bool IsCaptureDefeatedEnemy() const;
 	bool IsIgnoreGreatGeneralBenefit() const;
 	bool IsIgnoreZOC() const;
@@ -312,6 +315,7 @@ public:
 	int GetNearbyHealNeutralTerritory() const;
 	int GetNearbyHealFriendlyTerritory() const;
 	int GetPassiveAoEHeal() const;
+	int GetJammingRadius() const;
 	int GetAdjacentEnemySapMovement() const;
 	bool IsCanHeavyCharge() const;
 	bool HasPostCombatPromotions() const;
@@ -326,6 +330,7 @@ public:
 	int GetTerrainDefensePercent(int i) const;
 	int GetTerrainModifierAttack(int i) const;
 	int GetTerrainModifierDefense(int i) const;
+	int GetTerrainHeal(int i) const;
 	int GetFeatureAttackPercent(int i) const;
 	int GetFeatureDefensePercent(int i) const;
 	int GetYieldFromAncientRuins(int i) const;
@@ -437,6 +442,7 @@ protected:
 	bool m_bRangedFlankAttack;
 	int m_iExtraFlankPower;
 	int m_iFlankAttackModifier;
+	int m_iFlankSupportModifier;
 	int m_iNearbyEnemyCombatMod;
 	int m_iNearbyEnemyCombatRange;
 	int m_iOpenDefensePercent;
@@ -499,6 +505,7 @@ protected:
 	int m_iGoodyHutYieldBonus;
 	int m_iDiploMissionInfluence;
 	bool m_bGainsXPFromScouting;
+	bool m_bCanClaimGoody;
 	int m_iXPFromPillaging;
 	int m_iExtraXPOnKill;
 	bool m_bGainsXPFromSpotting;
@@ -590,6 +597,7 @@ protected:
 	bool m_bRangeAttackIgnoreLOS;
     int  m_iSeeThrough;
 	bool m_bFreePillageMoves;
+	bool m_bHalfPillageMoves;
 	bool m_bHealOnPillage;
 	bool m_bHealIfDefeatExcludesBarbarians;
 	bool m_bEmbarkedAllWater;
@@ -637,6 +645,7 @@ protected:
 	int m_iAdjacentEnemySapMovement;
 	bool m_bCanHeavyCharge;
 	int m_iPassiveAoEHeal;
+	int m_iJammingRadius;
 
 	CvString m_strSound;
 
@@ -693,9 +702,11 @@ protected:
 	bool* m_pbCivilianUnitType;
 	bool* m_pbUnitName;
 	bool* m_pbPostCombatRandomPromotion;
+
 	std::map<int, std::pair<int, int>> m_yieldFromPillage;
 	std::set<int> m_siBlockedPromotions;
 	std::vector<PlagueInfo> m_vsPlagues;
+	vector<int> m_viTerrainHeal;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -788,9 +799,6 @@ FDataStream& operator<<(FDataStream&, const CvUnitPromotions&);
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 namespace PromotionArrayHelpers
 {
-void ReadV3(FDataStream& kStream, CvBitfield& kPromotions);
-void Read(FDataStream& kStream, CvBitfield& kPromotions);
-void Write(FDataStream& kStream, const CvBitfield& kPromotions, int iArraySize);
 }
 
 #endif //CIV5_PROMOTION_CLASSES_H

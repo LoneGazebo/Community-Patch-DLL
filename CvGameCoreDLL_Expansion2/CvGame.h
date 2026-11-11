@@ -334,6 +334,8 @@ public:
 	void setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat = false, bool bAutoplaySwitch = false);
 	PlayerTypes getObserverUIOverridePlayer() const;
 	void setObserverUIOverridePlayer(PlayerTypes ePlayer);
+	bool IsObserverExitPending() const;
+	void ExitPendingObserverMode(PlayerTypes ePlayer);
 
 	const CvHandicapInfo& getHandicapInfo() const;
 	HandicapTypes getHandicapType() const;
@@ -797,14 +799,6 @@ public:
 	void NewCapitalFounded(int iFoundValue);
 	int GetCityQualityReference() const;
 	
-	// exe things
-	void SetExeBinType(CvBinType eBinType);
-	CvBinType GetExeBinType() const;
-
-	bool IsExeWantForceResyncAvailable();
-	void SetExeWantForceResyncValue(int value);
-	void SetExeWantForceResyncPointer(int* pointer);
-
 	// Modpack
 	bool DeleteMPMP();
 	bool CreateMPMP();
@@ -820,10 +814,6 @@ protected:
 
 	// Resolves m_intGameId from m_strGameId via the local stats.db uuid_dictionary. No-op when logging is off.
 	void resolveGameDatabaseId();
-
-	// exe things
-	CvBinType m_eExeBinType;
-	int* s_iExeWantForceResync;
 
 	bool m_firstActivationOfPlayersAfterLoad;
 
@@ -880,6 +870,7 @@ protected:
 	bool m_bIsDesynced; // whether the game was desynced or not as a result of the very last sync
 	bool m_bHumanAIPath; // debug/experimental: allow stop nodes in pathfinding for human players
 	PlayerTypes m_eObserverUIOverridePlayer;
+	bool m_bObserverExitPending; // leave observer mode as the next major civ whose turn starts, not saved
 	PlayerTypes m_eWaitDiploPlayer;
 	TechTypes m_eTechAstronomy;
 	PlayerTypes m_eCurrentVisibilityPlayer;

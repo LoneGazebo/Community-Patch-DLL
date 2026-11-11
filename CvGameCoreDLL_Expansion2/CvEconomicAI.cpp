@@ -1059,9 +1059,7 @@ bool EconomicAIHelpers::IsPotentialNavalExplorer(UnitAITypes eType)
 
 bool EconomicAIHelpers::IsHighValueExploreTarget(const CvPlot* pPlot, const CvPlayer* pPlayer, const CvUnit* pUnit)
 {
-	bool bCanPopGoody = !MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS || pUnit->GetGainsXPFromScouting() || pUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true);
-
-	if (bCanPopGoody && pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
+	if (pUnit->CanClaimGoody() && pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
 		return true;
 	else if (pPlot->getRevealedImprovementType(pPlayer->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && pPlot->isVisible(pPlayer->getTeam()) && pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)
 		return true;
@@ -3942,11 +3940,12 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 			{
 				CvUnit* pDisbandUnit = m_pPlayer->getUnit(vUnitsDisband.GetElement(i));
 				int iNumUnitResources = GC.getUnitInfo(pDisbandUnit->getUnitType())->GetResourceQuantityRequirement(eAluminum);
+				const CvString strDisbandName = pDisbandUnit->getName(); // scrap(false) deletes the unit
 				pDisbandUnit->scrap(false);
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Disbanding %s to get aluminum for spaceship. Aluminum available after disbanding: %d", pDisbandUnit->getName().GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
+					strLogString.Format("Disbanding %s to get aluminum for spaceship. Aluminum available after disbanding: %d", strDisbandName.GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
 					m_pPlayer->LogSpaceshipPlanMessage(strLogString);
 				}
 

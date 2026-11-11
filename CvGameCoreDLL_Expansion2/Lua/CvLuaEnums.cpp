@@ -15,7 +15,7 @@
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
 #include "../CustomMods.h"
-#include "CvLuaSupport.h"
+#include "!CvLuaApi.h"
 #include "CvLuaEnums.h"
 #include <CvEnums.h>
 #include "../CvDiplomacyAI.h"
@@ -24,12 +24,7 @@
 #define RegisterEnum(e) pRegisterEnum(L, #e, e)
 #define RegisterEnumUInt(e) pRegisterEnumUInt(L, #e, e)
 
-void CvLuaEnums::Register(lua_State* L)
-{
-	FLua::Details::CCallWithErrorHandling(L, pRegister);
-}
-//------------------------------------------------------------------------------
-int CvLuaEnums::pRegister(lua_State* L)
+void CvLuaEnums::RegisterGlobals(lua_State* L)
 {
 	// Things from CvDefines.h
 	// Interface Dirty Bits
@@ -952,6 +947,16 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(INSTANT_YIELD_TYPE_PLUNDER_TRADE_ROUTE);
 	RegisterEnum(INSTANT_YIELD_TYPE_HEALING);
 	RegisterEnum(INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE);
+	RegisterEnum(INSTANT_YIELD_TYPE_BUILDING_COMPLETED);
+	RegisterEnum(INSTANT_YIELD_TYPE_POLICY_ADOPTED);
+	RegisterEnum(INSTANT_YIELD_TYPE_PLAYER_EVENT);
+	RegisterEnum(INSTANT_YIELD_TYPE_PLAYER_EVENT_COST);
+	RegisterEnum(INSTANT_YIELD_TYPE_CITY_EVENT);
+	RegisterEnum(INSTANT_YIELD_TYPE_CITY_EVENT_COST);
+	RegisterEnum(INSTANT_YIELD_TYPE_LIBERATION);
+	RegisterEnum(INSTANT_YIELD_TYPE_GAP_TO_YIELD);
+	RegisterEnum(INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST);
+	RegisterEnum(INSTANT_YIELD_TYPE_GP_GOLDEN_AGE);
 	RegisterEnum(NUM_INSTANT_YIELD_TYPES);
 	EnumEnd(L);
 
@@ -1283,7 +1288,28 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(ROAD_PLANNING_PRIORITY_CONSTRUCTION);
 	EnumEnd(L);
 
-	return 0;
+	EnumStart(L, "WorkerPlanStatusTypes");
+	RegisterEnum(WORKER_PLAN_STATUS_NONE);
+	RegisterEnum(WORKER_PLAN_STATUS_BUILT);
+	RegisterEnum(WORKER_PLAN_STATUS_IN_PROGRESS);
+	RegisterEnum(WORKER_PLAN_STATUS_ASSIGNED);
+	RegisterEnum(WORKER_PLAN_STATUS_QUEUED);
+	RegisterEnum(WORKER_PLAN_STATUS_NOT_YET);
+	RegisterEnum(WORKER_PLAN_STATUS_BLOCKED);
+	RegisterEnum(WORKER_PLAN_STATUS_LOCKED);
+	RegisterEnum(WORKER_PLAN_STATUS_SUGGESTED);
+	RegisterEnum(WORKER_PLAN_STATUS_OUTSIDE_BORDERS);
+	RegisterEnum(WORKER_PLAN_STATUS_DISABLED);
+	EnumEnd(L);
+
+	EnumStart(L, "WorkerPlanSettingTypes");
+	RegisterEnum(WORKER_PLAN_SETTING_SAFE_AUTOMATION);
+	RegisterEnum(WORKER_PLAN_SETTING_LEAVE_FORESTS);
+	RegisterEnum(WORKER_PLAN_SETTING_PLANS_ONLY);
+	RegisterEnum(WORKER_PLAN_SETTING_COMMIT_GREAT_PERSONS);
+	RegisterEnum(WORKER_PLAN_SETTING_LUXURIES_FIRST);
+	RegisterEnum(WORKER_PLAN_SETTING_STRATEGICS_FIRST);
+	EnumEnd(L);
 }
 //------------------------------------------------------------------------------
 void CvLuaEnums::pRegisterEnum(lua_State* L, const char* enumName, const int enumVal)

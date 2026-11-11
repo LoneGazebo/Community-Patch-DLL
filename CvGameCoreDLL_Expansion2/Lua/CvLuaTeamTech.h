@@ -17,20 +17,14 @@
 #ifndef CVLUATEAMTECH_H
 #define CVLUATEAMTECH_H
 
-#include "CvLuaScopedInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
+#include "CvTechClasses.h"
 
-class CvLuaTeamTech : public CvLuaScopedInstance<CvLuaTeamTech, CvTeamTechs>
+class CvLuaTeamTech : public CvLuaDynamicInstance<CvLuaTeamTech, CvTeamTechs>
 {
 public:
-	//! Push CvTeamTech methods into table t
-	static void PushMethods(lua_State* L, int t);
-
-	//! Required by CvLuaScopedInstance.
-	static void HandleMissingInstance(lua_State* L);
-
-	//! Required by CvLuaScopedInstance.
-	static const char* GetTypeName();
-
+	//! Push CvTeamTech methods
+	static void CreateFunctable(lua_State* L);
 protected:
 
 	static int lSetHasTech(lua_State* L);
@@ -60,34 +54,5 @@ protected:
 	static int lSetEurekaCounter(lua_State* L);
 
 };
-
-namespace CvLuaArgs
-{
-	template<> inline const CvTeamTechs* toValue(lua_State* L, int idx)
-	{
-		return CvLuaTeamTech::GetInstance(L, idx);
-	}
-	template<> inline CvTeamTechs* toValue(lua_State* L, int idx)
-	{
-		return CvLuaTeamTech::GetInstance(L, idx);
-	}
-	template<> inline const CvTeamTechs& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaTeamTech::GetInstance(L, idx);
-	}
-	template<> inline CvTeamTechs& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaTeamTech::GetInstance(L, idx);
-	}
-
-	template<> inline void pushValue(lua_State* L, CvTeamTechs* p)
-	{
-		CvLuaTeamTech::Push(L, p);
-	}
-	template<> inline void pushValue(lua_State* L, CvTeamTechs& r)
-	{
-		CvLuaTeamTech::Push(L, &r);
-	}
-}
 
 #endif //CVLUATEAMTECH_H

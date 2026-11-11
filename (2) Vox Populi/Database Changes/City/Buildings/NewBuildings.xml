@@ -184,6 +184,13 @@
 			<Description>TXT_KEY_BUILDING_SCRIVENERS_OFFICE</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
+		<!-- Master Shipwright -->
+		<Row>
+			<Type>BUILDINGCLASS_MASTER_SHIPWRIGHT</Type>
+			<DefaultBuilding>BUILDING_MASTER_SHIPWRIGHT</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
 		<!-- Ministerial District -->
 		<Row>
 			<Type>BUILDINGCLASS_MINISTERIAL_DISTRICT</Type>
@@ -545,6 +552,20 @@
 			<Description>TXT_KEY_BUILDING_SACRED_GARDEN</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
+		<!-- Heavenly Stair -->
+		<Row>
+			<Type>BUILDINGCLASS_HEAVENLY_STAIR</Type>
+			<DefaultBuilding>BUILDING_HEAVENLY_STAIR</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_HEAVENLY_STAIR</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!-- Martial Sanctum -->
+		<Row>
+			<Type>BUILDINGCLASS_MARTIAL_SANCTUM</Type>
+			<DefaultBuilding>BUILDING_MARTIAL_SANCTUM</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_MARTIAL_SANCTUM</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
 		<!-- Holy Council -->
 		<Row>
 			<Type>BUILDINGCLASS_HOLY_COUNCIL</Type>
@@ -840,7 +861,6 @@
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<CityIndirectFire>true</CityIndirectFire>
 			<RangedStrikeModifier>10</RangedStrikeModifier>
-			<CitySupplyModifier>5</CitySupplyModifier>
 			<HealRateChange>5</HealRateChange>
 			<EmpireSizeModifierReduction>-5</EmpireSizeModifierReduction>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
@@ -910,7 +930,6 @@
 			<Help>TXT_KEY_BUILDING_PENITENTIARY_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_PENITENTIARY_STRATEGY</Strategy>
 			<PrereqTech>TECH_RIFLING</PrereqTech>
-			<CitySupplyModifier>5</CitySupplyModifier>
 			<SpySecurityModifier>15</SpySecurityModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>21</PortraitIndex>
@@ -1263,14 +1282,14 @@
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>25</PortraitIndex>
 		</Row>
-		<!-- Harappan Reservoir -->
+		<!-- Stepwell -->
 		<Row>
-			<Type>BUILDING_HARAPPAN_RESERVOIR</Type>
+			<Type>BUILDING_STEPWELL</Type>
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
-			<Description>TXT_KEY_BUILDING_HARAPPAN_RESERVOIR</Description>
-			<Civilopedia>TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_HELP</Help>
-			<Strategy>TXT_KEY_BUILDING_HARAPPAN_RESERVOIR_STRATEGY</Strategy>
+			<Description>TXT_KEY_BUILDING_STEPWELL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_STEPWELL_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_STEPWELL_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_STEPWELL_STRATEGY</Strategy>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<FoodKept>40</FoodKept>
 			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
@@ -1546,10 +1565,27 @@
 			<PrereqTech>TECH_WRITING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
 			<ExtraSpies>50</ExtraSpies>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>54</PortraitIndex>
+		</Row>
+		<!-- Master Shipwright -->
+		<Row>
+			<Type>BUILDING_MASTER_SHIPWRIGHT</Type>
+			<BuildingClass>BUILDINGCLASS_MASTER_SHIPWRIGHT</BuildingClass>
+			<Description>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT</Description>
+			<Civilopedia>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_MASTER_SHIPWRIGHT_STRATEGY</Strategy>
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
+			<Water>true</Water>
+			<MinAreaSize>10</MinAreaSize>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>39</PortraitIndex>
 		</Row>
 		<!-- Ministerial District -->
 		<Row>
@@ -1562,7 +1598,6 @@
 			<PrereqTech>TECH_BANKING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<ExtraSpies>100</ExtraSpies>
 			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>NEW_BLDG_ATLAS_DLC</IconAtlas>
@@ -1687,7 +1722,6 @@
 			<PrereqTech>TECH_BANKING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<ExtraSpies>100</ExtraSpies>
 			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
@@ -1726,15 +1760,17 @@
 		<!-- Great Cothon -->
 		<Row>
 			<Type>BUILDING_GREAT_COTHON</Type>
-			<BuildingClass>BUILDINGCLASS_NATIONAL_TREASURY</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_MASTER_SHIPWRIGHT</BuildingClass>
 			<Description>TXT_KEY_BUILDING_GREAT_COTHON</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GREAT_COTHON_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_GREAT_COTHON_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_GREAT_COTHON_STRATEGY</Strategy>
-			<PrereqTech>TECH_GUILDS</PrereqTech>
-			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
-			<TradeRouteRecipientBonus>4</TradeRouteRecipientBonus>
-			<TradeRouteTargetBonus>2</TradeRouteTargetBonus>
+			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
+			<Water>true</Water>
+			<MinAreaSize>10</MinAreaSize>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>14</PortraitIndex>
 		</Row>
@@ -1749,7 +1785,6 @@
 			<PrereqTech>TECH_BANKING</PrereqTech>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<ExtraSpies>100</ExtraSpies>
 			<SpySecurityModifierPerXPop>60</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
@@ -1827,8 +1862,8 @@
 			<Help>TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_STRATEGY</Strategy>
 			<PrereqTech>TECH_DRAMA</PrereqTech>
-			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
 			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
+			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
 			<GreatWorkCount>1</GreatWorkCount>
 			<IconAtlas>BUILDING_ATLAS_VP_1</IconAtlas>
 			<PortraitIndex>47</PortraitIndex>
@@ -1845,8 +1880,7 @@
 			<PrereqTech>TECH_GUILDS</PrereqTech>
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
 			<Defense>300</Defense>
-			<CitySupplyModifier>5</CitySupplyModifier>
-			<CitySupplyModifierGlobal>10</CitySupplyModifierGlobal>
+			<CitySupplyFlat>10</CitySupplyFlat>
 			<BuildingDefenseModifier>5</BuildingDefenseModifier>
 			<GlobalDefenseMod>10</GlobalDefenseMod>
 			<FreePromotion>PROMOTION_VENETIAN_CRAFTSMANSHIP</FreePromotion>
@@ -1995,6 +2029,7 @@
 			<Quote>TXT_KEY_WONDER_PORT_ROYAL_QUOTE</Quote>
 			<PrereqTech>TECH_NAVIGATION</PrereqTech>
 			<Water>true</Water>
+			<MinAreaSize>10</MinAreaSize>
 			<ExtraSpies>100</ExtraSpies>
 			<FreeBuildingThisCity>BUILDINGCLASS_HARBOR</FreeBuildingThisCity>
 			<FreePromotion>PROMOTION_PIRACY</FreePromotion>
@@ -2048,7 +2083,7 @@
 			<Help>TXT_KEY_BUILDING_MOTHERLAND_CALLS_HELP</Help>
 			<Quote>TXT_KEY_WONDER_MOTHERLAND_CALLS_QUOTE</Quote>
 			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
-			<CitySupplyModifier>100</CitySupplyModifier>
+			<CitySupplyModifier>50</CitySupplyModifier>
 			<PlayerBorderGainlessPillage>1</PlayerBorderGainlessPillage>
 			<GlobalBuildingGoldMaintenanceMod>-10</GlobalBuildingGoldMaintenanceMod>
 			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>
@@ -2321,7 +2356,7 @@
 			<Help>TXT_KEY_BUILDING_THRONE_ROOM_HELP</Help>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<CultureRateModifier>10</CultureRateModifier>
+			<CultureRateModifier>15</CultureRateModifier>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<CityWorkingChange>1</CityWorkingChange>
@@ -2349,7 +2384,7 @@
 			<Description>TXT_KEY_BUILDING_ROYAL_GUARDHOUSE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ROYAL_GUARDHOUSE_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_ROYAL_GUARDHOUSE_HELP</Help>
-			<CitySupplyModifierGlobal>10</CitySupplyModifierGlobal>
+			<CitySupplyModifier>25</CitySupplyModifier>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -2604,6 +2639,30 @@
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>53</PortraitIndex>
 			<Happiness>2</Happiness>
+		</Row>
+		<!-- Heavenly Stair -->
+		<Row>
+			<Type>BUILDING_HEAVENLY_STAIR</Type>
+			<BuildingClass>BUILDINGCLASS_HEAVENLY_STAIR</BuildingClass>
+			<Description>TXT_KEY_BUILDING_HEAVENLY_STAIR</Description>
+			<Civilopedia>TXT_KEY_BUILDING_HEAVENLY_STAIR_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_HEAVENLY_STAIR_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_HEAVENLY_STAIR_STRATEGY</Strategy>
+			<IsReformation>true</IsReformation>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>38</PortraitIndex>
+		</Row>
+		<!-- Martial Sanctum -->
+		<Row>
+			<Type>BUILDING_MARTIAL_SANCTUM</Type>
+			<BuildingClass>BUILDINGCLASS_MARTIAL_SANCTUM</BuildingClass>
+			<Description>TXT_KEY_BUILDING_MARTIAL_SANCTUM</Description>
+			<Civilopedia>TXT_KEY_BUILDING_MARTIAL_SANCTUM_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_MARTIAL_SANCTUM_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_MARTIAL_SANCTUM_STRATEGY</Strategy>
+			<IsReformation>true</IsReformation>
+			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
+			<PortraitIndex>37</PortraitIndex>
 		</Row>
 		<!-- Heavenly Grotto -->
 		<Row>

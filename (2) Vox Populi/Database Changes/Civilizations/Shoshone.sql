@@ -146,8 +146,12 @@ SET
 	IsNoRiver = 0
 WHERE Type = 'BUILDING_BUFFALO_POUND';
 
+UPDATE Building_YieldChanges 
+SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_WELL' AND YieldType = 'YIELD_PRODUCTION') + 1
+WHERE YieldType = 'YIELD_PRODUCTION' AND BuildingType = 'BUILDING_BUFFALO_POUND';
+
 INSERT INTO Building_YieldChangesPerXTiles
 	(BuildingType, YieldType, Yield, NumRequired)
 VALUES
-	('BUILDING_BUFFALO_POUND', 'YIELD_FOOD', 1, 6),
-	('BUILDING_BUFFALO_POUND', 'YIELD_PRODUCTION', 1, 6);
+	('BUILDING_BUFFALO_POUND', 'YIELD_FOOD', 1, 8),
+	('BUILDING_BUFFALO_POUND', 'YIELD_PRODUCTION', 1, 8);

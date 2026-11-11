@@ -2,7 +2,7 @@
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN">
-			<Text>Gain [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points from killing enemy units equal to 200% of its [ICON_STRENGTH] Strength.Gain 20 [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points when you pillage an improvement, scaling with Era. +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall.</Text>
+			<Text>Gain [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points from killing enemy units equal to 200% of its [ICON_STRENGTH] Strength. Gain 20 [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points when you pillage an improvement, scaling with Era. +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MORRIGAN_SHORT">
 			<Text>Morrigan, the Harbinger</Text>
@@ -69,10 +69,24 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BELIEF_CITY_OF_GOD">
-			<Text>When a [ICON_CITIZEN] Citizen is born in your Holy City, gain 15 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for each City following your [ICON_RELIGION] Religion (max 25 Cities).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Sacred Garden National Wonder[ENDCOLOR] (+2 [ICON_PEACE] Faith, +2 [ICON_GOLD] Gold, +2 [ICON_HAPPINESS_1] Happiness; +50 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith when a [ICON_SPY] Spy is Identified in the Empire, scaling with Era. +5 [ICON_FOOD] Food from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).</Text>
+			<Text>When a [ICON_CITIZEN] Citizen is born in your Holy City, gain 15 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith for each City following your [ICON_RELIGION] Religion (max 25 Cities). Unlocks building the [COLOR_POSITIVE_TEXT]Sacred Garden[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_CITY_OF_GOD_SHORT">
 			<Text>City of God</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_BELIEF_ETERNAL_GLORY">
+			<Text>+3 [ICON_PRODUCTION] Production, [ICON_PEACE] Faith, and [ICON_CULTURE_LOCAL] Border Growth Points in the Holy City for every Foreign City following your [ICON_RELIGION] Religion. Unlocks building the [COLOR_POSITIVE_TEXT]Heavenly Stair[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_ETERNAL_GLORY_SHORT">
+			<Text>Eternal Glory</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_BELIEF_MASTERY">
+			<Text>+1 [ICON_HAPPINESS_1] for every 10 Followers of your [ICON_RELIGION] Religion in Foreign Cities, and +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture for every 2 Followers in [ICON_CITY_STATE] City-States. Unlocks building the [COLOR_POSITIVE_TEXT]Martial Sanctum[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_MASTERY_SHORT">
+			<Text>Mastery</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_BELIEF_GURDWARA">

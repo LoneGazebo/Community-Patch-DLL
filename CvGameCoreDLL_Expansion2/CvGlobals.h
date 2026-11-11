@@ -476,11 +476,13 @@ public:
 	CvBuildingXMLEntries* GetGameBuildings() const;
 
 	//some caching to avoid iterating all building types
-	const std::vector <BuildingTypes>& getBuildingInteractions(BuildingTypes eRefBuilding) const;
-	const std::vector <BuildingTypes>& getBuildingsWithYieldsFromAccomplishments() const;
-	const std::vector <BuildingTypes>& getBuildingsWithModifiersFromAccomplishments() const;
-	const std::vector <BuildingTypes>& getBuildingsWithAirlift() const;
-	const std::vector <BuildingTypes>& getBuildingsWithSealift() const;
+	const std::vector<BuildingTypes>& getBuildingInteractions(BuildingTypes eRefBuilding) const;
+	const std::vector<BuildingTypes>& getBuildingsWithYieldsFromAccomplishments() const;
+	const std::vector<BuildingTypes>& getBuildingsWithModifiersFromAccomplishments() const;
+	const std::vector<BuildingTypes>& getBuildingsWithClassHappiness() const;
+	const std::vector<BuildingTypes>& getBuildingsWithLocalClassHappiness() const;
+	const std::vector<BuildingTypes>& getBuildingsWithAirlift() const;
+	const std::vector<BuildingTypes>& getBuildingsWithSealift() const;
 
 	int getNumUnitClassInfos();
 	std::vector<CvUnitClassInfo*>& getUnitClassInfo();
@@ -2759,6 +2761,8 @@ protected:
 	std::map<BuildingTypes, std::vector<BuildingTypes>> m_buildingInteractionLookup;
 	std::vector<BuildingTypes> m_vBuildingsWithYieldsFromAccomplishments;
 	std::vector<BuildingTypes> m_vBuildingsWithModifiersFromAccomplishments;
+	std::vector<BuildingTypes> m_vBuildingsWithClassHappiness;
+	std::vector<BuildingTypes> m_vBuildingsWithLocalClassHappiness;
 	std::vector<BuildingTypes> m_vBuildingsWithAirlift;
 	std::vector<BuildingTypes> m_vBuildingsWithSealift;
 	CvUnitXMLEntries* m_pUnits;

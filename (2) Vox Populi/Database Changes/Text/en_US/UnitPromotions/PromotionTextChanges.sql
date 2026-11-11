@@ -164,6 +164,11 @@ UPDATE Language_en_US
 SET Text = '+1 [ICON_RANGE_STRENGTH] Range.[NEWLINE]-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.'
 WHERE Tag = 'TXT_KEY_PROMOTION_RANGE_HELP';
 
+-- Range (air)
+UPDATE Language_en_US
+SET Text = 'Air Range'
+WHERE Tag = 'TXT_KEY_PROMOTION_AIR_RANGE';
+
 -- Mobility, Mobility I, Mobility II
 UPDATE Language_en_US
 SET Text = '+1 [ICON_MOVES] Movement.'
@@ -190,7 +195,7 @@ SET Text = 'Ace Pilot III'
 WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3';
 
 UPDATE Language_en_US
-SET Text = '+34% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] Enemy Air Units.[NEWLINE]+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 operational range.'
+SET Text = '+34% Chance to [COLOR_POSITIVE_TEXT]Intercept[ENDCOLOR] Enemy Air Units.[NEWLINE]+33% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 Operational range.[NEWLINE]+1 Interception range.'
 WHERE Tag = 'TXT_KEY_PROMOTION_INTERCEPTION_3_HELP';
 
 UPDATE Language_en_US
@@ -198,7 +203,7 @@ SET Text = 'Ace Pilot IV'
 WHERE Tag = 'TXT_KEY_PROMOTION_SORTIE';
 
 UPDATE Language_en_US
-SET Text = '+34% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 operational range.[NEWLINE]+1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR].'
+SET Text = '+34% [ICON_STRENGTH] Combat Strength when [COLOR_POSITIVE_TEXT]Intercepting[ENDCOLOR] Enemy Air Units.[NEWLINE]+1 Operational range.[NEWLINE]+1 Interception range.[NEWLINE]+1 [COLOR_POSITIVE_TEXT]Interception[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_SORTIE_HELP';
 
 -- Dogfighting
@@ -264,28 +269,6 @@ WHERE Tag = 'TXT_KEY_PROMOTION_EVASION';
 UPDATE Language_en_US
 SET Text = '-50% Damage received when performing an [COLOR_POSITIVE_TEXT]Air Strike[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_EVASION_HELP';
-
--- Scouting
-UPDATE Language_en_US
-SET Text = '+1 [ICON_VISION] Sight and Embarked Sight.'
-WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_1_HELP';
-
-UPDATE Language_en_US
-SET Text = '+1 [ICON_MOVES] Movement and Embarked Movement.'
-WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_2_HELP';
-
--- Survivalism
-UPDATE Language_en_US
-SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+5 HP when Healing [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_1_HELP';
-
-UPDATE Language_en_US
-SET Text = '+25% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]+5 HP when Healing [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_2_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal an additional 10 HP[ENDCOLOR] each turn, regardless of action taken.[NEWLINE][ICON_RAZING] Pillaging costs no [ICON_MOVES] Movement.'
-WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_3_HELP';
 
 UPDATE Language_en_US
 SET Text = 'Tank Hunter I'
@@ -507,13 +490,8 @@ WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE_HELP';
 
 -- Indirect Fire
 UPDATE Language_en_US
-SET Text = 'Can perform Ranged Attacks over obstacles.[NEWLINE]-10% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.'
+SET Text = 'Can perform Ranged Attacks over [COLOR_POSITIVE_TEXT]all[ENDCOLOR] obstacles.'
 WHERE Tag = 'TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP';
-
--- Extra Sight While Embarked
-UPDATE Language_en_US
-SET Text = '+1 [ICON_VISION] Embarked Sight.'
-WHERE Tag = 'TXT_KEY_PROMOTION_EMBARKED_SIGHT_HELP';
 
 -- Embarkation with Defense
 UPDATE Language_en_US

@@ -65,6 +65,7 @@ CvSparseIDInfoGrid& CvSparseIDInfoGrid::operator=(const CvSparseIDInfoGrid& othe
 			{
 				if (m_paEntries[i])
 				{
+					m_paEntries[i]->clear();
 					m_pkAllocator->Release(m_paEntries[i]);
 				}
 			}
@@ -104,7 +105,10 @@ CvSparseIDInfoGrid::~CvSparseIDInfoGrid()
 		for (uint i = 0; i < m_uiMaxIndex; ++i)
 		{
 			if (*pkEntry)
+			{
+				(*pkEntry)->clear();
 				m_pkAllocator->Release(*pkEntry);
+			}
 
 			pkEntry++;
 		}

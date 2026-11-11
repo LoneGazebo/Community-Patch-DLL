@@ -63,8 +63,7 @@ DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_OTOMI' AND PromotionType 
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_OTOMI', 'PROMOTION_WOODSMAN'),
-	('UNIT_OTOMI', 'PROMOTION_SURVIVALISM_1'),
+	('UNIT_OTOMI', 'PROMOTION_INFILTRATORS'),
 	('UNIT_OTOMI', 'PROMOTION_BRUTE_STRENGTH');
 
 ----------------------------------------------------------

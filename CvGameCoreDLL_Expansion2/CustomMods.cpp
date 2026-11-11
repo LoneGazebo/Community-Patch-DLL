@@ -1,5 +1,6 @@
 // CustomMods.cpp
 #include "CvGameCoreDLLPCH.h"
+#include "Lua/CvLuaSupport.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -290,6 +291,7 @@ int CustomMods::getOption(const string& sOption, int defValue)
 		MOD_OPT_CACHE(CORE_DEBUGGING);
 		MOD_OPT_CACHE(SQUADS);
 		MOD_OPT_CACHE(SQLITE_LOGGING);
+		MOD_OPT_CACHE(SQLITE_LOGGING_DURABLE_WRITES);
 
 		// Core Balance Changes
 		MOD_OPT_CACHE(CORE_DELAYED_VISIBILITY);

@@ -15,14 +15,6 @@ enum CLOSED_ENUM eCiv5GameCoreMPoolType
 	c_eCiv5GameplayDLL = c_eMPoolTypeUserStart + 0x100,		// Adding 0x100 because we don't want to collide with the app's IDs
 };
 
-enum CLOSED_ENUM CvBinType 
-{ 
-	BIN_UNKNOWN = -1,
-	BIN_TABLET,
-	BIN_DX11, 
-	BIN_DX9
-};
-
 enum CLOSED_ENUM ArmyType
 {
     ARMY_TYPE_ANY = -1,
@@ -3640,6 +3632,21 @@ enum CLOSED_ENUM InstantYieldType
 	INSTANT_YIELD_TYPE_HEALING					= 62,
 	INSTANT_YIELD_TYPE_SCRAP_OR_UPGRADE			= 63,
 
+	// Logging-only refinements of INSTANT_YIELD_TYPE_INSTANT. CvPlayer::doInstantYield folds every one of
+	// these back into INSTANT_YIELD_TYPE_INSTANT before any gameplay logic runs, so yields, notifications
+	// and Lua-visible behavior are identical to passing INSTANT_YIELD_TYPE_INSTANT; only the statistics
+	// logs (InstantYields / BuildingInstantYields in stats.db, InstantYields.csv) tell them apart.
+	INSTANT_YIELD_TYPE_BUILDING_COMPLETED		= 64, // Building_InstantYield, granted when a building class is first constructed
+	INSTANT_YIELD_TYPE_POLICY_ADOPTED			= 65, // Policy_InstantYield, granted when the policy is adopted
+	INSTANT_YIELD_TYPE_PLAYER_EVENT				= 66, // player event choice yields (EventChoice_EventYields)
+	INSTANT_YIELD_TYPE_PLAYER_EVENT_COST		= 67, // player event choice pre-check cost (negative yields)
+	INSTANT_YIELD_TYPE_CITY_EVENT				= 68, // city event choice yields (CityEventChoice_EventYields)
+	INSTANT_YIELD_TYPE_CITY_EVENT_COST			= 69, // city event choice pre-check cost (negative yields)
+	INSTANT_YIELD_TYPE_LIBERATION				= 70, // liberating a city: Policy_YieldForLiberation yields and liberation unit XP
+	INSTANT_YIELD_TYPE_GAP_TO_YIELD				= 71, // UA: Trait_GAPToYield converts the Golden Age threshold into yields
+	INSTANT_YIELD_TYPE_SCIENCE_BUILDING_BOOST	= 72, // UA: TechBoostFromCapitalScienceBuildings on a capital science building
+	INSTANT_YIELD_TYPE_GP_GOLDEN_AGE			= 73, // Great Person Golden Age ability: GAPBlastStrength golden age points
+
 	NUM_INSTANT_YIELD_TYPES ENUM_META_VALUE
 };
 
@@ -3792,6 +3799,33 @@ enum CLOSED_ENUM RoutePlanTypes
 	ROAD_PLANNING_EXCLUDE,
 	ROAD_PLANNING_INCLUDE,
 	ROAD_PLANNING_PRIORITY_CONSTRUCTION
+};
+
+enum CLOSED_ENUM WorkerPlanStatusTypes
+{
+	WORKER_PLAN_STATUS_NONE,
+	WORKER_PLAN_STATUS_BUILT,		// target improvement is in place
+	WORKER_PLAN_STATUS_IN_PROGRESS,	// construction has started
+	WORKER_PLAN_STATUS_ASSIGNED,	// a builder is assigned to it
+	WORKER_PLAN_STATUS_QUEUED,		// can be built, waiting for a builder
+	WORKER_PLAN_STATUS_NOT_YET,		// can't be built yet
+	WORKER_PLAN_STATUS_BLOCKED,		// planned, but builders won't consider it (invalid plot, tech too far away...)
+	WORKER_PLAN_STATUS_LOCKED,		// plot is locked, nothing will be built
+	WORKER_PLAN_STATUS_SUGGESTED,	// suggested to a builder the player controls
+	WORKER_PLAN_STATUS_OUTSIDE_BORDERS,	// planned outside our borders, can't be built there
+	WORKER_PLAN_STATUS_DISABLED		// the player's settings keep builders from building it
+};
+
+// Player settings for automated builders, stored as player options
+enum CLOSED_ENUM WorkerPlanSettingTypes
+{
+	WORKER_PLAN_SETTING_SAFE_AUTOMATION = PLAYEROPTION_SAFE_AUTOMATION,	// don't replace improvements or remove roads unless planned
+	WORKER_PLAN_SETTING_LEAVE_FORESTS = PLAYEROPTION_LEAVE_FORESTS,		// don't remove forests and jungles unless planned
+	// Not built-in player options, ids chosen so they don't clash with them
+	WORKER_PLAN_SETTING_PLANS_ONLY = 0x57500001,				// only build plans, routes and repairs
+	WORKER_PLAN_SETTING_COMMIT_GREAT_PERSONS = 0x57500002,		// plan around great person suggestions
+	WORKER_PLAN_SETTING_LUXURIES_FIRST = 0x57500003,			// connect luxuries before anything else
+	WORKER_PLAN_SETTING_STRATEGICS_FIRST = 0x57500004,			// connect strategic resources before anything else
 };
 
 enum CLOSED_ENUM Likelyhood

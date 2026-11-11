@@ -85,7 +85,7 @@ VALUES
 	('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 1),
 	('ART_DEF_UNIT_KLEPHT', 'ART_DEF_UNIT_MEMBER_KLEPHT', 9),
 	('ART_DEF_UNIT_VP_GALLEY', 'ART_DEF_UNIT_MEMBER_VP_GALLEY', 1),
-	('ART_DEF_UNIT_VAKA_NUI', 'ART_DEF_UNIT_MEMBER_U_POLYNESIAN_WAR_CANOE', 1),
+	('ART_DEF_UNIT_VAKA_NUI', 'ART_DEF_UNIT_MEMBER_VAKA_NUI', 1),
 	('ART_DEF_UNIT_LONGSHIP', 'ART_DEF_UNIT_MEMBER_LONGSHIP', 1),
 	('ART_DEF_UNIT_CORVETTE', 'ART_DEF_UNIT_MEMBER_CORVETTE', 1),
 	('ART_DEF_UNIT_CORSAIR', 'ART_DEF_UNIT_MEMBER_CORSAIR', 1),
@@ -136,6 +136,22 @@ VALUES
 	('ART_DEF_UNIT_MERC', 'ART_DEF_UNIT_MERC_GUERILLA', 14);
 
 -------------------------------------------
+-- ZOffset (flying planes)
+-------------------------------------------
+UPDATE ArtDefine_UnitMemberInfos SET
+ZOffset = 76
+WHERE Type IN ('ART_DEF_UNIT_GUIDED_MISSILE', -- missiles
+	'ART_DEF_UNIT_MEMBER_WW1_FIGHTER', 'ART_DEF_UNIT_MEMBER_FIGHTER', 'ART_DEF_UNIT_MEMBER_JETFIGHTER', 'ART_DEF_UNIT_MEMBER_U_JAPANESE_ZERO');  -- fighters
+
+UPDATE ArtDefine_UnitMemberInfos SET
+ZOffset = 78
+WHERE Type IN ('ART_DEF_UNIT_MEMBER_BOMBER', 'ART_DEF_UNIT_MEMBER_U_AMERICAN_B17');  -- bombers
+
+UPDATE ArtDefine_UnitMemberInfos SET
+ZOffset = 80  -- these midpoints seem a bit lower in the model
+WHERE Type IN ('ART_DEF_UNIT_MEMBER_WW1_BOMBER', 'ART_DEF_UNIT_MEMBER_STEALTHBOMBER', 'ART_DEF_UNIT_MEMBER_ATOMICBOMB');
+
+-------------------------------------------
 -- Other changes
 -------------------------------------------
 UPDATE ArtDefine_UnitInfos SET Formation = 'DefaultMelee' WHERE Type = 'ART_DEF_UNIT_U_AZTEC_JAGUAR';
@@ -162,3 +178,5 @@ UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.1 WHERE Type = 'ART_DEF_UNIT_MEMB
 UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.14 WHERE Type = 'ART_DEF_UNIT_MEMBER_SUBMARINE';
 UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.115 WHERE Type = 'ART_DEF_UNIT_MEMBER_NUCLEARSUBMARINE';
 UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.07 WHERE Type = 'ART_DEF_UNIT_MEMBER_CARRIER';
+UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.06 WHERE Type = 'ART_DEF_UNIT_MEMBER_U_POLYNESIAN_WAR_CANOE';
+

@@ -74,7 +74,6 @@ WHERE BuildingType = 'BUILDING_MUD_PYRAMID_MOSQUE';
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_MUD_PYRAMID_MOSQUE', 'YIELD_PRODUCTION', 1),
 	('BUILDING_MUD_PYRAMID_MOSQUE', 'YIELD_CULTURE', 1);
 
 INSERT INTO Building_RiverPlotYieldChanges

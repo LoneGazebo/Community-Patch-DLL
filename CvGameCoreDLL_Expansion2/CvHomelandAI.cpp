@@ -2334,7 +2334,7 @@ void CvHomelandAI::PlotGeneralMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-			if(pUnit->IsGreatGeneral() || pUnit->IsCityAttackSupport())
+			if(pUnit->IsGreatGeneral())
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -2882,7 +2882,9 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	}
 
 	//step 2: check if this unit is outdated and should go home to upgrade
-	if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && pUnit->getDomainType() == DOMAIN_LAND && !pUnit->CanStayInOcean() && pUnit->IsGainsXPFromScouting() && GET_TEAM(m_pPlayer->getTeam()).CanBuildOceanCrossingUnit())
+	if (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && pUnit->getDomainType() == DOMAIN_LAND && !pUnit->CanStayInOcean() &&
+		(pUnit->getUnitCombatType() == static_cast<UnitCombatTypes>(GC.getInfoTypeForString("UNITCOMBAT_RECON", true)) || pUnit->IsGainsXPFromScouting()) &&
+		GET_TEAM(m_pPlayer->getTeam()).CanBuildOceanCrossingUnit())
 	{
 		if (pUnit->plot()->getOwner() == m_pPlayer->GetID())
 			return true;
@@ -2964,9 +2966,8 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			}
 
 			//if there is an unguarded improvement to plunder and we can flee
-			if (tile->iMovesLeft > (pUnit->hasFreePillageMove() ? 0 : GD_INT_GET(MOVE_DENOMINATOR)) &&
-				pUnit->canPillage(pEvalPlot) &&
-				!pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false))
+			int iPillageCost = pUnit->hasFreePillageMove() ? 0 : pUnit->HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
+			if (tile->iMovesLeft > iPillageCost && pUnit->canPillage(pEvalPlot) && !pEvalPlot->isEnemyUnit(pUnit->getOwner(), true, true, false))
 			{
 				// do we heal when pillaging this tile?
 				int iHealAmount = pUnit->getPillageHealAmount(pEvalPlot);
@@ -3133,12 +3134,15 @@ bool CvHomelandAI::ExecuteOpportunisticSettlementMoves(CvUnit* pUnit)
 // Higher weight means better directive
 static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
 {
-	int iScore = eDirective.m_plotBuildScore.GetPriorityScore();
+	int iScore = eDirective.m_plotBuildScore.GetRankScore();
 
 	// Need to give GP improvements a bit of a buff so they get first priority.
 	// They get a penalty to make sure they aren't built where we could build better improvements.
 	if (eDirective.m_bIsGreatPerson)
-		return 100 * (iScore - 100 * iMoveTurns);
+	{
+		// Ranked value first, then the tile's yields.
+		return CvBuilderTaskingAI::GetGreatPersonWeight(iScore, eDirective.m_plotBuildScore.m_iTileYieldValue, iMoveTurns);
+	}
 
 	iScore /= 10;
 
@@ -3240,13 +3244,17 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 	aWeightedDirectives.reserve(aDirectives.size());
 
 	int iBestWeightedScore = INT_MIN;
+	int iCurrentPlanPriority = INT_MAX;
 
 	//this is an ugly nested loop with quadratic complexity ...
 	for (vector<BuilderDirective>::const_iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuilderDirective eDirective = *it;
 		if (ignoredDirectives.find(eDirective) != ignoredDirectives.end())
+		{
 			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
+			continue;
+		}
 
 		const CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 		if (m_workedPlots.find(pDirectivePlot->GetPlotIndex()) != m_workedPlots.end())
@@ -3256,6 +3264,24 @@ vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> CvHomelandAI::GetWeight
 		{
 			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
 			continue;
+		}
+
+		// Player settings, e.g. only build plans
+		if (!m_pPlayer->GetBuilderTaskingAI()->IsDirectiveAllowedBySettings(eDirective))
+		{
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
+			continue;
+		}
+
+		// Directives are sorted by player priority. Only consider a lower priority if no builder can do anything with a higher one.
+		if (eDirective.m_iPlanPriority < iCurrentPlanPriority)
+		{
+			if (iBestWeightedScore != INT_MIN)
+			{
+				aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), INT_MIN));
+				continue;
+			}
+			iCurrentPlanPriority = eDirective.m_iPlanPriority;
 		}
 
 		// If the score is lower than the best weighted score we have found, it will never be better than the best weighted score
@@ -3390,8 +3416,15 @@ CvPlot* CvHomelandAI::GetWorkerRegionTargetPlot(const CvUnit* pUnit) const
 	return NULL;
 }
 
-/// Moves units to improve plots
-void CvHomelandAI::ExecuteWorkerMoves()
+/// Re-assign builders after the player changed worker plans mid-turn. Units are not moved.
+void CvHomelandAI::RefreshWorkerAssignments()
+{
+	m_CurrentMoveUnits.clear();
+	ExecuteWorkerMoves(true);
+}
+
+/// Moves units to improve plots. With bAssignOnly, builders only get directives assigned and are not moved.
+void CvHomelandAI::ExecuteWorkerMoves(bool bAssignOnly)
 {
 	list<int> allWorkers;
 	set<int> processedWorkers;
@@ -3437,6 +3470,24 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	vector<BuilderDirective> topDirectives = pBuilderTaskingAI->GetDirectives();
 	set<BuilderDirective> ignoredDirectives;
 
+	if (bAssignOnly)
+	{
+		// Builders that already acted this turn keep their directive and nobody else should take it, the rest are re-assigned below
+		int iUnitLoop = 0;
+		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+		{
+			if (find(allWorkers.begin(), allWorkers.end(), pLoopUnit->GetID()) != allWorkers.end())
+			{
+				pBuilderTaskingAI->SetAssignedDirective(pLoopUnit, BuilderDirective());
+				continue;
+			}
+
+			BuilderDirective eDirective = pBuilderTaskingAI->GetAssignedDirective(pLoopUnit);
+			if (eDirective.m_eBuild != NO_BUILD)
+				ignoredDirectives.insert(eDirective);
+		}
+	}
+
 	// Keep track of some states to recalculate directive scores during processing
 	SBuilderState sState;
 
@@ -3449,7 +3500,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		if (!pUnit)
 			continue;
 
-		bool bIsAutomated = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || pUnit->IsAutomated();
+		bool bIsAutomated = !bAssignOnly && (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || pUnit->IsAutomated());
 
 		if (bIsAutomated)
 		{
@@ -3468,7 +3519,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		}
 	}
 
-	bool bConsiderRegions = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian() && m_pPlayer->IsAtPeace();
+	bool bConsiderRegions = !bAssignOnly && !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && !m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian() && m_pPlayer->IsAtPeace();
 	if (bConsiderRegions)
 	{
 		// Check if any worker is in the wrong region, if so they should move to the right one
@@ -3512,7 +3563,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		bool bCanBuild = eDirective.m_bCanBuild;
 		if (bCanBuild)
 		{
-			bool bIsAutomated = !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || pBuilder->IsAutomated();
+			bool bIsAutomated = !bAssignOnly && (!m_pPlayer->isHuman(ISHUMAN_AI_UNITS) || pBuilder->IsAutomated());
 			if (bIsAutomated)
 			{
 				if (pBuilderTaskingAI->ExecuteWorkerMove(pBuilder, eDirective))
@@ -3756,7 +3807,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				              eDirective.m_eDirectiveType == BuilderDirective::REPAIR_IMPROVEMENT))
 			{
 				if (!bFinishedBuilding)
-					sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()].second = eImprovement;
+					sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()] = make_pair(eDirective.m_eBuild, eImprovement);
 
 				bImprovementStateChanged = true;
 			}
@@ -3984,11 +4035,12 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					}
 				}
 
-				aNewBuilderDirectives.push_back(OptionWithScore<BuilderDirective>(eOtherDirective, eOtherDirective.m_plotBuildScore.GetPriorityScore()));
+				aNewBuilderDirectives.push_back(OptionWithScore<BuilderDirective>(eOtherDirective, eOtherDirective.m_plotBuildScore.GetRankScore()));
 			}
 
 			pBuilderTaskingAI->UpdateGreatPersonDirectives(aNewBuilderDirectives);
 			stable_sort(aNewBuilderDirectives.begin(), aNewBuilderDirectives.end());
+			CvBuilderTaskingAI::SortDirectivesByPlanPriority(aNewBuilderDirectives);
 
 			std::vector<BuilderDirective> aNewDirectives;
 			for (vector<OptionWithScore<BuilderDirective>>::const_iterator it = aNewBuilderDirectives.begin(); it != aNewBuilderDirectives.end(); ++it)
@@ -3997,6 +4049,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			aDistanceWeightedDirectives = GetWeightedDirectives(aNewDirectives, ignoredDirectives, allWorkers, processedWorkers, allWorkersReachablePlots, bConsiderRegions);
 		}
 	}
+
+	if (bAssignOnly)
+		return;
 
 	//may need this later
 	// cityId to needValue
@@ -4066,27 +4121,23 @@ void CvHomelandAI::ExecuteHeals()
 				break;
 			}
 
-			int iUsedMoves = 0;
+			int iPillageCost = pUnit->hasFreePillageMove() ? 0 : pUnit->HasHalfPillageMove() ? (GD_INT_GET(MOVE_DENOMINATOR) / 2) : GD_INT_GET(MOVE_DENOMINATOR);
 
 			// Check if we can pillage this tile for free
-			if (pUnit->hasFreePillageMove() || pBestPlot.second > GD_INT_GET(MOVE_DENOMINATOR))
+			if (pBestPlot.second > iPillageCost)
 			{
 				if (pUnit->shouldPillage(pUnit->plot(), true))
 				{
 					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-					if (!pUnit->hasFreePillageMove())
-						iUsedMoves++;
-				}
-			}
 
-			// if possible, pillage both improvement and road
-			if (pUnit->hasFreePillageMove() || pBestPlot.second > (1 + iUsedMoves) * GD_INT_GET(MOVE_DENOMINATOR))
-			{
-				if (pUnit->shouldPillage(pUnit->plot(), true))
-				{
-					pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-					if (!pUnit->hasFreePillageMove())
-						iUsedMoves++;
+					// If possible, pillage both improvement and road
+					if (pBestPlot.second > iPillageCost * 2)
+					{
+						if (pUnit->shouldPillage(pUnit->plot(), true))
+						{
+							pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+						}
+					}
 				}
 			}
 
@@ -6832,10 +6883,9 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 	}
 
 	//don't target goody huts if we can't claim them with this unit
-	if (MOD_BALANCE_RECON_ONLY_ANCIENT_RUINS && pPlot->isRevealedGoody(pUnit->getTeam()))
+	if (pPlot->isRevealedGoody(pUnit->getTeam()) && !pUnit->CanClaimGoody())
 	{
-		if (pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
-			return false;
+		return false;
 	}
 
 	//AI controlled non-explorers should not explore too far

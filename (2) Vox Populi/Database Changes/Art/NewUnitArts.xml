@@ -641,6 +641,14 @@
 			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_VAKA_NUI</Type>
+			<Scale>0.09</Scale>
+			<Domain>Sea</Domain>
+			<Model>U_Polynesian_War_Canoe.fxsxml</Model>
+			<MaterialTypeTag>WOOD</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_LONGSHIP</Type>
 			<Scale>0.08</Scale>
 			<Domain>Sea</Domain>
@@ -779,6 +787,7 @@
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_SPAD</Type>
 			<Scale>0.09</Scale>
+			<ZOffset>76</ZOffset>
 			<Domain>Air</Domain>
 			<Model>Nieuport_17.fxsxml</Model>
 			<MaterialTypeTag>METAL</MaterialTypeTag>
@@ -787,6 +796,7 @@
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_ROCKET_MISSILE</Type>
 			<Scale>0.11</Scale>
+			<ZOffset>76</ZOffset>
 			<Domain>Air</Domain>
 			<Model>GuidedMissile.fxsxml</Model>
 			<MaterialTypeTag>METAL</MaterialTypeTag>
@@ -2743,7 +2753,7 @@
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_TADODAHO</StrategicViewType>
 			<TileType>Unit</TileType>
-			<Asset>OnondagaUnitSV.dds</Asset>
+			<Asset>TadodahoUnitSV.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_FCOMPANY</StrategicViewType>
