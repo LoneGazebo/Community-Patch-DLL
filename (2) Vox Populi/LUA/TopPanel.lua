@@ -425,10 +425,14 @@ Controls.FaithString:RegisterCallback( Mouse.eLClick, OnFaithClicked );
 
 -------------------------------------------------
 -------------------------------------------------
+local bSupplyDetails = false;
 function OnSupplyClicked()
-	
-	Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_MILITARY_OVERVIEW } );
-
+	if UIManager:GetControl() then
+		bSupplyDetails = not bSupplyDetails;
+		UnitSupplyHandler();
+	else
+		Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_MILITARY_OVERVIEW } );
+	end
 end
 Controls.UnitSupplyString:RegisterCallback( Mouse.eLClick, OnSupplyClicked );
 
@@ -1516,9 +1520,11 @@ function UnitSupplyHandler(control)
 	local pPlayer = Players[iPlayerID];
 
 	local kSupply = pPlayer:GetUnitSupplyBreakdown();
-	local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
 	local iUnitsTotalMilitary = pPlayer:GetNumMilitaryUnits();
+	local iUnitsTotal = pPlayer:GetNumUnitsToSupply(); -- NOT TOTAL UNITS, IT'S  getNumMilitaryUnits() - getNumUnitsSupplyFree()
+	local iUnitsSupplyFree = iUnitsTotalMilitary - iUnitsTotal;
 	local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
+	local sTechProgress = string.format("%.2f", kSupply.TechProgressPct / 100)
 	local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
 	local iWarWearinessCostIncrease = pPlayer:GetUnitCostIncreaseFromWarWeariness();
 	local iHighestWarWearyPlayer = pPlayer:GetHighestWarWearinessPlayer();
@@ -1528,28 +1534,66 @@ function UnitSupplyHandler(control)
 		strText = "[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", kSupply.Total, iUnitsOver, -iUnitSupplyMod) .. "[ENDCOLOR][NEWLINE][NEWLINE]";
 	end
 
-	strText = strText .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_HEADER", iUnitsTotalMilitary, iUnitsTotal, kSupply.Total) .. "[NEWLINE]";
-
-	-- Sources first, each with its own reduction; the steps after the subtotal are
-	-- the empire-wide ones. Lines are skipped when their value is neutral, so CP
-	-- (no tech or city count effect) drops them without a mod check here.
-	local sCitiesDetail = "";
-	if (kSupply.CitiesTechDivisorPct ~= 100) then
-		sCitiesDetail = " " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TECH_DIVISOR", kSupply.CitiesGross, kSupply.CitiesTechDivisorPct);
+	if (iUnitsSupplyFree > 0) then
+		strText = strText .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_HEADER_FREE", iUnitsTotal, kSupply.Total, iUnitsTotalMilitary, iUnitsSupplyFree) .. "[NEWLINE]";
+	else
+		strText = strText .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_HEADER", iUnitsTotal, kSupply.Total) .. "[NEWLINE]";
 	end
-	strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_CITIES", kSupply.CitiesNet, sCitiesDetail);
 
-	local sPopulationDetail = "";
-	if (kSupply.PopulationTechDivisorPct ~= 100) then
-		sPopulationDetail = " " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TECH_DIVISOR", kSupply.PopulationGross, kSupply.PopulationTechDivisorPct);
+	strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_BASE", kSupply.DifficultyNet);
+	local eraLoss = kSupply.DifficultyGross - kSupply.DifficultyNet;
+	if (bSupplyDetails) then
+		if (eraLoss > 0) then
+			strText = strText .. "[NEWLINE]    " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SOURCE_DIFFICULTY", kSupply.DifficultyGross);
+			strText = strText .. "[NEWLINE]    " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SOURCE_ERA_PROGRESS", eraLoss);
+		end
+	elseif (eraLoss > 0) then
+		strText = strText .. " " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_COMPACT_ERA", kSupply.DifficultyGross, eraLoss);
 	end
-	strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_POPULATION", kSupply.PopulationNet, sPopulationDetail);
 
-	local sDifficultyDetail = "";
-	if (kSupply.DifficultyGross ~= kSupply.DifficultyNet) then
-		sDifficultyDetail = " " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_ERA_PENALTY", kSupply.DifficultyGross, kSupply.DifficultyGross - kSupply.DifficultyNet);
+	strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FLAT", kSupply.CitiesNet);
+	if (bSupplyDetails) then
+		local flatSources = kSupply.FlatSources;
+		local flatSourceNames = { "CityCount", "Traits", "Buildings", "Policies", "Puppets" };
+		local flatSourceKeys = { "CITY_COUNT", "TRAITS", "BUILDINGS_PROJECTS", "POLICIES", "PUPPETS" };
+		for i, name in ipairs(flatSourceNames) do
+			local value = flatSources[name];
+			if (value ~= 0) then
+				strText = strText .. "[NEWLINE]    " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SOURCE_" .. flatSourceKeys[i], value);
+			end
+		end
+		if (flatSources.Rounding ~= 0) then
+			strText = strText .. "[NEWLINE]    " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SOURCE_ROUNDING", flatSources.Rounding < 0 and "-" or "+", math.abs(flatSources.Rounding));
+		end
+		local flatTechLoss = kSupply.CitiesGross - kSupply.CitiesNet;
+		if (flatTechLoss > 0) then
+			strText = strText .. "[NEWLINE]    " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SOURCE_TECH_PROGRESS", flatTechLoss);
+		end
+	elseif (kSupply.CitiesTechDivisorPct ~= 100) then
+		strText = strText .. " " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_COMPACT_TECH", kSupply.CitiesGross, string.format("%.2f", kSupply.CitiesTechDivisorPct / 100));
 	end
-	strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_DIFFICULTY", kSupply.DifficultyNet, sDifficultyDetail);
+
+	strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_POPULATION", kSupply.PopulationNet);
+	if (bSupplyDetails) then
+		local populationSources = kSupply.PopulationSources;
+		local populationSourceNames = { "Base", "Traits", "Buildings", "Policies", "Puppets" };
+		local populationSourceKeys = { "BASE_POPULATION", "TRAITS", "BUILDINGS_WONDERS", "POLICIES", "PUPPETS" };
+		for i, name in ipairs(populationSourceNames) do
+			local value = populationSources[name];
+			if (value ~= 0) then
+				strText = strText .. "[NEWLINE]    " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SOURCE_" .. populationSourceKeys[i], value);
+			end
+		end
+		if (populationSources.Rounding ~= 0) then
+			strText = strText .. "[NEWLINE]    " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SOURCE_ROUNDING", populationSources.Rounding < 0 and "-" or "+", math.abs(populationSources.Rounding));
+		end
+		local populationTechLoss = kSupply.PopulationGross - kSupply.PopulationNet;
+		if (populationTechLoss > 0) then
+			strText = strText .. "[NEWLINE]    " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SOURCE_TECH_PROGRESS", populationTechLoss);
+		end
+	elseif (kSupply.PopulationTechDivisorPct ~= 100) then
+		strText = strText .. " " .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_COMPACT_TECH", kSupply.PopulationGross, string.format("%.2f", kSupply.PopulationTechDivisorPct / 100));
+	end
 
 	if (kSupply.GreatPeople ~= 0) then
 		strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_FROM_GREAT_PEOPLE", kSupply.GreatPeople);
@@ -1557,14 +1601,18 @@ function UnitSupplyHandler(control)
 
 	local bAnyEmpireWide = (kSupply.EmpireSizeDivisorPct ~= 100) or (kSupply.DifficultyModifierPct ~= 100) or (kSupply.WarWearinessPct ~= 0);
 	if (bAnyEmpireWide) then
-		strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SUBTOTAL", kSupply.Subtotal);
+		strText = strText .. "[NEWLINE]"
+		--strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SUBTOTAL", kSupply.Subtotal);
 
 		if (kSupply.EmpireSizeDivisorPct ~= 100) then
-			strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_EMPIRE_SIZE", kSupply.EmpireSizeDivisorPct, kSupply.EffectiveCities, kSupply.PerCityPenaltyPct);
+			local sDivisor = string.format("%.2f", kSupply.EmpireSizeDivisorPct / 100);
+			local sPerCity = string.format("%.2f", kSupply.PerCityPenaltyPct / 100);
+			strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_EMPIRE_SIZE", sDivisor, sPerCity);
 		end
 
+
 		if (kSupply.DifficultyModifierPct ~= 100) then
-	local sDifficultyFactor = (kSupply.DifficultyModifierPct > 100 and "[COLOR_POSITIVE_TEXT]" or "[COLOR_NEGATIVE_TEXT]") .. kSupply.DifficultyModifierPct .. "%[ENDCOLOR]";
+			local sDifficultyFactor = (kSupply.DifficultyModifierPct > 100 and "[COLOR_POSITIVE_TEXT]" or "[COLOR_NEGATIVE_TEXT]") .. kSupply.DifficultyModifierPct .. "%[ENDCOLOR]";
 			strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_DIFFICULTY_MODIFIER", sDifficultyFactor);
 		end
 
@@ -1573,10 +1621,10 @@ function UnitSupplyHandler(control)
 		end
 	end
 
-	strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TOTAL", kSupply.Total);
+	strText = strText .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TOTAL", kSupply.Total);
 
 	if (kSupply.CitiesTechDivisorPct ~= 100 or kSupply.PopulationTechDivisorPct ~= 100) then
-		strText = strText .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TECH_EXPLAINER", kSupply.TechProgressPct);
+		strText = strText .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_TECH_EXPLAINER", string.format("%.2f", kSupply.CitiesTechDivisorPct / 100), sTechProgress, kSupply.TechProgressPct);
 	end
 
 	if (iHighestWarWearyPlayer ~= -1) then
@@ -1585,6 +1633,12 @@ function UnitSupplyHandler(control)
 
 	if (iWarWearinessCostIncrease > 0) then
 		strText = strText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_UNIT_COST", iWarWearinessCostIncrease);
+	end
+
+	if (not bSupplyDetails) then
+		strText = strText .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SHOW_DETAILS");
+	else
+		strText = strText .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_BREAKDOWN_SHOW_SUMMARY");
 	end
 
 	local strUnitSupplyToolTip = strText;

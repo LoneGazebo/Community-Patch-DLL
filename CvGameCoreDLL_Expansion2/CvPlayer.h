@@ -90,7 +90,14 @@ struct UnitSupplyBreakdown
 		iDifficultyModifierPct(100),
 		iBeforeWarWeariness(0),
 		iWarWearinessPct(0),
-		iTotal(0)
+		iTotal(0),
+		iFlatFromCityCount(0),
+		iFlatFromTraits(0),
+		iFlatFromBuildings(0),
+		iFlatFromPuppets(0),
+		iPopulationNonPuppetPopulation(0),
+		iPopulationLocalBuildingsTimes100(0),
+		iPopulationFromPuppets(0)
 	{
 	}
 
@@ -114,6 +121,14 @@ struct UnitSupplyBreakdown
 	int iBeforeWarWeariness;
 	int iWarWearinessPct;
 	int iTotal;
+	// Optional tooltip provenance; never used as inputs to Supply calculation.
+	int iFlatFromCityCount;
+	int iFlatFromTraits;
+	int iFlatFromBuildings;
+	int iFlatFromPuppets;
+	int iPopulationNonPuppetPopulation;
+	int iPopulationLocalBuildingsTimes100;
+	int iPopulationFromPuppets;
 };
 
 struct SPlayerActiveEspionageEvent
@@ -471,10 +486,11 @@ public:
 	int calculateUnitGrowthMaintenanceMod() const;
 
 	int GetNumUnitsSupplied(bool bCheckWarWeariness = true) const;
-	void GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown) const;
+	// Provenance is observed only when requested; ordinary gameplay calls use the default.
+	void GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown, bool bIncludeSources = false) const;
 	int GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction = false) const;
-	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false) const;
-	int GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction = false) const;
+	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false, UnitSupplyBreakdown* pTooltipBreakdown = NULL) const;
+	int GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction = false, UnitSupplyBreakdown* pTooltipBreakdown = NULL) const;
 	int GetUnitSupplyTechProgress() const;
 	int GetUnitSupplyTechDivisorPct(int iMultiplierPct) const;
 

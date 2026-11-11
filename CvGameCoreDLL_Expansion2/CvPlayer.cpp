@@ -17295,7 +17295,7 @@ int CvPlayer::GetUnitSupplyTechDivisorPct(int iMultiplierPct) const
 }
 
 /// Where the supply cap is computed; GetNumUnitsSupplied() only caches the result
-void CvPlayer::GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown) const
+void CvPlayer::GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown, bool bIncludeSources) const
 {
 	kBreakdown = UnitSupplyBreakdown();
 
@@ -17313,10 +17313,10 @@ void CvPlayer::GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown) const
 	kBreakdown.iPopulationTechDivisorPct = GetUnitSupplyTechDivisorPct(GD_INT_GET(UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER));
 
 	kBreakdown.iDifficultyGross = GetNumUnitsSuppliedByHandicap(true);
-	kBreakdown.iDifficultyNet = GetNumUnitsSuppliedByHandicap();
+	kBreakdown.iDifficultyNet = GetNumUnitsSuppliedByHandicap(false);
 	kBreakdown.iCitiesGross = GetNumUnitsSuppliedByCities(true);
-	kBreakdown.iCitiesNet = GetNumUnitsSuppliedByCities();
-	kBreakdown.iPopulationGross = GetNumUnitsSuppliedByPopulation(true);
+	kBreakdown.iCitiesNet = GetNumUnitsSuppliedByCities(false, bIncludeSources ? &kBreakdown : NULL);
+	kBreakdown.iPopulationGross = GetNumUnitsSuppliedByPopulation(true, bIncludeSources ? &kBreakdown : NULL);
 	kBreakdown.iPopulationNet = GetNumUnitsSuppliedByPopulation();
 	kBreakdown.iGreatPeople = GetUnitSupplyFromExpendedGreatPeople();
 
@@ -17452,11 +17452,13 @@ int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 }
 
 /// Units supplied by Cities
-int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
+int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction, UnitSupplyBreakdown* pTooltipBreakdown) const
 {
 	if (!isAlive())
 		return 0;
 
+	const bool bTrackSources = pTooltipBreakdown && isMajorCiv();
+	int iPuppetSupplyTimes100 = 0;
 	int iSupply = 0;
 	// calculate supply times 100 here to account for puppet supply modifiers
 	if (isMajorCiv())
@@ -17477,6 +17479,21 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 			}
 			int iCitySupply = (iStartingSupplyPerCity + pLoopCity->getCitySupplyFlat()) * iYieldMod;
 			iSupply += iCitySupply;
+			if (bTrackSources)
+			{
+				if (pLoopCity->IsPuppet())
+				{
+					// Preserve fractional contributions before rounding puppet supply.
+					iPuppetSupplyTimes100 += iCitySupply;
+				}
+				else
+				{
+					pTooltipBreakdown->iFlatFromCityCount += getHandicapInfo().getUnitSupplyPerCity();
+					pTooltipBreakdown->iFlatFromCityCount += isHuman(ISHUMAN_HANDICAP) ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPerCity();
+					pTooltipBreakdown->iFlatFromTraits += m_pTraits->GetExtraSupplyPerCity();
+					pTooltipBreakdown->iFlatFromBuildings += getCitySupplyFlatGlobal() + pLoopCity->getCitySupplyFlat();
+				}
+			}
 		}
 	}
 	else if (isMinorCiv())
@@ -17503,6 +17520,8 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 		}
 	}
 	iSupply /= 100;
+	if (bTrackSources)
+		pTooltipBreakdown->iFlatFromPuppets = iPuppetSupplyTimes100 / 100;
 
 	if (!bIgnoreReduction && (!MOD_BALANCE_MINOR_UNIT_SUPPLY_HANDICAP || isMajorCiv()))
 	{
@@ -17514,12 +17533,14 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 }
 
 /// Units supplied by Population
-int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
+int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction, UnitSupplyBreakdown* pTooltipBreakdown) const
 {
 	if (!isAlive())
 		return 0;
 
 	int iSupply = 0;
+	const bool bTrackSources = pTooltipBreakdown && isMajorCiv();
+	int iPuppetSupplyTimes100 = 0;
 	if (isMajorCiv())
 	{
 		int iStartingPopulationPercent = m_pTraits->GetExtraSupplyPerPopulation() + GetExtraSupplyPerPopulation();
@@ -17541,8 +17562,23 @@ int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 				iPopulation = pLoopCity->getPopulation() * 100;
 			}
 
-			iSupply += (iPopulation * iPopulationPercent) / 100;
+			int iCitySupply = (iPopulation * iPopulationPercent) / 100;
+			iSupply += iCitySupply;
+			if (bTrackSources)
+			{
+				if (pLoopCity->IsPuppet())
+				{
+					iPuppetSupplyTimes100 += iCitySupply;
+				}
+				else
+				{
+					pTooltipBreakdown->iPopulationNonPuppetPopulation += pLoopCity->getPopulation();
+					pTooltipBreakdown->iPopulationLocalBuildingsTimes100 += pLoopCity->getPopulation() * pLoopCity->getCitySupplyModifier();
+				}
+			}
 		}
+		if (bTrackSources)
+			pTooltipBreakdown->iPopulationFromPuppets = iPuppetSupplyTimes100 / 100;
 	}
 	else if (isMinorCiv())
 	{
