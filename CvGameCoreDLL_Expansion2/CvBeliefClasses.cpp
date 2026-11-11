@@ -105,6 +105,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_ppiTradeRouteYieldChange(NULL),
 	m_ppiSpecialistYieldChange(NULL),
 	m_ppiGreatPersonExpendedYield(NULL),
+	m_ppiGreatPersonExpendedYieldEraScaling(NULL),
 	m_ppiGreatPersonBornYield(NULL),
 	m_piGreatPersonRateModifier(NULL),
 	m_piGoldenAgeGreatPersonRateModifier(NULL),
@@ -1837,6 +1838,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	//GreatPersonExpendedYield
 	{
 		kUtility.Initialize2DArray(m_ppiGreatPersonExpendedYield, "GreatPersons", "Yields");
+		kUtility.Initialize2DArray(m_ppiGreatPersonExpendedYieldEraScaling, "GreatPersons", "Yields");
 
 		std::string strKey("Belief_GreatPersonExpendedYield");
 		Database::Results* pResults = kUtility.GetResults(strKey);
