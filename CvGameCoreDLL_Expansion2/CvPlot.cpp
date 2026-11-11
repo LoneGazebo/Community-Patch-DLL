@@ -3919,10 +3919,23 @@ int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherU
 	int iNumUnitsAdjacentToOther = pOtherPlot->GetNumEnemyUnitsAdjacent(pOtherUnit->getTeam(), pOtherUnit->getDomainType(), pUnit, true, pUnit->getTeam(), false, &iFlankModifier);
 	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent(pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit, true);
 
-	if (iNumUnitsAdjacentToOther > iNumUnitsAdjacentToHere)
-		return (pUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere) + iFlankModifier;
+	return GetFlankingBonusFromCounts(pUnit, pOtherUnit, iNumUnitsAdjacentToOther, iNumUnitsAdjacentToHere, iFlankModifier);
+}
 
-	return 0;
+// Applies melee flanking and friendly support to known flank counts.
+int CvPlot::GetFlankingBonusFromCounts(const CvUnit* pUnit, const CvUnit* pOtherUnit, int iOurFlankers, int iTheirFlankers, int iSupportModifier)
+{
+	if (!pUnit || !pOtherUnit || iOurFlankers <= iTheirFlankers)
+		return 0;
+	return (pUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iOurFlankers - iTheirFlankers) + iSupportModifier;
+}
+
+// Applies ranged flanking and friendly support to a known flank count.
+int CvPlot::GetFlankingBonusAtRangeFromCount(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit, int iFlankers, int iSupportModifier)
+{
+	if (!pAttackingUnit || !pDefendingUnit)
+		return 0;
+	return (pAttackingUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * iFlankers + iSupportModifier;
 }
 
 int CvPlot::GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit) const
@@ -3936,7 +3949,7 @@ int CvPlot::GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const
 	int iFlankModifier = 0;
 	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent(pDefendingUnit->getTeam(), pDefendingUnit->getDomainType(), pAttackingUnit, true, pAttackingUnit->getTeam(), false, &iFlankModifier);
 
-	return (pAttackingUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * iNumUnitsAdjacentToHere + iFlankModifier;
+	return GetFlankingBonusAtRangeFromCount(pAttackingUnit, pDefendingUnit, iNumUnitsAdjacentToHere, iFlankModifier);
 }
 
 //	--------------------------------------------------------------------------------
@@ -5396,26 +5409,33 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisib
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
-			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
-			{
-				//airplanes not included
-				if (bCombatOnly && !pLoopUnit->IsCanDefend())
-					continue;
-
-				if (bIgnoreBarbs && pLoopUnit->isBarbarian())
-					continue;
-
-				if (bIgnoreEmbarked && !pLoopUnit->isNativeDomain(pLoopUnit->plot()))
-					continue;
-
-				if(isOtherTeam(pLoopUnit, eTeam) && isEnemy(pLoopUnit,eTeam,false))
-					return true;
-			}
+			// the per-unit rule lives in IsEnemyUnitFor, shared with neighborhood records
+			if (IsEnemyUnitFor(pLoopUnit, eTeam, bCombatOnly, bIgnoreBarbs, bIgnoreEmbarked))
+				return true;
 		}
 		while(pUnitNode != NULL);
 	}
 
 	return false;
+}
+
+// whether pLoopUnit counts as an enemy unit that team eTeam can see
+bool CvPlot::IsEnemyUnitFor(const CvUnit* pLoopUnit, TeamTypes eTeam, bool bCombatOnly, bool bIgnoreBarbs, bool bIgnoreEmbarked)
+{
+	if(!pLoopUnit || pLoopUnit->isInvisible(eTeam, false) || pLoopUnit->IsDead())
+		return false;
+
+	//airplanes not included
+	if (bCombatOnly && !pLoopUnit->IsCanDefend())
+		return false;
+
+	if (bIgnoreBarbs && pLoopUnit->isBarbarian())
+		return false;
+
+	if (bIgnoreEmbarked && !pLoopUnit->isNativeDomain(pLoopUnit->plot()))
+		return false;
+
+	return isOtherTeam(pLoopUnit, eTeam) && isEnemy(pLoopUnit,eTeam,false);
 }
 
 

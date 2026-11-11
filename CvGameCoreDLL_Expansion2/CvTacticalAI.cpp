@@ -6393,7 +6393,8 @@ std::vector<CvPlot*> TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pT
 
 //helper function for city threat calculation
 int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, int& iAttackerDamage,
-	int& iGarrisonDamage, bool bIgnoreUnitAdjacencyBoni, int iExtraSelfDamage, int iExtraCityDamage, int iExtraGarrisonDamage, bool bQuickAndDirty, bool bOverrideGarrison, const CvUnit* pGarrisonOverride)
+	int& iGarrisonDamage, bool bIgnoreUnitAdjacencyBoni, int iExtraSelfDamage, int iExtraCityDamage, int iExtraGarrisonDamage, bool bQuickAndDirty, bool bOverrideGarrison, const CvUnit* pGarrisonOverride,
+	const SCombatNeighborhood* pNeighborhood)
 {
 	if (!pAttacker || !pCity || pAttacker->isDelayedDeath() || pAttacker->IsDead())
 		return 0;
@@ -6422,7 +6423,7 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, c
 		}
 		else
 		{
-			iDamage = pAttacker->GetRangeCombatDamage(NULL, pCity, iGarrisonMaxHP, iGarrisonDamage, false, iExtraSelfDamage, iExtraCityDamage, NULL, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
+			iDamage = pAttacker->GetRangeCombatDamage(NULL, pCity, iGarrisonMaxHP, iGarrisonDamage, false, iExtraSelfDamage, iExtraCityDamage, NULL, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty, pNeighborhood);
 			iAttackerDamage = 0;
 		}
 	}
@@ -6430,7 +6431,7 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, c
 	{
 		//just assume the unit can attack from its current location - modifiers might be different, but thats acceptable
 		iDamage = pAttacker->getMeleeCombatDamageCity(
-			pAttacker->GetMaxAttackStrength(pAttackerPlot, pCity->plot(), NULL, bIgnoreUnitAdjacencyBoni, bQuickAndDirty),
+			pAttacker->GetMaxAttackStrength(pAttackerPlot, pCity->plot(), NULL, bIgnoreUnitAdjacencyBoni, bQuickAndDirty, 0, 0, pNeighborhood),
 			pCity, //not affected by assumed extra damage
 			iAttackerDamage, iGarrisonMaxHP, iGarrisonDamage, false, iExtraSelfDamage, iExtraCityDamage, pGarrisonOverride);
 	}
@@ -6441,7 +6442,7 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, c
 //helper function for unit threat calculation
 int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, 
 				const CvPlot* pDefenderPlot, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
-				bool bIgnoreUnitAdjacencyBoni, int iExtraSelfDamage, int iExtraDefenderDamage, bool bQuickAndDirty)
+				bool bIgnoreUnitAdjacencyBoni, int iExtraSelfDamage, int iExtraDefenderDamage, bool bQuickAndDirty, const SCombatNeighborhood* pNeighborhood)
 {
 	if (!pAttacker || !pDefender || pDefender->isDelayedDeath() || pDefender->IsDead() || pAttacker->isDelayedDeath() || pAttacker->IsDead())
 		return 0;
@@ -6466,7 +6467,7 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 				return 0;
 
 			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, 0, iUnusedReferenceVariable, false, iExtraSelfDamage, iExtraDefenderDamage,
-							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
+							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty, pNeighborhood);
 			iDamage += (pAttacker->hasMoved() || pAttacker->plot() != pAttackerPlot) ? 0 : pAttacker->GetTileDamageIfNotMoved();
 			iAttackerDamage = 0;
 		}
@@ -6480,14 +6481,14 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 
 		if (pAttacker->isRangedSupportFire())
 			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, 0, iUnusedReferenceVariable, false, iExtraSelfDamage, iExtraDefenderDamage,
-							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
+							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty, pNeighborhood);
 
 		// no melee attack if the RangedSupportFire has killed the defender
 		if (pDefender->GetCurrHitPoints() > iDamage + iExtraDefenderDamage)
 		{
-			int iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty, iExtraSelfDamage, iExtraDefenderDamage + iDamage);
-			//do not override defender flanking/general bonus (it is known during combat simulation)
-			int iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty, iExtraDefenderDamage + iDamage);
+			int iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty, iExtraSelfDamage, iExtraDefenderDamage + iDamage, pNeighborhood);
+			// A neighborhood record supplies defender flanking and general bonuses; otherwise use the live board.
+			int iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty, iExtraDefenderDamage + iDamage, pNeighborhood);
 
 			//just assume the unit can attack from its current location - modifiers might be different, but thats acceptable
 			iDamage += pAttacker->getMeleeCombatDamage(
@@ -6839,7 +6840,7 @@ void CAttackCache::clear()
 	attackStats.clear();
 }
 
-void CAttackCache::storeAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iGarrisonId, int iPrevSelfDamage, int iPrevUnitDamage, int iPrevCityDamage, int iUnitDamageDealt, int iCityDamageDealt, int iDamageTaken)
+void CAttackCache::storeAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iGarrisonId, int iPrevSelfDamage, int iPrevUnitDamage, int iPrevCityDamage, const SCombatNeighborhood& neighborhood, int iUnitDamageDealt, int iCityDamageDealt, int iDamageTaken)
 {
 	AttackKey key;
 	key.iAttackerId = iAttackerId;
@@ -6849,6 +6850,7 @@ void CAttackCache::storeAttack(int iAttackerId, int iAttackerPlot, int iDefender
 	key.iPrevSelfDamage = iPrevSelfDamage;
 	key.iPrevUnitDamage = iPrevUnitDamage;
 	key.iPrevCityDamage = iPrevCityDamage;
+	key.neighborhood = neighborhood;
 
 	std::tr1::unordered_map<AttackKey, vector<int>, AttackKeyHash>::iterator it =
 		attackStats.find(key);
@@ -6869,7 +6871,7 @@ void CAttackCache::storeAttack(int iAttackerId, int iAttackerPlot, int iDefender
 	}
 }
 
-bool CAttackCache::findAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iGarrisonId, int iPrevSelfDamage, int iPrevUnitDamage, int iPrevCityDamage, int& iUnitDamageDealt, int& iCityDamageDealt, int& iDamageTaken) const
+bool CAttackCache::findAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iGarrisonId, int iPrevSelfDamage, int iPrevUnitDamage, int iPrevCityDamage, const SCombatNeighborhood& neighborhood, int& iUnitDamageDealt, int& iCityDamageDealt, int& iDamageTaken) const
 {
 	AttackKey key;
 	key.iAttackerId = iAttackerId;
@@ -6879,6 +6881,7 @@ bool CAttackCache::findAttack(int iAttackerId, int iAttackerPlot, int iDefenderI
 	key.iPrevSelfDamage = iPrevSelfDamage;
 	key.iPrevUnitDamage = iPrevUnitDamage;
 	key.iPrevCityDamage = iPrevCityDamage;
+	key.neighborhood = neighborhood;
 
 	std::tr1::unordered_map<AttackKey, vector<int>, AttackKeyHash>::const_iterator it =
 		attackStats.find(key);
@@ -7276,6 +7279,204 @@ static SUnitStats GetNextUnit(const SUnitStats& previousUnit, const STacticalAss
 	return newUnit;
 }
 
+// orders placed units by plot index
+static bool PlacedUnitPlotLess(const SPlacedUnit& lhs, const SPlacedUnit& rhs)
+{
+	return lhs.pPlot->GetPlotIndex() < rhs.pPlot->GetPlotIndex();
+}
+
+// indexes a position's search units, the living ones by plot and all of them by ID
+void CvCombatPlacement::bind(const CvTacticalPosition& position, SNeighborhoodCache& cache)
+{
+	m_pPosition = &position;
+	m_ePlayer = position.getPlayer();
+	m_pCache = &cache;
+	m_placed.clear();
+	m_plannedIDs.clear();
+
+	const vector<SUnitStats>* lists[3];
+	lists[0] = &position.availableUnits.read();
+	lists[1] = &position.notQuiteFinishedUnits.read();
+	lists[2] = &position.finishedUnits.read();
+	for (int iList = 0; iList < 3; iList++)
+	{
+		for (vector<SUnitStats>::const_iterator it = lists[iList]->begin(); it != lists[iList]->end(); ++it)
+		{
+			SPlacedUnit placed;
+			if (place(*it, placed))
+				m_placed.push_back(placed);
+			else
+				m_plannedIDs.push_back(make_pair(it->iUnitID, -1));
+		}
+	}
+
+	std::sort(m_placed.begin(), m_placed.end(), PlacedUnitPlotLess);
+	for (size_t i = 0; i < m_placed.size(); i++)
+		m_plannedIDs.push_back(make_pair(m_placed[i].pUnit->GetID(), (int)i));
+	std::sort(m_plannedIDs.begin(), m_plannedIDs.end());
+}
+
+// lists the units on a plot in the planned position: the real units the search doesn't plan and the plan
+// hasn't killed, then the search units planned there
+void CvCombatPlacement::getUnitsAt(const CvPlot* pPlot, std::vector<SPlacedUnit>& units) const
+{
+	units.clear();
+	if (!pPlot)
+		return;
+
+	if (!m_pPosition)
+	{
+		for (int i = 0; i < pPlot->getNumUnits(); i++)
+		{
+			const CvUnit* pUnit = pPlot->getUnitByIndex(i);
+			if (pUnit)
+				units.push_back(SPlacedUnit(pUnit, pPlot, pUnit->getMoves(), pUnit->isEmbarked()));
+		}
+	}
+	else
+	{
+		const vector<SPlacedUnit>& boardUnits = m_pCache->getBoardUnits(pPlot);
+		for (size_t i = 0; i < boardUnits.size(); i++)
+		{
+			const CvUnit* pLoopUnit = boardUnits[i].pUnit;
+			if (findPlanned(pLoopUnit) == -2 && !isKilled(pLoopUnit))
+				units.push_back(boardUnits[i]);
+		}
+
+		SPlacedUnit key;
+		key.pPlot = pPlot;
+		std::pair<vector<SPlacedUnit>::const_iterator, vector<SPlacedUnit>::const_iterator> range =
+			std::equal_range(m_placed.begin(), m_placed.end(), key, PlacedUnitPlotLess);
+		units.insert(units.end(), range.first, range.second);
+	}
+	if (m_pAttacker)
+	{
+		for (size_t i = 0; i < units.size(); i++)
+			if (units[i].pUnit == m_pAttacker)
+			{
+				units.erase(units.begin() + i);
+				break;
+			}
+		SPlacedUnit attacker;
+		if (pPlot == m_pAttackerPlot && locate(m_pAttacker, attacker))
+			units.push_back(attacker);
+	}
+}
+
+// Checks the live and planned units on a plot without making a temporary list.
+bool CvCombatPlacement::hasUnitClassAt(const CvPlot* pPlot, UnitClassTypes eUnitClass, const CvUnit* pReference) const
+{
+	if (!pPlot)
+		return false;
+
+	TeamTypes eTeam = pReference->getTeam();
+	if (m_pAttacker && m_pAttacker != pReference && pPlot == m_pAttackerPlot &&
+		m_pAttacker->getUnitClassType() == eUnitClass && m_pAttacker->getTeam() == eTeam)
+	{
+		SPlacedUnit placed;
+		if (locate(m_pAttacker, placed))
+			return true;
+	}
+
+	for (int i = 0; i < pPlot->getNumUnits(); i++)
+	{
+		const CvUnit* pLoopUnit = pPlot->getUnitByIndex(i);
+		if (!pLoopUnit || pLoopUnit == pReference || pLoopUnit == m_pAttacker ||
+			pLoopUnit->getUnitClassType() != eUnitClass || pLoopUnit->getTeam() != eTeam)
+			continue;
+		if (!m_pPosition || (findPlanned(pLoopUnit) == -2 && !isKilled(pLoopUnit)))
+			return true;
+	}
+
+	if (m_pPosition)
+	{
+		SPlacedUnit key;
+		key.pPlot = pPlot;
+		std::pair<vector<SPlacedUnit>::const_iterator, vector<SPlacedUnit>::const_iterator> range =
+			std::equal_range(m_placed.begin(), m_placed.end(), key, PlacedUnitPlotLess);
+		for (vector<SPlacedUnit>::const_iterator it = range.first; it != range.second; ++it)
+		{
+			const CvUnit* pLoopUnit = it->pUnit;
+			if (pLoopUnit != pReference && pLoopUnit != m_pAttacker &&
+				pLoopUnit->getUnitClassType() == eUnitClass && pLoopUnit->getTeam() == eTeam)
+				return true;
+		}
+	}
+	return false;
+}
+
+// finds where a unit stands in the planned position
+bool CvCombatPlacement::locate(const CvUnit* pUnit, SPlacedUnit& placed) const
+{
+	if (!pUnit || !pUnit->plot())
+		return false;
+
+	int iEntry = m_pPosition ? findPlanned(pUnit) : -2;
+	if (iEntry >= 0)
+		placed = m_placed[iEntry];
+	else
+	{
+		if (iEntry == -1 || (m_pPosition && isKilled(pUnit)))
+			return false;
+		placed = SPlacedUnit(pUnit, pUnit->plot(), pUnit->getMoves(), pUnit->isEmbarked());
+	}
+	if (pUnit == m_pAttacker)
+		placed.pPlot = m_pAttackerPlot;
+	return true;
+}
+
+// a search unit's entry in the index, or -2 when the search doesn't plan the unit
+int CvCombatPlacement::findPlanned(const CvUnit* pUnit) const
+{
+	if (pUnit->getOwner() != m_ePlayer)
+		return -2;
+
+	vector<pair<int, int> >::const_iterator it = std::lower_bound(m_plannedIDs.begin(), m_plannedIDs.end(), make_pair(pUnit->GetID(), -2));
+	if (it == m_plannedIDs.end() || it->first != pUnit->GetID())
+		return -2;
+	return it->second;
+}
+
+// whether a unit the search doesn't plan is dead in the planned position: about to die for real, or an enemy
+// whose planned damage (melee, ranged and splash alike) reaches its hit points
+bool CvCombatPlacement::isKilled(const CvUnit* pUnit) const
+{
+	if (pUnit->isDelayedDeath())
+		return true;
+	if (!GET_PLAYER(m_ePlayer).IsAtWarWith(pUnit->getOwner()))
+		return false;
+
+	int iDamage = m_pPosition->GetUnitDamage(pUnit->GetID());
+	return iDamage > 0 && iDamage >= pUnit->GetCurrHitPoints();
+}
+
+// places a search unit at its planned plot, unless its own planned damage has killed it
+bool CvCombatPlacement::place(const SUnitStats& stats, SPlacedUnit& placed) const
+{
+	const CvUnit* pUnit = stats.pUnit;
+	if (!pUnit || stats.iSelfDamage >= pUnit->GetCurrHitPoints())
+		return false;
+
+	const CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(stats.iPlotIndex);
+	bool bEmbarked = (pPlot == pUnit->plot()) ? pUnit->isEmbarked() : pPlot->needsEmbarkation(pUnit);
+	placed = SPlacedUnit(pUnit, pPlot, stats.iMovesLeft, bEmbarked);
+	return true;
+}
+
+// Builds a record from the held position, reusing its planned-board index.
+void TacticalAIHelpers::BuildCombatNeighborhood(const CvTacticalPosition& position, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, const CvUnit* pDefender,
+	const CvPlot* pTargetPlot, SCombatNeighborhood& neighborhood)
+{
+	SNeighborhoodCache& cache = gTactPosStorage.getNeighborhoodCache();
+	ASSERT(gTactPosStorage.isHeld(position));
+	CvCombatPlacement& placement = gTactPosStorage.getHeldPlacement();
+	if (!placement.isBound())
+		placement.bind(position, cache);
+	placement.setAttacker(pAttacker, pAttackerPlot);
+	neighborhood.build(placement, pAttacker, pAttackerPlot, pDefender, pTargetPlot, cache);
+	placement.setAttacker(NULL, NULL);
+}
+
 //note that the score returned from this function is not multiplied by 10 yet
 bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, const CvTacticalPlot* assumedPlot, const CvTacticalPosition& assumedPosition, CAttackCache& cache, STacticalAssignment* result, int iSelfDamage)
 {
@@ -7288,7 +7489,9 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 	int iBonusScore = 0; //splash damage and other bonuses
 	bool bRanged = pUnit->IsCanAttackRanged();
 
-	//the damage calculation doesn't know about hypothetical flanking units, so we ignore it here and add it ourselves 
+	// Use the planned board for unit-dependent strength terms. Air keeps the quick estimate.
+	SCombatNeighborhood neighborhood;
+	const SCombatNeighborhood* pNeighborhood = pUnit->getDomainType() == DOMAIN_AIR ? NULL : &neighborhood;
 	int iPrevCityDamage = 0;
 	SUnitIDValueContainer prevUnitDamage;
 	int iPrevCityHitPoints = 0;
@@ -7331,11 +7534,14 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 
 		int iGarrisonDamage = 0;
 
+		if (pNeighborhood)
+			TacticalAIHelpers::BuildCombatNeighborhood(assumedPosition, pUnit, pUnitPlot, NULL, pTestPlot, neighborhood);
+
 		//first try the cache
-		if (!cache.findAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemyCity->GetID(), pEnemyUnit ? pEnemyUnit->GetID() : -1, iSelfDamage, iPrevUnitDamage, iPrevCityDamage, iGarrisonDamage, iCityDamageDealt, iDamageReceived))
+		if (!cache.findAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemyCity->GetID(), pEnemyUnit ? pEnemyUnit->GetID() : -1, iSelfDamage, iPrevUnitDamage, iPrevCityDamage, neighborhood, iGarrisonDamage, iCityDamageDealt, iDamageReceived))
 		{
-			iCityDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pEnemyCity, pUnit, pUnitPlot, iDamageReceived, iGarrisonDamage, true, iSelfDamage, iPrevCityDamage, iPrevUnitDamage, true, true, pEnemyUnit);
-			cache.storeAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemyCity->GetID(), pEnemyUnit ? pEnemyUnit->GetID() : -1, iSelfDamage, iPrevUnitDamage, iPrevCityDamage, iGarrisonDamage, iCityDamageDealt, iDamageReceived);
+			iCityDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pEnemyCity, pUnit, pUnitPlot, iDamageReceived, iGarrisonDamage, true, iSelfDamage, iPrevCityDamage, iPrevUnitDamage, true, true, pEnemyUnit, pNeighborhood);
+			cache.storeAttack(pUnit->GetID(),pUnitPlot->GetPlotIndex(), pEnemyCity->GetID(), pEnemyUnit ? pEnemyUnit->GetID() : -1, iSelfDamage, iPrevUnitDamage, iPrevCityDamage, neighborhood, iGarrisonDamage, iCityDamageDealt, iDamageReceived);
 		}
 
 		iBonusScore += pUnit->GetRangeCombatSplashDamage(pTestPlot) + (pUnit->GetCityAttackPlunderModifier() / 50);
@@ -7412,26 +7618,19 @@ bool ScoreAttackDamage(const CvTacticalPlot* tactPlot, const CvUnit* pUnit, cons
 
 		int iUnitDamageDealt = 0;
 
+		if (pNeighborhood)
+			TacticalAIHelpers::BuildCombatNeighborhood(assumedPosition, pUnit, pUnitPlot, pEnemyUnit, pTestPlot, neighborhood);
+
 		//first use the cache
-		int iCityDamageDealt;
-		if (!cache.findAttack(pUnit->GetID(), pUnitPlot->GetPlotIndex(), pEnemyUnit->GetID(), -1, iSelfDamage, iPrevUnitDamage, 0, iUnitDamageDealt, iCityDamageDealt, iDamageReceived))
+		int iUnusedCityDamage = 0;
+		if (!cache.findAttack(pUnit->GetID(), pUnitPlot->GetPlotIndex(), pEnemyUnit->GetID(), -1, iSelfDamage, iPrevUnitDamage, 0, neighborhood, iUnitDamageDealt, iUnusedCityDamage, iDamageReceived))
 		{
-			//use the quick and dirty method ... and don't check for general bonus etc (their position isn't official yet - we handle that below)
-			iUnitDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemyUnit, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iSelfDamage, iPrevUnitDamage, true);
-			cache.storeAttack(pUnit->GetID(), pUnitPlot->GetPlotIndex(), pEnemyUnit->GetID(), -1, iSelfDamage, iPrevUnitDamage, 0, iUnitDamageDealt, iCityDamageDealt, iDamageReceived);
+			// The record supplies neighbor terms; general support is estimated below.
+			iUnitDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemyUnit, pUnit, pTestPlot, pUnitPlot, iDamageReceived, true, iSelfDamage, iPrevUnitDamage, true, pNeighborhood);
+			cache.storeAttack(pUnit->GetID(), pUnitPlot->GetPlotIndex(), pEnemyUnit->GetID(), -1, iSelfDamage, iPrevUnitDamage, 0, neighborhood, iUnitDamageDealt, iUnusedCityDamage, iDamageReceived);
 		}
 
 		iBonusScore += pUnit->EstimatePlagueDamage(pEnemyUnit);
-
-		//problem is flanking bonus affects combat strength, not damage, so the effect is nonlinear. anyway just assume 10% per adjacent unit
-		if (!bRanged) //only for melee
-		{
-			//it works both ways!
-			//note that this can go quite wrong if we're facing multiple enemy players!
-			int iDelta = tactPlot->getNumAdjacentFriendlies(DomainForUnit(pUnit), assumedPlot->getPlotIndex()) - assumedPlot->getNumAdjacentEnemies(DomainForUnit(pUnit));
-			iUnitDamageDealt += (iDelta * iUnitDamageDealt) / 10;
-			iDamageReceived -= (iDelta * iDamageReceived) / 10;
-		}
 
 		//repeat attacks may give extra bonus
 		if (iPrevUnitDamage > 0)
@@ -9325,6 +9524,8 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 
 	vector<SUnitStats>& availableUnits_w = availableUnits.write();
 
+	// Reuse the planned board while only importance scores change.
+	gTactPosStorage.holdPlacement(*this);
 	//get the best move for each unit
 	for (size_t i = 0; i < availableUnits_w.size() && iMaxUnitsToKeep>0; i++)
 	{
@@ -9333,6 +9534,8 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 		availableUnits_w[i].iImportanceScore = gPossibleMoves.front().score;
 		gAssignmentStorage.reset(false);
 	}
+
+	gTactPosStorage.releasePlacement();
 
 	//reset aggression to the original value
 	eAggression = actualLevel;
@@ -9425,11 +9628,15 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	gAssignmentStorage.reset(false);
 	const vector<SUnitStats>& availableUnits_r = availableUnits.read();
 
+	// Scoring leaves this position unchanged, so share its index and attacker sides.
+	gTactPosStorage.holdPlacement(*this);
 	for (size_t i=0; i< availableUnits_r.size(); i++)
 	{
 		getPreferredAssignmentsForUnit(availableUnits_r[i], iMaxChoicesPerUnit);
 		gOverAllChoices.insert( gOverAllChoices.end(), gPossibleMoves.begin(), gPossibleMoves.end() );
 	}
+
+	gTactPosStorage.releasePlacement();
 
 	//important that moves are ordered by quality instead of unit id
 	std::stable_sort(gOverAllChoices.begin(), gOverAllChoices.end());
@@ -12964,12 +13171,16 @@ bool TacticalAIHelpers::AddSupportMoves(CvTacticalPosition& positionAfterCombatM
 	return true;
 }
 
+// Clears the search state and optionally releases stored position data.
 void CvTactPosStorage::reset(bool bHard)
 { 
 	//this is normally enough
 	iCount = 0; 
 	attackCache.clear(); 
 	dangerCache.clear();
+	neighborhoodCache.clear();
+	releasePlacement();
+	heldPlacement.unbind();
 
 	//in a hard reset we recreate all stl containers from scratch
 	//because their capacity tends to increase over time otherwise

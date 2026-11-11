@@ -1062,6 +1062,8 @@ struct AttackKey
 	int iPrevSelfDamage;
 	int iPrevUnitDamage;
 	int iPrevCityDamage;
+	// the attack's neighborhood record, as the estimate depends on where other units stand
+	SCombatNeighborhood neighborhood;
 
 	bool operator==(const AttackKey& rhs) const
 	{
@@ -1071,7 +1073,8 @@ struct AttackKey
 			iGarrisonId == rhs.iGarrisonId &&
 			iPrevSelfDamage == rhs.iPrevSelfDamage &&
 			iPrevUnitDamage == rhs.iPrevUnitDamage &&
-			iPrevCityDamage == rhs.iPrevCityDamage;
+			iPrevCityDamage == rhs.iPrevCityDamage &&
+			neighborhood == rhs.neighborhood;
 	}
 };
 
@@ -1087,6 +1090,7 @@ struct AttackKeyHash
 		h ^= (size_t)k.iPrevSelfDamage + 0x9e3779b9 + (h << 6) + (h >> 2);
 		h ^= (size_t)k.iPrevUnitDamage + 0x9e3779b9 + (h << 6) + (h >> 2);
 		h ^= (size_t)k.iPrevCityDamage + 0x9e3779b9 + (h << 6) + (h >> 2);
+		h ^= k.neighborhood.hash() + 0x9e3779b9 + (h << 6) + (h >> 2);
 
 		return h;
 	}
@@ -1105,8 +1109,8 @@ protected:
 class CAttackCache {
 public:
 	void clear();
-	void storeAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iGarrisonId, int iPrevSelfDamage, int iPrevUnitDamage, int iPrevCityDamage, int iUnitDamageDealt, int iCityDamageDealt, int iDamageTaken);
-	bool findAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iGarrisonId, int iPrevSelfDamage, int iPrevUnitDamage, int iPrevCityDamage, int& iUnitDamageDealt, int& iCityDamageDealt, int& iDamageTaken) const;
+	void storeAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iGarrisonId, int iPrevSelfDamage, int iPrevUnitDamage, int iPrevCityDamage, const SCombatNeighborhood& neighborhood, int iUnitDamageDealt, int iCityDamageDealt, int iDamageTaken);
+	bool findAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iGarrisonId, int iPrevSelfDamage, int iPrevUnitDamage, int iPrevCityDamage, const SCombatNeighborhood& neighborhood, int& iUnitDamageDealt, int& iCityDamageDealt, int& iDamageTaken) const;
 protected:
 	//key is attacker id
 	std::tr1::unordered_map<AttackKey, vector<int>, AttackKeyHash> attackStats;
@@ -1371,6 +1375,7 @@ protected:
 
 	// the pool releases expanded positions' state and recycles their buffers
 	friend class CvTactPosStorage;
+	friend class CvCombatPlacement;
 
 public:
 
@@ -1528,7 +1533,7 @@ public:
 	// reserves the spare lists up front so they never reallocate. Every buffer sits in
 	// a slot or a spare list, and new ones are made only when the list is empty, so a list never
 	// holds more buffers than the slots have fields of its type: one plot table and three unit lists.
-	CvTactPosStorage(int iPreallocationSize) : iSize(iPreallocationSize), iCount(0), aPositions(new CvTacticalPosition[iPreallocationSize]), attackCache()
+	CvTactPosStorage(int iPreallocationSize) : iSize(iPreallocationSize), iCount(0), aPositions(new CvTacticalPosition[iPreallocationSize]), attackCache(), pHeldPosition(NULL)
 	{
 		spareTactPlots.reserve(iPreallocationSize);
 		spareUnitLists.reserve(3 * iPreallocationSize);
@@ -1554,6 +1559,27 @@ public:
 	int consumeOne() { return iCount++; }
 	CAttackCache& getAttackCache() { return attackCache; }
 	CDangerCache& getDangerCache() { return dangerCache; }
+	// Returns the unit facts and aura providers shared by this search.
+	SNeighborhoodCache& getNeighborhoodCache() { return neighborhoodCache; }
+	// holds a position while its units are scored. Scoring never changes the position, so its records share
+	// one planned-board index and remembered attacker sides until the release.
+	void holdPlacement(const CvTacticalPosition& position)
+	{
+		pHeldPosition = &position;
+		heldPlacement.unbind();
+		neighborhoodCache.forgetHeldAttackerSides();
+	}
+	// ends the hold and forgets its index and attacker sides before the position can change.
+	void releasePlacement()
+	{
+		pHeldPosition = NULL;
+		heldPlacement.unbind();
+		neighborhoodCache.forgetHeldAttackerSides();
+	}
+	// whether records of a position may use the held placement
+	bool isHeld(const CvTacticalPosition& position) const { return pHeldPosition == &position; }
+	// the planned-board index of the held position, bound by its first record
+	CvCombatPlacement& getHeldPlacement() { return heldPlacement; }
 
 	// frees the state only an open position needs, once its children exist. Later
 	// steps read just the assignments and freed plots of a non-root ancestor, so its plots, units,
@@ -1581,6 +1607,11 @@ protected:
 	CvTacticalPosition* aPositions; //preallocated block of N positions
 	CAttackCache attackCache; //performance optimization, unit strength calculation takes too long
 	CDangerCache dangerCache; //performance optimization, unit strength calculation takes too long
+	// reused by every neighborhood record of a search; reset clears the cache
+	SNeighborhoodCache neighborhoodCache;
+	// the position whose units are being scored, and its planned-board index
+	const CvTacticalPosition* pHeldPosition;
+	CvCombatPlacement heldPlacement;
 	// buffers released by expanded positions, waiting for a new child to take them
 	vector<vector<CvTacticalPlot>> spareTactPlots;
 	vector<vector<SUnitStats>> spareUnitLists;
@@ -1699,11 +1730,17 @@ namespace TacticalAIHelpers
 	bool IsCloseToContestedBorder(CvPlayer* pPlayer, CvPlot* pPlot);
 
 	std::vector<CvPlot*> GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied);
+	// a neighborhood record, if given, supplies every term that depends on other units (see SCombatNeighborhood)
 	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, const CvPlot* pDefenderPlot, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
-									bool bIgnoreUnitAdjacencyBoni=false, int iExtraSelfDamage=0, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
+									bool bIgnoreUnitAdjacencyBoni=false, int iExtraSelfDamage=0, int iExtraDefenderDamage=0, bool bQuickAndDirty = false,
+									const SCombatNeighborhood* pNeighborhood = NULL);
 	int GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, int& iAttackerDamage, int& iGarrisonDamage,
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraSelfDamage=0, int iExtraCityDamage=0, int iExtraGarrisonDamage=0, bool bQuickAndDirty = false,
-									bool bOverrideGarrison = false, const CvUnit* pGarrisonOverride = NULL);
+									bool bOverrideGarrison = false, const CvUnit* pGarrisonOverride = NULL, const SCombatNeighborhood* pNeighborhood = NULL);
+	// the neighborhood record of an attack in a search position, with our units at their planned plots and
+	// units the plan has killed left out. pDefender is NULL for a city target.
+	void BuildCombatNeighborhood(const CvTacticalPosition& position, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, const CvUnit* pDefender,
+									const CvPlot* pTargetPlot, SCombatNeighborhood& neighborhood);
 	bool KillLoneEnemyIfPossible(CvUnit* pOurUnit, CvUnit* pEnemyUnit);
 	bool IsSuicideMeleeAttack(const CvUnit* pAttacker, CvPlot* pTarget);
 	bool CanKillTarget(const CvUnit* pAttacker, CvPlot* pTarget);
