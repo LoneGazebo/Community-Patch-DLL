@@ -524,11 +524,24 @@ local function AddBuildingButton(pCity, kBuildingInfo)
 end
 
 ---------------------------------------------------------------
+-- Allow shared-tile transfers into puppets without enabling other citizen controls.
+local function CanSwapPuppetPlot(city, plot)
+	return city and plot
+		and city:IsPuppet()
+		and city:GetOwner() == Game.GetActivePlayer()
+		and not city:IsIgnoreCityForHappiness()
+		and plot:GetOwner() == city:GetOwner()
+		and not plot:IsCity()
+		and plot:GetWorkingCity() ~= city
+end
+
 local function PlotButtonClicked(iPlotIndex)
 	if pActivePlayer:IsTurnActive() then
 		local pCity = UI.GetHeadSelectedCity();
-		assert(pCity, "PlotButtonClicked: No city selected? How could this happen?");
-		Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, iPlotIndex, -1, false);
+		local pPlot = pCity and pCity:GetCityIndexPlot(iPlotIndex);
+		if pPlot and (not UI.IsCityScreenViewingMode() or CanSwapPuppetPlot(pCity, pPlot)) then
+			Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, iPlotIndex, -1, false);
+		end
 	end
 end
 
@@ -1081,7 +1094,7 @@ local function UpdateWorkingHexes()
 					instance.PlotButtonImage:LocalizeAndSetToolTip(strTooltipKey);
 					instance.PlotButtonImage:SetVoid1(iCityPlotIndex);
 					instance.PlotButtonImage:RegisterCallback(Mouse.eLClick, PlotButtonClicked);
-					instance.PlotButtonImage:SetDisabled(UI.IsCityScreenViewingMode());
+					instance.PlotButtonImage:SetDisabled(UI.IsCityScreenViewingMode() and not CanSwapPuppetPlot(pCity, pPlot));
 				end
 			end
 
