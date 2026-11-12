@@ -34456,7 +34456,8 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 	return TurnsToReachTarget(pTarget,iFlags,iTargetTurns);
 }
 
-int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTurns)
+// Returns 0 or INT_MAX when cheap arrival checks settle the result; -1 requires a path search.
+int CvUnit::GetTurnsToReachTargetEstimate(const CvPlot* pTarget, int iFlags, int iTargetTurns) const
 {
 	if(!pTarget)
 		return INT_MAX;
@@ -34520,8 +34521,17 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 	if(pTarget == plot())
 		return 0;
 
-	//don't cache the result here
-	return ComputePath(pTarget, iFlags, iTargetTurns, false);
+	return -1;
+}
+
+// Applies the shared arrival precheck before searching without caching the resulting path.
+int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTurns)
+{
+	int iEstimate = GetTurnsToReachTargetEstimate(pTarget, iFlags, iTargetTurns);
+	if (iEstimate >= 0)
+		return iEstimate;
+
+	return ComputePath(pTarget, iFlags, max(1,iTargetTurns), false);
 }
 
 //	--------------------------------------------------------------------------------
