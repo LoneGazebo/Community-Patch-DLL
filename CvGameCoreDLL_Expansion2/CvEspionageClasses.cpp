@@ -7740,6 +7740,26 @@ void CvEspionageAI::DoTurn()
 	if (m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
 		return;
 
+	if (MOD_BALANCE_VP)
+	{
+		// A counterspy can be left without a focus when a human player comes under AI control (e.g. autoplay)
+		// while the focus choice is still open. Its pending event stops the spy from moving, and the reassignment
+		// below only changes the focus in the top cities, so make the choice now.
+		CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
+		for (uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
+		{
+			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(uiSpy);
+			if (!pSpy || pSpy->GetSpyState() != SPY_STATE_COUNTER_INTEL || pSpy->GetSpyFocus() != NO_EVENT_CHOICE_CITY)
+				continue;
+
+			CvCity* pCity = pEspionage->GetCityWithSpy(uiSpy);
+			if (pCity && pCity->getOwner() == m_pPlayer->GetID())
+			{
+				pEspionage->TriggerSpyFocusSetup(pCity, uiSpy);
+			}
+		}
+	}
+
 	if (!MOD_BALANCE_VP)
 	{
 		StealTechnology();
