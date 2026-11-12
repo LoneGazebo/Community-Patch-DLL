@@ -28,6 +28,19 @@ namespace ExeApi
 	// ---- g_EventSystemLocalMachine: the LocalMachine event system; see
 	// CvExeAddresses.h for the layout
 	const volatile DWORD* g_EventSystemLocalMachine();
+
+	// ---- cvLuaScriptSystem: holds the cvTunerListener at
+	// +cvLuaScriptSystem_TunerListener
+	void** cvLuaScriptSystem_ms_apSingletonInstance();
+	DWORD cvLuaScriptSystem_TunerListener();
+
+	// ---- cvTunerListener: the FireTuner server. Entering a multiplayer game
+	// drops its listen socket; ExitingMultiplayerStagingRoom reopens it on
+	// port 4318 if g_bEnableTuner is set and no socket is open. False if it
+	// could not bind or listen on the port.
+	bool cvTunerListener_ExitingMultiplayerStagingRoom(void* pThis);
+	DWORD cvTunerListener_ListenSocket();
+	const volatile BYTE* g_bEnableTuner();
 }
 
 #endif // CV_EXE_API_H
