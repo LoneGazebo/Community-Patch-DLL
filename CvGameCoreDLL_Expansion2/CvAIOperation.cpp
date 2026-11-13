@@ -1958,9 +1958,11 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 			CvCity* pCity = pCityPlot->getPlotCity();
 			if (pCity != NULL)
 			{
+				// Read the cached found value only: the lazy update behind getFoundValue() would make
+				// logging change the game (the update would run here, after the city is founded).
 				CvString strMsg;
-				strMsg.Format("City founded (%s) at (%d:%d), plot value %d, q%d", pCity->getName().c_str(), 
-					pCityPlot->getX(), pCityPlot->getY(), pCityPlot->getFoundValue(m_eOwner), GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(pCityPlot));
+				strMsg.Format("City founded (%s) at (%d:%d), plot value %d, q%d", pCity->getName().c_str(),
+					pCityPlot->getX(), pCityPlot->getY(), GET_PLAYER(m_eOwner).getPlotFoundValueNoUpdate(pCityPlot->getX(), pCityPlot->getY()), GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasureNoUpdate(pCityPlot));
 				LogOperationSpecialMessage(strMsg);
 			}
 		}

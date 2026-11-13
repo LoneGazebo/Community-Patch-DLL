@@ -2679,6 +2679,8 @@ public:
 	CvPlot* GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	PlayerTypes GetPlayerWhoStoleMyFavoriteCitySite();
 	int GetSettlePlotQualityMeasure(CvPlot* pPlot);
+	int GetSettlePlotQualityMeasureNoUpdate(const CvPlot* pPlot) const;
+	int getPlotFoundValueNoUpdate(int iX, int iY) const;
 
 	// New Victory Stuff
 	int GetNumWonders() const;
