@@ -471,6 +471,8 @@ public:
 	int calculateUnitGrowthMaintenanceMod() const;
 
 	int GetNumUnitsSupplied(bool bCheckWarWeariness = true) const;
+	int GetNumUnitsSuppliedForLog(bool bCheckWarWeariness = true) const;
+	int GetNumUnitsOutOfSupplyForLog(bool bCheckWarWeariness = true) const;
 	void GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown) const;
 	int GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction = false) const;
 	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false) const;
@@ -2679,6 +2681,8 @@ public:
 	CvPlot* GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	PlayerTypes GetPlayerWhoStoleMyFavoriteCitySite();
 	int GetSettlePlotQualityMeasure(CvPlot* pPlot);
+	int GetSettlePlotQualityMeasureNoUpdate(const CvPlot* pPlot) const;
+	int getPlotFoundValueNoUpdate(int iX, int iY) const;
 
 	// New Victory Stuff
 	int GetNumWonders() const;

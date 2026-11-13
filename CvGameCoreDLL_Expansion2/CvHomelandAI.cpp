@@ -3111,9 +3111,11 @@ bool CvHomelandAI::ExecuteOpportunisticSettlementMoves(CvUnit* pUnit)
 				CvCity* pCity = pTargetPlot->getPlotCity();
 				if (pCity)
 				{
+					// Read the cached found value only: the lazy update behind getFoundValue() would make
+					// logging change the game (the update would run here, after the city is founded).
 					CvString strMsg;
 					strMsg.Format("City founded (%s) at (%d:%d), plot value %d, q%d", pCity->getName().c_str(),
-						pTargetPlot->getX(), pTargetPlot->getY(), pTargetPlot->getFoundValue(m_pPlayer->GetID()), m_pPlayer->GetSettlePlotQualityMeasure(pTargetPlot));
+						pTargetPlot->getX(), pTargetPlot->getY(), m_pPlayer->getPlotFoundValueNoUpdate(pTargetPlot->getX(), pTargetPlot->getY()), m_pPlayer->GetSettlePlotQualityMeasureNoUpdate(pTargetPlot));
 					LogHomelandMessage(strMsg);
 				}
 			}
