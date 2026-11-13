@@ -137,7 +137,7 @@ VALUES
 
 -- Citadel
 UPDATE Improvements
-SET 
+SET
 	InEnemyTerritory = 0,  -- can no longer be built in foreign territory by default
 	NoTwoAdjacent = 1
 WHERE Type = 'IMPROVEMENT_CITADEL';
@@ -175,14 +175,14 @@ INSERT INTO Improvement_ResourceExtractionIncrease
 SELECT
 	'IMPROVEMENT_MANUFACTORY', Type, 1
 FROM Resources
-WHERE ResourceUsage = 2;  -- luxuries
+WHERE ResourceUsage = 2; -- luxuries
 
 INSERT INTO Improvement_ResourceExtractionMod
 	(ImprovementType, ResourceType, Modifier)
 SELECT
 	'IMPROVEMENT_MANUFACTORY', Type, 50
 FROM Resources
-WHERE ResourceUsage = 1;  -- strategics
+WHERE ResourceUsage = 1; -- strategics
 
 UPDATE Improvements SET Help = 'TXT_KEY_CIV5_IMPROVEMENTS_MANUFACTORY_HELP' WHERE Type = 'IMPROVEMENT_MANUFACTORY';
 

@@ -3120,8 +3120,8 @@
 		<Row Tag="TXT_KEY_ANTIQUITY_LEGEND_HIDDEN_SITE">
 			<Text>Hidden Antiquity Site</Text>
 		</Row>
-		
-		<!-- Action tooltips -->
+
+		<!-- These conditionally replace TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_HELP -->
 		<Row Tag="TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_WITHOUT_WAR_HELP">
 			<Text>Can't plunder trade routes going to your own city.</Text>
 		</Row>

@@ -12,8 +12,6 @@ CREATE TEMP TABLE StrategyUpdates (
 ---------------------------------
 -- Grand Strategies
 ---------------------------------
--- DLL needs to know what a Victory's preferred strategy is (victory may exist when unique strategy doesn't)
-ALTER TABLE Victories ADD PreferredGrandStrategy text REFERENCES AIGrandStrategies (Type);
 
 UPDATE Victories SET PreferredGrandStrategy = 'AIGRANDSTRATEGY_CONQUEST' WHERE Type = 'VICTORY_DOMINATION';
 UPDATE Victories SET PreferredGrandStrategy = 'AIGRANDSTRATEGY_CULTURE' WHERE Type = 'VICTORY_CULTURAL';

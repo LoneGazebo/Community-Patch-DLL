@@ -545,7 +545,7 @@ ALTER TABLE Building_BuildingClassYieldChanges_FIX RENAME TO Building_BuildingCl
 -- CurveRoll is declared float but holds C-style literals like '1.3f'
 UPDATE MovementRates
 SET CurveRoll = CAST(REPLACE(CurveRoll, 'f', '') AS real)
-WHERE typeof(CurveRoll) = 'text';
+WHERE TYPEOF(CurveRoll) = 'text';
 
 --------------------------------------------------------------------------------
 -- END MovementRates
