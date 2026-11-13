@@ -254,7 +254,17 @@ bool IsUnfriendlyTerritory(TeamTypes eTeam, const CvPlot* pPlot, const CvUnit* p
 	return false;
 }
 
+// Builds an exploration snapshot for callers outside the explorer selection loop.
 CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) const
+{
+	if (!pUnit)
+		return NULL;
+
+	return GetBestExploreTarget(pUnit, iMaxTurns, m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit));
+}
+
+// Scores reachable targets using the current selection attempt's exploration snapshot.
+CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns, const CvExplorationPlotSet& vExplorePlots) const
 {
 	if (!pUnit)
 		return NULL;
@@ -262,10 +272,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) c
 	// These units should never try to go this far
 	if (pUnit->getDomainType() == DOMAIN_LAND && !m_pPlayer->isHuman(ISHUMAN_AI_UNITS) && pUnit->getUnitCombatType() != (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting() && iMaxTurns > 5)
 		return NULL;
-
-	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
-
-	CvExplorationPlotSet vExplorePlots = pEconomicAI->GetExplorationPlots(pUnit);
 
 	//sort by distance to capital or to unit
 	int iRefX = pUnit ? pUnit->getX() : m_pPlayer->getCapitalCity()->getX();
@@ -2846,7 +2852,8 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	CvPlot* pOldPlot = pUnit->plot();
 
 	//step 1: check if there's a really good plot relatively nearby (we don't want to ignore ancient ruins that are two turns away)
-	CvPlot* pBestPlotDist3 = GetBestExploreTarget(pUnit, 3);
+	CvExplorationPlotSet vExplorePlots = m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit);
+	CvPlot* pBestPlotDist3 = GetBestExploreTarget(pUnit, 3, vExplorePlots);
 	if (pBestPlotDist3)
 	{
 		bool bHighValue = EconomicAIHelpers::IsHighValueExploreTarget(pBestPlotDist3, m_pPlayer, pUnit);
@@ -2904,10 +2911,10 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				}
 				return pUnit->plot() == pOldPlot || !pUnit->canMove();
 			}
+			// A failed move can still issue a mission, so refresh before continuing.
+			vExplorePlots = m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit);
 		}
 	}
-
-	CvExplorationPlotSet vExplorePlots = m_pPlayer->GetEconomicAI()->GetExplorationPlots(pUnit);
 
 	//step 3: if we have a leftover path to a far-away (expensive) target an it's still good, then reuse it!
 	if (pUnit->GetMissionAIType() == MISSIONAI_EXPLORE && pUnit->GetMissionAIPlot() && !pUnit->hasMoved() && plotDistance(*pUnit->plot(), *pUnit->GetMissionAIPlot()) > 10)
@@ -3003,19 +3010,19 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		if (!pBestPlot)
 		{
 			iDist = 5;
-			pBestPlot = GetBestExploreTarget(pUnit, iDist);
+			pBestPlot = GetBestExploreTarget(pUnit, iDist, vExplorePlots);
 		}
 
 		if (!pBestPlot)
 		{
 			iDist = 12;
-			pBestPlot = GetBestExploreTarget(pUnit, iDist);
+			pBestPlot = GetBestExploreTarget(pUnit, iDist, vExplorePlots);
 		}
 
 		if (!pBestPlot)
 		{
 			iDist = 23;
-			pBestPlot = GetBestExploreTarget(pUnit, iDist);
+			pBestPlot = GetBestExploreTarget(pUnit, iDist, vExplorePlots);
 		}
 
 		if (pBestPlot)
