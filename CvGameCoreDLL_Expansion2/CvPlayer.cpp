@@ -17283,7 +17283,7 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 }
 
 /// For log output only: the same value as GetNumUnitsSupplied(), but an empty cache is not filled. Filling it from a
-/// log line would fix the value at that moment of the turn for the game's own later reads (bug 0103).
+/// log line would fix the value at that moment of the turn for the game's own later reads, so logging would change the game.
 int CvPlayer::GetNumUnitsSuppliedForLog(bool bCheckWarWeariness) const
 {
 	if (isBarbarian())
@@ -17303,7 +17303,7 @@ int CvPlayer::GetNumUnitsSuppliedForLog(bool bCheckWarWeariness) const
 	return bCheckWarWeariness ? kBreakdown.iTotal : kBreakdown.iBeforeWarWeariness;
 }
 
-/// For log output only: GetNumUnitsOutOfSupply() without filling the supply cache (bug 0103)
+/// For log output only: GetNumUnitsOutOfSupply() without filling the supply cache
 int CvPlayer::GetNumUnitsOutOfSupplyForLog(bool bCheckWarWeariness) const
 {
 	if (!isAlive() || isBarbarian())
@@ -48129,7 +48129,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore, b
 	PlayerTypes eOwner = pUnit ? pUnit->getOwner() : GetID();
 	TeamTypes eTeam = pUnit ? pUnit->getTeam() : getTeam();
 
-	// Logging must not change the result (c5-64bit-patch bug 0103). The decision always uses the cached found value,
+	// Logging must not change the result. The decision always uses the cached found value,
 	// as with logging off; the log shows that value. Logging no longer recomputes the value with
 	// CvSiteEvaluatorForSettler::PlotFoundValue (other arguments, other moment: another value), no longer calls
 	// ComputeFlavorMultipliers (shared evaluator state that PlotFertilityValue reads, e.g. in exploration scoring), and

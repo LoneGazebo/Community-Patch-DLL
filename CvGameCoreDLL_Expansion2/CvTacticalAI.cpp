@@ -1206,10 +1206,8 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 
 	int iBaseDamage = /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
 	CvString szTargetName = "";
-	// Bug 0103: iBaseDamage was set to 0 for citadels and improved resources only inside this logging block, so the
-	// pillage decision differed with AI logging on. Logging now only names the target; the decision keeps the value it
-	// always had with logging off (as players play). The comment of the old lines, "also undamaged units may pillage
-	// this", suggests 0 was meant for both cases with logging off too: a gameplay choice for upstream.
+	// This block only names the target for the log. iBaseDamage used to be set to 0 here for citadels and improved
+	// resources ("also undamaged units may pillage this"), which made the pillage decision depend on AI logging.
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		if (eTarget == AI_TACTICAL_TARGET_ENEMY_CITADEL)
