@@ -471,6 +471,8 @@ public:
 	int calculateUnitGrowthMaintenanceMod() const;
 
 	int GetNumUnitsSupplied(bool bCheckWarWeariness = true) const;
+	int GetNumUnitsSuppliedForLog(bool bCheckWarWeariness = true) const;
+	int GetNumUnitsOutOfSupplyForLog(bool bCheckWarWeariness = true) const;
 	void GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown) const;
 	int GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction = false) const;
 	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false) const;

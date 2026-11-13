@@ -3022,7 +3022,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 
 		// Unit supply
 		strTemp.Format("%d, %d, %d, %d, %d, %d, %d, ", 
-			GetRecommendedMilitarySize(), m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSupplied(), m_pPlayer->GetNumUnitsOutOfSupply(), m_pPlayer->GetNumUnitsOutOfSupply(false) - m_pPlayer->GetNumUnitsOutOfSupply(),
+			GetRecommendedMilitarySize(), m_pPlayer->getNumMilitaryUnits(), m_pPlayer->GetNumUnitsSuppliedForLog(), m_pPlayer->GetNumUnitsOutOfSupplyForLog(), m_pPlayer->GetNumUnitsOutOfSupplyForLog(false) - m_pPlayer->GetNumUnitsOutOfSupplyForLog(),
 			m_pPlayer->getNumUnitsSupplyFree(), GetNumberCivsAtWarWith(false)); //adjusted for better readability
 		strOutBuf += strTemp;
 

@@ -10261,7 +10261,7 @@ void CvPlayer::doTurn()
 				strBaseString += playerName + ", ";
 				strOutBuf.Format("Approval: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d",
 					GetExcessHappiness() , GetUnhappinessFromPoverty(), GetUnhappinessFromDistress(), GetUnhappinessFromIlliteracy(),
-					GetUnhappinessFromBoredom(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), GetNumUnitsToSupply());
+					GetUnhappinessFromBoredom(), GetUnhappinessFromWarWeariness(), GetNumUnitsSuppliedForLog(), GetNumUnitsToSupply());
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
 			}
@@ -17280,6 +17280,36 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 	}
 
 	return bCheckWarWeariness ? m_iNumUnitsSuppliedCachedWarWeariness : m_iNumUnitsSuppliedCached;
+}
+
+/// For log output only: the same value as GetNumUnitsSupplied(), but an empty cache is not filled. Filling it from a
+/// log line would fix the value at that moment of the turn for the game's own later reads (bug 0103).
+int CvPlayer::GetNumUnitsSuppliedForLog(bool bCheckWarWeariness) const
+{
+	if (isBarbarian())
+		return INT_MAX;
+
+	if (!isAlive())
+		return 0;
+
+	if (m_iNumUnitsSuppliedCached != -1 && (!bCheckWarWeariness || m_iNumUnitsSuppliedCachedWarWeariness != -1))
+		return bCheckWarWeariness ? m_iNumUnitsSuppliedCachedWarWeariness : m_iNumUnitsSuppliedCached;
+
+	UnitSupplyBreakdown kBreakdown;
+	GetUnitSupplyBreakdown(kBreakdown);
+	if (!kBreakdown.bValid)
+		return 0;
+
+	return bCheckWarWeariness ? kBreakdown.iTotal : kBreakdown.iBeforeWarWeariness;
+}
+
+/// For log output only: GetNumUnitsOutOfSupply() without filling the supply cache (bug 0103)
+int CvPlayer::GetNumUnitsOutOfSupplyForLog(bool bCheckWarWeariness) const
+{
+	if (!isAlive() || isBarbarian())
+		return 0;
+
+	return std::max(0, GetNumUnitsToSupply() - GetNumUnitsSuppliedForLog(bCheckWarWeariness));
 }
 
 /// Share of all technologies this team knows, 0-100
