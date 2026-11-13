@@ -1409,6 +1409,12 @@
 		<Row Tag="TXT_KEY_EO_SORT_CITY_FOCUS">
 			<Text>City Focus</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_SORT_TOURISM">
+			<Text>Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_SORT_CITY_SECURITY">
+			<Text>City Security (Espionage)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_SORT_LOCAL_HAPPINESS">
 			<Text>Local Happiness</Text>
 		</Row>

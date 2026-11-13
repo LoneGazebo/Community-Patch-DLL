@@ -29,6 +29,10 @@ local eFaith = 9;
 local eReligion = 11;
 local eFocus = 12;
 
+local eTourism = 13;
+local eStrength = 14;
+local eSecurity = 15;
+
 local m_SortMode = ePopulation;
 local m_bSortReverse = false;
 
@@ -248,12 +252,28 @@ local function SetCityYieldTooltip(instance, field, playerID, cityID, yieldType)
     instance[field]:SetToolTipCallback(ShowTooltip);
 end
 
+local function FormatCityYield(value)
+    local hundredths = math.floor(value * 100 + 0.5);
+    if math.abs(hundredths) < 10000 then
+        return string.format("%.1f", math.floor(hundredths / 10) / 10);
+    end
+    return tostring(math.floor(hundredths / 100));
+end
+
+local g_DisplayYieldColumns = {
+    Food = true, Production = true, Gold = true, Science = true,
+    Culture = true, Faith = true, Tourism = true
+};
+
 local g_EconomicColumns = {
+    { "Defense", "SortStrength", "Strength" },
+    { "Security", "SortSecurity" },
     { "Food", "SortFood" },
     { "Gold", "SortGold" },
     { "Science", "SortResearch" },
     { "Culture", "SortCulture" },
     { "Faith", "SortFaith" },
+    { "Tourism", "SortTourism" },
     { "LocalHappiness", "SortLocalHappiness", "Happiness" },
     { "Unhappiness", "SortUnhappiness" },
     { "Production", "SortProduction" },
@@ -278,6 +298,14 @@ function UpdateDisplay()
         end
     end
 
+    -- The espionage overview exposes city security as Potential in VP.
+    local securityByCity = {};
+    for _, status in ipairs(pPlayer:GetEspionageCityStatus() or {}) do
+        if status.PlayerID == pPlayer:GetID() then
+            securityByCity[status.CityID] = status.Potential;
+        end
+    end
+
     Controls.MainStack:DestroyAllChildren();
       
     for pCity in pPlayer:Cities() do
@@ -286,6 +314,14 @@ function UpdateDisplay()
         
         local sortEntry = {};
 		m_SortTable[ tostring( instance.Root ) ] = sortEntry;
+
+        sortEntry.Strength = math.floor(pCity:GetStrengthValue() / 100);
+        instance.Defense:SetText(sortEntry.Strength);
+        instance.Defense:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_EO_SORT_STRENGTH"));
+        local security = securityByCity[pCity:GetID()];
+        sortEntry.Security = security or 0;
+        instance.Security:SetText(security or "-");
+        instance.Security:SetToolTipString(pPlayer:GetCitySecurityTooltip(pCity));
 
         sortEntry.Happiness = pCity:GetLocalHappiness();
         instance.LocalHappiness:SetText(sortEntry.Happiness);
@@ -381,10 +417,10 @@ function UpdateDisplay()
 		end
 		
 		sortEntry.Food = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD) / 100;
-        instance.Food:SetText( math.floor(sortEntry.Food) );
+        instance.Food:SetText( FormatCityYield(sortEntry.Food) );
         
 		sortEntry.Production =pCity:GetYieldRateTimes100( YieldTypes.YIELD_PRODUCTION ) / 100;
-        instance.Production:SetText( math.floor(sortEntry.Production) );
+        instance.Production:SetText( FormatCityYield(sortEntry.Production) );
         
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
@@ -392,24 +428,27 @@ function UpdateDisplay()
             instance.ScienceBox:SetHide(false);
         else
 			sortEntry.Science = pCity:GetYieldRateTimes100( YieldTypes.YIELD_SCIENCE ) / 100;
-			instance.Science:SetText( math.floor(sortEntry.Science) );
+			instance.Science:SetText( FormatCityYield(sortEntry.Science) );
 			instance.ScienceBox:SetHide(false);
         end
         
         sortEntry.Gold = pCity:GetYieldRateTimes100( YieldTypes.YIELD_GOLD ) / 100;
-        instance.Gold:SetText( math.floor(sortEntry.Gold) );
+        instance.Gold:SetText( FormatCityYield(sortEntry.Gold) );
         
         sortEntry.Culture = pCity:GetYieldRateTimes100(YieldTypes.YIELD_CULTURE) / 100;
-        instance.Culture:SetText( math.floor(sortEntry.Culture) );
+        instance.Culture:SetText( FormatCityYield(sortEntry.Culture) );
         
         if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 			instance.Faith:SetText("-");
             instance.FaithBox:SetHide(false);
         else
 			sortEntry.Faith = pCity:GetYieldRateTimes100(YieldTypes.YIELD_FAITH) / 100;
-			instance.Faith:SetText( math.floor(sortEntry.Faith) );
+			instance.Faith:SetText( FormatCityYield(sortEntry.Faith) );
 			instance.FaithBox:SetHide(false);   
         end
+        sortEntry.Tourism = pCity:GetYieldRateTimes100(YieldTypes.YIELD_TOURISM) / 100;
+        instance.Tourism:SetText(FormatCityYield(sortEntry.Tourism));
+
         -- Generate the native yield breakdown on hover, not on every overview refresh.
         local playerID, cityID = pCity:GetOwner(), pCity:GetID();
         SetCityYieldTooltip(instance, "Food", playerID, cityID, YieldTypes.YIELD_FOOD);
@@ -417,6 +456,7 @@ function UpdateDisplay()
         SetCityYieldTooltip(instance, "Gold", playerID, cityID, YieldTypes.YIELD_GOLD);
         SetCityYieldTooltip(instance, "Science", playerID, cityID, YieldTypes.YIELD_SCIENCE);
         SetCityYieldTooltip(instance, "Culture", playerID, cityID, YieldTypes.YIELD_CULTURE);
+        SetCityYieldTooltip(instance, "Tourism", playerID, cityID, YieldTypes.YIELD_TOURISM);
         SetCityYieldTooltip(instance, "Faith", playerID, cityID, YieldTypes.YIELD_FAITH);
 
         cityRows[#cityRows + 1] = { instance = instance, values = sortEntry };
@@ -430,7 +470,9 @@ function UpdateDisplay()
         for _, row in ipairs(cityRows) do
             local value = row.values[column[3] or field];
             if (value) then
-                maxChars = math.max(maxChars, #tostring(math.floor(value)));
+                local display = g_DisplayYieldColumns[field] and FormatCityYield(value)
+                    or tostring(math.floor(value));
+                maxChars = math.max(maxChars, #display);
             end
         end
         local width = math.max(32, maxChars * 10 + 12);
@@ -773,6 +815,12 @@ function SortFunction( a, b )
 		elseif( m_SortMode == eLocalHappiness ) then
 			valueA = entryA.Happiness;
 			valueB = entryB.Happiness;
+		elseif( m_SortMode == eStrength ) then
+			valueA = entryA.Strength;
+			valueB = entryB.Strength;
+		elseif( m_SortMode == eSecurity ) then
+			valueA = entryA.Security;
+			valueB = entryB.Security;
 		elseif( m_SortMode == eFood ) then
 			valueA = entryA.Food;
 			valueB = entryB.Food;
@@ -788,6 +836,9 @@ function SortFunction( a, b )
 		elseif( m_SortMode == eFaith ) then
 			valueA = entryA.Faith;
 			valueB = entryB.Faith;
+		elseif( m_SortMode == eTourism ) then
+			valueA = entryA.Tourism;
+			valueB = entryB.Tourism;
 		elseif( m_SortMode == eReligion ) then
 			valueA = entryA.ReligionFollowers;
 			valueB = entryB.ReligionFollowers;
@@ -829,8 +880,11 @@ Controls.SortPopulation:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortCityName:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortReligion:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortFocus:RegisterCallback( Mouse.eLClick, OnSort );
+Controls.SortStrength:RegisterCallback(Mouse.eLClick, OnSort);
+Controls.SortSecurity:RegisterCallback(Mouse.eLClick, OnSort);
 Controls.SortUnhappiness:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortLocalHappiness:RegisterCallback( Mouse.eLClick, OnSort );
+Controls.SortTourism:RegisterCallback(Mouse.eLClick, OnSort);
 Controls.SortProduction:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortFood:RegisterCallback( Mouse.eLClick, OnSort );
 Controls.SortGold:RegisterCallback( Mouse.eLClick, OnSort );
@@ -840,8 +894,11 @@ Controls.SortPopulation:SetVoid1( ePopulation );
 Controls.SortCityName:SetVoid1( eName );
 Controls.SortReligion:SetVoid1( eReligion );
 Controls.SortFocus:SetVoid1( eFocus );
+Controls.SortStrength:SetVoid1(eStrength);
+Controls.SortSecurity:SetVoid1(eSecurity);
 Controls.SortUnhappiness:SetVoid1( eUnhappiness );
 Controls.SortLocalHappiness:SetVoid1( eLocalHappiness );
+Controls.SortTourism:SetVoid1(eTourism);
 Controls.SortProduction:SetVoid1( eProduction );
 Controls.SortFood:SetVoid1( eFood );
 Controls.SortGold:SetVoid1( eGold );

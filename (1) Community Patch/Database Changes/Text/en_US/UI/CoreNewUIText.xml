@@ -2675,6 +2675,9 @@
 		<Row Tag="TXT_KEY_EO_SORT_CITY_FOCUS">
 			<Text>City Focus</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_SORT_TOURISM">
+			<Text>Tourism</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_SPY_ALREADY_IN_CITY">
 			<Text>Your spy {2_SpyName} is already present in {1_CityName}.</Text>
 		</Row>

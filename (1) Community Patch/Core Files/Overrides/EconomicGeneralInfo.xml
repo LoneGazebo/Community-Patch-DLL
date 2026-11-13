@@ -31,6 +31,14 @@
 				</ShowOnMouseOver>
 				<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT18" String="[ICON_RELIGION]"/>
 			</Button>
+			<Button ID="SortStrength" Anchor="L,C" Size="40,24" Style="BoxButton" ToolTip="TXT_KEY_EO_SORT_STRENGTH">
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="C,C" Size="40,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid Anchor="C,C" Size="40,30" Style="Grid9FrameTurnsHL"/>
+					</AlphaAnim>
+				</ShowOnMouseOver>
+				<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT18" String="[ICON_STRENGTH]"/>
+			</Button>
 			<Button ID="SortFocus" Anchor="L,C" Size="36,24" Style="BoxButton" ToolTip="TXT_KEY_EO_SORT_CITY_FOCUS">
 				<ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
@@ -80,13 +88,13 @@
 				</ShowOnMouseOver>
 				<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT18" String="[ICON_PEACE]"/>
 			</Button>
-			<Button ID="SortStrength" Anchor="L,C" Size="40,24" Style="BoxButton" ToolTip="TXT_KEY_EO_SORT_STRENGTH">
+			<Button ID="SortTourism" Anchor="L,C" Size="40,24" Style="BoxButton" ToolTip="TXT_KEY_EO_SORT_TOURISM">
 				<ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Size="40,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 						<Grid Anchor="C,C" Size="40,30" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				</ShowOnMouseOver>
-				<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT18" String="[ICON_STRENGTH]"/>
+				<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT18" String="[ICON_TOURISM]"/>
 			</Button>
 			<Button ID="SortProduction" Anchor="L,C" Size="40,24" Style="BoxButton" ToolTip="TXT_KEY_EO_SORT_PRODUCTION">
 				<ShowOnMouseOver>
@@ -237,6 +245,9 @@
 						<Image ID="ReligionIcon" Anchor="L,C" Size="32,32" Hidden="1"/>
 					</Stack>
 				</Box>
+				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="DefenseBox">
+					<Label ID="Defense" Anchor="C,C" Font="TwCenMT20" FontStyle="Stroke" Color0="Beige.255" Color1="Black.255"/>
+				</Box>
 				<Box ID="FocusBox" Anchor="L,C" Size="36,34" Color="White,0">
 					<Label ID="CityFocus" Anchor="C,C" Font="TwCenMT20" FontStyle="Shadow"/>
 				</Box>
@@ -256,8 +267,8 @@
 				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="FaithBox" ToolTipType="CityViewTooltip">
 					<Label ID="Faith" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="White.255" Color1="Black.255"/>
 				</Box>
-				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="DefenseBox">
-					<Label ID="Defense" Anchor="C,C" Font="TwCenMT20" FontStyle="Stroke" Color0="Beige.255" Color1="Black.255"/>
+				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="TourismBox" ToolTipType="CityViewTooltip">
+					<Label ID="Tourism" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="White.255" Color1="Black.255"/>
 				</Box>
 				<Box Anchor="L,C" Size="40,34" Color="White,0" ID="ProductionBox" ToolTipType="CityViewTooltip">
 					<Label ID="Production" Anchor="C,C" ToolTipType="CityViewTooltip" Font="TwCenMT20" FontStyle="Stroke" Color0="Production.255" Color1="Black.255"/>
