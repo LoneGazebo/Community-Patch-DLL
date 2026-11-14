@@ -18,8 +18,8 @@ SET Text = 'It will increase the amount of [ICON_PRODUCTION] Production (Forest)
 WHERE Tag = 'TXT_KEY_BUILD_LUMBERMILL_REC';
 
 -- Remove Jungle (now grants Production like Forests)
-UPDATE Language_en_US 
-SET Text = 'Chop Down a Jungle' 
+UPDATE Language_en_US
+SET Text = 'Chop Down a Jungle'
 WHERE Tag = 'TXT_KEY_BUILD_REMOVE_JUNGLE';
 
 -- Village
@@ -59,7 +59,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FISHINGBOATS_TEXT';
 
 -- Offshore Platform
 UPDATE Language_en_US
-SET Text = 'Constructs an Offshore Platform, which improves the Oil Strategic Resource when it appears on Sea Tiles. Generates a large increase in [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.'
+SET Text = 'Constructs an Offshore Platform, which improves the [ICON_RES_OIL] Oil Strategic Resource when it appears on Sea Tiles. Generates a large increase in [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILD_OFFSHORE_PLATFORMS_HELP';
 
 UPDATE Language_en_US

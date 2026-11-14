@@ -204,8 +204,8 @@ SELECT
 FROM Policies
 WHERE PolicyBranchType = 'POLICY_BRANCH_TRADITION';
 
-UPDATE Policies 
-SET 
+UPDATE Policies
+SET
 	FreePopulationCapital = 1,
 	OneShot = 1
 WHERE PolicyBranchType = 'POLICY_BRANCH_TRADITION';

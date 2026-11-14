@@ -325,7 +325,7 @@
 		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE_TEXT">
 			<Text>Though taken for granted today, the establishment of regional, national and eventually international news agencies (or wire services) was a major boon to the economic, political and cultural interconnectivity of the world. By standardizing the speed, quality and stability of communication on a global scale, modern news agencies are not only useful for spreading popular and intellectual knowledge, but also the acceleration of discourse between governments. Eventually, most countries would create national wire services that focused on foreign affairs and diplomacy. Many of these organizations were under the control of a nation's foreign bureau.</Text>
 		</Row>
-		
+
 		<!-- National Wonders -->
 		<Row Tag="TXT_KEY_BUILDING_SCRIVENERS_OFFICE">
 			<Text>Scrivener's Office</Text>
@@ -378,7 +378,7 @@
 		<Row Tag="TXT_KEY_BUILDING_GENERAL_POST_OFFICE_TEXT">
 			<Text>The term "post-office" has been in use since the 1650s, shortly after the legalisation of private mail services in England in 1635. In early modern England, mounted couriers were placed, or "posted", every few hours along post roads at posting houses between major cities, or "post towns". These stables or inns permitted important correspondence to travel without delay. Historically, there is evidence of corps of royal couriers disseminating the decrees of Egyptian pharaohs as early as 2400 BCE, and it is possible that the service greatly precedes that date. In Herodotus's Histories, he refers to a courier service of the ancient Persian Empire with praise, writing, "neither by snow nor rain nor heat nor darkness from accomplishing their appointed course with all speed."[NEWLINE][NEWLINE]Administering the flow of parcels and messages is not just important to the economy of a country, it also allows an otherwise impossible level of surveillance of the population and control over the lines of communcation. For example in the First World War, postal interception was used to find the disclosure of military secrets and test the morale of soldiers. Those writing postcards in the field knew they were being censored, and deliberately held back controversial content and personal matters.</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_FOREIGN_BUREAU">
 			<Text>Foreign Bureau</Text>
 		</Row>
@@ -489,7 +489,7 @@
 		<Row Tag="TXT_KEY_WONDER_SUMMER_PALACE_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"A monarchy is the most expensive of all forms of government... he who depends on his own power to rule, must strengthen that power by bribing the active and enterprising whom he cannot intimidate."[NEWLINE][TAB][TAB] - James F. Cooper[NEWLINE][TAB]</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_KARLSTEJN">
 			<Text>Karlstejn</Text>
 		</Row>
@@ -502,7 +502,7 @@
 		<Row Tag="TXT_KEY_WONDER_KARLSTEJN_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"Seek the truth, hear the truth, learn the truth, love the truth, speak the truth, hold the truth, and defend the truth unto death."[NEWLINE][TAB][TAB] - Jan Hus[NEWLINE][TAB]</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_ALAMUT_FORTRESS">
 			<Text>Alamut Fortress</Text>
 		</Row>
@@ -515,7 +515,7 @@
 		<Row Tag="TXT_KEY_WONDER_ALAMUT_FORTRESS_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"Nothing is true. Everything is permitted."[NEWLINE][TAB][TAB] - Hassan-i Sabbah[NEWLINE][TAB]</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_PORT_ROYAL">
 			<Text>Port Royal</Text>
 		</Row>
@@ -554,7 +554,7 @@
 		<Row Tag="TXT_KEY_WONDER_CHATEAU_DIF_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"Only he who has experienced extreme misfortune is capable of feeling extreme happiness. One must have wanted to die to know how good it is to live."[NEWLINE][TAB][TAB] - Alexandre Dumas, The Count of Monte Cristo[NEWLINE][TAB]</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING">
 			<Text>Empire State Building</Text>
 		</Row>
@@ -567,7 +567,7 @@
 		<Row Tag="TXT_KEY_WONDER_EMPIRE_STATE_BUILDING_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"The importance of money flows from it being a link between the present and the future."[NEWLINE][TAB][TAB] - John Maynard Keynes[NEWLINE][TAB]</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_ALCATRAZ">
 			<Text>Alcatraz</Text>
 		</Row>
@@ -580,7 +580,7 @@
 		<Row Tag="TXT_KEY_WONDER_ALCATRAZ_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"You can get much further with a kind word and a gun than you can with a kind word alone."[NEWLINE][TAB][TAB] - Al Capone[NEWLINE][TAB]</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_MOTHERLAND_CALLS">
 			<Text>The Motherland Calls</Text>
 		</Row>
@@ -620,7 +620,7 @@
 			<Text>[NEWLINE][TAB][TAB]"When you look at a vacuum in a quantum theory of fields, it isn't exactly nothing."[NEWLINE][TAB][TAB] - Dr. Peter Higgs[NEWLINE][TAB]</Text>
 		</Row>
 
-		<!-- World Congress Project Wonders -->		
+		<!-- World Congress Project Wonders -->
 		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL">
 			<Text>Grand Canal</Text>
 		</Row>
@@ -652,7 +652,7 @@
 		<Row Tag="TXT_KEY_WONDER_CRYSTAL_PALACE_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"I dreamt that the Exhibition... was, as it ought to be, a palace of very crystal, the sky looking through every bit of the roof upon all nations under it."[NEWLINE][TAB][TAB] - Douglas Jerrold[NEWLINE][TAB]</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE">
 			<Text>Menin Gate</Text>
 		</Row>
@@ -689,7 +689,7 @@
 		<Row Tag="TXT_KEY_BUILDING_UNITED_NATIONS_HELP">
 			<Text></Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_CONSULATE">
 			<Text>Consulate</Text>
 		</Row>
@@ -984,7 +984,7 @@
 		<Row Tag="TXT_KEY_BUILDING_SHOPPING_MALL_TEXT">
 			<Text>During the 20th century, the advent of the automobile has created an urban and suburban landscape in which people live in one area but can shop, play and work elsewhere - often miles away from their homes. Nowhere is this more true than in the United States of America, whose citizens are noted for an almost fanatical devotion to their cars. This has had important social, environmental and economic affects upon life in America, leading to (among other things) the creation of that most American of institution - the shopping mall.[NEWLINE][NEWLINE]American shopping malls are surrounded by acres and acres of parking lots, and they may contain dozens (if not hundreds) of stores selling everything from clothing to jewelry to electronics to books to computers to videos. In some ways American shopping malls are akin in spirit to the old Arabian markets (although Americans don't particularly enjoy haggling and prices are generally fixed).[NEWLINE][NEWLINE]The earliest automobile-centered shopping center was the "Market Square," opened in Chicago, Illinois, in 1916. Constructed in Minnesota in 1992, the "Mall of America" is the largest mall in the world at time of writing. It contains over 500 shops, 80 restaurants, a theme park, hotel, and movie theatres. It is housed in a building large enough to hold over 30 Boeing 747 airplanes.</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_WORLD_TRADE_CENTER">
 			<Text>World Trade Center</Text>
 		</Row>
@@ -997,7 +997,7 @@
 		<Row Tag="TXT_KEY_BUILDING_WORLD_TRADE_CENTER_TEXT">
 			<Text>The World Trade Center was a complex of buildings in New York City, that are currently being replaced with new structures after the original was destroyed. The original World Trade Center featured landmark twin towers, which opened on April 4, 1973, and were destroyed in the September 11th terrorist attacks of 2001, along with 7 World Trade Center. The original World Trade Center was thought of as a North American cultural icon, and at the time of their completion, the "Twin Towers", the original 1 World Trade Center (the North Tower), at 417 metres (1,368 ft), and 2 World Trade Center (the South Tower), were the tallest buildings in the world.[NEWLINE][NEWLINE]On the morning of September 11, 2001, Al-Qaeda-affiliated hijackers flew two Boeing 767 jets into the complex, one into each tower, in a coordinated act of terrorism. After burning for 56 minutes, the South Tower collapsed, followed a half-hour later by the North Tower. The attacks on the World Trade Center killed 2,753 people. Falling debris from the towers, combined with fires that the debris initiated in several surrounding buildings, led to the partial or complete collapse of all the other buildings in the complex and caused catastrophic damage to ten other large structures in the surrounding area (including the World Financial Center). The process of cleaning up and recovery at the World Trade Center site took eight months.</Text>
 		</Row>
-		
+
 		<!-- Belief buildings -->
 		<Row Tag="TXT_KEY_BUILDING_STUPA">
 			<Text>Stupa</Text>
@@ -1102,7 +1102,7 @@
 		<Row Tag="TXT_KEY_BUILDING_DAOGUAN_TEXT">
 			<Text>A Daoguan is a place of worship in Taoism. Taoism is a religion that originated in China, with the belief in immortality, which urges people to become immortal through moral and health cultivation. Heavily influenced by Buddhism, Taoists practice as form of monasticism. Temples received patronage from wealthy individuals, which in the Ming dynasty were often powerful eunuchs of the imperial palace. Seeking retirement or refuge from court life, social stigma and lack of family ties left few options open. Even though ordination was barred to them, retirement in a monastery offered community, security, and a way to secure religious merit for the afterlife.</Text>
 		</Row>
-		
+
 		<!-- Cathedral -->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
 			<Text></Text>
@@ -1196,7 +1196,7 @@
 		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN_TEXT">
 			<Text>Religion has been an important influence on garden design. Temple gardens were made in Mesopotamia and Ancient Egypt. Sacred groves were made in ancient India, Greece, Rome, China and Japan. Sacred trees were important in Celtic and Germanic Europe and still are important in India. Many groves or forests were sacred in ancient India and continue to be so in modern Hindu worship. Buddhism had a significant influence on garden design, with the Zen gardens of China and Japan as famous examples. In Christianity, particularly Catholicism and Anglicanism, Mary gardens are common among churches and institutions. The practise of creating sacred gardens is re-invigorated and adapted for modern times in the Ringing Cedars Series of books by Russian author Vladimir Megre.</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_STAIR">
 			<Text>Heavenly Stair</Text>
 		</Row>
@@ -1209,7 +1209,7 @@
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_STAIR_TEXT">
 			<Text>The idea that heaven, or the realm of Gods, can be reached by climbing up into the skies is a commonly held belief amongst world religions. In Greek myth, Gods dwell atop Mount Olympus, Mesopotamian Ziggurats were built to mimic mountains and so keep their Gods comfortable when they resided there, Norse belief speaks of the Bifrost, a bridge made of the rainbow, and in Christianity Jesus ascended into heaven. In all these cases, mere mortals cannot just find the path to heaven, but it must be revealed. Therefore shrines and temples have been constructed to mark or venerate where the route to heaven (or other worlds) might have once been sighted. The Chapel of the Ascension located on the Mount of Olives in Jerusalem is located on the site believed to be the earthly spot where Jesus ascended into Heaven after his Resurrection, and houses a slab of stone believed to contain one of his footprints.</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_BUILDING_MARTIAL_SANCTUM">
 			<Text>Martial Sanctum</Text>
 		</Row>
@@ -1274,7 +1274,7 @@
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_GROTTO_TEXT">
 			<Text>A grotto is a type of cavern, often closely associated with water. Grottos are a prominent feature of many religious and garden settings as places of contemplation. One of the most impressive collection of grottos is the Longmen Grottos in Luoyang, China, which houses tens of thousands of Buddhas, stelae, and inscriptions.</Text>
 		</Row>
-		
+
 		<!-- Policy buildings -->
 		<Row Tag="TXT_KEY_BUILDING_MONASTERY">
 			<Text>Monastery</Text>
@@ -1384,7 +1384,7 @@
 		<Row Tag="TXT_KEY_BUILDING_NOTRE_DAME_THEMING_BONUS_HELP">
 			<Text>To maximize your bonus, make sure the Great Works were created by different foreign Civilizations.</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_THEMING_BONUS_BUILDING_NALANDA">
 			<Text>Dharmaganja</Text>
 		</Row>

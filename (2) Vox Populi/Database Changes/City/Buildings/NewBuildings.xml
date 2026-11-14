@@ -814,7 +814,7 @@
 			<FreeStartEra>ERA_FUTURE</FreeStartEra>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<TrainedFreePromotion>PROMOTION_LITERACY</TrainedFreePromotion>			
+			<TrainedFreePromotion>PROMOTION_LITERACY</TrainedFreePromotion>
 			<SpySecurityModifier>15</SpySecurityModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>24</PortraitIndex>
@@ -2356,7 +2356,6 @@
 			<Help>TXT_KEY_BUILDING_THRONE_ROOM_HELP</Help>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<CultureRateModifier>15</CultureRateModifier>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<CityWorkingChange>1</CityWorkingChange>
@@ -2593,8 +2592,8 @@
 			<Civilopedia>TXT_KEY_BUILDING_GREAT_ALTAR_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_GREAT_ALTAR_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_GREAT_ALTAR_STRATEGY</Strategy>
-			<MilitaryProductionModifier>15</MilitaryProductionModifier>
 			<IsReformation>true</IsReformation>
+			<MilitaryProductionModifier>15</MilitaryProductionModifier>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>46</PortraitIndex>
 		</Row>
@@ -2607,9 +2606,9 @@
 			<Help>TXT_KEY_BUILDING_CHARTARIUM_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_CHARTARIUM_STRATEGY</Strategy>
 			<ThemingBonusHelp>TXT_KEY_CHARTARIUM_THEMING_BONUS_HELP</ThemingBonusHelp>
+			<IsReformation>true</IsReformation>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>3</GreatWorkCount>
-			<IsReformation>true</IsReformation>
 			<SpySecurityModifierPerXPop>180</SpySecurityModifierPerXPop>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>42</PortraitIndex>
@@ -2636,9 +2635,9 @@
 			<Help>TXT_KEY_BUILDING_SACRED_GARDEN_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_SACRED_GARDEN_STRATEGY</Strategy>
 			<IsReformation>true</IsReformation>
+			<Happiness>2</Happiness>
 			<IconAtlas>BUILDING_ATLAS_VP_2</IconAtlas>
 			<PortraitIndex>53</PortraitIndex>
-			<Happiness>2</Happiness>
 		</Row>
 		<!-- Heavenly Stair -->
 		<Row>

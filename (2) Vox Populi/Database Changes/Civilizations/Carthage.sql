@@ -89,7 +89,7 @@ VALUES
 	('BUILDING_TOPHET', 'YIELD_FOOD', 5);
 
 ----------------------------------------------------------
--- Unique Building: Great Cothon (East India Company)
+-- Unique Building: Great Cothon (Master Shipwright)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
@@ -107,5 +107,5 @@ WHERE Type = 'BUILDING_GREAT_COTHON';
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_LIGHTHOUSE', 'YIELD_CULTURE', 2),
-	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_LIGHTHOUSE', 'YIELD_PRODUCTION', 3);
+	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_LIGHTHOUSE', 'YIELD_PRODUCTION', 3),
+	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_LIGHTHOUSE', 'YIELD_CULTURE', 2);

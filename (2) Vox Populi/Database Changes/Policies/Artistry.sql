@@ -126,13 +126,24 @@ VALUES
 	('POLICY_AESTHETICS_FINISHER', 'IMPROVEMENT_LANDMARK', 'YIELD_GOLD', 4);
 
 -- Scaler
+CREATE TEMP TABLE Helper (
+	BuildingClassType TEXT
+);
+
+INSERT INTO Helper
+VALUES
+	('BUILDINGCLASS_WRITERS_GUILD'),
+	('BUILDINGCLASS_ARTISTS_GUILD'),
+	('BUILDINGCLASS_MUSICIANS_GUILD');
+
 INSERT INTO Policy_BuildingClassYieldChanges
 	(PolicyType, BuildingClassType, YieldType, YieldChange)
 SELECT
-	p.Type, bc.Type, 'YIELD_SCIENCE', 1
-FROM Policies p, BuildingClasses bc
-WHERE p.PolicyBranchType = 'POLICY_BRANCH_AESTHETICS'
-AND bc.Type IN ('BUILDINGCLASS_WRITERS_GUILD', 'BUILDINGCLASS_ARTISTS_GUILD', 'BUILDINGCLASS_MUSICIANS_GUILD');
+	a.Type, b.Type, 'YIELD_SCIENCE', 1
+FROM Policies a, Helper b
+WHERE a.PolicyBranchType = 'POLICY_BRANCH_AESTHETICS';
+
+DROP TABLE Helper;
 
 UPDATE Policies
 SET GAPFromHappinessModifier = 20
