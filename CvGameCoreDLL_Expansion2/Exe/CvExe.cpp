@@ -40,6 +40,20 @@ const ExeSymbol YIELD_ICON_MANAGER_SYMBOLS[] =
 	EXE_g_EventSystemLocalMachine,
 };
 
+const ExeSymbol EVENT_STREAM_SYMBOLS[] =
+{
+	EXE_g_EventSystemLocalMachine,
+	EXE_g_EventSystemLocalMachine_Containers,
+	EXE_g_EventSystemLocalMachine_MaxPublishedSize,
+	EXE_LocalMachineContainer_Size,
+	EXE_LocalMachineContainer_BufferSize,
+	EXE_LocalMachineContainer_SwapCounter,
+	EXE_LocalMachineContainer_BufferHeaderSize,
+};
+
+// The handler tables before the containers leave room for two channels
+const DWORD NUM_EVENT_CHANNELS = 2;
+
 bool HasSymbols(const ExeSymbol* aSymbols, unsigned int uiCount)
 {
 	for (unsigned int i = 0; i < uiCount; ++i)
@@ -92,6 +106,11 @@ bool IsReadable(const void* p, size_t uiSize)
 		static_cast<const BYTE*>(kInfo.BaseAddress) + kInfo.RegionSize;
 
 	return static_cast<const BYTE*>(p) + uiSize <= pEnd;
+}
+
+DWORD ReadDword(DWORD dwAddress)
+{
+	return *reinterpret_cast<const volatile DWORD*>(dwAddress);
 }
 
 DWORD ReadVftable(DWORD dwObject)
@@ -265,6 +284,47 @@ Exe::Reason Exe::TryDisableEngineYieldIconManager()
 
 	CUSTOMLOG("Exe: YieldIconManager_UnregisterForEvents done for %08X",
 		(unsigned int)reinterpret_cast<DWORD>(pManager)
+	);
+
+	return REASON_OK;
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::TryReadLocalMachineEventStreamStats(
+	LocalMachineEventStreamStats& kStats
+)
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(EVENT_STREAM_SYMBOLS, _countof(EVENT_STREAM_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	const DWORD dwChannel = *ExeApi::g_EventSystemLocalMachine();
+
+	if (dwChannel >= NUM_EVENT_CHANNELS)
+	{
+		return REASON_UNAVAILABLE;
+	}
+
+	const DWORD dwOffset = dwChannel * ExeApi::LocalMachineContainer_Size();
+	const DWORD dwContainer =
+		ExeApi::g_EventSystemLocalMachine_Containers() + dwOffset;
+	const DWORD dwBufferSize = ExeApi::LocalMachineContainer_BufferSize();
+
+	kStats.dwSwapCounter = ReadDword(
+		dwContainer + ExeApi::LocalMachineContainer_SwapCounter()
+	);
+	kStats.adwPublishedSize[0] = ReadDword(dwContainer);
+	kStats.adwPublishedSize[1] = ReadDword(dwContainer + dwBufferSize);
+	kStats.dwBufferCapacity =
+		dwBufferSize - ExeApi::LocalMachineContainer_BufferHeaderSize();
+	kStats.dwMaxPublishedSize = ReadDword(
+		ExeApi::g_EventSystemLocalMachine_MaxPublishedSize() + dwOffset
 	);
 
 	return REASON_OK;
