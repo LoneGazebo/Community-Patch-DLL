@@ -1375,6 +1375,21 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	if (m_bDoubleBorderGrowthGA)
 		m_piGoldenAgeYieldMod[YIELD_CULTURE_LOCAL] += 100;
 
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYieldModifiers);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiImprovementYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiReligionBuildingYieldMod);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiPlotYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiFeatureYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiCityYieldFromUnimprovedFeature);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiUnimprovedFeatureYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiResourceYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTerrainYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiTradeRouteYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiSpecialistYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiGreatPersonExpendedYield);
+
 	return true;
 }
 
