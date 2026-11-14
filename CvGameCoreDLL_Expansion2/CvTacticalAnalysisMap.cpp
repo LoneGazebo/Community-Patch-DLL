@@ -546,6 +546,25 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 		m_vDominanceZones[iI].ClearNeighboringZones();
 	}
 
+	//resolve each plot's zone once (GetZoneByID per plot and neighbor was a map lookup plus RefreshIfOutdated each time;
+	//this runs inside the refresh, after CreateDominanceZones has filled m_vPlotZoneID and m_IdLookup)
+	int iNumPlots = (int)m_vPlotZoneID.size();
+	vector<CvTacticalDominanceZone*> vPlotZone(iNumPlots, (CvTacticalDominanceZone*)NULL);
+	for (int iPlot = 0; iPlot < iNumPlots; iPlot++)
+	{
+		//ID 0 is the "unknown zone", never looked up below
+		if (m_vPlotZoneID[iPlot] == 0)
+			continue;
+		if (iPlot > 0 && m_vPlotZoneID[iPlot] == m_vPlotZoneID[iPlot - 1])
+		{
+			vPlotZone[iPlot] = vPlotZone[iPlot - 1];
+			continue;
+		}
+		std::map<int, int>::iterator itZone = m_IdLookup.find(m_vPlotZoneID[iPlot]);
+		if (itZone != m_IdLookup.end())
+			vPlotZone[iPlot] = &m_vDominanceZones[itZone->second];
+	}
+
 	for (int i=0; i<iW; i++)
 	{
 		for (int j=0; j<iH; j++)
@@ -554,27 +573,31 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 			CvPlot* pB = GC.getMap().plot(i,j+1); //next row
 			CvPlot* pC = GC.getMap().plot(i+1,j); //next col
 
-			int iA = pA ? GetDominanceZoneID(pA->GetPlotIndex()) : 0;
-			int iB = pB ? GetDominanceZoneID(pB->GetPlotIndex()) : 0;
-			int iC = pC ? GetDominanceZoneID(pC->GetPlotIndex()) : 0;
+			int iA = pA ? m_vPlotZoneID[pA->GetPlotIndex()] : 0;
+			int iB = pB ? m_vPlotZoneID[pB->GetPlotIndex()] : 0;
+			int iC = pC ? m_vPlotZoneID[pC->GetPlotIndex()] : 0;
 
 			//ID 0 is the "unknown zone"
 			if (iA!=0 && iB!=0)
 			{
-				if (GetZoneByID(iA)->GetTerritoryType()!=TACTICAL_TERRITORY_NONE ||
-					GetZoneByID(iB)->GetTerritoryType()!=TACTICAL_TERRITORY_NONE)
+				CvTacticalDominanceZone* pZoneA = vPlotZone[pA->GetPlotIndex()];
+				CvTacticalDominanceZone* pZoneB = vPlotZone[pB->GetPlotIndex()];
+				if (pZoneA->GetTerritoryType()!=TACTICAL_TERRITORY_NONE ||
+					pZoneB->GetTerritoryType()!=TACTICAL_TERRITORY_NONE)
 				{
-					GetZoneByID(iA)->AddNeighboringZone(iB);
-					GetZoneByID(iB)->AddNeighboringZone(iA);
+					pZoneA->AddNeighboringZone(iB);
+					pZoneB->AddNeighboringZone(iA);
 				}
 			}
 			if (iA!=0 && iC!=0)
 			{
-				if (GetZoneByID(iA)->GetTerritoryType()!=TACTICAL_TERRITORY_NONE ||
-					GetZoneByID(iC)->GetTerritoryType()!=TACTICAL_TERRITORY_NONE)
+				CvTacticalDominanceZone* pZoneA = vPlotZone[pA->GetPlotIndex()];
+				CvTacticalDominanceZone* pZoneC = vPlotZone[pC->GetPlotIndex()];
+				if (pZoneA->GetTerritoryType()!=TACTICAL_TERRITORY_NONE ||
+					pZoneC->GetTerritoryType()!=TACTICAL_TERRITORY_NONE)
 				{
-					GetZoneByID(iA)->AddNeighboringZone(iC);
-					GetZoneByID(iC)->AddNeighboringZone(iA);
+					pZoneA->AddNeighboringZone(iC);
+					pZoneC->AddNeighboringZone(iA);
 				}
 			}
 		}
@@ -656,12 +679,15 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 	m_IdLookup[0] = 0;
 
 	//not all plots belong to a city
-	std::set<CvPlot*, PrSortByPlotIndex> nonCityZonePlots;
+	//a flag per plot index instead of a set ordered by plot index: the lowest flagged index is the set's first element
+	int iNumPlots = GC.getMap().numPlots();
+	vector<unsigned char> vNonCityZonePlot(iNumPlots, 0);
+	int iNumNonCityZonePlots = 0;
 
 	TeamTypes eOurTeam = GET_PLAYER(m_ePlayer).getTeam();
 	CvTacticalDominanceZone* pCurrentZone = NULL;
 
-	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	for (int iI = 0; iI < iNumPlots; iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 		ASSERT(pPlot != NULL, "plotByIndexUnchecked returned null - invalid plot index");
@@ -679,7 +705,8 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		if (iCityDistance > iMaxZoneRadius || !pZoneCity)
 		{
 			//figure those out later
-			nonCityZonePlots.insert(pPlot);
+			vNonCityZonePlot[iI] = 1;
+			iNumNonCityZonePlots++;
 			continue;
 		}
 
@@ -692,7 +719,9 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		//chances are it's the same zone as before
 		if (!pCurrentZone || pCurrentZone->GetZoneID() != iZoneID)
 		{
-			pCurrentZone = GetZoneByID(iZoneID);
+			//same as GetZoneByID without its RefreshIfOutdated (a no-op here, the map is marked up to date above)
+			std::map<int, int>::iterator itZone = m_IdLookup.find(iZoneID);
+			pCurrentZone = (itZone != m_IdLookup.end()) ? &m_vDominanceZones[itZone->second] : NULL;
 
 			//still not found? then make a new one
 			if (!pCurrentZone)
@@ -726,11 +755,16 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 
 	//now assign unique ids to all the little scraps of non-city zones
 	int iNonCityBaseId = 100000; //should be safe
-	while (!nonCityZonePlots.empty())
+	int iFirstNonCityZonePlot = 0; //flags are only ever cleared, so the lowest flagged index only moves up
+	while (iNumNonCityZonePlots > 0)
 	{
+		while (!vNonCityZonePlot[iFirstNonCityZonePlot])
+			iFirstNonCityZonePlot++;
+
 		vector<CvPlot*> stack;
-		stack.push_back(*nonCityZonePlots.begin());
-		nonCityZonePlots.erase(nonCityZonePlots.begin());
+		stack.push_back(GC.getMap().plotByIndexUnchecked(iFirstNonCityZonePlot));
+		vNonCityZonePlot[iFirstNonCityZonePlot] = 0;
+		iNumNonCityZonePlots--;
 
 		int newId = iNonCityBaseId++;
 		if (stack.back()->isWater())
@@ -760,11 +794,12 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 				//must be same area but do not create extra zones for small lakes or islands
 				if (neighbor->getArea() == current->getArea() || neighbor->area()->getNumTiles()<4 || current->area()->getNumTiles()<4)
 				{
-					std::set<CvPlot*, PrSortByPlotIndex>::iterator it = nonCityZonePlots.find(neighbor);
-					if (it != nonCityZonePlots.end())
+					int iNeighbor = neighbor->GetPlotIndex();
+					if (vNonCityZonePlot[iNeighbor])
 					{
-						stack.push_back(*it);
-						nonCityZonePlots.erase(it);
+						stack.push_back(neighbor);
+						vNonCityZonePlot[iNeighbor] = 0;
+						iNumNonCityZonePlots--;
 					}
 				}
 			}
@@ -812,8 +847,20 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		}
 	}
 
-	// Loop through the dominance zones
-	for(unsigned int iI = 0; iI < m_vDominanceZones.size(); iI++)
+	//Each (unit, zone) pair below gets the same accept test, modifiers and sums as a loop over every zone and every unit,
+	//but each unit only visits the zones that can accept it: the zones of zone cities within iMaxDistance of the unit,
+	//and the zones carrying the zone ID of the unit's own plot. Any other zone rejects the unit (a city zone farther
+	//than iMaxDistance needs the unit inside it, a zone without a city always does). Every zone field written here is
+	//an integer sum, so the visiting order does not change the result.
+
+	//first the strength of each zone city itself, and an index of the distinct zone cities and of the zone IDs
+	int iNumZones = (int)m_vDominanceZones.size();
+	vector<CvPlot*> vZoneCityPlots;
+	vector< vector<int> > vZoneCityZones; //zone indices of each zone city
+	std::map<CvCity*, int> mZoneCityIndex;
+	vector< std::pair<int, int> > vZoneIdIndex; //(zone ID, zone index)
+	vZoneIdIndex.reserve(iNumZones);
+	for(int iI = 0; iI < iNumZones; iI++)
 	{
 		CvTacticalDominanceZone* pZone = &m_vDominanceZones[iI];
 		CvCity *pZoneCity = pZone->GetZoneCity();
@@ -830,35 +877,143 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				pZone->AddEnemyRangedStrength(iStrength);
 			else
 				pZone->AddNeutralStrength(iStrength);
-		}
 
-		// check all units in the world
-		// ignore the barbarians here! do not base tactical decisions on transients
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
-			bool bEnemy = GET_TEAM(eTeam).isAtWar(kPlayer.getTeam());
-			bool bFriendly =
-				(eTeam == kPlayer.getTeam()) || //on the same team
-				(thisPlayer.isMinorCiv() && thisPlayer.GetMinorCivAI()->IsAllies(kPlayer.GetID())) || //for minors also count their ally as friendly
-				(thisPlayer.isMajorCiv() && thisPlayer.GetPlayersAtWarWith()==kPlayer.GetPlayersAtWarWith()); //for majors if we fight exactly the same enemies
-
-			int iLoop;
-			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			std::map<CvCity*, int>::iterator itCity = mZoneCityIndex.find(pZoneCity);
+			if (itCity == mZoneCityIndex.end())
 			{
-				if(pLoopUnit->isDelayedDeath())
-					continue;
-				
-				if (!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCanAttackRanged()) //check for combat units is not enough because that excludes air units!
-					continue;
+				mZoneCityIndex[pZoneCity] = (int)vZoneCityPlots.size();
+				vZoneCityPlots.push_back(pZoneCity->plot());
+				vZoneCityZones.push_back(vector<int>(1, iI));
+			}
+			else
+				vZoneCityZones[itCity->second].push_back(iI);
+		}
+		vZoneIdIndex.push_back(std::make_pair(pZone->GetZoneID(), iI));
+	}
+	std::sort(vZoneIdIndex.begin(), vZoneIdIndex.end());
 
-				CvPlot* pPlot = pLoopUnit->plot();
-				if(!pPlot)
-					continue;
+	//zone cities by map row. plotDistance is at least min(|dy|, floor(width/2)) when the map does not wrap in y, so if
+	//also floor(width/2) > iMaxDistance (or the map does not wrap in x), only cities on rows y-iMaxDistance .. y+iMaxDistance
+	//can be within iMaxDistance of a unit on row y. Otherwise every zone city is tested.
+	const CvMap& kMap = GC.getMap();
+	int iGridHeight = kMap.getGridHeight();
+	bool bUseRows = iMaxDistance >= 0 && !kMap.isWrapY() &&
+		(!kMap.isWrapX() || (int)(((unsigned int)kMap.getGridWidth()) >> 1) > iMaxDistance);
+	vector< vector<int> > vRowZoneCities;
+	if (bUseRows)
+	{
+		vRowZoneCities.resize(iGridHeight > 0 ? iGridHeight : 0);
+		for (size_t iCity = 0; iCity < vZoneCityPlots.size(); iCity++)
+		{
+			int iCityY = vZoneCityPlots[iCity]->getY();
+			if (iCityY < 0 || iCityY >= iGridHeight)
+			{
+				bUseRows = false;
+				break;
+			}
+			vRowZoneCities[iCityY].push_back((int)iCity);
+		}
+	}
 
-				bool bZoneTypeMatch = 
+	vector<int> vZoneVisitedBy(iNumZones, -1); //last unit serial that visited the zone, so each pair is visited once
+	vector<int> vCandidateZones;
+	int iUnitSerial = 0;
+
+	// check all units in the world
+	// ignore the barbarians here! do not base tactical decisions on transients
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
+		bool bEnemy = GET_TEAM(eTeam).isAtWar(kPlayer.getTeam());
+		bool bFriendly =
+			(eTeam == kPlayer.getTeam()) || //on the same team
+			(thisPlayer.isMinorCiv() && thisPlayer.GetMinorCivAI()->IsAllies(kPlayer.GetID())) || //for minors also count their ally as friendly
+			(thisPlayer.isMajorCiv() && thisPlayer.GetPlayersAtWarWith()==kPlayer.GetPlayersAtWarWith()); //for majors if we fight exactly the same enemies
+
+		int iLoop;
+		for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+		{
+			if(pLoopUnit->isDelayedDeath())
+				continue;
+
+			if (!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCanAttackRanged()) //check for combat units is not enough because that excludes air units!
+				continue;
+
+			CvPlot* pPlot = pLoopUnit->plot();
+			if(!pPlot)
+				continue;
+
+			int iUnitSerialHere = iUnitSerial++;
+			int iUnitZoneID = GetDominanceZoneID(pPlot->GetPlotIndex());
+
+			//candidate zones: those of the zone cities within iMaxDistance ...
+			vCandidateZones.clear();
+			if (bUseRows)
+			{
+				int iUnitY = pPlot->getY();
+				int iFirstRow = max(iUnitY - iMaxDistance, 0);
+				int iLastRow = min(iUnitY + iMaxDistance, iGridHeight - 1);
+				for (int iRow = iFirstRow; iRow <= iLastRow; iRow++)
+				{
+					const vector<int>& vRow = vRowZoneCities[iRow];
+					for (size_t iR = 0; iR < vRow.size(); iR++)
+					{
+						if (plotDistance(*pPlot, *vZoneCityPlots[vRow[iR]]) > iMaxDistance)
+							continue;
+						const vector<int>& vZones = vZoneCityZones[vRow[iR]];
+						for (size_t iZ = 0; iZ < vZones.size(); iZ++)
+						{
+							if (vZoneVisitedBy[vZones[iZ]] != iUnitSerialHere)
+							{
+								vZoneVisitedBy[vZones[iZ]] = iUnitSerialHere;
+								vCandidateZones.push_back(vZones[iZ]);
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				for (size_t iCity = 0; iCity < vZoneCityPlots.size(); iCity++)
+				{
+					if (plotDistance(*pPlot, *vZoneCityPlots[iCity]) > iMaxDistance)
+						continue;
+					const vector<int>& vZones = vZoneCityZones[iCity];
+					for (size_t iZ = 0; iZ < vZones.size(); iZ++)
+					{
+						if (vZoneVisitedBy[vZones[iZ]] != iUnitSerialHere)
+						{
+							vZoneVisitedBy[vZones[iZ]] = iUnitSerialHere;
+							vCandidateZones.push_back(vZones[iZ]);
+						}
+					}
+				}
+			}
+			//... and every zone with the zone ID of the unit's plot
+			vector< std::pair<int, int> >::const_iterator itId =
+				std::lower_bound(vZoneIdIndex.begin(), vZoneIdIndex.end(), std::make_pair(iUnitZoneID, -1)); //zone indices are >= 0
+			for (; itId != vZoneIdIndex.end() && itId->first == iUnitZoneID; ++itId)
+			{
+				if (vZoneVisitedBy[itId->second] != iUnitSerialHere)
+				{
+					vZoneVisitedBy[itId->second] = iUnitSerialHere;
+					vCandidateZones.push_back(itId->second);
+				}
+			}
+
+			//these do not depend on the zone: computed at the unit's first accepted zone, reused for the others
+			bool bHaveUnitValues = false;
+			int iBaseUnitStrength = 0, iBaseRangedStrength = 0;
+			bool bEmbarked = false, bRangeBonus = false, bIsInCitadel = false;
+
+			for (size_t iCand = 0; iCand < vCandidateZones.size(); iCand++)
+			{
+				CvTacticalDominanceZone* pZone = &m_vDominanceZones[vCandidateZones[iCand]];
+				CvCity *pZoneCity = pZone->GetZoneCity();
+
+				bool bZoneTypeMatch =
 							(pLoopUnit->getDomainType() == DOMAIN_AIR) ||
-							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) || 
+							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
 							(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater());
 
 				if (!bZoneTypeMatch && !pLoopUnit->IsCanAttackRanged())
@@ -869,26 +1024,34 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				if (pZoneCity)
 				{
 					iPlotDistance = plotDistance(*pPlot, *pZoneCity->plot());
-					if (iPlotDistance>iMaxDistance && GetDominanceZoneID(pLoopUnit->plot()->GetPlotIndex()) != pZone->GetZoneID())
+					if (iPlotDistance>iMaxDistance && iUnitZoneID != pZone->GetZoneID())
 						continue; //unit is too far away and outside the zone
 				}
 				else
 				{
 					//if there is no city, the unit must be in the zone itself, distance is zero by definition
-					if ( GetDominanceZoneID(pLoopUnit->plot()->GetPlotIndex()) != pZone->GetZoneID() )
+					if ( iUnitZoneID != pZone->GetZoneID() )
 						continue;
 				}
 
-				int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iUnitStrengthMultiplier;
-				int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iUnitStrengthMultiplier;
+				if (!bHaveUnitValues)
+				{
+					bHaveUnitValues = true;
+					iBaseUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iUnitStrengthMultiplier;
+					iBaseRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iUnitStrengthMultiplier;
+					bEmbarked = pLoopUnit->isEmbarked();
+					bRangeBonus = (max(pLoopUnit->baseMoves(false), pLoopUnit->GetRange()) > 2);
+					bIsInCitadel = TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner());
+				}
+
+				int iUnitStrength = iBaseUnitStrength;
+				int iRangedStrength = iBaseRangedStrength;
 
 				//a little cheating for AI - invisible units still count with reduced strength
-				bool bReducedStrength = pLoopUnit->isEmbarked() || !visible[pPlot->GetPlotIndex()] || !bZoneTypeMatch;
-				//some units are extra interesting
-				bool bRangeBonus = (max(pLoopUnit->baseMoves(false), pLoopUnit->GetRange()) > 2);
+				bool bReducedStrength = bEmbarked || !visible[pPlot->GetPlotIndex()] || !bZoneTypeMatch;
+				//some units are extra interesting (bRangeBonus)
 				bool bDistanceBonus = (iPlotDistance <= iCenterRadius);
-				//consider citadels ... they actually boost defensive strength but whatever
-				bool bIsInCitadel = TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner());
+				//consider citadels ... they actually boost defensive strength but whatever (bIsInCitadel)
 
 				int iModifier = 0;
 				if (bReducedStrength)
