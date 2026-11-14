@@ -1173,7 +1173,6 @@ protected:
 	SCoWField<map<int, short>> plotScores; // not additive (only the final plot value is included in the total evaluation)
 	int iDamageDelta; //damage dealt - damage received
 	int iBonusScore; // additive
-	int iTotalScore; // sum of all above
 	//for heap sorting (included all moves made in the last generation)
 	int iScoreOverParent;
 
@@ -1258,8 +1257,8 @@ public:
 		// second tie-breaker: lower ID first
 		bool operator()(const CvBasePosition* lhs, const CvBasePosition* rhs) const
 		{
-			int iLhsScore = lhs->iTotalScore;
-			int iRhsScore = rhs->iTotalScore;
+			int iLhsScore = lhs->getScoreTotal();
+			int iRhsScore = rhs->getScoreTotal();
 			if (iLhsScore != iRhsScore)
 				return iLhsScore > iRhsScore;
 			if (lhs->GetNumAssignments() != rhs->GetNumAssignments())
@@ -1303,7 +1302,7 @@ public:
 
 	int getGeneration() const { return iGeneration; }
 	PlayerTypes getPlayer() const { return ePlayer; }
-	int getScoreTotal() const { return iTotalScore; }
+	int getScoreTotal() const;
 	int getScoreLastRound() const { return iScoreOverParent; }
 
 	const vector<STacticalAssignment>& getAssignments() const { return assignedMoves.read(); }

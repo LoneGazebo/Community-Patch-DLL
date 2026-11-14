@@ -7199,6 +7199,16 @@ void CvBasePosition::UpdateScore(const STacticalAssignment& assignment)
 	UpdateScore(assignment.iUnitID, assignment.GetPlotScore(), assignment.GetOldPlotScore(), assignment.GetDamageDelta(), assignment.GetBonusScore());
 }
 
+//Compute the completed-position total from the current damage, bonuses, and final unit plot scores.
+int CvBasePosition::getScoreTotal() const
+{
+	int iTotal = (iDamageDelta + iBonusScore) * 10;
+	const map<int, short>& plotScores_r = plotScores.read();
+	for (map<int, short>::const_iterator it = plotScores_r.begin(); it != plotScores_r.end(); ++it)
+		iTotal += it->second;
+	return iTotal;
+}
+
 void CvBasePosition::UpdateScore(int iUnitId, int iPlotScore, int iOldPlotScore, int iDamageDelta_, int iBonusScore_)
 {
 	iScoreOverParent += iBonusScore_ + iPlotScore - iOldPlotScore + iDamageDelta_;
@@ -7207,29 +7217,16 @@ void CvBasePosition::UpdateScore(int iUnitId, int iPlotScore, int iOldPlotScore,
 
 	const map<int, short>& plotScores_r = plotScores.read();
 
-	//update total score and check for old plot score
-	//total score is (iDamageDelta + iBonusScore) * 10 + sum(plotScores)
-	//score over parent is (iBonusScore + iDamageDelta + iPlotScore - sPreviousPlotScore)
-	iTotalScore = (iDamageDelta + iBonusScore) * 10;
-	bool bFoundScore = false;
-	for (map<int, short>::const_iterator it = plotScores_r.begin(); it != plotScores_r.end(); ++it)
+	map<int, short>::const_iterator it = plotScores_r.find(iUnitId);
+	if (it != plotScores_r.end())
 	{
-		int iLoopUnitID = it->first;
 		short sPreviousPlotScore = it->second;
-
-		iTotalScore += sPreviousPlotScore;
-		if (iLoopUnitID == iUnitId)
-		{
-			bFoundScore = true;
-			iScoreOverParent -= sPreviousPlotScore;
-			if (iPlotScore != sPreviousPlotScore)
-			{
-				plotScores.write()[iUnitId] = iPlotScore;
-			}
-		}
+		iScoreOverParent -= sPreviousPlotScore;
+		if (iPlotScore != sPreviousPlotScore)
+			plotScores.write()[iUnitId] = iPlotScore;
 	}
 	//the unit didn't have a previous plot score, so we set it here
-	if (!bFoundScore && iPlotScore != 0)
+	else if (iPlotScore != 0)
 		plotScores.write()[iUnitId] = iPlotScore;
 }
 
@@ -9713,7 +9710,6 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBad
 	int iPotentialUnitLossCounter = 0;
 
 	const vector<SUnitStats>& notQuiteFinishedUnits_r = notQuiteFinishedUnits.read();
-	const vector<SUnitStats>& availableUnits_r = availableUnits.read();
 
 	//only units which have exhausted their moves are in this array! if the sim was aborted, somebody else will hopefully pick up the pieces
 	for (size_t i=0; i < notQuiteFinishedUnits_r.size(); i++)
@@ -9766,15 +9762,6 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBad
 			iBadUnitID = unit.iUnitID;
 			return false;
 		}
-	}
-
-	//try to enforce some sort of sparsity, we should use only the minimum amount of units. 
-	//so give a bonus for unmoved units. especially important in earlyFinish situations with many units.
-	for (size_t i = 0; i < availableUnits_r.size(); i++)
-	{
-		const SUnitStats& unit = availableUnits_r[i];
-		if (unit.eLastAssignment == A_INITIAL)
-			plotScores.write()[unit.iUnitID] += isEarlyFinish() ? 123 : 45;
 	}
 
 	//scores look good and target was killed, we're done
@@ -10183,7 +10170,6 @@ void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eA
 	nFirstInterestingAssignment = 0;
 	iBonusScore = 0;
 	iDamageDelta = 0;
-	iTotalScore = 0;
 	iScoreOverParent = 0; 
 	parentPosition = NULL;
 	iGeneration = 0;
@@ -10221,7 +10207,6 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	nFirstInterestingAssignment = parent.nFirstInterestingAssignment;
 	iBonusScore = parent.iBonusScore;
 	iDamageDelta = parent.iDamageDelta;
-	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
 	movePlotUpdateFlagA = parent.movePlotUpdateFlagA;
