@@ -16,6 +16,8 @@ namespace Exe
 		REASON_UNAVAILABLE,
 		REASON_NOT_UI_THREAD,
 		REASON_WRONG_EVENT_CHANNEL,
+		REASON_PENDING,
+		REASON_NOT_IMPLEMENTED,
 		NUM_REASONS
 	};
 
@@ -29,6 +31,16 @@ namespace Exe
 
 	Reason CanDisableEngineYieldIconManager();
 	Reason TryDisableEngineYieldIconManager();
+
+	//! UI thread only
+	Reason CanGrowUICommandStream();
+	Reason TryGrowUICommandStream();
+
+	Reason CanGetUICommandStreamUsage();
+	Reason TryGetUICommandStreamUsage(
+		unsigned int& uiUsed,
+		unsigned int& uiCapacity
+	);
 }
 
 #endif // CV_EXE_H
