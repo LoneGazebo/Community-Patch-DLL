@@ -257,7 +257,47 @@ void LuaSupport::NotifyDatabaseCached() {
 	}
 	executeSupportEvent("gc_reset");
 }
-void LuaSupport::NotifyDllUnload() { executeSupportEvent("shutdown"); } // engine's FreeLuaThread seems to not work at this point. Tell our lua context to manually clean up!
+// The EXE unloads this DLL before it closes Lua at quit, and on a mod switch the Lua state lives on, so a
+// __gc left pointing at this DLL would run unmapped (or another DLL's) code when Lua collects the object.
+void LuaSupport::TrackDllFinalizer(lua_State* L, int idx) {
+	if( idx < 0 && idx > LUA_REGISTRYINDEX ) idx = lua_gettop(L) + idx + 1;
+	lua_getfield(L, LUA_REGISTRYINDEX, "vpdllfinalizers");
+	if( !lua_istable(L,-1) ) {
+		lua_pop(L,1);
+		lua_newtable(L);
+		lua_newtable(L);
+		lua_pushstring(L,"k");
+		lua_setfield(L,-2,"__mode");
+		lua_setmetatable(L,-2);
+		lua_pushvalue(L,-1);
+		lua_setfield(L, LUA_REGISTRYINDEX, "vpdllfinalizers");
+	}
+	lua_pushvalue(L,idx);
+	lua_pushboolean(L,1);
+	lua_rawset(L,-3);
+	lua_pop(L,1);
+}
+namespace {
+	void clearDllFinalizers(lua_State* L) {
+		lua_getfield(L, LUA_REGISTRYINDEX, "vpdllfinalizers");
+		if( lua_istable(L,-1) ) {
+			lua_pushnil(L);
+			while( lua_next(L,-2) ) {
+				lua_pop(L,1);
+				lua_pushstring(L,"__gc");
+				lua_pushnil(L);
+				lua_rawset(L,-3);
+			}
+		}
+		lua_pop(L,1);
+	}
+}
+void LuaSupport::NotifyDllUnload(bool bProcessExit) {
+	// At process exit the EXE has already closed Lua: supportState is freed memory by then.
+	if( bProcessExit || supportState == NULL ) return;
+	clearDllFinalizers(supportState);
+	executeSupportEvent("shutdown"); // engine's FreeLuaThread seems to not work at this point. Tell our lua context to manually clean up!
+}
 
 void LuaSupport::LuaPCall(lua_State* L,lua_CFunction f) { luaVp_pcall(L,f); }
 void LuaSupport::LuaPCall(lua_State* L,lua_CVoidFunc f) { luaVp_pcall(L,f); }
