@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" >
+
+  <Image Anchor="C,C" Offset="0,0"  Size="1920,1200" ID="AtlasLogo" Texture="CivilzationVAtlas.dds" Hidden="1"/>
+
+  <!-- Game Option Instance -->
+  <Instance Name="GameOption" Size="320.24">
+    <Label ID="Text" Anchor="C,T"  Offset="0,0"  String="Era Started: Ancient" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+  </Instance>
+
+  <!-- Player Slot Instance Style="Grid9FrameTurns" -->
+  <Instance Name="PlayerSlot" >
+
+    <Container Size="575,107" ID="Root" >
+
+      <!-- Ready to Play Highlight-->
+      <Grid Size="575,107" Style="Grid9FrameGreenFade" Color="White.164" Anchor="C,C" Hidden="1" ID="ReadyHighlight" />
+
+      <!-- Leader Portrait -->
+      <Image Anchor="L,C" Size="64,64" Offset="0,0"  Texture="Assets/UI/Art/Icons/IconFrame64.dds"  >
+        <Image Anchor="L,T" Offset="0,0" Size="64,64"   Texture="Assets/UI/Art/Icons/LeaderPortraits512.dds"  ConsumeMouse="1" ID="Portrait" />
+      </Image>
+
+      <!-- Civ Icon -->
+      <Box ID="CivIconBox" Anchor="L,C" Size="64,64" Offset="58,0" Color="255.0.0.0" >
+        <AlphaAnim ID="ActiveTurnAnim" Anchor="C,C" Offset="0,0" Stopped="1" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0" >
+          <Image Anchor="C,C"  Size="64,64"  Offset="0,0" Texture="Assets/UI/Art/Icons/IconFrame64.dds" >
+            <Image Size="64,64" Anchor="C,C"  Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor2048.dds" Hidden="0" ID="Icon" />
+          </Image>
+        </AlphaAnim>
+      </Box>
+
+      <!-- WaitOnPlayer -->
+      <Image Anchor="L,C" Hidden="1" Size="32,32"  Texture="Assets/UI/Art/Icons/WaitOnPlayer32.dds"  ID="WaitOnPlayer" />
+
+      <!-- PlayerNameLabel -->
+      <Box ID="PlayerNameBox" Anchor="L,T" Size="260,32" Offset="128,38" Color="255.255.255.0" >
+				<Stack Anchor="L,B"  Offset="0,0" Padding="0" StackGrowth="Right" >
+					<Box ID="HostBox" Color="0,0,255,0" Anchor="L,C" Offset="0,0" Size="24,32">
+       			<Label Anchor="C,C"  String="[ICON_CAPITAL]" Offset="0,0" Hidden="1" ID="HostIcon" ToolTip="TXT_KEY_HOST" />
+					</Box>
+					<Box ID="ConnectedBox" Color="0,255,0,0" Anchor="L,C" Offset="0,0" Size="32,32">
+						<Image Anchor="C,C"  Offset="-2,2" ID="ConnectionStatus" Size="32,32" Texture="assets/UI/Art/Icons/MarcPips.DDS" ToolTip="TXT_KEY_MP_PLAYER_CONNECTED" hidden="1" />
+					</Box>
+        	<Label Anchor="L,C"  ID="PlayerNameLabel" Offset="0,0"  Font="TwCenMT20"  ColorSet="Beige_Black_Alpha" />
+				</Stack>
+      </Box>
+
+      <Stack Anchor="L,T"  Offset="128,6" Padding="6" StackGrowth="Right" >
+
+        <Stack Anchor="L,B" Offset="0,0" Padding="6" StackGrowth="Top" >
+          <!-- Invite Option -->
+          <Box Anchor="L,T" Size="260,27" Offset="0,0" Color="255.255.255.0" Hidden="1">
+            <PullDown Anchor="L,C" Font="TwCenMT18" FontStyle="Shadow" Style="GenericPullDown" ScrollThreshold="110" Size="260,27" AutoSizePopUp="1" SpaceForScroll="1" ID="InvitePulldown" Hidden="0"/>
+          </Box>
+          <!-- Civ Dropdown -->
+          <Box Anchor="L,T" Size="260,27" Offset="0,0" Color="255.255.255.0" >
+            <PullDown Anchor="L,C" Font="TwCenMT18" FontStyle="Shadow" Style="GenericPullDown" ScrollThreshold="90" Size="260,27" AutoSizePopUp="1" SpaceForScroll="1" ID="CivPulldown" Offset="0,0" />
+            <Label Anchor="C,C" ID="CivLabel" Font="TwCenMT20" TruncateWidth="250" ColorSet="Beige_Black_Alpha"  Offset="0,0" />
+          </Box>
+        </Stack>
+
+        <!-- Team & Handicap Dropdowns -->
+        <Stack Anchor="L,T" Offset="0,0" Padding="6" StackGrowth="Top" >
+          <!-- Team Dropdown -->
+          <Box Anchor="L,T" Size="160,27" Offset="0,0" Color="255.255.255.0" >
+            <PullDown Anchor="L,C" Style="GenericPullDown" ScrollThreshold="400" Size="160,27" AutoSizePopUp="1" SpaceForScroll="0" ID="TeamPulldown" Offset="0,0" />
+            <Label Anchor="C,C" ID="TeamLabel" Font="TwCenMT20"  ColorSet="Beige_Black_Alpha"  Offset="0,0" />
+          </Box>
+          <!-- Slot Type Dropdown -->
+          <Box Anchor="L,T" Size="160,27" Offset="0,0" Color="255.255.255.0" >
+            <PullDown Anchor="L,C" Style="GenericPullDown" ScrollThreshold="400" Size="160,27" AutoSizePopUp="1" SpaceForScroll="0" ID="SlotTypePulldown" Offset="0,0" />
+            <Label Anchor="C,C" ID="SlotTypeLabel" Font="TwCenMT20"  ColorSet="Beige_Black_Alpha"  Offset="0,0" />
+          </Box>
+          <!-- Handicap Dropdown -->
+          <Box Anchor="L,T" Size="160,27" Offset="0,0" Color="255.255.255.0" >
+            <PullDown Anchor="L,C" Style="GenericPullDown" ScrollThreshold="400" Size="160,27" AutoSizePopUp="1" SpaceForScroll="0" ID="HandicapPulldown" Offset="0,0" />
+            <Label Anchor="C,C" ID="HandicapLabel" Font="TwCenMT20"  ColorSet="Beige_Black_Alpha"  Offset="0,0" />
+          </Box>
+        </Stack>
+
+      </Stack>
+
+      <!-- Kick Button -->
+      <Button Hidden="0" Anchor="R,T" Size="32,32" Offset="5,3" ID="KickButton" Texture="assets/UI/Art/Icons/IconFrame32Delete.DDS" ToolTip="TXT_KEY_MP_KICK_PLAYER" />
+
+      <!-- Swap Button -->
+      <GridButton Style="SmallButton" Hidden="0" Anchor="R,T" Size="42,32" Offset="165,8" ID="SwapButton" String="[ICON_SWAP]" ToolTip="TXT_KEY_MP_SWAP_BUTTON_TT" >
+        <AlphaAnim ID="SwapButtonHighAlpha"  Anchor="C,C" Offset="0,0" Size="300,36" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".25" AlphaEnd=".6" Hidden="1">
+          <Grid  Size="42,32" Anchor="C,C" Offset="0,0" Style="Grid9Highlight8" Color="0,255,0,255"/>
+        </AlphaAnim>
+      </GridButton>
+
+      <!-- Lock/Unlock Checkbox -->
+      <CheckBox Anchor="R,B"  Offset="0,7" ID="LockCheck" ButtonTexture="assets/UI/Art/Icons/IconFrame32Lock.DDS" CheckTexture="assets/UI/Art/Icons/IconFrame32Unlock.DDS" ToolTip="TXT_KEY_MP_LOCK_SLOT" />
+
+      <!-- Disabled Slot Panel Cover -->
+      <Box Size="450,107"  Offset="0,33" Color="Black.220" Anchor="L,T" ID="DisableBlock" ConsumeMouse="1" Hidden="1">
+        <Box Size="125,74"  Anchor="R,B" Offset="0,0" AnchorSide="O.I" Color="Black.220" ConsumeMouse="1"/>
+      </Box>
+
+      <!-- Enable/Disable Checkbox -->
+      <CheckBox  Anchor="R,T" Offset="6,3" ID="EnableCheck"  ToolTip="TXT_KEY_MP_DISABLE_SLOT" Hidden="1"/>
+
+      <!-- Edit Entry (hotseat) -->
+
+      <Container Anchor="R,B" Size="50,32" Offset="-25,5" >
+        <TextButton Offset="0,0" Anchor="C,C" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EDIT_BUTTON" ToolTip="TXT_KEY_NAME_CIV_TITLE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="EditButton"/>
+      </Container>
+
+      <!-- Ping Time -->
+      <Container Anchor="R,B" Size="50,32" Offset="-20,16" >
+        <Label Anchor="L,B"  ID="PingTimeLabel" Offset="8,-2"  Font="TwCenMT14"  ColorSet="Beige_Black_Alpha" />
+      </Container>
+
+      <Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+
+    </Container>
+  </Instance>
+
+  <Instance Name="ChatEntry" >
+    <Box Anchor="L,T" Size="900,32" Offset="-7,0" Color="0,0,0,0" ID="Box" >
+      <Label Anchor="L,C" Offset="3,0" WrapWidth="900" LeadingOffset="-4"  Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Base" ID="String" />
+    </Box>
+  </Instance>
+
+  <!-- Editiable Game Option Checkbox Instance -->
+  <Instance Name="GameOptionInstance">
+    <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Anchor="L,C" TextAnchorSide="Right" Font="TwCenMT20" Offset="10,0" TextOffset="40,0" IsChecked="0" ID="GameOptionRoot" ConsumeMouse="1" />
+  </Instance>
+
+  <!-- Editiable Game Option Dropdown Instance -->
+  <Instance Name="DropDownOptionInstance">
+    <Container Anchor="L,T" Size="450,32" Offset="20,0" ID="DropDownOptionRoot">
+      <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" ID="OptionName"/>
+      <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="OptionDropDown"/>
+    </Container>
+  </Instance>
+
+  <Grid Size="960,Full" Anchor="C,B" Offset="0,-39" Style="Grid9DetailFive140" ID="MainGrid" >
+
+    <!-- Side treatments -->
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+
+    <Box Style="MenuTopTreatment"/>
+
+    <!-- Panel Header Text -->
+    <Label Style="MenuTitleCaption" ID="TitleLabel" String="{TXT_KEY_MULTIPLAYER_STAGING_ROOM:upper}" />
+
+    <!-- Top Panel  -->
+    <Box Anchor="C,T" Size="926,32" Offset="0,44" Color="0.0.0.128" >
+      <Box Anchor="L,T" Size="608,24" Offset="0,0" Color="0.0.0.128" >
+        <Stack Anchor="L,T" Size="608,24" Offset="0,2" Padding="0" StackGrowth="Right">
+          <Button  Anchor="L,T" Size="304,24" Font="TwCenMT18" Offset="0,0"  String="{TXT_KEY_MULTIPLAYER_STAGING_ROOM_HEADER_PLAYER:upper}" ToolTip="TXT_KEY_MULTIPLAYER_STAGING_ROOM_HEADER_PLAYER_TT" ID="PlayersPageTab" >
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="L,T" Size="304,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid   Size="304,27" Offset="0,-1" Padding="0,0" Style="Grid9FrameTurnsHL" />
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Grid Anchor="C,C" Offset="0,0" Size="304,26"  Style="Grid9FrameTurns" Hidden="1" ID="PlayersPageTabHighlight" />
+          </Button>
+          <Button  Anchor="L,T" Size="304,24" Font="TwCenMT18" Offset="0,0"   String="{TXT_KEY_AD_SETUP_GAME_OPTIONS:upper}" ToolTip="TXT_KEY_MULTIPLAYER_STAGING_ROOM_GAME_OPTIONS_TT" ID="OptionsPageTab" >
+            <ShowOnMouseOver>
+              <AlphaAnim Anchor="L,T" Size="304,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid   Size="304,27" Offset="0,-1" Padding="0,0" Style="Grid9FrameTurnsHL" />
+              </AlphaAnim>
+            </ShowOnMouseOver>
+            <Grid Anchor="C,C" Offset="0,0" Size="304,26"  Style="Grid9FrameTurns" Hidden="1" ID="OptionsPageTabHighlight" />
+          </Button>
+
+        </Stack>
+      </Box>
+
+      <Image Anchor="L,T" Offset="608,0" Texture="VerticalTrim.dds" Size="5.27" />
+      <Box Anchor="L,T" Size="320,24" Offset="614,0" Color="255.255.255.0" ID="GameOptionsSummaryTitle">
+        <Label Anchor="C,C" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_GAME_OPTIONS" />
+      </Box>
+      <Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="924.5" />
+    </Box>
+
+
+    <!-- Host Player Info -->
+    <Grid Size="610,107" Offset="17,76" Anchor="L,T" Style="Grid9FrameTurns" ID="Host" >
+
+      <!-- Bottom divider line -->
+      <Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="610.5" />
+
+      <!-- Ready to Play Highlight-->
+      <Grid Size="575,107" Style="Grid9FrameGreenFade" Color="White.164" Anchor="C,C" Hidden="1" ID="ReadyHighlight" />
+
+      <!-- Leader Portrait -->
+      <Image Anchor="L,C" Size="64,64" Offset="0,0"  Texture="Assets/UI/Art/Icons/IconFrame64.dds"  >
+        <Image Anchor="L,T" Offset="0,0" Size="64,64"   Texture="Assets/UI/Art/Icons/LeaderPortraits512.dds"  ID="Portrait" />
+      </Image>
+      
+      <!-- Civ Icon -->
+      <Box ID="CivIconBox" Anchor="L,C" Size="64,64" Offset="58,0" Color="255.0.0.0" >
+        <AlphaAnim ID="ActiveTurnAnim" Anchor="C,C" Offset="0,0" Stopped="1" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0" >
+          <Image Anchor="C,C"  Size="64,64"  Offset="0,0" Texture="Assets/UI/Art/Icons/IconFrame64.dds" >
+            <Image Size="64,64" Anchor="C,C"  Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor512.dds" Hidden="0" ID="Icon" />
+          </Image>
+        </AlphaAnim>
+      </Box>
+      
+      <!-- Left to Right Stack of Elements -->
+      <Stack Anchor="L,T" Offset="128,3" Padding="6" StackGrowth="Right" >
+        <!-- Slot Leader Name & Civ Dropdown -->
+        <Stack Anchor="L,T" Offset="0,0" Padding="6" StackGrowth="Bottom" >
+
+          <!-- -->
+          <Box ID="PlayerNameBox" Anchor="L,T" Size="260,27" Offset="0,0" Color="255.255.255.0" >
+
+            <Label Anchor="L,B"  ID="PlayerNameLabel" Offset="25,-2"  Font="TwCenMT20"  ColorSet="Beige_Black_Alpha" />
+            <Label Anchor="L,B"  String="[ICON_CAPITAL]" Offset="0,0" Hidden="1" ID="HostIcon" ToolTip="TXT_KEY_HOST" />
+
+          </Box>
+          <!-- Civ Dropdown -->
+          <Box Anchor="L,T" Size="260,27" Offset="0,0" Color="255.255.255.0" >
+            <PullDown Anchor="C,C" Font="TwCenMT18" FontStyle="Shadow" Style="GenericPullDown" ScrollThreshold="400" Size="260,27" AutoSizePopUp="1" SpaceForScroll="1" ID="CivPulldown" Offset="0,0" />
+            <Label Anchor="C,C" ID="CivLabel" Font="TwCenMT20" TruncateWidth="250"  ColorSet="Beige_Black_Alpha"  Offset="0,0" />
+          </Box>
+        </Stack>
+        <!-- Team & Handicap Dropdowns -->
+        <Stack Anchor="L,T" Offset="0,0" Padding="6" StackGrowth="Top" >
+          <!-- Team Dropdown -->
+          <Box Anchor="L,T" Size="128,27" Offset="0,0" Color="255.255.255.0" >
+            <PullDown Anchor="C,C" Style="GenericPullDown" ScrollThreshold="400" Size="128,27" AutoSizePopUp="1" SpaceForScroll="0" ID="TeamPulldown" Offset="0,0" />
+            <Label Anchor="C,C" ID="TeamLabel" Font="TwCenMT20"  ColorSet="Beige_Black_Alpha"  Offset="0,0" />
+          </Box>
+          <!-- Slot Type Dropdown -->
+          <Box Anchor="L,T" Size="128,27" Offset="0,0" Color="255.255.255.0" >
+            <PullDown Anchor="L,C" Style="GenericPullDown" ScrollThreshold="400" Size="128,27" AutoSizePopUp="1" SpaceForScroll="0" ID="SlotTypePulldown" Offset="0,0" />
+            <Label Anchor="C,C" ID="SlotTypeLabel" Font="TwCenMT20"  ColorSet="Beige_Black_Alpha"  Offset="0,0" />
+          </Box>
+          <!-- Handicap Dropdown -->
+          <Box Anchor="L,T" Size="128,27" Offset="0,0" Color="255.255.255.0" >
+            <PullDown Anchor="C,C" Style="GenericPullDown" ScrollThreshold="400" Size="128,27" AutoSizePopUp="1" SpaceForScroll="0" ID="HandicapPulldown" Offset="0,0" />
+            <Label Anchor="C,C" ID="HandicapLabel" Font="TwCenMT20"  ColorSet="Beige_Black_Alpha"  Offset="0,0" />
+          </Box>
+        </Stack>
+
+
+      </Stack>
+
+      <!-- Ready Checkbox -->
+      <CheckBox Anchor="R,T" String="" Offset="6,6" ID="LocalReadyCheck" ButtonTexture="assets/UI/Art/Icons/IconFrame32CheckOff.DDS" CheckTexture="assets/UI/Art/Icons/IconFrame32Check.DDS" ToolTip="TXT_KEY_MP_READY_CHECK" />
+
+      <!-- Edit Button -->
+      <Container Anchor="R,B" Size="50,32" Offset="34,5" >
+        <TextButton Offset="0,0" Anchor="C,C" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EDIT_BUTTON" ToolTip="TXT_KEY_NAME_CIV_TITLE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="LocalEditButton" Hidden="1" >
+          <TextButton Offset="20,0" Anchor="L,C" AnchorSide="o,i" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CANCEL_BUTTON" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="RemoveButton" >
+            <Box Offset="-10,0"  Anchor="R,C" Size="1,16"  Color="Beige.128" />
+          </TextButton>
+        </TextButton>
+      </Container>
+
+    </Grid>
+
+    <!-- Player Listing Background -->
+    <ScrollPanel Anchor="L,T" ID="ListingScrollPanel" Vertical="1" Offset="18,185" Size="588,360" AutoScrollBar="1" >
+
+      <!-- Listing Stack (Dynamic) -->
+      <Stack Anchor="L,T" ID="SlotStack" StackGrowth="Bottom" Padding="0" />
+
+      <!-- Scroll Controls -->
+      <ScrollBar  Style="VertSlider" Length="357" Offset="0.18" Anchor="R,T" AnchorSide="O,I" />
+      <UpButton   Style="ScrollBarUp"   Anchor="R,T" AnchorSide="O,I" />
+      <DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I" />
+
+    </ScrollPanel>
+
+    <!-- Game Options Page -->
+    <ScrollPanel Anchor="L,T" ID="OptionsScrollPanel" Vertical="1" Offset="18,76" Size="906,393" AutoScrollBar="1" Hidden="1">
+
+      <!-- Scroll Controls -->
+      <ScrollBar  Style="VertSlider"      Anchor="R,T" Offset="0,18" AnchorSide="O,I" Length="344"  />
+      <UpButton   Style="ScrollBarUp"     Anchor="R,T" Offset="0,0" AnchorSide="O,I" />
+      <DownButton Style="ScrollBarDown"   Anchor="R,B" Offset="0,0" AnchorSide="O,I" />
+
+      <Stack ID="GameOptionsFullStack" Anchor="L,T" Offset="0,0" Padding="0" StackGrowth="Bottom" >
+
+        <!-- City State Options -->
+        <Box Anchor="L,T" Size="480,36" Offset="0,0" Color="255.255.255.0" >
+          <Stack ID="CityStateStack" Anchor="L,T" Size="463,32" StackGrowth="Right">
+            <Box Anchor="L,C" Size="160,32" Offset="10,5" Color="255.255.255.0" >
+              <Label Anchor="L,T" Offset="10,0" Font="TwCenMT20" String="" ID="MinorCivsLabel" />
+            </Box>
+            <Slider Anchor="L,C" Offset="0,0" Length="300" Style="Slider" ID="MinorCivsSlider" WheelSteps="10" />
+          </Stack>
+        </Box>
+
+        <!-- List of Combo Box Options -->
+        <Stack Anchor="L,T" Offset="0,3" Padding="0" StackGrowth="Bottom" ID="DropDownOptionsStack" >
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_MAP_TYPE" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="MapTypePullDown"/>
+          </Container>
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_MAP_SIZE" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="MapSizePullDown"/>
+          </Container>
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_GAME_SPEED" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="GameSpeedPullDown"/>
+          </Container>
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_GAME_ERA" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="EraPull"/>
+          </Container>
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0" ID="TurnModeRoot">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_GAME_TURN_MODE" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="TurnModePull"/>
+          </Container>
+        </Stack>
+
+        <!-- Victory Conditions -->
+        <!-- Victory Conditions -->
+        <Box Anchor="C,T" Size="500,30" Offset="0,0" Color="White.0" >
+          <Image  Anchor="C,T"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+          <Label  Anchor="C,B"  Offset="0,5" String="TXT_KEY_VICTORYS_FORMAT" Font="TwCenMT20" />
+          <Image  Anchor="C,B"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+        </Box>
+        <Stack Anchor="L,T" Offset="20,0" Padding="-7" StackGrowth="Bottom" ID="VictoryConditionsStack" />
+
+        <Box Anchor="C,T" Size="500,30" Offset="0,0" Color="White.0" >
+          <Image  Anchor="C,T"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+          <Label  Anchor="C,B"  Offset="0,5" String="TXT_KEY_ADVANCED_OPTIONS" Font="TwCenMT20" />
+          <Image  Anchor="C,B"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+        </Box>
+
+
+        <!-- Max Turn Check & Edit Box -->
+        <Box Anchor="L,T" Size="480,24" Offset="20,0" Color="255,255,255,0" >
+          <Stack ID="MaxTurnStack" Anchor="L,T" Size="463,32" Offset="10,0" StackGrowth="Right">
+            <Box Anchor="L,C"  Size="161,32" Color="255,255,200,0" >
+              <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_AD_SETUP_MAX_TURNS" ToolTip="TXT_KEY_AD_SETUP_MAX_TURNS_TT" IsChecked="0" ID="MaxTurnsCheck" ConsumeMouse="1" />
+            </Box>
+            <Box Hidden="1" Anchor="L,C"  Size="34,24" Color="255,255,200,255" ID="MaxTurnsEditbox">
+              <Box Anchor="C,C"  Offset="0,0" Size="32,22" Color="0,0,0,255" >
+                <EditBox Size="30,18" Anchor="L,C" ID="MaxTurnsEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3" CallOnChar="1" />
+              </Box>
+            </Box>
+          </Stack>
+        </Box>
+
+        <!-- Turn Timer Check & Edit Box -->
+        <Box Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" >
+
+          <Stack ID="TurnTimerStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
+            <Box Anchor="L,C"  Size="200,32" Color="255,255,200,0" >
+              <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_GAME_OPTION_END_TURN_TIMER_ENABLED" ToolTip="TXT_KEY_GAME_OPTION_END_TURN_TIMER_ENABLED_HELP" IsChecked="0" ID="TurnTimerCheck" ConsumeMouse="1" />
+            </Box>
+            <Box Hidden="1" Anchor="L,C"  Size="34,24" Color="255,255,200,255" ID="TurnTimerEditbox">
+              <Box Anchor="C,C"  Offset="0,0" Size="32,22" Color="0,0,0,255" >
+                <EditBox Size="30,18" Anchor="L,C" ID="TurnTimerEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3" CallOnChar="1" />
+              </Box>
+              <Label  Anchor="R,C"  AnchorSide="O,I" Offset="5,0" ID="TurnTimerUnits" String="" Font="TwCenMT20" />
+            </Box>
+          </Stack>
+        </Box>
+
+        <!-- List of Check Boxes -->
+        <Stack Anchor="L,T" Offset="20,0" Padding="-7" StackGrowth="Bottom" ID="GameOptionsStack" />
+
+        <!-- DLC -->
+        <Box Anchor="C,T" Size="500,30" Offset="0,0" Color="White.0" >
+          <Image  Anchor="C,T"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+          <Label  Anchor="C,B"  Offset="0,5" String="TXT_KEY_DLC_ALLOWED" Font="TwCenMT20" />
+          <Image  Anchor="C,B"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+        </Box>
+
+        <Stack Anchor="L,T" Offset="20,0" Padding="-7" StackGrowth="Bottom" ID="DLCAllowedStack" />
+
+        <!-- Mods -->
+        <Stack Anchor="L,T" Offset="0,12"   Size="128,128" StackGrowth="Bottom" Padding="3" Hidden="1">
+
+          <Box Anchor="L,B"  Offset="116,0" Color="White.24" Size="430,30" ConsumeMouse="1"  ID="LoadScenarioBox">
+            <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_LOAD_SCENARIO" ID="ScenarioCheck" ConsumeMouse="1"  />
+          </Box>
+
+          <GridButton  Style="ZoomButton" Anchor="L,T" Offset="0,0" Size="340,27"  ID="ModsButton">
+            <Stack Anchor="C,C" Size="565,128" Offset="0,0"   StackGrowth="Bottom" Padding="6" >
+              <Label Anchor="C,C" Offset="0,0" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="ModsName" String="TXT_KEY_ACTIVE_MODS" />
+              <Label Anchor="L,T" Offset="0,0"  WrapWidth="410" LeadingOffset="-6" Font="TwCenMT18" Color="Beige.128" FontStyle="Base" ID="ModsHelp" />
+            </Stack>
+          </GridButton>
+
+        </Stack>
+
+      </Stack>
+    </ScrollPanel>
+
+    <Image Offset="625,75" Texture="VerticalTrim.dds" Size="5,475" ID="VerticalTrim"/>
+
+
+
+    <!-- Bottom Buttons -->
+    <Box Anchor="C,B" AnchorSide="I.I" Offset="0,54"   Size="910,70" Color="255,255,255,0" >
+
+      <Stack Anchor="L,B" Offset="14,0"   Size="128,128" StackGrowth="Right" Padding="8" >
+        <!-- Quit Button  -->
+        <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="ExitButton"  >
+          <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_EXIT_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        </GridButton>
+        
+        <!-- Back Button  -->
+        <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="BackButton"  >
+          <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_BACK_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        </GridButton>
+
+        <!-- Invite Button  -->
+        <GridButton Anchor="R,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="InviteButton" Hidden="1" >
+          <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_MULTIPLAYER_INVITE" ToolTip="TXT_KEY_MULTIPLAYER_INVITE_TT" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        </GridButton>
+
+        <!-- Save Button  -->
+        <GridButton Anchor="R,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="SaveButton" Hidden="0" >
+          <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_ACTION_SAVE_NORMAL" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        </GridButton>
+
+        <!-- Fill AI Button  -->
+        <GridButton Anchor="R,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="FillAIButton" Hidden="1" >
+          <Label Anchor="C,C"  Offset="0,0"  Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="FillAILabel" />
+        </GridButton>
+
+        <!-- Strategic View Button  -->
+        <Button ConsumeMouseOver="1" Anchor="C,T" Offset="0,0" Size="45.45" Texture="assets\UI\Art\Icons\MainStrategicButton.dds" ID="StrategicViewButton" Hidden="1" ToolTip="TXT_KEY_POP_STRATEGIC_VIEW_TT" >
+          <ShowOnMouseOver>
+            <Image Anchor="C,C" Offset="0,0" Size="45.45" Texture="assets\UI\Art\Icons\MainStrategicButton.dds" ID="StrategicMO" />
+            <AlphaAnim Anchor="C,C" Offset="0,0" Size="45.45"  TextureOffset="0.0" Texture="assets\UI\Art\Icons\MainStrategicButtonHL.dds" ID="StrategicHL"  Pause="0" Cycle="Bounce" Speed="2" AlphaStart="0.95" AlphaEnd="0.55"/>
+          </ShowOnMouseOver>
+        </Button>
+      </Stack>
+
+    </Box>
+
+
+    <!--  Host Button  -->
+    <GridButton Anchor="R,B" ID="LaunchButton"   ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow"  Offset="38,54"     Size="260,45"    Style="BaseButton" String="TXT_KEY_MULTIPLAYER_LAUNCH_GAME" >
+    </GridButton>
+
+    <GridButton Anchor="R,B" ID="CountdownButton"   ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow"  Offset="38,54"     Size="260,45"    Style="BaseButton" String="Unknown Time: " Hidden="1">
+    </GridButton>
+
+    <!-- Game Options -->
+    <ScrollPanel Anchor="L,T" Size="315,359" Offset="629,80" Color="255,255,255,0" Hidden="0" ID="GameOptionsSummary" Vertical="1"  AutoScrollBar="1">
+
+      <!-- Scroll Controls -->
+      <ScrollBar  Style="VertSlider"      Anchor="R,T" Offset="3,18" AnchorSide="I,I" Length="300"  />
+      <UpButton   Style="ScrollBarUp"     Anchor="R,T" Offset="3,0" AnchorSide="I,I" />
+      <DownButton Style="ScrollBarDown"   Anchor="R,B" Offset="3,0" AnchorSide="I,I" />
+
+      <Stack ID="AdvancedOptions" Anchor="L,T" Offset="10,0" Padding="6" StackGrowth="Bottom" >
+
+        <Label Anchor="C,C" String="TXT_KEY_GAME_NAME" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        <Label Anchor="C,C" ID="NameLabel" String="" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        <Image  Anchor="C,T"  Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+
+        <Container Size="200,30" Anchor="C,C" ID="LoadingBox" >
+          <Label Anchor="C,C" Offset="0,-3" ID="SavedGame" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_LOADING_SAVED_GAME" />
+          <Image  Anchor="C,B"  Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+        </Container>
+
+        <Container Size="200,30" Anchor="C,C" ID="HotJoinBox" >
+          <Label Anchor="C,C" Offset="0,-3" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_GAME_IN_PROGRESS" />
+          <Image  Anchor="C,B"  Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+        </Container>
+
+        <Grid Size="300,27" Offset="0,0" Anchor="L,C" Style="Grid9FrameTurns"  >
+          <Label Anchor="C,C"   String="" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="MapTypeLabel" />
+        </Grid>
+        <Grid Size="300,27" Offset="0,0" Anchor="L,C" Style="Grid9FrameTurns"  >
+          <Label Anchor="C,C"   String="" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="MapSizeLabel" />
+        </Grid>
+        <Grid Size="300,27" Offset="0,0" Anchor="L,C" Style="Grid9FrameTurns"  >
+          <Label Anchor="C,C"   String="" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GameSpeedLabel" />
+        </Grid>
+        <Grid Size="300,27" Offset="0,0" Anchor="L,C" Style="Grid9FrameTurns"  >
+          <Label Anchor="C,C"   String="" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="StartEraLabel" />
+        </Grid>
+        <Grid Size="300,27" Offset="0,0" Anchor="L,C" Style="Grid9FrameTurns"  >
+          <Label Anchor="C,C"   String="" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="TurnModeLabel" />
+        </Grid>
+
+        <Image  Anchor="C,T"  Offset="0,0" Texture="bar300x2.dds" Size="300.1" />
+
+        <Label Anchor="C,C" ID="MaxTurns"  String="" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        <Label Anchor="C,C" ID="TurnTimer"  String="" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+
+      </Stack>
+    </ScrollPanel>
+
+    <!-- Chat Panel -->
+    <Box Anchor="R,B" Size="925,164" Offset="17,110" Color="255,255,255,0" ID="ChatBox" Hidden="0" >
+
+      <Grid Size="925,160" Anchor="L,T" Padding="0,0" Color="White.128" Style="GridGlass16" ID="ChatPanel" Hidden="0" >
+        <Image Anchor="L,T" Offset="0,0" Texture="HorizontalTrim.dds" Size="925.5" />
+
+        <Stack Anchor="L,T" Offset="0,0" Padding="0" StackGrowth="Bottom" >
+          <!-- Chat ScrollPanel -->
+          <ScrollPanel Anchor="L,T" Offset="8,4" Size="897,123"  Vertical="1" AutoScrollBar="0" ID="ChatScroll" >
+
+            <!-- Scroll Controls -->
+            <ScrollBar  Style="VertSlider" Length="87" Offset="0.18" Anchor="R,T" AnchorSide="O,I" />
+            <UpButton   Style="ScrollBarUp"   Anchor="R,T" AnchorSide="O,I" />
+            <DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I" />
+
+            <!-- Listing Stack (Dynamic) -->
+            <Stack ID="ChatStack" StackGrowth="B" />
+
+          </ScrollPanel>
+
+          <Image Anchor="L,T" Offset="0,0" Texture="HorizontalTrim.dds" Size="925.5" />
+
+          <!-- Chat  -->
+          <Box Anchor="L,T" Size="924,36" Offset="0.0" Color="White.0" >
+
+            <GridButton Anchor="L,T" Size="100,27" Offset="0,0" Style="BoxButton" Disabled="1" >
+              <Label Anchor="R,C" Offset="10,0" String="TXT_KEY_MULTIPLAYER_TO_ALL"  Font="TwCenMT20" FontStyle="Shadow" ColorSet="Beige_Black_Alpha"  />
+              <Image Anchor="R,T" Offset="0,0" Texture="VerticalTrim.dds" Size="5.27" />
+              <Box Anchor="R,C" AnchorSide="O.I" Offset="0,0" Size="825,27" Color="0,0,0,200" >
+                <EditBox Size="825,23" MaxLength="255" KeepFocus="1" Anchor="L,C" Font="TwCenMT18" ID="ChatEntry" />
+              </Box>
+            </GridButton>
+
+          </Box>
+        </Stack>
+      </Grid>
+
+    </Box>
+
+    <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="924.5" />
+
+  </Grid>
+
+  <Grid Size="400,210" ID="HotJoinPopup" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="1">
+    <!-- Side treatments -->
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+    <Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+      <Image Anchor="C,C" Offset="0,-6" Size="80,80" Texture="NotificationFrameBase.dds">
+        <AlphaAnim Anchor="C,C" Offset="0,0" Size="80,80" Texture="assets\UI\Art\Notification\NotificationGenericGlow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".5"/>
+      </Image>
+    </Image>
+    <Label Anchor="C,T" String="TXT_KEY_JOINING_GAME_IN_PROGRESS" Offset="0,74" WrapWidth="440" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+    
+    <GridButton Style="BaseButton" ID="HotJoinCancelButton" Size="300,42" Anchor="C,B" Offset="0,50" Hidden="0">
+      <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CANCEL_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+    </GridButton>
+  </Grid>
+
+  <LuaContext FileName="Assets/DLC/Shared/UI/FrontEnd/ChangeSmtpPassword" ID="ChangeSmtpPassword" Hidden="1" />
+  <LuaContext FileName="Assets/UI/FrontEnd/GameSetup/SetCivNames" ID="SetCivNames" Hidden="1" />
+  <LuaContext FileName="Assets/DLC/Shared/UI/InGame/Popups/ConfirmKick" ID="ConfirmKick" Hidden="1" />
+  <LuaContext FileName="Assets/UI/InGame/Menus/SaveMenu" ID="SaveMenu" Hidden="1" />
+
+</Context>

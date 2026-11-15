@@ -497,7 +497,8 @@
     <File md5="2EDB54EB7721D8240EAF44B71BCE74D6" import="1">Core Files/Overrides/SaveMenu.lua</File>
     <File md5="FB5ADB053B50EFAC805CCB9EE0425137" import="1">Core Files/Overrides/SaveMenu.xml</File>
     <File md5="6699DAE4A114249CCE9297C2AE4D5282" import="1">Core Files/Overrides/SimpleDiploTrade.xml</File>
-    <File md5="F4BD8D98536B2532C02E1CA4EC1732CF" import="1">Core Files/Overrides/StagingRoom.lua</File>
+    <File md5="E58EEE7C6FCF8136F39DE60741A852F9" import="1">Core Files/Overrides/StagingRoom.lua</File>
+    <File md5="254BDE4C5D956BFE574D23BEE1F38DF0" import="1">Core Files/Overrides/StagingRoom.xml</File>
     <File md5="3AAD78445CA7D46248F9F64CFDB77922" import="1">Core Files/Overrides/TechAwardPopup.lua</File>
     <File md5="CAFF104B0A7820E99C6AC4A9B1E50C94" import="1">Core Files/Overrides/TechAwardPopup.xml</File>
     <File md5="2E864F44562CA1721134CE33FC7AFBA9" import="1">Core Files/Overrides/TechPanel_small.xml</File>
@@ -642,7 +643,7 @@
     <File md5="CBDA3E182DB9F43339500E8357BE1E41" import="0">Database Changes/Text/en_US/Policies/CorePolicyTextChanges.sql</File>
     <File md5="07FA4F3EE791BC55D0F0818B8645A785" import="0">Database Changes/Text/en_US/Religions/CoreReligionTextChanges.sql</File>
     <File md5="C59382A66201DBBA16DAA331DED9BF29" import="0">Database Changes/Text/en_US/UI/CoreNewMissionText.xml</File>
-    <File md5="9DF927629D91F2DA4E8E08EF4059FACD" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
+    <File md5="BD400EC67B4AA67C59E8552F967F8D9F" import="0">Database Changes/Text/en_US/UI/CoreNewUIText.xml</File>
     <File md5="D084EE9E97DFA593E13CC77EA39746FD" import="0">Database Changes/Text/en_US/UI/CoreUITextChanges.sql</File>
     <File md5="49B45936BE5C915CC1F42453CB03AF7B" import="0">Database Changes/Text/en_US/UI/NewInterfaceModeText.xml</File>
     <File md5="F9C0A53E9A6986F04ADADDBA2E138A10" import="0">Database Changes/Text/en_US/UnitPromotions/CoreNewPromotionText.xml</File>

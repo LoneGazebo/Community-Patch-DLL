@@ -473,6 +473,88 @@ function SetSlotToHuman(playerID)
 	end
 end
 
+-------------------------------------------------
+-------------------------------------------------
+function SetSlotToAI(playerId)
+	-- Sets the given playerID slot to be an AI. Assumes no human is connected to that slot.
+	PreGame.SetSlotStatus(playerId, SlotStatus.SS_COMPUTER);
+	PreGame.SetHandicap(playerId, 1);
+	if PreGame.IsHotSeatGame() then
+		-- Reset so the player can force a rebuild
+		PreGame.SetNickName(playerId, '');
+		PreGame.SetLeaderName(playerId, '');
+		PreGame.SetCivilizationDescription(playerId, '');
+		PreGame.SetCivilizationShortDescription(playerId, '');
+		PreGame.SetCivilizationAdjective(playerId, '');
+	end
+end
+
+-------------------------------------------------
+-- Fill AI Button
+-------------------------------------------------
+function GetSlotsToFillWithAI()
+	-- The open slots nobody sits in, in list order, cut off where the map's player limit is reached.
+	-- Human required and closed slots are the host's explicit choice, so they are left alone.
+	local playerTable = Matchmaking.GetPlayerList() or {};
+
+	local numFree = GetMaxPlayersForCurrentMap();
+	for _, playerInfo in ipairs(playerTable) do
+		local slotStatus = PreGame.GetSlotStatus(playerInfo.playerID);
+		if(slotStatus == SlotStatus.SS_COMPUTER or slotStatus == SlotStatus.SS_TAKEN) then
+			numFree = numFree - 1;
+		end
+	end
+
+	local slots = {};
+	for _, playerInfo in ipairs(playerTable) do
+		local playerId = playerInfo.playerID;
+		if #slots < numFree
+				and PreGame.GetSlotStatus(playerId) == SlotStatus.SS_OPEN
+				and PreGame.GetSlotClaim(playerId) ~= SlotClaim.SLOTCLAIM_RESERVED
+				and not Network.IsPlayerConnected(playerId)
+		then
+			table.insert(slots, playerId);
+		end
+	end
+
+	return slots;
+end
+
+-------------------------------------------------
+-------------------------------------------------
+function UpdateFillAIButton()
+	-- Same conditions as the slot type pulldowns: only the host, before readying up, in a new game.
+	local bShow = Matchmaking.IsHost()
+		and PreGame.GetMultiplayerAIEnabled()
+		and PreGame.GetLoadFileName() == ""
+		and not PreGame.GameStarted()
+		and not PreGame.IsReady(Matchmaking.GetHostID());
+
+	Controls.FillAIButton:SetHide(not bShow);
+
+	if(bShow) then
+		local bDisable = #GetSlotsToFillWithAI() == 0;
+		Controls.FillAIButton:SetDisabled(bDisable);
+		Controls.FillAIButton:SetAlpha(bDisable and 0.5 or 1.0);
+	end
+end
+
+-------------------------------------------------
+-------------------------------------------------
+function OnFillAIButton()
+	for _, playerId in ipairs( GetSlotsToFillWithAI() ) do
+		SetSlotToAI(playerId);
+		PreGame.SetReady(playerId, false);
+	end
+
+	UpdateDisplay();
+	Network.BroadcastPlayerInfo();
+end
+
+Controls.FillAIButton:LocalizeAndSetToolTip("TXT_KEY_MP_FILL_AI_BUTTON_TT");
+Controls.FillAIButton:RegisterCallback(Mouse.eLClick, OnFillAIButton);
+Controls.FillAILabel:LocalizeAndSetText("TXT_KEY_MP_FILL_AI_BUTTON");
+
 function OnSlotType( playerID, id )
 	-- NOTE: Slot type pulldowns store the slot's playerID rather than the selection Index in their voids.
 	--print("OnSlotType ID:" .. id);
@@ -510,17 +592,8 @@ function OnSlotType( playerID, id )
 		local bCanEnableAISlots = PreGame.GetMultiplayerAIEnabled();
 		if(bCanEnableAISlots and not Network.IsPlayerConnected(playerID)) then
 			-- only switch to AI if AI are enabled in multiplayer.
-			PreGame.SetSlotStatus( playerID, SlotStatus.SS_COMPUTER );
-    	PreGame.SetHandicap( playerID, 1 );
+			SetSlotToAI(playerID);
     	resetReadyStatus = true;
-			if ( PreGame.IsHotSeatGame() ) then
-				-- Reset so the player can force a rebuild
-				PreGame.SetNickName( playerID, "" );
-				PreGame.SetLeaderName( playerID, "" );
-				PreGame.SetCivilizationDescription( playerID, "" );
-				PreGame.SetCivilizationShortDescription( playerID, "" );
-				PreGame.SetCivilizationAdjective( playerID, "" );
-			end
 		end
 	elseif(id == g_slotTypeData["TXT_KEY_SLOTTYPE_OBSERVER"].index) then
 		-- TXT_KEY_SLOTTYPE_OBSERVER
@@ -1148,6 +1221,7 @@ function UpdateDisplay()
 		UpdateOptions();
 		RefreshPlayerList();
 		DoCheckTeams();
+		UpdateFillAIButton();
 
 		-- Allow the host to manually start the game when loading a game.
 		if(m_bIsHost and PreGame.GetLoadFileName() ~= "" and not IsInGameScreen()) then

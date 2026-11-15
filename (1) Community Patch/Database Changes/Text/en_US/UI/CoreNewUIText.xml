@@ -3924,5 +3924,13 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SETTINGS_TURN_ON_ALL_BUTTON">
 			<Text>Turn on all</Text>
 		</Row>
+
+		<!-- Staging room -->
+		<Row Tag="TXT_KEY_MP_FILL_AI_BUTTON">
+			<Text>Fill with AI</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MP_FILL_AI_BUTTON_TT">
+			<Text>Turn every open slot nobody has joined into an AI player, up to the player limit of the map.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
