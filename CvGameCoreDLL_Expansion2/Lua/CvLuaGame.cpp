@@ -519,7 +519,7 @@ int CvLuaGame::lCanHandleAction(lua_State* L)
 {
 	const int iAction = lua_tointeger(L, 1);
 	CvPlot* pkPlot = luaEx_toPlot(L, 2, false);
-	const bool bTestVisible = luaL_optbool(L, 3, 0);
+	const bool bTestVisible = luaL_optbool(L, 3, false);
 	const bool bResult = GetInstance()->canHandleAction(iAction, pkPlot, bTestVisible);
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -582,8 +582,8 @@ int CvLuaGame::lSelectionListGameNetMessage(lua_State* L)
 	const int iData3	= luaL_optint(L, 3, -1);
 	const int iData4	= luaL_optint(L, 4, -1);
 	const int iFlags	= luaL_optint(L, 5, 0);
-	const bool bAlt		= luaL_optbool(L, 6, 0);
-	const bool bShift	= luaL_optbool(L, 7, 0);
+	const bool bAlt		= luaL_optbool(L, 6, false);
+	const bool bShift	= luaL_optbool(L, 7, false);
 
 	GetInstance()->selectionListGameNetMessage(eMessage, iData2, iData3, iData4, iFlags, bAlt, bShift);
 	return 0;
@@ -596,10 +596,10 @@ int CvLuaGame::lSelectedCitiesGameNetMessage(lua_State* L)
 	const int iData2 = luaL_optint(L, 2, -1);
 	const int iData3 = luaL_optint(L, 3, -1);
 	const int iData4 = luaL_optint(L, 4, -1);
-	const bool bOption	= luaL_optbool(L, 5, 0);
-	const bool bAlt		= luaL_optbool(L, 6, 0);
-	const bool bShift	= luaL_optbool(L, 7, 0);
-	const bool bCtrl	= luaL_optbool(L, 8, 0);
+	const bool bOption	= luaL_optbool(L, 5, false);
+	const bool bAlt		= luaL_optbool(L, 6, false);
+	const bool bShift	= luaL_optbool(L, 7, false);
+	const bool bCtrl	= luaL_optbool(L, 8, false);
 	GetInstance()->selectedCitiesGameNetMessage(eMessage, iData2, iData3, iData4, bOption, bAlt, bShift, bCtrl);
 	return 0;
 }
@@ -610,9 +610,9 @@ int CvLuaGame::lCityPushOrder(lua_State* L)
 	CvCity* pkCity			= luaEx_toCity(L, 1);
 	const OrderTypes eOrder	= (OrderTypes)lua_tointeger(L, 2);
 	const int iData			= lua_tointeger(L, 3);
-	const bool bAlt			= luaL_optbool(L, 4, 0);
-	const bool bShift		= luaL_optbool(L, 5, 0);
-	const bool bCtrl		= luaL_optbool(L, 6, 0);
+	const bool bAlt			= luaL_optbool(L, 4, false);
+	const bool bShift		= luaL_optbool(L, 5, false);
+	const bool bCtrl		= luaL_optbool(L, 6, false);
 
 	if (GET_PLAYER(pkCity->getOwner()).isTurnActive())
 	{
@@ -1097,7 +1097,7 @@ int CvLuaGame::lIsNoNukes(lua_State* L)
 //void changeNoNukesCount(int iChange);
 int CvLuaGame::lChangeNoNukesCount(lua_State* L)
 {
-	int iNumNukes;
+	int iNumNukes = 0;
 	if (lua_gettop(L) == 1)
 		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNoNukesCount() usage
 	else
@@ -1116,7 +1116,7 @@ int CvLuaGame::lGetNukesExploded(lua_State* L)
 //void changeNukesExploded(int iChange);
 int CvLuaGame::lChangeNukesExploded(lua_State* L)
 {
-	int iNumNukes;
+	int iNumNukes = 0;
 	if (lua_gettop(L) == 1)
 		iNumNukes = lua_tointeger(L, 1); // The correct Game.ChangeNukesExploded() usage
 	else
@@ -1734,7 +1734,8 @@ int CvLuaGame::lGetReplayMessage(lua_State* L)
 
 			for(unsigned int i = 0; i < nPlots; i++)
 			{
-				int iPlotX, iPlotY;
+				int iPlotX;
+				int iPlotY;
 				if(pMessage->getPlot(i, iPlotX, iPlotY))
 				{
 					lua_createtable(L, 0, 2);
@@ -1796,7 +1797,8 @@ int CvLuaGame::lGetReplayMessages(lua_State* L)
 
 			for(unsigned int j = 0; j < nPlots; j++)
 			{
-				int iPlotX, iPlotY;
+				int iPlotX;
+				int iPlotY;
 				if(pMessage->getPlot(j, iPlotX, iPlotY))
 				{
 					lua_createtable(L, 0, 2);
@@ -2875,7 +2877,7 @@ int CvLuaGame::lGetAvailableReformationBeliefs(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumFollowers(lua_State* L)
 {
-	int iRtnValue;
+	int iRtnValue = 0;
 	ReligionTypes eReligion;
 	eReligion = (ReligionTypes)lua_tointeger(L, 1);
 	iRtnValue = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
@@ -2885,7 +2887,7 @@ int CvLuaGame::lGetNumFollowers(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumCitiesFollowing(lua_State* L)
 {
-	int iRtnValue;
+	int iRtnValue = 0;
 	ReligionTypes eReligion;
 	eReligion = (ReligionTypes)lua_tointeger(L, 1);
 	iRtnValue = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
@@ -3468,8 +3470,8 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 
 		CvCity* pFirstCity = NULL;
 		CvCity* pSecondCity = NULL;
-		int iLoop1;
-		int iLoop2;
+		int iLoop1 = 0;
+		int iLoop2 = 0;
 
 		SPathFinderUserData data(ePlayer, PT_CITY_CONNECTION_LAND, NO_BUILD, ROUTE_RAILROAD, NO_ROUTE_PURPOSE, false);
 
@@ -3608,7 +3610,8 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L)
 {
-	int iPlotX,iPlotY;
+	int iPlotX;
+	int iPlotY;
 	TradeConnectionType type;
 	DomainTypes eDomain;
 
@@ -3623,7 +3626,8 @@ int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Hide(lua_State* L)
 {
-	int iPlotX,iPlotY;
+	int iPlotX;
+	int iPlotY;
 	TradeConnectionType type;
 	
 	iPlotX = lua_tointeger(L,1);
@@ -3635,8 +3639,8 @@ int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Hide(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lMouseoverUnit(lua_State* L)
 {
-	CvUnit* pUnit;
-	bool bEnter;
+	CvUnit* pUnit = NULL;
+	bool bEnter = false;
 
 	pUnit = luaEx_toUnit(L, 1);
 	bEnter = lua_toboolean(L, 2);
@@ -3718,7 +3722,7 @@ int CvLuaGame::lSpewTestEvents(lua_State* L)
 				args->Push(-1);
 				args->Push(-1);
 
-				bool bResult;
+				bool bResult = false;
 				LuaSupport::CallHook(pkScriptSystem, "TestEvent", args.get(), bResult);
 			}
 		}

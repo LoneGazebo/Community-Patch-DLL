@@ -1009,7 +1009,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 			pkEntry->SetCommandType(GC.getInfoTypeForString("COMMAND_PROMOTION"));
 			pkEntry->setActionInfoIndex(i);
-			CvString strHotKey = pkEntry->CreateHotKeyFromDescription(pkEntry->getHotKey(), pkEntry->isShiftDown(), pkEntry->isAltDown(), pkEntry->isCtrlDown());
+			CvString strHotKey = CvPromotionEntry::CreateHotKeyFromDescription(pkEntry->getHotKey(), pkEntry->isShiftDown(), pkEntry->isAltDown(), pkEntry->isCtrlDown());
 			pkEntry->setHotKeyDescription(pkEntry->GetDescription(), GC.getCommandInfo((CommandTypes)(pkEntry->GetCommandType()))->GetDescription(), strHotKey);
 		}
 		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_SPECIALIST)
@@ -1018,7 +1018,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 			pkSpecialist->setMissionType(GC.getInfoTypeForString("MISSION_JOIN"));
 			pkSpecialist->setActionInfoIndex(i);
-			CvString strHotKey = pkSpecialist->CreateHotKeyFromDescription(pkSpecialist->getHotKey(), pkSpecialist->isShiftDown(), pkSpecialist->isAltDown(), pkSpecialist->isCtrlDown());
+			CvString strHotKey = CvSpecialistInfo::CreateHotKeyFromDescription(pkSpecialist->getHotKey(), pkSpecialist->isShiftDown(), pkSpecialist->isAltDown(), pkSpecialist->isCtrlDown());
 			pkSpecialist->setHotKeyDescription(pkSpecialist->GetDescription(), GC.getMissionInfo((MissionTypes)(pkSpecialist->getMissionType()))->GetDescription(), strHotKey);
 		}
 		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_CONTROL)

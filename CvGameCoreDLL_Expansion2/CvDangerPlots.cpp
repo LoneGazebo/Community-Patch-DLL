@@ -145,7 +145,7 @@ void CvDangerPlots::UpdateDanger()
 		UpdateDangerInternal(plotsWithOwnedUnitsLikelyToBeKilled, bTurnChange, bWarChange);
 
 		//find out which units might die and therefore won't have a ZOC
-		int iLoop;
+		int iLoop = 0;
 		for (CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
 		{
 			if (pLoopUnit->IsCombatUnit() && pLoopUnit->GetDanger() > pLoopUnit->GetCurrHitPoints())

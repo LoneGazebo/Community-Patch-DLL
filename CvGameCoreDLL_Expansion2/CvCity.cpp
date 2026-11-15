@@ -3403,7 +3403,7 @@ void CvCity::DoEvents()
 		vValidEvents.push_back(eEvent);
 	}
 
-	if (vValidEvents.size() > 0)
+	if (!vValidEvents.empty())
 	{
 		CityEventTypes eChosenEvent = NO_EVENT_CITY;
 
@@ -3439,7 +3439,7 @@ void CvCity::DoEvents()
 				pLog->Msg(strBaseString);
 			}
 
-			if (veValidEventsThisTurn.size() > 0)
+			if (!veValidEventsThisTurn.empty())
 			{
 				// Random Roll #3: Do a weighted choice of the event
 				veValidEventsThisTurn.StableSortItems();
@@ -6607,11 +6607,11 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			if (pkEventChoiceInfo->getStealGW() > 0 && eSpyOwner != NO_PLAYER)
 			{
 				std::vector<int> GWIDs = GET_PLAYER(eSpyOwner).GetEspionage()->BuildGWList(this);
-				if (GWIDs.size() > 0)
+				if (!GWIDs.empty())
 				{
 					int iNumStolen = 0;
 					int iNumToSteal = pkEventChoiceInfo->getStealGW();
-					while (iNumStolen < iNumToSteal && GWIDs.size() > 0)
+					while (iNumStolen < iNumToSteal && !GWIDs.empty())
 					{
 						int iGrab = GC.getGame().randRangeInclusive(0, GWIDs.size() - 1, CvSeeder::fromRaw(0xd3270c47).mix(GET_PLAYER(eSpyOwner).GetID()).mix(GetID()).mix(GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]));
 						GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[iGrab]);
@@ -6929,7 +6929,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							aBestPlots.push_back(pLoopPlot, iValue);
 						}
 					}
-					if (aBestPlots.size() > 0)
+					if (!aBestPlots.empty())
 					{
 						aBestPlots.StableSortItems();
 						//Delete improvents up to the total on the event.
@@ -6991,7 +6991,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 									aBestPlots.push_back(pLoopPlot, iValue);
 								}
 							}
-							if (aBestPlots.size() > 0)
+							if (!aBestPlots.empty())
 							{
 								aBestPlots.StableSortItems();
 								//Delete improvents up to the total on the event.
@@ -7875,7 +7875,7 @@ void CvCity::updateEconomicValue()
 		if (GET_PLAYER(ePossibleOwner).isAlive())
 		{
 			int iResourceValue = 0;
-			if (validResources.size() > 0)
+			if (!validResources.empty())
 			{
 				for (int iResourceLoop = 0; iResourceLoop < validResources.size(); iResourceLoop++)
 				{
@@ -10370,7 +10370,7 @@ void CvCity::DoPickResourceDemanded()
 	}
 
 	// Is there actually anything in our vector? - 0 can be valid if we already have everything, for example
-	if (veValidLuxuryResources.size() == 0)
+	if (veValidLuxuryResources.empty())
 	{
 		return;
 	}
@@ -13552,7 +13552,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						}
 					}
 
-					if (vPossibleResources.size() > 0)
+					if (!vPossibleResources.empty())
 					{
 						//choose one
 						uint uChoice = GC.getGame().urandLimitExclusive(vPossibleResources.size(), plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
@@ -13956,7 +13956,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 
 		std::multimap<int, std::pair<int, int>> piiGreatPersonProgressFromConstruction = pBuildingInfo->GetGreatPersonProgressFromConstructionArray();
-		if (piiGreatPersonProgressFromConstruction.empty() == false)
+		if (!piiGreatPersonProgressFromConstruction.empty())
 		{
 			for (std::multimap<int, std::pair<int, int>>::const_iterator it = piiGreatPersonProgressFromConstruction.begin(); it != piiGreatPersonProgressFromConstruction.end(); ++it)
 			{
@@ -14097,7 +14097,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if (iChange > 0)
 		{
 			const std::vector<CvPlot*>& vTilesClaimed = GetPlotsClaimedByBuilding(eBuilding);
-			if (vTilesClaimed.size() > 0)
+			if (!vTilesClaimed.empty())
 			{
 				vector<CvCity*> vCitiesRevengeStealingFrom;
 				vector<PlayerTypes> vPlayersRevengeStealingFrom;
@@ -15163,7 +15163,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 			if (pReligion)
 			{
 				std::vector<int> aFreePromotions = pReligion->m_Beliefs.GetFreePromotions(eCityOwner, this, false);
-				if (aFreePromotions.size() > 0)
+				if (!aFreePromotions.empty())
 				{
 					for (std::vector<int>::iterator it = aFreePromotions.begin(); it != aFreePromotions.end(); ++it)
 					{
@@ -21651,7 +21651,7 @@ BuildingTypes CvCity::ChooseFreeCultureBuilding() const
 		}
 	}
 
-	if (buildingChoices.size() > 0)
+	if (!buildingChoices.empty())
 	{
 		buildingChoices.StableSortItems();
 		eRtnValue = (BuildingTypes)buildingChoices.GetElement(0);
@@ -21695,7 +21695,7 @@ BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 		}
 	}
 
-	if (buildingChoices.size() > 0)
+	if (!buildingChoices.empty())
 	{
 		buildingChoices.StableSortItems();
 		eRtnValue = (BuildingTypes)buildingChoices.GetElement(0);
@@ -26340,7 +26340,7 @@ void CvCity::ChangeTechEnhancedYields(TechTypes eTech, YieldTypes eYield, int iC
 		if (m_miTechEnhancedYields[eTech][eYield] == 0)
 		{
 			m_miTechEnhancedYields[eTech].erase(eYield);
-			if (m_miTechEnhancedYields[eTech].size() == 0)
+			if (m_miTechEnhancedYields[eTech].empty())
 			{
 				m_miTechEnhancedYields.erase(eTech);
 			}
@@ -28111,7 +28111,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	aiPlotList.clear();
 	std::vector< pair<int, int> > resultList;
 
-	CvPlot* pLoopPlot;
+	CvPlot* pLoopPlot = NULL;
 	CvPlot* pThisPlot = plot();
 	const int iMaxRange = /*5*/ range(GD_INT_GET(MAXIMUM_ACQUIRE_PLOT_DISTANCE), 1, MAX_CITY_RADIUS);
 	TeamTypes thisTeam = getTeam();
@@ -32078,7 +32078,7 @@ void CvCity::doMeltdown()
 void CvCity::doUnitCompletionYields(CvUnit* pUnit, UnitCreationReason eReason)
 {
 	ASSERT(pUnit, "pUnit passed into doUnitCompletionYields was NULL");
-	if (!(eReason == REASON_TRAIN || eReason == REASON_BUY || eReason == REASON_FAITH_BUY))
+	if (eReason != REASON_TRAIN && eReason != REASON_BUY && eReason != REASON_FAITH_BUY)
 	{
 		return;
 	}

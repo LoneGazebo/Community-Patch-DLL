@@ -190,7 +190,7 @@ bool CheckAbs32(DWORD dwFromVA, const SymbolDef& kTo, const char* szWhat)
 	}
 
 	// The operand sits inside an instruction, so it need not be aligned
-	DWORD dwValue;
+	DWORD dwValue = 0;
 	memcpy(&dwValue, reinterpret_cast<const void*>(dwAddr), sizeof(dwValue));
 
 	if (dwValue != dwTarget)
@@ -224,7 +224,7 @@ bool CheckRel32(DWORD dwFromVA, const SymbolDef& kTo, const char* szWhat)
 		return false;
 	}
 
-	LONG lRel;
+	LONG lRel = 0;
 	memcpy(&lRel, pInstr + 1, 4);
 	// rel32 is position independent: compare VAs, not runtime addresses
 	const DWORD dwTargetVA = dwFromVA + 5 + static_cast<DWORD>(lRel);

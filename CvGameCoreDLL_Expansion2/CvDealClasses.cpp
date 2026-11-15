@@ -991,7 +991,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Thoroughly check for invalid targets!
-			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers();
+			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+			vector<PlayerTypes> vToTeam = pToTeam->getPlayers();
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -2916,7 +2917,9 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			}
 
 			// Check for Declarations of Friendship
-			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers(), vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
+			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+			vector<PlayerTypes> vToTeam = pToTeam->getPlayers();
+			vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
 			for (size_t i=0; i < vFromTeam.size(); i++)
 			{
 				if (!GET_PLAYER(vFromTeam[i]).isAlive() || !GET_PLAYER(vFromTeam[i]).isMajorCiv())

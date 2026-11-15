@@ -634,7 +634,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				}
 			}
 		}
-		if(vfPossibleUnits.size() > 0)
+		if(!vfPossibleUnits.empty())
 		{
 			uint uRoll = GC.getGame().urandLimitExclusive(vfPossibleUnits.size(), CvSeeder(iID));
 			strName = getUnitInfo().GetUnitNames(vfPossibleUnits[uRoll]);
@@ -658,7 +658,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 					}
 				}
 			}
-			if(vfPossibleUnits.size() > 0)
+			if(!vfPossibleUnits.empty())
 			{
 				uint uRoll = GC.getGame().urandLimitExclusive(vfPossibleUnits.size(), CvSeeder(iID));
 				strName = getUnitInfo().GetUnitNames(vfPossibleUnits[uRoll]);
@@ -669,7 +669,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 		//If still no valid GPs, do the old random method.
-		if (vfPossibleUnits.size() <= 0)
+		if (vfPossibleUnits.empty())
 		{
 			for (iI = 0; iI < iNumNames; iI++)
 			{
@@ -9491,8 +9491,8 @@ bool CvUnit::plunderTradeRoute()
 	std::vector<int> aiTradeUnitsAtPlot;
 	CvPlayerTrade* pTrade = GET_PLAYER(m_eOwner).GetTrade();
 	aiTradeUnitsAtPlot = pTrade->GetOpposingTradeUnitsAtPlot(pPlot, false);
-	ASSERT(aiTradeUnitsAtPlot.size() > 0, "aiTradeUnitsAtPlot is empty. Earlier check should have verified that this can't be the case");
-	if (aiTradeUnitsAtPlot.size() <= 0)
+	ASSERT(!aiTradeUnitsAtPlot.empty(), "aiTradeUnitsAtPlot is empty. Earlier check should have verified that this can't be the case");
+	if (aiTradeUnitsAtPlot.empty())
 	{
 		return false;
 	}
@@ -11045,7 +11045,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 		}
 	}
 
-	if (pReligions->GetAvailableFounderBeliefs(getOwner(), NO_RELIGION).size() < 1 || pReligions->GetAvailableFollowerBeliefs(getOwner(), NO_RELIGION).size() < 1)
+	if (pReligions->GetAvailableFounderBeliefs(getOwner(), NO_RELIGION).empty() || pReligions->GetAvailableFollowerBeliefs(getOwner(), NO_RELIGION).empty())
 	{
 		return false;
 	}
@@ -11196,7 +11196,7 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if (pReligions->GetAvailableEnhancerBeliefs(getOwner(), eReligion).size() < 1 || pReligions->GetAvailableFollowerBeliefs(getOwner(), eReligion).size() < 1)
+	if (pReligions->GetAvailableEnhancerBeliefs(getOwner(), eReligion).empty() || pReligions->GetAvailableFollowerBeliefs(getOwner(), eReligion).empty())
 	{
 		return false;
 	}
@@ -13112,12 +13112,7 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 
 	//No blasts while influential or better!
 	InfluenceLevelTypes eLevel = GET_PLAYER(getOwner()).GetCulture()->GetInfluenceLevel(eOwner);
-	if (eLevel >= INFLUENCE_LEVEL_INFLUENTIAL)
-	{
-		return false;
-	}
-
-	return true;
+	return eLevel < INFLUENCE_LEVEL_INFLUENTIAL;
 }
 
 //	--------------------------------------------------------------------------------
@@ -15337,12 +15332,12 @@ void CvUnit::DoSquadPlotAssignmentsByDomain(std::vector<CvUnit*> eligibleUnits, 
 
 		bool isCandidateSameTypeAsDest = isDestWater == pLoopPlot->isWater();
 		// Special case for when the destination is a port city and the unit domain is DOMAIN_SEA
-		if (eligibleUnits.size() > 0 && eligibleUnits.front()->getDomainType() == DOMAIN_SEA && pDestPlot->isCity() && pLoopPlot->isWater())
+		if (!eligibleUnits.empty() && eligibleUnits.front()->getDomainType() == DOMAIN_SEA && pDestPlot->isCity() && pLoopPlot->isWater())
 		{
 			isCandidateSameTypeAsDest = true;
 		}
 
-		if (isCandidateSameTypeAsDest && eligibleUnits.size() > 0 && eligibleUnits.front()->canMoveInto(*pLoopPlot))
+		if (isCandidateSameTypeAsDest && !eligibleUnits.empty() && eligibleUnits.front()->canMoveInto(*pLoopPlot))
 		{
 			eligiblePlots.push_back(pLoopPlot);
 		}
@@ -17826,7 +17821,7 @@ int CvUnit::EstimatePlagueDamage(const CvUnit* pEnemy) const
 	vector<PlagueInfo> vInflictedPlagues = GetPlaguesToInflict();
 
 	// This unit does not inflict plagues.
-	if (vInflictedPlagues.size() == 0)
+	if (vInflictedPlagues.empty())
 		return 0;
 
 	for (std::vector<PlagueInfo>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
@@ -28674,7 +28669,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 							{
 								//todo: check the distance to the next enemy
 								//todo: also might want to do a ranged opportunity attack before moving pLoopUnit ...
-								if (!pLoopUnit->IsCanAttackRanged() || TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit, pNeighbor, true, false).size() > 0)
+								if (!pLoopUnit->IsCanAttackRanged() || !TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit, pNeighbor, true, false).empty())
 								{
 									if (ppToPlot)
 										*ppToPlot = pNeighbor;
@@ -31863,7 +31858,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender, bool bAttacking)
 	vector<PlagueInfo> vInflictedPlagues = GetPlaguesToInflict();
 
 	// This unit does not inflict plagues.
-	if (vInflictedPlagues.size() == 0)
+	if (vInflictedPlagues.empty())
 		return;
 
 	int iCount = vInflictedPlagues.size() + 1;
@@ -32088,7 +32083,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 		if (pDirectionPlot && (bCaptured || (isNativeDomain(pDirectionPlot) && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))))
 		{
 			// Do not withdraw if we're escorting a unit who can't move here!
-			if (aEscortedUnits.size() > 0)
+			if (!aEscortedUnits.empty())
 			{
 				bool bNoRetreat = false;
 				for (size_t j = 0; j < aEscortedUnits.size(); j++)
@@ -32106,7 +32101,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 			aValidPlotList.push_back(pDirectionPlot);
 		}
 	}
-	if (aValidPlotList.size() == 0)
+	if (aValidPlotList.empty())
 		return false;
 	else if (aValidPlotList.size() == 1)
 		pDestPlot = aValidPlotList[0];
@@ -32163,7 +32158,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 		setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 	}
 
-	if (aEscortedUnits.size() > 0)
+	if (!aEscortedUnits.empty())
 	{
 		for (size_t i = 0; i < aEscortedUnits.size(); i++)
 		{

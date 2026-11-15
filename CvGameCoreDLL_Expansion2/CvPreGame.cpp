@@ -600,7 +600,7 @@ void loadSlotHints(FDataStream& loadFrom, bool bReadVersion)
 	if (uiVersion >= 3)
 	{
 		// Set the civilizations and leaders from the key values
-		if (civilizationKeys.size() > 0)
+		if (!civilizationKeys.empty())
 		{
 			for (uint i = 0; i < civilizationKeys.size(); ++i)	
 				setCivilizationKey((PlayerTypes)i, civilizationKeys[i]);
@@ -609,7 +609,7 @@ void loadSlotHints(FDataStream& loadFrom, bool bReadVersion)
 			// Fall back to using the indices.  This shouldn't happen.
 			s_civilizations = civilizations;
 
-		if (leaderKeys.size() > 0)
+		if (!leaderKeys.empty())
 		{
 			for (uint i = 0; i < leaderKeys.size(); ++i)	
 				setLeaderKey((PlayerTypes)i, leaderKeys[i]);
@@ -2520,10 +2520,13 @@ void onGameStarted()
 		}
 	}
 
-	if (vMajorsToChoose.size() > 0)
+	if (!vMajorsToChoose.empty())
 	{
 		// Second loop: collect all civs in the database, and see which ones aren't chosen
-		vector<CivilizationTypes> vAICivs, vHumanCivs, vAICivsNotChosen, vHumanCivsNotChosen;
+		vector<CivilizationTypes> vAICivs;
+		vector<CivilizationTypes> vHumanCivs;
+		vector<CivilizationTypes> vAICivsNotChosen;
+		vector<CivilizationTypes> vHumanCivsNotChosen;
 		for (int c = 0; c < GC.getNumCivilizationInfos(); c++)
 		{
 			CivilizationTypes eCiv = static_cast<CivilizationTypes>(c);
@@ -2557,7 +2560,7 @@ void onGameStarted()
 			CivilizationTypes eRandomCiv = NO_CIVILIZATION;
 			if (isHuman(*it))
 			{
-				if (vHumanCivsNotChosen.size() > 0)
+				if (!vHumanCivsNotChosen.empty())
 				{
 					uint uRand = GC.getGame().urandLimitExclusive(vHumanCivsNotChosen.size(), CvSeeder::fromRaw(0x3153de36).mix(iCounter));
 					eRandomCiv = static_cast<CivilizationTypes>(vHumanCivsNotChosen[uRand]);
@@ -2565,7 +2568,7 @@ void onGameStarted()
 					vector<CivilizationTypes>::const_iterator it = std::find(vAICivsNotChosen.begin(), vAICivsNotChosen.end(), eRandomCiv);
 					vAICivsNotChosen.erase(it);
 				}
-				else if (vHumanCivs.size() > 0)
+				else if (!vHumanCivs.empty())
 				{
 					uint uRand = GC.getGame().urandLimitExclusive(vHumanCivs.size(), CvSeeder::fromRaw(0x298ac75d).mix(iCounter));
 					eRandomCiv = static_cast<CivilizationTypes>(vHumanCivs[uRand]);
@@ -2575,7 +2578,7 @@ void onGameStarted()
 			}
 			else
 			{
-				if (vAICivsNotChosen.size() > 0)
+				if (!vAICivsNotChosen.empty())
 				{
 					uint uRand = GC.getGame().urandLimitExclusive(vAICivsNotChosen.size(), CvSeeder::fromRaw(0x9f2b8561).mix(iCounter));
 					eRandomCiv = static_cast<CivilizationTypes>(vAICivsNotChosen[uRand]);
@@ -2583,7 +2586,7 @@ void onGameStarted()
 					vector<CivilizationTypes>::const_iterator it = std::find(vHumanCivsNotChosen.begin(), vHumanCivsNotChosen.end(), eRandomCiv);
 					vHumanCivsNotChosen.erase(it);
 				}
-				else if (vAICivs.size() > 0)
+				else if (!vAICivs.empty())
 				{
 					uint uRand = GC.getGame().urandLimitExclusive(vAICivs.size(), CvSeeder::fromRaw(0x52094553).mix(iCounter));
 					eRandomCiv = static_cast<CivilizationTypes>(vHumanCivs[uRand]);
@@ -2638,10 +2641,14 @@ void onGameStarted()
 		}
 	}
 
-	if (vMinorsToChoose.size() > 0)
+	if (!vMinorsToChoose.empty())
 	{
 		// Fifth loop: Go through all City-States in the database and exclude ones which are already chosen or blocked by MajorBlocksMinor
-		vector<MinorCivTypes> vCultured, vMilitaristic, vMaritime, vMercantile, vReligious;
+		vector<MinorCivTypes> vCultured;
+		vector<MinorCivTypes> vMilitaristic;
+		vector<MinorCivTypes> vMaritime;
+		vector<MinorCivTypes> vMercantile;
+		vector<MinorCivTypes> vReligious;
 		vector<MinorCivTypes> vAvailableCityStates = GetAvailableMinorCivTypes(vCultured, vMilitaristic, vMaritime, vMercantile, vReligious);
 
 		// Sixth loop: Loop through all City-State slots and fill them with random valid City-States
@@ -2663,11 +2670,11 @@ void onGameStarted()
 			{
 				// Which categories are valid choices to maintain the ratio?
 				vector<MinorCivTraitTypes> vValidCategories;
-				bool bCulturedValid = vCultured.size() > 0;
-				bool bMilitaristicValid = vMilitaristic.size() > 0;
-				bool bMaritimeValid = vMaritime.size() > 0;
-				bool bMercantileValid = vMercantile.size() > 0;
-				bool bReligiousValid = vReligious.size() > 0;
+				bool bCulturedValid = !vCultured.empty();
+				bool bMilitaristicValid = !vMilitaristic.empty();
+				bool bMaritimeValid = !vMaritime.empty();
+				bool bMercantileValid = !vMercantile.empty();
+				bool bReligiousValid = !vReligious.empty();
 
 				// No City-States left in any category?
 				if (!bCulturedValid && !bMilitaristicValid && !bMaritimeValid && !bMercantileValid && !bReligiousValid)

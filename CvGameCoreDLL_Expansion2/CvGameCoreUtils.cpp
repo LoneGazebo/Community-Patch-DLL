@@ -76,7 +76,6 @@ const char* ShortenFilePath(const char* szFile)
 // Windows functions
 extern "C" {
 	__declspec(dllimport) int __stdcall MessageBoxA(void* hWnd, const char* lpText, const char* lpCaption, unsigned int uType);
-	__declspec(dllimport) unsigned long __stdcall GetTickCount(void);
 }
 
 // The game core and UI threads can both assert, so the tracker's map and the
@@ -113,7 +112,7 @@ static void AppendToAssertLog(const char* szKind, const char* expr, const char* 
 	if (fopen_s(&pLog, szPath, "a") != 0 || !pLog)
 		return;
 
-	time_t rawtime;
+	time_t rawtime = 0;
 	time(&rawtime);
 	char timeBuffer[26];
 	ctime_s(timeBuffer, sizeof(timeBuffer), &rawtime);
@@ -1416,8 +1415,8 @@ int GetBaseUnitUpgradeCost(const UnitTypes eCurrentUnit, const UnitTypes eNewUni
 	int iPrice = 0;
 	if (MOD_BALANCE_UNIT_UPGRADE_COST)
 	{
-		int iCurrentCost;
-		int iUpgradedCost;
+		int iCurrentCost = 0;
+		int iUpgradedCost = 0;
 		if (pPlayer)
 		{
 			// Shortcut: assume settler units only upgrade into settler units, and only settler units upgrade into settler units

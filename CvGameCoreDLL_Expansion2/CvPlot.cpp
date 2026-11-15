@@ -2298,12 +2298,7 @@ bool CvPlot::CanMaybeSeePlot(const CvPlot* pPlot, TeamTypes eTeam) const
 	dy = dyWrap(dy);
 
 	//check if anything blocking the plot
-	if (CvTargeting::CanMaybeSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam), eTeam))
-	{
-		return true;
-	}
-
-	return false;
+	return CvTargeting::CanMaybeSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam), eTeam);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4135,7 +4130,7 @@ bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes
 		}
 	}
 
-	if (adjacentPlayers.size() > 0)
+	if (!adjacentPlayers.empty())
 	{
 		if (GET_PLAYER(ePlayer).isBarbarian())
 			return true;
@@ -12740,7 +12735,7 @@ bool CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
 //	Reset all current builds related to route or improvement, based on eBuild.
 void CvPlot::SilentlyResetAllBuildProgress(BuildTypes eBuild)
 {
-	if (m_buildProgress.size() == 0)
+	if (m_buildProgress.empty())
 		return;
 
 	if (eBuild == NO_BUILD)
@@ -14821,10 +14816,7 @@ bool CvPlot::IsEligibleForDigSite()
 	// Not on Ancient Ruins either, we can't have treasure hunters going spelunking before the surface has even been plundered yet!
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
-	if (eImprovement == eLandmark || pkImprovementInfo->IsGoody() || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
-		return false;
-
-	return true;
+	return !(eImprovement == eLandmark || pkImprovementInfo->IsGoody() || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson());
 }
 
 //	---------------------------------------------------------------------------

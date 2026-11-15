@@ -2405,10 +2405,10 @@ void CvMilitaryAI::UpdateOperations()
 		return;
 
 	vector<CvCity*> allCities = m_pPlayer->GetThreatenedCities(false);
-	CvCity* pThreatenedCityA = allCities.size()<1 ? NULL : allCities[0];
+	CvCity* pThreatenedCityA = allCities.empty() ? NULL : allCities[0];
 	CvCity* pThreatenedCityB = allCities.size()<2 ? NULL : allCities[1];
 	vector<CvCity*> coastCities = m_pPlayer->GetThreatenedCities(true);
-	CvCity* pThreatenedCoastalCityA = coastCities.size()<1 ? NULL : coastCities[0];
+	CvCity* pThreatenedCoastalCityA = coastCities.empty() ? NULL : coastCities[0];
 	CvCity* pThreatenedCoastalCityB = coastCities.size()<2 ? NULL : coastCities[1];
 
 	// Are any of our strategies inappropriate given the type of war we are fighting

@@ -451,7 +451,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
 	{
 		//can we even have sea trade here
-		if (m_pCity->plot()->isCoastalLand() && GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity, true).size() > 0)
+		if (m_pCity->plot()->isCoastalLand() && !GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity, true).empty())
 			iBonus += 10;
 		else
 			iBonus -= 100;
@@ -876,7 +876,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 
 	const std::vector<CvPlot*>& vClaimedPlots = m_pCity->GetPlotsClaimedByBuilding(eBuilding);
-	if (vClaimedPlots.size() > 0)
+	if (!vClaimedPlots.empty())
 	{
 		vector<PlayerTypes> vMajorsStolenFrom;
 		for (std::vector<CvPlot*>::const_iterator it = vClaimedPlots.begin(); it != vClaimedPlots.end(); ++it)

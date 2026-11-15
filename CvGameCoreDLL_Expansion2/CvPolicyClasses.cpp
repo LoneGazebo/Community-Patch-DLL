@@ -2826,7 +2826,7 @@ bool CvPolicyEntry::IsFreePromotionUnitCombat(const int promotionID, const int u
 
 bool CvPolicyEntry::HasFaithPurchaseUnitClasses() const
 {
-	return (m_FaithPurchaseUnitClasses.size() != 0);
+	return (!m_FaithPurchaseUnitClasses.empty());
 }
 
 bool CvPolicyEntry::IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const

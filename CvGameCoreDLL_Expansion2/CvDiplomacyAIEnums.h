@@ -327,7 +327,7 @@ inline FDataStream& operator<<(FDataStream& saveTo, const VictoryPursuitTypes& r
 }
 inline FDataStream& operator>>(FDataStream& loadFrom, VictoryPursuitTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<VictoryPursuitTypes>(v);
 	return loadFrom;
@@ -340,7 +340,7 @@ inline FDataStream& operator<<(FDataStream& saveTo, const CoopWarStates& readFro
 }
 inline FDataStream& operator>>(FDataStream& loadFrom, CoopWarStates& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<CoopWarStates>(v);
 	return loadFrom;
@@ -353,7 +353,7 @@ inline FDataStream& operator<<(FDataStream& saveTo, const StateAllWars& readFrom
 }
 inline FDataStream& operator>>(FDataStream& loadFrom, StateAllWars& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<StateAllWars>(v);
 	return loadFrom;
@@ -366,7 +366,7 @@ inline FDataStream& operator<<(FDataStream& saveTo, const PeaceTreatyTypes& read
 }
 inline FDataStream& operator>>(FDataStream& loadFrom, PeaceTreatyTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<PeaceTreatyTypes>(v);
 	return loadFrom;
@@ -379,7 +379,7 @@ inline FDataStream& operator<<(FDataStream& saveTo, const DiploStatementTypes& r
 }
 inline FDataStream& operator>>(FDataStream& loadFrom, DiploStatementTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<DiploStatementTypes>(v);
 	return loadFrom;
@@ -392,7 +392,7 @@ inline FDataStream& operator<<(FDataStream& saveTo, const PublicDeclarationTypes
 }
 inline FDataStream& operator>>(FDataStream& loadFrom, PublicDeclarationTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<PublicDeclarationTypes>(v);
 	return loadFrom;

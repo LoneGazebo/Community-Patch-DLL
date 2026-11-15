@@ -1780,7 +1780,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 					vGrandStrategyPrioritiesForLogging.push_back(iPriority);
 				}
 
-				if(vGrandStrategyPriorities.size() > 0)
+				if(!vGrandStrategyPriorities.empty())
 				{
 					// Add "No Grand Strategy" in case we just don't have enough info to go on
 					iPriority = /*40*/ GD_INT_GET(AI_GRAND_STRATEGY_GUESS_NO_CLUE_WEIGHT);

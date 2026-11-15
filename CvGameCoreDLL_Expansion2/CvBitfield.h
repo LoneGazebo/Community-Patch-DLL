@@ -133,7 +133,7 @@ inline FDataStream& operator<<(FDataStream& saveTo, const CvBitfield& readFrom)
 }
 inline FDataStream& operator>>(FDataStream& loadFrom, CvBitfield& writeTo)
 {
-	uint uiByteSize;
+	uint uiByteSize = 0;
 	loadFrom >> uiByteSize;
 	writeTo.resizeBytes(uiByteSize);
 	if (uiByteSize > 0)

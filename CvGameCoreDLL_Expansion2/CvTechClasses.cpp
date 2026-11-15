@@ -2657,7 +2657,8 @@ bool CvTeamTechs::HasPrereqTechs(TechTypes eTech, const vector<TechTypes>& extra
 
 vector<TechTypes> CvTeamTechs::GetTechFrontier() const
 {
-	vector<TechTypes> l1, l2;
+	vector<TechTypes> l1;
+	vector<TechTypes> l2;
 
 	//first pass yields "level 1" frontier
 	for (int i = 0; i < GC.getNumTechInfos(); i++)

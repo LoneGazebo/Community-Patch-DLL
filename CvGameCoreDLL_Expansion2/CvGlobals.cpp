@@ -3243,7 +3243,7 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 
 	// Show crash dialog to user
 	char szMessage[4096];
-	const char* szBaseMsg ;
+	const char* szBaseMsg  = NULL;
 
 	bool bFromDLL = (_stricmp(GetOnlyFilename(szCrashModule), "CvGameCore_Expansion2.dll") == 0);
 	if (bFromDLL)
@@ -4855,7 +4855,7 @@ static void HashGameDataCombine(CvGlobals::GameDataHash& seed, std::size_t& word
 	const It begin = container.begin();
 	const It end = container.end();
 	for (It it = begin; it != end; ++it) {
-		unsigned int infoHash;
+		unsigned int infoHash = 0;
 		// FIXME - NULL entries in the database make no sense yet they're here anyway??
 		// We have no choice but to hash these as well because they impact the database order.
 		if (*it == 0)

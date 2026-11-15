@@ -557,7 +557,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 			CvCity* pCity = pPlot->getPlotCity();
 			if (pCity && pCity->getOwner() == m_pPlayer->GetID())
 			{
-				pCity->SetRouteToCapitalConnected(true, prevState[pCity->GetID()]==true);
+				pCity->SetRouteToCapitalConnected(true, prevState[pCity->GetID()]);
 				vConnectedCities.push_back(pCity);
 			}
 		}
@@ -650,14 +650,14 @@ void CvCityConnections::UpdateRouteInfo(void)
 			if (bDisconnected)
 				vIndustrialDisconnectedCities.push_back(pCity);
 		}
-		if (vDisconnectedCities.size() > 0)
+		if (!vDisconnectedCities.empty())
 		{
 			for (size_t i = 0; i < vDisconnectedCities.size(); i++)
 			{
-				vDisconnectedCities[i]->SetRouteToCapitalConnected(false, prevState[vDisconnectedCities[i]->GetID()] == false);
+				vDisconnectedCities[i]->SetRouteToCapitalConnected(false, !prevState[vDisconnectedCities[i]->GetID()]);
 			}
 		}
-		if (vIndustrialDisconnectedCities.size() > 0)
+		if (!vIndustrialDisconnectedCities.empty())
 		{
 			for (size_t i = 0; i < vIndustrialDisconnectedCities.size(); i++)
 			{

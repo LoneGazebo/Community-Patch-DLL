@@ -126,7 +126,7 @@ void* CvDllCombatInfo::TEMPGetRawCombatInfo() const
 //------------------------------------------------------------------------------
 const CvCombatMemberEntry* CvDllCombatInfo::GetDamageMember(int iIndex) const
 {
-	if(iIndex < m_pCombatInfo->getMaxDamageMemberCount())
+	if(iIndex < CvCombatInfo::getMaxDamageMemberCount())
 		return &m_pCombatInfo->getDamageMembers()[iIndex];
 	return NULL;
 }
@@ -138,7 +138,7 @@ int CvDllCombatInfo::GetDamageMemberCount() const
 //------------------------------------------------------------------------------
 int CvDllCombatInfo::GetMaxDamageMemberCount() const
 {
-	return m_pCombatInfo->getMaxDamageMemberCount();
+	return CvCombatInfo::getMaxDamageMemberCount();
 }
 //------------------------------------------------------------------------------
 bool CvDllCombatInfo::GetDefenderRetaliates() const

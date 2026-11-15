@@ -210,7 +210,7 @@ struct SPathNode
 		y = p ? p->m_iY : -1;
 		turns = p ? p->m_iTurns : 0;
 		moves = p ? p->m_iMoves : 0;
-		stopnode = p ? p->m_bIsStopNode : 0;
+		stopnode = p ? p->m_bIsStopNode : false;
 	}
 
 	bool operator==(const SPathNode& other) const

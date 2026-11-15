@@ -255,7 +255,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 					}
 				}
 			}
-			if(flavorChoices.size() > 0)
+			if(!flavorChoices.empty())
 			{
 				//sort em!
 				flavorChoices.StableSortItems();

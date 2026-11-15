@@ -22421,7 +22421,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 	vector<PlayerTypes> vAfraidExclusions;
 	vector<PlayerTypes> vDeceptiveExclusions;
 	bool bLimitReached = false;
-	bool bBestFriendPossible = vAcceptableFriends.size() > 0 && vValidPlayers.size() > 1;
+	bool bBestFriendPossible = !vAcceptableFriends.empty() && vValidPlayers.size() > 1;
 
 	PlayerTypes eCandidate = GetPlayerWithHighestStrategicApproachValue(CIV_APPROACH_FRIENDLY, vFriendlyExclusions);
 	while (eCandidate != NO_PLAYER)
@@ -25980,7 +25980,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			{
 				iPeaceScore += iWarScore / 3;
 			}
-			else if (vEnemyCitiesEndangeredByUs.size() > 0)
+			else if (!vEnemyCitiesEndangeredByUs.empty())
 			{
 				bProlong |= bUABonusesFromCityConquest;
 				if (!bProlong)
@@ -27417,7 +27417,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 	vePotentialDemandTargets.StableSortItems();
 
 	// Any valid possibilities?
-	if (vePotentialDemandTargets.size() > 0)
+	if (!vePotentialDemandTargets.empty())
 	{
 		// If we already have a valid demand target, don't assign a new one
 		// Otherwise, start the demand process against the player with the highest weight
@@ -35504,7 +35504,8 @@ void CvDiplomacyAI::DoContactMajorCivs()
 			if (!CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID()))
 			{
 				vector<PlayerTypes> aeHumansByPriority;
-				vector<PlayerTypes>::const_iterator priorityIter, humanIter;
+				vector<PlayerTypes>::const_iterator priorityIter;
+				vector<PlayerTypes>::const_iterator humanIter;
 				// bring players in priority order
 				for (humanIter = CvDiplomacyRequests::s_aDiploHumans.begin(); humanIter != CvDiplomacyRequests::s_aDiploHumans.end(); ++humanIter)
 				{
@@ -41186,7 +41187,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	}
 
 	// Pick a random greeting from the valid ones (if there are any)
-	if (veValidGreetings.size() > 0)
+	if (!veValidGreetings.empty())
 	{
 		int iIndex = GC.getGame().getAsyncRandNum(veValidGreetings.size(), "Diplomacy AI: Picking random Greeting for AI to give to human.");
 
@@ -41736,7 +41737,7 @@ const char* CvDiplomacyAI::GetInsultHumanMessage()
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_CULTURE);
 
 	// Pick a random insult from the valid ones
-	if (veValidInsults.size() > 0)
+	if (!veValidInsults.empty())
 	{
 		int iIndex = GC.getGame().getAsyncRandNum(veValidInsults.size(), "Picking random insult for AI to give to human.");
 		return GetDiploStringForMessage(veValidInsults[iIndex]);
@@ -55133,7 +55134,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 				}
 			}
 		}
-		if (veWarmongerWeights.size() > 0)
+		if (!veWarmongerWeights.empty())
 		{
 			veWarmongerWeights.StableSortItems();
 
@@ -55246,7 +55247,7 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 				}
 			}
 		}
-		if (veWarmongerWeights.size() > 0)
+		if (!veWarmongerWeights.empty())
 		{
 			veWarmongerWeights.StableSortItems();
 			int iHighestVal = veWarmongerWeights.GetWeight(0);

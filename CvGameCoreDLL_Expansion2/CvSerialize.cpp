@@ -1,7 +1,7 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvSerialize.h"
 
-const std::string EmptyString = "";
+const std::string EmptyString;
 
 void CvSyncArchiveCollectDeltas(FAutoArchive& syncArchive, const std::vector<FAutoVariableBase*>& vars)
 {

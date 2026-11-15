@@ -644,7 +644,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	{
 		vector<pair<int, int>> extraChildren;
 		GetExtraChildren(node,extraChildren);
-		if (extraChildren.size() > 0)
+		if (!extraChildren.empty())
 		{
 			// update the cache flags if we have found extra children
 			if (node->m_kCostCacheData.bCanAirliftFromPlotCity)
@@ -2326,7 +2326,7 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 
 			for (vector<PlayerTypes>::iterator it = vFriendlyPlayers.begin(); it != vFriendlyPlayers.end(); ++it)
 			{
-				int iCityLoop;
+				int iCityLoop = 0;
 				CvCity* pLoopCity = NULL;
 				for (pLoopCity = GET_PLAYER(*it).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iCityLoop))
 				{
@@ -2374,7 +2374,7 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 
 			for (vector<PlayerTypes>::iterator it = vFriendlyPlayers.begin(); it != vFriendlyPlayers.end(); ++it)
 			{
-				int iCityLoop;
+				int iCityLoop = 0;
 				CvCity* pLoopCity = NULL;
 				for (pLoopCity = GET_PLAYER(*it).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iCityLoop))
 				{
@@ -2401,7 +2401,7 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 		if (finder->IsChangePortCitiesChecked())
 			return 0;
 
-		int iCityLoop;
+		int iCityLoop = 0;
 		CvCity* pLoopCity = NULL;
 		for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{

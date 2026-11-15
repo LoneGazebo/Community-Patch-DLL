@@ -1014,7 +1014,7 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 	{
 		// make sure we can still take a tech
 		ASSERT(kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0, "No techs to steal from player");
-		ASSERT(kPlayer.GetEspionage()->m_aaPlayerStealableTechList[ePlayerToStealFrom].size() > 0, "No techs to be stolen from this player");
+		ASSERT(!kPlayer.GetEspionage()->m_aaPlayerStealableTechList[ePlayerToStealFrom].empty(), "No techs to be stolen from this player");
 		ASSERT(kPlayer.GetPlayerTechs()->CanResearch(eTech), "Player can't research this technology");
 		ASSERT(GET_TEAM(GET_PLAYER(ePlayerToStealFrom).getTeam()).GetTeamTechs()->HasTech(eTech), "ePlayerToStealFrom does not have the requested tech");
 		if (kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0)

@@ -445,7 +445,7 @@ void CvPlayerEspionage::DoTurn()
 /// LogSpyStatus
 void CvPlayerEspionage::LogSpyStatus()
 {
-	if (m_aSpyList.size() == 0)
+	if (m_aSpyList.empty())
 		return;
 
 	CvString strMsg;
@@ -911,7 +911,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					// moved rate out here to set the potential
 					int iBasePotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
 					pCityEspionage->SetLastBasePotential(ePlayer, iBasePotentialRate);
-					if (m_aaPlayerStealableTechList[eCityOwner].size() > 0)
+					if (!m_aaPlayerStealableTechList[eCityOwner].empty())
 					{
 						// TODO: need to proclaim surveillance somehow
 						pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_GATHERING_INTEL);
@@ -998,7 +998,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					LogEspionageMsg(strMsg);
 				}
 			}
-			if (m_aaPlayerStealableTechList[eCityOwner].size() == 0)
+			if (m_aaPlayerStealableTechList[eCityOwner].empty())
 			{
 				// set the spy back to surveillance mode
 				pCityEspionage->ResetProgress(ePlayer);
@@ -1037,7 +1037,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else if (pCityEspionage->HasReachedGoal(ePlayer))
 			{
-				int iSpyResult;
+				int iSpyResult = 0;
 				if (pCityEspionage->HasCounterSpy())
 				{
 					iSpyResult = GC.getGame().randRangeInclusive(1, 300, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner()))) - 1;
@@ -1385,7 +1385,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 bool CvPlayerEspionage::DoStealTechnology(CvCity* pPlayerCity, PlayerTypes eTargetPlayer)
 {
 	PlayerTypes eDefendingPlayer = pPlayerCity->getOwner();
-	if (m_aaPlayerStealableTechList[eTargetPlayer].size() <= 0)
+	if (m_aaPlayerStealableTechList[eTargetPlayer].empty())
 		return false;
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
@@ -2932,7 +2932,7 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 void CvPlayerEspionage::LevelUpSpy(uint uiSpyIndex, int iExperience)
 {
 	// if the spy can level up and it's not dead
-	if(m_aSpyList[uiSpyIndex].m_eRank < NUM_SPY_RANKS - 1 && !(m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_DEAD || m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_TERMINATED))
+	if(m_aSpyList[uiSpyIndex].m_eRank < NUM_SPY_RANKS - 1 && m_aSpyList[uiSpyIndex].m_eSpyState != SPY_STATE_DEAD && m_aSpyList[uiSpyIndex].m_eSpyState != SPY_STATE_TERMINATED)
 	{
 		bool bCanLevel = true;
 		if (iExperience > 0)
@@ -4278,7 +4278,7 @@ int CvPlayerEspionage::GetNumAliveSpies(void)
 	int iCount = 0;
 	for(uint ui = 0; ui < m_aSpyList.size(); ui++)
 	{
-		if(!(m_aSpyList[ui].m_eSpyState == SPY_STATE_DEAD || m_aSpyList[ui].m_eSpyState == SPY_STATE_TERMINATED))
+		if(m_aSpyList[ui].m_eSpyState != SPY_STATE_DEAD && m_aSpyList[ui].m_eSpyState != SPY_STATE_TERMINATED)
 		{
 			iCount++;
 		}
@@ -7931,7 +7931,7 @@ void CvEspionageAI::DoTurn()
 		}
 	}
 
-	if (vRemainingSpyIDs.size() == 0)
+	if (vRemainingSpyIDs.empty())
 		return;
 
 	// go through the list of cities and put the spies there
@@ -8193,7 +8193,7 @@ void CvEspionageAI::StealTechnology()
 		while(pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 		{
 			// steal a tech
-			ASSERT(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0, "pEspionage->m_aaPlayerStealableTechList[uiPlayer] list is empty. Not good");
+			ASSERT(!pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].empty(), "pEspionage->m_aaPlayerStealableTechList[uiPlayer] list is empty. Not good");
 			TeamTypes eTeam = m_pPlayer->getTeam();
 			TechTypes eStolenTech = pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer][0];
 			GET_TEAM(eTeam).setHasTech(eStolenTech, true, m_pPlayer->GetID(), true, true);
@@ -8202,7 +8202,7 @@ void CvEspionageAI::StealTechnology()
 			
 			// recalculate the num techs to steal list
 			pEspionage->BuildStealableTechList((PlayerTypes)uiDefendingPlayer);
-			if(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
+			if(!pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].empty() && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 			{
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
 			}
@@ -8234,7 +8234,7 @@ void CvEspionageAI::UpdateCivOutOfTechTurn()
 		}
 
 		pEspionage->BuildStealableTechList(eOtherPlayer);
-		if(pEspionage->m_aaPlayerStealableTechList[eOtherPlayer].size() > 0)
+		if(!pEspionage->m_aaPlayerStealableTechList[eOtherPlayer].empty())
 		{
 			continue;
 		}
@@ -9614,7 +9614,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList(bool bLogAllChoi
 		if (!MOD_BALANCE_VP)
 		{
 			m_pPlayer->GetEspionage()->BuildStealableTechList(eTargetPlayer);
-			if (m_pPlayer->GetEspionage()->m_aaPlayerStealableTechList[eTargetPlayer].size() == 0)
+			if (m_pPlayer->GetEspionage()->m_aaPlayerStealableTechList[eTargetPlayer].empty())
 				continue;
 		}
 
