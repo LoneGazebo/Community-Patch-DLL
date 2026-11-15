@@ -2826,7 +2826,8 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 	// An execute of address 0 is a call through a NULL function pointer -
 	// on 32-bit almost always downstream of memory exhaustion (an allocation
 	// returned NULL and a vtable/callback was never written).
-	bool bAddressSpaceLow = (largestFreeBlockLowSize < (16u * 1024 * 1024));
+	// whole range, not Sub2G: the exe is large address aware and uses memory above 2 GB on 64-bit Windows
+	bool bAddressSpaceLow = (largestFreeBlockSize < (16u * 1024 * 1024));
 	char szCrashClass[512];
 	if (g_bPreconditionFired)
 	{
