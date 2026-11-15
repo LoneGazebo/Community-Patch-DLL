@@ -688,6 +688,8 @@ public:
 
 	bool isLayoutDirty() const;							// The plot layout contains resources, routes, and improvements
 	void setLayoutDirty(bool bDirty);
+	void SetCityArtRepairNeeded();
+	bool RepairCityArt();
 	bool isLayoutStateDifferent() const;
 	void setLayoutStateToCurrent();
 	void updateLayout(bool bDebug);
@@ -959,6 +961,8 @@ protected:
 	char m_iResourceNum;
 	char m_cContinentType;
 	char m_cRiverCrossing;	// bit field
+
+	bool m_bCityArtRepairNeeded; // not saved; not a bit field: set by the game core thread, cleared by the main thread
 
 	bool m_bImprovementEmbassy:1;
 	bool m_bImprovementPassable:1;

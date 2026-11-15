@@ -35,6 +35,7 @@
 #include "CvUnitMovement.h"
 #include "CvTargeting.h"
 #include "CvTypes.h"
+#include "Exe/CvExe.h"
 // Include this after all other headers.
 #include "LintFree.h"
 
@@ -186,6 +187,7 @@ void CvPlot::reset()
 	m_bNWOfRiver = false;
 	m_bPotentialCityWork = false;
 	m_bPlotLayoutDirty = false;
+	m_bCityArtRepairNeeded = false;
 	m_bLayoutStateWorked = false;
 	m_bImprovementPassable = false;
 	m_bImprovementPillaged = false;
@@ -14039,6 +14041,35 @@ enum eRoadTypes
 
     NUM_ROAD_RR_TYPES,
 };
+
+//	--------------------------------------------------------------------------------
+/// The engine keeps a city's building art per plot and gives it to the next city there, and it does not take a
+/// removed Palace out of that art: a captured capital kept its Palace model until the game was reloaded. Ask for a
+/// repair in the next layout update of this plot (CvMap::updateLayout), on the thread that owns the art. Visual only,
+/// not saved.
+void CvPlot::SetCityArtRepairNeeded()
+{
+	if (!GC.IsGraphicsInitialized() || Exe::CanRepairCityArt() != Exe::REASON_OK)
+		return;
+
+	m_bCityArtRepairNeeded = true;
+	setLayoutDirty(true);
+}
+
+//	--------------------------------------------------------------------------------
+/// Run the repair asked for by SetCityArtRepairNeeded. Returns true if it has to be tried again later.
+bool CvPlot::RepairCityArt()
+{
+	if (!m_bCityArtRepairNeeded)
+		return false;
+
+	CvCity* pCity = getPlotCity();
+	if (pCity != NULL && Exe::TryRepairCityArt(*pCity) == Exe::REASON_BUSY)
+		return true;
+
+	m_bCityArtRepairNeeded = false;
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 void CvPlot::updateLayout(bool bDebug)

@@ -28,6 +28,30 @@ namespace ExeApi
 	// ---- g_EventSystemLocalMachine: the LocalMachine event system; see
 	// CvExeAddresses.h for the layout
 	const volatile DWORD* g_EventSystemLocalMachine();
+
+	// ---- cvCityBuildingSim: per-city building art, one record per city
+	// plot. Main thread only.
+	BYTE* g_cvCityBuildingSim();
+	DWORD cvCityBuildingSim_DeferFlags();
+	DWORD cvCityBuildingSim_SlotGrid();
+	DWORD cvCityBuildingSim_Cities();
+	DWORD cvCityBuildingSim_NumCities();
+	DWORD cvCityBuildingSim_CityDataSize();
+	DWORD CityData_Free();
+	DWORD CityData_Hex();
+	DWORD CityData_PalaceArtEntry();
+	DWORD CityData_VisHandle();
+
+	//! Index of the record for aiHex (x, y, -x-y), 0x7FFF if none.
+	unsigned int cvCityBuildingSim_SlotGrid_GetSlot(void* pGrid,
+		const int* aiHex);
+	void cvCityBuildingSim_MarkDirty(void* pSim, const int* aiHex,
+		int iFlags);
+
+	// ---- cvCityVisSystem: draws the city models
+	BYTE* g_cvCityVisSystem();
+	void cvCityVisSystem_RemoveWonder(void* pThis, const void* pHandle,
+		const int* piArtEntry);
 }
 
 #endif // CV_EXE_API_H
