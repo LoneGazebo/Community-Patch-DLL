@@ -60,7 +60,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <TargetName>CvGameCore_Expansion2</TargetName>
     <OutDir>$(SolutionDir)\BuildOutput\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\BuildTemp\$(Configuration)\</IntDir>
