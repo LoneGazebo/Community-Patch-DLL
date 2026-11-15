@@ -377,14 +377,14 @@ function AddSmallButtonsToTechButton(buttonStack, kTechInfo, iButtonCount, iText
 		end
 	end
 
-	for kUnitInfo in GameInfo.Units{PreReqTech = kTechInfo.Type} do
+	for kUnitInfo in GameInfo.Units{PreReqTech = kTechInfo.Type, ShowInTechTree = 1} do
 		if pPlayer and not kUnitInfo.MinorCivGift and pPlayer:GetSpecificUnitType(kUnitInfo.Class, true) == kUnitInfo.ID then
 			GenerateNextButtonFromInfo(SetupUnitButton, kUnitInfo);
 			if iButtonIndex > iButtonCount then return iButtonCount end
 		end
 	end
 
-	for kBuildingInfo in GameInfo.Buildings{PreReqTech = kTechInfo.Type} do
+	for kBuildingInfo in GameInfo.Buildings{PreReqTech = kTechInfo.Type, ShowInTechTree = 1} do
 		if kBuildingInfo.ShowInPedia and CanPlayerEverBuildCached(kBuildingInfo.ID) then
 			GenerateNextButtonFromInfo(SetupBuildingButton, kBuildingInfo);
 			if iButtonIndex > iButtonCount then return iButtonCount end

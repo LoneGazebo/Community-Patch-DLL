@@ -268,6 +268,8 @@ ALTER TABLE Buildings ADD NukeInterceptionChance integer DEFAULT 0;
 
 -- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia
 ALTER TABLE Buildings ADD ShowInPedia boolean DEFAULT 1;
+-- Table for Lua elements that we don't want shown on Tech Tree
+ALTER TABLE Buildings ADD ShowInTechTree boolean DEFAULT 1;
 
 -- Gives a boost of pressure in the city when built (based on what the religion is in your capital)
 ALTER TABLE Buildings ADD InstantReligiousPressure integer DEFAULT 0;

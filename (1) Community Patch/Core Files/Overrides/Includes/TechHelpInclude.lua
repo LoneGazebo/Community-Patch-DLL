@@ -136,7 +136,7 @@ local WriteUnits = PrepareSection(
 		FROM Units u
 		LEFT JOIN Civilization_UnitClassOverrides o ON o.UnitType = u.Type
 		LEFT JOIN Civilizations c ON c.Type = o.CivilizationType
-		WHERE u.ShowInPedia = 1 AND u.PrereqTech = ?
+		WHERE u.ShowInPedia = 1 AND u.ShowInTechTree = 1 AND u.PrereqTech = ?
 		ORDER BY c.Adjective IS NOT NULL, o.UnitClassType, c.Adjective
 	]],
 	BulletAdj
@@ -151,6 +151,7 @@ local buildingsSqlTemplate = [[
 		ON c.Type = o.CivilizationType
 		OR c.Type = b.CivilizationRequired
 	WHERE b.ShowInPedia = 1
+		AND b.ShowInTechTree = 1
 		AND bc.MaxGlobalInstances %s 0
 		AND b.PrereqTech = ?
 	ORDER BY
