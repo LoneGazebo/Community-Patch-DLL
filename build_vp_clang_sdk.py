@@ -7,7 +7,6 @@ import time
 import tempfile
 from pathlib import Path
 import argparse
-from queue import Queue
 
 class Config(Enum):
     Release = 0
@@ -296,25 +295,43 @@ class Task:
         else:
             return None
 
+def default_jobs() -> int:
+    # One compile per logical CPU. Starting every TU at once (~177 clang processes) can exhaust memory
+    # and stall the machine.
+    return max(1, os.cpu_count() or 4)
+
 class TaskMan:
-    pending: Queue
-    def __init__(self):
-        self.pending = Queue()
+    """Runs at most max_jobs processes at a time; the rest wait their turn."""
+    def __init__(self, max_jobs: int = 0):
+        self.max_jobs = max(1, max_jobs or default_jobs())
+        self.queued: list = []
+        self.running: list[Task] = []
+        self.results: list[TaskResult] = []
 
     def spawn(self, commands: typing.Union[str, list[str]], env: typing.Optional[dict[str, str]]=None, shell: bool=False, log:any =None):
-        task = Task(commands, env=env, shell=shell, log=log)
-        self.pending.put(task)
+        self.queued.append((commands, env, shell, log))
+        self._fill()
+
+    def _fill(self):
+        while self.queued and len(self.running) < self.max_jobs:
+            commands, env, shell, log = self.queued.pop(0)
+            self.running.append(Task(commands, env=env, shell=shell, log=log))
 
     def wait(self) -> list[TaskResult]:
-        results: list[TaskResult] = []
-        while not self.pending.empty():
-            task = self.pending.get()
-            if result := task.poll():
-                results.append(result)
-            else:
-                self.pending.put(task)
-        return results
-        
+        while self.running or self.queued:
+            still = []
+            for task in self.running:
+                result = task.poll()
+                if result is not None:
+                    self.results.append(result)
+                else:
+                    still.append(task)
+            self.running = still
+            self._fill()
+            if self.running:
+                time.sleep(0.05)
+        return self.results
+
 def set_environment(sdk_version: str):
     sdk_path = rf'C:\Program Files (x86)\Microsoft SDKs\Windows\v{sdk_version}'
     vs_path = r'C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC'
@@ -411,10 +428,11 @@ def build_pch(cl: str, cl_args: str, pch_path: Path, build_dir: Path, log: typin
     end_time = time.time()
     print(f'precompiled header build finished after {end_time - start_time} seconds')
 
-def build_cpps(cl: str, cl_args: str, pch_path: Path, build_dir: Path, log: typing.IO):
+def build_cpps(cl: str, cl_args: str, pch_path: Path, build_dir: Path, log: typing.IO, jobs: int = 0):
     print('building cpps...')
     start_time = time.time()
-    build_tasks = TaskMan()
+    build_tasks = TaskMan(jobs)
+    print(f'running at most {build_tasks.max_jobs} compiles at a time (--jobs)')
     logs: dict[Path, typing.IO] = {}
     try:
         for cpp in CPP:
@@ -490,6 +508,7 @@ print_environment()
 
 arg_parser = argparse.ArgumentParser(description='Build VP.')
 arg_parser.add_argument('--config', type=str, default='debug', choices=['release', 'debug'])
+arg_parser.add_argument('-j', '--jobs', type=int, default=default_jobs(), help=f'concurrent compiles (default: {default_jobs()}, one per logical CPU)')
 args = arg_parser.parse_args()
 config = Config.Release if args.config == 'release' else Config.Debug
 
@@ -507,7 +526,7 @@ try:
     update_commit_id(log)
     build_clang_cpp(cl, cl_args, build_dir, log)
     build_pch(cl, cl_args, pch_path, build_dir, log)
-    build_cpps(cl, cl_args, pch_path, build_dir, log)
+    build_cpps(cl, cl_args, pch_path, build_dir, log, jobs=args.jobs)
     link_dll(link, link_args, build_dir, out_dir, log)
 finally:
     log.close()
