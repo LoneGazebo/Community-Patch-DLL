@@ -57,7 +57,7 @@ g_Tabs = {
 }
 
 g_fInfluentialLimit = GameInfo.Defines{Name = "CULTURE_LEVEL_INFLUENTIAL"}().Value;
-g_fInfluentialLimit /= 100;
+g_fInfluentialLimit = g_fInfluentialLimit / 100;
 
 -------------------------------------------------
 -- Global Variables
@@ -2542,7 +2542,7 @@ function SortAndDisplayPlayerInfluence()
 			CivIconHookup(g_iSelectedPlayerID, 32, instance.TheirIcon, instance.TheirIconBG, instance.TheirIconShadow, true, true);
 		end
 		
-		local influencePercent = math.min(1, influencePercent);
+		local influencePercent = math.min(1, influencePercent / g_fInfluentialLimit);
 		local width, height = 64,64;	
 		
 		-- Rather than use the entire size of the control to display percentage, we're only using the area inside the icon frame.
@@ -2552,7 +2552,7 @@ function SortAndDisplayPlayerInfluence()
 		instance.IconDark:SetTextureSizeVal(width, newHeight);
 		instance.IconDark:NormalizeTexture();
 	
-		instance.IconFrameGlow:SetHide(influencePercent < g_fInfluentialLimit);
+		instance.IconFrameGlow:SetHide(influencePercent < 1);
 		instance.IconFrame:SetToolTipString(playerInfluence.InfluenceToolTip);
         
         instance.PlayerName:LocalizeAndSetText(playerInfluence.PlayerName); 
