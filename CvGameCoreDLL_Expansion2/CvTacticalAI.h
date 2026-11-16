@@ -1396,7 +1396,7 @@ public:
 
 	bool isEarlyFinish(bool bExtraKill = false) const;
 	bool haveEnemies() const;
-	bool addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBadUnitID);
+	bool addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBadUnitID, int* piBestNoProgressScore = NULL);
 	bool isKillOrImprovedPosition() const;
 	void countEnemiesAndCheckVisibility();
 	void refreshVolatilePlotProperties(bool bInitial = false);
@@ -1404,7 +1404,8 @@ public:
 	void addInitialAssignments();
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage, 
 		vector<CvTacticalPosition*>& openPositionsHeap, vector<CvTacticalPosition*>& completedPositions,
-		const PrPositionSortHeapGeneration& heapSort, const vector<const CvUnit*>& ourUnits);
+		const PrPositionSortHeapGeneration& heapSort, const vector<const CvUnit*>& ourUnits,
+		int* piBestNoProgressScore = NULL);
 	void updateMovePlotsIfRequired();
 	bool addTacticalPlot(const CvPlot* pPlot, const vector<const CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
