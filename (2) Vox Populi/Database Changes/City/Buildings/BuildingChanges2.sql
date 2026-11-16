@@ -342,6 +342,11 @@ VALUES
 	('BUILDING_HEAVENLY_STAIR', 'YIELD_FAITH', 5),
 	('BUILDING_HEAVENLY_STAIR', 'YIELD_CULTURE_LOCAL', 10);
 
+CREATE TEMP TABLE Helper (
+	YieldType TEXT,
+	Yield INTEGER
+);
+
 INSERT INTO Helper
 	(YieldType, Yield)
 VALUES
@@ -356,7 +361,7 @@ SELECT
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_HEAVENLY_STAIR';
 
-DELETE FROM Helper;
+DROP TABLE Helper;
 
 -- Martial Sanctum
 INSERT INTO Building_YieldChanges
