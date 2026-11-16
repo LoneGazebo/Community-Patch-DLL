@@ -551,7 +551,15 @@ void CvPlayerEspionage::LogSpyStatus()
 		case SPY_STATE_COUNTER_INTEL:
 			if (MOD_BALANCE_VP)
 			{
-				strMsg.Format("COUNTERING INTEL in %s. Current Mission: %s", pCity->getName().c_str(), GC.getCityEventChoiceInfo(eMission)->GetDescription());
+				// no focus while the owner's choice is still open (see TriggerSpyFocusSetup)
+				if (eMission != NO_EVENT_CHOICE_CITY)
+				{
+					strMsg.Format("COUNTERING INTEL in %s. Current Mission: %s", pCity->getName().c_str(), GC.getCityEventChoiceInfo(eMission)->GetDescription());
+				}
+				else
+				{
+					strMsg.Format("COUNTERING INTEL in %s. No Current Mission.", pCity->getName().c_str());
+				}
 			}
 			else
 			{
@@ -7731,6 +7739,26 @@ void CvEspionageAI::DoTurn()
 	//No spies? No need!
 	if (m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
 		return;
+
+	if (MOD_BALANCE_VP)
+	{
+		// A counterspy can be left without a focus when a human player comes under AI control (e.g. autoplay)
+		// while the focus choice is still open. Its pending event stops the spy from moving, and the reassignment
+		// below only changes the focus in the top cities, so make the choice now.
+		CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
+		for (uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
+		{
+			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(uiSpy);
+			if (!pSpy || pSpy->GetSpyState() != SPY_STATE_COUNTER_INTEL || pSpy->GetSpyFocus() != NO_EVENT_CHOICE_CITY)
+				continue;
+
+			CvCity* pCity = pEspionage->GetCityWithSpy(uiSpy);
+			if (pCity && pCity->getOwner() == m_pPlayer->GetID())
+			{
+				pEspionage->TriggerSpyFocusSetup(pCity, uiSpy);
+			}
+		}
+	}
 
 	if (!MOD_BALANCE_VP)
 	{
