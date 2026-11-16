@@ -22,6 +22,7 @@ const char* const REASON_NAMES[Exe::NUM_REASONS] =
 	"unavailable",
 	"not_ui_thread",
 	"wrong_event_channel",
+	"busy",
 };
 
 // The symbols each feature uses
@@ -39,6 +40,31 @@ const ExeSymbol YIELD_ICON_MANAGER_SYMBOLS[] =
 	EXE_YieldIconManager_UnregisterForEvents,
 	EXE_g_EventSystemLocalMachine,
 };
+
+const ExeSymbol CITY_ART_SYMBOLS[] =
+{
+	EXE_g_cvCityBuildingSim,
+	EXE_cvCityBuildingSim_DeferFlags,
+	EXE_cvCityBuildingSim_SlotGrid,
+	EXE_cvCityBuildingSim_SlotGrid_GetSlot,
+	EXE_cvCityBuildingSim_Cities,
+	EXE_cvCityBuildingSim_NumCities,
+	EXE_cvCityBuildingSim_CityDataSize,
+	EXE_cvCityBuildingSim_MarkDirty,
+	EXE_CityData_Free,
+	EXE_CityData_Hex,
+	EXE_CityData_PalaceArtEntry,
+	EXE_CityData_VisHandle,
+	EXE_g_cvCityVisSystem,
+	EXE_cvCityVisSystem_RemoveWonder,
+};
+
+// cvCityBuildingSim_MarkDirty flags the engine's WONDER_REMOVED handler
+// passes when it changes the Palace position
+const int CITY_ART_DIRTY_PALACE = 13;
+
+// Buildings with this PreferredDisplayPosition go to the Palace position
+const int CITY_ART_PALACE_POSITION = 32;
 
 bool HasSymbols(const ExeSymbol* aSymbols, unsigned int uiCount)
 {
@@ -266,6 +292,126 @@ Exe::Reason Exe::TryDisableEngineYieldIconManager()
 	CUSTOMLOG("Exe: YieldIconManager_UnregisterForEvents done for %08X",
 		(unsigned int)reinterpret_cast<DWORD>(pManager)
 	);
+
+	return REASON_OK;
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanRepairCityArt()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(CITY_ART_SYMBOLS, _countof(CITY_ART_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	return REASON_OK;
+}
+
+Exe::Reason Exe::TryRepairCityArt(const CvCity& kCity)
+{
+	const Reason eReason = CanRepairCityArt();
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryRepairCityArt", eReason);
+	}
+
+	// The records belong to the main thread
+	if (gDLL->IsGameCoreThread())
+	{
+		return Refuse("TryRepairCityArt", REASON_NOT_UI_THREAD);
+	}
+
+	BYTE* pSim = ExeApi::g_cvCityBuildingSim();
+
+	// The handlers queue their messages instead while this is set
+	if ((pSim[ExeApi::cvCityBuildingSim_DeferFlags()] & 1) != 0)
+	{
+		return REASON_BUSY;
+	}
+
+	// The engine's hex: x shifted by half the row
+	const int iY = kCity.getY();
+	const int iX = kCity.getX() - (iY >> 1);
+	const int aiHex[3] = { iX, iY, -(iX + iY) };
+
+	const unsigned int uiSlot = ExeApi::cvCityBuildingSim_SlotGrid_GetSlot(
+		pSim + ExeApi::cvCityBuildingSim_SlotGrid(), aiHex
+	);
+	const DWORD dwNumCities =
+		*reinterpret_cast<const DWORD*>(
+			pSim + ExeApi::cvCityBuildingSim_NumCities()
+		);
+
+	if (uiSlot == 0x7FFF || uiSlot >= dwNumCities)
+	{
+		CUSTOMLOG("Exe: TryRepairCityArt: no art record for %s (%d, %d)",
+			kCity.getName().c_str(), kCity.getX(), kCity.getY());
+		return REASON_UNAVAILABLE;
+	}
+
+	BYTE* pCities = *reinterpret_cast<BYTE**>(
+		pSim + ExeApi::cvCityBuildingSim_Cities()
+	);
+	BYTE* pData = pCities + uiSlot * ExeApi::cvCityBuildingSim_CityDataSize();
+	const short* psHex =
+		reinterpret_cast<const short*>(pData + ExeApi::CityData_Hex());
+
+	if (pData[ExeApi::CityData_Free()] != 0 || psHex[0] != iX || psHex[1] != iY)
+	{
+		CUSTOMLOG("Exe: TryRepairCityArt: record %u is not %s's (free %d, hex %d, %d; expected %d, %d)",
+			uiSlot, kCity.getName().c_str(),
+			static_cast<int>(pData[ExeApi::CityData_Free()]),
+			static_cast<int>(psHex[0]), static_cast<int>(psHex[1]),
+			iX, iY);
+		return REASON_UNAVAILABLE;
+	}
+
+	// The engine's art entry for the building (by culture and era), not a
+	// BuildingTypes
+	int* piPalace =
+		reinterpret_cast<int*>(pData + ExeApi::CityData_PalaceArtEntry());
+	const int iArtEntry = *piPalace;
+
+	if (iArtEntry == -1)
+	{
+		return REASON_OK;
+	}
+
+	// A building the city has belongs there; the engine replaces the entry
+	// itself when that building's art changes
+	for (int i = 0; i < GC.getNumBuildingInfos(); ++i)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(i);
+		const CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+
+		if (
+			pkBuilding != NULL
+			&& pkBuilding->GetPreferredDisplayPosition() == CITY_ART_PALACE_POSITION
+			&& kCity.GetCityBuildings()->GetNumBuilding(eBuilding) > 0
+		)
+		{
+			return REASON_OK;
+		}
+	}
+
+	// What the engine does when it removes a building from its other
+	// positions: clear the record, lay the city out again, remove the model
+	*piPalace = -1;
+	ExeApi::cvCityBuildingSim_MarkDirty(pSim, aiHex, CITY_ART_DIRTY_PALACE);
+	ExeApi::cvCityVisSystem_RemoveWonder(
+		ExeApi::g_cvCityVisSystem(),
+		pData + ExeApi::CityData_VisHandle(),
+		&iArtEntry
+	);
+
+	CUSTOMLOG("Exe: TryRepairCityArt: removed art entry %d from %s's Palace position (record %u)",
+		iArtEntry, kCity.getName().c_str(), uiSlot);
 
 	return REASON_OK;
 }

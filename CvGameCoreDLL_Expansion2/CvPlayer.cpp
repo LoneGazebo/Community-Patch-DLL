@@ -4410,6 +4410,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bO
 		iBattleDamage = iMaximumBattleDamage;
 
 	pNewCity->setDamage(iBattleDamage, true);
+
+	// The engine would keep the old owner's Palace model in the city's art
+	pCityPlot->SetCityArtRepairNeeded();
+
 	bool bMajorEliminated = false;
 
 	if (!bMinorCivBuyout)

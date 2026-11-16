@@ -1008,16 +1008,21 @@ void CvMap::updateVisibility()
 //	--------------------------------------------------------------------------------
 void CvMap::updateLayout(bool bDebug)
 {
+	bool bRetry = false;
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		CvPlot* pThisPlot = plotByIndexUnchecked(iI);
 		if(pThisPlot && pThisPlot->isLayoutDirty())
 		{
 			pThisPlot->updateLayout(bDebug);
-			pThisPlot->setLayoutDirty(false);
+
+			// a city art repair the engine could not take yet: next update
+			const bool bRetryPlot = pThisPlot->RepairCityArt();
+			pThisPlot->setLayoutDirty(bRetryPlot);
+			bRetry = bRetry || bRetryPlot;
 		}
 	}
-	DLLUI->setDirty(PlotData_DIRTY_BIT,false);
+	DLLUI->setDirty(PlotData_DIRTY_BIT,bRetry);
 }
 
 //	--------------------------------------------------------------------------------
