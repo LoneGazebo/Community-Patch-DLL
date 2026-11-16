@@ -327,13 +327,31 @@ ICvUnit1* CvDllPlot::GetUnitByIndex(int iIndex) const
 void CvDllPlot::AddUnit(ICvUnit1* pUnit, bool bUpdate)
 {
 	CvUnit* pkUnit = (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
+	// units on another map layer (trade units) are not in the plot's unit list, same as in CvUnit::setXY
+	if (pkUnit && pkUnit->GetMapLayer() != DEFAULT_UNIT_MAP_LAYER)
+	{
+		GC.getMap().plotManager().AddUnit(pkUnit->GetIDInfo(), m_pPlot->getX(), m_pPlot->getY(), pkUnit->GetMapLayer());
+		if (bUpdate)
+			m_pPlot->updateCenterUnit();
+		return;
+	}
 	m_pPlot->addUnit(pkUnit, bUpdate);
 }
 //------------------------------------------------------------------------------
 void CvDllPlot::RemoveUnit(ICvUnit1* pUnit, bool bUpdate)
 {
 	CvUnit* pkUnit = (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
-	m_pPlot->removeUnit(pkUnit, bUpdate);
+	// units on another map layer (trade units) are not in the plot's unit list, same as in CvUnit::setXY
+	if (pkUnit && pkUnit->GetMapLayer() != DEFAULT_UNIT_MAP_LAYER)
+	{
+		GC.getMap().plotManager().RemoveUnit(pkUnit->GetIDInfo(), m_pPlot->getX(), m_pPlot->getY(), pkUnit->GetMapLayer());
+		if (bUpdate)
+			m_pPlot->updateCenterUnit();
+		return;
+	}
+	// the game calls this only after a unit sync check has changed the unit's coordinates, to move the unit from its
+	// old plot to the new one: the unit is no longer at this plot, so skip the position check
+	m_pPlot->removeUnit(pkUnit, bUpdate, false);
 }
 //------------------------------------------------------------------------------
 const IDInfo* CvDllPlot::NextUnitNode(const IDInfo* pNode) const

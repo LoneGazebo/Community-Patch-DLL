@@ -726,7 +726,7 @@ public:
 	CvUnit* getUnitByIndex(int iIndex) const;
 	int getUnitIndex(CvUnit* pUnit) const;
 	void addUnit(CvUnit* pUnit, bool bUpdate = true);
-	void removeUnit(CvUnit* pUnit, bool bUpdate = true);
+	void removeUnit(CvUnit* pUnit, bool bUpdate = true, bool bExpectAtPlot = true);
 	const IDInfo* nextUnitNode(const IDInfo* pNode) const;
 	IDInfo* nextUnitNode(IDInfo* pNode);
 	const IDInfo* prevUnitNode(const IDInfo* pNode) const;
