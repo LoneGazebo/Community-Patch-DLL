@@ -1206,17 +1206,17 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bImmediat
 
 	int iBaseDamage = /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT);
 	CvString szTargetName = "";
+	// This block only names the target for the log. iBaseDamage used to be set to 0 here for citadels and improved
+	// resources ("also undamaged units may pillage this"), which made the pillage decision depend on AI logging.
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		if (eTarget == AI_TACTICAL_TARGET_ENEMY_CITADEL)
 		{
 			szTargetName = "Citadel";
-			iBaseDamage = 0; //also undamaged units may pillage this
 		}
 		else if (eTarget == AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE)
 		{
 			szTargetName = "Improved Resource";
-			iBaseDamage = 0; //also undamaged units may pillage this
 		}
 		else if (eTarget == AI_TACTICAL_TARGET_IMPROVEMENT)
 		{

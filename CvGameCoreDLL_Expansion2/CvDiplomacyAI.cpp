@@ -52595,7 +52595,7 @@ void CvDiplomacyAI::LogWarStatus()
 						strOutBuf += ", " + strTemp;
 					}
 
-					strTemp.Format(" ---  War Weariness: %d, Supply: %d", m_pPlayer->GetWarWearinessPercent(eLoopPlayer), m_pPlayer->GetNumUnitsSupplied());
+					strTemp.Format(" ---  War Weariness: %d, Supply: %d", m_pPlayer->GetWarWearinessPercent(eLoopPlayer), m_pPlayer->GetNumUnitsSuppliedForLog());
 					strOutBuf += ", " + strTemp;
 					pLog->Msg(strOutBuf);
 				}

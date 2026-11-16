@@ -10261,7 +10261,7 @@ void CvPlayer::doTurn()
 				strBaseString += playerName + ", ";
 				strOutBuf.Format("Approval: %d, GoldU: %d, DefenseU: %d, ScienceU: %d, CultureU: %d, War Weariness: %d, Supply: %d, Use: %d",
 					GetExcessHappiness() , GetUnhappinessFromPoverty(), GetUnhappinessFromDistress(), GetUnhappinessFromIlliteracy(),
-					GetUnhappinessFromBoredom(), GetUnhappinessFromWarWeariness(), GetNumUnitsSupplied(), GetNumUnitsToSupply());
+					GetUnhappinessFromBoredom(), GetUnhappinessFromWarWeariness(), GetNumUnitsSuppliedForLog(), GetNumUnitsToSupply());
 				strBaseString += strOutBuf;
 				pLog->Msg(strBaseString);
 			}
@@ -17280,6 +17280,36 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 	}
 
 	return bCheckWarWeariness ? m_iNumUnitsSuppliedCachedWarWeariness : m_iNumUnitsSuppliedCached;
+}
+
+/// For log output only: the same value as GetNumUnitsSupplied(), but an empty cache is not filled. Filling it from a
+/// log line would fix the value at that moment of the turn for the game's own later reads, so logging would change the game.
+int CvPlayer::GetNumUnitsSuppliedForLog(bool bCheckWarWeariness) const
+{
+	if (isBarbarian())
+		return INT_MAX;
+
+	if (!isAlive())
+		return 0;
+
+	if (m_iNumUnitsSuppliedCached != -1 && (!bCheckWarWeariness || m_iNumUnitsSuppliedCachedWarWeariness != -1))
+		return bCheckWarWeariness ? m_iNumUnitsSuppliedCachedWarWeariness : m_iNumUnitsSuppliedCached;
+
+	UnitSupplyBreakdown kBreakdown;
+	GetUnitSupplyBreakdown(kBreakdown);
+	if (!kBreakdown.bValid)
+		return 0;
+
+	return bCheckWarWeariness ? kBreakdown.iTotal : kBreakdown.iBeforeWarWeariness;
+}
+
+/// For log output only: GetNumUnitsOutOfSupply() without filling the supply cache
+int CvPlayer::GetNumUnitsOutOfSupplyForLog(bool bCheckWarWeariness) const
+{
+	if (!isAlive() || isBarbarian())
+		return 0;
+
+	return std::max(0, GetNumUnitsToSupply() - GetNumUnitsSuppliedForLog(bCheckWarWeariness));
 }
 
 /// Share of all technologies this team knows, 0-100
@@ -48099,20 +48129,13 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore, b
 	PlayerTypes eOwner = pUnit ? pUnit->getOwner() : GetID();
 	TeamTypes eTeam = pUnit ? pUnit->getTeam() : getTeam();
 
-	//in case we're not getting the cached data, we need to prepare some things
-	vector<int> ignorePlots(GC.getMap().numPlots(), 0); //these are the plots whose yield we ignore
-	if (bLogging)
-	{
-		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-		{
-			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-			if (pPlot->isOwned() && pPlot->getOwner() != m_eID)
-				ignorePlots[iI] = 1;
-			else if (pPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()) && GC.getGame().GetClosestCityDistanceInPlots(pPlot) < /*3*/ GD_INT_GET(MIN_CITY_RANGE))
-				ignorePlots[iI] = 1;
-		}
-	}
+	// Logging must not change the result. The decision always uses the cached found value,
+	// as with logging off; the log shows that value. Logging no longer recomputes the value with
+	// CvSiteEvaluatorForSettler::PlotFoundValue (other arguments, other moment: another value), no longer calls
+	// ComputeFlavorMultipliers (shared evaluator state that PlotFertilityValue reads, e.g. in exploration scoring), and
+	// reads a unit's danger only when the danger plots are up to date (the read would run the lazy update).
+	const CvPlayer* pUnitOwner = pUnit ? &GET_PLAYER(pUnit->getOwner()) : NULL;
+	const bool bDangerUpToDate = pUnitOwner && !pUnitOwner->m_pDangerPlots->IsDirty();
 
 	//prefer settling close in the beginning
 	int iTimeOffset = (17 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
@@ -48139,7 +48162,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore, b
 
 		if (bLogging)
 		{
-			iDanger = pUnit ? pUnit->GetDanger(pPlot) : 0;
+			iDanger = !pUnit ? 0 : bDangerUpToDate ? pUnit->GetDanger(pPlot) : -1;
 			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,this,true);
 		}
 
@@ -48244,20 +48267,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore, b
 		}
 
 		//finally no more obstacles
-		int iValue = 0;
+		//with caching - is set to -1 if not possible / not good enough
+		int iValue = pPlot->getFoundValue(eOwner);
+		//--------------
 		if (bLogging)
-		{
-			CvString strDebug;
-			iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, ignorePlots, bNewContinent, &strDebug);
-			//--------------
-			dump << pPlot << ",1," << iDanger << "," << iFertility << "," << iScale << "," << iValue << "," << strDebug.c_str() << std::endl;
-			//--------------
-		}
-		else
-		{
-			//with caching - is set to -1 if not possible / not good enough
-			iValue = pPlot->getFoundValue(eOwner);
-		}
+			dump << pPlot << ",1," << iDanger << "," << iFertility << "," << iScale << "," << iValue << ",cached" << std::endl;
+		//--------------
 
 		if ((getNumCities()==0 && iValue<0) || (getNumCities()>0 && iValue<=0))
 			continue;
@@ -48391,6 +48406,25 @@ int CvPlayer::GetSettlePlotQualityMeasure(CvPlot * pPlot)
 		return 50;
 
 	int iRawPercent = (100 * getPlotFoundValue(pPlot->getX(), pPlot->getY())) / iReference;
+	return range(iRawPercent, 50, 150) - 100;
+}
+
+// For log output only: the same measure from the cached found value, without the lazy update of
+// updatePlotFoundValues(). Returns -100 when the cache was not filled in this turn.
+int CvPlayer::GetSettlePlotQualityMeasureNoUpdate(const CvPlot* pPlot) const
+{
+	if (!pPlot)
+		return -50;
+
+	int iReference = GC.getGame().GetCityQualityReference();
+	if (iReference < 1)
+		return 50;
+
+	int iValue = getPlotFoundValueNoUpdate(pPlot->getX(), pPlot->getY());
+	if (iValue < 0)
+		return -100;
+
+	int iRawPercent = (100 * iValue) / iReference;
 	return range(iRawPercent, 50, 150) - 100;
 }
 
@@ -51551,6 +51585,21 @@ int CvPlayer::getPlotFoundValue(int iX, int iY)
 {
 	//lazy update
 	updatePlotFoundValues();
+
+	size_t iIndex = (size_t)GC.getMap().plotNum(iX,iY);
+
+	if (iIndex<m_viPlotFoundValues.size())
+		return m_viPlotFoundValues[iIndex];
+	else
+		return 0;
+}
+
+// For log output only: the cached value, or -1 when the cache was not filled in this turn. Never runs the lazy update,
+// so that logging cannot change when (and from which game state) the found values are computed.
+int CvPlayer::getPlotFoundValueNoUpdate(int iX, int iY) const
+{
+	if (m_iPlotFoundValuesUpdateTurn != GC.getGame().getGameTurn())
+		return -1;
 
 	size_t iIndex = (size_t)GC.getMap().plotNum(iX,iY);
 
