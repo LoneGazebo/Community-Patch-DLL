@@ -61,6 +61,7 @@ jobs:
       build-scripts: ${{ steps.filter.outputs.build-scripts }}
       workflow: ${{ steps.filter.outputs.workflow }}
       dependencies: ${{ steps.filter.outputs.dependencies }}
+      lua: ${{ steps.filter.outputs.lua }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
@@ -89,6 +90,10 @@ jobs:
             dependencies:
               - '*.sln'
               - '*.vcxproj'
+            lua:
+              - '**/*.lua'
+              - '.luacheckrc'
+              - '.github/scripts/luacheck_new_warnings.py'
 
       - name: Changes Summary
         run: |
@@ -97,6 +102,72 @@ jobs:
           echo "- Build Scripts: ${{ steps.filter.outputs.build-scripts == 'true' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
           echo "- Workflow: ${{ steps.filter.outputs.workflow == 'true' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
           echo "- Dependencies: ${{ steps.filter.outputs.dependencies == 'true' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+
+  lua-check:
+    needs: [detect-changes]
+    if: |
+      always() &&
+      (startsWith(github.ref, 'refs/tags/Release-') ||
+       github.event_name == 'workflow_dispatch' ||
+       (needs.detect-changes.result == 'success' &&
+        (needs.detect-changes.outputs.lua == 'true' ||
+         needs.detect-changes.outputs.workflow == 'true')))
+    name: Lua check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2  # a pull request's merge commit and its base (HEAD^1)
+
+      - name: Install Lua 5.1 and luacheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends lua5.1 lua-check > /dev/null
+          luac5.1 -v
+          luacheck --version | head -n 1
+
+      # The game runs Lua 5.1, and a file that does not parse does not load at all: its screen
+      # or feature stops working, with only a line in Lua.log. luac5.1 is the 5.1 parser itself
+      # (luacheck also accepts 5.2/5.3 syntax such as goto and //).
+      # UI_bc1 is EUI as bc1 ships it and is not edited here, so it is reported, never failed.
+      # LuaCATS holds editor type stubs, not game code.
+      - name: Check Lua 5.1 syntax
+        run: |
+          check() {  # $1 = error or warning, $2 = note; NUL-separated paths on stdin; sets $n, $bad
+            n=0 bad=0
+            local f out loc msg
+            while IFS= read -r -d '' f; do
+              n=$((n + 1))
+              out=$(luac5.1 -p "$f" 2>&1) && continue
+              bad=$((bad + 1))
+              loc=${out#"luac5.1: $f:"}; loc=${loc%%:*}; msg=${out#"luac5.1: $f:$loc: "}
+              case $loc in ''|*[!0-9]*) loc=1; msg=$out ;; esac
+              f2=${f//%/%25}; f2=${f2//:/%3A}; f2=${f2//,/%2C}
+              echo "::$1 file=$f2,line=$loc,title=Lua 5.1 syntax::$msg$2"
+              echo "- \`$f:$loc\`: $msg$2" >> "$GITHUB_STEP_SUMMARY"
+            done
+            echo "$n files checked, $bad do not parse"
+          }
+          printf '### Lua 5.1 syntax\n\n' >> "$GITHUB_STEP_SUMMARY"
+          echo "UI_bc1 (reported only):"
+          check warning " (UI_bc1 is not edited here; fix a copy in (3a) VP - EUI Compatibility Files)" \
+            < <(git ls-files -z -- 'UI_bc1/*.lua')
+          echo "Everything else:"
+          check error < <(git ls-files -z -- '*.lua' ':(exclude)LuaCATS/' ':(exclude)UI_bc1/')
+          if [ "$bad" -ne 0 ]; then
+            printf '\n%s Lua file(s) do not parse as Lua 5.1, so the game cannot load them.\n' "$bad" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          printf '\nAll %s checked files outside UI_bc1 parse.\n' "$n" >> "$GITHUB_STEP_SUMMARY"
+
+      # Report only, never fails the job: luacheck warnings that the pull request adds to the
+      # Lua files it changes. The repository as a whole has thousands of older warnings.
+      - name: New luacheck warnings (report only)
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        continue-on-error: true
+        run: python3 .github/scripts/luacheck_new_warnings.py HEAD^1
 
   build-clang:
     needs: [get-version, detect-changes]
