@@ -6549,8 +6549,7 @@ int CvReligionAI::GetNumCitiesToSpreadReligionTo(ReligionTypes eReligion, int& i
 	if (iNumReligionsStillToFound > 0)
 	{
 		int iOtherPlayersWithPantheon = 0;
-		int iMajorLoop = 0;
-		for (iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			// players without a religion, but with a pantheon
 			if (GET_PLAYER((PlayerTypes)iMajorLoop).isAlive() && iMajorLoop != m_pPlayer->GetID() && GET_PLAYER((PlayerTypes)iMajorLoop).GetReligions()->GetStateReligion(false) == NO_RELIGION && GET_PLAYER((PlayerTypes)iMajorLoop).GetReligions()->GetStateReligion(true) != NO_RELIGION)
@@ -7980,8 +7979,7 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection() con
 					if (pPlot->getTerrainType() == TERRAIN_MOUNTAIN)
 					{
 						int iCityLoop = 0;
-						CvCity* pLoopCity = NULL;
-						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+						for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 						{
 							if (pLoopCity->IsWithinWorkRange(pPlot))
 							{

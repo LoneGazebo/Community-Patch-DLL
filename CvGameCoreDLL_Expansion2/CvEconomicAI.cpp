@@ -4441,7 +4441,6 @@ void CvEconomicAI::AddPlotToExplorePlots(const CvPlot* pPlot)
 
 void CvEconomicAI::UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, const CvPlot* pIgnorePlot)
 {
-	CvPlot* pNearbyPlot = NULL;
 	iChange *= GetPlotExploreMultiplier(pPlot);
 
 	for (int iRange = 1; iRange <= 3; iRange++)
@@ -4449,7 +4448,7 @@ void CvEconomicAI::UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, co
 		const std::vector<CvPlot*> pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, false, true);
 		for (std::vector<CvPlot*>::const_iterator it = pPlotsToCheck.begin(); it != pPlotsToCheck.end(); ++it)
 		{
-			pNearbyPlot = *it;
+			CvPlot* pNearbyPlot = *it;
 
 			if (!pNearbyPlot || pNearbyPlot == pIgnorePlot)
 				continue;

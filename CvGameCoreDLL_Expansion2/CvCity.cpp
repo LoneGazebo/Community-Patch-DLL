@@ -28111,7 +28111,6 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	aiPlotList.clear();
 	std::vector< pair<int, int> > resultList;
 
-	CvPlot* pLoopPlot = NULL;
 	CvPlot* pThisPlot = plot();
 	const int iMaxRange = /*5*/ range(GD_INT_GET(MAXIMUM_ACQUIRE_PLOT_DISTANCE), 1, MAX_CITY_RADIUS);
 	TeamTypes thisTeam = getTeam();
@@ -28137,7 +28136,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	{
 		for (int iDY = -iMaxRange; iDY <= iMaxRange; iDY++)
 		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iMaxRange);
+			CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iMaxRange);
 			if (pLoopPlot != NULL)
 			{
 				if (pLoopPlot->getOwner() != NO_PLAYER)

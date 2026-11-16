@@ -337,17 +337,16 @@ void CvTacticalAI::UpdateVisibility()
 {
 	const TeamTypes eTeam = m_pPlayer->getTeam();
 
-	CvPlot* pLoopPlot = NULL;
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 		pLoopPlot->ResetKnownVisibility();
 	}
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
 		if (!pLoopPlot->isRevealed(eTeam))
 			continue;
@@ -371,12 +370,11 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 
 	if (pPlot->getNumUnits() > 0)
 	{
-		CvUnit* pLoopUnit = NULL;
 		TeamTypes eLoopUnitTeam;
 
 		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 		{
-			pLoopUnit = pPlot->getUnitByIndex(iI);
+			CvUnit* pLoopUnit = pPlot->getUnitByIndex(iI);
 			if(pLoopUnit == NULL)
 			{
 				if(GC.getGame().isNetworkMultiPlayer())
@@ -8163,10 +8161,9 @@ static STacticalAssignment* ScorePlotForCombatUnitMove(const SUnitStats& unit, c
 	{
 		if (unit.iMovesLeft > 0 || testPlot->getNumAdjacentEnemies(CvTacticalPlot::TD_LAND) == 0)
 		{
-			CvUnit* pCivilian = NULL;
 			for (int iI = 0; iI < pTestPlot->getNumUnits(); iI++)
 			{
-				pCivilian = pTestPlot->getUnitByIndex(iI);
+				CvUnit* pCivilian = pTestPlot->getUnitByIndex(iI);
 				if (pCivilian && pCivilian->IsCivilianUnit() && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pCivilian->getOwner()))
 				{
 					//workers are not so important ...
@@ -8507,10 +8504,9 @@ static STacticalAssignment* ScorePlotForMeleeAttack(const SUnitStats& unit, cons
 	//combo bonus
 	if (result->eAssignmentType == A_MELEEKILL && enemyPlot->isEnemyCivilian())
 	{
-		CvUnit* pCivilian = NULL;
 		for (int iI = 0; iI < pEnemyPlot->getNumUnits(); iI++)
 		{
-			pCivilian = pEnemyPlot->getUnitByIndex(iI);
+			CvUnit* pCivilian = pEnemyPlot->getUnitByIndex(iI);
 			if (pCivilian && pCivilian->IsCivilianUnit() && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pCivilian->getOwner()))
 			{
 				//workers are not so important ...
@@ -10032,11 +10028,10 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 	for (vector<CvTacticalPlot>::iterator it = tactPlots_w.begin(); it != tactPlots_w.end(); ++it)
 	{
 		const CvPlot* pSourcePlot = it->getPlot();
-		const CvPlot* pTargetPlot = NULL;
 		//pt1
 		for (size_t i = 0; i < gLandEnemies.size(); i++)
 		{
-			pTargetPlot = GC.getMap().plotByIndexUnchecked(gLandEnemies[i]);
+			const CvPlot* pTargetPlot = GC.getMap().plotByIndexUnchecked(gLandEnemies[i]);
 			int iDistance = plotDistance(*pSourcePlot, *pTargetPlot);
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_BOTH))
 				it->setEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
@@ -10062,7 +10057,7 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 		//pt2
 		for (size_t i = 0; i < gSeaEnemies.size(); i++)
 		{
-			pTargetPlot = GC.getMap().plotByIndexUnchecked(gSeaEnemies[i]);
+			const CvPlot* pTargetPlot = GC.getMap().plotByIndexUnchecked(gSeaEnemies[i]);
 			int iDistance = plotDistance(*pSourcePlot, *pTargetPlot);
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_BOTH))
 				it->setEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
@@ -10088,7 +10083,7 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 		//pt3
 		for (size_t i = 0; i < gCities.size(); i++)
 		{
-			pTargetPlot = GC.getMap().plotByIndexUnchecked(gCities[i]);
+			const CvPlot* pTargetPlot = GC.getMap().plotByIndexUnchecked(gCities[i]);
 			int iDistance = plotDistance(*pSourcePlot, *pTargetPlot);
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_BOTH))
 				it->setEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
@@ -11115,8 +11110,6 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 		if (bLastPosition)
 		{
 			const vector<SUnitStats>& finalCombatPositionUnits = assumedPosition.GetFinalCombatPositions();
-			const CvPlot* pLoopPlot = NULL;
-			const CvUnit* pLoopUnit = NULL;
 
 			if (bInNativeDomain)
 			{
@@ -11124,7 +11117,7 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 				{
 					for (vector<SUnitStats>::const_iterator it = finalCombatPositionUnits.begin(); it != finalCombatPositionUnits.end(); ++it)
 					{
-						pLoopUnit = kPlayer.getUnit(it->iUnitID);
+						const CvUnit* pLoopUnit = kPlayer.getUnit(it->iUnitID);
 
 						if (pUnit->IsGreatGeneral() && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked()))
 							continue;
@@ -11132,7 +11125,7 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 						if (pUnit->IsGreatAdmiral() && pLoopUnit->getDomainType() != DOMAIN_SEA)
 							continue;
 
-						pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+						const CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 						int iPlotDistance = plotDistance(*pPlot, *pLoopPlot);
 
 						if (iPlotDistance <= iEffectRange)
@@ -11151,8 +11144,8 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 				{
 					for (vector<SUnitStats>::const_iterator it = finalCombatPositionUnits.begin(); it != finalCombatPositionUnits.end(); ++it)
 					{
-						pLoopUnit = kPlayer.getUnit(it->iUnitID);
-						pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+						const CvUnit* pLoopUnit = kPlayer.getUnit(it->iUnitID);
+						const CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 						int iPlotDistance = plotDistance(*pPlot, *pLoopPlot);
 						int iBonusHeal = iPlotDistance == 0 ? iSameTileHeal : (iPlotDistance == 1 ? iAdjacentTileHeal : 0);
@@ -11247,12 +11240,11 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 
 bool CvSupportPosition::HasCombatBonus(int iPlotIndex, DomainTypes eDomain) const
 {
-	const CvUnit* pUnit = NULL;
 
 	const vector<SUnitStats>& availableUnits_r = availableUnits.read();
 	for (vector<SUnitStats>::const_iterator it = availableUnits_r.begin(); it != availableUnits_r.end(); ++it)
 	{
-		pUnit = it->pUnit;
+		const CvUnit* pUnit = it->pUnit;
 		bool bProvidesBuff = (pUnit->IsGreatGeneral() && eDomain != DOMAIN_SEA) || (pUnit->IsGreatAdmiral() && eDomain == DOMAIN_SEA);
 
 		if (!bProvidesBuff)
@@ -11268,7 +11260,7 @@ bool CvSupportPosition::HasCombatBonus(int iPlotIndex, DomainTypes eDomain) cons
 	const vector<SUnitStats>& notQuiteFinishedUnits_r = notQuiteFinishedUnits.read();
 	for (vector<SUnitStats>::const_iterator it = notQuiteFinishedUnits_r.begin(); it != notQuiteFinishedUnits_r.end(); ++it)
 	{
-		pUnit = it->pUnit;
+		const CvUnit* pUnit = it->pUnit;
 		bool bProvidesBuff = (pUnit->IsGreatGeneral() && eDomain != DOMAIN_SEA) || (pUnit->IsGreatAdmiral() && eDomain == DOMAIN_SEA);
 
 		if (!bProvidesBuff)
@@ -11286,7 +11278,6 @@ bool CvSupportPosition::HasCombatBonus(int iPlotIndex, DomainTypes eDomain) cons
 
 int CvSupportPosition::GetCityAttackBonus(int iPlotIndex) const
 {
-	const CvUnit* pUnit = NULL;
 
 	int iMaxBuff = 0;
 
@@ -11295,7 +11286,7 @@ int CvSupportPosition::GetCityAttackBonus(int iPlotIndex) const
 
 	for (vector<SUnitStats>::const_iterator it = availableUnits_r.begin(); it != availableUnits_r.end(); ++it)
 	{
-		pUnit = it->pUnit;
+		const CvUnit* pUnit = it->pUnit;
 
 		if (!pUnit->IsSapper())
 			continue;
@@ -11311,7 +11302,7 @@ int CvSupportPosition::GetCityAttackBonus(int iPlotIndex) const
 
 	for (vector<SUnitStats>::const_iterator it = notQuiteFinishedUnits_r.begin(); it != notQuiteFinishedUnits_r.end(); ++it)
 	{
-		pUnit = it->pUnit;
+		const CvUnit* pUnit = it->pUnit;
 
 		if (!pUnit->IsSapper())
 			continue;

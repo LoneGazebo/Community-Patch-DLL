@@ -2305,11 +2305,10 @@ int CvLuaPlayer::lGetNumWorldWonders(lua_State* L)
 
 	int iWonderCount = 0;
 
-	int iBuildingLoop = 0;
 	BuildingTypes eBuilding;
 
 	// Loop through all buildings, see if they're a world wonder
-	for(iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
 		eBuilding = (BuildingTypes) iBuildingLoop;
 		CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eBuilding);
@@ -6251,8 +6250,7 @@ int CvLuaPlayer::lGetNumAvailableTradeUnits(lua_State* L)
 
 	int iCount = 0;
 	int iLoopUnit = 0;
-	CvUnit* pLoopUnit = NULL;
-	for (pLoopUnit = pkPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = pkPlayer->nextUnit(&iLoopUnit))
+	for (CvUnit* pLoopUnit = pkPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = pkPlayer->nextUnit(&iLoopUnit))
 	{
 		if (pLoopUnit->isTrade() && pLoopUnit->getDomainType() == eDomain && !pTrade->IsUnitIDUsed(pLoopUnit->GetID()))
 		{
@@ -12805,13 +12803,8 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	if(pFoundingUnit == NULL)
 		return 0;
 
-	int iSettlerDistance = 0;
-	int iDistanceDropoff = 0;
-	int iSettlerX;
-	int iSettlerY;
+	int iSettlerX, iSettlerY;
 	int iPathTurns = 0;
-	int iValue = 0;
-	int iDanger = 0;
 
 	// Get coordinates for settler's plot
 	iSettlerX = pFoundingUnit->getX();
@@ -12849,13 +12842,13 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 			// Do we have to check if this is a safe place to go?
 			if(!pPlot->isVisibleEnemyUnit(pkPlayer->GetID()))
 			{
-				iSettlerDistance = plotDistance(iPlotX, iPlotY, iSettlerX, iSettlerY);
+				int iSettlerDistance = plotDistance(iPlotX, iPlotY, iSettlerX, iSettlerY);
 
-				iValue = pkPlayer->getPlotFoundValue(iPlotX, iPlotY);
+				int iValue = pkPlayer->getPlotFoundValue(iPlotX, iPlotY);
 
-				iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
+				int iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
 				iValue = iValue * (100 - iDistanceDropoff) / 100;
-				iDanger = pkPlayer->GetPlotDanger(*pPlot,false);
+				int iDanger = pkPlayer->GetPlotDanger(*pPlot,false);
 				if (iValue > 0 && iDanger < 1000)
 				{
 					iValue = ((1000 - iDanger) * iValue) / 1000;
@@ -16595,11 +16588,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	std::string strOutput;
 	const char* strEmpty = "";
 	std::string strEndColor = "[ENDCOLOR]";
-	size_t EndColorFound = 0;
 	std::string strColorPrefix = "[COLOR_";
-	size_t BeginColorPrefixFound = 0;
 	std::string strColorSuffix = "]";
-	size_t BeginColorSuffixFound = 0;
 	std::string strIntensePositiveColor = "[COLOR_INTENSE_POSITIVE_TEXT]";
 	std::string strFullPositiveColor = "[COLOR_POSITIVE_TEXT]";
 	std::string strModeratePositiveColor = "[COLOR_MODERATE_POSITIVE_TEXT]";
@@ -16614,16 +16604,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		strOutput = aOpinions[ui].m_str.toUTF8();
 
-		EndColorFound = strOutput.rfind(strEndColor);
+		size_t EndColorFound = strOutput.rfind(strEndColor);
 		if (EndColorFound != string::npos)
 		{
 			strOutput.replace(EndColorFound, strEndColor.length(), strEmpty);
 		}
 
-		BeginColorPrefixFound = strOutput.find(strColorPrefix);
+		size_t BeginColorPrefixFound = strOutput.find(strColorPrefix);
 		if (BeginColorPrefixFound != string::npos)
 		{
-			BeginColorSuffixFound = strOutput.find(strColorSuffix);
+			size_t BeginColorSuffixFound = strOutput.find(strColorSuffix);
 			if (BeginColorSuffixFound != string::npos)
 			{
 				strOutput.erase(BeginColorPrefixFound, (BeginColorSuffixFound - BeginColorPrefixFound) + 1);
@@ -17863,9 +17853,8 @@ int CvLuaPlayer::lHasUnitOfClassType(lua_State* L)
 
 	bool bResult = false;
 	int iUnitLoop = 0;
-	CvUnit* pLoopUnit = NULL;
 
-	for(pLoopUnit = pkThisPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pkThisPlayer->nextUnit(&iUnitLoop))
+	for(CvUnit* pLoopUnit = pkThisPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pkThisPlayer->nextUnit(&iUnitLoop))
 	{
 		if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == eUnitClass)
 		{
@@ -18231,9 +18220,8 @@ int CvLuaPlayer::lGetWLTKDResourceTT(lua_State* L)
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	if (eResource != NO_RESOURCE)
 	{
-		CvCity* pLoopCity = NULL;
 		int iLoop = 0;
-		for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+		for (CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 		{
 
 			if (pLoopCity->GetWeLoveTheKingDayCounter() > 0)
@@ -18256,10 +18244,9 @@ int CvLuaPlayer::lGetWLTKDResourceTT(lua_State* L)
 int CvLuaPlayer::lGetNumNationalWonders(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
-	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
 	int iResult = 0;
-	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	for(CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 	{
 
 		iResult += pLoopCity->getNumNationalWonders();
@@ -19009,10 +18996,9 @@ int CvLuaPlayer::lGetEventHappiness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int iHappiness = 0;
-	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
 
-	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	for(CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 	{
 		iHappiness += pLoopCity->GetEventHappiness();
 	}
@@ -19095,10 +19081,9 @@ int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
 		{
-			CvCity* pLoopCity = NULL;
 			int iLoop = 0;
 
-			for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+			for (CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 			{
 				if (pLoopCity != NULL && pLoopCity->IsEventChoiceActive(eEventChoice))
 				{
@@ -19231,10 +19216,9 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
 		{
-			CvCity* pLoopCity = NULL;
 			int iLoop = 0;
 
-			for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+			for (CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 			{
 				if (pLoopCity != NULL && pLoopCity->IsEventChoiceActive(eEventChoice))
 				{

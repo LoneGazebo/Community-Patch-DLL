@@ -2024,9 +2024,8 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 		const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
 		if (::isWorldWonderClass(kBuildingClassInfo))
 		{
-			const CvCity* pLoopCity = NULL;
 			int iLoop = 0;
-			for (pLoopCity = GET_PLAYER(pkCity->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pkCity->getOwner()).nextCity(&iLoop))
+			for (const CvCity* pLoopCity = GET_PLAYER(pkCity->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pkCity->getOwner()).nextCity(&iLoop))
 			{
 				if (pLoopCity->getNumWorldWonders() > 0)
 				{
@@ -3482,10 +3481,9 @@ int CvLuaCity::lGetBuildingClassTourism(lua_State* L)
 //bool IsThemingBonusPossible(BuildingClassTypes eBuildingClass);
 int CvLuaCity::lIsThemingBonusPossible(lua_State* L)
 {
-	bool bPossible = false;
 	CvCity* pkCity = GetInstance(L);
 	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
-	bPossible = pkCity->GetCityCulture()->IsThemingBonusPossible(iIndex);
+	bool bPossible = pkCity->GetCityCulture()->IsThemingBonusPossible(iIndex);
 	lua_pushboolean(L, bPossible);
 	return 1;
 }
@@ -3493,10 +3491,9 @@ int CvLuaCity::lIsThemingBonusPossible(lua_State* L)
 //int GetThemingBonus(BuildingClassTypes eBuildingClass);
 int CvLuaCity::lGetThemingBonus(lua_State* L)
 {
-	int iBonus = 0;
 	CvCity* pkCity = GetInstance(L);
 	const BuildingClassTypes iIndex = luaEx_to<BuildingClassTypes>(L, 2);
-	iBonus = pkCity->GetCityCulture()->GetThemingBonus(iIndex);
+	int iBonus = pkCity->GetCityCulture()->GetThemingBonus(iIndex);
 	lua_pushinteger(L, iBonus);
 	return 1;
 }
@@ -4601,8 +4598,7 @@ int CvLuaCity::lGetBaseYieldRate(lua_State* L)
 {
 	CvCity* pCity = GetInstance(L);
 	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
-	int iResult = 0;
-	iResult = pCity->getBaseYieldRateTimes100(eYield) / 100;
+	int iResult = pCity->getBaseYieldRateTimes100(eYield) / 100;
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4612,8 +4608,7 @@ int CvLuaCity::lGetBaseYieldRateTimes100(lua_State* L)
 {
 	CvCity* pCity = GetInstance(L);
 	const YieldTypes eYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
-	int iResult = 0;
-	iResult = pCity->getBaseYieldRateTimes100(eYield);
+	int iResult = pCity->getBaseYieldRateTimes100(eYield);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -1734,8 +1734,7 @@ int CvLuaGame::lGetReplayMessage(lua_State* L)
 
 			for(unsigned int i = 0; i < nPlots; i++)
 			{
-				int iPlotX;
-				int iPlotY;
+				int iPlotX, iPlotY;
 				if(pMessage->getPlot(i, iPlotX, iPlotY))
 				{
 					lua_createtable(L, 0, 2);
@@ -1797,8 +1796,7 @@ int CvLuaGame::lGetReplayMessages(lua_State* L)
 
 			for(unsigned int j = 0; j < nPlots; j++)
 			{
-				int iPlotX;
-				int iPlotY;
+				int iPlotX, iPlotY;
 				if(pMessage->getPlot(j, iPlotX, iPlotY))
 				{
 					lua_createtable(L, 0, 2);
@@ -2877,20 +2875,18 @@ int CvLuaGame::lGetAvailableReformationBeliefs(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumFollowers(lua_State* L)
 {
-	int iRtnValue = 0;
 	ReligionTypes eReligion;
 	eReligion = (ReligionTypes)lua_tointeger(L, 1);
-	iRtnValue = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
+	int iRtnValue = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
 	lua_pushinteger(L, iRtnValue);
 	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetNumCitiesFollowing(lua_State* L)
 {
-	int iRtnValue = 0;
 	ReligionTypes eReligion;
 	eReligion = (ReligionTypes)lua_tointeger(L, 1);
-	iRtnValue = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
+	int iRtnValue = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(eReligion);
 	lua_pushinteger(L, iRtnValue);
 	return 1;
 }
@@ -3610,8 +3606,7 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L)
 {
-	int iPlotX;
-	int iPlotY;
+	int iPlotX, iPlotY;
 	TradeConnectionType type;
 	DomainTypes eDomain;
 
@@ -3626,8 +3621,7 @@ int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Hide(lua_State* L)
 {
-	int iPlotX;
-	int iPlotY;
+	int iPlotX, iPlotY;
 	TradeConnectionType type;
 	
 	iPlotX = lua_tointeger(L,1);
@@ -3639,11 +3633,9 @@ int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Hide(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lMouseoverUnit(lua_State* L)
 {
-	CvUnit* pUnit = NULL;
-	bool bEnter = false;
 
-	pUnit = luaEx_toUnit(L, 1);
-	bEnter = lua_toboolean(L, 2);
+	CvUnit* pUnit = luaEx_toUnit(L, 1);
+	bool bEnter = lua_toboolean(L, 2);
 
 	GC.getGame().mouseoverUnit(pUnit, bEnter);
 	return 0;

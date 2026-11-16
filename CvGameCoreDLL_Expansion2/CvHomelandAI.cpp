@@ -5270,8 +5270,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						// find the great general improvement
 						BuildTypes eSelectedBuildType = NO_BUILD;
 						BuildTypes eBuild;
-						int iBuildIndex = 0;
-						for (iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+						for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 						{
 							eBuild = (BuildTypes)iBuildIndex;
 							CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);

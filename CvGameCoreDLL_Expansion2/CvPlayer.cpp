@@ -18266,10 +18266,9 @@ int CvPlayer::GetTotalJONSCulturePerTurnTimes100(CvString* toolTipSink) const
 	}
 
 	int iCulturePerTurn = 0;
-	int iTmp = 0;
 
 	// Culture per turn from Cities
-	iTmp = GetYieldRateFromCitiesTimes100(YIELD_CULTURE);
+	int iTmp = GetYieldRateFromCitiesTimes100(YIELD_CULTURE);
 	iCulturePerTurn += iTmp;
 	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_CITIES", iTmp, "");
 
@@ -22778,7 +22777,6 @@ int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity
 		return 0;
 
 	int iUnhappiness = 0;
-	int iUnhappinessFromThisCity = 0;
 
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -22799,7 +22797,7 @@ int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity
 
 		if (bCityValid)
 		{
-			iUnhappinessFromThisCity = pLoopCity->GetUnhappinessFromBuildings() * 100;
+			int iUnhappinessFromThisCity = pLoopCity->GetUnhappinessFromBuildings() * 100;
 
 			if (pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
 			{

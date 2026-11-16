@@ -8861,9 +8861,8 @@ void CvLeague::CheckProjectsProgress()
 
 					CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
 
-					CvCity* pLoopCity = NULL;
 					int iLoop = 0;
-					for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 					{
 						//not working on the project? ignore.
 						if (pLoopCity->getProductionProcess() != pProjectInfo->GetProcess())

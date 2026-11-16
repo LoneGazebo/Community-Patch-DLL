@@ -1037,10 +1037,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else if (pCityEspionage->HasReachedGoal(ePlayer))
 			{
-				int iSpyResult = 0;
 				if (pCityEspionage->HasCounterSpy())
 				{
-					iSpyResult = GC.getGame().randRangeInclusive(1, 300, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner()))) - 1;
+					int iSpyResult = GC.getGame().randRangeInclusive(1, 300, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner()))) - 1;
 					int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 					iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 30;
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
@@ -1074,7 +1073,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 				else
 				{
-					iSpyResult = GC.getGame().randRangeInclusive(1, 300, CvSeeder::fromRaw(0x80599453).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner()))) - 1;
+					int iSpyResult = GC.getGame().randRangeInclusive(1, 300, CvSeeder::fromRaw(0x80599453).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner()))) - 1;
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 					iSpyResult /= 100;
 					if (iSpyResult < 100)
