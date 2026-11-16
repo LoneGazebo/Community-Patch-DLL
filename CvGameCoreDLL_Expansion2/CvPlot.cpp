@@ -6825,7 +6825,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			}
 
 			// Remove Resource Quantity from total
-			bool bIgnoreTechPrereq = IsImprovedByGiftFromMajor();
+			// A tile improvement gifted by a major gives its resource to the city-state even before the city-state can see it.
+			// Any other owner only ever got the resources it could see (see "Add Resource Quantity to total" below).
+			bool bIgnoreTechPrereq = IsImprovedByGiftFromMajor() && GET_PLAYER(eOldOwner).isMinorCiv();
 			if (getResourceType(eOldTeam, bIgnoreTechPrereq) != NO_RESOURCE)
 			{
 				// For city plots, we need to check if there was a city here, since the city may have been deleted before setOwner() is called (e.g., during conquest).
@@ -7049,16 +7051,17 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 			}
 
-			// Add Resource Quantity to total
-			if (getResourceType(getTeam()) != NO_RESOURCE)
+			// Add Resource Quantity to total (same rule as the removal above)
+			bool bNewOwnerIgnoreTechPrereq = IsImprovedByGiftFromMajor() && GET_PLAYER(getOwner()).isMinorCiv();
+			if (getResourceType(getTeam(), bNewOwnerIgnoreTechPrereq) != NO_RESOURCE)
 			{
-				if (IsResourceImprovedForOwner(false, bFoundingCity))
+				if (IsResourceImprovedForOwner(bNewOwnerIgnoreTechPrereq, bFoundingCity))
 				{
-					GET_PLAYER(getOwner()).addResourcesOnPlotToTotal(this);
+					GET_PLAYER(getOwner()).addResourcesOnPlotToTotal(this, false, bNewOwnerIgnoreTechPrereq);
 				}
 				else
 				{
-					GET_PLAYER(getOwner()).addResourcesOnPlotToUnimproved(this);
+					GET_PLAYER(getOwner()).addResourcesOnPlotToUnimproved(this, false, bNewOwnerIgnoreTechPrereq);
 				}
 			}
 
