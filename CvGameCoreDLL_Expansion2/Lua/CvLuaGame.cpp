@@ -3606,7 +3606,7 @@ int CvLuaGame::lGetTradeRoute(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L)
 {
-	int iPlotX, iPlotY;
+	int iPlotX,iPlotY;
 	TradeConnectionType type;
 	DomainTypes eDomain;
 
@@ -3621,7 +3621,7 @@ int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lSelectedUnit_SpeculativePopupTradeRoute_Hide(lua_State* L)
 {
-	int iPlotX, iPlotY;
+	int iPlotX,iPlotY;
 	TradeConnectionType type;
 	
 	iPlotX = lua_tointeger(L,1);

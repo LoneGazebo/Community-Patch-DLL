@@ -745,8 +745,7 @@ bool CvAIOperation::Move()
 		return false;
 	}
 
-	float fOldVarX;
-	float fOldVarY;
+	float fOldVarX, fOldVarY;
 	CvPlot* pOldCOM = pThisArmy->GetCenterOfMass(false,&fOldVarX,&fOldVarY);
 
 	//todo: move the relevant code from tactical AI to operations
@@ -775,8 +774,7 @@ bool CvAIOperation::Move()
 	//exclude rapid response ops etc
 	if (pThisArmy->GetNumSlotsFilled()>3)
 	{
-		float fNewVarX;
-		float fNewVarY;
+		float fNewVarX, fNewVarY;
 		//center of mass should be moving
 		CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false, &fNewVarX, &fNewVarY);
 		if (pNewCOM == pOldCOM && fNewVarX >= max(5.f, fOldVarX) && fNewVarY >= max(5.f, fOldVarY))
