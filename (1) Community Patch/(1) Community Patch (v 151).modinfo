@@ -537,6 +537,7 @@
     <File md5="27432A0952039A7F7E86638ECB6C25DB" import="0">Database Changes/CoreWorldChanges.sql</File>
     <File md5="DE13F1774FC3E61870E26444E20535B8" import="0">Database Changes/FixTypeConstraints.sql</File>
     <File md5="4015E9DD57528B6EE414D51C9130EFF3" import="0">Database Changes/GameSpeedTableChanges.sql</File>
+    <File md5="1FE70C6604EE65EF13BA0C28E2009828" import="0">Database Changes/VictoryTableChanges.sql</File>
     <File md5="48C20B3BC16D3C6749CA45B17EE66CF3" import="0">Database Changes/Misc/MissionsChanges.sql</File>
     <File md5="6E6FF873C999780077863FAC3765E435" import="0">Database Changes/Misc/NewInterfaceModes.xml</File>
     <File md5="2123A61434FC880E07972AA8077E6301" import="0">Database Changes/Misc/CoreNewMissions.xml</File>
@@ -850,6 +851,7 @@
       <UpdateDatabase>Database Changes\City\Buildings\BuildingTableFixes.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\Notifications\NotificationTableFixes.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\GameSpeedTableChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Database Changes\VictoryTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\WorldTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\City\Buildings\BuildingTableChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes\City\Processes\ProcessTableChanges.sql</UpdateDatabase>

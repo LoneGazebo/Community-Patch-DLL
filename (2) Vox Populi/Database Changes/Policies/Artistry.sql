@@ -139,7 +139,7 @@ VALUES
 INSERT INTO Policy_BuildingClassYieldChanges
 	(PolicyType, BuildingClassType, YieldType, YieldChange)
 SELECT
-	a.Type, b.Type, 'YIELD_SCIENCE', 1
+	a.Type, b.BuildingClassType, 'YIELD_SCIENCE', 1
 FROM Policies a, Helper b
 WHERE a.PolicyBranchType = 'POLICY_BRANCH_AESTHETICS';
 
