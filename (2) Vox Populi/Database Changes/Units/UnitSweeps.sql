@@ -69,7 +69,6 @@ UPDATE Units
 SET PurchaseCooldown = 5
 WHERE CombatClass IN (
 	'UNITCOMBAT_WORKER',
-	'UNITCOMBAT_WORKBOAT',
 	'UNITCOMBAT_CARAVAN',
 	'UNITCOMBAT_CARGO',
 	'UNITCOMBAT_DIPLOMACY'
@@ -123,7 +122,7 @@ SET MinAreaSize = (
 	WHERE Name = 'MIN_WATER_SIZE_FOR_OCEAN'
 ) WHERE CombatClass IN (
 	SELECT Type FROM UnitCombatInfos WHERE IsNaval = 1
-) OR CombatClass = 'UNITCOMBAT_WORKBOAT';
+);
 
 UPDATE Units SET MinAreaSize = 3 WHERE CombatClass = 'UNITCOMBAT_CARGO';
 

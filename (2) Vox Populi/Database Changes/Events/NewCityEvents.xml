@@ -999,9 +999,9 @@
 			<Help>TXT_KEY_CITY_EVENT_PLANTATION_RARE_CROP_CHOICE_1_HELP</Help>
 			<EraScaling>true</EraScaling>
 		</Row>
-		
+
 		<!-- Espionage -->
-		
+
 		<!-- Poison the Water Supply -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_POISON_WATER</Type>
@@ -1233,7 +1233,7 @@
 			<CapitalOnly>true</CapitalOnly>
 			<StealNumTechs>1</StealNumTechs>
 		</Row>
-		
+
 		<!--- Counterspy Missions -->
 		<!--- Establish a counter-espionage network -->
 		<Row>

@@ -756,7 +756,7 @@
 		<Row Tag="TXT_KEY_PROMOTION_TRIUMPH_HELP">
 			<Text>+5% [ICON_STRENGTH] Combat Strength.[NEWLINE]Gain 50% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Land Units as [ICON_GREAT_GENERAL] Great General Points.[NEWLINE][NEWLINE][COLOR_CYAN]Lost if gifted to another Player.[ENDCOLOR]</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_PROMOTION_STRATEGIC_STUDY">
 			<Text>Strategic Study</Text>
 		</Row>
@@ -847,7 +847,7 @@
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY_HELP">
 			<Text>-50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_PROMOTION_PARABOLIC_PAYLOAD">
 			<Text>Parabolic Payload</Text>
 		</Row>

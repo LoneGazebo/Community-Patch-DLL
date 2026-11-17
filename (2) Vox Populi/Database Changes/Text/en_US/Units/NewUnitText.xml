@@ -329,9 +329,6 @@
 		<Row Tag="TXT_KEY_UNITCOMBAT_WORKER">
 			<Text>Worker</Text>
 		</Row>
-		<Row Tag="TXT_KEY_UNITCOMBAT_WORKBOAT">
-			<Text>Work Boat</Text>
-		</Row>
 		<Row Tag="TXT_KEY_UNITCOMBAT_CARGO">
 			<Text>Cargo</Text>
 		</Row>

@@ -620,15 +620,15 @@ FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CARAVANSARY';
 
 INSERT INTO Helper
-	(TerrainType, YieldType)
+	(TerrainType)
 VALUES
-	('TERRAIN_DESERT', 'YIELD_FOOD'),
-	('TERRAIN_TUNDRA', 'YIELD_FOOD');
+	('TERRAIN_DESERT'),
+	('TERRAIN_TUNDRA');
 
 INSERT INTO Building_TerrainYieldChanges
 	(BuildingType, TerrainType, YieldType, Yield)
 SELECT
-	a.Type, b.TerrainType, b.YieldType, 1
+	a.Type, b.TerrainType, 'YIELD_FOOD', 1
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_CARAVANSARY';
 
@@ -1017,7 +1017,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_SPACESHIP_FACTORY';
 
 -- Lighthouse
 UPDATE Buildings
-SET 
+SET
 	AllowsWaterRoutes = 1,
 	CitySupplyFlat = 1
 WHERE BuildingClass = 'BUILDINGCLASS_LIGHTHOUSE';
@@ -2134,7 +2134,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_SCRIVENERS_OFFICE';
 
 -- Heroic Epic
 UPDATE Buildings
-SET 	CitySupplyFlat = 3
+SET CitySupplyFlat = 3
 WHERE BuildingClass = 'BUILDINGCLASS_HEROIC_EPIC';
 
 INSERT INTO Building_YieldChanges
@@ -2183,9 +2183,9 @@ WHERE BuildingClass = 'BUILDINGCLASS_MASTER_SHIPWRIGHT';
 
 -- National Monument
 UPDATE Buildings
-SET 
+SET
 	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
-    GreatPeopleRateModifier = 0		
+	GreatPeopleRateModifier = 0
 WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
 
 INSERT INTO Building_YieldChanges
@@ -2209,13 +2209,21 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
 
+INSERT INTO Helper
+	(SpecialistType)
+VALUES
+	('SPECIALIST_WRITER'),
+	('SPECIALIST_ARTIST'),
+	('SPECIALIST_MUSICIAN');
+
 INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
-	b.Type, s.Type, 25
-FROM Buildings b, Specialists s
-WHERE b.BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC' 
-AND s.Type IN ('SPECIALIST_WRITER', 'SPECIALIST_ARTIST', 'SPECIALIST_MUSICIAN');
+	a.Type, b.Type, 25
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
+
+DELETE FROM Helper;
 
 -- School of Philosophy
 UPDATE Buildings
@@ -2281,7 +2289,7 @@ INSERT INTO Building_WLTKDYieldMod
 	(BuildingType, YieldType, Yield)
 SELECT
 	Type, 'YIELD_GOLD', 10
-FROM Buildings 
+FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_CIRCUS_MAXIMUS';
 
 INSERT INTO Helper
@@ -2339,7 +2347,7 @@ INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
 	Type, 'SPECIALIST_SCIENTIST', 25
-FROM Buildings 
+FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_OXFORD_UNIVERSITY';
 
 -- Grand Temple
@@ -2379,7 +2387,7 @@ INSERT INTO Building_WLTKDYieldMod
 	(BuildingType, YieldType, Yield)
 SELECT
 	Type, 'YIELD_CULTURE', 10
-FROM Buildings 
+FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_GRAND_TEMPLE';
 
 -- East India Company
@@ -2401,7 +2409,7 @@ INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
 	Type, 'SPECIALIST_MERCHANT', 25
-FROM Buildings 
+FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_NATIONAL_TREASURY';
 
 -- Ironworks
@@ -2430,7 +2438,7 @@ INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
 	Type, 'SPECIALIST_ENGINEER', 25
-FROM Buildings 
+FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_IRONWORKS';
 
 -- Ministerial District
@@ -2475,7 +2483,7 @@ INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
 	Type, 'SPECIALIST_CIVIL_SERVANT', 25
-FROM Buildings 
+FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_MINISTERIAL_DISTRICT';
 
 -- Royal Collection

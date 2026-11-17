@@ -91,8 +91,8 @@ WHERE Type NOT IN (
 );
 
 -- Religious Unity (now Universalism)
-UPDATE Beliefs 
-SET 
+UPDATE Beliefs
+SET
 	FriendlyCityStateSpreadModifier = 0,
 	HappinessPerCity = 1
 WHERE Type = 'BELIEF_RELIGIOUS_UNITY';

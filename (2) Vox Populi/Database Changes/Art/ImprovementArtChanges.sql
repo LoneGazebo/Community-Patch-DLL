@@ -44,6 +44,6 @@ SET Scale = 1.1
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TERRACE_FARM';
 
 -- Enlarge Polder to touch land
-UPDATE ArtDefine_Landmarks 
-SET Scale = 1.1 
+UPDATE ArtDefine_Landmarks
+SET Scale = 1.1
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_POLDER';

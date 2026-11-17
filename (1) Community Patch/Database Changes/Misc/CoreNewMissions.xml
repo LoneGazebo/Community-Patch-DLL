@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
-	<Missions>		
+	<Missions>
 		<Row>
 			<Type>MISSION_SEALIFT</Type>
 			<Description>TXT_KEY_MISSION_SEALIFT</Description>
