@@ -7199,35 +7199,24 @@ void CvBasePosition::UpdateScore(const STacticalAssignment& assignment)
 	UpdateScore(assignment.iUnitID, assignment.GetPlotScore(), assignment.GetOldPlotScore(), assignment.GetDamageDelta(), assignment.GetBonusScore());
 }
 
-//Compute the completed-position total from the current damage, bonuses, and final unit plot scores.
-int CvBasePosition::getScoreTotal() const
-{
-	int iTotal = (iDamageDelta + iBonusScore) * 10;
-	const map<int, short>& plotScores_r = plotScores.read();
-	for (map<int, short>::const_iterator it = plotScores_r.begin(); it != plotScores_r.end(); ++it)
-		iTotal += it->second;
-	return iTotal;
-}
-
 void CvBasePosition::UpdateScore(int iUnitId, int iPlotScore, int iOldPlotScore, int iDamageDelta_, int iBonusScore_)
 {
 	iScoreOverParent += iBonusScore_ + iPlotScore - iOldPlotScore + iDamageDelta_;
 	iDamageDelta += iDamageDelta_;
 	iBonusScore += iBonusScore_;
+	iTotalScore += (iDamageDelta_ + iBonusScore_) * 10;
 
 	const map<int, short>& plotScores_r = plotScores.read();
 
 	map<int, short>::const_iterator it = plotScores_r.find(iUnitId);
-	if (it != plotScores_r.end())
+	short sPreviousPlotScore = it != plotScores_r.end() ? it->second : 0;
+	iScoreOverParent -= sPreviousPlotScore;
+	if (iPlotScore != sPreviousPlotScore)
 	{
-		short sPreviousPlotScore = it->second;
-		iScoreOverParent -= sPreviousPlotScore;
-		if (iPlotScore != sPreviousPlotScore)
-			plotScores.write()[iUnitId] = iPlotScore;
+		short sNewPlotScore = static_cast<short>(iPlotScore);
+		plotScores.write()[iUnitId] = sNewPlotScore;
+		iTotalScore += sNewPlotScore - sPreviousPlotScore;
 	}
-	//the unit didn't have a previous plot score, so we set it here
-	else if (iPlotScore != 0)
-		plotScores.write()[iUnitId] = iPlotScore;
 }
 
 static int GetUnitDangerForPlot(const CvUnit* pUnit, const CvPlot* pPlot, int iSelfDamage, const CvTacticalPosition& assumedPosition)
@@ -10172,6 +10161,7 @@ void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eA
 	nFirstInterestingAssignment = 0;
 	iBonusScore = 0;
 	iDamageDelta = 0;
+	iTotalScore = 0;
 	iScoreOverParent = 0; 
 	parentPosition = NULL;
 	iGeneration = 0;
@@ -10209,6 +10199,7 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	nFirstInterestingAssignment = parent.nFirstInterestingAssignment;
 	iBonusScore = parent.iBonusScore;
 	iDamageDelta = parent.iDamageDelta;
+	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
 	movePlotUpdateFlagA = parent.movePlotUpdateFlagA;
@@ -11600,6 +11591,7 @@ CvSupportPosition::CvSupportPosition()
 	nFirstInterestingAssignment = 0;
 	iBonusScore = 0;
 	iDamageDelta = 0;
+	iTotalScore = 0;
 	iScoreOverParent = 0;
 	parentPosition = NULL;
 	tacticalPosition = NULL;
@@ -11697,6 +11689,7 @@ void CvSupportPosition::initFromTacticalPosition(const CvTacticalPosition& tactP
 	nFirstInterestingAssignment = 0;
 	iBonusScore = 0;
 	iDamageDelta = 0;
+	iTotalScore = 0;
 	iScoreOverParent = 0;
 	parentPosition = NULL;
 	UpdateTacticalPosition(tactPos);
@@ -11753,6 +11746,7 @@ void CvSupportPosition::initFromParent(const CvSupportPosition& parent)
 	nFirstInterestingAssignment = parent.nFirstInterestingAssignment;
 	iBonusScore = parent.iBonusScore;
 	iDamageDelta = parent.iDamageDelta;
+	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
 	tacticalPosition = parent.tacticalPosition;
