@@ -57,7 +57,7 @@ CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 void CvPlayerAI::initStatics()
 {
 	s_players.init();
-	for(std::size_t i = 0; i < s_players.size(); ++i)
+	for(std::size_t i = 0; i < CvEnumMap<PlayerTypes, CvPlayerAI, true>::size(); ++i)
 	{
 		s_players[i].m_eID = PlayerTypes(i);
 	}
@@ -1145,7 +1145,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 					}
 				}
 			}
-			if(flavorChoices.size() > 0)
+			if(!flavorChoices.empty())
 			{
 				//sort em!
 				flavorChoices.StableSortItems();
@@ -2579,7 +2579,7 @@ void CvPlayerAI::AI_doSpaceshipAndUtopiaProduction()
 		}
 	}
 
-	if (vCitiesForAvailableSpaceshipParts.size() == 0)
+	if (vCitiesForAvailableSpaceshipParts.empty())
 		return;
 
 	// if a city has existing progress towards a spaceship part, it should build that part
@@ -2721,7 +2721,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 	}
 
 	//highest score first ..
-	if(vTargets.size() > 0)
+	if(!vTargets.empty())
 	{
 		vTargets.StableSortItems();
 
@@ -3307,7 +3307,7 @@ priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTyp
 				}
 
 				// It's dangerous to go there - only check radius 1
-				if (bCheckDanger && iK < RING1_PLOTS && GetPossibleAttackers(*pAdjacentPlot, getTeam()).size() > 0)
+				if (bCheckDanger && iK < RING1_PLOTS && !GetPossibleAttackers(*pAdjacentPlot, getTeam()).empty())
 				{
 					iStealScore = 0;
 					break;

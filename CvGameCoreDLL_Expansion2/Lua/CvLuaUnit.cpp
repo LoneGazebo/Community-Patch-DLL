@@ -788,7 +788,7 @@ int CvLuaUnit::lGeneratePath(lua_State* L)
 		lua_setfield(L, t, "Turn");
 		lua_pushinteger(L, 0);
 		lua_setfield(L, t, "Flags");
-		lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam())==false ); //don't have that info, make it up
+		lua_pushboolean(L, !newPath.get(i)->isVisible(pkUnit->getTeam()) ); //don't have that info, make it up
 		lua_setfield(L, t, "Invisible");
 		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam()) ); //don't have that info, make it up
 		lua_setfield(L, t, "AdjInvisible");
@@ -829,7 +829,7 @@ int CvLuaUnit::lGetActivePath(lua_State* L)
 		lua_setfield(L, t, "Turn");
 		lua_pushinteger(L, 0);
 		lua_setfield(L, t, "Flags");
-		lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam()) == false); //don't have that info, make it up
+		lua_pushboolean(L, !newPath.get(i)->isVisible(pkUnit->getTeam())); //don't have that info, make it up
 		lua_setfield(L, t, "Invisible");
 		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
 		lua_setfield(L, t, "AdjInvisible");
@@ -878,7 +878,7 @@ int CvLuaUnit::lGetWaypointPath(lua_State* L)
 			lua_setfield(L, t, "Turn");
 			lua_pushinteger(L, 0);
 			lua_setfield(L, t, "Flags");
-			lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam()) == false); //don't have that info, make it up
+			lua_pushboolean(L, !newPath.get(i)->isVisible(pkUnit->getTeam())); //don't have that info, make it up
 			lua_setfield(L, t, "Invisible");
 			lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
 			lua_setfield(L, t, "AdjInvisible"); 
@@ -922,7 +922,7 @@ int CvLuaUnit::lGeneratePathToNextWaypoint(lua_State* L)
 		lua_setfield(L, t, "Turn");
 		lua_pushinteger(L, 0);
 		lua_setfield(L, t, "Flags");
-		lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam()) == false); //don't have that info, make it up
+		lua_pushboolean(L, !newPath.get(i)->isVisible(pkUnit->getTeam())); //don't have that info, make it up
 		lua_setfield(L, t, "Invisible");
 		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
 		lua_setfield(L, t, "AdjInvisible");
@@ -3228,7 +3228,7 @@ int CvLuaUnit::lIsEnemyInMovementRange(lua_State* L)
 	const bool bOnlyFortified = lua_toboolean(L, 2);
 	const bool bOnlyCities = lua_toboolean(L, 3);
 
-	lua_pushboolean(L, pkUnit->GetPlotsWithEnemyInMovementRange(bOnlyFortified, bOnlyCities).size()>0);
+	lua_pushboolean(L, !pkUnit->GetPlotsWithEnemyInMovementRange(bOnlyFortified, bOnlyCities).empty());
 	return 1;
 }
 
@@ -3701,7 +3701,7 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 	if (pkUnit != NULL && pkOtherUnit != NULL && !pkOtherUnit->isDelayedDeath())
 	{
 		vector<PlagueInfo> vInflictedPlagues = pkOtherUnit->GetPlaguesToInflict();
-		if (vInflictedPlagues.size() > 0)
+		if (!vInflictedPlagues.empty())
 		{
 			for (std::vector<PlagueInfo>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
 			{
@@ -3772,7 +3772,7 @@ int CvLuaUnit::lGetWithdrawChance(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkAttacker = CvLuaUnit::GetInstance(L, 2);
-	int iResult;
+	int iResult = 0;
 	if (pkUnit->getExtraWithdrawal() > 0)
 		iResult = pkUnit->GetWithdrawChance(*pkAttacker);
 	else

@@ -269,7 +269,7 @@ void CvFlavorManager::ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes e
 		CvEnumMap<FlavorTypes, int> aiTempFlavors;
 		aiTempFlavors.init();
 		
-		for(std::size_t iI = 0; iI < aiTempFlavors.size(); iI++)
+		for(std::size_t iI = 0; iI < CvEnumMap<FlavorTypes, int, false>::size(); iI++)
 		{
 			aiTempFlavors[iI] = pkNewLeaderHeadInfo->getFlavorValue(iI) - pkOldLeaderHeadInfo->getFlavorValue(iI);
 		}

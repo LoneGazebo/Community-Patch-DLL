@@ -224,7 +224,8 @@ int CvLuaMap::lGetPlotByIndex(lua_State* L)
 // plot GetPlotXY([int x], [int y], int dx, int dy)
 int CvLuaMap::lGetPlotXY(lua_State* L)
 {
-	int x, y, dx, dy;
+	int x, y;
+	int dx, dy;
 	const int count = lua_gettop(L);
 
 	if(count == 2)

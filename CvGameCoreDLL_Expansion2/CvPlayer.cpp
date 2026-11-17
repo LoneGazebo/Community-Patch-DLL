@@ -5592,7 +5592,7 @@ void CvPlayer::DoEvents()
 		vValidEvents.push_back(eEvent);
 	}
 
-	if (vValidEvents.size() > 0)
+	if (!vValidEvents.empty())
 	{
 		EventTypes eChosenEvent = NO_EVENT;
 
@@ -5628,7 +5628,7 @@ void CvPlayer::DoEvents()
 				pLog->Msg(strBaseString);
 			}
 
-			if (veValidEventsThisTurn.size() > 0)
+			if (!veValidEventsThisTurn.empty())
 			{
 				// Random Roll #3: Do a weighted choice of the event
 				veValidEventsThisTurn.StableSortItems();
@@ -13673,7 +13673,7 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 		}
 
 		// Any valid Goodies?
-		if(avValidGoodies.size() > 0)
+		if(!avValidGoodies.empty())
 		{
 			// Fix the bug where the AI won't get anything for Goody Hut pickers!!!
 			if (pUnit && pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && GET_PLAYER(pUnit->getOwner()).isHuman(ISHUMAN_AI_EVENT_CHOICE))
@@ -13796,7 +13796,7 @@ void CvPlayer::SetChainLength(BuildingTypes eBuilding)
 		return;
 
 	//check our current building
-	while (v_ChainBuildings.size() > 0)
+	while (!v_ChainBuildings.empty())
 	{
 		std::vector<BuildingTypes>v_TempChainBuildings;
 		for (uint i = 0; i < v_ChainBuildings.size(); i++)
@@ -14673,7 +14673,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
 {
 	std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
-	int iLoop;
+	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if(pLoopCity && !pLoopCity->IsPuppet())
@@ -15576,7 +15576,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreTraitsDifficulty,
 			UnitCombatTypes eUnitCombat = (UnitCombatTypes)pkUnitInfo->GetUnitCombatType();
 			if (eUnitCombat != NO_UNITCOMBAT && GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).first != 0)
 			{
-				if (GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second == false || (GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second == true && isGoldenAge()))
+				if (!GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second || (GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).second && isGoldenAge()))
 				{
 					iMod += GetPlayerTraits()->GetUnitCombatProductionCostModifier(eUnitCombat).first;
 				}
@@ -18309,10 +18309,9 @@ int CvPlayer::GetTotalJONSCulturePerTurnTimes100(CvString* toolTipSink) const
 	}
 
 	int iCulturePerTurn = 0;
-	int iTmp;
 
 	// Culture per turn from Cities
-	iTmp = GetYieldRateFromCitiesTimes100(YIELD_CULTURE);
+	int iTmp = GetYieldRateFromCitiesTimes100(YIELD_CULTURE);
 	iCulturePerTurn += iTmp;
 	GC.getGame().BuildYieldTimes100HelpText(toolTipSink, "TXT_KEY_TP_CULTURE_FROM_CITIES", iTmp, "");
 
@@ -18999,7 +18998,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(CvCity* pCity)
 		}
 	}
 
-	if (artChoices.size() == 0)
+	if (artChoices.empty())
 		return;
 
 	artChoices.StableSortItems();
@@ -19316,7 +19315,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 					vValidCities.push_back(pLoopCity->GetID());
 				}
-				if (vValidCities.size() > 0)
+				if (!vValidCities.empty())
 				{
 					int iFoodPerCity = iFood / vValidCities.size();
 					int iFoodRemainder = iFood % vValidCities.size();
@@ -19370,7 +19369,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 					vValidCities.push_back(pLoopCity->GetID());
 				}
-				if (vValidCities.size() > 0)
+				if (!vValidCities.empty())
 				{
 					int iProductionPerCity = iProduction / vValidCities.size();
 					int iProductionRemainder = iProduction % vValidCities.size();
@@ -19629,7 +19628,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					int iLocalHappiness = pLoopCity->GetLocalHappiness(0, /*bExcludeEmpireContributions*/ false);
 					CitiesSortedByLocalHappiness.push_back(pLoopCity, iLocalHappiness);
 				}
-				if (CitiesSortedByLocalHappiness.size() > 0)
+				if (!CitiesSortedByLocalHappiness.empty())
 				{
 					CitiesSortedByLocalHappiness.StableSortItems();
 					int iPopToGive = iPopulationBoost;
@@ -19683,7 +19682,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 					vValidCities.push_back(pLoopCity->GetID());
 				}
-				if (vValidCities.size() > 0)
+				if (!vValidCities.empty())
 				{
 					int iBGPPerCity = iBorderGrowthPoints / vValidCities.size();
 					int iBGPRemainder = iBorderGrowthPoints % vValidCities.size();
@@ -19903,7 +19902,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 					vValidCities.push_back(pLoopCity->GetID());
 				}
-				if (vValidCities.size() > 0)
+				if (!vValidCities.empty())
 				{
 					int iFoodPerCity = iFood / vValidCities.size();
 					int iFoodRemainder = iFood % vValidCities.size();
@@ -19953,7 +19952,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 					vValidCities.push_back(pLoopCity->GetID());
 				}
-				if (vValidCities.size() > 0)
+				if (!vValidCities.empty())
 				{
 					int iProductionPerCity = iProduction / vValidCities.size();
 					int iProductionRemainder = iProduction % vValidCities.size();
@@ -20208,7 +20207,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					int iLocalHappiness = pLoopCity->GetLocalHappiness(0, /*bExcludeEmpireContributions*/ false);
 					CitiesSortedByLocalHappiness.push_back(pLoopCity, iLocalHappiness);
 				}
-				if (CitiesSortedByLocalHappiness.size() > 0)
+				if (!CitiesSortedByLocalHappiness.empty())
 				{
 					CitiesSortedByLocalHappiness.StableSortItems();
 					int iPopToGive = iPopulationBoost;
@@ -20258,7 +20257,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 
 					vValidCities.push_back(pLoopCity->GetID());
 				}
-				if (vValidCities.size() > 0)
+				if (!vValidCities.empty())
 				{
 					int iBGPPerCity = iBorderGrowthPoints / vValidCities.size();
 					int iBGPRemainder = iBorderGrowthPoints % vValidCities.size();
@@ -22821,7 +22820,6 @@ int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity
 		return 0;
 
 	int iUnhappiness = 0;
-	int iUnhappinessFromThisCity;
 
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -22842,7 +22840,7 @@ int CvPlayer::GetUnhappinessFromCityBuildings(CvCity* pAssumeCityAnnexed, CvCity
 
 		if (bCityValid)
 		{
-			iUnhappinessFromThisCity = pLoopCity->GetUnhappinessFromBuildings() * 100;
+			int iUnhappinessFromThisCity = pLoopCity->GetUnhappinessFromBuildings() * 100;
 
 			if (pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
 			{
@@ -23929,7 +23927,7 @@ void CvPlayer::ChangeYieldInOtherCitiesPerTurnFromAnnexedMinorTimes100(PlayerTyp
 	
 			//update if necessary
 			//bonus yields are tracked on city level
-			int iLoop;
+			int iLoop = 0;
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				if (pLoopCity->GetID()!=getCapitalCityID())
 					pLoopCity->ChangeBaseYieldRateFromCSAllianceTimes100(eYield, iBonus);
@@ -24440,7 +24438,7 @@ bool CvPlayer::IsEligibleForLeagueBonus(int eType)
 	}
 
 	veMajorRankings.StableSortItems();
-	if(veMajorRankings.size() != 0)
+	if(!veMajorRankings.empty())
 	{
 		for(int iRanking = 0; iRanking < veMajorRankings.size(); iRanking++)
 		{
@@ -27504,7 +27502,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 						PlayerTypes eOtherPlayer = pUnit->plot()->getOwner();
 
-						if (eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isBarbarian() == false && eOtherPlayer != GetID())
+						if (eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isBarbarian() && eOtherPlayer != GetID())
 						{
 							iValue += GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetYieldFromRouteMovementInForeignTerritory(eYield, true);
 						}
@@ -31027,10 +31025,7 @@ bool CvPlayer::IsAbleToAnnexCityStates() const
 
 bool CvPlayer::IsBorderSettle() const
 {
-	if (m_iBorderSettle > 0)
-		return true;
-
-	return false;
+	return m_iBorderSettle > 0;
 }
 
 void CvPlayer::SetBorderSettle(int iValue)
@@ -39660,7 +39655,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					}
 					if (bValid)
 					{
-						if(m_pabHasGlobalMonopoly[eResource] == false)
+						if(!m_pabHasGlobalMonopoly[eResource])
 						{
 							bGainingBonus = true;
 							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
@@ -39669,7 +39664,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					}
 					else
 					{
-						if(m_pabHasGlobalMonopoly[eResource] == true)
+						if(m_pabHasGlobalMonopoly[eResource])
 						{
 							bLosingBonus = true;
 							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
@@ -39682,7 +39677,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					//Do we have >25% of this resource under our control?
 					if(iOwnedNumResource * 100 > iTotalNumResource * GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD))
 					{
-						if(m_pabHasStrategicMonopoly[eResource] == false)
+						if(!m_pabHasStrategicMonopoly[eResource])
 						{
 							bGainingStrategicBonus = true;
 							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
@@ -39691,7 +39686,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					}
 					else
 					{
-						if(m_pabHasStrategicMonopoly[eResource] == true)
+						if(m_pabHasStrategicMonopoly[eResource])
 						{
 							bLosingStrategicBonus = true;
 							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
@@ -39715,7 +39710,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 
 					if (bValid)
 					{
-						if(m_pabHasGlobalMonopoly[eResource] == false)
+						if(!m_pabHasGlobalMonopoly[eResource])
 						{
 							bGainingBonus = true;
 							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
@@ -39725,7 +39720,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					}
 					else
 					{
-						if(m_pabHasGlobalMonopoly[eResource] == true)
+						if(m_pabHasGlobalMonopoly[eResource])
 						{
 							bLosingBonus = true;
 							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
@@ -39738,7 +39733,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 				{
 					if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 					{
-						if(m_pabHasGlobalMonopoly[eResource] == true)
+						if(m_pabHasGlobalMonopoly[eResource])
 						{
 							bLosingBonus = true;
 							GC.getGame().UpdateGreatestPlayerResourceMonopoly(eResource);
@@ -48950,7 +48945,7 @@ void CvPlayer::DoUpdateCoreCitiesForSpaceshipProduction()
 			vCityWeights.push_back(pLoopCity, iWeight);
 		}
 	}
-	if (vCityWeights.size() == 0)
+	if (vCityWeights.empty())
 		return;
 
 	// Pick the cities with the highest weight
@@ -48977,7 +48972,7 @@ int CvPlayer::GetNumAluminumStillNeededForCoreCities() const
 
 	int iTotal = 0;
 	const vector<int>& vCoreCities = GetCoreCitiesForSpaceshipProduction();
-	if (vCoreCities.size() > 0)
+	if (!vCoreCities.empty())
 	{
 		// in each core city, we want to build two buildings: spaceship factories and hydro plants (CP) / power plants (VP).
 		// todo: un-hardcode this and calculate the number of buildings based on the building entries in the database

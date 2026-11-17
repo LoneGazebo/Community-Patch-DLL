@@ -297,9 +297,9 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 			//neighbor with wrapping
 			int j = (i + 1) % occupiedCols.size();
 
-			if (occupiedCols[i] == false && occupiedCols[j] == true)
+			if (!occupiedCols[i] && occupiedCols[j])
 				colRise = j;
-			if (occupiedCols[i] == true && occupiedCols[j] == false)
+			if (occupiedCols[i] && !occupiedCols[j])
 				colFall = i;
 		}
 	}
@@ -312,9 +312,9 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 			//neighbor w/o wrapping
 			int j = (i + 1);
 
-			if (occupiedCols[i] == false && occupiedCols[j] == true)
+			if (!occupiedCols[i] && occupiedCols[j])
 				colRise = j;
-			if (occupiedCols[i] == true && occupiedCols[j] == false)
+			if (occupiedCols[i] && !occupiedCols[j])
 				colFall = i;
 		}
 		if (occupiedCols[occupiedCols.size()-1])
@@ -328,9 +328,9 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 			//neighbor with wrapping
 			int j = (i + 1) % occupiedRows.size();
 
-			if (occupiedRows[i] == false && occupiedRows[j] == true)
+			if (!occupiedRows[i] && occupiedRows[j])
 				rowRise = j;
-			if (occupiedRows[i] == true && occupiedRows[j] == false)
+			if (occupiedRows[i] && !occupiedRows[j])
 				rowFall = i;
 		}
 	}
@@ -343,9 +343,9 @@ void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>
 			//neighbor w/o wrapping
 			int j = (i + 1);
 
-			if (occupiedRows[i] == false && occupiedRows[j] == true)
+			if (!occupiedRows[i] && occupiedRows[j])
 				rowRise = j;
-			if (occupiedRows[i] == true && occupiedRows[j] == false)
+			if (occupiedRows[i] && !occupiedRows[j])
 				rowFall = i;
 		}
 		if (occupiedRows[occupiedRows.size()-1])

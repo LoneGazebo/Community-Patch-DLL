@@ -1608,7 +1608,7 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 			if (pCity != NULL)
 			{
 				bool bAlreadyChecked = false;
-				if (CityList.size() > 0)
+				if (!CityList.empty())
 				{
 					for (uint ui = 0; ui < CityList.size(); ui++)
 					{
@@ -2233,7 +2233,7 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 	}
 
 	// Remove these works from those to consider later
-	if (aWorksChosen.size() > 0)
+	if (!aWorksChosen.empty())
 	{
 		vector<CvGreatWorkAvailableForUse>::iterator it2;
 		vector<CvGreatWorkAvailableForUse> tempWorks;
@@ -2656,7 +2656,7 @@ CvPlot* CvPlayerCulture::GetNextDigCompletePlot() const
 {
 	CvPlot* pRtnValue = NULL;
 
-	if (m_aDigCompletePlots.size() > 0)
+	if (!m_aDigCompletePlots.empty())
 	{
 		pRtnValue = m_aDigCompletePlots[0];
 	}
@@ -4998,7 +4998,7 @@ void CvPlayerCulture::DoPublicOpinion()
 				}
 
 					aIdeologyPressure[eOtherCivIdeology] += iCulturalDominanceOverUs;
-					if (vIdeologyPressureStrings[eOtherCivIdeology].size() > 0)
+					if (!vIdeologyPressureStrings[eOtherCivIdeology].empty())
 					{
 						vIdeologyPressureStrings[eOtherCivIdeology] += ", ";
 				}
@@ -5182,7 +5182,7 @@ void CvPlayerCulture::DoPublicOpinion()
 
 			if (kIdeology->IsPurchaseByLevel())
 			{
-				if (vIdeologyPressureStrings[eIdeologyBranch].size() > 0)
+				if (!vIdeologyPressureStrings[eIdeologyBranch].empty())
 				{
 					CvString sTemp = "[NEWLINE]For [COLOR_POSITIVE_TEXT]"; //used to be TXT_KEY_CO_OPINION_TT_FOR_ORDER, TXT_KEY_CO_OPINION_TT_FOR_FREEDOM, etc.
 					sTemp += kIdeology->GetDescription();

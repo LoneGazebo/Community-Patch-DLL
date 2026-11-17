@@ -751,7 +751,7 @@ int CvLuaPlot::lGetFeatureProduction(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const BuildTypes eBuild = (BuildTypes)lua_tointeger(L, 2);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 3);
-	CvCity* pCity;
+	CvCity* pCity = NULL;
 
 	const int iResult = pkPlot->getFeatureProduction(eBuild, ePlayer, &pCity);
 

@@ -960,7 +960,7 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanCreatePantheon(PlayerTypes 
 			}
 		}
 
-	if (GetAvailablePantheonBeliefs(ePlayer).size() == 0)
+	if (GetAvailablePantheonBeliefs(ePlayer).empty())
 		return FOUNDING_NO_BELIEFS_AVAILABLE;
 
 	return FOUNDING_OK;
@@ -2172,7 +2172,7 @@ std::vector<BeliefTypes> CvGameReligions::GetAvailablePantheonBeliefs(PlayerType
 		}
 	}
 	//zero? uh oh.
-	if (availableBeliefs.size() <= 0)
+	if (availableBeliefs.empty())
 	{
 		for (int iI = 0; iI < iNumBeleifs; iI++)
 		{
@@ -6207,7 +6207,7 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief(PlayerTypes ePlayer)
 	// Choose from weighted vector
 	beliefChoices.StableSortItems();
 	BeliefTypes rtnValue = NO_BELIEF;
-	if (beliefChoices.size() > 0)
+	if (!beliefChoices.empty())
 	{
 		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), CvSeeder::fromRaw(0x0af7fe29).mix(GET_PLAYER(ePlayer).GetID()).mix(availableBeliefs.size()));
 		LogBeliefChoices(beliefChoices, rtnValue);
@@ -6440,7 +6440,7 @@ vector<BeliefTypes> CvReligionAI::ChooseBeliefCombination(const vector<vector<Be
 	vector<int> viSlots;
 	ScoreBeliefCombinations(vvCandidates, combinationChoices, vvCombinations, viSlots);
 
-	if (combinationChoices.size() == 0)
+	if (combinationChoices.empty())
 		return vResult;
 
 	int iChoice = combinationChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), seed.mix(combinationChoices.size()));
@@ -6476,7 +6476,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief(PlayerTypes ePlayer, ReligionT
 	// Choose from weighted vector
 	beliefChoices.StableSortItems();
 	BeliefTypes rtnValue = NO_BELIEF;
-	if (beliefChoices.size() > 0)
+	if (!beliefChoices.empty())
 	{
 		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), CvSeeder::fromRaw(0x894eaafe).mix(GET_PLAYER(ePlayer).GetID()).mix(availableBeliefs.size()));
 		LogBeliefChoices(beliefChoices, rtnValue);
@@ -6549,8 +6549,7 @@ int CvReligionAI::GetNumCitiesToSpreadReligionTo(ReligionTypes eReligion, int& i
 	if (iNumReligionsStillToFound > 0)
 	{
 		int iOtherPlayersWithPantheon = 0;
-		int iMajorLoop;
-		for (iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			// players without a religion, but with a pantheon
 			if (GET_PLAYER((PlayerTypes)iMajorLoop).isAlive() && iMajorLoop != m_pPlayer->GetID() && GET_PLAYER((PlayerTypes)iMajorLoop).GetReligions()->GetStateReligion(false) == NO_RELIGION && GET_PLAYER((PlayerTypes)iMajorLoop).GetReligions()->GetStateReligion(true) != NO_RELIGION)
@@ -6709,7 +6708,8 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 	if(eMyReligion <= RELIGION_PANTHEON)
 		return NULL;
 
-	std::vector<SPlotWithScore> vTargetsO, vTargetsD;
+	std::vector<SPlotWithScore> vTargetsO;
+	std::vector<SPlotWithScore> vTargetsD;
 	vector<PlayerTypes> vUnfriendlyMajors = m_pPlayer->GetUnfriendlyMajors();
 
 	// Loop through each of my cities
@@ -7979,8 +7979,7 @@ CvWeightedVector<int> CvReligionAI::CalculatePlotWeightsForBeliefSelection() con
 					if (pPlot->getTerrainType() == TERRAIN_MOUNTAIN)
 					{
 						int iCityLoop = 0;
-						CvCity* pLoopCity;
-						for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+						for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 						{
 							if (pLoopCity->IsWithinWorkRange(pPlot))
 							{
@@ -8948,7 +8947,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, ReligionTypes eFor
 				if (pEntry->GetSpreadModifierDoublingTech() != NO_TECH)
 				{
 					TechTypes eDoublingTech = pEntry->GetSpreadModifierDoublingTech();
-					int iAvailabilityMod;
+					int iAvailabilityMod = 0;
 					if (m_pPlayer->HasTech(eDoublingTech) || m_pPlayer->GetPlayerTechs()->GetCurrentResearch() == eDoublingTech)
 					{
 						iAvailabilityMod = 10;
@@ -10035,7 +10034,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 			}
 			if (eThisBuild != NO_BUILD)
 			{
-				int iModifier;
+				int iModifier = 0;
 				TechTypes eBuildTech = (TechTypes)GC.getBuildInfo(eThisBuild)->getTechPrereq();
 				// already have the tech or researching it?
 				if (eBuildTech == NO_TECH || m_pPlayer->HasTech(eBuildTech) || m_pPlayer->GetPlayerTechs()->GetCurrentResearch() == eBuildTech)

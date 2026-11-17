@@ -273,7 +273,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int iMaxTurns) c
 
 	//find all other explorer plots/target plots
 	std::vector<pair<int, int>> vOtherExplorerCoordinates;
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iLoop))
 	{
 		if (pLoopUnit == pUnit)
@@ -1236,7 +1236,7 @@ void CvHomelandAI::PlanWorkerDistribution()
 
 	int iGlobalImprovementNeed = 0;
 
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if (aProcessedCities.find(pLoopCity->GetID()) != aProcessedCities.end())
@@ -1676,7 +1676,8 @@ void CvHomelandAI::ExecutePatrolMoves()
 	}
 	
 	//get the most exposed cities and the most threatening neighbor cities
-	vector<SPatrolTarget> vLandTargets, vWaterTargets;
+	vector<SPatrolTarget> vLandTargets;
+	vector<SPatrolTarget> vWaterTargets;
 	if (iUnitsLand>0)
 		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false, 3);
 	if (iUnitsSea>0)
@@ -2568,7 +2569,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					//We really need to do something with this unit - let's bring it home if we can.
 					CvPlot* pBestPlot = NULL;
 					int iBestDistance = MAX_INT;
-					int iLoop;
+					int iLoop = 0;
 					for(CvCity* pTestCity = m_pPlayer->firstCity(&iLoop); pTestCity != NULL; pTestCity = m_pPlayer->nextCity(&iLoop))
 					{
 						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalWaterNearPlot(pTestCity->plot());
@@ -5154,7 +5155,7 @@ void CvHomelandAI::ExecuteProphetMoves()
 
 		case GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION:
 			{
-				int iTargetTurns;
+				int iTargetTurns = 0;
 				CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseProphetConversionCity(pUnit, &iTargetTurns);
 				if(pTarget)
 				{
@@ -5271,8 +5272,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						// find the great general improvement
 						BuildTypes eSelectedBuildType = NO_BUILD;
 						BuildTypes eBuild;
-						int iBuildIndex;
-						for (iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+						for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 						{
 							eBuild = (BuildTypes)iBuildIndex;
 							CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
@@ -5416,7 +5416,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			continue;
 		}
 
-		int iTargetTurns; //todo: don't pick the same target for all missionaries
+		int iTargetTurns = 0; //todo: don't pick the same target for all missionaries
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseMissionaryTargetCity(pUnit, vBurnedTargets, &iTargetTurns);
 		if(pTarget)
 		{
@@ -5487,7 +5487,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		if(!pUnit)
 			continue;
 
-		int iTargetTurns;
+		int iTargetTurns = 0;
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, vBurnedTargets, &iTargetTurns);
 		if(pTarget)
 		{
@@ -5695,7 +5695,8 @@ void CvHomelandAI::ExecuteAircraftMoves()
 	//then decide what to do with our units
 	//combat-ready units want to go to the hotspots
 	//healing units want to go to the backwaters
-	std::vector<CvUnit*> vCombatReadyUnits, vHealingUnits;
+	std::vector<CvUnit*> vCombatReadyUnits;
+	std::vector<CvUnit*> vHealingUnits;
 
 	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -5921,7 +5922,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 	}
 
 	CvPlot* pBestPlot = NULL;
-	if (aBestPlotList.size()>0)
+	if (!aBestPlotList.empty())
 	{
 		aBestPlotList.StableSortItems(); //highest score will be first
 		pBestPlot=aBestPlotList.GetElement(0);
@@ -7316,7 +7317,7 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 		}
 	}
 
-	if (aBestPlotList.size() > 0)
+	if (!aBestPlotList.empty())
 	{
 		aBestPlotList.StableSortItems(); //highest score will be first
 		return aBestPlotList.GetElement(0);

@@ -2610,7 +2610,10 @@ void CvEconomicAI::LogReligionBeliefYields()
 			// --- A2: per-worked-plot nature & improvement yields (majority beliefs + secondary pantheon) ---
 			const BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			const CvBeliefEntry* pkSecondary = (eSecondaryPantheon != NO_BELIEF) ? GC.getBeliefInfo(eSecondaryPantheon) : NULL;
-			bool bSecReqImp = false, bSecReqNoImp = false, bSecReqRes = false, bSecReqNoFeat = false;
+			bool bSecReqImp = false;
+			bool bSecReqNoImp = false;
+			bool bSecReqRes = false;
+			bool bSecReqNoFeat = false;
 			if (pkSecondary)
 			{
 				bSecReqImp = pkSecondary->RequiresImprovement();
@@ -3880,7 +3883,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 		CvString strLogString;
 		strLogString.Format("");
 		m_pPlayer->LogSpaceshipPlanMessage(strLogString);
-		if (vCoreCities.size() > 0)
+		if (!vCoreCities.empty())
 		{
 			strLogString.Format("Core Cities: ");
 			for (size_t i = 0; i < vCoreCities.size(); i++)
@@ -3932,7 +3935,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 			}
 		}
 
-		if (vUnitsDisband.size() > 0)
+		if (!vUnitsDisband.empty())
 		{
 			// go through the list of units and disband the ones with the lowest value until we have enough aluminum
 			vUnitsDisband.StableSortItems();
@@ -3971,14 +3974,14 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 					continue;
 
 				int iWeight = pLoopCity->getEconomicValue(m_pPlayer->GetID());
-				if (pLoopCity->isProductionSpaceshipPart() || (vCitiesForSpaceshipParts.size() > 0 && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
+				if (pLoopCity->isProductionSpaceshipPart() || (!vCitiesForSpaceshipParts.empty() && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
 				{
 					// make sure the core cities for spaceship production have the highest score
 					iWeight *= 10;
 				}
 				vCityEconomicWeights.push_back(pLoopCity, max(0, iWeight));
 			}
-			if (vCityEconomicWeights.size() > 0)
+			if (!vCityEconomicWeights.empty())
 			{
 				vCityEconomicWeights.StableSortItems();
 				// start selling buildings in the worst cities
@@ -3987,7 +3990,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 
 					CvCity* pLoopCity = vCityEconomicWeights.GetElement(i);
 					// if this is a core city, sell buildings only if we need them for spaceship parts
-					if (pLoopCity->isProductionSpaceshipPart() || (vCitiesForSpaceshipParts.size() > 0 && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
+					if (pLoopCity->isProductionSpaceshipPart() || (!vCitiesForSpaceshipParts.empty() && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
 					{
 						if (iNumAluminumWeNeed - iNumTotalAluminumNeededForCoreCities <= 0)
 						{
@@ -4437,7 +4440,6 @@ void CvEconomicAI::AddPlotToExplorePlots(const CvPlot* pPlot)
 
 void CvEconomicAI::UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, const CvPlot* pIgnorePlot)
 {
-	CvPlot* pNearbyPlot;
 	iChange *= GetPlotExploreMultiplier(pPlot);
 
 	for (int iRange = 1; iRange <= 3; iRange++)
@@ -4445,7 +4447,7 @@ void CvEconomicAI::UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, co
 		const std::vector<CvPlot*> pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, false, true);
 		for (std::vector<CvPlot*>::const_iterator it = pPlotsToCheck.begin(); it != pPlotsToCheck.end(); ++it)
 		{
-			pNearbyPlot = *it;
+			CvPlot* pNearbyPlot = *it;
 
 			if (!pNearbyPlot || pNearbyPlot == pIgnorePlot)
 				continue;

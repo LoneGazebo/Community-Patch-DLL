@@ -1293,7 +1293,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		DWORD dwDeleteError = GetLastError();
 		if(dwDeleteError != ERROR_FILE_NOT_FOUND)
 		{
-			const char* szReason;
+			const char* szReason = NULL;
 			switch(dwDeleteError)
 			{
 			case ERROR_SHARING_VIOLATION:
@@ -8571,7 +8571,7 @@ void CvGame::doTurn()
 				}
 			}
 		}
-		if (vTeams.size() > 0)
+		if (!vTeams.empty())
 			GC.getMap().verifyUnitValidPlot(vTeams);
 	}
 
@@ -8898,7 +8898,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 		}
 		// we didn't find any candidates! try again with all UUs
-		if (veUnitRankings.size() <= 0)
+		if (veUnitRankings.empty())
 			bIncludeCivsInGame = true;
 		else
 			break;
@@ -12402,7 +12402,7 @@ void CvGame::LogMapState() const
 	if (GC.getGame().getElapsedGameTurns() < 1)
 	{
 		CvString strMapName;
-		strMapName = strMapName.format("Maps\\Civ5MapmapState_Turn%03d.Civ5Map", GC.getGame().getElapsedGameTurns());
+		strMapName = CvString::format("Maps\\Civ5MapmapState_Turn%03d.Civ5Map", GC.getGame().getElapsedGameTurns());
 
 		const char* sz_strMapName = strMapName.c_str();
 		std::vector<wchar_t> vec;
@@ -12424,7 +12424,7 @@ void CvGame::LogMapState() const
 	 * construct a json string with this info that will be merged with the map json representation in a script later
 	 */
 	CvString strLogName;
-	strLogName = strLogName.format("mapStateLog_Turn%03d.json", GC.getGame().getElapsedGameTurns());
+	strLogName = CvString::format("mapStateLog_Turn%03d.json", GC.getGame().getElapsedGameTurns());
 	FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 	if (!pLog)
 		return;
@@ -14665,7 +14665,7 @@ bool CvGame::CopyModDataToMPMP(const char* szModName, const char* szId, const ch
 
 	// Check mod folder for correct mod, which has the correct id and version in its .modinfo
 	CvString strFolderPath = GetModFromIdAndVersion(strModsPath, szModName, szId, szVersion);
-	if (strFolderPath.size() == 0)
+	if (strFolderPath.empty())
 	{
 		pLog->Msg("Copying mod failed: Folder Not Found");
 		pLog->Msg("--------------------------------------------------------------------------------");

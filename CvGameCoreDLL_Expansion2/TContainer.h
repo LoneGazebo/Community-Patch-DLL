@@ -306,7 +306,7 @@ FDataStream & operator<<(FDataStream & writeTo, const TContainer<T> & readFrom)
 template<typename T>
 FDataStream & operator>>(FDataStream & readFrom, TContainer<T> & writeTo)
 {
-	int nItems;
+	int nItems = 0;
 	readFrom >> nItems;
 
 	for (int i=0; i<nItems; i++)

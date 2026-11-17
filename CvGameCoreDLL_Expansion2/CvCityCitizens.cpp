@@ -808,7 +808,7 @@ BuildingTypes CvCityCitizens::GetAIWorstSpecialistCurrentlyInBuilding(int& iSpec
 int CvCityCitizens::GetSpecialistGPPRate(SpecialistTypes eSpecialist, SPrecomputedExpensiveNumbers& cache)
 {
 	// update cached value if necessary
-	if (cache.iSpecialistGPPRates.size() == 0)
+	if (cache.iSpecialistGPPRates.empty())
 		cache.update(m_pCity);
 
 	if (cache.iSpecialistGPPRates[eSpecialist] == INT_MAX)

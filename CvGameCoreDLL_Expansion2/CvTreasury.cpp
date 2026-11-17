@@ -719,7 +719,7 @@ int CvTreasury::AverageIncome100(int iTurns)
 {
 	ASSERT(iTurns > 0, "Invalid number of turns parameter");
 
-	if(m_GoldChangeForTurnTimes100.size() > 0)
+	if(!m_GoldChangeForTurnTimes100.empty())
 	{
 		int iSamples = 0;
 		int iIndex = m_GoldChangeForTurnTimes100.size() - 1;

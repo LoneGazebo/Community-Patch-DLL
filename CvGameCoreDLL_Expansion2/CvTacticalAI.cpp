@@ -337,17 +337,16 @@ void CvTacticalAI::UpdateVisibility()
 {
 	const TeamTypes eTeam = m_pPlayer->getTeam();
 
-	CvPlot* pLoopPlot;
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 		pLoopPlot->ResetKnownVisibility();
 	}
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
 		if (!pLoopPlot->isRevealed(eTeam))
 			continue;
@@ -371,12 +370,11 @@ void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 
 	if (pPlot->getNumUnits() > 0)
 	{
-		CvUnit* pLoopUnit;
 		TeamTypes eLoopUnitTeam;
 
 		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 		{
-			pLoopUnit = pPlot->getUnitByIndex(iI);
+			CvUnit* pLoopUnit = pPlot->getUnitByIndex(iI);
 			if(pLoopUnit == NULL)
 			{
 				if(GC.getGame().isNetworkMultiPlayer())
@@ -2138,7 +2136,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 	}
 
 	//fallback - if a city can bombard a unit but the corresponding target was suppressed, we do the attack here
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		CvUnit* pTarget = pLoopCity->getBestRangedStrikeTarget();
@@ -4767,7 +4765,7 @@ bool CvTacticalAI::FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot)
 	m_CurrentMoveCities.clear();
 
 	// Loop through all of our cities
-	int iLoop;
+	int iLoop = 0;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		int iAttackStrength = 0;
@@ -6109,9 +6107,9 @@ pair<CvPlot*, int> TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit,
 	std::stable_sort(aDangerList.begin(), aDangerList.end());
 
 	// Now that we've gathered up our lists of destinations, pick the most promising one
-	if (aCityList.size()>0)
+	if (!aCityList.empty())
 		return aCityList.back().option;
-	else if (aCoverList.size() > 0)
+	else if (!aCoverList.empty())
 	{
 		pair<CvPlot*, int> pPlotMove = aCoverList.back().option;
 		CvUnit* pDefender = pPlotMove.first->getBestDefender(pUnit->getOwner());
@@ -6128,9 +6126,9 @@ pair<CvPlot*, int> TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit,
 		}
 		return pPlotMove;
 	}
-	else if (aZeroDangerList.size()>0)
+	else if (!aZeroDangerList.empty())
 		return aZeroDangerList.back().option;
-	else if (aDangerList.size()>0)
+	else if (!aDangerList.empty())
 		return aDangerList.back().option;
 
 	return make_pair(static_cast<CvPlot*>(NULL), 0);
@@ -8163,10 +8161,9 @@ static STacticalAssignment* ScorePlotForCombatUnitMove(const SUnitStats& unit, c
 	{
 		if (unit.iMovesLeft > 0 || testPlot->getNumAdjacentEnemies(CvTacticalPlot::TD_LAND) == 0)
 		{
-			CvUnit* pCivilian;
 			for (int iI = 0; iI < pTestPlot->getNumUnits(); iI++)
 			{
-				pCivilian = pTestPlot->getUnitByIndex(iI);
+				CvUnit* pCivilian = pTestPlot->getUnitByIndex(iI);
 				if (pCivilian && pCivilian->IsCivilianUnit() && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pCivilian->getOwner()))
 				{
 					//workers are not so important ...
@@ -8507,10 +8504,9 @@ static STacticalAssignment* ScorePlotForMeleeAttack(const SUnitStats& unit, cons
 	//combo bonus
 	if (result->eAssignmentType == A_MELEEKILL && enemyPlot->isEnemyCivilian())
 	{
-		CvUnit* pCivilian;
 		for (int iI = 0; iI < pEnemyPlot->getNumUnits(); iI++)
 		{
-			pCivilian = pEnemyPlot->getUnitByIndex(iI);
+			CvUnit* pCivilian = pEnemyPlot->getUnitByIndex(iI);
 			if (pCivilian && pCivilian->IsCivilianUnit() && GET_PLAYER(pUnit->getOwner()).IsAtWarWith(pCivilian->getOwner()))
 			{
 				//workers are not so important ...
@@ -10032,11 +10028,10 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 	for (vector<CvTacticalPlot>::iterator it = tactPlots_w.begin(); it != tactPlots_w.end(); ++it)
 	{
 		const CvPlot* pSourcePlot = it->getPlot();
-		const CvPlot* pTargetPlot;
 		//pt1
 		for (size_t i = 0; i < gLandEnemies.size(); i++)
 		{
-			pTargetPlot = GC.getMap().plotByIndexUnchecked(gLandEnemies[i]);
+			const CvPlot* pTargetPlot = GC.getMap().plotByIndexUnchecked(gLandEnemies[i]);
 			int iDistance = plotDistance(*pSourcePlot, *pTargetPlot);
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_BOTH))
 				it->setEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
@@ -10062,7 +10057,7 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 		//pt2
 		for (size_t i = 0; i < gSeaEnemies.size(); i++)
 		{
-			pTargetPlot = GC.getMap().plotByIndexUnchecked(gSeaEnemies[i]);
+			const CvPlot* pTargetPlot = GC.getMap().plotByIndexUnchecked(gSeaEnemies[i]);
 			int iDistance = plotDistance(*pSourcePlot, *pTargetPlot);
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_BOTH))
 				it->setEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
@@ -10088,7 +10083,7 @@ void CvTacticalPosition::refreshVolatilePlotProperties(bool bInitial)
 		//pt3
 		for (size_t i = 0; i < gCities.size(); i++)
 		{
-			pTargetPlot = GC.getMap().plotByIndexUnchecked(gCities[i]);
+			const CvPlot* pTargetPlot = GC.getMap().plotByIndexUnchecked(gCities[i]);
 			int iDistance = plotDistance(*pSourcePlot, *pTargetPlot);
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_BOTH))
 				it->setEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
@@ -10718,7 +10713,7 @@ CvTacticalPosition::AddAssignmentResult CvTacticalPosition::addAssignment(const 
 	//any new enemies in sight or borders changed?
 	bool bCityCapture = (newAssignment.eAssignmentType == A_MELEEKILL && GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->isCity());
 	bool bRestartRequired = (visibilityResult.second > 0) || bCityCapture;
-	if (bRestartRequired && availableUnits_w.size() > 0)
+	if (bRestartRequired && !availableUnits_w.empty())
 		return RESULT_ADDED_W_VIS_CHANGE;
 
 	return RESULT_ADDED;
@@ -11115,8 +11110,6 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 		if (bLastPosition)
 		{
 			const vector<SUnitStats>& finalCombatPositionUnits = assumedPosition.GetFinalCombatPositions();
-			const CvPlot* pLoopPlot;
-			const CvUnit* pLoopUnit;
 
 			if (bInNativeDomain)
 			{
@@ -11124,7 +11117,7 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 				{
 					for (vector<SUnitStats>::const_iterator it = finalCombatPositionUnits.begin(); it != finalCombatPositionUnits.end(); ++it)
 					{
-						pLoopUnit = kPlayer.getUnit(it->iUnitID);
+						const CvUnit* pLoopUnit = kPlayer.getUnit(it->iUnitID);
 
 						if (pUnit->IsGreatGeneral() && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked()))
 							continue;
@@ -11132,7 +11125,7 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 						if (pUnit->IsGreatAdmiral() && pLoopUnit->getDomainType() != DOMAIN_SEA)
 							continue;
 
-						pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+						const CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 						int iPlotDistance = plotDistance(*pPlot, *pLoopPlot);
 
 						if (iPlotDistance <= iEffectRange)
@@ -11151,8 +11144,8 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 				{
 					for (vector<SUnitStats>::const_iterator it = finalCombatPositionUnits.begin(); it != finalCombatPositionUnits.end(); ++it)
 					{
-						pLoopUnit = kPlayer.getUnit(it->iUnitID);
-						pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+						const CvUnit* pLoopUnit = kPlayer.getUnit(it->iUnitID);
+						const CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
 						int iPlotDistance = plotDistance(*pPlot, *pLoopPlot);
 						int iBonusHeal = iPlotDistance == 0 ? iSameTileHeal : (iPlotDistance == 1 ? iAdjacentTileHeal : 0);
@@ -11247,12 +11240,11 @@ static STacticalAssignment* ScorePlotForSupportMove(const SUnitStats& unit, cons
 
 bool CvSupportPosition::HasCombatBonus(int iPlotIndex, DomainTypes eDomain) const
 {
-	const CvUnit* pUnit;
 
 	const vector<SUnitStats>& availableUnits_r = availableUnits.read();
 	for (vector<SUnitStats>::const_iterator it = availableUnits_r.begin(); it != availableUnits_r.end(); ++it)
 	{
-		pUnit = it->pUnit;
+		const CvUnit* pUnit = it->pUnit;
 		bool bProvidesBuff = (pUnit->IsGreatGeneral() && eDomain != DOMAIN_SEA) || (pUnit->IsGreatAdmiral() && eDomain == DOMAIN_SEA);
 
 		if (!bProvidesBuff)
@@ -11268,7 +11260,7 @@ bool CvSupportPosition::HasCombatBonus(int iPlotIndex, DomainTypes eDomain) cons
 	const vector<SUnitStats>& notQuiteFinishedUnits_r = notQuiteFinishedUnits.read();
 	for (vector<SUnitStats>::const_iterator it = notQuiteFinishedUnits_r.begin(); it != notQuiteFinishedUnits_r.end(); ++it)
 	{
-		pUnit = it->pUnit;
+		const CvUnit* pUnit = it->pUnit;
 		bool bProvidesBuff = (pUnit->IsGreatGeneral() && eDomain != DOMAIN_SEA) || (pUnit->IsGreatAdmiral() && eDomain == DOMAIN_SEA);
 
 		if (!bProvidesBuff)
@@ -11286,7 +11278,6 @@ bool CvSupportPosition::HasCombatBonus(int iPlotIndex, DomainTypes eDomain) cons
 
 int CvSupportPosition::GetCityAttackBonus(int iPlotIndex) const
 {
-	const CvUnit* pUnit;
 
 	int iMaxBuff = 0;
 
@@ -11295,7 +11286,7 @@ int CvSupportPosition::GetCityAttackBonus(int iPlotIndex) const
 
 	for (vector<SUnitStats>::const_iterator it = availableUnits_r.begin(); it != availableUnits_r.end(); ++it)
 	{
-		pUnit = it->pUnit;
+		const CvUnit* pUnit = it->pUnit;
 
 		if (!pUnit->IsSapper())
 			continue;
@@ -11311,7 +11302,7 @@ int CvSupportPosition::GetCityAttackBonus(int iPlotIndex) const
 
 	for (vector<SUnitStats>::const_iterator it = notQuiteFinishedUnits_r.begin(); it != notQuiteFinishedUnits_r.end(); ++it)
 	{
-		pUnit = it->pUnit;
+		const CvUnit* pUnit = it->pUnit;
 
 		if (!pUnit->IsSapper())
 			continue;
@@ -12200,7 +12191,7 @@ bool TacticalAIHelpers::FindAndExecuteBestUnitAssignments(PlayerTypes ePlayer, v
 		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(currentUnits, pTarget, eAggLvl, unuseableUnits, true);
 		if (vAssignments.empty())
 		{
-			if (unuseableUnits.size()>0 && currentUnits.size()>unuseableUnits.size())
+			if (!unuseableUnits.empty() && currentUnits.size()>unuseableUnits.size())
 			{
 				//drop the offending units and try again
 				vector<CvUnit*> remainingUnits;
@@ -12523,7 +12514,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		if (true)
 		{
 			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim around (%d:%d) with agg %d finished in %d ms. started with %d units and %d enemies on %d plots. used %d positions, %d completed.",
 				pTarget->getX(),pTarget->getY(), eAggLvl, durationMs, initialPosition->GetNumAvailableUnits(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));

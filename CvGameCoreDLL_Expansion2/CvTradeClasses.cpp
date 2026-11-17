@@ -276,7 +276,7 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	{
 		DomainTypes eDomain = bWater ? DOMAIN_SEA : DOMAIN_LAND;
 		*pPathOut = ComputeTradePath(pOriginCity, pDestCity, eDomain);
-		if (pPathOut->vPlots.size() == 0)
+		if (pPathOut->vPlots.empty())
 		{
 			// no path could be generated, remove the stale entry from cache
 			ASSERT(false, "No path could be generated for a trade route found in cache. This shouldn't happen");
@@ -955,7 +955,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	 {
 		 pTrade->UpdateTradePlots();
 	 }
-	 if(m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() > 0)
+	 if(!m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.empty())
 	 {
 		for (uint ui = 0; ui < m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size(); ui++)
 		{
@@ -2130,7 +2130,7 @@ bool CvGameTrade::MoveUnit(int iIndex)
 								CvCity* pDestCity = GC.getMap().plot(pTradeConnection->m_iDestX, pTradeConnection->m_iDestY)->getPlotCity();
 								PlayerTypes eDestPlayer = pDestCity->getOwner();
 
-								if (pDestCity != NULL && eDestPlayer != NO_PLAYER && GET_PLAYER(eDestPlayer).isBarbarian() == false && pkUnit->plot()->getOwner() == eDestPlayer)
+								if (pDestCity != NULL && eDestPlayer != NO_PLAYER && !GET_PLAYER(eDestPlayer).isBarbarian() && pkUnit->plot()->getOwner() == eDestPlayer)
 								{
 									GET_PLAYER(eDestPlayer).doInstantYield(
 										INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN, false, NO_GREATPERSON, NO_BUILDING, 0, true,
@@ -2377,7 +2377,7 @@ void CvGameTrade::RefreshTradeRouteVisuals() const
 {
 	for (int i = 0; i < (int)m_aTradeConnections.size(); i++)
 	{
-		if (m_aTradeConnections[i].m_aPlotList.size() > 0)
+		if (!m_aTradeConnections[i].m_aPlotList.empty())
 		{
 			// a route that was never sent is not in the EXE's table, and destroying it there does nothing
 			gDLL->TradeVisuals_DestroyRoute(i, m_aTradeConnections[i].m_eOriginOwner);
@@ -4983,7 +4983,7 @@ bool CvPlayerTrade::ContainsOpposingPlayerTradeUnit(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetOpposingTradeUnitsAtPlot(pPlot, true);
-	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
+	return static_cast<bool>(!aiTradeConnectionIDs.empty());
 }
 
 //	--------------------------------------------------------------------------------
@@ -4997,7 +4997,7 @@ bool CvPlayerTrade::ContainsEnemyTradeUnit(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetEnemyTradeUnitsAtPlot(pPlot, true);
-	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
+	return static_cast<bool>(!aiTradeConnectionIDs.empty());
 }
 
 //	--------------------------------------------------------------------------------
@@ -5241,7 +5241,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 	if (MOD_EVENTS_TRADE_ROUTE_PLUNDERED)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerPlunderedTradeRoute, pUnit->getOwner(), pUnit->GetID(), iPlunderGoldValue, pOriginCity->getOwner(), pOriginCity->GetID(), pDestCity->getOwner(), pDestCity->GetID(), eConnectionType, eDomain);
 
-	 if(pTradeConnection->m_aPlotList.size() > 0)
+	 if(!pTradeConnection->m_aPlotList.empty())
 	 {
 		for (uint ui = 0; ui < pTradeConnection->m_aPlotList.size(); ui++)
 		{
@@ -5766,8 +5766,8 @@ std::vector<CvString> CvPlayerTrade::GetPlotToolTips (CvPlot* pPlot)
 		else
 		{
 			int iTradeUnitIndex = pConnection->m_iTradeUnitLocationIndex;
-			ASSERT(pConnection->m_aPlotList.size() > 0, "A trade route has an empty plot list.");
-			if (pConnection->m_aPlotList.size() == 0)
+			ASSERT(!pConnection->m_aPlotList.empty(), "A trade route has an empty plot list.");
+			if (pConnection->m_aPlotList.empty())
 				return aToolTips;
 
 			int iTradeUnitX = pConnection->m_aPlotList[iTradeUnitIndex].m_iX;
@@ -6042,7 +6042,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	GetAvailableTR(aTradeConnectionList, bSkipExisting, bHaveCaravans, bHaveCargoShips);
 
 	// if the list is empty, bail
-	if (aTradeConnectionList.size() == 0)
+	if (aTradeConnectionList.empty())
 		return;
 
 	// score TR
@@ -6133,7 +6133,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		if (m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() && m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 		{
 			const vector<int>& vCitiesForSpaceship = m_pPlayer->GetCoreCitiesForSpaceshipProduction();
-			if (vCitiesForSpaceship.size() > 0)
+			if (!vCitiesForSpaceship.empty())
 			{
 				if (find(vCitiesForSpaceship.begin(), vCitiesForSpaceship.end(), pCity->GetID()) != vCitiesForSpaceship.end())
 				{
@@ -6161,7 +6161,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		}
 	}
 
-	if (siProductionTargetCities.size() > 0)
+	if (!siProductionTargetCities.empty())
 	{
 		for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 		{
@@ -6194,7 +6194,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 			}
 		}
 
-		if (siFoodTargetCities.size() > 0)
+		if (!siFoodTargetCities.empty())
 		{
 			for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 			{
@@ -6251,7 +6251,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 				if (bAddCity)
 					siWonderTargetCities.insert(pCity->GetID());
 			}
-			if (siWonderTargetCities.size() > 0)
+			if (!siWonderTargetCities.empty())
 			{
 				for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 				{
@@ -7505,7 +7505,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 					if (m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() && m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 					{
 						const vector<int>& vCitiesForSpaceship = m_pPlayer->GetCoreCitiesForSpaceshipProduction();
-						if (vCitiesForSpaceship.size() > 0)
+						if (!vCitiesForSpaceship.empty())
 						{
 							if (find(vCitiesForSpaceship.begin(), vCitiesForSpaceship.end(), pDestCity->GetID()) != vCitiesForSpaceship.end())
 							{

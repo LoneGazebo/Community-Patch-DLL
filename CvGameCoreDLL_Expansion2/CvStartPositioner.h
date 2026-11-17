@@ -120,14 +120,10 @@ public:
 
 	bool Contains(int iX, int iY)
 	{
-		if(iX > m_Boundaries.m_iEastEdge ||
+		return !(iX > m_Boundaries.m_iEastEdge ||
 		        iX < m_Boundaries.m_iWestEdge ||
 		        iY > m_Boundaries.m_iNorthEdge ||
-		        iY < m_Boundaries.m_iSouthEdge)
-		{
-			return false;
-		}
-		return true;
+		        iY < m_Boundaries.m_iSouthEdge);
 	}
 
 	CvAreaBoundaries m_Boundaries;  // Edges of region

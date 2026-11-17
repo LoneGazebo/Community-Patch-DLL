@@ -991,7 +991,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		m_Buildables = m_BuildablesPrecheck;
 
 	bool bPushedOrderForSettler = false;
-	if (m_Buildables.size() > 0)
+	if (!m_Buildables.empty())
 	{
 		int iRushIfMoreThanXTurns = /*15*/ GD_INT_GET(AI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD);
 		iRushIfMoreThanXTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();

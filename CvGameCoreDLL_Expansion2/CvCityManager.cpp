@@ -31,7 +31,7 @@ void CvCityManager::Shutdown()
 //	---------------------------------------------------------------------------
 static void AddToSortedList(CvCityManager::CityList &kCityList, int iFromX, int iFromY, CvCity* pkAddCity)
 {
-	if (kCityList.size() == 0)
+	if (kCityList.empty())
 	{
 		// First one
 		kCityList.push_back(pkAddCity);

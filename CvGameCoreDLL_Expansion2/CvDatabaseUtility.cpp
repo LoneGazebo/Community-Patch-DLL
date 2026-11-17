@@ -542,7 +542,7 @@ bool CvDatabaseUtility::PopulateVectorByValue(vector<int>& pVector, const char* 
 	Database::Results* pResults = GetResults(strKey);
 	if (!pResults)
 	{
-		string strAddedClause = "";
+		string strAddedClause;
 		if (szAdditionalCondition && szAdditionalCondition[0] != '\0')
 		{
 			strAddedClause.append(" and ");
@@ -589,7 +589,7 @@ bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTab
 	Database::Results* pResults = GetResults(strKey);
 	if(pResults == NULL)
 	{
-		std::string strAddedClause = "";
+		std::string strAddedClause;
 		if (szAdditionalCondition && szAdditionalCondition[0] != '\0')
 		{
 			strAddedClause.append(" and ");

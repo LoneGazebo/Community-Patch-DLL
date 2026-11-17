@@ -131,7 +131,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			//add the garrison as a bystander
 			int iDamageMembers = 0;
-			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
+			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, CvCombatInfo::getMaxDamageMemberCount(), pGarrison);
 			if(pkDamageEntry)
 			{
 				BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
@@ -666,7 +666,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		{
 			//add the garrison as a bystander
 			int iDamageMembers = 0;
-			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
+			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, CvCombatInfo::getMaxDamageMemberCount(), pGarrison);
 			if(pkDamageEntry)
 			{
 				BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
@@ -696,7 +696,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == kAttacker.getOwner());
 
-	bool bGeneralsXP;
+	bool bGeneralsXP = false;
 	if (!plot.isCity())
 	{
 		bGeneralsXP = !kAttacker.isBarbarian() && !pkDefender->isBarbarian();
@@ -1493,7 +1493,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		{
 			//add the garrison as a bystander
 			int iDamageMembers = 0;
-			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount(), pGarrison);
+			CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkCombatInfo->getDamageMembers(), &iDamageMembers, CvCombatInfo::getMaxDamageMemberCount(), pGarrison);
 			if(pkDamageEntry)
 			{
 				BATTLE_JOINED(pGarrison, BATTLE_UNIT_COUNT, false); // Bit of a fudge, as BATTLE_UNIT_COUNT happens to correspond to BATTLEUNIT_BYSTANDER
@@ -1547,7 +1547,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
 
-	bool bGeneralsXP;
+	bool bGeneralsXP = false;
 	if (!plot.isCity())
 	{
 		bGeneralsXP = !kAttacker.isBarbarian() && !pkDefender->isBarbarian();
@@ -2476,7 +2476,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	pkCombatInfo->setAttackNuclearLevel(iNukeDamageLevel + 1);
 
 	// Set all of the units in the blast radius to defenders and calculate their damage
-	int iDamageMembers = GenerateNuclearExplosionDamage(&plot, iNukeDamageLevel, &kAttacker, pkCombatInfo->getDamageMembers(), pkCombatInfo->getMaxDamageMemberCount());
+	int iDamageMembers = GenerateNuclearExplosionDamage(&plot, iNukeDamageLevel, &kAttacker, pkCombatInfo->getDamageMembers(), CvCombatInfo::getMaxDamageMemberCount());
 	pkCombatInfo->setDamageMemberCount(iDamageMembers);
 
 	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);

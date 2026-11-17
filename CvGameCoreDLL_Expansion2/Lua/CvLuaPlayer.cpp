@@ -2305,11 +2305,10 @@ int CvLuaPlayer::lGetNumWorldWonders(lua_State* L)
 
 	int iWonderCount = 0;
 
-	int iBuildingLoop;
 	BuildingTypes eBuilding;
 
 	// Loop through all buildings, see if they're a world wonder
-	for(iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
 		eBuilding = (BuildingTypes) iBuildingLoop;
 		CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eBuilding);
@@ -4246,7 +4245,7 @@ int CvLuaPlayer::lGetCityOfClosestGreatWorkSlot(lua_State* L)
 	int iY = lua_tointeger(L, 3);
 	GreatWorkSlotType eGreatWorkSlot = static_cast<GreatWorkSlotType>(lua_tointeger(L, 4));
 	BuildingClassTypes eBuildingClass;
-	int iSlot;
+	int iSlot = 0;
 	CvCity* pkCity = pkPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(iX, iY, eGreatWorkSlot, eBuildingClass, iSlot);
 	if (pkCity)
 	{
@@ -4267,7 +4266,7 @@ int CvLuaPlayer::lGetBuildingOfClosestGreatWorkSlot(lua_State* L)
 	int iY = lua_tointeger(L, 3);
 	GreatWorkSlotType eGreatWorkSlot = static_cast<GreatWorkSlotType>(lua_tointeger(L, 4));
 	BuildingClassTypes eBuildingClass = NO_BUILDINGCLASS;
-	int iSlot;
+	int iSlot = 0;
 	CvCity* pkCity = pkPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(iX, iY, eGreatWorkSlot, eBuildingClass, iSlot);
 	if (pkCity && eBuildingClass != NO_BUILDINGCLASS)
 	{
@@ -5393,7 +5392,7 @@ int CvLuaPlayer::GetPotentialInternationalTradeRouteDestinationsHelper(lua_State
 
 			CvPlayerTrade* pOtherPlayerTrade = GET_PLAYER(ePlayer).GetTrade();
 
-			int iCityLoop;
+			int iCityLoop = 0;
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
@@ -6172,7 +6171,7 @@ int CvLuaPlayer::lGetPotentialTradeUnitNewHomeCity(lua_State* L)
 
 	if (pkUnit->canChangeTradeUnitHomeCity(pkUnitPlot))
 	{
-		int iCityLoop;
+		int iCityLoop = 0;
 		CvCity* pLoopCity = NULL;
 		for(pLoopCity = pkPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iCityLoop))
 		{
@@ -6213,7 +6212,7 @@ int CvLuaPlayer::lGetPotentialAdmiralNewPort(lua_State* L)
 
 	if (pkUnit->canChangeAdmiralPort(pkUnitPlot))
 	{
-		int iCityLoop;
+		int iCityLoop = 0;
 		CvCity* pLoopCity = NULL;
 		for(pLoopCity = pkPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iCityLoop))
 		{
@@ -6250,9 +6249,8 @@ int CvLuaPlayer::lGetNumAvailableTradeUnits(lua_State* L)
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
 	int iCount = 0;
-	int iLoopUnit;
-	CvUnit* pLoopUnit;
-	for (pLoopUnit = pkPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = pkPlayer->nextUnit(&iLoopUnit))
+	int iLoopUnit = 0;
+	for (CvUnit* pLoopUnit = pkPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = pkPlayer->nextUnit(&iLoopUnit))
 	{
 		if (pLoopUnit->isTrade() && pLoopUnit->getDomainType() == eDomain && !pTrade->IsUnitIDUsed(pLoopUnit->GetID()))
 		{
@@ -6341,7 +6339,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 				int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, true);
 				if (iYieldQuantity != 0)
 				{
-					if (strOriginYieldsStr != "") 
+					if (!strOriginYieldsStr.empty())
 					{
 						strOriginYieldsStr += ", ";
 					}
@@ -6365,37 +6363,37 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 			Localization::String strBuffer;
 			if (pConnection->m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 			{
-				if (strOriginYieldsStr != "" && strDestYieldsStr != "")
+				if (!strOriginYieldsStr.empty() && !strDestYieldsStr.empty())
 				{
 					strBuffer = Localization::Lookup("TXT_KEY_TOP_PANEL_ITR_YOUR_ROUTE_BOTH_TT");
 				}
-				else if (strOriginYieldsStr != "")
+				else if (!strOriginYieldsStr.empty())
 				{
 					strBuffer = Localization::Lookup("TXT_KEY_TOP_PANEL_ITR_YOUR_ROUTE_ONLY_ORIGIN_TT");
 				}
-				else if (strDestYieldsStr != "")
+				else if (!strDestYieldsStr.empty())
 				{
 					strBuffer = Localization::Lookup("TXT_KEY_TOP_PANEL_ITR_YOUR_ROUTE_ONLY_DEST_TT");
 				}
 			}
 			else
 			{
-				if (strOriginYieldsStr != "" && strDestYieldsStr != "")
+				if (!strOriginYieldsStr.empty() && !strDestYieldsStr.empty())
 				{
 					strBuffer = Localization::Lookup("TXT_KEY_TOP_PANEL_ITR_INTERNAL_YOUR_ROUTE_BOTH_TT");
 				}
-				else if (strOriginYieldsStr != "")
+				else if (!strOriginYieldsStr.empty())
 				{
 					strBuffer = Localization::Lookup("TXT_KEY_TOP_PANEL_ITR_INTERNAL_YOUR_ROUTE_ONLY_ORIGIN_TT");
 				}
-				else if (strDestYieldsStr != "")
+				else if (!strDestYieldsStr.empty())
 				{
 					strBuffer = Localization::Lookup("TXT_KEY_TOP_PANEL_ITR_INTERNAL_YOUR_ROUTE_ONLY_DEST_TT");
 				}
 			}
 
 			strBuffer << pOriginCity->getNameKey();
-			if (strOriginYieldsStr != "")
+			if (!strOriginYieldsStr.empty())
 			{
 				strBuffer << strOriginYieldsStr;
 			}
@@ -6413,12 +6411,12 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 			}
 
 			strBuffer << pDestCity->getNameKey();
-			if (strDestYieldsStr != "")
+			if (!strDestYieldsStr.empty())
 			{
 				strBuffer << strDestYieldsStr;
 			}
 
-			if (strResult != "")
+			if (!strResult.empty())
 			{
 				strResult += "[NEWLINE]";
 			}
@@ -6492,7 +6490,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 				int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, false);
 				if (iYieldQuantity != 0)
 				{
-					if (strDestYieldsStr != "") 
+					if (!strDestYieldsStr.empty())
 					{
 						strDestYieldsStr += ", ";
 					}
@@ -6503,15 +6501,15 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 			//CvUnitEntry* pUnitEntry = GC.getUnitInfo(pPlayerTrade->GetTradeUnit(pConnection->m_eDomain));
 
 			Localization::String strBuffer;
-			if (strOriginYieldsStr != "" && strDestYieldsStr != "")
+			if (!strOriginYieldsStr.empty() && !strDestYieldsStr.empty())
 			{
 				strBuffer = Localization::Lookup("TXT_KEY_TOP_PANEL_ITR_TO_YOU_ROUTE_BOTH_TT");
 			}
-			else if (strOriginYieldsStr != "")
+			else if (!strOriginYieldsStr.empty())
 			{
 				strBuffer = Localization::Lookup("TXT_KEY_TOP_PANEL_ITR_TO_YOU_ROUTE_ONLY_ORIGIN_TT");
 			}
-			else if (strDestYieldsStr != "")
+			else if (!strDestYieldsStr.empty())
 			{
 				strBuffer = Localization::Lookup("TXT_KEY_TOP_PANEL_ITR_TO_YOU_ROUTE_ONLY_DEST_TT");
 			}
@@ -6529,18 +6527,18 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 			}
 
 			strBuffer << pOriginCity->getNameKey();
-			if (strOriginYieldsStr != "")
+			if (!strOriginYieldsStr.empty())
 			{
 				strBuffer << strOriginYieldsStr;
 			}
 
 			strBuffer << pDestCity->getNameKey();
-			if (strDestYieldsStr != "")
+			if (!strDestYieldsStr.empty())
 			{
 				strBuffer << strDestYieldsStr;
 			}
 
-			if (strResult != "")
+			if (!strResult.empty())
 			{
 				strResult += "[NEWLINE]";
 			}
@@ -6713,7 +6711,7 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 	//    for each destination city
 	//      display if a connection can be made
 
-	int iOriginCityLoop;
+	int iOriginCityLoop = 0;
 	CvCity* pOriginCity = NULL;
 	for (pOriginCity = pkPlayer->firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = pkPlayer->nextCity(&iOriginCityLoop))
 	{
@@ -6732,7 +6730,7 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 				continue;
 			}
 
-			int iDestCityLoop;
+			int iDestCityLoop = 0;
 			CvCity* pDestCity = NULL;
 			for (pDestCity = GET_PLAYER(eOtherPlayer).firstCity(&iDestCityLoop); pDestCity != NULL; pDestCity = GET_PLAYER(eOtherPlayer).nextCity(&iDestCityLoop))
 			{
@@ -7014,7 +7012,7 @@ int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 	lua_createtable(L, 0, 0);
 	int index = 1;
 
-	int iCityLoop;
+	int iCityLoop = 0;
 	for (CvCity* pCity = pkPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = pkPlayer->nextCity(&iCityLoop))
 	{
 		for (int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
@@ -8711,7 +8709,7 @@ int CvLuaPlayer::lGetMilitaryMightForCS(lua_State* L)
 			if (GET_PLAYER(eMajorLoop).isAlive() && GET_PLAYER(eMajorLoop).getNumCities() > 0)
 				viMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight());
 		}
-		if (viMilitaryRankings.size() > 0)
+		if (!viMilitaryRankings.empty())
 		{
 			viMilitaryRankings.StableSortItems();
 			for (int iRanking = 0; iRanking < viMilitaryRankings.size(); iRanking++)
@@ -12745,7 +12743,7 @@ int CvLuaPlayer::lGetImprovementOptions(lua_State* L)
 		int iPart = 1;
 		for (int i = 0; i < NUM_SCORE_PARTS; i++)
 		{
-			if (it->m_aiScoreParts[i] == 0 && !(i == SCORE_PART_YIELDS && it->m_bYieldsUnused))
+			if (it->m_aiScoreParts[i] == 0 && (i != SCORE_PART_YIELDS || !it->m_bYieldsUnused))
 				continue;
 			lua_createtable(L, 0, 2);
 			lua_pushstring(L, CvBuilderTaskingAI::GetScorePartKey((ImprovementScorePart)i));
@@ -12805,12 +12803,8 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	if(pFoundingUnit == NULL)
 		return 0;
 
-	int iSettlerDistance;
-	int iDistanceDropoff;
 	int iSettlerX, iSettlerY;
-	int iPathTurns;
-	int iValue;
-	int iDanger;
+	int iPathTurns = 0;
 
 	// Get coordinates for settler's plot
 	iSettlerX = pFoundingUnit->getX();
@@ -12848,13 +12842,13 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 			// Do we have to check if this is a safe place to go?
 			if(!pPlot->isVisibleEnemyUnit(pkPlayer->GetID()))
 			{
-				iSettlerDistance = plotDistance(iPlotX, iPlotY, iSettlerX, iSettlerY);
+				int iSettlerDistance = plotDistance(iPlotX, iPlotY, iSettlerX, iSettlerY);
 
-				iValue = pkPlayer->getPlotFoundValue(iPlotX, iPlotY);
+				int iValue = pkPlayer->getPlotFoundValue(iPlotX, iPlotY);
 
-				iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
+				int iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
 				iValue = iValue * (100 - iDistanceDropoff) / 100;
-				iDanger = pkPlayer->GetPlotDanger(*pPlot,false);
+				int iDanger = pkPlayer->GetPlotDanger(*pPlot,false);
 				if (iValue > 0 && iDanger < 1000)
 				{
 					iValue = ((1000 - iDanger) * iValue) / 1000;
@@ -12871,7 +12865,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	#define MAX_RECCOMEND_RETURN 3
 	CvPlot* aPlots[MAX_RECCOMEND_RETURN];
 
-	uint uiListSize;
+	uint uiListSize = 0;
 	if ((uiListSize = aBestPlots.size()) > 0)
 	{
 		aBestPlots.StableSortItems();	// highest score will be first.
@@ -13118,7 +13112,7 @@ int CvLuaPlayer::lIsAnyGoodyPlotAccessible(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvPlot* pPlot = pkPlayer->GetClosestGoodyPlot(true /*bStopAfterFindingFirst*/);
 
-	lua_pushboolean(L, pPlot ? true : false);
+	lua_pushboolean(L, pPlot != NULL);
 
 	return 1;
 }
@@ -16594,11 +16588,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	std::string strOutput;
 	const char* strEmpty = "";
 	std::string strEndColor = "[ENDCOLOR]";
-	size_t EndColorFound;
 	std::string strColorPrefix = "[COLOR_";
-	size_t BeginColorPrefixFound;
 	std::string strColorSuffix = "]";
-	size_t BeginColorSuffixFound;
 	std::string strIntensePositiveColor = "[COLOR_INTENSE_POSITIVE_TEXT]";
 	std::string strFullPositiveColor = "[COLOR_POSITIVE_TEXT]";
 	std::string strModeratePositiveColor = "[COLOR_MODERATE_POSITIVE_TEXT]";
@@ -16613,16 +16604,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	{
 		strOutput = aOpinions[ui].m_str.toUTF8();
 
-		EndColorFound = strOutput.rfind(strEndColor);
+		size_t EndColorFound = strOutput.rfind(strEndColor);
 		if (EndColorFound != string::npos)
 		{
 			strOutput.replace(EndColorFound, strEndColor.length(), strEmpty);
 		}
 
-		BeginColorPrefixFound = strOutput.find(strColorPrefix);
+		size_t BeginColorPrefixFound = strOutput.find(strColorPrefix);
 		if (BeginColorPrefixFound != string::npos)
 		{
-			BeginColorSuffixFound = strOutput.find(strColorSuffix);
+			size_t BeginColorSuffixFound = strOutput.find(strColorSuffix);
 			if (BeginColorSuffixFound != string::npos)
 			{
 				strOutput.erase(BeginColorPrefixFound, (BeginColorSuffixFound - BeginColorPrefixFound) + 1);
@@ -17861,10 +17852,9 @@ int CvLuaPlayer::lHasUnitOfClassType(lua_State* L)
 	UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(luaL_checkint(L, 2));
 
 	bool bResult = false;
-	int iUnitLoop;
-	CvUnit* pLoopUnit;
+	int iUnitLoop = 0;
 
-	for(pLoopUnit = pkThisPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pkThisPlayer->nextUnit(&iUnitLoop))
+	for(CvUnit* pLoopUnit = pkThisPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pkThisPlayer->nextUnit(&iUnitLoop))
 	{
 		if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == eUnitClass)
 		{
@@ -18230,9 +18220,8 @@ int CvLuaPlayer::lGetWLTKDResourceTT(lua_State* L)
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 	if (eResource != NO_RESOURCE)
 	{
-		CvCity* pLoopCity;
-		int iLoop;
-		for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+		int iLoop = 0;
+		for (CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 		{
 
 			if (pLoopCity->GetWeLoveTheKingDayCounter() > 0)
@@ -18240,7 +18229,7 @@ int CvLuaPlayer::lGetWLTKDResourceTT(lua_State* L)
 
 			if (pLoopCity->GetResourceDemanded() == eResource)
 			{
-				if (WLTKDTT == "")
+				if (WLTKDTT.empty())
 					WLTKDTT = Localization::Lookup("TXT_KEY_TRADE_WLTKD_RESOURCE_CITIES").toUTF8();
 
 				WLTKDTT += "[NEWLINE][ICON_BULLET] ";
@@ -18255,10 +18244,9 @@ int CvLuaPlayer::lGetWLTKDResourceTT(lua_State* L)
 int CvLuaPlayer::lGetNumNationalWonders(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
-	CvCity* pLoopCity;
-	int iLoop;
+	int iLoop = 0;
 	int iResult = 0;
-	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	for(CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 	{
 
 		iResult += pLoopCity->getNumNationalWonders();
@@ -19008,10 +18996,9 @@ int CvLuaPlayer::lGetEventHappiness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	int iHappiness = 0;
-	CvCity* pLoopCity;
-	int iLoop;
+	int iLoop = 0;
 
-	for(pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+	for(CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 	{
 		iHappiness += pLoopCity->GetEventHappiness();
 	}
@@ -19094,10 +19081,9 @@ int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
 		{
-			CvCity* pLoopCity;
-			int iLoop;
+			int iLoop = 0;
 
-			for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+			for (CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 			{
 				if (pLoopCity != NULL && pLoopCity->IsEventChoiceActive(eEventChoice))
 				{
@@ -19230,10 +19216,9 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
 		{
-			CvCity* pLoopCity;
-			int iLoop;
+			int iLoop = 0;
 
-			for (pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
+			for (CvCity* pLoopCity = pkPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iLoop))
 			{
 				if (pLoopCity != NULL && pLoopCity->IsEventChoiceActive(eEventChoice))
 				{

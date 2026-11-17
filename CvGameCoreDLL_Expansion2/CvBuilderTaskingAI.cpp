@@ -593,7 +593,7 @@ void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, 
 		{
 			if (pPlot->getOwner() == m_pPlayer->GetID())
 			{
-				if (routePlots.size() != 0)
+				if (!routePlots.empty())
 				{
 					plotPair = GetPlotPair(pStartPlot->GetPlotIndex(), pPlot->GetPlotIndex());
 					plannedRoute = make_pair(plotPair, make_pair(eRoute, bUseRivers));
@@ -616,7 +616,7 @@ void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, 
 		routePlots.push_back(pPlot->GetPlotIndex());
 	}
 
-	if (routePlots.size() != 0)
+	if (!routePlots.empty())
 	{
 		plotPair = GetPlotPair(pStartPlot->GetPlotIndex(), pTargetPlot->GetPlotIndex());
 		plannedRoute = make_pair(plotPair, make_pair(eRoute, bUseRivers));
@@ -2072,7 +2072,8 @@ static vector<OptionWithScore<BuilderDirective>> FilterNonOptimalNoTwoAdjacentIm
 		int iPotentialScore = eDirective.m_plotBuildScore.GetPriorityScore();
 
 		// only directives on the same plot can exclude this one; visit them in their original order
-		int iFirst, iEnd;
+		int iFirst;
+		int iEnd;
 		samePlot.GetSamePlot((int)(it - aDirectives.begin()), iFirst, iEnd);
 
 		bool bInclude = true;
@@ -2275,7 +2276,8 @@ static vector<OptionWithScore<BuilderDirective>> FilterOnlyBestImprovements(cons
 		int iMaxScore = eDirective.m_plotBuildScore.GetMaxScore();
 
 		// only directives on the same plot can exclude this one; visit them in their original order
-		int iFirst, iEnd;
+		int iFirst;
+		int iEnd;
 		samePlot.GetSamePlot((int)(it - aDirectives.begin()), iFirst, iEnd);
 
 		bool bInclude = true;
@@ -4826,7 +4828,7 @@ PlotBuildScore CvBuilderTaskingAI::ScorePlotBuildBase(CvPlot* pPlot, Improvement
 		int iSimplifiedYieldValue = GetPlotYieldValueSimplified(pPlot, eBuild);
 		int iWorstWorkedValue = INT_MAX;
 
-		int iLoopCity;
+		int iLoopCity = 0;
 		for (const CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 		{
 			if (pLoopCity != pOwningCity && pLoopCity->IsPuppet())
@@ -4947,7 +4949,7 @@ void CvBuilderTaskingAI::UpdateAllCityWorstPlots()
 {
 	m_worstCityPlotValues.clear();
 
-	int iLoopCity;
+	int iLoopCity = 0;
 	const SBuilderState& sState = SBuilderState::DefaultInstance();
 	for (const CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 	{
@@ -5327,7 +5329,9 @@ void CvBuilderTaskingAI::SettleAdjacencyAgreement(const map<int, vector<size_t>>
 		if (itOptions == plotOptions.end() || fixedPlots.find(iPlotIndex) != fixedPlots.end())
 			continue;
 
-		int iBestScore = 0, iCurrentScore = 0, iSecondScore = 0;
+		int iBestScore = 0;
+		int iCurrentScore = 0;
+		int iSecondScore = 0;
 		ImprovementTypes eSecond = NO_IMPROVEMENT;
 		ImprovementTypes eBest = GetBestAgreedImprovement(m_pPlayer->GetID(), iPlotIndex, itOptions->second, aDirectives, assumedImprovements, iBestScore, iCurrentScore, iSecondScore, eSecond);
 		ImprovementTypes eCurrent = assumedImprovements[iPlotIndex];
@@ -5474,7 +5478,9 @@ void CvBuilderTaskingAI::AgreeOnAdjacentImprovements(vector<OptionWithScore<Buil
 		if (fixedPlots.find(it->first) != fixedPlots.end())
 			continue;
 
-		int iBestScore = 0, iCurrentScore = 0, iSecondScore = 0;
+		int iBestScore = 0;
+		int iCurrentScore = 0;
+		int iSecondScore = 0;
 		ImprovementTypes eSecond = NO_IMPROVEMENT;
 		GetBestAgreedImprovement(m_pPlayer->GetID(), it->first, it->second, aDirectives, assumedImprovements, iBestScore, iCurrentScore, iSecondScore, eSecond);
 		if (eSecond == NO_IMPROVEMENT || iSecondScore <= 0 || iSecondScore * 100 < iBestScore * iClosePercent)
@@ -5498,7 +5504,9 @@ void CvBuilderTaskingAI::AgreeOnAdjacentImprovements(vector<OptionWithScore<Buil
 		const vector<size_t>& aOptions = plotOptions.find(iPlotIndex)->second;
 
 		// An earlier seed may have changed things around here
-		int iBestScore = 0, iCurrentScore = 0, iSecondScore = 0;
+		int iBestScore = 0;
+		int iCurrentScore = 0;
+		int iSecondScore = 0;
 		ImprovementTypes eSecond = NO_IMPROVEMENT;
 		GetBestAgreedImprovement(m_pPlayer->GetID(), iPlotIndex, aOptions, aDirectives, assumedImprovements, iBestScore, iCurrentScore, iSecondScore, eSecond);
 		if (eSecond == NO_IMPROVEMENT || iSecondScore <= 0 || iSecondScore * 100 < iBestScore * iClosePercent)

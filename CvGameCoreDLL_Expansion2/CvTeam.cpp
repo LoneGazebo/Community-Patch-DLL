@@ -4551,7 +4551,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 				// Create any units we captured, now that we own the destination
 				for (uint uiCaptureIndex = 0; uiCaptureIndex < kCaptureUnitList.size(); ++uiCaptureIndex)
 				{
-					pLoopUnit->createCaptureUnit(kCaptureUnitList[uiCaptureIndex], true);
+					CvUnit::createCaptureUnit(kCaptureUnitList[uiCaptureIndex], true);
 				}
 			}
 		}
@@ -7501,7 +7501,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						pEspionage->BuildStealableTechList((PlayerTypes)ui);
 
 						// if the player is out of techs to steal, set their number of stealable techs to zero
-						if(pEspionage->m_aaPlayerStealableTechList[ui].size() == 0)
+						if(pEspionage->m_aaPlayerStealableTechList[ui].empty())
 						{
 							pEspionage->m_aiNumTechsToStealList[ui] = 0;
 						}
