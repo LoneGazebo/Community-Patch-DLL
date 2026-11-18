@@ -10263,27 +10263,21 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 		bool bTargetIsEnemy = pTargetPlot->isEnemyUnit(ePlayer, true, true) || pTargetPlot->isEnemyCity(*pUnit);
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 
-		//this is a performance fix / logic simplification
-		//all open positions share just one instance of gSafePlotCount
-		//we only update the count once at the start of the sim
-		//if there is no safe plot then, there will never be one!
-		//callers only check whether the count is zero, so we can stop looking after the first safe plot
-		bool bNeedSafePlot = !parentPosition && gSafePlotCount[unit.iUnitID] == 0;
-
 		//try to save some memory here
 		ReachablePlots reachablePlotsPruned;
 		for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 
-			if (bNeedSafePlot)
+			//this is a performance fix / logic simplification
+			//all open positions share just one instance of gSafePlotCount
+			//we only update the count once at the start of the sim
+			//if there is no safe plot then, there will never be one!
+			if (!parentPosition)
 			{
 				bool bIsSafe = GET_PLAYER(ePlayer).GetPlotDanger(*pPlot, pUnit, GetUnitDamageDealt(), 0) < pUnit->GetCurrHitPoints();
 				if (bIsSafe && pUnit->canEndTurnAtPlot(pPlot))
-				{
 					gSafePlotCount[unit.iUnitID]++;
-					bNeedSafePlot = false;
-				}
 			}
 
 			//note that if the unit is far away, it won't have any good plots and will be considered blocked
@@ -11775,13 +11769,6 @@ void CvSupportPosition::updateMovePlotsForUnit(SUnitStats unit)
 		int iMoveFlags = CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_DANGER;
 		ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pStartPlot, iMoveFlags, 0, unit.iMovesLeft, freedPlots_r);
 
-		//this is a performance fix / logic simplification
-		//all open positions share just one instance of gSafePlotCount
-		//we only update the count once at the start of the sim
-		//if there is no safe plot then, there will never be one!
-		//callers only check whether the count is zero, so we can stop looking after the first safe plot
-		bool bNeedSafePlot = !parentPosition && gSafePlotCount[unit.iUnitID] == 0;
-
 		//try to save some memory here
 		ReachablePlots reachablePlotsPruned;
 		for (ReachablePlots::const_iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
@@ -11794,14 +11781,15 @@ void CvSupportPosition::updateMovePlotsForUnit(SUnitStats unit)
 			if (TacticalAIHelpers::GetPlotDistanceToTarget(it->iPlotIndex, pUnit->getDomainType()) > TACTICAL_COMBAT_MAX_TARGET_DISTANCE + 2)
 				continue;
 
-			if (bNeedSafePlot)
+			//this is a performance fix / logic simplification
+			//all open positions share just one instance of gSafePlotCount
+			//we only update the count once at the start of the sim
+			//if there is no safe plot then, there will never be one!
+			if (!parentPosition)
 			{
 				bool bIsSafe = GET_PLAYER(ePlayer).GetPlotDanger(*pPlot, pUnit, SUnitIDValueContainer(), 0) < pUnit->GetCurrHitPoints();
 				if (bIsSafe && pUnit->canEndTurnAtPlot(pPlot))
-				{
 					gSafePlotCount[unit.iUnitID]++;
-					bNeedSafePlot = false;
-				}
 			}
 
 			//last (expensive) check, need to have a tact plot for each reachable plot
