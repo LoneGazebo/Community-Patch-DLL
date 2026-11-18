@@ -2951,7 +2951,7 @@ CvPlot* CvPlayerAI::FindBestMessengerTargetPlot(CvUnit* pUnit, const vector<int>
 		for (CvCity* pCity = kPlayer.firstCity(&iLoop); pCity; pCity = kPlayer.nextCity(&iLoop))
 		{
 			// Must be able to see at least one city
-			if (!pCity->isRevealed(pUnit->getTeam()))
+			if (!pCity->isRevealed(pUnit->getTeam(), false, false))
 				continue;
 
 			int iScore = ScoreCityForMessenger(pCity, pUnit);

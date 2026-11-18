@@ -12188,7 +12188,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		else if (eInternationalGames == eProject)
 		{
-			int iLowestPercent = GetPlayer()->GetDiplomacyAI()->GetLowestTourismInfluence();
+			int iLowestPercent = 0;
+			GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false, iLowestPercent);
+
 			if (bCanGold)
 			{
 				if (bCultureVictoryEnabled)
@@ -13563,7 +13565,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		if (bCultureVictoryEnabled)
 		{
 			int iTourismChange = pProposal->GetEffects()->iChangeTourism;
-			int iLowestPercent = GetPlayer()->GetDiplomacyAI()->GetLowestTourismInfluence();
+			int iLowestPercent = 0;
+			GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false, iLowestPercent);
+
 			if (iLowestPercent > 25)
 			{
 				iExtra += 2 * iTourismChange * min(iLowestPercent - 25, 50);
