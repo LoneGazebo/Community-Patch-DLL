@@ -47373,25 +47373,67 @@ void CvPlayer::ChangeCityWorkingChange(int iChange)
 {
 	if (iChange != 0)
 	{
-		m_iCityWorkingChange += iChange;
+		std::vector<std::pair<CvCity*, int>> vReleasedCitizens;
 
-		// Update city plots
+		// Process each city's old working range before changing the player modifier
 		int iLoop = 0;
 		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			int iOldPlots = pLoopCity->GetNumWorkablePlots();
 			int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
+			int iReleased = 0;
+
+			CvCityCitizens* pCitizens = pLoopCity->GetCityCitizens();
+
+			// Release citizens and forced assignments from plots leaving the range
+			for (int iI = iNewPlots; iI < iOldPlots; ++iI)
+			{
+				CvPlot* pLoopPlot = pCitizens->GetCityPlotFromIndex(iI);
+				if (!pLoopPlot)
+					continue;
+
+				if (pCitizens->IsForcedWorkingPlot(pLoopPlot))
+					pCitizens->SetForcedWorkingPlot(pLoopPlot, false);
+
+				if (pCitizens->IsWorkingPlot(pLoopPlot))
+				{
+					pCitizens->SetWorkingPlot(pLoopPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+					iReleased++;
+				}
+
+				if (pLoopPlot->getOwningCityOverride() == pLoopCity)
+					pLoopPlot->setOwningCityOverride(NULL);
+			}
+
+			if (iReleased > 0)
+				vReleasedCitizens.push_back(std::make_pair(pLoopCity, iReleased));
+
+			// Each newly covered or uncovered plot changes its city coverage count by one
+			int iRadiusChange = iNewPlots > iOldPlots ? 1 : -1;
+
 			int iMinPlots = min(iOldPlots, iNewPlots);
 			int iMaxPlots = max(iOldPlots, iNewPlots);
+
 			for (int iI = iMinPlots; iI < iMaxPlots; ++iI)
 			{
 				CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
 				if (pLoopPlot)
 				{
-					pLoopPlot->changeCityRadiusCount(iChange);
-					pLoopPlot->changePlayerCityRadiusCount(GetID(), iChange);
+					pLoopPlot->changeCityRadiusCount(iRadiusChange);
+					pLoopPlot->changePlayerCityRadiusCount(GetID(), iRadiusChange);
 				}
 			}
+		}
+
+		// Apply the modifier only after processing every city's old range
+		m_iCityWorkingChange += iChange;
+
+		// Reassign citizens using the new working ranges
+		for (size_t iI = 0; iI < vReleasedCitizens.size(); ++iI)
+		{
+			CvCityCitizens* pCitizens = vReleasedCitizens[iI].first->GetCityCitizens();
+			for (int iJ = 0; iJ < vReleasedCitizens[iI].second; ++iJ)
+				pCitizens->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 	}
 }

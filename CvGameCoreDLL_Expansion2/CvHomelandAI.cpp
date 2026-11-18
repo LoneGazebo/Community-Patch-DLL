@@ -1134,8 +1134,11 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
+			if (!pUnit)
+				continue;
+
 			UnitAITypes eUnitAI = pUnit->getUnitInfo().GetDefaultUnitAIType();
-			if (pUnit && eUnitAI != UNITAI_SETTLE && pUnit->IsCombatUnit() && pUnit->AI_getUnitAIType() == UNITAI_SETTLE)
+			if (eUnitAI != UNITAI_SETTLE && pUnit->IsCombatUnit() && pUnit->AI_getUnitAIType() == UNITAI_SETTLE)
 			{
 				pUnit->AI_setUnitAIType(eUnitAI);
 				if (GC.getLogging() && GC.getAILogging())

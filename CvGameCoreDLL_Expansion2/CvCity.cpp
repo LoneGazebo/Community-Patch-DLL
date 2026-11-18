@@ -18625,19 +18625,49 @@ void CvCity::changeCityWorkingChange(int iChange)
 	if (iChange != 0)
 	{
 		int iOldPlots = GetNumWorkablePlots();
-		m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
-		int iNewPlots = GetNumWorkablePlots();
+		int iNewPlots = GetNumWorkablePlots(iChange);
+		int iReleased = 0;
+
+		CvCityCitizens* pCitizens = GetCityCitizens();
+
+		// Release citizens and forced assignments before shrinking the work range
+		for (int iI = iNewPlots; iI < iOldPlots; ++iI)
+		{
+			CvPlot* pLoopPlot = pCitizens->GetCityPlotFromIndex(iI);
+			if (!pLoopPlot)
+				continue;
+
+			if (pCitizens->IsForcedWorkingPlot(pLoopPlot))
+				pCitizens->SetForcedWorkingPlot(pLoopPlot, false);
+
+			if (pCitizens->IsWorkingPlot(pLoopPlot))
+			{
+				pCitizens->SetWorkingPlot(pLoopPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+				iReleased++;
+			}
+
+			if (pLoopPlot->getOwningCityOverride() == this)
+				pLoopPlot->setOwningCityOverride(NULL);
+		}
+
+		m_iCityWorkingChange += iChange;
+
+		// Each newly covered or uncovered plot changes its city coverage count by one
+		int iRadiusChange = iNewPlots > iOldPlots ? 1 : -1;
 
 		for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI)
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iI);
-
 			if (pLoopPlot)
 			{
-				pLoopPlot->changeCityRadiusCount(iChange);
-				pLoopPlot->changePlayerCityRadiusCount(getOwner(), iChange);
+				pLoopPlot->changeCityRadiusCount(iRadiusChange);
+				pLoopPlot->changePlayerCityRadiusCount(getOwner(), iRadiusChange);
 			}
 		}
+
+		// Reassign released citizens after the new working range takes effect
+		for (int iI = 0; iI < iReleased; ++iI)
+			pCitizens->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 	}
 }
 

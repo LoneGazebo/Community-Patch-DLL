@@ -3672,33 +3672,74 @@ bool CvTeam::isCityWorkingChange()	const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeCityWorkingChange(int iChange)
 {
-	if(iChange != 0)
+	if (iChange != 0)
 	{
-		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++) {
-			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-			if (kLoopPlayer.isAlive()) {
-				if (kLoopPlayer.getTeam() == GetID()) {
-					CvCity* pLoopCity = NULL;
-					int iLoop = 0;
-		
-					for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop)) {
-						int iOldPlots = pLoopCity->GetNumWorkablePlots();
-						int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
-			
-						for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
-							CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
+		std::vector<std::pair<CvCity*, int>> vReleasedCitizens;
 
-							if (pLoopPlot) {
-								pLoopPlot->changeCityRadiusCount(iChange);
-								pLoopPlot->changePlayerCityRadiusCount(kLoopPlayer.GetID(), iChange);
-							}
-						}
+		const std::vector<PlayerTypes>& vPlayers = getPlayers();
+		for (size_t iPlayer = 0; iPlayer < vPlayers.size(); iPlayer++)
+		{
+			CvPlayer& kLoopPlayer = GET_PLAYER(vPlayers[iPlayer]);
+			if (!kLoopPlayer.isAlive())
+				continue;
+
+			int iLoop = 0;
+			for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+			{
+				int iOldPlots = pLoopCity->GetNumWorkablePlots();
+				int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
+				int iReleased = 0;
+
+				CvCityCitizens* pCitizens = pLoopCity->GetCityCitizens();
+
+				// Release citizens and forced assignments before shrinking the range
+				for (int iI = iNewPlots; iI < iOldPlots; ++iI)
+				{
+					CvPlot* pLoopPlot = pCitizens->GetCityPlotFromIndex(iI);
+					if (!pLoopPlot)
+						continue;
+
+					if (pCitizens->IsForcedWorkingPlot(pLoopPlot))
+						pCitizens->SetForcedWorkingPlot(pLoopPlot, false);
+
+					if (pCitizens->IsWorkingPlot(pLoopPlot))
+					{
+						pCitizens->SetWorkingPlot(pLoopPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+						iReleased++;
+					}
+
+					if (pLoopPlot->getOwningCityOverride() == pLoopCity)
+						pLoopPlot->setOwningCityOverride(NULL);
+				}
+
+				if (iReleased > 0)
+					vReleasedCitizens.push_back(std::make_pair(pLoopCity, iReleased));
+
+				// Each newly covered or uncovered plot changes its city coverage count by one
+				int iRadiusChange = iNewPlots > iOldPlots ? 1 : -1;
+
+				for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
+					if (pLoopPlot)
+					{
+						pLoopPlot->changeCityRadiusCount(iRadiusChange);
+						pLoopPlot->changePlayerCityRadiusCount(kLoopPlayer.GetID(), iRadiusChange);
 					}
 				}
 			}
 		}
 
-		m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
+		// Apply the team modifier after processing all affected cities
+		m_iCityWorkingChange += iChange;
+
+		// Reassign released citizens after the new range is active
+		for (size_t iI = 0; iI < vReleasedCitizens.size(); ++iI)
+		{
+			CvCityCitizens* pCitizens = vReleasedCitizens[iI].first->GetCityCitizens();
+			for (int iJ = 0; iJ < vReleasedCitizens[iI].second; ++iJ)
+				pCitizens->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
+		}
 	}
 }
 
@@ -6324,11 +6365,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 		}
 
-		if(pkTechInfo->IsRepeat())
+		if (pkTechInfo->IsRepeat())
 		{
-			processTech(eIndex, iChange, bNoBonus);
 			GetTeamTechs()->IncrementTechCount(eIndex);
-
 			GetTeamTechs()->SetResearchProgress(eIndex, 0, ePlayer);
 
 			// Repeating techs are good for score!
@@ -6640,10 +6679,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 		}
 
+		// Process tech effects after removing the completed tech from the research queue.
+		// Otherwise, instant Science can recursively complete a repeatable tech.
+		processTech(eIndex, iChange, bNoBonus);
+
 		if (!pkTechInfo->IsRepeat())
 		{
-			processTech(eIndex, iChange, bNoBonus);
-
 			// process resources that are now improved
 			const int iNumPlots = GC.getMap().numPlots();
 			for (int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)

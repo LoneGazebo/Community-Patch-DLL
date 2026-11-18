@@ -1278,6 +1278,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						LogEspionageMsg(strMsg);
 					}
 				}
+
+				// Instant yields from stealing technology can grant new spies; reacquire the pointer to be safe
+				pSpy = GetSpyByID(uiSpyIndex);
 				if (pSpy->GetSpyState() != SPY_STATE_DEAD && pSpy->GetSpyState() != SPY_STATE_TERMINATED)
 				{
 					UncoverIntrigue(uiSpyIndex);
@@ -1567,8 +1570,6 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 		return;
 
 	CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eMission);
-	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-
 	PlayerTypes eCityOwner = pCity->getOwner();
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
 
@@ -1676,6 +1677,9 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 		}
 	}
 
+	// Mission rewards can grant new spies and reallocate m_aSpyList; reacquire the pointer to be safe
+	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
+
 	// spy killed in action
 	if (bKilled)
 	{
@@ -1718,9 +1722,10 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 		if (iExperience > 0)
 		{
 			LevelUpSpy(uiSpyIndex, iExperience);
+			pSpy = GetSpyByID(uiSpyIndex); // reacquire the pointer to be safe because LevelUpSpy() can change counterspy focus
 		}
 		pSpy->SetTurnActiveMissionConducted(GC.getGame().getGameTurn());
-				
+
 		// reset spy focus
 		pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
 
