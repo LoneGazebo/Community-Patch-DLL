@@ -2219,7 +2219,7 @@ VALUES
 INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
-	a.Type, b.Type, 25
+	a.Type, b.SpecialistType, 25
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_NATIONAL_EPIC';
 
