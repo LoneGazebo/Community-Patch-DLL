@@ -2312,6 +2312,8 @@ public:
 
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iTargetTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
+	// Returns a settled arrival result, or -1 when pathfinding is needed.
+	int GetTurnsToReachTargetEstimate(const CvPlot* pTarget, int iFlags, int iTargetTurns) const;
 	bool CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns);
 	void ClearPathCache();
 
