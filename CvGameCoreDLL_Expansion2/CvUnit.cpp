@@ -5823,7 +5823,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 
 		if (!bTestVisibility)
 		{
-			if (GET_PLAYER(m_eOwner).GetEconomicAI()->GetExplorationPlots(this).empty())
+			if (!GET_PLAYER(m_eOwner).GetEconomicAI()->HasExplorationPlots(this))
 			{
 				return false;
 			}
