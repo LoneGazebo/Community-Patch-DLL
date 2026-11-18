@@ -3938,8 +3938,8 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer)
 		long long lCulture = kOtherPlayer.GetJONSCultureEverGeneratedTimes100();
 		int iCultPerTurn = GetOtherPlayerCulturePerTurnIncludingInstantTimes100(ePlayer);
 
-		long long lNumerator = (/*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * lCulture / 100) - lInfluence;
-		int iDivisor = iInflPerTurn - (/*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * iCultPerTurn / 100);
+		long long lNumerator = (/*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * lCulture / 100) - lInfluence;
+		int iDivisor = iInflPerTurn - (/*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * iCultPerTurn / 100);
 
 		iRtnValue = (int)(lNumerator / max(1, iDivisor));
 
@@ -3992,39 +3992,52 @@ int CvPlayerCulture::GetNumCivsToBeInfluentialOn() const
 }
 
 /// Which civ is the one we need to do the most work on to get to Influential culture?
-PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
+PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders, bool bExcludeWar, int& iLowestPercent) const
 {
 	PlayerTypes eRtnValue = NO_PLAYER;
-	int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
+	iLowestPercent = /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL); // Don't want to target civs if already influential
 
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
 		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
 		CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
-		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kTeam.isAtWar(m_pPlayer->getTeam()))
+		if (kTeam.GetID() == m_pPlayer->getTeam())
+			continue;
+
+		if (!kPlayer.isAlive())
+			continue;
+
+		if (bExcludeWar && kTeam.isAtWar(m_pPlayer->getTeam()))
+			continue;
+
+		if (bCheckOpenBorders &&
+			((MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
+			|| (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && !kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))))
+			continue;
+
+		long long lInfluenceOn = GetInfluenceOnTimes100((PlayerTypes)iLoopPlayer);
+		long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
+		int iPercent = 0;
+
+		if (lLifetimeCulture > 0)
 		{
-			if (!bCheckOpenBorders || (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-			|| (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
-			{
-				long long lInfluenceOn = GetInfluenceOnTimes100((PlayerTypes)iLoopPlayer);
-				long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
-				int iPercent = 0;
+			iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
+		}
 
-				if (lLifetimeCulture > 0)
-				{
-					iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
-				}
-
-				if (iPercent < iLowestPercent)
-				{
-					iLowestPercent = iPercent;
-					eRtnValue = (PlayerTypes)iLoopPlayer;
-				}
-			}
+		if (iPercent < iLowestPercent)
+		{
+			iLowestPercent = iPercent;
+			eRtnValue = (PlayerTypes)iLoopPlayer;
 		}
 	}
 
 	return eRtnValue;
+}
+
+PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders, bool bExcludeWar) const
+{
+	int iLowestPercent = 0;
+	return GetCivLowestInfluence(bCheckOpenBorders, bExcludeWar, iLowestPercent);
 }
 
 // NON-CULTURE TOURISM BONUSES

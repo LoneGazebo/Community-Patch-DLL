@@ -4955,21 +4955,23 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 void CvHomelandAI::ExecuteMessengerMoves()
 {
 	vector<int> vIgnoreCities;
-	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if(!pUnit || !pUnit->canMove())
+		if (!pUnit || !pUnit->canMove())
 			continue;
+
+		int iUnitID = pUnit->GetID();
 		
 		//Do trade mission
 		CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseMessengerTargetPlot(pUnit,&vIgnoreCities);
-		if(pTarget)
+		if (pTarget)
 		{
 			//not at target yet?
-			if( (pUnit->plot() != pTarget) || (pUnit->plot()->getOwner() != pTarget->getOwner()) || !pUnit->canTrade(pUnit->plot()) )
+			if (pUnit->plot()->getOwner() != pTarget->getOwner() || !pUnit->canTrade(pUnit->plot()))
 			{
-				//important to use the same flags as in FindBestMessengerTargetCity to avoid double pathfinding!
-				int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+				//important to use the same flags as in FindBestMessengerTargetPlot to avoid double pathfinding!
+				int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags);
 				
 				if(GC.getLogging() && GC.getAILogging())
@@ -4981,11 +4983,10 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			}
 
 			//now try to finish our mission
-			if (plotDistance(*pUnit->plot(), *pTarget) < 2 && pUnit->canMove())
+			if (pUnit->plot()->getOwner() == pTarget->getOwner() && pUnit->canMove())
 			{
 				if (pUnit->canTrade(pUnit->plot()))
 				{
-					pUnit->PushMission(CvTypes::getMISSION_TRADE());
 					PlayerTypes ePlayer = pUnit->plot()->getOwner();
 					if (ePlayer != NO_PLAYER)
 					{
@@ -4999,6 +5000,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 							LogHomelandMessage(strLogString);
 						}
 					}
+					pUnit->PushMission(CvTypes::getMISSION_TRADE());
 				}
 				else
 				{
@@ -5006,7 +5008,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 					CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pUnit->plot());
 					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
-						if (aNeighbors[iI] && pUnit->canTrade(aNeighbors[iI]))
+						if (aNeighbors[iI] && aNeighbors[iI]->getOwner() == pTarget->getOwner() && pUnit->canTrade(aNeighbors[iI]))
 						{
 							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
 							break;
@@ -5034,7 +5036,7 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			}
 		}
 
-		UnitProcessed(pUnit->GetID());
+		UnitProcessed(iUnitID);
 	}
 }
 

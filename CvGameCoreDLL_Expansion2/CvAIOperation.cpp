@@ -2065,46 +2065,53 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit)
 /// If at target, cash in; if at muster point, merge merchant and escort and move out
 bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 {
-	// we can perform this mission on any plot of the target city-state
-	if (!pMerchant || pMerchant->plot()->getOwner() != GetTargetPlot()->getOwner() || !pMerchant->canMove())
+	CvPlot* pTargetPlot = GetTargetPlot();
+	if (!pMerchant || !pTargetPlot || !pMerchant->plot() || pMerchant->plot()->getOwner() != pTargetPlot->getOwner() || !pMerchant->canMove())
 		return false;
 
-	//venetian merchant sometimes wants to buy the whole shop
-	if (pMerchant->canBuyCityState(pMerchant->plot()) && !GET_PLAYER(m_eOwner).GreatMerchantWantsCash())
+	PlayerTypes eTargetPlayer = pTargetPlot->getOwner();
+	bool bWantsPurchase = !GET_PLAYER(m_eOwner).GreatMerchantWantsCash(eTargetPlayer);
+
+	// Purchase the City-State if it's worth acquiring
+	if (bWantsPurchase && pMerchant->canBuyCityState(pMerchant->plot()))
 	{
+		if (GC.getLogging() && GC.getAILogging())
+		{
+			CvString strMsg;
+			strMsg.Format("Great Merchant buying city-state at (%d:%d)", pMerchant->getX(), pMerchant->getY());
+			LogOperationSpecialMessage(strMsg);
+		}
+
 		pMerchant->PushMission(CvTypes::getMISSION_BUY_CITY_STATE());
-		if(GC.getLogging() && GC.getAILogging())
+		return true;
+	}
+
+	// Otherwise perform a Trade Mission
+	if (pMerchant->canTrade(pMerchant->plot()))
+	{
+		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
-			strMsg.Format("Great Merchant buying city-state at (%d:%d)", pMerchant->plot()->getX(), pMerchant->plot()->getY());
+			strMsg.Format("Great Merchant finishing trade mission at (%d:%d)", pMerchant->getX(), pMerchant->getY());
 			LogOperationSpecialMessage(strMsg);
 		}
 
-		return true;
-	}
-	else if (pMerchant->canTrade(pMerchant->plot()))
-	{
 		pMerchant->PushMission(CvTypes::getMISSION_TRADE());
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strMsg;
-			strMsg.Format("Great Merchant finishing trade mission at (%d:%d)", pMerchant->plot()->getX(), pMerchant->plot()->getY());
-			LogOperationSpecialMessage(strMsg);
-		}
-
 		return true;
 	}
-	else
+
+	// Look for another eligible plot belonging to the same City-State
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pMerchant->plot());
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		//uh, this should not happen? look for a neighboring plot
-		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pMerchant->plot());
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		CvPlot* pNeighbor = aNeighbors[iI];
+		if (!pNeighbor || pNeighbor->getOwner() != eTargetPlayer)
+			continue;
+
+		if (pMerchant->canTrade(pNeighbor) || (bWantsPurchase && pMerchant->canBuyCityState(pNeighbor)))
 		{
-			if (aNeighbors[iI] && pMerchant->canTrade(aNeighbors[iI]))
-			{
-				pMerchant->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
-				return false; //try again next turn
-			}
+			pMerchant->PushMission(CvTypes::getMISSION_MOVE_TO(), pNeighbor->getX(), pNeighbor->getY());
+			return false;
 		}
 	}
 
@@ -2112,15 +2119,22 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 	return false;
 }
 
-/// Find the plot where we want to settler
+/// Locate our target tile for this trade or buyout mission
 CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit)
 {
-	if(!pUnit)
+	if (!pUnit)
 		return NULL;
 
-	return GET_PLAYER(pUnit->getOwner()).GreatMerchantWantsCash() ?
-		GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlotForCash(pUnit) :
-		GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlotForPuppet(pUnit);
+	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
+
+	if (!kPlayer.GreatMerchantWantsCash())
+	{
+		CvPlot* pTargetPlot = kPlayer.FindBestMerchantTargetPlotForPuppet(pUnit);
+		if (pTargetPlot)
+			return pTargetPlot;
+	}
+
+	return kPlayer.FindBestMerchantTargetPlotForCash(pUnit);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2141,21 +2155,21 @@ CvPlot* CvAIOperationCivilianDiplomatDelegation::FindBestTargetForUnit(CvUnit* p
 bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 {
 	// we can perform this mission on any plot of the target city-state
-	if (!pDiplomat || pDiplomat->plot()->getOwner() != GetTargetPlot()->getOwner() || !pDiplomat->canMove())
+	if (!pDiplomat || !GetTargetPlot() || !pDiplomat->plot() || pDiplomat->plot()->getOwner() != GetTargetPlot()->getOwner() || !pDiplomat->canMove())
 		return false;
 
-	if(pDiplomat->canTrade(pDiplomat->plot()))
+	if (pDiplomat->canTrade(pDiplomat->plot()))
 	{
-		//this is not an embassy, this is for influence
-		pDiplomat->PushMission(CvTypes::getMISSION_TRADE());
-
-		if(GC.getLogging() && GC.getAILogging())
+		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
 			CvCity* pTargetCity = GET_PLAYER(pDiplomat->plot()->getOwner()).getCapitalCity();
 			strMsg.Format("Great Diplomat finishing Diplomatic Mission at %s", pTargetCity ? pTargetCity->getName().c_str() : "UNKNOWN");
 			LogOperationSpecialMessage(strMsg);
 		}
+
+		//this is not an embassy, this is for influence
+		pDiplomat->PushMission(CvTypes::getMISSION_TRADE());
 		return true;
 	}
 	else
@@ -2164,7 +2178,7 @@ bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pDiplomat->plot());
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			if (aNeighbors[iI] && pDiplomat->canTrade(aNeighbors[iI]))
+			if (aNeighbors[iI] && aNeighbors[iI]->getOwner() == GetTargetPlot()->getOwner() && pDiplomat->canTrade(aNeighbors[iI]))
 			{
 				pDiplomat->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
 				return false; //try again next turn
@@ -2186,24 +2200,25 @@ CvPlot* CvAIOperationCivilianConcertTour::FindBestTargetForUnit(CvUnit* pUnit)
 	if(!pUnit)
 		return NULL;
 
-	return GET_PLAYER(pUnit->getOwner()).FindBestMusicianTargetPlot(pUnit);
+	PlayerTypes eUselessReferenceVariable = NO_PLAYER;
+	return GET_PLAYER(pUnit->getOwner()).FindBestMusicianTargetPlot(pUnit, eUselessReferenceVariable);
 }
 
 bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 {
 	// we can perform this mission on any plot of the target player
-	if (!pMusician || pMusician->plot()->getOwner() != GetTargetPlot()->getOwner() || !pMusician->canMove())
+	if (!pMusician || !GetTargetPlot() || !pMusician->plot() || pMusician->plot()->getOwner() != GetTargetPlot()->getOwner() || !pMusician->canMove())
 		return false;
 
-	if(pMusician->canBlastTourism(pMusician->plot()))
+	if (pMusician->canBlastTourism(pMusician->plot()))
 	{
-		pMusician->PushMission(CvTypes::getMISSION_ONE_SHOT_TOURISM());
-		if(GC.getLogging() && GC.getAILogging())
+		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strMsg;
-			strMsg.Format("Great Musician performing concert tour at (%d:%d)", pMusician->plot()->getX(), pMusician->plot()->getY());
+			strMsg.Format("Great Musician performing concert tour at (%d:%d)", pMusician->getX(), pMusician->getY());
 			LogOperationSpecialMessage(strMsg);
 		}
+		pMusician->PushMission(CvTypes::getMISSION_ONE_SHOT_TOURISM());
 		return true;
 	}
 	else
@@ -2212,7 +2227,7 @@ bool CvAIOperationCivilianConcertTour::PerformMission(CvUnit* pMusician)
 		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pMusician->plot());
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			if (aNeighbors[iI] && pMusician->canBlastTourism(aNeighbors[iI]))
+			if (aNeighbors[iI] && aNeighbors[iI]->getOwner() == GetTargetPlot()->getOwner() && pMusician->canBlastTourism(aNeighbors[iI]))
 			{
 				pMusician->PushMission(CvTypes::getMISSION_MOVE_TO(), aNeighbors[iI]->getX(), aNeighbors[iI]->getY());
 				return false; //try again next turn
@@ -2972,7 +2987,6 @@ void CvAIOperationCivilian::Write(FDataStream& kStream) const
 AIOperationAbortReason CvAIOperationCivilianMerchantDelegation::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
 	AIOperationAbortReason result = CvAIOperationCivilian::VerifyOrAdjustTarget(pArmy);
-
 	if (result != NO_ABORT_REASON)
 		return result;
 
@@ -2980,16 +2994,19 @@ AIOperationAbortReason CvAIOperationCivilianMerchantDelegation::VerifyOrAdjustTa
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
-	if (GetTargetPlot()==NULL || !pCivilian->canTrade( GetTargetPlot() ))
-		RetargetCivilian(pCivilian, pArmy);
+	CvPlot* pTargetPlot = GetTargetPlot();
+	if (!pTargetPlot || (!pCivilian->canTrade(pTargetPlot) && (!pCivilian->canBuyCityState(pTargetPlot) || GET_PLAYER(m_eOwner).GreatMerchantWantsCash(pTargetPlot->getOwner()))))
+	{
+		if (!RetargetCivilian(pCivilian, pArmy))
+			return AI_ABORT_NO_TARGET;
+	}
 
-	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;
+	return NO_ABORT_REASON;
 }
 
 AIOperationAbortReason CvAIOperationCivilianDiplomatDelegation::VerifyOrAdjustTarget(CvArmyAI* pArmy)
 {
 	AIOperationAbortReason result = CvAIOperationCivilian::VerifyOrAdjustTarget(pArmy);
-
 	if (result != NO_ABORT_REASON)
 		return result;
 
@@ -2997,23 +3014,33 @@ AIOperationAbortReason CvAIOperationCivilianDiplomatDelegation::VerifyOrAdjustTa
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
-	bool bRetarget = false;
-	if (GetTargetPlot() == NULL || !pCivilian->canTrade(GetTargetPlot()))
-	{
-		RetargetCivilian(pCivilian, pArmy);
-		bRetarget = true;
-	}
+	bool bValidTarget = false;
+	CvPlot* pTargetPlot = GetTargetPlot();
 
-	if (!bRetarget)
+	if (pTargetPlot && pCivilian->canTrade(pTargetPlot))
 	{
-		CvCity* pTargetCity = GetTargetPlot()->getOwningCity();
-		if (pTargetCity == NULL || GET_PLAYER(pCivilian->getOwner()).ScoreCityForMessenger(pTargetCity, pCivilian) <= 0)
+		PlayerTypes eTargetPlayer = pTargetPlot->getOwner();
+		if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).isMinorCiv())
 		{
-			RetargetCivilian(pCivilian, pArmy);
+			CvPlayerAI& kOurPlayer = GET_PLAYER(m_eOwner);
+			CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
+
+			int iLoop = 0;
+			for (CvCity* pCity = kTargetPlayer.firstCity(&iLoop); pCity; pCity = kTargetPlayer.nextCity(&iLoop))
+			{
+				if (kOurPlayer.ScoreCityForMessenger(pCity, pCivilian) > 0)
+				{
+					bValidTarget = true;
+					break;
+				}
+			}
 		}
 	}
 
-	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;
+	if (!bValidTarget && !RetargetCivilian(pCivilian, pArmy))
+		return AI_ABORT_NO_TARGET;
+
+	return NO_ABORT_REASON;
 }
 
 AIOperationAbortReason CvAIOperationCivilianConcertTour::VerifyOrAdjustTarget(CvArmyAI* pArmy)
@@ -3027,10 +3054,13 @@ AIOperationAbortReason CvAIOperationCivilianConcertTour::VerifyOrAdjustTarget(Cv
 	if (!pCivilian)
 		return AI_ABORT_LOST_CIVILIAN;
 
-	if (GetTargetPlot()==NULL || !pCivilian->canBlastTourism( GetTargetPlot() ))
-		RetargetCivilian(pCivilian, pArmy);
+	if (GetTargetPlot() == NULL || !pCivilian->canBlastTourism(GetTargetPlot()))
+	{
+		if (!RetargetCivilian(pCivilian, pArmy))
+			return AI_ABORT_NO_TARGET;
+	}
 
-	return (GetTargetPlot() != NULL) ? NO_ABORT_REASON : AI_ABORT_NO_TARGET;
+	return NO_ABORT_REASON;
 }
 
 //----------------------------------------------

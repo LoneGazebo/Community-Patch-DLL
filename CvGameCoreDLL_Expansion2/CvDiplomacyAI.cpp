@@ -3228,53 +3228,20 @@ int CvDiplomacyAI::GetCultureVictoryProgress() const
 	if (!m_pPlayer->isAlive() || GC.getGame().isOption(GAMEOPTION_NO_POLICIES) || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true)) || GC.getGame().getWinner() != NO_TEAM)
 		return 0;
 
-	int iLowestPercent = GetLowestTourismInfluence();
-	int iProgress = min(99,iLowestPercent);
+	// What is the lowest % influence we have over any civ?
+	int iLowestPercent = 0;
+	GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false, iLowestPercent);
+
+	int iProgress = min(99, iLowestPercent * 100 / max(/*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL), 1));
 
 	if (MOD_BALANCE_CULTURE_VICTORY_CHANGES)
 	{
 		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true, true);
 		iPolicies = min(iPolicies, 27);
-		iProgress = min(iLowestPercent, 18 + iPolicies * 3);
+		iProgress = min(iProgress, 18 + iPolicies * 3);
 	}
 
 	return iProgress;
-}
-
-int CvDiplomacyAI::GetLowestTourismInfluence() const
-{
-	int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
-
-		if (eLoopPlayer != GetID() && kPlayer.isAlive() && kPlayer.isMajorCiv())
-		{
-			long long lInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOnTimes100(eLoopPlayer);
-			long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
-			int iPercent = 0;
-
-			if (lInfluenceOn > 0)
-			{
-				if (lLifetimeCulture > 0)
-				{
-					iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
-				}
-			}
-			if (iPercent < 0)
-			{
-				iPercent = 0;
-			}
-			if (iPercent < iLowestPercent)
-			{
-				iLowestPercent = iPercent;
-			}
-		}
-	}
-
-	return iLowestPercent;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -19244,8 +19211,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					}
 				}
 
+				bool bLowestInfluence = GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false) == ePlayer;
+
 				// The civ we have the lowest influence on is an easy target? Let's get 'em!
-				if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer && bEasyTarget)
+				if (bLowestInfluence && bEasyTarget)
 				{
 					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5 * iAttackMultiplier;
 					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5 * iAttackMultiplier;
@@ -19257,7 +19226,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5 * iAttackMultiplier;
 					}
 				}
-				else if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer)
+				else if (bLowestInfluence)
 				{
 					vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * 10;
 
@@ -21340,7 +21309,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 					continue;
 				}
 				
-				if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer)
+				if (GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false) == ePlayer)
 				{
 					SetMajorCompetitor(ePlayer, true);
 					continue;
