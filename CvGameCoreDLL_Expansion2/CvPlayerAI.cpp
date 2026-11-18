@@ -19,6 +19,8 @@
 #include "ICvDLLUserInterface.h"
 #include "CvInfos.h"
 #include "CvAStar.h"
+#include "CvAIOperation.h"
+#include "CvArmyAI.h"
 #include "CvDiplomacyAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvTechAI.h"
@@ -1379,6 +1381,103 @@ int CvPlayerAI::GetNumUnitsNeededToBeBuilt()
 	return iRtnValue;
 }
 
+/// Find the best reachable destination from a list of eligible mission plots. Used for several Great Person mission targets.
+/// Mission eligibility is checked by the caller.
+/// If iMaxPathChecks == 0, skips exact pathfinding checks and skips directly to the fallback method (requires bAllowFullSearch == true).
+static CvPlot* FindBestReachableMissionPlot(CvUnit* pUnit, const std::vector<CvPlot*>& vCandidates, int& iPathTurns, int iMaxPathChecks, bool bAllowFullSearch, int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, int iMaxTurns = 23)
+{
+	iPathTurns = INT_MAX;
+	ASSERT(pUnit && pUnit->plot(), "Invalid unit passed to FindBestReachableMissionPlot()");
+	ASSERT(iMaxPathChecks > 0 || (iMaxPathChecks == 0 && bAllowFullSearch), "Invalid iMaxPathChecks value in FindBestReachableMissionPlot()");
+	if (!pUnit || !pUnit->plot() || vCandidates.empty() || iMaxPathChecks < 0 || (iMaxPathChecks == 0 && !bAllowFullSearch))
+		return NULL;
+
+	CvPlot* pCurrentPlot = pUnit->plot();
+
+	// Sort candidate plots by hex distance, then plot index.
+	std::vector<std::pair<int, int>> vOrderedPlots;
+	for (size_t iI = 0; iI < vCandidates.size(); iI++)
+	{
+		CvPlot* pPlot = vCandidates[iI];
+
+		// Already at an eligible destination.
+		if (pPlot == pCurrentPlot)
+		{
+			iPathTurns = pUnit->canMove() ? 0 : 1;
+			return pPlot;
+		}
+
+		vOrderedPlots.push_back(std::make_pair(plotDistance(*pCurrentPlot, *pPlot), pPlot->GetPlotIndex()));
+	}
+
+	if (vOrderedPlots.empty())
+		return NULL;
+
+	std::stable_sort(vOrderedPlots.begin(), vOrderedPlots.end());
+	size_t iNumChecks = min((size_t)iMaxPathChecks, vOrderedPlots.size());
+
+	CvPlot* pBestPlot = NULL;
+	int iBestTurns = INT_MAX;
+
+	// Try the closest candidates using exact pathfinding.
+	for (size_t iI = 0; iI < iNumChecks; iI++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(vOrderedPlots[iI].second);
+
+		int iTurns = INT_MAX;
+		if (!pUnit->GeneratePath(pPlot, iFlags, iMaxTurns, &iTurns))
+			continue;
+
+		ASSERT(pUnit->GetPathLastPlot() == pPlot, "FindBestReachableMissionPlot() called using approximate instead of exact pathfinding");
+
+		if (iTurns < iBestTurns)
+		{
+			iBestTurns = iTurns;
+			pBestPlot = pPlot;
+		}
+	}
+
+	if (pBestPlot)
+	{
+		iPathTurns = iBestTurns;
+		return pBestPlot;
+	}
+
+	// All candidates checked, or the caller doesn't allow a full search.
+	if (!bAllowFullSearch || vOrderedPlots.size() <= iNumChecks)
+		return NULL;
+
+	// Fallback: search all reachable plots within the turn limit.
+	SPathFinderUserData kPathData(pUnit, iFlags, iMaxTurns);
+	ReachablePlots kReachablePlots = GC.GetPathFinder().GetPlotsInReach(pCurrentPlot, kPathData);
+
+	for (size_t iI = 0; iI < vOrderedPlots.size(); iI++)
+	{
+		// Only consider the eligible candidates, using the reachability index.
+		int iPlotIndex = vOrderedPlots[iI].second;
+		ReachablePlots::const_iterator it = kReachablePlots.find(iPlotIndex);
+		if (it == kReachablePlots.end())
+			continue;
+
+		int iTurns = it->iPathLength;
+		int iMovesLeft = it->iMovesLeft;
+
+		// If arrival exhausts movement, the mission must wait a turn.
+		iTurns += (iMovesLeft == 0 ? 1 : 0);
+
+		if (iTurns < iBestTurns)
+		{
+			iBestTurns = iTurns;
+			pBestPlot = GC.getMap().plotByIndexUnchecked(iPlotIndex);
+		}
+	}
+
+	if (pBestPlot)
+		iPathTurns = iBestTurns;
+
+	return pBestPlot;
+}
+
 void CvPlayerAI::ProcessGreatPeople(void)
 {
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
@@ -1614,19 +1713,40 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 	// If closing in on a Culture win, go for the Concert Tour
 	if (GetDiplomacyAI()->IsGoingForCultureVictory() || GetCulture()->GetNumCivsInfluentialOn() > GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2)
 	{
-		CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician);
-		if (pTarget)
+		PlayerTypes eTargetPlayer = GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ !pGreatMusician->isRivalTerritory(), /*bExcludeWar*/ true);
+		if (eTargetPlayer != NO_PLAYER)
 		{
-			PlayerTypes eTargetPlayer = pTarget->getOwner();
-			ASSERT(eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).isMajorCiv());
-
-			// Assume a concert tour won't give both tourism modifier and instant tourism
 			if (pGreatMusician->GetTourismBlastLength() > 0)
 			{
+				int iPendingBonusTurns = 0;
+
+				// Account for other Musicians already traveling to this civilization
+				for (size_t iI = 0; iI < getNumAIOperations(); iI++)
+				{
+					CvAIOperation* pOperation = getAIOperationByIndex(iI);
+					if (!pOperation || pOperation->GetOperationType() != AI_OPERATION_MUSICIAN_CONCERT_TOUR)
+						continue;
+
+					if (pOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED ||
+						pOperation->GetOperationState() == AI_OPERATION_STATE_SUCCESSFUL_FINISH)
+						continue;
+
+					CvPlot* pTargetPlot = pOperation->GetTargetPlot();
+					if (!pTargetPlot || pTargetPlot->getOwner() != eTargetPlayer)
+						continue;
+
+					CvArmyAI* pArmy = pOperation->GetArmy(0);
+					CvUnit* pOtherMusician = pArmy ? pArmy->GetFirstUnit() : NULL;
+
+					if (pOtherMusician && pOtherMusician != pGreatMusician)
+						iPendingBonusTurns += pOtherMusician->GetTourismBlastLength();
+				}
+
 				int iTurnsToInfluential = GetCulture()->GetTurnsToInfluential(eTargetPlayer);
+				int iBonusTurns = getTourismBonusTurnsPlayer(eTargetPlayer) + iPendingBonusTurns;
 
 				// Don't overdo it, assuming it costs half the time to reach influential with the tourism bonus
-				if (getTourismBonusTurnsPlayer(eTargetPlayer) + pGreatMusician->GetTourismBlastLength() < iTurnsToInfluential / 2)
+				if (iBonusTurns <= pGreatMusician->GetTourismBlastLength() / 2 || iBonusTurns + pGreatMusician->GetTourismBlastLength() < iTurnsToInfluential / 2)
 					return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 			}
 
@@ -1769,7 +1889,13 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 	}
 
 	// Attempt to find a target for our special mission
-	CvPlot* pTarget = GreatMerchantWantsCash() ? FindBestMerchantTargetPlotForCash(pGreatMerchant) : FindBestMerchantTargetPlotForPuppet(pGreatMerchant);
+	CvPlot* pTarget = NULL;
+	if (!GreatMerchantWantsCash())
+		pTarget = FindBestMerchantTargetPlotForPuppet(pGreatMerchant);
+
+	if (!pTarget)
+		pTarget = FindBestMerchantTargetPlotForCash(pGreatMerchant);
+
 	if (pTarget)
 	{
 		if (!pGreatMerchant->CanFoundColony())
@@ -2117,15 +2243,81 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 }
 
-bool CvPlayerAI::GreatMerchantWantsCash()
+static int GetCityStatePurchaseScore(CvPlayerAI& kBuyer, CvPlayer& kMinor)
 {
-	//Venice wants to buy city states, unless it already has enough cities, then it doesn't want city states.
-	bool bIsVenice = GetPlayerTraits()->IsNoAnnexing();
-	if (bIsVenice)
+	if (!kMinor.isMinorCiv() || !kMinor.isAlive() || kMinor.IsAtWarWith(kBuyer.GetID()))
+		return 0;
+
+	CvCity* pCapital = kMinor.getCapitalCity();
+	if (!pCapital || !pCapital->isRevealed(kBuyer.getTeam(), false, true))
+		return 0;
+
+	// If we're planning war, go somewhere else
+	if (kBuyer.GetDiplomacyAI()->GetCivApproach(kMinor.GetID()) == CIV_APPROACH_WAR)
+		return 0;
+
+	// The city is under attack! If left unchecked, the Horde will capture it!
+	if (kMinor.GetMinorCivAI()->IsActiveQuestForPlayer(kBuyer.GetID(), MINOR_CIV_QUEST_HORDE) || kMinor.GetMinorCivAI()->IsActiveQuestForPlayer(kBuyer.GetID(), MINOR_CIV_QUEST_REBELLION))
+		return 0;
+
+	int iScore = 0;
+
+	// Larger, more developed City-States are more valuable
+	int iLoop = 0;
+	for (CvCity* pCity = kMinor.firstCity(&iLoop); pCity; pCity = kMinor.nextCity(&iLoop))
 	{
-		//what would be a sane limit?
-		//FIXME: look at the politics of potential targets ...
-		return static_cast<bool>(GetNumPuppetCities() > max(2,GC.getGame().GetNumMinorCivsEver()-3));
+		// War going on there? Let's not add that to our problems.
+		if (pCity->isInDangerOfFalling(true) || pCity->isUnderSiege())
+			return 0;
+
+		iScore += 60 + pCity->getPopulation() * 24 + pCity->getNumWorldWonders() * 60;
+	}
+
+	// Acquired military units have some value, but shouldn't dominate the purchase decision
+	iScore += min(48, kMinor.getNumMilitaryUnits() * 6);
+
+	CvMinorCivAI* pMinorAI = kMinor.GetMinorCivAI();
+
+	// Acquiring friends or allies sacrifices their ongoing bonuses
+	if (pMinorAI->IsAllies(kBuyer.GetID()))
+	{
+		iScore /= 3;
+
+		// Retaining allies is particularly important for Diplomatic Victory
+		if (kBuyer.GetDiplomacyAI()->IsGoingForDiploVictory())
+			iScore /= 2;
+	}
+	else if (pMinorAI->IsFriends(kBuyer.GetID()))
+	{
+		iScore = iScore * 2 / 3;
+	}
+
+	// Acquiring another civilization's ally also denies them its benefits
+	PlayerTypes eAlly = pMinorAI->GetAlly();
+	if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() != kBuyer.getTeam())
+		iScore += 60;
+
+	return iScore;
+}
+
+bool CvPlayerAI::GreatMerchantWantsCash(PlayerTypes eTargetPlayer)
+{
+	// Ordinary Great Merchants perform Trade Missions
+	if (!GetPlayerTraits()->IsNoAnnexing())
+		return true;
+
+	int iThreshold = getNumCities() < 2 ? 120 : 240;
+
+	// Evaluate a specific City-State when considering a Venetian buyout mission
+	if (eTargetPlayer != NO_PLAYER)
+		return GetCityStatePurchaseScore(*this, GET_PLAYER(eTargetPlayer)) < iThreshold;
+
+	// Otherwise, look for any worthwhile acquisition
+	for (int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		CvPlayer& kMinor = GET_PLAYER((PlayerTypes)iI);
+		if (GetCityStatePurchaseScore(*this, kMinor) >= iThreshold)
+			return false;
 	}
 
 	return true;
@@ -2133,62 +2325,59 @@ bool CvPlayerAI::GreatMerchantWantsCash()
 
 CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 {
-	if (!pMerchant)
+	if (!pMerchant || !pMerchant->plot())
 		return NULL;
+
+	const int iMaxTurns = 23;
+	const int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN;
+
+	// Find all reachable plots within the turn limit
+	SPathFinderUserData kPathData(pMerchant, iFlags, iMaxTurns);
+	ReachablePlots kReachablePlots = GC.GetPathFinder().GetPlotsInReach(pMerchant->plot(), kPathData);
 
 	int iBestScore = 0;
 	CvPlot* pBestTargetPlot = NULL;
+	int iThreshold = getNumCities() < 2 ? 120 : 240;
 
-	// Loop through each city state
-	for (int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
+	for (int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if (!kPlayer.isMinorCiv() || !kPlayer.isAlive())
+		PlayerTypes eTargetPlayer = (PlayerTypes)iI;
+		CvPlayer& kPlayer = GET_PLAYER(eTargetPlayer);
+
+		// Must be valuable enough to bother with
+		int iPurchaseValue = GetCityStatePurchaseScore(*this, kPlayer);
+		if (iPurchaseValue < iThreshold)
 			continue;
 
-		if (kPlayer.IsAtWarWith(GetID()))
-			continue;
-
-		//FIXME: if somebody is protecting them, look at our relations to that particular player
-		int iPoliticalReduction = 0;
-		if (kPlayer.GetMinorCivAI()->IsProtectedByAnyMajor())
-			iPoliticalReduction = 40;
-
-		int iLoop = 0;
-		for (CvCity* pCity=kPlayer.firstCity(&iLoop); pCity; pCity=kPlayer.nextCity(&iLoop))
+		// Evaluate every eligible purchase plot in this City-State
+		const PlotIndexContainer& vPlots = kPlayer.GetPlots();
+		for (PlotIndexContainer::const_iterator it = vPlots.begin(); it != vPlots.end(); ++it)
 		{
-			if (!pCity->plot()->isAdjacentRevealed(getTeam()))
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
+			// Is this tile revealed to us? No cheating!
+			if (!pPlot->isRevealed(getTeam()))
 				continue;
 
-			//should not be too far out
-			if (GetCityDistancePathLength(pCity->plot()) > 23)
+			// No piracy! Our Merchant of Venice must reach land to deploy bigger treasury diplomacy.
+			if (!pMerchant->isNativeDomain(pPlot))
 				continue;
 
-			//merchant may not be in the closest owned city, so cut him some slack
-			int iPathTurns = 0;
-			pMerchant->GeneratePath(pCity->plot(), CvUnit::MOVEFLAG_APPROX_TARGET_RING1, 23, &iPathTurns);
-			if (iPathTurns < INT_MAX)
+			// Unable to distribute bribes here for some other reason?
+			if (!pMerchant->canBuyCityState(pPlot))
+				continue;
+
+			ReachablePlots::const_iterator itReachable = kReachablePlots.find(pPlot->GetPlotIndex());
+			if (itReachable == kReachablePlots.end())
+				continue;
+
+			int iTurnsToMission = itReachable->iPathLength + (itReachable->iMovesLeft == 0 ? 1 : 0);
+
+			// Prefer valuable acquisitions that can be reached reasonably quickly
+			int iScore = iPurchaseValue * 100 / (4 + iTurnsToMission);
+			if (iScore > iBestScore)
 			{
-				// Prevent integer overflow when squaring iPathTurns
-				int iDenominator = 1;
-				if (iPathTurns <= 46340) // sqrt(INT_MAX) ≈ 46340
-				{
-					iDenominator = 1 + iPathTurns*iPathTurns;
-				}
-				else
-				{
-					iDenominator = INT_MAX; // Use max value to avoid overflow
-				}
-				int iScore = (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / iDenominator;
-
-				//political fudge factor
-				iScore -= (iScore*iPoliticalReduction)/100;
-
-				if (iScore > iBestScore)
-				{
-					iBestScore = iScore;
-					pBestTargetPlot = pCity->plot();
-				}
+				iBestScore = iScore;
+				pBestTargetPlot = pPlot;
 			}
 		}
 	}
@@ -2198,42 +2387,90 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 
 CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 {
-	if(!pMerchant)
+	if (!pMerchant || !pMerchant->plot())
 		return NULL;
 
-	// distance and plot id
-	vector< pair<int,int> > vCandidates;
+	std::vector<std::pair<int, int>> vCityStates;
+	std::vector<CvPlot*> vFallbackCandidates;
+	TeamTypes eMyTeam = getTeam();
 
-	// Loop through each city state
-	for (int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
+	// First check to see what City-States would be acceptable to sell to
+	// The logic here is simple as the goal here is mainly Gold, not Influence, and getting the Great Merchant safely there is the priority
+	for (int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		PlayerTypes ePlayer = (PlayerTypes)iI;
+		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 		if (!kPlayer.isMinorCiv() || !kPlayer.isAlive())
 			continue;
 
-		CvCity* pCity = kPlayer.getCapitalCity();
-		if (!pCity || !pCity->isRevealed(getTeam(),false,true))
+		CvCity* pMinorCapital = kPlayer.getCapitalCity();
+		if (!pMinorCapital || !pMinorCapital->isRevealed(eMyTeam, false, true))
 			continue;
 
-		// Is this a minor we are friendly with?
-		if (GetDiplomacyAI()->GetCivApproach(kPlayer.GetID()) > CIV_APPROACH_HOSTILE && !kPlayer.IsAtWarWith(GetID()))
-		{
-			int iDistance = plotDistance(*pCity->plot(), *pMerchant->plot());
-			vCandidates.push_back(make_pair(iDistance, pCity->plot()->GetPlotIndex()));
-		}
+		// If we're at war, planning to be at war, planning to bully, or have recently bullied them, don't send here
+		CivApproachTypes eApproach = GetDiplomacyAI()->GetCivApproach(ePlayer);
+		if (eApproach == CIV_APPROACH_WAR || IsAtWarWith(ePlayer))
+			continue;
+
+		if ((eApproach == CIV_APPROACH_HOSTILE || kPlayer.GetMinorCivAI()->IsRecentlyBulliedByMajor(GetID())) && !IsCanBullyFriendlyCS())
+			continue;
+
+		// War going on there?
+		if (pMinorCapital->isInDangerOfFalling(true) || pMinorCapital->isUnderSiege())
+			continue;
+
+		// The city is under attack! If left unchecked, the Horde will capture it!
+		if (kPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_HORDE) || kPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_REBELLION))
+			continue;
+
+		int iDistance = plotDistance(*pMinorCapital->plot(), *pMerchant->plot());
+		vCityStates.push_back(std::make_pair(iDistance, pMinorCapital->plot()->GetPlotIndex()));
 	}
 
-	std::stable_sort(vCandidates.begin(), vCandidates.end());
+	// No valid City-States? Abort!
+	if (vCityStates.empty())
+		return NULL;
 
-	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
-	for (size_t i = 0; i < vCandidates.size(); i++)
+	// Go through each City-State, prioritizing the closest ones; the first one to provide a valid target is the winner
+	std::stable_sort(vCityStates.begin(), vCityStates.end());
+
+	for (size_t iI = 0; iI < vCityStates.size(); iI++)
 	{
-		CvPlot* pTarget = GC.getMap().plotByIndexUnchecked(vCandidates[i].second);
-		if (pMerchant->GeneratePath(pTarget, iFlags, 23))
-			return pMerchant->GetPathLastPlot();
+		CvPlot* pCityPlot = GC.getMap().plotByIndexUnchecked(vCityStates[iI].second);
+		PlayerTypes eTargetCityState = pCityPlot->getOwner();
+
+		// Collect eligible Trade Mission plots in this City-State
+		std::vector<CvPlot*> vCandidates;
+		const PlotIndexContainer& vPlots = GET_PLAYER(eTargetCityState).GetPlots();
+		for (PlotIndexContainer::const_iterator it = vPlots.begin(); it != vPlots.end(); ++it)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
+			// Is this tile revealed to us? No cheating!
+			if (!pPlot->isRevealed(getTeam()))
+				continue;
+
+			// The merchant must step ashore to sell their wares
+			if (!pMerchant->isNativeDomain(pPlot))
+				continue;
+
+			// Any other reason we can't trade here?
+			if (!pMerchant->canTrade(pPlot))
+				continue;
+
+			vCandidates.push_back(pPlot);
+			vFallbackCandidates.push_back(pPlot);
+		}
+
+		int iTurnsToMission = INT_MAX;
+		CvPlot* pTargetPlot = FindBestReachableMissionPlot(pMerchant, vCandidates, iTurnsToMission, 4, /*bAllowFullSearch*/ false);
+
+		if (pTargetPlot)
+			return pTargetPlot;
 	}
 
-	return NULL;
+	// No reachable destinations found in the shortlists; try one full search
+	int iTurnsToMission = INT_MAX;
+	return FindBestReachableMissionPlot(pMerchant, vFallbackCandidates, iTurnsToMission, 0, /*bAllowFullSearch*/ true);
 }
 
 //	--------------------------------------------------------------------------------
@@ -2690,56 +2927,96 @@ CvPlot* CvPlayerAI::FindBestDiplomatTargetPlot(CvUnit* pUnit)
 	return NULL;
 }
 
-CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities)
+CvPlot* CvPlayerAI::FindBestMessengerTargetPlot(CvUnit* pUnit, const vector<int>& vIgnoreCityStates)
 {
-	CvWeightedVector<CvCity *> vTargets;
+	if (!pUnit || !pUnit->plot())
+		return NULL;
 
-	// Loop through each city state
-	for(int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
+	CvWeightedVector<CvCity*> vTargets;
+	TeamTypes eMyTeam = getTeam();
+
+	// Rank City-States using the existing strategic scoring
+	for (int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(kPlayer.isAlive() && kPlayer.isMinorCiv() && !GET_TEAM(kPlayer.getTeam()).isAtWar(getTeam()))
-		{
-			//Loop through each city
-			int iLoop = 0;
-			CvCity* pLoopCity = NULL;
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-			{
-				//want to have at least on revealed plot as target for pathfinding
-				if(pLoopCity && pLoopCity->plot()->isAdjacentRevealed(pUnit->getTeam()))
-				{
-					//we often have multiple messengers active at the same time, don't all go to the same target
-					if (std::find(vIgnoreCities.begin(), vIgnoreCities.end(), pLoopCity->GetID()) != vIgnoreCities.end())
-						continue;
+		if (!kPlayer.isAlive() || GET_TEAM(kPlayer.getTeam()).isAtWar(eMyTeam))
+			continue;
 
-					int iScore = ScoreCityForMessenger(pLoopCity, pUnit);
-					if(iScore > 0)
-						vTargets.push_back( pLoopCity,iScore);
-				}
-			}
+		// We often have multiple diplomatic units active at the same time, don't all go to the same target
+		if (std::find(vIgnoreCityStates.begin(), vIgnoreCityStates.end(), iI) != vIgnoreCityStates.end())
+			continue;
+
+		// Loop through each of the City-State's cities
+		int iLoop = 0;
+		for (CvCity* pCity = kPlayer.firstCity(&iLoop); pCity; pCity = kPlayer.nextCity(&iLoop))
+		{
+			// Must be able to see at least one city
+			if (!pCity->isRevealed(pUnit->getTeam()))
+				continue;
+
+			int iScore = ScoreCityForMessenger(pCity, pUnit);
+			if (iScore > 0)
+				vTargets.push_back(pCity, iScore);
 		}
 	}
 
-	//highest score first ..
-	if(!vTargets.empty())
+	if (vTargets.empty())
+		return NULL;
+
+	vTargets.StableSortItems();
+
+	const int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY |
+		CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN |
+		CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+
+	std::set<PlayerTypes> sCheckedCityStates;
+	std::vector<CvPlot*> vFallbackCandidates;
+
+	// Consider the most strategically desirable City-States first
+	for (int iI = 0; iI < vTargets.size(); iI++)
 	{
-		vTargets.StableSortItems();
+		CvCity* pCity = vTargets.GetElement(iI);
+		if (!pCity)
+			continue;
 
-		//check if we can actually go there only if the city is promising
-		for (int i = 0; i < vTargets.size(); ++i )
+		PlayerTypes eTargetPlayer = pCity->getOwner();
+
+		// Multiple cities of the same City-State are not separate Influence targets
+		if (!sCheckedCityStates.insert(eTargetPlayer).second)
+			continue;
+
+		std::vector<CvPlot*> vCandidates;
+		const PlotIndexContainer& vPlots = GET_PLAYER(eTargetPlayer).GetPlots();
+		for (PlotIndexContainer::const_iterator it = vPlots.begin(); it != vPlots.end(); ++it)
 		{
-			CvCity* pCity = vTargets.GetElement(i);
-			if(pCity != NULL)
-			{
-				int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-				if (pUnit->GeneratePath(pCity->plot(), iFlags))
-					return pCity;
-			}
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
+			// Is this tile revealed to us? No cheating!
+			if (!pPlot->isRevealed(getTeam()))
+				continue;
+
+			// Our emissary must reach land to spread our imperial propaganda
+			if (!pUnit->isNativeDomain(pPlot))
+				continue;
+
+			// Can't do a diplomatic mission here for some reason?
+			if (!pUnit->canTrade(pPlot))
+				continue;
+
+			vCandidates.push_back(pPlot);
+			vFallbackCandidates.push_back(pPlot);
 		}
+
+		int iTurnsToMission = INT_MAX;
+		CvPlot* pTargetPlot = FindBestReachableMissionPlot(pUnit, vCandidates, iTurnsToMission, 4, /*bAllowFullSearch*/ false, iFlags);
+
+		if (pTargetPlot)
+			return pTargetPlot;
 	}
 
-	return NULL;
-}	
+	// If all shortlists fail, perform one full reachability search
+	int iTurnsToMission = INT_MAX;
+	return FindBestReachableMissionPlot(pUnit, vFallbackCandidates, iTurnsToMission, 0, /*bAllowFullSearch*/ true, iFlags);
+}
 
 int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 {
@@ -3148,43 +3425,58 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 
 CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities)
 {
-	//this function is used for diplomat influence spread as well (embassies go through ChooseDiplomatTargetPlot)
-	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
+	// Used for Messenger and Great Diplomat Influence missions; embassies are handled separately
+	if (!pUnit || (pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT))
 		return NULL;
 
-	CvCity* pCity = FindBestMessengerTargetCity(pUnit, pvIgnoreCities ? *pvIgnoreCities : vector<int>());
-	if(pCity == NULL)
-		return NULL;
+	CvPlot* pTargetPlot = FindBestMessengerTargetPlot(pUnit, pvIgnoreCities ? *pvIgnoreCities : vector<int>());
 
-	//remember this city
-	if (pvIgnoreCities)
-		pvIgnoreCities->push_back(pCity->GetID());
+	// Remember this city so we don't send all our diplomatic units to the same place
+	if (pTargetPlot && pvIgnoreCities)
+		pvIgnoreCities->push_back(pTargetPlot->getOwner());
 
-	return pCity->plot();
+	return pTargetPlot;
 }
 
-CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
+CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician, PlayerTypes& eTargetPlayer)
 {
-	if(!pMusician)
+	if (!pMusician || !pMusician->plot())
 		return NULL;
 
 	// Find target civ
-	PlayerTypes eTargetPlayer = GetCulture()->GetCivLowestInfluence(!pMusician->isRivalTerritory()/*bCheckOpenBorders*/);
-	if (eTargetPlayer == NO_PLAYER)
+	PlayerTypes eDesiredPlayer = GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ !pMusician->isRivalTerritory(), /*bExcludeWar*/ true);
+	if (eDesiredPlayer == NO_PLAYER)
 		return NULL;
 
-	//try the closest city first
-	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
-	CvCity* pTargetCity = GC.getGame().GetClosestCityByPlots(pMusician->plot(), eTargetPlayer);
-	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
-		return pMusician->GetPathLastPlot();
+	// Collect eligible Concert Tour plots
+	std::vector<CvPlot*> vCandidates;
+	const PlotIndexContainer& vPlots = GET_PLAYER(eDesiredPlayer).GetPlots();
+	TeamTypes eMyTeam = getTeam();
+	for (PlotIndexContainer::const_iterator it = vPlots.begin(); it != vPlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
+		// Is this tile revealed to us? No cheating!
+		if (!pPlot->isRevealed(eMyTeam))
+			continue;
 
-	//fallback, try the capital
-	pTargetCity = GET_PLAYER(eTargetPlayer).getCapitalCity();
-	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
-		return pMusician->GetPathLastPlot();
+		// Can't sing from the sea unless you're a siren
+		if (!pMusician->isNativeDomain(pPlot))
+			continue;
 
-	return NULL;
+		// Any other reason we can't do a concert tour here?
+		if (!pMusician->canBlastTourism(pPlot))
+			continue;
+
+		vCandidates.push_back(pPlot);
+	}
+
+	int iTurnsToMission = INT_MAX;
+	CvPlot* pBestPlot = FindBestReachableMissionPlot(pMusician, vCandidates, iTurnsToMission, 12, /*bAllowFullSearch*/ true);
+
+	if (pBestPlot)
+		eTargetPlayer = eDesiredPlayer;
+
+	return pBestPlot;
 }
 
 priority_queue<SPlotWithScore> CvPlayerAI::GetBestCultureBombPlots(const UnitTypes eUnit, const vector<CvPlot*>& vPlotsToAvoid, bool bCheckDanger)

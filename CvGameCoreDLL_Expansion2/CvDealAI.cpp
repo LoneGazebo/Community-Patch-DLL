@@ -2428,7 +2428,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer) const
 		if (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && (GetPlayer()->GetCulture()->GetTourism() / 100) > 0)
 		{
 			// The civ we need influence on the most should ALWAYS be included
-			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/) == eOtherPlayer)
+			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ true) == eOtherPlayer)
 			{
 				iItemValue *= 50;
 				iItemValue /= 100;
@@ -2557,7 +2557,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer) const
 		if (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && (GetPlayer()->GetCulture()->GetTourism() / 100) > 0)
 		{
 			// The civ we need influence on the most should ALWAYS be included
-			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == eOtherPlayer)
+			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ true) == eOtherPlayer)
 			{
 				iItemValue *= 200;
 				iItemValue /= 100;

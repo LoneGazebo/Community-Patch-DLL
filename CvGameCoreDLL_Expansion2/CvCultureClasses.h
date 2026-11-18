@@ -262,7 +262,8 @@ public:
 	int GetTurnsToInfluential(PlayerTypes ePlayer);
 	int GetNumCivsInfluentialOn() const;
 	int GetNumCivsToBeInfluentialOn() const;
-	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
+	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders, bool bExcludeWar, int& iLowestPercent) const;
+	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders, bool bExcludeWar) const;
 	int GetOtherPlayerCulturePerTurnIncludingInstantTimes100(PlayerTypes eOtherPlayer);
 	int GetTourismPerTurnIncludingInstantTimes100(PlayerTypes ePlayer, bool bJustInstant = false);
 	int GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const;

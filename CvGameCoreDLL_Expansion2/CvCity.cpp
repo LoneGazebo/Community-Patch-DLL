@@ -7835,7 +7835,7 @@ void CvCity::updateEconomicValue()
 	iYieldValue /= 3;
 
 	//arbitrary conversion factor ... yields are already covered?
-	iYieldValue += getNumWorldWonders() * 23;
+	iYieldValue += getNumWorldWonders() * 500;
 
 	//now check access to resources
 	//todo: call CvDealAI::GetResourceValue() for each resource
@@ -7853,7 +7853,7 @@ void CvCity::updateEconomicValue()
 		//for plots owned by this city or reasonably likely to be claimed
 		bool bGood = false;
 		if (pLoopPlot->isOwned())
-			bGood = (GetID() == pLoopPlot->getOwningCityID());
+			bGood = (pLoopPlot->getOwningCity() == this);
 		else
 			bGood = pLoopPlot->isAdjacentPlayer(getOwner()) && !pLoopPlot->IsAdjacentOwnedByTeamOtherThan(getTeam());
 
@@ -7892,31 +7892,45 @@ void CvCity::updateEconomicValue()
 					int iResourceQuantity = validResources.GetWeight(iResourceLoop);
 					if (iResourceQuantity > 0)
 					{
+						CvPlayer& kNewOwner = GET_PLAYER(ePossibleOwner);
+						CvPlayer& kOldOwner = GET_PLAYER(getOwner());
 						ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
 						if (eUsage == RESOURCEUSAGE_LUXURY)
 						{
-							int iValue = 200;
+							// Duplicate copies have trade value, but don't provide additional Happiness
+							int iValue = 200 * iResourceQuantity;
 
-							if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
-								iValue = 100;
+							// Reward the new owner for acquiring a luxury they don't already have
+							if (kNewOwner.getNumResourceAvailable(eResource) <= 0 &&
+								!GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePossibleOwner, eResource))
+							{
+								int iHappiness = pkResourceInfo->getHappiness() + kNewOwner.GetExtraHappinessPerLuxury();
+								iValue += iHappiness * 400;
+							}
 
-							// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) ||
-								(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity) ||
-								(GET_PLAYER(ePossibleOwner).WouldGainMonopoly(eResource, iResourceQuantity)))
-								iValue = 600;
+							// The luxury is also valuable if its current owner would lose access to it
+							if (kOldOwner.getNumResourceAvailable(eResource) > 0 &&
+								kOldOwner.getNumResourceAvailable(eResource) <= iResourceQuantity &&
+								!GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
+							{
+								int iHappiness = pkResourceInfo->getHappiness() + kOldOwner.GetExtraHappinessPerLuxury();
+								iValue += iHappiness * 400;
+							}
 
-							int iHappinessFromResource = pkResourceInfo->getHappiness() + GET_PLAYER(ePossibleOwner).GetExtraHappinessPerLuxury();
-							iResourceValue += iResourceQuantity * iHappinessFromResource * iValue;
+							// Monopolies have additional strategic value
+							if (kNewOwner.WouldGainMonopoly(eResource, iResourceQuantity))
+								iValue += 800;
+
+							iResourceValue += iValue;
 						}
 						else if (eUsage == RESOURCEUSAGE_STRATEGIC)
 						{
 							int iValue = 400;
 
 							// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
-							if ((GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) ||
-								(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == iResourceQuantity) ||
-								(GET_PLAYER(ePossibleOwner).WouldGainMonopoly(eResource, iResourceQuantity)))
+							if ((kNewOwner.getNumResourceAvailable(eResource) == 0) ||
+								(kOldOwner.getNumResourceAvailable(eResource) == iResourceQuantity) ||
+								(kNewOwner.WouldGainMonopoly(eResource, iResourceQuantity)))
 								iValue = 800;
 
 							iResourceValue += iResourceQuantity * iValue;

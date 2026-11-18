@@ -68,7 +68,7 @@ public:
 	GreatPeopleDirectiveTypes GetDirectiveAdmiral(CvUnit* pGreatAdmiral);
 	GreatPeopleDirectiveTypes GetDirectiveDiplomat(CvUnit* pGreatDiplomat);
 
-	bool GreatMerchantWantsCash();
+	bool GreatMerchantWantsCash(PlayerTypes eTargetPlayer = NO_PLAYER);
 	CvPlot* FindBestMerchantTargetPlotForCash(CvUnit* pMerchant);
 	CvPlot* FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant);
 
@@ -80,7 +80,7 @@ public:
 	//For Great Diplomats
 	CvPlot* FindBestDiplomatTargetPlot(CvUnit* pUnit);
 	//And for messengers
-	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities);
+	CvPlot* FindBestMessengerTargetPlot(CvUnit* pUnit, const vector<int>& vIgnoreCityStates);
 	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);
 	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities = NULL);
 
@@ -88,7 +88,7 @@ public:
 	const vector<CvPlot*>& GetTopCitadelPlotsCached();
 	bool IsNicePlotForCitadel(const CvPlot* pPlot);
 	CvPlot* FindBestCultureBombPlot(CvUnit* pUnit, const vector<CvPlot*>& vPlotsToAvoid);
-	CvPlot* FindBestMusicianTargetPlot(CvUnit* pMusician);
+	CvPlot* FindBestMusicianTargetPlot(CvUnit* pMusician, PlayerTypes& eTargetPlayer);
 
 	// this are used by a city AI to signal that it is committing to build a unit for one of my operations
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster);
