@@ -1217,6 +1217,10 @@ Events.SerialEventUnitInfoDirty.Add( DirtyAll )
 Events.WorldMouseOver( true )
 ContextPtr:SetUpdate(
 function( timeChange )
+	-- The game core update runs on its own thread and may be deleting the cities and units this tooltip reads
+	if IsGameCoreBusy() then
+		return
+	end
 	if g_tipLevel > 1 then
 		return
 	else
