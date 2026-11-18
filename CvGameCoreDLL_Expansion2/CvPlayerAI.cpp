@@ -2198,39 +2198,68 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 
 CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 {
-	if(!pMerchant)
+	if (!pMerchant || !pMerchant->plot())
 		return NULL;
 
-	// distance and plot id
-	vector< pair<int,int> > vCandidates;
+	std::vector<std::pair<int, int>> vCityStates;
+	TeamTypes eMyTeam = getTeam();
 
-	// Loop through each city state
-	for (int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
+	// First check to see what City-States would be acceptable to sell to
+	// The logic here is simple as the goal here is mainly Gold, not Influence, and getting the Great Merchant safely there is the priority
+	for (int iI = MAX_MAJOR_CIVS; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		PlayerTypes ePlayer = (PlayerTypes)iI;
+		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 		if (!kPlayer.isMinorCiv() || !kPlayer.isAlive())
 			continue;
 
-		CvCity* pCity = kPlayer.getCapitalCity();
-		if (!pCity || !pCity->isRevealed(getTeam(),false,true))
+		CvCity* pMinorCapital = kPlayer.getCapitalCity();
+		if (!pMinorCapital || !pMinorCapital->isRevealed(eMyTeam, false, true))
 			continue;
 
-		// Is this a minor we are friendly with?
-		if (GetDiplomacyAI()->GetCivApproach(kPlayer.GetID()) > CIV_APPROACH_HOSTILE && !kPlayer.IsAtWarWith(GetID()))
-		{
-			int iDistance = plotDistance(*pCity->plot(), *pMerchant->plot());
-			vCandidates.push_back(make_pair(iDistance, pCity->plot()->GetPlotIndex()));
-		}
+		if (GetDiplomacyAI()->GetCivApproach(ePlayer) <= CIV_APPROACH_HOSTILE || IsAtWarWith(ePlayer))
+			continue;
+
+		int iDistance = plotDistance(*pMinorCapital->plot(), *pMerchant->plot());
+		vCityStates.push_back(std::make_pair(iDistance, pMinorCapital->plot()->GetPlotIndex()));
 	}
 
-	std::stable_sort(vCandidates.begin(), vCandidates.end());
+	// Go through each City-State, prioritizing the closest ones; the first one to provide a valid target is the winner
+	std::stable_sort(vCityStates.begin(), vCityStates.end());
 
-	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
-	for (size_t i = 0; i < vCandidates.size(); i++)
+	for (size_t iI = 0; iI < vCityStates.size(); iI++)
 	{
-		CvPlot* pTarget = GC.getMap().plotByIndexUnchecked(vCandidates[i].second);
-		if (pMerchant->GeneratePath(pTarget, iFlags, 23))
-			return pMerchant->GetPathLastPlot();
+		CvPlot* pCityPlot = GC.getMap().plotByIndexUnchecked(vCityStates[iI].second);
+		PlayerTypes eTargetCityState = pCityPlot->getOwner();
+
+		// Collect eligible Trade Mission plots in this city-state
+		std::vector<CvPlot*> vCandidates;
+		const PlotIndexContainer& vPlots = GET_PLAYER(eTargetCityState).GetPlots();
+
+		for (PlotIndexContainer::const_iterator it = vPlots.begin(); it != vPlots.end(); ++it)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
+
+			// Are we actually able to see this tile? No cheating!
+			if (!pPlot->isRevealed(getTeam()))
+				continue;
+
+			// The merchant must step ashore to sell their wares
+			if (!pMerchant->isNativeDomain(pPlot))
+				continue;
+
+			// Any other reason we can't trade here?
+			if (!pMerchant->canTrade(pPlot))
+				continue;
+
+			vCandidates.push_back(pPlot);
+		}
+
+		int iTurnsToMission = INT_MAX;
+		CvPlot* pTargetPlot = FindBestReachableMissionPlot(pMerchant, vCandidates, iTurnsToMission, 4, /*bAllowFullSearch*/ false);
+
+		if (pTargetPlot)
+			return pTargetPlot;
 	}
 
 	return NULL;
