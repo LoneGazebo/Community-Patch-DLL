@@ -526,13 +526,17 @@ CivilopediaCategory[CategoryUnits].PopulateList = function()
 		local unitInfo = GameInfo.Units[unit.ID];
 		if unitInfo then
 			local civNames = {};
-			for override in GameInfo.Civilization_UnitClassOverrides("UnitType = '" .. unitInfo.Type .. "'") do
-				local civ = GameInfo.Civilizations[override.CivilizationType];
-				if civ and civ.Type ~= "CIVILIZATION_MINOR" then
-					table.insert(civNames, Locale.ConvertTextKey(civ.Adjective));
+			if unitInfo.CivilizationRequired then
+				local civ = GameInfo.Civilizations[unitInfo.CivilizationRequired];
+				table.insert(civNames, Locale.ConvertTextKey(civ.Adjective));
+			else
+				for override in GameInfo.Civilization_UnitClassOverrides("UnitType = '" .. unitInfo.Type .. "'") do
+					local civ = GameInfo.Civilizations[override.CivilizationType];
+					if civ and civ.Type ~= "CIVILIZATION_MINOR" then
+						table.insert(civNames, Locale.ConvertTextKey(civ.Adjective));
+					end
 				end
 			end
-
 			-- If it's civilization-specific, prepend the civilization name(s)
 			if #civNames > 0 then
 				local civNameStr = table.concat(civNames, ", ");
