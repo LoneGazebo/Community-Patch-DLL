@@ -3384,6 +3384,11 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	//sometimes tactsim cannot use all units, eg if they are too far out
 	vector<CvUnit*> farout;
 	bool bHaveNavalEscort = false;
+
+	//the sim clears its distance map when it finishes, so rebuild it for the distance check below
+	if (bTactSimSuccess)
+		TacticalAIHelpers::UpdatePlotDistanceToTarget(m_pPlayer->GetID(), pTarget);
+
 	for (vector<CvUnit*>::const_iterator it = vUnits.begin(); it != vUnits.end(); ++it)
 	{
 		CvUnit* pUnit = *it;
@@ -3395,12 +3400,12 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		if (pUnit->TurnProcessed())
 			continue;
 		
-		// This plot distance function call is valid since the update function was called in FindAndExecuteBestUnitAssignments
 		if (bTactSimSuccess && TacticalAIHelpers::GetPlotDistanceToTarget(pUnit->plot()->GetPlotIndex(), pUnit->getDomainType()) <= TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 			continue; //do not end the turn ... we may want to shuffle them around later
 
 		farout.push_back(pUnit);
 	}
+	gDistanceToTargetPlots.clear();
 
 	//we want to move the civilians last so they have a better chance of getting cover
 	struct PrSortCombatFirst
