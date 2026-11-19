@@ -8300,6 +8300,22 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		{
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
 
+			// The old improvement's build may be responsible for the plot's route. Remove that if so.
+			for (int i = 0; i < GC.getNumBuildInfos(); i++) {
+				CvBuildInfo* pkBuild = GC.getBuildInfo((BuildTypes)i);
+				
+				if (pkBuild && ((ImprovementTypes)pkBuild->getImprovement()) == eOldImprovement) {
+					// Found a build, but did it auto-add a route?
+					if (pkBuild->getRoute() != NO_ROUTE) {
+						setRouteType(NO_ROUTE);
+					}
+					
+					// Presumes the improvement has only one build
+					break;
+				}
+			}
+			
+			// Removing this improvement may make the tile impassable
 			DomainTypes eTradeRouteDomain = NO_DOMAIN;
 			if (oldImprovementEntry.IsAllowsWalkWater())
 			{
