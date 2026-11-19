@@ -7043,7 +7043,14 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						// this is a plot with an improved resource. check if it should be pillaged
 						if (iPillageResourceTilesChance == 100 || GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xbe510f48).mix(iCityID).mix(*it).mix(GC.getGame().getGameTurn())) <= iPillageResourceTilesChance)
 						{
-							pLoopPlot->SetImprovementPillaged(true);
+							if (pImprovement->IsDestroyedWhenPillaged())
+							{
+								pLoopPlot->setImprovementType(NO_IMPROVEMENT);
+							}
+							else
+							{	
+								pLoopPlot->SetImprovementPillaged(true);
+							}
 						}
 					}
 				}
