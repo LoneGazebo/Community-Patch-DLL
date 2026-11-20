@@ -274,7 +274,16 @@ public:
 	}
 	virtual void loadDelta(FDataStream& loadFrom)
 	{
-		load(loadFrom);
+		// Called for a received sync check: take the sender's value, unless the var is compare-only
+		if (SyncVarsType::AppliesRemoteValue(static_cast<const VarTraits*>(NULL)))
+		{
+			load(loadFrom);
+		}
+		else
+		{
+			ValueType remoteValue;
+			loadFrom >> remoteValue;
+		}
 	}
 	virtual void save(FDataStream& saveTo) const
 	{
@@ -420,6 +429,7 @@ public: \
 	const ContainerType& getContainer() const { return m_container; } \
 	ContainerType& getContainer() { return m_container; } \
 	SyncVars(ContainerType& container) : m_container(container) {} \
+	template<typename VarTraits> static inline bool AppliesRemoteValue(const VarTraits*) { return true; } \
 private: \
 	ContainerType& m_container; \
 public:
@@ -456,6 +466,14 @@ public:
 		} \
 	}; \
 	CvSyncVar<memberName##_Traits> memberName;
+
+// Same as SYNC_ARCHIVE_VAR, but a received sync check only compares the value and does not write it.
+// Use it for counters that the game keeps up to date from other state which is not in the sync check
+// (worked plots, production queues, city-state friendships...): a written value would no longer match
+// that state, and the difference would stay when the state itself agrees again.
+#define SYNC_ARCHIVE_VAR_COMPARE_ONLY(memberType, memberName) \
+	SYNC_ARCHIVE_VAR(memberType, memberName) \
+	static inline bool AppliesRemoteValue(const memberName##_Traits*) { return false; }
 
 // Automagically ends a CvSyncArchive specialization
 #define SYNC_ARCHIVE_END() };
