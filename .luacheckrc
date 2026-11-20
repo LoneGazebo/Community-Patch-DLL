@@ -97,6 +97,7 @@ stds.CIV = {
 		"ToggleStrategicView", "UnitMoving",
 		"TruncateString", "LookUpControl",
 		"IsNull",
+		"getEndTurnTimerLength", "SaveAudioOptions",
 
 		-- Engine utility globals
 		"IncludeFileList", "RefreshIncludeFileList",
