@@ -30,9 +30,10 @@ import tempfile
 # Codes that usually mean a real bug get annotations in the pull request;
 # the rest are listed in the log and the job summary only.
 ANNOTATE = ("E", "W111", "W112", "W113", "W121", "W122", "W143")
-# LuaCATS holds editor type stubs, not game code. UI_bc1 is EUI as bc1 ships it and is
-# not edited in this repository (changes go into a copy under "(3a) VP - EUI
-# Compatibility Files"). Both stay in the luacheck run, because they define globals.
+# LuaCATS holds editor type stubs, not game code (.luacheckrc excludes it). UI_bc1 is EUI
+# as bc1 ships it and is not edited in this repository (changes go into a copy under
+# "(3a) VP - EUI Compatibility Files"). It stays in the luacheck run, because it defines
+# globals, but its warnings are not reported.
 SKIP = ("LuaCATS/", "UI_bc1/")
 MAX_ANNOTATIONS = 10  # GitHub shows at most 10 warning annotations per step
 
