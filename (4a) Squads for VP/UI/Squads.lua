@@ -61,25 +61,23 @@ function SetSquadsMode(mode)
     local iPlayer = Game.GetActivePlayer();
     local pPlayer = Players[ iPlayer ];
 
-    Events.SerialEventMouseOverHex.Remove(OnMouseMoveOverHex);
-
     if mode == SQUADS_MODE_NONE then 
         -- Display window again
         UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
-        Events.ClearHexHighlights();
+        Events.ClearHexHighlightStyle("");
+        Events.ClearHexHighlightStyle("SquadsBoxSelect");
+        Events.ClearHexHighlightStyle("SquadsGroupMovement");
 
     elseif mode == SQUADS_MODE_UNIT_MANAGEMENT then
         if UI.GetInterfaceMode() ~= GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID then
             UI.SetInterfaceMode(GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID);
         end
-        Events.SerialEventMouseOverHex.Add(OnMouseMoveOverHex);
         UpdateMouse();
 
     elseif mode == SQUADS_MODE_MOVE then
         if UI.GetInterfaceMode() ~= GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID then
             UI.SetInterfaceMode(GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID);
         end
-        Events.SerialEventMouseOverHex.Add(OnMouseMoveOverHex);
         UpdateMouse();
     end  
 end
@@ -163,8 +161,12 @@ function UpdateMouse(gridX, gridY)
 end
 
 function OnMouseMoveOverHex(hexX, hexY)
+    if currentMode == SQUADS_MODE_NONE then return end
     UpdateMouse(nil, hexX, hexY);
 end
+-- Added once here, SetSquadsMode can run from WorldView's events. Handlers added then belong to WorldView's Lua,
+-- and crash the game when released after WorldView is gone (e.g. loading a game).
+Events.SerialEventMouseOverHex.Add(OnMouseMoveOverHex);
 
 -- ========== Squads Panel Handlers ==========
 function HandlePressAddToSquadButton ()
@@ -445,7 +447,7 @@ function OnUnitSelectionChange(iPlayerID, iUnitID, i, j, k, isSelected)
             currentSquadNumber = pUnit:GetSquadNumber();
         end
     elseif interfaceMode ~= InterfaceModeTypes.INTERFACEMODE_CITY_RANGE_ATTACK and interfaceMode ~= InterfaceModeTypes.INTERFACEMODE_RANGE_ATTACK then
-        Events.ClearHexHighlights();
+        Events.ClearHexHighlightStyle("");
     end
 end
 Events.UnitSelectionChanged.Add( OnUnitSelectionChange );
@@ -457,7 +459,7 @@ end
 
 function _highlightSquadUnits(pPlayer, squadNumber, clearOldHighlights)
     if not bHighlightSquadUnits and currentMode ~= SQUADS_MODE_UNIT_MANAGEMENT then return end
-    if clearOldHighlights then Events.ClearHexHighlights() end
+    if clearOldHighlights then Events.ClearHexHighlightStyle("") end
     if squadNumber == -1 then return end
     for unit in getSquadUnits(pPlayer, squadNumber)
     do
@@ -466,7 +468,7 @@ function _highlightSquadUnits(pPlayer, squadNumber, clearOldHighlights)
 end
 
 function HighlightAllSquadStatus(pPlayer)
-    Events.ClearHexHighlights();
+    Events.ClearHexHighlightStyle("");
     for unit in pPlayer:Units() do
         if unit:GetSquadNumber() == -1 then
             -- do nothing

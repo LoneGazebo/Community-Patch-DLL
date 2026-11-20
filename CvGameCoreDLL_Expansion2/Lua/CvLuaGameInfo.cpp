@@ -14,21 +14,15 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
-#include "../CustomMods.h"
-#include "CvLuaSupport.h"
+#include "!CvLuaApi.h"
 #include "CvLuaGameInfo.h"
-#include <LuaExposures.h>
-
-// Namespace aliases to reduce typing.
-namespace Lua = FLua::Details;
-using FLua::Table;
 
 //------------------------------------------------------------------------------
-void CvLuaGameInfo::Register(lua_State* L)
+void CvLuaGameInfo::RegisterGlobals(lua_State* L)
 {
 	//Register other game info structures.
-	Lua::CCallWithErrorHandling(L, pRegisterActions);
-	Lua::CCallWithErrorHandling(L, pRegisterTypesInfo);
+	luaVp_pcall(L, pRegisterActions);
+	luaVp_pcall(L, pRegisterTypesInfo);
 }
 
 //------------------------------------------------------------------------------
@@ -43,48 +37,45 @@ int CvLuaGameInfo::pRegisterActions(lua_State* L)
 
 	typedef std::vector<CvActionInfo*> ActionInfos;
 	ActionInfos& infos = GC.getActionInfo();
-	for(ActionInfos::const_iterator it = infos.begin();
-	        it != infos.end(); ++it)
+	for(ActionInfos::const_iterator it = infos.begin(); it != infos.end(); ++it)
 	{
 		CvActionInfo* pEntry = (*it);
 		lua_createtable(L, 0, 0);
 
-		Table kEntry(L, -1);
+		luaEx_quickset(L, -1, "MissionData", pEntry->getMissionData() );
+		luaEx_quickset(L, -1, "CommandData", pEntry->getCommandData() );
 
-		kEntry["MissionData"]		= pEntry->getMissionData();
-		kEntry["CommandData"]		= pEntry->getCommandData();
+		luaEx_quickset(L, -1, "AutomateType", pEntry->getAutomateType() );
+		luaEx_quickset(L, -1, "InterfaceModeType", pEntry->getInterfaceModeType() );
+		luaEx_quickset(L, -1, "MissionType", pEntry->getMissionType() );
+		luaEx_quickset(L, -1, "CommandType", pEntry->getCommandType() );
+		luaEx_quickset(L, -1, "ControlType", pEntry->getControlType() );
+		luaEx_quickset(L, -1, "OriginalIndex", pEntry->getOriginalIndex() );
 
-		kEntry["AutomateType"]		= pEntry->getAutomateType();
-		kEntry["InterfaceModeType"]	= pEntry->getInterfaceModeType();
-		kEntry["MissionType"]		= pEntry->getMissionType();
-		kEntry["CommandType"]		= pEntry->getCommandType();
-		kEntry["ControlType"]		= pEntry->getControlType();
-		kEntry["OriginalIndex"]		= pEntry->getOriginalIndex();
+		luaEx_quickset(L, -1, "ConfirmCommand", pEntry->isConfirmCommand() );
+		luaEx_quickset(L, -1, "Visible", pEntry->isVisible() );
+		luaEx_quickset(L, -1, "SubType", (int)pEntry->getSubType() );
 
-		kEntry["ConfirmCommand"]	= pEntry->isConfirmCommand();
-		kEntry["Visible"]			= pEntry->isVisible();
-		kEntry["SubType"]			= (int)pEntry->getSubType();
+		luaEx_quickset(L, -1, "Type", pEntry->GetType() );
+		luaEx_quickset(L, -1, "TextKey", pEntry->GetTextKey() );
 
-		kEntry["Type"]				= pEntry->GetType();
-		kEntry["TextKey"]			= pEntry->GetTextKey();
+		luaEx_quickset(L, -1, "ActionInfoIndex", pEntry->getActionInfoIndex() );
+		luaEx_quickset(L, -1, "HotKeyVal", pEntry->getHotKeyVal() );
+		luaEx_quickset(L, -1, "HotKeyPriority", pEntry->getHotKeyPriority() );
+		luaEx_quickset(L, -1, "HotKeyValAlt", pEntry->getHotKeyValAlt() );
+		luaEx_quickset(L, -1, "HotKeyPriorityAlt", pEntry->getHotKeyPriorityAlt() );
+		luaEx_quickset(L, -1, "OrderPriority", pEntry->getOrderPriority() );
 
-		kEntry["ActionInfoIndex"]	= pEntry->getActionInfoIndex();
-		kEntry["HotKeyVal"]			= pEntry->getHotKeyVal();
-		kEntry["HotKeyPriority"]	= pEntry->getHotKeyPriority();
-		kEntry["HotKeyValAlt"]		= pEntry->getHotKeyValAlt();
-		kEntry["HotKeyPriorityAlt"]	= pEntry->getHotKeyPriorityAlt();
-		kEntry["OrderPriority"]		= pEntry->getOrderPriority();
+		luaEx_quickset(L, -1, "AltDown", pEntry->isAltDown() );
+		luaEx_quickset(L, -1, "ShiftDown", pEntry->isShiftDown() );
+		luaEx_quickset(L, -1, "CtrlDown", pEntry->isCtrlDown() );
+		luaEx_quickset(L, -1, "AltDownAlt", pEntry->isAltDownAlt() );
+		luaEx_quickset(L, -1, "ShiftDownAlt", pEntry->isShiftDownAlt() );
+		luaEx_quickset(L, -1, "CtrlDownAlt", pEntry->isCtrlDownAlt() );
 
-		kEntry["AltDown"]			= pEntry->isAltDown();
-		kEntry["ShiftDown"]			= pEntry->isShiftDown();
-		kEntry["CtrlDown"]			= pEntry->isCtrlDown();
-		kEntry["AltDownAlt"]		= pEntry->isAltDownAlt();
-		kEntry["ShiftDownAlt"]		= pEntry->isShiftDownAlt();
-		kEntry["CtrlDownAlt"]		= pEntry->isCtrlDownAlt();
-
-		kEntry["HotKey"]			= pEntry->getHotKeyString();
-		kEntry["Help"]				= pEntry->GetHelp();
-		kEntry["DisabledHelp"]		= pEntry->GetDisabledHelp();
+		luaEx_quickset(L, -1, "HotKey", pEntry->getHotKeyString() );
+		luaEx_quickset(L, -1, "Help", pEntry->GetHelp() );
+		luaEx_quickset(L, -1, "DisabledHelp", pEntry->GetDisabledHelp() );
 
 		lua_rawseti(L, t, idx);
 

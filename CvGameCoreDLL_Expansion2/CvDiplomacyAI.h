@@ -181,7 +181,6 @@ public:
 	int GetDiplomaticVictoryProgress() const;
 	int GetScienceVictoryProgress() const;
 	int GetCultureVictoryProgress() const;
-	int GetLowestTourismInfluence() const;
 
 	bool IsCloseToAnyVictoryCondition() const;
 	bool IsCloseToWorldConquest() const;

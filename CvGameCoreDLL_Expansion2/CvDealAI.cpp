@@ -1516,7 +1516,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			}
 
 			// Netherlands might also want to buy resources that get them a monopoly
-			if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() && !(pRenewDeal && pRenewDeal->GetNumResourcesInDeal(eOtherPlayer, eResource) > 0) && GetPlayer()->WouldGainMonopoly(eResource, 1))
+			if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() && (!pRenewDeal || pRenewDeal->GetNumResourcesInDeal(eOtherPlayer, eResource) <= 0) && GetPlayer()->WouldGainMonopoly(eResource, 1))
 			{
 				// What does this monopoly give us?
 				bool bPercentageBonus = false;
@@ -1737,7 +1737,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 
 		vBuildingsWithResourceRequirement.push_back(eBuilding);
 	}
-	if (vBuildingsWithResourceRequirement.size() > 0)
+	if (!vBuildingsWithResourceRequirement.empty())
 	{
 		// loop through our cities and calculate the valuation for each building we can potentially build
 		int iCityLoop = 0;
@@ -1924,7 +1924,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 	}
 
 	// now check how many units we want to build
-	if (vAirUnitsList.size() > 0)
+	if (!vAirUnitsList.empty())
 	{
 		int iNumFreeAirSlots = 0; // how many air units can we station in cities?
 		int iCityLoop = 0;
@@ -1941,7 +1941,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 			vTotalWeightList.insert(vTotalWeightList.end(), vAirUnitsList.begin(), vAirUnitsList.begin() + iNumFreeAirSlots);
 		}
 	}
-	if (vNonAirUnitsList.size() > 0 && iNumSupplyLeft > 0)
+	if (!vNonAirUnitsList.empty() && iNumSupplyLeft > 0)
 	{
 		int iNonAirUnitsToBuild = iNumSupplyLeft;
 		if (!bWar)
@@ -1971,7 +1971,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 	}
 
 	//don't need anything?
-	if(vTotalWeightList.size() == 0)
+	if(vTotalWeightList.empty())
 	{
 		return vTotalWeightList;
 	}
@@ -2097,7 +2097,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	else
 	{
 		// we're buying
-		if (vTotalWeightList.size() == 0)
+		if (vTotalWeightList.empty())
 		{
 			// don't need anything
 			return 0;
@@ -2428,7 +2428,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer) const
 		if (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && (GetPlayer()->GetCulture()->GetTourism() / 100) > 0)
 		{
 			// The civ we need influence on the most should ALWAYS be included
-			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/) == eOtherPlayer)
+			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ true) == eOtherPlayer)
 			{
 				iItemValue *= 50;
 				iItemValue /= 100;
@@ -2557,7 +2557,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer) const
 		if (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && (GetPlayer()->GetCulture()->GetTourism() / 100) > 0)
 		{
 			// The civ we need influence on the most should ALWAYS be included
-			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == eOtherPlayer)
+			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ true) == eOtherPlayer)
 			{
 				iItemValue *= 200;
 				iItemValue /= 100;
@@ -3458,7 +3458,7 @@ void CvDealAI::DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 			}
 			// Sort the vector based on value to get the best possible item to trade.
 			viTradeValues.StableSortItems();
-			if(viTradeValues.size() > 0)
+			if(!viTradeValues.empty())
 			{
 				for(int iRanking = 0; iRanking < viTradeValues.size(); iRanking++)
 				{
@@ -3541,7 +3541,7 @@ void CvDealAI::DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 			}
 			// Sort the vector based on value to get the best possible item to trade.
 			viTradeValues.StableSortItems();
-			if (viTradeValues.size() > 0)
+			if (!viTradeValues.empty())
 			{
 				//reverse!
 				for (int iRanking = viTradeValues.size() - 1; iRanking >= 0; iRanking--)
@@ -3631,7 +3631,7 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, int& i
 		}
 		// Sort the vector based on value to get the best possible item to trade.
 		viTradeValues.StableSortItems();
-		if(viTradeValues.size() > 0)
+		if(!viTradeValues.empty())
 		{
 			for(int iRanking = 0; iRanking < viTradeValues.size(); iRanking++)
 			{
@@ -3749,7 +3749,7 @@ void CvDealAI::DoAddThirdPartyPeaceToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 		}
 		// Sort the vector based on value to get the best possible item to trade.
 		viTradeValues.StableSortItems();
-		if(viTradeValues.size() > 0)
+		if(!viTradeValues.empty())
 		{
 			for(int iRanking = 0; iRanking < viTradeValues.size(); iRanking++)
 			{
@@ -3901,7 +3901,7 @@ void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 		}
 		// Sort the vector based on value to get the best possible item to trade.
 		viTradeValues.StableSortItems();
-		if (viTradeValues.size() > 0)
+		if (!viTradeValues.empty())
 		{
 			for (int iRanking = 0; iRanking < viTradeValues.size(); iRanking++)
 			{
@@ -3989,7 +3989,7 @@ void CvDealAI::DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 		}
 
 		viTradeValues.StableSortItems();
-		if(viTradeValues.size() > 0)
+		if(!viTradeValues.empty())
 		{
 			//reverse!
 			for (int iRanking = viTradeValues.size()-1; iRanking >= 0; iRanking--)
@@ -5284,7 +5284,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 		// Sort the vector based on value
 		viResourceValue.StableSortItems();
-		if(viResourceValue.size() > 0)
+		if(!viResourceValue.empty())
 		{
 			for(int iSortedResourceIndex =  0; iSortedResourceIndex < viResourceValue.size(); iSortedResourceIndex++)
 			{
@@ -5355,7 +5355,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		int iResourceValueToSurrender = (iTotalResourceValue * iGiveUpStratResources) / 100;
 
 		viResourceValue.StableSortItems();
-		if(viResourceValue.size() > 0)
+		if(!viResourceValue.empty())
 		{
 			for(int iSortedResourceIndex =  0; iSortedResourceIndex < viResourceValue.size(); iSortedResourceIndex++)
 			{
@@ -7467,7 +7467,7 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 			}
 			// Sort the vector based on value to get the best possible item to trade.
 			viTradeValues.StableSortItems();
-			if(viTradeValues.size() > 0)
+			if(!viTradeValues.empty())
 			{
 				for(int iRanking = 0; iRanking < viTradeValues.size(); iRanking++)
 				{

@@ -151,21 +151,19 @@ UPDATE UnitPromotions SET MovesChange = 1 WHERE RankList = 'HELI_MOBILITY';
 --
 --                                       ┌──────► Volley
 --                                       │                        Infiltrators
--- Siege I ─────────► Siege II ──────────┴──────► Siege III ────► Range
+-- Siege I ─────────► Siege II ──────────┴──────► Siege III ────► March
 --
 -- Cover I ─────────► Cover II
 --                                                                Firing Doctrine
--- Field I ────┬────► Field II ──────────┬──────► Field III ────► Logistics
---             │                         │
---             └────► Coastal Artillery  └──────► Splash I ─────► Splash II
+-- Field I ────┬────► Field II ─────────────────► Field III ────► Logistics
+--             │
+--             └────► Coastal Artillery
 ----------------------------------------------------------------------------------------------------------------------------
 UPDATE UnitPromotions SET RangedAttackModifier = 10, CityAttack = 15 WHERE RankList = 'SIEGE';
 
-UPDATE UnitPromotions SET RangedAttackModifier = 10, OpenRangedAttackMod = 10 WHERE RankList = 'FIELD';
+UPDATE UnitPromotions SET RangedAttackModifier = 10, SplashDamage = 5 WHERE RankList = 'FIELD';
 
 UPDATE UnitPromotions SET CityAttack = 50, AttackFortifiedMod = 50 WHERE Type = 'PROMOTION_VOLLEY';
-
-UPDATE UnitPromotions SET SplashDamage = 5 WHERE RankList = 'SPLASH';
 
 INSERT INTO UnitPromotions_UnitCombatMods
 	(PromotionType, UnitCombatType, Modifier)
@@ -370,6 +368,8 @@ VALUES
 	('PROMOTION_SHRAPNEL_ROUNDS_1', 'DOMAIN_LAND', 50),
 	('PROMOTION_SHRAPNEL_ROUNDS_2', 'DOMAIN_LAND', 50);
 
+UPDATE UnitPromotions SET SplashDamage = 5 WHERE RankList = 'SPLASH';
+
 ----------------------------------------------------------------------------------------------------------------------------
 -- Submarine promotion tree drawn using ASCIIFlow
 --
@@ -452,8 +452,8 @@ UPDATE UnitPromotions SET InterceptChanceChange = 15 WHERE RankList = 'INTERCEPT
 -- Ace Pilot
 UPDATE UnitPromotions SET InterceptChanceChange = 33 WHERE Type = 'PROMOTION_INTERCEPTION_1';
 UPDATE UnitPromotions SET InterceptChanceChange = 33, InterceptionCombatModifier = 33 WHERE Type = 'PROMOTION_INTERCEPTION_2';
-UPDATE UnitPromotions SET InterceptChanceChange = 34, InterceptionCombatModifier = 33, RangeChange = 1 WHERE Type = 'PROMOTION_INTERCEPTION_3';
-UPDATE UnitPromotions SET NumInterceptionChange = 1, InterceptionCombatModifier = 34, RangeChange = 1 WHERE Type = 'PROMOTION_SORTIE';
+UPDATE UnitPromotions SET InterceptChanceChange = 34, InterceptionCombatModifier = 33, RangeChange = 1, AirInterceptRangeChange = 1 WHERE Type = 'PROMOTION_INTERCEPTION_3';
+UPDATE UnitPromotions SET NumInterceptionChange = 1, InterceptionCombatModifier = 34, RangeChange = 1, AirInterceptRangeChange = 1 WHERE Type = 'PROMOTION_SORTIE';
 
 UPDATE UnitPromotions SET AirSweepCombatModifier = 33 WHERE Type = 'PROMOTION_DOGFIGHTING_1';
 UPDATE UnitPromotions SET AirSweepCombatModifier = 33, GetGroundAttackDamage = 5 WHERE Type = 'PROMOTION_DOGFIGHTING_2';
@@ -654,7 +654,7 @@ UPDATE UnitPromotions SET CombatPercent = 10, MovesChange = 1 WHERE Type = 'PROM
 
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_MORALE';
 
-UPDATE UnitPromotions SET CombatPercent = 15 WHERE Type = 'PROMOTION_TRIUMPH';
+UPDATE UnitPromotions SET CombatPercent = 5 WHERE Type = 'PROMOTION_TRIUMPH';
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)
 VALUES
@@ -677,6 +677,8 @@ INSERT INTO UnitPromotions_YieldFromScoutingTimes100
 	(PromotionType, YieldType, Yield)
 VALUES
 	('PROMOTION_AGE_OF_DISCOVERY', 'YIELD_GOLD', 100);
+
+UPDATE UnitPromotions SET CombatModPerLevel = 3 WHERE Type = 'PROMOTION_STRATEGIC_STUDY';
 
 --------------------------------------------
 -- Unit free promotions
@@ -739,9 +741,11 @@ UPDATE UnitPromotions SET CityAttack = 100 WHERE Type = 'PROMOTION_CITY_SIEGE';
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Attack)
 VALUES
-	('PROMOTION_SIEGE_INACCURACY', 'DOMAIN_LAND', -33);
+	('PROMOTION_SIEGE_INACCURACY', 'DOMAIN_LAND', -50);
 
-UPDATE UnitPromotions SET RangeAttackIgnoreLOS = 1, RangedAttackModifier = -10 WHERE Type = 'PROMOTION_INDIRECT_FIRE';
+UPDATE UnitPromotions SET SeeThrough = 1 WHERE Type = 'PROMOTION_PARABOLIC_PAYLOAD';
+
+UPDATE UnitPromotions SET RangeAttackIgnoreLOS = 1 WHERE Type = 'PROMOTION_INDIRECT_FIRE';
 
 UPDATE UnitPromotions SET IgnoreTerrainCost = 1, DefenseMod = 30, CanClaimGoody = 1 WHERE Type = 'PROMOTION_RECONNAISSANCE';
 
@@ -1071,7 +1075,7 @@ VALUES
 UPDATE UnitPromotions SET OpenAttack = 20, OpenDefense = 20 WHERE Type = 'PROMOTION_SHOCK_CAVALRY';
 
 -- Grenzer: Frontiersman
-UPDATE UnitPromotions SET BorderMod = 40 WHERE Type = 'PROMOTION_FRONTIERSMAN';
+UPDATE UnitPromotions SET BorderMod = 60 WHERE Type = 'PROMOTION_FRONTIERSMAN';
 
 -- Otomi: Brute Strength
 UPDATE UnitPromotions SET BarbarianCombatBonus = 40 WHERE Type = 'PROMOTION_BRUTE_STRENGTH';

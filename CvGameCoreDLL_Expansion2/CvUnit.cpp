@@ -634,7 +634,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				}
 			}
 		}
-		if(vfPossibleUnits.size() > 0)
+		if(!vfPossibleUnits.empty())
 		{
 			uint uRoll = GC.getGame().urandLimitExclusive(vfPossibleUnits.size(), CvSeeder(iID));
 			strName = getUnitInfo().GetUnitNames(vfPossibleUnits[uRoll]);
@@ -658,7 +658,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 					}
 				}
 			}
-			if(vfPossibleUnits.size() > 0)
+			if(!vfPossibleUnits.empty())
 			{
 				uint uRoll = GC.getGame().urandLimitExclusive(vfPossibleUnits.size(), CvSeeder(iID));
 				strName = getUnitInfo().GetUnitNames(vfPossibleUnits[uRoll]);
@@ -669,7 +669,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 		//If still no valid GPs, do the old random method.
-		if (vfPossibleUnits.size() <= 0)
+		if (vfPossibleUnits.empty())
 		{
 			for (iI = 0; iI < iNumNames; iI++)
 			{
@@ -5823,7 +5823,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 
 		if (!bTestVisibility)
 		{
-			if (GET_PLAYER(m_eOwner).GetEconomicAI()->GetExplorationPlots(this).empty())
+			if (!GET_PLAYER(m_eOwner).GetEconomicAI()->HasExplorationPlots(this))
 			{
 				return false;
 			}
@@ -9491,8 +9491,8 @@ bool CvUnit::plunderTradeRoute()
 	std::vector<int> aiTradeUnitsAtPlot;
 	CvPlayerTrade* pTrade = GET_PLAYER(m_eOwner).GetTrade();
 	aiTradeUnitsAtPlot = pTrade->GetOpposingTradeUnitsAtPlot(pPlot, false);
-	ASSERT(aiTradeUnitsAtPlot.size() > 0, "aiTradeUnitsAtPlot is empty. Earlier check should have verified that this can't be the case");
-	if (aiTradeUnitsAtPlot.size() <= 0)
+	ASSERT(!aiTradeUnitsAtPlot.empty(), "aiTradeUnitsAtPlot is empty. Earlier check should have verified that this can't be the case");
+	if (aiTradeUnitsAtPlot.empty())
 	{
 		return false;
 	}
@@ -10984,7 +10984,8 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	if(kPlayer.GetReligions()->IsFoundingReligion())
+	// already founding a religion
+	if(kPlayer.GetReligions()->GetFoundingReligionCityID() != -1)
 	{
 		return false;
 	}
@@ -11044,7 +11045,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 		}
 	}
 
-	if (pReligions->GetAvailableFounderBeliefs(getOwner(), NO_RELIGION).size() < 1 || pReligions->GetAvailableFollowerBeliefs(getOwner(), NO_RELIGION).size() < 1)
+	if (pReligions->GetAvailableFounderBeliefs(getOwner(), NO_RELIGION).empty() || pReligions->GetAvailableFollowerBeliefs(getOwner(), NO_RELIGION).empty())
 	{
 		return false;
 	}
@@ -11073,6 +11074,7 @@ bool CvUnit::DoFoundReligion()
 				finishMoves();
 			}
 
+			kOwner.GetReligions()->SetFoundingReligionCityID(pkCity->GetID());
 			if(kOwner.isHuman(ISHUMAN_AI_RELIGION_CHOICE))
 			{
 				ASSERT(pkCity != NULL, "No City??");
@@ -11084,7 +11086,6 @@ bool CvUnit::DoFoundReligion()
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RELIGION");
 					pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
 				}
-				kOwner.GetReligions()->SetFoundingReligion(true);
 
 				if (!bIndiaException)
 				{
@@ -11097,26 +11098,21 @@ bool CvUnit::DoFoundReligion()
 				ReligionTypes eReligion = pReligions->GetReligionToFound(getOwner());
 				if(eReligion != NO_RELIGION)
 				{
-					// Pick beliefs for this religion
+					// Pick beliefs for this religion (the best combination of pantheon, founder, follower and bonus belief)
 					BeliefTypes eBeliefs[4];
+					eBeliefs[0] = NO_BELIEF;
+					eBeliefs[1] = NO_BELIEF;
 					eBeliefs[2] = NO_BELIEF;
 					eBeliefs[3] = NO_BELIEF;
+					vector<BeliefTypes> vChosenBeliefs = kOwner.GetReligionAI()->ChooseFoundingBeliefs(kOwner.GetID(), eReligion);
 					int iIndex = 0;
-					if(!kOwner.GetReligions()->HasCreatedPantheon())
+					for (size_t i = 0; i < vChosenBeliefs.size() && iIndex < 4; i++)
 					{
-						eBeliefs[iIndex] = kOwner.GetReligionAI()->ChoosePantheonBelief(kOwner.GetID());
-						iIndex++;
-					}
-
-					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFounderBelief(kOwner.GetID(), eReligion);
-					iIndex++;
-
-					eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseFollowerBelief(kOwner.GetID(), eReligion);
-					iIndex++;
-
-					if(kOwner.GetPlayerTraits()->IsBonusReligiousBelief())
-					{
-						eBeliefs[iIndex] = kOwner.GetReligionAI()->ChooseBonusBelief(kOwner.GetID(), eReligion, eBeliefs[0], eBeliefs[1], eBeliefs[2]);
+						if (vChosenBeliefs[i] != NO_BELIEF)
+						{
+							eBeliefs[iIndex] = vChosenBeliefs[i];
+							iIndex++;
+						}
 					}
 
 					if (MOD_EVENTS_FOUND_RELIGION) 
@@ -11200,7 +11196,7 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
-	if (pReligions->GetAvailableEnhancerBeliefs(getOwner(), eReligion).size() < 1 || pReligions->GetAvailableFollowerBeliefs(getOwner(), eReligion).size() < 1)
+	if (pReligions->GetAvailableEnhancerBeliefs(getOwner(), eReligion).empty() || pReligions->GetAvailableFollowerBeliefs(getOwner(), eReligion).empty())
 	{
 		return false;
 	}
@@ -11254,11 +11250,10 @@ bool CvUnit::DoEnhanceReligion()
 				ReligionTypes eReligion = kOwner.GetReligions()->GetOwnedReligion();
 				if (eReligion != NO_RELIGION)
 				{
-					// Pick a belief for this religion
-					BeliefTypes eBelief1 = kOwner.GetReligionAI()->ChooseFollowerBelief(kOwner.GetID(), eReligion); // temporary
-					BeliefTypes eBelief2 = kOwner.GetReligionAI()->ChooseEnhancerBelief(kOwner.GetID(), eReligion); // temporary
+					// Pick beliefs for this religion (the best combination of follower and enhancer belief)
+					vector<BeliefTypes> vChosenBeliefs = kOwner.GetReligionAI()->ChooseEnhancingBeliefs(kOwner.GetID(), eReligion);
 
-					pReligions->EnhanceReligion(getOwner(), eReligion, eBelief1, eBelief2);
+					pReligions->EnhanceReligion(getOwner(), eReligion, vChosenBeliefs[0], vChosenBeliefs[1]);
 
 					if (!bIndiaException)
 					{
@@ -12973,7 +12968,7 @@ bool CvUnit::goldenAge()
 
 	if (GetGAPBlastStrength() > 0)
 	{
-		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, GetGAPBlastStrength(), false, NO_PLAYER, plot(), false, getOriginCity(), false, true, true, YIELD_GOLDEN_AGE_POINTS);
+		kPlayer.doInstantYield(INSTANT_YIELD_TYPE_GP_GOLDEN_AGE, false, NO_GREATPERSON, NO_BUILDING, GetGAPBlastStrength(), false, NO_PLAYER, plot(), false, getOriginCity(), false, true, true, YIELD_GOLDEN_AGE_POINTS);
 	}
 
 
@@ -13117,12 +13112,7 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 
 	//No blasts while influential or better!
 	InfluenceLevelTypes eLevel = GET_PLAYER(getOwner()).GetCulture()->GetInfluenceLevel(eOwner);
-	if (eLevel >= INFLUENCE_LEVEL_INFLUENTIAL)
-	{
-		return false;
-	}
-
-	return true;
+	return eLevel < INFLUENCE_LEVEL_INFLUENTIAL;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13809,24 +13799,20 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	{
 		setHasPromotion(ePromotion, true);
 
-		if (MOD_BALANCE_VP && getStartingExperienceTimes100() <= experienceNeeded(getLevel() - 1) * 100)
-		{
-			//Insta-heal removed, gain health with each promotion not obtained from starting XP instead.
-			if (!IsCannotHeal(true))
-				changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
+		bool bFromStartingXP = MOD_BALANCE_VP && getStartingExperienceTimes100() > experienceNeeded(getLevel() - 1) * 100;
 
-			// Yields from level up aren't triggered by promotions obtained from starting XP
-			if (!getOriginCity())
+		//Insta-heal removed, gain health with each promotion not obtained from starting XP instead.
+		if (MOD_BALANCE_VP && !bFromStartingXP && !IsCannotHeal(true))
+			changeDamage(/*-10*/ -GD_INT_GET(INSTA_HEAL_RATE) / 5);
+
+		// Yields from level up aren't triggered by promotions obtained from the starting XP of units that gain XP from exploration
+		if (!bFromStartingXP || getUnitInfo().GetXPFromExploration() == 0)
+		{
+			// Local yields go to the origin city, or the capital if there is none
+			CvCity* pYieldCity = getOriginCity() ? getOriginCity() : kPlayer.getCapitalCity();
+			if (pYieldCity)
 			{
-				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, getOriginCity(), getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
-			}
-			else
-			{
-				CvCity* pCapital = kPlayer.getCapitalCity();
-				if (pCapital)
-				{
-					kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pCapital, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
-				}
+				kPlayer.doInstantYield(INSTANT_YIELD_TYPE_LEVEL_UP, false, NO_GREATPERSON, NO_BUILDING, (getLevel() - 1), false, NO_PLAYER, NULL, false, pYieldCity, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
 			}
 
 			// Global yields
@@ -15346,12 +15332,12 @@ void CvUnit::DoSquadPlotAssignmentsByDomain(std::vector<CvUnit*> eligibleUnits, 
 
 		bool isCandidateSameTypeAsDest = isDestWater == pLoopPlot->isWater();
 		// Special case for when the destination is a port city and the unit domain is DOMAIN_SEA
-		if (eligibleUnits.size() > 0 && eligibleUnits.front()->getDomainType() == DOMAIN_SEA && pDestPlot->isCity() && pLoopPlot->isWater())
+		if (!eligibleUnits.empty() && eligibleUnits.front()->getDomainType() == DOMAIN_SEA && pDestPlot->isCity() && pLoopPlot->isWater())
 		{
 			isCandidateSameTypeAsDest = true;
 		}
 
-		if (isCandidateSameTypeAsDest && eligibleUnits.size() > 0 && eligibleUnits.front()->canMoveInto(*pLoopPlot))
+		if (isCandidateSameTypeAsDest && !eligibleUnits.empty() && eligibleUnits.front()->canMoveInto(*pLoopPlot))
 		{
 			eligiblePlots.push_back(pLoopPlot);
 		}
@@ -17835,7 +17821,7 @@ int CvUnit::EstimatePlagueDamage(const CvUnit* pEnemy) const
 	vector<PlagueInfo> vInflictedPlagues = GetPlaguesToInflict();
 
 	// This unit does not inflict plagues.
-	if (vInflictedPlagues.size() == 0)
+	if (vInflictedPlagues.empty())
 		return 0;
 
 	for (std::vector<PlagueInfo>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
@@ -20571,8 +20557,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 												if (MOD_WH_MILITARY_LOG)
 													MILITARYLOG(getOwner(), strBuffer.c_str(), plot(), pLoopUnit->getOwner());
 												
-												Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_LOST");
-												Localization::String strSummary = strMessage;
+												strMessage = Localization::Lookup("TXT_KEY_UNIT_LOST");
+												strSummary = strMessage;
 											}
 
 											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
@@ -22459,6 +22445,9 @@ int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextK
 		for (int iJ = 0; iJ < pSplashPlot->getNumUnits(); iJ++)
 		{
 			CvUnit* pEnemyUnit = pSplashPlot->getUnitByIndex(iJ);
+			// Delayed casualties remain on the plot until cleanup and must not grant kill rewards again.
+			if (pEnemyUnit != NULL && pEnemyUnit->isDelayedDeath())
+				continue;
 			//logically we should damage non-enemy units as well? but that is too complex to consider ... 
 			if (pEnemyUnit != NULL && pEnemyUnit->isEnemy(getTeam()) && !pEnemyUnit->isTrade())
 			{
@@ -28680,7 +28669,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 							{
 								//todo: check the distance to the next enemy
 								//todo: also might want to do a ranged opportunity attack before moving pLoopUnit ...
-								if (!pLoopUnit->IsCanAttackRanged() || TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit, pNeighbor, true, false).size() > 0)
+								if (!pLoopUnit->IsCanAttackRanged() || !TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit, pNeighbor, true, false).empty())
 								{
 									if (ppToPlot)
 										*ppToPlot = pNeighbor;
@@ -30383,13 +30372,19 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		pDestPlot = m_kLastPath.GetFinalPlot();
 	}
 
+	// the squad check below may already find the final path, no need to search again
+	bool bHavePath = false;
+
 	// If no path exists but continue to closest plot flag is set try to move to an adjacent plot
 	if (MOD_SQUADS && GetSquadNumber() > -1)
 	{
 		newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
+		bHavePath = true;
 
 		if ((iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot)))
 		{
+			// the reroute search below overwrites newPath
+			bHavePath = false;
 			const CvPlot* pTargetPlot = pToPlot;
 
 			// We want to find a new plot relative to the squads destination, not this move missions destination
@@ -30441,7 +30436,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		}
 	}
 
-	if (pDestPlot)
+	if (pDestPlot && !bHavePath)
 		newPath = GC.GetPathFinder().GetPath(getX(), getY(), pDestPlot->getX(), pDestPlot->getY(), data);
 
 	//now copy the new path
@@ -31863,7 +31858,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender, bool bAttacking)
 	vector<PlagueInfo> vInflictedPlagues = GetPlaguesToInflict();
 
 	// This unit does not inflict plagues.
-	if (vInflictedPlagues.size() == 0)
+	if (vInflictedPlagues.empty())
 		return;
 
 	int iCount = vInflictedPlagues.size() + 1;
@@ -32088,7 +32083,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 		if (pDirectionPlot && (bCaptured || (isNativeDomain(pDirectionPlot) && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))))
 		{
 			// Do not withdraw if we're escorting a unit who can't move here!
-			if (aEscortedUnits.size() > 0)
+			if (!aEscortedUnits.empty())
 			{
 				bool bNoRetreat = false;
 				for (size_t j = 0; j < aEscortedUnits.size(); j++)
@@ -32106,7 +32101,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 			aValidPlotList.push_back(pDirectionPlot);
 		}
 	}
-	if (aValidPlotList.size() == 0)
+	if (aValidPlotList.empty())
 		return false;
 	else if (aValidPlotList.size() == 1)
 		pDestPlot = aValidPlotList[0];
@@ -32163,7 +32158,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 		setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 	}
 
-	if (aEscortedUnits.size() > 0)
+	if (!aEscortedUnits.empty())
 	{
 		for (size_t i = 0; i < aEscortedUnits.size(); i++)
 		{
@@ -34456,7 +34451,8 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 	return TurnsToReachTarget(pTarget,iFlags,iTargetTurns);
 }
 
-int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTurns)
+// Returns 0 or INT_MAX when cheap arrival checks settle the result; -1 requires a path search.
+int CvUnit::GetTurnsToReachTargetEstimate(const CvPlot* pTarget, int iFlags, int iTargetTurns) const
 {
 	if(!pTarget)
 		return INT_MAX;
@@ -34520,8 +34516,17 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 	if(pTarget == plot())
 		return 0;
 
-	//don't cache the result here
-	return ComputePath(pTarget, iFlags, iTargetTurns, false);
+	return -1;
+}
+
+// Applies the shared arrival precheck before searching without caching the resulting path.
+int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTurns)
+{
+	int iEstimate = GetTurnsToReachTargetEstimate(pTarget, iFlags, iTargetTurns);
+	if (iEstimate >= 0)
+		return iEstimate;
+
+	return ComputePath(pTarget, iFlags, max(1,iTargetTurns), false);
 }
 
 //	--------------------------------------------------------------------------------

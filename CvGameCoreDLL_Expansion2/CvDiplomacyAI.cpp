@@ -20,6 +20,7 @@
 #include "CvMilitaryAI.h"
 #include "CvMinorCivAI.h"
 #include "CvNotifications.h"
+#include "SqliteLoggerRegistrations.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -3244,53 +3245,20 @@ int CvDiplomacyAI::GetCultureVictoryProgress() const
 	if (!m_pPlayer->isAlive() || GC.getGame().isOption(GAMEOPTION_NO_POLICIES) || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_CULTURAL", true)) || GC.getGame().getWinner() != NO_TEAM)
 		return 0;
 
-	int iLowestPercent = GetLowestTourismInfluence();
-	int iProgress = min(99,iLowestPercent);
+	// What is the lowest % influence we have over any civ?
+	int iLowestPercent = 0;
+	GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false, iLowestPercent);
+
+	int iProgress = min(99, iLowestPercent * 100 / max(/*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL), 1));
 
 	if (MOD_BALANCE_CULTURE_VICTORY_CHANGES)
 	{
 		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true, true);
 		iPolicies = min(iPolicies, 27);
-		iProgress = min(iLowestPercent, 18 + iPolicies * 3);
+		iProgress = min(iProgress, 18 + iPolicies * 3);
 	}
 
 	return iProgress;
-}
-
-int CvDiplomacyAI::GetLowestTourismInfluence() const
-{
-	int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
-
-		if (eLoopPlayer != GetID() && kPlayer.isAlive() && kPlayer.isMajorCiv())
-		{
-			long long lInfluenceOn = GetPlayer()->GetCulture()->GetInfluenceOnTimes100(eLoopPlayer);
-			long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
-			int iPercent = 0;
-
-			if (lInfluenceOn > 0)
-			{
-				if (lLifetimeCulture > 0)
-				{
-					iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
-				}
-			}
-			if (iPercent < 0)
-			{
-				iPercent = 0;
-			}
-			if (iPercent < iLowestPercent)
-			{
-				iLowestPercent = iPercent;
-			}
-		}
-	}
-
-	return iLowestPercent;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -4077,6 +4045,15 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 					break;
 				}
 
+				// stats.db: a DoF between civs that were friends before is a renewal; the level records how many they have had
+				if (MOD_SQLITE_LOGGING)
+				{
+					const bool bRenewal = (eHighestDoF >= DOF_TYPE_FRIENDS);
+					const DoFLevelTypes eNewLevel = GetDoFType(ePlayer);
+					const char* szNewLevel = (eNewLevel == DOF_TYPE_BATTLE_BROTHERS) ? "BATTLE_BROTHERS" : (eNewLevel == DOF_TYPE_ALLIES) ? "ALLIES" : "FRIENDS";
+					LogDiplomacyEvent(GetID(), ePlayer, bRenewal ? "RENEWED_FRIENDSHIP" : "DECLARED_FRIENDSHIP", szNewLevel);
+				}
+
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DOF");
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DOF_S");
 				for (int iCurPlayer = 0; iCurPlayer < MAX_MAJOR_CIVS; ++iCurPlayer)
@@ -4154,6 +4131,13 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 		}
 		else
 		{
+			// stats.db: the partner's flag is cleared by a second call right after this one; log the pair once, while it is still set
+			if (MOD_SQLITE_LOGGING && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(GetID()))
+			{
+				const bool bExpired = GetTurnsSinceBefriendedPlayer(ePlayer) >= GC.getGame().getGameSpeedInfo().getRelationshipDuration();
+				LogDiplomacyEvent(GetID(), ePlayer, "ENDED_FRIENDSHIP", bExpired ? "EXPIRED" : "BROKEN");
+			}
+
 			SetDoFAcceptedTurn(ePlayer, -1);
 		}
 
@@ -4536,7 +4520,7 @@ bool CvDiplomacyAI::IsRecentDemandAccepted(PlayerTypes ePlayer) const
 /// Returns the value of recent trades
 int CvDiplomacyAI::GetMaxRecentTradeValue() const
 {
-	/*200 on Standard, 134 on Quick, 300 on Epic, 600 on Marathon*/
+	/*300 on Standard, 200 on Quick, 450 on Epic, 900 on Marathon*/
 	return range(((GD_INT_GET(DEAL_VALUE_PER_OPINION_WEIGHT) * -GD_INT_GET(OPINION_WEIGHT_TRADE_MAX) * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100), 0, USHRT_MAX);
 }
 
@@ -4634,7 +4618,7 @@ void CvDiplomacyAI::ChangeRecentAssistValue(PlayerTypes ePlayer, int iChange, bo
 	if (!bDecay)
 	{
 		// Don't care if we're at war.
-		if (iChange < 0 && IsAtWar(ePlayer))
+		if (iChange > 0 && IsAtWar(ePlayer))
 			return;
 
 		int iScaledAmount = iChange * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent() / 100;
@@ -4677,9 +4661,29 @@ void CvDiplomacyAI::SetCoopWarState(PlayerTypes eAllyPlayer, PlayerTypes eTarget
 	PRECONDITION(eAllyPlayer >= 0 && eAllyPlayer < MAX_MAJOR_CIVS && eTargetPlayer >= 0 && eTargetPlayer < MAX_MAJOR_CIVS, "Player index out of bounds");
 	PRECONDITION(NotMe(eAllyPlayer) && NotTeam(eTargetPlayer), "Invalid players for coop war");
 
-	if (eNewState != GetCoopWarState(eAllyPlayer, eTargetPlayer))
+	const CoopWarStates eOldState = GetCoopWarState(eAllyPlayer, eTargetPlayer);
+	if (eNewState != eOldState)
 	{
 		m_aaeCoopWarState[eAllyPlayer][eTargetPlayer] = eNewState;
+
+		// stats.db: the state is mirrored on the ally right after this call; log each transition once
+		if (MOD_SQLITE_LOGGING && GET_PLAYER(eAllyPlayer).GetDiplomacyAI()->GetCoopWarState(GetID(), eTargetPlayer) != eNewState)
+		{
+			const char* szDetail = NULL;
+			if (eNewState == COOP_WAR_STATE_PREPARING)
+				szDetail = "AGREED";
+			else if (eNewState == COOP_WAR_STATE_ONGOING)
+				szDetail = "STARTED";
+			else if (eNewState == COOP_WAR_STATE_REJECTED)
+				szDetail = "REJECTED";
+			else if (eNewState == COOP_WAR_STATE_WARNED_TARGET)
+				szDetail = "WARNED_TARGET";
+			else if (eNewState == NO_COOP_WAR_STATE && (eOldState == COOP_WAR_STATE_PREPARING || eOldState == COOP_WAR_STATE_ONGOING))
+				szDetail = "CANCELLED";
+
+			if (szDetail != NULL)
+				LogDiplomacyEvent(GetID(), eAllyPlayer, "COOP_WAR", szDetail, eTargetPlayer);
+		}
 
 		if (eNewState != NO_COOP_WAR_STATE)
 		{
@@ -12791,11 +12795,11 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 
 			// Now see what our new Dispute Level should be
 			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
-			if (iContestedScore >= /*8*/ GD_INT_GET(LAND_DISPUTE_FIERCE_THRESHOLD))
+			if (iContestedScore >= /*18*/ GD_INT_GET(LAND_DISPUTE_FIERCE_THRESHOLD))
 				eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-			else if (iContestedScore >= /*4*/ GD_INT_GET(LAND_DISPUTE_STRONG_THRESHOLD))
+			else if (iContestedScore >= /*10*/ GD_INT_GET(LAND_DISPUTE_STRONG_THRESHOLD))
 				eDisputeLevel = DISPUTE_LEVEL_STRONG;
-			else if (iContestedScore >= /*1*/ GD_INT_GET(LAND_DISPUTE_WEAK_THRESHOLD))
+			else if (iContestedScore >= /*4*/ GD_INT_GET(LAND_DISPUTE_WEAK_THRESHOLD))
 				eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 			// Did this player steal "our" favorite city settling spot? We should get mad!
@@ -13131,11 +13135,11 @@ void CvDiplomacyAI::DoUpdateMinorCivDisputeLevels()
 		}
 
 		// Now see what our new Dispute Level should be
-		if (iDisputeWeight >= /*1400*/ GD_INT_GET(MINOR_CIV_DISPUTE_FIERCE_THRESHOLD))
+		if (iDisputeWeight >= /*2000*/ GD_INT_GET(MINOR_CIV_DISPUTE_FIERCE_THRESHOLD))
 			eDisputeLevel = DISPUTE_LEVEL_FIERCE;
-		else if (iDisputeWeight >= /*1000*/ GD_INT_GET(MINOR_CIV_DISPUTE_STRONG_THRESHOLD))
+		else if (iDisputeWeight >= /*1400*/ GD_INT_GET(MINOR_CIV_DISPUTE_STRONG_THRESHOLD))
 			eDisputeLevel = DISPUTE_LEVEL_STRONG;
-		else if (iDisputeWeight >= /*700*/ GD_INT_GET(MINOR_CIV_DISPUTE_WEAK_THRESHOLD))
+		else if (iDisputeWeight >= /*1000*/ GD_INT_GET(MINOR_CIV_DISPUTE_WEAK_THRESHOLD))
 			eDisputeLevel = DISPUTE_LEVEL_WEAK;
 
 		SetMinorCivDisputeLevel(ePlayer, eDisputeLevel);
@@ -19224,8 +19228,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					}
 				}
 
+				bool bLowestInfluence = GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false) == ePlayer;
+
 				// The civ we have the lowest influence on is an easy target? Let's get 'em!
-				if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer && bEasyTarget)
+				if (bLowestInfluence && bEasyTarget)
 				{
 					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5 * iAttackMultiplier;
 					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5 * iAttackMultiplier;
@@ -19237,7 +19243,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5 * iAttackMultiplier;
 					}
 				}
-				else if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer)
+				else if (bLowestInfluence)
 				{
 					vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * 10;
 
@@ -21320,7 +21326,7 @@ void CvDiplomacyAI::DoUpdateMajorCompetitors()
 					continue;
 				}
 				
-				if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false) == ePlayer)
+				if (GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false) == ePlayer)
 				{
 					SetMajorCompetitor(ePlayer, true);
 					continue;
@@ -22401,7 +22407,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 	vector<PlayerTypes> vAfraidExclusions;
 	vector<PlayerTypes> vDeceptiveExclusions;
 	bool bLimitReached = false;
-	bool bBestFriendPossible = vAcceptableFriends.size() > 0 && vValidPlayers.size() > 1;
+	bool bBestFriendPossible = !vAcceptableFriends.empty() && vValidPlayers.size() > 1;
 
 	PlayerTypes eCandidate = GetPlayerWithHighestStrategicApproachValue(CIV_APPROACH_FRIENDLY, vFriendlyExclusions);
 	while (eCandidate != NO_PLAYER)
@@ -25963,7 +25969,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			{
 				iPeaceScore += iWarScore / 3;
 			}
-			else if (vEnemyCitiesEndangeredByUs.size() > 0)
+			else if (!vEnemyCitiesEndangeredByUs.empty())
 			{
 				bProlong |= bUABonusesFromCityConquest;
 				if (!bProlong)
@@ -27402,7 +27408,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 	vePotentialDemandTargets.StableSortItems();
 
 	// Any valid possibilities?
-	if (vePotentialDemandTargets.size() > 0)
+	if (!vePotentialDemandTargets.empty())
 	{
 		// If we already have a valid demand target, don't assign a new one
 		// Otherwise, start the demand process against the player with the highest weight
@@ -31689,6 +31695,7 @@ void CvDiplomacyAI::DoCounters()
 			if (IsDenouncedPlayer(eLoopPlayer) && GetTurnsSinceDenouncedPlayer(eLoopPlayer) >= GC.getGame().getGameSpeedInfo().getRelationshipDuration())
 			{
 				SetDenouncedPlayer(eLoopPlayer, false);
+				LogDiplomacyEvent(GetID(), eLoopPlayer, "DENOUNCEMENT_EXPIRED");
 
 				// Let's reevaluate this guy if they haven't denounced us and aren't untrustworthy.
 				// Rewards human appeasement strategies.
@@ -35488,7 +35495,8 @@ void CvDiplomacyAI::DoContactMajorCivs()
 			if (!CvDiplomacyRequests::HasActiveDiploRequestWithHuman(GetID()))
 			{
 				vector<PlayerTypes> aeHumansByPriority;
-				vector<PlayerTypes>::const_iterator priorityIter, humanIter;
+				vector<PlayerTypes>::const_iterator priorityIter;
+				vector<PlayerTypes>::const_iterator humanIter;
 				// bring players in priority order
 				for (humanIter = CvDiplomacyRequests::s_aDiploHumans.begin(); humanIter != CvDiplomacyRequests::s_aDiploHumans.end(); ++humanIter)
 				{
@@ -40987,8 +40995,6 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	TeamTypes eHumanTeam = pHuman->getTeam();
 	CvTeam* pHumanTeam = &GET_TEAM(eHumanTeam);
 
-	GetPlayer()->DoUpdateWarDamageAndWeariness(/*bDamageOnly*/ true);
-
 	CivApproachTypes eVisibleApproach = GetSurfaceApproach(eHuman);
 	WarStateTypes eWarState = GetWarState(eHuman);
 	DisputeLevelTypes eLandDispute = GetLandDisputeLevel(eHuman);
@@ -41170,7 +41176,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	}
 
 	// Pick a random greeting from the valid ones (if there are any)
-	if (veValidGreetings.size() > 0)
+	if (!veValidGreetings.empty())
 	{
 		int iIndex = GC.getGame().getAsyncRandNum(veValidGreetings.size(), "Diplomacy AI: Picking random Greeting for AI to give to human.");
 
@@ -41720,7 +41726,7 @@ const char* CvDiplomacyAI::GetInsultHumanMessage()
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_CULTURE);
 
 	// Pick a random insult from the valid ones
-	if (veValidInsults.size() > 0)
+	if (!veValidInsults.empty())
 	{
 		int iIndex = GC.getGame().getAsyncRandNum(veValidInsults.size(), "Picking random insult for AI to give to human.");
 		return GetDiploStringForMessage(veValidInsults[iIndex]);
@@ -44471,6 +44477,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	TeamTypes eMyTeam = GetTeam();
 	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
 
+	LogDiplomacyEvent(eMyPlayer, ePlayer, "DENOUNCED", IsDoFAccepted(ePlayer) ? "BACKSTAB" : "");
 	SetDenouncedPlayer(ePlayer, true);
 
 	// close both embassies
@@ -46852,7 +46859,7 @@ int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer) const
 
 		if (iCurrentValuePercent > 0)
 		{
-			iOpinionWeight = /*-40*/ GD_INT_GET(OPINION_WEIGHT_TRADE_MAX) * iCurrentValuePercent / 100;
+			iOpinionWeight = /*-60*/ GD_INT_GET(OPINION_WEIGHT_TRADE_MAX) * iCurrentValuePercent / 100;
 		}
 
 		if (IsStrategicTradePartner(ePlayer))
@@ -48590,7 +48597,7 @@ int CvDiplomacyAI::GetResearchAgreementScore(PlayerTypes ePlayer)
 
 	if (IsHasResearchAgreement(ePlayer))
 	{
-		iOpinionWeight += /*-10*/ GD_INT_GET(OPINION_WEIGHT_RA);
+		iOpinionWeight += /*-15*/ GD_INT_GET(OPINION_WEIGHT_RA);
 
 		if (IsScientist() || IsSecondaryScientist() || GetPlayer()->GetPlayerTraits()->IsNerd())
 		{
@@ -52578,7 +52585,7 @@ void CvDiplomacyAI::LogWarStatus()
 						strOutBuf += ", " + strTemp;
 					}
 
-					strTemp.Format(" ---  War Weariness: %d, Supply: %d", m_pPlayer->GetWarWearinessPercent(eLoopPlayer), m_pPlayer->GetNumUnitsSupplied());
+					strTemp.Format(" ---  War Weariness: %d, Supply: %d", m_pPlayer->GetWarWearinessPercent(eLoopPlayer), m_pPlayer->GetNumUnitsSuppliedForLog());
 					strOutBuf += ", " + strTemp;
 					pLog->Msg(strOutBuf);
 				}
@@ -55116,7 +55123,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 				}
 			}
 		}
-		if (veWarmongerWeights.size() > 0)
+		if (!veWarmongerWeights.empty())
 		{
 			veWarmongerWeights.StableSortItems();
 
@@ -55170,6 +55177,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 						szRtnValue += GetLocalizedText("TXT_KEY_WARMONGER_PREVIEW_CARE_NIL", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
 					}
 				}
+				iCap++;
 			}
 			if (bCheckCasusBelli)
 			{
@@ -55228,7 +55236,7 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 				}
 			}
 		}
-		if (veWarmongerWeights.size() > 0)
+		if (!veWarmongerWeights.empty())
 		{
 			veWarmongerWeights.StableSortItems();
 			int iHighestVal = veWarmongerWeights.GetWeight(0);
@@ -58053,6 +58061,7 @@ void CvDiplomacyAI::DoLiberatedFromVassalage(TeamTypes eTeam, bool bSkipPopup)
 	{
 		PlayerTypes eMasterPlayer = static_cast<PlayerTypes>(vMasterTeam[i]);
 		SetMasterLiberatedMeFromVassalage(eMasterPlayer, true);
+		LogDiplomacyEvent(eMasterPlayer, GetID(), "LIBERATED_VASSAL");
 		
 		// Remove any previous penalty for refusing to give independence
 		SetVassalageForcefullyRevokedTurn(eMasterPlayer, -1);

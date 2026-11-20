@@ -14,6 +14,7 @@
 #include "CvNotifications.h"
 #include "CvDiplomacyAI.h"
 #include "CvDllInterfaces.h"
+#include "SqliteLoggerRegistrations.h"
 #include "CvDllPlot.h"
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
@@ -1915,6 +1916,8 @@ bool CvMinorCivQuest::IsExpired()
 		PlayerTypes eMostRecentBully = pMinor->GetMinorCivAI()->GetMostRecentBullyForQuest();
 		if (eMostRecentBully != NO_PLAYER && GET_PLAYER(eMostRecentBully).getTeam() == pAssignedPlayer->getTeam())
 			return true;
+
+		break;
 	}
 	case MINOR_CIV_QUEST_PLEDGE_TO_PROTECT:
 	{
@@ -1926,6 +1929,8 @@ bool CvMinorCivQuest::IsExpired()
 		PlayerTypes eMostRecentBully = pMinor->GetMinorCivAI()->GetMostRecentBullyForQuest();
 		if (eMostRecentBully != NO_PLAYER && GET_PLAYER(eMostRecentBully).getTeam() == pAssignedPlayer->getTeam())
 			return true;
+
+		break;
 	}
 	case MINOR_CIV_QUEST_CONTEST_CULTURE:
 	case MINOR_CIV_QUEST_CONTEST_TECHS:
@@ -3745,7 +3750,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 	CvString sSummary = strSummary.toUTF8();
 
 	// This quest involved multiple minors, so grab their names for the notification
-	if (veNamesToShow.size() > 0)
+	if (!veNamesToShow.empty())
 		sMessage += pMinor->GetMinorCivAI()->GetNamesListAsString(veNamesToShow);
 
 	// This quest reward changed our status, so grab that info for the notification
@@ -4043,7 +4048,7 @@ bool CvMinorCivQuest::DoCancelQuest()
 	CvString sSummary = strSummary.toUTF8();
 
 	// This quest involved multiple winners, so grab their names for the notification
-	if (veNamesToShow.size() > 0)
+	if (!veNamesToShow.empty())
 		sMessage += pMinor->GetMinorCivAI()->GetNamesListAsString(veNamesToShow);
 
 	pMinor->GetMinorCivAI()->AddQuestNotification(sMessage, sSummary, m_eAssignedPlayer);
@@ -4827,7 +4832,7 @@ void CvMinorCivAI::DoPickPersonality()
 		if (iOtherIrrational <= iOtherFriendly && iOtherIrrational <= iOtherNeutral && iOtherIrrational <= iOtherHostile)
 			vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_IRRATIONAL);
 
-		ASSERT(vValidPersonalities.size() > 0);
+		ASSERT(!vValidPersonalities.empty());
 
 		uint uRand = GC.getGame().urandLimitExclusive(vValidPersonalities.size(), CvSeeder::fromRaw(0xdf912135).mix(m_pPlayer->GetID()));
 		ePersonality = static_cast<MinorCivPersonalityTypes>(vValidPersonalities[uRand]);
@@ -5779,7 +5784,7 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 			}
 
 			pCityPlot->setResourceType(NO_RESOURCE, 0, true);
-			if (veUniqueLuxuries.size() > 0)
+			if (!veUniqueLuxuries.empty())
 			{
 				uint uRoll = GC.getGame().urandLimitExclusive(veUniqueLuxuries.size(), pCityPlot->GetPseudoRandomSeed()); // range = [0, size - 1]
 				int iQuantity = /*1*/ GD_INT_GET(MINOR_CIV_MERCANTILE_RESOURCES_QUANTITY);
@@ -7215,7 +7220,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 				continue;
 			CvImprovementEntry& pImprovementEntry = *GC.getImprovementInfo(eImprovement);
 			ResourceTypes eResource = pDigPlot->getResourceType(GET_PLAYER(ePlayer).getTeam());
-			if (!(pImprovementEntry.IsPromptWhenComplete() && eResource != NO_RESOURCE && pImprovementEntry.IsImprovementResourceMakesValid(eResource)))
+			if (!pImprovementEntry.IsPromptWhenComplete() || eResource == NO_RESOURCE || !pImprovementEntry.IsImprovementResourceMakesValid(eResource))
 				continue;
 			// Does the player have access to the build action?
 			if (!GET_PLAYER(ePlayer).canBuild(pDigPlot, eBuild, false /*bTestEra*/, false /*bTestVisible*/, false /*bTestGold*/, false /*bTestPlotOwner*/))
@@ -7959,7 +7964,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill(PlayerTypes eMajor)
 	}
 
 	// Didn't find any nearby
-	if (viPlotIndexes.size() == 0)
+	if (viPlotIndexes.empty())
 		return NULL;
 
 	// Choose the best plot
@@ -7999,7 +8004,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyDig()
 	}
 
 	// Didn't find any nearby
-	if (viPlotIndexes.size() == 0)
+	if (viPlotIndexes.empty())
 		return NULL;
 
 	// Choose the best plot
@@ -8115,7 +8120,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 	}
 
 	veMinorRankings.StableSortItems();
-	if (veMinorRankings.size() > 0)
+	if (!veMinorRankings.empty())
 	{
 		for (int iRanking = 0; iRanking < veMinorRankings.size(); iRanking++)
 		{
@@ -8463,7 +8468,7 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 	}
 
 	// Didn't find any valid resources
-	if (veValidResources.size() == 0)
+	if (veValidResources.empty())
 		return NO_RESOURCE;
 	
 	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidResources.size(), CvSeeder::fromRaw(0xc74fb6bb).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
@@ -8627,7 +8632,7 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 	}
 
 	// Didn't find any valid Wonders
-	if (veValidBuildings.size() == 0)
+	if (veValidBuildings.empty())
 		return NO_BUILDING;
 
 	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), CvSeeder::fromRaw(0x2a8e7e4a).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
@@ -8733,7 +8738,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer, i
 	}
 
 	// Didn't find any valid National Wonders
-	if (veValidBuildings.size() == 0)
+	if (veValidBuildings.empty())
 		return NO_BUILDING;
 
 	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), CvSeeder::fromRaw(0xaf9ed611).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
@@ -8832,7 +8837,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes ePlayer)
 	}
 
 	// Didn't find any valid Target players
-	if (veValidTargets.size() == 0)
+	if (veValidTargets.empty())
 		return NO_PLAYER;
 
 	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), CvSeeder::fromRaw(0x6dd4e9e9).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
@@ -8927,7 +8932,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 	}
 
 	// Didn't find any valid Units
-	if (veValidUnits.size() == 0)
+	if (veValidUnits.empty())
 		return NO_UNIT;
 
 	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidUnits.size(), CvSeeder::fromRaw(0x9d8964da).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
@@ -9292,7 +9297,7 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer, int iDu
 	}
 
 	// Didn't find any valid buildings
-	if (veValidBuildings.size() == 0)
+	if (veValidBuildings.empty())
 		return NO_BUILDING;
 
 	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), CvSeeder::fromRaw(0x371c04bb).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
@@ -9411,7 +9416,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 	}
 
 	// Didn't find any valid units
-	if (veValidUnits.size() == 0)
+	if (veValidUnits.empty())
 		return NO_UNIT;
 
 	veValidUnits.StableSortItems();
@@ -9666,7 +9671,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 	}
 
 	// Didn't find any valid Target players
-	if (veValidTargets.size() == 0)
+	if (veValidTargets.empty())
 		return NULL;
 
 	int iBestValue = 0;
@@ -10147,7 +10152,7 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 	}
 
 	// Didn't find any valid players
-	if (veValidTargets.size() == 0)
+	if (veValidTargets.empty())
 		return NO_PLAYER;
 
 	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), CvSeeder::fromRaw(0x31b18457).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
@@ -10216,7 +10221,7 @@ CvCity* CvMinorCivAI::GetBestCityToFind(PlayerTypes ePlayer)
 	}
 
 	// Didn't find any possibilities
-	if (CitiesSortedByDistance.size() == 0)
+	if (CitiesSortedByDistance.empty())
 		return NULL;
 
 	// Select the closest city
@@ -10282,7 +10287,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes ePlayer)
 	}
 
 	// Didn't find any valid Target players
-	if (veValidTargets.size() == 0)
+	if (veValidTargets.empty())
 		return NO_PLAYER;
 
 	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), CvSeeder::fromRaw(0x695bf7f6).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
@@ -10897,17 +10902,21 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly, bool bSuppressNotification)
 		{
 			DoSetBonus(eNewAlly, true, false, true);
 			ProcessAllyChangeNotifications(NO_PLAYER, eNewAlly, bSuppressNotification);
+			LogDiplomacyEvent(eNewAlly, GetPlayer()->GetID(), "MINOR_ALLY_GAINED");
 		}
 		else if (bLostAlly)
 		{
 			DoSetBonus(eOldAlly, false, false, true);
 			ProcessAllyChangeNotifications(eOldAlly, NO_PLAYER, bSuppressNotification);
+			LogDiplomacyEvent(eOldAlly, GetPlayer()->GetID(), "MINOR_ALLY_LOST");
 		}
 		else if (bSwitchedAlly)
 		{
 			DoSetBonus(eOldAlly, false, false, true);
 			DoSetBonus(eNewAlly, true, false, true);
 			ProcessAllyChangeNotifications(eOldAlly, eNewAlly, bSuppressNotification);
+			LogDiplomacyEvent(eOldAlly, GetPlayer()->GetID(), "MINOR_ALLY_LOST", "", eNewAlly);
+			LogDiplomacyEvent(eNewAlly, GetPlayer()->GetID(), "MINOR_ALLY_GAINED", "", eOldAlly);
 		}
 	}
 
@@ -11140,14 +11149,14 @@ void CvMinorCivAI::ProcessAllyChangeNotifications(PlayerTypes eOldAlly, PlayerTy
 		if (eNewAlly != NO_PLAYER)
 		{
 			pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(eNewAlly, true, false, true, eOldAlly, eNewAlly);
-			if (notifStrings.first != "")
+			if (!notifStrings.first.empty())
 				AddNotification(notifStrings.first, notifStrings.second, eNewAlly);
 		}
 	}
 	if (eOldAlly != NO_PLAYER)
 	{
 		pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(eOldAlly, false, false, true, eOldAlly, eNewAlly);
-		if (notifStrings.first != "")
+		if (!notifStrings.first.empty())
 			AddNotification(notifStrings.first, notifStrings.second, eOldAlly);
 	}
 
@@ -11459,7 +11468,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(const PlayerTypes ePlayer, const in
 		if (!bAlliesChange && !bFromQuest)
 		{
 			pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(ePlayer, bNowFriends, bFriendsChange, false, NO_PLAYER, NO_PLAYER);
-			if (notifStrings.first != "")
+			if (!notifStrings.first.empty())
 			{
 				AddNotification(notifStrings.first, notifStrings.second, ePlayer);
 			}
@@ -11625,7 +11634,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriendChange
 			iAllyOtherCitiesYieldTimes100 = GetCityYieldAllyFlatBonusTimes100(ePlayer, eYield, NO_ERA, false);
 		}
 
-		int iLoop;
+		int iLoop = 0;
 		for (CvCity* pLoopCity = kMajor.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kMajor.nextCity(&iLoop))
 		{
 			if (pLoopCity->GetID() == kMajor.getCapitalCityID())
@@ -12303,6 +12312,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 			return;
 
 		SetTurnLastPledgedProtectionByMajor(eMajor, GC.getGame().getGameTurn());
+		LogDiplomacyEvent(eMajor, GetPlayer()->GetID(), "PLEDGED_PROTECTION");
 
 		if (MOD_EVENTS_MINORS_INTERACTION) 
 		{
@@ -12311,6 +12321,8 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 	}
 	else
 	{
+		LogDiplomacyEvent(eMajor, GetPlayer()->GetID(), "REVOKED_PROTECTION", bPledgeNowBroken ? "PLEDGE_BROKEN" : "");
+
 		if (bPledgeNowBroken)
 		{
 			SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
@@ -12645,7 +12657,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// now we update per-city values
 		if (iCapitalDeltaFriends != 0 || iCapitalDeltaAllies != 0 || iCityDeltaFriends != 0 || iCityDeltaAllies != 0)
 		{
-			int iLoop;
+			int iLoop = 0;
 			for (CvCity* pCity = kMajor.firstCity(&iLoop); pCity != NULL; pCity = kMajor.nextCity(&iLoop))
 			{
 				if (pCity->isCapital())
@@ -14624,6 +14636,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	if (bSuccess)
 	{
 		PRECONDITION(iGold >= 0, "iGold is expected to be non-negative.");
+		LogDiplomacyEvent(eBully, GetPlayer()->GetID(), "BULLIED_MINOR", "GOLD");
 
 		if (GC.getGame().getActivePlayer() == eBully)
 		{
@@ -14758,6 +14771,8 @@ void CvMinorCivAI::DoMajorBullyAnnex(PlayerTypes eBully)
 	bool bSuccess = CanMajorBullyUnit(eBully, iBullyMetric);
 	if (bSuccess)
 	{
+		LogDiplomacyEvent(eBully, GetPlayer()->GetID(), "BULLIED_MINOR", "ANNEX");
+
 		if (GetPlayer()->getCapitalCity() != NULL)
 		{
 			PlayerTypes ePlayer;
@@ -14835,6 +14850,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 	if (bSuccess)
 	{
+		LogDiplomacyEvent(eBully, GetPlayer()->GetID(), "BULLIED_MINOR", "UNIT");
 		int iEra = GET_PLAYER(eBully).GetCurrentEra();
 		if (iEra <= 0)
 			iEra = 1;
@@ -15206,7 +15222,7 @@ void CvMinorCivAI::DoElection()
 		}
 	}
 
-	if(wvVotes.size() > 0)
+	if(!wvVotes.empty())
 	{
 		wvVotes.StableSortItems();
 		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(CvSeeder::fromRaw(0xfead5338).mix(GetPlayer()->GetID()));
@@ -16144,7 +16160,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		}
 	}
 
-	if(veMinorsNowWary.size() > 0)
+	if(!veMinorsNowWary.empty())
 	{
 		int iMinimumFriendshipMod = 20; //antonjs: todo: xml
 		Localization::String strTemp;
@@ -16978,7 +16994,7 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 CvString CvMinorCivAI::GetNamesListAsString(CivsList veNames)
 {
 	CvString s = "";
-	if (veNames.size() > 0)
+	if (!veNames.empty())
 	{
 		for (uint ui = 0; ui < veNames.size(); ui++)
 		{

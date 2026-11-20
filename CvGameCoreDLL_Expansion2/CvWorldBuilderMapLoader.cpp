@@ -7,6 +7,7 @@
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
 #include "CvWorldBuilderMapLoader.h"
+#include "Lua/!CvLuaApi.h"
 #include "CvGameCoreUtils.h"
 #include "CvMinorCivAI.h"
 #include "CvDiplomacyAI.h"
@@ -634,7 +635,7 @@ void SetupCity(const CvWorldBuilderMap::City& kSavedCity, int iPlotX, int iPlotY
 				pkGameplayCity->SetOccupied(true);
 			}
 
-			if(kSavedCity.m_uiHealth != kSavedCity.MaxHealth)
+			if(kSavedCity.m_uiHealth != CvWorldBuilderMap::City::MaxHealth)
 			{
 				const int iMaxHitPoints = pkGameplayCity->GetMaxHitPoints();
 
@@ -740,7 +741,7 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 				pkGameplayUnit->restoreFullMoves();
 			}
 
-			if(kSavedUnit.m_uiHealth != kSavedUnit.MaxHealth)
+			if(kSavedUnit.m_uiHealth != CvWorldBuilderMap::Unit::MaxHealth)
 			{
 				const int iMaxHitPoints = pkGameplayUnit->GetMaxHitPoints();
 

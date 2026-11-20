@@ -30,9 +30,18 @@ void SetPreconditionFired();
 
 #ifdef WIN32
 // Runtime opt-outs via marker files (crashlogs\nodumps.please and
-// crashlogs\nopopups.please), read once at CvGlobals::init. Defaults: OFF.
+// crashlogs\nopopups.please), the user's config.ini ([Vox Populi]
+// CrashMiniDumps = 0 / ErrorPopups = 0) or the environment
+// (VP_CRASH_MINIDUMPS=0 / VP_ERROR_POPUPS=0), read once at CvGlobals::init.
+// Defaults: OFF.
 bool IsMiniDumpDisabledByUser();
 bool AreErrorPopupsSuppressed();
+
+// Folder for crashes.log, the minidumps and CvAssert.log, without a trailing
+// separator: "crashlogs" in the game's working directory (the installation
+// directory), or an absolute folder from config.ini [Vox Populi] CrashLogPath
+// or the environment (VP_CRASHLOG_PATH), resolved once at CvGlobals::init.
+const char* GetCrashLogDir();
 #endif
 
 inline int sqrti(int input)

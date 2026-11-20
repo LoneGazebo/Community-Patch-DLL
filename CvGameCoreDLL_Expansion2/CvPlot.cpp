@@ -35,6 +35,7 @@
 #include "CvUnitMovement.h"
 #include "CvTargeting.h"
 #include "CvTypes.h"
+#include "Exe/CvExe.h"
 // Include this after all other headers.
 #include "LintFree.h"
 
@@ -150,7 +151,7 @@ void CvPlot::init(int iX, int iY)
 //	--------------------------------------------------------------------------------
 void CvPlot::uninit()
 {
-	SAFE_DELETE_ARRAY(m_szScriptData);
+	SAFE_FREE(&m_szScriptData); // allocated with _strdup in setScriptData
 
 	m_pCenterUnit = NULL;
 
@@ -186,6 +187,7 @@ void CvPlot::reset()
 	m_bNWOfRiver = false;
 	m_bPotentialCityWork = false;
 	m_bPlotLayoutDirty = false;
+	m_bCityArtRepairNeeded = false;
 	m_bLayoutStateWorked = false;
 	m_bImprovementPassable = false;
 	m_bImprovementPillaged = false;
@@ -217,6 +219,7 @@ void CvPlot::reset()
 	m_iUnitPlotGAExperience = 0;
 	m_iPlotChangeMoves = 0;
 	m_iRestoreMoves = 0;
+	m_iFreeMoveAcross = 0;
 	m_eLandmarkCreditMinor = NO_PLAYER;
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
 	m_ePlayerThatDestroyedCityHere = NO_PLAYER;
@@ -2297,12 +2300,7 @@ bool CvPlot::CanMaybeSeePlot(const CvPlot* pPlot, TeamTypes eTeam) const
 	dy = dyWrap(dy);
 
 	//check if anything blocking the plot
-	if (CvTargeting::CanMaybeSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam), eTeam))
-	{
-		return true;
-	}
-
-	return false;
+	return CvTargeting::CanMaybeSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam), eTeam);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4134,7 +4132,7 @@ bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes
 		}
 	}
 
-	if (adjacentPlayers.size() > 0)
+	if (!adjacentPlayers.empty())
 	{
 		if (GET_PLAYER(ePlayer).isBarbarian())
 			return true;
@@ -6824,7 +6822,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			}
 
 			// Remove Resource Quantity from total
-			bool bIgnoreTechPrereq = IsImprovedByGiftFromMajor();
+			// A tile improvement gifted by a major gives its resource to the city-state even before the city-state can see it.
+			// Any other owner only ever got the resources it could see (see "Add Resource Quantity to total" below).
+			bool bIgnoreTechPrereq = IsImprovedByGiftFromMajor() && GET_PLAYER(eOldOwner).isMinorCiv();
 			if (getResourceType(eOldTeam, bIgnoreTechPrereq) != NO_RESOURCE)
 			{
 				// For city plots, we need to check if there was a city here, since the city may have been deleted before setOwner() is called (e.g., during conquest).
@@ -7048,16 +7048,17 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 			}
 
-			// Add Resource Quantity to total
-			if (getResourceType(getTeam()) != NO_RESOURCE)
+			// Add Resource Quantity to total (same rule as the removal above)
+			bool bNewOwnerIgnoreTechPrereq = IsImprovedByGiftFromMajor() && GET_PLAYER(getOwner()).isMinorCiv();
+			if (getResourceType(getTeam(), bNewOwnerIgnoreTechPrereq) != NO_RESOURCE)
 			{
-				if (IsResourceImprovedForOwner(false, bFoundingCity))
+				if (IsResourceImprovedForOwner(bNewOwnerIgnoreTechPrereq, bFoundingCity))
 				{
-					GET_PLAYER(getOwner()).addResourcesOnPlotToTotal(this);
+					GET_PLAYER(getOwner()).addResourcesOnPlotToTotal(this, false, bNewOwnerIgnoreTechPrereq);
 				}
 				else
 				{
-					GET_PLAYER(getOwner()).addResourcesOnPlotToUnimproved(this);
+					GET_PLAYER(getOwner()).addResourcesOnPlotToUnimproved(this, false, bNewOwnerIgnoreTechPrereq);
 				}
 			}
 
@@ -10380,8 +10381,10 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 	bool bRequiresNoFeature = pMajorityReligion->m_Beliefs.RequiresNoFeature(ePlayer);
 	bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
 	bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
+	if (eFeature == NO_FEATURE || !GC.getFeatureInfo(eFeature)->isYieldNotAdditive())
+	{
 	int iValue = pMajorityReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield, ePlayer, pOwningCity);
-	if (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement)
+		if (iValue > 0 && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 	{
 		if (bRequiresBoth)
 		{
@@ -10451,7 +10454,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		bool bRequiresEmptyTile = (bRequiresResource && bRequiresNoFeature);
 		bool bRequiresBoth = (bRequiresImprovement && bRequiresResource);
 		int iValue = pSecondaryPantheon->GetTerrainYieldChange(getTerrainType(), eYield);
-		if (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement)
+			if (iValue > 0 && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 		{
 			if (bRequiresBoth)
 			{
@@ -10512,6 +10515,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		}
 
 		iYield += iReligionChange;
+	}
 	}
 
 	iYield += pMajorityReligion->m_Beliefs.GetPlotYieldChange(getPlotType(), eYield, ePlayer, pOwningCity);
@@ -11610,6 +11614,36 @@ int CvPlot::getVisiblityCount(TeamTypes eTeam)
 {
 	return m_aiVisibilityCount[eTeam];
 }
+
+//	--------------------------------------------------------------------------------
+/// Is there a unit on this plot that the unit loop in changeVisibilityCount would react to?
+/// That loop only acts on a unit whose team eTeam is at war with, or (if eTeam is human) has not met yet.
+/// Read-only test over the same unit list, so it can run first and spare the loop on every other plot.
+static bool HasUnitToReactToOnSight(const CvPlot& kPlot, TeamTypes eTeam)
+{
+	const CvTeam& kTeam = GET_TEAM(eTeam);
+	int iIsHuman = -1; //evaluated lazily, only for a team we have not met
+	for (const IDInfo* pUnitNode = kPlot.headUnitNode(); pUnitNode != NULL; pUnitNode = kPlot.nextUnitNode(pUnitNode))
+	{
+		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
+		if (!pLoopUnit)
+			continue;
+
+		TeamTypes eUnitTeam = pLoopUnit->getTeam();
+		if (kTeam.isAtWar(eUnitTeam))
+			return true;
+
+		if (!kTeam.isHasMet(eUnitTeam))
+		{
+			if (iIsHuman < 0)
+				iIsHuman = kTeam.isHuman() ? 1 : 0;
+			if (iIsHuman == 1)
+				return true;
+		}
+	}
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes eSeeInvisible, bool bInformExplorationTracking, bool bAlwaysSeeInvisible, CvUnit* pUnit)
 {
@@ -11721,7 +11755,8 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 	}
 
 	// Check units. Does not matter if we could see the plot before, invisible units might have turned visible!
-	if (iChange > 0)
+	// Skip the loop when no unit here can trigger a reaction (in network MP always run it, getUnitByIndex reports desyncs there)
+	if (iChange > 0 && (GC.getGame().isNetworkMultiPlayer() || HasUnitToReactToOnSight(*this, eTeam)))
 	{
 		for (int iUnitLoop = 0; iUnitLoop < getNumUnits(); iUnitLoop++)
 		{
@@ -12705,7 +12740,7 @@ bool CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
 //	Reset all current builds related to route or improvement, based on eBuild.
 void CvPlot::SilentlyResetAllBuildProgress(BuildTypes eBuild)
 {
-	if (m_buildProgress.size() == 0)
+	if (m_buildProgress.empty())
 		return;
 
 	if (eBuild == NO_BUILD)
@@ -13634,7 +13669,7 @@ CvString CvPlot::getScriptData() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setScriptData(const char* szNewValue)
 {
-	SAFE_DELETE_ARRAY(m_szScriptData);
+	SAFE_FREE(&m_szScriptData);
 	m_szScriptData = _strdup(szNewValue);
 }
 
@@ -14004,6 +14039,35 @@ enum eRoadTypes
 
     NUM_ROAD_RR_TYPES,
 };
+
+//	--------------------------------------------------------------------------------
+/// The engine keeps a city's building art per plot and gives it to the next city there, and it does not take a
+/// removed Palace out of that art: a captured capital kept its Palace model until the game was reloaded. Ask for a
+/// repair in the next layout update of this plot (CvMap::updateLayout), on the thread that owns the art. Visual only,
+/// not saved.
+void CvPlot::SetCityArtRepairNeeded()
+{
+	if (!GC.IsGraphicsInitialized() || Exe::CanRepairCityArt() != Exe::REASON_OK)
+		return;
+
+	m_bCityArtRepairNeeded = true;
+	setLayoutDirty(true);
+}
+
+//	--------------------------------------------------------------------------------
+/// Run the repair asked for by SetCityArtRepairNeeded. Returns true if it has to be tried again later.
+bool CvPlot::RepairCityArt()
+{
+	if (!m_bCityArtRepairNeeded)
+		return false;
+
+	CvCity* pCity = getPlotCity();
+	if (pCity != NULL && Exe::TryRepairCityArt(*pCity) == Exe::REASON_BUSY)
+		return true;
+
+	m_bCityArtRepairNeeded = false;
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 void CvPlot::updateLayout(bool bDebug)
@@ -14786,10 +14850,7 @@ bool CvPlot::IsEligibleForDigSite()
 	// Not on Ancient Ruins either, we can't have treasure hunters going spelunking before the surface has even been plundered yet!
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	static const ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
-	if (eImprovement == eLandmark || pkImprovementInfo->IsGoody() || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
-		return false;
-
-	return true;
+	return !(eImprovement == eLandmark || pkImprovementInfo->IsGoody() || pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson());
 }
 
 //	---------------------------------------------------------------------------

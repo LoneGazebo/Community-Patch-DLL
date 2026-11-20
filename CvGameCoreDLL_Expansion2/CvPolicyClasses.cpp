@@ -198,8 +198,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bEnablesSSPartPurchase(false),
 	m_bAbleToAnnexCityStates(false),
 	m_bBorderSettle(false),
-	m_bIsOnlyTradeSameIdeology(false),
 	m_iGreatMerchantExtraLuxuries(0),
+	m_bIsOnlyTradeSameIdeology(false),
 	m_bOneShot(false),
 	m_bIncludesOneShotFreeUnits(false),
 	m_iDistressFlatReduction(0),
@@ -2826,7 +2826,7 @@ bool CvPolicyEntry::IsFreePromotionUnitCombat(const int promotionID, const int u
 
 bool CvPolicyEntry::HasFaithPurchaseUnitClasses() const
 {
-	return (m_FaithPurchaseUnitClasses.size() != 0);
+	return (!m_FaithPurchaseUnitClasses.empty());
 }
 
 bool CvPolicyEntry::IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const

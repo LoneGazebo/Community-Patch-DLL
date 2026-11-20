@@ -524,11 +524,31 @@ local function AddBuildingButton(pCity, kBuildingInfo)
 end
 
 ---------------------------------------------------------------
+-- Allow shared-tile transfers into puppets without enabling other citizen controls.
+
+--- @param pCity City The city to check for eligibility to work another plot
+--- @param pPlot Plot The plot to be worked by the city
+--- @return boolean
+local function CanSwapPuppetPlot(pCity, pPlot)
+	return pCity and pPlot
+		and pCity:IsPuppet()
+		and not pCity:IsIgnoreCityForHappiness()
+		and not pPlot:IsCity()
+		and pCity:GetOwner() == Game.GetActivePlayer()
+		and pCity:GetOwner() == pPlot:GetOwner()
+		and pPlot:GetWorkingCity() ~= pCity;
+end
+
 local function PlotButtonClicked(iPlotIndex)
 	if pActivePlayer:IsTurnActive() then
 		local pCity = UI.GetHeadSelectedCity();
 		assert(pCity, "PlotButtonClicked: No city selected? How could this happen?");
-		Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, iPlotIndex, -1, false);
+		local pPlot = pCity:GetCityIndexPlot(iPlotIndex);
+		if pPlot and (not UI.IsCityScreenViewingMode() or CanSwapPuppetPlot(pCity, pPlot)) then
+			-- There's still backend validation so this could do nothing if DLL decides that the city cannot work the plot
+			-- Should be MP-safe for this reason
+			Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, iPlotIndex, -1, false);
+		end
 	end
 end
 
@@ -1081,7 +1101,7 @@ local function UpdateWorkingHexes()
 					instance.PlotButtonImage:LocalizeAndSetToolTip(strTooltipKey);
 					instance.PlotButtonImage:SetVoid1(iCityPlotIndex);
 					instance.PlotButtonImage:RegisterCallback(Mouse.eLClick, PlotButtonClicked);
-					instance.PlotButtonImage:SetDisabled(UI.IsCityScreenViewingMode());
+					instance.PlotButtonImage:SetDisabled(UI.IsCityScreenViewingMode() and not CanSwapPuppetPlot(pCity, pPlot));
 				end
 			end
 
@@ -1934,7 +1954,7 @@ local g_uiAddins = {};
 
 -- Done this way so that modpacks can insert files to the table to have them be loaded
 setmetatable(g_uiAddins, {
-	__newindex = function(t, key, value)
+	__newindex = function(_, _, value)
 		ContextPtr:LoadNewContext(value);
 		-- Intentionally not calling rawset here
 	end

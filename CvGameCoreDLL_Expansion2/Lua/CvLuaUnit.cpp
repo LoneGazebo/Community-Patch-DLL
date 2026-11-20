@@ -21,18 +21,13 @@
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
 //Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
+#define Method(Name) lua_pushcclosure(L, l##Name, 0); lua_setfield(L, 1, #Name);
 
 //------------------------------------------------------------------------------
-void CvLuaUnit::HandleMissingInstance(lua_State* L)
+void CvLuaUnit::CreateFunctable(lua_State* L)
 {
-	luaL_error(L, "Instance no longer exists.");
-}
-//------------------------------------------------------------------------------
-void CvLuaUnit::PushMethods(lua_State* L, int t)
-{
+	lua_createtable(L,0,600);
+	
 	Method(IsNone);
 	Method(Convert);
 	Method(Upgrade);
@@ -650,12 +645,6 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsWithinDistanceOfTerrain);
 }
 //------------------------------------------------------------------------------
-const char* CvLuaUnit::GetTypeName()
-{
-	return "Unit";
-}
-
-//------------------------------------------------------------------------------
 // Lua member methods
 //------------------------------------------------------------------------------
 //bool isNone();
@@ -799,7 +788,7 @@ int CvLuaUnit::lGeneratePath(lua_State* L)
 		lua_setfield(L, t, "Turn");
 		lua_pushinteger(L, 0);
 		lua_setfield(L, t, "Flags");
-		lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam())==false ); //don't have that info, make it up
+		lua_pushboolean(L, !newPath.get(i)->isVisible(pkUnit->getTeam()) ); //don't have that info, make it up
 		lua_setfield(L, t, "Invisible");
 		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam()) ); //don't have that info, make it up
 		lua_setfield(L, t, "AdjInvisible");
@@ -840,7 +829,7 @@ int CvLuaUnit::lGetActivePath(lua_State* L)
 		lua_setfield(L, t, "Turn");
 		lua_pushinteger(L, 0);
 		lua_setfield(L, t, "Flags");
-		lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam()) == false); //don't have that info, make it up
+		lua_pushboolean(L, !newPath.get(i)->isVisible(pkUnit->getTeam())); //don't have that info, make it up
 		lua_setfield(L, t, "Invisible");
 		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
 		lua_setfield(L, t, "AdjInvisible");
@@ -889,7 +878,7 @@ int CvLuaUnit::lGetWaypointPath(lua_State* L)
 			lua_setfield(L, t, "Turn");
 			lua_pushinteger(L, 0);
 			lua_setfield(L, t, "Flags");
-			lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam()) == false); //don't have that info, make it up
+			lua_pushboolean(L, !newPath.get(i)->isVisible(pkUnit->getTeam())); //don't have that info, make it up
 			lua_setfield(L, t, "Invisible");
 			lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
 			lua_setfield(L, t, "AdjInvisible"); 
@@ -933,7 +922,7 @@ int CvLuaUnit::lGeneratePathToNextWaypoint(lua_State* L)
 		lua_setfield(L, t, "Turn");
 		lua_pushinteger(L, 0);
 		lua_setfield(L, t, "Flags");
-		lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam()) == false); //don't have that info, make it up
+		lua_pushboolean(L, !newPath.get(i)->isVisible(pkUnit->getTeam())); //don't have that info, make it up
 		lua_setfield(L, t, "Invisible");
 		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
 		lua_setfield(L, t, "AdjInvisible");
@@ -3239,7 +3228,7 @@ int CvLuaUnit::lIsEnemyInMovementRange(lua_State* L)
 	const bool bOnlyFortified = lua_toboolean(L, 2);
 	const bool bOnlyCities = lua_toboolean(L, 3);
 
-	lua_pushboolean(L, pkUnit->GetPlotsWithEnemyInMovementRange(bOnlyFortified, bOnlyCities).size()>0);
+	lua_pushboolean(L, !pkUnit->GetPlotsWithEnemyInMovementRange(bOnlyFortified, bOnlyCities).empty());
 	return 1;
 }
 
@@ -3712,7 +3701,7 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 	if (pkUnit != NULL && pkOtherUnit != NULL && !pkOtherUnit->isDelayedDeath())
 	{
 		vector<PlagueInfo> vInflictedPlagues = pkOtherUnit->GetPlaguesToInflict();
-		if (vInflictedPlagues.size() > 0)
+		if (!vInflictedPlagues.empty())
 		{
 			for (std::vector<PlagueInfo>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
 			{
@@ -3783,7 +3772,7 @@ int CvLuaUnit::lGetWithdrawChance(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkAttacker = CvLuaUnit::GetInstance(L, 2);
-	int iResult;
+	int iResult = 0;
 	if (pkUnit->getExtraWithdrawal() > 0)
 		iResult = pkUnit->GetWithdrawChance(*pkAttacker);
 	else
@@ -6711,3 +6700,5 @@ LUAAPIIMPL(Unit, IsWithinDistanceOfResource)
 LUAAPIIMPL(Unit, IsOnTerrain)
 LUAAPIIMPL(Unit, IsAdjacentToTerrain)
 LUAAPIIMPL(Unit, IsWithinDistanceOfTerrain)
+
+LuaTypes_DefineInstanced( CvUnit, CvLuaUnit );

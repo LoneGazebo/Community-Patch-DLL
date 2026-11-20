@@ -110,10 +110,29 @@ ContextPtr:SetUpdate( OnUpdate );
 
 
 -------------------------------------------------
+-- Other UIs (e.g. the worker planner) may replace the tooltip
+-------------------------------------------------
+function GetPlotTipOverride( plot )
+	local override = {};
+	LuaEvents.PlotHelpOverride( plot, override );
+	return override.text;
+end
+
+-------------------------------------------------
 -------------------------------------------------
 function Level1Tip()
 	
 	local TextString = "";
+
+	local overridePlot = Map.GetPlot(m_iCurrentX, m_iCurrentY);
+	local override = overridePlot and GetPlotTipOverride(overridePlot);
+	if (override) then
+		m_strLevel1Text = override;
+		tipControls.Text:SetText( override );
+		tipControls.Grid:DoAutoSize();
+		Controls.TheBox:SetToolTipType( "HexDetails" );
+		return;
+	end
 	
 	local iActiveTeam = Game.GetActiveTeam();
   	local iActivePlayer = Game.GetActivePlayer();

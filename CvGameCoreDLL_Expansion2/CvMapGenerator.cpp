@@ -7,6 +7,7 @@
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
 #include "CvMapGenerator.h"
+#include "Lua/!CvLuaApi.h"
 #include "CvGame.h"
 #include "cvStopWatch.h"
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'

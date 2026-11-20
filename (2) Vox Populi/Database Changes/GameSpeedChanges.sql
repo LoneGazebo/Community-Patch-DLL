@@ -2,8 +2,8 @@ UPDATE GameSpeeds
 SET
 	TechCostPerTurnMultiplier = 20,
 	MinimumVoluntaryVassalTurns = 10,
-	MinimumVassalTurns = 33,
-	MinimumVassalLiberateTurns = 33,
+	MinimumVassalTurns = 16,
+	MinimumVassalLiberateTurns = 16,
 	MinimumVassalTaxTurns = 16,
 	DealDuration = 30,
 	InstantYieldPercent = 75,
@@ -20,8 +20,8 @@ UPDATE GameSpeeds
 SET
 	TechCostPerTurnMultiplier = 30,
 	MinimumVoluntaryVassalTurns = 10,
-	MinimumVassalTurns = 50,
-	MinimumVassalLiberateTurns = 50,
+	MinimumVassalTurns = 25,
+	MinimumVassalLiberateTurns = 25,
 	MinimumVassalTaxTurns = 25,
 	DealDuration = 50,
 	InstantYieldPercent = 100,
@@ -38,8 +38,8 @@ UPDATE GameSpeeds
 SET
 	TechCostPerTurnMultiplier = 45,
 	MinimumVoluntaryVassalTurns = 15,
-	MinimumVassalTurns = 75,
-	MinimumVassalLiberateTurns = 75,
+	MinimumVassalTurns = 37,
+	MinimumVassalLiberateTurns = 37,
 	MinimumVassalTaxTurns = 37,
 	DealDuration = 70,
 	InstantYieldPercent = 150,
@@ -56,8 +56,8 @@ UPDATE GameSpeeds
 SET
 	TechCostPerTurnMultiplier = 90,
 	MinimumVoluntaryVassalTurns = 30,
-	MinimumVassalTurns = 150,
-	MinimumVassalLiberateTurns = 150,
+	MinimumVassalTurns = 75,
+	MinimumVassalLiberateTurns = 75,
 	MinimumVassalTaxTurns = 75,
 	DealDuration = 100,
 	InstantYieldPercent = 200,

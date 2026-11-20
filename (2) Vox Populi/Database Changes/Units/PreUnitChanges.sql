@@ -5,6 +5,13 @@ DELETE FROM Unit_ResourceQuantityRequirements;
 DELETE FROM Unit_YieldFromKills;
 DELETE FROM Unit_AITypes;
 
+-- Delete Work Boat
+DELETE FROM Civilization_UnitClassOverrides WHERE UnitClassType = 'UNITCLASS_WORKBOAT';
+DELETE FROM UnitClasses WHERE Type = 'UNITCLASS_WORKBOAT';
+DELETE FROM UnitGameplay2DScripts WHERE UnitType = 'UNIT_WORKBOAT';
+DELETE FROM Unit_Builds WHERE UnitType = 'UNIT_WORKBOAT';
+DELETE FROM Units WHERE Type = 'UNIT_WORKBOAT';
+
 -- Make sure existing units have the correct UnitClass first
 -- CS/Policy units get their would-be UnitClass as if they were unique units
 -- They'll be updated (again) in CityStateUnitChanges.sql/PolicyUnitChanges.sql

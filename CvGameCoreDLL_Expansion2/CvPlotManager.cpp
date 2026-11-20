@@ -169,7 +169,7 @@ void CvSparseIDInfoGrid::Remove(const IDInfo& kInfo, int iX, int iY)
 		{
 			if (pkEntry->Remove(kInfo))
 			{
-				if (pkEntry->size() == 0)
+				if (pkEntry->empty())
 				{
 					// Nothing there, release the array
 					m_pkAllocator->Release(pkEntry);

@@ -231,7 +231,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	LogPossiblePolicies();
 
 	// Make our policy choice from the top choices
-	if (m_AdoptablePolicies.size() > 0)
+	if (!m_AdoptablePolicies.empty())
 	{
 		iRtnValue = m_AdoptablePolicies.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getPolicyChoiceCutoffThreshold(), CvSeeder::fromRaw(0x5fef0474).mix(pPlayer->GetID()).mix(pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(false, false, true)));
 
@@ -288,7 +288,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 	
 	// if no ideologies are in the game, return
-	if (vIdeologyBranches.size() == 0)
+	if (vIdeologyBranches.empty())
 		return;
 
 	// we'll need to know if this is the first ideology ever being adopted

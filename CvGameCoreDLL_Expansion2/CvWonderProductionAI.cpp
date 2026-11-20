@@ -176,7 +176,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(int& iWonderWeight)
 	}
 
 	// Sort items and grab the first one
-	if (m_Buildables.size() > 0)
+	if (!m_Buildables.empty())
 	{
 		m_Buildables.StableSortItems();
 		LogPossibleWonders();

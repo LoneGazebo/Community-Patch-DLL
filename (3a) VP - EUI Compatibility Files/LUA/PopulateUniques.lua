@@ -188,7 +188,10 @@ local function populateCivilizationUniquesInitialized( civControls, civKeys )
 		if pedia then
 			civControls.Button:RegisterCallback( Mouse.eRClick, function() getPedia( pedia ) end );
 		end
-		trait = g_traitsQuery( civ.LeaderType )();
+		-- Step to the end so the statement closes; an open one blocks database rebuilds.
+		for row in g_traitsQuery( civ.LeaderType ) do
+			trait = row;
+		end
 --		trait = GameInfo.Traits[ GameInfo.Leader_Traits{ LeaderType = civ.LeaderType )().TraitType ];
 	else
 		-- Question mark icons

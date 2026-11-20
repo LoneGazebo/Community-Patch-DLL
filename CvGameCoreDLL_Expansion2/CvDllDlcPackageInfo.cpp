@@ -144,7 +144,7 @@ bool CvDllDlcPackageInfoList::MoveNext()
 {
 	if(m_iIndex == -1)	// In the uninitialized state?
 	{
-		if(m_packageIDs.size() > 0)	// Any in the list?
+		if(!m_packageIDs.empty())	// Any in the list?
 		{
 			m_iIndex = 0;	// then we can start
 			return true;

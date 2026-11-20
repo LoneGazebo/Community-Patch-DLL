@@ -66,7 +66,7 @@ WHERE Type = 'POLICY_TREASURE_FLEETS';
 INSERT INTO Policy_ConquerorYield
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_TREASURE_FLEETS', 'YIELD_GOLD', 75);
+	('POLICY_TREASURE_FLEETS', 'YIELD_GOLD', 150);
 
 -- Navigation School (now Regimental System)
 UPDATE Policies

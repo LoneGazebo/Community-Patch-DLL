@@ -20,6 +20,7 @@
 #include "FAutoVariable.h"
 #include "CvPreGame.h"
 #include "CvSerialize.h"
+#include "CvStructs.h"
 
 // 0 = center of city, 1-6 = the edge of city on points, 7-12 = one tile out
 #define NUM_CITY_BUILDING_DISPLAY_SLOTS (13)
@@ -442,7 +443,7 @@ public:
 	int GetPurchaseCost(UnitTypes eUnit);
 	int GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts);
 	int GetPurchaseCost(BuildingTypes eBuilding);
-	int GetFaithPurchaseCost(BuildingTypes eBuilding);
+	int GetFaithPurchaseCost(BuildingTypes eBuilding, bool bIgnoreDifficulty = false);
 	int GetPurchaseCost(ProjectTypes eProject);
 	int GetPurchaseCostFromProduction(int iProduction);
 
@@ -596,7 +597,7 @@ public:
 	void setAutomatons(int iNewValue, bool bReassignPop = true);
 	void changeAutomatons(int iChange, bool bReassignPop = true);
 
-	long getRealPopulation() const;
+	long long getRealPopulation() const;
 
 	int getHighestPopulation() const;
 	void setHighestPopulation(int iNewValue);
@@ -614,7 +615,7 @@ public:
 	void changeGPRateModifierPerLocalTheme(int iChange);
 
 	int GetImprovementGreatPersonRateModifier() const;
-	int GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetReligionGreatPersonRateModifier(GreatPersonTypes eGreatPerson, bool bGoldenAge) const;
 
 	int GetGPPOnCitizenBirth() const;
 	void ChangeGPPOnCitizenBirth(int iChange);
@@ -630,7 +631,7 @@ public:
 	void SetJONSCultureLevel(int iValue);
 	void ChangeJONSCultureLevel(int iChange);
 	void DoJONSCultureLevelIncrease();
-	int GetJONSCultureThreshold() const;
+	int GetJONSCultureThreshold(int iAssumeExtraLevel = 0) const;
 
 	int GetBaseYieldRateFromPolicies(YieldTypes eYield) const;
 	void ChangeBaseYieldRateFromPolicies(YieldTypes eYield, int iChange);
@@ -1025,8 +1026,8 @@ public:
 
 	int GetPostModifierYieldRateTimes100(const YieldTypes eYield, bool bIgnoreProcess, bool bIgnoreFoodConsumption, bool bAssumeFoodProduction, CvString* tooltipSink = NULL) const;
 
-	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreProcess, int iAssumeExtraModifier, bool bAssumeFoodProduction, bool bIgnoreFoodConsumption, bool bIgnoreGrowthMods, CvString* tooltipSink = NULL) const;
-	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade = false, bool bIgnoreProcess = false, bool bUseCachedValue = true, CvString* tooltipSink = NULL) const;
+	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade, bool bIgnoreCurrentProduction, int iAssumeExtraModifier, bool bAssumeFoodProduction, bool bIgnoreFoodConsumption, bool bIgnoreGrowthMods, CvString* tooltipSink = NULL) const;
+	int getYieldRateTimes100(YieldTypes eYield, bool bIgnoreTrade = false, bool bIgnoreCurrentProduction = false, bool bUseCachedValue = true, CvString* tooltipSink = NULL) const;
 
 	int getFoodPerTurnBeforeConsumptionTimes100(bool bIgnoreProcess = false) const;
 
@@ -2278,6 +2279,8 @@ private:
 	// Prevent copying due to dynamic memory allocation
 	CvCity(const CvCity&);
 	CvCity& operator=(const CvCity&);
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 namespace FSerialization

@@ -319,13 +319,13 @@ public:
 	void ChangeNumProphetsSpawned(int iValue, bool bIsFree);
 	int GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAdjustForSpeedDifficulty, bool bExcludeFree) const;
 
-	bool IsFoundingReligion() const
+	int GetFoundingReligionCityID() const
 	{
-		return m_bFoundingReligion;
+		return m_iFoundingReligionCityID;
 	};
-	void SetFoundingReligion(bool bNewValue)
+	void SetFoundingReligionCityID(int iNewValue)
 	{
-		m_bFoundingReligion = bNewValue;
+		m_iFoundingReligionCityID = iNewValue;
 	};
 
 	// State information
@@ -369,7 +369,7 @@ private:
 
 	int m_iNumFreeProphetsSpawned;
 	int m_iNumProphetsSpawned;
-	bool m_bFoundingReligion; //seems to be used to suppress further prophet use before the religion has been customized
+	int m_iFoundingReligionCityID;
 	int m_iFaithAtLastNotifyTimes100;
 
 	ReligionTypes m_eMajorityReligion; //this is the majority religion in at least half of our cities
@@ -508,23 +508,62 @@ public:
 	void DoTurn();
 
 	BeliefTypes ChoosePantheonBelief(PlayerTypes ePlayer/*=NO_PLAYER*/);
-	BeliefTypes ChooseFounderBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);
-	BeliefTypes ChooseFollowerBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);
-	BeliefTypes ChooseEnhancerBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);
-	BeliefTypes ChooseBonusBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/, int iExcludeBelief1, int iExcludeBelief2, int iExcludeBelief3);
+	vector<BeliefTypes> ChooseFoundingBeliefs(PlayerTypes ePlayer, ReligionTypes eReligion);
+	vector<BeliefTypes> ChooseEnhancingBeliefs(PlayerTypes ePlayer, ReligionTypes eReligion);
 	BeliefTypes ChooseReformationBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);
 
-	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION, bool bForPantheon = false) const;
+	void ScoreFoundingBeliefCombinations(PlayerTypes ePlayer, ReligionTypes eReligion, CvWeightedVector<int>& combinationChoices, vector<vector<BeliefTypes>>& vvCombinations);
+	void ScoreEnhancingBeliefCombinations(PlayerTypes ePlayer, ReligionTypes eReligion, CvWeightedVector<int>& combinationChoices, vector<vector<BeliefTypes>>& vvCombinations);
+
+	int GetNumCitiesWithReligion(ReligionTypes eReligion, bool bFoundingReligion, bool bFoundingPantheon, bool bOnlyOurCities) const;
+	int GetNumCitiesToSpreadReligionTo(ReligionTypes eReligion, int& iNumNearbyFutureFollowers, bool bFoundingReligion, bool bFoundingPantheon) const;
 
 	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
 	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
 	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 	ReligionTypes GetReligionToSpread(bool bConsiderForeign) const;
 	ReligionTypes GetFavoriteForeignReligion(bool bForInternalSpread) const;
-	CvWeightedVector<int> CalculatePlotWeightsForBeliefSelection(bool bConsiderExpansion) const;
-	int ScoreBelief(CvBeliefEntry* pEntry, CvWeightedVector<int> viPlotWeights, bool bForBonus = false, bool bConsiderFutureTech = true) const;
-
+	CvWeightedVector<int> CalculatePlotWeightsForBeliefSelection() const;
+	int ScoreBelief(CvBeliefEntry* pEntry, CvWeightedVector<int> viPlotWeights, bool bConsiderFutureTech = true, ReligionTypes eForeignReligion = NO_RELIGION, BeliefTypes eSelectedAdditionalBelief1 = NO_BELIEF, BeliefTypes eSelectedAdditionalBelief2 = NO_BELIEF, BeliefTypes eSelectedAdditionalBelief3 = NO_BELIEF) const;
 private:
+	// player-level values shared between the ScoreBelief subfunctions
+	struct ScoreBeliefContext
+	{
+		ReligionTypes eReligion;
+		bool bFoundingReligion;
+		CvCity* pHolyCity;
+		int iOffensePriority;
+		int iDefensePriority;
+		int iWonderPriority;
+		int iEnemyReligionsNearby;
+		int iNumNearbyCitiesToSpreadTo;
+		BeliefList vOtherPlannedBeliefs;
+		BeliefList vOurReligionBeliefs;
+		bool bIsExpansion;
+		bool bReligionBuyUnitsFocus;
+		bool bReligionGPFocus;
+		bool bReligionSpreadFocus;
+		int iNumNeighbors;
+		int iNeighborWarmongerThreat;
+		int iNumNearbyFutureFollowers;
+		int iNumCurrentFollowers;
+	};
+
+	// for logging
+	struct ScoreBeliefPlayerBreakdown
+	{
+		int iWar;
+		int iDefense;
+		int iHappiness;
+		int iForeignCity;
+		int iPassiveSpread;
+		int iActiveSpread;
+		int iBuilding;
+		int iDiplo;
+		int iGreatPerson;
+		int iMisc;
+	};
+
 	bool DoFaithPurchasesInCities(CvCity* pCity);
 	bool DoReligionDefenseInCities();
 	int GetSpreadScore() const;
@@ -538,14 +577,16 @@ private:
 	bool BuyAnyAvailableNonFaithBuilding();
 	bool BuyAnyAvailableFaithBuilding();
 
-	int ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot, bool bConsiderFutureTech) const;
-	int ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const;
-	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const;
-	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest = false, bool bReturnCulture = false, bool bReturnScience = false, bool bReturnDiplo = false) const;
-	int ScorePantheonBeliefForPlayer(CvBeliefEntry* pEntry) const;
+	int ScoreBeliefAtPlotTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot, bool bConsiderFutureTech, vector<int>& vYieldScores) const;
+	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity, ReligionTypes eForeignReligion, vector<int>& vYieldScores, const ScoreBeliefContext& kContext) const;
+	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry, ReligionTypes eForeignReligion, vector<int>& vYieldScores, const ScoreBeliefContext& kContext, ScoreBeliefPlayerBreakdown* pBreakdown = NULL) const;
+	int GetExpectedTurnsToGrow(CvCity* pCity, ReligionTypes eReligion, const BeliefList& vOtherPlannedBeliefs) const;
+	int GetExpectedTurnsPerBorderGrowthTimes100(CvCity* pCity, const CvBeliefEntry* pEntry) const;
 	int GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes iI, bool bConsiderFutureTech) const;
+	int GetTechAvailabilityModifier(TechTypes eTech, bool bPotentialCity) const;
 
-	int ScoreYieldForReligionTimes100(YieldTypes eYield) const;
+
+	int ScoreYieldForReligionTimes100(YieldTypes eYield, BeliefList& vOurReligionBeliefs, bool bFaithFocus, bool bFoundingPantheon) const;
 
 	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionTypes eSpreadReligion) const;
 	int ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion) const;
@@ -562,6 +603,11 @@ private:
 	bool CanBuyNonFaithBuilding() const;
 	UnitTypes GetDesiredFaithGreatPerson() const;
 	void LogBeliefChoices(CvWeightedVector<BeliefTypes>& beliefChoices, int iChoice);
+	vector<vector<BeliefTypes>> GetFoundingBeliefCandidates(PlayerTypes ePlayer, ReligionTypes eReligion);
+	vector<vector<BeliefTypes>> GetEnhancingBeliefCandidates(PlayerTypes ePlayer, ReligionTypes eReligion) const;
+	void ScoreBeliefCombinations(const vector<vector<BeliefTypes>>& vvCandidates, CvWeightedVector<int>& combinationChoices, vector<vector<BeliefTypes>>& vvCombinations, vector<int>& viSlots) const;
+	vector<BeliefTypes> ChooseBeliefCombination(const vector<vector<BeliefTypes>>& vvCandidates, CvSeeder seed);
+	void LogBeliefCombinationChoices(CvWeightedVector<int>& combinationChoices, const vector<vector<BeliefTypes>>& vvCombinations, int iChoice);
 
 	CvBeliefXMLEntries* m_pBeliefs;
 	CvPlayer* m_pPlayer;

@@ -466,6 +466,35 @@ Controls.FoundReligion:RegisterCallback(Mouse.eLClick, function ()
 end);
 
 -------------------------------------------------------------------------------
+------ @param eSlot BeliefSlot
+local function GetOtherBeliefSlots(eSlot)
+	local pPlayer = Players[Game.GetActivePlayer()];
+	local beliefList = {}
+	if g_bFoundingReligion then
+		if eSlot ~= BeliefSlots.FOUNDER and g_tSelectedBeliefs[BeliefSlots.FOUNDER] ~= BeliefTypes.NO_BELIEF then
+			table.insert(beliefList, g_tSelectedBeliefs[BeliefSlots.FOUNDER])
+		end
+		if eSlot ~= BeliefSlots.FOLLOWER1 and g_tSelectedBeliefs[BeliefSlots.FOLLOWER1] ~= BeliefTypes.NO_BELIEF then
+			table.insert(beliefList, g_tSelectedBeliefs[BeliefSlots.FOLLOWER1])
+		end
+		if not pPlayer:HasCreatedPantheon() and eSlot ~= BeliefSlots.PANTHEON and g_tSelectedBeliefs[BeliefSlots.PANTHEON] ~= BeliefTypes.NO_BELIEF then
+			table.insert(beliefList, g_tSelectedBeliefs[BeliefSlots.PANTHEON])
+		end
+		if eSlot ~= BeliefSlots.BONUS and g_tSelectedBeliefs[BeliefSlots.BONUS] ~= BeliefTypes.NO_BELIEF then
+			table.insert(beliefList, g_tSelectedBeliefs[BeliefSlots.BONUS])
+		end
+	else
+		if eSlot ~= BeliefSlots.FOLLOWER2 and g_tSelectedBeliefs[BeliefSlots.FOLLOWER2] ~= BeliefTypes.NO_BELIEF then
+			table.insert(beliefList, g_tSelectedBeliefs[BeliefSlots.FOLLOWER2])
+		end
+		if eSlot ~= BeliefSlots.ENHANCER and g_tSelectedBeliefs[BeliefSlots.ENHANCER] ~= BeliefTypes.NO_BELIEF then
+			table.insert(beliefList, g_tSelectedBeliefs[BeliefSlots.ENHANCER])
+		end
+	end
+	return beliefList
+end
+
+-------------------------------------------------------------------------------
 --- @param eSlot BeliefSlot
 local function OnSelectButtonClick(eSlot)
 	if ToggleBeliefSlot(eSlot) then
@@ -483,7 +512,7 @@ local function OnSelectButtonClick(eSlot)
 					Name = L(kBeliefInfo.ShortDescription),
 					Description = L(kBeliefInfo.Description),
 					Tooltip = kBeliefInfo.Tooltip and L(kBeliefInfo.Tooltip) or L(kBeliefInfo.Description),
-					Score = Game.ScoreBelief(ePlayer, kBeliefInfo.ID),
+					Score = Game.ScoreBelief(ePlayer, kBeliefInfo.ID, unpack(GetOtherBeliefSlots(eSlot))),
 				});
 			end
 		end

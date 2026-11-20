@@ -4015,7 +4015,7 @@ void CvPlayerTraits::SetIsWarmonger()
 	for (int iUnitCombat = 0; iUnitCombat < GC.getNumUnitCombatClassInfos(); iUnitCombat++)
 	{
 		UnitCombatTypes eUnitCombat = (UnitCombatTypes)iUnitCombat;
-		if (GetUnitCombatProductionCostModifier(eUnitCombat).first < 0 && GetUnitCombatProductionCostModifier(eUnitCombat).second == false) // If we get a unit production cost reduction outside of golden ages
+		if (GetUnitCombatProductionCostModifier(eUnitCombat).first < 0 && !GetUnitCombatProductionCostModifier(eUnitCombat).second) // If we get a unit production cost reduction outside of golden ages
 		{
 			m_bIsWarmonger = true;
 			return;
@@ -5323,6 +5323,10 @@ void CvPlayerTraits::Reset()
 	m_bIsExpansionist = false;
 	m_bIsSmaller = false;
 	m_bIsReligious = false;
+
+	m_bHasYieldFromTileCultureBomb = false;
+	m_bHasYieldFromTileEarn = false;
+	m_bHasYieldFromTilePurchase = false;
 
 	m_iGreatPeopleRateModifier = 0;
 	m_iGreatScientistRateModifier = 0;

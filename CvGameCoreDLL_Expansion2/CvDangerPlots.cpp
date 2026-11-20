@@ -145,7 +145,7 @@ void CvDangerPlots::UpdateDanger()
 		UpdateDangerInternal(plotsWithOwnedUnitsLikelyToBeKilled, bTurnChange, bWarChange);
 
 		//find out which units might die and therefore won't have a ZOC
-		int iLoop;
+		int iLoop = 0;
 		for (CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
 		{
 			if (pLoopUnit->IsCombatUnit() && pLoopUnit->GetDanger() > pLoopUnit->GetCurrHitPoints())
@@ -797,7 +797,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const SUnitIDValueConta
 			if ( pAttacker && !pAttacker->isDelayedDeath() && !pAttacker->IsDead() )
 			{
 				int iDummy = 0;
-				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
+				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, 0, true);
 				if (!m_pPlot->IsKnownVisibleToTeam(pAttacker->getTeam()))
 					iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
 				iPlotDamage += iDamage;

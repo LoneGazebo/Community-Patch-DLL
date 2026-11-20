@@ -141,7 +141,7 @@ UPDATE Defines SET Value = 40 WHERE Name = 'SAPPED_CITY_ATTACK_MODIFIER';
 UPDATE Defines SET Value = 2 WHERE Name = 'HEAVY_RESOURCE_THRESHOLD';
 
 -- Vassalage
-UPDATE Defines SET Value = 10 WHERE Name = 'VASSAL_HAPPINESS_PERCENT'; -- (NOTE: Halved in VP) comment in CoreDefines.sql of (1), updated because DLL hid that it was halving it.
+UPDATE Defines SET Value = 0 WHERE Name = 'VASSAL_HAPPINESS_PERCENT';
 
 -------------------------------------------------------------------------------------------------------------------
 -- City stuff
@@ -328,16 +328,17 @@ UPDATE Defines SET Value = 3 WHERE Name = 'SWITCH_POLICY_BRANCHES_ANARCHY_TURNS'
 UPDATE Defines SET Value = 5 WHERE Name = 'CULTURE_LEVEL_EXOTIC';
 UPDATE Defines SET Value = 25 WHERE Name = 'CULTURE_LEVEL_FAMILIAR';
 UPDATE Defines SET Value = 50 WHERE Name = 'CULTURE_LEVEL_POPULAR';
+UPDATE Defines SET Value = 120 WHERE Name = 'CULTURE_LEVEL_INFLUENTIAL';  -- CultureOverview.xml has a variable that needs to match this (/100)
 
 UPDATE Defines SET Value = 3 WHERE Name = 'BASE_CULTURE_PER_GREAT_WORK';
 UPDATE Defines SET Value = 2 WHERE Name = 'BASE_TOURISM_PER_GREAT_WORK';
 
-UPDATE Defines SET Value = 15 WHERE Name = 'TOURISM_MODIFIER_OPEN_BORDERS';
+UPDATE Defines SET Value = 10 WHERE Name = 'TOURISM_MODIFIER_OPEN_BORDERS';
 UPDATE Defines SET Value = 10 WHERE Name = 'TOURISM_MODIFIER_TRADE_ROUTE';
-UPDATE Defines SET Value = -10 WHERE Name = 'TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES';
+UPDATE Defines SET Value = -20 WHERE Name = 'TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES';
 UPDATE Defines SET Value = 20 WHERE Name = 'TOURISM_MODIFIER_DIPLOMAT';
 UPDATE Defines SET Value = 1 WHERE Name = 'TOURISM_MODIFIER_SHARED_RELIGION'; -- percentage
-UPDATE Defines SET Value = 50 WHERE Name = 'TOURISM_MODIFIER_SHARED_RELIGION_MAX';
+UPDATE Defines SET Value = 40 WHERE Name = 'TOURISM_MODIFIER_SHARED_RELIGION_MAX';
 UPDATE Defines SET Value = 2 WHERE Name = 'TOURISM_MODIFIER_SHARED_RELIGION_TYPE'; -- 0 = no scaling, 1 = scaling per city, 2 = scaling per population
 
 -------------------------------------------------------------------------------------------------------------------
@@ -500,7 +501,7 @@ UPDATE Defines SET Value = 1000 WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PER
 -- World Congress
 -------------------------------------------------------------------------------------------------------------------
 UPDATE Defines SET Value = 33 WHERE Name = 'TEMPORARY_CULTURE_BOOST_MOD';
-UPDATE Defines SET Value = 50 WHERE Name = 'TEMPORARY_TOURISM_BOOST_MOD';
+UPDATE Defines SET Value = 25 WHERE Name = 'TEMPORARY_TOURISM_BOOST_MOD';
 UPDATE Defines SET Value = 3 WHERE Name = 'LEAGUE_PROPOSERS_PER_SESSION';
 UPDATE Defines SET Value = 1 WHERE Name = 'LEAGUE_NUM_LEADERS_FOR_EXTRA_VOTES';
 UPDATE Defines SET Value = 25 WHERE Name = 'LEAGUE_PROJECT_PROGRESS_PERCENT_WARNING';

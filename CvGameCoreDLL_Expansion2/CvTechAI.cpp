@@ -163,7 +163,7 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	LogPossibleResearch();
 
 	// Make and log our tech choice
-	if (m_ResearchableTechs.size() > 0)
+	if (!m_ResearchableTechs.empty())
 	{
 		rtnValue = (TechTypes)m_ResearchableTechs.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getTechChoiceCutoffThreshold(), CvSeeder::fromRaw(0xd0b45b02).mix(pPlayer->GetID()).mix(GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown()));
 		LogResearchChoice(rtnValue);

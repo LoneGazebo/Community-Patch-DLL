@@ -341,6 +341,9 @@ public:
 	bool hasBusyCity() const;
 	bool hasBusyUnitOrCity() const;
 	const CvCity* getBusyCity() const;
+
+	int EstimateWLTKDAvailability() const;
+	int EstimateGreatPersonRate(GreatPersonTypes eGreatPerson) const;
 	void chooseTech(int iDiscover = 0, const char* strText=0, TechTypes iTechJustDiscovered=NO_TECH);
 	void ChoosePolicy(const char* strText = 0);
 	void ChooseIdeology();
@@ -422,7 +425,7 @@ public:
 	bool isProductionMaxedBuilding(BuildingTypes eBuilding, bool bAcquireCity = false) const;
 	bool isProductionMaxedProject(ProjectTypes eProject) const;
 	int getProductionNeeded(UnitTypes eUnit, bool bIgnoreTraitsDifficulty = false, bool bIgnoreExistingCopies = false) const;
-	int getProductionNeeded(BuildingTypes eBuilding) const;
+	int getProductionNeeded(BuildingTypes eBuilding, bool bIgnoreDifficulty = false) const;
 	int getProductionNeeded(ProjectTypes eProject) const;
 
 	int GetUpgradeCost(const UnitTypes eCurrentUnit, const UnitTypes eNewUnit) const;
@@ -468,6 +471,8 @@ public:
 	int calculateUnitGrowthMaintenanceMod() const;
 
 	int GetNumUnitsSupplied(bool bCheckWarWeariness = true) const;
+	int GetNumUnitsSuppliedForLog(bool bCheckWarWeariness = true) const;
+	int GetNumUnitsOutOfSupplyForLog(bool bCheckWarWeariness = true) const;
 	void GetUnitSupplyBreakdown(UnitSupplyBreakdown& kBreakdown) const;
 	int GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction = false) const;
 	int GetNumUnitsSuppliedByCities(bool bIgnoreReduction = false) const;
@@ -536,7 +541,7 @@ public:
 	int getTotalPopulation() const;
 	float getAveragePopulation() const;
 	void changeTotalPopulation(int iChange);
-	long getRealPopulation() const;
+	long long getRealPopulation() const;
 
 	int getHighestPopulation() const;
 	void setHighestPopulation(int iValue);
@@ -732,9 +737,14 @@ public:
 	int GetUnhappinessGrowthPenalty() const;
 	int GetUnhappinessSettlerCostPenalty() const;
 	int GetUnhappinessCombatStrengthPenalty() const;
+	bool IsEmpireVeryHappy() const;
 	bool IsEmpireUnhappy() const;
 	bool IsEmpireVeryUnhappy() const;
 	bool IsEmpireSuperUnhappy() const;
+
+	int GetHappinessValueTimes100() const;
+
+	int EstimateGoldenAgePercentage() const;
 
 	void DoUpdateUprisings();
 	int GetUprisingCounter() const;
@@ -1007,10 +1017,12 @@ public:
 	// Golden Age Stuff
 
 	void DoProcessVotes();
+	int GetGreatGeneralRateTimes100() const;
 	void DoChangeGreatGeneralRate();
+	int GetGreatAdmiralRateTimes100() const;
 	void DoChangeGreatAdmiralRate();
-	int GetGoldenAgePointsFromEmpireTimes100();
-	int GetGoldenAgePointsFromCitiesTimes100();
+	int GetGoldenAgePointsFromEmpireTimes100() const;
+	int GetGoldenAgePointsFromCitiesTimes100() const;
 	void DoProcessGoldenAge();
 
 	int GetGoldenAgeProgressThreshold() const;
@@ -2105,7 +2117,7 @@ public:
 	void ChangeWarWeariness(PlayerTypes ePlayer, int iChange);
 	int GetCachedCurrentWarValue() const;
 	void CacheCurrentWarValue(int iValue);
-	void DoUpdateWarDamageAndWeariness(bool bDamageOnly);
+	void DoUpdateWarDamageAndWeariness(bool bDamageOnly, PlayerTypes eOnlyPlayer = NO_PLAYER);
 	int GetWarWearinessPercent(PlayerTypes ePlayer) const;
 	int GetHighestWarWearinessPercent() const;
 	PlayerTypes GetHighestWarWearinessPlayer(bool bConsiderHappinessOnly = false) const;
@@ -2160,6 +2172,7 @@ public:
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
 	int getNumResourceFromBuildings(ResourceTypes eIndex) const;
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
+	int getNumResourceFromTiles(ResourceTypes iIndex) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bCheckForMonopoly = true, bool bFromEvent = false);
 
@@ -2668,6 +2681,8 @@ public:
 	CvPlot* GetBestSettlePlot(CvUnit* pUnit, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	PlayerTypes GetPlayerWhoStoleMyFavoriteCitySite();
 	int GetSettlePlotQualityMeasure(CvPlot* pPlot);
+	int GetSettlePlotQualityMeasureNoUpdate(const CvPlot* pPlot) const;
+	int getPlotFoundValueNoUpdate(int iX, int iY) const;
 
 	// New Victory Stuff
 	int GetNumWonders() const;
@@ -3872,6 +3887,8 @@ protected:
 
 	friend FDataStream& operator>>(FDataStream&, CvPlayer::ConqueredByBoolField&);
 	friend FDataStream& operator<<(FDataStream&, const CvPlayer::ConqueredByBoolField&);
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 inline FDataStream& operator>>(FDataStream& stream, CvPlayer::ConqueredByBoolField& bfEverConqueredBy)

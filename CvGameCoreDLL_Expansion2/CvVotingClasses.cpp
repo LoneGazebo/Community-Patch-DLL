@@ -664,7 +664,7 @@ int CvVoterDecision::GetDecision()
 		}
 	}
 
-	if (vChoices.size() > 0)
+	if (!vChoices.empty())
 	{
 		vChoices.StableSortItems();
 		
@@ -750,7 +750,7 @@ std::vector<int> CvVoterDecision::GetTopVotedChoices(int iNumTopChoices)
 	}
 
 	std::vector<int> vTopChoices;
-	if (vChoices.size() > 0 && iNumTopChoices > 0)
+	if (!vChoices.empty() && iNumTopChoices > 0)
 	{
 		vChoices.StableSortItems();
 		int iCurrentWeight = 0;
@@ -808,7 +808,7 @@ int CvVoterDecision::GetVotesMarginOfTopChoice()
 	{
 		iDelta = GetVotesCastForChoice(vTopChoices[0]) - GetVotesCastForChoice(vTopChoices[1]);
 	}
-	else if (vTopChoices.size() >= 1)
+	else if (!vTopChoices.empty())
 	{
 		iDelta = GetVotesCastForChoice(vTopChoices[0]);
 	}
@@ -8861,9 +8861,8 @@ void CvLeague::CheckProjectsProgress()
 
 					CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);
 
-					CvCity* pLoopCity;
-					int iLoop;
-					for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+					int iLoop = 0;
+					for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 					{
 						//not working on the project? ignore.
 						if (pLoopCity->getProductionProcess() != pProjectInfo->GetProcess())
@@ -11762,7 +11761,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		FindBestVoteChoices(&(*it), vConsiderations);
 	}
 
-	if (vConsiderations.size() > 0)
+	if (!vConsiderations.empty())
 	{
 		vConsiderations.StableSortItems();
 
@@ -11930,7 +11929,7 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 		vScoredChoices.push_back(consideration, iScore);
 	}
 
-	if (vScoredChoices.size() > 0)
+	if (!vScoredChoices.empty())
 	{
 		vScoredChoices.StableSortItems();
 		for (int i = 0; i < vScoredChoices.size() && i < iMaxChoicesToConsider; i++)
@@ -11979,7 +11978,7 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 		vScoredChoices.push_back(consideration, iScore);
 	}
 
-	if (vScoredChoices.size() > 0)
+	if (!vScoredChoices.empty())
 	{
 		vScoredChoices.StableSortItems();
 		for (int i = 0; i < vScoredChoices.size() && i < iMaxChoicesToConsider; i++)
@@ -12189,7 +12188,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		}
 		else if (eInternationalGames == eProject)
 		{
-			int iLowestPercent = GetPlayer()->GetDiplomacyAI()->GetLowestTourismInfluence();
+			int iLowestPercent = 0;
+			GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false, iLowestPercent);
+
 			if (bCanGold)
 			{
 				if (bCultureVictoryEnabled)
@@ -13564,7 +13565,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		if (bCultureVictoryEnabled)
 		{
 			int iTourismChange = pProposal->GetEffects()->iChangeTourism;
-			int iLowestPercent = GetPlayer()->GetDiplomacyAI()->GetLowestTourismInfluence();
+			int iLowestPercent = 0;
+			GetPlayer()->GetCulture()->GetCivLowestInfluence(/*bCheckOpenBorders*/ false, /*bExcludeWar*/ false, iLowestPercent);
+
 			if (iLowestPercent > 25)
 			{
 				iExtra += 2 * iTourismChange * min(iLowestPercent - 25, 50);
@@ -14160,7 +14163,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 		}
 	}
 
-	if (vConsiderations.size() > 0)
+	if (!vConsiderations.empty())
 	{
 		vConsiderations.StableSortItems();
 
@@ -14180,7 +14183,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 	}
 
 	// If we don't like anything, propose the least bad option
-	if (vBadChoices.size() > 0)
+	if (!vBadChoices.empty())
 	{
 		vBadChoices.StableSortItems();
 

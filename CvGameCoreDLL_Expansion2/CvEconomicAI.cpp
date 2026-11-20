@@ -880,24 +880,47 @@ const CvExplorationPlotSet& CvEconomicAI::GetExplorationPlots(ExplorationDomainT
 	}
 }
 
+// Reports whether the unit includes this domain in its exploration set.
+bool EconomicAIHelpers::CanExploreDomain(const CvUnit* pUnit, ExplorationDomainTypes ePlotType)
+{
+	switch (ePlotType)
+	{
+	case EXPLORATION_LAND:
+		return pUnit->getDomainType() == DOMAIN_LAND;
+	case EXPLORATION_COAST:
+		return pUnit->getDomainType() != DOMAIN_LAND || pUnit->IsHasEmbarkAbility();
+	case EXPLORATION_OCEAN:
+		return pUnit->CanStayInOcean();
+	default:
+		return false;
+	}
+}
+
+// Combines eligible domains with land-first insertion precedence.
 const CvExplorationPlotSet CvEconomicAI::GetExplorationPlots(const CvUnit* pUnit)
 {
 	CvExplorationPlotSet ret;
 
-	DomainTypes eDomain = pUnit->getDomainType();
-
-	if (eDomain == DOMAIN_LAND)
+	if (EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_LAND))
 		ret.append(m_vPlotsToExploreLand);
 
-	if (eDomain != DOMAIN_LAND || pUnit->IsHasEmbarkAbility())
+	if (EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_COAST))
 		ret.append(m_vPlotsToExploreCoast);
 
-	if (pUnit->CanStayInOcean())
+	if (EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_OCEAN))
 	{
 		ret.append(m_vPlotsToExploreOcean);
 	}
 
 	return ret;
+}
+
+// Checks the same eligible domains without allocating merged map entries.
+bool CvEconomicAI::HasExplorationPlots(const CvUnit* pUnit)
+{
+	return (EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_LAND) && !m_vPlotsToExploreLand.empty()) ||
+		(EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_COAST) && !m_vPlotsToExploreCoast.empty()) ||
+		(EconomicAIHelpers::CanExploreDomain(pUnit, EXPLORATION_OCEAN) && !m_vPlotsToExploreOcean.empty());
 }
 
 void CvEconomicAI::SetExplorersNeeded(int iValue)
@@ -2610,7 +2633,10 @@ void CvEconomicAI::LogReligionBeliefYields()
 			// --- A2: per-worked-plot nature & improvement yields (majority beliefs + secondary pantheon) ---
 			const BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			const CvBeliefEntry* pkSecondary = (eSecondaryPantheon != NO_BELIEF) ? GC.getBeliefInfo(eSecondaryPantheon) : NULL;
-			bool bSecReqImp = false, bSecReqNoImp = false, bSecReqRes = false, bSecReqNoFeat = false;
+			bool bSecReqImp = false;
+			bool bSecReqNoImp = false;
+			bool bSecReqRes = false;
+			bool bSecReqNoFeat = false;
 			if (pkSecondary)
 			{
 				bSecReqImp = pkSecondary->RequiresImprovement();
@@ -3880,7 +3906,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 		CvString strLogString;
 		strLogString.Format("");
 		m_pPlayer->LogSpaceshipPlanMessage(strLogString);
-		if (vCoreCities.size() > 0)
+		if (!vCoreCities.empty())
 		{
 			strLogString.Format("Core Cities: ");
 			for (size_t i = 0; i < vCoreCities.size(); i++)
@@ -3932,7 +3958,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 			}
 		}
 
-		if (vUnitsDisband.size() > 0)
+		if (!vUnitsDisband.empty())
 		{
 			// go through the list of units and disband the ones with the lowest value until we have enough aluminum
 			vUnitsDisband.StableSortItems();
@@ -3940,11 +3966,12 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 			{
 				CvUnit* pDisbandUnit = m_pPlayer->getUnit(vUnitsDisband.GetElement(i));
 				int iNumUnitResources = GC.getUnitInfo(pDisbandUnit->getUnitType())->GetResourceQuantityRequirement(eAluminum);
+				const CvString strDisbandName = pDisbandUnit->getName(); // scrap(false) deletes the unit
 				pDisbandUnit->scrap(false);
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					CvString strLogString;
-					strLogString.Format("Disbanding %s to get aluminum for spaceship. Aluminum available after disbanding: %d", pDisbandUnit->getName().GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
+					strLogString.Format("Disbanding %s to get aluminum for spaceship. Aluminum available after disbanding: %d", strDisbandName.GetCString(), m_pPlayer->getNumResourceAvailable(eAluminum, true));
 					m_pPlayer->LogSpaceshipPlanMessage(strLogString);
 				}
 
@@ -3970,14 +3997,14 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 					continue;
 
 				int iWeight = pLoopCity->getEconomicValue(m_pPlayer->GetID());
-				if (pLoopCity->isProductionSpaceshipPart() || (vCitiesForSpaceshipParts.size() > 0 && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
+				if (pLoopCity->isProductionSpaceshipPart() || (!vCitiesForSpaceshipParts.empty() && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
 				{
 					// make sure the core cities for spaceship production have the highest score
 					iWeight *= 10;
 				}
 				vCityEconomicWeights.push_back(pLoopCity, max(0, iWeight));
 			}
-			if (vCityEconomicWeights.size() > 0)
+			if (!vCityEconomicWeights.empty())
 			{
 				vCityEconomicWeights.StableSortItems();
 				// start selling buildings in the worst cities
@@ -3986,7 +4013,7 @@ void CvEconomicAI::DisbandUnitsToFreeSpaceshipResources()
 
 					CvCity* pLoopCity = vCityEconomicWeights.GetElement(i);
 					// if this is a core city, sell buildings only if we need them for spaceship parts
-					if (pLoopCity->isProductionSpaceshipPart() || (vCitiesForSpaceshipParts.size() > 0 && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
+					if (pLoopCity->isProductionSpaceshipPart() || (!vCitiesForSpaceshipParts.empty() && std::find(vCitiesForSpaceshipParts.begin(), vCitiesForSpaceshipParts.end(), pLoopCity->GetID()) != vCitiesForSpaceshipParts.end()))
 					{
 						if (iNumAluminumWeNeed - iNumTotalAluminumNeededForCoreCities <= 0)
 						{
@@ -4219,8 +4246,7 @@ CvUnit* CvEconomicAI::FindSeaWorkerToScrap()
 		if (!pLoopUnit->canScrap())
 			continue;
 
-		UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKBOAT");
-		if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
+		if (pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
 			return pLoopUnit;
 		}
@@ -4437,15 +4463,15 @@ void CvEconomicAI::AddPlotToExplorePlots(const CvPlot* pPlot)
 
 void CvEconomicAI::UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, const CvPlot* pIgnorePlot)
 {
-	CvPlot* pNearbyPlot;
 	iChange *= GetPlotExploreMultiplier(pPlot);
 
 	for (int iRange = 1; iRange <= 3; iRange++)
 	{
-		const std::vector<CvPlot*> pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, false, true);
+		// This reference is valid only until the next GetPlotsAtRangeX query, so consume it before the loop advances.
+		const std::vector<CvPlot*>& pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, false, true);
 		for (std::vector<CvPlot*>::const_iterator it = pPlotsToCheck.begin(); it != pPlotsToCheck.end(); ++it)
 		{
-			pNearbyPlot = *it;
+			CvPlot* pNearbyPlot = *it;
 
 			if (!pNearbyPlot || pNearbyPlot == pIgnorePlot)
 				continue;
@@ -4466,13 +4492,13 @@ void CvEconomicAI::UpdateNearbyExplorePlots(const CvPlot* pPlot, int iChange, co
 void CvEconomicAI::InitiateExplorePlot(const CvPlot* pPlot)
 {
 	CvPlot* pNearbyPlot;
-	std::vector<CvPlot*> pPlotsToCheck;
 
 	int iPlotIndex = pPlot->GetPlotIndex();
 
 	for (int iRange = 1; iRange <= 3; iRange++)
 	{
-		pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, true, true);
+		// This reference is valid only until the next GetPlotsAtRangeX query, so consume it before the loop advances.
+		const std::vector<CvPlot*>& pPlotsToCheck = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, true, true);
 		for (std::vector<CvPlot*>::const_iterator it = pPlotsToCheck.begin(); it != pPlotsToCheck.end(); ++it)
 		{
 			pNearbyPlot = *it;

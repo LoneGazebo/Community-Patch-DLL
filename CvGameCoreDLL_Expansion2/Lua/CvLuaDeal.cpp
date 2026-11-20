@@ -11,23 +11,20 @@
 #include "../CustomMods.h"
 #include "../CvDealAI.h"
 #include "../CvDiplomacyAI.h"
-#include "CvLuaSupport.h"
 #include "CvLuaDeal.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
-	//Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
+//Utility macro for registering methods
+#define Method(Name) lua_pushcclosure(L, l##Name, 0); lua_setfield(L, 1, #Name);
 
-
-using namespace CvLuaArgs;
 TradedItemList::iterator CvLuaDeal::m_iterator;
 
 //------------------------------------------------------------------------------
-void CvLuaDeal::PushMethods(lua_State* L, int t)
+void CvLuaDeal::CreateFunctable(lua_State* L)
 {
+	lua_createtable(L,0,70);
+	
 	Method(ClearItems);
 	Method(GetNumItems);
 
@@ -117,17 +114,6 @@ int CvLuaDeal::lRemoveByType(lua_State* L)
 	return 0;
 }
 
-
-//------------------------------------------------------------------------------
-void CvLuaDeal::HandleMissingInstance(lua_State* L)
-{
-	DefaultHandleMissingInstance(L);
-}
-//------------------------------------------------------------------------------
-const char* CvLuaDeal::GetTypeName()
-{
-	return "Deal";
-}
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
@@ -450,3 +436,5 @@ int CvLuaDeal::lChangeThirdPartyEmbargoDuration(lua_State* L)
 {
 	luaL_error(L, "ChangeThirdPartyEmbargoDuration - function is deprecated");
 }
+
+LuaTypes_DefineInstanced( CvDeal, CvLuaDeal );

@@ -2312,6 +2312,8 @@ public:
 
 	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iTargetTurns);
 	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
+	// Returns a settled arrival result, or -1 when pathfinding is needed.
+	int GetTurnsToReachTargetEstimate(const CvPlot* pTarget, int iFlags, int iTargetTurns) const;
 	bool CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns);
 	void ClearPathCache();
 
@@ -2399,7 +2401,7 @@ protected:
 	int m_iRivalTerritoryCount;
 	int m_iIsSlowInEnemyLandCount;
 	int m_iRangeAttackIgnoreLOSCount;
-    int m_iSeeThrough;
+	int m_iSeeThrough;
 	int m_iCityAttackOnlyCount;
 	int m_iCaptureDefeatedEnemyCount;
 	int m_iOriginCity;
@@ -2789,6 +2791,8 @@ private:
 	int m_iHomelandMoveSetTurn;
 
 	friend class CvLuaUnit;
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 
 FDataStream& operator<<(FDataStream&, const CvUnit&);

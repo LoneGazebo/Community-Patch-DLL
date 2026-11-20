@@ -73,7 +73,7 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 		}
 	}
 
-	if(m_potentialStartingAreaVector.size() > 0)
+	if(!m_potentialStartingAreaVector.empty())
 	{
 		// Assign all the regions to continents
 		while(iNumRegionsPlaced < iNumRegions)
@@ -1015,7 +1015,6 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 		map<int, SStartRegion>::iterator neighbor = regions.find(neighborId);
 
 		//debugging
-		if (true)
 		{
 			CvString msg = CvString::format("merging id %d (size %d, score %d) with id %d (size %d, score %d). nregions %d\n",
 				worstRegion->second.iID, worstRegion->second.vPlots.size(), worstRegion->second.iTotalWorth, 
@@ -1043,7 +1042,6 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 	}
 
 	//log the result
-	if (true)
 	{
 		FILogFile* pLog = LOGFILEMGR.GetLog("StartRegions.txt", FILogFile::kDontTimeStamp);
 		if (pLog)

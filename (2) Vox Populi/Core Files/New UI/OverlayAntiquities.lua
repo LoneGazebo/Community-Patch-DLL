@@ -113,7 +113,7 @@ function cacheSitePlots(iPlayer)
 end
 
 function highlightNone()
-  Events.ClearHexHighlights()
+  Events.ClearHexHighlightStyle("")
 end
 
 function highlightAllSites(iPlayer)

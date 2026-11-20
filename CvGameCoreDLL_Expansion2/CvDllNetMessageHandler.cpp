@@ -410,7 +410,7 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RELIGION");
 					pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, iCityX, iCityY, eReligion, pkCity->GetID());
 				}
-				kPlayer.GetReligions()->SetFoundingReligion(true);
+				kPlayer.GetReligions()->SetFoundingReligionCityID(pkCity->GetID());
 			}
 		}
 	}
@@ -443,7 +443,7 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
 				pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, iCityX, iCityY, eReligion, pkCity->GetID());
 			}
-			kPlayer.GetReligions()->SetFoundingReligion(true);
+			kPlayer.GetReligions()->SetFoundingReligionCityID(pkCity->GetID());
 		}
 	}
 }
@@ -1014,7 +1014,7 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 	{
 		// make sure we can still take a tech
 		ASSERT(kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0, "No techs to steal from player");
-		ASSERT(kPlayer.GetEspionage()->m_aaPlayerStealableTechList[ePlayerToStealFrom].size() > 0, "No techs to be stolen from this player");
+		ASSERT(!kPlayer.GetEspionage()->m_aaPlayerStealableTechList[ePlayerToStealFrom].empty(), "No techs to be stolen from this player");
 		ASSERT(kPlayer.GetPlayerTechs()->CanResearch(eTech), "Player can't research this technology");
 		ASSERT(GET_TEAM(GET_PLAYER(ePlayerToStealFrom).getTeam()).GetTeamTechs()->HasTech(eTech), "ePlayerToStealFrom does not have the requested tech");
 		if (kPlayer.GetEspionage()->m_aiNumTechsToStealList[ePlayerToStealFrom] > 0)

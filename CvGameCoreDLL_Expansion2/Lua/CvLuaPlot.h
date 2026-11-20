@@ -16,19 +16,13 @@
 #ifndef CVLUAPLOT_H
 #define CVLUAPLOT_H
 
-#include "CvLuaScopedInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
 
-class CvLuaPlot : public CvLuaScopedInstance<CvLuaPlot, CvPlot>
+class CvLuaPlot : public CvLuaDynamicInstance<CvLuaPlot, CvPlot>
 {
 public:
 	//! Push CvPlot methods into table t
-	static void PushMethods(lua_State* L, int t);
-
-	//! Required by CvLuaScopedInstance.
-	static void HandleMissingInstance(lua_State* L);
-
-	//! Required by CvLuaScopedInstance.
-	static const char* GetTypeName();
+	static void CreateFunctable(lua_State* L);
 
 protected:
 
@@ -247,7 +241,7 @@ protected:
 	static int lGetReconCount(lua_State* L);
 	static int lGetRiverCrossingCount(lua_State* L);
 	static int lGetYield(lua_State* L);
-    LUAAPIEXTN(ChangeYield, void, eYield, iChange);
+	LUAAPIEXTN(ChangeYield, void, eYield, iChange);
 	static int lCalculateNatureYield(lua_State* L);
 	static int lCalculateBestNatureYield(lua_State* L);
 	static int lCalculateTotalBestNatureYield(lua_State* L);
@@ -387,34 +381,5 @@ protected:
 	LUAAPIEXTN(GetEffectiveFlankingBonus, int, CvUnit*, CvUnit*, CvPlot*);
 	LUAAPIEXTN(GetEffectiveFlankingBonusAtRange, int, CvUnit*, CvUnit*);
 };
-
-namespace CvLuaArgs
-{
-	template<> inline const CvPlot* toValue(lua_State* L, int idx)
-	{
-		return CvLuaPlot::GetInstance(L, idx);
-	}
-	template<> inline CvPlot* toValue(lua_State* L, int idx)
-	{
-		return CvLuaPlot::GetInstance(L, idx);
-	}
-	template<> inline const CvPlot& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaPlot::GetInstance(L, idx);
-	}
-	template<> inline CvPlot& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaPlot::GetInstance(L, idx);
-	}
-
-	template<> inline void pushValue(lua_State* L, CvPlot* p)
-	{
-		CvLuaPlot::Push(L, p);
-	}
-	template<> inline void pushValue(lua_State* L, CvPlot& r)
-	{
-		CvLuaPlot::Push(L, &r);
-	}
-}
 
 #endif

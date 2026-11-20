@@ -92,7 +92,7 @@ function UpdatePathFromSelectedUnitToMouse()
 end
 
 function UpdatePathFromWaypointToMouse()
-    Events.ClearHexHighlights()
+    Events.ClearHexHighlightStyle("")
 	local pUnit = UI.GetHeadSelectedUnit()
 	local pPlot = Map.GetPlot( UI.GetMouseOverHex() )
 
@@ -231,6 +231,15 @@ if g_isRoutePlannerModEnabled then
 	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_ROUTE_PLANNER_DRAW.ID] = {}
 	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_ROUTE_PLANNER_DRAW.ID][MouseEvents.RButtonUp] = LuaEvents.ROUTE_PLANNER_RButtonUp
 	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_ROUTE_PLANNER_DRAW.ID][MouseEvents.RButtonDown] = LuaEvents.ROUTE_PLANNER_RButtonDown
+end
+
+-- Worker planner, see WorkerPlanner.lua
+if GameInfoTypes.INTERFACEMODE_WORKER_PLANNER then
+	InterfaceModeMessageHandler[GameInfoTypes.INTERFACEMODE_WORKER_PLANNER] = {
+		[MouseEvents.LButtonUp] = function() LuaEvents.WorkerPlannerLButtonUp(); return true; end,
+		[MouseEvents.RButtonDown] = function() LuaEvents.WorkerPlannerRButtonDown(); return true; end,
+		[MouseEvents.RButtonUp] = function() LuaEvents.WorkerPlannerRButtonUp(); return true; end,
+	}
 end
 
 if g_isSquadsModEnabled then

@@ -149,7 +149,7 @@ void CvDiplomacyRequests::Update(void)
 	{
 		PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 		// If we are active, send out the requests
-		if(m_aRequests.size() && m_ePlayer == eActivePlayer && GET_PLAYER(eActivePlayer).isTurnActive())
+		if(!m_aRequests.empty() && m_ePlayer == eActivePlayer && GET_PLAYER(eActivePlayer).isTurnActive())
 		{
 			CvDiplomacyRequests::Request& kRequest = m_aRequests.front();
 
@@ -166,7 +166,7 @@ void CvDiplomacyRequests::Update(void)
 //	Called from within CvPlayer at the beginning of the turn
 void CvDiplomacyRequests::BeginTurn(void)
 {
-	if (m_aRequests.size() > 0)
+	if (!m_aRequests.empty())
 	{
 		// JdH: change requests to notifications
 		{
@@ -227,7 +227,7 @@ bool CvDiplomacyRequests::Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploT
 //	Called from within CvPlayer at the end of turn
 void CvDiplomacyRequests::CheckRemainingNotifications()
 {
-	if (m_aRequests.size() > 0)
+	if (!m_aRequests.empty())
 	{
 		RequestList::iterator iter = m_aRequests.begin();
 		while (iter != m_aRequests.end())
@@ -473,7 +473,7 @@ bool CvDiplomacyRequests::HasActiveRequestFrom(PlayerTypes eFromPlayer) const
 //	static
 void CvDiplomacyRequests::DoAIMPDiplomacyWithHumans()
 {
-	if (s_aDiploHumans.size() == 0)
+	if (s_aDiploHumans.empty())
 		return;
 
 	if (MOD_AI_CONTROL_DIPLOMACY)

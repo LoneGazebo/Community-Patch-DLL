@@ -110,7 +110,6 @@ CvAStar::CvAStar()
       m_iDestHitCount(0),
       m_bWrapX(false),
       m_bWrapY(false),
-      m_bHeapDirty(false),
       m_pBest(NULL),
       m_iProcessedNodes(0),
       m_iTestedNodes(0),
@@ -146,6 +145,10 @@ void CvAStar::DeInit()
 	{
 		for(int iI = 0; iI < m_iColumns; iI++)
 		{
+			//nodes were created with placement new, so run the destructors to free the child vectors
+			for(int iJ = 0; iJ < m_iRows; iJ++)
+				m_ppaaNodes[iI][iJ].~CvAStarNode();
+
 			FFREEALIGNED(m_ppaaNodes[iI]);
 		}
 
@@ -177,7 +180,6 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 
 	m_bWrapX = bWrapX;
 	m_bWrapY = bWrapY;
-	m_bHeapDirty = false;
 
 	m_pBest = NULL;
 
@@ -490,20 +492,81 @@ CvAStarNode* CvAStar::GetBest()
 	if (m_openNodes.empty())
 		return NULL;
 
-	//make sure heap order is valid after all the updates in the previous round
-	if (m_bHeapDirty)
+	//take the best node from the top of the heap and fill the gap with the last node
+	CvAStarNode* temp = m_openNodes.front();
+	CvAStarNode* last = m_openNodes.back();
+	m_openNodes.pop_back();
+	if (!m_openNodes.empty())
 	{
-		std::make_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
-		m_bHeapDirty = false;
+		m_openNodes[0] = last;
+		last->m_iOpenListIndex = 0;
+		SiftDownOpenNode(0);
 	}
-
-	std::pop_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
-	CvAStarNode* temp = m_openNodes.back();	m_openNodes.pop_back();
 
 	//move the node to the closed list
 	temp->m_bIsOpen = false;
+	temp->m_iOpenListIndex = -1;
 	m_closedNodes.push_back(temp);
 	return temp;
+}
+
+//	--------------------------------------------------------------------------------
+/// Restore heap order after the cost of an open node has changed
+void CvAStar::UpdateOpenNode(CvAStarNode* node)
+{
+	int iIndex = node->m_iOpenListIndex;
+	SiftUpOpenNode(iIndex);
+	if (node->m_iOpenListIndex == iIndex)
+		SiftDownOpenNode(iIndex);
+}
+
+//	--------------------------------------------------------------------------------
+/// Move an open node towards the top of the heap while it is better than its parent
+void CvAStar::SiftUpOpenNode(int iIndex)
+{
+	PrNodeIsBetter isWorse; //sorts the best node first, so it returns true if lhs is worse than rhs
+	CvAStarNode* node = m_openNodes[iIndex];
+	while (iIndex > 0)
+	{
+		int iParent = (iIndex - 1) / 2;
+		CvAStarNode* parent = m_openNodes[iParent];
+		if (!isWorse(parent, node))
+			break;
+
+		m_openNodes[iIndex] = parent;
+		parent->m_iOpenListIndex = iIndex;
+		iIndex = iParent;
+	}
+	m_openNodes[iIndex] = node;
+	node->m_iOpenListIndex = iIndex;
+}
+
+//	--------------------------------------------------------------------------------
+/// Move an open node towards the bottom of the heap while one of its children is better
+void CvAStar::SiftDownOpenNode(int iIndex)
+{
+	PrNodeIsBetter isWorse; //sorts the best node first, so it returns true if lhs is worse than rhs
+	int iSize = (int)m_openNodes.size();
+	CvAStarNode* node = m_openNodes[iIndex];
+	while (true)
+	{
+		int iChild = 2 * iIndex + 1;
+		if (iChild >= iSize)
+			break;
+
+		//pick the better child
+		if (iChild + 1 < iSize && isWorse(m_openNodes[iChild], m_openNodes[iChild + 1]))
+			iChild++;
+
+		if (!isWorse(node, m_openNodes[iChild]))
+			break;
+
+		m_openNodes[iIndex] = m_openNodes[iChild];
+		m_openNodes[iIndex]->m_iOpenListIndex = iIndex;
+		iIndex = iChild;
+	}
+	m_openNodes[iIndex] = node;
+	node->m_iOpenListIndex = iIndex;
 }
 
 // --------------------
@@ -581,7 +644,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	{
 		vector<pair<int, int>> extraChildren;
 		GetExtraChildren(node,extraChildren);
-		if (extraChildren.size() > 0)
+		if (!extraChildren.empty())
 		{
 			// update the cache flags if we have found extra children
 			if (node->m_kCostCacheData.bCanAirliftFromPlotCity)
@@ -660,9 +723,8 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 	{
 		if(iKnownCost < check->m_iKnownCost)
 		{
-			//heap order will be restored when calling getBest
-			m_bHeapDirty = true;
 			NodeAddedToPath(node, check, iKnownCost, ASNC_OPENADD_UP);
+			UpdateOpenNode(check);
 		}
 	}
 	//is the new node on the closed list?
@@ -701,7 +763,7 @@ void CvAStar::AddToOpen(CvAStarNode* addnode)
 {
 	addnode->m_bIsOpen = true;
 	m_openNodes.push_back(addnode);
-	std::push_heap(m_openNodes.begin(),m_openNodes.end(),PrNodeIsBetter());
+	SiftUpOpenNode((int)m_openNodes.size() - 1);
 }
 
 const CvAStarNode * CvAStar::GetNode(int iCol, int iRow) const
@@ -732,12 +794,11 @@ void CvAStar::UpdateDownstreamNodes(CvAStarNode* node)
 
 			if(iKnownCost < kid->m_iKnownCost)
 			{
-				//heap order will be restored when calling getBest()
-				if (kid->m_bIsOpen)
-					m_bHeapDirty = true;
-
 				//also need to check closed nodes, they might have open children!
 				NodeAddedToPath(parent, kid, iKnownCost, ASNC_PARENTADD_UP);
+
+				if (kid->m_bIsOpen)
+					UpdateOpenNode(kid);
 
 				if (std::find(storedNodes.begin(),storedNodes.end(),kid) == storedNodes.end())
 					storedNodes.push_back(kid);
@@ -1048,18 +1109,18 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 	if (iToX==-1 || iToY==-1)
 		return false;
 
-	int iDistance = ::plotDistance(iToX, iToY, GetDestX(), GetDestY());
 	if ( HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING2) )
 	{
+		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
+		int iDistance = ::plotDistance(iToX, iToY, GetDestX(), GetDestY());
+		if (iDistance > 2 || iDistance < 1)
+			return false;
+
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN))
 			if (GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
 				return false;
 
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
-			return false;
-
-		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
-		if (iDistance > 2 || iDistance < 1)
 			return false;
 
 		//need to make sure there are no mountains/ice plots in between
@@ -1067,15 +1128,15 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 	}
 	else if ( HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1) )
 	{
+		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
+		if (::plotDistance(iToX, iToY, GetDestX(), GetDestY()) != 1)
+			return false;
+
 		if (HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN))
 			if (GetNode(iToX,iToY)->m_kCostCacheData.bIsNonNativeDomain)
 				return false;
 
 		if (!CanEndTurnAtNode(GetNode(iToX, iToY)))
-			return false;
-
-		//the main check (do not allow the actual target plot! it's probably occupied by the enemy)
-		if (iDistance != 1)
 			return false;
 
 		return true;
@@ -2265,7 +2326,7 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 
 			for (vector<PlayerTypes>::iterator it = vFriendlyPlayers.begin(); it != vFriendlyPlayers.end(); ++it)
 			{
-				int iCityLoop;
+				int iCityLoop = 0;
 				CvCity* pLoopCity = NULL;
 				for (pLoopCity = GET_PLAYER(*it).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iCityLoop))
 				{
@@ -2313,7 +2374,7 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 
 			for (vector<PlayerTypes>::iterator it = vFriendlyPlayers.begin(); it != vFriendlyPlayers.end(); ++it)
 			{
-				int iCityLoop;
+				int iCityLoop = 0;
 				CvCity* pLoopCity = NULL;
 				for (pLoopCity = GET_PLAYER(*it).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iCityLoop))
 				{
@@ -2340,7 +2401,7 @@ int UnitPathGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vec
 		if (finder->IsChangePortCitiesChecked())
 			return 0;
 
-		int iCityLoop;
+		int iCityLoop = 0;
 		CvCity* pLoopCity = NULL;
 		for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
@@ -2522,24 +2583,60 @@ static int SeaWorkerUnitSafeValid(const CvAStarNode* parent, const CvAStarNode* 
 	return TRUE;
 }
 
-int LandUnitSimpleValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
+//the plot test of LandUnitSimpleValid, shared with GetPlotsInReachSimple
+static int LandUnitSimplePlotValid(CvPlot* pToPlot, const SPathFinderUserData& data, bool bNoEmbark)
 {
-	if (parent == NULL)
-		return TRUE;
-
-	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY); 
-
 	//can't go into the dark
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
 	if (!pToPlot->isRevealed(kPlayer.getTeam()))
 		return FALSE;
 
 	//check terrain
-	if (pToPlot->isWater() && finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK))
+	if (pToPlot->isWater() && bNoEmbark)
 		return FALSE;
 	if (pToPlot->isDeepWater() && !kPlayer.CanCrossOcean())
 		return FALSE;
 	if (pToPlot->isMountain() && !kPlayer.CanCrossMountain())
+		return FALSE;
+	if (pToPlot->isIce() && !kPlayer.CanCrossIce())
+		return FALSE;
+
+	//check ownership
+	PlayerTypes ePlotOwner = pToPlot->getOwner();
+	if (ePlotOwner == NO_PLAYER || pToPlot->IsFriendlyTerritory(data.ePlayer))
+		return TRUE;
+
+	if (kPlayer.IsAtWarWith(ePlotOwner))
+		return TRUE;
+
+	if (!GET_PLAYER(ePlotOwner).isMajorCiv())
+		return TRUE;
+
+	return FALSE;
+}
+
+int LandUnitSimpleValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
+{
+	if (parent == NULL)
+		return TRUE;
+
+	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+
+	return LandUnitSimplePlotValid(pToPlot, data, finder->HaveFlag(CvUnit::MOVEFLAG_NO_EMBARK));
+}
+
+//the plot test of NavalUnitSimpleValid, shared with GetPlotsInReachSimple
+static int NavalUnitSimplePlotValid(CvPlot* pToPlot, const SPathFinderUserData& data, bool bNoOcean)
+{
+	//can't go into the dark
+	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
+	if (!pToPlot->isRevealed(kPlayer.getTeam()))
+		return FALSE;
+
+	//check terrain
+	if (!pToPlot->isWater() && !pToPlot->isCoastalCityOrPassableImprovement(data.ePlayer, false, true))
+		return FALSE;
+	if (pToPlot->isDeepWater() && bNoOcean)
 		return FALSE;
 	if (pToPlot->isIce() && !kPlayer.CanCrossIce())
 		return FALSE;
@@ -2565,31 +2662,76 @@ int NavalUnitSimpleValid(const CvAStarNode* parent, const CvAStarNode* node, con
 
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
-	//can't go into the dark
-	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
-	if (!pToPlot->isRevealed(kPlayer.getTeam()))
-		return FALSE;
+	return NavalUnitSimplePlotValid(pToPlot, data, finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN));
+}
 
-	//check terrain
-	if (!pToPlot->isWater() && !pToPlot->isCoastalCityOrPassableImprovement(data.ePlayer, false, true))
-		return FALSE;
-	if (pToPlot->isDeepWater() && finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN))
-		return FALSE;
-	if (pToPlot->isIce() && !kPlayer.CanCrossIce())
-		return FALSE;
+//	--------------------------------------------------------------------------------
+/// The same plots and records as GC.GetStepFinder().GetPlotsInReach(pStartPlot, data) for PT_LAND_UNIT_SIMPLE and
+/// PT_NAVAL_UNIT_SIMPLE without limits, found by a breadth-first search instead of the A* machinery.
+/// In the step finder these searches have no destination, so the heuristic is 0; the step cost is the constant
+/// PATH_BASE_COST (no cost function); the validity test reads only the plot (the parent is only tested for NULL);
+/// there are no extra children and every node can end the turn. Nodes are therefore expanded in order of their step
+/// count, a node's first link is already its shortest one, and each reached node ends with m_iTurns = its step count
+/// from the start over plots that pass the test, m_iMoves = 0 and m_iKnownCost = steps * PATH_BASE_COST. Here each
+/// plot is tested once, the records are the ones GetPlotsInReach builds from those values. Only the storage order
+/// differs (breadth-first instead of the closed-list order); lookups go through the index.
+ReachablePlots GetPlotsInReachSimple(const CvPlot* pStartPlot, const SPathFinderUserData& data)
+{
+	if (!pStartPlot)
+		return ReachablePlots();
 
-	//check ownership
-	PlayerTypes ePlotOwner = pToPlot->getOwner();
-	if (ePlotOwner == NO_PLAYER || pToPlot->IsFriendlyTerritory(data.ePlayer))
-		return TRUE;
+	//anything else is left to the step finder
+	if ((data.ePath != PT_LAND_UNIT_SIMPLE && data.ePath != PT_NAVAL_UNIT_SIMPLE) ||
+		data.iMaxTurns != INT_MAX || data.iMaxNormalizedDistance != INT_MAX || data.iMinMovesLeft > 0)
+		return GC.GetStepFinder().GetPlotsInReach(pStartPlot, data);
 
-	if (kPlayer.IsAtWarWith(ePlotOwner))
-		return TRUE;
+	bool bNaval = (data.ePath == PT_NAVAL_UNIT_SIMPLE);
+	int iFlag = bNaval ? CvUnit::MOVEFLAG_NO_OCEAN : CvUnit::MOVEFLAG_NO_EMBARK;
+	bool bFlag = ((data.iFlags & iFlag) == iFlag); //CvAStar::HaveFlag on the configured data
+	int iNormalizedDistanceBase = SPath::getNormalizedDistanceBase();
 
-	if (!GET_PLAYER(ePlotOwner).isMajorCiv())
-		return TRUE;
+	CvMap& kMap = GC.getMap();
+	int iNumPlots = kMap.numPlots();
+	vector<unsigned char> vTouched(iNumPlots, 0);
+	vector<int> vSteps(iNumPlots, 0);
+	vector<int> vQueue;
+	vQueue.reserve(iNumPlots);
 
-	return FALSE;
+	ReachablePlots plots;
+	int iStart = pStartPlot->GetPlotIndex();
+	vTouched[iStart] = 1;
+	vQueue.push_back(iStart);
+	for (size_t iHead = 0; iHead < vQueue.size(); iHead++)
+	{
+		int iPlot = vQueue[iHead];
+		int iSteps = vSteps[iPlot];
+		int iKnownCost = iSteps * PATH_BASE_COST;
+		plots.insertNoIndex(SMovePlot(iPlot, iSteps, 0, (iKnownCost * iNormalizedDistanceBase) / PATH_BASE_COST + 1));
+
+		CvPlot** aNeighbors = kMap.getNeighborsUnchecked(iPlot);
+		for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+		{
+			CvPlot* pNeighbor = aNeighbors[i];
+			if (!pNeighbor)
+				continue;
+
+			int iNeighbor = pNeighbor->GetPlotIndex();
+			if (vTouched[iNeighbor])
+				continue;
+
+			//the test depends on the plot only, so one evaluation decides
+			vTouched[iNeighbor] = 1;
+			int bValid = bNaval ? NavalUnitSimplePlotValid(pNeighbor, data, bFlag) : LandUnitSimplePlotValid(pNeighbor, data, bFlag);
+			if (bValid)
+			{
+				vSteps[iNeighbor] = iSteps + 1;
+				vQueue.push_back(iNeighbor);
+			}
+		}
+	}
+
+	plots.createIndex();
+	return plots;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2627,11 +2769,8 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 		}
 	}
 
-	if (eBuilderTaskingAi->WillNeverBuildVillageOnPlot(pPlot, eRouteType, false/*bIgnoreUnowned*/))
-		return 0;
-
-	// Villages and towns can be built pretty much anywhere
-	return 2;
+	// Scaled by how much a village would beat the alternatives here, below existing villages and planned routes
+	return 60 * eBuilderTaskingAi->GetRouteImprovementGainPercent(pPlot) / 100;
 }
 
 //	--------------------------------------------------------------------------------
@@ -3036,7 +3175,6 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 			return false;
 
 		CvAStarNode* pStopNode = GetPartialMoveNode(current->m_iX, current->m_iY);
-		UpdateNodeCacheData( pStopNode,pUnitDataCache->pUnit,this );
 
 		//assume a stop here
 		//cost is the same plus a little bit to encourage going the full distance when in doubt

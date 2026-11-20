@@ -230,3 +230,8 @@ function Plot:CalculateYield(eYield, bDisplay) end
 --- @return integer
 --- @nodiscard
 function Plot:GetNumResource() end
+
+--- TODO docs
+--- @return City | nil
+--- @nodiscard
+function Plot:GetWorkingCity() end

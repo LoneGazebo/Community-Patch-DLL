@@ -246,13 +246,13 @@ void ReadDataArray(FDataStream& kStream, TData* paArray, int iArraySize)
 template<typename TData>
 void ReadHashedDataArray(FDataStream& kStream, TData* paArray, int iArraySize)
 {
-	uint uiNumEntries;
+	uint uiNumEntries = 0;
 
 	kStream >> uiNumEntries;
 
 	for(uint iI = 0; iI < uiNumEntries; iI++)
 	{
-		bool bValid;
+		bool bValid = false;
 		int iType = ReadHashed(kStream, &bValid);
 		if(iType != -1)
 		{
@@ -505,7 +505,7 @@ bool ReadAndRemapDataArray(FDataStream& kStream, int iSrcCount, TType* pvDest, i
 template<typename TType>
 void ReadTypeArrayDBLookup(FDataStream& kStream, std::vector<TType>& aArray, const char* szTable)
 {
-	uint uiNumEntries;
+	uint uiNumEntries = 0;
 	kStream >> uiNumEntries;
 
 	if(aArray.size() < uiNumEntries)

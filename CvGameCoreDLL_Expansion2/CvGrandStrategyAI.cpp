@@ -1780,7 +1780,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 					vGrandStrategyPrioritiesForLogging.push_back(iPriority);
 				}
 
-				if(vGrandStrategyPriorities.size() > 0)
+				if(!vGrandStrategyPriorities.empty())
 				{
 					// Add "No Grand Strategy" in case we just don't have enough info to go on
 					iPriority = /*40*/ GD_INT_GET(AI_GRAND_STRATEGY_GUESS_NO_CLUE_WEIGHT);
@@ -2236,15 +2236,8 @@ void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const vector<int>& vGra
 			CvAIGrandStrategyXMLEntry* pEntry = GC.getAIGrandStrategyInfo(eGrandStrategy);
 			const char* szGrandStrategyType = (pEntry != NULL)? pEntry->GetType() : "Unknown Strategy";
 
-			// GrandStrategy Info
-			if(GetActiveGrandStrategy() == eGrandStrategy)
-			{
-				strTemp.Format("*** %s, %d", szGrandStrategyType, iPriority);
-			}
-			else
-			{
-				strTemp.Format("%s, %d", szGrandStrategyType, iPriority);
-			}
+			
+			strTemp.Format("%s, %d", szGrandStrategyType, iPriority);
 			otherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 			strOutBuf = strBaseString + otherPlayerName + ", " + strTemp;
 

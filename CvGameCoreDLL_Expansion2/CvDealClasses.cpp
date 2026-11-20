@@ -991,7 +991,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Thoroughly check for invalid targets!
-			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers();
+			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+			vector<PlayerTypes> vToTeam = pToTeam->getPlayers();
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -2916,7 +2917,9 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			}
 
 			// Check for Declarations of Friendship
-			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers(), vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
+			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+			vector<PlayerTypes> vToTeam = pToTeam->getPlayers();
+			vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
 			for (size_t i=0; i < vFromTeam.size(); i++)
 			{
 				if (!GET_PLAYER(vFromTeam[i]).isAlive() || !GET_PLAYER(vFromTeam[i]).isMajorCiv())
@@ -4204,8 +4207,8 @@ void CvDeal::RemoveTechTrade(TechTypes eTech)
 
 /// Constructor
 CvGameDeals::CvGameDeals()
-	: m_uiDealCounter(0)
-	, m_iNextDealID(0)
+	: m_iNextDealID(0)
+	, m_uiDealCounter(0)
 {
 	Init();
 }
@@ -5419,8 +5422,8 @@ bool CvGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPla
 
 CvDeal* CvGameDeals::GetProposedMPDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool latest)
 {
-	int start = latest ? m_ProposedDeals.size() - 1 : 0;
-	int end = latest ? -1 : m_ProposedDeals.size();
+	int start = latest ? static_cast<int>(m_ProposedDeals.size()) - 1 : 0;
+	int end = latest ? -1 : static_cast<int>(m_ProposedDeals.size());
 	int inc = latest ? -1 : 1;
 	for (int i = start; i != end; i += inc)
 	{
@@ -6371,7 +6374,7 @@ CvDeal* CvGameDeals::GetHistoricDeal(PlayerTypes ePlayer, uint index)
 	{
 		//iterate backwards, usually the latest deals are most interesting
 		uint iCount = 0;
-		for (int i = m_HistoricalDeals.size() - 1; i >= 0; --i)
+		for (int i = static_cast<int>(m_HistoricalDeals.size()) - 1; i >= 0; --i)
 		{
 			CvDeal& kDeal = m_HistoricalDeals[i];
 			if((kDeal.m_eToPlayer == ePlayer || kDeal.m_eFromPlayer == ePlayer) && (iCount++ == index))

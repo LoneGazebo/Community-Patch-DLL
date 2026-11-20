@@ -12,6 +12,11 @@ INSERT INTO Trait_YieldChangesStrategicResources
 VALUES
 	('TRAIT_BONUS_AGAINST_TECH', 'YIELD_FAITH', 1);
 
+INSERT INTO Trait_GoldenAgeYieldModifiers
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_BONUS_AGAINST_TECH', 'YIELD_FAITH', 25);
+
 ----------------------------------------------------------
 -- Unique Unit: Chewa (Longswordsman)
 ----------------------------------------------------------
@@ -127,7 +132,7 @@ UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_STELE_HELP'
 WHERE Type = 'BUILDING_STELE';
 
-INSERT INTO Building_GoldenAgeYieldMod
+INSERT INTO Building_YieldFromTech
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_STELE', 'YIELD_FAITH', 25);
+	('BUILDING_STELE', 'YIELD_GOLDEN_AGE_POINTS', 5);

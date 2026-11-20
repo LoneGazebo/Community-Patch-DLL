@@ -10,20 +10,15 @@
 #ifndef CVLUALEAGUE_H
 #define CVLUALEAGUE_H
 
-#include "CvLuaScopedInstance.h"
+#include "!CvLuaApiInstanceTemplates.h"
+#include "CvVotingClasses.h"
 
 
-class CvLuaLeague : public CvLuaScopedInstance<CvLuaLeague, CvLeague>
+class CvLuaLeague : public CvLuaDynamicInstance<CvLuaLeague, CvLeague>
 {
 public:
 	//! Push CvLeague methods into table t
-	static void PushMethods(lua_State* L, int t);
-
-	//! Error handle for missing instances
-	static void HandleMissingInstance(lua_State* L);
-
-	//! Gets the type name
-	static const char* GetTypeName();
+	static void CreateFunctable(lua_State* L);
 
 protected:
 
@@ -103,34 +98,5 @@ protected:
 	static int lResolutionTableHelper(lua_State* L, const int iTop, CvResolution &resolution);
 	static int lProposalTableHelper(lua_State* L, const int iTop, CvProposal &proposal);
 };
-
-namespace CvLuaArgs
-{
-	template<> inline const CvLeague* toValue(lua_State* L, int idx)
-	{
-		return CvLuaLeague::GetInstance(L, idx);
-	}
-	template<> inline CvLeague* toValue(lua_State* L, int idx)
-	{
-		return CvLuaLeague::GetInstance(L, idx);
-	}
-	template<> inline const CvLeague& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaLeague::GetInstance(L, idx);
-	}
-	template<> inline CvLeague& toValue(lua_State* L, int idx)
-	{
-		return *CvLuaLeague::GetInstance(L, idx);
-	}
-
-	template<> inline void pushValue(lua_State* L, CvLeague* p)
-	{
-		CvLuaLeague::Push(L, p);
-	}
-	template<> inline void pushValue(lua_State* L, CvLeague& r)
-	{
-		CvLuaLeague::Push(L, &r);
-	}
-}
 
 #endif //CVLUALEAGUE_H

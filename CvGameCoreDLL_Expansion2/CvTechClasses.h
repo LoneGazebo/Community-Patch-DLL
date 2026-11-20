@@ -350,6 +350,8 @@ private:
 	int* m_paiTechCount;
 	CvTechXMLEntries* m_pTechs;
 	CvTeam* m_pTeam;
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 FDataStream& operator<<(FDataStream&, const CvTeamTechs&);
 FDataStream& operator>>(FDataStream&, CvTeamTechs&);

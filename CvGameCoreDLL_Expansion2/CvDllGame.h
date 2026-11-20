@@ -31,8 +31,6 @@ public:
 	TeamTypes DLLCALL GetActiveTeam();
 	int DLLCALL GetGameTurn() const;
 
-	void InitExeStuff();
-
 	void DLLCALL ChangeNumGameTurnActive(int iChange, const char* why);
 	int DLLCALL CountHumanPlayersAlive() const;
 	int DLLCALL CountNumHumanGameTurnActive();

@@ -8,18 +8,16 @@
 
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
-#include "../CustomMods.h"
-#include "CvLuaSupport.h"
 #include "CvLuaArea.h"
-#include "CvLuaCity.h"
+#include "../CustomMods.h"
 
 //Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
+#define Method(Name) lua_pushcclosure(L, l##Name, 0); lua_setfield(L, 1, #Name);
 
-void CvLuaArea::PushMethods(lua_State* L, int t)
+void CvLuaArea::CreateFunctable(lua_State* L)
 {
+	lua_createtable(L,0,32);
+	
 	Method(IsNone);
 
 	Method(CalculateTotalBestNatureYield);
@@ -51,16 +49,6 @@ void CvLuaArea::PushMethods(lua_State* L, int t)
 	Method(GetNumResources);
 	Method(GetNumTotalResources);
 	Method(GetNumImprovements);
-}
-//------------------------------------------------------------------------------
-void CvLuaArea::HandleMissingInstance(lua_State* L)
-{
-	DefaultHandleMissingInstance(L);
-}
-//------------------------------------------------------------------------------
-const char* CvLuaArea::GetTypeName()
-{
-	return "Area";
 }
 //------------------------------------------------------------------------------
 
@@ -288,7 +276,7 @@ int CvLuaArea::lGetTargetCity(lua_State* L)
 	const PlayerTypes eIndex = (PlayerTypes)lua_tointeger(L, 2);
 
 	CvCity* pkCity = pkArea->getTargetCity(eIndex);
-	CvLuaCity::Push(L, pkCity);
+	luaEx_pushCity(L, pkCity);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -335,3 +323,5 @@ int CvLuaArea::lGetNumImprovements(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+LuaTypes_DefineInstanced( CvArea, CvLuaArea );

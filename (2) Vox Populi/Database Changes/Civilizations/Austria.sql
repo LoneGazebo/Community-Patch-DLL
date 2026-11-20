@@ -51,10 +51,15 @@ SET
 	)
 WHERE Type = 'UNIT_GRENZER';
 
+DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_GRENZER' AND PromotionType = 'PROMOTION_FIELD_WORKS_1';
+
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
-	('UNIT_GRENZER', 'PROMOTION_FRONTIERSMAN');
+	('UNIT_GRENZER', 'PROMOTION_FRONTIERSMAN'),
+	('UNIT_GRENZER', 'PROMOTION_FIELD_WORKS_0'),
+	('UNIT_GRENZER', 'PROMOTION_IGNORE_TERRAIN_COST'),
+	('UNIT_GRENZER', 'PROMOTION_CAN_MOVE_AFTER_ATTACKING');
 
 ----------------------------------------------------------
 -- Unique Building: Ballhausplatz (Ministerial District)

@@ -15,7 +15,7 @@ SET Text = 'Fishing is the activity of trying to catch fish. Fishing usually tak
 WHERE Tag = 'TXT_KEY_TECH_SAILING_DESC';
 
 UPDATE Language_en_US
-SET Text = 'Allows land units to [COLOR_POSITIVE_TEXT]Embark[ENDCOLOR] onto water tiles and travel along the coast. Also allows you to build Work Boats, useful for harvesting resources in the water like [ICON_RES_FISH] [COLOR_POSITIVE_TEXT]Fish[ENDCOLOR] and [ICON_RES_PEARLS] [COLOR_POSITIVE_TEXT]Pearls[ENDCOLOR].'
+SET Text = 'Allows land units to [COLOR_POSITIVE_TEXT]Embark[ENDCOLOR] onto water tiles and travel along the coast. Also allows you to build Fishing Boats with Workers to connect resources in the water like [ICON_RES_FISH] [COLOR_POSITIVE_TEXT]Fish[ENDCOLOR] and [ICON_RES_PEARLS] [COLOR_POSITIVE_TEXT]Pearls[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_TECH_SAILING_HELP';
 
 UPDATE Language_en_US
@@ -146,7 +146,7 @@ WHERE Tag = 'TXT_KEY_TECH_COMBINED_ARMS_HELP';
 
 -- Refrigeration
 UPDATE Language_en_US
-SET Text = 'Allows Work Boats to construct an Offshore Platform, and increases [ICON_CARGO_SHIP] Trade Route maximum travel distance.'
+SET Text = 'Allows Workers to construct Offshore Platforms, and increases [ICON_CARGO_SHIP] Trade Route maximum travel distance.'
 WHERE Tag = 'TXT_KEY_TECH_REFRIGERATION_HELP';
 
 -- Flight

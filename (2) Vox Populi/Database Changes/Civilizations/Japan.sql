@@ -93,14 +93,10 @@ UPDATE Building_YieldChanges
 SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_FORGE' AND YieldType = 'YIELD_SCIENCE') + 1
 WHERE BuildingType = 'BUILDING_TATARA' AND YieldType = 'YIELD_SCIENCE';
 
-UPDATE Buildings
-SET SpecialistCount = (SELECT SpecialistCount FROM Buildings WHERE Type = 'BUILDING_FORGE') + 1
-WHERE Type = 'BUILDING_TATARA';
-
-INSERT INTO Building_ResourcePlotsToPlace
-	(BuildingType, ResourceType, NumPlots, ResourceQuantityToPlace)
+INSERT INTO Building_ResourceQuantity
+	(BuildingType, ResourceType, Quantity)
 VALUES
-	('BUILDING_TATARA', 'RESOURCE_IRON', 1, 1);
+	('BUILDING_TATARA', 'RESOURCE_IRON', 1);
 
 INSERT INTO Building_ResourceClaim
 	(BuildingType, ResourceType, IncludeOwnedByOtherPlayer)
@@ -115,8 +111,8 @@ VALUES
 INSERT INTO Building_YieldFromCombatExperienceTimes100
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_TATARA', 'YIELD_CULTURE', 140),
-	('BUILDING_TATARA', 'YIELD_SCIENCE', 140);
+	('BUILDING_TATARA', 'YIELD_CULTURE', 100),
+	('BUILDING_TATARA', 'YIELD_SCIENCE', 100);
 
 ----------------------------------------------------------
 -- Unique Improvement: Torii

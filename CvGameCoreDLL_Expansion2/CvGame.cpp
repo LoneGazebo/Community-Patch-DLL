@@ -81,6 +81,7 @@ extern "C" __declspec(dllimport) long __stdcall CoCreateGuid(GUID* pguid);
 #include "LintFree.h"
 
 int GetNextGlobalID() { return GC.getGame().GetNextGlobalID(); }
+unsigned long g_ulTContainerCacheThread = 0;
 int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
 
 struct stringHash
@@ -548,9 +549,9 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 				lua_State* L = pkScriptSystem->CreateLuaThread("WorldBuilderMapLoader");
 				if(L != NULL)
 				{
-					lua_cpcall(L, &WorldBuilderMapLoaderAddRandomItems, 0);
-					lua_cpcall(L, &WorldBuilderMapLoaderLoadModData, 0);
-					lua_cpcall(L, &WorldBuilderMapLoaderRunPostProcessScript, 0);
+					LuaSupport::LuaPCall(L, &WorldBuilderMapLoaderAddRandomItems);
+					LuaSupport::LuaPCall(L, &WorldBuilderMapLoaderLoadModData);
+					LuaSupport::LuaPCall(L, &WorldBuilderMapLoaderRunPostProcessScript);
 
 					pkScriptSystem->FreeLuaThread(L);
 				}
@@ -1292,7 +1293,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		DWORD dwDeleteError = GetLastError();
 		if(dwDeleteError != ERROR_FILE_NOT_FOUND)
 		{
-			const char* szReason;
+			const char* szReason = NULL;
 			switch(dwDeleteError)
 			{
 			case ERROR_SHARING_VIOLATION:
@@ -1621,6 +1622,7 @@ bool ExternalPause()
 //	---------------------------------------------------------------------------
 void CvGame::update()
 {
+	g_ulTContainerCacheThread = GetCurrentThreadId(); // see TContainer::Get
 	if(IsWaitingForBlockingInput())
 	{
 		if(!GC.GetEngineUserInterface()->isDiploActive())
@@ -6361,6 +6363,10 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat, bool bAu
 			// the player the update is for, so listeners will want to get the player change message first
 			gDLL->PublishActivePlayer(eNewValue, eOldActivePlayer);
 
+			// the EXE's trade route overlay holds only the active player's routes
+			if (m_pGameTrade != NULL)
+				m_pGameTrade->RefreshTradeRouteVisuals();
+
 			CvMap& theMap = GC.getMap();
 			theMap.updateFog();
 			theMap.updateVisibility();
@@ -8643,7 +8649,7 @@ void CvGame::doTurn()
 				}
 			}
 		}
-		if (vTeams.size() > 0)
+		if (!vTeams.empty())
 			GC.getMap().verifyUnitValidPlot(vTeams);
 	}
 
@@ -8970,7 +8976,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 		}
 		// we didn't find any candidates! try again with all UUs
-		if (veUnitRankings.size() <= 0)
+		if (veUnitRankings.empty())
 			bIncludeCivsInGame = true;
 		else
 			break;
@@ -9115,17 +9121,9 @@ void CvGame::updateMoves()
 
 		if(player.isAlive())
 		{
-			if (player.isHuman())
-			{
-				if (GC.getGame().getActivePlayer() == player.GetID())
-				{
-					GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
-				}
-			}
-			else
-			{
-				GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
-			}
+			// Set on every machine, humans included: CvPlot uses this player for the tactical AI's
+			// incremental visibility updates while units move, which danger and tactical moves read.
+			GC.getGame().SetCurrentVisibilityPlayer(player.GetID());
 
 			bool bAutomatedUnitNeedsUpdate = player.hasUnitsThatNeedAIUpdate();
 			bool bHomelandAINeedsUpdate = player.GetHomelandAI()->NeedsUpdate();
@@ -12516,7 +12514,7 @@ void CvGame::LogMapState() const
 	if (GC.getGame().getElapsedGameTurns() < 1)
 	{
 		CvString strMapName;
-		strMapName = strMapName.format("Maps\\Civ5MapmapState_Turn%03d.Civ5Map", GC.getGame().getElapsedGameTurns());
+		strMapName = CvString::format("Maps\\Civ5MapmapState_Turn%03d.Civ5Map", GC.getGame().getElapsedGameTurns());
 
 		const char* sz_strMapName = strMapName.c_str();
 		std::vector<wchar_t> vec;
@@ -12538,8 +12536,11 @@ void CvGame::LogMapState() const
 	 * construct a json string with this info that will be merged with the map json representation in a script later
 	 */
 	CvString strLogName;
-	strLogName = strLogName.format("mapStateLog_Turn%03d.json", GC.getGame().getElapsedGameTurns());
+	strLogName = CvString::format("mapStateLog_Turn%03d.json", GC.getGame().getElapsedGameTurns());
 	FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+	if (!pLog)
+		return;
+
 	CvString outputJson = "{\"MapData\": {";
 	CvString strTemp;
 
@@ -12686,6 +12687,11 @@ void CvGame::LogMapState() const
 	// File format seems to want this weird CityOwnerIndexMap thing so ok
 	outputJson += "\"CityOwnerIndexMap\":{}}}";
 	pLog->Msg(outputJson);
+
+	pLog->Close();
+	//the turn number is part of the filename, so this log is never requested again.
+	//without this the manager keeps it - and its grown write buffer - until shutdown.
+	LOGFILEMGR.DeleteLog( pLog );
 }
 
 void CvGame::LogMapPlotsState() const
@@ -14630,38 +14636,6 @@ TeamTypes CvGame::GetCurrentVisibilityTeam() const
 	return m_eCurrentVisibilityTeam;
 }
 
-//	--------------------------------------------------------------------------------
-// exe things
-
-void CvGame::SetExeBinType(CvBinType eBinType)
-{
-	m_eExeBinType = eBinType;
-}
-CvBinType CvGame::GetExeBinType() const
-{
-	return m_eExeBinType;
-}
-bool CvGame::IsExeWantForceResyncAvailable() 
-{
-	return MOD_BIN_HOOKS && (m_eExeBinType == BIN_DX11 || m_eExeBinType == BIN_DX9 || m_eExeBinType == BIN_TABLET) && isNetworkMultiPlayer() && gDLL->IsHost();
-}
-void CvGame::SetExeWantForceResyncValue(int value) 
-{
-	if (IsExeWantForceResyncAvailable())
-	{
-		*s_iExeWantForceResync = value;
-		if (value == 1)
-		{
-			CvString strWarningText = GetLocalizedText("TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED");
-			GC.getDLLIFace()->sendChat(strWarningText, CHATTARGET_ALL, NO_PLAYER);
-		}
-	}
-}
-void CvGame::SetExeWantForceResyncPointer(int* pointer)
-{
-	s_iExeWantForceResync = pointer;
-}
-
 // Modpack making functions by Gedemon/cicero225
 bool CvGame::DeleteMPMP()
 {
@@ -14803,7 +14777,7 @@ bool CvGame::CopyModDataToMPMP(const char* szModName, const char* szId, const ch
 
 	// Check mod folder for correct mod, which has the correct id and version in its .modinfo
 	CvString strFolderPath = GetModFromIdAndVersion(strModsPath, szModName, szId, szVersion);
-	if (strFolderPath.size() == 0)
+	if (strFolderPath.empty())
 	{
 		pLog->Msg("Copying mod failed: Folder Not Found");
 		pLog->Msg("--------------------------------------------------------------------------------");

@@ -88,9 +88,11 @@ VALUES
 	('TECH_WRITING', 'FLAVOR_WONDER', 10),
 	('TECH_WRITING', 'FLAVOR_DIPLOMACY', 15),
 
-	('TECH_MATHEMATICS', 'FLAVOR_RANGED', 10), -- Units: Skirmisher, Wonders: Hanging Gardens, Roman Forum
+	('TECH_MATHEMATICS', 'FLAVOR_RANGED', 10), -- Units: Skirmisher, Buildings: MasterShipwright, Wonders: Hanging Gardens, Roman Forum
 	('TECH_MATHEMATICS', 'FLAVOR_MOBILE', 10),
 	('TECH_MATHEMATICS', 'FLAVOR_WONDER', 20),
+	('TECH_MATHEMATICS', 'FLAVOR_NAVAL', 10),
+	('TECH_MATHEMATICS', 'FLAVOR_NAVAL_GROWTH', 10),
 
 	('TECH_CONSTRUCTION', 'FLAVOR_PRODUCTION', 15), -- Masonry // Units: Catapult, Buildings: WaterMill, Arena, Wonders: Terracotta, Ability: Faster on Road
 	('TECH_CONSTRUCTION', 'FLAVOR_GROWTH', 5),

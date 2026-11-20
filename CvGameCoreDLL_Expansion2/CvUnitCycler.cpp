@@ -123,7 +123,8 @@ void CvUnitCycler::Rebuild(CvUnit* pkStartUnit /* = NULL */)
 			tour.push_back(pNode->m_data);
 
 		// Cache unit positions
-		std::vector<int> posX(iSize), posY(iSize);
+		std::vector<int> posX(iSize);
+		std::vector<int> posY(iSize);
 		for (int i = 0; i < iSize; i++)
 		{
 			CvUnit* pUnit = m_pkPlayer->getUnit(tour[i]);

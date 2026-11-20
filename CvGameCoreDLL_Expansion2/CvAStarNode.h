@@ -138,6 +138,7 @@ public:
 
 	bool m_bIsOpen;								// Is this node on the open or closed list?
 	bool m_bIsStopNode;
+	int m_iOpenListIndex;						// Position in the open list heap, -1 if not open
 	CvAStarNode* m_pParent;						// Parent in current path
 
 	CvAStarNode** m_apNeighbors; 				// For faster neighbor lookup (potential children) - always 6 - not affected by clear()
@@ -209,7 +210,7 @@ struct SPathNode
 		y = p ? p->m_iY : -1;
 		turns = p ? p->m_iTurns : 0;
 		moves = p ? p->m_iMoves : 0;
-		stopnode = p ? p->m_bIsStopNode : 0;
+		stopnode = p ? p->m_bIsStopNode : false;
 	}
 
 	bool operator==(const SPathNode& other) const

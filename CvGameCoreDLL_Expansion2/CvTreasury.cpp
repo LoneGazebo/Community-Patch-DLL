@@ -580,7 +580,7 @@ int CvTreasury::CalculateUnitCost(int iUnits)
 	// Vassal bonus to unit maintenance costs
 	if (m_pPlayer->IsVassalOfSomeone()) 
 	{
-		dFinalCost *= 100 - /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT);
+		dFinalCost *= 100 - /*25*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT);
 		dFinalCost /= 100;
 	}
 
@@ -719,7 +719,7 @@ int CvTreasury::AverageIncome100(int iTurns)
 {
 	ASSERT(iTurns > 0, "Invalid number of turns parameter");
 
-	if(m_GoldChangeForTurnTimes100.size() > 0)
+	if(!m_GoldChangeForTurnTimes100.empty())
 	{
 		int iSamples = 0;
 		int iIndex = m_GoldChangeForTurnTimes100.size() - 1;
@@ -992,7 +992,7 @@ int CvTreasury::GetVassalGoldMaintenance(TeamTypes eTeam, bool bIncludePopulatio
 
 		if (bIncludeUnitMaintenance)
 		{
-			iExpense += std::max(0, GET_PLAYER(eLoopPlayer).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT) / 100);
+			iExpense += std::max(0, GET_PLAYER(eLoopPlayer).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*25*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT) / 100);
 		}
 
 		if (eTeam == NO_TEAM || eTeam == eLoopTeam)

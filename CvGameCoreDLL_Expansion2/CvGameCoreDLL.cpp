@@ -10,6 +10,7 @@
 #include "ICvDLLUserInterface.h"
 #include "Win32/FDebugHelper.h"
 #include "CvDllContext.h"
+#include "Lua/CvLuaSupport.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -22,7 +23,7 @@ extern "C" ICvGameContext1* DllGetGameContext()
 //------------------------------------------------------------------------------
 BOOL APIENTRY DllMain(HANDLE hModule,
                       DWORD  ul_reason_for_call,
-                      LPVOID)
+                      LPVOID lpReserved)
 {
 	switch(ul_reason_for_call)
 	{
@@ -47,6 +48,7 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 	case DLL_PROCESS_DETACH:
 		OutputDebugString("DLL_PROCESS_DETACH\n");
 		timeEndPeriod(1);
+		LuaSupport::NotifyDllUnload(lpReserved != NULL); // non-NULL: the process is exiting
 		CvDllGameContext::DestroySingleton();
 		GC.setDLLIFace(NULL);
 		break;

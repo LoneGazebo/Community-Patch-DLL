@@ -647,8 +647,11 @@ void CvBarbarians::DoCamps()
 	int iBarbCampMinDistance = /*4*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP);
 	int iRecentlyClearedCampMinDistance = /*2*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_RECENTLY_CLEARED_CAMP);
 	int iEra = GC.getGame().getCurrentEra();
-	std::vector<CvPlot*> vPotentialPlots,vPotentialCoastalPlots;
-	std::vector<int> MajorCapitals,BarbCamps,RecentlyClearedBarbCamps;
+	std::vector<CvPlot*> vPotentialPlots;
+	std::vector<CvPlot*> vPotentialCoastalPlots;
+	std::vector<int> MajorCapitals;
+	std::vector<int> BarbCamps;
+	std::vector<int> RecentlyClearedBarbCamps;
 	static ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 
 	// Iterate through all plots
@@ -825,7 +828,8 @@ void CvBarbarians::DoCamps()
 		return;
 
 	// Now go through our list of potentially eligible plots and get rid of any that aren't valid (too close to something)
-	std::vector<CvPlot*> vValidPlots,vValidCoastalPlots;
+	std::vector<CvPlot*> vValidPlots;
+	std::vector<CvPlot*> vValidCoastalPlots;
 	for (unsigned int iI = 0; iI < vPotentialPlots.size(); iI++)
 	{
 		CvPlot* pLoopPlot = vPotentialPlots[iI];
@@ -976,7 +980,7 @@ void CvBarbarians::DoCamps()
 		int iNewCampY = pPlot->getY();
 		for (unsigned int iI = 0; iI < vPotentialPlots.size(); iI++)
 		{
-			CvPlot* pLoopPlot = vValidPlots[iI];
+			CvPlot* pLoopPlot = vPotentialPlots[iI];
 
 			// Don't use the same plot again!
 			if (pLoopPlot == pPlot)

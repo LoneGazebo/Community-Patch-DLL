@@ -688,6 +688,8 @@ public:
 
 	bool isLayoutDirty() const;							// The plot layout contains resources, routes, and improvements
 	void setLayoutDirty(bool bDirty);
+	void SetCityArtRepairNeeded();
+	bool RepairCityArt();
 	bool isLayoutStateDifferent() const;
 	void setLayoutStateToCurrent();
 	void updateLayout(bool bDebug);
@@ -960,6 +962,8 @@ protected:
 	char m_cContinentType;
 	char m_cRiverCrossing;	// bit field
 
+	bool m_bCityArtRepairNeeded; // not saved; not a bit field: set by the game core thread, cleared by the main thread
+
 	bool m_bImprovementEmbassy:1;
 	bool m_bImprovementPassable:1;
 	bool m_bImprovementPillaged:1;
@@ -991,6 +995,8 @@ protected:
 
 	// added so under cheat mode we can access protected stuff
 	friend class CvGameTextMgr;
+public:
+	AutoInvalidatedPointerList m_PointerList;
 };
 FDataStream& operator<<(FDataStream&, const CvPlot* const&);
 FDataStream& operator<<(FDataStream&, CvPlot* const&);

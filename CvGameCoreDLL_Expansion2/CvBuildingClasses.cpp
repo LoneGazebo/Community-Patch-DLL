@@ -47,6 +47,8 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bRequiresPuppet(false),
+	m_iRequiredFranchises(0),
+	m_iRequiredPercentGlobalMonopolies(0),
 	m_bAllowsPuppetPurchase(false),
 	m_bNoStarvationNonSpecialist(false),
 	m_iMinimumFood(0),
@@ -254,12 +256,12 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iSeaTourism(0),
 	m_iAlwaysHeal(0),
 	m_bIsCorp(false),
+#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	m_iNukeInterceptionChance(0),
 	m_iFoodBonusPerCityMajorityFollower(0),
-#if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
+#endif
 	m_bPlayerBorderGainlessPillage(false),
 	m_bCityGainlessPillage(false),
-#endif
 	m_bPlayerBorderObstacle(false),
 	m_bCapital(false),
 	m_bGoldenAge(false),
@@ -388,8 +390,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_viResourceMonopolyOrs(),
 	m_piYieldChangePerMonopoly(NULL),
 	m_piYieldChangeFromPassingTR(NULL),
-	m_iRequiredPercentGlobalMonopolies(0),
-	m_iRequiredFranchises(0),
 	m_piYieldPerFranchise(NULL),
 	m_iGPRateModifierPerXFranchises(0),
 	m_piResourceQuantityPerXFranchises(NULL),

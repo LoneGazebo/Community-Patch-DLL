@@ -33,6 +33,7 @@
 #include "CvCitySpecializationAI.h"
 #include "CvEnumMapSerialization.h"
 #include "CvDllNetMessageExt.h"
+#include "SqliteLoggerRegistrations.h"
 
 #include "CvDllUnit.h"
 
@@ -1263,6 +1264,52 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	if (isAtWar(eTeam) && GET_TEAM(eTeam).isAtWar(GetID()))
 		return;
 
+	// stats.db: log the declaration now, before the code below cancels the friendships and pacts that explain it
+	if (MOD_SQLITE_LOGGING)
+	{
+		const char* szCause = "AGGRESSION";
+		PlayerTypes eThirdCiv = NO_PLAYER;
+		if (bDefensivePact)
+		{
+			szCause = "DEFENSIVE_PACT";
+			if (eDefensivePactTeam != NO_TEAM)
+				eThirdCiv = GET_TEAM(eDefensivePactTeam).getLeaderID();
+		}
+		else if (bMinorAllyPact)
+		{
+			szCause = "MINOR_ALLY";
+			if (eOriginatingPlayer != NO_PLAYER && GET_PLAYER(eOriginatingPlayer).isMinorCiv())
+				eThirdCiv = GET_PLAYER(eOriginatingPlayer).GetMinorCivAI()->GetAlly();
+		}
+		else if (!bAggressor && GetMaster() != NO_TEAM)
+		{
+			szCause = "VASSAL_OBLIGATION";
+			eThirdCiv = GET_TEAM(GetMaster()).getLeaderID();
+		}
+
+		const std::vector<PlayerTypes>& vOurTeam = getPlayers();
+		const std::vector<PlayerTypes>& vTheirTeam = GET_TEAM(eTeam).getPlayers();
+		for (size_t i = 0; i < vOurTeam.size(); i++)
+		{
+			const CvPlayer& kOurPlayer = GET_PLAYER(vOurTeam[i]);
+			if (!kOurPlayer.isAlive())
+				continue;
+
+			for (size_t j = 0; j < vTheirTeam.size(); j++)
+			{
+				const CvPlayer& kTheirPlayer = GET_PLAYER(vTheirTeam[j]);
+				if (!kTheirPlayer.isAlive())
+					continue;
+
+				const char* szDetail = szCause;
+				if (bAggressor && !bDefensivePact && !bMinorAllyPact && kOurPlayer.isMajorCiv() && kTheirPlayer.isMajorCiv() && kOurPlayer.GetDiplomacyAI()->IsDoFAccepted(vTheirTeam[j]))
+					szDetail = "BACKSTAB";
+
+				LogDiplomacyEvent(vOurTeam[i], vTheirTeam[j], "DECLARED_WAR", szDetail, eThirdCiv);
+			}
+		}
+	}
+
 	SetWonLatestWar(eTeam, false);
 	GET_TEAM(eTeam).SetWonLatestWar(GetID(), false);
 
@@ -1403,7 +1450,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
 			{
 				// Loop through all (living) players on the attacker's team - diplo penalty!
-				for (int iPlayerLoop2 = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				for (int iPlayerLoop2 = 0; iPlayerLoop2 < MAX_MAJOR_CIVS; iPlayerLoop2++)
 				{
 					PlayerTypes eLoopPlayer2 = (PlayerTypes)iPlayerLoop2;
 
@@ -2155,6 +2202,16 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 	if (!isAtWar(eTeam))
 		return;
 
+	// stats.db: the recursive calls below (vassals and City-State allies following this peace) pass bIgnoreVassalsAndAllies
+	if (MOD_SQLITE_LOGGING)
+	{
+		PlayerTypes eThirdCiv = NO_PLAYER;
+		if (eOriginatingPlayer != NO_PLAYER && GET_PLAYER(eOriginatingPlayer).getTeam() != GetID() && GET_PLAYER(eOriginatingPlayer).getTeam() != eTeam)
+			eThirdCiv = eOriginatingPlayer;
+
+		LogDiplomacyEventTeams(GetID(), eTeam, "MADE_PEACE", bIgnoreVassalsAndAllies ? "FOLLOWED_ALLY" : "TREATY", eThirdCiv);
+	}
+
 	if (MOD_EVENTS_WAR_AND_PEACE) 
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
@@ -2446,28 +2503,28 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				}
 				else
 				{
-					if ((IsAllowsOpenBordersToTeam(eTeam) && GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID())) || GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) <= 0)
+					int iDisengagementTurns = /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					if ((IsAllowsOpenBordersToTeam(eTeam) && GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID())) || iDisengagementTurns <= 0)
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_NO_DISENGAGEMENT");
 						locString << strTheirTeamName.GetCString();
 					}
-					else if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
-					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
-						locString << strTheirTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
-					}
-					else if (IsAllowsOpenBordersToTeam(eTeam))
-					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
-						locString << strTheirTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
-					}
 					else
 					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
+						}
+						else if (IsAllowsOpenBordersToTeam(eTeam))
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
+						}
+						else
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						}
 						locString << strTheirTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << iDisengagementTurns;
 					}
 					locString << strFirstPlayerAllyInformation;
 					locString << strSecondPlayerAllyInformation;
@@ -2489,28 +2546,28 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				}
 				else
 				{
-					if ((GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()) && IsAllowsOpenBordersToTeam(eTeam)) || GD_INT_GET(PEACE_DISENGAGEMENT_TURNS) <= 0)
+					int iDisengagementTurns = /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+					if ((GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()) && IsAllowsOpenBordersToTeam(eTeam)) || iDisengagementTurns <= 0)
 					{
 						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_NO_DISENGAGEMENT");
 						locString << strOurTeamName.GetCString();
 					}
-					else if (IsAllowsOpenBordersToTeam(eTeam))
-					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
-						locString << strOurTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
-					}
-					else if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
-					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
-						locString << strOurTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
-					}
 					else
 					{
-						locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						if (IsAllowsOpenBordersToTeam(eTeam))
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_THEIR_DISENGAGEMENT");
+						}
+						else if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(GetID()))
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED_OUR_DISENGAGEMENT");
+						}
+						else
+						{
+							locString = Localization::Lookup("TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED");
+						}
 						locString << strOurTeamName.GetCString();
-						locString << /*2*/ GD_INT_GET(PEACE_DISENGAGEMENT_TURNS);
+						locString << iDisengagementTurns;
 					}
 					locString << strFirstPlayerAllyInformation;
 					locString << strSecondPlayerAllyInformation;
@@ -3649,33 +3706,74 @@ bool CvTeam::isCityWorkingChange()	const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeCityWorkingChange(int iChange)
 {
-	if(iChange != 0)
+	if (iChange != 0)
 	{
-		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++) {
-			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-			if (kLoopPlayer.isAlive()) {
-				if (kLoopPlayer.getTeam() == GetID()) {
-					CvCity* pLoopCity = NULL;
-					int iLoop = 0;
-		
-					for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop)) {
-						int iOldPlots = pLoopCity->GetNumWorkablePlots();
-						int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
-			
-						for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
-							CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
+		std::vector<std::pair<CvCity*, int>> vReleasedCitizens;
 
-							if (pLoopPlot) {
-								pLoopPlot->changeCityRadiusCount(iChange);
-								pLoopPlot->changePlayerCityRadiusCount(kLoopPlayer.GetID(), iChange);
-							}
-						}
+		const std::vector<PlayerTypes>& vPlayers = getPlayers();
+		for (size_t iPlayer = 0; iPlayer < vPlayers.size(); iPlayer++)
+		{
+			CvPlayer& kLoopPlayer = GET_PLAYER(vPlayers[iPlayer]);
+			if (!kLoopPlayer.isAlive())
+				continue;
+
+			int iLoop = 0;
+			for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+			{
+				int iOldPlots = pLoopCity->GetNumWorkablePlots();
+				int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
+				int iReleased = 0;
+
+				CvCityCitizens* pCitizens = pLoopCity->GetCityCitizens();
+
+				// Release citizens and forced assignments before shrinking the range
+				for (int iI = iNewPlots; iI < iOldPlots; ++iI)
+				{
+					CvPlot* pLoopPlot = pCitizens->GetCityPlotFromIndex(iI);
+					if (!pLoopPlot)
+						continue;
+
+					if (pCitizens->IsForcedWorkingPlot(pLoopPlot))
+						pCitizens->SetForcedWorkingPlot(pLoopPlot, false);
+
+					if (pCitizens->IsWorkingPlot(pLoopPlot))
+					{
+						pCitizens->SetWorkingPlot(pLoopPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+						iReleased++;
+					}
+
+					if (pLoopPlot->getOwningCityOverride() == pLoopCity)
+						pLoopPlot->setOwningCityOverride(NULL);
+				}
+
+				if (iReleased > 0)
+					vReleasedCitizens.push_back(std::make_pair(pLoopCity, iReleased));
+
+				// Each newly covered or uncovered plot changes its city coverage count by one
+				int iRadiusChange = iNewPlots > iOldPlots ? 1 : -1;
+
+				for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI)
+				{
+					CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
+					if (pLoopPlot)
+					{
+						pLoopPlot->changeCityRadiusCount(iRadiusChange);
+						pLoopPlot->changePlayerCityRadiusCount(kLoopPlayer.GetID(), iRadiusChange);
 					}
 				}
 			}
 		}
 
-		m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
+		// Apply the team modifier after processing all affected cities
+		m_iCityWorkingChange += iChange;
+
+		// Reassign released citizens after the new range is active
+		for (size_t iI = 0; iI < vReleasedCitizens.size(); ++iI)
+		{
+			CvCityCitizens* pCitizens = vReleasedCitizens[iI].first->GetCityCitizens();
+			for (int iJ = 0; iJ < vReleasedCitizens[iI].second; ++iJ)
+				pCitizens->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
+		}
 	}
 }
 
@@ -4180,6 +4278,11 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 		return;
 
 	m_abHasMet[eIndex] = true;
+
+	// stats.db: the reciprocal makeHasMet() call follows this one; log the pair once
+	if (!GET_TEAM(eIndex).isHasMet(GetID()))
+		LogDiplomacyEventTeams(GetID(), eIndex, "MET");
+
 	SetTurnTeamMet(eIndex, GC.getGame().getGameTurn());
 
 	updateTechShare();
@@ -4523,7 +4626,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 				// Create any units we captured, now that we own the destination
 				for (uint uiCaptureIndex = 0; uiCaptureIndex < kCaptureUnitList.size(); ++uiCaptureIndex)
 				{
-					pLoopUnit->createCaptureUnit(kCaptureUnitList[uiCaptureIndex], true);
+					CvUnit::createCaptureUnit(kCaptureUnitList[uiCaptureIndex], true);
 				}
 			}
 		}
@@ -4778,6 +4881,7 @@ void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 	if(HasEmbassyAtTeam(eIndex) != bNewValue)
 	{
 		m_abEmbassy[eIndex] = bNewValue;
+		LogDiplomacyEventTeams(GetID(), eIndex, bNewValue ? "OPENED_EMBASSY" : "CLOSED_EMBASSY");
 		bool bRevealPlots = false;
 
 		// find capital of team
@@ -4955,6 +5059,7 @@ void CvTeam::SetAllowsOpenBordersToTeam(TeamTypes eIndex, bool bNewValue)
 	if (IsAllowsOpenBordersToTeam(eIndex) != bNewValue)
 	{
 		m_abOpenBorders[eIndex] = bNewValue;
+		LogDiplomacyEventTeams(GetID(), eIndex, bNewValue ? "OPENED_BORDERS" : "CLOSED_BORDERS");
 
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 		{
@@ -5016,7 +5121,12 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 	PRECONDITION(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	PRECONDITION(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
+	const bool bPactChanged = (m_abDefensivePact[eIndex] != bNewValue);
 	m_abDefensivePact[eIndex] = bNewValue;
+
+	// stats.db: pacts are set on both teams in turn; the first call still sees the partner's flag at the old value
+	if (bPactChanged && eIndex != GetID() && GET_TEAM(eIndex).IsHasDefensivePact(GetID()) != bNewValue)
+		LogDiplomacyEventTeams(GetID(), eIndex, bNewValue ? "DEFENSIVE_PACT" : "ENDED_DEFENSIVE_PACT");
 
 	if ((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
 	{
@@ -5128,6 +5238,7 @@ void CvTeam::SetHasResearchAgreement(TeamTypes eIndex, bool bNewValue)
 	if(IsHasResearchAgreement(eIndex) != bNewValue)
 	{
 		m_abResearchAgreement[eIndex] = bNewValue;
+		LogDiplomacyEventTeams(GetID(), eIndex, bNewValue ? "RESEARCH_AGREEMENT" : "ENDED_RESEARCH_AGREEMENT");
 
 		if((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
 		{
@@ -5151,6 +5262,7 @@ void CvTeam::CancelResearchAgreement(TeamTypes eIndex)
 	if (IsHasResearchAgreement(eIndex))
 	{
 		m_abResearchAgreement[eIndex] = false;
+		LogDiplomacyEventTeams(GetID(), eIndex, "ENDED_RESEARCH_AGREEMENT", "CANCELLED");
 	}
 }
 
@@ -6287,11 +6399,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 		}
 
-		if(pkTechInfo->IsRepeat())
+		if (pkTechInfo->IsRepeat())
 		{
-			processTech(eIndex, iChange, bNoBonus);
 			GetTeamTechs()->IncrementTechCount(eIndex);
-
 			GetTeamTechs()->SetResearchProgress(eIndex, 0, ePlayer);
 
 			// Repeating techs are good for score!
@@ -6603,10 +6713,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 		}
 
+		// Process tech effects after removing the completed tech from the research queue.
+		// Otherwise, instant Science can recursively complete a repeatable tech.
+		processTech(eIndex, iChange, bNoBonus);
+
 		if (!pkTechInfo->IsRepeat())
 		{
-			processTech(eIndex, iChange, bNoBonus);
-
 			// process resources that are now improved
 			const int iNumPlots = GC.getMap().numPlots();
 			for (int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
@@ -7464,7 +7576,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						pEspionage->BuildStealableTechList((PlayerTypes)ui);
 
 						// if the player is out of techs to steal, set their number of stealable techs to zero
-						if(pEspionage->m_aaPlayerStealableTechList[ui].size() == 0)
+						if(pEspionage->m_aaPlayerStealableTechList[ui].empty())
 						{
 							pEspionage->m_aiNumTechsToStealList[ui] = 0;
 						}
@@ -9672,6 +9784,8 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 	if (eTeam == NO_TEAM || eTeam == GetID() || !IsVassal(eTeam))
 		return;
 
+	LogDiplomacyEventTeams(GetID(), eTeam, "ENDED_VASSALAGE", bPeaceful ? "PEACEFUL" : "REBELLION");
+
 	// What does it mean when we break vassalage
 	for (int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
 	{
@@ -10051,6 +10165,8 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 	// we must be able to become their vassal
 	if(!canBecomeVassal(eTeam, /*bIgnoreAlreadyVassal*/ true))
 		return;
+
+	LogDiplomacyEventTeams(GetID(), eTeam, "BECAME_VASSAL", bVoluntary ? "VOLUNTARY" : "CAPITULATED");
 
 	// Immediately cancel all Defensive Pacts!
 	for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)

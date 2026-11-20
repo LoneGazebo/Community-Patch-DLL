@@ -14,23 +14,16 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
-#include "../CustomMods.h"
-#include "CvLuaSupport.h"
 #include "CvLuaTeamTech.h"
 
 //Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
+#define Method(Name) lua_pushcclosure(L, l##Name, 0); lua_setfield(L, 1, #Name);
 
 //------------------------------------------------------------------------------
-void CvLuaTeamTech::HandleMissingInstance(lua_State* L)
+void CvLuaTeamTech::CreateFunctable(lua_State* L)
 {
-	DefaultHandleMissingInstance(L);
-}
-//------------------------------------------------------------------------------
-void CvLuaTeamTech::PushMethods(lua_State* L, int t)
-{
+	lua_createtable(L,0,25);
+	
 	Method(SetHasTech);
 	Method(HasTech);
 
@@ -56,13 +49,6 @@ void CvLuaTeamTech::PushMethods(lua_State* L, int t)
 	Method(GetEurekaCounter);
 	Method(SetEurekaCounter);
 }
-//------------------------------------------------------------------------------
-const char* CvLuaTeamTech::GetTypeName()
-{
-	return "TeamTech";
-}
-//------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
 // Lua Methods
@@ -231,3 +217,5 @@ int CvLuaTeamTech::lSetEurekaCounter(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeamTechs::SetEurekaCounter);
 }
+
+LuaTypes_DefineInstanced( CvTeamTechs, CvLuaTeamTech );

@@ -13,6 +13,7 @@
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #pragma once
+#include "!CvLuaApi.h"
 
 class CvFractal;
 
@@ -20,12 +21,9 @@ class CvLuaFractal
 {
 public:
 	//! Registers 'Fractal' with Lua.
-	static void Register(lua_State* L);
+	static void RegisterGlobals(lua_State* L);
 
 protected:
-
-	//! Protected call to register 'Fractal'.
-	static int pRegister(lua_State* L);
 
 	//! Utility for generating a CvFractal instance.
 	static CvFractal* CreateFractal(lua_State* L);

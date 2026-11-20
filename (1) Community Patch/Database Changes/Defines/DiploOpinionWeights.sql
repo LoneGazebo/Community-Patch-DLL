@@ -150,7 +150,7 @@ VALUES
 --	//////////////////////////////////////
 
 -- We are trade partners.  (n.b. maximum recent trade value = OPINION_WEIGHT_TRADE_MAX * DEAL_VALUE_PER_OPINION_WEIGHT * -1; scales with game speed)
-	('OPINION_WEIGHT_TRADE_MAX', -40), -- maximum opinion bonus from recent trade value
+	('OPINION_WEIGHT_TRADE_MAX', -60), -- maximum opinion bonus from recent trade value
 	('DEAL_VALUE_PER_OPINION_WEIGHT', 5), -- how much recent trade value equals -1 opinion weight
 	('DEAL_VALUE_PER_TURN_DECAY', 2), -- how fast recent trade value decays
 	('OPINION_WEIGHT_STRATEGIC_TRADE_PARTNER_MULTIPLIER', 150), -- increases current and maximum trade bonus if player is considered a strategic trade partner
@@ -449,7 +449,7 @@ VALUES
 	('OPINION_WEIGHT_OPEN_BORDERS_THEM', -4),
 
 -- We have made a Research Agreement!
-	('OPINION_WEIGHT_RA', -10),
+	('OPINION_WEIGHT_RA', -15),
 	('OPINION_WEIGHT_RA_SCIENTIFIC_MOD', -10), -- bonus for Scientific AIs
 
 --	//////////////////////////////////////

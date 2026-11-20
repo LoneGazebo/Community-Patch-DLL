@@ -232,15 +232,16 @@ Events.SerialEventGameMessagePopup.Add( OnPopupMessage );
 function UpdateDisplay()
 
     local player = m_ShowForPlayer;
+    -- nil until the popup has been opened once; policies can change before that (e.g. a forced ideology switch)
+    if player == nil then
+		return;
+    end
+
    	CivIconHookup( player:GetID(), 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true );
 
 	print ("In UpdateDisplay()");
 
     local pTeam = Teams[player:GetTeam()];
-    
-    if player == nil then
-		return;
-    end
     
     local playerHas1City = player:GetNumCities() > 0;
     

@@ -5,6 +5,9 @@ std = "lua51+CIV"
 
 allow_defined_top = true
 
+-- LuaCATS holds editor type stubs, not game code: never checked (a files[] section cannot exclude it)
+exclude_files = { "LuaCATS/**" }
+
 ignore = {
 	"611", -- Line contains only whitespace.
 	"612", -- Line contains trailing whitespace.
@@ -35,7 +38,13 @@ stds.CIV = {
 		-- Engine-registered data tables (lua_setglobal)
 		"Fractal", "GameInfoActions", "GameInfoTypes",
 
-		-- DLL enum tables (CvLuaEnums::EnumStart) — all 62 tables
+		-- DLL globals (lua_setglobal)
+		"Exe",           -- features that work through the game EXE (CvLuaExe.cpp)
+
+		-- Community Patch Kit table: read everywhere, written only by the Kit modules
+		"CPK",
+
+		-- DLL enum tables (CvLuaEnums::EnumStart) - all 64 tables
 		"AccomplishmentTypes", "ActionSubTypes", "ActivityTypes",
 		"AdvisorTypes", "AggressivePostureTypes",
 		"BeliefTypes", "ButtonPopupTypes",
@@ -59,7 +68,8 @@ stds.CIV = {
 		"RoutePlanTypes",
 		"StrengthTypes", "TaskTypes", "TerraformingEventTypes",
 		"TerrainTypes", "ThreatTypes", "TradeConnectionTypes",
-		"TradeableItems", "YieldTypes",
+		"TradeableItems", "WorkerPlanSettingTypes", "WorkerPlanStatusTypes",
+		"YieldTypes",
 
 		-- Binary-only enum tables (cvLuaUIEnumsLibrary)
 		"ButtonStates", "ContentType", "EndGameTypes",
@@ -125,9 +135,6 @@ stds.CIV = {
 -- Per-path overrides
 ---------------------------------------------------------------------------
 
--- LuaCATS type-definition stubs are not runnable code
-files["LuaCATS/**"] = { exclude_files = { "**" } }
-
 -- Map scripts use many vanilla globals from base-game includes
 files["**/Mapscripts/**"] = {
 	globals = {
@@ -151,6 +158,8 @@ files["**/Mapscripts/**"] = {
 		"BuffIslands", "ApplyHexAdjustment", "ShiftMultiplier",
 		"PolarToCartesian", "VecSub",
 		"NO_RESOURCE",
+		-- map scripts override methods of these base-game generator classes
+		"FractalWorld", "MultilayeredFractal", "TerrainGenerator",
 	},
 }
 
@@ -177,9 +186,8 @@ files["UI_bc1/**"] = {
 }
 
 -- EUI compatibility files
-files["**/VP - EUI Compatibility Files/**"] = {
+files["(3a) VP - EUI Compatibility Files/**"] = {
 	globals = {
-		"CPK",
 		"SwapWorkLineInstance",
 		"RegisterCollapseBehavior",
 		"SizeParentToChildContent",
@@ -206,5 +214,7 @@ files["**/Overrides/**"] = {
 		"IdentifyTableIndex",
 		"GetPlayerAndTeamInfo",
 		"TestMembership",
+		-- copies of base-game include functions
+		"ApplyGenericEntrySettings", "VecSub",
 	},
 }

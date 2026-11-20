@@ -56,4 +56,23 @@
 	<style name="RoutePlannerInclude" type="SplineBorder" width ="6" texture="spline_border_contour2.dds" color="0,196,0,255" />
 	<style name="RoutePlannerExclude" type="SplineBorder" width ="6" texture="spline_border_contour2.dds" color="196,0,0,255" />
 	<style name="RPPCR" type="SplineBorder" width ="6" texture="hex_contour2.dds" color="0,255,255,255" />
+
+	<!-- Worker planner, colors must match WorkerPlanner.lua -->
+	<style name="WorkerPlanSelected" type="SplineBorder" width="8" texture="hex_contour1.dds" color="255,255,255,255" />
+	<style name="WorkerPlanBuilt" type="FilledHex" width="1" color="128,128,128,80" />
+	<style name="WorkerPlanInProgress" type="FilledHex" width="1" color="255,255,255,90" />
+	<style name="WorkerPlanAssigned" type="FilledHex" width="1" color="60,120,255,90" />
+	<style name="WorkerPlanPriority" type="FilledHex" width="1" color="0,220,220,90" />
+	<style name="WorkerPlanQueuedHigh" type="FilledHex" width="1" color="0,200,0,90" />
+	<style name="WorkerPlanQueuedLow" type="FilledHex" width="1" color="220,220,0,90" />
+	<style name="WorkerPlanNotYet" type="FilledHex" width="1" color="255,140,0,90" />
+	<style name="WorkerPlanBlocked" type="FilledHex" width="1" color="220,0,0,90" />
+	<style name="WorkerPlanLocked" type="FilledHex" width="1" color="170,70,220,90" />
+	<style name="WorkerPlanChanged" type="SplineBorder" width="6" texture="hex_contour1.dds" color="255,0,255,255" />
+	<style name="WorkerPlanRoutePlan" type="FilledHex" width="1" color="0,196,0,100" />
+	<style name="WorkerPlanRoutePriority" type="FilledHex" width="1" color="0,220,220,100" />
+	<style name="WorkerPlanRouteNoBuild" type="FilledHex" width="1" color="196,0,0,100" />
+	<style name="WorkerPlanRouteMain" type="FilledHex" width="1" color="255,255,255,90" />
+	<style name="WorkerPlanRouteShortcut" type="FilledHex" width="1" color="128,255,0,90" />
+	<style name="WorkerPlanRouteStrategic" type="FilledHex" width="1" color="255,166,0,90" />
 </Highlights>

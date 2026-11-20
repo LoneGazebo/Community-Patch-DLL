@@ -45,7 +45,6 @@ WHERE Type IN (
 	'UNITCLASS_COLONIST',
 	'UNITCLASS_ARCHAEOLOGIST',
 	-- The civilian units below also cannot be captured by Barbarians (Capture = NULL)
-	'UNITCLASS_WORKBOAT',
 	'UNITCLASS_CARAVAN',
 	'UNITCLASS_CARGO_SHIP',
 	'UNITCLASS_GREAT_GENERAL',

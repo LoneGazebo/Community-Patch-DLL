@@ -920,7 +920,12 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 
 	m_lLastTurnLifetimeCultureTimes100 = 0;
 	m_iLastTurnCPT = 0;
+	m_eOpinion = NO_PUBLIC_OPINION;
+	m_ePreferredIdeology = NO_POLICY_BRANCH_TYPE;
 	m_iOpinionUnhappiness = 0;
+	m_strOpinionTooltip = "";
+	m_strOpinionUnhappinessTooltip = "";
+	m_eOpinionBiggestInfluence = NO_PLAYER;
 	m_iLastUpdate = 0;
 	m_iLastThemUpdate = 0;
 	m_iBoredomCache = 0;
@@ -1603,7 +1608,7 @@ void CvPlayerCulture::MoveWorks(GreatWorkSlotType eType, vector<CvGreatWorkBuild
 			if (pCity != NULL)
 			{
 				bool bAlreadyChecked = false;
-				if (CityList.size() > 0)
+				if (!CityList.empty())
 				{
 					for (uint ui = 0; ui < CityList.size(); ui++)
 					{
@@ -2228,7 +2233,7 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 	}
 
 	// Remove these works from those to consider later
-	if (aWorksChosen.size() > 0)
+	if (!aWorksChosen.empty())
 	{
 		vector<CvGreatWorkAvailableForUse>::iterator it2;
 		vector<CvGreatWorkAvailableForUse> tempWorks;
@@ -2651,7 +2656,7 @@ CvPlot* CvPlayerCulture::GetNextDigCompletePlot() const
 {
 	CvPlot* pRtnValue = NULL;
 
-	if (m_aDigCompletePlots.size() > 0)
+	if (!m_aDigCompletePlots.empty())
 	{
 		pRtnValue = m_aDigCompletePlots[0];
 	}
@@ -3351,7 +3356,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_5", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
-		else if (iPercent >= /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent >= /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_4", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
@@ -3378,7 +3383,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_5_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
-		else if (iPercent < /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn >= GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent < /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn >= GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_4_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
@@ -3454,7 +3459,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_5", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
-		else if (iPercent >= /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent >= /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn < GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_4", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
@@ -3480,7 +3485,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_5_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
-		else if (iPercent < /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn >= GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent < /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) && iPercentLastTurn >= GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_4_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
@@ -3824,7 +3829,7 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 		{
 			eRtnValue = INFLUENCE_LEVEL_DOMINANT;
 		}
-		else if (iPercent >= /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
+		else if (iPercent >= /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL))
 		{
 			eRtnValue = INFLUENCE_LEVEL_INFLUENTIAL;
 		}
@@ -3933,8 +3938,8 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer)
 		long long lCulture = kOtherPlayer.GetJONSCultureEverGeneratedTimes100();
 		int iCultPerTurn = GetOtherPlayerCulturePerTurnIncludingInstantTimes100(ePlayer);
 
-		long long lNumerator = (/*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * lCulture / 100) - lInfluence;
-		int iDivisor = iInflPerTurn - (/*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * iCultPerTurn / 100);
+		long long lNumerator = (/*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * lCulture / 100) - lInfluence;
+		int iDivisor = iInflPerTurn - (/*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * iCultPerTurn / 100);
 
 		iRtnValue = (int)(lNumerator / max(1, iDivisor));
 
@@ -3987,39 +3992,52 @@ int CvPlayerCulture::GetNumCivsToBeInfluentialOn() const
 }
 
 /// Which civ is the one we need to do the most work on to get to Influential culture?
-PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
+PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders, bool bExcludeWar, int& iLowestPercent) const
 {
 	PlayerTypes eRtnValue = NO_PLAYER;
-	int iLowestPercent = /*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL);   // Don't want to target civs if already influential
+	iLowestPercent = /*100 in CP, 120 in VP*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL); // Don't want to target civs if already influential
 
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{
 		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
 		CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
-		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kTeam.isAtWar(m_pPlayer->getTeam()))
+		if (kTeam.GetID() == m_pPlayer->getTeam())
+			continue;
+
+		if (!kPlayer.isAlive())
+			continue;
+
+		if (bExcludeWar && kTeam.isAtWar(m_pPlayer->getTeam()))
+			continue;
+
+		if (bCheckOpenBorders &&
+			((MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
+			|| (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && !kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))))
+			continue;
+
+		long long lInfluenceOn = GetInfluenceOnTimes100((PlayerTypes)iLoopPlayer);
+		long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
+		int iPercent = 0;
+
+		if (lLifetimeCulture > 0)
 		{
-			if (!bCheckOpenBorders || (MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-			|| (!MOD_BALANCE_FLIPPED_OPEN_BORDERS_TOURISM && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
-			{
-				long long lInfluenceOn = GetInfluenceOnTimes100((PlayerTypes)iLoopPlayer);
-				long long lLifetimeCulture = kPlayer.GetJONSCultureEverGeneratedTimes100();
-				int iPercent = 0;
+			iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
+		}
 
-				if (lLifetimeCulture > 0)
-				{
-					iPercent = (int)(lInfluenceOn * 100 / lLifetimeCulture);
-				}
-
-				if (iPercent < iLowestPercent)
-				{
-					iLowestPercent = iPercent;
-					eRtnValue = (PlayerTypes)iLoopPlayer;
-				}
-			}
+		if (iPercent < iLowestPercent)
+		{
+			iLowestPercent = iPercent;
+			eRtnValue = (PlayerTypes)iLoopPlayer;
 		}
 	}
 
 	return eRtnValue;
+}
+
+PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders, bool bExcludeWar) const
+{
+	int iLowestPercent = 0;
+	return GetCivLowestInfluence(bCheckOpenBorders, bExcludeWar, iLowestPercent);
 }
 
 // NON-CULTURE TOURISM BONUSES
@@ -4356,7 +4374,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgn
 		{
 			if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eTargetPlayer, m_pPlayer->GetID(), true))
 			{
-				iMultiplier += /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
+				iMultiplier += /*-34 in CP, -20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
 			}
 		}
 	}
@@ -4365,7 +4383,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgn
 	{
 		if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
 		{
-			iMultiplier += /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
+			iMultiplier += /*-34 in CP, -20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
 		}
 	}
 	if (!bIgnorePolicies)
@@ -4432,11 +4450,11 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes eTargetPlayer, bool bIgn
 
 	if (m_pPlayer->getTourismBonusTurnsPlayer(eTargetPlayer) > 0)
 	{
-		iMultiplier += /*200 in CP, 100 in VP*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD) * 2;
+		iMultiplier += /*200 in CP, 50 in VP*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD) * 2;
 	}
 	else if (m_pPlayer->GetTourismBonusTurns() > 0)
 	{
-		iMultiplier += /*100 in CP, 50 in VP*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD);
+		iMultiplier += /*100 in CP, 25 in VP*/ GD_INT_GET(TEMPORARY_TOURISM_BOOST_MOD);
 	}
 
 
@@ -4657,7 +4675,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 		{
 			szRtnValue += "[COLOR_GREY]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_PROPAGANDA", 0) + "[ENDCOLOR]";
 		}
-		szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_DIFFERENT_IDEOLOGIES", /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
+		szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_DIFFERENT_IDEOLOGIES", /*-34 in CP, -20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
 	}
 	
 	// City difference - do we have more than them?
@@ -4685,7 +4703,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes eTargetPlaye
 	{
 		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eTargetPlayer, m_pPlayer->GetID(), true))
 		{
-			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA", /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
+			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA", /*-34 in CP, -20 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
 		}
 	}
 
@@ -4706,7 +4724,7 @@ int CvPlayerCulture::GetTourismModifierSharedReligion(PlayerTypes eTargetPlayer)
 		return 0;
 	
 	int iModifier = /*25 in CP, 1 in VP*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION);
-	int iModifierMax = /*0 in CP, 50 in VP*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION_MAX);
+	int iModifierMax = /*0 in CP, 40 in VP*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION_MAX);
 	int iMultiplier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER) + m_pPlayer->GetPlayerTraits()->GetSharedReligionTourismModifier();
 	
 	switch (/*0 in CP, 2 in VP*/ GD_INT_GET(TOURISM_MODIFIER_SHARED_RELIGION_TYPE))
@@ -4993,7 +5011,7 @@ void CvPlayerCulture::DoPublicOpinion()
 				}
 
 					aIdeologyPressure[eOtherCivIdeology] += iCulturalDominanceOverUs;
-					if (vIdeologyPressureStrings[eOtherCivIdeology].size() > 0)
+					if (!vIdeologyPressureStrings[eOtherCivIdeology].empty())
 					{
 						vIdeologyPressureStrings[eOtherCivIdeology] += ", ";
 				}
@@ -5177,7 +5195,7 @@ void CvPlayerCulture::DoPublicOpinion()
 
 			if (kIdeology->IsPurchaseByLevel())
 			{
-				if (vIdeologyPressureStrings[eIdeologyBranch].size() > 0)
+				if (!vIdeologyPressureStrings[eIdeologyBranch].empty())
 				{
 					CvString sTemp = "[NEWLINE]For [COLOR_POSITIVE_TEXT]"; //used to be TXT_KEY_CO_OPINION_TT_FOR_ORDER, TXT_KEY_CO_OPINION_TT_FOR_FREEDOM, etc.
 					sTemp += kIdeology->GetDescription();

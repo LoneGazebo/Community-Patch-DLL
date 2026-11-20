@@ -33,6 +33,7 @@
 		<Column name="GreatPersonType" type="text" reference="GreatPersons(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
 	<Table name="Belief_GreatPersonRateModifier">
 		<!-- Cities gain +% GPPoints, and Players convert more XP to Admirals/Generals-->
@@ -241,13 +242,6 @@
 	<Table name="Belief_CityYieldPerXFeatureTimes100">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" notnull="true"/>
-	</Table>
-
-	<!-- FOUNDER: Allows you to define any belief to grant X yield from GP use, where X is the number below. -->
-	<Table name="Belief_YieldFromGPUse">
-		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>

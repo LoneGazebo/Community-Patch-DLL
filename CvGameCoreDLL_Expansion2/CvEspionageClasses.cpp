@@ -445,7 +445,7 @@ void CvPlayerEspionage::DoTurn()
 /// LogSpyStatus
 void CvPlayerEspionage::LogSpyStatus()
 {
-	if (m_aSpyList.size() == 0)
+	if (m_aSpyList.empty())
 		return;
 
 	CvString strMsg;
@@ -551,7 +551,15 @@ void CvPlayerEspionage::LogSpyStatus()
 		case SPY_STATE_COUNTER_INTEL:
 			if (MOD_BALANCE_VP)
 			{
-				strMsg.Format("COUNTERING INTEL in %s. Current Mission: %s", pCity->getName().c_str(), GC.getCityEventChoiceInfo(eMission)->GetDescription());
+				// no focus while the owner's choice is still open (see TriggerSpyFocusSetup)
+				if (eMission != NO_EVENT_CHOICE_CITY)
+				{
+					strMsg.Format("COUNTERING INTEL in %s. Current Mission: %s", pCity->getName().c_str(), GC.getCityEventChoiceInfo(eMission)->GetDescription());
+				}
+				else
+				{
+					strMsg.Format("COUNTERING INTEL in %s. No Current Mission.", pCity->getName().c_str());
+				}
 			}
 			else
 			{
@@ -911,7 +919,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					// moved rate out here to set the potential
 					int iBasePotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
 					pCityEspionage->SetLastBasePotential(ePlayer, iBasePotentialRate);
-					if (m_aaPlayerStealableTechList[eCityOwner].size() > 0)
+					if (!m_aaPlayerStealableTechList[eCityOwner].empty())
 					{
 						// TODO: need to proclaim surveillance somehow
 						pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_GATHERING_INTEL);
@@ -998,7 +1006,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					LogEspionageMsg(strMsg);
 				}
 			}
-			if (m_aaPlayerStealableTechList[eCityOwner].size() == 0)
+			if (m_aaPlayerStealableTechList[eCityOwner].empty())
 			{
 				// set the spy back to surveillance mode
 				pCityEspionage->ResetProgress(ePlayer);
@@ -1037,10 +1045,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else if (pCityEspionage->HasReachedGoal(ePlayer))
 			{
-				int iSpyResult;
 				if (pCityEspionage->HasCounterSpy())
 				{
-					iSpyResult = GC.getGame().randRangeInclusive(1, 300, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner()))) - 1;
+					int iSpyResult = GC.getGame().randRangeInclusive(1, 300, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner()))) - 1;
 					int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 					iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 30;
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
@@ -1074,7 +1081,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 				else
 				{
-					iSpyResult = GC.getGame().randRangeInclusive(1, 300, CvSeeder::fromRaw(0x80599453).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner()))) - 1;
+					int iSpyResult = GC.getGame().randRangeInclusive(1, 300, CvSeeder::fromRaw(0x80599453).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner()))) - 1;
 					iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 					iSpyResult /= 100;
 					if (iSpyResult < 100)
@@ -1231,7 +1238,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							pNotifications->Add(NOTIFICATION_SPY_STOLE_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eCityOwner);
 						}
 						m_aiNumSpyActionsDone[eCityOwner]++;
-						m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
+						m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1, false);
 					}
 					else
 					{
@@ -1271,6 +1278,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						LogEspionageMsg(strMsg);
 					}
 				}
+
+				// Instant yields from stealing technology can grant new spies; reacquire the pointer to be safe
+				pSpy = GetSpyByID(uiSpyIndex);
 				if (pSpy->GetSpyState() != SPY_STATE_DEAD && pSpy->GetSpyState() != SPY_STATE_TERMINATED)
 				{
 					UncoverIntrigue(uiSpyIndex);
@@ -1385,7 +1395,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 bool CvPlayerEspionage::DoStealTechnology(CvCity* pPlayerCity, PlayerTypes eTargetPlayer)
 {
 	PlayerTypes eDefendingPlayer = pPlayerCity->getOwner();
-	if (m_aaPlayerStealableTechList[eTargetPlayer].size() <= 0)
+	if (m_aaPlayerStealableTechList[eTargetPlayer].empty())
 		return false;
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
@@ -1560,8 +1570,6 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 		return;
 
 	CvModEventCityChoiceInfo* pkMissionInfo = GC.getCityEventChoiceInfo(eMission);
-	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-
 	PlayerTypes eCityOwner = pCity->getOwner();
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
 
@@ -1634,7 +1642,7 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 
 	m_aiNumSpyActionsDone[eCityOwner]++;
 	pCityEspionage->m_aiNumTimesCityRobbed[eSpyOwner]++;
-	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING);
+	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 
 	for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 	{
@@ -1668,6 +1676,9 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 				GET_PLAYER(eCityOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_IDENTIFY, false, NO_GREATPERSON, NO_BUILDING, iSpyIDYield, true, NO_PLAYER, NULL, false, pCity, false, true, true, eYield);
 		}
 	}
+
+	// Mission rewards can grant new spies and reallocate m_aSpyList; reacquire the pointer to be safe
+	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
 
 	// spy killed in action
 	if (bKilled)
@@ -1711,9 +1722,10 @@ void CvPlayerEspionage::ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* p
 		if (iExperience > 0)
 		{
 			LevelUpSpy(uiSpyIndex, iExperience);
+			pSpy = GetSpyByID(uiSpyIndex); // reacquire the pointer to be safe because LevelUpSpy() can change counterspy focus
 		}
 		pSpy->SetTurnActiveMissionConducted(GC.getGame().getGameTurn());
-				
+
 		// reset spy focus
 		pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
 
@@ -2932,7 +2944,7 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 void CvPlayerEspionage::LevelUpSpy(uint uiSpyIndex, int iExperience)
 {
 	// if the spy can level up and it's not dead
-	if(m_aSpyList[uiSpyIndex].m_eRank < NUM_SPY_RANKS - 1 && !(m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_DEAD || m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_TERMINATED))
+	if(m_aSpyList[uiSpyIndex].m_eRank < NUM_SPY_RANKS - 1 && m_aSpyList[uiSpyIndex].m_eSpyState != SPY_STATE_DEAD && m_aSpyList[uiSpyIndex].m_eSpyState != SPY_STATE_TERMINATED)
 	{
 		bool bCanLevel = true;
 		if (iExperience > 0)
@@ -4278,7 +4290,7 @@ int CvPlayerEspionage::GetNumAliveSpies(void)
 	int iCount = 0;
 	for(uint ui = 0; ui < m_aSpyList.size(); ui++)
 	{
-		if(!(m_aSpyList[ui].m_eSpyState == SPY_STATE_DEAD || m_aSpyList[ui].m_eSpyState == SPY_STATE_TERMINATED))
+		if(m_aSpyList[ui].m_eSpyState != SPY_STATE_DEAD && m_aSpyList[ui].m_eSpyState != SPY_STATE_TERMINATED)
 		{
 			iCount++;
 		}
@@ -7732,6 +7744,26 @@ void CvEspionageAI::DoTurn()
 	if (m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
 		return;
 
+	if (MOD_BALANCE_VP)
+	{
+		// A counterspy can be left without a focus when a human player comes under AI control (e.g. autoplay)
+		// while the focus choice is still open. Its pending event stops the spy from moving, and the reassignment
+		// below only changes the focus in the top cities, so make the choice now.
+		CvPlayerEspionage* pEspionage = m_pPlayer->GetEspionage();
+		for (uint uiSpy = 0; uiSpy < pEspionage->m_aSpyList.size(); uiSpy++)
+		{
+			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(uiSpy);
+			if (!pSpy || pSpy->GetSpyState() != SPY_STATE_COUNTER_INTEL || pSpy->GetSpyFocus() != NO_EVENT_CHOICE_CITY)
+				continue;
+
+			CvCity* pCity = pEspionage->GetCityWithSpy(uiSpy);
+			if (pCity && pCity->getOwner() == m_pPlayer->GetID())
+			{
+				pEspionage->TriggerSpyFocusSetup(pCity, uiSpy);
+			}
+		}
+	}
+
 	if (!MOD_BALANCE_VP)
 	{
 		StealTechnology();
@@ -7931,7 +7963,7 @@ void CvEspionageAI::DoTurn()
 		}
 	}
 
-	if (vRemainingSpyIDs.size() == 0)
+	if (vRemainingSpyIDs.empty())
 		return;
 
 	// go through the list of cities and put the spies there
@@ -8193,7 +8225,7 @@ void CvEspionageAI::StealTechnology()
 		while(pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 		{
 			// steal a tech
-			ASSERT(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0, "pEspionage->m_aaPlayerStealableTechList[uiPlayer] list is empty. Not good");
+			ASSERT(!pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].empty(), "pEspionage->m_aaPlayerStealableTechList[uiPlayer] list is empty. Not good");
 			TeamTypes eTeam = m_pPlayer->getTeam();
 			TechTypes eStolenTech = pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer][0];
 			GET_TEAM(eTeam).setHasTech(eStolenTech, true, m_pPlayer->GetID(), true, true);
@@ -8202,7 +8234,7 @@ void CvEspionageAI::StealTechnology()
 			
 			// recalculate the num techs to steal list
 			pEspionage->BuildStealableTechList((PlayerTypes)uiDefendingPlayer);
-			if(pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].size() > 0 && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
+			if(!pEspionage->m_aaPlayerStealableTechList[uiDefendingPlayer].empty() && pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer] > 0)
 			{
 				pEspionage->m_aiNumTechsToStealList[uiDefendingPlayer]--;
 			}
@@ -8234,7 +8266,7 @@ void CvEspionageAI::UpdateCivOutOfTechTurn()
 		}
 
 		pEspionage->BuildStealableTechList(eOtherPlayer);
-		if(pEspionage->m_aaPlayerStealableTechList[eOtherPlayer].size() > 0)
+		if(!pEspionage->m_aaPlayerStealableTechList[eOtherPlayer].empty())
 		{
 			continue;
 		}
@@ -9614,7 +9646,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList(bool bLogAllChoi
 		if (!MOD_BALANCE_VP)
 		{
 			m_pPlayer->GetEspionage()->BuildStealableTechList(eTargetPlayer);
-			if (m_pPlayer->GetEspionage()->m_aaPlayerStealableTechList[eTargetPlayer].size() == 0)
+			if (m_pPlayer->GetEspionage()->m_aaPlayerStealableTechList[eTargetPlayer].empty())
 				continue;
 		}
 
@@ -10512,62 +10544,36 @@ void CvEspionageAI::EvaluateMinorCivSpies(void)
 }
 
 // serialization read
+// Reads a per-major-civ vector into the slots Reset() has already filled (CvPlayer::Read resets the player
+// first), instead of appending after them. Older saves written after a load hold the live values first and
+// stale copies after them: keep the first MAX_MAJOR_CIVS and skip the rest.
+static void ReadEspionageAIVector(FDataStream& loadFrom, std::vector<int>& aiValues, int iDefault)
+{
+	aiValues.assign(MAX_MAJOR_CIVS, iDefault);
+	uint uiCount = 0;
+	loadFrom >> uiCount;
+	for (uint ui = 0; ui < uiCount; ui++)
+	{
+		int iValue = 0;
+		loadFrom >> iValue;
+		if (ui < aiValues.size())
+			aiValues[ui] = iValue;
+	}
+}
+
 FDataStream& operator>>(FDataStream& loadFrom, CvEspionageAI& writeTo)
 {
 	uint uiVersion = 0;
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
-	uint uiCount = 0;
-	loadFrom >> uiCount;
-	int iValue = 0;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiCivOutOfTechTurn.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiNumSpiesCaught.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiNumSpiesKilled.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiNumSpiesDied.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiTurnLastSpyCaught.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiTurnLastSpyKilled.push_back(iValue);
-	}
-
-	loadFrom >> uiCount;
-	for(uint ui = 0; ui < uiCount; ui++)
-	{
-		loadFrom >> iValue;
-		writeTo.m_aiTurnLastSpyDied.push_back(iValue);
-	}
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiCivOutOfTechTurn, -1);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiNumSpiesCaught, 0);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiNumSpiesKilled, 0);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiNumSpiesDied, 0);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiTurnLastSpyCaught, -1);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiTurnLastSpyKilled, -1);
+	ReadEspionageAIVector(loadFrom, writeTo.m_aiTurnLastSpyDied, -1);
 
 	loadFrom >> writeTo.m_bUNCountdownStarted;
 	loadFrom >> writeTo.m_iTurnEspionageStarted;

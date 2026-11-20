@@ -29,6 +29,7 @@
     <File md5="AA054B5262980CCA9648C4C1C8599E76" import="1">EUI/DC45_EventsOverview.dds</File>
     <File md5="9AE69E7FD299CA9C0CD4E574C5D2DE3B" import="1">EUI/DC45_UnitPromotions.dds</File>
     <File md5="CD9F2334872FB51C97AD44078F851621" import="1">EUI/DC45_VassalOverview.dds</File>
+    <File md5="D7D02463A7F1AE6575A2537D7C2BAD86" import="1">EUI/DC45_WorkerPlanner.dds</File>
     <File md5="8338C80D226B371AC67ADF6072052753" import="0">EUI/EUI_text_en_us.xml</File>
     <File md5="380CF56EF401BF6AD030C2CD698C822F" import="0">EUI/NeededText.xml</File>
     <File md5="4827BF80196628DB2A18C2014A5EB9A7" import="1">LUA/CityBannerManager.lua</File>
