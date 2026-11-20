@@ -48,6 +48,10 @@ protected:
 
 	static int lGetAdjustedPopulationPercent(lua_State* L);
 	static int lGetAdjustedLandPercent(lua_State* L);
+	static int lIsDominationVictoryByLandAndPopulation(lua_State* L);
+	static int lIsDominationVictoryByCapitals(lua_State* L);
+	static int lGetNumDominationCapitals(lua_State* L);
+	static int lGetNumDominationCapitalsNeeded(lua_State* L);
 
 	static int lGetUnitedNationsCountdown(lua_State* L); // DEPRECATED
 	static int lSetUnitedNationsCountdown(lua_State* L); // DEPRECATED

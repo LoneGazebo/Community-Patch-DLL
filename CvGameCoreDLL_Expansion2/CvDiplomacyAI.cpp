@@ -3107,8 +3107,6 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 	if (!m_pPlayer->isAlive() || !GC.getGame().CanPlayerAttemptDominationVictory(GetID(), NO_PLAYER, false))
 		return 0;
 
-	int iCapitalsProgress = 0;
-	int iTotalCapitals = 0;
 	int iOurMight = 0;
 	int iTotalMight = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -3122,8 +3120,6 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 		if (!pOriginalCapitalPlot || !pOriginalCapitalPlot->isCity())
 			continue;
 
-		iTotalCapitals++;
-
 		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
 			int iMight = GET_PLAYER(ePlayer).GetMilitaryMight();
@@ -3132,15 +3128,21 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 			if (GET_PLAYER(ePlayer).getTeam() == GetTeam() || IsMaster(ePlayer))
 				iOurMight += iMight;
 		}
-
-		if (pOriginalCapitalPlot->getPlotCity()->GetOwnerForDominationVictory() == GetID())
-			iCapitalsProgress += 1;
 	}
 
 	iOurMight = (iOurMight * 100) / max(1, iTotalMight);
+	int iProgress = iOurMight;
+
+	// Original capitals held, directly, through Vassals or through allied City-States, out of those needed
+	CvGame& kGame = GC.getGame();
+	if (kGame.IsDominationVictoryByCapitals())
+	{
+		int iCapitalsNeeded = kGame.GetNumDominationCapitalsNeeded();
+		int iCapitalsProgress = iCapitalsNeeded > 0 ? min(100, kGame.GetNumDominationCapitals(GetTeam()) * 100 / iCapitalsNeeded) : 0;
+		iProgress = max(iProgress, iCapitalsProgress);
+	}
 
 	// Population and land share: the share that is further from its requirement decides
-	CvGame& kGame = GC.getGame();
 	if (kGame.IsDominationVictoryByLandAndPopulation())
 	{
 		VictoryTypes eDominationVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DOMINATION", true);
@@ -3152,12 +3154,10 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 		int iPopulationProgress = iPopulationNeeded > 0 ? min(100, 10000 * kTeam.getTotalPopulation(/*bCheckVassals*/ true) / iPopulationNeeded) : 100;
 		int iLandProgress = iLandNeeded > 0 ? min(100, 10000 * kTeam.getTotalLand(/*bCheckVassals*/ true) / iLandNeeded) : 100;
 
-		return max(iOurMight, min(iPopulationProgress, iLandProgress));
+		iProgress = max(iProgress, min(iPopulationProgress, iLandProgress));
 	}
 
-	iCapitalsProgress = (iCapitalsProgress * 100) / max(1, iTotalCapitals);
-
-	return max(iOurMight, iCapitalsProgress);
+	return iProgress;
 }
 
 /// How close are we to achieving a Diplomatic victory?
@@ -24481,9 +24481,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		bAnyAggressionBonus = false;
 	}
 
-	// Does this City-State own an original major capital? (Irrelevant when Domination Victory goes by population and land share.)
+	// Does this City-State own an original major capital? (Irrelevant when Domination Victory goes only by population and land share.)
 	bool bHasOriginalCapital = false;
-	if (!GC.getGame().IsDominationVictoryByLandAndPopulation())
+	if (GC.getGame().IsDominationVictoryByCapitals())
 	{
 		int iCityLoop = 0;
 		for (CvCity* pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))

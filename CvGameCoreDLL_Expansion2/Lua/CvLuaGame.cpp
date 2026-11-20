@@ -56,6 +56,10 @@ void CvLuaGame::CreateFunctable(lua_State* L)
 
 	Method(GetAdjustedPopulationPercent);
 	Method(GetAdjustedLandPercent);
+	Method(IsDominationVictoryByLandAndPopulation);
+	Method(IsDominationVictoryByCapitals);
+	Method(GetNumDominationCapitals);
+	Method(GetNumDominationCapitalsNeeded);
 
 	Method(GetUnitedNationsCountdown);
 	Method(SetUnitedNationsCountdown);
@@ -664,6 +668,30 @@ int CvLuaGame::lGetAdjustedPopulationPercent(lua_State* L)
 int CvLuaGame::lGetAdjustedLandPercent(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::getAdjustedLandPercent);
+}
+//------------------------------------------------------------------------------
+// bool IsDominationVictoryByLandAndPopulation();
+int CvLuaGame::lIsDominationVictoryByLandAndPopulation(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::IsDominationVictoryByLandAndPopulation);
+}
+//------------------------------------------------------------------------------
+// bool IsDominationVictoryByCapitals();
+int CvLuaGame::lIsDominationVictoryByCapitals(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::IsDominationVictoryByCapitals);
+}
+//------------------------------------------------------------------------------
+// int GetNumDominationCapitals(TeamTypes eTeam);
+int CvLuaGame::lGetNumDominationCapitals(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::GetNumDominationCapitals);
+}
+//------------------------------------------------------------------------------
+// int GetNumDominationCapitalsNeeded();
+int CvLuaGame::lGetNumDominationCapitalsNeeded(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::GetNumDominationCapitalsNeeded);
 }
 //------------------------------------------------------------------------------
 // bool GetUnitedNationsCountdown() const;

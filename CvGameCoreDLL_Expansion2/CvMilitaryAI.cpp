@@ -1112,8 +1112,8 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 
 	//scores for each target are estimated before calling this function
 	float fDesirability = 1.f;
-	// Capitals only decide a Domination Victory without population and land shares
-	if (pTargetCity->IsOriginalCapital() && !GC.getGame().IsDominationVictoryByLandAndPopulation() && (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest()))
+	// Unless Domination Victory goes only by population and land share, holding the original capitals wins it
+	if (pTargetCity->IsOriginalCapital() && GC.getGame().IsDominationVictoryByCapitals() && (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest()))
 	{
 		fDesirability *= /*250*/ GD_INT_GET(AI_MILITARY_CAPTURING_ORIGINAL_CAPITAL);
 		fDesirability /= 100;

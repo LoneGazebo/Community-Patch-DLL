@@ -30,6 +30,8 @@
         <Image ID="Icon" Size="24.24" Anchor="C,C" Offset="0,0" Texture="CivSymbolsColor256.dds"/>
       </Box>
       <Label ID="Name" Anchor="L,C" Offset="40,0" Font="TwCenMT16" ColorSet="Beige_Black" FontStyle="Shadow"/>
+      <!-- Original capitals controlled, out of those needed, when holding them also wins -->
+      <Label ID="Capitals" Anchor="L,C" Offset="182,0" Font="TwCenMT14" ColorSet="Beige_Black" FontStyle="Shadow" Hidden="1"/>
       <Label ID="PopulationLabel" Anchor="L,T" Offset="240,2" Font="TwCenMT14" ColorSet="Beige_Black" FontStyle="Shadow"/>
       <!-- Share of the world, with a mark at the share needed; the Lua turns the bar green once it is reached -->
       <Box Anchor="L,T" Offset="240,21" Size="160,5" Color="0,0,0,0">
@@ -291,7 +293,7 @@
       <!-- DOMINATION -->
       <Box Size="618,142" Color="255,255,255,0">
         <Image Size="128,128" Anchor="R,C" Texture="VictoryConditions_128_Shared.dds" TextureOffset="128,128" Color="255,255,255,100"/>
-        <Label Offset="5,3" Font="TwCenMT24" String="TXT_KEY_VICTORYSCREEN_DOMINATION"/>
+        <Label ID="DominationTitle" Offset="5,3" Font="TwCenMT24" String="TXT_KEY_VICTORYSCREEN_DOMINATION"/>
         <Label ID="DominationLabel" Offset="5,5" Anchor="R.T" Font="TwCenMT16"/>
         <Box ID="DominationVictoryProgress" Size="618,142" Color="0,0,0,0">
           <ScrollPanel Anchor="L,T" Offset="0,20" Size="596,114" Vertical="1" ID="DominationScrollPanel">
@@ -308,6 +310,12 @@
             <Stack ID="DominationShareStack" Padding="0" StackGrowth="Bottom"/>
           </ScrollPanel>
         </Box>
+        <!-- When both the population and land shares and the original capitals win: which of the two views shows; the Lua places it after the title, and it comes after the views so that it takes the clicks -->
+        <Stack ID="DominationViewStack" Anchor="L,T" Offset="130,7" Padding="6" StackGrowth="Right" Hidden="1">
+          <TextButton ID="DominationSharesButton" Anchor="L,C" Style="Font16or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_VP_DOMINATION_VIEW_SHARES" ToolTip="TXT_KEY_VP_DOMINATION_VIEW_SHARES_TT" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1"/>
+          <Label Anchor="L,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="|"/>
+          <TextButton ID="DominationCapitalsButton" Anchor="L,C" Style="Font16or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_VP_DOMINATION_VIEW_CAPITALS" ToolTip="TXT_KEY_VP_DOMINATION_VIEW_CAPITALS_TT" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1"/>
+        </Stack>
         <Label ID="DominationDisabledLabel" Offset="5,5" Anchor="C,C" Font="TwCenMT16" String="TXT_KEY_VP_DOMINATION_VICTORY_DISABLED"/>
         <Image Anchor="L,B" Offset="-3,0" Texture="HorizontalTrim.dds" Size="622.5"/>
       </Box>

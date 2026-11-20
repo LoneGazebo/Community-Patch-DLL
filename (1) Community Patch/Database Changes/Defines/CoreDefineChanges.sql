@@ -53,6 +53,9 @@ VALUES
 -- Domination Victory by population and land share (VP): percent of City-States' population and land that counts in the world totals;
 -- the rest lowers both shares needed (100: City-States count fully, 0: they are left out)
 	('DOMINATION_VICTORY_CITY_STATE_WEIGHT', 50),
+-- Domination Victory by population and land share (VP): 1 = holding the original capitals (VICTORY_DOMINATION_CONTROL_PERCENT of them,
+-- directly, through Vassals or through allied City-States) also wins, 0 = only the shares win. Without the shares, the capitals always decide it.
+	('DOMINATION_VICTORY_CAPITALS', 1),
 -- Minimum war score for third party peace requests
 	('THIRD_PARTY_PEACE_MIN_WAR_SCORE', 75),
 -- Minimum number of turns before War Weariness starts accumulating each turn, even if no damage is inflicted

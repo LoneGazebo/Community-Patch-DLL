@@ -670,6 +670,10 @@ public:
 	// Victory Stuff
 	void DoTestConquestVictory();
 	bool IsDominationVictoryByLandAndPopulation() const;
+	bool IsDominationVictoryByCapitals() const;
+	std::vector<CvCity*> GetOriginalCapitals() const;
+	int GetNumDominationCapitals(TeamTypes eTeam) const;
+	int GetNumDominationCapitalsNeeded() const;
 
 	PlayerTypes GetBestWondersPlayer();
 	void SetBestWondersPlayer(PlayerTypes ePlayer, int iWonderCount);

@@ -6547,10 +6547,12 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 	{
 		bool bOnlyCurrentWars = (!GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE);
 		bool bNoWarOnHumans = !GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIPassiveTowardsHumans();
-		if (bOnlyCurrentWars || bNoWarOnHumans)
-			return CanPlayerReachDominationShares(ePlayer, eMakePeacePlayer, bOnlyCurrentWars);
+		if (!(bOnlyCurrentWars || bNoWarOnHumans) || CanPlayerReachDominationShares(ePlayer, eMakePeacePlayer, bOnlyCurrentWars))
+			return true;
 
-		return true;
+		// The shares are out of reach, but holding the original capitals may not be (checked below)
+		if (!IsDominationVictoryByCapitals())
+			return false;
 	}
 
 	if ((!GET_PLAYER(ePlayer).isHuman(ISHUMAN_MECHANICS) && IsAIPassiveMode()) || isOption(GAMEOPTION_ALWAYS_PEACE) || isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
@@ -12119,34 +12121,11 @@ void CvGame::DoTestConquestVictory()
 		}
 	}
 
-	// Domination Victory goes by population and land share instead (testVictory() checks it every turn)
-	if (IsDominationVictoryByLandAndPopulation())
+	// Domination Victory goes only by population and land share (testVictory() checks it every turn)
+	if (!IsDominationVictoryByCapitals())
 		return;
 
-	// Find out how many original capitals there are
-	std::vector<CvCity*> originalCapitals;
-	CvMap& kMap = GC.getMap();
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-		if (!kLoopPlayer.isEverAlive())
-			continue;
-
-		const int iOriginalCapitalX = kLoopPlayer.GetOriginalCapitalX();
-		const int iOriginalCapitalY = kLoopPlayer.GetOriginalCapitalY();
-		if (iOriginalCapitalX == -1 || iOriginalCapitalY == -1)
-			continue;
-
-		CvPlot* pCapitalPlot = kMap.plot(iOriginalCapitalX, iOriginalCapitalY);
-		if (pCapitalPlot)
-		{
-			CvCity* pCapital = pCapitalPlot->getPlotCity();
-			if (pCapital)
-				originalCapitals.push_back(pCapital);
-		}
-	}
-
+	std::vector<CvCity*> originalCapitals = GetOriginalCapitals();
 	if (originalCapitals.empty())
 		return;
 
@@ -12159,11 +12138,9 @@ void CvGame::DoTestConquestVictory()
 		countPerTeam[GET_PLAYER(eCapitalOwner).getTeam()]++;
 	}
 
-	int iMinPercent = range(GD_INT_GET(VICTORY_DOMINATION_CONTROL_PERCENT), 51, 100);
-	int iThreshold = max(2, int(originalCapitals.size() * iMinPercent) / 100);
+	int iThreshold = GetNumDominationCapitalsNeeded();
 	for (std::map<TeamTypes, int>::iterator it = countPerTeam.begin(); it != countPerTeam.end(); ++it)
 	{
-		//must have at least two to win because you start out with one ...
 		if (it->second >= iThreshold)
 		{
 			// The winner wins!
@@ -12186,6 +12163,70 @@ bool CvGame::IsDominationVictoryByLandAndPopulation() const
 	}
 
 	return false;
+}
+
+//	--------------------------------------------------------------------------------
+/// Is Domination Victory (also) won by holding the original capitals? Always without population and land shares, and
+/// with them unless DOMINATION_VICTORY_CAPITALS turns it off
+bool CvGame::IsDominationVictoryByCapitals() const
+{
+	return !IsDominationVictoryByLandAndPopulation() || GD_INT_GET(DOMINATION_VICTORY_CAPITALS) > 0;
+}
+
+//	--------------------------------------------------------------------------------
+/// The original capitals of every major civ that was ever in the game, as far as they still stand
+std::vector<CvCity*> CvGame::GetOriginalCapitals() const
+{
+	std::vector<CvCity*> vCapitals;
+	CvMap& kMap = GC.getMap();
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		const CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+		if (!kLoopPlayer.isEverAlive())
+			continue;
+
+		const int iOriginalCapitalX = kLoopPlayer.GetOriginalCapitalX();
+		const int iOriginalCapitalY = kLoopPlayer.GetOriginalCapitalY();
+		if (iOriginalCapitalX == -1 || iOriginalCapitalY == -1)
+			continue;
+
+		CvPlot* pCapitalPlot = kMap.plot(iOriginalCapitalX, iOriginalCapitalY);
+		if (pCapitalPlot)
+		{
+			CvCity* pCapital = pCapitalPlot->getPlotCity();
+			if (pCapital)
+				vCapitals.push_back(pCapital);
+		}
+	}
+
+	return vCapitals;
+}
+
+//	--------------------------------------------------------------------------------
+/// How many original capitals eTeam controls for a Domination Victory: held by the team, by its Vassals or by City-States
+/// allied with it (CvCity::GetOwnerForDominationVictory)
+int CvGame::GetNumDominationCapitals(TeamTypes eTeam) const
+{
+	int iCount = 0;
+	std::vector<CvCity*> vCapitals = GetOriginalCapitals();
+	for (size_t i = 0; i < vCapitals.size(); i++)
+	{
+		if (GET_PLAYER(vCapitals[i]->GetOwnerForDominationVictory()).getTeam() == eTeam)
+			iCount++;
+	}
+
+	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+/// How many original capitals a team must control for a Domination Victory (VICTORY_DOMINATION_CONTROL_PERCENT of them)
+int CvGame::GetNumDominationCapitalsNeeded() const
+{
+	const int iNumCapitals = static_cast<int>(GetOriginalCapitals().size());
+	const int iMinPercent = range(GD_INT_GET(VICTORY_DOMINATION_CONTROL_PERCENT), 51, 100);
+
+	// At least two, since every civilization starts out with its own
+	return max(2, iNumCapitals * iMinPercent / 100);
 }
 
 //	--------------------------------------------------------------------------------

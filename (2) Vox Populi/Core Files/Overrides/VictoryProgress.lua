@@ -265,231 +265,252 @@ end
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
+-- With both routes to a Domination Victory, a switch picks the view: the population and land shares, or the original capitals
+local g_bDominationCapitalsView = false;
+
 function PopulateDomination()
 
-	-- Population and land share (Civ4 rules) instead of the original capitals?
 	local dominationVictory = GameInfo.Victories["VICTORY_DOMINATION"];
-	if (PreGame.IsVictory(dominationVictory.ID) and (dominationVictory.PopulationPercentLead > 0 or dominationVictory.LandPercent > 0)) then
-		PopulateDominationShares(dominationVictory);
-		Controls.DominationVictoryProgress:SetHide(false);
-		Controls.DominationDisabledLabel:SetHide(true);
+	if (not PreGame.IsVictory(dominationVictory.ID)) then
+		Controls.DominationViewStack:SetHide(true);
+		Controls.DominationVictoryProgress:SetHide(true);
+		Controls.DominationDisabledLabel:SetHide(false);
 		return;
 	end
 
-	if(PreGame.IsVictory(GameInfo.Victories["VICTORY_DOMINATION"].ID))then
-		for i, v in pairs(g_DominationItemIMList) do
-			v:ResetInstances();
-		end
-		g_DominationRowsIM:ResetInstances();
-		
-		g_DominationRowList = {};
-		g_DominationItemList = {};
-		g_DominationItemIMList = {};
-		
-		local curRow = nil;
-		local numRows = 0;
-		local curItemIM = nil;
-		local numItemIM = 0;
-		local curCol = 0;
-		local numItems = 0;
-		local numCapitals = 0;
-		
-		local iLeadingNumCapitals = 0;
-		local iLeadingNumDisplayCapital = 0;
-		local iLeadingTeam = -1;
-		local iLeadingPlayer = -1;
-		local iLeadingNumPlayersOnTeam = 0;
-		local iLeadingVassalsOnTeam = 0;
-		local bAnyoneLostControlOfCapital = false;
-		
-		local aiCapitalOwner = {};
-		
-		print("GameDefines.MAX_CIV_PLAYERS: " .. GameDefines.MAX_MAJOR_CIVS);
-		
-		for iTeamLoop = 0, GameDefines.MAX_CIV_TEAMS-1, 1 do
-			-- Loop through all the civs the active player knows
-			local iNumCapitals = 0;
-			local iNumDisplayCapital = 0;
-			local iNumPlayersOnTeam = 0;
-			local iPlayerOnTeam = -1;
-			local iNumVassals = 0;
-			
-			for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
-				local pPlayer = Players[iPlayerLoop];
-				if (not pPlayer:IsMinorCiv() and pPlayer:IsEverAlive() and pPlayer:GetTeam() == iTeamLoop) then
-					if (pPlayer:IsHasLostCapital() or Teams[pPlayer:GetTeam()]:IsVassalOfSomeone()) then
-						bAnyoneLostControlOfCapital = true; --Vassalage: You don't need to lose Capital.. you can be vassalized!
-					end
-				
-					iPlayerOnTeam = iPlayerLoop;
-					iNumPlayersOnTeam = iNumPlayersOnTeam + 1;
+	-- Population and land share (Civ4 rules), holding the original capitals, or either
+	local bShares = Game.IsDominationVictoryByLandAndPopulation();
+	local bCapitals = Game.IsDominationVictoryByCapitals();
+	local bCapitalsView = bCapitals and (g_bDominationCapitalsView or not bShares);
 
-					for pCity in pPlayer:Cities() do
-						if (pCity:IsOriginalMajorCapital()) then
-							--print(pCity:GetName());
-							iNumCapitals = iNumCapitals + 1;
-							aiCapitalOwner[pCity:GetOriginalOwner()] = pCity:GetOwnerForDominationVictory();
-							if (Teams[Players[pCity:GetOriginalOwner()]:GetTeam()]:IsVassal(iTeamLoop)) then
-								iNumCapitals = iNumCapitals - 1; --Don't double count Vassal and Capturing Enemy Capital
-							end
-							iNumDisplayCapital = iNumCapitals;
-						end
-					end
-					iNumVassals = Teams[pPlayer:GetTeam()]:GetNumVassals(); -- Vassalage: Get Number here
-					if (iNumVassals > 0) then -- Vassalage: And then we need to suddenly iterate through every player again... to count vassal's conquered capitals.
-						for iVassalLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
-							local pVassal = Players[iVassalLoop];
-							if (Teams[pVassal:GetTeam()]:IsVassal(pPlayer:GetTeam())) then
-								for pCity in pVassal:Cities() do
-									if (pCity:IsOriginalMajorCapital() and pCity:GetOriginalOwner() ~= iVassalLoop and pCity:GetOriginalOwner() ~= iPlayerLoop) then
-										iNumDisplayCapital = iNumDisplayCapital + 1;
-									end
-								end
-							end
-						end
-					end
-					for iCityStateLoop = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_MINOR_CIVS-1, 1 do
-						local pCityState = Players[iCityStateLoop];
-						if pCityState:IsAlive() and pCityState:IsAllies(iPlayerLoop) then
-							for pCity in pCityState:Cities() do
-								if (pCity:IsOriginalMajorCapital() and pCity:GetOriginalOwner() ~= iCityStateLoop and pCity:GetOriginalOwner() ~= iPlayerLoop) then
-									iNumDisplayCapital = iNumDisplayCapital + 1;
-								end
-							end
-						end
-					end
-					iNumDisplayCapital = iNumDisplayCapital + iNumVassals; --Get Total of Vassals and Captured Enemy Capitals
-					--print(pPlayer:GetName() .. "iNumCapitals: " .. iNumCapitals);
-					--print(pPlayer:GetName() .. "iNumVassals: " .. iNumVassals);
-				end
-			end
-			
-			--print("iNumCapitals: " .. iNumCapitals);
-			--print("iNumPlayersOnTeam: " .. iNumPlayersOnTeam);
-			--print("iLeadingNumCapitals: " .. iLeadingNumCapitals);
-			--print("iLeadingNumPlayersOnTeam: " .. iLeadingNumPlayersOnTeam);
-			--print("iLeadingVassalsOnTeam: " .. iLeadingVassalsOnTeam);
-			
-			if (iNumCapitals - iNumPlayersOnTeam + iNumVassals > iLeadingNumCapitals - iLeadingNumPlayersOnTeam + iLeadingVassalsOnTeam) then
-				iLeadingTeam = iTeamLoop;
-				iLeadingNumCapitals = iNumCapitals;
-				iLeadingNumDisplayCapital = iNumDisplayCapital;
-				iLeadingNumPlayersOnTeam = iNumPlayersOnTeam;
-				iLeadingPlayer = iPlayerOnTeam;
-				iLeadingVassalsOnTeam = iNumVassals;
-			end
-		end
-		local OriginalCapitalSize = 0;
-		-- Loop through all the civs the active player knows
-		for iPlayerLoop = 0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
-
-			local pPlayer = Players[iPlayerLoop];
-			
-			if(not pPlayer:IsMinorCiv() and pPlayer:IsEverAlive()) then
-				-- Create new row if one does not alread exist.
-				if(curRow == nil) then
-					numRows = numRows + 1;
-					curRow = g_DominationRowsIM:GetInstance();
-					g_DominationRowList[numRows] = curRow;
-					
-					numItemIM = numItemIM + 1;
-					curItemIM = InstanceManager:new( "DominationItem", "IconFrame", curRow.RowStack );
-					g_DominationItemIMList[numItemIM] = curItemIM;
-					
-				end
-
-				local dominatingPlayer = Players[aiCapitalOwner[iPlayerLoop]];
-
-				--print("who is" .. aiCapitalOwner[iPlayerLoop])
-				if (Teams[pPlayer:GetTeam()]:GetMaster() ~= -1) then --Vassalage: Get Master's Team Leader first, then move on!
-					dominatingPlayer = Players[Teams[Teams[pPlayer:GetTeam()]:GetMaster()]:GetLeaderID()];
-					if (pPlayer:GetOriginalCapitalPlot() ~= nil) then
-						if (pPlayer:GetOriginalCapitalPlot():GetWorkingCity():GetOwnerForDominationVictory() ~= dominatingPlayer and pPlayer:GetOriginalCapitalPlot():GetWorkingCity():GetOwnerForDominationVictory() ~= iPlayerLoop) then --Ok maybe someone MIGHT hold a capital AND vassalize them... awkwardly.
-							dominatingPlayer = Players[pPlayer:GetOriginalCapitalPlot():GetWorkingCity():GetOwnerForDominationVictory()];
-						end
-					end
-				end
-				if (dominatingPlayer == nil and pPlayer:GetOriginalCapitalPlot() ~= nil) then 
-					dominatingPlayer = Players[pPlayer:GetOriginalCapitalPlot():GetWorkingCity():GetOwnerForDominationVictory()];
-				end
-				local newNumItems = AddDominationCiv(pPlayer, dominatingPlayer, numItems, curItemIM);
-				
-				if(newNumItems ~= numItems) then
-					numItems = newNumItems;				
-					curCol = curCol + 1;
-					if(curCol >= MAX_DOMINATION_ICONS_PER_ROW) then
-						curRow = nil;
-						curCol = 0;
-					end
-				end
-				OriginalCapitalSize = OriginalCapitalSize+1;
-			end
-		end
-		
-		local pActivePlayer = Players[Game.GetActivePlayer()];
-		local pActiveTeam = Teams[pActivePlayer:GetTeam()];
-		local iDomWinner = math.max(math.min(math.floor(OriginalCapitalSize*GameDefines["VICTORY_DOMINATION_CONTROL_PERCENT"] / 100), OriginalCapitalSize), 2);
-		
-		if (iLeadingTeam == -1) then
-			if (bAnyoneLostControlOfCapital) then
-				--print("Hiding string because it is a weird circumstance");
-				Controls.DominationLabel:SetHide(true);
-			else
-				--print("Everybody has their own capital.");
-				Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_NEW_CAPITALS_REMAINING"));	
-				Controls.DominationLabel:SetHide(false);
-			end
-		elseif (iLeadingNumPlayersOnTeam > 1) then
-			--print("A team is winning");
-			Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_TEAM_LEADING", iLeadingTeam + 1, math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));	
-			Controls.DominationLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_TEAM_LEADING_TT", iLeadingTeam + 1, iLeadingNumDisplayCapital));	
-			Controls.DominationLabel:SetHide(false);		
-		else
-			if (iLeadingPlayer == Game.GetActivePlayer()) then
-				--print("The current player is winning");
-				Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_ACTIVE_PLAYER_LEADING", math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));
-				Controls.DominationLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_ACTIVE_PLAYER_LEADING_TT", iLeadingNumDisplayCapital));
-			else
-				--print("Some other player is winning");
-				local pOtherPlayer = Players[iLeadingPlayer];			
-				if (pOtherPlayer:GetNickName() ~= "" and pOtherPlayer:IsHuman()) then
-					Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING", pOtherPlayer:GetNickName(),math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));
-					Controls.DominationLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING_TT", pOtherPlayer:GetNickName(), iLeadingNumDisplayCapital));
-				elseif (not pActiveTeam:IsHasMet(iLeadingTeam)) then
-					Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING", math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));
-					Controls.DominationLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING_TT", iLeadingNumDisplayCapital));
-				else
-					Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING", pOtherPlayer:GetName(), math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));
-					Controls.DominationLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING_TT", pOtherPlayer:GetName(), iLeadingNumDisplayCapital));
-    			end
-			end
-			Controls.DominationLabel:SetHide(false);	
-		end
-		
-		--Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_REMAINING",  numCapitals));
-			
-		Controls.DominationStack:CalculateSize();
-		Controls.DominationStack:ReprocessAnchoring();
-		Controls.DominationScrollPanel:CalculateInternalSize();
-		
-		Controls.DominationVictoryProgress:SetHide(false);
-		Controls.DominationDisabledLabel:SetHide(true);
-	else
-		Controls.DominationVictoryProgress:SetHide(true);
-		Controls.DominationDisabledLabel:SetHide(false);
+	Controls.DominationViewStack:SetHide(not (bShares and bCapitals));
+	if (bShares and bCapitals) then
+		local strShares = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_VIEW_SHARES");
+		local strCapitals = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_VIEW_CAPITALS");
+		Controls.DominationSharesButton:SetText(bCapitalsView and strShares or Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_VIEW_SELECTED", strShares));
+		Controls.DominationCapitalsButton:SetText(bCapitalsView and Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_VIEW_SELECTED", strCapitals) or strCapitals);
+		Controls.DominationViewStack:SetOffsetX(Controls.DominationTitle:GetOffsetX() + Controls.DominationTitle:GetSizeX() + 20);
+		Controls.DominationViewStack:CalculateSize();
 	end
+
+	if (bCapitalsView) then
+		PopulateDominationCapitals();
+	else
+		PopulateDominationShares(dominationVictory, bCapitals);
+	end
+
+	Controls.DominationVictoryProgress:SetHide(false);
+	Controls.DominationDisabledLabel:SetHide(true);
+end
+
+function OnDominationSharesView()
+	g_bDominationCapitalsView = false;
+	PopulateDomination();
+end
+Controls.DominationSharesButton:RegisterCallback( Mouse.eLClick, OnDominationSharesView );
+
+function OnDominationCapitalsView()
+	g_bDominationCapitalsView = true;
+	PopulateDomination();
+end
+Controls.DominationCapitalsButton:RegisterCallback( Mouse.eLClick, OnDominationCapitalsView );
+
+----------------------------------------------------------------
+-- The header line sits right of the view switch, when that shows: a line too long for the room left there gets its short
+-- form, and the long one goes to the top of the tooltip
+----------------------------------------------------------------
+function SetDominationHeader(strText, strShortText, strToolTip)
+	Controls.DominationLabel:SetText(strText);
+	if (not Controls.DominationViewStack:IsHidden()) then
+		local iRoom = Controls.DominationVictoryProgress:GetSizeX() - Controls.DominationViewStack:GetOffsetX() - Controls.DominationViewStack:GetSizeX() - 20;
+		if (Controls.DominationLabel:GetSizeX() > iRoom and strShortText ~= strText) then
+			Controls.DominationLabel:SetText(strShortText);
+			strToolTip = (strToolTip ~= "") and (strText .. "[NEWLINE][NEWLINE]" .. strToolTip) or strText;
+		end
+	end
+	Controls.DominationLabel:SetToolTipString(strToolTip);
+	Controls.DominationLabel:SetHide(false);
+end
+
+----------------------------------------------------------------
+-- The original capitals still standing: { City, OriginalOwner } for every major civ that was ever in the game, as
+-- CvGame::GetOriginalCapitals counts them
+----------------------------------------------------------------
+function GetOriginalCapitals()
+	local capitals = {};
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+		local pPlayer = Players[iPlayerLoop];
+		if (pPlayer:IsEverAlive()) then
+			local pPlot = pPlayer:GetOriginalCapitalPlot();
+			if (pPlot ~= nil and pPlot:GetPlotCity() ~= nil) then
+				table.insert(capitals, { City = pPlot:GetPlotCity(), OriginalOwner = iPlayerLoop });
+			end
+		end
+	end
+	return capitals;
+end
+
+----------------------------------------------------------------
+-- Domination Victory by holding the original capitals: one icon per civilization, marked with who controls its capital
+----------------------------------------------------------------
+function PopulateDominationCapitals()
+	Controls.DominationShareScrollPanel:SetHide(true);
+	Controls.DominationScrollPanel:SetHide(false);
+
+	for i, v in pairs(g_DominationItemIMList) do
+		v:ResetInstances();
+	end
+	g_DominationRowsIM:ResetInstances();
+
+	g_DominationRowList = {};
+	g_DominationItemList = {};
+	g_DominationItemIMList = {};
+
+	local curRow = nil;
+	local numRows = 0;
+	local curItemIM = nil;
+	local numItemIM = 0;
+	local curCol = 0;
+	local numItems = 0;
+
+	-- The team that controls the most original capitals beyond its own, counted as the victory counts them: held by the
+	-- team, by its Vassals or by City-States allied with it (CvCity::GetOwnerForDominationVictory)
+	local iLeadingNumDisplayCapital = 0;
+	local iLeadingTeam = -1;
+	local iLeadingPlayer = -1;
+	local iLeadingNumPlayersOnTeam = 0;
+	local iLeadingExtraCapitals = 0;
+	local bAnyoneLostControlOfCapital = false;
+
+	for iTeamLoop = 0, GameDefines.MAX_CIV_TEAMS-1, 1 do
+		local pTeam = Teams[iTeamLoop];
+		local iNumPlayersOnTeam = 0;
+		local iPlayerOnTeam = -1;
+
+		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+			local pPlayer = Players[iPlayerLoop];
+			if (pPlayer:IsEverAlive() and pPlayer:GetTeam() == iTeamLoop) then
+				if (pPlayer:IsHasLostCapital() or pTeam:IsVassalOfSomeone()) then
+					bAnyoneLostControlOfCapital = true; --Vassalage: You don't need to lose Capital.. you can be vassalized!
+				end
+				iPlayerOnTeam = iPlayerLoop;
+				iNumPlayersOnTeam = iNumPlayersOnTeam + 1;
+			end
+		end
+
+		if (iPlayerOnTeam ~= -1) then
+			local iNumCapitals = Game.GetNumDominationCapitals(iTeamLoop);
+			if (iNumCapitals - iNumPlayersOnTeam > iLeadingExtraCapitals) then
+				iLeadingTeam = iTeamLoop;
+				iLeadingPlayer = iPlayerOnTeam;
+				iLeadingNumPlayersOnTeam = iNumPlayersOnTeam;
+				iLeadingNumDisplayCapital = iNumCapitals;
+				iLeadingExtraCapitals = iNumCapitals - iNumPlayersOnTeam;
+			end
+		end
+	end
+
+	-- Loop through all the civs the active player knows
+	for iPlayerLoop = 0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
+
+		local pPlayer = Players[iPlayerLoop];
+
+		if(not pPlayer:IsMinorCiv() and pPlayer:IsEverAlive()) then
+			-- Create new row if one does not alread exist.
+			if(curRow == nil) then
+				numRows = numRows + 1;
+				curRow = g_DominationRowsIM:GetInstance();
+				g_DominationRowList[numRows] = curRow;
+
+				numItemIM = numItemIM + 1;
+				curItemIM = InstanceManager:new( "DominationItem", "IconFrame", curRow.RowStack );
+				g_DominationItemIMList[numItemIM] = curItemIM;
+
+			end
+
+			-- Who controls this civilization's original capital for the victory
+			local dominatingPlayer = nil;
+			local pCapitalPlot = pPlayer:GetOriginalCapitalPlot();
+			if (pCapitalPlot ~= nil and pCapitalPlot:GetPlotCity() ~= nil) then
+				dominatingPlayer = Players[pCapitalPlot:GetPlotCity():GetOwnerForDominationVictory()];
+			end
+			local newNumItems = AddDominationCiv(pPlayer, dominatingPlayer, numItems, curItemIM);
+
+			if(newNumItems ~= numItems) then
+				numItems = newNumItems;
+				curCol = curCol + 1;
+				if(curCol >= MAX_DOMINATION_ICONS_PER_ROW) then
+					curRow = nil;
+					curCol = 0;
+				end
+			end
+		end
+	end
+
+	local pActivePlayer = Players[Game.GetActivePlayer()];
+	local pActiveTeam = Teams[pActivePlayer:GetTeam()];
+	local iDomWinner = Game.GetNumDominationCapitalsNeeded();
+	local iCapitalsLeft = math.max(iDomWinner-iLeadingNumDisplayCapital, 0);
+	local strShortText = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_CAPITALS_LEFT_SHORT", iCapitalsLeft);
+
+	if (iLeadingTeam == -1) then
+		if (bAnyoneLostControlOfCapital) then
+			--print("Hiding string because it is a weird circumstance");
+			Controls.DominationLabel:SetHide(true);
+		else
+			--print("Everybody has their own capital.");
+			local strText = Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_NEW_CAPITALS_REMAINING");
+			SetDominationHeader(strText, strText, "");
+		end
+	elseif (iLeadingNumPlayersOnTeam > 1) then
+		--print("A team is winning");
+		SetDominationHeader(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_TEAM_LEADING", iLeadingTeam + 1, iCapitalsLeft), strShortText,
+			Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_TEAM_LEADING_TT", iLeadingTeam + 1, iLeadingNumDisplayCapital));
+	else
+		if (iLeadingPlayer == Game.GetActivePlayer()) then
+			--print("The current player is winning");
+			SetDominationHeader(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_ACTIVE_PLAYER_LEADING", iCapitalsLeft), strShortText,
+				Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_ACTIVE_PLAYER_LEADING_TT", iLeadingNumDisplayCapital));
+		else
+			--print("Some other player is winning");
+			local pOtherPlayer = Players[iLeadingPlayer];
+			if (pOtherPlayer:GetNickName() ~= "" and pOtherPlayer:IsHuman()) then
+				SetDominationHeader(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING", pOtherPlayer:GetNickName(), iCapitalsLeft), strShortText,
+					Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING_TT", pOtherPlayer:GetNickName(), iLeadingNumDisplayCapital));
+			elseif (not pActiveTeam:IsHasMet(iLeadingTeam)) then
+				SetDominationHeader(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING", iCapitalsLeft), strShortText,
+					Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING_TT", iLeadingNumDisplayCapital));
+			else
+				SetDominationHeader(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING", pOtherPlayer:GetName(), iCapitalsLeft), strShortText,
+					Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING_TT", pOtherPlayer:GetName(), iLeadingNumDisplayCapital));
+			end
+		end
+	end
+
+	Controls.DominationStack:CalculateSize();
+	Controls.DominationStack:ReprocessAnchoring();
+	Controls.DominationScrollPanel:CalculateInternalSize();
 end
 
 ----------------------------------------------------------------
 -- Domination Victory by population and land share: one row per team, closest to winning first
+-- bCapitals: holding the original capitals also wins, so each row shows how many the team controls
 ----------------------------------------------------------------
-function PopulateDominationShares(victoryInfo)
+function PopulateDominationShares(victoryInfo, bCapitals)
 	g_DominationShareIM:ResetInstances();
 
 	local iTotalPopulation = Game.GetTotalPopulation();
 	local iTotalLand = Map.GetLandPlots();
 	local iPopulationNeeded = Game.GetAdjustedPopulationPercent(victoryInfo.ID);
 	local iLandNeeded = Game.GetAdjustedLandPercent(victoryInfo.ID);
+	local iCapitalsNeeded = bCapitals and Game.GetNumDominationCapitalsNeeded() or 0;
+	local capitals = bCapitals and GetOriginalCapitals() or {};
+	local iActiveTeam = Game.GetActiveTeam();
+
+	-- Names of civilizations the active player hasn't met stay hidden
+	local function IsKnown(iTeam)
+		return iTeam == iActiveTeam or Teams[iActiveTeam]:IsHasMet(iTeam);
+	end
 
 	-- How far a team is towards one requirement, from 0 to 1
 	local function Progress(iAmount, iTotal, iNeeded)
@@ -507,6 +528,39 @@ function PopulateDominationShares(victoryInfo)
 			return Locale.ConvertTextKey(strKey .. "_MORE_TT", iAmount, iTotal, iMore, iNeeded);
 		end
 		return Locale.ConvertTextKey(strKey .. "_REACHED_TT", iAmount, iTotal, iNeeded);
+	end
+
+	-- How many original capitals a team controls and how many more it needs, then each one it controls and how: held by
+	-- the team itself, by one of its Vassals or by an allied City-State (CvCity::GetOwnerForDominationVictory)
+	local function CapitalsToolTip(iTeam, iNumCapitals)
+		local iMore = math.max(0, iCapitalsNeeded - iNumCapitals);
+		local strToolTip;
+		if (iMore > 0) then
+			strToolTip = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_CAPITALS_MORE_TT", iNumCapitals, #capitals, iMore, iCapitalsNeeded);
+		else
+			strToolTip = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_CAPITALS_REACHED_TT", iNumCapitals, #capitals, iCapitalsNeeded);
+		end
+		for _, capital in ipairs(capitals) do
+			if (Players[capital.City:GetOwnerForDominationVictory()]:GetTeam() == iTeam) then
+				local pOwner = Players[capital.City:GetOwner()];
+				local strCity = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_CAPITAL_UNMET");
+				if (IsKnown(Players[capital.OriginalOwner]:GetTeam())) then
+					strCity = capital.City:GetName();
+				end
+				local strOwner = Locale.ConvertTextKey("TXT_KEY_MISC_UNKNOWN");
+				if (IsKnown(pOwner:GetTeam())) then
+					strOwner = pOwner:GetCivilizationShortDescription();
+				end
+				if (pOwner:GetTeam() == iTeam) then
+					strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_CAPITAL_HELD_TT", strCity);
+				elseif (pOwner:IsMinorCiv()) then
+					strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_CAPITAL_ALLY_TT", strCity, strOwner);
+				else
+					strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_CAPITAL_VASSAL_TT", strCity, strOwner);
+				end
+			end
+		end
+		return strToolTip;
 	end
 
 	-- A bar shows the team's share of the world, with a mark at the share needed; it turns green once that is reached
@@ -530,6 +584,11 @@ function PopulateDominationShares(victoryInfo)
 			team.PopulationProgress = Progress(team.Population, iTotalPopulation, iPopulationNeeded);
 			team.LandProgress = Progress(team.Land, iTotalLand, iLandNeeded);
 			team.Progress = math.min(team.PopulationProgress, team.LandProgress);
+			-- With the capitals too, the route closer to winning decides the order
+			if (bCapitals) then
+				team.Capitals = Game.GetNumDominationCapitals(iTeam);
+				team.Progress = math.max(team.Progress, math.min(1, team.Capitals / math.max(1, iCapitalsNeeded)));
+			end
 			table.insert(teams, team);
 		end
 	end
@@ -549,7 +608,11 @@ function PopulateDominationShares(victoryInfo)
 		if (pTeam:GetNumMembers() > 1) then
 			row.Name:SetText(Locale.ConvertTextKey("TXT_KEY_NUMBERING_FORMAT", i) .. " " .. Locale.ConvertTextKey("TXT_KEY_MULTIPLAYER_DEFAULT_TEAM_NAME", team.ID + 1));
 		else
-			SetCivName(pLeader, i, row.Name, true, 190);
+			SetCivName(pLeader, i, row.Name, true, bCapitals and 136 or 190);
+		end
+		row.Capitals:SetHide(not bCapitals);
+		if (bCapitals) then
+			row.Capitals:LocalizeAndSetText("TXT_KEY_VP_DOMINATION_CAPITALS_COUNT", team.Capitals, iCapitalsNeeded);
 		end
 
 		local iPopulationShare = math.floor(100 * team.Population / math.max(1, iTotalPopulation));
@@ -561,6 +624,9 @@ function PopulateDominationShares(victoryInfo)
 
 		local strToolTip = ShareToolTip("TXT_KEY_VP_DOMINATION_POPULATION", team.Population, iTotalPopulation, iPopulationNeeded)
 			.. "[NEWLINE]" .. ShareToolTip("TXT_KEY_VP_DOMINATION_LAND", team.Land, iTotalLand, iLandNeeded);
+		if (bCapitals) then
+			strToolTip = strToolTip .. "[NEWLINE]" .. CapitalsToolTip(team.ID, team.Capitals);
+		end
 		if (pTeam:IsVassalOfSomeone()) then
 			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_VASSAL_TT");
 		elseif (pTeam:GetNumVassals() > 0) then
@@ -582,10 +648,16 @@ function PopulateDominationShares(victoryInfo)
 	local iCityStatePopulationShare = math.floor(100 * iCityStatePopulation / math.max(1, iTotalPopulation));
 	local iCityStateLandShare = math.floor(100 * iCityStateLand / math.max(1, iTotalLand));
 
-	Controls.DominationLabel:LocalizeAndSetText("TXT_KEY_VP_DOMINATION_SHARES_NEEDED", iPopulationNeeded, iLandNeeded);
-	Controls.DominationLabel:LocalizeAndSetToolTip("TXT_KEY_VP_DOMINATION_SHARES_NEEDED_TT", victoryInfo.PopulationPercentLead, victoryInfo.LandPercent, victoryInfo.MinLandPercent,
+	local strText = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_NEEDED", iPopulationNeeded, iLandNeeded);
+	local strShortText = strText;
+	local strToolTip = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_NEEDED_TT", victoryInfo.PopulationPercentLead, victoryInfo.LandPercent, victoryInfo.MinLandPercent,
 		iCityStateWeight, iCityStatePopulationShare, iCityStateLandShare);
-	Controls.DominationLabel:SetHide(false);
+	if (bCapitals) then
+		strText = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_OR_CAPITALS_NEEDED", iPopulationNeeded, iLandNeeded, iCapitalsNeeded);
+		strShortText = Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_OR_CAPITALS_NEEDED_SHORT", iPopulationNeeded, iLandNeeded, iCapitalsNeeded);
+		strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_VP_DOMINATION_SHARES_CAPITALS_TT", iCapitalsNeeded, #capitals);
+	end
+	SetDominationHeader(strText, strShortText, strToolTip);
 
 	Controls.DominationShareStack:CalculateSize();
 	Controls.DominationShareStack:ReprocessAnchoring();

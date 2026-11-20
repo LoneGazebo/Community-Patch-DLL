@@ -1754,6 +1754,54 @@
 		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_MASTER_TT">
 			<Text>[NEWLINE][NEWLINE]Includes half of the Population and land of its Vassals.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_OR_CAPITALS_NEEDED">
+			<Text>Needs {1_Population}% of the [ICON_CITIZEN] Population and {2_Land}% of the land, or {3_Capitals} [ICON_CAPITAL] Capitals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_OR_CAPITALS_NEEDED_SHORT">
+			<Text>{1_Population}% [ICON_CITIZEN], {2_Land}% land or {3_Capitals} [ICON_CAPITAL]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_SHARES_CAPITALS_TT">
+			<Text>[NEWLINE][NEWLINE]Controlling {1_Needed} of the {2_Total} original [ICON_CAPITAL] Capitals also wins. A team controls a capital that it holds, that one of its Vassals holds, or that a City-State allied with it holds. The Capitals view shows who controls which.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_VIEW_SHARES">
+			<Text>Shares</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_VIEW_SHARES_TT">
+			<Text>Each team's share of the world's [ICON_CITIZEN] Population and land, and the original [ICON_CAPITAL] Capitals it controls.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_VIEW_CAPITALS">
+			<Text>Capitals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_VIEW_CAPITALS_TT">
+			<Text>Who controls each civilization's original [ICON_CAPITAL] Capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_VIEW_SELECTED">
+			<Text>[COLOR_POSITIVE_TEXT]{1_View}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_CAPITALS_LEFT_SHORT">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] more [ICON_CAPITAL] Capitals to win</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_CAPITALS_COUNT">
+			<Text>[ICON_CAPITAL]{1_Num}/{2_Needed}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_CAPITALS_MORE_TT">
+			<Text>[ICON_CAPITAL] Original Capitals: {1_Num} of {2_Total}. [COLOR_NEGATIVE_TEXT]{3_More}[ENDCOLOR] more needed for {4_Needed}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_CAPITALS_REACHED_TT">
+			<Text>[ICON_CAPITAL] Original Capitals: {1_Num} of {2_Total}. [COLOR_POSITIVE_TEXT]{3_Needed} reached.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_CAPITAL_HELD_TT">
+			<Text>[NEWLINE] [ICON_BULLET]{1_City}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_CAPITAL_VASSAL_TT">
+			<Text>[NEWLINE] [ICON_BULLET]{1_City}, held by its Vassal {2_Civ}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_CAPITAL_ALLY_TT">
+			<Text>[NEWLINE] [ICON_BULLET]{1_City}, held by the allied City-State {2_CityState}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_DOMINATION_CAPITAL_UNMET">
+			<Text>An unmet civilization's capital</Text>
+		</Row>
 		<Row Tag="TXT_KEY_VP_DIPLO_TT_MINOR_PLAYER_CONTROLS_CAPITAL_ALLY">
 			<Text>The City-State of {1_Name} controls {2_Num}. They contribute the City to their Ally. Break their alliance or take the [ICON_CAPITAL] Capital from them![NEWLINE][NEWLINE]</Text>
 		</Row>
