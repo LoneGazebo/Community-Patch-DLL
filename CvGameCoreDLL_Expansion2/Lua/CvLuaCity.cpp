@@ -2462,10 +2462,14 @@ int CvLuaCity::lIsBarbarian(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::isBarbarian);
 }
 //------------------------------------------------------------------------------
-//bool isHuman();
+//bool isHuman(IsHumanReason eIsHumanReason = OTHER_ISHUMAN_REASON);
 int CvLuaCity::lIsHuman(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvCity::isHuman);
+	// without an argument, use the C++ default: a missing Lua argument would be read as 0 = ISHUMAN_AI_CITY_MANAGEMENT
+	CvCity* pkCity = GetInstance(L);
+	const IsHumanReason eReason = static_cast<IsHumanReason>(luaL_optint(L, 2, OTHER_ISHUMAN_REASON));
+	lua_pushboolean(L, pkCity->isHuman(eReason));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool isVisible(TeamTypes eTeam, bool bDebug);
