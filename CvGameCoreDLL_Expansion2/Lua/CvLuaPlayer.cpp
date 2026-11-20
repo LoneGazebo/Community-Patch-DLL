@@ -2115,10 +2115,14 @@ int CvLuaPlayer::lChooseTech(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool isHuman();
+//bool isHuman(IsHumanReason eIsHumanReason = OTHER_ISHUMAN_REASON);
 int CvLuaPlayer::lIsHuman(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::isHuman);
+	// without an argument, use the C++ default: a missing Lua argument would be read as 0 = ISHUMAN_AI_CITY_MANAGEMENT
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const IsHumanReason eReason = static_cast<IsHumanReason>(luaL_optint(L, 2, OTHER_ISHUMAN_REASON));
+	lua_pushboolean(L, pkPlayer->isHuman(eReason));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool IsAITeammateOfHuman();
