@@ -15,9 +15,9 @@ const struct
 }
 BUILDS[ExeBuild::NUM_TYPES] =
 {
-	{ "DX11",   0x546CD0A8 }, // CivilizationV_DX11.exe
-	{ "DX9",    0x546CCB59 }, // CivilizationV.exe
-	{ "Tablet", 0x546CD5F8 }, // CivilizationV_Tablet.exe
+	{ "DX11",   0x6AF3837D }, // CivilizationV_DX11.exe
+	{ "DX9",    0x6AF3818F }, // CivilizationV.exe
+	{ "Tablet", 0x6AF385BA }, // CivilizationV_Tablet.exe
 };
 
 bool s_bDetected = false;
