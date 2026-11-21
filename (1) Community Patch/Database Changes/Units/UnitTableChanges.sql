@@ -156,6 +156,9 @@ ALTER TABLE Units ADD ExtraSpies integer DEFAULT 0;
 -- This Great Person will give +x copies of every luxury resource in the City State's borders when expended for a trade mission
 ALTER TABLE Units ADD ExtraLuxuries integer DEFAULT 0;
 
+-- Table for Lua elements that we don't want shown on Tech Tree
+ALTER TABLE Units ADD ShowInTechTree boolean DEFAULT 1;
+
 --------------------------------------------------------
 -- Other Tables
 --------------------------------------------------------
