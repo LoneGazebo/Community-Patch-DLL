@@ -128,7 +128,7 @@ EXE_SYMBOL(
 // The cvLuaScriptSystem singleton; it holds the cvTunerListener
 EXE_SYMBOL(
 	cvLuaScriptSystem_ms_apSingletonInstance,
-	EXE_DATA, 0x02dd207c, 0x02dc1e7c, 0x02dd4064,
+	EXE_DATA, 0x02c62ec8, 0x02c52c88, 0x02c65ed0,
 	NULL
 )
 
@@ -142,7 +142,7 @@ EXE_SYMBOL(
 // tuner's listen socket on entering a multiplayer game
 EXE_SYMBOL(
 	lHostServerGame_EnteringMultiplayerStagingRoom,
-	EXE_CODE, 0x007933f3, 0x004b2d63, 0x0051f4a3,
+	EXE_CODE, 0x00764963, 0x00793333, 0x007661e3,
 	"8B 0D ?? ?? ?? ?? 53 55 56 57 83 C1 04 E8"
 )
 
@@ -150,7 +150,7 @@ EXE_SYMBOL(
 // ret.
 EXE_SYMBOL(
 	cvTunerListener_ExitingMultiplayerStagingRoom,
-	EXE_FUNCTION, 0x00700650, 0x006622b0, 0x00622240,
+	EXE_FUNCTION, 0x0077e5a0, 0x007ad8e0, 0x007800c0,
 	"83 EC 10 80 3D ?? ?? ?? ?? 00 56 ?? ?? 74 2C 83 7E 20 00 75 26"
 	" ?? ?? 50 8D 4C 24 08 E8 ?? ?? ?? ?? 68 DE 10 00 00 8D 44 24 08 50"
 	" ?? ?? E8 ?? ?? ?? ?? 8D 4C 24 04 E8 ?? ?? ?? ?? 5E 83 C4 10 C3"
@@ -165,7 +165,7 @@ EXE_SYMBOL(
 // config.ini EnableTuner
 EXE_SYMBOL(
 	g_bEnableTuner,
-	EXE_DATA, 0x00cc8e7a, 0x00cb8cfa, 0x00cca8f6,
+	EXE_DATA, 0x00b4933e, 0x00b3923e, 0x00b4c33e,
 	NULL
 )
 
