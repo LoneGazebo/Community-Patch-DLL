@@ -8299,7 +8299,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		if (eOldImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
-
+			
+			// Removing this improvement may make the tile impassable
 			DomainTypes eTradeRouteDomain = NO_DOMAIN;
 			if (oldImprovementEntry.IsAllowsWalkWater())
 			{
