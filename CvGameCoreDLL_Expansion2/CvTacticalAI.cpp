@@ -7204,33 +7204,19 @@ void CvBasePosition::UpdateScore(int iUnitId, int iPlotScore, int iOldPlotScore,
 	iScoreOverParent += iBonusScore_ + iPlotScore - iOldPlotScore + iDamageDelta_;
 	iDamageDelta += iDamageDelta_;
 	iBonusScore += iBonusScore_;
+	iTotalScore += (iDamageDelta_ + iBonusScore_) * 10;
 
 	const map<int, short>& plotScores_r = plotScores.read();
 
-	//update total score and check for old plot score
-	//total score is (iDamageDelta + iBonusScore) * 10 + sum(plotScores)
-	//score over parent is (iBonusScore + iDamageDelta + iPlotScore - sPreviousPlotScore)
-	iTotalScore = (iDamageDelta + iBonusScore) * 10;
-	bool bFoundScore = false;
-	for (map<int, short>::const_iterator it = plotScores_r.begin(); it != plotScores_r.end(); ++it)
+	map<int, short>::const_iterator it = plotScores_r.find(iUnitId);
+	short sPreviousPlotScore = it != plotScores_r.end() ? it->second : 0;
+	iScoreOverParent -= sPreviousPlotScore;
+	if (iPlotScore != sPreviousPlotScore)
 	{
-		int iLoopUnitID = it->first;
-		short sPreviousPlotScore = it->second;
-
-		iTotalScore += sPreviousPlotScore;
-		if (iLoopUnitID == iUnitId)
-		{
-			bFoundScore = true;
-			iScoreOverParent -= sPreviousPlotScore;
-			if (iPlotScore != sPreviousPlotScore)
-			{
-				plotScores.write()[iUnitId] = iPlotScore;
-			}
-		}
+		short sNewPlotScore = static_cast<short>(iPlotScore);
+		plotScores.write()[iUnitId] = sNewPlotScore;
+		iTotalScore += sNewPlotScore - sPreviousPlotScore;
 	}
-	//the unit didn't have a previous plot score, so we set it here
-	if (!bFoundScore && iPlotScore != 0)
-		plotScores.write()[iUnitId] = iPlotScore;
 }
 
 static int GetUnitDangerForPlot(const CvUnit* pUnit, const CvPlot* pPlot, int iSelfDamage, const CvTacticalPosition& assumedPosition)
@@ -9403,7 +9389,7 @@ struct PrIsMoveForUnit
 
 bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage,
 	vector<CvTacticalPosition*>& openPositionsHeap, vector<CvTacticalPosition*>& completedPositions, const PrPositionSortHeapGeneration& heapSort,
-	const vector<const CvUnit*>& ourUnits)
+	const vector<const CvUnit*>& ourUnits, int* piBestNoProgressScore)
 {
 	/*
 	abstract:
@@ -9569,7 +9555,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 				if (bHasGeneral || bHasAdmiral || bHasSiegetower)
 					bSuccess = TacticalAIHelpers::AddSupportMoves(*pNewChild, ourUnits, true);
 
-				if (bSuccess && pNewChild->addFinishMovesIfAcceptable(pNewChild->isEarlyFinish(), iProblemUnit))
+				if (bSuccess && pNewChild->addFinishMovesIfAcceptable(pNewChild->isEarlyFinish(), iProblemUnit, piBestNoProgressScore))
 				{
 					//good case, we're done
 					completedPositions.push_back(pNewChild);
@@ -9704,14 +9690,13 @@ bool CvTacticalPosition::isEarlyFinish(bool bExtraKill) const
 
 //see if all the plots where our units would end their turn are acceptable
 //this is a deferred check because in the beginning it's not clear how many enemy units we can eliminate
-bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBadUnitID)
+bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBadUnitID, int* piBestNoProgressScore)
 { 
 	//we allow some "bad" units depending on context
 	int iUnitLossThreshold = gDefaultUnitLossThreshold + nKilledEnemies;
 	int iPotentialUnitLossCounter = 0;
 
 	const vector<SUnitStats>& notQuiteFinishedUnits_r = notQuiteFinishedUnits.read();
-	const vector<SUnitStats>& availableUnits_r = availableUnits.read();
 
 	//only units which have exhausted their moves are in this array! if the sim was aborted, somebody else will hopefully pick up the pieces
 	for (size_t i=0; i < notQuiteFinishedUnits_r.size(); i++)
@@ -9766,15 +9751,6 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBad
 		}
 	}
 
-	//try to enforce some sort of sparsity, we should use only the minimum amount of units. 
-	//so give a bonus for unmoved units. especially important in earlyFinish situations with many units.
-	for (size_t i = 0; i < availableUnits_r.size(); i++)
-	{
-		const SUnitStats& unit = availableUnits_r[i];
-		if (unit.eLastAssignment == A_INITIAL)
-			plotScores.write()[unit.iUnitID] += isEarlyFinish() ? 123 : 45;
-	}
-
 	//scores look good and target was killed, we're done
 	//second chance: did we kill anything (offensive), heal a unit, or at least improve the arrangement of our units (defensive)?
 	//order is important here, need to add finish moves first!
@@ -9788,6 +9764,8 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish, int& iBad
 	}
 
 	//do not clear notQuiteFinishedUnits for better debugging
+	if (piBestNoProgressScore)
+		*piBestNoProgressScore = max(*piBestNoProgressScore, getScoreTotal());
 	return false;
 }
 
@@ -11633,6 +11611,7 @@ CvSupportPosition::CvSupportPosition()
 	nFirstInterestingAssignment = 0;
 	iBonusScore = 0;
 	iDamageDelta = 0;
+	iTotalScore = 0;
 	iScoreOverParent = 0;
 	parentPosition = NULL;
 	tacticalPosition = NULL;
@@ -11730,6 +11709,7 @@ void CvSupportPosition::initFromTacticalPosition(const CvTacticalPosition& tactP
 	nFirstInterestingAssignment = 0;
 	iBonusScore = 0;
 	iDamageDelta = 0;
+	iTotalScore = 0;
 	iScoreOverParent = 0;
 	parentPosition = NULL;
 	UpdateTacticalPosition(tactPos);
@@ -11786,6 +11766,7 @@ void CvSupportPosition::initFromParent(const CvSupportPosition& parent)
 	nFirstInterestingAssignment = parent.nFirstInterestingAssignment;
 	iBonusScore = parent.iBonusScore;
 	iDamageDelta = parent.iDamageDelta;
+	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
 	tacticalPosition = parent.tacticalPosition;
@@ -12457,6 +12438,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	openPositionsHeap.clear();
 	completedPositions.clear();
 	size_t iUsedPositions = 0;
+	// A candidate rejected only for lack of progress sets the score an accepted plan must reach.
+	int iBestNoProgressScore = INT_MIN;
 
 	//don't need to call make_heap for a single element
 	openPositionsHeap.push_back(initialPosition);
@@ -12489,7 +12472,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		int iMaxChoicesPerUnitNow = heapSort.bDepthFirst ? 2 : iMaxChoicesPerUnit;
 
 		//here the magic happens!
-		current->makeNextAssignments(iMaxBranchesNow, iMaxChoicesPerUnitNow, gTactPosStorage, openPositionsHeap, completedPositions, heapSort, ourUnits);
+		current->makeNextAssignments(iMaxBranchesNow, iMaxChoicesPerUnitNow, gTactPosStorage, openPositionsHeap, completedPositions, heapSort, ourUnits, &iBestNoProgressScore);
 
 		int iOldPauseCount = iUsedPositions / 500;
 		iUsedPositions += current->getChildren().size();
@@ -12546,10 +12529,16 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		//good case, pick the best one
 		//need the predicate, else we sort the pointers by address!
 		std::stable_sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
+		CvTacticalPosition* pBestPosition = completedPositions.front();
 
-		if (completedPositions.front()->HasSupport(DOMAIN_LAND) || completedPositions.front()->HasSupport(DOMAIN_SEA) || completedPositions.front()->HasCitySupport())
-			TacticalAIHelpers::AddSupportMoves(*completedPositions.front(), ourUnits);
-		result = completedPositions.front()->getAssignments();
+		// Compare before support placement; a declined search leaves its participants available.
+		// No progress rejection leaves no floor, and otherwise the plan must reach 80% of the highest rejected score.
+		if (iBestNoProgressScore == INT_MIN || pBestPosition->getScoreTotal() >= 0.8 * iBestNoProgressScore)
+		{
+			if (pBestPosition->HasSupport(DOMAIN_LAND) || pBestPosition->HasSupport(DOMAIN_SEA) || pBestPosition->HasCitySupport())
+				TacticalAIHelpers::AddSupportMoves(*pBestPosition, ourUnits);
+			result = pBestPosition->getAssignments();
+		}
 	}
 
 	if(GC.getLogging() && GC.getAILogging())
