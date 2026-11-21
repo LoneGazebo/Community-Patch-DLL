@@ -160,6 +160,224 @@ struct SStrengthModifierInput
 	int m_iTheirDamage;
 };
 
+// a unit where a placement puts it
+struct SPlacedUnit
+{
+	// Starts without a unit or plot.
+	SPlacedUnit() : pUnit(NULL), pPlot(NULL), iMoves(0), bEmbarked(false) {}
+	// Records a unit at its effective plot.
+	SPlacedUnit(const CvUnit* pUnit_, const CvPlot* pPlot_, int iMoves_, bool bEmbarked_) : pUnit(pUnit_), pPlot(pPlot_), iMoves(iMoves_), bEmbarked(bEmbarked_) {}
+
+	const CvUnit* pUnit;
+	const CvPlot* pPlot;
+	int iMoves;
+	bool bEmbarked;
+};
+
+// Units on the real board or in one tactical position, with the attacker on its candidate plot.
+class CvTacticalPosition;
+struct SUnitStats;
+struct SNeighborhoodCache;
+class CvCombatPlacement
+{
+public:
+	// Starts with the real board.
+	CvCombatPlacement() : m_pPosition(NULL), m_ePlayer(NO_PLAYER), m_pCache(NULL), m_pAttacker(NULL), m_pAttackerPlot(NULL) {}
+	// Indexes the living search units at their planned plots.
+	void bind(const CvTacticalPosition& position, SNeighborhoodCache& cache);
+	// Forgets the position before it can change.
+	void unbind() { m_pPosition = NULL; }
+	// Whether a position has been indexed.
+	bool isBound() const { return m_pPosition != NULL; }
+	// Places the attacker on its candidate plot for this record.
+	void setAttacker(const CvUnit* pAttacker, const CvPlot* pPlot) { m_pAttacker = pAttacker; m_pAttackerPlot = pPlot; }
+	// Lists the units standing on a plot.
+	void getUnitsAt(const CvPlot* pPlot, std::vector<SPlacedUnit>& units) const;
+	// Whether a same-team unit of the class stands on a plot, excluding the reference unit.
+	bool hasUnitClassAt(const CvPlot* pPlot, UnitClassTypes eUnitClass, const CvUnit* pReference) const;
+	// Finds a living unit's plot, moves and embarkation state.
+	bool locate(const CvUnit* pUnit, SPlacedUnit& placed) const;
+
+private:
+	// Returns its planned index, -1 if killed, or -2 if the search does not move it.
+	int findPlanned(const CvUnit* pUnit) const;
+	// Whether planned damage killed a unit outside the search's own lists.
+	bool isKilled(const CvUnit* pUnit) const;
+	// Places a search unit unless its planned damage killed it.
+	bool place(const SUnitStats& stats, SPlacedUnit& placed) const;
+	const CvTacticalPosition* m_pPosition;
+	PlayerTypes m_ePlayer;
+	SNeighborhoodCache* m_pCache;
+	const CvUnit* m_pAttacker;
+	const CvPlot* m_pAttackerPlot;
+	std::vector<SPlacedUnit> m_placed;
+	std::vector<std::pair<int, int> > m_plannedIDs;
+};
+
+// the friendly promotion auras that reach a unit, each from the last eligible provider in its owner's list
+struct SGiveAuras
+{
+	// Starts with no promotion auras.
+	SGiveAuras() : iCombat(0), iDefense(0), iOutsideLands(0) {}
+
+	// Takes each nonzero aura from the next eligible provider.
+	void add(const CvUnit* pProvider);
+
+	int iCombat;
+	int iDefense;
+	int iOutsideLands;
+};
+
+// Neighbor terms used to estimate one attack on the planned board. General support, sappers, blockade
+// and the ranged belief bonus against other religions remain outside this record. Unused terms keep their
+// defaults, and melee flank counts keep only their difference to let equivalent attacks share cache entries.
+struct SCombatNeighborhood
+{
+	static const int ATTACKER = 0;
+	static const int DEFENDER = 1;
+
+	struct Side
+	{
+		bool bFriendAdjacent;     // a same-team combat unit, embarked or not, next to this side's plot
+		bool bNearbyClass;        // a same-team unit of the class that gives this side's unit its nearby-class bonus is in range
+		short iFlankCount;        // flank power of units at war with the other side, next to the other side's plot
+		short iFlankSupport;      // extra flanking from the combatant's own team
+		short iClassGeneric;      // per-adjacent-class modifiers of this side's unit, summed over its adjacent friends
+		short iClassAttack;       // attacker side only
+		short iClassDefense;      // defender side only
+		short iGiveCombat;        // friendly aura values that reach this side's plot (the last eligible provider wins)
+		short iGiveDefense;
+		short iGiveOutsideLands;
+		short iReverseGeneral;    // the strongest enemy reverse-general aura that reaches this side's plot
+
+		/// Starts with no neighbors.
+		Side() : bFriendAdjacent(false), bNearbyClass(false), iFlankCount(0), iFlankSupport(0), iClassGeneric(0), iClassAttack(0), iClassDefense(0),
+			iGiveCombat(0), iGiveDefense(0), iGiveOutsideLands(0), iReverseGeneral(0) {}
+
+		/// Compares two sides field by field.
+		bool operator==(const Side& rhs) const
+		{
+			return bFriendAdjacent == rhs.bFriendAdjacent && bNearbyClass == rhs.bNearbyClass && iFlankCount == rhs.iFlankCount && iFlankSupport == rhs.iFlankSupport &&
+				iClassGeneric == rhs.iClassGeneric && iClassAttack == rhs.iClassAttack && iClassDefense == rhs.iClassDefense &&
+				iGiveCombat == rhs.iGiveCombat && iGiveDefense == rhs.iGiveDefense && iGiveOutsideLands == rhs.iGiveOutsideLands &&
+				iReverseGeneral == rhs.iReverseGeneral;
+		}
+	};
+
+	Side sides[2];
+	bool bDefenderTrapped; // no retreat tile away from the attacker; filled only for attackers with heavy charge or morale break
+
+	/// Starts with no neighbors and the defender free to retreat.
+	SCombatNeighborhood() : bDefenderTrapped(false) {}
+
+	/// Compares two records field by field.
+	bool operator==(const SCombatNeighborhood& rhs) const
+	{
+		return sides[0] == rhs.sides[0] && sides[1] == rhs.sides[1] && bDefenderTrapped == rhs.bDefenderTrapped;
+	}
+	// Whether any strength term differs.
+	bool operator!=(const SCombatNeighborhood& rhs) const { return !(*this == rhs); }
+
+	/// Hashes every field, for attack caches.
+	size_t hash() const
+	{
+		size_t h = (size_t)bDefenderTrapped;
+		for (int i = 0; i < 2; i++)
+		{
+			const Side& s = sides[i];
+			int aValues[11] = { s.bFriendAdjacent, s.bNearbyClass, s.iFlankCount, s.iClassGeneric, s.iClassAttack, s.iClassDefense,
+				s.iGiveCombat, s.iGiveDefense, s.iGiveOutsideLands, s.iReverseGeneral, s.iFlankSupport };
+			for (int j = 0; j < 11; j++)
+				h ^= (size_t)aValues[j] + 0x9e3779b9 + (h << 6) + (h >> 2);
+		}
+		return h;
+	}
+
+	// Fills a search attack record, reusing attacker sides while the cache holds one unchanged position.
+	// A city target has no unit defender.
+	void build(const CvCombatPlacement& placement, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, const CvUnit* pDefender,
+		const CvPlot* pDefenderPlot, SNeighborhoodCache& cache);
+
+private:
+	/// One pass over the units next to a combatant: fills its side's adjacency terms and returns the other side's flank count.
+	static int scanNeighbors(const CvCombatPlacement& placement, SNeighborhoodCache& cache, const CvUnit* pUnit, const CvPlot* pPlot, const CvUnit* pOther,
+		bool bAttacking, bool bFlank, Side& side, int& iFlankSupport);
+	/// Fills a side's aura and nearby-class terms.
+	static void fillAuras(const CvCombatPlacement& placement, SNeighborhoodCache& cache, const CvUnit* pUnit, const CvPlot* pPlot, bool bAttacking, Side& side);
+	/// Whether every retreat tile of the defender away from the attacker is blocked.
+	static bool isDefenderTrapped(const CvCombatPlacement& placement, SNeighborhoodCache& cache, const CvUnit* pDefender, const CvPlot* pDefenderPlot,
+		const CvPlot* pAttackerPlot);
+};
+
+// what the neighborhood records of one search share. Promotions don't change and only the search's own units
+// move during a search, so the owner clears it once per search. The real units on each plot and the live retreat checks
+// are kept as first seen. The auras that come from units the search doesn't move (the defender's own auras and the
+// reverse general on the attacker) keep the providers that reach a plot on the real board; each record then drops the
+// ones its placement has killed. Defender reverse-general candidates are also kept for the search and checked
+// against each record's placement. A held position keeps attacker sides until the hold ends.
+struct SNeighborhoodCache
+{
+	// a unit's per-adjacent-class modifiers for one combat class, when any is nonzero
+	struct SClassMod
+	{
+		UnitCombatTypes eCombat;
+		int iGeneric;
+		int iAttack;
+		int iDefense;
+	};
+
+	/// Forgets everything, for a new search.
+	void clear();
+	/// The nonzero per-adjacent-class modifiers of a unit, listed on first use.
+	const std::vector<SClassMod>& getClassMods(const CvUnit* pUnit);
+	/// The give auras a defender's own side lends it at a plot, from the providers still alive in the placement.
+	void getDefenderGiveAuras(const CvCombatPlacement& placement, const CvUnit* pDefender, const CvPlot* pPlot, SGiveAuras& auras);
+	/// The reverse-general aura the attacker's enemies put on it at a plot, from the providers still alive in the placement.
+	int getAttackerReverseGeneral(const CvCombatPlacement& placement, const CvUnit* pAttacker, const CvPlot* pPlot);
+	/// The defender's reverse-general aura, using search candidates checked against this record's placement.
+	int getDefenderReverseGeneral(const CvCombatPlacement& placement, const CvUnit* pDefender, const CvPlot* pPlot);
+	/// The real units on a plot as the board lists them, listed on first use.
+	const std::vector<SPlacedUnit>& getBoardUnits(const CvPlot* pPlot);
+	/// Whether the live move check keeps a defender out of a plot, worked out on first use. Without unit checks the
+	/// check ignores stacking and enemies, so only terrain, territory and cities count.
+	bool isMoveBlocked(const CvUnit* pDefender, const CvPlot* pDestPlot, bool bUnitChecks);
+
+	/// The attacker side remembered for an attacker at a plot of the held position, or NULL when there is none.
+	const SCombatNeighborhood::Side* findHeldAttackerSide(const CvUnit* pAttacker, int iPlotIndex) const
+	{
+		std::map<std::pair<const CvUnit*, int>, SCombatNeighborhood::Side>::const_iterator it = m_heldAttackerSides.find(std::make_pair(pAttacker, iPlotIndex));
+		return it != m_heldAttackerSides.end() ? &it->second : NULL;
+	}
+	/// Remembers an attacker's side at a plot of the held position.
+	void rememberHeldAttackerSide(const CvUnit* pAttacker, int iPlotIndex, const SCombatNeighborhood::Side& side)
+	{
+		m_heldAttackerSides[std::make_pair(pAttacker, iPlotIndex)] = side;
+	}
+	/// Forgets attacker sides when a position hold starts or ends.
+	void forgetHeldAttackerSides() { m_heldAttackerSides.clear(); }
+
+	std::vector<SPlacedUnit> scratch;     // reusable buffer for plot queries
+
+private:
+	// A possible reverse-general provider, before placement, survival and range checks.
+	struct SReverseGeneralCandidate
+	{
+		const CvUnit* pUnit;
+		int iModifier;
+		int iRange;
+	};
+	typedef std::vector<SReverseGeneralCandidate> ReverseGeneralCandidates;
+	std::map<const CvUnit*, std::vector<SClassMod> > m_classMods;
+	typedef std::vector<const CvUnit*> Providers;  // aura providers that reach a plot on the real board, in their owner's order
+	typedef std::vector<std::pair<const CvUnit*, int> > ReverseGeneralProviders;  // providers and their cached area-effect modifiers
+	std::map<std::pair<const CvUnit*, int>, Providers> m_defenderGiveAuras;  // by defender and plot index
+	std::map<long long, ReverseGeneralProviders> m_attackerReverseGeneral;  // by plot index, owner and domain
+	std::map<std::pair<PlayerTypes, DomainTypes>, ReverseGeneralCandidates> m_defenderReverseGeneral;  // by defender owner and domain
+	std::map<int, std::vector<SPlacedUnit> > m_boardUnits;                   // by plot index
+	std::map<std::pair<const CvUnit*, int>, bool> m_moveBlocked;             // by defender and plot index * 2 + unit checks
+	std::map<std::pair<const CvUnit*, int>, SCombatNeighborhood::Side> m_heldAttackerSides;  // by attacker and plot index
+};
+
 struct SUnitIDValueContainer
 {
 	typedef std::pair<int, int> value_type;
@@ -947,13 +1165,14 @@ public:
 	int GetCombatModifierFromCapitalDistance(const CvPlot* pBattlePlot) const;
 
 	int GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bAttacking,
-									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
+									bool bIgnoreUnitAdjacencyBoni, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false,
+									const SCombatNeighborhood* pNeighborhood = NULL) const;
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false,
-									int iAssumeSelfDamage = 0, int iAssumeExtraOtherDamage = 0) const;
+									int iAssumeSelfDamage = 0, int iAssumeExtraOtherDamage = 0, const SCombatNeighborhood* pNeighborhood = NULL) const;
 	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, const CvPlot* pFromPlot, 
 									bool bFromRangedAttack = false, bool bQuickAndDirty = false,
-									int iAssumeSelfDamage = 0) const;
+									int iAssumeSelfDamage = 0, const SCombatNeighborhood* pNeighborhood = NULL) const;
 
 	int GetEmbarkedUnitDefense() const;
 
@@ -963,14 +1182,15 @@ public:
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, 
 									const CvPlot* pMyPlot = NULL, const CvPlot* pOtherPlot = NULL, 
 									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false,
-									int iAssumeExtraDamage = 0, int iAssumeExtraOtherDamage = 0) const;
+									int iAssumeExtraDamage = 0, int iAssumeExtraOtherDamage = 0, const SCombatNeighborhood* pNeighborhood = NULL) const;
 	int GetAirCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand,
 									int iAssumeSelfDamage = 0, int iAssumeExtraDefenderDamage = 0,
 									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, bool bQuickAndDirty = false) const;
 	int GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, int iGarrisonMaxHP, int& iGarrisonDamage, bool bIncludeRand,
 									int iAssumeSelfDamage = 0, int iAssumeExtraDefenderDamage = 0,
 									const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL, 
-									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false) const;
+									bool bIgnoreUnitAdjacencyBoni = false, bool bQuickAndDirty = false,
+									const SCombatNeighborhood* pNeighborhood = NULL) const;
 	int GetRangeCombatSplashDamage(const CvPlot* pTargetPlot) const;
 
 	int EstimatePlagueDamage(const CvUnit* pEnemy) const;
@@ -1265,7 +1485,8 @@ public:
 	void ChangeAirSweepCombatModifier(int iValue);
 	int getAttackModifier() const;
 	void changeAttackModifier(int iValue);
-	int getDefenseModifier(bool bQuick = false) const;
+	// a neighborhood side supplies the defense aura in place of the board
+	int getDefenseModifier(bool bQuick = false, const SCombatNeighborhood::Side* pSide = NULL) const;
 	void changeDefenseModifier(int iValue);
 
 	int getGroundAttackDamage() const;
@@ -1659,6 +1880,12 @@ public:
 	int GetGoldenAgeGeneralExpPercent() const;
 	int GetGiveExperiencePercentToUnit() const;
 	int GetGiveCombatModToUnit(const CvPlot * pAtPlot = NULL) const;
+	// aura rules shared by the live getters (no placement: the real board) and neighborhood records
+	// (pProviders, when given, receives every provider that reaches pAtPlot, in the owner's order)
+	void ResolveGiveAuras(const CvPlot* pAtPlot, SGiveAuras& auras, const CvCombatPlacement* pPlacement = NULL, std::vector<const CvUnit*>* pProviders = NULL) const;
+	// Finds the strongest reverse-general aura and optionally lists its providers with their cached modifiers.
+	int ResolveReverseGeneral(const CvPlot* pAtPlot, const CvCombatPlacement* pPlacement = NULL, std::vector<std::pair<const CvUnit*, int> >* pProviders = NULL) const;
+	bool IsNearbyUnitClassPresent(UnitClassTypes eUnitClass, int iUnitClassRange, const CvPlot* pAtPlot, const CvCombatPlacement* pPlacement = NULL) const;
 	int GetGiveDefenseModToUnit() const;
 	int GetHealEnemyTerritoryFromNearbyUnit() const;
 	int GetHealNeutralTerritoryFromNearbyUnit() const;
@@ -1778,7 +2005,8 @@ public:
 	int getFriendlyLandsAttackModifier() const;
 	void changeFriendlyLandsAttackModifier(int iChange);
 
-	int getOutsideFriendlyLandsModifier() const;
+	// a neighborhood side supplies the outside-friendly-lands aura in place of the board
+	int getOutsideFriendlyLandsModifier(const SCombatNeighborhood::Side* pSide = NULL) const;
 	void changeOutsideFriendlyLandsModifier(int iChange);
 
 	int getBorderCombatStrengthModifier() const;
@@ -2144,6 +2372,8 @@ public:
 
 	bool CanStackUnitAtPlot(const CvPlot* pPlot) const;
 	int CountStackingUnitsAtPlot(const CvPlot* pPlot) const;
+	// the per-unit stacking rule, shared by CountStackingUnitsAtPlot and neighborhood records
+	bool IsStackingConflict(const CvUnit* pLoopUnit, const CvPlot* pPlot) const;
 
 	template<typename Unit, typename Visitor>
 	static void Serialize(Unit& unit, Visitor& visitor);
