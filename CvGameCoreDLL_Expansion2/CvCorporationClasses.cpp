@@ -358,6 +358,11 @@ bool CvCorporationEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 		}
 	}
 
+	// Tables with no rows for this entry share one read-only all-zero block (CvDatabaseUtility::Share2DArrayIfZero).
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppiBuildingClassYieldChanges);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiResourceYieldChange);
+	CvDatabaseUtility::Share2DArrayIfZero(m_ppaiSpecialistYieldChange);
+
 	return true;
 }
 
