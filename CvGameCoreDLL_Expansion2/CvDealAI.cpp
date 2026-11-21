@@ -1760,14 +1760,16 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 					continue;
 
 				// we can potentially construct this building in this city, calculate its weight
-				int iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->GetWeight(eBuilding) / 100;
-				iWeight *= pLoopCity->getEconomicValue(GetPlayer()->GetID());
-				iWeight *= iOneGPTValue;
-				iWeight /= 100000;
+				// in 64 bits: weight x economic value x GPT value exceeds INT_MAX in large late-game cities
+				long long iWeightLong = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->GetWeight(eBuilding) / 100;
+				iWeightLong *= pLoopCity->getEconomicValue(GetPlayer()->GetID());
+				iWeightLong *= iOneGPTValue;
+				iWeightLong /= 100000;
 
 				// scaling with deal length
-				iWeight *= iNumTurns;
-				iWeight /= 50;
+				iWeightLong *= iNumTurns;
+				iWeightLong /= 50;
+				int iWeight = static_cast<int>(std::min<long long>(std::max<long long>(iWeightLong, INT_MIN), INT_MAX));
 
 				if (iWeight > 0)
 				{
