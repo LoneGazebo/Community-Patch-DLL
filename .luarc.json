@@ -7,7 +7,8 @@
       "./(1) Community Patch/Core Files/Overrides/Includes",
       "./(1) Community Patch/LUA/Includes"
     ],
-    "checkThirdParty": false
+    "checkThirdParty": false,
+    "useGitIgnore": false
   },
   "runtime": {
     "version": "Lua 5.1"
