@@ -429,11 +429,25 @@ public:
 	struct memberName##_Traits { \
 		enum { INDEX = SYNC_ARCHIVE_VAR_NEXT_INDEX }; \
 		typedef memberType ValueType; \
+		static inline const char* name() { return #memberName; } \
+		SYNC_ARCHIVE_VAR_TRAITS_TAIL_(memberName)
+
+// Same as SYNC_ARCHIVE_VAR, but the sync var reports varName as its name() instead of the member name.
+// Use it only where the game identifies a sync var by name.
+#define SYNC_ARCHIVE_VAR_NAMED(memberType, memberName, varName) \
+	struct memberName##_Traits { \
+		enum { INDEX = SYNC_ARCHIVE_VAR_NEXT_INDEX }; \
+		typedef memberType ValueType; \
+		static inline const char* name() { return varName; } \
+		SYNC_ARCHIVE_VAR_TRAITS_TAIL_(memberName)
+
+// Rest of a SYNC_ARCHIVE_VAR traits entry and the member. memberType stays in the macros above, so a type
+// with commas (SYNC_ARCHIVE_VAR_TYPE) is never passed on to another macro.
+#define SYNC_ARCHIVE_VAR_TRAITS_TAIL_(memberName) \
 		typedef ContainerType ContainerType; \
 		typedef CvSyncArchive<ContainerType>::SyncVars SyncVarsType; \
 		static inline const ValueType& Get(const ContainerType& container) { return container.memberName; } \
 		static inline ValueType& Get(ContainerType& container) { return container.memberName; } \
-		static inline const char* name() { return #memberName; } \
 		static inline const SyncVarsType& GetStorage(const CvSyncVar<memberName##_Traits>& var) { \
 			return *reinterpret_cast<const SyncVarsType*>(reinterpret_cast<const char*>(&var) - offsetof(SyncVarsType, memberName)); \
 		} \

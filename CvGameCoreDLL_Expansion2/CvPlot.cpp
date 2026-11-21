@@ -13543,7 +13543,8 @@ void CvPlot::addUnit(CvUnit* pUnit, bool bUpdate)
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
+// bExpectAtPlot false: the unit may already have other coordinates (see CvDllPlot::RemoveUnit)
+void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate, bool bExpectAtPlot)
 {
 	IDInfo* pUnitNode = headUnitNode();
 	bool bFound = false;
@@ -13565,7 +13566,7 @@ void CvPlot::removeUnit(CvUnit* pUnit, bool bUpdate)
 		}
 		if(pNodeUnit == pUnit)
 		{
-			PRECONDITION(pNodeUnit->at(getX(), getY()), "The current unit instance is expected to be at getX_INLINE and getY_INLINE");
+			PRECONDITION(!bExpectAtPlot || pNodeUnit->at(getX(), getY()), "The current unit instance is expected to be at getX_INLINE and getY_INLINE");
 			m_units.deleteNode(pUnitNode);
 			bFound = true;
 			break;

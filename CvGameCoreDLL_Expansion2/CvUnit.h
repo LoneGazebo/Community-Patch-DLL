@@ -2809,8 +2809,10 @@ SYNC_ARCHIVE_VAR(PlayerTypes, m_eOwner)
 SYNC_ARCHIVE_VAR(PlayerTypes, m_eOriginalOwner)
 SYNC_ARCHIVE_VAR(PlayerTypes, m_eGiftedByPlayer)
 SYNC_ARCHIVE_VAR(UnitTypes, m_eUnitType)
-SYNC_ARCHIVE_VAR(int, m_iX)
-SYNC_ARCHIVE_VAR(int, m_iY)
+// When the game applies a received unit sync check that changes the unit's coordinates, it moves the unit to
+// the new plot's unit list. It finds these two variables by these names: without them the unit keeps its old plot.
+SYNC_ARCHIVE_VAR_NAMED(int, m_iX, "CvUnit::m_iX")
+SYNC_ARCHIVE_VAR_NAMED(int, m_iY, "CvUnit::m_iY")
 SYNC_ARCHIVE_VAR(int, m_iID)
 SYNC_ARCHIVE_VAR(int, m_iDamage)
 SYNC_ARCHIVE_VAR(int, m_iMoves)
