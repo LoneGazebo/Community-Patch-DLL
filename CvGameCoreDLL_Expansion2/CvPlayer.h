@@ -2472,6 +2472,7 @@ public:
 	const CvArmyAI* getArmyAI(int iID) const;
 	CvArmyAI* getArmyAI(int iID);
 	CvArmyAI* addArmyAI();
+	int GetNextObjectID();
 	void deleteArmyAI(int iID);
 
 	// operations
@@ -3747,6 +3748,7 @@ protected:
 	TContainer<CvCityAI> m_cities;
 	TContainer<CvUnit> m_units;
 	TContainer<CvArmyAI> m_armyAIs;
+	int m_iNextObjectID;
 
 	std::vector< std::pair<int, CvAIOperation*> > m_AIOperations;
 	std::vector< std::pair<UnitClassTypes, int> > m_aUnitExtraCosts;
