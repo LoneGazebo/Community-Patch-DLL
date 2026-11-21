@@ -14080,6 +14080,10 @@ void CvPlot::updateLayout(bool bDebug)
 	ResourceTypes eThisResource = (isCity() || eFOWMode == FOGOFWARMODE_UNEXPLORED) ? NO_RESOURCE : getResourceType(eActiveTeam);
 
 	ImprovementTypes eThisImprovement = getRevealedImprovementType(eActiveTeam, bDebug);
+	// A team that saw city ruins but not the city founded on them later still has the ruins as its revealed improvement.
+	// Given the ruins, the EXE turns the plot's live city model into a ruins model (seen after loading a save), so don't send them.
+	if (eThisImprovement == (ImprovementTypes)GD_INT_GET(RUINS_IMPROVEMENT) && isCity())
+		eThisImprovement = NO_IMPROVEMENT;
 	bool bShowHalfBuilt = false;
 	if(eThisImprovement == NO_IMPROVEMENT && getAnyBuildProgress() && eFOWMode == FOGOFWARMODE_OFF)
 	{
