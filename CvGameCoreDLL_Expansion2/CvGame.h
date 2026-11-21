@@ -354,6 +354,7 @@ public:
 	bool IsAIPassiveMode() const;
 	bool IsAIPassiveTowardsHumans() const;
 	bool CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer, bool bCheckEliminationPossible) const;
+	bool CanPlayerReachDominationShares(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer, bool bOnlyCurrentWars) const;
 	bool WouldMakingPeacePreventDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer) const;
 	bool IsAIAggressiveMode() const;
 	bool IsAIAggressiveTowardsHumans() const;
@@ -668,6 +669,11 @@ public:
 
 	// Victory Stuff
 	void DoTestConquestVictory();
+	bool IsDominationVictoryByLandAndPopulation() const;
+	bool IsDominationVictoryByCapitals() const;
+	std::vector<CvCity*> GetOriginalCapitals() const;
+	int GetNumDominationCapitals(TeamTypes eTeam) const;
+	int GetNumDominationCapitalsNeeded() const;
 
 	PlayerTypes GetBestWondersPlayer();
 	void SetBestWondersPlayer(PlayerTypes ePlayer, int iWonderCount);

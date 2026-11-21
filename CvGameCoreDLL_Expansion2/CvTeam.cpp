@@ -3368,9 +3368,26 @@ void CvTeam::changeNumCities(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-int CvTeam::getTotalPopulation() const
+/// bCheckVassals: count as in a Domination Victory by population share (Civ4 rules): a vassal keeps half of its own
+/// population, and its master gets the other half
+int CvTeam::getTotalPopulation(bool bCheckVassals) const
 {
-	return (m_iTotalPopulation);
+	// City-States are never vassals or masters
+	if (!bCheckVassals || isMinorCiv())
+		return m_iTotalPopulation;
+
+	if (IsVassalOfSomeone())
+		return m_iTotalPopulation / 2;
+
+	int iVassalPopulation = 0;
+	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	{
+		const CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeamLoop);
+		if (kLoopTeam.isAlive() && kLoopTeam.IsVassal(GetID()))
+			iVassalPopulation += kLoopTeam.getTotalPopulation() / 2;
+	}
+
+	return m_iTotalPopulation + iVassalPopulation;
 }
 
 
@@ -3383,9 +3400,26 @@ void CvTeam::changeTotalPopulation(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-int CvTeam::getTotalLand() const
+/// bCheckVassals: count as in a Domination Victory by land share (Civ4 rules): a vassal keeps half of its own land, and
+/// its master gets the other half
+int CvTeam::getTotalLand(bool bCheckVassals) const
 {
-	return (m_iTotalLand);
+	// City-States are never vassals or masters
+	if (!bCheckVassals || isMinorCiv())
+		return m_iTotalLand;
+
+	if (IsVassalOfSomeone())
+		return m_iTotalLand / 2;
+
+	int iVassalLand = 0;
+	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+	{
+		const CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeamLoop);
+		if (kLoopTeam.isAlive() && kLoopTeam.IsVassal(GetID()))
+			iVassalLand += kLoopTeam.getTotalLand() / 2;
+	}
+
+	return m_iTotalLand + iVassalLand;
 }
 
 
