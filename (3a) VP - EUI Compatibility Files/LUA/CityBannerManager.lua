@@ -1138,7 +1138,7 @@ local function RefreshCityBannersNow()
 			end
 
 			-- Garrisoned ?
-			instance.GarrisonFrame:SetHide( not ( plot:IsVisible( activeTeamID, true ) and city:GetGarrisonedUnit() ) )
+			instance.GarrisonFrame:SetHide( not ( plot:IsVisible( g_activeTeamID, true ) and city:GetGarrisonedUnit() ) )
 
 			-- Happiness
 			instance.CityIsUnhappy:SetHide(true)
@@ -1318,7 +1318,7 @@ local function RefreshCityBannersNow()
 						instance.Pledge1:SetHide( not pledge or free )
 						instance.Pledge2:SetHide( not free )
 						-- UndeadDevel: include tributing information on City Strength element
-						if plot:IsVisible( activeTeamID ) then
+						if plot:IsVisible( g_activeTeamID ) then
 							--ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
 							local iRange, iIndirect = city:GetBombardRange()
 							if (iIndirect == 1) then
@@ -1342,7 +1342,7 @@ local function RefreshCityBannersNow()
 					instance.CityQuests:SetHide( true )
 					local civInfo = GameInfo.Civilizations[ cityOwner:GetCivilizationType() ]
 
-					if plot:IsVisible( activeTeamID ) then
+					if plot:IsVisible( g_activeTeamID ) then
 						--ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
 						local iRange, iIndirect = city:GetBombardRange()
 						if (iIndirect == 1) then
