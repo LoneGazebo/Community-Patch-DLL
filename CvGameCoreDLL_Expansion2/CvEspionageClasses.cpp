@@ -8676,8 +8676,10 @@ int CvEspionageAI::GetNegativeMissionScoreForOwner(CvCity* pCity, PlayerTypes eO
 		int iDestroyChance = pkMissionInfo->getBuildingDestructionChance(eBuildingClass);
 		if (iDestroyChance > 0 && pCity->HasBuildingClass(eBuildingClass))
 		{
-			BuildingTypes eDefaultBuilding = static_cast<BuildingTypes>(GC.getBuildingClassInfo(eBuildingClass)->getDefaultBuildingIndex());
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eDefaultBuilding);
+			// score the building the mission would destroy (as CvCity::DoEventChoice picks it), not the class's default building:
+			// a class can have no default building (NO_BUILDING), and getBuildingInfo stops the game on that index
+			BuildingTypes eBuilding = pCity->GetBuildingTypeFromClass(eBuildingClass);
+			CvBuildingEntry* pkBuildingInfo = (eBuilding != NO_BUILDING) ? GC.getBuildingInfo(eBuilding) : NULL;
 			if (pkBuildingInfo)
 			{
 				// the more this building costs, the worse it would be to lose
@@ -8888,7 +8890,7 @@ int CvEspionageAI::GetCounterspyEffectsMissionScore(CvCity* pCity, PlayerTypes e
 	if (iWLTKDTurns > 0 && pCity->GetWeLoveTheKingDayCounter() <= 0)
 	{		
 		CityEventChoiceTypes eFocus = pCity->GetCityEspionage()->GetCounterSpyFocus();
-		CvModEventCityChoiceInfo* pkCSInfo = GC.getCityEventChoiceInfo(eFocus);
+		CvModEventCityChoiceInfo* pkCSInfo = (eFocus != NO_EVENT_CHOICE_CITY) ? GC.getCityEventChoiceInfo(eFocus) : NULL;
 		if (!pkCSInfo || pkCSInfo != pkMissionInfo)
 		{
 			iScore += iWLTKDTurns;
