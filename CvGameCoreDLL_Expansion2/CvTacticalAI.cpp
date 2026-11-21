@@ -3229,6 +3229,28 @@ void CvTacticalAI::ExecuteAirSweep(CvPlot* pTargetPlot)
 	}
 }
 
+//an executed move can delete one of our units at once: an enemy that falls back after our attack onto a lone civilian
+//of ours enters its plot, and CvUnit::setXY kills the civilian with kill(false). so keep IDs, not pointers, across
+//executed moves, and look the units up again afterwards
+static vector<int> GetUnitIDs(const vector<CvUnit*>& vUnits)
+{
+	vector<int> vIDs;
+	for (vector<CvUnit*>::const_iterator it = vUnits.begin(); it != vUnits.end(); ++it)
+		vIDs.push_back((*it)->GetID());
+	return vIDs;
+}
+
+static void GetUnitsByID(PlayerTypes ePlayer, const vector<int>& vIDs, vector<CvUnit*>& vUnits)
+{
+	vUnits.clear();
+	for (vector<int>::const_iterator it = vIDs.begin(); it != vIDs.end(); ++it)
+	{
+		CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(*it);
+		if (pUnit)
+			vUnits.push_back(pUnit);
+	}
+}
+
 bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTargetPlot)
 {
 	if (pTargetPlot->isVisible(m_pPlayer->getTeam()))
@@ -3369,10 +3391,15 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 }
 
 //target can be friendly, neutral or hostile
-bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pTarget)
+bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnitsIn, CvPlot* pTarget)
 {
+	const vector<int> vUnitIDs = GetUnitIDs(vUnitsIn);
+
 	//try to improve visibility. however, if the target is too far away this may fail ... in that case we chance it
-	ExecuteSpotterMove(vUnits, pTarget);
+	ExecuteSpotterMove(vUnitsIn, pTarget);
+
+	vector<CvUnit*> vUnits;
+	GetUnitsByID(m_pPlayer->GetID(), vUnitIDs, vUnits);
 
 	if (MOD_CORE_DEBUGGING)
 		LogTacticalMessage(CvString::format("seeking defensive positioning around %d:%d", pTarget->getX(), pTarget->getY()));
@@ -3380,6 +3407,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	//first round: in case there are enemies around, do a combat simulation
 	vector<CvUnit*> vSimUnits = vUnits; //make a copy we can modify!
 	bool bTactSimSuccess = TacticalAIHelpers::FindAndExecuteBestUnitAssignments(m_pPlayer->GetID(), vSimUnits, pTarget, AL_LOW);
+	GetUnitsByID(m_pPlayer->GetID(), vUnitIDs, vUnits);
 
 	//sometimes tactsim cannot use all units, eg if they are too far out
 	vector<CvUnit*> farout;
@@ -3414,12 +3442,15 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 			{ return (lhs->IsCivilianUnit() ? 2 : lhs->AI_getUnitAIType()==UNITAI_CITY_BOMBARD ? 1 : 0) < (rhs->IsCivilianUnit() ? 2 : rhs->AI_getUnitAIType() == UNITAI_CITY_BOMBARD ? 1 : 0); }
 	};
 	std::stable_sort(farout.begin(), farout.end(), PrSortCombatFirst());
+	const vector<int> vFaroutIDs = GetUnitIDs(farout);
 
 	//second round: move in as long as there is no danger and we're still far away
-	for (vector<CvUnit*>::const_iterator it = farout.begin(); it != farout.end(); ++it)
+	for (vector<int>::const_iterator it = vFaroutIDs.begin(); it != vFaroutIDs.end(); ++it)
 	{
 		//lots of flags ...
-		CvUnit* pUnit = *it;
+		CvUnit* pUnit = m_pPlayer->getUnit(*it);
+		if (!pUnit)
+			continue;
 		int	iFlags = CvUnit::MOVEFLAG_NO_STOPNODES | CvUnit::MOVEFLAG_APPROX_TARGET_RING2;
 		if (pUnit->isNativeDomain(pTarget)) //don't embark if we don't have to
 			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
@@ -3448,6 +3479,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	}
 
 	//third round: if the unit is in an army (no tactical moves) and did not move yet, move it to safety now
+	GetUnitsByID(m_pPlayer->GetID(), vUnitIDs, vUnits);
 	for (vector<CvUnit*>::const_iterator it = vUnits.begin(); it != vUnits.end(); ++it)
 	{
 		CvUnit* pUnit = *it;
@@ -12207,6 +12239,7 @@ bool TacticalAIHelpers::FindAndExecuteBestUnitAssignments(PlayerTypes ePlayer, v
 	int iCount = 0;
 	bool bSuccess = false;
 	set<int> unuseableUnits;
+	vector<int> vCurrentIDs = GetUnitIDs(vUnits);
 	vector<CvUnit*> currentUnits = vUnits;
 	TacticalAIHelpers::UpdatePlotDistanceToTarget(ePlayer, pTarget);
 	do
@@ -12219,20 +12252,24 @@ bool TacticalAIHelpers::FindAndExecuteBestUnitAssignments(PlayerTypes ePlayer, v
 			if (!unuseableUnits.empty() && currentUnits.size()>unuseableUnits.size())
 			{
 				//drop the offending units and try again
-				vector<CvUnit*> remainingUnits;
-				for (vector<CvUnit*>::const_iterator it = currentUnits.begin(); it != currentUnits.end(); ++it)
+				vector<int> vRemainingIDs;
+				for (vector<int>::const_iterator it = vCurrentIDs.begin(); it != vCurrentIDs.end(); ++it)
 				{
-					if (unuseableUnits.find((*it)->GetID())==unuseableUnits.end())
-						remainingUnits.push_back(*it);
+					if (unuseableUnits.find(*it)==unuseableUnits.end())
+						vRemainingIDs.push_back(*it);
 				}
-				currentUnits = remainingUnits;
+				vCurrentIDs = vRemainingIDs;
+				GetUnitsByID(ePlayer, vCurrentIDs, currentUnits);
 			}
 			else
 				break; //give up
 		}
 		else
+		{
 			//restarts might happen when new enemies become visible
-			bSuccess = TacticalAIHelpers::ExecuteUnitAssignments(vUnits.front()->getOwner(), vAssignments);
+			bSuccess = TacticalAIHelpers::ExecuteUnitAssignments(ePlayer, vAssignments);
+			GetUnitsByID(ePlayer, vCurrentIDs, currentUnits);
+		}
 	}
 	while (!bSuccess && iCount < 4);
 
@@ -12594,7 +12631,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 	//take the assigned moves one by one and try to execute them faithfully. 
 	//may fail if a melee kill unexpectedly happens or does not happen
 
-	vector<CvUnit*> finishedUnits;
+	vector<int> finishedUnits; //IDs: a later assignment's attack can delete one of these units
 
 	for (size_t i = 0; i < vAssignments.size(); i++)
 	{
@@ -12759,7 +12796,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			//this is the difference to a blocked unit, we prevent anyone else from moving it unless we want it to heal
 			if (!pUnit->shouldHeal(false) || pUnit->getMoves() == 0 || pUnit->isBarbarian()) //barbarians don't heal
 				//important ... this allows civilian units to use this one as cover!
-				finishedUnits.push_back(pUnit);
+				finishedUnits.push_back(pUnit->GetID());
 			bPrecondition = true;
 			bPostcondition = true;
 			break;
@@ -12804,9 +12841,9 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 	}
 
 	// Only do this once we know were successful
-	for (vector<CvUnit*>::const_iterator it = finishedUnits.begin(); it != finishedUnits.end(); ++it)
+	for (vector<int>::const_iterator it = finishedUnits.begin(); it != finishedUnits.end(); ++it)
 	{
-		GET_PLAYER(ePlayer).GetTacticalAI()->UnitProcessed((*it)->GetID());
+		GET_PLAYER(ePlayer).GetTacticalAI()->UnitProcessed(*it);
 	}
 
 	return true;
