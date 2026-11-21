@@ -40,6 +40,7 @@ public:
 	void AI_doTurnPost();
 	void AI_doTurnUnitsPre();
 	void AI_doTurnUnitsPost();
+	void AI_repairGarrisonLinks();
 
 	void AI_unitUpdate(bool bUpdateHomelandAI);
 	void AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval);

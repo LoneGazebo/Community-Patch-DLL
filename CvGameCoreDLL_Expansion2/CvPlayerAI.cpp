@@ -164,6 +164,8 @@ void CvPlayerAI::AI_doTurnPost()
 
 void CvPlayerAI::AI_doTurnUnitsPre()
 {
+	AI_repairGarrisonLinks();
+
 	int iLoop = 0;
 
 	//order is important. when a unit was killed, an army might become invalid, which might invalidate an operation
@@ -256,8 +258,48 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 }
 
 //	---------------------------------------------------------------------------
+// In multiplayer, a received unit or city sync check carries only the values that changed on the sender. A unit
+// that has drifted on this machine can be corrected in part (for example its Y and its garrison city, but not its X)
+// and end up as the garrison of a city it is not in. AI code reads a garrison's city through the unit's plot and
+// fails on that. Bring both links back in line with where the units are before the AI uses them. On machines that
+// are in sync, nothing changes.
+void CvPlayerAI::AI_repairGarrisonLinks()
+{
+	if (!GC.getGame().isNetworkMultiPlayer())
+		return;
+
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		CvUnit* pGarrison = pLoopCity->GetGarrisonedUnit();
+		if (pGarrison && !pGarrison->at(pLoopCity->getX(), pLoopCity->getY()))
+		{
+			NET_MESSAGE_DEBUG_OSTR_ALWAYS("AI_repairGarrisonLinks: " << pLoopCity->getName() << " (" << pLoopCity->getX() << "," << pLoopCity->getY()
+				<< ") garrison unit " << pGarrison->GetID() << " is at (" << pGarrison->getX() << "," << pGarrison->getY() << ")");
+			CvUnit* pBest = pLoopCity->plot()->getBestGarrison(GetID());
+			pLoopCity->SetGarrison(pBest != pGarrison ? pBest : NULL);
+		}
+	}
+
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (!pLoopUnit->IsGarrisoned())
+			continue;
+
+		CvCity* pCity = pLoopUnit->GetGarrisonedCity();
+		if (!pCity || pCity->GetGarrisonedUnit() != pLoopUnit || !pLoopUnit->at(pCity->getX(), pCity->getY()))
+		{
+			NET_MESSAGE_DEBUG_OSTR_ALWAYS("AI_repairGarrisonLinks: unit " << pLoopUnit->GetID() << " at (" << pLoopUnit->getX() << "," << pLoopUnit->getY()
+				<< ") names city " << (pCity ? pCity->getName().c_str() : "(none)"));
+			pLoopUnit->SetGarrisonedCity(-1);
+		}
+	}
+}
+
 void CvPlayerAI::AI_unitUpdate(bool bUpdateHomelandAI)
 {
+	AI_repairGarrisonLinks();
+
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
