@@ -44304,8 +44304,7 @@ void CvPlayer::doResearch()
 		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 		if(eCurrentTech == NO_TECH)
 		{
-			int iOverflow = (GetScienceTimes100()) / 100;
-			changeOverflowResearchTimes100(iOverflow);
+			changeOverflowResearchTimes100(GetScienceTimes100());
 		}
 		else
 		{
