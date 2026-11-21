@@ -178,3 +178,53 @@ void ExeApi::cvCityVisSystem_RemoveWonder(void* pThis, const void* pHandle,
 	ThisCall<void>(EXE_cvCityVisSystem_RemoveWonder, pThis, pHandle,
 		piArtEntry);
 }
+
+//------------------------------------------------------------------------------
+void** ExeApi::cvLuaScriptSystem_ms_apSingletonInstance()
+{
+	return reinterpret_cast<void**>(
+		ExeSymbols::Get(EXE_cvLuaScriptSystem_ms_apSingletonInstance)
+	);
+}
+
+DWORD ExeApi::cvLuaScriptSystem_TunerListener()
+{
+	return ExeSymbols::Get(EXE_cvLuaScriptSystem_TunerListener);
+}
+
+//------------------------------------------------------------------------------
+bool ExeApi::cvTunerListener_ExitingMultiplayerStagingRoom(void* pThis)
+{
+	const ExeSymbol eFunction =
+		EXE_cvTunerListener_ExitingMultiplayerStagingRoom;
+
+	if (!ExeSymbols::IsResolved(eFunction))
+	{
+		return false;
+	}
+
+	// The EXE throws an int when the port cannot be bound or listened on;
+	// the listener is left without a listen socket then.
+	try
+	{
+		ThisCall<void>(eFunction, pThis);
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+DWORD ExeApi::cvTunerListener_ListenSocket()
+{
+	return ExeSymbols::Get(EXE_cvTunerListener_ListenSocket);
+}
+
+const volatile BYTE* ExeApi::g_bEnableTuner()
+{
+	return reinterpret_cast<const volatile BYTE*>(
+		ExeSymbols::Get(EXE_g_bEnableTuner)
+	);
+}
