@@ -43,8 +43,9 @@
 	and nothing in its place. Static, all three: the Valve block in the
 	DOS stub, the STEAM_DRM_IPC names and the 0x8000DEAD exit are gone; in
 	DX11 also the CEG data in .rdata and the hash loop's reference to the
-	start of .text. Functions lost their inline CEG check calls (one in
-	cvCityBuildingSim_CreateNewCity, which moved its check below). Live,
+	start of .text. Functions lost their inline CEG check calls; in
+	cvCityBuildingSim_CreateNewCity the removed call (0x17 bytes) moves
+	the CityData_Hex check from 0x126 to 0x10F (see EXE_CHECK). Live,
 	DX11 only: the same three writes, an inline hook on a hot .text
 	function and hardware and software breakpoints ran through 50 AI
 	turns, a save, a load and 13 more turns with no crash, and the game
