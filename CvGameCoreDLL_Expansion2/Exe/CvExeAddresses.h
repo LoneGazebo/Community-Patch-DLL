@@ -143,6 +143,50 @@ EXE_SYMBOL(
 	"A1 ?? ?? ?? ?? 89 2D ?? ?? ?? ?? 89 1D ?? ?? ?? ?? 88 1D"
 )
 
+// The cvLuaScriptSystem singleton; it holds the cvTunerListener
+EXE_SYMBOL(
+	cvLuaScriptSystem_ms_apSingletonInstance,
+	EXE_DATA, 0x02c62ec8, 0x02c52c88, 0x02c65ed0,
+	NULL
+)
+
+EXE_SYMBOL(
+	cvLuaScriptSystem_TunerListener,
+	EXE_OFFSET, 0x00000004, 0x00000004, 0x00000004,
+	NULL
+)
+
+// In cvLuaMatchmakingLibrary::lHostServerGame: the call that drops the
+// tuner's listen socket on entering a multiplayer game
+EXE_SYMBOL(
+	lHostServerGame_EnteringMultiplayerStagingRoom,
+	EXE_CODE, 0x00764963, 0x00793333, 0x007661e3,
+	"8B 0D ?? ?? ?? ?? 53 55 56 57 83 C1 04 E8"
+)
+
+// Signature covers the whole function. thiscall, no stack arguments, plain
+// ret.
+EXE_SYMBOL(
+	cvTunerListener_ExitingMultiplayerStagingRoom,
+	EXE_FUNCTION, 0x0077e5a0, 0x007ad8e0, 0x007800c0,
+	"83 EC 10 80 3D ?? ?? ?? ?? 00 56 ?? ?? 74 2C 83 7E 20 00 75 26"
+	" ?? ?? 50 8D 4C 24 08 E8 ?? ?? ?? ?? 68 DE 10 00 00 8D 44 24 08 50"
+	" ?? ?? E8 ?? ?? ?? ?? 8D 4C 24 04 E8 ?? ?? ?? ?? 5E 83 C4 10 C3"
+)
+
+EXE_SYMBOL(
+	cvTunerListener_ListenSocket,
+	EXE_OFFSET, 0x00000020, 0x00000020, 0x00000020,
+	NULL
+)
+
+// config.ini EnableTuner
+EXE_SYMBOL(
+	g_bEnableTuner,
+	EXE_DATA, 0x00b4933e, 0x00b3923e, 0x00b4c33e,
+	NULL
+)
+
 // ---- cvCityBuildingSim: the engine's per-city building art. One record per
 // city plot; the record keeps the art shown in the Palace position.
 
@@ -333,6 +377,34 @@ EXE_CHECK(
 	ResetNetMessageStatics_ClearWantForceResync,
 	0x13,
 	Civ5NetMessage_s_wantForceResync
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	lHostServerGame_EnteringMultiplayerStagingRoom,
+	0x02,
+	cvLuaScriptSystem_ms_apSingletonInstance
+)
+
+EXE_CHECK(
+	EXE_VAL8,
+	lHostServerGame_EnteringMultiplayerStagingRoom,
+	0x0C,
+	cvLuaScriptSystem_TunerListener
+)
+
+EXE_CHECK(
+	EXE_ABS32,
+	cvTunerListener_ExitingMultiplayerStagingRoom,
+	0x05,
+	g_bEnableTuner
+)
+
+EXE_CHECK(
+	EXE_VAL8,
+	cvTunerListener_ExitingMultiplayerStagingRoom,
+	0x11,
+	cvTunerListener_ListenSocket
 )
 
 EXE_CHECK(
