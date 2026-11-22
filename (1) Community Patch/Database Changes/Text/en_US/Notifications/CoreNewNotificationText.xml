@@ -1530,7 +1530,7 @@
 
 		<!-- A City Revolts! -->
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_UNKNOWN">
-			<Text>A City has revolted and joined {3_CivName}!</Text>
+			<Text>A City has revolted and joined {1_CivName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_FREE_CITY">
 			<Text>The {1_CivAdjective} city of {2_CityName} has revolted and declared itself the free City-State of {3_CivName}!</Text>
