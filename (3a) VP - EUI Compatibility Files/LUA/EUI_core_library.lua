@@ -180,13 +180,18 @@ if Game and PreGame then
 			local m = 0
 			local n = g_maximumAcquirePlotArea
 			local p = g_maximumAcquirePlotPerimeter
+			-- rings wider than the map wrap round onto plots already returned; counting those
+			-- would keep the search going forever for a city that owns land in every ring
+			local seen = {}
 			return function()
 				repeat
 					for i = m, n do
 						local plot = city:GetCityIndexPlot( i )
 						if plot	and plot:GetOwner() == cityOwnerID
 							and plot:GetCityPurchaseID() == cityID
+							and not seen[ plot:GetPlotIndex() ]
 						then
+							seen[ plot:GetPlotIndex() ] = true
 							m = i+1
 							return plot
 						end
