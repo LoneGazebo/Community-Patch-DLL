@@ -79,7 +79,8 @@ CvFeatureInfo* CvDllFeatureInfo::GetInstance()
 //------------------------------------------------------------------------------
 const char* CvDllFeatureInfo::GetType()
 {
-	return m_pFeatureInfo->GetType();
+	// the engine sees the EngineType, if set (only for its look of the feature)
+	return m_pFeatureInfo->GetEngineType();
 }
 //------------------------------------------------------------------------------
 const char* CvDllFeatureInfo::GetDescription()

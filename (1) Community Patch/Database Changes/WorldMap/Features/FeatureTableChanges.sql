@@ -18,3 +18,8 @@ ALTER TABLE Features ADD AdjacentSpawnLocationUnitFreePromotion text REFERENCES 
 
 -- Features with NaturalWonder = true have hardcoded graphics. This column exists to allow additional NWs with working graphics.
 ALTER TABLE Features ADD PseudoNaturalWonder boolean DEFAULT 0;
+
+-- The game engine gives the base game natural wonders their look by their Type (for example the terrain shape under the wonder);
+-- any other natural wonder (NaturalWonder = true) looks like Mount Fuji there.
+-- Set this to a base game natural wonder's Type to give this feature that wonder's look. Game rules still use this feature's own Type.
+ALTER TABLE Features ADD EngineType text REFERENCES Features (Type);
