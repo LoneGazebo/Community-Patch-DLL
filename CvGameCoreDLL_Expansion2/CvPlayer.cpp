@@ -20745,7 +20745,6 @@ void CvPlayer::DistributeHappinessToCities()
 		return;
 	}
 
-	int iLoop = 0;
 	CvWeightedVector<CvCity*> CitiesSortedByNeed;
 	CvWeightedVector<CvCity*> CitiesSortedByPopulation;
 
