@@ -370,14 +370,14 @@ EXE_SYMBOL(
 // buffer being written. No writer checks the buffer size.
 EXE_SYMBOL(
 	g_EventSystemLocalMachine_Containers,
-	EXE_DATA, 0x01a0f080, 0x019fee80, 0x01a10b00,
+	EXE_DATA, 0x01894600, 0x01884480, 0x01897600,
 	NULL
 )
 
 // The first container's max published size
 EXE_SYMBOL(
 	g_EventSystemLocalMachine_MaxPublishedSize,
-	EXE_DATA, 0x0220f184, 0x021fef84, 0x02210c04,
+	EXE_DATA, 0x02094704, 0x02084584, 0x02097704,
 	NULL
 )
 
@@ -410,7 +410,7 @@ EXE_SYMBOL(
 // InterfaceBuddy::updateEndTurnTimer, which inlines it on Linux.
 EXE_SYMBOL(
 	updateEndTurnTimer_Reserve,
-	EXE_FUNCTION, 0x00870760, 0x00896310, 0x00872200,
+	EXE_FUNCTION, 0x00668c10, 0x00698970, 0x00669270,
 	"A1 ?? ?? ?? ?? 69 C0 ?? ?? ?? ?? 56 05 ?? ?? ?? ?? 8B B0 ?? ?? ?? ??"
 	" 83 E6 01 69 F6 ?? ?? ?? ?? ?? ?? 68 80 00 00 00 56 FF 15 ?? ?? ?? ??"
 	" 8D 84 30 ?? ?? ?? ?? ?? ?? 5E ?? ?? 74 13 C7 00 80 00 00 00"
@@ -421,7 +421,7 @@ EXE_SYMBOL(
 // ("LocalMachineEventStream : %d k Max Published Size")
 EXE_SYMBOL(
 	GameViewState_PrintDebugInfo_noAlloc_ReadMaxPublishedSize,
-	EXE_CODE, 0x006a60e9, 0x007a2bb9, 0x00550409,
+	EXE_CODE, 0x004c3039, 0x004f3f79, 0x004c2ca9,
 	"8B 0D ?? ?? ?? ?? 69 C9 ?? ?? ?? ?? 8B 91 ?? ?? ?? ?? C1 EA 0A 42 52"
 )
 
