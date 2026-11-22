@@ -191,7 +191,7 @@ EXE_SYMBOL(
 
 EXE_SYMBOL(
 	UIManager_StartupRenderer_CreateCommandStreams,
-	EXE_CODE, 0x005c991b, 0x005f1a2b, 0x0044cabb,
+	EXE_CODE, 0x0068131b, 0x006b002b, 0x0068152b,
 	"83 3D ?? ?? ?? ?? 00 8B 0D ?? ?? ?? ?? 6A 00 68 00 00 10 00"
 	" 68 00 04 00 00 68 00 10 00 00 74 29 E8 ?? ?? ?? ?? 6A 00"
 	" 68 00 00 10 00 68 00 04 00 00 89 86 ?? ?? 00 00 8B 0D ?? ?? ?? ??"
@@ -202,13 +202,13 @@ EXE_SYMBOL(
 
 EXE_SYMBOL(
 	UIManager_StartupRenderer_ReadUIManager,
-	EXE_CODE, 0x005c9a1f, 0x005f1b2f, 0x0044cbbf,
+	EXE_CODE, 0x0068141f, 0x006b012f, 0x0068162f,
 	"8B 15 ?? ?? ?? ?? 8B 8A ?? ?? 00 00 51 8B 0D ?? ?? ?? ?? 50 E8"
 )
 
 EXE_SYMBOL(
 	g_pUIManager,
-	EXE_DATA, 0x02dd1d1c, 0x02dc1b1c, 0x02dd37a4,
+	EXE_DATA, 0x02c5941c, 0x02c491dc, 0x02c5c41c,
 	NULL
 )
 
@@ -233,7 +233,7 @@ EXE_SYMBOL(
 
 EXE_SYMBOL(
 	CCommandStream_ctor_DX11,
-	EXE_FUNCTION, 0x008ce150, EXE_NONE, 0x008d0220,
+	EXE_FUNCTION, 0x008341d0, EXE_NONE, 0x00836250,
 	"8B 44 24 04 53 56 57 8B 7C 24 18 ?? ?? 8B 4C 24 14 89 4E 10"
 	" 89 46 08 ?? ?? 83 C7 0F ?? ?? 83 E7 F0 ?? ?? BA 20 00 00 00"
 	" F7 E2 6A 0C 0F 90 C1 6A 09 6A 18 68 ?? ?? ?? ?? 6A 01"
@@ -242,7 +242,7 @@ EXE_SYMBOL(
 
 EXE_SYMBOL(
 	CCommandStream_ctor_DX9,
-	EXE_FUNCTION, EXE_NONE, 0x008ed490, EXE_NONE,
+	EXE_FUNCTION, EXE_NONE, 0x008530d0, EXE_NONE,
 	"8B 44 24 04 53 56 57 8B 7C 24 18 ?? ?? 8B 4C 24 14 89 4E 10"
 	" ?? ?? 83 C7 0F 83 E7 F0 ?? ?? 89 46 08 BA 20 00 00 00"
 	" F7 E2 6A 0C 0F 90 C1 6A 09 6A 3D 68 ?? ?? ?? ?? 6A 01"
@@ -252,7 +252,7 @@ EXE_SYMBOL(
 // Frees min(current, other) of each pair
 EXE_SYMBOL(
 	CCommandStream_dtor_DX11,
-	EXE_FUNCTION, 0x008ccd20, EXE_NONE, 0x008cede0,
+	EXE_FUNCTION, 0x00832da0, EXE_NONE, 0x00834e10,
 	"56 ?? ?? 8B 86 70 20 00 00 8B 4E 14 ?? ?? 72 02 ?? ?? 50"
 	" E8 ?? ?? ?? ?? 8B 06 8B 8E 6C 20 00 00 83 C4 04 ?? ?? 72 02"
 	" ?? ?? 50 E8 ?? ?? ?? ?? 8B 86 68 20 00 00 8B 4E 24 83 C4 04"
@@ -261,7 +261,7 @@ EXE_SYMBOL(
 
 EXE_SYMBOL(
 	CCommandStream_dtor_DX9,
-	EXE_FUNCTION, EXE_NONE, 0x008ec1e0, EXE_NONE,
+	EXE_FUNCTION, EXE_NONE, 0x00851e20, EXE_NONE,
 	"56 ?? ?? 8B 06 50 E8 ?? ?? ?? ?? 8B 4E 14 51 E8 ?? ?? ?? ??"
 	" 8B 56 24 52 E8 ?? ?? ?? ?? 83 C4 0C 5E C3"
 )
@@ -269,7 +269,7 @@ EXE_SYMBOL(
 // DX11 also clears +0x207c after these
 EXE_SYMBOL(
 	CCommandStream_ClearStream,
-	EXE_FUNCTION, 0x008cd490, 0x008eca40, 0x008cf550,
+	EXE_FUNCTION, 0x00833510, 0x00852680, 0x00835580,
 	"?? ?? 89 41 0C 89 41 04 89 41 40 89 41 44 89 41 48 89 41 30"
 	" 89 41 54"
 )
@@ -339,13 +339,13 @@ EXE_SYMBOL(
 // passes the same arguments as CCommandStream; the caller pops them.
 EXE_SYMBOL(
 	operator_new_array,
-	EXE_FUNCTION, 0x0082c090, 0x0081cae0, 0x00814ca0,
+	EXE_FUNCTION, 0x0045e0a0, 0x00473820, 0x004794d0,
 	"56 8B 74 24 08 57 85 F6 75 05 BE 01 00 00 00 6A 01 E8 ?? ?? ?? ??"
 )
 
 EXE_SYMBOL(
 	FireMallocAlignedNoTracking,
-	EXE_FUNCTION, 0x00813a80, 0x0081cb80, 0x00814a10,
+	EXE_FUNCTION, 0x0045ddf0, 0x00473590, 0x0045e060,
 	"8B 44 24 08 85 C0 74 0F 50 8B 44 24 08 50 E8 ?? ?? ?? ??"
 	" 83 C4 08 C3 8B 4C 24 04 6A 00 51 FF 15 ?? ?? ?? ?? 83 C4 08 C3"
 )
@@ -353,13 +353,13 @@ EXE_SYMBOL(
 // No signature: the code differs between builds; the dtors vouch for these
 EXE_SYMBOL(
 	operator_delete_array,
-	EXE_FUNCTION, 0x00813d10, 0x0081ce10, 0x00814cf0,
+	EXE_FUNCTION, 0x0045e060, 0x00473870, 0x0045e2f0,
 	NULL
 )
 
 EXE_SYMBOL(
 	FireFreeAlignedNoTracking,
-	EXE_FUNCTION, 0x00813cf0, 0x0081cdc0, 0x00814c80,
+	EXE_FUNCTION, 0x0045e080, 0x00473050, 0x0045e2d0,
 	NULL
 )
 
