@@ -531,6 +531,18 @@ CvCity::CvCity() :
 
 	reset(0, NO_PLAYER, 0, 0, true);
 
+	// The new city is in its owner's city list (CvPlayer::addCity) before init() runs, and the user interface can read the
+	// player's cities from its own thread at any time (e.g. the score list's per-frame update calls GetScore). Set up the
+	// sub-objects now, so such a read finds an empty city rather than a sub-object without its city. init() -> reset()
+	// sets them up again for the real owner.
+	m_pCityBuildings->Init(GC.GetGameBuildings(), this);
+	m_pCityStrategyAI->Init(GC.GetGameAICityStrategies(), this, true);
+	m_pCityCitizens->Init(this);
+	m_pCityReligions->Init(this);
+	m_pEmphases->Init(this);
+	m_pCityEspionage->Init(this);
+	m_pCityCulture->Init(this);
+
 	if (GC.getGame().isNetworkMultiPlayer())
 	{
 		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvCity>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
