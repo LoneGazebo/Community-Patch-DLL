@@ -170,7 +170,7 @@ jobs:
         run: python3 .github/scripts/luacheck_new_warnings.py HEAD^1
 
   build-clang:
-    name: Clang ${{ matrix.config }}
+    name: Clang
     needs: [get-version, detect-changes]
     if: |
       always() && needs.get-version.result == 'success' &&
@@ -246,7 +246,7 @@ jobs:
           if-no-files-found: error
 
   build-msvc:
-    name: MSVC ${{ matrix.config }}
+    name: MSVC
     needs: [get-version, detect-changes]
     if: |
       always() && needs.get-version.result == 'success' &&
