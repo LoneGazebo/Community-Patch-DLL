@@ -908,14 +908,29 @@ void CvPlayer::init(PlayerTypes eID)
 		ASSERT(m_pTraits);
 		m_pTraits->InitPlayerTraits();
 
-		// Special handling for the Polynesian trait's overriding of embarked unit graphics
-		if(m_pTraits->IsEmbarkedAllWater())
+		// Embarked unit graphics: the first of our traits (by ID) with an EmbarkedUnitArtDefine; without one, traits that let
+		// embarked units enter ocean or land for 1 movement point keep the Polynesian and Danish boats
+		bool bEmbarkedArtFromTrait = false;
+		for (int iTrait = 0; iTrait < GC.getNumTraitInfos(); iTrait++)
 		{
-			SetEmbarkedGraphicOverride("ART_DEF_UNIT_U_POLYNESIAN_WAR_CANOE");
+			const CvTraitEntry* pkTrait = GC.getTraitInfo((TraitTypes)iTrait);
+			if (pkTrait && !pkTrait->GetEmbarkedUnitArtDefine().empty() && m_pTraits->HasTrait((TraitTypes)iTrait))
+			{
+				SetEmbarkedGraphicOverride(pkTrait->GetEmbarkedUnitArtDefine());
+				bEmbarkedArtFromTrait = true;
+				break;
+			}
 		}
-		else if(m_pTraits->IsEmbarkedToLandFlatCost())
+		if (!bEmbarkedArtFromTrait)
 		{
-			SetEmbarkedGraphicOverride("ART_DEF_UNIT_U_DANISH_LONGBOAT");
+			if (m_pTraits->IsEmbarkedAllWater())
+			{
+				SetEmbarkedGraphicOverride("ART_DEF_UNIT_U_POLYNESIAN_WAR_CANOE");
+			}
+			else if (m_pTraits->IsEmbarkedToLandFlatCost())
+			{
+				SetEmbarkedGraphicOverride("ART_DEF_UNIT_U_DANISH_LONGBOAT");
+			}
 		}
 
 		changeGoldPerUnitTimes100(/*50*/ GD_INT_GET(INITIAL_GOLD_PER_UNIT_TIMES_100));

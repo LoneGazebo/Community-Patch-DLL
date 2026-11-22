@@ -1244,6 +1244,12 @@ bool CvTraitEntry::IsEmbarkedAllWater() const
 	return m_bEmbarkedAllWater;
 }
 
+/// Accessor:: unit art define our embarked units use instead of the default (empty: none)
+const CvString& CvTraitEntry::GetEmbarkedUnitArtDefine() const
+{
+	return m_strEmbarkedUnitArtDefine;
+}
+
 /// Accessor:: are our embarked units able to move to land for 1 MP?
 bool CvTraitEntry::IsEmbarkedToLandFlatCost() const
 {
@@ -2604,6 +2610,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bFasterInHills = kResults.GetBool("FasterInHills");
 	m_bEmbarkedAllWater = kResults.GetBool("EmbarkedAllWater");
 	m_bEmbarkedToLandFlatCost = kResults.GetBool("EmbarkedToLandFlatCost");
+	const char* szEmbarkedUnitArtDefine = kResults.GetText("EmbarkedUnitArtDefine");
+	if (szEmbarkedUnitArtDefine)
+		m_strEmbarkedUnitArtDefine = szEmbarkedUnitArtDefine;
 	m_bNoHillsImprovementMaintenance = kResults.GetBool("NoHillsImprovementMaintenance");
 	m_bTechBoostFromCapitalScienceBuildings = kResults.GetBool("TechBoostFromCapitalScienceBuildings");
 	m_bArtistGoldenAgeTechBoost = kResults.GetBool("ArtistGoldenAgeTechBoost");
