@@ -273,6 +273,7 @@ public:
 	bool IsRiverMovementBonus() const;
 	bool IsFasterInHills() const;
 	bool IsEmbarkedAllWater() const;
+	const CvString& GetEmbarkedUnitArtDefine() const;
 	bool IsEmbarkedToLandFlatCost() const;
 	bool IsNoHillsImprovementMaintenance() const;
 	bool IsTechBoostFromCapitalScienceBuildings() const;
@@ -662,6 +663,7 @@ protected:
 	int m_iProductionBonusModifierConquest;
 
 	CvString m_strShortDescription;
+	CvString m_strEmbarkedUnitArtDefine;
 
 	// Arrays
 	int* m_paiExtraYieldThreshold;

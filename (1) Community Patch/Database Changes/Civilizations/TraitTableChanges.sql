@@ -369,3 +369,7 @@ ALTER TABLE Traits ADD SeaTradeRouteRangeBonus integer DEFAULT 0;
 
 -- Artists Open Golden Age to Receive Current Median One-Time Research Points in Researchable Technology
 ALTER TABLE Traits ADD ArtistGoldenAgeTechBoost boolean DEFAULT 0;
+
+-- Unit art define our embarked units use (e.g. ART_DEF_UNIT_U_POLYNESIAN_WAR_CANOE). Without one, traits with EmbarkedAllWater or
+-- EmbarkedToLandFlatCost keep the Polynesian and Danish boats.
+ALTER TABLE Traits ADD EmbarkedUnitArtDefine text REFERENCES ArtDefine_UnitInfos (Type);
