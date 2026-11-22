@@ -28,11 +28,29 @@
 	passes, and, without a signature, some verified entry vouches for it.
 
 	DRM: the DLL never writes the EXE's .text or .rdata, only .data and
-	heap objects. Steam CEG hashes about 80% of .text and two thirds of
-	.rdata in the loaded image, with different coverage per build. A
-	mismatch crashes the game later and far from the changed bytes. Do not
-	write to either unless it is proven that CEG does not hash those bytes
-	in any build.
+	heap objects.
+
+	The 2014 EXEs (PE timestamps 546CD0A8 DX11, 546CCB59 DX9, 546CD5F8
+	Tablet) carry Steam CEG, which hashes about 80% of .text and two
+	thirds of .rdata in the loaded image, with different coverage per
+	build. Tested live on the 2014 DX11 EXE: one unreachable int3 padding
+	byte in .text, one alignment byte in .rdata and a 5-byte inline hook
+	ended the game with exit code 0x8000DEAD within 80 seconds, during the
+	save load. A debug register on any thread ends it the same way.
+
+	The EXEs of the November 2026 update (Steam build 26577625; PE
+	timestamps 6AF3837D DX11, 6AF3818F DX9, 6AF385BA Tablet) have no CEG
+	and nothing in its place. Static, all three: the Valve block in the
+	DOS stub, the STEAM_DRM_IPC names and the 0x8000DEAD exit are gone; in
+	DX11 also the CEG data in .rdata and the hash loop's reference to the
+	start of .text. Functions lost their inline CEG check calls; in
+	cvCityBuildingSim_CreateNewCity the removed call (0x17 bytes) moves
+	the CityData_Hex check from 0x126 to 0x10F (see EXE_CHECK). Live,
+	DX11 only: the same three writes, an inline hook on a hot .text
+	function and hardware and software breakpoints ran through 50 AI
+	turns, a save, a load and 13 more turns with no crash, and the game
+	state matched an unpatched control run. So writing .text or .rdata is
+	proven safe only on 6AF3837D; DX9 and Tablet were not run.
 	------------------------------------------------------------------------- */
 
 #ifdef EXE_SYMBOL
@@ -40,7 +58,7 @@
 
 EXE_SYMBOL(
 	LoadCvGameCoreDLL_SetEngineUserInterface,
-	EXE_CODE, 0x0047ba70, 0x0072b7f0, 0x004cb690,
+	EXE_CODE, 0x007b35f0, 0x007e2460, 0x007b52d0,
 	"8B 0D ?? ?? ?? ?? 8B 81 D0 00 00 00 ?? ?? 74 05 83"
 	" C0 04 EB 02 ?? ?? 8B 16 50 8B 82 34 02 00 00 56 FF D0"
 )
@@ -53,25 +71,25 @@ EXE_SYMBOL(
 
 EXE_SYMBOL(
 	InterfaceBuddy_dtor,
-	EXE_FUNCTION, 0x006b74d0, 0x00472fc0, 0x0054d990,
+	EXE_FUNCTION, 0x00672f10, 0x006a2aa0, 0x006739d0,
 	"83 EC 10 53 55 56 ?? ?? C7 06 ?? ?? ?? ?? C7 46 04"
 )
 
 EXE_SYMBOL(
 	InterfaceBuddy_vftable,
-	EXE_VTABLE, 0x00a3fe78, 0x00a35198, 0x00a42f00,
+	EXE_VTABLE, 0x0096f490, 0x00961ce8, 0x00971568,
 	NULL
 )
 
 EXE_SYMBOL(
 	InterfaceBuddy_UserInterface_vftable,
-	EXE_VTABLE, 0x00a04240, 0x00a00928, 0x009f3738,
+	EXE_VTABLE, 0x0096f230, 0x00961a88, 0x00971308,
 	NULL
 )
 
 EXE_SYMBOL(
 	InterfaceBuddy_dtor_UnregisterYieldIcons,
-	EXE_CODE, 0x006b76cb, 0x004731bb, 0x0054db8b,
+	EXE_CODE, 0x0067310b, 0x006a2c9b, 0x00673bcb,
 	"8D 4E 10 E8"
 )
 
@@ -85,7 +103,7 @@ EXE_SYMBOL(
 // ret.
 EXE_SYMBOL(
 	YieldIconManager_UnregisterForEvents,
-	EXE_FUNCTION, 0x00711dc0, 0x0069dde0, 0x006bc7b0,
+	EXE_FUNCTION, 0x0068b240, 0x006b9e00, 0x0068c790,
 	"83 EC 0C 56 8D 44 24 04 ?? ?? 50"
 	" C7 44 24 10 ?? ?? ?? ?? 89 74 24 0C E8 ?? ?? ?? ??"
 	" 8D 4C 24 08 51 C7 44 24 14 ?? ?? ?? ?? 89 74 24 10 E8 ?? ?? ?? ??"
@@ -101,7 +119,7 @@ EXE_SYMBOL(
 // reading that channel.
 EXE_SYMBOL(
 	YieldIconManager_UnregisterForEvents_unk17,
-	EXE_FUNCTION, 0x00874eb0, 0x0089aa50, 0x00876940,
+	EXE_FUNCTION, 0x00689fd0, 0x006b8b90, 0x0068b520,
 	"A1 ?? ?? ?? ?? 83 EC 34 69 C0 00 06 00 00 F6 05"
 )
 
@@ -109,19 +127,19 @@ EXE_SYMBOL(
 // channel.
 EXE_SYMBOL(
 	g_EventSystemLocalMachine,
-	EXE_DATA, 0x01a0e400, 0x019fe200, 0x01a0fe80,
+	EXE_DATA, 0x01893980, 0x01883800, 0x01896980,
 	NULL
 )
 
 EXE_SYMBOL(
 	Civ5NetMessage_s_wantForceResync,
-	EXE_DATA, 0x02dd2f68, 0x02dc2d68, 0x02dd4f50,
+	EXE_DATA, 0x02c63dd8, 0x02c53b78, 0x02c66de0,
 	NULL
 )
 
 EXE_SYMBOL(
 	ResetNetMessageStatics_ClearWantForceResync,
-	EXE_CODE, 0x00525bd3, 0x004e1193, 0x00781b73,
+	EXE_CODE, 0x007c0543, 0x007efa13, 0x007c2053,
 	"A1 ?? ?? ?? ?? 89 2D ?? ?? ?? ?? 89 1D ?? ?? ?? ?? 88 1D"
 )
 
@@ -132,19 +150,19 @@ EXE_SYMBOL(
 // call cvCityBuildingSim::Update
 EXE_SYMBOL(
 	GameViewState_UpdateSystems_UpdateCityBuildingSim,
-	EXE_CODE, 0x006fbb66, 0x00710626, 0x00648596,
+	EXE_CODE, 0x004c71c6, 0x004f8146, 0x004c70b6,
 	"D9 44 24 08 51 B9 ?? ?? ?? ?? D9 1C 24 E8"
 )
 
 EXE_SYMBOL(
 	g_cvCityBuildingSim,
-	EXE_DATA, 0x02a11010, 0x02a00e10, 0x02a12a90,
+	EXE_DATA, 0x02896590, 0x02886410, 0x02899590,
 	NULL
 )
 
 EXE_SYMBOL(
 	cvCityBuildingSim_Update,
-	EXE_CODE, 0x00537bf0, 0x004dccc0, 0x00608be0,
+	EXE_CODE, 0x00601540, 0x006308b0, 0x006017f0,
 	"D9 44 24 04 83 EC 24 53 56 ?? ?? 51 8D 8E ?? ?? ?? ?? D9 1C 24 E8"
 )
 
@@ -153,7 +171,7 @@ EXE_SYMBOL(
 // the city's art keep the removed Palace.
 EXE_SYMBOL(
 	cvCityBuildingSim_OnWonderRemoved,
-	EXE_CODE, 0x00462620, 0x0073ad10, 0x00453970,
+	EXE_CODE, 0x00603010, 0x006323f0, 0x006032c0,
 	"83 EC 2C 55 ?? ?? F6 85 ?? ?? ?? ?? 01 89 6C 24 08 74 2A"
 )
 
@@ -175,7 +193,7 @@ EXE_SYMBOL(
 // OnWonderRemoved vouches for the address.
 EXE_SYMBOL(
 	cvCityBuildingSim_SlotGrid_GetSlot,
-	EXE_FUNCTION, 0x0062b5a0, 0x00664b60, 0x006f7ed0,
+	EXE_FUNCTION, 0x005fc750, 0x0062bb10, 0x005fca40,
 	"83 EC 18 8B 44 24 1C 8B 50 04 56 ?? ?? 8B 08 8B 40 08 89 4C 24 04"
 )
 
@@ -224,14 +242,14 @@ EXE_SYMBOL(
 // city for a re-layout
 EXE_SYMBOL(
 	cvCityBuildingSim_MarkDirty,
-	EXE_FUNCTION, 0x00767cf0, 0x0056faa0, 0x0073d970,
+	EXE_FUNCTION, 0x005fe070, 0x0062d3e0, 0x005fe320,
 	"8B 44 24 04 53 55 56 57 8B B9 ?? ?? ?? ?? ?? ?? ?? ?? 76 2A 8B 99"
 )
 
 // Writes the record's hex (short x, short y)
 EXE_SYMBOL(
 	cvCityBuildingSim_CreateNewCity,
-	EXE_CODE, 0x00617b50, 0x00550ac0, 0x00780d70,
+	EXE_CODE, 0x00600790, 0x0062fb00, 0x00600a40,
 	"81 EC 44 07 00 00 53 56 8B B4 24 50 07 00 00 0F BF 56 20 ?? ?? 0F BF 4E"
 )
 
@@ -243,7 +261,7 @@ EXE_SYMBOL(
 
 EXE_SYMBOL(
 	g_cvCityVisSystem,
-	EXE_DATA, 0x00cd0d98, 0x00cc0be0, 0x00cd2818,
+	EXE_DATA, 0x00b562f8, 0x00b461a8, 0x00b592f8,
 	NULL
 )
 
@@ -252,7 +270,7 @@ EXE_SYMBOL(
 // model from the city; does nothing if the city doesn't show it.
 EXE_SYMBOL(
 	cvCityVisSystem_RemoveWonder,
-	EXE_FUNCTION, 0x00503460, 0x006773c0, 0x0077d5c0,
+	EXE_FUNCTION, 0x004e0910, 0x00511730, 0x004e0750,
 	"83 EC 08 53 56 ?? ?? 83 CE FF 89 73 10 89 73 14 E8"
 )
 
@@ -415,10 +433,12 @@ EXE_CHECK(
 	cvCityVisSystem_RemoveWonder
 )
 
+// 0x126 in the 2014 EXEs: the update removed a 0x17-byte CEG check call
+// before this instruction
 EXE_CHECK(
 	EXE_VAL8,
 	cvCityBuildingSim_CreateNewCity,
-	0x126,
+	0x10F,
 	CityData_Hex
 )
 
