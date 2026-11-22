@@ -20704,6 +20704,9 @@ void CvPlayer::DoUpdateTotalHappiness()
 	DoUpdateCityConnectionHappiness();
 	m_iHappiness += GetHappinessFromTradeRoutes();
 
+	// Total Happiness cannot be negative
+	m_iHappiness = max(0, m_iHappiness);
+
 	if (MOD_ENABLE_ACHIEVEMENTS && isLocalPlayer() && GetExcessHappiness() >= 100)
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP2_45);
 
@@ -20719,14 +20722,24 @@ void CvPlayer::DistributeHappinessToCities()
 		return;
 
 	int iHappiness = m_iHappiness;
+	PRECONDITION(iHappiness >= 0, "Total Happiness is negative");
 
-	// If we only have one city, all happiness goes there
+	// Clear all previous empire happiness allocations
+	int iLoop = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		pLoopCity->ResetHappinessFromEmpire();
+	}
+
+	// If we only have one city, all happiness goes there if eligible
+	// pCapital can be NULL when happiness is updated mid-capital founding, this is fixed at the end of CvCity::init()
 	if (getNumCities() == 1)
 	{
 		CvCity* pCapital = getCapitalCity();
-		if (pCapital) // This can be NULL when happiness is updated mid-capital founding
+		if (pCapital && !CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pCapital) &&
+			!pCapital->IsRazing() && !pCapital->IsResistance() &&
+			!(pCapital->IsOccupied() && !pCapital->IsNoOccupiedUnhappiness()))
 		{
-			pCapital->ResetHappinessFromEmpire();
 			pCapital->ChangeHappinessFromEmpire(iHappiness);
 		}
 		return;
@@ -20741,9 +20754,6 @@ void CvPlayer::DistributeHappinessToCities()
 		// Ignore puppets, unless Venice
 		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 			continue;
-
-		// Reset current happiness from empire
-		pLoopCity->ResetHappinessFromEmpire();
 
 		// Do not distribute happiness to occupied, razing or resistance cities
 		if (pLoopCity->IsRazing() || pLoopCity->IsResistance() || (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness()))
