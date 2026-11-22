@@ -28676,18 +28676,18 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 	PublicOpinionTypes eOpinionInTheirCiv = kTheirPlayer.GetCulture()->GetPublicOpinionType();
 	PlayerTypes eTheirGreatestInfluence = kTheirPlayer.GetCulture()->GetPublicOpinionBiggestInfluence();
 
-	// Is their ideology causing civil unrest in our nation?
+	// Is their ideology causing civil unrest in our nation? (YOUR_ = their ideology)
 	if (eOpinionInMyCiv >= PUBLIC_OPINION_CIVIL_RESISTANCE && eMyGreatestInfluence == ePlayer)
 	{
-		if (eMyBranch == eAutocracy)
+		if (eTheirBranch == eAutocracy)
 		{
 			eTempStatement = DIPLO_STATEMENT_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_AUTOCRACY;
 		}
-		else if (eMyBranch == eFreedom)
+		else if (eTheirBranch == eFreedom)
 		{
 			eTempStatement = DIPLO_STATEMENT_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_FREEDOM;
 		}
-		if (eMyBranch == eOrder)
+		else if (eTheirBranch == eOrder)
 		{
 			eTempStatement = DIPLO_STATEMENT_YOUR_IDEOLOGY_CAUSING_CIVIL_UNREST_ORDER;
 		}
@@ -28721,18 +28721,18 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 			}
 		}
 	}
-	// Is my ideology causing civil unrest in their nation?
+	// Is my ideology causing civil unrest in their nation? (OUR_ = my ideology)
 	if (eOpinionInTheirCiv >= PUBLIC_OPINION_CIVIL_RESISTANCE && eTheirGreatestInfluence == GetID())
 	{
-		if (eTheirBranch == eAutocracy)
+		if (eMyBranch == eAutocracy)
 		{
 			eTempStatement = DIPLO_STATEMENT_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_AUTOCRACY;
 		}
-		else if (eTheirBranch == eFreedom)
+		else if (eMyBranch == eFreedom)
 		{
 			eTempStatement = DIPLO_STATEMENT_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_FREEDOM;
 		}
-		else if (eTheirBranch == eOrder)
+		else if (eMyBranch == eOrder)
 		{
 			eTempStatement = DIPLO_STATEMENT_OUR_IDEOLOGY_CAUSING_CIVIL_UNREST_ORDER;
 		}
