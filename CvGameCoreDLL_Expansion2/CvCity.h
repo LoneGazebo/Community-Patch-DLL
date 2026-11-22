@@ -1737,6 +1737,8 @@ public:
 	int CountResource(ResourceTypes iResourceType) const;
 	int CountWorkedResource(ResourceTypes iResourceType) const;
 	int CountTerrain(TerrainTypes iTerrainType) const;
+	int GetNumTilesForYieldPerXTerrain(TerrainTypes eTerrain, bool bFeaturelessOnly);
+	int GetNumTilesForYieldPerXFeature(FeatureTypes eFeature) const;
 	int CountWorkedTerrain(TerrainTypes iTerrainType) const;
 	int CountAllOwnedTerrain(TerrainTypes iTerrainType) const;
 	int GetConnectionGoldTimes100() const;

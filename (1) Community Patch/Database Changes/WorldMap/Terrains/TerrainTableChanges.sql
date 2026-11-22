@@ -18,3 +18,8 @@ ALTER TABLE Terrains ADD SpawnLocationUnitFreePromotion text REFERENCES UnitProm
 
 -- Same as above, but for spawning adjacent to a terrain type.
 ALTER TABLE Terrains ADD AdjacentSpawnLocationUnitFreePromotion text REFERENCES UnitPromotions (Type);
+
+-- Building_YieldPerXTerrainTimes100 and Belief_CityYieldPerXTerrainTimes100 count every tile of this terrain that belongs to the city,
+-- worked or not, instead of only the worked ones (Mountains: those within 3 tiles of the city when it was founded). The belief yield
+-- from such a terrain is limited to one per citizen.
+ALTER TABLE Terrains ADD YieldPerXCountsUnworked boolean DEFAULT 0;
