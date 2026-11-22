@@ -170,6 +170,7 @@ jobs:
         run: python3 .github/scripts/luacheck_new_warnings.py HEAD^1
 
   build-clang:
+    name: Clang ${{ matrix.config }}
     needs: [get-version, detect-changes]
     if: |
       always() && needs.get-version.result == 'success' &&
@@ -182,6 +183,11 @@ jobs:
          needs.detect-changes.outputs.dependencies == 'true')))
     runs-on: windows-2022
     timeout-minutes: 120
+    # Debug and Release build in parallel jobs: the Release link (LTCG) is the long step, and Debug no longer waits in front of it
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [Debug, Release]
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -201,19 +207,12 @@ jobs:
           echo $version
           if ($version -notmatch 'clang version 20\.1\.8') { echo "::error::Expected clang 20.1.8"; exit 1 }
 
-      - name: Run debug build
-        run: python build_vp_clang_sdk.py --config debug
+      - name: Run ${{ matrix.config }} build
+        run: python build_vp_clang_sdk.py --config ${{ matrix.config == 'Debug' && 'debug' || 'release' }}
 
-      - name: Display debug build log
-        if: always() && hashFiles('clang-output/Debug/build.log') != ''
-        run: cat clang-output/Debug/build.log
-
-      - name: Run release build
-        run: python build_vp_clang_sdk.py --config release
-
-      - name: Display release build log
-        if: always() && hashFiles('clang-output/Release/build.log') != ''
-        run: cat clang-output/Release/build.log
+      - name: Display ${{ matrix.config }} build log
+        if: always() && hashFiles(format('clang-output/{0}/build.log', matrix.config)) != ''
+        run: cat clang-output/${{ matrix.config }}/build.log
 
       # Civ 5 only ships the VC9 runtime. A DLL linked against a newer MSVC runtime builds
       # fine and then fails to load in the game. The list is what the gamecore imports today.
@@ -223,7 +222,7 @@ jobs:
                      'dbghelp.dll', 'KERNEL32.dll', 'lua51_Win32.dll', 'MSVCP90.dll', 'MSVCR90.dll',
                      'ole32.dll', 'PSAPI.DLL', 'USER32.dll', 'WINMM.dll'
           $failed = $false
-          foreach ($dll in 'clang-output\Debug\CvGameCore_Expansion2.dll', 'clang-output\Release\CvGameCore_Expansion2.dll') {
+          foreach ($dll in 'clang-output\${{ matrix.config }}\CvGameCore_Expansion2.dll') {
             $imports = llvm-readobj --coff-imports $dll | Select-String '^\s*Name: (.+)$' | ForEach-Object { $_.Matches[0].Groups[1].Value.Trim() }
             echo "${dll}: $($imports -join ', ')"
             foreach ($name in $imports) {
@@ -237,24 +236,17 @@ jobs:
         uses: JohnsterID/vc9-toolset/analyze-build-log@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
         with:
           logs: |
-            Clang Debug=clang-output/Debug/build.log
-            Clang Release=clang-output/Release/build.log
+            Clang ${{ matrix.config }}=clang-output/${{ matrix.config }}/build.log
 
-      - name: Create debug artifact
+      - name: Create ${{ matrix.config }} artifact
         uses: actions/upload-artifact@v7
         with:
-          name: VP_Clang_Debug_${{ needs.get-version.outputs.version }}
-          path: 'clang-output\Debug'
-          if-no-files-found: error
-
-      - name: Create release artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: VP_Clang_Release_${{ needs.get-version.outputs.version }}
-          path: 'clang-output\Release'
+          name: VP_Clang_${{ matrix.config }}_${{ needs.get-version.outputs.version }}
+          path: 'clang-output\${{ matrix.config }}'
           if-no-files-found: error
 
   build-msvc:
+    name: MSVC ${{ matrix.config }}
     needs: [get-version, detect-changes]
     if: |
       always() && needs.get-version.result == 'success' &&
@@ -267,6 +259,11 @@ jobs:
          needs.detect-changes.outputs.dependencies == 'true')))
     runs-on: windows-2022
     timeout-minutes: 120
+    # Debug and Release build in parallel jobs: the Release link (LTCG) is the long step, and Debug no longer waits in front of it
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [Debug, Release]
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -279,32 +276,21 @@ jobs:
         uses: JohnsterID/vc9-toolset@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
 
       # The action's v90 toolset files set the VC9 and SDK 7.0 paths, so no vcvars32.bat
-      - name: Build msvc debug
-        run: '& "${{ steps.vc9.outputs.msbuild }}" VoxPopuli_vs2013.sln /p:Configuration=Debug /p:Platform=Win32 /v:normal "/flp:logfile=msvc_debug_msbuild.log;verbosity=normal"'
-
-      - name: Build msvc release
-        run: '& "${{ steps.vc9.outputs.msbuild }}" VoxPopuli_vs2013.sln /p:Configuration=Release /p:Platform=Win32 /v:normal "/flp:logfile=msvc_release_msbuild.log;verbosity=normal"'
+      - name: Build MSVC ${{ matrix.config }}
+        run: '& "${{ steps.vc9.outputs.msbuild }}" VoxPopuli_vs2013.sln /p:Configuration=${{ matrix.config }} /p:Platform=Win32 /v:normal "/flp:logfile=msvc_${{ matrix.config }}_msbuild.log;verbosity=normal"'
 
       - name: Analyze build warnings and errors
         if: always()
         uses: JohnsterID/vc9-toolset/analyze-build-log@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
         with:
           logs: |
-            MSVC Debug=msvc_debug_msbuild.log
-            MSVC Release=msvc_release_msbuild.log
+            MSVC ${{ matrix.config }}=msvc_${{ matrix.config }}_msbuild.log
 
-      - name: Create msvc debug artifact
+      - name: Create MSVC ${{ matrix.config }} artifact
         uses: actions/upload-artifact@v7
         with:
-          name: VP_MSVC_Debug_${{ needs.get-version.outputs.version }}
-          path: 'BuildOutput/Debug'
-          if-no-files-found: error
-
-      - name: Create msvc release artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: VP_MSVC_Release_${{ needs.get-version.outputs.version }}
-          path: 'BuildOutput/Release'
+          name: VP_MSVC_${{ matrix.config }}_${{ needs.get-version.outputs.version }}
+          path: 'BuildOutput/${{ matrix.config }}'
           if-no-files-found: error
 
 
