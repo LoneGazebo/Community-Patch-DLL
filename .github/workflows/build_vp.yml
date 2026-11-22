@@ -170,6 +170,7 @@ jobs:
         run: python3 .github/scripts/luacheck_new_warnings.py HEAD^1
 
   build-clang:
+    name: Clang ${{ matrix.config }}
     needs: [get-version, detect-changes]
     if: |
       always() && needs.get-version.result == 'success' &&
@@ -186,11 +187,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - config: debug
-            dir: Debug
-          - config: release
-            dir: Release
+        config: [Debug, Release]
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -211,11 +208,11 @@ jobs:
           if ($version -notmatch 'clang version 20\.1\.8') { echo "::error::Expected clang 20.1.8"; exit 1 }
 
       - name: Run ${{ matrix.config }} build
-        run: python build_vp_clang_sdk.py --config ${{ matrix.config }}
+        run: python build_vp_clang_sdk.py --config ${{ matrix.config == 'Debug' && 'debug' || 'release' }}
 
       - name: Display ${{ matrix.config }} build log
-        if: always() && hashFiles(format('clang-output/{0}/build.log', matrix.dir)) != ''
-        run: cat clang-output/${{ matrix.dir }}/build.log
+        if: always() && hashFiles(format('clang-output/{0}/build.log', matrix.config)) != ''
+        run: cat clang-output/${{ matrix.config }}/build.log
 
       # Civ 5 only ships the VC9 runtime. A DLL linked against a newer MSVC runtime builds
       # fine and then fails to load in the game. The list is what the gamecore imports today.
@@ -225,7 +222,7 @@ jobs:
                      'dbghelp.dll', 'KERNEL32.dll', 'lua51_Win32.dll', 'MSVCP90.dll', 'MSVCR90.dll',
                      'ole32.dll', 'PSAPI.DLL', 'USER32.dll', 'WINMM.dll'
           $failed = $false
-          foreach ($dll in 'clang-output\${{ matrix.dir }}\CvGameCore_Expansion2.dll') {
+          foreach ($dll in 'clang-output\${{ matrix.config }}\CvGameCore_Expansion2.dll') {
             $imports = llvm-readobj --coff-imports $dll | Select-String '^\s*Name: (.+)$' | ForEach-Object { $_.Matches[0].Groups[1].Value.Trim() }
             echo "${dll}: $($imports -join ', ')"
             foreach ($name in $imports) {
@@ -239,16 +236,17 @@ jobs:
         uses: JohnsterID/vc9-toolset/analyze-build-log@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
         with:
           logs: |
-            Clang ${{ matrix.dir }}=clang-output/${{ matrix.dir }}/build.log
+            Clang ${{ matrix.config }}=clang-output/${{ matrix.config }}/build.log
 
       - name: Create ${{ matrix.config }} artifact
         uses: actions/upload-artifact@v7
         with:
-          name: VP_Clang_${{ matrix.dir }}_${{ needs.get-version.outputs.version }}
-          path: 'clang-output\${{ matrix.dir }}'
+          name: VP_Clang_${{ matrix.config }}_${{ needs.get-version.outputs.version }}
+          path: 'clang-output\${{ matrix.config }}'
           if-no-files-found: error
 
   build-msvc:
+    name: MSVC ${{ matrix.config }}
     needs: [get-version, detect-changes]
     if: |
       always() && needs.get-version.result == 'success' &&
@@ -265,11 +263,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - config: debug
-            dir: Debug
-          - config: release
-            dir: Release
+        config: [Debug, Release]
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -282,21 +276,21 @@ jobs:
         uses: JohnsterID/vc9-toolset@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
 
       # The action's v90 toolset files set the VC9 and SDK 7.0 paths, so no vcvars32.bat
-      - name: Build msvc ${{ matrix.config }}
-        run: '& "${{ steps.vc9.outputs.msbuild }}" VoxPopuli_vs2013.sln /p:Configuration=${{ matrix.dir }} /p:Platform=Win32 /v:normal "/flp:logfile=msvc_${{ matrix.config }}_msbuild.log;verbosity=normal"'
+      - name: Build MSVC ${{ matrix.config }}
+        run: '& "${{ steps.vc9.outputs.msbuild }}" VoxPopuli_vs2013.sln /p:Configuration=${{ matrix.config }} /p:Platform=Win32 /v:normal "/flp:logfile=msvc_${{ matrix.config }}_msbuild.log;verbosity=normal"'
 
       - name: Analyze build warnings and errors
         if: always()
         uses: JohnsterID/vc9-toolset/analyze-build-log@48b240fe51f34b94ee1b48273967f67ad975030a # v1.0.0
         with:
           logs: |
-            MSVC ${{ matrix.dir }}=msvc_${{ matrix.config }}_msbuild.log
+            MSVC ${{ matrix.config }}=msvc_${{ matrix.config }}_msbuild.log
 
-      - name: Create msvc ${{ matrix.config }} artifact
+      - name: Create MSVC ${{ matrix.config }} artifact
         uses: actions/upload-artifact@v7
         with:
-          name: VP_MSVC_${{ matrix.dir }}_${{ needs.get-version.outputs.version }}
-          path: 'BuildOutput/${{ matrix.dir }}'
+          name: VP_MSVC_${{ matrix.config }}_${{ needs.get-version.outputs.version }}
+          path: 'BuildOutput/${{ matrix.config }}'
           if-no-files-found: error
 
 
