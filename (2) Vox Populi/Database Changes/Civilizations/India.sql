@@ -78,33 +78,33 @@ VALUES
 	('UNIT_DHANURDHARA', 'PROMOTION_DHANURVIDYA');
 
 ----------------------------------------------------------
--- Unique Building: Harappan Reservoir (Aqueduct)
+-- Unique Building: Stepwell (Aqueduct)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
 VALUES
-	('CIVILIZATION_INDIA', 'BUILDINGCLASS_AQUEDUCT', 'BUILDING_HARAPPAN_RESERVOIR');
+	('CIVILIZATION_INDIA', 'BUILDINGCLASS_AQUEDUCT', 'BUILDING_STEPWELL');
 
 UPDATE Buildings
 SET
 	FoodBonusPerCityMajorityFollower = 1,
 	FoodKept = (SELECT FoodKept FROM Buildings WHERE Type = 'BUILDING_AQUEDUCT') + 5
-WHERE Type = 'BUILDING_HARAPPAN_RESERVOIR';
+WHERE Type = 'BUILDING_STEPWELL';
 
 UPDATE Building_YieldChanges
 SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_AQUEDUCT' AND YieldType = 'YIELD_FOOD') + 2
-WHERE BuildingType = 'BUILDING_HARAPPAN_RESERVOIR' AND YieldType = 'YIELD_FOOD';
+WHERE BuildingType = 'BUILDING_STEPWELL' AND YieldType = 'YIELD_FOOD';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_HARAPPAN_RESERVOIR', 'YIELD_PRODUCTION', 3);
+	('BUILDING_STEPWELL', 'YIELD_PRODUCTION', 3);
 
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
 VALUES
-	('BUILDING_HARAPPAN_RESERVOIR', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1),
-	('BUILDING_HARAPPAN_RESERVOIR', 'IMPROVEMENT_FARM', 'YIELD_PRODUCTION', 1);
+	('BUILDING_STEPWELL', 'IMPROVEMENT_FARM', 'YIELD_FOOD', 1),
+	('BUILDING_STEPWELL', 'IMPROVEMENT_FARM', 'YIELD_PRODUCTION', 1);
 
 ----------------------------------------------------------
 -- Unique Building: Qila (Castle)
