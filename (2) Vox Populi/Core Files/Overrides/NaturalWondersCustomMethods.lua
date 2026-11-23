@@ -142,7 +142,7 @@ function NWCustomEligibility(x, y, method_number)
 	end
 end
 ------------------------------------------------------------------------------
-function NWCustomPlacement(x, y, _, method_number)
+function NWCustomPlacement(x, y, row_number, method_number)
 	if method_number == 1 then
 		-- This method handles tile changes for the Great Barrier Reef.
 		local plot = Map.GetPlot(x, y);
@@ -196,7 +196,10 @@ function NWCustomPlacement(x, y, _, method_number)
 		end
 
 		-- Now place the Reef's second wonder plot. (The core method will place the main plot).
-		SEPlot:SetFeatureType(FeatureTypes.FEATURE_REEF);
+		-- Use the wonder of this placement row, so a modded wonder with this method gets both plots
+		local kPlacement = GameInfo.Natural_Wonder_Placement[row_number];
+		local eWonder = kPlacement and GameInfoTypes[kPlacement.NaturalWonderType] or FeatureTypes.FEATURE_REEF;
+		SEPlot:SetFeatureType(eWonder);
 
 	elseif method_number == 2 then
 		-- This method handles tile changes for the Rock of Gibraltar.
