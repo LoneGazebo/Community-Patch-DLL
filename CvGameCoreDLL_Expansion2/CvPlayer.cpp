@@ -20731,6 +20731,11 @@ void CvPlayer::DistributeHappinessToCities()
 		pLoopCity->ResetHappinessFromEmpire();
 	}
 
+	// Nothing to hand out. Both loops below hand out a point before they check for 0, so from 0 they would run
+	// until the int wraps around (about 2^32 steps) and leave wrapped values in the cities.
+	if (iHappiness <= 0)
+		return;
+
 	// If we only have one city, all happiness goes there if eligible
 	// pCapital can be NULL when happiness is updated mid-capital founding, this is fixed at the end of CvCity::init()
 	if (getNumCities() == 1)
