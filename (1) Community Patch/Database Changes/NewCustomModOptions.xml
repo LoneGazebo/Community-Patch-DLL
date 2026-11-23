@@ -28,11 +28,14 @@
 		<!-- All changes added by VP that aren't covered by another CustomModOption -->
 		<Row Class="6" Name="BALANCE_VP" Value="0"/>
 
+		<!-- Enables runtime interoperability features to fix bugs and enhance multiplayer functionality -->
+		<Row Class="6" Name="BIN_HOOKS" Value="1"/>
+
 		<!-- Adds the ability for AI players to contact human players in multiplayer with trade deals -->
 		<Row Class="6" Name="ACTIVE_DIPLOMACY" Value="1"/>
 
-		<!-- Enables runtime interoperability features for enhanced multiplayer functionality -->
-		<Row Class="5" Name="BIN_HOOKS" Value="1"/>
+		<!-- Enables Squads for VP support -->
+		<Row Class="6" Name="SQUADS" Value="0"/>
 
 		<!-- FUNCTIONALITY NOT GUARANTEED -->
 		<!-- Allows Steam achievements to be obtained in single player games despite the game being modded -->
@@ -46,9 +49,6 @@
 
 		<!-- Enables additional gamecore debugging functionality, but slows performance -->
 		<Row Class="2" Name="CORE_DEBUGGING" Value="0"/>
-
-		<!-- Enables Squads for VP support -->
-		<Row Class="6" Name="SQUADS" Value="0"/>
 
 		<!-- Enables writing gameplay statistics to a local SQLite database (stats.db) via SqliteLogger -->
 		<Row Class="6" Name="SQLITE_LOGGING" Value="0"/>
@@ -81,6 +81,9 @@
 
 		<!-- Defensive Pacts don't end if you declare war on civs, other than the player you made the agreement with of course -->
 		<Row Class="6" Name="CORE_PERSISTENT_DEFENSIVE_PACTS" Value="1"/>
+
+		<!-- Vassals cannot vote for another player to achieve Diplomatic Victory -->
+		<Row Class="6" Name="CORE_NO_VASSAL_WORLD_LEADER_VOTES" Value="1"/>
 
 		<!-- Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended -->
 		<Row Class="5" Name="CORE_ENGINEER_HURRY" Value="1"/>

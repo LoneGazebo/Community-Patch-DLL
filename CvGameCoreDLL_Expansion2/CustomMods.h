@@ -38,11 +38,14 @@
 // All changes added by VP that aren't covered by another CustomModOption
 #define MOD_BALANCE_VP												gCustomMods.isBALANCE_VP()
 
+// Enables runtime interoperability features to fix bugs and enhance multiplayer functionality
+#define MOD_BIN_HOOKS												gCustomMods.isBIN_HOOKS()
+
 // Adds the ability for AI players to contact human players in multiplayer with trade deals
 #define MOD_ACTIVE_DIPLOMACY										gCustomMods.isACTIVE_DIPLOMACY()
 
-// Enables runtime interoperability features for enhanced multiplayer functionality
-#define MOD_BIN_HOOKS												gCustomMods.isBIN_HOOKS()
+// Enables Squads for VP support
+#define MOD_SQUADS													gCustomMods.isSQUADS()
 
 // FUNCTIONALITY NOT GUARANTEED
 // Allows Steam achievements to be obtained in single player games despite the game being modded
@@ -53,9 +56,6 @@
 
 // Enables additional gamecore debugging functionality, but slows performance
 #define MOD_CORE_DEBUGGING											gCustomMods.isCORE_DEBUGGING()
-
-// Enables Squads for VP support
-#define MOD_SQUADS													gCustomMods.isSQUADS()
 
 // Enables writing gameplay statistics to a local SQLite database (stats.db) via SqliteLogger
 #define MOD_SQLITE_LOGGING											gCustomMods.isSQLITE_LOGGING()
@@ -96,6 +96,9 @@
 
 // Defensive Pacts don't end if you declare war on civs, other than the player you made the agreement with of course
 #define MOD_CORE_PERSISTENT_DEFENSIVE_PACTS							gCustomMods.isCORE_PERSISTENT_DEFENSIVE_PACTS()
+
+// Vassals cannot vote for another player to achieve Diplomatic Victory
+#define MOD_CORE_NO_VASSAL_WORLD_LEADER_VOTES						gCustomMods.isCORE_NO_VASSAL_WORLD_LEADER_VOTES()
 
 // Great Engineers' Hurry Production produces completed buildings on the same turn as the Great Engineer is expended
 #define MOD_CORE_ENGINEER_HURRY										gCustomMods.isCORE_ENGINEER_HURRY()
@@ -1547,12 +1550,12 @@ public:
 
 	// Keystone Options
 	MOD_OPT_DECL(BALANCE_VP);
-	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
 	MOD_OPT_DECL(BIN_HOOKS);
+	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
+	MOD_OPT_DECL(SQUADS);
 	MOD_OPT_DECL(ENABLE_ACHIEVEMENTS);
 	MOD_OPT_DECL(DIPLO_DEBUG_MODE);
 	MOD_OPT_DECL(CORE_DEBUGGING);
-	MOD_OPT_DECL(SQUADS);
 	MOD_OPT_DECL(SQLITE_LOGGING);
 	MOD_OPT_DECL(SQLITE_LOGGING_DURABLE_WRITES);
 
@@ -1562,6 +1565,7 @@ public:
 	MOD_OPT_DECL(CORE_PUPPET_BUILDING_LIMITATIONS);
 	MOD_OPT_DECL(CORE_CIVILIANS_RETREAT_WITH_MILITARY);
 	MOD_OPT_DECL(CORE_PERSISTENT_DEFENSIVE_PACTS);
+	MOD_OPT_DECL(CORE_NO_VASSAL_WORLD_LEADER_VOTES);
 	MOD_OPT_DECL(CORE_ENGINEER_HURRY);
 	MOD_OPT_DECL(CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CITIES);
 	MOD_OPT_DECL(CORE_NO_NAVAL_RANGED_ATTACKS_FROM_CANALS);

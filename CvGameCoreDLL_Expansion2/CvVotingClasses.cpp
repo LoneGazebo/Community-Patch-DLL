@@ -5849,6 +5849,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 		return s;
 
 	bool bEnact = IsProposed(iResolutionID, /*bRepeal*/ false);
+	bool bDiplomaticVictory = bEnact && GetEnactProposal(iResolutionID)->GetEffects()->bDiplomaticVictory;
 	ResolutionDecisionTypes eDecision = bEnact ? pInfo->GetVoterDecision() : RESOLUTION_DECISION_REPEAL;
 	vector<int> vChoices = GetChoicesForDecision(eDecision, NO_PLAYER);
 
@@ -5860,6 +5861,10 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	{
 		if (it->ePlayer != eObserver && CanEverVote(it->ePlayer))
 		{
+			// Vassals cannot vote for Diplomatic Victory, so exclude them
+			if (MOD_CORE_NO_VASSAL_WORLD_LEADER_VOTES && bDiplomaticVictory && GET_PLAYER(it->ePlayer).IsVassalOfSomeone())
+				continue;
+
 			int iMemberChoice = LeagueHelpers::CHOICE_NONE;
 			if (bEnact)
 			{
@@ -6003,7 +6008,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	}
 
 	// Our delegation
-	int iOurDelegates = CalculateStartingVotesForMember(eObserver);
+	int iOurDelegates = MOD_CORE_NO_VASSAL_WORLD_LEADER_VOTES && bDiplomaticVictory && GET_PLAYER(eObserver).IsVassalOfSomeone() ? 0 : CalculateStartingVotesForMember(eObserver);
 	if (iOurDelegates > 0)
 	{
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS_OURS");
@@ -6434,6 +6439,9 @@ CvString CvLeague::GetMemberVoteOpinionDetails(PlayerTypes eMember, PlayerTypes 
 			s += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_OPINIONS_VOTES").toUTF8();
 			for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
 			{
+				if (MOD_CORE_NO_VASSAL_WORLD_LEADER_VOTES && it->GetEffects()->bDiplomaticVictory && GET_PLAYER(eMember).IsVassalOfSomeone())
+					continue;
+
 				GET_PLAYER(eMember).GetLeagueAI()->EvaluateVoteForOtherPlayerKnowledge(this, eObserver, &(*it), &s);
 			}
 			for (RepealProposalList::iterator it = m_vRepealProposals.begin(); it != m_vRepealProposals.end(); ++it)
@@ -6447,6 +6455,9 @@ CvString CvLeague::GetMemberVoteOpinionDetails(PlayerTypes eMember, PlayerTypes 
 		{
 			for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
 			{
+				if (MOD_CORE_NO_VASSAL_WORLD_LEADER_VOTES && it->GetEffects()->bDiplomaticVictory && GET_PLAYER(eMember).IsVassalOfSomeone())
+					continue;
+
 				std::vector<int> vChoices = GetChoicesForDecision(it->GetVoterDecision()->GetType(), NO_PLAYER);
 				for (uint i = 0; i < vChoices.size(); i++)
 				{
@@ -9521,7 +9532,7 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 					// Allocate free votes
 					if (it->CanVote(kPlayer.GetID()))
 					{
-						if (kPlayer.IsVassalOfSomeone())
+						if (MOD_CORE_NO_VASSAL_WORLD_LEADER_VOTES && kPlayer.IsVassalOfSomeone())
 						{
 							for (EnactProposalList::iterator it2 = it->m_vEnactProposals.begin(); it2 != it->m_vEnactProposals.end(); ++it2)
 							{
@@ -10627,10 +10638,21 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 	{
 		ASSERT(pLeague->CanVote(GetPlayer()->GetID()), "Trying to honor vote commitments but not able to vote.");
 		ASSERT(pLeague->GetRemainingVotesForMember(GetPlayer()->GetID()) >= it->iNumVotes, "Trying to honor vote commitments but not enough votes.");
-		bool bProcessed = false;
+
+		// Cancel Diplomatic Victory commitments if we became a vassal
+		if (MOD_CORE_NO_VASSAL_WORLD_LEADER_VOTES && GetPlayer()->IsVassalOfSomeone() && it->bEnact)
+		{
+			CvEnactProposal* pProposal = pLeague->GetEnactProposal(it->iResolutionID);
+			if (pProposal != NULL && pProposal->GetEffects()->bDiplomaticVictory)
+			{
+				it = m_vVoteCommitmentList.erase(it);
+				continue;
+			}
+		}
 
 		int iSetVotes = pLeague->GetRemainingVotesForMember(GetPlayer()->GetID());
-		if(it->iNumVotes > iSetVotes)
+		bool bProcessed = false;
+		if (it->iNumVotes > iSetVotes)
 		{
 			if (pLeague->CanVote(GetPlayer()->GetID()))
 			{

@@ -1096,7 +1096,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			CvResolutionEffects* pResolutionEffects = bRepeal ? pLeague->GetRepealProposal(iID)->GetEffects() : pLeague->GetEnactProposal(iID)->GetEffects();
 
 			// Make sure vassals can't vote for World Leader
-			if (pResolutionEffects->bDiplomaticVictory)
+			if (MOD_CORE_NO_VASSAL_WORLD_LEADER_VOTES && pResolutionEffects->bDiplomaticVictory)
 			{
 				if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
 					return false;

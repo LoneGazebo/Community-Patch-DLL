@@ -6621,16 +6621,45 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 	//choose one
 	uint uChoice = GC.getGame().urandLimitExclusive(vPossibleResources.size(), CvSeeder(pCity->plot()->GetPseudoRandomSeed()).mix(GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()).mix(GC.getGame().GetCultureMedian()));
 	ResourceTypes eResourceToGive = vPossibleResources[uChoice];
-		
-	//first round. place on owned non-city, non-resource plots without improvement
+
+	// First three passes: place resources on eligible plots around the city.
 	int iNumResourceGiven = 0;
-	CvPlot* pLoopPlot = NULL;
-	for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+	static ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
+
+	for (int iPass = 1; iPass < 4 && iNumResourceGiven < iNumResourceToGive; iPass++)
 	{
-		pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
-		if (pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->CanSpawnResource(pCity->getOwner())
-			&& pLoopPlot->getFeatureType() == NO_FEATURE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+		for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 		{
+			CvPlot* pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
+
+			// Must be able to spawn a resource here
+			if (!pLoopPlot || !pLoopPlot->CanSpawnResource(pCity->getOwner(), true))
+				continue;
+
+			// First and second passes: owned plots only.
+			if (iPass < 3 && pLoopPlot->getOwner() != m_pPlayer->GetID())
+				continue;
+
+			// Third pass: unowned plots.
+			if (iPass == 3 && pLoopPlot->getOwner() != NO_PLAYER)
+				continue;
+
+			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
+			CvImprovementEntry* pkImprovementInfo = eImprovement != NO_IMPROVEMENT ? GC.getImprovementInfo(eImprovement) : NULL;
+			bool bConnectsResource = eImprovement != NO_IMPROVEMENT && pkImprovementInfo->IsConnectsResource(eResourceToGive);
+
+			// Do not replace Ancient Ruins, Landmarks, or Barbarian Encampments
+			if (pLoopPlot->isGoody() || eImprovement == eLandmark || eImprovement == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
+				continue;
+
+			// First pass: featureless plots with no improvement, or an improvement that connects the resource.
+			if (iPass == 1 && (pLoopPlot->getFeatureType() != NO_FEATURE || (eImprovement != NO_IMPROVEMENT && !bConnectsResource)))
+				continue;
+
+			// Avoid placing the resource under a permanent or GPTI improvement unless it connects the resource
+			if (eImprovement != NO_IMPROVEMENT && !bConnectsResource && (pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson()))
+				continue;
+
 			pLoopPlot->setResourceType(eResourceToGive, 1, false);
 			iNumResourceGiven++;
 
@@ -6642,42 +6671,15 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		}
 	}
 
-	//second round. non-owned plots, remove improvement if necessary
-	if(iNumResourceGiven < iNumResourceToGive)
+	// Fourth pass: city center, if it has no resource.
+	if (iNumResourceGiven < iNumResourceToGive && pCity->plot()->getResourceType() == NO_RESOURCE)
 	{
-		for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-		{
-			pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
-			if (pLoopPlot != NULL && pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->CanSpawnResource(pCity->getOwner()))
-			{
-				if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-					pLoopPlot->setImprovementType(NO_IMPROVEMENT);
-
-				pLoopPlot->setResourceType(eResourceToGive, 1, false);
-				iNumResourceGiven++;
-
-				if(iNumResourceGiven >= iNumResourceToGive)
-				{
-					bResult = true;
-					break;
-				}
-			}
-		}
-	}
-
-	//third round, city center plot
-	if(iNumResourceGiven < iNumResourceToGive)
-	{
-		ResourceTypes eCurrentResource = pCity->plot()->getResourceType();
-		if(eCurrentResource == NO_RESOURCE)
-		{
-			pCity->plot()->setResourceType(eResourceToGive, 1, false);
-			bResult = true;
-		}
+		pCity->plot()->setResourceType(eResourceToGive, 1, false);
+		bResult = true;
 	}
 
 	if (bResult)
-		m_iUniqueLuxuryCitiesPlaced++;   // One less to give out
+		m_iUniqueLuxuryCitiesPlaced++; // One less city to give out resources to
 
 	return bResult;
 }
