@@ -21,11 +21,30 @@
 // include this after all other headers
 #include "LintFree.h"
 
-// Maximum damage members for the nuke, units and cities
-#define MAX_NUKE_DAMAGE_MEMBERS	64
-
 #define POST_QUICK_COMBAT_DELAY	110
 #define POST_COMBAT_DELAY		1
+
+//	---------------------------------------------------------------------------
+// Room for every unit and city a nuclear explosion at this plot can damage (GenerateNuclearExplosionDamage)
+static int CountNuclearExplosionVictims(const CvPlot* pkTargetPlot)
+{
+	const int iBlastRadius = /*2*/ range(GD_INT_GET(NUKE_BLAST_RADIUS), 1, 5);
+	int iCount = 0;
+	for (int iDX = -iBlastRadius; iDX <= iBlastRadius; iDX++)
+	{
+		for (int iDY = -iBlastRadius; iDY <= iBlastRadius; iDY++)
+		{
+			const CvPlot* pLoopPlot = plotXYWithRangeCheck(pkTargetPlot->getX(), pkTargetPlot->getY(), iDX, iDY, iBlastRadius);
+			if (pLoopPlot)
+			{
+				iCount += pLoopPlot->getNumUnits();
+				if (pLoopPlot->isCity())
+					iCount++;
+			}
+		}
+	}
+	return iCount;
+}
 
 //	---------------------------------------------------------------------------
 static int GetPostCombatDelay()
@@ -2475,9 +2494,19 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	pkCombatInfo->setDefenderRetaliates(false);
 	pkCombatInfo->setAttackNuclearLevel(iNukeDamageLevel + 1);
 
-	// Set all of the units in the blast radius to defenders and calculate their damage
-	int iDamageMembers = GenerateNuclearExplosionDamage(&plot, iNukeDamageLevel, &kAttacker, pkCombatInfo->getDamageMembers(), CvCombatInfo::getMaxDamageMemberCount());
-	pkCombatInfo->setDamageMemberCount(iDamageMembers);
+	// Set all of the units in the blast radius to defenders and calculate their damage.
+	// The engine is shown at most getMaxDamageMemberCount() of them; the rest are kept apart and take the damage all the same.
+	std::vector<CvCombatMemberEntry> vDamageMembers(CountNuclearExplosionVictims(&plot));
+	int iDamageMembers = vDamageMembers.empty() ? 0 : GenerateNuclearExplosionDamage(&plot, iNukeDamageLevel, &kAttacker, &vDamageMembers[0], (int)vDamageMembers.size());
+	int iShownMembers = std::min(iDamageMembers, CvCombatInfo::getMaxDamageMemberCount());
+	for (int i = 0; i < iShownMembers; i++)
+	{
+		pkCombatInfo->getDamageMembers()[i] = vDamageMembers[i];
+	}
+	pkCombatInfo->setDamageMemberCount(iShownMembers);
+	vDamageMembers.erase(vDamageMembers.begin() + iDamageMembers, vDamageMembers.end());
+	vDamageMembers.erase(vDamageMembers.begin(), vDamageMembers.begin() + iShownMembers);
+	pkCombatInfo->setExtraDamageMembers(vDamageMembers);
 
 	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 }
@@ -2485,9 +2514,12 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 //	-------------------------------------------------------------------------------------
 uint CvUnitCombat::ApplyNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDamageLevel, CvUnit* /* pkAttacker = NULL*/)
 {
-	CvCombatMemberEntry kDamageMembers[MAX_NUKE_DAMAGE_MEMBERS];
-	int iDamageMembers = GenerateNuclearExplosionDamage(pkTargetPlot, iDamageLevel, NULL, &kDamageMembers[0], MAX_NUKE_DAMAGE_MEMBERS);
-	return ApplyNuclearExplosionDamage(&kDamageMembers[0], iDamageMembers, NULL, pkTargetPlot, iDamageLevel);
+	std::vector<CvCombatMemberEntry> vDamageMembers(CountNuclearExplosionVictims(pkTargetPlot));
+	if (vDamageMembers.empty())
+		return 0;
+
+	int iDamageMembers = GenerateNuclearExplosionDamage(pkTargetPlot, iDamageLevel, NULL, &vDamageMembers[0], (int)vDamageMembers.size());
+	return ApplyNuclearExplosionDamage(&vDamageMembers[0], iDamageMembers, NULL, pkTargetPlot, iDamageLevel);
 }
 
 //	-------------------------------------------------------------------------------------
@@ -2926,7 +2958,10 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 
 		if(pkTargetPlot)
 		{
-			if(ApplyNuclearExplosionDamage(kCombatInfo.getDamageMembers(), kCombatInfo.getDamageMemberCount(), pkAttacker, pkTargetPlot, kCombatInfo.getAttackNuclearLevel() - 1) > 0)
+			// The members the engine was shown, then the rest of the blast (GenerateNuclearCombatInfo)
+			std::vector<CvCombatMemberEntry> vDamageMembers(kCombatInfo.getDamageMembers(), kCombatInfo.getDamageMembers() + kCombatInfo.getDamageMemberCount());
+			vDamageMembers.insert(vDamageMembers.end(), kCombatInfo.getExtraDamageMembers().begin(), kCombatInfo.getExtraDamageMembers().end());
+			if(!vDamageMembers.empty() && ApplyNuclearExplosionDamage(&vDamageMembers[0], (int)vDamageMembers.size(), pkAttacker, pkTargetPlot, kCombatInfo.getAttackNuclearLevel() - 1) > 0)
 			{
 				if (MOD_ENABLE_ACHIEVEMENTS && pkAttacker->getOwner() == GC.getGame().getActivePlayer())
 				{

@@ -227,6 +227,7 @@ CvCombatInfo& CvCombatInfo::operator=(const CvCombatInfo& rhs)
 	{
 		m_kDamageMembers[i] = rhs.m_kDamageMembers[i];
 	}
+	m_vExtraDamageMembers = rhs.m_vExtraDamageMembers;
 	return (*this);
 }
 
@@ -525,6 +526,18 @@ void CvCombatInfo::setDamageMemberCount(int iDamageMemberCount)
 {
 	ASSERT(iDamageMemberCount >=0 && iDamageMemberCount <= MAX_DAMAGE_MEMBER_COUNT, "Invalid damage member count!");
 	m_iDamageMemberCount = std::min(iDamageMemberCount, (int)MAX_DAMAGE_MEMBER_COUNT);
+}
+
+//------------------------------------------------------------------------------------------------
+const std::vector<CvCombatMemberEntry>& CvCombatInfo::getExtraDamageMembers() const
+{
+	return m_vExtraDamageMembers;
+}
+
+//------------------------------------------------------------------------------------------------
+void CvCombatInfo::setExtraDamageMembers(const std::vector<CvCombatMemberEntry>& vExtraDamageMembers)
+{
+	m_vExtraDamageMembers = vExtraDamageMembers;
 }
 
 //------------------------------------------------------------------------------------------------
