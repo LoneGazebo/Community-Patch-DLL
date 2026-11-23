@@ -2639,8 +2639,9 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						vAffectedPlayers.push_back(pkCity->getOwner());
 				}
 
-				// Putting this here, since the city may not exist later
-				ApplyPostCityCombatEffects(pkAttacker, pkCity, kEntry.GetDamage());
+				// Putting this here, since the city may not exist later. No attacker for Plot:NukeExplosion and meltdowns.
+				if (pkAttacker)
+					ApplyPostCityCombatEffects(pkAttacker, pkCity, kEntry.GetDamage());
 
 				if(kEntry.GetFinalDamage() >= pkCity->GetMaxHitPoints() && !pkCity->IsOriginalCapital())
 				{
@@ -2652,7 +2653,8 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					pkCity->kill();
 
 					// slewis - check for killing a player
-					GET_PLAYER(pkAttacker->getOwner()).CheckForMurder(eOldOwner);
+					if (pkAttacker)
+						GET_PLAYER(pkAttacker->getOwner()).CheckForMurder(eOldOwner);
 				}
 				else
 				{
