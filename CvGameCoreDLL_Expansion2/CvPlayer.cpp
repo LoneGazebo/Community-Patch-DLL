@@ -47161,6 +47161,14 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 			iThreshold /= 100;
 		}
 	}
+	else if (isMinorCiv())
+	{
+		iThreshold *= GC.getGame().getHandicapInfo().getCityStateGrowthPercent();
+		iThreshold /= 100;
+
+		iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getCityStateGrowthPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
+		iThreshold /= 100;
+	}
 
 	return std::max(1, iThreshold);
 }
