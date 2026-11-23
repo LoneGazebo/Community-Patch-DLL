@@ -1882,6 +1882,7 @@ public:
 
 	const InvisibleTypes getSeeInvisibleType() const;
 	void setSeeInvisibleType(InvisibleTypes InvisibleType);
+	void UpdateInvisibilityFromPromotions();
 
 	const CvUnit* getCombatUnit() const;
 	CvUnit* getCombatUnit();
