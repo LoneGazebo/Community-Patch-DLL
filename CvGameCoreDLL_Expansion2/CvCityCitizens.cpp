@@ -41,6 +41,7 @@ struct SWorkingCity
 // the other city values its loss of food and production itself. its loss of gold, science, culture and faith counts with whichever of the
 // two cities values that yield more, so that neither city's focus makes the other city's yields look cheap. we value our own gain as always.
 // the loss counts 10% extra, so that two cities never pass a plot back and forth.
+// a city taking back its own plot from a puppet pays nothing, its choice comes first.
 // returns the index of the working city in vWorkingCities, or -1 if no other city is working the plot
 static int GetTakeOverCost(CvPlot* pPlot, CvCityCitizens* pTaker, SPrecomputedExpensiveNumbers& takerCache, vector<SWorkingCity>& vWorkingCities, int& iCost)
 {
@@ -67,6 +68,8 @@ static int GetTakeOverCost(CvPlot* pPlot, CvCityCitizens* pTaker, SPrecomputedEx
 		kNew.nextBestOption = nextBest.plot ? pCitizens->GetPlotYields(nextBest.plot, kNew.cache) : pCitizens->GetSpecialistYields(nextBest.specialist);
 	}
 	SWorkingCity& kWorkingCity = vWorkingCities[iIndex];
+	if (pWorkingCity->IsPuppet() && pPlot->getOwningCity() == pTaker->GetCity())
+		return (int)iIndex;
 
 	YieldAndGPPList lossYields = pCitizens->GetPlotYields(pPlot, kWorkingCity.cache).negative() + kWorkingCity.nextBestOption;
 	int iScore = pCitizens->ScoreYieldChange(lossYields, kWorkingCity.cache);
@@ -1655,7 +1658,8 @@ void CvCityCitizens::DoApplyTileChange(TileChange tileChange, bool bAdd, bool bL
 			UNREACHABLE();
 		}
 
-		CvCity* pOtherCity = (bLogging && bAdd && !tileChange.plot->isEffectiveOwner(m_pCity)) ? tileChange.plot->getEffectiveOwningCity() : NULL;
+		// log take-overs even if the caller doesn't want detailed logging, most reallocations don't
+		CvCity* pOtherCity = (GC.getLogging() && bAdd && !tileChange.plot->isEffectiveOwner(m_pCity)) ? tileChange.plot->getEffectiveOwningCity() : NULL;
 		if (pOtherCity && pOtherCity->GetCityCitizens()->IsWorkingPlot(tileChange.plot))
 			LogMsg(CvString::format("taking over plot %d:%d from %s, cost %d", tileChange.plot->getX(), tileChange.plot->getY(), pOtherCity->getName().GetCString(), tileChange.iTakeOverCost));
 
@@ -1767,7 +1771,7 @@ void CvCityCitizens::DoInitialAssigment(bool bAssumeStarving, bool bAssumeBelowG
 	gCachedNumbers.update(m_pCity);
 	
 	// score all possible options
-	vector<TileChange> vScoredOptions = GetBestOptionsQuick(iNumToAssign, /*bAdd*/ true, /*bAllowOverride*/ !GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT), gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, gCachedNumbers.iNetGold < 0);
+	vector<TileChange> vScoredOptions = GetBestOptionsQuick(iNumToAssign, /*bAdd*/ true, /*bAllowOverride*/ true, gCachedNumbers, bAssumeStarving, bAssumeBelowGrowthThreshold, gCachedNumbers.iNetGold < 0);
 
 	// assign the best ones
 	for (int i = 0; i < (int)vScoredOptions.size(); i++)
@@ -2067,8 +2071,8 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 //see if we can find a better assignment when we're not assigning plots greedily from scratch but from the final state where all citizens are already fed
 void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 {
-	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->IsResistance())
-		// no need to do this for non-Venice puppets or cities being razed
+	// no need to do this for cities being razed
+	if (m_pCity->IsResistance())
 		return;
 
 	int iCount = 0;
@@ -2100,18 +2104,17 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		bool bBelowGrowthThreshold = iNetFood100 < GetExcessFoodThreshold100();
 		bool bInDebt = gCachedNumbers.iNetGold < 0;
 		
-		bool bAllowOverride = !GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT);
-		vector<TileChange> vRemoveOptions = GetBestOptionsQuick(iNumOptionsPlots, /*bAdd*/ false, bAllowOverride, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ true, /*bIncludeSpecialists*/ false, true);
+		vector<TileChange> vRemoveOptions = GetBestOptionsQuick(iNumOptionsPlots, /*bAdd*/ false, /*bAllowOverride*/ true, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ true, /*bIncludeSpecialists*/ false, true);
 		if (!bSpecialistForbidden)
 		{
-			vector<TileChange> tmp = GetBestOptionsQuick(iNumOptionsSpecialists, /*bAdd*/ false, bAllowOverride, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ false, /*bIncludeSpecialists*/ true, true);
+			vector<TileChange> tmp = GetBestOptionsQuick(iNumOptionsSpecialists, /*bAdd*/ false, /*bAllowOverride*/ true, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ false, /*bIncludeSpecialists*/ true, true);
 			vRemoveOptions.insert(vRemoveOptions.end(), tmp.begin(), tmp.end());
 		}
 
-		vector<TileChange> vAddOptions = GetBestOptionsQuick(iNumOptionsPlots, /*bAdd*/ true, bAllowOverride, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ true, /*bIncludeSpecialists*/ false, true);
+		vector<TileChange> vAddOptions = GetBestOptionsQuick(iNumOptionsPlots, /*bAdd*/ true, /*bAllowOverride*/ true, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ true, /*bIncludeSpecialists*/ false, true);
 		if (!bSpecialistForbidden)
 		{
-			vector<TileChange> tmp = GetBestOptionsQuick(iNumOptionsSpecialists, /*bAdd*/ true, bAllowOverride, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ false, /*bIncludeSpecialists*/ true, true);
+			vector<TileChange> tmp = GetBestOptionsQuick(iNumOptionsSpecialists, /*bAdd*/ true, /*bAllowOverride*/ true, gCachedNumbers, bStarving, bBelowGrowthThreshold, bInDebt, /*bIncludePlots*/ false, /*bIncludeSpecialists*/ true, true);
 			vAddOptions.insert(vAddOptions.end(), tmp.begin(), tmp.end());
 		}
 		int iBestScore = 0;
@@ -2575,6 +2578,9 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 				pPlot->setOwningCityOverride(GetCity());
 				// check if the city governor wants to work the new tile
 				DoReallocateCitizens(true);
+				// a plot pulled into a puppet by hand stays there, its owner won't take it back (see IsCanWorkWithOverride)
+				if (m_pCity->IsPuppet() && IsWorkingPlot(pPlot))
+					SetForcedWorkingPlot(pPlot, true);
 			}
 		}
 	}
@@ -2737,20 +2743,27 @@ bool CvCityCitizens::IsCanWorkWithOverride(CvPlot* pPlot) const
 			return false;
 		}
 
-		//we do not want to steal plots in the innermost ring, or worked plots (with the exception below)
-		//humans can still re-assign plots manually (see DoAlterWorkingPlot)
-		if (plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)
+		//a regular city may always take back its own plot from a puppet that borrowed it, for free (see GetTakeOverCost)
+		bool bTakeBack = !m_pCity->IsPuppet() && pEffectiveOwner->IsPuppet() && pPlot->getOwningCity() == m_pCity;
+
+		//the governor of a human's regular city does nothing else, humans re-assign plots manually (see DoAlterWorkingPlot)
+		if (!bTakeBack && !m_pCity->IsPuppet() && GET_PLAYER(GetOwner()).isHuman(ISHUMAN_AI_CITY_MANAGEMENT))
 		{
 			return false;
 		}
 
-		//exception: puppets may take worked plots from any city, and regular cities from puppets, unless either city was just conquered
-		//whether it's worth it depends on what the other city loses (see GetTakeOverCost)
+		//we do not want to steal plots in the innermost ring, or worked plots (with the exception below)
+		if (!bTakeBack && plotDistance(pPlot->getX(),pPlot->getY(),pEffectiveOwner->getX(),pEffectiveOwner->getY())<2)
+		{
+			return false;
+		}
+
+		//exception: a regular city may take a plot a puppet is working, unless either city was just conquered or the puppet must work it
+		//whether it's worth it depends on what the puppet loses (see GetTakeOverCost). a puppet only borrows plots nobody works, so plots don't bounce
 		if (pEffectiveOwner->GetCityCitizens()->IsWorkingPlot(pPlot))
 		{
-			bool bPuppetInvolved = pEffectiveOwner->IsPuppet() || m_pCity->IsPuppet();
 			bool bJustConquered = pEffectiveOwner->IsResistance() || pEffectiveOwner->IsIgnoreCityForHappiness() || m_pCity->IsResistance() || m_pCity->IsIgnoreCityForHappiness();
-			if (!bPuppetInvolved || bJustConquered)
+			if (m_pCity->IsPuppet() || !pEffectiveOwner->IsPuppet() || bJustConquered || pEffectiveOwner->GetCityCitizens()->IsForcedWorkingPlot(pPlot))
 			{
 				return false;
 			}
