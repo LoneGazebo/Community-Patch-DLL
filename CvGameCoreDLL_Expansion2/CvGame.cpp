@@ -8457,7 +8457,9 @@ void CvGame::doTurn()
 		for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 		{
 			CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
-			ASSERT((kPlayer.isLocalPlayer() && !kPlayer.GetDiplomacyRequests()->HasPendingRequests()) || !kPlayer.isLocalPlayer(), "Clearing requests, expected local player to be empty.");
+			// In a network game the local player's queue can legitimately still hold requests here: every machine queues an AI's
+			// requests to every human, the queue is saved, and a resync loads the host's copy of it; requests can also be left unanswered.
+			ASSERT(isNetworkMultiPlayer || !kPlayer.isLocalPlayer() || !kPlayer.GetDiplomacyRequests()->HasPendingRequests(), "Clearing requests, expected local player to be empty.");
 			kPlayer.GetDiplomacyRequests()->ClearAllRequests();
 
 			if (isNetworkMultiPlayer && !kPlayer.isHuman(ISHUMAN_AI_DIPLOMACY)) {
