@@ -114,7 +114,12 @@ This typically means VS2010 SP1 is not installed. The MSBuild integration files 
 You have VS2008 installed but not SP1. The base VS2008 release lacks TR1 headers. Ensure you installed the "with SP1" version or apply the SP1 update.
 
 ### Build hangs at end of pass 1 (Release builds)
-This is normal when Whole Program Optimization is enabled. The compiler is still working—it can take several minutes. You can disable WPO locally under Project > Properties > C/C++ > Optimization.
+With Whole Program Optimization (Release), the linker generates all the code after pass 1, on one core. This takes several minutes, and link.exe grows to about 700 MB while it works. That is normal.
+
+If link.exe stays at about 190 MB with no CPU use and its output ends while it searches `CvWorldBuilderMapWin32.lib`, it is the Windows 11 24H2 hang from #12648 and #13137. The library in the repository has been fixed for it since commit 9deb40fbf: update your checkout.
+
+### C1076 or C3859 when building the precompiled header
+The precompiled header needs more memory than the `/Zm` value allows. The project sets `/Zm450` (`VoxPopuli.vcxproj`), well above what it needs today (about 237 for Debug and 223 for Release). Every sync var adds code to the precompiled header, so if it ever grows past that, raise `/Zm` for both configurations. The value that C3859 suggests is a little higher than the real minimum.
 
 ### Build stops responding at end of pass 2
 Delete the hidden `.vs` folder and the `BuildOutput`/`BuildTemp` folders, then reopen the solution.
@@ -134,7 +139,7 @@ The `build_vp_clang_sdk.py` script uses:
 - **Windows SDK 7.0** for Windows headers/libs (`C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0\`)
 - **VC9 headers/libs** from SDK 7.0's `vc_stdx86.msi` component, which installs to `C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\`
 
-This is what CI uses—it downloads SDK 7.0 ISO and installs the necessary components without requiring VS2008 or VS2010.
+CI uses this script for its clang build. Both CI build jobs install the compiler with the [vc9-toolset](https://github.com/JohnsterID/vc9-toolset) action, which downloads the SDK 7.0 ISO and installs VC9 SP1 from it, without VS2008 or VS2010. The MSVC job then builds the solution with Visual Studio 2022's MSBuild and the action's v90 toolset files.
 
 ### SDK Version Notes
 
