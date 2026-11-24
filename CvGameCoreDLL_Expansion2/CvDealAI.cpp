@@ -408,8 +408,10 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 	// Have to send AI response through the network  - it affects AI behavior
 	if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eFromPlayer))
 	{
-		eResponse = GetRequestForHelpResponse(pDeal);
-		GC.getGame().DoFromUIDiploEvent(FROM_UI_DIPLO_EVENT_HUMAN_REQUEST, eMyPlayer, /*iData1*/ eResponse, -1);
+		bool bNotNow = false;
+		eResponse = GetRequestForHelpResponse(pDeal, &bNotNow);
+		// iData2 = 1: refused whatever was asked for (not willing to help this turn), so the answer is not "too much"
+		GC.getGame().DoFromUIDiploEvent(FROM_UI_DIPLO_EVENT_HUMAN_REQUEST, eMyPlayer, /*iData1*/ eResponse, /*iData2*/ bNotNow ? 1 : -1);
 	}
 	else
 	{
@@ -6244,7 +6246,7 @@ void CvDealAI::DoTradeScreenClosed(bool bAIWasMakingOffer)
 }
 
 // Is the human's request for help acceptable?
-DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal) const
+DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal, bool* pbNotNow) const
 {
 	PlayerTypes eFromPlayer = pDeal->GetOtherPlayer(GetPlayer()->GetID()); // Playing it safe, should be OK to use pDeal->GetFromPlayer() but code was using GetActivePlayer so maybe the From field wasn't always the human (although in my testing it was fine!)
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
@@ -6272,7 +6274,11 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal) const
 
 		// Deceptive AIs won't ever accept a help request
 		if (pDiploAI->GetCivApproach(eFromPlayer) <= CIV_APPROACH_DECEPTIVE)
+		{
+			if (pbNotNow)
+				*pbNotNow = true;
 			return DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
+		}
 
 		int iOddsOfGivingIn = pDiploAI->GetLoyalty() * 10;	// initial odds of giving in are loyalty * 10
 
@@ -6365,14 +6371,17 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal) const
 			break; // No change.
 		}
 
-		// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
-		// made a demand, and if the deal went through. These are both sent over the network later in this function.
-
-		int iAsyncRand = GC.getGame().getAsyncRandNum(100, "Deal AI: ASYNC RAND call to determine if AI will give into a human demand.");
+		// One roll per AI, requesting player and turn: asking again in the same turn gives the same answer.
+		// It changes no game state and is the same on every machine; only the answer is sent over the network.
+		int iRand = GC.getGame().randRangeExclusive(0, 100, CvSeeder::fromRaw(0x3c2b9e41).mix(eMyPlayer).mix(eFromPlayer));
 
 		// Are they going to say no matter what?
-		if(iAsyncRand > iOddsOfGivingIn)
+		if (iRand > iOddsOfGivingIn)
+		{
+			if (pbNotNow)
+				*pbNotNow = true;
 			return DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH;
+		}
 	}
 
 	// Possibility exists the AI will accept

@@ -146,7 +146,7 @@ public:
 	void DoTradeScreenOpened();
 	void DoTradeScreenClosed(bool bAIWasMakingOffer);
 
-	DemandResponseTypes GetRequestForHelpResponse(CvDeal* pDeal) const;
+	DemandResponseTypes GetRequestForHelpResponse(CvDeal* pDeal, bool* pbNotNow = NULL) const;
 
 	// How much is item worth to AI?
 	int GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer) const;

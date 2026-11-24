@@ -1143,6 +1143,16 @@
 		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_3">
 			<Text>I cannot service this request at the moment. I'm sorry.</Text>
 		</Row>
+		<!-- Reject request (not willing to help this turn, whatever is asked for) -->
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_NOT_NOW_1">
+			<Text>I'm sorry, I'm not in a position to help anyone right now. Perhaps another day.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_NOT_NOW_2">
+			<Text>Not today, my friend. Ask me again some other time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_NOT_NOW_3">
+			<Text>I cannot spare anything at the moment, whatever the amount. Come back another time.</Text>
+		</Row>
 		<!-- Reject request (other reasons) -->
 		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_1">
 			<Text>I'm sorry. My generosity does not extend as far as you'd like, I'm afraid.</Text>

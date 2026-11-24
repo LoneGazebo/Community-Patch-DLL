@@ -40554,7 +40554,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				// Help Request rebuffed
 				else
 				{
-					if (eResponse == DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH)
+					// iArg2 = 1: not willing to help this turn, whatever was asked for
+					if (eResponse == DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH && iArg2 == 1)
+						strText = GetPlayer()->GetDiplomacyAI()->GetDiploTextFromTag("RESPONSE_HELP_REQUEST_REFUSE_NOT_NOW");
+
+					else if (eResponse == DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH)
 						strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_REQUEST_TOO_MUCH);
 
 					else if (eResponse == DEMAND_RESPONSE_GIFT_REFUSE_TOO_SOON)
