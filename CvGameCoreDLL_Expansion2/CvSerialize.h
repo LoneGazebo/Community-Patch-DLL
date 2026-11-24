@@ -363,14 +363,25 @@ public:
 	const ContainerType& getContainer() const;
 	ContainerType& getContainer();
 
-	// Call once at initialization in multiplayer
+	// Call once at initialization in multiplayer. The sync vars register themselves in m_contents
+	// while syncVars is constructed, so call destroySyncVars() before constructing a new set.
 	inline void initSyncVars(SyncVars& syncVars)
 	{
 		m_syncVarsStorage = &syncVars;
 	}
 	inline void destroySyncVars()
 	{
-		SAFE_DELETE(m_syncVarsStorage);
+		if (m_syncVarsStorage)
+		{
+			// m_deltas holds pointers to these sync vars and clearDelta() calls them, so do it while they are alive.
+			clearDelta();
+			SAFE_DELETE(m_syncVarsStorage);
+			// ~FAutoVariableBase does not unregister the variable from its archive. Without this, the deleted
+			// sync vars stay in m_contents: a reused archive (players are static) then grows by a full set on
+			// every network game started in the same process, and sync check indices no longer match between
+			// machines.
+			m_contents.clear();
+		}
 	}
 	inline const std::vector<FAutoVariableBase*>& getContents() const
 	{

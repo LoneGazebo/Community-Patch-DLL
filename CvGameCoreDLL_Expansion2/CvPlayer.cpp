@@ -2314,6 +2314,8 @@ void CvPlayer::gameStartInit()
 
 	if (GC.getGame().isNetworkMultiPlayer())
 	{
+		// Players are reused across games in the same process (e.g. regenerating the map), so drop the previous set first.
+		m_syncArchive.destroySyncVars();
 		m_syncArchive.initSyncVars(*FNEW(CvSyncArchive<CvPlayer>::SyncVars(*this), c_eCiv5GameplayDLL, 0));
 	}
 	else
