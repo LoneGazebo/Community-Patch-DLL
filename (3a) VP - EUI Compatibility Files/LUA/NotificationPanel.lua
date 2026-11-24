@@ -608,13 +608,34 @@ for _, button in pairs( Controls ) do
 end
 
 -------------------------------------------------
+-- The game engine passes at most 1,023 bytes of a notification's text and 255 of its summary to this event.
+-- Read longer ones in full from the player's notification list.
+-------------------------------------------------
+local function GetFullNotificationText( playerID, Id, toolTip, strSummary )
+	if #toolTip < 1023 and #strSummary < 255 then
+		return toolTip, strSummary
+	end
+	local player = Players[ playerID ]
+	if player then
+		-- The new notification can still be one past the end of the list while this event runs
+		for i = player:GetNumNotifications(), 0, -1 do
+			if player:GetNotificationIndex( i ) == Id then
+				return player:GetNotificationStr( i ), player:GetNotificationSummaryStr( i )
+			end
+		end
+	end
+	return toolTip, strSummary
+end
+
+-------------------------------------------------
 -- Notification Added
 -------------------------------------------------
 Events.NotificationAdded.Add(
-function( Id, type, ... ) -- toolTip, strSummary, iGameValue, iExtraGameData, playerID )
+function( Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID )
 
 	local name = not g_ActiveNotifications[ Id ] and (g_notificationNames[ type ] or "Generic")
 	if name then
+		toolTip, strSummary = GetFullNotificationText( playerID, Id, toolTip, strSummary )
 		local button = Controls[ name ]
 		local bundled = button or g_notificationBundled[ type ]
 		local index = bundled and name or Id
@@ -654,10 +675,10 @@ function( Id, type, ... ) -- toolTip, strSummary, iGameValue, iExtraGameData, pl
 			button:SetVoid1( Id )
 		end
 		if bundled then
-			table_insert( instance, { Id, type, ... } )
+			table_insert( instance, { Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID } )
 			SetupNotification( instance, #instance )
 		else
-			SetupNotification( instance, nil, Id, type, ... )
+			SetupNotification( instance, nil, Id, type, toolTip, strSummary, iGameValue, iExtraGameData, playerID )
 		end
 
 		ProcessStackSizes( true )
