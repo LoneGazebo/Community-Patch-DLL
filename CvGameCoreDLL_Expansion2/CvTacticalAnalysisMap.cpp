@@ -655,8 +655,8 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 	m_vDominanceZones[0].SetZoneID(0);
 	m_IdLookup[0] = 0;
 
-	//not all plots belong to a city
-	std::set<CvPlot*, PrSortByPlotIndex> nonCityZonePlots;
+	//not all plots belong to a city, flag them by plot index
+	vector<char> nonCityZonePlots(GC.getMap().numPlots(), 0);
 
 	TeamTypes eOurTeam = GET_PLAYER(m_ePlayer).getTeam();
 	CvTacticalDominanceZone* pCurrentZone = NULL;
@@ -679,7 +679,7 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		if (iCityDistance > iMaxZoneRadius || !pZoneCity)
 		{
 			//figure those out later
-			nonCityZonePlots.insert(pPlot);
+			nonCityZonePlots[iI] = 1;
 			continue;
 		}
 
@@ -725,12 +725,16 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 	}
 
 	//now assign unique ids to all the little scraps of non-city zones
+	//plots are only ever removed from now on, so the lowest remaining index is always ahead of the cursor
 	int iNonCityBaseId = 100000; //should be safe
-	while (!nonCityZonePlots.empty())
+	for (int iSeed = 0; iSeed < GC.getMap().numPlots(); iSeed++)
 	{
+		if (!nonCityZonePlots[iSeed])
+			continue;
+
 		vector<CvPlot*> stack;
-		stack.push_back(*nonCityZonePlots.begin());
-		nonCityZonePlots.erase(nonCityZonePlots.begin());
+		stack.push_back(GC.getMap().plotByIndexUnchecked(iSeed));
+		nonCityZonePlots[iSeed] = 0;
 
 		int newId = iNonCityBaseId++;
 		if (stack.back()->isWater())
@@ -760,11 +764,11 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 				//must be same area but do not create extra zones for small lakes or islands
 				if (neighbor->getArea() == current->getArea() || neighbor->area()->getNumTiles()<4 || current->area()->getNumTiles()<4)
 				{
-					std::set<CvPlot*, PrSortByPlotIndex>::iterator it = nonCityZonePlots.find(neighbor);
-					if (it != nonCityZonePlots.end())
+					int iNeighborIndex = neighbor->GetPlotIndex();
+					if (nonCityZonePlots[iNeighborIndex])
 					{
-						stack.push_back(*it);
-						nonCityZonePlots.erase(it);
+						stack.push_back(neighbor);
+						nonCityZonePlots[iNeighborIndex] = 0;
 					}
 				}
 			}
@@ -775,6 +779,26 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		m_vDominanceZones.push_back(newZone);
 	}
 }
+
+/// Per unit data for CalculateMilitaryStrengths that does not depend on the zone
+struct SZoneStrengthUnit
+{
+	CvUnit* pUnit;
+	CvPlot* pPlot;
+	DomainTypes eDomain;
+	bool bCanAttackRanged;
+	bool bEnemy;
+	bool bFriendly;
+	int iZoneID;
+
+	//filled in the first time the unit counts for a zone
+	bool bStrengthKnown;
+	int iUnitStrength;
+	int iRangedStrength;
+	bool bReducedStrength;
+	bool bRangeBonus;
+	bool bIsInCitadel;
+};
 
 /// Calculate military presences in each owned dominance zone
 void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
@@ -812,6 +836,49 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		}
 	}
 
+	// collect all units in the world once instead of once per zone
+	// ignore the barbarians here! do not base tactical decisions on transients
+	vector<SZoneStrengthUnit> vUnits;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
+		bool bEnemy = GET_TEAM(eTeam).isAtWar(kPlayer.getTeam());
+		bool bFriendly =
+			(eTeam == kPlayer.getTeam()) || //on the same team
+			(thisPlayer.isMinorCiv() && thisPlayer.GetMinorCivAI()->IsAllies(kPlayer.GetID())) || //for minors also count their ally as friendly
+			(thisPlayer.isMajorCiv() && thisPlayer.GetPlayersAtWarWith()==kPlayer.GetPlayersAtWarWith()); //for majors if we fight exactly the same enemies
+
+		int iLoop;
+		for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+		{
+			if(pLoopUnit->isDelayedDeath())
+				continue;
+
+			if (!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCanAttackRanged()) //check for combat units is not enough because that excludes air units!
+				continue;
+
+			CvPlot* pPlot = pLoopUnit->plot();
+			if(!pPlot)
+				continue;
+
+			SZoneStrengthUnit unit;
+			unit.pUnit = pLoopUnit;
+			unit.pPlot = pPlot;
+			unit.eDomain = pLoopUnit->getDomainType();
+			unit.bCanAttackRanged = pLoopUnit->IsCanAttackRanged();
+			unit.bEnemy = bEnemy;
+			unit.bFriendly = bFriendly;
+			unit.iZoneID = GetDominanceZoneID(pPlot->GetPlotIndex());
+			unit.bStrengthKnown = false;
+			unit.iUnitStrength = 0;
+			unit.iRangedStrength = 0;
+			unit.bReducedStrength = false;
+			unit.bRangeBonus = false;
+			unit.bIsInCitadel = false;
+			vUnits.push_back(unit);
+		}
+	}
+
 	// Loop through the dominance zones
 	for(unsigned int iI = 0; iI < m_vDominanceZones.size(); iI++)
 	{
@@ -833,128 +900,121 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 		}
 
 		// check all units in the world
-		// ignore the barbarians here! do not base tactical decisions on transients
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		for(size_t iU = 0; iU < vUnits.size(); iU++)
 		{
-			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
-			bool bEnemy = GET_TEAM(eTeam).isAtWar(kPlayer.getTeam());
-			bool bFriendly =
-				(eTeam == kPlayer.getTeam()) || //on the same team
-				(thisPlayer.isMinorCiv() && thisPlayer.GetMinorCivAI()->IsAllies(kPlayer.GetID())) || //for minors also count their ally as friendly
-				(thisPlayer.isMajorCiv() && thisPlayer.GetPlayersAtWarWith()==kPlayer.GetPlayersAtWarWith()); //for majors if we fight exactly the same enemies
+			SZoneStrengthUnit& unit = vUnits[iU];
+			CvUnit* pLoopUnit = unit.pUnit;
+			CvPlot* pPlot = unit.pPlot;
 
-			int iLoop;
-			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+			bool bZoneTypeMatch =
+						(unit.eDomain == DOMAIN_AIR) ||
+						(unit.eDomain == DOMAIN_LAND && !pZone->IsWater()) ||
+						(unit.eDomain == DOMAIN_SEA && pZone->IsWater());
+
+			if (!bZoneTypeMatch && !unit.bCanAttackRanged)
+				continue;
+
+			int iPlotDistance = 0;
+			//if there is a city, units in adjacent zones can also count
+			if (pZoneCity)
 			{
-				if(pLoopUnit->isDelayedDeath())
+				iPlotDistance = plotDistance(*pPlot, *pZoneCity->plot());
+				if (iPlotDistance>iMaxDistance && unit.iZoneID != pZone->GetZoneID())
+					continue; //unit is too far away and outside the zone
+			}
+			else
+			{
+				//if there is no city, the unit must be in the zone itself, distance is zero by definition
+				if (unit.iZoneID != pZone->GetZoneID())
 					continue;
-				
-				if (!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCanAttackRanged()) //check for combat units is not enough because that excludes air units!
-					continue;
+			}
 
-				CvPlot* pPlot = pLoopUnit->plot();
-				if(!pPlot)
-					continue;
-
-				bool bZoneTypeMatch = 
-							(pLoopUnit->getDomainType() == DOMAIN_AIR) ||
-							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) || 
-							(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater());
-
-				if (!bZoneTypeMatch && !pLoopUnit->IsCanAttackRanged())
-					continue;
-
-				int iPlotDistance = 0;
-				//if there is a city, units in adjacent zones can also count
-				if (pZoneCity)
-				{
-					iPlotDistance = plotDistance(*pPlot, *pZoneCity->plot());
-					if (iPlotDistance>iMaxDistance && GetDominanceZoneID(pLoopUnit->plot()->GetPlotIndex()) != pZone->GetZoneID())
-						continue; //unit is too far away and outside the zone
-				}
-				else
-				{
-					//if there is no city, the unit must be in the zone itself, distance is zero by definition
-					if ( GetDominanceZoneID(pLoopUnit->plot()->GetPlotIndex()) != pZone->GetZoneID() )
-						continue;
-				}
-
-				int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iUnitStrengthMultiplier;
-				int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iUnitStrengthMultiplier;
+			//the base strength and most modifiers do not depend on the zone, so look them up only once
+			if (!unit.bStrengthKnown)
+			{
+				unit.iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iUnitStrengthMultiplier;
+				unit.iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iUnitStrengthMultiplier;
 
 				//a little cheating for AI - invisible units still count with reduced strength
-				bool bReducedStrength = pLoopUnit->isEmbarked() || !visible[pPlot->GetPlotIndex()] || !bZoneTypeMatch;
+				unit.bReducedStrength = pLoopUnit->isEmbarked() || !visible[pPlot->GetPlotIndex()];
 				//some units are extra interesting
-				bool bRangeBonus = (max(pLoopUnit->baseMoves(false), pLoopUnit->GetRange()) > 2);
-				bool bDistanceBonus = (iPlotDistance <= iCenterRadius);
+				unit.bRangeBonus = (max(pLoopUnit->baseMoves(false), pLoopUnit->GetRange()) > 2);
 				//consider citadels ... they actually boost defensive strength but whatever
-				bool bIsInCitadel = TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner());
+				unit.bIsInCitadel = TacticalAIHelpers::IsPlayerCitadel(pPlot, pLoopUnit->getOwner());
+				unit.bStrengthKnown = true;
+			}
 
-				int iModifier = 0;
-				if (bReducedStrength)
-					iModifier -= 50;
-				if (bRangeBonus)
-					iModifier += 50;
-				if (bDistanceBonus)
-					iModifier += 50;
-				if (bIsInCitadel)
-					iModifier += 100;
+			int iUnitStrength = unit.iUnitStrength;
+			int iRangedStrength = unit.iRangedStrength;
 
-				//apply the modifier
-				iUnitStrength += (iUnitStrength*iModifier)/100;
-				iRangedStrength += (iRangedStrength*iModifier)/100;
+			//units outside of their zone type also count with reduced strength
+			bool bReducedStrength = unit.bReducedStrength || !bZoneTypeMatch;
+			bool bDistanceBonus = (iPlotDistance <= iCenterRadius);
 
-				if (bEnemy)
+			int iModifier = 0;
+			if (bReducedStrength)
+				iModifier -= 50;
+			if (unit.bRangeBonus)
+				iModifier += 50;
+			if (bDistanceBonus)
+				iModifier += 50;
+			if (unit.bIsInCitadel)
+				iModifier += 100;
+
+			//apply the modifier
+			iUnitStrength += (iUnitStrength*iModifier)/100;
+			iRangedStrength += (iRangedStrength*iModifier)/100;
+
+			if (unit.bEnemy)
+			{
+				if (unit.eDomain == DOMAIN_SEA)
 				{
-					if (pLoopUnit->getDomainType() == DOMAIN_SEA)
-					{
-						pZone->AddEnemyNavalStrength(iUnitStrength);
+					pZone->AddEnemyNavalStrength(iUnitStrength);
+					pZone->AddEnemyNavalRangedStrength(iRangedStrength);
+					pZone->AddEnemyNavalUnitCount(1);
+				}
+				else if (unit.eDomain == DOMAIN_LAND)
+				{
+					pZone->AddEnemyMeleeStrength(iUnitStrength);
+					pZone->AddEnemyRangedStrength(iRangedStrength);
+					pZone->AddEnemyUnitCount(1);
+				}
+				else if (unit.eDomain == DOMAIN_AIR)
+				{
+					if ( pPlot->isWater() )
 						pZone->AddEnemyNavalRangedStrength(iRangedStrength);
-						pZone->AddEnemyNavalUnitCount(1);
-					}
-					else if (pLoopUnit->getDomainType() == DOMAIN_LAND)
-					{
-						pZone->AddEnemyMeleeStrength(iUnitStrength);
+					else
 						pZone->AddEnemyRangedStrength(iRangedStrength);
-						pZone->AddEnemyUnitCount(1);
-					}
-					else if (pLoopUnit->getDomainType() == DOMAIN_AIR)
-					{
-						if ( pPlot->isWater() )
-							pZone->AddEnemyNavalRangedStrength(iRangedStrength);
-						else
-							pZone->AddEnemyRangedStrength(iRangedStrength);
-					}
 				}
-				else if (bFriendly)
-				{
+			}
+			else if (unit.bFriendly)
+			{
 
-					if (pLoopUnit->getDomainType() == DOMAIN_SEA)
-					{
-						pZone->AddFriendlyNavalStrength(iUnitStrength);
-						pZone->AddFriendlyNavalRangedStrength(iRangedStrength);
-						pZone->AddFriendlyNavalUnitCount(1);
-					}
-					else if (pLoopUnit->getDomainType() == DOMAIN_LAND)
-					{
-						pZone->AddFriendlyMeleeStrength(iUnitStrength);
-						pZone->AddFriendlyRangedStrength(iRangedStrength);
-						pZone->AddFriendlyUnitCount(1);
-					}
-					else if (pLoopUnit->getDomainType() == DOMAIN_AIR)
-					{
-						if ( pPlot->isWater() )
-							pZone->AddFriendlyNavalRangedStrength(iRangedStrength);
-						else
-							pZone->AddFriendlyRangedStrength(iRangedStrength);
-					}
-				}
-				else
+				if (unit.eDomain == DOMAIN_SEA)
 				{
-					//neutral has only very few stats
-					pZone->AddNeutralStrength(iUnitStrength);
-					pZone->AddNeutralUnitCount(1);
+					pZone->AddFriendlyNavalStrength(iUnitStrength);
+					pZone->AddFriendlyNavalRangedStrength(iRangedStrength);
+					pZone->AddFriendlyNavalUnitCount(1);
 				}
+				else if (unit.eDomain == DOMAIN_LAND)
+				{
+					pZone->AddFriendlyMeleeStrength(iUnitStrength);
+					pZone->AddFriendlyRangedStrength(iRangedStrength);
+					pZone->AddFriendlyUnitCount(1);
+				}
+				else if (unit.eDomain == DOMAIN_AIR)
+				{
+					if ( pPlot->isWater() )
+						pZone->AddFriendlyNavalRangedStrength(iRangedStrength);
+					else
+						pZone->AddFriendlyRangedStrength(iRangedStrength);
+				}
+			}
+			else
+			{
+				//neutral has only very few stats
+				pZone->AddNeutralStrength(iUnitStrength);
+				pZone->AddNeutralUnitCount(1);
 			}
 		}
 	}
