@@ -54,6 +54,7 @@ Source: "Build\(5) Modpack Maker for VP\*"; Excludes: "*.civ5proj,*.civ5sln,*.ci
 Source: "Build\(1) Community Patch\LUA\*"; DestDir: "{app}\MODS\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly FullNoEUI Civ43NoEUI
 Source: "Build\(2) Vox Populi\LUA\*"; DestDir: "{app}\MODS\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
 Source: "UI_bc1\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\UI_bc1"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
+Source: "UI_CP\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\UI_CP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 Source: "VPUI\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\VPUI"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 Source: "VPUI Text\VPUI_tips_en_us.xml"; DestDir: "{app}\Text"; Flags: ignoreversion; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 ; Replacement of the base game Expansion2 files (either MinorCivSounds_Expansion2.xml or the .Civ5Pkg file) is necessary for newly-added City-States to load the correct audio clips on selection.
@@ -85,6 +86,7 @@ Name: "Uninstall"; Description: "Uninstall all"
 [InstallDelete]
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\UI_bc1"
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\VPUI"
+Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\UI_CP"
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\Expansion2\Expansion2.Civ5Pkg"
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\Expansion2\Sounds\XML\MinorCivSounds_VoxPopuli.xml"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"

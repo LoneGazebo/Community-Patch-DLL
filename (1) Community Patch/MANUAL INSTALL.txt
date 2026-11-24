@@ -1,4 +1,4 @@
-If you downloaded this mod manually on its own, just stick it in your MODS folder and it should function correctly, with one exception.
+If you downloaded this mod manually on its own, stick it in your MODS folder and copy the folder "UI_CP" to Sid Meier's Civilization V\Assets\DLC. It should then function correctly, with one exception.
 
 To fix the BNW bug where Cape Town uses Almaty's audio clip upon selection, some extra steps are needed:
 1. Move the MinorCivSounds_CommunityPatch.xml file in the repository's main directory to Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion2\Sounds\XML.
