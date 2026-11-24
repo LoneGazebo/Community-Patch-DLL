@@ -9,4 +9,4 @@ To manually install Vox Populi with EUI:
 
 1) Copy "(1) Community Patch", "(2) Vox Populi", and this folder to your MODS folder.
 2) DELETE the LUA folders in the (1) Community Patch and (2) Vox Populi mod folders (there is one in each).
-3) Copy the folders "UI_bc1" and "VPUI" to Sid Meier's Civilization V\Assets\DLC.
+3) Copy the folders "UI_bc1", "UI_CP" and "VPUI" to Sid Meier's Civilization V\Assets\DLC.
