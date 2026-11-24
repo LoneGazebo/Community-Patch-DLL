@@ -361,6 +361,10 @@ public:
 	static int getMaxDamageMemberCount() ;
 	void setDamageMemberCount(int iDamageMemberCount);
 
+	// Nuclear attacks: units and cities in the blast past the getMaxDamageMemberCount() that the engine is shown. They take damage like the others.
+	const std::vector<CvCombatMemberEntry>& getExtraDamageMembers() const;
+	void setExtraDamageMembers(const std::vector<CvCombatMemberEntry>& vExtraDamageMembers);
+
 protected:
 	CvUnit* 	m_pUnits[BATTLE_UNIT_COUNT];					//!< The units involved
 	CvCity* 	m_pCities[BATTLE_UNIT_COUNT];					//!< The cities involved
@@ -394,6 +398,7 @@ protected:
 	// If this is non-zero, the damage members will include the primary defenders so don't apply the damage twice!
 	int			m_iDamageMemberCount;
 	CvCombatMemberEntry	m_kDamageMembers[MAX_DAMAGE_MEMBER_COUNT];
+	std::vector<CvCombatMemberEntry> m_vExtraDamageMembers;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
