@@ -9,6 +9,7 @@
 local math_max = math.max
 local math_min = math.min
 local math_ceil = math.ceil
+local math_floor = math.floor
 local math_pi = math.pi
 local math_cos = math.cos
 local math_sin = math.sin
@@ -421,9 +422,10 @@ local function SetFlagSelected( flag, isSelected )
 				else
 					x, y = 0, 0
 				end
+				-- Columns of up to 4 left of the transport flag, so no plane covers the cargo count above it or its own icons
 				local cargo = transportUnit:GetCargo()
-				local a = math_min( math_pi / 3, 5.7 / cargo )
-				local a0 = -a*(cargo-1)/2 - math_pi
+				local columns = math_ceil( cargo / 4 )
+				local rows = math_ceil( cargo / columns )
 				local j = 0
 				-- DebugFlag( transportFlag, "transport identified, cargo#=", cargo ) end
 				for i = 0, GetPlotNumUnits( plot ) - 1 do
@@ -433,7 +435,9 @@ local function SetFlagSelected( flag, isSelected )
 						if cargoFlag then
 							-- DebugFlag( cargoFlag, "added to cargo at position", j ) end
 							table_insert( g_SelectedCargo, cargoFlag )
-							cargoFlag.Container:SetOffsetVal( math_cos( a*j + a0 )*38 + x, math_sin( a*j + a0 )*38 + y )
+							local column = math_floor( j / rows )
+							local columnRows = math_min( rows, cargo - column*rows )
+							cargoFlag.Container:SetOffsetVal( x - 46 - 44*column, y + 38*( j - column*rows - (columnRows-1)/2 ) )
 							cargoFlag.Anchor:ChangeParent( g_SelectedFlags )
 						end
 						j = j + 1
