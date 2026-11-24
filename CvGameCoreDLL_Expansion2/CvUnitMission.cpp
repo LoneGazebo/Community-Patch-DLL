@@ -818,7 +818,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 		if(HeadMissionData(kMissionQueue) != NULL)
 		{
 			// if there is an action, if it's done or there are not moves left, and a player is watching, watch the movement
-			if(bAction && (bDone || !hUnit->canMove()) && hUnit->plot()->isVisibleToWatchingHuman())
+			// (with quick movement and quick combat there is nothing to watch)
+			bool bQuick = CvPreGame::quickMovement() && CvPreGame::quickCombat();
+			if(bAction && (bDone || !hUnit->canMove()) && hUnit->plot()->isVisibleToWatchingHuman() && !bQuick)
 			{
 				UpdateMissionTimer(hUnit, iSteps);
 			}
@@ -887,6 +889,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 				if(hUnit->GetMissionTimer() == 0 && !hUnit->isInCombat())	// Was hUnit->IsBusy(), but its ok to clear the mission if the unit is just completing a move visualization
 				{
+					int iWait = 0;
 					if(hUnit->getOwner() == GC.getGame().getActivePlayer() && hUnit->IsSelected())
 					{
 						const MissionData& kMissionData = *HeadMissionData(kMissionQueue);
@@ -898,7 +901,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 							// How long does the camera wait before jumping to the next item?
 							int iCameraTime = 0;
 
-							if(GET_PLAYER(hUnit->getOwner()).isOption(PLAYEROPTION_QUICK_MOVES))
+							if(CvPreGame::quickMovement())
 							{
 								iCameraTime = 1;
 							}
@@ -913,7 +916,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 								iCameraTime = 5;
 							}
 
-							GC.GetEngineUserInterface()->changeCycleSelectionCounter(iCameraTime);
+							iWait += iCameraTime;
 						}
 
 						if (MOD_EVENTS_CUSTOM_MISSIONS)
@@ -923,10 +926,10 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 							{
 								if (iCameraTime > 0 && iCameraTime <= 10)
 								{
-									if (GET_PLAYER(hUnit->getOwner()).isOption(PLAYEROPTION_QUICK_MOVES))
+									if (CvPreGame::quickMovement())
 										iCameraTime = 1;
 
-									GC.GetEngineUserInterface()->changeCycleSelectionCounter(iCameraTime);
+									iWait += iCameraTime;
 								}
 							}
 						}
@@ -935,6 +938,11 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					hUnit->PublishQueuedVisualizationMoves();
 
 					DeleteMissionData(hUnit, HeadMissionData(hUnit->m_missionQueue));
+
+					if(iWait > 0)
+					{
+						WaitBeforeNextUnit(hUnit, iWait);
+					}
 				}
 			}
 			else
@@ -947,7 +955,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				}
 				else if(!hUnit->IsBusy() && hUnit->getOwner() == GC.getGame().getActivePlayer() && hUnit->IsSelected())
 				{
-					GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
+					WaitBeforeNextUnit(hUnit, 1);
 				}
 			}
 		}
@@ -1928,15 +1936,14 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 		{
 			if(bDelete)
 			{
-				if(hUnit->getOwner() == GC.getGame().getActivePlayer())
-				{
-					if(hUnit->IsSelected())
-					{
-						GC.GetEngineUserInterface()->changeCycleSelectionCounter(kUnitOwner.isOption(PLAYEROPTION_QUICK_MOVES)? 1 : 2);
-					}
-				}
+				bool bWait = hUnit->getOwner() == GC.getGame().getActivePlayer() && hUnit->IsSelected();
 
 				DeleteMissionData(hUnit, hUnit->HeadMissionData());
+
+				if(bWait)
+				{
+					WaitBeforeNextUnit(hUnit, CvPreGame::quickMovement()? 1 : 2);
+				}
 			}
 			else if(hUnit->GetActivityType() == ACTIVITY_MISSION)
 			{
@@ -2075,6 +2082,25 @@ int CvUnitMission::CalculateMissionTimer(CvUnit* hUnit, int iSteps)
 void CvUnitMission::UpdateMissionTimer(CvUnit* hUnit, int iSteps)
 {
 	hUnit->SetMissionTimer(CalculateMissionTimer(hUnit, iSteps));
+}
+
+//	---------------------------------------------------------------------------
+/// The selected unit finished an order: the next unit is selected after iTime game updates, so the player sees what
+/// happened. With quick movement there is nothing to see, so a unit that can't act any more hands over right away.
+void CvUnitMission::WaitBeforeNextUnit(CvUnit* hUnit, int iTime)
+{
+	ICvUserInterface2* pUI = GC.GetEngineUserInterface();
+	if(CvPreGame::quickMovement() && !hUnit->ReadyToSelect() && pUI->GetLengthSelectionList() == 1 &&
+		!pUI->isFocused() && !pUI->isCitySelection() && !pUI->isDiploOrPopupWaiting())
+	{
+		GC.getGame().updateSelectionList();
+		if(!hUnit->IsSelected())
+		{
+			return;
+		}
+	}
+
+	pUI->changeCycleSelectionCounter(iTime);
 }
 
 //	---------------------------------------------------------------------------
@@ -2217,7 +2243,7 @@ void CvUnitMission::DeactivateHeadMission(CvUnit* hUnit, int iUnitCycleTimer)
 		{
 			if(hUnit->IsSelected())
 			{
-				if(GET_PLAYER(hUnit->getOwner()).isOption(PLAYEROPTION_QUICK_MOVES))
+				if(CvPreGame::quickMovement())
 					iUnitCycleTimer = min(1, iUnitCycleTimer);
 
 				GC.GetEngineUserInterface()->changeCycleSelectionCounter(iUnitCycleTimer);

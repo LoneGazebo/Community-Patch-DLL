@@ -15,356 +15,250 @@
 CvUnitCycler::CvUnitCycler(CvPlayer& kPlayer)
 {
 	m_pkPlayer = &kPlayer;
+	Clear();
 }
 
 //	---------------------------------------------------------------------------
 void CvUnitCycler::Clear()
 {
-	m_kNodeList.clear();
+	m_iAnchorUnitID = -1;
+	m_iAnchorTurn = -1;
+	m_iAnchorPlotIndex = -1;
+	m_eAnchorUnitType = NO_UNIT;
+	m_aiShownUnits.clear();
+	m_iShownTurn = -1;
+	m_iRetraceUnitID = -1;
 }
 
 //	---------------------------------------------------------------------------
-void CvUnitCycler::Rebuild(CvUnit* pkStartUnit /* = NULL */)
+// Remembers where the player started giving this unit orders, so the next unit is picked near there
+void CvUnitCycler::SetAnchor(const CvUnit& kUnit)
 {
-	// Delete contents of old list
-	Node* pUnitNode = HeadNode();
-	while (pUnitNode != NULL)
-	{
-		pUnitNode = DeleteNode(pUnitNode);
-	}
-
-	if (pkStartUnit == NULL)
-	{
-		// If no unit supplied, use the selected unit.
-		CvInterfacePtr<ICvUnit1> pSelectedUnit(DLLUI->GetHeadSelectedUnit());
-		pkStartUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
-
-		if (pkStartUnit && pkStartUnit->getOwner() != m_pkPlayer->GetID())
-		{
-			// Not ours, fall back to just selecting a worker
-			pkStartUnit = NULL;
-		}
-	}
-
-	int iLoop = 0;
-	CvUnit* pkFirstUnit = m_pkPlayer->firstUnit(&iLoop);
-	if (!pkFirstUnit)
+	// More orders for the same unit this turn keep the tile its orders began on
+	int iTurn = GC.getGame().getGameTurn();
+	if (kUnit.GetID() == m_iAnchorUnitID && iTurn == m_iAnchorTurn)
 		return;
 
-	for (CvUnit* pLoopUnit = pkFirstUnit; pLoopUnit != NULL; pLoopUnit = m_pkPlayer->nextUnit(&iLoop))
-	{
-		// Reset cycle order (will be used later in this function)
-		pLoopUnit->SetCycleOrder(0);
-
-		if (!pkStartUnit)
-		{
-			// Workers first
-			if (pLoopUnit->workRate(true) > 0)
-				pkStartUnit = pLoopUnit;
-		}
-	}
-
-	if (!pkStartUnit)
-		pkStartUnit = pkFirstUnit;
-
-	// Add first unit to list
-	m_kNodeList.insertAtEnd(pkStartUnit->GetID());
-
-	// Current unit is the first one
-	CvUnit* pCurrentUnit = pkStartUnit;
-	pCurrentUnit->SetCycleOrder(1);
-
-	// Loop through units until everyone is accounted for
-	int iNumUnits = m_pkPlayer->getNumUnits();
-	while (m_kNodeList.getLength() < iNumUnits)
-	{
-		int iBestUnitScore = MAX_INT;
-		CvUnit* pBestUnit = NULL;
-
-		int iX = pCurrentUnit->getX();
-		int iY = pCurrentUnit->getY();
-		for (CvUnit* pLoopUnit = m_pkPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pkPlayer->nextUnit(&iLoop))
-		{
-			// If we've already added this unit to the cycle list, skip it
-			if (pLoopUnit->GetCycleOrder() == 1)
-				continue;
-
-			int iScore = plotDistance(iX, iY, pLoopUnit->getX(), pLoopUnit->getY());
-
-			// Closest unit yet
-			if (iScore < iBestUnitScore)
-			{
-				iBestUnitScore = iScore;
-				pBestUnit = pLoopUnit;
-			}
-		}
-
-		ASSERT(pBestUnit, "Didn't find a unit to add to cycle list.");
-
-		if (pBestUnit)
-		{
-			m_kNodeList.insertAtEnd(pBestUnit->GetID());
-
-			// Now have a new current unit
-			pCurrentUnit = pBestUnit;
-			pCurrentUnit->SetCycleOrder(1);
-		}
-		else
-			break;
-	}
-
-	// 2-opt improvement: repeatedly reverse segments to shorten the tour
-	int iSize = m_kNodeList.getLength();
-	if (iSize > 3)
-	{
-		std::vector<int> tour;
-		tour.reserve(iSize);
-		for (const Node* pNode = m_kNodeList.head(); pNode != NULL; pNode = m_kNodeList.next(pNode))
-			tour.push_back(pNode->m_data);
-
-		// Cache unit positions
-		std::vector<int> posX(iSize);
-		std::vector<int> posY(iSize);
-		for (int i = 0; i < iSize; i++)
-		{
-			CvUnit* pUnit = m_pkPlayer->getUnit(tour[i]);
-			posX[i] = pUnit->getX();
-			posY[i] = pUnit->getY();
-		}
-
-		bool bImproved = true;
-		int iMaxPasses = 5;
-		while (bImproved && iMaxPasses-- > 0)
-		{
-			bImproved = false;
-			for (int i = 0; i < iSize - 1; i++)
-			{
-				for (int j = i + 2; j < iSize; j++)
-				{
-					// Skip adjacent edge across cycle boundary
-					if (i == 0 && j == iSize - 1)
-						continue;
-
-					int iNext = (j + 1) % iSize;
-					int iOldDist = plotDistance(posX[i], posY[i], posX[i + 1], posY[i + 1])
-					             + plotDistance(posX[j], posY[j], posX[iNext], posY[iNext]);
-					int iNewDist = plotDistance(posX[i], posY[i], posX[j], posY[j])
-					             + plotDistance(posX[i + 1], posY[i + 1], posX[iNext], posY[iNext]);
-
-					if (iNewDist < iOldDist)
-					{
-						std::reverse(tour.begin() + i + 1, tour.begin() + j + 1);
-						std::reverse(posX.begin() + i + 1, posX.begin() + j + 1);
-						std::reverse(posY.begin() + i + 1, posY.begin() + j + 1);
-						bImproved = true;
-					}
-				}
-			}
-		}
-
-		// Rebuild linked list from improved tour
-		pUnitNode = HeadNode();
-		while (pUnitNode != NULL)
-			pUnitNode = DeleteNode(pUnitNode);
-		for (int i = 0; i < iSize; i++)
-			m_kNodeList.insertAtEnd(tour[i]);
-	}
+	m_iAnchorUnitID = kUnit.GetID();
+	m_iAnchorTurn = iTurn;
+	m_iAnchorPlotIndex = kUnit.plot() ? kUnit.plot()->GetPlotIndex() : -1;
+	m_eAnchorUnitType = kUnit.getUnitType();
 }
 
 //	---------------------------------------------------------------------------
-void CvUnitCycler::AddUnit(int iID)
+// The unit needing orders closest to where the player is working; the head unit itself if it still needs orders
+CvUnit* CvUnitCycler::GetClosestNeedingOrders(const CvUnit* pkHeadUnit) const
 {
-	Rebuild();
-}
-//	---------------------------------------------------------------------------
-void CvUnitCycler::RemoveUnit(int iID)
-{
-	CLLNode<int>* pUnitNode = HeadNode();
-
-	while (pUnitNode != NULL)
-	{
-		if (pUnitNode->m_data == iID)
-		{
-			pUnitNode = DeleteNode(pUnitNode);
-			break;
-		}
-		else
-		{
-			pUnitNode = NextNode(pUnitNode);
-		}
-	}
+	return FindClosest(pkHeadUnit, false, false, false);
 }
 
 //	-----------------------------------------------------------------------------------------------
-// Returns the next unit in the cycle...
-CvUnit* CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap)
+// The next or previous unit key. Forward takes the closest unit needing orders that this round has not shown yet,
+// and starts a new round (*pbWrap) once every unit was shown. Back retraces the units shown this round, and Next after Back
+// walks forward through them again.
+CvUnit* CvUnitCycler::Cycle(const CvUnit* pkHeadUnit, bool bForward, bool bWorkers, bool* pbWrap)
 {
 	if (pbWrap != NULL)
-	{
 		*pbWrap = false;
+
+	// A new turn starts a new round
+	int iTurn = GC.getGame().getGameTurn();
+	if (m_iShownTurn != iTurn)
+	{
+		m_aiShownUnits.clear();
+		m_iShownTurn = iTurn;
+		m_iRetraceUnitID = -1;
 	}
 
-	const CLLNode<int>* pUnitNode = HeadNode();
+	int iHeadIndex = pkHeadUnit ? FindShown(pkHeadUnit->GetID()) : -1;
 
-	if (pUnit != NULL)
+	if (!bForward)
 	{
-		while (pUnitNode != NULL)
+		int iFrom = (iHeadIndex != -1) ? iHeadIndex : (int)m_aiShownUnits.size();
+		for (int i = iFrom - 1; i >= 0; i--)
 		{
-			if (m_pkPlayer->getUnit(pUnitNode->m_data) == pUnit)
+			CvUnit* pLoopUnit = m_pkPlayer->getUnit(m_aiShownUnits[i]);
+			if (pLoopUnit && NeedsOrders(*pLoopUnit, bWorkers))
 			{
-				if (bForward)
-				{
-					pUnitNode = NextNode(pUnitNode);
-				}
-				else
-				{
-					pUnitNode = PreviousNode(pUnitNode);
-				}
-				break;
-			}
-
-			pUnitNode = NextNode(pUnitNode);
-		}
-	}
-
-	if (pUnitNode == NULL)
-	{
-		if (bForward)
-		{
-			pUnitNode = HeadNode();
-		}
-		else
-		{
-			pUnitNode = TailNode();
-		}
-
-		// Can't find anything? Abort!
-		if (pUnitNode == NULL)
-		{
-			return NULL;
-		}
-
-		if (pbWrap != NULL)
-		{
-			*pbWrap = true;
-		}
-	}
-
-	const CLLNode<int>* pFirstUnitNode = pUnitNode;
-
-	while (true)
-	{
-		CvUnit* pLoopUnit = m_pkPlayer->getUnit(pUnitNode->m_data);
-		ASSERT(pLoopUnit, "LoopUnit is not assigned a valid value");
-
-		if (pLoopUnit && pLoopUnit->ReadyToSelect())
-		{
-			if (!bWorkers || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER_SEA)
-			{
-				if (pUnit && pLoopUnit == pUnit)
-				{
-					if (pbWrap != NULL)
-					{
-						*pbWrap = true;
-					}
-				}
-
+				m_iRetraceUnitID = pLoopUnit->GetID();
 				return pLoopUnit;
 			}
 		}
 
-		if (bForward)
+		return NULL;
+	}
+
+	// Right after stepping back, forward retraces the round first. Only then: a unit the player picked by hand
+	// that happens to be in this round continues with the closest unit, not with whatever the round showed after it.
+	if (iHeadIndex != -1 && pkHeadUnit->GetID() == m_iRetraceUnitID)
+	{
+		for (int i = iHeadIndex + 1; i < (int)m_aiShownUnits.size(); i++)
 		{
-			pUnitNode = NextNode(pUnitNode);
-
-			if (pUnitNode == NULL)
+			CvUnit* pLoopUnit = m_pkPlayer->getUnit(m_aiShownUnits[i]);
+			if (pLoopUnit && NeedsOrders(*pLoopUnit, bWorkers))
 			{
-				pUnitNode = HeadNode();
-
-				if (pbWrap != NULL)
-				{
-					*pbWrap = true;
-				}
+				m_iRetraceUnitID = pLoopUnit->GetID();
+				return pLoopUnit;
 			}
 		}
-		else
+	}
+	m_iRetraceUnitID = -1;
+
+	if (pkHeadUnit)
+		MarkShown(pkHeadUnit->GetID());
+
+	CvUnit* pNextUnit = FindClosest(pkHeadUnit, true, bWorkers, true);
+	if (pNextUnit == NULL)
+	{
+		// Every unit was shown: start a new round
+		if (pbWrap != NULL)
+			*pbWrap = true;
+
+		m_aiShownUnits.clear();
+		pNextUnit = FindClosest(pkHeadUnit, true, bWorkers, false);
+
+		// Only the head unit is left
+		if (pNextUnit == NULL && pkHeadUnit && NeedsOrders(*pkHeadUnit, bWorkers))
+			pNextUnit = m_pkPlayer->getUnit(pkHeadUnit->GetID());
+
+		if (pkHeadUnit)
+			MarkShown(pkHeadUnit->GetID());
+	}
+
+	if (pNextUnit)
+		MarkShown(pNextUnit->GetID());
+
+	return pNextUnit;
+}
+
+//	---------------------------------------------------------------------------
+// How unlike two unit types are, in tiles of extra distance: 0 same type; 1 same combat class or role, or same domain
+// and both military or both civilian; 2 otherwise
+static int GetUnitTypeUnlikeness(UnitTypes eA, UnitTypes eB)
+{
+	if (eA == eB && eA != NO_UNIT)
+		return 0;
+
+	CvUnitEntry* pkA = (eA != NO_UNIT) ? GC.getUnitInfo(eA) : NULL;
+	CvUnitEntry* pkB = (eB != NO_UNIT) ? GC.getUnitInfo(eB) : NULL;
+	if (!pkA || !pkB)
+		return 2;
+
+	if ((pkA->GetUnitCombatType() != NO_UNITCOMBAT && pkA->GetUnitCombatType() == pkB->GetUnitCombatType()) || pkA->GetDefaultUnitAIType() == pkB->GetDefaultUnitAIType())
+		return 1;
+
+	bool bMilitaryA = pkA->GetCombat() > 0 || pkA->GetRangedCombat() > 0;
+	bool bMilitaryB = pkB->GetCombat() > 0 || pkB->GetRangedCombat() > 0;
+	if (pkA->GetDomainType() == pkB->GetDomainType() && bMilitaryA == bMilitaryB)
+		return 1;
+
+	return 2;
+}
+
+//	---------------------------------------------------------------------------
+// The unit needing orders closest to where the player is working: the tile the head unit's orders began on this turn, not
+// where its moves took it. With no head unit, the last anchor or the capital stands in. A unit unlike the head unit counts as up to two tiles further,
+// so after the last bomber on a carrier the bombers on the next carrier come before the carrier itself. Ties go to the
+// closer unit, then to the oldest.
+CvUnit* CvUnitCycler::FindClosest(const CvUnit* pkHeadUnit, bool bSkipHead, bool bWorkers, bool bSkipShown) const
+{
+	const CvPlot* pkAnchorPlot = GC.getMap().plotByIndex(m_iAnchorPlotIndex);
+	const CvPlot* pkFrom = NULL;
+	UnitTypes eLikeType = NO_UNIT;
+
+	if (pkHeadUnit)
+	{
+		bool bOrderedThisTurn = pkHeadUnit->GetID() == m_iAnchorUnitID && m_iAnchorTurn == GC.getGame().getGameTurn();
+		pkFrom = (bOrderedThisTurn && pkAnchorPlot) ? pkAnchorPlot : pkHeadUnit->plot();
+		eLikeType = pkHeadUnit->getUnitType();
+	}
+	else if (pkAnchorPlot)
+	{
+		pkFrom = pkAnchorPlot;
+		eLikeType = m_eAnchorUnitType;
+	}
+	else if (m_pkPlayer->getCapitalCity())
+	{
+		pkFrom = m_pkPlayer->getCapitalCity()->plot();
+	}
+
+	if (!pkFrom)
+		return NULL;
+
+	int iBestScore = MAX_INT;
+	CvUnit* pBestUnit = NULL;
+	int iLoop = 0;
+	for (CvUnit* pLoopUnit = m_pkPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pkPlayer->nextUnit(&iLoop))
+	{
+		if (!NeedsOrders(*pLoopUnit, bWorkers) || !pLoopUnit->plot())
+			continue;
+
+		if (bSkipHead && pLoopUnit == pkHeadUnit)
+			continue;
+
+		if (bSkipShown && FindShown(pLoopUnit->GetID()) != -1)
+			continue;
+
+		int iDistance = plotDistance(*pkFrom, *pLoopUnit->plot());
+
+		// Distance plus unlikeness decides; between equals the closer unit wins (no map is 1000 tiles across)
+		int iScore = (iDistance + GetUnitTypeUnlikeness(eLikeType, pLoopUnit->getUnitType())) * 1000 + iDistance;
+		if (iScore < iBestScore)
 		{
-			pUnitNode = PreviousNode(pUnitNode);
-
-			if (pUnitNode == NULL)
-			{
-				pUnitNode = TailNode();
-
-				if (pbWrap != NULL)
-				{
-					*pbWrap = true;
-				}
-			}
-		}
-
-		if (pUnitNode == pFirstUnitNode)
-		{
-			break;
+			iBestScore = iScore;
+			pBestUnit = pLoopUnit;
 		}
 	}
 
-	return NULL;
+	return pBestUnit;
 }
 
-
 //	---------------------------------------------------------------------------
-CvUnitCycler::Node* CvUnitCycler::DeleteNode(CvUnitCycler::Node* pNode)
+// The same units that keep the end turn button asking for unit orders
+bool CvUnitCycler::NeedsOrders(const CvUnit& kUnit, bool bWorkers)
 {
-	return m_kNodeList.deleteNode(pNode);
+	if (!kUnit.ReadyToSelect() || kUnit.TurnProcessed())
+		return false;
+
+	return !bWorkers || kUnit.AI_getUnitAIType() == UNITAI_WORKER || kUnit.AI_getUnitAIType() == UNITAI_WORKER_SEA;
 }
 
 //	---------------------------------------------------------------------------
-const CvUnitCycler::Node* CvUnitCycler::NextNode(const CvUnitCycler::Node* pNode) const
+int CvUnitCycler::FindShown(int iUnitID) const
 {
-	return m_kNodeList.next(pNode);
+	for (int i = 0; i < (int)m_aiShownUnits.size(); i++)
+	{
+		if (m_aiShownUnits[i] == iUnitID)
+			return i;
+	}
+
+	return -1;
 }
 
 //	---------------------------------------------------------------------------
-CvUnitCycler::Node* CvUnitCycler::NextNode(CvUnitCycler::Node* pNode)
+void CvUnitCycler::MarkShown(int iUnitID)
 {
-	return m_kNodeList.next(pNode);
+	int iIndex = FindShown(iUnitID);
+	if (iIndex != -1)
+		m_aiShownUnits.erase(m_aiShownUnits.begin() + iIndex);
+
+	m_aiShownUnits.push_back(iUnitID);
 }
 
 //	---------------------------------------------------------------------------
-const CvUnitCycler::Node* CvUnitCycler::PreviousNode(const CvUnitCycler::Node* pNode) const
-{
-	return m_kNodeList.prev(pNode);
-}
-
-//	---------------------------------------------------------------------------
-const CvUnitCycler::Node* CvUnitCycler::HeadNode() const
-{
-	return m_kNodeList.head();
-}
-
-//	---------------------------------------------------------------------------
-CvUnitCycler::Node* CvUnitCycler::HeadNode()
-{
-	return m_kNodeList.head();
-}
-
-//	---------------------------------------------------------------------------
-const CvUnitCycler::Node* CvUnitCycler::TailNode() const
-{
-	return m_kNodeList.tail();
-}
-
-//	---------------------------------------------------------------------------
+// Saves still carry the turn-start route the cycler used to follow; it is read and dropped, and written empty
 FDataStream& operator>>(FDataStream& loadFrom, CvUnitCycler& writeTo)
 {
 	writeTo.Clear();
-	loadFrom >> writeTo.m_kNodeList;
+	CLinkList<int> kOldRoute;
+	loadFrom >> kOldRoute;
 	return loadFrom;
 }
 
 //	---------------------------------------------------------------------------
-FDataStream& operator<<(FDataStream& saveTo, const CvUnitCycler& readFrom)
+FDataStream& operator<<(FDataStream& saveTo, const CvUnitCycler&)
 {
-	saveTo << readFrom.m_kNodeList;
+	CLinkList<int> kNoRoute;
+	saveTo << kNoRoute;
 	return saveTo;
 }

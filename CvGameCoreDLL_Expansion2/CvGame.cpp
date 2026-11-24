@@ -1091,7 +1091,7 @@ void CvGame::DoGameStarted()
 			pBuilding->UpdateUnitTypesUnlocked();
 	}
 
-	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
+	GET_PLAYER(getActivePlayer()).GetUnitCycler().Clear();
 
 	CvPlayerManager::Refresh(false);
 }
@@ -2036,17 +2036,28 @@ void CvGame::updateSelectionList()
 
 	if((pkHeadSelectedUnit == NULL) || !(pkHeadSelectedUnit->ReadyToSelect()))
 	{
-		int iOriginalPlotIndex = GC.GetEngineUserInterface()->getOriginalPlotIndex();
-		CvPlot* pkOriginalPlot = (iOriginalPlotIndex != -1)? GC.getMap().plotByIndex(iOriginalPlotIndex) : NULL;
-
-		if((pkOriginalPlot == NULL) || !(cyclePlotUnits(pkOriginalPlot, true, true, GC.GetEngineUserInterface()->getOriginalPlotCount())))
+		// Stay where the player is working: the closest ready unit, not the next one on the turn-start route
+		CvPlayer& kActivePlayer = GET_PLAYER(getActivePlayer());
+		if(pkHeadSelectedUnit != NULL && pkHeadSelectedUnit->getOwner() != kActivePlayer.GetID())
 		{
-			CvInterfacePtr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
-			CvPlot* pkSelectionPlot = GC.UnwrapPlotPointer(pSelectionPlot.get());
-			if((pkSelectionPlot == NULL) || !(cyclePlotUnits(pkSelectionPlot, true, true)))
+			pkHeadSelectedUnit = NULL;
+		}
+
+		CvUnit* pkNextUnit = kActivePlayer.GetUnitCycler().GetClosestNeedingOrders(pkHeadSelectedUnit);
+		if(pkNextUnit != NULL)
+		{
+			selectUnit(pkNextUnit, true);
+
+			// The next unit in the same stack keeps the camera still
+			if(pkHeadSelectedUnit == NULL || pkNextUnit->plot() != pkHeadSelectedUnit->plot())
 			{
-				cycleUnits(true);
+				GC.GetEngineUserInterface()->lookAtSelectionPlot();
 			}
+		}
+		else
+		{
+			// Nothing ready: the cycle wraps, which also sends the auto moves
+			cycleUnits(true);
 		}
 
 		pDllHeadSelectedUnit.reset(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
@@ -2589,10 +2600,6 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 //	--------------------------------------------------------------------------------
 void CvGame::cycleUnits(bool bClear, bool bForward, bool bWorkers)
 {
-	CvUnit* pNextUnit = NULL;
-	CvCity* pCycleCity = NULL;
-	bool bWrap = false;
-	bool bProcessed = false;
 	PlayerTypes eActivePlayer = getActivePlayer();
 	ICvUserInterface2* pUI = GC.GetEngineUserInterface();
 	CvPlayerAI& theActivePlayer = GET_PLAYER(eActivePlayer);
@@ -2605,51 +2612,34 @@ void CvGame::cycleUnits(bool bClear, bool bForward, bool bWorkers)
 
 	CvInterfacePtr<ICvUnit1> pDllSelectedUnit(pUI->GetHeadSelectedUnit());
 	CvUnit* pCycleUnit = GC.UnwrapUnitPointer(pDllSelectedUnit.get());
-
-	if(pCycleUnit != NULL)
+	if(pCycleUnit != NULL && pCycleUnit->getOwner() != eActivePlayer)
 	{
-		if(pCycleUnit->getOwner() != eActivePlayer)
-		{
-			pCycleUnit = NULL;
-		}
-
-		pNextUnit = theActivePlayer.GetUnitCycler().Cycle(pCycleUnit, bForward, bWorkers, &bWrap);
-
-		if(bWrap)
-		{
-			if(theActivePlayer.hasAutoUnit())
-			{
-				gDLL->sendAutoMoves();
-			}
-		}
-	}
-	else
-	{
-		pNextUnit = GC.getMap().findUnit(0, 0, eActivePlayer, true, bWorkers);
+		pCycleUnit = NULL;
 	}
 
-	if(pNextUnit != NULL && !bWrap)
+	bool bWrap = false;
+	CvUnit* pNextUnit = theActivePlayer.GetUnitCycler().Cycle(pCycleUnit, bForward, bWorkers, &bWrap);
+
+	if(bWrap && pCycleUnit != NULL && theActivePlayer.hasAutoUnit())
 	{
-		ASSERT(pNextUnit->getOwner() == eActivePlayer);
-		selectUnit(pNextUnit, bClear);
-		bProcessed = true;
+		gDLL->sendAutoMoves();
 	}
 
-	if(pNextUnit != NULL /*&& bWrap */&& !pCycleCity && !bProcessed)
+	if(pNextUnit != NULL)
 	{
 		ASSERT(pNextUnit->getOwner() == eActivePlayer);
 		selectUnit(pNextUnit, bClear);
 	}
-
-	if(pNextUnit == NULL && pCycleUnit != NULL && pCycleUnit->getOwner() == eActivePlayer)
+	else if(bForward && pCycleUnit != NULL && !pCycleUnit->ReadyToSelect())
 	{
+		// Nothing needs orders
 		pUI->ClearSelectionList();
 		pCycleUnit->plot()->updateCenterUnit();
 	}
 
 	pDllSelectedUnit.reset(pUI->GetHeadSelectedUnit());
 	CvUnit* pCurrentSelectedUnit = GC.UnwrapUnitPointer(pDllSelectedUnit.get());
-	if((pCycleUnit != pCurrentSelectedUnit) || ((pCycleUnit != NULL) && pCycleUnit->ReadyToSelect()) || pCycleCity)
+	if((pCycleUnit != pCurrentSelectedUnit) || ((pCycleUnit != NULL) && pCycleUnit->ReadyToSelect()))
 	{
 		pUI->lookAtSelectionPlot();
 	}
@@ -2816,6 +2806,8 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 	{
 		if(pkSelectedUnit->getOwner() == getActivePlayer() && !pSelectedUnit->IsBusy())
 		{
+			GET_PLAYER(getActivePlayer()).GetUnitCycler().SetAnchor(*pkSelectedUnit);
+
 			if(eMessage == GAMEMESSAGE_DO_COMMAND)
 			{
 				gDLL->sendDoCommand(pkSelectedUnit->GetID(), ((CommandTypes)iData2), iData3, iData4, bAlt);

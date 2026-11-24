@@ -1131,7 +1131,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	if(getOwner() == GC.getGame().getActivePlayer())
 	{
 		DLLUI->setDirty(GameData_DIRTY_BIT, true);
-		kPlayer.GetUnitCycler().AddUnit(GetID());
 	}
 
 	// Message for World Unit being born
@@ -2541,7 +2540,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 
 	DLLUI->RemoveFromSelectionList(pDllThisUnit.get());
-	kPlayer.GetUnitCycler().RemoveUnit(GetID());
 
 	// Killing a unit while in combat is not something we really expect to happen.
 	// It is *mostly* safe for it to happen, but combat systems must be able to gracefully handle the disapperance of a unit.

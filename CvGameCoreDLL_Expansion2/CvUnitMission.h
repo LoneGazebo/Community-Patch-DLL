@@ -42,6 +42,7 @@ private:
 	static MissionData*			DeleteMissionData(CvUnit* hUnit, MissionData* pNode);
 	static void					ActivateHeadMission(CvUnit* hUnit);
 	static void					DeactivateHeadMission(CvUnit* hUnit, int iUnitCycleTimer);
+	static void					WaitBeforeNextUnit(CvUnit* hUnit, int iTime);
 
 	static const MissionData*	NextMissionData(const MissionQueue& kQueue, const MissionData* pNode);
 	static const MissionData*	PrevMissionData(const MissionQueue& kQueue, const MissionData* pNode);

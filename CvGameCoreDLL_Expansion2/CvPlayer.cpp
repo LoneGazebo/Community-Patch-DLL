@@ -34569,7 +34569,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 			if(GetID() == kGame.getActivePlayer())
 			{
-				GetUnitCycler().Rebuild();
 				if(DLLUI->GetLengthSelectionList() == 0)
 				{
 					DLLUI->setCycleSelectionCounter(1);
