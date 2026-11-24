@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black" Font="TwCenMT18" FontStyle="Shadow" >
+
+  <!-- Player Slot Instance CivSymbolsColor360 -->
+  <Instance Name="PlayerSlot" >
+    <Container Size="380,68" ID="Root" >
+      <Grid Size="380,68" Anchor="L,T" Color="255,255,255,0" Style="GridGlass16" ID="Grid" >
+
+        <!-- Leader Portrait -->
+        <Image Anchor="L,T" Size="64,64" Offset="0,0"  Texture="Assets/UI/Art/Icons/IconFrame64.dds"  >
+          <Image Anchor="L,T" Offset="0,0" Size="64,64"   Texture="Assets/UI/Art/Icons/LeaderPortraits512.dds"  ID="Portrait"/>
+        </Image>
+
+        <PullDown  Anchor="L,T" ScrollThreshold="110" Size="260,27" AutoSizePopUp="0" TruncateWidth="60" SpaceForScroll="1" Offset="122.6" ID="CivPulldown">
+          <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT18" FontStyle="Shadow" String="1." Offset="6.0" ID="CivNumberIndex" />
+
+          <ButtonData>
+
+            <GridButton Style="SquareButton" TruncateWidth="200" String="" Anchor="L,C" >
+              <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.0" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+
+              <ShowOnMouseOver>
+                <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.16" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+              </ShowOnMouseOver>
+            </GridButton>
+
+          </ButtonData>
+
+          <GridData Anchor="C,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
+
+          <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
+
+            <!-- Scroll Controls -->
+            <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
+            <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
+            <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
+
+          </ScrollPanelData>
+
+          <StackData StackGrowth="Bottom" Padding="0" Anchor="C,T" />
+
+          <InstanceData Name="InstanceOne" >
+            <GridButton  Size="300,24" TruncateWidth="300" Style="ZoomButton"  String="" Anchor="C,C" ID="Button"  />
+          </InstanceData>
+
+        </PullDown>
+
+        <PullDown ID="TeamPullDown" Anchor="L,T" Style="GenericPullDown" ScrollThreshold="75" Size="160,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="122.34" >
+          <Label ID="TeamLabel" Anchor="C,C" ColorSet="Beige_Black" Font="TwCenMT16" FontStyle="Shadow" String="Select Team" Offset="0.0"  />
+        </PullDown>
+
+        <!-- Civ Icon -->
+        <Image Anchor="L,T"  Size="64,64"  Offset="58,0" Texture="Assets/UI/Art/Icons/IconFrame64.dds" >
+          <Image Size="64,64" Anchor="C,C"  Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor512.dds" Hidden="0" ID="Icon" />
+        </Image>
+
+
+        <!-- Delete AI Player Button -->
+        <TextButton Offset="6,6" Anchor="R,B" Style="Font14or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_MODDING_DELETEMOD" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="RemoveButton" />
+        <Label Anchor="C,C"   ID="PlayerNameLabel" Offset="0,0" />
+
+        <Image Anchor="C,B" Offset="0,0" Texture="bar340x2.dds" Size="340.1" />
+      </Grid>
+    </Container>
+  </Instance>
+
+  <Instance Name="GameOptionInstance">
+    <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Anchor="L,C" TextAnchorSide="Right" Font="TwCenMT20" Offset="0,0" TextOffset="40,0" IsChecked="0" ID="GameOptionRoot" ConsumeMouse="1"  />
+  </Instance>
+
+  <Instance Name="DropDownOptionInstance">
+    <Container Anchor="L,T" Size="450,32" Offset="20,0" ID="DropDownOptionRoot">
+      <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" ID="OptionName"/>
+      <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="OptionDropDown"/>
+    </Container>
+  </Instance>
+
+  <Grid Size="960,Full" Anchor="C,B" Offset="0,-39" Padding="0,0" Style="Grid9DetailFive140" ID="MainGrid" >
+
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+
+    <Box Style="MenuTopTreatment"/>
+    <Box Style="MenuBottomTreatment"/>
+
+    <!-- Screen Title  -->
+    <Label Style="MenuTitleCaption" ID="TitleLabel" String="TXT_KEY_AD_SETUP_ADVANCED_OPTIONS" />
+
+    <!-- Top Panel  -->
+    <Box Anchor="C,T" Size="926,27" Offset="0,44" Color="0.0.0.128" >
+      <Stack Anchor="L,T" Size="971,24" Offset="0,0" Padding="0" StackGrowth="Right">
+        <Box Anchor="L,T" Size="407,24" Offset="0,0" Color="0.0.0.128" >
+          <Label Anchor="C,C" Offset="0,-1" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" ID="CivCount" String="" />
+        </Box>
+
+        <Box Anchor="C,T" Size="463,24" Offset="0,0" Color="255.255.255.0" >
+          <Label Anchor="C,C" Offset="0,-1" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_GAME_OPTIONS" />
+        </Box>
+      </Stack>
+      <Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="924.5" />
+
+    </Box>
+
+    <!-- Options Panel -->
+    <ScrollPanel Anchor="L,T" ID="OptionsScrollPanel" Vertical="1" Offset="432,72" Size="490,552" AutoScrollBar="1">
+
+      <!-- Scroll Controls -->
+      <ScrollBar Style="VertSlider" Length="516" Offset="0.18" Anchor="R,T" AnchorSide="O,I" />
+      <UpButton  Offset="0.0"  Style="ScrollBarUp"  Anchor="R,T" AnchorSide="O,I" />
+      <DownButton Offset="0.0" Style="ScrollBarDown"  Anchor="R,B" AnchorSide="O,I" />
+
+
+      <Stack ID="GameOptionsFullStack" Anchor="L,T" Offset="0,0" Padding="0" StackGrowth="Bottom" >
+        <!-- City State Options -->
+        <Box Anchor="L,T" Size="480,36" Offset="0,0" Color="255.255.255.0" >
+          <Stack ID="CityStateStack" Anchor="L,T" Size="463,32" StackGrowth="Right">
+            <Box Anchor="L,C" Size="160,32" Offset="10,5" Color="255.255.255.0" >
+              <Label Anchor="L,T" Offset="10,0" Font="TwCenMT20" String="" ID="MinorCivsLabel" />
+            </Box>
+            <Slider Anchor="L,C" Offset="0,0" Length="300" Style="Slider" ID="MinorCivsSlider" WheelSteps="10" />
+          </Stack>
+        </Box>
+
+        <!-- List of Combo Box Options -->
+        <Stack Anchor="L,T" Offset="0,3" Padding="0" StackGrowth="Bottom" ID="DropDownOptionsStack" >
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_MAP_TYPE" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="1" ID="MapTypePullDown"/>
+          </Container>
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_MAP_SIZE" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="MapSizePullDown"/>
+          </Container>
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_HANDICAP" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="HandicapPullDown"/>
+          </Container>
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_GAME_SPEED" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="GameSpeedPullDown"/>
+          </Container>
+
+          <Container Anchor="L,T" Size="450,32" Offset="20,0">
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_AD_SETUP_GAME_ERA" />
+            <PullDown Style="GenericPullDown" ScrollThreshold="400" Offset="150,0" Size="300,27" SpaceForScroll="0" ID="EraPullDown"/>
+          </Container>
+
+        </Stack>
+
+        <!-- Map Seed (Community Patch): the row and its Lua live in MapSeedSetup.lua/.xml -->
+        <LuaContext FileName="MapSeedSetup" ID="MapSeedSetup" Anchor="L,T" Size="450,32" Hidden="0" />
+
+        <!-- Victory Conditions -->
+        <Box Anchor="C,T" Size="500,30" Offset="0,0" Color="White.0" >
+          <Image  Anchor="C,T"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+          <Label  Anchor="C,B"  Offset="0,5" String="TXT_KEY_VICTORYS_FORMAT" Font="TwCenMT20" />
+          <Image  Anchor="C,B"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+        </Box>
+        <Stack Anchor="L,T" Offset="30,0" Padding="-7" StackGrowth="Bottom" ID="VictoryConditionsStack" />
+
+        <Box Anchor="C,T" Size="500,30" Offset="0,0" Color="White.0" >
+          <Image  Anchor="C,T"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+          <Label  Anchor="C,B"  Offset="0,5" String="TXT_KEY_ADVANCED_OPTIONS" Font="TwCenMT20" />
+          <Image  Anchor="C,B"  Offset="0,0" Texture="bar500x2.dds" Size="500.1" />
+        </Box>
+
+        <!-- Max Turn Check & Edit Box -->
+        <Box Anchor="L,T" Size="480,25" Offset="30,0" Color="255,255,255,0" >
+
+          <Stack ID="MaxTurnStack" Anchor="L,T" Size="463,32" Offset="0,0" StackGrowth="Right">
+            <Box Anchor="L,C"  Size="161,32" Color="255,255,200,0" >
+              <CheckBox ButtonTexture="assets/UI/Art/Controls/CheckBox2TheBox.dds" Font="TwCenMT20" Anchor="L,C" TextAnchorSide="Right" TextOffset="40,0" String="TXT_KEY_AD_SETUP_MAX_TURNS" ToolTip="TXT_KEY_AD_SETUP_MAX_TURNS_TT" IsChecked="0" ID="MaxTurnsCheck" ConsumeMouse="1" />
+            </Box>
+            <Box Hidden="1" Anchor="L,C"  Size="34,24" Color="255,255,200,255" ID="MaxTurnsEditbox">
+              <Box Anchor="C,C"  Offset="0,0" Size="32,22" Color="0,0,0,255" >
+                <EditBox Size="30,18" Anchor="L,C" ID="MaxTurnsEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3" CallOnChar="1" />
+              </Box>
+            </Box>
+          </Stack>
+        </Box>
+
+        <!-- List of Check Boxes -->
+        <Stack Anchor="L,T" Offset="30,0" Padding="-7" StackGrowth="Bottom" ID="GameOptionsStack">
+        </Stack>
+
+      </Stack>
+    </ScrollPanel>
+
+
+    <Stack Anchor="L,T" StackGrowth="Bottom">
+      <!-- Human Player Info -->
+      <Box Size="412,74" Offset="17,71" Anchor="L,T" Color="Black.128" ID="HumanGrid" >
+
+
+        <TextButton Offset="12,12" Anchor="R.B" Style="Font14or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EDIT_BUTTON" ToolTip="TXT_KEY_EDIT_BUTTON" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="EditButton" >
+          <TextButton Offset="20,0" Anchor="L,C" AnchorSide="o,i" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CANCEL_BUTTON" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="RemoveButton" >
+            <Box Offset="-10,0"  Anchor="R,C" Size="1,12"  Color="Beige.128" />
+          </TextButton>
+        </TextButton>
+
+
+
+        <!-- Bottom divider line -->
+        <Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="412.5" />
+
+        <!-- Leader Portrait -->
+        <Image Anchor="L,T" Size="64,64" Offset="0,0"  Texture="Assets/UI/Art/Icons/IconFrame64.dds"  >
+          <Image Anchor="L,T" Offset="0,0" Size="64,64"   Texture="Assets/UI/Art/Icons/LeaderPortraits512.dds"  ID="Portrait"/>
+        </Image>
+
+        <PullDown ID="TeamPullDown" Anchor="L,T" Style="GenericPullDown" ScrollThreshold="110" Size="160,27" AutoSizePopUp="1" SpaceForScroll="1" Offset="122.34" >
+          <Label ID="TeamLabel" Anchor="C,C" ColorSet="Beige_Black" Font="TwCenMT16" FontStyle="Shadow" String="Select Team" Offset="0.0"  />
+        </PullDown>
+
+        <!-- Civ Icon -->
+        <Image Anchor="L,T"  Size="64,64"  Offset="58,0" Texture="Assets/UI/Art/Icons/IconFrame64.dds" >
+          <Image Size="64,64" Anchor="C,C"  Texture="Assets/UI/Art/Icons/Units/CivSymbolsColor512.dds" Hidden="0" ID="Icon" />
+        </Image>
+
+
+        <!-- Civ Dropdown List -->
+        <Box Anchor="L,T" Size="300,27" Offset="122,6" Color="255.255.255.0" >
+          <PullDown  Hidden="0" Anchor="L,B" ScrollThreshold="480" Size="280,27" AutoSizePopUp="0" SpaceForScroll="0" ID="CivPulldown" Offset="0,0" >
+            <Label Anchor="L,C" ColorSet="Beige_Black" Font="TwCenMT18" FontStyle="Shadow" String="1." Offset="6.0" ID="CivNumberIndex" />
+
+            <ButtonData>
+
+              <GridButton Style="SquareButton" TruncateWidth="200" String="" Anchor="L,C" >
+                <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.0" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+
+                <ShowOnMouseOver>
+                  <Image Texture="Assets/UI/Art/Controls/9 Grids/Corner16.dds" TextureOffset="0.16" Offset="3.3"  Size="16,16" Anchor="R,B"  />
+                </ShowOnMouseOver>
+              </GridButton>
+
+            </ButtonData>
+
+            <GridData Anchor="C,B" Offset="0.-2" AnchorSide="I,O" Style="Grid9Frame27SquareBlack" Padding="5,5" />
+
+            <ScrollPanelData Anchor="C,C"  Vertical="1" Size="18,18"  AutoScrollBar="1" >
+
+              <!-- Scroll Controls -->
+              <ScrollBar  Style="VertSlider"      Anchor="R,C" AnchorSide="O,I"   />
+              <UpButton   Style="ScrollBarUp"     Anchor="R,T" AnchorSide="O,I"   />
+              <DownButton Style="ScrollBarDown"   Anchor="R,B" AnchorSide="O,I"   />
+
+            </ScrollPanelData>
+
+            <StackData StackGrowth="Bottom" Padding="0" Anchor="C,T" />
+
+            <InstanceData Name="InstanceOne" >
+              <GridButton  Size="300,24" TruncateWidth="300" Style="ZoomButton"  String="" Anchor="C,C" ID="Button"  />
+            </InstanceData>
+          </PullDown>
+          <Label Anchor="L,C" WrapWidth="290" Hidden="1" LeadingOffset="-8" Offset="2,-2" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="Leader Name" ID="CivName" />
+        </Box>
+
+
+      </Box>
+
+      <Box ID="UnknownPlayers" Anchor="L,T" Size="407,393" Offset="17,0" Color="0.255.0.0" >
+        <Label WrapWidth="353" Anchor="C,C" Offset="0,0" ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow" String="{TXT_KEY_AD_SETUP_UNKNOWN_PLAYERS:upper}" />
+      </Box>
+
+      <!-- AI Player Listing Background -->
+      <Container Anchor="L,T" Offset="12,1" Size="5.400" >
+
+        <ScrollPanel Anchor="R,T" AnchorSide="O.I" ID="ListingScrollPanel" Vertical="1" Offset="0,0" Size="388,480" AutoScrollBar="1">
+
+          <!-- Listing Stack (Dynamic) -->
+          <Stack Anchor="L,T" ID="SlotStack" StackGrowth="Bottom" Padding="0" />
+
+          <!-- Scroll Controls -->
+          <ScrollBar Style="VertSlider" Length="444" Offset="0.18" Anchor="R,T" AnchorSide="O,I" />
+          <UpButton  Offset="0.0"  Style="ScrollBarUp"  Anchor="R,T" AnchorSide="O,I" />
+          <DownButton Offset="0.0" Style="ScrollBarDown"  Anchor="R,B" AnchorSide="O,I" />
+
+        </ScrollPanel>
+      </Container>
+    </Stack>
+
+    <!-- Scroll Panel Center Divider -->
+    <Image Anchor="L,T" Offset="425,71" Texture="VerticalTrim.dds" Size="5.72" />
+
+    <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="924.5" />
+
+    <Box Anchor="C,B" AnchorSide="I.I" Offset="0,54"   Size="910,70" Color="255,255,255,0" >
+
+      <!-- Back Button -->
+      <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="14,0" StateOffsetIncrement="0,0" ID="BackButton" ToolTip="TXT_KEY_REFRESH_GAME_LIST_TT" >
+        <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_BACK_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+      </GridButton>
+
+      <Stack Anchor="C,B" Offset="0,0"   Size="128,128" StackGrowth="Right" Padding="8" >
+
+        <!-- Add AI Button -->
+        <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="AddAIButton" ToolTip="TXT_KEY_AD_SETUP_ADD_AI_PLAYER_TT" >
+          <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_AD_SETUP_ADD_AI_PLAYER" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        </GridButton>
+
+        <!-- Add Default Button -->
+        <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="0,0" StateOffsetIncrement="0,0" ID="DefaultButton" ToolTip="TXT_KEY_AD_SETUP_ADD_DEFAULT_TT" >
+          <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_AD_SETUP_DEFAULT" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+        </GridButton>
+      </Stack>
+    </Box>
+
+    <!-- Start Game  -->
+    <GridButton Anchor="R,B" ID="StartButton"   Font="TwCenMT22"  Offset="38,54"     Size="260,45"    Style="BaseButton" String="TXT_KEY_START_GAME" />
+  </Grid>
+
+  <LuaContext FileName="Assets/UI/FrontEnd/GameSetup/SetCivNames" ID="SetCivNames" Hidden="1" />
+
+</Context>

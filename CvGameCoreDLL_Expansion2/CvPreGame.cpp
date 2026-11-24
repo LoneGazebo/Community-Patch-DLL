@@ -890,6 +890,10 @@ const CvString& gameName()
 //! since GameCore does it way to effing often.
 int s_EnumBasedGameOptions[NUM_GAMEOPTION_TYPES];
 
+//! Map seed the player chose in game setup (GAMEOPTION_MAP_SEED), 0 when none.
+//! Cached here because mapRandomSeed() is read by every stateless random roll.
+unsigned int s_chosenMapSeed = 0;
+
 //! This method sync's up an enum-based array of game options w/ the actual
 //! game options structure.  This should be called every time new options
 //! are set.
@@ -915,6 +919,10 @@ void SyncGameOptionsWithEnumList()
 			break;
 		}
 	}
+
+	int iChosenMapSeed = 0;
+	GetGameOption(GAMEOPTION_MAP_SEED, iChosenMapSeed);
+	s_chosenMapSeed = static_cast<unsigned int>(iChosenMapSeed);
 }
 
 bool GetGameOption(const char* szOptionName, int& iValue)
@@ -1555,9 +1563,11 @@ bool SetMapOptions(const std::vector<CustomOption>& mapOptions)
 	return true;
 }
 
+/// The seed for map generation and stateless random rolls: the one chosen in game setup if any, else the engine's (clock or config.ini).
+/// Taking it from the game option keeps it synced in multiplayer and stored in saves without touching s_mapRandomSeed.
 unsigned int mapRandomSeed()
 {
-	return s_mapRandomSeed;
+	return s_chosenMapSeed != 0 ? s_chosenMapSeed : s_mapRandomSeed;
 }
 
 bool loadWBScenario()

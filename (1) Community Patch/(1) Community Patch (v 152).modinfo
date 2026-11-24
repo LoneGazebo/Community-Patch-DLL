@@ -474,6 +474,7 @@
     <File md5="F24584C3F7D166B5E799DDCEFEBBD6B5" import="1">Core Files/Overrides/EnemyUnitPanel_small.xml</File>
     <File md5="20D0863DB17ED978E5ED9E42664A3F8C" import="1">Core Files/Overrides/EspionageOverview.lua</File>
     <File md5="5965201A71E00881AB8639C5D6A79A04" import="1">Core Files/Overrides/EspionageOverview.xml</File>
+    <File md5="C6EA9A268251907641614F7A216E8FB8" import="1">Core Files/Overrides/GameMenu.lua</File>
     <File md5="D8A8BB74144BC653D26E1A07D7A9717E" import="1">Core Files/Overrides/GPList.lua</File>
     <File md5="A0B9DBA07F98E3B8D050AAD5A247EFCB" import="1">Core Files/Overrides/HappinessInfo.lua</File>
     <File md5="3F0909308CAEA0B4F8CD7073E4DF6047" import="1">Core Files/Overrides/HappinessInfo.xml</File>

@@ -58,6 +58,20 @@
 			<Text>In Game Setup, do not show the leader/civ details of other human players on other teams (if they are not choosing Random Leader).[NEWLINE]When loading a savegame, do not show the leader/civ details for players on other teams that you have not met in-game.</Text>
 		</Row>
 
+		<!-- Map seed (a number field in game setup) -->
+		<Row Tag="TXT_KEY_GAME_OPTION_MAP_SEED">
+			<Text>Map Seed</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_MAP_SEED_HELP">
+			<Text>Leave empty for a new map every game. Enter a number to get the same map again: the same seed with the same map type, map size, map options, players and mods makes the same map.[NEWLINE][NEWLINE]The seed also repeats the choice of random civilizations and City-States, and many of the game's own random rolls. The seed of a running game is shown in its Game Details.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_MAP_SEED_RANDOM">
+			<Text>Random</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_MAP_SEED_SETTING">
+			<Text>Map Seed: {1_Seed}</Text>
+		</Row>
+
 		<!-- Tech Trade (invisible in Community Patch) -->
 		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_RESEARCH_AGREEMENTS">
 			<Text>Disable Research Agreements</Text>
