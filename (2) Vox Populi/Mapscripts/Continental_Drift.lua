@@ -1935,6 +1935,168 @@ function GenerateCoasts(args)
 	end
 end
 
+local function OpenWaterBodies(isWater, GetStepCost, OpenPlot)
+	for _ = 1, 64 do
+		local body, sizes = {}, {};
+		for i, plot in Plots() do
+			if not body[i] and isWater(plot) then
+				local label = #sizes + 1;
+				local stack = {plot};
+				body[i], sizes[label] = label, 0;
+				while #stack > 0 do
+					sizes[label] = sizes[label] + 1;
+					for nextPlot in Plot_GetPlotsInCircle(table.remove(stack), 1) do
+						if not body[nextPlot:GetIndex()] and isWater(nextPlot) then
+							body[nextPlot:GetIndex()] = label;
+							table.insert(stack, nextPlot);
+						end
+					end
+				end
+			end
+		end
+
+		local ocean, sea = 1, nil;
+		for label, size in ipairs(sizes) do
+			if size > sizes[ocean] then
+				ocean = label;
+			end
+		end
+		for label, size in ipairs(sizes) do
+			if label ~= ocean and size >= GameDefines.MIN_WATER_SIZE_FOR_OCEAN and (not sea or size > sizes[sea]) then
+				sea = label;
+			end
+		end
+		if not sea then
+			return;
+		end
+
+		local cost, previous, buckets = {}, {}, {[0] = {}};
+		for i in Plots() do
+			if body[i] == sea then
+				cost[i] = 0;
+				table.insert(buckets[0], i);
+			end
+		end
+		local goal, c, pending = nil, 0, #buckets[0];
+		while not goal and pending > 0 do
+			local bucket, n = buckets[c] or {}, 1;
+			while not goal and bucket[n] do
+				local i = bucket[n];
+				n, pending = n + 1, pending - 1;
+				if body[i] == ocean then
+					goal = i;
+				elseif cost[i] == c then
+					for nextPlot in Plot_GetPlotsInCircle(Map.GetPlotByIndex(i), 1) do
+						local k = nextPlot:GetIndex();
+						local step = GetStepCost(nextPlot, body[k] == ocean);
+						if step and (not cost[k] or c + step < cost[k]) then
+							cost[k], previous[k] = c + step, i;
+							buckets[c + step] = buckets[c + step] or {};
+							table.insert(buckets[c + step], k);
+							pending = pending + 1;
+						end
+					end
+				end
+			end
+			c = c + 1;
+		end
+		if not goal then
+			return;
+		end
+
+		local i = previous[goal];
+		while i do
+			local plot = Map.GetPlotByIndex(i);
+			if not isWater(plot) then
+				OpenPlot(plot);
+			end
+			i = previous[i];
+		end
+	end
+end
+
+function ConnectSeasToOceans()
+	local _, iH = Map.GetGridSize();
+	local digCost = {[PlotTypes.PLOT_LAND] = 1, [PlotTypes.PLOT_HILLS] = 3, [PlotTypes.PLOT_MOUNTAIN] = 10};
+	OpenWaterBodies(
+		function(plot)
+			return plot:IsWater();
+		end,
+		function(plot, isOcean)
+			if plot:GetY() < 2 or plot:GetY() > iH - 3 then
+				return (plot:IsWater() and not isOcean) and 0 or nil;
+			end
+			return plot:IsWater() and 0 or digCost[plot:GetPlotType()];
+		end,
+		function(plot)
+			plot:SetPlotType(PlotTypes.PLOT_OCEAN, false, false);
+		end
+	);
+	Map.RecalculateAreas();
+end
+
+function ConnectIcedSeasToOceans()
+	local function IsOpenWater(plot)
+		return plot:IsWater() and plot:GetFeatureType() ~= FeatureTypes.FEATURE_ICE;
+	end
+	OpenWaterBodies(
+		IsOpenWater,
+		function(plot)
+			return plot:IsWater() and (IsOpenWater(plot) and 0 or 1) or nil;
+		end,
+		function(plot)
+			plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
+		end
+	);
+end
+
+function OpenMountainPasses()
+	local function IsWalkable(plot)
+		return plot and (plot:GetPlotType() == PlotTypes.PLOT_LAND or plot:GetPlotType() == PlotTypes.PLOT_HILLS);
+	end
+	local function IsWithinReach(fromPlot, toPlot)
+		local seen, frontier = {[fromPlot:GetIndex()] = true}, {fromPlot};
+		for _ = 1, 14 do
+			local nextFrontier = {};
+			for _, plot in ipairs(frontier) do
+				for nextPlot in Plot_GetPlotsInCircle(plot, 1) do
+					if nextPlot:GetIndex() == toPlot:GetIndex() then
+						return true;
+					end
+					if IsWalkable(nextPlot) and not seen[nextPlot:GetIndex()] then
+						seen[nextPlot:GetIndex()] = true;
+						table.insert(nextFrontier, nextPlot);
+					end
+				end
+			end
+			frontier = nextFrontier;
+		end
+		return false;
+	end
+
+	for _, plot in Plots(Shuffle) do
+		if plot:IsMountain() then
+			local around, numMountains = {}, 0;
+			for direction = 0, 5 do
+				around[direction] = Map.PlotDirection(plot:GetX(), plot:GetY(), direction);
+				if around[direction] and around[direction]:IsMountain() then
+					numMountains = numMountains + 1;
+				end
+			end
+			if numMountains >= 2 and numMountains <= 4 then
+				for a = 0, 5 do
+					for d = 2, 3 do
+						local plotA, plotB = around[a], around[(a + d) % 6];
+						if plot:IsMountain() and IsWalkable(plotA) and IsWalkable(plotB) and not IsWithinReach(plotA, plotB) then
+							plot:SetPlotType(PlotTypes.PLOT_HILLS, false, false);
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
 function GeneratePlotTypes()
 
 	local fractal_world = FractalWorld.Create();
@@ -1956,6 +2118,9 @@ function GeneratePlotTypes()
 			end
 		end
 	end
+
+	ConnectSeasToOceans();
+	OpenMountainPasses();
 
 	GenerateCoasts(args);
 end
@@ -2100,6 +2265,7 @@ function AddFeatures()
 
 	-- False parameter removes mountains from coastlines.
 	featuregen:AddFeatures(true);
+	ConnectIcedSeasToOceans();
 	
 	local numatolls = 0
 	for x = 0, mapWidth-1, 1 do
