@@ -165,6 +165,7 @@ protected:
 
 	static int lHasReadyUnit(lua_State* L);
 	static int lGetFirstReadyUnit(lua_State* L);
+	static int lGetClosestUnitNeedingOrders(lua_State* L);
 	static int lGetFirstReadyUnitPlot(lua_State* L);
 
 	static int lHasBusyUnit(lua_State* L);

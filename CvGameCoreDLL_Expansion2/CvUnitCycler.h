@@ -11,32 +11,40 @@
 #pragma once
 #include "LinkedList.h"
 class CvPlayer;
+class CvUnit;
 
+// Picks which unit the human player is taken to next: always the closest unit that needs orders,
+// measured from where the player is working. All state here is local UI state and is not saved.
 class CvUnitCycler
 {
 public:
 
 	CvUnitCycler(CvPlayer& kPlayer);
-	typedef CLLNode<int> Node;
-	typedef CLinkList<int> NodeList;
 
 	void		Clear();
-	void		Rebuild(CvUnit* pkStartUnit = NULL);
-	CvUnit* Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap);
-
-	void		RemoveUnit(int iID);
-	void		AddUnit(int iID);
-	Node* DeleteNode(Node* pNode);
-	Node* NextNode(Node* pNode);
-	const Node* NextNode(const Node* pNode) const;
-	const Node* PreviousNode(const Node* pNode) const;
-	const Node* HeadNode() const;
-	Node* HeadNode();
-	const Node* TailNode() const;
+	void		SetAnchor(const CvUnit& kUnit);
+	CvUnit*		GetClosestNeedingOrders(const CvUnit* pkHeadUnit) const;
+	CvUnit*		Cycle(const CvUnit* pkHeadUnit, bool bForward, bool bWorkers, bool* pbWrap);
 
 protected:
-	NodeList	m_kNodeList;
+	CvUnit*		FindClosest(const CvUnit* pkHeadUnit, bool bSkipHead, bool bWorkers, bool bSkipShown) const;
+	static bool	NeedsOrders(const CvUnit& kUnit, bool bWorkers);
+	int			FindShown(int iUnitID) const;
+	void		MarkShown(int iUnitID);
+
 	CvPlayer* m_pkPlayer;
+
+	// Where the player started giving the last unit orders
+	int			m_iAnchorUnitID;
+	int			m_iAnchorTurn;
+	int			m_iAnchorPlotIndex;
+	UnitTypes	m_eAnchorUnitType;
+
+	// Units the next unit key showed or skipped this round, oldest first
+	std::vector<int> m_aiShownUnits;
+	int			m_iShownTurn;
+	// The unit Previous or a retracing Next went to; Next from it keeps retracing the round
+	int			m_iRetraceUnitID;
 
 	friend FDataStream& operator>>(FDataStream& loadFrom, CvUnitCycler& writeTo);
 	friend FDataStream& operator<<(FDataStream& saveTo, const CvUnitCycler& readFrom);

@@ -162,6 +162,7 @@ void CvLuaPlayer::CreateFunctable(lua_State* L)
 
 	Method(HasReadyUnit);
 	Method(GetFirstReadyUnit);
+	Method(GetClosestUnitNeedingOrders);
 	Method(GetFirstReadyUnitPlot);
 
 	Method(HasBusyUnit);
@@ -2741,6 +2742,19 @@ int CvLuaPlayer::lGetFirstReadyUnit(lua_State* L)
 	const CvUnit* MyCvUnit = pkPlayer->GetFirstReadyUnit();
 
 	luaEx_pushUnit(L, const_cast<CvUnit*>(MyCvUnit));
+	return 1;
+}
+//------------------------------------------------------------------------------
+// The unit needing orders closest to the selected unit, or to where the player last gave orders
+int CvLuaPlayer::lGetClosestUnitNeedingOrders(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
+	if (pkSelectedUnit && pkSelectedUnit->getOwner() != pkPlayer->GetID())
+		pkSelectedUnit = NULL;
+
+	luaEx_pushUnit(L, pkPlayer->GetUnitCycler().GetClosestNeedingOrders(pkSelectedUnit));
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -562,7 +562,7 @@ do -- Listeners
 			or blockingType == t.ENDTURN_BLOCKING_STACKED_UNITS
 			or blockingType == t.ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS
 		then
-			Actions.SelectUnit(player:GetFirstReadyUnit(), true)
+			Actions.SelectUnit(player:GetClosestUnitNeedingOrders() or player:GetFirstReadyUnit(), true)
 		elseif blockingType == t.ENDTURN_BLOCKING_POLICY
 			or blockingType == t.ENDTURN_BLOCKING_CITY_RANGE_ATTACK
 			or EndTurnBlockingTypeToActivateNotificationMap:get(blockingType)
@@ -588,7 +588,7 @@ do -- Listeners
 			or blockingType == t.ENDTURN_BLOCKING_STACKED_UNITS
 			or blockingType == t.ENDTURN_BLOCKING_UNIT_NEEDS_ORDERS
 		then
-			Actions.SelectUnit(player:GetFirstReadyUnit(), true)
+			Actions.SelectUnit(player:GetClosestUnitNeedingOrders() or player:GetFirstReadyUnit(), true)
 		elseif blockingType == t.ENDTURN_BLOCKING_POLICY then
 			UI.RemoveNotification(player:GetEndTurnBlockingNotificationIndex())
 		elseif EndTurnBlockingTypeToActivateNotificationMap:get(blockingType) then

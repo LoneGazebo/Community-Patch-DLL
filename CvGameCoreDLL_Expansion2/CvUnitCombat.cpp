@@ -3860,6 +3860,23 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 }
 
 //	----------------------------------------------------------------------------
+// A plane that strikes or sweeps wakes the planes on Sleep on its carrier or in its city: the player is using that stack again.
+// Planes on Heal or Alert keep waiting, they wake by themselves.
+static void WakeSleepingPlanesHere(const CvUnit& kAttacker)
+{
+	CvPlot* pPlot = kAttacker.plot();
+	if (!pPlot || !kAttacker.isHuman(ISHUMAN_AI_UNITS))
+		return;
+
+	for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
+	{
+		CvUnit* pLoopUnit = pPlot->getUnitByIndex(iI);
+		if (pLoopUnit && pLoopUnit != &kAttacker && pLoopUnit->getOwner() == kAttacker.getOwner() && pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->GetActivityType() == ACTIVITY_SLEEP)
+			pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+	}
+}
+
+//	----------------------------------------------------------------------------
 CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& targetPlot, ATTACK_OPTION /* eOption */)
 {
 	//VALIDATE_OBJECT();
@@ -3903,6 +3920,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		CvUnitCombat::GenerateAirCombatInfo(kAttacker, pDefender, targetPlot, &kCombatInfo);
 		ASSERT(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 		kAttacker.setMadeAttack(true);
+		WakeSleepingPlanesHere(kAttacker);
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)
@@ -3940,6 +3958,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 		CvUnitCombat::GenerateAirCombatInfo(kAttacker, NULL, targetPlot, &kCombatInfo);
 		ASSERT(!kAttacker.isDelayedDeath(), "Trying to battle and the attacker is already dead!");
 		kAttacker.setMadeAttack(true);
+		WakeSleepingPlanesHere(kAttacker);
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)
@@ -3987,6 +4006,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 	{
 		return eResult;
 	}
+
+	WakeSleepingPlanesHere(kAttacker);
 
 	CvUnit* pInterceptor = targetPlot.GetBestInterceptor(kAttacker.getOwner(), &kAttacker);
 	kAttacker.SetAutomateType(NO_AUTOMATE);
