@@ -864,25 +864,14 @@ function MovementRButtonUp()
 					return true;	-- Already some combat going on in there, just exit
 				end
 
-				-- Massed Strike Mode
+				-- Massed Strike Mode: each strike goes through a network message, one at a time (see MassedStrikeUpdate)
+				local tAircraft = {};
 				for aircraft in getOrderedAircraft(pHeadSelectedUnit:GetPlot(), pUnitClass, highHpThenHighLevelFirst) do
-					UI.SelectUnit(aircraft);
-
-					while aircraft:CanRangeStrikeAt(plotX, plotY, true, bNoncombatAllowed) do
-						-- If not doing any more damage to a city don't let the rest of the planes on this base keep hitting it
-						if bIsTargetEnemyCity then
-							local pCity = plot:GetPlotCity();
-							if 1 + pCity:GetDamage() >= pCity:GetMaxHitPoints() then
-								break;
-							end
-						end
-
-						aircraft:PushMission(MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, 0, 0);
-					end
-
-					UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
-					ClearAllHighlights();
+					tAircraft[#tAircraft + 1] = aircraft:GetID();
 				end
+				g_MassedStrike = { ePlayer = pHeadSelectedUnit:GetOwner(), tAircraft = tAircraft, iNext = 1, iX = plotX, iY = plotY,
+					bCity = bIsTargetEnemyCity, bNoncombatAllowed = bNoncombatAllowed };
+				ContextPtr:SetUpdate(MassedStrikeUpdate);
 			end
 
 		-- Fallback Rebase
@@ -1036,6 +1025,82 @@ function MovementRButtonUp()
 			ClearAllHighlights();
 			return true;
 		end
+	end
+end
+
+-- Massed Strike Mode (Shift + right click with an aircraft): every aircraft on the base strikes the plot as long as it can.
+-- The strikes are network messages, so every machine of a multiplayer game runs them. A strike changes the game only when its
+-- message is processed, so the next strike is chosen only after the last one has resolved.
+g_MassedStrike = nil;
+local MASSED_STRIKE_TIMEOUT = 5; -- seconds to wait for one strike before going on to the next aircraft
+
+local function GetMassedStrikeState(aircraft, plot)
+	local iTargetDamage = -1;
+	local pCity = plot:GetPlotCity();
+	if pCity then
+		iTargetDamage = pCity:GetDamage();
+	elseif plot:GetNumUnits() > 0 then
+		iTargetDamage = plot:GetUnit(0):GetDamage();
+	end
+	return string.format("%d/%s/%d/%d/%d", aircraft:GetMoves(), tostring(aircraft:IsOutOfAttacks()), aircraft:GetDamage(), plot:GetNumUnits(), iTargetDamage);
+end
+
+function MassedStrikeUpdate(fDTime)
+	local tStrike = g_MassedStrike;
+	local plot = tStrike and Map.GetPlot(tStrike.iX, tStrike.iY);
+	if not plot or Game.GetActivePlayer() ~= tStrike.ePlayer then
+		g_MassedStrike = nil;
+		ContextPtr:ClearUpdate();
+		return;
+	end
+
+	-- Wait while the game core updates or a combat is still going on at the target
+	if IsGameCoreBusy() or plot:IsFighting() then
+		return;
+	end
+
+	local aircraft = Players[tStrike.ePlayer]:GetUnitByID(tStrike.tAircraft[tStrike.iNext] or -1);
+	if tStrike.sSent then
+		-- Wait for the last strike to change the aircraft or the target (or the aircraft to be gone)
+		tStrike.fWait = tStrike.fWait + (fDTime or 0);
+		if aircraft and not aircraft:IsDead() and GetMassedStrikeState(aircraft, plot) == tStrike.sSent then
+			if tStrike.fWait < MASSED_STRIKE_TIMEOUT then
+				return;
+			end
+			tStrike.iNext = tStrike.iNext + 1;
+		end
+		tStrike.sSent = nil;
+		return;
+	end
+
+	if aircraft and aircraft:IsBusy() then
+		return;
+	end
+
+	local bStrike = aircraft and not aircraft:IsDead() and aircraft:CanRangeStrikeAt(tStrike.iX, tStrike.iY, true, tStrike.bNoncombatAllowed);
+	-- If not doing any more damage to a city don't let the rest of the planes on this base keep hitting it
+	if bStrike and tStrike.bCity then
+		local pCity = plot:GetPlotCity();
+		if not pCity or 1 + pCity:GetDamage() >= pCity:GetMaxHitPoints() then
+			tStrike.iNext = #tStrike.tAircraft + 1;
+			bStrike = false;
+		end
+	end
+
+	if bStrike then
+		UI.SelectUnit(aircraft);
+		tStrike.sSent = GetMassedStrikeState(aircraft, plot);
+		tStrike.fWait = 0;
+		Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, tStrike.iX, tStrike.iY);
+		return;
+	end
+
+	tStrike.iNext = tStrike.iNext + 1;
+	if tStrike.iNext > #tStrike.tAircraft then
+		g_MassedStrike = nil;
+		ContextPtr:ClearUpdate();
+		UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
+		ClearAllHighlights();
 	end
 end
 
