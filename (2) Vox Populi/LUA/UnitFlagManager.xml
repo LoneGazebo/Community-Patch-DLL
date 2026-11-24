@@ -170,6 +170,9 @@
                         <Image Anchor="C,C" Size="32,32" Offset="1,-1"  Texture="Assets/UI/Art/Icons/Units/UnitFlagAtlasWhite.dds" Color="240,199,0,255" ID="UnitIcon"  ToolTip="" />
                     </Image>
                 </AlphaAnim>
+
+                <!-- Asleep or fortified: the unit won't ask for orders until woken -->
+                <Image Anchor="C,C" Offset="-13,17" Size="32,16" Texture="UnitFlagSleep.dds" Hidden="1" ID="SleepIcon" />
             </Image>
         </WorldAnchor>
     </Instance>

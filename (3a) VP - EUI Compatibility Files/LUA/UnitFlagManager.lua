@@ -551,6 +551,12 @@ local function UpdateFlagType( flag )
 	flag.UnitIconShadow:ReprocessAnchoring()
 
 	flag.FlagShadow:SetTexture( textureName )
+	-- the ZZZ just touches the lower left edge of the round flag or of the fortify shield
+	if textureName == "UnitFlagFortify.dds" then
+		flag.SleepIcon:SetOffsetVal( -15, 19 )
+	else
+		flag.SleepIcon:SetOffsetVal( -13, 17 )
+	end
 	flag.FlagBase:SetTexture( textureName )
 	flag.FlagBaseOutline:SetTexture( textureName )
 	flag.LightEffect:SetTexture( textureName )
@@ -591,6 +597,17 @@ local function UpdateFlagHealth( flag, damage, unit )
 		flag.CargoBG:SetOffsetX( 35 )
 	end
 end--UpdateFlagHealth
+
+--==========================================================
+-- The active player's units on Sleep or Fortify won't ask for orders until woken
+local function UpdateFlagSleep( flag )
+	local unit = flag.m_Player:GetUnitByID( flag.m_UnitID )
+	local isAsleep = flag.m_PlayerID == g_activePlayerID and unit ~= nil and unit:GetActivityType() == ActivityTypes.ACTIVITY_SLEEP
+	if flag.m_IsAsleep ~= isAsleep then
+		flag.m_IsAsleep = isAsleep
+		flag.SleepIcon:SetHide( not isAsleep )
+	end
+end--UpdateFlagSleep
 
 --==========================================================
 -- constructor
@@ -687,6 +704,8 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 		flag.Button:SetConsumeMouseOver( g_activeTeamID == teamID )
 		UpdateFlagType( flag )
 		UpdateFlagHealth( flag, unit:GetDamage(), unit )
+		flag.m_IsAsleep = nil
+		UpdateFlagSleep( flag )
 		SetFlagSelected( flag, isSelected )
 		if not isSelected and g_activeTeam:IsAtWar( teamID ) then
 			flag.FlagHighlight:SetHide( false )
@@ -928,6 +947,18 @@ local function OnFlagTypeChange( playerID, unitID )
 end
 Events.UnitActionChanged.Add( OnFlagTypeChange )
 Events.UnitEmbark.Add( OnFlagTypeChange ) -- GameplayUnitEmbark
+
+--==========================================================
+-- Sleep icons follow orders, selection changes and turn starts
+--==========================================================
+local function UpdateSleepFlags()
+	for _, flag in pairs( g_UnitFlags[ g_activePlayerID ] ) do
+		UpdateFlagSleep( flag )
+	end
+end
+Events.SerialEventUnitInfoDirty.Add( UpdateSleepFlags )
+Events.UnitSelectionChanged.Add( UpdateSleepFlags )
+Events.ActivePlayerTurnStart.Add( UpdateSleepFlags )
 
 --==========================================================
 -- On Unit Move Queue Changed
@@ -1217,6 +1248,7 @@ Events.GameplaySetActivePlayer.Add( function( activePlayerID )--, iPrevActivePla
 				flag.Button:SetConsumeMouseOver( isActiveTeam )
 				flag.FlagHighlight:SetHide( isAtPeace )
 				flag.FlagHighlight:SetColor( isAtPeace and g_colorWhite or g_colorRed )
+				UpdateFlagSleep( flag )
 			end
 		end
 	end
