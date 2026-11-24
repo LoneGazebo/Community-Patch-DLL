@@ -91,6 +91,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iPrereqAndTech(NO_TECH),
 	m_iObsoleteTech(NO_TECH),
 	m_iPolicyType(NO_POLICY),
+	m_iCivType(NO_CIVILIZATION),
 	m_iGoodyHutUpgradeUnitClass(NO_UNITCLASS),
 	m_iGroupSize(0),
 	m_iGroupDefinitions(0),
@@ -415,6 +416,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	szTextVal = kResults.GetText("PolicyType");
 	m_iPolicyType = GC.getInfoTypeForString(szTextVal, true);
 
+	szTextVal = kResults.GetText("CivilizationRequired");
+	m_iCivType = GC.getInfoTypeForString(szTextVal, true);
+	
 	szTextVal = kResults.GetText("GoodyHutUpgradeUnitClass");
 	m_iGoodyHutUpgradeUnitClass = GC.getInfoTypeForString(szTextVal, true);
 
@@ -1109,6 +1113,12 @@ int CvUnitEntry::GetCostScalerNumberBuilt() const
 int CvUnitEntry::GetPolicyType() const
 {
 	return m_iPolicyType;
+}
+
+/// Civiliztion required for this unit
+int CvUnitEntry::GetCivType() const
+{
+	return m_iCivType;
 }
 
 /// Unitclass that replaces this Unit if the appropriate Goody is received from a Hut

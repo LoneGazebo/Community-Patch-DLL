@@ -110,6 +110,7 @@ public:
 	int GetEra() const;
 	int GetCostScalerNumberBuilt() const;
 	int GetPolicyType() const;
+	int GetCivType() const;
 	int GetGoodyHutUpgradeUnitClass() const;
 	int GetGroupSize() const;			// the initial number of individuals in the unit group
 	int GetGroupDefinitions() const;	// the number of UnitMeshGroups for this unit
@@ -310,6 +311,7 @@ private:
 	int m_iPrereqAndTech;
 	int m_iObsoleteTech;
 	int m_iPolicyType;
+	int m_iCivType;
 	int m_iGoodyHutUpgradeUnitClass;
 	int m_iGroupSize;
 	int m_iGroupDefinitions;
