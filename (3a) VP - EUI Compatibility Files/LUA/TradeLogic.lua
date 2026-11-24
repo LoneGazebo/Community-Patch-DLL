@@ -368,6 +368,40 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 					Controls.ThemPocketResearchAgreement:SetHide(true);
 					Controls.ThemPocketCities:SetHide(true);
 					Controls.ThemPocketOtherPlayerWar:SetHide(true);
+
+					-- Request for help: show the most they would give
+					if (g_pUs:IsDoF(g_iThem)) then
+						local tLimits = g_pThem:GetHelpRequestLimits(g_iUs);
+						if (tLimits) then
+							local strLimits;
+							if (tLimits.TooSoon) then
+								strLimits = Locale.ConvertTextKey("TXT_KEY_DIPLO_REQUEST_HELP_TOO_SOON");
+							else
+								local tParts = {};
+								if (tLimits.Gold > 0) then
+									table.insert(tParts, Locale.ConvertTextKey("TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_GOLD", tLimits.Gold));
+								end
+								if (tLimits.GoldPerTurn > 0) then
+									table.insert(tParts, Locale.ConvertTextKey("TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_GPT", tLimits.GoldPerTurn));
+								end
+								if (tLimits.Luxury) then
+									table.insert(tParts, Locale.ConvertTextKey("TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_LUXURY"));
+								end
+								if (tLimits.Strategics > 0) then
+									table.insert(tParts, Locale.ConvertTextKey("TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_STRATEGICS", tLimits.Strategics));
+								end
+								if (tLimits.Tech and not g_bDisableTechTrading) then
+									table.insert(tParts, Locale.ConvertTextKey("TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_TECH"));
+								end
+								if (#tParts == 0) then
+									strLimits = Locale.ConvertTextKey("TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_NOTHING");
+								else
+									strLimits = Locale.ConvertTextKey("TXT_KEY_DIPLO_REQUEST_HELP_LIMITS", table.concat(tParts, ", "));
+								end
+							end
+							Controls.DiscussionText:SetText(szLeaderMessage .. "[NEWLINE][NEWLINE]" .. strLimits);
+						end
+					end
 				end
 
 			-- Don't clear the table, leave things as they are

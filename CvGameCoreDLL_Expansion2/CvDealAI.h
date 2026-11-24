@@ -23,6 +23,18 @@
 //!  Key Attributes:
 //!  - Object created by CvPlayer
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/// The most an AI would give a friend who asks for help (see CvDealAI::GetHelpRequestLimits)
+struct HelpRequestLimits
+{
+	int iGold;
+	int iGPT;
+	int iStrategics;
+	bool bLuxury;
+	bool bTech;
+
+	HelpRequestLimits() : iGold(0), iGPT(0), iStrategics(0), bLuxury(false), bTech(false) {}
+};
+
 class CvDealAI
 {
 public:
@@ -147,6 +159,9 @@ public:
 	void DoTradeScreenClosed(bool bAIWasMakingOffer);
 
 	DemandResponseTypes GetRequestForHelpResponse(CvDeal* pDeal) const;
+
+	// The most this AI would give a friend who asks for help
+	void GetHelpRequestLimits(PlayerTypes eFromPlayer, HelpRequestLimits& kLimits) const;
 
 	// How much is item worth to AI?
 	int GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer) const;

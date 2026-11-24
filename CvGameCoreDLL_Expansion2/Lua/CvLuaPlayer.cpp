@@ -969,6 +969,7 @@ void CvLuaPlayer::CreateFunctable(lua_State* L)
 	Method(IsAskedToStopDigging);
 	Method(IsDoFMessageTooSoon);
 	Method(IsDoF);
+	Method(GetHelpRequestLimits);
 	Method(GetDoFCounter);
 	Method(IsPlayerDoFWithAnyFriend);
 	Method(IsPlayerDoFWithAnyEnemy);
@@ -11522,6 +11523,34 @@ int CvLuaPlayer::lIsDoF(lua_State* L)
 	const bool bTooSoon = pkPlayer->GetDiplomacyAI()->IsDoFAccepted(eWithPlayer);
 
 	lua_pushboolean(L, bTooSoon);
+	return 1;
+}
+//------------------------------------------------------------------------------
+// table GetHelpRequestLimits(PlayerTypes eRequester)
+// Called on the AI asked for help: the most it would give eRequester (Gold, GoldPerTurn, Strategics, Luxury, Tech) and whether it helped too recently (TooSoon)
+int CvLuaPlayer::lGetHelpRequestLimits(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes eRequester = (PlayerTypes) lua_tointeger(L, 2);
+	if (eRequester < 0 || eRequester >= MAX_MAJOR_CIVS || eRequester == pkPlayer->GetID())
+		return 0;
+
+	HelpRequestLimits kLimits;
+	pkPlayer->GetDealAI()->GetHelpRequestLimits(eRequester, kLimits);
+
+	lua_createtable(L, 0, 6);
+	lua_pushinteger(L, kLimits.iGold);
+	lua_setfield(L, -2, "Gold");
+	lua_pushinteger(L, kLimits.iGPT);
+	lua_setfield(L, -2, "GoldPerTurn");
+	lua_pushinteger(L, kLimits.iStrategics);
+	lua_setfield(L, -2, "Strategics");
+	lua_pushboolean(L, kLimits.bLuxury);
+	lua_setfield(L, -2, "Luxury");
+	lua_pushboolean(L, kLimits.bTech);
+	lua_setfield(L, -2, "Tech");
+	lua_pushboolean(L, pkPlayer->GetDiplomacyAI()->IsHelpRequestTooSoon(eRequester));
+	lua_setfield(L, -2, "TooSoon");
 	return 1;
 }
 //------------------------------------------------------------------------------
