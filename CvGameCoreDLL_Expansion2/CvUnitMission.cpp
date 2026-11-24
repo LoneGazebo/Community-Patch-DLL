@@ -1410,6 +1410,12 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 	{
 		bDelete = true;
 	}
+	else if(pkQueueData->eMissionType == CvTypes::getMISSION_MOVE_TO() && hUnit->getDomainType() == DOMAIN_AIR && !hUnit->canMove())
+	{
+		// An air unit's move is a strike, and a strike can't wait for the next turn: held, it wakes up next turn with full moves
+		// and the old strike still queued, so it looks idle but never comes up as needing orders
+		bDelete = true;
+	}
 	else
 	{
 		ASSERT(kUnitOwner.isTurnActive() || kUnitOwner.isHuman(), "It's expected that either the turn is active for this player or the player is human");
