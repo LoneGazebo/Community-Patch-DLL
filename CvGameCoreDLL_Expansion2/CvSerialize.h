@@ -172,110 +172,88 @@ public:
 	virtual bool hasDelta() const = 0;
 };
 
-template<typename T>
-class CvSyncVarBase : public ICvSyncVar
-{
-public:
-	typedef T ValueType;
-
-	CvSyncVarBase(const std::string& name, FAutoArchive& owner, const ValueType& value)
-		: ICvSyncVar(name, owner)
-		, m_prevValue(value)
-	{}
-
-	inline const ValueType& previousValue() const
-	{
-		return m_prevValue;
-	}
-
-	inline ValueType& previousValue()
-	{
-		return m_prevValue;
-	}
-
-private:
-	// This contains the variable's last known value at the time of the most recent
-	// synchronization event. It is compared againstthe most recent value to determine 
-	// if we should send it.
-	ValueType m_prevValue;
-};
-
 // These are intentionally outside of CvSyncVar so that they are compiled once, not once per sync var.
-// Every line of code in a CvSyncVar member is instantiated for each of the ~1300 sync vars in the
-// precompiled header, and MSVC v90 limits the precompiled header size (/Zm). Keep CvSyncVar members
-// thin and move code that does not depend on the value type here.
+// MSVC v90 limits the precompiled header size (/Zm), and every member body of a class that exists once per sync var
+// (~1300 of them) is compiled into it once per sync var. Keep such code out of CvSyncVar.
 
 // Logs a sync var mismatch to net_message_debug.log and marks the game as desynced.
 void CvSyncVarLogDesync(const ICvSyncVar& var, const std::string& remoteValue, const std::string& containerContext);
 // Builds the CvSyncVar::debugDump() text. remoteValue is NULL when the remote value is not tracked.
 std::string CvSyncVarDebugDump(const ICvSyncVar& var, const std::vector<std::pair<std::string, std::string> >& callStacks, const std::string& containerContext, const std::string* remoteValue);
 
-template<typename VarTraits>
-class CvSyncVar : public CvSyncVarBase<typename VarTraits::ValueType>
+// The container's description of a sync var for desync logs (CvCity::debugDump etc.), once per container type.
+template<typename Container>
+std::string CvSyncVarContainerDump(const void* container, const FAutoVariableBase& var)
+{
+	return static_cast<const Container*>(container)->debugDump(var);
+}
+
+// The sync var's name, as a base class declared before ICvSyncVar: bases are built in declaration order, so the name
+// exists before FAutoVariableBase receives it, and it keeps that address for the sync var's lifetime.
+struct CvSyncVarName
+{
+	explicit CvSyncVarName(const char* name)
+		: m_name(name)
+	{}
+	std::string m_name;
+};
+
+// Everything a sync var does, once per value type (~50 types) instead of once per sync var. It refers to the synced
+// member of the container directly; CvSyncVar below only finds that member and the container.
+template<typename T>
+class CvSyncVarBase : private CvSyncVarName, public ICvSyncVar
 {
 public:
-	typedef typename VarTraits::ValueType ValueType;
-	typedef typename VarTraits::ContainerType ContainerType;
-	typedef typename VarTraits::SyncVarsType SyncVarsType;
-	std::string nameStr;
+	typedef T ValueType;
+	typedef std::string (*ContainerDumpFn)(const void* container, const FAutoVariableBase& var);
 
-#if defined(VPDEBUG)
-	mutable ValueType m_remoteValue;
-#endif
-
-	CvSyncVar()
-		: CvSyncVarBase<ValueType>(nameStr, getContainer().getSyncArchive(), currentValue()),
-		nameStr(VarTraits::name())
+	CvSyncVarBase(const char* name, FAutoArchive& owner, ValueType& value, const void* container, ContainerDumpFn containerDump,
+		bool bApplyRemote)
+		: CvSyncVarName(name)
+		, ICvSyncVar(m_name, owner)
+		, m_prevValue(value)
+		, m_value(value)
+		, m_container(container)
+		, m_containerDump(containerDump)
+		, m_bApplyRemote(bApplyRemote)
 	{}
-	~CvSyncVar() {}
 
-	inline const SyncVarsType& getStorage() const
+	inline const ValueType& previousValue() const
 	{
-		return VarTraits::GetStorage(*this);
+		return m_prevValue;
 	}
-	inline SyncVarsType& getStorage() 
+	inline ValueType& previousValue()
 	{
-		return VarTraits::GetStorage(*this);
+		return m_prevValue;
 	}
-
-	inline const ContainerType& getContainer() const
-	{
-		return getStorage().getContainer();
-	}
-	inline ContainerType& getContainer()
-	{
-		return getStorage().getContainer();
-	}
-
 	inline const ValueType& currentValue() const
 	{
-		return VarTraits::Get(getContainer());
+		return m_value;
 	}
 	inline ValueType& currentValue()
 	{
-		return VarTraits::Get(getContainer());
+		return m_value;
 	}
-
 	inline void updateValue()
 	{
-		this->previousValue() = currentValue();
+		m_prevValue = m_value;
 	}
 
 	// ICvSyncVar Interface
 	virtual bool hasDelta() const
 	{
-		return this->previousValue() != currentValue();
+		return m_prevValue != m_value;
 	}
 
 	// FAutoVariableBase interface
 	virtual void load(FDataStream& loadFrom)
 	{
-		loadFrom >> currentValue();
+		loadFrom >> m_value;
 	}
 	virtual void loadDelta(FDataStream& loadFrom)
 	{
 		// Called for a received sync check: take the sender's value, unless the var is compare-only
-		if (SyncVarsType::AppliesRemoteValue(static_cast<const VarTraits*>(NULL)))
+		if (m_bApplyRemote)
 		{
 			load(loadFrom);
 		}
@@ -287,7 +265,7 @@ public:
 	}
 	virtual void save(FDataStream& saveTo) const
 	{
-		saveTo << currentValue();
+		saveTo << m_value;
 	}
 	virtual void saveDelta(FDataStream& saveTo) const
 	{
@@ -304,21 +282,21 @@ public:
 #if defined(VPDEBUG)
 		m_remoteValue = other;
 #endif
-		const bool result = other == currentValue();
+		const bool result = other == m_value;
 		if (!result)
 		{
-			CvSyncVarLogDesync(*this, FSerialization::toString(other), getContainer().debugDump(*this));
+			CvSyncVarLogDesync(*this, FSerialization::toString(other), m_containerDump(m_container, *this));
 		}
 
 		return result; // Place a conditional breakpoint here to help debug sync errors.
 	}
 	virtual void reset()
 	{
-		currentValue() = this->previousValue() = ValueType();
+		m_value = m_prevValue = ValueType();
 	}
 	virtual const std::string& name() const
 	{
-		return nameStr;
+		return m_name;
 	}
 	virtual void setStackTraceRemark()
 	{
@@ -327,14 +305,52 @@ public:
 	{
 #if !defined(FINAL_RELEASE) || defined(VPDEBUG)
 		const std::string remoteValue = FSerialization::toString(m_remoteValue);
-		return CvSyncVarDebugDump(*this, callStacks, getContainer().debugDump(*this), &remoteValue);
+		return CvSyncVarDebugDump(*this, callStacks, m_containerDump(m_container, *this), &remoteValue);
 #else
-		return CvSyncVarDebugDump(*this, callStacks, getContainer().debugDump(*this), NULL);
+		return CvSyncVarDebugDump(*this, callStacks, m_containerDump(m_container, *this), NULL);
 #endif
 	}
 	virtual std::string toString() const
 	{
-		return FSerialization::toString(currentValue());
+		return FSerialization::toString(m_value);
+	}
+
+private:
+	// This contains the variable's last known value at the time of the most recent
+	// synchronization event. It is compared against the most recent value to determine
+	// if we should send it.
+	ValueType m_prevValue;
+	ValueType& m_value;
+	const void* m_container;
+	ContainerDumpFn m_containerDump;
+	// false for SYNC_ARCHIVE_VAR_COMPARE_ONLY: a received sync check reads the sender's value but does not write it
+	bool m_bApplyRemote;
+#if defined(VPDEBUG)
+	mutable ValueType m_remoteValue;
+#endif
+};
+
+// One per sync var: only finds the synced member and its container (VarTraits, from SYNC_ARCHIVE_VAR).
+template<typename VarTraits>
+class CvSyncVar : public CvSyncVarBase<typename VarTraits::ValueType>
+{
+public:
+	typedef typename VarTraits::ValueType ValueType;
+	typedef typename VarTraits::ContainerType ContainerType;
+
+	CvSyncVar()
+		: CvSyncVarBase<ValueType>(VarTraits::name(), container().getSyncArchive(), VarTraits::Get(container()), &container(),
+			&CvSyncVarContainerDump<ContainerType>,
+			VarTraits::SyncVarsType::AppliesRemoteValue(static_cast<const VarTraits*>(NULL)))
+	{}
+	// User-declared, as before: an implicit virtual destructor is defined wherever the class is complete, which makes clang
+	// instantiate every CvSyncVarBase<T> virtual in every file that includes the header.
+	~CvSyncVar() {}
+
+private:
+	inline ContainerType& container()
+	{
+		return VarTraits::GetStorage(*this).getContainer();
 	}
 };
 
