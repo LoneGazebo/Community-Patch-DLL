@@ -260,11 +260,32 @@ g_NameTable[ NotificationTypes.NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOU
 ------------------------------------------------------------------------------------
 
 -------------------------------------------------
+-- The game engine passes at most 1,023 bytes of a notification's text and 255 of its summary to this event.
+-- Read longer ones in full from the player's notification list.
+-------------------------------------------------
+local function GetFullNotificationText( iPlayer, Id, toolTip, strSummary )
+	if #toolTip < 1023 and #strSummary < 255 then
+		return toolTip, strSummary;
+	end
+	local pPlayer = Players[ iPlayer ];
+	if pPlayer then
+		-- The new notification can still be one past the end of the list while this event runs
+		for i = pPlayer:GetNumNotifications(), 0, -1 do
+			if pPlayer:GetNotificationIndex( i ) == Id then
+				return pPlayer:GetNotificationStr( i ), pPlayer:GetNotificationSummaryStr( i );
+			end
+		end
+	end
+	return toolTip, strSummary;
+end
+
+-------------------------------------------------
 -------------------------------------------------
 function OnNotificationAdded( Id, type, toolTip, strSummary, iGameValue, iExtraGameData, ePlayer )
 	if(g_ActiveNotifications[ Id ] ~= nil) then
         return;
     end
+    toolTip, strSummary = GetFullNotificationText( ePlayer, Id, toolTip, strSummary );
        
     local name = g_NameTable[ type ];
     
