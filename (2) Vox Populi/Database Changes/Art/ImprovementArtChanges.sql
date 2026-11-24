@@ -47,3 +47,8 @@ WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TERRACE_FARM';
 UPDATE ArtDefine_Landmarks
 SET Scale = 1.1
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_POLDER';
+
+-- Chateau uses new art (ART_DEF_IMPROVEMENT_CHATEAU_NEW), so the strategic view row of its old art is never drawn.
+-- Delete it to leave its icon room to new improvements (see CoreImprovementArtChanges.sql in Community Patch).
+DELETE FROM ArtDefine_StrategicView
+WHERE TileType = 'Improvement' AND StrategicViewType = 'ART_DEF_IMPROVEMENT_CHATEAU';
