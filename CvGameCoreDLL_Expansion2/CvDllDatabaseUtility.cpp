@@ -132,6 +132,8 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 	// Packages that can replace this mod's tables, for the database error report
 	CvDatabaseUtility::LogContentPackages();
 
+	LogStrategicViewIconLimits();
+
 	//HACK Legacy 'FindInfoByType' support.
 	//In order to support the legacy code still using the old infos system,
 	//all of the id/type pairs must be added to gc.m_infosMap
@@ -525,6 +527,55 @@ void CvDllDatabaseUtility::DatabaseRemapper()
 
 	kPerfTest.EndPerfTest();
 	LogMsg("Remapping took %f seconds", kPerfTest.GetDeltaInSeconds());
+}
+
+//------------------------------------------------------------------------------
+// The strategic view has room for 64 resource, 64 improvement and 32 feature icons. It gives each ArtDefine_StrategicView row
+// of these types one, in the order of the query below (a resource row only if its type is also a landmark type), and a row
+// past the room draws no icon. Log the counts and name those rows, so a mod that adds art can see why an icon is missing.
+void CvDllDatabaseUtility::LogStrategicViewIconLimits()
+{
+	struct StrategicViewTileType
+	{
+		const char* szTileType;
+		int iMaxIcons;
+	};
+	static const StrategicViewTileType aTileTypes[] = { { "Resource", 64 }, { "Improvement", 64 }, { "Feature", 32 } };
+
+	std::set<std::string> landmarkTypes;
+	Database::Results kLandmarks;
+	if (DB.Execute(kLandmarks, "SELECT Type FROM ArtDefine_LandmarkTypes"))
+	{
+		while (kLandmarks.Step())
+			landmarkTypes.insert(kLandmarks.GetText(0));
+	}
+
+	for (size_t i = 0; i < sizeof(aTileTypes) / sizeof(aTileTypes[0]); i++)
+	{
+		const bool bLandmarkTypesOnly = strcmp(aTileTypes[i].szTileType, "Resource") == 0;
+		int iIcons = 0;
+		std::vector<std::string> vPastRoom;
+		Database::Results kRows;
+		// The same query as the game's, so the rows come in the same order
+		if (DB.Execute(kRows, "Select StrategicViewType, Asset from ArtDefine_StrategicView where TileType = ?"))
+		{
+			kRows.Bind(1, aTileTypes[i].szTileType);
+			while (kRows.Step())
+			{
+				const char* szType = kRows.GetText(0);
+				if (bLandmarkTypesOnly && landmarkTypes.find(szType) == landmarkTypes.end())
+					continue;
+				if (iIcons >= aTileTypes[i].iMaxIcons)
+					vPastRoom.push_back(szType);
+				iIcons++;
+			}
+		}
+		CUSTOMLOG("Strategic view %s icons: %d of %d", aTileTypes[i].szTileType, iIcons, aTileTypes[i].iMaxIcons);
+		for (std::vector<std::string>::const_iterator it = vPastRoom.begin(); it != vPastRoom.end(); ++it)
+		{
+			CUSTOMLOG("  no room, draws no icon: %s", it->c_str());
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
