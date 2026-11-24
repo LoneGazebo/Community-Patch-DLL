@@ -2293,6 +2293,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_iNumUnitsSuppliedCached = -1;
 	m_iNumUnitsSuppliedCachedWarWeariness = -1;
 	m_bUnlockedGrowthAnywhereThisTurn = false;
+	m_iNextObjectID = 0;
 
 	m_iPlotFoundValuesUpdateTurn = -1;
 	m_iPreviousBestSettlePlot = -1;
@@ -42201,7 +42202,7 @@ CvCity* CvPlayer::addCity()
 {
 	m_iNumUnitsSuppliedCached = -1;
 	m_iNumUnitsSuppliedCachedWarWeariness = -1;
-	return(m_cities.Add());
+	return(m_cities.Add(GetNextObjectID()));
 }
 
 void CvPlayer::deleteCity(int iID)
@@ -42585,7 +42586,7 @@ CvUnit* CvPlayer::getUnit(int iID) const
 
 CvUnit* CvPlayer::addUnit()
 {
-	CvUnit* pResult = m_units.Add();
+	CvUnit* pResult = m_units.Add(GetNextObjectID());
 
 	//debugging ...
 	for (int iIdx = 0; iIdx < m_units.GetCount()-1; iIdx++)
@@ -42667,9 +42668,22 @@ CvArmyAI* CvPlayer::getArmyAI(int iID)
 	return ((CvArmyAI*)(m_armyAIs.Get(iID)));
 }
 
+// The IDs of a player's cities, units and armies come from its own counter, in a range no other player uses. In simultaneous
+// turns each machine runs the commands of different players in its own order, so with one game-wide counter two players who
+// founded or bought something at the same moment got each other's IDs on the other machine.
+// Player p uses (p + 1) * 2^17 + n. The ranges start above the IDs of the tactical zones that belong to no city (100000 and up;
+// the other zones use their city's ID, so city IDs must be unique across players) and end below 2^24: the strategic view keeps
+// only the low 24 bits of a unit ID. 2^17 - 1 objects per player is several times what a whole long game creates.
+int CvPlayer::GetNextObjectID()
+{
+	m_iNextObjectID++;
+	ASSERT(m_iNextObjectID < (1 << 17), "player object ID range exhausted");
+	return ((GetID() + 1) << 17) + m_iNextObjectID;
+}
+
 CvArmyAI* CvPlayer::addArmyAI()
 {
-	CvArmyAI* pArmy = m_armyAIs.Add();
+	CvArmyAI* pArmy = m_armyAIs.Add(GetNextObjectID());
 	if (pArmy)
 		pArmy->SetOwner(m_eID);
 	return pArmy;
@@ -46426,6 +46440,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 
 	visitor(player.m_units);
 	visitor(player.m_armyAIs);
+	visitor(player.m_iNextObjectID);
 
 	// AI operations
 	{

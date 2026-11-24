@@ -59,6 +59,7 @@ public:
 
 	//create a new item
 	T* Add();
+	T* Add(int iNewID);
 	//take over ownership of the pointer
 	void Load(T* pExistingItem);
 
@@ -218,8 +219,13 @@ int TContainer<T>::GetIndexForID(const int iID) const
 template <class T>
 T* TContainer<T>::Add()
 {
+	return Add( GetNextGlobalID() );
+}
+
+template <class T>
+T* TContainer<T>::Add(int iNewID)
+{
 	T* pNewItem = new T;
-	int iNewID = GetNextGlobalID();
 	pNewItem->SetID( iNewID );
 
 	m_order.push_back( pNewItem );
