@@ -3107,8 +3107,6 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 	if (!m_pPlayer->isAlive() || !GC.getGame().CanPlayerAttemptDominationVictory(GetID(), NO_PLAYER, false))
 		return 0;
 
-	int iCapitalsProgress = 0;
-	int iTotalCapitals = 0;
 	int iOurMight = 0;
 	int iTotalMight = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -3122,8 +3120,6 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 		if (!pOriginalCapitalPlot || !pOriginalCapitalPlot->isCity())
 			continue;
 
-		iTotalCapitals++;
-
 		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
 			int iMight = GET_PLAYER(ePlayer).GetMilitaryMight();
@@ -3132,15 +3128,36 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 			if (GET_PLAYER(ePlayer).getTeam() == GetTeam() || IsMaster(ePlayer))
 				iOurMight += iMight;
 		}
-
-		if (pOriginalCapitalPlot->getPlotCity()->GetOwnerForDominationVictory() == GetID())
-			iCapitalsProgress += 1;
 	}
 
 	iOurMight = (iOurMight * 100) / max(1, iTotalMight);
-	iCapitalsProgress = (iCapitalsProgress * 100) / max(1, iTotalCapitals);
+	int iProgress = iOurMight;
 
-	return max(iOurMight, iCapitalsProgress);
+	// Original capitals held, directly, through Vassals or through allied City-States, out of those needed
+	CvGame& kGame = GC.getGame();
+	if (kGame.IsDominationVictoryByCapitals())
+	{
+		int iCapitalsNeeded = kGame.GetNumDominationCapitalsNeeded();
+		int iCapitalsProgress = iCapitalsNeeded > 0 ? min(100, kGame.GetNumDominationCapitals(GetTeam()) * 100 / iCapitalsNeeded) : 0;
+		iProgress = max(iProgress, iCapitalsProgress);
+	}
+
+	// Population and land share: the share that is further from its requirement decides
+	if (kGame.IsDominationVictoryByLandAndPopulation())
+	{
+		VictoryTypes eDominationVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DOMINATION", true);
+		const CvTeam& kTeam = GET_TEAM(GetTeam());
+
+		// The requirements are percentages, so these are 100x the population and land needed
+		int iPopulationNeeded = kGame.getTotalPopulation() * kGame.getAdjustedPopulationPercent(eDominationVictory);
+		int iLandNeeded = GC.getMap().getLandPlots() * kGame.getAdjustedLandPercent(eDominationVictory);
+		int iPopulationProgress = iPopulationNeeded > 0 ? min(100, 10000 * kTeam.getTotalPopulation(/*bCheckVassals*/ true) / iPopulationNeeded) : 100;
+		int iLandProgress = iLandNeeded > 0 ? min(100, 10000 * kTeam.getTotalLand(/*bCheckVassals*/ true) / iLandNeeded) : 100;
+
+		iProgress = max(iProgress, min(iPopulationProgress, iLandProgress));
+	}
+
+	return iProgress;
 }
 
 /// How close are we to achieving a Diplomatic victory?
@@ -20765,8 +20782,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer) > 0)
 			bOverride = true;
 
-		// If they have original capitals and we're going for World Conquest, ignore this
-		if ((bCloseToWorldConquest || IsGoingForWorldConquest()) && (GET_PLAYER(ePlayer).GetCapitalConqueror() == NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
+		// If they have original capitals (by population and land share, anyone is in the way) and we're going for World Conquest, ignore this
+		if ((bCloseToWorldConquest || IsGoingForWorldConquest()) && (GC.getGame().IsDominationVictoryByLandAndPopulation() || GET_PLAYER(ePlayer).GetCapitalConqueror() == NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 			bOverride = true;
 
 		// If they're close to winning the game, ignore this
@@ -23591,8 +23608,8 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (!bGoingForWorldConquest || bAnyPeaceTreaty || GetPlayer()->IsEmpireUnhappy())
 					continue;
 
-				// They must have a capital to conquer
-				if (GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(*it).GetNumCapitalCities() == 0)
+				// They must have a capital to conquer (by population and land share, any of their cities will do)
+				if (!GC.getGame().IsDominationVictoryByLandAndPopulation() && GET_PLAYER(*it).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(*it).GetNumCapitalCities() == 0)
 					continue;
 
 				if (bPossibleSanityOverride)
@@ -24464,22 +24481,25 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer)
 		bAnyAggressionBonus = false;
 	}
 
-	// Does this City-State own an original major capital?
+	// Does this City-State own an original major capital? (Irrelevant when Domination Victory goes only by population and land share.)
 	bool bHasOriginalCapital = false;
-	int iCityLoop = 0;
-	for (CvCity* pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+	if (GC.getGame().IsDominationVictoryByCapitals())
 	{
-		// Allying the City-State AND conquering it both count towards Domination Victory.
-		if (pCity->IsOriginalMajorCapital())
+		int iCityLoop = 0;
+		for (CvCity* pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
-			bAnyFriendshipBonus = true;
-			if (GET_PLAYER(pCity->GetOwnerForDominationVictory()).getTeam() != GetTeam())
+			// Allying the City-State AND conquering it both count towards Domination Victory.
+			if (pCity->IsOriginalMajorCapital())
 			{
-				bHasOriginalCapital = true;
-				bAnyAggressionBonus = true;
-				bCheckIfGoodWarTarget = true;
+				bAnyFriendshipBonus = true;
+				if (GET_PLAYER(pCity->GetOwnerForDominationVictory()).getTeam() != GetTeam())
+				{
+					bHasOriginalCapital = true;
+					bAnyAggressionBonus = true;
+					bCheckIfGoodWarTarget = true;
+				}
+				break;
 			}
-			break;
 		}
 	}
 
@@ -26223,7 +26243,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						}
 						else if (bWorldConquest)
 						{
-							if (!bFailedAnyVassalagePrereq || (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() <= 0))
+							// No capital left to take from them? (By population and land share, all of their cities count.)
+							bool bNothingLeftToConquer = !GC.getGame().IsDominationVictoryByLandAndPopulation() && GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER && GET_PLAYER(ePlayer).GetNumCapitalCities() <= 0;
+							if (!bFailedAnyVassalagePrereq || bNothingLeftToConquer)
 							{
 								// If they're economically weak or a bad target, boost peace willingness
 								if (GetEconomicStrengthComparedToUs(ePlayer) <= STRENGTH_WEAK || GetRawTargetValue(ePlayer) <= TARGET_VALUE_BAD)
@@ -26234,7 +26256,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 									iPeaceScore /= 2;
 								}
 							}
-							else if (GET_PLAYER(ePlayer).GetCapitalConqueror() == NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
+							else if (!bNothingLeftToConquer)
 							{
 								iPeaceScore *= 75;
 								iPeaceScore /= 100;
@@ -43339,8 +43361,8 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 		}
 	}
 	
-	// Refuse all promises if close to world conquest and they still have original capitals
-	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
+	// Refuse all promises if close to world conquest and they still have original capitals (by population and land share, anyone is in the way)
+	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GC.getGame().IsDominationVictoryByLandAndPopulation() || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 		return false;
 
 	// If player is Hostile or planning War, always say no
@@ -43494,8 +43516,8 @@ bool CvDiplomacyAI::IsStopSpyingAcceptable(PlayerTypes ePlayer)
 		}
 	}
 	
-	// Refuse all promises if close to world conquest and they still have original capitals
-	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
+	// Refuse all promises if close to world conquest and they still have original capitals (by population and land share, anyone is in the way)
+	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GC.getGame().IsDominationVictoryByLandAndPopulation() || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 		return false;
 
 	// If player is Guarded, Hostile or planning War, always say no
@@ -45206,8 +45228,8 @@ bool CvDiplomacyAI::IsStopSpreadingReligionAcceptable(PlayerTypes ePlayer)
 		}
 	}
 	
-	// Refuse all promises if close to world conquest and they still have original capitals
-	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
+	// Refuse all promises if close to world conquest and they still have original capitals (by population and land share, anyone is in the way)
+	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GC.getGame().IsDominationVictoryByLandAndPopulation() || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 		return false;
 
 	// If player is Hostile or planning War, always say no
@@ -45282,8 +45304,8 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 		}
 	}
 	
-	// Refuse all promises if close to world conquest and they still have original capitals
-	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
+	// Refuse all promises if close to world conquest and they still have original capitals (by population and land share, anyone is in the way)
+	if (IsCloseToWorldConquest() && !IsMaster(ePlayer) && (GC.getGame().IsDominationVictoryByLandAndPopulation() || GET_PLAYER(ePlayer).GetCapitalConqueror() != NO_PLAYER || GET_PLAYER(ePlayer).GetNumCapitalCities() > 0))
 		return false;
 
 	// If player is Hostile or planning War, always say no
@@ -49587,10 +49609,10 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity)
 	if (IsBackstabber())
 		return false;
 
-	// If we're going for world conquest, never liberate an original major capital!
+	// If we're going for world conquest, never liberate an original major capital! (By population and land share, no city at all.)
 	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 	{
-		if (pCity->IsOriginalMajorCapital())
+		if (pCity->IsOriginalMajorCapital() || GC.getGame().IsDominationVictoryByLandAndPopulation())
 			return false;
 	}
 
@@ -49693,10 +49715,10 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity)
 	CivApproachTypes eApproach = GetCivApproach(ePlayerToLiberate);
 	PlayerTypes eOldOwner = pCity->getPreviousOwner();
 
-	// If we're going for world conquest, never liberate an original major capital!
+	// If we're going for world conquest, never liberate an original major capital! (By population and land share, no city at all.)
 	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 	{
-		if (pCity->IsOriginalMajorCapital())
+		if (pCity->IsOriginalMajorCapital() || GC.getGame().IsDominationVictoryByLandAndPopulation())
 			return false;
 	}
 
