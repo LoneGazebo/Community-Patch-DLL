@@ -25980,6 +25980,49 @@ void CvUnit::setSeeInvisibleType(InvisibleTypes InvisibleType)
 }
 
 //	--------------------------------------------------------------------------------
+/// Set the invisibility and see-invisible types to those of the first active promotion that has one (none without such a
+/// promotion), so that losing the promotion also removes its effect
+void CvUnit::UpdateInvisibilityFromPromotions()
+{
+	VALIDATE_OBJECT();
+	InvisibleTypes eInvisible = NO_INVISIBLE;
+	InvisibleTypes eSeeInvisible = NO_INVISIBLE;
+	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	{
+		const PromotionTypes ePromotion = (PromotionTypes)iI;
+		if (!isPromotionActive(ePromotion))
+			continue;
+
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		if (!pkPromotionInfo)
+			continue;
+
+		if (eInvisible == NO_INVISIBLE && pkPromotionInfo->GetInvisibleType() != NO_INVISIBLE)
+			eInvisible = (InvisibleTypes)pkPromotionInfo->GetInvisibleType();
+
+		if (eSeeInvisible == NO_INVISIBLE && pkPromotionInfo->GetSeeInvisibleType() != NO_INVISIBLE)
+			eSeeInvisible = (InvisibleTypes)pkPromotionInfo->GetSeeInvisibleType();
+	}
+
+	setSeeInvisibleType(eSeeInvisible);
+
+	if (eInvisible != getInvisibleType())
+	{
+		setInvisibleType(eInvisible);
+
+		// The engine draws or hides a unit by the last visibility message it got for it: send the new state, so the unit
+		// appears when it loses its invisibility and disappears when it gains it
+		const TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
+		if (GC.IsGraphicsInitialized() && eActiveTeam != NO_TEAM && plot() != NULL)
+		{
+			const bool bVisible = (getTeam() == eActiveTeam) || !isInvisible(eActiveTeam, false);
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			gDLL->GameplayUnitVisibility(pDllUnit.get(), bVisible, true, 0.01f);
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
 const CvUnit* CvUnit::getCombatUnit() const
 {
 	VALIDATE_OBJECT();
@@ -28145,14 +28188,10 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	m_Promotions.SetPromotionActive(eIndex, bNewValue);
 	int iChange = (bNewValue ? 1 : -1);
 
-	// Promotions will set Invisibility once but not change it later
-	if (getInvisibleType() == NO_INVISIBLE && thisPromotion.GetInvisibleType() != NO_INVISIBLE)
+	// Invisibility and seeing invisible units come only from promotions: work them out again from the active ones
+	if (thisPromotion.GetInvisibleType() != NO_INVISIBLE || thisPromotion.GetSeeInvisibleType() != NO_INVISIBLE)
 	{
-		setInvisibleType((InvisibleTypes)thisPromotion.GetInvisibleType());
-	}
-	if (getSeeInvisibleType() == NO_INVISIBLE && thisPromotion.GetSeeInvisibleType() != NO_INVISIBLE)
-	{
-		setSeeInvisibleType((InvisibleTypes)thisPromotion.GetSeeInvisibleType());
+		UpdateInvisibilityFromPromotions();
 	}
 
 	changeBlitzCount((thisPromotion.IsBlitz()) ? iChange : 0);
