@@ -18,3 +18,7 @@ ALTER TABLE Features ADD AdjacentSpawnLocationUnitFreePromotion text REFERENCES 
 
 -- Features with NaturalWonder = true have hardcoded graphics. This column exists to allow additional NWs with working graphics.
 ALTER TABLE Features ADD PseudoNaturalWonder boolean DEFAULT 0;
+
+-- Building_YieldPerXFeatureTimes100 and Belief_CityYieldPerXFeatureTimes100 count every tile of this feature that belongs to the city,
+-- worked or not, instead of only the worked ones.
+ALTER TABLE Features ADD YieldPerXCountsUnworked boolean DEFAULT 0;

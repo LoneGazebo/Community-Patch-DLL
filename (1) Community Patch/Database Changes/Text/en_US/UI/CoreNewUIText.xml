@@ -1710,14 +1710,14 @@
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MOUNTAINS">
 			<Text>[ICON_BULLET]Each Mountain within 3 Tiles of City: {1_YieldBoosts}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_SNOW">
-			<Text>[ICON_BULLET]Each Snow Tile owned by City: {1_YieldBoosts}</Text>
-		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_TERRAIN">
 			<Text>[ICON_BULLET]Each worked {1_Items}: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_FEATURE">
 			<Text>[ICON_BULLET]Each worked {1_Items}: {2_YieldBoosts}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_OWNED_TILE">
+			<Text>[ICON_BULLET]Each {1_Items} Tile owned by City: {2_YieldBoosts}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_IMPROVEMENT">
 			<Text>[ICON_BULLET]Each {1_Items} owned by City: {2_YieldBoosts}</Text>

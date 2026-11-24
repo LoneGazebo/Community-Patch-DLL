@@ -17726,18 +17726,7 @@ void CvCity::UpdateYieldPerXTerrain(YieldTypes eYield, TerrainTypes eTerrain)
 
 		if (iBaseYieldBuildings > 0)
 		{
-			if (eTerrain == TERRAIN_MOUNTAIN)
-			{
-				iValidTilesTerrain = GetNearbyMountains();
-			}
-			else if (eTerrain == TERRAIN_SNOW)
-			{
-				iValidTilesTerrain = CountTerrain(TERRAIN_SNOW);
-			}
-			else
-			{
-				iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
-			}
+			iValidTilesTerrain = GetNumTilesForYieldPerXTerrain(eTerrain, false);
 		}
 
 		iYieldTimes100 = (iValidTilesTerrain * iBaseYieldBuildings);
@@ -17795,30 +17784,12 @@ void CvCity::UpdateYieldPerXTerrainFromReligion(YieldTypes eYield, TerrainTypes 
 				iBaseYieldReligion = pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, getOwner(), this);
 				if (iBaseYieldReligion > 0)
 				{
-					if (eTerrain == TERRAIN_MOUNTAIN)
-					{
-						iValidTilesTerrain = GetNearbyMountains();
-					}
-					else if (eTerrain == TERRAIN_SNOW)
-					{
-						iValidTilesTerrain = CountTerrain(TERRAIN_SNOW);
-					}
-					else if (pReligion->m_Beliefs.RequiresNoFeature(getOwner()))
-					{
-						iValidTilesTerrain = GetNumFeaturelessTerrainWorked(eTerrain);
-					}
-					else
-					{
-						iValidTilesTerrain = GetNumTerrainWorked(eTerrain);
-					}
+					iValidTilesTerrain = GetNumTilesForYieldPerXTerrain(eTerrain, pReligion->m_Beliefs.RequiresNoFeature(getOwner()));
 
 					iYieldTimes100 += (iValidTilesTerrain * iBaseYieldReligion);
 
-					if (eTerrain == TERRAIN_MOUNTAIN && iYieldTimes100 > getPopulation() * 100)
-					{
-						iYieldTimes100 = getPopulation() * 100;
-					}
-					if (eTerrain == TERRAIN_SNOW && iYieldTimes100 > getPopulation() * 100)
+					// Counting unworked tiles: no more than one yield per citizen
+					if (GC.getTerrainInfo(eTerrain)->IsYieldPerXCountsUnworked() && iYieldTimes100 > getPopulation() * 100)
 					{
 						iYieldTimes100 = getPopulation() * 100;
 					}
@@ -17979,7 +17950,7 @@ void CvCity::UpdateYieldPerXFeature(YieldTypes eYield, FeatureTypes eFeature)
 
 		if (bTest)
 		{
-			iValidTiles = GetNumFeatureWorked(eFeature);
+			iValidTiles = GetNumTilesForYieldPerXFeature(eFeature);
 
 			//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
 			iYieldBase = (iValidTiles * iBaseYield);
@@ -35265,6 +35236,26 @@ int CvCity::CountWorkedResource(ResourceTypes iResourceType) const
 	}
 
 	return iCount;
+}
+
+// Tiles that the YieldPerXTerrain effects of buildings and beliefs count for this terrain. By default only the worked ones;
+// terrains with YieldPerXCountsUnworked count every tile of the city, worked or not (mountains: the ones within 3 tiles
+// when the city was founded, as before).
+int CvCity::GetNumTilesForYieldPerXTerrain(TerrainTypes eTerrain, bool bFeaturelessOnly)
+{
+	if (GC.getTerrainInfo(eTerrain)->IsYieldPerXCountsUnworked())
+		return eTerrain == TERRAIN_MOUNTAIN ? GetNearbyMountains() : CountTerrain(eTerrain);
+
+	return bFeaturelessOnly ? GetNumFeaturelessTerrainWorked(eTerrain) : GetNumTerrainWorked(eTerrain);
+}
+
+// The same for the YieldPerXFeature effects: features with YieldPerXCountsUnworked count every tile of the city.
+int CvCity::GetNumTilesForYieldPerXFeature(FeatureTypes eFeature) const
+{
+	if (GC.getFeatureInfo(eFeature)->IsYieldPerXCountsUnworked())
+		return CountFeature(eFeature);
+
+	return GetNumFeatureWorked(eFeature);
 }
 
 int CvCity::CountTerrain(TerrainTypes iTerrainType) const

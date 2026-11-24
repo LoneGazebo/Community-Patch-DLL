@@ -10,3 +10,6 @@ SET
 	Water = 0,
 	Found = 1
 WHERE Type = 'TERRAIN_MOUNTAIN';
+
+-- Yields per X Mountain or Snow tiles count every such tile of the city, not only the worked ones
+UPDATE Terrains SET YieldPerXCountsUnworked = 1 WHERE Type IN ('TERRAIN_MOUNTAIN', 'TERRAIN_SNOW');

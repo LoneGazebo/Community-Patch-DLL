@@ -6766,6 +6766,7 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_bRough(false),
 	m_bNaturalWonder(false),
 	m_bPseudoNaturalWonder(false),
+	m_bYieldPerXCountsUnworked(false),
 	m_bClearable(false),
 	m_iWorldSoundscapeScriptId(0),
 	m_iEffectProbability(0),
@@ -6962,6 +6963,11 @@ bool CvFeatureInfo::IsPseudoNaturalWonder() const
 	return m_bPseudoNaturalWonder;
 }
 //------------------------------------------------------------------------------
+bool CvFeatureInfo::IsYieldPerXCountsUnworked() const
+{
+	return m_bYieldPerXCountsUnworked;
+}
+//------------------------------------------------------------------------------
 const char* CvFeatureInfo::getArtDefineTag() const
 {
 	return m_strArtDefineTag;
@@ -7133,6 +7139,7 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bRough = kResults.GetBool("Rough");
 	m_bNaturalWonder = kResults.GetBool("NaturalWonder");
 	m_bPseudoNaturalWonder = kResults.GetBool("PseudoNaturalWonder");
+	m_bYieldPerXCountsUnworked = kResults.GetBool("YieldPerXCountsUnworked");
 	m_strEffectType = kResults.GetText("EffectType");
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");
 
@@ -7357,6 +7364,7 @@ CvTerrainInfo::CvTerrainInfo() :
 	m_bImpassable(false),
 	m_iPrereqTechPassable(NO_TECH),
 	m_bFound(false),
+	m_bYieldPerXCountsUnworked(false),
 	m_bFoundCoast(false),
 	m_bFoundFreshWater(false),
 	m_iWorldSoundscapeScriptId(0),
@@ -7461,6 +7469,11 @@ bool CvTerrainInfo::isFound() const
 	return m_bFound;
 }
 //------------------------------------------------------------------------------
+bool CvTerrainInfo::IsYieldPerXCountsUnworked() const
+{
+	return m_bYieldPerXCountsUnworked;
+}
+//------------------------------------------------------------------------------
 bool CvTerrainInfo::isFoundCoast() const
 {
 	return m_bFoundCoast;
@@ -7552,6 +7565,7 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bWater = kResults.GetBool("Water");
 	m_bImpassable = kResults.GetBool("Impassable");
 	m_bFound = kResults.GetBool("Found");
+	m_bYieldPerXCountsUnworked = kResults.GetBool("YieldPerXCountsUnworked");
 	m_bFoundCoast = kResults.GetBool("FoundCoast");
 	m_bFoundFreshWater = kResults.GetBool("FoundFreshWater");
 

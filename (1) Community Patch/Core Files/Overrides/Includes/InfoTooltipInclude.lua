@@ -3672,7 +3672,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		local tTerrainBoosts = {};
 		local tFeatureBoosts = {};
 		local tMountainBoosts = {};
-		local tSnowBoosts = {};
+		local tOwnedTerrainBoosts = {};
+		local tOwnedFeatureBoosts = {};
 		local tImprovementBoosts = {};
 		local tImprovementBoostsGlobal = {};
 		local tBeliefBoosts = {};
@@ -3810,10 +3811,13 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 			for row in GameInfo.Building_YieldPerXTerrainTimes100{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
 				local eTerrain = GameInfoTypes[row.TerrainType];
-				if eTerrain == GameInfoTypes.TERRAIN_MOUNTAIN then
+				-- Terrains with YieldPerXCountsUnworked count every tile of the city, not only the worked ones
+				local bCountsUnworked = GameInfo.Terrains[eTerrain].YieldPerXCountsUnworked;
+				if bCountsUnworked and eTerrain == GameInfoTypes.TERRAIN_MOUNTAIN then
 					tMountainBoosts[eYield] = row.Yield / 100;
-				elseif eTerrain == GameInfoTypes.TERRAIN_SNOW then
-					tSnowBoosts[eYield] = row.Yield / 100;
+				elseif bCountsUnworked then
+					tOwnedTerrainBoosts[eTerrain] = tOwnedTerrainBoosts[eTerrain] or {};
+					tOwnedTerrainBoosts[eTerrain][eYield] = row.Yield / 100;
 				else
 					tTerrainBoosts[eTerrain] = tTerrainBoosts[eTerrain] or {};
 					tTerrainBoosts[eTerrain][eYield] = row.Yield / 100;
@@ -3822,8 +3826,9 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 
 			for row in GameInfo.Building_YieldPerXFeatureTimes100{BuildingType = kBuildingInfo.Type, YieldType = kYieldInfo.Type} do
 				local eFeature = GameInfoTypes[row.FeatureType];
-				tFeatureBoosts[eFeature] = tFeatureBoosts[eFeature] or {};
-				tFeatureBoosts[eFeature][eYield] = row.Yield / 100;
+				local tBoosts = GameInfo.Features[eFeature].YieldPerXCountsUnworked and tOwnedFeatureBoosts or tFeatureBoosts;
+				tBoosts[eFeature] = tBoosts[eFeature] or {};
+				tBoosts[eFeature][eYield] = row.Yield / 100;
 			end
 
 			if bIsWorldWonder then
@@ -3976,7 +3981,6 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_ALLIES", tCSAllyBoosts);
 		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_ERA", tEraBoosts);
 		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_MOUNTAINS", tMountainBoosts);
-		AddTooltipSimpleYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_SNOW", tSnowBoosts);
 		AddTooltipSimpleYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_COUNT", tBuildingCountBoosts);
 		AddTooltipSimpleYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_PLOT_COUNT", tPlotCountBoosts);
 		AddTooltipSimpleYieldFractionTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_CITY_STATE_STRATEGIC_RESOURCES", tCSStrategicBoosts);
@@ -3985,6 +3989,8 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_BUILDING_GLOBAL", tBuildingBoostsGlobal, "Buildings");
 		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_TERRAIN", tTerrainBoosts, "Terrains");
 		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_WORKED_FEATURE", tFeatureBoosts, "Features");
+		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_OWNED_TILE", tOwnedTerrainBoosts, "Terrains");
+		AddTooltipsYieldBoostTable(tLocalBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_OWNED_TILE", tOwnedFeatureBoosts, "Features");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_TECH", tTechBoosts, "Technologies");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY", tPolicyBoosts, "Policies");
 		AddTooltipsYieldBoostTable(tBoostLines, "TXT_KEY_PRODUCTION_BUILDING_YIELD_BOOST_FROM_POLICY_STATE_RELIGION", tPolicyBoostsStateReligion, "Policies");
