@@ -79,7 +79,8 @@ CvBuildInfo* CvDllBuildInfo::GetInstance()
 //------------------------------------------------------------------------------
 const char* CvDllBuildInfo::GetType()
 {
-	return m_pBuildInfo->GetType();
+	// the engine sees the EngineType, if set (only for its look of the work)
+	return m_pBuildInfo->GetEngineType();
 }
 //------------------------------------------------------------------------------
 int CvDllBuildInfo::GetImprovement()

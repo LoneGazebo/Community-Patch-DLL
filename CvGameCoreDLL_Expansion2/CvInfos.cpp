@@ -5222,6 +5222,14 @@ CvBuildInfo::~CvBuildInfo()
 	SAFE_DELETE_ARRAY(m_pabFeatureRemoveOnly);
 }
 //------------------------------------------------------------------------------
+/// The Type the game engine sees for this build. The engine picks the worker's tool (rake, pickaxe, shovel, axe, or a
+/// hammer for anything else) by the build's Type; EngineType lets a modded build use the tool of a base game build.
+/// Game rules always use the build's own Type.
+const char* CvBuildInfo::GetEngineType() const
+{
+	return m_strEngineType.empty() ? GetType() : m_strEngineType.c_str();
+}
+//------------------------------------------------------------------------------
 int CvBuildInfo::getTime() const
 {
 	return m_iTime;
@@ -5389,6 +5397,8 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bRemoveRoute = kResults.GetBool("RemoveRoute");
 	m_bWater = kResults.GetBool("Water");
 	m_bCanBeEmbarked = kResults.GetBool("CanBeEmbarked");
+	const char* szEngineType = kResults.GetText("EngineType");
+	m_strEngineType = szEngineType ? szEngineType : "";
 
 	const char* szPrereqTech = kResults.GetText("PrereqTech");
 	m_iTechPrereq = GC.getInfoTypeForString(szPrereqTech, true);
@@ -6962,6 +6972,14 @@ bool CvFeatureInfo::IsPseudoNaturalWonder() const
 	return m_bPseudoNaturalWonder;
 }
 //------------------------------------------------------------------------------
+/// The Type the game engine sees for this feature. The engine gives the base game natural wonders their look by their Type
+/// (for example the terrain shape under the wonder); any other natural wonder looks like Mount Fuji there.
+/// EngineType lets a modded feature look like one of those. Game rules always use the feature's own Type.
+const char* CvFeatureInfo::GetEngineType() const
+{
+	return m_strEngineType.empty() ? GetType() : m_strEngineType.c_str();
+}
+//------------------------------------------------------------------------------
 const char* CvFeatureInfo::getArtDefineTag() const
 {
 	return m_strArtDefineTag;
@@ -7133,6 +7151,8 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bRough = kResults.GetBool("Rough");
 	m_bNaturalWonder = kResults.GetBool("NaturalWonder");
 	m_bPseudoNaturalWonder = kResults.GetBool("PseudoNaturalWonder");
+	const char* szEngineType = kResults.GetText("EngineType");
+	m_strEngineType = szEngineType ? szEngineType : "";
 	m_strEffectType = kResults.GetText("EffectType");
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");
 

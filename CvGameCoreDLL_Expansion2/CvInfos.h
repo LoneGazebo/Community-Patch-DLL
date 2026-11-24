@@ -1572,6 +1572,7 @@ public:
 	CvBuildInfo();
 	virtual ~CvBuildInfo();
 
+	const char* GetEngineType() const;
 	int getTime() const;
 	int getCost() const;
 	int getBuilderCost() const;
@@ -1626,6 +1627,7 @@ protected:
 	bool m_bRemoveRoute;
 	bool m_bWater;
 	bool m_bCanBeEmbarked;
+	CvString m_strEngineType;
 
 	// Arrays
 	int* m_paiFeatureTech;
@@ -1989,6 +1991,7 @@ public:
 
 	bool IsNaturalWonder(bool orPseudoNatural = false) const;
 	bool IsPseudoNaturalWonder() const;
+	const char* GetEngineType() const;
 
 	const char* getArtDefineTag() const;
 	void setArtDefineTag(const char* szTag);
@@ -2054,6 +2057,7 @@ protected:
 	bool m_bRough;
 	bool m_bNaturalWonder;
 	bool m_bPseudoNaturalWonder;
+	CvString m_strEngineType;
 
 	// Set each time the game is started
 	bool m_bClearable;
