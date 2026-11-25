@@ -116,6 +116,10 @@
 			<Response>TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON%</Response>
 		</Row>
 		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HELP_REQUEST_REFUSE_NOT_NOW</ResponseType>
+			<Response>TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_NOT_NOW%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_HELP_REQUEST_YES</ResponseType>
 			<Response>TXT_KEY_GENERIC_HELP_REQUEST_YES%</Response>
 		</Row>
