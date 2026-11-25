@@ -36,7 +36,10 @@ SET
 WHERE Type = 'BUILD_FISHING_BOATS_NO_KILL';
 
 UPDATE Builds
-SET ShowInPedia = 0, ShowInTechTree = 0
+SET
+	Help = 'TXT_KEY_BUILD_CONSUMED_HELP_FISHING_BOATS',
+	ShowInPedia = 0,
+	ShowInTechTree = 0
 WHERE Type = 'BUILD_FISHING_BOATS';
 
 INSERT INTO Unit_Builds

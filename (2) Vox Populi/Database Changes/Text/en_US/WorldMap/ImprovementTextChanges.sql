@@ -55,6 +55,11 @@ INSERT INTO Language_en_US
 VALUES
 	('TXT_KEY_BUILD_FISHING_BOAT_REC', 'It will increase the yields of this Sea Resource.');
 
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
+	('TXT_KEY_BUILD_CONSUMED_HELP_FISHING_BOATS', 'Unit will be consumed.[NEWLINE][NEWLINE]Constructs Fishing Boats on a Sea Resource, which increases the yields based on the Resource.');
+
 UPDATE Language_en_US
 SET Text = 'Fishing boats allow a civilization to harvest the valuable [ICON_RES_CRAB] Crab, [ICON_RES_WHALE] Whale, [ICON_RES_CORAL] Coral, and [ICON_RES_PEARLS] Pearls Luxury Resources, as well as improve sources of [ICON_RES_FISH] Fish. To construct a fishing boat you must have researched Fishing, which allows your workers to embark. It is [COLOR_NEGATIVE_TEXT]Destroyed when Pillaged[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FISHINGBOATS_TEXT';
