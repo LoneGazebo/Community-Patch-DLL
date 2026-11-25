@@ -4,6 +4,31 @@ print("This is the modded DiploGlobalRelationships from CP")
 -------------------------------------------------
 include("IconSupport");
 
+local function GetDefensivePactTurnsRemaining(iPlayer, iOtherPlayer)
+	local iCurrentTurn = Game.GetGameTurn();
+	local iNumCurrentDeals = UI.GetNumCurrentDeals(iPlayer);
+
+	for iDeal = 0, iNumCurrentDeals - 1 do
+		UI.LoadCurrentDeal(iPlayer, iDeal);
+		local pDeal = UI.GetScratchDeal();
+
+		if (pDeal:GetOtherPlayer(iPlayer) == iOtherPlayer) then
+			pDeal:ResetIterator();
+			local itemType, _, finalTurn = pDeal:GetNextItem();
+
+			while (itemType ~= nil) do
+				if (itemType == TradeableItems.TRADE_ITEM_DEFENSIVE_PACT) then
+					return math.max(0, finalTurn - iCurrentTurn);
+				end
+
+				itemType, _, finalTurn = pDeal:GetNextItem();
+			end
+		end
+	end
+
+	return nil;
+end
+
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function ShowHideHandler(bIsHide, bInitState)
@@ -240,6 +265,10 @@ function InitMajorCivList()
 									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
 									
 									local text = Locale.Lookup("TXT_KEY_DIPLO_DP_WITH_CBP", thirdName);
+									local turnsLeft = GetDefensivePactTurnsRemaining(iOtherPlayer, iThirdPlayer);
+									if (turnsLeft ~= nil) then
+										text = text .. " (" .. Locale.Lookup("TXT_KEY_DECLARE_WAR_DEALS_TURNS_LEFT", turnsLeft) .. ")";
+									end
 									textControls.Text:SetText(text);
 								end
 							end
