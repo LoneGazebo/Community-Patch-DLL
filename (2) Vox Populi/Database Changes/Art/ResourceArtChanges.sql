@@ -12,3 +12,8 @@ WHERE ResourceType IN (
 UPDATE ArtDefine_Landmarks
 SET Model = 'hidden_antiquity_site.fxsxml'
 WHERE ResourceType = 'ART_DEF_RESOURCE_HIDDEN_ARTIFACTS';
+
+-- Sugar uses new art (ART_DEF_RESOURCE_SUGAR_ALT), so the strategic view row of its old art is never drawn.
+-- Delete it to leave its icon room to new resources (see CoreResourceArtChanges.sql in Community Patch).
+DELETE FROM ArtDefine_StrategicView
+WHERE TileType = 'Resource' AND StrategicViewType = 'ART_DEF_RESOURCE_SUGAR';

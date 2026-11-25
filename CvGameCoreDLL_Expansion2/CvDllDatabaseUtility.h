@@ -60,6 +60,7 @@ private:
 	//! Validation routines
 	bool ValidateGameDatabase();
 	bool ValidatePrefetchProcess();
+	void LogStrategicViewIconLimits();
 
 	bool UpdatePlayableCivilizationCounts();
 
