@@ -2399,10 +2399,15 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 		return NO_ABORT_REASON;
 
 	//carrier should retreat
-	if (GetArmy(0)->GetFirstUnit()->isProjectedToDieNextTurn())
+	CvUnit* pCarrier = pArmy->GetFirstUnit();
+	if (pCarrier->isProjectedToDieNextTurn())
 		return AI_ABORT_HALF_STRENGTH;
 
-	CvPlot* pCurrentPosition = GetArmy(0)->GetCurrentPlot();
+	// Use the carrier's position so changing the goal cannot change the fleet's location.
+	CvPlot* pCurrentPosition = pCarrier->plot();
+	if (!pCurrentPosition->isWater())
+		if (CvPlot* pHarborWater = MilitaryAIHelpers::GetCoastalWaterNearPlot(pCurrentPosition, true))
+			pCurrentPosition = pHarborWater;
 	CvPlot* pNewTarget = NULL;
 
 	//this includes the zone we are currently targeting
@@ -2482,7 +2487,7 @@ set<int> CvAIOperationCarrierGroup::GetPossibleDeploymentZones() const
 					for (size_t i=0; i<GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
 					{
 						CvAIOperation* pOp = GET_PLAYER(m_eOwner).getAIOperationByIndex(i);
-						if (pOp->GetOperationType() != AI_OPERATION_CARRIER_GROUP)
+						if (pOp == this || pOp->GetOperationType() != AI_OPERATION_CARRIER_GROUP)
 							continue;
 
 						//this is the interesting check
