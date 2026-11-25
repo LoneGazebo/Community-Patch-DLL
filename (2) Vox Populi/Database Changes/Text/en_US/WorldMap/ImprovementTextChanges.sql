@@ -45,26 +45,35 @@ SET Text = '+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in th
 WHERE Tag = 'TXT_KEY_BUILD_FORT_HELP';
 
 -- Fishing Boat
-UPDATE Language_en_US
-SET Text = 'Constructs Fishing Boats on a Sea Resource, which increases the yields based on the Resource.'
-WHERE Tag = 'TXT_KEY_BUILD_FISHING_BOAT_HELP';
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
+	('TXT_KEY_BUILD_FISHING_BOAT_HELP', 'Constructs Fishing Boats on a Sea Resource, which increases the yields based on the Resource.');
 
-UPDATE Language_en_US
-SET Text = 'It will increase the yields of this Sea Resource.'
-WHERE Tag = 'TXT_KEY_BUILD_FISHING_BOAT_REC';
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
+	('TXT_KEY_BUILD_FISHING_BOAT_REC', 'It will increase the yields of this Sea Resource.');
+
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
+	('TXT_KEY_BUILD_CONSUMED_HELP_FISHING_BOATS', 'Unit will be consumed.[NEWLINE][NEWLINE]Constructs Fishing Boats on a Sea Resource, which increases the yields based on the Resource.');
 
 UPDATE Language_en_US
 SET Text = 'Fishing boats allow a civilization to harvest the valuable [ICON_RES_CRAB] Crab, [ICON_RES_WHALE] Whale, [ICON_RES_CORAL] Coral, and [ICON_RES_PEARLS] Pearls Luxury Resources, as well as improve sources of [ICON_RES_FISH] Fish. To construct a fishing boat you must have researched Fishing, which allows your workers to embark. It is [COLOR_NEGATIVE_TEXT]Destroyed when Pillaged[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FISHINGBOATS_TEXT';
 
 -- Offshore Platform
-UPDATE Language_en_US
-SET Text = 'Constructs an Offshore Platform, which improves the [ICON_RES_OIL] Oil Strategic Resource when it appears on Sea Tiles. Generates a large increase in [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.'
-WHERE Tag = 'TXT_KEY_BUILD_OFFSHORE_PLATFORMS_HELP';
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
+	('TXT_KEY_BUILD_OFFSHORE_PLATFORMS_HELP', 'Constructs an Offshore Platform, which improves the [ICON_RES_OIL] Oil Strategic Resource when it appears on Sea Tiles. Generates a large increase in [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.');
 
-UPDATE Language_en_US
-SET Text = 'It will connect this source of [ICON_RES_OIL] Oil and improve Production and Gold output.'
-WHERE Tag = 'TXT_KEY_BUILD_OFFSHORE_PLATFORMS_REC';
+INSERT INTO Language_en_US
+	(Tag, Text)
+VALUES
+	('TXT_KEY_BUILD_OFFSHORE_PLATFORMS_REC', 'It will connect this source of [ICON_RES_OIL] Oil and improve Production and Gold output.');
 
 UPDATE Language_en_US
 SET Text = 'The offshore platform is an important late-game improvement as it provides access to the highly-prized [ICON_RES_OIL] Oil Strategic Resource, but only when it appears in the ocean. It is [COLOR_NEGATIVE_TEXT]Destroyed when Pillaged[ENDCOLOR].'
