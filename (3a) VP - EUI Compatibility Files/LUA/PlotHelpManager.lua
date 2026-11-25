@@ -981,7 +981,8 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 				local buildID = build.ID
 				local buildTip = L(build.Description)
 
-				local canBuild = plot:CanBuild( buildID, activePlayerID ) and build.ShowInPedia and isWaterPlot == build.Water -- filter duplicates, fix DLL bug can build roads in lakes
+				-- bTestPlotOwner false: also list what could be built on plots outside the player's territory
+				local canBuild = plot:CanBuild( buildID, activePlayerID, false, false ) and build.ShowInPedia and isWaterPlot == build.Water -- filter duplicates, fix DLL bug can build roads in lakes
 				local isBasicBuild = true
 				local buildImprovementType = build.ImprovementType
 				local buildImprovement = GameInfo.Improvements[ buildImprovementType or -1 ]
