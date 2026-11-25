@@ -58,7 +58,7 @@ VALUES
 UPDATE UnitPromotions SET SameTileHealChange = 5, AdjacentTileHealChange = 5 WHERE RankList = 'MEDIC';
 UPDATE UnitPromotions SET NeutralHealChange = 5, EnemyHealChange = 5 WHERE Type = 'PROMOTION_MEDIC_II';
 
-UPDATE UnitPromotions SET AttackWoundedMod = 20, OpenAttack = 10 WHERE RankList = 'CHARGE';
+UPDATE UnitPromotions SET AttackWoundedMod = 20, OpenAttack = 10, OpenRangedAttackMod = 10 WHERE RankList = 'CHARGE';
 
 -- Forlorn Hope
 UPDATE UnitPromotions SET CityAttack = 100, CombatPercent = -10 WHERE Type = 'PROMOTION_SIEGE';
