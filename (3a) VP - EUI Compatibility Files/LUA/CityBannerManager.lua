@@ -78,7 +78,6 @@ local ToGridFromHex = ToGridFromHex
 local ToHexFromGrid = ToHexFromGrid
 local UI = UI
 local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
-local UnitMoving = UnitMoving
 local YieldDisplayTypes = YieldDisplayTypes
 
 -------------------------------
@@ -633,16 +632,6 @@ local function ClearHexHighlights()
 end
 
 -------------------------------------------------
--- Show/hide the garrison frame icon
--------------------------------------------------
-local function HideGarrisonFrame( instance, isHide )
-	-- Only the active team has a Garrison ring
-	if instance and instance[1] then
-		instance.GarrisonFrame:SetHide( isHide )
-	end
-end
-
--------------------------------------------------
 -- Show/hide the range strike icon
 -------------------------------------------------
 local function UpdateRangeIcons( plotIndex, city, instance )
@@ -1136,9 +1125,6 @@ local function RefreshCityBannersNow()
 			else
 				instance.CityIsBlockaded:SetText("[ICON_BLOCKADED]")
 			end
-
-			-- Garrisoned ?
-			instance.GarrisonFrame:SetHide( not ( plot:IsVisible( g_activeTeamID, true ) and city:GetGarrisonedUnit() ) )
 
 			-- Happiness
 			instance.CityIsUnhappy:SetHide(true)
@@ -1642,26 +1628,6 @@ Events.InitCityRangeStrike.Add( function( cityOwnerID, cityID )
 	end
 end)
 
--------------------
--- On Unit Garrison
-Events.UnitGarrison.Add( function( unitOwnerID, unitID, isGarrisoned )
-	if isGarrisoned then
-		local unitOwner = Players[ unitOwnerID ]
-		local unit = unitOwner and unitOwner:GetUnitByID( unitID )
-		local city = unit and unit:GetGarrisonedCity()
-		return HideGarrisonFrame( city and g_cityBanners[ city:Plot():GetPlotIndex() ], UnitMoving( unitOwnerID, unitID ) )
-	end
-end)
-
------------------------------
--- On Unit Move Queue Changed
-Events.UnitMoveQueueChanged.Add( function( unitOwnerID, unitID, hasRemainingMoves )
-	local unitOwner = Players[ unitOwnerID ]
-	local unit = unitOwner and unitOwner:GetUnitByID( unitID )
-	local city = unit and unit:GetGarrisonedCity()
-	return HideGarrisonFrame( city and g_cityBanners[ city:Plot():GetPlotIndex() ], not hasRemainingMoves )
-end)
-
 ---------------------------
 -- On interface mode change
 Events.InterfaceModeChanged.Add( function( oldInterfaceMode, newInterfaceMode )
@@ -1765,65 +1731,6 @@ Events.GameplaySetActivePlayer.Add( function( activePlayerID, previousActivePlay
 		end
 	end
 end)
-
--------------------------------------------------
--- Hide Garrisson Ring during Animated Combat
--------------------------------------------------
-if gk_mode then
-
-	local function HideGarrisonRing( x, y, hideGarrisonRing )
-
-		local plot = Map_GetPlot( x, y )
-		local city = plot and plot:GetPlotCity()
-		local instance = city and g_cityBanners[ plot:GetPlotIndex() ]
-		return instance and HideGarrisonFrame( instance, hideGarrisonRing or not city:GetGarrisonedUnit() )
-	end
-
-	Events.RunCombatSim.Add( function(
-				attackerPlayerID,
-				attackerUnitID,
-				attackerUnitDamage,
-				attackerFinalUnitDamage,
-				attackerMaxHitPoints,
-				defenderPlayerID,
-				defenderUnitID,
-				defenderUnitDamage,
-				defenderFinalUnitDamage,
-				defenderMaxHitPoints,
-				attackerX,
-				attackerY,
-				defenderX,
-				defenderY,
-				bContinuation)
---print( "CityBanner CombatBegin", attackerX, attackerY, defenderX, defenderY )
-
-		HideGarrisonRing(attackerX, attackerY, true)
-		HideGarrisonRing(defenderX, defenderY, true)
-	end)
-
-	Events.EndCombatSim.Add( function(
-				attackerPlayerID,
-				attackerUnitID,
-				attackerUnitDamage,
-				attackerFinalUnitDamage,
-				attackerMaxHitPoints,
-				defenderPlayerID,
-				defenderUnitID,
-				defenderUnitDamage,
-				defenderFinalUnitDamage,
-				defenderMaxHitPoints,
-				attackerX,
-				attackerY,
-				defenderX,
-				defenderY )
-
---print( "CityBanner CombatEnd", attackerX, attackerY, defenderX, defenderY )
-
-		HideGarrisonRing(attackerX, attackerY, false)
-		HideGarrisonRing(defenderX, defenderY, false)
-	end)
-
-end -- gk_mode
 
 --------------------------------------------------------------
 -- The active player's turn has begun, make sure their range strike icons are correct

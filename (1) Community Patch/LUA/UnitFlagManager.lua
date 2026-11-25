@@ -912,10 +912,12 @@ local g_UnitFlagClass =
         end
         
         local offset = Vector2( 0, 0 );
+        local showGarrisonRing = false;
         	            
         if pUnit:IsGarrisoned() then
             if( Game.GetActiveTeam() == Players[ self.m_PlayerID ]:GetTeam() or (PreGame.GetSlotStatus( Game:GetActivePlayer() ) == SlotStatus.SS_OBSERVER and (Game:GetObserverUIOverridePlayer() == -1 or Players[Game:GetObserverUIOverridePlayer()]:GetTeam() == Players[ self.m_PlayerID ]:GetTeam()))) then
 				offset = GarrisonOffset;
+				showGarrisonRing = true;
 			else
 				offset = GarrisonOtherOffset;
             end 
@@ -941,6 +943,7 @@ local g_UnitFlagClass =
         
         -- set the ui offset
         self.m_Instance.FlagShadow:SetOffset( offset );
+        self.m_Instance.GarrisonFrame:SetHide( not showGarrisonRing );
     end,
 }
 

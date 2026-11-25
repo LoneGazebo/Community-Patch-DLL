@@ -481,13 +481,6 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		-- Update strength
 		local cityStrengthStr = math.floor(city:GetStrengthValue() / 100);
 
-		local garrisonedUnit = city:GetGarrisonedUnit();
-		if garrisonedUnit == nil then
-			if isActiveTeamCity then
-				controls.GarrisonFrame:SetHide(true);
-			end
-		end
-
 		local iCityDamage = city:GetDamage()
 		local iCityMaxHP = city:GetMaxHitPoints()
 		local iCityCurrentHP = iCityMaxHP - iCityDamage
@@ -1160,10 +1153,6 @@ function OnHexFogEvent( hexPos, fowType, bWholeMap )
 							if fowType == BlackFog  then
 								instance.SubControls.Anchor:SetHide( true );
 							else
-								local garrisonedUnit = city:GetGarrisonedUnit();
-								if garrisonedUnit and not UnitMoving(garrisonedUnit:GetOwner(), garrisonedUnit:GetID()) then
-									GarrisonComplete( instance, city );
-								end
 								instance.SubControls.Anchor:SetHide( false );
 							end
 						end
@@ -1323,60 +1312,6 @@ function OnBannerClick( x, y )
 	end
 end
 
-------------------------------------------------------------
-------------------------------------------------------------
-function GarrisonComplete( cityBanner, pCity )
-	local active_team = Players[Game.GetActivePlayer()]:GetTeam();
-	local team = Players[cityBanner.playerID]:GetTeam();
-
-	local controls = cityBanner.SubControls;
-	if active_team == team then
-		controls.GarrisonFrame:SetHide(false);
-	end
-end
-
--------------------------------------------------
--- On Unit Garrison
--------------------------------------------------
-function OnUnitGarrison( playerID, unitID, bGarrisoned )
-	if bGarrisoned and not UnitMoving(playerID, unitID) then
-		local player = Players[ playerID ];
-		local unit = player:GetUnitByID( unitID );
-		local cityBanners = Instances[ playerID ];
-		if unit ~= nil and cityBanners ~= nil then
-			local city = unit:GetGarrisonedCity();
-			if city ~= nil then
-				local banner = cityBanners[city:GetID()];
-				if banner ~= nil then
-					GarrisonComplete( banner, city );
-				end
-			end
-		end
-	end
-end
-Events.UnitGarrison.Add( OnUnitGarrison );
-
--------------------------------------------------
--- On Unit Move Queue Changed
--------------------------------------------------
-function OnUnitMoveQueueChanged( playerID, unitID, bRemainingMoves )
-	if not bRemainingMoves then
-		local player = Players[ playerID ];
-		local unit = player:GetUnitByID( unitID );
-		local cityBanners = Instances[ playerID ];
-		if unit ~= nil and cityBanners ~= nil and unit:IsGarrisoned() then
-			local city = unit:GetGarrisonedCity();
-			if city ~= nil then
-				local banner = cityBanners[city:GetID()];
-				if banner ~= nil then
-					GarrisonComplete( banner, city );
-				end
-			end
-		end
-	end
-end
-Events.UnitMoveQueueChanged.Add( OnUnitMoveQueueChanged );
-
 -------------------------------------------------
 -------------------------------------------------
 function OnProdClick( cityID, prodName )
@@ -1433,91 +1368,6 @@ function OnCityBannerActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 	end
 end
 Events.GameplaySetActivePlayer.Add(OnCityBannerActivePlayerChanged);
-
-------------------------------------------------------------
-------------------------------------------------------------
-function HideGarrisonRing(iX, iY, bHide)
-
-	local pPlot = Map.GetPlot( iX, iY );
-	if pPlot ~= nil then
-		local pCity = pPlot:GetPlotCity();
-		if pCity ~= nil then
-			local cityID = pCity:GetID();
-			local playerID = pCity:GetOwner();
-			if playerID ~= -1 then
-				-- Only the active team has a Garrison ring
-				local eActiveTeam = Players[Game.GetActivePlayer()]:GetTeam();
-				local eCityTeam = Players[playerID]:GetTeam();
-
-				if eActiveTeam == eCityTeam then
-					local playerTable = Instances[ playerID ];
-					if playerTable then
-						local pBannerInstance = playerTable[ cityID ];
-						if pBannerInstance ~= nil then
-							if (bHide) then
-								pBannerInstance.SubControls.GarrisonFrame:SetHide(true);
-							else
-								-- Only show it if we really need to
-								local garrisonedUnit = pCity:GetGarrisonedUnit();
-								if garrisonedUnit ~= nil then
-									pBannerInstance.SubControls.GarrisonFrame:SetHide(false);
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-end
-------------------------------------------------------------
-------------------------------------------------------------
-function OnCombatBegin( attackerPlayerID,
-                        attackerUnitID,
-                        attackerUnitDamage,
-                        attackerFinalUnitDamage,
-                        attackerMaxHitPoints,
-                        defenderPlayerID,
-                        defenderUnitID,
-                        defenderUnitDamage,
-                        defenderFinalUnitDamage,
-                        defenderMaxHitPoints,
-                        bContinuation,
-                        attackerX,
-                        attackerY,
-                        defenderX,
-                        defenderY )
-    print( "CityBanner CombatBegin" );
-
-	HideGarrisonRing(attackerX, attackerY, true);
-	HideGarrisonRing(defenderX, defenderY, true);
-end
-Events.RunCombatSim.Add( OnCombatBegin );
-
-
-------------------------------------------------------------
-------------------------------------------------------------
-function OnCombatEnd( attackerPlayerID,
-                      attackerUnitID,
-                      attackerUnitDamage,
-                      attackerFinalUnitDamage,
-                      attackerMaxHitPoints,
-                      defenderPlayerOD,
-                      defenderUnitID,
-                      defenderUnitDamage,
-                      defenderFinalUnitDamage,
-                      defenderMaxHitPoints,
-                      attackerX,
-                      attackerY,
-					  defenderX,
-                      defenderY )
-
-    print( "CityBanner CombatEnd" );
-
-	HideGarrisonRing(attackerX, attackerY, false);
-	HideGarrisonRing(defenderX, defenderY, false);
-end
-Events.EndCombatSim.Add( OnCombatEnd );
 
 --------------------------------------------------------------
 -- The active player's turn has begin, make sure their range strike icons are correct
