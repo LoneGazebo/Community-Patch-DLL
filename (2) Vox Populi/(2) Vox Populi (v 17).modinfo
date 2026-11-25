@@ -38,11 +38,11 @@
   </Blocks>
   <Files>
     <File md5="4D19A2F465CED315693D8621108F1C1E" import="0">CommunityOptions.sql</File>
-    <File md5="B643FE15BF17DC58702C2E44D6902C57" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_045.dds</File>
-    <File md5="1A83035DCDF22F9441A59261FFC1D46B" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_064.dds</File>
-    <File md5="E1D19BE39D08C0FB7D795E42545AD5C5" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_080.dds</File>
-    <File md5="612FAB227038794CCF1C7C9453BC1D5E" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_128.dds</File>
-    <File md5="27640FA7ACC16FCADC61A75817E7F8CF" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_256.dds</File>
+    <File md5="ACFB84C3E33F54018C9DF756A6FB2DF4" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_045.dds</File>
+    <File md5="3ECA384AAF5B49A2A34D9B5A01F4FAD6" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_064.dds</File>
+    <File md5="4080A1FEF980583D0A1BE0B973937B36" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_080.dds</File>
+    <File md5="9BF07DE7E29EC250921ADF992DF47201" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_128.dds</File>
+    <File md5="8BACCBF6FBC90B7147B183E1506A1802" import="1">Assets/Atlases/Buildings/VPBuildingAtlas1_256.dds</File>
     <File md5="2D8B4FC4294F6F11D09A66678E03B0A7" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_045.dds</File>
     <File md5="65009A31BA0591A284ECD1AFAB022AED" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_064.dds</File>
     <File md5="E1DB6DF2C46639A72AA2FD09443775CD" import="1">Assets/Atlases/Buildings/VPBuildingAtlas2_080.dds</File>
