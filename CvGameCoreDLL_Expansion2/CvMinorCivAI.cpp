@@ -12239,7 +12239,11 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 
 		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
-			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCapitalPlot);
+			// The civ's own cities, not the shared closest-city map: the UI asks at any time, also while a civ founds its first city,
+			// which the map has only after the founding. A city that is not on its plot yet is left out.
+			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCity(pCapitalPlot, INT_MAX, false);
+			if (!pClosestCity || !pClosestCity->plot() || pClosestCity->plot()->getPlotCity() != pClosestCity)
+				continue;
 			int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), iMinorCapitalX, iMinorCapitalY);
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
 			iStrength /= iDistance;
@@ -12452,7 +12456,10 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 
 				if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 				{
-					CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCapitalPlot);
+					// The civ's own cities, not the shared closest-city map (see GetPledgeProtectionInvalidReason)
+					CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCity(pCapitalPlot, INT_MAX, false);
+					if (!pClosestCity || !pClosestCity->plot() || pClosestCity->plot()->getPlotCity() != pClosestCity)
+						continue;
 					int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), iMinorCapitalX, iMinorCapitalY);
 					int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
 					iStrength /= iDistance;
