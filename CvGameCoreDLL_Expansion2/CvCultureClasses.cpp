@@ -1377,8 +1377,8 @@ static bool SortThemingBonus(const CvGreatWorkBuildingInMyEmpire& kEntry1, const
 
 	if (pEntry1 && pEntry2)
 	{
-		CvThemingBonusInfo *pBonus1 = pEntry1->GetThemingBonusInfo(0);
-		CvThemingBonusInfo *pBonus2 = pEntry2->GetThemingBonusInfo(0);
+		const CvThemingBonusInfo *pBonus1 = pEntry1->GetThemingBonusInfo(0);
+		const CvThemingBonusInfo *pBonus2 = pEntry2->GetThemingBonusInfo(0);
 
 		if (pBonus1 && pBonus2)
 		{
@@ -1665,7 +1665,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 	for (int iI = 0; iI < bestThemes.size(); iI++)
 	{
 		bool bThemedProperly = false;
-		CvThemingBonusInfo *pkBonusInfo = pkEntry->GetThemingBonusInfo(bestThemes.GetElement(iI));
+		const CvThemingBonusInfo *pkBonusInfo = pkEntry->GetThemingBonusInfo(bestThemes.GetElement(iI));
 		if (pkBonusInfo->IsMustBeArt())
 		{
 			worksToConsider = works1;
@@ -1907,7 +1907,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 		return false;
 	}
 
-	CvThemingBonusInfo *pkBonusInfo = pkEntry->GetThemingBonusInfo(iThemingBonusIndex);
+	const CvThemingBonusInfo *pkBonusInfo = pkEntry->GetThemingBonusInfo(iThemingBonusIndex);
 
 	int iOwnedWorks = 0;
 
@@ -6033,7 +6033,7 @@ CvString CvCityCulture::GetThemingTooltip(BuildingClassTypes eBuildingClass) con
 	int iIndex = GetThemingBonusIndex(eBuildingClass);
 	if (iIndex != -1)
 	{
-		CvThemingBonusInfo* pkThemingInfo = pkBuildingInfo->GetThemingBonusInfo(iIndex);
+		const CvThemingBonusInfo* pkThemingInfo = pkBuildingInfo->GetThemingBonusInfo(iIndex);
 		ASSERT(pkThemingInfo, "Couldn't find theming bonus info");
 
 		CvString szBonusString = "";
@@ -6422,7 +6422,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 			bool bValid = true;
 
 			// Can we rule this out based on type?
-			CvThemingBonusInfo *bonusInfo = pkEntry->GetThemingBonusInfo(jJ);
+			const CvThemingBonusInfo *bonusInfo = pkEntry->GetThemingBonusInfo(jJ);
 			if (bValid && bonusInfo->IsMustBeArt() && iCountArtifact > 0)
 			{
 				bValid = false;
@@ -6485,7 +6485,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 	return -1;
 }
 
-bool CultureHelpers::IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aForeignErasSeen, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aForeignPlayersSeen, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
+bool CultureHelpers::IsValidForForeignThemingBonus(const CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aForeignErasSeen, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aForeignPlayersSeen, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
 {
 	bool bValid = true;
 
@@ -6543,7 +6543,7 @@ bool CultureHelpers::IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInf
 	return bValid;
 }
 
-bool CultureHelpers::IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
+bool CultureHelpers::IsValidForThemingBonus(const CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
 {
 	bool bValid = true;
 
