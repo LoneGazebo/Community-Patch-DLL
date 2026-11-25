@@ -1277,7 +1277,9 @@ public:
 	int hillsAttackModifier() const;
 	int hillsDefenseModifier() const;
 	int openAttackModifier() const;
+	int openRangedAttackModifier() const;
 	int roughAttackModifier() const;
+	int roughRangedAttackModifier() const;
 	int attackFortifiedModifier() const;
 	int attackWoundedModifier() const;
 	int attackFullyHealedModifier() const;
@@ -1600,8 +1602,14 @@ public:
 	int getExtraOpenAttackPercent() const;
 	void changeExtraOpenAttackPercent(int iChange);
 
+	int getExtraOpenRangedAttackMod() const;
+	void changeExtraOpenRangedAttackMod(int iChange);
+
 	int getExtraRoughAttackPercent() const;
 	void changeExtraRoughAttackPercent(int iChange);
+
+	int getExtraRoughRangedAttackMod() const;
+	void changeExtraRoughRangedAttackMod(int iChange);
 
 	int getExtraAttackFortifiedMod() const;
 	void changeExtraAttackFortifiedMod(int iChange);
@@ -2464,7 +2472,9 @@ protected:
 	int m_iExtraHillsAttackPercent;
 	int m_iExtraHillsDefensePercent;
 	int m_iExtraOpenAttackPercent;
+	int m_iExtraOpenRangedAttackMod;
 	int m_iExtraRoughAttackPercent;
+	int m_iExtraRoughRangedAttackMod;
 	int m_iExtraAttackFortifiedMod;
 	int m_iExtraAttackWoundedMod;
 	int m_iExtraFullyHealedMod;
@@ -2912,7 +2922,9 @@ SYNC_ARCHIVE_VAR(int, m_iExtraRangedDefenseModifier)
 SYNC_ARCHIVE_VAR(int, m_iExtraHillsAttackPercent)
 SYNC_ARCHIVE_VAR(int, m_iExtraHillsDefensePercent)
 SYNC_ARCHIVE_VAR(int, m_iExtraOpenAttackPercent)
+SYNC_ARCHIVE_VAR(int, m_iExtraOpenRangedAttackMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraRoughAttackPercent)
+SYNC_ARCHIVE_VAR(int, m_iExtraRoughRangedAttackMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraAttackFortifiedMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraAttackWoundedMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraFullyHealedMod)

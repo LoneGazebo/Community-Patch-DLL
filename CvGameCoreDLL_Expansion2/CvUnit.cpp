@@ -249,7 +249,9 @@ CvUnit::CvUnit() :
 	, m_iExtraHillsAttackPercent()
 	, m_iExtraHillsDefensePercent()
 	, m_iExtraOpenAttackPercent()
+	, m_iExtraOpenRangedAttackMod()
 	, m_iExtraRoughAttackPercent()
+	, m_iExtraRoughRangedAttackMod()
 	, m_iExtraAttackFortifiedMod()
 	, m_iExtraAttackWoundedMod()
 	, m_iExtraFullyHealedMod()
@@ -1395,7 +1397,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraHillsAttackPercent = 0;
 	m_iExtraHillsDefensePercent = 0;
 	m_iExtraOpenAttackPercent = 0;
+	m_iExtraOpenRangedAttackMod= 0;
 	m_iExtraRoughAttackPercent = 0;
+	m_iExtraRoughRangedAttackMod= 0;
 	m_iExtraAttackFortifiedMod= 0;
 	m_iExtraAttackWoundedMod= 0;
 	m_iExtraFullyHealedMod = 0;
@@ -1947,7 +1951,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade, bool bIsGift)
 			{
 				bool bMelee = false;
 				bool bRanged = false;
-				if ((pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->GetRangeChange() > 0) || (pkPromotionInfo->IsRangeAttackIgnoreLOS()) || (pkPromotionInfo->GetExtraAttacks() > 0))
+				if ((pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->GetRangeChange() > 0) || (pkPromotionInfo->IsRangeAttackIgnoreLOS()) || (pkPromotionInfo->GetOpenRangedAttackMod() > 0) || (pkPromotionInfo->GetRoughRangedAttackMod() > 0) || (pkPromotionInfo->GetExtraAttacks() > 0))
 				{
 					bRanged = true;
 				}
@@ -17190,10 +17194,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 				// Attacking into Open Terrain
 				if (pTargetPlot->isOpenGround())
-					iModifier += openAttackModifier();
+					iModifier += openAttackModifier() + openRangedAttackModifier();
 				// Attacking into Rough Terrain
 				else if (pTargetPlot->isRoughGround())
-					iModifier += roughAttackModifier();
+					iModifier += roughAttackModifier() + roughRangedAttackModifier();
 
 				// Attacking into a Feature
 				if (pTargetPlot->getFeatureType() != NO_FEATURE)
@@ -19920,10 +19924,24 @@ int CvUnit::openAttackModifier() const
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::openRangedAttackModifier() const
+{
+	VALIDATE_OBJECT();
+	return (getExtraOpenRangedAttackMod());
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::roughAttackModifier() const
 {
 	VALIDATE_OBJECT();
 	return (getExtraRoughAttackPercent());
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::roughRangedAttackModifier() const
+{
+	VALIDATE_OBJECT();
+	return (getExtraRoughRangedAttackMod());
 }
 
 //	--------------------------------------------------------------------------------
@@ -23442,6 +23460,27 @@ void CvUnit::changeExtraOpenAttackPercent(int iChange)
 
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getExtraOpenRangedAttackMod() const
+{
+	VALIDATE_OBJECT();
+	return m_iExtraOpenRangedAttackMod;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraOpenRangedAttackMod(int iChange)
+{
+	VALIDATE_OBJECT();
+	if(iChange != 0)
+	{
+		m_iExtraOpenRangedAttackMod = (m_iExtraOpenRangedAttackMod + iChange);
+
+		setInfoBarDirty(true);
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getExtraRoughAttackPercent() const
 {
 	VALIDATE_OBJECT();
@@ -23456,6 +23495,27 @@ void CvUnit::changeExtraRoughAttackPercent(int iChange)
 	if(iChange != 0)
 	{
 		m_iExtraRoughAttackPercent = (m_iExtraRoughAttackPercent + iChange);
+
+		setInfoBarDirty(true);
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraRoughRangedAttackMod() const
+{
+	VALIDATE_OBJECT();
+	return m_iExtraRoughRangedAttackMod;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraRoughRangedAttackMod(int iChange)
+{
+	VALIDATE_OBJECT();
+	if(iChange != 0)
+	{
+		m_iExtraRoughRangedAttackMod = (m_iExtraRoughRangedAttackMod + iChange);
 
 		setInfoBarDirty(true);
 	}
@@ -28358,7 +28418,9 @@ void CvUnit::setPromotionActive(PromotionTypes eIndex, bool bNewValue)
 	changeExtraHillsAttackPercent(thisPromotion.GetHillsAttackPercent() * iChange);
 	changeExtraHillsDefensePercent(thisPromotion.GetHillsDefensePercent() * iChange);
 	changeExtraOpenAttackPercent(thisPromotion.GetOpenAttackPercent() * iChange);
+	changeExtraOpenRangedAttackMod(thisPromotion.GetOpenRangedAttackMod() * iChange);
 	changeExtraRoughAttackPercent(thisPromotion.GetRoughAttackPercent() * iChange);
+	changeExtraRoughRangedAttackMod(thisPromotion.GetRoughRangedAttackMod() * iChange);
 	changeExtraAttackFortifiedMod(thisPromotion.GetAttackFortifiedMod() * iChange);
 	changeExtraAttackWoundedMod(thisPromotion.GetAttackWoundedMod() * iChange);
 	changeExtraAttackFullyHealedMod(thisPromotion.GetAttackFullyHealedMod() * iChange);
@@ -28880,7 +28942,9 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iExtraHillsAttackPercent);
 	visitor(unit.m_iExtraHillsDefensePercent);
 	visitor(unit.m_iExtraOpenAttackPercent);
+	visitor(unit.m_iExtraOpenRangedAttackMod);
 	visitor(unit.m_iExtraRoughAttackPercent);
+	visitor(unit.m_iExtraRoughRangedAttackMod);
 	visitor(unit.m_iExtraAttackFortifiedMod);
 	visitor(unit.m_iExtraAttackWoundedMod);
 	visitor(unit.m_iExtraFullyHealedMod);
@@ -32490,6 +32554,21 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	
 
+	iTemp = pkPromotionInfo->GetOpenRangedAttackMod();
+	if(iTemp != 0 && IsCanAttackRanged())
+	{
+		iExtra = getExtraOpenRangedAttackMod();
+		iExtra = (iTemp + iExtra) * (iFlavorOffense + iFlavorDefense + iFlavorMobile);
+		iExtra *= 0.35;
+		if(getUnitInfo().IsMounted())
+		{
+			iExtra *= 2;
+		}
+		iValue += iExtra;
+	}
+
+	
+
 	iTemp = pkPromotionInfo->GetOpenDefensePercent();
 	// M + mM: +15 Formation 1, 2. 
 	if(iTemp != 0)
@@ -32515,6 +32594,15 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
+
+	iTemp = pkPromotionInfo->GetRoughRangedAttackMod();
+	if(iTemp != 0 && IsCanAttackRanged())
+	{
+		iExtra = getExtraRoughRangedAttackMod();
+		iExtra = (iTemp + iExtra) * (iFlavorOffense + 2 * iFlavorDefense);
+		iExtra *= 0.35;
+		iValue += iExtra;
+	}
 
 	iTemp = pkPromotionInfo->GetRoughDefensePercent();    
 	// M: +10 Woodsman.			// Shouldn't this be just forest?

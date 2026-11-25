@@ -107,8 +107,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iHillsDefensePercent(0),
 	m_iOpenAttackPercent(0),
 	m_iOpenFromPercent(0),
+	m_iOpenRangedAttackMod(0),
 	m_iRoughAttackPercent(0),
 	m_iRoughFromPercent(0),
+	m_iRoughRangedAttackMod(0),
 	m_iAttackFortifiedMod(0),
 	m_iAttackWoundedMod(0),
 	m_iAttackFullyHealedMod(0),
@@ -616,11 +618,12 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iRangedDefenseMod = kResults.GetInt("RangedDefenseMod");
 	m_iHillsAttackPercent = kResults.GetInt("HillsAttack");
 	m_iHillsDefensePercent = kResults.GetInt("HillsDefense");
-	// Melee and ranged attacks share one open/rough terrain attack bonus, so the ranged columns add to it
-	m_iOpenAttackPercent = kResults.GetInt("OpenAttack") + kResults.GetInt("OpenRangedAttackMod");
+	m_iOpenAttackPercent = kResults.GetInt("OpenAttack");
 	m_iOpenFromPercent = kResults.GetInt("OpenFromMod");
-	m_iRoughAttackPercent = kResults.GetInt("RoughAttack") + kResults.GetInt("RoughRangedAttackMod");
+	m_iOpenRangedAttackMod = kResults.GetInt("OpenRangedAttackMod");
+	m_iRoughAttackPercent = kResults.GetInt("RoughAttack");
 	m_iRoughFromPercent = kResults.GetInt("RoughFromMod");
+	m_iRoughRangedAttackMod = kResults.GetInt("RoughRangedAttackMod");
 	m_iAttackFortifiedMod = kResults.GetInt("AttackFortifiedMod");
 	m_iAttackWoundedMod = kResults.GetInt("AttackWoundedMod");
 	m_iAttackFullyHealedMod = kResults.GetInt("AttackFullyHealedMod");
@@ -1782,6 +1785,12 @@ int CvPromotionEntry::GetOpenFromPercent() const
 	return m_iOpenFromPercent;
 }
 
+/// Accessor: Bonus open terrain ranged attack mod
+int CvPromotionEntry::GetOpenRangedAttackMod() const
+{
+	return m_iOpenRangedAttackMod;
+}
+
 /// Accessor: Bonus open terrain attack percent
 int CvPromotionEntry::GetRoughAttackPercent() const
 {
@@ -1794,6 +1803,11 @@ int CvPromotionEntry::GetRoughFromPercent() const
 	return m_iRoughFromPercent;
 }
 
+/// Accessor: Bonus rough terrain ranged attack mod
+int CvPromotionEntry::GetRoughRangedAttackMod() const
+{
+	return m_iRoughRangedAttackMod;
+}
 
 /// Accessor: Bonus when attacking fortified units
 int CvPromotionEntry::GetAttackFortifiedMod() const
