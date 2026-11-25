@@ -489,6 +489,7 @@
     <File md5="4B2B36C7909BF259362FF99F0C6FE1D2" import="1">Core Files/Overrides/NotificationLogPopup.lua</File>
     <File md5="BA1523FEFB7311F26F130D63CE0DC79C" import="1">Core Files/Overrides/NotificationLogPopup.xml</File>
     <File md5="91DEEC22E933A63497BBDA0E5066D8D3" import="1">Core Files/Overrides/NewEraPopup.lua</File>
+    <File md5="392130A8FB6482AAE62E3F8FD07580E3" import="1">Core Files/Overrides/OptionsMenu.lua</File>
     <File md5="E972C1D0A6607247B8B7F6C9CEDCFAD1" import="1">Core Files/Overrides/PathHelpManager.lua</File>
     <File md5="E752DD1920A620500531519E48FBC2B7" import="1">Core Files/Overrides/PathHelpManager.xml</File>
     <File md5="E0EB123F5D919F8359CE9F1041343BE9" import="1">Core Files/Overrides/PuppetCityPopup.lua</File>
