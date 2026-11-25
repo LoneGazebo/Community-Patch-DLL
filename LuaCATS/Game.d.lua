@@ -12,6 +12,11 @@ function Game.GetActivePlayer() end
 --- @return TeamId
 function Game.GetActiveTeam() end
 
+--- The seed this game's map was generated from. Entering it as the Map Seed in game setup,
+--- with the same map type, size, map options, players and mods, generates the same map
+--- @return integer uSeed 0 to 4294967295
+function Game.GetMapSeed() end
+
 --- Given an in-game great work ID, return its database row ID
 --- @param eGreatWork GreatWorkId
 --- @return GreatWorkType eGreatWorkType

@@ -91,6 +91,7 @@ void CvLuaGame::CreateFunctable(lua_State* L)
 	Method(GetNumHumanPlayers);
 	Method(GetNumSequentialHumans);
 	Method(GetGameTurn);
+	Method(GetMapSeed);
 	Method(SetGameTurn);
 	Method(GetTurnYear);
 	Method(GetGameTurnYear);
@@ -833,6 +834,14 @@ int CvLuaGame::lGetNumSequentialHumans(lua_State* L)
 int CvLuaGame::lGetGameTurn(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::getGameTurn);
+}
+//------------------------------------------------------------------------------
+//uint getMapSeed();
+int CvLuaGame::lGetMapSeed(lua_State* L)
+{
+	// A number, not an integer, so seeds above 2^31 stay positive
+	lua_pushnumber(L, static_cast<lua_Number>(CvPreGame::mapRandomSeed()));
+	return 1;
 }
 //------------------------------------------------------------------------------
 //void setGameTurn(int iNewValue);

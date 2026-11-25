@@ -43,6 +43,13 @@
 			<Help>TXT_KEY_GAME_OPTION_KEEP_UNMET_PLAYERS_UNKNOWN_HELP</Help>
 			<SupportsSinglePlayer>false</SupportsSinglePlayer>
 		</Row>
+		<!-- Set in game setup as a number, not a checkbox; 0 means a new seed each game -->
+		<Row>
+			<Type>GAMEOPTION_MAP_SEED</Type>
+			<Description>TXT_KEY_GAME_OPTION_MAP_SEED</Description>
+			<Help>TXT_KEY_GAME_OPTION_MAP_SEED_HELP</Help>
+			<Visible>false</Visible>
+		</Row>
 		<!-- Tech Trade -->
 		<Row>
 			<Type>GAMEOPTION_DISABLE_RESEARCH_AGREEMENTS</Type>

@@ -455,6 +455,8 @@
     <File md5="5CE8AADCD96BC892206D0738E4879395" import="1">Core Files/New UI/RecentEventsInfo.lua</File>
     <File md5="B9265F59D7CFB7857DD3D8C308F5D7D0" import="1">Core Files/New UI/RecentEventsInfo.xml</File>
     <File md5="497C88F23A27ABE7555B765DF05CD44E" import="1">Core Files/Overrides/ActionInfoPanel.lua</File>
+    <File md5="C3B7AF810DED81B8CBCA796D8EAA2924" import="1">Core Files/Overrides/AdvancedSetup.lua</File>
+    <File md5="3C5260F87A58461B2F82CAB3FA67DBE2" import="1">Core Files/Overrides/AdvancedSetup.xml</File>
     <File md5="5DF39EDCFB6CB0EE7C69AC07461DFE5A" import="1">Core Files/Overrides/ChoosePantheonPopup.lua</File>
     <File md5="4F974C77D09B75A2FC35D43BEAE186AA" import="1">Core Files/Overrides/ChoosePantheonPopup.xml</File>
     <File md5="09A3F7EDA681054428C87C0345B2F16C" import="1">Core Files/Overrides/ChooseReligionPopup.lua</File>
@@ -474,6 +476,7 @@
     <File md5="F24584C3F7D166B5E799DDCEFEBBD6B5" import="1">Core Files/Overrides/EnemyUnitPanel_small.xml</File>
     <File md5="20D0863DB17ED978E5ED9E42664A3F8C" import="1">Core Files/Overrides/EspionageOverview.lua</File>
     <File md5="5965201A71E00881AB8639C5D6A79A04" import="1">Core Files/Overrides/EspionageOverview.xml</File>
+    <File md5="D3E78385C491AB548E7562B08596FE4D" import="1">Core Files/Overrides/GameMenu.lua</File>
     <File md5="D8A8BB74144BC653D26E1A07D7A9717E" import="1">Core Files/Overrides/GPList.lua</File>
     <File md5="A0B9DBA07F98E3B8D050AAD5A247EFCB" import="1">Core Files/Overrides/HappinessInfo.lua</File>
     <File md5="3F0909308CAEA0B4F8CD7073E4DF6047" import="1">Core Files/Overrides/HappinessInfo.xml</File>

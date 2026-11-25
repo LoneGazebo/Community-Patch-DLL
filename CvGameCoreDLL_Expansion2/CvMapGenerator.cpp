@@ -280,6 +280,22 @@ int CvMapGenerator::pGenerateRandomMap(lua_State* L)
 	cvStopWatch stopWatch("CvMapGenerator - GenerateRandomMap()");
 	ICvEngineScriptSystem1* pkScriptSystem = (ICvEngineScriptSystem1*)lua_touserdata(L, 1);
 
+	// Scripts that draw from math.random instead of Map.Rand repeat their map for a given map seed too
+	lua_getglobal(L, "math");
+	if(lua_istable(L, -1))
+	{
+		lua_getfield(L, -1, "randomseed");
+		if(lua_isfunction(L, -1))
+		{
+			lua_pushnumber(L, static_cast<lua_Number>(CvPreGame::mapRandomSeed() & 0x7FFFFFFF));
+			if(lua_pcall(L, 1, 0, 0) != 0)
+				lua_pop(L, 1);
+		}
+		else
+			lua_pop(L, 1);
+	}
+	lua_pop(L, 1);
+
 	lua_getglobal(L, "GenerateMap");
 	if(lua_isnil(L, -1))
 		luaL_error(L, "Cannot find map script entry point GenerateMap()");

@@ -115,6 +115,7 @@ stds.CIV = {
 		"ApplyGenericEntrySettings",
 		"PrintContentsOfTable",
 		"GameplayUtilities",
+		"MapUtilities",
 
 		-- FLuaVector (include("FLuaVector")) — constructors + vector math
 		"Vector2", "Vector3", "Vector4", "Color",
