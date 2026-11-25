@@ -179,6 +179,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iCaptureDefeatedEnemyChance(0),
 	m_iBarbarianCombatBonus(0),
 	m_iGoodyHutYieldBonus(0),
+	m_bGlobalUpgrade(false),
 	m_iDiploMissionInfluence(0),
 	m_bGainsXPFromScouting(false),
 	m_bCanClaimGoody(false),
@@ -436,6 +437,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iCaptureDefeatedEnemyChance = kResults.GetInt("CaptureDefeatedEnemyChance");
 	m_iBarbarianCombatBonus = kResults.GetInt("BarbarianCombatBonus");
 	m_iGoodyHutYieldBonus = kResults.GetInt("GoodyHutYieldBonus");
+	m_bGlobalUpgrade = kResults.GetBool("GlobalUpgrade");
 	m_iDiploMissionInfluence = kResults.GetInt("DiploMissionInfluence");
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
 	m_bCanClaimGoody = kResults.GetBool("CanClaimGoody");
@@ -2202,6 +2204,10 @@ int CvPromotionEntry::GetDiploMissionInfluence() const
 int CvPromotionEntry::GetGoodyHutYieldBonus() const
 {
 	return m_iGoodyHutYieldBonus;
+}
+bool CvPromotionEntry::IsGlobalUpgrade() const
+{
+	return m_bGlobalUpgrade;
 }
 /// Accessor: Can this Promotion grant XP from scouting?
 bool CvPromotionEntry::IsGainsXPFromScouting() const
