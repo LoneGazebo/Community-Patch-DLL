@@ -139,6 +139,7 @@
     <File md5="1E65514685A1AC3C7DCB6F5E8D4CD90A" import="1">Assets/Atlases/Units/VPUnitFlagAtlas1_032.dds</File>
     <File md5="BAE20B60A3E722B950957CFD22B610E3" import="1">Assets/Atlases/Units/VPUnitFlagAtlas2_032.dds</File>
     <File md5="24A2F27062E12BCBEC37C9E8F3AA257E" import="1">Assets/Graphics/GreatWorks_Artifact_HL_34.dds</File>
+    <File md5="8986E5C45DFC853E854F04EF1D95DC4F" import="1">Assets/Graphics/UnitFlagSleep.dds</File>
     <File md5="2CD21E4B3FB567CE3A70B7569CC21AA5" import="1">Assets/Graphics/Buttons/civilopediatopbuttonscorporations.dds</File>
     <File md5="ABD507B87DF2A2511FD9027A725A5CEF" import="1">Assets/Graphics/Buttons/GreatWorks_Artifact_Empty.dds</File>
     <File md5="0C759F1CED95795CCFBE40C6BD9A963C" import="1">Assets/Graphics/Shared/no_gloss.dds</File>

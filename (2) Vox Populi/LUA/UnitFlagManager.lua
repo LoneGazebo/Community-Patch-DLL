@@ -235,6 +235,7 @@ local g_UnitFlagClass =
         o:SetUnitType();
         o:UpdateFlagType();
         o:UpdateHealth();
+        o:UpdateSleep();
         o:UpdateSelected();
         o:SetFogState( fogState );
         o:UpdateFlagOffset();
@@ -488,6 +489,19 @@ local g_UnitFlagClass =
     
     
     ------------------------------------------------------------------
+    -- The active player's units on Sleep or Fortify won't ask for orders until woken
+    ------------------------------------------------------------------
+    UpdateSleep = function( self )
+        local pUnit = self.m_Player:GetUnitByID( self.m_UnitID );
+        local bAsleep = self.m_PlayerID == Game.GetActivePlayer() and pUnit ~= nil and pUnit:GetActivityType() == ActivityTypes.ACTIVITY_SLEEP;
+        if( self.m_IsAsleep ~= bAsleep ) then
+            self.m_IsAsleep = bAsleep;
+            self.m_Instance.SleepIcon:SetHide( not bAsleep );
+        end
+    end,
+
+
+    ------------------------------------------------------------------
     ------------------------------------------------------------------
     UpdateFlagType = function ( self )
     
@@ -549,6 +563,12 @@ local g_UnitFlagClass =
         
         
         self.m_Instance.FlagShadow:SetTexture( textureName );
+        -- the ZZZ just touches the lower left edge of the round flag or of the fortify shield
+        if( textureName == "UnitFlagFortify.dds" ) then
+            self.m_Instance.SleepIcon:SetOffsetVal( -15, 19 );
+        else
+            self.m_Instance.SleepIcon:SetOffsetVal( -13, 17 );
+        end
         self.m_Instance.FlagBase:SetTexture( textureName );
         self.m_Instance.FlagBaseOutline:SetTexture( textureName );
         self.m_Instance.NormalSelect:SetTexture( textureName );
@@ -1290,6 +1310,21 @@ function OnUnitSelect( playerID, unitID, i, j, k, isSelected )
 end
 Events.UnitSelectionChanged.Add( OnUnitSelect );
 
+-------------------------------------------------
+-- Sleep icons follow orders, selection changes and turn starts
+-------------------------------------------------
+function UpdateSleepFlags()
+    local playerTable = g_MasterList[ Game.GetActivePlayer() ];
+    if( playerTable ~= nil ) then
+        for unitID, pFlag in pairs( playerTable ) do
+            pFlag:UpdateSleep();
+        end
+    end
+end
+Events.SerialEventUnitInfoDirty.Add( UpdateSleepFlags );
+Events.UnitSelectionChanged.Add( UpdateSleepFlags );
+Events.ActivePlayerTurnStart.Add( UpdateSleepFlags );
+
 
 
 --------------------------------------------------------------------------------
@@ -1746,6 +1781,11 @@ function OnActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 					pFlag:UpdateFlagOffset();
 				end
 			end
+		end
+	end
+	for playerID,playerTable in pairs( g_MasterList ) do
+		for unitID, pFlag in pairs( playerTable ) do
+			pFlag:UpdateSleep();
 		end
 	end
 	if (PreGame.GetSlotStatus( Game.GetActivePlayer() ) == SlotStatus.SS_OBSERVER) then
