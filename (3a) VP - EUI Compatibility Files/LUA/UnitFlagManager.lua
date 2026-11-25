@@ -254,6 +254,18 @@ local function SetFlagParent( flag )
 end
 
 --==========================================================
+-- VP sends UnitGarrison only when a unit is loaded, not when it moves into a city,
+-- so the flag layout keeps the garrison state of its flags.
+local UpdateFlagType
+local function SetFlagGarrisoned( flag, isGarrisoned )
+	if flag.m_IsGarrisoned ~= isGarrisoned then
+		flag.m_IsGarrisoned = isGarrisoned
+		UpdateFlagType( flag )
+	end
+	SetFlagParent( flag )
+end
+
+--==========================================================
 local function UpdatePlotFlags( plot )
 	-- DebugPrint( "UpdatePlotFlags at plot XY=", plot:GetX(), plot:GetY() ) end
 	local flags = {}
@@ -279,29 +291,19 @@ local function UpdatePlotFlags( plot )
 		end
 		n = #flags
 		-- DebugPrint( n,"flags found in city") end
-		if n == 1 then
-			flags[1].Container:SetOffsetVal( r, y )
-		elseif n > 1 then
-			local a = -math_min(35/(n-1),20)
-			local b = y-a
-			for i=n, 1, -1 do
-				-- DebugFlag( flags[i],"update offset at position", i ) end
-				flags[i].Container:SetOffsetVal( r, a*i+b )
-				SetFlagParent( flags[i] )
-			end
+		local a = n > 1 and -math_min(35/(n-1),20) or 0
+		for i=n, 1, -1 do
+			-- DebugFlag( flags[i],"update offset at position", i ) end
+			flags[i].Container:SetOffsetVal( r, a*(i-1)+y )
+			SetFlagGarrisoned( flags[i], false )
 		end
 		n = #gflags
 		-- DebugPrint( n,"gflags found in city") end
-		if n == 1 then
-			gflags[1].Container:SetOffsetVal( l, y )
-		elseif n > 1 then
-			local a = -math_min(35/(n-1),20)
-			local b = y-a
-			for i=n, 1, -1 do
-				-- DebugFlag( flags[i],"update offset at position", i ) end
-				gflags[i].Container:SetOffsetVal( l, a*i+b )
-				SetFlagParent( gflags[i] )
-			end
+		a = n > 1 and -math_min(35/(n-1),20) or 0
+		for i=n, 1, -1 do
+			-- DebugFlag( gflags[i],"update offset at position", i ) end
+			gflags[i].Container:SetOffsetVal( l, a*(i-1)+y )
+			SetFlagGarrisoned( gflags[i], true )
 		end
 	else
 		--print("updating cargo unit plot flags")
@@ -324,15 +326,11 @@ local function UpdatePlotFlags( plot )
 		end
 		n = #flags
 		-- DebugPrint( n,"flags found outside city") end
-		if n == 1 then
-			flags[1].Container:SetOffsetVal( 0, 0 )
-		elseif n > 1 then
-			local a = -math_min(35/(n-1),20)
-			for i=n, 1, -1 do
-				-- DebugFlag( flags[i],"update offset at position", i ) end
-				flags[i].Container:SetOffsetVal( 0, (i-1)*a )
-				SetFlagParent( flags[i] )
-			end
+		local a = n > 1 and -math_min(35/(n-1),20) or 0
+		for i=n, 1, -1 do
+			-- DebugFlag( flags[i],"update offset at position", i ) end
+			flags[i].Container:SetOffsetVal( 0, (i-1)*a )
+			SetFlagGarrisoned( flags[i], false )
 		end
 	end
 	n = #aflags
@@ -512,18 +510,20 @@ local function FinishMove( flag )
 end
 
 --==========================================================
-local function UpdateFlagType( flag )
+function UpdateFlagType( flag )
 	-- DebugFlag( flag, "UpdateFlagType" ) end
 
 	local unit = flag.m_Unit
 	local textureName, maskName
+
+	flag.GarrisonFrame:SetHide( not flag.m_IsGarrisoned )
 
 	if unit:IsEmbarked() then
 		textureName = "UnitFlagEmbark.dds"
 		maskName = "UnitFlagEmbarkMask.dds"
 		flag.UnitIconShadow:SetOffsetVal( -1, -2 )
 
-	elseif unit:IsGarrisoned() then
+	elseif flag.m_IsGarrisoned then
 		textureName = "UnitFlagBase.dds"
 		maskName = "UnitFlagMask.dds"
 		flag.UnitIconShadow:SetOffsetVal( -1, 1 )
@@ -665,6 +665,7 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 		flag.UnitIconShadow:SetTexture( textureSheet )
 		flag.UnitIcon:SetTextureOffset( textureOffset )
 		flag.UnitIconShadow:SetTextureOffset( textureOffset )
+		flag.GarrisonFrame:SetTexture( teamID == g_activeTeamID and "UnitFlagGarrisonRing.dds" or "UnitFlagGarrisonRingOther.dds" )
 
 		---------------------------------------------------------
 		-- Can carry units
@@ -907,6 +908,7 @@ function( playerID, unitID, unitPosition )
 			local targetPlot = flag.m_Unit:GetPlot()
 			if targetPlot ~= plot then
 				UpdatePlotFlags( plot )
+				SetFlagGarrisoned( flag, false )
 				-- DebugFlag( flag, "starting to move: setting flag offset to", 0, 0 ) end
 				return flag.Container:SetOffsetVal( 0, 0 )
 			end
@@ -1093,9 +1095,7 @@ function( playerID, unitID, isGarrisoned )
 	-- DebugUnit( playerID, unitID, "UnitGarrison, isGarrisoned=", isGarrisoned ) end
 	local flag = g_UnitFlags[ playerID ][ unitID ]
 	if flag then
-		flag.m_IsGarrisoned = isGarrisoned
-		SetFlagParent( flag )
-		UpdateFlagType( flag )
+		SetFlagGarrisoned( flag, isGarrisoned )
 	end
 end)
 
@@ -1217,6 +1217,7 @@ Events.GameplaySetActivePlayer.Add( function( activePlayerID )--, iPrevActivePla
 				flag.Button:SetConsumeMouseOver( isActiveTeam )
 				flag.FlagHighlight:SetHide( isAtPeace )
 				flag.FlagHighlight:SetColor( isAtPeace and g_colorWhite or g_colorRed )
+				flag.GarrisonFrame:SetTexture( isActiveTeam and "UnitFlagGarrisonRing.dds" or "UnitFlagGarrisonRingOther.dds" )
 			end
 		end
 	end

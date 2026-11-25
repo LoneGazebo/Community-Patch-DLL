@@ -1381,8 +1381,6 @@
     <File md5="832EDED992BD95DCFA1A062AD4FBD8A5" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="F1CDEFD3E7F7F755C02CC2F1370B0D34" import="1">LUA/TopPanel.lua</File>
     <File md5="8F5C4A097A6F53AF68A73609B5EBD0FB" import="1">LUA/TopPanel.xml</File>
-    <File md5="3DA0ECD74812B794EDF21FE68A96AFD1" import="1">LUA/UnitFlagManager.lua</File>
-    <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="4574AF7EAF3BDB05D2B739F7CD877158" import="1">LUA/UnitPanel.lua</File>
     <File md5="B2C144C336B89AC862C6FFF7429E6717" import="1">Mapscripts/Amazon_XP.lua</File>
     <File md5="F38869FAB20A53207EA7DF69390BAE1E" import="1">Mapscripts/Arborea.lua</File>

@@ -416,6 +416,8 @@
     <File md5="B6181DB8D582AE62F6EA670398D298CA" import="1">Assets/UI/locked_scientist.dds</File>
     <File md5="CA684194A3C656557B00598D7D705D53" import="1">Assets/UI/locked_servant.dds</File>
     <File md5="35F6F1468ACCE5AE572247F5E2FEFD69" import="1">Assets/UI/locked_writer.dds</File>
+    <File md5="24DF8EBBC8F99F53C8F0C4D8E9B4C5D6" import="1">Assets/UI/UnitFlagGarrisonRing.dds</File>
+    <File md5="5D593014E48366EF29046C350D63FEA4" import="1">Assets/UI/UnitFlagGarrisonRingOther.dds</File>
     <File md5="E9029C9E9851D1E0138D792ED5F5A471" import="1">Assets/UI/vassal80.dds</File>
     <File md5="8050930951C51832D14A659C7DD22C3F" import="1">Assets/UI/vassal80hl.dds</File>
     <File md5="ACA338F2B02A8184C76AADB60D0D4319" import="1">Assets/WonderSplashImages/wonderconceptbroadway.dds</File>
@@ -813,6 +815,8 @@
     <File md5="09F48361B9384916FE92B558BF89584A" import="1">LUA/TechTree.lua</File>
     <File md5="6F466E73E0A73EC3C95ACFCADC826D81" import="1">LUA/TechTree.xml</File>
     <File md5="330767311F636A9EA1D67C8E4DB05C76" import="1">LUA/TopPanel.lua</File>
+    <File md5="EB0BE000B62C5B9501BB1AF51B4615BD" import="1">LUA/UnitFlagManager.lua</File>
+    <File md5="6078110EACE41E3FCDFAF40147EA7EB8" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="1B7657384F730D1D73AD05D9F46CEEDF" import="1">LUA/UnitPanel.lua</File>
     <File md5="B3F04071E64112CAE79DBF97340A6A9A" import="1">LUA/Includes/CityStateStatusHelper.lua</File>
     <File md5="3EEC34EC93897595AABD4367C8B4B1A9" import="1">Mapscripts/Boreal.lua</File>

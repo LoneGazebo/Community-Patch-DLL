@@ -67,7 +67,7 @@
 			</Box>
 		
 			<Button Style="Button_128" Offset="0,40" Anchor="C,T" ID="EjectGarrison" Hidden="1"/>
-			<!--  CityBannerHealthBar GarrisonFrame CityBannerStrengthFrame CityCapitalIcon CityStrength CityRangeStrikeButton -->
+			<!--  CityBannerHealthBar CityBannerStrengthFrame CityCapitalIcon CityStrength CityRangeStrikeButton -->
 			<Box Anchor="C,C" Offset="0,-32" Size="128,48" Color="0.0.0.0" Hidden="0">
 				<!-- CityBannerHealthBarBase color needs Color="255,255,0,255" when its the Capital -->
 				<Box Anchor="C,B" Offset="0,1" Size="102,7" Color="255,255,200,255" ID="CityBannerHealthBarBase" Hidden="1">
@@ -76,8 +76,6 @@
 					<Box Anchor="C,T" Offset="0,1" Size="98,1" Color="255,255,255,64" Hidden="0"/>
 					<Box Anchor="C,B" Offset="0,0" Size="98,2" Color="0,0,0,64" Hidden="0"/>
 				</Box>
-				<!-- GarrisonFrame -->
-				<Image Anchor="C,C" Offset="-42,-8" Size="64,64" Texture="Assets/UI/Art/Icons/GarrisonFrame.dds" Hidden="0" ID="GarrisonFrame"/>
 				<!-- CityBannerStrengthFrame  -->
 				<Image Anchor="C,C" Offset="0,0" Size="128,48" Texture="Assets/UI/Art/Icons/CityBannerStrengthFrame.dds" Hidden="0" ID="CityBannerStrengthFrame" ConsumeMouse="0"/>
 				<Box Anchor="C,C" Offset="0,6" Size="64,24" Color="0,0,0,0" Hidden="0" ConsumeMouse="0" ToolTip="TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT"/>
