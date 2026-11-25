@@ -151,8 +151,16 @@
 
         </Stack>
 
-        <!-- Map Seed (Community Patch): the row and its Lua live in MapSeedSetup.lua/.xml -->
-        <LuaContext FileName="MapSeedSetup" ID="MapSeedSetup" Anchor="L,T" Size="450,32" Hidden="0" />
+        <!-- Map Seed (Community Patch); Lua centres the edit box on its text in the pulldowns' frame -->
+        <Container Anchor="L,T" Size="450,32" ID="MapSeedRow">
+            <Label Anchor="L,C" Offset="20,0" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_GAME_OPTION_MAP_SEED" ToolTip="TXT_KEY_GAME_OPTION_MAP_SEED_HELP" />
+            <Grid Anchor="L,C" Offset="170,0" Size="300,27" Style="Grid9Frame27Square" ID="MapSeedFrame">
+                <Button Anchor="C,C" Size="300,27" ToolTip="TXT_KEY_GAME_OPTION_MAP_SEED_HELP" ID="MapSeedFocus" />
+                <Label Anchor="C,C" ColorSet="Gray_Black" Font="TwCenMT18" FontStyle="Shadow" String="TXT_KEY_GAME_OPTION_MAP_SEED_RANDOM" ID="MapSeedRandom" />
+                <Label Anchor="C,C" Font="TwCenMT18" FontStyle="Shadow" Hidden="1" ID="MapSeedMeasure" />
+                <EditBox Anchor="C,C" Size="16,18" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" NumberInput="1" MaxLength="10" CallOnChar="1" ToolTip="TXT_KEY_GAME_OPTION_MAP_SEED_HELP" ID="MapSeedEdit" />
+            </Grid>
+        </Container>
 
         <!-- Victory Conditions -->
         <Box Anchor="C,T" Size="500,30" Offset="0,0" Color="White.0" >

@@ -54,10 +54,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
     <PackageMod>false</PackageMod>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="AdvancedSetup.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="CvGameCore_Expansion2.dll">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
