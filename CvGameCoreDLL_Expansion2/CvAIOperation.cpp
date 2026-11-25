@@ -2482,7 +2482,7 @@ set<int> CvAIOperationCarrierGroup::GetPossibleDeploymentZones() const
 					for (size_t i=0; i<GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
 					{
 						CvAIOperation* pOp = GET_PLAYER(m_eOwner).getAIOperationByIndex(i);
-						if (pOp->GetOperationType() != AI_OPERATION_CARRIER_GROUP)
+						if (pOp == this || pOp->GetOperationType() != AI_OPERATION_CARRIER_GROUP)
 							continue;
 
 						//this is the interesting check
