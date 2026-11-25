@@ -34,6 +34,7 @@ void CvLuaCity::CreateFunctable(lua_State* L)
 	Method(ChooseProduction);
 	Method(GetCityPlotIndex);
 	Method(GetCityIndexPlot);
+	Method(Plots);
 	Method(CanWork);
 	Method(IsPlotBlockaded);
 	Method(IsBlockadedTest);
@@ -836,6 +837,39 @@ int CvLuaCity::lGetCityIndexPlot(lua_State* L)
 	CvPlot* pkPlot = pkCity->GetCityCitizens()->GetCityPlotFromIndex(iIndex);
 	luaEx_pushPlot(L, pkPlot);
 	return 1;
+}
+//------------------------------------------------------------------------------
+// Aux method used by lPlots: returns the owned plot after the one returned last.
+int CvLuaCity::lPlotsAux(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const std::set<int>& siPlots = pkCity->GetPlotList();
+
+	lua_pushvalue(L, lua_upvalueindex(1));
+	const int t = lua_gettop(L);
+
+	// continue after the last plot index rather than at a stored position, so the walk survives the city gaining or losing plots
+	lua_rawgeti(L, t, 1);
+	std::set<int>::const_iterator it = lua_isnil(L, -1) ? siPlots.begin() : siPlots.upper_bound(lua_tointeger(L, -1));
+	lua_pop(L, 1);
+
+	if (it == siPlots.end())
+		return 0;
+
+	lua_pushinteger(L, *it);
+	lua_rawseti(L, t, 1);
+
+	luaEx_pushPlot(L, GC.getMap().plotByIndex(*it));
+	return 1;
+}
+//------------------------------------------------------------------------------
+// Method for iterating through the plots the city owns, in plot index order (behaves like pairs)
+int CvLuaCity::lPlots(lua_State* L)
+{
+	lua_createtable(L, 1, 0);
+	lua_pushcclosure(L, lPlotsAux, 1);		/* generator, */
+	lua_pushvalue(L, 1);					/* state (self) */
+	return 2;
 }
 //------------------------------------------------------------------------------
 //bool canWork(CvPlot* pPlot);

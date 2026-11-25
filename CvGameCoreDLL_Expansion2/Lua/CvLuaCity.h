@@ -29,6 +29,8 @@ protected:
 	static int lChooseProduction(lua_State* L);
 	static int lGetCityPlotIndex(lua_State* L);
 	static int lGetCityIndexPlot(lua_State* L);
+	static int lPlotsAux(lua_State* L);
+	static int lPlots(lua_State* L);
 	static int lCanWork(lua_State* L);
 	static int lIsPlotBlockaded(lua_State* L);
 	static int lIsBlockadedTest(lua_State* L);

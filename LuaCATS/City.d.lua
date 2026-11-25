@@ -8,6 +8,10 @@ local City = {}
 --- @return PlayerId
 function City:GetOwner() end
 
+--- Iterates over every plot the city owns, in plot index order (not by distance)
+--- @return fun(): Plot
+function City:Plots() end
+
 --- Get the type ID of the "best" (or a weighted random one out of the "best" 5) combat unit for City owner satisfying the given conditions<br>
 --- The unit is assumed to be spawned in City, so all city restrictions apply
 --- @param bIncludeRanged boolean? whether a ranged unit can be selected, default false

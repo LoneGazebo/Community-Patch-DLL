@@ -170,52 +170,9 @@ if Game and PreGame then
 		end
 	end
 
-	local g_maximumAcquirePlotArea = (GameDefines.MAXIMUM_ACQUIRE_PLOT_DISTANCE+1) * GameDefines.MAXIMUM_ACQUIRE_PLOT_DISTANCE * 3
-	local g_maximumAcquirePlotPerimeter = GameDefines.MAXIMUM_ACQUIRE_PLOT_DISTANCE * 6
-
-	if Map_GetPlot(0,0).GetCityPurchaseID then
-		EUI.CityPlots = function( city )
-			local cityID = city:GetID()
-			local cityOwnerID = city:GetOwner()
-			local m = 0
-			local n = g_maximumAcquirePlotArea
-			local p = g_maximumAcquirePlotPerimeter
-			return function()
-				repeat
-					for i = m, n do
-						local plot = city:GetCityIndexPlot( i )
-						if plot	and plot:GetOwner() == cityOwnerID
-							and plot:GetCityPurchaseID() == cityID
-						then
-							m = i+1
-							return plot
-						end
-					end
-					-- if no owned plots were found in previous ring then we're done
-					if m <= n-p+1 then
-						return
-					end
-					-- plots found, search next ring
-					m = n + 1	--first plot of next ring
-					p = p + 6	--perimeter of next ring
-					n = n + p	--last plot of next ring
-				until false
-			end
-		end
-	else
-		EUI.CityPlots = function( city )
-			local m = 0
-			return function()
-				for i = m, g_maximumAcquirePlotArea do
-					local plot = city:GetCityIndexPlot( i )
-					if plot	and plot:GetWorkingCity() == city
-					then
-						m = i+1
-						return plot
-					end
-				end
-			end
-		end
+	-- every plot the city owns, in plot index order (not by distance)
+	EUI.CityPlots = function( city )
+		return city:Plots()
 	end
 
 	--usage1: IndexPlot( plot, hexAreaPlotIndex )
