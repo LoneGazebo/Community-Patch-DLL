@@ -17194,10 +17194,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 				// Attacking into Open Terrain
 				if (pTargetPlot->isOpenGround())
-					iModifier += openRangedAttackModifier();
+					iModifier += openAttackModifier() + openRangedAttackModifier();
 				// Attacking into Rough Terrain
 				else if (pTargetPlot->isRoughGround())
-					iModifier += roughRangedAttackModifier();
+					iModifier += roughAttackModifier() + roughRangedAttackModifier();
 
 				// Attacking into a Feature
 				if (pTargetPlot->getFeatureType() != NO_FEATURE)

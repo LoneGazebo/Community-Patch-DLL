@@ -871,7 +871,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 					iModifier = pMyUnit:OpenAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_OPEN_TERRAIN_BONUS", nBonus, iMiscModifier, true, true);
 				else
-					iModifier = pMyUnit:OpenRangedAttackModifier();
+					iModifier = pMyUnit:OpenAttackModifier() + pMyUnit:OpenRangedAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_OPEN_TERRAIN_RANGE_BONUS", nBonus, iMiscModifier, true, true);
 				end
 			end
@@ -882,7 +882,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 					iModifier = pMyUnit:RoughAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ROUGH_TERRAIN_BONUS", nBonus, iMiscModifier, true, true);
 				else
-					iModifier = pMyUnit:RoughRangedAttackModifier();
+					iModifier = pMyUnit:RoughAttackModifier() + pMyUnit:RoughRangedAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ROUGH_TERRAIN_RANGED_BONUS", nBonus, iMiscModifier, true, true);
 				end
 			end
