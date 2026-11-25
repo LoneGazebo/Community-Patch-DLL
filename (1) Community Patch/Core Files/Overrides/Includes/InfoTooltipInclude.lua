@@ -791,7 +791,7 @@ function GetHelpTextForUnit(eUnit, bIncludeRequirementsInfo, pCity, bExcludeName
 						GameInfo.UnitCombatInfos[strEraCombatType].Description, kEraInfo.Description);
 				end
 				if next(tEraPromotionArray) then
-					table.insert(tEraPromotionLines, L("TXT_KEY_PRODUCTION_UNIT_PROMOTION_FROM_ERA", table.concat(tEraPromotionArray, ", ")));
+					table.insert(tEraPromotionLines, L("TXT_KEY_PRODUCTION_UNIT_PROMOTION_FROM_ERA", table.concat(tEraPromotionArray, ", "), kEraInfo.Description));
 				end
 			end
 		end
