@@ -344,9 +344,7 @@ void CvLuaUnit::CreateFunctable(lua_State* L)
 	Method(HillsDefenseModifier);
 	Method(RoughAttackModifier);
 	Method(OpenAttackModifier);
-	Method(OpenRangedAttackModifier);
 	Method(OpenDefenseModifier);
-	Method(RoughRangedAttackModifier);
 	Method(AttackFortifiedModifier);
 	Method(AttackWoundedModifier);
 	Method(AttackFullyHealedModifier);
@@ -477,9 +475,7 @@ void CvLuaUnit::CreateFunctable(lua_State* L)
 	Method(GetExtraHillsDefensePercent);
 
 	Method(GetExtraOpenAttackPercent);
-	Method(GetExtraOpenRangedAttackMod);
 	Method(GetExtraRoughAttackPercent);
-	Method(GetExtraRoughRangedAttackMod);
 	Method(GetExtraAttackFortifiedMod);
 	Method(GetExtraAttackWoundedMod);
 	Method(GetExtraOpenDefensePercent);
@@ -4069,32 +4065,12 @@ int CvLuaUnit::lOpenAttackModifier(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int openRangedAttackModifier();
-int CvLuaUnit::lOpenRangedAttackModifier(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->openRangedAttackModifier();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
 //int RoughAttackModifier();
 int CvLuaUnit::lRoughAttackModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->roughAttackModifier();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int roughRangedAttackModifier();
-int CvLuaUnit::lRoughRangedAttackModifier(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->roughRangedAttackModifier();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -5399,32 +5375,12 @@ int CvLuaUnit::lGetExtraOpenAttackPercent(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getExtraOpenRangedAttackMod();
-int CvLuaUnit::lGetExtraOpenRangedAttackMod(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->getExtraOpenRangedAttackMod();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
 //int getExtraRoughAttackPercent();
 int CvLuaUnit::lGetExtraRoughAttackPercent(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->getExtraRoughAttackPercent();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int getExtraRoughRangedAttackMod();
-int CvLuaUnit::lGetExtraRoughRangedAttackMod(lua_State* L)
-{
-	CvUnit* pkUnit = GetInstance(L);
-
-	const int iResult = pkUnit->getExtraRoughRangedAttackMod();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

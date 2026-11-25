@@ -339,9 +339,7 @@ protected:
 	static int lHillsAttackModifier(lua_State* L);
 	static int lHillsDefenseModifier(lua_State* L);
 	static int lOpenAttackModifier(lua_State* L);
-	static int lOpenRangedAttackModifier(lua_State* L);
 	static int lRoughAttackModifier(lua_State* L);
-	static int lRoughRangedAttackModifier(lua_State* L);
 	static int lAttackFortifiedModifier(lua_State* L);
 	static int lAttackWoundedModifier(lua_State* L);
 	static int lAttackFullyHealedModifier(lua_State* L);
@@ -476,9 +474,7 @@ protected:
 	static int lGetExtraHillsAttackPercent(lua_State* L);
 	static int lGetExtraHillsDefensePercent(lua_State* L);
 	static int lGetExtraOpenAttackPercent(lua_State* L);
-	static int lGetExtraOpenRangedAttackMod(lua_State* L);
 	static int lGetExtraRoughAttackPercent(lua_State* L);
-	static int lGetExtraRoughRangedAttackMod(lua_State* L);
 	static int lGetExtraAttackFortifiedMod(lua_State* L);
 	static int lGetExtraAttackWoundedMod(lua_State* L);
 	static int lGetExtraOpenDefensePercent(lua_State* L);
