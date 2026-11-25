@@ -205,6 +205,13 @@
 		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
 		<Column name="ProductionModifier" type="integer" notnull="true"/>
 	</Table>
+	
+	<!-- POLICY: Allows you to define a project type that gains a production boost -->
+	<Table name="Policy_ProjectProductionModifiers">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ProjectType" type="text" reference="Projects(Type)"/>
+		<Column name="ProductionModifier" type="integer" notnull="true"/>
+	</Table>
 
 	<!-- POLICY: Allows you to define a yield that is granted by a building if your majority religion is present -->
 	<Table name="Policy_ReligionYieldMod">

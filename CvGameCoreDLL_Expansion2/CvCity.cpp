@@ -13145,6 +13145,14 @@ int CvCity::getProductionModifier(ProjectTypes eProject, CvString* toolTipSink) 
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPACE", iTempMod);
 	}
 
+	// Player bonus
+	if (GET_PLAYER(getOwner()).GetProjectProductionModifier(eProject) != 0)
+	{
+		iTempMod = GET_PLAYER(getOwner()).GetProjectProductionModifier(eProject);
+		iMultiplier += iTempMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PROJECT", iTempMod);
+	}
+
 	return iMultiplier;
 }
 
@@ -30421,6 +30429,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		changeCitySupplyFlat(pProject->GetCitySupplyFlat());
 		changeCityAutomatonWorkersChange(pProject->GetCityAutomatonWorkersChange());
 		thisPlayer.ChangeEmpireSizeModifierPerCityMod(pProject->GetEmpireSizeModifierPerCityMod());
+		ChangeMaxAirUnits(pProject->GetMaxAirUnitsChange());
 		
 		for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 		{

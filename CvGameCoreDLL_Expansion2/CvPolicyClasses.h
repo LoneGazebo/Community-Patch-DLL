@@ -277,6 +277,7 @@ public:
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassProductionModifier(int i) const;
 	int GetUnitClassProductionModifiers(int i) const;
+	int GetProjectProductionModifiers(int i) const;
 	int GetNumFreeUnitsByClass(int i) const;
 	int GetTourismByUnitClassCreated(int i) const;
 	int GetImprovementCultureChanges(int i) const;
@@ -722,6 +723,7 @@ private:
 	int* m_paiBuildingClassSecurityChanges;
 	int* m_paiBuildingClassProductionModifiers;
 	int* m_paiUnitClassProductionModifiers;
+	int* m_paiProjectProductionModifiers;
 	int* m_paiBuildingClassHappiness;
 	int* m_paiFreeUnitClasses;
 	int* m_paiTourismOnUnitCreation;
