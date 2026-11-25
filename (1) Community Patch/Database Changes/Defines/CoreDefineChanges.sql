@@ -338,6 +338,7 @@ VALUES
 	('AI_CITY_HIGH_VALUE_THRESHOLD', 80),
 	('AI_CITY_SOME_VALUE_THRESHOLD', 40),
 	('AI_CITY_PUPPET_BONUS_THRESHOLD', 25),
+	('AI_CITY_NO_RAZE_POPULATION_THRESHOLD', 6), -- VP: conquered cities of at least this size are kept instead of razed for unhappiness, unless revolt is close or the city is in danger (0 = off)
 -- AI World Congress logic
 	('AI_WORLD_LEADER_BASE_WEIGHT_SELF', 1000),
 -- AI purchase logic
