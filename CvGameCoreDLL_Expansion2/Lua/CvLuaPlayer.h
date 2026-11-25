@@ -1062,6 +1062,7 @@ protected:
 	static int lIsAskedToStopDigging(lua_State* L);
 	static int lIsDoFMessageTooSoon(lua_State* L);
 	static int lIsDoF(lua_State* L);
+	static int lGetHelpRequestLimits(lua_State* L);
 	static int lGetDoFCounter(lua_State* L);
 	static int lIsPlayerDoFWithAnyFriend(lua_State* L);
 	static int lIsPlayerDoFWithAnyEnemy(lua_State* L);

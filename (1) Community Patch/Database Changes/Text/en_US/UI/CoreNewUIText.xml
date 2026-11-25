@@ -3247,6 +3247,30 @@
 		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_DEAL_BUTTON">
 			<Text>REQUEST</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_LIMITS">
+			<Text>[COLOR_POSITIVE_TEXT]The most they would give you:[ENDCOLOR] {1_List}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_GOLD">
+			<Text>{1_Num} [ICON_GOLD] Gold</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_GPT">
+			<Text>{1_Num} [ICON_GOLD] Gold per turn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_LUXURY">
+			<Text>one luxury resource</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_STRATEGICS">
+			<Text>{1_Num} strategic resources in total</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_TECH">
+			<Text>one technology</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_LIMIT_NOTHING">
+			<Text>[COLOR_NEGATIVE_TEXT]They have nothing to spare for you right now.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_TOO_SOON">
+			<Text>[COLOR_NEGATIVE_TEXT]They helped you recently and will not help again yet.[ENDCOLOR]</Text>
+		</Row>
 		<!-- Warscore tooltip -->
 		<Row Tag="TXT_KEY_WAR_SCORE">
 			<Text>[COLOR_POSITIVE_TEXT]War Score: {1_Num}[ENDCOLOR]</Text>

@@ -6243,6 +6243,86 @@ void CvDealAI::DoTradeScreenClosed(bool bAIWasMakingOffer)
 	}
 }
 
+/// What would this AI give ePlayer at most for a request for help? (only the amounts: the roll, cooldown and deal checks are in GetRequestForHelpResponse)
+void CvDealAI::GetHelpRequestLimits(PlayerTypes eFromPlayer, HelpRequestLimits& kLimits) const
+{
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
+
+	kLimits = HelpRequestLimits();
+
+	int iOurGold = GET_PLAYER(eMyPlayer).GetTreasury()->GetGold();
+	int iOurGPT = GET_PLAYER(eMyPlayer).calculateGoldRate();
+	int iOurTotalHappy = GET_PLAYER(eMyPlayer).GetExcessHappiness();
+	int iOurBeakersPerTurn = GET_PLAYER(eMyPlayer).GetScience();
+	int iOurTechs = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+	int iTheirGold = GET_PLAYER(eFromPlayer).GetTreasury()->GetGold();
+	int iTheirGPT = GET_PLAYER(eFromPlayer).calculateGoldRate();
+	int iTheirTotalHappy = GET_PLAYER(eFromPlayer).GetExcessHappiness();
+	int iTheirBeakersPerTurn = GET_PLAYER(eFromPlayer).GetScience();
+	int iTheirTechs = GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+
+	// AI will only give up enough gold to even them out between the player
+	kLimits.iGold = (iOurGold - iTheirGold) / 2;
+
+	if(kLimits.iGold < 0)
+	{
+		kLimits.iGold = 0;
+	}
+	// Make sure the human isn't exploiting the AI before the Industrial Era
+	else if((kLimits.iGold > 1000) && GET_PLAYER(eMyPlayer).GetCurrentEra() < 4)
+	{
+		kLimits.iGold = 1000;
+	}
+
+	// If we have gold to spare then add more in if the player is in wars (250g per war)
+	if(iOurGold - kLimits.iGold > 300 && kLimits.iGold > 0)
+	{
+		// Add 250 more gold for every war the player is in, if it won't bankrupt us
+		for(int i = 0; i < GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).getAtWarCount(true); i++)
+		{
+			if(iOurGold - kLimits.iGold - 250 > 0)
+			{
+				kLimits.iGold += 250;
+			}
+		}
+	}
+	
+	// AI will only give enough GPT to even them out between the player
+	kLimits.iGPT = (iOurGPT - iTheirGPT) / 2;
+
+	if(kLimits.iGPT < 0)
+	{
+		kLimits.iGPT = 0;
+	}
+	// 5 more GPT willing to give up each era...(no GPT in the Ancient Era)
+	else if(kLimits.iGPT > 5 * GET_PLAYER(eMyPlayer).GetCurrentEra())
+	{
+		kLimits.iGPT = 5 * GET_PLAYER(eMyPlayer).GetCurrentEra();
+	}
+
+	// Give a luxury to this player? (only one)
+	if(iOurTotalHappy > 60 &&											// need to have some spare happiness
+		iTheirTotalHappy < 50 &&										// they need happiness
+		(pDiploAI->GetWarmongerThreat(eFromPlayer) < THREAT_MAJOR ||	// don't give out happiness to warmongers
+		pDiploAI->GetWarmongerHate() <= 5) &&							// only if we hate warmongers
+		!pDiploAI->IsRecklessExpander(eFromPlayer))				// don't give out happiness to reckless expanders
+	{
+		kLimits.bLuxury = true;
+	}
+
+	// Give strategics (and how many?)
+	kLimits.iStrategics =  5 * GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).getAtWarCount(true);			// we're willing to give up strategics if he's at war
+
+	// Give up tech?
+	if((iOurTechs > iTheirTechs ||									// we have more techs than them -OR-
+		iOurBeakersPerTurn > iTheirBeakersPerTurn * 120 / 100) &&	// we have 120% more science per turn than them
+		!pDiploAI->IsGoingForSpaceshipVictory())                    // don't give up tech if we want to launch spaceship
+	{
+		kLimits.bTech = true;
+	}
+}
+
 // Is the human's request for help acceptable?
 DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal) const
 {
@@ -6276,76 +6356,13 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal) const
 
 		int iOddsOfGivingIn = pDiploAI->GetLoyalty() * 10;	// initial odds of giving in are loyalty * 10
 
-		int iOurGold = GET_PLAYER(eMyPlayer).GetTreasury()->GetGold();
-		int iOurGPT = GET_PLAYER(eMyPlayer).calculateGoldRate();
-		int iOurTotalHappy = GET_PLAYER(eMyPlayer).GetExcessHappiness();
-		int iOurBeakersPerTurn = GET_PLAYER(eMyPlayer).GetScience();
-		int iOurTechs = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
-		int iTheirGold = GET_PLAYER(eFromPlayer).GetTreasury()->GetGold();
-		int iTheirGPT = GET_PLAYER(eFromPlayer).calculateGoldRate();
-		int iTheirTotalHappy = GET_PLAYER(eFromPlayer).GetExcessHappiness();
-		int iTheirBeakersPerTurn = GET_PLAYER(eFromPlayer).GetScience();
-		int iTheirTechs = GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
-
-		// AI will only give up enough gold to even them out between the player
-		iGoldWillingToGiveUp = (iOurGold - iTheirGold) / 2;
-
-		if(iGoldWillingToGiveUp < 0)
-		{
-			iGoldWillingToGiveUp = 0;
-		}
-		// Make sure the human isn't exploiting the AI before the Industrial Era
-		else if((iGoldWillingToGiveUp > 1000) && GET_PLAYER(eMyPlayer).GetCurrentEra() < 4)
-		{
-			iGoldWillingToGiveUp = 1000;
-		}
-
-		// If we have gold to spare then add more in if the player is in wars (250g per war)
-		if(iOurGold - iGoldWillingToGiveUp > 300 && iGoldWillingToGiveUp > 0)
-		{
-			// Add 250 more gold for every war the player is in, if it won't bankrupt us
-			for(int i = 0; i < GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).getAtWarCount(true); i++)
-			{
-				if(iOurGold - iGoldWillingToGiveUp - 250 > 0)
-				{
-					iGoldWillingToGiveUp += 250;
-				}
-			}
-		}
-		
-		// AI will only give enough GPT to even them out between the player
-		iGPTWillingToGiveUp = (iOurGPT - iTheirGPT) / 2;
-
-		if(iGPTWillingToGiveUp < 0)
-		{
-			iGPTWillingToGiveUp = 0;
-		}
-		// 5 more GPT willing to give up each era...(no GPT in the Ancient Era)
-		else if(iGPTWillingToGiveUp > 5 * GET_PLAYER(eMyPlayer).GetCurrentEra())
-		{
-			iGPTWillingToGiveUp = 5 * GET_PLAYER(eMyPlayer).GetCurrentEra();
-		}
-
-		// Give a luxury to this player? (only one)
-		if(iOurTotalHappy > 60 &&											// need to have some spare happiness
-			iTheirTotalHappy < 50 &&										// they need happiness
-			(pDiploAI->GetWarmongerThreat(eFromPlayer) < THREAT_MAJOR ||	// don't give out happiness to warmongers
-			pDiploAI->GetWarmongerHate() <= 5) &&							// only if we hate warmongers
-			!pDiploAI->IsRecklessExpander(eFromPlayer))				// don't give out happiness to reckless expanders
-		{
-			bGiveUpOneLuxury = true;
-		}
-
-		// Give strategics (and how many?)
-		iNumStrategicsGiveUp =  5 * GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).getAtWarCount(true);			// we're willing to give up strategics if he's at war
-
-		// Give up tech?
-		if((iOurTechs > iTheirTechs ||									// we have more techs than them -OR-
-			iOurBeakersPerTurn > iTheirBeakersPerTurn * 120 / 100) &&	// we have 120% more science per turn than them
-			!pDiploAI->IsGoingForSpaceshipVictory())                    // don't give up tech if we want to launch spaceship
-		{
-			bGiveUpOneTech = true;
-		}
+		HelpRequestLimits kLimits;
+		GetHelpRequestLimits(eFromPlayer, kLimits);
+		iGoldWillingToGiveUp = kLimits.iGold;
+		iGPTWillingToGiveUp = kLimits.iGPT;
+		iNumStrategicsGiveUp = kLimits.iStrategics;
+		bGiveUpOneLuxury = kLimits.bLuxury;
+		bGiveUpOneTech = kLimits.bTech;
 
 		switch(pDiploAI->GetCivOpinion(eFromPlayer))
 		{
