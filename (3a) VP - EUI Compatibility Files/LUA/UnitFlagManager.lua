@@ -1149,6 +1149,9 @@ function( m_AttackerPlayerID,
 		m_DefenderMaxHitPoints,
 		m_bContinuation )
 	-- DebugUnit( m_AttackerPlayerID, m_AttackerUnitID, "RunCombatSim", m_AttackerUnitDamage, m_AttackerFinalUnitDamage, m_AttackerMaxHitPoints, m_DefenderPlayerID, m_DefenderUnitID, m_DefenderUnitDamage, m_DefenderFinalUnitDamage, m_DefenderMaxHitPoints, m_bContinuation ) end
+	if g_activePlayer and g_activePlayer:IsObserver() then
+		return
+	end
 	ForceHide( m_AttackerPlayerID, m_AttackerUnitID, true )
 	ForceHide( m_DefenderPlayerID, m_DefenderUnitID, true )
 end)
@@ -1168,6 +1171,9 @@ function( m_AttackerPlayerID,
 		m_DefenderFinalUnitDamage,
 		m_DefenderMaxHitPoints )
 	-- DebugUnit( m_AttackerPlayerID, m_AttackerUnitID, "EndCombatSim", m_AttackerUnitDamage, m_AttackerFinalUnitDamage, m_AttackerMaxHitPoints, m_DefenderPlayerID, m_DefenderUnitID, m_DefenderUnitDamage, m_DefenderFinalUnitDamage, m_DefenderMaxHitPoints ) end
+	if g_activePlayer and g_activePlayer:IsObserver() then
+		return
+	end
 	ForceHide( m_AttackerPlayerID, m_AttackerUnitID, false )
 	ForceHide( m_DefenderPlayerID, m_DefenderUnitID, false )
 end)
