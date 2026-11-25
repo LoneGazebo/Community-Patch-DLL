@@ -198,6 +198,9 @@ public:
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherUnit, const CvPlot* pOtherUnitPlot) const;
 	int GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit) const;
+	// the flanking rules applied to flank counts that are already known
+	static int GetFlankingBonusFromCounts(const CvUnit* pUnit, const CvUnit* pOtherUnit, int iOurFlankers, int iTheirFlankers, int iSupportModifier = 0);
+	static int GetFlankingBonusAtRangeFromCount(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit, int iFlankers, int iSupportModifier = 0);
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
@@ -302,6 +305,8 @@ public:
 
 	//if there is a combat unit we can't stack. should really call CvUnit::CanStackUnitAtPlot() but sometimes we don't know the unit yet
 	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreBarbs = false, bool bIgnoreEmbarked = false) const;
+	// the per-unit rule of isEnemyUnit, shared with neighborhood records
+	static bool IsEnemyUnitFor(const CvUnit* pLoopUnit, TeamTypes eTeam, bool bCombatOnly, bool bIgnoreBarbs = false, bool bIgnoreEmbarked = false);
 	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 	bool isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 	bool isFriendlyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bSamePlayer) const;
