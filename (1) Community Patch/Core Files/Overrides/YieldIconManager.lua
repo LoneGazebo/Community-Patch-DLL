@@ -570,7 +570,7 @@ do
 		end),
 
 		[YDT.CITY_WORKED] = prepare_city_check(function(plot, city)
-			return plot:GetWorkingCity() == city
+			return city:IsWorkingPlot(plot)
 		end),
 
 		[YDT.CITY_PURCHASABLE] = prepare_city_check(function(plot, city)
