@@ -2051,6 +2051,8 @@ PlayerTypes GetCurrentPlayer()
 }
 
 #ifdef WIN32
+// The thread that crashed, when another thread writes its report (stack overflow, see StackOverflowHandler)
+static volatile DWORD g_dwCrashThreadId = 0;
 #if defined(MOD_DEBUG_MINIDUMP)
 /************************************************************************************************/
 /* MINIDUMP_MOD                           04/10/11                                terkhen       */
@@ -2623,7 +2625,7 @@ void CreateMiniDump(EXCEPTION_POINTERS* pep)
 	GetFullPathNameA(szDumpFilename, MAX_PATH, g_szLastMiniDumpPath, NULL);
 
 	MINIDUMP_EXCEPTION_INFORMATION mdei;
-	mdei.ThreadId = GetCurrentThreadId();
+	mdei.ThreadId = g_dwCrashThreadId ? g_dwCrashThreadId : GetCurrentThreadId();
 	mdei.ExceptionPointers = pep;
 	mdei.ClientPointers = FALSE;
 
@@ -3302,6 +3304,84 @@ LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo)
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
+
+// Stack overflow: the overflowed thread has only the last stack page left, far less than CustomFilter
+// needs, so when the stack pointer itself reached the end the report never got written and the game
+// just vanished. A vectored handler (it runs before any frame-based handler, with very little stack)
+// hands the report to a helper thread with its own stack, waits for it, and ends the game the way
+// CustomFilter's EXCEPTION_EXECUTE_HANDLER would.
+static HANDLE g_hStackOverflowRequest = NULL;
+static HANDLE g_hStackOverflowDone = NULL;
+static HANDLE g_hStackOverflowThread = NULL;
+static PVOID g_pStackOverflowHandler = NULL;
+static EXCEPTION_POINTERS* volatile g_pStackOverflowPointers = NULL;
+static volatile LONG g_lStackOverflowReported = 0;
+static volatile LONG g_lStackOverflowQuit = 0;
+
+static DWORD WINAPI StackOverflowReportThread(LPVOID)
+{
+	WaitForSingleObject(g_hStackOverflowRequest, INFINITE);
+	if (!g_lStackOverflowQuit && g_pStackOverflowPointers)
+		CustomFilter(g_pStackOverflowPointers);
+	SetEvent(g_hStackOverflowDone);
+	return 0;
+}
+
+static LONG CALLBACK StackOverflowHandler(EXCEPTION_POINTERS* pep)
+{
+	if (pep->ExceptionRecord->ExceptionCode != EXCEPTION_STACK_OVERFLOW || g_lStackOverflowQuit)
+		return EXCEPTION_CONTINUE_SEARCH;
+	if (InterlockedExchange(&g_lStackOverflowReported, 1) != 0)
+		return EXCEPTION_CONTINUE_SEARCH;
+
+	g_dwCrashThreadId = GetCurrentThreadId();
+	g_pStackOverflowPointers = pep;
+	SetEvent(g_hStackOverflowRequest);
+	WaitForSingleObject(g_hStackOverflowDone, INFINITE);
+	TerminateProcess(GetCurrentProcess(), EXCEPTION_STACK_OVERFLOW);
+	return EXCEPTION_CONTINUE_SEARCH;
+}
+
+static void InstallStackOverflowHandler()
+{
+	if (g_pStackOverflowHandler)
+		return;
+	g_lStackOverflowQuit = 0;
+	g_hStackOverflowRequest = CreateEvent(NULL, TRUE, FALSE, NULL);
+	g_hStackOverflowDone = CreateEvent(NULL, TRUE, FALSE, NULL);
+	if (g_hStackOverflowRequest && g_hStackOverflowDone)
+		g_hStackOverflowThread = CreateThread(NULL, 256 * 1024, StackOverflowReportThread, NULL, 0, NULL);
+	if (g_hStackOverflowThread)
+		g_pStackOverflowHandler = AddVectoredExceptionHandler(1, StackOverflowHandler);
+}
+
+// Before the DLL unloads: the handler and the thread's code live in this DLL
+static void RemoveStackOverflowHandler()
+{
+	if (g_pStackOverflowHandler)
+	{
+		RemoveVectoredExceptionHandler(g_pStackOverflowHandler);
+		g_pStackOverflowHandler = NULL;
+	}
+	if (g_hStackOverflowThread)
+	{
+		InterlockedExchange(&g_lStackOverflowQuit, 1);
+		SetEvent(g_hStackOverflowRequest);
+		WaitForSingleObject(g_hStackOverflowThread, 5000);
+		CloseHandle(g_hStackOverflowThread);
+		g_hStackOverflowThread = NULL;
+	}
+	if (g_hStackOverflowRequest)
+	{
+		CloseHandle(g_hStackOverflowRequest);
+		g_hStackOverflowRequest = NULL;
+	}
+	if (g_hStackOverflowDone)
+	{
+		CloseHandle(g_hStackOverflowDone);
+		g_hStackOverflowDone = NULL;
+	}
+}
 #endif // WIN32
 
 //
@@ -3311,6 +3391,7 @@ void CvGlobals::init()
 {
 #ifdef WIN32
 	SetUnhandledExceptionFilter(CustomFilter);
+	InstallStackOverflowHandler();
 
 	// Read the runtime opt-outs (marker files, environment, config.ini) once;
 	// crash-time code only checks the cached flags. Nothing set = default
@@ -3515,6 +3596,10 @@ void CvGlobals::init()
 //
 void CvGlobals::uninit()
 {
+#ifdef WIN32
+	RemoveStackOverflowHandler();
+#endif
+
 	CvPlayerAI::freeStatics();
 	CvTeam::freeStatics();
 
