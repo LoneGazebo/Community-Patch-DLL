@@ -55,6 +55,7 @@
     <File md5="52E682B47359A59132BFD2A853CADD5B" import="1">LUA/MonopoliesInfo.xml</File>
     <File md5="C7359F5C21105DDD25BE30C837314631" import="1">LUA/NotificationPanel.lua</File>
     <File md5="55E88523B0E22CF8E425321957273D6D" import="1">LUA/NotificationPanel.xml</File>
+    <File md5="09C047E44414FBFCABD33A111A14E73B" import="1">LUA/OptionsMenu.lua</File>
     <File md5="F27312FB359D408BC0D1DD53196D7B3C" import="1">LUA/PlotHelpManager.lua</File>
     <File md5="B25863F78ECF038A38852C290ED3501B" import="1">LUA/PopulateUniques.lua</File>
     <File md5="58B15BE7BDE12D658FD48153616665A6" import="1">LUA/SocialPolicyPopup.lua</File>
