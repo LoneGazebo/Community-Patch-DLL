@@ -25,7 +25,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREAT_MERCHANT_STRATEGY';
 
 -- Great Engineer
 UPDATE Language_en_US
-SET Text = 'Great Engineers can construct the special Manufactory improvement. It provides an additional copy of an Strategic or Luxury Resource connected by it and, when worked, it provides a lot of [ICON_PRODUCTION] Production for a city. The Great Engineer can also hurry the production of a unit, building or Wonder in a city, increased by 10% per Manufactory created and owned. The Great Engineer is expended when used in either of these ways.'
+SET Text = 'Great Engineers can construct the special Manufactory improvement. It connects Resources and provides an additional copy of any Luxury Resource and +50% additional copies of any Strategic Resource. When worked, it provides a lot of [ICON_PRODUCTION] Production for a city. The Great Engineer can also hurry the production of a unit, building or Wonder in a city, increased by 10% per Manufactory created and owned. The Great Engineer is expended when used in either of these ways.'
 WHERE Tag = 'TXT_KEY_UNIT_GREAT_ENGINEER_STRATEGY';
 
 -- Great General
