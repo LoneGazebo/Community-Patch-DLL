@@ -4878,97 +4878,151 @@ bool CvTacticalAI::FindParatroopersWithinStrikingDistance(CvPlot* pTarget, bool 
 	return m_CurrentMoveUnits.size()>0;
 }
 
+// Candidate for a harassment move. Its cost is measured in turns; lower is better.
+struct SHarassCandidate
+{
+	int iUnitID;
+	int iPlunderBonus;
+	double fDangerCost;
+	double fCost;
+	int iRealTurns;
+};
+
+// Orders candidates by cost, then by ID for a stable result.
+struct SHarassCostOrder
+{
+	bool operator()(const SHarassCandidate& a, const SHarassCandidate& b) const
+	{
+		if (a.fCost != b.fCost)
+			return a.fCost < b.fCost;
+		return a.iUnitID < b.iUnitID;
+	}
+};
+
 //find units for pillaging, plundering, blockading, etc
 bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft, bool bAllowEmbarkation, int iMaxNumUnits, bool bPlunderTradeRoute)
 {
+	// Cheap checks come first. Candidates are then sorted by an estimated cost that needs no pathfinding,
+	// pathed in that order until twice the requested count can arrive in time, and kept by their real cost.
+	// Cost = turns + 0.5 * min(1, danger / hit points) - plunder bonus. The estimate counts turns as steps at full
+	// speed plus the part of this turn the unit has already spent.
 	m_CurrentMoveUnits.clear();
 	//need to convert turns to max path length here, zero turns away is also valid!
 	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, NO_PLAYER, (iNumTurnsAway+1)*(eDomain==DOMAIN_LAND ? 3 : 5));
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
 
-	//plots are ordered by turns to reach!
+	vector<SHarassCandidate> candidates;
 	for (ReachablePlots::const_iterator it = relevantPlots.begin(); it != relevantPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 		CvUnit* pLoopUnit = pPlot->getBestDefender(m_pPlayer->GetID());
-		if (pLoopUnit)
+		if (!pLoopUnit)
+			continue;
+
+		if (pLoopUnit->isDelayedDeath() || !pLoopUnit->canMove() || pLoopUnit->TurnProcessed())
+			continue;
+
+		if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
+			continue;
+
+		if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
+			continue;
+
+		// plundering a trade route on the current plot doesn't cost us anything, so we do it whenever possible and the following exclusions do not apply
+		int iHitPoints = pLoopUnit->GetCurrHitPoints();
+		int iDanger;
+		if (!bPlunderTradeRoute || pLoopUnit->plot() != pTarget)
 		{
-			if (pLoopUnit->isDelayedDeath())
+			if (!pLoopUnit->canUseForTacticalAI())
 				continue;
 
-			if (!pLoopUnit->canMove() || pLoopUnit->TurnProcessed())
+			//these units are too fragile for the moves we have in mind
+			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
 				continue;
 
-			// plundering a trade route on the current plot doesn't cost us anything, so we do it whenever possible and the following exclusions do not apply
-			if (!bPlunderTradeRoute || pPlot != pTarget)
+			if (pLoopUnit->IsCoveringFriendlyCivilian())
+				continue;
+
+			if (iMinHitpoints > 0 && iHitPoints < iMinHitpoints)
+				continue;
+
+			if (iMaxHitpoints > 0 && iHitPoints > iMaxHitpoints)
+				continue;
+
+			iDanger = pLoopUnit->GetDanger(pTarget);
+			if (iDanger > iHitPoints)
+				continue;
+
+			//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
+			if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->NeedsGarrison() && pLoopUnit->getDomainType() != DOMAIN_SEA)
+				continue;
+		}
+		else
+			iDanger = pLoopUnit->GetDanger(pTarget);
+
+		int iPlunderBonus = 0;
+		if (bPlunderTradeRoute)
+		{
+			if (pLoopUnit->isHighSeaRaiderUnit())
 			{
-				if (!pLoopUnit->canUseForTacticalAI())
-					continue;
-
-				//these units are too fragile for the moves we have in mind
-				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
-					continue;
-
-				if (pLoopUnit->IsCoveringFriendlyCivilian())
-					continue;
-
-				if (iMinHitpoints > 0 && pLoopUnit->GetCurrHitPoints() < iMinHitpoints)
-					continue;
-
-				if (iMaxHitpoints > 0 && pLoopUnit->GetCurrHitPoints() > iMaxHitpoints)
-					continue;
-
-				if (pLoopUnit->GetDanger(pTarget) > pLoopUnit->GetCurrHitPoints())
-					continue;
-
-				//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
-				if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->NeedsGarrison() && pLoopUnit->getDomainType() != DOMAIN_SEA)
-					continue;
+				iPlunderBonus += 500;
 			}
-
-			if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
-				continue;
-
-			if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
-				continue;
-
-			//this should be a low-risk thing so don't get our units killed
-			int iFlags = CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
-			if (bAllowEmbarkation)
-				iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
-			if (pTarget->isEnemyUnit(m_pPlayer->GetID(), true, true) && !pLoopUnit->IsCanAttackWithMove())
-				iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
-			if (bMustHaveMovesLeft)
-				iFlags |= CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN;
-
-			int iTurnsCalculated = pLoopUnit->TurnsToReachTarget(pTarget, iFlags, iNumTurnsAway);
-			if (iTurnsCalculated <= iNumTurnsAway)
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				CvTacticalUnit unit(pLoopUnit->GetID());
-				int iPlunderBonus = 0;
-				if (bPlunderTradeRoute)
-				{
-					if (pLoopUnit->isHighSeaRaiderUnit())
-					{
-						iPlunderBonus += 500;
-					}
-					for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-					{
-						iPlunderBonus += pLoopUnit->getYieldFromTRPlunder((YieldTypes)iI);
-					}
-				}
-				unit.SetAttackStrength(1 + iNumTurnsAway - iTurnsCalculated + iPlunderBonus);
-				unit.SetHealthPercent(1, 1);
-				m_CurrentMoveUnits.push_back(unit);
-				//pathfinding is expensive, don't return more than needed
-				if (m_CurrentMoveUnits.size() >= (size_t)iMaxNumUnits)
-					break;
+				iPlunderBonus += pLoopUnit->getYieldFromTRPlunder((YieldTypes)iI);
 			}
+		}
+
+		int iMaxMoves = max(1, pLoopUnit->maxMoves());
+		SHarassCandidate candidate;
+		candidate.iUnitID = pLoopUnit->GetID();
+		candidate.iPlunderBonus = iPlunderBonus;
+		candidate.fDangerCost = 0.5 * min(1.0, double(iDanger) / max(1, iHitPoints));
+		candidate.fCost = double(it->iPathLength * GD_INT_GET(MOVE_DENOMINATOR) + iMaxMoves - pLoopUnit->getMoves()) / iMaxMoves
+			+ candidate.fDangerCost - iPlunderBonus;
+		candidate.iRealTurns = MAX_INT;
+		candidates.push_back(candidate);
+	}
+
+	// The estimate decides which units are worth a real path search.
+	std::sort(candidates.begin(), candidates.end(), SHarassCostOrder());
+
+	vector<SHarassCandidate> accepted;
+	bool bEnemyAtTarget = pTarget->isEnemyUnit(m_pPlayer->GetID(), true, true);
+	for (size_t i = 0; i < candidates.size() && (int)accepted.size() < 2 * iMaxNumUnits; i++)
+	{
+		CvUnit* pLoopUnit = m_pPlayer->getUnit(candidates[i].iUnitID);
+		if (!pLoopUnit)
+			continue;
+
+		//this should be a low-risk thing so don't get our units killed
+		int iFlags = CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
+		if (bAllowEmbarkation)
+			iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
+		if (bEnemyAtTarget && !pLoopUnit->IsCanAttackWithMove())
+			iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+		if (bMustHaveMovesLeft)
+			iFlags |= CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN;
+
+		int iTurnsCalculated = pLoopUnit->TurnsToReachTarget(pTarget, iFlags, iNumTurnsAway);
+		if (iTurnsCalculated <= iNumTurnsAway)
+		{
+			candidates[i].iRealTurns = iTurnsCalculated;
+			candidates[i].fCost = iTurnsCalculated + candidates[i].fDangerCost - candidates[i].iPlunderBonus;
+			accepted.push_back(candidates[i]);
 		}
 	}
 
-	// Now sort them in the order we'd like them to attack
-	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
+	// Keep the best of the units that can really get there in time.
+	std::sort(accepted.begin(), accepted.end(), SHarassCostOrder());
+	for (size_t i = 0; i < accepted.size() && i < (size_t)iMaxNumUnits; i++)
+	{
+		CvTacticalUnit unit(accepted[i].iUnitID);
+		unit.SetAttackStrength(1 + iNumTurnsAway - accepted[i].iRealTurns + accepted[i].iPlunderBonus);
+		unit.SetHealthPercent(1, 1);
+		unit.SetMovesToTarget(accepted[i].iRealTurns);
+		m_CurrentMoveUnits.push_back(unit);
+	}
 
 	return m_CurrentMoveUnits.size()>0;
 }
