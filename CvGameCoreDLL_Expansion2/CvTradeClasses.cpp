@@ -70,6 +70,9 @@ void CvGameTrade::Reset (void)
 	m_aTradeConnections.clear();
 	m_lastTradePathUpdate = vector<int>(MAX_PLAYERS, -1);
 	m_lastTradePathUpdateUi = vector<int>(MAX_PLAYERS, -1);
+	m_iTradePathsClearRequests = 0;
+	m_iTradePathsClearedCore = 0;
+	m_iTradePathsClearedUi = 0;
 	m_routesPerPlayer = vector<vector<int>>(MAX_PLAYERS);
 	m_iNextID = 0;
 	m_CurrentTemporaryPopupRoute.iPlotX = 0;
@@ -107,12 +110,28 @@ void CvGameTrade::SetLongestPotentialTradeRoute(int iValue, int iCityIndex, Doma
 
 TradePathLookup& CvGameTrade::GetTradePathsCache(bool bWater)
 {
+	//each thread clears only its own copies (see InvalidateTradePathCache)
+	const int iClearRequests = m_iTradePathsClearRequests;
 	if (gDLL->IsGameCoreThread())
 	{
+		if (m_iTradePathsClearedCore != iClearRequests)
+		{
+			m_aPotentialTradePathsWater.clear();
+			m_aPotentialTradePathsLand.clear();
+			m_iTradePathsClearedCore = iClearRequests;
+		}
+
 		if (bWater)
 			return m_aPotentialTradePathsWater;
 
 		return m_aPotentialTradePathsLand;
+	}
+
+	if (m_iTradePathsClearedUi != iClearRequests)
+	{
+		m_aPotentialTradePathsWaterUi.clear();
+		m_aPotentialTradePathsLandUi.clear();
+		m_iTradePathsClearedUi = iClearRequests;
 	}
 
 	if (bWater)
@@ -339,10 +358,9 @@ void CvGameTrade::InvalidateTradePathCache()
 		PlayerTypes ePlayer1 = (PlayerTypes)uiPlayer1;
 		InvalidateTradePathCache(ePlayer1);
 	}
-	m_aPotentialTradePathsWater.clear();
-	m_aPotentialTradePathsWaterUi.clear();
-	m_aPotentialTradePathsLand.clear();
-	m_aPotentialTradePathsLandUi.clear();
+	//don't clear the paths here: the game core and the UI keep separate copies (GetTradePathsCache), and the other
+	//thread may be using its copies right now; each thread clears its own on its next access
+	m_iTradePathsClearRequests++;
 }
 
 void CvGameTrade::InvalidateTradePathTeamCache(TeamTypes eTeam)
