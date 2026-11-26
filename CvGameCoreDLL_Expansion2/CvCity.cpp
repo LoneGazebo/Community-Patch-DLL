@@ -849,6 +849,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	// Update Proximity between this Player and all others
+	// The closest city map does not have this city yet (initCity marks it dirty only after init), so mark it dirty first
+	GC.getGame().SetClosestCityMapDirty();
 	kOwner.DoUpdateProximityToPlayers();
 
 	UpdateYieldsFromExistingFriendsAndAllies(false);
