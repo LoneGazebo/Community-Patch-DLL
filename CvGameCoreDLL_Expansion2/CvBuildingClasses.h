@@ -12,8 +12,6 @@
 
 #include "CvDatabaseUtility.h"
 
-#define MAX_THEMING_BONUSES 12
-
 struct AccomplishmentBonusInfo
 {
 	int iHappiness;
@@ -50,9 +48,9 @@ public:
 	  };
 
 	int GetBonus() const {return m_iBonus;};
-	CvString GetDescription() {return m_strDescription;};
+	CvString GetDescription() const {return m_strDescription;};
 	bool IsSameEra() const {return m_bSameEra;};
-	bool IsUniqueEras() {return m_bUniqueEras || IsConsecutiveEras();};
+	bool IsUniqueEras() const {return m_bUniqueEras || IsConsecutiveEras();};
 	bool IsConsecutiveEras() const {return m_bConsecutiveEras;};
 	bool IsMustBeArt() const {return m_bMustBeArt;};
 	bool IsMustBeArtifact() const {return m_bMustBeArtifact;};
@@ -712,8 +710,8 @@ public:
 
 	std::multimap<int, std::pair<int, int>> GetGreatPersonProgressFromConstructionArray() const;
 
-	CvThemingBonusInfo *GetThemingBonusInfo(int i) const;
-	int GetNumThemingBonuses() const { return m_iNumThemingBonuses; }
+	const CvThemingBonusInfo *GetThemingBonusInfo(int i) const;
+	int GetNumThemingBonuses() const { return static_cast<int>(m_vThemingBonusInfo.size()); }
 	const vector<UnitTypes>& GetUnitsUnlocked() const { return m_vUnitTypesUnlocked; }
 	void UpdateUnitTypesUnlocked();
 	bool IsFaithPurchaseOnly() const;
@@ -1170,8 +1168,7 @@ private:
 	
 	std::multimap<int, std::pair<int, int>> m_piiGreatPersonProgressFromConstruction;
 
-	CvThemingBonusInfo* m_paThemingBonusInfo;
-	int m_iNumThemingBonuses;
+	vector<CvThemingBonusInfo> m_vThemingBonusInfo;
 	vector<UnitTypes> m_vUnitTypesUnlocked; //not serialized
 };
 

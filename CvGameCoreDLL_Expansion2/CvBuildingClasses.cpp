@@ -441,8 +441,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_paiBuildingClassHappiness(NULL),
 	m_piInstantYield(NULL),
 	m_piiGreatPersonProgressFromConstruction(),
-	m_paThemingBonusInfo(NULL),
-	m_iNumThemingBonuses(0)
+	m_vThemingBonusInfo()
 {
 }
 
@@ -572,7 +571,6 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piCityConnectionPlotYieldChangesGlobal);
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
-	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
 	SAFE_DELETE_ARRAY(m_paYieldFromYield);
 	SAFE_DELETE_ARRAY(m_paYieldFromYieldGlobal);
 	SAFE_DELETE_ARRAY(m_piInstantYield);
@@ -1935,10 +1933,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		std::multimap<int, std::pair<int, int>>(m_piiGreatPersonProgressFromConstruction).swap(m_piiGreatPersonProgressFromConstruction);
 	}
 	{
-		//Initialize Theming Bonuses
-		const int iNumThemes = MAX_THEMING_BONUSES; /* 12 */
-		m_paThemingBonusInfo = FNEW(CvThemingBonusInfo[iNumThemes], c_eCiv5GameplayDLL, 0);
-		int idx = 0;
+		//Initialize Theming Bonuses: one entry per row
+		m_vThemingBonusInfo.clear();
 
 		std::string strResourceTypesKey = "Building_ThemingBonuses";
 		Database::Results* pResourceTypes = kUtility.GetResults(strResourceTypesKey);
@@ -1952,7 +1948,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 		while(pResourceTypes->Step())
 		{
-			CvThemingBonusInfo& pThemingInfo = m_paThemingBonusInfo[idx];
+			CvThemingBonusInfo pThemingInfo;
 
 			pThemingInfo.m_iBonus = pResourceTypes->GetInt("Bonus");
 			pThemingInfo.m_strDescription = pResourceTypes->GetText("Description");
@@ -1968,10 +1964,11 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			pThemingInfo.m_bRequiresUniquePlayers = pResourceTypes->GetBool("RequiresUniquePlayers");
 			pThemingInfo.m_iAIPriority = pResourceTypes->GetInt("AIPriority");
 
-			idx++;
+			m_vThemingBonusInfo.push_back(pThemingInfo);
 		}
 
-		m_iNumThemingBonuses = idx;
+		//Trim to the row count (as the other caches here do)
+		vector<CvThemingBonusInfo>(m_vThemingBonusInfo).swap(m_vThemingBonusInfo);
 		pResourceTypes->Reset();
 	}
 
@@ -5225,19 +5222,18 @@ int* CvBuildingEntry::GetInstantYieldArray() const
 	return m_piInstantYield;
 }
 
-CvThemingBonusInfo *CvBuildingEntry::GetThemingBonusInfo(int i) const
+const CvThemingBonusInfo *CvBuildingEntry::GetThemingBonusInfo(int i) const
 {
-	PRECONDITION(i < MAX_THEMING_BONUSES, "Index out of bounds");
 	PRECONDITION(i > -1, "Index out of bounds");
 
-	if (m_paThemingBonusInfo[0].m_iBonus == 0)
+	// no theming bonus at all: callers test entry 0 for that
+	if (m_vThemingBonusInfo.empty() || m_vThemingBonusInfo[0].m_iBonus == 0)
 	{
 		return NULL;
 	}
-	else
-	{
-		return &m_paThemingBonusInfo[i];
-	}
+
+	PRECONDITION(i < static_cast<int>(m_vThemingBonusInfo.size()), "Index out of bounds");
+	return &m_vThemingBonusInfo[i];
 }
 
 void CvBuildingEntry::UpdateUnitTypesUnlocked()
@@ -6876,7 +6872,7 @@ int CvCityBuildings::GetCurrentThemingBonuses(YieldTypes eYield) const
 			if (iIndex == -1)
 				continue;
 			
-			CvThemingBonusInfo* pkThemingBonus = pkBuildingInfo->GetThemingBonusInfo(iIndex);
+			const CvThemingBonusInfo* pkThemingBonus = pkBuildingInfo->GetThemingBonusInfo(iIndex);
 			ASSERT(pkThemingBonus);
 			iTotal += pkThemingBonus->GetBonus() * m_pCity->GetCityCulture()->GetThemingBonusMultiplierTimes10000() / 10000;
 		}
