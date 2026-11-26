@@ -29,7 +29,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_MANUFACTORY">
-			<Text>Unit will be consumed.[NEWLINE][NEWLINE]Will connect Resources on this tile to the trade network, and provide +1 additional copy. Manufactories will improve a Great Engineer's Hurry Production ability by [COLOR_POSITIVE_TEXT]10%[ENDCOLOR].</Text>
+			<Text>Unit will be consumed.[NEWLINE][NEWLINE]Will connect Resources on this tile to the trade network, and provide +1 additional copy of any Luxury Resource and +50% of any Strategic Resource. Manufactories will improve a Great Engineer's Hurry Production ability by [COLOR_POSITIVE_TEXT]10%[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ACADEMY_HELP">
