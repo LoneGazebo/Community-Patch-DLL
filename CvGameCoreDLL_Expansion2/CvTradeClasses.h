@@ -262,6 +262,10 @@ protected:
 	TradePathLookup m_aPotentialTradePathsWaterUi;
 	vector<int> m_lastTradePathUpdate;
 	vector<int> m_lastTradePathUpdateUi;
+	// InvalidateTradePathCache() counts a request here; each thread clears its own copies when it next uses them
+	int m_iTradePathsClearRequests;
+	int m_iTradePathsClearedCore;
+	int m_iTradePathsClearedUi;
 	std::vector<vector<int>> m_routesPerPlayer;
 	std::map<int, STradePathInfo> m_dummyTradePaths; //always empty, just for us to return a reference
 
