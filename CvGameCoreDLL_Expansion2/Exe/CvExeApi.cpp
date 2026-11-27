@@ -408,3 +408,18 @@ DWORD ExeApi::LocalMachineContainer_BufferHeaderSize()
 {
 	return ExeSymbols::Get(EXE_LocalMachineContainer_BufferHeaderSize);
 }
+
+DWORD ExeApi::FogGrid_OnHexFOWStateChanged()
+{
+	return ExeSymbols::Get(EXE_FogGrid_OnHexFOWStateChanged);
+}
+
+DWORD ExeApi::FogGrid_ClearHandle()
+{
+	return ExeSymbols::Get(EXE_FogGrid_ClearHandle);
+}
+
+DWORD ExeApi::FogGrid_ClearAllHighlightsLoop()
+{
+	return ExeSymbols::Get(EXE_FogGrid_ClearAllHighlightsLoop);
+}

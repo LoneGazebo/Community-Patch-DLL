@@ -78,6 +78,18 @@ namespace Exe
 	//! REASON_BUSY: the engine is not taking changes now, try again later.
 	Reason CanRepairCityArt();
 	Reason TryRepairCityArt(const CvCity& kCity);
+
+	//! The engine's fog of war grid counts width * width cells in its three
+	//! whole-map loops, so a map wider than 181 columns writes past the grid
+	//! and the game crashes while it loads. TryFixFogGridWidth makes the
+	//! loops count width * height. It changes EXE code, so call it only for
+	//! a map that needs it, before the engine sets up its fog for that map.
+	//! REASON_OK: the loops count width * height (also if an earlier DLL
+	//! load left them fixed). UndoFixFogGridWidth puts the loops back; the
+	//! DLL calls it when it unloads.
+	Reason CanFixFogGridWidth();
+	Reason TryFixFogGridWidth();
+	void UndoFixFogGridWidth();
 }
 
 #endif // CV_EXE_H

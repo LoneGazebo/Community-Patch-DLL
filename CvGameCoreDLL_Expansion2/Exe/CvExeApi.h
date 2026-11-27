@@ -98,6 +98,11 @@ namespace ExeApi
 	BYTE* g_cvCityVisSystem();
 	void cvCityVisSystem_RemoveWonder(void* pThis, const void* pHandle,
 		const int* piArtEntry);
+
+	// ---- Fog of war grid: code addresses, for Exe::TryFixFogGridWidth
+	DWORD FogGrid_OnHexFOWStateChanged();
+	DWORD FogGrid_ClearHandle();
+	DWORD FogGrid_ClearAllHighlightsLoop();
 }
 
 #endif // CV_EXE_API_H

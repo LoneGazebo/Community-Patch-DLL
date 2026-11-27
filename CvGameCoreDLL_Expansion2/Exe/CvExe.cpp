@@ -120,6 +120,57 @@ const ExeSymbol CITY_ART_SYMBOLS[] =
 	EXE_cvCityVisSystem_RemoveWonder,
 };
 
+const ExeSymbol FOG_GRID_SYMBOLS[] =
+{
+	EXE_FogGrid_OnHexFOWStateChanged,
+	EXE_FogGrid_ClearHandle,
+	EXE_FogGrid_ClearAllHighlightsLoop,
+};
+
+// The loop counts, from the symbols. Before: mov ecx,[esi+44h] (width);
+// imul ecx,ecx; test ecx,ecx; jbe <past the loop>. After: the same with
+// imul ecx,[esi+48h] (height).
+const DWORD FOG_HEX_CHANGED_LOOP = 0x11;
+const BYTE FOG_HEX_CHANGED_ORIGINAL[] =
+{
+	0x8B, 0x4E, 0x44, 0x0F, 0xAF, 0xC9, 0x85, 0xC9,
+	0x0F, 0x86, 0x9E, 0x00, 0x00, 0x00
+};
+const DWORD FOG_CLEAR_HANDLE_LOOP = 0x23;
+const BYTE FOG_CLEAR_HANDLE_ORIGINAL[] =
+{
+	0x8B, 0x4E, 0x44, 0x0F, 0xAF, 0xC9, 0x85, 0xC9, 0x76, 0x18
+};
+// jecxz to the jbe's target, then a nop: fits in place
+const BYTE FOG_CLEAR_HANDLE_FIXED[] =
+{
+	0x8B, 0x4E, 0x44, 0x0F, 0xAF, 0x4E, 0x48, 0xE3, 0x19, 0x90
+};
+// The third loop counts in edx (jecxz does not apply); its 16 bytes before
+// the loop body end in 3 bytes of padding, so the count fits in place
+const DWORD FOG_CLEAR_ALL_COUNT = 0x10; // before the symbol
+const BYTE FOG_CLEAR_ALL_ORIGINAL[] =
+{
+	0x8B, 0x51, 0x44, 0x0F, 0xAF, 0xD2, 0x85, 0xD2, 0x76, 0x16,
+	0x8D, 0x41, 0x68, 0x8D, 0x49, 0x00
+};
+// mov edx,[ecx+44h]; imul edx,[ecx+48h]; test edx,edx; jbe <past the
+// loop>; lea eax,[ecx+68h]; 2-byte nop
+const BYTE FOG_CLEAR_ALL_FIXED[] =
+{
+	0x8B, 0x51, 0x44, 0x0F, 0xAF, 0x51, 0x48, 0x85, 0xD2, 0x76, 0x15,
+	0x8D, 0x41, 0x68, 0x66, 0x90
+};
+// The first loop's jbe target is out of jecxz range, so its count moves to
+// a thunk: this, then jbe <past the loop>, jmp <back>
+const BYTE FOG_THUNK_HEAD[] =
+{
+	0x8B, 0x4E, 0x44, 0x0F, 0xAF, 0x4E, 0x48, 0x85, 0xC9
+};
+const unsigned int FOG_THUNK_SIZE = sizeof(FOG_THUNK_HEAD) + 6 + 5;
+const BYTE X86_NOP = 0x90;
+const BYTE X86_JMP_REL32 = 0xE9;
+
 // cvCityBuildingSim_MarkDirty flags the engine's WONDER_REMOVED handler
 // passes when it changes the Palace position
 const int CITY_ART_DIRTY_PALACE = 13;
@@ -200,6 +251,56 @@ DWORD ReadVftable(DWORD dwObject)
 	return dwVftable;
 }
 
+DWORD Rel32(DWORD dwFrom, DWORD dwTo)
+{
+	return dwTo - dwFrom;
+}
+
+bool WriteCode(DWORD dwAddress, const BYTE* pBytes, unsigned int uiSize)
+{
+	void* p = reinterpret_cast<void*>(dwAddress);
+	DWORD dwOld = 0;
+
+	if (!VirtualProtect(p, uiSize, PAGE_EXECUTE_READWRITE, &dwOld))
+	{
+		return false;
+	}
+
+	memcpy(p, pBytes, uiSize);
+	VirtualProtect(p, uiSize, dwOld, &dwOld);
+	FlushInstructionCache(GetCurrentProcess(), p, uiSize);
+
+	return true;
+}
+
+//! The first loop already jumps to a thunk of ours (a DLL load that did not
+//! put the loops back fixed it).
+bool IsFogHexChangedFixed(DWORD dwLoop)
+{
+	const BYTE* p = reinterpret_cast<const BYTE*>(dwLoop);
+
+	if (p[0] != X86_JMP_REL32)
+	{
+		return false;
+	}
+
+	for (unsigned int i = 5; i < sizeof(FOG_HEX_CHANGED_ORIGINAL); ++i)
+	{
+		if (p[i] != X86_NOP)
+		{
+			return false;
+		}
+	}
+
+	DWORD dwRel = 0;
+	memcpy(&dwRel, p + 1, sizeof(dwRel));
+	const DWORD dwThunk = dwLoop + 5 + dwRel;
+
+	return IsReadable(reinterpret_cast<const void*>(dwThunk), FOG_THUNK_SIZE)
+		&& memcmp(reinterpret_cast<const void*>(dwThunk), FOG_THUNK_HEAD,
+			sizeof(FOG_THUNK_HEAD)) == 0;
+}
+
 //! Engine's InterfaceBuddy, found from GC.GetEngineUserInterface(), or
 //! NULL if the memory there does not match one.
 void* FindInterfaceBuddy()
@@ -257,6 +358,11 @@ bool IsTunerListening(const BYTE* pListener)
 
 bool s_bTunerAnnouncePending = false;
 
+// While this DLL has the fog of war loops fixed: whether it does, and the
+// first loop's thunk if this DLL made it
+bool s_bFogGridFixed = false;
+BYTE* s_pFogGridThunk = NULL;
+
 void AnnounceTuner()
 {
 	s_bTunerAnnouncePending = false;
@@ -283,6 +389,174 @@ const char* Exe::GetReasonName(Reason eReason)
 const char* Exe::GetBuildName()
 {
 	return ExeBuild::GetName(ExeBuild::GetType());
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanFixFogGridWidth()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(FOG_GRID_SYMBOLS, _countof(FOG_GRID_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	return REASON_OK;
+}
+
+Exe::Reason Exe::TryFixFogGridWidth()
+{
+	const Reason eReason = CanFixFogGridWidth();
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryFixFogGridWidth", eReason);
+	}
+
+	const DWORD dwLoop1 = ExeApi::FogGrid_OnHexFOWStateChanged()
+		+ FOG_HEX_CHANGED_LOOP;
+	const DWORD dwLoop2 = ExeApi::FogGrid_ClearHandle() + FOG_CLEAR_HANDLE_LOOP;
+	const DWORD dwLoop3 = ExeApi::FogGrid_ClearAllHighlightsLoop()
+		- FOG_CLEAR_ALL_COUNT;
+	const void* p1 = reinterpret_cast<const void*>(dwLoop1);
+	const void* p2 = reinterpret_cast<const void*>(dwLoop2);
+	const void* p3 = reinterpret_cast<const void*>(dwLoop3);
+
+	if (
+		!IsReadable(p1, sizeof(FOG_HEX_CHANGED_ORIGINAL))
+		|| !IsReadable(p2, sizeof(FOG_CLEAR_HANDLE_ORIGINAL))
+		|| !IsReadable(p3, sizeof(FOG_CLEAR_ALL_ORIGINAL))
+	)
+	{
+		return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+	}
+
+	const bool bFixed1 = IsFogHexChangedFixed(dwLoop1);
+	const bool bFixed2 = memcmp(p2, FOG_CLEAR_HANDLE_FIXED,
+		sizeof(FOG_CLEAR_HANDLE_FIXED)) == 0;
+	const bool bFixed3 = memcmp(p3, FOG_CLEAR_ALL_FIXED,
+		sizeof(FOG_CLEAR_ALL_FIXED)) == 0;
+
+	if (
+		(!bFixed1 && memcmp(p1, FOG_HEX_CHANGED_ORIGINAL,
+			sizeof(FOG_HEX_CHANGED_ORIGINAL)) != 0)
+		|| (!bFixed2 && memcmp(p2, FOG_CLEAR_HANDLE_ORIGINAL,
+			sizeof(FOG_CLEAR_HANDLE_ORIGINAL)) != 0)
+		|| (!bFixed3 && memcmp(p3, FOG_CLEAR_ALL_ORIGINAL,
+			sizeof(FOG_CLEAR_ALL_ORIGINAL)) != 0)
+	)
+	{
+		CUSTOMLOG("Exe: fog grid loops at %08X / %08X / %08X are not the expected code",
+			(unsigned int)dwLoop1,
+			(unsigned int)dwLoop2,
+			(unsigned int)dwLoop3
+		);
+		return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+	}
+
+	if (!bFixed2 && !WriteCode(dwLoop2, FOG_CLEAR_HANDLE_FIXED,
+		sizeof(FOG_CLEAR_HANDLE_FIXED)))
+	{
+		return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+	}
+
+	if (!bFixed3 && !WriteCode(dwLoop3, FOG_CLEAR_ALL_FIXED,
+		sizeof(FOG_CLEAR_ALL_FIXED)))
+	{
+		return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+	}
+
+	if (!bFixed1)
+	{
+		// Freed by UndoFixFogGridWidth after the jump to it is gone
+		BYTE* pThunk = static_cast<BYTE*>(VirtualAlloc(NULL, FOG_THUNK_SIZE,
+			MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+
+		if (pThunk == NULL)
+		{
+			return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+		}
+
+		const DWORD dwThunk = reinterpret_cast<DWORD>(pThunk);
+		const DWORD dwBack = dwLoop1 + sizeof(FOG_HEX_CHANGED_ORIGINAL);
+		DWORD dwPast = 0;
+		memcpy(&dwPast, static_cast<const BYTE*>(p1) + 10, sizeof(dwPast));
+		dwPast += dwBack;
+
+		BYTE* pAt = pThunk;
+		memcpy(pAt, FOG_THUNK_HEAD, sizeof(FOG_THUNK_HEAD));
+		pAt += sizeof(FOG_THUNK_HEAD);
+		// jbe rel32
+		pAt[0] = 0x0F;
+		pAt[1] = 0x86;
+		const DWORD dwPastRel = Rel32(reinterpret_cast<DWORD>(pAt) + 6, dwPast);
+		memcpy(pAt + 2, &dwPastRel, sizeof(dwPastRel));
+		pAt += 6;
+		pAt[0] = X86_JMP_REL32;
+		const DWORD dwBackRel = Rel32(reinterpret_cast<DWORD>(pAt) + 5, dwBack);
+		memcpy(pAt + 1, &dwBackRel, sizeof(dwBackRel));
+
+		DWORD dwOld = 0;
+		VirtualProtect(pThunk, FOG_THUNK_SIZE, PAGE_EXECUTE_READ, &dwOld);
+		FlushInstructionCache(GetCurrentProcess(), pThunk, FOG_THUNK_SIZE);
+
+		BYTE aJump[sizeof(FOG_HEX_CHANGED_ORIGINAL)];
+		memset(aJump, X86_NOP, sizeof(aJump));
+		aJump[0] = X86_JMP_REL32;
+		const DWORD dwThunkRel = Rel32(dwLoop1 + 5, dwThunk);
+		memcpy(aJump + 1, &dwThunkRel, sizeof(dwThunkRel));
+
+		if (!WriteCode(dwLoop1, aJump, sizeof(aJump)))
+		{
+			VirtualFree(pThunk, 0, MEM_RELEASE);
+			return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+		}
+
+		s_pFogGridThunk = pThunk;
+	}
+
+	s_bFogGridFixed = true;
+
+	CUSTOMLOG("Exe: fog grid loops count width * height (%s)",
+		bFixed1 && bFixed2 && bFixed3 ? "already fixed" : "fixed now");
+
+	return REASON_OK;
+}
+
+void Exe::UndoFixFogGridWidth()
+{
+	if (!s_bFogGridFixed)
+	{
+		return;
+	}
+
+	// The first loop first: after it nothing jumps to the thunk
+	const DWORD dwLoop1 = ExeApi::FogGrid_OnHexFOWStateChanged() + FOG_HEX_CHANGED_LOOP;
+	const DWORD dwLoop2 = ExeApi::FogGrid_ClearHandle() + FOG_CLEAR_HANDLE_LOOP;
+	const DWORD dwLoop3 = ExeApi::FogGrid_ClearAllHighlightsLoop() - FOG_CLEAR_ALL_COUNT;
+
+	if (
+		!WriteCode(dwLoop1, FOG_HEX_CHANGED_ORIGINAL, sizeof(FOG_HEX_CHANGED_ORIGINAL))
+		|| !WriteCode(dwLoop2, FOG_CLEAR_HANDLE_ORIGINAL, sizeof(FOG_CLEAR_HANDLE_ORIGINAL))
+		|| !WriteCode(dwLoop3, FOG_CLEAR_ALL_ORIGINAL, sizeof(FOG_CLEAR_ALL_ORIGINAL))
+	)
+	{
+		// Keep the thunk: the first loop may still jump there
+		CUSTOMLOG("Exe: UndoFixFogGridWidth could not restore the fog grid loops");
+		return;
+	}
+
+	if (s_pFogGridThunk != NULL)
+	{
+		VirtualFree(s_pFogGridThunk, 0, MEM_RELEASE);
+	}
+	s_pFogGridThunk = NULL;
+	s_bFogGridFixed = false;
+
+	CUSTOMLOG("Exe: fog grid loops restored (width * width)");
 }
 
 //------------------------------------------------------------------------------

@@ -27,8 +27,10 @@
 	An entry is used only if its signature matches, every check naming it
 	passes, and, without a signature, some verified entry vouches for it.
 
-	DRM: the DLL never writes the EXE's .text or .rdata, only .data and
-	heap objects.
+	DRM: the DLL writes the EXE's .text in one place only, the fog of war
+	grid's whole-map loops (Exe::TryFixFogGridWidth, below), and only on the
+	builds this table maps, which have no CEG; it puts them back when it
+	unloads. Everything else writes .data and heap objects only.
 
 	The 2014 EXEs (PE timestamps 546CD0A8 DX11, 546CCB59 DX9, 546CD5F8
 	Tablet) carry Steam CEG, which hashes about 80% of .text and two
@@ -554,6 +556,44 @@ EXE_SYMBOL(
 	cvCityVisSystem_RemoveWonder,
 	EXE_FUNCTION, 0x004e0910, 0x00511730, 0x004e0750,
 	"83 EC 08 53 56 ?? ?? 83 CE FF 89 73 10 89 73 14 E8"
+)
+
+// ---- Fog of war grid (cvStrategicViewTracker): the engine's per-hex
+// fog and highlight state, a fixed array of 0x8000 cells of 0x188 bytes at
+// +0x4C, with the map width at +0x44 and the height at +0x48. Its three
+// whole-map loops count width * width cells, not width * height: past 181
+// columns they write beyond the array (the game crashes while the map
+// loads), and on maps taller than wide they skip the rows past the width.
+// Exe::TryFixFogGridWidth makes all three count width * height.
+
+// cvStrategicViewTracker::OnHexFOWStateChanged: thiscall, one argument (x, y, state byte at
+// +8, whole-map flag at +9). The loop count starts at +0x11:
+// mov ecx,[esi+44h]; imul ecx,ecx; test ecx,ecx; jbe +0x9E
+EXE_SYMBOL(
+	FogGrid_OnHexFOWStateChanged,
+	EXE_CODE, 0x005cc730, 0x005fbd60, 0x005ccca0,
+	"83 EC 18 56 57 8B 7C 24 24 80 7F 09 00 ?? ?? 74 29"
+)
+
+// cvStrategicViewTracker::OnClearHexHighlightStyle: thiscall, one argument:
+// clears every cell's field +0x1C that holds the style it looks up. The loop count starts at +0x23:
+// mov ecx,[esi+44h]; imul ecx,ecx; test ecx,ecx; jbe +0x18
+EXE_SYMBOL(
+	FogGrid_ClearHandle,
+	EXE_CODE, 0x005d2f60, 0x006025a0, 0x005d3500,
+	"8B 44 24 04 56 ?? ?? 8B 0D ?? ?? ?? ?? 8B 11 50 8B 42 54 FF D0"
+	" ?? ?? E8 ?? ?? ?? ?? ?? ?? E8"
+)
+
+// cvStrategicViewTracker::OnClearHexHighlights: thiscall, one argument;
+// clears field +0x1C of every cell. The symbol is its loop body, at +0x10,
+// which the fix keeps; the 16 bytes before it count the cells:
+// mov edx,[ecx+44h]; imul edx,edx; test edx,edx; jbe +0x16;
+// lea eax,[ecx+68h]; lea ecx,[ecx+0] (padding)
+EXE_SYMBOL(
+	FogGrid_ClearAllHighlightsLoop,
+	EXE_CODE, 0x005cc4e0, 0x005fbb40, 0x005cca40,
+	"C7 00 00 00 00 00 05 88 01 00 00 83 EA 01 75 F0 C2 04 00"
 )
 
 #endif
