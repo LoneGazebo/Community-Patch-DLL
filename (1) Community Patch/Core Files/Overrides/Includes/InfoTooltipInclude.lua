@@ -4175,35 +4175,262 @@ function GetHelpTextForBuilding(eBuilding, bExcludeName, _, bNoMaintenance, pCit
 	return table.concat(tLines, "[NEWLINE]" .. SEPARATOR_STRING .. "[NEWLINE]");
 end
 
+--- Read all rows of a database table matching the filter into a list.<br>
+--- Iterates to the end so the statement closes. Returns an empty list if the table doesn't exist.
+--- @param strTable string
+--- @param tFilter table
+--- @return table[]
+local function GetImprovementRows(strTable, tFilter)
+	local tRows = {};
+	if GameInfo[strTable] then
+		for row in GameInfo[strTable](tFilter) do
+			table.insert(tRows, row);
+		end
+	end
+	return tRows;
+end
+
+--- Group rows by the value of a column, keeping the order in which the values first appear
+--- @param tRows table[]
+--- @param strColumn string
+--- @return string[] tKeys
+--- @return table<string, table[]> tGroups
+local function GroupImprovementRows(tRows, strColumn)
+	local tKeys, tGroups = {}, {};
+	for _, row in ipairs(tRows) do
+		local key = row[strColumn];
+		if key then
+			if not tGroups[key] then
+				tGroups[key] = {};
+				table.insert(tKeys, key);
+			end
+			table.insert(tGroups[key], row);
+		end
+	end
+	return tKeys, tGroups;
+end
+
+--- Build a string like ` +1[ICON_PRODUCTION] +1[ICON_GOLD]` from rows that have YieldType and a value column
+--- @param tRows table[]
+--- @param strColumn string? Defaults to "Yield"
+--- @param strSuffix string? Appended after each yield icon
+--- @return string
+local function GetImprovementYieldString(tRows, strColumn, strSuffix)
+	strColumn = strColumn or "Yield";
+	local tTotals = {};
+	for _, row in ipairs(tRows) do
+		local nYield = row[strColumn] or 0;
+		if nYield ~= 0 and row.YieldType then
+			tTotals[row.YieldType] = (tTotals[row.YieldType] or 0) + nYield;
+		end
+	end
+	local strYields = "";
+	for _, kYieldInfo in GameInfoCache("Yields") do
+		local nYield = tTotals[kYieldInfo.Type];
+		if nYield then
+			strYields = string.format("%s %+d%s%s", strYields, nYield, kYieldInfo.IconString or "", strSuffix or "");
+		end
+	end
+	return strYields;
+end
+
+--- Add one line per group (tech, policy, belief, resource), naming the group and listing its yields
+--- @param tLines string[]
+--- @param tRows table[]
+--- @param strGroupColumn string
+--- @param funcGetLabel fun(key: string): string? Return nil to skip the group
+local function AddImprovementGroupedYieldLines(tLines, tRows, strGroupColumn, funcGetLabel)
+	local tKeys, tGroups = GroupImprovementRows(tRows, strGroupColumn);
+	for _, key in ipairs(tKeys) do
+		local strYields = GetImprovementYieldString(tGroups[key]);
+		local strLabel = strYields ~= "" and funcGetLabel(key);
+		if strLabel then
+			table.insert(tLines, strLabel .. strYields);
+		end
+	end
+end
+
+--- Tooltip for an improvement. Lists everything the database says about it (based on the EUI improvement tooltip),
+--- followed by the pre-written Help text if there is one.
+--- @param eImprovement ImprovementType
+--- @param bExcludeName boolean?
+--- @param bExcludeHeader boolean?
+--- @return string
 function GetHelpTextForImprovement(eImprovement, bExcludeName, bExcludeHeader)
 	local kImprovementInfo = GameInfo.Improvements[eImprovement];
+	local strImprovementType = kImprovementInfo.Type;
+	local tFilter = {ImprovementType = strImprovementType};
+	local tSections = {};
+
+	-- Name
+	if not bExcludeHeader and not bExcludeName then
+		table.insert(tSections, Locale.ToUpper(L(kImprovementInfo.Description)));
+	end
+
 	local tLines = {};
 
-	-- Header
-	local bHaveHeader = false;
-	if not bExcludeHeader then
-		-- Name
-		if not bExcludeName then
-			table.insert(tLines, Locale.ToUpper(L(kImprovementInfo.Description)));
-			table.insert(tLines, SEPARATOR_STRING);
+	-- Maintenance
+	local iMaintenance = kImprovementInfo.GoldMaintenance or 0;
+	if iMaintenance ~= 0 then
+		table.insert(tLines, string.format("%s %+d[ICON_GOLD]", L("TXT_KEY_PEDIA_MAINT_LABEL"), -iMaintenance));
+	end
+
+	-- Improved resources
+	local tResourceRows = GetImprovementRows("Improvement_ResourceTypes", tFilter);
+	local tResourceIcons = {};
+	for _, row in ipairs(tResourceRows) do
+		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		if kResourceInfo and kResourceInfo.IconString then
+			table.insert(tResourceIcons, kResourceInfo.IconString);
+		end
+	end
+	if next(tResourceIcons) then
+		table.insert(tLines, L("TXT_KEY_PEDIA_IMPROVES_RESRC_LABEL") .. " " .. table.concat(tResourceIcons, ", "));
+	end
+
+	-- Yields: base, fresh water, per era
+	local tBaseYields = GetImprovementRows("Improvement_Yields", tFilter);
+	local tFreshWaterYields = GetImprovementRows("Improvement_FreshWaterYields", tFilter);
+	local tPerEraYields = GetImprovementRows("Improvement_YieldPerEra", tFilter);
+	local strFreshWater = L("TXT_KEY_ABLTY_FRESH_WATER_STRING");
+	local strPerEra = "/" .. L("TXT_KEY_AD_SETUP_GAME_ERA");
+	local function FilterYield(tRows, strYieldType)
+		local tResult = {};
+		for _, row in ipairs(tRows) do
+			if row.YieldType == strYieldType then
+				table.insert(tResult, row);
+			end
+		end
+		return tResult;
+	end
+	for _, kYieldInfo in GameInfoCache("Yields") do
+		local strBase = GetImprovementYieldString(FilterYield(tBaseYields, kYieldInfo.Type));
+		local strFresh = GetImprovementYieldString(FilterYield(tFreshWaterYields, kYieldInfo.Type));
+		local strEra = GetImprovementYieldString(FilterYield(tPerEraYields, kYieldInfo.Type), nil, strPerEra);
+		local strYield = strBase .. (strFresh ~= "" and (" " .. strFreshWater .. strFresh) or "") .. strEra;
+		if strYield ~= "" then
+			table.insert(tLines, L(kYieldInfo.Description) .. ":" .. strYield);
 		end
 	end
 
-	if bHaveHeader then
-		table.insert(tLines, SEPARATOR_STRING);
+	-- Adjacent mountain bonus
+	local strMountain = GetImprovementYieldString(GetImprovementRows("Improvement_AdjacentMountainYieldChanges", tFilter));
+	if strMountain ~= "" then
+		table.insert(tLines, L("TXT_KEY_PEDIA_MOUNTAINADJYIELD_LABEL") .. strMountain);
+	end
+
+	-- Defense modifier
+	local iDefense = kImprovementInfo.DefenseModifier or 0;
+	if iDefense ~= 0 then
+		table.insert(tLines, string.format("%s %+d%%[ICON_STRENGTH]", L("TXT_KEY_PEDIA_DEFENSE_LABEL"), iDefense));
+	end
+
+	-- Tech yield changes: all tiles, fresh water tiles, non-fresh-water tiles
+	local function TechLabel(strSuffix)
+		return function (strTechType)
+			local kTechInfo = GameInfo.Technologies[strTechType];
+			return kTechInfo and ("[ICON_BULLET]" .. TechColor(L(kTechInfo.Description)) .. strSuffix);
+		end
+	end
+	AddImprovementGroupedYieldLines(tLines, GetImprovementRows("Improvement_TechYieldChanges", tFilter), "TechType", TechLabel(""));
+	AddImprovementGroupedYieldLines(tLines, GetImprovementRows("Improvement_TechFreshWaterYieldChanges", tFilter), "TechType",
+		TechLabel(" " .. strFreshWater));
+	AddImprovementGroupedYieldLines(tLines, GetImprovementRows("Improvement_TechNoFreshWaterYieldChanges", tFilter), "TechType",
+		TechLabel(" " .. L("TXT_KEY_ABLTY_NO_FRESH_WATER_STRING")));
+
+	-- Policy yield and culture changes
+	local tPolicyYields = GetImprovementRows("Policy_ImprovementYieldChanges", tFilter);
+	local tPolicyCulture = GetImprovementRows("Policy_ImprovementCultureChanges", tFilter);
+	for _, row in ipairs(tPolicyCulture) do
+		table.insert(tPolicyYields, {PolicyType = row.PolicyType, YieldType = "YIELD_CULTURE", Yield = row.CultureChange});
+	end
+	AddImprovementGroupedYieldLines(tLines, tPolicyYields, "PolicyType", function (strPolicyType)
+		local kPolicyInfo = GameInfo.Policies[strPolicyType];
+		return kPolicyInfo and ("[ICON_BULLET]" .. PolicyColor(L(kPolicyInfo.Description)));
+	end);
+
+	-- Belief yield changes
+	if not (Game and Game.IsOption("GAMEOPTION_NO_RELIGION")) then
+		AddImprovementGroupedYieldLines(tLines, GetImprovementRows("Belief_ImprovementYieldChanges", tFilter), "BeliefType", function (strBeliefType)
+			local kBeliefInfo = GameInfo.Beliefs[strBeliefType];
+			return kBeliefInfo and ("[ICON_BULLET]" .. BeliefColor(L(kBeliefInfo.ShortDescription)));
+		end);
+	end
+
+	-- Resource yields
+	AddImprovementGroupedYieldLines(tLines, GetImprovementRows("Improvement_ResourceType_Yields", tFilter), "ResourceType", function (strResourceType)
+		local kResourceInfo = GameInfo.Resources[strResourceType];
+		return kResourceInfo and ((kResourceInfo.IconString or "") .. " " .. L(kResourceInfo.Description) .. ":");
+	end);
+
+	if next(tLines) then
+		table.insert(tSections, table.concat(tLines, "[NEWLINE]"));
+	end
+
+	tLines = {};
+
+	-- Civilization requirement
+	if kImprovementInfo.SpecificCivRequired and kImprovementInfo.CivilizationType then
+		local kCivInfo = GameInfo.Civilizations[kImprovementInfo.CivilizationType];
+		if kCivInfo then
+			table.insert(tLines, L("TXT_KEY_PEDIA_CIVILIZATIONS_LABEL") .. " " .. L(kCivInfo.ShortDescription));
+		end
+	end
+
+	-- Tech requirement (of the first build that makes this improvement and needs a tech)
+	local kPrereqTechInfo;
+	for _, kBuildInfo in ipairs(GetImprovementRows("Builds", tFilter)) do
+		if not kPrereqTechInfo and kBuildInfo.PrereqTech then
+			kPrereqTechInfo = GameInfo.Technologies[kBuildInfo.PrereqTech];
+		end
+	end
+	if kPrereqTechInfo then
+		table.insert(tLines, L("TXT_KEY_PEDIA_PREREQ_TECH_LABEL") .. " " .. TechColor(L(kPrereqTechInfo.Description)));
+	end
+
+	-- Where it can be built
+	local tValidOn = {};
+	for _, row in ipairs(GetImprovementRows("Improvement_ValidTerrains", tFilter)) do
+		local kTerrainInfo = GameInfo.Terrains[row.TerrainType];
+		if kTerrainInfo then
+			table.insert(tValidOn, L(kTerrainInfo.Description));
+		end
+	end
+	for _, row in ipairs(GetImprovementRows("Improvement_ValidFeatures", tFilter)) do
+		local kFeatureInfo = GameInfo.Features[row.FeatureType];
+		if kFeatureInfo then
+			table.insert(tValidOn, L(kFeatureInfo.Description));
+		end
+	end
+	for _, row in ipairs(GetImprovementRows("Improvement_ValidImprovements", tFilter)) do
+		local kPrereqImprovementInfo = GameInfo.Improvements[row.PrereqImprovement];
+		if kPrereqImprovementInfo then
+			table.insert(tValidOn, L(kPrereqImprovementInfo.Description));
+		end
+	end
+	for _, row in ipairs(tResourceRows) do
+		local kResourceInfo = GameInfo.Resources[row.ResourceType];
+		if kResourceInfo and row.ResourceMakesValid and kResourceInfo.IconString then
+			table.insert(tValidOn, kResourceInfo.IconString);
+		end
+	end
+	if next(tValidOn) then
+		table.insert(tLines, L("TXT_KEY_PEDIA_FOUNDON_LABEL") .. " " .. table.concat(tValidOn, ", "));
+	end
+
+	if next(tLines) then
+		table.insert(tSections, table.concat(tLines, "[NEWLINE]"));
 	end
 
 	-- Pre-written Help text
-	if not kImprovementInfo.Help then
-		-- print("Improvement help is NULL:", L(kImprovementInfo.Description));
-	else
+	if kImprovementInfo.Help then
 		local strWrittenHelp = L(kImprovementInfo.Help);
-		-- Will include separator if there is extra info
-		-- table.insert(tLines, SEPARATOR_STRING);
-		table.insert(tLines, strWrittenHelp);
+		if strWrittenHelp ~= "" then
+			table.insert(tSections, strWrittenHelp);
+		end
 	end
 
-	return table.concat(tLines, "[NEWLINE]");
+	return table.concat(tSections, "[NEWLINE]" .. SEPARATOR_STRING .. "[NEWLINE]");
 end
 
 function GetHelpTextForProject(eProject, pCity, bGeneralInfo)
