@@ -815,7 +815,8 @@ void CvGame::InitPlayers()
 			CvPreGame::setLeaderHead(eLoopPlayer, eBarbLeader);
 			CvPreGame::setMinorCiv(eLoopPlayer, true);
 			MinorCivTypes minorCivType = CvPreGame::minorCivType(eLoopPlayer);
-			CvMinorCivInfo* pkCityState = GC.getMinorCivInfo(minorCivType);
+			// Check the type before the lookup: getMinorCivInfo stops the game on an invalid type, and the fallback below would never run
+			CvMinorCivInfo* pkCityState = (minorCivType > NO_MINORCIV && minorCivType < GC.getNumMinorCivInfos()) ? GC.getMinorCivInfo(minorCivType) : NULL;
 
 			// No valid City-State specified in pregame. Default to the first valid index and close the slot.
 			if (minorCivType == NO_MINORCIV || !pkCityState)
