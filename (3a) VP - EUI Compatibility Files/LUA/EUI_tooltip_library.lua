@@ -72,6 +72,33 @@ local S = string.format
 local g_deal = UI.GetScratchDeal()
 local g_dealDuration = Game and Game.GetDealDuration()
 
+local function GetDefensivePactTurnsRemaining(iPlayer, iOtherPlayer)
+	PushScratchDeal()
+	local iCurrentTurn = Game.GetGameTurn()
+	local iNumCurrentDeals = UI_GetNumCurrentDeals(iPlayer)
+
+	for iDeal = 0, iNumCurrentDeals - 1 do
+		UI_LoadCurrentDeal(iPlayer, iDeal)
+
+		if (g_deal:GetOtherPlayer(iPlayer) == iOtherPlayer) then
+			g_deal:ResetIterator()
+			local itemType, _, finalTurn = g_deal:GetNextItem()
+
+			while (itemType ~= nil) do
+				if (itemType == TradeableItems.TRADE_ITEM_DEFENSIVE_PACT) then
+					PopScratchDeal()
+					return math_max(0, finalTurn - iCurrentTurn)
+				end
+
+				itemType, _, finalTurn = g_deal:GetNextItem()
+			end
+		end
+	end
+
+	PopScratchDeal()
+	return nil
+end
+
 local g_isScienceEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)
 local g_isPoliciesEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES)
 --local g_isHappinessEnabled = not Game or not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_HAPPINESS)
@@ -867,7 +894,7 @@ local function GetMoodInfo( playerID )
 				end
 
 				if player:IsHasDefensivePactWithPlayer(otherPlayerID) then
-					pacts:insert( otherPlayerName )
+					pacts:insert( otherPlayerName .. inParentheses( GetDefensivePactTurnsRemaining(playerID, otherPlayerID) ) )
 				end
 
 				--C4df
