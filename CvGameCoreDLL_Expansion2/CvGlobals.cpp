@@ -2444,6 +2444,35 @@ extern "C" {
 	__declspec(dllimport) int __stdcall MessageBoxA(void* hWnd, const char* lpText, const char* lpCaption, unsigned int uType);
 }
 
+// The installer's names for the builds: "43 Civ" for 43, no prefix for the standard 22
+static CvString MajorCivBuildName(int iMaxMajorCivs)
+{
+	if (iMaxMajorCivs == 22)
+		return "the standard version (22 major civilizations)";
+	if (iMaxMajorCivs == 43)
+		return "the 43 Civ version (43 major civilizations)";
+	return CvString::format("a version for %d major civilizations", iMaxMajorCivs);
+}
+
+void ReportMajorCivCountMismatch(bool bSave, int iOtherMaxMajorCivs)
+{
+	const CvString strThis = MajorCivBuildName(MAX_MAJOR_CIVS);
+	CvString strText;
+	if (!bSave)
+		strText = CvString::format("The host plays %s, but this game runs %s, so it cannot join this game.\n\n"
+			"Join with the same version as the host.", MajorCivBuildName(iOtherMaxMajorCivs).c_str(), strThis.c_str());
+	else if (iOtherMaxMajorCivs < 0)
+		strText = CvString::format("This save was made with an older version of the mod, which this game, running %s, cannot load.\n\n"
+			"Load the save with the version that made it. The game will now close.", strThis.c_str());
+	else
+		strText = CvString::format("This save was made with %s, but this game runs %s, which cannot load it.\n\n"
+			"Load the save with the version that made it. The game will now close.", MajorCivBuildName(iOtherMaxMajorCivs).c_str(), strThis.c_str());
+
+	CUSTOMLOG("%s", strText.c_str());
+	if (!AreErrorPopupsSuppressed())
+		MessageBoxA(NULL, strText.c_str(), "Vox Populi", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+}
+
 #if defined(MOD_DEBUG_MINIDUMP)
 // Load the best available dbghelp.dll
 static bool LoadBestDbgHelp()

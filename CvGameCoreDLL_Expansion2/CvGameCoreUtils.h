@@ -28,6 +28,15 @@ inline const char* GetLastMiniDumpPath() { return NULL; }
 
 void SetPreconditionFired();
 
+// MAX_MAJOR_CIVS is fixed when the DLL is built (the standard and the 43 Civ versions) and sets the size of many
+// saved arrays, so a build can neither read the saves of a build with another count nor play with it.
+// Saves store it as SAVE_MAJOR_CIVS_TAG | MAX_MAJOR_CIVS (MAX_MAJOR_CIVS < 256).
+const int SAVE_MAJOR_CIVS_TAG = 0x4D434300;
+// Writes the reason to CustomMods.log and shows it to the player, unless error popups are turned off. bSave: a save
+// being loaded, else the host's settings when joining a network game. iOtherMaxMajorCivs: the save's or host's
+// MAX_MAJOR_CIVS, -1 for a save from before saves stored it.
+void ReportMajorCivCountMismatch(bool bSave, int iOtherMaxMajorCivs);
+
 #ifdef WIN32
 // Runtime opt-outs via marker files (crashlogs\nodumps.please and
 // crashlogs\nopopups.please), the user's config.ini ([Vox Populi]

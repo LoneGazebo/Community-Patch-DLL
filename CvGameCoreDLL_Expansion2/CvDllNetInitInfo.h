@@ -91,4 +91,6 @@ private:
 
 	// this is not an FAutoVariable since it doesn't need syncing since it is just derived data.
 	std::vector<KnownPlayersBitArray> m_aiKnownPlayersTable;
+
+	int m_iMaxMajorCivs; // MAX_MAJOR_CIVS of the sender's build; -1 if the sender did not send it
 };
