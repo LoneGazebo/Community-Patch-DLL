@@ -97,17 +97,18 @@ This ensures every minidump is traceable to an exact commit, even for official r
 
 
 [STEP 6]
-A. Build the CvGameCore_Expansion2.dll file using the Release config (instructions are on the main repository page).
+A. Open Command Prompt and build the Release DLL with the following commands (this is the build that step C copies, so the DLL in the installer matches the PDB in the Debug folder). Leave the window open once you're done.
+cd {folder path for Community-Patch-DLL}
+py build_vp_clang.py --config release
 
 
-B. Place the compiled DLL (not the PDB) in the "(1) Community Patch" folder, replacing the existing file there.
+B. Place the compiled DLL from clang-output/Release (not the PDB) in the "(1) Community Patch" folder, replacing the existing file there.
 
 
 C. Copy the Release DLL and PDB from clang-output/Release into the Debug/Standard/Release folder.
 
 
-D. Open Command Prompt and run the following commands. Leave the window open once you're done.
-cd {folder path for Community-Patch-DLL}
+D. Using your opened Command Prompt window, run the following command.
 py build_vp_clang.py --config debug
 
 
@@ -119,10 +120,11 @@ F. Delete the clang-output and clang-build folders in the repository.
 
 
 [STEP 7]
-A. Build the 43 Civ version of the game core using the Release config: Uncomment "#define MAX_MAJOR_CIVS (43)" in CvGameCoreDLLUtil/include/CustomModsGlobal.h, amend the release commit to include the changed file, then build normally.
+A. Build the 43 Civ version of the game core: Uncomment "#define MOD_GLOBAL_MAX_MAJOR_CIVS (43)" in CvGameCoreDLLUtil/include/CustomModsGlobal.h, amend the release commit to include the changed file, then, using your opened Command Prompt window, run the following command.
+py build_vp_clang.py --config release
 
 
-B. Place the compiled 43 Civ DLL (not the PDB) in the "(3b) 43 Civs Community Patch" folder, replacing the existing file there.
+B. Place the compiled 43 Civ DLL from clang-output/Release (not the PDB) in the "(3b) 43 Civs Community Patch" folder, replacing the existing file there.
 
 
 C. Copy the 43 Civ Release DLL and PDB from clang-output/Release into the Debug/43 Civ/Release folder.
