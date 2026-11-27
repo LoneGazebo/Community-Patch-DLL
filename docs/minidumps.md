@@ -152,9 +152,11 @@ Symbol files (`.pdb`) are essential for meaningful minidump analysis. Without ma
 |--------|----------|------------|
 | **Debug.zip** (GitHub Release) | Release and Debug DLL+PDB for Standard and 43 Civ variants | Download from the [Releases page](https://github.com/LoneGazebo/Community-Patch-DLL/releases). The `Release/` subfolder has the PDB matching the installer DLL. |
 | **CI Artifacts** | Release and Debug DLL+PDB for Clang and MSVC builds | Download from the GitHub Actions build for the specific commit (e.g. `VP_Clang_Release_*`). Note: CI artifacts are built from the final tagged commit and may not match the DLL shipped in the installer (see below). |
-| **Local Build** | PDB for your build | `BuildOutput\Release\` (MSVC) or `clang-output\Release\` (Clang) after building |
+| **Local Build** | PDB for your build | `clang-output\Release\` (Clang; `py build_vp_clang.py --config release` is the build the installer uses) or `BuildOutput\Release\` (MSVC) after building |
 
 **Important:** The PDB must match the exact DLL binary. For analyzing user crash dumps, always use the PDB from **Debug.zip** — it was built alongside the installer DLL and has a matching PDB signature. CI artifacts are built from the tagged commit after the installer is packaged, so their PDB signatures will not match the shipped DLL.
+
+**Why the installer uses the Clang Release build:** besides matching Debug.zip, its PDB records which functions were inlined and where each local variable is valid. A debugger then names the inlined function and the line of the check that failed inside it, and shows `<value unavailable>` for a local it cannot recover. The Visual Studio 2008 compiler (v90) records neither: in the same crash its dump stops at the caller of the inlined function, and locals of optimized code can show wrong values without a warning.
 
 ## Analyzing Minidumps
 
@@ -213,6 +215,8 @@ WinDbg is a more powerful alternative that can analyze dumps even when Visual St
    k
    ```
    This displays the function call stack showing where the crash occurred.
+
+   **If the crash is in `CivilizationV.exe`** (or in a system DLL called from it): the game has no symbol files, so the debugger guesses the frames of the game's own functions, and the frames above them can be missing or wrong whichever compiler built the DLL. `k` may then show no `CvGameCore_Expansion2` frames although they are on the stack, and `!analyze -v` reports `CivilizationV.exe!Unknown`. `dds esp L200` lists the stack with symbols: the `CvGameCore_Expansion2!` return addresses in it are the calls that led to the crash, though values left over from earlier calls can appear too.
 
 **Example Output:**
 ```

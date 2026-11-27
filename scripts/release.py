@@ -33,6 +33,7 @@ import argparse
 import os
 import re
 import shutil
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -497,6 +498,97 @@ def copy_release_dll_to_mod(is_43_civ: bool = False):
         print(f"  WARNING: Release DLL not found at {dll_path}")
 
 
+def read_dll_codeview(dll_path: Path) -> Optional[Tuple[bytes, int, str]]:
+    """GUID, age and PDB path that a DLL asks for (its CodeView RSDS record), or None."""
+    data = dll_path.read_bytes()
+    pe = int.from_bytes(data[0x3C:0x40], 'little')
+    opt = pe + 24
+    rva, size = struct.unpack_from('<II', data, opt + 96 + 6 * 8)  # data directory 6 = debug (PE32)
+    num_sections = struct.unpack_from('<H', data, pe + 6)[0]
+    section_table = opt + struct.unpack_from('<H', data, pe + 20)[0]
+    offset = None
+    for i in range(num_sections):
+        vsize, va, rawsize, rawptr = struct.unpack_from('<IIII', data, section_table + i * 40 + 8)
+        if va <= rva < va + max(vsize, rawsize):
+            offset = rva - va + rawptr
+    if offset is None:
+        return None
+    for i in range(size // 28):
+        entry_type, _, _, raw = struct.unpack_from('<IIII', data, offset + i * 28 + 12)
+        if entry_type == 2 and data[raw:raw + 4] == b'RSDS':
+            name = data[raw + 24:data.index(b'\0', raw + 24)].decode('utf-8', 'replace')
+            return data[raw + 4:raw + 20], struct.unpack_from('<I', data, raw + 20)[0], name
+    return None
+
+
+def describe_dll(dll_path: Path) -> str:
+    """What a DLL is, for messages: size and the PDB (path, GUID, age) it was linked with."""
+    codeview = read_dll_codeview(dll_path) if dll_path.exists() else None
+    if codeview is None:
+        return f"{dll_path} (missing or without a PDB record)"
+    guid, age, name = codeview
+    return f"{dll_path} ({dll_path.stat().st_size} bytes, linked with {name}, PDB GUID {guid.hex()}, age {age})"
+
+
+def read_pdb_id(pdb_path: Path) -> Optional[Tuple[bytes, int]]:
+    """GUID (PDB info stream) and age (DBI stream) of a PDB, the pair a debugger matches against the DLL, or None."""
+    data = pdb_path.read_bytes()
+    if not data.startswith(b'Microsoft C/C++ MSF 7.00\r\n\x1aDS'):
+        return None
+    block_size, _, _, dir_bytes, _, dir_map = struct.unpack_from('<IIIIII', data, 32)
+    blocks = lambda count, at: struct.unpack_from('<%dI' % count, data, at)
+    dir_blocks = blocks((dir_bytes + block_size - 1) // block_size, dir_map * block_size)
+    directory = b''.join(data[b * block_size:(b + 1) * block_size] for b in dir_blocks)
+    num_streams = struct.unpack_from('<I', directory, 0)[0]
+    sizes = struct.unpack_from('<%dI' % num_streams, directory, 4)
+    pos = 4 + 4 * num_streams
+    streams = []
+    for stream_size in sizes:
+        count = 0 if stream_size == 0xFFFFFFFF else (stream_size + block_size - 1) // block_size
+        stream_blocks = struct.unpack_from('<%dI' % count, directory, pos)
+        pos += 4 * count
+        streams.append(b''.join(data[b * block_size:(b + 1) * block_size] for b in stream_blocks)[:stream_size])
+    if num_streams < 4 or len(streams[1]) < 28 or len(streams[3]) < 12:
+        return None
+    return streams[1][12:28], struct.unpack_from('<I', streams[3], 8)[0]
+
+
+def pdb_matches(dll_path: Path, pdb_path: Path) -> bool:
+    """Whether the DLL was linked with this PDB (same GUID and age), so that crash dumps of the DLL can use it."""
+    if not dll_path.exists() or not pdb_path.exists():
+        return False
+    codeview = read_dll_codeview(dll_path)
+    return codeview is not None and codeview[:2] == read_pdb_id(pdb_path)
+
+
+def check_release_pdb(is_43_civ: bool, pdb_folder: Path):
+    """Stop the release when the DLL put into the mod folder does not match the Release PDB for Debug.zip."""
+    mod = "(3b) 43 Civs Community Patch" if is_43_civ else "(1) Community Patch"
+    dll_path = PROJECT_DIR / mod / "CvGameCore_Expansion2.dll"
+    pdb_path = pdb_folder / "CvGameCore_Expansion2.pdb"
+    if not pdb_matches(dll_path, pdb_path):
+        raise RuntimeError(f"{describe_dll(dll_path)} does not match {pdb_path}"
+                           f"{'' if pdb_path.exists() else ' (missing)'}: a crash dump of the installed DLL could not use this PDB")
+    print(f"  {mod} DLL matches the Release PDB in {pdb_folder}: {describe_dll(dll_path)}")
+
+
+def check_debug_folder(debug_folder: Path) -> bool:
+    """Every variant folder of the Debug folder has Release/ and Debug/ with a DLL and the PDB it was linked with."""
+    ok = True
+    for variant in ("Standard", "43 Civ"):
+        for config in ("Release", "Debug"):
+            folder = debug_folder / variant / config
+            dll_path = folder / "CvGameCore_Expansion2.dll"
+            pdb_path = folder / "CvGameCore_Expansion2.pdb"
+            if pdb_matches(dll_path, pdb_path):
+                print(f"  OK       {variant}/{config}: {describe_dll(dll_path)}")
+            else:
+                ok = False
+                problem = ("no DLL" if not dll_path.exists() else "no PDB" if not pdb_path.exists() else "the PDB is not the DLL's")
+                print(f"  PROBLEM  {variant}/{config}: {problem} in {folder}")
+    return ok
+
+
 def cleanup_build_folders():
     """Delete clang-output and clang-build folders."""
     folders_to_delete = [
@@ -747,7 +839,15 @@ def main():
     )
     parser.add_argument(
         'new_version',
+        nargs='?',
         help="New version number in X.Y.Z format (e.g., 5.2.0)"
+    )
+    parser.add_argument(
+        '--check-debug-folder',
+        type=Path,
+        metavar='FOLDER',
+        help="Only check that FOLDER (the Debug folder for Debug.zip) has a matching DLL and PDB in each of its "
+             "Standard/43 Civ Release/Debug folders, then exit"
     )
     parser.add_argument(
         '--debug-folder',
@@ -776,6 +876,11 @@ def main():
     )
 
     args = parser.parse_args()
+
+    if args.check_debug_folder:
+        sys.exit(0 if check_debug_folder(args.check_debug_folder) else 1)
+    if not args.new_version:
+        parser.error("the new version number is required")
 
     # Validate new version format
     try:
@@ -859,6 +964,7 @@ def main():
             raise RuntimeError("Release build failed")
         copy_release_dll_to_mod(is_43_civ=False)
         copy_dll_and_pdb('release', standard_folder / "Release")
+        check_release_pdb(is_43_civ=False, pdb_folder=standard_folder / "Release")
 
         print("\n  Building Debug configuration...")
         if not build_dll('debug'):
@@ -879,6 +985,7 @@ def main():
             raise RuntimeError("43 Civ Release build failed")
         copy_release_dll_to_mod(is_43_civ=True)
         copy_dll_and_pdb('release', civ43_folder / "Release")
+        check_release_pdb(is_43_civ=True, pdb_folder=civ43_folder / "Release")
 
         print("\n  Building Debug configuration (43 Civ)...")
         if not build_dll('debug'):
@@ -890,6 +997,9 @@ def main():
         print("\n  Cleaning up build folders...")
         cleanup_build_folders()
 
+        print("\n  Checking the Debug folder...")
+        if not check_debug_folder(debug_folder):
+            raise RuntimeError(f"The Debug folder {debug_folder} is incomplete: crash dumps could not be read with it")
         print(f"\n  Debug folder ready at: {debug_folder}")
         print("  Please compress this folder to a .zip file manually")
 
