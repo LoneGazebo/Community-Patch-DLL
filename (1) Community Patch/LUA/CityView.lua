@@ -791,7 +791,16 @@ local function BuildWorkerManagementBox(pCity)
 	end
 end
 
-UpdateTypes.WORKERS.UpdateFunc = RefreshRightStack;
+UpdateTypes.WORKERS.UpdateFunc = function ()
+	local pCity = UI.GetHeadSelectedCity();
+	if not pCity or not UI.IsCityScreenUp() then
+		return;
+	end
+
+	BuildWorkerManagementBox(pCity);
+	UpdateTypes.HEXES.UpdateFunc();
+	RefreshRightStack();
+end;
 tRightSideSections.WorkerHeader.UpdateType = UpdateTypes.WORKERS;
 
 ---------------------------------------------------------------
