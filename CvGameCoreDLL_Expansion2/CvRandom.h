@@ -94,7 +94,7 @@ class CvRandom
 {
 
 public:
-	CvRandom(const std::string& name);
+	CvRandom(const std::string& name, bool bSynchronous = true);
 	CvRandom* Clone() const;
 	virtual ~CvRandom();
 
