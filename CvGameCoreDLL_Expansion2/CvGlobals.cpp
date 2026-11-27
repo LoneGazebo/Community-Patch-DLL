@@ -3516,8 +3516,9 @@ void CvGlobals::init()
 //
 void CvGlobals::uninit()
 {
-	// Put the engine's fog of war loops back before the DLL's code goes away
+	// Put the engine's code back before the DLL's code goes away
 	Exe::UndoFixFogGridWidth();
+	Exe::UndoEnlargeCoastGridStack();
 
 	CvPlayerAI::freeStatics();
 	CvTeam::freeStatics();

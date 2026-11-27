@@ -27,10 +27,11 @@
 	An entry is used only if its signature matches, every check naming it
 	passes, and, without a signature, some verified entry vouches for it.
 
-	DRM: the DLL writes the EXE's .text in one place only, the fog of war
-	grid's whole-map loops (Exe::TryFixFogGridWidth, below), and only on the
-	builds this table maps, which have no CEG; it puts them back when it
-	unloads. Everything else writes .data and heap objects only.
+	DRM: the DLL writes the EXE's .text in two places only, on the
+	26577625 builds below (no CEG): the fog of war grid's whole-map loops
+	(Exe::TryFixFogGridWidth) and one call that Exe::TryEnlargeCoastGridStack
+	points at a thunk (TerrainSystem_Init_CoastGridInit). It puts both back
+	when it unloads. Otherwise it writes only .data and heap objects.
 
 	The 2014 EXEs (PE timestamps 546CD0A8 DX11, 546CCB59 DX9, 546CD5F8
 	Tablet) carry Steam CEG, which hashes about 80% of .text and two
@@ -596,6 +597,25 @@ EXE_SYMBOL(
 	"C7 00 00 00 00 00 05 88 01 00 00 83 EA 01 75 F0 C2 04 00"
 )
 
+// ---- TerrainSystem::Init calls CoastGrid::Init (thiscall, one stack
+// argument: the hex grid; retn 4), which takes its work buffers from the
+// stack with _alloca: 48 bytes per plot of the map plus a 2-plot border,
+// on the main thread's 1 MB stack. Exe::TryEnlargeCoastGridStack points
+// this call at a thunk that runs it on a stack of its own. The signature
+// starts 6 bytes before the call: mov eax,[ebp+8]; push eax; mov ecx,esi;
+// call CoastGrid_Init.
+EXE_SYMBOL(
+	TerrainSystem_Init_CoastGridInit,
+	EXE_CODE, 0x00523391, 0x00553981, 0x00522fc1,
+	"8B 45 08 50 ?? ?? E8"
+)
+
+EXE_SYMBOL(
+	CoastGrid_Init,
+	EXE_FUNCTION, 0x00526bb0, 0x005571a0, 0x00526790,
+	"53 8B DC 83 EC 08 83 E4 F0 83 C4 04 55 8B 6B 04 89 6C 24 04 8B EC 81 EC"
+)
+
 #endif
 
 #ifdef EXE_CHECK
@@ -1084,6 +1104,13 @@ EXE_CHECK(
 	cvCityBuildingSim_CreateNewCity,
 	0x10F,
 	CityData_Hex
+)
+
+EXE_CHECK(
+	EXE_REL32,
+	TerrainSystem_Init_CoastGridInit,
+	0x6,
+	CoastGrid_Init
 )
 
 #endif

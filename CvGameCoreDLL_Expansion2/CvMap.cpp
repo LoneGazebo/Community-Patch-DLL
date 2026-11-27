@@ -53,29 +53,61 @@ bool g_bInGameUiLoaded = false;
 // - height: a fixed grid of the map's hex edges, 200 rows;
 // - plots: the engine lays the map out with 48 bytes per plot of the map and
 //   a 2-plot border, (width + 4) * (height + 4), on its main thread's 1 MB
-//   stack: about 21,000 fit.
+//   stack: about 21,000 fit. Once Exe::TryEnlargeCoastGridStack gives that
+//   call a stack of its own, the fog of war grid's 32,768 cells are the
+//   limit: width * height <= 32,768.
 // Other EXEs, whose limits were not measured, get the same values.
 const int MAP_MAX_WIDTH = 181;
 const int MAP_MAX_WIDTH_FOG_FIXED = 252;
 const int MAP_MAX_HEIGHT = 200;
 const int MAP_BORDER_PLOTS = 4;
 const int MAP_MAX_PLOTS_WITH_BORDER = 21000;
+const int MAP_MAX_PLOTS_FOG_GRID = 32768;
+
+struct EngineMapLimits
+{
+	int iMaxWidth;
+	bool bBigStack;
+};
 
 // Shown to the local player once the in-game UI is up
 CvString g_strMapSizeNote;
 
-bool FitsEngine(int iWidth, int iHeight, int iMaxWidth)
+bool FitsEngine(int iWidth, int iHeight, const EngineMapLimits& kLimits)
 {
-	return iWidth <= iMaxWidth
-		&& iHeight <= MAP_MAX_HEIGHT
-		&& (iWidth + MAP_BORDER_PLOTS) * (iHeight + MAP_BORDER_PLOTS) <= MAP_MAX_PLOTS_WITH_BORDER;
+	if (iWidth > kLimits.iMaxWidth || iHeight > MAP_MAX_HEIGHT)
+	{
+		return false;
+	}
+
+	if (kLimits.bBigStack)
+	{
+		return iWidth * iHeight <= MAP_MAX_PLOTS_FOG_GRID;
+	}
+
+	return (iWidth + MAP_BORDER_PLOTS) * (iHeight + MAP_BORDER_PLOTS) <= MAP_MAX_PLOTS_WITH_BORDER;
+}
+
+void DescribeEngineLimits(const EngineMapLimits& kLimits, CvString& strLimits)
+{
+	if (kLimits.bBigStack)
+	{
+		strLimits.Format("%d columns, %d rows, width * height <= %d",
+			kLimits.iMaxWidth, MAP_MAX_HEIGHT, MAP_MAX_PLOTS_FOG_GRID);
+	}
+	else
+	{
+		strLimits.Format("%d columns, %d rows, (width + %d) * (height + %d) <= %d",
+			kLimits.iMaxWidth, MAP_MAX_HEIGHT, MAP_BORDER_PLOTS, MAP_BORDER_PLOTS, MAP_MAX_PLOTS_WITH_BORDER);
+	}
 }
 
 // Keeps the shape: first both sides by the tighter of the two side limits,
 // then one row or column at a time from the side that is longer than the
 // original shape, until the plots fit.
-void ShrinkToEngine(int& iWidth, int& iHeight, int iMaxWidth)
+void ShrinkToEngine(int& iWidth, int& iHeight, const EngineMapLimits& kLimits)
 {
+	const int iMaxWidth = kLimits.iMaxWidth;
 	const int iOldWidth = iWidth;
 	const int iOldHeight = iHeight;
 
@@ -91,7 +123,7 @@ void ShrinkToEngine(int& iWidth, int& iHeight, int iMaxWidth)
 		iHeight = MAP_MAX_HEIGHT;
 	}
 
-	while (!FitsEngine(iWidth, iHeight, iMaxWidth))
+	while (!FitsEngine(iWidth, iHeight, kLimits))
 	{
 		if (iWidth * iOldHeight >= iHeight * iOldWidth)
 		{
@@ -104,11 +136,13 @@ void ShrinkToEngine(int& iWidth, int& iHeight, int iMaxWidth)
 	}
 }
 
-// Before the engine sets up the map, and only if the map needs it (so other
-// games keep the EXE code as it is): the fog of war fix (wider than 181
+// Before the engine sets up the map, and only if the map needs them (so
+// other games keep the EXE code as it is): the fog of war fix (wider than 181
 // columns, or taller than wide: the unfixed loops skip the rows past the
-// width). Then, for a new map that does not use fixed plot data (no World
-// Builder map, no saved game), a smaller size if it is still too large.
+// width) and the larger stack for the coastline grid (more than about 21,000
+// plots with the border). Then, for a new map that does not use fixed plot
+// data (no World Builder map, no saved game), a smaller size if it is still
+// too large.
 void FitMapToEngine(int& iWidth, int& iHeight, bool bCanResize)
 {
 	if (iWidth <= 0 || iHeight <= 0)
@@ -116,30 +150,35 @@ void FitMapToEngine(int& iWidth, int& iHeight, bool bCanResize)
 		return;
 	}
 
+	EngineMapLimits kLimits;
 	const bool bFogFixed = (iWidth > MAP_MAX_WIDTH || iHeight > iWidth)
 		&& Exe::TryFixFogGridWidth() == Exe::REASON_OK;
-	const int iMaxWidth = bFogFixed ? MAP_MAX_WIDTH_FOG_FIXED : MAP_MAX_WIDTH;
+	kLimits.iMaxWidth = bFogFixed ? MAP_MAX_WIDTH_FOG_FIXED : MAP_MAX_WIDTH;
+	kLimits.bBigStack = (iWidth + MAP_BORDER_PLOTS) * (iHeight + MAP_BORDER_PLOTS) > MAP_MAX_PLOTS_WITH_BORDER
+		&& Exe::TryEnlargeCoastGridStack() == Exe::REASON_OK;
 
-	if (FitsEngine(iWidth, iHeight, iMaxWidth))
+	if (FitsEngine(iWidth, iHeight, kLimits))
 	{
 		return;
 	}
 
+	CvString strLimits;
+	DescribeEngineLimits(kLimits, strLimits);
+
 	if (!bCanResize)
 	{
-		CUSTOMLOG("Map: %d x %d is larger than the game engine supports (%d columns, %d rows, (width + %d) * (height + %d) <= %d)",
-			iWidth, iHeight, iMaxWidth, MAP_MAX_HEIGHT, MAP_BORDER_PLOTS, MAP_BORDER_PLOTS, MAP_MAX_PLOTS_WITH_BORDER);
+		CUSTOMLOG("Map: %d x %d is larger than the game engine supports (%s)",
+			iWidth, iHeight, strLimits.c_str());
 		g_strMapSizeNote = GetLocalizedText("TXT_KEY_VP_MAP_TOO_LARGE", iWidth, iHeight);
 		return;
 	}
 
 	const int iOldWidth = iWidth;
 	const int iOldHeight = iHeight;
-	ShrinkToEngine(iWidth, iHeight, iMaxWidth);
+	ShrinkToEngine(iWidth, iHeight, kLimits);
 
-	CUSTOMLOG("Map: %d x %d is larger than the game engine supports (%d columns, %d rows, (width + %d) * (height + %d) <= %d): made %d x %d",
-		iOldWidth, iOldHeight, iMaxWidth, MAP_MAX_HEIGHT, MAP_BORDER_PLOTS, MAP_BORDER_PLOTS, MAP_MAX_PLOTS_WITH_BORDER,
-		iWidth, iHeight);
+	CUSTOMLOG("Map: %d x %d is larger than the game engine supports (%s): made %d x %d",
+		iOldWidth, iOldHeight, strLimits.c_str(), iWidth, iHeight);
 	g_strMapSizeNote = GetLocalizedText("TXT_KEY_VP_MAP_MADE_SMALLER", iWidth, iHeight, iOldWidth, iOldHeight);
 }
 

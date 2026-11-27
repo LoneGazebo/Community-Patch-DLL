@@ -103,6 +103,11 @@ namespace ExeApi
 	DWORD FogGrid_OnHexFOWStateChanged();
 	DWORD FogGrid_ClearHandle();
 	DWORD FogGrid_ClearAllHighlightsLoop();
+
+	// ---- TerrainSystem::Init's call of CoastGrid::Init (see
+	// CvExeAddresses.h): addresses only, for Exe::TryEnlargeCoastGridStack
+	BYTE* TerrainSystem_Init_CoastGridInit();
+	DWORD CoastGrid_Init();
 }
 
 #endif // CV_EXE_API_H

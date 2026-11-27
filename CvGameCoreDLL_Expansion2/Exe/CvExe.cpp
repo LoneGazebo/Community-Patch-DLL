@@ -171,6 +171,21 @@ const unsigned int FOG_THUNK_SIZE = sizeof(FOG_THUNK_HEAD) + 6 + 5;
 const BYTE X86_NOP = 0x90;
 const BYTE X86_JMP_REL32 = 0xE9;
 
+const ExeSymbol COAST_GRID_STACK_SYMBOLS[] =
+{
+	EXE_TerrainSystem_Init_CoastGridInit,
+	EXE_CoastGrid_Init,
+};
+
+// TerrainSystem_Init_CoastGridInit + this = the call's E8 byte
+const DWORD COAST_GRID_CALL_OFFSET = 6;
+
+// CoastGrid::Init needs about 48 * (width + 4) * (height + 4) bytes: 1.6 MB
+// at most on the maps the fog of war grid allows (32,768 plots, at most 252
+// columns)
+const SIZE_T COAST_GRID_STACK_SIZE = 4 * 1024 * 1024;
+const SIZE_T COAST_GRID_THUNK_SIZE = 4096;
+
 // cvCityBuildingSim_MarkDirty flags the engine's WONDER_REMOVED handler
 // passes when it changes the Palace position
 const int CITY_ART_DIRTY_PALACE = 13;
@@ -362,6 +377,53 @@ bool s_bTunerAnnouncePending = false;
 // first loop's thunk if this DLL made it
 bool s_bFogGridFixed = false;
 BYTE* s_pFogGridThunk = NULL;
+
+// While the CoastGrid_Init call is redirected: its thunk, the stack the
+// thunk switches to, and the call's original rel32
+BYTE* s_pCoastGridThunk = NULL;
+BYTE* s_pCoastGridStack = NULL;
+DWORD s_dwCoastGridCallRel = 0;
+
+void PutBytes(BYTE*& pOut, const char* szBytes, unsigned int uiCount)
+{
+	memcpy(pOut, szBytes, uiCount);
+	pOut += uiCount;
+}
+
+void PutDword(BYTE*& pOut, DWORD dwValue)
+{
+	memcpy(pOut, &dwValue, sizeof(dwValue));
+	pOut += sizeof(dwValue);
+}
+
+//! Writes the thunk the CoastGrid_Init call is pointed at: it runs the
+//! call (thiscall, one stack argument, retn 4) on [dwBase, dwTop] and
+//! returns its result. The TEB's StackBase, StackLimit and
+//! DeallocationStack follow the switch, as _alloca's stack probe and
+//! exception dispatch check them. Returns the thunk's size.
+unsigned int WriteCoastGridThunk(BYTE* pThunk, DWORD dwTop, DWORD dwBase, DWORD dwTarget)
+{
+	BYTE* p = pThunk;
+	PutBytes(p, "\x55\x8B\xEC", 3);                         // push ebp; mov ebp,esp
+	PutBytes(p, "\x64\xFF\x35\x04\x00\x00\x00", 7);     // push fs:[4] (StackBase)
+	PutBytes(p, "\x64\xFF\x35\x08\x00\x00\x00", 7);     // push fs:[8] (StackLimit)
+	PutBytes(p, "\x64\xFF\x35\x0C\x0E\x00\x00", 7);     // push fs:[0xE0C] (DeallocationStack)
+	PutBytes(p, "\x8B\x55\x08", 3);                         // mov edx,[ebp+8] (the argument)
+	PutBytes(p, "\xB8", 1); PutDword(p, dwTop);                // mov eax,top
+	PutBytes(p, "\x64\xA3\x04\x00\x00\x00", 6);          // mov fs:[4],eax
+	PutBytes(p, "\xB8", 1); PutDword(p, dwBase);               // mov eax,base
+	PutBytes(p, "\x64\xA3\x08\x00\x00\x00", 6);          // mov fs:[8],eax
+	PutBytes(p, "\x64\xA3\x0C\x0E\x00\x00", 6);          // mov fs:[0xE0C],eax
+	PutBytes(p, "\xBC", 1); PutDword(p, dwTop);                // mov esp,top
+	PutBytes(p, "\x52", 1);                                   // push edx
+	PutBytes(p, "\xE8", 1);                                   // call CoastGrid_Init (ecx = this, as passed in)
+	PutDword(p, dwTarget - (reinterpret_cast<DWORD>(p) + 4));
+	PutBytes(p, "\x8B\x55\xFC\x64\x89\x15\x04\x00\x00\x00", 10); // restore fs:[4]
+	PutBytes(p, "\x8B\x55\xF8\x64\x89\x15\x08\x00\x00\x00", 10); // restore fs:[8]
+	PutBytes(p, "\x8B\x55\xF4\x64\x89\x15\x0C\x0E\x00\x00", 10); // restore fs:[0xE0C]
+	PutBytes(p, "\x8B\xE5\x5D\xC2\x04\x00", 6);          // mov esp,ebp; pop ebp; ret 4 (eax kept)
+	return static_cast<unsigned int>(p - pThunk);
+}
 
 void AnnounceTuner()
 {
@@ -1404,4 +1466,124 @@ Exe::Reason Exe::TryReadLocalMachineEventStreamStats(
 	);
 
 	return REASON_OK;
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanEnlargeCoastGridStack()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(COAST_GRID_STACK_SYMBOLS, _countof(COAST_GRID_STACK_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	if (s_pCoastGridThunk != NULL)
+	{
+		return REASON_ALREADY_ENABLED;
+	}
+
+	return REASON_OK;
+}
+
+Exe::Reason Exe::TryEnlargeCoastGridStack()
+{
+	const Reason eReason = CanEnlargeCoastGridStack();
+
+	if (eReason == REASON_ALREADY_ENABLED)
+	{
+		return REASON_OK;
+	}
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryEnlargeCoastGridStack", eReason);
+	}
+
+	BYTE* pStack = static_cast<BYTE*>(
+		VirtualAlloc(NULL, COAST_GRID_STACK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE)
+	);
+	BYTE* pThunk = static_cast<BYTE*>(
+		VirtualAlloc(NULL, COAST_GRID_THUNK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE)
+	);
+
+	const DWORD dwCall = reinterpret_cast<DWORD>(ExeApi::TerrainSystem_Init_CoastGridInit()) + COAST_GRID_CALL_OFFSET;
+	DWORD dwOldRel = 0;
+	memcpy(&dwOldRel, reinterpret_cast<const void*>(dwCall + 1), sizeof(dwOldRel));
+	bool bDone = false;
+
+	if (pStack != NULL && pThunk != NULL)
+	{
+		// 64 bytes below the end; VirtualAlloc returns 64 KB aligned memory
+		const DWORD dwBase = reinterpret_cast<DWORD>(pStack);
+		const DWORD dwTop = dwBase + COAST_GRID_STACK_SIZE - 64;
+		const unsigned int uiSize = WriteCoastGridThunk(pThunk, dwTop, dwBase, ExeApi::CoastGrid_Init());
+
+		DWORD dwOldProtect = 0;
+		if (VirtualProtect(pThunk, COAST_GRID_THUNK_SIZE, PAGE_EXECUTE_READ, &dwOldProtect))
+		{
+			FlushInstructionCache(GetCurrentProcess(), pThunk, uiSize);
+			const DWORD dwNewRel = Rel32(dwCall + 5, reinterpret_cast<DWORD>(pThunk));
+			bDone = WriteCode(dwCall + 1, reinterpret_cast<const BYTE*>(&dwNewRel), sizeof(dwNewRel));
+		}
+	}
+
+	if (!bDone)
+	{
+		if (pThunk != NULL)
+		{
+			VirtualFree(pThunk, 0, MEM_RELEASE);
+		}
+		if (pStack != NULL)
+		{
+			VirtualFree(pStack, 0, MEM_RELEASE);
+		}
+
+		return Refuse("TryEnlargeCoastGridStack", REASON_UNAVAILABLE);
+	}
+
+	s_pCoastGridThunk = pThunk;
+	s_pCoastGridStack = pStack;
+	s_dwCoastGridCallRel = dwOldRel;
+
+	CUSTOMLOG("Exe: CoastGrid_Init call at %08X runs on a %u MB stack at %08X (thunk %08X)",
+		(unsigned int)dwCall,
+		(unsigned int)(COAST_GRID_STACK_SIZE / (1024 * 1024)),
+		(unsigned int)reinterpret_cast<DWORD>(pStack),
+		(unsigned int)reinterpret_cast<DWORD>(pThunk)
+	);
+
+	return REASON_OK;
+}
+
+void Exe::UndoEnlargeCoastGridStack()
+{
+	if (s_pCoastGridThunk == NULL)
+	{
+		return;
+	}
+
+	// Put the call back before the thunk goes away
+	const DWORD dwCall = reinterpret_cast<DWORD>(ExeApi::TerrainSystem_Init_CoastGridInit()) + COAST_GRID_CALL_OFFSET;
+	if (!WriteCode(dwCall + 1, reinterpret_cast<const BYTE*>(&s_dwCoastGridCallRel), sizeof(s_dwCoastGridCallRel)))
+	{
+		// Keep the thunk and stack: the call still points there
+		CUSTOMLOG("Exe: UndoEnlargeCoastGridStack could not restore the call at %08X",
+			(unsigned int)dwCall
+		);
+		return;
+	}
+
+	VirtualFree(s_pCoastGridThunk, 0, MEM_RELEASE);
+	VirtualFree(s_pCoastGridStack, 0, MEM_RELEASE);
+	s_pCoastGridThunk = NULL;
+	s_pCoastGridStack = NULL;
+	s_dwCoastGridCallRel = 0;
+
+	CUSTOMLOG("Exe: CoastGrid_Init call at %08X restored",
+		(unsigned int)dwCall
+	);
 }

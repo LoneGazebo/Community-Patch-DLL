@@ -90,6 +90,16 @@ namespace Exe
 	Reason CanFixFogGridWidth();
 	Reason TryFixFogGridWidth();
 	void UndoFixFogGridWidth();
+
+	//! The engine's CoastGrid::Init takes about 48 bytes per plot (map plus
+	//! a 2-plot border) from the main thread's 1 MB stack, so a map of more
+	//! than about 21,000 plots ends the game at load. TryEnlargeCoastGridStack
+	//! runs that call on a 4 MB stack of its own; once per DLL load (later
+	//! calls do nothing). UndoEnlargeCoastGridStack puts the call back; the
+	//! DLL calls it when it unloads.
+	Reason CanEnlargeCoastGridStack();
+	Reason TryEnlargeCoastGridStack();
+	void UndoEnlargeCoastGridStack();
 }
 
 #endif // CV_EXE_H

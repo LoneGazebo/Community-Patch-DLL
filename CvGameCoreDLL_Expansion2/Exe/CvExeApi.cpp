@@ -195,6 +195,19 @@ void ExeApi::cvCityVisSystem_RemoveWonder(void* pThis, const void* pHandle,
 }
 
 //------------------------------------------------------------------------------
+BYTE* ExeApi::TerrainSystem_Init_CoastGridInit()
+{
+	return reinterpret_cast<BYTE*>(
+		ExeSymbols::Get(EXE_TerrainSystem_Init_CoastGridInit)
+	);
+}
+
+DWORD ExeApi::CoastGrid_Init()
+{
+	return ExeSymbols::Get(EXE_CoastGrid_Init);
+}
+
+//------------------------------------------------------------------------------
 void** ExeApi::cvLuaScriptSystem_ms_apSingletonInstance()
 {
 	return reinterpret_cast<void**>(
