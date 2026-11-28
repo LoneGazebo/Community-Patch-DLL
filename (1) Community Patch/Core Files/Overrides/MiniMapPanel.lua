@@ -84,17 +84,65 @@ LuaEvents.MiniMapOverlayAddin.Add(OnMiniMapOverlayAddin)
 
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
+-- The minimap's size comes from the [MiniMap] Width and Height of the user's config.ini (320 x 190 by default). The frame and the
+-- controls placed around it are laid out for 320 x 190 in the XML, so move them by the difference. A minimap too large for the
+-- screen is shown smaller, keeping its shape, so that the panel and its button column stay right of the unit panel (520 pixels
+-- wide in its large layout) and below the notifications.
+local g_MinimapW, g_MinimapH = 320, 190;        -- size shown
+local g_TextureW, g_TextureH = 320, 190;        -- size the game draws (clicks are in its pixels)
+local g_EndTurnY, g_NotificationY;              -- offsets of the End Turn button and the notification stack in their XML
 function OnMinimapInfo( uiHandle, width, height, paddingX )
+    local screenW, screenH = UIManager:GetScreenSizeVal();
+    local scale = math.min( 1, ( screenW - 591 ) / width, ( screenH - 330 ) / height );
+    local shownW, shownH = math.max( 1, math.floor( width * scale ) ), math.max( 1, math.floor( height * scale ) );
+    g_TextureW, g_TextureH = width, height;
     Controls.Minimap:SetTextureHandle( uiHandle );
-    Controls.Minimap:SetSizeVal( width, height );
+    Controls.Minimap:SetSizeVal( shownW, shownH );
+    if shownW ~= g_MinimapW or shownH ~= g_MinimapH then
+        g_MinimapW, g_MinimapH = shownW, shownH;
+        local dx, dy = shownW - 320, shownH - 190;
+        Controls.MinimapBox:SetSizeVal( shownW, shownH );
+        Controls.MiniMapGrid:SetSizeVal( 355 + dx, 276 + dy );
+        Controls.ImageBottom:SetOffsetVal( 337 + dx, 0 );
+        Controls.ButtonStack:SetOffsetVal( 346 + dx, 1 );
+        Controls.SideStack:SetOffsetVal( 377 + dx, -39 );
+        local endTurnButton = ContextPtr:LookUpControl( "../ActionInfoPanel/EndTurnButton" );
+        if endTurnButton then
+            g_EndTurnY = g_EndTurnY or endTurnButton:GetOffsetY();
+            endTurnButton:SetOffsetY( g_EndTurnY + dy );
+            endTurnButton:ReprocessAnchoring();
+        end
+        local notificationStack = ContextPtr:LookUpControl( "../ActionInfoPanel/NotificationPanel/OuterStack" );
+        if notificationStack then
+            g_NotificationY = g_NotificationY or notificationStack:GetOffsetY();
+            notificationStack:SetOffsetY( g_NotificationY + dy );
+            notificationStack:ReprocessAnchoring();
+        end
+        -- a new size or offset does not move a control anchored to the bottom right by itself: place them again, parents first
+        Controls.MiniMapGrid:ReprocessAnchoring();
+        Controls.MiniMapImage:ReprocessAnchoring();
+        Controls.MinimapBox:ReprocessAnchoring();
+        Controls.Minimap:ReprocessAnchoring();
+        Controls.ImageBottom:ReprocessAnchoring();
+        Controls.ButtonStack:ReprocessAnchoring();
+        Controls.SideStack:ReprocessAnchoring();
+        -- the notification panel fits its list between the moved stack and the top of the screen
+        LuaEvents.MiniMapPanelResized();
+    end
 end
 Events.MinimapTextureBroadcastEvent.Add( OnMinimapInfo );
 UI:RequestMinimapBroadcast();
+Events.SystemUpdateUI.Add( function( eType )
+    if eType == SystemUpdateUIType.ScreenResize then
+        UI:RequestMinimapBroadcast();
+    end
+end );
 
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
+-- the click position is in the shown minimap; the game expects it in the pixels it draws
 function OnMinimapClick( _, _, _, x, y )
-    Events.MinimapClickedEvent( x, y );
+    Events.MinimapClickedEvent( x * g_TextureW / g_MinimapW, y * g_TextureH / g_MinimapH );
 end
 Controls.Minimap:RegisterCallback( Mouse.eLClick, OnMinimapClick );
 

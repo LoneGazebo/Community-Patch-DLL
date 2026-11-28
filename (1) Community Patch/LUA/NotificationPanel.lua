@@ -13,8 +13,6 @@ local g_Instances = {};
 -------------------------------------------------------------------------------
 local DIPLO_SIZE_GUESS = 120;
 local _, screenY = UIManager:GetScreenSizeVal();
-local _, offsetY = Controls.OuterStack:GetOffsetVal();
-local g_SmallScrollMax = screenY - offsetY - DIPLO_SIZE_GUESS;
 
 
 
@@ -522,7 +520,9 @@ function ProcessStackSizes()
 
     Controls.BigStack:CalculateSize();
     local bigY = Controls.BigStack:GetSizeY();
-    Controls.SmallScrollPanel:SetSizeY( g_SmallScrollMax - bigY );
+    -- the minimap panel moves the stack up when the minimap is larger than 320 x 190
+    local _, offsetY = Controls.OuterStack:GetOffsetVal();
+    Controls.SmallScrollPanel:SetSizeY( screenY - offsetY - DIPLO_SIZE_GUESS - bigY );
 
     Controls.SmallStack:CalculateSize();
     Controls.SmallStack:ReprocessAnchoring();
@@ -546,6 +546,7 @@ function OnNotificationsActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 	ProcessStackSizes();
 end
 Events.GameplaySetActivePlayer.Add(OnNotificationsActivePlayerChanged);
+LuaEvents.MiniMapPanelResized.Add(ProcessStackSizes);
 
 
 UI.RebroadcastNotifications();
