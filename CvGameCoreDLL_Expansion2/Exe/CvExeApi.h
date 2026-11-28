@@ -98,6 +98,21 @@ namespace ExeApi
 	BYTE* g_cvCityVisSystem();
 	void cvCityVisSystem_RemoveWonder(void* pThis, const void* pHandle,
 		const int* piArtEntry);
+
+	// ---- Fog of war grid: code addresses, for Exe::TryFixFogGridWidth
+	DWORD FogGrid_OnHexFOWStateChanged();
+	DWORD FogGrid_ClearHandle();
+	DWORD FogGrid_ClearAllHighlightsLoop();
+
+	// ---- TerrainSystem::Init's call of CoastGrid::Init (see
+	// CvExeAddresses.h): addresses only, for Exe::TryEnlargeCoastGridStack
+	BYTE* TerrainSystem_Init_CoastGridInit();
+	DWORD CoastGrid_Init();
+
+	// ---- FluidFOWSystem's cloud store (see CvExeAddresses.h): addresses
+	// only, for Exe::TryLimitFogClouds
+	DWORD FluidFOW_AddCloud();
+	DWORD FluidFOW_CloudStoreAlloc();
 }
 
 #endif // CV_EXE_API_H

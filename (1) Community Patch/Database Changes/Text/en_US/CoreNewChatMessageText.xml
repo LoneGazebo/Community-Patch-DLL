@@ -22,5 +22,13 @@
 		<Row Tag="TXT_KEY_VP_EVENT_STREAM_OVERFLOW">
 			<Text>[COLOR_RED]My engine's event buffer overflowed ({1_Num} KB of {2_Num} KB) and corrupted memory.[ENDCOLOR] [COLOR_MAGENTA]UNDEFINED BEHAVIOR, A CRASH, OR BOTH ARE IMMINENT UNTIL THE GAME IS EXITED![ENDCOLOR][NEWLINE]Loading a save won't help: save, exit to desktop, restart the game and open a bug report on GitHub: [COLOR_CYAN]https://github.com/LoneGazebo/Community-Patch-DLL/issues[ENDCOLOR]</Text>
 		</Row>
+		<!-- The map script asked for a map larger than the game engine supports -->
+		<Row Tag="TXT_KEY_VP_MAP_MADE_SMALLER">
+			<Text>[COLOR_YELLOW]The map was too large for the game engine and was made {1_Num} x {2_Num} instead of {3_Num} x {4_Num}.[ENDCOLOR]</Text>
+		</Row>
+		<!-- A World Builder map or saved game larger than the game engine supports -->
+		<Row Tag="TXT_KEY_VP_MAP_TOO_LARGE">
+			<Text>[COLOR_NEGATIVE_TEXT]This map ({1_Num} x {2_Num}) is larger than the game engine supports. Expect a crash.[ENDCOLOR]</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

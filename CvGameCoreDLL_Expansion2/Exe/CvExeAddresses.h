@@ -27,8 +27,11 @@
 	An entry is used only if its signature matches, every check naming it
 	passes, and, without a signature, some verified entry vouches for it.
 
-	DRM: the DLL never writes the EXE's .text or .rdata, only .data and
-	heap objects.
+	DRM: the DLL writes the EXE's .text in two places only, on the
+	26577625 builds below (no CEG): the fog of war grid's whole-map loops
+	(Exe::TryFixFogGridWidth) and one call that Exe::TryEnlargeCoastGridStack
+	points at a thunk (TerrainSystem_Init_CoastGridInit). It puts both back
+	when it unloads. Otherwise it writes only .data and heap objects.
 
 	The 2014 EXEs (PE timestamps 546CD0A8 DX11, 546CCB59 DX9, 546CD5F8
 	Tablet) carry Steam CEG, which hashes about 80% of .text and two
@@ -556,6 +559,85 @@ EXE_SYMBOL(
 	"83 EC 08 53 56 ?? ?? 83 CE FF 89 73 10 89 73 14 E8"
 )
 
+// ---- Fog of war grid (cvStrategicViewTracker): the engine's per-hex
+// fog and highlight state, a fixed array of 0x8000 cells of 0x188 bytes at
+// +0x4C, with the map width at +0x44 and the height at +0x48. Its three
+// whole-map loops count width * width cells, not width * height: past 181
+// columns they write beyond the array (the game crashes while the map
+// loads), and on maps taller than wide they skip the rows past the width.
+// Exe::TryFixFogGridWidth makes all three count width * height.
+
+// cvStrategicViewTracker::OnHexFOWStateChanged: thiscall, one argument (x, y, state byte at
+// +8, whole-map flag at +9). The loop count starts at +0x11:
+// mov ecx,[esi+44h]; imul ecx,ecx; test ecx,ecx; jbe +0x9E
+EXE_SYMBOL(
+	FogGrid_OnHexFOWStateChanged,
+	EXE_CODE, 0x005cc730, 0x005fbd60, 0x005ccca0,
+	"83 EC 18 56 57 8B 7C 24 24 80 7F 09 00 ?? ?? 74 29"
+)
+
+// cvStrategicViewTracker::OnClearHexHighlightStyle: thiscall, one argument:
+// clears every cell's field +0x1C that holds the style it looks up. The loop count starts at +0x23:
+// mov ecx,[esi+44h]; imul ecx,ecx; test ecx,ecx; jbe +0x18
+EXE_SYMBOL(
+	FogGrid_ClearHandle,
+	EXE_CODE, 0x005d2f60, 0x006025a0, 0x005d3500,
+	"8B 44 24 04 56 ?? ?? 8B 0D ?? ?? ?? ?? 8B 11 50 8B 42 54 FF D0"
+	" ?? ?? E8 ?? ?? ?? ?? ?? ?? E8"
+)
+
+// cvStrategicViewTracker::OnClearHexHighlights: thiscall, one argument;
+// clears field +0x1C of every cell. The symbol is its loop body, at +0x10,
+// which the fix keeps; the 16 bytes before it count the cells:
+// mov edx,[ecx+44h]; imul edx,edx; test edx,edx; jbe +0x16;
+// lea eax,[ecx+68h]; lea ecx,[ecx+0] (padding)
+EXE_SYMBOL(
+	FogGrid_ClearAllHighlightsLoop,
+	EXE_CODE, 0x005cc4e0, 0x005fbb40, 0x005cca40,
+	"C7 00 00 00 00 00 05 88 01 00 00 83 EA 01 75 F0 C2 04 00"
+)
+
+// ---- TerrainSystem::Init calls CoastGrid::Init (thiscall, one stack
+// argument: the hex grid; retn 4), which takes its work buffers from the
+// stack with _alloca: 48 bytes per plot of the map plus a 2-plot border,
+// on the main thread's 1 MB stack. Exe::TryEnlargeCoastGridStack points
+// this call at a thunk that runs it on a stack of its own. The signature
+// starts 6 bytes before the call: mov eax,[ebp+8]; push eax; mov ecx,esi;
+// call CoastGrid_Init.
+EXE_SYMBOL(
+	TerrainSystem_Init_CoastGridInit,
+	EXE_CODE, 0x00523391, 0x00553981, 0x00522fc1,
+	"8B 45 08 50 ?? ?? E8"
+)
+
+EXE_SYMBOL(
+	CoastGrid_Init,
+	EXE_FUNCTION, 0x00526bb0, 0x005571a0, 0x00526790,
+	"53 8B DC 83 EC 08 83 E4 F0 83 C4 04 55 8B 6B 04 89 6C 24 04 8B EC 81 EC"
+)
+
+// ---- FluidFOWSystem (High fog quality; DX9 turns it down to Medium, which
+// has no clouds) keeps its clouds in a store per worker thread, but seeds the
+// whole map into the first one, one cloud per cell of the map, without
+// checking that the store is full. Exe::TryLimitFogClouds points the cloud
+// function's first instruction (mov eax,[ecx+440h]: the cloud count) at a
+// thunk that keeps the seeds within the store.
+// FluidFOW_AddCloud: thiscall, five stack arguments (retn 14h); writes one
+// 128-byte cloud at [ecx+40h] + [ecx+440h] * 128 and increments [ecx+440h].
+EXE_SYMBOL(
+	FluidFOW_AddCloud,
+	EXE_FUNCTION, 0x005aeef0, 0x005de770, 0x005af050,
+	"8B 81 40 04 00 00 8B 54 24 04 F3 0F 10 44 24 0C C1 E0 07 03 41 40 56"
+)
+
+// Where each store is allocated: push <clouds per store>; push 80h (128 bytes
+// each); push edi; call. The DLL reads the store size from the first push.
+EXE_SYMBOL(
+	FluidFOW_CloudStoreAlloc,
+	EXE_CODE, 0x005b3038, 0x005e288a, 0x005b3198,
+	"68 ?? ?? ?? ?? 68 80 00 00 00 57 E8"
+)
+
 #endif
 
 #ifdef EXE_CHECK
@@ -1044,6 +1126,13 @@ EXE_CHECK(
 	cvCityBuildingSim_CreateNewCity,
 	0x10F,
 	CityData_Hex
+)
+
+EXE_CHECK(
+	EXE_REL32,
+	TerrainSystem_Init_CoastGridInit,
+	0x6,
+	CoastGrid_Init
 )
 
 #endif

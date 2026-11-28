@@ -195,6 +195,30 @@ void ExeApi::cvCityVisSystem_RemoveWonder(void* pThis, const void* pHandle,
 }
 
 //------------------------------------------------------------------------------
+DWORD ExeApi::FluidFOW_AddCloud()
+{
+	return ExeSymbols::Get(EXE_FluidFOW_AddCloud);
+}
+
+DWORD ExeApi::FluidFOW_CloudStoreAlloc()
+{
+	return ExeSymbols::Get(EXE_FluidFOW_CloudStoreAlloc);
+}
+
+//------------------------------------------------------------------------------
+BYTE* ExeApi::TerrainSystem_Init_CoastGridInit()
+{
+	return reinterpret_cast<BYTE*>(
+		ExeSymbols::Get(EXE_TerrainSystem_Init_CoastGridInit)
+	);
+}
+
+DWORD ExeApi::CoastGrid_Init()
+{
+	return ExeSymbols::Get(EXE_CoastGrid_Init);
+}
+
+//------------------------------------------------------------------------------
 void** ExeApi::cvLuaScriptSystem_ms_apSingletonInstance()
 {
 	return reinterpret_cast<void**>(
@@ -407,4 +431,19 @@ DWORD ExeApi::LocalMachineContainer_SwapCounter()
 DWORD ExeApi::LocalMachineContainer_BufferHeaderSize()
 {
 	return ExeSymbols::Get(EXE_LocalMachineContainer_BufferHeaderSize);
+}
+
+DWORD ExeApi::FogGrid_OnHexFOWStateChanged()
+{
+	return ExeSymbols::Get(EXE_FogGrid_OnHexFOWStateChanged);
+}
+
+DWORD ExeApi::FogGrid_ClearHandle()
+{
+	return ExeSymbols::Get(EXE_FogGrid_ClearHandle);
+}
+
+DWORD ExeApi::FogGrid_ClearAllHighlightsLoop()
+{
+	return ExeSymbols::Get(EXE_FogGrid_ClearAllHighlightsLoop);
 }

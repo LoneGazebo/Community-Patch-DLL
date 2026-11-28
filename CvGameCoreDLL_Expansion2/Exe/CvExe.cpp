@@ -120,6 +120,72 @@ const ExeSymbol CITY_ART_SYMBOLS[] =
 	EXE_cvCityVisSystem_RemoveWonder,
 };
 
+const ExeSymbol FOG_GRID_SYMBOLS[] =
+{
+	EXE_FogGrid_OnHexFOWStateChanged,
+	EXE_FogGrid_ClearHandle,
+	EXE_FogGrid_ClearAllHighlightsLoop,
+};
+
+// The loop counts, from the symbols. Before: mov ecx,[esi+44h] (width);
+// imul ecx,ecx; test ecx,ecx; jbe <past the loop>. After: the same with
+// imul ecx,[esi+48h] (height).
+const DWORD FOG_HEX_CHANGED_LOOP = 0x11;
+const BYTE FOG_HEX_CHANGED_ORIGINAL[] =
+{
+	0x8B, 0x4E, 0x44, 0x0F, 0xAF, 0xC9, 0x85, 0xC9,
+	0x0F, 0x86, 0x9E, 0x00, 0x00, 0x00
+};
+const DWORD FOG_CLEAR_HANDLE_LOOP = 0x23;
+const BYTE FOG_CLEAR_HANDLE_ORIGINAL[] =
+{
+	0x8B, 0x4E, 0x44, 0x0F, 0xAF, 0xC9, 0x85, 0xC9, 0x76, 0x18
+};
+// jecxz to the jbe's target, then a nop: fits in place
+const BYTE FOG_CLEAR_HANDLE_FIXED[] =
+{
+	0x8B, 0x4E, 0x44, 0x0F, 0xAF, 0x4E, 0x48, 0xE3, 0x19, 0x90
+};
+// The third loop counts in edx (jecxz does not apply); its 16 bytes before
+// the loop body end in 3 bytes of padding, so the count fits in place
+const DWORD FOG_CLEAR_ALL_COUNT = 0x10; // before the symbol
+const BYTE FOG_CLEAR_ALL_ORIGINAL[] =
+{
+	0x8B, 0x51, 0x44, 0x0F, 0xAF, 0xD2, 0x85, 0xD2, 0x76, 0x16,
+	0x8D, 0x41, 0x68, 0x8D, 0x49, 0x00
+};
+// mov edx,[ecx+44h]; imul edx,[ecx+48h]; test edx,edx; jbe <past the
+// loop>; lea eax,[ecx+68h]; 2-byte nop
+const BYTE FOG_CLEAR_ALL_FIXED[] =
+{
+	0x8B, 0x51, 0x44, 0x0F, 0xAF, 0x51, 0x48, 0x85, 0xD2, 0x76, 0x15,
+	0x8D, 0x41, 0x68, 0x66, 0x90
+};
+// The first loop's jbe target is out of jecxz range, so its count moves to
+// a thunk: this, then jbe <past the loop>, jmp <back>
+const BYTE FOG_THUNK_HEAD[] =
+{
+	0x8B, 0x4E, 0x44, 0x0F, 0xAF, 0x4E, 0x48, 0x85, 0xC9
+};
+const unsigned int FOG_THUNK_SIZE = sizeof(FOG_THUNK_HEAD) + 6 + 5;
+const BYTE X86_NOP = 0x90;
+const BYTE X86_JMP_REL32 = 0xE9;
+
+const ExeSymbol COAST_GRID_STACK_SYMBOLS[] =
+{
+	EXE_TerrainSystem_Init_CoastGridInit,
+	EXE_CoastGrid_Init,
+};
+
+// TerrainSystem_Init_CoastGridInit + this = the call's E8 byte
+const DWORD COAST_GRID_CALL_OFFSET = 6;
+
+// CoastGrid::Init needs about 48 * (width + 4) * (height + 4) bytes: 1.6 MB
+// at most on the maps the fog of war grid allows (32,768 plots, at most 252
+// columns)
+const SIZE_T COAST_GRID_STACK_SIZE = 4 * 1024 * 1024;
+const SIZE_T COAST_GRID_THUNK_SIZE = 4096;
+
 // cvCityBuildingSim_MarkDirty flags the engine's WONDER_REMOVED handler
 // passes when it changes the Palace position
 const int CITY_ART_DIRTY_PALACE = 13;
@@ -200,6 +266,56 @@ DWORD ReadVftable(DWORD dwObject)
 	return dwVftable;
 }
 
+DWORD Rel32(DWORD dwFrom, DWORD dwTo)
+{
+	return dwTo - dwFrom;
+}
+
+bool WriteCode(DWORD dwAddress, const BYTE* pBytes, unsigned int uiSize)
+{
+	void* p = reinterpret_cast<void*>(dwAddress);
+	DWORD dwOld = 0;
+
+	if (!VirtualProtect(p, uiSize, PAGE_EXECUTE_READWRITE, &dwOld))
+	{
+		return false;
+	}
+
+	memcpy(p, pBytes, uiSize);
+	VirtualProtect(p, uiSize, dwOld, &dwOld);
+	FlushInstructionCache(GetCurrentProcess(), p, uiSize);
+
+	return true;
+}
+
+//! The first loop already jumps to a thunk of ours (a DLL load that did not
+//! put the loops back fixed it).
+bool IsFogHexChangedFixed(DWORD dwLoop)
+{
+	const BYTE* p = reinterpret_cast<const BYTE*>(dwLoop);
+
+	if (p[0] != X86_JMP_REL32)
+	{
+		return false;
+	}
+
+	for (unsigned int i = 5; i < sizeof(FOG_HEX_CHANGED_ORIGINAL); ++i)
+	{
+		if (p[i] != X86_NOP)
+		{
+			return false;
+		}
+	}
+
+	DWORD dwRel = 0;
+	memcpy(&dwRel, p + 1, sizeof(dwRel));
+	const DWORD dwThunk = dwLoop + 5 + dwRel;
+
+	return IsReadable(reinterpret_cast<const void*>(dwThunk), FOG_THUNK_SIZE)
+		&& memcmp(reinterpret_cast<const void*>(dwThunk), FOG_THUNK_HEAD,
+			sizeof(FOG_THUNK_HEAD)) == 0;
+}
+
 //! Engine's InterfaceBuddy, found from GC.GetEngineUserInterface(), or
 //! NULL if the memory there does not match one.
 void* FindInterfaceBuddy()
@@ -257,6 +373,58 @@ bool IsTunerListening(const BYTE* pListener)
 
 bool s_bTunerAnnouncePending = false;
 
+// While this DLL has the fog of war loops fixed: whether it does, and the
+// first loop's thunk if this DLL made it
+bool s_bFogGridFixed = false;
+BYTE* s_pFogGridThunk = NULL;
+
+// While the CoastGrid_Init call is redirected: its thunk, the stack the
+// thunk switches to, and the call's original rel32
+BYTE* s_pCoastGridThunk = NULL;
+BYTE* s_pCoastGridStack = NULL;
+DWORD s_dwCoastGridCallRel = 0;
+
+void PutBytes(BYTE*& pOut, const char* szBytes, unsigned int uiCount)
+{
+	memcpy(pOut, szBytes, uiCount);
+	pOut += uiCount;
+}
+
+void PutDword(BYTE*& pOut, DWORD dwValue)
+{
+	memcpy(pOut, &dwValue, sizeof(dwValue));
+	pOut += sizeof(dwValue);
+}
+
+//! Writes the thunk the CoastGrid_Init call is pointed at: it runs the
+//! call (thiscall, one stack argument, retn 4) on [dwBase, dwTop] and
+//! returns its result. The TEB's StackBase, StackLimit and
+//! DeallocationStack follow the switch, as _alloca's stack probe and
+//! exception dispatch check them. Returns the thunk's size.
+unsigned int WriteCoastGridThunk(BYTE* pThunk, DWORD dwTop, DWORD dwBase, DWORD dwTarget)
+{
+	BYTE* p = pThunk;
+	PutBytes(p, "\x55\x8B\xEC", 3);                         // push ebp; mov ebp,esp
+	PutBytes(p, "\x64\xFF\x35\x04\x00\x00\x00", 7);     // push fs:[4] (StackBase)
+	PutBytes(p, "\x64\xFF\x35\x08\x00\x00\x00", 7);     // push fs:[8] (StackLimit)
+	PutBytes(p, "\x64\xFF\x35\x0C\x0E\x00\x00", 7);     // push fs:[0xE0C] (DeallocationStack)
+	PutBytes(p, "\x8B\x55\x08", 3);                         // mov edx,[ebp+8] (the argument)
+	PutBytes(p, "\xB8", 1); PutDword(p, dwTop);                // mov eax,top
+	PutBytes(p, "\x64\xA3\x04\x00\x00\x00", 6);          // mov fs:[4],eax
+	PutBytes(p, "\xB8", 1); PutDword(p, dwBase);               // mov eax,base
+	PutBytes(p, "\x64\xA3\x08\x00\x00\x00", 6);          // mov fs:[8],eax
+	PutBytes(p, "\x64\xA3\x0C\x0E\x00\x00", 6);          // mov fs:[0xE0C],eax
+	PutBytes(p, "\xBC", 1); PutDword(p, dwTop);                // mov esp,top
+	PutBytes(p, "\x52", 1);                                   // push edx
+	PutBytes(p, "\xE8", 1);                                   // call CoastGrid_Init (ecx = this, as passed in)
+	PutDword(p, dwTarget - (reinterpret_cast<DWORD>(p) + 4));
+	PutBytes(p, "\x8B\x55\xFC\x64\x89\x15\x04\x00\x00\x00", 10); // restore fs:[4]
+	PutBytes(p, "\x8B\x55\xF8\x64\x89\x15\x08\x00\x00\x00", 10); // restore fs:[8]
+	PutBytes(p, "\x8B\x55\xF4\x64\x89\x15\x0C\x0E\x00\x00", 10); // restore fs:[0xE0C]
+	PutBytes(p, "\x8B\xE5\x5D\xC2\x04\x00", 6);          // mov esp,ebp; pop ebp; ret 4 (eax kept)
+	return static_cast<unsigned int>(p - pThunk);
+}
+
 void AnnounceTuner()
 {
 	s_bTunerAnnouncePending = false;
@@ -266,6 +434,94 @@ void AnnounceTuner()
 		CHATTARGET_ALL,
 		NO_PLAYER
 	);
+}
+
+// ---- Fog of war clouds (Exe::TryLimitFogClouds)
+const ExeSymbol FOG_CLOUD_SYMBOLS[] =
+{
+	EXE_FluidFOW_AddCloud,
+	EXE_FluidFOW_CloudStoreAlloc,
+};
+
+// FluidFOW_AddCloud's first instruction, which the thunk runs after its checks:
+// mov eax,[ecx+440h] (the first store's cloud count)
+const BYTE FOG_CLOUD_ADD_ORIGINAL[] = { 0x8B, 0x81, 0x40, 0x04, 0x00, 0x00 };
+const DWORD FOG_CLOUD_COUNT_OFFSET = 0x440;
+const unsigned int FOG_CLOUD_THUNK_SIZE = 96;
+// The store sizes a sane build uses (the November 2026 EXEs: 196,608)
+const DWORD FOG_CLOUD_STORE_MIN = 10240;
+const DWORD FOG_CLOUD_STORE_MAX = 0x1000000;
+// Seed cells per plot, an upper estimate: one cell per 22 x 22 world units of
+// the map (FluidFOWSettings.xml) over the map's world rectangle, rounded up to
+// 64 units. Counted: 186 x 112 asks for 194,656 (9.34 per plot), 190 x 115
+// for 203,965 (9.34), 252 x 130 for 297,255 (9.07). In tenths.
+const DWORD FOG_CLOUDS_PER_PLOT_TENTHS = 94;
+// The share of the store the thinned seeds may use (the rest is margin for
+// the estimate), in percent
+const DWORD FOG_CLOUD_STORE_USE_PERCENT = 97;
+
+// While FluidFOW_AddCloud is redirected: the thunk, and its counters. The
+// thunk keeps s_dwFogCloudKeep of every s_dwFogCloudOf clouds it is asked for
+// (an even share over the whole map) and none once the store is full.
+bool s_bFogCloudsLimited = false;
+BYTE* s_pFogCloudThunk = NULL;
+DWORD s_dwFogCloudStore = 0;
+volatile DWORD s_dwFogCloudKeep = 1;
+volatile DWORD s_dwFogCloudOf = 1;
+volatile DWORD s_dwFogCloudAcc = 0;
+volatile DWORD s_dwFogCloudAsked = 0;
+volatile DWORD s_dwFogCloudAdded = 0;
+
+void PutRel8(BYTE* pJump, const BYTE* pTarget)
+{
+	pJump[1] = static_cast<BYTE>(pTarget - (pJump + 2));
+}
+
+//! Writes the FluidFOW_AddCloud thunk; returns its size
+unsigned int WriteFogCloudThunk(BYTE* pThunk, DWORD dwStore, DWORD dwBack)
+{
+	BYTE* pAt = pThunk;
+	// inc dword [s_dwFogCloudAsked]
+	PutBytes(pAt, "\xFF\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAsked));
+	// cmp dword [ecx+440h], dwStore; jae <skip>
+	PutBytes(pAt, "\x81\xB9", 2);
+	PutDword(pAt, FOG_CLOUD_COUNT_OFFSET);
+	PutDword(pAt, dwStore);
+	BYTE* pJaeFull = pAt;
+	PutBytes(pAt, "\x73\x00", 2);
+	// mov eax,[acc]; add eax,[keep]; cmp eax,[of]; jb <drop>
+	PutBytes(pAt, "\xA1", 1);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAcc));
+	PutBytes(pAt, "\x03\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudKeep));
+	PutBytes(pAt, "\x3B\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudOf));
+	BYTE* pJbDrop = pAt;
+	PutBytes(pAt, "\x72\x00", 2);
+	// sub eax,[of]; mov [acc],eax; inc dword [added]
+	PutBytes(pAt, "\x2B\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudOf));
+	PutBytes(pAt, "\xA3", 1);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAcc));
+	PutBytes(pAt, "\xFF\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAdded));
+	// the original first instruction, then back to the next one
+	memcpy(pAt, FOG_CLOUD_ADD_ORIGINAL, sizeof(FOG_CLOUD_ADD_ORIGINAL));
+	pAt += sizeof(FOG_CLOUD_ADD_ORIGINAL);
+	pAt[0] = X86_JMP_REL32;
+	const DWORD dwBackRel = Rel32(reinterpret_cast<DWORD>(pAt) + 5, dwBack);
+	memcpy(pAt + 1, &dwBackRel, sizeof(dwBackRel));
+	pAt += 5;
+	// <drop>: mov [acc],eax
+	PutRel8(pJbDrop, pAt);
+	PutBytes(pAt, "\xA3", 1);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAcc));
+	// <skip>: retn 14h (the cloud is not added)
+	PutRel8(pJaeFull, pAt);
+	PutBytes(pAt, "\xC2\x14\x00", 3);
+
+	return static_cast<unsigned int>(pAt - pThunk);
 }
 } // namespace
 
@@ -283,6 +539,174 @@ const char* Exe::GetReasonName(Reason eReason)
 const char* Exe::GetBuildName()
 {
 	return ExeBuild::GetName(ExeBuild::GetType());
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanFixFogGridWidth()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(FOG_GRID_SYMBOLS, _countof(FOG_GRID_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	return REASON_OK;
+}
+
+Exe::Reason Exe::TryFixFogGridWidth()
+{
+	const Reason eReason = CanFixFogGridWidth();
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryFixFogGridWidth", eReason);
+	}
+
+	const DWORD dwLoop1 = ExeApi::FogGrid_OnHexFOWStateChanged()
+		+ FOG_HEX_CHANGED_LOOP;
+	const DWORD dwLoop2 = ExeApi::FogGrid_ClearHandle() + FOG_CLEAR_HANDLE_LOOP;
+	const DWORD dwLoop3 = ExeApi::FogGrid_ClearAllHighlightsLoop()
+		- FOG_CLEAR_ALL_COUNT;
+	const void* p1 = reinterpret_cast<const void*>(dwLoop1);
+	const void* p2 = reinterpret_cast<const void*>(dwLoop2);
+	const void* p3 = reinterpret_cast<const void*>(dwLoop3);
+
+	if (
+		!IsReadable(p1, sizeof(FOG_HEX_CHANGED_ORIGINAL))
+		|| !IsReadable(p2, sizeof(FOG_CLEAR_HANDLE_ORIGINAL))
+		|| !IsReadable(p3, sizeof(FOG_CLEAR_ALL_ORIGINAL))
+	)
+	{
+		return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+	}
+
+	const bool bFixed1 = IsFogHexChangedFixed(dwLoop1);
+	const bool bFixed2 = memcmp(p2, FOG_CLEAR_HANDLE_FIXED,
+		sizeof(FOG_CLEAR_HANDLE_FIXED)) == 0;
+	const bool bFixed3 = memcmp(p3, FOG_CLEAR_ALL_FIXED,
+		sizeof(FOG_CLEAR_ALL_FIXED)) == 0;
+
+	if (
+		(!bFixed1 && memcmp(p1, FOG_HEX_CHANGED_ORIGINAL,
+			sizeof(FOG_HEX_CHANGED_ORIGINAL)) != 0)
+		|| (!bFixed2 && memcmp(p2, FOG_CLEAR_HANDLE_ORIGINAL,
+			sizeof(FOG_CLEAR_HANDLE_ORIGINAL)) != 0)
+		|| (!bFixed3 && memcmp(p3, FOG_CLEAR_ALL_ORIGINAL,
+			sizeof(FOG_CLEAR_ALL_ORIGINAL)) != 0)
+	)
+	{
+		CUSTOMLOG("Exe: fog grid loops at %08X / %08X / %08X are not the expected code",
+			(unsigned int)dwLoop1,
+			(unsigned int)dwLoop2,
+			(unsigned int)dwLoop3
+		);
+		return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+	}
+
+	if (!bFixed2 && !WriteCode(dwLoop2, FOG_CLEAR_HANDLE_FIXED,
+		sizeof(FOG_CLEAR_HANDLE_FIXED)))
+	{
+		return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+	}
+
+	if (!bFixed3 && !WriteCode(dwLoop3, FOG_CLEAR_ALL_FIXED,
+		sizeof(FOG_CLEAR_ALL_FIXED)))
+	{
+		return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+	}
+
+	if (!bFixed1)
+	{
+		// Freed by UndoFixFogGridWidth after the jump to it is gone
+		BYTE* pThunk = static_cast<BYTE*>(VirtualAlloc(NULL, FOG_THUNK_SIZE,
+			MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+
+		if (pThunk == NULL)
+		{
+			return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+		}
+
+		const DWORD dwThunk = reinterpret_cast<DWORD>(pThunk);
+		const DWORD dwBack = dwLoop1 + sizeof(FOG_HEX_CHANGED_ORIGINAL);
+		DWORD dwPast = 0;
+		memcpy(&dwPast, static_cast<const BYTE*>(p1) + 10, sizeof(dwPast));
+		dwPast += dwBack;
+
+		BYTE* pAt = pThunk;
+		memcpy(pAt, FOG_THUNK_HEAD, sizeof(FOG_THUNK_HEAD));
+		pAt += sizeof(FOG_THUNK_HEAD);
+		// jbe rel32
+		pAt[0] = 0x0F;
+		pAt[1] = 0x86;
+		const DWORD dwPastRel = Rel32(reinterpret_cast<DWORD>(pAt) + 6, dwPast);
+		memcpy(pAt + 2, &dwPastRel, sizeof(dwPastRel));
+		pAt += 6;
+		pAt[0] = X86_JMP_REL32;
+		const DWORD dwBackRel = Rel32(reinterpret_cast<DWORD>(pAt) + 5, dwBack);
+		memcpy(pAt + 1, &dwBackRel, sizeof(dwBackRel));
+
+		DWORD dwOld = 0;
+		VirtualProtect(pThunk, FOG_THUNK_SIZE, PAGE_EXECUTE_READ, &dwOld);
+		FlushInstructionCache(GetCurrentProcess(), pThunk, FOG_THUNK_SIZE);
+
+		BYTE aJump[sizeof(FOG_HEX_CHANGED_ORIGINAL)];
+		memset(aJump, X86_NOP, sizeof(aJump));
+		aJump[0] = X86_JMP_REL32;
+		const DWORD dwThunkRel = Rel32(dwLoop1 + 5, dwThunk);
+		memcpy(aJump + 1, &dwThunkRel, sizeof(dwThunkRel));
+
+		if (!WriteCode(dwLoop1, aJump, sizeof(aJump)))
+		{
+			VirtualFree(pThunk, 0, MEM_RELEASE);
+			return Refuse("TryFixFogGridWidth", REASON_UNAVAILABLE);
+		}
+
+		s_pFogGridThunk = pThunk;
+	}
+
+	s_bFogGridFixed = true;
+
+	CUSTOMLOG("Exe: fog grid loops count width * height (%s)",
+		bFixed1 && bFixed2 && bFixed3 ? "already fixed" : "fixed now");
+
+	return REASON_OK;
+}
+
+void Exe::UndoFixFogGridWidth()
+{
+	if (!s_bFogGridFixed)
+	{
+		return;
+	}
+
+	// The first loop first: after it nothing jumps to the thunk
+	const DWORD dwLoop1 = ExeApi::FogGrid_OnHexFOWStateChanged() + FOG_HEX_CHANGED_LOOP;
+	const DWORD dwLoop2 = ExeApi::FogGrid_ClearHandle() + FOG_CLEAR_HANDLE_LOOP;
+	const DWORD dwLoop3 = ExeApi::FogGrid_ClearAllHighlightsLoop() - FOG_CLEAR_ALL_COUNT;
+
+	if (
+		!WriteCode(dwLoop1, FOG_HEX_CHANGED_ORIGINAL, sizeof(FOG_HEX_CHANGED_ORIGINAL))
+		|| !WriteCode(dwLoop2, FOG_CLEAR_HANDLE_ORIGINAL, sizeof(FOG_CLEAR_HANDLE_ORIGINAL))
+		|| !WriteCode(dwLoop3, FOG_CLEAR_ALL_ORIGINAL, sizeof(FOG_CLEAR_ALL_ORIGINAL))
+	)
+	{
+		// Keep the thunk: the first loop may still jump there
+		CUSTOMLOG("Exe: UndoFixFogGridWidth could not restore the fog grid loops");
+		return;
+	}
+
+	if (s_pFogGridThunk != NULL)
+	{
+		VirtualFree(s_pFogGridThunk, 0, MEM_RELEASE);
+	}
+	s_pFogGridThunk = NULL;
+	s_bFogGridFixed = false;
+
+	CUSTOMLOG("Exe: fog grid loops restored (width * width)");
 }
 
 //------------------------------------------------------------------------------
@@ -1130,4 +1554,287 @@ Exe::Reason Exe::TryReadLocalMachineEventStreamStats(
 	);
 
 	return REASON_OK;
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanEnlargeCoastGridStack()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(COAST_GRID_STACK_SYMBOLS, _countof(COAST_GRID_STACK_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	if (s_pCoastGridThunk != NULL)
+	{
+		return REASON_ALREADY_ENABLED;
+	}
+
+	return REASON_OK;
+}
+
+Exe::Reason Exe::TryEnlargeCoastGridStack()
+{
+	const Reason eReason = CanEnlargeCoastGridStack();
+
+	if (eReason == REASON_ALREADY_ENABLED)
+	{
+		return REASON_OK;
+	}
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryEnlargeCoastGridStack", eReason);
+	}
+
+	BYTE* pStack = static_cast<BYTE*>(
+		VirtualAlloc(NULL, COAST_GRID_STACK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE)
+	);
+	BYTE* pThunk = static_cast<BYTE*>(
+		VirtualAlloc(NULL, COAST_GRID_THUNK_SIZE, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE)
+	);
+
+	const DWORD dwCall = reinterpret_cast<DWORD>(ExeApi::TerrainSystem_Init_CoastGridInit()) + COAST_GRID_CALL_OFFSET;
+	DWORD dwOldRel = 0;
+	memcpy(&dwOldRel, reinterpret_cast<const void*>(dwCall + 1), sizeof(dwOldRel));
+	bool bDone = false;
+
+	if (pStack != NULL && pThunk != NULL)
+	{
+		// 64 bytes below the end; VirtualAlloc returns 64 KB aligned memory
+		const DWORD dwBase = reinterpret_cast<DWORD>(pStack);
+		const DWORD dwTop = dwBase + COAST_GRID_STACK_SIZE - 64;
+		const unsigned int uiSize = WriteCoastGridThunk(pThunk, dwTop, dwBase, ExeApi::CoastGrid_Init());
+
+		DWORD dwOldProtect = 0;
+		if (VirtualProtect(pThunk, COAST_GRID_THUNK_SIZE, PAGE_EXECUTE_READ, &dwOldProtect))
+		{
+			FlushInstructionCache(GetCurrentProcess(), pThunk, uiSize);
+			const DWORD dwNewRel = Rel32(dwCall + 5, reinterpret_cast<DWORD>(pThunk));
+			bDone = WriteCode(dwCall + 1, reinterpret_cast<const BYTE*>(&dwNewRel), sizeof(dwNewRel));
+		}
+	}
+
+	if (!bDone)
+	{
+		if (pThunk != NULL)
+		{
+			VirtualFree(pThunk, 0, MEM_RELEASE);
+		}
+		if (pStack != NULL)
+		{
+			VirtualFree(pStack, 0, MEM_RELEASE);
+		}
+
+		return Refuse("TryEnlargeCoastGridStack", REASON_UNAVAILABLE);
+	}
+
+	s_pCoastGridThunk = pThunk;
+	s_pCoastGridStack = pStack;
+	s_dwCoastGridCallRel = dwOldRel;
+
+	CUSTOMLOG("Exe: CoastGrid_Init call at %08X runs on a %u MB stack at %08X (thunk %08X)",
+		(unsigned int)dwCall,
+		(unsigned int)(COAST_GRID_STACK_SIZE / (1024 * 1024)),
+		(unsigned int)reinterpret_cast<DWORD>(pStack),
+		(unsigned int)reinterpret_cast<DWORD>(pThunk)
+	);
+
+	return REASON_OK;
+}
+
+void Exe::UndoEnlargeCoastGridStack()
+{
+	if (s_pCoastGridThunk == NULL)
+	{
+		return;
+	}
+
+	// Put the call back before the thunk goes away
+	const DWORD dwCall = reinterpret_cast<DWORD>(ExeApi::TerrainSystem_Init_CoastGridInit()) + COAST_GRID_CALL_OFFSET;
+	if (!WriteCode(dwCall + 1, reinterpret_cast<const BYTE*>(&s_dwCoastGridCallRel), sizeof(s_dwCoastGridCallRel)))
+	{
+		// Keep the thunk and stack: the call still points there
+		CUSTOMLOG("Exe: UndoEnlargeCoastGridStack could not restore the call at %08X",
+			(unsigned int)dwCall
+		);
+		return;
+	}
+
+	VirtualFree(s_pCoastGridThunk, 0, MEM_RELEASE);
+	VirtualFree(s_pCoastGridStack, 0, MEM_RELEASE);
+	s_pCoastGridThunk = NULL;
+	s_pCoastGridStack = NULL;
+	s_dwCoastGridCallRel = 0;
+
+	CUSTOMLOG("Exe: CoastGrid_Init call at %08X restored",
+		(unsigned int)dwCall
+	);
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanLimitFogClouds()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(FOG_CLOUD_SYMBOLS, _countof(FOG_CLOUD_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	return REASON_OK;
+}
+
+DWORD Exe::GetFogCloudsForMap(int iWidth, int iHeight)
+{
+	if (iWidth <= 0 || iHeight <= 0)
+	{
+		return 0;
+	}
+
+	return static_cast<DWORD>(iWidth) * static_cast<DWORD>(iHeight) * FOG_CLOUDS_PER_PLOT_TENTHS / 10;
+}
+
+bool Exe::FogCloudsOverflow(DWORD dwMapClouds)
+{
+	if (CanLimitFogClouds() != REASON_OK)
+	{
+		return false;
+	}
+
+	const DWORD dwStoreSize = ExeApi::FluidFOW_CloudStoreAlloc() + 1;
+	DWORD dwStore = 0;
+
+	if (!IsReadable(reinterpret_cast<const void*>(dwStoreSize), sizeof(dwStore)))
+	{
+		return false;
+	}
+
+	memcpy(&dwStore, reinterpret_cast<const void*>(dwStoreSize), sizeof(dwStore));
+
+	return dwStore >= FOG_CLOUD_STORE_MIN && dwStore <= FOG_CLOUD_STORE_MAX && dwMapClouds > dwStore;
+}
+
+Exe::Reason Exe::TryLimitFogClouds(DWORD dwMapClouds)
+{
+	const Reason eReason = CanLimitFogClouds();
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryLimitFogClouds", eReason);
+	}
+
+	const DWORD dwAdd = ExeApi::FluidFOW_AddCloud();
+	const DWORD dwStoreSize = ExeApi::FluidFOW_CloudStoreAlloc() + 1;
+	const void* pAdd = reinterpret_cast<const void*>(dwAdd);
+
+	if (
+		!IsReadable(pAdd, sizeof(FOG_CLOUD_ADD_ORIGINAL))
+		|| !IsReadable(reinterpret_cast<const void*>(dwStoreSize), sizeof(DWORD))
+	)
+	{
+		return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+	}
+
+	DWORD dwStore = 0;
+	memcpy(&dwStore, reinterpret_cast<const void*>(dwStoreSize), sizeof(dwStore));
+
+	if (dwStore < FOG_CLOUD_STORE_MIN || dwStore > FOG_CLOUD_STORE_MAX || dwMapClouds == 0)
+	{
+		CUSTOMLOG("Exe: fog of war cloud store of %u clouds is not the expected code", (unsigned int)dwStore);
+		return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+	}
+
+	// The share for this map (a later map gets its own)
+	const DWORD dwKeep = dwStore / 100 * FOG_CLOUD_STORE_USE_PERCENT;
+	s_dwFogCloudKeep = dwKeep < dwMapClouds ? dwKeep : dwMapClouds;
+	s_dwFogCloudOf = dwMapClouds;
+	s_dwFogCloudAcc = 0;
+	s_dwFogCloudAsked = 0;
+	s_dwFogCloudAdded = 0;
+
+	if (!s_bFogCloudsLimited)
+	{
+		if (memcmp(pAdd, FOG_CLOUD_ADD_ORIGINAL, sizeof(FOG_CLOUD_ADD_ORIGINAL)) != 0)
+		{
+			CUSTOMLOG("Exe: FluidFOW_AddCloud at %08X is not the expected code", (unsigned int)dwAdd);
+			return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+		}
+
+		// Freed by UndoLimitFogClouds after the jump to it is gone
+		BYTE* pThunk = static_cast<BYTE*>(VirtualAlloc(NULL, FOG_CLOUD_THUNK_SIZE,
+			MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+
+		if (pThunk == NULL)
+		{
+			return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+		}
+
+		const unsigned int uiSize = WriteFogCloudThunk(pThunk, dwStore,
+			dwAdd + sizeof(FOG_CLOUD_ADD_ORIGINAL));
+		ASSERT(uiSize <= FOG_CLOUD_THUNK_SIZE);
+
+		DWORD dwOld = 0;
+		VirtualProtect(pThunk, FOG_CLOUD_THUNK_SIZE, PAGE_EXECUTE_READ, &dwOld);
+		FlushInstructionCache(GetCurrentProcess(), pThunk, FOG_CLOUD_THUNK_SIZE);
+
+		BYTE aJump[sizeof(FOG_CLOUD_ADD_ORIGINAL)];
+		memset(aJump, X86_NOP, sizeof(aJump));
+		aJump[0] = X86_JMP_REL32;
+		const DWORD dwThunkRel = Rel32(dwAdd + 5, reinterpret_cast<DWORD>(pThunk));
+		memcpy(aJump + 1, &dwThunkRel, sizeof(dwThunkRel));
+
+		if (!WriteCode(dwAdd, aJump, sizeof(aJump)))
+		{
+			VirtualFree(pThunk, 0, MEM_RELEASE);
+			return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+		}
+
+		s_pFogCloudThunk = pThunk;
+		s_dwFogCloudStore = dwStore;
+		s_bFogCloudsLimited = true;
+	}
+
+	CUSTOMLOG("Exe: fog of war clouds: the map asks for about %u, the store holds %u: %u of every %u kept",
+		(unsigned int)dwMapClouds,
+		(unsigned int)dwStore,
+		(unsigned int)s_dwFogCloudKeep,
+		(unsigned int)s_dwFogCloudOf
+	);
+
+	return REASON_OK;
+}
+
+void Exe::UndoLimitFogClouds()
+{
+	if (!s_bFogCloudsLimited)
+	{
+		return;
+	}
+
+	const DWORD dwAdd = ExeApi::FluidFOW_AddCloud();
+
+	if (!WriteCode(dwAdd, FOG_CLOUD_ADD_ORIGINAL, sizeof(FOG_CLOUD_ADD_ORIGINAL)))
+	{
+		// Keep the thunk: the function may still jump there
+		CUSTOMLOG("Exe: UndoLimitFogClouds could not restore FluidFOW_AddCloud");
+		return;
+	}
+
+	VirtualFree(s_pFogCloudThunk, 0, MEM_RELEASE);
+	s_pFogCloudThunk = NULL;
+	s_bFogCloudsLimited = false;
+
+	CUSTOMLOG("Exe: FluidFOW_AddCloud restored (last map: %u clouds asked for, %u added, store %u)",
+		(unsigned int)s_dwFogCloudAsked,
+		(unsigned int)s_dwFogCloudAdded,
+		(unsigned int)s_dwFogCloudStore
+	);
 }

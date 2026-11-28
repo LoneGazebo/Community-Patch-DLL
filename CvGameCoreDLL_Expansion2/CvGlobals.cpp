@@ -47,6 +47,7 @@
 // CURRENT_GAMECORE_VERSION is needed by CustomFilter's crashes.log report even
 // in builds without minidump support (DISABLE_MINIDUMP).
 #include "../commit_id.inc"
+#include "Exe/CvExe.h"
 #if defined(MOD_DEBUG_MINIDUMP)
 #include <dbghelp.h>
 #endif // defined(MOD_DEBUG_MINIDUMP)
@@ -3515,6 +3516,11 @@ void CvGlobals::init()
 //
 void CvGlobals::uninit()
 {
+	// Put the engine's code back before the DLL's code goes away
+	Exe::UndoFixFogGridWidth();
+	Exe::UndoEnlargeCoastGridStack();
+	Exe::UndoLimitFogClouds();
+
 	CvPlayerAI::freeStatics();
 	CvTeam::freeStatics();
 
