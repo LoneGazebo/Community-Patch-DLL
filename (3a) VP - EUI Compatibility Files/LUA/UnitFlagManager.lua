@@ -473,8 +473,12 @@ end--SetFlagSelected
 --==========================================================
 local function FinishMove( flag )
 	-- DebugFlag( flag, "FinishMove" ) end
+	-- The unit can be gone already: events for it can still arrive before SerialEventUnitDestroyed removes its flag
+	local unit = flag.m_Player:GetUnitByID( flag.m_UnitID )
+	if not unit or unit:IsDead() then
+		return
+	end
 	-- Have we changed carrier ?
-	local unit = flag.m_Unit
 	local transportUnit = unit:GetTransportUnit()
 	if flag.m_TransportUnit ~= transportUnit then
 		if flag.m_TransportUnit then
@@ -515,7 +519,10 @@ end
 local function UpdateFlagType( flag )
 	-- DebugFlag( flag, "UpdateFlagType" ) end
 
-	local unit = flag.m_Unit
+	local unit = flag.m_Player:GetUnitByID( flag.m_UnitID )
+	if not unit or unit:IsDead() then
+		return
+	end
 	local textureName, maskName
 
 	if unit:IsEmbarked() then
@@ -904,8 +911,8 @@ function( playerID, unitID, unitPosition )
 			if UnitMoving( playerID, unitID ) then
 				flag.m_Plot = nil
 			end
-			local targetPlot = flag.m_Unit:GetPlot()
-			if targetPlot ~= plot then
+			local unit = flag.m_Player:GetUnitByID( flag.m_UnitID )
+			if unit and not unit:IsDead() and unit:GetPlot() ~= plot then
 				UpdatePlotFlags( plot )
 				-- DebugFlag( flag, "starting to move: setting flag offset to", 0, 0 ) end
 				return flag.Container:SetOffsetVal( 0, 0 )
