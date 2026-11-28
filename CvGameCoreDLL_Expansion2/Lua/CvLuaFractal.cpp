@@ -124,7 +124,6 @@ CvFractal* CvLuaFractal::CreateFractal(lua_State* L)
 	//__gc
 	lua_pushcclosure(L, lDestroy, 0);
 	lua_setfield(L, -2, "__gc");
-	LuaSupport::TrackDllFinalizer(L, -1);
 
 	lua_setmetatable(L, -2);
 

@@ -3,6 +3,7 @@
 #define INCLUDED_CVLUAAPI
 
 #include "lua.hpp"
+#include "!CvScriptingUID.h"
 
 typedef void(*lua_CVoidFunc)(lua_State*);
 typedef unsigned long DWORD;
@@ -19,8 +20,8 @@ int luaVp_pcall(lua_State* L,lua_CVoidFunc f);
 void luaVp_pushcclosure(lua_State* L, lua_CFunction f, int orig_upvals = 0, lua_CVoidFunc lPushDbgInfo = NULL , const char* hint = NULL);
 #define lua_pushcclosure luaVp_pushcclosure //Redirect everything to use our version (protected wrapper)
 
-void* luaVp_pushCreateObject(lua_State* L, DWORD typeTag, void* instptr, size_t size );
-void* luaVp_tryPushObject(lua_State* L, DWORD typeTag, void* instptr);
+void* luaVp_pushCreateUIDObject(lua_State* L, size_t size, uid_index_t index, uid_ttag_t type_tag = 0 );
+void* luaVp_tryPushUIDObject(lua_State* L, uid_index_t index );
 
 void luaVp_registerMetatable(lua_State* L, DWORD typeTag, lua_CFunction pushMtt, const char* hint = NULL);
 void luaVp_applyMetatable(lua_State* L, int idx, DWORD typeTag);
@@ -67,7 +68,7 @@ namespace CvLuaGamecoreTypes { template<class T> struct TypeGlobals; }
 #define LuaTypes_DeclareStatic( Tag, Name, CLASS ) class CLASS;\
 namespace CvLuaGamecoreTypes { template<> struct TypeGlobals<CLASS> {\
 	static const char* TypeName() { return #Name; }\
-	static DWORD TypeTag() { return Tag; }\
+	static uid_ttag_t TypeTag() { return Tag; }\
 	static void RegisterGlobals(lua_State*);\
 	static const bool IsStatic = true;\
 	static CLASS* GetInstance(lua_State* L,int idx,bool err=true);\
@@ -80,7 +81,7 @@ CLASS* CvLuaGamecoreTypes::TypeGlobals<CLASS>::GetInstance(lua_State*,int,bool) 
 #define LuaTypes_DeclareInstanced( Tag, Name, CLASS ) class CLASS ;\
 namespace CvLuaGamecoreTypes { template<> struct TypeGlobals<CLASS> {\
 	static const char* TypeName() { return #Name; }\
-	static DWORD TypeTag() { return Tag; }\
+	static uid_ttag_t TypeTag() { return GlobalUIDSystem::TYPES<CLASS>::ID; }\
 	static void RegisterGlobals(lua_State* L);\
 	static void PushInstance(lua_State* L,CLASS* inst);\
 	static CLASS* GetInstance(lua_State* L,int idx,bool err=true);\

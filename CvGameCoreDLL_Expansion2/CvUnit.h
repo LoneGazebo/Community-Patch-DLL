@@ -19,6 +19,7 @@
 #include "CvPromotionClasses.h"
 #include "CvAStarNode.h"
 #include "CvSerialize.h"
+#include "Lua/!CvScriptingUID.h"
 
 #define DEFAULT_UNIT_MAP_LAYER 0
 #define TRADE_UNIT_MAP_LAYER 1
@@ -2792,8 +2793,8 @@ private:
 	int m_iHomelandMoveSetTurn;
 
 	friend class CvLuaUnit;
-public:
-	AutoInvalidatedPointerList m_PointerList;
+
+	SCRIPTING_UID_MEMBER(CvUnit);
 };
 
 FDataStream& operator<<(FDataStream&, const CvUnit&);

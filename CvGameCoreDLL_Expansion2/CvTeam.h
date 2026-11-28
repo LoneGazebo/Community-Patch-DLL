@@ -7,12 +7,12 @@
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 
-#include "FBatchAllocate.h"
-#include "CvEnumMap.h"
-// team.h
-
 #ifndef CIV5_TEAM_H
 #define CIV5_TEAM_H
+
+#include "FBatchAllocate.h"
+#include "CvEnumMap.h"
+#include "Lua/!CvScriptingUID.h"
 
 class CvArea;
 class CvTeamTechs;
@@ -650,8 +650,8 @@ protected:
 
 	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, TeamTypes eDefensivePactTeam = NO_TEAM, bool bMinorAllyPact = false);
 	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false, bool bIgnoreVassalsAndAllies = false, vector<pair<PlayerTypes, TeamTypes>>* pvMinorCivsDeferredPeaceUpdate = NULL);
-public:
-	AutoInvalidatedPointerList m_PointerList;
+
+	SCRIPTING_UID_MEMBER(CvTeam);
 };
 
 // helper for accessing static functions

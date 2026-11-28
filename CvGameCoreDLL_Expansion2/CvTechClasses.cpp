@@ -2161,6 +2161,7 @@ CvTeamTechs::CvTeamTechs():
 /// Destructor
 CvTeamTechs::~CvTeamTechs(void)
 {
+	SCRIPTING_UID_INVALIDATE_NOW();
 }
 
 /// Initialize

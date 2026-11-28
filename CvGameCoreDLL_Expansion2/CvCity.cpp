@@ -552,6 +552,8 @@ CvCity::CvCity() :
 //	--------------------------------------------------------------------------------
 CvCity::~CvCity()
 {
+	SCRIPTING_UID_INVALIDATE_NOW();
+	
 	CvCityManager::OnCityDestroyed(this);
 
 	//really shouldn't happen that it's not present, but there was a crash here

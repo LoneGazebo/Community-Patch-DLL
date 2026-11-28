@@ -22,8 +22,94 @@
 #include "CvLuaGameInfo.h"
 #include "CvLuaExe.h"
 #include "!CvLuaApiExec.h"
+#include "!CvScriptingUID.h"
+#include <deque>
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
+
+namespace GlobalUIDSystem {
+
+	namespace {
+		static const size_t PAGE_BITS = 10;
+		static const size_t PAGE_NUM_RECORDS = 1 << PAGE_BITS;
+		struct RecordPage { UID_RECORD data[PAGE_NUM_RECORDS]; };
+		static bool page_list_deleted = false;
+		static struct PageListStruct : std::deque<RecordPage> {
+			~PageListStruct() { page_list_deleted = true; }
+		} page_list;
+		static RecordPage* current_page = NULL;
+		static serial_t serial_number = 0;
+		static index_t current_page_index = 0;
+		static index_t unused_chain_start_index = 0;
+		static index_t high_index = 0;
+	}
+
+	bool isShutdown() { return page_list_deleted; }
+
+	void UID_MEMBER_BASE::acquireUID(UID_RECORD** rec, void* obj, ttag_t type_tag)
+	{
+		if (page_list_deleted) {*rec = NULL; return;}
+		
+		DLLLOCK_BEGIN();
+		
+		index_t index = 0;
+		if (unused_chain_start_index)
+		{
+			index = unused_chain_start_index;
+			*rec = &page_list[(index-1) >> PAGE_BITS].data[(index-1) & (PAGE_NUM_RECORDS-1)];
+			unused_chain_start_index = (**rec).index;
+		}
+		else
+		{
+			if (!current_page)
+			{
+				//c++03 and msvc90 don't support in-place construction for std containers
+				static RecordPage page;
+				page_list.push_back(page);
+				current_page = &page_list.back();
+				current_page_index = 0;
+			}
+			*rec = &current_page->data[current_page_index++];
+			index = ++high_index;
+			if (current_page_index == PAGE_NUM_RECORDS) { current_page = NULL; }
+		}
+		UID_RECORD& record = **rec;
+		record.index = index;
+		record.type_tag = type_tag;
+		record.serial_number = ++serial_number;
+		record.obj = obj;
+		
+		DLLLOCK_END();
+	}
+
+	void UID_MEMBER_BASE::releaseUID(UID_RECORD** rec)
+	{
+		if (!rec || !(*rec)) return;
+		if (page_list_deleted) {*rec = NULL; return;}
+		
+		DLLLOCK_BEGIN();
+		
+		UID_RECORD& record = **rec;
+		*rec = NULL;
+		index_t index = unused_chain_start_index;
+		unused_chain_start_index = record.index;
+		record.index = index;
+		record.type_tag = 0;
+		record.serial_number = 0;
+		
+		DLLLOCK_END();
+		
+		
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "INVALIDATE_OBJECT_SYNC", args.get(), bResult);
+		}
+		
+	}
+}
 
 //---------------------------//
 // Implement luaVp functions //
@@ -65,6 +151,8 @@ namespace {
 			lua_createtable(L,0,0);
 			lua_pushvalue(L,-1);
 			lua_setfield(L,-3,"vpdllinternals");
+			lua_createtable(L,1000,0); // uidtable = newtable(1000,0)
+			lua_rawseti(L,-2,1); // vpdllinternals[1] = uidtable
 		}
 		lua_replace(L,-2);
 		return;
@@ -84,6 +172,12 @@ namespace {
 		pushInternalsTable(L);
 		luaEx_pushtag(L,typeTag);
 		lua_rawget(L,-2);
+		lua_replace(L,-2);
+	}
+	
+	void pushUIDTable(lua_State* L) {
+		pushInternalsTable(L);
+		lua_rawgeti(L,-1,1);
 		lua_replace(L,-2);
 	}
 	
@@ -132,21 +226,19 @@ void luaVp_applyMetatable(lua_State* L, int idx, DWORD typeTag) {
 	lua_pop(L,2);
 }
 
-void* luaVp_pushCreateObject(lua_State* L,DWORD typeTag,void* uid,size_t size) {
-	pushInternalTypeTable(L,typeTag);
+void* luaVp_pushCreateUIDObject(lua_State* L, size_t size, uid_index_t index, uid_ttag_t opt_metatable_hint) {
+	pushUIDTable(L);
 	void* ret = lua_newuserdata(L,size);
-	luaVp_applyMetatable(L,-1,typeTag);
-	lua_pushlightuserdata(L,uid);
-	lua_pushvalue(L,-2);
-	lua_settable(L,-4);
+	luaVp_applyMetatable(L,-1,opt_metatable_hint);
+	lua_pushvalue(L,-1);
+	lua_rawseti(L,-3,index);
 	lua_replace(L,-2);
 	return ret;
 }
 
-void* luaVp_tryPushObject(lua_State* L,DWORD typeTag,void* uid) {
-	pushInternalTypeTable(L,typeTag);
-	lua_pushlightuserdata(L,uid);
-	lua_gettable(L,-2);
+void* luaVp_tryPushUIDObject(lua_State* L, uid_index_t index) {
+	pushUIDTable(L);
+	lua_rawgeti(L,-1,index);
 	if( void* ret = lua_touserdata(L,-1) ) { lua_replace(L,-2); return ret; }
 	lua_pop(L,2);
 	return NULL;
@@ -257,45 +349,10 @@ void LuaSupport::NotifyDatabaseCached() {
 	}
 	executeSupportEvent("gc_reset");
 }
-// The EXE unloads this DLL before it closes Lua at quit, and on a mod switch the Lua state lives on, so a
-// __gc left pointing at this DLL would run unmapped (or another DLL's) code when Lua collects the object.
-void LuaSupport::TrackDllFinalizer(lua_State* L, int idx) {
-	if( idx < 0 && idx > LUA_REGISTRYINDEX ) idx = lua_gettop(L) + idx + 1;
-	lua_getfield(L, LUA_REGISTRYINDEX, "vpdllfinalizers");
-	if( !lua_istable(L,-1) ) {
-		lua_pop(L,1);
-		lua_newtable(L);
-		lua_newtable(L);
-		lua_pushstring(L,"k");
-		lua_setfield(L,-2,"__mode");
-		lua_setmetatable(L,-2);
-		lua_pushvalue(L,-1);
-		lua_setfield(L, LUA_REGISTRYINDEX, "vpdllfinalizers");
-	}
-	lua_pushvalue(L,idx);
-	lua_pushboolean(L,1);
-	lua_rawset(L,-3);
-	lua_pop(L,1);
-}
-namespace {
-	void clearDllFinalizers(lua_State* L) {
-		lua_getfield(L, LUA_REGISTRYINDEX, "vpdllfinalizers");
-		if( lua_istable(L,-1) ) {
-			lua_pushnil(L);
-			while( lua_next(L,-2) ) {
-				lua_pop(L,1);
-				lua_pushstring(L,"__gc");
-				lua_pushnil(L);
-				lua_rawset(L,-3);
-			}
-		}
-		lua_pop(L,1);
-	}
-}
+
 void LuaSupport::NotifyDllUnload(bool bProcessExit) {
 	// At process exit the EXE has already closed Lua: supportState is freed memory by then.
 	if( bProcessExit || supportState == NULL ) return;
-	clearDllFinalizers(supportState);
 	executeSupportEvent("shutdown"); // engine's FreeLuaThread seems to not work at this point. Tell our lua context to manually clean up!
 }
 
@@ -304,6 +361,8 @@ void LuaSupport::LuaPCall(lua_State* L,lua_CVoidFunc f) { luaVp_pcall(L,f); }
 
 void LuaSupport::RegisterScriptData( lua_State* L ) { if( !skipGamecoreCreation ) DoRegisterScriptData(L); }
 void LuaSupport::RunScript(lua_State* L, const char* script) { gDLL->GetScriptSystem()->LoadFile(L,script); }
+
+
 
 //------------------------------------------------------------------------------
 bool LuaSupport::CallHook(ICvEngineScriptSystem1* pkScriptSystem, const char* szName, ICvEngineScriptSystemArgs1* args, bool& value)
