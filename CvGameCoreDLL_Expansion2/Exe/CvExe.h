@@ -100,6 +100,22 @@ namespace Exe
 	Reason CanEnlargeCoastGridStack();
 	Reason TryEnlargeCoastGridStack();
 	void UndoEnlargeCoastGridStack();
+
+	//! With High fog quality the engine seeds one fog of war cloud per cell
+	//! of the map into a store of 196,608 clouds and does not check that it
+	//! is full, so a map of about 21,000 plots or more ends the game at load.
+	//! TryLimitFogClouds keeps the seeds of the next map within the store: it
+	//! keeps an even share of them, store size / iMapClouds (the clouds the
+	//! map asks for), and stops at the store size. UndoLimitFogClouds puts the
+	//! engine's code back; the DLL calls it for a map that fits and when it
+	//! unloads.
+	Reason CanLimitFogClouds();
+	Reason TryLimitFogClouds(DWORD dwMapClouds);
+	void UndoLimitFogClouds();
+	//! The clouds a map of this size asks for (an upper estimate) and whether
+	//! they overflow the store.
+	DWORD GetFogCloudsForMap(int iWidth, int iHeight);
+	bool FogCloudsOverflow(DWORD dwMapClouds);
 }
 
 #endif // CV_EXE_H

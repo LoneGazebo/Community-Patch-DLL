@@ -3519,6 +3519,7 @@ void CvGlobals::uninit()
 	// Put the engine's code back before the DLL's code goes away
 	Exe::UndoFixFogGridWidth();
 	Exe::UndoEnlargeCoastGridStack();
+	Exe::UndoLimitFogClouds();
 
 	CvPlayerAI::freeStatics();
 	CvTeam::freeStatics();

@@ -108,6 +108,11 @@ namespace ExeApi
 	// CvExeAddresses.h): addresses only, for Exe::TryEnlargeCoastGridStack
 	BYTE* TerrainSystem_Init_CoastGridInit();
 	DWORD CoastGrid_Init();
+
+	// ---- FluidFOWSystem's cloud store (see CvExeAddresses.h): addresses
+	// only, for Exe::TryLimitFogClouds
+	DWORD FluidFOW_AddCloud();
+	DWORD FluidFOW_CloudStoreAlloc();
 }
 
 #endif // CV_EXE_API_H

@@ -182,6 +182,23 @@ void FitMapToEngine(int& iWidth, int& iHeight, bool bCanResize)
 	g_strMapSizeNote = GetLocalizedText("TXT_KEY_VP_MAP_MADE_SMALLER", iWidth, iHeight, iOldWidth, iOldHeight);
 }
 
+// The engine's fog of war clouds (High fog quality) for the map that is set
+// up next: kept within the engine's cloud store if the map would overflow it,
+// else the engine's code as it is
+void FitFogCloudsToEngine(int iWidth, int iHeight)
+{
+	const DWORD dwClouds = Exe::GetFogCloudsForMap(iWidth, iHeight);
+
+	if (Exe::FogCloudsOverflow(dwClouds))
+	{
+		Exe::TryLimitFogClouds(dwClouds);
+	}
+	else
+	{
+		Exe::UndoLimitFogClouds();
+	}
+}
+
 void ShowMapSizeNote()
 {
 	if (!g_bInGameUiLoaded || g_strMapSizeNote.empty())
@@ -1394,6 +1411,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 
 	// A saved game calls reset with no size and reads it afterwards (Read)
 	FitMapToEngine(m_iGridWidth, m_iGridHeight, !CvPreGame::isWBMapScript());
+	FitFogCloudsToEngine(m_iGridWidth, m_iGridHeight);
 
 	m_iGridSize = m_iGridHeight * m_iGridWidth;
 
@@ -2405,6 +2423,7 @@ void CvMap::Read(FDataStream& kStream)
 	Serialize(*this, serialVisitor);
 
 	FitMapToEngine(m_iGridWidth, m_iGridHeight, false);
+	FitFogCloudsToEngine(m_iGridWidth, m_iGridHeight);
 
 	setup();
 

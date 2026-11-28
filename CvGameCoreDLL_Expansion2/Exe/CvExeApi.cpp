@@ -195,6 +195,17 @@ void ExeApi::cvCityVisSystem_RemoveWonder(void* pThis, const void* pHandle,
 }
 
 //------------------------------------------------------------------------------
+DWORD ExeApi::FluidFOW_AddCloud()
+{
+	return ExeSymbols::Get(EXE_FluidFOW_AddCloud);
+}
+
+DWORD ExeApi::FluidFOW_CloudStoreAlloc()
+{
+	return ExeSymbols::Get(EXE_FluidFOW_CloudStoreAlloc);
+}
+
+//------------------------------------------------------------------------------
 BYTE* ExeApi::TerrainSystem_Init_CoastGridInit()
 {
 	return reinterpret_cast<BYTE*>(

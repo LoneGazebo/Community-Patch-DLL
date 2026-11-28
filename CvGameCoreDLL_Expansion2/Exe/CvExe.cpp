@@ -435,6 +435,94 @@ void AnnounceTuner()
 		NO_PLAYER
 	);
 }
+
+// ---- Fog of war clouds (Exe::TryLimitFogClouds)
+const ExeSymbol FOG_CLOUD_SYMBOLS[] =
+{
+	EXE_FluidFOW_AddCloud,
+	EXE_FluidFOW_CloudStoreAlloc,
+};
+
+// FluidFOW_AddCloud's first instruction, which the thunk runs after its checks:
+// mov eax,[ecx+440h] (the first store's cloud count)
+const BYTE FOG_CLOUD_ADD_ORIGINAL[] = { 0x8B, 0x81, 0x40, 0x04, 0x00, 0x00 };
+const DWORD FOG_CLOUD_COUNT_OFFSET = 0x440;
+const unsigned int FOG_CLOUD_THUNK_SIZE = 96;
+// The store sizes a sane build uses (the November 2026 EXEs: 196,608)
+const DWORD FOG_CLOUD_STORE_MIN = 10240;
+const DWORD FOG_CLOUD_STORE_MAX = 0x1000000;
+// Seed cells per plot, an upper estimate: one cell per 22 x 22 world units of
+// the map (FluidFOWSettings.xml) over the map's world rectangle, rounded up to
+// 64 units. Counted: 186 x 112 asks for 194,656 (9.34 per plot), 190 x 115
+// for 203,965 (9.34), 252 x 130 for 297,255 (9.07). In tenths.
+const DWORD FOG_CLOUDS_PER_PLOT_TENTHS = 94;
+// The share of the store the thinned seeds may use (the rest is margin for
+// the estimate), in percent
+const DWORD FOG_CLOUD_STORE_USE_PERCENT = 97;
+
+// While FluidFOW_AddCloud is redirected: the thunk, and its counters. The
+// thunk keeps s_dwFogCloudKeep of every s_dwFogCloudOf clouds it is asked for
+// (an even share over the whole map) and none once the store is full.
+bool s_bFogCloudsLimited = false;
+BYTE* s_pFogCloudThunk = NULL;
+DWORD s_dwFogCloudStore = 0;
+volatile DWORD s_dwFogCloudKeep = 1;
+volatile DWORD s_dwFogCloudOf = 1;
+volatile DWORD s_dwFogCloudAcc = 0;
+volatile DWORD s_dwFogCloudAsked = 0;
+volatile DWORD s_dwFogCloudAdded = 0;
+
+void PutRel8(BYTE* pJump, const BYTE* pTarget)
+{
+	pJump[1] = static_cast<BYTE>(pTarget - (pJump + 2));
+}
+
+//! Writes the FluidFOW_AddCloud thunk; returns its size
+unsigned int WriteFogCloudThunk(BYTE* pThunk, DWORD dwStore, DWORD dwBack)
+{
+	BYTE* pAt = pThunk;
+	// inc dword [s_dwFogCloudAsked]
+	PutBytes(pAt, "\xFF\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAsked));
+	// cmp dword [ecx+440h], dwStore; jae <skip>
+	PutBytes(pAt, "\x81\xB9", 2);
+	PutDword(pAt, FOG_CLOUD_COUNT_OFFSET);
+	PutDword(pAt, dwStore);
+	BYTE* pJaeFull = pAt;
+	PutBytes(pAt, "\x73\x00", 2);
+	// mov eax,[acc]; add eax,[keep]; cmp eax,[of]; jb <drop>
+	PutBytes(pAt, "\xA1", 1);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAcc));
+	PutBytes(pAt, "\x03\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudKeep));
+	PutBytes(pAt, "\x3B\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudOf));
+	BYTE* pJbDrop = pAt;
+	PutBytes(pAt, "\x72\x00", 2);
+	// sub eax,[of]; mov [acc],eax; inc dword [added]
+	PutBytes(pAt, "\x2B\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudOf));
+	PutBytes(pAt, "\xA3", 1);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAcc));
+	PutBytes(pAt, "\xFF\x05", 2);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAdded));
+	// the original first instruction, then back to the next one
+	memcpy(pAt, FOG_CLOUD_ADD_ORIGINAL, sizeof(FOG_CLOUD_ADD_ORIGINAL));
+	pAt += sizeof(FOG_CLOUD_ADD_ORIGINAL);
+	pAt[0] = X86_JMP_REL32;
+	const DWORD dwBackRel = Rel32(reinterpret_cast<DWORD>(pAt) + 5, dwBack);
+	memcpy(pAt + 1, &dwBackRel, sizeof(dwBackRel));
+	pAt += 5;
+	// <drop>: mov [acc],eax
+	PutRel8(pJbDrop, pAt);
+	PutBytes(pAt, "\xA3", 1);
+	PutDword(pAt, reinterpret_cast<DWORD>(&s_dwFogCloudAcc));
+	// <skip>: retn 14h (the cloud is not added)
+	PutRel8(pJaeFull, pAt);
+	PutBytes(pAt, "\xC2\x14\x00", 3);
+
+	return static_cast<unsigned int>(pAt - pThunk);
+}
 } // namespace
 
 //------------------------------------------------------------------------------
@@ -1585,5 +1673,168 @@ void Exe::UndoEnlargeCoastGridStack()
 
 	CUSTOMLOG("Exe: CoastGrid_Init call at %08X restored",
 		(unsigned int)dwCall
+	);
+}
+
+//------------------------------------------------------------------------------
+Exe::Reason Exe::CanLimitFogClouds()
+{
+	if (!MOD_BIN_HOOKS)
+	{
+		return REASON_BIN_HOOKS_OFF;
+	}
+
+	if (!HasSymbols(FOG_CLOUD_SYMBOLS, _countof(FOG_CLOUD_SYMBOLS)))
+	{
+		return REASON_UNSUPPORTED_EXE;
+	}
+
+	return REASON_OK;
+}
+
+DWORD Exe::GetFogCloudsForMap(int iWidth, int iHeight)
+{
+	if (iWidth <= 0 || iHeight <= 0)
+	{
+		return 0;
+	}
+
+	return static_cast<DWORD>(iWidth) * static_cast<DWORD>(iHeight) * FOG_CLOUDS_PER_PLOT_TENTHS / 10;
+}
+
+bool Exe::FogCloudsOverflow(DWORD dwMapClouds)
+{
+	if (CanLimitFogClouds() != REASON_OK)
+	{
+		return false;
+	}
+
+	const DWORD dwStoreSize = ExeApi::FluidFOW_CloudStoreAlloc() + 1;
+	DWORD dwStore = 0;
+
+	if (!IsReadable(reinterpret_cast<const void*>(dwStoreSize), sizeof(dwStore)))
+	{
+		return false;
+	}
+
+	memcpy(&dwStore, reinterpret_cast<const void*>(dwStoreSize), sizeof(dwStore));
+
+	return dwStore >= FOG_CLOUD_STORE_MIN && dwStore <= FOG_CLOUD_STORE_MAX && dwMapClouds > dwStore;
+}
+
+Exe::Reason Exe::TryLimitFogClouds(DWORD dwMapClouds)
+{
+	const Reason eReason = CanLimitFogClouds();
+
+	if (eReason != REASON_OK)
+	{
+		return Refuse("TryLimitFogClouds", eReason);
+	}
+
+	const DWORD dwAdd = ExeApi::FluidFOW_AddCloud();
+	const DWORD dwStoreSize = ExeApi::FluidFOW_CloudStoreAlloc() + 1;
+	const void* pAdd = reinterpret_cast<const void*>(dwAdd);
+
+	if (
+		!IsReadable(pAdd, sizeof(FOG_CLOUD_ADD_ORIGINAL))
+		|| !IsReadable(reinterpret_cast<const void*>(dwStoreSize), sizeof(DWORD))
+	)
+	{
+		return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+	}
+
+	DWORD dwStore = 0;
+	memcpy(&dwStore, reinterpret_cast<const void*>(dwStoreSize), sizeof(dwStore));
+
+	if (dwStore < FOG_CLOUD_STORE_MIN || dwStore > FOG_CLOUD_STORE_MAX || dwMapClouds == 0)
+	{
+		CUSTOMLOG("Exe: fog of war cloud store of %u clouds is not the expected code", (unsigned int)dwStore);
+		return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+	}
+
+	// The share for this map (a later map gets its own)
+	const DWORD dwKeep = dwStore / 100 * FOG_CLOUD_STORE_USE_PERCENT;
+	s_dwFogCloudKeep = dwKeep < dwMapClouds ? dwKeep : dwMapClouds;
+	s_dwFogCloudOf = dwMapClouds;
+	s_dwFogCloudAcc = 0;
+	s_dwFogCloudAsked = 0;
+	s_dwFogCloudAdded = 0;
+
+	if (!s_bFogCloudsLimited)
+	{
+		if (memcmp(pAdd, FOG_CLOUD_ADD_ORIGINAL, sizeof(FOG_CLOUD_ADD_ORIGINAL)) != 0)
+		{
+			CUSTOMLOG("Exe: FluidFOW_AddCloud at %08X is not the expected code", (unsigned int)dwAdd);
+			return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+		}
+
+		// Freed by UndoLimitFogClouds after the jump to it is gone
+		BYTE* pThunk = static_cast<BYTE*>(VirtualAlloc(NULL, FOG_CLOUD_THUNK_SIZE,
+			MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+
+		if (pThunk == NULL)
+		{
+			return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+		}
+
+		const unsigned int uiSize = WriteFogCloudThunk(pThunk, dwStore,
+			dwAdd + sizeof(FOG_CLOUD_ADD_ORIGINAL));
+		ASSERT(uiSize <= FOG_CLOUD_THUNK_SIZE);
+
+		DWORD dwOld = 0;
+		VirtualProtect(pThunk, FOG_CLOUD_THUNK_SIZE, PAGE_EXECUTE_READ, &dwOld);
+		FlushInstructionCache(GetCurrentProcess(), pThunk, FOG_CLOUD_THUNK_SIZE);
+
+		BYTE aJump[sizeof(FOG_CLOUD_ADD_ORIGINAL)];
+		memset(aJump, X86_NOP, sizeof(aJump));
+		aJump[0] = X86_JMP_REL32;
+		const DWORD dwThunkRel = Rel32(dwAdd + 5, reinterpret_cast<DWORD>(pThunk));
+		memcpy(aJump + 1, &dwThunkRel, sizeof(dwThunkRel));
+
+		if (!WriteCode(dwAdd, aJump, sizeof(aJump)))
+		{
+			VirtualFree(pThunk, 0, MEM_RELEASE);
+			return Refuse("TryLimitFogClouds", REASON_UNAVAILABLE);
+		}
+
+		s_pFogCloudThunk = pThunk;
+		s_dwFogCloudStore = dwStore;
+		s_bFogCloudsLimited = true;
+	}
+
+	CUSTOMLOG("Exe: fog of war clouds: the map asks for about %u, the store holds %u: %u of every %u kept",
+		(unsigned int)dwMapClouds,
+		(unsigned int)dwStore,
+		(unsigned int)s_dwFogCloudKeep,
+		(unsigned int)s_dwFogCloudOf
+	);
+
+	return REASON_OK;
+}
+
+void Exe::UndoLimitFogClouds()
+{
+	if (!s_bFogCloudsLimited)
+	{
+		return;
+	}
+
+	const DWORD dwAdd = ExeApi::FluidFOW_AddCloud();
+
+	if (!WriteCode(dwAdd, FOG_CLOUD_ADD_ORIGINAL, sizeof(FOG_CLOUD_ADD_ORIGINAL)))
+	{
+		// Keep the thunk: the function may still jump there
+		CUSTOMLOG("Exe: UndoLimitFogClouds could not restore FluidFOW_AddCloud");
+		return;
+	}
+
+	VirtualFree(s_pFogCloudThunk, 0, MEM_RELEASE);
+	s_pFogCloudThunk = NULL;
+	s_bFogCloudsLimited = false;
+
+	CUSTOMLOG("Exe: FluidFOW_AddCloud restored (last map: %u clouds asked for, %u added, store %u)",
+		(unsigned int)s_dwFogCloudAsked,
+		(unsigned int)s_dwFogCloudAdded,
+		(unsigned int)s_dwFogCloudStore
 	);
 }

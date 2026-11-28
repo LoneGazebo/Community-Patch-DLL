@@ -616,6 +616,28 @@ EXE_SYMBOL(
 	"53 8B DC 83 EC 08 83 E4 F0 83 C4 04 55 8B 6B 04 89 6C 24 04 8B EC 81 EC"
 )
 
+// ---- FluidFOWSystem (High fog quality; DX9 turns it down to Medium, which
+// has no clouds) keeps its clouds in a store per worker thread, but seeds the
+// whole map into the first one, one cloud per cell of the map, without
+// checking that the store is full. Exe::TryLimitFogClouds points the cloud
+// function's first instruction (mov eax,[ecx+440h]: the cloud count) at a
+// thunk that keeps the seeds within the store.
+// FluidFOW_AddCloud: thiscall, five stack arguments (retn 14h); writes one
+// 128-byte cloud at [ecx+40h] + [ecx+440h] * 128 and increments [ecx+440h].
+EXE_SYMBOL(
+	FluidFOW_AddCloud,
+	EXE_FUNCTION, 0x005aeef0, 0x005de770, 0x005af050,
+	"8B 81 40 04 00 00 8B 54 24 04 F3 0F 10 44 24 0C C1 E0 07 03 41 40 56"
+)
+
+// Where each store is allocated: push <clouds per store>; push 80h (128 bytes
+// each); push edi; call. The DLL reads the store size from the first push.
+EXE_SYMBOL(
+	FluidFOW_CloudStoreAlloc,
+	EXE_CODE, 0x005b3038, 0x005e288a, 0x005b3198,
+	"68 ?? ?? ?? ?? 68 80 00 00 00 57 E8"
+)
+
 #endif
 
 #ifdef EXE_CHECK
