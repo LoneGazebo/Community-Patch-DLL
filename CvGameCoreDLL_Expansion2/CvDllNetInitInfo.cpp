@@ -40,7 +40,8 @@ CvDllNetInitInfo::CvDllNetInitInfo() :
 	m_iNumMinorCivs(CvPreGame::numMinorCivs()),
 	m_eMode(CvPreGame::gameMode()),
 	m_uiRefCount(1),
-	m_aiKnownPlayersTable(CvPreGame::GetKnownPlayersTable())
+	m_aiKnownPlayersTable(CvPreGame::GetKnownPlayersTable()),
+	m_iMaxMajorCivs(MAX_MAJOR_CIVS)
 {
 	ZeroMemory(m_szDebugString, sizeof m_szDebugString);
 }
@@ -175,6 +176,9 @@ bool CvDllNetInitInfo::Read(FDataStream& kStream)
 	kStream >> m_eMode;
 	kStream >> m_bStatReporting;
 	kStream >> m_aiKnownPlayersTable;
+	m_iMaxMajorCivs = -1;
+	if (!kStream.AtEnd())
+		kStream >> m_iMaxMajorCivs;
 	return true;
 }
 //------------------------------------------------------------------------------
@@ -212,11 +216,21 @@ bool CvDllNetInitInfo::Write(FDataStream& kStream)
 	kStream << m_eMode;
 	kStream << m_bStatReporting;
 	kStream << m_aiKnownPlayersTable;
+	kStream << m_iMaxMajorCivs;
 	return true;
 }
 //------------------------------------------------------------------------------
 bool CvDllNetInitInfo::Commit()
 {
+	// A build with another MAX_MAJOR_CIVS reads the slots and the game state differently, so this machine
+	// cannot play in this game: leave it before the settings are applied.
+	if (m_iMaxMajorCivs >= 0 && m_iMaxMajorCivs != MAX_MAJOR_CIVS)
+	{
+		gDLL->netDisconnect();
+		ReportMajorCivCountMismatch(false, m_iMaxMajorCivs);
+		return false;
+	}
+
 	// Copy the settings into our initialization data structure
 
 	//The map script path cannot be trusted since this structure is sent over the network.

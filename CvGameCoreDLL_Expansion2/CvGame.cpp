@@ -11031,6 +11031,19 @@ void CvGame::Read(FDataStream& kStream)
 		CUSTOMLOG("Savefile was generated from gamecore version %s", save_gamecore_version.c_str());
 		if (strcmp(save_gamecore_version.c_str(), CURRENT_GAMECORE_VERSION)!=0)
 			CUSTOMLOG("----> Potential savefile format mismatch, gamecore is version %s!", CURRENT_GAMECORE_VERSION);
+
+		// MAX_MAJOR_CIVS of the build that made the save, in the low byte under a fixed tag. A save from before this
+		// field has game data here instead, which never carries the tag: its count is unknown (-1).
+		int iSaveMajorCivsField = 0;
+		kStream >> iSaveMajorCivsField;
+		const int iSaveMaxMajorCivs = (iSaveMajorCivsField & ~0xFF) == SAVE_MAJOR_CIVS_TAG ? (iSaveMajorCivsField & 0xFF) : -1;
+		if (iSaveMaxMajorCivs != MAX_MAJOR_CIVS)
+		{
+			// Every array sized by MAX_MAJOR_CIVS may have another size in this save, so reading on would misread all
+			// later data, and the engine has no way to cancel a load once it has started: close the game instead.
+			ReportMajorCivCountMismatch(true, iSaveMaxMajorCivs);
+			TerminateProcess(GetCurrentProcess(), 1);
+		}
 	}
 
 	CvStreamLoadVisitor serialVisitor(kStream);
@@ -11110,6 +11123,7 @@ void CvGame::Write(FDataStream& kStream) const
 		kStream << GC.getSaveVersion();
 		kStream << GC.getGameDataHash();
 		kStream << CvString(CURRENT_GAMECORE_VERSION); //cannot store naked char*
+		kStream << (SAVE_MAJOR_CIVS_TAG | MAX_MAJOR_CIVS);
 	}
 
 	CvStreamSaveVisitor serialVisitor(kStream);
