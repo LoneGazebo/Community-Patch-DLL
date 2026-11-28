@@ -188,14 +188,19 @@ std::string CvSyncVarContainerDump(const void* container, const FAutoVariableBas
 	return static_cast<const Container*>(container)->debugDump(var);
 }
 
+// One string per distinct sync var name, shared by every unit, city and player (a copy per object costs 28 bytes plus a
+// heap block for names longer than 15 characters, for each of their ~350-570 sync vars). Called when a sync var is
+// constructed, on the game thread; the string stays at its address for the rest of the process.
+const std::string& CvSyncVarSharedName(const char* name);
+
 // The sync var's name, as a base class declared before ICvSyncVar: bases are built in declaration order, so the name
 // exists before FAutoVariableBase receives it, and it keeps that address for the sync var's lifetime.
 struct CvSyncVarName
 {
 	explicit CvSyncVarName(const char* name)
-		: m_name(name)
+		: m_pName(&CvSyncVarSharedName(name))
 	{}
-	std::string m_name;
+	const std::string* m_pName;
 };
 
 // Everything a sync var does, once per value type (~50 types) instead of once per sync var. It refers to the synced
@@ -210,7 +215,7 @@ public:
 	CvSyncVarBase(const char* name, FAutoArchive& owner, ValueType& value, const void* container, ContainerDumpFn containerDump,
 		bool bApplyRemote)
 		: CvSyncVarName(name)
-		, ICvSyncVar(m_name, owner)
+		, ICvSyncVar(*m_pName, owner)
 		, m_prevValue(value)
 		, m_value(value)
 		, m_container(container)
@@ -296,7 +301,7 @@ public:
 	}
 	virtual const std::string& name() const
 	{
-		return m_name;
+		return *m_pName;
 	}
 	virtual void setStackTraceRemark()
 	{

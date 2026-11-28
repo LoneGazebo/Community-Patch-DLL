@@ -3,6 +3,29 @@
 
 const std::string EmptyString;
 
+namespace
+{
+	struct CvSyncVarNameLess
+	{
+		bool operator()(const char* lhs, const char* rhs) const
+		{
+			return strcmp(lhs, rhs) < 0;
+		}
+	};
+}
+
+const std::string& CvSyncVarSharedName(const char* name)
+{
+	// Keyed by the SYNC_ARCHIVE_VAR string literals, which outlive the map; map nodes never move, so the returned
+	// reference stays valid. Function-local statics are not thread safe in VS2008: sync vars are only built on the game thread.
+	typedef std::map<const char*, std::string, CvSyncVarNameLess> NameMap;
+	static NameMap s_names;
+	NameMap::iterator it = s_names.find(name);
+	if (it == s_names.end())
+		it = s_names.insert(NameMap::value_type(name, std::string(name))).first;
+	return it->second;
+}
+
 void CvSyncArchiveCollectDeltas(FAutoArchive& syncArchive, const std::vector<FAutoVariableBase*>& vars)
 {
 	for (std::vector<FAutoVariableBase*>::const_iterator it = vars.begin(); it != vars.end(); ++it)
