@@ -22,6 +22,7 @@
 #include "TContainer.h"
 #include "CvMinorCivAI.h"
 #include "CvSerialize.h"
+#include "Lua/!CvScriptingUID.h"
 
 class CvPlayerPolicies;
 class CvEconomicAI;
@@ -3889,8 +3890,8 @@ protected:
 
 	friend FDataStream& operator>>(FDataStream&, CvPlayer::ConqueredByBoolField&);
 	friend FDataStream& operator<<(FDataStream&, const CvPlayer::ConqueredByBoolField&);
-public:
-	AutoInvalidatedPointerList m_PointerList;
+	
+	SCRIPTING_UID_MEMBER(CvPlayer);
 };
 
 inline FDataStream& operator>>(FDataStream& stream, CvPlayer::ConqueredByBoolField& bfEverConqueredBy)

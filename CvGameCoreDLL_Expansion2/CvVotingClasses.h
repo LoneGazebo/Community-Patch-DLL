@@ -11,6 +11,8 @@
 #ifndef CIV5_VOTING_CLASSES_H
 #define CIV5_VOTING_CLASSES_H
 
+#include "Lua/!CvScriptingUID.h"
+
 #define DEBUG_LEAGUES false
 
 
@@ -760,8 +762,8 @@ private:
 	// Accessors
 	Member* GetMember(PlayerTypes ePlayer);
 	Project* GetProject(LeagueProjectTypes eLeagueProject);
-public:
-	AutoInvalidatedPointerList m_PointerList;
+
+	SCRIPTING_UID_MEMBER(CvLeague);
 };
 
 FDataStream& operator>>(FDataStream&, CvLeague::Project&);

@@ -160,6 +160,7 @@ CvDeal::CvDeal(const CvDeal& source)
 /// Destructor
 CvDeal::~CvDeal()
 {
+	SCRIPTING_UID_INVALIDATE_NOW();
 }
 
 bool CvDeal::operator==(const CvDeal& other) const

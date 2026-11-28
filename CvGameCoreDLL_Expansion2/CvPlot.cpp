@@ -128,6 +128,7 @@ CvPlot::CvPlot()
 //	--------------------------------------------------------------------------------
 CvPlot::~CvPlot()
 {
+	SCRIPTING_UID_INVALIDATE_NOW();
 	uninit();
 }
 

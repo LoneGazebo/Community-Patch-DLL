@@ -538,6 +538,8 @@ CvUnit::~CvUnit()
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitDestroyed(pDllUnit.get());
 	}
+	
+	SCRIPTING_UID_INVALIDATE_NOW();
 
 	if (m_iMapLayer != DEFAULT_UNIT_MAP_LAYER)
 		GC.getMap().plotManager().RemoveUnit(GetIDInfo(), m_iX, m_iY, m_iMapLayer);

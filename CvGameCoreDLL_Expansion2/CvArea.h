@@ -10,7 +10,7 @@
 #ifndef CIV5_AREA_H
 #define CIV5_AREA_H
 
-#include "CvStructs.h"
+#include "Lua/!CvScriptingUID.h"
 
 class CvCity;
 class CvPlot;
@@ -163,8 +163,8 @@ protected:
 
 	bool m_bWater;
 	bool m_bMountains;
-public:
-	AutoInvalidatedPointerList m_PointerList;
+
+	SCRIPTING_UID_MEMBER(CvArea);
 };
 
 FDataStream& operator<<(FDataStream&, const CvArea&);

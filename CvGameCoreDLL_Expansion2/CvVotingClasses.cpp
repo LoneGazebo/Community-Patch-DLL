@@ -2153,6 +2153,7 @@ CvLeague::CvLeague(LeagueTypes eID)
 
 CvLeague::~CvLeague(void)
 {
+	SCRIPTING_UID_INVALIDATE_NOW();
 }
 
 CvLeague::Member::Member(void) :

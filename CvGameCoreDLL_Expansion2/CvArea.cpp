@@ -34,6 +34,7 @@ CvArea::CvArea()
 //	--------------------------------------------------------------------------------
 CvArea::~CvArea()
 {
+	SCRIPTING_UID_INVALIDATE_NOW();
 	uninit();
 }
 

@@ -31,6 +31,8 @@
 #include "CvHomelandAI.h"
 #include "CvBitfield.h"
 
+#include "Lua/!CvScriptingUID.h"
+
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
 class CvArea;
@@ -995,8 +997,8 @@ protected:
 
 	// added so under cheat mode we can access protected stuff
 	friend class CvGameTextMgr;
-public:
-	AutoInvalidatedPointerList m_PointerList;
+
+	SCRIPTING_UID_MEMBER(CvPlot);
 };
 FDataStream& operator<<(FDataStream&, const CvPlot* const&);
 FDataStream& operator<<(FDataStream&, CvPlot* const&);

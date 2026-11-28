@@ -813,6 +813,8 @@ CvPlayer::CvPlayer() :
 }
 CvPlayer::~CvPlayer()
 {
+	SCRIPTING_UID_INVALIDATE_NOW();
+	
 	if (MOD_UNIT_KILL_STATS && isMajorCiv() && GC.getAILogging())
 		GC.getMap().ExportUnitKillCount(GetID());
 

@@ -534,5 +534,31 @@ public:
 };
 
 //------------------------------------------------------------------------------
+
+struct GamecoreLockScope {
+	GamecoreLockScope() : actually_do_stuff(gDLL && !gDLL->HasGameCoreLock()) { if(actually_do_stuff) gDLL->GetGameCoreLock(); }
+	~GamecoreLockScope() { if(actually_do_stuff) gDLL->ReleaseGameCoreLock(); }
+private:
+	bool actually_do_stuff;
+	GamecoreLockScope(const GamecoreLockScope&);
+	GamecoreLockScope& operator=(const GamecoreLockScope&);
+};
+
+struct GamecoreUnlockScope {
+	GamecoreUnlockScope() : actually_do_stuff(gDLL && gDLL->HasGameCoreLock()) { if(actually_do_stuff) gDLL->ReleaseGameCoreLock(); }
+	~GamecoreUnlockScope() { if(actually_do_stuff) gDLL->GetGameCoreLock(); }
+private:
+	bool actually_do_stuff;
+	GamecoreUnlockScope(const GamecoreUnlockScope&);
+	GamecoreUnlockScope& operator=(const GamecoreUnlockScope&);
+};
+
+#define DLLLOCK_BEGIN() {GamecoreLockScope lock_obj;{((void)0)
+#define DLLLOCK_END() }}((void)0)
+
+#define DLLUNLOCK_BEGIN() {GamecoreUnlockScope unlock_obj;((void)0)
+#define DLLUNLOCK_END() }}((void)0)
+
+//------------------------------------------------------------------------------
 CvString FormatYieldTimes100(int iYieldTimes100);
 void PrintMemoryInfo(const char* hint);

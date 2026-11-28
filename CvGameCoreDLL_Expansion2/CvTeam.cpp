@@ -110,6 +110,8 @@ CvTeam::CvTeam()
 //	--------------------------------------------------------------------------------
 CvTeam::~CvTeam()
 {
+	SCRIPTING_UID_INVALIDATE_NOW();
+	
 	uninit();
 
 	delete m_pTeamTechs;

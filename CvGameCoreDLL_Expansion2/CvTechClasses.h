@@ -16,6 +16,8 @@ class CvTechAI;
 
 #include "CvInfos.h"
 
+#include "Lua/!CvScriptingUID.h"
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTechEntry
 //!  \brief		A single entry in the tech tree
@@ -350,8 +352,8 @@ private:
 	int* m_paiTechCount;
 	CvTechXMLEntries* m_pTechs;
 	CvTeam* m_pTeam;
-public:
-	AutoInvalidatedPointerList m_PointerList;
+
+	SCRIPTING_UID_MEMBER(CvTeamTechs);
 };
 FDataStream& operator<<(FDataStream&, const CvTeamTechs&);
 FDataStream& operator>>(FDataStream&, CvTeamTechs&);

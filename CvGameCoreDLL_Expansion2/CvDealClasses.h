@@ -12,7 +12,7 @@
 
 #include "CvDiplomacyAIEnums.h"
 #include "CvWeightedVector.h"
-#include "CvStructs.h"
+#include "Lua/!CvScriptingUID.h"
 
 enum CLOSED_ENUM TradeableItems
 {
@@ -124,7 +124,7 @@ public:
 
 	TradedItemList m_TradedItems;
 
-	AutoInvalidatedPointerList m_PointerList;
+	SCRIPTING_UID_MEMBER(CvDeal);
 
 	void ClearItems();
 	int GetNumItems();

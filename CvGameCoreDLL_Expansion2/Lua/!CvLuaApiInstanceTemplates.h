@@ -3,35 +3,38 @@
 #define CVLUAINSTANCETEMPLATES
 
 #include "!CvLuaApiExec.h"
-#include "CvStructs.h"
+#include "!CvScriptingUID.h"
 
-struct LuaTaggedAutoPointer{
-	DWORD tag;
-	AutoInvalidatedPointerBase ptr;
+struct LuaTaggedInstanceUserdata {
 	
-	//Factory
-	template<class T>
-	static LuaTaggedAutoPointer* ConstructAndPush( lua_State* L, T* ptr, DWORD tag ) {
-		LuaTaggedAutoPointer* ud = (LuaTaggedAutoPointer*) luaVp_pushCreateObject(L,tag,ptr,sizeof(LuaTaggedAutoPointer));
-		ud->tag = tag;
-		((AutoInvalidatedPointer<T>*)(&ud->ptr))->construct(ptr);
-		return ud;
+	static const size_t TAG = sizeof(size_t) == 4 ? 0x4C544955 : (size_t)0x64644C5449550001 ;
+	size_t global_tag;
+	ScriptingUID uid;
+	static void constructPush(lua_State* L, const ScriptingUID& uid, uid_ttag_t type_tag) {
+		LuaTaggedInstanceUserdata* self = (LuaTaggedInstanceUserdata*)luaVp_pushCreateUIDObject(L,sizeof(LuaTaggedInstanceUserdata),uid.index(),type_tag);
+		self->global_tag = TAG;
+		self->uid = uid;
 	}
-	
-	static void* ValidPtr( void* inst, DWORD tag_ ) {
-		if( LuaTaggedAutoPointer* tmp = (LuaTaggedAutoPointer*)inst )
-			return tmp->tag == tag_ ? tmp->ptr.get() : NULL ;
-		return NULL;
+	static bool isValidUD(void* ud, uid_ttag_t type_tag) {
+		if( LuaTaggedInstanceUserdata* self = (LuaTaggedInstanceUserdata*)ud )
+			return self->global_tag == TAG && self->uid.isValid() && self->uid.isType(type_tag);
+		return false;
 	}
-	static void Destroy( void* inst ) { if( LuaTaggedAutoPointer* tmp = (LuaTaggedAutoPointer*)inst ) { tmp->ptr.destroy(); } }
-	
-	static void* CheckFromStack(lua_State* L, DWORD tag, int idx ) {
-		return (lua_type(L,idx) == LUA_TUSERDATA) ? ValidPtr(lua_touserdata(L,idx),tag) : NULL ;
+	static void* fromStack(lua_State* L, uid_ttag_t type_tag, int idx, const char** errmsg) {
+		const char* ret = NULL; if(!errmsg) errmsg = &ret;
+		
+		if(lua_type(L,idx) != LUA_TUSERDATA ) { *errmsg = "Invalid type!(lua-userdata expected)"; return NULL; } 
+		
+		LuaTaggedInstanceUserdata* self = (LuaTaggedInstanceUserdata*)lua_touserdata(L,idx);
+		
+		if( self->global_tag != TAG ) { *errmsg = "Invalid userdata!"; return NULL; }
+		
+		if( !self->uid.isValid() ) { *errmsg = "Object deleted!"; return NULL; }
+		
+		if( !self->uid.isType(type_tag) ) { *errmsg = "Invalid type!(dll)"; return NULL; }
+		
+		return self->uid.retrieve() ;
 	}
-	
-	static int finalizer(lua_State* L) { LuaTaggedAutoPointer::Destroy(lua_touserdata(L,1)); return 0; }
-private:
-	~LuaTaggedAutoPointer();
 };
 
 template<class Impl, class T>
@@ -56,11 +59,6 @@ public:
 		lua_pushboolean(L,false);
 		lua_rawset(L,1);
 		
-		lua_pushstring(L,"__gc");
-		lua_pushcclosure_unsafe(L,&LuaTaggedAutoPointer::finalizer);
-		lua_rawset(L,1);
-		LuaSupport::TrackDllFinalizer(L,1);
-		
 		return 1;
 	}
 	
@@ -70,20 +68,27 @@ public:
 	}
 	
 	static void Push(lua_State* L, T* p) {
-		if(!p) { lua_pushnil(L); return; }
-		if( !( LuaTaggedAutoPointer::ValidPtr( luaVp_tryPushObject(L,TG::TypeTag(),p), TG::TypeTag() ) ) )
-			LuaTaggedAutoPointer::ConstructAndPush<T>(L,p,TG::TypeTag());
+		const GlobalUIDSystem::UID uid = GlobalUIDSystem::UID::from(p);
+		const uid_index_t index = uid.index();
+		if( !index ) { lua_pushnil(L); return; }
+		if( void* ud = luaVp_tryPushUIDObject(L,index) )
+		{
+			if( LuaTaggedInstanceUserdata::isValidUD(ud,TG::TypeTag()) ) { return; }
+			lua_pop(L,1);
+		}
+		LuaTaggedInstanceUserdata::constructPush(L,uid,TG::TypeTag());
 	}
 	
-	static T* TryGetInstance(lua_State* L, int idx) {
-		return (T*) LuaTaggedAutoPointer::CheckFromStack(L,TG::TypeTag(),idx) ;
+	static T* TryGetInstance(lua_State* L, int idx, const char** errmsg=NULL) {
+		return (T*) LuaTaggedInstanceUserdata::fromStack(L,TG::TypeTag(),idx,errmsg) ;
 	}
 	
 	static T* GetInstance(lua_State* L, int idx=1,bool raise_error=true) {
-		T* ptr = TryGetInstance(L,idx);
-		if(!ptr) { 
+		const char* errmsg = "Something went wrong in a completely unimaginable way. Sorry.";
+		T* ptr = Impl::TryGetInstance(L,idx,&errmsg);
+		if(!ptr) {
 			ptr = Impl::HandleMissingInstance(L,idx);
-			if( raise_error && !ptr ) { luaL_error(L,"Invalid instance!"); }
+			if( raise_error && !ptr ) { luaL_error(L,errmsg); }
 		}
 		return ptr;
 	}
