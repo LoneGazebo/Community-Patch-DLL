@@ -3458,7 +3458,8 @@ void CvGlobals::init()
 	};
 
 	ASSERT(gDLL != NULL, "Civ app needs to set gDLL");
-	m_asyncRand = FNEW(CvRandom("UiRng"), c_eCiv5GameplayDLL, 0);
+	// Local to each machine (UI and other non-gameplay rolls), so it is not synchronous: the UI thread may use it while the game core runs
+	m_asyncRand = FNEW(CvRandom("UiRng", false), c_eCiv5GameplayDLL, 0);
 
 	gDLL->InitGlobals();	// some globals need to be allocated outside the dll
 
