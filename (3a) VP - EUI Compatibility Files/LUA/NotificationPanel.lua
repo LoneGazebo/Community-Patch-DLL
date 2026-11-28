@@ -121,7 +121,7 @@ local g_leaderMode, g_LeaderPopups, g_leaderID
 local g_screenWidth , g_screenHeight = UIManager:GetScreenSizeVal()
 local g_chatPanelHeight = 170
 local g_diploButtonsHeight = 108
-local g_maxTotalStackHeight, g_isShowCivList, g_isUpdateCivList
+local g_isShowCivList, g_isUpdateCivList
 local g_civPanelOffsetY = g_diploButtonsHeight
 local g_alertMessages = {}
 local g_alertButton
@@ -351,7 +351,8 @@ local function ProcessStackSizes( resetCivPanelElevator )
 	else
 		Controls.BigStack:CalculateSize()
 		Controls_SmallStack:CalculateSize()
-		maxTotalStackHeight = g_maxTotalStackHeight - Controls.BigStack:GetSizeY()
+		-- the minimap panel moves the stack up when the minimap is larger than 320 x 190
+		maxTotalStackHeight = g_screenHeight - Controls.OuterStack:GetOffsetY() - g_civPanelOffsetY - Controls.BigStack:GetSizeY()
 		smallStackHeight = Controls_SmallStack:GetSizeY()
 	end
 
@@ -1741,7 +1742,6 @@ local g_isChatOpen = false
 local function OnChatToggle( isChatOpen )
 	g_isChatOpen = isChatOpen
 	g_civPanelOffsetY = g_diploButtonsHeight + (isChatOpen and g_chatPanelHeight or 0)
-	g_maxTotalStackHeight = g_screenHeight - Controls.OuterStack:GetOffsetY() - g_civPanelOffsetY
 	if not g_leaderMode then
 		Controls.CivPanel:SetOffsetY( g_civPanelOffsetY )
 		ProcessStackSizes( true )
@@ -1910,6 +1910,7 @@ do
 end
 
 LuaEvents.ChatShow.Add( OnChatToggle )
+LuaEvents.MiniMapPanelResized.Add( function() ProcessStackSizes() end )
 Events.SerialEventGameDataDirty.Add( UpdateCivList )
 Events.SerialEventScoreDirty.Add( UpdateCivList )
 Events.SerialEventCityInfoDirty.Add( UpdateCivList )

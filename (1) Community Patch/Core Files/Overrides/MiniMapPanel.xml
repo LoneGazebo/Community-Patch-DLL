@@ -52,7 +52,7 @@
 	</Stack>
 	<Image ID="ImageBottom" Anchor="R,B"  Offset="337,0" Texture="assets\UI\Art\WorldView\BottomRight128x224.dds" Size="128.224" />
 
-	<Stack Anchor="R,B" Offset="346,1" Padding="0" StackGrowth="Top" >
+	<Stack ID="ButtonStack" Anchor="R,B" Offset="346,1" Padding="0" StackGrowth="Top" >
 
 		<Button ConsumeMouseOver="1" Anchor="C,T" Offset="0,0" Size="45.45" Texture="assets\UI\Art\Icons\MainStrategicButton.dds" ID="StrategicViewButton" Hidden="0" ToolTip="TXT_KEY_POP_STRATEGIC_VIEW_TT" >
 			<ShowOnMouseOver>
@@ -76,7 +76,7 @@
 
     <Image ID="MiniMapImage" Anchor="R,T" AnchorSide="I.O" Offset="3,-33" Texture="assets/DLC/Expansion/UI/Art/Controls/LowerRightCorner_MiniMap.dds" Size="101.72" />
     
-		<Box Anchor="L,T" Size="320,190" Offset="18,43" Color="0,0,0,0" >
+		<Box ID="MinimapBox" Anchor="L,T" Size="320,190" Offset="18,43" Color="0,0,0,0" >
 
             <Button Anchor="C,C" Size="320,190" ID="Minimap" NoStateChange="1" ConsumeMouse="1" >
             </Button>
