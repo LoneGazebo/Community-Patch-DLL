@@ -412,6 +412,7 @@ namespace PathHelpers
 	int CountPlotsOwnedAnyoneInPath(const SPath& path, PlayerTypes eExceptPlayer);
 	CvPlot* GetPathFirstPlot(const SPath& path);
 	CvPlot* GetPathEndFirstTurnPlot(const SPath& path);
+	int GetUITurnNumber(const CvUnit* pUnit, const SPathNode& node);
 }
 
 #endif	//CVASTAR_H
