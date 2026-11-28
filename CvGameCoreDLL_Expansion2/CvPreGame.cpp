@@ -2566,7 +2566,8 @@ void onGameStarted()
 					eRandomCiv = static_cast<CivilizationTypes>(vHumanCivsNotChosen[uRand]);
 					vHumanCivsNotChosen.erase(vHumanCivsNotChosen.begin() + uRand);
 					vector<CivilizationTypes>::const_iterator it = std::find(vAICivsNotChosen.begin(), vAICivsNotChosen.end(), eRandomCiv);
-					vAICivsNotChosen.erase(it);
+					if (it != vAICivsNotChosen.end()) // a civilization humans can play but the AI cannot
+						vAICivsNotChosen.erase(it);
 				}
 				else if (!vHumanCivs.empty())
 				{
@@ -2584,12 +2585,13 @@ void onGameStarted()
 					eRandomCiv = static_cast<CivilizationTypes>(vAICivsNotChosen[uRand]);
 					vAICivsNotChosen.erase(vAICivsNotChosen.begin() + uRand);
 					vector<CivilizationTypes>::const_iterator it = std::find(vHumanCivsNotChosen.begin(), vHumanCivsNotChosen.end(), eRandomCiv);
-					vHumanCivsNotChosen.erase(it);
+					if (it != vHumanCivsNotChosen.end()) // a civilization the AI can play but humans cannot
+						vHumanCivsNotChosen.erase(it);
 				}
 				else if (!vAICivs.empty())
 				{
 					uint uRand = GC.getGame().urandLimitExclusive(vAICivs.size(), CvSeeder::fromRaw(0x52094553).mix(iCounter));
-					eRandomCiv = static_cast<CivilizationTypes>(vHumanCivs[uRand]);
+					eRandomCiv = static_cast<CivilizationTypes>(vAICivs[uRand]);
 				}
 				else
 					UNREACHABLE();
