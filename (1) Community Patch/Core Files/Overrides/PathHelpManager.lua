@@ -124,11 +124,49 @@ function CityHasAirlift(city)
     return false
 end
 
+-- The game sends at most this many path nodes to the UI; the path finder's path can be longer
+local MAX_UI_PATH_NODES = 64;
+
+--- Returns tPath with the nodes past the UI limit added from the selected unit's own path, or tPath itself
+--- @param tPath PathNode[]
+--- @param pUnit Unit
+--- @return PathNode[]
+local function CompletePath(tPath, pUnit)
+	local nNodes = #tPath;
+	if nNodes ~= MAX_UI_PATH_NODES then
+		return tPath;
+	end
+	local pTargetPlot = Map.GetPlot(UI.GetMouseOverHex());
+	if not pTargetPlot then
+		return tPath;
+	end
+	local tFullPath = pUnit:GeneratePath(pTargetPlot, 999);
+	-- Only continue the game's path from a node where the unit's own path is in the same state (plot, turns, moves)
+	local kLastNode = tPath[nNodes];
+	local kSameNode = tFullPath[nNodes];
+	if #tFullPath <= nNodes or kSameNode.X ~= kLastNode.x or kSameNode.Y ~= kLastNode.y or kSameNode.UITurn ~= kLastNode.turn then
+		return tPath;
+	end
+
+	local tCompletePath = {};
+	for i = 1, nNodes do
+		tCompletePath[i] = tPath[i];
+	end
+	for i = nNodes + 1, #tFullPath do
+		local kNode = tFullPath[i];
+		tCompletePath[i] = {x = kNode.X, y = kNode.Y, turn = kNode.UITurn};
+	end
+	return tCompletePath;
+end
+
 --- @param tPath PathNode[]
 Events.UIPathFinderUpdate.Add(function (tPath)
 	instanceManager:ResetInstances();
 
 	local pSelectedUnit = UI.GetHeadSelectedUnit()
+	if pSelectedUnit then
+		tPath = CompletePath(tPath, pSelectedUnit);
+	end
 
 	local tAirlift = {};
 	local tSealift = {};

@@ -786,6 +786,8 @@ int CvLuaUnit::lGeneratePath(lua_State* L)
 		lua_setfield(L, t, "RemainingMovement");
 		lua_pushinteger(L, kNode.turns);
 		lua_setfield(L, t, "Turn");
+		lua_pushinteger(L, PathHelpers::GetUITurnNumber(pkUnit, kNode));
+		lua_setfield(L, t, "UITurn");
 		lua_pushinteger(L, 0);
 		lua_setfield(L, t, "Flags");
 		lua_pushboolean(L, !newPath.get(i)->isVisible(pkUnit->getTeam()) ); //don't have that info, make it up

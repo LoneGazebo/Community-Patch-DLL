@@ -3677,6 +3677,35 @@ CvPlot* PathHelpers::GetPathEndFirstTurnPlot(const SPath& path)
 	return NULL;
 }
 
+/// Turn count and movement points of a path node, packed into the single number the path preview gets
+int PathHelpers::GetUITurnNumber(const CvUnit* pUnit, const SPathNode& node)
+{
+	if (MOD_UI_DISPLAY_PRECISE_MOVEMENT_POINTS)
+	{
+		// We can only pass a single integer to the UI - but we want to fit in turn count and remaining moves
+		// Also for some reason it cannot be larger than 36000
+		// So use 600 as the scaler, this means we can handle up to 60 turns and 599 movement points
+		// Also it's a multiple of 60 so there will be no rounding
+		int iMultiplier = GD_INT_GET(MOVE_DENOMINATOR) * 10;
+		int iRemaining = (int)node.moves;
+		return node.turns * iMultiplier + iRemaining;
+	}
+
+	// Structure of the turn number:
+	// ones digit: the remaining movement points of the unit (rounded up if not an integer)
+	// tens digit: the total movement points of the unit
+	// all higher digits: the number of turns to reach the plot
+	CvPlot* pPlot = GC.getMap().plotUnchecked(node.x, node.y);
+	int iTurnNumber = node.turns * 100;
+	iTurnNumber += 10 * (min(pUnit->baseMoves(pPlot->needsEmbarkation(pUnit)), 9));
+	if (node.moves>0)
+		iTurnNumber += min(((int)node.moves-1)/GD_INT_GET(MOVE_DENOMINATOR)+1, 9); //movement points left
+	if (node.stopnode)
+		iTurnNumber *= -1;
+
+	return iTurnNumber;
+}
+
 //	---------------------------------------------------------------------------
 int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar* finder)
 {
