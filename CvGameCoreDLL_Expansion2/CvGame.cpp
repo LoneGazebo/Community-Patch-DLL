@@ -715,6 +715,18 @@ void CvGame::InitPlayers()
 					}
 				}
 
+				// With more major slots than civilizations (MOD_GLOBAL_MAX_MAJOR_CIVS above the number of civilizations) every civilization
+				// can be in use. This slot only observes, so take the civilization and leader of another major slot
+				for (int iJ = 0; iJ < MAX_MAJOR_CIVS && eAssignedCiv == NO_CIVILIZATION; iJ++)
+				{
+					const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iJ);
+					if (iJ != iI && CvPreGame::civilization(eOtherPlayer) != NO_CIVILIZATION && CvPreGame::leaderHead(eOtherPlayer) != NO_LEADER)
+					{
+						eAssignedCiv = CvPreGame::civilization(eOtherPlayer);
+						eAssignedLeader = CvPreGame::leaderHead(eOtherPlayer);
+					}
+				}
+
 				if (eAssignedCiv != NO_CIVILIZATION && eAssignedLeader != NO_LEADER)
 				{
 					CvPreGame::setCivilization(eLoopPlayer, eAssignedCiv);
